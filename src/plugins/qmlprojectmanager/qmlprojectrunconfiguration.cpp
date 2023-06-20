@@ -171,8 +171,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     setRunnableModifier([this](Runnable &r) {
         const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());
         r.workingDirectory = bs->targetDirectory();
-        if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
-            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
     });
 
     setDisplayName(Tr::tr("QML Utility", "QMLRunConfiguration display name."));

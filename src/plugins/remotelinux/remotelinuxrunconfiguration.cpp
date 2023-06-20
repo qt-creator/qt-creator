@@ -73,11 +73,6 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
         libAspect->setEnabled(buildDevice == runDevice);
     });
 
-    setRunnableModifier([this](Runnable &r) {
-        if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
-            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
-    });
-
     envAspect->addModifier([this, libAspect](Environment &env) {
         BuildTargetInfo bti = buildTargetInfo();
         if (bti.runEnvModifier)
