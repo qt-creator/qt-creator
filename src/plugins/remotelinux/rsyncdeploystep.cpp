@@ -7,6 +7,7 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -16,6 +17,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/process.h>
 #include <utils/processinterface.h>
 
@@ -87,30 +89,42 @@ bool RsyncDeployStep::isDeploymentNecessary() const
 
 GroupItem RsyncDeployStep::mkdirTask()
 {
-    const auto setupHandler = [this](Process &process) {
-        QStringList remoteDirs;
-        for (const FileToTransfer &file : std::as_const(m_files))
-            remoteDirs << file.m_target.parentDir().path();
-        remoteDirs.sort();
-        remoteDirs.removeDuplicates();
-        process.setCommand({deviceConfiguration()->filePath("mkdir"),
-                            QStringList("-p") + remoteDirs});
-        connect(&process, &Process::readyReadStandardError, this, [this, proc = &process] {
-            handleStdErrData(QString::fromLocal8Bit(proc->readAllRawStandardError()));
+    using ResultType = expected_str<void>;
+
+    const auto onSetup = [files = m_files](Async<ResultType> &async) {
+        FilePaths remoteDirs;
+        for (const FileToTransfer &file : std::as_const(files))
+            remoteDirs << file.m_target.parentDir();
+
+        FilePath::sort(remoteDirs);
+        FilePath::removeDuplicates(remoteDirs);
+
+        async.setConcurrentCallData([remoteDirs](QPromise<ResultType> &promise) {
+            for (auto dir : remoteDirs) {
+                const expected_str<void> result = dir.ensureWritableDir();
+                promise.addResult(result);
+                if (!result)
+                    promise.future().cancel();
+            }
         });
     };
-    const auto errorHandler = [this](const Process &process) {
-        QString finalMessage = process.errorString();
-        const QString stdErr = process.cleanedStdErr();
-        if (!stdErr.isEmpty()) {
-            if (!finalMessage.isEmpty())
-                finalMessage += '\n';
-            finalMessage += stdErr;
+
+    const auto onError = [this](const Async<ResultType> &async) {
+        const int numResults = async.future().resultCount();
+        if (numResults == 0) {
+            addErrorMessage(
+                Tr::tr("Unknown error occurred while trying to create remote directories") + '\n');
+            return;
         }
-        addErrorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
-                        + '\n' + finalMessage);
+
+        for (int i = 0; i < numResults; ++i) {
+            const auto result = async.future().resultAt(i);
+            if (!result.has_value())
+                addErrorMessage(result.error());
+        }
     };
-    return ProcessTask(setupHandler, {}, errorHandler);
+
+    return AsyncTask<ResultType>(onSetup, {}, onError);
 }
 
 GroupItem RsyncDeployStep::transferTask()
