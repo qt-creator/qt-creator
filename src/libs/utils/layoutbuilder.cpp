@@ -346,9 +346,9 @@ void Slice::flush()
                     formLayout->addRow(f0.widget, f1.widget);
             } else  {
                 if (f1.layout)
-                    formLayout->addRow(f0.text, f1.layout);
+                    formLayout->addRow(createLabel(f0.text), f1.layout);
                 else if (f1.widget)
-                    formLayout->addRow(f0.text, f1.widget);
+                    formLayout->addRow(createLabel(f0.text), f1.widget);
             }
         } else {
             QTC_CHECK(false);
@@ -962,6 +962,9 @@ void createItem(LayoutItem *item, const std::function<void(QObject *target)> &t)
 
 void createItem(LayoutItem *item, QWidget *t)
 {
+    if (auto l = qobject_cast<QLabel *>(t))
+        l->setTextInteractionFlags(l->textInteractionFlags() | Qt::TextSelectableByMouse);
+
     item->onAdd = [t](LayoutBuilder &builder) { doAddWidget(builder, t); };
 }
 
