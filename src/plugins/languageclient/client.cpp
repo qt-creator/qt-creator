@@ -1698,27 +1698,35 @@ void ClientPrivate::log(const ShowMessageParams &message)
 LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
     const ShowMessageRequestParams &message)
 {
-    auto box = new QMessageBox();
-    box->setText(message.toString());
-    box->setAttribute(Qt::WA_DeleteOnClose);
+    QMessageBox box;
+    box.setText(message.toString());
     switch (message.type()) {
-    case Error: box->setIcon(QMessageBox::Critical); break;
-    case Warning: box->setIcon(QMessageBox::Warning); break;
-    case Info: box->setIcon(QMessageBox::Information); break;
-    case Log: box->setIcon(QMessageBox::NoIcon); break;
+    case Error:
+        box.setIcon(QMessageBox::Critical);
+        break;
+    case Warning:
+        box.setIcon(QMessageBox::Warning);
+        break;
+    case Info:
+        box.setIcon(QMessageBox::Information);
+        break;
+    case Log:
+        box.setIcon(QMessageBox::NoIcon);
+        break;
     }
+
     QHash<QAbstractButton *, MessageActionItem> itemForButton;
     if (const std::optional<QList<MessageActionItem>> actions = message.actions()) {
-        auto button = box->addButton(QMessageBox::Close);
-        connect(button, &QPushButton::clicked, box, &QMessageBox::reject);
         for (const MessageActionItem &action : *actions) {
-            connect(button, &QPushButton::clicked, box, &QMessageBox::accept);
+            auto button = box.addButton(action.title(), QMessageBox::ActionRole);
+            connect(button, &QPushButton::clicked, &box, &QMessageBox::accept);
             itemForButton.insert(button, action);
         }
     }
-    if (box->exec() == QDialog::Rejected)
+
+    if (box.exec() == QDialog::Rejected || itemForButton.isEmpty())
         return {};
-    const MessageActionItem &item = itemForButton.value(box->clickedButton());
+    const MessageActionItem &item = itemForButton.value(box.clickedButton());
     return item.isValid() ? LanguageClientValue<MessageActionItem>(item)
                           : LanguageClientValue<MessageActionItem>();
 }
