@@ -23,18 +23,6 @@ GTestOutputReader::GTestOutputReader(Process *testApplication,
     : TestOutputReader(testApplication, buildDirectory)
     , m_projectFile(projectFile)
 {
-    if (testApplication) {
-        connect(testApplication, &Process::done, this, [this, testApplication] {
-            const int exitCode = testApplication->exitCode();
-            if (exitCode == 1 && !m_description.isEmpty()) {
-                createAndReportResult(Tr::tr("Running tests failed.\n %1\nExecutable: %2")
-                                      .arg(m_description).arg(id()), ResultType::MessageFatal);
-            }
-            // on Windows abort() will result in normal termination, but exit code will be set to 3
-            if (HostOsInfo::isWindowsHost() && exitCode == 3)
-                reportCrash();
-        });
-    }
 }
 
 void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
@@ -180,6 +168,17 @@ TestResult GTestOutputReader::createDefaultResult() const
         result.setLine(testItem->line());
     }
     return result;
+}
+
+void GTestOutputReader::onDone(int exitCode)
+{
+    if (exitCode == 1 && !m_description.isEmpty()) {
+        createAndReportResult(Tr::tr("Running tests failed.\n %1\nExecutable: %2")
+                              .arg(m_description).arg(id()), ResultType::MessageFatal);
+    }
+    // on Windows abort() will result in normal termination, but exit code will be set to 3
+    if (HostOsInfo::isWindowsHost() && exitCode == 3)
+        reportCrash();
 }
 
 void GTestOutputReader::setCurrentTestCase(const QString &testCase)
