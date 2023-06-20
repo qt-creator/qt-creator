@@ -419,6 +419,9 @@ void TestRunner::runTestsHelper()
                         + processInformation(&process) + rcInfo(config));
             }
 
+            if (testStorage->m_outputReader)
+                testStorage->m_outputReader->onDone(process.exitCode());
+
             if (process.exitStatus() == QProcess::CrashExit) {
                 if (testStorage->m_outputReader)
                     testStorage->m_outputReader->reportCrash();

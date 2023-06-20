@@ -31,12 +31,6 @@ BoostTestOutputReader::BoostTestOutputReader(Process *testApplication,
     , m_logLevel(log)
     , m_reportLevel(report)
 {
-    if (!testApplication)
-        return;
-
-    connect(testApplication, &Process::done, this, [this, testApplication] {
-        onDone(testApplication->exitCode());
-    });
 }
 
 // content of "error:..." / "info:..." / ... messages
