@@ -13,6 +13,8 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
+#include <QToolTip>
+
 using namespace Utils;
 using namespace LanguageClient;
 
@@ -31,8 +33,12 @@ public:
         helpLabel->setTextFormat(Qt::MarkdownText);
         helpLabel->setWordWrap(true);
         helpLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse
-                                           | Qt::LinksAccessibleByKeyboard);
+                                           | Qt::LinksAccessibleByKeyboard
+                                           | Qt::TextSelectableByMouse);
         helpLabel->setOpenExternalLinks(true);
+        connect(helpLabel, &QLabel::linkHovered, [](const QString &link) {
+            QToolTip::showText(QCursor::pos(), link);
+        });
 
         // clang-format off
         helpLabel->setText(Tr::tr(R"(

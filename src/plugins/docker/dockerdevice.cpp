@@ -749,7 +749,7 @@ bool DockerDevicePrivate::startContainer()
         DockerApi::recheckDockerDaemon();
         MessageManager::writeFlashing(Tr::tr("Docker daemon appears to be not running. "
                                              "Verify daemon is up and running and reset the "
-                                             "docker daemon on the docker device settings page "
+                                             "Docker daemon in Docker device preferences "
                                              "or restart Qt Creator."));
     });
 

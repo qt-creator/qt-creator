@@ -195,7 +195,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     QAction *action = new QAction(Tr::tr("Run &All Tests"), this);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
-    action->setToolTip(Tr::tr("Run all tests"));
+    action->setToolTip(Tr::tr("Run All Tests"));
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+A") : Tr::tr("Alt+Shift+T,Alt+A")));
@@ -206,7 +206,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("Run All Tests Without Deployment"), this);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
-    action->setToolTip(Tr::tr("Run all tests without deployment"));
+    action->setToolTip(Tr::tr("Run All Tests Without Deployment"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_NODEPLOY_ID);
     command->setDefaultKeySequence(
                 QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+E") : Tr::tr("Alt+Shift+T,Alt+E")));
@@ -217,7 +217,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("&Run Selected Tests"), this);
     action->setIcon(Utils::Icons::RUN_SELECTED.icon());
-    action->setToolTip(Tr::tr("Run selected tests"));
+    action->setToolTip(Tr::tr("Run Selected Tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+R") : Tr::tr("Alt+Shift+T,Alt+R")));
@@ -228,7 +228,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("&Run Selected Tests Without Deployment"), this);
     action->setIcon(Utils::Icons::RUN_SELECTED.icon());
-    action->setToolTip(Tr::tr("Run selected tests"));
+    action->setToolTip(Tr::tr("Run Selected Tests Without Deployment"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_NODEPLOY_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+W") : Tr::tr("Alt+Shift+T,Alt+W")));
@@ -239,7 +239,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("Run &Failed Tests"),  this);
     action->setIcon(Icons::RUN_FAILED.icon());
-    action->setToolTip(Tr::tr("Run failed tests"));
+    action->setToolTip(Tr::tr("Run Failed Tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FAILED_ID);
     command->setDefaultKeySequence(
                 useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+F") : Tr::tr("Alt+Shift+T,Alt+F"));
@@ -249,7 +249,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("Run Tests for &Current File"), this);
     action->setIcon(Utils::Icons::RUN_FILE.icon());
-    action->setToolTip(Tr::tr("Run tests for current file"));
+    action->setToolTip(Tr::tr("Run Tests for Current File"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FILE_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+C") : Tr::tr("Alt+Shift+T,Alt+C")));

@@ -13,6 +13,7 @@ Product {
     property string fileName: FileInfo.fileName(sourceDirectory) + ".qbs"
     property bool useNonGuiPchFile: false
     property bool useGuiPchFile: false
+    property bool useQt: true
     property string pathToSharedSources: FileInfo.joinPaths(path,
             FileInfo.relativePath(FileInfo.joinPaths('/', qtc.ide_qbs_imports_path),
                                   FileInfo.joinPaths('/', qtc.ide_shared_sources_path)))
@@ -28,8 +29,12 @@ Product {
             enableFallback: false
         }
     }
-    Depends { name: "Qt.core"; versionAtLeast: "6.2.0" }
-    Depends { name: "Qt.core5compat" }
+    Depends {
+        name: "Qt"
+        condition: useQt
+        submodules: ["core", "core5compat"]
+        versionAtLeast: "6.2.0"
+    }
 
     // TODO: Should fall back to what came from Qt.core for Qt < 5.7, but we cannot express that
     //       atm. Conditionally pulling in a module that sets the property is also not possible,
@@ -75,7 +80,7 @@ Product {
     cpp.cxxLanguageVersion: "c++17"
     cpp.defines: qtc.generalDefines
     cpp.minimumWindowsVersion: "6.1"
-    cpp.useCxxPrecompiledHeader: useNonGuiPchFile || useGuiPchFile
+    cpp.useCxxPrecompiledHeader: useQt && (useNonGuiPchFile || useGuiPchFile)
     cpp.visibility: "minimal"
 
     Group {

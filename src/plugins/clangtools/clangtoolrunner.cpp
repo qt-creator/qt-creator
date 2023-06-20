@@ -3,6 +3,7 @@
 
 #include "clangtoolrunner.h"
 
+#include "clangtoolslogfilereader.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 
@@ -11,6 +12,9 @@
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <utils/async.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
@@ -19,6 +23,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QLoggingCategory>
+
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
 
@@ -160,9 +165,6 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
     };
     const auto onProcessDone = [=](const Process &process) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
-        if (!outputHandler)
-            return;
-        outputHandler({true, input.unit.file, storage->outputFilePath, input.tool});
     };
     const auto onProcessError = [=](const Process &process) {
         if (!outputHandler)
@@ -179,15 +181,50 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
             message = Tr::tr("%1 finished with exit code: %2.").arg(data.name).arg(process.exitCode());
         else
             message = Tr::tr("%1 crashed.").arg(data.name);
-        outputHandler({false, input.unit.file, data.outputFilePath, input.tool, message, details});
+        outputHandler(
+            {false, input.unit.file, data.outputFilePath, {}, input.tool, message, details});
+    };
+
+    const auto onReadSetup = [=](Async<expected_str<Diagnostics>> &data) {
+        data.setConcurrentCallData(&parseDiagnostics,
+                                   storage->outputFilePath,
+                                   input.diagnosticsFilter);
+        data.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+    };
+    const auto onReadDone = [=](const Async<expected_str<Diagnostics>> &data) {
+        if (!outputHandler)
+            return;
+        const expected_str<Diagnostics> result = data.result();
+        const bool success = result.has_value();
+        Diagnostics diagnostics;
+        QString error;
+        if (success)
+            diagnostics = *result;
+        else
+            error = result.error();
+        outputHandler({success,
+                       input.unit.file,
+                       storage->outputFilePath,
+                       diagnostics,
+                       input.tool,
+                       error});
+    };
+    const auto onReadError = [=](const Async<expected_str<Diagnostics>> &data) {
+        if (!outputHandler)
+            return;
+        const expected_str<Diagnostics> result = data.result();
+        outputHandler(
+            {false, input.unit.file, storage->outputFilePath, {}, input.tool, result.error()});
     };
 
     const Group group {
         Storage(storage),
         onGroupSetup(onSetup),
         Group {
+            sequential,
             finishAllAndDone,
-            ProcessTask(onProcessSetup, onProcessDone, onProcessError)
+            ProcessTask(onProcessSetup, onProcessDone, onProcessError),
+            AsyncTask<expected_str<Diagnostics>>(onReadSetup, onReadDone, onReadError)
         }
     };
     return group;

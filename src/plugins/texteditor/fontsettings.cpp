@@ -420,8 +420,8 @@ bool FontSettings::loadColorScheme(const Utils::FilePath &filePath,
     for (const FormatDescription &desc : descriptions) {
         const TextStyle id = desc.id();
         if (!m_scheme.contains(id)) {
-            if (id == C_NAMESPACE && m_scheme.contains(C_TYPE)) {
-                m_scheme.setFormatFor(C_NAMESPACE, m_scheme.formatFor(C_TYPE));
+            if ((id == C_NAMESPACE || id == C_CONCEPT) && m_scheme.contains(C_TYPE)) {
+                m_scheme.setFormatFor(id, m_scheme.formatFor(C_TYPE));
                 continue;
             }
             if (id == C_MACRO && m_scheme.contains(C_FUNCTION)) {

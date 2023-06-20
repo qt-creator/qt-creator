@@ -240,17 +240,17 @@ void CatchOutputReader::sendResult(const ResultType result)
     catchResult.setResult(result);
 
     if (result == ResultType::TestStart && m_testCaseInfo.size() > 0) {
-        catchResult.setDescription(Tr::tr("Executing %1 \"%2\"")
+        catchResult.setDescription(Tr::tr("Executing %1 \"%2\"...")
                    .arg(testOutputNodeToString().toLower(), catchResult.description()));
     } else if (result == ResultType::Pass || result == ResultType::UnexpectedPass) {
         if (result == ResultType::UnexpectedPass)
             ++m_xpassCount;
 
         if (m_currentExpression.isEmpty()) {
-            catchResult.setDescription(Tr::tr("%1 \"%2\" passed")
+            catchResult.setDescription(Tr::tr("%1 \"%2\" passed.")
                        .arg(testOutputNodeToString(), catchResult.description()));
         } else {
-            catchResult.setDescription(Tr::tr("Expression passed")
+            catchResult.setDescription(Tr::tr("Expression passed.")
                                         .append('\n').append(m_currentExpression));
         }
         m_reportedSectionResult = true;
@@ -262,7 +262,7 @@ void CatchOutputReader::sendResult(const ResultType result)
             m_reportedSectionResult = true;
         m_reportedResult = true;
     } else if (result == ResultType::TestEnd) {
-        catchResult.setDescription(Tr::tr("Finished executing %1 \"%2\"")
+        catchResult.setDescription(Tr::tr("Finished executing %1 \"%2\".")
                    .arg(testOutputNodeToString().toLower(), catchResult.description()));
     } else if (result == ResultType::Benchmark || result == ResultType::MessageFatal) {
         catchResult.setDescription(m_currentExpression);
