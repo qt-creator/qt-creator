@@ -3,8 +3,8 @@
 
 #include "deviceprocessesdialog.h"
 
-#include "deviceprocesslist.h"
 #include "idevice.h"
+#include "processlist.h"
 #include "../kitchooser.h"
 #include "../kitinformation.h"
 #include "../projectexplorertr.h"
@@ -84,7 +84,7 @@ public:
     ProcessInfo selectedProcess() const;
 
     QDialog *q;
-    std::unique_ptr<DeviceProcessList> processList;
+    std::unique_ptr<ProcessList> processList;
     ProcessListFilterModel proxyModel;
     QLabel *kitLabel;
     KitChooser *kitChooser;
@@ -191,11 +191,11 @@ void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
     QTC_ASSERT(processList, return);
     proxyModel.setSourceModel(processList->model());
 
-    connect(processList.get(), &DeviceProcessList::error,
+    connect(processList.get(), &ProcessList::error,
             this, &DeviceProcessesDialogPrivate::handleRemoteError);
-    connect(processList.get(), &DeviceProcessList::processListUpdated,
+    connect(processList.get(), &ProcessList::processListUpdated,
             this, &DeviceProcessesDialogPrivate::handleProcessListUpdated);
-    connect(processList.get(), &DeviceProcessList::processKilled,
+    connect(processList.get(), &ProcessList::processKilled,
             this, &DeviceProcessesDialogPrivate::handleProcessKilled, Qt::QueuedConnection);
 
     updateButtons();

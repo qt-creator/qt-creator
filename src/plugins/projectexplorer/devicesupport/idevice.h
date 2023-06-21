@@ -41,7 +41,7 @@ class Process;
 
 namespace ProjectExplorer {
 
-class DeviceProcessList;
+class ProcessList;
 class FileTransferInterface;
 class FileTransferSetupData;
 class Kit;
@@ -142,7 +142,7 @@ public:
 
     virtual PortsGatheringMethod portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
-    virtual DeviceProcessList *createProcessListModel(QObject *parent = nullptr) const;
+    virtual ProcessList *createProcessListModel(QObject *parent = nullptr) const;
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester() const;
 

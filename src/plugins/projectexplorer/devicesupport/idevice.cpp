@@ -4,8 +4,8 @@
 #include "idevice.h"
 
 #include "devicemanager.h"
-#include "deviceprocesslist.h"
 #include "idevicefactory.h"
+#include "processlist.h"
 #include "sshparameters.h"
 
 #include "../kit.h"
@@ -393,7 +393,7 @@ PortsGatheringMethod IDevice::portsGatheringMethod() const
             &Port::parseFromCommandOutput};
 };
 
-DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
+ProcessList *IDevice::createProcessListModel(QObject *parent) const
 {
     Q_UNUSED(parent)
     QTC_ASSERT(false, qDebug("This should not have been called..."); return nullptr);

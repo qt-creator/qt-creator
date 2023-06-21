@@ -6,7 +6,6 @@
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 #include "desktopprocesssignaloperation.h"
-#include "deviceprocesslist.h"
 #include "processlist.h"
 
 #include <coreplugin/fileutils.h>
@@ -90,7 +89,7 @@ bool DesktopDevice::canCreateProcessModel() const
     return true;
 }
 
-DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
+ProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
 {
     return new ProcessList(sharedFromThis(), parent);
 }

@@ -26,7 +26,7 @@ public:
 
     IDeviceWidget *createWidget() override;
     bool canCreateProcessModel() const override;
-    DeviceProcessList *createProcessListModel(QObject *parent) const override;
+    ProcessList *createProcessListModel(QObject *parent) const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
     bool usableAsBuildDevice() const override;

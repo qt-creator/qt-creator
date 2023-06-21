@@ -828,7 +828,7 @@ ProcessInterface *DockerDevice::createProcessInterface() const
     return new DockerProcessImpl(this->sharedFromThis(), d);
 }
 
-DeviceProcessList *DockerDevice::createProcessListModel(QObject *parent) const
+ProcessList *DockerDevice::createProcessListModel(QObject *parent) const
 {
     return new ProcessList(sharedFromThis(), parent);
 }

@@ -3,28 +3,46 @@
 
 #pragma once
 
-#include "deviceprocesslist.h"
-#include "idevice.h"
+#include "../projectexplorer_export.h"
+#include "idevicefwd.h"
+
+#include <QAbstractItemModel>
+#include <QList>
+
+#include <memory>
+
+namespace Utils { class ProcessInfo; }
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT ProcessList : public DeviceProcessList
+namespace Internal { class DeviceProcessListPrivate; }
+
+class PROJECTEXPLORER_EXPORT ProcessList : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ProcessList(const IDeviceConstPtr &device, QObject *parent = nullptr);
+    ProcessList(const IDeviceConstPtr &device, QObject *parent = nullptr);
+    ~ProcessList() override;
 
-private:
-    void doUpdate() override;
-    void doKillProcess(const Utils::ProcessInfo &process) override;
+    void update();
+    void killProcess(int row);
+
+    Utils::ProcessInfo at(int row) const;
+    QAbstractItemModel *model() const;
+
+signals:
+    void processListUpdated();
+    void error(const QString &errorMsg);
+    void processKilled();
 
 private:
     void handleUpdate();
     void reportDelayedKillStatus(const QString &errorMessage);
 
-private:
-    DeviceProcessSignalOperation::Ptr m_signalOperation;
+    void setFinished();
+
+    const std::unique_ptr<Internal::DeviceProcessListPrivate> d;
 };
 
 } // namespace ProjectExplorer

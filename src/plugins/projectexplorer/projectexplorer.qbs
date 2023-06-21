@@ -210,7 +210,6 @@ Project {
                 "devicemanager.cpp", "devicemanager.h",
                 "devicemanagermodel.cpp", "devicemanagermodel.h",
                 "deviceprocessesdialog.cpp", "deviceprocessesdialog.h",
-                "deviceprocesslist.cpp", "deviceprocesslist.h",
                 "devicesettingspage.cpp", "devicesettingspage.h",
                 "devicesettingswidget.cpp", "devicesettingswidget.h",
                 "devicetestdialog.cpp", "devicetestdialog.h",

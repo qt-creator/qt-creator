@@ -55,7 +55,6 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/devicemanager.cpp devicesupport/devicemanager.h
     devicesupport/devicemanagermodel.cpp devicesupport/devicemanagermodel.h
     devicesupport/deviceprocessesdialog.cpp devicesupport/deviceprocessesdialog.h
-    devicesupport/deviceprocesslist.cpp devicesupport/deviceprocesslist.h
     devicesupport/devicesettingspage.cpp devicesupport/devicesettingspage.h
     devicesupport/devicesettingswidget.cpp devicesupport/devicesettingswidget.h
     devicesupport/devicetestdialog.cpp devicesupport/devicetestdialog.h
