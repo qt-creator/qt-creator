@@ -275,8 +275,7 @@
         \li In \uicontrol Component > \uicontrol ID, enter \e username.
         \li In \uicontrol {Button Content} > \uicontrol Text, enter
             \e {Username or Email} and select \uicontrol tr to mark the text
-            \l {Internationalization and Localization with Qt Quick}
-            {translatable}.
+            \l {Mark Strings for Translation}{translatable}.
         \li Select the second EntryField instance, and change its ID to
             \e password and text to \e Password. Again, mark the text
             translatable.

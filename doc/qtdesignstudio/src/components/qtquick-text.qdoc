@@ -69,15 +69,13 @@
     \c qsTrId(). Select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}, and then select the
     \uicontrol {qsTrId()} radio button in the \uicontrol Internationalization
-    group. For more information about text ID based translations, see
-    \l {Qt Linguist Manual: Text ID Based Translations}.
+    group. For more information, see \l {Text ID based translations}.
 
     To preserve the context when editing the text or to change the context
     by setting a binding on the text property, change the default call to
     \c qsTranslate() by selecting the \uicontrol {qsTranslate()} radio button.
 
-    For more information, see
-    \l {Internationalization and Localization with Qt Quick}.
+    For more information, see \l {Mark Strings for Translation}.
 
     \section1 Character Properties
 
