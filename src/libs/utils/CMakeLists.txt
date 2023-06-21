@@ -9,6 +9,7 @@ add_qtc_library(Utils
     QtConcurrentTools
     algorithm.h
     ansiescapecodehandler.cpp ansiescapecodehandler.h
+    appinfo.cpp appinfo.h
     appmainwindow.cpp appmainwindow.h
     archive.cpp archive.h
     aspects.cpp aspects.h

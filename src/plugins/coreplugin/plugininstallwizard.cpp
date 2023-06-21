@@ -23,11 +23,10 @@
 #include <utils/wizard.h>
 #include <utils/wizardpage.h>
 
-#include <app/app_version.h>
-
 #include <QButtonGroup>
 #include <QDir>
 #include <QDirIterator>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
@@ -164,14 +163,16 @@ void checkContents(QPromise<ArchiveIssue> &promise, const FilePath &tempDir)
                 return;
             if (coreplugin->provides(found->name, found->version))
                 return;
-            promise.addResult(ArchiveIssue{
-                Tr::tr("Plugin requires an incompatible version of %1 (%2).")
-                    .arg(Constants::IDE_DISPLAY_NAME).arg(found->version), InfoLabel::Error});
+            promise.addResult(
+                ArchiveIssue{Tr::tr("Plugin requires an incompatible version of %1 (%2).")
+                                 .arg(QGuiApplication::applicationDisplayName(), found->version),
+                             InfoLabel::Error});
             return; // successful / no error
         }
     }
-    promise.addResult(ArchiveIssue{Tr::tr("Did not find %1 plugin.")
-                                       .arg(Constants::IDE_DISPLAY_NAME), InfoLabel::Error});
+    promise.addResult(
+        ArchiveIssue{Tr::tr("Did not find %1 plugin.").arg(QGuiApplication::applicationDisplayName()),
+                     InfoLabel::Error});
 }
 
 class CheckArchivePage : public WizardPage
@@ -306,17 +307,16 @@ public:
         localInstall->setChecked(!m_data->installIntoApplication);
         auto localLabel = new QLabel(Tr::tr("The plugin will be available to all compatible %1 "
                                             "installations, but only for the current user.")
-                .arg(Constants::IDE_DISPLAY_NAME));
+                                         .arg(QGuiApplication::applicationDisplayName()));
         localLabel->setWordWrap(true);
         localLabel->setAttribute(Qt::WA_MacSmallSize, true);
 
         auto appInstall = new QRadioButton(
-            Tr::tr("%1 installation").arg(Constants::IDE_DISPLAY_NAME));
+            Tr::tr("%1 installation").arg(QGuiApplication::applicationDisplayName()));
         appInstall->setChecked(m_data->installIntoApplication);
-        auto appLabel = new QLabel(
-            Tr::tr("The plugin will be available only to this %1 "
-                   "installation, but for all users that can access it.")
-                .arg(Constants::IDE_DISPLAY_NAME));
+        auto appLabel = new QLabel(Tr::tr("The plugin will be available only to this %1 "
+                                          "installation, but for all users that can access it.")
+                                       .arg(QGuiApplication::applicationDisplayName()));
         appLabel->setWordWrap(true);
         appLabel->setAttribute(Qt::WA_MacSmallSize, true);
 

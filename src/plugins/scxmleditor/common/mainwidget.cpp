@@ -51,8 +51,6 @@
 #include <QStandardPaths>
 #include <QXmlStreamWriter>
 
-#include <app/app_version.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 

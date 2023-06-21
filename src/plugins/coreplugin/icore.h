@@ -80,8 +80,6 @@ public:
     static Utils::FilePath libexecPath(const QString &rel = {});
     static Utils::FilePath crashReportsPath();
 
-    static QString ideDisplayName();
-
     static QString versionString();
 
     static QMainWindow *mainWindow();

@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "Tracing" }
     Depends { name: "Utils" }
-    Depends { name: "app_version_header" }
 
     Depends {
         name: "Qt"

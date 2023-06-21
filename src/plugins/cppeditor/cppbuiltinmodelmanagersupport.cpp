@@ -13,7 +13,6 @@
 #include "cpptoolsreuse.h"
 #include "symbolfinder.h"
 
-#include <app/app_version.h>
 #include <coreplugin/messagemanager.h>
 #include <texteditor/basehoverhandler.h>
 #include <utils/qtcassert.h>

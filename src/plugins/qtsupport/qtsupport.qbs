@@ -6,7 +6,6 @@ Project {
     QtcPlugin {
         Depends { name: "Qt"; submodules: ["widgets", "xml"]; }
         Depends { name: "Utils" }
-        Depends { name: "app_version_header" }
 
         Depends { name: "Core" }
         Depends { name: "ProParser" }

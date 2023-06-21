@@ -5,7 +5,6 @@
 
 #include "designersettings.h"
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
@@ -19,7 +18,8 @@ namespace {
 
 Utils::FilePath qmlPuppetExecutablePath(const Utils::FilePath &workingDirectory)
 {
-    return workingDirectory.pathAppended(QString{"qml2puppet-"} + Core::Constants::IDE_VERSION_LONG)
+    return workingDirectory
+        .pathAppended(QString{"qml2puppet-"} + QCoreApplication::applicationVersion())
         .withExecutableSuffix();
 }
 

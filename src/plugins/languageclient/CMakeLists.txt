@@ -5,7 +5,7 @@ elseif (MINGW)
 endif()
 
 add_qtc_plugin(LanguageClient
-  PUBLIC_DEPENDS LanguageServerProtocol Qt::Core app_version
+  PUBLIC_DEPENDS LanguageServerProtocol Qt::Core
   PLUGIN_DEPENDS ProjectExplorer Core TextEditor
   SOURCES
     callhierarchy.cpp callhierarchy.h

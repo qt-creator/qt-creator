@@ -16,7 +16,6 @@ QtcPlugin {
     Depends { name: "CppEditor" }
     Depends { name: "QtSupport" }
     Depends { name: "QmlJSTools" }
-    Depends { name: "app_version_header" }
 
     files: [
         "customqbspropertiesdialog.h",

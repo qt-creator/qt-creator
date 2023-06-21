@@ -10,8 +10,6 @@
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/icore.h>
 
 #include <ios/iosconstants.h>
@@ -41,6 +39,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QGuiApplication>
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QPointer>
@@ -739,8 +738,8 @@ Tasks CMakeGeneratorKitAspect::validate(const Kit *k) const
         }
         if (!tool->hasFileApi()) {
             addWarning(Tr::tr("The selected CMake binary does not support file-api. "
-                          "%1 will not be able to parse CMake projects.")
-                           .arg(Core::Constants::IDE_DISPLAY_NAME));
+                              "%1 will not be able to parse CMake projects.")
+                           .arg(QGuiApplication::applicationDisplayName()));
         }
     }
 

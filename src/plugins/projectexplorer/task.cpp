@@ -7,7 +7,6 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 
-#include <app/app_version.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textmark.h>
 #include <utils/algorithm.h>
@@ -15,6 +14,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QTextStream>
 
 using namespace Utils;
@@ -61,8 +61,8 @@ Task Task::compilerMissingTask()
 {
     return BuildSystemTask(Task::Error,
                            Tr::tr("%1 needs a compiler set up to build. "
-                              "Configure a compiler in the kit options.")
-                           .arg(Core::Constants::IDE_DISPLAY_NAME));
+                                  "Configure a compiler in the kit options.")
+                               .arg(QGuiApplication::applicationDisplayName()));
 }
 
 void Task::setMark(TextEditor::TextMark *mark)

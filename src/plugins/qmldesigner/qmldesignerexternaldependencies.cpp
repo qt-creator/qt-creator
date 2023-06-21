@@ -5,7 +5,6 @@
 
 #include "qmldesignerplugin.h"
 
-#include <app/app_version.h>
 #include <edit3d/edit3dviewconfig.h>
 #include <itemlibraryimport.h>
 #include <projectexplorer/kit.h>

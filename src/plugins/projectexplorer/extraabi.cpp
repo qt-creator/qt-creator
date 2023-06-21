@@ -11,9 +11,8 @@
 #include <utils/fileutils.h>
 #include <utils/settingsaccessor.h>
 
-#include <app/app_version.h>
-
 #include <QDebug>
+#include <QGuiApplication>
 
 using namespace Utils;
 
@@ -38,7 +37,7 @@ public:
     AbiFlavorAccessor()
     {
         setDocType("QtCreatorExtraAbi");
-        setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+        setApplicationDisplayName(QGuiApplication::applicationDisplayName());
         setBaseFilePath(Core::ICore::installerResourcePath("abi.xml"));
         addVersionUpgrader(std::make_unique<AbiFlavorUpgraderV0>());
     }

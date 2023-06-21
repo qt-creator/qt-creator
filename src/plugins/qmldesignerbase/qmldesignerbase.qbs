@@ -6,7 +6,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "app_version_header" }
     Depends { name: "Qt.quickwidgets" }
 
     files: [

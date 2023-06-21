@@ -7,8 +7,6 @@
 #include "cdbparsehelpers.h"
 #include "stringinputstream.h"
 
-#include <app/app_version.h>
-
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
@@ -56,6 +54,7 @@
 #include <cppeditor/cppworkingcopy.h>
 
 #include <QDir>
+#include <QGuiApplication>
 #include <QRegularExpression>
 
 #include <cctype>
@@ -333,16 +332,16 @@ void CdbEngine::setupEngine()
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
     if (!extensionFi.isFile()) {
         handleSetupFailure(Tr::tr("Internal error: The extension %1 cannot be found.\n"
-                           "If you have updated %2 via Maintenance Tool, you may "
-                           "need to rerun the Tool and select \"Add or remove components\" "
-                           "and then select the "
-                           "Qt > Tools > Qt Creator CDB Debugger Support component.\n"
-                           "If you build %2 from sources and want to use a CDB executable "
-                           "with another bitness than your %2 build, "
-                           "you will need to build a separate CDB extension with the "
-                           "same bitness as the CDB you want to use.").
-                arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
-                    QString(Core::Constants::IDE_DISPLAY_NAME)));
+                                  "If you have updated %2 via Maintenance Tool, you may "
+                                  "need to rerun the Tool and select \"Add or remove components\" "
+                                  "and then select the "
+                                  "Qt > Tools > Qt Creator CDB Debugger Support component.\n"
+                                  "If you build %2 from sources and want to use a CDB executable "
+                                  "with another bitness than your %2 build, "
+                                  "you will need to build a separate CDB extension with the "
+                                  "same bitness as the CDB you want to use.")
+                               .arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
+                                    QGuiApplication::applicationDisplayName()));
         return;
     }
 

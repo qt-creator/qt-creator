@@ -6,9 +6,8 @@
 #include "perfprofilertr.h"
 #include "perfprofilertracefile.h"
 
-#include <app/app_version.h>
-
 #include <QFile>
+#include <QGuiApplication>
 #include <QtEndian>
 
 namespace PerfProfiler {
@@ -250,9 +249,9 @@ void PerfProfilerTraceFile::readFromDevice()
             fail(Tr::tr("Invalid data format. The trace file's identification string is \"%1\". "
                         "An acceptable trace file should have \"%2\". You cannot read trace files "
                         "generated with older versions of %3.")
-                 .arg(QString::fromLatin1(magic))
-                 .arg(QString::fromLatin1(Constants::PerfZqfileMagic))
-                 .arg(Core::Constants::IDE_DISPLAY_NAME));
+                     .arg(QString::fromLatin1(magic))
+                     .arg(QString::fromLatin1(Constants::PerfZqfileMagic))
+                     .arg(QGuiApplication::applicationDisplayName()));
             return;
         }
 

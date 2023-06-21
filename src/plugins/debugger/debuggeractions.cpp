@@ -12,8 +12,6 @@
 #include "registerpostmortemaction.h"
 #endif
 
-#include <app/app_version.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 
@@ -21,6 +19,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QGuiApplication>
 
 using namespace Utils;
 
@@ -267,7 +266,7 @@ DebuggerSettings::DebuggerSettings()
     raiseOnInterrupt.setSettingsKey(debugModeGroup, "RaiseOnInterrupt");
     raiseOnInterrupt.setDefaultValue(true);
     raiseOnInterrupt.setLabelText(Tr::tr("Bring %1 to foreground when application interrupts")
-                                  .arg(Core::Constants::IDE_DISPLAY_NAME));
+                                      .arg(QGuiApplication::applicationDisplayName()));
 
     autoQuit.setSettingsKey(debugModeGroup, "AutoQuit");
     autoQuit.setLabelText(Tr::tr("Automatically Quit Debugger"));
@@ -318,12 +317,10 @@ DebuggerSettings::DebuggerSettings()
 #ifdef Q_OS_WIN
     registerForPostMortem = new RegisterPostMortemAction;
     registerForPostMortem->setSettingsKey(debugModeGroup, "RegisterForPostMortem");
-    registerForPostMortem->setToolTip(
-                Tr::tr("Registers %1 for debugging crashed applications.")
-                .arg(Core::Constants::IDE_DISPLAY_NAME));
+    registerForPostMortem->setToolTip(Tr::tr("Registers %1 for debugging crashed applications.")
+                                          .arg(QGuiApplication::applicationDisplayName()));
     registerForPostMortem->setLabelText(
-                Tr::tr("Use %1 for post-mortem debugging")
-                .arg(Core::Constants::IDE_DISPLAY_NAME));
+        Tr::tr("Use %1 for post-mortem debugging").arg(QGuiApplication::applicationDisplayName()));
 #else
     // Some dummy.
     registerForPostMortem = new BoolAspect;

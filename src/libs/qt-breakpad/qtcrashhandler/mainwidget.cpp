@@ -4,7 +4,6 @@
 #include "mainwidget.h"
 #include "ui_mainwidget.h"
 
-#include <app/app_version.h>
 
 #include <QApplication>
 #include <QDateTime>
@@ -23,7 +22,8 @@ MainWidget::MainWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->mainWidgetTopLabel.setText(tr("%1 has crashed").arg(Core::Constants::IDE_DISPLAY_NAME));
+    const QString applicationName = QApplication::arguments().at(3);
+    ui->mainWidgetTopLabel.setText(tr("%1 has crashed").arg(applicationName));
 
     connect(ui->restartButton, &QAbstractButton::clicked, this, &MainWidget::restartApplication);
     connect(ui->quitButton, &QAbstractButton::clicked, this, &MainWidget::quitApplication);

@@ -8,7 +8,6 @@
 #include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
 
-#include <app/app_version.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
@@ -19,6 +18,7 @@
 
 #include <QDir>
 #include <QEventLoop>
+#include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QProcessEnvironment>
@@ -243,7 +243,7 @@ QString QbsSession::errorString(QbsSession::Error error)
         //: %1 == "Qt Creator" or "Qt Design Studio"
         return Tr::tr("The qbs API level is not compatible with "
                       "what %1 expects.")
-            .arg(Core::Constants::IDE_DISPLAY_NAME);
+            .arg(QGuiApplication::applicationDisplayName());
     }
     return QString(); // For dumb compilers.
 }

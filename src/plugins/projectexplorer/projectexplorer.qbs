@@ -10,7 +10,6 @@ Project {
 
         Depends { name: "Core" }
         Depends { name: "TextEditor" }
-        Depends { name: "app_version_header" }
 
         Depends { name: "libclang"; required: false }
         Depends { name: "clang_defines" }

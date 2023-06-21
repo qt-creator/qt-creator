@@ -12,18 +12,17 @@
 #include <QDebug>
 #include <QTime>
 
+#include <QFileDialog>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
-#include <QSyntaxHighlighter>
 #include <QPlainTextEdit>
 #include <QPushButton>
-#include <QFileDialog>
+#include <QSyntaxHighlighter>
 #include <QToolButton>
 
 #include <aggregation/aggregate.h>
-
-#include <app/app_version.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/findplaceholder.h>
@@ -438,17 +437,19 @@ LogWindow::LogWindow(DebuggerEngine *engine)
 
     setMinimumHeight(60);
 
-    showOutput(LogWarning,
-        Tr::tr("Note: This log contains possibly confidential information about your machine, "
-           "environment variables, in-memory data of the processes you are debugging, and more. "
-           "It is never transferred over the internet by %1, and only stored "
-           "to disk if you manually use the respective option from the context menu, or through "
-           "mechanisms that are not under the control of %1's Debugger plugin, "
-           "for instance in swap files, or other plugins you might use.\n"
-           "You may be asked to share the contents of this log when reporting bugs related "
-           "to debugger operation. In this case, make sure your submission does not "
-           "contain data you do not want to or you are not allowed to share.\n\n")
-               .arg(Core::Constants::IDE_DISPLAY_NAME));
+    showOutput(
+        LogWarning,
+        Tr::tr(
+            "Note: This log contains possibly confidential information about your machine, "
+            "environment variables, in-memory data of the processes you are debugging, and more. "
+            "It is never transferred over the internet by %1, and only stored "
+            "to disk if you manually use the respective option from the context menu, or through "
+            "mechanisms that are not under the control of %1's Debugger plugin, "
+            "for instance in swap files, or other plugins you might use.\n"
+            "You may be asked to share the contents of this log when reporting bugs related "
+            "to debugger operation. In this case, make sure your submission does not "
+            "contain data you do not want to or you are not allowed to share.\n\n")
+            .arg(QGuiApplication::applicationDisplayName()));
 }
 
 LogWindow::~LogWindow()

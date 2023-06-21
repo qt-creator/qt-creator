@@ -6,7 +6,6 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/environment.h>
@@ -15,9 +14,9 @@
 #include <utils/process.h>
 #include <utils/qtcsettings.h>
 
-#include <QCoreApplication>
 #include <QCheckBox>
 #include <QFormLayout>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QPushButton>
 
@@ -161,7 +160,7 @@ public:
         m_versionLabel.setText(getQbsVersionString());
         //: %1 == "Qt Creator" or "Qt Design Studio"
         m_settingsDirCheckBox.setText(Tr::tr("Use %1 settings directory for Qbs")
-                                      .arg(Core::Constants::IDE_DISPLAY_NAME));
+                                          .arg(QGuiApplication::applicationDisplayName()));
         m_settingsDirCheckBox.setChecked(QbsSettings::useCreatorSettingsDirForQbs());
 
         const auto layout = new QFormLayout(this);

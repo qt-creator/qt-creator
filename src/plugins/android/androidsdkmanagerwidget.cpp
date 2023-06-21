@@ -7,8 +7,6 @@
 #include "androidsdkmodel.h"
 #include "androidtr.h"
 
-#include <app/app_version.h>
-
 #include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
@@ -18,6 +16,7 @@
 #include <QAbstractButton>
 #include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLoggingCategory>
@@ -282,8 +281,8 @@ void AndroidSdkManagerWidget::installEssentials()
                              Tr::tr("Android SDK Changes"),
                              Tr::tr("%1 cannot find the following essential packages: \"%2\".\n"
                                     "Install them manually after the current operation is done.\n")
-                             .arg(Core::Constants::IDE_DISPLAY_NAME)
-                             .arg(m_sdkModel->missingEssentials().join("\", \"")));
+                                 .arg(QGuiApplication::applicationDisplayName(),
+                                      m_sdkModel->missingEssentials().join("\", \"")));
     }
     onApplyButton(Tr::tr("Android SDK installation is missing necessary packages. "
                      "Do you want to install the missing packages?"));

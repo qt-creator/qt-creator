@@ -7,8 +7,6 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <app/app_version.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -30,6 +28,7 @@
 #include <utils/treemodel.h>
 
 #include <QDesktopServices>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
@@ -187,7 +186,7 @@ public:
 
             hbox->addSpacing(8);
 
-            auto ideNameLabel = new QLabel(Core::Constants::IDE_DISPLAY_NAME);
+            auto ideNameLabel = new QLabel(QGuiApplication::applicationDisplayName());
             ideNameLabel->setFont(welcomeFont);
             ideNameLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
             QPalette pal = palette();

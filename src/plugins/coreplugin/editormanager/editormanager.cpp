@@ -35,8 +35,6 @@
 #include "../settingsdatabase.h"
 #include "../vcsmanager.h"
 
-#include <app/app_version.h>
-
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
@@ -2161,7 +2159,7 @@ void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWi
 
     if (!windowTitle.isEmpty())
         windowTitle.append(dashSep);
-    windowTitle.append(Core::Constants::IDE_DISPLAY_NAME);
+    windowTitle.append(QGuiApplication::applicationDisplayName());
     window->window()->setWindowTitle(windowTitle);
     window->window()->setWindowFilePath(filePath.path());
 

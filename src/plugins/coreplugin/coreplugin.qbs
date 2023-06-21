@@ -19,8 +19,6 @@ Project {
         Depends { name: "Utils" }
         Depends { name: "Aggregation" }
 
-        Depends { name: "app_version_header" }
-
         cpp.dynamicLibraries: {
             if (qbs.targetOS.contains("windows"))
                 return ["ole32", "user32"]

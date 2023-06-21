@@ -10,11 +10,10 @@
 
 #include <coreplugin/icore.h>
 
-#include <app/app_version.h>
-
 #include <utils/algorithm.h>
 
 #include <QElapsedTimer>
+#include <QGuiApplication>
 #include <QLoggingCategory>
 
 using namespace Utils;
@@ -172,7 +171,7 @@ static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
 ToolChainSettingsAccessor::ToolChainSettingsAccessor()
 {
     setDocType("QtCreatorToolChains");
-    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+    setApplicationDisplayName(QGuiApplication::applicationDisplayName());
     setBaseFilePath(Core::ICore::userResourcePath(TOOLCHAIN_FILENAME));
 
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());

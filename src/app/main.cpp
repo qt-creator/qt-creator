@@ -11,6 +11,7 @@
 #include <qtsingleapplication.h>
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
@@ -652,6 +653,16 @@ int main(int argc, char **argv)
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
     PluginManager::setGlobalSettings(globalSettings);
     PluginManager::setSettings(settings);
+
+    using namespace Core;
+    Utils::AppInfo info;
+    info.author = Constants::IDE_AUTHOR;
+    info.year = Constants::IDE_YEAR;
+    info.displayVersion = Constants::IDE_VERSION_DISPLAY;
+    info.id = Constants::IDE_ID;
+    info.revision = Constants::IDE_REVISION_STR;
+    info.revisionUrl = Constants::IDE_REVISION_URL;
+    Utils::Internal::setAppInfo(info);
 
     QTranslator translator;
     QTranslator qtTranslator;

@@ -15,8 +15,6 @@
 #include "qmlprofilertr.h"
 #include "qmlprofilerviewmanager.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -333,7 +331,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
             runWorker, [this, runWorker]() {
         auto infoBox = new QMessageBox(ICore::dialogParent());
         infoBox->setIcon(QMessageBox::Critical);
-        infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
+        infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
 
         const int interval = d->m_profilerConnections->retryInterval();
         const int retries = d->m_profilerConnections->maximumRetries();

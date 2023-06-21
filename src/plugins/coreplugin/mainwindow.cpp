@@ -47,8 +47,6 @@
 #include "versiondialog.h"
 #include "windowsupport.h"
 
-#include <app/app_version.h>
-
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
@@ -126,7 +124,7 @@ MainWindow::MainWindow()
     , m_lowPrioAdditionalContexts(Constants::C_GLOBAL)
     , m_settingsDatabase(
           new SettingsDatabase(QFileInfo(PluginManager::settings()->fileName()).path(),
-                               QLatin1String(Constants::IDE_CASED_ID),
+                               QCoreApplication::applicationName(),
                                this))
     , m_progressManager(new ProgressManagerPrivate)
     , m_jsExpander(JsExpander::createGlobalJsExpander())
@@ -145,7 +143,7 @@ MainWindow::MainWindow()
 
     HistoryCompleter::setSettings(PluginManager::settings());
 
-    setWindowTitle(Constants::IDE_DISPLAY_NAME);
+    setWindowTitle(QGuiApplication::applicationDisplayName());
     if (HostOsInfo::isLinuxHost())
         QApplication::setWindowIcon(Icons::QTCREATORLOGO_BIG.icon());
     QString baseName = QApplication::style()->objectName();
@@ -384,13 +382,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    if (m_askConfirmationBeforeExit &&
-            (QMessageBox::question(this,
-                                   Tr::tr("Exit %1?").arg(Constants::IDE_DISPLAY_NAME),
-                                   Tr::tr("Exit %1?").arg(Constants::IDE_DISPLAY_NAME),
-                                   QMessageBox::Yes | QMessageBox::No,
-                                   QMessageBox::No)
-             == QMessageBox::No)) {
+    if (m_askConfirmationBeforeExit
+        && (QMessageBox::question(this,
+                                  Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
+                                  Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
+                                  QMessageBox::Yes | QMessageBox::No,
+                                  QMessageBox::No)
+            == QMessageBox::No)) {
         event->ignore();
         return;
     }
@@ -762,7 +760,7 @@ void MainWindow::registerDefaultActions()
     // Debug Qt Creator menu
     mtools->appendGroup(Constants::G_TOOLS_DEBUG);
     ActionContainer *mtoolsdebug = ActionManager::createMenu(Constants::M_TOOLS_DEBUG);
-    mtoolsdebug->menu()->setTitle(Tr::tr("Debug %1").arg(Constants::IDE_DISPLAY_NAME));
+    mtoolsdebug->menu()->setTitle(Tr::tr("Debug %1").arg(QGuiApplication::applicationDisplayName()));
     mtools->addMenu(mtoolsdebug, Constants::G_TOOLS_DEBUG);
 
     m_loggerAction = new QAction(Tr::tr("Show Logs..."), this);
@@ -867,9 +865,14 @@ void MainWindow::registerDefaultActions()
     // About IDE Action
     icon = QIcon::fromTheme(QLatin1String("help-about"));
     if (HostOsInfo::isMacHost())
-        tmpaction = new QAction(icon, Tr::tr("About &%1").arg(Constants::IDE_DISPLAY_NAME), this); // it's convention not to add dots to the about menu
+        tmpaction = new QAction(icon,
+                                Tr::tr("About &%1").arg(QGuiApplication::applicationDisplayName()),
+                                this); // it's convention not to add dots to the about menu
     else
-        tmpaction = new QAction(icon, Tr::tr("About &%1...").arg(Constants::IDE_DISPLAY_NAME), this);
+        tmpaction
+            = new QAction(icon,
+                          Tr::tr("About &%1...").arg(QGuiApplication::applicationDisplayName()),
+                          this);
     tmpaction->setMenuRole(QAction::AboutRole);
     cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_QTCREATOR);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);

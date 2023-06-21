@@ -6,7 +6,6 @@
 #include "cppeditorplugin.h"
 #include "cppeditortr.h"
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
@@ -20,6 +19,7 @@
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QFile>
+#include <QGuiApplication>
 #include <QLineEdit>
 #include <QLocale>
 #include <QSettings>
@@ -435,7 +435,8 @@ void CppFileSettingsWidget::slotEdit()
         if (path.isEmpty())
             return;
         FileSaver saver(path, QIODevice::Text);
-        saver.write(Tr::tr(licenseTemplateTemplate).arg(Core::Constants::IDE_DISPLAY_NAME).toUtf8());
+        saver.write(
+            Tr::tr(licenseTemplateTemplate).arg(QGuiApplication::applicationDisplayName()).toUtf8());
         if (!saver.finalize(this))
             return;
         setLicenseTemplatePath(path);

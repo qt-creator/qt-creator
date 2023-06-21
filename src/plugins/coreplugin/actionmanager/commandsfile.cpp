@@ -6,7 +6,6 @@
 #include <coreplugin/dialogs/shortcutsettings.h>
 #include <coreplugin/icore.h>
 
-#include <app/app_version.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 

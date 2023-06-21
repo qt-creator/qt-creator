@@ -5,13 +5,13 @@
 
 #include "cmakeprojectmanagertr.h"
 
-#include <app/app_version.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/rawprojectpart.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -42,10 +42,9 @@ static FilePath cmakeReplyDirectory(const FilePath &buildDirectory)
 
 static void reportFileApiSetupFailure()
 {
-    Core::MessageManager::writeFlashing(
-        Tr::tr("Failed to set up CMake file API support. %1 cannot "
-               "extract project information.")
-            .arg(Core::Constants::IDE_DISPLAY_NAME));
+    Core::MessageManager::writeFlashing(Tr::tr("Failed to set up CMake file API support. %1 cannot "
+                                               "extract project information.")
+                                            .arg(QGuiApplication::applicationDisplayName()));
 }
 
 static std::pair<int, int> cmakeVersion(const QJsonObject &obj)

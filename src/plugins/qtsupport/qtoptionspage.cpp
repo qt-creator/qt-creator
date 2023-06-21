@@ -9,8 +9,6 @@
 #include "qtversionmanager.h"
 #include "qtversionfactory.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/icore.h>
@@ -803,14 +801,14 @@ void QtOptionsPageWidget::updateWidgets()
 
 static QString settingsFile(const QString &baseDir)
 {
-    return baseDir + (baseDir.isEmpty() ? "" : "/") + Core::Constants::IDE_SETTINGSVARIANT_STR + '/'
-           + Core::Constants::IDE_CASED_ID + ".ini";
+    return baseDir + (baseDir.isEmpty() ? "" : "/") + QCoreApplication::organizationName() + '/'
+           + QCoreApplication::applicationName() + ".ini";
 }
 
 static QString qtVersionsFile(const QString &baseDir)
 {
-    return baseDir + (baseDir.isEmpty() ? "" : "/") + Core::Constants::IDE_SETTINGSVARIANT_STR + '/'
-           + Core::Constants::IDE_ID + '/' + "qtversion.xml";
+    return baseDir + (baseDir.isEmpty() ? "" : "/") + QCoreApplication::organizationName() + '/'
+           + QCoreApplication::applicationName() + '/' + "qtversion.xml";
 }
 
 static std::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
@@ -847,12 +845,12 @@ static bool canLinkWithQt(QString *toolTip)
     if (!Core::ICore::resourcePath().isWritableDir()) {
         canLink = false;
         tip << Tr::tr("%1's resource directory is not writable.")
-                   .arg(Core::Constants::IDE_DISPLAY_NAME);
+                   .arg(QGuiApplication::applicationDisplayName());
     }
     const FilePath link = installSettingsValue ? *installSettingsValue : FilePath();
     if (!link.isEmpty())
         tip << Tr::tr("%1 is currently linked to \"%2\".")
-                   .arg(QString(Core::Constants::IDE_DISPLAY_NAME), link.toUserOutput());
+                   .arg(QGuiApplication::applicationDisplayName(), link.toUserOutput());
     if (toolTip)
         *toolTip = tip.join("\n\n");
     return canLink;

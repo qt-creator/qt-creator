@@ -17,8 +17,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 
-    Depends { name: "app_version_header" }
-
     files: [
         "callhierarchy.cpp",
         "callhierarchy.h",

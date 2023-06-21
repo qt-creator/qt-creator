@@ -20,8 +20,6 @@
 #include "searchtaskhandler.h"
 #include "topicchooser.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -568,7 +566,7 @@ HelpViewer *HelpPluginPrivate::showHelpUrl(const QUrl &url, Core::HelpManager::H
         // QtHelp doesn't know about versions, add the version number and use that
         QUrl versioned = url;
         versioned.setHost(qtcreatorUnversionedID + "."
-                          + QString::fromLatin1(Core::Constants::IDE_VERSION_LONG).remove('.'));
+                          + QCoreApplication::applicationVersion().remove('.'));
 
         return showHelpUrl(versioned, location);
     }

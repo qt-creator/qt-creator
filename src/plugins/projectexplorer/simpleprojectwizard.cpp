@@ -6,8 +6,6 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/icore.h>
 
@@ -151,11 +149,13 @@ SimpleProjectWizard::SimpleProjectWizard()
     setIcon(ProjectExplorer::Icons::WIZARD_IMPORT_AS_PROJECT.icon());
     setDisplayName(Tr::tr("Import as qmake or CMake Project (Limited Functionality)"));
     setId("Z.DummyProFile");
-    setDescription(Tr::tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.<p>"
-                      "This creates a project file that allows you to use %1 as a code editor "
-                      "and as a launcher for debugging and analyzing tools. "
-                      "If you want to build the project, you might need to edit the generated project file.")
-                   .arg(Core::Constants::IDE_DISPLAY_NAME));
+    setDescription(
+        Tr::tr(
+            "Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.<p>"
+            "This creates a project file that allows you to use %1 as a code editor "
+            "and as a launcher for debugging and analyzing tools. "
+            "If you want to build the project, you might need to edit the generated project file.")
+            .arg(QGuiApplication::applicationDisplayName()));
     setCategory(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY);
     setDisplayCategory(Tr::tr(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
     setFlags(IWizardFactory::PlatformIndependent);
@@ -217,16 +217,16 @@ GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
     GeneratedFile generatedProFile(proFileName);
     generatedProFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     generatedProFile.setContents(
-        "# Created by and for " + QLatin1String(Core::Constants::IDE_DISPLAY_NAME)
+        "# Created by and for " + QGuiApplication::applicationDisplayName()
         + " This file was created for editing the project sources only.\n"
-        "# You may attempt to use it for building too, by modifying this file here.\n\n"
-        "#TARGET = " + projectName + "\n\n"
-        "QT = " + wizard->qtModules()  + "\n\n"
-        + proHeaders + "\n\n"
-        + proSources + "\n\n"
-        + proIncludes + "\n\n"
-        "#DEFINES = \n\n"
-        );
+          "# You may attempt to use it for building too, by modifying this file here.\n\n"
+          "#TARGET = "
+        + projectName
+        + "\n\n"
+          "QT = "
+        + wizard->qtModules() + "\n\n" + proHeaders + "\n\n" + proSources + "\n\n" + proIncludes
+        + "\n\n"
+          "#DEFINES = \n\n");
 
     return GeneratedFiles{generatedProFile};
 }
@@ -290,22 +290,22 @@ GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
     GeneratedFile generatedProFile(projectFileName);
     generatedProFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     generatedProFile.setContents(
-        "# Created by and for " + QLatin1String(Core::Constants::IDE_DISPLAY_NAME)
+        "# Created by and for " + QGuiApplication::applicationDisplayName()
         + " This file was created for editing the project sources only.\n"
           "# You may attempt to use it for building too, by modifying this file here.\n\n"
           "cmake_minimum_required(VERSION 3.5)\n"
-          "project("+ projectName +")\n\n"
+          "project("
+        + projectName
+        + ")\n\n"
           "set(CMAKE_AUTOUIC ON)\n"
           "set(CMAKE_AUTOMOC ON)\n"
           "set(CMAKE_AUTORCC ON)\n"
           "set(CMAKE_CXX_STANDARD 11)\n"
           "set(CMAKE_CXX_STANDARD_REQUIRED ON)\n"
-          + components + "\n\n"
-          + includes + "\n\n"
-          + srcs + "\n\n"
+        + components + "\n\n" + includes + "\n\n" + srcs
+        + "\n\n"
           "add_executable(${CMAKE_PROJECT_NAME} ${SRCS})\n\n"
-          + libs
-        );
+        + libs);
     return GeneratedFiles{generatedProFile};
 }
 

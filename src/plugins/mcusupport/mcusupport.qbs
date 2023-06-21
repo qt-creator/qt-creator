@@ -7,7 +7,6 @@ QtcPlugin {
     Depends { name: "Qt.widgets" }
     Depends { name: "Qt.testlib"; condition: qtc.testsEnabled }
     Depends { name: "Utils" }
-    Depends { name: "app_version_header" }
 
     Depends { name: "Core" }
     Depends { name: "BareMetal" }

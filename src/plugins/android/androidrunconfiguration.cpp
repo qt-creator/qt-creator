@@ -7,8 +7,6 @@
 #include "androidtoolchain.h"
 #include "androidtr.h"
 
-#include <app/app_version.h>
-
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>

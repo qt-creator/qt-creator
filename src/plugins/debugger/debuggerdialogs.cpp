@@ -7,8 +7,6 @@
 #include "debuggerruncontrol.h"
 #include "debuggertr.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/sshparameters.h>
@@ -30,6 +28,7 @@
 #include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -563,15 +562,18 @@ static QString cdbRemoteHelp()
 
     const QString ext32 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(false));
     const QString ext64 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(true));
-    return  Tr::tr(
-                "<html><body><p>The remote CDB needs to load the matching %1 CDB extension "
-                "(<code>%2</code> or <code>%3</code>, respectively).</p><p>Copy it onto the remote machine and set the "
-                "environment variable <code>%4</code> to point to its folder.</p><p>"
-                "Launch the remote CDB as <code>%5 &lt;executable&gt;</code> "
-                "to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
-                "<pre>%6</pre></body></html>")
-            .arg(QString(Core::Constants::IDE_DISPLAY_NAME),
-                 ext32, ext64, QString("_NT_DEBUGGER_EXTENSION_PATH"),
+    return Tr::
+        tr("<html><body><p>The remote CDB needs to load the matching %1 CDB extension "
+           "(<code>%2</code> or <code>%3</code>, respectively).</p><p>Copy it onto the remote "
+           "machine and set the "
+           "environment variable <code>%4</code> to point to its folder.</p><p>"
+           "Launch the remote CDB as <code>%5 &lt;executable&gt;</code> "
+           "to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
+           "<pre>%6</pre></body></html>")
+            .arg(QGuiApplication::applicationDisplayName(),
+                 ext32,
+                 ext64,
+                 QString("_NT_DEBUGGER_EXTENSION_PATH"),
                  QString("cdb.exe -server tcp:port=1234"),
                  QString(cdbConnectionSyntax));
 }

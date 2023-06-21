@@ -3,8 +3,7 @@
 
 #include "corejsextensions.h"
 
-#include <app/app_version.h>
-
+#include <utils/appinfo.h>
 #include <utils/fileutils.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
@@ -27,7 +26,7 @@ QString UtilsJsExtension::qtVersion() const
 
 QString UtilsJsExtension::qtCreatorVersion() const
 {
-    return QLatin1String(Constants::IDE_VERSION_DISPLAY);
+    return appInfo().displayVersion;
 }
 
 QString UtilsJsExtension::toNativeSeparators(const QString &in) const

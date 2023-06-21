@@ -36,8 +36,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <app/app_version.h>
-
 #include <utils/basetreeview.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/process.h>
@@ -48,6 +46,7 @@
 #include <QDir>
 #include <QDockWidget>
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -386,7 +385,7 @@ void QmlEngine::connectionStartupFailed()
 
     auto infoBox = new QMessageBox(ICore::dialogParent());
     infoBox->setIcon(QMessageBox::Critical);
-    infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
+    infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
     infoBox->setText(Tr::tr("Could not connect to the in-process QML debugger."
                         "\nDo you want to retry?"));
     infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel |
@@ -407,7 +406,7 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
     if (companionEngine()) {
         auto infoBox = new QMessageBox(ICore::dialogParent());
         infoBox->setIcon(QMessageBox::Critical);
-        infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
+        infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
         infoBox->setText(error);
         infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
         infoBox->setDefaultButton(QMessageBox::Ok);

@@ -5,7 +5,7 @@ configure_file(core_logo.qrc.cmakein core_logo_cmake.qrc)
 
 add_qtc_plugin(Core
   DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate
-  PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
+  PUBLIC_DEPENDS Aggregation ExtensionSystem Utils
   SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/core_logo_cmake.qrc
     actionmanager/actioncontainer.cpp

@@ -14,7 +14,6 @@ Project {
         Depends { name: "CppEditor" }
         Depends { name: "TextEditor" }
         Depends { name: "ResourceEditor" }
-        Depends { name: "app_version_header" }
 
         Group {
             name: "General"

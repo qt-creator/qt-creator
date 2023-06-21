@@ -20,8 +20,6 @@
 #include "progressmanager.h"
 #include "semantichighlightsupport.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -54,10 +52,12 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/appinfo.h>
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 
 #include <QDebug>
+#include <QGuiApplication>
 #include <QJsonDocument>
 #include <QLoggingCategory>
 #include <QMessageBox>
@@ -148,8 +148,8 @@ public:
     {
         using namespace ProjectExplorer;
 
-        m_clientInfo.setName(Core::Constants::IDE_DISPLAY_NAME);
-        m_clientInfo.setVersion(Core::Constants::IDE_VERSION_DISPLAY);
+        m_clientInfo.setName(QGuiApplication::applicationDisplayName());
+        m_clientInfo.setVersion(Utils::appInfo().displayVersion);
 
         m_clientProviders.completionAssistProvider = new LanguageClientCompletionAssistProvider(q);
         m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(q);

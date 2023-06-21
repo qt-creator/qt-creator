@@ -16,8 +16,6 @@ Project {
         Depends { name: "Core" }
         Depends { name: "ProjectExplorer" }
 
-        Depends { name: "app_version_header" }
-
         Depends { name: "qlitehtml"; required: false }
 
         cpp.defines: {

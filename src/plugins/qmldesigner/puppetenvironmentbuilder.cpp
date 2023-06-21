@@ -7,8 +7,6 @@
 
 #include <model.h>
 
-#include <app/app_version.h>
-
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 #include <utils/algorithm.h>

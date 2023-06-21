@@ -7,11 +7,10 @@
 #include "dialogs/settingsdialog.h"
 #include "windowsupport.h"
 
-#include <app/app_version.h>
-
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -440,7 +439,7 @@ FilePath ICore::userResourcePath(const QString &rel)
 {
     // Create qtcreator dir if it doesn't yet exist
     const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
-    const QString urp = configDir + '/' + QLatin1String(Constants::IDE_ID);
+    const QString urp = configDir + '/' + appInfo().id;
 
     if (!QFileInfo::exists(urp + QLatin1Char('/'))) {
         QDir dir;
@@ -467,7 +466,7 @@ FilePath ICore::cacheResourcePath(const QString &rel)
 FilePath ICore::installerResourcePath(const QString &rel)
 {
     return FilePath::fromString(settings(QSettings::SystemScope)->fileName()).parentDir()
-                                / Constants::IDE_ID / rel;
+           / appInfo().id / rel;
 }
 
 /*!
@@ -487,15 +486,18 @@ QString ICore::pluginPath()
 */
 QString ICore::userPluginPath()
 {
+    const QVersionNumber appVersion = QVersionNumber::fromString(
+        QCoreApplication::applicationVersion());
     QString pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
     if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost())
         pluginPath += "/data";
-    pluginPath += '/' + QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR) + '/';
-    pluginPath += QLatin1String(Utils::HostOsInfo::isMacHost() ? Core::Constants::IDE_DISPLAY_NAME
-                                                               : Core::Constants::IDE_ID);
+    pluginPath += '/' + QCoreApplication::organizationName() + '/';
+    pluginPath += Utils::HostOsInfo::isMacHost() ? QGuiApplication::applicationDisplayName()
+                                                 : appInfo().id;
     pluginPath += "/plugins/";
-    pluginPath += QString::number(IDE_VERSION_MAJOR) + '.' + QString::number(IDE_VERSION_MINOR)
-                  + '.' + QString::number(IDE_VERSION_RELEASE);
+    pluginPath += QString::number(appVersion.majorVersion()) + '.'
+                  + QString::number(appVersion.minorVersion()) + '.'
+                  + QString::number(appVersion.microVersion());
     return pluginPath;
 }
 
@@ -516,11 +518,6 @@ FilePath ICore::crashReportsPath()
         return Core::ICore::userResourcePath("crashpad_reports/completed");
     else
         return libexecPath("crashpad_reports/reports");
-}
-
-QString ICore::ideDisplayName()
-{
-    return Constants::IDE_DISPLAY_NAME;
 }
 
 static QString clangIncludePath(const QString &clangVersion)
@@ -619,10 +616,10 @@ static QString compilerString()
 QString ICore::versionString()
 {
     QString ideVersionDescription;
-    if (QLatin1String(Constants::IDE_VERSION_LONG) != QLatin1String(Constants::IDE_VERSION_DISPLAY))
-        ideVersionDescription = Tr::tr(" (%1)").arg(QLatin1String(Constants::IDE_VERSION_LONG));
-    return Tr::tr("%1 %2%3").arg(QLatin1String(Constants::IDE_DISPLAY_NAME),
-                                 QLatin1String(Constants::IDE_VERSION_DISPLAY),
+    if (QCoreApplication::applicationVersion() != appInfo().displayVersion)
+        ideVersionDescription = Tr::tr(" (%1)").arg(QCoreApplication::applicationVersion());
+    return Tr::tr("%1 %2%3").arg(QGuiApplication::applicationDisplayName(),
+                                 appInfo().displayVersion,
                                  ideVersionDescription);
 }
 

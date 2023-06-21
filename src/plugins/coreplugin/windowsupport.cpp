@@ -10,14 +10,13 @@
 #include "coreplugintr.h"
 #include "icore.h"
 
-#include <app/app_version.h>
-
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QAction>
 #include <QEvent>
+#include <QGuiApplication>
 #include <QMenu>
 #include <QWidget>
 #include <QWindowStateChangeEvent>
@@ -188,7 +187,7 @@ void WindowList::updateTitle(QWidget *window)
     QTC_ASSERT(index >= 0, return);
     QTC_ASSERT(index < m_windowActions.size(), return);
     QString title = window->windowTitle();
-    if (title.endsWith(QStringLiteral("- ") + Constants::IDE_DISPLAY_NAME))
+    if (title.endsWith(QStringLiteral("- ") + QGuiApplication::applicationDisplayName()))
         title.chop(12);
     m_windowActions.at(index)->setText(Utils::quoteAmpersands(title.trimmed()));
 }

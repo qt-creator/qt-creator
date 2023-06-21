@@ -19,8 +19,6 @@
 #include "targetsetuppage.h"
 #include "task.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>

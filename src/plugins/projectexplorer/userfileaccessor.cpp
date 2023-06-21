@@ -13,7 +13,6 @@
 #include "kit.h"
 #include "kitmanager.h"
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -21,6 +20,7 @@
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
+#include <QGuiApplication>
 #include <QRegularExpression>
 
 using namespace Utils;
@@ -288,7 +288,7 @@ UserFileAccessor::UserFileAccessor(Project *project)
 {
     setStrategy(std::make_unique<VersionedBackUpStrategy>(this));
     setDocType("QtCreatorProject");
-    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+    setApplicationDisplayName(QGuiApplication::applicationDisplayName());
 
     // Setup:
     const FilePath externalUser = externalUserFile();

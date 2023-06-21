@@ -84,7 +84,6 @@
 #include "projecttree.h"
 #include "projectwelcomepage.h"
 
-#include <app/app_version.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -2864,10 +2863,11 @@ bool ProjectExplorerPlugin::coreAboutToClose()
         QPushButton *closeAnyway = box.addButton(Tr::tr("Cancel Build && Close"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(Tr::tr("Do Not Close"), QMessageBox::RejectRole);
         box.setDefaultButton(cancelClose);
-        box.setWindowTitle(Tr::tr("Close %1?").arg(Core::Constants::IDE_DISPLAY_NAME));
+        box.setWindowTitle(Tr::tr("Close %1?").arg(QGuiApplication::applicationDisplayName()));
         box.setText(Tr::tr("A project is currently being built."));
-        box.setInformativeText(Tr::tr("Do you want to cancel the build process and close %1 anyway?")
-                               .arg(Core::Constants::IDE_DISPLAY_NAME));
+        box.setInformativeText(
+            Tr::tr("Do you want to cancel the build process and close %1 anyway?")
+                .arg(QGuiApplication::applicationDisplayName()));
         box.exec();
         if (box.clickedButton() != closeAnyway)
             return false;

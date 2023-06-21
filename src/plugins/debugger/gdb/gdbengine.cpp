@@ -34,7 +34,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
-#include <app/app_version.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -45,11 +44,12 @@
 #include <utils/temporaryfile.h>
 
 #include <QDirIterator>
+#include <QGuiApplication>
+#include <QJsonArray>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QJsonArray>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -1499,11 +1499,12 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
             int pythonMajor = m_pythonVersion / 10000;
             int pythonMinor = (m_pythonVersion / 100) % 100;
             QString out = "<p>"
-                + Tr::tr("The selected build of GDB supports Python scripting, "
-                     "but the used version %1.%2 is not sufficient for "
-                     "%3. Supported versions are Python 2.7 and 3.x.")
-                    .arg(pythonMajor).arg(pythonMinor)
-                    .arg(Core::Constants::IDE_DISPLAY_NAME);
+                          + Tr::tr("The selected build of GDB supports Python scripting, "
+                                   "but the used version %1.%2 is not sufficient for "
+                                   "%3. Supported versions are Python 2.7 and 3.x.")
+                                .arg(pythonMajor)
+                                .arg(pythonMinor)
+                                .arg(QGuiApplication::applicationDisplayName());
             showStatusMessage(out);
             AsynchronousMessageBox::critical(Tr::tr("Execution Error"), out);
         }
@@ -1516,7 +1517,7 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
         if (msg.contains("Python scripting is not supported in this copy of GDB.")) {
             QString out1 = "The selected build of GDB does not support Python scripting.";
             QString out2 = QStringLiteral("It cannot be used in %1.")
-                    .arg(Core::Constants::IDE_DISPLAY_NAME);
+                               .arg(QGuiApplication::applicationDisplayName());
             showStatusMessage(out1 + ' ' + out2);
             AsynchronousMessageBox::critical(Tr::tr("Execution Error"), out1 + "<br>" + out2);
         }

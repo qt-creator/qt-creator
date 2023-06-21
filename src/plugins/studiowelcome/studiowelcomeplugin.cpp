@@ -6,8 +6,6 @@
 
 #include "qdsnewdialog.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/documentmanager.h>
@@ -39,6 +37,7 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
@@ -166,7 +165,7 @@ public:
     explicit UsageStatisticPluginModel(QObject *parent = nullptr)
         : QObject(parent)
     {
-        m_versionString = Core::Constants::IDE_VERSION_DISPLAY;
+        m_versionString = Utils::appInfo().displayVersion;
         setupModel();
     }
 
@@ -532,8 +531,7 @@ static bool showSplashScreen()
 
     const QString lastQDSVersion = settings->value(lastQDSVersionEntry).toString();
 
-
-    const QString currentVersion = Core::Constants::IDE_VERSION_DISPLAY;
+    const QString currentVersion = Utils::appInfo().displayVersion;
 
     if (currentVersion != lastQDSVersion) {
         settings->setValue(lastQDSVersionEntry, currentVersion);

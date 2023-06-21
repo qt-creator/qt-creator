@@ -12,8 +12,6 @@
 #include "projecttree.h"
 #include "target.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
@@ -35,11 +33,12 @@
 #include <QDialogButtonBox>
 #include <QFileInfo>
 #include <QFont>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QMimeData>
-#include <QLoggingCategory>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QVBoxLayout>
@@ -600,7 +599,7 @@ public:
         setWindowTitle(Tr::tr("Choose Drop Action"));
         const bool offerFileIo = !defaultTargetDir.isEmpty();
         auto * const layout = new QVBoxLayout(this);
-        const QString idename(Core::Constants::IDE_DISPLAY_NAME);
+        const QString idename(QGuiApplication::applicationDisplayName());
         layout->addWidget(new QLabel(Tr::tr("You just dragged some files from one project node to "
                                         "another.\nWhat should %1 do now?").arg(idename), this));
         auto * const copyButton = new QRadioButton(this);

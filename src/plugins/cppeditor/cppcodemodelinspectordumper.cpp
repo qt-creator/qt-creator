@@ -8,7 +8,6 @@
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>

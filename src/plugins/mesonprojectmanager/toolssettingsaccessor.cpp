@@ -6,11 +6,10 @@
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
 
-#include <QCoreApplication>
+#include <QGuiApplication>
 #include <QVariantMap>
 
 #include <iterator>
@@ -27,7 +26,7 @@ static QString entryName(int index)
 ToolsSettingsAccessor::ToolsSettingsAccessor()
 {
     setDocType("QtCreatorMesonTools");
-    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+    setApplicationDisplayName(QGuiApplication::applicationDisplayName());
     setBaseFilePath(Core::ICore::userResourcePath(Constants::ToolsSettings::FILENAME));
 }
 

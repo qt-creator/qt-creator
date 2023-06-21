@@ -28,7 +28,6 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
-#include <app/app_version.h>
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
@@ -269,7 +268,7 @@ public:
                 this, &SeparatedView::tabBarContextMenuRequested);
         tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
         setWindowFlags(windowFlags() | Qt::Window);
-        setWindowTitle(Tr::tr("Debugger - %1").arg(Core::Constants::IDE_DISPLAY_NAME));
+        setWindowTitle(Tr::tr("Debugger - %1").arg(QGuiApplication::applicationDisplayName()));
 
         QVariant geometry = SessionManager::value("DebuggerSeparateWidgetGeometry");
         if (geometry.isValid()) {

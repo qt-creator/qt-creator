@@ -4,12 +4,6 @@ if(NOT IS_ABSOLUTE "${IDE_ICON_PATH}")
   set(IDE_ICON_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${IDE_ICON_PATH}")
 endif()
 
-install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/app_version.h
-  DESTINATION ${IDE_HEADER_INSTALL_PATH}/src/app
-  COMPONENT Devel EXCLUDE_FROM_ALL
-)
-
 add_qtc_executable(qtcreator
   DEFINES IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
   DEPENDS Aggregation ExtensionSystem Qt::Core Qt::Widgets Utils shared_qtsingleapplication app_version

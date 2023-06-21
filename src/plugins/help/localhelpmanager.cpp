@@ -21,10 +21,10 @@
 #include "macwebkithelpviewer.h"
 #endif
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -35,6 +35,7 @@
 #include <QHelpEngine>
 #include <QHelpLink>
 #include <QMutexLocker>
+#include <QVersionNumber>
 
 #include <optional>
 
@@ -113,9 +114,12 @@ LocalHelpManager *LocalHelpManager::instance()
 
 QString LocalHelpManager::defaultHomePage()
 {
+    const auto version = QVersionNumber::fromString(QCoreApplication::applicationVersion());
     static const QString url = QString::fromLatin1("qthelp://org.qt-project.qtcreator."
-        "%1%2%3/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
-        .arg(IDE_VERSION_RELEASE);
+                                                   "%1%2%3/doc/index.html")
+                                   .arg(version.majorVersion())
+                                   .arg(version.minorVersion())
+                                   .arg(version.microVersion());
     return url;
 }
 
@@ -496,12 +500,13 @@ bool LocalHelpManager::canOpenOnlineHelp(const QUrl &url)
 
 bool LocalHelpManager::openOnlineHelp(const QUrl &url)
 {
-    static const QString unversionedLocalDomainName = QString("org.qt-project.%1").arg(Core::Constants::IDE_ID);
+    static const QString unversionedLocalDomainName
+        = QString("org.qt-project.%1").arg(Utils::appInfo().id);
 
     if (canOpenOnlineHelp(url)) {
         QString urlPrefix = "http://doc.qt.io/";
         if (url.authority().startsWith(unversionedLocalDomainName)) {
-            urlPrefix.append(Core::Constants::IDE_ID);
+            urlPrefix.append(Utils::appInfo().id);
         } else {
             const auto host = url.host();
             const auto dot = host.lastIndexOf('.');

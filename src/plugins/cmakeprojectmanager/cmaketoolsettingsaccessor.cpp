@@ -9,12 +9,11 @@
 
 #include <coreplugin/icore.h>
 
-#include <app/app_version.h>
-
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 
 #include <QDebug>
+#include <QGuiApplication>
 
 using namespace Utils;
 
@@ -132,7 +131,7 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
 CMakeToolSettingsAccessor::CMakeToolSettingsAccessor()
 {
     setDocType("QtCreatorCMakeTools");
-    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+    setApplicationDisplayName(QGuiApplication::applicationDisplayName());
     setBaseFilePath(Core::ICore::userResourcePath(CMAKE_TOOL_FILENAME));
 
     addVersionUpgrader(std::make_unique<CMakeToolSettingsUpgraderV0>());

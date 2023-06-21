@@ -15,8 +15,6 @@
 #include "patchtool.h"
 #include "vcsmanager.h"
 
-#include <app/app_version.h>
-
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/elidinglabel.h>
@@ -31,6 +29,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QGuiApplication>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
@@ -214,10 +213,10 @@ public:
         m_patchChooser->setFilePath(PatchTool::patchCommand());
         m_autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
         m_autoSaveCheckBox->setToolTip(Tr::tr("Automatically creates temporary copies of "
-                                          "modified files. If %1 is restarted after "
-                                          "a crash or power failure, it asks whether to "
-                                          "recover the auto-saved content.")
-                                           .arg(Constants::IDE_DISPLAY_NAME));
+                                              "modified files. If %1 is restarted after "
+                                              "a crash or power failure, it asks whether to "
+                                              "recover the auto-saved content.")
+                                           .arg(QGuiApplication::applicationDisplayName()));
         m_autoSaveRefactoringCheckBox->setChecked(EditorManager::autoSaveAfterRefactoring());
         m_autoSaveRefactoringCheckBox->setToolTip(
             Tr::tr("Automatically saves all open files "
