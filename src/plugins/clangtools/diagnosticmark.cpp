@@ -15,6 +15,7 @@
 #include <QAction>
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
@@ -22,37 +23,35 @@ namespace Internal {
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic, TextDocument *document)
     : TextMark(document,
                diagnostic.location.line,
-               {Tr::tr("Clang Tools"), Utils::Id(Constants::DIAGNOSTIC_MARK_ID)})
+               {Tr::tr("Clang Tools"), Id(Constants::DIAGNOSTIC_MARK_ID)})
     , m_diagnostic(diagnostic)
 {
     setSettingsPage(Constants::SETTINGS_PAGE_ID);
 
-    if (diagnostic.type == "error" || diagnostic.type == "fatal")
-        setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
-    else
-        setColor(Utils::Theme::CodeModel_Warning_TextMarkColor);
-    setPriority(TextEditor::TextMark::HighPriority);
+    const bool isError = diagnostic.type == "error" || diagnostic.type == "fatal";
+    setColor(isError ? Theme::CodeModel_Error_TextMarkColor : Theme::CodeModel_Error_TextMarkColor);
+    setPriority(isError ? TextEditor::TextMark::HighPriority : TextEditor::TextMark::NormalPriority);
     QIcon markIcon = diagnostic.icon();
-    setIcon(markIcon.isNull() ? Utils::Icons::CODEMODEL_WARNING.icon() : markIcon);
+    setIcon(markIcon.isNull() ? Icons::CODEMODEL_WARNING.icon() : markIcon);
     setToolTip(createDiagnosticToolTipString(diagnostic, std::nullopt, true));
     setLineAnnotation(diagnostic.description);
     setActionsProvider([diagnostic] {
         // Copy to clipboard action
         QList<QAction *> actions;
         QAction *action = new QAction();
-        action->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
+        action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
         action->setToolTip(Tr::tr("Copy to Clipboard"));
         QObject::connect(action, &QAction::triggered, [diagnostic] {
             const QString text = createFullLocationString(diagnostic.location)
                                  + ": "
                                  + diagnostic.description;
-            Utils::setClipboardAndSelection(text);
+            setClipboardAndSelection(text);
         });
         actions << action;
 
         // Disable diagnostic action
         action = new QAction();
-        action->setIcon(Utils::Icons::BROKEN.icon());
+        action->setIcon(Icons::BROKEN.icon());
         action->setToolTip(Tr::tr("Disable Diagnostic"));
         QObject::connect(action, &QAction::triggered, [diagnostic] { disableChecks({diagnostic}); });
         actions << action;
@@ -70,10 +69,10 @@ void DiagnosticMark::disable()
         return;
     m_enabled = false;
     if (m_diagnostic.type == "error" || m_diagnostic.type == "fatal")
-        setIcon(Utils::Icons::CODEMODEL_DISABLED_ERROR.icon());
+        setIcon(Icons::CODEMODEL_DISABLED_ERROR.icon());
     else
-        setIcon(Utils::Icons::CODEMODEL_DISABLED_WARNING.icon());
-    setColor(Utils::Theme::Color::IconsDisabledColor);
+        setIcon(Icons::CODEMODEL_DISABLED_WARNING.icon());
+    setColor(Theme::Color::IconsDisabledColor);
 }
 
 bool DiagnosticMark::enabled() const
