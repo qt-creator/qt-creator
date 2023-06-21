@@ -10,5 +10,5 @@
 	path = src/libs/qlitehtml
 	url = https://code.qt.io/playground/qlitehtml.git
 [submodule "googletest"]
-	path = tests/unit/3rdparty/googletest
+	path = src/libs/3rdparty/googletest
 	url = https://github.com/google/googletest.git

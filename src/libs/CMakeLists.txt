@@ -22,6 +22,10 @@ if (WITH_QMLDESIGNER)
   add_subdirectory(qmlpuppetcommunication)
 endif()
 
+if (WITH_TESTS)
+ add_subdirectory(googletest)
+endif()
+
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/qlitehtml/src/CMakeLists.txt)
   option(BUILD_LIBRARY_QLITEHTML "Build library qlitehtml." ${BUILD_LIBRARIES_BY_DEFAULT})
   set(QLITEHTML_VERSION_COMPAT ${IDE_VERSION_COMPAT} CACHE STRING "")
