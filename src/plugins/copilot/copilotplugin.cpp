@@ -9,6 +9,7 @@
 #include "copilotoptionspage.h"
 #include "copilotprojectpanel.h"
 #include "copilotsettings.h"
+#include "copilotsuggestion.h"
 #include "copilottr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -20,6 +21,7 @@
 
 #include <projectexplorer/projectpanelfactory.h>
 
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 
 #include <QAction>
@@ -31,6 +33,28 @@ using namespace ProjectExplorer;
 
 namespace Copilot {
 namespace Internal {
+
+enum Direction { Previous, Next };
+void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
+{
+    QTextBlock block = editor->textCursor().block();
+    if (auto *suggestion = dynamic_cast<CopilotSuggestion *>(
+            TextEditor::TextDocumentLayout::suggestion(block))) {
+        int index = suggestion->currentCompletion();
+        if (direction == Previous)
+            --index;
+        else
+            ++index;
+        if (index < 0)
+            index = suggestion->completions().count() - 1;
+        else if (index >= suggestion->completions().count())
+            index = 0;
+        suggestion->reset();
+        editor->insertSuggestion(std::make_unique<CopilotSuggestion>(suggestion->completions(),
+                                                                     editor->document(),
+                                                                     index));
+    }
+}
 
 void CopilotPlugin::initialize()
 {
@@ -56,6 +80,30 @@ void CopilotPlugin::initialize()
     });
 
     ActionManager::registerAction(requestAction, Constants::COPILOT_REQUEST_SUGGESTION);
+
+    QAction *nextSuggestionAction = new QAction(this);
+    nextSuggestionAction->setText(Tr::tr("Show next Copilot Suggestion"));
+    nextSuggestionAction->setToolTip(Tr::tr(
+        "Cycles through the received Copilot Suggestions showing the next available Suggestion."));
+
+    connect(nextSuggestionAction, &QAction::triggered, this, [] {
+        if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
+            cycleSuggestion(editor, Next);
+    });
+
+    ActionManager::registerAction(nextSuggestionAction, Constants::COPILOT_NEXT_SUGGESTION);
+
+    QAction *previousSuggestionAction = new QAction(this);
+    previousSuggestionAction->setText(Tr::tr("Show previos Copilot Suggestion"));
+    previousSuggestionAction->setToolTip(Tr::tr("Cycles through the received Copilot Suggestions "
+                                                "showing the previous available Suggestion."));
+
+    connect(previousSuggestionAction, &QAction::triggered, this, [] {
+        if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
+            cycleSuggestion(editor, Previous);
+    });
+
+    ActionManager::registerAction(previousSuggestionAction, Constants::COPILOT_PREVIOUS_SUGGESTION);
 
     QAction *disableAction = new QAction(this);
     disableAction->setText(Tr::tr("Disable Copilot"));
