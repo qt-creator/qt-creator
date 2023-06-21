@@ -5,6 +5,5 @@ add_qtc_library(TestMatchers OBJECT
   DEPENDS
     Googletest Utils
   SOURCES
-    dynamicastmatcherdiagnosticcontainer-matcher.h
     unittest-matchers.h
 )
