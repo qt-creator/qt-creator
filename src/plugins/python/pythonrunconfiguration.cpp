@@ -197,6 +197,14 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
     addAspect<TerminalAspect>();
 
+    if (HostOsInfo::isAnyUnixHost())
+        addAspect<X11ForwardingAspect>(macroExpander());
+
+    setRunnableModifier([this](Runnable &r) {
+        if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
+            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
+    });
+
     setCommandLineGetter([bufferedAspect, interpreterAspect, argumentsAspect, scriptAspect] {
         CommandLine cmd{interpreterAspect->currentInterpreter().command};
         if (!bufferedAspect->value())
