@@ -16,9 +16,9 @@
 
 #include <functional>
 
-namespace Layouting { class LayoutItem; };
+namespace Layouting { class LayoutItem; }
 
-namespace Utils { class AspectContainer; };
+namespace Utils { class AspectContainer; }
 
 namespace Core {
 
