@@ -11,25 +11,12 @@
 #include <utils/fileutils.h>
 #include <utils/textutils.h>
 
+#include <QFuture>
+
 #include <yaml-cpp/yaml.h>
 
 namespace ClangTools {
 namespace Internal {
-
-static bool checkFilePath(const Utils::FilePath &filePath, QString *errorMessage)
-{
-    QFileInfo fi(filePath.toFileInfo());
-    if (!fi.exists() || !fi.isReadable()) {
-        if (errorMessage) {
-            *errorMessage
-                    = QString(QT_TRANSLATE_NOOP("QtC::ClangTools",
-                                                "File \"%1\" does not exist or is not readable."))
-                    .arg(filePath.toUserOutput());
-        }
-        return false;
-    }
-    return true;
-}
 
 std::optional<LineColumnInfo> byteOffsetInUtf8TextToLineColumn(const char *text,
                                                                  int offset,
@@ -190,19 +177,25 @@ private:
 
 } // namespace
 
-Diagnostics readExportedDiagnostics(const Utils::FilePath &logFilePath,
-                                    const AcceptDiagsFromFilePath &acceptFromFilePath,
-                                    QString *errorMessage)
+void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
+                      const Utils::FilePath &logFilePath,
+                      const AcceptDiagsFromFilePath &acceptFromFilePath)
 {
-    if (!checkFilePath(logFilePath, errorMessage))
-        return {};
+    const Utils::expected_str<QByteArray> localFileContents = logFilePath.fileContents();
+    if (!localFileContents.has_value()) {
+        promise.addResult(Utils::make_unexpected(localFileContents.error()));
+        promise.future().cancel();
+        return;
+    }
 
     FileCache fileCache;
     Diagnostics diagnostics;
 
     try {
-        YAML::Node document = YAML::LoadFile(logFilePath.toString().toStdString());
+        YAML::Node document = YAML::Load(*localFileContents);
         for (const auto &diagNode : document["Diagnostics"]) {
+            if (promise.isCanceled())
+                return;
             // Since llvm/clang 9.0 the diagnostic items are wrapped in a "DiagnosticMessage" node.
             const auto msgNode = diagNode["DiagnosticMessage"];
             const YAML::Node &node = msgNode ? msgNode : diagNode;
@@ -252,16 +245,24 @@ Diagnostics readExportedDiagnostics(const Utils::FilePath &logFilePath,
 
             diagnostics.append(diag);
         }
+        promise.addResult(diagnostics);
     } catch (std::exception &e) {
-        if (errorMessage) {
-            *errorMessage = QString(
-                                QT_TRANSLATE_NOOP("QtC::ClangTools",
-                                                  "Error: Failed to parse YAML file \"%1\": %2."))
-                                .arg(logFilePath.toUserOutput(), QString::fromUtf8(e.what()));
-        }
+        const QString errorMessage
+            = QString(QT_TRANSLATE_NOOP("QtC::ClangTools",
+                                        "Error: Failed to parse YAML file \"%1\": %2."))
+                  .arg(logFilePath.toUserOutput(), QString::fromUtf8(e.what()));
+        promise.addResult(Utils::make_unexpected(errorMessage));
+        promise.future().cancel();
     }
+}
 
-    return diagnostics;
+Utils::expected_str<Diagnostics> readExportedDiagnostics(
+    const Utils::FilePath &logFilePath, const AcceptDiagsFromFilePath &acceptFromFilePath)
+{
+    QPromise<Utils::expected_str<Diagnostics>> promise;
+    promise.start();
+    parseDiagnostics(promise, logFilePath, acceptFromFilePath);
+    return promise.future().result();
 }
 
 } // namespace Internal

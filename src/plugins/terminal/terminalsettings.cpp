@@ -110,7 +110,7 @@ static expected_str<void> loadItermColors(const FilePath &path)
     QFile f(path.toFSPathString());
     const bool opened = f.open(QIODevice::ReadOnly);
     if (!opened)
-        return make_unexpected(Tr::tr("Failed to open file"));
+        return make_unexpected(Tr::tr("Failed to open file."));
 
     QXmlStreamReader reader(&f);
     while (!reader.atEnd() && reader.readNextStartElement()) {
@@ -191,7 +191,7 @@ static expected_str<void> loadVsCodeColors(const FilePath &path)
     const QJsonObject root = doc.object();
     const auto itColors = root.find("colors");
     if (itColors == root.end())
-        return make_unexpected(Tr::tr("No colors found"));
+        return make_unexpected(Tr::tr("No colors found."));
 
     const QJsonObject colors = itColors->toObject();
 
@@ -252,7 +252,7 @@ static expected_str<void> loadKonsoleColorScheme(const FilePath &path)
 
     auto parseColor = [](const QStringList &parts) -> expected_str<QColor> {
         if (parts.size() != 3 && parts.size() != 4)
-            return make_unexpected(Tr::tr("Invalid color format"));
+            return make_unexpected(Tr::tr("Invalid color format."));
         int alpha = parts.size() == 4 ? parts[3].toInt() : 255;
         return QColor(parts[0].toInt(), parts[1].toInt(), parts[2].toInt(), alpha);
     };
@@ -351,7 +351,7 @@ static expected_str<void> loadColorScheme(const FilePath &path)
     else if (path.suffix() == "theme" || path.completeSuffix() == "theme.txt")
         return loadXFCE4ColorScheme(path);
 
-    return make_unexpected(Tr::tr("Unknown color scheme format"));
+    return make_unexpected(Tr::tr("Unknown color scheme format."));
 }
 
 static TerminalSettings *s_instance;
@@ -375,7 +375,7 @@ TerminalSettings::TerminalSettings()
     enableTerminal.setSettingsKey("EnableTerminal");
     enableTerminal.setLabelText(Tr::tr("Use internal terminal"));
     enableTerminal.setToolTip(
-        Tr::tr("If enabled, use the internal terminal when \"Run In Terminal\" is "
+        Tr::tr("Uses the internal terminal when \"Run In Terminal\" is "
                "enabled and for \"Open Terminal here\"."));
     enableTerminal.setDefaultValue(true);
 
@@ -387,7 +387,7 @@ TerminalSettings::TerminalSettings()
 
     fontSize.setSettingsKey("FontSize");
     fontSize.setLabelText(Tr::tr("Size:"));
-    fontSize.setToolTip(Tr::tr("The font size used in the terminal. (in points)"));
+    fontSize.setToolTip(Tr::tr("The font size used in the terminal (in points)."));
     fontSize.setDefaultValue(defaultFontSize());
     fontSize.setRange(1, 100);
 
@@ -414,13 +414,13 @@ TerminalSettings::TerminalSettings()
     sendEscapeToTerminal.setSettingsKey("SendEscapeToTerminal");
     sendEscapeToTerminal.setLabelText(Tr::tr("Send escape key to terminal"));
     sendEscapeToTerminal.setToolTip(
-        Tr::tr("If enabled, pressing the escape key will send it to the terminal "
+        Tr::tr("Sends the escape key to the terminal when pressed"
                "instead of closing the terminal."));
     sendEscapeToTerminal.setDefaultValue(false);
 
     audibleBell.setSettingsKey("AudibleBell");
     audibleBell.setLabelText(Tr::tr("Audible bell"));
-    audibleBell.setToolTip(Tr::tr("If enabled, the terminal will beep when a bell "
+    audibleBell.setToolTip(Tr::tr("Makes the terminal beep when a bell "
                                   "character is received."));
     audibleBell.setDefaultValue(true);
 

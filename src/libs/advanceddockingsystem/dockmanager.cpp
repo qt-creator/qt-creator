@@ -839,7 +839,7 @@ expected_str<void> DockManager::reloadActiveWorkspace()
 
     if (!workspaces().contains(*wrk))
         return make_unexpected(
-            Tr::tr("Cannot reload \"%1\", it is not contained in the list of workspaces")
+            Tr::tr("Cannot reload \"%1\". It is not in the list of workspaces.")
                 .arg(wrk->filePath().toUserOutput()));
 
     const expected_str<QByteArray> data = loadWorkspace(*wrk);
@@ -903,7 +903,7 @@ expected_str<QString> DockManager::cloneWorkspace(const QString &originalFileNam
 
     const expected_str<void> copyResult = originalPath.copyFile(clonePath);
     if (!copyResult)
-        return make_unexpected(Tr::tr("Could not clone '%1' due to: %2")
+        return make_unexpected(Tr::tr("Could not clone \"%1\" due to: %2")
                                    .arg(originalPath.toUserOutput(), copyResult.error()));
 
     writeDisplayName(clonePath, cloneName);
@@ -1023,7 +1023,7 @@ expected_str<QString> DockManager::exportWorkspace(const QString &targetFilePath
     const FilePath workspaceFile = userDirectory().pathAppended(sourceFileName);
     if (!workspaceFile.exists())
         return make_unexpected(
-            Tr::tr("Workspace does not exist '%1'").arg(workspaceFile.toUserOutput()));
+            Tr::tr("Workspace does not exist \"%1\"").arg(workspaceFile.toUserOutput()));
 
     // Finally copy the workspace to the target
     const expected_str<void> copyResult = workspaceFile.copyFile(targetFile);

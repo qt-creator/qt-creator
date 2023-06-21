@@ -79,10 +79,10 @@ TerminalPane::TerminalPane(QObject *parent)
                                             .toString(QKeySequence::NativeText);
         if (TerminalSettings::instance().sendEscapeToTerminal.value()) {
             m_escSettingButton->setText(escKey);
-            m_escSettingButton->setToolTip(Tr::tr("Sending Esc to terminal instead of Qt Creator"));
+            m_escSettingButton->setToolTip(Tr::tr("Sends Esc to terminal instead of Qt Creator."));
         } else {
             m_escSettingButton->setText(shiftEsc);
-            m_escSettingButton->setToolTip(Tr::tr("Press %1 to send Esc to terminal").arg(shiftEsc));
+            m_escSettingButton->setToolTip(Tr::tr("Press %1 to send Esc to terminal.").arg(shiftEsc));
         }
     };
 
@@ -252,10 +252,10 @@ void TerminalPane::initActions()
         TerminalSettings::instance().lockKeyboard.setValue(locked);
         if (locked) {
             lockKeyboard.setIcon(LOCK_KEYBOARD_ICON.icon());
-            lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be sent to the Terminal"));
+            lockKeyboard.setToolTip(Tr::tr("Sends keyboard shortcuts to Terminal."));
         } else {
             lockKeyboard.setIcon(UNLOCK_KEYBOARD_ICON.icon());
-            lockKeyboard.setToolTip(Tr::tr("Keyboard shortcuts will be sent to Qt Creator"));
+            lockKeyboard.setToolTip(Tr::tr("Sends keyboard shortcuts to Qt Creator."));
         }
     };
 

@@ -141,6 +141,8 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              Tr::tr("Name of a primitive data type."), Qt::darkYellow);
     formatDescr.emplace_back(C_TYPE, Tr::tr("Type"), Tr::tr("Name of a type."),
                              Qt::darkMagenta);
+    formatDescr.emplace_back(C_CONCEPT, Tr::tr("Concept"), Tr::tr("Name of a concept."),
+                             Qt::darkMagenta);
     formatDescr.emplace_back(C_NAMESPACE, Tr::tr("Namespace"), Tr::tr("Name of a namespace."),
                              Qt::darkGreen);
     formatDescr.emplace_back(C_LOCAL, Tr::tr("Local"),

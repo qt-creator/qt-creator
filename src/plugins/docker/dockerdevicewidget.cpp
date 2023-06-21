@@ -80,9 +80,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     });
 
     m_enableLldbFlags = new QCheckBox(Tr::tr("Enable flags needed for LLDB"));
-    m_enableLldbFlags->setToolTip(Tr::tr("Adds the following flags to the container: "
-                                         "--cap-add=SYS_PTRACE --security-opt seccomp=unconfined, "
-                                         "this is necessary to allow lldb to run"));
+    m_enableLldbFlags->setToolTip(Tr::tr("Adds the following flags to the container "
+                                         "to allow LLDB to run: "
+                                         "--cap-add=SYS_PTRACE --security-opt seccomp=unconfined"));
     m_enableLldbFlags->setChecked(m_data.enableLldbFlags);
     m_enableLldbFlags->setEnabled(true);
 
@@ -159,7 +159,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     searchDirsLineEdit->setPlaceholderText(Tr::tr("Semicolon-separated list of directories"));
     searchDirsLineEdit->setToolTip(
-        Tr::tr("Select the paths in the docker image that should be scanned for kit entries."));
+        Tr::tr("Select the paths in the Docker image that should be scanned for kit entries."));
     searchDirsLineEdit->setHistoryCompleter("DockerMounts", true);
 
     auto searchPaths = [searchDirsComboBox, searchDirsLineEdit, dockerDevice] {
@@ -195,7 +195,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
 
         if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
-            logView->append(Tr::tr("Docker daemon appears to be not running."));
+            logView->append(Tr::tr("Docker daemon appears to be stopped."));
         else
             logView->append(Tr::tr("Docker daemon appears to be running."));
 

@@ -159,7 +159,7 @@ Qt::ItemFlags CMakeTargetItem::flags(int) const
 
 // CMakeBuildStep
 
-static QString initialStagingDir()
+static QString initialStagingDir(Kit *kit)
 {
     // Avoid actual file accesses.
     auto rg = QRandomGenerator::global();
@@ -167,6 +167,9 @@ static QString initialStagingDir()
     char buf[sizeof(rand)];
     memcpy(&buf, &rand, sizeof(rand));
     const QByteArray ba = QByteArray(buf, sizeof(buf)).toHex();
+    IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit);
+    if (buildDevice && buildDevice->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        return TemporaryDirectory::masterDirectoryPath() + "/staging-" + ba;
     return QString::fromUtf8("/tmp/Qt-Creator-staging-" + ba);
 }
 
@@ -200,7 +203,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
     m_stagingDir = addAspect<FilePathAspect>();
     m_stagingDir->setSettingsKey(STAGING_DIR_KEY);
     m_stagingDir->setLabelText(Tr::tr("Staging directory:"));
-    m_stagingDir->setDefaultValue(initialStagingDir());
+    m_stagingDir->setDefaultValue(initialStagingDir(kit()));
 
     Kit *kit = buildConfiguration()->kit();
     if (CMakeBuildConfiguration::isIos(kit)) {

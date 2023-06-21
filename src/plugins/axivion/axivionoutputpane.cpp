@@ -40,7 +40,7 @@ DashboardWidget::DashboardWidget(QWidget *parent)
     m_project = new QLabel(this);
     projectLayout->addRow(Tr::tr("Project:"), m_project);
     m_loc = new QLabel(this);
-    projectLayout->addRow(Tr::tr("Lines of Code:"), m_loc);
+    projectLayout->addRow(Tr::tr("Lines of code:"), m_loc);
     layout->addLayout(projectLayout);
     m_formLayout = new QFormLayout;
     layout->addLayout(m_formLayout);
