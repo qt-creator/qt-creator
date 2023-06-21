@@ -4,6 +4,7 @@
 #pragma once
 
 #include <gmock/gmock-matchers.h>
+#include <gmock/gmock-more-matchers.h>
 
 #include <utils/smallstringio.h>
 
