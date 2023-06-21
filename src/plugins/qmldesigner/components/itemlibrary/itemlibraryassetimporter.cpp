@@ -709,7 +709,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                         try {
                             RewriterTransaction transaction = model->rewriterView()->beginRewriterTransaction(
                                 QByteArrayLiteral("ItemLibraryAssetImporter::finalizeQuick3DImport"));
-                            bool success = Utils::addImportsWithCheck(m_requiredImports, model);
+                            bool success = ModelUtils::addImportsWithCheck(m_requiredImports, model);
                             if (!success)
                                 addError(tr("Failed to insert import statement into qml document."));
                             transaction.commit();

@@ -922,7 +922,7 @@ void Edit3DView::addQuick3DImport()
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (document && !document->inFileComponentModelActive() && model()
-        && Utils::addImportWithCheck(
+        && ModelUtils::addImportWithCheck(
             "QtQuick3D",
             [](const Import &import) { return !import.hasVersion() || import.majorVersion() >= 6; },
             model())) {

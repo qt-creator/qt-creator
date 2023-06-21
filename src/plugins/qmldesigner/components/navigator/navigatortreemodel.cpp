@@ -885,7 +885,7 @@ ModelNode NavigatorTreeModel::handleItemLibraryFontDrop(const QString &fontFamil
 
 void NavigatorTreeModel::addImport(const QString &importName)
 {
-    if (!Utils::addImportWithCheck(importName, m_view->model()))
+    if (!ModelUtils::addImportWithCheck(importName, m_view->model()))
         qWarning() << __FUNCTION__ << "Adding import failed:" << importName;
 }
 

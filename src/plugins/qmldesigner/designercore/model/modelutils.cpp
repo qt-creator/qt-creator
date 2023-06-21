@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-namespace QmlDesigner::Utils {
+namespace QmlDesigner::ModelUtils {
 
 namespace {
 
@@ -102,4 +102,4 @@ PropertyMetaInfo metainfo(const ModelNode &node, const PropertyName &propertyNam
     return node.metaInfo().property(propertyName);
 }
 
-} // namespace QmlDesigner::Utils
+} // namespace QmlDesigner::ModelUtils
