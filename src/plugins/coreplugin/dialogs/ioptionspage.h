@@ -74,7 +74,6 @@ protected:
     void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
     void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
     void setSettings(Utils::AspectContainer *settings);
-    void setLayouter(const std::function<Layouting::LayoutItem()> &layouter);
 
     // Used in FontSettingsPage. FIXME?
     QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator

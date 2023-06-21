@@ -2430,6 +2430,7 @@ public:
     QList<BaseAspect *> m_ownedItems; // Owned only.
     bool m_autoApply = true;
     QStringList m_settingsGroup;
+    std::function<Layouting::LayoutItem ()> m_layouter;
 };
 
 } // Internal
@@ -2481,6 +2482,16 @@ AspectContainer::const_iterator AspectContainer::begin() const
 AspectContainer::const_iterator AspectContainer::end() const
 {
     return d->m_items.cend();
+}
+
+void AspectContainer::setLayouter(const std::function<Layouting::LayoutItem ()> &layouter)
+{
+    d->m_layouter = layouter;
+}
+
+std::function<LayoutItem ()> AspectContainer::layouter() const
+{
+    return d->m_layouter;
 }
 
 const QList<BaseAspect *> &AspectContainer::aspects() const

@@ -136,6 +136,13 @@ QWidget *IOptionsPage::widget()
     if (!m_widget) {
         if (m_widgetCreator) {
             m_widget = m_widgetCreator();
+        } else if (m_settings) {
+            m_widget = new IOptionsPageWidget;
+            if (auto layouter = m_settings->layouter()) {
+                layouter().attachTo(m_widget);
+            } else {
+                QTC_CHECK(false);
+            }
         } else {
             QTC_CHECK(false);
         }
@@ -197,15 +204,6 @@ void IOptionsPage::setCategoryIconPath(const FilePath &categoryIconPath)
 void IOptionsPage::setSettings(AspectContainer *settings)
 {
     m_settings = settings;
-}
-
-void IOptionsPage::setLayouter(const std::function<Layouting::LayoutItem ()> &layouter)
-{
-    m_widgetCreator = [layouter] {
-        auto widget = new IOptionsPageWidget;
-        layouter().attachTo(widget);
-        return widget;
-    };
 }
 
 /*!

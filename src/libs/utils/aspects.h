@@ -710,6 +710,9 @@ public:
     const_iterator begin() const;
     const_iterator end() const;
 
+    void setLayouter(const std::function<Layouting::LayoutItem()> &layouter);
+    std::function<Layouting::LayoutItem()> layouter() const;
+
 signals:
     void applied();
     void changed();
