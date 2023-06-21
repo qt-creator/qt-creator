@@ -26,12 +26,14 @@ class TASKING_EXPORT TaskInterface : public QObject
 {
     Q_OBJECT
 
-public:
-    TaskInterface() = default;
-    virtual void start() = 0;
-
 signals:
     void done(bool success);
+
+private:
+    template <typename Task> friend class TaskAdapter;
+    friend class TaskNode;
+    TaskInterface() = default;
+    virtual void start() = 0;
 };
 
 class TASKING_EXPORT TreeStorageBase
@@ -300,12 +302,14 @@ private:
 template <typename Task>
 class TaskAdapter : public TaskInterface
 {
-public:
+protected:
     using Type = Task;
     TaskAdapter() = default;
     Task *task() { return &m_task; }
     const Task *task() const { return &m_task; }
+
 private:
+    template <typename Adapter> friend class CustomTask;
     Task m_task;
 };
 
