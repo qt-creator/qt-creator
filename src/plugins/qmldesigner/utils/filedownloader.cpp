@@ -43,9 +43,14 @@ QNetworkRequest FileDownloader::makeRequest() const
 {
     QUrl url = m_url;
 
-    if (url.scheme() == "https" && !QSslSocket::supportsSsl()) {
-        qWarning() << "SSL is not available. HTTP will be used instead of HTTPS.";
-        url.setScheme("http");
+    if (url.scheme() == "https") {
+#ifndef QT_NO_SSL
+        if (!QSslSocket::supportsSsl())
+#endif
+        {
+            qWarning() << "SSL is not available. HTTP will be used instead of HTTPS.";
+            url.setScheme("http");
+        }
     }
 
     auto request = QNetworkRequest(url);
