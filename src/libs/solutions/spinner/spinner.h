@@ -19,8 +19,9 @@ Q_ENUM_NS(SpinnerSize);
 
 class SPINNER_EXPORT Spinner : public QObject
 {
+    Q_OBJECT
 public:
-    Spinner(SpinnerSize size, QWidget *parent = nullptr);
+    explicit Spinner(SpinnerSize size, QWidget *parent = nullptr);
     void setSize(SpinnerSize size);
     void show();
     void hide();
