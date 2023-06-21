@@ -1069,9 +1069,13 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                 cmd.addArg(QString("*:%1").arg(portsGatherer->gdbServer().port()));
                 cmd.addArg("--server");
             } else if (cmd.executable().baseName() == "debugserver") {
-                cmd.addArg(QString("*:%1").arg(portsGatherer->gdbServer().port()));
-                cmd.addArg("--attach");
-                cmd.addArg(QString::number(m_pid.pid()));
+                const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
+                cmd.addArgs(ipAndPort.arg(portsGatherer->gdbServer().port()), CommandLine::Raw);
+
+                if (m_pid.isValid())
+                    cmd.addArgs({"--attach", QString::number(m_pid.pid())});
+                else
+                    cmd.addCommandLineAsArgs(runControl->runnable().command);
             } else {
                 // Something resembling gdbserver
                 if (m_useMulti)

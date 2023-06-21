@@ -971,20 +971,31 @@ class Dumper(DumperBase):
                     self.debugger.GetListener(),
                     self.remoteChannel_, None, error)
             else:
-                f = lldb.SBFileSpec()
-                f.SetFilename(self.executable_)
+                if self.platform_ == "remote-macosx":
+                    DumperBase.warn("TARGET: %s" % self.target)
 
-                launchInfo = lldb.SBLaunchInfo(self.processArgs_)
-                #launchInfo.SetWorkingDirectory(self.workingDirectory_)
-                launchInfo.SetWorkingDirectory('/tmp')
-                if self.platform_ == 'remote-android':
-                    launchInfo.SetWorkingDirectory('/data/local/tmp')
-                launchInfo.SetEnvironmentEntries(self.environment_, False)
-                launchInfo.SetExecutableFile(f, True)
+                    self.process = self.target.ConnectRemote(
+                        self.debugger.GetListener(),
+                        "connect://" + self.remoteChannel_, None, error)
 
-                DumperBase.warn("TARGET: %s" % self.target)
-                self.process = self.target.Launch(launchInfo, error)
-                DumperBase.warn("PROCESS: %s" % self.process)
+                    if self.breakOnMain_:
+                        self.createBreakpointAtMain()
+
+                    DumperBase.warn("PROCESS: %s" % self.process)
+                else:
+                    f = lldb.SBFileSpec()
+                    f.SetFilename(self.executable_)
+
+                    launchInfo = lldb.SBLaunchInfo(self.processArgs_)
+                    #launchInfo.SetWorkingDirectory(self.workingDirectory_)
+                    launchInfo.SetWorkingDirectory('/tmp')
+                    if self.platform_ == 'remote-android':
+                        launchInfo.SetWorkingDirectory('/data/local/tmp')
+                    launchInfo.SetEnvironmentEntries(self.environment_, False)
+                    launchInfo.SetExecutableFile(f, True)
+                    DumperBase.warn("TARGET: %s" % self.target)
+                    self.process = self.target.Launch(launchInfo, error)
+                    DumperBase.warn("PROCESS: %s" % self.process)
 
             if not error.Success():
                 self.report(self.describeError(error))
@@ -1479,8 +1490,9 @@ class Dumper(DumperBase):
                     self.reportState("stopped")
                     if self.firstStop_:
                         self.firstStop_ = False
-                        if self.useTerminal_:
-                            # When using a terminal, the process will be interrupted on startup.
+                        if self.useTerminal_ or self.platform_ == "remote-macosx":
+                            # When using a terminal or remote debugging macosx apps,
+                            # the process will be interrupted on startup.
                             # We therefore need to continue it here.
                             self.process.Continue()
             else:
