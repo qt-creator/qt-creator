@@ -187,7 +187,8 @@ void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
     if (!device)
         return;
 
-    processList.reset(device->createProcessListModel());
+    processList.reset(new ProcessList(device->sharedFromThis(), this));
+
     QTC_ASSERT(processList, return);
     proxyModel.setSourceModel(processList->model());
 

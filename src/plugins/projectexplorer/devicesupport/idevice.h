@@ -32,16 +32,14 @@ namespace Utils {
 class CommandLine;
 class DeviceFileAccess;
 class Environment;
-class Icon;
 class PortList;
 class Port;
-class ProcessInterface;
 class Process;
+class ProcessInterface;
 } // Utils
 
 namespace ProjectExplorer {
 
-class ProcessList;
 class FileTransferInterface;
 class FileTransferSetupData;
 class Kit;
@@ -142,7 +140,6 @@ public:
 
     virtual PortsGatheringMethod portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
-    virtual ProcessList *createProcessListModel(QObject *parent = nullptr) const;
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester() const;
 

@@ -995,11 +995,6 @@ IDeviceWidget *LinuxDevice::createWidget()
     return new Internal::GenericLinuxDeviceConfigurationWidget(sharedFromThis());
 }
 
-ProcessList *LinuxDevice::createProcessListModel(QObject *parent) const
-{
-    return new ProcessList(sharedFromThis(), parent);
-}
-
 DeviceTester *LinuxDevice::createDeviceTester() const
 {
     return new GenericLinuxDeviceTester;

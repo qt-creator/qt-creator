@@ -74,7 +74,6 @@ public:
     Utils::ProcessInterface *createProcessInterface() const override;
 
     bool canCreateProcessModel() const override { return true; }
-    ProjectExplorer::ProcessList *createProcessListModel(QObject *parent) const override;
     bool hasDeviceTester() const override { return false; }
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
     bool usableAsBuildDevice() const override;

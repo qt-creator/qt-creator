@@ -89,11 +89,6 @@ bool DesktopDevice::canCreateProcessModel() const
     return true;
 }
 
-ProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
-{
-    return new ProcessList(sharedFromThis(), parent);
-}
-
 DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new DesktopProcessSignalOperation());

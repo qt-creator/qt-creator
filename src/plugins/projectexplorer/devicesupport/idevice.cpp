@@ -391,13 +391,6 @@ PortsGatheringMethod IDevice::portsGatheringMethod() const
                 return {filePath("netstat"), {"-a", "-n"}};
             },
             &Port::parseFromCommandOutput};
-};
-
-ProcessList *IDevice::createProcessListModel(QObject *parent) const
-{
-    Q_UNUSED(parent)
-    QTC_ASSERT(false, qDebug("This should not have been called..."); return nullptr);
-    return nullptr;
 }
 
 DeviceTester *IDevice::createDeviceTester() const

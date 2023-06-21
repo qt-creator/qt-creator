@@ -828,11 +828,6 @@ ProcessInterface *DockerDevice::createProcessInterface() const
     return new DockerProcessImpl(this->sharedFromThis(), d);
 }
 
-ProcessList *DockerDevice::createProcessListModel(QObject *parent) const
-{
-    return new ProcessList(sharedFromThis(), parent);
-}
-
 DeviceTester *DockerDevice::createDeviceTester() const
 {
     return nullptr;
