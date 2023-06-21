@@ -1,0 +1,23 @@
+
+FROM fedora:37
+
+RUN yum update
+
+RUN yum -y install \
+    yum-utils \
+    qt-creator \
+    gdb \
+    git \
+    vim \
+    cmake \
+    qt \
+    qt-devel \
+    qt6-qtbase-devel \
+    qt6-qtdeclarative-devel \
+    qt6-qtquicktimeline-devel \
+    qt6-qtquick3d-devel \
+    ninja-build \
+    valgrind \
+    xclock
+
+# && rm -rf /var/lib/apt/lists/*
