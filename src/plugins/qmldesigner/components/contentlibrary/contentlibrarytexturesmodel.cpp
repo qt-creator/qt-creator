@@ -225,15 +225,14 @@ void ContentLibraryTexturesModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
-    bool catVisibilityChanged = false;
-
-    for (ContentLibraryTexturesCategory *cat : std::as_const(m_bundleCategories))
-        catVisibilityChanged |= cat->filter(m_searchText);
+    for (int i = 0; i < m_bundleCategories.size(); ++i) {
+        ContentLibraryTexturesCategory *cat = m_bundleCategories.at(i);
+        bool catVisibilityChanged = cat->filter(m_searchText);
+        if (catVisibilityChanged)
+            emit dataChanged(index(i), index(i), {roleNames().keys("bundleCategoryVisible")});
+    }
 
     updateIsEmpty();
-
-    if (catVisibilityChanged)
-        resetModel();
 }
 
 void ContentLibraryTexturesModel::resetModel()
