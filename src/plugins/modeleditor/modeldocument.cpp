@@ -55,7 +55,7 @@ Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
     return result;
 }
 
-bool ModelDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
+bool ModelDocument::saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
     if (!d->documentController) {
         *errorString = Tr::tr("No model loaded. Cannot save.");

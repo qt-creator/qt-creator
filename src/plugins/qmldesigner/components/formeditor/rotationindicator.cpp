@@ -42,9 +42,6 @@ namespace {
 
 bool itemIsResizable(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isQtQuickControlsTab())
-        return false;
-
     return NodeHints::fromModelNode(modelNode).isResizable();
 }
 

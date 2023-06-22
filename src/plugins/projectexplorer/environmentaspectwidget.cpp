@@ -65,7 +65,8 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
     topLayout->addWidget(m_environmentWidget);
 
     if (m_aspect->isPrintOnRunAllowed()) {
-        const auto printOnRunCheckBox = new QCheckBox(Tr::tr("Show in output pane when running"));
+        const auto printOnRunCheckBox = new QCheckBox(
+            Tr::tr("Show in Application Output when running"));
         printOnRunCheckBox->setChecked(m_aspect->isPrintOnRunEnabled());
         connect(printOnRunCheckBox, &QCheckBox::toggled,
                 m_aspect, &EnvironmentAspect::setPrintOnRun);

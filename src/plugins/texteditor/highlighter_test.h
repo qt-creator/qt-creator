@@ -17,6 +17,7 @@ private slots:
     void testHighlight_data();
     void testHighlight();
     void testChange();
+    void testPreeditText();
     void cleanupTestCase();
 
 private:

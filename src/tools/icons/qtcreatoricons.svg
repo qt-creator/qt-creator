@@ -3604,6 +3604,42 @@
          id="use3673"
          transform="matrix(-1,0,0,1,2258,0)" />
     </g>
+    <g
+       id="src/plugins/terminal/images/keyboardlock"
+       transform="translate(845,88.5)"
+       style="display:inline">
+      <use
+         style="display:inline"
+         transform="translate(1137,43.5)"
+         height="100%"
+         width="100%"
+         id="use1952-7"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <rect
+         style="fill:none;stroke:#000000"
+         id="rect11662"
+         width="13"
+         height="13"
+         x="1122.5"
+         y="481"
+         rx="2.5" />
+      <rect
+         style="fill:none;stroke:#000000"
+         id="rect11664"
+         width="9"
+         height="8"
+         x="1124.5"
+         y="483"
+         rx="1.3" />
+      <path
+         style="fill:none;stroke:#000000"
+         d="m 1131,485 h -2 c -0.5,0 -1.5,0 -1.5,1 0,1 1,1 1.5,1 0.5,0 1.5,0 1.5,1 0,1 -1,1 -1.5,1 h -2"
+         id="path5086-3"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cczczcc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

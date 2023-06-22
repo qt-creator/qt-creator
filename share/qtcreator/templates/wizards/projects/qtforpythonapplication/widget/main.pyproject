@@ -1,3 +1,6 @@
 {
-    "files": ["%{SrcFileName}", "form.ui"]
+    "files": [
+        "%{SrcFileName}",
+        "form.ui"
+    ]
 }

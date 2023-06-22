@@ -8,7 +8,10 @@
 #include <QWidgetAction>
 #include <QIcon>
 
+QT_BEGIN_NAMESPACE
 class QWidgetAction;
+QT_END_NAMESPACE
+
 namespace QmlDesigner {
 
 using SelectionContextOperation = std::function<void(const SelectionContext &)>;

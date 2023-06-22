@@ -45,10 +45,10 @@ protected:
         m_source.asyncCopy(m_target, this, [this](const expected_str<void> &cont) {
             if (!cont) {
                 addOutput(cont.error(), OutputFormat::ErrorMessage);
-                addOutput(Tr::tr("Copying failed"), OutputFormat::ErrorMessage);
+                addOutput(Tr::tr("Copying failed."), OutputFormat::ErrorMessage);
                 emit finished(false);
             } else {
-                addOutput(Tr::tr("Copying finished"), OutputFormat::NormalMessage);
+                addOutput(Tr::tr("Copying finished."), OutputFormat::NormalMessage);
                 emit finished(true);
             }
         });

@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/terminal">
+        <file>images/keyboardlock.png</file>
+        <file>images/keyboardlock@2x.png</file>
         <file>images/settingscategory_terminal.png</file>
         <file>images/settingscategory_terminal@2x.png</file>
         <file>images/terminal.png</file>

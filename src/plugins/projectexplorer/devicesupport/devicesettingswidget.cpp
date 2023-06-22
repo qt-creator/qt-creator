@@ -121,6 +121,7 @@ void DeviceSettingsWidget::initGui()
         if (!factory->quickCreationAllowed())
             continue;
 
+        //: Add <Device Type Name>
         QAction *action = new QAction(Tr::tr("Add %1").arg(factory->displayName()));
         deviceTypeMenu->addAction(action);
 

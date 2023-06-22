@@ -8,18 +8,21 @@
 #include "clangtoolsutils.h"
 #include "diagnosticconfigswidget.h"
 
+#include <texteditor/textdocument.h>
 #include <utils/utilsicons.h>
 #include <utils/stringutils.h>
 
 #include <QAction>
 
+using namespace TextEditor;
+
 namespace ClangTools {
 namespace Internal {
 
-DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
-    : TextEditor::TextMark(diagnostic.location.filePath,
-                           diagnostic.location.line,
-                           {Tr::tr("Clang Tools"), Utils::Id(Constants::DIAGNOSTIC_MARK_ID)})
+DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic, TextDocument *document)
+    : TextMark(document,
+               diagnostic.location.line,
+               {Tr::tr("Clang Tools"), Utils::Id(Constants::DIAGNOSTIC_MARK_ID)})
     , m_diagnostic(diagnostic)
 {
     setSettingsPage(Constants::SETTINGS_PAGE_ID);
@@ -56,6 +59,10 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
         return actions;
     });
 }
+
+DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
+    : DiagnosticMark(diagnostic, TextDocument::textDocumentForFilePath(diagnostic.location.filePath))
+{}
 
 void DiagnosticMark::disable()
 {

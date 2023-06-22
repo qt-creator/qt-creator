@@ -392,6 +392,10 @@
 
        \li \uicontrol{General Messages}
 
+       \if defined(qtcreator)
+       \li \l {Static Code Analysis}{Axivion}
+       \endif
+
        \li \uicontrol{Version Control}
 
        \if defined(qtcreator)
@@ -476,6 +480,9 @@
     \list
 
         \if defined(qtdesignstudio)
+        \li \uicontrol {Asset Export} - Errors and warnings encountered
+            while exporting assets.
+
         \li \uicontrol {Asset Importer Error} - Errors and warnings encountered
             while importing assets from a design tool.
         \else
@@ -490,6 +497,8 @@
         \li \uicontrol {Clang Code Model} -
             \l {Parsing C++ Files with the Clang Code Model}
             {Errors and warnings from the current editor}.
+        \li \uicontrol {Clang Tools} - Errors and warnings from
+            \l {Using Clang Tools}{Clang-Tidy and Clazy}
         \endif
 
         \li \uicontrol Compile - Selected output from the compiler. Open
@@ -521,14 +530,19 @@
             \l{JavaScript and QML Error Codes}
             {QML and JavaScript syntax errors}.
 
+        \if defined(qtcreator)
+        \li \uicontrol Sanitizer - Tasks created when you run an application if
+            you used an \e {address sanitizer} to detect memory handling issues.
+        \endif
     \endlist
 
     The view filters out irrelevant output from the build tools and presents the
     issues in an organized way. To further filter the output by type, select
     \inlineimage icons/filtericon.png
-    (\uicontrol {Filter Tree}) and then select a filter.
+    (\uicontrol {Filter Tree}) and then select a filter. To find output in the
+    view, enter search criteria in the \uicontrol Filter field.
 
-    \image qtcreator-issues.png "Issues"
+    \image qtcreator-issues.webp {Issues}
 
     Select one or several lines to apply context-menu actions to their contents.
     You can remove the selected lines or copy their contents to the clipboard.
@@ -536,15 +550,20 @@
     contents of the line as search criteria or open a version control
     annotation view of the line that causes the error message.
 
+    To view detailed information about the selected line (where available), press
+    \key Space.
+
     To navigate to the corresponding source code, click an issue or
     select \uicontrol {Show in Editor} in the context menu. The entry must contain the
     name of the file where the issue was found.
 
     To view more information about an issue in \l {Compile Output},
-    select \uicontrol {Show Output} in the context menu.
+    select \uicontrol {Show Compile Output} in the context menu.
 
-    To jump from one issue to the next or previous one, press \key F6 and
-    \key Shift+F6.
+    To jump from one issue to the next or previous
+    one, select \inlineimage icons/arrowup.png
+    and \inlineimage icons/arrowdown.png
+    or press \key F6 and \key Shift+F6.
 
     By default, a new build clears the \uicontrol Issues view. To keep
     the issues from the previous build rounds, deselect \uicontrol Edit >

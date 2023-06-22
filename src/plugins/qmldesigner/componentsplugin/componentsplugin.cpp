@@ -3,22 +3,12 @@
 
 #include "componentsplugin.h"
 
-#include "tabviewindexmodel.h"
-#include "addtabdesigneraction.h"
-#include "entertabdesigneraction.h"
-
-#include <designeractionmanager.h>
-#include <viewmanager.h>
 #include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 
 ComponentsPlugin::ComponentsPlugin()
 {
-    TabViewIndexModel::registerDeclarativeType();
-    DesignerActionManager *actionManager = &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
-    actionManager->addDesignerAction(new AddTabDesignerAction);
-    actionManager->addDesignerAction(new EnterTabDesignerAction);
 }
 
 QString ComponentsPlugin::pluginName() const

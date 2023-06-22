@@ -355,13 +355,13 @@ void TestRunner::runTestsHelper()
 
         const auto onSetup = [this, config] {
             if (!config->project())
-                return TaskAction::StopWithDone;
+                return SetupResult::StopWithDone;
             if (config->testExecutable().isEmpty()) {
                 reportResult(ResultType::MessageFatal,
                              Tr::tr("Executable path is empty. (%1)").arg(config->displayName()));
-                return TaskAction::StopWithDone;
+                return SetupResult::StopWithDone;
             }
-            return TaskAction::Continue;
+            return SetupResult::Continue;
         };
         const auto onProcessSetup = [this, config, storage](Process &process) {
             TestStorage *testStorage = storage.activeStorage();
@@ -419,6 +419,9 @@ void TestRunner::runTestsHelper()
                         + processInformation(&process) + rcInfo(config));
             }
 
+            if (testStorage->m_outputReader)
+                testStorage->m_outputReader->onDone(process.exitCode());
+
             if (process.exitStatus() == QProcess::CrashExit) {
                 if (testStorage->m_outputReader)
                     testStorage->m_outputReader->reportCrash();
@@ -455,7 +458,7 @@ void TestRunner::runTestsHelper()
     connect(m_taskTree.get(), &TaskTree::errorOccurred, this, &TestRunner::onFinished);
 
     auto progress = new TaskProgress(m_taskTree.get());
-    progress->setDisplayName(tr("Running Tests"));
+    progress->setDisplayName(Tr::tr("Running Tests"));
     progress->setAutoStopOnCancel(false);
     progress->setHalfLifeTimePerTask(10000); // 10 seconds
     connect(progress, &TaskProgress::canceled, this, [this, progress] {

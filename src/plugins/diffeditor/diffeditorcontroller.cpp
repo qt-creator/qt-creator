@@ -124,15 +124,18 @@ void DiffEditorController::reloadFinished(bool success)
     m_document->endReload(success);
 }
 
+void DiffEditorController::addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,
+                                           const ChunkSelection &selection)
+{
+    Q_UNUSED(menu)
+    Q_UNUSED(fileIndex)
+    Q_UNUSED(chunkIndex)
+    Q_UNUSED(selection)
+}
+
 void DiffEditorController::setStartupFile(const QString &startupFile)
 {
     m_document->setStartupFile(startupFile);
-}
-
-void DiffEditorController::requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex,
-                                               const ChunkSelection &selection)
-{
-    emit chunkActionsRequested(menu, fileIndex, chunkIndex, selection);
 }
 
 bool DiffEditorController::chunkExists(int fileIndex, int chunkIndex) const

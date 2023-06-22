@@ -217,7 +217,10 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     // i.e. not necessarily something the device can use, but the
     // device had its chance above.
     if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
-        if (version->qtVersion().majorVersion() > 5) {
+        // look for puppet as qmlruntime only in QtStudio Qt versions
+        if (version->features().contains("QtStudio") &&
+            version->qtVersion().majorVersion() > 5) {
+
             auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
                         target(), QmlDesigner::QmlDesignerBasePlugin::settings());
             if (!puppetPath.isEmpty()) {

@@ -240,6 +240,7 @@ QString QbsSession::errorString(QbsSession::Error error)
     case Error::ProtocolError:
         return Tr::tr("The qbs process sent unexpected data.");
     case Error::VersionMismatch:
+        //: %1 == "Qt Creator" or "Qt Design Studio"
         return Tr::tr("The qbs API level is not compatible with "
                       "what %1 expects.")
             .arg(Core::Constants::IDE_DISPLAY_NAME);

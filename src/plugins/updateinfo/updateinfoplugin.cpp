@@ -122,6 +122,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
     const auto doSetup = [this](Process &process, const QStringList &args) {
         process.setCommand({d->m_maintenanceTool, args});
+        process.setLowPriority();
     };
     const auto doCleanup = [this] {
         d->m_taskTree.release()->deleteLater();

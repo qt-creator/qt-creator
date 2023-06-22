@@ -120,10 +120,10 @@ Core::IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
     return OpenResult::Success;
 }
 
-bool ResourceEditorDocument::save(QString *errorString, const FilePath &filePath, bool autoSave)
+bool ResourceEditorDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     if (debugResourceEditorW)
-        qDebug() << ">ResourceEditorW::save: " << filePath;
+        qDebug() << ">ResourceEditorW::saveImpl: " << filePath;
 
     const FilePath &actualName = filePath.isEmpty() ? this->filePath() : filePath;
     if (actualName.isEmpty())

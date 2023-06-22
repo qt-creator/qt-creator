@@ -13,6 +13,8 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
+#include <QToolTip>
+
 using namespace Utils;
 using namespace LanguageClient;
 
@@ -31,20 +33,23 @@ public:
         helpLabel->setTextFormat(Qt::MarkdownText);
         helpLabel->setWordWrap(true);
         helpLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse
-                                           | Qt::LinksAccessibleByKeyboard);
+                                           | Qt::LinksAccessibleByKeyboard
+                                           | Qt::TextSelectableByMouse);
         helpLabel->setOpenExternalLinks(true);
+        connect(helpLabel, &QLabel::linkHovered, [](const QString &link) {
+            QToolTip::showText(QCursor::pos(), link);
+        });
 
         // clang-format off
-        helpLabel->setText(Tr::tr(R"(
-The Copilot plugin requires node.js and the Copilot neovim plugin.
-If you install the neovim plugin as described in the
-[README.md](https://github.com/github/copilot.vim),
-the plugin will find the agent.js file automatically.
-
-Otherwise you need to specify the path to the
-[agent.js](https://github.com/github/copilot.vim/tree/release/copilot/dist)
-file from the Copilot neovim plugin.
-        )", "Markdown text for the copilot instruction label"));
+        helpLabel->setText(Tr::tr(
+            "The Copilot plugin requires node.js and the Copilot neovim plugin. "
+            "If you install the neovim plugin as described in %1, "
+            "the plugin will find the agent.js file automatically.\n\n"
+            "Otherwise you need to specify the path to the %2 "
+            "file from the Copilot neovim plugin.",
+            "Markdown text for the copilot instruction label").arg(
+                "[README.md](https://github.com/github/copilot.vim)",
+                "[agent.js](https://github.com/github/copilot.vim/tree/release/copilot/dist)"));
 
         Column {
             authWidget, br,

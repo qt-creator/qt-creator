@@ -124,17 +124,6 @@ def waitForCleanShutdown(timeOut=10):
                     shutdownDone=True
             if not shutdownDone and datetime.utcnow() > endtime:
                 break
-        if platform.system() == 'Linux' and JIRA.isBugStillOpen(15749):
-            pgrepOutput = getOutputFromCmdline(["pgrep", "-f", "qtcreator_process_stub"],
-                                               acceptedError=1)
-            pids = pgrepOutput.splitlines()
-            if len(pids):
-                print("Killing %d qtcreator_process_stub instances" % len(pids))
-            for pid in pids:
-                try:
-                    os.kill(__builtin__.int(pid), 9)
-                except OSError: # we might kill the parent before the current pid
-                    pass
 
 def checkForStillRunningQmlExecutable(possibleNames):
     for qmlHelper in possibleNames:

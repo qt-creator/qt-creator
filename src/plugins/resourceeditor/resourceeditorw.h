@@ -30,7 +30,6 @@ public:
     //IDocument
     OpenResult open(QString *errorString, const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
-    bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
     QString plainText() const;
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
@@ -46,6 +45,9 @@ public:
 
 signals:
     void loaded(bool success);
+
+protected:
+    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     void dirtyChanged(bool);

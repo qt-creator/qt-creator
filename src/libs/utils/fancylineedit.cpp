@@ -112,6 +112,7 @@ public:
     bool m_isFiltering = false;
     bool m_firstChange = true;
     bool m_toolTipSet = false;
+    bool m_validatePlaceHolder = false;
 
     QString m_lastFilterText;
 
@@ -469,6 +470,11 @@ QString FancyLineEdit::errorMessage() const
     return d->m_errorMessage;
 }
 
+void FancyLineEdit::setValidatePlaceHolder(bool on)
+{
+    d->m_validatePlaceHolder = on;
+}
+
 void FancyLineEdit::validate()
 {
     const QString t = text();
@@ -501,7 +507,8 @@ void FancyLineEdit::validate()
         p.setColor(QPalette::Active, QPalette::Text,
             newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
         p.setColor(QPalette::Active, QPalette::PlaceholderText,
-            validates ? d->m_placeholderTextColor : d->m_errorTextColor);
+            validates || !d->m_validatePlaceHolder
+                ? d->m_placeholderTextColor : d->m_errorTextColor);
         setPalette(p);
 
         if (validHasChanged)
@@ -545,11 +552,11 @@ IconButton::IconButton(QWidget *parent)
 
 void IconButton::paintEvent(QPaintEvent *)
 {
-    QWindow *window = this->window()->windowHandle();
-    const QPixmap iconPixmap = icon().pixmap(window, sizeHint(),
+    const qreal pixelRatio = window()->windowHandle()->devicePixelRatio();
+    const QPixmap iconPixmap = icon().pixmap(sizeHint(), pixelRatio,
                                              isEnabled() ? QIcon::Normal : QIcon::Disabled);
     QStylePainter painter(this);
-    QRect pixmapRect(QPoint(), iconPixmap.size() / window->devicePixelRatio());
+    QRect pixmapRect(QPoint(), iconPixmap.size() / pixelRatio);
     pixmapRect.moveCenter(rect().center());
 
     if (m_autoHide)

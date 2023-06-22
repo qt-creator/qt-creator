@@ -8,6 +8,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -172,8 +173,17 @@ void TerminalRunner::start()
     QTC_ASSERT(!m_stubProc, reportFailure({}); return);
     Runnable stub = m_stubRunnable();
 
+    bool runAsRoot = false;
+    if (auto runAsRootAspect = runControl()->aspect<RunAsRootAspect>())
+        runAsRoot = runAsRootAspect->value;
+
     m_stubProc = new Process(this);
     m_stubProc->setTerminalMode(TerminalMode::Debug);
+
+    if (runAsRoot) {
+        m_stubProc->setRunAsRoot(runAsRoot);
+        RunControl::provideAskPassEntry(stub.environment);
+    }
 
     connect(m_stubProc, &Process::started,
             this, &TerminalRunner::stubStarted);

@@ -33,6 +33,7 @@ const char *nameForStyle(TextStyle style)
     case C_NUMBER:              return "Number";
     case C_STRING:              return "String";
     case C_TYPE:                return "Type";
+    case C_CONCEPT:             return "Concept";
     case C_NAMESPACE:           return "Namespace";
     case C_LOCAL:               return "Local";
     case C_PARAMETER:           return "Parameter";

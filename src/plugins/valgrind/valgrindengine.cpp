@@ -61,7 +61,7 @@ void ValgrindToolRunner::start()
 
     if (!found.isExecutableFile()) {
         reportFailure(Tr::tr("Valgrind executable \"%1\" not found or not executable.\n"
-                             "Check settings or ensure valgrind is installed and available in PATH.")
+                             "Check settings or ensure Valgrind is installed and available in PATH.")
                       .arg(valgrindExecutable.toUserOutput()));
         return;
     }

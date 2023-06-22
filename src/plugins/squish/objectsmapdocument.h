@@ -21,7 +21,6 @@ public:
     OpenResult open(QString *errorString,
                     const Utils::FilePath &fileName,
                     const Utils::FilePath &realFileName) override;
-    bool save(QString *errorString, const Utils::FilePath &fileName, bool autoSave) override;
     Utils::FilePath fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
     bool isModified() const override { return m_isModified; }
@@ -33,6 +32,9 @@ public:
     bool setContents(const QByteArray &contents) override;
     QByteArray contents() const override;
     ObjectsMapModel *model() const { return m_contentModel; }
+
+protected:
+    bool saveImpl(QString *errorString, const Utils::FilePath &fileName, bool autoSave) override;
 
 private:
     OpenResult openImpl(QString *error,

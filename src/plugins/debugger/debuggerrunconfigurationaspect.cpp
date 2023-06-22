@@ -73,19 +73,19 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         const auto setSummaryText = [this, details] {
             QStringList items;
             if (m_cppAspect->value() == TriState::Enabled)
-                items.append(Tr::tr("Enable C++ debugger"));
+                items.append(Tr::tr("Enable C++ debugger."));
             else if (m_cppAspect->value() == TriState::Default)
-                items.append(Tr::tr("Try to determine need for C++ debugger"));
+                items.append(Tr::tr("Try to determine need for C++ debugger."));
 
             if (m_qmlAspect->value() == TriState::Enabled)
-                items.append(Tr::tr("Enable QML debugger"));
+                items.append(Tr::tr("Enable QML debugger."));
             else if (m_qmlAspect->value() == TriState::Default)
-                items.append(Tr::tr("Try to determine need for QML debugger"));
+                items.append(Tr::tr("Try to determine need for QML debugger."));
 
             items.append(m_overrideStartupAspect->value().isEmpty()
-                             ? Tr::tr("Without additional startup commands")
-                             : Tr::tr("With additional startup commands"));
-            details->setSummaryText(items.join(". "));
+                             ? Tr::tr("Without additional startup commands.")
+                             : Tr::tr("With additional startup commands."));
+            details->setSummaryText(items.join(" "));
         };
         setSummaryText();
 

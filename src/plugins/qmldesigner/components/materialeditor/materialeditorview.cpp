@@ -59,7 +59,7 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
     , m_stackedWidget(new QStackedWidget)
     , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
-    m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F7), m_stackedWidget);
+    m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F7), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &MaterialEditorView::reloadQml);
 
     m_ensureMatLibTimer.callOnTimeout([this] {

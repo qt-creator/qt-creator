@@ -83,9 +83,7 @@ static void removeClangToolRefactorMarkers(TextEditor::TextEditorWidget *editor)
 {
     if (!editor)
         return;
-    editor->setRefactorMarkers(
-        TextEditor::RefactorMarker::filterOutType(editor->refactorMarkers(),
-                                                  Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID));
+    editor->clearRefactorMarkers(Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID);
 }
 
 void DocumentClangToolRunner::scheduleRun()
@@ -203,8 +201,16 @@ void DocumentClangToolRunner::run()
         if (includeDir.isEmpty() || clangVersion.isEmpty())
             return;
         const AnalyzeUnit unit(m_fileInfo, includeDir, clangVersion);
-        const AnalyzeInputData input{tool, runSettings, config, m_temporaryDir.path(), env, unit,
-                                     vfso().overlayFilePath().toString()};
+        auto diagnosticFilter = [mappedPath = vfso().autoSavedFilePath(m_document)](
+                                    const FilePath &path) { return path == mappedPath; };
+        const AnalyzeInputData input{tool,
+                                     runSettings,
+                                     config,
+                                     m_temporaryDir.path(),
+                                     env,
+                                     unit,
+                                     vfso().overlayFilePath().toString(),
+                                     diagnosticFilter};
         const auto setupHandler = [this, executable] {
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
@@ -236,11 +242,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
         return;
     }
 
-    const FilePath mappedPath = vfso().autoSavedFilePath(m_document);
-    Diagnostics diagnostics = readExportedDiagnostics(
-        output.outputFilePath,
-        [&](const FilePath &path) { return path == mappedPath; });
-
+    Diagnostics diagnostics = output.diagnostics;
     for (Diagnostic &diag : diagnostics) {
         updateLocation(diag.location);
         for (ExplainingStep &explainingStep : diag.explainingSteps) {
@@ -266,7 +268,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
         if (isSuppressed(diagnostic))
             continue;
 
-        auto mark = new DiagnosticMark(diagnostic);
+        auto mark = new DiagnosticMark(diagnostic, doc);
         mark->toolType = toolType;
 
         if (doc && Utils::anyOf(diagnostic.explainingSteps, &ExplainingStep::isFixIt)) {
@@ -291,7 +293,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
 
     for (auto editor : TextEditor::BaseTextEditor::textEditorsForDocument(doc)) {
         if (TextEditor::TextEditorWidget *widget = editor->editorWidget()) {
-            widget->setRefactorMarkers(markers + widget->refactorMarkers());
+            widget->setRefactorMarkers(markers, Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID);
             if (!m_editorsWithMarkers.contains(widget))
                 m_editorsWithMarkers << widget;
         }

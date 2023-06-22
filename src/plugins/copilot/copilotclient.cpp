@@ -180,7 +180,27 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
         return;
 
     if (const std::optional<GetCompletionResponse> result = response.result()) {
-        QList<Completion> completions = result->completions().toListOrEmpty();
+        auto isValidCompletion = [](const Completion &completion) {
+            return completion.isValid() && !completion.text().trimmed().isEmpty();
+        };
+        QList<Completion> completions = Utils::filtered(result->completions().toListOrEmpty(),
+                                                              isValidCompletion);
+
+        // remove trailing whitespaces from the end of the completions
+        for (Completion &completion : completions) {
+            const LanguageServerProtocol::Range range = completion.range();
+            if (range.start().line() != range.end().line())
+                continue; // do not remove trailing whitespaces for multi-line replacements
+
+            const QString completionText = completion.text();
+            const int end = int(completionText.size()) - 1; // empty strings have been removed above
+            int delta = 0;
+            while (delta <= end && completionText[end - delta].isSpace())
+                ++delta;
+
+            if (delta > 0)
+                completion.setText(completionText.chopped(delta));
+        }
         if (completions.isEmpty())
             return;
         editor->insertSuggestion(

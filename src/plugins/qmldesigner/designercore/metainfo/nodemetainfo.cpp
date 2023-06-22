@@ -2120,16 +2120,6 @@ bool NodeMetaInfo::isListOrGridView() const
     }
 }
 
-bool NodeMetaInfo::isQtQuickControlsTabView() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick_Controls, TabView>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && isSubclassOf("QtQuick.Controls.TabView");
-    }
-}
-
 bool NodeMetaInfo::isQtQuickExtrasPicture() const
 {
     if constexpr (useProjectStorage()) {
@@ -2205,17 +2195,6 @@ bool NodeMetaInfo::isQtQuickControlsTabBar() const
         return isBasedOnCommonType<QtQuick_Controls, TabBar>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick.Controls.TabBar");
-    }
-}
-
-bool NodeMetaInfo::isQtQuickControlsTab() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-
-        return isBasedOnCommonType<QtQuick_Controls, Tab>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && isSubclassOf("QtQuick.Controls.Tab");
     }
 }
 

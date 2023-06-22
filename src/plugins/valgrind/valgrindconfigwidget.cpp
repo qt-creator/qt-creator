@@ -40,7 +40,7 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
 {
     using namespace Layouting;
     ValgrindBaseSettings &s = *settings;
-
+    // clang-format off
     Grid generic {
         s.valgrindExecutable, br,
         s.valgrindArguments, br,
@@ -78,10 +78,11 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
 
     Column {
         Group { title(Tr::tr("Valgrind Generic Settings")), generic },
-        Group { title(Tr::tr("MemCheck Memory Analysis Options")), memcheck },
-        Group { title(Tr::tr("CallGrind Profiling Options")), callgrind },
+        Group { title(Tr::tr("Memcheck Memory Analysis Options")), memcheck },
+        Group { title(Tr::tr("Callgrind Profiling Options")), callgrind },
         st,
     }.attachTo(this);
+    // clang-format on
 }
 
 // ValgrindOptionsPage

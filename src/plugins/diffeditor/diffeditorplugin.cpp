@@ -29,8 +29,7 @@ using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 class ReloadInput {
 public:
@@ -535,8 +534,7 @@ void DiffEditorPlugin::initialize()
     d = new DiffEditorPluginPrivate;
 }
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal
 
 #ifdef WITH_TESTS
 

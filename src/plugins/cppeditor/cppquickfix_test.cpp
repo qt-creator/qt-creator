@@ -4058,6 +4058,20 @@ void QuickfixTest::testInsertMemberFromUse_data()
     original =
         "class C {\n"
         "public:\n"
+        "    int value() const { return @valueInternal(); }\n"
+        "};\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    int value() const { return valueInternal(); }\n"
+        "private:\n"
+        "    int valueInternal() const;\n"
+        "};\n";
+    QTest::addRow("add const member function to this (implicit)") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
         "    static int value() { int i = @valueInternal(); return i; }\n"
         "};\n";
     expected =

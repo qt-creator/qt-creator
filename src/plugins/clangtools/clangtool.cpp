@@ -677,16 +677,6 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     ProjectExplorerPlugin::startRunControl(m_runControl);
 }
 
-Diagnostics ClangTool::read(const FilePath &logFilePath,
-                            const QSet<FilePath> &projectFiles,
-                            QString *errorMessage) const
-{
-    const auto acceptFromFilePath = [projectFiles](const FilePath &filePath) {
-        return projectFiles.contains(filePath);
-    };
-    return readExportedDiagnostics(logFilePath, acceptFromFilePath, errorMessage);
-}
-
 FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection)
 {
     FileSelectionType *selectionType = std::get_if<FileSelectionType>(&fileSelection);
@@ -763,21 +753,17 @@ void ClangTool::loadDiagnosticsFromFiles()
 
     // Load files
     Diagnostics diagnostics;
-    QString errors;
+    QStringList errors;
     for (const FilePath &filePath : filePaths) {
-        QString currentError;
-        diagnostics << readExportedDiagnostics(filePath, {}, &currentError);
-
-        if (!currentError.isEmpty()) {
-            if (!errors.isEmpty())
-                errors.append("\n");
-            errors.append(currentError);
-        }
+        if (expected_str<Diagnostics> expectedDiagnostics = readExportedDiagnostics(filePath))
+            diagnostics << *expectedDiagnostics;
+        else
+            errors.append(expectedDiagnostics.error());
     }
 
     // Show errors
     if (!errors.isEmpty()) {
-        AsynchronousMessageBox::critical(Tr::tr("Error Loading Diagnostics"), errors);
+        AsynchronousMessageBox::critical(Tr::tr("Error Loading Diagnostics"), errors.join('\n'));
         return;
     }
 

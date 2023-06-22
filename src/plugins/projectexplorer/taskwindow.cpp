@@ -435,6 +435,8 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
     QModelIndex taskIndex = index;
     if (index.parent().isValid())
         taskIndex = index.parent();
+    if (taskIndex.column() == 1)
+        taskIndex = taskIndex.siblingAtColumn(0);
     Task task(d->m_filter->task(taskIndex));
     if (task.isNull())
         return;
@@ -669,7 +671,6 @@ TaskView::TaskView()
 void TaskView::resizeColumns()
 {
     setColumnWidth(0, width() * 0.85);
-    setColumnWidth(1, width() * 0.15);
 }
 
 void TaskView::resizeEvent(QResizeEvent *e)

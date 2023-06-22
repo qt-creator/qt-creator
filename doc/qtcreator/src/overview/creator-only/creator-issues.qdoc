@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -68,6 +68,23 @@
 
         \li Code completion does not support typedefs for nested classes.
 
+        \li When developing on Linux, the \key {Ctrl+Shift+U} keyboard shortcut
+            might not work because it conflicts with a shortcut of the
+            Intelligent Input Bus (ibus). You can change either the shortcut in
+            \QC or the conflicting shortcut in ibus.
+
+            To set another \l {Keyboard Shortcuts}{keyboard shortcut}
+            in \QC, select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol Environment > \uicontrol Keyboard.
+
+            To change the ibus shortcut, enter the following command on the
+            command line to start ibus setup:
+            \badcode
+            ibus-setup
+            \endcode
+
+            Then, change the unicode code point shortcut in the \uicontrol Emoji
+            tab to something else than \key {<Control><Shift>u}.
     \endlist
 
     \section1 Projects Issues

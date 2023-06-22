@@ -56,8 +56,7 @@ Project {
         Depends { name: "winpty_genversion_header" }
         Depends { name: "cpp" }
 
-        useNonGuiPchFile: false
-        useGuiPchFile: false
+        useQt: false
 
         cpp.includePaths: base.concat([sourceDirectory + "/include", buildDirectory])
         cpp.defines: base.concat(["WINPTY_AGENT_ASSERT",

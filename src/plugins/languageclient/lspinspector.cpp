@@ -18,6 +18,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QElapsedTimer>
@@ -334,7 +335,7 @@ private:
     QTabWidget * const m_tabWidget;
 
     enum class TabIndex { Log, Capabilities, Custom };
-    QListWidget *m_clients = nullptr;
+    QComboBox *m_clients = nullptr;
 };
 
 void LspInspector::show(const QString &defaultClient)
@@ -401,34 +402,34 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
             this, &LspInspectorWidget::updateCapabilities);
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &QWidget::close);
 
-    m_clients = new QListWidget;
-    m_clients->addItems(inspector->clients());
-    m_clients->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
-
     auto mainLayout = new QVBoxLayout;
-    auto mainSplitter = new Core::MiniSplitter;
-    mainSplitter->setOrientation(Qt::Horizontal);
-    mainSplitter->addWidget(m_clients);
-    mainSplitter->addWidget(m_tabWidget);
-    mainSplitter->setStretchFactor(0, 0);
-    mainSplitter->setStretchFactor(1, 1);
+
+    m_clients = new QComboBox;
+    m_clients->addItem(Tr::tr("<Select>"));
+    m_clients->addItems(inspector->clients());
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->addWidget(new QLabel(Tr::tr("Language Server:")));
+    hbox->addWidget(m_clients);
+    hbox->addStretch();
+    mainLayout->addLayout(hbox);
+
     m_tabWidget->addTab(new LspLogWidget, Tr::tr("Log"));
     m_tabWidget->addTab(new LspCapabilitiesWidget, Tr::tr("Capabilities"));
-    mainLayout->addWidget(mainSplitter);
+    mainLayout->addWidget(m_tabWidget);
 
     auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Close);
     const auto clearButton = buttonBox->addButton(Tr::tr("Clear"), QDialogButtonBox::ResetRole);
     connect(clearButton, &QPushButton::clicked, this, [this] {
         m_inspector->clear();
-        if (m_clients->currentItem())
-            currentClientChanged(m_clients->currentItem()->text());
+        if (m_clients->currentIndex() != 0)
+            currentClientChanged(m_clients->currentText());
     });
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
     connect(m_clients,
-            &QListWidget::currentTextChanged,
+            &QComboBox::currentTextChanged,
             this,
             &LspInspectorWidget::currentClientChanged);
 
@@ -442,30 +443,25 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
 
 void LspInspectorWidget::selectClient(const QString &clientName)
 {
-    auto items = m_clients->findItems(clientName, Qt::MatchExactly);
-    if (items.isEmpty())
-        return;
-    m_clients->setCurrentItem(items.first());
+    const int index = m_clients->findText(clientName, Qt::MatchExactly);
+    if (index >= 0)
+        m_clients->setCurrentIndex(index);
 }
 
 void LspInspectorWidget::addMessage(const QString &clientName, const LspLogMessage &message)
 {
-    if (m_clients->findItems(clientName, Qt::MatchExactly).isEmpty())
+    if (m_clients->findText(clientName, Qt::MatchExactly) < 0)
         m_clients->addItem(clientName);
-    if (const QListWidgetItem *currentItem = m_clients->currentItem();
-        currentItem && currentItem->text() == clientName) {
+    if (m_clients->currentText() == clientName)
         log()->addMessage(message);
-    }
 }
 
 void LspInspectorWidget::updateCapabilities(const QString &clientName)
 {
-    if (m_clients->findItems(clientName, Qt::MatchExactly).isEmpty())
+    if (m_clients->findText(clientName, Qt::MatchExactly) < 0)
         m_clients->addItem(clientName);
-    if (const QListWidgetItem *currentItem = m_clients->currentItem();
-        currentItem && clientName == currentItem->text()) {
+    if (m_clients->currentText() == clientName)
         capabilities()->setCapabilities(m_inspector->capabilities(clientName));
-    }
 }
 
 void LspInspectorWidget::currentClientChanged(const QString &clientName)

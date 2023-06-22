@@ -1465,8 +1465,10 @@ void MainWindow::changeLog()
             return;
         const FilePath file = versionedFiles.at(index).second;
         QString contents = QString::fromUtf8(file.fileContents().value_or(QByteArray()));
-        static const QRegularExpression bugexpr("(QT(CREATOR)?BUG-[0-9]+)");
-        contents.replace(bugexpr, "[\\1](https://bugreports.qt.io/browse/\\1)");
+        // (?<![[\/]) == don't replace if it is preceded by "[" or "/"
+        // i.e. if it already is part of a link
+        static const QRegularExpression bugexpr(R"((?<![[\/])((QT(CREATOR)?BUG|PYSIDE)-\d+))");
+        contents.replace(bugexpr, R"([\1](https://bugreports.qt.io/browse/\1))");
         static const QRegularExpression docexpr("https://doc[.]qt[.]io/qtcreator/([.a-zA-Z/_-]*)");
         QList<QRegularExpressionMatch> matches;
         for (const QRegularExpressionMatch &m : docexpr.globalMatch(contents))

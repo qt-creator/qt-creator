@@ -68,7 +68,7 @@ void TerminalAspect::addToLayout(LayoutItem &parent)
     m_checkBox = createSubWidget<QCheckBox>(Tr::tr("Run in terminal"));
     m_checkBox->setChecked(m_useTerminal);
     m_checkBox->setEnabled(isEnabled());
-    parent.addItems({{}, m_checkBox.data()});
+    parent.addItems({empty(), m_checkBox.data()});
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
         m_useTerminal = m_checkBox->isChecked();
@@ -502,7 +502,7 @@ ExecutableAspect::ExecutableAspect(Target *target, ExecutionDeviceSelector selec
     setId("ExecutableAspect");
     addDataExtractor(this, &ExecutableAspect::executable, &Data::executable);
 
-    m_executable.setPlaceHolderText(Tr::tr("path to the executable cannot be empty"));
+    m_executable.setPlaceHolderText(Tr::tr("Enter the path to the executable"));
     m_executable.setLabelText(Tr::tr("Executable:"));
     m_executable.setDisplayStyle(StringAspect::LabelDisplay);
 
@@ -845,7 +845,7 @@ void InterpreterAspect::addToLayout(LayoutItem &builder)
         Core::ICore::showOptionsDialog(m_settingsDialogId);
     });
 
-    builder.addItems({Tr::tr("Interpreter"), m_comboBox.data(), manageButton});
+    builder.addItems({Tr::tr("Interpreter:"), m_comboBox.data(), manageButton});
 }
 
 void InterpreterAspect::updateCurrentInterpreter()

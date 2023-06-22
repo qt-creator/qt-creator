@@ -28,6 +28,21 @@ public:
     IBConsoleBuildStep(BuildStepList *buildStepList, Id id);
 
     void setupOutputFormatter(OutputFormatter *formatter) final;
+
+    TextDisplay t1{this, "<b>" + Tr::tr("Target and Configuration")};
+    CommandBuilderAspect commandBuilder{this};
+    BoolAspect keepJobNum{this};
+
+    TextDisplay t2{this, "<i>" + Tr::tr("Enter the appropriate arguments to your build command.")};
+    TextDisplay t3{this, "<i>" + Tr::tr("Make sure the build command's "
+                                        "multi-job parameter value is large enough (such as "
+                                        "-j200 for the JOM or Make build tools)")};
+
+    TextDisplay t4{this, "<b>" + Tr::tr("IncrediBuild Distribution Control")};
+
+    IntegerAspect nice{this};
+    BoolAspect forceRemote{this};
+    BoolAspect alternate{this};
 };
 
 IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
@@ -35,52 +50,38 @@ IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
 {
     setDisplayName(Tr::tr("IncrediBuild for Linux"));
 
-    addAspect<TextDisplay>("<b>" + Tr::tr("Target and Configuration"));
+    commandBuilder.setSettingsKey("IncrediBuild.IBConsole.CommandBuilder");
 
-    auto commandBuilder = addAspect<CommandBuilderAspect>(this);
-    commandBuilder->setSettingsKey("IncrediBuild.IBConsole.CommandBuilder");
+    keepJobNum.setSettingsKey("IncrediBuild.IBConsole.KeepJobNum");
+    keepJobNum.setLabel(Tr::tr("Keep original jobs number:"));
+    keepJobNum.setToolTip(Tr::tr("Forces IncrediBuild to not override the -j command line switch, "
+                                 "that controls the number of parallel spawned tasks. The default "
+                                 "IncrediBuild behavior is to set it to 200."));
 
-    addAspect<TextDisplay>("<i>" + Tr::tr("Enter the appropriate arguments to your build command."));
-    addAspect<TextDisplay>("<i>" + Tr::tr("Make sure the build command's "
-                                          "multi-job parameter value is large enough (such as "
-                                          "-j200 for the JOM or Make build tools)"));
+    nice.setSettingsKey("IncrediBuild.IBConsole.Nice");
+    nice.setToolTip(Tr::tr("Specify nice value. Nice Value should be numeric and between -20 and 19"));
+    nice.setLabel(Tr::tr("Nice value:"));
+    nice.setRange(-20, 19);
 
-    auto keepJobNum = addAspect<BoolAspect>();
-    keepJobNum->setSettingsKey("IncrediBuild.IBConsole.KeepJobNum");
-    keepJobNum->setLabel(Tr::tr("Keep original jobs number:"));
-    keepJobNum->setToolTip(Tr::tr("Forces IncrediBuild to not override the -j command line switch, "
-                                  "that controls the number of parallel spawned tasks. The default "
-                                  "IncrediBuild behavior is to set it to 200."));
+    forceRemote.setSettingsKey("IncrediBuild.IBConsole.Alternate");
+    forceRemote.setLabel(Tr::tr("Force remote:"));
 
-    addAspect<TextDisplay>("<b>" + Tr::tr("IncrediBuild Distribution Control"));
+    alternate.setSettingsKey("IncrediBuild.IBConsole.ForceRemote");
+    alternate.setLabel(Tr::tr("Alternate tasks preference:"));
 
-    auto nice = addAspect<IntegerAspect>();
-    nice->setSettingsKey("IncrediBuild.IBConsole.Nice");
-    nice->setToolTip(Tr::tr("Specify nice value. Nice Value should be numeric and between -20 and 19"));
-    nice->setLabel(Tr::tr("Nice value:"));
-    nice->setRange(-20, 19);
-
-    auto forceRemote = addAspect<BoolAspect>();
-    forceRemote->setSettingsKey("IncrediBuild.IBConsole.Alternate");
-    forceRemote->setLabel(Tr::tr("Force remote:"));
-
-    auto alternate = addAspect<BoolAspect>();
-    alternate->setSettingsKey("IncrediBuild.IBConsole.ForceRemote");
-    alternate->setLabel(Tr::tr("Alternate tasks preference:"));
-
-    setCommandLineProvider([=] {
+    setCommandLineProvider([this] {
         QStringList args;
 
-        if (nice->value() != 0)
-            args.append(QString("--nice %1 ").arg(nice->value()));
+        if (nice() != 0)
+            args.append(QString("--nice %1 ").arg(nice()));
 
-        if (alternate->value())
+        if (alternate())
             args.append("--alternate");
 
-        if (forceRemote->value())
+        if (forceRemote())
             args.append("--force-remote");
 
-        args.append(commandBuilder->fullCommandFlag(keepJobNum->value()));
+        args.append(commandBuilder.fullCommandFlag(keepJobNum()));
 
         return CommandLine("ib_console", args);
     });

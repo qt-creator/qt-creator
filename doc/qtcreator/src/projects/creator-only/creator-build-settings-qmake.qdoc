@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-build-settings-cmake.html
+    \previouspage creator-build-settings-cmake-presets.html
     \page creator-build-settings-qmake.html
     \nextpage creator-build-settings-qbs.html
 

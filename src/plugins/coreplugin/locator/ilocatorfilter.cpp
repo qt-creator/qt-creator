@@ -1503,16 +1503,16 @@ LocatorMatcherTask LocatorFileCache::matcher() const
     const auto onSetup = [storage, weak](Async<LocatorFileCachePrivate> &async) {
         auto that = weak.lock();
         if (!that) // LocatorMatcher is running after *this LocatorFileCache was destructed.
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
 
         if (!that->ensureValidated())
-            return TaskAction::StopWithDone; // The cache is invalid and
+            return SetupResult::StopWithDone; // The cache is invalid and
                                              // no provider is set or it returned empty generator
         that->bumpExecutionId();
 
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&filter, *storage, *that);
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto onDone = [weak](const Async<LocatorFileCachePrivate> &async) {
         auto that = weak.lock();

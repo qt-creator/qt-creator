@@ -1,0 +1,88 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-vcpkg.html
+    \previouspage creator-project-conan.html
+    \nextpage creator-cli.html
+
+    \title Managing Packages with vcpkg
+
+    The experimental vcpkg plugin integrates the \l {https://vcpkg.io/en/}{vcpkg}
+    C/C++ package manager into \QC. It's available on all the
+    \l{Supported Platforms}{supported development platforms}.
+
+    You can use \QC to create and edit vcpkg.json files to specify packages to
+    build as part of your project when using CMake as the build system.
+
+    \section1 Enabling the vcpkg Plugin
+
+    To enable the vcpkg plugin:
+
+    \list 1
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol Utilities > \uicontrol Vcpkg to enable the plugin.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \endlist
+
+    \section1 Setting vcpkg Preferences
+
+    By default, vcpkg is automatically set up for use with CMake. To disable
+    automatic setup, select \uicontrol Edit > \uicontrol Preferences >
+    \uicontrol CMake > \uicontrol General >
+    \uicontrol {Package manager auto setup}.
+
+    \image qtcreator-preferences-cmake-general.webp {General tab in CMake Preferences}
+
+    To set the \uicontrol Path to the directory where you installed vcpkg, select
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
+    \uicontrol Vcpkg.
+
+    \image qtcreator-preferences-cmake-vcpkg.webp {Vcpkg tab in CMake Preferences}
+
+    Select \inlineimage icons/online.png
+    to download vcpkg if you have not installed it yet.
+
+    \section1 Creating vcpkg Manifest Files
+
+    To create a new vcpkg package manager manifest (vcpkg.json) file:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File} >
+            \uicontrol Vcpkg.
+            \image qtcreator-file-new-file-vcpkg-manifest-file.webp {vcpkg.json Manifest File wizard page}
+        \li In \uicontrol Name, enter a name for the manifest file.
+        \li In \uicontrol Version, enter a version number for the file.
+        \li In \uicontrol Dependencies, enter the packages to manage.
+
+            You can add packages later in a manifest editor.
+        \li Select \uicontrol Next to open the \uicontrol {Project Management}
+            page.
+        \li Select \uicontrol Finish to create the file.
+    \endlist
+
+    The wizard automatically adds the vcpkg.json file to the CMakeLists.txt file
+    of the project.
+
+    \section1 Selecting Packages to Manage
+
+    When you open a vcpkg.json file, it opens in the manifest file editor:
+
+    \image qtcreator-vcpkg-manifest-file-editor.webp {vcpkg.json file in the manifest file editor}
+
+    To add a package to your project:
+
+    \list 1
+        \li Place the cursor on the line where you want to add a package.
+        \li Select the \inlineimage icons/zoom.png
+            (\uicontrol {Search Package}) button.
+            \image qtcreator-vcpkg-package-selector.webp {Package selector dialog}
+        \li Select the package to add to your project.
+        \li Select \uicontrol OK to return to the editor.
+        \li Repeat to add more packages.
+    \endlist
+
+    To set the path to the directory where you installed vcpkg, select
+    \inlineimage icons/settings.png
+    (\uicontrol Configure) on the editor toolbar.
+*/

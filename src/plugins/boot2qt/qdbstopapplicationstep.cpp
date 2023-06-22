@@ -43,7 +43,7 @@ Group QdbStopApplicationStep::deployRecipe()
         const auto device = DeviceKitAspect::device(target()->kit());
         if (!device) {
             addErrorMessage(Tr::tr("No device to stop the application on."));
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
         }
         QTC_CHECK(device);
         process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
@@ -52,7 +52,7 @@ Group QdbStopApplicationStep::deployRecipe()
         connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
             handleStdOutData(proc->readAllStandardOutput());
         });
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto doneHandler = [this](const Process &) {
         addProgressMessage(Tr::tr("Stopped the running application."));

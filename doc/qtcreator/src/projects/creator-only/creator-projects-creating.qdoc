@@ -55,6 +55,12 @@
 
     \section1 Using Project Wizards
 
+    To create a new project, select \uicontrol File > \uicontrol{New Project} and
+    select the type of your project. The contents of the wizard dialogs depend
+    on the project type and the \l{glossary-buildandrun-kit}{kits} that you
+    select in the \uicontrol {Kit Selection} dialog. Follow the instructions of
+    the wizard.
+
     In the first step, you select a template for the project. You can filter
     templates (1) to view only those that apply to a particular target platform.
 
@@ -116,11 +122,6 @@
             \li Create new \l {Using Squish}{Squish test suites}.
 
     \endtable
-
-    To create a new project, select \uicontrol File > \uicontrol{New Project} and
-    select the type of your project. The contents of the wizard dialogs depend
-    on the project type and the \l{glossary-buildandrun-kit}{kits} that you select in the
-    \uicontrol {Kit Selection} dialog. Follow the instructions of the wizard.
 
     For examples of creating different types of projects, see
     \l{Tutorials}.

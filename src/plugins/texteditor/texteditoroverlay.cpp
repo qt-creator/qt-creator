@@ -159,6 +159,9 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         int beginChar = 0;
         if (block == begin.block()) {
             beginChar = begin.positionInBlock();
+            const QString preeditAreaText = begin.block().layout()->preeditAreaText();
+            if (!preeditAreaText.isEmpty() && beginChar >= begin.block().layout()->preeditAreaPosition())
+                beginChar += preeditAreaText.length();
             QTextLine line = blockLayout->lineForTextPosition(beginChar);
             QTC_ASSERT(line.isValid(), return {});
             firstLine = line.lineNumber();
@@ -171,6 +174,9 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         int endChar = -1;
         if (block == end.block()) {
             endChar = end.positionInBlock();
+            const QString preeditAreaText = end.block().layout()->preeditAreaText();
+            if (!preeditAreaText.isEmpty() && endChar >= end.block().layout()->preeditAreaPosition())
+                endChar += preeditAreaText.length();
             QTextLine line = blockLayout->lineForTextPosition(endChar);
             QTC_ASSERT(line.isValid(), return {});
             lastLine = line.lineNumber();
@@ -326,9 +332,21 @@ void TextEditorOverlay::fillSelection(QPainter *painter,
 void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
 {
     Q_UNUSED(clip)
-    for (int i = m_selections.size()-1; i >= 0; --i) {
+
+    const auto firstBlock = m_editor->blockForVerticalOffset(clip.top());
+    const int firstBlockNumber = firstBlock.isValid() ? firstBlock.blockNumber() : 0;
+    const auto lastBlock = m_editor->blockForVerticalOffset(clip.bottom());
+    const int lastBlockNumber = lastBlock.isValid() ? lastBlock.blockNumber()
+                                                    : m_editor->blockCount() - 1;
+
+    auto overlapsClip = [&](const OverlaySelection &selection) {
+        return selection.m_cursor_end.blockNumber() >= firstBlockNumber
+               && selection.m_cursor_begin.blockNumber() <= lastBlockNumber;
+    };
+
+    for (int i = m_selections.size() - 1; i >= 0; --i) {
         const OverlaySelection &selection = m_selections.at(i);
-        if (selection.m_dropShadow)
+        if (selection.m_dropShadow || !overlapsClip(selection))
             continue;
         if (selection.m_fixedLength >= 0
             && selection.m_cursor_end.position() - selection.m_cursor_begin.position()
@@ -337,9 +355,9 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
 
         paintSelection(painter, selection, clip);
     }
-    for (int i = m_selections.size()-1; i >= 0; --i) {
+    for (int i = m_selections.size() - 1; i >= 0; --i) {
         const OverlaySelection &selection = m_selections.at(i);
-        if (!selection.m_dropShadow)
+        if (!selection.m_dropShadow || !overlapsClip(selection))
             continue;
         if (selection.m_fixedLength >= 0
             && selection.m_cursor_end.position() - selection.m_cursor_begin.position()

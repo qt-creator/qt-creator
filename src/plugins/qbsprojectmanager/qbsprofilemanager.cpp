@@ -60,7 +60,7 @@ QString toJSLiteral(const QVariant &val)
 {
     if (!val.isValid())
         return QString("undefined");
-    if (val.type() == QVariant::List || val.type() == QVariant::StringList) {
+    if (val.typeId() == QVariant::List || val.typeId() == QVariant::StringList) {
         QString res;
         const auto list = val.toList();
         for (const QVariant &child : list) {
@@ -71,7 +71,7 @@ QString toJSLiteral(const QVariant &val)
         res.append(']');
         return res;
     }
-    if (val.type() == QVariant::Map) {
+    if (val.typeId() == QVariant::Map) {
         const QVariantMap &vm = val.toMap();
         QString str("{");
         for (auto it = vm.begin(); it != vm.end(); ++it) {
@@ -82,7 +82,7 @@ QString toJSLiteral(const QVariant &val)
         str += '}';
         return str;
     }
-    if (val.type() == QVariant::Bool)
+    if (val.typeId() == QVariant::Bool)
         return toJSLiteral(val.toBool());
     if (val.canConvert(QVariant::String))
         return toJSLiteral(val.toString());

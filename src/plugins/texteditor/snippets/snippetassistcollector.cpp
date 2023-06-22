@@ -10,6 +10,35 @@
 using namespace TextEditor;
 using namespace Internal;
 
+class SnippetProposalItem : public AssistProposalItemInterface
+{
+public:
+    SnippetProposalItem(const Snippet &snippet, const QIcon &icon)
+        : m_snippet(snippet)
+        , m_icon(icon)
+    {}
+
+    QString text() const override
+    {
+        return m_snippet.trigger() + QLatin1Char(' ') + m_snippet.complement();
+    }
+    bool implicitlyApplies() const override { return false; }
+    bool prematurelyApplies(const QChar &) const override { return false; }
+    void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const override
+    {
+        manipulator.insertCodeSnippet(basePosition, m_snippet.content(), &Snippet::parse);
+    }
+    QIcon icon() const override { return m_icon; }
+    QString detail() const override { return m_snippet.generateTip(); }
+    bool isSnippet() const override { return true; }
+    bool isValid() const override { return true; }
+    quint64 hash() const override { return 0; }
+
+private:
+    const Snippet m_snippet;
+    const QIcon m_icon;
+};
+
 static void appendSnippets(QList<AssistProposalItemInterface *> *items,
                     const QString &groupId,
                     const QIcon &icon,
@@ -19,11 +48,7 @@ static void appendSnippets(QList<AssistProposalItemInterface *> *items,
     const int size = collection->totalActiveSnippets(groupId);
     for (int i = 0; i < size; ++i) {
         const Snippet &snippet = collection->snippet(i, groupId);
-        auto item = new AssistProposalItem;
-        item->setText(snippet.trigger() + QLatin1Char(' ') + snippet.complement());
-        item->setData(snippet.content());
-        item->setDetail(snippet.generateTip());
-        item->setIcon(icon);
+        auto item = new SnippetProposalItem(snippet, icon);
         item->setOrder(order);
         items->append(item);
     }

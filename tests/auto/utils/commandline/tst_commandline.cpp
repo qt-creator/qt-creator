@@ -188,17 +188,90 @@ private slots:
         QCOMPARE(cmd.arguments(), "and args");
     }
 
+    void testFromInputWithMacro_data()
+    {
+        QTest::addColumn<QString>("input");
+        QTest::addColumn<QString>("expectedExecutable");
+        QTest::addColumn<QString>("expectedArguments");
+
+        QTest::newRow("simple") << "command %{hello}"
+                                << "command"
+                                << "hello world";
+
+        QTest::newRow("simple-quoted")
+            << "command \"%{hello}\""
+            << "command" << (HostOsInfo::isWindowsHost() ? "\"hello world\"" : "'hello world'");
+
+        QTest::newRow("quoted-with-extra")
+            << "command \"%{hello}, he said\""
+            << "command"
+            << (HostOsInfo::isWindowsHost() ? "\"hello world, he said\"" : "'hello world, he said'");
+
+        QTest::newRow("convert-to-quote-win")
+            << "command 'this is a test'"
+            << "command"
+            << (HostOsInfo::isWindowsHost() ? "\"this is a test\"" : "'this is a test'");
+    }
+
     void testFromInputWithMacro()
     {
+        QFETCH(QString, input);
+        QFETCH(QString, expectedExecutable);
+        QFETCH(QString, expectedArguments);
+
         MacroExpander expander;
         expander.registerVariable("hello", "world var", [] { return "hello world"; });
-        CommandLine cmd = CommandLine::fromUserInput("command macroarg: %{hello}", &expander);
-        QCOMPARE(cmd.executable(), "command");
 
-        if (HostOsInfo::isWindowsHost())
-            QEXPECT_FAIL("", "Windows does not correctly quote macro arguments", Continue);
+        CommandLine cmd = CommandLine::fromUserInput(input, &expander);
+        QCOMPARE(cmd.executable().toUserOutput(), expectedExecutable);
 
-        QCOMPARE(cmd.arguments(), "macroarg: 'hello world'");
+        if (HostOsInfo::isWindowsHost()) {
+            QEXPECT_FAIL("convert-to-quote-win",
+                         "Windows should convert single to double quotes",
+                         Continue);
+        }
+
+        QCOMPARE(cmd.arguments(), expectedArguments);
+    }
+
+    void testMultiCommand_data()
+    {
+        QTest::addColumn<QString>("input");
+        QTest::addColumn<QString>("executable");
+        QTest::addColumn<QString>("arguments");
+
+        QTest::newRow("command-and-command") << "command1 && command2"
+                                             << "command1"
+                                             << "&& command2";
+
+        QTest::newRow("command-and-command-nospace") << "command1&&command2"
+                                                     << "command1"
+                                                     << "&&command2";
+
+        QTest::newRow("command-semicolon-command") << "command1 ; command2"
+                                                   << "command1"
+                                                   << "; command2";
+
+        QTest::newRow("command-or-command") << "command1 || command2"
+                                            << "command1"
+                                            << "|| command2";
+    }
+
+    void testMultiCommand()
+    {
+        QFETCH(QString, input);
+        QFETCH(QString, executable);
+        QFETCH(QString, arguments);
+
+        CommandLine cmdLine = CommandLine::fromUserInput(input);
+
+        QEXPECT_FAIL(
+            "command-and-command-nospace",
+            "CommandLine::fromUserInput does not handle multi-command without space correctly",
+            Abort);
+
+        QCOMPARE(cmdLine.executable().path(), executable);
+        QCOMPARE(cmdLine.arguments(), arguments);
     }
 };
 

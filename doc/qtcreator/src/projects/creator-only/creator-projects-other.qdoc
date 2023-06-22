@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -67,6 +67,12 @@
             project. You can use Conan with most build systems integrated into
             \QC.
 
+        \li \l{Managing Packages with vcpkg}
+
+            The experimental vcpkg plugin integrates the
+            \l {https://vcpkg.io/en/}{vcpkg} C/C++ package manager into \QC.
+            Create and edit vcpkg.json files to specify packages to build as
+            part of your project when using CMake as the build system.
     \endlist
 
 */

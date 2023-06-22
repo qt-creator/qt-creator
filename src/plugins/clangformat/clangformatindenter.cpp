@@ -32,7 +32,7 @@ static bool isBeautifierPluginActivated()
     return std::find_if(specs.begin(),
                         specs.end(),
                         [](ExtensionSystem::PluginSpec *spec) {
-                            return spec->name() == "Beautifier";
+                            return spec->name() == "Beautifier" && spec->isEffectivelyEnabled();
                         })
            != specs.end();
 }

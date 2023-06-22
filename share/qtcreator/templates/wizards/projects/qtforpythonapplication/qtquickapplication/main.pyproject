@@ -1,3 +1,6 @@
 {
-    "files": ["%{SrcFileName}", "%{QmlFileName}"]
+    "files": [
+        "%{SrcFileName}",
+        "%{QmlFileName}"
+    ]
 }

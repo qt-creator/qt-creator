@@ -370,7 +370,7 @@ QByteArray LibraryInfo::calculateFingerprint() const
 {
     QCryptographicHash hash(QCryptographicHash::Sha1);
     auto addData = [&hash](auto p, size_t len) {
-        hash.addData(QByteArrayView(reinterpret_cast<const char *>(p), len));
+        hash.addData(reinterpret_cast<const char *>(p), len);
     };
 
     addData(&_status, sizeof(_status));

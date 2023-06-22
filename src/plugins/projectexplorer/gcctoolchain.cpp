@@ -1107,7 +1107,7 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
 
     FilePaths compilerPaths;
 
-    if (!device.isNull()) {
+    if (device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // FIXME: Merge with block below
         FilePaths searchPaths = detector.searchPaths;
         if (searchPaths.isEmpty())

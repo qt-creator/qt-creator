@@ -237,7 +237,7 @@ public:
     bool defaultValue() const;
     void setDefaultValue(bool val);
 
-    enum class LabelPlacement { AtCheckBox, InExtraLabel };
+    enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);
@@ -407,6 +407,7 @@ public:
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
     void setAllowPathFromDevice(bool allowPathFromDevice);
+    void setValidatePlaceHolder(bool validatePlaceHolder);
 
     void validateInput();
 
@@ -610,9 +611,9 @@ class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
     Q_OBJECT
 
 public:
-    explicit TextDisplay(AspectContainer *container);
-    TextDisplay(const QString &message = {},
-                InfoLabel::InfoType type = InfoLabel::None);
+    explicit TextDisplay(AspectContainer *container,
+                         const QString &message = {},
+                         InfoLabel::InfoType type = InfoLabel::None);
     ~TextDisplay() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;

@@ -514,6 +514,9 @@ QString ProcessArgs::quoteArgUnix(const QString &arg)
 
     QString ret(arg);
     if (hasSpecialCharsUnix(ret)) {
+        if (arg == "&&" || arg == "||" || arg == "&" || arg == ';')
+            return ret;
+
         ret.replace(QLatin1Char('\''), QLatin1String("'\\''"));
         ret.prepend(QLatin1Char('\''));
         ret.append(QLatin1Char('\''));
@@ -550,6 +553,9 @@ static QString quoteArgWin(const QString &arg)
 
     QString ret(arg);
     if (hasSpecialCharsWin(ret)) {
+        if (arg == "&&" || arg == "||" || arg == "&" || arg == ';')
+            return ret;
+
         // Quotes are escaped and their preceding backslashes are doubled.
         // It's impossible to escape anything inside a quoted string on cmd
         // level, so the outer quoting must be "suspended".
@@ -1438,16 +1444,15 @@ CommandLine CommandLine::fromUserInput(const QString &cmdline, MacroExpander *ex
 
     QString input = cmdline.trimmed();
 
-    QStringList result = ProcessArgs::splitArgs(cmdline, HostOsInfo::hostOs());
+    if (expander)
+        input = expander->expand(input);
+
+    const QStringList result = ProcessArgs::splitArgs(input, HostOsInfo::hostOs());
 
     if (result.isEmpty())
         return {};
 
-    auto cmd = CommandLine(FilePath::fromUserInput(result.value(0)), result.mid(1));
-    if (expander)
-        cmd.m_arguments = expander->expand(cmd.m_arguments);
-
-    return cmd;
+    return {FilePath::fromUserInput(result.value(0)), result.mid(1)};
 }
 
 void CommandLine::addArg(const QString &arg)

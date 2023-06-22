@@ -51,8 +51,7 @@ using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 class DescriptionEditorWidget : public TextEditorWidget
 {
@@ -618,7 +617,6 @@ void DiffEditor::showDiffView(IDiffView *view)
     setupView(view);
 }
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal
 
 #include "diffeditor.moc"

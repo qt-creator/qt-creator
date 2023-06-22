@@ -77,10 +77,10 @@ void ArtisticStyleSettings::createDocumentationFile() const
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return;
 
+    if (!documentationFilePath.exists())
+        documentationFilePath.parentDir().ensureWritableDir();
+
     QFile file(documentationFilePath.toFSPathString());
-    const QFileInfo fi(file);
-    if (!fi.exists())
-        fi.dir().mkpath(fi.absolutePath());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
         return;
 
