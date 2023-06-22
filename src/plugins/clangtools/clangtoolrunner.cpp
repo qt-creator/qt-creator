@@ -218,11 +218,11 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
     };
 
     const Group group {
+        finishAllAndDone,
         Storage(storage),
         onGroupSetup(onSetup),
         Group {
             sequential,
-            finishAllAndDone,
             ProcessTask(onProcessSetup, onProcessDone, onProcessError),
             AsyncTask<expected_str<Diagnostics>>(onReadSetup, onReadDone, onReadError)
         }
