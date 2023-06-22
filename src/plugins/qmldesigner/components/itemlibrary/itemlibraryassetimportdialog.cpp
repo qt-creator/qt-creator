@@ -109,7 +109,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
     connect(ui->buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked,
             this, &ItemLibraryAssetImportDialog::onImport);
 
-    ui->buttonBox->button(QDialogButtonBox::Close)->setDefault(true);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     ui->advancedSettingsButton->setStyleSheet(
                 "QPushButton#advancedSettingsButton {background-color: transparent}");
