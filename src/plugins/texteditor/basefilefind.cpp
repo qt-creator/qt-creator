@@ -570,9 +570,8 @@ FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems 
         QSet<QPair<int, int>> processed;
         for (const SearchResultItem &item : changeItems) {
             const QPair<int, int> p{item.mainRange().begin.line, item.mainRange().begin.column};
-            if (processed.contains(p))
+            if (!Utils::insert(processed, p))
                 continue;
-            processed.insert(p);
 
             QString replacement;
             if (item.userData().canConvert<QStringList>() && !item.userData().toStringList().isEmpty()) {

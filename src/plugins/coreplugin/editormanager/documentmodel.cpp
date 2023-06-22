@@ -470,10 +470,8 @@ void DocumentModelPrivate::removeAllSuspendedEntries(PinnedFileRemovalPolicy pin
     QSet<QString> displayNames;
     for (DocumentModel::Entry *entry : std::as_const(d->m_entries)) {
         const QString displayName = entry->plainDisplayName();
-        if (displayNames.contains(displayName))
-            continue;
-        displayNames.insert(displayName);
-        d->disambiguateDisplayNames(entry);
+        if (Utils::insert(displayNames, displayName))
+            d->disambiguateDisplayNames(entry);
     }
 }
 

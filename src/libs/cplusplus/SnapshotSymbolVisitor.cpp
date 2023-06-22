@@ -5,6 +5,8 @@
 
 #include <cplusplus/Symbols.h>
 
+#include <utils/algorithm.h>
+
 using namespace CPlusPlus;
 
 SnapshotSymbolVisitor::SnapshotSymbolVisitor(const Snapshot &snapshot)
@@ -20,9 +22,7 @@ void SnapshotSymbolVisitor::accept(Document::Ptr doc)
 
 void SnapshotSymbolVisitor::accept(Document::Ptr doc, QSet<QString> *processed)
 {
-    if (doc && doc->globalNamespace() && ! processed->contains(doc->filePath().path())) {
-        processed->insert(doc->filePath().path());
-
+    if (doc && doc->globalNamespace() && Utils::insert(*processed, doc->filePath().path())) {
         const QList<Document::Include> includes = doc->resolvedIncludes();
         for (const Document::Include &i : includes) {
             if (Document::Ptr incl = _snapshot.document(i.resolvedFileName()))

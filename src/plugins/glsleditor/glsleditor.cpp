@@ -269,10 +269,8 @@ void GlslEditorWidget::updateDocumentNow()
         for (const DiagnosticMessage &m : messages) {
             if (! m.line())
                 continue;
-            else if (errors.contains(m.line()))
+            if (!Utils::insert(errors, m.line()))
                 continue;
-
-            errors.insert(m.line());
 
             QTextCursor cursor(document()->findBlockByNumber(m.line() - 1));
             cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);

@@ -8342,14 +8342,13 @@ private:
         QList<Snapshot::IncludeLocation>
             includeLocationsOfDocument = refactoring.snapshot().includeLocationsOfDocument(filePath);
         for (Snapshot::IncludeLocation &loc : includeLocationsOfDocument) {
-            if (m_processed.contains(loc.first))
+            if (!Utils::insert(m_processed, loc.first))
                 continue;
 
             CppRefactoringFilePtr file = refactoring.file(loc.first->filePath());
             const bool noGlobalUsing = refactorFile(file,
                                                     refactoring.snapshot(),
                                                     file->position(loc.second, 1));
-            m_processed.insert(loc.first);
             if (noGlobalUsing)
                 processIncludes(refactoring, loc.first->filePath());
         }

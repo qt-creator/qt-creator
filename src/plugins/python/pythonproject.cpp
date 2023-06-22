@@ -131,10 +131,9 @@ static QStringList readLines(const FilePath &projectFile)
             const QString line = stream.readLine();
             if (line.isNull())
                 break;
-            if (visited.contains(line))
+            if (!Utils::insert(visited, line))
                 continue;
             lines.append(line);
-            visited.insert(line);
         }
     }
 
@@ -149,10 +148,8 @@ static QStringList readLinesJson(const FilePath &projectFile, QString *errorMess
     const QJsonObject obj = readObjJson(projectFile, errorMessage);
     for (const QJsonValue &file : obj.value("files").toArray()) {
         const QString fileName = file.toString();
-        if (visited.contains(fileName))
-            continue;
-        lines.append(fileName);
-        visited.insert(fileName);
+        if (Utils::insert(visited, fileName))
+            lines.append(fileName);
     }
 
     return lines;

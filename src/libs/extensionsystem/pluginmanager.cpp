@@ -373,10 +373,8 @@ const QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec
             if (depIt.key().type != PluginDependency::Required)
                 continue;
             PluginSpec *depSpec = depIt.value();
-            if (!recursiveDependencies.contains(depSpec)) {
-                recursiveDependencies.insert(depSpec);
+            if (Utils::insert(recursiveDependencies, depSpec))
                 queue.push(depSpec);
-            }
         }
     }
     recursiveDependencies.remove(spec);

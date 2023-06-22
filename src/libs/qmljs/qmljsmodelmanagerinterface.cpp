@@ -734,10 +734,9 @@ static void findNewImplicitImports(const Document::Ptr &doc,
     // scan files that could be implicitly imported
     // it's important we also do this for JS files, otherwise the isEmpty check will fail
     if (snapshot.documentsInDirectory(doc->path()).isEmpty()) {
-        if (!scannedPaths->contains(doc->path())) {
+        if (Utils::insert(*scannedPaths, doc->path())) {
             *importedFiles += filesInDirectoryForLanguages(doc->path(),
                                                            doc->language().companionLanguages());
-            scannedPaths->insert(doc->path());
         }
     }
 }
@@ -757,11 +756,10 @@ static void findNewFileImports(const Document::Ptr &doc,
                 *importedFiles += importPath;
         } else if (import.type() == ImportType::Directory) {
             if (snapshot.documentsInDirectory(importPath).isEmpty()) {
-                if (!scannedPaths->contains(importPath)) {
+                if (Utils::insert(*scannedPaths, importPath)) {
                     *importedFiles
                         += filesInDirectoryForLanguages(importPath,
                                                         doc->language().companionLanguages());
-                    scannedPaths->insert(importPath);
                 }
             }
         } else if (import.type() == ImportType::QrcFile) {
@@ -890,10 +888,9 @@ static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
         if (!component.fileName.isEmpty()) {
             const FilePath componentFile = path.pathAppended(component.fileName);
             const FilePath path = componentFile.absolutePath().cleanPath();
-            if (!scannedPaths->contains(path)) {
+            if (Utils::insert(*scannedPaths, path)) {
                 *importedFiles += filesInDirectoryForLanguages(path, Dialect(Dialect::AnyLanguage)
                                                                .companionLanguages());
-                scannedPaths->insert(path);
             }
         }
     }
@@ -1110,10 +1107,9 @@ void ModelManagerInterface::importScanAsync(QPromise<void> &promise, const Worki
         QMutexLocker l(&modelManager->m_mutex);
         for (const auto &path : paths) {
             Utils::FilePath cPath = path.path().cleanPath();
-            if (!forceRescan && modelManager->m_scannedPaths.contains(cPath))
+            if (!forceRescan && !Utils::insert(modelManager->m_scannedPaths, cPath))
                 continue;
             pathsToScan.append({cPath, 0, path.language()});
-            modelManager->m_scannedPaths.insert(cPath);
         }
     }
     const int maxScanDepth = 5;

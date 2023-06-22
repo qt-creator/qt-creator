@@ -60,6 +60,7 @@
 
 #include <texteditor/textdocument.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -1060,10 +1061,8 @@ static void addUnique(const Macros &newMacros, Macros &macros,
                       QSet<ProjectExplorer::Macro> &alreadyIn)
 {
     for (const ProjectExplorer::Macro &macro : newMacros) {
-        if (!alreadyIn.contains(macro)) {
+        if (Utils::insert(alreadyIn, macro))
             macros += macro;
-            alreadyIn.insert(macro);
-        }
     }
 }
 
@@ -1949,9 +1948,8 @@ void CppModelManager::GC()
         const FilePath filePath = todo.last();
         todo.removeLast();
 
-        if (reachableFiles.contains(filePath))
+        if (!Utils::insert(reachableFiles, filePath))
             continue;
-        reachableFiles.insert(filePath);
 
         if (Document::Ptr doc = currentSnapshot.document(filePath))
             todo += doc->includedFiles();

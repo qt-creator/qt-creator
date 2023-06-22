@@ -4416,9 +4416,8 @@ void TextEditorWidgetPrivate::paintCurrentLineHighlight(const PaintEventData &da
     QSet<int> seenLines;
     for (const QTextCursor &cursor : cursorsForBlock) {
         QTextLine line = data.block.layout()->lineForTextPosition(cursor.positionInBlock());
-        if (seenLines.contains(line.lineNumber()))
+        if (!Utils::insert(seenLines, line.lineNumber()))
             continue;
-        seenLines << line.lineNumber();
         QRectF lineRect = line.rect();
         lineRect.moveTop(lineRect.top() + blockRect.top());
         lineRect.setLeft(0);
@@ -5657,10 +5656,8 @@ void TextEditorWidgetPrivate::slotUpdateBlockNotify(const QTextBlock &block)
             if (blockContainsFindScope) {
                 QTextBlock b = block.document()->findBlock(scope.selectionStart());
                 do {
-                    if (!updatedBlocks.contains(b.blockNumber())) {
-                        updatedBlocks << b.blockNumber();
+                    if (Utils::insert(updatedBlocks, b.blockNumber()))
                         emit q->requestBlockUpdate(b);
-                    }
                     b = b.next();
                 } while (b.isValid() && b.position() < scope.selectionEnd());
             }

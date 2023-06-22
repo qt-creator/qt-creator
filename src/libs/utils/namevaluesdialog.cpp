@@ -3,7 +3,7 @@
 
 #include "namevaluesdialog.h"
 
-#include "environment.h"
+#include "algorithm.h"
 #include "hostosinfo.h"
 #include "utilstr.h"
 
@@ -29,10 +29,8 @@ static EnvironmentItems cleanUp(const EnvironmentItems &items)
         const QString &itemName = item.name;
         QString emptyName = itemName;
         emptyName.remove(QLatin1Char(' '));
-        if (!emptyName.isEmpty() && !uniqueSet.contains(itemName)) {
+        if (!emptyName.isEmpty() && Utils::insert(uniqueSet, itemName))
             uniqueItems.prepend(item);
-            uniqueSet.insert(itemName);
-        }
     }
     return uniqueItems;
 }

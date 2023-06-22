@@ -9,6 +9,7 @@
 #include "../coreplugintr.h"
 #include "../idocument.h"
 
+#include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -219,9 +220,8 @@ void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
                                 QSet<const DocumentModel::Entry *> &entriesDone,
                                 EditorView *view)
 {
-    if (entriesDone.contains(entry))
+    if (!Utils::insert(entriesDone, entry))
         return;
-    entriesDone.insert(entry);
     QString title = entry->displayName();
     QTC_ASSERT(!title.isEmpty(), return);
     auto item = new QTreeWidgetItem();

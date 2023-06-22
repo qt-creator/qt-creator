@@ -45,6 +45,7 @@
 #include <texteditor/textmark.h>
 #include <texteditor/typingsettings.h>
 
+#include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
@@ -944,9 +945,8 @@ public:
             QString found = sel.selectedText();
             // Only add "real" completions.
             if (found.startsWith(needle)
-                    && !seen.contains(found)
-                    && sel.anchor() != basePosition) {
-                seen.insert(found);
+                    && sel.anchor() != basePosition
+                    && Utils::insert(seen, found)) {
                 auto item = new FakeVimAssistProposalItem(m_provider);
                 item->setText(found);
                 items.append(item);

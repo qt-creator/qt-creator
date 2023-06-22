@@ -73,9 +73,7 @@ protected:
     {
         if (!doc)
             return;
-        if (!processed->contains(doc->globalNamespace())) {
-            processed->insert(doc->globalNamespace());
-
+        if (Utils::insert(*processed, doc->globalNamespace())) {
             const QList<Document::Include> includes = doc->resolvedIncludes();
             for (const Document::Include &i : includes)
                 process(_snapshot.document(i.resolvedFileName()), processed);
@@ -806,8 +804,7 @@ bool CheckSymbols::hasVirtualDestructor(ClassOrNamespace *binding) const
 
     while (!todo.isEmpty()) {
         ClassOrNamespace *b = todo.takeFirst();
-        if (b && !processed.contains(b)) {
-            processed.insert(b);
+        if (b && Utils::insert(processed, b)) {
             const QList<Symbol *> symbols = b->symbols();
             for (Symbol *s : symbols) {
                 if (Class *k = s->asClass()) {

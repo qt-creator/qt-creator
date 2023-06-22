@@ -1301,9 +1301,8 @@ void CMakeBuildSystem::runCTest()
                         std::function<QJsonObject(int)> findAncestor = [&](int index){
                             const QJsonObject node = nodes.at(index).toObject();
                             const int parent = node.value("parent").toInt(-1);
-                            if (seen.contains(parent) || parent < 0)
+                            if (parent < 0 || !Utils::insert(seen, parent))
                                 return node;
-                            seen << parent;
                             return findAncestor(parent);
                         };
                         const QJsonObject btRef = findAncestor(bt);

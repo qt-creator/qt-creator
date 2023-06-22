@@ -952,9 +952,8 @@ QList<FindReferences::Usage> FindReferences::findUsageOfType(const Utils::FilePa
     QSet<Utils::FilePath> docDone;
     for (const QmlJS::Document::Ptr &doc : std::as_const(snapshot)) {
         Utils::FilePath sourceFile = modelManager->fileToSource(doc->fileName());
-        if (docDone.contains(sourceFile))
+        if (!Utils::insert(docDone, sourceFile))
             continue;
-        docDone.insert(sourceFile);
         QmlJS::Document::Ptr sourceDoc = doc;
         if (sourceFile != doc->fileName())
             sourceDoc = snapshot.document(sourceFile);

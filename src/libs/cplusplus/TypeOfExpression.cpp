@@ -11,6 +11,8 @@
 #include <cplusplus/Symbol.h>
 #include <cplusplus/TranslationUnit.h>
 
+#include <utils/algorithm.h>
+
 #include <QSet>
 
 using namespace Utils;
@@ -134,9 +136,7 @@ ExpressionAST *TypeOfExpression::expressionAST() const
 void TypeOfExpression::processEnvironment(Document::Ptr doc, Environment *env,
                                           QSet<QString> *processed) const
 {
-    if (doc && ! processed->contains(doc->filePath().path())) {
-        processed->insert(doc->filePath().path());
-
+    if (doc && Utils::insert(*processed, doc->filePath().path())) {
         const QList<Document::Include> includes = doc->resolvedIncludes();
         for (const Document::Include &incl : includes)
             processEnvironment(m_snapshot.document(incl.resolvedFileName()), env, processed);

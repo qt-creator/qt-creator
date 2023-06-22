@@ -139,9 +139,7 @@ void SquishResultFilterModel::enableAllResultTypes()
 
 void SquishResultFilterModel::toggleResultType(Result::Type type)
 {
-    if (m_enabled.contains(type))
-        m_enabled.remove(type);
-    else
+    if (!m_enabled.remove(type))
         m_enabled.insert(type);
     invalidateFilter();
 }

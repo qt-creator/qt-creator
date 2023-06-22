@@ -533,10 +533,8 @@ QList<ToolChain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
     for (const Abi &a : abis) {
         const Toolchains tcList = ToolChainManager::findToolChains(a);
         for (ToolChain *tc : tcList) {
-            if (ids.contains(tc->id()))
-                continue;
-            ids.insert(tc->id());
-            toolChains.append(tc);
+            if (Utils::insert(ids, tc->id()))
+                toolChains.append(tc);
         }
     }
 

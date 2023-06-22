@@ -6,7 +6,6 @@
 #include "LookupContext.h"
 #include "Overview.h"
 #include "DeprecatedGenTemplateInstance.h"
-#include "CppRewriter.h"
 #include "TypeOfExpression.h"
 
 #include <cplusplus/Control.h>
@@ -19,6 +18,8 @@
 #include <cplusplus/TypeVisitor.h>
 #include <cplusplus/NameVisitor.h>
 #include <cplusplus/Templates.h>
+
+#include <utils/algorithm.h>
 
 #include <QList>
 #include <QDebug>
@@ -142,9 +143,8 @@ private:
         for (const LookupItem &it : namedTypeItems) {
             Symbol *declaration = it.declaration();
             if (declaration && declaration->isTypedef()) {
-                if (visited.contains(declaration))
+                if (!Utils::insert(visited, declaration))
                     break;
-                visited.insert(declaration);
 
                 // continue working with the typedefed type and scope
                 if (type->type()->asPointerType()) {

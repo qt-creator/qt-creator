@@ -521,8 +521,7 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
                     }
                 }
             }
-            if (!isHidden && !seen->contains(subFolderNode)) {
-                seen->insert(subFolderNode);
+            if (!isHidden && Utils::insert(*seen, subFolderNode)) {
                 auto node = new WrapperNode(subFolderNode);
                 parent->appendChild(node);
                 addFolderNode(node, subFolderNode, seen);
@@ -531,10 +530,8 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
                 addFolderNode(parent, subFolderNode, seen);
             }
         } else if (FileNode *fileNode = node->asFileNode()) {
-            if (!seen->contains(fileNode)) {
-                seen->insert(fileNode);
+            if (Utils::insert(*seen, fileNode))
                 parent->appendChild(new WrapperNode(fileNode));
-            }
         }
     }
 

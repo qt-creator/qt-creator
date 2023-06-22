@@ -9,6 +9,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -365,10 +366,8 @@ void CppSourceProcessor::mergeEnvironment(Document::Ptr doc)
 
     const QString fn = doc->filePath().path();
 
-    if (m_processed.contains(fn))
+    if (!Utils::insert(m_processed, fn))
         return;
-
-    m_processed.insert(fn);
 
     const QList<Document::Include> includes = doc->resolvedIncludes();
     for (const Document::Include &incl : includes) {

@@ -656,14 +656,12 @@ void LinkPrivate::loadQmldirComponents(ObjectValue *import,
     QSet<QString> importedTypes;
     const auto components = libraryInfo.components();
     for (const QmlDirParser::Component &component : components) {
-        if (importedTypes.contains(component.typeName))
-            continue;
-
         ComponentVersion componentVersion(component.majorVersion, component.minorVersion);
         if (version < componentVersion)
             continue;
 
-        importedTypes.insert(component.typeName);
+        if (!Utils::insert(importedTypes, component.typeName))
+            continue;
         if (Document::Ptr importedDoc = m_snapshot.document(
                 libraryPath.pathAppended(component.fileName))) {
             if (ObjectValue *v = importedDoc->bind()->rootObjectValue())

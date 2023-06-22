@@ -21,6 +21,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
+#include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
@@ -288,8 +289,7 @@ void ModelIndexer::IndexerThread::onFilesQueued()
             // collect all diagrams of model
             DiagramsCollectorVisitor visitor(indexedModel);
             project.rootPackage()->accept(&visitor);
-            if (m_indexer->d->defaultModelFiles.contains(queuedFile)) {
-                m_indexer->d->defaultModelFiles.remove(queuedFile);
+            if (m_indexer->d->defaultModelFiles.remove(queuedFile)) {
                 // check if model has a diagram which could be opened
                 qmt::FindRootDiagramVisitor diagramVisitor;
                 project.rootPackage()->accept(&diagramVisitor);
@@ -426,10 +426,9 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
         // queue files
         while (!filesQueue.isEmpty()) {
             QueuedFile queuedFile = filesQueue.takeFirst();
-            if (!d->queuedFilesSet.contains(queuedFile)) {
+            if (Utils::insert(d->queuedFilesSet, queuedFile)) {
                 QMT_CHECK(!d->filesQueue.contains(queuedFile));
                 d->filesQueue.append(queuedFile);
-                d->queuedFilesSet.insert(queuedFile);
                 filesAreQueued = true;
             }
         }
@@ -474,11 +473,10 @@ void ModelIndexer::forgetProject(ProjectExplorer::Project *project)
         const QString fileString = file.toString();
         // remove file from queue
         QueuedFile queuedFile(fileString, project);
-        if (d->queuedFilesSet.contains(queuedFile)) {
+        if (d->queuedFilesSet.remove(queuedFile)) {
             QMT_CHECK(d->filesQueue.contains(queuedFile));
             d->filesQueue.removeOne(queuedFile);
             QMT_CHECK(!d->filesQueue.contains(queuedFile));
-            d->queuedFilesSet.remove(queuedFile);
         }
         removeModelFile(fileString, project);
         removeDiagramReferenceFile(fileString, project);
