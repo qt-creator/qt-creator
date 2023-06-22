@@ -52,6 +52,7 @@ QtcProduct {
 
     files: [
         "app-Info.plist",
+        "app_logo.qrc",
         "main.cpp",
         "qtcreator.xcassets",
         "../shared/qtsingleapplication/qtsingleapplication.h",

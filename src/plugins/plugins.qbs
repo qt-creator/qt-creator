@@ -26,7 +26,6 @@ Project {
         "conan/conan.qbs",
         "copilot/copilot.qbs",
         "coreplugin/coreplugin.qbs",
-        "coreplugin/images/logo/logo.qbs",
         "cpaster/cpaster.qbs",
         "cpaster/frontend/frontend.qbs",
         "cppcheck/cppcheck.qbs",
