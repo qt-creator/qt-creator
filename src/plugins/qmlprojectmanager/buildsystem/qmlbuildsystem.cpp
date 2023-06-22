@@ -317,12 +317,20 @@ void QmlBuildSystem::setBlockFilesUpdate(bool newBlockFilesUpdate)
 
 Utils::FilePath QmlBuildSystem::mainFilePath() const
 {
-    return projectDirectory().pathAppended(mainFile());
+    const QString fileName = mainFile();
+    if (fileName.isEmpty() || fileName.isNull()) {
+        return {};
+    }
+    return projectDirectory().pathAppended(fileName);
 }
 
 Utils::FilePath QmlBuildSystem::mainUiFilePath() const
 {
-    return projectDirectory().pathAppended(mainUiFile());
+    const QString fileName = mainUiFile();
+    if (fileName.isEmpty() || fileName.isNull()) {
+        return {};
+    }
+    return projectDirectory().pathAppended(fileName);
 }
 
 bool QmlBuildSystem::setMainFileInProjectFile(const Utils::FilePath &newMainFilePath)
