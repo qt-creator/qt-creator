@@ -103,30 +103,20 @@ static StudioWelcomePlugin *s_pluginInstance = nullptr;
 
 static Utils::FilePath getMainUiFileWithFallback()
 {
-    auto project = ProjectExplorer::ProjectManager::startupProject();
+    const auto project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return {};
 
     if (!project->activeTarget())
         return {};
 
-    auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+    const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
         project->activeTarget()->buildSystem());
 
     if (!qmlBuildSystem)
         return {};
 
-    auto mainUiFile = qmlBuildSystem->mainUiFilePath();
-    if (mainUiFile.exists())
-        return mainUiFile;
-
-    const Utils::FilePaths uiFiles = project->files([&](const ProjectExplorer::Node *node) {
-        return node->filePath().completeSuffix() == "ui.qml";
-    });
-    if (!uiFiles.isEmpty())
-        return uiFiles.first();
-
-    return {};
+    return qmlBuildSystem->getStartupQmlFileWithFallback();
 }
 
 std::unique_ptr<QSettings> makeUserFeedbackSettings()
@@ -255,14 +245,16 @@ public:
             return;
 
         m_blockOpenRecent = true;
-        const FilePath projectFile = FilePath::fromVariant(data(index(row, 0), ProjectModel::FilePathRole));
+        const FilePath projectFile = FilePath::fromVariant(
+            data(index(row, 0), ProjectModel::FilePathRole));
         if (projectFile.exists()) {
             const ProjectExplorerPlugin::OpenProjectResult result
                 = ProjectExplorer::ProjectExplorerPlugin::openProject(projectFile);
             if (!result && !result.alreadyOpen().isEmpty()) {
-                const auto mainUiFile = getMainUiFileWithFallback();
-                if (mainUiFile.exists())
-                    Core::EditorManager::openEditor(mainUiFile, Utils::Id());
+                const auto fileToOpen = getMainUiFileWithFallback();
+                if (!fileToOpen.isEmpty() && fileToOpen.exists() && !fileToOpen.isDir()) {
+                    Core::EditorManager::openEditor(fileToOpen, Utils::Id());
+                }
             };
         }
 

@@ -94,6 +94,8 @@ public:
     bool blockFilesUpdate() const;
     void setBlockFilesUpdate(bool newBlockFilesUpdate);
 
+    Utils::FilePath getStartupQmlFileWithFallback() const;
+
 signals:
     void projectChanged();
 

@@ -5,6 +5,7 @@
 
 #include "../qmlprojectconstants.h"
 #include "../qmlprojectmanagertr.h"
+#include "../qmlproject.h"
 
 #include <QtCore5Compat/qtextcodec.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -153,6 +154,11 @@ bool QmlBuildSystem::updateProjectFile()
     ts << "import QmlProject 1.1" << Qt::endl << Qt::endl;
 
     return true;
+}
+
+QmlProject *QmlBuildSystem::qmlProject() const
+{
+    return qobject_cast<QmlProject *>(project());
 }
 
 void QmlBuildSystem::triggerParsing()
@@ -313,6 +319,66 @@ bool QmlBuildSystem::blockFilesUpdate() const
 void QmlBuildSystem::setBlockFilesUpdate(bool newBlockFilesUpdate)
 {
     m_blockFilesUpdate = newBlockFilesUpdate;
+}
+
+Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
+{
+    const auto currentProject = project();
+
+    if (!currentProject)
+        return {};
+
+    if (!target())
+        return {};
+
+    const auto getFirstFittingFile = [](const Utils::FilePaths &files) -> Utils::FilePath {
+        for (const auto &file : files) {
+            if (file.exists())
+                return file;
+        }
+        return {};
+    };
+
+    const QStringView uiqmlstr = u"ui.qml";
+    const QStringView qmlstr = u"qml";
+
+    //we will check mainUiFile twice:
+    //first priority if it's ui.qml file, second if it's just a qml file
+    const Utils::FilePath mainUiFile = mainUiFilePath();
+    if (mainUiFile.exists() && mainUiFile.completeSuffix() == uiqmlstr)
+        return mainUiFile;
+
+    const Utils::FilePaths uiFiles = currentProject->files([&](const ProjectExplorer::Node *node) {
+        return node->filePath().completeSuffix() == uiqmlstr;
+    });
+    if (!uiFiles.isEmpty()) {
+        if (const auto file = getFirstFittingFile(uiFiles); !file.isEmpty())
+            return file;
+    }
+
+    //check the suffix of mainUiFile again, since there are no ui.qml files:
+    if (mainUiFile.exists() && mainUiFile.completeSuffix() == qmlstr)
+        return mainUiFile;
+
+    const Utils::FilePath mainQmlFile = mainFilePath();
+    if (mainQmlFile.exists() && mainQmlFile.completeSuffix() == qmlstr)
+        return mainQmlFile;
+
+    //maybe it's also worth priotizing qml files containing common words like "Screen"?
+    const Utils::FilePaths qmlFiles = currentProject->files([&](const ProjectExplorer::Node *node) {
+        return node->filePath().completeSuffix() == qmlstr;
+    });
+    if (!qmlFiles.isEmpty()) {
+        if (const auto file = getFirstFittingFile(qmlFiles); !file.isEmpty())
+            return file;
+    }
+
+    //if no source files exist in the project, lets try to open the .qmlproject file itself
+    const Utils::FilePath projectFile = projectFilePath();
+    if (projectFile.exists())
+        return projectFile;
+
+    return {};
 }
 
 Utils::FilePath QmlBuildSystem::mainFilePath() const
