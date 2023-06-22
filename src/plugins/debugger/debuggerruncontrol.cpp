@@ -1034,11 +1034,12 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
 
         CommandLine cmd;
 
-        QStringList args = ProcessArgs::splitArgs(commandLine().arguments(), OsTypeLinux);
         if (isQmlDebugging) {
-            args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                        portsGatherer->qmlServer()));
+            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
+                                                      portsGatherer->qmlServer()));
         }
+        cmd.addArgs(commandLine().arguments(), CommandLine::Raw);
+
         if (isQmlDebugging && !isCppDebugging) {
             cmd.setExecutable(commandLine().executable()); // FIXME: Case should not happen?
         } else {
@@ -1064,28 +1065,27 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                     cmd.setExecutable(runControl->device()->filePath("gdbserver"));
                 }
             }
-            args.clear();
+            cmd.setArguments({});
             if (cmd.executable().baseName().contains("lldb-server")) {
-                args.append("platform");
-                args.append("--listen");
-                args.append(QString("*:%1").arg(portsGatherer->gdbServer().port()));
-                args.append("--server");
+                cmd.addArg("platform");
+                cmd.addArg("--listen");
+                cmd.addArg(QString("*:%1").arg(portsGatherer->gdbServer().port()));
+                cmd.addArg("--server");
             } else if (cmd.executable().baseName() == "debugserver") {
-                args.append(QString("*:%1").arg(portsGatherer->gdbServer().port()));
-                args.append("--attach");
-                args.append(QString::number(m_pid.pid()));
+                cmd.addArg(QString("*:%1").arg(portsGatherer->gdbServer().port()));
+                cmd.addArg("--attach");
+                cmd.addArg(QString::number(m_pid.pid()));
             } else {
                 // Something resembling gdbserver
                 if (m_useMulti)
-                    args.append("--multi");
+                    cmd.addArg("--multi");
                 if (m_pid.isValid())
-                    args.append("--attach");
-                args.append(QString(":%1").arg(portsGatherer->gdbServer().port()));
+                    cmd.addArg("--attach");
+                cmd.addArg(QString(":%1").arg(portsGatherer->gdbServer().port()));
                 if (m_pid.isValid())
-                    args.append(QString::number(m_pid.pid()));
+                    cmd.addArg(QString::number(m_pid.pid()));
             }
         }
-        cmd.setArguments(ProcessArgs::joinArgs(args, OsTypeLinux));
 
         setCommandLine(cmd);
     });
