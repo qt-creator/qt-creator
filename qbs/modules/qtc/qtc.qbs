@@ -26,6 +26,7 @@ Module {
     property string ide_id: 'qtcreator'
     property string ide_cased_id: 'QtCreator'
     property string ide_bundle_identifier: 'org.qt-project.qtcreator'
+    property string ide_user_file_extension: '.user'
 
     property string libDirName: "lib"
     property string ide_app_path: qbs.targetOS.contains("macos") ? "" : "bin"

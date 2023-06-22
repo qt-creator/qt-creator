@@ -18,6 +18,7 @@ public:
     QString id;
     QString revision;
     QString revisionUrl;
+    QString userFileExtension;
 };
 
 QTCREATOR_UTILS_EXPORT AppInfo appInfo();

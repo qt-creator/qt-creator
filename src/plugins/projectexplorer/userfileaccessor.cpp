@@ -14,6 +14,8 @@
 #include "kitmanager.h"
 
 #include <coreplugin/icore.h>
+
+#include <utils/appinfo.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
@@ -29,21 +31,17 @@ using namespace ProjectExplorer::Internal;
 
 using StringVariantPair = std::pair<const QString, QVariant>;
 
+static QString userFileExtension()
+{
+    const QString ext = Utils::appInfo().userFileExtension;
+    return ext.isEmpty() ? QLatin1String(".user") : ext;
+}
+
 namespace {
 
 const char OBSOLETE_VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
 const char SHARED_SETTINGS[] = "SharedSettings";
 const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
-
-#ifdef PROJECT_USER_FILE_EXTENSION
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
-
-const char FILE_EXTENSION_STR[] = STRINGIFY(PROJECT_USER_FILE_EXTENSION);
-#else
-const char FILE_EXTENSION_STR[] = ".user";
-
-#endif
 
 // Version 14 Move builddir into BuildConfiguration
 class UserFileVersion14Upgrader : public VersionUpgrader
@@ -385,15 +383,15 @@ QVariant UserFileAccessor::retrieveSharedSettings() const
 FilePath UserFileAccessor::projectUserFile() const
 {
     static const QString qtcExt = qtcEnvironmentVariable("QTC_EXTENSION");
-    return m_project->projectFilePath()
-            .stringAppended(generateSuffix(qtcExt.isEmpty() ? FILE_EXTENSION_STR : qtcExt));
+    return m_project->projectFilePath().stringAppended(
+        generateSuffix(qtcExt.isEmpty() ? userFileExtension() : qtcExt));
 }
 
 FilePath UserFileAccessor::externalUserFile() const
 {
     static const QString qtcExt = qtcEnvironmentVariable("QTC_EXTENSION");
     return externalUserFilePath(m_project->projectFilePath(),
-                                generateSuffix(qtcExt.isEmpty() ? FILE_EXTENSION_STR : qtcExt));
+                                generateSuffix(qtcExt.isEmpty() ? userFileExtension() : qtcExt));
 }
 
 FilePath UserFileAccessor::sharedFile() const

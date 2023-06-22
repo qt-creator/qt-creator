@@ -28,5 +28,8 @@ const char IDE_REVISION_URL[] = "${IDE_REVISION_URL}";
 // changes the path where the settings are saved to
 const char IDE_SETTINGSVARIANT_STR[] = "${IDE_SETTINGSVARIANT}";
 
+// added extension for project user settings
+const char IDE_PROJECT_USER_FILE_EXTENSION[] = "${PROJECT_USER_FILE_EXTENSION}";
+
 } // Constants
 } // Core

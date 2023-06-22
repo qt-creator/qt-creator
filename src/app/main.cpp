@@ -662,6 +662,7 @@ int main(int argc, char **argv)
     info.id = Constants::IDE_ID;
     info.revision = Constants::IDE_REVISION_STR;
     info.revisionUrl = Constants::IDE_REVISION_URL;
+    info.userFileExtension = Constants::IDE_PROJECT_USER_FILE_EXTENSION;
     Utils::Internal::setAppInfo(info);
 
     QTranslator translator;

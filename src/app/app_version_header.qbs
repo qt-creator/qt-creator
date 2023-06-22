@@ -57,6 +57,8 @@ Product {
                         product.moduleProperty("qtc", "ide_id"));
                 content = content.replace("$${IDE_CASED_ID}",
                         product.moduleProperty("qtc", "ide_cased_id"));
+                content = content.replace("$${PROJECT_USER_FILE_EXTENSION}",
+                        product.moduleProperty("qtc", "ide_user_file_extension"));
                 file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(content);
