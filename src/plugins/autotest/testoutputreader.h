@@ -28,6 +28,8 @@ public:
     void setId(const QString &id) { m_id = id; }
     QString id() const { return m_id; }
 
+    virtual void onDone(int exitCode) { Q_UNUSED(exitCode) }
+
     void resetCommandlineColor();
 signals:
     void newResult(const TestResult &result);

@@ -1444,16 +1444,15 @@ CommandLine CommandLine::fromUserInput(const QString &cmdline, MacroExpander *ex
 
     QString input = cmdline.trimmed();
 
-    QStringList result = ProcessArgs::splitArgs(cmdline, HostOsInfo::hostOs());
+    if (expander)
+        input = expander->expand(input);
+
+    const QStringList result = ProcessArgs::splitArgs(input, HostOsInfo::hostOs());
 
     if (result.isEmpty())
         return {};
 
-    auto cmd = CommandLine(FilePath::fromUserInput(result.value(0)), result.mid(1));
-    if (expander)
-        cmd.m_arguments = expander->expand(cmd.m_arguments);
-
-    return cmd;
+    return {FilePath::fromUserInput(result.value(0)), result.mid(1)};
 }
 
 void CommandLine::addArg(const QString &arg)

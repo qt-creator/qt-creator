@@ -120,6 +120,11 @@
             \li Description
 
         \row
+            \li \l{Spinner Solution}{Spinner}
+            \li Renders a circular, endlessly animated progress indicator,
+                which may be attached to any widget as an overlay.
+
+        \row
             \li \l{Tasking Solution}{Tasking}
             \li Enables you to build extensible, declarative task tree structures
                 that contain possibly asynchronous tasks.

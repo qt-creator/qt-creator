@@ -91,7 +91,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     proc.setCommand(avdManager);
     proc.start();
     if (!proc.waitForStarted()) {
-        result.error = Tr::tr("Could not start process \"%1\"").arg(avdManager.toUserOutput());
+        result.error = Tr::tr("Could not start process \"%1\".").arg(avdManager.toUserOutput());
         return result;
     }
     QTC_CHECK(proc.isRunning());

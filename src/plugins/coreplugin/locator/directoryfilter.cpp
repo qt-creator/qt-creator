@@ -82,9 +82,9 @@ DirectoryFilter::DirectoryFilter(Id id)
     using namespace Tasking;
     const auto groupSetup = [this] {
         if (!m_directories.isEmpty())
-            return TaskAction::Continue; // Async task will run
+            return SetupResult::Continue; // Async task will run
         m_cache.setFilePaths({});
-        return TaskAction::StopWithDone; // Group stops, skips async task
+        return SetupResult::StopWithDone; // Group stops, skips async task
     };
     const auto asyncSetup = [this](Async<FilePaths> &async) {
         async.setConcurrentCallData(&refresh, m_directories, m_filters, m_exclusionFilters,

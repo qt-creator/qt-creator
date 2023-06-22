@@ -236,11 +236,11 @@ public:
 
         const auto onCheckerSetup = [this](Async<ArchiveIssue> &async) {
             if (!m_tempDir)
-                return TaskAction::StopWithError;
+                return SetupResult::StopWithError;
 
             async.setConcurrentCallData(checkContents, m_tempDir->path());
             async.setFutureSynchronizer(PluginManager::futureSynchronizer());
-            return TaskAction::Continue;
+            return SetupResult::Continue;
         };
         const auto onCheckerDone = [this](const Async<ArchiveIssue> &async) {
             m_isComplete = !async.isResultAvailable();

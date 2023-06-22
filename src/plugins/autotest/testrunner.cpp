@@ -355,13 +355,13 @@ void TestRunner::runTestsHelper()
 
         const auto onSetup = [this, config] {
             if (!config->project())
-                return TaskAction::StopWithDone;
+                return SetupResult::StopWithDone;
             if (config->testExecutable().isEmpty()) {
                 reportResult(ResultType::MessageFatal,
                              Tr::tr("Executable path is empty. (%1)").arg(config->displayName()));
-                return TaskAction::StopWithDone;
+                return SetupResult::StopWithDone;
             }
-            return TaskAction::Continue;
+            return SetupResult::Continue;
         };
         const auto onProcessSetup = [this, config, storage](Process &process) {
             TestStorage *testStorage = storage.activeStorage();
@@ -418,6 +418,9 @@ void TestRunner::runTestsHelper()
                     Tr::tr("Failed to start test for project \"%1\".").arg(config->displayName())
                         + processInformation(&process) + rcInfo(config));
             }
+
+            if (testStorage->m_outputReader)
+                testStorage->m_outputReader->onDone(process.exitCode());
 
             if (process.exitStatus() == QProcess::CrashExit) {
                 if (testStorage->m_outputReader)

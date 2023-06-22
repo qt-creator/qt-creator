@@ -158,20 +158,20 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         m_progressDialog->setRange(0, 0);
         m_progressDialog->setLabelText(Tr::tr("Unarchiving SDK Tools package..."));
         if (!*storage)
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
         const FilePath sdkFileName = **storage;
         if (!verifyFileIntegrity(sdkFileName, m_androidConfig.getSdkToolsSha256())) {
             logError(Tr::tr("Verifying the integrity of the downloaded file has failed."));
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
         }
         const auto sourceAndCommand = Unarchiver::sourceAndCommand(sdkFileName);
         if (!sourceAndCommand) {
             logError(sourceAndCommand.error());
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
         }
         unarchiver.setSourceAndCommand(*sourceAndCommand);
         unarchiver.setDestDir(sdkFileName.parentDir());
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto onUnarchiverDone = [this, storage](const Unarchiver &) {
         m_androidConfig.setTemporarySdkToolsPath(

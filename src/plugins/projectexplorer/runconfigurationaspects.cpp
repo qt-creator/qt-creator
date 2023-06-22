@@ -68,7 +68,7 @@ void TerminalAspect::addToLayout(LayoutItem &parent)
     m_checkBox = createSubWidget<QCheckBox>(Tr::tr("Run in terminal"));
     m_checkBox->setChecked(m_useTerminal);
     m_checkBox->setEnabled(isEnabled());
-    parent.addItems({{}, m_checkBox.data()});
+    parent.addItems({empty(), m_checkBox.data()});
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
         m_useTerminal = m_checkBox->isChecked();

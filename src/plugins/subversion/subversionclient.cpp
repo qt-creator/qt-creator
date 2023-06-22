@@ -167,13 +167,13 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
 
     const auto setupDescription = [this](Process &process) {
         if (m_changeNumber == 0)
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
         setupCommand(process, {"log", "-r", QString::number(m_changeNumber)});
         CommandLine command = process.commandLine();
         command << SubversionClient::AddAuthOptions();
         process.setCommand(command);
         setDescription(Tr::tr("Waiting for data..."));
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto onDescriptionDone = [this](const Process &process) {
         setDescription(process.cleanedStdOut());

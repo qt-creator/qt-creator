@@ -13,6 +13,7 @@ Project {
         "pluginview/pluginview.qbs",
         "proparser/testreader.qbs",
         "shootout/shootout.qbs",
+        "spinner/spinner.qbs",
         "subdirfileiterator/subdirfileiterator.qbs",
         "tasking/demo/demo.qbs",
         "tasking/imagescaling/imagescaling.qbs",

@@ -23,7 +23,7 @@ protected:
     TestResult createDefaultResult() const override;
 
 private:
-    void onDone(int exitCode);
+    void onDone(int exitCode) override;
     void sendCompleteInformation();
     void handleMessageMatch(const QRegularExpressionMatch &match);
     void reportNoOutputFinish(const QString &description, ResultType type);

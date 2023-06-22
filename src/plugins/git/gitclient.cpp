@@ -310,12 +310,12 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
 
     const auto setupStaged = [this, stagedFiles](Process &process) {
         if (stagedFiles.isEmpty())
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), stagedFiles));
         setupCommand(process, addConfigurationArguments(
                               QStringList({"diff", "--cached", "--"}) + stagedFiles));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto onStagedDone = [storage](const Process &process) {
         storage->m_stagedOutput = process.cleanedStdOut();
@@ -323,12 +323,12 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
 
     const auto setupUnstaged = [this, unstagedFiles](Process &process) {
         if (unstagedFiles.isEmpty())
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), unstagedFiles));
         setupCommand(process, addConfigurationArguments(
                               QStringList({"diff", "--"}) + unstagedFiles));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto onUnstagedDone = [storage](const Process &process) {
         storage->m_unstagedOutput = process.cleanedStdOut();
@@ -421,8 +421,8 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     const auto desciptionDetailsSetup = [storage] {
         if (!storage->m_postProcessDescription)
-            return TaskAction::StopWithDone;
-        return TaskAction::Continue;
+            return SetupResult::StopWithDone;
+        return SetupResult::Continue;
     };
 
     const auto setupBranches = [this, storage](Process &process) {

@@ -179,7 +179,7 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
         const Link link = Link::fromString(storage->input(), true);
         const FilePath input = link.targetFilePath;
         if (input.isEmpty())
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
 
         // only pass the file name part to allow searches like "somepath/*foo"
         const std::unique_ptr<MacroExpander> expander(createMacroExpander(input.fileName()));
@@ -189,7 +189,7 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
                               CommandLine::Raw);
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, cmd);
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
 
     return {{AsyncTask<void>(onSetup), storage}};

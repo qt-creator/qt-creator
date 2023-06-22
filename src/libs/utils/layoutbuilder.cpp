@@ -229,6 +229,7 @@ struct ResultItem
     int space = -1;
     int stretch = -1;
     int span = 1;
+    bool empty = false;
 };
 
 struct Slice
@@ -287,6 +288,8 @@ static void addItemToBoxLayout(QBoxLayout *layout, const ResultItem &item)
         layout->addSpacing(item.space);
     } else if (!item.text.isEmpty()) {
         layout->addWidget(createLabel(item.text));
+    } else if (item.empty) {
+        // Nothing to do, but no reason to warn, either.
     } else {
         QTC_CHECK(false);
     }
@@ -654,8 +657,8 @@ LayoutItem empty()
     LayoutItem item;
     item.onAdd = [](LayoutBuilder &builder) {
         ResultItem ri;
-        ri.span = 1;
-        builder.stack.last().pendingItems.append(ResultItem());
+        ri.empty = true;
+        builder.stack.last().pendingItems.append(ri);
     };
     return item;
 }

@@ -504,6 +504,21 @@ int main(int argc, char **argv)
             {{"LD_PRELOAD", "", Utils::EnvironmentItem::Unset}});
     }
 
+    auto restoreEnvVarFromSquish = [](const QByteArray &squishVar, const QString &var) {
+        if (qEnvironmentVariableIsSet(squishVar)) {
+            Utils::Environment::modifySystemEnvironment(
+                {{var, "", Utils::EnvironmentItem::Unset}});
+            const QString content = qEnvironmentVariable(squishVar);
+            if (!content.isEmpty()) {
+                Utils::Environment::modifySystemEnvironment(
+                    {{var, content, Utils::EnvironmentItem::Prepend}});
+            }
+        }
+    };
+
+    restoreEnvVarFromSquish("SQUISH_SHELL_ORIG_DYLD_LIBRARY_PATH", "DYLD_LIBRARY_PATH");
+    restoreEnvVarFromSquish("SQUISH_ORIG_DYLD_FRAMEWORK_PATH", "DYLD_FRAMEWORK_PATH");
+
     if (options.userLibraryPath) {
         if ((*options.userLibraryPath).isEmpty()) {
             Utils::Environment::modifySystemEnvironment(

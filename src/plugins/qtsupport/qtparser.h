@@ -25,6 +25,7 @@ private:
     QRegularExpression m_mocRegExp;
     QRegularExpression m_uicRegExp;
     QRegularExpression m_translationRegExp;
+    const QRegularExpression m_qmlToolsRegExp;
 };
 
 } // namespace QtSupport

@@ -19,12 +19,13 @@ using namespace ProjectExplorer;
 namespace QtSupport {
 
 // opt. drive letter + filename: (2 brackets)
-#define FILE_PATTERN R"(^(?<file>(?:[A-Za-z]:)?[^:\(]+\.[^:\(]+))"
+#define FILE_PATTERN R"((?<file>(?:[A-Za-z]:)?[^:\(]+\.[^:\(]+))"
 
 QtParser::QtParser() :
-    m_mocRegExp(FILE_PATTERN R"([:\(](?<line>\d+)?(?::(?<column>\d+))?\)?:\s(?<level>[Ww]arning|[Ee]rror|[Nn]ote):\s(?<description>.+?)$)"),
-    m_uicRegExp(FILE_PATTERN R"(: Warning:\s(?<msg>.+?)$)"),
-    m_translationRegExp(R"(^(?<level>[Ww]arning|[Ee]rror):\s+(?<description>.*?) in '(?<file>.*?)'$)")
+    m_mocRegExp("^" FILE_PATTERN R"([:\(](?<line>\d+)?(?::(?<column>\d+))?\)?:\s(?<level>[Ww]arning|[Ee]rror|[Nn]ote):\s(?<description>.+?)$)"),
+    m_uicRegExp("^" FILE_PATTERN R"(: Warning:\s(?<msg>.+?)$)"),
+    m_translationRegExp(R"(^(?<level>[Ww]arning|[Ee]rror):\s+(?<description>.*?) in '(?<file>.*?)'$)"),
+    m_qmlToolsRegExp(R"(^(?<level>Warning|Error):\s*)" FILE_PATTERN R"([:\(](?<line>\d+)?(?::(?<column>\d+))?\)?:\s(?<description>.+?)$)")
 {
     setObjectName(QLatin1String("QtParser"));
 }
@@ -89,19 +90,22 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }
-
-    if (lne.startsWith(QLatin1String("Error:"))) {
-        constexpr int matchLength = 6;
-        CompileTask task(Task::TaskType::Error, line.mid(matchLength).trimmed());
+    match = m_qmlToolsRegExp.match(line);
+    if (match.hasMatch()) {
+        const Task::TaskType type = match.captured("level") == "Error" ? Task::Error
+                                                                       : Task::Warning;
+        const Utils::FilePath file
+            = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured("file")));
+        bool ok;
+        int lineno = match.captured("line").toInt(&ok);
+        if (!ok)
+            lineno = -1;
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, match, "file");
+        CompileTask task(type, match.captured("description"), file, lineno,
+                         match.captured("column").toInt());
         scheduleTask(task, 1);
-        return Status::Done;
-    }
-
-    if (lne.startsWith(QLatin1String("Warning:"))) {
-        constexpr int matchLength = 8;
-        CompileTask task(Task::TaskType::Warning, line.mid(matchLength).trimmed());
-        scheduleTask(task, 1);
-        return Status::Done;
+        return {Status::Done, linkSpecs};
     }
 
     return Status::NotHandled;
@@ -220,15 +224,22 @@ void QtSupportPlugin::testQtOutputParser_data()
                                                        QLatin1String("dropping duplicate messages"),
                                                        Utils::FilePath::fromUserInput(QLatin1String("/some/place/qtcreator_fr.qm")), -1))
             << QString();
-    QTest::newRow("qmlsc warning") // QTCREATORBUG-28720
-        << QString::fromUtf8("Warning: Main.qml:4:1: Warnings occurred while importing module "
-                             "\"QtQuick.Controls\": [import]\"")
-        << OutputParserTester::STDERR << QString() << QString()
-        << (Tasks() << CompileTask(Task::Warning,
-                                   QString::fromUtf8(
-                                       "Main.qml:4:1: Warnings occurred while importing module "
-                                       "\"QtQuick.Controls\": [import]\"")))
-        << QString();
+    QTest::newRow("qmlsc/qmllint warning") // QTCREATORBUG-28720
+            << QString::fromLatin1("Warning: Main.qml:4:1: Warnings occurred while importing module "
+                                   "\"QtQuick.Controls\": [import]\"")
+            << OutputParserTester::STDERR << QString() << QString()
+            << (Tasks() << CompileTask(Task::Warning,
+                                       "Warnings occurred while importing module \"QtQuick.Controls\": [import]\"",
+                                       Utils::FilePath::fromUserInput("Main.qml"), 4, 1))
+            << QString();
+    QTest::newRow("qmlsc/qmllint error") // QTCREATORBUG-28720
+            << QString::fromLatin1("Error: E:/foo/PerfProfilerFlameGraphView.qml:10:5: "
+                                   "Could not compile binding for model: Cannot resolve property type  for binding on model")
+            << OutputParserTester::STDERR << QString() << QString()
+            << (Tasks() << CompileTask(Task::Error,
+                                       "Could not compile binding for model: Cannot resolve property type  for binding on model",
+                                       Utils::FilePath::fromUserInput("E:/foo/PerfProfilerFlameGraphView.qml"), 10, 5))
+            << QString();
 }
 
 void QtSupportPlugin::testQtOutputParser()

@@ -12,6 +12,10 @@
 #include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
 
+#include <android/androidconstants.h>
+
+#include <ios/iosconstants.h>
+
 #include <coreplugin/find/itemviewfind.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -173,13 +177,15 @@ static QString initialStagingDir(Kit *kit)
     return QString::fromUtf8("/tmp/Qt-Creator-staging-" + ba);
 }
 
-static bool buildAndRunOnSameDevice(Kit *kit)
+static bool supportsStageForInstallation(const Kit *kit)
 {
     IDeviceConstPtr runDevice = DeviceKitAspect::device(kit);
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit);
     QTC_ASSERT(runDevice, return false);
     QTC_ASSERT(buildDevice, return false);
-    return runDevice->id() == buildDevice->id();
+    return runDevice->id() != buildDevice->id()
+           && runDevice->type() != Android::Constants::ANDROID_DEVICE_TYPE
+           && runDevice->type() != Ios::Constants::IOS_DEVICE_TYPE;
 }
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
@@ -198,7 +204,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
     m_useStaging = addAspect<BoolAspect>();
     m_useStaging->setSettingsKey(USE_STAGING_KEY);
     m_useStaging->setLabel(Tr::tr("Stage for installation"), BoolAspect::LabelPlacement::AtCheckBox);
-    m_useStaging->setDefaultValue(!buildAndRunOnSameDevice(kit()));
+    m_useStaging->setDefaultValue(supportsStageForInstallation(kit()));
 
     m_stagingDir = addAspect<FilePathAspect>();
     m_stagingDir->setSettingsKey(STAGING_DIR_KEY);

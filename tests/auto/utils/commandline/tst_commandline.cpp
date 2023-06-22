@@ -196,8 +196,7 @@ private slots:
 
         QTest::newRow("simple") << "command %{hello}"
                                 << "command"
-                                << (HostOsInfo::isWindowsHost() ? "\"hello world\""
-                                                                : "'hello world'");
+                                << "hello world";
 
         QTest::newRow("simple-quoted")
             << "command \"%{hello}\""
@@ -226,15 +225,11 @@ private slots:
         CommandLine cmd = CommandLine::fromUserInput(input, &expander);
         QCOMPARE(cmd.executable().toUserOutput(), expectedExecutable);
 
-        // TODO: Fix (macro) escaping on windows
-        if (HostOsInfo::isWindowsHost())
-            QEXPECT_FAIL("simple", "Windows does not correctly quote macro arguments", Continue);
-        if (HostOsInfo::isWindowsHost())
-            QEXPECT_FAIL("simple-quoted", "Windows removes quotes from macro arguments", Continue);
-        if (HostOsInfo::isWindowsHost())
+        if (HostOsInfo::isWindowsHost()) {
             QEXPECT_FAIL("convert-to-quote-win",
                          "Windows should convert single to double quotes",
                          Continue);
+        }
 
         QCOMPARE(cmd.arguments(), expectedArguments);
     }

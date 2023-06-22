@@ -128,23 +128,23 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
 
     const auto onSetup = [=] {
         if (setupHandler && !setupHandler())
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
 
         ClangToolStorage *data = storage.activeStorage();
         data->name = clangToolName(input.tool);
         data->executable = toolExecutable(input.tool);
         if (!data->executable.isExecutableFile()) {
             qWarning() << "Can't start:" << data->executable << "as" << data->name;
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
         }
 
         QTC_CHECK(!input.unit.arguments.contains(QLatin1String("-o")));
         QTC_CHECK(!input.unit.arguments.contains(input.unit.file.nativePath()));
-        QTC_ASSERT(input.unit.file.exists(), return TaskAction::StopWithError);
+        QTC_ASSERT(input.unit.file.exists(), return SetupResult::StopWithError);
         data->outputFilePath = createOutputFilePath(input.outputDirPath, input.unit.file);
-        QTC_ASSERT(!data->outputFilePath.isEmpty(), return TaskAction::StopWithError);
+        QTC_ASSERT(!data->outputFilePath.isEmpty(), return SetupResult::StopWithError);
 
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
     const auto onProcessSetup = [=](Process &process) {
         process.setEnvironment(input.environment);

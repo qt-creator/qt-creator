@@ -58,6 +58,107 @@ private:
 */
 
 /*!
+    \class Tasking::TaskInterface
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief TaskInterface is the abstract base class for implementing custom task adapters.
+
+    To implement a custom task adapter, derive your adapter from the
+    \c TaskAdapter<Task> class template. TaskAdapter automatically creates and destroys
+    the custom task instance and associates the adapter with a given \c Task type.
+*/
+
+/*!
+    \fn virtual void TaskInterface::start()
+
+    This method is called by the running TaskTree for starting the \c Task instance.
+    Reimplement this method in \c TaskAdapter<Task>'s subclass in order to start the
+    associated task.
+
+    Use TaskAdapter::task() to access the associated \c Task instance.
+
+    \sa done(), TaskAdapter::task()
+*/
+
+/*!
+    \fn void TaskInterface::done(bool success)
+
+    Emit this signal from the \c TaskAdapter<Task>'s subclass, when the \c Task is finished.
+    Pass \c true as a \a success argument when the task finishes with success;
+    otherwise, when an error occurs, pass \c false.
+*/
+
+/*!
+    \class Tasking::TaskAdapter
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief A class template for implementing custom task adapters.
+
+    The TaskAdapter class template is responsible for creating a task of the \c Task type,
+    starting it, and reporting success or an error when the task is finished.
+    It also associates the adapter with a given \c Task type.
+
+    Reimplement this class with the actual \c Task type to adapt the task's interface
+    into the general TaskTree's interface for managing the \c Task instances.
+
+    Each subclass needs to provide a public default constructor,
+    implement the start() method, and emit the done() signal when the task is finished.
+    Use task() to access the associated \c Task instance.
+
+    For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
+
+    \sa start(), done(), task()
+*/
+
+/*!
+    \typealias TaskAdapter::Type
+
+    Type alias for the \c Task type.
+*/
+
+/*!
+    \fn template <typename Task> TaskAdapter<Task>::TaskAdapter<Task>()
+
+    Creates a task adapter for the given \c Task type. Internally, it creates
+    an instance of \c Task, which is accessible via the task() method.
+
+    \sa task()
+*/
+
+/*!
+    \fn template <typename Task> Task *TaskAdapter<Task>::task()
+
+    Returns the pointer to the associated \c Task instance.
+*/
+
+/*!
+    \fn template <typename Task> Task *TaskAdapter<Task>::task() const
+    \overload
+
+    Returns the const pointer to the associated \c Task instance.
+*/
+
+/*!
+    \macro TASKING_DECLARE_TASK(CustomTaskName, TaskAdapterClass)
+    \relates Tasking
+
+    Registers the new custom task type under a \a CustomTaskName name inside the
+    Tasking namespace for the passed \a TaskAdapterClass adapter class.
+
+    For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
+*/
+
+/*!
+    \macro TASKING_DECLARE_TEMPLATE_TASK(CustomTaskName, TaskAdapterClass)
+    \relates Tasking
+
+    Registers the new custom task template type under a \a CustomTaskName name inside the
+    Tasking namespace for the passed \a TaskAdapterClass adapter class template.
+
+    For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
+*/
+
+/*!
     \class Tasking::GroupItem
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
@@ -236,25 +337,27 @@ private:
 */
 
 /*!
-    \enum Tasking::TaskAction
+    \enum Tasking::SetupResult
 
     This enum is optionally returned from the group's or task's setup handler function.
     It instructs the running task tree on how to proceed after the setup handler's execution
     finished.
     \value Continue
-           Default. The group's or task's execution continues nomally.
+           Default. The group's or task's execution continues normally.
            When a group's or task's setup handler returns void, it's assumed that
            it returned Continue.
     \value StopWithDone
            The group's or task's execution stops immediately with success.
            When returned from the group's setup handler, all child tasks are skipped,
            and the group's onGroupDone() handler is invoked (if provided).
+           The group reports success to its parent. The group's workflow policy is ignored.
            When returned from the task's setup handler, the task isn't started,
            its done handler isn't invoked, and the task reports success to its parent.
     \value StopWithError
            The group's or task's execution stops immediately with an error.
            When returned from the group's setup handler, all child tasks are skipped,
            and the group's onGroupError() handler is invoked (if provided).
+           The group reports an error to its parent. The group's workflow policy is ignored.
            When returned from the task's setup handler, the task isn't started,
            its error handler isn't invoked, and the task reports an error to its parent.
 */
@@ -262,21 +365,21 @@ private:
 /*!
     \typealias GroupItem::GroupSetupHandler
 
-    Type alias for \c std::function<TaskAction()>.
+    Type alias for \c std::function<SetupResult()>.
 
     The GroupSetupHandler is used when constructing the onGroupSetup() element.
     Any function with the above signature, when passed as a group setup handler,
     will be called by the running task tree when the group execution starts.
 
     The return value of the handler instructs the running group on how to proceed
-    after the handler's invocation is finished. The default return value of TaskAction::Continue
+    after the handler's invocation is finished. The default return value of SetupResult::Continue
     instructs the group to continue running, i.e. to start executing its child tasks.
-    The return value of TaskAction::StopWithDone or TaskAction::StopWithError
+    The return value of SetupResult::StopWithDone or SetupResult::StopWithError
     instructs the group to skip the child tasks' execution and finish immediately with
     success or an error, respectively.
 
-    When the return type is either TaskAction::StopWithDone
-    of TaskAction::StopWithError, the group's done or error handler (if provided)
+    When the return type is either SetupResult::StopWithDone
+    of SetupResult::StopWithError, the group's done or error handler (if provided)
     is called synchronously immediately afterwards.
 
     \note Even if the group setup handler returns StopWithDone or StopWithError,
@@ -285,7 +388,7 @@ private:
 
     The onGroupSetup() accepts also functions in the shortened form of \c std::function<void()>,
     i.e. the return value is void. In this case it's assumed that the return value
-    is TaskAction::Continue by default.
+    is SetupResult::Continue by default.
 
     \sa onGroupSetup()
 */
@@ -293,7 +396,7 @@ private:
 /*!
     \typealias GroupItem::GroupEndHandler
 
-    Type alias for \c std::function\<void()\>.
+    Type alias for \c std::function<void()>.
 
     The GroupEndHandler is used when constructing the onGroupDone() and onGroupError() elements.
     Any function with the above signature, when passed as a group done or error handler,
@@ -309,7 +412,7 @@ private:
     Constructs a group's element holding the group setup handler.
     The \a handler is invoked whenever the group starts.
 
-    The passed \a handler is either of \c std::function<TaskAction()> or \c std::function<void()>
+    The passed \a handler is either of \c std::function<SetupResult()> or \c std::function<void()>
     type. For more information on possible argument type, refer to
     \l {GroupItem::GroupSetupHandler}.
 
@@ -430,9 +533,9 @@ const GroupItem stopOnFinished = workflowPolicy(WorkflowPolicy::StopOnFinished);
 const GroupItem finishAllAndDone = workflowPolicy(WorkflowPolicy::FinishAllAndDone);
 const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
 
-static TaskAction toTaskAction(bool success)
+static SetupResult toSetupResult(bool success)
 {
-    return success ? TaskAction::StopWithDone : TaskAction::StopWithError;
+    return success ? SetupResult::StopWithDone : SetupResult::StopWithError;
 }
 
 bool TreeStorageBase::isValid() const
@@ -658,10 +761,10 @@ public:
     TaskContainer(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
                   TaskNode *parentNode, TaskContainer *parentContainer)
         : m_constData(taskTreePrivate, task, parentNode, parentContainer, this) {}
-    TaskAction start();
-    TaskAction continueStart(TaskAction startAction, int nextChild);
-    TaskAction startChildren(int nextChild);
-    TaskAction childDone(bool success);
+    SetupResult start();
+    SetupResult continueStart(SetupResult startAction, int nextChild);
+    SetupResult startChildren(int nextChild);
+    SetupResult childDone(bool success);
     void stop();
     void invokeEndHandler();
     bool isRunning() const { return m_runtimeData.has_value(); }
@@ -716,7 +819,7 @@ public:
 
     // If returned value != Continue, childDone() needs to be called in parent container (in caller)
     // in order to unwind properly.
-    TaskAction start();
+    SetupResult start();
     void stop();
     void invokeEndHandler(bool success);
     bool isRunning() const { return m_task || m_container.isRunning(); }
@@ -945,31 +1048,34 @@ int TaskContainer::RuntimeData::currentLimit() const
                ? qMin(m_doneCount + m_constData.m_parallelLimit, childCount) : childCount;
 }
 
-TaskAction TaskContainer::start()
+SetupResult TaskContainer::start()
 {
     QTC_CHECK(!isRunning());
     m_runtimeData.emplace(m_constData);
 
-    TaskAction startAction = TaskAction::Continue;
+    SetupResult startAction = SetupResult::Continue;
     if (m_constData.m_groupHandler.m_setupHandler) {
         startAction = invokeHandler(this, m_constData.m_groupHandler.m_setupHandler);
-        if (startAction != TaskAction::Continue)
+        if (startAction != SetupResult::Continue) {
             m_constData.m_taskTreePrivate->advanceProgress(m_constData.m_taskCount);
+            // Non-Continue SetupResult takes precedence over the workflow policy.
+            m_runtimeData->m_successBit = startAction == SetupResult::StopWithDone;
+        }
     }
-    if (startAction == TaskAction::Continue) {
+    if (startAction == SetupResult::Continue) {
         if (m_constData.m_children.isEmpty())
-            startAction = toTaskAction(m_runtimeData->m_successBit);
+            startAction = toSetupResult(m_runtimeData->m_successBit);
     }
     return continueStart(startAction, 0);
 }
 
-TaskAction TaskContainer::continueStart(TaskAction startAction, int nextChild)
+SetupResult TaskContainer::continueStart(SetupResult startAction, int nextChild)
 {
-    const TaskAction groupAction = startAction == TaskAction::Continue ? startChildren(nextChild)
+    const SetupResult groupAction = startAction == SetupResult::Continue ? startChildren(nextChild)
                                                                        : startAction;
     QTC_CHECK(isRunning()); // TODO: superfluous
-    if (groupAction != TaskAction::Continue) {
-        const bool success = m_runtimeData->updateSuccessBit(groupAction == TaskAction::StopWithDone);
+    if (groupAction != SetupResult::Continue) {
+        const bool success = m_runtimeData->updateSuccessBit(groupAction == SetupResult::StopWithDone);
         invokeEndHandler();
         if (TaskContainer *parentContainer = m_constData.m_parentContainer) {
             QTC_CHECK(parentContainer->isRunning());
@@ -984,7 +1090,7 @@ TaskAction TaskContainer::continueStart(TaskAction startAction, int nextChild)
     return groupAction;
 }
 
-TaskAction TaskContainer::startChildren(int nextChild)
+SetupResult TaskContainer::startChildren(int nextChild)
 {
     QTC_CHECK(isRunning());
     GuardLocker locker(m_runtimeData->m_startGuard);
@@ -993,12 +1099,12 @@ TaskAction TaskContainer::startChildren(int nextChild)
         if (i >= limit)
             break;
 
-        const TaskAction startAction = m_constData.m_children.at(i)->start();
-        if (startAction == TaskAction::Continue)
+        const SetupResult startAction = m_constData.m_children.at(i)->start();
+        if (startAction == SetupResult::Continue)
             continue;
 
-        const TaskAction finalizeAction = childDone(startAction == TaskAction::StopWithDone);
-        if (finalizeAction == TaskAction::Continue)
+        const SetupResult finalizeAction = childDone(startAction == SetupResult::StopWithDone);
+        if (finalizeAction == SetupResult::Continue)
             continue;
 
         int skippedTaskCount = 0;
@@ -1008,10 +1114,10 @@ TaskAction TaskContainer::startChildren(int nextChild)
         m_constData.m_taskTreePrivate->advanceProgress(skippedTaskCount);
         return finalizeAction;
     }
-    return TaskAction::Continue;
+    return SetupResult::Continue;
 }
 
-TaskAction TaskContainer::childDone(bool success)
+SetupResult TaskContainer::childDone(bool success)
 {
     QTC_CHECK(isRunning());
     const int limit = m_runtimeData->currentLimit(); // Read before bumping m_doneCount and stop()
@@ -1023,9 +1129,9 @@ TaskAction TaskContainer::childDone(bool success)
 
     ++m_runtimeData->m_doneCount;
     const bool updatedSuccess = m_runtimeData->updateSuccessBit(success);
-    const TaskAction startAction
+    const SetupResult startAction
         = (shouldStop || m_runtimeData->m_doneCount == m_constData.m_children.size())
-        ? toTaskAction(updatedSuccess) : TaskAction::Continue;
+        ? toSetupResult(updatedSuccess) : SetupResult::Continue;
 
     if (isStarting())
         return startAction;
@@ -1059,30 +1165,30 @@ void TaskContainer::invokeEndHandler()
     m_runtimeData.reset();
 }
 
-TaskAction TaskNode::start()
+SetupResult TaskNode::start()
 {
     QTC_CHECK(!isRunning());
     if (!isTask())
         return m_container.start();
 
     m_task.reset(m_taskHandler.m_createHandler());
-    const TaskAction startAction = m_taskHandler.m_setupHandler
+    const SetupResult startAction = m_taskHandler.m_setupHandler
         ? invokeHandler(parentContainer(), m_taskHandler.m_setupHandler, *m_task.get())
-        : TaskAction::Continue;
-    if (startAction != TaskAction::Continue) {
+        : SetupResult::Continue;
+    if (startAction != SetupResult::Continue) {
         m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
         m_task.reset();
         return startAction;
     }
-    const std::shared_ptr<TaskAction> unwindAction
-        = std::make_shared<TaskAction>(TaskAction::Continue);
+    const std::shared_ptr<SetupResult> unwindAction
+        = std::make_shared<SetupResult>(SetupResult::Continue);
     QObject::connect(m_task.get(), &TaskInterface::done, taskTree(), [=](bool success) {
         invokeEndHandler(success);
         QObject::disconnect(m_task.get(), &TaskInterface::done, taskTree(), nullptr);
         m_task.release()->deleteLater();
         QTC_ASSERT(parentContainer() && parentContainer()->isRunning(), return);
         if (parentContainer()->isStarting())
-            *unwindAction = toTaskAction(success);
+            *unwindAction = toSetupResult(success);
         else
             parentContainer()->childDone(success);
     });
@@ -1321,18 +1427,18 @@ void TaskNode::invokeEndHandler(bool success)
     as the task tree calls it when needed. The setup handler is optional. When used,
     it must be the first argument of the task's constructor.
 
-    Optionally, the setup handler may return a TaskAction. The returned
-    TaskAction influences the further start behavior of a given task. The
+    Optionally, the setup handler may return a SetupResult. The returned
+    SetupResult influences the further start behavior of a given task. The
     possible values are:
 
     \table
     \header
-        \li TaskAction Value
+        \li SetupResult Value
         \li Brief Description
     \row
         \li Continue
         \li The task will be started normally. This is the default behavior when the
-            setup handler doesn't return TaskAction (that is, its return type is
+            setup handler doesn't return SetupResult (that is, its return type is
             void).
     \row
         \li StopWithDone
@@ -1404,12 +1510,12 @@ void TaskNode::invokeEndHandler(bool success)
     handler. If you add more than one onGroupSetup() element to a group, an assert
     is triggered at runtime that includes an error message.
 
-    Like the task's start handler, the group start handler may return TaskAction.
-    The returned TaskAction value affects the start behavior of the
+    Like the task's start handler, the group start handler may return SetupResult.
+    The returned SetupResult value affects the start behavior of the
     whole group. If you do not specify a group start handler or its return type
-    is void, the default group's action is TaskAction::Continue, so that all
+    is void, the default group's action is SetupResult::Continue, so that all
     tasks are started normally. Otherwise, when the start handler returns
-    TaskAction::StopWithDone or TaskAction::StopWithError, the tasks are not
+    SetupResult::StopWithDone or SetupResult::StopWithError, the tasks are not
     started (they are skipped) and the group itself reports success or failure,
     depending on the returned value, respectively.
 
@@ -1417,15 +1523,15 @@ void TaskNode::invokeEndHandler(bool success)
         const Group root {
             onGroupSetup([] { qDebug() << "Root setup"; }),
             Group {
-                onGroupSetup([] { qDebug() << "Group 1 setup"; return TaskAction::Continue; }),
+                onGroupSetup([] { qDebug() << "Group 1 setup"; return SetupResult::Continue; }),
                 ProcessTask(...) // Process 1
             },
             Group {
-                onGroupSetup([] { qDebug() << "Group 2 setup"; return TaskAction::StopWithDone; }),
+                onGroupSetup([] { qDebug() << "Group 2 setup"; return SetupResult::StopWithDone; }),
                 ProcessTask(...) // Process 2
             },
             Group {
-                onGroupSetup([] { qDebug() << "Group 3 setup"; return TaskAction::StopWithError; }),
+                onGroupSetup([] { qDebug() << "Group 3 setup"; return SetupResult::StopWithError; }),
                 ProcessTask(...) // Process 3
             },
             ProcessTask(...) // Process 4
@@ -1441,7 +1547,7 @@ void TaskNode::invokeEndHandler(bool success)
         \li Comment
     \row
         \li Root Group starts
-        \li Doesn't return TaskAction, so its tasks are executed.
+        \li Doesn't return SetupResult, so its tasks are executed.
     \row
         \li Group 1 starts
         \li Returns Continue, so its tasks are executed.
@@ -1833,7 +1939,7 @@ void TaskTree::setRecipe(const Group &recipe)
     Otherwise, the task tree is started.
 
     The started task tree may finish synchronously,
-    for example when the main group's start handler returns TaskAction::StopWithError.
+    for example when the main group's start handler returns SetupResult::StopWithError.
     For this reason, the connections to the done and errorOccurred signals should be
     established before calling start. Use isRunning() in order to detect whether
     the task tree is still running after a call to start().
