@@ -10,6 +10,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <remotelinux/remotelinux_constants.h>
@@ -37,14 +38,14 @@ QdbDeployConfigurationFactory::QdbDeployConfigurationFactory()
         if (buildDevice && buildDevice->rootPath().needsDevice())
             return false;
         return !device
-               || (device && device->extraData(RemoteLinux::Constants::SupportsRSync).toBool());
+               || (device && device->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool());
     });
     addInitialStep(RemoteLinux::Constants::DirectUploadStepId, [](Target *target) {
         auto device = DeviceKitAspect::device(target->kit());
         auto buildDevice = BuildDeviceKitAspect::device(target->kit());
         if (buildDevice && buildDevice->rootPath().needsDevice())
             return false;
-        return device && !device->extraData(RemoteLinux::Constants::SupportsRSync).toBool();
+        return device && !device->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool();
     });
     // This step is for:
     // a) A remote build device, as they do not support real rsync yet.

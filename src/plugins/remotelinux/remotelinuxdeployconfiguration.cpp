@@ -17,24 +17,6 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux::Internal {
 
-FileTransferMethod defaultTransferMethod(Kit *kit)
-{
-    auto runDevice = DeviceKitAspect::device(kit);
-    auto buildDevice = BuildDeviceKitAspect::device(kit);
-
-    if (runDevice != buildDevice) {
-        // FIXME: That's not the full truth, we need support from the build
-        // device, too.
-        if (runDevice && runDevice->extraData(Constants::SupportsRSync).toBool())
-            return FileTransferMethod::Rsync;
-    }
-
-    if (runDevice && runDevice->extraData(Constants::SupportsSftp).toBool())
-        return FileTransferMethod::Sftp;
-
-    return FileTransferMethod::GenericCopy;
-}
-
 RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
 {
     setConfigBaseId(RemoteLinux::Constants::DeployToGenericLinux);
@@ -58,17 +40,8 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     addInitialStep(Constants::MakeInstallStepId, needsMakeInstall);
     addInitialStep(Constants::KillAppStepId);
 
-    // Todo: Check: Instead of having three different steps here, have one
-    // and shift the logic into the implementation there?
-    addInitialStep(Constants::RsyncDeployStepId, [](Target *target) {
-        return defaultTransferMethod(target->kit()) == FileTransferMethod::Rsync;
-    });
-    addInitialStep(Constants::DirectUploadStepId, [](Target *target) {
-        return defaultTransferMethod(target->kit()) == FileTransferMethod::Sftp;
-    });
-    addInitialStep(ProjectExplorer::Constants::COPY_FILE_STEP, [](Target *target) {
-        return defaultTransferMethod(target->kit()) == FileTransferMethod::GenericCopy;
-    });
+    // TODO: Rename RsyncDeployStep to something more generic.
+    addInitialStep(Constants::RsyncDeployStepId);
 }
 
 } // RemoteLinux::Internal

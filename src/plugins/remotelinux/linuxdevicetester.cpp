@@ -3,11 +3,11 @@
 
 #include "linuxdevicetester.h"
 
-#include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/process.h>
@@ -177,9 +177,9 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
         const QString methodName = FileTransfer::transferMethodName(method);
         emit q->progressMessage(Tr::tr("\"%1\" is functional.\n").arg(methodName));
         if (method == FileTransferMethod::Rsync)
-            m_device->setExtraData(Constants::SupportsRSync, true);
+            m_device->setExtraData(Constants::SUPPORTS_RSYNC, true);
         else if (method == FileTransferMethod::Sftp)
-            m_device->setExtraData(Constants::SupportsSftp, true);
+            m_device->setExtraData(Constants::SUPPORTS_SFTP, true);
         else
             storage->useGenericCopy = true;
     };
@@ -197,12 +197,12 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
         }
         emit q->errorMessage(error);
         if (method == FileTransferMethod::Rsync)
-            m_device->setExtraData(Constants::SupportsRSync, false);
+            m_device->setExtraData(Constants::SUPPORTS_RSYNC, false);
         else if (method == FileTransferMethod::Sftp)
-            m_device->setExtraData(Constants::SupportsSftp, false);
+            m_device->setExtraData(Constants::SUPPORTS_SFTP, false);
 
-        const QVariant supportsRSync = m_device->extraData(Constants::SupportsRSync);
-        const QVariant supportsSftp = m_device->extraData(Constants::SupportsSftp);
+        const QVariant supportsRSync = m_device->extraData(Constants::SUPPORTS_RSYNC);
+        const QVariant supportsSftp = m_device->extraData(Constants::SUPPORTS_SFTP);
         if (supportsRSync.isValid() && !supportsRSync.toBool()
             && supportsSftp.isValid() && !supportsSftp.toBool()) {
             const QString generic = FileTransfer::transferMethodName(FileTransferMethod::GenericCopy);

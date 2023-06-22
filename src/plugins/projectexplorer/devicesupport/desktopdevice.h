@@ -37,6 +37,8 @@ public:
     Utils::FilePath rootPath() const override;
     Utils::FilePath filePath(const QString &pathOnDevice) const override;
 
+    void fromMap(const QVariantMap &map) override;
+
 protected:
     DesktopDevice();
 

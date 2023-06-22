@@ -135,4 +135,14 @@ FilePath DesktopDevice::rootPath() const
     return IDevice::rootPath();
 }
 
+void DesktopDevice::fromMap(const QVariantMap &map)
+{
+    IDevice::fromMap(map);
+
+    const FilePath rsync = FilePath::fromString("rsync").searchInPath();
+    const FilePath sftp = FilePath::fromString("sftp").searchInPath();
+    setExtraData(Constants::SUPPORTS_RSYNC, rsync.isExecutableFile());
+    setExtraData(Constants::SUPPORTS_SFTP, sftp.isExecutableFile());
+}
+
 } // namespace ProjectExplorer

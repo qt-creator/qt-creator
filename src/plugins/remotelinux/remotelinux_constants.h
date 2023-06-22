@@ -19,8 +19,6 @@ const char RsyncDeployStepId[] = "RemoteLinux.RsyncDeployStep";
 const char CustomCommandDeployStepId[] = "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
 const char KillAppStepId[] = "RemoteLinux.KillAppStep";
 
-const char SupportsRSync[] = "RemoteLinux.SupportsRSync";
-const char SupportsSftp[] = "RemoteLinux.SupportsSftp";
 const char SourceProfile[] = "RemoteLinux.SourceProfile";
 const char LinkDevice[] = "RemoteLinux.LinkDevice";
 

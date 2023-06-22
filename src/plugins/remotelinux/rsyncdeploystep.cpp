@@ -9,6 +9,7 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
@@ -42,6 +43,7 @@ private:
 
     mutable FilesToTransfer m_files;
     bool m_ignoreMissingFiles = false;
+    FileTransferMethod m_preferredTransferMethod = FileTransferMethod::Rsync;
     QString m_flags;
 };
 
@@ -60,7 +62,14 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
                                  BoolAspect::LabelPlacement::InExtraLabel);
     ignoreMissingFiles->setValue(false);
 
-    setInternalInitializer([this, ignoreMissingFiles, flags] {
+    auto method = addAspect<SelectionAspect>();
+    method->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    method->setDisplayName(Tr::tr("Transfer method:"));
+    method->addOption(Tr::tr("rsync"), Tr::tr("Use rsync if available."));
+    method->addOption(Tr::tr("SFTP"), Tr::tr("Use sftp if available."));
+    method->addOption(Tr::tr("Generic Copy"), Tr::tr("Use generic copy, most likely to succeed."));
+
+    setInternalInitializer([this, ignoreMissingFiles, flags, method] {
         if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
             // rsync transfer on the same device currently not implemented
             // and typically not wanted.
@@ -69,6 +78,13 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
         }
         m_ignoreMissingFiles = ignoreMissingFiles->value();
         m_flags = flags->value();
+        if (method->value() == 0)
+            m_preferredTransferMethod = FileTransferMethod::Rsync;
+        else if (method->value() == 1)
+            m_preferredTransferMethod = FileTransferMethod::Sftp;
+        else
+            m_preferredTransferMethod = FileTransferMethod::GenericCopy;
+
         return isDeploymentPossible();
     });
 
@@ -127,10 +143,46 @@ GroupItem RsyncDeployStep::mkdirTask()
     return AsyncTask<ResultType>(onSetup, {}, onError);
 }
 
+static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileToTransfer)
+{
+    auto sourceDevice = ProjectExplorer::DeviceManager::deviceForPath(fileToTransfer.m_source);
+    auto targetDevice = ProjectExplorer::DeviceManager::deviceForPath(fileToTransfer.m_target);
+
+    if (sourceDevice && targetDevice) {
+        // TODO: Check if the devices can reach each other via their ip
+        if (sourceDevice->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool()
+            && targetDevice->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool()) {
+            return FileTransferMethod::Rsync;
+        }
+
+        if (sourceDevice->extraData(ProjectExplorer::Constants::SUPPORTS_SFTP).toBool()
+            && targetDevice->extraData(ProjectExplorer::Constants::SUPPORTS_SFTP).toBool()) {
+            return FileTransferMethod::Sftp;
+        }
+    }
+
+    return FileTransferMethod::GenericCopy;
+}
+
 GroupItem RsyncDeployStep::transferTask()
 {
     const auto setupHandler = [this](FileTransfer &transfer) {
-        transfer.setTransferMethod(FileTransferMethod::Rsync);
+        FileTransferMethod transferMethod = m_preferredTransferMethod;
+
+        if (transferMethod != FileTransferMethod::GenericCopy) {
+            for (const FileToTransfer &fileToTransfer : m_files) {
+                const FileTransferMethod supportedMethod = supportedTransferMethodFor(
+                    fileToTransfer);
+
+                if (supportedMethod != m_preferredTransferMethod) {
+                    transferMethod = FileTransferMethod::GenericCopy;
+                    break;
+                }
+            }
+        }
+
+        transfer.setTransferMethod(transferMethod);
+
         transfer.setRsyncFlags(m_flags);
         transfer.setFilesToTransfer(m_files);
         connect(&transfer, &FileTransfer::progress,
