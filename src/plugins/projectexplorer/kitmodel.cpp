@@ -70,6 +70,7 @@ public:
     {
         if (m_widget)
             return m_widget->displayIcon();
+        QTC_ASSERT(m_kit, return {});
         return m_kit->displayIcon();
     }
 
@@ -77,6 +78,7 @@ public:
     {
         if (m_widget)
             return m_widget->displayName();
+        QTC_ASSERT(m_kit, return {});
         return m_kit->displayName();
     }
 
