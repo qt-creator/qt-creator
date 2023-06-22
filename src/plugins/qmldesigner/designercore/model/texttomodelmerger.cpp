@@ -12,6 +12,7 @@
 #include "itemlibraryinfo.h"
 #include "metainfo.h"
 #include "modelnodepositionstorage.h"
+#include "modelutils.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "propertyparser.h"
