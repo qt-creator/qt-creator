@@ -60,9 +60,9 @@ public:
             "the plugin will find the agent.js file automatically.\n\n"
             "Otherwise you need to specify the path to the %2 "
             "file from the Copilot neovim plugin.",
-            "Markdown text for the copilot instruction label").arg(
-                "[README.md](https://github.com/github/copilot.vim)",
-                "[agent.js](https://github.com/github/copilot.vim/tree/release/copilot/dist)"));
+            "Markdown text for the copilot instruction label")
+                           .arg("[README.md](https://github.com/github/copilot.vim)")
+                           .arg("[agent.js](https://github.com/github/copilot.vim/tree/release/copilot/dist)"));
 
         Column {
             QString("<b>" + Tr::tr("Note:") + "</b>"), br,
