@@ -25,8 +25,8 @@ def main():
         test.warning("Parsing project timed out")
     compareProjectTree(rootNodeTemplate % "Qt Creator", "projecttree_creator.tsv")
     buildIssuesTexts = map(lambda i: str(i[0]), getBuildIssues())
-    deprecationWarnings = filter(lambda s: "deprecated" in s, buildIssuesTexts)
+    deprecationWarnings = "\n".join(set(filter(lambda s: "deprecated" in s, buildIssuesTexts)))
     if deprecationWarnings:
         test.warning("Creator claims that the .qbs file uses deprecated features.",
-                     "\n".join(set(deprecationWarnings)))
+                     deprecationWarnings)
     invokeMenuItem("File", "Exit")

@@ -182,6 +182,26 @@
 */
 
 /*!
+    \fn Core::IDocument::aboutToSave(const Utils::FilePath &filePath, bool autoSave)
+
+    This signal is emitted before the document is saved to \a filePath.
+
+    \a autoSave indicates whether this save was triggered by the auto save timer.
+
+    \sa save()
+*/
+
+/*!
+    \fn Core::IDocument::saved(const Utils::FilePath &filePath, bool autoSave)
+
+    This signal is emitted after the document was saved to \a filePath.
+
+    \a autoSave indicates whether this save was triggered by the auto save timer.
+
+    \sa save()
+*/
+
+/*!
     \fn Core::IDocument::filePathChanged(const Utils::FilePath &oldName, const Utils::FilePath &newName)
 
     This signal is emitted after the file path changed from \a oldName to \a
@@ -315,11 +335,35 @@ IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePat
 
     Returns whether saving was successful.
 
-    The default implementation does nothing and returns \c false.
+    If saving was successful saved is emitted.
 
     \sa shouldAutoSave()
+    \sa aboutToSave()
+    \sa saved()
 */
 bool IDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
+{
+    emit aboutToSave(filePath, autoSave);
+    const bool success = saveImpl(errorString, filePath, autoSave);
+    if (success)
+        emit saved(filePath, autoSave);
+    return success;
+}
+
+/*!
+    Implementation of saving the contents of the document to the \a filePath on disk.
+
+    If \a autoSave is \c true, the saving is done for an auto-save, so the
+    document should avoid cleanups or other operations that it does for
+    user-requested saves.
+
+    Use \a errorString to return an error message if saving failed.
+
+    Returns whether saving was successful.
+
+    The default implementation does nothing and returns \c false.
+*/
+bool IDocument::saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(filePath)

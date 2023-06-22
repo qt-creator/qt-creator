@@ -202,8 +202,7 @@ public:
             for (Core::IEditor *editor : editors) {
                 if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
                     TextEditorWidget *widget = textEditor->editorWidget();
-                    widget->setRefactorMarkers(
-                        RefactorMarker::filterOutType(widget->refactorMarkers(), m_id));
+                    widget->clearRefactorMarkers(m_id);
                     widget->removeHoverHandler(&m_hoverHandler);
                 }
             }
@@ -278,10 +277,14 @@ public:
         {
             QObject::disconnect(contentsChangedConnection);
             QObject::disconnect(filePathChangedConnection);
+            QObject::disconnect(aboutToSaveConnection);
+            QObject::disconnect(savedConnection);
             delete document;
         }
         QMetaObject::Connection contentsChangedConnection;
         QMetaObject::Connection filePathChangedConnection;
+        QMetaObject::Connection aboutToSaveConnection;
+        QMetaObject::Connection savedConnection;
         QTextDocument *document = nullptr;
     };
     QMap<TextEditor::TextDocument *, OpenedDocument> m_openedDocument;
@@ -649,6 +652,22 @@ void Client::openDocument(TextEditor::TextDocument *document)
                       if (isSupportedDocument(document))
                           openDocument(document);
                   });
+    d->m_openedDocument[document].savedConnection
+        = connect(document,
+                  &TextDocument::saved,
+                  this,
+                  [this, document](const FilePath &saveFilePath) {
+                      if (saveFilePath == document->filePath())
+                          documentContentsSaved(document);
+                  });
+    d->m_openedDocument[document].aboutToSaveConnection
+        = connect(document,
+                  &TextDocument::aboutToSave,
+                  this,
+                  [this, document](const FilePath &saveFilePath) {
+                      if (saveFilePath == document->filePath())
+                          documentWillSave(document);
+                  });
     if (!d->m_documentVersions.contains(filePath))
         d->m_documentVersions[filePath] = 0;
     d->sendOpenNotification(filePath, document->mimeType(), document->plainText(),
@@ -910,8 +929,7 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
             TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
             widget->removeHoverHandler(&d->m_hoverHandler);
             widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
-            widget->setRefactorMarkers(
-                TextEditor::RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
+            widget->clearRefactorMarkers(id());
             updateEditorToolBar(editor);
         }
     }
@@ -1158,7 +1176,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
         TextEditorWidget *widget = editor->editorWidget();
         QTC_ASSERT(widget, continue);
         delete d->m_documentHighlightsTimer.take(widget);
-        widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
+        widget->clearRefactorMarkers(id());
     }
     d->m_documentUpdateTimer.start();
 }
@@ -1680,27 +1698,35 @@ void ClientPrivate::log(const ShowMessageParams &message)
 LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
     const ShowMessageRequestParams &message)
 {
-    auto box = new QMessageBox();
-    box->setText(message.toString());
-    box->setAttribute(Qt::WA_DeleteOnClose);
+    QMessageBox box;
+    box.setText(message.toString());
     switch (message.type()) {
-    case Error: box->setIcon(QMessageBox::Critical); break;
-    case Warning: box->setIcon(QMessageBox::Warning); break;
-    case Info: box->setIcon(QMessageBox::Information); break;
-    case Log: box->setIcon(QMessageBox::NoIcon); break;
+    case Error:
+        box.setIcon(QMessageBox::Critical);
+        break;
+    case Warning:
+        box.setIcon(QMessageBox::Warning);
+        break;
+    case Info:
+        box.setIcon(QMessageBox::Information);
+        break;
+    case Log:
+        box.setIcon(QMessageBox::NoIcon);
+        break;
     }
+
     QHash<QAbstractButton *, MessageActionItem> itemForButton;
     if (const std::optional<QList<MessageActionItem>> actions = message.actions()) {
-        auto button = box->addButton(QMessageBox::Close);
-        connect(button, &QPushButton::clicked, box, &QMessageBox::reject);
         for (const MessageActionItem &action : *actions) {
-            connect(button, &QPushButton::clicked, box, &QMessageBox::accept);
+            auto button = box.addButton(action.title(), QMessageBox::ActionRole);
+            connect(button, &QPushButton::clicked, &box, &QMessageBox::accept);
             itemForButton.insert(button, action);
         }
     }
-    if (box->exec() == QDialog::Rejected)
+
+    if (box.exec() == QDialog::Rejected || itemForButton.isEmpty())
         return {};
-    const MessageActionItem &item = itemForButton.value(box->clickedButton());
+    const MessageActionItem &item = itemForButton.value(box.clickedButton());
     return item.isValid() ? LanguageClientValue<MessageActionItem>(item)
                           : LanguageClientValue<MessageActionItem>();
 }

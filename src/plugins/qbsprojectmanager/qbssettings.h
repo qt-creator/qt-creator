@@ -27,6 +27,7 @@ public:
     static QbsSettings &instance();
 
     static Utils::FilePath qbsExecutableFilePath();
+    static Utils::FilePath defaultQbsExecutableFilePath();
     static Utils::FilePath qbsConfigFilePath();
     static bool hasQbsExecutable();
     static QString defaultInstallDirTemplate();

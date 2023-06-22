@@ -107,6 +107,9 @@
             All of these parameters can be edited later, as well as additional ones that the
             wizard does not show because there are sensible default values.
 
+           To add a device without using the wizard, select
+           \uicontrol {Add Remote Linux Device} in the pull-down
+           menu of the \uicontrol Add button.
 
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Add to add a kit for building for the device. Select the

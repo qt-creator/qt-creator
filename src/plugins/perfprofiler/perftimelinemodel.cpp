@@ -145,7 +145,7 @@ QVariantMap PerfTimelineModel::details(int index) const
                                                                 manager->traceDuration()));
         const int guessedFrames = -frame.numSamples;
         if (guessedFrames > 0)
-            result.insert(Tr::tr("Guessed"), Tr::tr("%n frames", nullptr, guessedFrames));
+            result.insert(Tr::tr("Guessed"), Tr::tr("%n frame(s)", nullptr, guessedFrames));
         for (int i = 0, end = numAttributes(index); i < end; ++i) {
             const auto &name = orUnknown(manager->string(
                 manager->attribute(attributeId(index, i)).name));

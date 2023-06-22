@@ -69,10 +69,10 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
     const auto onFilterSetup = [storage, resultStorage, client, filter](Async<void> &async) {
         const QList<SymbolInformation> results = *resultStorage;
         if (results.isEmpty())
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterResults, *storage, client, results, filter);
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
 
     const Group root {

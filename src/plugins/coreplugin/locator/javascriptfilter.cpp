@@ -372,7 +372,7 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
 
     const auto onSetup = [storage, engine] {
         if (!engine)
-            return TaskAction::StopWithError;
+            return SetupResult::StopWithError;
         if (storage->input().trimmed().isEmpty()) {
             LocatorFilterEntry entry;
             entry.displayName = Tr::tr("Reset Engine");
@@ -385,9 +385,9 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
                 return AcceptResult();
             };
             storage->reportOutput({entry});
-            return TaskAction::StopWithDone;
+            return SetupResult::StopWithDone;
         }
-        return TaskAction::Continue;
+        return SetupResult::Continue;
     };
 
     const auto onJavaScriptSetup = [storage, engine](JavaScriptRequest &request) {

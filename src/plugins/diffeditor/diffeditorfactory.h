@@ -7,8 +7,7 @@
 
 #include <texteditor/texteditoractionhandler.h>
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 class DiffEditorFactory : public Core::IEditorFactory
 {
@@ -22,5 +21,4 @@ private:
     TextEditor::TextEditorActionHandler rightHandler;
 };
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal

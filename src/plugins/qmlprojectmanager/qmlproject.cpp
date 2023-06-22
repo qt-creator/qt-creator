@@ -197,7 +197,8 @@ Tasks QmlProject::projectIssues(const Kit *k) const
         if (version->type() == QtSupport::Constants::DESKTOPQT) {
             if (version->qmlRuntimeFilePath().isEmpty()) {
                 result.append(
-                    createProjectTask(Task::TaskType::Error, tr("Qt version has no QML utility.")));
+                    createProjectTask(Task::TaskType::Error,
+                                      Tr::tr("Qt version has no QML utility.")));
             }
         } else {
             // Non-desktop Qt on a desktop device? We don't support that.

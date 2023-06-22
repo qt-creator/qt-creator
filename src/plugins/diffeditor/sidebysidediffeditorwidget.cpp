@@ -35,8 +35,7 @@ using namespace Utils;
 
 using namespace std::placeholders;
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 static DiffSide oppositeSide(DiffSide side)
 {
@@ -1104,7 +1103,6 @@ void SideBySideDiffEditorWidget::syncCursor(SideDiffEditorWidget *source, SideDi
     dest->horizontalScrollBar()->setValue(oldHSliderPos);
 }
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal
 
 #include "sidebysidediffeditorwidget.moc"

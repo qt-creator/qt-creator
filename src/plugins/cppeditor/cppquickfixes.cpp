@@ -311,7 +311,7 @@ QString nameString(const NameAST *name)
 // FIXME: Needs to consider the scope at the insertion site.
 QString declFromExpr(const TypeOrExpr &typeOrExpr, const CallAST *call, const NameAST *varName,
                      const Snapshot &snapshot, const LookupContext &context,
-                     const CppRefactoringFilePtr &file)
+                     const CppRefactoringFilePtr &file, bool makeConst)
 {
     const auto getTypeFromUser = [varName, call]() -> QString {
         if (call)
@@ -353,6 +353,7 @@ QString declFromExpr(const TypeOrExpr &typeOrExpr, const CallAST *call, const Na
         return type.isValid() ? oo.prettyType(type, varName->name) : getTypeFromUser();
 
     Function func(file->cppDocument()->translationUnit(), 0, varName->name);
+    func.setConst(makeConst);
     for (ExpressionListAST *it = call->expression_list; it; it = it->next) {
         Argument * const arg = new Argument(nullptr, 0, nullptr);
         arg->setType(getTypeOfExpr(it->value));
@@ -1671,7 +1672,7 @@ private:
         if (currentFile->cppDocument()->languageFeatures().cxx11Enabled && settings->useAuto)
             return "auto " + oo.prettyName(simpleNameAST->name);
         return declFromExpr(binaryAST->right_expression, nullptr, simpleNameAST, snapshot(),
-                            context(), currentFile);
+                            context(), currentFile, false);
     }
 
     const BinaryExpressionAST *binaryAST;
@@ -2939,10 +2940,11 @@ public:
         const TypeOrExpr &typeOrExpr,
         const CallAST *call,
         InsertionPointLocator::AccessSpec accessSpec,
-        bool makeStatic)
+        bool makeStatic,
+        bool makeConst)
         : CppQuickFixOperation(interface),
           m_class(theClass), m_memberName(memberName), m_typeOrExpr(typeOrExpr), m_call(call),
-          m_accessSpec(accessSpec), m_makeStatic(makeStatic)
+          m_accessSpec(accessSpec), m_makeStatic(makeStatic), m_makeConst(makeConst)
     {
         if (call)
             setDescription(Tr::tr("Add Member Function \"%1\"").arg(nameString(memberName)));
@@ -2954,7 +2956,7 @@ private:
     void perform() override
     {
         QString decl = declFromExpr(m_typeOrExpr, m_call, m_memberName, snapshot(), context(),
-                                    currentFile());
+                                    currentFile(), m_makeConst);
         if (decl.isEmpty())
             return;
         if (m_makeStatic)
@@ -2983,6 +2985,7 @@ private:
     const CallAST * m_call;
     const InsertionPointLocator::AccessSpec m_accessSpec;
     const bool m_makeStatic;
+    const bool m_makeConst;
 };
 
 void AddDeclarationForUndeclaredIdentifier::match(const CppQuickFixInterface &interface,
@@ -3198,7 +3201,7 @@ bool AddDeclarationForUndeclaredIdentifier::checkForMemberInitializer(
 
     result << new InsertMemberFromInitializationOp(
         interface, theClass, memInitializer->name->asSimpleName(), memInitializer->expression,
-        nullptr, InsertionPointLocator::Private, false);
+        nullptr, InsertionPointLocator::Private, false, false);
     return false;
 }
 
@@ -3268,7 +3271,8 @@ void AddDeclarationForUndeclaredIdentifier::maybeAddMember(
         }
     }
     result << new InsertMemberFromInitializationOp(interface, theClass, path.last()->asName(),
-                                                   typeOrExpr, call, accessSpec, needsStatic);
+                                                   typeOrExpr, call, accessSpec, needsStatic,
+                                                   func->symbol->isConst());
 }
 
 void AddDeclarationForUndeclaredIdentifier::maybeAddStaticMember(
@@ -3311,7 +3315,7 @@ void AddDeclarationForUndeclaredIdentifier::maybeAddStaticMember(
     if (theClass) {
         result << new InsertMemberFromInitializationOp(
             interface, theClass, path.last()->asName(), typeOrExpr, call,
-            InsertionPointLocator::Public, true);
+            InsertionPointLocator::Public, true, false);
     }
 }
 

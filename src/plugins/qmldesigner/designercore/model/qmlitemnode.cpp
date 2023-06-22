@@ -349,9 +349,6 @@ bool QmlItemNode::instanceHasScaleOrRotationTransform() const
 
 bool itemIsMovable(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isQtQuickControlsTab())
-        return false;
-
     if (!modelNode.hasParentProperty())
         return false;
 
@@ -363,9 +360,6 @@ bool itemIsMovable(const ModelNode &modelNode)
 
 bool itemIsResizable(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isQtQuickControlsTab())
-        return false;
-
     return NodeHints::fromModelNode(modelNode).isResizable();
 }
 

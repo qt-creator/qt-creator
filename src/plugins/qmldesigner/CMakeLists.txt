@@ -948,7 +948,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/richtexteditor
   SOURCES
     hyperlinkdialog.cpp hyperlinkdialog.h hyperlinkdialog.ui
-    richtexteditor.cpp richtexteditor.h hyperlinkdialog.ui
+    richtexteditor.cpp richtexteditor.h
     richtexteditorproxy.cpp richtexteditorproxy.h
 )
 
@@ -1125,13 +1125,8 @@ extend_qtc_plugin(componentsplugin
 extend_qtc_plugin(componentsplugin
   SOURCES_PREFIX componentsplugin
   SOURCES
-    addtabdesigneraction.cpp addtabdesigneraction.h
-    addtabtotabviewdialog.cpp addtabtotabviewdialog.h
-    addtabtotabviewdialog.ui
     componentsplugin.cpp componentsplugin.h
     componentsplugin.qrc
-    entertabdesigneraction.cpp entertabdesigneraction.h
-    tabviewindexmodel.cpp tabviewindexmodel.h
 )
 
 add_qtc_plugin(qmlpreviewplugin

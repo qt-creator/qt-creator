@@ -5,18 +5,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 
-namespace GenericProjectManager {
-namespace Internal {
-
-class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
-{
-    Q_OBJECT
-
-    friend class ProjectExplorer::BuildConfigurationFactory;
-    GenericBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-
-    void addToEnvironment(Utils::Environment &env) const final;
-};
+namespace GenericProjectManager::Internal {
 
 class GenericBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
@@ -24,5 +13,4 @@ public:
     GenericBuildConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace GenericProjectManager
+} // GenericProjectManager::Internal

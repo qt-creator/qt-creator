@@ -14,6 +14,7 @@ namespace Internal {
 class DiagnosticMark : public TextEditor::TextMark
 {
 public:
+    DiagnosticMark(const Diagnostic &diagnostic, TextEditor::TextDocument *document);
     explicit DiagnosticMark(const Diagnostic &diagnostic);
 
     void disable();

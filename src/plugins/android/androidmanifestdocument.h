@@ -14,11 +14,14 @@ class AndroidManifestDocument : public TextEditor::TextDocument
 {
 public:
     explicit AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget);
-    bool save(QString *errorString, const Utils::FilePath &filePath,
-              bool autoSave = false) override;
 
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
+
+protected:
+    bool saveImpl(QString *errorString,
+                  const Utils::FilePath &filePath,
+                  bool autoSave = false) override;
 
 private:
     AndroidManifestEditorWidget *m_editorWidget;

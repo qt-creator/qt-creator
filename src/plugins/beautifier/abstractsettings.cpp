@@ -88,9 +88,10 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
     setSettingsGroups(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP, name);
 
     command.setSettingsKey("command");
-    command.setExpectedKind(Utils::PathChooser::ExistingCommand);
+    command.setExpectedKind(PathChooser::ExistingCommand);
     command.setCommandVersionArguments({"--version"});
     command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
+    command.setValidatePlaceHolder(true);
 
     supportedMimeTypes.setDisplayStyle(StringAspect::LineEditDisplay);
     supportedMimeTypes.setSettingsKey("supportedMime");

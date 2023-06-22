@@ -514,7 +514,7 @@ void QmlDesignerProjectManager::fileListChanged()
 
 void QmlDesignerProjectManager::activeTargetChanged(ProjectExplorer::Target *target)
 {
-    if (m_projectData)
+    if (!m_projectData || !m_projectData->projectStorageData)
         return;
 
     QObject::disconnect(m_projectData->activeTarget, nullptr, nullptr, nullptr);

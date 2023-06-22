@@ -24,12 +24,14 @@ AuthWidget::AuthWidget(QWidget *parent)
 {
     using namespace Layouting;
 
-    m_button = new QPushButton(Tr::tr("Sign in"));
+    m_button = new QPushButton(Tr::tr("Sign In"));
     m_button->setEnabled(false);
     m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Small);
     m_progressIndicator->setVisible(false);
     m_statusLabel = new QLabel();
     m_statusLabel->setVisible(false);
+    m_statusLabel->setTextInteractionFlags(Qt::TextInteractionFlag::TextSelectableByMouse
+                                           | Qt::TextInteractionFlag::TextSelectableByKeyboard);
 
     // clang-format off
     Column {
@@ -91,13 +93,13 @@ void AuthWidget::updateClient(const Utils::FilePath &nodeJs, const Utils::FilePa
 {
     LanguageClientManager::shutdownClient(m_client);
     m_client = nullptr;
-    setState(Tr::tr("Sign in"), false);
+    setState(Tr::tr("Sign In"), false);
     m_button->setEnabled(false);
     if (!nodeJs.isExecutableFile() || !agent.exists()) {
         return;
     }
 
-    setState(Tr::tr("Sign in"), true);
+    setState(Tr::tr("Sign In"), true);
 
     m_client = new CopilotClient(nodeJs, agent);
     connect(m_client, &Client::initialized, this, &AuthWidget::checkStatus);
@@ -117,7 +119,7 @@ void AuthWidget::signIn()
 
         QDesktopServices::openUrl(QUrl(response.result()->verificationUri()));
 
-        m_statusLabel->setText(Tr::tr("A browser window will open, enter the code %1 when "
+        m_statusLabel->setText(Tr::tr("A browser window will open. Enter the code %1 when "
                                       "asked.\nThe code has been copied to your clipboard.")
                                    .arg(response.result()->userCode()));
         m_statusLabel->setVisible(true);
@@ -129,7 +131,7 @@ void AuthWidget::signIn()
 
                                        if (response.error()) {
                                            QMessageBox::critical(this,
-                                                                 Tr::tr("Login failed"),
+                                                                 Tr::tr("Login Failed"),
                                                                  Tr::tr(
                                                                      "The login request failed: ")
                                                                      + response.error()->message());

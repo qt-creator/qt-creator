@@ -20,9 +20,11 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstack.h>
 
-QT_QML_BEGIN_NAMESPACE
-
+QT_BEGIN_NAMESPACE
 class QDebug;
+QT_END_NAMESPACE
+
+QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 

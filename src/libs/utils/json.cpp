@@ -65,7 +65,7 @@ QString JsonValue::kindToString(JsonValue::Kind kind)
 
 JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)
 {
-    switch (variant.type()) {
+    switch (variant.typeId()) {
 
     case QVariant::List: {
         auto newValue = new (pool) JsonArrayValue;

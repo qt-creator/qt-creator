@@ -31,10 +31,8 @@ namespace LanguageClient {
 class TextMark : public TextEditor::TextMark
 {
 public:
-    TextMark(const FilePath &fileName, const Diagnostic &diag, const Client *client)
-        : TextEditor::TextMark(fileName,
-                               diag.range().start().line() + 1,
-                               {client->name(), client->id()})
+    TextMark(TextDocument *doc, const Diagnostic &diag, const Client *client)
+        : TextEditor::TextMark(doc, diag.range().start().line() + 1, {client->name(), client->id()})
     {
         setLineAnnotation(diag.message());
         setToolTip(diag.message());
@@ -106,7 +104,7 @@ void DiagnosticManager::showDiagnostics(const FilePath &filePath, int version)
                     = createDiagnosticSelection(diagnostic, doc->document());
                 if (!selection.cursor.isNull())
                     extraSelections << selection;
-                if (TextEditor::TextMark *mark = createTextMark(filePath, diagnostic, isProjectFile))
+                if (TextEditor::TextMark *mark = createTextMark(doc, diagnostic, isProjectFile))
                     marks.marks.append(mark);
             }
             if (!marks.marks.isEmpty())
@@ -118,13 +116,13 @@ void DiagnosticManager::showDiagnostics(const FilePath &filePath, int version)
     }
 }
 
-TextEditor::TextMark *DiagnosticManager::createTextMark(const FilePath &filePath,
+TextEditor::TextMark *DiagnosticManager::createTextMark(TextDocument *doc,
                                                         const Diagnostic &diagnostic,
                                                         bool /*isProjectFile*/) const
 {
     static const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
     static const QString tooltip = Tr::tr("Copy to Clipboard");
-    auto mark = new TextMark(filePath, diagnostic, m_client);
+    auto mark = new TextMark(doc, diagnostic, m_client);
     mark->setActionsProvider([text = diagnostic.message()] {
         QAction *action = new QAction();
         action->setIcon(icon);

@@ -152,9 +152,7 @@ public:
     bool isQtQuick3DView3D() const;
     bool isQtQuickBorderImage() const;
     bool isQtQuickControlsSwipeView() const;
-    bool isQtQuickControlsTab() const;
     bool isQtQuickControlsTabBar() const;
-    bool isQtQuickControlsTabView() const;
     bool isQtQuickExtrasPicture() const;
     bool isQtQuickImage() const;
     bool isQtQuickItem() const;

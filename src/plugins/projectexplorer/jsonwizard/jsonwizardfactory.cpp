@@ -102,7 +102,7 @@ static JsonWizardFactory::Generator parseGenerator(const QVariant &value, QStrin
 {
     JsonWizardFactory::Generator gen;
 
-    if (value.type() != QVariant::Map) {
+    if (value.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("Generator is not a object.");
         return gen;
     }
@@ -236,8 +236,8 @@ QVariant JsonWizardFactory::getDataValue(const QLatin1String &key, const QVarian
 {
     QVariant retVal = {};
 
-    if ((valueSet.contains(key) && valueSet.value(key).type() == QVariant::Map) ||
-        (defaultValueSet.contains(key) && defaultValueSet.value(key).type() == QVariant::Map)) {
+    if ((valueSet.contains(key) && valueSet.value(key).typeId() == QVariant::Map) ||
+        (defaultValueSet.contains(key) && defaultValueSet.value(key).typeId() == QVariant::Map)) {
         retVal = mergeDataValueMaps(valueSet.value(key), defaultValueSet.value(key));
     } else {
         QVariant defaultValue = defaultValueSet.value(key, notExistValue);
@@ -263,7 +263,7 @@ std::pair<int, QStringList> JsonWizardFactory::screenSizeInfoFromPage(const QStr
         return {};
 
     const QVariant data = it->data;
-    if (data.type() != QVariant::List)
+    if (data.typeId() != QVariant::List)
         return {};
 
     const QVariant screenFactorField = Utils::findOrDefault(data.toList(),
@@ -272,11 +272,11 @@ std::pair<int, QStringList> JsonWizardFactory::screenSizeInfoFromPage(const QStr
                                                                 return "ScreenFactor" == m["name"];
                                                             });
 
-    if (screenFactorField.type() != QVariant::Map)
+    if (screenFactorField.typeId() != QVariant::Map)
         return {};
 
     const QVariant screenFactorData = screenFactorField.toMap()["data"];
-    if (screenFactorData.type() != QVariant::Map)
+    if (screenFactorData.typeId() != QVariant::Map)
         return {};
 
     const QVariantMap screenFactorDataMap = screenFactorData.toMap();
@@ -304,7 +304,7 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
 {
     JsonWizardFactory::Page p;
 
-    if (value.type() != QVariant::Map) {
+    if (value.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("Page is not an object.");
         return p;
     }
@@ -351,9 +351,9 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
 
     if (specifiedSubData.isNull())
         subData = defaultSubData;
-    else if (specifiedSubData.type() == QVariant::Map)
+    else if (specifiedSubData.typeId() == QVariant::Map)
         subData = mergeDataValueMaps(specifiedSubData.toMap(), defaultSubData.toMap());
-    else if (specifiedSubData.type() == QVariant::List)
+    else if (specifiedSubData.typeId() == QVariant::List)
         subData = specifiedSubData;
 
     if (!factory->validateData(typeId, subData, errorMessage))
@@ -648,9 +648,9 @@ QList<QVariant> JsonWizardFactory::objectOrList(const QVariant &data, QString *e
     QList<QVariant> result;
     if (data.isNull())
         *errorMessage = Tr::tr("key not found.");
-    else if (data.type() == QVariant::Map)
+    else if (data.typeId() == QVariant::Map)
         result.append(data);
-    else if (data.type() == QVariant::List)
+    else if (data.typeId() == QVariant::List)
         result = data.toList();
     else
         *errorMessage = Tr::tr("Expected an object or a list.");
@@ -661,7 +661,7 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
 {
     if (value.isNull())
         return QString();
-    if (value.type() == QVariant::Map) {
+    if (value.typeId() == QVariant::Map) {
         QVariantMap tmp = value.toMap();
         const QString locale = languageSetting().toLower();
         QStringList locales;

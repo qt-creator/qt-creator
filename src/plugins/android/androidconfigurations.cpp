@@ -191,7 +191,7 @@ void AndroidConfig::load(const QSettings &settings)
 {
     // user settings
     QVariant emulatorArgs = settings.value(EmulatorArgsKey, QString("-netdelay none -netspeed full"));
-    if (emulatorArgs.type() == QVariant::StringList) // Changed in 8.0 from QStringList to QString.
+    if (emulatorArgs.typeId() == QVariant::StringList) // Changed in 8.0 from QStringList to QString.
         emulatorArgs = ProcessArgs::joinArgs(emulatorArgs.toStringList());
     m_emulatorArgs = emulatorArgs.toString();
     m_sdkLocation = FilePath::fromUserInput(settings.value(SDKLocationKey).toString()).cleanPath();

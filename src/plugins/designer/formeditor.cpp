@@ -647,7 +647,7 @@ ActionContainer *FormEditorData::createPreviewStyleMenu(QActionGroup *actionGrou
         QString name = menuId;
         name += dot;
         const QVariant data = a->data();
-        const bool isDeviceProfile = data.type() == QVariant::Int;
+        const bool isDeviceProfile = data.typeId() == QVariant::Int;
         if (isDeviceProfile) {
             name += deviceProfilePrefix;
             name += dot;

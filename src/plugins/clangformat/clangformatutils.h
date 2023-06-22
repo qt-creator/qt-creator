@@ -14,8 +14,12 @@
 
 #include <fstream>
 
-namespace TextEditor { class ICodeStylePreferences; }
+namespace TextEditor {
+class ICodeStylePreferences;
+class TabSettings;
+}
 namespace ProjectExplorer { class Project; }
+namespace CppEditor { class CppCodeStyleSettings; }
 namespace ClangFormat {
 
 QString projectUniqueId(ProjectExplorer::Project *project);
@@ -32,10 +36,15 @@ ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils:
 Utils::FilePath configForFile(const Utils::FilePath &fileName);
 Utils::FilePath findConfig(const Utils::FilePath &fileName);
 
+void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSettings &settings);
+void fromCppCodeStyleSettings(clang::format::FormatStyle &style,
+                              const CppEditor::CppCodeStyleSettings &settings);
+
 bool getProjectOverriddenSettings(const ProjectExplorer::Project *project);
 
 void addQtcStatementMacros(clang::format::FormatStyle &style);
 clang::format::FormatStyle qtcStyle();
+clang::format::FormatStyle currentQtStyle(const TextEditor::ICodeStylePreferences *codeStyle);
 
 Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle);
 }

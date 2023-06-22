@@ -37,7 +37,6 @@ public:
     {
         m_combo = createSubWidget<QComboBox>();
         m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
-        m_combo->addItem(Tr::tr("None"), -1);
 
         m_manageButton = createManageButton(Constants::QTVERSION_SETTINGS_PAGE_ID);
 
@@ -75,6 +74,7 @@ private:
     {
         const GuardLocker locker(m_ignoreChanges);
         m_combo->clear();
+        m_combo->addItem(Tr::tr("None"), -1);
 
         IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
         const FilePath deviceRoot = device->rootPath();
@@ -337,7 +337,7 @@ int QtKitAspect::qtVersionId(const Kit *k)
 
     int id = -1;
     QVariant data = k->value(QtKitAspect::id(), -1);
-    if (data.type() == QVariant::Int) {
+    if (data.typeId() == QVariant::Int) {
         bool ok;
         id = data.toInt(&ok);
         if (!ok)

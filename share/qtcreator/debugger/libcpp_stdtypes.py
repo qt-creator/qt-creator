@@ -163,7 +163,123 @@ def qdump__std____1__stack(d, value):
     d.putBetterType(value.type)
 
 
-def std_1_string_dumper(d, value):
+def GetChildMemberWithName(value: DumperBase.Value, name: str) -> DumperBase.Value:
+    members: list[DumperBase.Value] = value.members(True)
+
+    for member in members:
+        if member.name == name:
+            return member
+    return None
+
+
+def GetIndexOfChildWithName(value: DumperBase.Value, name: str) -> int:
+    members: list[DumperBase.Value] = value.members(True)
+
+    for i, member in enumerate(members):
+        if member.name == name:
+            return i
+    return None
+
+
+class StringLayout:
+    CSD = 0
+    DSC = 1
+
+
+def std_1_string_dumper_v2(d, value):
+    charType = value['__l']['__data_'].dereference().type
+
+    R = GetChildMemberWithName(value, "__r_")
+    if not R:
+        raise Exception("Could not find __r_")
+
+    # __r_ is a compressed_pair of the actual data and the allocator. The data we
+    # want is in the first base class.
+    R_Base_SP = R[0]
+
+    if not R_Base_SP:
+        raise Exception("Could not find R_Base_SP")
+
+    Rep_Sp = GetChildMemberWithName(R_Base_SP, "__value_")
+
+    if not Rep_Sp:
+        raise Exception("Could not find __value_")
+
+    # Our layout seems a little different
+    Rep_Sp = Rep_Sp[0]
+
+    if not Rep_Sp:
+        raise Exception("Could not find Rep_Sp")
+
+    L = GetChildMemberWithName(Rep_Sp, "__l")
+
+    if not L:
+        raise Exception("Could not find __l")
+
+    layout = StringLayout.CSD
+    if GetIndexOfChildWithName(L, "__data_") == 0:
+        layout = StringLayout.DSC
+
+    short_mode = False
+    using_bitmasks = True
+    size = 0
+    size_mode_value = 0
+
+    Short_Sp = GetChildMemberWithName(Rep_Sp, "__s")
+    if not Short_Sp:
+        raise Exception("Could not find __s")
+
+    Is_Long: DumperBase.Value = GetChildMemberWithName(Short_Sp, "__is_long_")
+    Size_Sp: DumperBase.Value = GetChildMemberWithName(Short_Sp, "__size_")
+    if not Size_Sp:
+        raise Exception("Could not find __size_")
+
+    if Is_Long:
+        using_bitmasks = False
+        short_mode = Is_Long.integer() == 0
+        size = Size_Sp.integer()
+    else:
+        size_mode_value = Size_Sp.integer()
+        mode_mask = 1
+        if layout == StringLayout.DSC:
+            mode_mask = 0x80
+        short_mode = (size_mode_value & mode_mask) == 0
+
+    if short_mode:
+        Location_Sp = GetChildMemberWithName(Short_Sp, "__data_")
+
+        if using_bitmasks:
+            size = ((size_mode_value >> 1) % 256)
+            if layout == StringLayout.DSC:
+                size = size_mode_value
+
+        # The string is most likely not initialized yet
+        if size > 100 or not Location_Sp:
+            raise Exception("Probably not initialized yet")
+
+        d.putCharArrayHelper(d.extractPointer(Location_Sp), size,
+                             charType, d.currentItemFormat())
+        return
+
+    Location_Sp = GetChildMemberWithName(L, "__data_")
+    Size_Vo = GetChildMemberWithName(L, "__size_")
+    Capacity_Vo = GetChildMemberWithName(L, "__cap_")
+
+    if not Location_Sp or not Size_Vo or not Capacity_Vo:
+        raise Exception("Could not find Location_Sp, Size_Vo or Capacity_Vo")
+
+    size = Size_Vo.integer()
+    capacity = Capacity_Vo.integer()
+    if not using_bitmasks and layout == StringLayout.CSD:
+        capacity *= 2
+    if capacity < size:
+        raise Exception("Capacity is less than size")
+
+    d.putCharArrayHelper(d.extractPointer(Location_Sp), size,
+                         charType, d.currentItemFormat())
+
+
+def std_1_string_dumper_v1(d, value):
     charType = value['__l']['__data_'].dereference().type
     D = None
 
@@ -245,13 +361,24 @@ def std_1_string_dumper(d, value):
 
     return
 
-
 def qdump__std____1__string(d, value):
-    std_1_string_dumper(d, value)
+    try:
+        std_1_string_dumper_v2(d, value)
+    except Exception as eV2:
+        try:
+            std_1_string_dumper_v1(d, value)
+        except Exception as eV1:
+            d.putValue("Could not parse: %s, %s" % (eV1, eV2))
 
 
 def qdump__std____1__wstring(d, value):
-    std_1_string_dumper(d, value)
+    try:
+        std_1_string_dumper_v2(d, value)
+    except Exception as eV2:
+        try:
+            std_1_string_dumper_v1(d, value)
+        except Exception as eV1:
+            d.putValue("Could not parse: %s, %s" % (eV1, eV2))
 
 
 def qdump__std____1__basic_string(d, value):

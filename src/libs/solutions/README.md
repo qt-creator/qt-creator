@@ -46,3 +46,23 @@ integrated into Qt when they:
 - Have full docs.
 - Have auto tests.
 - Have at least one example (however, autotests often play this role, too).
+
+## Documentation
+
+The common Solutions doc (doc/qtcreatordev/src/solutions-index.qdoc)
+lists all the solutions added to the solutions-modules group.
+In order to gather all the available solutions in this common page,
+define the module and refer to it like:
+
+/*!
+    \module TaskingSolution
+    \title The Tasking Solution
+    \ingroup solutions-modules
+    \brief (... add a brief description here...)
+*/
+
+The \ingroup will put the item above to the common Solutions page.
+Don't add more \ingroup references from class docs, add \inmodule instead.
+
+
+

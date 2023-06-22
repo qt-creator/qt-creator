@@ -13,8 +13,7 @@
 
 using namespace TextEditor;
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 SelectableTextEditorWidget::SelectableTextEditorWidget(Utils::Id id, QWidget *parent)
     : TextEditorWidget(parent)
@@ -142,5 +141,4 @@ void SelectableTextEditorWidget::paintBlock(QPainter *painter,
     TextEditorWidget::paintBlock(painter, block, offset, newSelections, clipRect);
 }
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal

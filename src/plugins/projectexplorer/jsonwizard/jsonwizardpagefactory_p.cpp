@@ -96,7 +96,7 @@ Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Utils::Id typeId,
 bool FilePageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
-    if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
+    if (!data.isNull() && (data.typeId() != QVariant::Map || !data.toMap().isEmpty())) {
         *errorMessage = Tr::tr("\"data\" for a \"File\" page needs to be unset or an empty object.");
         return false;
     }
@@ -147,7 +147,7 @@ bool KitsPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStri
 {
     QTC_ASSERT(canCreate(typeId), return false);
 
-    if (data.isNull() || data.type() != QVariant::Map) {
+    if (data.isNull() || data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("\"data\" must be a JSON object for \"Kits\" pages.");
         return false;
     }
@@ -206,7 +206,7 @@ bool ProjectPageFactory::validateData(Utils::Id typeId, const QVariant &data, QS
     Q_UNUSED(errorMessage)
 
     QTC_ASSERT(canCreate(typeId), return false);
-    if (!data.isNull() && data.type() != QVariant::Map) {
+    if (!data.isNull() && data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("\"data\" must be empty or a JSON object for \"Project\" pages.");
         return false;
     }
@@ -252,7 +252,7 @@ Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Utils::Id type
 bool SummaryPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
-    if (!data.isNull() && (data.type() != QVariant::Map)) {
+    if (!data.isNull() && (data.typeId() != QVariant::Map)) {
         *errorMessage = Tr::tr("\"data\" for a \"Summary\" page can be unset or needs to be an object.");
         return false;
     }

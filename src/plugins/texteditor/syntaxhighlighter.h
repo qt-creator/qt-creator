@@ -62,6 +62,7 @@ protected:
     void setTextFormatCategories(int count, std::function<TextStyle(int)> formatMapping);
     QTextCharFormat formatForCategory(int categoryIndex) const;
     QTextCharFormat whitespacified(const QTextCharFormat &fmt);
+    QTextCharFormat asSyntaxHighlight(const QTextCharFormat &fmt);
 
     // implement in subclasses
     // default implementation highlights whitespace

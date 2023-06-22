@@ -34,6 +34,7 @@ class TextMarkRegistry : public QObject
     Q_OBJECT
 public:
     static void add(TextMark *mark);
+    static void add(TextMark *mark, TextDocument *document);
     static bool remove(TextMark *mark);
 
 private:
@@ -73,6 +74,16 @@ TextMark::TextMark(const FilePath &filePath, int lineNumber, TextMarkCategory ca
 {
     if (!m_fileName.isEmpty())
         TextMarkRegistry::add(this);
+}
+
+TextMark::TextMark(TextDocument *document, int lineNumber, TextMarkCategory category)
+    : m_fileName(QTC_GUARD(document) ? document->filePath() : FilePath())
+    , m_lineNumber(lineNumber)
+    , m_visible(true)
+    , m_category(category)
+{
+    if (!m_fileName.isEmpty())
+        TextMarkRegistry::add(this, document);
 }
 
 TextMark::~TextMark()
@@ -462,8 +473,13 @@ TextMarkRegistry::TextMarkRegistry(QObject *parent)
 
 void TextMarkRegistry::add(TextMark *mark)
 {
+    add(mark, TextDocument::textDocumentForFilePath(mark->filePath()));
+}
+
+void TextMarkRegistry::add(TextMark *mark, TextDocument *document)
+{
     instance()->m_marks[mark->filePath()].insert(mark);
-    if (TextDocument *document = TextDocument::textDocumentForFilePath(mark->filePath()))
+    if (document)
         document->addMark(mark);
 }
 

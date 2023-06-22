@@ -33,9 +33,15 @@
 
     \section1 Adding Boot2Qt Devices
 
-    If \QC does not automatically detect a device you connected with USB, you can
-    use a wizard to create either a network connection or a USB connection to
-    it.
+    If \QC does not automatically detect a device you connected with USB, select
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
+    \uicontrol Devices > \uicontrol Add > \uicontrol {Boot2Qt Device} to create
+    either a network connection or a USB connection to it.
+
+    \image qtcreator-boot2qt-device-configurations.webp {Devices tab in Preferences}
+
+    To add a device without using a wizard, select \uicontrol {Boot2Qt Device} in
+    the pull-down menu of the \uicontrol Add button.
 
     \note On Ubuntu Linux, the development user account must have access to the
     plugged-in devices. To grant them access to the device via USB, create a new
@@ -45,8 +51,6 @@
 
     You can edit the settings later in \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Devices > \uicontrol Devices.
-
-    \image qtcreator-boot2qt-device-configurations.png {Devices dialog}
 
     To reboot the selected device, select \uicontrol {Reboot Device}.
 
@@ -122,6 +126,10 @@
                     parameters that have sensible default values. One of
                     these is the SSH port number, which is available in
                     the variable \c %{Device:SshPort}.
+
+                    To add a device without using the wizard, select
+                    \uicontrol {Boot2Qt Device} in the pull-down menu of the
+                    \uicontrol Add button.
             \endlist
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Add to add a kit for building applications for the

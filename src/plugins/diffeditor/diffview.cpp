@@ -14,8 +14,7 @@
 
 #include <QCoreApplication>
 
-namespace DiffEditor {
-namespace Internal {
+namespace DiffEditor::Internal {
 
 IDiffView::IDiffView(QObject *parent) : QObject(parent)
 { }
@@ -230,5 +229,4 @@ void SideBySideView::setSync(bool sync)
     m_widget->setHorizontalSync(sync);
 }
 
-} // namespace Internal
-} // namespace DiffEditor
+} // namespace DiffEditor::Internal

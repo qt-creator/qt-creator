@@ -282,7 +282,7 @@ bool SquishFileGenerator::setup(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return false;
 
-    if (data.type() != QVariant::Map) {
+    if (data.typeId() != QVariant::Map) {
         *errorMessage = Tr::tr("Key is not an object.");
         return false;
     }

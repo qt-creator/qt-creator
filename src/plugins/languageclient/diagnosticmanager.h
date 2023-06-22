@@ -55,7 +55,7 @@ signals:
 
 protected:
     Client *client() const { return m_client; }
-    virtual TextEditor::TextMark *createTextMark(const Utils::FilePath &filePath,
+    virtual TextEditor::TextMark *createTextMark(TextEditor::TextDocument *doc,
                                                  const LanguageServerProtocol::Diagnostic &diagnostic,
                                                  bool isProjectFile) const;
     virtual QTextEdit::ExtraSelection createDiagnosticSelection(

@@ -278,7 +278,6 @@ static Utils::QtcSettings *createUserSettings()
 
 static void setHighDpiEnvironmentVariable()
 {
-
     if (Utils::HostOsInfo::isMacHost())
         return;
 
@@ -293,10 +292,12 @@ static void setHighDpiEnvironmentVariable()
             && !qEnvironmentVariableIsSet("QT_AUTO_SCREEN_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCREEN_SCALE_FACTORS")) {
-    } else {
+        return;
+    }
+
+    if (!qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
         QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
             Qt::HighDpiScaleFactorRoundingPolicy::Floor);
-    }
 }
 
 void setPixmapCacheLimit()
@@ -494,10 +495,29 @@ int main(int argc, char **argv)
     Options options = parseCommandLine(argc, argv);
     applicationDirPath(argv[0]);
 
+    const bool hasStyleOption = Utils::findOrDefault(options.appArguments, [](char *arg) {
+        return strcmp(arg, "-style") == 0;
+    });
+
     if (qEnvironmentVariableIsSet("QTC_DO_NOT_PROPAGATE_LD_PRELOAD")) {
         Utils::Environment::modifySystemEnvironment(
             {{"LD_PRELOAD", "", Utils::EnvironmentItem::Unset}});
     }
+
+    auto restoreEnvVarFromSquish = [](const QByteArray &squishVar, const QString &var) {
+        if (qEnvironmentVariableIsSet(squishVar)) {
+            Utils::Environment::modifySystemEnvironment(
+                {{var, "", Utils::EnvironmentItem::Unset}});
+            const QString content = qEnvironmentVariable(squishVar);
+            if (!content.isEmpty()) {
+                Utils::Environment::modifySystemEnvironment(
+                    {{var, content, Utils::EnvironmentItem::Prepend}});
+            }
+        }
+    };
+
+    restoreEnvVarFromSquish("SQUISH_SHELL_ORIG_DYLD_LIBRARY_PATH", "DYLD_LIBRARY_PATH");
+    restoreEnvVarFromSquish("SQUISH_ORIG_DYLD_FRAMEWORK_PATH", "DYLD_FRAMEWORK_PATH");
 
     if (options.userLibraryPath) {
         if ((*options.userLibraryPath).isEmpty()) {
@@ -606,10 +626,8 @@ int main(int argc, char **argv)
     setPixmapCacheLimit();
     loadFonts();
 
-    if (Utils::HostOsInfo::isWindowsHost()
-            && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
-            && QApplication::style()->objectName().startsWith(
-                QLatin1String("windows"), Qt::CaseInsensitive)) {
+    if (Utils::HostOsInfo::isWindowsHost() && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
+        && !hasStyleOption) {
         QApplication::setStyle(QLatin1String("fusion"));
     }
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();

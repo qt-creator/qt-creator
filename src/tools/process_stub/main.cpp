@@ -542,6 +542,8 @@ void onControlSocketReadyRead()
             break;
         }
         }
+
+        sendMsg(QString("ack %1\n").arg(ch).toUtf8());
     }
 }
 

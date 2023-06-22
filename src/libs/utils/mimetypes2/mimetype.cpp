@@ -516,9 +516,6 @@ void MimeType::setPreferredSuffix(const QString &suffix)
     d->globPatterns.prepend(QLatin1String("*.") + suffix);
 }
 
-} // namespace Utils
-
-#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, const Utils::MimeType &mime)
 {
     QDebugStateSaver saver(debug);
@@ -529,6 +526,8 @@ QDebug operator<<(QDebug debug, const Utils::MimeType &mime)
     }
     return debug;
 }
-#endif
+
+} // namespace Utils
+
 
 #include "moc_mimetype.cpp"

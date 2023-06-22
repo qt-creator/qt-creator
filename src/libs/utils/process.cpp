@@ -216,6 +216,13 @@ void DefaultImpl::start()
         return;
     if (!ensureProgramExists(program))
         return;
+
+    if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {
+        arguments.prepend(program);
+        arguments.prepend("-A");
+        program = "sudo";
+    }
+
     s_start.measureAndRun(&DefaultImpl::doDefaultStart, this, program, arguments);
 }
 
@@ -338,6 +345,23 @@ public:
 
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
+        QString executable = program;
+        FilePath path = FilePath::fromUserInput(executable);
+        if (!path.isAbsolutePath()) {
+            path = path.searchInPath();
+            if (path.isEmpty()) {
+                const ProcessResultData result
+                    = {0,
+                       QProcess::CrashExit,
+                       QProcess::FailedToStart,
+                       Tr::tr("The program \"%1\" could not be found.").arg(program)};
+                emit done(result);
+                return;
+            }
+
+            executable = path.nativePath();
+        }
+
         QTC_CHECK(m_setup.m_ptyData);
         m_setup.m_ptyData->setResizeHandler([this](const QSize &size) {
             if (m_ptyProcess)
@@ -358,15 +382,15 @@ public:
             penv = Environment::systemEnvironment().toProcessEnvironment();
         const QStringList senv = penv.toStringList();
 
-        bool startResult
-            = m_ptyProcess->startProcess(program,
-                                         HostOsInfo::isWindowsHost()
-                                             ? QStringList{m_setup.m_nativeArguments} << arguments
-                                             : arguments,
-                                         m_setup.m_workingDirectory.nativePath(),
-                                         senv,
-                                         m_setup.m_ptyData->size().width(),
-                                         m_setup.m_ptyData->size().height());
+        bool startResult = m_ptyProcess->startProcess(executable,
+                                                      HostOsInfo::isWindowsHost()
+                                                          ? QStringList{m_setup.m_nativeArguments}
+                                                                << arguments
+                                                          : arguments,
+                                                      m_setup.m_workingDirectory.nativePath(),
+                                                      senv,
+                                                      m_setup.m_ptyData->size().width(),
+                                                      m_setup.m_ptyData->size().height());
 
         if (!startResult) {
             const ProcessResultData result = {-1,
@@ -764,15 +788,6 @@ public:
         if (!m_blockingInterface)
             m_blockingInterface.reset(new GeneralProcessBlockingImpl(this));
         m_blockingInterface->setParent(this);
-    }
-
-    CommandLine fullCommandLine() const
-    {
-        if (!m_setup.m_runAsRoot || HostOsInfo::isWindowsHost())
-            return m_setup.m_commandLine;
-        CommandLine rootCommand("sudo", {"-A"});
-        rootCommand.addCommandLineAsArgs(m_setup.m_commandLine);
-        return rootCommand;
     }
 
     Process *q;
@@ -1217,7 +1232,6 @@ void Process::start()
     d->setProcessInterface(processImpl);
     d->m_state = QProcess::Starting;
     d->m_process->m_setup = d->m_setup;
-    d->m_process->m_setup.m_commandLine = d->fullCommandLine();
     d->emitGuardedSignal(&Process::starting);
     d->m_process->start();
 }

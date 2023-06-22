@@ -671,6 +671,7 @@ public:
     // the validation changes focus by opening a dialog
     bool m_blockAutoApply = false;
     bool m_allowPathFromDevice = true;
+    bool m_validatePlaceHolder = false;
 
     template<class Widget> void updateWidgetFromCheckStatus(StringAspect *aspect, Widget *w)
     {
@@ -985,6 +986,13 @@ void StringAspect::setAllowPathFromDevice(bool allowPathFromDevice)
         d->m_pathChooserDisplay->setAllowPathFromDevice(allowPathFromDevice);
 }
 
+void StringAspect::setValidatePlaceHolder(bool validatePlaceHolder)
+{
+    d->m_validatePlaceHolder = validatePlaceHolder;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(validatePlaceHolder);
+}
+
 /*!
     Sets \a elideMode as label elide mode.
 */
@@ -1131,6 +1139,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
         d->m_pathChooserDisplay->setCommandVersionArguments(d->m_commandVersionArguments);
         d->m_pathChooserDisplay->setAllowPathFromDevice(d->m_allowPathFromDevice);
+        d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(d->m_validatePlaceHolder);
         if (defaultValue() == value())
             d->m_pathChooserDisplay->setDefaultValue(defaultValue());
         else
@@ -1169,6 +1178,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
             d->m_lineEditDisplay->setValidationFunction(d->m_validator);
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
         d->m_lineEditDisplay->setReadOnly(isReadOnly());
+        d->m_lineEditDisplay->setValidatePlaceHolder(d->m_validatePlaceHolder);
         d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
         addLabeledItem(parent, d->m_lineEditDisplay);
         useMacroExpander(d->m_lineEditDisplay);
@@ -1464,8 +1474,13 @@ void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
         d->m_button = createSubWidget<QCheckBox>();
     }
     switch (d->m_labelPlacement) {
+    case LabelPlacement::AtCheckBoxWithoutDummyLabel:
+        d->m_button->setText(labelText());
+        parent.addItem(d->m_button.data());
+        break;
     case LabelPlacement::AtCheckBox:
         d->m_button->setText(labelText());
+        parent.addItem(empty());
         parent.addItem(d->m_button.data());
         break;
     case LabelPlacement::InExtraLabel:
@@ -2346,16 +2361,12 @@ void IntegersAspect::setDefaultValue(const QList<int> &value)
     A text display does not have a real value.
 */
 
-TextDisplay::TextDisplay(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::TextDisplayPrivate)
-{}
-
 /*!
     Constructs a text display showing the \a message with an icon representing
     type \a type.
  */
-TextDisplay::TextDisplay(const QString &message, InfoLabel::InfoType type)
-    : d(new Internal::TextDisplayPrivate)
+TextDisplay::TextDisplay(AspectContainer *container, const QString &message, InfoLabel::InfoType type)
+    : BaseAspect(container), d(new Internal::TextDisplayPrivate)
 {
     d->m_message = message;
     d->m_type = type;

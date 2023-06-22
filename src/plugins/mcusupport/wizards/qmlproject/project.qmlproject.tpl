@@ -4,7 +4,7 @@ Project {
     qtForMCUs: true // Required by QDS to enable/disable features Supported/Unsupported by QtMCUs projects. Currently ignored by qmlprojectexporter.
     // importPaths: ["imports/CustomModule"] // Alternative API for importing modules.
     // projectRootPath: "." // Optional root path relative to qmlproject file path.
-    mainFile: "%{MainQmlFile}" // Required to determin which qml file is the application entrypoint, when no custom c++ entrypoint is specified.
+    mainFile: "%{MainQmlFile}" // The application's entrypoint
 
     /* Global configuration */
     MCU.Config {

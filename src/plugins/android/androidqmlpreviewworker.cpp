@@ -389,7 +389,7 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
         rccProcess.setCommand({rccBinary, args});
         rccProcess.start();
         if (!rccProcess.waitForStarted()) {
-            appendMessage(Tr::tr("Could not create file for %1 \"%2\"").
+            appendMessage(Tr::tr("Could not create file for %1 \"%2\".").
                           arg(apkInfo()->name, rccProcess.commandLine().toUserOutput()),
                           StdErrFormat);
             qrcPath.removeFile();
@@ -400,7 +400,7 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
         if (!rccProcess.readDataFromProcess(&stdOut, &stdErr)) {
             rccProcess.stop();
             rccProcess.waitForFinished();
-            appendMessage(Tr::tr("A timeout occurred running \"%1\"").
+            appendMessage(Tr::tr("A timeout occurred running \"%1\".").
                           arg(rccProcess.commandLine().toUserOutput()), StdErrFormat);
             qrcPath.removeFile();
             return {};
@@ -412,7 +412,7 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
             appendMessage(QString::fromLocal8Bit(stdErr), StdErrFormat);
 
         if (rccProcess.exitStatus() != QProcess::NormalExit) {
-            appendMessage(Tr::tr("Crash while creating file for %1 \"%2\"").
+            appendMessage(Tr::tr("Crash while creating file for %1 \"%2\".").
                           arg(apkInfo()->name, rccProcess.commandLine().toUserOutput()),
                           StdErrFormat);
             qrcPath.removeFile();

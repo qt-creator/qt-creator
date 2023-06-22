@@ -12,15 +12,18 @@
 #include <utils/link.h>
 
 //TESTED_COMPONENT=src/libs/utils
-using namespace Utils;
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
 template<>
-char *toString(const FilePath &filePath)
+char *toString(const Utils::FilePath &filePath)
 {
     return qstrdup(filePath.toString().toLocal8Bit().constData());
 }
 } // namespace QTest
+QT_END_NAMESPACE
+
+using namespace Utils;
 
 class TestDFA : public UnixDeviceFileAccess
 {

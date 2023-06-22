@@ -1509,9 +1509,10 @@ class CliDumper(Dumper):
         self.setupDumpers({})
 
     def put(self, line):
-        if self.output.endswith('\n'):
-            self.output = self.output[0:-1]
-        self.output += line
+        if self.output:
+            if self.output[-1].endswith('\n'):
+                self.output[-1] = self.output[-1][0:-1]
+        self.output.append(line)
 
     def putNumChild(self, numchild):
         pass

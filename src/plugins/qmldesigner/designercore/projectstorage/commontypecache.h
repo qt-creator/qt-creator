@@ -106,8 +106,6 @@ inline constexpr char StateGroup[] = "StateGroup";
 inline constexpr char State[] = "State";
 inline constexpr char SwipeView[] = "SwipeView";
 inline constexpr char TabBar[] = "TabBar";
-inline constexpr char TabView[] = "TabView";
-inline constexpr char Tab[] = "Tab";
 inline constexpr char TextArea[] = "TextArea";
 inline constexpr char TextEdit[] = "TextEdit";
 inline constexpr char Text[] = "Text";
@@ -215,9 +213,7 @@ class CommonTypeCache
                                    CacheType<QtQuick_Controls, Popup>,
                                    CacheType<QtQuick_Controls, SplitView>,
                                    CacheType<QtQuick_Controls, SwipeView>,
-                                   CacheType<QtQuick_Controls, Tab>,
                                    CacheType<QtQuick_Controls, TabBar>,
-                                   CacheType<QtQuick_Controls, TabView>,
                                    CacheType<QtQuick_Controls, TextArea>,
                                    CacheType<QtQuick_Dialogs, Dialog>,
                                    CacheType<QtQuick_Extras, Picture>,

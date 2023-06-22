@@ -11,12 +11,14 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_NAMESPACE
+class QDebug;
+QT_END_NAMESPACE
+
 namespace Utils {
 
 class MimeTypePrivate;
 class MimeType;
-
-QTCREATOR_UTILS_EXPORT size_t qHash(const MimeType &key, size_t seed = 0) noexcept;
 
 class QTCREATOR_UTILS_EXPORT MimeType
 {
@@ -89,18 +91,13 @@ protected:
     friend class MimeBinaryProvider;
     friend class MimeTypePrivate;
     friend QTCREATOR_UTILS_EXPORT size_t qHash(const MimeType &key, size_t seed) noexcept;
+    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const MimeType &mime);
 
     QExplicitlySharedDataPointer<MimeTypePrivate> d;
 };
 
-
 } // namespace Utils
 
 QT_BEGIN_NAMESPACE
-#ifndef QT_NO_DEBUG_STREAM
-class QDebug;
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const Utils::MimeType &mime);
-#endif
-
 Q_DECLARE_SHARED(Utils::MimeType)
 QT_END_NAMESPACE

@@ -5,20 +5,16 @@
 
 #include <theme.h>
 
-#include <QWidget>
-#include <QToolBar>
-#include <QList>
-#include <QTextCharFormat>
-#include <QTextList>
 #include <QFontComboBox>
-#include <QWidgetAction>
+#include <QList>
 #include <QPointer>
+#include <QTextCharFormat>
+#include <QTextEdit>
+#include <QTextList>
+#include <QToolBar>
+#include <QWidgetAction>
 
 namespace QmlDesigner {
-
-namespace Ui {
-class RichTextEditor;
-}
 
 template <class>
 class FontWidgetActions;
@@ -77,7 +73,10 @@ private:
     void setTableActionsActive(bool active); //switches between "has table/has no table" ui setup
 
 private:
-    QScopedPointer<Ui::RichTextEditor> ui;
+    QTextEdit *m_textEdit;
+    QToolBar *m_toolBar;
+    QToolBar *m_tableBar;
+
     QPointer<HyperlinkDialog> m_linkDialog;
 
     QAction *m_actionTextBold;

@@ -117,6 +117,9 @@ bool DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
     if (isWritableDirectory(filePath))
         return true;
+    if (exists(filePath))
+        return false;
+
     return createDirectory(filePath);
 }
 
@@ -518,6 +521,9 @@ bool DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) 
     const QFileInfo fi(filePath.path());
     if (fi.isDir() && fi.isWritable())
         return true;
+    if (fi.exists())
+        return false;
+
     return QDir().mkpath(filePath.path());
 }
 

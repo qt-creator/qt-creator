@@ -31,12 +31,6 @@ BoostTestOutputReader::BoostTestOutputReader(Process *testApplication,
     , m_logLevel(log)
     , m_reportLevel(report)
 {
-    if (!testApplication)
-        return;
-
-    connect(testApplication, &Process::done, this, [this, testApplication] {
-        onDone(testApplication->exitCode());
-    });
 }
 
 // content of "error:..." / "info:..." / ... messages
@@ -147,7 +141,7 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
             if (m_currentTest != match.captured(11) && m_currentTest.isEmpty())
                 m_currentTest = match.captured(11);
             m_result = ResultType::TestEnd;
-            m_description = Tr::tr("Test execution took %1").arg(match.captured(12));
+            m_description = Tr::tr("Test execution took %1.").arg(match.captured(12));
         } else if (type == "suite") {
             if (!m_currentSuite.isEmpty()) {
                 int index = m_currentSuite.lastIndexOf('/');
@@ -163,7 +157,7 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
             }
             m_currentTest.clear();
             m_result = ResultType::TestEnd;
-            m_description = Tr::tr("Test suite execution took %1").arg(match.captured(12));
+            m_description = Tr::tr("Test suite execution took %1.").arg(match.captured(12));
         }
     } else if (content.startsWith("Test case ")) {
         m_currentTest = match.captured(4);
@@ -247,7 +241,7 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
         } else {
             QTC_CHECK(m_currentModule == match.captured(3));
             BoostTestResult result(id(), m_currentModule, m_projectFile);
-            result.setDescription(Tr::tr("Test module execution took %1").arg(match.captured(4)));
+            result.setDescription(Tr::tr("Test module execution took %1.").arg(match.captured(4)));
             result.setResult(ResultType::TestEnd);
             reportResult(result);
 
@@ -394,17 +388,17 @@ void BoostTestOutputReader::onDone(int exitCode)
     if (m_logLevel == LogLevel::Nothing && m_reportLevel == ReportLevel::No) {
         switch (exitCode) {
         case 0:
-            reportNoOutputFinish(Tr::tr("Running tests exited with %1").arg("boost::exit_success."),
+            reportNoOutputFinish(Tr::tr("Running tests exited with %1.").arg("boost::exit_success"),
                                  ResultType::Pass);
             break;
         case 200:
             reportNoOutputFinish(
-                        Tr::tr("Running tests exited with %1").arg("boost::exit_test_exception."),
+                        Tr::tr("Running tests exited with %1.").arg("boost::exit_test_exception"),
                         ResultType::MessageFatal);
             break;
         case 201:
-            reportNoOutputFinish(Tr::tr("Running tests exited with %1")
-                                 .arg("boost::exit_test_failure."), ResultType::Fail);
+            reportNoOutputFinish(Tr::tr("Running tests exited with %1.")
+                                 .arg("boost::exit_test_failure"), ResultType::Fail);
             break;
         }
     } else if (exitCode != 0 && exitCode != 201 && !m_description.isEmpty()) {

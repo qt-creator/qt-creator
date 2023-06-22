@@ -53,8 +53,8 @@ def setKeyboardShortcutForAboutQtC():
     invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Keyboard")
-    filter = waitForObject("{container={title='Keyboard Shortcuts' type='QGroupBox' unnamed='1' "
-                           "visible='1'} type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+    filter = waitForObject("{container={name='Command Mappings' type='QGroupBox' visible='1'} "
+                           "type='Utils::FancyLineEdit' unnamed='1' visible='1' "
                            "placeholderText='Filter'}")
     replaceEditorContent(filter, "about")
     treewidget = waitForObject("{type='QTreeWidget' unnamed='1' visible='1'}")

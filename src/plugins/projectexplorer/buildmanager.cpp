@@ -61,7 +61,9 @@ static const QList<Target *> targetsForSelection(const Project *project,
 {
     if (targetSelection == ConfigSelection::All)
         return project->targets();
-    return {project->activeTarget()};
+    if (project->activeTarget())
+        return {project->activeTarget()};
+    return {};
 }
 
 static const QList<BuildConfiguration *> buildConfigsForSelection(const Target *target,

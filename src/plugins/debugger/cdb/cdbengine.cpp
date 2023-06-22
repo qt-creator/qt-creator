@@ -2289,9 +2289,9 @@ void CdbEngine::parseOutputLine(QString line)
         CheckableMessageBox::information(
             Core::ICore::dialogParent(),
             Tr::tr("Debugger Start Failed"),
-            Tr::tr("The system prevents loading of %1, which is required for debugging. "
+            Tr::tr("The system prevents loading of \"%1\", which is required for debugging. "
                    "Make sure that your antivirus solution is up to date and if that does not work "
-                   "consider adding an exception for %1.")
+                   "consider adding an exception for \"%1\".")
                 .arg(m_extensionFileName),
             QString("SecureInfoCdbextCannotBeLoaded"));
         notifyEngineSetupFailed();
@@ -2778,7 +2778,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         if (!toLoad) {
             Core::AsynchronousMessageBox::critical(
                 Tr::tr("Cannot Find Debugger Initialization Script"),
-                Tr::tr("Cannot read %1: %2").arg(loadOrderFile.toUserOutput(), toLoad.error()));
+                Tr::tr("Cannot read \"%1\": %2").arg(loadOrderFile.toUserOutput(), toLoad.error()));
             notifyEngineSetupFailed();
             return;
         }
@@ -2795,7 +2795,8 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
             const FilePath codeFile = dumperPath / (module + ".py");
             const expected_str<QByteArray> code = codeFile.fileContents();
             if (!code) {
-                qDebug() << Tr::tr("Cannot read %1: %2").arg(codeFile.toUserOutput(), code.error());
+                qDebug() << Tr::tr("Cannot read \"%1\": %2")
+                                .arg(codeFile.toUserOutput(), code.error());
                 continue;
             }
 

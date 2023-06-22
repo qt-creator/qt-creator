@@ -7,9 +7,12 @@
 
 #include <QScrollBar>
 
+QT_BEGIN_NAMESPACE
 class QAbstractScrollArea;
+QT_END_NAMESPACE
 
 namespace Utils {
+
 class ScrollAreaPrivate;
 class ScrollBarPrivate;
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -433,13 +433,19 @@
         \row
             \li  Find references to symbol under cursor
             \li  Ctrl+Shift+U
+                 \if defined(qtcreator)
+                 \note If this keyboard shortcut does not work on Linux, see
+                 \l {Editing Issues}.
+                 \endif
         \row
             \li  Follow symbol under cursor
 
                Works with namespaces, classes, functions, variables, include
                statements, and macros. Also, opens URLs in the default browser
+               \if defined(qtcreator)
                and Qt resource files (.qrc) in the \l{Resource Files}
                {resource editor}
+               \endif
             \li  F2
         \row
             \li  Rename symbol under cursor

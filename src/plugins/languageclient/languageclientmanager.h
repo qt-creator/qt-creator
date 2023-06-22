@@ -91,8 +91,6 @@ private:
     void editorOpened(Core::IEditor *editor);
     void documentOpened(Core::IDocument *document);
     void documentClosed(Core::IDocument *document);
-    void documentContentsSaved(Core::IDocument *document);
-    void documentWillSave(Core::IDocument *document);
 
     void updateProject(ProjectExplorer::Project *project);
     void projectAdded(ProjectExplorer::Project *project);

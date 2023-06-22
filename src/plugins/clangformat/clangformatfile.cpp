@@ -4,17 +4,23 @@
 #include "clangformatfile.h"
 #include "clangformatsettings.h"
 #include "clangformatutils.h"
+
+#include <cppeditor/cppcodestylepreferences.h>
 #include <cppeditor/cppcodestylesettings.h>
+
 #include <projectexplorer/project.h>
+
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
+
 #include <utils/qtcassert.h>
 
 #include <sstream>
 
 using namespace ClangFormat;
 
-ClangFormatFile::ClangFormatFile(Utils::FilePath filePath)
-    : m_filePath(filePath)
+ClangFormatFile::ClangFormatFile(const TextEditor::ICodeStylePreferences *preferences)
+    : m_filePath(filePathToCurrentSettings(preferences))
 {
     if (!m_filePath.exists()) {
         // create file and folder
@@ -23,7 +29,7 @@ ClangFormatFile::ClangFormatFile(Utils::FilePath filePath)
         if (newStyleFile.is_open()) {
             newStyleFile.close();
         }
-        resetStyleToQtC();
+        resetStyleToQtC(preferences);
         return;
     }
 
@@ -33,7 +39,7 @@ ClangFormatFile::ClangFormatFile(Utils::FilePath filePath)
                                                                         .toStdString(),
                                                                     &m_style);
     if (error.value() != static_cast<int>(clang::format::ParseError::Success)) {
-        resetStyleToQtC();
+        resetStyleToQtC(preferences);
     }
 }
 
@@ -62,9 +68,9 @@ void ClangFormatFile::setIsReadOnly(bool isReadOnly)
     m_isReadOnly = isReadOnly;
 }
 
-void ClangFormatFile::resetStyleToQtC()
+void ClangFormatFile::resetStyleToQtC(const TextEditor::ICodeStylePreferences *preferences)
 {
-    m_style = qtcStyle();
+    m_style = currentQtStyle(preferences);
     saveStyleToFile(m_style, m_filePath);
 }
 
@@ -178,48 +184,7 @@ CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
 
 void ClangFormatFile::fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings)
 {
-    using namespace clang::format;
-    if (settings.indentAccessSpecifiers)
-        m_style.AccessModifierOffset = 0;
-    else
-        m_style.AccessModifierOffset = -1 * m_style.IndentWidth;
-
-    if (settings.indentNamespaceBody || settings.indentNamespaceBraces)
-        m_style.NamespaceIndentation = FormatStyle::NamespaceIndentationKind::NI_All;
-    else
-        m_style.NamespaceIndentation = FormatStyle::NamespaceIndentationKind::NI_None;
-
-    if (settings.indentClassBraces || settings.indentEnumBraces || settings.indentBlockBraces
-        || settings.indentFunctionBraces)
-        m_style.BreakBeforeBraces = FormatStyle::BS_Whitesmiths;
-    else
-        m_style.BreakBeforeBraces = FormatStyle::BS_Custom;
-
-
-    m_style.IndentCaseLabels = settings.indentSwitchLabels;
-#if LLVM_VERSION_MAJOR >= 11
-    m_style.IndentCaseBlocks = settings.indentBlocksRelativeToSwitchLabels;
-#endif
-
-    if (settings.extraPaddingForConditionsIfConfusingAlign)
-        m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_All;
-    else if (settings.alignAssignments)
-        m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_NonAssignment;
-    else
-        m_style.BreakBeforeBinaryOperators = FormatStyle::BOS_None;
-
-    m_style.DerivePointerAlignment = settings.bindStarToIdentifier || settings.bindStarToTypeName
-                                     || settings.bindStarToLeftSpecifier
-                                     || settings.bindStarToRightSpecifier;
-
-    if ((settings.bindStarToIdentifier || settings.bindStarToRightSpecifier)
-        && ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting)
-        m_style.PointerAlignment = FormatStyle::PAS_Right;
-
-    if ((settings.bindStarToTypeName || settings.bindStarToLeftSpecifier)
-        && ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting)
-        m_style.PointerAlignment = FormatStyle::PAS_Left;
-
+    ::fromCppCodeStyleSettings(m_style, settings);
     saveNewFormat();
 }
 
@@ -258,22 +223,6 @@ TextEditor::TabSettings ClangFormatFile::toTabSettings(ProjectExplorer::Project 
 
 void ClangFormatFile::fromTabSettings(const TextEditor::TabSettings &settings)
 {
-    using namespace clang::format;
-
-    m_style.IndentWidth = settings.m_indentSize;
-    m_style.TabWidth = settings.m_tabSize;
-
-    switch (settings.m_tabPolicy) {
-    case TextEditor::TabSettings::TabPolicy::MixedTabPolicy:
-        m_style.UseTab = FormatStyle::UT_ForContinuationAndIndentation;
-        break;
-    case TextEditor::TabSettings::TabPolicy::SpacesOnlyTabPolicy:
-        m_style.UseTab = FormatStyle::UT_Never;
-        break;
-    case TextEditor::TabSettings::TabPolicy::TabsOnlyTabPolicy:
-        m_style.UseTab = FormatStyle::UT_Always;
-        break;
-    }
-
+    ::fromTabSettings(m_style, settings);
     saveNewFormat();
 }

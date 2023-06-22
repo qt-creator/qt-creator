@@ -322,7 +322,7 @@ MarkdownEditorFactory::MarkdownEditorFactory()
                       })
 {
     setId(MARKDOWNVIEWER_ID);
-    setDisplayName(::Core::Tr::tr("Markdown Viewer"));
+    setDisplayName(::Core::Tr::tr("Markdown Editor"));
     addMimeType(MARKDOWNVIEWER_MIME_TYPE);
     setEditorCreator([] { return new MarkdownEditor; });
 }

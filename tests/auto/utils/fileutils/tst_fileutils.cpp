@@ -7,15 +7,33 @@
 #include <utils/hostosinfo.h>
 
 //TESTED_COMPONENT=src/libs/utils
-using namespace Utils;
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
+
 template<>
-char *toString(const FilePath &filePath)
+char *toString(const Utils::FilePath &filePath)
 {
     return qstrdup(filePath.toString().toLocal8Bit().constData());
 }
+
+template<>
+char *toString(const Utils::FilePathInfo &filePathInfo)
+{
+    QByteArray ba = "FilePathInfo(";
+    ba += QByteArray::number(filePathInfo.fileSize);
+    ba += ", ";
+    ba += QByteArray::number(filePathInfo.fileFlags, 16);
+    ba += ", ";
+    ba += filePathInfo.lastModified.toString().toUtf8();
+    ba += ")";
+    return qstrdup(ba.constData());
+}
+
 } // namespace QTest
+QT_END_NAMESPACE
+
+using namespace Utils;
 
 class tst_fileutils : public QObject
 {
@@ -182,23 +200,6 @@ void tst_fileutils::filePathInfoFromTriple()
 
     QCOMPARE(result, expected);
 }
-
-QT_BEGIN_NAMESPACE
-namespace QTest {
-template<>
-char *toString(const FilePathInfo &filePathInfo)
-{
-    QByteArray ba = "FilePathInfo(";
-    ba += QByteArray::number(filePathInfo.fileSize);
-    ba += ", ";
-    ba += QByteArray::number(filePathInfo.fileFlags, 16);
-    ba += ", ";
-    ba += filePathInfo.lastModified.toString().toUtf8();
-    ba += ")";
-    return qstrdup(ba.constData());
-}
-
-} // namespace QTest
 
 QTEST_GUILESS_MAIN(tst_fileutils)
 

@@ -9,15 +9,17 @@
 #include <utils/hostosinfo.h>
 #include <utils/link.h>
 
-using namespace Utils;
-
+QT_BEGIN_NAMESPACE
 namespace QTest {
 template<>
-char *toString(const FilePath &filePath)
+char *toString(const Utils::FilePath &filePath)
 {
     return qstrdup(filePath.toString().toLocal8Bit().constData());
 }
 } // namespace QTest
+QT_END_NAMESPACE
+
+namespace Utils {
 
 class tst_filepath : public QObject
 {
@@ -737,7 +739,12 @@ public:
     ExpectedPass expectedPass = PassEverywhere;
 };
 
-Q_DECLARE_METATYPE(FromStringData);
+} // Utils
+
+
+Q_DECLARE_METATYPE(Utils::FromStringData);
+
+namespace Utils {
 
 void tst_filepath::fromString_data()
 {
@@ -1683,6 +1690,8 @@ void tst_filepath::sort_data()
         << QStringList{"b://b//b", "a://b//b", "a://a//b", "a://b//a", "a://a//a"};
 }
 
-QTEST_GUILESS_MAIN(tst_filepath)
+} // Utils
+
+QTEST_GUILESS_MAIN(Utils::tst_filepath)
 
 #include "tst_filepath.moc"

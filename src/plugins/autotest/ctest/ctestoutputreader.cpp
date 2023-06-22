@@ -90,7 +90,7 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         m_project = match.captured(1);
         TestResult testResult = createDefaultResult();
         testResult.setResult(ResultType::TestStart);
-        testResult.setDescription(Tr::tr("Running tests for %1").arg(m_project));
+        testResult.setDescription(Tr::tr("Running tests for \"%1\".").arg(m_project));
         reportResult(testResult);
     } else if (ExactMatch match = testCase1.match(line)) {
         int current = match.captured("current").toInt();

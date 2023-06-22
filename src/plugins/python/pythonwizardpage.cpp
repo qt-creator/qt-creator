@@ -64,8 +64,8 @@ bool PythonWizardPageFactory::validateData(Id typeId, const QVariant &data, QStr
 
     if (items.isEmpty()) {
         if (errorMessage) {
-            *errorMessage = Tr::tr("'data' of a Python wizard page expects a map with 'items' "
-                                   "containing a list of objects");
+            *errorMessage = Tr::tr("\"data\" of a Python wizard page expects a map with \"items\" "
+                                   "containing a list of objects.");
         }
         return false;
     }
@@ -73,9 +73,9 @@ bool PythonWizardPageFactory::validateData(Id typeId, const QVariant &data, QStr
     if (!Utils::allOf(items, &validItem)) {
         if (errorMessage) {
             *errorMessage = Tr::tr(
-                "An item of Python wizard page data expects a 'trKey' field containing the ui "
-                "visible string for that python version and an field 'value' containing an object "
-                "with a 'PySideVersion' field used for import statements in the python files.");
+                "An item of Python wizard page data expects a \"trKey\" field containing the UI "
+                "visible string for that Python version and a \"value\" field containing an object "
+                "with a \"PySideVersion\" field used for import statements in the Python files.");
         }
         return false;
     }
@@ -92,16 +92,16 @@ PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySide
             this,
             &PythonWizardPage::updateInterpreters);
 
-    m_pySideVersion.setLabelText(Tr::tr("PySide version"));
+    m_pySideVersion.setLabelText(Tr::tr("PySide version:"));
     m_pySideVersion.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     for (auto [name, data] : pySideAndData)
         m_pySideVersion.addOption(SelectionAspect::Option(name, {}, data));
     if (defaultPyside >= 0)
         m_pySideVersion.setDefaultValue(defaultPyside);
 
-    m_createVenv.setLabelText(Tr::tr("Create new Virtual Environment"));
+    m_createVenv.setLabelText(Tr::tr("Create new virtual environment"));
 
-    m_venvPath.setLabelText(Tr::tr("Path to virtual environment"));
+    m_venvPath.setLabelText(Tr::tr("Path to virtual environment:"));
     m_venvPath.setEnabler(&m_createVenv);
     m_venvPath.setExpectedKind(PathChooser::Directory);
 

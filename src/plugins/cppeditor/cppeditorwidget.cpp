@@ -590,8 +590,7 @@ void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
 
     setExtraSelections(TextEditorWidget::CodeWarningsSelection,
                        unselectLeadingWhitespace(selections));
-    setRefactorMarkers(refactorMarkers + RefactorMarker::filterOutType(
-            this->refactorMarkers(), Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID));
+    setRefactorMarkers(refactorMarkers, Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID);
 }
 
 void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
