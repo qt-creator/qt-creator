@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <gdb/gdbsettings.h>
+#include "gdb/gdbsettings.h"
 
 #include <QCoreApplication>
 #include <QHash>

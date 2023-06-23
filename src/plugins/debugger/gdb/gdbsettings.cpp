@@ -3,6 +3,7 @@
 
 #include "gdbsettings.h"
 
+#include <debugger/commonoptionspage.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggercore.h>
@@ -11,8 +12,6 @@
 #include <debugger/debuggertr.h>
 
 #include <utils/layoutbuilder.h>
-
-#include <commonoptionspage.h>
 
 using namespace Core;
 using namespace Utils;
