@@ -14,10 +14,11 @@ class PySideUicExtraCompiler;
 class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
+
 public:
     PythonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
     ~PythonRunConfiguration() override;
-    void currentInterpreterChanged();
+
     QList<PySideUicExtraCompiler *> extraCompilers() const;
 
 private:

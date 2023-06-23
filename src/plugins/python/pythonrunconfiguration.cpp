@@ -136,13 +136,14 @@ public:
                                  const Utils::FilePath &python,
                                  const QString &requestedPackageName);
     void updateExtraCompilers();
+    void currentInterpreterChanged();
+
     Utils::FilePath m_pySideUicPath;
 
     PythonRunConfiguration *q;
     QList<PySideUicExtraCompiler *> m_extraCompilers;
     QFutureWatcher<PipPackageInfo> m_watcher;
     QMetaObject::Connection m_watcherConnection;
-
 };
 
 PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
@@ -153,8 +154,8 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
     interpreterAspect->setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
 
-    connect(interpreterAspect, &InterpreterAspect::changed,
-            this, &PythonRunConfiguration::currentInterpreterChanged);
+    connect(interpreterAspect, &InterpreterAspect::changed, this,
+            [this] { d->currentInterpreterChanged(); });
 
     connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
             interpreterAspect, &InterpreterAspect::updateInterpreters);
@@ -219,7 +220,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     connect(target, &Target::buildSystemUpdated, this, [this]() { d->updateExtraCompilers(); });
-    currentInterpreterChanged();
+    d->currentInterpreterChanged();
 
     connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
             [this](const FilePath &python) {
@@ -307,12 +308,12 @@ void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo
         pySideBuildStep->updatePySideProjectPath(pythonTools.pySideProjectPath);
 }
 
-void PythonRunConfiguration::currentInterpreterChanged()
+void PythonRunConfigurationPrivate::currentInterpreterChanged()
 {
-    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
-    d->checkForPySide(python);
+    const FilePath python = q->aspect<InterpreterAspect>()->currentInterpreter().command;
+    checkForPySide(python);
 
-    for (FilePath &file : project()->files(Project::AllFiles)) {
+    for (FilePath &file : q->project()->files(Project::AllFiles)) {
         if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
             if (document->mimeType() == Constants::C_PY_MIMETYPE
                 || document->mimeType() == Constants::C_PY3_MIMETYPE) {
