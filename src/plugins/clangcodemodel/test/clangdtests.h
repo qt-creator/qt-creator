@@ -86,6 +86,7 @@ public:
 private slots:
     void test_data();
     void test();
+    void testFollowSymbolInHandler();
 };
 
 class ClangdTestLocalReferences : public ClangdTest
