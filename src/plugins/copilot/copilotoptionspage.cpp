@@ -67,8 +67,8 @@ public:
         Column {
             QString("<b>" + Tr::tr("Note:") + "</b>"), br,
             warningLabel, br,
-            authWidget, br,
             CopilotSettings::instance().enableCopilot, br,
+            authWidget, br,
             CopilotSettings::instance().nodeJsPath, br,
             CopilotSettings::instance().distPath, br,
             CopilotSettings::instance().autoComplete, br,
