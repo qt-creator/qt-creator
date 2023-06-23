@@ -12,8 +12,7 @@ namespace ADS {
 struct IconProviderPrivate;
 
 /**
- * This object provides all icons that are required by the advanced docking
- * system.
+ * This object provides all icons that are required by the advanced docking system.
  * The IconProvider enables the user to register custom icons in case using
  * stylesheets is not an option.
  */

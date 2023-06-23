@@ -101,7 +101,7 @@ public:
     /**
      * Overrides the minimumSizeHint() function of QScrollArea
      * The minimumSizeHint() is bigger than the sizeHint () for the scroll
-     * area because even if the scrollbars are invisible, the required speace
+     * area because even if the scrollbars are invisible, the required space
      * is reserved in the minimumSizeHint(). This override simply returns
      * sizeHint();
      */

@@ -14,15 +14,34 @@
 #include <QStyle>
 #include <QVariant>
 
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+#include <QApplication>
+#include <QFile>
+#include <QSettings>
+#endif
+
 namespace ADS {
 
 namespace internal {
+
+const int g_floatingWidgetDragStartEvent = QEvent::registerEventType();
+const int g_dockedWidgetDragStartEvent = QEvent::registerEventType();
 
 void replaceSplitterWidget(QSplitter *splitter, QWidget *from, QWidget *to)
 {
     int index = splitter->indexOf(from);
     from->setParent(nullptr);
     splitter->insertWidget(index, to);
+}
+
+void hideEmptyParentSplitters(DockSplitter *splitter)
+{
+    while (splitter && splitter->isVisible()) {
+        if (!splitter->hasVisibleContent())
+            splitter->hide();
+
+        splitter = internal::findParent<DockSplitter *>(splitter);
+    }
 }
 
 DockInsertParam dockAreaInsertParameters(DockWidgetArea area)
@@ -54,18 +73,8 @@ QPixmap createTransparentPixmap(const QPixmap &source, qreal opacity)
     return transparentPixmap;
 }
 
-void hideEmptyParentSplitters(DockSplitter *splitter)
-{
-    while (splitter && splitter->isVisible()) {
-        if (!splitter->hasVisibleContent()) {
-            splitter->hide();
-        }
-        splitter = internal::findParent<DockSplitter *>(splitter);
-    }
-}
-
 void setButtonIcon(QAbstractButton *button,
-                   QStyle::StandardPixmap standarPixmap,
+                   QStyle::StandardPixmap standardPixmap,
                    ADS::eIcon customIconId)
 {
     // First we try to use custom icons if available
@@ -75,12 +84,12 @@ void setButtonIcon(QAbstractButton *button,
         return;
     }
 
-    if (Utils::HostOsInfo::isLinuxHost()) {
-        button->setIcon(button->style()->standardIcon(standarPixmap));
+    if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()) {
+        button->setIcon(button->style()->standardIcon(standardPixmap));
     } else {
         // The standard icons does not look good on high DPI screens so we create
         // our own "standard" icon here.
-        QPixmap normalPixmap = button->style()->standardPixmap(standarPixmap, nullptr, button);
+        QPixmap normalPixmap = button->style()->standardPixmap(standardPixmap, nullptr, button);
         icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
         icon.addPixmap(normalPixmap, QIcon::Normal);
         button->setIcon(icon);
@@ -98,13 +107,21 @@ void repolishStyle(QWidget *widget, eRepolishChildOptions options)
     if (RepolishIgnoreChildren == options)
         return;
 
-    QList<QWidget*> children = widget->findChildren<QWidget *>(QString(),
-        (RepolishDirectChildren == options) ? Qt::FindDirectChildrenOnly : Qt::FindChildrenRecursively);
-    for (auto w : children)
-    {
+    QList<QWidget *> children = widget->findChildren<QWidget *>(QString(),
+                                                                (RepolishDirectChildren == options)
+                                                                    ? Qt::FindDirectChildrenOnly
+                                                                    : Qt::FindChildrenRecursively);
+    for (auto w : children) {
         w->style()->unpolish(w);
         w->style()->polish(w);
     }
+}
+
+QRect globalGeometry(QWidget *w)
+{
+    QRect g = w->geometry();
+    g.moveTopLeft(w->mapToGlobal(QPoint(0, 0)));
+    return g;
 }
 
 } // namespace internal

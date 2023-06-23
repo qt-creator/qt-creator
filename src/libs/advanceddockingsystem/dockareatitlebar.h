@@ -17,6 +17,7 @@ namespace ADS {
 class DockAreaTabBar;
 class DockAreaWidget;
 class DockAreaTitleBarPrivate;
+class ElidingLabel;
 
 using TitleBarButtonType = QToolButton;
 
@@ -81,6 +82,9 @@ private:
     void onUndockButtonClicked();
     void onTabsMenuActionTriggered(QAction *action);
     void onCurrentTabChanged(int index);
+    void onAutoHideButtonClicked();
+    void onAutoHideDockAreaActionClicked();
+    void onAutoHideToActionClicked();
 
 protected:
     /**
@@ -138,6 +142,11 @@ public:
     QAbstractButton *button(eTitleBarButton which) const;
 
     /**
+     * Returns the auto hide title label, used when the dock area is expanded and auto hidden
+     */
+    ElidingLabel* autoHideTitleLabel() const;
+
+    /**
      * Updates the visibility of the dock widget actions in the title bar
      */
     void updateDockWidgetActionsButtons();
@@ -165,6 +174,12 @@ public:
      * \endcode
      */
     int indexOf(QWidget *widget) const;
+
+    /**
+     * Close group tool tip based on the current state
+     * Auto hide widgets can only have one dock widget so it does not make sense for the tooltip to show close group
+     */
+    QString titleBarButtonToolTip(eTitleBarButton button) const;
 
 signals:
     /**

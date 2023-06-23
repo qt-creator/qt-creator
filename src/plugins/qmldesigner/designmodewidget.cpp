@@ -179,7 +179,11 @@ void DesignModeWidget::setup()
     ADS::DockManager::setConfigFlag(ADS::DockManager::DockAreaHasUndockButton, false);
     ADS::DockManager::setConfigFlag(ADS::DockManager::DockAreaHasTabsMenuButton, false);
     ADS::DockManager::setConfigFlag(ADS::DockManager::OpaqueSplitterResize, true);
-    ADS::DockManager::setConfigFlag(ADS::DockManager::AllTabsHaveCloseButton, true);
+    ADS::DockManager::setConfigFlag(ADS::DockManager::AllTabsHaveCloseButton, false);
+    ADS::DockManager::setConfigFlag(ADS::DockManager::RetainTabSizeWhenCloseButtonHidden, true);
+
+    //ADS::DockManager::setAutoHideConfigFlags(ADS::DockManager::DefaultAutoHideConfig);
+
     m_dockManager = new ADS::DockManager(this);
     m_dockManager->setSettings(settings);
     m_dockManager->setWorkspacePresetsPath(
@@ -190,7 +194,9 @@ void DesignModeWidget::setup()
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     // Setup icons
-    const QString closeUnicode = Theme::getIconUnicode(Theme::Icon::adsClose);
+    const QString closeUnicode = Theme::getIconUnicode(Theme::Icon::close_small);
+    const QString maximizeUnicode = Theme::getIconUnicode(Theme::Icon::maxBar_small);
+    const QString normalUnicode = Theme::getIconUnicode(Theme::Icon::normalBar_small);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
     const QSize size = QSize(28, 28);
@@ -202,12 +208,40 @@ void DesignModeWidget::setup()
     auto tabCloseIconFocus = Utils::StyleHelper::IconFontHelper(
         closeUnicode, Theme::getColor(Theme::DSdockWidgetTitleBar), size, QIcon::Selected, QIcon::Off);
 
-    const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(
-                fontName, {tabCloseIconNormal,
-                           tabCloseIconActive,
-                           tabCloseIconFocus});
+    const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                        {tabCloseIconNormal,
+                                                                         tabCloseIconActive,
+                                                                         tabCloseIconFocus});
 
     ADS::DockManager::iconProvider().registerCustomIcon(ADS::TabCloseIcon, tabsCloseIcon);
+
+    auto floatingWidgetCloseIconNormal = Utils::StyleHelper::IconFontHelper(
+        closeUnicode, Theme::getColor(Theme::DStitleBarText), QSize(17, 17), QIcon::Normal, QIcon::Off);
+    const QIcon floatingWidgetCloseIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName, {floatingWidgetCloseIconNormal});
+
+    ADS::DockManager::iconProvider().registerCustomIcon(ADS::FloatingWidgetCloseIcon,
+                                                        floatingWidgetCloseIcon);
+
+    auto floatingWidgetMaxIconNormal = Utils::StyleHelper::IconFontHelper(maximizeUnicode,
+                                                                          Theme::getColor(
+                                                                              Theme::DStitleBarText),
+                                                                          QSize(17, 17),
+                                                                          QIcon::Normal,
+                                                                          QIcon::Off);
+    const QIcon floatingWidgetMaxIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName, {floatingWidgetMaxIconNormal});
+
+    ADS::DockManager::iconProvider().registerCustomIcon(ADS::FloatingWidgetMaximizeIcon,
+                                                        floatingWidgetMaxIcon);
+
+    auto floatingWidgetNormalIconNormal = Utils::StyleHelper::IconFontHelper(
+        normalUnicode, Theme::getColor(Theme::DStitleBarText), QSize(17, 17), QIcon::Normal, QIcon::Off);
+    const QIcon floatingWidgetNormalIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName, {floatingWidgetNormalIconNormal});
+
+    ADS::DockManager::iconProvider().registerCustomIcon(ADS::FloatingWidgetNormalIcon,
+                                                        floatingWidgetNormalIcon);
 
     // Setup Actions and Menus
     Core::ActionContainer *mview = Core::ActionManager::actionContainer(Core::Constants::M_VIEW);
