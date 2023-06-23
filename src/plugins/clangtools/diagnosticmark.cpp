@@ -29,7 +29,7 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic, TextDocument *docum
     setSettingsPage(Constants::SETTINGS_PAGE_ID);
 
     const bool isError = diagnostic.type == "error" || diagnostic.type == "fatal";
-    setColor(isError ? Theme::CodeModel_Error_TextMarkColor : Theme::CodeModel_Error_TextMarkColor);
+    setColor(isError ? Theme::CodeModel_Error_TextMarkColor : Theme::CodeModel_Warning_TextMarkColor);
     setPriority(isError ? TextEditor::TextMark::HighPriority : TextEditor::TextMark::NormalPriority);
     QIcon markIcon = diagnostic.icon();
     setIcon(markIcon.isNull() ? Icons::CODEMODEL_WARNING.icon() : markIcon);
