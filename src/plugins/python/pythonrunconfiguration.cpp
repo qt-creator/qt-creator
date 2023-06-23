@@ -119,26 +119,38 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
-class PythonRunConfigurationPrivate
+class PythonInterpreterAspect final : public InterpreterAspect
 {
 public:
-    PythonRunConfigurationPrivate(PythonRunConfiguration *rc)
+    PythonInterpreterAspect(PythonRunConfiguration *rc)
         : q(rc)
-    {}
-    ~PythonRunConfigurationPrivate()
+    {
+        connect(this, &InterpreterAspect::changed,
+                this, &PythonInterpreterAspect::currentInterpreterChanged);
+        currentInterpreterChanged();
+
+        connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
+                [this](const FilePath &python) {
+                    if (python == currentInterpreter().command)
+                        checkForPySide(python);
+                }
+        );
+    }
+
+    ~PythonInterpreterAspect()
     {
         qDeleteAll(m_extraCompilers);
     }
 
-    void checkForPySide(const Utils::FilePath &python);
-    void checkForPySide(const Utils::FilePath &python, const QString &pySidePackageName);
+    void checkForPySide(const FilePath &python);
+    void checkForPySide(const FilePath &python, const QString &pySidePackageName);
     void handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
-                                 const Utils::FilePath &python,
+                                 const FilePath &python,
                                  const QString &requestedPackageName);
     void updateExtraCompilers();
     void currentInterpreterChanged();
 
-    Utils::FilePath m_pySideUicPath;
+    FilePath m_pySideUicPath;
 
     PythonRunConfiguration *q;
     QList<PySideUicExtraCompiler *> m_extraCompilers;
@@ -148,14 +160,10 @@ public:
 
 PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
-    , d(new PythonRunConfigurationPrivate(this))
 {
-    auto interpreterAspect = addAspect<InterpreterAspect>();
+    auto interpreterAspect = addAspect<PythonInterpreterAspect>(this);
     interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
     interpreterAspect->setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
-
-    connect(interpreterAspect, &InterpreterAspect::changed, this,
-            [this] { d->currentInterpreterChanged(); });
 
     connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
             interpreterAspect, &InterpreterAspect::updateInterpreters);
@@ -219,27 +227,17 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-    connect(target, &Target::buildSystemUpdated, this, [this]() { d->updateExtraCompilers(); });
-    d->currentInterpreterChanged();
-
-    connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
-            [this](const FilePath &python) {
-                if (python == aspect<InterpreterAspect>()->currentInterpreter().command)
-                    d->checkForPySide(python);
-            });
+    connect(target, &Target::buildSystemUpdated, this, [this, interpreterAspect] { interpreterAspect->updateExtraCompilers(); });
 }
 
-PythonRunConfiguration::~PythonRunConfiguration()
-{
-    delete d;
-}
+PythonRunConfiguration::~PythonRunConfiguration() = default;
 
-void PythonRunConfigurationPrivate::checkForPySide(const FilePath &python)
+void PythonInterpreterAspect::checkForPySide(const FilePath &python)
 {
     checkForPySide(python, "PySide6-Essentials");
 }
 
-void PythonRunConfigurationPrivate::checkForPySide(const FilePath &python,
+void PythonInterpreterAspect::checkForPySide(const FilePath &python,
                                                    const QString &pySidePackageName)
 {
     const PipPackage package(pySidePackageName);
@@ -252,7 +250,7 @@ void PythonRunConfigurationPrivate::checkForPySide(const FilePath &python,
     ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
 }
 
-void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
+void PythonInterpreterAspect::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
                                                             const Utils::FilePath &python,
                                                             const QString &requestedPackageName)
 {
@@ -308,9 +306,9 @@ void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo
         pySideBuildStep->updatePySideProjectPath(pythonTools.pySideProjectPath);
 }
 
-void PythonRunConfigurationPrivate::currentInterpreterChanged()
+void PythonInterpreterAspect::currentInterpreterChanged()
 {
-    const FilePath python = q->aspect<InterpreterAspect>()->currentInterpreter().command;
+    const FilePath python = currentInterpreter().command;
     checkForPySide(python);
 
     for (FilePath &file : q->project()->files(Project::AllFiles)) {
@@ -326,10 +324,10 @@ void PythonRunConfigurationPrivate::currentInterpreterChanged()
 
 QList<PySideUicExtraCompiler *> PythonRunConfiguration::extraCompilers() const
 {
-    return d->m_extraCompilers;
+    return static_cast<PythonInterpreterAspect *>(aspect<InterpreterAspect>())->m_extraCompilers;
 }
 
-void PythonRunConfigurationPrivate::updateExtraCompilers()
+void PythonInterpreterAspect::updateExtraCompilers()
 {
     QList<PySideUicExtraCompiler *> oldCompilers = m_extraCompilers;
     m_extraCompilers.clear();

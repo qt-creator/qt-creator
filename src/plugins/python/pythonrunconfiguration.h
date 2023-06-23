@@ -8,7 +8,6 @@
 
 namespace Python::Internal {
 
-class PythonRunConfigurationPrivate;
 class PySideUicExtraCompiler;
 
 class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -20,9 +19,6 @@ public:
     ~PythonRunConfiguration() override;
 
     QList<PySideUicExtraCompiler *> extraCompilers() const;
-
-private:
-    PythonRunConfigurationPrivate *d = nullptr;
 };
 
 class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
