@@ -1232,6 +1232,9 @@ expected_str<FilePath> DockerDevicePrivate::localSource(const FilePath &other) c
 
 bool DockerDevicePrivate::ensureReachable(const FilePath &other)
 {
+    if (other.isSameDevice(q->rootPath()))
+        return true;
+
     for (const QString &mount : m_data.mounts) {
         const FilePath fMount = FilePath::fromString(mount);
         if (other.isChildOf(fMount))
