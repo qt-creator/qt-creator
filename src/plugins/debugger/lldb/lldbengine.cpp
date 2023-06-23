@@ -295,7 +295,6 @@ void LldbEngine::handleLldbStarted()
         cmd2.arg("remotechannel", ((rp.startMode == AttachToRemoteProcess
                                    || rp.startMode == AttachToRemoteServer)
                                   ? rp.remoteChannel : QString()));
-        cmd2.arg("platform", rp.platform);
         QTC_CHECK(!rp.continueAfterAttach || (rp.startMode == AttachToRemoteProcess
                                               || rp.startMode == AttachToLocalProcess
                                               || rp.startMode == AttachToRemoteServer));

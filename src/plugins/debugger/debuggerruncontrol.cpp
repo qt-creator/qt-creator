@@ -1068,7 +1068,26 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                             cmd.setExecutable(lldbserver);
                     }
                 } else {
-                    cmd.setExecutable(runControl->device()->filePath("gdbserver"));
+                    const FilePath gdbServerPath
+                        = runControl->device()->filePath("gdbserver").searchInPath();
+                    FilePath lldbServerPath
+                        = runControl->device()->filePath("lldb-server").searchInPath();
+
+                    // TODO: Which one should we prefer?
+                    if (gdbServerPath.isExecutableFile())
+                        cmd.setExecutable(gdbServerPath);
+                    else if (lldbServerPath.isExecutableFile()) {
+                        // lldb-server will fail if we start it through a link.
+                        // see: https://github.com/llvm/llvm-project/issues/61955
+                        //
+                        // So we first search for the real executable.
+
+                        // This is safe because we already checked that the file is executable.
+                        while (lldbServerPath.isSymLink())
+                            lldbServerPath = lldbServerPath.symLinkTarget();
+
+                        cmd.setExecutable(lldbServerPath);
+                    }
                 }
             }
             if (cmd.executable().baseName().contains("lldb-server")) {

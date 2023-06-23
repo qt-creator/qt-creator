@@ -972,30 +972,56 @@ class Dumper(DumperBase):
                     self.remoteChannel_, None, error)
             else:
                 if self.platform_ == "remote-macosx":
-                    DumperBase.warn("TARGET: %s" % self.target)
-
+                    self.report("Connecting to remote target: connect://%s" % self.remoteChannel_)
                     self.process = self.target.ConnectRemote(
                         self.debugger.GetListener(),
                         "connect://" + self.remoteChannel_, None, error)
 
+                    if not error.Success():
+                        self.report("Failed to connect to remote target: %s" % error.GetCString())
+                        self.reportState('enginerunfailed')
+                        return
+
                     if self.breakOnMain_:
                         self.createBreakpointAtMain()
 
-                    DumperBase.warn("PROCESS: %s" % self.process)
-                else:
+                    DumperBase.warn("PROCESS: %s (%s)" % (self.process, error.Success() and "Success" or error.GetCString()))
+                elif self.platform_ == "remote-linux":
+                    self.report("Connecting to remote target: connect://%s" % self.remoteChannel_)
+
+                    platform = self.target.GetPlatform()
+                    url = "connect://" + self.remoteChannel_
+                    conOptions = lldb.SBPlatformConnectOptions(url)
+                    error = platform.ConnectRemote(conOptions)
+
+                    if not error.Success():
+                        self.report("Failed to connect to remote target (%s): %s" % (url, error.GetCString()))
+                        self.reportState('enginerunfailed')
+                        return
+
                     f = lldb.SBFileSpec()
                     f.SetFilename(self.executable_)
-
                     launchInfo = lldb.SBLaunchInfo(self.processArgs_)
-                    #launchInfo.SetWorkingDirectory(self.workingDirectory_)
+                    launchInfo.SetWorkingDirectory(self.workingDirectory_)
                     launchInfo.SetWorkingDirectory('/tmp')
-                    if self.platform_ == 'remote-android':
-                        launchInfo.SetWorkingDirectory('/data/local/tmp')
                     launchInfo.SetEnvironmentEntries(self.environment_, False)
                     launchInfo.SetExecutableFile(f, True)
-                    DumperBase.warn("TARGET: %s" % self.target)
                     self.process = self.target.Launch(launchInfo, error)
-                    DumperBase.warn("PROCESS: %s" % self.process)
+
+                    if not error.Success():
+                        self.report("Failed to launch remote target: %s" % (error.GetCString()))
+                        self.reportState('enginerunfailed')
+                        return
+                    else:
+                        self.report("Process has launched.")
+
+                    if self.breakOnMain_:
+                        self.createBreakpointAtMain()
+
+                else:
+                    self.report("Unsupported platform: %s" % self.platform_)
+                    self.reportState('enginerunfailed')
+                    return
 
             if not error.Success():
                 self.report(self.describeError(error))
