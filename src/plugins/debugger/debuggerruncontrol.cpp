@@ -1034,14 +1034,12 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
 
         CommandLine cmd;
 
-        if (isQmlDebugging) {
+        if (isQmlDebugging && !isCppDebugging) {
+            // FIXME: Case should not happen?
+            cmd.setExecutable(commandLine().executable());
             cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
                                                       portsGatherer->qmlServer()));
-        }
-        cmd.addArgs(commandLine().arguments(), CommandLine::Raw);
-
-        if (isQmlDebugging && !isCppDebugging) {
-            cmd.setExecutable(commandLine().executable()); // FIXME: Case should not happen?
+            cmd.addArgs(commandLine().arguments(), CommandLine::Raw);
         } else {
             cmd.setExecutable(runControl->device()->debugServerPath());
 
@@ -1065,7 +1063,6 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                     cmd.setExecutable(runControl->device()->filePath("gdbserver"));
                 }
             }
-            cmd.setArguments({});
             if (cmd.executable().baseName().contains("lldb-server")) {
                 cmd.addArg("platform");
                 cmd.addArg("--listen");
