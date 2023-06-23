@@ -226,10 +226,6 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     connect(target, &Target::buildSystemUpdated, this, [this]() { d->updateExtraCompilers(); });
     currentInterpreterChanged();
 
-    setRunnableModifier([](Runnable &r) {
-        r.workingDirectory = r.command.executable().withNewMappedPath(r.workingDirectory); // FIXME: Needed?
-    });
-
     connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
             [this](const FilePath &python) {
                 if (python == aspect<InterpreterAspect>()->currentInterpreter().command)

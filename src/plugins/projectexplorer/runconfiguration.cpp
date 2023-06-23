@@ -400,7 +400,7 @@ Runnable RunConfiguration::runnable() const
     Runnable r;
     r.command = commandLine();
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
-        r.workingDirectory = r.command.executable().withNewPath(workingDirectoryAspect->workingDirectory().path());
+        r.workingDirectory = r.command.executable().withNewMappedPath(workingDirectoryAspect->workingDirectory());
     if (auto environmentAspect = aspect<EnvironmentAspect>())
         r.environment = environmentAspect->environment();
     if (m_runnableModifier)
