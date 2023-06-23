@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -698,6 +698,19 @@
             hierarchy. Create an instance of the component instead.
 
     \endtable
+
+    \section1 Enabling and Disabling Messages
+
+    To enable and disable QML and JavaScript messages, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing}
+    > \uicontrol {Use customized static analyzer}.
+
+    \image qtcreator-preferences-qtquick-qmljs-editing.webp {QML/JS Editing tab in Qt Quick preferences}
+
+    In \uicontrol Enabled, select the messages that you want to see.
+    To disable messages for non-Qt Quick UI files, select them in
+    \uicontrol {Disable messages for non Qt Quick UI}. You cannot
+    enable messages just for non-Qt Quick UI files.
 
     \section1 Resetting the Code Model
 
