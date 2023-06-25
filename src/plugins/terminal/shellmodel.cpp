@@ -14,41 +14,113 @@ namespace Terminal::Internal {
 
 using namespace Utils;
 
-FilePaths availableShells()
+struct ShellItemBuilder
+{
+    explicit ShellItemBuilder(const CommandLine &value)
+    {
+        m_item.openParameters.shellCommand = value;
+    }
+    explicit ShellItemBuilder(const FilePath &value)
+    {
+        m_item.openParameters.shellCommand = CommandLine(value);
+    }
+    ShellItemBuilder &name(const QString &value)
+    {
+        m_item.name = value;
+        return *this;
+    }
+    ShellItemBuilder &icon(const FilePath &value)
+    {
+        static QFileIconProvider iconProvider;
+        m_item.icon = iconProvider.icon(value.toFileInfo());
+        return *this;
+    }
+
+    inline operator ShellModelItem() { return item(); }
+    ShellModelItem item()
+    {
+        if (m_item.name.isEmpty())
+            m_item.name = m_item.openParameters.shellCommand->executable().toUserOutput();
+        if (m_item.icon.isNull())
+            icon(m_item.openParameters.shellCommand->executable());
+        return m_item;
+    }
+
+private:
+    ShellModelItem m_item;
+};
+
+static QSet<FilePath> msysPaths()
+{
+    QSet<FilePath> res;
+    FilePath msys2 = FilePath::fromUserInput(QStandardPaths::findExecutable("msys2.exe"));
+    if (msys2.exists())
+        res.insert(msys2.parentDir());
+    for (const QFileInfo &drive : QDir::drives()) {
+        for (const QString &name : QStringList{"msys2", "msys32", "msys64"}) {
+            msys2 = FilePath::fromString(drive.filePath()).pathAppended(name);
+            if (msys2.pathAppended("msys2.exe").exists())
+                res.insert(msys2);
+        }
+    }
+    return res;
+}
+
+struct ShellModelPrivate
+{
+    QList<ShellModelItem> localShells;
+    ShellModelPrivate();
+};
+
+ShellModelPrivate::ShellModelPrivate()
 {
     if (Utils::HostOsInfo::isWindowsHost()) {
-        FilePaths shells;
-
-        FilePath comspec = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
-        shells << comspec;
+        const FilePath comspec = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
+        localShells << ShellItemBuilder(comspec);
 
         if (comspec.fileName() != "cmd.exe") {
             FilePath cmd = FilePath::fromUserInput(QStandardPaths::findExecutable("cmd.exe"));
-            shells << cmd;
+            localShells << ShellItemBuilder(cmd);
         }
 
-        FilePath powershell = FilePath::fromUserInput(
+        const FilePath powershell = FilePath::fromUserInput(
             QStandardPaths::findExecutable("powershell.exe"));
+
         if (powershell.exists())
-            shells << powershell;
+            localShells << ShellItemBuilder(powershell);
 
-        FilePath bash = FilePath::fromUserInput(QStandardPaths::findExecutable("bash.exe"));
-        if (bash.exists())
-            shells << bash;
+        const FilePath sys_bash =
+                FilePath::fromUserInput(QStandardPaths::findExecutable("bash.exe"));
+        if (sys_bash.exists())
+            localShells << ShellItemBuilder({sys_bash, {"--login"}});
 
-        FilePath git_bash = FilePath::fromUserInput(QStandardPaths::findExecutable("git.exe"));
-        if (git_bash.exists())
-            shells << git_bash.parentDir().parentDir().pathAppended("usr/bin/bash.exe");
+        const FilePath git_exe = FilePath::fromUserInput(QStandardPaths::findExecutable("git.exe"));
+        if (git_exe.exists()) {
+            FilePath git_bash = git_exe.parentDir().parentDir().pathAppended("bin/bash.exe");
+            if (git_bash.exists()) {
+                localShells << ShellItemBuilder({git_bash, {"--login"}})
+                          .icon(git_bash.parentDir().parentDir().pathAppended("git-bash.exe"));
+            }
+        }
 
-        FilePath msys2_bash = FilePath::fromUserInput(QStandardPaths::findExecutable("msys2.exe"));
-        if (msys2_bash.exists())
-            shells << msys2_bash.parentDir().pathAppended("usr/bin/bash.exe");
-
-        return shells;
+        const QStringList msys2_args{"-defterm", "-no-start", "-here"};
+        for (const FilePath &msys2_path : msysPaths()) {
+            const FilePath msys2_cmd = msys2_path.pathAppended("msys2_shell.cmd");
+            for (const FilePath &type : msys2_path.dirEntries({{"*.ico"}})) {
+                // Only list this type if it has anything in /bin
+                QDirIterator it(type.path().replace(".ico", "/bin"), QDir::Files);
+                if (!it.hasNext())
+                    continue;
+                localShells << ShellItemBuilder(
+                              {msys2_cmd, msys2_args + QStringList{"-" + type.baseName()}})
+                          .icon(type)
+                          .name(type.toUserOutput().replace(".ico", ".exe"));
+            }
+        }
     } else {
         FilePath shellsFile = FilePath::fromString("/etc/shells");
         const auto shellFileContent = shellsFile.fileContents();
-        QTC_ASSERT_EXPECTED(shellFileContent, return {});
+        QTC_ASSERT_EXPECTED(shellFileContent, return);
 
         QString shellFileContentString = QString::fromUtf8(*shellFileContent);
 
@@ -63,29 +135,18 @@ FilePaths availableShells()
         });
 
         // ... and filter out non-existing shells.
-        return Utils::filtered(shells, [](const FilePath &shell) { return shell.exists(); });
+        localShells = Utils::transform(
+                    Utils::filtered(shells, [](const FilePath &shell) {return shell.exists(); }),
+                    [](const FilePath &shell) {
+            return ShellItemBuilder(shell).item();
+        });
     }
 }
-
-struct ShellModelPrivate
-{
-    QList<ShellModelItem> localShells;
-};
 
 ShellModel::ShellModel(QObject *parent)
     : QObject(parent)
     , d(new ShellModelPrivate())
 {
-    QFileIconProvider iconProvider;
-
-    const FilePaths shells = availableShells();
-    for (const FilePath &shell : shells) {
-        ShellModelItem item;
-        item.icon = iconProvider.icon(shell.toFileInfo());
-        item.name = shell.toUserOutput();
-        item.openParameters.shellCommand = {shell, {}};
-        d->localShells << item;
-    }
 }
 
 ShellModel::~ShellModel() = default;
