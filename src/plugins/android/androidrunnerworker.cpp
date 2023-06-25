@@ -263,15 +263,17 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release)
         m_extraAppParams = runControl->commandLine().arguments();
 
-    if (auto aspect = runControl->aspect(Constants::ANDROID_AM_START_ARGS)) {
-        QTC_CHECK(aspect->value.typeId() == QVariant::String);
-        const QString startArgs = aspect->value.toString();
+    if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_AM_START_ARGS);
+        !sd.values().isEmpty()) {
+        QTC_CHECK(sd.first().type() == QVariant::String);
+        const QString startArgs = sd.first().toString();
         m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
     }
 
-    if (auto aspect = runControl->aspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)) {
-        QTC_CHECK(aspect->value.typeId() == QVariant::String);
-        const QStringList commands = aspect->value.toString().split('\n', Qt::SkipEmptyParts);
+    if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
+        !sd.values().isEmpty()) {
+        QTC_CHECK(sd.first().type() == QVariant::String);
+        const QStringList commands = sd.first().toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
@@ -279,9 +281,10 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     for (const QString &shellCmd : preStartCmdList.toStringList())
         m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
-    if (auto aspect = runControl->aspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)) {
-        QTC_CHECK(aspect->value.typeId() == QVariant::String);
-        const QStringList commands = aspect->value.toString().split('\n', Qt::SkipEmptyParts);
+    if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
+        !sd.values().isEmpty()) {
+        QTC_CHECK(sd.first().type() == QVariant::String);
+        const QStringList commands = sd.first().toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
