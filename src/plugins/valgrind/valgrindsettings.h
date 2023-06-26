@@ -12,7 +12,7 @@ const char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
 
 class SuppressionAspectPrivate;
 
-class SuppressionAspect final : public Utils::BaseAspect
+class SuppressionAspect final : public Utils::TypedAspect<Utils::FilePaths>
 {
     Q_OBJECT
 
@@ -20,21 +20,17 @@ public:
     SuppressionAspect(Utils::AspectContainer *container, bool global);
     ~SuppressionAspect() final;
 
-    Utils::FilePaths operator()() const { return value(); }
-    Utils::FilePaths value() const;
-    void setValue(const Utils::FilePaths &val);
-
     void addToLayout(Layouting::LayoutItem &parent) final;
 
     void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;
 
-    QVariant volatileValue() const final;
-    void setVolatileValue(const QVariant &val) final;
-
     void addSuppressionFile(const Utils::FilePath &suppressionFile);
 
 private:
+    void internalToGui() override;
+    void guiToInternal() override;
+
     friend class ValgrindBaseSettings;
     SuppressionAspectPrivate *d = nullptr;
 };

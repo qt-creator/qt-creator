@@ -79,10 +79,8 @@ public:
 
         auto updateAuthWidget = [authWidget]() {
             authWidget->updateClient(
-                FilePath::fromUserInput(
-                    CopilotSettings::instance().nodeJsPath.volatileValue().toString()),
-                FilePath::fromUserInput(
-                    CopilotSettings::instance().distPath.volatileValue().toString()));
+                FilePath::fromUserInput(CopilotSettings::instance().nodeJsPath.volatileValue()),
+                FilePath::fromUserInput(CopilotSettings::instance().distPath.volatileValue()));
         };
 
         connect(CopilotSettings::instance().nodeJsPath.pathChooser(),

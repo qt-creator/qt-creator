@@ -108,7 +108,7 @@ void SuppressionAspectPrivate::slotSuppressionSelectionChanged()
 //
 
 SuppressionAspect::SuppressionAspect(AspectContainer *container, bool global)
-    : BaseAspect(container)
+    : TypedAspect(container)
 {
     d = new SuppressionAspectPrivate(this, global);
     setSettingsKey("Analyzer.Valgrind.SuppressionFiles");
@@ -117,16 +117,6 @@ SuppressionAspect::SuppressionAspect(AspectContainer *container, bool global)
 SuppressionAspect::~SuppressionAspect()
 {
     delete d;
-}
-
-FilePaths SuppressionAspect::value() const
-{
-    return FileUtils::toFilePathList(BaseAspect::value().toStringList());
-}
-
-void SuppressionAspect::setValue(const FilePaths &val)
-{
-    BaseAspect::setValue(Utils::transform<QStringList>(val, &FilePath::toString));
 }
 
 void SuppressionAspect::addToLayout(Layouting::LayoutItem &parent)
@@ -157,8 +147,6 @@ void SuppressionAspect::addToLayout(Layouting::LayoutItem &parent)
         Column { d->addEntry.data(), d->removeEntry.data(), st }
     };
     parent.addItem(Span { 2, group });
-
-    setVolatileValue(BaseAspect::value());
 }
 
 void SuppressionAspect::fromMap(const QVariantMap &map)
@@ -171,22 +159,18 @@ void SuppressionAspect::toMap(QVariantMap &map) const
     BaseAspect::toMap(map);
 }
 
-QVariant SuppressionAspect::volatileValue() const
+void SuppressionAspect::guiToInternal()
 {
-    QStringList ret;
-
+    m_internal.clear();
     for (int i = 0; i < d->m_model.rowCount(); ++i)
-        ret << d->m_model.item(i)->text();
-
-    return ret;
+        m_internal.append(FilePath::fromUserInput(d->m_model.item(i)->text()));
 }
 
-void SuppressionAspect::setVolatileValue(const QVariant &val)
+void SuppressionAspect::internalToGui()
 {
-    const QStringList files = val.toStringList();
     d->m_model.clear();
-    for (const QString &file : files)
-        d->m_model.appendRow(new QStandardItem(file));
+    for (const FilePath &file : m_internal)
+        d->m_model.appendRow(new QStandardItem(file.toUserOutput()));
 }
 
 //////////////////////////////////////////////////////////////////
@@ -388,7 +372,7 @@ QVariantMap ValgrindBaseSettings::defaultSettings() const
 {
     QVariantMap defaults;
     forEachAspect([&defaults](BaseAspect *aspect) {
-        defaults.insert(aspect->settingsKey(), aspect->defaultValue());
+        defaults.insert(aspect->settingsKey(), aspect->defaultVariantValue());
     });
     return defaults;
 }

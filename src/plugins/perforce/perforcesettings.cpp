@@ -109,8 +109,7 @@ PerforceSettings::PerforceSettings()
             errorLabel->setType(InfoLabel::Information);
             errorLabel->setText(Tr::tr("Testing..."));
 
-            const FilePath p4Bin = FilePath::fromUserInput(
-                        p4BinaryPath.volatileValue().toString());
+            const FilePath p4Bin = FilePath::fromUserInput(p4BinaryPath.volatileValue());
             checker->start(p4Bin, {}, commonP4Arguments_volatile(), 10000);
         });
 
@@ -166,14 +165,14 @@ QStringList PerforceSettings::commonP4Arguments() const
 QStringList PerforceSettings::commonP4Arguments_volatile() const
 {
     QStringList lst;
-    if (customEnv.volatileValue().toBool()) {
-        auto p4C = p4Client.volatileValue().toString();
+    if (customEnv.volatileValue()) {
+        const QString p4C = p4Client.volatileValue();
         if (!p4C.isEmpty())
             lst << "-c" << p4C;
-        auto p4P = p4Port.volatileValue().toString();
+        const QString p4P = p4Port.volatileValue();
         if (!p4P.isEmpty())
             lst << "-p" << p4P;
-        auto p4U = p4User.volatileValue().toString();
+        const QString p4U = p4User.volatileValue();
         if (!p4U.isEmpty())
             lst << "-u" << p4U;
     }

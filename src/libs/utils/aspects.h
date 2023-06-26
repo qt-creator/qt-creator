@@ -51,12 +51,12 @@ public:
     Id id() const;
     void setId(Id id);
 
-    QVariant value() const;
-    void setValue(const QVariant &value);
-    bool setValueQuietly(const QVariant &value);
+    virtual QVariant variantValue() const;
+    virtual void setVariantValue(const QVariant &value);
+    virtual void setVariantValueQuietly(const QVariant &value);
 
-    QVariant defaultValue() const;
-    void setDefaultValue(const QVariant &value);
+    virtual QVariant defaultVariantValue() const;
+    virtual void setDefaultVariantValue(const QVariant &value);
 
     QString settingsKey() const;
     void setSettingsKey(const QString &settingsKey);
@@ -100,10 +100,6 @@ public:
 
     virtual void addToLayout(Layouting::LayoutItem &parent);
 
-    virtual QVariant volatileValue() const;
-    virtual void setVolatileValue(const QVariant &val);
-    virtual void emitChangedValue() {}
-
     virtual void readSettings(const QSettings *settings);
     virtual void writeSettings(QSettings *settings) const;
 
@@ -114,9 +110,10 @@ public:
     QVariant fromSettingsValue(const QVariant &val) const;
 
     virtual void apply();
+    virtual bool silentApply();
     virtual void cancel();
     virtual void finish();
-    virtual bool isDirty() const;
+    virtual bool isDirty();
     bool hasAction() const;
 
     class QTCREATOR_UTILS_EXPORT Data
@@ -164,9 +161,15 @@ public:
 
 signals:
     void changed();
+    void volatileValueChanged();
     void labelLinkActivated(const QString &link);
 
 protected:
+    virtual void internalToGui();
+    virtual void guiToInternal();
+    virtual bool internalToExternal();
+    virtual void externalToInternal();
+
     QLabel *label() const;
     void setupLabel();
     void addLabeledItem(Layouting::LayoutItem &parent, QWidget *widget);
@@ -208,7 +211,112 @@ private:
 QTCREATOR_UTILS_EXPORT void createItem(Layouting::LayoutItem *item, const BaseAspect &aspect);
 QTCREATOR_UTILS_EXPORT void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect);
 
-class QTCREATOR_UTILS_EXPORT BoolAspect : public BaseAspect
+template <typename ValueType>
+class TypedAspect : public BaseAspect
+{
+public:
+    TypedAspect(AspectContainer *container = nullptr)
+        : BaseAspect(container)
+    {
+        addDataExtractor(this, &TypedAspect::value, &Data::value);
+    }
+
+    struct Data : BaseAspect::Data
+    {
+        ValueType value;
+    };
+
+    ValueType operator()() const { return m_external; }
+    ValueType value() const { return m_external; }
+    ValueType defaultValue() const { return m_default; }
+
+    void setDefaultValue(const ValueType &value)
+    {
+        m_default = value;
+        setValue(value);
+    }
+
+    void setValue(const ValueType &value)
+    {
+        m_external = value;
+        if (isDirty()) {
+            externalToInternal();
+            internalToGui();
+        }
+    }
+
+    void setValueQuietly(const ValueType &value)
+    {
+        m_external = value;
+        if (isDirty()) {
+            externalToInternal();
+            internalToGui();
+        }
+    }
+
+    void setVolatileValue(const ValueType &value)
+    {
+        m_internal = value;
+        internalToGui();
+    }
+
+    ValueType volatileValue() const
+    {
+        const_cast<TypedAspect *>(this)->guiToInternal();
+        return m_internal;
+    }
+
+protected:
+    bool isDirty() override
+    {
+        guiToInternal();
+        return m_internal != m_external;
+    }
+
+    bool internalToExternal() override
+    {
+        if (m_external == m_internal)
+            return false;
+        m_external = m_internal;
+        return true;
+    }
+
+    void externalToInternal() override
+    {
+        m_internal = m_external;
+    }
+
+    QVariant variantValue() const override
+    {
+        return QVariant::fromValue<ValueType>(m_external);
+    }
+
+    void setVariantValue(const QVariant &value) override
+    {
+        setValue(value.value<ValueType>());
+    }
+
+    void setVariantValueQuietly(const QVariant &value) override
+    {
+        setValueQuietly(value.value<ValueType>());
+    }
+
+    QVariant defaultVariantValue() const override
+    {
+        return QVariant::fromValue<ValueType>(m_default);
+    }
+
+    void setDefaultVariantValue(const QVariant &value) override
+    {
+        m_default = value.value<ValueType>();
+    }
+
+    ValueType m_default{};
+    ValueType m_external{};
+    ValueType m_internal{};
+};
+
+class QTCREATOR_UTILS_EXPORT BoolAspect : public TypedAspect<bool>
 {
     Q_OBJECT
 
@@ -216,26 +324,11 @@ public:
     BoolAspect(AspectContainer *container = nullptr);
     ~BoolAspect() override;
 
-    struct Data : BaseAspect::Data
-    {
-        bool value;
-    };
-
     void addToLayout(Layouting::LayoutItem &parent) override;
     std::function<void(QObject *)> groupChecker();
     Utils::CheckableDecider checkableDecider();
 
     QAction *action() override;
-
-    QVariant volatileValue() const override;
-    void setVolatileValue(const QVariant &val) override;
-    void emitChangedValue() override;
-
-    bool operator()() const { return value(); }
-    bool value() const;
-    void setValue(bool val);
-    bool defaultValue() const;
-    void setDefaultValue(bool val);
 
     enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
     void setLabel(const QString &labelText,
@@ -244,15 +337,14 @@ public:
 
     void adoptButton(QAbstractButton *button);
 
-signals:
-    void valueChanged(bool newValue);
-    void volatileValueChanged(bool newValue);
-
 private:
+    void internalToGui() override;
+    void guiToInternal() override;
+
     std::unique_ptr<Internal::BoolAspectPrivate> d;
 };
 
-class QTCREATOR_UTILS_EXPORT ColorAspect : public BaseAspect
+class QTCREATOR_UTILS_EXPORT ColorAspect : public TypedAspect<QColor>
 {
     Q_OBJECT
 
@@ -260,24 +352,16 @@ public:
     ColorAspect(AspectContainer *container = nullptr);
     ~ColorAspect() override;
 
-    struct Data : BaseAspect::Data
-    {
-        QColor value;
-    };
-
     void addToLayout(Layouting::LayoutItem &parent) override;
 
-    QColor value() const;
-    void setValue(const QColor &val);
-
-    QVariant volatileValue() const override;
-    void setVolatileValue(const QVariant &val) override;
-
 private:
+    void internalToGui() override;
+    void guiToInternal() override;
+
     std::unique_ptr<Internal::ColorAspectPrivate> d;
 };
 
-class QTCREATOR_UTILS_EXPORT SelectionAspect : public BaseAspect
+class QTCREATOR_UTILS_EXPORT SelectionAspect : public TypedAspect<int>
 {
     Q_OBJECT
 
@@ -286,20 +370,13 @@ public:
     ~SelectionAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
-    QVariant volatileValue() const override;
-    void setVolatileValue(const QVariant &val) override;
     void finish() override;
-
-    int operator()() const { return value(); }
-    int value() const;
-    void setValue(int val);
 
     QString stringValue() const;
     void setStringValue(const QString &val);
 
-    int defaultValue() const;
-    void setDefaultValue(int val);
     void setDefaultValue(const QString &val);
+    void setDefaultValue(int val);
 
     QVariant itemValue() const;
 
@@ -325,14 +402,15 @@ public:
     int indexForItemValue(const QVariant &value) const;
     QVariant itemValueForIndex(int index) const;
 
-signals:
-    void volatileValueChanged(int newValue);
+protected:
+    void internalToGui() override;
+    void guiToInternal() override;
 
 private:
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
 };
 
-class QTCREATOR_UTILS_EXPORT MultiSelectionAspect : public BaseAspect
+class QTCREATOR_UTILS_EXPORT MultiSelectionAspect : public TypedAspect<QStringList>
 {
     Q_OBJECT
 
@@ -345,17 +423,18 @@ public:
     enum class DisplayStyle { ListView };
     void setDisplayStyle(DisplayStyle style);
 
-    QStringList value() const;
-    void setValue(const QStringList &val);
-
     QStringList allValues() const;
     void setAllValues(const QStringList &val);
+
+protected:
+    void internalToGui() override;
+    void guiToInternal() override;
 
 private:
     std::unique_ptr<Internal::MultiSelectionAspectPrivate> d;
 };
 
-class QTCREATOR_UTILS_EXPORT StringAspect : public BaseAspect
+class QTCREATOR_UTILS_EXPORT StringAspect : public TypedAspect<QString>
 {
     Q_OBJECT
 
@@ -371,20 +450,12 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
-    QVariant volatileValue() const override;
-    void setVolatileValue(const QVariant &val) override;
-    void emitChangedValue() override;
-
     // Hook between UI and StringAspect:
     using ValueAcceptor = std::function<std::optional<QString>(const QString &, const QString &)>;
     void setValueAcceptor(ValueAcceptor &&acceptor);
 
-    QString operator()() const { return value(); }
     QString value() const;
     void setValue(const QString &val);
-
-    QString defaultValue() const;
-    void setDefaultValue(const QString &val);
 
     void setShowToolTipOnLabel(bool show);
 
@@ -438,10 +509,10 @@ public:
 
 signals:
     void checkedChanged();
-    void valueChanged(const QString &newValue);
 
 protected:
-    void update();
+    void internalToGui() override;
+    void guiToInternal() override;
 
     std::unique_ptr<Internal::StringAspectPrivate> d;
 };
@@ -454,7 +525,7 @@ public:
     FilePath operator()() const { return filePath(); }
 };
 
-class QTCREATOR_UTILS_EXPORT IntegerAspect : public BaseAspect
+class QTCREATOR_UTILS_EXPORT IntegerAspect : public TypedAspect<qint64>
 {
     Q_OBJECT
 
@@ -463,16 +534,6 @@ public:
     ~IntegerAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
-
-    QVariant volatileValue() const override;
-    void setVolatileValue(const QVariant &val) override;
-
-    qint64 operator()() const { return value(); }
-    qint64 value() const;
-    void setValue(qint64 val);
-
-    qint64 defaultValue() const;
-    void setDefaultValue(qint64 defaultValue);
 
     void setRange(qint64 min, qint64 max);
     void setLabel(const QString &label); // FIXME: Use setLabelText
@@ -485,14 +546,15 @@ public:
 
     struct Data : BaseAspect::Data { qint64 value = 0; };
 
-signals:
-    void valueChanged(int newValue);
+protected:
+    void internalToGui() override;
+    void guiToInternal() override;
 
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
 };
 
-class QTCREATOR_UTILS_EXPORT DoubleAspect : public BaseAspect
+class QTCREATOR_UTILS_EXPORT DoubleAspect : public TypedAspect<double>
 {
     Q_OBJECT
 
@@ -502,21 +564,15 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
-    QVariant volatileValue() const override;
-    void setVolatileValue(const QVariant &val) override;
-
-    double operator()() const { return value(); }
-    double value() const;
-    void setValue(double val);
-
-    double defaultValue() const;
-    void setDefaultValue(double defaultValue);
-
     void setRange(double min, double max);
     void setPrefix(const QString &prefix);
     void setSuffix(const QString &suffix);
     void setSpecialValueText(const QString &specialText);
     void setSingleStep(double step);
+
+protected:
+    void internalToGui() override;
+    void guiToInternal() override;
 
 private:
     std::unique_ptr<Internal::DoubleAspectPrivate> d;
@@ -532,6 +588,7 @@ public:
 
     int toInt() const { return int(m_value); }
     QVariant toVariant() const { return int(m_value); }
+    static TriState fromInt(int value);
     static TriState fromVariant(const QVariant &variant);
 
     static const TriState Enabled;
@@ -562,7 +619,7 @@ public:
     void setDefaultValue(TriState setting);
 };
 
-class QTCREATOR_UTILS_EXPORT StringListAspect : public BaseAspect
+class QTCREATOR_UTILS_EXPORT StringListAspect : public TypedAspect<QStringList>
 {
     Q_OBJECT
 
@@ -571,9 +628,6 @@ public:
     ~StringListAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
-
-    QStringList value() const;
-    void setValue(const QStringList &val);
 
     void appendValue(const QString &value, bool allowDuplicates = true);
     void removeValue(const QString &value);
@@ -584,7 +638,7 @@ private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
 };
 
-class QTCREATOR_UTILS_EXPORT IntegersAspect : public BaseAspect
+class QTCREATOR_UTILS_EXPORT IntegersAspect : public TypedAspect<QList<int>>
 {
     Q_OBJECT
 
@@ -593,17 +647,6 @@ public:
     ~IntegersAspect() override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
-    void emitChangedValue() override;
-
-    QList<int> operator()() const { return value(); }
-    QList<int> value() const;
-    void setValue(const QList<int> &value);
-
-    QList<int> defaultValue() const;
-    void setDefaultValue(const QList<int> &value);
-
-signals:
-    void valueChanged(const QList<int> &values);
 };
 
 class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect

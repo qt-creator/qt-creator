@@ -42,9 +42,10 @@ public:
     NimPluginPrivate()
     {
         Suggest::NimSuggestCache::instance().setExecutablePath(settings.nimSuggestPath.value());
-        QObject::connect(&settings.nimSuggestPath, &StringAspect::valueChanged,
-                         &Suggest::NimSuggestCache::instance(),
-                         &Suggest::NimSuggestCache::setExecutablePath);
+        QObject::connect(&settings.nimSuggestPath, &StringAspect::changed,
+                         &Suggest::NimSuggestCache::instance(), [this] {
+            Suggest::NimSuggestCache::instance().setExecutablePath(settings.nimSuggestPath.value());
+        });
     }
 
     NimSettings settings;

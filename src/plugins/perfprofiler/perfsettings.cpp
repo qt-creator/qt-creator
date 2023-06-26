@@ -58,8 +58,8 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
     extraArguments.setLabelText(Tr::tr("Additional arguments:"));
     extraArguments.setSpan(4);
 
-    connect(&callgraphMode, &SelectionAspect::volatileValueChanged, this, [this](int index) {
-        stackSize.setEnabled(index == 0);
+    connect(&callgraphMode, &SelectionAspect::volatileValueChanged, this, [this] {
+        stackSize.setEnabled(callgraphMode.volatileValue() == 0);
     });
 
     readGlobalSettings();

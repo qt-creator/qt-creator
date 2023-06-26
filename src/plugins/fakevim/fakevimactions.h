@@ -19,13 +19,14 @@ namespace FakeVim::Internal {
 class FvBaseAspect
 {
 public:
-    FvBaseAspect();
-    virtual ~FvBaseAspect() {}
+    FvBaseAspect() = default;
+    virtual ~FvBaseAspect() = default;
 
-    void setValue(const QVariant &value);
-    QVariant value() const;
-    void setDefaultValue(const QVariant &value);
-    QVariant defaultValue() const;
+    virtual void setVariantValue(const QVariant &value) = 0;
+    virtual void setDefaultVariantValue(const QVariant &value) = 0;
+    virtual QVariant variantValue() const = 0;
+    virtual QVariant defaultVariantValue() const = 0;
+
     void setSettingsKey(const QString &group, const QString &key);
     QString settingsKey() const;
     void setCheckable(bool) {}
@@ -33,32 +34,41 @@ public:
     void setToolTip(const QString &) {}
 
 private:
-    QVariant m_value;
-    QVariant m_defaultValue;
     QString m_settingsGroup;
     QString m_settingsKey;
 };
 
-class FvBoolAspect : public FvBaseAspect
+template <class ValueType>
+class FvTypedAspect : public FvBaseAspect
 {
 public:
-    bool value() const { return FvBaseAspect::value().toBool(); }
-    bool operator()() const { return value(); }
+    void setVariantValue(const QVariant &value) override
+    {
+        m_value = value.value<ValueType>();
+    }
+    void setDefaultVariantValue(const QVariant &value) override
+    {
+        m_defaultValue = value.value<ValueType>();
+    }
+    QVariant variantValue() const override
+    {
+        return QVariant::fromValue<ValueType>(m_value);
+    }
+    QVariant defaultVariantValue() const override
+    {
+        return QVariant::fromValue<ValueType>(m_defaultValue);
+    }
+
+    ValueType value() const { return m_value; }
+    ValueType operator()() const { return m_value; }
+
+    ValueType m_value;
+    ValueType m_defaultValue;
 };
 
-class FvIntegerAspect : public FvBaseAspect
-{
-public:
-    qint64 value() const { return FvBaseAspect::value().toLongLong(); }
-    qint64 operator()() const { return value(); }
-};
-
-class FvStringAspect : public FvBaseAspect
-{
-public:
-    QString value() const { return FvBaseAspect::value().toString(); }
-    QString operator()() const { return value(); }
-};
+using FvBoolAspect = FvTypedAspect<bool>;
+using FvIntegerAspect = FvTypedAspect<qint64>;
+using FvStringAspect = FvTypedAspect<QString>;
 
 class FvAspectContainer : public FvBaseAspect
 {

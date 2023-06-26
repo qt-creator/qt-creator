@@ -28,30 +28,6 @@ using namespace Utils;
 namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
-FvBaseAspect::FvBaseAspect()
-{
-}
-
-void FvBaseAspect::setValue(const QVariant &value)
-{
-    m_value = value;
-}
-
-QVariant FvBaseAspect::value() const
-{
-    return m_value;
-}
-
-void FvBaseAspect::setDefaultValue(const QVariant &value)
-{
-    m_defaultValue = value;
-    m_value = value;
-}
-
-QVariant FvBaseAspect::defaultValue() const
-{
-    return m_defaultValue;
-}
 
 void FvBaseAspect::setSettingsKey(const QString &group, const QString &key)
 {
@@ -294,7 +270,7 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
             return Tr::tr("Argument must be positive: %1=%2")
                     .arg(name).arg(value);
     }
-    aspect->setValue(value);
+    aspect->setVariantValue(value);
     return QString();
 }
 
@@ -305,7 +281,7 @@ void FakeVimSettings::setup(FvBaseAspect *aspect,
                             const QString &labelText)
 {
     aspect->setSettingsKey("FakeVim", settingsKey);
-    aspect->setDefaultValue(value);
+    aspect->setDefaultVariantValue(value);
 #ifndef FAKEVIM_STANDALONE
     aspect->setLabelText(labelText);
     aspect->setAutoApply(false);

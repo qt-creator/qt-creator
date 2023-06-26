@@ -490,8 +490,8 @@ QString DebuggerSettings::dump()
             const int pos = key.indexOf('/');
             if (pos >= 0)
                 key = key.mid(pos);
-            const QString current = aspect->value().toString();
-            const QString default_ = aspect->defaultValue().toString();
+            const QString current = aspect->variantValue().toString();
+            const QString default_ = aspect->defaultVariantValue().toString();
             QString setting = key + ": " + current + "  (default: " + default_ + ')';
             if (current != default_)
                 setting +=  "  ***";

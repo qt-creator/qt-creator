@@ -32,7 +32,7 @@ public:
 
         setOnApply([&s] {
             const bool originalPostMortem = s.registerForPostMortem->value();
-            const bool currentPostMortem = s.registerForPostMortem->volatileValue().toBool();
+            const bool currentPostMortem = s.registerForPostMortem->volatileValue();
             // explicitly trigger setValue() to override the setValueSilently() and trigger the registration
             if (originalPostMortem != currentPostMortem)
                 s.registerForPostMortem->setValue(currentPostMortem);

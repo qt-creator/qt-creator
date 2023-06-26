@@ -59,10 +59,12 @@ BuildPropertiesSettings::BuildPropertiesSettings()
     qtQuickCompiler.setSettingsKey("ProjectExplorer/Settings/QtQuickCompiler");
     qtQuickCompiler.setLabelText(Tr::tr("Use qmlcachegen:"));
 
-    QObject::connect(&showQtSettings, &BoolAspect::valueChanged,
-                     &qmlDebugging, &BaseAspect::setVisible);
-    QObject::connect(&showQtSettings, &BoolAspect::valueChanged,
-                     &qtQuickCompiler, &BaseAspect::setVisible);
+    QObject::connect(&showQtSettings, &BaseAspect::changed, &qmlDebugging, [this] {
+        qmlDebugging.setVisible(showQtSettings());
+    });
+    QObject::connect(&showQtSettings, &BaseAspect::changed, &qtQuickCompiler, [this] {
+        qtQuickCompiler.setVisible(showQtSettings());
+    });
 }
 
 QString BuildPropertiesSettings::defaultBuildDirectoryTemplate()

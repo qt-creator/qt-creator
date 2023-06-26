@@ -2114,12 +2114,10 @@ QString CMakeBuildSystem::cmakeBuildType() const
 void CMakeBuildSystem::setCMakeBuildType(const QString &cmakeBuildType, bool quiet)
 {
     auto aspect = buildConfiguration()->aspect<BuildTypeAspect>();
-    if (quiet) {
+    if (quiet)
         aspect->setValueQuietly(cmakeBuildType);
-        aspect->update();
-    } else {
+    else
         aspect->setValue(cmakeBuildType);
-    }
 }
 
 namespace Internal {
@@ -2179,7 +2177,7 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
 
     // Display the unknown arguments in "Additional CMake Options"
     const QString additionalOptionsValue = ProcessArgs::joinArgs(additionalOptions);
-    BaseAspect::setValueQuietly(additionalOptionsValue);
+    setValueQuietly(additionalOptionsValue);
 }
 
 void InitialCMakeArgumentsAspect::setCMakeConfiguration(const CMakeConfig &config)

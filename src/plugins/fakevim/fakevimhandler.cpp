@@ -6139,13 +6139,13 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         FvBaseAspect *act = s.item(optionName);
         if (!act) {
             showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + cmd.args);
-        } else if (act->defaultValue().type() == QVariant::Bool) {
-            bool oldValue = act->value().toBool();
+        } else if (act->defaultVariantValue().type() == QVariant::Bool) {
+            bool oldValue = act->variantValue().toBool();
             if (printOption) {
                 showMessage(MessageInfo, QLatin1String(oldValue ? "" : "no")
                             + act->settingsKey().toLower());
             } else if (toggleOption || negateOption == oldValue) {
-                act->setValue(!oldValue);
+                act->setVariantValue(!oldValue);
             }
         } else if (negateOption && !printOption) {
             showMessage(MessageError, Tr::tr("Invalid argument:") + ' ' + cmd.args);
@@ -6153,7 +6153,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
             showMessage(MessageError, Tr::tr("Trailing characters:") + ' ' + cmd.args);
         } else {
             showMessage(MessageInfo, act->settingsKey().toLower() + "="
-                        + act->value().toString());
+                        + act->variantValue().toString());
         }
     }
     updateEditor();

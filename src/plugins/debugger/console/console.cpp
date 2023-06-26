@@ -87,8 +87,8 @@ Console::Console()
     m_showDebug.setToolTip(Tr::tr("Show debug, log, and info messages."));
     m_showDebug.setValue(true);
     m_showDebug.action()->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
-    connect(&m_showDebug, &Utils::BoolAspect::valueChanged,
-            proxyModel, &ConsoleProxyModel::setShowLogs);
+    connect(&m_showDebug, &Utils::BoolAspect::changed,
+            proxyModel, [this, proxyModel] { proxyModel->setShowLogs(m_showDebug()); });
     m_showDebugButton->setDefaultAction(m_showDebug.action());
 
     m_showWarningButton = new QToolButton(m_consoleWidget);
@@ -100,7 +100,7 @@ Console::Console()
     m_showWarning.setValue(true);
     m_showWarning.action()->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
     connect(m_showWarning.action(), &QAction::toggled,
-            proxyModel, &ConsoleProxyModel::setShowWarnings);
+            proxyModel, [this, proxyModel] { proxyModel->setShowWarnings(m_showWarning()); });
     m_showWarningButton->setDefaultAction(m_showWarning.action());
 
     m_showErrorButton = new QToolButton(m_consoleWidget);
@@ -112,7 +112,7 @@ Console::Console()
     m_showError.setValue(true);
     m_showError.action()->setIcon(Utils::Icons::CRITICAL_TOOLBAR.icon());
     connect(m_showError.action(), &QAction::toggled,
-            proxyModel, &ConsoleProxyModel::setShowErrors);
+            proxyModel, [this, proxyModel] { proxyModel->setShowErrors(m_showError()); });
     m_showErrorButton->setDefaultAction(m_showError.action());
 
     m_spacer = new QWidget(m_consoleWidget);

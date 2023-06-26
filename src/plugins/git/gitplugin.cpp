@@ -1466,9 +1466,8 @@ void GitPluginPrivate::setupInstantBlame()
         forceInstantBlame();
     };
 
-    connect(&settings().instantBlame, &BoolAspect::valueChanged, this,
-            [this, setupBlameForEditor](bool enabled) {
-        if (enabled)
+    connect(&settings().instantBlame, &BaseAspect::changed, this, [this, setupBlameForEditor] {
+        if (settings().instantBlame())
             setupBlameForEditor(EditorManager::currentEditor());
         else
             stopInstantBlame();

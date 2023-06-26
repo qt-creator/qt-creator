@@ -21,7 +21,7 @@ class SourcePathMapAspectPrivate;
 // Syntax: (/home/.*)/KnownSubdir -> /home/my/project
 using SourcePathMap = QMap<QString, QString>;
 
-class SourcePathMapAspect : public Utils::BaseAspect
+class SourcePathMapAspect : public Utils::TypedAspect<SourcePathMap>
 {
 public:
     SourcePathMapAspect();
@@ -32,15 +32,13 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
-    QVariant volatileValue() const override;
-    void setVolatileValue(const QVariant &val) override;
-
     void readSettings(const QSettings *settings) override;
     void writeSettings(QSettings *settings) const override;
 
-    SourcePathMap value() const;
-
 private:
+    void guiToInternal() override;
+    void internalToGui() override;
+
     SourcePathMapAspectPrivate *d = nullptr;
 };
 

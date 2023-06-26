@@ -142,10 +142,8 @@ void CopilotPlugin::initialize()
         requestAction->setEnabled(enabled);
     };
 
-    connect(&CopilotSettings::instance().enableCopilot,
-            &BoolAspect::valueChanged,
-            this,
-            updateActions);
+    connect(&CopilotSettings::instance().enableCopilot, &BaseAspect::changed,
+            this, updateActions);
 
     updateActions();
 

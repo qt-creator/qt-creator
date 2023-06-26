@@ -470,28 +470,21 @@ void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
     parent.addItem(d->m_widget.data());
 }
 
-QVariant SourcePathMapAspect::volatileValue() const
+void SourcePathMapAspect::guiToInternal()
 {
-    QTC_CHECK(!isAutoApply());
-    QTC_ASSERT(d->m_widget, return {});
-    return QVariant::fromValue(d->m_widget->sourcePathMap());
+    if (d->m_widget)
+        m_internal = d->m_widget->sourcePathMap();
 }
 
-void SourcePathMapAspect::setVolatileValue(const QVariant &val)
+void SourcePathMapAspect::internalToGui()
 {
-    QTC_CHECK(!isAutoApply());
     if (d->m_widget)
-        d->m_widget->setSourcePathMap(val.value<SourcePathMap>());
+        d->m_widget->setSourcePathMap(m_internal);
 }
 
 const char sourcePathMappingArrayNameC[] = "SourcePathMappings";
 const char sourcePathMappingSourceKeyC[] = "Source";
 const char sourcePathMappingTargetKeyC[] = "Target";
-
-SourcePathMap SourcePathMapAspect::value() const
-{
-    return BaseAspect::value().value<SourcePathMap>();
-}
 
 void SourcePathMapAspect::writeSettings(QSettings *s) const
 {
@@ -528,7 +521,7 @@ void SourcePathMapAspect::readSettings(const QSettings *settings)
         }
     }
     s->endArray();
-    setValue(QVariant::fromValue(sourcePathMap));
+    setValue(sourcePathMap);
 }
 
 } // Debugger::Internal

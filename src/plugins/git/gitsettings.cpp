@@ -146,8 +146,8 @@ GitSettings::GitSettings()
             st
         };
     });
-    connect(&binaryPath, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
-    connect(&path, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
+    connect(&binaryPath, &BaseAspect::changed, this, [this] { tryResolve = true; });
+    connect(&path, &BaseAspect::changed, this, [this] { tryResolve = true; });
 }
 
 FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const

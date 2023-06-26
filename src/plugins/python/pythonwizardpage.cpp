@@ -109,8 +109,8 @@ PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySide
     m_stateLabel->setWordWrap(true);
     m_stateLabel->setFilled(true);
     m_stateLabel->setType(InfoLabel::Error);
-    connect(&m_venvPath, &StringAspect::valueChanged, this, &PythonWizardPage::updateStateLabel);
-    connect(&m_createVenv, &BoolAspect::valueChanged, this, &PythonWizardPage::updateStateLabel);
+    connect(&m_venvPath, &BaseAspect::changed, this, &PythonWizardPage::updateStateLabel);
+    connect(&m_createVenv, &BaseAspect::changed, this, &PythonWizardPage::updateStateLabel);
 
     Grid {
         m_pySideVersion, br,

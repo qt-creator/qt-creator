@@ -87,7 +87,8 @@ SquishSettings::SquishSettings()
     minimizeIDE.setToolTip(Tr::tr("Minimize IDE automatically while running or recording test cases."));
     minimizeIDE.setDefaultValue(true);
 
-    connect(&local, &BoolAspect::volatileValueChanged, this, [this](bool checked) {
+    connect(&local, &BoolAspect::volatileValueChanged, this, [this] {
+        const bool checked = local.volatileValue();
         serverHost.setEnabled(!checked);
         serverPort.setEnabled(!checked);
     });

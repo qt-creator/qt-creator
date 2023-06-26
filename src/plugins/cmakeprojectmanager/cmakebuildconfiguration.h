@@ -135,7 +135,6 @@ class BuildTypeAspect final : public Utils::StringAspect
 
 public:
     BuildTypeAspect();
-    using Utils::StringAspect::update;
 };
 
 class ConfigureEnvironmentAspect final: public ProjectExplorer::EnvironmentAspect

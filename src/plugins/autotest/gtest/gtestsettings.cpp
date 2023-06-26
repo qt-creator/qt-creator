@@ -111,9 +111,9 @@ GTestSettings::GTestSettings(Id settingsId)
         return edit && GTestUtils::isValidGTestFilter(edit->text());
     });
 
-    QObject::connect(&groupMode, &SelectionAspect::volatileValueChanged,
-                     &gtestFilter, [this](int val) {
-        gtestFilter.setEnabled(groupMode.itemValueForIndex(val) == GTest::Constants::GTestFilter);
+    QObject::connect(&groupMode, &SelectionAspect::volatileValueChanged, &gtestFilter, [this] {
+        gtestFilter.setEnabled(groupMode.itemValueForIndex(groupMode.volatileValue())
+                               == GTest::Constants::GTestFilter);
     });
 
     QObject::connect(this, &AspectContainer::applied, this, [] {

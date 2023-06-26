@@ -246,7 +246,7 @@ public:
                                     configurations, predefinedStyleButton] {
             const bool predefSelected = styleButtonGroup->checkedButton() == predefinedStyleButton;
             predefinedBlob->setEnabled(predefSelected);
-            fallbackBlob->setEnabled(predefSelected && s.predefinedStyle.volatileValue().toInt() == 5); // File
+            fallbackBlob->setEnabled(predefSelected && s.predefinedStyle.volatileValue() == 5); // File
             configurations->setEnabled(!predefSelected);
         };
         updateEnabled();

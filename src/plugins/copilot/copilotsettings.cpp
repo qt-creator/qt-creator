@@ -92,8 +92,8 @@ CopilotProjectSettings::CopilotProjectSettings(ProjectExplorer::Project *project
     QVariantMap map = project->namedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID).toMap();
     fromMap(map);
 
-    connect(&enableCopilot, &BoolAspect::valueChanged, this, [this, project] { save(project); });
-    connect(&useGlobalSettings, &BoolAspect::valueChanged, this, [this, project] { save(project); });
+    connect(&enableCopilot, &BaseAspect::changed, this, [this, project] { save(project); });
+    connect(&useGlobalSettings, &BaseAspect::changed, this, [this, project] { save(project); });
 }
 
 void CopilotProjectSettings::setUseGlobalSettings(bool useGlobal)

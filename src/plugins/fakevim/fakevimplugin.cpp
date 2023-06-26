@@ -1089,16 +1089,16 @@ void FakeVimPluginPrivate::initialize()
             this, &FakeVimPluginPrivate::documentRenamed);
 
     FakeVimSettings &s = settings();
-    connect(&s.useFakeVim, &FvBoolAspect::valueChanged,
-            this, &FakeVimPluginPrivate::setUseFakeVim);
+    connect(&s.useFakeVim, &FvBoolAspect::changed,
+            this, [this, &s] { setUseFakeVim(s.useFakeVim()); });
     connect(&s.readVimRc, &FvBaseAspect::changed,
             this, &FakeVimPluginPrivate::maybeReadVimRc);
     connect(&s.vimRcPath, &FvBaseAspect::changed,
             this, &FakeVimPluginPrivate::maybeReadVimRc);
-    connect(&s.relativeNumber, &FvBoolAspect::valueChanged,
-            this, &FakeVimPluginPrivate::setShowRelativeLineNumbers);
-    connect(&s.blinkingCursor, &FvBoolAspect::valueChanged,
-            this, &FakeVimPluginPrivate::setCursorBlinking);
+    connect(&s.relativeNumber, &FvBoolAspect::changed,
+            this, [this, &s] { setShowRelativeLineNumbers(s.relativeNumber()); });
+    connect(&s.blinkingCursor, &FvBoolAspect::changed,
+            this, [this, &s] { setCursorBlinking(s.blinkingCursor()); });
 
     // Delayed operations.
     connect(this, &FakeVimPluginPrivate::delayedQuitRequested,

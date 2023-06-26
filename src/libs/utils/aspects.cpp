@@ -40,8 +40,6 @@ class BaseAspectPrivate
 {
 public:
     Id m_id;
-    QVariant m_value;
-    QVariant m_defaultValue;
     std::function<QVariant(const QVariant &)> m_toSettings;
     std::function<QVariant(const QVariant &)> m_fromSettings;
 
@@ -99,7 +97,7 @@ BaseAspect::BaseAspect(AspectContainer *container)
 {
     if (container)
         container->registerAspect(this);
-    addDataExtractor(this, &BaseAspect::value, &Data::value);
+    addDataExtractor(this, &BaseAspect::variantValue, &Data::value);
 }
 
 /*!
@@ -120,43 +118,49 @@ void BaseAspect::setId(Id id)
     d->m_id = id;
 }
 
-QVariant BaseAspect::value() const
+QVariant BaseAspect::variantValue() const
 {
-    return d->m_value;
+    return {};
 }
 
 /*!
     Sets \a value.
 
-    Emits \c changed() if the value changed.
+    Prefer the typed setValue() of derived classes.
 */
-void BaseAspect::setValue(const QVariant &value)
+void BaseAspect::setVariantValue(const QVariant &value)
 {
-    if (setValueQuietly(value)) {
-        emit changed();
-        emitChangedValue();
-    }
+    Q_UNUSED(value)
+    QTC_CHECK(false);
+}
+
+void BaseAspect::setDefaultVariantValue(const QVariant &value)
+{
+    Q_UNUSED(value)
+    QTC_CHECK(false);
 }
 
 /*!
-    Sets \a value without emitting \c changed().
+    \internal
 
-    Returns whether the value changed.
+    Sets \a value without emitting signals.
+
+    Prefer the typed setValueQuietly() of derived classes.
 */
-bool BaseAspect::setValueQuietly(const QVariant &value)
+void BaseAspect::setVariantValueQuietly(const QVariant &value)
 {
-    if (d->m_value == value)
-        return false;
-    d->m_value = value;
-    return true;
+    Q_UNUSED(value)
+    QTC_CHECK(false);
 }
 
-QVariant BaseAspect::defaultValue() const
+QVariant BaseAspect::defaultVariantValue() const
 {
-    return d->m_defaultValue;
+    return {};
 }
 
 /*!
+    \fn TypedAspect::setDefaultValue(const ValueType &value)
+
     Sets a default \a value and the current value for this aspect.
 
     \note The current value will be set silently to the same value.
@@ -165,11 +169,6 @@ QVariant BaseAspect::defaultValue() const
 
     Default values will not be stored in settings.
 */
-void BaseAspect::setDefaultValue(const QVariant &value)
-{
-    d->m_defaultValue = value;
-    d->m_value = value;
-}
 
 void BaseAspect::setDisplayName(const QString &displayName)
 {
@@ -308,8 +307,12 @@ void BaseAspect::setEnabler(BoolAspect *checker)
 {
     QTC_ASSERT(checker, return);
     setEnabled(checker->value());
-    connect(checker, &BoolAspect::volatileValueChanged, this, &BaseAspect::setEnabled);
-    connect(checker, &BoolAspect::valueChanged, this, &BaseAspect::setEnabled);
+    connect(checker, &BoolAspect::volatileValueChanged, this, [this, checker] {
+        BaseAspect::setEnabled(checker->volatileValue());
+    });
+    connect(checker, &BoolAspect::changed, this, [this, checker] {
+        BaseAspect::setEnabled(checker->volatileValue());
+    });
 }
 
 bool BaseAspect::isReadOnly() const
@@ -442,15 +445,28 @@ void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect)
 /*!
     Updates this aspect's value from user-initiated changes in the widget.
 
-    This has only an effect if \c isAutoApply is false.
+    Emits changed() if the value changed.
 */
 void BaseAspect::apply()
 {
-    QTC_CHECK(!d->m_autoApply);
-    if (isDirty())
-        setValue(volatileValue());
+    if (silentApply()) {
+        if (hasAction())
+            emit action()->triggered(variantValue().toBool());
+        emit changed();
+    }
 }
 
+/*!
+    Updates this aspect's value from user-initiated changes in the widget.
+
+    \returns whether the value changed. Does not emit signals.
+*/
+
+bool BaseAspect::silentApply()
+{
+    guiToInternal();
+    return internalToExternal();
+}
 /*!
     Discard user changes in the widget and restore widget contents from
     aspect's value.
@@ -459,9 +475,8 @@ void BaseAspect::apply()
 */
 void BaseAspect::cancel()
 {
-    QTC_CHECK(!d->m_autoApply);
-    if (!d->m_subWidgets.isEmpty())
-        setVolatileValue(d->m_value);
+    externalToInternal();
+    internalToGui();
 }
 
 void BaseAspect::finish()
@@ -476,24 +491,9 @@ bool BaseAspect::hasAction() const
     return d->m_action != nullptr;
 }
 
-bool BaseAspect::isDirty() const
+bool BaseAspect::isDirty()
 {
-    QTC_CHECK(!isAutoApply());
-    // Aspects that were never shown cannot contain unsaved user changes.
-    if (d->m_subWidgets.isEmpty())
-        return false;
-    return volatileValue() != d->m_value;
-}
-
-QVariant BaseAspect::volatileValue() const
-{
-    QTC_CHECK(!isAutoApply());
-    return {};
-}
-
-void BaseAspect::setVolatileValue(const QVariant &val)
-{
-    Q_UNUSED(val);
+    return false;
 }
 
 void BaseAspect::registerSubWidget(QWidget *widget)
@@ -534,8 +534,10 @@ void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
 */
 void BaseAspect::fromMap(const QVariantMap &map)
 {
-    const QVariant val = map.value(settingsKey(), toSettingsValue(defaultValue()));
-    setValue(fromSettingsValue(val));
+    if (settingsKey().isEmpty())
+        return;
+    const QVariant val = map.value(settingsKey(), toSettingsValue(defaultVariantValue()));
+    setVariantValue(fromSettingsValue(val));
 }
 
 /*!
@@ -543,7 +545,9 @@ void BaseAspect::fromMap(const QVariantMap &map)
 */
 void BaseAspect::toMap(QVariantMap &map) const
 {
-    saveToMap(map, toSettingsValue(d->m_value), toSettingsValue(d->m_defaultValue), settingsKey());
+    if (settingsKey().isEmpty())
+        return;
+    saveToMap(map, toSettingsValue(variantValue()), toSettingsValue(defaultVariantValue()), settingsKey());
 }
 
 void BaseAspect::readSettings(const QSettings *settings)
@@ -551,7 +555,7 @@ void BaseAspect::readSettings(const QSettings *settings)
     if (settingsKey().isEmpty())
         return;
     const QVariant &val = settings->value(settingsKey());
-    setValue(val.isValid() ? fromSettingsValue(val) : defaultValue());
+    setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue());
 }
 
 void BaseAspect::writeSettings(QSettings *settings) const
@@ -560,8 +564,8 @@ void BaseAspect::writeSettings(QSettings *settings) const
         return;
     QtcSettings::setValueWithDefault(settings,
                                      settingsKey(),
-                                     toSettingsValue(value()),
-                                     toSettingsValue(defaultValue()));
+                                     toSettingsValue(variantValue()),
+                                     toSettingsValue(defaultVariantValue()));
 }
 
 void BaseAspect::setFromSettingsTransformation(const SavedValueTransformation &transform)
@@ -773,9 +777,8 @@ public:
  */
 
 StringAspect::StringAspect(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::StringAspectPrivate)
+    : TypedAspect(container), d(new Internal::StringAspectPrivate)
 {
-    setDefaultValue(QString());
     setSpan(2, 1); // Default: Label + something
 
     addDataExtractor(this, &StringAspect::value, &Data::value);
@@ -800,7 +803,7 @@ void StringAspect::setValueAcceptor(StringAspect::ValueAcceptor &&acceptor)
 */
 QString StringAspect::value() const
 {
-    return BaseAspect::value().toString();
+    return TypedAspect::value();
 }
 
 /*!
@@ -816,27 +819,13 @@ void StringAspect::setValue(const QString &val)
     if (d->m_valueAcceptor) {
         const std::optional<QString> tmp = d->m_valueAcceptor(value(), val);
         if (!tmp) {
-            update(); // Make sure the original value is retained in the UI
+            internalToGui(); // Make sure the original value is retained in the UI
             return;
         }
         processedValue = tmp.value();
     }
 
-    if (BaseAspect::setValueQuietly(QVariant(processedValue))) {
-        update();
-        emit changed();
-        emit valueChanged(processedValue);
-    }
-}
-
-QString StringAspect::defaultValue() const
-{
-    return BaseAspect::defaultValue().toString();
-}
-
-void StringAspect::setDefaultValue(const QString &val)
-{
-    BaseAspect::setDefaultValue(val);
+    TypedAspect::setValue(processedValue);
 }
 
 /*!
@@ -845,7 +834,7 @@ void StringAspect::setDefaultValue(const QString &val)
 void StringAspect::fromMap(const QVariantMap &map)
 {
     if (!settingsKey().isEmpty())
-        BaseAspect::setValueQuietly(map.value(settingsKey(), defaultValue()));
+        setValueQuietly(map.value(settingsKey(), defaultValue()).toString());
     if (d->m_checker)
         d->m_checker->fromMap(map);
 }
@@ -900,7 +889,7 @@ PathChooser *StringAspect::pathChooser() const
 void StringAspect::setShowToolTipOnLabel(bool show)
 {
     d->m_showToolTipOnLabel = show;
-    update();
+    internalToGui();
 }
 
 /*!
@@ -1246,79 +1235,48 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_checker->addToLayout(parent);
 }
 
-QVariant StringAspect::volatileValue() const
-{
-    switch (d->m_displayStyle) {
-    case PathChooserDisplay:
-        QTC_ASSERT(d->m_pathChooserDisplay, return {});
-        if (d->m_pathChooserDisplay->filePath().isEmpty())
-            return defaultValue();
-        return d->m_pathChooserDisplay->filePath().toString();
-    case LineEditDisplay:
-        QTC_ASSERT(d->m_lineEditDisplay, return {});
-        if (d->m_lineEditDisplay->text().isEmpty())
-            return defaultValue();
-        return d->m_lineEditDisplay->text();
-    case TextEditDisplay:
-        QTC_ASSERT(d->m_textEditDisplay, return {});
-        if (d->m_textEditDisplay->document()->isEmpty())
-            return defaultValue();
-        return d->m_textEditDisplay->document()->toPlainText();
-    case LabelDisplay:
-        break;
-    }
-    return {};
-}
-
-void StringAspect::setVolatileValue(const QVariant &val)
+void StringAspect::guiToInternal()
 {
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         if (d->m_pathChooserDisplay)
-            d->m_pathChooserDisplay->setFilePath(FilePath::fromVariant(val));
+            m_internal = d->m_pathChooserDisplay->lineEdit()->text();
         break;
     case LineEditDisplay:
         if (d->m_lineEditDisplay)
-            d->m_lineEditDisplay->setText(val.toString());
+            m_internal = d->m_lineEditDisplay->text();
         break;
     case TextEditDisplay:
         if (d->m_textEditDisplay)
-            d->m_textEditDisplay->document()->setPlainText(val.toString());
-        break;
+            m_internal = d->m_textEditDisplay->document()->toPlainText();
     case LabelDisplay:
         break;
     }
 }
 
-void StringAspect::emitChangedValue()
+void StringAspect::internalToGui()
 {
-    emit valueChanged(value());
-}
-
-void StringAspect::update()
-{
-    const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
-
+    const QString displayed = d->m_displayFilter ? d->m_displayFilter(m_internal) : m_internal;
     if (d->m_pathChooserDisplay) {
-        d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
+        d->m_pathChooserDisplay->lineEdit()->setText(displayed);
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     }
 
     if (d->m_lineEditDisplay) {
-        d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
+        d->m_lineEditDisplay->setTextKeepingActiveCursor(displayed);
         d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
     }
 
     if (d->m_textEditDisplay) {
         const QString old = d->m_textEditDisplay->document()->toPlainText();
-        if (displayedString != old)
-            d->m_textEditDisplay->setText(displayedString);
+        if (displayed != old)
+            d->m_textEditDisplay->setText(displayed);
         d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
     }
 
     if (d->m_labelDisplay) {
-        d->m_labelDisplay->setText(displayedString);
-        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : toolTip());
+        d->m_labelDisplay->setText(displayed);
+        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayed : toolTip());
     }
 
     validateInput();
@@ -1342,11 +1300,11 @@ void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
                            : BoolAspect::LabelPlacement::AtCheckBox);
     d->m_checker->setSettingsKey(checkerKey);
 
-    connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::update);
+    connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::internalToGui);
     connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::changed);
     connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::checkedChanged);
 
-    update();
+    internalToGui();
 }
 
 
@@ -1384,12 +1342,10 @@ FilePathAspect::FilePathAspect(AspectContainer *container)
 */
 
 ColorAspect::ColorAspect(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::ColorAspectPrivate)
+    : TypedAspect(container), d(new Internal::ColorAspectPrivate)
 {
     setDefaultValue(QColor::fromRgb(0, 0, 0));
     setSpan(1, 1);
-
-    addDataExtractor(this, &ColorAspect::value, &Data::value);
 }
 
 ColorAspect::~ColorAspect() = default;
@@ -1408,31 +1364,16 @@ void ColorAspect::addToLayout(Layouting::LayoutItem &parent)
     }
 }
 
-QColor ColorAspect::value() const
+void ColorAspect::internalToGui()
 {
-    return BaseAspect::value().value<QColor>();
-}
-
-void ColorAspect::setValue(const QColor &value)
-{
-    if (BaseAspect::setValueQuietly(value))
-        emit changed();
-}
-
-QVariant ColorAspect::volatileValue() const
-{
-    QTC_CHECK(!isAutoApply());
     if (d->m_colorButton)
-        return d->m_colorButton->color();
-    QTC_CHECK(false);
-    return {};
+        m_internal = d->m_colorButton->color();
 }
 
-void ColorAspect::setVolatileValue(const QVariant &val)
+void ColorAspect::guiToInternal()
 {
-    QTC_CHECK(!isAutoApply());
     if (d->m_colorButton)
-        d->m_colorButton->setColor(val.value<QColor>());
+        d->m_colorButton->setColor(m_internal);
 }
 
 /*!
@@ -1451,12 +1392,10 @@ void ColorAspect::setVolatileValue(const QVariant &val)
 
 
 BoolAspect::BoolAspect(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::BoolAspectPrivate)
+    : TypedAspect(container), d(new Internal::BoolAspectPrivate)
 {
     setDefaultValue(false);
     setSpan(2, 1);
-
-    addDataExtractor(this, &BoolAspect::value, &Data::value);
 }
 
 /*!
@@ -1520,8 +1459,8 @@ std::function<void (QObject *)> BoolAspect::groupChecker()
 QAction *BoolAspect::action()
 {
     if (hasAction())
-        return BaseAspect::action();
-    auto act = BaseAspect::action(); // Creates it.
+        return TypedAspect::action();
+    auto act = TypedAspect::action(); // Creates it.
     act->setCheckable(true);
     act->setChecked(value());
     act->setToolTip(toolTip());
@@ -1531,74 +1470,32 @@ QAction *BoolAspect::action()
         // in a menu like "Use FakeVim", isAutoApply() is false, and yet this
         // here can trigger.
         //QTC_CHECK(isAutoApply());
-        setValue(newValue);
+        m_external = newValue;
+        externalToInternal();
+        internalToGui();
     });
     return act;
 }
 
-QVariant BoolAspect::volatileValue() const
+void BoolAspect::guiToInternal()
 {
     if (d->m_button)
-        return d->m_button->isChecked();
-    if (d->m_groupBox)
-        return d->m_groupBox->isChecked();
-    QTC_CHECK(false);
-    return {};
-}
-
-void BoolAspect::setVolatileValue(const QVariant &val)
-{
-    if (d->m_button)
-        d->m_button->setChecked(val.toBool());
+        m_internal = d->m_button->isChecked();
     else if (d->m_groupBox)
-        d->m_groupBox->setChecked(val.toBool());
+        m_internal = d->m_groupBox->isChecked();
 }
 
-void BoolAspect::emitChangedValue()
+void BoolAspect::internalToGui()
 {
-    emit valueChanged(value());
-}
-
-
-/*!
-    Returns the value of the boolean aspect as a boolean value.
-*/
-
-bool BoolAspect::value() const
-{
-    return BaseAspect::value().toBool();
-}
-
-void BoolAspect::setValue(bool value)
-{
-    if (BaseAspect::setValueQuietly(value)) {
-        if (d->m_button)
-            d->m_button->setChecked(value);
-        //qDebug() << "SetValue: Changing" << labelText() << " to " << value;
-        emit changed();
-        //QTC_CHECK(!labelText().isEmpty());
-        emit valueChanged(value);
-        //qDebug() << "SetValue: Changed" << labelText() << " to " << value;
-        if (hasAction()) {
-            //qDebug() << "SetValue: Triggering " << labelText() << "with" << value;
-            emit action()->triggered(value);
-        }
-    }
-}
-
-bool BoolAspect::defaultValue() const
-{
-    return BaseAspect::defaultValue().toBool();
-}
-
-void BoolAspect::setDefaultValue(bool val)
-{
-    BaseAspect::setDefaultValue(val);
+    if (d->m_button)
+        d->m_button->setChecked(m_internal);
+    else if (d->m_groupBox)
+        d->m_groupBox->setChecked(m_internal);
 }
 
 void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
 {
-    BaseAspect::setLabelText(labelText);
+    TypedAspect::setLabelText(labelText);
     d->m_labelPlacement = labelPlacement;
 }
 
@@ -1627,7 +1524,7 @@ CheckableDecider BoolAspect::checkableDecider()
 */
 
 SelectionAspect::SelectionAspect(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::SelectionAspectPrivate)
+    : TypedAspect(container), d(new Internal::SelectionAspectPrivate)
 {
     setSpan(2, 1);
 }
@@ -1683,25 +1580,26 @@ void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     }
 }
 
-QVariant SelectionAspect::volatileValue() const
+void SelectionAspect::guiToInternal()
 {
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons:
-        QTC_ASSERT(d->m_buttonGroup, return {});
-        return d->m_buttonGroup->checkedId();
+        if (d->m_buttonGroup)
+            m_internal = d->m_buttonGroup->checkedId();
+        break;
     case DisplayStyle::ComboBox:
-        QTC_ASSERT(d->m_comboBox, return {});
-        return d->m_comboBox->currentIndex();
+        if (d->m_comboBox)
+            m_internal = d->m_comboBox->currentIndex();
+        break;
     }
-    return {};
 }
 
-void SelectionAspect::setVolatileValue(const QVariant &val)
+void SelectionAspect::internalToGui()
 {
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons: {
         if (d->m_buttonGroup) {
-            QAbstractButton *button = d->m_buttonGroup->button(val.toInt());
+            QAbstractButton *button = d->m_buttonGroup->button(m_internal);
             QTC_ASSERT(button, return);
             button->setChecked(true);
         }
@@ -1709,7 +1607,7 @@ void SelectionAspect::setVolatileValue(const QVariant &val)
     }
     case DisplayStyle::ComboBox:
         if (d->m_comboBox)
-            d->m_comboBox->setCurrentIndex(val.toInt());
+            d->m_comboBox->setCurrentIndex(m_internal);
         break;
     }
 }
@@ -1727,22 +1625,6 @@ void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
     d->m_displayStyle = style;
 }
 
-int SelectionAspect::value() const
-{
-    return BaseAspect::value().toInt();
-}
-
-void SelectionAspect::setValue(int value)
-{
-    if (BaseAspect::setValueQuietly(value)) {
-        if (d->m_buttonGroup && 0 <= value && value < d->m_buttons.size())
-            d->m_buttons.at(value)->setChecked(true);
-        else if (d->m_comboBox)
-            d->m_comboBox->setCurrentIndex(value);
-        emit changed();
-    }
-}
-
 void SelectionAspect::setStringValue(const QString &val)
 {
     const int index = indexForDisplay(val);
@@ -1750,20 +1632,15 @@ void SelectionAspect::setStringValue(const QString &val)
     setValue(index);
 }
 
-int SelectionAspect::defaultValue() const
-{
-    return BaseAspect::defaultValue().toInt();
-}
-
 void SelectionAspect::setDefaultValue(int val)
 {
-    BaseAspect::setDefaultValue(val);
+    TypedAspect::setDefaultValue(val);
 }
 
 // Note: This needs to be set after all options are added.
 void SelectionAspect::setDefaultValue(const QString &val)
 {
-    BaseAspect::setDefaultValue(indexForDisplay(val));
+    TypedAspect::setDefaultValue(indexForDisplay(val));
 }
 
 QString SelectionAspect::stringValue() const
@@ -1830,7 +1707,7 @@ QVariant SelectionAspect::itemValueForIndex(int index) const
 */
 
 MultiSelectionAspect::MultiSelectionAspect(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::MultiSelectionAspectPrivate(this))
+    : TypedAspect(container), d(new Internal::MultiSelectionAspectPrivate(this))
 {
     setDefaultValue(QStringList());
     setSpan(2, 1);
@@ -1898,23 +1775,27 @@ void MultiSelectionAspect::setDisplayStyle(MultiSelectionAspect::DisplayStyle st
     d->m_displayStyle = style;
 }
 
-QStringList MultiSelectionAspect::value() const
+void MultiSelectionAspect::internalToGui()
 {
-    return BaseAspect::value().toStringList();
+    if (d->m_listView) {
+        const int n = d->m_listView->count();
+        QTC_CHECK(n == d->m_allValues.size());
+        for (int i = 0; i != n; ++i) {
+            auto item = d->m_listView->item(i);
+            item->setCheckState(m_internal.contains(item->text()) ? Qt::Checked : Qt::Unchecked);
+        }
+    }
 }
 
-void MultiSelectionAspect::setValue(const QStringList &value)
+void MultiSelectionAspect::guiToInternal()
 {
-    if (BaseAspect::setValueQuietly(value)) {
-        if (d->m_listView) {
-            const int n = d->m_listView->count();
-            QTC_CHECK(n == d->m_allValues.size());
-            for (int i = 0; i != n; ++i) {
-                auto item = d->m_listView->item(i);
-                item->setCheckState(value.contains(item->text()) ? Qt::Checked : Qt::Unchecked);
-            }
-        } else {
-            emit changed();
+    if (d->m_listView) {
+        m_internal.clear();
+        for (const QString &val : std::as_const(d->m_allValues)) {
+            auto item = new QListWidgetItem(val, d->m_listView);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+            if (item->checkState() == Qt::Checked)
+                m_internal.append(item->text());
         }
     }
 }
@@ -1937,12 +1818,9 @@ void MultiSelectionAspect::setValue(const QStringList &value)
 // IntegerAspect
 
 IntegerAspect::IntegerAspect(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::IntegerAspectPrivate)
+    : TypedAspect(container), d(new Internal::IntegerAspectPrivate)
 {
-    setDefaultValue(qint64(0));
     setSpan(2, 1);
-
-    addDataExtractor(this, &IntegerAspect::value, &Data::value);
 }
 
 /*!
@@ -1974,41 +1852,16 @@ void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
     }
 }
 
-QVariant IntegerAspect::volatileValue() const
+void IntegerAspect::guiToInternal()
 {
-    QTC_CHECK(!isAutoApply());
-    QTC_ASSERT(d->m_spinBox, return {});
-    return d->m_spinBox->value() * d->m_displayScaleFactor;
-}
-
-void IntegerAspect::setVolatileValue(const QVariant &val)
-{
-    QTC_CHECK(!isAutoApply());
     if (d->m_spinBox)
-        d->m_spinBox->setValue(int(val.toLongLong() / d->m_displayScaleFactor));
+        m_internal = d->m_spinBox->value() * d->m_displayScaleFactor;
 }
 
-qint64 IntegerAspect::value() const
+void IntegerAspect::internalToGui()
 {
-    return BaseAspect::value().toLongLong();
-}
-
-void IntegerAspect::setValue(qint64 value)
-{
-    if (BaseAspect::setValueQuietly(value)) {
-        if (d->m_spinBox)
-            d->m_spinBox->setValue(value / d->m_displayScaleFactor);
-        //qDebug() << "SetValue: Changing" << labelText() << " to " << value;
-        emit changed();
-        //QTC_CHECK(!labelText().isEmpty());
-        emit valueChanged(value);
-        //qDebug() << "SetValue: Changed" << labelText() << " to " << value;
-    }
-}
-
-qint64 IntegerAspect::defaultValue() const
-{
-    return BaseAspect::defaultValue().toLongLong();
+    if (d->m_spinBox)
+        d->m_spinBox->setValue(m_internal / d->m_displayScaleFactor);
 }
 
 void IntegerAspect::setRange(qint64 min, qint64 max)
@@ -2042,11 +1895,6 @@ void IntegerAspect::setDisplayScaleFactor(qint64 factor)
     d->m_displayScaleFactor = factor;
 }
 
-void IntegerAspect::setDefaultValue(qint64 defaultValue)
-{
-    BaseAspect::setDefaultValue(defaultValue);
-}
-
 void IntegerAspect::setSpecialValueText(const QString &specialText)
 {
     d->m_specialValueText = specialText;
@@ -2073,7 +1921,7 @@ void IntegerAspect::setSingleStep(qint64 step)
 */
 
 DoubleAspect::DoubleAspect(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::DoubleAspectPrivate)
+    : TypedAspect(container), d(new Internal::DoubleAspectPrivate)
 {
     setDefaultValue(double(0));
     setSpan(2, 1);
@@ -2097,7 +1945,7 @@ void DoubleAspect::addToLayout(LayoutItem &builder)
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_maximumValue && d->m_maximumValue)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
-    d->m_spinBox->setValue(value()); // Must happen after setRange()!
+    internalToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
 
     if (isAutoApply()) {
@@ -2106,33 +1954,16 @@ void DoubleAspect::addToLayout(LayoutItem &builder)
     }
 }
 
-QVariant DoubleAspect::volatileValue() const
+void DoubleAspect::guiToInternal()
 {
-    QTC_CHECK(!isAutoApply());
-    QTC_ASSERT(d->m_spinBox, return {});
-    return d->m_spinBox->value();
-}
-
-void DoubleAspect::setVolatileValue(const QVariant &val)
-{
-    QTC_CHECK(!isAutoApply());
     if (d->m_spinBox)
-        d->m_spinBox->setValue(val.toDouble());
+        m_internal = d->m_spinBox->value();
 }
 
-double DoubleAspect::value() const
+void DoubleAspect::internalToGui()
 {
-    return BaseAspect::value().toDouble();
-}
-
-void DoubleAspect::setValue(double value)
-{
-    BaseAspect::setValue(value);
-}
-
-double DoubleAspect::defaultValue() const
-{
-    return BaseAspect::defaultValue().toDouble();
+    if (d->m_spinBox)
+        d->m_spinBox->setValue(m_internal);
 }
 
 void DoubleAspect::setRange(double min, double max)
@@ -2149,11 +1980,6 @@ void DoubleAspect::setPrefix(const QString &prefix)
 void DoubleAspect::setSuffix(const QString &suffix)
 {
     d->m_suffix = suffix;
-}
-
-void DoubleAspect::setDefaultValue(double defaultValue)
-{
-    BaseAspect::setDefaultValue(defaultValue);
 }
 
 void DoubleAspect::setSpecialValueText(const QString &specialText)
@@ -2192,7 +2018,7 @@ TriStateAspect::TriStateAspect(AspectContainer *container,
 
 TriState TriStateAspect::value() const
 {
-    return TriState::fromVariant(BaseAspect::value());
+    return TriState::fromInt(SelectionAspect::value());
 }
 
 void TriStateAspect::setValue(TriState value)
@@ -2202,12 +2028,12 @@ void TriStateAspect::setValue(TriState value)
 
 TriState TriStateAspect::defaultValue() const
 {
-    return TriState::fromVariant(BaseAspect::defaultValue());
+    return TriState::fromInt(SelectionAspect::defaultValue());
 }
 
 void TriStateAspect::setDefaultValue(TriState value)
 {
-    BaseAspect::setDefaultValue(value.toVariant());
+    SelectionAspect::setDefaultValue(value.toInt());
 }
 
 const TriState TriState::Enabled{TriState::EnabledValue};
@@ -2216,7 +2042,11 @@ const TriState TriState::Default{TriState::DefaultValue};
 
 TriState TriState::fromVariant(const QVariant &variant)
 {
-    int v = variant.toInt();
+    return fromInt(variant.toInt());
+}
+
+TriState TriState::fromInt(int v)
+{
     QTC_ASSERT(v == EnabledValue || v == DisabledValue || v == DefaultValue, v = DefaultValue);
     return TriState(Value(v));
 }
@@ -2231,7 +2061,7 @@ TriState TriState::fromVariant(const QVariant &variant)
 */
 
 StringListAspect::StringListAspect(AspectContainer *container)
-    : BaseAspect(container), d(new Internal::StringListAspectPrivate)
+    : TypedAspect(container), d(new Internal::StringListAspectPrivate)
 {
     setDefaultValue(QStringList());
 }
@@ -2248,16 +2078,6 @@ void StringListAspect::addToLayout(LayoutItem &parent)
 {
     Q_UNUSED(parent)
     // TODO - when needed.
-}
-
-QStringList StringListAspect::value() const
-{
-    return BaseAspect::value().toStringList();
-}
-
-void StringListAspect::setValue(const QStringList &value)
-{
-    BaseAspect::setValue(value);
 }
 
 void StringListAspect::appendValue(const QString &s, bool allowDuplicates)
@@ -2303,10 +2123,8 @@ void StringListAspect::removeValues(const QStringList &values)
 */
 
 IntegersAspect::IntegersAspect(AspectContainer *container)
-    : BaseAspect(container)
-{
-    setDefaultValue({});
-}
+    : TypedAspect(container)
+{}
 
 /*!
     \internal
@@ -2320,33 +2138,6 @@ void IntegersAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     Q_UNUSED(parent)
     // TODO - when needed.
-}
-
-void IntegersAspect::emitChangedValue()
-{
-    emit valueChanged(value());
-}
-
-QList<int> IntegersAspect::value() const
-{
-    return transform(BaseAspect::value().toList(),
-                            [](QVariant v) { return v.toInt(); });
-}
-
-void IntegersAspect::setValue(const QList<int> &value)
-{
-    BaseAspect::setValue(transform(value, [](int i) { return QVariant::fromValue<int>(i); }));
-}
-
-QList<int> IntegersAspect::defaultValue() const
-{
-    return transform(BaseAspect::defaultValue().toList(),
-                     [](QVariant v) { return v.toInt(); });
-}
-
-void IntegersAspect::setDefaultValue(const QList<int> &value)
-{
-    BaseAspect::setDefaultValue(transform(value, [](int i) { return QVariant::fromValue<int>(i); }));
 }
 
 
@@ -2576,7 +2367,7 @@ void AspectContainer::finish()
 void AspectContainer::reset()
 {
     for (BaseAspect *aspect : std::as_const(d->m_items))
-        aspect->setValueQuietly(aspect->defaultValue());
+        aspect->setVariantValueQuietly(aspect->defaultVariantValue());
 }
 
 void AspectContainer::setAutoApply(bool on)
@@ -2632,6 +2423,41 @@ BaseAspect::Data::Ptr BaseAspect::extractData() const
         extractor(data);
     return Data::Ptr(data);
 }
+
+/*
+    Mirrors the internal volatile value to the GUI element if they are already
+    created.
+
+    No-op otherwise.
+*/
+void BaseAspect::internalToGui()
+{}
+
+/*
+    Mirrors the data stored in GUI element if they are already created to
+    the internal volatile value.
+
+    No-op otherwise.
+*/
+void BaseAspect::guiToInternal()
+{}
+
+/*
+    Mirrors internal volatile value to the externally visible value.
+    This function is used for \c apply().
+
+    \returns whether the value changes.
+*/
+bool BaseAspect::internalToExternal()
+{
+    return false;
+}
+
+/*
+    Mirrors externally visible value to internal volatile value.
+*/
+void BaseAspect::externalToInternal()
+{}
 
 void BaseAspect::addDataExtractorHelper(const DataExtractor &extractor) const
 {

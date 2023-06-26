@@ -46,7 +46,7 @@ void RegisterPostMortemAction::registerNow(bool value)
 
 RegisterPostMortemAction::RegisterPostMortemAction()
 {
-    connect(this, &BoolAspect::valueChanged, this, &RegisterPostMortemAction::registerNow);
+    connect(this, &BaseAspect::changed, this, [this] { registerNow(value()); });
 }
 
 void RegisterPostMortemAction::readSettings(const QSettings *)
