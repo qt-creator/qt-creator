@@ -13,6 +13,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "Debugger" }
     Depends { name: "CMakeProjectManager" }
+    Depends { name: "QmlJS" }
     Depends { name: "QtSupport" }
 
     Depends { name: "qtc_gtest_gmock"; condition: qtc.testsEnabled; required: false }

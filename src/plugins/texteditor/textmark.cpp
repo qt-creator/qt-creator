@@ -138,6 +138,8 @@ void TextMark::paintAnnotation(QPainter &painter,
                                                    painter.fontMetrics(),
                                                    fadeInOffset,
                                                    fadeOutOffset);
+    if (m_staticAnnotationText.text() != rects.text)
+        m_staticAnnotationText.setText(rects.text);
     annotationRect->setRight(rects.fadeOutRect.right());
     const QRectF eventRectF(eventRect);
     if (!(rects.fadeInRect.intersects(eventRectF) || rects.annotationRect.intersects(eventRectF)
@@ -161,7 +163,7 @@ void TextMark::paintAnnotation(QPainter &painter,
     painter.fillRect(rects.annotationRect, colors.rectColor);
     painter.setPen(colors.textColor);
     paintIcon(&painter, rects.iconRect.toAlignedRect());
-    painter.drawText(rects.textRect, Qt::AlignLeft, rects.text);
+    painter.drawStaticText(rects.textRect.topLeft(), m_staticAnnotationText);
     if (rects.fadeOutRect.isValid()) {
         grad = QLinearGradient(rects.fadeOutRect.topLeft() - contentOffset,
                                rects.fadeOutRect.topRight() - contentOffset);

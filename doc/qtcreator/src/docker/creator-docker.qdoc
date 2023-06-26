@@ -16,14 +16,13 @@
     While Linux, \macos, and Windows hosts are supported in principle, Linux is
     the recommended platform.
 
-    Currently, only CMake is supported for building applications in the Docker
-    container.
-
     To build, run, and debug applications on Docker devices, you must install and
     configure \c docker-cli on the development host. \QC automatically detects
     \l{Adding Kits}{build and run kit} items, such \l{Adding Debuggers}
     {debuggers} and \l{Adding Qt Versions}{Qt versions}, in the Docker container
     and creates kits for the devices.
+
+    You can use CMake or qmake to build applications in the Docker container.
 
     To pull images from Docker hub or other registries, use the
     \l{https://docs.docker.com/engine/reference/commandline/pull/}{docker pull}

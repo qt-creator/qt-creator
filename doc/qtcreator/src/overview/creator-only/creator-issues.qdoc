@@ -70,14 +70,14 @@
 
         \li When developing on Linux, the \key {Ctrl+Shift+U} keyboard shortcut
             might not work because it conflicts with a shortcut of the
-            Intelligent Input Bus (ibus). You can change the shortcut for finding
-            references to the symbol under the cursor either in \QC or in ibus.
+            Intelligent Input Bus (ibus). You can change either the shortcut in
+            \QC or the conflicting shortcut in ibus.
 
             To set another \l {Keyboard Shortcuts}{keyboard shortcut}
             in \QC, select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Environment > \uicontrol Keyboard.
 
-            To change the shortcut in ibus, enter the following command on the
+            To change the ibus shortcut, enter the following command on the
             command line to start ibus setup:
             \badcode
             ibus-setup

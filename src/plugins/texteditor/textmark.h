@@ -11,6 +11,7 @@
 
 #include <QCoreApplication>
 #include <QIcon>
+#include <QStaticText>
 #include <QVector>
 
 #include <optional>
@@ -139,6 +140,7 @@ private:
     bool m_visible = false;
     TextMarkCategory m_category;
     QString m_lineAnnotation;
+    mutable QStaticText m_staticAnnotationText;
     QString m_toolTip;
     std::function<QString()> m_toolTipProvider;
     QString m_defaultToolTip;

@@ -26,8 +26,8 @@
     \image studio-live-preview.png
     \endif
 
-    To preview any QML file that belongs to the project, right-click the project
-    name in the \l Projects view, and select \uicontrol {Preview File}.
+    To preview any QML file that belongs to the project, right-click the
+    filename in the \l Projects view, and select \uicontrol {Preview File}.
 
     \if defined(qtdesignstudio)
     To preview the whole UI, select \uicontrol {Show Live Preview}
