@@ -12,6 +12,7 @@
 #include <include/modelnode.h>
 #include <include/nodeabstractproperty.h>
 #include <include/nodelistproperty.h>
+#include <include/nodemetaInfo.h>
 #include <include/nodeproperty.h>
 #include <include/signalhandlerproperty.h>
 #include <include/variantproperty.h>
@@ -48,6 +49,11 @@ protected:
     {
         model.attachView(&viewMock);
         rootNode = model.rootModelNode();
+        auto itemId = rootNode.metaInfo().id();
+        projectStorageMock.createProperty(itemId,
+                                          "layer.effect",
+                                          QmlDesigner::Storage::PropertyDeclarationTraits::IsList,
+                                          itemId);
     }
 
     auto createNodeWithParent(const QmlDesigner::TypeName &typeName,
