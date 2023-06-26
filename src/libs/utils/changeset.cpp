@@ -334,10 +334,8 @@ void ChangeSet::apply_helper()
 {
     // convert all ops to replace
     QList<EditOp> replaceList;
-    {
-        while (!m_operationList.isEmpty())
-            convertToReplace(m_operationList.takeFirst(), &replaceList);
-    }
+    while (!m_operationList.isEmpty())
+        convertToReplace(m_operationList.takeFirst(), &replaceList);
 
     // execute replaces
     if (m_cursor)

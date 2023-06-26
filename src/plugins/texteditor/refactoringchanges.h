@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "indenter.h"
+
 #include <texteditor/texteditor_global.h>
 #include <utils/changeset.h>
 #include <utils/fileutils.h>
@@ -75,6 +77,9 @@ protected:
     enum IndentType {Indent, Reindent};
     void indentOrReindent(const RefactoringSelections &ranges, IndentType indent);
 
+    void setupFormattingRanges(const QList<Utils::ChangeSet::EditOp> &replaceList);
+    void doFormatting();
+
     Utils::FilePath m_filePath;
     QSharedPointer<RefactoringChangesData> m_data;
     mutable Utils::TextFileFormat m_textFileFormat;
@@ -83,10 +88,12 @@ protected:
     Utils::ChangeSet m_changes;
     QList<Range> m_indentRanges;
     QList<Range> m_reindentRanges;
+    QList<QTextCursor> m_formattingCursors;
     bool m_openEditor = false;
     bool m_activateEditor = false;
     int m_editorCursorPosition = -1;
     bool m_appliedOnce = false;
+    bool m_formattingEnabled = false;
 
     friend class RefactoringChanges; // access to constructor
 };

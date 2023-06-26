@@ -75,15 +75,20 @@ CppRefactoringFile::CppRefactoringFile(const FilePath &filePath, const QSharedPo
 {
     const Snapshot &snapshot = this->data()->m_snapshot;
     m_cppDocument = snapshot.document(filePath);
+    m_formattingEnabled = true;
 }
 
 CppRefactoringFile::CppRefactoringFile(QTextDocument *document, const FilePath &filePath)
     : RefactoringFile(document, filePath)
-{ }
+{
+    m_formattingEnabled = true;
+}
 
 CppRefactoringFile::CppRefactoringFile(TextEditor::TextEditorWidget *editor)
     : RefactoringFile(editor)
-{ }
+{
+    m_formattingEnabled = true;
+}
 
 Document::Ptr CppRefactoringFile::cppDocument() const
 {
