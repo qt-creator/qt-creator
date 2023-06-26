@@ -118,7 +118,7 @@ Editing
 * Fixed that generated functions did not have a `const` qualifier when
   required
   ([QTCREATORBUG-29274](https://bugreports.qt.io/browse/QTCREATORBUG-29274))
-* Fixed that locator showed both the declaration and the definition of symbols
+* Fixed that the locator showed both the declaration and the definition of symbols
   ([QTCREATORBUG-13894](https://bugreports.qt.io/browse/QTCREATORBUG-13894))
 * Fixed the handling of C++20 keywords and concepts
 * Clangd
@@ -154,8 +154,9 @@ Editing
 
 ### Python
 
-* Added the option to create a virtual environment (`venv`) to the Python
-  interpreter selector and the wizard
+* Added the `Create Virtual Environment` option to the Python interpreter
+  selector on the editor toolbar and to the wizards in `File > New Project >
+  > Application (Qt for Python)`
   ([PYSIDE-2152](https://bugreports.qt.io/browse/PYSIDE-2152))
 * Fixed that too many progress indicators could be created
   ([QTCREATORBUG-29224](https://bugreports.qt.io/browse/QTCREATORBUG-29224))
@@ -167,10 +168,11 @@ Projects
 
 * Made it possible to add devices in `Preferences > Devices > Add` without going
   through the wizard
+  ([Documentation](https://doc.qt.io/qtcreator/creator-developing-b2qt.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-developing-generic-linux.html))
 * Added support for moving files to a different directory when renaming them in
   the `File System` view
   ([QTCREATORBUG-15981](https://bugreports.qt.io/browse/QTCREATORBUG-15981))
-
   ([Documentation](https://doc.qt.io/qtcreator/creator-file-system-view.html))
 
 ### CMake
@@ -184,10 +186,13 @@ Projects
    [QTCREATORBUG-28904](https://bugreports.qt.io/browse/QTCREATORBUG-28904),
    [QTCREATORBUG-28985](https://bugreports.qt.io/browse/QTCREATORBUG-28985),
    [QTCREATORBUG-29006](https://bugreports.qt.io/browse/QTCREATORBUG-29006))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-project-cmake.html))
 * Added `Build > Reload CMake Presets` to reload CMake presets after making
   changes to them
-* Added support for `block()` and `endblock()`
-* Fixed that CMake Presets were not visible in `Projects` view
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-build-settings-cmake-presets.html))
+* Added support for the `block()` and `endblock()` CMake commands
+  ([CMake documentation](https://cmake.org/cmake/help/latest/command/block.html#command:block))
+* Fixed that CMake Presets were not visible in the `Projects` view
   ([QTCREATORBUG-28966](https://bugreports.qt.io/browse/QTCREATORBUG-28966))
 * Fixed issues with detecting a configured Qt version when importing a build
   ([QTCREATORBUG-29075](https://bugreports.qt.io/browse/QTCREATORBUG-29075))
@@ -196,6 +201,7 @@ Projects
 
 * Added an option for selecting the interpreter to the wizards in
   `File > New Project > Application (Qt for Python)`
+  ([Documentation](https://doc.qt.io/qtcreator/creator-project-creating.html))
 
 Debugging
 ---------
@@ -203,6 +209,7 @@ Debugging
 * Improved the UI for enabling and disabling debuggers in `Projects > Run >
   Debugger settings`
   ([QTCREATORBUG-28627](https://bugreports.qt.io/browse/QTCREATORBUG-28627))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-debugging-qml.html))
 * Fixed the automatic source mapping for Qt versions from an installer
   ([QTCREATORBUG-28950](https://bugreports.qt.io/browse/QTCREATORBUG-28950))
 * Fixed pretty printer for `std::string` for recent `libc++`
@@ -210,8 +217,8 @@ Debugging
 
 ### C++
 
-* Added an option for the default number of array elements to show
-  (`Preferences > Debugger > Locals & Expressions > Default array size`)
+* Added the `Default array size` option for setting the default number of array
+  elements to show in `Preferences > Debugger > Locals & Expressions`
 * Fixed debugging in a terminal as the root user
   ([QTCREATORBUG-27519](https://bugreports.qt.io/browse/QTCREATORBUG-27519))
 * CDB
@@ -225,11 +232,12 @@ Debugging
 
 ### Qt Quick
 
-* Improved the auto-detection if QML debugging is required
+* Improved the auto-detection of whether QML debugging is required
   ([QTCREATORBUG-28627](https://bugreports.qt.io/browse/QTCREATORBUG-28627))
-* Added an option for disabling static analyzer messages to
-  `Qt Quick > QML/JS Editing`
+* Added the `Use customized static analyzer` option for disabling static analyzer
+  messages to `Preferences > Qt Quick > QML/JS Editing`
   ([QTCREATORBUG-29095](https://bugreports.qt.io/browse/QTCREATORBUG-29095))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-checking-code-syntax.html))
 
 Analyzer
 --------

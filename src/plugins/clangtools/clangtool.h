@@ -82,7 +82,7 @@ signals:
     void finished(const QString &errorText); // For testing.
 
 protected:
-    ClangTool(const QString &name, Utils::Id id);
+    ClangTool(const QString &name, Utils::Id id, CppEditor::ClangToolType type);
 
 private:
     enum class State {
@@ -154,6 +154,7 @@ private:
     QAction *m_expandCollapse = nullptr;
 
     Utils::Perspective m_perspective;
+    const CppEditor::ClangToolType m_type;
 };
 
 class ClangTidyTool : public ClangTool

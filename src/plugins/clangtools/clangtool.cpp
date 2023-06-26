@@ -350,8 +350,8 @@ static RunSettings runSettings()
     return ClangToolsSettings::instance()->runSettings();
 }
 
-ClangTool::ClangTool(const QString &name, Utils::Id id)
-    : m_name(name), m_perspective{id.toString(), name}
+ClangTool::ClangTool(const QString &name, Utils::Id id, ClangToolType type)
+    : m_name(name), m_perspective{id.toString(), name}, m_type(type)
 {
     setObjectName(name);
     m_diagnosticModel = new ClangToolsDiagnosticModel(this);
@@ -830,8 +830,7 @@ static bool canAnalyzeProject(Project *project)
 
 struct CheckResult {
     enum {
-        InvalidTidyExecutable,
-        InvalidClazyExecutable,
+        InvalidExecutable,
         ProjectNotOpen,
         ProjectNotSuitable,
         ReadyToAnalyze,
@@ -839,20 +838,13 @@ struct CheckResult {
     QString errorText;
 };
 
-static CheckResult canAnalyze()
+static CheckResult canAnalyze(ClangToolType type, const QString &name)
 {
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings().diagnosticConfigId());
 
-    if (toolEnabled(ClangToolType::Tidy, config, runSettings())
-        && !toolExecutable(ClangToolType::Tidy).isExecutableFile()) {
-        return {CheckResult::InvalidTidyExecutable,
-                Tr::tr("Set a valid Clang-Tidy executable.")};
-    }
-
-    if (toolEnabled(ClangToolType::Clazy, config, runSettings())
-        && !toolExecutable(ClangToolType::Clazy).isExecutableFile()) {
-        return {CheckResult::InvalidClazyExecutable,
-                Tr::tr("Set a valid Clazy-Standalone executable.")};
+    if (toolEnabled(type, config, runSettings())
+        && !toolExecutable(type).isExecutableFile()) {
+        return {CheckResult::InvalidExecutable, Tr::tr("Set a valid %1 executable.").arg(name)};
     }
 
     if (Project *project = ProjectManager::startupProject()) {
@@ -876,10 +868,9 @@ void ClangTool::updateForInitialState()
 
     m_infoBarWidget->reset();
 
-    const CheckResult result = canAnalyze();
+    const CheckResult result = canAnalyze(m_type, m_name);
     switch (result.kind)
-    case CheckResult::InvalidTidyExecutable: {
-    case CheckResult::InvalidClazyExecutable:
+    case CheckResult::InvalidExecutable: {
         m_infoBarWidget->setError(InfoBarWidget::Warning, makeLink(result.errorText),
                                   [] { ICore::showOptionsDialog(Constants::SETTINGS_PAGE_ID); });
         break;
@@ -1084,7 +1075,7 @@ void ClangTool::updateForCurrentState()
     QString startActionToolTip = m_startAction->text();
     QString startOnCurrentToolTip = m_startOnCurrentFileAction->text();
     if (!isRunning) {
-        const CheckResult result = canAnalyze();
+        const CheckResult result = canAnalyze(m_type, m_name);
         canStart = result.kind == CheckResult::ReadyToAnalyze;
         if (!canStart) {
             startActionToolTip = result.errorText;
@@ -1171,11 +1162,12 @@ void ClangTool::updateForCurrentState()
     m_infoBarWidget->setDiagText(diagText);
 }
 
-ClangTidyTool::ClangTidyTool() : ClangTool(Tr::tr("Clang-Tidy"), "ClangTidy.Perspective")
+ClangTidyTool::ClangTidyTool() : ClangTool(Tr::tr("Clang-Tidy"), "ClangTidy.Perspective",
+                                           ClangToolType::Tidy)
 {
     m_instance = this;
 }
-ClazyTool::ClazyTool() : ClangTool(Tr::tr("Clazy"), "Clazy.Perspective")
+ClazyTool::ClazyTool() : ClangTool(Tr::tr("Clazy"), "Clazy.Perspective", ClangToolType::Clazy)
 {
     m_instance = this;
 }

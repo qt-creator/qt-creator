@@ -87,6 +87,9 @@ void MesonBuildSystem::parsingCompleted(bool success)
         UNLOCK(false);
         emitBuildSystemUpdated();
     }
+    emitParsingFinished(success);
+
+    emit buildConfiguration()->enabledChanged(); // HACK. Should not be needed.
 }
 
 ProjectExplorer::Kit *MesonBuildSystem::MesonBuildSystem::kit()
