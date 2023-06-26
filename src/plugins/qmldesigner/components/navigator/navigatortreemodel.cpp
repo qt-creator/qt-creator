@@ -928,7 +928,7 @@ ModelNode NavigatorTreeModel::handleItemLibraryShaderDrop(const QString &shaderP
 
             // set shader properties
             PropertyName prop = "shader";
-            QString type = "QByteArray";
+            QString type = "QUrl";
             QVariant val = relPath;
             itemLibraryEntry.addProperty(prop, type, val);
             prop = "stage";
