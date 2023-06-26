@@ -291,13 +291,6 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void Core::SearchResult::requestEnabledCheck()
-
-    This signal is emitted when the enabled status of search results is
-    requested.
-*/
-
-/*!
     \fn void Core::SearchResult::searchAgainRequested()
 
     This signal is emitted when the \uicontrol {Search Again} button is

@@ -333,8 +333,7 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     connect(search, &SearchResult::searchAgainRequested, this, [this, search] {
         searchAgain(search);
     });
-    connect(this, &BaseFileFind::enabledChanged, search, &SearchResult::requestEnabledCheck);
-    connect(search, &SearchResult::requestEnabledCheck, this, [this, search] {
+    connect(this, &BaseFileFind::enabledChanged, search, [this, search] {
         recheckEnabled(search);
     });
 
