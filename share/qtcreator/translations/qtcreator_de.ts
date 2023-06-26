@@ -13916,7 +13916,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Locates bookmarks. Filter by file name, by the text on the line of the bookmark, or by the bookmark&apos;s note text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Lesezeichen. Filtert nach dem Dateinamen, dem Text in der Zeile des Lesezeichens oder seinem Anmerkungstext.</translation>
     </message>
     <message>
         <source>Bookmark</source>
@@ -14255,7 +14255,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Reload CMake Presets</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake Presets neu laden</translation>
     </message>
     <message>
         <source>Build</source>
@@ -14275,11 +14275,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Re-generates the kits that were created for CMake presets. All manual modifications to the CMake project settings will be lost.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt die Kits neu, die für CMake Presets erstellt wurden. Alle manuellen Änderungen an den CMake-Projekteinstellungen gehen dabei verloren.</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished">Neu laden</translation>
+        <translation>Neu laden</translation>
     </message>
     <message>
         <source>Build File is not supported for generator &quot;%1&quot;</source>
@@ -14439,11 +14439,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Stage for installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Für die Installation bereitstellen</translation>
     </message>
     <message>
         <source>Staging directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereitstellungsverzeichnis:</translation>
     </message>
     <message>
         <source>Enable automatic provisioning updates:</source>
@@ -14484,7 +14484,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>Stage at %2 for %3</source>
         <extracomment>Stage (for installation) at &lt;staging_dir&gt; for &lt;installation_dir&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>In %2 für %3 bereitstellen</translation>
     </message>
     <message>
         <source>CMake Build</source>
@@ -14587,7 +14587,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Ask before reloading CMake Presets</source>
-        <translation type="unfinished"></translation>
+        <translation>Vor dem Neuladen von CMake Presets nachfragen</translation>
     </message>
     <message>
         <source>Show subfolders inside source group folders</source>
@@ -14659,7 +14659,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Running in %1: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe in %1 aus: %2.</translation>
     </message>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
@@ -14823,7 +14823,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Build CMake Target</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Ziel erstellen</translation>
     </message>
     <message>
         <source>Builds a target of any open CMake project.</source>
@@ -14831,11 +14831,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Open CMake Target</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Ziel öffnen</translation>
     </message>
     <message>
         <source>Locates the definition of a target of any open CMake project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet die Definition eines Ziels in allen geöffneten CMake-Projekten.</translation>
     </message>
     <message>
         <source>The source directory %1 is not reachable by the CMake executable %2.</source>
@@ -14887,7 +14887,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>&lt;Generated Files&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Generierte Dateien&gt;</translation>
     </message>
     <message>
         <source>Unexpected source directory &quot;%1&quot;, expected &quot;%2&quot;. This can be correct in some situations, for example when importing a standalone Qt test, but usually this is an error. Import the build anyway?</source>
@@ -14899,7 +14899,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMake Presets</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake Presets</translation>
     </message>
     <message>
         <source>Target type:</source>
@@ -15587,7 +15587,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Override .clang-format file</source>
-        <translation type="unfinished"></translation>
+        <translation>.clang-format-Datei außer Kraft setzen</translation>
     </message>
     <message>
         <source>Use global settings</source>
@@ -15615,7 +15615,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>When this option is enabled, ClangFormat will use a user-specified configuration from the widget below, instead of the project .clang-format file. You can customize the formatting options for your code by adjusting the settings in the widget. Note that any changes made there will only affect the current configuration, and will not modify the project .clang-format file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn diese Einstellung aktiviert ist, wird statt der .clang-format-Datei des Projekts die benutzerdefinierte Einstellung unten benutzt. Beachten Sie, dass die unten durchgeführten Einstellungen nur die aktuelle Konfiguration beeinflussen und die .clang-format-Datei des Projekts nicht verändert wird.</translation>
     </message>
     <message>
         <source>ClangFormat</source>
@@ -15798,7 +15798,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Prefer .clang-tidy file, if present</source>
-        <translation type="unfinished"></translation>
+        <translation>.clang-tidy-Datei bevorzugen, sofern vorhanden</translation>
     </message>
     <message>
         <source>Build the project before analysis</source>
@@ -15916,7 +15916,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Set a valid %1 executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine gültige ausführbare Datei für %1.</translation>
     </message>
     <message>
         <source>Project &quot;%1&quot; is not a C/C++ project.</source>
@@ -17239,7 +17239,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Toolbar style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Werkzeugleisten-Stil:</translation>
     </message>
     <message>
         <source>Text codec for tools:</source>
@@ -17251,11 +17251,11 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Compact</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompakt</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation type="unfinished"></translation>
+        <translation>Entspannt</translation>
     </message>
     <message>
         <source>Interface</source>
@@ -18565,7 +18565,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
     <message>
         <source>Locates files from a custom set of directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Dateien aus vom Benutzer gewählten Pfaden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -18700,15 +18700,15 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Create Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis erzeugen</translation>
     </message>
     <message>
         <source>Create and Open File &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeuge und öffne Datei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Create Directory &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeuge Verzeichnis &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -19040,11 +19040,11 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Triggers a web search with the selected search engine.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Suche im Internet mit der ausgewählten Suchmaschine aus.</translation>
     </message>
     <message>
         <source>Triggers a search in the Qt bug tracker.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Suche im Qt-Bugtracker aus.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a document&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Open File or Project (%1)&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Recent Files&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Tools &gt; Locate (%2) and&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- type to open file from any open project&lt;/div&gt;%4%5&lt;div style=&quot;margin-left: 1em&quot;&gt;- type &lt;code&gt;%3&amp;lt;space&amp;gt;&amp;lt;filename&amp;gt;&lt;/code&gt; to open file from file system&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- select one of the other filters for jumping to a location&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Drag and drop files here&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -19642,7 +19642,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>MiB</source>
-        <translation type="unfinished"></translation>
+        <translation>MiB</translation>
     </message>
     <message>
         <source>Enable crash reporting</source>
@@ -19879,7 +19879,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Locates files from a global file system index (Spotlight, Locate, Everything). Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Dateien aus einem globalen Dateisystemindex (Spotlight, Locate, Everything). Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Case sensitive:</source>
@@ -19919,15 +19919,15 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>The evaluation was interrupted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung wurde unterbrochen.</translation>
     </message>
     <message>
         <source>Engine reinitialized properly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Engine hat sich korrekt neu initialisiert.</translation>
     </message>
     <message>
         <source>Engine did not reinitialize properly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Engine hat sich nicht korrekt neu initialisiert.</translation>
     </message>
     <message>
         <source>Copy to clipboard: %1</source>
@@ -20008,11 +20008,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle anzeigen</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished">Zurück</translation>
+        <translation>Zurück</translation>
     </message>
     <message>
         <source>Text Encoding</source>
@@ -20468,11 +20468,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Switches to an open document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wechselt zu einem offenen Dokument.</translation>
     </message>
     <message>
         <source>Markdown Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Markdown-Editor</translation>
     </message>
 </context>
 <context>
@@ -20687,7 +20687,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Add Member Function &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Memberfunktion &quot;%1&quot; hinzufügen</translation>
     </message>
     <message>
         <source>Extract Constant as Function Parameter</source>
@@ -21701,7 +21701,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Locates C++ symbols in the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet C++-Symbole im aktuellen Dokument.</translation>
     </message>
     <message>
         <source>C++ Classes</source>
@@ -21709,7 +21709,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Locates C++ classes in any open project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet C++-Klassen in allen offenen Projekten.</translation>
     </message>
     <message>
         <source>C++ Functions</source>
@@ -21717,7 +21717,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Locates C++ functions in any open project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet C++-Funktionen in allen offenen Projekten.</translation>
     </message>
     <message>
         <source>All Included C/C++ Files</source>
@@ -21730,7 +21730,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Locates C++ classes, enums, functions and type aliases in any open project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet C++-Klassen, -Aufzählungen, -Funktionen und -Typaliase in allen offenen Projekten.</translation>
     </message>
     <message>
         <source>C++ Symbols</source>
@@ -21798,15 +21798,15 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Use Built-in Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur integriertes Backend benutzen</translation>
     </message>
     <message>
         <source>Use Clangd Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Clangd benutzen</translation>
     </message>
     <message>
         <source>Try Both</source>
-        <translation type="unfinished"></translation>
+        <translation>Beide versuchen</translation>
     </message>
     <message>
         <source>Interpret ambiguous headers as C headers</source>
@@ -21854,7 +21854,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>&lt;p&gt;Which C/C++ backend to use when switching between header and source file.&lt;p&gt;The clangd implementation has more capabilities, but also has some bugs not present in the built-in variant.&lt;p&gt;When &quot;Try Both&quot; is selected, clangd will be employed only if the built-in variant does not find anything.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Bestimmt, welches C/C++-Backend zum Wechseln zwischen Header- und Quelldatei benutzt wird.&lt;p&gt;Die Clangd-Implementation hat mehr Fähigkeiten, aber auch einige Fehler, die nicht in der integrierten Variante vorhanden sind.&lt;p&gt;Wenn &quot;Beide versuchen&quot; ausgewählt ist, wird Clangd nur benutzt, wenn die integrierte Variant nichts findet.</translation>
     </message>
     <message>
         <source>Number of worker threads used by clangd. Background indexing also uses this many worker threads.</source>
@@ -21910,7 +21910,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Header/source switch mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Modus für das Wechseln zwischen Header- und Quelldatei:</translation>
     </message>
     <message>
         <source>Worker thread count:</source>
@@ -22262,7 +22262,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Locates files that are included by C++ files of any open project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet alle Dateien die von allen C++-Dateien aller Projekte eingebunden werden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
 </context>
 <context>
