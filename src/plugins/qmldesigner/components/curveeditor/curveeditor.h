@@ -38,6 +38,7 @@ protected:
 
 private:
     void updateStatusLine();
+    void updateMcuState();
 
     QLabel *m_infoText;
 

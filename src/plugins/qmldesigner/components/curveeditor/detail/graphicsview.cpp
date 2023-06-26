@@ -189,6 +189,11 @@ void GraphicsView::setStyle(const CurveEditorStyle &style)
     viewport()->update();
 }
 
+void GraphicsView::setIsMcu(bool isMcu)
+{
+    m_scene->setIsMcu(isMcu);
+}
+
 void GraphicsView::setLocked(TreeItem *item)
 {
     if (item->asNodeItem()) {

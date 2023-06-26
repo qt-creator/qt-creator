@@ -47,7 +47,7 @@ AnimationCurve::AnimationCurve(
         return QPointF(start.x() + slope.x() * pos.x(), start.y() + slope.y() * pos.y());
     };
 
-    QVector<QPointF> points = easing.toCubicSpline();
+    QList<QPointF> points = easing.toCubicSpline();
     int numSegments = points.size() / 3;
 
     Keyframe current;

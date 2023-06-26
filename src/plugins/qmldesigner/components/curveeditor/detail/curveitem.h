@@ -77,17 +77,19 @@ public:
 
     std::vector<AnimationCurve> curves() const;
 
-    QVector<KeyframeItem *> keyframes() const;
+    QList<KeyframeItem *> keyframes() const;
 
-    QVector<KeyframeItem *> selectedKeyframes() const;
+    QList<KeyframeItem *> selectedKeyframes() const;
 
-    QVector<HandleItem *> handles() const;
+    QList<HandleItem *> handles() const;
 
     CurveSegment segment(const KeyframeItem *keyframe, HandleItem::Slot slot) const;
 
     void restore();
 
     void setDirty(bool dirty);
+
+    void setIsMcu(bool isMcu);
 
     void setHandleVisibility(bool visible);
 
@@ -126,7 +128,9 @@ private:
 
     QTransform m_transform;
 
-    QVector<KeyframeItem *> m_keyframes;
+    QList<KeyframeItem *> m_keyframes;
+
+    bool m_mcu;
 
     bool m_itemDirty;
 };

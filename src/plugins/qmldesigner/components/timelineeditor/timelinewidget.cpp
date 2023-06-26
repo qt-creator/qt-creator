@@ -21,6 +21,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <designermcumanager.h>
 #include <theme.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -478,6 +479,7 @@ void TimelineWidget::init(int zoom)
 
     // setScaleFactor uses QSignalBlocker.
     m_toolbar->setScaleFactor(zoom);
+    m_toolbar->setIsMcu(DesignerMcuManager::instance().isMCUProject());
     m_graphicsScene->setZoom(zoom);
 }
 
