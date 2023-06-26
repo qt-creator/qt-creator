@@ -55,6 +55,7 @@ Product {
                 content = content.replace("${IDE_REVISION_URL}", "");
                 content = content.replace("${PROJECT_USER_FILE_EXTENSION}",
                         product.moduleProperty("qtc", "ide_user_file_extension"));
+                content = content.replace("${IDE_SETTINGSVARIANT}", "QtProject");
                 file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(content);
