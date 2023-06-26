@@ -5881,7 +5881,7 @@ TEST_F(ProjectStorage, synchronize_types_remove_property_declaration_with_an_ind
                  Sqlite::ConstraintPreventsModification);
 }
 
-TEST_F(ProjectStorage, disabled_synchronize_types_remove_stem_property_declaration_with_an_indirect_alias_throws)
+TEST_F(ProjectStorage, DISABLED_synchronize_types_remove_stem_property_declaration_with_an_indirect_alias_throws)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
