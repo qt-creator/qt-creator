@@ -301,6 +301,21 @@ expected_str<QList<ExampleItem *>> parseExamples(const QByteArray &manifestData,
     return items;
 }
 
+// ordered list of "known" categories
+// TODO this should be defined in the manifest
+Q_GLOBAL_STATIC(QList<QString>,
+                defaultOrder,
+                {"Application Examples",
+                 "Desktop",
+                 "Mobile",
+                 "Embedded",
+                 "Graphics",
+                 "Input/Output",
+                 "Connectivity",
+                 "Networking",
+                 "Positioning & Location",
+                 "Internationalization"});
+
 static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
 {
     if (first->isHighlighted && !second->isHighlighted)
@@ -350,15 +365,20 @@ QList<std::pair<Core::Section, QList<ExampleItem *>>> getCategories(const QList<
     } else {
         // All original items have been copied into a category or other, delete.
         qDeleteAll(items);
+        static const int defaultOrderSize = defaultOrder->size();
         int index = 0;
         const auto end = categoryMap.constKeyValueEnd();
         for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it) {
-            categories.append({{it->first, index, /*maxRows=*/index == 0 ? 2 : 1}, it->second});
+            // order "known" categories as wanted, others come afterwards
+            const int defaultIndex = defaultOrder->indexOf(it->first);
+            const int priority = defaultIndex >= 0 ? defaultIndex : (index + defaultOrderSize);
+            categories.append({{it->first, priority, /*maxRows=*/index == 0 ? 2 : 1}, it->second});
             ++index;
         }
         if (!other.isEmpty())
-            categories.append({{otherDisplayName, index, /*maxRows=*/1}, other});
+            categories.append({{otherDisplayName, index + defaultOrderSize, /*maxRows=*/1}, other});
     }
+
     const auto end = categories.end();
     for (auto it = categories.begin(); it != end; ++it)
         sort(it->second, sortByHighlightedAndName);
