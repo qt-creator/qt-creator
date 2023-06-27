@@ -303,18 +303,18 @@ expected_str<QList<ExampleItem *>> parseExamples(const QByteArray &manifestData,
 
 // ordered list of "known" categories
 // TODO this should be defined in the manifest
-Q_GLOBAL_STATIC(QList<QString>,
-                defaultOrder,
-                {"Application Examples",
-                 "Desktop",
-                 "Mobile",
-                 "Embedded",
-                 "Graphics",
-                 "Input/Output",
-                 "Connectivity",
-                 "Networking",
-                 "Positioning & Location",
-                 "Internationalization"});
+Q_GLOBAL_STATIC_WITH_ARGS(QList<QString>,
+                          defaultOrder,
+                          {QStringList() << "Application Examples"
+                           << "Desktop"
+                           << "Mobile"
+                           << "Embedded"
+                           << "Graphics"
+                           << "Input/Output"
+                           << "Connectivity"
+                           << "Networking"
+                           << "Positioning & Location"
+                           << "Internationalization"});
 
 static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
 {
