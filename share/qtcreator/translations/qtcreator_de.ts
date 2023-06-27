@@ -33280,7 +33280,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Locates symbols in the current document, based on a language server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Symbole im aktuellen Dokument, basierend auf einem Language Server.</translation>
     </message>
     <message>
         <source>Symbols in Workspace</source>
@@ -33288,7 +33288,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Locates symbols in the language server workspace.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Symbole im Arbeitsbereich des Language Servers.</translation>
     </message>
     <message>
         <source>Classes and Structs in Workspace</source>
@@ -33296,7 +33296,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Locates classes and structs in the language server workspace.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Klassen und Strukturen im Arbeitsbereich des Language Servers.</translation>
     </message>
     <message>
         <source>Functions and Methods in Workspace</source>
@@ -33304,7 +33304,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Locates functions and methods in the language server workspace.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Funktionen und Methoden im Arbeitsbereich des Language Servers.</translation>
     </message>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
@@ -33428,15 +33428,15 @@ Beispiel: *.cpp%1*.h</translation>
     <message>
         <source>shut down</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>abgeschaltet</translation>
     </message>
     <message>
         <source>Language Server &quot;%1&quot; Initialization Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Initialisieren von Language Server &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Initialization error: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei Initialisierung: %1.</translation>
     </message>
     <message>
         <source>error</source>
@@ -33524,7 +33524,7 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Start typing to see replacements.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beginne zu tippen, um Ersetzungen zu sehen.</translation>
     </message>
     <message>
         <source>Expand All</source>
@@ -33572,11 +33572,11 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>&lt;Select&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Auswählen&gt;</translation>
     </message>
     <message>
         <source>Language Server:</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Server:</translation>
     </message>
     <message>
         <source>Log</source>
@@ -33604,7 +33604,7 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Reloads the call hierarchy for the symbol under cursor position.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lädt die Aufrufhierarchie für das Symbol unter der Einfügemarke neu.</translation>
     </message>
 </context>
 <context>
@@ -34960,8 +34960,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Drop Node</source>
-        <translation>Eintrag fallen lassen
-</translation>
+        <translation>Eintrag fallen lassen</translation>
     </message>
     <message>
         <source>Select Custom Configuration Folder</source>
@@ -35297,7 +35296,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Created trace points for: %1</source>
-        <translation>Tracepoints für %1 erzeugt.</translation>
+        <translation>Tracepoints für %1 erzeugt</translation>
     </message>
     <message>
         <source>Failed to run trace point script: %1</source>
@@ -35514,7 +35513,8 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     <message>
         <source>The profiler did not produce any samples. Make sure that you are running a recent Linux kernel and that the &quot;perf&quot; utility is available and generates useful call graphs.
 You might find further explanations in the Application Output view.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Profiler hat keine Samples geliefert. Stellen Sie sicher, dass Sie einen aktuellen Linux-Kernel verwenden und das Programm &quot;perf&quot; verfügbar ist und nutzbare Aufrufdiagramme erzeugt.
+Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; zu finden.</translation>
     </message>
     <message>
         <source>A performance analysis is still in progress.</source>
@@ -35534,7 +35534,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Trace File (*.ptq)</source>
-        <translation type="unfinished"></translation>
+        <translation>Trace-Datei (*.ptq)</translation>
     </message>
     <message>
         <source>Show all addresses.</source>
@@ -35562,19 +35562,19 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Failed to reset temporary trace file.</source>
-        <translation type="unfinished">Eine temporäre Trace-Datei konnte nicht zurückgesetzt werden.</translation>
+        <translation>Temporäre Trace-Datei konnte nicht zurückgesetzt werden.</translation>
     </message>
     <message>
         <source>Failed to flush temporary trace file.</source>
-        <translation type="unfinished">Das Schreiben in eine temporäre Trace-Datei konnte nicht beendet werden.</translation>
+        <translation>Das Schreiben in eine temporäre Trace-Datei konnte nicht beendet werden.</translation>
     </message>
     <message>
         <source>Cannot re-open temporary trace file.</source>
-        <translation type="unfinished">Eine temporäre Trace-Datei konnte nicht neu geöffnet werden.</translation>
+        <translation>Temporäre Trace-Datei konnte nicht neu geöffnet werden.</translation>
     </message>
     <message>
         <source>Read past end from temporary trace file.</source>
-        <translation type="unfinished">Über das Ende der temporären Trace-Datei hinaus gelesen.</translation>
+        <translation>Über das Ende der temporären Trace-Datei hinaus gelesen.</translation>
     </message>
     <message>
         <source>Thread started</source>
@@ -35590,7 +35590,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Context switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontextwechsel</translation>
     </message>
     <message>
         <source>Invalid</source>
@@ -35630,9 +35630,9 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message numerus="yes">
         <source>%n frame(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ein Frame</numerusform>
+            <numerusform>%n Frames</numerusform>
         </translation>
     </message>
     <message>
@@ -35665,7 +35665,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>context switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontextwechsel</translation>
     </message>
     <message>
         <source>Duration</source>
@@ -35693,11 +35693,11 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Invalid data format. The trace file&apos;s identification string is &quot;%1&quot;. An acceptable trace file should have &quot;%2&quot;. You cannot read trace files generated with older versions of %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Datenformat. Die Identifizierungszeichenfolge in der Trace-Datei ist &quot;%1&quot;. Eine gültige Trace-Datei sollte &quot;%2&quot; enthalten. Sie können keine Trace-Dateien lesen, die mit älteren Versionen von %3 erstellt wurden.</translation>
     </message>
     <message>
         <source>Invalid data format. The trace file was written with data stream version %1. We can read at most version %2. Please use a newer version of Qt.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Datenformat. Die Trace-Datei wurde mithilfe von Data Stream in der Version %1 geschrieben. Die höchste lesbare Version ist %2. Nutzen Sie bitte eine neuere Qt-Version.</translation>
     </message>
 </context>
 <context>
@@ -35708,7 +35708,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Change number:</source>
-        <translation type="unfinished"></translation>
+        <translation>Change-Nummer:</translation>
     </message>
     <message>
         <source>P4 Pending Changes</source>
@@ -36001,19 +36001,19 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Close Submit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Submit-Editor schließen</translation>
     </message>
     <message>
         <source>Closing this editor will abort the submit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie diesen Editor schließen, wird der Submit abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot submit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Submit fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Cannot submit: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Submit fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>p4 submit failed: %1</source>
