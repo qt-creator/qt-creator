@@ -139,6 +139,369 @@ private:
 */
 
 /*!
+    \class Tasking::GroupItem
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief GroupItem represents the basic element that may be a part of any
+           \l {Tasking::Group} {Group}.
+
+    GroupItem is a basic element that may be a part of any \l {Tasking::Group} {Group}.
+    It encapsulates the functionality provided by any GroupItem's subclass.
+    It is a value type and it is safe to copy the GroupItem instance,
+    even when it is originally created via the subclass' constructor.
+
+    There are four main kinds of GroupItem:
+    \table
+    \header
+        \li GroupItem Kind
+        \li Brief Description
+    \row
+        \li \l CustomTask
+        \li Defines asynchronous task type and task's start, done, and error handlers.
+            Aliased with a unique task name, such as, \c ConcurrentCallTask<ResultType>
+            or \l NetworkQueryTask. Asynchronous tasks are the main reason for using a task tree.
+    \row
+        \li \l Group
+        \li A container for other group items. Since the group is of the GroupItem type,
+            it's possible to nest it inside another group. The group is seen by its parent
+            as a single asynchronous task.
+    \row
+        \li \l Storage
+        \li Enables the child tasks of a group to exchange data.
+            When Storage is placed inside a group, the task tree instantiates
+            the storage object just before the group is entered,
+            and destroys it just after the group is finished.
+    \row
+        \li Other group control items
+        \li The items returned by \l {Tasking::parallelLimit()} {parallelLimit()} or
+            \l {Tasking::workflowPolicy()} {workflowPolicy()} influence the group's behavior.
+            The items returned by \l {Tasking::onGroupSetup()} {onGroupSetup()},
+            \l {Tasking::onGroupDone()} {onGroupDone()} or
+            \l {Tasking::onGroupError()} {onGroupError()} define custom handlers called when
+            the group starts or ends execution.
+    \endtable
+*/
+
+/*!
+    \class Tasking::Group
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief Group represents the basic element for composing declarative recipes describing
+           how to execute and handle a nested tree of asynchronous tasks.
+
+    Group is a container for other group items. It encloses child tasks into one unit,
+    which is seen by the group's parent as a single, asynchronous task.
+    Since Group is of the GroupItem type, it may also be a child of Group.
+
+    Insert child tasks into the group by using aliased custom task names, such as,
+    \c ConcurrentCallTask<ResultType> or \c NetworkQueryTask:
+
+    \code
+        const Group group {
+            NetworkQueryTask(...),
+            ConcurrentCallTask<int>(...)
+        };
+    \endcode
+
+    The group's behavior may be customized by inserting the items returned by
+    \l {Tasking::parallelLimit()} {parallelLimit()} or
+    \l {Tasking::workflowPolicy()} {workflowPolicy()} functions:
+
+    \code
+        const Group group {
+            parallel,
+            continueOnError,
+            NetworkQueryTask(...),
+            NetworkQueryTask(...)
+        };
+    \endcode
+
+    The group may contain nested groups:
+
+    \code
+        const Group group {
+            finishAllAndDone,
+            NetworkQueryTask(...),
+            Group {
+                NetworkQueryTask(...),
+                Group {
+                    parallel,
+                    NetworkQueryTask(...),
+                    NetworkQueryTask(...),
+                }
+                ConcurrentCallTask<QString>(...)
+            }
+        };
+    \endcode
+
+    The group may dynamically instantiate a custom storage structure, which may be used for
+    inter-task data exchange:
+
+    \code
+        struct MyCustomStruct { QByteArray data; };
+
+        TreeStorage<MyCustomStruct> storage;
+
+        const auto onFirstSetup = [](NetworkQuery &task) { ... };
+        const auto onFirstDone = [storage](const NetworkQuery &task) {
+            // storage-> gives a pointer to MyCustomStruct instance,
+            // created dynamically by the running task tree.
+            storage->data = task.reply()->readAll();
+        };
+        const auto onSecondSetup = [storage](ConcurrentCall<QImage> &task) {
+            // storage-> gives a pointer to MyCustomStruct. Since the group is sequential,
+            // the stored MyCustomStruct was already updated inside the onFirstDone handler.
+            const QByteArray storedData = storage->data;
+        };
+
+        const Group group {
+            // When the group is entered by a running task tree, it creates MyCustomStruct
+            // instance dynamically. It is later accessible from all handlers via
+            // the *storage or storage-> operators.
+            sequential,
+            Storage(storage),
+            NetworkQueryTask(onFirstSetup, onFirstDone),
+            ConcurrentCallTask<QImage>(onSecondSetup)
+        };
+    \endcode
+*/
+
+/*!
+    \fn Group::Group(const QList<GroupItem> &children)
+
+    Constructs a group with a given list of \a children.
+
+    This constructor is useful when the child items of the group are not known at compile time,
+    but later, at runtime:
+
+    \code
+        const QStringList sourceList = ...;
+
+        QList<GroupItem> groupItems { parallel };
+
+        for (const QString &source : sourceList) {
+            const NetworkQueryTask task(...); // use source for setup handler
+            groupItems << task;
+        }
+
+        const Group group(groupItems);
+    \endcode
+*/
+
+/*!
+    \fn Group::Group(std::initializer_list<GroupItem> children)
+
+    Constructs a group from std::initializer_list given by \a children.
+
+    This constructor is useful when all child items of the group are known at compile time:
+
+    \code
+        const Group group {
+            finishAllAndDone,
+            NetworkQueryTask(...),
+            Group {
+                NetworkQueryTask(...),
+                Group {
+                    parallel,
+                    NetworkQueryTask(...),
+                    NetworkQueryTask(...),
+                }
+                ConcurrentCallTask<QString>(...)
+            }
+        };
+    \endcode
+*/
+
+/*!
+    \fn GroupItem Group::withTimeout(std::chrono::milliseconds timeout, const GroupEndHandler &handler) const
+
+    Attaches \c TimeoutTask to a copy of \c this group, elapsing after \a timeout in milliseconds,
+    with an optionally provided timeout \a handler, and returns the coupled item.
+
+    When the group finishes before \a timeout passes,
+    the returned item finishes immediately with the group's result.
+    Otherwise, the \a handler is invoked (if provided), the group is stopped,
+    and the returned item finishes with an error.
+*/
+
+/*!
+    \class Tasking::CustomTask
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief A class template used for declaring task items and defining their setup,
+           done, and error handlers.
+
+    The CustomTask class template is used inside TaskTree for describing custom task items.
+
+    Custom task names are aliased with unique names inside the \l Tasking namespace
+    via the TASKING_DECLARE_TASK or TASKING_DECLARE_TEMPLATE_TASK macros.
+    For example, \c ConcurrentCallTask<T> is an alias to the CustomTask that is defined
+    to work with \c ConcurrentCall<T> as an associated task class.
+    The following table contains all the built-in tasks and their associated task classes:
+
+    \table
+    \header
+        \li Aliased Task Name (Tasking Namespace)
+        \li Associated Task Class
+        \li Brief Description
+    \row
+        \li ConcurrentCallTask<ReturnType>
+        \li ConcurrentCall<ReturnType>
+        \li Starts an asynchronous task. Runs in a separate thread.
+    \row
+        \li NetworkQueryTask
+        \li NetworkQuery
+        \li Sends a network query.
+    \row
+        \li TaskTreeTask
+        \li TaskTree
+        \li Starts a nested task tree.
+    \row
+        \li TimeoutTask
+        \li \c std::chrono::milliseconds
+        \li Starts a timer.
+    \row
+        \li WaitForBarrierTask
+        \li MultiBarrier<Limit>
+        \li Starts an asynchronous task waiting for the barrier to pass.
+    \endtable
+*/
+
+/*!
+    \typealias CustomTask::Task
+
+    Type alias for \c Adapter::Type.
+
+    This is the associated task's type.
+*/
+
+/*!
+    \typealias CustomTask::EndHandler
+
+    Type alias for \c std::function<void(const Task &)>.
+*/
+
+/*!
+    \fn template <typename Adapter> template <typename SetupHandler> CustomTask<Adapter>::CustomTask<Adapter>(SetupHandler &&setup, const EndHandler &done, const EndHandler &error)
+
+    Constructs the CustomTask instance and attaches the \a setup, \a done, and \a error
+    handlers to the task. When the running task tree is about to start the task,
+    it instantiates the associated \l Task object, invokes \a setup handler with a \e reference
+    to the created task, and starts it. When the running task finishes with success or an error,
+    the task tree invokes \a done or \a error handler, respectively,
+    with a \e {const reference} to the created task.
+
+    The passed \a setup handler is either of the \c std::function<SetupResult(Task &)> or
+    \c std::function<void(Task &)> type. For example:
+
+    \code
+        static void parseAndLog(const QString &input);
+
+        ...
+
+        const QString input = ...;
+
+        const auto onFirstSetup = [input](ConcurrentCall<void> &task) {
+            if (input == "Skip")
+                return SetupResult::StopWithDone; // This task won't start, the next one will
+            if (input == "Error")
+                return SetupResult::StopWithError; // This task and the next one won't start
+            task.setConcurrentCallData(parseAndLog, input);
+            // This task will start, and the next one will start after this one finished with success
+            return SetupResult::Continue;
+        };
+
+        const auto onSecondSetup = [input](ConcurrentCall<void> &task) {
+            task.setConcurrentCallData(parseAndLog, input);
+        };
+
+        const Group group {
+            ConcurrentCallTask<void>(onFirstSetup),
+            ConcurrentCallTask<void>(onSecondSetup)
+        };
+    \endcode
+
+    When the passed \a setup handler is of the \c std::function<SetupResult(Task &)> type,
+    the return value of the handler instructs the running tree on how to proceed after
+    the handler's invocation is finished. The default return value of SetupResult::Continue
+    instructs the tree to continue running, i.e. to execute the associated \c Task.
+    The return value of SetupResult::StopWithDone or SetupResult::StopWithError instructs
+    the tree to skip the task's execution and finish immediately with success or an error,
+    respectively.
+    When the return type is either SetupResult::StopWithDone or SetupResult::StopWithError,
+    the task's \a done or \a error handler (even if provided) are not called afterwards.
+
+    The \a setup handler may be of a shortened form of std::function<void(Task &)>,
+    i.e. the return value is void. In this case it's assumed that the return value is
+    SetupResult::Continue by default.
+
+    When the running task finishes, one of \a done or \a error handlers is called,
+    depending on whether it finished with success or an error, respectively.
+    Both handlers are of std::function<void(const Task &)> type.
+
+    \sa onSetup(), onDone(), onError()
+*/
+
+/*!
+    \fn template <typename Adapter> template <typename SetupHandler> CustomTask<Adapter> &CustomTask<Adapter>::onSetup(SetupHandler &&handler)
+
+    Attaches the setup \a handler to \c this task.
+    The \a handler is invoked when the task is about to be started.
+
+    This function enables defining the task's details with a
+    \l {https://en.wikipedia.org/wiki/Fluent_interface}{fluent interface} style:
+
+    \code
+    const auto onQuerySetup = [](NetworkQuery &task) { ... };
+    const auto onQueryError = [](const NetworkQuery &task) { ... };
+
+    const Group group {
+        NetworkQueryTask(onQuerySetup, {}, onQueryError),
+        NetworkQueryTask().onSetup(onQuerySetup).onError(onQueryError), // fluent interface style
+        NetworkQueryTask(onQuerySetup, {}, onQueryError).withTimeout(500ms)
+    }
+    \endcode
+
+    \sa CustomTask(), onDone(), onError()
+*/
+
+/*!
+    \fn template <typename Adapter> CustomTask<Adapter> &CustomTask<Adapter>::onDone(const EndHandler &handler)
+
+    Attaches the done \a handler to \c this task.
+    The handler is invoked when the task finishes with success.
+
+    This function enables defining the task's details with a fluent interface style.
+
+    \sa CustomTask(), onSetup(), onError()
+*/
+
+/*!
+    \fn template <typename Adapter> CustomTask<Adapter> &CustomTask<Adapter>::onError(const EndHandler &handler)
+
+    Attaches the error \a handler to \c this task.
+    The handler is invoked when the task finishes with an error.
+
+    This function enables defining the task's details with a fluent interface style.
+
+    \sa CustomTask(), onSetup(), onDone()
+*/
+
+/*!
+    \fn template <typename Adapter> GroupItem CustomTask<Adapter>::withTimeout(std::chrono::milliseconds timeout, const GroupItem::GroupEndHandler &handler) const
+
+    Attaches \c TimeoutTask to a copy of \c this task, elapsing after \a timeout in milliseconds,
+    with an optionally provided timeout \a handler, and returns the coupled item.
+
+    When the task finishes before \a timeout passes,
+    the returned item finishes immediately with the task's result.
+    Otherwise, the \a handler is invoked (if provided), the task is stopped,
+    and the returned item finishes with an error.
+
+    \sa onSetup()
+*/
+
+/*!
     \macro TASKING_DECLARE_TASK(CustomTaskName, TaskAdapterClass)
     \relates Tasking
 
@@ -156,13 +519,6 @@ private:
     Tasking namespace for the passed \a TaskAdapterClass adapter class template.
 
     For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
-*/
-
-/*!
-    \class Tasking::GroupItem
-    \inheaderfile solutions/tasking/tasktree.h
-    \inmodule TaskingSolution
-    \brief The GroupItem class represents the basic element for composing nested tree structures.
 */
 
 /*!

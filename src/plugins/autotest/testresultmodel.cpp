@@ -296,9 +296,8 @@ void TestResultModel::addTestResult(const TestResult &testResult, bool autoExpan
     if (parentItem) {
         parentItem->appendChild(newItem);
         if (autoExpand) {
-            parentItem->expand();
-            newItem->expand();
-            newItem->forAllChildren([](TreeItem *it) { it->expand(); });
+            QMetaObject::invokeMethod(this, [parentItem]{ parentItem->expand(); },
+                                      Qt::QueuedConnection);
         }
         updateParent(newItem);
     } else {

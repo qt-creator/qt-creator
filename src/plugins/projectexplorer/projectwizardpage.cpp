@@ -298,10 +298,6 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
         scrollArea,
     }.attachTo(this);
 
-    connect(m_projectComboBox, &QComboBox::currentIndexChanged,
-            this, &ProjectWizardPage::projectChanged);
-    connect(m_addToVersionControlComboBox, &QComboBox::currentIndexChanged,
-            this, &ProjectWizardPage::versionControlChanged);
     connect(m_vcsManageButton, &QAbstractButton::clicked, this, &ProjectWizardPage::manageVcs);
     setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Summary"));
 
@@ -376,6 +372,7 @@ void ProjectWizardPage::initializeVersionControls()
     // 2) Directory is managed and VCS does not support "Add" -> None available
     // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
 
+    m_addToVersionControlComboBox->disconnect();
     QList<IVersionControl *> versionControls = VcsManager::versionControls();
     if (versionControls.isEmpty())
         hideVersionControlUiElements();
@@ -419,6 +416,9 @@ void ProjectWizardPage::initializeVersionControls()
         int newIdx = m_activeVersionControls.indexOf(currentSelection) + 1;
         setVersionControlIndex(newIdx);
     }
+
+    connect(m_addToVersionControlComboBox, &QComboBox::currentIndexChanged,
+            this, &ProjectWizardPage::versionControlChanged);
 }
 
 bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QString *errorMessage)
@@ -457,6 +457,7 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &pa
                                               IWizardFactory::WizardKind kind,
                                               ProjectAction action)
 {
+    m_projectComboBox->disconnect();
     BestNodeSelector selector(m_commonDirectory, paths);
 
     TreeItem *root = m_model.rootItem();
@@ -489,6 +490,8 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &pa
     setAddingSubProject(action == AddSubProject);
 
     m_projectComboBox->setEnabled(m_model.rowCount(QModelIndex()) > 1);
+    connect(m_projectComboBox, &QComboBox::currentIndexChanged,
+            this, &ProjectWizardPage::projectChanged);
 }
 
 void ProjectWizardPage::setNoneLabel(const QString &label)

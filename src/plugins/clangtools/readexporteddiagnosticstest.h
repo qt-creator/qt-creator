@@ -44,7 +44,8 @@ private slots:
     void testOffsetMultiByteCodePoint2();
 
 private:
-    Utils::FilePath createFile(const QString &yamlFilePath, const QString &filePathToInject) const;
+    Utils::FilePath createFile(const Utils::FilePath &yamlFilePath,
+                               const Utils::FilePath &filePathToInject) const;
     Utils::FilePath filePath(const QString &fileName) const;
 
     CppEditor::Tests::TemporaryCopiedDir * const m_baseDir;
