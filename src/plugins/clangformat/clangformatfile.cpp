@@ -152,14 +152,17 @@ CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
     // to be false
     settings.indentAccessSpecifiers = (style.AccessModifierOffset != -1 * int(style.IndentWidth));
 
-    settings.indentNamespaceBody = style.NamespaceIndentation
-                                   == FormatStyle::NamespaceIndentationKind::NI_All;
-    settings.indentNamespaceBraces = settings.indentNamespaceBody;
+    if (style.NamespaceIndentation == FormatStyle::NamespaceIndentationKind::NI_All) {
+        settings.indentNamespaceBody = true;
+        settings.indentNamespaceBraces = settings.indentNamespaceBody;
+    }
 
-    settings.indentClassBraces = style.BreakBeforeBraces == FormatStyle::BS_Whitesmiths;
-    settings.indentEnumBraces = settings.indentClassBraces;
-    settings.indentBlockBraces = settings.indentClassBraces;
-    settings.indentFunctionBraces = settings.indentClassBraces;
+    if (style.BreakBeforeBraces == FormatStyle::BS_Whitesmiths) {
+        settings.indentClassBraces = true;
+        settings.indentEnumBraces = settings.indentClassBraces;
+        settings.indentBlockBraces = settings.indentClassBraces;
+        settings.indentFunctionBraces = settings.indentClassBraces;
+    }
 
     settings.indentSwitchLabels = style.IndentCaseLabels;
 #if LLVM_VERSION_MAJOR >= 11

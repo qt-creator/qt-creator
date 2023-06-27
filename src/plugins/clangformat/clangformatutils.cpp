@@ -201,13 +201,13 @@ void fromCppCodeStyleSettings(clang::format::FormatStyle &style,
     else
         style.AccessModifierOffset = -1 * style.IndentWidth;
 
-    if (settings.indentNamespaceBody || settings.indentNamespaceBraces)
+    if (settings.indentNamespaceBody && settings.indentNamespaceBraces)
         style.NamespaceIndentation = FormatStyle::NamespaceIndentationKind::NI_All;
     else
         style.NamespaceIndentation = FormatStyle::NamespaceIndentationKind::NI_None;
 
-    if (settings.indentClassBraces || settings.indentEnumBraces || settings.indentBlockBraces
-        || settings.indentFunctionBraces)
+    if (settings.indentClassBraces && settings.indentEnumBraces && settings.indentBlockBraces
+        && settings.indentFunctionBraces)
         style.BreakBeforeBraces = FormatStyle::BS_Whitesmiths;
     else
         style.BreakBeforeBraces = FormatStyle::BS_Custom;
