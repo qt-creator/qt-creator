@@ -80,7 +80,6 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     initFileSizeThresholdSpinBox();
 
     if (project) {
-        m_formattingModeLabel->hide();
         m_formatOnSave->hide();
         m_formatWhileTyping->hide();
 
@@ -135,6 +134,11 @@ void ClangFormatGlobalConfigWidget::initUseGlobalSettingsCheckBox()
     const auto enableProjectSettings = [this] {
         const bool isDisabled = m_project && m_useGlobalSettings->isChecked();
         m_indentingOrFormatting->setDisabled(isDisabled);
+        m_formattingModeLabel->setDisabled(isDisabled);
+        m_projectHasClangFormat->setDisabled(
+            isDisabled
+            || (m_indentingOrFormatting->currentIndex()
+                == static_cast<int>(ClangFormatSettings::Mode::Disable)));
         m_overrideDefault->setDisabled(isDisabled
                                        || (m_indentingOrFormatting->currentIndex()
                                            == static_cast<int>(ClangFormatSettings::Mode::Disable)));
@@ -156,8 +160,10 @@ void ClangFormatGlobalConfigWidget::initFileSizeThresholdSpinBox()
     m_fileSizeThresholdSpinBox->setMaximum(std::numeric_limits<int>::max());
     m_fileSizeThresholdSpinBox->setSuffix(" KB");
     m_fileSizeThresholdSpinBox->setValue(ClangFormatSettings::instance().fileSizeThreshold());
-    if (m_project)
+    if (m_project) {
         m_fileSizeThresholdSpinBox->hide();
+        m_fileSizeThresholdLabel->hide();
+    }
 
     connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged, this, [this](int index) {
         m_fileSizeThresholdLabel->setEnabled(
@@ -198,6 +204,7 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
     auto setEnableOverrideCheckBox = [this, setTemporarilyReadOnly](int index) {
         bool isDisable = index == static_cast<int>(ClangFormatSettings::Mode::Disable);
         m_overrideDefault->setDisabled(isDisable);
+        m_projectHasClangFormat->setDisabled(isDisable);
         setTemporarilyReadOnly();
     };
 
