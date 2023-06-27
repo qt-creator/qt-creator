@@ -13,8 +13,14 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/kitchooser.h>
+#include <projectexplorer/runcontrol.h>
+
+#include <extensionsystem/invoker.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/process.h>
+#include <utils/processinfo.h>
 #include <utils/processinterface.h>
 #include <utils/stringutils.h>
 
@@ -39,6 +45,11 @@ CMakeProcess::~CMakeProcess()
 }
 
 static const int failedToStartExitCode = 0xFF; // See ProcessPrivate::handleDone() impl
+
+static QObject *debuggerPlugin()
+{
+    return ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin");
+}
 
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {
@@ -127,6 +138,19 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     CommandLine commandLine(cmakeExecutable);
     commandLine.addArgs({"-S", sourceDirectory.path(), "-B", buildDirectory.path()});
     commandLine.addArgs(arguments);
+
+    if (qEnvironmentVariableIsSet("QTC_USE_CMAKE_DEBUGGER")) {
+        FilePath file = FilePath::fromString("/tmp/cmake-dap.sock");
+        file.removeFile();
+        commandLine.addArgs({"--debugger", "--debugger-pipe=/tmp/cmake-dap.sock"});
+        connect(m_process.get(), &Process::started, this, [this, cmakeExecutable] {
+            QMetaObject::invokeMethod(debuggerPlugin(),
+                                      "attachToProcess",
+                                      Qt::QueuedConnection,
+                                      Q_ARG(qint64, m_process->processId()),
+                                      Q_ARG(const Utils::FilePath &, cmakeExecutable));
+        });
+    }
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 

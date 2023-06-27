@@ -1693,10 +1693,25 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     debugger->setStartMode(AttachToLocalProcess);
     debugger->setCloseMode(DetachAtClose);
     debugger->setContinueAfterAttach(contAfterAttach);
+    debugger->setCmakeDapDebugging(processInfo.executable.endsWith(QLatin1String("cmake")));
 
     debugger->startRunControl();
 
     return debugger->runControl();
+}
+
+void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePath &executable)
+{
+    ProcessInfo processInfo;
+    processInfo.processId = processId;
+    processInfo.executable = executable.toString();
+
+    auto kitChooser = new KitChooser;
+    kitChooser->setShowIcons(true);
+    kitChooser->populate();
+    Kit *kit = kitChooser->currentKit();
+
+    dd->attachToRunningProcess(kit, processInfo, false);
 }
 
 void DebuggerPlugin::attachExternalApplication(RunControl *rc)

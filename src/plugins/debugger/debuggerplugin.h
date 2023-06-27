@@ -40,6 +40,8 @@ private:
                                              QString *logMessage);
     Q_SLOT void removeDetectedDebuggers(const QString &detectionId, QString *logMessage);
     Q_SLOT void listDetectedDebuggers(const QString &detectionId, QString *logMessage);
+
+    Q_SLOT void attachToProcess(const qint64 processId, const Utils::FilePath &executable);
 };
 
 } // Debugger::Internal

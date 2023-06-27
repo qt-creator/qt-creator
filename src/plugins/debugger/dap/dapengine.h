@@ -17,6 +17,31 @@ class GdbMi;
  * A debugger engine for the debugger adapter protocol.
  */
 
+class IDataProvider : public QObject
+{
+    Q_OBJECT
+public:
+    virtual void start() = 0;
+    virtual bool isRunning() const = 0;
+    virtual void writeRaw(const QByteArray &input) = 0;
+    virtual void kill() = 0;
+    virtual QByteArray readAllStandardOutput() = 0;
+    virtual QString readAllStandardError() = 0;
+    virtual int exitCode() const = 0;
+    virtual QString executable() const = 0;
+
+    virtual QProcess::ExitStatus exitStatus() const = 0;
+    virtual QProcess::ProcessError error() const = 0;
+    virtual Utils::ProcessResult result() const = 0;
+    virtual QString exitMessage() const = 0;
+
+signals:
+    void started();
+    void done();
+    void readyReadStandardOutput();
+    void readyReadStandardError();
+};
+
 class DapEngine : public DebuggerEngine
 {
 public:
@@ -96,7 +121,8 @@ private:
     void updateLocals() override;
 
     QByteArray m_inbuffer;
-    Utils::Process m_proc;
+    std::unique_ptr<IDataProvider> m_dataGenerator = nullptr;
+
     int m_nextBreakpointId = 1;
     int m_currentThreadId = -1;
 };

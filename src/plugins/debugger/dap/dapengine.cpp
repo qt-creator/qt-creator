@@ -35,16 +35,108 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QTimer>
-#include <QVariant>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLocalSocket>
 #include <QThread>
+#include <QTimer>
+#include <QVariant>
 
 using namespace Core;
 using namespace Utils;
 
+static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengin", QtWarningMsg)
+
 namespace Debugger::Internal {
+
+class ProcessDataProvider : public IDataProvider
+{
+public:
+    ProcessDataProvider(const DebuggerRunParameters &rp, const CommandLine &cmd)
+        : m_runParameters(rp)
+        , m_cmd(cmd)
+    {
+        connect(&m_proc, &Process::started, this, &IDataProvider::started);
+        connect(&m_proc, &Process::done, this, &IDataProvider::done);
+        connect(&m_proc,
+                &Process::readyReadStandardOutput,
+                this,
+                &IDataProvider::readyReadStandardOutput);
+        connect(&m_proc,
+                &Process::readyReadStandardError,
+                this,
+                &IDataProvider::readyReadStandardError);
+    }
+
+    ~ProcessDataProvider()
+    {
+        m_proc.kill();
+        m_proc.waitForFinished();
+    }
+
+    void start() override
+    {
+        m_proc.setProcessMode(ProcessMode::Writer);
+        m_proc.setEnvironment(m_runParameters.debugger.environment);
+        m_proc.setCommand(m_cmd);
+        m_proc.start();
+    }
+
+    bool isRunning() const override { return m_proc.isRunning(); }
+    void writeRaw(const QByteArray &data) override { m_proc.writeRaw(data); }
+    void kill() override { m_proc.kill(); }
+    QByteArray readAllStandardOutput() override { return m_proc.readAllStandardOutput().toUtf8(); }
+    QString readAllStandardError() override { return m_proc.readAllStandardError(); }
+    int exitCode() const override { return m_proc.exitCode(); }
+    QString executable() const override { return m_proc.commandLine().executable().toUserOutput(); }
+
+    QProcess::ExitStatus exitStatus() const override { return m_proc.exitStatus(); }
+    QProcess::ProcessError error() const override { return m_proc.error(); }
+    Utils::ProcessResult result() const override { return m_proc.result(); }
+    QString exitMessage() const override { return m_proc.exitMessage(); };
+
+private:
+    Utils::Process m_proc;
+    const DebuggerRunParameters m_runParameters;
+    const CommandLine m_cmd;
+};
+
+class LocalSocketDataProvider : public IDataProvider
+{
+public:
+    LocalSocketDataProvider(const QString &socketName)
+        : m_socketName(socketName)
+    {
+        connect(&m_socket, &QLocalSocket::connected, this, &IDataProvider::started);
+        connect(&m_socket, &QLocalSocket::disconnected, this, &IDataProvider::done);
+        connect(&m_socket, &QLocalSocket::readyRead, this, &IDataProvider::readyReadStandardOutput);
+        connect(&m_socket,
+                &QLocalSocket::errorOccurred,
+                this,
+                &IDataProvider::readyReadStandardError);
+    }
+
+    ~LocalSocketDataProvider() { m_socket.disconnectFromServer(); }
+
+    void start() override { m_socket.connectToServer(m_socketName, QIODevice::ReadWrite); }
+
+    bool isRunning() const override { return m_socket.isOpen(); }
+    void writeRaw(const QByteArray &data) override { m_socket.write(data); }
+    void kill() override { m_socket.disconnectFromServer(); }
+    QByteArray readAllStandardOutput() override { return m_socket.readAll(); }
+    QString readAllStandardError() override { return QString(); }
+    int exitCode() const override { return 0; }
+    QString executable() const override { return m_socket.serverName(); }
+
+    QProcess::ExitStatus exitStatus() const override { return QProcess::NormalExit; }
+    QProcess::ProcessError error() const override { return QProcess::UnknownError; }
+    Utils::ProcessResult result() const override { return ProcessResult::FinishedWithSuccess; }
+    QString exitMessage() const override { return QString(); };
+
+private:
+    QLocalSocket m_socket;
+    const QString m_socketName;
+};
 
 DapEngine::DapEngine()
 {
@@ -54,7 +146,7 @@ DapEngine::DapEngine()
 
 void DapEngine::executeDebuggerCommand(const QString &/*command*/)
 {
-    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopOk, qCDebug(dapEngineLog) << state());
 //    if (state() == DebuggerNotReady) {
 //        showMessage("DAP PROCESS NOT RUNNING, PLAIN CMD IGNORED: " + command);
 //        return;
@@ -71,9 +163,9 @@ void DapEngine::postDirectCommand(const QJsonObject &ob)
 
     const QByteArray data = QJsonDocument(obseq).toJson(QJsonDocument::Compact);
     const QByteArray msg = "Content-Length: " + QByteArray::number(data.size()) + "\r\n\r\n" + data;
-    qDebug() << msg;
+    qCDebug(dapEngineLog) << msg;
 
-    m_proc.writeRaw(msg);
+    m_dataGenerator->writeRaw(msg);
 
     showMessage(QString::fromUtf8(msg), LogInput);
 }
@@ -84,7 +176,7 @@ void DapEngine::runCommand(const DebuggerCommand &cmd)
         showMessage("IGNORED COMMAND: " + cmd.function);
         return;
     }
-    QTC_ASSERT(m_proc.isRunning(), notifyEngineIll());
+    QTC_ASSERT(m_dataGenerator->isRunning(), notifyEngineIll());
 //    postDirectCommand(cmd.args.toObject());
 //    const QByteArray data = QJsonDocument(cmd.args.toObject()).toJson(QJsonDocument::Compact);
 //    m_proc.writeRaw("Content-Length: " + QByteArray::number(data.size()) + "\r\n" + data + "\r\n");
@@ -94,38 +186,56 @@ void DapEngine::runCommand(const DebuggerCommand &cmd)
 
 void DapEngine::shutdownInferior()
 {
-    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    postDirectCommand({{"command", "terminate"},
-                       {"type", "request"}});
+    QTC_ASSERT(state() == InferiorShutdownRequested, qCDebug(dapEngineLog) << state());
 
-    qDebug() << "DapEngine::shutdownInferior()";
+    postDirectCommand({
+        {"command", "disconnect"},
+        {"type", "request"},
+        {"arguments", QJsonObject{
+            {"restart", false},
+            {"terminateDebuggee", true}
+        }}
+    });
+
+    qCDebug(dapEngineLog) << "DapEngine::shutdownInferior()";
     notifyInferiorShutdownFinished();
 }
 
 void DapEngine::shutdownEngine()
 {
-    QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
+    QTC_ASSERT(state() == EngineShutdownRequested, qCDebug(dapEngineLog) << state());
 
-    qDebug() << "DapEngine::shutdownEngine()";
-    m_proc.kill();
+    postDirectCommand({
+        {"command", "terminate"},
+        {"type", "request"},
+        {"arguments", QJsonObject{
+            {"restart", false}
+        }}
+    });
+
+    qCDebug(dapEngineLog) << "DapEngine::shutdownEngine()";
+    m_dataGenerator->kill();
 }
 
 void DapEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qCDebug(dapEngineLog) << state());
 
-    connect(&m_proc, &Process::started, this, &DapEngine::handleDapStarted);
-    connect(&m_proc, &Process::done, this, &DapEngine::handleDapDone);
-    connect(&m_proc, &Process::readyReadStandardOutput, this, &DapEngine::readDapStandardOutput);
-    connect(&m_proc, &Process::readyReadStandardError, this, &DapEngine::readDapStandardError);
+    if (qEnvironmentVariableIsSet("QTC_USE_CMAKE_DEBUGGER")) {
+        m_dataGenerator = std::make_unique<LocalSocketDataProvider>("/tmp/cmake-dap.sock");
+    } else {
+        const DebuggerRunParameters &rp = runParameters();
+        const CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
+        m_dataGenerator = std::make_unique<ProcessDataProvider>(rp, cmd);
+    }
 
-    const DebuggerRunParameters &rp = runParameters();
-    const CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
-    showMessage("STARTING " + cmd.toUserOutput());
-    m_proc.setProcessMode(ProcessMode::Writer);
-    m_proc.setEnvironment(rp.debugger.environment);
-    m_proc.setCommand(cmd);
-    m_proc.start();
+    connect(m_dataGenerator.get(), &IDataProvider::started, this, &DapEngine::handleDapStarted);
+    connect(m_dataGenerator.get(), &IDataProvider::done, this, &DapEngine::handleDapDone);
+    connect(m_dataGenerator.get(), &IDataProvider::readyReadStandardOutput, this, &DapEngine::readDapStandardOutput);
+    connect(m_dataGenerator.get(), &IDataProvider::readyReadStandardError, this, &DapEngine::readDapStandardError);
+
+    m_dataGenerator->start();
+
     notifyEngineSetupOk();
 }
 
@@ -142,7 +252,7 @@ void DapEngine::setupEngine()
 
 void DapEngine::handleDapStarted()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
 
 //    CHECK_STATE(EngineRunRequested);
 
@@ -151,28 +261,33 @@ void DapEngine::handleDapStarted()
         {"type", "request"},
         {"arguments", QJsonObject {
             {"clientID",  "QtCreator"}, // The ID of the client using this adapter.
-            {"clientName",  "QtCreator"} //  The human-readable name of the client using this adapter.
+            {"clientName",  "QtCreator"}, //  The human-readable name of the client using this adapter.
+            {"adapterID", "cmake"},
+            {"pathFormat", "path"}
         }}
     });
 
-    qDebug() << "handleDapStarted";
+    qCDebug(dapEngineLog) << "handleDapStarted";
 }
 
 void DapEngine::handleDapConfigurationDone()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
 
     //    CHECK_STATE(EngineRunRequested);
 
-    postDirectCommand({{"command", "configurationDone"}, {"type", "request"}});
+    postDirectCommand({
+        {"command", "configurationDone"},
+        {"type", "request"}
+    });
 
-    qDebug() << "handleDapConfigurationDone";
+    qCDebug(dapEngineLog) << "handleDapConfigurationDone";
 }
 
 
 void DapEngine::handleDapLaunch()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
 
     postDirectCommand({
         {"command", "launch"},
@@ -183,7 +298,7 @@ void DapEngine::handleDapLaunch()
             {"__restart", ""}
         }}
     });
-    qDebug() << "handleDapLaunch";
+    qCDebug(dapEngineLog) << "handleDapLaunch";
 }
 
 void DapEngine::interruptInferior()
@@ -387,7 +502,7 @@ void DapEngine::insertBreakpoint(const Breakpoint &bp)
         }}
     });
 
-    qDebug() << "insertBreakpoint" << bp->modelId() << bp->responseId();
+    qCDebug(dapEngineLog) << "insertBreakpoint" << bp->modelId() << bp->responseId();
 }
 
 void DapEngine::updateBreakpoint(const Breakpoint &bp)
@@ -439,7 +554,7 @@ void DapEngine::removeBreakpoint(const Breakpoint &bp)
         }}
     });
 
-    qDebug() << "removeBreakpoint" << bp->modelId() << bp->responseId();
+    qCDebug(dapEngineLog) << "removeBreakpoint" << bp->modelId() << bp->responseId();
 }
 
 void DapEngine::loadSymbols(const Utils::FilePath  &/*moduleName*/)
@@ -469,7 +584,7 @@ void DapEngine::refreshModules(const GdbMi &modules)
             if (path.size() >= 2)
                 path.chop(2);
         } else if (path.startsWith("<module '")
-                && path.endsWith("' (built-in)>")) {
+                   && path.endsWith("' (built-in)>")) {
             path = "(builtin)";
         }
         module.modulePath = FilePath::fromString(path);
@@ -533,7 +648,7 @@ void DapEngine::assignValueInDebugger(WatchItem *, const QString &/*expression*/
     //cmd.arg("expression", expression);
     //cmd.arg("value", value.toString());
     //runCommand(cmd);
-//    postDirectCommand("global " + expression + ';' + expression + "=" + value.toString());
+    //    postDirectCommand("global " + expression + ';' + expression + "=" + value.toString());
     updateLocals();
 }
 
@@ -550,7 +665,7 @@ QString DapEngine::errorMessage(QProcess::ProcessError error) const
             return Tr::tr("The DAP process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(m_proc.commandLine().executable().toUserOutput());
+                .arg(m_dataGenerator->executable());
         case QProcess::Crashed:
             return Tr::tr("The DAP process crashed some time after starting "
                 "successfully.");
@@ -572,14 +687,14 @@ QString DapEngine::errorMessage(QProcess::ProcessError error) const
 
 void DapEngine::handleDapDone()
 {
-    if (m_proc.result() == ProcessResult::StartFailed) {
+    if (m_dataGenerator->result() == ProcessResult::StartFailed) {
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
-        ICore::showWarningWithOptions(Tr::tr("Adapter start failed"), m_proc.exitMessage());
+        ICore::showWarningWithOptions(Tr::tr("Adapter start failed"), m_dataGenerator->exitMessage());
         return;
     }
 
-    const QProcess::ProcessError error = m_proc.error();
+    const QProcess::ProcessError error = m_dataGenerator->error();
     if (error != QProcess::UnknownError) {
         showMessage("HANDLE DAP ERROR");
         if (error != QProcess::Crashed)
@@ -588,13 +703,14 @@ void DapEngine::handleDapDone()
             return;
     }
     showMessage(QString("DAP PROCESS FINISHED, status %1, code %2")
-                .arg(m_proc.exitStatus()).arg(m_proc.exitCode()));
+                .arg(m_dataGenerator->exitStatus()).arg(m_dataGenerator->exitCode()));
     notifyEngineSpontaneousShutdown();
 }
 
 void DapEngine::readDapStandardError()
 {
-    QString err = m_proc.readAllStandardError();
+    QString err = m_dataGenerator->readAllStandardError();
+    qCDebug(dapEngineLog) << "DAP STDERR:" << err;
     //qWarning() << "Unexpected DAP stderr:" << err;
     showMessage("Unexpected DAP stderr: " + err);
     //handleOutput(err);
@@ -602,8 +718,9 @@ void DapEngine::readDapStandardError()
 
 void DapEngine::readDapStandardOutput()
 {
-    m_inbuffer.append(m_proc.readAllStandardOutput().toUtf8());
-//    qDebug() << m_inbuffer;
+    m_inbuffer.append(m_dataGenerator->readAllStandardOutput());
+
+    qCDebug(dapEngineLog) << m_inbuffer;
 
     while (true) {
         // Something like
@@ -643,20 +760,20 @@ void DapEngine::handleOutput(const QJsonDocument &data)
 
     const QJsonValue t = ob.value("type");
     const QString type = t.toString();
-    qDebug() << "response" << ob;
+    qCDebug(dapEngineLog) << "response" << ob;
 
     if (type == "response") {
         const QString command = ob.value("command").toString();
         if (command == "configurationDone") {
             showMessage("configurationDone", LogDebug);
-            qDebug() << "configurationDone success";
+            qCDebug(dapEngineLog) << "configurationDone success";
             notifyEngineRunAndInferiorRunOk();
             return;
         }
 
         if (command == "continue") {
             showMessage("continue", LogDebug);
-            qDebug() << "continue success";
+            qCDebug(dapEngineLog) << "continue success";
             notifyInferiorRunOk();
             return;
         }
@@ -670,7 +787,7 @@ void DapEngine::handleOutput(const QJsonDocument &data)
             const FilePath file = FilePath::fromString(
                 stackFrame.value("source").toObject().value("path").toString());
             const int line = stackFrame.value("line").toInt();
-            qDebug() << "stackTrace success" << file << line;
+            qCDebug(dapEngineLog) << "stackTrace success" << file << line;
             gotoLocation(Location(file, line));
 
             refreshStack(stackFrames);
@@ -684,7 +801,7 @@ void DapEngine::handleOutput(const QJsonDocument &data)
                 for (auto scope : scopes) {
                     const QString name = scope.toObject().value("name").toString();
                     const int variablesReference = scope.toObject().value("variablesReference").toInt();
-                    qDebug() << "scoped success" << name << variablesReference;
+                    qCDebug(dapEngineLog) << "scoped success" << name << variablesReference;
                     if (name == "Locals")
                         dapVariables(variablesReference);
                 }
@@ -727,8 +844,6 @@ void DapEngine::handleOutput(const QJsonDocument &data)
                     threadsHandler()->threadForId(QString::number(m_currentThreadId)));
             return;
         }
-
-
     }
 
     if (type == "event") {
@@ -736,8 +851,16 @@ void DapEngine::handleOutput(const QJsonDocument &data)
         const QJsonObject body = ob.value("body").toObject();
 
         if (event == "exited") {
+            postDirectCommand({
+                {"command", "disconnect"},
+                {"type", "request"},
+                {"arguments", QJsonObject{
+                    {"restart", false},
+                    {"terminateDebuggee", true}
+                }}
+            });
+
             notifyInferiorExited();
-            m_proc.kill();
             showMessage("exited", LogDebug);
             return;
         }
@@ -753,11 +876,11 @@ void DapEngine::handleOutput(const QJsonDocument &data)
                 showMessage(output, LogDebug);
             return;
         }
-        qDebug() << data;
+        qCDebug(dapEngineLog) << data;
 
         if (event == "initialized") {
             showMessage(event, LogDebug);
-            qDebug() << "initialize success";
+            qCDebug(dapEngineLog) << "initialize success";
             handleDapLaunch();
             handleDapConfigurationDone();
             return;
@@ -769,9 +892,12 @@ void DapEngine::handleOutput(const QJsonDocument &data)
             if (body.value("reason").toString() == "breakpoint") {
                 QString id = QString::number(
                     body.value("hitBreakpointIds").toArray().first().toInteger());
-                const BreakpointParameters &params
-                    = breakHandler()->findBreakpointByResponseId(id)->requestedParameters();
-                gotoLocation(Location(params.fileName, params.textPosition));
+
+                Breakpoint bp = breakHandler()->findBreakpointByResponseId(id);
+                if (bp) {
+                    const BreakpointParameters &params = bp->requestedParameters();
+                    gotoLocation(Location(params.fileName, params.textPosition));
+                }
             }
 
             if (state() == InferiorStopRequested)
@@ -785,7 +911,7 @@ void DapEngine::handleOutput(const QJsonDocument &data)
         }
 
         if (event == "thread") {
-            threads();
+            // threads(); // breaks cmake debugging for now
 
             showMessage(event, LogDebug);
             if (body.value("reason").toString() == "started" && body.value("threadId").toInt() == 1)
@@ -798,15 +924,15 @@ void DapEngine::handleOutput(const QJsonDocument &data)
             QJsonObject breakpoint = body.value("breakpoint").toObject();
             Breakpoint bp = breakHandler()->findBreakpointByResponseId(
                 QString::number(breakpoint.value("id").toInt()));
-            qDebug() << "breakpoint id :" << breakpoint.value("id").toInt();
+            qCDebug(dapEngineLog) << "breakpoint id :" << breakpoint.value("id").toInt();
 
             if (body.value("reason").toString() == "new") {
                 if (breakpoint.value("verified").toBool()) {
                     notifyBreakpointInsertOk(bp);
-                    qDebug() << "breakpoint inserted";
+                    qCDebug(dapEngineLog) << "breakpoint inserted";
                 } else {
                     notifyBreakpointInsertFailed(bp);
-                    qDebug() << "breakpoint insertion failed";
+                    qCDebug(dapEngineLog) << "breakpoint insertion failed";
                 }
                 return;
             }
@@ -814,10 +940,10 @@ void DapEngine::handleOutput(const QJsonDocument &data)
             if (body.value("reason").toString() == "removed") {
                 if (breakpoint.value("verified").toBool()) {
                     notifyBreakpointRemoveOk(bp);
-                    qDebug() << "breakpoint removed";
+                    qCDebug(dapEngineLog) << "breakpoint removed";
                 } else {
                     notifyBreakpointRemoveFailed(bp);
-                    qDebug() << "breakpoint remove failed";
+                    qCDebug(dapEngineLog) << "breakpoint remove failed";
                 }
                 return;
             }
@@ -843,7 +969,7 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
         item->value = variable.toObject().value("value").toString();
         item->address = variable.toObject().value("address").toInt();
         item->type = variable.toObject().value("type").toString();
-        qDebug() << "variable" << name << item->hexAddress();
+        qCDebug(dapEngineLog) << "variable" << name << item->hexAddress();
         watchHandler()->insertItem(item);
     }
     watchHandler()->notifyUpdateFinished();
@@ -886,14 +1012,14 @@ void DapEngine::updateLocals()
 bool DapEngine::hasCapability(unsigned cap) const
 {
     return cap & (ReloadModuleCapability
-                | BreakConditionCapability
-                | ShowModuleSymbolsCapability);
+                  | BreakConditionCapability
+                  | ShowModuleSymbolsCapability);
 }
 
 void DapEngine::claimInitialBreakpoints()
 {
     BreakpointManager::claimBreakpointsForEngine(this);
-    qDebug() << "claimInitialBreakpoints";
+    qCDebug(dapEngineLog) << "claimInitialBreakpoints";
 }
 
 DebuggerEngine *createDapEngine()
