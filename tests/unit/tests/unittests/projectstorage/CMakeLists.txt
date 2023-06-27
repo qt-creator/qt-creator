@@ -6,7 +6,6 @@ extend_qtc_test(unittest
     modulescanner-test.cpp
     projectstorage-test.cpp
     projectstoragepathwatcher-test.cpp
-    projectstoragesqlitefunctionregistry-test.cpp
     projectstorageupdater-test.cpp
     sourcepath-test.cpp
     sourcepathcache-test.cpp
