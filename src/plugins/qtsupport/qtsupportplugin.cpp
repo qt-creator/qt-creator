@@ -35,6 +35,8 @@
 #include <utils/macroexpander.h>
 #include <utils/process.h>
 
+#include <QInputDialog>
+
 using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer;
@@ -93,6 +95,36 @@ static void processRunnerCallback(ProcessData *data)
 void QtSupportPlugin::initialize()
 {
     theProcessRunner() = processRunnerCallback;
+
+    thePrompter() = [this](const QString &msg, const QStringList &context) -> std::optional<QString> {
+        std::optional<QString> res;
+        QEventLoop loop;
+
+        QMetaObject::invokeMethod(this, [msg, context, &res, &loop] {
+            QString text;
+            if (!context.isEmpty()) {
+                text = "Preceding lines:<i><br>&nbsp;&nbsp;&nbsp;..."
+                       + context.join("<br>&nbsp;&nbsp;&nbsp;")
+                       + "</i><p>";
+            }
+            text += msg;
+            bool ok = false;
+            const QString line = QInputDialog::getText(
+                ICore::dialogParent(),
+                /*title*/ "QMake Prompt",
+                /*label*/ text,
+                /*echo mode*/ QLineEdit::Normal,
+                /*text*/ QString(),
+                /*ok*/ &ok,
+                /*flags*/ Qt::WindowFlags(),
+                /*QInputMethodHints*/ Qt::ImhNone);
+            if (ok)
+                res = line;
+            loop.quit();
+        }, Qt::QueuedConnection);
+        loop.exec(QEventLoop::ExcludeUserInputEvents);
+        return res;
+    };
 
     QMakeParser::initialize();
     ProFileEvaluator::initialize();
