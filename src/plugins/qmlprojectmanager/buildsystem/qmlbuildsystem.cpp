@@ -82,11 +82,11 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
     updateDeploymentData();
     registerMenuButtons();
 
-    connect(target->project(), &Project::activeTargetChanged, [this](Target *target) {
+    connect(target->project(), &Project::activeTargetChanged, this, [this](Target *target) {
         refresh(RefreshOptions::NoFileRefresh);
         updateMcuBuildStep(target, qtForMCUs());
     });
-    connect(target->project(), &Project::projectFileIsDirty, [this]() {
+    connect(target->project(), &Project::projectFileIsDirty, this, [this]() {
         refresh(RefreshOptions::Project);
         updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
     });
