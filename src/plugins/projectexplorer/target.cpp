@@ -706,7 +706,7 @@ void Target::updateDefaultRunConfigurations()
                 present = true;
             }
         }
-        if (!present)
+        if (!present && !rc->isCustomized())
             toRemove.append(rc);
     }
     configuredCount -= toRemove.count();
@@ -797,6 +797,8 @@ void Target::updateDefaultRunConfigurations()
     // Remove the RCs that are no longer needed:
     for (RunConfiguration *rc : std::as_const(removalList))
         removeRunConfiguration(rc);
+
+    emit runConfigurationsUpdated();
 }
 
 QVariant Target::namedSettings(const QString &name) const

@@ -38,6 +38,7 @@ public:
     bool usesDefaultDisplayName() const { return m_displayName.usesDefaultValue(); }
     void setDisplayName(const QString &name);
     void setDefaultDisplayName(const QString &name);
+    void forceDisplayNameSerialization() { m_displayName.forceSerialization(); }
 
     void setToolTip(const QString &text);
     QString toolTip() const;

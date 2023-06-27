@@ -37,7 +37,7 @@ bool DisplayName::usesDefaultValue() const
 
 void DisplayName::toMap(QVariantMap &map, const QString &key) const
 {
-    if (!usesDefaultValue())
+    if (m_forceSerialization || !usesDefaultValue())
         map.insert(key, m_value);
 }
 

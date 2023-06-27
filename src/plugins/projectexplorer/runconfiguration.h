@@ -111,7 +111,10 @@ public:
     QWidget *createConfigurationWidget();
 
     bool isConfigured() const;
+    bool isCustomized() const;
+    bool hasCreator() const;
     virtual Tasks checkForIssues() const { return {}; }
+    void setPristineState();
 
     using CommandLineGetter = std::function<Utils::CommandLine()>;
     void setCommandLineGetter(const CommandLineGetter &cmdGetter);
@@ -170,6 +173,7 @@ private:
     // Any additional data should be handled by aspects.
     bool fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
+    QVariantMap toMapSimple() const;
 
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
@@ -182,6 +186,8 @@ private:
     RunnableModifier m_runnableModifier;
     Updater m_updater;
     Utils::MacroExpander m_expander;
+    QVariantMap m_pristineState;
+    bool m_customized = false;
 };
 
 class RunConfigurationCreationInfo

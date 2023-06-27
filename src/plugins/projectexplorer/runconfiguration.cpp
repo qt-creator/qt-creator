@@ -45,6 +45,7 @@ using namespace ProjectExplorer::Internal;
 namespace ProjectExplorer {
 
 const char BUILD_KEY[] = "ProjectExplorer.RunConfiguration.BuildKey";
+const char CUSTOMIZED_KEY[] = "ProjectExplorer.RunConfiguration.Customized";
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -162,6 +163,7 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
     : ProjectConfiguration(target, id)
 {
     QTC_CHECK(target && target == this->target());
+    forceDisplayNameSerialization();
     connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
 
     m_expander.setDisplayName(Tr::tr("Run Settings"));
@@ -239,6 +241,34 @@ bool RunConfiguration::isConfigured() const
     return !Utils::anyOf(checkForIssues(), [](const Task &t) { return t.type == Task::Error; });
 }
 
+bool RunConfiguration::isCustomized() const
+{
+    if (m_customized)
+        return true;
+    QVariantMap state = toMapSimple();
+
+    // TODO: Why do we save this at all? It's a computed value.
+    state.remove("RunConfiguration.WorkingDirectory.default");
+
+    return state != m_pristineState;
+}
+
+bool RunConfiguration::hasCreator() const
+{
+    return Utils::contains(RunConfigurationFactory::creatorsForTarget(target()),
+                               [this](const RunConfigurationCreationInfo &info) {
+        return info.factory->runConfigurationId() == id() && info.buildKey == buildKey();
+    });
+}
+
+void RunConfiguration::setPristineState()
+{
+    if (!m_customized) {
+        m_pristineState = toMapSimple();
+        m_pristineState.remove("RunConfiguration.WorkingDirectory.default");
+    }
+}
+
 void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 {
     theAspectFactories.push_back(aspectFactory);
@@ -277,8 +307,14 @@ Task RunConfiguration::createConfigurationIssue(const QString &description) cons
 
 QVariantMap RunConfiguration::toMap() const
 {
-    QVariantMap map = ProjectConfiguration::toMap();
+    QVariantMap map = toMapSimple();
+    map.insert(CUSTOMIZED_KEY, isCustomized());
+    return map;
+}
 
+QVariantMap RunConfiguration::toMapSimple() const
+{
+    QVariantMap map = ProjectConfiguration::toMap();
     map.insert(BUILD_KEY, m_buildKey);
 
     // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
@@ -344,6 +380,7 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
+    m_customized = m_customized || map.value(CUSTOMIZED_KEY, false).toBool();
     m_buildKey = map.value(BUILD_KEY).toString();
 
     if (m_buildKey.isEmpty()) {
@@ -584,6 +621,7 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
     rc->m_buildKey = buildKey;
     rc->update();
     rc->setDisplayName(displayName);
+    rc->setPristineState();
 
     return rc;
 }
@@ -597,6 +635,7 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
                 RunConfiguration *rc = factory->create(parent);
                 if (rc->fromMap(map)) {
                     rc->update();
+                    rc->setPristineState();
                     return rc;
                 }
                 delete rc;
