@@ -1307,17 +1307,20 @@ ChangeValuesCommand NodeInstanceView::createChangeValueCommand(const QList<Varia
 {
     QVector<PropertyValueContainer> containerList;
 
-    const bool reflectionFlag = m_puppetTransaction.isValid() && (!currentTimeline().isValid() || !currentTimeline().isRecording());
+    bool reflectionFlag = m_puppetTransaction.isValid()
+                          && (!currentTimeline().isValid() || !currentTimeline().isRecording());
 
     for (const VariantProperty &property : propertyList) {
         ModelNode node = property.parentModelNode();
+        if (QmlPropertyChanges::isValidQmlPropertyChanges(node))
+            reflectionFlag = false;
+
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
             PropertyValueContainer container(instance.instanceId(), property.name(), property.value(), property.dynamicTypeName());
             container.setReflectionFlag(reflectionFlag);
             containerList.append(container);
         }
-
     }
 
     return ChangeValuesCommand(containerList);
