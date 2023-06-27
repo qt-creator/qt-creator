@@ -290,14 +290,14 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
     const QString relativePath = mainFilePath.relativeChildPath(projectDir).path();
 
     if (fileContent.indexOf(settingQmlCode) < 0) {
-        QString addedText = QString("\n    %1 \"%2\"\n").arg(settingQmlCode).arg(relativePath);
+        QString addedText = QString("\n    %1 \"%2\"\n").arg(settingQmlCode, relativePath);
         auto index = fileContent.lastIndexOf("}");
         fileContent.insert(index, addedText);
     } else {
         QString originalFileName = oldFile;
         originalFileName.replace(".", "\\.");
         const QRegularExpression expression(
-                    QString("%1\\s*\"(%2)\"").arg(settingQmlCode).arg(originalFileName));
+            QString("%1\\s*\"(%2)\"").arg(settingQmlCode, originalFileName));
 
         const QRegularExpressionMatch match = expression.match(fileContent);
 
