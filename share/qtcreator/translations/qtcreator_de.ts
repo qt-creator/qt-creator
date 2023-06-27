@@ -24570,23 +24570,23 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>The DAP process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Start des DAP-Prozesses schlug fehl. Entweder fehlt die ausführbare Datei &quot;%1&quot; oder die Berechtigungen sind nicht ausreichend.</translation>
     </message>
     <message>
         <source>The DAP process crashed some time after starting successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der DAP-Prozess ist einige Zeit nach dem Start abgestürzt.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the DAP process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Fehler trat beim Versuch auf, zum DAP-Prozess zu schreiben. Wahrscheinlich läuft der Prozess nicht oder hat seinen Eingabekanal geschlossen.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the DAP process. For example, the process may not be running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Fehler trat beim Versuch auf, vom DAP-Prozess zu lesen. Wahrscheinlich läuft der Prozess nicht.</translation>
     </message>
     <message>
         <source>An unknown error in the DAP process occurred.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im DAP-Prozess trat ein unbekannter Fehler auf.</translation>
     </message>
     <message>
         <source>Adapter start failed</source>
@@ -24594,7 +24594,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>DAP I/O Error</source>
-        <translation type="unfinished"></translation>
+        <translation>DAP Ein/Ausgabefehler</translation>
     </message>
     <message>
         <source>Python Error</source>
@@ -24638,7 +24638,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>The system prevents loading of &quot;%1&quot;, which is required for debugging. Make sure that your antivirus solution is up to date and if that does not work consider adding an exception for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das System verhindert das Laden von &quot;%1&quot;, welches für das Debuggen erforderlich ist. Stellen Sie sicher, dass Ihr Virenschutzprogramm aktuell ist. Falls dies nicht hilft, ziehen Sie in Betracht, eine Ausnahme für &quot;%1&quot; hinzuzufügen.</translation>
     </message>
     <message>
         <source>Module loaded: %1</source>
@@ -24688,7 +24688,7 @@ Installieren Sie das Paket &quot;Qt Debug Information Files&quot; für diese Qt-
     </message>
     <message>
         <source>Cannot read &quot;%1&quot;: %2</source>
-        <translation type="unfinished">&quot;%1&quot; kann nicht gelesen werden: %2</translation>
+        <translation>&quot;%1&quot; kann nicht gelesen werden: %2</translation>
     </message>
     <message>
         <source>Value %1 obtained from evaluating the condition of breakpoint %2, stopping.</source>
@@ -25597,35 +25597,35 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Enable C++ debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>C++-Debugger aktivieren.</translation>
     </message>
     <message>
         <source>Try to determine need for C++ debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versuche, die Notwendigkeit eines C++-Debuggers automatisch festzustellen.</translation>
     </message>
     <message>
         <source>Enable QML debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Debugger aktivieren.</translation>
     </message>
     <message>
         <source>Try to determine need for QML debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versuche, die Notwendigkeit eines QML-Debuggers automatisch festzustellen.</translation>
     </message>
     <message>
         <source>Without additional startup commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ohne zusätzliche Kommandos beim Start.</translation>
     </message>
     <message>
         <source>With additional startup commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit zusätzlichen Kommandos beim Start.</translation>
     </message>
     <message>
         <source>C++ debugger:</source>
-        <translation type="unfinished"></translation>
+        <translation>C++-Debugger:</translation>
     </message>
     <message>
         <source>QML debugger:</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Debugger:</translation>
     </message>
     <message>
         <source>Enable Debugging of Subprocesses</source>
@@ -25661,7 +25661,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>LLDB I/O Error</source>
-        <translation>LLDB-Ein/Ausgabefehler</translation>
+        <translation>LLDB Ein/Ausgabefehler</translation>
     </message>
     <message>
         <source>The LLDB process crashed some time after starting successfully.</source>
@@ -25669,11 +25669,11 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>An error occurred when attempting to write to the LLDB process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>Ein Fehler trat beim Versuch zum LLDB-Prozess zu schreiben auf. Möglicherweise läuft der Prozess nicht oder hat seinen Eingabekanal geschlossen.</translation>
+        <translation>Ein Fehler trat beim Versuch auf, zum LLDB-Prozess zu schreiben. Wahrscheinlich läuft der Prozess nicht oder hat seinen Eingabekanal geschlossen.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the Lldb process. For example, the process may not be running.</source>
-        <translation>Ein Fehler trat beim Versuch vom Lldb-Prozess zu lesen auf. Möglicherweise läuft der Prozess nicht.</translation>
+        <translation>Ein Fehler trat beim Versuch auf, vom LLDB-Prozess zu lesen. Wahrscheinlich läuft der Prozess nicht.</translation>
     </message>
     <message>
         <source>Use Local Symbol Cache</source>
@@ -25746,15 +25746,15 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Generic</source>
-        <translation type="unfinished"></translation>
+        <translation>Generisch</translation>
     </message>
     <message>
         <source>GDB from PATH on Build Device</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB aus dem PATH des Build-Geräts</translation>
     </message>
     <message>
         <source>LLDB from PATH on Build Device</source>
-        <translation type="unfinished"></translation>
+        <translation>LLDB aus dem PATH des Build-Geräts</translation>
     </message>
     <message>
         <source>Version:</source>
@@ -26719,11 +26719,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Default array size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardgröße von Arrays:</translation>
     </message>
     <message>
         <source>The number of array elements requested when expanding entries in the Locals and Expressions views.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anzahl der angeforderten Array-Elemente, wenn Einträge in &quot;Lokale Variablen &amp; Ausdrücke&quot; ausgeklappt werden.</translation>
     </message>
     <message>
         <source>Shows QML object tree in Locals and Expressions when connected and not stepping.</source>
@@ -28619,7 +28619,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Invalid regular expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger regulärer Ausdruck.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; %2 %3L, %4C written</source>
@@ -28809,7 +28809,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Triggers a Fossil version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Fossil-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>&amp;Fossil</source>
@@ -29117,7 +29117,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Beispiel: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Remember specified location as default</source>
@@ -29176,7 +29176,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Remove Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis entfernen</translation>
     </message>
     <message>
         <source>Generic Manager</source>
@@ -29184,11 +29184,11 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Project files list update failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren der Dateiliste des Projekts fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Build %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 erstellen</translation>
     </message>
 </context>
 <context>
@@ -29481,9 +29481,9 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message numerus="yes">
         <source>Cannot commit %n file(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Der Commit einer Datei ist fehlgeschlagen.</numerusform>
+            <numerusform>Der Commit von %n Dateien ist fehlgeschlagen.</numerusform>
         </translation>
     </message>
     <message>
@@ -29838,7 +29838,7 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Annotate the current line in the editor with Git &quot;blame&quot; output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die aktuelle Zeile im Editor mit der Ausgabe von Git &quot;blame&quot; annotieren.</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -30600,7 +30600,7 @@ Teilmarkiert - Zustand nicht verändern.</translation>
     </message>
     <message>
         <source>Pushes the selected commit and all commits it depends on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Push des ausgewählten Commits und aller Commits, die davon abhängen.</translation>
     </message>
     <message>
         <source>Supported on Gerrit 2.15 and later.</source>
@@ -31888,7 +31888,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Locates help topics, for example in the Qt documentation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Hilfethemen, zum Beispiel in der Qt-Dokumentation.</translation>
     </message>
     <message>
         <source>Help</source>
