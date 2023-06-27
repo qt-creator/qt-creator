@@ -389,8 +389,11 @@ void TextureEditorView::handleToolBarAction(int action)
     }
 
     case TextureEditorContextObject::DeleteCurrentTexture: {
-        if (m_selectedTexture.isValid())
-            m_selectedTexture.destroy();
+        if (m_selectedTexture.isValid()) {
+            executeInTransaction(__FUNCTION__, [&] {
+                m_selectedTexture.destroy();
+            });
+        }
         break;
     }
 

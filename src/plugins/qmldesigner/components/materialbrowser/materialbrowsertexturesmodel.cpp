@@ -5,6 +5,7 @@
 
 #include "designmodewidget.h"
 #include "imageutils.h"
+#include "materialbrowserview.h"
 #include "qmldesignerplugin.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
@@ -13,8 +14,9 @@
 
 namespace QmlDesigner {
 
-MaterialBrowserTexturesModel::MaterialBrowserTexturesModel(QObject *parent)
+MaterialBrowserTexturesModel::MaterialBrowserTexturesModel(MaterialBrowserView *view, QObject *parent)
     : QAbstractListModel(parent)
+    , m_view(view)
 {
 }
 
@@ -292,10 +294,13 @@ void MaterialBrowserTexturesModel::duplicateTexture(int idx)
 
 void MaterialBrowserTexturesModel::deleteTexture(int idx)
 {
-    if (isValidIndex(idx)) {
+    if (m_view && isValidIndex(idx)) {
         ModelNode node = m_textureList[idx];
-        if (node.isValid())
-            QmlObjectNode(node).destroy();
+        if (node.isValid()) {
+            m_view->executeInTransaction(__FUNCTION__, [&] {
+                node.destroy();
+            });
+        }
     }
 }
 

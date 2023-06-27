@@ -141,8 +141,8 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
 MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
                                              MaterialBrowserView *view)
     : m_materialBrowserView(view)
-    , m_materialBrowserModel(new MaterialBrowserModel(this))
-    , m_materialBrowserTexturesModel(new MaterialBrowserTexturesModel(this))
+    , m_materialBrowserModel(new MaterialBrowserModel(view, this))
+    , m_materialBrowserTexturesModel(new MaterialBrowserTexturesModel(view, this))
     , m_quickWidget(new StudioQuickWidget(this))
     , m_previewImageProvider(new PreviewImageProvider())
 {

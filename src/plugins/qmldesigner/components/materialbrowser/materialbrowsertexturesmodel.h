@@ -10,6 +10,8 @@
 
 namespace QmlDesigner {
 
+class MaterialBrowserView;
+
 class MaterialBrowserTexturesModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -20,7 +22,7 @@ class MaterialBrowserTexturesModel : public QAbstractListModel
     Q_PROPERTY(bool hasSceneEnv READ hasSceneEnv NOTIFY hasSceneEnvChanged)
 
 public:
-    MaterialBrowserTexturesModel(QObject *parent = nullptr);
+    MaterialBrowserTexturesModel(MaterialBrowserView *view, QObject *parent = nullptr);
     ~MaterialBrowserTexturesModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -88,6 +90,8 @@ private:
     bool m_isEmpty = true;
     bool m_hasSingleModelSelection = false;
     bool m_hasSceneEnv = false;
+
+    QPointer<MaterialBrowserView> m_view;
 
     enum {
         RoleTexHasDynamicProps = Qt::UserRole + 1,

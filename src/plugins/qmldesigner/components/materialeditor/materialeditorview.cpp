@@ -442,8 +442,11 @@ void MaterialEditorView::handleToolBarAction(int action)
     }
 
     case MaterialEditorContextObject::DeleteCurrentMaterial: {
-        if (m_selectedMaterial.isValid())
-            m_selectedMaterial.destroy();
+        if (m_selectedMaterial.isValid()) {
+            executeInTransaction(__FUNCTION__, [&] {
+                m_selectedMaterial.destroy();
+            });
+        }
         break;
     }
 

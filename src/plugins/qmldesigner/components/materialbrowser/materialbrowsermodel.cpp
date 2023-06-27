@@ -4,6 +4,7 @@
 #include "materialbrowsermodel.h"
 
 #include "designmodewidget.h"
+#include "materialbrowserview.h"
 #include "qmldesignerplugin.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
@@ -13,8 +14,9 @@
 
 namespace QmlDesigner {
 
-MaterialBrowserModel::MaterialBrowserModel(QObject *parent)
+MaterialBrowserModel::MaterialBrowserModel(MaterialBrowserView *view, QObject *parent)
     : QAbstractListModel(parent)
+    , m_view(view)
 {
 }
 
@@ -459,10 +461,13 @@ void MaterialBrowserModel::pasteMaterialProperties(int idx)
 
 void MaterialBrowserModel::deleteMaterial(int idx)
 {
-    if (isValidIndex(idx)) {
+    if (m_view && isValidIndex(idx)) {
         ModelNode node = m_materialList[idx];
-        if (node.isValid())
-            QmlObjectNode(node).destroy();
+        if (node.isValid()) {
+            m_view->executeInTransaction(__FUNCTION__, [&] {
+                node.destroy();
+            });
+        }
     }
 }
 
