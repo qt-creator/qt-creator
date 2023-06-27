@@ -164,7 +164,7 @@ void ProjectStorageMock::setupQtQtuick()
     auto qtQuickModuleId = createModule("QtQuick");
     auto qtQuickNativeModuleId = createModule("QtQuick-cppnative");
 
-    auto intId = createType(qmlModuleId, "int", Storage::TypeTraits::Value);
+    createType(qmlModuleId, "int", Storage::TypeTraits::Value);
 
     auto qtObjectId = createObject(qmlModuleId,
                                    "QtObject",

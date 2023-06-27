@@ -248,7 +248,7 @@ void Qt5NodeInstanceServer::savePipelineCacheData()
 #endif
 }
 
-void Qt5NodeInstanceServer::setPipelineCacheConfig(QQuickWindow *w)
+void Qt5NodeInstanceServer::setPipelineCacheConfig([[maybe_unused]] QQuickWindow *w)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
     // This dummy file is not actually used for cache as we manage cache save/load ourselves,

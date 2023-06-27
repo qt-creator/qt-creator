@@ -12,7 +12,7 @@
 #include <include/modelnode.h>
 #include <include/nodeabstractproperty.h>
 #include <include/nodelistproperty.h>
-#include <include/nodemetaInfo.h>
+#include <include/nodemetainfo.h>
 #include <include/nodeproperty.h>
 #include <include/signalhandlerproperty.h>
 #include <include/variantproperty.h>
