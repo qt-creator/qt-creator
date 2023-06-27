@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -64,6 +64,11 @@
 
     To see where the above controls are in the user interface, select
     \uicontrol Help > \uicontrol {UI Tour}.
+
+    The following video shows the parts of the UI and the \uicontrol Welcome
+    mode:
+
+    \youtube hOx3dod5-1A
 
     The following sections describe some \QC controls in more detail:
 
