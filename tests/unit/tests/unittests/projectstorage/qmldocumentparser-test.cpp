@@ -357,7 +357,7 @@ TEST_F(QmlDocumentParser, enumeration)
                                 ElementsAre(IsEnumerator("On", 0), IsEnumerator("Off", 1))))));
 }
 
-TEST_F(QmlDocumentParser, disabled_duplicate_imports_are_removed)
+TEST_F(QmlDocumentParser, DISABLED_duplicate_imports_are_removed)
 {
     ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
     ModuleId qmlModuleId = storage.moduleId("QML");
