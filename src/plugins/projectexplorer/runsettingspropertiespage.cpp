@@ -144,7 +144,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_runConfigurationCombo->setModel(model);
     m_runConfigurationCombo->setCurrentIndex(model->indexFor(rc));
 
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    updateRemoveToolButton();
     m_renameRunButton->setEnabled(rc);
     m_cloneRunButton->setEnabled(rc);
 
@@ -188,7 +188,7 @@ void RunSettingsWidget::showAddRunConfigDialog()
     QTC_CHECK(newRC->id() == rci.factory->runConfigurationId());
     m_target->addRunConfiguration(newRC);
     m_target->setActiveRunConfiguration(newRC);
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    updateRemoveToolButton();
 }
 
 void RunSettingsWidget::cloneRunConfiguration()
@@ -226,7 +226,7 @@ void RunSettingsWidget::removeRunConfiguration()
         return;
 
     m_target->removeRunConfiguration(rc);
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    updateRemoveToolButton();
     m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneRunButton->setEnabled(m_target->activeRunConfiguration());
 }
@@ -370,7 +370,7 @@ void RunSettingsWidget::renameDeployConfiguration()
 void RunSettingsWidget::updateRemoveToolButton()
 {
     m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().count() > 1);
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    m_removeRunToolButton->setEnabled(!m_target->runConfigurations().isEmpty());
 }
 
 void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
