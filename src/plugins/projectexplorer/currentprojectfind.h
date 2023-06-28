@@ -35,7 +35,7 @@ protected:
 
 private:
     void handleProjectChanged();
-    void recheckEnabled(Core::SearchResult *search) override;
+    void setupSearch(Core::SearchResult *search) override;
 };
 
 } // namespace Internal

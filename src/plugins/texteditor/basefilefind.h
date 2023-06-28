@@ -101,7 +101,6 @@ public:
 
 protected:
     virtual QVariant additionalParameters() const = 0;
-    static QVariant getAdditionalParameters(Core::SearchResult *search);
     virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
@@ -126,7 +125,7 @@ private:
     void doReplace(const QString &txt, const Utils::SearchResultItems &items, bool preserveCase);
     void hideHighlightAll(bool visible);
     void searchAgain(Core::SearchResult *search);
-    virtual void recheckEnabled(Core::SearchResult *search);
+    virtual void setupSearch(Core::SearchResult *search);
 
     void runNewSearch(const QString &txt, Utils::FindFlags findFlags,
                       Core::SearchResultWindow::SearchMode searchMode);

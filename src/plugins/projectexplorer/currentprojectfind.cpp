@@ -83,16 +83,20 @@ void CurrentProjectFind::handleProjectChanged()
     emit displayNameChanged();
 }
 
-void CurrentProjectFind::recheckEnabled(Core::SearchResult *search)
+void CurrentProjectFind::setupSearch(Core::SearchResult *search)
 {
-    const FilePath projectFile = FilePath::fromVariant(getAdditionalParameters(search));
-    for (Project *project : ProjectManager::projects()) {
-        if (projectFile == project->projectFilePath()) {
-            search->setSearchAgainEnabled(true);
-            return;
+    Project *project = ProjectTree::currentProject();
+    const FilePath projectFile = project ? project->projectFilePath() : FilePath();
+    connect(this, &IFindFilter::enabledChanged, search, [search, projectFile] {
+        const QList<Project *> projects = ProjectManager::projects();
+        for (Project *project : projects) {
+            if (projectFile == project->projectFilePath()) {
+                search->setSearchAgainEnabled(true);
+                return;
+            }
         }
-    }
-    search->setSearchAgainEnabled(false);
+        search->setSearchAgainEnabled(false);
+    });
 }
 
 void CurrentProjectFind::writeSettings(QSettings *settings)

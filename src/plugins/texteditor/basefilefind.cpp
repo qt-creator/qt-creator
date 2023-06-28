@@ -313,6 +313,7 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
                 tooltip.arg(IFindFilter::descriptionForFindFlags(findFlags)),
                 txt, searchMode, SearchResultWindow::PreserveCaseEnabled,
                 QString::fromLatin1("TextEditor"));
+    setupSearch(search);
     search->setTextToReplace(txt);
     search->setSearchAgainSupported(true);
     FileFindParameters parameters;
@@ -332,9 +333,6 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     connect(search, &SearchResult::visibilityChanged, this, &BaseFileFind::hideHighlightAll);
     connect(search, &SearchResult::searchAgainRequested, this, [this, search] {
         searchAgain(search);
-    });
-    connect(this, &BaseFileFind::enabledChanged, search, [this, search] {
-        recheckEnabled(search);
     });
 
     runSearch(search);
@@ -525,11 +523,11 @@ void BaseFileFind::searchAgain(SearchResult *search)
     runSearch(search);
 }
 
-void BaseFileFind::recheckEnabled(SearchResult *search)
+void BaseFileFind::setupSearch(SearchResult *search)
 {
-    if (!search)
-        return;
-    search->setSearchAgainEnabled(isEnabled());
+    connect(this, &IFindFilter::enabledChanged, search, [this, search] {
+        search->setSearchAgainEnabled(isEnabled());
+    });
 }
 
 FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems &items,
@@ -598,11 +596,6 @@ FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems 
     }
 
     return changes.keys();
-}
-
-QVariant BaseFileFind::getAdditionalParameters(SearchResult *search)
-{
-    return search->userData().value<FileFindParameters>().additionalParameters;
 }
 
 QFuture<SearchResultItems> BaseFileFind::executeSearch(const FileFindParameters &parameters)
