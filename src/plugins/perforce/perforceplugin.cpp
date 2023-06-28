@@ -1199,9 +1199,10 @@ QString PerforcePluginPrivate::vcsMakeWritableText() const
 
 // Run messages
 
-static QString msgNotStarted(const QString &cmd)
+static QString msgNotStarted(const FilePath &cmd)
 {
-    return Tr::tr("Could not start perforce \"%1\". Please check your settings in the preferences.").arg(cmd);
+    return Tr::tr("Could not start perforce \"%1\". Please check your settings in the preferences.")
+        .arg(cmd.toUserOutput());
 }
 
 static QString msgTimeout(int timeOutS)
@@ -1251,7 +1252,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
             process.setStdOutCallback([](const QString &lines) { VcsOutputWindow::append(lines); });
     }
     process.setTimeOutMessageBoxEnabled(true);
-    process.setCommand({m_settings.p4BinaryPath.filePath(), args});
+    process.setCommand({m_settings.p4BinaryPath(), args});
     process.runBlocking(EventLoopMode::On);
 
     PerforceResponse response;
@@ -1271,7 +1272,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
         response.message = msgCrash();
         break;
     case ProcessResult::StartFailed:
-        response.message = msgNotStarted(m_settings.p4BinaryPath.value());
+        response.message = msgNotStarted(m_settings.p4BinaryPath());
         break;
     case ProcessResult::Hang:
         response.message = msgCrash();
@@ -1295,13 +1296,13 @@ PerforceResponse PerforcePluginPrivate::fullySynchronousProcess(const FilePath &
         process.setWorkingDirectory(workingDir);
 
     PerforceResponse response;
-    process.setCommand({m_settings.p4BinaryPath.filePath(), args});
+    process.setCommand({m_settings.p4BinaryPath(), args});
     process.setWriteData(stdInput);
     process.start();
 
     if (!process.waitForStarted(3000)) {
         response.error = true;
-        response.message = msgNotStarted(m_settings.p4BinaryPath.value());
+        response.message = msgNotStarted(m_settings.p4BinaryPath());
         return response;
     }
 
@@ -1364,7 +1365,7 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
-        VcsOutputWindow::appendCommand(workingDir, {m_settings.p4BinaryPath.filePath(), actualArgs});
+        VcsOutputWindow::appendCommand(workingDir, {m_settings.p4BinaryPath(), actualArgs});
 
     if (flags & ShowBusyCursor)
         QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1699,7 +1700,7 @@ void PerforcePluginPrivate::getTopLevel(const FilePath &workingDirectory, bool i
     connect(checker, &PerforceChecker::succeeded, dd, &PerforcePluginPrivate::setTopLevel);
     connect(checker, &PerforceChecker::succeeded,checker, &QObject::deleteLater);
 
-    checker->start(m_settings.p4BinaryPath.filePath(), workingDirectory,
+    checker->start(m_settings.p4BinaryPath(), workingDirectory,
                    m_settings.commonP4Arguments(QString()), 30000);
 
     if (isSync)
