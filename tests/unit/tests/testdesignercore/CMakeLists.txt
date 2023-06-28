@@ -130,8 +130,6 @@ add_qtc_library(TestDesignerCore OBJECT
     projectstorage/projectstoragepathwatcher.h
     projectstorage/projectstoragepathwatcherinterface.h
     projectstorage/projectstoragepathwatchernotifierinterface.h
-    projectstorage/projectstoragesqlitefunctionregistry.cpp
-    projectstorage/projectstoragesqlitefunctionregistry.h
     projectstorage/projectstoragepathwatcher.h
     projectstorage/projectstoragepathwatchertypes.h
     projectstorage/projectstoragetypes.h
