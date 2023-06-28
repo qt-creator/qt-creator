@@ -214,7 +214,7 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
     switch (metric) {
 #ifdef Q_OS_MACOS
     case PM_MenuButtonIndicator:
-        if (widget && option->type == QStyleOption::SO_ToolButton)
+        if (widget && option && option->type == QStyleOption::SO_ToolButton)
             return 12;
         break;
 #endif
