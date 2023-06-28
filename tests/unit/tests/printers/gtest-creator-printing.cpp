@@ -9,6 +9,7 @@
 #include <gtest/gtest-printers.h>
 #include <gmock/gmock-matchers.h>
 
+#include <3rdparty/sqlite/sqlite.h>
 #include <imagecache/imagecachestorageinterface.h>
 #include <imagecacheauxiliarydata.h>
 #include <import.h>
@@ -17,7 +18,6 @@
 #include <projectstorage/projectstoragepathwatchertypes.h>
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorage/sourcepathcachetypes.h>
-#include <sqlite.h>
 #include <sqlitesessionchangeset.h>
 #include <sqlitevalue.h>
 #include <utils/fileutils.h>

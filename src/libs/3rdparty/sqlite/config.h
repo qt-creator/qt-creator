@@ -27,10 +27,6 @@
 
 #include <string.h>
 
-#if defined(SQLITE_STATIC_LIBRARY) || defined(SQLITEC_STATIC_LIBRARY)
-#include "sqlite_static_config.h"
-#endif
-
 #if __has_include(<unistd.h>)
 #include <unistd.h>
 #endif

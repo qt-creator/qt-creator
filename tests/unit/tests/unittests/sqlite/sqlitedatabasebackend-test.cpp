@@ -9,7 +9,7 @@
 #include <sqlitetransaction.h>
 #include <sqlitewritestatement.h>
 
-#include <sqlite.h>
+#include <3rdparty/sqlite/sqlite.h>
 
 #include <QDir>
 

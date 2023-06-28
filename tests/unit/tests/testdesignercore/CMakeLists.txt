@@ -5,7 +5,7 @@ add_qtc_library(TestDesignerCore OBJECT
   DEPENDS
     Qt::Core Qt::Network Qt::Widgets
     Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui
-    Qt::Core5Compat Utils QmlJS Sqlite SqliteC
+    Qt::Core5Compat Utils QmlJS Sqlite
   PUBLIC_DEPENDS
     QmlPuppetCommunication
   SOURCES_PREFIX ${QmlDesignerDir}/designercore
