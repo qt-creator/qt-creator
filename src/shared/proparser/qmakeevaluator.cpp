@@ -295,7 +295,8 @@ ProStringList QMakeEvaluator::split_value_list(QStringView vals, int source)
                     --x;
                 }
             }
-            // fallthrough
+            hadWord = true;
+            break;
         default:
             hadWord = true;
             break;
