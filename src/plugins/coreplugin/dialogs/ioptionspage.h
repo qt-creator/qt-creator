@@ -59,12 +59,12 @@ public:
     using WidgetCreator = std::function<IOptionsPageWidget *()>;
     void setWidgetCreator(const WidgetCreator &widgetCreator);
 
-    QStringList keywords() const;
-
-    virtual bool matches(const QRegularExpression &regexp) const;
     virtual QWidget *widget();
     virtual void apply();
     virtual void finish();
+
+    virtual QStringList keywords() const;
+    virtual bool matches(const QRegularExpression &regexp) const;
 
 protected:
     void setId(Utils::Id id) { m_id = id; }

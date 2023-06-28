@@ -1060,6 +1060,20 @@ QtOptionsPage::QtOptionsPage()
     setWidgetCreator([] { return new QtOptionsPageWidget; });
 }
 
+QStringList QtOptionsPage::keywords() const
+{
+    return {
+        Tr::tr("Add..."),
+        Tr::tr("Remove"),
+        Tr::tr("Clean Up"),
+        Tr::tr("Link with Qt"),
+        Tr::tr("Remove Link"),
+        Tr::tr("Qt installation path:"),
+        Tr::tr("qmake path:"),
+        Tr::tr("Register documentation:")
+    };
+}
+
 bool QtOptionsPage::canLinkWithQt()
 {
     return Internal::canLinkWithQt(nullptr);
