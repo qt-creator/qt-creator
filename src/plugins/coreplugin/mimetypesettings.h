@@ -15,6 +15,8 @@ public:
     MimeTypeSettings();
     ~MimeTypeSettings() override;
 
+    QStringList keywords() const override;
+
     static void restoreSettings();
 
 private:
