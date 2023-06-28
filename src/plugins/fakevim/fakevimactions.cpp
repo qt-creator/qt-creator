@@ -134,7 +134,6 @@ FakeVimSettings::FakeVimSettings()
     vimRcPath.setToolTip(Tr::tr("Keep empty to use the default path, i.e. "
                "%USERPROFILE%\\_vimrc on Windows, ~/.vimrc otherwise."));
     vimRcPath.setPlaceHolderText(Tr::tr("Default: %1").arg(vimrcDefault));
-    vimRcPath.setDisplayStyle(FvStringAspect::PathChooserDisplay);
 
     setLayouter([this] {
         using namespace Layouting;

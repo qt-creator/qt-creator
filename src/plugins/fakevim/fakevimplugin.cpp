@@ -1183,7 +1183,7 @@ void FakeVimPluginPrivate::maybeReadVimRc()
     //qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
     if (!settings().readVimRc())
         return;
-    QString fileName = settings().vimRcPath();
+    QString fileName = settings().vimRcPath().path();
     if (fileName.isEmpty()) {
         fileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
             + QLatin1String(HostOsInfo::isWindowsHost() ? "/_vimrc" : "/.vimrc");

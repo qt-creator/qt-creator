@@ -4,7 +4,13 @@
 #pragma once
 
 #ifndef FAKEVIM_STANDALONE
-#   include <coreplugin/dialogs/ioptionspage.h>
+
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#else
+
+namespace Utils { class FilePath {}; }
+
 #endif
 
 #include <QCoreApplication>
@@ -69,6 +75,7 @@ public:
 using FvBoolAspect = FvTypedAspect<bool>;
 using FvIntegerAspect = FvTypedAspect<qint64>;
 using FvStringAspect = FvTypedAspect<QString>;
+using FvFilePathAspect = FvTypedAspect<Utils::FilePath>;
 
 class FvAspectContainer : public FvBaseAspect
 {
@@ -82,6 +89,7 @@ using FvBaseAspect = Utils::BaseAspect;
 using FvBoolAspect = Utils::BoolAspect;
 using FvIntegerAspect = Utils::IntegerAspect;
 using FvStringAspect = Utils::StringAspect;
+using FvFilePathAspect = Utils::FilePathAspect;
 
 #endif
 
@@ -96,7 +104,7 @@ public:
 
     FvBoolAspect useFakeVim;
     FvBoolAspect readVimRc;
-    FvStringAspect vimRcPath;
+    FvFilePathAspect vimRcPath;
 
     FvBoolAspect startOfLine;
     FvIntegerAspect tabStop;
