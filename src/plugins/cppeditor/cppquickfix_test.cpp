@@ -13,6 +13,8 @@
 #include "cppsourceprocessertesthelper.h"
 #include "cpptoolssettings.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -60,7 +62,8 @@ QList<TestDocumentPtr> singleDocument(const QByteArray &original,
 }
 
 BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDocuments,
-                                           const ProjectExplorer::HeaderPaths &headerPaths)
+                                           const ProjectExplorer::HeaderPaths &headerPaths,
+                                           const QByteArray &clangFormatSettings)
     : m_testDocuments(testDocuments)
     , m_cppCodeStylePreferences(0)
     , m_restoreHeaderPaths(false)
@@ -84,6 +87,10 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
             document->setBaseDirectory(m_temporaryDirectory->path());
         document->writeToDisk();
     }
+
+    // Create .clang-format file
+    if (!clangFormatSettings.isEmpty())
+        m_temporaryDirectory->createFile(".clang-format", clangFormatSettings);
 
     // Set appropriate include paths
     if (!headerPaths.isEmpty()) {
@@ -182,8 +189,9 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
                                              CppQuickFixFactory *factory,
                                              const ProjectExplorer::HeaderPaths &headerPaths,
                                              int operationIndex,
-                                             const QByteArray &expectedFailMessage)
-    : BaseQuickFixTestCase(testDocuments, headerPaths)
+                                             const QByteArray &expectedFailMessage,
+                                             const QByteArray &clangFormatSettings)
+    : BaseQuickFixTestCase(testDocuments, headerPaths, clangFormatSettings)
 {
     QVERIFY(succeededSoFar());
 
@@ -5334,6 +5342,57 @@ void QuickfixTest::testInsertDefsFromDecls()
     InsertDefsFromDecls factory;
     factory.setMode(static_cast<InsertDefsFromDecls::Mode>(mode));
     QuickFixOperationTest(testDocuments, &factory);
+}
+
+void QuickfixTest::testInsertAndFormatDefsFromDecls()
+{
+    static const auto isClangFormatPresent = [] {
+        using namespace ExtensionSystem;
+        return Utils::contains(PluginManager::plugins(), [](const PluginSpec *plugin) {
+            return plugin->name() == "ClangFormat" && plugin->isEffectivelyEnabled();
+        });
+    };
+    if (!isClangFormatPresent())
+        QSKIP("This test reqires ClangFormat");
+
+    const QByteArray origHeader = R"(
+class @C
+{
+public:
+    void func1 (int const &i);
+    void func2 (double const d);
+};
+)";
+    const QByteArray origSource = R"(
+#include "file.h"
+)";
+
+    const QByteArray expectedSource = R"(
+#include "file.h"
+
+void C::func1 (int const &i)
+{
+
+}
+
+void C::func2 (double const d)
+{
+
+}
+)";
+
+    const QByteArray clangFormatSettings = R"(
+BreakBeforeBraces: Allman
+QualifierAlignment: Right
+SpaceBeforeParens: Always
+)";
+
+    const QList<TestDocumentPtr> testDocuments({
+        CppTestDocument::create("file.h", origHeader, origHeader),
+        CppTestDocument::create("file.cpp", origSource, expectedSource)});
+    InsertDefsFromDecls factory;
+    factory.setMode(InsertDefsFromDecls::Mode::Impl);
+    QuickFixOperationTest(testDocuments, &factory, {}, {}, {}, clangFormatSettings);
 }
 
 // Function for one of InsertDeclDef section cases

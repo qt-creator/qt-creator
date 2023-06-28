@@ -468,7 +468,7 @@ void RefactoringFile::doFormatting()
             QTC_ASSERT(b.isValid(), break);
             if (b.text().simplified().isEmpty())
                 QTextCursor(b).insertText(clangFormatLineRemovalBlocker);
-            if (b.blockNumber() == r.endLine)
+            if (b.blockNumber() == r.endLine - 1)
                 break;
             b = b.next();
         }

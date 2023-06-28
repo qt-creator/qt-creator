@@ -402,6 +402,7 @@ public:
 
     enum class Mode {
             Off,         // Testing: simulates user canceling the dialog
+            Impl,        // Testing: simulates user choosing cpp file for every function
             Alternating, // Testing: simulates user choosing a different DefPos for every function
             User         // Normal interactive mode
     };

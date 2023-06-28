@@ -26,8 +26,8 @@ public:
     /// Exactly one QuickFixTestDocument must contain the cursor position marker '@'
     /// or "@{start}" and "@{end}"
     BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDocuments,
-                         const ProjectExplorer::HeaderPaths &headerPaths
-                            = ProjectExplorer::HeaderPaths());
+                         const ProjectExplorer::HeaderPaths &headerPaths,
+                         const QByteArray &clangFormatSettings = {});
 
     ~BaseQuickFixTestCase();
 
@@ -54,7 +54,8 @@ public:
                           const ProjectExplorer::HeaderPaths &headerPaths
                             = ProjectExplorer::HeaderPaths(),
                           int operationIndex = 0,
-                          const QByteArray &expectedFailMessage = QByteArray());
+                          const QByteArray &expectedFailMessage = {},
+                          const QByteArray &clangFormatSettings = {});
 
     static void run(const QList<TestDocumentPtr> &testDocuments,
                     CppQuickFixFactory *factory,
@@ -139,6 +140,7 @@ private slots:
     void testInsertDefFromDeclAliasTemplateAsReturnType();
     void testInsertDefsFromDecls_data();
     void testInsertDefsFromDecls();
+    void testInsertAndFormatDefsFromDecls();
 
     void testInsertDeclFromDef();
     void testInsertDeclFromDefTemplateFuncTypename();

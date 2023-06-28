@@ -3478,6 +3478,15 @@ private:
                 settings = dlg.settings();
             break;
         }
+        case InsertDefsFromDecls::Mode::Impl: {
+            for (Symbol * const func : std::as_const(unimplemented)) {
+                MemberFunctionImplSetting setting;
+                setting.func = func;
+                setting.defPos = DefPosImplementationFile;
+                settings << setting;
+            }
+            break;
+        }
         case InsertDefsFromDecls::Mode::Alternating: {
             int defPos = DefPosImplementationFile;
             const auto incDefPos = [&defPos] {
