@@ -269,20 +269,22 @@ QFuture<SearchResultItems> GitGrep::executeSearch(const FileFindParameters &para
     return Utils::asyncRun(runGitGrep, parameters);
 }
 
-IEditor *GitGrep::openEditor(const SearchResultItem &item,
-                             const FileFindParameters &parameters)
+EditorOpener GitGrep::editorOpener() const
 {
-    const GitGrepParameters params = parameters.searchEngineParameters.value<GitGrepParameters>();
-    const QStringList &itemPath = item.path();
-    if (params.ref.isEmpty() || itemPath.isEmpty())
-        return nullptr;
-    const FilePath path = FilePath::fromUserInput(itemPath.first());
-    const FilePath topLevel = FilePath::fromString(parameters.additionalParameters.toString());
-    IEditor *editor = m_client->openShowEditor(topLevel, params.ref, path,
-                                               GitClient::ShowEditor::OnlyIfDifferent);
-    if (editor)
-        editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);
-    return editor;
+    return [](const Utils::SearchResultItem &item,
+              const FileFindParameters &parameters) -> IEditor * {
+        const GitGrepParameters params = parameters.searchEngineParameters.value<GitGrepParameters>();
+        const QStringList &itemPath = item.path();
+        if (params.ref.isEmpty() || itemPath.isEmpty())
+            return nullptr;
+        const FilePath path = FilePath::fromUserInput(itemPath.first());
+        const FilePath topLevel = FilePath::fromString(parameters.additionalParameters.toString());
+        IEditor *editor = GitClient::instance()->openShowEditor(
+            topLevel, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
+        if (editor)
+            editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);
+        return editor;
+    };
 }
 
 } // Git::Internal

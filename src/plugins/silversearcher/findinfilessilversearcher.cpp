@@ -170,12 +170,6 @@ QFuture<SearchResultItems> FindInFilesSilverSearcher::executeSearch(
     return Utils::asyncRun(runSilverSeacher, parameters);
 }
 
-IEditor *FindInFilesSilverSearcher::openEditor(const SearchResultItem & /*item*/,
-                                               const FileFindParameters & /*parameters*/)
-{
-    return nullptr;
-}
-
 void FindInFilesSilverSearcher::readSettings(QSettings *settings)
 {
     m_searchOptionsLineEdit->setText(settings->value(s_searchOptionsString).toString());

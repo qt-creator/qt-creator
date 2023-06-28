@@ -151,11 +151,6 @@ public:
                                   parameters.flags, TextDocument::openedTextDocumentContents());
 
     }
-    Core::IEditor *openEditor(const SearchResultItem &/*item*/,
-                              const TextEditor::FileFindParameters &/*parameters*/) override
-    {
-        return nullptr;
-    }
 
 private:
     QWidget *m_widget;
@@ -321,6 +316,7 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     parameters.searchEngineParameters = currentSearchEngine()->parameters();
     parameters.searchEngineIndex = d->m_currentSearchEngineIndex;
     parameters.fileContainerProvider = fileContainerProvider();
+    parameters.editorOpener = currentSearchEngine()->editorOpener();
 
     search->setUserData(QVariant::fromValue(parameters));
     connect(search, &SearchResult::activated, this, [this, search](const SearchResultItem &item) {
@@ -493,8 +489,8 @@ void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaul
 void BaseFileFind::openEditor(SearchResult *result, const SearchResultItem &item)
 {
     const FileFindParameters parameters = result->userData().value<FileFindParameters>();
-    IEditor *openedEditor =
-            d->m_searchEngines[parameters.searchEngineIndex]->openEditor(item, parameters);
+    IEditor *openedEditor = parameters.editorOpener ? parameters.editorOpener(item, parameters)
+                                                    : nullptr;
     if (!openedEditor)
         EditorManager::openEditorAtSearchResult(item, Id(), EditorManager::DoNotSwitchToDesignMode);
     if (d->m_currentFindSupport)

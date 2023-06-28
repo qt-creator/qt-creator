@@ -29,8 +29,7 @@ public:
     void writeSettings(QSettings *settings) const override;
     QFuture<Utils::SearchResultItems> executeSearch(
         const TextEditor::FileFindParameters &parameters) override;
-    Core::IEditor *openEditor(const Utils::SearchResultItem &item,
-                              const TextEditor::FileFindParameters &parameters) override;
+    TextEditor::EditorOpener editorOpener() const override;
 
 private:
     GitClient *m_client;

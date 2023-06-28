@@ -27,7 +27,11 @@ class BaseFileFindPrivate;
 class SearchEnginePrivate;
 } // Internal
 
+class FileFindParameters;
+
 using FileContainerProvider = std::function<Utils::FileContainer()>;
+using EditorOpener = std::function<Core::IEditor *(const Utils::SearchResultItem &,
+                                                   const FileFindParameters &)>;
 
 class TEXTEDITOR_EXPORT FileFindParameters
 {
@@ -40,6 +44,7 @@ public:
     int searchEngineIndex;
     Utils::FindFlags flags;
     FileContainerProvider fileContainerProvider = {};
+    EditorOpener editorOpener = {};
 };
 
 using ProcessSetupHandler = std::function<void(Utils::Process &)>;
@@ -69,8 +74,7 @@ public:
     virtual void writeSettings(QSettings *settings) const = 0;
     virtual QFuture<Utils::SearchResultItems> executeSearch(
         const FileFindParameters &parameters) = 0;
-    virtual Core::IEditor *openEditor(const Utils::SearchResultItem &item,
-                                      const FileFindParameters &parameters) = 0;
+    virtual EditorOpener editorOpener() const { return {}; }
     bool isEnabled() const;
     void setEnabled(bool enabled);
 
