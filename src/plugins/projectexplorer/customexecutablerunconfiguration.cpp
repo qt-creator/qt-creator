@@ -28,7 +28,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
 
     auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::HostDevice);
     exeAspect->setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
-    exeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
+    exeAspect->setReadOnly(false);
     exeAspect->setHistoryCompleter("Qt.CustomExecutable.History");
     exeAspect->setExpectedKind(PathChooser::ExistingCommand);
     exeAspect->setEnvironment(envAspect->environment());

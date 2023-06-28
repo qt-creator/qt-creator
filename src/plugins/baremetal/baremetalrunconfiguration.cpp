@@ -26,7 +26,6 @@ public:
         : RunConfiguration(target, id)
     {
         const auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
-        exeAspect->setDisplayStyle(StringAspect::LabelDisplay);
         exeAspect->setPlaceHolderText(Tr::tr("Unknown"));
 
         addAspect<ArgumentsAspect>(macroExpander());
@@ -50,7 +49,7 @@ public:
         const auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
         exeAspect->setSettingsKey("BareMetal.CustomRunConfig.Executable");
         exeAspect->setPlaceHolderText(Tr::tr("Unknown"));
-        exeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
+        exeAspect->setReadOnly(false);
         exeAspect->setHistoryCompleter("BareMetal.CustomRunConfig.History");
         exeAspect->setExpectedKind(PathChooser::Any);
 

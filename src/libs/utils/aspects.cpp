@@ -329,6 +329,8 @@ void BaseAspect::setReadOnly(bool readOnly)
             lineEdit->setReadOnly(readOnly);
         else if (auto textEdit = qobject_cast<QTextEdit *>(w))
             textEdit->setReadOnly(readOnly);
+        else if (auto pathChooser = qobject_cast<PathChooser *>(w))
+            pathChooser->setReadOnly(readOnly);
     }
 }
 
@@ -807,28 +809,6 @@ QString StringAspect::value() const
 }
 
 /*!
-    Sets the value, \a val, of this StringAspect from an ordinary \c QString.
-*/
-void StringAspect::setValue(const QString &val)
-{
-    const bool isSame = val == value();
-    if (isSame)
-        return;
-
-    QString processedValue = val;
-    if (d->m_valueAcceptor) {
-        const std::optional<QString> tmp = d->m_valueAcceptor(value(), val);
-        if (!tmp) {
-            internalToGui(); // Make sure the original value is retained in the UI
-            return;
-        }
-        processedValue = tmp.value();
-    }
-
-    TypedAspect::setValue(processedValue);
-}
-
-/*!
     \reimp
 */
 void StringAspect::fromMap(const QVariantMap &map)
@@ -1124,6 +1104,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
         d->m_pathChooserDisplay->setCommandVersionArguments(d->m_commandVersionArguments);
         d->m_pathChooserDisplay->setAllowPathFromDevice(d->m_allowPathFromDevice);
+        d->m_pathChooserDisplay->setReadOnly(isReadOnly());
         d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(d->m_validatePlaceHolder);
         if (defaultValue() == value())
             d->m_pathChooserDisplay->setDefaultValue(defaultValue());
@@ -1141,7 +1122,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
                     if (d->m_blockAutoApply)
                         return;
                     d->m_blockAutoApply = true;
-                    setValueQuietly(d->m_pathChooserDisplay->filePath().toString());
+                    setValue(d->m_pathChooserDisplay->filePath().toString());
                     d->m_blockAutoApply = false;
                 };
                 connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, setPathChooserValue);
@@ -1149,7 +1130,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
             } else {
                 connect(d->m_pathChooserDisplay, &PathChooser::textChanged,
                         this, [this](const QString &path) {
-                    setValueQuietly(path);
+                    setValue(path);
                 });
             }
         }
@@ -1234,20 +1215,29 @@ void StringAspect::addToLayout(LayoutItem &parent)
 
 void StringAspect::guiToInternal()
 {
+    QString val;
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         if (d->m_pathChooserDisplay)
-            m_internal = d->m_pathChooserDisplay->lineEdit()->text();
+            val = d->m_pathChooserDisplay->lineEdit()->text();
         break;
     case LineEditDisplay:
         if (d->m_lineEditDisplay)
-            m_internal = d->m_lineEditDisplay->text();
+            val = d->m_lineEditDisplay->text();
         break;
     case TextEditDisplay:
         if (d->m_textEditDisplay)
-            m_internal = d->m_textEditDisplay->document()->toPlainText();
+            val = d->m_textEditDisplay->document()->toPlainText();
     case LabelDisplay:
         break;
+    }
+
+    if (d->m_valueAcceptor) {
+        const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, val);
+        if (tmp)
+            m_internal = *tmp;
+    } else {
+        m_internal = val;
     }
 }
 

@@ -377,9 +377,10 @@ bool PathChooser::isReadOnly() const
 void PathChooser::setReadOnly(bool b)
 {
     d->m_lineEdit->setReadOnly(b);
+    d->m_lineEdit->setFrame(!b);
     const auto buttons = d->m_buttons;
     for (QAbstractButton *button : buttons)
-        button->setEnabled(!b);
+        button->setVisible(!b);
 }
 
 void PathChooser::slotBrowse(bool remote)

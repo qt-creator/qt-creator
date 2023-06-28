@@ -456,7 +456,6 @@ public:
     void setValueAcceptor(ValueAcceptor &&acceptor);
 
     QString value() const;
-    void setValue(const QString &val);
 
     void setShowToolTipOnLabel(bool show);
 

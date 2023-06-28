@@ -169,7 +169,7 @@ public:
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironment(const Utils::Environment &env);
-    void setDisplayStyle(Utils::StringAspect::DisplayStyle style);
+    void setReadOnly(bool readOnly);
 
     struct Data : BaseAspect::Data
     {
@@ -184,8 +184,8 @@ private:
     QString executableText() const;
     void updateDevice();
 
-    Utils::StringAspect m_executable;
-    Utils::StringAspect *m_alternativeExecutable = nullptr;
+    Utils::FilePathAspect m_executable;
+    Utils::FilePathAspect *m_alternativeExecutable = nullptr;
     Target *m_target = nullptr;
     ExecutionDeviceSelector m_selector = RunDevice;
 };

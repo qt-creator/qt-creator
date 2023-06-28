@@ -500,11 +500,11 @@ ExecutableAspect::ExecutableAspect(Target *target, ExecutionDeviceSelector selec
 {
     setDisplayName(Tr::tr("Executable"));
     setId("ExecutableAspect");
+    setReadOnly(true);
     addDataExtractor(this, &ExecutableAspect::executable, &Data::executable);
 
     m_executable.setPlaceHolderText(Tr::tr("Enter the path to the executable"));
     m_executable.setLabelText(Tr::tr("Executable:"));
-    m_executable.setDisplayStyle(StringAspect::LabelDisplay);
 
     updateDevice();
 
@@ -579,14 +579,9 @@ void ExecutableAspect::setEnvironment(const Environment &env)
         m_alternativeExecutable->setEnvironment(env);
 }
 
-/*!
-   Sets the display \a style for aspect.
-
-   \sa Utils::StringAspect::setDisplayStyle()
-*/
-void ExecutableAspect::setDisplayStyle(StringAspect::DisplayStyle style)
+void ExecutableAspect::setReadOnly(bool readOnly)
 {
-    m_executable.setDisplayStyle(style);
+    m_executable.setReadOnly(readOnly);
 }
 
 /*!
@@ -601,7 +596,7 @@ void ExecutableAspect::setDisplayStyle(StringAspect::DisplayStyle style)
 void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)
 {
     QTC_ASSERT(!m_alternativeExecutable, return);
-    m_alternativeExecutable = new StringAspect;
+    m_alternativeExecutable = new FilePathAspect;
     m_alternativeExecutable->setDisplayStyle(StringAspect::LineEditDisplay);
     m_alternativeExecutable->setLabelText(Tr::tr("Alternate executable on device:"));
     m_alternativeExecutable->setSettingsKey(overridingKey);
