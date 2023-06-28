@@ -135,6 +135,8 @@ WidgetInfo ContentLibraryView::widgetInfo()
                                                        metaInfo.minorVersion(),
                                                        {{"x", pos.x()}, {"y", pos.y()}, {"z", pos.z()}});
                 m_bundleEffectTarget.defaultNodeListProperty().reparentHere(newEffNode);
+                clearSelectedModelNodes();
+                selectModelNode(newEffNode);
             });
 
             updateBundleEffectsImportedState();
