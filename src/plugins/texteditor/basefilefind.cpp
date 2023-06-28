@@ -316,7 +316,6 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     parameters.exclusionFilters = fileExclusionFilters();
     parameters.additionalParameters = additionalParameters();
     parameters.searchEngineParameters = searchEngine->parameters();
-    parameters.searchEngineIndex = d->m_currentSearchEngineIndex;
     parameters.fileContainerProvider = fileContainerProvider();
     parameters.editorOpener = searchEngine->editorOpener();
     parameters.searchExecutor = searchEngine->searchExecutor();

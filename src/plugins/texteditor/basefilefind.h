@@ -42,7 +42,6 @@ public:
     QStringList exclusionFilters;
     QVariant additionalParameters;
     QVariant searchEngineParameters;
-    int searchEngineIndex;
     Utils::FindFlags flags;
     FileContainerProvider fileContainerProvider = {};
     EditorOpener editorOpener = {};
