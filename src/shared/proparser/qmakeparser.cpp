@@ -1563,7 +1563,7 @@ static bool getBlock(const ushort *tokens, int limit, int &offset, QString *outS
             case TokRemove:
             case TokReplace:
                 // The parameter is the sizehint for the output.
-                // fallthrough
+                [[fallthrough]];
             case TokLine: {
                 ushort dummy;
                 ok = getUshort(tokens, limit, offset, &dummy, outStr);
