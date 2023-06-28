@@ -12,35 +12,70 @@
     \page creator-how-tos.html
     \nextpage creator-known-issues.html
 
-    \title How-tos
+    \title How-to
 
-    How do I:
+    The following topics describe how to use \QC to perform a particular task.
+
+    \section1 Use the UI
 
     \list
-    \li \l {Switch between modes}
-    \li \l {Move between open files}
-    \li \l {Switch to Edit mode}
-    \li \l {Find a specific setting}
-    \li \l {View output}
-    \li \l {Find keyboard shortcuts}
-    \li \l {Run \QC from the command line}
-    \li \l {Show and hide sidebars}
-    \li \l {Move to symbols}
-    \li \l {Quickly locate files using the keyboard}
-    \li \l {Perform calculations}
-    \li \l {Jump to a function in QML code}
-    \li \l {Add a license header template for C++ code}
-    \li \l {Paste text from my clipboard history}
-    \li \l {Sort lines alphabetically}
-    \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
-    \li \l {Select the enclosing block in C++}
-    \li \l {Add my own code snippets to the auto-complete menu}
-    \li \l {Quickly write down notes somewhere}
-    \li \l {Configure the amount of recent files shown}
-    \li \l {Search and replace across files using a regular expression}
+        \li \l {Find a particular preference}
+        \li \l {Find keyboard shortcuts}
+        \li \l {Find menu items on \macos}
+        \li \l {Set high DPI scaling}
+        \li \l {Set the number of recent files shown}
+        \li \l {Show and hide sidebars}
+        \li \l {Switch between modes}
+        \li \l {Switch UI themes}
+        \li \l {View output}
     \endlist
 
-    \section1 Switch between modes
+    \section1 Edit Code
+
+     \list
+        \li \l {Add code snippets to the auto-complete menu}
+        \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
+        \li \l {Jump to a function in QML code}
+        \li \l {Locate files using the keyboard}
+        \li \l {Move between open files}
+        \li \l {Move to symbols}
+        \li \l {Paste text from clipboard history}
+        \li \l {Perform calculations}
+        \li \l {Search and replace across files using a regular expression}
+        \li \l {Select the enclosing block in C++}
+        \li \l {Sort lines alphabetically}
+        \li \l {Switch to Edit mode}
+        \li \l {Write down notes}
+    \endlist
+
+    \section1 Design UIs
+
+     \list
+        \li \l {Export SVG images}
+        \li \l {View images}
+    \endlist
+
+    \section1 Manage Projects
+
+    \list
+        \li \l {Add a license header template for C++ code}
+    \endlist
+
+    \section1 Use \QC
+
+    \list
+        \li \l {Find settings files}
+        \li \l {Run \QC from the command line}
+    \endlist
+*/
+
+/*!
+    \page creator-how-to-switch-between-modes.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-ui
+
+    \title Switch between modes
 
     \QC uses different modes for different purposes. You can quickly
     switch between these modes with the following keyboard shortcuts:
@@ -57,8 +92,15 @@
     \endlist
 
     For more information about \QC modes, see \l {Selecting Modes}.
+*/
 
-    \section1 Move between open files
+/*!
+    \page creator-how-to-move-between-open-files.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Move between open files
 
     To quickly move between currently open files, press
     \key Ctrl+Tab.
@@ -68,8 +110,15 @@
     (\key {Cmd+Opt+Left} on \macos). For example, if you use the \uicontrol Locator
     to jump to a symbol in the same file, you can jump back to your original
     location in that file by pressing \key {Alt+Left}.
+*/
 
-    \section1 Switch to Edit mode
+/*!
+    \page creator-how-to-switch-to-edit-mode.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Switch to Edit mode
 
     To move to the \uicontrol Edit mode and currently active file, press
     \key Esc.
@@ -83,13 +132,29 @@
         \li The second press closes secondary windows
 
     \endlist
+*/
 
-    \section1 Find a specific setting
+/*!
+    \page creator-how-to-find-preferences.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-ui
 
-    To find specific settings in \uicontrol Edit > \uicontrol Preferences,
+    \title Find a particular preference
+
+    To find a particular preference in \uicontrol Edit > \uicontrol Preferences,
     use the filter located at the top left of the \uicontrol Preferences dialog.
 
-    \section1 View output
+    \image qtcreator-preferences.webp {Filtering preferences}
+*/
+
+/*!
+    \page creator-how-to-view-output.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-ui
+
+    \title View output
 
     The \l{Viewing Output}{taskbar} shows output from
     several sources, such as a list of errors and warnings encountered during
@@ -113,8 +178,15 @@
     \endlist
 
     For additional ways to view other types of output, see \l{Viewing Output}.
+*/
 
-    \section1 Find keyboard shortcuts
+/*!
+    \page creator-how-to-find-keyboard-shortcuts.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-ui
+
+    \title Find keyboard shortcuts
 
     \QC has \l{Keyboard Shortcuts}{many useful keyboard shortcuts}.
     You can see the keyboard shortcut for a menu command in the menu
@@ -124,8 +196,15 @@
     \uicontrol Preferences > \uicontrol Environment > \uicontrol Keyboard.
 
     \image qtcreator-keyboard-shortcuts.png "Keyboard preferences"
+*/
 
-    \section1 Run \QC from the command line
+/*!
+    \page creator-how-to-run-from-cli.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-use
+
+    \title Run \QC from the command line
 
     You can launch \QC from the command line using the name of an
     existing \l{Managing Sessions}{session} or project file by entering
@@ -135,8 +214,15 @@
     loads the session called \e somesession.
 
     For more information, see \l{Using Command Line Options}.
+*/
 
-    \section1 Show and hide sidebars
+/*!
+    \page creator-how-to-show-and-hide-sidebars.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-ui
+
+    \title Show and hide sidebars
 
     You can toggle the left and right sidebar in some \QC modes.
 
@@ -150,8 +236,15 @@
 
     For more information on using the sidebars, see
     \l {Browsing Project Contents}.
+*/
 
-    \section1 Move to symbols
+/*!
+    \page creator-how-to-move-to-symbols.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Move to symbols
 
     To move straight to a symbol used in a project, select the symbol in the
     \uicontrol Editor toolbar drop-down menu. For more information on the editor
@@ -166,8 +259,15 @@
     the definition or the declaration of the symbol. You can also move the
     cursor on the symbol and press \key {F2}. For more information, see
     \l{Moving to Symbol Definition or Declaration}.
+*/
 
-    \section1 Quickly locate files using the keyboard
+/*!
+    \page creator-how-to-locate-files-using-keyboard.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Locate files using the keyboard
 
     Use the \uicontrol Locator to browse
     through projects, files, classes, functions, documentation, and file systems.
@@ -184,8 +284,15 @@
     \image qtcreator-locator-customize.webp "Locator preferences"
 
     For more information, see \l{Creating Locator Filters}.
+*/
 
-    \section1 Perform calculations
+/*!
+    \page creator-how-to-perform-calculations.html
+    \previouspage creator-how-to-move-between-open-files.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Perform calculations
 
     Open the \uicontrol Locator with \key {Ctrl+K} and type =, followed by a space.
     You can now do basic calculations, with options to copy the results to the clipboard
@@ -194,13 +301,27 @@
     \image qtcreator-locator.webp "List of locator filters"
 
     For more information, see \l{Executing JavaScript}.
+*/
 
-    \section1 Jump to a function in QML code
+/*!
+    \page creator-how-to-jump-to-functions-in-qml-code.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Jump to a function in QML code
 
     Open the \uicontrol Locator with \key {Ctrl+K} and type m, followed by a space.
     You can now go directly to any QML method in the file.
+*/
 
-    \section1 Add a license header template for C++ code
+/*!
+    \page creator-how-to-add-license-header-templates.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-projects
+
+    \title Add a license header template for C++ code
 
     Specify a file that has a license header for C++ in \uicontrol Edit >
     \uicontrol Preferences > \uicontrol C++ > \uicontrol {File Naming} >
@@ -223,20 +344,41 @@
         \li \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.
 
     \endlist
+*/
 
-    \section1 Paste text from my clipboard history
+/*!
+    \page creator-how-to-paste-text-from-clipboard-history.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Paste text from clipboard history
 
     \QC stores copied text in clipboard history. To retrieve clips from the
     history, press \key {Ctrl+Shift+V} until the clip appears.
     The number of clips in the history is fixed to 10.
+*/
 
-    \section1 Sort lines alphabetically
+/*!
+    \page creator-how-to-sort-lines-alphabetically.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Sort lines alphabetically
 
     To sort selected lines alphabetically, select \uicontrol Edit >
     \uicontrol Advanced > \uicontrol {Sort Selected Lines} or press
     \key {Alt+Shift+S} (or \key Ctrl+Shift+S on \macos).
+*/
 
-    \section1 Enclose selected code in curly braces, parentheses, or double quotes
+/*!
+    \page creator-enclose-code-in-characters.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Enclose selected code in curly braces, parentheses, or double quotes
 
     When you have selected code and enter one of the following opening
     characters, the matching closing character is added automatically
@@ -253,45 +395,87 @@
     \uicontrol {Text Editor} > \uicontrol Completion.
 
     \image qtcreator-options-texteditor-completion.png "Completion preferences"
+*/
 
-    \section1 Select the enclosing block in C++
+/*!
+    \page creator-how-to-select-enclosing-block.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Select the enclosing block in C++
 
     Press \key {Ctrl+U}.
+*/
 
-    \section1 Add my own code snippets to the auto-complete menu
+/*!
+    \page creator-how-to-add-code-snippets.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
 
-    You can add, modify, and remove snippets in the snippet editor.
+    \title Add code snippets to the auto-complete menu
+
+    Add, modify, and remove snippets in the snippet editor.
     To open the editor, select \uicontrol Edit > \uicontrol Preferences
     > \uicontrol {Text Editor} > \uicontrol Snippets.
 
     \image qtcreator-snippet-modifiers.png "Snippets preferences"
 
     For more information, see \l {Adding and Editing Snippets}.
+*/
 
-    \section1 Quickly write down notes somewhere
+/*!
+    \page creator-how-to-write-notes.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
 
-    Select \uicontrol File > \uicontrol {New File} >
-    \uicontrol General > \uicontrol {Scratch Buffer}.
-    Alternatively, \key {Ctrl+N} can be used to open this dialog, which is
-    fully navigable via keyboard by using the up and down arrow keys and the
-    tab key.
+    \title Write down notes
 
-    This creates a new empty text file and saves it to the temporary directory
-    on your machine. You can use it to write down notes without having to worry
-    about deleting the file afterwards. The operating system will eventually
-    remove the file automatically. If you want to keep the file, you can easily
-    save it as a new file somewhere else. If you accidentally close the file,
-    you can find it in the \uicontrol File > \uicontrol {Recent Files} menu.
+    To write down notes without having to worry about deleting the file
+    later, create a new empty text file and save it to a temporary directory
+    on your machine.
 
-    \section1 Configure the amount of recent files shown
+    \image qtcreator-scratch-buffer.webp {Scratch file open in the text editor}
+
+    To create a scratch file and open it in the text editor:
+
+    \list
+        \li Select \uicontrol File > \uicontrol {New File} > \uicontrol General >
+            \uicontrol {Scratch Buffer}.
+        \li Press \key {Ctrl+N}.
+    \endlist
+
+    Use the up and down arrow keys and the tab key to navigate in the editor.
+
+    The operating system will eventually remove the file automatically. To keep
+    the file, save it as a new file somewhere else. If you accidentally close the
+    file, find it in \uicontrol File > \uicontrol {Recent Files}.
+*/
+
+/*!
+    \page creator-how-to-set-recent-files.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-ui
+
+    \title Set the number of recent files shown
 
     Set the value of \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Environment > \uicontrol System
     > \uicontrol {Maximum number of entries in "Recent Files"}.
 
     \image qtcreator-options-environment-system.png "System preferences"
+*/
 
-    \section1 Search and replace across files using a regular expression
+/*!
+    \page creator-how-to-search-and-replace-using-regexp.html
+    \previouspage creator-how-to-move-between-open-files.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-edit
+
+    \title Search and replace across files using a regular expression
 
     As an example, say you want to replace equality checks (\c {foo == bar})
     with a function (\c {foo.equals(bar)}):

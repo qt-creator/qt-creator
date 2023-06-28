@@ -18,51 +18,57 @@
 
     \title User Interface
 
-    When you start \QC, it opens to the \uicontrol Welcome mode, where you can:
-
-    \list
-        \if defined(qtcreator)
-        \li Open recent sessions
-        \endif
-
-        \li Open recent projects
-
-        \li Create and open projects
-
-        \li Open tutorials and example projects
-
-        \if defined(qtcreator)
-        \li Browse Qt extensions in the \l{https://marketplace.qt.io/}
-            {Qt Marketplace}
-        \li Download the Qt Installer
-        \endif
-
-        \li Read news from the online community and Qt blogs
-
-        \li Create or manage a Qt Account
-
-    \endlist
-
     \if defined(qtcreator)
-    \image qtcreator-breakdown.png
-    \else
-    \image studio-welcome-mode.png
-    \endif
+    When you start \QC, it opens to the \uicontrol Welcome mode.
 
-    \if defined(qtcreator)
-    Do you want to perform a particular task, such as designing the UI,
-    writing code, or debugging the application? Select the appropriate mode in
-    the \l{Selecting Modes}{mode selector} (1).
+    \image qtcreator-breakdown.png {Welcome mode}
 
-    Are you ready to build the application for particular hardware or (5)
-    run (3) or debug (4) it on a device? Use the kit selector (2) to select
-    the appropriate \l{glossary-buildandrun-kit}{kit}. The task bar (7)
-    displays output from these actions.
+    \table
+    \header
+        \li Number
+        \li UI Control
+        \li Purpose
+        \li Read More
+    \row
+        \li \inlineimage numbers/01.png
+        \li Mode selector
+        \li Perform a particular task, such as designing the UI, writing code, or
+            debugging the application.
+        \li \l{Selecting Modes}
+    \row
+        \li \inlineimage numbers/02.png
+        \li Kit selector
+        \li Select the appropriate \l{glossary-buildandrun-kit}{kit} for building
+            the project and running it on particular hardware.
+        \li \l{Activating Kits for a Project}
+    \row
+        \li \inlineimage numbers/03.png
+        \li Run button
+        \li Run the application on the selected target platform.
+        \li \l{Running on Multiple Platforms}
+    \row
+        \li \inlineimage numbers/04.png
+        \li Debug button
+        \li Debug the application on the selected target platform.
+        \li \l{Debugging}
+    \row
+        \li \inlineimage numbers/05.png
+        \li Build button
+        \li Build the application using the selected kit.
+        \li \l{Building for Multiple Platforms}
+    \row
+        \li \inlineimage numbers/06.png
+        \li Locator
+        \li Find a particular project, file, class, or function.
+        \li \l{Searching with the Locator}
+    \row
+        \li \inlineimage numbers/07.png
+        \li Output
+        \li View output from building, running, and other actions.
+        \li \l{Viewing Output}
+    \endtable
 
-    Are you looking for a particular project, file, class, or function?
-    Start typing its name in the \l{Searching with the Locator}{locator} (6).
-
-    To see where the above controls are in the user interface, select
+    To see where the above controls are in the UI, select
     \uicontrol Help > \uicontrol {UI Tour}.
 
     The following video shows the parts of the UI and the \uicontrol Welcome
@@ -70,55 +76,27 @@
 
     \youtube hOx3dod5-1A
 
-    The following sections describe some \QC controls in more detail:
-
-    \list
-        \li \l{Selecting Modes}{Mode selector}
-        \li \l{Working with Sidebars}{Sidebars}
-        \li \l{Browsing Project Contents}{Views}
-        \li \l{Viewing Output}{Output}
-    \endlist
-
-    \else
-    You can use the \l{Selecting Modes}{mode selector} to switch to the
-    \l{Design Views}{Design mode} (1), where you will do
-    most of your work and the \l{Using the Help Mode}{Help} (2) mode, where
-    you can read the product documentation. The other modes are for more
-    advanced use, and you are likely to need them less often.
-
-    Below the mode selector, you can find shortcuts to some more advanced
-    functions, such as running the application or finding problems in the
-    QML code by debugging or profiling it.
-    \endif
-
     \section1 What's New?
 
     For information about new features and bug fixes in each \QC release,
     select \uicontrol Help > \uicontrol {Change Log}.
 
-    \section1 For \macos Users
+    \sa {Working with Sidebars}, {Browsing Project Contents}
+    \sa {Use the UI}{How-to: Use the UI}
+    \else
+    When you start \QC, it opens to the \uicontrol Welcome mode, where you can:
 
-    \QC uses standard names and locations for standard features, such as
-    \e preferences. In this manual, the names and locations on
-    Windows and Linux are usually used to keep the instructions short. Here are
-    some places to check if you cannot find a function, dialog, or keyboard
-    shortcut on \macos when following the instructions:
+    \list
+        \li Open recent projects
+        \li Create and open projects
+        \li Open tutorials and example projects
+        \li Read news from the online community and Qt blogs
+        \li Create or manage a Qt Account
+    \endlist
 
-    \table
-        \header
-            \li For
-            \li Look In
-        \row
-            \li \uicontrol Edit > \uicontrol Preferences
-            \li \uicontrol {\QC} > \uicontrol Preferences
-        \row
-            \li \uicontrol Help > \uicontrol {About Plugins}
-            \li \uicontrol {\QC} > \uicontrol {About Plugins}
-        \row
-            \li Keyboard shortcuts
-            \li \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Environment >
-                \uicontrol Keyboard
-    \endtable
+    \image studio-welcome-mode.webp {Welcome mode}
+
+    \endif
 
     \if defined(qtdesignstudio)
     \section1 Customizing the Menu
@@ -139,143 +117,26 @@
 
     You need to restart \QDS to apply changes made to these settings.
 
-    \endif
+    \section1 Customizing the UI
 
-    \section1 Switching UI Themes
-
-    Themes enable you to change the appearance of the UI from dark to light,
-    for example. To switch themes, select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol Environment, and then select a theme in the \uicontrol Theme
-    field.
-
-    \image qtcreator-preferences-environment-interface.webp {Interface preferences}
-
-    \section1 Changing Languages
-
-    \QC has several language versions. If the system language
-    is one of the supported languages, \QC selects it automatically. To
-    change the language, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Environment and select a language in the \uicontrol Language
-    field. Select \uicontrol {Restart Now} to restart \QC and have the change
-    take effect.
-
-    \section1 High DPI Scaling
-
-    The operating systems that \QC supports implement high dots-per-inch (DPI)
-    scaling at varying levels. Therefore, \QC handles high DPI scaling
-    differently on different operating systems:
+    The following topics describe how to customize the UI:
 
     \list
-        \li On \macos, \QC forces high DPI scaling, which means that it allows
-            Qt to use the system scaling factor as the \QC scaling factor.
-        \li On Windows, if you do not set \l{High DPI}
-            {scaling environment variables}, \QC instructs Qt to detect the
-            scaling factor and use it as the \QC scaling factor.
-        \li On Linux, \QC leaves it to the user to enable high DPI scaling
-            because the process varies so much on different distributions
-            and windowing systems that it cannot be reliably done automatically.
+        \li \l {Find menu items on \macos}
+        \li \l {Set high DPI scaling}
+        \li \l {Switch UI themes}
     \endlist
-
-    To override the default approach and always enable high-DPI scaling, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
-    \uicontrol {Enable high DPI scaling}. The changes will take effect after you
-    restart \QC.
-
-    \section1 Navigating with Keyboard
-
-    \QC caters not only to those users who like to use the mouse, but also
-    to those who are more comfortable with the keyboard. A wide range of
-    \l{keyboard-shortcuts}{keyboard} and \l{Searching with the Locator}
-    {navigation} shortcuts are available to help you work faster.
-
-    \if defined(qtcreator)
-    \section1 Useful Features
-
-    For a list of useful \QC features described in other parts of the
-    documentation, see \l{How-tos}.
-    \endif
 
     \section1 Viewing Images
 
-    \QC opens image files in the image viewer.
+    The following topics describe how to use the image viewer:
 
-    \image qtcreator-image-viewer.png "Image viewer"
-
-    Use the toolbar buttons or \l{Keyboard Shortcuts}{keyboard shortcuts} to:
-
-    \list
-        \li \inlineimage icons/export.png
-            - Export SVG images to pixmaps or copy an image as a data URL, which
-            enables you to include it in web pages as if it were an external
-            resource
-        \li \inlineimage icons/original-size.png
-            - Return images to their original size
-        \li \inlineimage icons/zoom-in.png
-            - Zoom in and out (\inlineimage icons/zoom-out.png
-            )
-        \li \inlineimage icons/run_small.png
-            - Play and pause animated GIF and MNG images
-        \li \inlineimage icons/qtcreator-desktopdevice-button.png
-            - Show and hide the image background
-        \li \inlineimage icons/switch-outline.png
-            - Show and hide the image outline
-        \li \inlineimage icons/fittoview.png
-            - Fit images to screen
+     \list
+        \li \l {Export SVG images}
+        \li \l {View images}
     \endlist
 
-    Select \uicontrol {Set as Default} to use the current settings for the
-    background and outline modes and fitting images to screen as default
-    values for the image viewer.
-
-    \section2 Exporting SVG Images
-
-    If you have a freely scalable icon in the SVG format,
-    you can export it to several images of different sizes to create a set of
-    pixmaps.
-    \if defined(qtcreator)
-    You can then use QIcon::addPixmap() to add the pixmaps to icons in
-    different modes and states.
     \endif
-
-    \if defined(qtcreator)
-    \section1 Location of Settings Files
-
-    \QC creates the following files and directories:
-
-    \list
-
-        \li QtCreator.db
-
-        \li QtCreator.ini
-
-        \li qtversion.xml
-
-        \li toolChains.xml
-
-        \li qtcreator
-
-        \li qtc-qmldump
-
-    \endlist
-
-    The location of the above files and directories depends on the platform:
-
-    \list
-
-        \li On Linux and other Unix platforms, look in
-            \c {~/.config/QtProject} and
-            \c {~/.local/share/data/QtProject/qtcreator}.
-
-        \li On \macos, look in \c {~/.config/QtProject} and
-            \c {~/Library/Application Support/QtProject/Qt Creator}.
-
-        \li On Windows, look in
-            \c {%appdata%\QtProject} and \c {%localappdata%\QtProject}.
-
-    \endlist
-    \endif
-
-
 */
 
 /*!
