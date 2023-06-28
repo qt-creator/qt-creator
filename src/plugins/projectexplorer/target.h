@@ -77,6 +77,7 @@ public:
     const QList<RunConfiguration *> runConfigurations() const;
     void addRunConfiguration(RunConfiguration *rc);
     void removeRunConfiguration(RunConfiguration *rc);
+    void removeAllRunConfigurations();
 
     RunConfiguration *activeRunConfiguration() const;
     void setActiveRunConfiguration(RunConfiguration *rc);

@@ -525,6 +525,20 @@ void Target::removeRunConfiguration(RunConfiguration *rc)
     delete rc;
 }
 
+void Target::removeAllRunConfigurations()
+{
+    QList<RunConfiguration *> runConfigs = d->m_runConfigurations;
+    d->m_runConfigurations.clear();
+    setActiveRunConfiguration(nullptr);
+    while (!runConfigs.isEmpty()) {
+        RunConfiguration * const rc = runConfigs.takeFirst();
+        emit removedRunConfiguration(rc);
+        ProjectExplorerPlugin::targetSelector()->removedRunConfiguration(rc);
+        d->m_runConfigurationModel.removeProjectConfiguration(rc);
+        delete rc;
+    }
+}
+
 RunConfiguration *Target::activeRunConfiguration() const
 {
     return d->m_activeRunConfiguration;
