@@ -192,9 +192,7 @@ ICore::ICore(MainWindow *mainwindow)
 {
     m_instance = this;
     m_mainwindow = mainwindow;
-    // Save settings once after all plugins are initialized:
-    connect(PluginManager::instance(), &PluginManager::initializationDone,
-            this, [] { ICore::saveSettings(ICore::InitializationDone); });
+
     connect(PluginManager::instance(), &PluginManager::testsFinished,
             this, [this](int failedTests) {
         emit coreAboutToClose();

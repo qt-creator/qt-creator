@@ -117,7 +117,6 @@ public:
     static void restart();
 
     enum SaveSettingsReason {
-        InitializationDone,
         SettingsDialogDone,
         ModeChanged,
         MainWindowClosing,
