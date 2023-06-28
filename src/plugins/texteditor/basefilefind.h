@@ -41,7 +41,6 @@ public:
     QStringList nameFilters;
     QStringList exclusionFilters;
     QVariant additionalParameters;
-    QVariant searchEngineParameters;
     Utils::FindFlags flags;
     FileContainerProvider fileContainerProvider = {};
     EditorOpener editorOpener = {};
@@ -70,7 +69,6 @@ public:
     virtual QString title() const = 0;
     virtual QString toolTip() const = 0; // add %1 placeholder where the find flags should be put
     virtual QWidget *widget() const = 0;
-    virtual QVariant parameters() const = 0;
     virtual void readSettings(QSettings *settings) = 0;
     virtual void writeSettings(QSettings *settings) const = 0;
     virtual SearchExecutor searchExecutor() const = 0;

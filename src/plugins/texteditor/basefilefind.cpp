@@ -142,7 +142,6 @@ public:
     QString title() const override { return Tr::tr("Internal"); }
     QString toolTip() const override { return {}; }
     QWidget *widget() const override { return m_widget; }
-    QVariant parameters() const override { return {}; }
     void readSettings(QSettings * /*settings*/) override {}
     void writeSettings(QSettings * /*settings*/) const override {}
     SearchExecutor searchExecutor() const override
@@ -315,7 +314,6 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     parameters.nameFilters = fileNameFilters();
     parameters.exclusionFilters = fileExclusionFilters();
     parameters.additionalParameters = additionalParameters();
-    parameters.searchEngineParameters = searchEngine->parameters();
     parameters.fileContainerProvider = fileContainerProvider();
     parameters.editorOpener = searchEngine->editorOpener();
     parameters.searchExecutor = searchEngine->searchExecutor();

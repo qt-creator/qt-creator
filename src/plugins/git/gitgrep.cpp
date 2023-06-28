@@ -131,11 +131,10 @@ static SearchResultItems parse(const QFuture<void> &future, const QString &input
     return items;
 }
 
-static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParameters &parameters)
+static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParameters &parameters,
+                       const GitGrepParameters &gitParameters)
 {
     const FilePath directory = FilePath::fromString(parameters.additionalParameters.toString());
-    const GitGrepParameters gitParameters
-        = parameters.searchEngineParameters.value<GitGrepParameters>();
     const QString ref = gitParameters.ref.isEmpty() ? QString() : gitParameters.ref + ':';
 
     const auto setupProcess = [&](Process &process) {
@@ -250,11 +249,6 @@ GitGrepParameters GitGrep::gitParameters() const
     return {m_treeLineEdit->text(), m_recurseSubmodules && m_recurseSubmodules->isChecked()};
 }
 
-QVariant GitGrep::parameters() const
-{
-    return QVariant::fromValue(gitParameters());
-}
-
 void GitGrep::readSettings(QSettings *settings)
 {
     m_treeLineEdit->setText(settings->value(GitGrepRef).toString());
@@ -267,8 +261,8 @@ void GitGrep::writeSettings(QSettings *settings) const
 
 SearchExecutor GitGrep::searchExecutor() const
 {
-    return [](const FileFindParameters &parameters) {
-        return Utils::asyncRun(runGitGrep, parameters);
+    return [gitParameters = gitParameters()](const FileFindParameters &parameters) {
+        return Utils::asyncRun(runGitGrep, parameters, gitParameters);
     };
 }
 
@@ -290,5 +284,3 @@ EditorOpener GitGrep::editorOpener() const
 }
 
 } // Git::Internal
-
-Q_DECLARE_METATYPE(Git::Internal::GitGrepParameters)

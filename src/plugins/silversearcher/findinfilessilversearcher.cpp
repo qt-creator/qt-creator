@@ -24,12 +24,6 @@ namespace {
 const QLatin1String s_metaCharacters = QLatin1String("+()^$.{}[]|\\");
 const QLatin1String s_searchOptionsString = QLatin1String("SearchOptionsString");
 
-class SilverSearcherSearchOptions
-{
-public:
-    QString searchOptions;
-};
-
 static QString convertWildcardToRegex(const QString &wildcard)
 {
     QString regex;
@@ -60,9 +54,9 @@ static bool isSilverSearcherAvailable()
 }
 
 static void runSilverSeacher(QPromise<SearchResultItems> &promise,
-                             const FileFindParameters &parameters)
+                             const FileFindParameters &parameters, const QString &searchOptions)
 {
-    const auto setupProcess = [parameters](Process &process) {
+    const auto setupProcess = [parameters, searchOptions](Process &process) {
         const FilePath directory
             = FilePath::fromUserInput(parameters.additionalParameters.toString());
         QStringList arguments = {"--parallel", "--ackmate"};
@@ -88,10 +82,8 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
 
         arguments << "-G" << nameFiltersAsRegExp;
 
-        const SilverSearcherSearchOptions params = parameters.searchEngineParameters
-                                                       .value<SilverSearcherSearchOptions>();
-        if (!params.searchOptions.isEmpty())
-            arguments << params.searchOptions.split(' ');
+        if (!searchOptions.isEmpty())
+            arguments << searchOptions.split(' ');
 
         arguments << "--" << parameters.text << directory.normalizedPathName().toString();
         process.setCommand({"ag", arguments});
@@ -107,8 +99,6 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
 }
 
 } // namespace
-
-Q_DECLARE_METATYPE(SilverSearcherSearchOptions)
 
 namespace SilverSearcher {
 
@@ -137,13 +127,6 @@ FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
     }
 }
 
-QVariant FindInFilesSilverSearcher::parameters() const
-{
-    SilverSearcherSearchOptions silverSearcherSearchOptions;
-    silverSearcherSearchOptions.searchOptions = m_searchOptionsLineEdit->text();
-    return QVariant::fromValue(silverSearcherSearchOptions);
-}
-
 QString FindInFilesSilverSearcher::title() const
 {
     return "Silver Searcher";
@@ -166,8 +149,8 @@ void FindInFilesSilverSearcher::writeSettings(QSettings *settings) const
 
 SearchExecutor FindInFilesSilverSearcher::searchExecutor() const
 {
-    return [](const FileFindParameters &parameters) {
-        return Utils::asyncRun(runSilverSeacher, parameters);
+    return [searchOptions = m_searchOptionsLineEdit->text()](const FileFindParameters &parameters) {
+        return Utils::asyncRun(runSilverSeacher, parameters, searchOptions);
     };
 }
 
