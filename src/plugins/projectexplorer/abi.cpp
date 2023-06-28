@@ -460,7 +460,6 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     OSFlavor flavor = UnknownFlavor;
     BinaryFormat format = UnknownFormat;
     unsigned char width = 0;
-    int unknownCount = 0;
 
     for (const QString &p : parts) {
         if (p == "unknown" || p == "pc"
@@ -623,8 +622,6 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             os = BareMetalOS;
             flavor = GenericFlavor;
             format = ElfFormat;
-        } else {
-            ++unknownCount;
         }
     }
 
