@@ -26,6 +26,23 @@
       <tags>qt quick,controls,tumbler,help</tags>
     </tutorial>
 
+    <tutorial imageUrl=":qtsupport/images/icons/youtubehOx3dod5-1A.webp" difficulty="" projectPath="" name="Learning: Qt Creator - UI Tour and the Welcome screen" isVideo="true" videoUrl="https://www.youtube.com/watch?v=hOx3dod5-1A" videoLength="3:21">
+      <description><![CDATA[The parts of the Qt Creator UI and the Welcome mode.]]></description>
+      <tags>qt creator,learning,ui,welcome,2023</tags>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/youtubeFTSvDmcAgPI.webp" difficulty="" projectPath="" name="Learning: Qt Creator - Create a new project" isVideo="true" videoUrl="https://www.youtube.com/watch?v=FTSvDmcAgPI" videoLength="3:21">
+      <description><![CDATA[Creating a Qt Widgets application project.]]></description>
+      <tags>qt creator,learning,projects,qt widgets,2023</tags>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/youtubeLnVjI0I7cKs.webp" difficulty="" projectPath="" name="Learning: Qt Creator - Design and Edit Modes" isVideo="true" videoUrl="https://www.youtube.com/watch?v=LnVjI0I7cKs" videoLength="4:34">
+      <description><![CDATA[Developing a Qt Widgets application.]]></description>
+      <tags>qt creator,learning,qt designer,coding,2023</tags>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/youtubeEhJ1eV_6RH8.webp" difficulty="" projectPath="" name="Learning: Qt Creator - Debugging" isVideo="true" videoUrl="https://www.youtube.com/watch?v=EhJ1eV_6RH8" videoLength="3:22">
+      <description><![CDATA[Debugging a Qt Widgets application.]]></description>
+      <tags>qt creator,learning,debugging,2023</tags>
+    </tutorial>
+
     <tutorial imageUrl=":qtsupport/images/icons/youtube1tSpq5OLkYI.webp" difficulty="" projectPath="" name="Online: How to set up and deploy an application using Qt for Device Creation" isVideo="true" videoUrl="https://youtu.be/1tSpq5OLkYI" videoLength="5:48">
       <description><![CDATA[Using Qt Creator to deploy applications to an embedded device.]]></description>
       <tags>qt creator,embedded,device creation,video,2021</tags>
