@@ -353,7 +353,7 @@ void BaseFileFind::runSearch(SearchResult *search)
     connect(watcher, &QFutureWatcherBase::finished, search, [watcher, search]() {
         search->finishSearch(watcher->isCanceled());
     });
-    QFuture<SearchResultItems> future = executeSearch(parameters);
+    QFuture<SearchResultItems> future = parameters.searchExecutor(parameters);
     watcher->setFuture(future);
     d->m_futureSynchronizer.addFuture(future);
     FutureProgress *progress = ProgressManager::addTask(future,
@@ -590,11 +590,6 @@ FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems 
     }
 
     return changes.keys();
-}
-
-QFuture<SearchResultItems> BaseFileFind::executeSearch(const FileFindParameters &parameters)
-{
-    return parameters.searchExecutor(parameters);
 }
 
 namespace Internal {

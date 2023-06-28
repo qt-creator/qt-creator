@@ -106,7 +106,6 @@ protected:
     virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
-    QFuture<Utils::SearchResultItems> executeSearch(const FileFindParameters &parameters);
 
     void writeCommonSettings(QSettings *settings);
     void readCommonSettings(QSettings *settings, const QString &defaultFilter, const QString &defaultExclusionFilter);
