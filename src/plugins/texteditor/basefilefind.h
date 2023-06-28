@@ -102,7 +102,8 @@ public:
                                        bool preserveCase = false);
 
 protected:
-    virtual Utils::FilePath searchDir() const { return {}; }
+    void setSearchDir(const Utils::FilePath &dir);
+    Utils::FilePath searchDir() const;
     virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
@@ -120,6 +121,7 @@ protected:
 
 signals:
     void currentSearchEngineChanged();
+    void searchDirChanged(const Utils::FilePath &dir);
 
 private:
     virtual FileContainerProvider fileContainerProvider() const = 0;

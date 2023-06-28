@@ -36,15 +36,10 @@ public:
 
     void setDirectory(const Utils::FilePath &directory);
     void setBaseDirectory(const Utils::FilePath &directory);
-    Utils::FilePath directory() const;
     static void findOnFileSystem(const QString &path);
     static FindInFiles *instance();
 
-signals:
-    void pathChanged(const Utils::FilePath &directory);
-
 protected:
-    Utils::FilePath searchDir() const override;
     QString label() const override;
     QString toolTip() const override;
     void syncSearchEngineCombo(int selectedSearchEngineIndex) override;

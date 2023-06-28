@@ -212,7 +212,7 @@ GitGrep::GitGrep(GitClient *client)
     });
     FindInFiles *findInFiles = FindInFiles::instance();
     QTC_ASSERT(findInFiles, return);
-    connect(findInFiles, &FindInFiles::pathChanged, m_widget, [this](const FilePath &path) {
+    connect(findInFiles, &FindInFiles::searchDirChanged, m_widget, [this](const FilePath &path) {
         setEnabled(isGitDirectory(path));
     });
     connect(this, &SearchEngine::enabledChanged, m_widget, &QWidget::setEnabled);

@@ -147,7 +147,8 @@ QWidget *FindInFiles::createConfigWidget()
         m_directory->setExpectedKind(PathChooser::ExistingDirectory);
         m_directory->setPromptDialogTitle(Tr::tr("Directory to Search"));
         connect(m_directory.data(), &PathChooser::textChanged, this,
-                [this] { pathChanged(m_directory->filePath()); });
+                [this] { setSearchDir(m_directory->filePath()); });
+        connect(this, &BaseFileFind::searchDirChanged, m_directory, &PathChooser::setFilePath);
         m_directory->setHistoryCompleter(QLatin1String(HistoryKey),
                                          /*restoreLastItemFromHistory=*/ true);
         if (!HistoryCompleter::historyExistsFor(QLatin1String(HistoryKey))) {
@@ -181,11 +182,6 @@ QWidget *FindInFiles::createConfigWidget()
     return m_configWidget;
 }
 
-FilePath FindInFiles::searchDir() const
-{
-    return m_directory->filePath();
-}
-
 void FindInFiles::writeSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("FindInFiles"));
@@ -200,19 +196,9 @@ void FindInFiles::readSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void FindInFiles::setDirectory(const FilePath &directory)
-{
-    m_directory->setFilePath(directory);
-}
-
 void FindInFiles::setBaseDirectory(const FilePath &directory)
 {
     m_directory->setBaseDirectory(directory);
-}
-
-FilePath FindInFiles::directory() const
-{
-    return m_directory->filePath();
 }
 
 void FindInFiles::findOnFileSystem(const QString &path)
@@ -220,7 +206,7 @@ void FindInFiles::findOnFileSystem(const QString &path)
     QTC_ASSERT(m_instance, return);
     const QFileInfo fi(path);
     const QString folder = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    m_instance->setDirectory(FilePath::fromString(folder));
+    m_instance->setSearchDir(FilePath::fromString(folder));
     Find::openFindDialog(m_instance);
 }
 

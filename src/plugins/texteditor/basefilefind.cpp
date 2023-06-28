@@ -187,6 +187,7 @@ public:
     QVector<SearchEngine *> m_searchEngines;
     InternalEngine m_internalSearchEngine;
     int m_currentSearchEngineIndex = -1;
+    FilePath m_searchDir;
 };
 
 } // namespace Internal
@@ -431,6 +432,19 @@ QList<QPair<QWidget *, QWidget *>> BaseFileFind::createPatternWidgets()
     exclusionLabel->setBuddy(d->m_exclusionCombo);
     syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
     return {{filterLabel, d->m_filterCombo}, {exclusionLabel, d->m_exclusionCombo}};
+}
+
+void BaseFileFind::setSearchDir(const FilePath &dir)
+{
+    if (dir == d->m_searchDir)
+        return;
+    d->m_searchDir = dir;
+    emit searchDirChanged(d->m_searchDir);
+}
+
+FilePath BaseFileFind::searchDir() const
+{
+    return d->m_searchDir;
 }
 
 void BaseFileFind::writeCommonSettings(QSettings *settings)
