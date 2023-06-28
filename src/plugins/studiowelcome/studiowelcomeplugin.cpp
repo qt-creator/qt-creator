@@ -422,6 +422,9 @@ static QString tags(const FilePath &projectFilePath)
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
+    if (index.row() >= ProjectExplorer::ProjectExplorerPlugin::recentProjects().count())
+        return {};
+
     const ProjectExplorer::RecentProjectsEntry data =
             ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(index.row());
     switch (role) {
