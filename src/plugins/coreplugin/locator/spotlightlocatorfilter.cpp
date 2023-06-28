@@ -21,6 +21,7 @@
 #include <utils/stringutils.h>
 #include <utils/variablechooser.h>
 
+#include <QCheckBox>
 #include <QFormLayout>
 #include <QJsonObject>
 #include <QRegularExpression>
@@ -59,9 +60,12 @@ static QString defaultArguments(Qt::CaseSensitivity sens = Qt::CaseInsensitive)
         .arg(sens == Qt::CaseInsensitive ? QString() : "-i ");
 }
 
+const bool kSortResultsDefault = true;
+
 const char kCommandKey[] = "command";
 const char kArgumentsKey[] = "arguments";
 const char kCaseSensitiveKey[] = "caseSensitive";
+const char kSortResultsKey[] = "sortResults";
 
 static QString escaped(const QString &query)
 {
@@ -112,8 +116,10 @@ SpotlightLocatorFilter::SpotlightLocatorFilter()
     m_caseSensitiveArguments = defaultArguments(Qt::CaseSensitive);
 }
 
-static void matches(QPromise<void> &promise, const LocatorStorage &storage,
-                    const CommandLine &command)
+static void matches(QPromise<void> &promise,
+                    const LocatorStorage &storage,
+                    const CommandLine &command,
+                    bool sortResults)
 {
     // If search string contains spaces, treat them as wildcard '*' and search in full path
     const QString wildcardInput = QDir::fromNativeSeparators(storage.input()).replace(' ', '*');
@@ -156,11 +162,13 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
     process.start();
     loop.exec();
 
-    for (auto &entry : entries) {
-        if (promise.isCanceled())
-            return;
-        if (entry.size() < 1000)
-            Utils::sort(entry, LocatorFilterEntry::compareLexigraphically);
+    if (sortResults) {
+        for (auto &entry : entries) {
+            if (promise.isCanceled())
+                return;
+            if (entry.size() < 1000)
+                Utils::sort(entry, LocatorFilterEntry::compareLexigraphically);
+        }
     }
     if (promise.isCanceled())
         return;
@@ -174,8 +182,11 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
 
     TreeStorage<LocatorStorage> storage;
 
-    const auto onSetup = [storage, command = m_command, insensArgs = m_arguments,
-                          sensArgs = m_caseSensitiveArguments](Async<void> &async) {
+    const auto onSetup = [storage,
+                          command = m_command,
+                          insensArgs = m_arguments,
+                          sensArgs = m_caseSensitiveArguments,
+                          sortResults = m_sortResults](Async<void> &async) {
         const Link link = Link::fromString(storage->input(), true);
         const FilePath input = link.targetFilePath;
         if (input.isEmpty())
@@ -188,7 +199,7 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
         const CommandLine cmd(FilePath::fromString(command), expander->expand(args),
                               CommandLine::Raw);
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
-        async.setConcurrentCallData(matches, *storage, cmd);
+        async.setConcurrentCallData(matches, *storage, cmd, sortResults);
         return SetupResult::Continue;
     };
 
@@ -210,9 +221,12 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
     argumentsEdit->setText(m_arguments);
     FancyLineEdit *caseSensitiveArgumentsEdit = new FancyLineEdit;
     caseSensitiveArgumentsEdit->setText(m_caseSensitiveArguments);
+    auto sortResults = new QCheckBox(Tr::tr("Sort results"));
+    sortResults->setChecked(m_sortResults);
     layout->addRow(Tr::tr("Executable:"), commandEdit);
     layout->addRow(Tr::tr("Arguments:"), argumentsEdit);
     layout->addRow(Tr::tr("Case sensitive:"), caseSensitiveArgumentsEdit);
+    layout->addRow({}, sortResults);
     std::unique_ptr<MacroExpander> expander(createMacroExpander(""));
     auto chooser = new VariableChooser(&configWidget);
     chooser->addMacroExpanderProvider([expander = expander.get()] { return expander; });
@@ -223,6 +237,7 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
         m_command = commandEdit->rawFilePath().toString();
         m_arguments = argumentsEdit->text();
         m_caseSensitiveArguments = caseSensitiveArgumentsEdit->text();
+        m_sortResults = sortResults->isChecked();
     }
     return accepted;
 }
@@ -235,6 +250,8 @@ void SpotlightLocatorFilter::saveState(QJsonObject &obj) const
         obj.insert(kArgumentsKey, m_arguments);
     if (m_caseSensitiveArguments != defaultArguments(Qt::CaseSensitive))
         obj.insert(kCaseSensitiveKey, m_caseSensitiveArguments);
+    if (m_sortResults != kSortResultsDefault)
+        obj.insert(kSortResultsKey, m_sortResults);
 }
 
 void SpotlightLocatorFilter::restoreState(const QJsonObject &obj)
@@ -242,6 +259,7 @@ void SpotlightLocatorFilter::restoreState(const QJsonObject &obj)
     m_command = obj.value(kCommandKey).toString(defaultCommand());
     m_arguments = obj.value(kArgumentsKey).toString(defaultArguments());
     m_caseSensitiveArguments = obj.value(kCaseSensitiveKey).toString(defaultArguments(Qt::CaseSensitive));
+    m_sortResults = obj.value(kSortResultsKey).toBool(kSortResultsDefault);
 }
 
 } // namespace Core::Internal

@@ -24,6 +24,7 @@ private:
     QString m_command;
     QString m_arguments;
     QString m_caseSensitiveArguments;
+    bool m_sortResults = true;
 };
 
 } // namespace Core::Internal
