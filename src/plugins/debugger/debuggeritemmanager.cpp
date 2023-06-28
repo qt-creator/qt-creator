@@ -329,7 +329,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     });
     m_binaryChooser->setAllowPathFromDevice(true);
 
-    m_workingDirectoryLabel = new QLabel(Tr::tr("ABIs:"));
+    m_workingDirectoryLabel = new QLabel(Tr::tr("Working directory:"));
     m_workingDirectoryChooser = new PathChooser(this);
     m_workingDirectoryChooser->setExpectedKind(PathChooser::Directory);
     m_workingDirectoryChooser->setMinimumWidth(400);
@@ -344,7 +344,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     m_version->setPlaceholderText(Tr::tr("Unknown"));
     m_version->setEnabled(false);
 
-    m_abisLabel = new QLabel(Tr::tr("Working directory:"));
+    m_abisLabel = new QLabel(Tr::tr("ABIs:"));
     m_abis = new QLineEdit(this);
     m_abis->setEnabled(false);
 
