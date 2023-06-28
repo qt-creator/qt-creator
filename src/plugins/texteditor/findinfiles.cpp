@@ -61,15 +61,10 @@ QString FindInFiles::displayName() const
 FileContainerProvider FindInFiles::fileContainerProvider() const
 {
     return [nameFilters = fileNameFilters(), exclusionFilters = fileExclusionFilters(),
-            filePath = path()] {
+            filePath = searchDir()] {
         return SubDirFileContainer({filePath}, nameFilters, exclusionFilters,
                                    EditorManager::defaultTextCodec());
     };
-}
-
-QVariant FindInFiles::additionalParameters() const
-{
-    return path().toVariant();
 }
 
 QString FindInFiles::label() const
@@ -77,7 +72,7 @@ QString FindInFiles::label() const
     QString title = currentSearchEngine()->title();
 
     const QChar slash = QLatin1Char('/');
-    const QStringList &nonEmptyComponents = path().toFileInfo().absoluteFilePath()
+    const QStringList &nonEmptyComponents = searchDir().toFileInfo().absoluteFilePath()
             .split(slash, Qt::SkipEmptyParts);
     return Tr::tr("%1 \"%2\":")
             .arg(title)
@@ -88,7 +83,7 @@ QString FindInFiles::toolTip() const
 {
     //: the last arg is filled by BaseFileFind::runNewSearch
     QString tooltip = Tr::tr("Path: %1\nFilter: %2\nExcluding: %3\n%4")
-            .arg(path().toUserOutput())
+            .arg(searchDir().toUserOutput())
             .arg(fileNameFilters().join(','))
             .arg(fileExclusionFilters().join(','));
 
@@ -186,7 +181,7 @@ QWidget *FindInFiles::createConfigWidget()
     return m_configWidget;
 }
 
-FilePath FindInFiles::path() const
+FilePath FindInFiles::searchDir() const
 {
     return m_directory->filePath();
 }

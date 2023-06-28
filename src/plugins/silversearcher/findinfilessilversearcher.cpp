@@ -57,8 +57,6 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
                              const FileFindParameters &parameters, const QString &searchOptions)
 {
     const auto setupProcess = [parameters, searchOptions](Process &process) {
-        const FilePath directory
-            = FilePath::fromUserInput(parameters.additionalParameters.toString());
         QStringList arguments = {"--parallel", "--ackmate"};
 
         if (parameters.flags & FindCaseSensitively)
@@ -85,7 +83,7 @@ static void runSilverSeacher(QPromise<SearchResultItems> &promise,
         if (!searchOptions.isEmpty())
             arguments << searchOptions.split(' ');
 
-        arguments << "--" << parameters.text << directory.normalizedPathName().toString();
+        arguments << "--" << parameters.text << parameters.searchDir.normalizedPathName().toString();
         process.setCommand({"ag", arguments});
     };
 

@@ -40,7 +40,7 @@ public:
     QString text;
     QStringList nameFilters;
     QStringList exclusionFilters;
-    QVariant additionalParameters;
+    Utils::FilePath searchDir;
     Utils::FindFlags flags;
     FileContainerProvider fileContainerProvider = {};
     EditorOpener editorOpener = {};
@@ -102,7 +102,7 @@ public:
                                        bool preserveCase = false);
 
 protected:
-    virtual QVariant additionalParameters() const = 0;
+    virtual Utils::FilePath searchDir() const { return {}; }
     virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put

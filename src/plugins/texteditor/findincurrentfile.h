@@ -29,7 +29,6 @@ public:
     void readSettings(QSettings *settings) override;
 
 protected:
-    QVariant additionalParameters() const override;
     QString label() const override;
     QString toolTip() const override;
 

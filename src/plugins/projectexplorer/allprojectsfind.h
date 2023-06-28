@@ -33,8 +33,6 @@ protected:
     static Utils::FileContainer filesForProjects(const QStringList &nameFilters,
                                                  const QStringList &exclusionFilters,
                                                  const QList<Project *> &projects);
-
-    QVariant additionalParameters() const override;
     QString label() const override;
     QString toolTip() const override;
 

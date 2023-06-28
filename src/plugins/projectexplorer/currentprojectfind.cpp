@@ -49,14 +49,6 @@ bool CurrentProjectFind::isEnabled() const
     return ProjectTree::currentProject() != nullptr && BaseFileFind::isEnabled();
 }
 
-QVariant CurrentProjectFind::additionalParameters() const
-{
-    Project *project = ProjectTree::currentProject();
-    if (project)
-        return project->projectFilePath().toVariant();
-    return QVariant();
-}
-
 static FilePath currentProjectFilePath()
 {
     Project *project = ProjectTree::currentProject();

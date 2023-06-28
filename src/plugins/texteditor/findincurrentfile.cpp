@@ -47,11 +47,6 @@ FileContainerProvider FindInCurrentFile::fileContainerProvider() const
     };
 }
 
-QVariant FindInCurrentFile::additionalParameters() const
-{
-    return m_currentDocument->filePath().toVariant();
-}
-
 QString FindInCurrentFile::label() const
 {
     return Tr::tr("File \"%1\":").arg(m_currentDocument->filePath().fileName());

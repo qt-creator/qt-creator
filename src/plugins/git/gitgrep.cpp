@@ -134,10 +134,7 @@ static SearchResultItems parse(const QFuture<void> &future, const QString &input
 static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParameters &parameters,
                        const GitGrepParameters &gitParameters)
 {
-    const FilePath directory = FilePath::fromString(parameters.additionalParameters.toString());
-    const QString ref = gitParameters.ref.isEmpty() ? QString() : gitParameters.ref + ':';
-
-    const auto setupProcess = [&](Process &process) {
+    const auto setupProcess = [&parameters, gitParameters](Process &process) {
         const FilePath vcsBinary = GitClient::instance()->vcsBinary();
         const Environment environment = GitClient::instance()->processEnvironment();
 
@@ -173,12 +170,13 @@ static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParam
 
         process.setEnvironment(environment);
         process.setCommand({vcsBinary, arguments});
-        process.setWorkingDirectory(directory);
+        process.setWorkingDirectory(parameters.searchDir);
     };
 
-    const auto outputParser = [&ref, &directory](const QFuture<void> &future, const QString &input,
+    const QString ref = gitParameters.ref.isEmpty() ? QString() : gitParameters.ref + ':';
+    const auto outputParser = [&ref, &parameters](const QFuture<void> &future, const QString &input,
                                                  const std::optional<QRegularExpression> &regExp) {
-        return parse(future, input, regExp, ref, directory);
+        return parse(future, input, regExp, ref, parameters.searchDir);
     };
 
     TextEditor::searchInProcessOutput(promise, parameters, setupProcess, outputParser);
@@ -274,9 +272,8 @@ EditorOpener GitGrep::editorOpener() const
         if (params.ref.isEmpty() || itemPath.isEmpty())
             return nullptr;
         const FilePath path = FilePath::fromUserInput(itemPath.first());
-        const FilePath topLevel = FilePath::fromString(parameters.additionalParameters.toString());
         IEditor *editor = GitClient::instance()->openShowEditor(
-            topLevel, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
+            parameters.searchDir, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
         if (editor)
             editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);
         return editor;

@@ -44,7 +44,7 @@ signals:
     void pathChanged(const Utils::FilePath &directory);
 
 protected:
-    QVariant additionalParameters() const override;
+    Utils::FilePath searchDir() const override;
     QString label() const override;
     QString toolTip() const override;
     void syncSearchEngineCombo(int selectedSearchEngineIndex) override;
@@ -53,7 +53,6 @@ private:
     FileContainerProvider fileContainerProvider() const override;
     void setValid(bool valid);
     void searchEnginesSelectionChanged(int index);
-    Utils::FilePath path() const;
 
     QPointer<QWidget> m_configWidget;
     QPointer<Utils::PathChooser> m_directory;

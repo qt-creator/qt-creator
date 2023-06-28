@@ -57,11 +57,6 @@ FileContainerProvider FindInOpenFiles::fileContainerProvider() const
     };
 }
 
-QVariant FindInOpenFiles::additionalParameters() const
-{
-    return {};
-}
-
 QString FindInOpenFiles::label() const
 {
     return Tr::tr("Open documents:");

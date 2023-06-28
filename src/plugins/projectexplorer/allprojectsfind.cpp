@@ -79,11 +79,6 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
     return FileListContainer(encodings.keys(), encodings.values());
 }
 
-QVariant AllProjectsFind::additionalParameters() const
-{
-    return QVariant();
-}
-
 QString AllProjectsFind::label() const
 {
     return Tr::tr("All Projects:");
