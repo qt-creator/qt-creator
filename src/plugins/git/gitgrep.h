@@ -14,6 +14,7 @@ namespace Utils { class FancyLineEdit; }
 namespace Git::Internal {
 
 class GitClient;
+class GitGrepParameters;
 
 class GitGrep : public TextEditor::SearchEngine
 {
@@ -32,6 +33,7 @@ public:
     TextEditor::EditorOpener editorOpener() const override;
 
 private:
+    GitGrepParameters gitParameters() const;
     GitClient *m_client;
     QWidget *m_widget;
     Utils::FancyLineEdit *m_treeLineEdit;

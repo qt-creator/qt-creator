@@ -245,13 +245,14 @@ QWidget *GitGrep::widget() const
     return m_widget;
 }
 
+GitGrepParameters GitGrep::gitParameters() const
+{
+    return {m_treeLineEdit->text(), m_recurseSubmodules && m_recurseSubmodules->isChecked()};
+}
+
 QVariant GitGrep::parameters() const
 {
-    GitGrepParameters params;
-    params.ref = m_treeLineEdit->text();
-    if (m_recurseSubmodules)
-        params.recurseSubmodules = m_recurseSubmodules->isChecked();
-    return QVariant::fromValue(params);
+    return QVariant::fromValue(gitParameters());
 }
 
 void GitGrep::readSettings(QSettings *settings)
@@ -271,9 +272,8 @@ QFuture<SearchResultItems> GitGrep::executeSearch(const FileFindParameters &para
 
 EditorOpener GitGrep::editorOpener() const
 {
-    return [](const Utils::SearchResultItem &item,
-              const FileFindParameters &parameters) -> IEditor * {
-        const GitGrepParameters params = parameters.searchEngineParameters.value<GitGrepParameters>();
+    return [params = gitParameters()](const Utils::SearchResultItem &item,
+                                      const FileFindParameters &parameters) -> IEditor * {
         const QStringList &itemPath = item.path();
         if (params.ref.isEmpty() || itemPath.isEmpty())
             return nullptr;
