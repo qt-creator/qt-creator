@@ -242,14 +242,6 @@
                         "items":
                             [
                             {
-                                "trKey": "Qt 5",
-                                "value":
-                                "({
-                                    'TargetQuickVersion': '2.15',
-                                    'TargetQuick3DVersion': '1.15'
-                                })"
-                            },
-                            {
                                 "trKey": "Qt 6.2",
                                 "value":
                                 "({
