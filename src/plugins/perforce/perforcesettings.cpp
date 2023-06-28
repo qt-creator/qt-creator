@@ -35,7 +35,6 @@ PerforceSettings::PerforceSettings()
     setSettingsGroup("Perforce");
     setAutoApply(false);
 
-    p4BinaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     p4BinaryPath.setSettingsKey("Command");
     p4BinaryPath.setDefaultValue(
             Environment::systemEnvironment().searchInPath(defaultCommand()).toString());
