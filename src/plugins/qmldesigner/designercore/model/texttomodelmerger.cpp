@@ -937,7 +937,6 @@ QList<QmlDesigner::Import> generatePossibleFileImports(const QString &path,
 QmlDesigner::Imports createQt5Modules()
 {
     return {QmlDesigner::Import::createLibraryImport("QtQuick", "5.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick3D", "5.15"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Controls", "5.15"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Window", "5.15"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Layouts", "5.15"),
