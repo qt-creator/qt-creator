@@ -145,14 +145,10 @@ public:
     QVariant parameters() const override { return {}; }
     void readSettings(QSettings * /*settings*/) override {}
     void writeSettings(QSettings * /*settings*/) const override {}
-    QFuture<SearchResultItems> executeSearch(const TextEditor::FileFindParameters &parameters,
-                                             BaseFileFind *baseFileFind) override
+    QFuture<SearchResultItems> executeSearch(const FileFindParameters &parameters) override
     {
-        const FileContainer container = baseFileFind->files(parameters.nameFilters,
-                                                            parameters.exclusionFilters,
-                                                            parameters.additionalParameters);
-        return Utils::findInFiles(parameters.text, container, parameters.flags,
-                                  TextDocument::openedTextDocumentContents());
+        return Utils::findInFiles(parameters.text, parameters.fileContainerProvider(),
+                                  parameters.flags, TextDocument::openedTextDocumentContents());
 
     }
     Core::IEditor *openEditor(const SearchResultItem &/*item*/,
@@ -324,6 +320,8 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     parameters.additionalParameters = additionalParameters();
     parameters.searchEngineParameters = currentSearchEngine()->parameters();
     parameters.searchEngineIndex = d->m_currentSearchEngineIndex;
+    parameters.fileContainerProvider = fileContainerProvider();
+
     search->setUserData(QVariant::fromValue(parameters));
     connect(search, &SearchResult::activated, this, [this, search](const SearchResultItem &item) {
         openEditor(search, item);
@@ -600,7 +598,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems 
 
 QFuture<SearchResultItems> BaseFileFind::executeSearch(const FileFindParameters &parameters)
 {
-    return d->m_searchEngines[parameters.searchEngineIndex]->executeSearch(parameters, this);
+    return d->m_searchEngines[parameters.searchEngineIndex]->executeSearch(parameters);
 }
 
 namespace Internal {

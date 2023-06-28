@@ -36,30 +36,25 @@ QString FindInOpenFiles::displayName() const
     return Tr::tr("Open Documents");
 }
 
-FileContainer FindInOpenFiles::files(const QStringList &nameFilters,
-                                     const QStringList &exclusionFilters,
-                                     const QVariant &additionalParameters) const
+FileContainerProvider FindInOpenFiles::fileContainerProvider() const
 {
-    Q_UNUSED(nameFilters)
-    Q_UNUSED(exclusionFilters)
-    Q_UNUSED(additionalParameters)
-    QMap<FilePath, QTextCodec *> openEditorEncodings
-        = TextDocument::openedTextDocumentEncodings();
-    FilePaths fileNames;
-    QList<QTextCodec *> codecs;
-    const QList<Core::DocumentModel::Entry *> entries = Core::DocumentModel::entries();
-    for (Core::DocumentModel::Entry *entry : entries) {
-        const FilePath fileName = entry->filePath();
-        if (!fileName.isEmpty()) {
-            fileNames.append(fileName);
-            QTextCodec *codec = openEditorEncodings.value(fileName);
-            if (!codec)
-                codec = Core::EditorManager::defaultTextCodec();
-            codecs.append(codec);
+    return [] {
+        const QMap<FilePath, QTextCodec *> encodings = TextDocument::openedTextDocumentEncodings();
+        FilePaths fileNames;
+        QList<QTextCodec *> codecs;
+        const QList<Core::DocumentModel::Entry *> entries = Core::DocumentModel::entries();
+        for (Core::DocumentModel::Entry *entry : entries) {
+            const FilePath fileName = entry->filePath();
+            if (!fileName.isEmpty()) {
+                fileNames.append(fileName);
+                QTextCodec *codec = encodings.value(fileName);
+                if (!codec)
+                    codec = Core::EditorManager::defaultTextCodec();
+                codecs.append(codec);
+            }
         }
-    }
-
-    return FileListContainer(fileNames, codecs);
+        return FileListContainer(fileNames, codecs);
+    };
 }
 
 QVariant FindInOpenFiles::additionalParameters() const

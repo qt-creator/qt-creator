@@ -44,15 +44,13 @@ signals:
     void pathChanged(const Utils::FilePath &directory);
 
 protected:
-    Utils::FileContainer files(const QStringList &nameFilters,
-                               const QStringList &exclusionFilters,
-                               const QVariant &additionalParameters) const override;
     QVariant additionalParameters() const override;
     QString label() const override;
     QString toolTip() const override;
     void syncSearchEngineCombo(int selectedSearchEngineIndex) override;
 
 private:
+    FileContainerProvider fileContainerProvider() const override;
     void setValid(bool valid);
     void searchEnginesSelectionChanged(int index);
     Utils::FilePath path() const;

@@ -20,9 +20,7 @@ public:
     void readSettings(QSettings *settings) override;
 
 protected:
-    Utils::FileContainer files(const QStringList &nameFilters,
-                               const QStringList &exclusionFilters,
-                               const QVariant &additionalParameters) const override;
+    TextEditor::FileContainerProvider fileContainerProvider() const override;
     QString label() const override;
 };
 

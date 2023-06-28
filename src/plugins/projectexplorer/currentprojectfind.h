@@ -27,13 +27,11 @@ public:
     void readSettings(QSettings *settings) override;
 
 protected:
-    Utils::FileContainer files(const QStringList &nameFilters,
-                               const QStringList &exclusionFilters,
-                               const QVariant &additionalParameters) const override;
     QVariant additionalParameters() const override;
     QString label() const override;
 
 private:
+    TextEditor::FileContainerProvider fileContainerProvider() const override;
     void handleProjectChanged();
     void setupSearch(Core::SearchResult *search) override;
 };

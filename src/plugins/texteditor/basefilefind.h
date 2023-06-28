@@ -27,6 +27,8 @@ class BaseFileFindPrivate;
 class SearchEnginePrivate;
 } // Internal
 
+using FileContainerProvider = std::function<Utils::FileContainer()>;
+
 class TEXTEDITOR_EXPORT FileFindParameters
 {
 public:
@@ -37,6 +39,7 @@ public:
     QVariant searchEngineParameters;
     int searchEngineIndex;
     Utils::FindFlags flags;
+    FileContainerProvider fileContainerProvider = {};
 };
 
 using ProcessSetupHandler = std::function<void(Utils::Process &)>;
@@ -65,7 +68,7 @@ public:
     virtual void readSettings(QSettings *settings) = 0;
     virtual void writeSettings(QSettings *settings) const = 0;
     virtual QFuture<Utils::SearchResultItems> executeSearch(
-            const FileFindParameters &parameters, BaseFileFind *baseFileFind) = 0;
+        const FileFindParameters &parameters) = 0;
     virtual Core::IEditor *openEditor(const Utils::SearchResultItem &item,
                                       const FileFindParameters &parameters) = 0;
     bool isEnabled() const;
@@ -95,9 +98,6 @@ public:
     /* returns the list of unique files that were passed in items */
     static Utils::FilePaths replaceAll(const QString &txt, const Utils::SearchResultItems &items,
                                        bool preserveCase = false);
-    virtual Utils::FileContainer files(const QStringList &nameFilters,
-                                       const QStringList &exclusionFilters,
-                                       const QVariant &additionalParameters) const = 0;
 
 protected:
     virtual QVariant additionalParameters() const = 0;
@@ -121,6 +121,7 @@ signals:
     void currentSearchEngineChanged();
 
 private:
+    virtual FileContainerProvider fileContainerProvider() const = 0;
     void openEditor(Core::SearchResult *result, const Utils::SearchResultItem &item);
     void doReplace(const QString &txt, const Utils::SearchResultItems &items, bool preserveCase);
     void hideHighlightAll(bool visible);

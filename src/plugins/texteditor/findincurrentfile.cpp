@@ -36,18 +36,15 @@ QString FindInCurrentFile::displayName() const
     return Tr::tr("Current File");
 }
 
-FileContainer FindInCurrentFile::files(const QStringList &nameFilters,
-                                       const QStringList &exclusionFilters,
-                                       const QVariant &additionalParameters) const
+FileContainerProvider FindInCurrentFile::fileContainerProvider() const
 {
-    Q_UNUSED(nameFilters)
-    Q_UNUSED(exclusionFilters)
-    const auto fileName = FilePath::fromVariant(additionalParameters);
-    QMap<FilePath, QTextCodec *> openEditorEncodings = TextDocument::openedTextDocumentEncodings();
-    QTextCodec *codec = openEditorEncodings.value(fileName);
-    if (!codec)
-        codec = Core::EditorManager::defaultTextCodec();
-    return FileListContainer({fileName}, {codec});
+    return [fileName = m_currentDocument->filePath()] {
+        const QMap<FilePath, QTextCodec *> encodings = TextDocument::openedTextDocumentEncodings();
+        QTextCodec *codec = encodings.value(fileName);
+        if (!codec)
+            codec = Core::EditorManager::defaultTextCodec();
+        return FileListContainer({fileName}, {codec});
+    };
 }
 
 QVariant FindInCurrentFile::additionalParameters() const

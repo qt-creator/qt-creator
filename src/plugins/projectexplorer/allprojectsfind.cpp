@@ -47,17 +47,16 @@ bool AllProjectsFind::isEnabled() const
     return BaseFileFind::isEnabled() && ProjectManager::hasProjects();
 }
 
-FileContainer AllProjectsFind::files(const QStringList &nameFilters,
-                                     const QStringList &exclusionFilters,
-                                     const QVariant &additionalParameters) const
+FileContainerProvider AllProjectsFind::fileContainerProvider() const
 {
-    Q_UNUSED(additionalParameters)
-    return filesForProjects(nameFilters, exclusionFilters, ProjectManager::projects());
+    return [nameFilters = fileNameFilters(), exclusionFilters = fileExclusionFilters()] {
+        return filesForProjects(nameFilters, exclusionFilters, ProjectManager::projects());
+    };
 }
 
 FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
                                                 const QStringList &exclusionFilters,
-                                                const QList<Project *> &projects) const
+                                                const QList<Project *> &projects)
 {
     std::function<FilePaths(const FilePaths &)> filterFiles
         = Utils::filterFilesFunction(nameFilters, exclusionFilters);

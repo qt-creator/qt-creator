@@ -57,17 +57,22 @@ QVariant CurrentProjectFind::additionalParameters() const
     return QVariant();
 }
 
-FileContainer CurrentProjectFind::files(const QStringList &nameFilters,
-                                        const QStringList &exclusionFilters,
-                                        const QVariant &additionalParameters) const
+static FilePath currentProjectFilePath()
 {
-    QTC_ASSERT(additionalParameters.isValid(), return {});
-    const FilePath projectFile = FilePath::fromVariant(additionalParameters);
-    for (Project *project : ProjectManager::projects()) {
-        if (project && projectFile == project->projectFilePath())
-            return filesForProjects(nameFilters, exclusionFilters, {project});
-    }
-    return {};
+    Project *project = ProjectTree::currentProject();
+    return project ? project->projectFilePath() : FilePath();
+}
+
+FileContainerProvider CurrentProjectFind::fileContainerProvider() const
+{
+    return [nameFilters = fileNameFilters(), exclusionFilters = fileExclusionFilters(),
+            projectFile = currentProjectFilePath()] {
+        for (Project *project : ProjectManager::projects()) {
+            if (project && projectFile == project->projectFilePath())
+                return filesForProjects(nameFilters, exclusionFilters, {project});
+        }
+        return FileContainer();
+    };
 }
 
 QString CurrentProjectFind::label() const
@@ -85,8 +90,7 @@ void CurrentProjectFind::handleProjectChanged()
 
 void CurrentProjectFind::setupSearch(Core::SearchResult *search)
 {
-    Project *project = ProjectTree::currentProject();
-    const FilePath projectFile = project ? project->projectFilePath() : FilePath();
+    const FilePath projectFile = currentProjectFilePath();
     connect(this, &IFindFilter::enabledChanged, search, [search, projectFile] {
         const QList<Project *> projects = ProjectManager::projects();
         for (Project *project : projects) {

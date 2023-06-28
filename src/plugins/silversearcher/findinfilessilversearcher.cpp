@@ -165,7 +165,7 @@ void FindInFilesSilverSearcher::writeSettings(QSettings *settings) const
 }
 
 QFuture<SearchResultItems> FindInFilesSilverSearcher::executeSearch(
-        const FileFindParameters &parameters, BaseFileFind * /*baseFileFind*/)
+    const FileFindParameters &parameters)
 {
     return Utils::asyncRun(runSilverSeacher, parameters);
 }

@@ -30,18 +30,16 @@ public:
     void readSettings(QSettings *settings) override;
 
 protected:
-    Utils::FileContainer files(const QStringList &nameFilters,
-                               const QStringList &exclusionFilters,
-                               const QVariant &additionalParameters) const override;
-    Utils::FileContainer filesForProjects(const QStringList &nameFilters,
-                                          const QStringList &exclusionFilters,
-                                          const QList<Project *> &projects) const;
+    static Utils::FileContainer filesForProjects(const QStringList &nameFilters,
+                                                 const QStringList &exclusionFilters,
+                                                 const QList<Project *> &projects);
 
     QVariant additionalParameters() const override;
     QString label() const override;
     QString toolTip() const override;
 
 private:
+    TextEditor::FileContainerProvider fileContainerProvider() const override;
     void handleFileListChanged();
 
     QPointer<QWidget> m_configWidget;

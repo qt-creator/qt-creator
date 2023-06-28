@@ -13,6 +13,7 @@
 
 #include <QSettings>
 
+using namespace TextEditor;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -47,16 +48,15 @@ void FilesInAllProjectsFind::readSettings(QSettings *settings)
     settings->endGroup();
 }
 
-FileContainer FilesInAllProjectsFind::files(const QStringList &nameFilters,
-                                                   const QStringList &exclusionFilters,
-                                                   const QVariant &additionalParameters) const
+FileContainerProvider FilesInAllProjectsFind::fileContainerProvider() const
 {
-    Q_UNUSED(additionalParameters)
-    const QSet<FilePath> dirs = Utils::transform<QSet>(ProjectManager::projects(), [](Project *p) {
-        return p->projectFilePath().parentDir();
-    });
-    return SubDirFileContainer(FilePaths(dirs.constBegin(), dirs.constEnd()), nameFilters,
-                               exclusionFilters, Core::EditorManager::defaultTextCodec());
+    return [nameFilters = fileNameFilters(), exclusionFilters = fileExclusionFilters()] {
+        const QSet<FilePath> dirs = Utils::transform<QSet>(ProjectManager::projects(), [](Project *p) {
+            return p->projectFilePath().parentDir();
+        });
+        return SubDirFileContainer(FilePaths(dirs.constBegin(), dirs.constEnd()), nameFilters,
+                                   exclusionFilters, Core::EditorManager::defaultTextCodec());
+    };
 }
 
 QString FilesInAllProjectsFind::label() const
