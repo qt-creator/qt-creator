@@ -265,9 +265,11 @@ void GitGrep::writeSettings(QSettings *settings) const
     settings->setValue(GitGrepRef, m_treeLineEdit->text());
 }
 
-QFuture<SearchResultItems> GitGrep::executeSearch(const FileFindParameters &parameters)
+SearchExecutor GitGrep::searchExecutor() const
 {
-    return Utils::asyncRun(runGitGrep, parameters);
+    return [](const FileFindParameters &parameters) {
+        return Utils::asyncRun(runGitGrep, parameters);
+    };
 }
 
 EditorOpener GitGrep::editorOpener() const

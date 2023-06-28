@@ -28,8 +28,7 @@ public:
     QVariant parameters() const override;
     void readSettings(QSettings *settings) override;
     void writeSettings(QSettings *settings) const override;
-    QFuture<Utils::SearchResultItems> executeSearch(
-        const TextEditor::FileFindParameters &parameters) override;
+    TextEditor::SearchExecutor searchExecutor() const override;
     TextEditor::EditorOpener editorOpener() const override;
 
 private:

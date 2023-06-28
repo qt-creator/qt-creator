@@ -145,11 +145,12 @@ public:
     QVariant parameters() const override { return {}; }
     void readSettings(QSettings * /*settings*/) override {}
     void writeSettings(QSettings * /*settings*/) const override {}
-    QFuture<SearchResultItems> executeSearch(const FileFindParameters &parameters) override
+    SearchExecutor searchExecutor() const override
     {
-        return Utils::findInFiles(parameters.text, parameters.fileContainerProvider(),
-                                  parameters.flags, TextDocument::openedTextDocumentContents());
-
+        return [](const FileFindParameters &parameters) {
+            return Utils::findInFiles(parameters.text, parameters.fileContainerProvider(),
+                                      parameters.flags, TextDocument::openedTextDocumentContents());
+        };
     }
 
 private:
@@ -307,16 +308,18 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     setupSearch(search);
     search->setTextToReplace(txt);
     search->setSearchAgainSupported(true);
+    SearchEngine *searchEngine = currentSearchEngine();
     FileFindParameters parameters;
     parameters.text = txt;
     parameters.flags = findFlags;
     parameters.nameFilters = fileNameFilters();
     parameters.exclusionFilters = fileExclusionFilters();
     parameters.additionalParameters = additionalParameters();
-    parameters.searchEngineParameters = currentSearchEngine()->parameters();
+    parameters.searchEngineParameters = searchEngine->parameters();
     parameters.searchEngineIndex = d->m_currentSearchEngineIndex;
     parameters.fileContainerProvider = fileContainerProvider();
-    parameters.editorOpener = currentSearchEngine()->editorOpener();
+    parameters.editorOpener = searchEngine->editorOpener();
+    parameters.searchExecutor = searchEngine->searchExecutor();
 
     search->setUserData(QVariant::fromValue(parameters));
     connect(search, &SearchResult::activated, this, [this, search](const SearchResultItem &item) {
@@ -594,7 +597,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems 
 
 QFuture<SearchResultItems> BaseFileFind::executeSearch(const FileFindParameters &parameters)
 {
-    return d->m_searchEngines[parameters.searchEngineIndex]->executeSearch(parameters);
+    return parameters.searchExecutor(parameters);
 }
 
 namespace Internal {

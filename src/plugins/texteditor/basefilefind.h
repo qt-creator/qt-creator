@@ -32,6 +32,7 @@ class FileFindParameters;
 using FileContainerProvider = std::function<Utils::FileContainer()>;
 using EditorOpener = std::function<Core::IEditor *(const Utils::SearchResultItem &,
                                                    const FileFindParameters &)>;
+using SearchExecutor = std::function<QFuture<Utils::SearchResultItems>(const FileFindParameters &)>;
 
 class TEXTEDITOR_EXPORT FileFindParameters
 {
@@ -45,6 +46,7 @@ public:
     Utils::FindFlags flags;
     FileContainerProvider fileContainerProvider = {};
     EditorOpener editorOpener = {};
+    SearchExecutor searchExecutor = {};
 };
 
 using ProcessSetupHandler = std::function<void(Utils::Process &)>;
@@ -72,8 +74,7 @@ public:
     virtual QVariant parameters() const = 0;
     virtual void readSettings(QSettings *settings) = 0;
     virtual void writeSettings(QSettings *settings) const = 0;
-    virtual QFuture<Utils::SearchResultItems> executeSearch(
-        const FileFindParameters &parameters) = 0;
+    virtual SearchExecutor searchExecutor() const = 0;
     virtual EditorOpener editorOpener() const { return {}; }
     bool isEnabled() const;
     void setEnabled(bool enabled);
