@@ -36,7 +36,9 @@ CopilotSettings::CopilotSettings()
     const FilePath nodeFromPath = FilePath("node").searchInPath();
 
     const FilePaths searchDirs
-        = {FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
+
+        = {FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/dist/agent.js"),
+           FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
            FilePath::fromUserInput(
                "~/.config/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
            FilePath::fromUserInput(
