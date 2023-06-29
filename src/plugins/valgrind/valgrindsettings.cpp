@@ -64,7 +64,7 @@ void SuppressionAspectPrivate::slotAddSuppression()
     const FilePaths files =
             FileUtils::getOpenFilePaths(nullptr,
                       Tr::tr("Valgrind Suppression Files"),
-                      conf->lastSuppressionDirectory.filePath(),
+                      conf->lastSuppressionDirectory(),
                       Tr::tr("Valgrind Suppression File (*.supp);;All Files (*)"));
     //dialog.setHistory(conf->lastSuppressionDialogHistory());
     if (!files.isEmpty()) {

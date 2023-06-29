@@ -132,7 +132,7 @@ void PythonWizardPage::initializePage()
 
     const FilePath projectDir = FilePath::fromString(wiz->property("ProjectDirectory").toString());
     m_createVenv.setValue(!projectDir.isEmpty());
-    if (m_venvPath.filePath().isEmpty())
+    if (m_venvPath().isEmpty())
         m_venvPath.setValue(projectDir.isEmpty() ? FilePath{} : projectDir / "venv");
 
     updateInterpreters();
@@ -171,7 +171,7 @@ void PythonWizardPage::setupProject(const JsonWizard::GeneratorFiles &files)
                         }
                     }
                 };
-                PythonSettings::createVirtualEnvironment(m_venvPath.filePath(),
+                PythonSettings::createVirtualEnvironment(m_venvPath(),
                                                          interpreter,
                                                          openProjectWithInterpreter,
                                                          project ? project->displayName()

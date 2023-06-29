@@ -142,7 +142,7 @@ void TerminalWidget::setupPty()
     m_process = std::make_unique<Process>();
 
     CommandLine shellCommand = m_openParameters.shellCommand.value_or(
-        CommandLine{TerminalSettings::instance().shell.filePath(),
+        CommandLine{TerminalSettings::instance().shell(),
                     TerminalSettings::instance().shellArguments.value(),
                     CommandLine::Raw});
 
