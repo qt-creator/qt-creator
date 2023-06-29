@@ -100,7 +100,7 @@ static bool parse(const QString &fileName,
 
 bool FileShareProtocol::checkConfiguration(QString *errorMessage)
 {
-    if (m_settings.path.value().isEmpty()) {
+    if (m_settings.path().isEmpty()) {
         if (errorMessage)
             *errorMessage = Tr::tr("Please configure a path.");
         return false;
@@ -113,7 +113,7 @@ void FileShareProtocol::fetch(const QString &id)
     // Absolute or relative path name.
     QFileInfo fi(id);
     if (fi.isRelative())
-        fi = QFileInfo(m_settings.path.value() + '/' + id);
+        fi = m_settings.path().pathAppended(id).toFileInfo();
     QString errorMessage;
     QString text;
     if (parse(fi.absoluteFilePath(), &errorMessage, nullptr, nullptr, &text))
@@ -125,7 +125,7 @@ void FileShareProtocol::fetch(const QString &id)
 void FileShareProtocol::list()
 {
     // Read out directory, display by date (latest first)
-    QDir dir(m_settings.path.value(), tempGlobPatternC,
+    QDir dir(m_settings.path().toFSPathString(), tempGlobPatternC,
              QDir::Time, QDir::Files|QDir::NoDotAndDotDot|QDir::Readable);
     QStringList entries;
     QString user;
@@ -160,7 +160,7 @@ void FileShareProtocol::paste(
         )
 {
     // Write out temp XML file
-    Utils::TempFileSaver saver(m_settings.path.value() + '/' + tempPatternC);
+    Utils::TempFileSaver saver(m_settings.path().pathAppended(tempPatternC).toFSPathString());
     saver.setAutoRemove(false);
     if (!saver.hasError()) {
         // Flat text sections embedded into pasterElement
