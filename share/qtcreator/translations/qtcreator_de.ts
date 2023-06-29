@@ -42001,23 +42001,23 @@ fails because Clang does not understand the target architecture.</source>
     <message>
         <source>%1 (Windowed)</source>
         <extracomment>&lt;python display name&gt; (Windowed)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (mit Fenster)</translation>
     </message>
     <message>
         <source>Python interpreter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Interpreter:</translation>
     </message>
     <message>
         <source>New Python Virtual Environment Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Verzeichnis für virtuelle Umgebung</translation>
     </message>
     <message>
         <source>Virtual environment directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis für virtuelle Umgebung:</translation>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen</translation>
     </message>
     <message>
         <source>Removing Python</source>
@@ -42041,7 +42041,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Install Python Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Pakete installieren</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
@@ -42049,15 +42049,15 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by timeout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Installation von &quot;%1&quot; wurde wegen Zeitüberschreitung abgebrochen.</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by the user.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Installation von &quot;%1&quot; wurde vom Benutzer abgebrochen.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed with exit code %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Installation von &quot;%1&quot; ist mit dem Rückgabewert %2 fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Run PySide6 project tool</source>
@@ -42109,7 +42109,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Create Virtual Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Umgebung erstellen</translation>
     </message>
     <message>
         <source>Manage Python Interpreters</source>
@@ -42133,27 +42133,27 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Create Python venv</source>
-        <translation type="unfinished"></translation>
+        <translation>Python venv erstellen</translation>
     </message>
     <message>
         <source>&quot;data&quot; of a Python wizard page expects a map with &quot;items&quot; containing a list of objects.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;data&quot; einer Python-Assistenzseite erwartet eine Zuordnung mit &quot;items&quot;, die eine Liste aus Objekten enthält.</translation>
     </message>
     <message>
         <source>An item of Python wizard page data expects a &quot;trKey&quot; field containing the UI visible string for that Python version and a &quot;value&quot; field containing an object with a &quot;PySideVersion&quot; field used for import statements in the Python files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Eintrag in den &quot;items&quot; im Feld &quot;data&quot; einer Python-Assistenzseite erwartet ein Feld &quot;trKey&quot;, das den Anzeigenamen für diese Python-Version enthält, und ein Feld &quot;value&quot;, das ein Objekt mit einem Feld &quot;PySideVersion&quot; enthält, das für import-Anweisungen in den Python-Dateien benutzt wird.</translation>
     </message>
     <message>
         <source>PySide version:</source>
-        <translation type="unfinished">PySide-Version:</translation>
+        <translation>PySide-Version:</translation>
     </message>
     <message>
         <source>Create new virtual environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue virtuelle Umgebung erstellen</translation>
     </message>
     <message>
         <source>Path to virtual environment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur virtuellen Umgebung:</translation>
     </message>
 </context>
 <context>
@@ -48172,7 +48172,7 @@ Beschreibung:	%4</translation>
     </message>
     <message>
         <source>Magnifier Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößerungswerkzeug</translation>
     </message>
     <message>
         <source>Navigator (Ctrl+E)</source>
@@ -50126,7 +50126,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Failed to format: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Formatieren fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>Cannot read file &quot;%1&quot;: %2.</source>
@@ -50138,7 +50138,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Error in text formatting: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei der Formatierung: %1</translation>
     </message>
     <message>
         <source>Could not format file %1.</source>
@@ -51159,7 +51159,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Open Call Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufrufhierarchie öffnen</translation>
     </message>
     <message>
         <source>Move the View a Page Up and Keep the Cursor Position</source>
@@ -51861,11 +51861,11 @@ Wird benutzt um die Funktion zu markieren, die ein gesuchtes Symbol benutzt.</tr
     </message>
     <message>
         <source>Concept</source>
-        <translation type="unfinished"></translation>
+        <translation>Konzept</translation>
     </message>
     <message>
         <source>Name of a concept.</source>
-        <translation type="unfinished"></translation>
+        <translation>Name eines Konzepts.</translation>
     </message>
     <message>
         <source>Namespace</source>
@@ -52436,7 +52436,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     <message>
         <source>(type name READ name WRITE setName NOTIFY nameChanged FINAL)</source>
         <comment>group:&apos;C++&apos; trigger:&apos;Q_PROPERTY&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>(type name READ name WRITE setName NOTIFY nameChanged FINAL)</translation>
     </message>
     <message>
         <source>with targets</source>
@@ -52518,15 +52518,15 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Show Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorschau anzeigen</translation>
     </message>
     <message>
         <source>Show Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor anzeigen</translation>
     </message>
     <message>
         <source>Swap Views</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansichten tauschen</translation>
     </message>
 </context>
 <context>
@@ -56013,8 +56013,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Canvas Diagrams</source>
-        <translation>Canvasdiagramme
-</translation>
+        <translation>Canvasdiagramme</translation>
     </message>
     <message>
         <source>Item</source>
