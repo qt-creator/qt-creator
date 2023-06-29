@@ -87,8 +87,8 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
         rootPath = FilePath::fromString(tmpDir.path());
     }
 
-    const auto makeAspect = addAspect<ExecutableAspect>(parent->target(),
-                                                        ExecutableAspect::BuildDevice);
+    const auto makeAspect = addAspect<ExecutableAspect>();
+    makeAspect->setDeviceSelector(parent->target(), ExecutableAspect::BuildDevice);
     makeAspect->setId(MakeAspectId);
     makeAspect->setSettingsKey(MakeAspectId);
     makeAspect->setReadOnly(false);

@@ -495,8 +495,8 @@ void ArgumentsAspect::addToLayout(LayoutItem &builder)
     by the build system's parsing results with an optional manual override.
 */
 
-ExecutableAspect::ExecutableAspect(Target *target, ExecutionDeviceSelector selector)
-    : m_target(target), m_selector(selector)
+ExecutableAspect::ExecutableAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Executable"));
     setId("ExecutableAspect");
@@ -505,8 +505,6 @@ ExecutableAspect::ExecutableAspect(Target *target, ExecutionDeviceSelector selec
 
     m_executable.setPlaceHolderText(Tr::tr("Enter the path to the executable"));
     m_executable.setLabelText(Tr::tr("Executable:"));
-
-    updateDevice();
 
     connect(&m_executable, &StringAspect::changed, this, &ExecutableAspect::changed);
 }
@@ -533,8 +531,11 @@ ExecutableAspect::~ExecutableAspect()
     m_alternativeExecutable = nullptr;
 }
 
-void ExecutableAspect::updateDevice()
+void ExecutableAspect::setDeviceSelector(Target *target, ExecutionDeviceSelector selector)
 {
+    m_target = target;
+    m_selector = selector;
+
     const IDevice::ConstPtr dev = executionDevice(m_target, m_selector);
     const OsType osType = dev ? dev->osType() : HostOsInfo::hostOs();
 

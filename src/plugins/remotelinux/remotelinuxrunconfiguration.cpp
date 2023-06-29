@@ -35,7 +35,8 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
 {
     auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
 
-    auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
+    auto exeAspect = addAspect<ExecutableAspect>();
+    exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
     exeAspect->setLabelText(Tr::tr("Executable on device:"));
     exeAspect->setPlaceHolderText(Tr::tr("Remote path not set"));
     exeAspect->makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",

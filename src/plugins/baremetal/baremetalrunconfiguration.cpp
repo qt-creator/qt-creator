@@ -25,7 +25,8 @@ public:
     explicit BareMetalRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        const auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
+        const auto exeAspect = addAspect<ExecutableAspect>();
+        exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
         exeAspect->setPlaceHolderText(Tr::tr("Unknown"));
 
         addAspect<ArgumentsAspect>(macroExpander());
@@ -46,7 +47,8 @@ public:
     explicit BareMetalCustomRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        const auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
+        const auto exeAspect = addAspect<ExecutableAspect>();
+        exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
         exeAspect->setSettingsKey("BareMetal.CustomRunConfig.Executable");
         exeAspect->setPlaceHolderText(Tr::tr("Unknown"));
         exeAspect->setReadOnly(false);

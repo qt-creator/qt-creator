@@ -155,12 +155,13 @@ class PROJECTEXPLORER_EXPORT ExecutableAspect : public Utils::BaseAspect
 public:
     enum ExecutionDeviceSelector { HostDevice, BuildDevice, RunDevice };
 
-    explicit ExecutableAspect(Target *target, ExecutionDeviceSelector selector);
+    explicit ExecutableAspect(Utils::AspectContainer *container = nullptr);
     ~ExecutableAspect() override;
 
     Utils::FilePath executable() const;
     void setExecutable(const Utils::FilePath &executable);
 
+    void setDeviceSelector(Target *target, ExecutionDeviceSelector selector);
     void setSettingsKey(const QString &key);
     void makeOverridable(const QString &overridingKey, const QString &useOverridableKey);
     void addToLayout(Layouting::LayoutItem &parent) override;
@@ -182,7 +183,6 @@ protected:
 
 private:
     QString executableText() const;
-    void updateDevice();
 
     Utils::FilePathAspect m_executable;
     Utils::FilePathAspect *m_alternativeExecutable = nullptr;

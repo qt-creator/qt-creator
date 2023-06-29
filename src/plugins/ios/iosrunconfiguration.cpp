@@ -58,7 +58,8 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
 IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    auto executableAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
+    auto executableAspect = addAspect<ExecutableAspect>();
+    executableAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
 
     addAspect<ArgumentsAspect>(macroExpander());
 

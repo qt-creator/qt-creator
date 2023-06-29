@@ -67,7 +67,8 @@ private:
 QdbRunConfiguration::QdbRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
+    auto exeAspect = addAspect<ExecutableAspect>();
+    exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
     exeAspect->setSettingsKey("QdbRunConfig.RemoteExecutable");
     exeAspect->setLabelText(Tr::tr("Executable on device:"));
     exeAspect->setPlaceHolderText(Tr::tr("Remote path not set"));

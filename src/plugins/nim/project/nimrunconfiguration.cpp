@@ -29,7 +29,9 @@ public:
         auto envAspect = addAspect<EnvironmentAspect>();
         envAspect->setSupportForBuildEnvironment(target);
 
-        addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
+        auto exeAspect = addAspect<ExecutableAspect>();
+        exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
+
         addAspect<ArgumentsAspect>(macroExpander());
         addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
         addAspect<TerminalAspect>();

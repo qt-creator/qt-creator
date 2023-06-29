@@ -29,7 +29,9 @@ public:
         auto envAspect = addAspect<EnvironmentAspect>();
         envAspect->setSupportForBuildEnvironment(target);
 
-        addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
+        auto exeAspect = addAspect<ExecutableAspect>();
+        exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
+
         addAspect<ArgumentsAspect>(macroExpander());
         addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
         addAspect<TerminalAspect>();
@@ -64,8 +66,10 @@ public:
     NimbleTestConfiguration(ProjectExplorer::Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        addAspect<ExecutableAspect>(target, ExecutableAspect::BuildDevice)
-                ->setExecutable(Nim::nimblePathFromKit(target->kit()));
+        auto exeAspect = addAspect<ExecutableAspect>();
+        exeAspect->setDeviceSelector(target, ExecutableAspect::BuildDevice);
+        exeAspect->setExecutable(Nim::nimblePathFromKit(target->kit()));
+
         addAspect<ArgumentsAspect>(macroExpander())->setArguments("test");
         addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr)
                 ->setDefaultWorkingDirectory(project()->projectDirectory());
