@@ -209,7 +209,6 @@ Project {
                 "devicemanager.cpp", "devicemanager.h",
                 "devicemanagermodel.cpp", "devicemanagermodel.h",
                 "deviceprocessesdialog.cpp", "deviceprocessesdialog.h",
-                "devicesettingspage.cpp", "devicesettingspage.h",
                 "devicesettingswidget.cpp", "devicesettingswidget.h",
                 "devicetestdialog.cpp", "devicetestdialog.h",
                 "deviceusedportsgatherer.cpp", "deviceusedportsgatherer.h",

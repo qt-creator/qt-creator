@@ -11,6 +11,7 @@
 #include "idevice.h"
 #include "idevicefactory.h"
 #include "idevicewidget.h"
+#include "../projectexplorerconstants.h"
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 
@@ -38,8 +39,8 @@
 using namespace Core;
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
+
 const char LastDeviceIndexKey[] = "LastDisplayedMaemoDeviceConfig";
 
 class NameValidator : public QValidator
@@ -72,24 +73,65 @@ private:
     const DeviceManager * const m_deviceManager;
 };
 
+class DeviceSettingsWidget final : public Core::IOptionsPageWidget
+{
+public:
+    DeviceSettingsWidget();
+    ~DeviceSettingsWidget() final
+    {
+        DeviceManager::removeClonedInstance();
+        delete m_configWidget;
+    }
+
+private:
+    void apply() final { saveSettings(); }
+
+    void saveSettings();
+
+    void handleDeviceUpdated(Utils::Id id);
+    void currentDeviceChanged(int index);
+    void addDevice();
+    void removeDevice();
+    void deviceNameEditingFinished();
+    void setDefaultDevice();
+    void testDevice();
+    void handleProcessListRequested();
+
+    void initGui();
+    void displayCurrent();
+    void setDeviceInfoWidgetsEnabled(bool enable);
+    IDeviceConstPtr currentDevice() const;
+    int currentIndex() const;
+    void clearDetails();
+    QString parseTestOutput();
+    void fillInValues();
+    void updateDeviceFromUi();
+
+    DeviceManager * const m_deviceManager;
+    DeviceManagerModel * const m_deviceManagerModel;
+    NameValidator * const m_nameValidator;
+    QList<QPushButton *> m_additionalActionButtons;
+    IDeviceWidget *m_configWidget;
+
+    QLabel *m_configurationLabel;
+    QComboBox *m_configurationComboBox;
+    QGroupBox *m_generalGroupBox;
+    QLineEdit *m_nameLineEdit;
+    QLabel *m_osTypeValueLabel;
+    QLabel *m_autoDetectionLabel;
+    QLabel *m_deviceStateIconLabel;
+    QLabel *m_deviceStateTextLabel;
+    QGroupBox *m_osSpecificGroupBox;
+    QPushButton *m_removeConfigButton;
+    QPushButton *m_defaultDeviceButton;
+    QVBoxLayout *m_buttonsLayout;
+};
+
 DeviceSettingsWidget::DeviceSettingsWidget()
     : m_deviceManager(DeviceManager::cloneInstance()),
       m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this)),
       m_nameValidator(new NameValidator(m_deviceManager, this)),
       m_configWidget(nullptr)
-{
-    initGui();
-    connect(m_deviceManager, &DeviceManager::deviceUpdated,
-            this, &DeviceSettingsWidget::handleDeviceUpdated);
-}
-
-DeviceSettingsWidget::~DeviceSettingsWidget()
-{
-    DeviceManager::removeClonedInstance();
-    delete m_configWidget;
-}
-
-void DeviceSettingsWidget::initGui()
 {
     m_configurationLabel = new QLabel(Tr::tr("&Device:"));
     m_configurationComboBox = new QComboBox;
@@ -185,6 +227,7 @@ void DeviceSettingsWidget::initGui()
         lastIndex = 0;
     if (lastIndex < m_configurationComboBox->count())
         m_configurationComboBox->setCurrentIndex(lastIndex);
+
     connect(m_configurationComboBox, &QComboBox::currentIndexChanged,
             this, &DeviceSettingsWidget::currentDeviceChanged);
     currentDeviceChanged(currentIndex());
@@ -192,10 +235,10 @@ void DeviceSettingsWidget::initGui()
             this, &DeviceSettingsWidget::setDefaultDevice);
     connect(m_removeConfigButton, &QAbstractButton::clicked,
             this, &DeviceSettingsWidget::removeDevice);
-    connect(m_nameLineEdit,
-            &QLineEdit::editingFinished,
-            this,
-            &DeviceSettingsWidget::deviceNameEditingFinished);
+    connect(m_nameLineEdit, &QLineEdit::editingFinished,
+            this, &DeviceSettingsWidget::deviceNameEditingFinished);
+    connect(m_deviceManager, &DeviceManager::deviceUpdated,
+            this, &DeviceSettingsWidget::handleDeviceUpdated);
 }
 
 void DeviceSettingsWidget::addDevice()
@@ -408,5 +451,16 @@ void DeviceSettingsWidget::handleProcessListRequested()
     dlg.exec();
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+// DeviceSettingsPage
+
+DeviceSettingsPage::DeviceSettingsPage()
+{
+    setId(Constants::DEVICE_SETTINGS_PAGE_ID);
+    setDisplayName(Tr::tr("Devices"));
+    setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
+    setDisplayCategory(Tr::tr("Devices"));
+    setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
+    setWidgetCreator([] { return new DeviceSettingsWidget; });
+}
+
+} // ProjectExplorer::Internal
