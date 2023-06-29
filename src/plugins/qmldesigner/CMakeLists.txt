@@ -457,6 +457,7 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/propertyeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/stateseditor
     ${CMAKE_CURRENT_LIST_DIR}/components/texteditor
+    ${CMAKE_CURRENT_LIST_DIR}/components/effectmaker
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/designercore #can not be a public dependency -> EXCLUDE_FROM_INSTALL in QmlDesignerCore
@@ -703,6 +704,16 @@ extend_qtc_plugin(QmlDesigner
     assetslibrarywidget.cpp assetslibrarywidget.h
     assetslibrarymodel.cpp assetslibrarymodel.h
     assetslibraryiconprovider.cpp assetslibraryiconprovider.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/effectmaker
+  SOURCES
+    effectmakerwidget.cpp effectmakerwidget.h
+    effectmakerview.cpp effectmakerview.h
+    effectmakermodel.cpp effectmakermodel.h
+    effectnode.cpp effectnode.h
+    effectscategory.cpp effectscategory.h
 )
 
 extend_qtc_plugin(QmlDesigner
