@@ -42,22 +42,23 @@ BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc)
     setSettingsKey("ProjectExplorer.BuildConfiguration.BuildDirectory");
     setLabelText(Tr::tr("Build directory:"));
     setExpectedKind(Utils::PathChooser::Directory);
-    setValidationFunction([this](FancyLineEdit *edit, QString *error) {
-        const FilePath fixedDir = fixupDir(FilePath::fromUserInput(edit->text()));
-        if (!fixedDir.isEmpty())
-            edit->setText(fixedDir.toUserOutput());
 
-        const FilePath newPath = FilePath::fromUserInput(edit->text());
+    setValidationFunction([this](QString text) -> FancyLineEdit::AsyncValidationFuture {
+        const FilePath fixedDir = fixupDir(FilePath::fromUserInput(text));
+        if (!fixedDir.isEmpty())
+            text = fixedDir.toUserOutput();
+
+        const FilePath newPath = FilePath::fromUserInput(text);
         const auto buildDevice = BuildDeviceKitAspect::device(d->target->kit());
 
         if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !buildDevice->rootPath().ensureReachable(newPath)) {
-            *error = Tr::tr("The build directory is not reachable from the build device.");
-            return false;
+            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(make_unexpected(
+                Tr::tr("The build directory is not reachable from the build device.")))));
         }
-
-        return pathChooser() ? pathChooser()->defaultValidationFunction()(edit, error) : true;
+        return pathChooser()->defaultValidationFunction()(text);
     });
+
     setOpenTerminalHandler([this, bc] {
         Core::FileUtils::openTerminal(FilePath::fromString(value()), bc->environment());
     });

@@ -41,9 +41,6 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
             m_configPath = new Utils::PathChooser(m_topWidget);
             m_configPath->setPromptDialogTitle(Tr::tr("Select Custom Configuration Folder"));
             m_configPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-            m_configPath->setValidationFunction([=](Utils::FancyLineEdit *edit, QString *errorMessage) {
-                return edit->text().isEmpty() || m_configPath->defaultValidationFunction()(edit, errorMessage);
-            });
             m_configPath->setInitialBrowsePathBackup(
                 Utils::FilePath::fromString(project->fileName()).absolutePath());
             addRow(Tr::tr("Config path:"), m_configPath, "configpath");

@@ -934,21 +934,19 @@ static std::optional<FilePath> settingsDirForQtDir(const FilePath &baseDirectory
     return {};
 }
 
-static bool validateQtInstallDir(PathChooser *input, QString *errorString)
+static FancyLineEdit::AsyncValidationResult validateQtInstallDir(const QString &input,
+                                                                 const FilePath &baseDirectory)
 {
-    const FilePath qtDir = input->rawFilePath();
-    if (!settingsDirForQtDir(input->baseDirectory(), qtDir)) {
-        if (errorString) {
-            const QStringList filesToCheck = settingsFilesToCheck() + qtversionFilesToCheck();
-            *errorString = "<html><body>"
-                           + Tr::tr("Qt installation information was not found in \"%1\". "
-                                    "Choose a directory that contains one of the files %2")
-                                 .arg(qtDir.toUserOutput(),
-                                      "<pre>" + filesToCheck.join('\n') + "</pre>");
-        }
-        return false;
+    const FilePath qtDir = FilePath::fromUserInput(input);
+    if (!settingsDirForQtDir(baseDirectory, qtDir)) {
+        const QStringList filesToCheck = settingsFilesToCheck() + qtversionFilesToCheck();
+        return make_unexpected(
+            "<html><body>"
+            + Tr::tr("Qt installation information was not found in \"%1\". "
+                     "Choose a directory that contains one of the files %2")
+                  .arg(qtDir.toUserOutput(), "<pre>" + filesToCheck.join('\n') + "</pre>"));
     }
-    return true;
+    return input;
 }
 
 static FilePath defaultQtInstallationPath()
@@ -976,12 +974,17 @@ void QtOptionsPageWidget::linkWithQt()
     pathInput->setBaseDirectory(FilePath::fromString(QCoreApplication::applicationDirPath()));
     pathInput->setPromptDialogTitle(title);
     pathInput->setMacroExpander(nullptr);
-    pathInput->setValidationFunction([pathInput](FancyLineEdit *input, QString *errorString) {
-        if (pathInput->defaultValidationFunction()
-            && !pathInput->defaultValidationFunction()(input, errorString))
-            return false;
-        return validateQtInstallDir(pathInput, errorString);
-    });
+    pathInput->setValidationFunction(
+        [pathInput](const QString &input) -> FancyLineEdit::AsyncValidationFuture {
+            return pathInput->defaultValidationFunction()(input).then(
+                [baseDir = pathInput->baseDirectory()](
+                    const FancyLineEdit::AsyncValidationResult &result)
+                    -> FancyLineEdit::AsyncValidationResult {
+                    if (!result)
+                        return result;
+                    return validateQtInstallDir(result.value(), baseDir);
+                });
+        });
     const std::optional<FilePath> currentLink = currentlyLinkedQtDir(nullptr);
     pathInput->setFilePath(currentLink ? *currentLink : defaultQtInstallationPath());
     pathInput->setAllowPathFromDevice(true);

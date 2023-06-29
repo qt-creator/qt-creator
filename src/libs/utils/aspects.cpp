@@ -662,7 +662,7 @@ public:
     MacroExpanderProvider m_expanderProvider;
     FilePath m_baseFileName;
     StringAspect::ValueAcceptor m_valueAcceptor;
-    FancyLineEdit::ValidationFunction m_validator;
+    std::optional<FancyLineEdit::ValidationFunction> m_validator;
     std::function<void()> m_openTerminal;
 
     bool m_undoRedoEnabled = true;
@@ -1066,9 +1066,9 @@ void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction
 {
     d->m_validator = validator;
     if (d->m_lineEditDisplay)
-        d->m_lineEditDisplay->setValidationFunction(d->m_validator);
+        d->m_lineEditDisplay->setValidationFunction(*d->m_validator);
     else if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setValidationFunction(d->m_validator);
+        d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
 }
 
 void StringAspect::setOpenTerminalHandler(const std::function<void ()> &openTerminal)
@@ -1119,8 +1119,9 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+
         if (d->m_validator)
-            d->m_pathChooserDisplay->setValidationFunction(d->m_validator);
+            d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
@@ -1163,8 +1164,9 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+
         if (d->m_validator)
-            d->m_lineEditDisplay->setValidationFunction(d->m_validator);
+            d->m_lineEditDisplay->setValidationFunction(*d->m_validator);
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
         d->m_lineEditDisplay->setReadOnly(isReadOnly());
         d->m_lineEditDisplay->setValidatePlaceHolder(d->m_validatePlaceHolder);

@@ -6,6 +6,7 @@
 #include <QList>
 #include <QString>
 #include <QtGlobal>
+#include <QFormLayout>
 
 #include <optional>
 
@@ -215,6 +216,8 @@ QTCREATOR_UTILS_EXPORT LayoutItem resize(int, int);
 QTCREATOR_UTILS_EXPORT LayoutItem columnStretch(int column, int stretch);
 QTCREATOR_UTILS_EXPORT LayoutItem spacing(int);
 QTCREATOR_UTILS_EXPORT LayoutItem windowTitle(const QString &windowTitle);
+QTCREATOR_UTILS_EXPORT LayoutItem fieldGrowthPolicy(QFormLayout::FieldGrowthPolicy policy);
+
 
 // "Getters"
 

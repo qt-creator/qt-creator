@@ -888,6 +888,18 @@ LayoutItem columnStretch(int column, int stretch)
     };
 }
 
+LayoutItem fieldGrowthPolicy(QFormLayout::FieldGrowthPolicy policy)
+{
+    return [policy](QObject *target) {
+        if (auto form = qobject_cast<QFormLayout *>(target)) {
+            form->setFieldGrowthPolicy(policy);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+
 // Id based setters
 
 LayoutItem id(ID &out)

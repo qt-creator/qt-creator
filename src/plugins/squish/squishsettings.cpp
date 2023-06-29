@@ -46,17 +46,23 @@ SquishSettings::SquishSettings()
     squishPath.setLabelText(Tr::tr("Squish path:"));
     squishPath.setExpectedKind(PathChooser::ExistingDirectory);
     squishPath.setPlaceHolderText(Tr::tr("Path to Squish installation"));
-    squishPath.setValidationFunction([this](FancyLineEdit *edit, QString *error) {
-        QTC_ASSERT(edit, return false);
-        if (!squishPath.pathChooser()->defaultValidationFunction()(edit, error))
-            return false;
-        const FilePath squishServer = FilePath::fromUserInput(edit->text())
-                .pathAppended(HostOsInfo::withExecutableSuffix("bin/squishserver"));
-        const bool valid = squishServer.isExecutableFile();
-        if (!valid && error)
-            *error = Tr::tr("Path does not contain server executable at its default location.");
-        return valid;
-    });
+    squishPath.setValidationFunction(
+        [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
+            return squishPath.pathChooser()->defaultValidationFunction()(text).then(
+                [](const FancyLineEdit::AsyncValidationResult &result)
+                    -> FancyLineEdit::AsyncValidationResult {
+                    if (!result)
+                        return result;
+
+                    const FilePath squishServer
+                        = FilePath::fromUserInput(result.value())
+                              .pathAppended(HostOsInfo::withExecutableSuffix("bin/squishserver"));
+                    if (!squishServer.isExecutableFile())
+                        return make_unexpected(Tr::tr(
+                            "Path does not contain server executable at its default location."));
+                    return result.value();
+                });
+        });
 
     licensePath.setSettingsKey("LicensePath");
     licensePath.setLabelText(Tr::tr("License path:"));

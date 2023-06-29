@@ -6,8 +6,10 @@
 #include "utils_global.h"
 
 #include "completinglineedit.h"
+#include "expected.h"
 
 #include <QAbstractButton>
+#include <QFuture>
 
 #include <functional>
 
@@ -98,8 +100,13 @@ public:
     //  Validation
 
     // line edit, (out)errorMessage -> valid?
-    using ValidationFunction = std::function<bool(FancyLineEdit *, QString *)>;
-    enum State { Invalid, DisplayingPlaceholderText, Valid };
+    using AsyncValidationResult = Utils::expected_str<QString>;
+    using AsyncValidationFuture = QFuture<AsyncValidationResult>;
+    using AsyncValidationFunction = std::function<AsyncValidationFuture(QString)>;
+    using SynchronousValidationFunction = std::function<bool(FancyLineEdit *, QString *)>;
+    using ValidationFunction = std::variant<AsyncValidationFunction, SynchronousValidationFunction>;
+
+    enum State { Invalid, DisplayingPlaceholderText, Valid, Validating };
 
     State state() const;
     bool isValid() const;
@@ -137,6 +144,8 @@ protected:
 
 private:
     void iconClicked(FancyLineEdit::Side);
+
+    void handleValidationResult(AsyncValidationResult result, const QString &oldText);
 
     static bool validateWithValidator(FancyLineEdit *edit, QString *errorMessage);
     // Unimplemented, to force the user to make a decision on

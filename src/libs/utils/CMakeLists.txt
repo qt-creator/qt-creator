@@ -1,5 +1,5 @@
 add_qtc_library(Utils
-  DEPENDS Tasking Qt::Qml Qt::Xml
+  DEPENDS Tasking Qt::Qml Qt::Xml Spinner
   PUBLIC_DEPENDS
     Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets
     Qt::Core5Compat

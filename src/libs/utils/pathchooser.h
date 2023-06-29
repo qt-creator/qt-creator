@@ -80,7 +80,7 @@ public:
     /** Returns the suggested label title when used in a form layout. */
     static QString label();
 
-    FancyLineEdit::ValidationFunction defaultValidationFunction() const;
+    FancyLineEdit::AsyncValidationFunction defaultValidationFunction() const;
     void setValidationFunction(const FancyLineEdit::ValidationFunction &fn);
 
     /** Return the home directory, which needs some fixing under Windows. */
@@ -153,7 +153,6 @@ private:
     // Use filePath().toString() or better suitable conversions.
     QString path() const { return filePath().toString(); }
 
-    bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
     void slotBrowse(bool remote);

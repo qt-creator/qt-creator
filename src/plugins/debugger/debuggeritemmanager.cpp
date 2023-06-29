@@ -14,10 +14,12 @@
 #include <projectexplorer/projectexplorericons.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/persistentsettings.h>
 #include <utils/process.h>
@@ -29,6 +31,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QFutureWatcher>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -101,7 +104,6 @@ private:
     void setAbis(const QStringList &abiNames);
 
     QLineEdit *m_displayNameLineEdit;
-    QLineEdit *m_typeLineEdit;
     QLabel *m_cdbLabel;
     PathChooser *m_binaryChooser;
     bool m_autodetected = false;
@@ -109,12 +111,12 @@ private:
     DebuggerEngineType m_engineType = NoEngineType;
     QVariant m_id;
 
-    QLabel *m_abisLabel;
-    QLineEdit *m_abis;
-    QLabel *m_versionLabel;
-    QLineEdit *m_version;
-    QLabel *m_workingDirectoryLabel;
+    QLabel *m_abis;
+    QLabel *m_version;
+    QLabel *m_type;
+
     PathChooser *m_workingDirectoryChooser;
+    QFutureWatcher<DebuggerItem> m_updateWatcher;
 };
 
 // --------------------------------------------------------------------------
@@ -311,52 +313,47 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
 {
     m_displayNameLineEdit = new QLineEdit(this);
 
-    m_typeLineEdit = new QLineEdit(this);
-    m_typeLineEdit->setEnabled(false);
-
     m_binaryChooser = new PathChooser(this);
     m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_binaryChooser->setMinimumWidth(400);
     m_binaryChooser->setHistoryCompleter("DebuggerPaths");
-    m_binaryChooser->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
-        if (!m_binaryChooser->defaultValidationFunction()(edit, errorMessage))
-            return false;
-        DebuggerItem item;
-        item.setCommand(m_binaryChooser->filePath());
-        errorMessage->clear();
-        item.reinitializeFromFile(errorMessage);
-        return errorMessage->isEmpty();
-    });
+    m_binaryChooser->setValidationFunction(
+        [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
+            return m_binaryChooser->defaultValidationFunction()(text).then(
+                [](const FancyLineEdit::AsyncValidationResult &result)
+                    -> FancyLineEdit::AsyncValidationResult {
+                    if (!result)
+                        return result;
+
+                    DebuggerItem item;
+                    item.setCommand(FilePath::fromUserInput(result.value()));
+                    QString errorMessage;
+                    item.reinitializeFromFile(&errorMessage);
+
+                    if (!errorMessage.isEmpty())
+                        return make_unexpected(errorMessage);
+
+                    return result.value();
+                });
+        });
     m_binaryChooser->setAllowPathFromDevice(true);
 
-    m_workingDirectoryLabel = new QLabel(Tr::tr("ABIs:"));
     m_workingDirectoryChooser = new PathChooser(this);
     m_workingDirectoryChooser->setExpectedKind(PathChooser::Directory);
     m_workingDirectoryChooser->setMinimumWidth(400);
     m_workingDirectoryChooser->setHistoryCompleter("DebuggerPaths");
 
-    m_cdbLabel = new QLabel(this);
-    m_cdbLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    m_cdbLabel->setOpenExternalLinks(true);
+    auto makeInteractiveLabel = []() {
+        auto label = new QLabel;
+        label->setTextInteractionFlags(Qt::TextEditorInteraction | Qt::TextBrowserInteraction);
+        label->setOpenExternalLinks(true);
+        return label;
+    };
 
-    m_versionLabel = new QLabel(Tr::tr("Version:"));
-    m_version = new QLineEdit(this);
-    m_version->setPlaceholderText(Tr::tr("Unknown"));
-    m_version->setEnabled(false);
-
-    m_abisLabel = new QLabel(Tr::tr("Working directory:"));
-    m_abis = new QLineEdit(this);
-    m_abis->setEnabled(false);
-
-    auto formLayout = new QFormLayout(this);
-    formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    formLayout->addRow(new QLabel(Tr::tr("Name:")), m_displayNameLineEdit);
-    formLayout->addRow(m_cdbLabel);
-    formLayout->addRow(new QLabel(Tr::tr("Path:")), m_binaryChooser);
-    formLayout->addRow(new QLabel(Tr::tr("Type:")), m_typeLineEdit);
-    formLayout->addRow(m_abisLabel, m_abis);
-    formLayout->addRow(m_versionLabel, m_version);
-    formLayout->addRow(m_workingDirectoryLabel, m_workingDirectoryChooser);
+    m_cdbLabel = makeInteractiveLabel();
+    m_version = makeInteractiveLabel();
+    m_abis = makeInteractiveLabel();
+    m_type = makeInteractiveLabel();
 
     connect(m_binaryChooser, &PathChooser::textChanged,
             this, &DebuggerItemConfigWidget::binaryPathHasChanged);
@@ -364,6 +361,30 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
             this, &DebuggerItemConfigWidget::store);
     connect(m_displayNameLineEdit, &QLineEdit::textChanged,
             this, &DebuggerItemConfigWidget::store);
+
+    connect(&m_updateWatcher, &QFutureWatcher<DebuggerItem>::finished, this, [this] {
+        if (m_updateWatcher.future().resultCount() > 0) {
+            DebuggerItem tmp = m_updateWatcher.result();
+            setAbis(tmp.abiNames());
+            m_version->setText(tmp.version());
+            m_engineType = tmp.engineType();
+            m_type->setText(tmp.engineTypeName());
+        }
+    });
+
+    // clang-format off
+    using namespace Layouting;
+    Form {
+        fieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow),
+        Tr::tr("Name:"), m_displayNameLineEdit, br,
+        Tr::tr("Path:"), m_binaryChooser, br,
+        m_cdbLabel, br,
+        Tr::tr("Type:"), m_type, br,
+        Tr::tr("ABIs:"), m_abis, br,
+        Tr::tr("Version:"), m_version, br,
+        Tr::tr("Working directory:"), m_workingDirectoryChooser, br,
+    }.attachTo(this);
+    // clang-format on
 }
 
 DebuggerItem DebuggerItemConfigWidget::item() const
@@ -413,19 +434,11 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
     m_displayNameLineEdit->setEnabled(!item->isAutoDetected());
     m_displayNameLineEdit->setText(item->unexpandedDisplayName());
 
-    m_typeLineEdit->setText(item->engineTypeName());
+    m_type->setText(item->engineTypeName());
 
     m_binaryChooser->setReadOnly(item->isAutoDetected());
     m_binaryChooser->setFilePath(item->command());
     m_binaryChooser->setExpectedKind(m_generic ? PathChooser::Any : PathChooser::ExistingCommand);
-
-    m_abisLabel->setVisible(!m_generic);
-    m_abis->setVisible(!m_generic);
-    m_versionLabel->setVisible(!m_generic);
-    m_version->setVisible(!m_generic);
-    m_workingDirectoryLabel->setVisible(!m_generic);
-    m_workingDirectoryChooser->setVisible(!m_generic);
-
 
     m_workingDirectoryChooser->setReadOnly(item->isAutoDetected());
     m_workingDirectoryChooser->setFilePath(item->workingDirectory());
@@ -462,16 +475,21 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
         return;
 
     if (!m_generic) {
+        m_updateWatcher.cancel();
+
         DebuggerItem tmp;
         if (m_binaryChooser->filePath().isExecutableFile()) {
             tmp = item();
-            tmp.reinitializeFromFile();
+            m_updateWatcher.setFuture(Utils::asyncRun([tmp]() mutable {
+                tmp.reinitializeFromFile();
+                return tmp;
+            }));
+        } else {
+            setAbis(tmp.abiNames());
+            m_version->setText(tmp.version());
+            m_engineType = tmp.engineType();
+            m_type->setText(tmp.engineTypeName());
         }
-
-        setAbis(tmp.abiNames());
-        m_version->setText(tmp.version());
-        m_engineType = tmp.engineType();
-        m_typeLineEdit->setText(tmp.engineTypeName());
     }
 
     store();
