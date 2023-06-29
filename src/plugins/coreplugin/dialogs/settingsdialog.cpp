@@ -14,6 +14,7 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QEventLoop>
@@ -41,6 +42,7 @@ const int kMaxMinimumWidth = 250;
 const int kMaxMinimumHeight = 250;
 
 static const char pageKeyC[] = "General/LastPreferencePage";
+static const char sortKeyC[] = "General/SortCategories";
 const int categoryIconSize = 24;
 
 using namespace Utils;
@@ -441,6 +443,7 @@ private:
     Id m_currentPage;
     QStackedLayout *m_stackedLayout;
     Utils::FancyLineEdit *m_filterLineEdit;
+    QCheckBox *m_sortCheckBox;
     QListView *m_categoryList;
     QLabel *m_headerLabel;
     std::vector<QEventLoop *> m_eventLoops;
@@ -456,6 +459,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_pages(sortedOptionsPages()),
     m_stackedLayout(new QStackedLayout),
     m_filterLineEdit(new Utils::FancyLineEdit),
+    m_sortCheckBox(new QCheckBox(Tr::tr("Sort Categories"))),
     m_categoryList(new CategoryListView),
     m_headerLabel(new QLabel)
 {
@@ -472,6 +476,12 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_categoryList->setModel(&m_proxyModel);
     m_categoryList->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+    connect(m_sortCheckBox, &QAbstractButton::toggled, this, [this](bool checked) {
+        m_proxyModel.sort(checked ? 0 : -1);
+    });
+    QSettings *settings = ICore::settings();
+    m_sortCheckBox->setChecked(settings->value(QLatin1String(sortKeyC), false).toBool());
 
     connect(m_categoryList->selectionModel(), &QItemSelectionModel::currentRowChanged,
             this, &SettingsDialog::currentChanged);
@@ -581,8 +591,9 @@ void SettingsDialog::createGui()
     mainGridLayout->addWidget(m_filterLineEdit, 0, 0, 1, 1);
     mainGridLayout->addLayout(headerHLayout,    0, 1, 1, 1);
     mainGridLayout->addWidget(m_categoryList,   1, 0, 1, 1);
-    mainGridLayout->addLayout(m_stackedLayout,  1, 1, 1, 1);
-    mainGridLayout->addWidget(buttonBox,        2, 0, 1, 2);
+    mainGridLayout->addWidget(m_sortCheckBox,   2, 0, 1, 1);
+    mainGridLayout->addLayout(m_stackedLayout,  1, 1, 2, 1);
+    mainGridLayout->addWidget(buttonBox,        3, 0, 1, 2);
     mainGridLayout->setColumnStretch(1, 4);
     setLayout(mainGridLayout);
 
@@ -733,6 +744,7 @@ void SettingsDialog::done(int val)
 {
     QSettings *settings = ICore::settings();
     settings->setValue(QLatin1String(pageKeyC), m_currentPage.toSetting());
+    settings->setValue(QLatin1String(sortKeyC), m_sortCheckBox->isChecked());
 
     ICore::saveSettings(ICore::SettingsDialogDone); // save all settings
 
