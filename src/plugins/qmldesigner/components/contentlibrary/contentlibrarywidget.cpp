@@ -643,6 +643,7 @@ void ContentLibraryWidget::setHasQuick3DImport(bool b)
     emit hasQuick3DImportChanged();
 
     m_materialsModel->updateIsEmpty();
+    m_effectsModel->updateIsEmpty();
 }
 
 bool ContentLibraryWidget::hasMaterialLibrary() const
