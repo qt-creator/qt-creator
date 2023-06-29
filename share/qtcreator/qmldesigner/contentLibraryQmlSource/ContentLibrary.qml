@@ -68,6 +68,7 @@ Item {
                         materialsView.expandVisibleSections()
                         texturesView.expandVisibleSections()
                         environmentsView.expandVisibleSections()
+                        effectsView.expandVisibleSections()
                     }
                 }
 
