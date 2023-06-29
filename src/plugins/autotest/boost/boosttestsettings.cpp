@@ -60,6 +60,7 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
 
     seed.setSettingsKey("Seed");
     seed.setEnabled(false);
+    seed.setRange(0, INT_MAX); // UINT_MAX would be correct, but inner QSpinBox is limited to int
     seed.setLabelText(Tr::tr("Seed:"));
     seed.setToolTip(Tr::tr("A seed of 0 means no randomization. A value of 1 uses the current "
                            "time, any other value is used as random seed generator."));

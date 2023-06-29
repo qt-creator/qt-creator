@@ -43,6 +43,7 @@ GTestSettings::GTestSettings(Id settingsId)
 
     seed.setSettingsKey("Seed");
     seed.setSpecialValueText({});
+    seed.setRange(0, 99999);
     seed.setEnabled(false);
     seed.setLabelText(Tr::tr("Seed:"));
     seed.setToolTip(Tr::tr("A seed of 0 generates a seed based on the current timestamp."));
