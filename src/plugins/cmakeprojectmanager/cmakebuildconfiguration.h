@@ -121,7 +121,7 @@ public:
     AdditionalCMakeOptionsAspect();
 };
 
-class SourceDirectoryAspect final : public Utils::StringAspect
+class SourceDirectoryAspect final : public Utils::FilePathAspect
 {
     Q_OBJECT
 
