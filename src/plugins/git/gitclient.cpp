@@ -2108,8 +2108,8 @@ bool GitClient::synchronousApplyPatch(const FilePath &workingDirectory,
 Environment GitClient::processEnvironment() const
 {
     Environment environment = VcsBaseClientImpl::processEnvironment();
-    const QString gitPath = settings().path.value();
-    environment.prependOrSetPath(FilePath::fromUserInput(gitPath));
+    const FilePath gitPath = settings().path();
+    environment.prependOrSetPath(gitPath);
     if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment.value()) {
         QString homePath;
         if (qtcEnvironmentVariableIsEmpty("HOMESHARE")) {
@@ -2457,7 +2457,7 @@ void GitClient::tryLaunchingGitK(const Environment &env,
 
     // This should always use Process::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
-    if (!settings().path.value().isEmpty()) {
+    if (!settings().path().isEmpty()) {
         auto process = new Process(const_cast<GitClient*>(this));
         process->setWorkingDirectory(workingDirectory);
         process->setEnvironment(env);

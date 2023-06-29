@@ -20,7 +20,7 @@ public:
     Utils::StringAspect userEmail{this};
     Utils::IntegerAspect logCount{this};
     Utils::IntegerAspect timeout{this}; // Seconds
-    Utils::StringAspect path{this};
+    Utils::FilePathAspect path{this};
 
     Utils::FilePaths searchPathList() const;
 };

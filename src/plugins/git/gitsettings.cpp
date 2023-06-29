@@ -161,7 +161,7 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
     if (tryResolve) {
         resolvedBinPath = binaryPath();
         if (!resolvedBinPath.isAbsolutePath())
-            resolvedBinPath = resolvedBinPath.searchInPath({path.filePath()}, FilePath::PrependToPath);
+            resolvedBinPath = resolvedBinPath.searchInPath({path()}, FilePath::PrependToPath);
         tryResolve = false;
     }
 
@@ -170,7 +170,7 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
             *ok = false;
         if (errorMessage)
             *errorMessage = Tr::tr("The binary \"%1\" could not be located in the path \"%2\"")
-                .arg(binaryPath.value(), path.value());
+                .arg(binaryPath.value(), path().toUserOutput());
     }
     return resolvedBinPath;
 }
