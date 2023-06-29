@@ -51,17 +51,11 @@ bool TestVisitor::visit(Class *symbol)
 
                 Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
                             func, m_snapshot, true);
-                if (functionDefinition && functionDefinition->fileId()) {
-                    locationAndType.m_filePath = FilePath::fromString(
-                                QString::fromUtf8(functionDefinition->fileName()));
-                    locationAndType.m_line = functionDefinition->line();
-                    locationAndType.m_column = functionDefinition->column() - 1;
-                } else { // if we cannot find the definition use declaration as fallback
-                    locationAndType.m_filePath = FilePath::fromString(
-                                QString::fromUtf8(member->fileName()));
-                    locationAndType.m_line = member->line();
-                    locationAndType.m_column = member->column() - 1;
-                }
+                if (functionDefinition && functionDefinition->fileId())
+                    member = functionDefinition;
+                locationAndType.m_filePath = FilePath::fromUtf8(member->fileName());
+                locationAndType.m_line = member->line();
+                locationAndType.m_column = member->column() - 1;
                 if (specialFunctions.contains(name))
                     locationAndType.m_type = TestTreeItem::TestSpecialFunction;
                 else if (name.endsWith("_data"))
