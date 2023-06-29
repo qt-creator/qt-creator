@@ -131,38 +131,6 @@ constexpr int compare(SmallStringView first, SmallStringView second) noexcept
     return first.compare(second);
 }
 
-namespace Internal {
-constexpr int reverse_memcmp(const char *first, const char *second, size_t n)
-{
-    const char *currentFirst = first + n - 1;
-    const char *currentSecond = second + n - 1;
-
-    while (n > 0) {
-        // If the current characters differ, return an appropriately signed
-        // value; otherwise, keep searching backwards
-        int difference = *currentFirst - *currentSecond;
-        if (difference != 0)
-            return difference;
-
-        --currentFirst;
-        --currentSecond;
-        --n;
-    }
-
-    return 0;
-}
-} // namespace Internal
-
-constexpr int reverseCompare(SmallStringView first, SmallStringView second) noexcept
-{
-    int difference = Internal::reverse_memcmp(first.data(), second.data(), first.size());
-
-    if (difference == 0)
-        return int(first.size()) - int(second.size());
-
-    return difference;
-}
-
 } // namespace Utils
 
 constexpr Utils::SmallStringView operator""_sv(const char *const string, size_t size)

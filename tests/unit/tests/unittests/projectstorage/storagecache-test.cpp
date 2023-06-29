@@ -17,7 +17,6 @@ namespace {
 using QmlDesigner::SourceContextId;
 using QmlDesigner::StorageCacheException;
 using Utils::compare;
-using Utils::reverseCompare;
 
 class StorageAdapter
 {
@@ -33,7 +32,7 @@ public:
 
 auto less(Utils::SmallStringView first, Utils::SmallStringView second) -> bool
 {
-    return Utils::reverseCompare(first, second) < 0;
+    return Utils::compare(first, second) < 0;
 };
 
 using CacheWithMockLocking = QmlDesigner::StorageCache<Utils::PathString,
@@ -62,7 +61,7 @@ protected:
             return compare(f, l) < 0;
         });
         std::sort(reverseFilePaths.begin(), reverseFilePaths.end(), [](auto &f, auto &l) {
-            return reverseCompare(f, l) < 0;
+            return std::lexicographical_compare(f.rbegin(), f.rend(), l.rbegin(), l.rend());
         });
 
         ON_CALL(this->mockStorage, fetchSourceContextId(Eq("foo"))).WillByDefault(Return(id42));

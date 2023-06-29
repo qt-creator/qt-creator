@@ -499,7 +499,7 @@ private:
 
     static bool moduleNameLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept
     {
-        return Utils::reverseCompare(first, second) < 0;
+        return first < second;
     }
 
     using ModuleCache = StorageCache<Utils::PathString,

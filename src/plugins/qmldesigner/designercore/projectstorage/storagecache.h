@@ -296,18 +296,56 @@ private:
         }
     }
 
-    auto find(ViewType view)
+    template<typename Entries>
+    static auto find(Entries &&entries, ViewType view)
     {
-        auto found = std::lower_bound(m_entries.begin(), m_entries.end(), view, compare);
+        auto begin = entries.begin();
+        auto end = entries.end();
+        auto found = std::lower_bound(begin, end, view, compare);
 
-        if (found == m_entries.end())
-            return m_entries.end();
+        if (found == entries.end()) {
+            return entries.end();
+        }
 
-        if (*found == view)
+        auto value = *found;
+
+        if (value == view) {
             return found;
+        }
 
-        return m_entries.end();
+        return entries.end();
     }
+
+    IndexType id(ViewType view) const
+    {
+        std::shared_lock<Mutex> sharedLock(m_mutex);
+
+        auto found = find(view);
+
+        if (found != m_entries.end()) {
+            return found->id;
+        }
+
+        return IndexType();
+    }
+
+    ResultType value(IndexType id) const
+    {
+        std::shared_lock<Mutex> sharedLock(m_mutex);
+
+        if (IndexType::create(static_cast<IndexDatabaseType>(m_indices.size()) + 1) > id) {
+            if (StorageCacheIndex indirectionIndex = m_indices.at(static_cast<std::size_t>(id) - 1);
+                indirectionIndex.isValid()) {
+                return m_entries.at(static_cast<std::size_t>(indirectionIndex)).value;
+            }
+        }
+
+        return ResultType();
+    }
+
+    auto find(ViewType view) const { return find(m_entries, view); }
+
+    auto find(ViewType view) { return find(m_entries, view); }
 
     void incrementLargerOrEqualIndicesByOne(StorageCacheIndex newIndirectionIndex)
     {
@@ -337,7 +375,7 @@ private:
         return inserted;
     }
 
-    void checkEntries()
+    void checkEntries() const
     {
         for (const auto &entry : m_entries) {
             if (entry.value != value(entry.id) || entry.id != id(entry.value))

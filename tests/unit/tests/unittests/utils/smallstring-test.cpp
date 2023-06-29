@@ -1875,17 +1875,3 @@ TEST(SmallString, compare)
     ASSERT_THAT(Utils::compare("textx", "texta"), Gt(0));
     ASSERT_THAT(Utils::compare("texta", "textx"), Le(0));
 }
-
-TEST(SmallString, reverse_compare)
-{
-    const char longText[] = "textfoo";
-
-    ASSERT_THAT(Utils::reverseCompare("", ""), Eq(0));
-    ASSERT_THAT(Utils::reverseCompare("text", "text"), Eq(0));
-    ASSERT_THAT(Utils::reverseCompare("text", Utils::SmallStringView(longText, 4)), Eq(0));
-    ASSERT_THAT(Utils::reverseCompare("", "text"), Le(0));
-    ASSERT_THAT(Utils::reverseCompare("textx", "text"), Gt(0));
-    ASSERT_THAT(Utils::reverseCompare("text", "textx"), Le(0));
-    ASSERT_THAT(Utils::reverseCompare("textx", "texta"), Gt(0));
-    ASSERT_THAT(Utils::reverseCompare("texta", "textx"), Le(0));
-}

@@ -403,7 +403,7 @@ TEST_F(SourcePathCache, get_directory_path_after_populate_if_empty)
     ASSERT_THAT(path, Eq("/path/to"));
 }
 
-TEST_F(SourcePathCache, get_file_path_after_populate_if_emptye)
+TEST_F(SourcePathCache, get_file_path_after_populate_if_empty)
 {
     cacheNotFilled.populateIfEmpty();
 
