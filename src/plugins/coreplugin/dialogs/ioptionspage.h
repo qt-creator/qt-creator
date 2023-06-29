@@ -63,10 +63,11 @@ public:
     virtual void apply();
     virtual void finish();
 
-    virtual QStringList keywords() const;
     virtual bool matches(const QRegularExpression &regexp) const;
 
 protected:
+    virtual QStringList keywords() const;
+
     void setId(Utils::Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setCategory(Utils::Id category) { m_category = category; }
