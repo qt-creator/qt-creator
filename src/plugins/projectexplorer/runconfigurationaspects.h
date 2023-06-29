@@ -190,7 +190,7 @@ private:
     ExecutionDeviceSelector m_selector = RunDevice;
 };
 
-class PROJECTEXPLORER_EXPORT SymbolFileAspect : public Utils::StringAspect
+class PROJECTEXPLORER_EXPORT SymbolFileAspect : public Utils::FilePathAspect
 {
     Q_OBJECT
 

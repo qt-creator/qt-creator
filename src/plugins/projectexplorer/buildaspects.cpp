@@ -102,7 +102,7 @@ void BuildDirectoryAspect::fromMap(const QVariantMap &map)
     if (!d->sourceDir.isEmpty()) {
         d->savedShadowBuildDir = FilePath::fromSettings(map.value(settingsKey() + ".shadowDir"));
         if (d->savedShadowBuildDir.isEmpty())
-            setFilePath(d->sourceDir);
+            setValue(d->sourceDir);
         setChecked(d->sourceDir != filePath());
     }
 }
@@ -117,11 +117,11 @@ void BuildDirectoryAspect::addToLayout(Layouting::LayoutItem &parent)
     if (!d->sourceDir.isEmpty()) {
         connect(this, &StringAspect::checkedChanged, this, [this] {
             if (isChecked()) {
-                setFilePath(d->savedShadowBuildDir.isEmpty()
+                setValue(d->savedShadowBuildDir.isEmpty()
                             ? d->sourceDir : d->savedShadowBuildDir);
             } else {
                 d->savedShadowBuildDir = filePath();
-                setFilePath(d->sourceDir);
+                setValue(d->sourceDir);
             }
         });
     }

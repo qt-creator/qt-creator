@@ -2042,7 +2042,7 @@ BuildSystem *CMakeBuildConfiguration::buildSystem() const
 
 void CMakeBuildConfiguration::setSourceDirectory(const FilePath &path)
 {
-    aspect<SourceDirectoryAspect>()->setFilePath(path);
+    aspect<SourceDirectoryAspect>()->setValue(path);
 }
 
 FilePath CMakeBuildConfiguration::sourceDirectory() const

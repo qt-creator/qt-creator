@@ -252,7 +252,7 @@ Environment MakeStep::makeEnvironment() const
 
 void MakeStep::setMakeCommand(const FilePath &command)
 {
-    m_makeCommandAspect.setFilePath(command);
+    m_makeCommandAspect.setValue(command);
 }
 
 int MakeStep::defaultJobCount()

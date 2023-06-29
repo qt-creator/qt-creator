@@ -39,12 +39,12 @@ private:
 NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList, Id id)
     : BuildStep(parentList, id)
 {
-    auto workingDirectory = addAspect<StringAspect>();
+    auto workingDirectory = addAspect<FilePathAspect>();
     workingDirectory->setLabelText(Tr::tr("Working directory:"));
     workingDirectory->setDisplayStyle(StringAspect::LineEditDisplay);
 
     setSummaryUpdater([this, workingDirectory] {
-        workingDirectory->setFilePath(buildDirectory());
+        workingDirectory->setValue(buildDirectory());
         return displayName();
     });
 }

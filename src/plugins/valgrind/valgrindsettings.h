@@ -120,7 +120,7 @@ public:
     void writeSettings() const;
     void readSettings();
 
-    Utils::StringAspect lastSuppressionDirectory{this};
+    Utils::FilePathAspect lastSuppressionDirectory{this};
     Utils::StringAspect lastSuppressionHistory{this};
 
 

@@ -69,7 +69,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
         const DeployableFile depFile = deploymentData.deployableForLocalFile(localExecutable);
 
         exeAspect->setExecutable(runDevice->filePath(depFile.remoteFilePath()));
-        symbolsAspect->setFilePath(localExecutable);
+        symbolsAspect->setValue(localExecutable);
         libAspect->setEnabled(buildDevice == runDevice);
     });
 

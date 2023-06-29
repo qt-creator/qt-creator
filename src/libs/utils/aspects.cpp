@@ -841,18 +841,6 @@ FilePath StringAspect::filePath() const
     return FilePath::fromUserInput(value());
 }
 
-/*!
-    Sets the value of this string aspect to \a value.
-
-    \note This simply uses \c FilePath::toUserOutput() for the
-    conversion. It does not use any check that the value is actually
-    a file path.
-*/
-void StringAspect::setFilePath(const FilePath &value)
-{
-    setValue(value.toUserOutput());
-}
-
 PathChooser *StringAspect::pathChooser() const
 {
     return d->m_pathChooserDisplay.data();
@@ -1323,6 +1311,13 @@ FilePathAspect::FilePathAspect(AspectContainer *container)
 {
     setDisplayStyle(PathChooserDisplay);
 }
+
+/*!
+    Sets the value of this file path aspect to \a value.
+
+    \note This does not use any check that the value is actually
+    a file path.
+*/
 
 void FilePathAspect::setValue(const FilePath &filePath)
 {

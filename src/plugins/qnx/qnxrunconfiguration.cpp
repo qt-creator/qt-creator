@@ -59,7 +59,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Id id)
         const DeployableFile depFile = target->deploymentData()
             .deployableForLocalFile(localExecutable);
         exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-        symbolsAspect->setFilePath(localExecutable);
+        symbolsAspect->setValue(localExecutable);
     });
 
     setRunnableModifier([libAspect](Runnable &r) {

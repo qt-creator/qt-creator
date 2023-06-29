@@ -124,7 +124,7 @@ void AxivionSettings::fromSettings(QSettings *s)
         const QString curlPath = QStandardPaths::findExecutable(
                     Utils::HostOsInfo::withExecutableSuffix("curl"));
         if (!curlPath.isEmpty())
-            curl.setFilePath(Utils::FilePath::fromString(curlPath));
+            curl.setValue(Utils::FilePath::fromString(curlPath));
     }
 }
 

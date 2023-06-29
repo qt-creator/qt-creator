@@ -568,7 +568,7 @@ static void saveLastTraceFile(const FilePath &filePath)
 {
     QmlProfilerSettings *settings = QmlProfilerPlugin::globalSettings();
     if (filePath != settings->lastTraceFile.filePath()) {
-        settings->lastTraceFile.setFilePath(filePath);
+        settings->lastTraceFile.setValue(filePath);
         settings->writeGlobalSettings();
     }
 }

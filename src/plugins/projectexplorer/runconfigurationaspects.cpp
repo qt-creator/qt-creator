@@ -662,7 +662,7 @@ void ExecutableAspect::setPlaceHolderText(const QString &placeHolderText)
 */
 void ExecutableAspect::setExecutable(const FilePath &executable)
 {
-   m_executable.setFilePath(executable);
+   m_executable.setValue(executable);
    m_executable.setShowToolTipOnLabel(true);
 }
 

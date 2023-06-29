@@ -178,7 +178,7 @@ GitLabOptionsWidget::GitLabOptionsWidget(GitLabParameters *params)
         }, Column { m_add, m_edit, m_remove, st },
     }.attachTo(this);
 
-    m_curl.setFilePath(params->curl);
+    m_curl.setValue(params->curl);
 
     for (const auto &gitLabServer : params->gitLabServers) {
         m_defaultGitLabServer->addItem(gitLabServer.displayString(),

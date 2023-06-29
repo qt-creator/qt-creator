@@ -246,10 +246,10 @@ void BuildConfiguration::setBuildDirectory(const FilePath &dir)
 {
     if (dir == d->m_buildDirectoryAspect->filePath())
         return;
-    d->m_buildDirectoryAspect->setFilePath(dir);
+    d->m_buildDirectoryAspect->setValue(dir);
     const FilePath fixedDir = BuildDirectoryAspect::fixupDir(buildDirectory());
     if (!fixedDir.isEmpty())
-        d->m_buildDirectoryAspect->setFilePath(fixedDir);
+        d->m_buildDirectoryAspect->setValue(fixedDir);
     emitBuildDirectoryChanged();
 }
 

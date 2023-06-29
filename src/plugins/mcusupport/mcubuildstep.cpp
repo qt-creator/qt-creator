@@ -78,7 +78,7 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, U
     cmd->setSettingsKey("QmlProject.Mcu.ProcessStep.Command");
     cmd->setExpectedKind(Utils::PathChooser::Command);
     cmd->setLabelText(QmlProjectManager::Tr::tr("Command:"));
-    cmd->setFilePath(rootPath.pathAppended("/bin/qmlprojectexporter"));
+    cmd->setValue(rootPath.pathAppended("/bin/qmlprojectexporter"));
 
     const char *importPathConstant = QtSupport::Constants::KIT_QML_IMPORT_PATH;
     Utils::FilePath projectDir = buildSystem()->projectDirectory();

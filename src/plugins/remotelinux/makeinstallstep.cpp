@@ -101,7 +101,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     installRootAspect->setSettingsKey(InstallRootAspectId);
     installRootAspect->setExpectedKind(PathChooser::Directory);
     installRootAspect->setLabelText(Tr::tr("Install root:"));
-    installRootAspect->setFilePath(rootPath);
+    installRootAspect->setValue(rootPath);
     connect(installRootAspect, &StringAspect::changed,
             this, &MakeInstallStep::updateArgsFromAspect);
 

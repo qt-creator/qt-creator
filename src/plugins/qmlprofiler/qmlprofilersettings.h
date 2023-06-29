@@ -18,7 +18,7 @@ public:
 
     Utils::BoolAspect flushEnabled;
     Utils::IntegerAspect flushInterval;
-    Utils::StringAspect lastTraceFile;
+    Utils::FilePathAspect lastTraceFile;
     Utils::BoolAspect aggregateTraces;
 };
 

@@ -92,7 +92,7 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Id id)
         IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
         QTC_ASSERT(dev, return);
         exeAspect->setExecutable(dev->filePath(depFile.remoteFilePath()));
-        symbolsAspect->setFilePath(localExecutable);
+        symbolsAspect->setValue(localExecutable);
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);

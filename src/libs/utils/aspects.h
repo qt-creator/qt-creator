@@ -502,7 +502,6 @@ public:
     void toMap(QVariantMap &map) const override;
 
     FilePath filePath() const;
-    void setFilePath(const FilePath &value);
 
     PathChooser *pathChooser() const; // Avoid to use.
 

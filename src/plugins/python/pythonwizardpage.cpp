@@ -133,7 +133,7 @@ void PythonWizardPage::initializePage()
     const FilePath projectDir = FilePath::fromString(wiz->property("ProjectDirectory").toString());
     m_createVenv.setValue(!projectDir.isEmpty());
     if (m_venvPath.filePath().isEmpty())
-        m_venvPath.setFilePath(projectDir.isEmpty() ? FilePath{} : projectDir / "venv");
+        m_venvPath.setValue(projectDir.isEmpty() ? FilePath{} : projectDir / "venv");
 
     updateInterpreters();
     updateStateLabel();
