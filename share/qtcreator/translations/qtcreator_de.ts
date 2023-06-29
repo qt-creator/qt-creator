@@ -44598,23 +44598,23 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Use customized static analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>Angepasste statische Analyse benutzen</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished">Aktiviert</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <source>Disabled for non Qt Quick UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur für Qt Quick UI</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachricht</translation>
     </message>
     <message>
         <source>Enabled checks can be disabled for non Qt Quick UI files, but disabled checks cannot get explicitly enabled for non Qt Quick UI files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfungen können für alle Dateien oder nur für Qt Quick UI-Dateien aktiviert werden. Es ist nicht möglich, Überprüfungen nur für Qt Quick UI-Dateien zu deaktivieren.</translation>
     </message>
     <message>
         <source>Automatic Formatting on File Save</source>
@@ -44630,11 +44630,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Static Analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>Statische Analyse</translation>
     </message>
     <message>
         <source>Reset to Default</source>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen</translation>
+        <translation>Auf Vorgabe zurücksetzen</translation>
     </message>
     <message>
         <source>Enable auto format on file save</source>
@@ -44717,7 +44717,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Locates QML functions in any open project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet QML-Funktionen in allen offenen Projekten.</translation>
     </message>
     <message>
         <source>Code Style</source>
@@ -44741,7 +44741,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Andere</translation>
+        <translation>Andere</translation>
     </message>
     <message>
         <source>&amp;Line length:</source>
@@ -44757,15 +44757,15 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     <name>QtC::QmlPreview</name>
     <message>
         <source>QML Preview</source>
-        <translation type="unfinished">QML-Vorschau</translation>
+        <translation>QML-Vorschau</translation>
     </message>
     <message>
         <source>Preview changes to QML code live in your application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt Änderungen an QML-Code in Echtzeit in Ihrer Anwendung.</translation>
     </message>
     <message>
         <source>Preview File</source>
-        <translation type="unfinished">Datei in Vorschau anzeigen</translation>
+        <translation>Datei in Vorschau anzeigen</translation>
     </message>
 </context>
 <context>
@@ -45059,7 +45059,7 @@ Wollen Sie die Daten vorher speichern?</translation>
     </message>
     <message>
         <source>Quick3D</source>
-        <translation type="unfinished"></translation>
+        <translation>Quick3D</translation>
     </message>
     <message>
         <source>Failed to replay QML events from stash file.</source>
@@ -45530,135 +45530,135 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Render Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame rendern</translation>
     </message>
     <message>
         <source>Synchronize Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame synchronisieren</translation>
     </message>
     <message>
         <source>Prepare Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame vorbereiten</translation>
     </message>
     <message>
         <source>Mesh Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesh laden</translation>
     </message>
     <message>
         <source>Custom Mesh Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Angepasstes Mesh laden</translation>
     </message>
     <message>
         <source>Texture Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Textur laden</translation>
     </message>
     <message>
         <source>Generate Shader</source>
-        <translation type="unfinished"></translation>
+        <translation>Shader generieren</translation>
     </message>
     <message>
         <source>Load Shader</source>
-        <translation type="unfinished"></translation>
+        <translation>Shader laden</translation>
     </message>
     <message>
         <source>Particle Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Partikel aktualisieren</translation>
     </message>
     <message>
         <source>Render Call</source>
-        <translation type="unfinished"></translation>
+        <translation>Renderaufruf</translation>
     </message>
     <message>
         <source>Render Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>Renderdurchgang</translation>
     </message>
     <message>
         <source>Event Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Ereignisdaten</translation>
     </message>
     <message>
         <source>Mesh Memory consumption</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesh Speicherbedarf</translation>
     </message>
     <message>
         <source>Texture Memory consumption</source>
-        <translation type="unfinished"></translation>
+        <translation>Textur Speicherbedarf</translation>
     </message>
     <message>
         <source>Mesh Unload</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesh entladen</translation>
     </message>
     <message>
         <source>Custom Mesh Unload</source>
-        <translation type="unfinished"></translation>
+        <translation>Angepasstes Mesh entladen</translation>
     </message>
     <message>
         <source>Texture Unload</source>
-        <translation type="unfinished"></translation>
+        <translation>Textur entladen</translation>
     </message>
     <message>
         <source>Unknown Unload Message %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Entlade-Nachricht %1</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beschreibung</translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">Anzahl</translation>
+        <translation>Anzahl</translation>
     </message>
     <message>
         <source>Draw Calls</source>
-        <translation type="unfinished"></translation>
+        <translation>Draw-Aufrufe</translation>
     </message>
     <message>
         <source>Render Passes</source>
-        <translation type="unfinished"></translation>
+        <translation>Renderdurchgänge</translation>
     </message>
     <message>
         <source>Total Memory Usage</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamter Speicherverbrauch</translation>
     </message>
     <message>
         <source>Primitives</source>
-        <translation type="unfinished"></translation>
+        <translation>Primitive</translation>
     </message>
     <message>
         <source>Instances</source>
-        <translation type="unfinished"></translation>
+        <translation>Instanzen</translation>
     </message>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Frame</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Frame Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame Delta</translation>
     </message>
     <message>
         <source>View3D</source>
-        <translation type="unfinished"></translation>
+        <translation>View3D</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Keine</translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Quick3D Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Quick3D Frame</translation>
     </message>
     <message>
         <source>Select View3D</source>
-        <translation type="unfinished"></translation>
+        <translation>View3D auswählen</translation>
     </message>
     <message>
         <source>Compare Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame vergleichen</translation>
     </message>
 </context>
 <context>
