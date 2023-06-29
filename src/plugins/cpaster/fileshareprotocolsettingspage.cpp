@@ -22,7 +22,7 @@ FileShareProtocolSettings::FileShareProtocolSettings()
 
     path.setSettingsKey("Path");
     path.setExpectedKind(PathChooser::ExistingDirectory);
-    path.setDefaultValue(TemporaryDirectory::masterDirectoryPath());
+    path.setDefaultValue(TemporaryDirectory::masterDirectoryFilePath());
     path.setLabelText(Tr::tr("&Path:"));
 
     displayCount.setSettingsKey("DisplayCount");

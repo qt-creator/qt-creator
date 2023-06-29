@@ -63,7 +63,7 @@ WebAssemblySettings::WebAssemblySettings()
     registerAspect(&emSdk);
     emSdk.setSettingsKey("EmSdk");
     emSdk.setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    emSdk.setDefaultFilePath(FileUtils::homePath());
+    emSdk.setDefaultValue(FileUtils::homePath());
 
     connect(this, &Utils::AspectContainer::applied, &WebAssemblyToolChain::registerToolChains);
 

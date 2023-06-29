@@ -49,17 +49,16 @@ static int defaultFontSize()
     return 10;
 }
 
-static QString defaultShell()
+static FilePath defaultShell()
 {
     if (HostOsInfo::isWindowsHost())
-        return qtcEnvironmentVariable("COMSPEC");
+        return FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
 
-    QString defaultShell = qtcEnvironmentVariable("SHELL");
-    if (FilePath::fromUserInput(defaultShell).isExecutableFile())
+    FilePath defaultShell = FilePath::fromUserInput(qtcEnvironmentVariable("SHELL"));
+    if (defaultShell.isExecutableFile())
         return defaultShell;
 
-    Utils::FilePath shPath = Utils::Environment::systemEnvironment().searchInPath("sh");
-    return shPath.nativePath();
+    return Environment::systemEnvironment().searchInPath("sh");
 }
 
 void setupColor(TerminalSettings *settings,

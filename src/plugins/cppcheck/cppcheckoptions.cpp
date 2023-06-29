@@ -44,7 +44,7 @@ CppcheckOptions::CppcheckOptions()
         FilePath programFiles = FilePath::fromUserInput(qtcEnvironmentVariable("PROGRAMFILES"));
         if (programFiles.isEmpty())
             programFiles = "C:/Program Files";
-        binary.setDefaultValue(programFiles.pathAppended("Cppcheck/cppcheck.exe").toString());
+        binary.setDefaultValue(programFiles.pathAppended("Cppcheck/cppcheck.exe"));
     }
 
     warning.setSettingsKey("warning");

@@ -503,7 +503,6 @@ public:
 
     FilePath filePath() const;
     void setFilePath(const FilePath &value);
-    void setDefaultFilePath(const FilePath &value);
 
     PathChooser *pathChooser() const; // Avoid to use.
 
@@ -524,6 +523,7 @@ public:
 
     FilePath operator()() const { return filePath(); }
     void setValue(const FilePath &filePath);
+    void setDefaultValue(const FilePath &filePath);
 };
 
 class QTCREATOR_UTILS_EXPORT IntegerAspect : public TypedAspect<qint64>

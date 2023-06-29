@@ -42,7 +42,7 @@ DockerSettings::DockerSettings()
         additionalPaths.append("/usr/local/bin");
 
     dockerBinaryPath.setExpectedKind(PathChooser::ExistingCommand);
-    dockerBinaryPath.setDefaultFilePath(
+    dockerBinaryPath.setDefaultValue(
         FilePath::fromString("docker").searchInPath(additionalPaths));
     dockerBinaryPath.setDisplayName(Tr::tr("Docker CLI"));
     dockerBinaryPath.setHistoryCompleter("Docker.Command.History");

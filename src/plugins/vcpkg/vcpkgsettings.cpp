@@ -15,6 +15,8 @@
 #include <QDesktopServices>
 #include <QToolButton>
 
+using namespace Utils;
+
 namespace Vcpkg::Internal {
 
 static VcpkgSettings *theSettings = nullptr;
@@ -34,13 +36,14 @@ VcpkgSettings::VcpkgSettings()
     setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
 
     vcpkgRoot.setSettingsKey("VcpkgRoot");
-    vcpkgRoot.setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    vcpkgRoot.setDefaultValue(Utils::qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
+    vcpkgRoot.setExpectedKind(PathChooser::ExistingDirectory);
+    vcpkgRoot.setDefaultValue(
+        FilePath::fromUserInput(qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT)));
 
     setLayouter([this] {
         using namespace Layouting;
         auto websiteButton = new QToolButton;
-        websiteButton->setIcon(Utils::Icons::ONLINE.icon());
+        websiteButton->setIcon(Icons::ONLINE.icon());
         websiteButton->setToolTip(Constants::WEBSITE_URL);
 
         connect(websiteButton, &QAbstractButton::clicked, [] {
@@ -53,7 +56,7 @@ VcpkgSettings::VcpkgSettings()
             Group {
                 title(Tr::tr("Vcpkg installation")),
                 Form {
-                    Utils::PathChooser::label(),
+                    PathChooser::label(),
                     Span { 2, Row { vcpkgRoot, websiteButton } },
                 },
             },

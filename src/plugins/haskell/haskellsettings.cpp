@@ -37,7 +37,7 @@ HaskellSettings::HaskellSettings()
 
     // stack from brew or the installer script from https://docs.haskellstack.org
     // install to /usr/local/bin.
-    stackPath.setDefaultFilePath(HostOsInfo::isAnyUnixHost()
+    stackPath.setDefaultValue(HostOsInfo::isAnyUnixHost()
         ? FilePath::fromString("/usr/local/bin/stack")
         : FilePath::fromString("stack"));
 
