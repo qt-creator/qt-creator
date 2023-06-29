@@ -11,7 +11,6 @@
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
 
@@ -34,58 +33,55 @@ namespace AutotoolsProjectManager::Internal {
 class AutoreconfStep final : public AbstractProcessStep
 {
 public:
-    AutoreconfStep(BuildStepList *bsl, Id id);
+    AutoreconfStep(BuildStepList *bsl, Id id)
+        : AbstractProcessStep(bsl, id)
+    {
+        arguments.setSettingsKey("AutotoolsProjectManager.AutoreconfStep.AdditionalArguments");
+        arguments.setLabelText(Tr::tr("Arguments:"));
+        arguments.setValue("--force --install");
+        arguments.setDisplayStyle(StringAspect::LineEditDisplay);
+        arguments.setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
 
-    void doRun() override;
+        connect(&arguments, &BaseAspect::changed, this, [this] { m_runAutoreconf = true; });
+
+        setCommandLineProvider([this] {
+            return CommandLine("autoreconf", arguments(), CommandLine::Raw);
+        });
+
+        setWorkingDirectoryProvider([this] {
+            return project()->projectDirectory();
+        });
+
+        setSummaryUpdater([this] {
+            ProcessParameters param;
+            setupProcessParameters(&param);
+            return param.summary(displayName());
+        });
+    }
+
+    void doRun() override
+    {
+        // Check whether we need to run autoreconf
+        const FilePath configure = project()->projectDirectory() / "configure";
+        if (!configure.exists())
+            m_runAutoreconf = true;
+
+        if (!m_runAutoreconf) {
+            emit addOutput(Tr::tr("Configuration unchanged, skipping autoreconf step."),
+                           OutputFormat::NormalMessage);
+            emit finished(true);
+            return;
+        }
+
+        m_runAutoreconf = false;
+        AbstractProcessStep::doRun();
+    }
 
 private:
     bool m_runAutoreconf = false;
+    StringAspect arguments{this};
 };
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Id id)
-    : AbstractProcessStep(bsl, id)
-{
-    auto arguments = addAspect<StringAspect>();
-    arguments->setSettingsKey("AutotoolsProjectManager.AutoreconfStep.AdditionalArguments");
-    arguments->setLabelText(Tr::tr("Arguments:"));
-    arguments->setValue("--force --install");
-    arguments->setDisplayStyle(StringAspect::LineEditDisplay);
-    arguments->setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
-
-    connect(arguments, &BaseAspect::changed, this, [this] {
-        m_runAutoreconf = true;
-    });
-
-    setCommandLineProvider([arguments] {
-        return CommandLine("autoreconf", arguments->value(), CommandLine::Raw);
-    });
-
-    setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
-
-    setSummaryUpdater([this] {
-        ProcessParameters param;
-        setupProcessParameters(&param);
-        return param.summary(displayName());
-    });
-}
-
-void AutoreconfStep::doRun()
-{
-    // Check whether we need to run autoreconf
-    const FilePath configure = project()->projectDirectory() / "configure";
-    if (!configure.exists())
-        m_runAutoreconf = true;
-
-    if (!m_runAutoreconf) {
-        emit addOutput(Tr::tr("Configuration unchanged, skipping autoreconf step."),
-                       OutputFormat::NormalMessage);
-        emit finished(true);
-        return;
-    }
-
-    m_runAutoreconf = false;
-    AbstractProcessStep::doRun();
-}
 
 // AutoreconfStepFactory
 
