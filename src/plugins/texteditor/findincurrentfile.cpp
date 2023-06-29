@@ -6,12 +6,8 @@
 #include "textdocument.h"
 #include "texteditortr.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
-
-#include <utils/filesearch.h>
-#include <utils/fileutils.h>
 
 #include <QSettings>
 

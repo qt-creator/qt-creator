@@ -19,22 +19,19 @@
 
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
-#include <utils/filesearch.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/stylehelper.h>
 
-#include <QDebug>
-#include <QSettings>
-#include <QHash>
-#include <QPair>
-#include <QPromise>
-#include <QStringListModel>
-#include <QFutureWatcher>
-#include <QPointer>
 #include <QComboBox>
+#include <QFutureWatcher>
+#include <QHash>
 #include <QLabel>
+#include <QPair>
+#include <QPointer>
+#include <QPromise>
+#include <QSettings>
+#include <QStringListModel>
 
 using namespace Utils;
 using namespace Core;
@@ -389,9 +386,8 @@ void BaseFileFind::doReplace(const QString &text, const SearchResultItems &items
 {
     const FilePaths files = replaceAll(text, items, preserveCase);
     if (!files.isEmpty()) {
-        Utils::FadingIndicator::showText(ICore::dialogParent(),
-            Tr::tr("%n occurrences replaced.", nullptr, items.size()),
-            Utils::FadingIndicator::SmallText);
+        FadingIndicator::showText(ICore::dialogParent(),
+            Tr::tr("%n occurrences replaced.", nullptr, items.size()), FadingIndicator::SmallText);
         DocumentManager::notifyFilesChangedInternally(files);
         SearchResultWindow::instance()->hide();
     }
@@ -428,7 +424,7 @@ QList<QPair<QWidget *, QWidget *>> BaseFileFind::createPatternWidgets()
     syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);
     QLabel *exclusionLabel = createLabel(msgExclusionPatternLabel());
     d->m_exclusionCombo = createCombo(&d->m_exclusionStrings);
-    d->m_exclusionCombo->setToolTip(msgFilePatternToolTip(Utils::InclusionType::Excluded));
+    d->m_exclusionCombo->setToolTip(msgFilePatternToolTip(InclusionType::Excluded));
     exclusionLabel->setBuddy(d->m_exclusionCombo);
     syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
     return {{filterLabel, d->m_filterCombo}, {exclusionLabel, d->m_exclusionCombo}};

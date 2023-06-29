@@ -11,14 +11,11 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
-#include <utils/filesearch.h>
 #include <utils/algorithm.h>
 
 #include <QGridLayout>
-#include <QLabel>
 #include <QSettings>
 
 using namespace ProjectExplorer;

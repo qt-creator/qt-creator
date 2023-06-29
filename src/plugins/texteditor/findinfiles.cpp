@@ -9,20 +9,13 @@
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/icore.h>
 
-#include <utils/filesearch.h>
-#include <utils/fileutils.h>
 #include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
 #include <QComboBox>
-#include <QDebug>
-#include <QDir>
-#include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
-#include <QPushButton>
 #include <QSettings>
 #include <QStackedWidget>
 
@@ -153,7 +146,7 @@ QWidget *FindInFiles::createConfigWidget()
                                          /*restoreLastItemFromHistory=*/ true);
         if (!HistoryCompleter::historyExistsFor(QLatin1String(HistoryKey))) {
             auto completer = static_cast<HistoryCompleter *>(m_directory->lineEdit()->completer());
-            const QStringList legacyHistory = Core::ICore::settings()->value(
+            const QStringList legacyHistory = ICore::settings()->value(
                         QLatin1String("Find/FindInFiles/directories")).toStringList();
             for (const QString &dir: legacyHistory)
                 completer->addEntry(dir);

@@ -266,7 +266,7 @@ SearchExecutor GitGrep::searchExecutor() const
 
 EditorOpener GitGrep::editorOpener() const
 {
-    return [params = gitParameters()](const Utils::SearchResultItem &item,
+    return [params = gitParameters()](const SearchResultItem &item,
                                       const FileFindParameters &parameters) -> IEditor * {
         const QStringList &itemPath = item.path();
         if (params.ref.isEmpty() || itemPath.isEmpty())

@@ -9,9 +9,7 @@
 #include "projecttree.h"
 
 #include <utils/qtcassert.h>
-#include <utils/filesearch.h>
 
-#include <QDebug>
 #include <QSettings>
 
 using namespace ProjectExplorer;
@@ -24,7 +22,7 @@ CurrentProjectFind::CurrentProjectFind()
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFind::handleProjectChanged);
     connect(ProjectManager::instance(), &ProjectManager::projectDisplayNameChanged,
-            this, [this](ProjectExplorer::Project *p) {
+            this, [this](Project *p) {
         if (p == ProjectTree::currentProject())
             emit displayNameChanged();
     });

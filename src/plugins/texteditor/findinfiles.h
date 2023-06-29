@@ -5,10 +5,7 @@
 
 #include "basefilefind.h"
 
-#include <utils/fileutils.h>
-
 #include <QPointer>
-#include <QStringListModel>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
