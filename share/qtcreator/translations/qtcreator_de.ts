@@ -52923,15 +52923,15 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>List of comma separated wildcard filters. </source>
-        <translation type="unfinished"></translation>
+        <translation>Kommaseparierte Liste von Platzhalter-Filtern. </translation>
     </message>
     <message>
         <source>Files with file name or full file path matching any filter are included.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien werden eingeschlossen, wenn ihr Name oder vollständiger Pfad einem der Filter entspricht.</translation>
     </message>
     <message>
         <source>Files with file name or full file path matching any filter are excluded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien werden ausgeschlossen, wenn ihr Name oder vollständiger Pfad einem der Filter entspricht.</translation>
     </message>
     <message>
         <source>Local</source>
@@ -53168,7 +53168,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>The program &quot;%1&quot; could not be found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Programm &quot;%1&quot; wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>Process Not Responding</source>
@@ -53248,7 +53248,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Cannot set permissions on temporary directory &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Berechtigungen für das temporäre Verzeichnis &quot;%1&quot; konnten nicht gesetzt werden: %2</translation>
     </message>
     <message>
         <source>Cannot create socket &quot;%1&quot;: %2</source>
@@ -53879,7 +53879,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>No clangd executable specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine ausführbare Datei für Clangd angegeben.</translation>
     </message>
     <message>
         <source>Failed to retrieve clangd version: Unexpected clangd output.</source>
@@ -53891,23 +53891,23 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Failed to open temporary script file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die temporäre Script-Datei konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed to start terminal process: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Terminalprozess konnte nicht gestartet werden: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed copying file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Kopieren.</translation>
     </message>
     <message>
         <source>Failed reading file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Lesen der Datei.</translation>
     </message>
     <message>
         <source>Failed writing file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Schreiben der Datei.</translation>
     </message>
 </context>
 <context>
@@ -54042,15 +54042,15 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Valgrind Generic Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Generische Einstellungen für Valgrind</translation>
     </message>
     <message>
         <source>Memcheck Memory Analysis Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für die Memcheck Speicheranalyse</translation>
     </message>
     <message>
         <source>Callgrind Profiling Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für den Callgrind Profiler</translation>
     </message>
     <message>
         <source>Valgrind</source>
@@ -54074,7 +54074,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Extra Memcheck arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Memcheck-Argumente:</translation>
     </message>
     <message>
         <source>Track origins of uninitialized memory</source>
@@ -54082,7 +54082,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Extra Callgrind arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Callgrind-Argumente:</translation>
     </message>
     <message>
         <source>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</source>
@@ -54102,7 +54102,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Valgrind arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Valgrind-Argumente</translation>
     </message>
     <message>
         <source>Enable cache simulation</source>
@@ -54117,7 +54117,14 @@ With cache simulation, further event counters are enabled:
 &lt;li&gt;Data read accesses (&quot;Dr&quot;) and related cache misses (&quot;D1mr&quot;/&quot;D2mr&quot;).&lt;/li&gt;
 &lt;li&gt;Data write accesses (&quot;Dw&quot;) and related cache misses (&quot;D1mw&quot;/&quot;D2mw&quot;).&lt;/li&gt;&lt;/ul&gt;
 &lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Führt eine vollständige Cache-Simulation durch.&lt;/p&gt;
+&lt;p&gt;Standardmäßig werden nur Instruction Read-Zugriffe gezählt (&quot;Ir&quot;).&lt;/p&gt;
+&lt;p&gt;
+Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
+&lt;ul&gt;&lt;li&gt;Cache-Misses bei Instruction Reads (&quot;I1mr&quot;/&quot;I2mr&quot;).&lt;/li&gt;
+&lt;li&gt;Data Read-Zugriffe (&quot;Dr&quot;) und entsprechende Cache-Misses (&quot;D1mr&quot;/&quot;D2mr&quot;).&lt;/li&gt;
+&lt;li&gt;Data Write-Zugriffe (&quot;Dw&quot;) und entsprechende Cache-Misses (&quot;D1mw&quot;/&quot;D2mw&quot;).&lt;/li&gt;&lt;/ul&gt;
+&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enable branch prediction simulation</source>
@@ -54130,7 +54137,13 @@ With cache simulation, further event counters are enabled:
 &quot;Bc&quot;/&quot;Bcm&quot;).&lt;/li&gt;
 &lt;li&gt;Executed indirect jumps and related misses of the jump address predictor (
 &quot;Bi&quot;/&quot;Bim&quot;).)&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>https://de.wikipedia.org/wiki/Sprungvorhersage</translatorcomment>
+        <translation>&lt;p&gt;Führt Branch Prediction-Simulation durch.&lt;/p&gt;
+&lt;p&gt;Aktiviert weitere Ereigniszähler:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Anzahl der ausgeführten bedingten Verzweigungen und entsprechende Sprungvorhersagefehler (
+&quot;Bc&quot;/&quot;Bcm&quot;).&lt;/li&gt;
+&lt;li&gt;Ausgeführte indirekte Sprünge und entsprechende Fehler der Sprungadressenvorhersage (
+&quot;Bi&quot;/&quot;Bim&quot;).)&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Collect system call time</source>
@@ -54230,7 +54243,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Failed opening temp file...</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporäre Datei konnte nicht geöffnet werden...</translation>
     </message>
     <message>
         <source>Function:</source>
@@ -54723,7 +54736,8 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     <message>
         <source>Valgrind executable &quot;%1&quot; not found or not executable.
 Check settings or ensure Valgrind is installed and available in PATH.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Valgrind-Datei &quot;%1&quot; wurde nicht gefunden oder ist nicht ausführbar.
+Überprüfen Sie die Einstellungen und stellen Sie sicher, dass Valgrind installiert und im PATH verfügbar ist.</translation>
     </message>
     <message>
         <source>Analyzing finished.</source>
@@ -54761,7 +54775,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>%1 (Called: %2; Incl. Cost: %3)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Aufgerufen: %2; Inkl. Kosten: %3)</translation>
     </message>
     <message>
         <source>New</source>
@@ -55455,19 +55469,19 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Close Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit-Editor schließen</translation>
     </message>
     <message>
         <source>Closing this editor will abort the commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie diesen Editor schließen, wird der Commit abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Cannot commit: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>Save before %1?</source>
