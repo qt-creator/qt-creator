@@ -3,6 +3,8 @@
 
 #include "backgroundaction.h"
 
+#include <theme.h>
+
 #include <utils/stylehelper.h>
 
 #include <QComboBox>
@@ -27,6 +29,14 @@ QIcon iconForColor(const QColor &color) {
     QImage image(size, size, QImage::Format_ARGB32);
     image.fill(0);
     QPainter p(&image);
+
+    if (color == BackgroundAction::ContextImage) {
+        const QString unicode = Theme::getIconUnicode(Theme::Icon::textures_medium);
+        const QString fontName = "qtds_propertyIconFont.ttf";
+        QIcon icon = Utils::StyleHelper::getIconFromIconFont(fontName, unicode, 10, 10, Qt::white);
+
+        return icon;
+    }
 
     p.fillRect(2, 2, size - 4, size - 4, Qt::black);
 
@@ -70,12 +80,12 @@ QList<QColor> BackgroundAction::colors()
 {
     static QColor alphaZero(Qt::transparent);
     static QList<QColor> colorList = {alphaZero,
+                                      QColor(BackgroundAction::ContextImage),
                                       QColor(Qt::black),
                                       QColor(0x4c4e50),
                                       QColor(Qt::darkGray),
                                       QColor(Qt::lightGray),
                                       QColor(Qt::white)};
-
 
     return colorList;
 }

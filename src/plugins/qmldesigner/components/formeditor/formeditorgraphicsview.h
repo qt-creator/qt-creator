@@ -28,6 +28,9 @@ public:
     void setZoomFactor(double zoom);
     void frame(const QRectF &bbox);
 
+    void setBackgoundImage(const QImage &image);
+    QImage backgroundImage() const;
+
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
@@ -45,6 +48,7 @@ private:
     Panning m_isPanning = Panning::NotStarted;
     QPoint m_panningStartPosition;
     QRectF m_rootItemRect;
+    QImage m_backgroundImage;
 };
 
 } // namespace QmlDesigner

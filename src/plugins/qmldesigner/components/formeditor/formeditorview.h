@@ -117,6 +117,7 @@ public:
     void setGotoErrorCallback(std::function<void(int, int)> gotoErrorCallback);
 
     void exportAsImage();
+    QImage takeFormEditorScreenshot();
     QPicture renderToPicture() const;
 
     void setupFormEditorWidget();

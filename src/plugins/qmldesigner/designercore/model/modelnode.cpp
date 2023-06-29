@@ -1002,6 +1002,12 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data)
     }
 }
 
+void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataKeyView key, const QVariant &data) const
+{
+    if (isValid())
+        m_model->d->setAuxiliaryData(internalNode(), key, data);
+}
+
 void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
                                             Utils::SmallStringView name,
                                             const QVariant &data) const

@@ -74,6 +74,7 @@ public:
     const AbstractView *view() const;
 
     void exportAsImage();
+    QImage takeFormEditorScreenshot();
     void reformatFileUsingTextEditorView();
 
     QWidgetAction *componentViewAction() const;

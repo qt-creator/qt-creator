@@ -265,6 +265,9 @@ void DocumentManager::resetPossibleImports()
 
 bool DocumentManager::goIntoComponent(const ModelNode &modelNode)
 {
+    QImage image = QmlDesignerPlugin::instance()->viewManager().takeFormEditorScreenshot();
+    const QPoint offset = image.offset();
+    image.setOffset(offset - QmlItemNode(modelNode).instancePosition().toPoint());
     if (modelNode.isValid() && modelNode.isComponent() && designDocument()) {
         QmlDesignerPlugin::instance()->viewManager().setComponentNode(modelNode);
         QHash<PropertyName, QVariant> oldProperties = getProperties(modelNode);
@@ -281,6 +284,8 @@ bool DocumentManager::goIntoComponent(const ModelNode &modelNode)
 
         ModelNode rootModelNode = designDocument()->rewriterView()->rootModelNode();
         applyProperties(rootModelNode, oldProperties);
+
+        rootModelNode.setAuxiliaryData(AuxiliaryDataType::Temporary, "contextImage", image);
 
         return true;
     }
