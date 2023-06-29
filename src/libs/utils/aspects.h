@@ -523,6 +523,7 @@ public:
     FilePathAspect(AspectContainer *container = nullptr);
 
     FilePath operator()() const { return filePath(); }
+    void setValue(const FilePath &filePath);
 };
 
 class QTCREATOR_UTILS_EXPORT IntegerAspect : public TypedAspect<qint64>

@@ -1332,6 +1332,11 @@ FilePathAspect::FilePathAspect(AspectContainer *container)
     setDisplayStyle(PathChooserDisplay);
 }
 
+void FilePathAspect::setValue(const FilePath &filePath)
+{
+    StringAspect::setValue(filePath.toUserOutput());
+}
+
 /*!
     \class Utils::ColorAspect
     \inmodule QtCreator
