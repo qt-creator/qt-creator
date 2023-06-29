@@ -25,16 +25,12 @@ public:
     CustomCommandDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto commandLine = addAspect<StringAspect>();
-        commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
-        commandLine->setLabelText(Tr::tr("Command line:"));
-        commandLine->setDisplayStyle(StringAspect::LineEditDisplay);
-        commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
+        commandLine.setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
+        commandLine.setLabelText(Tr::tr("Command line:"));
+        commandLine.setDisplayStyle(StringAspect::LineEditDisplay);
+        commandLine.setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
 
-        setInternalInitializer([this, commandLine] {
-            m_commandLine = commandLine->value().trimmed();
-            return isDeploymentPossible();
-        });
+        setInternalInitializer([this] { return isDeploymentPossible(); });
 
         addMacroExpander();
     }
@@ -44,12 +40,12 @@ public:
 private:
     Group deployRecipe() final;
 
-    QString m_commandLine;
+    StringAspect commandLine{this};
 };
 
 CheckResult CustomCommandDeployStep::isDeploymentPossible() const
 {
-    if (m_commandLine.isEmpty())
+    if (commandLine().isEmpty())
         return CheckResult::failure(Tr::tr("No command line given."));
 
     return AbstractRemoteLinuxDeployStep::isDeploymentPossible();
@@ -58,9 +54,9 @@ CheckResult CustomCommandDeployStep::isDeploymentPossible() const
 Group CustomCommandDeployStep::deployRecipe()
 {
     const auto setupHandler = [this](Process &process) {
-        addProgressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
+        addProgressMessage(Tr::tr("Starting remote command \"%1\"...").arg(commandLine()));
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
-                                 {"-c", m_commandLine}});
+                                 {"-c", commandLine()}});
         Process *proc = &process;
         connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
             handleStdOutData(proc->readAllStandardOutput());
