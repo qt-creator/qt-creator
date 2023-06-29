@@ -204,7 +204,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
 
     reloadQmlSource();
 
-    setFocusProxy(m_quickWidget.data());
+    setFocusProxy(m_quickWidget->quickWidget());
 }
 
 void MaterialBrowserWidget::updateMaterialPreview(const ModelNode &node, const QPixmap &pixmap)
