@@ -14,13 +14,13 @@
 
     You can organize \QC views in \l {Working with Sidebars}{sidebars} or as
     \if defined(qtdesignstudio)
-    \l {Managing Workspaces}{workspaces},
+    \l {Managing Workspaces}{workspaces}, depending on the \l{Mode}{mode} you
+    are working in.
     \else
-    workspaces
-    \endif
-    depending on the \l{Selecting Modes}
+    workspaces, depending on the \l{Switch between modes}
     {mode} you are working in. Only views that are relevant to a mode are
     available in it.
+    \endif
 
     \note Usually, \l{Searching with the Locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,

@@ -11,10 +11,11 @@
     \page creator-quick-tour.html
     \if defined(qtdesignstudio)
     \previouspage {Tutorials}
+    \nextpage creator-using-qt-quick-designer.html
     \else
     \previouspage creator-overview.html
+    \nextpage creator-sidebars.html
     \endif
-    \nextpage creator-modes.html
 
     \title User Interface
 
@@ -34,7 +35,7 @@
         \li Mode selector
         \li Perform a particular task, such as designing the UI, writing code, or
             debugging the application.
-        \li \l{Selecting Modes}
+        \li \l{Switch between modes}
     \row
         \li \inlineimage numbers/02.png
         \li Kit selector
@@ -83,7 +84,9 @@
 
     \sa {Working with Sidebars}, {Browsing Project Contents}
     \sa {Use the UI}{How-to: Use the UI}
+
     \else
+
     When you start \QC, it opens to the \uicontrol Welcome mode, where you can:
 
     \list
@@ -140,91 +143,6 @@
 */
 
 /*!
-    \page creator-modes.html
-    \previouspage creator-quick-tour.html
-    \if defined(qtdesignstudio)
-    \nextpage creator-using-qt-quick-designer.html
-    \else
-    \nextpage creator-sidebars.html
-    \endif
-
-    \title Selecting Modes
-
-    \image qtcreator-mode-selector.png
-
-    \if defined(qtcreator)
-    The mode selector allows you to quickly switch between tasks such as editing
-    project and source files, designing application UIs, configuring projects for
-    building and running, and debugging your applications. To change
-    modes, click the icons, or use the \l{keyboard-shortcuts}
-    {corresponding keyboard shortcut}.
-
-    To hide the mode selector and to save space on the display, select
-    \uicontrol View > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
-    To only show icons on the mode selector, select the \uicontrol {Icons Only}
-    style.
-    \endif
-
-    \if defined(qtdesignstudio)
-    The mode selector is hidden by default.
-
-    To show the mode selector, go to \uicontrol Views >
-    \uicontrol {Mode Selector Style} and select \uicontrol {Icons and Text}
-    or \uicontrol {Icons Only}.
-    \endif
-
-
-    You can use \QC in the following modes:
-
-    \list
-
-        \li \uicontrol {\l{User Interface}{Welcome}} mode for opening projects,
-            tutorials, and examples.
-
-        \li \uicontrol{\l{Coding}{Edit}} mode for editing project and source
-            files.
-
-        \if defined(qtcreator)
-        \li \uicontrol{\l{Designing User Interfaces}{Design}}
-            mode for designing and developing application user interfaces.
-            This mode is available for UI files.
-        \else
-        \li \uicontrol{\l{Design Views}{Design}}
-            mode for designing and developing application user interfaces.
-            As a designer, you'll do most of your work in this mode.
-        \endif
-
-        \if defined(qtcreator)
-        \li \uicontrol{\l{Debugging}{Debug}}
-        \else
-        \li \uicontrol {\l{Debugging and Profiling}{Debug}}
-        \endif
-            mode for inspecting the state of your
-            application while debugging and for using code analysis tools
-            to detect memory leaks and profile code.
-
-        \if defined(qtcreator)
-        \li \uicontrol{\l{Specifying Build Settings}{Projects}} mode
-            for configuring project building and execution.
-        \else
-        \li \uicontrol{\l{Selecting the Preview Tool}{Projects}} mode
-            for selecting the tool to use for live preview.
-        \endif
-            This mode is available when a project is open.
-
-        \li \uicontrol{\l{Using the Help Mode}{Help}} mode for viewing
-            documentation.
-
-    \endlist
-
-    \if defined(qtcreator)
-    Certain actions in \QC trigger a mode change. Clicking on \uicontrol {Debug} >
-    \uicontrol {Start Debugging} > \uicontrol {Start Debugging} automatically switches to
-    \uicontrol {Debug} mode.
-    \endif
-*/
-
-/*!
     \page creator-output-panes.html
     \if defined(qtdesignstudio)
     \previouspage creator-views.html
@@ -276,7 +194,12 @@
 
     \endlist
 
-    Output is available on the taskbar in all \l{Selecting Modes}{modes}.
+    Output is available on the taskbar in all
+    \if defined(qtcreator)
+    \l{Switch between modes}{modes}.
+    \else
+    \l{Mode}{modes}.
+    \endif
 
     \image qtcreator-output-panes-taskbar.webp "Output on the taskbar"
 

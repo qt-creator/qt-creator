@@ -72,31 +72,6 @@
 */
 
 /*!
-    \page creator-how-to-switch-between-modes.html
-    \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
-    \ingroup creator-how-to-ui
-
-    \title Switch between modes
-
-    \QC uses different modes for different purposes. You can quickly
-    switch between these modes with the following keyboard shortcuts:
-
-    \list
-
-        \li \uicontrol Welcome mode \key Ctrl+1
-        \li \uicontrol Edit mode \key Ctrl+2
-        \li \uicontrol Design mode \key Ctrl+3
-        \li \uicontrol Debug mode \key Ctrl+4
-        \li \uicontrol Projects mode \key Ctrl+5
-        \li \uicontrol Help mode \key Ctrl+6
-
-    \endlist
-
-    For more information about \QC modes, see \l {Selecting Modes}.
-*/
-
-/*!
     \page creator-how-to-move-between-open-files.html
     \previouspage creator-how-tos.html
     \nextpage creator-known-issues.html

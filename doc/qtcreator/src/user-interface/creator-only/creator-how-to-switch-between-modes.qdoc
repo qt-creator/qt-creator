@@ -1,0 +1,75 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-switch-between-modes.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-ui
+
+    \title Switch between modes
+
+    \e Modes let you quickly switch between tasks such as editing
+    project and source files, designing application UIs, configuring projects
+    for building and running, and debugging or analyzing source code.
+
+    To switch between modes:
+
+    \list
+        \li Click the icons on the mode selector.
+        \li Use the \l{keyboard-shortcuts}{corresponding keyboard shortcut}.
+    \endlist
+
+    \table
+    \header
+        \li {2,1} Mode
+        \li Keyboard Shortcut
+        \li Purpose
+        \li Read More
+    \row
+        \li {1,7} \inlineimage qtcreator-mode-selector.png
+    \row
+        \li \uicontrol Welcome
+        \li \key Ctrl+1
+        \li Open projects, tutorials, and examples.
+        \li \l{User Interface}
+    \row
+        \li \uicontrol Edit
+        \li \key Ctrl+2
+        \li Edit project and source files.
+        \li \l{Working in Edit Mode}
+    \row
+        \li \uicontrol Design
+        \li \key Ctrl+3
+        \li Design and develop application user interfaces.
+            This mode is available for UI files.
+        \li \l{Designing User Interfaces}
+    \row
+        \li \uicontrol Debug
+        \li \key Ctrl+4
+        \li Inspect the state of your application while debugging or use code
+            analysis tools to detect memory leaks and profile code.
+        \li \l{Debugging}
+    \row
+        \li \uicontrol Projects
+        \li \key Ctrl+5
+        \li Configure how to build and run projects.
+            This mode is available when a project is open.
+        \li \l{Specifying Build Settings}
+    \row
+        \li \uicontrol Help
+        \li \key Ctrl+6
+        \li Read documentation.
+        \li \l{Using the Help Mode}
+    \endtable
+
+    Some actions in \QC trigger a mode change. For example,
+    selecting \uicontrol {Debug} > \uicontrol {Start Debugging} >
+    \uicontrol {Start Debugging of Startup Project} automatically
+    switches to \uicontrol {Debug} mode.
+
+    To hide the mode selector and to save space on the display, select
+    \uicontrol View > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
+    To only show icons on the mode selector, select the \uicontrol {Icons Only}
+    style.
+*/

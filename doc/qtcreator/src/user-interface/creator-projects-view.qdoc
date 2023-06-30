@@ -37,8 +37,11 @@
         \li To open files that belong to a \l{Creating Projects}{project},
             double-click them in the project tree. Files open in the
             appropriate editor, according to the file type. For example, code
-            source files open in the code editor. Use the \l{Selecting Modes}
-            {mode selector} to open the current file in another editor.
+            source files open in the code editor.
+            \if defined(qtcreator)
+            Use the \l{Switch between modes} {mode selector} to open the current
+            file in another editor.
+            \endif
         \li To bring up a \l{Projects View Context Menu}{context menu}
             that has the actions most commonly needed, right-click an
             item in the project tree. For example, through the menu of
