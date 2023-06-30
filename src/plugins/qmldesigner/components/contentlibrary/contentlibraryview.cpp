@@ -141,6 +141,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
 
             updateBundleEffectsImportedState();
             m_bundleEffectTarget = {};
+            m_bundleEffectPos = {};
         });
 
         connect(effectsModel, &ContentLibraryEffectsModel::bundleItemAboutToUnimport, this,
