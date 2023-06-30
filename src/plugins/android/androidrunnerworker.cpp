@@ -277,9 +277,6 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
-    const auto preStartCmdList = runner->recordedData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
-    for (const QString &shellCmd : preStartCmdList.toStringList())
-        m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
         !sd.values().isEmpty()) {
@@ -288,9 +285,6 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
         for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
-    const auto postFinishCmdList = runner->recordedData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
-    for (const QString &shellCmd : postFinishCmdList.toStringList())
-        m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     m_debugServerPath = debugServer(m_useLldb, target);
     qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << m_deviceSerialNumber
