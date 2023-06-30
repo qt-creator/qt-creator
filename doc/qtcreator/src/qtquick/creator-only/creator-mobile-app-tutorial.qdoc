@@ -1,25 +1,23 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
-    \previouspage creator-writing-program.html
     \example accelbubble
+    \previouspage creator-tutorials.html
     \nextpage creator-project-managing.html
+    \ingroup creator-tutorials
 
     \title Creating a Mobile Application
+
+    \brief How to create a Qt Quick application that uses Qt Quick Controls and
+    runs on Android and iOS devices.
 
     This tutorial describes how to use \QC to develop Qt Quick applications for
     Android and iOS devices when using Qt 6 as the minimum Qt version and CMake
     as the build system.
 
-    We implement a Qt Quick application that accelerates an SVG (Scalable Vector
-    Graphics) image based on the changing accelerometer values.
+    You will develop a Qt Quick application that accelerates an SVG
+    (Scalable Vector Graphics) image based on changing accelerometer values.
 
     \note You must have the \l{Qt Sensors} module from Qt 6.2 or later installed
     to be able to follow this tutorial.
@@ -48,9 +46,6 @@
     The main view of the application displays an SVG bubble image that moves
     around the screen when you tilt the device.
 
-    We use \e {Bluebubble.svg} in this tutorial, but you can use any other
-    image or component instead.
-
     For the image to appear when you run the application, you must specify it
     as a resource in the \c RESOURCES section of \e CMakeLists.txt file that
     the wizard created for you:
@@ -61,31 +56,33 @@
 
     \section1 Creating the Accelbubble Main View
 
-    We create the main view in the \e main.qml file by adding an \l Image
+    Create the main view in the \e main.qml file by adding an \l Image
     component with \e Bluebubble.svg as the source:
 
     \quotefromfile accelbubble/main.qml
     \skipto Image
     \printuntil smooth
 
-    Next, we add custom properties to position the image in respect to the width
+    You can use any other image or component instead.
+
+    Add custom properties to position the image in respect to the width
     and height of the main window:
 
     \printuntil y:
 
-    We now want to add code to move the bubble based on Accelerometer sensor
-    values. First, we add the following import statement:
+    Add code to move the bubble based on Accelerometer sensor
+    values. First, add the following import statement:
 
     \quotefromfile accelbubble/main.qml
     \skipto QtSensors
     \printline QtSensors
 
-    Next, we add the \l{Accelerometer} component with the necessary properties:
+    Add the \l{Accelerometer} component with the necessary properties:
 
     \skipto Accelerometer
     \printuntil active
 
-    Then, we add the following JavaScript functions that calculate the
+    Add the following JavaScript functions that calculate the
     x and y position of the bubble based on the current Accelerometer
     values:
 
@@ -94,7 +91,7 @@
     \printuntil }
     \printuntil }
 
-    We add the following JavaScript code for \c onReadingChanged signal of
+    Add the following JavaScript code for \c onReadingChanged signal of
     Accelerometer component to make the bubble move when the Accelerometer
     values change:
 
@@ -102,12 +99,12 @@
     \skipto onReadingChanged
     \printuntil }
 
-    We want to ensure that the position of the bubble is always
+    You need to ensure that the position of the bubble is always
     within the bounds of the screen. If the Accelerometer returns
     \e {not a number} (NaN), the value is ignored and the bubble
     position is not updated.
 
-    We add \l SmoothedAnimation behavior on the \c x and \c y properties of
+    Add \l SmoothedAnimation behavior on the \c x and \c y properties of
     the bubble to make its movement look smoother.
 
     \quotefromfile accelbubble/main.qml
@@ -126,7 +123,7 @@
     an \e AndroidManifest.xml that you can generate in \QC. For more information,
     see \l{Editing Manifest Files}.
 
-    \image qtquick-mobile-tutorial-manifest.png "Accelbubble manifest file"
+    \image qtquick-mobile-tutorial-manifest.png {Accelbubble manifest file}
 
     To generate and use a manifest file, you must specify the Android package
     source directory, \c QT_ANDROID_PACKAGE_SOURCE_DIR in the \e CMakeLists.txt
@@ -136,14 +133,14 @@
     \skipto set_property
     \printuntil )
 
-    Because our CMake version is older than 3.19, we must add a manual
+    Because the CMake version is older than 3.19, add a manual
     finalization step to the \c qt_add_executable function:
 
     \quotefromfile accelbubble/CMakeLists.txt
     \skipto qt_add_executable
     \printuntil )
 
-    We also need to add the \c qt_finalize_executable function:
+    Then, add the \c qt_finalize_executable function:
 
     \skipto qt_finalize_executable
     \printuntil )

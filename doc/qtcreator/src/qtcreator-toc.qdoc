@@ -24,11 +24,6 @@
             \li \l{Configuring Qt Creator}
             \li \l{Building and Running an Example}
             \li \l{Tutorials}
-            \list
-                \li \l{Creating a Qt Quick Application}
-                \li \l{Creating a Qt Widget Based Application}
-                \li \l{Creating a Mobile Application}
-            \endlist
         \endlist
         \li \l{Managing Projects}
         \list
