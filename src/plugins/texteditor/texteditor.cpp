@@ -449,6 +449,7 @@ struct PaintEventData
         , textCursorBlock(textCursor.block())
         , isEditable(!editor->isReadOnly())
         , fontSettings(editor->textDocument()->fontSettings())
+        , lineSpacing(fontSettings.lineSpacing())
         , searchScopeFormat(fontSettings.toTextCharFormat(C_SEARCH_SCOPE))
         , searchResultFormat(fontSettings.toTextCharFormat(C_SEARCH_RESULT))
         , visualWhitespaceFormat(fontSettings.toTextCharFormat(C_VISUAL_WHITESPACE))
@@ -469,6 +470,7 @@ struct PaintEventData
     const QTextBlock textCursorBlock;
     const bool isEditable;
     const FontSettings fontSettings;
+    const int lineSpacing;
     const QTextCharFormat searchScopeFormat;
     const QTextCharFormat searchResultFormat;
     const QTextCharFormat visualWhitespaceFormat;
@@ -561,6 +563,7 @@ public:
                            QPainter &painter,
                            const PaintEventBlockData &blockData) const;
     QTextBlock nextVisibleBlock(const QTextBlock &block) const;
+    void scheduleCleanupAnnotationCache();
     void cleanupAnnotationCache();
 
     // extra area paint methods
@@ -706,6 +709,7 @@ public:
         friend bool operator==(const AnnotationRect &a, const AnnotationRect &b)
         { return a.mark == b.mark && a.rect == b.rect; }
     };
+    bool cleanupAnnotationRectsScheduled = false;
     QMap<int, QList<AnnotationRect>> m_annotationRects;
     QRectF getLastLineLineRect(const QTextBlock &block);
 
@@ -4225,6 +4229,9 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
             q->viewport()->update(annotationRect.rect.toAlignedRect());
     }
     m_annotationRects[data.block.blockNumber()] = newRects;
+    const int maxVisibleLines = data.viewportRect.height() / data.lineSpacing;
+    if (m_annotationRects.size() >= maxVisibleLines * 2)
+        scheduleCleanupAnnotationCache();
 }
 
 QColor blendRightMarginColor(const FontSettings &settings, bool areaColor)
@@ -4892,8 +4899,19 @@ QTextBlock TextEditorWidgetPrivate::nextVisibleBlock(const QTextBlock &block) co
     return TextEditor::nextVisibleBlock(block, q->document());
 }
 
+void TextEditorWidgetPrivate::scheduleCleanupAnnotationCache()
+{
+    if (cleanupAnnotationRectsScheduled)
+        return;
+    QMetaObject::invokeMethod(this,
+                              &TextEditorWidgetPrivate::cleanupAnnotationCache,
+                              Qt::QueuedConnection);
+    cleanupAnnotationRectsScheduled = true;
+}
+
 void TextEditorWidgetPrivate::cleanupAnnotationCache()
 {
+    cleanupAnnotationRectsScheduled = false;
     const int firstVisibleBlock = q->firstVisibleBlockNumber();
     const int lastVisibleBlock = q->lastVisibleBlockNumber();
     auto lineIsVisble = [&](int blockNumber){
@@ -5014,8 +5032,6 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             data.block = data.doc->findBlockByLineNumber(data.block.firstLineNumber());
         }
     }
-
-    d->cleanupAnnotationCache();
 
     painter.setPen(data.context.palette.text().color());
 
