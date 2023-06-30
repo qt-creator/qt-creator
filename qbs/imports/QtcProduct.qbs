@@ -47,7 +47,7 @@ Product {
         }
         return flags;
     }
-    cpp.cxxLanguageVersion: "c++17"
+    cpp.cxxLanguageVersion: "c++20"
     cpp.defines: qtc.generalDefines
     Properties {
         condition: sanitizable && qbs.toolchain.contains("gcc")
