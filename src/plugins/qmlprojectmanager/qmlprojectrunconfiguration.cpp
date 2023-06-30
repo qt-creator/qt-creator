@@ -207,15 +207,15 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 
     // We might not have a full Qt version for building, but the device
     // might know what is good for running.
-    if (IDevice::ConstPtr dev = DeviceKitAspect::device(kit)) {
+    IDevice::ConstPtr dev = DeviceKitAspect::device(kit);
+    if (dev) {
         const FilePath qmlRuntime = dev->qmlRunCommand();
         if (!qmlRuntime.isEmpty())
             return qmlRuntime;
     }
 
-    // The Qt version might know. That's the "build" Qt version,
-    // i.e. not necessarily something the device can use, but the
-    // device had its chance above.
+    // The Qt version might know, but we need to make sure
+    // that the device can reach it.
     if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
         // look for puppet as qmlruntime only in QtStudio Qt versions
         if (version->features().contains("QtStudio") &&
@@ -229,13 +229,13 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
             }
         }
         const FilePath qmlRuntime = version->qmlRuntimeFilePath();
-        if (!qmlRuntime.isEmpty())
+        if (!qmlRuntime.isEmpty() && (!dev || dev->ensureReachable(qmlRuntime)))
             return qmlRuntime;
     }
 
     // If not given explicitly by run device, nor Qt, try to pick
     // it from $PATH on the run device.
-    return "qml";
+    return dev ? dev->filePath("qml").searchInPath() : "qml";
 }
 
 void QmlProjectRunConfiguration::createQtVersionAspect()
