@@ -12,6 +12,12 @@
 #include <string>
 #include <string_view>
 
+#if __cpp_lib_constexpr_string >= 201907L
+#define constexpr_string constexpr
+#else
+#define constexpr_string
+#endif
+
 namespace Utils {
 
 template <typename String>
@@ -63,7 +69,7 @@ public:
         return SmallStringView(data() + position, length);
     }
 
-    constexpr20 operator std::string() const { return std::string(data(), size()); }
+    constexpr_string operator std::string() const { return std::string(data(), size()); }
 
     explicit operator QString() const
     {
