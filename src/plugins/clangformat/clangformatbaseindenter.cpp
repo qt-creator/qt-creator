@@ -8,6 +8,7 @@
 #include <coreplugin/icore.h>
 
 #include <cppeditor/cppcodestylepreferences.h>
+#include <cppeditor/cpptoolssettings.h>
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
@@ -538,8 +539,16 @@ Utils::Text::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffe
 }
 
 Utils::Text::Replacements ClangFormatBaseIndenter::format(
-    const TextEditor::RangesInLines &rangesInLines)
+        const TextEditor::RangesInLines &rangesInLines, FormattingMode mode)
 {
+    bool doFormatting = mode == FormattingMode::Forced || formatCodeInsteadOfIndent();
+#ifdef WITH_TESTS
+    doFormatting = doFormatting || CppEditor::CppToolsSettings::instance()->cppCodeStyle()
+            ->codeStyleSettings().forceFormatting;
+#endif
+    if (!doFormatting)
+        return {};
+
     QTC_ASSERT(!m_fileName.isEmpty(), return {});
     if (rangesInLines.empty())
         return Utils::Text::Replacements();

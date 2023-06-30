@@ -31,7 +31,8 @@ public:
     void autoIndent(const QTextCursor &cursor,
                     const TextEditor::TabSettings &tabSettings,
                     int cursorPositionInEditor = -1) override;
-    Utils::Text::Replacements format(const TextEditor::RangesInLines &rangesInLines) override;
+    Utils::Text::Replacements format(const TextEditor::RangesInLines &rangesInLines,
+                                     FormattingMode mode = FormattingMode::Forced) override;
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,

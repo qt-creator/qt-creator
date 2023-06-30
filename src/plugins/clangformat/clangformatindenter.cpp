@@ -174,9 +174,9 @@ void ClangFormatForwardingIndenter::autoIndent(const QTextCursor &cursor,
 }
 
 Utils::Text::Replacements ClangFormatForwardingIndenter::format(
-    const TextEditor::RangesInLines &rangesInLines)
+    const TextEditor::RangesInLines &rangesInLines, FormattingMode mode)
 {
-    return currentIndenter()->format(rangesInLines);
+    return currentIndenter()->format(rangesInLines, mode);
 }
 
 

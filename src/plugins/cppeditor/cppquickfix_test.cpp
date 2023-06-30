@@ -5392,7 +5392,13 @@ SpaceBeforeParens: Always
         CppTestDocument::create("file.cpp", origSource, expectedSource)});
     InsertDefsFromDecls factory;
     factory.setMode(InsertDefsFromDecls::Mode::Impl);
+    CppCodeStylePreferences * const prefs = CppToolsSettings::instance()->cppCodeStyle();
+    const CppCodeStyleSettings settings = prefs->codeStyleSettings();
+    CppCodeStyleSettings tempSettings = settings;
+    tempSettings.forceFormatting = true;
+    prefs->setCodeStyleSettings(tempSettings);
     QuickFixOperationTest(testDocuments, &factory, {}, {}, {}, clangFormatSettings);
+    prefs->setCodeStyleSettings(settings);
 }
 
 // Function for one of InsertDeclDef section cases

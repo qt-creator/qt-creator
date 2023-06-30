@@ -128,6 +128,9 @@ bool CppCodeStyleSettings::equals(const CppCodeStyleSettings &rhs) const
            && extraPaddingForConditionsIfConfusingAlign == rhs.extraPaddingForConditionsIfConfusingAlign
            && alignAssignments == rhs.alignAssignments
            && preferGetterNameWithoutGetPrefix == rhs.preferGetterNameWithoutGetPrefix
+#ifdef WITH_TESTS
+           && forceFormatting == rhs.forceFormatting
+#endif
            ;
 }
 

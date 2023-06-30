@@ -473,7 +473,13 @@ void RefactoringFile::doFormatting()
             b = b.next();
         }
     }
-    m_editor->textDocument()->indenter()->format(formattingRanges);
+
+    // TODO: The proper solution seems to be to call formatOrIndent() here (and not
+    //       use hardcoded indent regions anymore), but that would require intrusive changes
+    //       to the C++ quickfixes and tests, where we rely on the built-in indenter behavior.
+    m_editor->textDocument()->indenter()->format(formattingRanges,
+                                                 Indenter::FormattingMode::Settings);
+
     for (QTextBlock b = m_editor->document()->findBlockByNumber(
              formattingRanges.front().startLine - 1); b.isValid(); b = b.next()) {
         QString blockText = b.text();

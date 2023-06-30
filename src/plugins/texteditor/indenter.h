@@ -70,7 +70,9 @@ public:
         indent(cursor, QChar::Null, tabSettings, cursorPositionInEditor);
     }
 
-    virtual Utils::Text::Replacements format(const RangesInLines & /*rangesInLines*/)
+    enum class FormattingMode { Forced, Settings };
+    virtual Utils::Text::Replacements format(const RangesInLines &,
+                                             FormattingMode = FormattingMode::Forced)
     {
         return Utils::Text::Replacements();
     }

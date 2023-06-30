@@ -62,6 +62,10 @@ public:
     // CppEditor/QuickFixSetting. Remove in 4.16
     bool preferGetterNameWithoutGetPrefix = true;
 
+#ifdef WITH_TESTS
+    bool forceFormatting = false;
+#endif
+
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
 
