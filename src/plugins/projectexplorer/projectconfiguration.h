@@ -53,8 +53,6 @@ public:
     Project *project() const;
     Kit *kit() const;
 
-    static Utils::Key settingsIdKey();
-
 signals:
     void displayNameChanged();
     void toolTipChanged();

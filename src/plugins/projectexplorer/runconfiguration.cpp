@@ -311,13 +311,8 @@ void RunConfiguration::toMap(Store &map) const
 void RunConfiguration::toMapSimple(Store &map) const
 {
     ProjectConfiguration::toMap(map);
+    QTC_CHECK(!m_buildKey.isEmpty());
     map.insert(BUILD_KEY, m_buildKey);
-
-    // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
-    if (!m_buildKey.isEmpty()) {
-        const Utils::Id mangled = id().withSuffix(m_buildKey);
-        map.insert(settingsIdKey(), mangled.toSetting());
-    }
 }
 
 void RunConfiguration::setCommandLineGetter(const CommandLineGetter &cmdGetter)
@@ -377,17 +372,7 @@ void RunConfiguration::fromMap(const Store &map)
 
     m_customized = m_customized || map.value(CUSTOMIZED_KEY, false).toBool();
     m_buildKey = map.value(BUILD_KEY).toString();
-
-    if (m_buildKey.isEmpty()) {
-        const Utils::Id mangledId = Utils::Id::fromSetting(map.value(settingsIdKey()));
-        m_buildKey = mangledId.suffixAfter(id());
-
-        // Hack for cmake projects 4.10 -> 4.11.
-        const QString magicSeparator = "///::///";
-        const int magicIndex = m_buildKey.indexOf(magicSeparator);
-        if (magicIndex != -1)
-            m_buildKey = m_buildKey.mid(magicIndex + magicSeparator.length());
-    }
+    QTC_CHECK(!m_buildKey.isEmpty());
 }
 
 /*!
