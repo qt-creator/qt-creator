@@ -124,13 +124,15 @@ namespace QmlDesigner {
     \sa ~NodeInstanceView, setRenderOffScreen()
 */
 NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager,
-                                   ExternalDependenciesInterface &externalDependencies)
+                                   ExternalDependenciesInterface &externalDependencies,
+                                   bool qsbEnabled)
     : AbstractView{externalDependencies}
     , m_connectionManager(connectionManager)
     , m_externalDependencies(externalDependencies)
     , m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32)
     , m_restartProcessTimerId(0)
     , m_fileSystemWatcher(new QFileSystemWatcher(this))
+    , m_qsbEnabled(qsbEnabled)
 {
     m_baseStatePreviewImage.fill(0xFFFFFF);
 
@@ -256,10 +258,7 @@ void NodeInstanceView::modelAttached(Model *model)
         activateState(newStateInstance);
     }
 
-    // If model gets attached on non-main thread of the application, do not attempt to monitor
-    // file changes. Such models are typically short lived for specific purpose, and timers
-    // will not work at all, if the thread is not based on QThread.
-    if (Utils::isMainThread()) {
+    if (m_qsbEnabled) {
         m_generateQsbFilesTimer.stop();
         m_qsbTargets.clear();
         updateQsbPathToFilterMap();

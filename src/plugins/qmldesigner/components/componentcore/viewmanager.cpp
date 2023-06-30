@@ -48,7 +48,8 @@ public:
         , nodeInstanceView(QCoreApplication::arguments().contains("-capture-puppet-stream")
                                ? capturingConnectionManager
                                : connectionManager,
-                           externalDependencies)
+                           externalDependencies,
+                           true)
         , contentLibraryView{externalDependencies}
         , componentView{externalDependencies}
         , edit3DView{externalDependencies}
