@@ -5,6 +5,7 @@
 
 #include "objectsmapeditor.h"
 #include "squishfilehandler.h"
+#include "squishmessages.h"
 #include "squishnavigationwidget.h"
 #include "squishoutputpane.h"
 #include "squishresultmodel.h"
@@ -94,6 +95,15 @@ void SquishPluginPrivate::initializeMenuEntries()
     Command *command = ActionManager::registerAction(action, "Squish.ServerSettings");
     menu->addAction(command);
     connect(action, &QAction::triggered, this, [] {
+        const SquishSettings *settings = SquishPlugin::squishSettings();
+        if (!settings->squishPath().exists()) {
+            SquishMessages::criticalMessage(Tr::tr("Invalid Squish settings. Configure Squish "
+                                                   "installation path inside "
+                                                   "Preferences... > Squish > General to use "
+                                                   "this wizard."));
+            return;
+        }
+
         SquishServerSettingsDialog dialog;
         dialog.exec();
     });
