@@ -239,19 +239,18 @@ public:
     void setValue(const ValueType &value)
     {
         m_external = value;
-        if (isDirty()) {
-            externalToInternal();
-            internalToGui();
-        }
+        const bool emitSignal = m_external != m_internal;
+        externalToInternal();
+        internalToGui();
+        if (emitSignal)
+            emit changed();
     }
 
     void setValueQuietly(const ValueType &value)
     {
         m_external = value;
-        if (isDirty()) {
-            externalToInternal();
-            internalToGui();
-        }
+        externalToInternal();
+        internalToGui();
     }
 
     void setVolatileValue(const ValueType &value)

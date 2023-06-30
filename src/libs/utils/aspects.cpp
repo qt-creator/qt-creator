@@ -1297,9 +1297,16 @@ void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
                            : BoolAspect::LabelPlacement::AtCheckBox);
     d->m_checker->setSettingsKey(checkerKey);
 
-    connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::internalToGui);
-    connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::changed);
-    connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::checkedChanged);
+    connect(d->m_checker.get(), &BoolAspect::changed, this, [this] {
+        internalToGui();
+        emit changed();
+        checkedChanged();
+    });
+
+    connect(d->m_checker.get(), &BoolAspect::volatileValueChanged, this, [this] {
+        internalToGui();
+        checkedChanged();
+    });
 
     internalToGui();
 }
