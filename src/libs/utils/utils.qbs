@@ -35,6 +35,7 @@ Project {
 
         Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "qml", "widgets", "xml"] }
         Depends { name: "Qt.macextras"; condition: Qt.core.versionMajor < 6 && qbs.targetOS.contains("macos") }
+        Depends { name: "Spinner" }
         Depends { name: "Tasking" }
         Depends { name: "ptyqt" }
 
