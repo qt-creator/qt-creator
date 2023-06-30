@@ -5,6 +5,7 @@
 
 #include "autotestconstants.h"
 #include "autotesttr.h"
+#include "testsettings.h"
 #include "testtreemodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -360,7 +361,11 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
 
     using namespace Tasking;
 
-    QList<GroupItem> tasks{parallelLimit(std::max(QThread::idealThreadCount() / 4, 1))};
+    int limit = TestSettings::instance()->scanThreadLimit();
+    if (limit == 0)
+        limit = std::max(QThread::idealThreadCount() / 4, 1);
+    qCDebug(LOG) << "Using" << limit << "threads for scan.";
+    QList<GroupItem> tasks{parallelLimit(limit)};
     for (const FilePath &file : filteredFiles) {
         const auto setup = [this, codeParsers, file](Async<TestParseResultPtr> &async) {
             async.setConcurrentCallData(parseFileForTests, codeParsers, file);

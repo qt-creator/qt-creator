@@ -51,6 +51,8 @@ TestSettingsWidget::TestSettingsWidget()
 {
     auto timeoutLabel = new QLabel(Tr::tr("Timeout:"));
     timeoutLabel->setToolTip(Tr::tr("Timeout used when executing each test case."));
+    auto scanThreadLabel = new QLabel(Tr::tr("Scan threads:"));
+    scanThreadLabel->setToolTip("Number of worker threads used when scanning for tests.");
 
     m_frameworkTreeWidget = new QTreeWidget;
     m_frameworkTreeWidget->setRootIsDecorated(false);
@@ -83,6 +85,7 @@ TestSettingsWidget::TestSettingsWidget()
     Group generalGroup {
         title(Tr::tr("General")),
         Column {
+            Row { scanThreadLabel, s.scanThreadLimit, st },
             s.omitInternalMsg,
             s.omitRunConfigWarn,
             s.limitResultOutput,

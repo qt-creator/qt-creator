@@ -32,6 +32,7 @@ public:
     void toSettings(QSettings *s) const;
     void fromSettings(QSettings *s);
 
+    Utils::IntegerAspect scanThreadLimit{this};
     Utils::IntegerAspect timeout{this};
     Utils::BoolAspect omitInternalMsg{this};
     Utils::BoolAspect omitRunConfigWarn{this};

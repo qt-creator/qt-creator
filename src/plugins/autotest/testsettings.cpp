@@ -28,6 +28,12 @@ TestSettings::TestSettings()
 
     setSettingsGroup(Constants::SETTINGSGROUP);
 
+    scanThreadLimit.setSettingsKey("ScanThreadLimit");
+    scanThreadLimit.setDefaultValue(0);
+    scanThreadLimit.setRange(0, QThread::idealThreadCount());
+    scanThreadLimit.setSpecialValueText("Automatic");
+    scanThreadLimit.setToolTip(Tr::tr("Number of worker threads used when scanning for tests."));
+
     timeout.setSettingsKey("Timeout");
     timeout.setDefaultValue(defaultTimeout);
     timeout.setRange(5000, 36'000'000); // 36 Mio ms = 36'000 s = 10 h
