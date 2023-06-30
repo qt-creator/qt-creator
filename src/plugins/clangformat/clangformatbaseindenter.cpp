@@ -382,16 +382,37 @@ Utils::Text::Replacements utf16Replacements(const QTextDocument *doc,
             continue;
 
         lineColUtf16.column = std::min(lineColUtf16.column, int(lineText.length()));
-        const int utf16Offset = Utils::Text::positionInText(doc,
-                                                            lineColUtf16.line,
-                                                            lineColUtf16.column + 1);
-        const int utf16Length = QString::fromUtf8(
-                                    utf8Buffer.mid(static_cast<int>(replacement.getOffset()),
-                                                   static_cast<int>(replacement.getLength())))
-                                    .size();
-        convertedReplacements.emplace_back(utf16Offset,
-                                           utf16Length,
-                                           QString::fromStdString(replacement.getReplacementText().str()));
+        int utf16Offset = Utils::Text::positionInText(doc,
+                                                      lineColUtf16.line,
+                                                      lineColUtf16.column + 1);
+        int utf16Length = QString::fromUtf8(
+                              utf8Buffer.mid(static_cast<int>(replacement.getOffset()),
+                                             static_cast<int>(replacement.getLength())))
+                              .size();
+
+        QString replacementText = QString::fromStdString(replacement.getReplacementText().str());
+        auto sameCharAt = [&](int replacementOffset) {
+            if (replacementText.size() <= replacementOffset || replacementOffset < 0)
+                return false;
+            const QChar docChar = doc->characterAt(utf16Offset + replacementOffset);
+            const QChar replacementChar = replacementText.at(replacementOffset);
+            return docChar == replacementChar
+                   || (docChar == QChar::ParagraphSeparator && replacementChar == '\n');
+        };
+        // remove identical prefix from replacement text
+        while (sameCharAt(0)) {
+            ++utf16Offset;
+            --utf16Length;
+            replacementText = replacementText.mid(1);
+        }
+        // remove identical suffix from replacement text
+        while (sameCharAt(utf16Length - 1)) {
+            --utf16Length;
+            replacementText.chop(1);
+        }
+
+        if (!replacementText.isEmpty() || utf16Length > 0)
+            convertedReplacements.emplace_back(utf16Offset, utf16Length, replacementText);
     }
 
     return convertedReplacements;
