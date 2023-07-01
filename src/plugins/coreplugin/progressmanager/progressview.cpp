@@ -130,8 +130,8 @@ void ProgressView::mousePressEvent(QMouseEvent *ev)
 static QPoint boundedInParent(QWidget *widget, const QPoint &pos, QWidget *parent)
 {
     QPoint bounded = pos;
-    bounded.setX(qBound(widget->rect().width(), bounded.x(), parent->width()));
-    bounded.setY(qBound(widget->rect().height(), bounded.y(), parent->height()));
+    bounded.setX(std::max(widget->rect().width(), std::min(bounded.x(), parent->width())));
+    bounded.setY(std::max(widget->rect().height(), std::min(bounded.y(), parent->height())));
     return bounded;
 }
 
