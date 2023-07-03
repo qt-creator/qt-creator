@@ -219,23 +219,15 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
     if (!terminal)
         return;
 
-    const auto setTabText = [this, terminal]() {
+    const auto setTabText = [this, terminal] {
         const int index = m_tabWidget.indexOf(terminal);
-        const FilePath cwd = terminal->cwd();
-
-        const QString exe = terminal->currentCommand().isEmpty()
-                                ? terminal->shellName()
-                                : terminal->currentCommand().executable().fileName();
-
-        if (cwd.isEmpty())
-            m_tabWidget.setTabText(index, exe);
-        else
-            m_tabWidget.setTabText(index, exe + " - " + cwd.fileName());
+        m_tabWidget.setTabText(index, terminal->title());
     };
 
     connect(terminal, &TerminalWidget::started, this, setTabText);
     connect(terminal, &TerminalWidget::cwdChanged, this, setTabText);
     connect(terminal, &TerminalWidget::commandChanged, this, setTabText);
+    connect(terminal, &TerminalWidget::titleChanged, this, setTabText);
 
     if (!terminal->shellName().isEmpty())
         setTabText();

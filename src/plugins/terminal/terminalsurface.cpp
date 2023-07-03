@@ -249,6 +249,7 @@ struct TerminalSurfacePrivate
         case VTERM_PROP_ICONNAME:
             break;
         case VTERM_PROP_TITLE:
+            emit q->titleChanged(QString::fromUtf8(val->string.str, val->string.len));
             break;
         case VTERM_PROP_ALTSCREEN:
             m_altscreen = val->boolean;

@@ -399,6 +399,18 @@ void TerminalWidget::setupSurface()
         if (TerminalSettings::instance().audibleBell.value())
             QApplication::beep();
     });
+    connect(m_surface.get(),
+            &Internal::TerminalSurface::titleChanged,
+            this,
+            [this](const QString &title) {
+                const FilePath titleFile = FilePath::fromUserInput(title);
+                if (!m_title.isEmpty()
+                    || m_openParameters.shellCommand.value_or(CommandLine{}).executable()
+                           != titleFile) {
+                    m_title = titleFile.isFile() ? titleFile.baseName() : title;
+                }
+                emit titleChanged();
+            });
 
     if (m_shellIntegration) {
         connect(m_shellIntegration.get(),
@@ -440,6 +452,17 @@ QColor TerminalWidget::toQColor(std::variant<int, QColor> color) const
         return m_currentColors[ColorIndex::Background];
     }
     return std::get<QColor>(color);
+}
+
+QString TerminalWidget::title() const
+{
+    const FilePath dir = cwd();
+    QString title = m_title;
+    if (title.isEmpty())
+        title = currentCommand().isEmpty() ? shellName() : currentCommand().executable().fileName();
+    if (dir.isEmpty())
+        return title;
+    return title + " - " + dir.fileName();
 }
 
 void TerminalWidget::updateCopyState()

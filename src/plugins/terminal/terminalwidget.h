@@ -82,6 +82,7 @@ public:
 
     void setShellName(const QString &shellName);
     QString shellName() const;
+    QString title() const;
 
     Utils::FilePath cwd() const;
     Utils::CommandLine currentCommand() const;
@@ -98,6 +99,7 @@ signals:
     void started(qint64 pid);
     void cwdChanged(const Utils::FilePath &cwd);
     void commandChanged(const Utils::CommandLine &cmd);
+    void titleChanged();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -207,6 +209,7 @@ private:
     bool m_ignoreScroll{false};
 
     QString m_preEditString;
+    QString m_title;
 
     std::optional<Selection> m_selection;
     std::optional<LinkSelection> m_linkSelection;

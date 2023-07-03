@@ -103,6 +103,7 @@ signals:
     void altscreenChanged(bool altScreen);
     void unscroll();
     void bell();
+    void titleChanged(const QString &title);
 
 private:
     std::unique_ptr<TerminalSurfacePrivate> d;
