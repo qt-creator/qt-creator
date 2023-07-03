@@ -1029,11 +1029,6 @@ bool RunControl::isStarting() const
     return d->state == RunControlState::Starting;
 }
 
-bool RunControl::isStopping() const
-{
-    return d->state == RunControlState::Stopping;
-}
-
 bool RunControl::isStopped() const
 {
     return d->state == RunControlState::Stopped;
