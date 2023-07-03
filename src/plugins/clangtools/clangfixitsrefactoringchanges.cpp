@@ -31,7 +31,7 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-int FixitsRefactoringFile::position(const QString &filePath, unsigned line, unsigned column) const
+int FixitsRefactoringFile::position(const FilePath &filePath, unsigned line, unsigned column) const
 {
     QTC_ASSERT(line != 0, return -1);
     QTC_ASSERT(column != 0, return -1);
@@ -66,10 +66,8 @@ bool FixitsRefactoringFile::apply()
         if (!op.apply)
             continue;
 
-        const FilePath filePath = FilePath::fromString(op.fileName);
-
         // Check for permissions
-        if (!filePath.isWritableFile())
+        if (!op.filePath.isWritableFile())
             return false;
 
         qCDebug(fixitsLog) << " " << i << "Applying" << op;
@@ -78,19 +76,19 @@ bool FixitsRefactoringFile::apply()
         shiftAffectedReplacements(op, i + 1);
 
         // Apply
-        QTextDocument * const doc = document(op.fileName);
+        QTextDocument * const doc = document(op.filePath);
         QTextCursor cursor(doc);
         cursor.setPosition(op.pos);
         cursor.setPosition(op.pos + op.length, QTextCursor::KeepAnchor);
         cursor.insertText(op.text);
-        auto &opsForFile = operationsByFile[filePath];
+        auto &opsForFile = operationsByFile[op.filePath];
         opsForFile.first.push_back(&op);
         opsForFile.second = i;
     }
 
     // Format
     for (auto it = operationsByFile.cbegin(); it != operationsByFile.cend(); ++it) {
-        QTextDocument * const doc = document(it.key().toString());
+        QTextDocument * const doc = document(it.key());
         const std::unique_ptr<TextEditor::Indenter> indenter(factory->createIndenter(doc));
         if (!indenter)
             continue;
@@ -104,9 +102,7 @@ bool FixitsRefactoringFile::apply()
 
     QString error;
     for (auto it = m_documents.begin(); it != m_documents.end(); ++it) {
-        if (!m_textFileFormat.writeFile(FilePath::fromString(it.key()),
-                                        it.value()->toPlainText(),
-                                        &error)) {
+        if (!m_textFileFormat.writeFile(it.key(), it.value()->toPlainText(), &error)) {
             qCDebug(fixitsLog) << "ERROR: Could not write file" << it.key() << ":" << error;
             return false; // Error writing file
         }
@@ -135,26 +131,26 @@ void FixitsRefactoringFile::format(TextEditor::Indenter &indenter,
     if (replacements.empty())
         return;
 
-    shiftAffectedReplacements(operationsForFile.front()->fileName,
+    shiftAffectedReplacements(operationsForFile.front()->filePath,
                               replacements,
                               firstOperationIndex + 1);
 }
 
-QTextDocument *FixitsRefactoringFile::document(const QString &filePath) const
+QTextDocument *FixitsRefactoringFile::document(const FilePath &filePath) const
 {
     if (m_documents.find(filePath) == m_documents.end()) {
         QString fileContents;
         if (!filePath.isEmpty()) {
             QString error;
             QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
-            TextFileFormat::ReadResult result = TextFileFormat::readFile(FilePath::fromString(
-                                                                             filePath),
+            TextFileFormat::ReadResult result = TextFileFormat::readFile(filePath,
                                                                          defaultCodec,
                                                                          &fileContents,
                                                                          &m_textFileFormat,
                                                                          &error);
             if (result != TextFileFormat::ReadSuccess) {
-                qCDebug(fixitsLog) << "ERROR: Could not read " << filePath << ":" << error;
+                qCDebug(fixitsLog)
+                    << "ERROR: Could not read " << filePath.toUserOutput() << ":" << error;
                 m_textFileFormat.codec = nullptr;
             }
         }
@@ -168,7 +164,7 @@ void FixitsRefactoringFile::shiftAffectedReplacements(const ReplacementOperation
 {
     for (int i = startIndex; i < m_replacementOperations.size(); ++i) {
         ReplacementOperation &current = *m_replacementOperations[i];
-        if (op.fileName != current.fileName)
+        if (op.filePath != current.filePath)
             continue;
 
         ReplacementOperation before = current;
@@ -182,13 +178,13 @@ void FixitsRefactoringFile::shiftAffectedReplacements(const ReplacementOperation
     }
 }
 
-bool FixitsRefactoringFile::hasIntersection(const QString &fileName,
+bool FixitsRefactoringFile::hasIntersection(const FilePath &filePath,
                                             const Text::Replacements &replacements,
                                             int startIndex) const
 {
     for (int i = startIndex; i < m_replacementOperations.size(); ++i) {
         const ReplacementOperation &current = *m_replacementOperations[i];
-        if (fileName != current.fileName)
+        if (filePath != current.filePath)
             continue;
 
         // Usually the number of replacements is from 1 to 3.
@@ -205,13 +201,13 @@ bool FixitsRefactoringFile::hasIntersection(const QString &fileName,
     return false;
 }
 
-void FixitsRefactoringFile::shiftAffectedReplacements(const QString &fileName,
+void FixitsRefactoringFile::shiftAffectedReplacements(const FilePath &filePath,
                                                       const Text::Replacements &replacements,
                                                       int startIndex)
 {
     for (int i = startIndex; i < m_replacementOperations.size(); ++i) {
         ReplacementOperation &current = *m_replacementOperations[i];
-        if (fileName != current.fileName)
+        if (filePath != current.filePath)
             continue;
 
         for (const auto &replacement : replacements) {

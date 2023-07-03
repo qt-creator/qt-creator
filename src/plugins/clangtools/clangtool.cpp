@@ -221,14 +221,14 @@ public:
 
             const Debugger::DiagnosticLocation start = step.ranges.first();
             const Debugger::DiagnosticLocation end = step.ranges.last();
-            const int startPos = file.position(start.filePath.toString(), start.line, start.column);
-            const int endPos = file.position(start.filePath.toString(), end.line, end.column);
+            const int startPos = file.position(start.filePath, start.line, start.column);
+            const int endPos = file.position(start.filePath, end.line, end.column);
 
             auto op = new ReplacementOperation;
             op->pos = startPos;
             op->length = endPos - startPos;
             op->text = step.message;
-            op->fileName = start.filePath.toString();
+            op->filePath = start.filePath;
             op->apply = apply;
 
             replacements += op;
@@ -278,14 +278,14 @@ public:
             QVector<DiagnosticItem *> itemsInvalidated;
 
             fileInfo.file.setReplacements(ops);
-            model->removeWatchedPath(ops.first()->fileName);
+            model->removeWatchedPath(ops.first()->filePath);
             if (fileInfo.file.apply()) {
                 itemsApplied = itemsScheduled;
             } else {
                 itemsFailedToApply = itemsScheduled;
                 itemsInvalidated = itemsSchedulable;
             }
-            model->addWatchedPath(ops.first()->fileName);
+            model->addWatchedPath(ops.first()->filePath);
 
             // Update DiagnosticItem state
             for (DiagnosticItem *diagnosticItem : std::as_const(itemsScheduled))
