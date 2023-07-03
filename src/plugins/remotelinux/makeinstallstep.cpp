@@ -12,6 +12,7 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/makestep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -23,8 +24,6 @@
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
-#include <QDirIterator>
-#include <QFileInfo>
 #include <QSet>
 #include <QTemporaryDir>
 
@@ -38,6 +37,33 @@ const char InstallRootAspectId[] = "RemoteLinux.MakeInstall.InstallRoot";
 const char CleanInstallRootAspectId[] = "RemoteLinux.MakeInstall.CleanInstallRoot";
 const char FullCommandLineAspectId[] = "RemoteLinux.MakeInstall.FullCommandLine";
 const char CustomCommandLineAspectId[] = "RemoteLinux.MakeInstall.CustomCommandLine";
+
+class MakeInstallStep : public MakeStep
+{
+public:
+    MakeInstallStep(BuildStepList *parent, Id id);
+
+private:
+    bool fromMap(const QVariantMap &map) override;
+    QWidget *createConfigWidget() override;
+    bool init() override;
+    void finish(ProcessResult result) override;
+    bool isJobCountSupported() const override { return false; }
+
+    FilePath installRoot() const;
+    bool cleanInstallRoot() const;
+
+    void updateCommandFromAspect();
+    void updateArgsFromAspect();
+    void updateFullCommandLine();
+    void updateFromCustomCommandLineAspect();
+
+    StringAspect *customCommandLineAspect() const;
+
+    DeploymentData m_deploymentData;
+    bool m_noInstallTarget = false;
+    bool m_isCmakeProject = false;
+};
 
 MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent, id)
 {
