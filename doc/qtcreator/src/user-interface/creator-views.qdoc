@@ -1,25 +1,24 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-views.html
-    \previouspage creator-sidebars.html
     \if defined(qtdesignstudio)
+    \previouspage creator-coding-navigating.html
     \nextpage creator-output-panes.html
     \else
+    \previouspage creator-quick-tour.html
     \nextpage creator-projects-view.html
     \endif
 
     \title Browsing Project Contents
 
-    You can organize \QC views in \l {Working with Sidebars}{sidebars} or as
     \if defined(qtdesignstudio)
-    \l {Managing Workspaces}{workspaces}, depending on the \l{Mode}{mode} you
-    are working in.
+    You can organize \QDS views as \l {Managing Workspaces}{workspaces}.
     \else
-    workspaces, depending on the \l{Switch between modes}
-    {mode} you are working in. Only views that are relevant to a mode are
-    available in it.
+    You can organize \QC views in \l {Show and hide sidebars}{sidebars} or as
+    workspaces, depending on the \l{Switch between modes}{mode} you are working
+    in. Only views that are relevant to a mode are available in it.
     \endif
 
     \note Usually, \l{Searching with the Locator}{searching with the locator}

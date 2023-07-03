@@ -14,7 +14,7 @@
     \nextpage creator-using-qt-quick-designer.html
     \else
     \previouspage creator-overview.html
-    \nextpage creator-sidebars.html
+    \nextpage creator-views.html
     \endif
 
     \title User Interface
@@ -82,7 +82,7 @@
     For information about new features and bug fixes in each \QC release,
     select \uicontrol Help > \uicontrol {Change Log}.
 
-    \sa {Working with Sidebars}, {Browsing Project Contents}
+    \sa {Show and hide sidebars}, {Browsing Project Contents}
     \sa {Use the UI}{How-to: Use the UI}
 
     \else

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -13,6 +13,7 @@
     \title Projects
 
     The \uicontrol Projects view displays projects in a project tree.
+
     The project tree has a list of all projects open in the current
     \l{Managing Sessions}{session}. For each project, the tree visualizes
     the build system structure of the project and lists all files that
@@ -23,12 +24,9 @@
     or almost anything else in your project.
 
     \if defined(qtdesignstudio)
-    The following image displays the \uicontrol Projects view in the
-    \uicontrol Design mode:
-
-    \image qtcreator-projects-view-design.png "Projects view in the Design mode"
+    \image qtcreator-projects-view-design.png {Projects view}
     \else
-    \image qtcreator-projects-view-edit.png "Projects view in the sidebar"
+    \image qtcreator-projects-view-edit.png {Projects view in the sidebar}
     \endif
 
     You can use the project tree in the following ways:
@@ -54,6 +52,9 @@
             configuration files.
     \endlist
 
+    \note If you cannot see a file in the \l Projects view, switch to the
+    \uicontrol {File System} view, which shows all the files in the file system.
+
     \section1 Projects View Context Menu
 
     The \uicontrol Projects view has context menus for managing projects,
@@ -61,8 +62,10 @@
     projects and subprojects:
 
     \list
+        \if defined(qtcreator)
         \li Set a project as the active project.
-        \li Execute the \uicontrol Build menu commands.
+        \endif
+        \li Execute \uicontrol Build menu commands.
         \li Create new files. For more information, see
             \if defined(qtdesignstudio)
             \l{Adding Files to Projects}.
@@ -109,18 +112,10 @@
     the \l {File System} view. To view a project in it, select
     \uicontrol {Show in File System View}.
 
+    \if defined(qtcreator)
     \section1 Projects View Toolbar
 
-    \if defined(qtdesignstudio)
-    In the \uicontrol Edit and \uicontrol Debug mode, the
-    \l{Working with Sidebars}{sidebar} has the \uicontrol Projects
-    view. It has a toolbar with additional options.
-
-    \image qtcreator-projects-view-edit.png "Projects view in the sidebar"
-    \else
     The toolbar in the \uicontrol Projects view has additional options.
-    \endif
-
 
     To filter view contents, select \inlineimage icons/filtericon.png
     (\uicontrol {Filter Tree}):
@@ -143,7 +138,6 @@
     currently opened in the editor, deselect \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
 
-    \if defined(qtcreator)
     Some build systems support adding and removing files to a project in \QC
     (currently qmake and Qbs). The faithful display of the project structure
     enables you to specify exactly where to place a new file in the build system.
@@ -155,8 +149,5 @@
     from the version control system in brackets after the project name.
     \QC currently implements this for Git (the view displays the branch name
     or a tag) and ClearCase (the view displays the branch name).
-    \else
-    If the project is under Git version control, you can see the currently
-    checked out branch or tag in brackets after the project name.
     \endif
 */
