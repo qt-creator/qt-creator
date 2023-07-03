@@ -222,26 +222,18 @@ void DesignModeWidget::setup()
     // Connect opening of the 'workspaces' menu with creation of the workspaces menu
     connect(mworkspaces->menu(), &QMenu::aboutToShow, this, &DesignModeWidget::aboutToShowWorkspaces);
 
-    Core::ActionContainer *mpanes = Core::ActionManager::actionContainer(Core::Constants::M_VIEW_PANES);
-
     // Initially disable menus
-    mviews->menu()->setEnabled(false);
     mworkspaces->menu()->setEnabled(false);
-    mpanes->menu()->setEnabled(false);
 
     // Enable/disable menus when mode is different to MODE_DESIGN
     connect(Core::ModeManager::instance(),
             &Core::ModeManager::currentModeChanged,
             this,
-            [mviews, mworkspaces, mpanes](Utils::Id mode, Utils::Id) {
+            [mworkspaces](Utils::Id mode, Utils::Id) {
                 if (mode == Core::Constants::MODE_DESIGN) {
-                    mviews->menu()->setEnabled(true);
                     mworkspaces->menu()->setEnabled(true);
-                    mpanes->menu()->setEnabled(true);
                 } else {
-                    mviews->menu()->setEnabled(false);
                     mworkspaces->menu()->setEnabled(false);
-                    mpanes->menu()->setEnabled(false);
                 }
             });
 
