@@ -74,6 +74,7 @@ public:
     static bool isQt5CmakeProject(const ProjectExplorer::Target *target);
 
     static Utils::FilePath androidBuildDirectory(const ProjectExplorer::Target *target);
+    static Utils::FilePath androidAppProcessDir(const ProjectExplorer::Target *target);
     static Utils::FilePath buildDirectory(const ProjectExplorer::Target *target);
     static Utils::FilePath manifestPath(const ProjectExplorer::Target *target);
     static void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);

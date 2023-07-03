@@ -87,18 +87,74 @@
     element. You can also add descriptive text to the UI that is always
     visible.
 
+    Consider adding tooltips for all UI elements that are not obvious from
+    the context. The tooltips should help users understand what the UI controls
+    do, so try to make them as clear as possible, even if they get a bit long.
+
+    \section3 Tooltips for Icons
+
     For an icon, you can use the command name as a tool tip. In that
     case, use book style capitalization and do not add a period after the tool
     tip.
 
     \image qtcreator-tooltip.png {Tooltip}
 
-    Tooltips can also contain full sentences. Try to make them as short and
-    concise as possible, while still making them grammatically correct. Use
-    sentence style capitalization and punctuation as you would for any
-    sentence.
+    \section3 Other Tooltips
+
+    Tooltips can also contain full sentences.
 
     \image qtcreator-tooltip-long.png {Sentence as a tooltip}
+
+    Follow these guidelines:
+
+    \list
+        \li Write useful tooltips, but keep them as short and concise as
+            possible.
+        \li To help people who localize and people for whom English is a second
+            language, make tooltips as grammatically clear as possible. Use the
+            articles a, an, and the, prepositions, such as of, and demonstrative
+            pronouns, such as this and that, wherever possible.
+        \li Use sentence style capitalization and punctuation as you would for
+            any sentence.
+        \li For input fields, describe the value of the field. Tell users what
+            they can enter in the field, such as a name or a path, unless it is
+            obvious from the context. Use a noun phrase, such as \e {The name of
+            the user account.} Describe limitations and special requirements.
+        \li For actions, such as most check boxes, radio buttons, push buttons,
+            and menu items, describe what happens when users select them. Use a
+            verb phrase, such as \e {Removes trailing whitespace upon saving.}
+        \li For combo boxes, describe when to pick each option.
+        \li Describe what the UI control does, not how to use it. If the control
+            does not work as users would expect it to, check your design, as you
+            most likely chose the wrong type of control.
+        \li Do not describe the default value or the minimum and maximum values,
+            as users can see them in the field.
+    \endlist
+
+    \section3 Examples
+
+    \table
+    \header
+        \li Control
+        \li Do
+        \li Don't
+    \row
+        \li Button - \uicontrol {Download Definitions}
+        \li Download missing and update existing syntax definition files.
+        \li You can select this button to download syntax definition files.
+    \row
+        \li Check box - \uicontrol {Clean whitespace}
+        \li Removes trailing whitespace upon saving.
+        \li Enable this check box to remove trailing whitespace upon saving.
+    \row
+        \li Combo box - \uicontrol Size
+        \li The font size used in the terminal (in points).
+        \li Use the up and down arrows to set the font size between 1 and 100.
+    \row
+        \li Field - \uicontrol {Shell arguments}
+        \li The arguments to be passed to the shell.
+        \li Sets the arguments to be passed to the shell.
+    \endtable
 
     \section3 Writing Tooltips in Design Mode
 
@@ -166,9 +222,11 @@
 
     \section3 Checking Book Style Capitalization
 
-    You can use the to-title-case.js script in the \c{\doc\titlecase}
-    folder to check book style capitalization of UI text or headings in
-    documentation:
+    If necessary, use an online \l{https://titlecaseconverter.com/}
+    {Title Case Converter} to check book style capitalization
+    of UI text or headings in documentation.
+
+    Or, use the to-title-case.js script in the \c{\doc\titlecase} folder:
 
     \list 1
 

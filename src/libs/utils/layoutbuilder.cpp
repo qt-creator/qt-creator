@@ -305,6 +305,8 @@ static void addItemToFlowLayout(FlowLayout *layout, const ResultItem &item)
 //        layout->addStretch(item.stretch);
 //    } else if (item.space != -1) {
 //        layout->addSpacing(item.space);
+    } else if (item.empty) {
+        // Nothing to do, but no reason to warn, either
     } else if (!item.text.isEmpty()) {
         layout->addWidget(createLabel(item.text));
     } else {

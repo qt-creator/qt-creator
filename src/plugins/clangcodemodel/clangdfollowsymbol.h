@@ -28,6 +28,7 @@ public:
                        TextEditor::TextDocument *document, const Utils::LinkHandler &callback,
                        FollowTo followTo, bool openInSplit);
     ~ClangdFollowSymbol();
+    void cancel();
     void clear();
 
 signals:

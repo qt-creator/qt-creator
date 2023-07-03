@@ -1,6 +1,8 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include <utils/hostosinfo.h>
+
 #include "keys.h"
 
 namespace Terminal::Internal {
@@ -72,8 +74,14 @@ VTermKey qtKeyToVTerm(Qt::Key key, bool keypad)
         return keypad ? VTERM_KEY_KP_PERIOD : VTERM_KEY_NONE;
     case Qt::Key_Slash:
         return keypad ? VTERM_KEY_KP_DIVIDE : VTERM_KEY_NONE;
-    case Qt::Key_Enter:
-        return keypad ? VTERM_KEY_KP_ENTER : VTERM_KEY_NONE;
+    case Qt::Key_Enter: {
+        VTermKey enterKey = VTERM_KEY_KP_ENTER;
+
+        if (Utils::HostOsInfo::isWindowsHost())
+            enterKey = VTERM_KEY_ENTER;
+
+        return keypad ? enterKey : VTERM_KEY_NONE;
+    }
     case Qt::Key_Equal:
         return keypad ? VTERM_KEY_KP_EQUAL : VTERM_KEY_NONE;
     default:

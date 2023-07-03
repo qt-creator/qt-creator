@@ -1518,7 +1518,15 @@ void BoolAspect::setLabelPlacement(BoolAspect::LabelPlacement labelPlacement)
     d->m_labelPlacement = labelPlacement;
 }
 
-CheckableDecider BoolAspect::checkableDecider()
+CheckableDecider BoolAspect::askAgainCheckableDecider()
+{
+    return CheckableDecider(
+        [this] { return value(); },
+        [this] { setValue(true); }
+    );
+}
+
+CheckableDecider BoolAspect::doNotAskAgainCheckableDecider()
 {
     return CheckableDecider(
         [this] { return !value(); },

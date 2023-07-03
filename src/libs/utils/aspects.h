@@ -325,7 +325,9 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) override;
     std::function<void(QObject *)> groupChecker();
-    Utils::CheckableDecider checkableDecider();
+
+    Utils::CheckableDecider askAgainCheckableDecider();
+    Utils::CheckableDecider doNotAskAgainCheckableDecider();
 
     QAction *action() override;
 

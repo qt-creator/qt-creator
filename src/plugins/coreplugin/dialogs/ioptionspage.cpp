@@ -8,6 +8,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
@@ -100,23 +101,20 @@ void IOptionsPage::setWidgetCreator(const WidgetCreator &widgetCreator)
 
 QStringList IOptionsPage::keywords() const
 {
-    if (!m_keywordsInitialized) {
-        auto that = const_cast<IOptionsPage *>(this);
-        QWidget *widget = that->widget();
-        if (!widget)
-            return {};
-        // find common subwidgets
-        for (const QLabel *label : widget->findChildren<QLabel *>())
-            m_keywords << Utils::stripAccelerator(label->text());
-        for (const QCheckBox *checkbox : widget->findChildren<QCheckBox *>())
-            m_keywords << Utils::stripAccelerator(checkbox->text());
-        for (const QPushButton *pushButton : widget->findChildren<QPushButton *>())
-            m_keywords << Utils::stripAccelerator(pushButton->text());
-        for (const QGroupBox *groupBox : widget->findChildren<QGroupBox *>())
-            m_keywords << Utils::stripAccelerator(groupBox->title());
+    auto that = const_cast<IOptionsPage *>(this);
+    QWidget *widget = that->widget();
+    if (!widget)
+        return {};
+    // find common subwidgets
+    for (const QLabel *label : widget->findChildren<QLabel *>())
+        m_keywords << label->text();
+    for (const QCheckBox *checkbox : widget->findChildren<QCheckBox *>())
+        m_keywords << checkbox->text();
+    for (const QPushButton *pushButton : widget->findChildren<QPushButton *>())
+        m_keywords << pushButton->text();
+    for (const QGroupBox *groupBox : widget->findChildren<QGroupBox *>())
+        m_keywords << groupBox->title();
 
-        m_keywordsInitialized = true;
-    }
     return m_keywords;
 }
 
@@ -271,7 +269,12 @@ const QList<IOptionsPage *> IOptionsPage::allOptionsPages()
 */
 bool IOptionsPage::matches(const QRegularExpression &regexp) const
 {
-    for (const QString &keyword : keywords())
+    if (!m_keywordsInitialized) {
+        m_keywords = Utils::transform(keywords(), Utils::stripAccelerator);
+        m_keywordsInitialized = true;
+    }
+
+    for (const QString &keyword : m_keywords)
         if (keyword.contains(regexp))
             return true;
     return false;

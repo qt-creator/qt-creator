@@ -24,6 +24,11 @@
     Generally, the integrated \QD has the same functions as the standalone
     \QD. The following sections describe the differences.
 
+    The following video shows how to use the integrated \QD to create a small Qt
+    Widgets-based application:
+
+    \youtube LnVjI0I7cKs
+
     \section1 Code Editor Integration
 
     To switch between forms (\uicontrol Design mode) and code (\uicontrol Edit mode),

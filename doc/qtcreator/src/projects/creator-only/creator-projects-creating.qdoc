@@ -123,6 +123,10 @@
 
     \endtable
 
+    The following video shows how to create a Qt Widgets application project:
+
+    \youtube FTSvDmcAgPI
+
     For examples of creating different types of projects, see
     \l{Tutorials}.
 

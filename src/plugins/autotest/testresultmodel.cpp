@@ -4,6 +4,7 @@
 #include "testresultmodel.h"
 
 #include "autotesticons.h"
+#include "testresultspane.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreeitem.h"
@@ -15,6 +16,7 @@
 
 #include <QFontMetrics>
 #include <QIcon>
+#include <QToolButton>
 
 using namespace Utils;
 
@@ -185,6 +187,17 @@ TestResultItem *TestResultItem::createAndAddIntermediateFor(const TestResultItem
     result.setResult(ResultType::TestStart);
     TestResultItem *intermediate = new TestResultItem(result);
     appendChild(intermediate);
+    // FIXME: make the expand button's state easier accessible
+    auto widgets = TestResultsPane::instance()->toolBarWidgets();
+    if (!widgets.empty()) {
+        if (QToolButton *expand = qobject_cast<QToolButton *>(widgets.at(0))) {
+            if (expand->isChecked()) {
+                QMetaObject::invokeMethod(TestResultsPane::instance(),
+                                          [intermediate] { intermediate->expand(); },
+                                          Qt::QueuedConnection);
+            }
+        }
+    }
     return intermediate;
 }
 
