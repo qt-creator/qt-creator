@@ -162,7 +162,7 @@ QList<ShellModelItem> ShellModel::remote() const
 
     const QList<ShellModelItem> deviceItems = Utils::transform(
         deviceCmds, [](const Utils::Terminal::NameAndCommandLine &item) -> ShellModelItem {
-            return ShellModelItem{item.name, {}, {item.commandLine, std::nullopt, std::nullopt}};
+            return ShellModelItem{item.name, {}, {item.commandLine}};
         });
 
     return deviceItems;

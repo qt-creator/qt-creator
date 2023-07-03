@@ -41,6 +41,20 @@ enum class ExitBehavior { Close, Restart, Keep };
 
 struct OpenTerminalParameters
 {
+    OpenTerminalParameters() = default;
+    OpenTerminalParameters(const CommandLine &commandLine) : shellCommand(commandLine) {}
+    OpenTerminalParameters(const FilePath &directory, std::optional<Environment> env) :
+        workingDirectory(directory),
+        environment(env)
+    {}
+    OpenTerminalParameters(const CommandLine &commandLine,
+                           const FilePath &directory,
+                           std::optional<Environment> env) :
+        shellCommand(commandLine),
+        workingDirectory(directory),
+        environment(env)
+    {}
+
     std::optional<CommandLine> shellCommand;
     std::optional<FilePath> workingDirectory;
     std::optional<Environment> environment;

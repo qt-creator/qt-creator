@@ -106,7 +106,7 @@ void FileUtils::showInFileSystemView(const FilePath &path)
 
 void FileUtils::openTerminal(const FilePath &path, const Environment &env)
 {
-    Terminal::Hooks::instance().openTerminal({std::nullopt, path, env});
+    Terminal::Hooks::instance().openTerminal({path, env});
 }
 
 QString FileUtils::msgFindInDirectory()

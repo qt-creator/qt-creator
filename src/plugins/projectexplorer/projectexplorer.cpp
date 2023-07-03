@@ -3630,7 +3630,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
 
     BuildConfiguration *bc = activeBuildConfiguration(ProjectTree::projectForNode(currentNode));
     if (!bc) {
-        Terminal::Hooks::instance().openTerminal({{}, currentNode->directory(), environment});
+        Terminal::Hooks::instance().openTerminal({currentNode->directory(), environment});
         return;
     }
 
@@ -3649,7 +3649,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
     if (!shell.isEmpty() && buildDevice->rootPath().needsDevice()) {
         Terminal::Hooks::instance().openTerminal({CommandLine{shell, {}}, workingDir, environment});
     } else {
-        Terminal::Hooks::instance().openTerminal({std::nullopt, workingDir, environment});
+        Terminal::Hooks::instance().openTerminal({workingDir, environment});
     }
 }
 
@@ -3684,7 +3684,7 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
         Terminal::Hooks::instance().openTerminal(
             {CommandLine{shell, {}}, workingDir, runnable.environment});
     } else {
-        Terminal::Hooks::instance().openTerminal({std::nullopt, workingDir, runnable.environment});
+        Terminal::Hooks::instance().openTerminal({workingDir, runnable.environment});
     }
 }
 
