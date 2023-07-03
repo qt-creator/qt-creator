@@ -2746,15 +2746,15 @@ void QuickfixTest::testGenerateGetterSetterCustomTemplate()
 
     const _ customTypeDecl = R"--(
 namespace N1 {
-    namespace N2 {
-        struct test{};
-    }
-    template<typename T>
-    struct custom {
-        void assign(const custom<T>&);
-        bool equals(const custom<T>&);
-        T* get();
-    };
+namespace N2 {
+struct test{};
+}
+template<typename T>
+struct custom {
+    void assign(const custom<T>&);
+    bool equals(const custom<T>&);
+    T* get();
+};
 )--";
     // Header File
     original = customTypeDecl + R"--(
@@ -5210,77 +5210,77 @@ void QuickfixTest::testInsertDefsFromDecls_data()
     QTest::addColumn<int>("mode");
 
     QByteArray origHeader = R"(
-        namespace N {
-        class @C
-        {
-        public:
-            friend void ignoredFriend();
-            void ignoredImplemented() {};
-            void ignoredImplemented2(); // Below
-            void ignoredImplemented3(); // In cpp file
-            void funcNotSelected();
-            void funcInline();
-            void funcBelow();
-            void funcCppFile();
+namespace N {
+class @C
+{
+public:
+    friend void ignoredFriend();
+    void ignoredImplemented() {};
+    void ignoredImplemented2(); // Below
+    void ignoredImplemented3(); // In cpp file
+    void funcNotSelected();
+    void funcInline();
+    void funcBelow();
+    void funcCppFile();
 
-        signals:
-            void ignoredSignal();
-        };
+signals:
+    void ignoredSignal();
+};
 
-        inline void C::ignoredImplemented2() {}
+inline void C::ignoredImplemented2() {}
 
-        } // namespace N)";
+} // namespace N)";
     QByteArray origSource = R"(
-        #include "file.h"
+#include "file.h"
 
-        namespace N {
+namespace N {
 
-        void C::ignoredImplemented3() {}
+void C::ignoredImplemented3() {}
 
-        } // namespace N)";
+} // namespace N)";
 
     QByteArray expectedHeader = R"(
-        namespace N {
-        class C
-        {
-        public:
-            friend void ignoredFriend();
-            void ignoredImplemented() {};
-            void ignoredImplemented2(); // Below
-            void ignoredImplemented3(); // In cpp file
-            void funcNotSelected();
-            void funcInline()
-            {
+namespace N {
+class C
+{
+public:
+    friend void ignoredFriend();
+    void ignoredImplemented() {};
+    void ignoredImplemented2(); // Below
+    void ignoredImplemented3(); // In cpp file
+    void funcNotSelected();
+    void funcInline()
+    {
 
-            }
-            void funcBelow();
-            void funcCppFile();
+    }
+    void funcBelow();
+    void funcCppFile();
 
-        signals:
-            void ignoredSignal();
-        };
+signals:
+    void ignoredSignal();
+};
 
-        inline void C::ignoredImplemented2() {}
+inline void C::ignoredImplemented2() {}
 
-        inline void C::funcBelow()
-        {
+inline void C::funcBelow()
+{
 
-        }
+}
 
-        } // namespace N)";
+} // namespace N)";
     QByteArray expectedSource = R"(
-        #include "file.h"
+#include "file.h"
 
-        namespace N {
+namespace N {
 
-        void C::ignoredImplemented3() {}
+void C::ignoredImplemented3() {}
 
-        void C::funcCppFile()
-        {
+void C::funcCppFile()
+{
 
-        }
+}
 
-        } // namespace N)";
+} // namespace N)";
     QTest::addRow("normal case")
             << QByteArrayList{origHeader, expectedHeader}
             << QByteArrayList{origSource, expectedSource}
@@ -6885,7 +6885,7 @@ void QuickfixTest::testMoveFuncDefOutsideMemberFuncOutsideWithNs()
         "\n"
         "int Foo::number() const\n"
         "{\n"
-        "    return 5;\n"
+        "  return 5;\n"
         "}\n"
         "\n}\n";
 
