@@ -297,7 +297,10 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
         }
     }
 
-    auto handleStop = [this, runControl]() {
+    auto handleStop = [this, runControl] {
+        if (!d->m_toolBusy)
+            return;
+
         d->m_toolBusy = false;
         updateRunActions();
         disconnect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
@@ -311,11 +314,6 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     };
 
     connect(runControl, &RunControl::stopped, this, handleStop);
-    connect(runControl, &RunControl::finished, this, [this, handleStop] {
-        if (d->m_toolBusy)
-            handleStop();
-    });
-
     connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
 
     updateRunActions();

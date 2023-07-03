@@ -545,10 +545,12 @@ void DebuggerRunTool::start()
     m_engine->setRunId(d->runId);
     m_engine->setRunTool(this);
     m_engine->setCompanionEngine(m_engine2);
-    connect(m_engine, &DebuggerEngine::requestRunControlFinish,
-            runControl(), &RunControl::initiateFinish);
-    connect(m_engine, &DebuggerEngine::requestRunControlStop,
-            runControl(), &RunControl::initiateStop);
+    auto rc = runControl();
+    connect(m_engine, &DebuggerEngine::requestRunControlFinish, rc, [rc] {
+        rc->setAutoDeleteOnStop(true);
+        rc->initiateStop();
+    }, Qt::QueuedConnection);
+    connect(m_engine, &DebuggerEngine::requestRunControlStop, rc, &RunControl::initiateStop);
     connect(m_engine, &DebuggerEngine::engineStarted,
             this, [this] { handleEngineStarted(m_engine); });
     connect(m_engine, &DebuggerEngine::engineFinished,
@@ -575,10 +577,11 @@ void DebuggerRunTool::start()
         m_engine2->setRunTool(this);
         m_engine2->setCompanionEngine(m_engine);
         m_engine2->setSecondaryEngine();
-        connect(m_engine2, &DebuggerEngine::requestRunControlFinish,
-                runControl(), &RunControl::initiateFinish);
-        connect(m_engine2, &DebuggerEngine::requestRunControlStop,
-                runControl(), &RunControl::initiateStop);
+        connect(m_engine2, &DebuggerEngine::requestRunControlFinish, rc, [rc] {
+            rc->setAutoDeleteOnStop(true);
+            rc->initiateStop();
+        }, Qt::QueuedConnection);
+        connect(m_engine2, &DebuggerEngine::requestRunControlStop, rc, &RunControl::initiateStop);
         connect(m_engine2, &DebuggerEngine::engineStarted,
                 this, [this] { handleEngineStarted(m_engine2); });
         connect(m_engine2, &DebuggerEngine::engineFinished,

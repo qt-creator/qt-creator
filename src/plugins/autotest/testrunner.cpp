@@ -589,7 +589,6 @@ void TestRunner::debugTests()
                                  runControl, &RunControl::initiateStop);
 
     connect(runControl, &RunControl::stopped, this, &TestRunner::onFinished);
-    m_finishDebugConnect = connect(runControl, &RunControl::finished, this, &TestRunner::onFinished);
     ProjectExplorerPlugin::startRunControl(runControl);
     if (useOutputProcessor && TestSettings::instance()->popupOnStart())
         AutotestPlugin::popupResultsPane();
@@ -705,7 +704,6 @@ void TestRunner::onFinished()
     if (m_taskTree)
         m_taskTree.release()->deleteLater();
     disconnect(m_stopDebugConnect);
-    disconnect(m_finishDebugConnect);
     disconnect(m_targetConnect);
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();

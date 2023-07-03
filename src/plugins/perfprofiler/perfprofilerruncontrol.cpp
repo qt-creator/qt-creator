@@ -185,8 +185,6 @@ void PerfProfilerRunner::start()
             &PerfProfilerTool::onRunControlStarted);
     connect(runControl(), &RunControl::stopped, PerfProfilerTool::instance(),
             &PerfProfilerTool::onRunControlFinished);
-    connect(runControl(), &RunControl::finished, PerfProfilerTool::instance(),
-            &PerfProfilerTool::onRunControlFinished);
 
     PerfDataReader *reader = m_perfParserWorker->reader();
     if (auto prw = qobject_cast<LocalPerfRecordWorker *>(m_perfRecordWorker)) {

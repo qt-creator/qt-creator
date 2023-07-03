@@ -211,9 +211,7 @@ enum class RunControlState
     Starting,         // Actual process/tool starts.
     Running,          // All good and running.
     Stopping,         // initiateStop() was called, stop application/tool
-    Stopped,          // all good, but stopped. Can possibly be re-started
-    Finishing,        // Application tab manually closed
-    Finished          // Final state, will self-destruct with deleteLater()
+    Stopped           // all good, but stopped. Can possibly be re-started
 };
 
 static QString stateName(RunControlState s)
@@ -225,8 +223,6 @@ static QString stateName(RunControlState s)
         SN(RunControlState::Running)
         SN(RunControlState::Stopping)
         SN(RunControlState::Stopped)
-        SN(RunControlState::Finishing)
-        SN(RunControlState::Finished)
     }
     return QString("<unknown: %1>").arg(int(s));
 #    undef SN
@@ -259,6 +255,7 @@ public:
     QList<QPointer<RunWorker>> m_workers;
     RunControlState state = RunControlState::Initialized;
     bool printEnvironment = false;
+    bool autoDelete = false;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -274,7 +271,7 @@ public:
 
     ~RunControlPrivate() override
     {
-        QTC_CHECK(state == RunControlState::Finished || state == RunControlState::Initialized);
+        QTC_CHECK(state == RunControlState::Stopped || state == RunControlState::Initialized);
         disconnect();
         q = nullptr;
         qDeleteAll(m_workers);
@@ -407,6 +404,11 @@ RunControl::~RunControl()
 #endif
 }
 
+void RunControl::setAutoDeleteOnStop(bool autoDelete)
+{
+    d->autoDelete = autoDelete;
+}
+
 void RunControl::initiateStart()
 {
     emit aboutToStart();
@@ -427,11 +429,6 @@ void RunControl::initiateStop()
 void RunControl::forceStop()
 {
     d->forceStop();
-}
-
-void RunControl::initiateFinish()
-{
-    QTimer::singleShot(0, d.get(), &RunControlPrivate::initiateFinish);
 }
 
 RunWorker *RunControl::createWorker(Id workerId)
@@ -542,7 +539,7 @@ void RunControlPrivate::continueStart()
 
 void RunControlPrivate::initiateStop()
 {
-    if (state != RunControlState::Starting && state != RunControlState::Running)
+    if (state == RunControlState::Initialized)
         qDebug() << "Unexpected initiateStop() in state" << stateName(state);
 
     setState(RunControlState::Stopping);
@@ -596,12 +593,8 @@ void RunControlPrivate::continueStopOrFinish()
     }
 
     RunControlState targetState;
-    if (state == RunControlState::Finishing) {
-        targetState = RunControlState::Finished;
-    } else {
-        checkState(RunControlState::Stopping);
+    if (state == RunControlState::Stopping)
         targetState = RunControlState::Stopped;
-    }
 
     if (allDone) {
         debugMessage("All Stopped");
@@ -613,7 +606,7 @@ void RunControlPrivate::continueStopOrFinish()
 
 void RunControlPrivate::forceStop()
 {
-    if (state == RunControlState::Finished) {
+    if (state == RunControlState::Stopped) {
         debugMessage("Was finished, too late to force Stop");
         return;
     }
@@ -648,14 +641,6 @@ void RunControlPrivate::forceStop()
     debugMessage("All Stopped");
 }
 
-void RunControlPrivate::initiateFinish()
-{
-    setState(RunControlState::Finishing);
-    debugMessage("Ramping down");
-
-    continueStopOrFinish();
-}
-
 void RunControlPrivate::onWorkerStarted(RunWorker *worker)
 {
     worker->d->state = RunWorkerState::Running;
@@ -688,11 +673,9 @@ void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
         initiateStop();
         break;
     case RunControlState::Stopping:
-    case RunControlState::Finishing:
         continueStopOrFinish();
         break;
     case RunControlState::Stopped:
-    case RunControlState::Finished:
         QTC_CHECK(false); // Should not happen.
         continueStopOrFinish();
         break;
@@ -723,7 +706,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
         break;
     }
 
-    if (state == RunControlState::Finishing || state == RunControlState::Stopping) {
+    if (state == RunControlState::Stopping) {
         continueStopOrFinish();
         return;
     } else if (worker->isEssential()) {
@@ -1078,26 +1061,15 @@ bool RunControlPrivate::isAllowedTransition(RunControlState from, RunControlStat
 {
     switch (from) {
     case RunControlState::Initialized:
-        return to == RunControlState::Starting
-            || to == RunControlState::Finishing;
+        return to == RunControlState::Starting;
     case RunControlState::Starting:
-        return to == RunControlState::Running
-            || to == RunControlState::Stopping
-            || to == RunControlState::Finishing;
+        return to == RunControlState::Running || to == RunControlState::Stopping;
     case RunControlState::Running:
-        return to == RunControlState::Stopping
-            || to == RunControlState::Stopped
-            || to == RunControlState::Finishing;
+        return to == RunControlState::Stopping || to == RunControlState::Stopped;
     case RunControlState::Stopping:
-        return to == RunControlState::Stopped
-            || to == RunControlState::Finishing;
+        return to == RunControlState::Stopped;
     case RunControlState::Stopped:
-        return to == RunControlState::Starting
-            || to == RunControlState::Finishing;
-    case RunControlState::Finishing:
-        return to == RunControlState::Finished;
-    case RunControlState::Finished:
-        return false;
+        return to != RunControlState::Initialized;
     }
     return false;
 }
@@ -1125,13 +1097,13 @@ void RunControlPrivate::setState(RunControlState newState)
         emit q->started();
         break;
     case RunControlState::Stopped:
-        q->setApplicationProcessHandle(Utils::ProcessHandle());
+        if (autoDelete) {
+            debugMessage("All finished. Deleting myself");
+            q->deleteLater();
+        } else {
+            q->setApplicationProcessHandle(Utils::ProcessHandle());
+        }
         emit q->stopped();
-        break;
-    case RunControlState::Finished:
-        emit q->finished();
-        debugMessage("All finished. Deleting myself");
-        q->deleteLater();
         break;
     default:
         break;

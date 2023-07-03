@@ -406,8 +406,10 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     });
     if (tab != m_runControlTabs.end()) {
         // Reuse this tab
-        if (tab->runControl)
-            tab->runControl->initiateFinish();
+        if (tab->runControl) {
+            tab->runControl->setAutoDeleteOnStop(true);
+            tab->runControl->initiateStop();
+        }
         tab->runControl = rc;
         tab->window->reset();
         rc->setupFormatter(tab->window->outputFormatter());
@@ -642,8 +644,10 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     m_tabWidget->removeTab(tabIndex);
     delete window;
 
-    if (runControl)
-        runControl->initiateFinish(); // Will self-destruct.
+    if (runControl) {
+        runControl->setAutoDeleteOnStop(true);
+        runControl->initiateStop();
+    }
     Utils::erase(m_runControlTabs, [tab](const RunControlTab &t) {
         return t.runControl == tab->runControl; });
     updateCloseActions();

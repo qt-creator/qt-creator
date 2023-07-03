@@ -156,11 +156,12 @@ public:
     void copyDataFromRunConfiguration(RunConfiguration *runConfig);
     void copyDataFromRunControl(RunControl *runControl);
 
+    void setAutoDeleteOnStop(bool autoDelete);
+
     void initiateStart();
     void initiateReStart();
     void initiateStop();
     void forceStop();
-    void initiateFinish();
 
     bool promptToStop(bool *optionalPrompt = nullptr) const;
     void setPromptToStop(const std::function<bool(bool *)> &promptToStop);
@@ -237,7 +238,6 @@ signals:
     void aboutToStart();
     void started();
     void stopped();
-    void finished();
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 private:
