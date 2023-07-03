@@ -25,6 +25,7 @@
 #include <utils/terminalhooks.h>
 #include <utils/utilsicons.h>
 
+#include <QFileIconProvider>
 #include <QMenu>
 #include <QStandardPaths>
 #include <QToolButton>
@@ -134,7 +135,18 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
     terminalWidget->unlockGlobalAction(NEXTTERMINAL);
     terminalWidget->unlockGlobalAction(PREVTERMINAL);
 
-    m_tabWidget.setCurrentIndex(m_tabWidget.addTab(terminalWidget, Tr::tr("Terminal")));
+    QIcon icon;
+    if (HostOsInfo::isWindowsHost()) {
+        icon = parametersCopy.icon;
+        if (icon.isNull()) {
+            QFileIconProvider iconProvider;
+            const FilePath command = parametersCopy.shellCommand
+                    ? parametersCopy.shellCommand->executable()
+                    : TerminalSettings::instance().shell.filePath();
+            icon = iconProvider.icon(command.toFileInfo());
+        }
+    }
+    m_tabWidget.setCurrentIndex(m_tabWidget.addTab(terminalWidget, icon, Tr::tr("Terminal")));
     setupTerminalWidget(terminalWidget);
 
     if (!m_isVisible)
@@ -306,7 +318,7 @@ void TerminalPane::createShellMenu()
 
         const auto addItems = [this](const QList<Internal::ShellModelItem> &items) {
             for (const Internal::ShellModelItem &item : items) {
-                QAction *action = new QAction(item.icon, item.name, &m_shellMenu);
+                QAction *action = new QAction(item.openParameters.icon, item.name, &m_shellMenu);
 
                 connect(action, &QAction::triggered, action, [item, this]() {
                     openTerminal(item.openParameters);

@@ -8,6 +8,8 @@
 #include "filepath.h"
 #include "id.h"
 
+#include <QIcon>
+
 #include <functional>
 #include <memory>
 
@@ -58,6 +60,7 @@ struct OpenTerminalParameters
     std::optional<CommandLine> shellCommand;
     std::optional<FilePath> workingDirectory;
     std::optional<Environment> environment;
+    QIcon icon;
     ExitBehavior m_exitBehavior{ExitBehavior::Close};
     std::optional<Id> identifier{std::nullopt};
 };

@@ -17,7 +17,6 @@ struct ShellModelPrivate;
 struct ShellModelItem
 {
     QString name;
-    QIcon icon;
     Utils::Terminal::OpenTerminalParameters openParameters;
 };
 
