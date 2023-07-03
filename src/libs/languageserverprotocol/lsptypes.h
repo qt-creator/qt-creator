@@ -228,8 +228,6 @@ public:
     QString newText() const { return typedValue<QString>(newTextKey); }
     void setNewText(const QString &text) { insert(newTextKey, text); }
 
-    Utils::Text::Replacement toReplacement(QTextDocument *document) const;
-
     bool isValid() const override
     { return contains(rangeKey) && contains(newTextKey); }
 };

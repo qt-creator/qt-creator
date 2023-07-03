@@ -413,12 +413,4 @@ LanguageServerProtocol::MarkupKind::operator QJsonValue() const
     return {};
 }
 
-Utils::Text::Replacement TextEdit::toReplacement(QTextDocument *document) const
-{
-    const Range &range = this->range();
-    const int start = range.start().toPositionInDocument(document);
-    const int end = range.end().toPositionInDocument(document);
-    return Utils::Text::Replacement(start, end - start, newText());
-}
-
 } // namespace LanguageServerProtocol
