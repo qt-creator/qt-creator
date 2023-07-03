@@ -781,6 +781,10 @@
     the display text might do something wrong. You can step through the code and
     examine changes to the variable to find out where the error occurs.
 
+    The following video shows how to examine variable values:
+
+    \youtube EhJ1eV_6RH8
+
     \section1 Showing Tooltips for Simple Values
 
     To display the value of a simple variable, hover the mouse pointer over its

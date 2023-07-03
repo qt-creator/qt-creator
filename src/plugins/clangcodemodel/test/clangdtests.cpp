@@ -4,6 +4,7 @@
 #include "clangdtests.h"
 
 #include "../clangdclient.h"
+#include "../clangdfollowsymbol.h"
 #include "../clangmodelmanagersupport.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -428,6 +429,37 @@ void ClangdTestFollowSymbol::test()
     QCOMPARE(actualLink.targetColumn + 1, targetColumn);
 }
 
+// Make sure it is safe to call follow symbol in a follow symbol handler. Since follow symbol
+// potentially opens a file that gets loaded in chunks which handles user events inbetween
+// the chunks we can potentially call a follow symbol while currently handling another one.
+void ClangdTestFollowSymbol::testFollowSymbolInHandler()
+{
+    TextEditor::TextDocument *const doc = document("header.h");
+    QVERIFY(doc);
+    QTimer timer;
+    timer.setSingleShot(true);
+    QEventLoop loop;
+    QTextCursor cursor(doc->document());
+    const int pos = Text::positionInText(doc->document(), 48, 9);
+    cursor.setPosition(pos);
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+
+    bool deleted = false;
+
+    const auto handler = [&](const Link &) {
+        client()->followSymbol(doc, cursor, nullptr, [&](const Link &) { loop.quit(); }, true,
+                               FollowTo::SymbolDef, false);
+        QVERIFY(!deleted);
+    };
+
+    client()->followSymbol(doc, cursor, nullptr, handler, true, FollowTo::SymbolDef, false);
+    QVERIFY(client()->currentFollowSymbolOperation());
+    connect(client()->currentFollowSymbolOperation(), &QObject::destroyed, [&] { deleted = true; });
+    timer.start(10000);
+    loop.exec();
+    QVERIFY(timer.isActive());
+    timer.stop();
+}
 
 ClangdTestLocalReferences::ClangdTestLocalReferences()
 {

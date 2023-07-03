@@ -512,6 +512,13 @@ void AndroidDeployQtStep::runImpl(QPromise<bool> &promise)
         itr.value().removeFile();
 
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
+        const FilePath parentDir = itr.value().parentDir();
+        if (!parentDir.ensureWritableDir()) {
+            const QString error = QString("Package deploy: Unable to create directory %1.")
+                                      .arg(parentDir.nativePath());
+            reportWarningOrError(error, Task::Error);
+        }
+
         runCommand({m_adbPath,
                    AndroidDeviceInfo::adbSelector(m_serialNumber)
                    << "pull" << itr.key() << itr.value().nativePath()});
@@ -528,7 +535,7 @@ void AndroidDeployQtStep::runImpl(QPromise<bool> &promise)
 void AndroidDeployQtStep::gatherFilesToPull()
 {
     m_filesToPull.clear();
-    const FilePath buildDir = AndroidManager::buildDirectory(target());
+    const FilePath appProcessDir = AndroidManager::androidAppProcessDir(target());
 
     if (!m_deviceInfo.isValid())
         return;
@@ -538,16 +545,16 @@ void AndroidDeployQtStep::gatherFilesToPull()
     const QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target());
     if (preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
             || preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
-        m_filesToPull["/system/bin/app_process64"] = buildDir / "app_process";
+        m_filesToPull["/system/bin/app_process64"] = appProcessDir / "app_process";
         libDirName = "lib64";
         linkerName = "linker64";
     } else {
-        m_filesToPull["/system/bin/app_process32"] = buildDir / "app_process";
-        m_filesToPull["/system/bin/app_process"] = buildDir / "app_process";
+        m_filesToPull["/system/bin/app_process32"] = appProcessDir / "app_process";
+        m_filesToPull["/system/bin/app_process"] = appProcessDir / "app_process";
     }
 
-    m_filesToPull["/system/bin/" + linkerName] = buildDir / linkerName;
-    m_filesToPull["/system/" + libDirName + "/libc.so"] = buildDir / "libc.so";
+    m_filesToPull["/system/bin/" + linkerName] = appProcessDir / linkerName;
+    m_filesToPull["/system/" + libDirName + "/libc.so"] = appProcessDir / "libc.so";
 
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr)
         qCDebug(deployStepLog).noquote() << "Pulling file from device:" << itr.key()

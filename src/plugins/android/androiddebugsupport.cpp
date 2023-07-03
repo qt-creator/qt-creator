@@ -138,7 +138,7 @@ void AndroidDebugSupport::start()
         FilePath::removeDuplicates(solibSearchPath);
         setSolibSearchPath(solibSearchPath);
         qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
-        setSymbolFile(buildDir.pathAppended("app_process"));
+        setSymbolFile(AndroidManager::androidAppProcessDir(target).pathAppended("app_process"));
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
         QString devicePreferredAbi = AndroidManager::apkDevicePreferredAbi(target);

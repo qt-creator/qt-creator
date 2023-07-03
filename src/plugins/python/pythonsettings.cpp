@@ -350,6 +350,18 @@ public:
         return {};
     }
 
+    QStringList keywords() const final
+    {
+        return {
+            Tr::tr("Name:"),
+            Tr::tr("Executable"),
+            Tr::tr("&Add"),
+            Tr::tr("&Delete"),
+            Tr::tr("&Clean Up"),
+            Tr::tr("&Make Default")
+        };
+    }
+
 private:
     InterpreterOptionsWidget *m_widget = nullptr;
 };

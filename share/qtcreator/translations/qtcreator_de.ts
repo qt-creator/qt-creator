@@ -28,7 +28,27 @@
         <translation type="unfinished">Umschaltbar</translation>
     </message>
     <message>
-        <source>Whether the button is checkable.</source>
+        <source>Toggles if the button is checkable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the button is checked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the button is exclusive. Non-exclusive checkable buttons that belong to the same parent behave as if they are part of the same button group; only one button can be checked at any time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if pressed, released, and clicked actions are repeated while the button is pressed and held down.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the initial delay of auto-repetition in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the interval between auto-repetitions in milliseconds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -36,15 +56,7 @@
         <translation type="unfinished">Eingeschaltet</translation>
     </message>
     <message>
-        <source>Whether the button is checked.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Exclusive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether the button is exclusive.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -52,23 +64,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Whether the button repeats pressed(), released() and clicked() signals while the button is pressed and held down.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Repeat delay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initial delay of auto-repetition in milliseconds.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Repeat interval</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Interval of auto-repetition in milliseconds.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -159,20 +159,28 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Position of the component&apos;s baseline in local coordinates.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enabled</source>
         <translation>Aktiviert</translation>
+    </message>
+    <message>
+        <source>Toggles if the component is enabled to receive mouse and keyboard input.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Smooth</source>
         <translation>Glatt</translation>
     </message>
     <message>
+        <source>Uses smooth filtering when the image is scaled or transformed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Antialiasing</source>
         <translation>Kantenglättung</translation>
+    </message>
+    <message>
+        <source>Refines the edges of the image.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Focus</source>
@@ -181,6 +189,10 @@
     <message>
         <source>Baseline offset</source>
         <translation>Abstand der Basislinie</translation>
+    </message>
+    <message>
+        <source>Sets the position of the component&apos;s baseline in local coordinates.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -310,6 +322,47 @@
     </message>
 </context>
 <context>
+    <name>AmbientSoundSection</name>
+    <message>
+        <source>Ambient Sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The source file for the sound to be played.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the overall volume for this sound source.
+Values between 0 and 1 will attenuate the sound, while values above 1 provide an additional gain boost.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how often the sound is played before the player stops.
+Bind to AmbientSound.Infinite to loop the current sound forever.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets whether the sound should automatically start playing when a source gets specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AnchorButtons</name>
     <message>
         <source>Anchors can only be applied to child items.</source>
@@ -398,11 +451,15 @@
         <translation>Geschwindigkeit</translation>
     </message>
     <message>
+        <source>Sets the speed of the animation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Playing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Whether the animation is playing or paused.</source>
+        <source>Toggles if the animation is playing.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -585,6 +642,137 @@
     </message>
 </context>
 <context>
+    <name>AudioEngineSection</name>
+    <message>
+        <source>Audio Engine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Master Volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets or returns overall volume being used to render the sound field.
+Values between 0 and 1 will attenuate the sound, while values above 1 provide an additional gain boost.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the current output mode of the engine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the device that is being used for outputting the sound field.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioRoomSection</name>
+    <message>
+        <source>Audio Room</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dimensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the dimensions of the room in 3D space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reflection Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the gain factor for reflections generated in this room.
+A value from 0 to 1 will dampen reflections, while a value larger than 1 will apply a gain to reflections, making them louder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reverb Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the gain factor for reverb generated in this room.
+A value from 0 to 1 will dampen reverb, while a value larger than 1 will apply a gain to the reverb, making it louder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reverb Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the factor to be applies to all reverb timings generated for this room.
+Larger values will lead to longer reverb timings, making the room sound larger.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reverb Brightness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the brightness factor to be applied to the generated reverb.
+A positive value will increase reverb for higher frequencies and dampen lower frequencies, a negative value does the reverse.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the material to use for the left (negative x) side of the room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the material to use for the right (positive x) side of the room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Floor Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the material to use for the floor (negative y) side of the room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ceiling Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the material to use for the ceiling (positive y) side of the room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Back Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the material to use for the back (negative z) side of the room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Front Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the material to use for the front (positive z) side of the room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioSection</name>
     <message>
         <source>Audio</source>
@@ -600,9 +788,257 @@
     </message>
 </context>
 <context>
+    <name>Axivion</name>
+    <message>
+        <source>Project:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lines of code:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis timestamp:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation type="unfinished">unbekannt</translation>
+    </message>
+    <message>
+        <source>Total:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show dashboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Axivion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show rule details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Certificate Error</source>
+        <translation type="unfinished">Zertifikatsfehler</translation>
+    </message>
+    <message>
+        <source>Server certificate for %1 cannot be authenticated.
+Do you want to disable SSL verification for this server?
+Note: This can expose you to man-in-the-middle attack.</source>
+        <translation type="unfinished">Server-Zertifikat für %1 kann nicht authentifiziert werden.
+Möchten Sie die SSL-Verifikation für diesen Server abschalten?
+Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
+    </message>
+    <message>
+        <source>Dashboard projects:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fetch Projects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Link Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlink Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This project is not linked to a dashboard project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This project is linked to &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incomplete or misconfigured settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>curl:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dashboard URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation type="unfinished">Beschreibung:</translation>
+    </message>
+    <message>
+        <source>Non-empty description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access token:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IDE Access Token</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation type="unfinished">Bearbeiten...</translation>
+    </message>
+    <message>
+        <source>Edit Dashboard Configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">Allgemein</translation>
+    </message>
+</context>
+<context>
     <name>BackgroundColorMenuActions</name>
     <message>
         <source>Background Color Actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BakeLights</name>
+    <message>
+        <source>Bake Lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bake lights for the current 3D scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BakeLightsProgressDialog</name>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">Schließen</translation>
+    </message>
+    <message>
+        <source>Baking lights for 3D view: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bake Again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Abbrechen</translation>
+    </message>
+</context>
+<context>
+    <name>BakeLightsSetupDialog</name>
+    <message>
+        <source>Lights baking setup for 3D view: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expose models and lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Baking Disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bake Indirect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bake All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The baking mode applied to this light.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In Use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If checked, this model contributes to baked lighting,
+for example in form of casting shadows or indirect light.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>If checked, baked lightmap texture is generated and rendered for this model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolution:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Generated lightmap resolution for this model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Setup baking manually</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If checked, baking settings above are not applied on close or bake.
+Instead, user is expected to set baking properties manually.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Abbrechen</translation>
+    </message>
+    <message>
+        <source>Apply &amp; Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bake</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BakedLightmapSection</name>
+    <message>
+        <source>Baked Lightmap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>When false, the lightmap generated for the model is not stored during lightmap baking,
+even if the key is set to a non-empty value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the filename base for baked lightmap files for the model.
+No other Model in the scene can use the same key.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load Prefix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the folder where baked lightmap files are generated.
+It should be a relative path.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -617,10 +1053,22 @@
         <translation>Border Image</translation>
     </message>
     <message>
+        <source>Sets the source image for the border.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the dimension of the border image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>W</source>
         <comment>width</comment>
         <extracomment>The width of the object</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation type="unfinished">Breite</translation>
     </message>
     <message>
         <source>H</source>
@@ -629,7 +1077,15 @@
         <translation type="unfinished">H</translation>
     </message>
     <message>
+        <source>Height</source>
+        <translation type="unfinished">Höhe</translation>
+    </message>
+    <message>
         <source>Tile mode H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the horizontal tiling mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -637,7 +1093,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the vertical tiling mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Border left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the left border.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -645,7 +1109,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the right border.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Border top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the top border.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -653,36 +1125,40 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the bottom border.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Mirror</source>
         <translation>Spiegeln</translation>
     </message>
     <message>
-        <source>Specifies whether the image should be horizontally inverted.</source>
-        <translation>Legt fest, ob das Bild horizontal gespiegelt werden soll.</translation>
+        <source>Toggles if the image should be inverted horizontally.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the image should be filtered smoothly when transformed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the image is saved to the cache memory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the image is loaded after all the components in the design.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Smooth</source>
         <translation>Glatt</translation>
     </message>
     <message>
-        <source>Specifies whether the image is smoothly filtered when scaled or transformed.</source>
-        <translation>Legt fest, ob das Bild beim Skalieren oder Umwandeln geglättet wird.</translation>
-    </message>
-    <message>
         <source>Cache</source>
         <translation>Cache</translation>
     </message>
     <message>
-        <source>Specifies whether the image should be cached.</source>
-        <translation>Legt fest, ob das Bild zwischengespeichert werden soll.</translation>
-    </message>
-    <message>
         <source>Asynchronous</source>
         <translation>Asynchron</translation>
-    </message>
-    <message>
-        <source>Specifies that images on the local filesystem should be loaded asynchronously in a separate thread.</source>
-        <translation>Legt fest, dass Bilder aus dem lokalen Dateisystem asynchron in einem eigenen Thread geladen werden.</translation>
     </message>
     <message>
         <source>Source size</source>
@@ -700,7 +1176,7 @@
         <translation type="unfinished">Läuft</translation>
     </message>
     <message>
-        <source>Whether the busy indicator is currently indicating activity.</source>
+        <source>Toggles if the busy indicator indicates activity.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -719,7 +1195,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Whether the button is flat and/or highlighted.</source>
+        <source>Toggles if the button is flat or highlighted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -831,15 +1307,39 @@
         <translation type="unfinished">Text</translation>
     </message>
     <message>
+        <source>Sets the text to display.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Font</source>
         <translation type="unfinished">Zeichensatz</translation>
+    </message>
+    <message>
+        <source>Sets the font of the text.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Style name</source>
         <translation type="unfinished">Stilname</translation>
     </message>
     <message>
-        <source>Font&apos;s style.</source>
+        <source>Sets the style of the selected font. This is prioritized over &lt;b&gt;Weight&lt;/b&gt; and &lt;b&gt;Emphasis&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the overall thickness of the font.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the letter spacing for the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the word spacing for the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the line height for the text.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -847,7 +1347,15 @@
         <translation type="unfinished">Größe</translation>
     </message>
     <message>
+        <source>Sets the font size in pixels or points.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Text color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the text color.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -855,11 +1363,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Font&apos;s weight.</source>
+        <source>Emphasis</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Emphasis</source>
+        <source>Sets the text to bold, italic, underlined, or strikethrough.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -867,7 +1375,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the horizontal alignment position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Alignment V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the vertical alignment position.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -875,24 +1391,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Letter spacing for the font.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Word spacing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Word spacing for the font.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Line height</source>
         <translation type="unfinished">Zeilenhöhe</translation>
-    </message>
-    <message>
-        <source>Line height for the text.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -937,15 +1441,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The current check state.</source>
+        <source>Sets the state of the check box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the check box can have an intermediate state.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Tri-state</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether the checkbox has three states.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1122,6 +1626,10 @@
         <source>Spacing</source>
         <translation>Abstand</translation>
     </message>
+    <message>
+        <source>Sets the spacing between column items.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComboBoxSpecifics</name>
@@ -1134,7 +1642,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The model role used for displaying text.</source>
+        <source>Sets the model role for populating the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the initial display text for the combo box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the current item.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the combo box button is flat.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the combo box is editable.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1142,31 +1666,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Holds the text that is displayed on the combo box button.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Current index</source>
         <translation type="unfinished">Aktueller Index</translation>
-    </message>
-    <message>
-        <source>The index of the current item.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Flat</source>
         <translation type="unfinished">Flach</translation>
     </message>
     <message>
-        <source>Whether the combo box button is flat.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Editable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether the combo box is editable.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1192,7 +1700,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit Base Component</source>
+        <source>Edit Component</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1227,8 +1735,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <source>Annotation</source>
+        <translation type="unfinished">Annotation</translation>
     </message>
     <message>
         <source>Adds a note with a title to explain the component.</source>
@@ -1347,7 +1855,7 @@
         <translation type="unfinished">Aktueller Index</translation>
     </message>
     <message>
-        <source>The index of the current item.</source>
+        <source>Sets the index of the current item.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1376,6 +1884,10 @@
         <source>Add an instance to project</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Click to download material</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ContentLibraryMaterialContextMenu</name>
@@ -1399,7 +1911,7 @@
 <context>
     <name>ContentLibraryMaterialsView</name>
     <message>
-        <source>&lt;b&gt;Content Library&lt;/b&gt; materials are not installed.</source>
+        <source>No materials available. Make sure you have internet connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1416,6 +1928,48 @@
     </message>
     <message>
         <source>No match found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ContentLibraryTabButton</name>
+    <message>
+        <source>Materials</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ContentLibraryTexture</name>
+    <message>
+        <source>Texture was already downloaded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Network/Texture unavailable or broken Link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not download texture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to download the texture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Progress:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%</source>
+        <translation type="unfinished">%</translation>
+    </message>
+    <message>
+        <source>Downloading...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extracting...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1437,11 +1991,46 @@
 <context>
     <name>ContentLibraryTexturesView</name>
     <message>
-        <source>&lt;b&gt;Content Library&lt;/b&gt; textures are not installed.</source>
+        <source>No textures available. Make sure you have internet connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No match found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ContextMenu</name>
+    <message>
+        <source>Undo</source>
+        <translation type="unfinished">Rückgängig</translation>
+    </message>
+    <message>
+        <source>Redo</source>
+        <translation type="unfinished">Wiederholen</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopieren</translation>
+    </message>
+    <message>
+        <source>Cut</source>
+        <translation type="unfinished">Ausschneiden</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation type="unfinished">Einfügen</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="unfinished">Löschen</translation>
+    </message>
+    <message>
+        <source>Select All</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1456,7 +2045,19 @@
         <translation type="unfinished">Aktivieren</translation>
     </message>
     <message>
-        <source>Whether the control is enabled and hover events are received.</source>
+        <source>Toggles if the component can receive hover events.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets focus method.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the spacing between internal elements of the component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the component supports mouse wheel events.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1468,23 +2069,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Focus policy of the control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Spacing</source>
         <translation type="unfinished">Abstand</translation>
     </message>
     <message>
-        <source>Spacing between internal elements of the control.</source>
-        <translation type="unfinished">Der Abstand zwischen inneren Elementen des Controls.</translation>
-    </message>
-    <message>
         <source>Wheel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether control accepts wheel events.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1499,7 +2088,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The delay in milliseconds.</source>
+        <source>Sets the delay before the button activates.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Milliseconds.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1580,7 +2173,32 @@
         <translation type="unfinished">Wert</translation>
     </message>
     <message>
-        <source>The current value of the dial and whether it provides live value updates.</source>
+        <source>Sets the value of the dial.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the minimum value of the dial.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the maximum value of the dial.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the number by which the dial value changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how the dial&apos;s handle snaps to the steps
+defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how the user can interact with the dial.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the dial wraps around when it reaches the start or end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1592,47 +2210,23 @@
         <translation type="unfinished">Von</translation>
     </message>
     <message>
-        <source>The starting value of the dial range.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>To</source>
         <translation type="unfinished">Bis</translation>
-    </message>
-    <message>
-        <source>The ending value of the dial range.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Step size</source>
         <translation type="unfinished">Schrittweite</translation>
     </message>
     <message>
-        <source>The step size of the dial.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Snap mode</source>
         <translation type="unfinished">Einrasten</translation>
-    </message>
-    <message>
-        <source>The snap mode of the dial.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Input mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How the dial tracks movement.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Wrap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether the dial wraps when dragged.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1645,6 +2239,21 @@
     <message>
         <source>Title</source>
         <translation>Titel</translation>
+    </message>
+</context>
+<context>
+    <name>DownloadPane</name>
+    <message>
+        <source>Downloading...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Progress:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%</source>
+        <translation type="unfinished">%</translation>
     </message>
 </context>
 <context>
@@ -1668,17 +2277,6 @@
     <message>
         <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
         <translation>Bestimmt die Entfernung vom Rand des Bildschirms, innerhalb derer &quot;Drag&quot;-Aktionen den Drawer öffnen.</translation>
-    </message>
-</context>
-<context>
-    <name>DynamicPropertiesProxyModel</name>
-    <message>
-        <source>Property Already Exists</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Property &quot;%1&quot; already exists.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1746,13 +2344,6 @@
     </message>
 </context>
 <context>
-    <name>EnterTabDesignerAction</name>
-    <message>
-        <source>Step into: %1</source>
-        <translation>Einzelschritt hinein in: %1</translation>
-    </message>
-</context>
-<context>
     <name>ErrorDialog</name>
     <message>
         <source>Close</source>
@@ -1776,13 +2367,6 @@
     <message>
         <source>Insert Keyframe</source>
         <translation>Keyframe einfügen</translation>
-    </message>
-</context>
-<context>
-    <name>FileExtractor</name>
-    <message>
-        <source>Choose Directory</source>
-        <translation type="unfinished">Verzeichnis wählen</translation>
     </message>
 </context>
 <context>
@@ -1810,6 +2394,10 @@
         <translation type="unfinished">Größe des Inhalts</translation>
     </message>
     <message>
+        <source>Sets the size of the content (the surface controlled by the flickable).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>W</source>
         <comment>width</comment>
         <extracomment>The width of the object</extracomment>
@@ -1834,11 +2422,31 @@
         <translation type="unfinished">Inhalt</translation>
     </message>
     <message>
+        <source>Sets the current position of the component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizontal position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vertical position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Origin</source>
         <translation type="unfinished">Ursprung</translation>
     </message>
     <message>
+        <source>Sets the origin point of the content.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Left margin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets an additional left margin in the flickable area.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1846,11 +2454,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets an additional right margin in the flickable area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Top margin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets an additional top margin in the flickable area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Bottom margin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets an additional bottom margin in the flickable area.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1861,76 +2481,76 @@
         <translation>Flickable</translation>
     </message>
     <message>
-        <source>Allows users to drag or flick a flickable component.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether the surface may be dragged beyond the Flickable&apos;s boundaries, or overshoot the Flickable&apos;s boundaries when flicked.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether the Flickable will give a feeling that the edges of the view are soft, rather than a hard physical boundary.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Press delay</source>
         <translation>Druckverzögerung</translation>
-    </message>
-    <message>
-        <source>Time to delay delivering a press to children of the Flickable in milliseconds.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pixel aligned</source>
         <translation>An Pixeln ausgerichtet</translation>
     </message>
     <message>
-        <source>Sets the alignment of contentX and contentY to pixels (true) or subpixels (false).</source>
-        <translation>Richtet contentX und contentY an Pixeln (wahr) oder Subpixeln (falsch) aus.</translation>
-    </message>
-    <message>
         <source>Synchronous drag</source>
         <translation>Synchrones Ziehen</translation>
-    </message>
-    <message>
-        <source>If set to true, then when the mouse or touchpoint moves far enough to begin dragging
-the content, the content will jump, such that the content pixel which was under the
-cursor or touchpoint when pressed remains under that point.</source>
-        <translation>Wenn dies wahr ist und die Maus oder der Berührungspunkt sich weit genug bewegt, um
-ein Ziehen des Inhalts zu beginnen, wird der Inhalt springen. Dadurch bleibt das Inhaltspixel,
-das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt.</translation>
     </message>
     <message>
         <source>Flick direction</source>
         <translation>Richtung der Flickable-Interaktion</translation>
     </message>
     <message>
+        <source>Sets which directions the view can be flicked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Behavior</source>
         <translation>Verhalten</translation>
+    </message>
+    <message>
+        <source>Sets how the flickable behaves when it is dragged beyond its boundaries.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Movement</source>
         <translation>Bewegung</translation>
     </message>
     <message>
+        <source>Sets how fast an item can be flicked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the rate by which a flick should slow down.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the time to delay delivering a press to children of the flickable in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the component is being moved by complete pixel length.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the content should move instantly or not when the mouse or touchpoint is dragged to a new position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Interactive</source>
         <translation>Interaktiv</translation>
+    </message>
+    <message>
+        <source>Toggles if the flickable supports drag and flick actions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the edges of the flickable should be soft or hard.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Max. velocity</source>
         <translation>Maximale Geschwindigkeit</translation>
     </message>
     <message>
-        <source>Maximum flick velocity</source>
-        <translation>Maximale Geschwindigkeit der Flick-Interaktion</translation>
-    </message>
-    <message>
         <source>Deceleration</source>
         <translation>Verzögerung</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Verzögerung der Flick-Interaktion</translation>
     </message>
 </context>
 <context>
@@ -1951,7 +2571,19 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <translation>Abstand</translation>
     </message>
     <message>
+        <source>Sets the spacing between flow items.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the direction of flow items.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Layout direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets in which direction items in the flow are placed.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1966,7 +2598,7 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Capitalization for the text.</source>
+        <source>Sets capitalization rules for the text.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1974,7 +2606,15 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <translation type="unfinished">Stil</translation>
     </message>
     <message>
+        <source>Sets the font style.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Style color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color for the font style.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1982,7 +2622,15 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Preferred hinting on the text.</source>
+        <source>Sets how to interpolate the text to render it more clearly when scaled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolves the gap between texts if turned true.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles the font-specific special features.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1990,22 +2638,8 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enables or disables the kerning OpenType feature when shaping the text. Disabling this may improve performance when creating or changing the text, at the expense of some cosmetic features.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Prefer shaping</source>
         <translation type="unfinished">Shaping bevorzugen</translation>
-    </message>
-    <message>
-        <source>Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.
-In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in Latin script,
- it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features
-when they are not required, which will improve performance in most cases.</source>
-        <translation type="unfinished">Manchmal wendet ein Font komplexe Regeln auf Zeichen an, um sie korrekt anzuzeigen.
-In manchen Schriftsystemem, beispielsweise Brahmi, wäre Text sonst nicht lesbar, während es in Latin-Schriften nur der
-Verschönerung dient. Die preferShaping-Eigenschaft auf &quot;false&quot; zu setzen deaktiviert diese Funktionalität, wenn sie nicht
-benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
 </context>
 <context>
@@ -2015,11 +2649,23 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation>Zeichensatz</translation>
     </message>
     <message>
+        <source>Sets the font of the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Size</source>
         <translation>Größe</translation>
     </message>
     <message>
+        <source>Sets the font size in pixels or points.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Emphasis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the text to bold, italic, underlined, or strikethrough.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2027,7 +2673,35 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Capitalization for the text.</source>
+        <source>Sets capitalization rules for the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the overall thickness of the font.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the font style.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how to interpolate the text to render it more clearly when scaled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the letter spacing for the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the word spacing for the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolves the gap between texts if turned true.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles the disables font-specific special features.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2035,15 +2709,11 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Font&apos;s weight.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Font&apos;s style.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Style color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color for the font style.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2051,15 +2721,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Preferred hinting on the text.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Letter spacing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Letter spacing for the font.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2067,15 +2729,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Word spacing for the font.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Auto kerning</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enables or disables the kerning OpenType feature when shaping the text. Disabling this may improve performance when creating or changing the text, at the expense of some cosmetic features.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2083,18 +2737,12 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation>Stilname</translation>
     </message>
     <message>
-        <source>Style</source>
-        <translation>Stil</translation>
+        <source>Sets the style of the selected font. This is prioritized over &lt;b&gt;Weight&lt;/b&gt; and &lt;b&gt;Emphasis&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.
-In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in Latin script,
- it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features
-when they are not required, which will improve performance in most cases.</source>
-        <translation>Manchmal wendet ein Font komplexe Regeln auf Zeichen an, um sie korrekt anzuzeigen.
-In manchen Schriftsystemem, beispielsweise Brahmi, wäre Text sonst nicht lesbar, während es in Latin-Schriften nur der
-Verschönerung dient. Die preferShaping-Eigenschaft auf &quot;false&quot; zu setzen deaktiviert diese Funktionalität, wenn sie nicht
-benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
+        <source>Style</source>
+        <translation>Stil</translation>
     </message>
     <message>
         <source>Prefer shaping</source>
@@ -2276,12 +2924,28 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation>Spalten</translation>
     </message>
     <message>
+        <source>Sets the number of columns in the grid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Rows</source>
         <translation>Zeilen</translation>
     </message>
     <message>
+        <source>Sets the number of rows in the grid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the space between grid items. The same space is applied for both rows and columns.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Flow</source>
         <translation>Anordnung</translation>
+    </message>
+    <message>
+        <source>Sets in which direction items in the grid are placed.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Layout direction</source>
@@ -2292,7 +2956,15 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the horizontal alignment of items in the grid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Alignment V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the vertical alignment of items in the grid.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2311,10 +2983,18 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the dimensions of cells in the grid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>W</source>
         <comment>width</comment>
         <extracomment>The width of the object</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation type="unfinished">Breite</translation>
     </message>
     <message>
         <source>H</source>
@@ -2323,7 +3003,23 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished">H</translation>
     </message>
     <message>
+        <source>Height</source>
+        <translation type="unfinished">Höhe</translation>
+    </message>
+    <message>
+        <source>Sets the directions of the cells.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Layout direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets in which direction items in the grid view are placed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how the view scrolling will settle following a drag or flick.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2331,12 +3027,36 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation>Cache</translation>
     </message>
     <message>
-        <source>Cache buffer</source>
-        <translation>Cache-Puffer</translation>
+        <source>Sets the highlight range mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the animation duration of the highlight delegate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the preferred highlight beginning. It must be smaller than
+the &lt;b&gt;Preferred end&lt;/b&gt;. Note that the user has to add a
+highlight component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the preferred highlight end. It must be larger than
+the &lt;b&gt;Preferred begin&lt;/b&gt;. Note that the user has to add
+a highlight component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the view manages the highlight.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Flow</source>
         <translation>Anordnung</translation>
+    </message>
+    <message>
+        <source>Sets in pixels how far the components are kept loaded outside the view&apos;s visible area.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Navigation wraps</source>
@@ -2345,10 +3065,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     <message>
         <source>Snap mode</source>
         <translation>Einrasten</translation>
-    </message>
-    <message>
-        <source>Determines how the view scrolling will settle following a drag or flick.</source>
-        <translation>Bestimmt, wie die Anzeige nach einer Drag- oder -Flick-Operation zum Stehen kommt.</translation>
     </message>
     <message>
         <source>Whether the grid wraps key navigation.</source>
@@ -2363,36 +3079,16 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation>Bereich</translation>
     </message>
     <message>
-        <source>Highlight range</source>
-        <translation>Bereich hervorheben</translation>
-    </message>
-    <message>
         <source>Move duration</source>
         <translation>Dauer der Bewegung</translation>
-    </message>
-    <message>
-        <source>Move animation duration of the highlight delegate.</source>
-        <translation>Dauer der Bewegungsanimation des hervorgehobenen Delegates.</translation>
-    </message>
-    <message>
-        <source>Whether the highlight is managed by the view.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Preferred begin</source>
         <translation>Anfang</translation>
     </message>
     <message>
-        <source>Preferred highlight begin - must be smaller than Preferred end.</source>
-        <translation>Beginn der Hervorhebung - muss kleiner sein als der Endwert.</translation>
-    </message>
-    <message>
         <source>Preferred end</source>
         <translation>Ende</translation>
-    </message>
-    <message>
-        <source>Preferred highlight end - must be larger than Preferred begin.</source>
-        <translation>Ende der Hervorhebung - muss größer sein als der Anfangswert.</translation>
     </message>
     <message>
         <source>Follows current</source>
@@ -2410,7 +3106,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished">Titel</translation>
     </message>
     <message>
-        <source>The title of the group box.</source>
+        <source>Sets the title for the group box.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2425,12 +3121,24 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets a background image for the icon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Color</source>
         <translation type="unfinished">Farbe</translation>
     </message>
     <message>
+        <source>Sets the color for the icon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Size</source>
         <translation type="unfinished">Größe</translation>
+    </message>
+    <message>
+        <source>Sets the height and width of the icon.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>W</source>
@@ -2457,7 +3165,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished">Cache</translation>
     </message>
     <message>
-        <source>Whether the icon should be cached.</source>
+        <source>Toggles if the icon is saved to the cache memory.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2472,17 +3180,33 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Adds an image from the local file system.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Fill mode</source>
         <translation type="unfinished">Füllmodus</translation>
+    </message>
+    <message>
+        <source>Sets how the image fits in the content box.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Source size</source>
         <translation type="unfinished">Größe der Bildquelle</translation>
     </message>
     <message>
+        <source>Sets the width and height of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>W</source>
         <comment>width</comment>
         <extracomment>The width of the object</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2492,11 +3216,23 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished">H</translation>
     </message>
     <message>
+        <source>Height.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Alignment H</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the horizontal alignment of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Alignment V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the vertical alignment of the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2544,7 +3280,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished">Glatt</translation>
     </message>
     <message>
-        <source>Smoothly filters the image when it is scaled or transformed.</source>
+        <source>Uses smooth filtering when the image is scaled or transformed.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2559,6 +3295,10 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation type="unfinished">Vertikal</translation>
     </message>
     <message>
+        <source>Sets the space from the top and bottom of the area to the background top and bottom.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Top inset for the background.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2569,6 +3309,10 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     <message>
         <source>Horizontal</source>
         <translation type="unfinished">Horizontal</translation>
+    </message>
+    <message>
+        <source>Sets the space from the left and right of the area to the background left and right.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Left inset for the background.</source>
@@ -2582,7 +3326,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
 <context>
     <name>InsightSection</name>
     <message>
-        <source>Analytics</source>
+        <source>Insight</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2591,6 +3335,14 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
     <message>
         <source>Category</source>
+        <translation type="unfinished">Kategorie</translation>
+    </message>
+    <message>
+        <source>Object name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the object name of the component.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2624,7 +3376,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Whether the delegate is highlighted.</source>
+        <source>Toggles if the delegate is highlighted.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2652,6 +3404,10 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Opacity</source>
         <translation>Deckkraft</translation>
+    </message>
+    <message>
+        <source>Sets the transparency of the component.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Layout</source>
@@ -2689,8 +3445,8 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Go into Component</source>
-        <translation type="unfinished">In Komponente gehen</translation>
+        <source>Edit Component</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add a module.</source>
@@ -2718,19 +3474,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Aktiviert</translation>
     </message>
     <message>
-        <source>Whether the component is layered or not.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Sampler name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of the effect&apos;s source texture property.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Allows requesting multisampled rendering in the layer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2738,23 +3482,35 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Applies the effect to this layer.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Format</translation>
-    </message>
-    <message>
-        <source>Internal OpenGL format of the texture.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Texture size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Requested pixel size of the layer&apos;s texture.</source>
+        <source>Toggles if the component is layered.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the name of the effect&apos;s source texture property.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the number of multisample renderings in the layer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets which effect is applied.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the internal OpenGL format for the texture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the requested pixel size of the layer&apos;s texture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2764,10 +3520,18 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Width.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>H</source>
         <comment>height</comment>
         <extracomment>The height of the object</extracomment>
         <translation type="unfinished">H</translation>
+    </message>
+    <message>
+        <source>Height.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Texture mirroring</source>
@@ -2778,7 +3542,20 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>OpenGL wrap modes associated with the texture.</source>
+        <source>Sets the OpenGL wrap modes associated with the texture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if mipmaps are generated for the texture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the layer transforms smoothly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the rectangular area of the component that should
+be rendered into the texture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2786,15 +3563,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>MIP Map</translation>
     </message>
     <message>
-        <source>Transforms the layer smoothly.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Source rectangle</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets the rectangular area of the component that should be rendered into the texture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2803,10 +3572,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Generates mipmaps for the texture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2915,10 +3680,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>List View</translation>
     </message>
     <message>
-        <source>Spacing between components.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cache</source>
         <translation>Cache</translation>
     </message>
@@ -2931,10 +3692,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Ausrichtung</translation>
     </message>
     <message>
-        <source>Orientation of the list.</source>
-        <translation>Ausrichtung der Liste.</translation>
-    </message>
-    <message>
         <source>Layout direction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2943,12 +3700,32 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Einrasten</translation>
     </message>
     <message>
-        <source>Determines how the view scrolling will settle following a drag or flick.</source>
-        <translation>Bestimmt, wie die Anzeige nach einer Drag- oder -Flick-Operation zum Stehen kommt.</translation>
+        <source>Sets the orientation of the list.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the direction that the cells flow inside a list.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how the view scrolling settles following a drag or flick.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Spacing</source>
         <translation>Abstand</translation>
+    </message>
+    <message>
+        <source>Sets the spacing between components.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets in pixels how far the components are kept loaded outside the view&apos;s visible area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the grid wraps key navigation.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>List View Highlight</source>
@@ -2959,23 +3736,47 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Bereich</translation>
     </message>
     <message>
+        <source>Sets the highlight range mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Move duration</source>
         <translation>Dauer der Bewegung</translation>
     </message>
     <message>
-        <source>Move animation duration of the highlight delegate.</source>
-        <translation>Dauer der Bewegungsanimation des hervorgehobenen Delegates.</translation>
-    </message>
-    <message>
-        <source>Cache buffer.</source>
+        <source>Sets the animation duration of the highlight delegate when
+it is moved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Whether the grid wraps key navigation.</source>
+        <source>Sets the animation velocity of the highlight delegate when
+it is moved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Highlight range.</source>
+        <source>Sets the animation duration of the highlight delegate when
+it is resized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the animation velocity of the highlight delegate when
+it is resized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the preferred highlight beginning. It must be smaller than
+the &lt;b&gt;Preferred end&lt;/b&gt;. Note that the user has to add
+a highlight component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the preferred highlight end. It must be larger than
+the &lt;b&gt;Preferred begin&lt;/b&gt;. Note that the user has to add
+a highlight component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the view manages the highlight.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2983,23 +3784,11 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move animation velocity of the highlight delegate.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Resize duration</source>
         <translation>Dauer der Größenänderung</translation>
     </message>
     <message>
-        <source>Resize animation duration of the highlight delegate.</source>
-        <translation>Dauer der Größenänderungsanimation des hervorgehobenen Delegates.</translation>
-    </message>
-    <message>
         <source>Resize velocity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resize animation velocity of the highlight delegate.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3007,24 +3796,12 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Anfang</translation>
     </message>
     <message>
-        <source>Preferred highlight begin - must be smaller than Preferred end.</source>
-        <translation>Beginn der Hervorhebung - muss kleiner sein als der Endwert.</translation>
-    </message>
-    <message>
         <source>Preferred end</source>
         <translation>Ende</translation>
     </message>
     <message>
-        <source>Preferred highlight end - must be larger than Preferred begin.</source>
-        <translation>Ende der Hervorhebung - muss größer sein als der Anfangswert.</translation>
-    </message>
-    <message>
         <source>Follows current</source>
         <translation>Aktuellem Element folgen</translation>
-    </message>
-    <message>
-        <source>Whether the highlight is managed by the view.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3100,6 +3877,138 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <source>Show property changes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Can&apos;t rename category, name already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tracking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>With tracking turned on, the application tracks user interactions for all component types in the selected predefined categories.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation type="unfinished">Deaktiviert</translation>
+    </message>
+    <message>
+        <source>Token</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tokens are used to match the data your application sends to your Qt Insight Organization.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add token here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send Cadence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>minutes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Predefined Categories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select the categories to track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom Categories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage your own categories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new Category</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set runtime configuration for the project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kit</source>
+        <translation type="unfinished">Kit</translation>
+    </message>
+    <message>
+        <source>Choose a predefined kit for the runtime configuration of the project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation type="unfinished">Stil</translation>
+    </message>
+    <message>
+        <source>Choose a style for the Qt Quick Controls of the project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to Design Mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to Welcome Mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Return to Design</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Run Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Live Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go Back</source>
+        <translation type="unfinished">Vorheriges</translation>
+    </message>
+    <message>
+        <source>Go Forward</source>
+        <translation type="unfinished">Nächstes</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">Schließen</translation>
+    </message>
+    <message>
+        <source> Workspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Annotations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Share</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>More Items</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -3150,7 +4059,11 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
 <context>
     <name>MaterialBrowser</name>
     <message>
-        <source>Add a material.</source>
+        <source>Add a Material.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add a Texture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3179,10 +4092,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>There are no textures in this project.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add a texture.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3398,20 +4307,40 @@ Error:
         <translation>Akzeptierte Tasten</translation>
     </message>
     <message>
+        <source>Sets how the mouse can interact with the area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets which mouse buttons the area reacts to.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Cursor shape</source>
         <translation>Mauszeiger-Form</translation>
+    </message>
+    <message>
+        <source>Sets which mouse cursor to display on this area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the time before the pressAndHold signal is registered when you press the area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if scroll gestures from non-mouse devices are supported.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Prevent stealing</source>
         <translation>Stealing verhindern</translation>
     </message>
     <message>
-        <source>Enable</source>
-        <translation type="unfinished">Aktivieren</translation>
+        <source>Toggles if the move is smoothly animated.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Accepts mouse events.</source>
-        <translation type="unfinished"></translation>
+        <source>Enable</source>
+        <translation type="unfinished">Aktivieren</translation>
     </message>
     <message>
         <source>Area</source>
@@ -3422,19 +4351,7 @@ Error:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mouse buttons that the mouse area reacts to.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cursor shape for this mouse area.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Hold interval</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Overrides the elapsed time in milliseconds before pressAndHold signal is emitted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3442,19 +4359,7 @@ Error:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Responds to scroll gestures from non-mouse devices.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stops mouse events from being stolen from this mouse area.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Propagate events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Automatically propagates composed mouse events to other mouse areas.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3464,27 +4369,6 @@ Error:
     <message>
         <source>Target</source>
         <translation>Ziel</translation>
-    </message>
-    <message>
-        <source>ID of the component to drag.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether dragging can be done horizontally, vertically, or both.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Threshold in pixels of when the drag operation should start.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether dragging overrides descendant mouse areas.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Moves targets only after the drag operation has started.
-When disabled, moves targets straight to the current mouse position.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Axis</source>
@@ -3497,6 +4381,30 @@ When disabled, moves targets straight to the current mouse position.</source>
     <message>
         <source>Threshold</source>
         <translation>Grenze</translation>
+    </message>
+    <message>
+        <source>Toggles if mouse events can be stolen from this area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if composed mouse events should be propagated to other mouse areas overlapping this area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the component to have drag functionalities.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets in which directions the dragging work.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a threshold after which the drag starts to work.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the dragging overrides descendant mouse areas.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Smoothed</source>
@@ -3549,6 +4457,10 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
     <message>
         <source>Effect path is too long.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name must start with a capital letter, contain at least three characters, and cannot have any special characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3627,6 +4539,65 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
 </context>
 <context>
+    <name>NodeSection</name>
+    <message>
+        <source>Visibility</source>
+        <translation type="unfinished">Sichtbarkeit</translation>
+    </message>
+    <message>
+        <source>Sets the local visibility of the node.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Visible</source>
+        <translation type="unfinished">Sichtbar</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation type="unfinished">Deckkraft</translation>
+    </message>
+    <message>
+        <source>Sets the local opacity value of the node.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Translation</source>
+        <translation type="unfinished">Übersetzung</translation>
+    </message>
+    <message>
+        <source>Sets the translation of the node.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation type="unfinished">Drehung</translation>
+    </message>
+    <message>
+        <source>Sets the rotation of the node in degrees.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scale</source>
+        <translation type="unfinished">Skalieren</translation>
+    </message>
+    <message>
+        <source>Sets the scale of the node.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pivot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the pivot of the node.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>NumberAnimationSpecifics</name>
     <message>
         <source>Number Animation</source>
@@ -3667,6 +4638,10 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation>Vertikal</translation>
     </message>
     <message>
+        <source>Sets the padding on top and bottom of the item.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Padding between the content and the top edge of the item.</source>
         <translation>Der Abstand zwischen dem Inhalt und dem oberen Ende des Elements.</translation>
     </message>
@@ -3677,6 +4652,10 @@ When disabled, moves targets straight to the current mouse position.</source>
     <message>
         <source>Horizontal</source>
         <translation>Horizontal</translation>
+    </message>
+    <message>
+        <source>Sets the paddding on the left and right sides of the item.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Padding between the content and the left edge of the item.</source>
@@ -3691,8 +4670,8 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation type="unfinished">Global</translation>
     </message>
     <message>
-        <source>Padding between the content and the edges of the items.</source>
-        <translation>Der Abstand zwischen dem Inhalt und den äußeren Enden des Elements.</translation>
+        <source>Sets the padding for all sides of the item.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3706,7 +4685,15 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation type="unfinished">Anzahl</translation>
     </message>
     <message>
-        <source>The number of pages.</source>
+        <source>Sets the number of pages.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the current page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the user can interact with the page indicator.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3714,16 +4701,8 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The index of the current page.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Interactive</source>
         <translation type="unfinished">Interaktiv</translation>
-    </message>
-    <message>
-        <source>Whether the control is interactive.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3737,15 +4716,16 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation type="unfinished">Titel</translation>
     </message>
     <message>
-        <source>Title of the page.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Content size</source>
         <translation type="unfinished">Größe des Inhalts</translation>
     </message>
     <message>
-        <source>Content width and height used for calculating the total implicit size.</source>
+        <source>Sets the title of the page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the size of the page. This is used to
+calculate the total implicit size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3780,7 +4760,8 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation type="unfinished">Größe des Inhalts</translation>
     </message>
     <message>
-        <source>Content width and height used for calculating the total implicit size.</source>
+        <source>Sets the size of the %1. This is used to calculate
+the total implicit size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3853,7 +4834,7 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation>Path View</translation>
     </message>
     <message>
-        <source>Allows users to drag or flick a path view.</source>
+        <source>Toggles if the path view allows drag or flick.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3861,48 +4842,65 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation>Rand bei Drag-Operation</translation>
     </message>
     <message>
+        <source>Sets a margin within which the drag function also works even without clicking the item itself.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Flick deceleration</source>
         <translation>Abbremsung der Flick-Interaktion</translation>
+    </message>
+    <message>
+        <source>Sets the rate by which a flick action slows down after performing.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Offset</source>
         <translation>Abstand</translation>
     </message>
     <message>
-        <source>Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.</source>
-        <translation>Gibt an, wie weit die Elemente des Pfades von ihren initialen Positionen entfernt sind. Es ist ein Fließkommawert im Bereich von 0 bis zur Anzahl der Elemente im Modell.</translation>
+        <source>Sets how far along the path the items are from their initial position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the highlight range mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the animation duration of the highlight delegate when
+it is moved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the preferred highlight beginning. It must be smaller than
+the &lt;b&gt;Preferred end&lt;/b&gt;. Note that the user has to add
+a highlight component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the preferred highlight end. It must be larger than
+the &lt;b&gt;Preferred begin&lt;/b&gt;. Note that the user has to add
+a highlight component.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Item count</source>
         <translation>Anzahl der Elemente</translation>
     </message>
     <message>
-        <source>Path View Highlight</source>
-        <translation>Hervorhebung im Path View</translation>
+        <source>Sets the number of items visible at once along the path.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Highlight range</source>
-        <translation>Bereich hervorheben</translation>
+        <source>Path View Highlight</source>
+        <translation>Hervorhebung im Path View</translation>
     </message>
     <message>
         <source>Move duration</source>
         <translation>Dauer der Bewegung</translation>
     </message>
     <message>
-        <source>Move animation duration of the highlight delegate.</source>
-        <translation>Dauer der Bewegungsanimation des hervorgehobenen Delegates.</translation>
-    </message>
-    <message>
         <source>Preferred begin</source>
         <translation>Anfang</translation>
-    </message>
-    <message>
-        <source>Preferred highlight begin - must be smaller than Preferred end. Note that the user has to add a highlight component.</source>
-        <translation>Beginn der Hervorhebung - muss kleiner sein als der Endwert. Beachten Sie, dass der Benutzer eine Hervorhebungs-Komponente hinzufügen muss.</translation>
-    </message>
-    <message>
-        <source>Preferred highlight end - must be larger than Preferred begin. Note that the user has to add a highlight component.</source>
-        <translation>Ende der Hervorhebung - muss größer sein als der Anfangswert. Beachten Sie, dass der Benutzer eine Hervorhebungs-Komponente hinzufügen muss.</translation>
     </message>
     <message>
         <source>Preferred end</source>
@@ -3911,10 +4909,6 @@ When disabled, moves targets straight to the current mouse position.</source>
     <message>
         <source>Interactive</source>
         <translation>Interaktiv</translation>
-    </message>
-    <message>
-        <source>Number of items visible on the path at any one time.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Range</source>
@@ -4017,7 +5011,21 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation type="unfinished">Wert</translation>
     </message>
     <message>
-        <source>The current value of the progress.</source>
+        <source>Sets the value of the progress bar.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the minimum value of the progress bar.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the maximum value of the progress bar.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the progress bar is in indeterminate mode.
+A progress bar in indeterminate mode displays that an
+operation is in progress.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4025,23 +5033,11 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation type="unfinished">Von</translation>
     </message>
     <message>
-        <source>The starting value for the progress.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>To</source>
         <translation type="unfinished">Bis</translation>
     </message>
     <message>
-        <source>The ending value for the progress.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Indeterminate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether the progress is indeterminate.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4195,20 +5191,21 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Effect %1 not complete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you want to edit %1?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Failed to Add Texture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Could not add %1 to project.</source>
         <translation type="unfinished">%1 konnte nicht zum Projekt hinzugefügt werden.</translation>
+    </message>
+    <message>
+        <source>Effect %1 is not complete.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ensure that you have saved it in Qt Quick Effect Maker.
+Do you want to edit this effect?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4246,28 +5243,6 @@ When disabled, moves targets straight to the current mouse position.</source>
     <message>
         <source>Choose a type that is registered using qmlRegisterType or qmlRegisterSingletonType. The type will be available as a property in the current .qml file.</source>
         <translation>Wählen Sie einen Typ, der mit qmlRegisterType oder qmlRegisterSingletonType registriert wurde. Der Typ wird als Eigenschaft in der aktuellen .qml-Datei verfügbar sein.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::AddTabDesignerAction</name>
-    <message>
-        <source>Naming Error</source>
-        <translation>Fehlerhafter Name</translation>
-    </message>
-    <message>
-        <source>Component already exists.</source>
-        <translation>Komponente existiert bereits.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::AddTabToTabViewDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>Add tab:</source>
-        <translation>Tab hinzufügen:</translation>
     </message>
 </context>
 <context>
@@ -4420,14 +5395,6 @@ When disabled, moves targets straight to the current mouse position.</source>
     <message>
         <source>Export</source>
         <translation type="unfinished">Export</translation>
-    </message>
-    <message>
-        <source>Export Components</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export path:</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4605,10 +5572,63 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
+    <name>QmlDesigner::BackendModel</name>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>Singleton</source>
+        <translation type="unfinished">Singleton</translation>
+    </message>
+    <message>
+        <source>Local</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QmlDesigner::BackgroundAction</name>
     <message>
         <source>Set the color of the canvas.</source>
         <translation>Die Farbe der Leinwand einstellen</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::BakeLights</name>
+    <message>
+        <source>Invalid root node, baking aborted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Baking process crashed, baking aborted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lights Baking Setup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lights Baking Progress</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::BakeLightsDataModel</name>
+    <message>
+        <source>Lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Models</source>
+        <translation type="unfinished">Modelle</translation>
+    </message>
+    <message>
+        <source>Components with unexposed models and/or lights</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4639,6 +5659,29 @@ Exporting assets: %2</source>
     <message>
         <source>Ctrl+Space</source>
         <translation>Ctrl+Space</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::BindingModel</name>
+    <message>
+        <source>Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Property</source>
+        <translation type="unfinished">Eigenschaft</translation>
+    </message>
+    <message>
+        <source>Source Item</source>
+        <translation type="unfinished">Quell-Item</translation>
+    </message>
+    <message>
+        <source>Source Property</source>
+        <translation type="unfinished">Quell-Eigenschaft</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
     </message>
 </context>
 <context>
@@ -4682,10 +5725,96 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
+    <name>QmlDesigner::ConnectionDelegate</name>
+    <message>
+        <source>Change to default state</source>
+        <translation type="unfinished">In Grundzustand ändern</translation>
+    </message>
+    <message>
+        <source>Change state to %1</source>
+        <translation type="unfinished">In Zustand %1 ändern</translation>
+    </message>
+    <message>
+        <source>Activate FlowAction %1</source>
+        <translation type="unfinished">FlowAction %1 aktivieren</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::ConnectionModel</name>
+    <message>
+        <source>Target</source>
+        <translation type="unfinished">Ziel</translation>
+    </message>
+    <message>
+        <source>Signal Handler</source>
+        <translation type="unfinished">Signal-Handler</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation type="unfinished">Aktion</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::ConnectionView</name>
+    <message>
+        <source>Connections</source>
+        <translation type="unfinished">Verbindungen</translation>
+    </message>
+</context>
+<context>
     <name>QmlDesigner::ConnectionViewWidget</name>
     <message>
         <source>Connections</source>
         <translation>Verbindungen</translation>
+    </message>
+    <message>
+        <source>Connections</source>
+        <comment>Title of connections window</comment>
+        <translation type="unfinished">Verbindungen</translation>
+    </message>
+    <message>
+        <source>Connections</source>
+        <comment>Title of connection tab</comment>
+        <translation type="unfinished">Verbindungen</translation>
+    </message>
+    <message>
+        <source>Bindings</source>
+        <comment>Title of connection tab</comment>
+        <translation type="unfinished">Datenbindungen</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <comment>Title of dynamic properties tab</comment>
+        <translation type="unfinished">Eigenschaften</translation>
+    </message>
+    <message>
+        <source>Backends</source>
+        <comment>Title of dynamic properties view</comment>
+        <translation type="unfinished">Back-Ends</translation>
+    </message>
+    <message>
+        <source>Open Connection Editor</source>
+        <translation type="unfinished">Verbindungseditor öffnen</translation>
+    </message>
+    <message>
+        <source>Open Binding Editor</source>
+        <translation type="unfinished">Binding-Editor öffnen</translation>
+    </message>
+    <message>
+        <source>Reset Property</source>
+        <translation type="unfinished">Eigenschaft zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Add binding or connection.</source>
+        <translation type="unfinished">Datenbindung oder Verbindung hinzufügen.</translation>
+    </message>
+    <message>
+        <source>Remove selected binding or connection.</source>
+        <translation type="unfinished">Ausgewählte Datenbindung oder Verbindung entfernen.</translation>
     </message>
 </context>
 <context>
@@ -4738,6 +5867,14 @@ Exporting assets: %2</source>
     <message>
         <source>Current Frame</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation type="unfinished">Verkleinern</translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation type="unfinished">Vergrößern</translation>
     </message>
 </context>
 <context>
@@ -4856,10 +5993,48 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
+    <name>QmlDesigner::DynamicPropertiesModel</name>
+    <message>
+        <source>Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Property</source>
+        <translation type="unfinished">Eigenschaft</translation>
+    </message>
+    <message>
+        <source>Property Type</source>
+        <translation type="unfinished">Eigenschaftstyp</translation>
+    </message>
+    <message>
+        <source>Property Value</source>
+        <translation type="unfinished">Eigenschaftswert</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::DynamicPropertiesProxyModel</name>
+    <message>
+        <source>Property Already Exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Property &quot;%1&quot; already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QmlDesigner::Edit3DView</name>
     <message>
         <source>3D</source>
         <translation type="unfinished">3D</translation>
+    </message>
+    <message>
+        <source>3D view</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cameras</source>
@@ -4926,6 +6101,10 @@ Exporting assets: %2</source>
     </message>
     <message>
         <source>Align View to Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bake Lights</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5065,6 +6244,13 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
+    <name>QmlDesigner::FileExtractor</name>
+    <message>
+        <source>Choose Directory</source>
+        <translation type="unfinished">Verzeichnis wählen</translation>
+    </message>
+</context>
+<context>
     <name>QmlDesigner::FilePathModel</name>
     <message>
         <source>Canceling file preparation.</source>
@@ -5103,6 +6289,10 @@ Exporting assets: %2</source>
     <message>
         <source>2D</source>
         <translation type="unfinished">2D</translation>
+    </message>
+    <message>
+        <source>2D view</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 is not supported as the root element by the 2D view.</source>
@@ -5168,8 +6358,8 @@ Exporting assets: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset View</source>
-        <translation>Ansicht zurücksetzen</translation>
+        <source>Reload View</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export Current QML File as Image</source>
@@ -5289,6 +6479,29 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
+    <name>QmlDesigner::InsightView</name>
+    <message>
+        <source>Qt Insight</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::InsightWidget</name>
+    <message>
+        <source>Qt Insight</source>
+        <comment>Title of the widget</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot Create QtQuick View</source>
+        <translation type="unfinished">QtQuick View konnte nicht erzeugt werden</translation>
+    </message>
+    <message>
+        <source>InsightWidget: %1 cannot be created.%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QmlDesigner::InteractiveConnectionManager</name>
     <message>
         <source>Cannot Connect to QML Emulation Layer (QML Puppet)</source>
@@ -5312,137 +6525,6 @@ Exporting assets: %2</source>
     <message>
         <source>Collapse All</source>
         <translation type="unfinished">Alle einklappen</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::Internal::BackendModel</name>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
-        <source>Singleton</source>
-        <translation>Singleton</translation>
-    </message>
-    <message>
-        <source>Local</source>
-        <translation>Lokal</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::Internal::BindingModel</name>
-    <message>
-        <source>Item</source>
-        <translation>Item</translation>
-    </message>
-    <message>
-        <source>Property</source>
-        <translation>Eigenschaft</translation>
-    </message>
-    <message>
-        <source>Source Item</source>
-        <translation>Quell-Item</translation>
-    </message>
-    <message>
-        <source>Source Property</source>
-        <translation>Quell-Eigenschaft</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::Internal::ConnectionDelegate</name>
-    <message>
-        <source>Change to default state</source>
-        <translation>In Grundzustand ändern</translation>
-    </message>
-    <message>
-        <source>Change state to %1</source>
-        <translation>In Zustand %1 ändern</translation>
-    </message>
-    <message>
-        <source>Activate FlowAction %1</source>
-        <translation>FlowAction %1 aktivieren</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::Internal::ConnectionModel</name>
-    <message>
-        <source>Target</source>
-        <translation>Ziel</translation>
-    </message>
-    <message>
-        <source>Signal Handler</source>
-        <translation>Signal-Handler</translation>
-    </message>
-    <message>
-        <source>Action</source>
-        <translation>Aktion</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::Internal::ConnectionView</name>
-    <message>
-        <source>Connections</source>
-        <translation type="unfinished">Verbindungen</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::Internal::ConnectionViewWidget</name>
-    <message>
-        <source>Connections</source>
-        <comment>Title of connections window</comment>
-        <translation type="unfinished">Verbindungen</translation>
-    </message>
-    <message>
-        <source>Connections</source>
-        <comment>Title of connection tab</comment>
-        <translation type="unfinished">Verbindungen</translation>
-    </message>
-    <message>
-        <source>Bindings</source>
-        <comment>Title of connection tab</comment>
-        <translation type="unfinished">Datenbindungen</translation>
-    </message>
-    <message>
-        <source>Properties</source>
-        <comment>Title of dynamic properties tab</comment>
-        <translation type="unfinished">Eigenschaften</translation>
-    </message>
-    <message>
-        <source>Backends</source>
-        <comment>Title of dynamic properties view</comment>
-        <translation>Back-Ends</translation>
-    </message>
-    <message>
-        <source>Open Connection Editor</source>
-        <translation>Verbindungseditor öffnen</translation>
-    </message>
-    <message>
-        <source>Open Binding Editor</source>
-        <translation>Binding-Editor öffnen</translation>
-    </message>
-    <message>
-        <source>Reset Property</source>
-        <translation>Eigenschaft zurücksetzen</translation>
-    </message>
-    <message>
-        <source>Add binding or connection.</source>
-        <translation>Datenbindung oder Verbindung hinzufügen.</translation>
-    </message>
-    <message>
-        <source>Remove selected binding or connection.</source>
-        <translation>Ausgewählte Datenbindung oder Verbindung entfernen.</translation>
     </message>
 </context>
 <context>
@@ -5475,10 +6557,6 @@ Exporting assets: %2</source>
         <translation type="unfinished">Ausgaben</translation>
     </message>
     <message>
-        <source>Switch the active workspace.</source>
-        <translation>Den aktiven Arbeitsbereich wechseln.</translation>
-    </message>
-    <message>
         <source>Edit global annotation for current file.</source>
         <translation>Globale Annotation der aktuellen Datei bearbeiten.</translation>
     </message>
@@ -5489,29 +6567,6 @@ Exporting assets: %2</source>
     <message>
         <source>Reset Active</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::Internal::DynamicPropertiesModel</name>
-    <message>
-        <source>Item</source>
-        <translation>Item</translation>
-    </message>
-    <message>
-        <source>Property</source>
-        <translation>Eigenschaft</translation>
-    </message>
-    <message>
-        <source>Property Type</source>
-        <translation>Eigenschaftstyp</translation>
-    </message>
-    <message>
-        <source>Property Value</source>
-        <translation>Eigenschaftswert</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
     </message>
 </context>
 <context>
@@ -5973,6 +7028,10 @@ Exporting assets: %2</source>
         <source>Components</source>
         <translation type="unfinished">Komponenten</translation>
     </message>
+    <message>
+        <source>Components view</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::ItemLibraryWidget</name>
@@ -6039,6 +7098,10 @@ Exporting assets: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Material Browser view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select a material property</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6084,6 +7147,10 @@ Exporting assets: %2</source>
         <source>Material Editor</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Material Editor view</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::NavigatorSearchWidget</name>
@@ -6103,7 +7170,7 @@ Exporting assets: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Toggles the visibility of this component in the 2D view.
+        <source>Toggles the visibility of this component in the 2D and 3D views.
 This is independent of the visibility property.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6134,6 +7201,10 @@ Locked components cannot be modified or selected.</source>
         <source>Navigator</source>
         <translation>Navigator</translation>
     </message>
+    <message>
+        <source>Navigator view</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::NavigatorWidget</name>
@@ -6157,10 +7228,6 @@ Locked components cannot be modified or selected.</source>
     <message>
         <source>Move up (CTRL + Up).</source>
         <translation>Nach oben (CTRL + Up).</translation>
-    </message>
-    <message>
-        <source>Filter Tree</source>
-        <translation>Baum filtern</translation>
     </message>
     <message>
         <source>Show Only Visible Components</source>
@@ -6298,35 +7365,9 @@ Locked components cannot be modified or selected.</source>
         <source>Property %1 does already exist for root component.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlDesigner::PuppetBuildProgressDialog</name>
     <message>
-        <source>Build Progress</source>
-        <translation>Erstellungsfortschritt</translation>
-    </message>
-    <message>
-        <source>Open error output file</source>
-        <translation>Fehlerausgabedatei öffnen</translation>
-    </message>
-    <message>
-        <source>Use Fallback QML Emulation Layer</source>
-        <translation>Fallback QML-Emulationsschicht benutzen</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Building Adapter for the current Qt. Happens only once for every Qt installation.</source>
-        <translation>Erstelle Adapter für das aktuelle Qt. Dies geschieht nur einmal für jede Qt-Installation.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::PuppetDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
+        <source>Property Editor view</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6340,6 +7381,10 @@ Locked components cannot be modified or selected.</source>
         <translation>Die QML-Datei ist in keinem QML-Editor geöffnet.</translation>
     </message>
     <message>
+        <source>Give Feedback...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>License: Enterprise</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6349,6 +7394,10 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Licensee: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enjoying the %1?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6491,6 +7540,10 @@ Locked components cannot be modified or selected.</source>
         <translation>Als &amp;Bild exportieren...</translation>
     </message>
     <message>
+        <source>Take Screenshot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Undo</source>
         <translation>&amp;Rückgängig</translation>
     </message>
@@ -6521,6 +7574,10 @@ Locked components cannot be modified or selected.</source>
     <message>
         <source>Select &amp;All</source>
         <translation>&amp;Alles auswählen</translation>
+    </message>
+    <message>
+        <source>Edit Global Annotations...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save %1 As...</source>
@@ -6638,6 +7695,10 @@ Locked components cannot be modified or selected.</source>
         <translation>States</translation>
     </message>
     <message>
+        <source>States view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Remove State</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6679,6 +7740,68 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
+    <name>QmlDesigner::StudioConfigSettingsPage</name>
+    <message>
+        <source>Qt Design Studio Configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::StudioSettingsPage</name>
+    <message>
+        <source>Build</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation type="unfinished">Debug</translation>
+    </message>
+    <message>
+        <source>Analyze</source>
+        <translation type="unfinished">Analysieren</translation>
+    </message>
+    <message>
+        <source>Tools</source>
+        <translation type="unfinished">Werkzeuge</translation>
+    </message>
+    <message>
+        <source>Hide top-level menus with advanced functionality to simplify the UI. &lt;b&gt;Build&lt;/b&gt; is generally not required in the context of Qt Design Studio. &lt;b&gt;Debug&lt;/b&gt; and &lt;b&gt;Analyze&lt;/b&gt; are only required for debugging and profiling. &lt;b&gt;Tools&lt;/b&gt; can be useful for bookmarks and git integration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Examples</source>
+        <translation type="unfinished">Beispiele</translation>
+    </message>
+    <message>
+        <source>Examples path:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Path</source>
+        <translation type="unfinished">Pfad zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Bundles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bundles path:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The menu visibility change will take effect after restart.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changing bundle path will take effect after restart.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QmlDesigner::SubComponentManager</name>
     <message>
         <source>My 3D Components</source>
@@ -6713,6 +7836,10 @@ Locked components cannot be modified or selected.</source>
     <message>
         <source>Code</source>
         <translation type="unfinished">Code</translation>
+    </message>
+    <message>
+        <source>Code view</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6750,6 +7877,10 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Texture Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Texture Editor view</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7085,6 +8216,10 @@ Locked components cannot be modified or selected.</source>
         <source>Timeline</source>
         <translation>Timeline</translation>
     </message>
+    <message>
+        <source>Timeline view</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::TimelineWidget</name>
@@ -7168,6 +8303,10 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Transitions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transitions view</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7403,12 +8542,16 @@ Locked components cannot be modified or selected.</source>
         <translation>Position zurücksetzen</translation>
     </message>
     <message>
+        <source>Edit Component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Go to Implementation</source>
         <translation>Zu Implementierung gehen</translation>
     </message>
     <message>
-        <source>Add New Signal Handler</source>
-        <translation>Neuen Signal-Handler hinzufügen</translation>
+        <source>Create Component</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit Annotations</source>
@@ -7551,15 +8694,7 @@ Locked components cannot be modified or selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter Component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Merge with Template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Make Component</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7828,6 +8963,14 @@ Locked components cannot be modified or selected.</source>
         <translation>Export</translation>
     </message>
     <message>
+        <source>Move Up</source>
+        <translation type="unfinished">Nach oben</translation>
+    </message>
+    <message>
+        <source>Move Down</source>
+        <translation type="unfinished">Nach unten</translation>
+    </message>
+    <message>
         <source>Workspace Manager</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7860,6 +9003,10 @@ Locked components cannot be modified or selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>File Name</source>
+        <translation type="unfinished">Dateiname</translation>
+    </message>
+    <message>
         <source>Last Modified</source>
         <translation>Zuletzt geändert</translation>
     </message>
@@ -7876,6 +9023,10 @@ Locked components cannot be modified or selected.</source>
         <translation>Erstellen und ö&amp;ffnen</translation>
     </message>
     <message>
+        <source>Cannot Create Workspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Clone</source>
         <translation>&amp;Klonen</translation>
     </message>
@@ -7884,12 +9035,48 @@ Locked components cannot be modified or selected.</source>
         <translation>Klonen und ö&amp;ffnen</translation>
     </message>
     <message>
+        <source>%1 Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot Clone Workspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Rename Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rename and &amp;Open</source>
         <translation>Umbenennen und ö&amp;ffnen</translation>
+    </message>
+    <message>
+        <source>Cannot Rename Workspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot Switch Workspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot Export Workspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Workspace</source>
+        <translation type="unfinished">Arbeitsbereich löschen</translation>
+    </message>
+    <message>
+        <source>Delete Workspaces</source>
+        <translation type="unfinished">Arbeitsbereiche löschen</translation>
+    </message>
+    <message>
+        <source>Delete workspace &quot;%1&quot;?</source>
+        <translation type="unfinished">Arbeitsbereich &quot;%1&quot; löschen?</translation>
+    </message>
+    <message>
+        <source>Delete these workspaces?</source>
+        <translation type="unfinished">Diese Arbeitsbereiche löschen?</translation>
     </message>
     <message>
         <source>List All Tabs</source>
@@ -7928,7 +9115,67 @@ Locked components cannot be modified or selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Cannot Import Workspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export Workspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Workspace &quot;%1&quot; does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot restore &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot reload &quot;%1&quot;. It is not in the list of workspaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not clone &quot;%1&quot; due to: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Workspace &quot;%1&quot; is not a preset.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot remove &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot save workspace while in mode change state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;%1&quot; does not exist.</source>
+        <translation type="unfinished">Datei &quot;%1&quot; existiert nicht.</translation>
+    </message>
+    <message>
+        <source>Could not copy &quot;%1&quot; to &quot;%2&quot; due to: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not remove &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory does not exist&quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Workspace does not exist &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot write to &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot write to &quot;%1&quot; due to: %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8925,6 +10172,10 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
         <translation>Keine Einstellungsdatei für Android-Deployment gefunden, APK wird nicht erstellt.</translation>
     </message>
     <message>
+        <source>Product type is not an application, not building an APK.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Failed to run keytool.</source>
         <translation>keytool konnte nicht ausgeführt werden.</translation>
     </message>
@@ -8961,6 +10212,10 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation>AVD kann nicht erstellt werden. Ungültige Eingabe.</translation>
+    </message>
+    <message>
+        <source>Could not start process &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cannot create AVD. Command timed out.</source>
@@ -9315,6 +10570,10 @@ Breche ausstehende Operationen ab...
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Product type is not an application, not running the Make install step.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Removing directory %1</source>
         <translation>Lösche Verzeichnis %1</translation>
     </message>
@@ -9334,10 +10593,6 @@ Breche ausstehende Operationen ab...
     <message>
         <source>Emulator Tool Is Missing</source>
         <translation>Fehlender Emulator</translation>
-    </message>
-    <message>
-        <source>Could not start process &quot;%1&quot;</source>
-        <translation type="unfinished">Der Prozess &quot;%1 %2&quot; konnte nicht gestartet werden {1&quot;?}</translation>
     </message>
     <message>
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
@@ -9644,15 +10899,15 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not create file for %1 &quot;%2&quot;</source>
+        <source>Could not create file for %1 &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation type="unfinished">Zeitüberschreitung bei Ausführung von &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Crash while creating file for %1 &quot;%2&quot;</source>
+        <source>Crash while creating file for %1 &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10801,6 +12056,10 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
         <translation>Starte &amp;alle Tests</translation>
     </message>
     <message>
+        <source>Run All Tests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+A</source>
         <translation>Ctrl+Meta+T, Ctrl+Meta+A</translation>
     </message>
@@ -10810,10 +12069,6 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Run All Tests Without Deployment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run all tests without deployment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10829,6 +12084,10 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
         <translation>Sta&amp;rte ausgewählte Tests</translation>
     </message>
     <message>
+        <source>Run Selected Tests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+R</source>
         <translation>Ctrl+Meta+T, Ctrl+Meta+R</translation>
     </message>
@@ -10837,19 +12096,23 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
         <translation>Alt+Shift+T,Alt+R</translation>
     </message>
     <message>
+        <source>Run Selected Tests Without Deployment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Run Failed Tests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+F</source>
         <translation>Ctrl+Meta+T, Ctrl+Meta+F</translation>
     </message>
     <message>
+        <source>Run Tests for Current File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Run Selected Tests Without Deployment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run all tests</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run selected tests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10865,19 +12128,11 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Run failed tests</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Alt+Shift+T,Alt+F</source>
         <translation>Alt+Shift+T,Alt+F</translation>
     </message>
     <message>
         <source>Run Tests for &amp;Current File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run tests for current file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10925,19 +12180,19 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
         <translation>Führe Test-Suite %1 aus</translation>
     </message>
     <message>
-        <source>Test execution took %1</source>
-        <translation>Testausführung benötigte %1</translation>
-    </message>
-    <message>
-        <source>Test suite execution took %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Executing test module %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Test module execution took %1</source>
+        <source>Test execution took %1.</source>
+        <translation type="unfinished">Testausführung benötigte %1.</translation>
+    </message>
+    <message>
+        <source>Test suite execution took %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Test module execution took %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10953,7 +12208,7 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Running tests exited with %1</source>
+        <source>Running tests exited with %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10995,27 +12250,23 @@ Executable: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Executing %1 &quot;%2&quot;</source>
+        <source>Executing %1 &quot;%2&quot;...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1 &quot;%2&quot; passed</source>
+        <source>%1 &quot;%2&quot; passed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Expression passed</source>
+        <source>Expression passed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Finished executing %1 &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expression failed: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Finished executing %1 &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Running tests for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11078,6 +12329,10 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Auto Test</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Running tests for &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12660,8 +13915,8 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Lesezeichen</translation>
     </message>
     <message>
-        <source>Matches all bookmarks. Filter by file name, by the text on the line of the bookmark, or by the bookmark&apos;s note text.</source>
-        <translation>Filtert alle Lesezeichen nach dem Dateinamen, dem Text in der Zeile des Lesezeichens oder seinem Anmerkungstext.</translation>
+        <source>Locates bookmarks. Filter by file name, by the text on the line of the bookmark, or by the bookmark&apos;s note text.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bookmark</source>
@@ -12947,10 +14202,6 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Die CMake-Konfiguration löschen und mit initialen Parametern konfigurieren?</translation>
     </message>
     <message>
-        <source>Do not ask again</source>
-        <translation>Nicht noch einmal nachfragen</translation>
-    </message>
-    <message>
         <source>Kit CMake Configuration</source>
         <translation>CMake-Konfiguration des Kits</translation>
     </message>
@@ -13003,6 +14254,10 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Projekt neu auswerten</translation>
     </message>
     <message>
+        <source>Reload CMake Presets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Build</source>
         <translation>Erstellen</translation>
     </message>
@@ -13017,6 +14272,14 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>Ctrl+Alt+B</source>
         <translation>Ctrl+Alt+B</translation>
+    </message>
+    <message>
+        <source>Re-generates the kits that were created for CMake presets. All manual modifications to the CMake project settings will be lost.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation type="unfinished">Neu laden</translation>
     </message>
     <message>
         <source>Build File is not supported for generator &quot;%1&quot;</source>
@@ -13175,6 +14438,14 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Ziel: %1</translation>
     </message>
     <message>
+        <source>Stage for installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Staging directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable automatic provisioning updates:</source>
         <translation>Automatische Provisionierungsaktualisierungen aktivieren:</translation>
     </message>
@@ -13209,6 +14480,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>Project did not parse successfully, cannot build.</source>
         <translation>Das Projekt konnte nicht erfolgreich ausgewertet werden. Es kann nicht erstellt werden.</translation>
+    </message>
+    <message>
+        <source>Stage at %2 for %3</source>
+        <extracomment>Stage (for installation) at &lt;staging_dir&gt; for &lt;installation_dir&gt;</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>CMake Build</source>
@@ -13298,10 +14574,6 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Wählen Sie ein Verzeichnis für %1</translation>
     </message>
     <message>
-        <source>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</source>
-        <translation>Legt fest, ob beim Hinzufügen von neuen Dateien zu CMake-Projekten deren Dateipfade in die Zwischenablage kopiert werden, um sie in die CMakeLists.txt-Datei einzufügen.</translation>
-    </message>
-    <message>
         <source>Package manager auto setup</source>
         <translation>Automatisches Aufsetzen von Paketmanagern</translation>
     </message>
@@ -13312,6 +14584,10 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>Ask before re-configuring with initial parameters</source>
         <translation>Vor dem Neukonfigurieren mit initialen Parametern nachfragen</translation>
+    </message>
+    <message>
+        <source>Ask before reloading CMake Presets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show subfolders inside source group folders</source>
@@ -13326,38 +14602,12 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Allgemein</translation>
     </message>
     <message>
-        <source>Adding Files</source>
-        <translation>Dateien hinzufügen</translation>
-    </message>
-    <message>
-        <source>Ask about copying file paths</source>
-        <translation>Fragen, ob Dateipfade kopiert werden sollen</translation>
-    </message>
-    <message>
-        <source>Do not copy file paths</source>
-        <translation>Dateipfade nicht kopieren</translation>
-    </message>
-    <message>
-        <source>Copy file paths</source>
-        <translation>Dateipfade kopieren</translation>
-    </message>
-    <message>
         <source>Scan &quot;%1&quot; project tree</source>
         <translation>Durchsuche &quot;%1&quot;-Projektbaum</translation>
     </message>
     <message>
         <source>The kit needs to define a CMake tool to parse this project.</source>
         <translation>Das Kit muss ein CMake-Werkzeug festlegen, um dieses Projekt auszuwerten.</translation>
-    </message>
-    <message>
-        <source>Copy to Clipboard?</source>
-        <translation>In die Zwischenablage kopieren?</translation>
-    </message>
-    <message>
-        <source>Files are not automatically added to the CMakeLists.txt file of the CMake project.
-Copy the path to the source files to the clipboard?</source>
-        <translation>Dateien werden nicht automatisch zur Datei CMakeLists.txt des CMake-Projekts hinzugefügt.
-Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</translation>
     </message>
     <message>
         <source>Apply configuration changes?</source>
@@ -13408,8 +14658,8 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
         <translation>Keine gültige ausführbare CMake-Datei.</translation>
     </message>
     <message>
-        <source>Running in &quot;%1&quot;: %2.</source>
-        <translation>Führe in &quot;%1&quot; aus: %2.</translation>
+        <source>Running in %1: %2.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
@@ -13572,20 +14822,20 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
         <translation>Die CMake-Konfiguration hat einen C++-Compiler gesetzt, der nicht mit dem Compiler der Toolchain übereinstimmt, die vom Kit verwendet wird.</translation>
     </message>
     <message>
-        <source>Build CMake target</source>
-        <translation>CMake-Ziel erstellen</translation>
+        <source>Build CMake Target</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Builds a target of any open CMake project.</source>
         <translation>Erstellt ein Ziel eines geöffneten CMake-Projekts.</translation>
     </message>
     <message>
-        <source>Open CMake target</source>
-        <translation>CMake-Ziel öffnen</translation>
+        <source>Open CMake Target</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Jumps to the definition of a target of any open CMake project.</source>
-        <translation>Springt zur Definition eines Ziels eines geöffneten CMake-Projekts.</translation>
+        <source>Locates the definition of a target of any open CMake project.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The source directory %1 is not reachable by the CMake executable %2.</source>
@@ -13636,12 +14886,20 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
         <translation>&lt;Andere Orte&gt;</translation>
     </message>
     <message>
+        <source>&lt;Generated Files&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unexpected source directory &quot;%1&quot;, expected &quot;%2&quot;. This can be correct in some situations, for example when importing a standalone Qt test, but usually this is an error. Import the build anyway?</source>
         <translation>Unerwartetes Quellverzeichnis &quot;%1&quot;, erwartet wurde &quot;%2&quot;. Dies kann in einigen Situationen korrekt sein, zum Beispiel beim Importieren eines eigenständigen Qt-Tests, aber normalerweise ist es ein Fehler. Soll der Build trotzdem importiert werden?</translation>
     </message>
     <message>
         <source>CMake Modules</source>
         <translation>CMake-Module</translation>
+    </message>
+    <message>
+        <source>CMake Presets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Target type:</source>
@@ -13818,10 +15076,6 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     <message>
         <source>Restrict to files contained in the current project</source>
         <translation>Auf Dateien des aktuellen Projekts beschränken</translation>
-    </message>
-    <message>
-        <source>%1 Command</source>
-        <translation>Ausführbare Datei für %1</translation>
     </message>
     <message>
         <source>Formatter</source>
@@ -14332,8 +15586,8 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
         <translation>Bearbeiteten Quelltext beim Speichern der Datei formatieren</translation>
     </message>
     <message>
-        <source>Override Clang Format configuration file</source>
-        <translation>Clang-Format-Konfigurationsdatei überschreiben</translation>
+        <source>Override .clang-format file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Use global settings</source>
@@ -14360,8 +15614,8 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
         <translation>Das aktuelle Projekt hat ihre eigene .clang-format-Datei, die in den untenstehenden Einstellungen überschrieben werden kann.</translation>
     </message>
     <message>
-        <source>Override Clang Format configuration file with the chosen configuration.</source>
-        <translation>Die Clang-Format-Konfigurationsdatei mit der gewählten Konfiguration überschreiben.</translation>
+        <source>When this option is enabled, ClangFormat will use a user-specified configuration from the widget below, instead of the project .clang-format file. You can customize the formatting options for your code by adjusting the settings in the widget. Note that any changes made there will only affect the current configuration, and will not modify the project .clang-format file.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ClangFormat</source>
@@ -14473,10 +15727,6 @@ Ausgabe:
         <translation>Diesen Check deaktivieren</translation>
     </message>
     <message>
-        <source>File &quot;%1&quot; does not exist or is not readable.</source>
-        <translation>Die Datei &quot;%1&quot; fehlt oder ist nicht lesbar.</translation>
-    </message>
-    <message>
         <source>Error: Failed to parse YAML file &quot;%1&quot;: %2.</source>
         <translation>Fehler: Die YAML-Datei &quot;%1&quot; konnte nicht ausgewertet werden: %2.</translation>
     </message>
@@ -14547,6 +15797,10 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Wählen Sie die anzuzeigenden Meldungen.</translation>
     </message>
     <message>
+        <source>Prefer .clang-tidy file, if present</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Build the project before analysis</source>
         <translation>Projekt vor der Analyse erstellen</translation>
     </message>
@@ -14561,14 +15815,6 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <message>
         <source>Parallel jobs:</source>
         <translation>Parallele Jobs:</translation>
-    </message>
-    <message>
-        <source>Select Checks</source>
-        <translation>Prüfungen auswählen</translation>
-    </message>
-    <message>
-        <source>Use .clang-tidy config file</source>
-        <translation>Konfigurationsdatei .clang-tidy verwenden</translation>
     </message>
     <message>
         <source>Edit Checks as String...</source>
@@ -14621,10 +15867,6 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Clang-Tidy und Clazy benutzen eine angepasste Version der Anwendung Clang vom Clang-Projekt, um nach Problemen zu suchen.</translation>
     </message>
     <message>
-        <source>Clang-Tidy and Clazy</source>
-        <translation>Clang-Tidy und Clazy</translation>
-    </message>
-    <message>
         <source>Release</source>
         <translation>Release</translation>
     </message>
@@ -14673,12 +15915,8 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Fehler beim Laden der Meldungen</translation>
     </message>
     <message>
-        <source>Set a valid Clang-Tidy executable.</source>
-        <translation>Wählen Sie eine gültige ausführbare Datei für Clang-Tidy.</translation>
-    </message>
-    <message>
-        <source>Set a valid Clazy-Standalone executable.</source>
-        <translation>Wählen Sie eine gültige ausführbare Datei für Clazy-Standalone.</translation>
+        <source>Set a valid %1 executable.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Project &quot;%1&quot; is not a C/C++ project.</source>
@@ -15346,7 +16584,24 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Check In</source>
+        <extracomment>Name of the &quot;commit&quot; action of the VCS</extracomment>
         <translation>Einchecken</translation>
+    </message>
+    <message>
+        <source>Close Check In Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Closing this editor will abort the check in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot check in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot check in: %1.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Do you want to undo the check out of &quot;%1&quot;?</source>
@@ -15690,6 +16945,149 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
 </context>
 <context>
+    <name>QtC::Copilot</name>
+    <message>
+        <source>Sign In</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A browser window will open. Enter the code %1 when asked.
+The code has been copied to your clipboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Login Failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The login request failed: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select Previous Copilot Suggestion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select Next Copilot Suggestion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply Word (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation type="unfinished">%1 von %2</translation>
+    </message>
+    <message>
+        <source>Enabling %1 is subject to your agreement and abidance with your applicable %1 terms. It is your responsibility to know and accept the requirements and parameters of using tools like %1. This may include, but is not limited to, ensuring you have the rights to allow %1 access to your code, as well as understanding any implications of your use of %1 and suggestions produced (like copyright, accuracy, etc.).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Copilot plugin requires node.js and the Copilot neovim plugin. If you install the neovim plugin as described in %1, the plugin will find the agent.js file automatically.
+
+Otherwise you need to specify the path to the %2 file from the Copilot neovim plugin.</source>
+        <comment>Markdown text for the copilot instruction label</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note:</source>
+        <translation type="unfinished">Hinweis:</translation>
+    </message>
+    <message>
+        <source>Request Copilot Suggestion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Request Copilot suggestion at the current editor&apos;s cursor position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show next Copilot Suggestion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cycles through the received Copilot Suggestions showing the next available Suggestion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show previos Copilot Suggestion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cycles through the received Copilot Suggestions showing the previous available Suggestion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable Copilot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable Copilot.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable Copilot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable Copilot.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Copilot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copilot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables the Copilot integration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Node.js path:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Node.js Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select path to node.js executable. See https://nodejs.org/en/download/for installation instructions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path to agent.js:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Agent.js path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select path to agent.js in Copilot Neovim plugin. See https://github.com/github/copilot.vim#getting-started for installation instructions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto Complete</source>
+        <translation type="unfinished">Automatische Vervollständigung</translation>
+    </message>
+    <message>
+        <source>Request completions automatically</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically request suggestions for the current text cursor position after changes to the document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QtC::Core</name>
     <message>
         <source>Revert to Saved</source>
@@ -15840,12 +17238,24 @@ Trotzdem fortfahren?</translation>
         <translation>Die Einstellung für hohe Auflösungen wird nach einem Neustart wirksam.</translation>
     </message>
     <message>
+        <source>Toolbar style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Text codec for tools:</source>
         <translation>Zeichenkodierung für Werkzeuge:</translation>
     </message>
     <message>
         <source>The language change will take effect after restart.</source>
         <translation>Die Änderung der Sprache wird nach einem Neustart wirksam.</translation>
+    </message>
+    <message>
+        <source>Compact</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relaxed</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Interface</source>
@@ -17154,6 +18564,10 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
         <translation>Priorität</translation>
     </message>
     <message>
+        <source>Locates files from a custom set of directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add...</source>
         <translation>Hinzufügen...</translation>
     </message>
@@ -17283,6 +18697,18 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     <message>
         <source>Directories:</source>
         <translation>Verzeichnisse:</translation>
+    </message>
+    <message>
+        <source>Create Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create and Open File &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create Directory &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -17569,10 +18995,6 @@ Möchten Sie es beenden?</translation>
         <translation>Öffnet eine Datei mit einem Pfad relativ zum aktuellen Dokument oder einem absoluten Pfad. &quot;~&quot; bezieht sich auf Ihr Benutzerverzeichnis. Sie haben die Option eine Datei zu erstellen, wenn diese noch nicht existiert.</translation>
     </message>
     <message>
-        <source>Create and Open &quot;%1&quot;</source>
-        <translation>Erzeuge und öffne &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>Create File</source>
         <translation>Datei erzeugen</translation>
     </message>
@@ -17615,6 +19037,14 @@ Möchten Sie es beenden?</translation>
     <message>
         <source>Locate...</source>
         <translation>Finden...</translation>
+    </message>
+    <message>
+        <source>Triggers a web search with the selected search engine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Triggers a search in the Qt bug tracker.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a document&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Open File or Project (%1)&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Recent Files&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Tools &gt; Locate (%2) and&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- type to open file from any open project&lt;/div&gt;%4%5&lt;div style=&quot;margin-left: 1em&quot;&gt;- type &lt;code&gt;%3&amp;lt;space&amp;gt;&amp;lt;filename&amp;gt;&lt;/code&gt; to open file from file system&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- select one of the other filters for jumping to a location&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Drag and drop files here&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -18211,6 +19641,10 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>TiB</translation>
     </message>
     <message>
+        <source>MiB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enable crash reporting</source>
         <translation>Absturzberichte aktivieren</translation>
     </message>
@@ -18444,8 +19878,8 @@ provided they were unmodified before the refactoring.</source>
         <translation>Dateinamensindex</translation>
     </message>
     <message>
-        <source>Matches files from a global file system index (Spotlight, Locate, Everything). Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Filtert Dateien aus einem globalen Dateisystemindex (Spotlight, Locate, Everything). Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
+        <source>Locates files from a global file system index (Spotlight, Locate, Everything). Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Case sensitive:</source>
@@ -18482,6 +19916,18 @@ provided they were unmodified before the refactoring.</source>
     <message>
         <source>Engine aborted after timeout.</source>
         <translation>Engine brach nach Zeitüberschreitung ab.</translation>
+    </message>
+    <message>
+        <source>The evaluation was interrupted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Engine reinitialized properly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Engine did not reinitialize properly.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy to clipboard: %1</source>
@@ -18526,16 +19972,8 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>Allgemeiner Verzeichnisfilter</translation>
     </message>
     <message>
-        <source>Matches all files from a custom set of directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Filtert alle Dateien aus vom Benutzer gewählten Pfaden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
-    </message>
-    <message>
         <source>Select Directory</source>
         <translation>Verzeichnis auswählen</translation>
-    </message>
-    <message>
-        <source>%1 filter update: 0 files</source>
-        <translation>%1-Filterstatus: Keine Dateien</translation>
     </message>
     <message numerus="yes">
         <source>%1 filter update: %n files</source>
@@ -18567,6 +20005,14 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Tags:</source>
         <translation>Schlüsselworte:</translation>
+    </message>
+    <message>
+        <source>Show All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished">Zurück</translation>
     </message>
     <message>
         <source>Text Encoding</source>
@@ -19020,6 +20466,14 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>Binding Editor</source>
         <translation>Binding-Editor</translation>
     </message>
+    <message>
+        <source>Switches to an open document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Markdown Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QtC::CppEditor</name>
@@ -19230,6 +20684,10 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Complete Switch Statement</source>
         <translation>Switch-Anweisung vervollständigen</translation>
+    </message>
+    <message>
+        <source>Add Member Function &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Extract Constant as Function Parameter</source>
@@ -20242,12 +21700,24 @@ z.B. name = &quot;m_test_foo_&quot;:
         <translation>C++-Symbole im aktuellen Dokument</translation>
     </message>
     <message>
+        <source>Locates C++ symbols in the current document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>C++ Classes</source>
         <translation>C++-Klassen</translation>
     </message>
     <message>
+        <source>Locates C++ classes in any open project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>C++ Functions</source>
         <translation>C++-Funktionen</translation>
+    </message>
+    <message>
+        <source>Locates C++ functions in any open project.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Included C/C++ Files</source>
@@ -20257,6 +21727,10 @@ z.B. name = &quot;m_test_foo_&quot;:
         <source>C++ Classes, Enums, Functions and Type Aliases</source>
         <translatorcomment>https://learn.microsoft.com/de-de/cpp/cpp/aliases-and-typedefs-cpp</translatorcomment>
         <translation>C++-Klassen, -Aufzählungen, -Funktionen und -Typaliase</translation>
+    </message>
+    <message>
+        <source>Locates C++ classes, enums, functions and type aliases in any open project.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>C++ Symbols</source>
@@ -20323,6 +21797,18 @@ z.B. name = &quot;m_test_foo_&quot;:
         <translation>Aus</translation>
     </message>
     <message>
+        <source>Use Built-in Only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Clangd Only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Try Both</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Interpret ambiguous headers as C headers</source>
         <translation>Mehrdeutige Header als C-Header behandeln</translation>
     </message>
@@ -20365,6 +21851,10 @@ z.B. name = &quot;m_test_foo_&quot;:
     <message>
         <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;Low Priority: Same priority as other clangd work.</source>
         <translation>&lt;p&gt;Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Resultate, es erhöht aber die CPU-Last beim ersten Öffnen von Projekten. Das Resultat der Indizierung wird im Build-Verzeichnis des Projekts gespeichert. Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer, aber weniger genauer, integrierter Indexer benutzt. Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.&lt;/p&gt;&lt;p&gt;Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.&lt;/p&gt;&lt;p&gt;Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.&lt;/p&gt;Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Which C/C++ backend to use when switching between header and source file.&lt;p&gt;The clangd implementation has more capabilities, but also has some bugs not present in the built-in variant.&lt;p&gt;When &quot;Try Both&quot; is selected, clangd will be employed only if the built-in variant does not find anything.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Number of worker threads used by clangd. Background indexing also uses this many worker threads.</source>
@@ -20417,6 +21907,10 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     <message>
         <source>Background indexing:</source>
         <translation>Indizierung:</translation>
+    </message>
+    <message>
+        <source>Header/source switch mode:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Worker thread count:</source>
@@ -20537,10 +22031,6 @@ Dies ist normalerweise nicht empfehlenswert, da die Datei wahrscheinlich währen
     <message>
         <source>C++ Macro Usages:</source>
         <translation>C++ Macro-Referenzen:</translation>
-    </message>
-    <message>
-        <source>Matches all files that are included by all C++ files in all projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Filtert alle Dateien die von allen C++-Dateien aller Projekte eingebunden werden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>&lt;Select Symbol&gt;</source>
@@ -20723,10 +22213,6 @@ Ziehen Sie Eintrage mit der Maus, um die Reihenfolge der Parameter zu ändern.</
         <translation>GNU</translation>
     </message>
     <message>
-        <source>Old Creator</source>
-        <translation>Veraltete Creator-Konvention</translation>
-    </message>
-    <message>
         <source>Open in Editor</source>
         <translation>In Editor öffnen</translation>
     </message>
@@ -20773,6 +22259,10 @@ Flags: %3</translation>
     <message>
         <source>All files</source>
         <translation>Alle Dateien</translation>
+    </message>
+    <message>
+        <source>Locates files that are included by C++ files of any open project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -23079,8 +24569,32 @@ markers in the source code editor.</source>
         </translation>
     </message>
     <message>
+        <source>The DAP process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The DAP process crashed some time after starting successfully.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred when attempting to write to the DAP process. For example, the process may not be running, or it may have closed its input channel.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An error occurred when attempting to read from the DAP process. For example, the process may not be running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An unknown error in the DAP process occurred.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Adapter start failed</source>
         <translation>Der Start des Adapters schlug fehl</translation>
+    </message>
+    <message>
+        <source>DAP I/O Error</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Python Error</source>
@@ -23121,6 +24635,10 @@ markers in the source code editor.</source>
     <message>
         <source>Debugger encountered an exception: %1</source>
         <translation>Der Debugger stellte einen Ausnahmefehler fest: %1</translation>
+    </message>
+    <message>
+        <source>The system prevents loading of &quot;%1&quot;, which is required for debugging. Make sure that your antivirus solution is up to date and if that does not work consider adding an exception for &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Module loaded: %1</source>
@@ -23169,8 +24687,8 @@ Installieren Sie das Paket &quot;Qt Debug Information Files&quot; für diese Qt-
         <translation>Start des Debuggers schlug fehl</translation>
     </message>
     <message>
-        <source>The system prevents loading of %1 which is required for debugging. Make sure that your antivirus solution is up to date and if that does not work consider to add an exception for %1.</source>
-        <translation>Das System verhindert das Laden von %1, welches für das Debuggen erforderlich ist. Stellen Sie sicher, dass Ihr Virenschutzprogramm aktuell ist. Falls dies nicht hilft, ziehen Sie in Betracht, eine Ausnahme für %1 hinzuzufügen.</translation>
+        <source>Cannot read &quot;%1&quot;: %2</source>
+        <translation type="unfinished">&quot;%1&quot; kann nicht gelesen werden: %2</translation>
     </message>
     <message>
         <source>Value %1 obtained from evaluating the condition of breakpoint %2, stopping.</source>
@@ -24074,16 +25592,40 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
         <translation>Debuggereinstellungen</translation>
     </message>
     <message>
-        <source>Enable C++</source>
-        <translation>C++ aktivieren</translation>
-    </message>
-    <message>
-        <source>Enable QML</source>
-        <translation>QML aktivieren</translation>
-    </message>
-    <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Was sind die Voraussetzungen?&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Enable C++ debugger.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Try to determine need for C++ debugger.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable QML debugger.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Try to determine need for QML debugger.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Without additional startup commands.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>With additional startup commands.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>C++ debugger:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QML debugger:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enable Debugging of Subprocesses</source>
@@ -24201,6 +25743,18 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     <message>
         <source>ABIs:</source>
         <translation>ABIs:</translation>
+    </message>
+    <message>
+        <source>Generic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GDB from PATH on Build Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LLDB from PATH on Build Device</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Version:</source>
@@ -24984,10 +26538,6 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>QML-Debuggen muss in den Einstellungen sowohl für das Erstellen als auch für das Ausführen aktiviert sein.</translation>
     </message>
     <message>
-        <source>&amp;Show this message again.</source>
-        <translation>Diese Nachricht erneut an&amp;zeigen.</translation>
-    </message>
-    <message>
         <source>Debugging %1 ...</source>
         <translation>Debugge %1 ...</translation>
     </message>
@@ -25166,6 +26716,14 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     <message>
         <source>Enables tooltips in the stack view during debugging.</source>
         <translation>Aktiviert Tooltips für die Anzeige &amp;quot;Stack&amp;quot; beim Debuggen.</translation>
+    </message>
+    <message>
+        <source>Default array size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The number of array elements requested when expanding entries in the Locals and Expressions views.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Shows QML object tree in Locals and Expressions when connected and not stepping.</source>
@@ -26011,7 +27569,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the docker daemon on the docker device settings page or restart Qt Creator.</source>
+        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart Qt Creator.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -26084,7 +27642,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Adds the following flags to the container: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined, this is necessary to allow lldb to run</source>
+        <source>Adds the following flags to the container to allow LLDB to run: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -26144,15 +27702,19 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Select the paths in the docker image that should be scanned for kit entries.</source>
+        <source>Select the paths in the Docker image that should be scanned for kit entries.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Docker daemon appears to be not running.</source>
+        <source>Docker daemon appears to be stopped.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Docker daemon appears to be running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Detection complete.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -27056,6 +28618,10 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>Benutzerdefinierte Aktion #%1 ausführen</translation>
     </message>
     <message>
+        <source>Invalid regular expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&quot;%1&quot; %2 %3L, %4C written</source>
         <translation>&quot;%1&quot; %2 %3 Zeilen mit %4 Zeichen geschrieben</translation>
     </message>
@@ -27240,6 +28806,10 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     <message>
         <source>Annotate &amp;Parent Revision %1</source>
         <translation>Annotation der über&amp;geordneten Revision %1</translation>
+    </message>
+    <message>
+        <source>Triggers a Fossil version control operation.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Fossil</source>
@@ -27546,8 +29116,8 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>URL:</translation>
     </message>
     <message>
-        <source>For example: https://[user[:pass]@]host[:port]/[path]</source>
-        <translation>Zum Beispiel: https://[user[:pass]@]host[:port]/[path]</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remember specified location as default</source>
@@ -27909,6 +29479,13 @@ Jetzt Commit ausführen?</translation>
             <numerusform>Commit &quot;%1&quot; geändert (%n Dateien).</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>Cannot commit %n file(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Only graphical merge tools are supported. Please configure merge.tool.</source>
         <translation>Nur grafische Merge-Tools werden unterstützt. Bitte konfigurieren Sie ein Merge-Tool.</translation>
@@ -28127,13 +29704,6 @@ Jetzt Commit ausführen?</translation>
         <source>Amended &quot;%1&quot;.</source>
         <translation>Commit &quot;%1&quot; geändert.</translation>
     </message>
-    <message numerus="yes">
-        <source>Cannot commit %n files</source>
-        <translation>
-            <numerusform>Commit schlug für eine Datei fehl</numerusform>
-            <numerusform>Commit schlug für %n Dateien fehl</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Revert</source>
         <translation>Rückgängig machen</translation>
@@ -28265,6 +29835,10 @@ Jetzt Commit ausführen?</translation>
     <message>
         <source>Note that huge amount of commits might take some time.</source>
         <translation>Beachten Sie, dass eine hohe Anzahl Commits lange Wartezeiten hervorrufen kann.</translation>
+    </message>
+    <message>
+        <source>Annotate the current line in the editor with Git &quot;blame&quot; output.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -28405,10 +29979,6 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>Add instant blame annotations to editor</source>
         <translation>Annotationen für &quot;Blame&quot; im Editor anzeigen</translation>
-    </message>
-    <message>
-        <source>Directly annotate each line in the editor when scrolling through the document.</source>
-        <translation>Annotationen für Zeilen im Editor direkt beim Scrollen durch das Dokument anzeigen.</translation>
     </message>
     <message>
         <source>Git</source>
@@ -29027,6 +30597,10 @@ Partially checked - Do not change current state.</source>
         <translation>Markiert - Änderung als privat markieren.
 Nicht markiert - Markierung entfernen.
 Teilmarkiert - Zustand nicht verändern.</translation>
+    </message>
+    <message>
+        <source>Pushes the selected commit and all commits it depends on.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Supported on Gerrit 2.15 and later.</source>
@@ -29762,10 +31336,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>&amp;In Arbeit</translation>
     </message>
     <message>
-        <source>Pushes the selected commit and all dependent commits.</source>
-        <translation>Push des ausgewählten Commit und aller abhängigen Commits.</translation>
-    </message>
-    <message>
         <source>&amp;Topic:</source>
         <translation>&amp;Topic:</translation>
     </message>
@@ -30108,10 +31678,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to run GHCi: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Run GHCi</source>
         <translation type="unfinished"></translation>
     </message>
@@ -30319,6 +31885,10 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <message>
         <source>Help Index</source>
         <translation>Hilfe - Index</translation>
+    </message>
+    <message>
+        <source>Locates help topics, for example in the Qt documentation.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Help</source>
@@ -31709,16 +33279,32 @@ Ablaufdatum: %3</translation>
         <translation>Symbole im aktuellen Dokument</translation>
     </message>
     <message>
+        <source>Locates symbols in the current document, based on a language server.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Symbols in Workspace</source>
         <translation>Symbole im Arbeitsbereich</translation>
+    </message>
+    <message>
+        <source>Locates symbols in the language server workspace.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Classes and Structs in Workspace</source>
         <translation>Klassen und Strukturen im Arbeitsbereich</translation>
     </message>
     <message>
+        <source>Locates classes and structs in the language server workspace.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Functions and Methods in Workspace</source>
         <translation>Funktionen und Methoden im Arbeitsbereich</translation>
+    </message>
+    <message>
+        <source>Locates functions and methods in the language server workspace.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
@@ -31816,30 +33402,45 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>%1 for %2</source>
+        <extracomment>&lt;language client&gt; for &lt;project&gt;</extracomment>
         <translation>%1 für %2</translation>
     </message>
     <message>
         <source>uninitialized</source>
+        <extracomment>language client state</extracomment>
         <translation>nicht initialisiert</translation>
     </message>
     <message>
         <source>initialize requested</source>
+        <extracomment>language client state</extracomment>
         <translation>Initialisierung angefordert</translation>
     </message>
     <message>
         <source>initialized</source>
+        <extracomment>language client state</extracomment>
         <translation>initialisiert</translation>
     </message>
     <message>
         <source>shutdown requested</source>
+        <extracomment>language client state</extracomment>
         <translation>Abschaltung angefordert</translation>
     </message>
     <message>
-        <source>shutdown</source>
-        <translation>abgeschaltet</translation>
+        <source>shut down</source>
+        <extracomment>language client state</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Language Server &quot;%1&quot; Initialization Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initialization error: %1.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>error</source>
+        <extracomment>language client state</extracomment>
         <translation>Fehler</translation>
     </message>
     <message>
@@ -31859,14 +33460,6 @@ Beispiel: *.cpp%1*.h</translation>
 %2</source>
         <translation>Ungültiger Parameter in &quot;%1&quot;:
 %2</translation>
-    </message>
-    <message>
-        <source>Language Server &quot;%1&quot; Initialize Error</source>
-        <translation>Fehler beim Initialisieren von Language Server &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Initialize error: </source>
-        <translation>Fehler bei Initialisierung: </translation>
     </message>
     <message>
         <source>Initialize result is invalid.</source>
@@ -31930,8 +33523,8 @@ Beispiel: *.cpp%1*.h</translation>
         <translation>%1 ist nicht mehr erreichbar.</translation>
     </message>
     <message>
-        <source>Matches all symbols from the current document, based on a language server.</source>
-        <translation>Filtert alle Symbole im aktuellen Dokument, basierend auf einem Language Server.</translation>
+        <source>Start typing to see replacements.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expand All</source>
@@ -31978,6 +33571,14 @@ Beispiel: *.cpp%1*.h</translation>
         <translation>Language Client Inspektor</translation>
     </message>
     <message>
+        <source>&lt;Select&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Language Server:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Log</source>
         <translation>Log</translation>
     </message>
@@ -32000,6 +33601,10 @@ Beispiel: *.cpp%1*.h</translation>
     <message>
         <source>Call Hierarchy</source>
         <translation>Aufrufhierarchie</translation>
+    </message>
+    <message>
+        <source>Reloads the call hierarchy for the symbol under cursor position.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -32190,8 +33795,40 @@ Beispiel: *.cpp%1*.h</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Qt for MCUs Kit Creation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="unfinished">Hilfe</translation>
+    </message>
+    <message>
+        <source>Qt for MCUs path %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation type="unfinished">Ziel</translation>
+    </message>
+    <message>
         <source>Warning</source>
         <translation type="unfinished">Warnung</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
+    </message>
+    <message>
+        <source>Package</source>
+        <translation type="unfinished">Paket</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation type="unfinished">Status</translation>
     </message>
     <message>
         <source>Unable to apply changes in Devices &gt; MCU.</source>
@@ -32487,6 +34124,14 @@ Beispiel: *.cpp%1*.h</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Errors while creating Qt for MCUs kits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation type="unfinished">Details</translation>
+    </message>
+    <message>
         <source>Qt for MCUs SDK</source>
         <translation type="unfinished"></translation>
     </message>
@@ -32527,11 +34172,11 @@ Beispiel: *.cpp%1*.h</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Provide the package paths in order to create a kit for your target.</source>
+        <source>Provide the package paths to create a kit for your target.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No CMake tool was detected. Add a CMake tool in the &lt;a href=&quot;cmake&quot;&gt;CMake options&lt;/a&gt; and press Apply.</source>
+        <source>No CMake tool was detected. Add a CMake tool in the &lt;a href=&quot;cmake&quot;&gt;CMake options&lt;/a&gt; and select Apply.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32550,8 +34195,19 @@ Beispiel: *.cpp%1*.h</translation>
         <source>Create Kits for Qt for MCUs</source>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <source>Detected %n uninstalled MCU target(s). Remove corresponding kits?</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
-        <source>New version of Qt for MCUs detected. Upgrade existing Kits?</source>
+        <source>Keep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32910,7 +34566,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Parameters</source>
+        <source>Parameters:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33973,7 +35629,7 @@ You might find further explanations in the Application Output view.</source>
         <translation>Geschätzt</translation>
     </message>
     <message numerus="yes">
-        <source>%n frames</source>
+        <source>%n frame(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -34060,6 +35716,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Submit</source>
+        <extracomment>Name of the &quot;commit&quot; action of the VCS</extracomment>
         <translation>Submit</translation>
     </message>
     <message>
@@ -34341,6 +35998,22 @@ You might find further explanations in the Application Output view.</source>
     <message>
         <source>The process terminated with exit code %1.</source>
         <translation>Der Prozess wurde beendet, Rückgabewert %1.</translation>
+    </message>
+    <message>
+        <source>Close Submit Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Closing this editor will abort the submit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot submit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot submit: %1.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>p4 submit failed: %1</source>
@@ -34721,8 +36394,8 @@ You might find further explanations in the Application Output view.</source>
         <translation>Dateien aus allen Projekten</translation>
     </message>
     <message>
-        <source>Matches all files of all open projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Filtert alle Dateien aus allen geöffneten Projekten. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
+        <source>Locates files of all open projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Projects</source>
@@ -34821,8 +36494,8 @@ Außer: %2
         <translation>Dateien im aktuellen Projekt</translation>
     </message>
     <message>
-        <source>Matches all files from the current document&apos;s project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Filtert alle Dateien aus dem Projekt des aktuellen Dokuments. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
+        <source>Locates files from the current document&apos;s project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Project &quot;%1&quot;</source>
@@ -35119,10 +36792,6 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     <message>
         <source>&amp;Open</source>
         <translation>&amp;Öffnen</translation>
-    </message>
-    <message>
-        <source>File not found: %1</source>
-        <translation>Datei nicht gefunden: %1</translation>
     </message>
     <message>
         <source>&amp;Build</source>
@@ -35545,6 +37214,26 @@ Bitte versuchen Sie es erneut.</translation>
         <translation>Für das aktive Projekt ist bereits eine Ausführung geplant.</translation>
     </message>
     <message>
+        <source>Locates files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Run Run Configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Runs a run configuration of the active project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch Run Configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switches the active run configuration of the active project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Run %1</source>
         <translation>%1 ausführen</translation>
     </message>
@@ -35596,26 +37285,6 @@ Bitte versuchen Sie es erneut.</translation>
     <message>
         <source>Cannot Rename File</source>
         <translation>Die Datei konnte nicht umbenannt werden</translation>
-    </message>
-    <message>
-        <source>Matches all files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Filtert alle Dateien aus allen Projektverzeichnissen. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
-    </message>
-    <message>
-        <source>Run run configuration</source>
-        <translation>Ausführungskonfiguration ausführen</translation>
-    </message>
-    <message>
-        <source>Run a run configuration of the current active project</source>
-        <translation>Eine Ausführungskonfiguration des aktiven Projekts ausführen</translation>
-    </message>
-    <message>
-        <source>Switch run configuration</source>
-        <translation>Ausführungskonfiguration auswählen</translation>
-    </message>
-    <message>
-        <source>Switch active run configuration</source>
-        <translation>Aktive Ausführungskonfiguration auswählen</translation>
     </message>
     <message>
         <source>Switched run configuration to
@@ -36199,6 +37868,10 @@ The name of the build configuration created by default for a generic project.</e
         <translation>Starte %1...</translation>
     </message>
     <message>
+        <source>Environment:</source>
+        <translation type="unfinished">Umgebung:</translation>
+    </message>
+    <message>
         <source>No executable specified.</source>
         <translation>Es wurde keine ausführbare Datei angegeben.</translation>
     </message>
@@ -36493,6 +38166,15 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
         <translation>Als Vorgabe setzen</translation>
     </message>
     <message>
+        <source>&amp;Start Wizard to Add Device...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add %1</source>
+        <extracomment>Add &lt;Device Type Name&gt;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Yes (id is &quot;%1&quot;)</source>
         <translation>Ja (id ist &quot;%1&quot;)</translation>
     </message>
@@ -36595,18 +38277,6 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     <message>
         <source>Remote Error</source>
         <translation>Entfernter Fehler</translation>
-    </message>
-    <message>
-        <source>Process listing command failed with exit code %1.</source>
-        <translation>Das Kommando zur Auflistung der Prozesse schlug mit Rückgabewert %1 fehl.</translation>
-    </message>
-    <message>
-        <source>Error: Kill process failed: %1</source>
-        <translation>Fehlschlag beim Beenden des Prozesses: %1</translation>
-    </message>
-    <message>
-        <source>Remote stderr was: %1</source>
-        <translation>Fehlerausgabe: %1</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -36802,6 +38472,10 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>Basisumgebung für diese Ausführungskonfiguration:</translation>
+    </message>
+    <message>
+        <source>Show in Application Output when running</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No device configured.</source>
@@ -37081,6 +38755,10 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <translation>Die Aufgabendatei %1 kann nicht geöffnet werden: %2</translation>
     </message>
     <message>
+        <source>Ignoring invalid task (no text).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File Error</source>
         <translation>Dateifehler</translation>
     </message>
@@ -37355,12 +39033,66 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <translation>Pfad</translation>
     </message>
     <message>
+        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window and C++ source and header files to implement the application logic.
+
+Preselects a desktop Qt for building the application if available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creates a C++ library. You can create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creates a project containing a single main.cpp file with a stub implementation and no graphical UI.
+
+Preselects a desktop Qt for building the application if available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PySide 2</source>
+        <translation type="unfinished">PySide 2</translation>
+    </message>
+    <message>
+        <source>Define Python Interpreter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick application that contains an empty window.
+
+Use this &quot;compat&quot; version if you want to use other build systems than CMake or Qt versions lower than 6.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qt Quick Application (compat)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick UI project for previewing and prototyping designs.
+
+To develop a full application, create a Qt Quick Application project instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.
+
+You can select an option to create a project that you can open in Qt Design Studio, which has a visual editor for Qt Quick UIs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Qt Quick Application</source>
         <translation>Qt Quick-Anwendung</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project.</source>
         <translation>Dieser Assistent erstellt ein einfaches Unit-Test-Projekt.</translation>
+    </message>
+    <message>
+        <source>Boost Test (header only)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Boost Test (shared libraries)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Test framework:</source>
@@ -37373,6 +39105,10 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     <message>
         <source>Generate setup code</source>
         <translation>Setup-Code erzeugen</translation>
+    </message>
+    <message>
+        <source>Boost install directory (optional):</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
@@ -37397,6 +39133,14 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     <message>
         <source>Qt Designer Form</source>
         <translation>Qt-Designer-Formular</translation>
+    </message>
+    <message>
+        <source>Creates a markdown file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Markdown File</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -37449,6 +39193,32 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     <message>
         <source>Model</source>
         <translation>Modell</translation>
+    </message>
+    <message>
+        <source>You must tell Qt Creator which test framework is used inside the project.
+
+You should not mix multiple test frameworks in a project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%{JS: &apos;tst_&apos; + value(&apos;TestCaseName&apos;).toLowerCase() + &apos;.&apos; + Util.preferredSuffix(&apos;text/x-c++src&apos;)}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%{JS: &apos;tst_&apos; + value(&apos;TestCaseName&apos;).toLowerCase() + &apos;.qml&apos;}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Test Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creates a source file that you can add to an existing test project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Test Case</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Creates an empty Nim script file using UTF-8 charset.</source>
@@ -37853,14 +39623,6 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <translation>QML_ELEMENT einfügen</translation>
     </message>
     <message>
-        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window.
-
-Preselects a desktop Qt for building the application if available.</source>
-        <translation>Erstellt eine Widget-basierte Qt-Anwendung mit einem Qt Designer-basierten Hauptfenster.
-
-Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
-    </message>
-    <message>
         <source>Shared Library</source>
         <translation>Dynamisch gebundene Bibliothek</translation>
     </message>
@@ -37921,20 +39683,8 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Qt-Modul:</translation>
     </message>
     <message>
-        <source>Creates a C++ library. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Erstellt eine C++-Bibliothek. Dies kann verwendet werden zum Erstellen von:&lt;ul&gt;&lt;li&gt;einer dynamisch gebundenen C++-Bibliothek zur Verwendung mit &lt;tt&gt;QPluginLoader&lt;/tt&gt; zur Laufzeit (Plugin)&lt;/li&gt;&lt;li&gt;einer statisch oder dynamisch gebundenen C++-Bibliothek zur Verwendung in einem anderen Projekt zur Linkzeit&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
         <source>C++ Library</source>
         <translation>C++-Bibliothek</translation>
-    </message>
-    <message>
-        <source>Creates a project containing a single main.cpp file with a stub implementation.
-
-Preselects a desktop Qt for building the application if available.</source>
-        <translation>Erstellt ein Projekt, das aus einer main.cpp-Datei mit einem Implementationsrumpf besteht.
-
-Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
     </message>
     <message>
         <source>%{JS: value(&apos;BaseCB&apos;) ? value(&apos;BaseCB&apos;).slice(1) : &apos;MyClass&apos;}</source>
@@ -37975,14 +39725,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>Create example project</source>
         <translation>Beispielprojekt erzeugen</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment.
-
-Use this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.</source>
-        <translation>Erstellt ein Qt Quick 2 UI-Projekt mit QML-Einsprungpunkt. Um es zu verwenden, brauchen Sie eine QML-Laufzeitumgebung wie qmlscene.
-
-Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anwendung erstellen. Vielleicht ist ein Qt Quick-Anwendungsprojekt besser geeignet.</translation>
     </message>
     <message>
         <source>Binary</source>
@@ -38093,12 +39835,16 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio (via qmlproject) als auch mit Qt Creator (via CMakeLists.txt) kompatibel ist. Es enthält ein .ui.qml-Formular, das in Qt Design Studio visuell bearbeitet werden kann.</translation>
     </message>
     <message>
-        <source>The minimum version of Qt you want to build the application for.</source>
-        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen.</translation>
+        <source>Qt 6.4</source>
+        <translation type="unfinished">Qt 6.4</translation>
     </message>
     <message>
-        <source>Creates a Qt Quick application that contains an empty window. Optionally, you can create a Qt Design Studio project.</source>
-        <translation>Erstellt eine Qt Quick-Anwendung, die ein leeres Fenster enthält. Optional kann ein Qt Design Studio-Projekt erstellt werden.</translation>
+        <source>Qt 6.5</source>
+        <translation type="unfinished">Qt 6.5</translation>
+    </message>
+    <message>
+        <source>The minimum version of Qt you want to build the application for.</source>
+        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen.</translation>
     </message>
     <message>
         <source>Creates a CMake-based test project for which a code snippet can be entered.</source>
@@ -38141,6 +39887,10 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     <message>
         <source>Code snippet</source>
         <translation>Code-Ausschnitt</translation>
+    </message>
+    <message>
+        <source>Creates a CMake-based test project where you can enter a code snippet to compile and check it.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Code Snippet</source>
@@ -38253,10 +40003,6 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     <message>
         <source>PySide 5.12</source>
         <translation>PySide 5.12</translation>
-    </message>
-    <message>
-        <source>PySide version:</source>
-        <translation>PySide-Version:</translation>
     </message>
     <message>
         <source>Creates a Qt Quick application that contains an empty window.</source>
@@ -39163,14 +40909,6 @@ Sie werden erhalten.</numerusform>
         <translation>Keine</translation>
     </message>
     <message>
-        <source>Tool Chains</source>
-        <translation>Toolchains</translation>
-    </message>
-    <message>
-        <source>ABI</source>
-        <translation>ABI</translation>
-    </message>
-    <message>
         <source>Build</source>
         <extracomment>Displayed name for a normal build step
 ----------
@@ -39280,8 +41018,8 @@ Was soll %1 tun?</translation>
         <translation>Ausführbare Datei</translation>
     </message>
     <message>
-        <source>&lt;unknown&gt;</source>
-        <translation>&lt;unbekannt&gt;</translation>
+        <source>Enter the path to the executable</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -39310,6 +41048,10 @@ Was soll %1 tun?</translation>
     <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>Debug-Version von Frameworks verwenden (DYLD_IMAGE_SUFFIX=_debug)</translation>
+    </message>
+    <message>
+        <source>Interpreter:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>X11 Forwarding:</source>
@@ -39590,8 +41332,16 @@ Was soll %1 tun?</translation>
         <translation>Der Typ des Geräts, auf dem die Anwendung laufen soll.</translation>
     </message>
     <message>
+        <source>Run device type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown device type</source>
         <translation>Unbekannter Gerätetyp</translation>
+    </message>
+    <message>
+        <source>Run device</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The device to run the applications on.</source>
@@ -39624,6 +41374,14 @@ Was soll %1 tun?</translation>
     <message>
         <source>Device name</source>
         <translation>Gerätename</translation>
+    </message>
+    <message>
+        <source>Device root directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Build device root directory</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change...</source>
@@ -40119,13 +41877,35 @@ fails because Clang does not understand the target architecture.</source>
         <source>Profiling</source>
         <translation>Profiling</translation>
     </message>
+    <message>
+        <source>Source:</source>
+        <translation type="unfinished">Quelle:</translation>
+    </message>
+    <message>
+        <source>Target:</source>
+        <translation type="unfinished">Ziel:</translation>
+    </message>
+    <message>
+        <source>Copying failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copying finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy file</source>
+        <extracomment>Default CopyStep display name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy directory recursively</source>
+        <extracomment>Default CopyStep display name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QtC::Python</name>
-    <message>
-        <source>Unable to open &quot;%1&quot; for reading: %2</source>
-        <translation>&quot;%1&quot; konnte nicht zum Lesen geöffnet werden: %2</translation>
-    </message>
     <message>
         <source>Unable to read &quot;%1&quot;: The file is empty.</source>
         <translation>&quot;%1&quot; konnte nicht gelesen werden: Die Datei ist leer.</translation>
@@ -40219,8 +41999,25 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Language Server-Konfiguration</translation>
     </message>
     <message>
-        <source> (Windowed)</source>
-        <translation> (mit Fenster)</translation>
+        <source>%1 (Windowed)</source>
+        <extracomment>&lt;python display name&gt; (Windowed)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Python interpreter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Python Virtual Environment Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Virtual environment directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Removing Python</source>
@@ -40243,32 +42040,24 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Installieren</translation>
     </message>
     <message>
-        <source>Install %1</source>
-        <translatorcomment>This is the header of a progress bar</translatorcomment>
-        <translation>Installiere %1</translation>
+        <source>Install Python Packages</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
         <translation>Führe &quot;%1&quot; aus, um %2 zu installieren.</translation>
     </message>
     <message>
-        <source>The %1 installation was canceled by %2.</source>
-        <translatorcomment>%2 can be &quot;user&quot; or &quot;time out&quot; which doesn&apos;t work in non-english... so working around that.</translatorcomment>
-        <translation>Die Installation von %1 wurde abgebrochen: %2.</translation>
+        <source>The installation of &quot;%1&quot; was canceled by timeout.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>user</source>
-        <translatorcomment>Used as %2 in &quot;Die Installation von %1 wurde abgebrochen: %2.&quot;</translatorcomment>
-        <translation>Der Nutzer hat den Prozess abgebrochen</translation>
+        <source>The installation of &quot;%1&quot; was canceled by the user.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>time out</source>
-        <translatorcomment>Used as %2 in &quot;Die Installation von %1 wurde abgebrochen: %2.&quot;</translatorcomment>
-        <translation>Zeitüberschreitung</translation>
-    </message>
-    <message>
-        <source>Installing the %1 failed with exit code %2</source>
-        <translation>Installation von %1 ist mit dem Rückgabewert %2 fehlgeschlagen</translation>
+        <source>Installing &quot;%1&quot; failed with exit code %2.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Run PySide6 project tool</source>
@@ -40319,6 +42108,10 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Kein Python ausgewählt</translation>
     </message>
     <message>
+        <source>Create Virtual Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Manage Python Interpreters</source>
         <translation>Python-Interpreter verwalten</translation>
     </message>
@@ -40337,6 +42130,30 @@ fails because Clang does not understand the target architecture.</source>
     <message>
         <source>Found &quot;%1&quot; (%2)</source>
         <translation>&quot;%1&quot; (%2) gefunden</translation>
+    </message>
+    <message>
+        <source>Create Python venv</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;data&quot; of a Python wizard page expects a map with &quot;items&quot; containing a list of objects.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An item of Python wizard page data expects a &quot;trKey&quot; field containing the UI visible string for that Python version and a &quot;value&quot; field containing an object with a &quot;PySideVersion&quot; field used for import statements in the Python files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PySide version:</source>
+        <translation type="unfinished">PySide-Version:</translation>
+    </message>
+    <message>
+        <source>Create new virtual environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path to virtual environment:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -40636,7 +42453,12 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Fehler beim Abfragen der Ausführungsumgebung: %1</translation>
     </message>
     <message>
+        <source>Reset</source>
+        <translation type="unfinished">Zurücksetzen</translation>
+    </message>
+    <message>
         <source>Use %1 settings directory for Qbs</source>
+        <extracomment>%1 == &quot;Qt Creator&quot; or &quot;Qt Design Studio&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -40689,6 +42511,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>The qbs API level is not compatible with what %1 expects.</source>
+        <extracomment>%1 == &quot;Qt Creator&quot; or &quot;Qt Design Studio&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -41768,6 +43591,22 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
+    <message>
+        <source>Export Components</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export path:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Baking aborted: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Baking finished!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QtC::QmlEditorWidgets</name>
@@ -42758,6 +44597,26 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Stets das neueste qmlls benutzen</translation>
     </message>
     <message>
+        <source>Use customized static analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>Disabled for non Qt Quick UI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled checks can be disabled for non Qt Quick UI files, but disabled checks cannot get explicitly enabled for non Qt Quick UI files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Automatic Formatting on File Save</source>
         <translation>Automatische Formatierung beim Speichern einer Datei</translation>
     </message>
@@ -42768,6 +44627,14 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     <message>
         <source>Language Server</source>
         <translation>Language Server</translation>
+    </message>
+    <message>
+        <source>Static Analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset to Default</source>
+        <translation type="unfinished">Auf Vorgabe zurücksetzen</translation>
     </message>
     <message>
         <source>Enable auto format on file save</source>
@@ -42849,6 +44716,10 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>QML-Funktionen</translation>
     </message>
     <message>
+        <source>Locates QML functions in any open project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Code Style</source>
         <translation>Coding-Stil</translation>
     </message>
@@ -42861,10 +44732,6 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Qt</translation>
     </message>
     <message>
-        <source>Old Creator</source>
-        <translation>Veraltete Creator-Konvention</translation>
-    </message>
-    <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
     </message>
@@ -42873,8 +44740,8 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Codemodell zurücksetzen</translation>
     </message>
     <message>
-        <source>Qml JS Code Style</source>
-        <translation>QML JS Coding Style</translation>
+        <source>Other</source>
+        <translation type="unfinished">Andere</translation>
     </message>
     <message>
         <source>&amp;Line length:</source>
@@ -43866,16 +45733,8 @@ Speichern fehlgeschlagen.</translation>
         <translation>&lt;Aktuelle Datei&gt;</translation>
     </message>
     <message>
-        <source>Invalid root element: %1</source>
-        <translation>Ungültiges Wurzelelement: %1</translation>
-    </message>
-    <message>
         <source>Main QML file:</source>
         <translation>QML-Hauptdatei:</translation>
-    </message>
-    <message>
-        <source>Error while loading project file %1.</source>
-        <translation>Fehler beim Laden der Projektdatei %1.</translation>
     </message>
     <message>
         <source>Warning while loading project file %1.</source>
@@ -44114,6 +45973,34 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
 Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Failed to find valid build system</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create valid build directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation type="unfinished">Argumente:</translation>
+    </message>
+    <message>
+        <source>Build directory:</source>
+        <translation type="unfinished">Build-Verzeichnis:</translation>
+    </message>
+    <message>
+        <source>Failed to find valid Qt for MCUs kit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qt for MCUs Deploy Step</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QtC::Qnx</name>
@@ -44281,8 +46168,8 @@ Möchten Sie fortfahren?</translation>
         <translation>Qt-Deployment auf QNX-Gerät</translation>
     </message>
     <message>
-        <source>Generate kits</source>
-        <translation>Kits erzeugen</translation>
+        <source>Create Kit for %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Configuration Information:</source>
@@ -44305,6 +46192,14 @@ Möchten Sie fortfahren?</translation>
         <translation>Ziel:</translation>
     </message>
     <message>
+        <source>Compiler:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Architectures:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
@@ -44317,8 +46212,12 @@ Möchten Sie fortfahren?</translation>
         <translation>Warnung</translation>
     </message>
     <message>
-        <source>Configuration already exists or is invalid.</source>
-        <translation>Die Konfiguration existiert bereits oder ist ungültig.</translation>
+        <source>Configuration already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configuration is not valid.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove QNX Configuration</source>
@@ -45147,10 +47046,6 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Device replied to echo with unexpected contents.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Device replied to echo with expected contents.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -45175,8 +47070,17 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>Alle angegebenen Ports sind verfügbar.</translation>
     </message>
     <message>
+        <source>Device replied to echo with unexpected contents: &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The following specified ports are currently in use: %1</source>
         <translation>Die folgenden angegebenen Ports sind auf dem Gerät in Verwendung: %1</translation>
+    </message>
+    <message>
+        <source>Some tools will not work out of the box.
+</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Checking whether &quot;%1&quot; works...</source>
@@ -45203,16 +47107,16 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Checking if required commands are available...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; is not available.
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -45382,11 +47286,23 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>s</translation>
     </message>
     <message>
+        <source>Source %1 and %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direct</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Username:</source>
         <translation>&amp;Nutzername:</translation>
     </message>
     <message>
         <source>QML runtime executable:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access via:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -45442,16 +47358,8 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>Öffentlichen Schlüssel senden...</translation>
     </message>
     <message>
-        <source>Error running remote shell.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Open Remote Shell</source>
         <translation>Entfernte Shell starten</translation>
-    </message>
-    <message>
-        <source>Error running remote shell: %1</source>
-        <translation>Fehler bei der Ausführung der entfernten Shell: %1</translation>
     </message>
     <message>
         <source>Cannot establish SSH connection: ssh binary &quot;%1&quot; does not exist.</source>
@@ -45479,12 +47387,12 @@ Control process failed to start.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remote Linux Device</source>
+        <source>Failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Error starting remote shell.</source>
-        <translation>Fehler beim Start der entfernten Shell.</translation>
+        <source>Remote Linux Device</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&quot;%1&quot; failed to start: %2</source>
@@ -45497,10 +47405,6 @@ Control process failed to start.</source>
     <message>
         <source>&quot;sftp&quot; binary &quot;%1&quot; does not exist.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to create local directory &quot;%1&quot;.</source>
-        <translation type="unfinished">Das lokale Verzeichnis &quot;%1&quot; konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Creating directory: %1
@@ -47119,11 +49023,27 @@ Refusing to record test case &quot;%2&quot;.</source>
         <translation type="unfinished">Einzelschritt heraus</translation>
     </message>
     <message>
+        <source>Inspect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Type</source>
         <translation type="unfinished">Typ</translation>
     </message>
     <message>
         <source>Squish Locals</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Squish Objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Squish Object Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -47718,6 +49638,217 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
+    <name>QtC::Terminal</name>
+    <message>
+        <source>Configure...</source>
+        <translation type="unfinished">Einstellungen...</translation>
+    </message>
+    <message>
+        <source>Sends Esc to terminal instead of Qt Creator.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Press %1 to send Esc to terminal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Terminal</source>
+        <translation type="unfinished">Terminal</translation>
+    </message>
+    <message>
+        <source>Sends keyboard shortcuts to Terminal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sends keyboard shortcuts to Qt Creator.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Terminal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create a new Terminal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next Terminal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Previous Terminal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close the current Terminal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Devices</source>
+        <translation type="unfinished">Geräte</translation>
+    </message>
+    <message>
+        <source>The color used for %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to open file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JSON parsing error: &quot;%1&quot;, at offset: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No colors found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid color format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown color scheme format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use internal terminal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses the internal terminal when &quot;Run In Terminal&quot; is enabled and for &quot;Open Terminal here&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Family:</source>
+        <translation type="unfinished">Name:</translation>
+    </message>
+    <message>
+        <source>The font family used in the terminal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished">Größe:</translation>
+    </message>
+    <message>
+        <source>The font size used in the terminal (in points).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allow blinking cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allow the cursor to blink.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shell path:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The shell executable to be started.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shell arguments:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The arguments to be passed to the shell.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send escape key to terminal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sends the escape key to the terminal when pressedinstead of closing the terminal.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Audible bell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Makes the terminal beep when a bell character is received.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load Theme...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">Allgemein</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished">Zeichensatz</translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Foreground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection</source>
+        <translation type="unfinished">Auswahl</translation>
+    </message>
+    <message>
+        <source>Find match</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default Shell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopieren</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation type="unfinished">Einfügen</translation>
+    </message>
+    <message>
+        <source>Clear Selection</source>
+        <translation type="unfinished">Auswahl löschen</translation>
+    </message>
+    <message>
+        <source>Clear Terminal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Cursor Word Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Cursor Word Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close Terminal</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QtC::TextEditor</name>
     <message>
         <source>Searching</source>
@@ -47994,6 +50125,10 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden: %2.</translation>
     </message>
     <message>
+        <source>Failed to format: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Cannot read file &quot;%1&quot;: %2.</source>
         <translation>Die Datei &quot;%1&quot; kann nicht gelesen werden: %2.</translation>
     </message>
@@ -48002,13 +50137,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <translation>%1 konnte nicht aufgerufen werden oder es trat ein anderer Fehler auf. Zeitüberschreitung während die Datei %2 formatiert wurde.</translation>
     </message>
     <message>
-        <source>TextEditor</source>
-        <comment>Failed to format: %1.</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>TextEditor</source>
-        <comment>Error in text formatting: %1</comment>
+        <source>Error in text formatting: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49029,6 +51158,10 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Gehe zu Datei unter Einfügemarke im nächsten geteilten Fenster</translation>
     </message>
     <message>
+        <source>Open Call Hierarchy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Move the View a Page Up and Keep the Cursor Position</source>
         <translation>Ansicht eine Bildschirmseite nach oben bewegen, ohne die Einfügemarke zu verändern</translation>
     </message>
@@ -49727,6 +51860,14 @@ Wird benutzt um die Funktion zu markieren, die ein gesuchtes Symbol benutzt.</tr
         <translation>Typname.</translation>
     </message>
     <message>
+        <source>Concept</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name of a concept.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Namespace</source>
         <translation>Namensraum</translation>
     </message>
@@ -50293,9 +52434,9 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
         <translation>template</translation>
     </message>
     <message>
-        <source>(type name READ name WRITE setName NOTIFY nameChanged)</source>
+        <source>(type name READ name WRITE setName NOTIFY nameChanged FINAL)</source>
         <comment>group:&apos;C++&apos; trigger:&apos;Q_PROPERTY&apos;</comment>
-        <translation>(type name READ name WRITE setName NOTIFY nameChanged)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>with targets</source>
@@ -50374,6 +52515,18 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     <message>
         <source>Show Commit %1</source>
         <translation>Commit %1 anzeigen</translation>
+    </message>
+    <message>
+        <source>Show Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Swap Views</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -50723,18 +52876,6 @@ Die Trace-Daten sind verloren.</translation>
 <context>
     <name>QtC::Utils</name>
     <message>
-        <source>Do not ask again</source>
-        <translation>Nicht noch einmal nachfragen</translation>
-    </message>
-    <message>
-        <source>Show Details...</source>
-        <translation>Details anzeigen...</translation>
-    </message>
-    <message>
-        <source>Hide Details...</source>
-        <translation>Details ausblenden...</translation>
-    </message>
-    <message>
         <source>Do not &amp;ask again</source>
         <translation>Nicht noch einmal nach&amp;fragen</translation>
     </message>
@@ -50781,8 +52922,16 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Ausschl&amp;ussmuster:</translation>
     </message>
     <message>
-        <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
-        <translation>Kommaseparierte Liste von Platzhalter-Filtern. Dateien werden eingeschlossen, wenn ihr Name oder vollständiger Pfad einem der Filter entspricht.</translation>
+        <source>List of comma separated wildcard filters. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Files with file name or full file path matching any filter are included.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Files with file name or full file path matching any filter are excluded.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Local</source>
@@ -51018,6 +53167,10 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Das Programm &quot;%1&quot; existiert nicht oder ist nicht ausführbar.</translation>
     </message>
     <message>
+        <source>The program &quot;%1&quot; could not be found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Process Not Responding</source>
         <translation>Prozess antwortet nicht</translation>
     </message>
@@ -51094,40 +53247,12 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Das Kommando &quot;%1&quot; konnte nicht ausgeführt werden: %2</translation>
     </message>
     <message>
-        <source>The process &quot;%1&quot; could not be started: %2</source>
-        <translation>Der Prozess &quot;%1&quot; konnte nicht gestartet werden: %2</translation>
-    </message>
-    <message>
-        <source>Quoting error in command.</source>
-        <translation>Falsch gesetzte Anführungszeichen im Kommando.</translation>
-    </message>
-    <message>
-        <source>Debugging complex shell commands in a terminal is currently not supported.</source>
-        <translation>Das Debuggen komplexer Shell-Kommandos in einem Terminal wird aktuell nicht unterstützt.</translation>
-    </message>
-    <message>
-        <source>Quoting error in terminal command.</source>
-        <translation>Falsch gesetzte Anführungszeichen im Terminal-Kommando.</translation>
-    </message>
-    <message>
-        <source>Terminal command may not be a shell command.</source>
-        <translation>Shell-Kommandos sind als Terminal-Kommando nicht zulässig.</translation>
-    </message>
-    <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences. (%2)</source>
-        <translation>Der Terminal-Emulator &quot;%1&quot; konnte nicht gestartet werden, ändern Sie den Wert in den Einstellungen zur Umgebung (%2)</translation>
+        <source>Cannot set permissions on temporary directory &quot;%1&quot;: %2</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cannot create socket &quot;%1&quot;: %2</source>
         <translation>Der Socket &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
-    </message>
-    <message>
-        <source>Cannot obtain a handle to the inferior: %1</source>
-        <translation>Der Handle für den Prozess konnte nicht erhalten werden: %1</translation>
-    </message>
-    <message>
-        <source>Cannot obtain exit status from inferior: %1</source>
-        <translation>Der Rückgabewert des Prozesses konnte nicht erhalten werden: %1</translation>
     </message>
     <message>
         <source>copyFile is not implemented for &quot;%1&quot;.</source>
@@ -51176,10 +53301,6 @@ Die Trace-Daten sind verloren.</translation>
     <message>
         <source>Failed to remove file &quot;%1&quot;.</source>
         <translation>Die Datei &quot;%1&quot; konnte nicht gelöscht werden.</translation>
-    </message>
-    <message>
-        <source>Failed to copy file &quot;%1&quot; to &quot;%2&quot;.</source>
-        <translation>Kopieren der Datei &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; does not exist.</source>
@@ -51234,40 +53355,8 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Die Datei &quot;%1&quot; konnte nicht nach &quot;%2&quot; kopiert werden.</translation>
     </message>
     <message>
-        <source>Cannot Save Workspace</source>
-        <translation>Arbeitsbereich kann nicht gespeichert werden</translation>
-    </message>
-    <message>
-        <source>Could not save workspace to file %1</source>
-        <translation>Arbeitsbereich konnte nicht in der Datei %1 gespeichert werden</translation>
-    </message>
-    <message>
-        <source>Delete Workspace</source>
-        <translation>Arbeitsbereich löschen</translation>
-    </message>
-    <message>
-        <source>Delete Workspaces</source>
-        <translation>Arbeitsbereiche löschen</translation>
-    </message>
-    <message>
-        <source>Delete workspace &quot;%1&quot;?</source>
-        <translation>Arbeitsbereich &quot;%1&quot; löschen?</translation>
-    </message>
-    <message>
-        <source>Delete these workspaces?</source>
-        <translation>Diese Arbeitsbereiche löschen?</translation>
-    </message>
-    <message>
         <source>File Error</source>
         <translation>Dateifehler</translation>
-    </message>
-    <message>
-        <source>Cannot Restore Workspace</source>
-        <translation>Arbeitsbereich kann nicht wiederhergestellt werden</translation>
-    </message>
-    <message>
-        <source>Could not restore workspace %1</source>
-        <translation>Der Arbeitsbereich %1 konnte nicht wiederhergestellt werden</translation>
     </message>
     <message>
         <source>Cannot write file %1: %2</source>
@@ -51789,12 +53878,36 @@ in &quot;%2&quot; aus.
         <translation>Variablen</translation>
     </message>
     <message>
+        <source>No clangd executable specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Failed to retrieve clangd version: Unexpected clangd output.</source>
         <translation>Konnte Clangd-Version nicht bestimmen. Unerwartete Ausgabe.</translation>
     </message>
     <message>
         <source>The clangd version is %1, but %2 or greater is required.</source>
         <translation>Die Clangd-Version ist %1, aber %2 oder neuer wird benötigt.</translation>
+    </message>
+    <message>
+        <source>Failed to open temporary script file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to start terminal process: &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed copying file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed reading file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed writing file.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -51932,11 +54045,11 @@ in &quot;%2&quot; aus.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>MemCheck Memory Analysis Options</source>
+        <source>Memcheck Memory Analysis Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>CallGrind Profiling Options</source>
+        <source>Callgrind Profiling Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -51960,8 +54073,16 @@ in &quot;%2&quot; aus.
         <translation>Entfernen</translation>
     </message>
     <message>
+        <source>Extra Memcheck arguments:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Track origins of uninitialized memory</source>
         <translation>Herkunft von nicht initialisiertem Speicher verfolgen</translation>
+    </message>
+    <message>
+        <source>Extra Callgrind arguments:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</source>
@@ -51981,14 +54102,6 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Valgrind arguments:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Extra MemCheck arguments:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Extra CallGrind arguments:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -52608,16 +54721,9 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
         <translation>Profiling von %1</translation>
     </message>
     <message>
-        <source>Valgrind options: %1</source>
-        <translation>Valgrind-Optionen: %1</translation>
-    </message>
-    <message>
-        <source>Working directory: %1</source>
-        <translation>Arbeitsverzeichnis: %1</translation>
-    </message>
-    <message>
-        <source>Command line arguments: %1</source>
-        <translation>Kommandozeilenargumente: %1</translation>
+        <source>Valgrind executable &quot;%1&quot; not found or not executable.
+Check settings or ensure Valgrind is installed and available in PATH.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Analyzing finished.</source>
@@ -52899,19 +55005,6 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     <message>
         <source>Insert Name...</source>
         <translation>Namen einfügen...</translation>
-    </message>
-    <message>
-        <source>Cannot %1%2.</source>
-        <comment>%2 is an optional error message with &apos;: &apos; prefix. Don&apos;t add space in front.</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close %1 %2 Editor</source>
-        <translation>Editor für %1 %2 schließen</translation>
-    </message>
-    <message>
-        <source>Closing this editor will abort the %1.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -53357,7 +55450,24 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     <message>
         <source>Commit</source>
         <comment>name of &quot;commit&quot; action of the VCS.</comment>
+        <extracomment>Name of the &quot;commit&quot; action of the VCS</extracomment>
         <translation>Commit</translation>
+    </message>
+    <message>
+        <source>Close Commit Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Closing this editor will abort the commit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot commit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot commit: %1.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save before %1?</source>
@@ -54307,13 +56417,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>RadioDelegateSpecifics</name>
-    <message>
-        <source>Radio Delegate</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>RangeSliderSpecifics</name>
     <message>
         <source>Range Slider</source>
@@ -54324,7 +56427,41 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The value of the first range slider handle.</source>
+        <source>Sets the value of the first range slider handle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the range slider provides live value updates.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the value of the second range slider handle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the minimum value of the range slider.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the maximum value of the range slider.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the interval between the steps.
+This functions if &lt;b&gt;Snap mode&lt;/b&gt; is selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the threshold at which a drag event begins.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how the slider handles snaps to the steps
+defined in step size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the orientation of the range slider.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -54332,15 +56469,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Whether the range slider provides live value updates.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Value 2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The value of the second range slider handle.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -54348,31 +56477,15 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Von</translation>
     </message>
     <message>
-        <source>The starting value of the range slider range.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>To</source>
         <translation type="unfinished">Bis</translation>
-    </message>
-    <message>
-        <source>The ending value of the range slider range.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Step size</source>
         <translation type="unfinished">Schrittweite</translation>
     </message>
     <message>
-        <source>The step size of the range slider.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Drag threshold</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The threshold (in logical pixels) at which a drag event will be initiated.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -54380,16 +56493,8 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Einrasten</translation>
     </message>
     <message>
-        <source>The snap mode of the range slider.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Orientation</source>
         <translation type="unfinished">Ausrichtung</translation>
-    </message>
-    <message>
-        <source>The orientation of the range slider.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -54403,7 +56508,15 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the color for the background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Border color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color for the border.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -54411,8 +56524,16 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the border width.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Radius</source>
         <translation>Radius</translation>
+    </message>
+    <message>
+        <source>Sets the radius by which the corners get rounded.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -54501,7 +56622,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Whether the button is flat and/or highlighted.</source>
+        <source>Toggles if the button is flat or highlighted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -54517,7 +56638,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Radius</translation>
     </message>
     <message>
-        <source>Radius of the button.</source>
+        <source>Sets the radius of the button.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -54547,7 +56668,15 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Abstand</translation>
     </message>
     <message>
+        <source>Sets the spacing between items in the row.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Layout direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets in which direction items in the row are placed.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -54567,6 +56696,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Content size</source>
         <translation type="unfinished">Größe des Inhalts</translation>
+    </message>
+    <message>
+        <source>Sets the width and height of the view.
+This is used for calculating the total implicit size.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>W</source>
@@ -54819,6 +56953,116 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
+    <name>SpatialSoundSection</name>
+    <message>
+        <source>Spatial Sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The source file for the sound to be played.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the overall volume for this sound source.
+Values between 0 and 1 will attenuate the sound, while values above 1 provide an additional gain boost.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how often the sound is played before the player stops.
+Bind to SpatialSound.Infinite to loop the current sound forever.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets whether the sound should automatically start playing when a source gets specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distance Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets thow the volume of the sound scales with distance to the listener.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Größe</translation>
+    </message>
+    <message>
+        <source>Set the size of the sound source.
+If the listener is closer to the sound object than the size, volume will stay constant.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distance Cutoff</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the distance beyond which sound coming from the source will cutoff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manual Attenuation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the  manual attenuation factor if distanceModel is set to ManualAttenuation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Occlusion Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set how much the object is occluded.
+0 implies the object is not occluded at all, while a large number implies a large occlusion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directivity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the directivity of the sound source.
+A value of 0 implies that the sound is emitted equally in all directions, while a value of 1 implies that the source mainly emits sound in the forward direction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directivity Order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the order of the directivity of the sound source.
+A higher order implies a sharper localization of the sound cone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Near Field Gain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the near field gain for the sound source.
+A near field gain of 1 will raise the volume of the sound signal by approx 20 dB for distances very close to the listener.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SpinBoxSpecifics</name>
     <message>
         <source>Spin Box</source>
@@ -54829,7 +57073,28 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Wert</translation>
     </message>
     <message>
-        <source>The current value of the spin box.</source>
+        <source>Sets the current value of the spin box.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the lowest value of the spin box range.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the highest value of the spin box range.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the number by which the spin box value changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the spin box is editable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the spin box wraps around when 
+it reaches the start or end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -54837,39 +57102,19 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Von</translation>
     </message>
     <message>
-        <source>The starting value of the spin box range.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>To</source>
         <translation type="unfinished">Bis</translation>
-    </message>
-    <message>
-        <source>The ending value of the spin box range.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Step size</source>
         <translation type="unfinished">Schrittweite</translation>
     </message>
     <message>
-        <source>The step size of the spin box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Editable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Whether the spin box is editable.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Wrap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether the spin box values wrap.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -54921,15 +57166,27 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Umbruch</translation>
     </message>
     <message>
+        <source>Sets how overflowing text is handled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Elide</source>
         <translation>Auslassung</translation>
+    </message>
+    <message>
+        <source>Sets how to indicate that more text is available.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Max line count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Limits the number of lines that the text component will show.</source>
+        <source>Sets the rendering type for this component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how to calculate the line height based on the &lt;b&gt;Line height&lt;/b&gt; value.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -54941,15 +57198,19 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Overrides the default rendering type for this component.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Size mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets how the font size is determined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Min size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the minimum font size to use. This has no effect when &lt;b&gt;Size&lt;/b&gt; mode is set to Fixed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -54969,12 +57230,16 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Format</translation>
     </message>
     <message>
-        <source>Render type</source>
-        <translation>Rendering-Typ</translation>
+        <source>Sets the max number of lines that the text component shows.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Specifies how the font size of the displayed text is determined.</source>
-        <translation>Legt fest wie die Schriftgröße des angezeigten Texts bestimmt wird.</translation>
+        <source>Sets the formatting method of the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Render type</source>
+        <translation>Rendering-Typ</translation>
     </message>
     <message>
         <source>Line height</source>
@@ -54983,10 +57248,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Line height mode</source>
         <translation>Zeilenhöhen-Modus</translation>
-    </message>
-    <message>
-        <source>Determines how the line height is specified.</source>
-        <translation>Bestimmt, wie die Zeilenhöhe festgelegt wird.</translation>
     </message>
 </context>
 <context>
@@ -55160,52 +57421,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>StudioWelcome::Internal::StudioSettingsPage</name>
-    <message>
-        <source>Build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation type="unfinished">Debug</translation>
-    </message>
-    <message>
-        <source>Analyze</source>
-        <translation type="unfinished">Analysieren</translation>
-    </message>
-    <message>
-        <source>Hide top-level menus with advanced functionality to simplify the UI. &lt;b&gt;Build&lt;/b&gt; is generally not required in the context of Qt Design Studio. &lt;b&gt;Debug&lt;/b&gt; and &lt;b&gt;Analyze&lt;/b&gt; are only required for debugging and profiling.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide Menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Examples</source>
-        <translation type="unfinished">Beispiele</translation>
-    </message>
-    <message>
-        <source>Examples path:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Path</source>
-        <translation type="unfinished">Pfad zurücksetzen</translation>
-    </message>
-    <message>
-        <source>The menu visibility change will take effect after restart.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>StudioWelcome::Internal::StudioWelcomeSettingsPage</name>
-    <message>
-        <source>Qt Design Studio Configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>StudioWelcome::Internal::UsageStatisticPluginModel</name>
     <message>
         <source>The change will take effect after restart.</source>
@@ -55290,16 +57505,16 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Interaktiv</translation>
     </message>
     <message>
-        <source>Whether the view is interactive.</source>
+        <source>Toggles if the user can interact with the view.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the orientation of the view.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Orientation</source>
         <translation type="unfinished">Ausrichtung</translation>
-    </message>
-    <message>
-        <source>Orientation of the view.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Font Inheritance</source>
@@ -55328,15 +57543,16 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Position</translation>
     </message>
     <message>
-        <source>Position of the tab bar.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Content size</source>
         <translation type="unfinished">Größe des Inhalts</translation>
     </message>
     <message>
-        <source>Content width and height used for calculating the total implicit size.</source>
+        <source>Sets the position of the tab bar.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the width and height of the tab bar.
+This is used for calculating the total implicit size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -55393,17 +57609,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Determines the position of the tabs.</source>
         <translation>Bestimmt die Position der Tabs.</translation>
-    </message>
-</context>
-<context>
-    <name>TabViewToolAction</name>
-    <message>
-        <source>Add Tab...</source>
-        <translation>Tab hinzufügen...</translation>
-    </message>
-    <message>
-        <source>Step into Tab</source>
-        <translation>In Tab hineingehen</translation>
     </message>
 </context>
 <context>
@@ -55523,19 +57728,47 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Umbruch</translation>
     </message>
     <message>
+        <source>Sets how overflowing text is handled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Elide</source>
         <translation type="unfinished">Auslassung</translation>
+    </message>
+    <message>
+        <source>Sets how to indicate that more text is available.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Format</source>
         <translation type="unfinished">Format</translation>
     </message>
     <message>
+        <source>Sets the formatting method of the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Render type</source>
         <translation type="unfinished">Rendering-Typ</translation>
     </message>
     <message>
-        <source>Overrides the default rendering type for this component.</source>
+        <source>Sets the rendering type for this component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the quality of the render. This only has an effect when &lt;b&gt;Render type&lt;/b&gt; is set to QtRendering.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how to calculate the line height based on the &lt;b&gt;Line height&lt;/b&gt; value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how the font size is determined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the max number of lines that the text component shows.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -55543,27 +57776,19 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Overrides the default rendering type quality for this component.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Line height mode</source>
         <translation type="unfinished">Zeilenhöhen-Modus</translation>
-    </message>
-    <message>
-        <source>Determines how the line height is specified.</source>
-        <translation type="unfinished">Bestimmt, wie die Zeilenhöhe festgelegt wird.</translation>
     </message>
     <message>
         <source>Size mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Specifies how the font size of the displayed text is determined.</source>
-        <translation type="unfinished">Legt fest wie die Schriftgröße des angezeigten Texts bestimmt wird.</translation>
+        <source>Min size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Min size</source>
+        <source>Sets the minimum font size to use. This has no effect when &lt;b&gt;Size&lt;/b&gt; mode is set to Fixed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -55576,10 +57801,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Max line count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Limits the number of lines that the text component will show.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -55645,10 +57866,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Echo-Modus</translation>
     </message>
     <message>
-        <source>Character displayed when users enter passwords.</source>
-        <translation>Das Zeichen, das bei der Eingabe von Passwörtern angezeigt wird.</translation>
-    </message>
-    <message>
         <source>Tab stop distance</source>
         <translation>Tabulatorbreite</translation>
     </message>
@@ -55661,8 +57878,16 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Maximale Länge</translation>
     </message>
     <message>
+        <source>Sets the maximum length of the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Read only</source>
         <translation>Schreibgeschützt</translation>
+    </message>
+    <message>
+        <source>Toggles if the text allows edits.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cursor visible</source>
@@ -55673,7 +57898,15 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the background color of selected text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Selected text color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color of selected text.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -55681,7 +57914,23 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Sets the way text is selected with the mouse.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the allowed characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the visibility mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Password character</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets which character to display when passwords are entered.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -55693,7 +57942,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Maximum permitted length of the text in the Text Input.</source>
+        <source>Toggles if the cursor is visible.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -55701,20 +57950,40 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Fokussieren durch Betätigen</translation>
     </message>
     <message>
+        <source>Toggles if the text is focused on mouse click.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Auto scroll</source>
         <translation>Automatisch rollen</translation>
+    </message>
+    <message>
+        <source>Toggles if the text scrolls when it exceeds its boundary.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Overwrite mode</source>
         <translation>Überschreibmodus</translation>
     </message>
     <message>
+        <source>Toggles if overwriting text is allowed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Persistent selection</source>
         <translation>Bleibende Auswahl</translation>
     </message>
     <message>
+        <source>Toggles if the text should remain selected after moving the focus elsewhere.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select by mouse</source>
         <translation>Mit der Maus auswählen</translation>
+    </message>
+    <message>
+        <source>Toggles if the text can be selected with the mouse.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select by keyboard</source>
@@ -55904,7 +58173,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Ausrichtung</translation>
     </message>
     <message>
-        <source>The orientation of the separator.</source>
+        <source>Sets the orientation of the separator.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -55919,7 +58188,16 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The count of visible items.</source>
+        <source>Sets the number of items in the model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the index of the current item.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles if the tumbler wraps around when it reaches the
+top or bottom.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -55927,15 +58205,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished">Aktueller Index</translation>
     </message>
     <message>
-        <source>The index of the current item.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Wrap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whether the tumbler values wrap.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -55964,6 +58234,41 @@ Are you sure you want to remove the material?</source>
     <name>UrlChooser</name>
     <message>
         <source>Built-in primitive</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Vcpkg</name>
+    <message>
+        <source>Search package...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vcpkg Manifest Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name：</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version:</source>
+        <translation type="unfinished">Version:</translation>
+    </message>
+    <message>
+        <source>License:</source>
+        <translation type="unfinished">Lizenz:</translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation type="unfinished">Beschreibung:</translation>
+    </message>
+    <message>
+        <source>Homepage:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vcpkg installation</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

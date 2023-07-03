@@ -37,6 +37,8 @@ void setupClangdConfigFile();
 
 enum class FollowTo { SymbolDef, SymbolType };
 
+class ClangdFollowSymbol;
+
 class ClangdClient : public LanguageClient::Client
 {
     Q_OBJECT
@@ -116,6 +118,10 @@ public:
             const Utils::FilePath &filePath,
             const LanguageServerProtocol::Position &position,
             const SymbolInfoHandler &handler);
+
+#ifdef WITH_TESTS
+    ClangdFollowSymbol *currentFollowSymbolOperation();
+#endif
 
 signals:
     void indexingFinished();

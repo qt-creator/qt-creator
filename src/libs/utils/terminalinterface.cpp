@@ -280,8 +280,10 @@ void TerminalInterface::sendCommand(char c)
 void TerminalInterface::killInferiorProcess()
 {
     sendCommand('k');
-    if (d->stubSocket)
+    if (d->stubSocket) {
         d->stubSocket->waitForReadyRead();
+        emitFinished(-1, QProcess::CrashExit);
+    }
 }
 
 void TerminalInterface::killStubProcess()

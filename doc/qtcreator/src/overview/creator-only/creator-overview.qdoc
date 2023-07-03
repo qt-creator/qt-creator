@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -80,21 +80,18 @@
                 For more information, see \l{Building and Running}.
             \li \b {\l{Testing}}
 
-                \QC integrates several external native debuggers: GNU
-                Symbolic Debugger (GDB), Microsoft Console Debugger (CDB), and
-                internal JavaScript debugger. In the \uicontrol Debug mode, you
-                can inspect the state of your application while debugging.
+                \QC integrates several external native debuggers that you can use
+                to inspect the state of your application while debugging.
 
-                Devices have limited memory and CPU power, so
-                you should use them carefully. \QC integrates Valgrind code
-                analysis tools for detecting memory leaks and profiling function
-                execution. In addition, the QML Profiler enables you to profile
-                Qt Quick applications.
+                Devices have limited memory and CPU power, so you should use them
+                carefully. \QC integrates code analysis tools for detecting
+                memory leaks, profiling function execution, analyzing CPU use,
+                and eliminating unnecessary complexity of code. Other tools
+                provide code coverage and visualize trace events.
 
-                \QC integrates the \l{Qt Test}, Boost.Test, Catch 2 test,
-                and Google C++ Testing frameworks for unit testing applications
-                and libraries. You can use \QC to create, build, and run
-                autotests.
+                \QC integrates several testing frameworks for unit testing
+                applications and libraries. You can use \QC to create, build,
+                and run autotests.
 
                 For more information, see \l{Testing}.
             \li \b {Publishing}

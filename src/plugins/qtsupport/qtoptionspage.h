@@ -12,6 +12,8 @@ class QtOptionsPage final : public Core::IOptionsPage
 public:
     QtOptionsPage();
 
+    QStringList keywords() const final;
+
     static bool canLinkWithQt();
     static bool isLinkedWithQt();
     static void linkWithQt();

@@ -5,7 +5,6 @@
 
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "fileapiparser.h"
 #include "projecttreehelper.h"
@@ -21,6 +20,7 @@
 #include <projectexplorer/projecttree.h>
 
 #include <QDir>
+#include <QLoggingCategory>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -342,7 +342,6 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
 {
     RawProjectParts rpps;
 
-    int counter = 0;
     for (const TargetDetails &t : input.targetDetails) {
         QDir sourceDir(sourceDirectory.toString());
         bool needPostfix = t.compileGroups.size() > 1;
@@ -375,7 +374,6 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
                 qtcPchFile = "qtc_cmake_pch.hxx";
             }
 
-            ++counter;
             RawProjectPart rpp;
             rpp.setProjectFileLocation(t.sourceDir.pathAppended("CMakeLists.txt").toString());
             rpp.setBuildSystemTarget(t.name);

@@ -8,6 +8,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (WINDOWS)
+  set(CMAKE_SHARED_LIBRARY_PREFIX "")
+endif()
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Network Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Network Widgets)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Script Webkit WebkitWidgets QUIET)
@@ -67,5 +71,5 @@ if (Qt${QT_VERSION_MAJOR}WebkitWidgets_FOUND)
 endif()
 
 # and the plugin
-add_library(simple_test_plugin simple_test_plugin.cpp)
+add_library(simple_test_plugin SHARED simple_test_plugin.cpp)
 target_link_libraries(simple_test_plugin PRIVATE Qt${QT_VERSION_MAJOR}::Core)

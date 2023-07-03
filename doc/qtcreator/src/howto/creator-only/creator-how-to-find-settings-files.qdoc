@@ -1,0 +1,32 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-find-settings-files.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \ingroup creator-how-to-use
+
+    \title Find settings files
+
+    \QC creates the following files and directories:
+
+    \list
+        \li QtCreator.db
+        \li QtCreator.ini
+        \li qtversion.xml
+        \li qtcreator
+    \endlist
+
+    The location of the above files and directories depends on the platform:
+
+    \list
+        \li On Linux and other Unix platforms, look in
+            \c {~/.config/QtProject} and
+            \c {~/.local/share/data/QtProject/qtcreator}.
+        \li On \macos, look in \c {~/.config/QtProject} and
+            \c {~/Library/Application Support/QtProject/Qt Creator}.
+        \li On Windows, look in
+            \c {%appdata%\QtProject} and \c {%localappdata%\QtProject}.
+    \endlist
+*/
