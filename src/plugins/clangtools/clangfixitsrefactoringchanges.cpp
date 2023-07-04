@@ -178,29 +178,6 @@ void FixitsRefactoringFile::shiftAffectedReplacements(const ReplacementOperation
     }
 }
 
-bool FixitsRefactoringFile::hasIntersection(const FilePath &filePath,
-                                            const Text::Replacements &replacements,
-                                            int startIndex) const
-{
-    for (int i = startIndex; i < m_replacementOperations.size(); ++i) {
-        const ReplacementOperation &current = *m_replacementOperations[i];
-        if (filePath != current.filePath)
-            continue;
-
-        // Usually the number of replacements is from 1 to 3.
-        if (std::any_of(replacements.begin(),
-                        replacements.end(),
-                        [&current](const Text::Replacement &replacement) {
-                            return replacement.offset + replacement.length > current.pos
-                                   && replacement.offset < current.pos + current.length;
-                        })) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 void FixitsRefactoringFile::shiftAffectedReplacements(const FilePath &filePath,
                                                       const Text::Replacements &replacements,
                                                       int startIndex)

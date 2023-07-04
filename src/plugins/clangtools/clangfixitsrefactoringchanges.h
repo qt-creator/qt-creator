@@ -50,9 +50,6 @@ private:
     void shiftAffectedReplacements(const Utils::FilePath &filePath,
                                    const Utils::Text::Replacements &replacements,
                                    int startIndex);
-    bool hasIntersection(const Utils::FilePath &filePath,
-                         const Utils::Text::Replacements &replacements,
-                         int startIndex) const;
 
     mutable Utils::TextFileFormat m_textFileFormat;
     mutable QHash<Utils::FilePath, QTextDocument *> m_documents;
