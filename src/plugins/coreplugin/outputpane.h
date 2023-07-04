@@ -27,11 +27,13 @@ public:
 
     static OutputPanePlaceHolder *getCurrent();
     static bool isCurrentVisible();
+    static bool modeHasOutputPanePlaceholder(Utils::Id mode);
 
     bool isMaximized() const;
     void setMaximized(bool maximize);
     void ensureSizeHintAsMinimum();
     int nonMaximizedSize() const;
+    Utils::Id mode() const;
 
 signals:
     void visibilityChangeRequested(bool visible);

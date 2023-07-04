@@ -1,16 +1,19 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "imode.h"
 #include "modemanager.h"
 #include "outputpane.h"
 #include "outputpanemanager.h"
+
+#include <utils/algorithm.h>
 
 #include <QResizeEvent>
 #include <QSplitter>
 #include <QVBoxLayout>
 
 using namespace Utils;
+
+Q_GLOBAL_STATIC(QList<Core::OutputPanePlaceHolder *>, sPlaceholders)
 
 namespace Core {
 
@@ -36,6 +39,7 @@ OutputPanePlaceHolder *OutputPanePlaceHolderPrivate::m_current = nullptr;
 OutputPanePlaceHolder::OutputPanePlaceHolder(Id mode, QSplitter *parent)
    : QWidget(parent), d(new OutputPanePlaceHolderPrivate(mode, parent))
 {
+    sPlaceholders->append(this);
     setVisible(false);
     setLayout(new QVBoxLayout);
     QSizePolicy sp;
@@ -170,6 +174,11 @@ int OutputPanePlaceHolder::nonMaximizedSize() const
     return d->m_nonMaximizedSize;
 }
 
+Id OutputPanePlaceHolder::mode() const
+{
+    return d->m_mode;
+}
+
 void OutputPanePlaceHolder::resizeEvent(QResizeEvent *event)
 {
     if (d->m_isMaximized || event->size().height() == 0)
@@ -197,6 +206,11 @@ OutputPanePlaceHolder *OutputPanePlaceHolder::getCurrent()
 bool OutputPanePlaceHolder::isCurrentVisible()
 {
     return OutputPanePlaceHolderPrivate::m_current && OutputPanePlaceHolderPrivate::m_current->isVisible();
+}
+
+bool OutputPanePlaceHolder::modeHasOutputPanePlaceholder(Utils::Id mode)
+{
+    return Utils::anyOf(*sPlaceholders, Utils::equal(&OutputPanePlaceHolder::mode, mode));
 }
 
 } // namespace Core

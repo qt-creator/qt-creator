@@ -373,10 +373,10 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     m_titleLabel->setContentsMargins(5, 0, 5, 0);
 
-    auto clearAction = new QAction(this);
-    clearAction->setIcon(Utils::Icons::CLEAN.icon());
-    clearAction->setText(Tr::tr("Clear"));
-    connect(clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
+    m_clearAction = new QAction(this);
+    m_clearAction->setIcon(Utils::Icons::CLEAN.icon());
+    m_clearAction->setText(Tr::tr("Clear"));
+    connect(m_clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
 
     m_nextAction = new QAction(this);
     m_nextAction->setIcon(Utils::Icons::ARROW_DOWN_TOOLBAR.icon());
@@ -442,9 +442,9 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     Command *cmd;
 
-    cmd = ActionManager::registerAction(clearAction, Constants::OUTPUTPANE_CLEAR);
+    cmd = ActionManager::registerAction(m_clearAction, Constants::OUTPUTPANE_CLEAR);
     clearButton->setDefaultAction(
-        ProxyAction::proxyActionWithIcon(clearAction, Utils::Icons::CLEAN_TOOLBAR.icon()));
+        ProxyAction::proxyActionWithIcon(m_clearAction, Utils::Icons::CLEAN_TOOLBAR.icon()));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem");
@@ -502,11 +502,8 @@ void OutputPaneManager::initialize()
         });
 
         connect(outPane, &IOutputPane::navigateStateUpdate, m_instance, [idx, outPane] {
-            if (m_instance->currentIndex() == idx) {
-                m_instance->m_prevAction->setEnabled(outPane->canNavigate()
-                                                     && outPane->canPrevious());
-                m_instance->m_nextAction->setEnabled(outPane->canNavigate() && outPane->canNext());
-            }
+            if (m_instance->currentIndex() == idx)
+                m_instance->updateActions(outPane);
         });
 
         QWidget *toolButtonsContainer = new QWidget(m_instance->m_opToolBarWidgets);
@@ -569,7 +566,14 @@ void OutputPaneManager::initialize()
             m_instance,
             &OutputPaneManager::popupMenu);
 
+    updateMaximizeButton(false); // give it an initial name
+
     m_instance->readSettings();
+
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged, m_instance, [] {
+        const int index = m_instance->currentIndex();
+        m_instance->updateActions(index >= 0 ? g_outputPanes.at(index).pane : nullptr);
+    });
 }
 
 OutputPaneManager::~OutputPaneManager() = default;
@@ -647,6 +651,21 @@ void OutputPaneManager::readSettings()
         = settings->value("OutputPanePlaceHolder/CurrentIndex", 0).toInt();
     if (QTC_GUARD(currentIdx >= 0 && currentIdx < g_outputPanes.size()))
         setCurrentIndex(currentIdx);
+}
+
+void OutputPaneManager::updateActions(IOutputPane *pane)
+{
+    const bool enabledForMode = m_buttonsWidget->isVisibleTo(m_buttonsWidget->window())
+                                || OutputPanePlaceHolder::modeHasOutputPanePlaceholder(
+                                    ModeManager::currentModeId());
+    m_clearAction->setEnabled(enabledForMode);
+    m_minMaxAction->setEnabled(enabledForMode);
+    m_instance->m_prevAction->setEnabled(enabledForMode && pane && pane->canNavigate()
+                                         && pane->canPrevious());
+    m_instance->m_nextAction->setEnabled(enabledForMode && pane && pane->canNavigate()
+                                         && pane->canNext());
+    for (const OutputPaneData &d : std::as_const(g_outputPanes))
+        d.action->setEnabled(enabledForMode);
 }
 
 void OutputPaneManager::slotNext()
@@ -737,6 +756,15 @@ void OutputPaneManager::focusInEvent(QFocusEvent *e)
         w->setFocus(e->reason());
 }
 
+bool OutputPaneManager::eventFilter(QObject *o, QEvent *e)
+{
+    if (o == m_buttonsWidget && (e->type() == QEvent::Show || e->type() == QEvent::Hide)) {
+        const int index = currentIndex();
+        updateActions(index >= 0 ? g_outputPanes.at(index).pane : nullptr);
+    }
+    return false;
+}
+
 void OutputPaneManager::setCurrentIndex(int idx)
 {
     static int lastIndex = -1;
@@ -756,9 +784,7 @@ void OutputPaneManager::setCurrentIndex(int idx)
         if (OutputPanePlaceHolder::isCurrentVisible())
             pane->visibilityChanged(true);
 
-        bool canNavigate = pane->canNavigate();
-        m_prevAction->setEnabled(canNavigate && pane->canPrevious());
-        m_nextAction->setEnabled(canNavigate && pane->canNext());
+        updateActions(pane);
         g_outputPanes.at(idx).button->setChecked(OutputPanePlaceHolder::isCurrentVisible());
         m_titleLabel->setText(pane->displayName());
     }
