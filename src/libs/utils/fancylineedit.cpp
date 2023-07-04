@@ -579,7 +579,6 @@ void FancyLineEdit::validate()
                     handleValidationResult(result, oldText);
                 });
 
-        d->m_state = Validating;
         d->m_spinnerDelayTimer.start();
 
         AsyncValidationFuture future = validationFunction(text());

@@ -106,7 +106,7 @@ public:
     using SynchronousValidationFunction = std::function<bool(FancyLineEdit *, QString *)>;
     using ValidationFunction = std::variant<AsyncValidationFunction, SynchronousValidationFunction>;
 
-    enum State { Invalid, DisplayingPlaceholderText, Valid, Validating };
+    enum State { Invalid, DisplayingPlaceholderText, Valid };
 
     State state() const;
     bool isValid() const;

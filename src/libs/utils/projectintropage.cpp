@@ -212,8 +212,6 @@ bool ProjectIntroPage::validate()
         return false;
     case FancyLineEdit::Valid:
         break;
-    case FancyLineEdit::Validating:
-        break;
     }
 
     // Check existence of the directory
