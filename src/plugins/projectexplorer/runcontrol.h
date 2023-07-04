@@ -68,7 +68,6 @@ public:
 
     // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
-    void appendMessageChunk(const QString &msg, Utils::OutputFormat format);
     IDeviceConstPtr device() const;
 
     // States
@@ -232,6 +231,7 @@ public:
 
     bool createMainWorker();
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
+    void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
 
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);

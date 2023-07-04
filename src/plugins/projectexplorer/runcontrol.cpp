@@ -469,6 +469,11 @@ bool RunControl::canRun(Id runMode, Id deviceType, Utils::Id runConfigId)
     return false;
 }
 
+void RunControl::postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine)
+{
+    emit appendMessage((appendNewLine && !msg.endsWith('\n')) ? msg + '\n': msg, format);
+}
+
 void RunControlPrivate::initiateStart()
 {
     checkState(RunControlState::Initialized);
@@ -776,7 +781,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 void RunControlPrivate::showError(const QString &msg)
 {
     if (!msg.isEmpty())
-        emit q->appendMessage(msg + '\n', ErrorMessageFormat);
+        q->postMessage(msg + '\n', ErrorMessageFormat);
 }
 
 void RunControl::setupFormatter(OutputFormatter *formatter) const
@@ -1269,7 +1274,7 @@ void SimpleTargetRunnerPrivate::handleStandardOutput()
     const QByteArray data = m_process.readAllRawStandardOutput();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_outputCodecState);
-    q->appendMessageChunk(msg, StdOutFormat);
+    q->appendMessage(msg, StdOutFormat, false);
 }
 
 void SimpleTargetRunnerPrivate::handleStandardError()
@@ -1277,7 +1282,7 @@ void SimpleTargetRunnerPrivate::handleStandardError()
     const QByteArray data = m_process.readAllRawStandardError();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_errorCodecState);
-    q->appendMessageChunk(msg, StdErrFormat);
+    q->appendMessage(msg, StdErrFormat, false);
 }
 
 void SimpleTargetRunnerPrivate::start()
@@ -1637,15 +1642,7 @@ void RunWorker::reportFailure(const QString &msg)
  */
 void RunWorker::appendMessage(const QString &msg, OutputFormat format, bool appendNewLine)
 {
-    if (!appendNewLine || msg.endsWith('\n'))
-        emit d->runControl->appendMessage(msg, format);
-    else
-        emit d->runControl->appendMessage(msg + '\n', format);
-}
-
-void RunWorker::appendMessageChunk(const QString &msg, OutputFormat format)
-{
-    emit d->runControl->appendMessage(msg, format);
+    d->runControl->postMessage(msg, format, appendNewLine);
 }
 
 IDevice::ConstPtr RunWorker::device() const

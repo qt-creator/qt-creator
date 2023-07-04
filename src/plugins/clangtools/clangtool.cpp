@@ -638,8 +638,8 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     m_runControl->setTarget(project->activeTarget());
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
-        emit m_runControl->appendMessage(Tr::tr("%1 tool stopped by user.").arg(m_name),
-                                         NormalMessageFormat);
+        m_runControl->postMessage(Tr::tr("%1 tool stopped by user.").arg(m_name),
+                                  NormalMessageFormat);
         m_runControl->initiateStop();
         setState(State::StoppedByUser);
     });
