@@ -76,6 +76,7 @@ Project {
         "remotelinux/remotelinux.qbs",
         "resourceeditor/resourceeditor.qbs",
         "saferenderer/saferenderer.qbs",
+        "screenrecorder/screenrecorder.qbs",
         "scxmleditor/scxmleditor.qbs",
         "serialterminal/serialterminal.qbs",
         "silversearcher/silversearcher.qbs",

@@ -7,6 +7,7 @@ add_subdirectory(serialterminal)
 add_subdirectory(helloworld)
 add_subdirectory(imageviewer)
 add_subdirectory(marketplace)
+add_subdirectory(screenrecorder)
 add_subdirectory(updateinfo)
 add_subdirectory(welcome)
 
