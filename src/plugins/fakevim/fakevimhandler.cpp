@@ -6625,7 +6625,8 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         } else if (!line.isEmpty() && !inFunction) {
             //qDebug() << "EXECUTING: " << line;
             ExCommand cmd;
-            QString commandLine = QString::fromLocal8Bit(line);
+            QString commandLine = s.systemEncoding() ? QString::fromLocal8Bit(line)
+                                                     : QString::fromUtf8(line);
             while (parseExCommand(&commandLine, &cmd)) {
                 if (!handleExCommandHelper(cmd))
                     break;
