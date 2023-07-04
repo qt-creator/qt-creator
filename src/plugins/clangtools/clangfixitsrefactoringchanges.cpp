@@ -126,9 +126,9 @@ void FixitsRefactoringFile::format(TextEditor::Indenter &indenter,
         const int end = doc->findBlock(op.pos + op.length).blockNumber() + 1;
         ranges.push_back({start, end});
     }
-    const Text::Replacements replacements = indenter.format(ranges);
+    const EditOperations replacements = indenter.format(ranges);
 
-    if (replacements.empty())
+    if (replacements.isEmpty())
         return;
 
     shiftAffectedReplacements(operationsForFile.front()->filePath,
@@ -179,7 +179,7 @@ void FixitsRefactoringFile::shiftAffectedReplacements(const ReplacementOperation
 }
 
 void FixitsRefactoringFile::shiftAffectedReplacements(const FilePath &filePath,
-                                                      const Text::Replacements &replacements,
+                                                      const EditOperations &replacements,
                                                       int startIndex)
 {
     for (int i = startIndex; i < m_replacementOperations.size(); ++i) {
@@ -187,10 +187,11 @@ void FixitsRefactoringFile::shiftAffectedReplacements(const FilePath &filePath,
         if (filePath != current.filePath)
             continue;
 
-        for (const auto &replacement : replacements) {
-            if (replacement.offset > current.pos)
+        for (const auto &op : replacements) {
+            QTC_ASSERT(op.type == ChangeSet::EditOp::Replace, continue);
+            if (op.pos1 > current.pos)
                 break;
-            current.pos += replacement.text.size() - replacement.length;
+            current.pos += op.text.size() - op.length1;
         }
     }
 }

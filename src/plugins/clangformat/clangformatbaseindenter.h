@@ -31,8 +31,8 @@ public:
     void autoIndent(const QTextCursor &cursor,
                     const TextEditor::TabSettings &tabSettings,
                     int cursorPositionInEditor = -1) override;
-    Utils::Text::Replacements format(const TextEditor::RangesInLines &rangesInLines,
-                                     FormattingMode mode = FormattingMode::Forced) override;
+    Utils::EditOperations format(const TextEditor::RangesInLines &rangesInLines,
+                                 FormattingMode mode = FormattingMode::Forced) override;
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
@@ -60,18 +60,18 @@ private:
                       const QTextBlock &endBlock,
                       const QChar &typedChar,
                       int cursorPositionInEditor);
-    Utils::Text::Replacements indentsFor(QTextBlock startBlock,
-                                         const QTextBlock &endBlock,
-                                         const QChar &typedChar,
-                                         int cursorPositionInEditor,
-                                         bool trimTrailingWhitespace = true);
-    Utils::Text::Replacements replacements(QByteArray buffer,
-                                           const QTextBlock &startBlock,
-                                           const QTextBlock &endBlock,
-                                           int cursorPositionInEditor,
-                                           ReplacementsToKeep replacementsToKeep,
-                                           const QChar &typedChar = QChar::Null,
-                                           bool secondTry = false) const;
+    Utils::ChangeSet indentsFor(QTextBlock startBlock,
+                                const QTextBlock &endBlock,
+                                const QChar &typedChar,
+                                int cursorPositionInEditor,
+                                bool trimTrailingWhitespace = true);
+    Utils::ChangeSet replacements(QByteArray buffer,
+                                  const QTextBlock &startBlock,
+                                  const QTextBlock &endBlock,
+                                  int cursorPositionInEditor,
+                                  ReplacementsToKeep replacementsToKeep,
+                                  const QChar &typedChar = QChar::Null,
+                                  bool secondTry = false) const;
 
     struct CachedStyle {
         clang::format::FormatStyle style = clang::format::getNoStyle();

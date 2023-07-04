@@ -13,6 +13,7 @@
 #include <coreplugin/coreplugintr.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <utils/textutils.h>
 
 #include <QDir>
 #include <QTextDocument>

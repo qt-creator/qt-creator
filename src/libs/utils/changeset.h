@@ -103,6 +103,8 @@ private:
     bool m_error;
 };
 
+using EditOperations = QList<ChangeSet::EditOp>;
+
 inline bool operator<(const ChangeSet::Range &r1, const ChangeSet::Range &r2)
 {
     return r1.start < r2.start;

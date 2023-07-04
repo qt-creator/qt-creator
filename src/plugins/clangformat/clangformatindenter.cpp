@@ -173,7 +173,7 @@ void ClangFormatForwardingIndenter::autoIndent(const QTextCursor &cursor,
     currentIndenter()->autoIndent(cursor, tabSettings, cursorPositionInEditor);
 }
 
-Utils::Text::Replacements ClangFormatForwardingIndenter::format(
+Utils::EditOperations ClangFormatForwardingIndenter::format(
     const TextEditor::RangesInLines &rangesInLines, FormattingMode mode)
 {
     return currentIndenter()->format(rangesInLines, mode);

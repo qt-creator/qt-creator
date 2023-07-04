@@ -48,7 +48,7 @@ private:
                 const ReplacementOperations &operationsForFile,
                 int firstOperationIndex);
     void shiftAffectedReplacements(const Utils::FilePath &filePath,
-                                   const Utils::Text::Replacements &replacements,
+                                   const Utils::EditOperations &replacements,
                                    int startIndex);
 
     mutable Utils::TextFileFormat m_textFileFormat;

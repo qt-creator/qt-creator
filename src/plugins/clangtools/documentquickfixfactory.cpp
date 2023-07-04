@@ -9,6 +9,7 @@
 
 #include <texteditor/refactoringchanges.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 
 namespace ClangTools {
 namespace Internal {
