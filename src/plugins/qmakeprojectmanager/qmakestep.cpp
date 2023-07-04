@@ -510,9 +510,9 @@ QWidget *QMakeStep::createConfigWidget()
             widget, [this] { qtVersionChanged(); });
 
     connect(abisListWidget, &QListWidget::itemChanged, this, [this] {
-        abisChanged();
-        if (QmakeBuildConfiguration *bc = qmakeBuildConfiguration())
-            BuildManager::buildLists({bc->cleanSteps()});
+        if (m_ignoreChanges.isLocked())
+            return;
+        handleAbiWidgetChange();
     });
 
     connect(widget, &QObject::destroyed, this, [this] {
@@ -654,6 +654,8 @@ void QMakeStep::askForRebuild(const QString &title)
 
 void QMakeStep::updateAbiWidgets()
 {
+    const GuardLocker locker(m_ignoreChanges);
+
     if (!abisLabel)
         return;
 
@@ -702,13 +704,20 @@ void QMakeStep::updateAbiWidgets()
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             item->setCheckState(selectedAbis.contains(param) ? Qt::Checked : Qt::Unchecked);
         }
-        abisChanged();
+        handleAbiWidgetChange();
     }
 }
 
 void QMakeStep::updateEffectiveQMakeCall()
 {
     m_effectiveCall->setValue(effectiveQMakeCall());
+}
+
+void QMakeStep::handleAbiWidgetChange()
+{
+    abisChanged();
+    if (QmakeBuildConfiguration *bc = qmakeBuildConfiguration())
+        BuildManager::buildLists({bc->cleanSteps()});
 }
 
 void QMakeStep::recompileMessageBoxFinished(int button)
