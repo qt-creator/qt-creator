@@ -64,7 +64,9 @@
     \section1 Use \QC
 
     \list
+        \li \l {Enable and disable plugins}
         \li \l {Find settings files}
+        \li \l {Install plugins}
         \li \l {Run \QC from the command line}
     \endlist
 */
