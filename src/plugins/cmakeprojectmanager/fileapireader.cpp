@@ -82,19 +82,26 @@ void FileApiReader::resetData()
 
 void FileApiReader::parse(bool forceCMakeRun,
                           bool forceInitialConfiguration,
-                          bool forceExtraConfiguration)
+                          bool forceExtraConfiguration,
+                          bool debugging)
 {
     qCDebug(cmakeFileApiMode) << "Parse called with arguments: ForceCMakeRun:" << forceCMakeRun
                               << " - forceConfiguration:" << forceInitialConfiguration
                               << " - forceExtraConfiguration:" << forceExtraConfiguration;
     startState();
 
-    const QStringList args = (forceInitialConfiguration ? m_parameters.initialCMakeArguments
+    QStringList args = (forceInitialConfiguration ? m_parameters.initialCMakeArguments
                                                         : QStringList())
                              + (forceExtraConfiguration
                                     ? (m_parameters.configurationChangesArguments
                                        + m_parameters.additionalCMakeArguments)
                                     : QStringList());
+    if (debugging) {
+        FilePath file = FilePath::fromString("/tmp/cmake-dap.sock");
+        file.removeFile();
+        args << "--debugger" << "--debugger-pipe=/tmp/cmake-dap.sock";
+    }
+
     qCDebug(cmakeFileApiMode) << "Parameters request these CMake arguments:" << args;
 
     const FilePath replyFile = FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory);
@@ -339,6 +346,10 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
     m_cmakeProcess = std::make_unique<CMakeProcess>();
 
     connect(m_cmakeProcess.get(), &CMakeProcess::finished, this, &FileApiReader::cmakeFinishedState);
+    connect(m_cmakeProcess.get(), &CMakeProcess::stdOutReady, this, [this](const QString &data) {
+        if (data.endsWith("Waiting for debugger client to connect...\n"))
+            emit debuggingStarted();
+    });
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
     // Reset watcher:

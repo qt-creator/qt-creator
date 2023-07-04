@@ -4,6 +4,7 @@
 #pragma once
 
 #include <debugger/debuggerengine.h>
+
 #include <utils/process.h>
 
 #include <QVariant>
@@ -108,7 +109,7 @@ private:
     void handleDapConfigurationDone();
 
     void dapStackTrace();
-    void dapScopes();
+    void dapScopes(int frameId);
     void threads();
     void dapVariables(int variablesReference);
 

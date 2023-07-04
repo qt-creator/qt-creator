@@ -785,6 +785,11 @@ QString Perspective::id() const
     return d->m_id;
 }
 
+QString Perspective::parentPerspectiveId() const
+{
+    return d->m_parentPerspectiveId;
+}
+
 QString Perspective::name() const
 {
     return d->m_name;

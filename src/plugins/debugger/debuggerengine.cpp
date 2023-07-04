@@ -541,13 +541,15 @@ void DebuggerEnginePrivate::setupViews()
 
     QTC_CHECK(!m_perspective);
 
+    Perspective *currentPerspective = DebuggerMainWindow::instance()->currentPerspective();
+
     const QString perspectiveId = "Debugger.Perspective." + m_runId + '.' + m_debuggerName;
     const QString settingsId = "Debugger.Perspective." + m_debuggerName;
+    const QString parentPerspectiveId = currentPerspective ? currentPerspective->id()
+                                                           : Constants::PRESET_PERSPECTIVE_ID;
 
-    m_perspective = new Perspective(perspectiveId,
-                                    m_engine->displayName(),
-                                    Debugger::Constants::PRESET_PERSPECTIVE_ID,
-                                    settingsId);
+    m_perspective
+        = new Perspective(perspectiveId, m_engine->displayName(), parentPerspectiveId, settingsId);
 
     m_progress.setProgressRange(0, 1000);
     FutureProgress *fp = ProgressManager::addTask(m_progress.future(),
@@ -724,7 +726,8 @@ void DebuggerEnginePrivate::setupViews()
     m_breakWindow->setObjectName("Debugger.Dock.Break." + engineId);
     m_breakWindow->setWindowTitle(Tr::tr("&Breakpoints"));
 
-    m_perspective->useSubPerspectiveSwitcher(EngineManager::engineChooser());
+    if (!currentPerspective || currentPerspective->id() == Constants::PRESET_PERSPECTIVE_ID)
+        m_perspective->useSubPerspectiveSwitcher(EngineManager::engineChooser());
 
     m_perspective->addToolBarAction(&m_continueAction);
     m_perspective->addToolBarAction(&m_interruptAction);

@@ -56,6 +56,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
@@ -660,6 +661,7 @@ public:
     ProxyAction m_hiddenStopAction;
     QAction m_undisturbableAction;
     OptionalAction m_startAction;
+    OptionalAction m_startCmakeAction;
     QAction m_debugWithoutDeployAction{Tr::tr("Start Debugging Without Deployment")};
     QAction m_startAndDebugApplicationAction{Tr::tr("Start and Debug External Application...")};
     QAction m_attachToRunningApplication{Tr::tr("Attach to Running Application...")};
@@ -692,6 +694,7 @@ public:
     IContext m_debugModeContext;
 
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, Tr::tr("Debugger")};
+    std::unique_ptr<Perspective> m_perspectiveCmake;
 
     DebuggerKitAspect debuggerKitAspect;
     CommonOptionsPage commonOptionsPage;
@@ -836,6 +839,11 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     // The main "Start Debugging" action. Acts as "Continue" at times.
     connect(&m_startAction, &QAction::triggered, this, [] {
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
+    });
+
+    connect(&m_startCmakeAction, &QAction::triggered, this, [] {
+//        ProjectTree::currentBuildSystem()->requestDebugging();
+        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE, true);
     });
 
     connect(&m_debugWithoutDeployAction, &QAction::triggered, this, [] {
@@ -1181,6 +1189,28 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     m_perspective.addWindow(engineManagerWindow, Perspective::SplitVertical, nullptr);
     m_perspective.addWindow(breakpointManagerWindow, Perspective::SplitHorizontal, engineManagerWindow);
     m_perspective.addWindow(globalLogWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
+
+    if (qEnvironmentVariableIsSet("QTC_USE_CMAKE_DEBUGGER")) {
+        m_perspectiveCmake = std::make_unique<Perspective>(Constants::CMAKE_PERSPECTIVE_ID,
+                                                           Tr::tr("CMake"));
+        m_startCmakeAction.setText(Tr::tr("Start CMake Debugging"));
+        m_startCmakeAction.setEnabled(true);
+        m_startCmakeAction.setIcon(startIcon(true));
+        m_startCmakeAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        m_startCmakeAction.setVisible(true);
+
+        m_perspectiveCmake->addToolBarAction(&m_startCmakeAction);
+
+        m_perspectiveCmake->addWindow(engineManagerWindow, Perspective::SplitVertical, nullptr);
+        m_perspectiveCmake->addWindow(breakpointManagerWindow,
+                                      Perspective::SplitHorizontal,
+                                      engineManagerWindow);
+        m_perspectiveCmake->addWindow(globalLogWindow,
+                                      Perspective::AddToTab,
+                                      nullptr,
+                                      false,
+                                      Qt::TopDockWidgetArea);
+    }
 
     setInitialState();
 

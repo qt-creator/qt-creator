@@ -115,6 +115,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
             &CMakeBuildSystem::handleParsingSucceeded);
     connect(&m_reader, &FileApiReader::errorOccurred, this, &CMakeBuildSystem::handleParsingFailed);
     connect(&m_reader, &FileApiReader::dirty, this, &CMakeBuildSystem::becameDirty);
+    connect(&m_reader, &FileApiReader::debuggingStarted, this, &BuildSystem::debuggingStarted);
 
     wireUpConnections();
 
@@ -193,7 +194,15 @@ void CMakeBuildSystem::triggerParsing()
     qCDebug(cmakeBuildSystemLog) << "Asking reader to parse";
     m_reader.parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,
                    reparseParameters & REPARSE_FORCE_INITIAL_CONFIGURATION,
-                   reparseParameters & REPARSE_FORCE_EXTRA_CONFIGURATION);
+                   reparseParameters & REPARSE_FORCE_EXTRA_CONFIGURATION,
+                   reparseParameters & REPARSE_DEBUG);
+}
+
+void CMakeBuildSystem::requestDebugging()
+{
+    qCDebug(cmakeBuildSystemLog) << "Requesting parse due to \"Rescan Project\" command";
+    reparse(REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION | REPARSE_URGENT
+            | REPARSE_DEBUG);
 }
 
 bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const

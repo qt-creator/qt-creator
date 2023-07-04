@@ -178,6 +178,7 @@ const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
 const char NO_RUN_MODE[]="RunConfiguration.NoRunMode";
 const char NORMAL_RUN_MODE[]="RunConfiguration.NormalRunMode";
 const char DEBUG_RUN_MODE[]="RunConfiguration.DebugRunMode";
+const char CMAKE_DEBUG_RUN_MODE[]="RunConfiguration.CmakeDebugRunMode";
 const char QML_PROFILER_RUN_MODE[]="RunConfiguration.QmlProfilerRunMode";
 const char QML_PROFILER_RUNNER[]="RunConfiguration.QmlProfilerRunner";
 const char QML_PREVIEW_RUN_MODE[]="RunConfiguration.QmlPreviewRunMode";

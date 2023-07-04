@@ -1136,6 +1136,7 @@ DebuggerRunWorkerFactory::DebuggerRunWorkerFactory()
 {
     setProduct<DebuggerRunTool>();
     addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    addSupportedRunMode(ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedDeviceType("DockerDeviceType");
 }

@@ -122,8 +122,9 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     m_process->setWorkingDirectory(buildDirectory);
     m_process->setEnvironment(parameters.environment);
 
-    m_process->setStdOutLineCallback([](const QString &s) {
+    m_process->setStdOutLineCallback([this](const QString &s) {
         BuildSystem::appendBuildSystemOutput(stripTrailingNewline(s));
+        emit stdOutReady(s);
     });
 
     m_process->setStdErrLineCallback([this](const QString &s) {
@@ -138,19 +139,6 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     CommandLine commandLine(cmakeExecutable);
     commandLine.addArgs({"-S", sourceDirectory.path(), "-B", buildDirectory.path()});
     commandLine.addArgs(arguments);
-
-    if (qEnvironmentVariableIsSet("QTC_USE_CMAKE_DEBUGGER")) {
-        FilePath file = FilePath::fromString("/tmp/cmake-dap.sock");
-        file.removeFile();
-        commandLine.addArgs({"--debugger", "--debugger-pipe=/tmp/cmake-dap.sock"});
-        connect(m_process.get(), &Process::started, this, [this, cmakeExecutable] {
-            QMetaObject::invokeMethod(debuggerPlugin(),
-                                      "attachToProcess",
-                                      Qt::QueuedConnection,
-                                      Q_ARG(qint64, m_process->processId()),
-                                      Q_ARG(const Utils::FilePath &, cmakeExecutable));
-        });
-    }
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 

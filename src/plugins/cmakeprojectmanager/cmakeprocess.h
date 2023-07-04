@@ -33,6 +33,7 @@ public:
 
 signals:
     void finished(int exitCode);
+    void stdOutReady(const QString &s);
 
 private:
     void handleProcessDone(const Utils::ProcessResultData &resultData);

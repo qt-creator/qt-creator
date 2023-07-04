@@ -7,8 +7,11 @@
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerdialogs.h>
+#include <debugger/debuggerinternalconstants.h>
+#include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerprotocol.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
 #include <debugger/moduleshandler.h>
@@ -20,6 +23,8 @@
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/process.h>
@@ -30,6 +35,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagebox.h>
+
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/projecttree.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -45,7 +54,7 @@
 using namespace Core;
 using namespace Utils;
 
-static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengin", QtWarningMsg)
+static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg)
 
 namespace Debugger::Internal {
 
@@ -221,21 +230,47 @@ void DapEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qCDebug(dapEngineLog) << state());
 
-    if (qEnvironmentVariableIsSet("QTC_USE_CMAKE_DEBUGGER")) {
+    const auto connectDataGeneratorSignals = [this] {
+        if (!m_dataGenerator)
+            return;
+
+        connect(m_dataGenerator.get(), &IDataProvider::started, this, &DapEngine::handleDapStarted);
+        connect(m_dataGenerator.get(), &IDataProvider::done, this, &DapEngine::handleDapDone);
+        connect(m_dataGenerator.get(),
+                &IDataProvider::readyReadStandardOutput,
+                this,
+                &DapEngine::readDapStandardOutput);
+        connect(m_dataGenerator.get(),
+                &IDataProvider::readyReadStandardError,
+                this,
+                &DapEngine::readDapStandardError);
+    };
+
+    Perspective *currentPerspective = DebuggerMainWindow::instance()->currentPerspective();
+    if (currentPerspective->parentPerspectiveId() == Constants::CMAKE_PERSPECTIVE_ID) {
+        qCDebug(dapEngineLog) << "build system name" << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
+
+        m_nextBreakpointId = 0;
         m_dataGenerator = std::make_unique<LocalSocketDataProvider>("/tmp/cmake-dap.sock");
+        connectDataGeneratorSignals();
+
+        connect(ProjectExplorer::ProjectTree::currentBuildSystem(),
+                &ProjectExplorer::BuildSystem::debuggingStarted,
+                this,
+                [this] {
+                    m_dataGenerator->start();
+                });
+
+        ProjectExplorer::ProjectTree::currentBuildSystem()->requestDebugging();
     } else {
         const DebuggerRunParameters &rp = runParameters();
         const CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
+
         m_dataGenerator = std::make_unique<ProcessDataProvider>(rp, cmd);
+        connectDataGeneratorSignals();
+        m_dataGenerator->start();
+
     }
-
-    connect(m_dataGenerator.get(), &IDataProvider::started, this, &DapEngine::handleDapStarted);
-    connect(m_dataGenerator.get(), &IDataProvider::done, this, &DapEngine::handleDapDone);
-    connect(m_dataGenerator.get(), &IDataProvider::readyReadStandardOutput, this, &DapEngine::readDapStandardOutput);
-    connect(m_dataGenerator.get(), &IDataProvider::readyReadStandardError, this, &DapEngine::readDapStandardError);
-
-    m_dataGenerator->start();
-
     notifyEngineSetupOk();
 }
 
@@ -325,13 +360,13 @@ void DapEngine::dapStackTrace()
     });
 }
 
-void DapEngine::dapScopes()
+void DapEngine::dapScopes(int frameId)
 {
     postDirectCommand({
         {"command", "scopes"},
         {"type", "request"},
         {"arguments", QJsonObject{
-            {"frameId", 0}
+            {"frameId", frameId}
         }}
     });
 }
@@ -791,7 +826,7 @@ void DapEngine::handleOutput(const QJsonDocument &data)
             gotoLocation(Location(file, line));
 
             refreshStack(stackFrames);
-            dapScopes();
+            dapScopes(stackFrame.value("id").toInt());
             return;
         }
 
@@ -802,8 +837,8 @@ void DapEngine::handleOutput(const QJsonDocument &data)
                     const QString name = scope.toObject().value("name").toString();
                     const int variablesReference = scope.toObject().value("variablesReference").toInt();
                     qCDebug(dapEngineLog) << "scoped success" << name << variablesReference;
-                    if (name == "Locals")
-                        dapVariables(variablesReference);
+//                    if (name == "Locals")
+//                        dapVariables(variablesReference);
                 }
             }
         }
@@ -851,15 +886,6 @@ void DapEngine::handleOutput(const QJsonDocument &data)
         const QJsonObject body = ob.value("body").toObject();
 
         if (event == "exited") {
-            postDirectCommand({
-                {"command", "disconnect"},
-                {"type", "request"},
-                {"arguments", QJsonObject{
-                    {"restart", false},
-                    {"terminateDebuggee", true}
-                }}
-            });
-
             notifyInferiorExited();
             showMessage("exited", LogDebug);
             return;

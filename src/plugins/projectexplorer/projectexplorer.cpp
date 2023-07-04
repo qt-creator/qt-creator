@@ -2932,10 +2932,15 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
         dd->m_delayedRunConfiguration = rc;
         dd->m_shouldHaveRunConfiguration = true;
     };
-    const BuildForRunConfigStatus buildStatus = forceSkipDeploy
+
+    BuildForRunConfigStatus buildStatus = forceSkipDeploy
             ? BuildManager::isBuilding(rc->project())
                 ? BuildForRunConfigStatus::Building : BuildForRunConfigStatus::NotBuilding
             : BuildManager::potentiallyBuildForRunConfig(rc);
+
+    if (dd->m_runMode != Constants::CMAKE_DEBUG_RUN_MODE)
+        buildStatus = BuildForRunConfigStatus::NotBuilding;
+
     switch (buildStatus) {
     case BuildForRunConfigStatus::BuildFailed:
         return;
