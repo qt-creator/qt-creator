@@ -380,7 +380,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         QTimer::singleShot(0, this, [this, rc] { runControlFinished(rc); });
         for (const RunControlTab &t : std::as_const(m_runControlTabs)) {
             if (t.runControl == rc) {
-                t.window->flush();
+                if (t.window)
+                    t.window->flush();
                 break;
             }
         }
