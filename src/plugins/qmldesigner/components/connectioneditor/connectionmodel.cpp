@@ -252,6 +252,19 @@ void ConnectionModel::updateCustomData(QStandardItem *item, const SignalHandlerP
 {
     item->setData(signalHandlerProperty.parentModelNode().internalId(), UserRoles::InternalIdRole);
     item->setData(signalHandlerProperty.name(), UserRoles::TargetPropertyNameRole);
+    item->setData(signalHandlerProperty.parentModelNode()
+                      .bindingProperty("target")
+                      .resolveToModelNode()
+                      .id(),
+                  UserRoles::TargetNameRole);
+
+    // TODO signalHandlerProperty.source() contains a statement that defines the type.
+    // foo.bar() <- function call
+    // foo.state = "literal" //state change
+    //anything else is assignment
+    // e.g. foo.bal = foo2.bula ; foo.bal = "literal" ; goo.gal = true
+
+    item->setData("Assignment", UserRoles::ActionTypeRole);
 }
 
 ModelNode ConnectionModel::getTargetNodeForConnection(const ModelNode &connection) const
@@ -368,6 +381,16 @@ void ConnectionModel::removeRowFromTable(const SignalHandlerProperty &property)
             break;
         }
     }
+}
+
+void ConnectionModel::add()
+{
+    addConnection();
+}
+
+void ConnectionModel::remove(int row)
+{
+    deleteConnectionByRow(row);
 }
 
 void ConnectionModel::handleException()
@@ -520,6 +543,14 @@ QStringList ConnectionModel::getPossibleSignalsForConnection(const ModelNode &co
     }
 
     return stringList;
+}
+
+QHash<int, QByteArray> ConnectionModel::roleNames() const
+{
+    static QHash<int, QByteArray> roleNames{{TargetPropertyNameRole, "signal"},
+                                            {TargetNameRole, "target"},
+                                            {ActionTypeRole, "action"}};
+    return roleNames;
 }
 
 } // namespace QmlDesigner

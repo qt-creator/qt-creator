@@ -8,6 +8,7 @@
 #include "bindingmodel.h"
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"
+#include "theme.h"
 
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
@@ -16,19 +17,116 @@
 #include <qmldesignerplugin.h>
 #include <viewmanager.h>
 
+#include <studioquickwidget.h>
+
+#include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
+
 #include <utils/qtcassert.h>
 
+#include <QQmlEngine>
+#include <QShortcut>
 #include <QTableView>
 
 namespace QmlDesigner {
 
+static QString propertyEditorResourcesPath()
+{
+#ifdef SHARE_QML_PATH
+    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+#endif
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+}
+
+class ConnectionViewQuickWidget : public StudioQuickWidget
+{
+    // Q_OBJECT carefull
+
+public:
+    ConnectionViewQuickWidget(ConnectionView *connectionEditorView)
+        : m_connectionEditorView(connectionEditorView)
+
+    {
+        engine()->addImportPath(qmlSourcesPath());
+        engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+        engine()->addImportPath(qmlSourcesPath() + "/imports");
+
+        m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F12), this);
+        connect(m_qmlSourceUpdateShortcut,
+                &QShortcut::activated,
+                this,
+                &ConnectionViewQuickWidget::reloadQmlSource);
+
+        //setObjectName(Constants::OBJECT_NAME_STATES_EDITOR);
+        setResizeMode(QQuickWidget::SizeRootObjectToView);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+        auto map = registerPropertyMap("ConnectionsEditorEditorBackend");
+        qmlRegisterAnonymousType<DynamicPropertiesModel>("ConnectionsEditorEditorBackend", 1);
+        qmlRegisterAnonymousType<DynamicPropertiesModelBackendDelegate>(
+            "ConnectionsEditorEditorBackend", 1);
+
+        map->setProperties(
+            {{"connectionModel", QVariant::fromValue(m_connectionEditorView->connectionModel())}});
+
+        map->setProperties(
+            {{"bindingModel", QVariant::fromValue(m_connectionEditorView->bindingModel())}});
+
+        map->setProperties(
+            {{"dynamicPropertiesModel",
+              QVariant::fromValue(m_connectionEditorView->dynamicPropertiesModel())}});
+
+        Theme::setupTheme(engine());
+
+        setMinimumWidth(195);
+        setMinimumHeight(195);
+
+        // init the first load of the QML UI elements
+        reloadQmlSource();
+    }
+    ~ConnectionViewQuickWidget() = default;
+
+    static QString qmlSourcesPath()
+    {
+#ifdef SHARE_QML_PATH
+        if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+            return QLatin1String(SHARE_QML_PATH) + "/connectionseditor";
+#endif
+        return Core::ICore::resourcePath("qmldesigner/connectionseditor").toString();
+    }
+
+private:
+    void reloadQmlSource()
+    {
+        QString connectionEditorQmlFilePath = qmlSourcesPath() + QStringLiteral("/Main.qml");
+        QTC_ASSERT(QFileInfo::exists(connectionEditorQmlFilePath), return );
+        setSource(QUrl::fromLocalFile(connectionEditorQmlFilePath));
+
+        if (!rootObject()) {
+            QString errorString;
+            for (const QQmlError &error : errors())
+                errorString += "\n" + error.toString();
+
+            Core::AsynchronousMessageBox::warning(
+                tr("Cannot Create QtQuick View"),
+                tr("ConnectionsEditorWidget: %1 cannot be created.%2")
+                    .arg(qmlSourcesPath(), errorString));
+            return;
+        }
+    }
+
+private:
+    QPointer<ConnectionView> m_connectionEditorView;
+    QShortcut *m_qmlSourceUpdateShortcut;
+};
+
 ConnectionView::ConnectionView(ExternalDependenciesInterface &externalDependencies)
-    : AbstractView{externalDependencies}
-    , m_connectionViewWidget(new ConnectionViewWidget())
-    , m_connectionModel(new ConnectionModel(this))
-    , m_bindingModel(new BindingModel(this))
-    , m_dynamicPropertiesModel(new DynamicPropertiesModel(false, this))
-    , m_backendModel(new BackendModel(this))
+    : AbstractView{externalDependencies}, m_connectionViewWidget(new ConnectionViewWidget()),
+      m_connectionModel(new ConnectionModel(this)), m_bindingModel(new BindingModel(this)),
+      m_dynamicPropertiesModel(new DynamicPropertiesModel(false, this)),
+      m_backendModel(new BackendModel(this)),
+      m_connectionViewQuickWidget(new ConnectionViewQuickWidget(this))
 {
     connectionViewWidget()->setBindingModel(m_bindingModel);
     connectionViewWidget()->setConnectionModel(m_connectionModel);
@@ -36,8 +134,11 @@ ConnectionView::ConnectionView(ExternalDependenciesInterface &externalDependenci
     connectionViewWidget()->setBackendModel(m_backendModel);
 }
 
-ConnectionView::~ConnectionView() = default;
-
+ConnectionView::~ConnectionView()
+{
+    // Ensure that QML is deleted first to avoid calling back to C++.
+    delete m_connectionViewQuickWidget.data();
+}
 void ConnectionView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
@@ -195,7 +296,14 @@ void ConnectionView::currentStateChanged(const ModelNode &)
 
 WidgetInfo ConnectionView::widgetInfo()
 {
-    return createWidgetInfo(m_connectionViewWidget.data(),
+    /* Enable new connection editor here */
+    const bool newEditor = false;
+
+    QWidget *widget = m_connectionViewWidget.data();
+    if (newEditor)
+        widget = m_connectionViewQuickWidget.data();
+
+    return createWidgetInfo(widget,
                             QLatin1String("ConnectionView"),
                             WidgetInfo::LeftPane,
                             0,
@@ -255,6 +363,20 @@ DynamicPropertiesModel *ConnectionView::dynamicPropertiesModel() const
 BackendModel *ConnectionView::backendModel() const
 {
     return m_backendModel;
+}
+
+int ConnectionView::currentIndex() const
+{
+    return m_currentIndex;
+}
+
+void ConnectionView::setCurrentIndex(int i)
+{
+    if (m_currentIndex == i)
+        return;
+
+    m_currentIndex = i;
+    emit currentIndexChanged();
 }
 
 ConnectionView *ConnectionView::instance()

@@ -90,6 +90,8 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
             this, &ConnectionViewWidget::handleTabChanged);
 
     ui->stackedWidget->setCurrentIndex(0);
+
+    ui->stackedWidget->parentWidget()->hide();
 }
 
 ConnectionViewWidget::~ConnectionViewWidget()

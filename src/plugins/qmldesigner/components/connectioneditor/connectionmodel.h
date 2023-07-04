@@ -26,7 +26,9 @@ public:
     };
     enum UserRoles {
         InternalIdRole = Qt::UserRole + 1,
-        TargetPropertyNameRole
+        TargetPropertyNameRole,
+        TargetNameRole,
+        ActionTypeRole
     };
     ConnectionModel(ConnectionView *parent = nullptr);
 
@@ -49,6 +51,9 @@ public:
     void deleteConnectionByRow(int currentRow);
     void removeRowFromTable(const SignalHandlerProperty &property);
 
+    Q_INVOKABLE void add();
+    Q_INVOKABLE void remove(int row);
+
 protected:
     void addModelNode(const ModelNode &modelNode);
     void addConnection(const ModelNode &modelNode);
@@ -60,6 +65,8 @@ protected:
     void updateTargetNode(int rowNumber);
     void updateCustomData(QStandardItem *item, const SignalHandlerProperty &signalHandlerProperty);
     QStringList getPossibleSignalsForConnection(const ModelNode &connection) const;
+
+    QHash<int, QByteArray> roleNames() const override;
 
 private:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
