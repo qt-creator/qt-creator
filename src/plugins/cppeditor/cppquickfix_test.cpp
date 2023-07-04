@@ -6872,20 +6872,20 @@ void QuickfixTest::testMoveFuncDefOutsideMemberFuncOutsideWithNs()
     QByteArray original =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int numbe@r() const\n"
-        "  {\n"
-        "    return 5;\n"
-        "  }\n"
+        "    inline int numbe@r() const\n"
+        "    {\n"
+        "        return 5;\n"
+        "    }\n"
         "};}\n";
     QByteArray expected =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  int number() const;\n"
+        "    int number() const;\n"
         "};\n"
         "\n"
         "int Foo::number() const\n"
         "{\n"
-        "  return 5;\n"
+        "    return 5;\n"
         "}\n"
         "\n}\n";
 
