@@ -112,13 +112,12 @@ PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySide
     connect(&m_venvPath, &StringAspect::validChanged, this, &PythonWizardPage::updateStateLabel);
     connect(&m_createVenv, &BaseAspect::changed, this, &PythonWizardPage::updateStateLabel);
 
-    Grid {
-        m_pySideVersion, br,
-        m_interpreter, br,
-        m_createVenv, br,
+    Form {
+        m_pySideVersion, st, br,
+        m_interpreter, st, br,
+        m_createVenv, st, br,
         m_venvPath, br,
-        m_stateLabel, br,
-        noMargin
+        m_stateLabel, br
     }.attachTo(this);
 }
 
