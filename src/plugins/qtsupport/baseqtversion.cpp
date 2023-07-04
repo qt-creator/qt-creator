@@ -1612,7 +1612,7 @@ QSet<Id> QtVersion::features() const
 void QtVersion::addToEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k)
-    env.set("QTDIR", hostDataPath().toUserOutput());
+    env.set("QTDIR", hostDataPath().nativePath());
 }
 
 // Some Qt versions may require environment settings for qmake to work

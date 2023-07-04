@@ -104,12 +104,12 @@ bool CatchTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     const QByteArray &fileContent = getFileContent(fileName);
 
     if (!hasCatchNames(doc)) {
-        const QRegularExpression regex("\\b(CATCH_)?"
-                                       "(SCENARIO|(TEMPLATE_(PRODUCT_)?)?TEST_CASE(_METHOD)?|"
-                                       "TEMPLATE_TEST_CASE(_METHOD)?_SIG|"
-                                       "TEMPLATE_PRODUCT_TEST_CASE(_METHOD)?_SIG|"
-                                       "TEMPLATE_LIST_TEST_CASE_METHOD|METHOD_AS_TEST_CASE|"
-                                       "REGISTER_TEST_CASE)");
+        static const QRegularExpression regex("\\b(CATCH_)?"
+                                              "(SCENARIO|(TEMPLATE_(PRODUCT_)?)?TEST_CASE(_METHOD)?|"
+                                              "TEMPLATE_TEST_CASE(_METHOD)?_SIG|"
+                                              "TEMPLATE_PRODUCT_TEST_CASE(_METHOD)?_SIG|"
+                                              "TEMPLATE_LIST_TEST_CASE_METHOD|METHOD_AS_TEST_CASE|"
+                                              "REGISTER_TEST_CASE)");
         if (!regex.match(QString::fromUtf8(fileContent)).hasMatch())
             return false;
     }

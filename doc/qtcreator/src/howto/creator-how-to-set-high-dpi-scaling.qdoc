@@ -1,0 +1,38 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-set-high-dpi-scaling.html
+    \if defined(qtcreator)
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+    \endif
+    \ingroup creator-how-to-ui
+    \ingroup studio-how-to
+
+    \title Set high DPI scaling
+
+    The operating systems that \QC supports implement high dots-per-inch (DPI)
+    scaling at varying levels. Therefore, \QC handles high DPI scaling
+    differently on different operating systems:
+
+    \list
+        \li On \macos, \QC forces high DPI scaling, which means that it allows
+            Qt to use the system scaling factor as the \QC scaling factor.
+        \li On Windows, if you do not set \l{High DPI}
+            {scaling environment variables}, \QC instructs Qt to detect the
+            scaling factor and use it as the \QC scaling factor.
+        \li On Linux, \QC leaves it to the user to enable high DPI scaling
+            because the process varies so much on different distributions
+            and windowing systems that it cannot be reliably done automatically.
+    \endlist
+
+    To override the default approach and always enable high DPI scaling:
+
+        \list 1
+            \li Select \uicontrol Edit > \uicontrol Preferences >
+                \uicontrol Environment > \uicontrol Interface.
+            \li Select \uicontrol {Enable high DPI scaling}.
+            \li Restart \QC to have the change take effect.
+    \endlist
+*/

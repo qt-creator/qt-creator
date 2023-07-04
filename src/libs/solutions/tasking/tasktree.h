@@ -321,14 +321,14 @@ public:
     using EndHandler = std::function<void(const Task &)>;
     static Adapter *createAdapter() { return new Adapter; }
     CustomTask() : GroupItem({&createAdapter}) {}
-    template <typename SetupFunction>
-    CustomTask(SetupFunction &&function, const EndHandler &done = {}, const EndHandler &error = {})
-        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupFunction>(function)),
+    template <typename SetupHandler>
+    CustomTask(SetupHandler &&setup, const EndHandler &done = {}, const EndHandler &error = {})
+        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
                      wrapEnd(done), wrapEnd(error)}) {}
 
-    template <typename SetupFunction>
-    CustomTask &onSetup(SetupFunction &&function) {
-        setTaskSetupHandler(wrapSetup(std::forward<SetupFunction>(function)));
+    template <typename SetupHandler>
+    CustomTask &onSetup(SetupHandler &&handler) {
+        setTaskSetupHandler(wrapSetup(std::forward<SetupHandler>(handler)));
         return *this;
     }
     CustomTask &onDone(const EndHandler &handler) {
@@ -346,20 +346,20 @@ public:
     }
 
 private:
-    template<typename SetupFunction>
-    static GroupItem::TaskSetupHandler wrapSetup(SetupFunction &&function) {
+    template<typename SetupHandler>
+    static GroupItem::TaskSetupHandler wrapSetup(SetupHandler &&handler) {
         static constexpr bool isDynamic = std::is_same_v<SetupResult,
-                std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
+                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::Type &>>;
         constexpr bool isVoid = std::is_same_v<void,
-                std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
+                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::Type &>>;
         static_assert(isDynamic || isVoid,
                 "Task setup handler needs to take (Task &) as an argument and has to return "
                 "void or SetupResult. The passed handler doesn't fulfill these requirements.");
         return [=](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
             if constexpr (isDynamic)
-                return std::invoke(function, *adapter.task());
-            std::invoke(function, *adapter.task());
+                return std::invoke(handler, *adapter.task());
+            std::invoke(handler, *adapter.task());
             return SetupResult::Continue;
         };
     };

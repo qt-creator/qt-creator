@@ -151,12 +151,11 @@
 
     \image studio-design-mode.webp "Design mode"
 
-    Read more about modes:
+    The mode selector is hidden by default.
 
-    \list
-        \li \l{Selecting Modes}
-        \li \l{Design Views}
-    \endlist
+    To show the mode selector, go to \uicontrol Views >
+    \uicontrol {Mode Selector Style} and select \uicontrol {Icons and Text}
+    or \uicontrol {Icons Only}.
 
     \section1 Project
     \target glossary-project

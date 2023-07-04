@@ -52,7 +52,7 @@ instructions:
   - type: ChangeDirectory
     directory: "{{.BuildDir}}/tqtc-qtsdk/packaging_tools"
   - type: ExecuteCommand
-    command: "python3 -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z http://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
+    command: "python3 -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z https://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
     maxTimeInSeconds: 3600
     maxTimeBetweenOutput: 360
@@ -72,7 +72,7 @@ instructions:
       property: host.os
       equals_value: MacOS
   - type: ExecuteCommand
-    command: "python -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --opengl32sw7z http://master.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z --d3dcompiler7z http://master.qt.io/development_releases/prebuilt/d3dcompiler/msvc2013/d3dcompiler_47-x64.7z --openssl7z http://ci-files02-hki.intra.qt.io/packages/jenkins/openssl/openssl_1.1.1d_prebuild_x64.7z {{.Env.QTC_QT_MODULES}}"
+    command: "python -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --opengl32sw7z https://master.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z --d3dcompiler7z https://master.qt.io/development_releases/prebuilt/d3dcompiler/msvc2013/d3dcompiler_47-x64.7z --openssl7z https://ci-files02-hki.ci.qt.io/packages/jenkins/openssl/openssl_1.1.1d_prebuild_x64.7z {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
     maxTimeInSeconds: 3600
     maxTimeBetweenOutput: 360

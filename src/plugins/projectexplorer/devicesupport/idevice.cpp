@@ -142,7 +142,6 @@ public:
     FilePath debugServerPath;
     FilePath debugDumperPath = Core::ICore::resourcePath("debugger/");
     FilePath qmlRunCommand;
-    bool qmlRunCommandChecked = false;
     bool emptyCommandAllowed = false;
 
     QList<Icon> deviceIcons;
@@ -482,7 +481,8 @@ void IDevice::fromMap(const QVariantMap &map)
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
 
     d->debugServerPath = FilePath::fromSettings(map.value(QLatin1String(DebugServerKey)));
-    d->qmlRunCommand = FilePath::fromSettings(map.value(QLatin1String(QmlRuntimeKey)));
+    const FilePath qmlRunCmd = FilePath::fromSettings(map.value(QLatin1String(QmlRuntimeKey)));
+    d->qmlRunCommand = qmlRunCmd;
     d->extraData = map.value(ExtraDataKey).toMap();
 }
 
@@ -516,6 +516,7 @@ QVariantMap IDevice::toMap() const
 
     map.insert(QLatin1String(DebugServerKey), d->debugServerPath.toSettings());
     map.insert(QLatin1String(QmlRuntimeKey), d->qmlRunCommand.toSettings());
+
     map.insert(ExtraDataKey, d->extraData);
 
     return map;
@@ -604,20 +605,12 @@ void IDevice::setDebugServerPath(const FilePath &path)
 
 FilePath IDevice::qmlRunCommand() const
 {
-    if (!d->qmlRunCommandChecked) {
-        d->qmlRunCommandChecked = true;
-        QString runtime = d->qmlRunCommand.path();
-        if (runtime.isEmpty())
-           runtime = "qml";
-        d->qmlRunCommand = searchExecutableInPath(runtime);
-    }
     return d->qmlRunCommand;
 }
 
 void IDevice::setQmlRunCommand(const FilePath &path)
 {
     d->qmlRunCommand = path;
-    d->qmlRunCommandChecked = false;
 }
 
 void IDevice::setExtraData(Id kind, const QVariant &data)

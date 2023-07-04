@@ -26,6 +26,7 @@ GTestSettings::GTestSettings(Id settingsId)
     setLayouter([this] {
         return Row { Form {
                 runDisabled, br,
+                throwOnFailure, br,
                 breakOnFailure, br,
                 repeat, iterations, br,
                 shuffle, seed, br,
@@ -42,6 +43,7 @@ GTestSettings::GTestSettings(Id settingsId)
 
     seed.setSettingsKey("Seed");
     seed.setSpecialValueText({});
+    seed.setRange(0, 99999);
     seed.setEnabled(false);
     seed.setLabelText(Tr::tr("Seed:"));
     seed.setToolTip(Tr::tr("A seed of 0 generates a seed based on the current timestamp."));
@@ -49,24 +51,29 @@ GTestSettings::GTestSettings(Id settingsId)
 
     runDisabled.setSettingsKey("RunDisabled");
     runDisabled.setLabelText(Tr::tr("Run disabled tests"));
+    runDisabled.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     runDisabled.setToolTip(Tr::tr("Executes disabled tests when performing a test run."));
 
     shuffle.setSettingsKey("Shuffle");
     shuffle.setLabelText(Tr::tr("Shuffle tests"));
+    shuffle.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     shuffle.setToolTip(Tr::tr("Shuffles tests automatically on every iteration by the given seed."));
 
     repeat.setSettingsKey("Repeat");
     repeat.setLabelText(Tr::tr("Repeat tests"));
+    repeat.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     repeat.setToolTip(Tr::tr("Repeats a test run (you might be required to increase the timeout to "
                              "avoid canceling the tests)."));
 
     throwOnFailure.setSettingsKey("ThrowOnFailure");
     throwOnFailure.setLabelText(Tr::tr("Throw on failure"));
+    throwOnFailure.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     throwOnFailure.setToolTip(Tr::tr("Turns assertion failures into C++ exceptions."));
 
     breakOnFailure.setSettingsKey("BreakOnFailure");
     breakOnFailure.setDefaultValue(true);
     breakOnFailure.setLabelText(Tr::tr("Break on failure while debugging"));
+    breakOnFailure.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     breakOnFailure.setToolTip(Tr::tr("Turns failures into debugger breakpoints."));
 
     groupMode.setSettingsKey("GroupMode");

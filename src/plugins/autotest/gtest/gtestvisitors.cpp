@@ -62,7 +62,7 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
             testSuiteName = QString::fromUtf8(parameter1.spell());
             testCaseName = QString::fromUtf8(parameter2.spell());
             // test (suite) name needs to be a alpha numerical literal ( _ and $ allowed)
-            const QRegularExpression alnum("^[[:alnum:]_$]+$");
+            static const QRegularExpression alnum("^[[:alnum:]_$]+$");
             // test suite must not start with a number, test case may
             if (!alnum.match(testSuiteName).hasMatch()
                     || (!testSuiteName.isEmpty() && testSuiteName.at(0).isNumber())) {

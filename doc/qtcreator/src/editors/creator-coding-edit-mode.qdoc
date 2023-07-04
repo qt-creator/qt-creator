@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -11,7 +11,7 @@
     \previouspage creator-editor-functions.html
     \page creator-coding-navigating.html
     \if defined(qtdesignstudio)
-    \nextpage creator-sidebars.html
+    \nextpage creator-views.html
     \else
     \nextpage creator-highlighting.html
     \endif
@@ -246,7 +246,12 @@
     \endlist
 
     To view the note, move the mouse pointer over the bookmark or open the
-    \uicontrol Bookmarks view in the \l{Working with Sidebars}{sidebar}.
+    \uicontrol Bookmarks view
+    \if defined(qtcreator)
+    in the \l{Show and hide sidebars}{sidebar}.
+    \else
+    in the \l{Managing Workspaces}{workspace}.
+    \endif
 
     \section2 Navigating Bookmarks
 
@@ -358,13 +363,11 @@
     \QC underlines semantic errors in olive in the C++ code editor. To check the
     correct paths for includes that are not resolved or that are resolved to the
     wrong file, select \uicontrol {Project Parts} > \uicontrol {Header Paths}.
-    \endif
 
-    \if defined(qtdesignstudio)
+    \else
     \section1 Related Topics
 
     \list
-        \li \l{Working with Sidebars}
         \li \l{Browsing Project Contents}
         \li \l{Viewing Output}
     \endlist

@@ -27,9 +27,22 @@ public:
     {
         using namespace Layouting;
 
+        auto warningLabel = new QLabel;
+        warningLabel->setWordWrap(true);
+        warningLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse
+                                              | Qt::LinksAccessibleByKeyboard
+                                              | Qt::TextSelectableByMouse);
+        warningLabel->setText(Tr::tr(
+            "Enabling %1 is subject to your agreement and abidance with your applicable "
+            "%1 terms. It is your responsibility to know and accept the requirements and "
+            "parameters of using tools like %1. This may include, but is not limited to, "
+            "ensuring you have the rights to allow %1 access to your code, as well as "
+            "understanding any implications of your use of %1 and suggestions produced "
+            "(like copyright, accuracy, etc.)." ).arg("Copilot"));
+
         auto authWidget = new AuthWidget();
 
-        QLabel *helpLabel = new QLabel();
+        auto helpLabel = new QLabel();
         helpLabel->setTextFormat(Qt::MarkdownText);
         helpLabel->setWordWrap(true);
         helpLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse
@@ -47,13 +60,15 @@ public:
             "the plugin will find the agent.js file automatically.\n\n"
             "Otherwise you need to specify the path to the %2 "
             "file from the Copilot neovim plugin.",
-            "Markdown text for the copilot instruction label").arg(
-                "[README.md](https://github.com/github/copilot.vim)",
-                "[agent.js](https://github.com/github/copilot.vim/tree/release/copilot/dist)"));
+            "Markdown text for the copilot instruction label")
+                           .arg("[README.md](https://github.com/github/copilot.vim)")
+                           .arg("[agent.js](https://github.com/github/copilot.vim/tree/release/copilot/dist)"));
 
         Column {
-            authWidget, br,
+            QString("<b>" + Tr::tr("Note:") + "</b>"), br,
+            warningLabel, br,
             CopilotSettings::instance().enableCopilot, br,
+            authWidget, br,
             CopilotSettings::instance().nodeJsPath, br,
             CopilotSettings::instance().distPath, br,
             CopilotSettings::instance().autoComplete, br,

@@ -537,8 +537,15 @@ public:
     void paintIfDefedOutBlocks(const PaintEventData &data, QPainter &painter) const;
     void paintFindScope(const PaintEventData &data, QPainter &painter) const;
     void paintCurrentLineHighlight(const PaintEventData &data, QPainter &painter) const;
-    void paintCursorAsBlock(const PaintEventData &data, QPainter &painter,
-                            PaintEventBlockData &blockData, int cursorPosition) const;
+    QRectF cursorBlockRect(const QTextDocument *doc,
+                           const QTextBlock &block,
+                           int cursorPosition,
+                           QRectF blockBoundingRect = {},
+                           bool *doSelection = nullptr) const;
+    void paintCursorAsBlock(const PaintEventData &data,
+                            QPainter &painter,
+                            PaintEventBlockData &blockData,
+                            int cursorPosition) const;
     void paintAdditionalVisualWhitespaces(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintIndentDepth(PaintEventData &data, QPainter &painter, const PaintEventBlockData &blockData);
     void paintReplacement(PaintEventData &data, QPainter &painter, qreal top) const;
@@ -2787,6 +2794,14 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (ro) break;
         if (e->modifiers() == Qt::NoModifier) {
             setOverwriteMode(!inOverwriteMode);
+            if (inOverwriteMode) {
+                for (const QTextCursor &cursor : multiTextCursor()) {
+                    const QRectF oldBlockRect = d->cursorBlockRect(document(),
+                                                                   cursor.block(),
+                                                                   cursor.position());
+                    viewport()->update(oldBlockRect.toAlignedRect());
+                }
+            }
             e->accept();
             return;
         }
@@ -4436,19 +4451,22 @@ void TextEditorWidgetPrivate::paintCurrentLineHighlight(const PaintEventData &da
     }
 }
 
-void TextEditorWidgetPrivate::paintCursorAsBlock(const PaintEventData &data, QPainter &painter,
-                                                 PaintEventBlockData &blockData, int cursorPosition) const
+QRectF TextEditorWidgetPrivate::cursorBlockRect(const QTextDocument *doc,
+                                                const QTextBlock &block,
+                                                int cursorPosition,
+                                                QRectF blockBoundingRect,
+                                                bool *doSelection) const
 {
     const qreal space = charWidth();
-    int relativePos = cursorPosition - blockData.position;
-    bool doSelection = true;
-    QTextLine line = blockData.layout->lineForTextPosition(relativePos);
+    int relativePos = cursorPosition - block.position();
+    QTextLine line = block.layout()->lineForTextPosition(relativePos);
     qreal x = line.cursorToX(relativePos);
     qreal w = 0;
     if (relativePos < line.textLength() - line.textStart()) {
         w = line.cursorToX(relativePos + 1) - x;
-        if (data.doc->characterAt(cursorPosition) == QLatin1Char('\t')) {
-            doSelection = false;
+        if (doc->characterAt(cursorPosition) == QLatin1Char('\t')) {
+            if (doSelection)
+                *doSelection = false;
             if (w > space) {
                 x += w - space;
                 w = space;
@@ -4458,12 +4476,30 @@ void TextEditorWidgetPrivate::paintCursorAsBlock(const PaintEventData &data, QPa
         w = space; // in sync with QTextLine::draw()
     }
 
-    QRectF lineRect = line.rect();
-    lineRect.moveTop(lineRect.top() + blockData.boundingRect.top());
-    lineRect.moveLeft(blockData.boundingRect.left() + x);
-    lineRect.setWidth(w);
+    if (blockBoundingRect.isEmpty())
+        blockBoundingRect = q->blockBoundingGeometry(block).translated(q->contentOffset());
+
+    QRectF cursorRect = line.rect();
+    cursorRect.moveTop(cursorRect.top() + blockBoundingRect.top());
+    cursorRect.moveLeft(blockBoundingRect.left() + x);
+    cursorRect.setWidth(w);
+    return cursorRect;
+}
+
+void TextEditorWidgetPrivate::paintCursorAsBlock(const PaintEventData &data,
+                                                 QPainter &painter,
+                                                 PaintEventBlockData &blockData,
+                                                 int cursorPosition) const
+{
+    bool doSelection = true;
+    const QRectF cursorRect = cursorBlockRect(data.doc,
+                                              data.block,
+                                              cursorPosition,
+                                              blockData.boundingRect,
+                                              &doSelection);
     const QTextCharFormat textFormat = data.fontSettings.toTextCharFormat(C_TEXT);
-    painter.fillRect(lineRect, textFormat.foreground());
+    painter.fillRect(cursorRect, textFormat.foreground());
+    int relativePos = cursorPosition - blockData.position;
     if (doSelection) {
         blockData.selections.append(
             createBlockCursorCharFormatRange(relativePos,

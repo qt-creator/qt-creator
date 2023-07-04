@@ -60,28 +60,29 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
 
     seed.setSettingsKey("Seed");
     seed.setEnabled(false);
+    seed.setRange(0, INT_MAX); // UINT_MAX would be correct, but inner QSpinBox is limited to int
     seed.setLabelText(Tr::tr("Seed:"));
     seed.setToolTip(Tr::tr("A seed of 0 means no randomization. A value of 1 uses the current "
                            "time, any other value is used as random seed generator."));
     seed.setEnabler(&randomize);
 
     randomize.setSettingsKey("Randomize");
-    randomize.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+    randomize.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     randomize.setLabelText(Tr::tr("Randomize"));
     randomize.setToolTip(Tr::tr("Randomize execution order."));
 
     systemErrors.setSettingsKey("SystemErrors");
-    systemErrors.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+    systemErrors.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     systemErrors.setLabelText(Tr::tr("Catch system errors"));
     systemErrors.setToolTip(Tr::tr("Catch or ignore system errors."));
 
     fpExceptions.setSettingsKey("FPExceptions");
-    fpExceptions.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+    fpExceptions.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     fpExceptions.setLabelText(Tr::tr("Floating point exceptions"));
     fpExceptions.setToolTip(Tr::tr("Enable floating point exception traps."));
 
     memLeaks.setSettingsKey("MemoryLeaks");
-    memLeaks.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+    memLeaks.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     memLeaks.setDefaultValue(true);
     memLeaks.setLabelText(Tr::tr("Detect memory leaks"));
     memLeaks.setToolTip(Tr::tr("Enable memory leak detection."));

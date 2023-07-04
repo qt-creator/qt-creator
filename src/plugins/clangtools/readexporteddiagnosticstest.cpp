@@ -64,9 +64,8 @@ static QString appendYamlSuffix(const char *filePathFragment)
 void ReadExportedDiagnosticsTest::testTidy()
 {
     const FilePath sourceFile = filePath("tidy.modernize-use-nullptr.cpp");
-    const FilePath exportedFile = createFile(
-                filePath(appendYamlSuffix("tidy.modernize-use-nullptr")).toString(),
-                sourceFile.toString());
+    const FilePath exportedFile
+        = createFile(filePath(appendYamlSuffix("tidy.modernize-use-nullptr")), sourceFile);
     Diagnostic expectedDiag;
     expectedDiag.name = "modernize-use-nullptr";
     expectedDiag.location = {sourceFile, 2, 25};
@@ -86,9 +85,9 @@ void ReadExportedDiagnosticsTest::testTidy()
 
 void ReadExportedDiagnosticsTest::testAcceptDiagsFromFilePaths_None()
 {
-    const QString sourceFile = filePath("tidy.modernize-use-nullptr.cpp").toString();
-    const FilePath exportedFile = createFile(filePath("tidy.modernize-use-nullptr.yaml").toString(),
-                                            sourceFile);
+    const FilePath sourceFile = filePath("tidy.modernize-use-nullptr.cpp");
+    const FilePath exportedFile = createFile(filePath("tidy.modernize-use-nullptr.yaml"),
+                                             sourceFile);
     const auto acceptNone = [](const FilePath &) { return false; };
     const expected_str<Diagnostics> diags
         = readExportedDiagnostics(exportedFile, acceptNone);
@@ -101,8 +100,7 @@ void ReadExportedDiagnosticsTest::testTidy_ClangAnalyzer()
 {
     const FilePath sourceFile = filePath("clang-analyzer.dividezero.cpp");
     const FilePath exportedFile
-        = createFile(filePath(appendYamlSuffix("clang-analyzer.dividezero")).toString(),
-                     sourceFile.toString());
+        = createFile(filePath(appendYamlSuffix("clang-analyzer.dividezero")), sourceFile);
     Diagnostic expectedDiag;
     expectedDiag.name = "clang-analyzer-core.DivideZero";
     expectedDiag.location = {sourceFile, 4, 15};
@@ -134,8 +132,8 @@ void ReadExportedDiagnosticsTest::testTidy_ClangAnalyzer()
 void ReadExportedDiagnosticsTest::testClazy()
 {
     const FilePath sourceFile = filePath("clazy.qgetenv.cpp");
-    const FilePath exportedFile = createFile(filePath(appendYamlSuffix("clazy.qgetenv")).toString(),
-                                            sourceFile.toString());
+    const FilePath exportedFile = createFile(filePath(appendYamlSuffix("clazy.qgetenv")),
+                                             sourceFile);
     Diagnostic expectedDiag;
     expectedDiag.name = "clazy-qgetenv";
     expectedDiag.location = {sourceFile, 7, 5};
@@ -259,17 +257,16 @@ void ReadExportedDiagnosticsTest::testOffsetMultiByteCodePoint2()
 }
 
 // Replace FILE_PATH with a real absolute file path in the *.yaml files.
-FilePath ReadExportedDiagnosticsTest::createFile(const QString &yamlFilePath,
-                                                 const QString &filePathToInject) const
+FilePath ReadExportedDiagnosticsTest::createFile(const Utils::FilePath &yamlFilePath,
+                                                 const Utils::FilePath &filePathToInject) const
 {
-    QTC_ASSERT(QDir::isAbsolutePath(filePathToInject), return {});
-    const FilePath newFileName = m_baseDir->absolutePath(QFileInfo(yamlFilePath).fileName());
+    QTC_ASSERT(filePathToInject.isAbsolutePath(), return {});
+    const FilePath newFileName = m_baseDir->filePath().resolvePath(yamlFilePath);
 
     FileReader reader;
-    if (QTC_GUARD(reader.fetch(FilePath::fromString(yamlFilePath),
-                               QIODevice::ReadOnly | QIODevice::Text))) {
+    if (QTC_GUARD(reader.fetch(yamlFilePath, QIODevice::ReadOnly | QIODevice::Text))) {
         QByteArray contents = reader.data();
-        contents.replace("FILE_PATH", filePathToInject.toLocal8Bit());
+        contents.replace("FILE_PATH", filePathToInject.toString().toLocal8Bit());
 
         FileSaver fileSaver(newFileName, QIODevice::WriteOnly | QIODevice::Text);
         QTC_CHECK(fileSaver.write(contents));

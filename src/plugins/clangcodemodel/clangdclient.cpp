@@ -977,6 +977,12 @@ MessageId ClangdClient::requestSymbolInfo(const Utils::FilePath &filePath, const
     return symReq.id();
 }
 
+#ifdef WITH_TESTS
+ClangdFollowSymbol *ClangdClient::currentFollowSymbolOperation()
+{
+    return d->followSymbol;
+}
+#endif
 
 void ClangdClient::followSymbol(TextDocument *document,
         const QTextCursor &cursor,
@@ -989,8 +995,8 @@ void ClangdClient::followSymbol(TextDocument *document,
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
 
-    delete d->followSymbol;
-    d->followSymbol = nullptr;
+    if (d->followSymbol)
+        d->followSymbol->cancel();
 
     const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
     if (followTo == FollowTo::SymbolDef && !resolveTarget) {
@@ -1000,12 +1006,14 @@ void ClangdClient::followSymbol(TextDocument *document,
 
     qCDebug(clangdLog) << "follow symbol requested" << document->filePath()
                        << adjustedCursor.blockNumber() << adjustedCursor.positionInBlock();
-    d->followSymbol = new ClangdFollowSymbol(this, adjustedCursor, editorWidget, document, callback,
-                                             followTo, openInSplit);
-    connect(d->followSymbol, &ClangdFollowSymbol::done, this, [this] {
-        d->followSymbol->deleteLater();
-        d->followSymbol = nullptr;
+    auto clangdFollowSymbol = new ClangdFollowSymbol(this, adjustedCursor, editorWidget, document,
+                                                     callback, followTo, openInSplit);
+    connect(clangdFollowSymbol, &ClangdFollowSymbol::done, this, [this, clangdFollowSymbol] {
+        clangdFollowSymbol->deleteLater();
+        if (clangdFollowSymbol == d->followSymbol)
+            d->followSymbol = nullptr;
     });
+    d->followSymbol = clangdFollowSymbol;
 }
 
 void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &cursor,
@@ -1106,7 +1114,23 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 cleanString.remove('`');
                 const QStringList lines = cleanString.trimmed().split('\n');
                 for (const QString &line : lines) {
-                    const auto markupFilePath = Utils::FilePath::fromUserInput(line.simplified());
+                    const QString possibleFilePath = line.simplified();
+                    const auto looksLikeFilePath = [&] {
+                        if (possibleFilePath.length() < 3)
+                            return false;
+                        if (osType() == OsTypeWindows) {
+                            if (possibleFilePath.startsWith(R"(\\)"))
+                                return true;
+                            return possibleFilePath.front().isLetter()
+                                    && possibleFilePath.at(1) == ':'
+                                    && possibleFilePath.at(2) == '\\';
+                        }
+                        return possibleFilePath.front() == '/'
+                                && possibleFilePath.at(1).isLetterOrNumber();
+                    };
+                    if (!looksLikeFilePath())
+                        continue;
+                    const auto markupFilePath = Utils::FilePath::fromUserInput(possibleFilePath);
                     if (markupFilePath.exists()) {
                         d->setHelpItemForTooltip(hoverResponse.id(),
                                                  filePath,

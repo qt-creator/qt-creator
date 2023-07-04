@@ -185,7 +185,7 @@ void doExit(int exitCode)
         std::cout << commandLineParser.value("wait").toStdString() << std::endl;
 
         waitingForExitKeyPress = true;
-        onKeyPress([exitCode] { doExit(exitCode); });
+        onKeyPress([] { doExit(0); });
     } else {
         exit(exitCode);
     }
@@ -206,9 +206,7 @@ void onInferiorFinished(int exitCode, QProcess::ExitStatus status)
 
 void onInferiorErrorOccurered(QProcess::ProcessError error)
 {
-    qCInfo(log) << "Inferior error: " << error << inferiorProcess.errorString();
-    sendCrash(inferiorProcess.exitCode());
-    doExit(1);
+    qCWarning(log) << "Inferior error: " << error << inferiorProcess.errorString();
 }
 
 void onInferiorStarted()

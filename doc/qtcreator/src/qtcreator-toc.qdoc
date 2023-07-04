@@ -19,8 +19,6 @@
             \li \l{IDE Overview}
             \li \l{User Interface}
                 \list
-                    \li \l{Selecting Modes}
-                    \li \l{Working with Sidebars}
                     \li \l{Browsing Project Contents}
                         \list
                             \li \l{Projects}
@@ -255,7 +253,7 @@
         \list
             \li \l{Using the Help Mode}
             \li \l{FAQ}
-            \li \l{How-tos}
+            \li \l{How-to}
             \li \l{Known Issues}
             \li \l{Glossary}
             \li \l{Technical Support}

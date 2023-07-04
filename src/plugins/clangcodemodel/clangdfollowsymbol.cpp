@@ -90,6 +90,7 @@ public:
     void closeTempDocuments();
     bool addOpenFile(const FilePath &filePath);
     bool defLinkIsAmbiguous() const;
+    void cancel();
 
     ClangdFollowSymbol * const q;
     ClangdClient * const client;
@@ -169,16 +170,15 @@ ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &
 
 ClangdFollowSymbol::~ClangdFollowSymbol()
 {
-    d->closeTempDocuments();
-    if (d->virtualFuncAssistProcessor)
-        d->virtualFuncAssistProcessor->resetData(false);
-    for (const MessageId &id : std::as_const(d->pendingSymbolInfoRequests))
-        d->client->cancelRequest(id);
-    for (const MessageId &id : std::as_const(d->pendingGotoImplRequests))
-        d->client->cancelRequest(id);
-    for (const MessageId &id : std::as_const(d->pendingGotoDefRequests))
-        d->client->cancelRequest(id);
+    d->cancel();
     delete d;
+}
+
+void ClangdFollowSymbol::cancel()
+{
+    d->cancel();
+    clear();
+    emitDone();
 }
 
 void ClangdFollowSymbol::clear()
@@ -219,6 +219,19 @@ bool ClangdFollowSymbol::Private::defLinkIsAmbiguous() const
     // Otherwise, we accept potentially doing more work than needed rather than not catching
     // possible overrides.
     return true;
+}
+
+void ClangdFollowSymbol::Private::cancel()
+{
+    closeTempDocuments();
+    if (virtualFuncAssistProcessor)
+        virtualFuncAssistProcessor->resetData(false);
+    for (const MessageId &id : std::as_const(pendingSymbolInfoRequests))
+        client->cancelRequest(id);
+    for (const MessageId &id : std::as_const(pendingGotoImplRequests))
+        client->cancelRequest(id);
+    for (const MessageId &id : std::as_const(pendingGotoDefRequests))
+        client->cancelRequest(id);
 }
 
 bool ClangdFollowSymbol::Private::addOpenFile(const FilePath &filePath)

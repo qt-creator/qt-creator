@@ -755,15 +755,15 @@ class Dumper(DumperBase):
         qtVersionAndNamespace = None
         try:
             qtVersionAndNamespace = self.fetchQtVersionAndNamespace()
-            DumperBase.warn("Detected Qt Version: 0x%0x (namespace='%s')" %
-                            (qtVersionAndNamespace[1], qtVersionAndNamespace[0] or "no namespace"))
+            self.report("Detected Qt Version: 0x%0x (namespace='%s')" %
+                        (qtVersionAndNamespace[1], qtVersionAndNamespace[0] or "no namespace"))
         except Exception as e:
             DumperBase.warn('[lldb] Error detecting Qt version: %s' % e)
 
         try:
             self.fetchInternalFunctions()
-            DumperBase.warn('Found function QObject::property: 0x%0x' % self.qtPropertyFunc)
-            DumperBase.warn('Found function QObject::customEvent: 0x%0x' % self.qtCustomEventFunc)
+            self.report('Found function QObject::property: 0x%0x' % self.qtPropertyFunc)
+            self.report('Found function QObject::customEvent: 0x%0x' % self.qtCustomEventFunc)
         except Exception as e:
             DumperBase.warn('[lldb] Error fetching internal Qt functions: %s' % e)
 

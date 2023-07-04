@@ -20,7 +20,7 @@ static void initEnableAspect(BoolAspect &enableCopilot)
     enableCopilot.setDisplayName(Tr::tr("Enable Copilot"));
     enableCopilot.setLabelText(Tr::tr("Enable Copilot"));
     enableCopilot.setToolTip(Tr::tr("Enables the Copilot integration."));
-    enableCopilot.setDefaultValue(true);
+    enableCopilot.setDefaultValue(false);
 }
 
 CopilotSettings &CopilotSettings::instance()
@@ -36,7 +36,9 @@ CopilotSettings::CopilotSettings()
     const FilePath nodeFromPath = FilePath("node").searchInPath();
 
     const FilePaths searchDirs
-        = {FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
+
+        = {FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/dist/agent.js"),
+           FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
            FilePath::fromUserInput(
                "~/.config/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
            FilePath::fromUserInput(
@@ -52,6 +54,7 @@ CopilotSettings::CopilotSettings()
     nodeJsPath.setLabelText(Tr::tr("Node.js path:"));
     nodeJsPath.setHistoryCompleter("Copilot.NodePath.History");
     nodeJsPath.setDisplayName(Tr::tr("Node.js Path"));
+    nodeJsPath.setEnabler(&enableCopilot);
     nodeJsPath.setToolTip(
         Tr::tr("Select path to node.js executable. See https://nodejs.org/en/download/"
                "for installation instructions."));
@@ -62,6 +65,7 @@ CopilotSettings::CopilotSettings()
     distPath.setLabelText(Tr::tr("Path to agent.js:"));
     distPath.setHistoryCompleter("Copilot.DistPath.History");
     distPath.setDisplayName(Tr::tr("Agent.js path"));
+    distPath.setEnabler(&enableCopilot);
     distPath.setToolTip(Tr::tr(
         "Select path to agent.js in Copilot Neovim plugin. See "
         "https://github.com/github/copilot.vim#getting-started for installation instructions."));
@@ -70,6 +74,7 @@ CopilotSettings::CopilotSettings()
     autoComplete.setSettingsKey("Copilot.Autocomplete");
     autoComplete.setLabelText(Tr::tr("Request completions automatically"));
     autoComplete.setDefaultValue(true);
+    autoComplete.setEnabler(&enableCopilot);
     autoComplete.setToolTip(Tr::tr("Automatically request suggestions for the current text cursor "
                                    "position after changes to the document."));
 

@@ -2003,9 +2003,19 @@ bool Check::visit(TypeOfExpression *ast)
 /// ### Maybe put this into the context as a helper function.
 const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
-
     if (!_importsOk)
         return nullptr;
+
+    if (!id)
+        return nullptr; // ### error?
+
+    if (id->name.isEmpty()) // possible after error recovery
+        return nullptr;
+
+    QString propertyName = id->name.toString();
+
+    if (propertyName == "id" && !id->next)
+        return nullptr; // ### should probably be a special value
 
     QList<const ObjectValue *> scopeObjects = _scopeChain.qmlScopeObjects();
     if (scopeObjects.isEmpty())
@@ -2021,23 +2031,8 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         return isAttachedProperty;
     };
 
-
-    if (! id)
-        return nullptr; // ### error?
-
-    if (id->name.isEmpty()) // possible after error recovery
-        return nullptr;
-
-    QString propertyName = id->name.toString();
-
-    if (propertyName == "id" && !id->next)
-        return nullptr; // ### should probably be a special value
-
     // attached properties
     bool isAttachedProperty = getAttachedTypes(propertyName);
-
-    if (scopeObjects.isEmpty())
-        return nullptr;
 
     // global lookup for first part of id
     const Value *value = nullptr;
@@ -2053,7 +2048,14 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         return nullptr;
 
     if (!value) {
-        addMessage(ErrInvalidPropertyName, id->identifierToken, propertyName);
+        // We omit M16 messages if the type using ImmediateProperties
+        // Ideally, we should obtain them through metaobject information
+        const bool omitMessage = !m_typeStack.isEmpty()
+                                 && ((m_typeStack.last() == "PropertyChanges")
+                                     || m_typeStack.last() == "Binding")
+                                 && !m_idStack.isEmpty() && m_idStack.last().contains(propertyName);
+        if (!omitMessage)
+            addMessage(ErrInvalidPropertyName, id->identifierToken, propertyName);
         return nullptr;
     }
 

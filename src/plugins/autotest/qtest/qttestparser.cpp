@@ -112,8 +112,8 @@ TestCases QtTestParser::testCases(const CppEditor::CppModelManager *modelManager
         return astVisitor.testCases();
 
     TestCases result;
-    const QRegularExpression regex("\\b(QTEST_(APPLESS_|GUILESS_)?MAIN)"
-                                   "\\s*\\(\\s*([[:alnum:]]+)\\s*\\)");
+    static const QRegularExpression regex("\\b(QTEST_(APPLESS_|GUILESS_)?MAIN)"
+                                          "\\s*\\(\\s*([[:alnum:]]+)\\s*\\)");
     QRegularExpressionMatchIterator it = regex.globalMatch(QString::fromUtf8(document->utf8Source()));
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();

@@ -6,7 +6,7 @@ instructions:
   - type: Group
     instructions:
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z http://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-x86_64.7z"
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-x86_64.7z"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download elfutils package, check logs."
@@ -82,7 +82,7 @@ instructions:
   - type: Group
     instructions:
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\elfutils-release_0.175qt-windows-x86_64.7z http://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-windows-x86_64.7z"
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\elfutils-release_0.175qt-windows-x86_64.7z https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-windows-x86_64.7z"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download elfutils package, check logs."
@@ -92,7 +92,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract elfutils package, check logs."
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x64.7z http://master.qt.io/development_releases/prebuilt/python/Python38-win-x64.7z"
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x64.7z https://master.qt.io/development_releases/prebuilt/python/Python38-win-x64.7z"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download python package, check logs."
@@ -141,7 +141,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to create folder qt_temp, check logs."
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x86.7z http://master.qt.io/development_releases/prebuilt/python/Python38-win-x86.7z"
+        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x86.7z https://master.qt.io/development_releases/prebuilt/python/Python38-win-x86.7z"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download python package, check logs."

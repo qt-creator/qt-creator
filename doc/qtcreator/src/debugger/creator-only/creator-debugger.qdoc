@@ -781,6 +781,10 @@
     the display text might do something wrong. You can step through the code and
     examine changes to the variable to find out where the error occurs.
 
+    The following video shows how to examine variable values:
+
+    \youtube EhJ1eV_6RH8
+
     \section1 Showing Tooltips for Simple Values
 
     To display the value of a simple variable, hover the mouse pointer over its
@@ -841,6 +845,11 @@
     from it), as well as most containers of the C++ Standard Library and some GCC
     extensions. It uses this deeper understanding to present objects of such
     classes in a useful way.
+
+    To change the number of array elements that are
+    requested when expanding entries, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Debugger} >
+    \uicontrol {Locals & Expressions} > \uicontrol {Default array size}.
 
     \section1 Stepping Through Code
 
@@ -984,7 +993,7 @@
     > \uicontrol {Debugger} > \uicontrol {Locals & Expressions} >
     \uicontrol {Use Debugging Helpers}.
 
-    \image qtcreator-debugging-helper-options.png "Locals & Expressions preferences"
+    \image qtcreator-debugging-helper-options.webp {Locals & Expressions preferences}
 
     In the \uicontrol Locals view, expand the object's entry and open the slot
     in the \e slots subitem. The view shows the objects connected to this slot
@@ -1365,7 +1374,7 @@
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Load system GDB pretty
     printers}. For more information, see \l{Specifying GDB Settings}.
 
-    \image qtcreator-gdb-options.png "GDB preferences"
+    \image qtcreator-gdb-options.png {GDB preferences}
 
     \section2 Customizing Built-In Debugging Helpers
 
@@ -1375,7 +1384,7 @@
     \uicontrol Debugger > \uicontrol {Locals & Expressions}, and enter the
     commands in the \uicontrol {Debugging Helper Customization} field.
 
-    \image qtcreator-debugging-helper-options.png "Locals & Expressions preferences"
+    \image qtcreator-debugging-helper-options.webp {Locals & Expressions preferences}
 
     If you receive error messages about receiving signals when using GDB, you
     can specify \l{https://sourceware.org/gdb/onlinedocs/gdb/Signals.html}
@@ -1586,7 +1595,7 @@
     selecting \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol CDB > \uicontrol {Use Python dumper}.
 
-    \image qtcreator-cdb-options.png "CDB preferences"
+    \image qtcreator-cdb-options.png {CDB preferences}
 
     The following sections describe some of the widely-used Dumper classes and
     members specified in \c qtcreator\share\qtcreator\debugger\dumper.py.
@@ -2036,7 +2045,7 @@
     > \uicontrol Preferences > \uicontrol Debugger > \uicontrol GDB >
     \uicontrol {Use automatic symbol cache}.
 
-    \image qtcreator-gdb-options.png "GDB preferences"
+    \image qtcreator-gdb-options.png {GDB preferences}
 
     \section2 Minimizing Number of Breakpoints
 

@@ -10,7 +10,7 @@
 
     This section has answers to some frequently asked questions about \QC.
     You might also find answers to your questions in the
-    \l{Known Issues} and \l{How-tos} sections, or the Troubleshooting
+    \l{Known Issues} and \l{How-to} sections, or the Troubleshooting
     sections for a special area, such as
     \l{Troubleshooting Debugger}{debugging}.
 
@@ -22,7 +22,7 @@
     Remove the settings files created by \QC.
 
     For more information about where the files are located on each supported
-    platform, see \l {Location of Settings Files}.
+    platform, see \l {Find settings files}.
 
     \b {\QC comes with \MinGW, should I use this version with Qt?}
 

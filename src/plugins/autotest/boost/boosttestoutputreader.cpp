@@ -62,7 +62,7 @@ static QString caseFromContent(const QString &content)
     }
 
     QString result = content.mid(index + 5);
-    static QRegularExpression functionName("\"(.+)\":.*");
+    static const QRegularExpression functionName("\"(.+)\":.*");
     const QRegularExpressionMatch matcher = functionName.match(result);
     if (!matcher.hasMatch()) {
         qCDebug(orLog) << "got no match";
@@ -173,29 +173,29 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
 
 void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
 {
-    static QRegularExpression newTestStart("^Running (\\d+) test cases?\\.\\.\\.$");
-    static QRegularExpression dependency("^Including test case (.+) as a dependency of "
-                                         "test case (.+)$");
-    static QRegularExpression messages("^(.+)\\((\\d+)\\): (info: (.+)|error: (.+)|"
-                                       "fatal error: (.+)|last checkpoint: (.+)"
-                                       "|Entering test (case|suite) \"(.+)\""
-                                       "|Leaving test (case|suite) \"(.+)\"; testing time: (\\d+.+)"
-                                       "|Test case \"(.+)\" is skipped because .+$)$");
-    static QRegularExpression moduleMssg("^(Entering test module \"(.+)\"|"
-                                         "Leaving test module \"(.+)\"; testing time: (\\d+.+))$");
-    static QRegularExpression noAssertion("^Test case (.*) did not check any assertions$");
+    static const QRegularExpression newTestStart("^Running (\\d+) test cases?\\.\\.\\.$");
+    static const QRegularExpression dependency("^Including test case (.+) as a dependency of "
+                                               "test case (.+)$");
+    static const QRegularExpression messages("^(.+)\\((\\d+)\\): (info: (.+)|error: (.+)|"
+                                             "fatal error: (.+)|last checkpoint: (.+)"
+                                             "|Entering test (case|suite) \"(.+)\""
+                                             "|Leaving test (case|suite) \"(.+)\"; testing time: (\\d+.+)"
+                                             "|Test case \"(.+)\" is skipped because .+$)$");
+    static const QRegularExpression moduleMssg("^(Entering test module \"(.+)\"|"
+                                               "Leaving test module \"(.+)\"; testing time: (\\d+.+))$");
+    static const QRegularExpression noAssertion("^Test case (.*) did not check any assertions$");
 
-    static QRegularExpression summaryPreamble("^\\s*Test (module|suite|case) \"(.*)\" has "
-                                              "(failed|passed)( with:)?$");
-    static QRegularExpression summarySkip("^\\s+Test case \"(.*)\" was skipped$");
-    static QRegularExpression summaryDetail("^\\s+(\\d+) test cases? out of (\\d+) "
-                                            "(failed|passed|skipped)$");
-    static QRegularExpression summaryAssertion("^\\s+(\\d+) assertions? out of (\\d+) "
-                                               "(failed|passed)$");
+    static const QRegularExpression summaryPreamble("^\\s*Test (module|suite|case) \"(.*)\" has "
+                                                    "(failed|passed)( with:)?$");
+    static const QRegularExpression summarySkip("^\\s+Test case \"(.*)\" was skipped$");
+    static const QRegularExpression summaryDetail("^\\s+(\\d+) test cases? out of (\\d+) "
+                                                  "(failed|passed|skipped)$");
+    static const QRegularExpression summaryAssertion("^\\s+(\\d+) assertions? out of (\\d+) "
+                                                     "(failed|passed)$");
 
-    static QRegularExpression finish("^\\*{3} (\\d+) failure(s are| is) detected in the "
-                                     "test module \"(.*)\"$");
-    QString noErrors("*** No errors detected");
+    static const QRegularExpression finish("^\\*{3} (\\d+) failure(s are| is) detected in the "
+                                           "test module \"(.*)\"$");
+    const QString noErrors("*** No errors detected");
 
     const QString line = removeCommandlineColors(QString::fromUtf8(outputLine));
     if (line.trimmed().isEmpty())

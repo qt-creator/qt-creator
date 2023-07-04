@@ -35,6 +35,7 @@ else()
 endif()
 @endif
 
+include(GNUInstallDirs)
 install(TARGETS %{ProjectName}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

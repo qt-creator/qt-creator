@@ -111,7 +111,7 @@ void BuildDirectoryAspect::addToLayout(Layouting::LayoutItem &parent)
     StringAspect::addToLayout(parent);
     d->problemLabel = new InfoLabel({}, InfoLabel::Warning);
     d->problemLabel->setElideMode(Qt::ElideNone);
-    parent.addItems({{}, d->problemLabel.data()});
+    parent.addItems({Layouting::br, Layouting::empty, d->problemLabel.data()});
     updateProblemLabel();
     if (!d->sourceDir.isEmpty()) {
         connect(this, &StringAspect::checkedChanged, this, [this] {

@@ -12,6 +12,13 @@
     \l{https://github.com/features/copilot}{GitHub Copilot} into \QC.
     You can view suggestions from Copilot in the \uicontrol Edit mode.
 
+    \note If you enable the Copilot plugin, you must agree with and abide by
+    the GitHub terms of use. It is your responsibility to know and accept the
+    requirements and parameters of using Copilot, such as ensuring you have
+    the rights to grant it access to your code. Also, you must understand the
+    implications of using it and the suggestions it produces, such as code
+    copyright and accuracy.
+
     \section1 Requirements
 
     To use the Copilot plugin, you need:
@@ -42,11 +49,11 @@
         \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Copilot.
             \image qtcreator-preferences-copilot.webp {Copilot tab in Preferences}
+        \li Select the \uicontrol {Enable Copilot} check box to use Copilot.
         \li Select \uicontrol {Sign In} to sign into your subscription, activate
             your device, and authorize the GitHub Copilot plugin.
 
             The button turns into a \uicontrol {Sign Out} button.
-        \li Select the \uicontrol {Enable Copilot} check box to use Copilot.
         \li In the \uicontrol {Node.js path} field, enter the full path to the
             Node.js executable.
         \li In the \uicontrol {Path to agent.js} field, enter the path to
@@ -56,7 +63,7 @@
             make changes.
     \endlist
 
-    \section1 Pair-Programming with Copilot
+    \section1 Receiving Suggestions
 
     When you write code in the \l {Working in Edit Mode}{Edit} mode and
     \uicontrol {Request completions automatically} is enabled, Copilot
@@ -78,9 +85,11 @@
     To apply a suggestion word-by-word, select \uicontrol {Apply Word}
     or press \key {Alt+Right}.
 
-    \section1 Enabling and Disabling Copilot
+    To reject a suggestion, press \key Esc or the arrow keys.
 
-    You can enable and disable the Copilot plugin either globally for all
+    \section1 Enabling and Disabling Suggestions
+
+    You can enable and disable the Copilot suggestions either globally for all
     projects or at project level for a particular project.
 
     To enable or disable Copilot suggestions globally, select the

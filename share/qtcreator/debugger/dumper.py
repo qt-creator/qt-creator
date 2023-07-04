@@ -1386,7 +1386,7 @@ class DumperBase():
             self.putExpandable()
             return
 
-        if DisplayFormat.Array10 <= displayFormat and displayFormat <= DisplayFormat.Array1000:
+        if DisplayFormat.Array10 <= displayFormat and displayFormat <= DisplayFormat.Array10000:
             n = (10, 100, 1000, 10000)[displayFormat - DisplayFormat.Array10]
             self.putType(typeName)
             self.putItemCount(n)

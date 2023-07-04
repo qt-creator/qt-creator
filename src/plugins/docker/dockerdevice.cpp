@@ -753,6 +753,8 @@ bool DockerDevicePrivate::startContainer()
                                              "or restart Qt Creator."));
     });
 
+    QTC_ASSERT(m_shell, return false);
+
     if (m_shell->start())
         return true;
 

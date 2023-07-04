@@ -206,6 +206,7 @@ def main():
     test.compare(str(changed.plainText), "Retrieving data failed.",
                  "Showing an invalid commit can't succeed but Creator survived.")
     invokeMenuItem("File", "Exit")
+    waitForCleanShutdown()
 
 def deleteProject():
     path = os.path.join(srcPath, projectName)

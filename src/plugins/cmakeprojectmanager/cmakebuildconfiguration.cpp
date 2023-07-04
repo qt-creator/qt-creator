@@ -594,7 +594,7 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
         Core::ICore::dialogParent(),
         Tr::tr("Re-configure with Initial Parameters"),
         Tr::tr("Clear CMake configuration and configure with initial parameters?"),
-        settings->askBeforeReConfigureInitialParams.checkableDecider(),
+        settings->askBeforeReConfigureInitialParams.askAgainCheckableDecider(),
         QMessageBox::Yes | QMessageBox::No,
         QMessageBox::Yes);
 

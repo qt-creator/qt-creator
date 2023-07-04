@@ -1534,6 +1534,7 @@ TEST(SmallString, long_path_string_move_constuctor)
 }
 
 QT_WARNING_PUSH
+QT_WARNING_DISABLE_GCC("-Wpragmas")
 QT_WARNING_DISABLE_GCC("-Wself-move")
 QT_WARNING_DISABLE_CLANG("-Wself-move")
 
