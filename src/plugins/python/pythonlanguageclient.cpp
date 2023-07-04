@@ -115,6 +115,7 @@ static PythonLanguageServerState checkPythonLanguageServer(const FilePath &pytho
     const FilePath &modulePath = getPylsModulePath(pythonLShelpCommand);
 
     Process pythonProcess;
+    pythonProcess.setTimeoutS(2);
     pythonProcess.setCommand(pythonLShelpCommand);
     pythonProcess.runBlocking();
     if (pythonProcess.allOutput().contains("Python Language Server"))
