@@ -1122,6 +1122,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
                 });
             }
         }
+        connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &StringAspect::validChanged);
         break;
     case LineEditDisplay:
         d->m_lineEditDisplay = createSubWidget<FancyLineEdit>();
@@ -1167,6 +1168,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
             });
             parent.addItem(resetButton);
         }
+        connect(d->m_lineEditDisplay, &FancyLineEdit::validChanged, this, &StringAspect::validChanged);
         break;
     case TextEditDisplay:
         d->m_textEditDisplay = createSubWidget<QTextEdit>();

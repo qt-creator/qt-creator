@@ -507,6 +507,7 @@ public:
 
 signals:
     void checkedChanged();
+    void validChanged(bool validState);
 
 protected:
     void internalToGui() override;
