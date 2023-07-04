@@ -71,13 +71,12 @@ public:
     // ApplicationOutput specifics
     void projectRemoved();
 
-    void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
-                       Utils::OutputFormat format);
-
     const AppOutputSettings &settings() const { return m_settings; }
     void setSettings(const AppOutputSettings &settings);
 
 private:
+    void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
+                       Utils::OutputFormat format);
     void reRunRunControl();
     void stopRunControl();
     void attachToRunControl();
