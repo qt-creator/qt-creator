@@ -1058,6 +1058,21 @@ QList<ServerNodeInstance> NodeInstanceServer::allView3DInstances() const
     return view3Ds;
 }
 
+QList<ServerNodeInstance> NodeInstanceServer::allCameraInstances() const
+{
+    QList<ServerNodeInstance> cameras;
+    std::copy_if(nodeInstances().cbegin(),
+                 nodeInstances().cend(),
+                 std::back_inserter(cameras),
+                 [](const ServerNodeInstance &instance) {
+                     return instance.isValid()
+                            && ServerNodeInstance::isSubclassOf(instance.internalObject(),
+                                                                QByteArrayLiteral("QQuick3DCamera"));
+                 });
+
+    return cameras;
+}
+
 void NodeInstanceServer::setStateInstance(const ServerNodeInstance &stateInstance)
 {
     m_activeStateInstance = stateInstance;
@@ -1194,7 +1209,7 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<
         const QList<PropertyName> propertyNames = instance.propertyNames();
         for (const PropertyName &propertyName : propertyNames) {
             QVariant propertyValue = instance.property(propertyName);
-            if (supportedVariantType(propertyValue.userType())) {
+            if (supportedVariantType(propertyValue.typeId())) {
                 valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName,
                                                           propertyValue, PropertyName()));
             }
@@ -1236,13 +1251,13 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
 
         if (instance.isValid()) {
             QVariant propertyValue = instance.property(propertyName);
-            bool isValid = QMetaType::isRegistered(propertyValue.userType())
-                    && supportedVariantType(propertyValue.type());
-            if (!isValid && propertyValue.userType() == 0) {
+            bool isValid = QMetaType::isRegistered(propertyValue.typeId())
+                           && supportedVariantType(propertyValue.typeId());
+            if (!isValid && propertyValue.typeId() == 0) {
                 // If the property is QVariant type, invalid variant can be a valid value
                 const QMetaObject *mo = instance.internalObject()->metaObject();
                 const int idx = mo->indexOfProperty(propertyName);
-                isValid = idx >= 0 && mo->property(idx).userType() == QMetaType::QVariant;
+                isValid = idx >= 0 && mo->property(idx).typeId() == QMetaType::QVariant;
             }
             if (isValid) {
                 valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName,
@@ -1265,8 +1280,8 @@ ValuesModifiedCommand NodeInstanceServer::createValuesModifiedCommand(
         const QVariant propertyValue = property.propertyValue;
 
         if (instance.isValid()) {
-            if (QMetaType::isRegistered(propertyValue.userType())
-                && supportedVariantType(propertyValue.type())) {
+            if (QMetaType::isRegistered(propertyValue.typeId())
+                && supportedVariantType(propertyValue.typeId())) {
                 valueVector.append(PropertyValueContainer(instance.instanceId(),
                                                           propertyName,
                                                           propertyValue,

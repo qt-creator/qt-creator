@@ -15,6 +15,9 @@ namespace QmlDesigner {
 
 Internal::NodeListPropertyIterator::value_type Internal::NodeListPropertyIterator::operator*() const
 {
+    if (!m_nodeListProperty)
+        return {};
+
     return {m_nodeListProperty->at(m_currentIndex), m_model, m_view};
 }
 
@@ -41,11 +44,9 @@ Internal::InternalNodeListPropertyPointer &NodeListProperty::internalNodeListPro
     if (m_internalNodeListProperty)
         return m_internalNodeListProperty;
 
-    if (internalNode()->hasProperty(name())) {
-        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isNodeListProperty())
-            m_internalNodeListProperty = internalProperty->toNodeListProperty();
-    }
+    auto internalProperty = internalNode()->nodeListProperty(name());
+    if (internalProperty)
+        m_internalNodeListProperty = internalProperty;
 
     return m_internalNodeListProperty;
 }
@@ -65,9 +66,7 @@ QList<ModelNode> NodeListProperty::toModelNodeList() const
         return {};
 
     if (internalNodeListProperty())
-        return internalNodesToModelNodes(m_internalNodeListProperty->toNodeListProperty()->nodeList(),
-                                         model(),
-                                         view());
+        return internalNodesToModelNodes(m_internalNodeListProperty->nodeList(), model(), view());
 
     return QList<ModelNode>();
 }
@@ -162,7 +161,7 @@ NodeListProperty::iterator NodeListProperty::rotate(NodeListProperty::iterator f
 
     privateModel()->notifyNodeOrderChanged(m_internalNodeListProperty);
 
-    return {iter - begin, internalNodeListProperty().data(), model(), view()};
+    return {iter - begin, internalNodeListProperty().get(), model(), view()};
 }
 
 void NodeListProperty::reverse(NodeListProperty::iterator first, NodeListProperty::iterator last)
@@ -212,15 +211,21 @@ Internal::NodeListPropertyIterator NodeListProperty::end()
 
 Internal::NodeListPropertyIterator NodeListProperty::begin() const
 {
-    return {0, internalNodeListProperty().data(), model(), view()};
+    if (!isValid())
+        return {};
+
+    return {0, internalNodeListProperty().get(), model(), view()};
 }
 
 Internal::NodeListPropertyIterator NodeListProperty::end() const
 {
+    if (!isValid())
+        return {};
+
     auto nodeListProperty = internalNodeListProperty();
     auto size = nodeListProperty ? nodeListProperty->size() : 0;
 
-    return {size, nodeListProperty.data(), model(), view()};
+    return {size, nodeListProperty.get(), model(), view()};
 }
 
 } // namespace QmlDesigner

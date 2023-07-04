@@ -321,11 +321,13 @@ void BakeLights::showSetupDialog()
     if (!m_dataModel)
         m_dataModel = new BakeLightsDataModel(m_view);
 
-    m_dataModel->reset();
-
-    auto data = m_dataModel->view3dNode().auxiliaryData(bakeLightsManualProperty);
-    if (data)
-        m_manualMode = data->toBool();
+    if (!m_dataModel->reset()) {
+        m_manualMode = true;
+    } else {
+        auto data = m_dataModel->view3dNode().auxiliaryData(bakeLightsManualProperty);
+        if (data)
+            m_manualMode = data->toBool();
+    }
 
     if (!m_setupDialog) {
         // Show non-modal progress dialog with cancel button

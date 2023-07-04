@@ -217,7 +217,7 @@ static PropertyName unusedProperty(const ModelNode &modelNode)
 
 void BindingModel::addBindingForCurrentNode()
 {
-    if (connectionView()->selectedModelNodes().count() == 1) {
+    if (connectionView()->selectedModelNodes().size() == 1) {
         const ModelNode modelNode = connectionView()->selectedModelNodes().constFirst();
         if (modelNode.isValid()) {
             try {
@@ -380,9 +380,9 @@ bool BindingModel::getExpressionStrings(const BindingProperty &bindingProperty, 
 
         QString propertyName;
 
-        for (int i=1; i < stringList.count(); i++) {
+        for (int i = 1; i < stringList.size(); i++) {
             propertyName += stringList.at(i);
-            if (i != stringList.count() - 1)
+            if (i != stringList.size() - 1)
                 propertyName += QLatin1String(".");
         }
         *sourceProperty = propertyName;

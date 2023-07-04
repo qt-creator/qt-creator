@@ -169,7 +169,7 @@ void TimelineSelectionTool::aboutToSelect(SelectionMode mode, QList<QGraphicsIte
 
 void TimelineSelectionTool::commitSelection(SelectionMode mode)
 {
-    if (m_playbackLoopTimeSteps.count())
+    if (m_playbackLoopTimeSteps.size())
         qobject_cast<TimelineGraphicsScene *>(scene())->layoutRuler()->extendPlaybackLoop(m_playbackLoopTimeSteps,
                                                                                           mode == SelectionMode::Toggle);  // TODO: Highlighting items with selection tool is set or added to loop range. Select shortcut for this QDS-4941
     scene()->selectKeyframes(mode, m_aboutToSelectBuffer);

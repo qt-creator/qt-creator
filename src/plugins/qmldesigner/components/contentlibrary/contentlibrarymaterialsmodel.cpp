@@ -53,7 +53,7 @@ int ContentLibraryMaterialsModel::rowCount(const QModelIndex &) const
 
 QVariant ContentLibraryMaterialsModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_bundleCategories.count(), return {});
+    QTC_ASSERT(index.isValid() && index.row() < m_bundleCategories.size(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
     return m_bundleCategories.at(index.row())->property(roleNames().value(role));
@@ -332,14 +332,14 @@ void ContentLibraryMaterialsModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
-    bool catVisibilityChanged = false;
-    for (ContentLibraryMaterialsCategory *cat : std::as_const(m_bundleCategories))
-        catVisibilityChanged |= cat->filter(m_searchText);
+    for (int i = 0; i < m_bundleCategories.size(); ++i) {
+        ContentLibraryMaterialsCategory *cat = m_bundleCategories.at(i);
+        bool catVisibilityChanged = cat->filter(m_searchText);
+        if (catVisibilityChanged)
+            emit dataChanged(index(i), index(i), {roleNames().keys("bundleCategoryVisible")});
+    }
 
     updateIsEmpty();
-
-    if (catVisibilityChanged)
-        resetModel();
 }
 
 void ContentLibraryMaterialsModel::updateImportedState(const QStringList &importedMats)

@@ -3,19 +3,20 @@
 
 #include "qmltextgenerator.h"
 
-#include <QVariant>
 #include <QColor>
-#include <QVector4D>
-#include <QVector3D>
+#include <QVariant>
 #include <QVector2D>
+#include <QVector3D>
+#include <QVector4D>
 
 #include "bindingproperty.h"
-#include "signalhandlerproperty.h"
-#include "nodeproperty.h"
+#include "model.h"
 #include "nodelistproperty.h"
+#include "nodeproperty.h"
+#include "signalhandlerproperty.h"
+#include "stringutils.h"
 #include "variantproperty.h"
 #include <nodemetainfo.h>
-#include "model.h"
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
@@ -114,14 +115,10 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
 
         if (property.name() == "id")
             return stringValue;
-
-          if (false) {
-          }
         if (variantProperty.holdsEnumeration()) {
             return variantProperty.enumeration().toString();
         } else {
-
-            switch (value.userType()) {
+            switch (value.typeId()) {
             case QMetaType::Bool:
                 if (value.toBool())
                     return QStringLiteral("true");
@@ -281,23 +278,6 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
     }
 
     result += QLatin1Char('\n');
-
-    return result;
-}
-
-QString QmlTextGenerator::escape(const QString &value)
-{
-    QString result = value;
-
-    if (value.size() == 6 && value.startsWith("\\u")) //Do not dobule escape unicode chars
-        return result;
-
-    result.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
-
-    result.replace(QStringLiteral("\""), QStringLiteral("\\\""));
-    result.replace(QStringLiteral("\t"), QStringLiteral("\\t"));
-    result.replace(QStringLiteral("\r"), QStringLiteral("\\r"));
-    result.replace(QStringLiteral("\n"), QStringLiteral("\\n"));
 
     return result;
 }

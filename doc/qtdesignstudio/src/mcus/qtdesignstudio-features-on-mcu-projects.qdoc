@@ -1,0 +1,129 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage studio-compatibility-with-mcu-sdks.html
+    \page studio-features-on-mcu-projects.html
+    \nextpage studio-help.html
+
+    \title \QDS Features on MCU Projects
+
+    The table below provides a summary of how the key \QDS features are supported
+    for developing MCU projects.
+
+    \table
+    \header
+        \li View
+        \li Fully Supported
+        \li Partially Supported
+        \li Not Supported
+        \li Comments
+    \row
+        \li \l 2D
+        \li \b X
+        \li \b -
+        \li \b -
+        \li A scene in the \uicontrol 2D view is rendered by the regular Qt Quick
+        and QML, and not as \QUL and \QMCU, so some imperfections or inaccuracies
+        can occur.
+    \row
+        \li \l 3D
+        \li \b -
+        \li \b -
+        \li \b X
+        \li The \uicontrol 3D view is not a part of \QUL or \QMCU.
+    \row
+        \li \l {Material Editor and Browser}
+        \li \b -
+        \li \b -
+        \li \b X
+        \li The \uicontrol {Material Editor} and \uicontrol {Material Browser} views
+        are not a part of \QUL or \QMCU.
+    \row
+        \li \l {Components}
+        \li \b X
+        \li \b -
+        \li \b -
+        \li Shows only the components and modules available for MCU projects.
+    \row
+        \li \l {Assets}
+        \li \b X
+        \li \b -
+        \li \b -
+        \li Shows all the listed assets in the \c QmlProject file.
+    \row
+        \li \l {Navigator}
+        \li \b X
+        \li \b -
+        \li \b -
+        \li Displays the composition of the current component file as a tree
+        structure.
+    \row
+        \li \l {Properties}
+        \li \b X
+        \li \b -
+        \li \b -
+        \li Shows only the preset properties available for MCU projects (such as
+        by Qt Quick and its modules).
+    \row
+        \li \l {Connections}
+        \li \b X
+        \li \b -
+        \li \b -
+        \li The \uicontrol Connections view displays all signal handlers in the
+        current file but it doesn't filter available signals, so you can still
+        see and select signals that are available in Qt Quick, but not in \QUL.
+    \row
+        \li \l {States}
+        \li \b X
+        \li \b -
+        \li \b -
+        \li The feature is fully supported as such, but there are some
+        limitations listed in \l {\QMCU Known Issues or Limitations}.
+    \row
+        \li \l {Transitions}
+        \li \b X
+        \li \b -
+        \li \b -
+        \li \b -
+    \row
+        \li \l {Translations}
+        \li \b -
+        \li \b -
+        \li \b X
+        \li \b -
+    \row
+        \li \l {Timeline}
+        \li \b X
+        \li \b -
+        \li \b -
+        \li \b -
+    \row
+        \li \l {Curves}
+        \li \b -
+        \li \b X
+        \li \b -
+        \li Linear interpolation works, but \QMCU does not support the
+        \c easing.bezierCurve property of a keyframe.
+    \row
+        \li \l Code
+        \li \b X
+        \li \b -
+        \li \b -
+        \li The \uicontrol Code view uses regular Qt Quick instead of \QUL, so it may
+        not show an error if you are using or assigning an unsupported property.
+    \row
+        \li \l {Content Library}
+        \li \b -
+        \li \b -
+        \li \b X
+        \li The \uicontrol {Content Library} view is not a part of \QUL or \QMCU.
+    \row
+        \li \l {Texture Editor}
+        \li \b -
+        \li \b -
+        \li \b X
+        \li The \uicontrol {Texture Editor} view is not a part of \QUL or \QMCU.
+    \endtable
+
+*/

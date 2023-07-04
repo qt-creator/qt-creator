@@ -1,11 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "internalbindingproperty.h"
 #include "internalnode_p.h"
-#include "internalproperty.h"
-#include "internalvariantproperty.h"
-#include "internalnodeproperty.h"
+#include "internalnodeabstractproperty.h"
 #include "internalnodelistproperty.h"
+#include "internalnodeproperty.h"
+#include "internalproperty.h"
+#include "internalsignalhandlerproperty.h"
+#include "internalvariantproperty.h"
 
 #include <QDebug>
 
@@ -17,11 +20,11 @@ namespace Internal {
 
 InternalNodeAbstractProperty::Pointer InternalNode::parentProperty() const
 {
-    return m_parentProperty;
+    return m_parentProperty.lock();
 }
 void InternalNode::setParentProperty(const InternalNodeAbstractProperty::Pointer &parent)
 {
-    InternalNodeAbstractProperty::Pointer parentProperty = m_parentProperty.toStrongRef();
+    InternalNodeAbstractProperty::Pointer parentProperty = m_parentProperty.lock();
     if (parentProperty)
         parentProperty->remove(shared_from_this());
 
@@ -33,11 +36,11 @@ void InternalNode::setParentProperty(const InternalNodeAbstractProperty::Pointer
 
 void InternalNode::resetParentProperty()
 {
-    InternalNodeAbstractProperty::Pointer parentProperty = m_parentProperty.toStrongRef();
+    InternalNodeAbstractProperty::Pointer parentProperty = m_parentProperty.lock();
     if (parentProperty)
         parentProperty->remove(shared_from_this());
 
-    m_parentProperty.clear();
+    m_parentProperty.reset();
 }
 
 namespace {
@@ -111,117 +114,10 @@ AuxiliaryDatasForType InternalNode::auxiliaryData(AuxiliaryDataType type) const
     return data;
 }
 
-InternalProperty::Pointer InternalNode::property(const PropertyName &name) const
-{
-    return m_namePropertyHash.value(name);
-}
-
-InternalBindingProperty::Pointer InternalNode::bindingProperty(const PropertyName &name) const
-{
-    InternalProperty::Pointer property =  m_namePropertyHash.value(name);
-    if (property->isBindingProperty())
-        return property.staticCast<InternalBindingProperty>();
-
-    return InternalBindingProperty::Pointer();
-}
-
-InternalSignalHandlerProperty::Pointer InternalNode::signalHandlerProperty(const PropertyName &name) const
-{
-    InternalProperty::Pointer property =  m_namePropertyHash.value(name);
-    if (property->isSignalHandlerProperty())
-        return property.staticCast<InternalSignalHandlerProperty>();
-
-    return InternalSignalHandlerProperty::Pointer();
-}
-
-InternalSignalDeclarationProperty::Pointer InternalNode::signalDeclarationProperty(const PropertyName &name) const
-{
-    InternalProperty::Pointer property =  m_namePropertyHash.value(name);
-    if (property->isSignalDeclarationProperty())
-        return property.staticCast<InternalSignalDeclarationProperty>();
-
-    return InternalSignalDeclarationProperty::Pointer();
-}
-
-InternalVariantProperty::Pointer InternalNode::variantProperty(const PropertyName &name) const
-{
-    InternalProperty::Pointer property =  m_namePropertyHash.value(name);
-    if (property->isVariantProperty())
-        return property.staticCast<InternalVariantProperty>();
-
-    return InternalVariantProperty::Pointer();
-}
-
-void InternalNode::addBindingProperty(const PropertyName &name)
-{
-    InternalProperty::Pointer newProperty(InternalBindingProperty::create(name, shared_from_this()));
-    m_namePropertyHash.insert(name, newProperty);
-}
-
-void InternalNode::addSignalHandlerProperty(const PropertyName &name)
-{
-    InternalProperty::Pointer newProperty(
-        InternalSignalHandlerProperty::create(name, shared_from_this()));
-    m_namePropertyHash.insert(name, newProperty);
-}
-
-void InternalNode::addSignalDeclarationProperty(const PropertyName &name)
-{
-    InternalProperty::Pointer newProperty(
-        InternalSignalDeclarationProperty::create(name, shared_from_this()));
-    m_namePropertyHash.insert(name, newProperty);
-}
-
-InternalNodeListProperty::Pointer InternalNode::nodeListProperty(const PropertyName &name) const
-{
-    InternalProperty::Pointer property =  m_namePropertyHash.value(name);
-    if (property && property->isNodeListProperty())
-        return property.staticCast<InternalNodeListProperty>();
-
-    return InternalNodeListProperty::Pointer();
-}
-
-InternalNodeAbstractProperty::Pointer InternalNode::nodeAbstractProperty(const PropertyName &name) const
-{
-    InternalProperty::Pointer property =  m_namePropertyHash.value(name);
-    if (property && property->isNodeAbstractProperty())
-        return property.staticCast<InternalNodeAbstractProperty>();
-
-    return InternalNodeProperty::Pointer();
-}
-
-InternalNodeProperty::Pointer InternalNode::nodeProperty(const PropertyName &name) const
-{
-    InternalProperty::Pointer property =  m_namePropertyHash.value(name);
-    if (property->isNodeProperty())
-        return property.staticCast<InternalNodeProperty>();
-
-    return InternalNodeProperty::Pointer();
-}
-
-void InternalNode::addVariantProperty(const PropertyName &name)
-{
-    InternalProperty::Pointer newProperty(InternalVariantProperty::create(name, shared_from_this()));
-    m_namePropertyHash.insert(name, newProperty);
-}
-
-void InternalNode::addNodeProperty(const PropertyName &name, const TypeName &dynamicTypeName)
-{
-    InternalNodeProperty::Pointer newProperty(InternalNodeProperty::create(name, shared_from_this()));
-    newProperty->setDynamicTypeName(dynamicTypeName);
-    m_namePropertyHash.insert(name, newProperty);
-}
-
-void InternalNode::addNodeListProperty(const PropertyName &name)
-{
-    InternalProperty::Pointer newProperty(InternalNodeListProperty::create(name, shared_from_this()));
-    m_namePropertyHash.insert(name, newProperty);
-}
-
 void InternalNode::removeProperty(const PropertyName &name)
 {
     InternalProperty::Pointer property = m_namePropertyHash.take(name);
-    Q_ASSERT(!property.isNull());
+    Q_ASSERT(property);
 }
 
 PropertyNameList InternalNode::propertyNameList() const
@@ -250,12 +146,11 @@ QList<InternalNodeAbstractProperty::Pointer> InternalNode::nodeAbstractPropertyL
     const QList<InternalProperty::Pointer> properties = propertyList();
     for (const InternalProperty::Pointer &property : properties) {
         if (property->isNodeAbstractProperty())
-            abstractPropertyList.append(property->toNodeAbstractProperty());
+            abstractPropertyList.append(property->toProperty<InternalNodeAbstractProperty>());
     }
 
     return abstractPropertyList;
 }
-
 
 QList<InternalNode::Pointer> InternalNode::allSubNodes() const
 {
@@ -280,4 +175,4 @@ QList<InternalNode::Pointer> InternalNode::allDirectSubNodes() const
 }
 
 } // namespace Internal
-}
+} // namespace QmlDesigner

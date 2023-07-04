@@ -121,13 +121,13 @@ QString DocumentWarningWidget::generateNavigateLinks()
 {
     static const QString link("<a href=\"%1\">%2</a>");
     QStringList links;
-    if (m_messages.count() > 1) {
+    if (m_messages.size() > 1) {
         if (m_currentMessage != 0)
             links << link.arg(QLatin1String("previous"), tr("Previous"));
         else
             links << tr("Previous");
 
-        if (m_messages.count() - 1 > m_currentMessage)
+        if (m_messages.size() - 1 > m_currentMessage)
             links << link.arg(QLatin1String("next"), tr("Next"));
         else
             links << tr("Next");

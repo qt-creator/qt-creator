@@ -12,6 +12,8 @@
 
 namespace QmlDesigner {
 
+class MaterialBrowserView;
+
 class MaterialBrowserModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -28,7 +30,7 @@ class MaterialBrowserModel : public QAbstractListModel
     Q_PROPERTY(QStringList customMaterialSections MEMBER m_customMaterialSections NOTIFY materialSectionsChanged)
 
 public:
-    MaterialBrowserModel(QObject *parent = nullptr);
+    MaterialBrowserModel(MaterialBrowserView *view, QObject *parent = nullptr);
     ~MaterialBrowserModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -125,6 +127,8 @@ private:
     bool m_hasMaterialLibrary = false;
     bool m_allPropsCopied = true;
     QString m_copiedMaterialType;
+
+    QPointer<MaterialBrowserView> m_view;
 };
 
 } // namespace QmlDesigner

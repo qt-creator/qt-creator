@@ -2,9 +2,8 @@ set(StudioWelcomeDir "${PROJECT_SOURCE_DIR}/src/plugins/studiowelcome")
 
 set(WITH_TESTS ON)
 
-find_package(Googletest MODULE)
-
 add_qtc_test(tst_qml_wizard
+  CONDITION TARGET Googletest
   DEPENDS Core Utils StudioWelcome ProjectExplorer QmlDesigner Googletest
   DEFINES
     QT_CREATOR

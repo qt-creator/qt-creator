@@ -843,7 +843,7 @@ QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, cons
 
 //The component might also be shipped with Creator.
 //To avoid trouble with import "." we use the component shipped with Creator.
-static inline QString fixComponentPathForIncompatibleQt(const QString &componentPath)
+inline static QString fixComponentPathForIncompatibleQt(const QString &componentPath)
 {
     QString result = componentPath;
     const QLatin1String importString("/imports/");

@@ -141,7 +141,7 @@ void TextureEditorView::changeValue(const QString &name)
     if (name == "state" && castedValue.toString() == "base state")
         castedValue = "";
 
-    if (castedValue.type() == QVariant::Color) {
+    if (castedValue.typeId() == QVariant::Color) {
         QColor color = castedValue.value<QColor>();
         QColor newColor = QColor(color.name());
         newColor.setAlpha(color.alpha());
@@ -389,8 +389,11 @@ void TextureEditorView::handleToolBarAction(int action)
     }
 
     case TextureEditorContextObject::DeleteCurrentTexture: {
-        if (m_selectedTexture.isValid())
-            m_selectedTexture.destroy();
+        if (m_selectedTexture.isValid()) {
+            executeInTransaction(__FUNCTION__, [&] {
+                m_selectedTexture.destroy();
+            });
+        }
         break;
     }
 

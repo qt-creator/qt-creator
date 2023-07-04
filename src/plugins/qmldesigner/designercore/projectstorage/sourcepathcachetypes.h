@@ -35,6 +35,7 @@ public:
 class SourceNameEntry
 {
 public:
+    SourceNameEntry() = default;
     SourceNameEntry(Utils::SmallStringView sourceName, SourceContextId sourceContextId)
         : sourceName(sourceName)
         , sourceContextId(sourceContextId)

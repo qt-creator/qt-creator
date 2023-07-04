@@ -179,6 +179,7 @@ void Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
 #else
     viewData.renderControl = new QQuickRenderControl;
     viewData.window = new QQuickWindow(viewData.renderControl);
+    setPipelineCacheConfig(viewData.window);
     viewData.renderControl->initialize();
 #endif
     QQmlComponent component(engine());
@@ -654,7 +655,7 @@ Qt5InformationNodeInstanceServer::propertyToPropertyValueTriples(
     QVector<InstancePropertyValueTriple> result;
     InstancePropertyValueTriple propTriple;
 
-    if (variant.type() == QVariant::Vector3D) {
+    if (variant.typeId() == QVariant::Vector3D) {
         auto vector3d = variant.value<QVector3D>();
 
         if (vector3d.isNull())
@@ -950,6 +951,18 @@ void Qt5InformationNodeInstanceServer::removeNode3D(QObject *node)
         m_active3DView = nullptr;
         updateActiveSceneToEditView3D();
     }
+    if (m_selectedCameras.contains(node)) {
+        m_selectedCameras.remove(node);
+    } else {
+        auto cit = m_selectedCameras.constBegin();
+        while (cit != m_selectedCameras.constEnd()) {
+            if (cit.value().contains(node)) {
+                m_selectedCameras[cit.key()].removeOne(node);
+                break;
+            }
+            ++cit;
+        }
+    }
 }
 
 void Qt5InformationNodeInstanceServer::resolveSceneRoots()
@@ -1130,6 +1143,16 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
             m_render3DEditViewTimer.start(17); // 16.67ms = ~60fps, rounds up to 17
             --m_need3DEditViewRender;
         }
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+        else {
+            static bool pipelineSaved = false;
+            if (!pipelineSaved) {
+                // Store pipeline cache for quicker initialization in future
+                savePipelineCacheData();
+                pipelineSaved = true;
+            }
+        }
+#endif
 
 #ifdef FPS_COUNTER
         // Force constant rendering for accurate fps count
@@ -2173,6 +2196,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     QVariantList selectedObjs;
     QObject *firstSceneRoot = nullptr;
     ServerNodeInstance firstInstance;
+    QObjectList selectedCameras;
 #ifdef QUICK3D_PARTICLES_MODULE
     QList<QQuick3DParticleSystem *> selectedParticleSystems;
 #endif
@@ -2215,15 +2239,20 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
                 if (node) {
                     const auto childItems = node->childItems();
                     for (const auto &childItem : childItems) {
-                        if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
+                        if (qobject_cast<QQuick3DNode *>(childItem))
                             return true;
                     }
                 }
 #endif
                 return false;
             };
-            if (object && (firstSceneRoot != object || isSelectableAsRoot()))
+            if (object && (firstSceneRoot != object || isSelectableAsRoot())) {
                 selectedObjs << objectToVariant(object);
+#ifdef QUICK3D_MODULE
+                if (qobject_cast<QQuick3DCamera *>(object))
+                    selectedCameras << object;
+#endif
+            }
         }
     }
 
@@ -2240,6 +2269,11 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
         m_active3DView = findView3DForInstance(firstInstance);
         updateActiveSceneToEditView3D();
     }
+
+    // Only update selected cameras if there are cameras in selection.
+    // This way m_selectedCameras retains previous camera selection.
+    if (!selectedCameras.isEmpty())
+        m_selectedCameras.insert(m_active3DScene, selectedCameras);
 
     // Ensure the UI has enough selection box items. If it doesn't yet have them, which can be the
     // case when the first selection processed is a multiselection, we wait a bit as
@@ -2294,6 +2328,45 @@ void Qt5InformationNodeInstanceServer::setSceneEnvironmentColor(const PropertyVa
     }
 #else
     Q_UNUSED(container)
+#endif
+}
+
+// Returns list of camera objects to align
+// If m_selectedCameras contains cameras, return those
+// If no cameras have been selected yet, return camera associated with current view3D, if any
+// If scene is not View3D scene, return first camera in the scene
+QVariantList Qt5InformationNodeInstanceServer::alignCameraList() const
+{
+#ifdef QUICK3D_MODULE
+    QVariantList cameras;
+    if (m_selectedCameras.contains(m_active3DScene)) {
+        const QObjectList cameraList = m_selectedCameras[m_active3DScene];
+        for (const auto camera : cameraList) {
+            if (hasInstanceForObject(camera) && find3DSceneRoot(camera) == m_active3DScene)
+                cameras.append(objectToVariant(camera));
+        }
+    }
+
+    if (cameras.isEmpty()) {
+        if (auto activeView = qobject_cast<QQuick3DViewport *>(m_active3DView)) {
+            if (auto camera = activeView->camera()) {
+                if (hasInstanceForObject(camera) && find3DSceneRoot(camera) == m_active3DScene)
+                    cameras.append(objectToVariant(camera));
+            }
+        }
+    }
+
+    if (cameras.isEmpty()) {
+        const QList<ServerNodeInstance> allCameras = allCameraInstances();
+        for (const auto &camera : allCameras) {
+            if (find3DSceneRoot(camera) == m_active3DScene) {
+                cameras.append(objectToVariant(camera.internalObject()));
+                break;
+            }
+        }
+    }
+
+    return cameras;
 #endif
 }
 
@@ -2375,10 +2448,12 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "fitToView");
         break;
     case View3DActionType::AlignCamerasToView:
-        QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignCamerasToView");
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignCamerasToView",
+                                  Q_ARG(QVariant, alignCameraList()));
         break;
     case View3DActionType::AlignViewToCamera:
-        QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignViewToCamera");
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignViewToCamera",
+                                  Q_ARG(QVariant, alignCameraList()));
         break;
     case View3DActionType::SelectionModeToggle:
         updatedToolState.insert("selectionMode", command.isEnabled() ? 1 : 0);

@@ -29,7 +29,6 @@ AbstractProperty::AbstractProperty(const PropertyName &propertyName, const Inter
     m_model(model),
     m_view(view)
 {
-    Q_ASSERT(!m_model || m_view);
     Q_ASSERT_X(!m_propertyName.contains(' '), Q_FUNC_INFO, "a property name cannot contain a space");
 }
 
@@ -51,11 +50,6 @@ AbstractProperty::AbstractProperty(const AbstractProperty &property, AbstractVie
 }
 
 AbstractProperty::~AbstractProperty() = default;
-
-Internal::InternalNodePointer AbstractProperty::internalNode() const
-{
-    return m_internalNode;
-}
 
 Internal::ModelPrivate *AbstractProperty::privateModel() const
 {
@@ -296,6 +290,17 @@ bool AbstractProperty::isSignalDeclarationProperty() const
     return false;
 }
 
+PropertyType AbstractProperty::type() const
+{
+    if (!isValid())
+        return PropertyType::None;
+
+    if (internalNode()->hasProperty(name()))
+        return internalNode()->property(name())->propertyType();
+
+    return PropertyType::None;
+}
+
 bool AbstractProperty::isBindingProperty() const
 {
     if (!isValid())
@@ -325,32 +330,13 @@ TypeName AbstractProperty::dynamicTypeName() const
     return TypeName();
 }
 
-/*!
-    Returns whether \a property1 and \a property2 reference the same property in
-    the same node.
-*/
-bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2)
-{
-    return (property1.m_model == property2.m_model)
-            && (property1.m_internalNode == property2.m_internalNode)
-            && (property1.m_propertyName == property2.m_propertyName);
-}
-
-/*!
-    Returns whether \a property1 and \a property2 do not reference the same
-    property in the same node.
-  */
-bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2)
-{
-    return !(property1 == property2);
-}
-
 QDebug operator<<(QDebug debug, const AbstractProperty &property)
 {
-    return debug.nospace() << "AbstractProperty(" << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';
+    return debug.nospace() << "AbstractProperty("
+                           << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';
 }
 
-QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property)
+QTextStream &operator<<(QTextStream &stream, const AbstractProperty &property)
 {
     stream << "AbstractProperty(" << property.name() << ')';
 
@@ -358,4 +344,3 @@ QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property)
 }
 
 } // namespace QmlDesigner
-

@@ -97,10 +97,11 @@ void Qt5BakeLightsNodeInstanceServer::bakeLights()
         switch (status) {
         case QQuick3DLightmapBaker::BakingStatus::Progress:
         case QQuick3DLightmapBaker::BakingStatus::Warning:
-        case QQuick3DLightmapBaker::BakingStatus::Error:
+        case QQuick3DLightmapBaker::BakingStatus::Error: {
             nodeInstanceClient()->handlePuppetToCreatorCommand(
-                        {PuppetToCreatorCommand::BakeLightsProgress, msg.value_or("")});
-            break;
+                {PuppetToCreatorCommand::BakeLightsProgress, msg.value_or("")});
+            nodeInstanceClient()->flush();
+        } break;
         case QQuick3DLightmapBaker::BakingStatus::Cancelled:
             abort(tr("Baking cancelled."));
             break;

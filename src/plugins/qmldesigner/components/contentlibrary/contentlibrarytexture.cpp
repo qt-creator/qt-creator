@@ -13,17 +13,23 @@ namespace QmlDesigner {
 
 ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo,
                                              const QString &downloadPath, const QUrl &icon,
-                                             const QString &webUrl, const QString &fileExt,
-                                             const QSize &dimensions, const qint64 sizeInBytes)
+                                             const QString &key, const QString &webTextureUrl,
+                                             const QString &webIconUrl, const QString &fileExt,
+                                             const QSize &dimensions, const qint64 sizeInBytes,
+                                             bool hasUpdate, bool isNew)
     : QObject(parent)
     , m_iconPath(iconFileInfo.filePath())
     , m_downloadPath(downloadPath)
-    , m_webUrl(webUrl)
+    , m_webTextureUrl(webTextureUrl)
+    , m_webIconUrl(webIconUrl)
     , m_baseName{iconFileInfo.baseName()}
     , m_fileExt(fileExt)
+    , m_textureKey(key)
     , m_icon(icon)
     , m_dimensions(dimensions)
     , m_sizeInBytes(sizeInBytes)
+    , m_hasUpdate(hasUpdate)
+    , m_isNew(isNew)
 {
     doSetDownloaded();
 }
@@ -58,7 +64,7 @@ QString ContentLibraryTexture::resolveFileExt()
     if (textureFiles.isEmpty())
         return {};
 
-    if (textureFiles.count() > 1) {
+    if (textureFiles.size() > 1) {
         qWarning() << "Found multiple textures with the same name in the same directories: "
                    << Utils::transform(textureFiles, [](const QFileInfo &fi) {
                           return fi.fileName();
@@ -120,6 +126,24 @@ void ContentLibraryTexture::doSetDownloaded()
 QString ContentLibraryTexture::parentDirPath() const
 {
     return m_downloadPath;
+}
+
+QString ContentLibraryTexture::textureKey() const
+{
+    return m_textureKey;
+}
+
+void ContentLibraryTexture::setHasUpdate(bool value)
+{
+    if (m_hasUpdate != value) {
+        m_hasUpdate = value;
+        emit hasUpdateChanged();
+    }
+}
+
+bool ContentLibraryTexture::hasUpdate() const
+{
+    return m_hasUpdate;
 }
 
 } // namespace QmlDesigner

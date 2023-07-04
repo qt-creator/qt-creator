@@ -79,6 +79,7 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent)
     , m_inputIoDevice(nullptr)
     , m_outputIoDevice(nullptr)
+    , m_localSocket(nullptr)
     , m_writeCommandCounter(0)
     , m_synchronizeId(-1)
 {
@@ -101,6 +102,7 @@ void NodeInstanceClientProxy::initializeSocket()
 
     m_inputIoDevice = localSocket;
     m_outputIoDevice = localSocket;
+    m_localSocket = localSocket;
 }
 
 void NodeInstanceClientProxy::initializeCapturedStream(const QString &fileName)
@@ -145,28 +147,28 @@ bool compareCommands(const QVariant &command, const QVariant &controlCommand)
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
 
-    if (command.userType() == controlCommand.userType()) {
-        if (command.userType() == informationChangedCommandType)
+    if (command.typeId() == controlCommand.typeId()) {
+        if (command.typeId() == informationChangedCommandType)
             return command.value<InformationChangedCommand>() == controlCommand.value<InformationChangedCommand>();
-        else if (command.userType() == valuesChangedCommandType)
+        else if (command.typeId() == valuesChangedCommandType)
             return command.value<ValuesChangedCommand>() == controlCommand.value<ValuesChangedCommand>();
-        else if (command.userType() == valuesModifiedCommandType)
+        else if (command.typeId() == valuesModifiedCommandType)
             return command.value<ValuesModifiedCommand>() == controlCommand.value<ValuesModifiedCommand>();
-        else if (command.userType() == pixmapChangedCommandType)
+        else if (command.typeId() == pixmapChangedCommandType)
             return command.value<PixmapChangedCommand>() == controlCommand.value<PixmapChangedCommand>();
-        else if (command.userType() == childrenChangedCommandType)
+        else if (command.typeId() == childrenChangedCommandType)
             return command.value<ChildrenChangedCommand>() == controlCommand.value<ChildrenChangedCommand>();
-        else if (command.userType() == statePreviewImageChangedCommandType)
+        else if (command.typeId() == statePreviewImageChangedCommandType)
             return command.value<StatePreviewImageChangedCommand>() == controlCommand.value<StatePreviewImageChangedCommand>();
-        else if (command.userType() == componentCompletedCommandType)
+        else if (command.typeId() == componentCompletedCommandType)
             return command.value<ComponentCompletedCommand>() == controlCommand.value<ComponentCompletedCommand>();
-        else if (command.userType() == synchronizeCommandType)
+        else if (command.typeId() == synchronizeCommandType)
             return command.value<SynchronizeCommand>() == controlCommand.value<SynchronizeCommand>();
-        else if (command.userType() == tokenCommandType)
+        else if (command.typeId() == tokenCommandType)
             return command.value<TokenCommand>() == controlCommand.value<TokenCommand>();
-        else if (command.userType() == debugOutputCommandType)
+        else if (command.typeId() == debugOutputCommandType)
             return command.value<DebugOutputCommand>() == controlCommand.value<DebugOutputCommand>();
-        else if (command.userType() == changeSelectionCommandType)
+        else if (command.typeId() == changeSelectionCommandType)
             return command.value<ChangeSelectionCommand>()
                    == controlCommand.value<ChangeSelectionCommand>();
     }
@@ -188,8 +190,8 @@ void NodeInstanceClientProxy::writeCommand(const QVariant &command)
         }
     } else if (m_outputIoDevice) {
 #ifdef NANOTRACE_ENABLED
-        if (command.userType() != QMetaType::type("PuppetAliveCommand")) {
-            if (command.userType() == QMetaType::type("SyncNanotraceCommand")) {
+        if (command.typeId() != QMetaType::type("PuppetAliveCommand")) {
+            if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
                 NANOTRACE_INSTANT_ARGS("Sync", "writeCommand",
                     {"name", cmd.name().toStdString()},
@@ -288,6 +290,8 @@ void NodeInstanceClientProxy::sceneCreated(const SceneCreatedCommand &command)
 
 void NodeInstanceClientProxy::flush()
 {
+    if (m_localSocket)
+        m_localSocket->flush();
 }
 
 void NodeInstanceClientProxy::synchronizeWithClientProcess()
@@ -391,8 +395,8 @@ void NodeInstanceClientProxy::readDataStream()
 
         QVariant command = readCommandFromIOStream(m_inputIoDevice, &readCommandCounter, &blockSize);
 #ifdef NANOTRACE_ENABLED
-        if (command.userType() != QMetaType::type("EndNanotraceCommand")) {
-            if (command.userType() == QMetaType::type("SyncNanotraceCommand")) {
+        if (command.typeId() != QMetaType::type("EndNanotraceCommand")) {
+            if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
                 NANOTRACE_INSTANT_ARGS("Sync", "readCommand",
                     {"name", cmd.name().toStdString()},
@@ -570,7 +574,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int startNanotraceCommandType = QMetaType::type("StartNanotraceCommand");
     static const int endNanotraceCommandType = QMetaType::type("EndNanotraceCommand");
 
-    const int commandType = command.userType();
+    const int commandType = command.typeId();
 
     if (commandType == inputEventCommandType)
         inputEvent(command.value<InputEventCommand>());
@@ -620,13 +624,13 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     } else if (commandType == changeSelectionCommandType) {
         ChangeSelectionCommand changeSelectionCommand = command.value<ChangeSelectionCommand>();
         changeSelection(changeSelectionCommand);
-    } else if (command.userType() == changeLanguageCommand) {
+    } else if (command.typeId() == changeLanguageCommand) {
         changeLanguage(command.value<ChangeLanguageCommand>());
-    } else if (command.userType() == changePreviewImageSizeCommand) {
+    } else if (command.typeId() == changePreviewImageSizeCommand) {
         changePreviewImageSize(command.value<ChangePreviewImageSizeCommand>());
-    } else if (command.userType() == startNanotraceCommandType) {
+    } else if (command.typeId() == startNanotraceCommandType) {
         startNanotrace(command.value<StartNanotraceCommand>());
-    } else if (command.userType() == endNanotraceCommandType) {
+    } else if (command.typeId() == endNanotraceCommandType) {
         NANOTRACE_SHUTDOWN();
     } else {
         Q_ASSERT(false);

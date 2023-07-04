@@ -70,16 +70,16 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNode
     if (modelNode.hasParentProperty() && modelNode.parentProperty().isDynamic())
         return;
 
-    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeAbstractProperty())
-        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
+    auto internalProperty = internalNode()->property(name());
+    if (internalProperty && !internalProperty->isNodeAbstractProperty())
+        privateModel()->removePropertyAndRelatedResources(internalProperty);
 
     if (modelNode.hasParentProperty()) {
         Internal::InternalNodeAbstractProperty::Pointer oldParentProperty = modelNode.internalNode()->parentProperty();
 
         privateModel()->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList, dynamicTypeName);
 
-        Q_ASSERT(!oldParentProperty.isNull());
-
+        Q_ASSERT(oldParentProperty);
 
     } else {
         privateModel()->reparentNode(internalNode(), name(), modelNode.internalNode(), isNodeList, dynamicTypeName);
@@ -91,7 +91,7 @@ bool NodeAbstractProperty::isEmpty() const
     if (isValid()) {
         Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(
             name());
-        if (property.isNull())
+        if (!property)
             return true;
         else
             return property->isEmpty();
@@ -105,7 +105,7 @@ int NodeAbstractProperty::indexOf(const ModelNode &node) const
     if (isValid()) {
         Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(
             name());
-        if (property.isNull())
+        if (!property)
             return 0;
 
         return property->indexOf(node.internalNode());
@@ -119,7 +119,7 @@ NodeAbstractProperty NodeAbstractProperty::parentProperty() const
     if (!isValid())
         return {};
 
-    if (internalNode()->parentProperty().isNull())
+    if (!internalNode()->parentProperty())
         return {};
 
     return NodeAbstractProperty(internalNode()->parentProperty()->name(), internalNode()->parentProperty()->propertyOwner(), model(), view());
@@ -128,7 +128,7 @@ NodeAbstractProperty NodeAbstractProperty::parentProperty() const
 int NodeAbstractProperty::count() const
 {
     Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
-    if (property.isNull())
+    if (!property)
         return 0;
     else
         return property->count();
@@ -141,7 +141,7 @@ QList<ModelNode> NodeAbstractProperty::allSubNodes()
         return {};
 
     Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
-    return QmlDesigner::toModelNodeList(property->allSubNodes(), view());
+    return QmlDesigner::toModelNodeList(property->allSubNodes(), model(), view());
 }
 
 QList<ModelNode> NodeAbstractProperty::directSubNodes() const
@@ -151,7 +151,7 @@ QList<ModelNode> NodeAbstractProperty::directSubNodes() const
         return {};
 
     Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
-    return QmlDesigner::toModelNodeList(property->directSubNodes(), view());
+    return QmlDesigner::toModelNodeList(property->directSubNodes(), model(), view());
 }
 
 /*!

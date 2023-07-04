@@ -110,8 +110,8 @@ PropertyNameList allPropertyNamesInline(QObject *object,
                                                inspectedObjects,
                                                depth + 1));
             }
-        } else if (QQmlGadgetPtrWrapper *valueType
-                   = QQmlGadgetPtrWrapper::instance(qmlEngine(object), metaProperty.userType())) {
+        } else if (QQmlGadgetPtrWrapper *valueType = QQmlGadgetPtrWrapper::instance(
+                       qmlEngine(object), metaProperty.typeId())) {
             valueType->setValue(metaProperty.read(object));
             propertyNameList.append(baseName
                                     + QQuickDesignerSupport::PropertyName(metaProperty.name()));
@@ -224,8 +224,7 @@ static QString qmlDesignerRCPath()
 
 QVariant fixResourcePaths(const QVariant &value)
 {
-    if (value.type() == QVariant::Url)
-    {
+    if (value.typeId() == QVariant::Url) {
         const QUrl url = value.toUrl();
         if (url.scheme() == QLatin1String("qrc")) {
             const QString path = QLatin1String("qrc:") +  url.path();
@@ -246,7 +245,7 @@ QVariant fixResourcePaths(const QVariant &value)
             }
         }
     }
-    if (value.type() == QVariant::String) {
+    if (value.typeId() == QVariant::String) {
         const QString str = value.toString();
         if (str.contains(QLatin1String("qrc:"))) {
             if (!qmlDesignerRCPath().isEmpty()) {

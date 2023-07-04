@@ -10,7 +10,7 @@
 
     \table
         \row
-            \li \image front-projects.png
+            \li \image qds-front-projects.png
             \li Learn more about using the Git version control system,
                 converting UI projects into applications, and using
                 external tools directly from \QDS.

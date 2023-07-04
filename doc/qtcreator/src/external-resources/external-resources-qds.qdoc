@@ -57,3 +57,7 @@
     \externalpage https://doc.qt.io/QtForMCUs/qtul-renesas-rh850-qsg.html
     \title Renesas RH850-D1M1A quick start guide
 */
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-known-issues.html
+    \title \QMCU Known Issues or Limitations
+*/

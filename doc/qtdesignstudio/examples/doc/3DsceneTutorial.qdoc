@@ -1,0 +1,120 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page 3d-scene-tutorial.html
+    \ingroup gstutorials
+
+    \title Setting up a 3D Scene
+    \sa {Content Library}
+    \brief Illustrates how to set up a 3D scene with, for example, lights, models, and materials in
+    \QDS.
+
+    \image 3d-scene-tutorial.webp
+
+    The \e {Setting up a 3D Scene} tutorial illustrates how you can set up and improve a 3D
+    scene with the following:
+    \list
+      \li 3D models
+      \li Materials
+      \li Lights
+      \li Environmental lights
+      \li Background images
+    \endlist
+
+    The assets you use in this tutorial are available in \uicontrol {Content Library}.
+
+    To follow this tutorial, you need to first download the starting project from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/3Dscene%20tutorial/Start}{here}.
+
+    Download the completed project from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/3Dscene%20tutorial/Completed/}{here}.
+
+    This tutorial requires that you know the basics of \QDS, see
+    \l{Getting Started}.
+
+    \section1 The Starting Project
+
+    The starting project consists of an animated 3D model of a ball bearing. Control the animations
+    with a slider and a switch in the user interface.
+
+    Besides the 3D model, the 3D scene also has the default camera and the default directional
+    light.
+
+    \section1 Adding Materials to the 3D Models
+
+    First, use materials from \uicontrol {Content Library} on the ball bearing.
+
+    \list 1
+      \li In the \uicontrol 3D view, right-click the ball bearing and select
+        \uicontrol {Edit Component}.
+        \image 3d-scene-edit-component-menu.png
+      \li From \uicontrol {Content Library}, drag materials to the different parts of the ball
+        bearing in the \uicontrol Navigator view.
+        Drag the following materials to the following parts:
+        \list
+          \li Chrome to \e inner_race and \e outer_race.
+          \li Copper to \e balls.
+          \li Gold to \e retainer.
+          \li Carbon Fiber to \e shield_left and \e shield_right.
+        \endlist
+        \note The first time you use an asset from \uicontrol {Content Library}, you need to
+        download it.
+        \image 3d-scene-drag-material.png
+      \li Select \e {Screen01.ui.qml} in the breadcrumb in the top menu bar to return to the 3D
+        scene.
+        \image 3d-scene-bread-crumb.png
+    \endlist
+    When you run the application or live preview, notice that you don't see much of the materials.
+    The next step is to set up the environmental light.
+
+    \section1 Adding Environmental Lighting to the Scene
+
+    Environmental lighting is a good way to create a realistic light for your scene.
+
+    \list 1
+      \li In \uicontrol {Content Library}, go to the \uicontrol Environments tab.
+      \li Right-click the image \e BasicLights3_4k.hdr and select \uicontrol {Add Light Probe}.
+      \image 3d-scene-add-light-probe.webp
+      Setting an image as a light probe for a scene adds the image as the source for the image-based
+      lighting and also sets it as a skybox, meaning that the same image is used as the background
+      in the scene.
+    \endlist
+
+    When you run the application, notice an improvement in the scene lighting.
+
+    Next, adjust the environmental light. As you will add a background image to the scene later,
+    you don't want to use the skybox.
+    \list 1
+      \li In the \uicontrol Navigator view, select \e sceneEnvironment.
+      \li In the \uicontrol Properties view, set \uicontrol {Background Mode} to
+      \uicontrol Transparent.
+    \endlist
+
+    You also want to increase the brightness of the light a bit. In the \uicontrol Properties view,
+    set \uicontrol Exposure to 10.
+
+    \section2 Adding a Background Image to the Scene
+
+    In the final step of this tutorial, you add a background image to your scene.
+
+    \list 1
+      \li Go to the \uicontrol Textures tab in \uicontrol {Content Library}.
+      \li Right-click the image \e 4kScratchySurface.png and select \uicontrol {Add Texture}
+      \image 3d-scene-add-texture.webp
+      This adds the image as a texture to the project. It is now available in the \uicontrol Assets
+      view.
+      \li From the \uicontrol Assets view, drag \e 4KScratchySurface.png to \e Rectangle in the
+      \uicontrol Navigator view.
+      \li Go to the \uicontrol Layout tab in \uicontrol Properties and set \uicontrol Anchors to
+      \uicontrol FillParentComponent.
+      \image 3d-scene-fill-parent.png
+      \li Go to the \uicontrol Image tab and set \uicontrol {Fill Mode} to \uicontrol Stretch.
+      \li The background is rendered on top of the 3D scene as it is located at the bottom of the
+      \uicontrol Navigator view.
+      With the background image selected, select the down arrow to move it to the top of the
+      hierarchy.
+      \image 3d-scene-navigator-background.png
+    \endlist
+
+*/

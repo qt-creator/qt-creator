@@ -70,6 +70,7 @@ private:
     QPointer<Edit3DView> m_view;
     QPointer<Edit3DCanvas> m_canvas;
     QPointer<QLabel> m_onboardingLabel;
+    QPointer<QLabel> m_mcuLabel;
     QPointer<ToolBox> m_toolBox;
     Core::IContext *m_context = nullptr;
     QPointer<QMenu> m_visibilityTogglesMenu;

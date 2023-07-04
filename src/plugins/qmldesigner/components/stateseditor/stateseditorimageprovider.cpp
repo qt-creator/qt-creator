@@ -1,16 +1,18 @@
-// Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "stateseditorimageprovider.h"
 #include "nodeinstanceview.h"
 
 #include <QDebug>
 
-namespace QmlDesigner::Internal {
+namespace QmlDesigner {
+namespace Internal {
 
 StatesEditorImageProvider::StatesEditorImageProvider()
     : QQuickImageProvider(QQuickImageProvider::Image)
-{}
+{
+}
 
 QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
@@ -25,8 +27,7 @@ QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, c
             bool canBeConverted;
             int instanceId = imageId.toInt(&canBeConverted);
             if (canBeConverted && m_nodeInstanceView->hasModelNodeForInternalId(instanceId)) {
-                image = m_nodeInstanceView->statePreviewImage(
-                    m_nodeInstanceView->modelNodeForInternalId(instanceId));
+                image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->modelNodeForInternalId(instanceId));
             }
         }
     }
@@ -52,4 +53,5 @@ void StatesEditorImageProvider::setNodeInstanceView(const NodeInstanceView *node
     m_nodeInstanceView = nodeInstanceView;
 }
 
-} // QmlDesigner::Internal
+} // namespace Internal
+} // namespace QmlDesigner

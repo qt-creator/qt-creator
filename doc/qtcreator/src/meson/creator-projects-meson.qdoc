@@ -22,7 +22,7 @@
     in different build and run \l{glossary-buildandrun-kit}{kits}.
 
     \note Meson build plugin is disabled by default, see
-    \l{Enabling and Disabling Plugins}.
+    \l{Enable and disable plugins}{How-to: Enable and disable plugins}.
 
     \section1 Adding Meson Tools
 

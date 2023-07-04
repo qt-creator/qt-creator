@@ -1,10 +1,10 @@
-// Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "stateseditorwidget.h"
-#include "stateseditorimageprovider.h"
 #include "stateseditormodel.h"
 #include "stateseditorview.h"
+#include "stateseditorimageprovider.h"
 
 #include <designersettings.h>
 #include <theme.h>
@@ -13,10 +13,9 @@
 
 #include <invalidqmlsourceexception.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <coreplugin/icore.h>
 
-#include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -31,14 +30,16 @@
 #include <QQmlEngine>
 #include <QQuickItem>
 
-enum { debug = false };
+enum {
+    debug = false
+};
 
 namespace QmlDesigner {
 
 static QString propertyEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
@@ -63,11 +64,6 @@ void StatesEditorWidget::setNodeInstanceView(const NodeInstanceView *nodeInstanc
     m_imageProvider->setNodeInstanceView(nodeInstanceView);
 }
 
-void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
-{
-    rootContext()->setContextProperty(QLatin1String("canAddNewStates"), showAddNewStatesButton);
-}
-
 StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView,
                                        StatesEditorModel *statesEditorModel)
     : m_statesEditorView(statesEditorView)
@@ -80,21 +76,23 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView,
     engine()->addImageProvider(QStringLiteral("qmldesigner_stateseditor"), m_imageProvider);
     engine()->addImportPath(qmlSourcesPath());
     engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    engine()->addImportPath(qmlSourcesPath() + "/imports");
 
-    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F4), this);
+    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F10), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &StatesEditorWidget::reloadQmlSource);
 
+    quickWidget()->setObjectName(Constants::OBJECT_NAME_STATES_EDITOR);
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    rootContext()->setContextProperties(
-        QVector<QQmlContext::PropertyPair>{{{"statesEditorModel"},
-                                            QVariant::fromValue(statesEditorModel)},
-                                           {{"canAddNewStates"}, true}});
+    auto map = registerPropertyMap("StatesEditorBackend");
+    map->setProperties({{"statesEditorModel", QVariant::fromValue(statesEditorModel)}});
 
     Theme::setupTheme(engine());
 
     setWindowTitle(tr("States", "Title of Editor widget"));
+    setMinimumWidth(195);
+    setMinimumHeight(195);
 
     // init the first load of the QML UI elements
     reloadQmlSource();
@@ -105,16 +103,17 @@ StatesEditorWidget::~StatesEditorWidget() = default;
 QString StatesEditorWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-        return QLatin1String(SHARE_QML_PATH) + "/statesEditorQmlSources";
+    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/stateseditor";
 #endif
-    return Core::ICore::resourcePath("qmldesigner/statesEditorQmlSources").toString();
+    return Core::ICore::resourcePath("qmldesigner/stateseditor").toString();
 }
 
 void StatesEditorWidget::showEvent(QShowEvent *event)
 {
     StudioQuickWidget::showEvent(event);
     update();
+    QMetaObject::invokeMethod(rootObject(), "showEvent");
 }
 
 void StatesEditorWidget::focusOutEvent(QFocusEvent *focusEvent)
@@ -132,9 +131,8 @@ void StatesEditorWidget::focusInEvent(QFocusEvent *focusEvent)
 
 void StatesEditorWidget::reloadQmlSource()
 {
-    QString statesListQmlFilePath = qmlSourcesPath() + QStringLiteral("/StatesList.qml");
-    QTC_ASSERT(QFileInfo::exists(statesListQmlFilePath), return);
-    engine()->clearComponentCache();
+    QString statesListQmlFilePath = qmlSourcesPath() + QStringLiteral("/Main.qml");
+    QTC_ASSERT(QFileInfo::exists(statesListQmlFilePath), return );
     setSource(QUrl::fromLocalFile(statesListQmlFilePath));
 
     if (!rootObject()) {
@@ -152,8 +150,19 @@ void StatesEditorWidget::reloadQmlSource()
             SIGNAL(currentStateInternalIdChanged()),
             m_statesEditorView.data(),
             SLOT(synchonizeCurrentStateFromWidget()));
-    connect(rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
-    connect(rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
+    connect(rootObject(),
+            SIGNAL(createNewState()),
+            m_statesEditorView.data(),
+            SLOT(createNewState()));
+    connect(rootObject(), SIGNAL(cloneState(int)), m_statesEditorView.data(), SLOT(cloneState(int)));
+    connect(rootObject(),
+            SIGNAL(extendState(int)),
+            m_statesEditorView.data(),
+            SLOT(extendState(int)));
+    connect(rootObject(),
+            SIGNAL(deleteState(int)),
+            m_statesEditorView.data(),
+            SLOT(removeState(int)));
     m_statesEditorView.data()->synchonizeCurrentStateFromWidget();
 }
 

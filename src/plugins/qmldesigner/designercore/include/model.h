@@ -34,6 +34,7 @@ class AbstractView;
 class NodeStateChangeSet;
 class MetaInfo;
 class NodeMetaInfo;
+class NodeMetaInfoPrivate;
 class ModelState;
 class NodeAnchors;
 class AbstractProperty;
@@ -43,15 +44,18 @@ class TextModifier;
 
 using PropertyListType = QList<QPair<PropertyName, QVariant>>;
 
+enum class BypassModelResourceManagement { No, Yes };
+
 class QMLDESIGNERCORE_EXPORT Model : public QObject
 {
     friend ModelNode;
+    friend NodeMetaInfo;
+    friend NodeMetaInfoPrivate;
     friend AbstractProperty;
     friend AbstractView;
     friend Internal::ModelPrivate;
     friend Internal::WriteLocker;
     friend ModelDeleter;
-    friend class NodeMetaInfoPrivate;
 
     Q_OBJECT
 
@@ -101,7 +105,9 @@ public:
     bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     void setMetaInfo(const MetaInfo &metaInfo);
 
+    NodeMetaInfo flowViewFlowActionAreaMetaInfo() const;
     NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
+    NodeMetaInfo flowViewFlowItemMetaInfo() const;
     NodeMetaInfo flowViewFlowTransitionMetaInfo() const;
     NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
     NodeMetaInfo fontMetaInfo() const;
@@ -117,12 +123,14 @@ public:
     NodeMetaInfo qtQuickImageMetaInfo() const;
     NodeMetaInfo qtQuickItemMetaInfo() const;
     NodeMetaInfo qtQuickPropertyAnimationMetaInfo() const;
+    NodeMetaInfo qtQuickPropertyChangesMetaInfo() const;
     NodeMetaInfo qtQuickRectangleMetaInfo() const;
     NodeMetaInfo qtQuickStateGroupMetaInfo() const;
     NodeMetaInfo qtQuickTextEditMetaInfo() const;
     NodeMetaInfo qtQuickTextMetaInfo() const;
     NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo() const;
     NodeMetaInfo qtQuickTimelineTimelineMetaInfo() const;
+    NodeMetaInfo qtQuickTransistionMetaInfo() const;
     NodeMetaInfo vector2dMetaInfo() const;
     NodeMetaInfo vector3dMetaInfo() const;
     NodeMetaInfo vector4dMetaInfo() const;
@@ -130,7 +138,18 @@ public:
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);
 
-    QList<ModelNode> allModelNodes() const;
+    QList<ModelNode> allModelNodesUnordered();
+    ModelNode rootModelNode();
+
+    ModelNode modelNodeForId(const QString &id);
+    QHash<QStringView, ModelNode> idModelNodeDict();
+
+    ModelNode createModelNode(const TypeName &typeName);
+
+    void removeModelNodes(ModelNodes nodes,
+                          BypassModelResourceManagement = BypassModelResourceManagement::No);
+    void removeProperties(AbstractProperties properties,
+                          BypassModelResourceManagement = BypassModelResourceManagement::No);
 
     // Editing sub-components:
 
@@ -155,8 +174,6 @@ public:
 
     Model *metaInfoProxyModel() const;
 
-    TextModifier *textModifier() const;
-    void setTextModifier(TextModifier *textModifier);
     void setDocumentMessages(const QList<DocumentMessage> &errors,
                              const QList<DocumentMessage> &warnings);
 

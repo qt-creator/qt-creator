@@ -7,6 +7,7 @@
 #include "internalnode_p.h"
 #include "model.h"
 #include "model_p.h"
+
 namespace QmlDesigner {
 
 bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingProperty01, const QmlDesigner::BindingProperty &bindingProperty02)
@@ -47,16 +48,15 @@ void BindingProperty::setExpression(const QString &expression)
     if (expression.isEmpty())
         return;
 
-    if (internalNode()->hasProperty(name())) { //check if oldValue != value
-        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isBindingProperty()
-            && internalProperty->toBindingProperty()->expression() == expression)
-
+    if (auto internalProperty = internalNode()->property(name())) {
+        auto bindingProperty = internalProperty->to<PropertyType::Binding>();
+        //check if oldValue != value
+        if (bindingProperty && bindingProperty->expression() == expression)
             return;
-    }
 
-    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
+        if (!bindingProperty)
+            privateModel()->removePropertyAndRelatedResources(internalProperty);
+    }
 
     privateModel()->setBindingProperty(internalNode(), name(), expression);
 }
@@ -70,7 +70,7 @@ QString BindingProperty::expression() const
     return QString();
 }
 
-static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, AbstractView* view)
+ModelNode BindingProperty::resolveBinding(const QString &binding, ModelNode currentNode) const
 {
     int index = 0;
     QString element = binding.split(QLatin1Char('.')).at(0);
@@ -85,16 +85,14 @@ static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, A
             } else if (currentNode.hasProperty(element.toUtf8())) {
                 if (currentNode.property(element.toUtf8()).isNodeProperty())
                     currentNode = currentNode.nodeProperty(element.toUtf8()).modelNode();
-                else if (view->hasId(element))
-                    currentNode = view->modelNodeForId(element); //id
                 else
-                    return ModelNode(); //binding not valid
+                    return ModelNode(privateModel()->nodeForId(element), model(), view());
 
             } else {
-                currentNode = view->modelNodeForId(element); //id
+                currentNode = ModelNode(privateModel()->nodeForId(element), model(), view());
             }
             index++;
-            if (index < binding.split(QLatin1Char('.')).count())
+            if (index < binding.split(QLatin1Char('.')).size())
                 element = binding.split(QLatin1Char('.')).at(index);
             else
                 element.clear();
@@ -111,10 +109,15 @@ ModelNode BindingProperty::resolveToModelNode() const
     if (!isValid())
         return {};
 
-    return resolveBinding(expression(), parentModelNode(), view());
+    QString binding = expression();
+
+    if (binding.isEmpty())
+        return {};
+
+    return resolveBinding(binding, parentModelNode());
 }
 
-static inline QStringList commaSeparatedSimplifiedStringList(const QString &string)
+inline static QStringList commaSeparatedSimplifiedStringList(const QString &string)
 {
     const QStringList stringList = string.split(QStringLiteral(","));
     QStringList simpleList;
@@ -130,13 +133,17 @@ AbstractProperty BindingProperty::resolveToProperty() const
         return {};
 
     QString binding = expression();
+
+    if (binding.isEmpty())
+        return {};
+
     ModelNode node = parentModelNode();
     QString element;
     if (binding.contains(QLatin1Char('.'))) {
         element = binding.split(QLatin1Char('.')).constLast();
         QString nodeBinding = binding;
         nodeBinding.chop(element.length());
-        node = resolveBinding(nodeBinding, parentModelNode(), view());
+        node = resolveBinding(nodeBinding, parentModelNode());
     } else {
         element = binding;
     }
@@ -160,15 +167,19 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
     if (!isValid())
         return {};
 
+    QString binding = expression();
+
+    if (binding.isEmpty())
+        return {};
+
     QList<ModelNode> returnList;
     if (isList()) {
-        QString string = expression();
-        string.chop(1);
-        string.remove(0, 1);
-        const QStringList simplifiedList = commaSeparatedSimplifiedStringList(string);
+        binding.chop(1);
+        binding.remove(0, 1);
+        const QStringList simplifiedList = commaSeparatedSimplifiedStringList(binding);
         for (const QString &nodeId : simplifiedList) {
-            if (view()->hasId(nodeId))
-                returnList.append(view()->modelNodeForId(nodeId));
+            if (auto internalNode = privateModel()->nodeForId(nodeId))
+                returnList.append(ModelNode{internalNode, model(), view()});
         }
     }
     return returnList;
@@ -262,11 +273,9 @@ bool BindingProperty::isAliasExport() const
 {
     if (!isValid())
         return false;
-    return parentModelNode() == parentModelNode().view()->rootModelNode()
-            && isDynamic()
-            && dynamicTypeName() == "alias"
-            && name() == expression().toUtf8()
-            && parentModelNode().view()->modelNodeForId(expression()).isValid();
+    return parentModelNode() == parentModelNode().model()->rootModelNode() && isDynamic()
+           && dynamicTypeName() == "alias" && name() == expression().toUtf8()
+           && parentModelNode().model()->modelNodeForId(expression()).isValid();
 }
 
 static bool isTrueFalseLiteral(const QString &expression)
@@ -330,20 +339,19 @@ void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, 
     if (typeName.isEmpty())
         return;
 
-    if (internalNode()->hasProperty(name())) { //check if oldValue != value
-        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isBindingProperty()
-            && internalProperty->toBindingProperty()->expression() == expression
-            && internalProperty->toBindingProperty()->dynamicTypeName() == typeName) {
-
+    if (auto internalProperty = internalNode()->property(name())) {
+        auto bindingProperty = internalProperty->to<PropertyType::Binding>();
+        //check if oldValue != value
+        if (bindingProperty && bindingProperty->expression() == expression
+            && internalProperty->dynamicTypeName() == typeName) {
             return;
         }
+
+        if (!bindingProperty)
+            privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
-
-     privateModel()->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
+    privateModel()->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
 }
 
 QDebug operator<<(QDebug debug, const BindingProperty &property)

@@ -386,7 +386,7 @@ bool AbstractScrollGraphicsScene::isKeyframeSelected(TimelineKeyframeItem *keyfr
 
 bool AbstractScrollGraphicsScene::multipleKeyframesSelected() const
 {
-    return m_selectedKeyframes.count() > 1;
+    return m_selectedKeyframes.size() > 1;
 }
 
 void TimelineGraphicsScene::invalidateSectionForTarget(const ModelNode &target)

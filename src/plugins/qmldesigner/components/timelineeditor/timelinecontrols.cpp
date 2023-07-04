@@ -78,7 +78,7 @@ QVariant FloatControl::controlValue() const
 
 void FloatControl::setControlValue(const QVariant &value)
 {
-    if (value.userType() != QMetaType::Float && value.userType() != QMetaType::Double)
+    if (value.typeId() != QMetaType::Float && value.typeId() != QMetaType::Double)
         return;
 
     QSignalBlocker blocker(this);
@@ -129,7 +129,7 @@ QVariant ColorControl::controlValue() const
 
 void ColorControl::setControlValue(const QVariant &value)
 {
-    if (value.userType() != QMetaType::QColor)
+    if (value.typeId() != QMetaType::QColor)
         return;
 
     m_color = qvariant_cast<QColor>(value);

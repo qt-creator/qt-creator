@@ -11,19 +11,15 @@ namespace Internal {
 class InternalSignalHandlerProperty : public InternalProperty
 {
 public:
-    using Pointer = QSharedPointer<InternalSignalHandlerProperty>;
+    using Pointer = std::shared_ptr<InternalSignalHandlerProperty>;
+    static constexpr PropertyType type = PropertyType::SignalHandler;
 
-    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
+    InternalSignalHandlerProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const override;
 
     QString source() const;
     void setSource(const QString &source);
-
-    bool isSignalHandlerProperty() const override;
-
-protected:
-    InternalSignalHandlerProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
 private:
     QString m_source;
@@ -32,19 +28,16 @@ private:
 class InternalSignalDeclarationProperty : public InternalProperty
 {
 public:
-    using Pointer = QSharedPointer<InternalSignalDeclarationProperty>;
+    using Pointer = std::shared_ptr<InternalSignalDeclarationProperty>;
+    static constexpr PropertyType type = PropertyType::SignalDeclaration;
 
-    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
+    InternalSignalDeclarationProperty(const PropertyName &name,
+                                      const InternalNodePointer &propertyOwner);
 
     bool isValid() const override;
 
     QString signature() const;
     void setSignature(const QString &source);
-
-    bool isSignalDeclarationProperty() const override;
-
-protected:
-    InternalSignalDeclarationProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
 private:
     QString m_signature;

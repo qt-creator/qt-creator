@@ -6,19 +6,10 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalVariantProperty::InternalVariantProperty(const PropertyName &name, const InternalNodePointer &node)
-        : InternalProperty(name, node)
+InternalVariantProperty::InternalVariantProperty(const PropertyName &name,
+                                                 const InternalNodePointer &node)
+    : InternalProperty(name, node, PropertyType::Variant)
 {
-}
-
-InternalVariantProperty::Pointer InternalVariantProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
-{
-    auto newPointer(new InternalVariantProperty(name, propertyOwner));
-    InternalVariantProperty::Pointer smartPointer(newPointer);
-
-    newPointer->setInternalWeakPointer(smartPointer);
-
-    return smartPointer;
 }
 
 QVariant InternalVariantProperty::value() const
@@ -29,11 +20,6 @@ QVariant InternalVariantProperty::value() const
 void InternalVariantProperty::setValue(const QVariant &value)
 {
     m_value = value;
-}
-
-bool InternalVariantProperty::isVariantProperty() const
-{
-    return true;
 }
 
 void InternalVariantProperty::setDynamicValue(const TypeName &type, const QVariant &value)

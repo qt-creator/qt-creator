@@ -296,23 +296,28 @@
                 },
                 {
                     "source": "../common/CMakeLists.main.txt.tpl",
-                    "target": "%{ProjectDirectory}/CMakeLists.txt"
+                    "target": "%{ProjectDirectory}/CMakeLists.txt",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/qmlmodules.tpl",
-                    "target": "%{ProjectDirectory}/qmlmodules"
+                    "target": "%{ProjectDirectory}/qmlmodules",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/qmlcomponents.tpl",
-                    "target": "%{ProjectDirectory}/qmlcomponents"
+                    "target": "%{ProjectDirectory}/qmlcomponents",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/insight.tpl",
-                    "target": "%{ProjectDirectory}/insight"
+                    "target": "%{ProjectDirectory}/insight",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/main.qml",
-                    "target": "%{ProjectDirectory}/main.qml"
+                    "target": "%{ProjectDirectory}/main.qml",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/qtquickcontrols2.conf.tpl",
@@ -320,23 +325,28 @@
                 },
                 {
                     "source": "../common/main.cpp.tpl",
-                    "target": "%{ProjectDirectory}/src/main.cpp"
+                    "target": "%{ProjectDirectory}/src/main.cpp",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/app_environment.h.tpl",
-                    "target": "%{ProjectDirectory}/src/app_environment.h"
+                    "target": "%{ProjectDirectory}/src/app_environment.h",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/import_qml_plugins.h.tpl",
-                    "target": "%{ProjectDirectory}/src/import_qml_plugins.h"
+                    "target": "%{ProjectDirectory}/src/import_qml_plugins.h",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/import_qml_components_plugins.h.tpl",
-                    "target": "%{ProjectDirectory}/src/import_qml_components_plugins.h"
+                    "target": "%{ProjectDirectory}/src/import_qml_components_plugins.h",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/CMakeLists.content.txt.tpl",
-                    "target": "%{ProjectDirectory}/content/CMakeLists.txt"
+                    "target": "%{ProjectDirectory}/content/CMakeLists.txt",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../common/App.qml.tpl",
@@ -356,11 +366,13 @@
                 },
                 {
                     "source": "../common/CMakeLists.imports.txt.tpl",
-                    "target": "%{ProjectDirectory}/imports/CMakeLists.txt"
+                    "target": "%{ProjectDirectory}/imports/CMakeLists.txt",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../shared-plugin/name/CMakeLists.importmodule.txt.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/CMakeLists.txt"
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/CMakeLists.txt",
+                    "condition": "%{IsQt6Project}"
                 },
                 {
                     "source": "../shared-plugin/name/importmodule.qmldir.tpl",

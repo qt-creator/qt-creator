@@ -32,7 +32,7 @@ void AssetImportUpdateTreeItem::clear()
 
 int AssetImportUpdateTreeItem::childCount() const
 {
-    return m_children.count();
+    return m_children.size();
 }
 
 int AssetImportUpdateTreeItem::rowOfItem() const

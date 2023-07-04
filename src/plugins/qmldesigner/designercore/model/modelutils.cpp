@@ -3,11 +3,13 @@
 
 #include "modelutils.h"
 
+#include <nodemetainfo.h>
+
 #include <utils/expected.h>
 
 #include <algorithm>
 
-namespace QmlDesigner::Utils {
+namespace QmlDesigner::ModelUtils {
 
 namespace {
 
@@ -90,4 +92,14 @@ bool addImportsWithCheck(const QStringList &importNames,
     return true;
 }
 
-} // namespace QmlDesigner::Utils
+PropertyMetaInfo metainfo(const AbstractProperty &property)
+{
+    return metainfo(property.parentModelNode(), property.name());
+}
+
+PropertyMetaInfo metainfo(const ModelNode &node, const PropertyName &propertyName)
+{
+    return node.metaInfo().property(propertyName);
+}
+
+} // namespace QmlDesigner::ModelUtils

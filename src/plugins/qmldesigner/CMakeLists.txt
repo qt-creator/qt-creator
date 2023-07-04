@@ -36,7 +36,7 @@ extend_qtc_library(QmlDesignerUtils
 )
 
 add_qtc_library(QmlDesignerCore STATIC
-  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3 AND TARGET Qt6::QmlPrivate AND TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate
+  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3 AND TARGET QmlDesignerBase AND TARGET Qt6::QmlPrivate AND TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate
   EXCLUDE_FROM_INSTALL
   PROPERTIES SKIP_AUTOUIC ON
   DEPENDS
@@ -251,6 +251,7 @@ extend_qtc_library(QmlDesignerCore
     rewriterview.h
     rewritingexception.h
     signalhandlerproperty.h
+    stringutils.h
     stylesheetmerger.h
     subcomponentmanager.h
     synchronousimagecache.h
@@ -328,6 +329,8 @@ extend_qtc_library(QmlDesignerCore
     modelnodepositionrecalculator.h
     modelnodepositionstorage.cpp
     modelresourcemanagementinterface.h
+    modelresourcemanagementfwd.h
+    modelresourcemanagement.cpp modelresourcemanagement.h
     modeltotextmerger.cpp
     modeltotextmerger.h
     modelutils.cpp
@@ -722,6 +725,7 @@ extend_qtc_plugin(QmlDesigner
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
     itemfiltermodel.cpp itemfiltermodel.h
+    listvalidator.cpp listvalidator.h
     gradientmodel.cpp gradientmodel.h
     dynamicpropertiesproxymodel.cpp dynamicpropertiesproxymodel.h
     gradientpresetcustomlistmodel.cpp gradientpresetcustomlistmodel.h
@@ -752,6 +756,10 @@ extend_qtc_plugin(QmlDesigner
     contentlibrarymaterialsmodel.cpp contentlibrarymaterialsmodel.h
     contentlibrarymaterialscategory.cpp contentlibrarymaterialscategory.h
     contentlibrarymaterial.cpp contentlibrarymaterial.h
+    contentlibraryiconprovider.cpp contentlibraryiconprovider.h
+    contentlibraryeffect.cpp contentlibraryeffect.h
+    contentlibraryeffectscategory.cpp contentlibraryeffectscategory.h
+    contentlibraryeffectsmodel.cpp contentlibraryeffectsmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -793,15 +801,6 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/stateseditor
-  SOURCES
-    stateseditorimageprovider.cpp stateseditorimageprovider.h
-    stateseditormodel.cpp stateseditormodel.h
-    stateseditorview.cpp stateseditorview.h
-    stateseditorwidget.cpp stateseditorwidget.h
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/stateseditornew
   SOURCES
     propertychangesmodel.cpp propertychangesmodel.h
     propertymodel.cpp propertymodel.h

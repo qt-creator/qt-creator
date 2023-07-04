@@ -36,7 +36,7 @@ BakeLightsDataModel::~BakeLightsDataModel()
 
 int BakeLightsDataModel::rowCount(const QModelIndex &) const
 {
-    return m_dataList.count();
+    return m_dataList.size();
 }
 
 QHash<int, QByteArray> BakeLightsDataModel::roleNames() const
@@ -57,7 +57,7 @@ QHash<int, QByteArray> BakeLightsDataModel::roleNames() const
 
 QVariant BakeLightsDataModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_dataList.count(), return {});
+    QTC_ASSERT(index.isValid() && index.row() < m_dataList.size(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
     QByteArray roleName = roleNames().value(role);
@@ -102,7 +102,7 @@ QVariant BakeLightsDataModel::data(const QModelIndex &index, int role) const
 
 bool BakeLightsDataModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_dataList.count(), return false);
+    QTC_ASSERT(index.isValid() && index.row() < m_dataList.size(), return false);
     QTC_ASSERT(roleNames().contains(role), return false);
 
     QByteArray roleName = roleNames().value(role);
@@ -130,10 +130,12 @@ bool BakeLightsDataModel::setData(const QModelIndex &index, const QVariant &valu
     return changed;
 }
 
-void BakeLightsDataModel::reset()
+// Return value of false indicates unexpected property assignments were detected, which means manual
+// mode for baking setup should be enforced.
+bool BakeLightsDataModel::reset()
 {
     if (!m_view || !m_view->model())
-        return;
+        return true;
 
     beginResetModel();
     m_dataList.clear();
@@ -152,6 +154,8 @@ void BakeLightsDataModel::reset()
     QList<BakeData> compLightList;
     QList<BakeData> unexposedList;
 
+    bool forceManualMode = false;
+
     // Note: We are always loading base state values for baking. If users want to bake
     // differently for different states, they need to setup things manually for now.
     // Same goes if they want to use any unusual bindings in baking properties.
@@ -169,23 +173,42 @@ void BakeLightsDataModel::reset()
             if (node.hasBindingProperty("bakedLightmap")) {
                 ModelNode blm = node.bindingProperty("bakedLightmap").resolveToModelNode();
                 if (blm.isValid()) {
-                    if (blm.hasVariantProperty("enabled"))
+                    if (blm.hasVariantProperty("enabled")) {
                         data.enabled = blm.variantProperty("enabled").value().toBool();
-                    else
+                    } else {
                         data.enabled = true;
+                        if (blm.hasProperty("enabled"))
+                            forceManualMode = true;
+                    }
                 }
+            } else if (node.hasProperty("bakedLightmap")) {
+                forceManualMode = true;
             }
             if (node.hasVariantProperty("lightmapBaseResolution"))
                 data.resolution = node.variantProperty("lightmapBaseResolution").value().toInt();
+            else if (node.hasProperty("lightmapBaseResolution"))
+                forceManualMode = true;
+
             if (node.hasVariantProperty("usedInBakedLighting"))
                 data.inUse = node.variantProperty("usedInBakedLighting").value().toBool();
+            else if (node.hasProperty("usedInBakedLighting"))
+                forceManualMode = true;
+
             modelList.append(data);
         } else if (node.metaInfo().isQtQuick3DLight()) {
             if (node.hasVariantProperty("bakeMode")) {
-                data.bakeMode = node.variantProperty("bakeMode").value()
-                                    .value<QmlDesigner::Enumeration>().toString();
+                // Enum properties that have binding can still resolve as variant property,
+                // so check if the value is actually valid enum
+                QString bakeModeStr = node.variantProperty("bakeMode").value()
+                                          .value<QmlDesigner::Enumeration>().toString();
+                if (bakeModeStr.startsWith("Light.BakeMode"))
+                    data.bakeMode = bakeModeStr;
+                else
+                    forceManualMode = true;
             } else {
                 data.bakeMode = "Light.BakeModeDisabled";
+                if (node.hasProperty("bakeMode"))
+                    forceManualMode = true;
             }
             lightList.append(data);
         }
@@ -211,16 +234,29 @@ void BakeLightsDataModel::reset()
                                 if (subName == "bakedLightmap") {
                                     ModelNode blm = prop.toBindingProperty().resolveToModelNode();
                                     if (blm.isValid()) {
-                                        if (blm.hasVariantProperty("enabled"))
+                                        if (blm.hasVariantProperty("enabled")) {
                                             propData.enabled = blm.variantProperty("enabled").value().toBool();
-                                        else
+                                        } else {
                                             propData.enabled = true;
+                                            if (blm.hasProperty("enabled"))
+                                                forceManualMode = true;
+                                        }
+                                    } else {
+                                        forceManualMode = true;
                                     }
                                 }
-                                if (subName == "lightmapBaseResolution")
-                                    propData.resolution = prop.toVariantProperty().value().toInt();
-                                if (subName == "usedInBakedLighting")
-                                    propData.inUse = prop.toVariantProperty().value().toBool();
+                                if (subName == "lightmapBaseResolution") {
+                                    if (prop.isVariantProperty())
+                                        propData.resolution = prop.toVariantProperty().value().toInt();
+                                    else
+                                        forceManualMode = true;
+                                }
+                                if (subName == "usedInBakedLighting") {
+                                    if (prop.isVariantProperty())
+                                        propData.inUse = prop.toVariantProperty().value().toBool();
+                                    else
+                                        forceManualMode = true;
+                                }
                             }
                         }
                         compModelList.append(propData);
@@ -231,9 +267,17 @@ void BakeLightsDataModel::reset()
                             if (prop.name().startsWith(dotName)) {
                                 PropertyName subName = prop.name().mid(dotName.size());
                                 if (subName == "bakeMode") {
-                                    propData.bakeMode = prop.toVariantProperty().value()
-                                                            .value<QmlDesigner::Enumeration>()
-                                                            .toString();
+                                    if (prop.isVariantProperty()) {
+                                        QString bakeModeStr = prop.toVariantProperty().value()
+                                                                  .value<QmlDesigner::Enumeration>()
+                                                                  .toString();
+                                        if (bakeModeStr.startsWith("Light.BakeMode"))
+                                            propData.bakeMode = bakeModeStr;
+                                        else
+                                            forceManualMode = true;
+                                    } else {
+                                        forceManualMode = true;
+                                    }
                                 }
                             }
                         }
@@ -292,6 +336,8 @@ void BakeLightsDataModel::reset()
     }
 
     endResetModel();
+
+    return !forceManualMode;
 }
 
 void BakeLightsDataModel::apply()

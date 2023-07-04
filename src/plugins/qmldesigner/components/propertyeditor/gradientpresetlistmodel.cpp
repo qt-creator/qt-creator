@@ -28,12 +28,12 @@ GradientPresetListModel::~GradientPresetListModel()
 
 int GradientPresetListModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return m_items.count();
+    return m_items.size();
 }
 
 QVariant GradientPresetListModel::data(const QModelIndex &index, int role) const
 {
-    if (index.isValid() && (index.row() >= 0) && (index.row() < m_items.count())) {
+    if (index.isValid() && (index.row() >= 0) && (index.row() < m_items.size())) {
         if (m_roleNames.contains(role)) {
             QVariant value = m_items.at(index.row())
                                  .getProperty(static_cast<GradientPresetItem::Property>(role));

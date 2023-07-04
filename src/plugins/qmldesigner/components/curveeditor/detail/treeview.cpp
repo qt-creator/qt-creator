@@ -37,6 +37,8 @@ TreeView::TreeView(CurveEditorModel *model, QWidget *parent)
 
     setStyle(model->style());
 
+    header()->setMinimumSectionSize(20);
+
     header()->setSectionResizeMode(0, QHeaderView::Stretch);
     header()->setSectionResizeMode(1, QHeaderView::Fixed);
     header()->setSectionResizeMode(2, QHeaderView::Fixed);

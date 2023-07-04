@@ -1,5 +1,5 @@
 pragma Singleton
-import QtQuick 6.5
+import QtQuick
 
 QtObject {
     readonly property int width: %{ScreenWidth}

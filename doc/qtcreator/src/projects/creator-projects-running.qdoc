@@ -64,7 +64,7 @@
     the application has large image files that would need to be bundled
     into the resource file before running the application.
 
-    \image qtcreator-application-output.png
+    \image qtcreator-application-output.webp {Application Output view}
 
     \if defined(qtcreator)
     For more information on the options you have, see

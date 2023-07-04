@@ -63,11 +63,14 @@ Rectangle {
                     }
                 }
 
-                 Text {
+                 TextEdit {
                      id: progressText
                      width: scrollView.width
                      font.pixelSize: StudioTheme.Values.myFontSize
                      color: StudioTheme.Values.themeTextColor
+                     readOnly: true
+                     selectByMouse: true
+                     selectByKeyboard: true
                  }
 
                  function ensureVisible()

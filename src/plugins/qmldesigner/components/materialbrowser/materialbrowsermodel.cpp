@@ -4,6 +4,7 @@
 #include "materialbrowsermodel.h"
 
 #include "designmodewidget.h"
+#include "materialbrowserview.h"
 #include "qmldesignerplugin.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
@@ -13,8 +14,9 @@
 
 namespace QmlDesigner {
 
-MaterialBrowserModel::MaterialBrowserModel(QObject *parent)
+MaterialBrowserModel::MaterialBrowserModel(MaterialBrowserView *view, QObject *parent)
     : QAbstractListModel(parent)
+    , m_view(view)
 {
 }
 
@@ -24,12 +26,12 @@ MaterialBrowserModel::~MaterialBrowserModel()
 
 int MaterialBrowserModel::rowCount(const QModelIndex &) const
 {
-    return m_materialList.count();
+    return m_materialList.size();
 }
 
 QVariant MaterialBrowserModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_materialList.count(), return {});
+    QTC_ASSERT(index.isValid() && index.row() < m_materialList.size(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
     QByteArray roleName = roleNames().value(role);
@@ -223,7 +225,7 @@ void MaterialBrowserModel::refreshSearch()
     // if selected material goes invisible, select nearest material
     if (!isVisible(m_selectedIndex)) {
         int inc = 1;
-        int incCap = m_materialList.count();
+        int incCap = m_materialList.size();
         while (!isEmpty && inc < incCap) {
             if (isVisible(m_selectedIndex - inc)) {
                 selectMaterial(m_selectedIndex - inc);
@@ -459,10 +461,13 @@ void MaterialBrowserModel::pasteMaterialProperties(int idx)
 
 void MaterialBrowserModel::deleteMaterial(int idx)
 {
-    if (isValidIndex(idx)) {
+    if (m_view && isValidIndex(idx)) {
         ModelNode node = m_materialList[idx];
-        if (node.isValid())
-            QmlObjectNode(node).destroy();
+        if (node.isValid()) {
+            m_view->executeInTransaction(__FUNCTION__, [&] {
+                node.destroy();
+            });
+        }
     }
 }
 

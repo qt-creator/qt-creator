@@ -69,13 +69,12 @@ static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mineData, Abstra
 bool fitsToTargetProperty(const NodeAbstractProperty &targetProperty,
                           const QList<ModelNode> &modelNodeList)
 {
-    bool const canBeContainer =
-        NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(modelNodeList.first());
-    return !(targetProperty.isNodeProperty() &&
-             modelNodeList.count() > 1) && canBeContainer;
+    const bool canBeContainer = NodeHints::fromModelNode(targetProperty.parentModelNode())
+                                    .canBeContainerFor(modelNodeList.first());
+    return !(targetProperty.isNodeProperty() && modelNodeList.size() > 1) && canBeContainer;
 }
 
-static inline QString msgUnknownItem(const QString &t)
+inline static QString msgUnknownItem(const QString &t)
 {
     return NavigatorTreeModel::tr("Unknown component: %1").arg(t);
 }
@@ -289,7 +288,7 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
-void static appendForcedNodes(const NodeListProperty &property, QList<ModelNode> &list)
+static void appendForcedNodes(const NodeListProperty &property, QList<ModelNode> &list)
 {
     const QSet<ModelNode> set = QSet<ModelNode>(list.constBegin(), list.constEnd());
     for (const ModelNode &node : property.parentModelNode().directSubModelNodes()) {
@@ -411,7 +410,8 @@ int NavigatorTreeModel::rowCount(const QModelIndex &parent) const
     if (modelNode.defaultNodeListProperty().isValid()) {
         rows = filteredList(modelNode.defaultNodeListProperty(),
                             m_showOnlyVisibleItems,
-                            m_reverseItemOrder).count();
+                            m_reverseItemOrder)
+                   .size();
     }
 
     return rows;
@@ -451,12 +451,13 @@ void NavigatorTreeModel::setView(NavigatorView *view)
 
 QStringList NavigatorTreeModel::mimeTypes() const
 {
-    const static QStringList types({Constants::MIME_TYPE_MODELNODE_LIST,
+    static const QStringList types({Constants::MIME_TYPE_MODELNODE_LIST,
                                     Constants::MIME_TYPE_ITEM_LIBRARY_INFO,
                                     Constants::MIME_TYPE_TEXTURE,
                                     Constants::MIME_TYPE_MATERIAL,
                                     Constants::MIME_TYPE_BUNDLE_TEXTURE,
                                     Constants::MIME_TYPE_BUNDLE_MATERIAL,
+                                    Constants::MIME_TYPE_BUNDLE_EFFECT,
                                     Constants::MIME_TYPE_ASSETS});
 
     return types;
@@ -565,6 +566,10 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
             ModelNode targetNode(modelNodeForIndex(dropModelIndex));
             if (targetNode.isValid())
                 m_view->emitCustomNotification("drop_bundle_material", {targetNode}); // To ContentLibraryView
+        } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_EFFECT)) {
+            ModelNode targetNode(modelNodeForIndex(dropModelIndex));
+            if (targetNode.isValid())
+                m_view->emitCustomNotification("drop_bundle_effect", {targetNode}); // To ContentLibraryView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
             const QStringList assetsPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
             NodeAbstractProperty targetProperty;
@@ -777,21 +782,6 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
             if (newQmlObjectNode.isValid())
                 m_view->setSelectedModelNode(newQmlObjectNode.modelNode());
         }
-
-        const QStringList copyFiles = itemLibraryEntry.extraFilePaths();
-        if (!copyFiles.isEmpty()) {
-            // Files are copied into the same directory as the current qml document
-            for (const auto &copyFile : copyFiles) {
-                QFileInfo fi(copyFile);
-                const QString targetFile = DocumentManager::currentFilePath().toFileInfo().dir()
-                        .absoluteFilePath(fi.fileName());
-                // We don't want to overwrite existing default files
-                if (!QFileInfo::exists(targetFile)) {
-                    if (!QFile::copy(copyFile, targetFile))
-                        qWarning() << QStringLiteral("Copying extra file '%1' failed.").arg(copyFile);
-                }
-            }
-        }
     }
 }
 
@@ -900,7 +890,7 @@ ModelNode NavigatorTreeModel::handleItemLibraryFontDrop(const QString &fontFamil
 
 void NavigatorTreeModel::addImport(const QString &importName)
 {
-    if (!Utils::addImportWithCheck(importName, m_view->model()))
+    if (!ModelUtils::addImportWithCheck(importName, m_view->model()))
         qWarning() << __FUNCTION__ << "Adding import failed:" << importName;
 }
 
@@ -943,7 +933,7 @@ ModelNode NavigatorTreeModel::handleItemLibraryShaderDrop(const QString &shaderP
 
             // set shader properties
             PropertyName prop = "shader";
-            QString type = "QByteArray";
+            QString type = "QUrl";
             QVariant val = relPath;
             itemLibraryEntry.addProperty(prop, type, val);
             prop = "stage";

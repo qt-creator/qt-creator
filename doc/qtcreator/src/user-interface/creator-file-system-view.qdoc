@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -8,8 +8,7 @@
 
     \title File System
 
-    If you cannot see a file in the \l Projects view, switch to the
-    \uicontrol {File System} view, which shows all the files in the file system.
+    The \uicontrol {File System} view shows all the files in the file system.
 
     \note Usually, \l{Searching with the Locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,
@@ -17,12 +16,9 @@
     to open files from anywhere in the file system.
 
     \if defined(qtdesignstudio)
-    The following image displays the \uicontrol {File System} view in the
-    \uicontrol Design mode:
-
-    \image qtcreator-filesystem-view-design.png "File System view in the Design mode"
+    \image qtcreator-filesystem-view-design.png {File System view}
     \else
-    \image qtcreator-filesystem-view.webp "File System view in the sidebar"
+    \image qtcreator-filesystem-view.webp {File System view in the sidebar}
     \endif
 
     To move to the root directory of the file system, select \uicontrol Computer
@@ -87,19 +83,11 @@
         \li Collapse all open folders.
     \endlist
 
+    \if defined(qtcreator)
     \section1 File System View Toolbar
 
-    \if defined(qtdesignstudio)
-    In the \uicontrol Edit and \uicontrol Debug mode, the
-    \uicontrol {File System} view is displayed in the \l{Working with Sidebars}
-    {sidebar}. It has a toolbar with additional options.
-
-    \image qtcreator-filesystem-view.webp "File System view in the sidebar"
-    \else
     The toolbar in the \uicontrol {File System} view has additional
     options.
-    \endif
-
 
     To manage view contents, select \inlineimage icons/filtericon.png
     (\uicontrol Options):
@@ -116,4 +104,5 @@
     To stop the synchronization with the file currently open in the
     editor, deselect \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
+    \endif
 */

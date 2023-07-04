@@ -24,6 +24,11 @@ Rectangle {
         matName.commitRename()
     }
 
+    function startRename()
+    {
+        matName.startRename()
+    }
+
     border.width: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index ? MaterialBrowserBackend.rootView.materialSectionFocused ? 3 : 1 : 0
     border.color: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index
                         ? StudioTheme.Values.themeControlOutlineInteraction

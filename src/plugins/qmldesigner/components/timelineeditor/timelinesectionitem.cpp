@@ -420,7 +420,7 @@ void TimelineSectionItem::invalidateHeight()
         visible = false;
     } else {
         height = TimelineConstants::sectionHeight
-                 + m_timeline.keyframeGroupsForTarget(m_targetNode).count()
+                 + m_timeline.keyframeGroupsForTarget(m_targetNode).size()
                        * TimelineConstants::sectionHeight;
         visible = true;
     }
@@ -801,7 +801,7 @@ void TimelineRulerSectionItem::extendPlaybackLoop(const QList<qreal> &positions,
         qreal right = m_playbackLoopEnd;
 
         if (reset) {
-            if (positions.count() >= 2) {
+            if (positions.size() >= 2) {
                 left = m_duration;
                 right = 0;
             } else {

@@ -8,19 +8,10 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalNodeListProperty::InternalNodeListProperty(const PropertyName &name, const InternalNodePointer &propertyOwner)
-        : InternalNodeAbstractProperty(name, propertyOwner)
+InternalNodeListProperty::InternalNodeListProperty(const PropertyName &name,
+                                                   const InternalNodePointer &propertyOwner)
+    : InternalNodeAbstractProperty(name, propertyOwner, PropertyType::NodeList)
 {
-}
-
-InternalNodeListProperty::Pointer InternalNodeListProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
-{
-    auto newPointer(new InternalNodeListProperty(name, propertyOwner));
-    InternalProperty::Pointer smartPointer(newPointer);
-
-    newPointer->setInternalWeakPointer(smartPointer.toWeakRef());
-
-    return smartPointer.staticCast<InternalNodeListProperty>();
 }
 
 bool InternalNodeListProperty::isValid() const
@@ -35,7 +26,7 @@ bool InternalNodeListProperty::isEmpty() const
 
 int InternalNodeListProperty::count() const
 {
-    return m_nodeList.count();
+    return m_nodeList.size();
 }
 
 int InternalNodeListProperty::indexOf(const InternalNode::Pointer &node) const
@@ -44,11 +35,6 @@ int InternalNodeListProperty::indexOf(const InternalNode::Pointer &node) const
         return -1;
 
     return m_nodeList.indexOf(node);
-}
-
-bool InternalNodeListProperty::isNodeListProperty() const
-{
-    return true;
 }
 
 void InternalNodeListProperty::add(const InternalNode::Pointer &internalNode)

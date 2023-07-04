@@ -97,9 +97,11 @@ QWidget *SeekerSliderAction::createWidget(QWidget *parent)
     QObject::connect(m_defaultSlider, &SeekerSlider::valueChanged, slider, &SeekerSlider::setValue);
     QObject::connect(slider, &SeekerSlider::valueChanged, m_defaultSlider, &SeekerSlider::setValue);
     QObject::connect(m_defaultSlider, &QSlider::rangeChanged, slider, &QSlider::setRange);
+    QObject::connect(this, &QWidgetAction::enabledChanged, slider, &QSlider::setEnabled);
 
     slider->setValue(m_defaultSlider->value());
     slider->setMaxValue(m_defaultSlider->maxValue());
+    slider->setEnabled(isEnabled());
 
     return slider;
 }

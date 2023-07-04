@@ -73,10 +73,8 @@ void CrumbleBar::pushFile(const Utils::FilePath &fileName)
         }
 
         if (match != -1) {
-            for (int i = crumblePath()->length() - 1 - match; i > 0; --i) {
-                crumblePath()->popElement();
-                m_pathes.removeLast();
-            }
+            for (int i = crumblePath()->length() - 1 - match; i > 0; --i)
+                popElement();
         }
     }
 
@@ -163,6 +161,14 @@ bool CrumbleBar::showSaveDialog()
     return !canceled;
 }
 
+void CrumbleBar::popElement()
+{
+    crumblePath()->popElement();
+
+    if (!m_pathes.isEmpty())
+        m_pathes.removeLast();
+}
+
 void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 {
     CrumbleBarInfo clickedCrumbleBarInfo = data.value<CrumbleBarInfo>();
@@ -176,15 +182,12 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
     if (!inlineComp && !showSaveDialog())
         return;
 
-    while (clickedCrumbleBarInfo != crumblePath()->dataForLastIndex().value<CrumbleBarInfo>()) {
-        crumblePath()->popElement();
-        m_pathes.removeLast();
-    }
+    while (clickedCrumbleBarInfo != crumblePath()->dataForLastIndex().value<CrumbleBarInfo>()
+           && crumblePath()->length() > 0)
+        popElement();
 
-    if (crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isValid()) {
-        crumblePath()->popElement();
-        m_pathes.removeLast();
-    }
+    if (crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isValid())
+        popElement();
 
     m_isInternalCalled = true;
     if (inlineComp) {
@@ -192,8 +195,7 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
         currentDesignDocument()->changeToDocumentModel();
         QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();
     } else {
-        crumblePath()->popElement();
-        m_pathes.removeLast();
+        popElement();
         nextFileIsCalledInternally();
         Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName,
                                         Utils::Id(),

@@ -102,30 +102,20 @@ static StudioWelcomePlugin *s_pluginInstance = nullptr;
 
 static Utils::FilePath getMainUiFileWithFallback()
 {
-    auto project = ProjectExplorer::ProjectManager::startupProject();
+    const auto project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return {};
 
     if (!project->activeTarget())
         return {};
 
-    auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+    const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
         project->activeTarget()->buildSystem());
 
     if (!qmlBuildSystem)
         return {};
 
-    auto mainUiFile = qmlBuildSystem->mainUiFilePath();
-    if (mainUiFile.exists())
-        return mainUiFile;
-
-    const Utils::FilePaths uiFiles = project->files([&](const ProjectExplorer::Node *node) {
-        return node->filePath().completeSuffix() == "ui.qml";
-    });
-    if (!uiFiles.isEmpty())
-        return uiFiles.first();
-
-    return {};
+    return qmlBuildSystem->getStartupQmlFileWithFallback();
 }
 
 std::unique_ptr<QSettings> makeUserFeedbackSettings()
@@ -254,14 +244,16 @@ public:
             return;
 
         m_blockOpenRecent = true;
-        const FilePath projectFile = FilePath::fromVariant(data(index(row, 0), ProjectModel::FilePathRole));
+        const FilePath projectFile = FilePath::fromVariant(
+            data(index(row, 0), ProjectModel::FilePathRole));
         if (projectFile.exists()) {
             const ProjectExplorerPlugin::OpenProjectResult result
                 = ProjectExplorer::ProjectExplorerPlugin::openProject(projectFile);
             if (!result && !result.alreadyOpen().isEmpty()) {
-                const auto mainUiFile = getMainUiFileWithFallback();
-                if (mainUiFile.exists())
-                    Core::EditorManager::openEditor(mainUiFile, Utils::Id());
+                const auto fileToOpen = getMainUiFileWithFallback();
+                if (!fileToOpen.isEmpty() && fileToOpen.exists() && !fileToOpen.isDir()) {
+                    Core::EditorManager::openEditor(fileToOpen, Utils::Id());
+                }
             };
         }
 
@@ -413,20 +405,25 @@ static QString tags(const FilePath &projectFilePath)
 
     const QByteArray data = reader.data();
 
-    bool mcu = data.contains("qtForMCUs: true");
+    const bool isQt6 = data.contains("qt6Project: true");
+    const bool isMcu = data.contains("qtForMCUs: true");
 
-    if (data.contains("qt6Project: true"))
+    if (isQt6)
         ret.append("Qt 6");
-    else if (mcu)
-        ret.append("Qt For MCU");
     else
         ret.append("Qt 5");
+
+    if (isMcu)
+        ret.append("Qt For MCU");
 
     return ret.join(",");
 }
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
+    if (index.row() >= ProjectExplorer::ProjectExplorerPlugin::recentProjects().count())
+        return {};
+
     const ProjectExplorer::RecentProjectsEntry data =
             ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(index.row());
     switch (role) {

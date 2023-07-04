@@ -1,5 +1,5 @@
-// Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -15,13 +15,12 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class StatesEditorModel;
-class StatesEditorView;
 class NodeInstanceView;
 
-namespace Internal {
-class StatesEditorImageProvider;
-}
+class StatesEditorModel;
+class StatesEditorView;
+
+namespace Internal { class StatesEditorImageProvider; }
 
 class StatesEditorWidget : public StudioQuickWidget
 {
@@ -34,8 +33,6 @@ public:
     int currentStateInternalId() const;
     void setCurrentStateInternalId(int internalId);
     void setNodeInstanceView(const NodeInstanceView *nodeInstanceView);
-
-    void showAddNewStatesButton(bool showAddNewStatesButton);
 
     static QString qmlSourcesPath();
 

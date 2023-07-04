@@ -10,7 +10,7 @@
 
     \table
         \row
-            \li \image studio-animation.png
+            \li \image qds-studio-animation.png
             \li You can use different animation techniques for different
                 purposes. \QDS supports common motion design techniques,
                 such as timeline and keyframe based animation and easing

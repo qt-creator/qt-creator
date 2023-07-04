@@ -207,4 +207,8 @@ VersionData {
         bannedProperties: ["dashOffset", "dashPattern",
             "fillGradient", "strokeStyle"]
     }
+
+    QtQuickUltralite.Extras.ItemBuffer {
+        allowedProperties: ["rotation", "scale", "transformOrigin"]
+    }
 }

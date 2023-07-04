@@ -38,8 +38,13 @@ public:
 
     ProjectStorage(Database &database, bool isInitialized)
         : database{database}
+        , exclusiveTransaction{database}
         , initializer{database, isInitialized}
     {
+        exclusiveTransaction.commit();
+
+        database.walCheckpointFull();
+
         moduleCache.populate();
     }
 
@@ -494,7 +499,7 @@ private:
 
     static bool moduleNameLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept
     {
-        return Utils::reverseCompare(first, second) < 0;
+        return first < second;
     }
 
     using ModuleCache = StorageCache<Utils::PathString,
@@ -513,9 +518,7 @@ private:
 
     auto fetchModuleName(ModuleId id)
     {
-        return Sqlite::withDeferredTransaction(database, [&] {
-            return fetchModuleNameUnguarded(id);
-        });
+        return Sqlite::withDeferredTransaction(database, [&] { return fetchModuleNameUnguarded(id); });
     }
 
     auto fetchAllModules() const
@@ -936,8 +939,6 @@ private:
                               std::move(aliasPropertyNameTail));
 
             updateAliasPropertyDeclarationToNullStatement.write(propertyDeclarationId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement.readCallback(callback,
@@ -955,8 +956,6 @@ private:
     {
         auto callback = [&](TypeId typeId, ImportedTypeNameId prototypeNameId) {
             relinkablePrototypes.emplace_back(typeId, prototypeNameId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         updatePrototypeIdToNullStatement.readCallback(callback, prototypeId);
@@ -966,8 +965,6 @@ private:
     {
         auto callback = [&](TypeId typeId, ImportedTypeNameId extensionNameId) {
             relinkableExtensions.emplace_back(typeId, extensionNameId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         updateExtensionIdToNullStatement.readCallback(callback, extensionId);
@@ -1040,6 +1037,7 @@ private:
             },
             TypeCompare<PropertyDeclaration>{});
     }
+
     template<typename Callable>
     void relinkPrototypes(Prototypes &relinkablePrototypes,
                           const TypeIds &deletedTypeIds,
@@ -1080,7 +1078,6 @@ private:
                        relinkablePropertyDeclarations,
                        relinkablePrototypes,
                        relinkableExtensions);
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
@@ -1553,10 +1550,10 @@ private:
                                 int majorVersion,
                                 int minorVersion,
                                 ModuleExportedImportId moduleExportedImportId) {
-                Storage::Synchronization::Import additionImport{
-                    exportedModuleId,
-                    Storage::Version{majorVersion, minorVersion},
-                    import.sourceId};
+                Storage::Synchronization::Import additionImport{exportedModuleId,
+                                                                Storage::Version{majorVersion,
+                                                                                 minorVersion},
+                                                                import.sourceId};
 
                 auto exportedImportKind = importKind == Storage::Synchronization::ImportKind::Import
                                               ? Storage::Synchronization::ImportKind::ModuleExportedImport
@@ -1566,8 +1563,6 @@ private:
                                      exportedImportKind,
                                      import.moduleId,
                                      moduleExportedImportId);
-
-                return Sqlite::CallbackControl::Continue;
             };
 
             selectModuleExportedImportsForModuleIdStatement.readCallback(callback,
@@ -1964,8 +1959,6 @@ private:
         auto callback = [=](TypeId currentTypeId) {
             if (typeId == currentTypeId)
                 throw PrototypeChainCycle{};
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectTypeIdsForPrototypeChainIdStatement.readCallback(callback, typeId);
@@ -1976,8 +1969,6 @@ private:
         auto callback = [=](PropertyDeclarationId currentPropertyDeclarationId) {
             if (propertyDeclarationId == currentPropertyDeclarationId)
                 throw AliasChainCycle{};
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectPropertyDeclarationIdsForAliasChainStatement.readCallback(callback,
@@ -2209,8 +2200,6 @@ private:
             auto &functionDeclaration = functionDeclarations.emplace_back(name, returnType);
             functionDeclaration.parameters = selectFunctionParameterDeclarationsStatement.template values<
                 Storage::Synchronization::ParameterDeclaration>(8, functionDeclarationId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectFunctionDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
@@ -2226,8 +2215,6 @@ private:
             auto &signalDeclaration = signalDeclarations.emplace_back(name);
             signalDeclaration.parameters = selectSignalParameterDeclarationsStatement.template values<
                 Storage::Synchronization::ParameterDeclaration>(8, signalDeclarationId);
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectSignalDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
@@ -2245,8 +2232,6 @@ private:
                 name,
                 selectEnumeratorDeclarationStatement.template values<
                     Storage::Synchronization::EnumeratorDeclaration>(8, enumerationDeclarationId));
-
-            return Sqlite::CallbackControl::Continue;
         };
 
         selectEnumerationDeclarationsForTypeIdWithoutEnumeratorDeclarationsStatement
@@ -2261,8 +2246,6 @@ private:
         Initializer(Database &database, bool isInitialized)
         {
             if (!isInitialized) {
-                Sqlite::ExclusiveTransaction transaction{database};
-
                 auto moduleIdColumn = createModulesTable(database);
                 createSourceContextsTable(database);
                 createSourcesTable(database);
@@ -2276,10 +2259,6 @@ private:
                 createDocumentImportsTable(database, moduleIdColumn);
                 createFileStatusesTable(database);
                 createProjectDatasTable(database);
-
-                transaction.commit();
-
-                database.walCheckpointFull();
             }
             database.setIsInitialized(true);
         }
@@ -2617,6 +2596,7 @@ private:
 
 public:
     Database &database;
+    Sqlite::ExclusiveNonThrowingDestructorTransaction<Database> exclusiveTransaction;
     Initializer initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
     Storage::Info::CommonTypeCache<ProjectStorageInterface> commonTypeCache_{*this};

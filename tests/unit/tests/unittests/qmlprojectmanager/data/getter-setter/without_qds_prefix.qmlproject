@@ -1,0 +1,96 @@
+import QmlProject
+
+Project {
+    mainFile: "content/App.qml"
+    mainUiFile: "Screen01.ui.qml"
+
+    qt6Project: true
+    widgetApp: true
+    qtForMCUs: true
+    forceFreeType: true
+
+    importPaths: [ "imports", "asset_imports" ]
+    targetDirectory: "/opt/targetDirectory"
+    fileSelectors: [ "WXGA", "darkTheme", "ShowIndicator"]
+
+    qdsVersion: "3.9"
+    quickVersion: "6.2"
+
+    multilanguageSupport: true
+    supportedLanguages: ["en" , "fr"]
+    primaryLanguage: "en"
+
+    QmlFiles {
+        directory: "content"
+    }
+
+    QmlFiles {
+        directory: "imports"
+    }
+
+    JavaScriptFiles {
+        directory: "content"
+    }
+
+    JavaScriptFiles {
+        directory: "imports"
+    }
+
+    ImageFiles {
+        directory: "content"
+    }
+
+    Files {
+        filter: "*.conf"
+        files: ["qtquickcontrols2.conf"]
+    }
+
+    Files {
+        filter: "qmldir"
+        directory: "."
+    }
+
+    Files {
+        filter: "*.ttf;*.otf"
+    }
+
+    Files {
+        filter: "*.wav;*.mp3"
+    }
+
+    Files {
+        filter: "*.mp4"
+    }
+
+    Files {
+        filter: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag"
+    }
+
+    Files {
+        filter: "*.mesh"
+        directory: "asset_imports"
+    }
+
+    Files {
+        filter: "*.mesh"
+        directory: "content"
+    }
+
+    Files {
+        filter: "*.qml"
+        directory: "asset_imports"
+    }
+
+    ImageFiles {
+        directory: "asset_imports"
+    }
+
+    Environment {
+        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
+    }
+
+    ShaderTool {
+        args: "-s --glsl \"100 es,120,150\" --hlsl 50 --msl 12"
+        files: [ "content/shaders/*" ]
+    }
+}

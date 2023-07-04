@@ -95,7 +95,7 @@ Item {
                 icon: StudioTheme.Constants.plus
                 tooltip: qsTr("Add an instance to project")
                 buttonSize: 22
-                property color c: StudioTheme.Values.themeIconColor
+                property color c: "white"
                 normalColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .2)
                 hoverColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .3)
                 pressColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .4)
@@ -118,7 +118,7 @@ Item {
 
                 iconColor: root.downloadState === "unavailable" || root.downloadState === "failed"
                            ? StudioTheme.Values.themeRedLight
-                           : StudioTheme.Values.themeTextColor
+                           : "white"
 
                 iconSize: 22
                 iconScale: downloadIcon.containsMouse ? 1.2 : 1

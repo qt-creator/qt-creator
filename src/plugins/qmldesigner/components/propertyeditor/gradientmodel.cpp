@@ -100,11 +100,11 @@ int GradientModel::addStop(qreal position, const QColor &color)
 
             const QList<QmlDesigner::ModelNode> stopNodes = gradientNode.nodeListProperty("stops").toModelNodeList();
 
-            for (int i = 0; i < stopNodes.count(); i++) {
+            for (int i = 0; i < stopNodes.size(); i++) {
                 if (QmlDesigner::QmlObjectNode(stopNodes.at(i)).modelValue("position").toReal() < position)
                     properPos = i + 1;
             }
-            gradientNode.nodeListProperty("stops").slide(stopNodes.count() - 1, properPos);
+            gradientNode.nodeListProperty("stops").slide(stopNodes.size() - 1, properPos);
 
             setupModel();
             resetPuppet();

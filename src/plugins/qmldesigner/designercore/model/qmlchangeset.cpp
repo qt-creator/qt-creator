@@ -85,7 +85,7 @@ void QmlPropertyChanges::removeProperty(const PropertyName &name)
     if (name == "name")
         return;
     modelNode().removeProperty(name);
-    if (modelNode().variantProperties().isEmpty() && modelNode().bindingProperties().count() < 2)
+    if (modelNode().variantProperties().isEmpty() && modelNode().bindingProperties().size() < 2)
         modelNode().destroy();
 }
 

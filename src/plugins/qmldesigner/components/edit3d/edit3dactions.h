@@ -91,23 +91,6 @@ private:
     View3DActionType m_actionType;
 };
 
-class Edit3DCameraAction : public Edit3DAction
-{
-public:
-    Edit3DCameraAction(const QByteArray &menuId,
-                       View3DActionType type,
-                       const QString &description,
-                       const QKeySequence &key,
-                       bool checkable,
-                       bool checked,
-                       const QIcon &icon,
-                       Edit3DView *view,
-                       SelectionContextOperation selectionAction = nullptr);
-
-protected:
-    bool isEnabled(const SelectionContext &selectionContext) const override;
-};
-
 class Edit3DParticleSeekerAction : public Edit3DAction
 {
 public:

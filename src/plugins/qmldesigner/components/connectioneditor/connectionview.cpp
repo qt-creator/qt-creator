@@ -155,7 +155,7 @@ void ConnectionView::selectedNodesChanged(const QList<ModelNode> & selectedNodeL
 
     if (connectionViewWidget()->currentTab() == ConnectionViewWidget::BindingTab
             || connectionViewWidget()->currentTab() == ConnectionViewWidget::DynamicPropertiesTab)
-        emit connectionViewWidget()->setEnabledAddButton(selectedNodeList.count() == 1);
+        emit connectionViewWidget()->setEnabledAddButton(selectedNodeList.size() == 1);
 }
 
 void ConnectionView::auxiliaryDataChanged([[maybe_unused]] const ModelNode &node,

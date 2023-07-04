@@ -10,7 +10,7 @@
 
     \table
         \row
-            \li \image front-ui.png
+            \li \image qds-front-ui.png
             \li Plan your UI properly. Know what elements, such as screens,
                 components, and states, you need. Create a descriptive wireframe
                 and acquire a detailed UI specification before you start to make

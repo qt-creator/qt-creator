@@ -19,6 +19,7 @@ Item {
         materialsView.closeContextMenu()
         texturesView.closeContextMenu()
         environmentsView.closeContextMenu()
+        effectsView.closeContextMenu()
         HelperWidgets.Controller.closeContextMenu()
     }
 
@@ -67,6 +68,7 @@ Item {
                         materialsView.expandVisibleSections()
                         texturesView.expandVisibleSections()
                         environmentsView.expandVisibleSections()
+                        effectsView.expandVisibleSections()
                     }
                 }
 
@@ -76,7 +78,8 @@ Item {
                     height: StudioTheme.Values.toolbarHeight
                     tabsModel: [{name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium},
                                 {name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium},
-                                {name: qsTr("Environments"), icon: StudioTheme.Constants.languageList_medium}]
+                                {name: qsTr("Environments"), icon: StudioTheme.Constants.languageList_medium},
+                                {name: qsTr("Effects"),      icon: StudioTheme.Constants.effects}]
                 }
             }
         }
@@ -98,7 +101,8 @@ Item {
                 searchBox: searchBox
 
                 onUnimport: (bundleMat) => {
-                    confirmUnimportDialog.targetBundleMaterial = bundleMat
+                    confirmUnimportDialog.targetBundleItem = bundleMat
+                    confirmUnimportDialog.targetBundleType = "material"
                     confirmUnimportDialog.open()
                 }
             }
@@ -121,6 +125,20 @@ Item {
                 sectionCategory: "ContentLib_Env"
 
                 searchBox: searchBox
+            }
+
+            ContentLibraryEffectsView {
+                id: effectsView
+
+                width: root.width
+
+                searchBox: searchBox
+
+                onUnimport: (bundleItem) => {
+                    confirmUnimportDialog.targetBundleItem = bundleItem
+                    confirmUnimportDialog.targetBundleType = "effect"
+                    confirmUnimportDialog.open()
+                }
             }
         }
     }

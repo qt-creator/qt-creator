@@ -6,20 +6,10 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalSignalHandlerProperty::InternalSignalHandlerProperty(const PropertyName &name, const InternalNodePointer &propertyOwner)
-    : InternalProperty(name, propertyOwner)
+InternalSignalHandlerProperty::InternalSignalHandlerProperty(const PropertyName &name,
+                                                             const InternalNodePointer &propertyOwner)
+    : InternalProperty(name, propertyOwner, PropertyType::SignalHandler)
 {
-}
-
-
-InternalSignalHandlerProperty::Pointer InternalSignalHandlerProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
-{
-    auto newPointer(new InternalSignalHandlerProperty(name, propertyOwner));
-    InternalSignalHandlerProperty::Pointer smartPointer(newPointer);
-
-    newPointer->setInternalWeakPointer(smartPointer);
-
-    return smartPointer;
 }
 
 bool InternalSignalHandlerProperty::isValid() const
@@ -34,23 +24,6 @@ QString InternalSignalHandlerProperty::source() const
 void InternalSignalHandlerProperty::setSource(const QString &source)
 {
     m_source = source;
-}
-
-bool InternalSignalHandlerProperty::isSignalHandlerProperty() const
-{
-    return true;
-}
-
-InternalSignalDeclarationProperty::Pointer InternalSignalDeclarationProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
-{
-    auto newPointer(new InternalSignalDeclarationProperty(name, propertyOwner));
-    InternalSignalDeclarationProperty::Pointer smartPointer(newPointer);
-
-    newPointer->setInternalWeakPointer(smartPointer);
-
-    newPointer->setDynamicTypeName("signal");
-
-    return smartPointer;
 }
 
 bool InternalSignalDeclarationProperty::isValid() const
@@ -68,14 +41,11 @@ void InternalSignalDeclarationProperty::setSignature(const QString &signature)
     m_signature = signature;
 }
 
-bool InternalSignalDeclarationProperty::isSignalDeclarationProperty() const
+InternalSignalDeclarationProperty::InternalSignalDeclarationProperty(
+    const PropertyName &name, const InternalNodePointer &propertyOwner)
+    : InternalProperty(name, propertyOwner, PropertyType::SignalDeclaration)
 {
-    return true;
-}
-
-InternalSignalDeclarationProperty::InternalSignalDeclarationProperty(const PropertyName &name, const InternalNodePointer &propertyOwner)
-    : InternalProperty(name, propertyOwner)
-{
+    setDynamicTypeName("signal");
 }
 
 } // namespace Internal

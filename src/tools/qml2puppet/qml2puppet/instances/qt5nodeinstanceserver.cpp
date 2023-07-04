@@ -41,6 +41,14 @@
 #include <QtQuick/private/qquickitem_p.h>
 #endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+#include <QDir>
+#include <QFile>
+#include <QQuickGraphicsConfiguration>
+#include <QStandardPaths>
+#include <QTimer>
+#endif
+
 namespace QmlDesigner {
 
 Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient)
@@ -90,6 +98,7 @@ void Qt5NodeInstanceServer::initializeView()
 #else
     m_viewData.renderControl = new QQuickRenderControl;
     m_viewData.window = new QQuickWindow(m_viewData.renderControl);
+    setPipelineCacheConfig(m_viewData.window);
     m_viewData.renderControl->initialize();
     m_qmlEngine = new QQmlEngine;
 #endif
@@ -160,6 +169,20 @@ void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
 
     setupInstances(command);
     resizeCanvasToRootItem();
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+    if (!m_pipelineCacheLocation.isEmpty()) {
+        QString fileId = command.fileUrl.toLocalFile();
+        fileId.remove(':');
+        fileId.remove('/');
+        fileId.remove('.');
+        m_pipelineCacheFile = QStringLiteral("%1/%2").arg(m_pipelineCacheLocation, fileId);
+
+        QFile cacheFile(m_pipelineCacheFile);
+        if (cacheFile.open(QIODevice::ReadOnly))
+            m_pipelineCacheData = cacheFile.readAll();
+    }
+#endif
 }
 
 QList<QQuickItem*> subItems(QQuickItem *parentItem)
@@ -185,7 +208,61 @@ const QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
 bool Qt5NodeInstanceServer::rootIsRenderable3DObject() const
 {
     return rootNodeInstance().isSubclassOf("QQuick3DNode")
-            || rootNodeInstance().isSubclassOf("QQuick3DMaterial");
+           || rootNodeInstance().isSubclassOf("QQuick3DMaterial");
+}
+
+void Qt5NodeInstanceServer::savePipelineCacheData()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+    if (!m_viewData.rhi)
+        return;
+
+    QByteArray pipelineData = m_viewData.rhi->pipelineCacheData();
+
+    if (pipelineData.isEmpty())
+        return;
+
+    char count = 0;
+    if (!m_pipelineCacheData.isEmpty())
+        count = m_pipelineCacheData[m_pipelineCacheData.size() - 1];
+    pipelineData.append(++count);
+
+    const bool needWrite = m_pipelineCacheData.size() != pipelineData.size()
+                           && !m_pipelineCacheFile.isEmpty();
+
+    if (needWrite) {
+        m_pipelineCacheData = pipelineData;
+
+        QTimer::singleShot(0, this, [this]() {
+            QFile cacheFile(m_pipelineCacheFile);
+
+            // Cache file can grow indefinitely, so let's just purge it every so often.
+            // The count is stored as the last char in the data.
+            char count = m_pipelineCacheData[m_pipelineCacheData.size() - 1];
+            if (count > 25)
+                cacheFile.remove();
+            else if (cacheFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                cacheFile.write(m_pipelineCacheData);
+        });
+    }
+#endif
+}
+
+void Qt5NodeInstanceServer::setPipelineCacheConfig([[maybe_unused]] QQuickWindow *w)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+    // This dummy file is not actually used for cache as we manage cache save/load ourselves,
+    // but some file needs to be set to enable pipeline caching
+    const QString cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    m_pipelineCacheLocation = QStringLiteral("%1/%2").arg(cachePath, "pipecache");
+    QDir(m_pipelineCacheLocation).mkpath(".");
+    const QString dummyCache = m_pipelineCacheLocation + "/dummycache";
+
+    QQuickGraphicsConfiguration config = w->graphicsConfiguration();
+    config.setPipelineCacheSaveFile(dummyCache);
+    config.setAutomaticPipelineCache(false);
+    w->setGraphicsConfiguration(config);
+#endif
 }
 
 bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
@@ -204,6 +281,10 @@ bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
             qWarning() << __FUNCTION__ << "Rhi is null";
             return false;
         }
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+        if (!m_pipelineCacheData.isEmpty())
+            viewData.rhi->setPipelineCacheData(m_pipelineCacheData.left(m_pipelineCacheData.size() - 1));
+#endif
     }
 
     auto cleanRhiResources = [&viewData]() {

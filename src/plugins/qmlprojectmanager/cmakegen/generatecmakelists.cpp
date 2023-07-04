@@ -20,6 +20,10 @@
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
 
+#include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <utils/fileutils.h>
 
 #include <QAction>
@@ -36,6 +40,27 @@ using namespace QmlProjectManager::GenerateCmake::Constants;
 namespace QmlProjectManager {
 
 namespace GenerateCmake {
+
+static bool isQmlDesigner(const ExtensionSystem::PluginSpec *spec)
+{
+    if (!spec)
+        return false;
+
+    return spec->name().contains("QmlDesigner");
+}
+
+static void trackUsage(const QString &id)
+{
+    const auto plugins = ExtensionSystem::PluginManager::plugins();
+    const auto it = std::find_if(plugins.begin(), plugins.end(), &isQmlDesigner);
+    if (it != plugins.end()) {
+        QObject *qmlDesignerPlugin = (*it)->plugin();
+        QMetaObject::invokeMethod(qmlDesignerPlugin,
+                                  "usageStatisticsNotifier",
+                                  Qt::DirectConnection,
+                                  Q_ARG(QString, id));
+    }
+}
 
 bool operator==(const GeneratableFile &left, const GeneratableFile &right)
 {
@@ -100,6 +125,7 @@ void generateMenuEntry(QObject *parent)
 
 void onGenerateCmakeLists()
 {
+    trackUsage("generateCMakeProjectDialogOpened");
     FilePath rootDir = ProjectExplorer::ProjectManager::startupProject()->projectDirectory();
 
     int projectDirErrors = isProjectCorrectlyFormed(rootDir);
@@ -122,6 +148,8 @@ void onGenerateCmakeLists()
         cmakeGen.filterFileQueue(confirmedFiles);
         cmakeGen.execute();
     }
+
+    trackUsage("generateCMakeProjectExecuted");
 }
 
 bool isErrorFatal(int error)

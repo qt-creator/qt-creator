@@ -12,7 +12,6 @@
                 \li \l{Tutorials}
                 \li \l{User Interface}
                     \list
-                        \li \l{Selecting Modes}
                         \li \l{Design Views}
                             \list
                                 \li \l{2D}
@@ -203,7 +202,6 @@
                             \list
                                 \li \l{Working in Edit Mode}
                                     \list
-                                        \li \l{Working with Sidebars}
                                         \li \l{Browsing Project Contents}
                                         \li \l{Viewing Output}
                                     \endlist
@@ -262,6 +260,7 @@
                 \li \l{\QDS on MCUs}
                     \list
                         \li \l {\QDS Version Compatibility with \QMCU SDKs}
+                        \li \l {\QDS Features on MCU Projects}
                     \endlist
             \endlist
         \li \l Help

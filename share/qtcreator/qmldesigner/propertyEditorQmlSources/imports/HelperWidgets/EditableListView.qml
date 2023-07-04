@@ -24,7 +24,9 @@ Item {
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
     property real __actionIndicatorHeight: StudioTheme.Values.height
     property string typeFilter: "QtQuick3D.Material"
-    property string textRole: "idAndName"
+    // This binding is a workaround to overcome the rather long adaption to new Qt versions. This
+    // should actually be fixed in the ModelSection.qml by setting the textRole: "idAndName".
+    property string textRole: (root.typeFilter === "QtQuick3D.Material") ? "idAndName" : "id"
     property string valueRole: "id"
     property int activatedReason: ComboBox.ActivatedReason.Other
 
@@ -42,60 +44,78 @@ Item {
     Layout.preferredWidth: StudioTheme.Values.height * 10
     Layout.preferredHeight: myColumn.height
 
+    HelperWidgets.ListValidator {
+        id: listValidator
+        filterList: itemFilterModel.validationItems
+    }
+
     HelperWidgets.ItemFilterModel {
         id: itemFilterModel
         typeFilter: root.typeFilter
         modelNodeBackendProperty: modelNodeBackend
         selectedItems: root.allowDuplicates ? [] : root.model
+        validationRoles: [root.textRole, root.valueRole]
     }
 
     Component {
         id: myDelegate
 
         Row {
-            property alias comboBox: itemFilterComboBox
+            property alias comboBox: delegateComboBox
 
             ListViewComboBox {
-                id: itemFilterComboBox
+                id: delegateComboBox
 
                 property int myIndex: index
-                property bool empty: itemFilterComboBox.initialModelData === ""
+                property bool empty: delegateComboBox.initialModelData === ""
 
-                validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
-
+                validator: listValidator
                 actionIndicatorVisible: false
                 model: itemFilterModel
                 initialModelData: modelData
                 textRole: root.textRole
                 valueRole: root.valueRole
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                width: implicitWidth
+                width: delegateComboBox.implicitWidth
                 textElidable: true
 
                 onFocusChanged: {
-                    if (itemFilterComboBox.focus)
+                    if (delegateComboBox.focus) {
                         myColumn.currentIndex = index
+                    } else {
+                        if (!delegateComboBox.dirty)
+                            return
 
-                    var curValue = itemFilterComboBox.availableValue()
-                    if (itemFilterComboBox.empty && curValue !== "") {
-                        myRepeater.dirty = false
-                        root.add(curValue)
+                        // If focus is lost check if text was changed and try to search for it in
+                        // the text as well as in the value role.
+                        let idx = delegateComboBox.indexOfString(delegateComboBox.editText)
+                        if (idx === -1) {
+                            delegateComboBox.editText = delegateComboBox.preFocusText
+                        } else {
+                            delegateComboBox.currentIndex = idx
+                            if (delegateComboBox.empty && delegateComboBox.currentValue !== "") {
+                                myRepeater.dirty = false
+                                root.add(delegateComboBox.currentValue)
+                            } else {
+                                root.replace(delegateComboBox.myIndex, delegateComboBox.currentValue)
+                            }
+                        }
                     }
                 }
 
                 onCompressedActivated: function(index, reason) {
                     root.activatedReason = reason
 
-                    var curValue = itemFilterComboBox.availableValue()
-                    if (itemFilterComboBox.empty && curValue) {
+                    var curValue = delegateComboBox.availableValue()
+                    if (delegateComboBox.empty && curValue) {
                         myRepeater.dirty = false
                         root.add(curValue)
                     } else {
-                        root.replace(itemFilterComboBox.myIndex, curValue)
+                        root.replace(delegateComboBox.myIndex, curValue)
                     }
                 }
 
-                onHoverChanged: root.delegateHover = itemFilterComboBox.hover
+                onHoverChanged: root.delegateHover = delegateComboBox.hover
             }
 
             Spacer { implicitWidth: extraButton.visible ? 5 : StudioTheme.Values.twoControlColumnGap }
@@ -114,15 +134,17 @@ Item {
                 icon: StudioTheme.Constants.closeCross
                 onClicked: {
                     var lastItem = index === myRepeater.localModel.length - 1
-                    if (myColumn.currentItem.initialModelData === "") {
+                    var tmp = myRepeater.itemAt(index)
+
+                    myColumn.currentIndex = index - 1
+
+                    if (tmp.comboBox.initialModelData === "") {
                         myRepeater.localModel.pop()
                         myRepeater.dirty = false
                         myRepeater.model = myRepeater.localModel // trigger on change handler
                     } else {
                         root.remove(index)
                     }
-                    if (!lastItem)
-                        myColumn.currentIndex = index - 1
                 }
                 onHoveredChanged: root.delegateHover = closeIndicator.hovered
             }
@@ -152,6 +174,11 @@ Item {
                     myColumn.currentItem = tmp.comboBox
             }
 
+            onCurrentItemChanged: {
+                if (myColumn.currentItem !== null)
+                    myColumn.currentItem.forceActiveFocus()
+            }
+
             Repeater {
                 id: myRepeater
 
@@ -162,7 +189,7 @@ Item {
 
                 onItemAdded: function(index, item) {
                     if (index === myColumn.currentIndex)
-                        myColumn.currentItem = item
+                        myColumn.currentItem = item.comboBox
                 }
 
                 function updateModel() {
@@ -180,9 +207,7 @@ Item {
 
                     myRepeater.model = myRepeater.localModel // trigger on change handler
 
-                    if (lastIndex < 0 && myRepeater.localModel.length > 0)
-                        myColumn.currentIndex = 0
-                    else if (myRepeater.localModel.length > lastIndex)
+                    if (myRepeater.localModel.length > lastIndex)
                         myColumn.currentIndex = lastIndex
                     else
                         myColumn.currentIndex = myRepeater.localModel.length - 1
@@ -196,28 +221,41 @@ Item {
             ListViewComboBox {
                 id: dummyComboBox
                 visible: myRepeater.count === 0
-                validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
+                validator: listValidator
                 actionIndicatorVisible: false
                 model: itemFilterModel
                 textRole: root.textRole
                 valueRole: root.valueRole
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                width: implicitWidth
+                width: dummyComboBox.implicitWidth
+
+                onVisibleChanged: dummyComboBox.currentIndex = -1
 
                 onFocusChanged: {
-                    var curValue = dummyComboBox.availableValue()
-                    if (curValue !== "")
-                        root.add(curValue)
+                    if (dummyComboBox.focus)
+                        return
+
+                    if (!dummyComboBox.dirty)
+                        return
+
+                    // If focus is lost check if text was changed and try to search for it in
+                    // the text as well as in the value role.
+                    let idx = dummyComboBox.indexOfString(dummyComboBox.editText)
+                    if (idx === -1) {
+                        dummyComboBox.editText = dummyComboBox.preFocusText
+                    } else {
+                        dummyComboBox.currentIndex = idx
+                        if (dummyComboBox.currentValue !== "")
+                            root.add(dummyComboBox.currentValue)
+                    }
                 }
 
-                onCompressedActivated: {
+                onCompressedActivated: function(index, reason) {
                     root.activatedReason = reason
 
                     var curValue = dummyComboBox.availableValue()
                     if (curValue !== "")
                         root.add(curValue)
-                    else
-                        root.replace(dummyComboBox.myIndex, curValue)
                 }
 
                 onHoverChanged: root.delegateHover = dummyComboBox.hover

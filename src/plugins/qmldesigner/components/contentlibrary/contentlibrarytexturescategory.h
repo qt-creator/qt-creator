@@ -27,14 +27,17 @@ class ContentLibraryTexturesCategory : public QObject
 public:
     ContentLibraryTexturesCategory(QObject *parent, const QString &name);
 
-    void addTexture(const QFileInfo &tex, const QString &subPath, const QString &webUrl,
-                    const QString &fileExt, const QSize &dimensions, const qint64 sizeInBytes);
+    void addTexture(const QFileInfo &tex, const QString &subPath, const QString &key,
+                    const QString &webTextureUrl, const QString &webIconUrl, const QString &fileExt,
+                    const QSize &dimensions, const qint64 sizeInBytes, bool hasUpdate, bool isNew);
     bool filter(const QString &searchText);
 
     QString name() const;
     bool visible() const;
     bool expanded() const;
     QList<ContentLibraryTexture *> categoryTextures() const;
+
+    void markTextureHasNoUpdate(const QString &textureKey);
 
 signals:
     void categoryVisibleChanged();

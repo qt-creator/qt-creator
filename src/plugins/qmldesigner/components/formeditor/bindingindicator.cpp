@@ -91,7 +91,7 @@ void BindingIndicator::setItems(const QList<FormEditorItem *> &itemList)
 {
     clear();
 
-    if (itemList.count() == 1) {
+    if (itemList.size() == 1) {
         m_formEditorItem = itemList.constFirst();
         const QmlItemNode qmlItemNode = m_formEditorItem->qmlItemNode();
 

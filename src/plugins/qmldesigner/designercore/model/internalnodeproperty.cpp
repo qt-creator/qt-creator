@@ -7,19 +7,10 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalNodeProperty::InternalNodeProperty(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
-    : InternalNodeAbstractProperty(name, propertyOwner)
+InternalNodeProperty::InternalNodeProperty(const PropertyName &name,
+                                           const InternalNode::Pointer &propertyOwner)
+    : InternalNodeAbstractProperty(name, propertyOwner, PropertyType::Node)
 {
-}
-
-InternalNodeProperty::Pointer InternalNodeProperty::create(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
-{
-    auto newPointer = new InternalNodeProperty(name, propertyOwner);
-    InternalNodeProperty::Pointer smartPointer(newPointer);
-
-    newPointer->setInternalWeakPointer(smartPointer);
-
-    return smartPointer;
 }
 
 bool InternalNodeProperty::isEmpty() const
@@ -46,11 +37,6 @@ int InternalNodeProperty::indexOf(const InternalNode::Pointer &node) const
 bool InternalNodeProperty::isValid() const
 {
     return InternalProperty::isValid() && isNodeProperty();
-}
-
-bool InternalNodeProperty::isNodeProperty() const
-{
-    return true;
 }
 
 InternalNode::Pointer InternalNodeProperty::node() const

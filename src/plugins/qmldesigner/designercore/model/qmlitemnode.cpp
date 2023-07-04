@@ -309,7 +309,7 @@ bool QmlItemNode::instanceHasShowContent() const
 
 bool QmlItemNode::instanceCanReparent() const
 {
-    return QmlObjectNode::instanceCanReparent() && !anchors().instanceHasAnchors() && !instanceIsAnchoredBySibling();
+    return isInBaseState() && !anchors().instanceHasAnchors() && !instanceIsAnchoredBySibling();
 }
 
 bool QmlItemNode::instanceIsAnchoredBySibling() const

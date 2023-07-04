@@ -88,7 +88,7 @@ Utils::SmallString auxPropertyString(Utils::SmallStringView name)
 }
 } // namespace
 
-static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
+inline static void reparentTo(const ModelNode &node, const QmlItemNode &parent)
 {
 
     if (parent.isValid() && node.isValid()) {
@@ -103,7 +103,7 @@ static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
     }
 }
 
-static inline QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
+inline static QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
 {
     QPointF postion(std::numeric_limits<qreal>::max(), std::numeric_limits<qreal>::max());
     for (const ModelNode &modelNode : modelNodeList) {
@@ -364,7 +364,7 @@ void reverse(const SelectionContext &selectionState)
     });
 }
 
-static inline void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
+inline static void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
 {
     if (node.hasVariantProperty(propertyName)) {
         node.setAuxiliaryData(AuxiliaryDataType::Document,
@@ -695,7 +695,8 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
-    if (!usages.isEmpty() && (addAlwaysNewSlot || usages.count() < 2)  && (!isModelNodeRoot  || addAlwaysNewSlot)) {
+    if (!usages.isEmpty() && (addAlwaysNewSlot || usages.size() < 2)
+        && (!isModelNodeRoot || addAlwaysNewSlot)) {
         Core::EditorManager::openEditorAt(
             {usages.constFirst().path, usages.constFirst().line, usages.constFirst().col});
 
@@ -879,7 +880,7 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
         if (potentialTabBar.isValid()) {// The stacked container is hooked up to a TabBar
             NodeMetaInfo tabButtonMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabButton", -1, -1);
             if (tabButtonMetaInfo.isValid()) {
-                const int buttonIndex = potentialTabBar.directSubModelNodes().count();
+                const int buttonIndex = potentialTabBar.directSubModelNodes().size();
                 ModelNode tabButtonNode =
                         view->createModelNode("QtQuick.Controls.TabButton",
                                               tabButtonMetaInfo.majorVersion(),
@@ -949,7 +950,7 @@ void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
     int value = containerItemNode.instanceValue(propertyName).toInt();
     ++value;
 
-    const int maxValue = container.directSubModelNodes().count();
+    const int maxValue = container.directSubModelNodes().size();
 
     QTC_ASSERT(value < maxValue, return);
 
@@ -1012,7 +1013,7 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
 
         container.parentProperty().reparentHere(tabBarNode);
 
-        const int maxValue = container.directSubModelNodes().count();
+        const int maxValue = container.directSubModelNodes().size();
 
         QmlItemNode tabBarItem(tabBarNode);
 
@@ -1239,8 +1240,7 @@ void setFlowStartItem(const SelectionContext &selectionContext)
     });
 }
 
-
-bool static hasStudioComponentsImport(const SelectionContext &context)
+static bool hasStudioComponentsImport(const SelectionContext &context)
 {
     if (context.view() && context.view()->model()) {
         Import import = Import::createLibraryImport("QtQuick.Studio.Components", "1.0");
@@ -1250,7 +1250,7 @@ bool static hasStudioComponentsImport(const SelectionContext &context)
     return false;
 }
 
-static inline void setAdjustedPos(const QmlDesigner::ModelNode &modelNode)
+inline static void setAdjustedPos(const QmlDesigner::ModelNode &modelNode)
 {
     if (modelNode.hasParentProperty()) {
         ModelNode parentNode = modelNode.parentProperty().parentModelNode();

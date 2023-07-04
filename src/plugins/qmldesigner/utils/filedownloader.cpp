@@ -9,6 +9,7 @@
 #include <QDir>
 #include <QQmlEngine>
 #include <QRandomGenerator>
+#include <QSslSocket>
 
 namespace QmlDesigner {
 
@@ -38,6 +39,27 @@ bool FileDownloader::deleteFileAtTheEnd() const
     return m_targetFilePath.isEmpty();
 }
 
+QNetworkRequest FileDownloader::makeRequest() const
+{
+    QUrl url = m_url;
+
+    if (url.scheme() == "https") {
+#ifndef QT_NO_SSL
+        if (!QSslSocket::supportsSsl())
+#endif
+        {
+            qWarning() << "SSL is not available. HTTP will be used instead of HTTPS.";
+            url.setScheme("http");
+        }
+    }
+
+    auto request = QNetworkRequest(url);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::UserVerifiedRedirectPolicy);
+
+    return request;
+}
+
 void FileDownloader::start()
 {
     emit downloadStarting();
@@ -48,9 +70,7 @@ void FileDownloader::start()
     m_outputFile.setFileName(tempFileName);
     m_outputFile.open(QIODevice::WriteOnly);
 
-    auto request = QNetworkRequest(m_url);
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
-                         QNetworkRequest::UserVerifiedRedirectPolicy);
+    QNetworkRequest request = makeRequest();
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
     m_reply = reply;
 
@@ -112,6 +132,13 @@ void FileDownloader::start()
                 if (!QDir{}.mkpath(dirPath)) {
                     emit downloadFailed();
                     return;
+                }
+
+                if (m_overwriteTarget && QFileInfo().exists(m_targetFilePath)) {
+                    if (!QFile::remove(m_targetFilePath)) {
+                        emit downloadFailed();
+                        return;
+                    }
                 }
 
                 if (!QFileInfo().exists(m_targetFilePath) && !m_outputFile.rename(m_targetFilePath)) {
@@ -183,6 +210,19 @@ bool FileDownloader::downloadEnabled() const
     return m_downloadEnabled;
 }
 
+bool FileDownloader::overwriteTarget() const
+{
+    return m_overwriteTarget;
+}
+
+void FileDownloader::setOverwriteTarget(bool value)
+{
+    if (value != m_overwriteTarget) {
+        m_overwriteTarget = value;
+        emit overwriteTargetChanged();
+    }
+}
+
 bool FileDownloader::finished() const
 {
     return m_finished;
@@ -235,9 +275,7 @@ void FileDownloader::doProbeUrl()
         return;
     }
 
-    auto request = QNetworkRequest(m_url);
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
-                         QNetworkRequest::UserVerifiedRedirectPolicy);
+    QNetworkRequest request = makeRequest();
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->head(request);
 
     QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &) {

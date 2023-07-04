@@ -27,12 +27,12 @@ ItemLibraryCategoriesModel::~ItemLibraryCategoriesModel()
 
 int ItemLibraryCategoriesModel::rowCount(const QModelIndex &) const
 {
-    return m_categoryList.count();
+    return m_categoryList.size();
 }
 
 QVariant ItemLibraryCategoriesModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_categoryList.count()) {
+    if (!index.isValid() || index.row() >= m_categoryList.size()) {
         qWarning() << Q_FUNC_INFO << "invalid index requested";
         return {};
     }

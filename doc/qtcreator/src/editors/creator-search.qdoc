@@ -176,7 +176,7 @@
 
         \li Enter the text you are looking for and click \uicontrol Search.
 
-            \image qtcreator-searchresults.png
+            \image qtcreator-search-results-matches.webp {Found matches in Search Results}
 
             \l {Search Results} shows a list of files that have the searched text.
 

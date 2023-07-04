@@ -8,10 +8,13 @@
 
 #include "abstractview.h"
 #include "auxiliarydataproperties.h"
+#include "internalbindingproperty.h"
 #include "internalnodeabstractproperty.h"
 #include "internalnodelistproperty.h"
+#include "internalnodeproperty.h"
 #include "internalproperty.h"
 #include "internalsignalhandlerproperty.h"
+#include "internalvariantproperty.h"
 #include "metainfo.h"
 #include "nodeinstanceview.h"
 #include "nodemetainfo.h"
@@ -23,7 +26,6 @@
 #include "rewriterview.h"
 #include "rewritingexception.h"
 #include "signalhandlerproperty.h"
-#include "textmodifier.h"
 #include "variantproperty.h"
 
 #include <projectstorage/projectstorage.h>
@@ -277,7 +279,7 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
     for (const auto &auxiliaryData : auxiliaryDatas)
         newNode->setAuxiliaryData(AuxiliaryDataKeyView{auxiliaryData.first}, auxiliaryData.second);
 
-    m_nodeSet.insert(newNode);
+    m_nodes.push_back(newNode);
     m_internalIdNodeHash.insert(newNode->internalId, newNode);
 
     if (!nodeSource.isNull())
@@ -303,7 +305,7 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
     if (!node->id.isEmpty())
         m_idNodeHash.remove(node->id);
     node->isValid = false;
-    m_nodeSet.remove(node);
+    m_nodes.removeOne(node);
     m_internalIdNodeHash.remove(node->internalId);
 }
 
@@ -319,15 +321,9 @@ void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
             removeNode(node.m_internalNode);
     }
 
-    for (const AbstractProperty &property : resourceSet.removeProperties) {
-        if (property)
-            removeProperty(property.m_internalNode->property(property.m_propertyName));
-    }
+    removeProperties(toInternalProperties(resourceSet.removeProperties));
 
-    for (const auto &[property, expression] : resourceSet.setExpressions) {
-        if (property)
-            setBindingProperty(property.m_internalNode, property.m_propertyName, expression);
-    }
+    setBindingProperties(resourceSet.setExpressions);
 }
 
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
@@ -338,10 +334,12 @@ void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
 
 void ModelPrivate::removeNodeAndRelatedResources(const InternalNodePointer &node)
 {
-    if (m_resourceManagement)
-        handleResourceSet(m_resourceManagement->removeNode(ModelNode{node, m_model, nullptr}));
-    else
+    if (m_resourceManagement) {
+        handleResourceSet(
+            m_resourceManagement->removeNodes({ModelNode{node, m_model, nullptr}}, m_model));
+    } else {
         removeNode(node);
+    }
 }
 
 void ModelPrivate::removeNode(const InternalNodePointer &node)
@@ -935,7 +933,7 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
         if (!oldPropertyName.isEmpty() && oldParent->isValid)
             oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, m_model, view);
 
-        if (!newPropertyParent.isNull())
+        if (newPropertyParent)
             newProperty = NodeAbstractProperty(newPropertyParent, m_model, view);
 
         ModelNode modelNode(node, m_model, view);
@@ -956,7 +954,7 @@ void ModelPrivate::notifyNodeReparent(const InternalNodePointer &node,
         if (!oldPropertyName.isEmpty() && oldParent->isValid)
             oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, m_model, view);
 
-        if (!newPropertyParent.isNull())
+        if (newPropertyParent)
             newProperty = NodeAbstractProperty(newPropertyParent, m_model, view);
         ModelNode modelNode(node, m_model, view);
 
@@ -1055,6 +1053,39 @@ QVector<InternalNodePointer> ModelPrivate::toInternalNodeVector(const QVector<Mo
     return newNodeVector;
 }
 
+QList<InternalPropertyPointer> ModelPrivate::toInternalProperties(const AbstractProperties &properties)
+{
+    QList<InternalPropertyPointer> internalProperties;
+    internalProperties.reserve(properties.size());
+
+    for (const auto &property : properties) {
+        if (property.m_internalNode) {
+            if (auto internalProperty = property.m_internalNode->property(property.m_propertyName))
+                internalProperties.push_back(internalProperty);
+        }
+    }
+
+    return internalProperties;
+}
+
+QList<std::tuple<InternalBindingPropertyPointer, QString>> ModelPrivate::toInternalBindingProperties(
+    const ModelResourceSet::SetExpressions &setExpressions)
+{
+    QList<std::tuple<InternalBindingPropertyPointer, QString>> internalProperties;
+    internalProperties.reserve(setExpressions.size());
+
+    for (const auto &setExpression : setExpressions) {
+        const auto &property = setExpression.property;
+        if (property.m_internalNode) {
+            if (auto internalProperty = property.m_internalNode->bindingProperty(
+                    property.m_propertyName))
+                internalProperties.emplace_back(internalProperty, setExpression.expression);
+        }
+    }
+
+    return internalProperties;
+}
+
 void ModelPrivate::changeSelectedNodes(const QList<InternalNodePointer> &newSelectedNodeList,
                                        const QList<InternalNodePointer> &oldSelectedNodeList)
 {
@@ -1102,7 +1133,7 @@ void ModelPrivate::deselectNode(const InternalNodePointer &node)
 void ModelPrivate::removePropertyWithoutNotification(const InternalPropertyPointer &property)
 {
     if (property->isNodeAbstractProperty()) {
-        const auto &&allSubNodes = property->toNodeAbstractProperty()->allSubNodes();
+        const auto &&allSubNodes = property->toProperty<InternalNodeAbstractProperty>()->allSubNodes();
         for (const InternalNodePointer &node : allSubNodes)
             removeNodeFromModel(node);
     }
@@ -1123,25 +1154,38 @@ static QList<PropertyPair> toPropertyPairList(const QList<InternalPropertyPointe
 
 void ModelPrivate::removePropertyAndRelatedResources(const InternalPropertyPointer &property)
 {
-    if (m_resourceManagement)
+    if (m_resourceManagement) {
         handleResourceSet(
-            m_resourceManagement->removeProperty(AbstractProperty{property, m_model, nullptr}));
-    else
+            m_resourceManagement->removeProperties({AbstractProperty{property, m_model, nullptr}},
+                                                   m_model));
+    } else {
         removeProperty(property);
+    }
 }
 
 void ModelPrivate::removeProperty(const InternalPropertyPointer &property)
 {
-    notifyPropertiesAboutToBeRemoved({property});
+    removeProperties({property});
+}
 
-    const QList<PropertyPair> propertyPairList = toPropertyPairList({property});
+void ModelPrivate::removeProperties(const QList<InternalPropertyPointer> &properties)
+{
+    if (properties.isEmpty())
+        return;
 
-    removePropertyWithoutNotification(property);
+    notifyPropertiesAboutToBeRemoved(properties);
+
+    const QList<PropertyPair> propertyPairList = toPropertyPairList(properties);
+
+    for (const auto &property : properties)
+        removePropertyWithoutNotification(property);
 
     notifyPropertiesRemoved(propertyPairList);
 }
 
-void ModelPrivate::setBindingProperty(const InternalNodePointer &node, const PropertyName &name, const QString &expression)
+void ModelPrivate::setBindingProperty(const InternalNodePointer &node,
+                                      const PropertyName &name,
+                                      const QString &expression)
 {
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
     if (!node->hasProperty(name)) {
@@ -1153,6 +1197,22 @@ void ModelPrivate::setBindingProperty(const InternalNodePointer &node, const Pro
     notifyBindingPropertiesAboutToBeChanged({bindingProperty});
     bindingProperty->setExpression(expression);
     notifyBindingPropertiesChanged({bindingProperty}, propertyChange);
+}
+
+void ModelPrivate::setBindingProperties(const ModelResourceSet::SetExpressions &setExpressions)
+{
+    if (setExpressions.isEmpty())
+        return;
+
+    AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
+
+    auto bindingPropertiesWithExpressions = toInternalBindingProperties(setExpressions);
+    auto bindingProperties = Utils::transform(bindingPropertiesWithExpressions,
+                                              [](const auto &entry) { return std::get<0>(entry); });
+    notifyBindingPropertiesAboutToBeChanged(bindingProperties);
+    for (const auto &[bindingProperty, expression] : bindingPropertiesWithExpressions)
+        bindingProperty->setExpression(expression);
+    notifyBindingPropertiesChanged(bindingProperties, propertyChange);
 }
 
 void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &node, const PropertyName &name, const QString &source)
@@ -1250,7 +1310,7 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
     }
 
     InternalNodeAbstractPropertyPointer newParentProperty(parentNode->nodeAbstractProperty(name));
-    Q_ASSERT(!newParentProperty.isNull());
+    Q_ASSERT(newParentProperty);
 
     notifyNodeAboutToBeReparent(childNode, newParentProperty, oldParentNode, oldParentPropertyName, propertyChange);
 
@@ -1305,7 +1365,7 @@ void ModelPrivate::setNodeSource(const InternalNodePointer &node, const QString 
 void ModelPrivate::changeNodeOrder(const InternalNodePointer &parentNode, const PropertyName &listPropertyName, int from, int to)
 {
     InternalNodeListPropertyPointer nodeList(parentNode->nodeListProperty(listPropertyName));
-    Q_ASSERT(!nodeList.isNull());
+    Q_ASSERT(nodeList);
     nodeList->slide(from, to);
 
     const InternalNodePointer internalNode = nodeList->nodeList().at(to);
@@ -1376,8 +1436,7 @@ bool ModelPrivate::hasNodeForInternalId(qint32 internalId) const
 {
     return m_internalIdNodeHash.contains(internalId);
 }
-
-QList<InternalNodePointer> ModelPrivate::allNodes() const
+QList<InternalNodePointer> ModelPrivate::allNodesOrdered() const
 {
     if (!m_rootInternalNode || !m_rootInternalNode->isValid)
         return {};
@@ -1388,9 +1447,13 @@ QList<InternalNodePointer> ModelPrivate::allNodes() const
     nodeList.append(m_rootInternalNode);
     nodeList.append(m_rootInternalNode->allSubNodes());
     // FIXME: This is horribly expensive compared to a loop.
-    nodeList.append(Utils::toList(m_nodeSet - Utils::toSet(nodeList)));
+    nodeList.append(Utils::toList(Utils::toSet(m_nodes) - Utils::toSet(nodeList)));
 
     return nodeList;
+}
+QList<InternalNodePointer> ModelPrivate::allNodesUnordered() const
+{
+    return m_nodes;
 }
 
 bool ModelPrivate::isWriteLocked() const
@@ -1786,16 +1849,6 @@ Model *Model::metaInfoProxyModel() const
     return const_cast<Model *>(this);
 }
 
-TextModifier *Model::textModifier() const
-{
-    return d->m_textModifier.data();
-}
-
-void Model::setTextModifier(TextModifier *textModifier)
-{
-    d->m_textModifier = textModifier;
-}
-
 void Model::setDocumentMessages(const QList<DocumentMessage> &errors,
                                 const QList<DocumentMessage> &warnings)
 {
@@ -1921,6 +1974,26 @@ NodeMetaInfo Model::qtQuickPropertyAnimationMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuickPropertyChangesMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, PropertyChanges>();
+    } else {
+        return metaInfo("QtQuick.PropertyChanges");
+    }
+}
+
+NodeMetaInfo Model::flowViewFlowActionAreaMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<FlowView, FlowActionArea>();
+    } else {
+        return metaInfo("FlowView.FlowActionArea");
+    }
+}
+
 NodeMetaInfo Model::flowViewFlowDecisionMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -1928,6 +2001,16 @@ NodeMetaInfo Model::flowViewFlowDecisionMetaInfo() const
         return createNodeMetaInfo<FlowView, FlowDecision>();
     } else {
         return metaInfo("FlowView.FlowDecision");
+    }
+}
+
+NodeMetaInfo Model::flowViewFlowItemMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<FlowView, FlowItem>();
+    } else {
+        return metaInfo("FlowView.FlowItem");
     }
 }
 
@@ -2038,6 +2121,16 @@ NodeMetaInfo Model::qtQuickTimelineTimelineMetaInfo() const
         return createNodeMetaInfo<QtQuick_Timeline, Timeline>();
     } else {
         return metaInfo("QtQuick.Timeline.Timeline");
+    }
+}
+
+NodeMetaInfo Model::qtQuickTransistionMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Transition>();
+    } else {
+        return metaInfo("QtQuick.Transition");
     }
 }
 
@@ -2204,9 +2297,105 @@ void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
     d->detachView(view, emitNotify);
 }
 
-QList<ModelNode> Model::allModelNodes() const
+namespace {
+QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList, Model *model)
 {
-    return QmlDesigner::toModelNodeList(d->allNodes(), nullptr);
+    QList<ModelNode> newNodeList;
+    for (const Internal::InternalNode::Pointer &node : nodeList)
+        newNodeList.append(ModelNode(node, model, nullptr));
+
+    return newNodeList;
+}
+} // namespace
+
+QList<ModelNode> Model::allModelNodesUnordered()
+{
+    return toModelNodeList(d->allNodesUnordered(), this);
+}
+
+ModelNode Model::rootModelNode()
+{
+    return ModelNode{d->rootNode(), this, nullptr};
+}
+
+ModelNode Model::modelNodeForId(const QString &id)
+{
+    return ModelNode(d->nodeForId(id), this, nullptr);
+}
+
+QHash<QStringView, ModelNode> Model::idModelNodeDict()
+{
+    QHash<QStringView, ModelNode> idModelNodes;
+
+    for (const auto &[key, internalNode] : d->m_idNodeHash.asKeyValueRange())
+        idModelNodes.insert(key, ModelNode(internalNode, this, nullptr));
+
+    return idModelNodes;
+}
+
+namespace {
+ModelNode createNode(Model *model,
+                     Internal::ModelPrivate *d,
+                     const TypeName &typeName,
+                     int majorVersion,
+                     int minorVersion)
+{
+    return ModelNode(d->createNode(typeName, majorVersion, minorVersion, {}, {}, {}, {}, {}),
+                     model,
+                     nullptr);
+}
+} // namespace
+
+ModelNode Model::createModelNode(const TypeName &typeName)
+{
+    if constexpr (useProjectStorage()) {
+        return createNode(this, d.get(), typeName, -1, -1);
+    } else {
+        const NodeMetaInfo m = metaInfo(typeName);
+        return createNode(this, d.get(), typeName, m.majorVersion(), m.minorVersion());
+    }
+}
+
+void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement bypass)
+{
+    nodes.erase(std::remove_if(nodes.begin(), nodes.end(), [](auto &&node) { return !node; }),
+                nodes.end());
+
+    if (nodes.empty())
+        return;
+
+    std::sort(nodes.begin(), nodes.end());
+
+    ModelResourceSet set;
+
+    if (d->m_resourceManagement && bypass == BypassModelResourceManagement::No)
+        set = d->m_resourceManagement->removeNodes(std::move(nodes), this);
+    else
+        set = {std::move(nodes), {}, {}};
+
+    d->handleResourceSet(set);
+}
+
+void Model::removeProperties(AbstractProperties properties, BypassModelResourceManagement bypass)
+{
+    properties.erase(std::remove_if(properties.begin(),
+                                    properties.end(),
+                                    [](auto &&property) { return !property; }),
+                     properties.end());
+
+    if (properties.empty())
+        return;
+
+    std::sort(properties.begin(), properties.end());
+
+    ModelResourceSet set;
+
+    if (d->m_resourceManagement && bypass == BypassModelResourceManagement::No)
+        set = d->m_resourceManagement->removeProperties(std::move(properties), this);
+    else
+        set = {{}, std::move(properties), {}};
+
+    d->handleResourceSet(set);
 }
 
 } // namespace QmlDesigner

@@ -50,7 +50,7 @@
 
 namespace QmlDesigner {
 
-static inline QString captionForModelNode(const ModelNode &modelNode)
+inline static QString captionForModelNode(const ModelNode &modelNode)
 {
     if (modelNode.id().isEmpty())
         return modelNode.simplifiedTypeName();
@@ -58,7 +58,7 @@ static inline QString captionForModelNode(const ModelNode &modelNode)
     return modelNode.id();
 }
 
-static inline bool contains(const QmlItemNode &node, const QPointF &position)
+inline static bool contains(const QmlItemNode &node, const QPointF &position)
 {
     return node.isValid() && node.instanceSceneTransform().mapRect(node.instanceBoundingRect()).contains(position);
 }
@@ -1208,7 +1208,7 @@ bool isStackedContainerAndIndexCanBeIncreased(const SelectionContext &context)
 
     const int value = containerItemNode.instanceValue(propertyName).toInt();
 
-    const int maxValue = currentSelectedNode.directSubModelNodes().count() - 1;
+    const int maxValue = currentSelectedNode.directSubModelNodes().size() - 1;
 
     return value < maxValue;
 }

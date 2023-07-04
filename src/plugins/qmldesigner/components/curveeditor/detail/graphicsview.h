@@ -136,6 +136,8 @@ private:
 
     QRectF rangeMaxHandle(const QRectF &rect);
 
+    QPoint viewportCenter() const;
+
 private:
     bool m_dragging;
 

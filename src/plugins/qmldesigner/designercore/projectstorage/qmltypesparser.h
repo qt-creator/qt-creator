@@ -18,7 +18,7 @@ class ProjectStorage;
 template<typename ProjectStorage, typename Mutex>
 class SourcePathCache;
 
-class QmlTypesParser : public QmlTypesParserInterface
+class QmlTypesParser final : public QmlTypesParserInterface
 {
 public:
     using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;

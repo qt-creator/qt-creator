@@ -47,7 +47,7 @@ void ImageCacheConnectionManager::dispatchCommand(const QVariant &command,
 {
     static const int capturedDataCommandType = QMetaType::type("CapturedDataCommand");
 
-    if (command.userType() == capturedDataCommandType) {
+    if (command.typeId() == capturedDataCommandType) {
         m_captureCallback(command.value<CapturedDataCommand>().image);
         m_capturedDataArrived = true;
     }

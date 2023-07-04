@@ -4,6 +4,8 @@
 #include "contentlibraryview.h"
 
 #include "contentlibrarybundleimporter.h"
+#include "contentlibraryeffect.h"
+#include "contentlibraryeffectsmodel.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
 #include "contentlibrarytexture.h"
@@ -25,6 +27,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #endif
+
+#include <QVector3D>
 
 namespace QmlDesigner {
 
@@ -53,6 +57,10 @@ WidgetInfo ContentLibraryView::widgetInfo()
         connect(m_widget, &ContentLibraryWidget::bundleTextureDragStarted, this,
                 [&] (QmlDesigner::ContentLibraryTexture *tex) {
             m_draggedBundleTexture = tex;
+        });
+        connect(m_widget, &ContentLibraryWidget::bundleEffectDragStarted, this,
+                [&] (QmlDesigner::ContentLibraryEffect *eff) {
+            m_draggedBundleEffect = eff;
         });
 
         connect(m_widget, &ContentLibraryWidget::addTextureRequested, this,
@@ -109,6 +117,46 @@ WidgetInfo ContentLibraryView::widgetInfo()
 
         connect(materialsModel, &ContentLibraryMaterialsModel::bundleMaterialUnimported, this,
                 &ContentLibraryView::updateBundleMaterialsImportedState);
+
+        ContentLibraryEffectsModel *effectsModel = m_widget->effectsModel().data();
+
+        connect(effectsModel, &ContentLibraryEffectsModel::bundleItemImported, this,
+                [&] (const QmlDesigner::NodeMetaInfo &metaInfo) {
+            QTC_ASSERT(metaInfo.isValid(), return);
+
+            if (!m_bundleEffectTarget)
+                m_bundleEffectTarget = active3DSceneNode();
+
+            QTC_ASSERT(m_bundleEffectTarget, return);
+
+            executeInTransaction("ContentLibraryView::widgetInfo", [&] {
+                QVector3D pos = m_bundleEffectPos.value<QVector3D>();
+                ModelNode newEffNode = createModelNode(metaInfo.typeName(), metaInfo.majorVersion(),
+                                                       metaInfo.minorVersion(),
+                                                       {{"x", pos.x()}, {"y", pos.y()}, {"z", pos.z()}});
+                m_bundleEffectTarget.defaultNodeListProperty().reparentHere(newEffNode);
+                clearSelectedModelNodes();
+                selectModelNode(newEffNode);
+            });
+
+            updateBundleEffectsImportedState();
+            m_bundleEffectTarget = {};
+            m_bundleEffectPos = {};
+        });
+
+        connect(effectsModel, &ContentLibraryEffectsModel::bundleItemAboutToUnimport, this,
+                [&] (const QmlDesigner::TypeName &type) {
+                    // delete instances of the bundle effect that is about to be unimported
+                    executeInTransaction("ContentLibraryView::widgetInfo", [&] {
+                        NodeMetaInfo metaInfo = model()->metaInfo(type);
+                        QList<ModelNode> effects = allModelNodesOfType(metaInfo);
+                        for (ModelNode &eff : effects)
+                            eff.destroy();
+                    });
+                });
+
+        connect(effectsModel, &ContentLibraryEffectsModel::bundleItemUnimported, this,
+                &ContentLibraryView::updateBundleEffectsImportedState);
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -124,7 +172,7 @@ void ContentLibraryView::modelAttached(Model *model)
 
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
-    updateBundleMaterialsQuick3DVersion();
+    updateBundlesQuick3DVersion();
     updateBundleMaterialsImportedState();
 
     const bool hasLibrary = materialLibraryNode().isValid();
@@ -134,6 +182,9 @@ void ContentLibraryView::modelAttached(Model *model)
     m_sceneId = model->active3DSceneId();
 
     m_widget->clearSearchFilter();
+
+    m_widget->effectsModel()->loadBundle();
+    updateBundleEffectsImportedState();
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)
@@ -149,7 +200,7 @@ void ContentLibraryView::importsChanged(const Imports &addedImports, const Impor
     Q_UNUSED(addedImports)
     Q_UNUSED(removedImports)
 
-    updateBundleMaterialsQuick3DVersion();
+    updateBundlesQuick3DVersion();
 
     bool hasQuick3DImport = model()->hasImport("QtQuick3D");
 
@@ -211,6 +262,12 @@ void ContentLibraryView::customNotification(const AbstractView *view, const QStr
         m_widget->addTexture(m_draggedBundleTexture);
 
         m_draggedBundleTexture = nullptr;
+    } else if (identifier == "drop_bundle_effect") {
+        QTC_ASSERT(nodeList.size() == 1, return);
+
+        m_bundleEffectPos = data.size() == 1 ? data.first() : QVariant();
+        m_widget->effectsModel()->addInstance(m_draggedBundleEffect);
+        m_bundleEffectTarget = nodeList.first() ? nodeList.first() : active3DSceneNode();
     }
 }
 
@@ -349,7 +406,26 @@ void ContentLibraryView::updateBundleMaterialsImportedState()
     m_widget->materialsModel()->updateImportedState(importedBundleMats);
 }
 
-void ContentLibraryView::updateBundleMaterialsQuick3DVersion()
+void ContentLibraryView::updateBundleEffectsImportedState()
+{
+    using namespace Utils;
+
+    if (!m_widget->effectsModel()->bundleImporter())
+        return;
+
+    QStringList importedBundleEffs;
+
+    FilePath bundlePath = m_widget->effectsModel()->bundleImporter()->resolveBundleImportPath();
+
+    if (bundlePath.exists()) {
+        importedBundleEffs = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
+                                       [](const FilePath &f) { return f.fileName().chopped(4); });
+    }
+
+    m_widget->effectsModel()->updateImportedState(importedBundleEffs);
+}
+
+void ContentLibraryView::updateBundlesQuick3DVersion()
 {
     bool hasImport = false;
     int major = -1;
@@ -382,6 +458,7 @@ void ContentLibraryView::updateBundleMaterialsQuick3DVersion()
     }
 #endif
     m_widget->materialsModel()->setQuick3DImportVersion(major, minor);
+    m_widget->effectsModel()->setQuick3DImportVersion(major, minor);
 }
 
 } // namespace QmlDesigner

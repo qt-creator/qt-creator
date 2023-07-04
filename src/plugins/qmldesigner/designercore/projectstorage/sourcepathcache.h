@@ -143,7 +143,10 @@ private:
 
     static bool sourceContextLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept
     {
-        return Utils::reverseCompare(first, second) < 0;
+        return std::lexicographical_compare(first.rbegin(),
+                                            first.rend(),
+                                            second.rbegin(),
+                                            second.rend());
     }
 
     static bool sourceLess(Cache::SourceNameView first, Cache::SourceNameView second) noexcept

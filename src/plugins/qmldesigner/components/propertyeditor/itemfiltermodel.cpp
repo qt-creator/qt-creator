@@ -61,6 +61,19 @@ void ItemFilterModel::setSelectedItems(const QStringList &selectedItems)
     emit selectedItemsChanged();
 }
 
+void ItemFilterModel::setValidationRoles(const QStringList &validationRoles)
+{
+    auto tmp = validationRoles;
+    tmp.removeDuplicates();
+
+    if (m_validationRoles == tmp)
+        return;
+
+    m_validationRoles = tmp;
+    setupValidationItems();
+    emit validationRolesChanged();
+}
+
 QString ItemFilterModel::typeFilter() const
 {
     return m_typeFilter;
@@ -74,6 +87,29 @@ bool ItemFilterModel::selectionOnly() const
 QStringList ItemFilterModel::selectedItems() const
 {
     return m_selectedItems;
+}
+
+QStringList ItemFilterModel::itemModel() const
+{
+    AbstractView *view = m_modelNode.view();
+    if (!view || !view->model())
+        return {};
+
+    QStringList retval;
+    for (const auto &internalId : std::as_const(m_modelInternalIds))
+        retval << view->modelNodeForInternalId(internalId).id();
+
+    return retval;
+}
+
+QStringList ItemFilterModel::validationRoles() const
+{
+    return m_validationRoles;
+}
+
+QStringList ItemFilterModel::validationItems() const
+{
+    return m_validationItems;
 }
 
 void ItemFilterModel::registerDeclarativeType()
@@ -154,17 +190,33 @@ void ItemFilterModel::setupModel()
 
     endResetModel();
     emit itemModelChanged();
+
+    setupValidationItems();
 }
 
-QStringList ItemFilterModel::itemModel() const
+void ItemFilterModel::setupValidationItems()
 {
-    AbstractView *view = m_modelNode.view();
-    if (!view || !view->model())
-        return {};
+    QStringList validationItems;
 
-    QStringList retval;
-    for (const auto &internalId : std::as_const(m_modelInternalIds))
-        retval << view->modelNodeForInternalId(internalId).id();
+    for (const QString &role : m_validationRoles) {
+        int r = roleNames().key(role.toUtf8(), -1);
 
-    return retval;
+        if (r == -1)
+            continue;
+
+        for (int i = 0; i < rowCount(); ++i) {
+            QVariant item = data(index(i), r);
+            if (item.canConvert<QString>())
+                validationItems.append(item.toString());
+        }
+    }
+
+    validationItems.removeDuplicates();
+
+    if (m_validationItems == validationItems)
+        return;
+
+    m_validationItems = validationItems;
+
+    emit validationItemsChanged();
 }

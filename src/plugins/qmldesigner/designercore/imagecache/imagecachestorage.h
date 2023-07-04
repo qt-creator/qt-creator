@@ -30,6 +30,7 @@ public:
         : database(database)
     {
         transaction.commit();
+        database.walCheckpointFull();
     }
 
     ImageEntry fetchImage(Utils::SmallStringView name, Sqlite::TimeStamp minimumTimeStamp) const override
@@ -157,16 +158,10 @@ private:
         Initializer(DatabaseType &database)
         {
             if (!database.isInitialized()) {
-                Sqlite::ExclusiveTransaction transaction{database};
-
                 createImagesTable(database);
                 database.setVersion(1);
 
-                transaction.commit();
-
                 database.setIsInitialized(true);
-
-                database.walCheckpointFull();
             } else if (database.version() < 1) {
                 updateTableToVersion1(database);
             }
@@ -203,13 +198,9 @@ private:
 
         void updateTableToVersion1(DatabaseType &database)
         {
-            Sqlite::ExclusiveTransaction transaction{database};
-
             database.execute("DELETE FROM images");
             database.execute("ALTER TABLE images ADD COLUMN midSizeImage");
             database.setVersion(1);
-
-            transaction.commit();
         }
     };
 
@@ -277,8 +268,8 @@ private:
 
 public:
     DatabaseType &database;
+    Sqlite::ExclusiveNonThrowingDestructorTransaction<DatabaseType> transaction{database};
     Initializer initializer{database};
-    Sqlite::ImmediateNonThrowingDestructorTransaction<DatabaseType> transaction{database};
     mutable ReadStatement<1, 2> selectImageStatement{
         "SELECT image FROM images WHERE name=?1 AND mtime >= ?2", database};
     mutable ReadStatement<1, 2> selectMidSizeImageStatement{

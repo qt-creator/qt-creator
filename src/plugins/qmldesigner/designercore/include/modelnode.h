@@ -28,7 +28,7 @@ namespace Internal {
     class InternalProperty;
 
     using InternalNodePointer = std::shared_ptr<InternalNode>;
-    using InternalPropertyPointer = QSharedPointer<InternalProperty>;
+    using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
 }
 class NodeMetaInfo;
 class BindingProperty;
@@ -58,10 +58,7 @@ inline constexpr AuxiliaryDataKeyView transitionExpandedPropery{AuxiliaryDataTyp
 
 class QMLDESIGNERCORE_EXPORT ModelNode
 {
-    friend QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
-    friend QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
     friend QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
-    friend QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
     friend QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
     friend Model;
     friend AbstractView;
@@ -77,7 +74,7 @@ public:
         NodeWithComponentSource = 2
     };
 
-    ModelNode();
+    ModelNode() = default;
     ModelNode(const Internal::InternalNodePointer &internalNode, Model *model, const AbstractView *view);
     ModelNode(const ModelNode &modelNode, AbstractView *view);
     ModelNode(const ModelNode &) = default;
@@ -176,7 +173,7 @@ public:
     void selectNode();
     void deselectNode();
 
-    static int variantUserType();
+    static int variantTypeId();
     QVariant toVariant() const;
 
     std::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key) const;
@@ -254,6 +251,21 @@ public:
 
     friend auto qHash(const ModelNode &node) { return ::qHash(node.m_internalNode.get()); }
 
+    friend bool operator==(const ModelNode &firstNode, const ModelNode &secondNode)
+    {
+        return firstNode.m_internalNode == secondNode.m_internalNode;
+    }
+
+    friend bool operator!=(const ModelNode &firstNode, const ModelNode &secondNode)
+    {
+        return !(firstNode == secondNode);
+    }
+
+    friend bool operator<(const ModelNode &firstNode, const ModelNode &secondNode)
+    {
+        return firstNode.m_internalNode < secondNode.m_internalNode;
+    }
+
 private: // functions
     Internal::InternalNodePointer internalNode() const;
 
@@ -265,9 +277,6 @@ private: // variables
     QPointer<AbstractView> m_view;
 };
 
-QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
-QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
-QMLDESIGNERCORE_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
 QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode);
 

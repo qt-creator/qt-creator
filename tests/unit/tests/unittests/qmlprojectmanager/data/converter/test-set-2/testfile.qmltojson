@@ -1,0 +1,89 @@
+{
+    "deployment": {
+        "targetDirectory": "/opt/fileSelectors"
+    },
+    "environment": {
+        "QT_AUTO_SCREEN_SCALE_FACTOR": "1",
+        "QT_QUICK_CONTROLS_CONF": "qtquickcontrols2.conf"
+    },
+    "fileGroups": {
+        "config": {
+            "directories": [
+                "."
+            ],
+            "files": [
+                {
+                    "name": "qtquickcontrols2.conf"
+                }
+            ],
+            "filters": [
+                "*.conf"
+            ]
+        },
+        "image": {
+            "directories": [
+                "."
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.jpeg",
+                "*.jpg",
+                "*.png",
+                "*.svg",
+                "*.hdr",
+                ".ktx"
+            ]
+        },
+        "javaScript": {
+            "directories": [
+                "."
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.js",
+                "*.ts"
+            ]
+        },
+        "qml": {
+            "directories": [
+                "."
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.qml"
+            ]
+        },
+        "qmldir": {
+            "directories": [
+                "."
+            ],
+            "files": [
+            ],
+            "filters": [
+                "qmldir"
+            ]
+        }
+    },
+    "fileVersion": 1,
+    "importPaths": [
+        "imports"
+    ],
+    "language": {
+    },
+    "mcuConfig": {
+    },
+    "runConfig": {
+        "fileSelectors": [
+            "WXGA",
+            "darkTheme",
+            "ShowIndicator"
+        ],
+        "mainFile": "fileSelectors.qml"
+    },
+    "versions": {
+        "qt": "5"
+    }
+}

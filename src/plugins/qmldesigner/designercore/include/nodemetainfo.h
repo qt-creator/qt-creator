@@ -14,6 +14,7 @@
 #include <QString>
 #include <QIcon>
 
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -26,11 +27,12 @@ namespace QmlDesigner {
 class MetaInfo;
 class Model;
 class AbstractProperty;
+class NodeMetaInfoPrivate;
 
 class QMLDESIGNERCORE_EXPORT NodeMetaInfo
 {
 public:
-    NodeMetaInfo() = default;
+    NodeMetaInfo();
     NodeMetaInfo(Model *model, const TypeName &typeName, int majorVersion, int minorVersion);
     NodeMetaInfo(TypeId typeId, NotNullPointer<const ProjectStorageType> projectStorage)
         : m_typeId{typeId}
@@ -39,10 +41,17 @@ public:
     NodeMetaInfo(NotNullPointer<const ProjectStorageType> projectStorage)
         : m_projectStorage{projectStorage}
     {}
+
+    NodeMetaInfo(const NodeMetaInfo &);
+    NodeMetaInfo &operator=(const NodeMetaInfo &);
+    NodeMetaInfo(NodeMetaInfo &&);
+    NodeMetaInfo &operator=(NodeMetaInfo &&);
     ~NodeMetaInfo();
 
     bool isValid() const;
     explicit operator bool() const { return isValid(); }
+
+    TypeId id() const { return m_typeId; }
     bool isFileComponent() const;
     bool hasProperty(::Utils::SmallStringView propertyName) const;
     PropertyMetaInfos properties() const;
@@ -197,7 +206,7 @@ private:
     TypeId m_typeId;
     NotNullPointer<const ProjectStorageType> m_projectStorage = {};
     mutable std::optional<Storage::Info::Type> m_typeData;
-    QSharedPointer<class NodeMetaInfoPrivate> m_privateData;
+    std::shared_ptr<NodeMetaInfoPrivate> m_privateData;
 };
 
 using NodeMetaInfos = std::vector<NodeMetaInfo>;

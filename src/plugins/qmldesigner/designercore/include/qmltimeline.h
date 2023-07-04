@@ -20,7 +20,7 @@ public:
     QmlTimeline();
     QmlTimeline(const ModelNode &modelNode);
 
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlTimeline(const ModelNode &modelNode);
     void destroy();

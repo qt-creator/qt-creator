@@ -85,11 +85,11 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, "#aaaaaa");
     restoreValue(settings, DesignerSettingsKey::SMOOTH_RENDERING, false);
     restoreValue(settings, DesignerSettingsKey::SHOW_DEBUG_SETTINGS, false);
-    restoreValue(settings, DesignerSettingsKey::OLD_STATES_EDITOR, false);
     restoreValue(settings, DesignerSettingsKey::EDITOR_ZOOM_FACTOR, 1.0);
     restoreValue(settings, DesignerSettingsKey::ACTIONS_MERGE_TEMPLATE_ENABLED, false);
     restoreValue(settings, DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL,
                  "https://cdn.qt.io/designstudio/bundles");
+    restoreValue(settings, DesignerSettingsKey::CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS, 3);
 
     settings->endGroup();
     settings->endGroup();

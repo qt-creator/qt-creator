@@ -49,6 +49,7 @@ public:
 
     BaseStatement(const BaseStatement &) = delete;
     BaseStatement &operator=(const BaseStatement &) = delete;
+    BaseStatement(BaseStatement &&) = default;
 
     bool next() const;
     void step() const;
@@ -146,6 +147,7 @@ class StatementImplementation : public BaseStatement
 
 public:
     using BaseStatement::BaseStatement;
+    StatementImplementation(StatementImplementation &&) = default;
 
     void execute()
     {
@@ -496,16 +498,30 @@ private:
         return createValue<ResultType>(std::make_integer_sequence<int, ResultCount>{});
     }
 
+    template<typename Callable, typename... Arguments>
+    CallbackControl invokeCallable(Callable &&callable, Arguments &&...arguments)
+    {
+        if constexpr (std::is_void_v<std::invoke_result_t<Callable, Arguments...>>) {
+            std::invoke(std::forward<Callable>(callable), std::forward<Arguments>(arguments)...);
+            return CallbackControl::Continue;
+        } else {
+            return std::invoke(std::forward<Callable>(callable),
+                               std::forward<Arguments>(arguments)...);
+        }
+    }
+
     template<typename Callable, int... ColumnIndices>
     CallbackControl callCallable(Callable &&callable, std::integer_sequence<int, ColumnIndices...>)
     {
-        return std::invoke(callable, ValueGetter(*this, ColumnIndices)...);
+        return invokeCallable(std::forward<Callable>(callable),
+                              ValueGetter(*this, ColumnIndices)...);
     }
 
     template<typename Callable>
     CallbackControl callCallable(Callable &&callable)
     {
-        return callCallable(callable, std::make_integer_sequence<int, ResultCount>{});
+        return callCallable(std::forward<Callable>(callable),
+                            std::make_integer_sequence<int, ResultCount>{});
     }
 
     void setMaximumResultCount(std::size_t count)

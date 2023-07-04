@@ -67,7 +67,8 @@ public:
     using Pointer = QWeakPointer<NodeInstanceView>;
 
     explicit NodeInstanceView(ConnectionManagerInterface &connectionManager,
-                              ExternalDependenciesInterface &externalDependencies);
+                              ExternalDependenciesInterface &externalDependencies,
+                              bool qsbEnabled = false);
     ~NodeInstanceView() override;
 
     void modelAttached(Model *model) override;
@@ -289,6 +290,7 @@ private:
     QTimer m_rotBlockTimer;
     QSize m_captureImageMinimumSize{150, 150};
     QSize m_captureImageMaximumSize{1000, 1000};
+    bool m_qsbEnabled = false;
 };
 
 } // namespace ProxyNodeInstanceView

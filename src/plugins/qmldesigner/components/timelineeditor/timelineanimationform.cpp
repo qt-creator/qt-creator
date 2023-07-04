@@ -292,7 +292,7 @@ void TimelineAnimationForm::populateStateComboBox()
         if (m_animation.signalHandlerProperty("onFinished").isValid()) {
             const QString source = m_animation.signalHandlerProperty("onFinished").source();
             const QStringList list = source.split("=");
-            if (list.count() == 2) {
+            if (list.size() == 2) {
                 QString name = list.last().trimmed();
                 name.chop(1);
                 name.remove(0, 1);

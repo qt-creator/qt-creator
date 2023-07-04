@@ -32,7 +32,7 @@ public:
     virtual ~QmlObjectNode() = default;
 
     static bool isValidQmlObjectNode(const ModelNode &modelNode);
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
 
     bool hasError() const;
@@ -52,8 +52,8 @@ public:
 
     QmlModelState currentState() const;
     QmlTimeline currentTimeline() const;
-    virtual void setVariantProperty(const PropertyName &name, const QVariant &value);
-    virtual void setBindingProperty(const PropertyName &name, const QString &expression);
+    void setVariantProperty(const PropertyName &name, const QVariant &value);
+    void setBindingProperty(const PropertyName &name, const QString &expression);
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
     NodeAbstractProperty defaultNodeAbstractProperty() const;
     NodeProperty nodeProperty(const PropertyName &name) const;
@@ -76,7 +76,7 @@ public:
     bool timelineIsActive() const;
     QmlPropertyChanges propertyChangeForCurrentState() const;
 
-    virtual bool instanceCanReparent() const;
+    bool instanceCanReparent() const;
 
     bool isRootModelNode() const;
 
@@ -113,10 +113,6 @@ public:
     QString simplifiedTypeName() const;
 
     QStringList allStateNames() const;
-
-    static QmlObjectNode *getQmlObjectNodeOfCorrectType(const ModelNode &modelNode);
-
-    virtual bool isBlocked(const PropertyName &propName) const;
 
     friend auto qHash(const QmlObjectNode &node) { return qHash(node.modelNode()); }
     QList<QmlModelState> allDefinedStates() const;

@@ -135,6 +135,7 @@ private:
     void handleParticleSystemDeselected();
 #endif
     void setSceneEnvironmentColor(const PropertyValueContainer &container);
+    QVariantList alignCameraList() const;
 
     RenderViewData m_editView3DData;
     RenderViewData m_modelNode3DImageViewData;
@@ -171,6 +172,9 @@ private:
     QObject *m_3dHelper = nullptr;
     int m_need3DEditViewRender = 0;
     QSet<QObject *> m_dynamicObjectConstructors;
+
+    // Current or previous camera selections for each scene
+    QHash<QObject *, QObjectList> m_selectedCameras; // key: scene root, value: camera node
 
     struct PreviewData {
         QString env;

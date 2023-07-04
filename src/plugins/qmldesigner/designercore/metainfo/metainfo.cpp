@@ -128,8 +128,7 @@ void MetaInfoPrivate::parseItemLibraryDescriptions(const ExternalDependenciesInt
         Internal::MetaInfoReader reader(*m_q);
         try {
             reader.readMetaInfoFile(path.toString());
-        } catch (const InvalidMetaInfoException &e) {
-            Q_UNUSED(e);
+        } catch ([[maybe_unused]] const InvalidMetaInfoException &e) {
 #ifndef UNIT_TESTS
             qWarning() << e.description();
             const QString errorMessage = path.toString() + QLatin1Char('\n') + QLatin1Char('\n')

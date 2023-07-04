@@ -216,7 +216,7 @@ void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths,
     addInfo(progressTitle);
     notifyProgress(0, progressTitle);
     uint count = 0;
-    double quota = 100.0 / filePaths.count();
+    double quota = 100.0 / filePaths.size();
     std::function<void(double)> progress = [this, quota, &count, &progressTitle](double value) {
         notifyProgress(qRound(quota * (count + value)), progressTitle);
     };
@@ -709,7 +709,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                         try {
                             RewriterTransaction transaction = model->rewriterView()->beginRewriterTransaction(
                                 QByteArrayLiteral("ItemLibraryAssetImporter::finalizeQuick3DImport"));
-                            bool success = Utils::addImportsWithCheck(m_requiredImports, model);
+                            bool success = ModelUtils::addImportsWithCheck(m_requiredImports, model);
                             if (!success)
                                 addError(tr("Failed to insert import statement into qml document."));
                             transaction.commit();

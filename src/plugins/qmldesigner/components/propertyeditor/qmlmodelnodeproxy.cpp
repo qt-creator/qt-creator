@@ -50,7 +50,7 @@ bool QmlModelNodeProxy::multiSelection() const
     if (!m_qmlObjectNode.isValid())
         return false;
 
-    return m_qmlObjectNode.view()->selectedModelNodes().count() > 1;
+    return m_qmlObjectNode.view()->selectedModelNodes().size() > 1;
 }
 
 QString QmlModelNodeProxy::nodeId() const

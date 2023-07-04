@@ -15,7 +15,7 @@
 
 namespace QmlDesigner {
 
-static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
+inline static void reparentTo(const ModelNode &node, const QmlItemNode &parent)
 {
 
     if (parent.isValid() && node.isValid()) {
@@ -78,7 +78,7 @@ static int lowerBound(int i)
     return i;
 }
 
-static inline QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
+inline static QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
 {
     QPointF postion(std::numeric_limits<qreal>::max(), std::numeric_limits<qreal>::max());
     for (const ModelNode &modelNode : modelNodeList) {
@@ -193,7 +193,7 @@ void LayoutInGridLayout::doIt()
     }
 }
 
-bool static hasQtQuickLayoutImport(const SelectionContext &context)
+static bool hasQtQuickLayoutImport(const SelectionContext &context)
 {
     if (context.view() && context.view()->model()) {
         Import import = Import::createLibraryImport(QStringLiteral("QtQuick.Layouts"), QStringLiteral("1.0"));
@@ -219,12 +219,12 @@ void LayoutInGridLayout::layout(const SelectionContext &context)
 
 int LayoutInGridLayout::columnCount() const
 {
-    return m_xTopOffsets.count();
+    return m_xTopOffsets.size();
 }
 
 int LayoutInGridLayout::rowCount() const
 {
-    return m_yTopOffsets.count();
+    return m_yTopOffsets.size();
 }
 
 void LayoutInGridLayout::collectItemNodes()

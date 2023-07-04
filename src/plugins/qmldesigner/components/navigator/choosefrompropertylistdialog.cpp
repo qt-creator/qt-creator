@@ -115,10 +115,10 @@ ChooseFromPropertyListDialog::ChooseFromPropertyListDialog(const QStringList &pr
     : QDialog(parent)
     , m_ui(new Ui::ChooseFromPropertyListDialog)
 {
-    if (propNames.count() == 1) {
-       m_selectedProperty = propNames.first().toLatin1();
-       m_isSoloProperty = true;
-       return;
+    if (propNames.size() == 1) {
+        m_selectedProperty = propNames.first().toLatin1();
+        m_isSoloProperty = true;
+        return;
     }
     m_ui->setupUi(this);
     setWindowTitle(tr("Select Property"));

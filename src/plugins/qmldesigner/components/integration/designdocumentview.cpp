@@ -227,7 +227,7 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy,
     DesignDocumentView view{externalDependencies};
     copyModel->attachView(&view);
 
-    if (selectedNodes.count() == 1) {
+    if (selectedNodes.size() == 1) {
         const ModelNode &selectedNode = selectedNodes.constFirst();
 
         if (!selectedNode.isValid())
@@ -253,7 +253,6 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy,
 
         view.toClipboard();
     }
-
 }
 
 }// namespace QmlDesigner

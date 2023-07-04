@@ -16,7 +16,7 @@ namespace QmlDesigner {
 namespace Internal {
 class ModelPrivate;
 class InternalNodeListProperty;
-using InternalNodeListPropertyPointer = QSharedPointer<InternalNodeListProperty>;
+using InternalNodeListPropertyPointer = std::shared_ptr<InternalNodeListProperty>;
 
 class NodeListPropertyIterator
 {

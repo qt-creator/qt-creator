@@ -288,7 +288,7 @@ void GenerateResource::generateMenuEntry(QObject *parent)
 
                  bool found = false;
                  QString compareString = "./" + relativepath.trimmed();
-                 for (int i = 0; i < fileList.count(); ++i)
+                 for (int i = 0; i < fileList.size(); ++i)
                      if (fileList.at(i).fileName == compareString) {
                          fileList[i].inProject = true;
                          found = true;
@@ -424,7 +424,7 @@ void GenerateResource::generateMenuEntry(QObject *parent)
 
                 bool found = false;
                 QString compareString = "./" + relativepath.trimmed();
-                for (int i = 0; i < fileList.count(); ++i)
+                for (int i = 0; i < fileList.size(); ++i)
                     if (fileList.at(i).fileName == compareString) {
                         fileList[i].inProject = true;
                         found = true;

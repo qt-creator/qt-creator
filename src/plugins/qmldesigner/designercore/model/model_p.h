@@ -10,6 +10,8 @@
 #include "modelnode.h"
 #include "skipiterator.h"
 
+#include <nodemetainfo.h>
+
 #include <QList>
 #include <QPointer>
 #include <QSet>
@@ -42,13 +44,13 @@ class InternalNodeAbstractProperty;
 class InternalNodeListProperty;
 
 using InternalNodePointer = std::shared_ptr<InternalNode>;
-using InternalPropertyPointer = QSharedPointer<InternalProperty>;
-using InternalBindingPropertyPointer = QSharedPointer<InternalBindingProperty>;
-using InternalSignalHandlerPropertyPointer = QSharedPointer<InternalSignalHandlerProperty>;
-using InternalSignalDeclarationPropertyPointer = QSharedPointer<InternalSignalDeclarationProperty>;
-using InternalVariantPropertyPointer = QSharedPointer<InternalVariantProperty>;
-using InternalNodeAbstractPropertyPointer = QSharedPointer<InternalNodeAbstractProperty>;
-using InternalNodeListPropertyPointer = QSharedPointer<InternalNodeListProperty>;
+using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
+using InternalBindingPropertyPointer = std::shared_ptr<InternalBindingProperty>;
+using InternalSignalHandlerPropertyPointer = std::shared_ptr<InternalSignalHandlerProperty>;
+using InternalSignalDeclarationPropertyPointer = std::shared_ptr<InternalSignalDeclarationProperty>;
+using InternalVariantPropertyPointer = std::shared_ptr<InternalVariantProperty>;
+using InternalNodeAbstractPropertyPointer = std::shared_ptr<InternalNodeAbstractProperty>;
+using InternalNodeListPropertyPointer = std::shared_ptr<InternalNodeListProperty>;
 using PropertyPair = QPair<InternalNodePointer, PropertyName>;
 
 class ModelPrivate;
@@ -93,7 +95,6 @@ class ModelPrivate : public QObject
 
     friend Model;
     friend Internal::WriteLocker;
-    friend NodeMetaInfoPrivate;
 
 public:
     ModelPrivate(Model *model,
@@ -244,8 +245,12 @@ public:
     void setPropertyValue(const InternalNodePointer &node,const PropertyName &name, const QVariant &value);
     void removePropertyAndRelatedResources(const InternalPropertyPointer &property);
     void removeProperty(const InternalPropertyPointer &property);
+    void removeProperties(const QList<InternalPropertyPointer> &properties);
 
-    void setBindingProperty(const InternalNodePointer &node, const PropertyName &name, const QString &expression);
+    void setBindingProperty(const InternalNodePointer &node,
+                            const PropertyName &name,
+                            const QString &expression);
+    void setBindingProperties(const ModelResourceSet::SetExpressions &setExpressions);
     void setSignalHandlerProperty(const InternalNodePointer &node, const PropertyName &name, const QString &source);
     void setSignalDeclarationProperty(const InternalNodePointer &node, const PropertyName &name, const QString &signature);
     void setVariantProperty(const InternalNodePointer &node, const PropertyName &name, const QVariant &value);
@@ -266,7 +271,8 @@ public:
     InternalNodePointer nodeForInternalId(qint32 internalId) const;
     bool hasNodeForInternalId(qint32 internalId) const;
 
-    QList<InternalNodePointer> allNodes() const;
+    QList<InternalNodePointer> allNodesUnordered() const;
+    QList<InternalNodePointer> allNodesOrdered() const;
 
     bool isWriteLocked() const;
 
@@ -281,6 +287,13 @@ public:
     InternalNodePointer currentStateNode() const;
     InternalNodePointer currentTimelineNode() const;
 
+    void handleResourceSet(const ModelResourceSet &resourceSet);
+
+    QHash<TypeName, std::shared_ptr<NodeMetaInfoPrivate>> &nodeMetaInfoCache()
+    {
+        return m_nodeMetaInfoCache;
+    }
+
 private:
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -289,8 +302,10 @@ private:
     QList<ModelNode> toModelNodeList(const QList<InternalNodePointer> &nodeList, AbstractView *view) const;
     QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const;
     QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &modelNodeVector) const;
+    static QList<InternalPropertyPointer> toInternalProperties(const AbstractProperties &properties);
+    static QList<std::tuple<InternalBindingPropertyPointer, QString>> toInternalBindingProperties(
+        const ModelResourceSet::SetExpressions &setExpressions);
     EnabledViewRange enabledViews() const;
-    void handleResourceSet(const ModelResourceSet &resourceSet);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
@@ -305,7 +320,7 @@ private:
     QList<InternalNodePointer> m_selectedInternalNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;
-    QSet<InternalNodePointer> m_nodeSet;
+    QList<InternalNodePointer> m_nodes;
     InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
     InternalNodePointer m_currentTimelineNode;
@@ -313,9 +328,8 @@ private:
     QUrl m_fileUrl;
     QPointer<RewriterView> m_rewriterView;
     QPointer<NodeInstanceView> m_nodeInstanceView;
-    QPointer<TextModifier> m_textModifier;
     QPointer<Model> m_metaInfoProxyModel;
-    QHash<TypeName, QSharedPointer<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
+    QHash<TypeName, std::shared_ptr<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
     bool m_writeLock = false;
     qint32 m_internalIdCounter = 1;
 };

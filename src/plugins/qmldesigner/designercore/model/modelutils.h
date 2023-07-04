@@ -10,7 +10,11 @@
 
 #include <functional>
 
-namespace QmlDesigner::Utils {
+namespace QmlDesigner {
+class PropertyMetaInfo;
+}
+
+namespace QmlDesigner::ModelUtils {
 
 QMLDESIGNERCORE_EXPORT bool addImportsWithCheck(const QStringList &importNames,
                                                 const std::function<bool(const Import &)> &predicate,
@@ -21,4 +25,8 @@ QMLDESIGNERCORE_EXPORT bool addImportWithCheck(const QString &importName,
                                                Model *model);
 QMLDESIGNERCORE_EXPORT bool addImportWithCheck(const QString &importName, Model *model);
 
-} // namespace QmlDesigner::Utils
+QMLDESIGNERCORE_EXPORT PropertyMetaInfo metainfo(const AbstractProperty &property);
+QMLDESIGNERCORE_EXPORT PropertyMetaInfo metainfo(const ModelNode &node,
+                                                 const PropertyName &propertyName);
+
+} // namespace QmlDesigner::ModelUtils

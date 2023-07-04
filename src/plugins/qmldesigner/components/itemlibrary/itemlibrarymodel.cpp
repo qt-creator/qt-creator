@@ -228,12 +228,12 @@ ItemLibraryModel::~ItemLibraryModel()
 
 int ItemLibraryModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return m_importList.count();
+    return m_importList.size();
 }
 
 QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_importList.count())
+    if (!index.isValid() || index.row() >= m_importList.size())
         return {};
 
     if (m_roleNames.contains(role)) {
@@ -317,15 +317,17 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(qmlFileName);
     QString projectName = project ? project->displayName() : "";
 
-    QString materialBundlePrefix = QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1);
-    materialBundlePrefix.append(".MaterialBundle");
+    QStringList excludedImports {
+        QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1) + ".MaterialBundle",
+        QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1) + ".EffectBundle"
+    };
 
     // create import sections
     const Imports usedImports = model->usedImports();
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
         if (import.url() != projectName) {
-            if (import.url() == materialBundlePrefix)
+            if (excludedImports.contains(import.url()))
                 continue;
             bool addNew = true;
             bool isQuick3DAsset = import.url().startsWith("Quick3DAssets.");

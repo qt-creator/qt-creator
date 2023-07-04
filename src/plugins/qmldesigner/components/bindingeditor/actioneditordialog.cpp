@@ -88,7 +88,7 @@ void ActionEditorDialog::adjustProperties()
     bool typeDone = false;
     bool targetDone = false;
 
-    for (int i = 0; i < expression.count(); ++i) {
+    for (int i = 0; i < expression.size(); ++i) {
         switch (expression[i].first) {
 
         case QmlJS::AST::Node::Kind::Kind_CallExpression:
@@ -592,7 +592,7 @@ void ActionEditorDialog::fillAndSetSourceProperty(const QString &value,
                 for (const auto &state : std::as_const(m_states))
                     m_assignmentSourceProperty->addItem(state, specificItem);
 
-                specificsEnd = m_states.count();
+                specificsEnd = m_states.size();
             }
 
             if (specificsEnd != -1)

@@ -88,9 +88,6 @@ void RewriterView::modelAttached(Model *model)
 {
     m_modelAttachPending = false;
 
-    if (model && model->textModifier())
-        setTextModifier(model->textModifier());
-
     AbstractView::modelAttached(model);
 
     ModelAmender differenceHandler(m_textToModelMerger.data());
@@ -954,12 +951,12 @@ const QmlJS::Document *RewriterView::document() const
     return textToModelMerger()->document();
 }
 
-static inline QString getUrlFromType(const QString& typeName)
+inline static QString getUrlFromType(const QString &typeName)
 {
     QStringList nameComponents = typeName.split('.');
     QString result;
 
-    for (int i = 0; i < (nameComponents.count() - 1); i++) {
+    for (int i = 0; i < (nameComponents.size() - 1); i++) {
         result += nameComponents.at(i);
     }
 

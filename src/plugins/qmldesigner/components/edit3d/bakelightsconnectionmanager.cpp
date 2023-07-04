@@ -29,7 +29,7 @@ void BakeLightsConnectionManager::dispatchCommand(const QVariant &command,
 {
     static const int commandType = QMetaType::type("PuppetToCreatorCommand");
 
-    if (command.userType() == commandType) {
+    if (command.typeId() == commandType) {
         auto cmd = command.value<PuppetToCreatorCommand>();
         switch (cmd.type()) {
         case PuppetToCreatorCommand::BakeLightsProgress:

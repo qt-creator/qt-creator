@@ -36,7 +36,7 @@ int ContentLibraryTexturesModel::rowCount(const QModelIndex &) const
 
 QVariant ContentLibraryTexturesModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.row() < m_bundleCategories.count(), return {});
+    QTC_ASSERT(index.isValid() && index.row() < m_bundleCategories.size(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
     return m_bundleCategories.at(index.row())->property(roleNames().value(role));
@@ -98,7 +98,8 @@ QHash<int, QByteArray> ContentLibraryTexturesModel::roleNames() const
  * @param bundlePath local path to the bundle folder and icons
  * @param metaData bundle textures metadata
  */
-void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, const QString &bundleIconPath,
+void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, const QString &iconsUrl,
+                                                    const QString &bundleIconPath,
                                                     const QVariantMap &metaData)
 {
     if (!m_bundleCategories.isEmpty())
@@ -117,8 +118,9 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, co
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
         const QFileInfoList texFiles = QDir(dir.filePath()).entryInfoList(QDir::Files);
         for (const QFileInfo &tex : texFiles) {
-            QString fullRemoteUrl = QString("%1/%2/%3.zip").arg(remoteUrl, dir.fileName(),
-                                                                tex.baseName());
+            QString textureUrl = QString("%1/%2/%3.zip").arg(remoteUrl, dir.fileName(), tex.baseName());
+            QString iconUrl = QString("%1/%2/%3.png").arg(iconsUrl, dir.fileName(), tex.baseName());
+
             QString localDownloadPath = QString("%1/%2/%3")
                                             .arg(Paths::bundlesPathSetting(),
                                                  m_category,
@@ -127,21 +129,72 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, co
             QString fileExt;
             QSize dimensions;
             qint64 sizeInBytes = -1;
+            bool hasUpdate = false;
+            bool isNew = false;
 
             if (imageItems.contains(key)) {
                 QVariantMap dataMap = imageItems[key].toMap();
                 fileExt = '.' + dataMap.value("format").toString();
                 dimensions = QSize(dataMap.value("width").toInt(), dataMap.value("height").toInt());
                 sizeInBytes = dataMap.value("file_size").toLongLong();
+                hasUpdate = m_modifiedFiles.contains(key);
+                isNew = m_newFiles.contains(key);
             }
 
-            category->addTexture(tex, localDownloadPath, fullRemoteUrl, fileExt, dimensions, sizeInBytes);
+            category->addTexture(tex, localDownloadPath, key, textureUrl, iconUrl, fileExt,
+                                 dimensions, sizeInBytes, hasUpdate, isNew);
         }
         m_bundleCategories.append(category);
     }
 
     resetModel();
     updateIsEmpty();
+}
+
+void ContentLibraryTexturesModel::setModifiedFileEntries(const QVariantMap &files)
+{
+    m_modifiedFiles.clear();
+
+    const QString prefix = m_category + "/";
+    const QStringList keys = files.keys();
+
+    for (const QString &key : keys) {
+        if (key.startsWith(prefix))
+            m_modifiedFiles[key] = files[key];
+    }
+}
+
+void ContentLibraryTexturesModel::setNewFileEntries(const QStringList &newFiles)
+{
+    const QString prefix = m_category + "/";
+
+    m_newFiles = Utils::filteredCast<QSet<QString>>(newFiles, [&prefix](const QString &key) {
+        return key.startsWith(prefix);
+    });
+}
+
+QString ContentLibraryTexturesModel::removeModifiedFileEntry(const QString &key)
+{
+    if (m_modifiedFiles.contains(key)) {
+        QVariantMap item = m_modifiedFiles[key].toMap();
+        m_modifiedFiles.remove(key);
+        return item["checksum"].toString();
+    } else {
+        return {};
+    }
+}
+
+void ContentLibraryTexturesModel::markTextureHasNoUpdates(const QString &subcategory,
+                                                          const QString &textureKey)
+{
+    auto *categ = Utils::findOrDefault(m_bundleCategories,
+                                       [&subcategory](ContentLibraryTexturesCategory *c) {
+                                           return c->name() == subcategory;
+                                       });
+    if (!categ)
+        return;
+
+    categ->markTextureHasNoUpdate(textureKey);
 }
 
 bool ContentLibraryTexturesModel::texBundleExists() const
@@ -172,15 +225,14 @@ void ContentLibraryTexturesModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
-    bool catVisibilityChanged = false;
-
-    for (ContentLibraryTexturesCategory *cat : std::as_const(m_bundleCategories))
-        catVisibilityChanged |= cat->filter(m_searchText);
+    for (int i = 0; i < m_bundleCategories.size(); ++i) {
+        ContentLibraryTexturesCategory *cat = m_bundleCategories.at(i);
+        bool catVisibilityChanged = cat->filter(m_searchText);
+        if (catVisibilityChanged)
+            emit dataChanged(index(i), index(i), {roleNames().keys("bundleCategoryVisible")});
+    }
 
     updateIsEmpty();
-
-    if (catVisibilityChanged)
-        resetModel();
 }
 
 void ContentLibraryTexturesModel::resetModel()

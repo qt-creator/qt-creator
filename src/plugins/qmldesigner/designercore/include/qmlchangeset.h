@@ -21,7 +21,7 @@ public:
     bool restoreEntryValues() const;
     void setRestoreEntryValues(bool value);
     QList<AbstractProperty> targetProperties() const;
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlModelStateOperation(const ModelNode &modelNode);
 };
@@ -31,7 +31,7 @@ class QMLDESIGNERCORE_EXPORT QmlPropertyChanges : public QmlModelStateOperation
 public:
     QmlPropertyChanges() : QmlModelStateOperation() {}
     QmlPropertyChanges(const ModelNode &modelNode) : QmlModelStateOperation(modelNode) {}
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlPropertyChanges(const ModelNode &modelNode);
     void removeProperty(const PropertyName &name);

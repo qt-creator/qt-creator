@@ -252,13 +252,21 @@ void GraphicsView::setPinned(TreeItem *item)
 
 void GraphicsView::setZoomX(double zoom, const QPoint &pivot)
 {
-    applyZoom(zoom, m_zoomY, pivot);
+    if (pivot.isNull())
+        applyZoom(zoom, m_zoomY, viewportCenter());
+    else
+        applyZoom(zoom, m_zoomY, pivot);
+
     viewport()->update();
 }
 
 void GraphicsView::setZoomY(double zoom, const QPoint &pivot)
 {
-    applyZoom(m_zoomX, zoom, pivot);
+    if (pivot.isNull())
+        applyZoom(zoom, m_zoomY, viewportCenter());
+    else
+        applyZoom(zoom, m_zoomY, pivot);
+
     viewport()->update();
 }
 
@@ -514,7 +522,14 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
     m_transform = QTransform::fromScale(scaleX, scaleY);
     m_scene->setComponentTransform(m_transform);
 
-    QRectF sr = m_scene->rect().adjusted(
+    QRectF sr = m_scene->rect();
+    if (sr.isNull()) {
+        sr.setLeft(m_scene->animationRangeMin());
+        sr.setRight(m_scene->animationRangeMax());
+        sr = m_transform.mapRect(sr);
+    }
+
+    sr = sr.adjusted(
         -m_style.valueAxisWidth - m_style.canvasMargin,
         -m_style.timeAxisHeight - m_style.canvasMargin,
         m_style.canvasMargin,
@@ -748,6 +763,12 @@ QRectF GraphicsView::rangeMaxHandle(const QRectF &rect)
     int handle = mapTimeToX(m_model->maximumTime());
 
     return QRectF(QPointF(handle, bottom), size);
+}
+
+QPoint GraphicsView::viewportCenter() const
+{
+    QPoint viewCenter = viewport()->rect().center();
+    return viewport()->mapToGlobal(viewCenter);
 }
 
 } // End namespace QmlDesigner.

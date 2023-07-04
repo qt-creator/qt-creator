@@ -19,6 +19,7 @@
 #include <theme.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -40,7 +41,7 @@ static Q_LOGGING_CATEGORY(propertyEditorBenchmark, "qtc.propertyeditor.load", Qt
 
 static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReaderNode::Ptr();
 
-static inline QString propertyTemplatesPath()
+inline static QString propertyTemplatesPath()
 {
     return QmlDesigner::PropertyEditorQmlBackend::propertyEditorResourcesPath() + QStringLiteral("/PropertyTemplates/");
 }
@@ -70,7 +71,7 @@ QStringList variantToStringList(const QVariant &variant) {
 
 static QObject *variantToQObject(const QVariant &value)
 {
-    if (value.userType() == QMetaType::QObjectStar || value.userType() > QMetaType::User)
+    if (value.typeId() == QMetaType::QObjectStar || value.typeId() > QMetaType::User)
         return *(QObject **)value.constData();
 
     return nullptr;
@@ -322,7 +323,7 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
 void PropertyEditorQmlBackend::setValue(const QmlObjectNode & , const PropertyName &name, const QVariant &value)
 {
     // Vector*D values need to be split into their subcomponents
-    if (value.type() == QVariant::Vector2D) {
+    if (value.typeId() == QVariant::Vector2D) {
         const char *suffix[2] = {"_x", "_y"};
         auto vecValue = value.value<QVector2D>();
         for (int i = 0; i < 2; ++i) {
@@ -333,7 +334,7 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode & , const PropertyNa
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
-    } else if (value.type() == QVariant::Vector3D) {
+    } else if (value.typeId() == QVariant::Vector3D) {
         const char *suffix[3] = {"_x", "_y", "_z"};
         auto vecValue = value.value<QVector3D>();
         for (int i = 0; i < 3; ++i) {
@@ -344,7 +345,7 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode & , const PropertyNa
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
-    } else if (value.type() == QVariant::Vector4D) {
+    } else if (value.typeId() == QVariant::Vector4D) {
         const char *suffix[4] = {"_x", "_y", "_z", "_w"};
         auto vecValue = value.value<QVector4D>();
         for (int i = 0; i < 4; ++i) {
@@ -372,23 +373,35 @@ void PropertyEditorQmlBackend::setExpression(const PropertyName &propName, const
         propertyValue->setExpression(exp);
 }
 
-QQmlContext *PropertyEditorQmlBackend::context() {
+QQmlContext *PropertyEditorQmlBackend::context()
+{
     return m_view->rootContext();
 }
 
-PropertyEditorContextObject* PropertyEditorQmlBackend::contextObject() {
+PropertyEditorContextObject *PropertyEditorQmlBackend::contextObject()
+{
     return m_contextObject.data();
 }
 
-QQuickWidget *PropertyEditorQmlBackend::widget() {
+QQuickWidget *PropertyEditorQmlBackend::widget()
+{
     return m_view;
 }
 
-void PropertyEditorQmlBackend::setSource(const QUrl& url) {
+void PropertyEditorQmlBackend::setSource(const QUrl &url)
+{
     m_view->setSource(url);
+
+    const bool showError = qEnvironmentVariableIsSet(Constants::ENVIRONMENT_SHOW_QML_ERRORS);
+
+    if (showError && !m_view->errors().isEmpty()) {
+        const QString errMsg = m_view->errors().constFirst().toString();
+        Core::AsynchronousMessageBox::warning(PropertyEditorView::tr("Invalid QML source"), errMsg);
+    }
 }
 
-Internal::QmlAnchorBindingProxy &PropertyEditorQmlBackend::backendAnchorBinding() {
+Internal::QmlAnchorBindingProxy &PropertyEditorQmlBackend::backendAnchorBinding()
+{
     return m_backendAnchorBinding;
 }
 
@@ -482,7 +495,8 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         if (!qmlObjectNode.isValid())
             return;
 
-        context()->setContextProperty(QLatin1String("propertyCount"), QVariant(qmlObjectNode.modelNode().properties().count()));
+        context()->setContextProperty(QLatin1String("propertyCount"),
+                                      QVariant(qmlObjectNode.modelNode().properties().size()));
 
         QStringList stateNames = qmlObjectNode.allStateNames();
         stateNames.prepend("base state");
@@ -849,7 +863,7 @@ NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
 
     AbstractView *view = node.view();
 
-    if (view->selectedModelNodes().count() > 1) {
+    if (view->selectedModelNodes().size() > 1) {
         NodeMetaInfo commonClass = node.metaInfo();
         for (const ModelNode &currentNode :  view->selectedModelNodes()) {
             if (currentNode.metaInfo().isValid() && !currentNode.metaInfo().isBasedOn(commonClass))
@@ -964,7 +978,7 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
     const QDir importDir(info.importDirectoryPath() + Constants::QML_DESIGNER_SUBFOLDER);
     const QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".") + QString::number(info.majorVersion()) + Constants::QML_DESIGNER_SUBFOLDER);
 
-    const QString relativePathWithoutEnding = relativePath.left(relativePath.count() - 4);
+    const QString relativePathWithoutEnding = relativePath.left(relativePath.size() - 4);
     const QString relativePathWithVersion = QString("%1_%2_%3.qml").arg(relativePathWithoutEnding
         ).arg(info.majorVersion()).arg(info.minorVersion());
 

@@ -20,6 +20,8 @@ Item {
     property string downloadState: modelData.isDownloaded() ? "downloaded" : ""
     property bool delegateVisible: modelData.textureVisible
 
+    property bool _isUpdating: false
+
     property alias allowCancel: progressBar.closeButtonVisible
     property alias progressValue: progressBar.value
     property alias progressText: progressLabel.text
@@ -38,6 +40,55 @@ Item {
             return qsTr("Could not download texture.")
 
         return qsTr("Click to download the texture.")
+    }
+
+    function startDownload(message)
+    {
+        if (root.downloadState !== "" && root.downloadState !== "failed")
+            return
+
+        root._startDownload(textureDownloader, message)
+    }
+
+    function updateTexture()
+    {
+        if (root.downloadState !== "downloaded")
+            return
+
+        root._isUpdating = true
+        root._startDownload(textureDownloader, qsTr("Updating..."))
+    }
+
+    function _startDownload(downloader, message)
+    {
+        progressBar.visible = true
+        tooltip.visible = false
+        root.progressText = message
+        root.allowCancel = true
+        root.progressValue = Qt.binding(function() { return downloader.progress })
+
+        root.downloadState = ""
+        downloader.start()
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+        hoverEnabled: !downloadIcon.visible
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+        onEntered: tooltip.visible = image.visible
+        onExited: tooltip.visible = false
+
+        onPressed: (mouse) => {
+            if (mouse.button === Qt.LeftButton) {
+                if (root.downloadState === "downloaded")
+                    ContentLibraryBackend.rootView.startDragTexture(modelData, mapToGlobal(mouse.x, mouse.y))
+            } else if (mouse.button === Qt.RightButton && root.downloadState === "downloaded") {
+                root.showContextMenu()
+            }
+        }
     }
 
     Rectangle {
@@ -60,7 +111,7 @@ Item {
            visible: false
 
            onCancelRequested: {
-               downloader.cancel()
+               textureDownloader.cancel()
            }
 
            Text {
@@ -114,7 +165,7 @@ Item {
 
             iconColor: root.downloadState === "unavailable" || root.downloadState === "failed"
                        ? StudioTheme.Values.themeRedLight
-                       : StudioTheme.Values.themeTextColor
+                       : "white"
 
             iconSize: 22
             iconScale: downloadIcon.containsMouse ? 1.2 : 1
@@ -144,19 +195,75 @@ Item {
             }
 
             onClicked: {
-                if (root.downloadState !== "" && root.downloadState !== "failed")
-                    return
-
-                progressBar.visible = true
-                tooltip.visible = false
-                root.progressText = qsTr("Downloading...")
-                root.allowCancel = true
-                root.progressValue = Qt.binding(function() { return downloader.progress })
-
-                root.downloadState = ""
-                downloader.start()
+                root.startDownload(qsTr("Downloading..."))
             }
         } // IconButton
+
+        IconButton {
+            id: updateButton
+            icon: StudioTheme.Constants.updateAvailable_medium
+            iconColor: "white"
+            tooltip: qsTr("Update texture")
+            buttonSize: 22
+            iconSize: 22
+
+            iconScale: updateButton.containsMouse ? 1.2 : 1
+            iconStyle: Text.Outline
+            iconStyleColor: "black"
+
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+
+            visible: root.downloadState === "downloaded" && modelData.textureHasUpdate
+            transparentBg: true
+
+            onClicked: root.updateTexture()
+
+            Text {
+                text: StudioTheme.Constants.updateContent_medium
+                font.family: StudioTheme.Constants.iconFont.family
+                color: "black"
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 5
+
+                font.pixelSize: 10
+                font.bold: true
+
+                scale: updateButton.containsMouse ? 1.2 : 1
+            }
+        } // Update IconButton
+
+        Rectangle {
+            id: isNewFlag
+
+            width: 32
+            height: 32
+
+            visible: downloadIcon.visible && modelData.textureIsNew
+            color: "transparent"
+
+            anchors.top: parent.top
+            anchors.right: parent.right
+
+            Image {
+                source: "image://contentlibrary/new_flag_triangle.png"
+                width: 32
+                height: 32
+            }
+
+            Text {
+                color: "white"
+                font.family: StudioTheme.Constants.iconFont.family
+                text: StudioTheme.Constants.favorite
+                font.pixelSize: StudioTheme.Values.baseIconFontSize
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.topMargin: 2
+                anchors.rightMargin: 4
+            } // New texture flag
+        }
 
         ToolTip {
             id: tooltip
@@ -177,29 +284,8 @@ Item {
         }
     } // Image
 
-    MouseArea {
-        id: mouseArea
-
-        anchors.fill: parent
-        hoverEnabled: !downloadIcon.visible
-        propagateComposedEvents: downloadIcon.visible
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-        onEntered: tooltip.visible = image.visible
-        onExited: tooltip.visible = false
-
-        onPressed: (mouse) => {
-            if (mouse.button === Qt.LeftButton) {
-                if (root.downloadState === "downloaded")
-                    ContentLibraryBackend.rootView.startDragTexture(modelData, mapToGlobal(mouse.x, mouse.y))
-            } else if (mouse.button === Qt.RightButton && root.downloadState === "downloaded") {
-                root.showContextMenu()
-            }
-        }
-    }
-
     FileDownloader {
-        id: downloader
+        id: textureDownloader
         url: image.webUrl
         probeUrl: false
         downloadEnabled: true
@@ -210,9 +296,9 @@ Item {
         onFinishedChanged: {
             root.progressText = qsTr("Extracting...")
             root.allowCancel = false
-            root.progressValue = Qt.binding(function() { return extractor.progress })
+            root.progressValue = Qt.binding(function() { return textureExtractor.progress })
 
-            extractor.extract()
+            textureExtractor.extract()
         }
 
         onDownloadCanceled: {
@@ -238,14 +324,50 @@ Item {
     }
 
     FileExtractor {
-        id: extractor
-        archiveName: downloader.completeBaseName
-        sourceFile: downloader.outputFile
+        id: textureExtractor
+        archiveName: textureDownloader.completeBaseName
+        sourceFile: textureDownloader.outputFile
         targetPath: modelData.textureParentPath
         alwaysCreateDir: false
         clearTargetPathContents: false
         onFinishedChanged: {
+            if (root._isUpdating)
+                root._startDownload(iconDownloader, qsTr("Updating..."))
+            else
+                delayedFinish.restart()
+        }
+    }
+
+    FileDownloader {
+        id: iconDownloader
+        url: modelData.textureWebIconUrl
+        probeUrl: false
+        downloadEnabled: true
+        targetFilePath: modelData.textureIconPath
+        overwriteTarget: true
+
+        onDownloadStarting: {
+            root.downloadState = "downloading"
+        }
+
+        onFinishedChanged: {
+            image.source = ""
+            image.source = modelData.textureIcon
+
+            ContentLibraryBackend.rootView.markTextureUpdated(modelData.textureKey)
+
             delayedFinish.restart()
+        }
+
+        onDownloadCanceled: {
+            root.progressText = ""
+            root.progressValue = 0
+
+            root.downloadState = ""
+        }
+
+        onDownloadFailed: {
+            root.downloadState = "failed"
         }
     }
 }

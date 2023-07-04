@@ -14,6 +14,7 @@
 #include "qmlstate.h"
 #include "qmltimelinekeyframegroup.h"
 #include "qmlvisualnode.h"
+#include "stringutils.h"
 #include "variantproperty.h"
 
 #include <auxiliarydataproperties.h>
@@ -32,6 +33,9 @@ namespace QmlDesigner {
 void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant &value)
 {
     if (!isValid())
+        return;
+
+    if (metaInfo().isQtQuick3DNode() && !Qml3DNode(modelNode()).handleEulerRotation(name))
         return;
 
     if (timelineIsActive() && currentTimeline().isRecording()) {
@@ -76,6 +80,9 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
 void QmlObjectNode::setBindingProperty(const PropertyName &name, const QString &expression)
 {
     if (!isValid())
+        return;
+
+    if (metaInfo().isQtQuick3DNode() && !Qml3DNode(modelNode()).handleEulerRotation(name))
         return;
 
     if (isInBaseState()) {
@@ -250,7 +257,7 @@ QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
         const QRegularExpressionMatch match = regularExpressionPattern.match(
                     modelNode().bindingProperty(name).expression());
         if (match.hasMatch())
-            return match.captured(2);
+            return deescape(match.captured(2));
         return instanceValue(name).toString();
     }
     return instanceValue(name).toString();
@@ -295,7 +302,10 @@ bool QmlObjectNode::timelineIsActive() const
 
 bool QmlObjectNode::instanceCanReparent() const
 {
-    return isInBaseState();
+    if (auto qmlItemNode = QmlItemNode{modelNode()})
+        return qmlItemNode.instanceCanReparent();
+    else
+        return isInBaseState();
 }
 
 QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState() const
@@ -312,102 +322,6 @@ QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState() const
     return currentState().propertyChanges(modelNode());
 }
 
-static void removeStateOperationsForChildren(const QmlObjectNode &node)
-{
-    if (node.isValid()) {
-        for (QmlModelStateOperation stateOperation : node.allAffectingStatesOperations()) {
-            stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
-        }
-
-        for (const QmlObjectNode childNode : node.modelNode().directSubModelNodes()) {
-            removeStateOperationsForChildren(childNode);
-        }
-    }
-}
-
-static void removeAnimationsFromAnimation(const ModelNode &animation)
-{
-    QTC_ASSERT(animation.isValid(), return );
-
-    auto model = animation.model();
-    const QList<ModelNode> propertyAnimations = animation.subModelNodesOfType(
-        model->qtQuickPropertyAnimationMetaInfo());
-
-    for (const ModelNode &child : propertyAnimations) {
-        if (!child.hasBindingProperty("target")) {
-            ModelNode nonConst = animation;
-            nonConst.destroy();
-            return;
-        }
-    }
-}
-
-static void removeAnimationsFromTransition(const ModelNode &transition, const QmlObjectNode &node)
-{
-    QTC_ASSERT(node.isValid(), return);
-    QTC_ASSERT(transition.isValid(), return);
-
-    const auto children = transition.directSubModelNodes();
-    for (const ModelNode &parallel : children)
-        removeAnimationsFromAnimation(parallel);
-}
-
-static void removeDanglingAnimationsFromTransitions(const QmlObjectNode &node)
-{
-    QTC_ASSERT(node.isValid(), return);
-
-    auto root = node.view()->rootModelNode();
-
-    if (root.isValid() && root.hasProperty("transitions")) {
-        NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions");
-        if (transitions.isValid()) {
-            const auto transitionNodes = transitions.directSubNodes();
-            for (const auto &transition : transitionNodes)
-                removeAnimationsFromTransition(transition, node);
-        }
-    }
-}
-
-static void removeAliasExports(const QmlObjectNode &node)
-{
-
-    PropertyName propertyName = node.id().toUtf8();
-
-    ModelNode rootNode = node.view()->rootModelNode();
-    bool hasAliasExport = !propertyName.isEmpty()
-            && rootNode.isValid()
-            && rootNode.hasBindingProperty(propertyName)
-            && rootNode.bindingProperty(propertyName).isAliasExport();
-
-    if (hasAliasExport)
-        rootNode.removeProperty(propertyName);
-
-
-    const QList<ModelNode> nodes = node.modelNode().directSubModelNodes();
-    for (const ModelNode &childNode : nodes) {
-        removeAliasExports(childNode);
-    }
-
-}
-
-static void removeLayerEnabled(const ModelNode &node)
-{
-    QTC_ASSERT(node.isValid(), return );
-    if (node.parentProperty().isValid() && node.parentProperty().name() == "layer.effect") {
-        ModelNode parent = node.parentProperty().parentModelNode();
-        if (parent.isValid() && parent.hasProperty("layer.enabled"))
-            parent.removeProperty("layer.enabled");
-    }
-}
-
-static void deleteAllReferencesToNodeAndChildren(const ModelNode &node)
-{
-    BindingProperty::deleteAllReferencesTo(node);
-    const auto subNodes = node.allSubModelNodes();
-    for (const ModelNode &child : subNodes)
-        BindingProperty::deleteAllReferencesTo(child);
-}
-
 /*!
     Deletes this object's node and its dependencies from the model.
     Everything that belongs to this Object, the ModelNode, and ChangeOperations
@@ -415,47 +329,7 @@ static void deleteAllReferencesToNodeAndChildren(const ModelNode &node)
 */
 void QmlObjectNode::destroy()
 {
-    if (!isValid())
-        return;
-
-    removeLayerEnabled(modelNode());
-    removeAliasExports(modelNode());
-
-    for (QmlModelStateOperation stateOperation : allAffectingStatesOperations()) {
-        stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
-    }
-
-    QVector<ModelNode> timelineNodes;
-    const auto allNodes = view()->allModelNodes();
-    for (const auto &timelineNode : allNodes) {
-        if (QmlTimeline::isValidQmlTimeline(timelineNode))
-            timelineNodes.append(timelineNode);
-    }
-
-    const auto subNodes = modelNode().allSubModelNodesAndThisNode();
-    for (auto &timelineNode : std::as_const(timelineNodes)) {
-        QmlTimeline timeline(timelineNode);
-        for (const auto &subNode : subNodes)
-            timeline.destroyKeyframesForTarget(subNode);
-    }
-
-    bool wasFlowEditorTarget = false;
-    if (QmlFlowTargetNode::isFlowEditorTarget(modelNode())) {
-        QmlFlowTargetNode(modelNode()).destroyTargets();
-        wasFlowEditorTarget = true;
-    }
-
-    removeStateOperationsForChildren(modelNode());
-    deleteAllReferencesToNodeAndChildren(modelNode());
-
-    removeDanglingAnimationsFromTransitions(modelNode());
-
-    QmlFlowViewNode root(view()->rootModelNode());
-
     modelNode().destroy();
-
-    if (wasFlowEditorTarget && root.isValid())
-        root.removeDanglingTransitions();
 }
 
 void QmlObjectNode::ensureAliasExport()
@@ -525,7 +399,7 @@ QList<QmlModelStateOperation> QmlObjectNode::allAffectingStatesOperations() cons
     return returnList;
 }
 
-static QList<QmlVisualNode> allQmlVisualNodesRecursive(const QmlItemNode &qmlItemNode)
+static QList<QmlVisualNode> allQmlVisualNodesRecursive(const QmlVisualNode &qmlItemNode)
 {
     QList<QmlVisualNode> qmlVisualNodeList;
 
@@ -663,15 +537,17 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const Property
 QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &text,
                                                 const DesignerSettings &settings)
 {
+    const QString escapedText = escape(text);
+
     if (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
         switch (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
-        case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
-        case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
-        case 2: return QString(QStringLiteral("qsTranslate(\"%1\", \"context\")")).arg(text);
+        case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(escapedText);
+        case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(escapedText);
+        case 2: return QString(QStringLiteral("qsTranslate(\"%1\", \"context\")")).arg(escapedText);
         default:
             break;
         }
-    return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
+    return QString(QStringLiteral("qsTr(\"%1\")")).arg(escapedText);
 }
 
 QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
@@ -680,7 +556,7 @@ QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
                 QLatin1String("^qsTr(|Id|anslate)\\(\"(.*)\"\\)$"));
     const QRegularExpressionMatch match = regularExpressionPattern.match(text);
     if (match.hasMatch())
-        return match.captured(2);
+        return deescape(match.captured(2));
     return text;
 }
 
@@ -835,21 +711,6 @@ QString QmlObjectNode::simplifiedTypeName() const
 QStringList QmlObjectNode::allStateNames() const
 {
     return nodeInstance().allStateNames();
-}
-
-QmlObjectNode *QmlObjectNode::getQmlObjectNodeOfCorrectType(const ModelNode &modelNode)
-{
-    // Create QmlObjectNode of correct type for the modelNode
-    // Note: Currently we are only interested in differentiating 3D nodes, so no check for
-    // visual nodes is done for efficiency reasons
-    if (modelNode.isValid() && modelNode.metaInfo().isQtQuick3DNode())
-        return new Qml3DNode(modelNode);
-    return new QmlObjectNode(modelNode);
-}
-
-bool QmlObjectNode::isBlocked([[maybe_unused]] const PropertyName &propName) const
-{
-    return false;
 }
 
 } //QmlDesigner

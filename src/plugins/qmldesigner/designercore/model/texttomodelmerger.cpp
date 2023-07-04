@@ -12,6 +12,7 @@
 #include "itemlibraryinfo.h"
 #include "metainfo.h"
 #include "modelnodepositionstorage.h"
+#include "modelutils.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "propertyparser.h"
@@ -132,7 +133,7 @@ QString deEscape(const QString &value)
     result.replace(QStringLiteral("\\\\"), QStringLiteral("\\"));
     result.replace(QStringLiteral("\\\""), QStringLiteral("\""));
     result.replace(QStringLiteral("\\t"), QStringLiteral("\t"));
-    result.replace(QStringLiteral("\\r"), QStringLiteral("\\\r"));
+    result.replace(QStringLiteral("\\r"), QStringLiteral("\r"));
     result.replace(QStringLiteral("\\n"), QStringLiteral("\n"));
 
     return result;
@@ -165,10 +166,13 @@ bool isHexDigit(ushort c)
 
 QString fixEscapedUnicodeChar(const QString &value) //convert "\u2939"
 {
-    if (value.size() == 6 && value.at(0) == QLatin1Char('\\') && value.at(1) == QLatin1Char('u') &&
-        isHexDigit(value.at(2).unicode()) && isHexDigit(value.at(3).unicode()) &&
-        isHexDigit(value.at(4).unicode()) && isHexDigit(value.at(5).unicode())) {
-            return convertUnicode(value.at(2).unicode(), value.at(3).unicode(), value.at(4).unicode(), value.at(5).unicode());
+    if (value.size() == 6 && value.at(0) == QLatin1Char('\\') && value.at(1) == QLatin1Char('u')
+        && isHexDigit(value.at(2).unicode()) && isHexDigit(value.at(3).unicode())
+        && isHexDigit(value.at(4).unicode()) && isHexDigit(value.at(5).unicode())) {
+        return convertUnicode(value.at(2).unicode(),
+                              value.at(3).unicode(),
+                              value.at(4).unicode(),
+                              value.at(5).unicode());
     }
     return value;
 }
@@ -362,8 +366,8 @@ bool compareJavaScriptExpression(const QString &expression1, const QString &expr
 bool smartVeryFuzzyCompare(const QVariant &value1, const QVariant &value2)
 {
     //we ignore slight changes on doubles and only check three digits
-    const auto type1 = static_cast<QMetaType::Type>(value1.type());
-    const auto type2 = static_cast<QMetaType::Type>(value2.type());
+    const auto type1 = static_cast<QMetaType::Type>(value1.typeId());
+    const auto type2 = static_cast<QMetaType::Type>(value2.typeId());
     if (type1 == QMetaType::Double
             || type2 == QMetaType::Double
             || type1 == QMetaType::Float
@@ -387,13 +391,23 @@ bool smartVeryFuzzyCompare(const QVariant &value1, const QVariant &value2)
     return false;
 }
 
+    void removeModelNode(const QmlDesigner::ModelNode &modelNode)
+    {
+        modelNode.model()->removeModelNodes({modelNode},
+                                            QmlDesigner::BypassModelResourceManagement::Yes);
+    }
 bool smartColorCompare(const QVariant &value1, const QVariant &value2)
 {
-    if ((value1.type() == QVariant::Color) || (value2.type() == QVariant::Color))
+    if ((value1.typeId() == QVariant::Color) || (value2.typeId() == QVariant::Color))
         return value1.value<QColor>().rgba() == value2.value<QColor>().rgba();
     return false;
 }
 
+    void removeProperty(const QmlDesigner::AbstractProperty &modelProperty)
+    {
+        modelProperty.model()->removeProperties({modelProperty},
+                                                QmlDesigner::BypassModelResourceManagement::Yes);
+    }
 bool equals(const QVariant &a, const QVariant &b)
 {
     if (a.canConvert<QmlDesigner::Enumeration>() && b.canConvert<QmlDesigner::Enumeration>())
@@ -573,25 +587,64 @@ public:
         return true;
     }
 
-    bool isArrayProperty(const Value *value, const ObjectValue *containingObject, const QString &name)
+    bool isArrayProperty(const AbstractProperty &property)
     {
-        if (!value)
-            return false;
-        const ObjectValue *objectValue = value->asObjectValue();
-        if (objectValue && objectValue->prototype(m_context) == m_context->valueOwner()->arrayPrototype())
-            return true;
+        return ModelUtils::metainfo(property).isListProperty();
+    }
 
-        PrototypeIterator iter(containingObject, m_context);
-        while (iter.hasNext()) {
-            const ObjectValue *proto = iter.next();
-            if (proto->lookupMember(name, m_context) == m_context->valueOwner()->arrayPrototype())
-                return true;
-            if (const CppComponentValue *qmlIter = value_cast<CppComponentValue>(proto)) {
-                if (qmlIter->isListProperty(name))
-                    return true;
-            }
+    QVariant convertToVariant(const ModelNode &node,
+                              const QString &astValue,
+                              const QString &propertyPrefix,
+                              AST::UiQualifiedId *propertyId)
+    {
+        const QString propertyName = propertyPrefix.isEmpty()
+                                         ? toString(propertyId)
+                                         : propertyPrefix + "." + toString(propertyId);
+
+
+        const PropertyMetaInfo propertyMetaInfo = node.metaInfo().property(propertyName.toUtf8());
+        const bool hasQuotes = astValue.trimmed().left(1) == QStringLiteral("\"")
+                               && astValue.trimmed().right(1) == QStringLiteral("\"");
+        const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
+        if (!propertyMetaInfo.isValid()) {
+            qCInfo(texttomodelMergerDebug)
+                << Q_FUNC_INFO << "Unknown property"
+                << propertyPrefix + QLatin1Char('.') + toString(propertyId) << "on line"
+                << propertyId->identifierToken.startLine << "column"
+                << propertyId->identifierToken.startColumn;
+            return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
         }
-        return false;
+
+        const NodeMetaInfo &propertyTypeMetaInfo = propertyMetaInfo.propertyType();
+
+        if (propertyTypeMetaInfo.isColor())
+            return PropertyParser::read(QVariant::Color, cleanedValue);
+        else if (propertyTypeMetaInfo.isUrl())
+            return PropertyParser::read(QVariant::Url, cleanedValue);
+        else if (propertyTypeMetaInfo.isVector2D())
+            return PropertyParser::read(QVariant::Vector2D, cleanedValue);
+        else if (propertyTypeMetaInfo.isVector3D())
+            return PropertyParser::read(QVariant::Vector3D, cleanedValue);
+        else if (propertyTypeMetaInfo.isVector4D())
+            return PropertyParser::read(QVariant::Vector4D, cleanedValue);
+
+        QVariant value(cleanedValue);
+        if (propertyTypeMetaInfo.isBool()) {
+            value.convert(QVariant::Bool);
+            return value;
+        } else if (propertyTypeMetaInfo.isInteger()) {
+            value.convert(QVariant::Int);
+            return value;
+        } else if (propertyTypeMetaInfo.isFloat()) {
+            value.convert(QVariant::Double);
+            return value;
+        } else if (propertyTypeMetaInfo.isString()) {
+            // nothing to do
+        } else { //property alias et al
+            if (!hasQuotes)
+                return cleverConvert(cleanedValue);
+        }
+        return value;
     }
 
     QVariant convertToVariant(const QString &astValue, const QString &propertyPrefix, AST::UiQualifiedId *propertyId)
@@ -1255,12 +1308,13 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             } else {
                 const Value *propertyType = nullptr;
                 const ObjectValue *containingObject = nullptr;
-                QString name;
-                if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name)
-                        || isPropertyChangesType(typeName)
-                        || isConnectionsType(typeName)) {
+                if (context->lookupProperty({},
+                                            binding->qualifiedId,
+                                            &propertyType,
+                                            &containingObject)
+                    || isPropertyChangesType(typeName) || isConnectionsType(typeName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
-                    if (context->isArrayProperty(propertyType, containingObject, name))
+                    if (context->isArrayProperty(modelProperty))
                         syncArrayProperty(modelProperty, {member}, context, differenceHandler);
                     else
                         syncNodeProperty(modelProperty, binding, context, TypeName(), differenceHandler);
@@ -1447,7 +1501,10 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
             syncVariantProperty(modelProperty, variantValue, TypeName(), differenceHandler);
             return astPropertyName.toUtf8();
         } else {
-            const QVariant variantValue = context->convertToVariant(astValue, prefix, script->qualifiedId);
+            const QVariant variantValue = context->convertToVariant(modelNode,
+                                                                    astValue,
+                                                                    prefix,
+                                                                    script->qualifiedId);
             if (variantValue.isValid()) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
                 syncVariantProperty(modelProperty, variantValue, TypeName(), differenceHandler);
@@ -2018,7 +2075,7 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
 
 void ModelAmender::modelNodeAbsentFromQml(ModelNode &modelNode)
 {
-    modelNode.destroy();
+    removeModelNode(modelNode);
 }
 
 ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProperty,
@@ -2095,7 +2152,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
             Q_ASSERT(nodeIndex >= 0);
         }
 
-        modelNode.destroy();
+        removeModelNode(modelNode);
 
         const ModelNode &newNode = m_merger->createModelNode(typeName,
                                                              majorVersion,
@@ -2115,7 +2172,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
 
 void ModelAmender::propertyAbsentFromQml(AbstractProperty &modelProperty)
 {
-    modelProperty.parentModelNode().removeProperty(modelProperty.name());
+    removeProperty(modelProperty);
 }
 
 void ModelAmender::idsDiffer(ModelNode &modelNode, const QString &qmlId)

@@ -67,7 +67,7 @@ Qt::ItemFlags FilePathModel::flags(const QModelIndex &index) const
 int FilePathModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return m_files.count();
+        return m_files.size();
     return 0;
 }
 
@@ -123,12 +123,14 @@ void FilePathModel::processProject()
 
     beginResetModel();
     m_preprocessWatcher.reset(new QFutureWatcher<Utils::FilePath>(this));
-    connect(m_preprocessWatcher.get(), &QFutureWatcher<Utils::FilePath>::resultReadyAt, this,
+    connect(m_preprocessWatcher.get(),
+            &QFutureWatcher<Utils::FilePath>::resultReadyAt,
+            this,
             [this](int resultIndex) {
-        beginInsertRows(index(0, 0) , m_files.count(), m_files.count());
-        m_files.append(m_preprocessWatcher->resultAt(resultIndex));
-        endInsertRows();
-    });
+                beginInsertRows(index(0, 0), m_files.size(), m_files.size());
+                m_files.append(m_preprocessWatcher->resultAt(resultIndex));
+                endInsertRows();
+            });
 
     connect(m_preprocessWatcher.get(), &QFutureWatcher<Utils::FilePath>::finished,
             this, &FilePathModel::endResetModel);

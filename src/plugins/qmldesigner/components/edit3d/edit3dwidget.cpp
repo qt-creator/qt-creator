@@ -21,6 +21,7 @@
 
 #include <auxiliarydataproperties.h>
 #include <designeractionmanager.h>
+#include <designermcumanager.h>
 #include <import.h>
 #include <nodeinstanceview.h>
 #include <seekerslider.h>
@@ -166,6 +167,11 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     handleActions(view->backgroundColorActions(), m_backgroundColorMenu, false);
 
     createContextMenu();
+
+    m_mcuLabel = new QLabel(this);
+    m_mcuLabel->setText(tr("MCU project does not support Qt Quick 3D."));
+    m_mcuLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    fillLayout->addWidget(m_mcuLabel.data());
 
     // Onboarding label contains instructions for new users how to get 3D content into the project
     m_onboardingLabel = new QLabel(this);
@@ -413,7 +419,24 @@ void Edit3DWidget::showCanvas(bool show)
         m_canvas->updateRenderImage(emptyImage);
     }
     m_canvas->setVisible(show);
-    m_onboardingLabel->setVisible(!show);
+
+    if (show) {
+        m_onboardingLabel->setVisible(false);
+        m_mcuLabel->setVisible(false);
+    } else {
+        bool quick3dAllowed = true;
+        const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
+        if (mcuManager.isMCUProject()) {
+            const QStringList mcuAllowedList = mcuManager.allowedImports();
+            if (!mcuAllowedList.contains("QtQuick3d"))
+                quick3dAllowed = false;
+        }
+
+        m_onboardingLabel->setVisible(quick3dAllowed);
+        m_mcuLabel->setVisible(!quick3dAllowed);
+    }
+
+
 }
 
 QMenu *Edit3DWidget::visibilityTogglesMenu() const
@@ -451,9 +474,8 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_contextMenuTarget = modelNode;
     m_contextMenuPos3d = pos3d;
 
-    const bool isValid = modelNode.isValid();
     const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-    const bool isCamera = isValid && modelNode.metaInfo().isQtQuick3DCamera();
+    const bool allowAlign = view()->edit3DAction(View3DActionType::AlignCamerasToView)->action()->isEnabled();
     const bool isSingleComponent = view()->hasSingleSelectedModelNode() && modelNode.isComponent();
     const bool anyNodeSelected = view()->hasSelectedModelNodes();
     const bool selectionExcludingRoot = anyNodeSelected && !view()->rootModelNode().isSelected();
@@ -468,8 +490,8 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_pasteAction->setEnabled(isPasteAvailable());
     m_deleteAction->setEnabled(selectionExcludingRoot);
     m_fitSelectedAction->setEnabled(anyNodeSelected);
-    m_alignCameraAction->setEnabled(isCamera);
-    m_alignViewAction->setEnabled(isCamera);
+    m_alignCameraAction->setEnabled(allowAlign);
+    m_alignViewAction->setEnabled(allowAlign);
     m_selectParentAction->setEnabled(selectionExcludingRoot);
     m_toggleGroupAction->setEnabled(true);
     m_bakeLightsAction->setVisible(view()->bakeLightsAction()->action()->isVisible());
@@ -517,6 +539,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
     } else if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
+               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_EFFECT)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         dragEnterEvent->acceptProposedAction();
     } else if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
@@ -556,6 +579,13 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
     // handle dropping bundle materials
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
         m_view->dropBundleMaterial(pos);
+        m_view->model()->endDrag();
+        return;
+    }
+
+    // handle dropping bundle effects
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_EFFECT)) {
+        m_view->dropBundleEffect(pos);
         m_view->model()->endDrag();
         return;
     }

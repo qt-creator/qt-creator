@@ -40,7 +40,7 @@ StudioControls.TextField {
     function escapeString(string) {
         var str = string
         str = str.replace(/\\/g, "\\\\")
-        str.replace(/\"/g, "\\\"")
+        str = str.replace(/\"/g, "\\\"")
         str = str.replace(/\t/g, "\\t")
         str = str.replace(/\r/g, "\\r")
         str = str.replace(/\n/g, '\\n')

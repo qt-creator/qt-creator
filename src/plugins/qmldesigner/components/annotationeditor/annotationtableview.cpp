@@ -66,7 +66,7 @@ void CommentDelegate::updateEditorGeometry(QWidget *editor,
     editor->setGeometry(option.rect);
 }
 
-Comment CommentDelegate::comment(QModelIndex const &index)
+Comment CommentDelegate::comment(const QModelIndex &index)
 {
     auto *model = index.model();
     return model->data(model->index(index.row(), ColumnId::Title), CommentRole).value<Comment>();
@@ -136,9 +136,9 @@ void CommentValueDelegate::paint(QPainter *painter,
                                  const QModelIndex &index) const
 {
     auto data = index.model()->data(index, Qt::DisplayRole);
-    if (data.userType() == qMetaTypeId<RichTextProxy>())
+    if (data.typeId() == qMetaTypeId<RichTextProxy>())
         drawDisplay(painter, option, option.rect, data.value<RichTextProxy>().plainText());
-    else if (data.userType() == QMetaType::QColor)
+    else if (data.typeId() == QMetaType::QColor)
         painter->fillRect(option.rect, data.value<QColor>());
     else
         QItemDelegate::paint(painter, option, index);
@@ -147,7 +147,7 @@ void CommentValueDelegate::paint(QPainter *painter,
 void CommentValueDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     auto data = index.model()->data(index, Qt::DisplayRole);
-    if (data.userType() == qMetaTypeId<RichTextProxy>()) {
+    if (data.typeId() == qMetaTypeId<RichTextProxy>()) {
         auto richText = data.value<RichTextProxy>();
         auto *e = qobject_cast<RichTextCellEditor *>(editor);
         e->setText(richText.plainText());
@@ -157,10 +157,10 @@ void CommentValueDelegate::setEditorData(QWidget *editor, const QModelIndex &ind
                 this,
                 &CommentValueDelegate::richTextEditorRequested,
                 Qt::UniqueConnection);
-    } else if (data.userType() == QMetaType::QString) {
+    } else if (data.typeId() == QMetaType::QString) {
         auto *e = qobject_cast<QLineEdit *>(editor);
         e->setText(data.toString());
-    } else if (data.userType() == QMetaType::QColor) {
+    } else if (data.typeId() == QMetaType::QColor) {
         auto *e = qobject_cast<AnnotationTableColorButton *>(editor);
         e->setColor(data.value<QColor>());
         e->installEventFilter(e);
@@ -206,15 +206,13 @@ void CommentValueDelegate::setModelData(QWidget *editor,
                                         const QModelIndex &index) const
 {
     auto data = model->data(index, Qt::EditRole);
-    if (data.userType() == qMetaTypeId<RichTextProxy>())
+    if (data.typeId() == qMetaTypeId<RichTextProxy>())
         return;
-    else if (data.userType() == QMetaType::QColor)
-    {
+    else if (data.typeId() == QMetaType::QColor) {
         model->setData(index,
                        qobject_cast<AnnotationTableColorButton *>(editor)->color(),
                        Qt::DisplayRole);
-    }
-    else if (data.userType() == QMetaType::QString)
+    } else if (data.typeId() == QMetaType::QString)
         model->setData(index, qobject_cast<QLineEdit *>(editor)->text(), Qt::DisplayRole);
     else
         QItemDelegate::setModelData(editor, model, index);
@@ -288,7 +286,7 @@ AnnotationTableView::AnnotationTableView(QWidget *parent)
         // When comment title was edited, make value item editable
         if (item->column() == ColumnId::Title && valueItem) {
             valueItem->setEditable(!item->text().isEmpty());
-            valueItem->setCheckable(valueItem->data(Qt::DisplayRole).userType() == QMetaType::Bool);
+            valueItem->setCheckable(valueItem->data(Qt::DisplayRole).typeId() == QMetaType::Bool);
         }
 
         m_modelUpdating = true;
@@ -344,7 +342,7 @@ Comment AnnotationTableView::fetchComment(int row) const
     return comment;
 }
 
-void AnnotationTableView::setupComments(QVector<Comment> const &comments)
+void AnnotationTableView::setupComments(const QVector<Comment> &comments)
 {
     m_model->clear();
     m_modelUpdating = true;
@@ -379,7 +377,7 @@ void AnnotationTableView::setDefaultAnnotations(DefaultAnnotationsModel *default
     m_valueDelegate.setDefaultAnnotations(defaults);
 }
 
-void AnnotationTableView::changeRow(int index, Comment const &comment)
+void AnnotationTableView::changeRow(int index, const Comment &comment)
 {
     auto *titleItem = m_model->item(index, ColumnId::Title);
     auto *authorItem = m_model->item(index, ColumnId::Author);
@@ -395,7 +393,7 @@ void AnnotationTableView::changeRow(int index, Comment const &comment)
                                   : QMetaType::UnknownType);
 
     textItem->setEditable(data.isValid());
-    textItem->setCheckable(data.userType() == QMetaType::Bool);
+    textItem->setCheckable(data.typeId() == QMetaType::Bool);
     textItem->setData(data, Qt::DisplayRole);
 }
 
@@ -433,9 +431,9 @@ bool AnnotationTableView::rowIsEmpty(int row) const
     return QString(itemText(0) + itemText(1) + itemText(2)).isEmpty();
 }
 
-QString AnnotationTableView::dataToCommentText(QVariant const &data)
+QString AnnotationTableView::dataToCommentText(const QVariant &data)
 {
-    auto type = data.userType();
+    auto type = data.typeId();
     if (type == qMetaTypeId<RichTextProxy>())
         return data.value<RichTextProxy>().text;
 
@@ -451,7 +449,7 @@ QString AnnotationTableView::dataToCommentText(QVariant const &data)
     return {};
 }
 
-QVariant AnnotationTableView::commentToData(Comment const& comment, QMetaType::Type type)
+QVariant AnnotationTableView::commentToData(const Comment &comment, QMetaType::Type type)
 {
     switch (type) {
     case QMetaType::Bool:

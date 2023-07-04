@@ -134,7 +134,7 @@ void Canvas::paintCurve(QPainter *painter, const EasingCurve &curve, const QColo
 void Canvas::paintControlPoints(QPainter *painter, const EasingCurve &curve)
 {
     QVector<QPointF> points = curve.toCubicSpline();
-    int count = points.count();
+    int count = points.size();
 
     if (count <= 1)
         return;

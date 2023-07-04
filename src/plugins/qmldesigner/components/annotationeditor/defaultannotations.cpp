@@ -58,7 +58,7 @@ bool DefaultAnnotationsModel::hasDefault(const Comment &comment) const
 
 QMetaType::Type DefaultAnnotationsModel::defaultType(const Comment &comment) const
 {
-    return hasDefault(comment) ? QMetaType::Type(m_defaultMap[comment.title().toLower()].userType())
+    return hasDefault(comment) ? QMetaType::Type(m_defaultMap[comment.title().toLower()].typeId())
                                : QMetaType::UnknownType;
 }
 
@@ -73,7 +73,7 @@ bool DefaultAnnotationsModel::isRichText(const Comment &comment) const
     return type == QMetaType::UnknownType || type == qMetaTypeId<RichTextProxy>();
 }
 
-void DefaultAnnotationsModel::loadFromFile(QString const &filename)
+void DefaultAnnotationsModel::loadFromFile(const QString &filename)
 {
     QFile file(filename);
     if (file.open(QFile::ReadOnly)) {

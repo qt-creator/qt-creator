@@ -130,7 +130,7 @@
     \section1 Managing Test Suites and Cases
 
     You can manage Squish test suites and cases in the \uicontrol Squish
-    \l {Working with Sidebars}{view}.
+    \l {Show and hide sidebars}{view}.
 
     \image qtcreator-squish-view.png "Squish sidebar view"
 

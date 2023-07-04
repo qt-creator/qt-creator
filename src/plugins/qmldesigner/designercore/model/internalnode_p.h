@@ -34,7 +34,7 @@ class InternalProperty;
 class InternalNode;
 
 using InternalNodePointer = std::shared_ptr<InternalNode>;
-using InternalPropertyPointer = QSharedPointer<InternalProperty>;
+using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
 
 class InternalNode : public std::enable_shared_from_this<InternalNode>
 {
@@ -43,8 +43,6 @@ class InternalNode : public std::enable_shared_from_this<InternalNode>
 public:
     using Pointer = std::shared_ptr<InternalNode>;
     using WeakPointer = std::weak_ptr<InternalNode>;
-
-    explicit InternalNode() = default;
 
     explicit InternalNode(TypeName typeName, int majorVersion, int minorVersion, qint32 internalId)
         : typeName(std::move(typeName))
@@ -67,21 +65,101 @@ public:
     AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type) const;
     AuxiliaryDatasView auxiliaryData() const { return std::as_const(m_auxiliaryDatas); }
 
-    InternalProperty::Pointer property(const PropertyName &name) const;
-    InternalBindingProperty::Pointer bindingProperty(const PropertyName &name) const;
-    InternalSignalHandlerProperty::Pointer signalHandlerProperty(const PropertyName &name) const;
-    InternalSignalDeclarationProperty::Pointer signalDeclarationProperty(const PropertyName &name) const;
-    InternalVariantProperty::Pointer variantProperty(const PropertyName &name) const;
-    InternalNodeListProperty::Pointer nodeListProperty(const PropertyName &name) const;
-    InternalNodeAbstractProperty::Pointer nodeAbstractProperty(const PropertyName &name) const;
-    InternalNodeProperty::Pointer nodeProperty(const PropertyName &name) const;
+    template<typename Type>
+    typename Type::Pointer property(const PropertyName &name) const
+    {
+        auto property = m_namePropertyHash.value(name);
+        if (property && property->propertyType() == Type::type)
+            return std::static_pointer_cast<Type>(property);
 
-    void addBindingProperty(const PropertyName &name);
-    void addSignalHandlerProperty(const PropertyName &name);
-    void addSignalDeclarationProperty(const PropertyName &name);
-    void addNodeListProperty(const PropertyName &name);
-    void addVariantProperty(const PropertyName &name);
-    void addNodeProperty(const PropertyName &name, const TypeName &dynamicTypeName);
+        return {};
+    }
+
+    InternalProperty::Pointer property(const PropertyName &name) const
+    {
+        return m_namePropertyHash.value(name);
+    }
+
+    auto bindingProperty(const PropertyName &name) const
+    {
+        return property<InternalBindingProperty>(name);
+    }
+
+    auto signalHandlerProperty(const PropertyName &name) const
+    {
+        return property<InternalSignalHandlerProperty>(name);
+    }
+
+    auto signalDeclarationProperty(const PropertyName &name) const
+    {
+        return property<InternalSignalDeclarationProperty>(name);
+    }
+
+    auto variantProperty(const PropertyName &name) const
+    {
+        return property<InternalVariantProperty>(name);
+    }
+
+    auto nodeListProperty(const PropertyName &name) const
+    {
+        return property<InternalNodeListProperty>(name);
+    }
+
+    InternalNodeAbstractProperty::Pointer nodeAbstractProperty(const PropertyName &name) const
+    {
+        auto property = m_namePropertyHash.value(name);
+        if (property
+            && (property->propertyType() == PropertyType::NodeList
+                || property->propertyType() == PropertyType::Node)) {
+            return std::static_pointer_cast<InternalNodeAbstractProperty>(property);
+        }
+        return {};
+    }
+
+    InternalNodeProperty::Pointer nodeProperty(const PropertyName &name) const
+    {
+        return property<InternalNodeProperty>(name);
+    }
+
+    template<typename Type>
+    auto &addProperty(const PropertyName &name)
+    {
+        auto newProperty = std::make_shared<Type>(name, shared_from_this());
+        auto inserted = m_namePropertyHash.insert(name, std::move(newProperty));
+
+        return *inserted->get();
+    }
+
+    void addBindingProperty(const PropertyName &name)
+    {
+        addProperty<InternalBindingProperty>(name);
+    }
+
+    void addSignalHandlerProperty(const PropertyName &name)
+    {
+        addProperty<InternalSignalHandlerProperty>(name);
+    }
+
+    void addSignalDeclarationProperty(const PropertyName &name)
+    {
+        addProperty<InternalSignalDeclarationProperty>(name);
+    }
+
+    void addNodeListProperty(const PropertyName &name)
+    {
+        addProperty<InternalNodeListProperty>(name);
+    }
+
+    void addVariantProperty(const PropertyName &name)
+    {
+        addProperty<InternalVariantProperty>(name);
+    }
+
+    void addNodeProperty(const PropertyName &name, const TypeName &dynamicTypeName)
+    {
+        auto &property = addProperty<InternalNodeProperty>(name);
+        property.setDynamicTypeName(dynamicTypeName);
+    }
 
     PropertyNameList propertyNameList() const;
 
@@ -105,13 +183,7 @@ public:
         return firstNode->internalId < secondNode->internalId;
     }
 
-    friend size_t qHash(const InternalNodePointer &node)
-    {
-        if (!node)
-            return ::qHash(-1);
-
-        return ::qHash(node->internalId);
-    }
+    friend size_t qHash(const InternalNodePointer &node) { return ::qHash(node.get()); }
 
 protected:
     void removeProperty(const PropertyName &name);

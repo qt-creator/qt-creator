@@ -260,7 +260,7 @@ void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & ite
 
         QmlItemNode currentSelectedNode;
 
-        if (view()->selectedModelNodes().count() == 1) {
+        if (view()->selectedModelNodes().size() == 1) {
             currentSelectedNode = view()->selectedModelNodes().constFirst();
 
             if (!containsItemNode(itemList, currentSelectedNode)) {

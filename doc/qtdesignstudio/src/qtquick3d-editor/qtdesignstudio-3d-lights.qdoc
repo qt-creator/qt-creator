@@ -209,11 +209,38 @@
     \uicontrol {Shadow map far} property value. Using smaller values
     may improve the precision and effects of the map.
 
-    \section1 Baking Lightmaps
+    \section1 Baked Lightmaps
 
     \note Lightmaps baking is released as technical preview in \QDS 4.1.
 
-    \section2 Baking Lightmaps for a 3D Model
+    Baked lightmaps allow pre-generating the direct lighting from lights such as DirectionalLight,
+    PointLight, and SpotLight, including the shadows cast by the lights. At run time, instead of
+    performing the appropriate calculations in the fragment shader, and, in case of shadows,
+    generating the potentially costly shadow maps in real time, the pre-generated light map is
+    sampled instead.
+
+    \section2 Baking Lightmaps
+
+    To bake lightmaps for models in your 3D scene:
+
+    \list 1
+      \li Right-click anywhere in the \uicontrol 3D view and select \uicontrol {Bake Lights}.
+      \li In the \uicontrol {Lights Baking Setup} dialog:
+        \list
+          \li For every light you want to use to bake lightmaps, set \uicontrol {Bake Mode} to BakeModeAll.
+          \li For every 3D model you want to bake lightmaps, select \uicontrol {In Use} and
+          \uicontrol {Enabled}, and set the desired \uicontrol {Resolution}.
+        \endlist
+      \li Optional. If you have components with unexposed models or lights (for example, imported
+      3D models created in other software), select \uicontrol {Expose models and lights} to add the
+      models and light of that component to the \uicontrol Models and \uicontrol Lights sections of
+      the dialog.
+      \li Select \uicontrol Bake.
+    \endlist
+
+    \image bake-lights-dialog.png
+
+    \section2 Manually Baking Lightmaps for a 3D Model
     Baked lightmap components are not visible in the \uicontrol Navigator view by default. To make
     them visible, select \inlineimage icons/visibilityon.png
     in the \uicontrol Navigator view.
@@ -239,9 +266,10 @@
       \li In the \uicontrol Navigator view, select the light component that you want to bake
       lightmaps for, and in the \uicontrol Properties view, set \uicontrol {Bake Mode} to BakeModeAll.
       \li Right-click anywhere in the \uicontrol 3D view and select \uicontrol {Bake Lights}.
+      \li Select \uicontrol {Setup baking manually}, and then select \uicontrol Bake.
     \endlist
 
-    \section2 Baking Lightmaps for a 3D Model Inside a Sub Component
+    \section2 Manually Baking Lightmaps for a 3D Model Inside a Sub Component
 
     To bake lightmaps for a 3D model inside a sub component, first add a local custom property to
     expose the model:
@@ -299,6 +327,7 @@
           a unique name.
         \endlist
       \li Right-click anywhere in the \uicontrol 3D view and select \uicontrol {Bake Lights}.
+      \li Select \uicontrol {Setup baking manually}, and then select \uicontrol Bake.
     \endlist
 
 */

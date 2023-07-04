@@ -289,7 +289,7 @@ inline QString deEscape(const QString &value)
 
 inline QVariant deEscapeVariant(const QVariant &value)
 {
-    if (value.type() == QVariant::String)
+    if (value.typeId() == QVariant::String)
         return deEscape(value.toString());
     return value;
 }

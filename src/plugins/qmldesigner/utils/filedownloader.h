@@ -26,6 +26,7 @@ class FileDownloader : public QObject
     Q_PROPERTY(QString outputFile READ outputFile NOTIFY outputFileChanged)
     Q_PROPERTY(QDateTime lastModified READ lastModified NOTIFY lastModifiedChanged)
     Q_PROPERTY(bool available READ available NOTIFY availableChanged)
+    Q_PROPERTY(bool overwriteTarget READ overwriteTarget WRITE setOverwriteTarget NOTIFY overwriteTargetChanged)
 
 public:
     explicit FileDownloader(QObject *parent = nullptr);
@@ -46,6 +47,9 @@ public:
     bool available() const;
     void setDownloadEnabled(bool value);
     bool downloadEnabled() const;
+
+    bool overwriteTarget() const;
+    void setOverwriteTarget(bool value);
 
     void setProbeUrl(bool value);
     bool probeUrl() const;
@@ -69,10 +73,12 @@ signals:
     void downloadCanceled();
     void probeUrlChanged();
     void targetFilePathChanged();
+    void overwriteTargetChanged();
 
 private:
     void doProbeUrl();
     bool deleteFileAtTheEnd() const;
+    QNetworkRequest makeRequest() const;
 
     QUrl m_url;
     bool m_probeUrl = false;
@@ -85,6 +91,7 @@ private:
 
     QNetworkReply *m_reply = nullptr;
     bool m_downloadEnabled = false;
+    bool m_overwriteTarget = false;
     QString m_targetFilePath;
 };
 

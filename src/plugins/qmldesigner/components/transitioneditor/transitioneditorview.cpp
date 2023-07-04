@@ -201,7 +201,7 @@ ModelNode TransitionEditorView::addNewTransition()
             const ModelNode target = change.target();
             if (auto targetMetaInfo = target.metaInfo()) {
                 const QString targetId = target.id();
-                for (const VariantProperty &property : change.modelNode().variantProperties()) {
+                for (const AbstractProperty &property : change.modelNode().properties()) {
                     auto type = targetMetaInfo.property(property.name()).propertyType();
 
                     if (type.isInteger() || type.isColor() || type.isFloat())

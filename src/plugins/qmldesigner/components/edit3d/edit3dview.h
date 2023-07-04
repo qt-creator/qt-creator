@@ -26,7 +26,6 @@ class BakeLights;
 class Edit3DWidget;
 class Edit3DAction;
 class Edit3DBakeLightsAction;
-class Edit3DCameraAction;
 
 class QMLDESIGNERCOMPONENTS_EXPORT Edit3DView : public AbstractView
 {
@@ -39,14 +38,19 @@ public:
 
     Edit3DWidget *edit3DWidget() const;
 
-    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList) override;
     void renderImage3DChanged(const QImage &img) override;
     void updateActiveScene3D(const QVariantMap &sceneState) override;
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
-    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void customNotification(const AbstractView *view, const QString &identifier,
+                            const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos3d) override;
+    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
+                        const NodeAbstractProperty &oldPropertyParent,
+                        PropertyChangeFlags propertyChange) override;
+    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty,
+                     PropertyChangeFlags propertyChange) override;
 
     void sendInputEvent(QInputEvent *e) const;
     void edit3DViewResized(const QSize &size) const;
@@ -65,6 +69,7 @@ public:
     void startContextMenu(const QPoint &pos);
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
     void dropBundleMaterial(const QPointF &pos);
+    void dropBundleEffect(const QPointF &pos);
     void dropTexture(const ModelNode &textureNode, const QPointF &pos);
     void dropComponent(const ItemLibraryEntry &entry, const QPointF &pos);
     void dropAsset(const QString &file, const QPointF &pos);
@@ -76,6 +81,7 @@ private slots:
 
 private:
     enum class NodeAtPosReqType {
+        BundleEffectDrop,
         BundleMaterialDrop,
         ComponentDrop,
         MaterialDrop,
@@ -91,6 +97,7 @@ private:
     void checkImports();
     void handleEntriesChanged();
     void showMaterialPropertiesView();
+    void updateAlignActionStates();
 
     Edit3DAction *createSelectBackgroundColorAction(QAction *syncBackgroundColorAction);
     Edit3DAction *createGridColorSelectionAction();
@@ -110,8 +117,8 @@ private:
     Edit3DAction *m_rotateToolAction = nullptr;
     Edit3DAction *m_scaleToolAction = nullptr;
     Edit3DAction *m_fitAction = nullptr;
-    Edit3DCameraAction *m_alignCamerasAction = nullptr;
-    Edit3DCameraAction *m_alignViewAction = nullptr;
+    Edit3DAction *m_alignCamerasAction = nullptr;
+    Edit3DAction *m_alignViewAction = nullptr;
     Edit3DAction *m_cameraModeAction = nullptr;
     Edit3DAction *m_orientationModeAction = nullptr;
     Edit3DAction *m_editLightAction = nullptr;

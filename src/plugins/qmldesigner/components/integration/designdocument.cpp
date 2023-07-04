@@ -9,6 +9,7 @@
 
 #include <auxiliarydataproperties.h>
 #include <metainfo.h>
+#include <model/modelresourcemanagement.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <rewritingexception.h>
@@ -62,7 +63,8 @@ namespace QmlDesigner {
   */
 DesignDocument::DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage,
                                ExternalDependenciesInterface &externalDependencies)
-    : m_documentModel(Model::create("QtQuick.Item", 1, 0))
+    : m_documentModel(
+        Model::create("QtQuick.Item", 1, 0, nullptr, std::make_unique<ModelResourceManagement>()))
     , m_subComponentManager(new SubComponentManager(m_documentModel.get(), externalDependencies))
     , m_rewriterView(new RewriterView(externalDependencies, RewriterView::Amend))
     , m_documentLoaded(false)
@@ -149,7 +151,11 @@ const AbstractView *DesignDocument::view() const
 
 ModelPointer DesignDocument::createInFileComponentModel()
 {
-    auto model = Model::create("QtQuick.Item", 1, 0);
+    auto model = Model::create("QtQuick.Item",
+                               1,
+                               0,
+                               nullptr,
+                               std::make_unique<ModelResourceManagement>());
     model->setFileUrl(m_documentModel->fileUrl());
     model->setMetaInfo(m_documentModel->metaInfo());
 
@@ -205,8 +211,7 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
         targetNode = view.firstSelectedModelNode();
 
     // in case we copy and paste a selection we paste in the parent item
-    if ((view.selectedModelNodes().count() == movingNodes.count())
-            && targetNode.hasParentProperty()) {
+    if ((view.selectedModelNodes().size() == movingNodes.size()) && targetNode.hasParentProperty()) {
         targetNode = targetNode.parentProperty().parentModelNode();
     } else if (view.selectedModelNodes().isEmpty()) {
         // if selection is empty and copied nodes are all 3D nodes, paste them under the active scene
@@ -366,7 +371,7 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 
     connect(m_documentTextModifier.data(), &TextModifier::textChanged, this, &DesignDocument::updateQrcFiles);
 
-    m_documentModel->setTextModifier(m_documentTextModifier.data());
+    m_rewriterView->setTextModifier(m_documentTextModifier.data());
 
     m_inFileComponentTextModifier.reset();
 
@@ -385,6 +390,8 @@ void DesignDocument::changeToDocumentModel()
     const QPlainTextEdit *edit = plainTextEdit();
     if (edit)
         edit->document()->clearUndoRedoStacks();
+
+    m_rewriterView->setTextModifier(m_documentTextModifier.data());
 
     m_inFileComponentModel.reset();
     m_inFileComponentTextModifier.reset();
@@ -426,7 +433,8 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
         edit->document()->clearUndoRedoStacks();
 
     m_inFileComponentModel = createInFileComponentModel();
-    m_inFileComponentModel->setTextModifier(m_inFileComponentTextModifier.data());
+
+    m_rewriterView->setTextModifier(m_inFileComponentTextModifier.data());
 
     viewManager().attachRewriterView();
     viewManager().attachViewsExceptRewriterAndComponetView();

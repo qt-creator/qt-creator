@@ -27,7 +27,7 @@ class QMLDESIGNERCORE_EXPORT QmlItemNode : public QmlVisualNode
 public:
     QmlItemNode() = default;
     QmlItemNode(const ModelNode &modelNode)  : QmlVisualNode(modelNode) {}
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlItemNode(const ModelNode &modelNode);
 
@@ -84,7 +84,7 @@ public:
     bool instanceHasAnchors() const;
     bool instanceHasShowContent() const;
 
-    bool instanceCanReparent() const override;
+    bool instanceCanReparent() const;
     bool instanceIsAnchoredBySibling() const;
     bool instanceIsAnchoredByChildren() const;
     bool instanceIsMovable() const;
@@ -149,7 +149,7 @@ class QMLDESIGNERCORE_EXPORT QmlFlowTargetNode final : public QmlItemNode
 {
 public:
     QmlFlowTargetNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
 
     void assignTargetItem(const QmlFlowTargetNode &node);
@@ -165,7 +165,7 @@ class QMLDESIGNERCORE_EXPORT QmlFlowActionAreaNode final : public QmlItemNode
 {
 public:
     QmlFlowActionAreaNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlFlowActionAreaNode(const ModelNode &modelNode);
     ModelNode targetTransition() const;
@@ -178,7 +178,7 @@ class QMLDESIGNERCORE_EXPORT QmlFlowItemNode final : public QmlItemNode
 {
 public:
     QmlFlowItemNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlFlowItemNode(const ModelNode &modelNode);
     QList<QmlFlowActionAreaNode> flowActionAreas() const;
@@ -191,7 +191,7 @@ class QMLDESIGNERCORE_EXPORT QmlFlowViewNode final : public QmlItemNode
 {
 public:
     QmlFlowViewNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
-    bool isValid() const override;
+    bool isValid() const;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlFlowViewNode(const ModelNode &modelNode);
     QList<QmlFlowItemNode> flowItems() const;

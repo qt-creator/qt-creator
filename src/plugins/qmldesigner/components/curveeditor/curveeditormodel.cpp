@@ -319,7 +319,7 @@ std::vector<Keyframe> resolveSmallCurves(const std::vector<Keyframe> &frames)
         if (frame.hasData() && !out.empty()) {
             QEasingCurve curve = frame.data().toEasingCurve();
             // One-segment-curve: Since (0,0) is implicit => 3
-            if (curve.toCubicSpline().count() == 3) {
+            if (curve.toCubicSpline().size() == 3) {
                 Keyframe &previous = out.back();
 #if 0
                 // Do not resolve when two adjacent keyframes have the same value.

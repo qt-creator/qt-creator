@@ -26,6 +26,10 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setSearchText(const QString &searchText);
+    void setModifiedFileEntries(const QVariantMap &files);
+    void setNewFileEntries(const QStringList &newFiles);
+    QString removeModifiedFileEntry(const QString &key);
+    void markTextureHasNoUpdates(const QString &subcategory, const QString &textureKey);
 
     bool texBundleExists() const;
 
@@ -33,8 +37,8 @@ public:
     void setHasSceneEnv(bool b);
 
     void resetModel();
-    void loadTextureBundle(const QString &remoteUrl, const QString &bundlePath,
-                           const QVariantMap &metaData);
+    void loadTextureBundle(const QString &remoteUrl, const QString &iconsUrl,
+                           const QString &bundlePath, const QVariantMap &metaData);
 
 signals:
     void isEmptyChanged();
@@ -48,6 +52,8 @@ private:
     QString m_searchText;
     QString m_category;
     QList<ContentLibraryTexturesCategory *> m_bundleCategories;
+    QVariantMap m_modifiedFiles;
+    QSet<QString> m_newFiles;
 
     bool m_isEmpty = true;
     bool m_hasSceneEnv = false;

@@ -67,40 +67,24 @@ void QmlProject::parsingFinished(const Target *target, bool success)
     // trigger only once
     disconnect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
 
-    // FIXME: what to do in this case?
     if (!target || !success || !activeTarget())
         return;
 
-    auto targetActive = activeTarget();
-    auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-        targetActive->buildSystem());
-
-    const Utils::FilePath mainUiFile = qmlBuildSystem->mainUiFilePath();
-
-    if (mainUiFile.completeSuffix() == "ui.qml" && mainUiFile.exists()) {
-        QTimer::singleShot(1000, [mainUiFile]() {
-            Core::EditorManager::openEditor(mainUiFile, Utils::Id());
-        });
+    const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+        activeTarget()->buildSystem());
+    if (!qmlBuildSystem)
         return;
-    }
 
-    Utils::FilePaths uiFiles = collectUiQmlFilesForFolder(
-        projectDirectory().pathAppended("content"));
-    if (uiFiles.isEmpty()) {
-        uiFiles = collectUiQmlFilesForFolder(projectDirectory());
-        if (uiFiles.isEmpty())
-            return;
-    }
-
-    Utils::FilePath currentFile;
-    if (auto cd = Core::EditorManager::currentDocument())
-        currentFile = cd->filePath();
-
-    if (currentFile.isEmpty() || !isKnownFile(currentFile)) {
-        QTimer::singleShot(1000, [uiFiles]() {
-            Core::EditorManager::openEditor(uiFiles.first(), Utils::Id());
+    const auto openFile = [&](const Utils::FilePath file) {
+        //why is this timer needed here?
+        QTimer::singleShot(1000, this, [file] {
+            Core::EditorManager::openEditor(file, Utils::Id());
         });
-    }
+    };
+
+    const Utils::FilePath fileToOpen = qmlBuildSystem->getStartupQmlFileWithFallback();
+    if (!fileToOpen.isEmpty() && fileToOpen.exists() && !fileToOpen.isDir())
+        openFile(fileToOpen);
 }
 
 Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *errorMessage)
@@ -173,6 +157,14 @@ Utils::FilePaths QmlProject::collectUiQmlFilesForFolder(const Utils::FilePath &f
                && node->filePath().parentDir() == folder;
     });
     return uiFiles;
+}
+
+Utils::FilePaths QmlProject::collectQmlFiles() const
+{
+    const Utils::FilePaths qmlFiles = files([&](const Node *node) {
+        return node->filePath().completeSuffix() == "qml";
+    });
+    return qmlFiles;
 }
 
 Tasks QmlProject::projectIssues(const Kit *k) const

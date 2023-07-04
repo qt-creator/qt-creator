@@ -105,7 +105,7 @@ static void editValue(const ModelNode &frameNode, const std::pair<qreal, qreal> 
         if (newFrame != frame)
             frameNode.variantProperty("frame").setValue(newFrame);
 
-        int userType = value.userType();
+        int userType = value.typeId();
         QVariant newValue = dialog->value();
 
         if (newValue.canConvert(userType)) {
@@ -264,7 +264,7 @@ bool TimelinePropertyItem::isSelected() const
 
 QString convertVariant(const QVariant &variant)
 {
-    if (variant.userType() == QMetaType::QColor)
+    if (variant.typeId() == QMetaType::QColor)
         return variant.toString();
 
     return QString::number(variant.toFloat(), 'f', 2);
@@ -335,9 +335,8 @@ void TimelinePropertyItem::changePropertyValue(const QVariant &value)
         QTimer::singleShot(0, deferredFunc);
 
     } else {
-        QScopedPointer<QmlObjectNode> objectNode {
-            QmlObjectNode::getQmlObjectNodeOfCorrectType(m_frames.target())};
-        objectNode->setVariantProperty(m_frames.propertyName(), value);
+        if (auto qmlObjectNode = QmlObjectNode(m_frames.target()))
+            qmlObjectNode.setVariantProperty(m_frames.propertyName(), value);
     }
 }
 

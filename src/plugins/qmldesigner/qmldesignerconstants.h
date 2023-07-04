@@ -80,6 +80,7 @@ const char MIME_TYPE_ITEM_LIBRARY_INFO[] = "application/vnd.qtdesignstudio.iteml
 const char MIME_TYPE_ASSETS[]            = "application/vnd.qtdesignstudio.assets";
 const char MIME_TYPE_MATERIAL[]          = "application/vnd.qtdesignstudio.material";
 const char MIME_TYPE_TEXTURE[]           = "application/vnd.qtdesignstudio.texture";
+const char MIME_TYPE_BUNDLE_EFFECT[]     = "application/vnd.qtdesignstudio.bundleeffect";
 const char MIME_TYPE_BUNDLE_MATERIAL[]   = "application/vnd.qtdesignstudio.bundlematerial";
 const char MIME_TYPE_BUNDLE_TEXTURE[]    = "application/vnd.qtdesignstudio.bundletexture";
 const char MIME_TYPE_ASSET_IMAGE[]       = "application/vnd.qtdesignstudio.asset.image";
@@ -99,6 +100,7 @@ const int MODELNODE_PREVIEW_IMAGE_DIMENSIONS = 150;
 const char EVENT_TIMELINE_ADDED[] = "timelineAdded";
 const char EVENT_TRANSITION_ADDED[] = "transitionAdded";
 const char EVENT_STATE_ADDED[] = "stateAdded";
+const char EVENT_STATE_ADDED_AND_CLONED[] = "stateAddedAndCloned";
 const char EVENT_STATE_CLONED[] = "stateCloned";
 const char EVENT_STATE_EXTENDED[] = "stateExtended";
 const char EVENT_CONNECTION_ADDED[] = "connectionAdded";
@@ -161,6 +163,8 @@ const char OBJECT_NAME_TOP_FEEDBACK[] = "QQuickWidgetQDSFeedback";
 const char OBJECT_NAME_NEW_DIALOG[] = "QQuickWidgetQDSNewDialog";
 const char OBJECT_NAME_SPLASH_SCREEN[] = "QQuickWidgetSplashScreen";
 const char OBJECT_NAME_WELCOME_PAGE[] = "QQuickWidgetQDSWelcomePage";
+
+const char ENVIRONMENT_SHOW_QML_ERRORS[] = "QMLDESIGNER_SHOW_QML_ERRORS";
 
 namespace Internal {
     enum { debug = 0 };

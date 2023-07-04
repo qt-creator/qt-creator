@@ -5,6 +5,7 @@
 
 #include "../qmlprojectconstants.h"
 #include "../qmlprojectmanagertr.h"
+#include "../qmlproject.h"
 
 #include <QtCore5Compat/qtextcodec.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -82,11 +83,11 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
     updateDeploymentData();
     registerMenuButtons();
 
-    connect(target->project(), &Project::activeTargetChanged, [this](Target *target) {
+    connect(target->project(), &Project::activeTargetChanged, this, [this](Target *target) {
         refresh(RefreshOptions::NoFileRefresh);
         updateMcuBuildStep(target, qtForMCUs());
     });
-    connect(target->project(), &Project::projectFileIsDirty, [this]() {
+    connect(target->project(), &Project::projectFileIsDirty, this, [this]() {
         refresh(RefreshOptions::Project);
         updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
     });
@@ -153,6 +154,11 @@ bool QmlBuildSystem::updateProjectFile()
     ts << "import QmlProject 1.1" << Qt::endl << Qt::endl;
 
     return true;
+}
+
+QmlProject *QmlBuildSystem::qmlProject() const
+{
+    return qobject_cast<QmlProject *>(project());
 }
 
 void QmlBuildSystem::triggerParsing()
@@ -284,14 +290,14 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
     const QString relativePath = mainFilePath.relativeChildPath(projectDir).path();
 
     if (fileContent.indexOf(settingQmlCode) < 0) {
-        QString addedText = QString("\n    %1 \"%2\"\n").arg(settingQmlCode).arg(relativePath);
+        QString addedText = QString("\n    %1 \"%2\"\n").arg(settingQmlCode, relativePath);
         auto index = fileContent.lastIndexOf("}");
         fileContent.insert(index, addedText);
     } else {
         QString originalFileName = oldFile;
         originalFileName.replace(".", "\\.");
         const QRegularExpression expression(
-                    QString("%1\\s*\"(%2)\"").arg(settingQmlCode).arg(originalFileName));
+            QString("%1\\s*\"(%2)\"").arg(settingQmlCode, originalFileName));
 
         const QRegularExpressionMatch match = expression.match(fileContent);
 
@@ -315,14 +321,85 @@ void QmlBuildSystem::setBlockFilesUpdate(bool newBlockFilesUpdate)
     m_blockFilesUpdate = newBlockFilesUpdate;
 }
 
+Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
+{
+    const auto currentProject = project();
+
+    if (!currentProject)
+        return {};
+
+    if (!target())
+        return {};
+
+    const auto getFirstFittingFile = [](const Utils::FilePaths &files) -> Utils::FilePath {
+        for (const auto &file : files) {
+            if (file.exists())
+                return file;
+        }
+        return {};
+    };
+
+    const QStringView uiqmlstr = u"ui.qml";
+    const QStringView qmlstr = u"qml";
+
+    //we will check mainUiFile and mainFile twice:
+    //first priority if it's ui.qml file, second if it's just a qml file
+    const Utils::FilePath mainUiFile = mainUiFilePath();
+    if (mainUiFile.exists() && mainUiFile.completeSuffix() == uiqmlstr)
+        return mainUiFile;
+
+    const Utils::FilePath mainQmlFile = mainFilePath();
+    if (mainQmlFile.exists() && mainQmlFile.completeSuffix() == uiqmlstr)
+        return mainQmlFile;
+
+    const Utils::FilePaths uiFiles = currentProject->files([&](const ProjectExplorer::Node *node) {
+        return node->filePath().completeSuffix() == uiqmlstr;
+    });
+    if (!uiFiles.isEmpty()) {
+        if (const auto file = getFirstFittingFile(uiFiles); !file.isEmpty())
+            return file;
+    }
+
+    //check the suffix of mainUiFiles again, since there are no ui.qml files:
+    if (mainUiFile.exists() && mainUiFile.completeSuffix() == qmlstr)
+        return mainUiFile;
+
+    if (mainQmlFile.exists() && mainQmlFile.completeSuffix() == qmlstr)
+        return mainQmlFile;
+
+    //maybe it's also worth priotizing qml files containing common words like "Screen"?
+    const Utils::FilePaths qmlFiles = currentProject->files([&](const ProjectExplorer::Node *node) {
+        return node->filePath().completeSuffix() == qmlstr;
+    });
+    if (!qmlFiles.isEmpty()) {
+        if (const auto file = getFirstFittingFile(qmlFiles); !file.isEmpty())
+            return file;
+    }
+
+    //if no source files exist in the project, lets try to open the .qmlproject file itself
+    const Utils::FilePath projectFile = projectFilePath();
+    if (projectFile.exists())
+        return projectFile;
+
+    return {};
+}
+
 Utils::FilePath QmlBuildSystem::mainFilePath() const
 {
-    return projectDirectory().pathAppended(mainFile());
+    const QString fileName = mainFile();
+    if (fileName.isEmpty() || fileName.isNull()) {
+        return {};
+    }
+    return projectDirectory().pathAppended(fileName);
 }
 
 Utils::FilePath QmlBuildSystem::mainUiFilePath() const
 {
-    return projectDirectory().pathAppended(mainUiFile());
+    const QString fileName = mainUiFile();
+    if (fileName.isEmpty() || fileName.isNull()) {
+        return {};
+    }
+    return projectDirectory().pathAppended(fileName);
 }
 
 bool QmlBuildSystem::setMainFileInProjectFile(const Utils::FilePath &newMainFilePath)

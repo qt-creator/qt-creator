@@ -585,7 +585,7 @@ public:
                                         PanelsWidget::PanelVMargin, 0);
 
         QStringList list = Core::ICore::settings()->value("HideOptionCategories").toStringList();
-        if (!list.contains("Kit")) {
+        if (!list.contains("Kits")) {
             innerLayout->addWidget(m_manageKits);
             innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
         }

@@ -49,7 +49,7 @@ void EasingCurve::registerStreamOperators()
 
 int EasingCurve::count() const
 {
-    return toCubicSpline().count();
+    return toCubicSpline().size();
 }
 
 int EasingCurve::active() const
@@ -59,7 +59,7 @@ int EasingCurve::active() const
 
 int EasingCurve::segmentCount() const
 {
-    return toCubicSpline().count() / 3;
+    return toCubicSpline().size() / 3;
 }
 
 bool EasingCurve::isLegal() const
@@ -127,10 +127,10 @@ bool EasingCurve::fromString(const QString &code)
     if (code.startsWith(QLatin1Char('[')) && code.endsWith(QLatin1Char(']'))) {
         const auto stringList = code.mid(1, code.size() - 2).split(QLatin1Char(','), Qt::SkipEmptyParts);
 
-        if (stringList.count() >= 6 && (stringList.count() % 6 == 0)) {
+        if (stringList.size() >= 6 && (stringList.size() % 6 == 0)) {
             bool checkX, checkY;
             QVector<QPointF> points;
-            for (int i = 0; i < stringList.count(); ++i) {
+            for (int i = 0; i < stringList.size(); ++i) {
                 QPointF point;
                 point.rx() = stringList[i].toDouble(&checkX);
                 point.ry() = stringList[++i].toDouble(&checkY);
@@ -146,7 +146,7 @@ bool EasingCurve::fromString(const QString &code)
 
             QEasingCurve easingCurve(QEasingCurve::BezierSpline);
 
-            for (int i = 0; i < points.count() / 3; ++i) {
+            for (int i = 0; i < points.size() / 3; ++i) {
                 easingCurve.addCubicBezierSegment(points.at(i * 3),
                                                   points.at(i * 3 + 1),
                                                   points.at(i * 3 + 2));
@@ -176,7 +176,7 @@ QPainterPath EasingCurve::path() const
 
     QVector<QPointF> controlPoints = toCubicSpline();
 
-    int numSegments = controlPoints.count() / 3;
+    int numSegments = controlPoints.size() / 3;
     for (int i = 0; i < numSegments; i++) {
         QPointF p1 = controlPoints.at(i * 3);
         QPointF p2 = controlPoints.at(i * 3 + 1);
@@ -202,7 +202,7 @@ QPointF EasingCurve::point(int idx) const
 {
     QVector<QPointF> controlPoints = toCubicSpline();
 
-    QTC_ASSERT(controlPoints.count() > idx || idx < 0, return QPointF());
+    QTC_ASSERT(controlPoints.size() > idx || idx < 0, return QPointF());
 
     return controlPoints.at(idx);
 }
@@ -259,7 +259,7 @@ void EasingCurve::makeSmooth(int idx)
             before = controlPoints.at(idx - 3);
 
         QPointF after = end();
-        if ((idx + 3) < controlPoints.count())
+        if ((idx + 3) < controlPoints.size())
             after = controlPoints.at(idx + 3);
 
         QPointF tangent = (after - before) / 6;
@@ -269,7 +269,7 @@ void EasingCurve::makeSmooth(int idx)
         if (idx > 0)
             controlPoints[idx - 1] = thisPoint - tangent;
 
-        if (idx + 1 < controlPoints.count())
+        if (idx + 1 < controlPoints.size())
             controlPoints[idx + 1] = thisPoint + tangent;
 
         fromCubicSpline(controlPoints);
@@ -288,7 +288,7 @@ void EasingCurve::breakTangent(int idx)
             before = controlPoints.at(idx - 3);
 
         QPointF after = end();
-        if ((idx + 3) < controlPoints.count())
+        if ((idx + 3) < controlPoints.size())
             after = controlPoints.at(idx + 3);
 
         QPointF thisPoint = controlPoints.at(idx);
@@ -296,7 +296,7 @@ void EasingCurve::breakTangent(int idx)
         if (idx > 0)
             controlPoints[idx - 1] = (before - thisPoint) / 3 + thisPoint;
 
-        if (idx + 1 < controlPoints.count())
+        if (idx + 1 < controlPoints.size())
             controlPoints[idx + 1] = (after - thisPoint) / 3 + thisPoint;
 
         fromCubicSpline(controlPoints);
@@ -326,7 +326,7 @@ void EasingCurve::addPoint(const QPointF &point)
     }
 
     QPointF after = end();
-    if ((splitIndex + 3) < controlPoints.count()) {
+    if ((splitIndex + 3) < controlPoints.size()) {
         after = controlPoints.at(splitIndex + 3);
     }
 
@@ -394,7 +394,7 @@ void EasingCurve::fromCubicSpline(const QVector<QPointF> &points)
 {
     QEasingCurve tmp(QEasingCurve::BezierSpline);
 
-    int numSegments = points.count() / 3;
+    int numSegments = points.size() / 3;
     for (int i = 0; i < numSegments; ++i) {
         tmp.addCubicBezierSegment(points.at(i * 3), points.at(i * 3 + 1), points.at(i * 3 + 2));
     }

@@ -7,6 +7,8 @@
 #include <abstractview.h>
 #include <nodemetainfo.h>
 #include <rewritingexception.h>
+#include <qmldesignerconstants.h>
+#include <qml3dnode.h>
 #include <qmldesignerplugin.h>
 #include <qmlmodelnodeproxy.h>
 #include <qmlobjectnode.h>
@@ -408,7 +410,13 @@ QQmlComponent *PropertyEditorContextObject::specificQmlComponent()
 
     m_qmlComponent = new QQmlComponent(m_qmlContext->engine(), this);
 
-    m_qmlComponent->setData(m_specificQmlData.toUtf8(), QUrl::fromLocalFile(QStringLiteral("specfics.qml")));
+    m_qmlComponent->setData(m_specificQmlData.toUtf8(), QUrl::fromLocalFile("specifics.qml"));
+
+    const bool showError = qEnvironmentVariableIsSet(Constants::ENVIRONMENT_SHOW_QML_ERRORS);
+    if (showError && !m_specificQmlData.isEmpty() && !m_qmlComponent->errors().isEmpty()) {
+        const QString errMsg = m_qmlComponent->errors().constFirst().toString();
+        Core::AsynchronousMessageBox::warning(tr("Invalid QML source"), errMsg);
+    }
 
     return m_qmlComponent;
 }
@@ -590,10 +598,8 @@ bool PropertyEditorContextObject::isBlocked(const QString &propName) const
 {
     if (m_model && m_model->rewriterView()) {
         const QList<ModelNode> nodes = m_model->rewriterView()->selectedModelNodes();
-        QScopedPointer<QmlObjectNode> objNode;
         for (const auto &node : nodes) {
-            objNode.reset(QmlObjectNode::getQmlObjectNodeOfCorrectType(node));
-            if (objNode->isBlocked(propName.toUtf8()))
+              if (Qml3DNode qml3DNode{node}; qml3DNode.isBlocked(propName.toUtf8()))
                 return true;
         }
     }

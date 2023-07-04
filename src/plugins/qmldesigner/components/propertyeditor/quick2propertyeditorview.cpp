@@ -6,17 +6,17 @@
 #include <qmldesignerconstants.h>
 
 #include "aligndistribute.h"
-#include "assetimageprovider.h"
 #include "annotationeditor/annotationeditor.h"
+#include "assetimageprovider.h"
 #include "bindingeditor/actioneditor.h"
 #include "bindingeditor/bindingeditor.h"
 #include "colorpalettebackend.h"
-#include "selectiondynamicpropertiesproxymodel.h"
 #include "fileresourcesmodel.h"
 #include "gradientmodel.h"
 #include "gradientpresetcustomlistmodel.h"
 #include "gradientpresetdefaultlistmodel.h"
 #include "itemfiltermodel.h"
+#include "listvalidator.h"
 #include "propertychangesmodel.h"
 #include "propertyeditorcontextobject.h"
 #include "propertyeditorqmlbackend.h"
@@ -24,6 +24,7 @@
 #include "propertymodel.h"
 #include "qmlanchorbindingproxy.h"
 #include "richtexteditor/richtexteditorproxy.h"
+#include "selectiondynamicpropertiesproxymodel.h"
 #include "theme.h"
 #include "tooltip.h"
 
@@ -50,6 +51,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         GradientPresetDefaultListModel::registerDeclarativeType();
         GradientPresetCustomListModel::registerDeclarativeType();
         ItemFilterModel::registerDeclarativeType();
+        ListValidator::registerDeclarativeType();
         ColorPaletteBackend::registerDeclarativeType();
         Internal::QmlAnchorBindingProxy::registerDeclarativeType();
         BindingEditor::registerDeclarativeType();
@@ -61,8 +63,8 @@ void Quick2PropertyEditorView::registerQmlTypes()
         RichTextEditorProxy::registerDeclarativeType();
         SelectionDynamicPropertiesProxyModel::registerDeclarativeType();
         DynamicPropertyRow::registerDeclarativeType();
-        Experimental::PropertyChangesModel::registerDeclarativeType();
-        Experimental::PropertyModel::registerDeclarativeType();
+        PropertyChangesModel::registerDeclarativeType();
+        PropertyModel::registerDeclarativeType();
 
         const QString resourcePath = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 

@@ -5,6 +5,8 @@
 
 #include "contentlibrarytexture.h"
 
+#include <utils/algorithm.h>
+
 #include <QFileInfo>
 
 namespace QmlDesigner {
@@ -13,13 +15,16 @@ ContentLibraryTexturesCategory::ContentLibraryTexturesCategory(QObject *parent, 
     : QObject(parent), m_name(name) {}
 
 void ContentLibraryTexturesCategory::addTexture(const QFileInfo &tex, const QString &downloadPath,
-                                                const QString &webUrl, const QString &fileExt,
-                                                const QSize &dimensions, const qint64 sizeInBytes)
+                                                const QString &key, const QString &webTextureUrl,
+                                                const QString &webIconUrl, const QString &fileExt,
+                                                const QSize &dimensions, const qint64 sizeInBytes,
+                                                bool hasUpdate, bool isNew)
 {
     QUrl icon = QUrl::fromLocalFile(tex.absoluteFilePath());
 
-    m_categoryTextures.append(new ContentLibraryTexture(this, tex, downloadPath, icon, webUrl,
-                                                        fileExt, dimensions, sizeInBytes));
+    m_categoryTextures.append(new ContentLibraryTexture(
+        this, tex, downloadPath, icon, key, webTextureUrl, webIconUrl,
+        fileExt, dimensions, sizeInBytes, hasUpdate, isNew));
 }
 
 bool ContentLibraryTexturesCategory::filter(const QString &searchText)
@@ -55,6 +60,16 @@ bool ContentLibraryTexturesCategory::expanded() const
 QList<ContentLibraryTexture *> ContentLibraryTexturesCategory::categoryTextures() const
 {
     return m_categoryTextures;
+}
+
+void ContentLibraryTexturesCategory::markTextureHasNoUpdate(const QString &textureKey)
+{
+    auto *texture = Utils::findOrDefault(m_categoryTextures, [&textureKey](ContentLibraryTexture *t) {
+        return t->textureKey() == textureKey;
+    });
+
+    if (texture)
+        texture->setHasUpdate(false);
 }
 
 } // namespace QmlDesigner

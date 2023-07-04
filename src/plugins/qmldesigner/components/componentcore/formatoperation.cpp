@@ -52,7 +52,7 @@ void readFormatConfiguration(){
            QVariantMap rootMap = jsonObject.toVariantMap();
            QJsonArray jsonArray = rootMap["propertylist"].toJsonArray();
 
-           for (int i=0; i< jsonArray.count(); ++i){
+           for (int i = 0; i < jsonArray.size(); ++i) {
                auto item = jsonArray.at(i).toObject();
                QVariantMap itemMap = item.toVariantMap();
                StylePropertyStruct current;

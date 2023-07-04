@@ -24,11 +24,10 @@ void NodeProperty::setModelNode(const ModelNode &modelNode)
     if (!modelNode.isValid())
         return;
 
-    if (internalNode()->hasProperty(name())) { //check if oldValue != value
-        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isNodeProperty()
-            && internalProperty->toNodeProperty()->node() == modelNode.internalNode())
-            return;
+    auto internalProperty = internalNode()->nodeProperty(name());
+    if (internalProperty
+        && internalProperty->node() == modelNode.internalNode()) { //check if oldValue != value
+        return;
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeProperty())
@@ -42,11 +41,9 @@ ModelNode NodeProperty::modelNode() const
     if (!isValid())
         return {};
 
-    if (internalNode()->hasProperty(name())) { //check if oldValue != value
-        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-        if (internalProperty->isNodeProperty())
-            return ModelNode(internalProperty->toNodeProperty()->node(), model(), view());
-    }
+    auto internalProperty = internalNode()->nodeProperty(name());
+    if (internalProperty) //check if oldValue != value
+        return ModelNode(internalProperty->node(), model(), view());
 
     return ModelNode();
 }
