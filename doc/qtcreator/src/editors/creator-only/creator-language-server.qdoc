@@ -29,11 +29,9 @@
             {locator} or \l{Moving to Symbol Definition or Declaration}
             {moving to the symbol definition}
         \li Inspecting code by viewing the document outline in the
-            \l{Viewing Defined Types and Symbols}{Outline} view or
-            in the \uicontrol Symbols list on the \l{Using the Editor Toolbar}
-            {editor toolbar}
-        \li \l{Viewing Call Hierarchy}
-            {Viewing the callers and callees of a function}
+            \l{Outline} view or in the \uicontrol Symbols list on the
+            \l{Using the Editor Toolbar}{editor toolbar}
+        \li \l{Call Hierarchy}{Viewing the callers and callees of a function}
         \li \l{Finding Symbols}{Finding references to symbols}
         \li \l{Renaming Symbols}{Renaming the symbol under cursor}
         \li Code actions

@@ -1,33 +1,20 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
     \previouspage creator-editor-functions.html
     \page creator-coding-navigating.html
-    \if defined(qtdesignstudio)
-    \nextpage creator-views.html
-    \else
     \nextpage creator-highlighting.html
-    \endif
 
     \title Working in Edit Mode
 
-    This section describes how to use the \uicontrol Edit mode. For more
-    information about using the sidebar, see \l{Browsing Project Contents}.
+    You can write code in the \uicontrol Edit mode.
 
     \section1 Using the Editor Toolbar
 
-    The editor toolbar is located at the top of the editor view. The editor
-    toolbar is context sensitive and shows items relevant to the file currently
-    open in the editor.
+    The editor toolbar is located at the top of the editor view. It is context
+    sensitive and shows items relevant to the file currently open in the editor.
 
-    \if defined(qtcreator)
     \image qtcreator-editortoolbar-symbols.webp {Edit mode toolbar}
 
     To add more space around the toolbar items, select \uicontrol Edit >
@@ -35,9 +22,6 @@
     then select \uicontrol Relaxed in the \uicontrol {Toolbar style} field.
 
     \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
-    \else
-    \image studio-edit-mode.png
-    \endif
 
     \section2 Navigating Between Open Files and Symbols
 
@@ -72,10 +56,9 @@
     \l{Searching with the Locator}{locator}. Enter the line number and column
     number in the locator, separated by a colon (:).
 
-    \note You can also use the \l{Browsing Project Contents}{sidebars} to
+    \note You can also use the \l{Show and hide sidebars}{sidebars} to
     move around in \QC.
 
-    \if defined(qtcreator)
     \section2 Selecting Parse Context
 
     Code might be interpreted differently in different contexts. A file can be
@@ -104,7 +87,6 @@
     To reload the file with the selected encoding, select
     \uicontrol {Reload with Encoding}. To save the file with
     the new encoding, select \uicontrol {Save with Encoding}.
-    \endif
 
     \section2 Selecting Line Ending Style
 
@@ -120,7 +102,7 @@
 
     To set the line endings to use for a project, select \uicontrol Projects >
     \uicontrol {Project Settings} > \uicontrol Editor.
-    \if defined(qtcreator)
+
     For more information, see \l {Specifying Editor Settings}.
 
     \section2 Managing Language Servers
@@ -132,7 +114,6 @@
     \l{Inspecting Language Clients}{inspect the communication} between \QC
     and language servers and view server capabilities, as well as
     \l{Specifying Settings for Language Clients}{set language server preferences}.
-    \endif
 
     \section1 Editing Selected Lines
 
@@ -246,12 +227,7 @@
     \endlist
 
     To view the note, move the mouse pointer over the bookmark or open the
-    \uicontrol Bookmarks view
-    \if defined(qtcreator)
-    in the \l{Show and hide sidebars}{sidebar}.
-    \else
-    in the \l{Managing Workspaces}{workspace}.
-    \endif
+    \uicontrol Bookmarks view in the \l{Show and hide sidebars}{sidebar}.
 
     \section2 Navigating Bookmarks
 
@@ -338,7 +314,6 @@
     \uicontrol {Open Corresponding Header/Source in Next Split}. You can also
     press \key F4 or \key {Ctrl+E,F4}, respectively.
 
-    \if defined(qtcreator)
     \section1 Reparsing Externally Changed Files
 
     If source files are modified from outside \QC, the opened files will be
@@ -363,13 +338,4 @@
     \QC underlines semantic errors in olive in the C++ code editor. To check the
     correct paths for includes that are not resolved or that are resolved to the
     wrong file, select \uicontrol {Project Parts} > \uicontrol {Header Paths}.
-
-    \else
-    \section1 Related Topics
-
-    \list
-        \li \l{Browsing Project Contents}
-        \li \l{Viewing Output}
-    \endlist
-    \endif
 */

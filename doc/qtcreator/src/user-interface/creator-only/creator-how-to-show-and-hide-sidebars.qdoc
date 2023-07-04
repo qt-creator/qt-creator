@@ -31,4 +31,13 @@
         \li To close a sidebar view, click \inlineimage icons/splitbutton_closetop.png
             (\uicontrol {Close}).
     \endlist
+
+    \section1 Sidebar views
+
+    Manage projects and files in the following views:
+
+    \annotatedlist creator-reference-sidebar-views
+
+    In some views, right-clicking opens a context menu that has functions
+    for managing the objects listed in the view.
 */

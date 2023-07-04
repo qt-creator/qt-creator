@@ -19,12 +19,6 @@
             \li \l{IDE Overview}
             \li \l{User Interface}
                 \list
-                    \li \l{Browsing Project Contents}
-                        \list
-                            \li \l{Projects}
-                            \li \l{File System}
-                            \li \l{Open Documents}
-                        \endlist
                     \li \l{Viewing Output}
                  \endlist
             \li \l{Configuring Qt Creator}

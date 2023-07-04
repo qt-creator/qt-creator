@@ -3,22 +3,30 @@
 
 /*!
     \page creator-file-system-view.html
+    \if defined(qtdesignstudio)
     \previouspage creator-projects-view.html
     \nextpage creator-open-documents-view.html
+    \else
+    \previouspage creator-how-to-show-and-hide-sidebars.html
+    \nextpage creator-output-panes.html
+    \endif
+
+    \ingroup creator-reference-sidebar-views
+    \ingroup studio-views
 
     \title File System
 
-    The \uicontrol {File System} view shows all the files in the file system.
+    \brief Shows all the files in the current directory.
 
+    \if defined(qtcreator)
     \note Usually, \l{Searching with the Locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,
     or almost anything else in your project. Use the \e {file system (f)} filter
     to open files from anywhere in the file system.
 
-    \if defined(qtdesignstudio)
-    \image qtcreator-filesystem-view-design.png {File System view}
-    \else
     \image qtcreator-filesystem-view.webp {File System view in the sidebar}
+    \else
+    \image qtcreator-filesystem-view-design.png {File System view}
     \endif
 
     To move to the root directory of the file system, select \uicontrol Computer
