@@ -39,6 +39,7 @@ target_link_libraries(%{TargetName}
     PRIVATE Qt6::Quick
 )
 
+include(GNUInstallDirs)
 install(TARGETS %{TargetName}
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

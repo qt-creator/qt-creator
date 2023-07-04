@@ -2169,6 +2169,11 @@ DocumentUri Client::hostPathToServerUri(const Utils::FilePath &path) const
     });
 }
 
+OsType Client::osType() const
+{
+    return d->m_serverDeviceTemplate.osType();
+}
+
 void Client::registerCustomMethod(const QString &method, const CustomMethodHandler &handler)
 {
     d->m_customHandlers.insert(method, handler);

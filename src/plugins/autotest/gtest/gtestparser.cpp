@@ -80,7 +80,7 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
 
     const QByteArray &fileContent = getFileContent(fileName);
     if (!hasGTestNames(doc)) {
-        const QRegularExpression regex("\\b(TEST(_[FP])?|TYPED_TEST(_P)?|(GTEST_TEST))");
+        static const QRegularExpression regex("\\b(TEST(_[FP])?|TYPED_TEST(_P)?|(GTEST_TEST))");
         if (!regex.match(QString::fromUtf8(fileContent)).hasMatch())
             return false;
     }

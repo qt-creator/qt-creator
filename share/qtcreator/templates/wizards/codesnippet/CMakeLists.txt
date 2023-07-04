@@ -24,6 +24,7 @@ endif()
 
 target_link_libraries(%{ProjectName} PRIVATE Qt${QT_VERSION_MAJOR}::%{QtModule})
 
+include(GNUInstallDirs)
 install(TARGETS %{ProjectName}
 @if %{MacOSBundle}
     BUNDLE DESTINATION .

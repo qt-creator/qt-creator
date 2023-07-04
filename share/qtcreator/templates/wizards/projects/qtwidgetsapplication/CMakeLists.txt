@@ -72,6 +72,7 @@ set_target_properties(%{ProjectName} PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+include(GNUInstallDirs)
 install(TARGETS %{ProjectName}
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

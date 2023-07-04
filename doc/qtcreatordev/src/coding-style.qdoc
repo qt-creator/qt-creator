@@ -645,6 +645,74 @@
             executed code, and even then prefer Utils::HostInfo over #ifdefs.
     \endlist
 
+    \section2 Plugin Dependencies
+
+    To keep Qt Creator scalable we aim at keeping hard run-time dependencies
+    between plugins and to external libraries as few as reasonably possible.
+
+    There are several techniques for that.
+
+    \section2 Extending Base Plugin Functionality by Callbacks
+
+    This pattern allows leaf plugins to provide additional functionality
+    to a central plugin by injecting a callback.
+
+    It is used for functionality that is helpful in some setups but not
+    applicable or considered intrusive (e.g. because of size or external
+    dependencies) in others, so that users may want to enable or disable
+    it without impacting the rest of their setup.
+
+    The leaf plugin can then for example depend on a large (or otherwise
+    inconvenient) external dependency without imposing this dependency on
+    the central plugin.
+
+    The overall pattern looks like:
+
+        \list
+
+        \li In \c centralplugin/somewhere.h
+
+           \code
+                std::function<void(...)> &fancyLeafCallback();
+
+                void possiblyFancyOperation();
+           \endcode
+
+        \li In \c centralplugin/somewhere.cpp
+
+           \code
+               std::function<void(...)> &fancyLeafCallback()
+               {
+                   static std::function<void(...)> callback;
+                   return callback;
+               }
+               ...
+
+               void possiblyFancyOperation()
+               {
+                  if (auto callback = fancyLeafCallback()) {
+                     // can be used
+                     callback();
+                  } else {
+                     // not present, use some plain fallback implementation
+                     // or error out
+                  }
+               }
+            \endcode
+
+        \li In \c leafplugin/leafplugin.cpp:
+
+            \code
+                void LeafPlugininitialize()
+                {
+                   ...
+                   Central::fancyLeafCallback() = [this](...) { doSomething; };
+                   ...
+                }
+
+            \endcode
+
+        \endlist
 
     \section2 Plugin Extension Points
 

@@ -24,7 +24,7 @@ def main():
         waitFor("runButton.enabled", 30000)
         # Starting before opening, because this is where Creator froze (QTCREATORBUG-10733)
         startopening = datetime.utcnow()
-        openQmakeProject(pathCreator, [Targets.DESKTOP_5_10_1_DEFAULT])
+        openQmakeProject(pathCreator, [Targets.DESKTOP_5_14_1_DEFAULT])
         # Wait for parsing to complete
         startreading = datetime.utcnow()
         waitFor("runButton.enabled", 300000)
