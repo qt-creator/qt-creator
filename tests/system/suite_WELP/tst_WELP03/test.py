@@ -18,10 +18,18 @@ def handlePackagingMessageBoxes():
         except:
             break
 
-def openExample(examplesLineEdit, input, exampleRegex, exampleName):
+
+def openExample(examplesLineEdit, input, exampleRegex, exampleName, waitForChildCount=0):
     replaceEditorContent(examplesLineEdit, input)
     listView = waitForObject("{type='QListView' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}")
+    if waitForChildCount > 0:
+
+        def childCount(view):
+            return len(__childrenOfType__(view, 'QModelIndex'))
+
+        waitFor("childCount(listView) == waitForChildCount", 3000)
+
     waitFor('findExampleOrTutorial(listView, exampleRegex) is not None', 3000)
     example = findExampleOrTutorial(listView, exampleRegex, True)
     if test.verify(example is not None, "Verifying: Example (%s) is shown." % exampleName):
@@ -100,7 +108,7 @@ def main():
         removePackagingDirectory(os.path.dirname(p))
     examplesLineEdit = waitForObject(search %(expect[1][0], expect[1][1]))
     example = openExample(examplesLineEdit, "address book", "(0000 )?Address Book.*",
-                          "Address Book Example")
+                          "Address Book Example", 3)
     if example is not None:
         # close second example application
         test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
