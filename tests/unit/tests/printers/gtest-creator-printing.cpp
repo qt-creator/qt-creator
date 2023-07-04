@@ -236,6 +236,7 @@ Utils::SmallStringView operationText(int operation)
 
 std::ostream &operator<<(std::ostream &out, sqlite3_changeset_iter *iter)
 {
+#if 0
     out << "(";
 
     const char *tableName = nullptr;
@@ -278,7 +279,7 @@ std::ostream &operator<<(std::ostream &out, sqlite3_changeset_iter *iter)
     }
 
     out << "})";
-
+#endif
     return out;
 }
 
@@ -315,6 +316,7 @@ const char *toText(LockingMode lockingMode)
 
 std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
 {
+#if 0
     sqlite3_changeset_iter *iter = nullptr;
     sqlite3changeset_start(&iter, changeset.size(), const_cast<void *>(changeset.data()));
 
@@ -329,7 +331,7 @@ std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
     sqlite3changeset_finalize(iter);
 
     out << "])";
-
+#endif
     return out;
 }
 
