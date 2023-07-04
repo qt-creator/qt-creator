@@ -146,7 +146,7 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
     }
 
     if (pchIncludes) {
-        const QRegularExpression regex("\\bQUICK_TEST_(MAIN|OPENGL_MAIN|MAIN_WITH_SETUP)");
+        static const QRegularExpression regex("\\bQUICK_TEST_(MAIN|OPENGL_MAIN|MAIN_WITH_SETUP)");
         const QRegularExpressionMatch match = regex.match(QString::fromUtf8(fileContent));
         if (match.hasMatch())
             return match.captured(); // we do not care for the name, just return something non-empty
