@@ -9,8 +9,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace %{PluginName} {
-namespace Internal {
+namespace %{PluginName}::Internal {
 
 class %{CN} : public ExtensionSystem::IPlugin
 {
@@ -29,8 +28,7 @@ private:
     void triggerAction();
 };
 
-} // namespace Internal
-} // namespace %{PluginName}
+} // namespace %{PluginName}::Internal
 
 @if ! '%{Cpp:PragmaOnce}'
 #endif // %{GUARD}

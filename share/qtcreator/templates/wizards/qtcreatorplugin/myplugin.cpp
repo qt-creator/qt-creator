@@ -13,8 +13,7 @@
 #include <QMainWindow>
 #include <QMenu>
 
-namespace %{PluginName} {
-namespace Internal {
+namespace %{PluginName}::Internal {
 
 %{CN}::%{CN}()
 {
@@ -75,5 +74,4 @@ void %{CN}::triggerAction()
                              tr("This is an action from %{PluginName}."));
 }
 
-} // namespace Internal
-} // namespace %{PluginName}
+} // namespace %{PluginName}::Internal
