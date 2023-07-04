@@ -135,8 +135,7 @@ public:
     {
         Utils::ChangeSet change;
         change.insert(m_position, QLatin1String(text));
-        QTextCursor cursor(m_textDocument);
-        change.apply(&cursor);
+        change.apply(m_textDocument);
         m_position += text.length();
     }
 

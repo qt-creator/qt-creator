@@ -318,8 +318,7 @@ void QuickToolBar::removeProperty(const QString &propertyName)
             Utils::ChangeSet changeSet;
             Rewriter rewriter(m_doc->source(), &changeSet, m_propertyOrder);
             rewriter.removeBindingByName(initializer, propertyName);
-            QTextCursor tc(m_editorWidget->document());
-            changeSet.apply(&tc);
+            changeSet.apply(m_editorWidget->document());
         }
     }
 }

@@ -76,8 +76,7 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
     Utils::ChangeSet change = formatter.format(cppDocument->translationUnit()->ast());
 
     // Apply change
-    QTextCursor cursor(textDocument);
-    change.apply(&cursor);
+    change.apply(textDocument);
 }
 
 // ------------------ CppCodeStyleSettingsWidget

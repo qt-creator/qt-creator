@@ -318,6 +318,12 @@ void ChangeSet::apply(QTextCursor *textCursor)
     m_cursor = nullptr;
 }
 
+void ChangeSet::apply(QTextDocument *document)
+{
+    QTextCursor c(document);
+    apply(&c);
+}
+
 QString ChangeSet::textAt(int pos, int length)
 {
     if (m_string) {
