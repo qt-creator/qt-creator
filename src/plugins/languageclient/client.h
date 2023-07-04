@@ -168,6 +168,7 @@ public:
     LanguageServerProtocol::DocumentUri::PathMapper hostPathMapper() const;
     Utils::FilePath serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const;
     LanguageServerProtocol::DocumentUri hostPathToServerUri(const Utils::FilePath &path) const;
+    Utils::OsType osType() const;
 
     // custom methods
     using CustomMethodHandler = std::function<void(

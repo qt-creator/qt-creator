@@ -146,7 +146,7 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
     }
 
     if (pchIncludes) {
-        const QRegularExpression regex("\\bQUICK_TEST_(MAIN|OPENGL_MAIN|MAIN_WITH_SETUP)");
+        static const QRegularExpression regex("\\bQUICK_TEST_(MAIN|OPENGL_MAIN|MAIN_WITH_SETUP)");
         const QRegularExpressionMatch match = regex.match(QString::fromUtf8(fileContent));
         if (match.hasMatch())
             return match.captured(); // we do not care for the name, just return something non-empty
@@ -165,8 +165,6 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Fi
     ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), paths, qmlJsMM,
         false /*emitDocumentChanges*/, false /*onlyTheLib*/, true /*forceRescan*/ );
 
-    const Snapshot snapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
-
     QDirIterator it(srcDir.toString(),
                     QDir::Dirs | QDir::NoDotAndDotDot,
                     QDirIterator::Subdirectories);
@@ -184,7 +182,7 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Fi
     QList<Document::Ptr> foundDocs;
 
     for (const FilePath &path : std::as_const(dirs)) {
-        const QList<Document::Ptr> docs = snapshot.documentsInDirectory(path);
+        const QList<Document::Ptr> docs = m_qmlSnapshot.documentsInDirectory(path);
         for (const Document::Ptr &doc : docs) {
             const FilePath fi = doc->fileName();
             //const QFileInfo fi(doc->fileName());

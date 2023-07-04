@@ -39,7 +39,7 @@ static ResultHooks::OutputStringHook outputStringHook(const QString &testCaseNam
 
 static QString normalizeName(const QString &name)
 {
-    static QRegularExpression parameterIndex("/\\d+");
+    static const QRegularExpression parameterIndex("/\\d+");
 
     QString nameWithoutParameterIndices = name;
     nameWithoutParameterIndices.remove(parameterIndex);

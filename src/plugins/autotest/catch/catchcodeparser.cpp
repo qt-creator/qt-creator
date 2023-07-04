@@ -41,7 +41,7 @@ static QStringList parseTags(const QString &tagsString)
 {
     QStringList tagsList;
 
-    const QRegularExpression tagRegEx("\\[(.*?)\\]",QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression tagRegEx("\\[(.*?)\\]", QRegularExpression::CaseInsensitiveOption);
     int pos = 0;
     QRegularExpressionMatch it = tagRegEx.match(tagsString, pos);
     while (it.hasMatch()) {

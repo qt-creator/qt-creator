@@ -45,7 +45,7 @@ public:
 
 private:
     QmlJS::Document::Ptr m_currentDoc;
-    QmlJS::Snapshot m_snapshot;
+    const QmlJS::Snapshot &m_snapshot;
     QStack<QuickTestCaseSpec> m_caseParseStack;
     QVector<QuickTestCaseSpec> m_testCases;
     QStack<bool> m_objectIsTestStack;
@@ -64,7 +64,7 @@ public:
 private:
     QString m_testBaseName;
     CPlusPlus::Document::Ptr m_currentDoc;
-    CPlusPlus::Snapshot m_snapshot;
+    const CPlusPlus::Snapshot &m_snapshot;
 };
 
 } // namespace Internal

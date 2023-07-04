@@ -1115,7 +1115,23 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 cleanString.remove('`');
                 const QStringList lines = cleanString.trimmed().split('\n');
                 for (const QString &line : lines) {
-                    const auto markupFilePath = Utils::FilePath::fromUserInput(line.simplified());
+                    const QString possibleFilePath = line.simplified();
+                    const auto looksLikeFilePath = [&] {
+                        if (possibleFilePath.length() < 3)
+                            return false;
+                        if (osType() == OsTypeWindows) {
+                            if (possibleFilePath.startsWith(R"(\\)"))
+                                return true;
+                            return possibleFilePath.front().isLetter()
+                                    && possibleFilePath.at(1) == ':'
+                                    && possibleFilePath.at(2) == '\\';
+                        }
+                        return possibleFilePath.front() == '/'
+                                && possibleFilePath.at(1).isLetterOrNumber();
+                    };
+                    if (!looksLikeFilePath())
+                        continue;
+                    const auto markupFilePath = Utils::FilePath::fromUserInput(possibleFilePath);
                     if (markupFilePath.exists()) {
                         d->setHelpItemForTooltip(hoverResponse.id(),
                                                  filePath,
