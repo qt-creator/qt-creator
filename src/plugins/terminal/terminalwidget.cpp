@@ -15,6 +15,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -170,18 +171,15 @@ void TerminalWidget::setupPty()
     });
 
     connect(m_process.get(), &Process::done, this, [this] {
+        QString errorMessage;
+
         if (m_process) {
             if (m_process->exitCode() != 0) {
-                QByteArray msg = QString("\r\n\033[31mProcess exited with code: %1")
-                                     .arg(m_process->exitCode())
-                                     .toUtf8();
+                errorMessage
+                    = Tr::tr("Terminal process exited with code %1").arg(m_process->exitCode());
 
                 if (!m_process->errorString().isEmpty())
-                    msg += QString(" (%1)").arg(m_process->errorString()).toUtf8();
-
-                m_surface->dataFromPty(msg);
-
-                return;
+                    errorMessage += QString(" (%1)").arg(m_process->errorString());
             }
         }
 
@@ -200,11 +198,18 @@ void TerminalWidget::setupPty()
             deleteLater();
 
         if (m_openParameters.m_exitBehavior == ExitBehavior::Keep) {
-            QByteArray msg = QString("\r\nProcess exited with code: %1")
-                                 .arg(m_process ? m_process->exitCode() : -1)
-                                 .toUtf8();
+            if (!errorMessage.isEmpty()) {
+                QByteArray msg = QString("\r\n\033[31m%1").arg(errorMessage).toUtf8();
 
-            m_surface->dataFromPty(msg);
+                m_surface->dataFromPty(msg);
+            } else {
+                QString exitMsg = Tr::tr("Process exited with code: %1")
+                                      .arg(m_process ? m_process->exitCode() : -1);
+                QByteArray msg = QString("\r\n%1").arg(exitMsg).toUtf8();
+                m_surface->dataFromPty(msg);
+            }
+        } else if (!errorMessage.isEmpty()) {
+            Core::MessageManager::writeFlashing(errorMessage);
         }
     });
 
