@@ -236,9 +236,9 @@
 
     \title Viewing Output
 
-    \image qtcreator-general-messages.png "General Messages"
+    \image qtcreator-general-messages.webp {General Messages}
 
-    The taskbar in \QC can display following types of output:
+    You can view the following types of output:
 
     \list
 
@@ -441,7 +441,7 @@
     In \uicontrol{Search Results}, you can search through projects, files on
     a file system or the currently open files:
 
-    \image qtcreator-search-results.png "Search Results"
+    \image qtcreator-search-results.webp {Search Results - criteria}
 
     The search history (1) stores the search results. You can select earlier
     searches from the history.
@@ -449,7 +449,7 @@
     The figure below shows an example search result for all
     occurrences of the search string in the specified directory.
 
-    \image qtcreator-searchresults.png
+    \image qtcreator-search-results-matches.webp {Search Results - matches found}
 
     For more information about the different search options, see
     \l {Finding and Replacing}.
@@ -459,7 +459,7 @@
     \uicontrol{Application Output} displays the status of a program when
     you execute it, and the debug output.
 
-    \image qtcreator-application-output.png
+    \image qtcreator-application-output.webp {Application Output}
 
     \if defined(qtcreator)
     If you specify command line arguments in the run settings that are passed
@@ -485,7 +485,7 @@
     The \uicontrol{Compile Output} is a more detailed version of information
     displayed in \l Issues.
 
-    \image qtcreator-compile-output.png "Compile Output"
+    \image qtcreator-compile-output.webp {Compile Output}
 
     Double-click on a file name in an error message to open the file in the
     code editor.
@@ -636,13 +636,13 @@
     subproject. Click the icons on the toolbar to show only the selected
     keywords.
 
-    \image qtcreator-todo-pane.png
+    \image qtcreator-to-do-entries.webp {To-Do Entries}
 
     To add keywords, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {To-Do} > \uicontrol Add. Set an icon and a line background color
     for the keyword.
 
-    \image qtcreator-todo-options.png "To-Do preferences"
+    \image qtcreator-todo-options.png {To-Do preferences}
 
     To change the icon and line background color of the selected keyword, select
     \uicontrol Edit.
@@ -659,7 +659,7 @@
     To exclude files from scanning, select \uicontrol {Project Settings} >
     \uicontrol {To-Do} in the \uicontrol Projects mode.
 
-    \image qtcreator-todo-excluded-files.png "Excluded Files in To-Do preferences"
+    \image qtcreator-todo-excluded-files.png {Excluded Files in To-Do preferences}
 
     Select \uicontrol Add and double-click the placeholder text in
     \uicontrol {Exclude Files} to enter a regular expression that
