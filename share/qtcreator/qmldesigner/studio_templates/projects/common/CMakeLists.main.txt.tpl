@@ -38,6 +38,7 @@ if (LINK_INSIGHT)
     include(${CMAKE_CURRENT_SOURCE_DIR}/insight)
 endif ()
 
+include(GNUInstallDirs)
 install(TARGETS %{ProjectName}App
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
