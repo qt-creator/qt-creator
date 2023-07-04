@@ -34,7 +34,7 @@ public:
 private:
     CppEditor::SymbolFinder m_symbolFinder;
     QString m_className;
-    CPlusPlus::Snapshot m_snapshot;
+    const CPlusPlus::Snapshot &m_snapshot;
     QMap<QString, QtTestCodeLocationAndType> m_privSlots;
     bool m_valid = false;
     bool m_inherited = false;
@@ -55,7 +55,7 @@ private:
     QStringList m_classNames;
     CPlusPlus::Scope *m_currentScope = nullptr;
     CPlusPlus::Document::Ptr m_currentDoc;
-    CPlusPlus::Snapshot m_snapshot;
+    const CPlusPlus::Snapshot &m_snapshot;
 };
 
 class TestDataFunctionVisitor : public CPlusPlus::ASTVisitor
