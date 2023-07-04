@@ -19,6 +19,8 @@
 #include <functional>
 #include <memory>
 
+namespace Tasking { class Group; }
+
 namespace Utils {
 class Icon;
 class MacroExpander;
@@ -157,6 +159,8 @@ public:
 
     void setAutoDeleteOnStop(bool autoDelete);
 
+    void setRunRecipe(const Tasking::Group &group);
+
     void initiateStart();
     void initiateReStart();
     void initiateStop();
@@ -165,6 +169,8 @@ public:
     bool promptToStop(bool *optionalPrompt = nullptr) const;
     void setPromptToStop(const std::function<bool(bool *)> &promptToStop);
 
+    // Note: Works only in the task tree mode
+    void setSupportsReRunning(bool reRunningSupported);
     bool supportsReRunning() const;
 
     QString displayName() const;
@@ -238,7 +244,7 @@ signals:
     void aboutToStart();
     void started();
     void stopped();
-    void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
+    void applicationProcessHandleChanged(QPrivateSignal);
 
 private:
     void setDevice(const IDeviceConstPtr &device);

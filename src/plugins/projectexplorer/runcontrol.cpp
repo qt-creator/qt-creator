@@ -21,6 +21,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileinprojectfinder.h>
@@ -256,6 +258,8 @@ public:
     RunControlState state = RunControlState::Initialized;
     bool printEnvironment = false;
     bool autoDelete = false;
+    bool m_supportsReRunning = true;
+    std::optional<Tasking::Group> m_runRecipe;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -303,9 +307,12 @@ public:
 
     static bool isAllowedTransition(RunControlState from, RunControlState to);
     bool supportsReRunning() const;
+    bool isUsingTaskTree() const { return bool(m_runRecipe); }
+    void startTaskTree();
 
     RunControl *q;
     Id runMode;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
 };
 
 } // Internal
@@ -409,26 +416,49 @@ void RunControl::setAutoDeleteOnStop(bool autoDelete)
     d->autoDelete = autoDelete;
 }
 
+void RunControl::setRunRecipe(const Tasking::Group &group)
+{
+    d->m_runRecipe = group;
+}
+
 void RunControl::initiateStart()
 {
-    emit aboutToStart();
-    d->initiateStart();
+    if (d->isUsingTaskTree()) {
+        d->startTaskTree();
+    } else {
+        emit aboutToStart();
+        d->initiateStart();
+    }
 }
 
 void RunControl::initiateReStart()
 {
-    emit aboutToStart();
-    d->initiateReStart();
+    if (d->isUsingTaskTree()) {
+        d->startTaskTree();
+    } else {
+        emit aboutToStart();
+        d->initiateReStart();
+    }
 }
 
 void RunControl::initiateStop()
 {
-    d->initiateStop();
+    if (d->isUsingTaskTree()) {
+        d->m_taskTree.reset();
+        emit stopped();
+    } else {
+        d->initiateStop();
+    }
 }
 
 void RunControl::forceStop()
 {
-    d->forceStop();
+    if (d->isUsingTaskTree()) {
+        d->m_taskTree.reset();
+        emit stopped();
+    } else {
+        d->forceStop();
+    }
 }
 
 RunWorker *RunControl::createWorker(Id workerId)
@@ -991,8 +1021,15 @@ void RunControl::setPromptToStop(const std::function<bool (bool *)> &promptToSto
     d->promptToStop = promptToStop;
 }
 
+void RunControl::setSupportsReRunning(bool reRunningSupported)
+{
+    d->m_supportsReRunning = reRunningSupported;
+}
+
 bool RunControl::supportsReRunning() const
 {
+    if (d->isUsingTaskTree())
+        return d->m_supportsReRunning;
     return d->supportsReRunning();
 }
 
@@ -1007,18 +1044,39 @@ bool RunControlPrivate::supportsReRunning() const
     return true;
 }
 
+void RunControlPrivate::startTaskTree()
+{
+    using namespace Tasking;
+
+    m_taskTree.reset(new TaskTree(*m_runRecipe));
+    connect(m_taskTree.get(), &TaskTree::started, q, &RunControl::started);
+    const auto finalize = [this] {
+        m_taskTree.release()->deleteLater();
+        emit q->stopped();
+    };
+    connect(m_taskTree.get(), &TaskTree::done, this, finalize);
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, finalize);
+    m_taskTree->start();
+}
+
 bool RunControl::isRunning() const
 {
+    if (d->isUsingTaskTree())
+        return d->m_taskTree.get();
     return d->state == RunControlState::Running;
 }
 
 bool RunControl::isStarting() const
 {
+    if (d->isUsingTaskTree())
+        return false;
     return d->state == RunControlState::Starting;
 }
 
 bool RunControl::isStopped() const
 {
+    if (d->isUsingTaskTree())
+        return !d->m_taskTree.get();
     return d->state == RunControlState::Stopped;
 }
 
