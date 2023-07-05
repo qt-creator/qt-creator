@@ -66,6 +66,165 @@ void PresentationModeHandler::showShortcutPopup(const QString &shortcut)
     Utils::FadingIndicator::showText(window, shortcut);
 }
 
+} // Core::Internal
+
+
+namespace Core {
+
+class ActionPrivate
+{
+public:
+    void ensureCommand()
+    {
+        if (!command) {
+            QTC_ASSERT(actionId.isValid(), return);
+            QTC_ASSERT(!context.isEmpty(), return);
+            command = ActionManager::registerAction(&action, actionId, context);
+        }
+    }
+
+    QAction action;
+    Id actionId;
+    Context context;
+    Command *command = nullptr;
+};
+
+Action::Action()
+    : d(new ActionPrivate)
+{
+}
+
+Action::~Action()
+{
+    delete d;
+}
+
+void Action::setText(const QString &text)
+{
+    d->action.setText(text);
+}
+
+void Action::setCommandAttribute(Command::CommandAttribute attr)
+{
+    d->ensureCommand();
+    QTC_ASSERT(d->command, return);
+    d->command->setAttribute(attr);
+}
+
+void Action::setContainer(Utils::Id containerId, Utils::Id groupId)
+{
+    d->ensureCommand();
+    QTC_ASSERT(d->command, return);
+    if (containerId.isValid()) {
+        ActionContainer *container = ActionManager::actionContainer(containerId);
+        container->addAction(d->command, groupId);
+    }
+}
+
+void Action::setOnTriggered(const std::function<void ()> &func)
+{
+    QObject::connect(&d->action, &QAction::triggered, &d->action, func);
+}
+
+void Action::setOnTriggered(QObject *guard, const std::function<void ()> &func)
+{
+    QObject::connect(&d->action, &QAction::triggered, guard, func);
+}
+
+void Action::setDefaultKeySequence(const QKeySequence &seq)
+{
+    d->ensureCommand();
+    QTC_ASSERT(d->command, return);
+    d->command->setDefaultKeySequence(seq);
+}
+
+void Action::setDefaultKeySequence(const QString &mac, const QString &nonMac)
+{
+    d->ensureCommand();
+    QTC_ASSERT(d->command, return);
+    d->command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? mac : nonMac));
+}
+
+void Action::setIcon(const QIcon &icon)
+{
+    d->action.setIcon(icon);
+}
+
+void Action::setIconVisibleInMenu(bool on)
+{
+    d->action.setIconVisibleInMenu(on);
+}
+
+void Action::setTouchBarIcon(const QIcon &icon)
+{
+    d->ensureCommand();
+    QTC_ASSERT(d->command, return);
+    d->command->setTouchBarIcon(icon);
+}
+
+void Action::setEnabled(bool on)
+{
+    d->action.setEnabled(on);
+}
+
+Command *Action::command() const
+{
+    d->ensureCommand();
+    QTC_CHECK(d->command);
+    return d->command;
+}
+
+void Action::setId(Id id)
+{
+    d->actionId = id;
+}
+
+void Action::setContext(Id id)
+{
+    d->context = Context(id);
+}
+
+void Action::setContext(const Context &context)
+{
+    d->context = context;
+}
+
+// Separator
+
+ActionSeparator::ActionSeparator(Id id)
+{
+    ActionContainer *container = ActionManager::actionContainer(id);
+    QTC_ASSERT(container, return);
+    container->addSeparator();
+}
+
+// Menu
+
+Menu::Menu() = default;
+
+void Menu::setId(Id id)
+{
+    QTC_ASSERT(!m_menu, return);
+    m_menu = ActionManager::createMenu(id);
+}
+
+void Menu::setTitle(const QString &title)
+{
+    QTC_ASSERT(m_menu, return);
+    m_menu->menu()->setTitle(title);
+}
+
+void Menu::setContainer(Id containerId, Id groupId)
+{
+    QTC_ASSERT(m_menu, return);
+    ActionContainer *container = ActionManager::actionContainer(containerId);
+    container->addMenu(m_menu, groupId);
+}
+
+void Menu::addSeparator()
+{
+    QTC_ASSERT(m_menu, return);
+    m_menu->addSeparator();
 }
 
 /*!
@@ -536,3 +695,5 @@ void ActionManagerPrivate::saveSettings()
         saveSettings(j.value());
     }
 }
+
+} // Core

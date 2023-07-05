@@ -11,6 +11,8 @@
 #include <QObject>
 #include <QList>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QString;
@@ -28,6 +30,53 @@ class CorePlugin;
 class ICorePrivate;
 class MainWindow;
 } // Internal
+
+class CORE_EXPORT Action
+{
+public:
+    Action();
+    ~Action();
+
+    void setId(Utils::Id id);
+    void setContext(const Utils::Id id);
+    void setContext(const Core::Context &context);
+    void setText(const QString &text);
+    void setCommandAttribute(Core::Command::CommandAttribute attr);
+    void setContainer(Utils::Id containerId, Utils::Id groupId = {});
+    void setOnTriggered(const std::function<void()> &func);
+    void setOnTriggered(QObject *guard, const std::function<void()> &func);
+    void setDefaultKeySequence(const QKeySequence &seq);
+    void setDefaultKeySequence(const QString &mac, const QString &nonMac);
+    void setIcon(const QIcon &icon);
+    void setIconVisibleInMenu(bool on);
+    void setTouchBarIcon(const QIcon &icon);
+    void setEnabled(bool on);
+
+    Command *command() const;
+
+private:
+    class ActionPrivate *d = nullptr;
+};
+
+class CORE_EXPORT Menu
+{
+public:
+    Menu();
+
+    void setId(Utils::Id id);
+    void setTitle(const QString &title);
+    void setContainer(Utils::Id containerId, Utils::Id groupId = {});
+    void addSeparator();
+
+private:
+    ActionContainer *m_menu = nullptr;
+};
+
+class CORE_EXPORT ActionSeparator
+{
+public:
+    ActionSeparator(Utils::Id id);
+};
 
 class CORE_EXPORT ActionManager : public QObject
 {
