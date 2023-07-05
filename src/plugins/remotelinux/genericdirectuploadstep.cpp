@@ -39,26 +39,21 @@ enum class IncrementalDeployment { Enabled, Disabled, NotSupported };
 class GenericDirectUploadStep : public AbstractRemoteLinuxDeployStep
 {
 public:
-    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Id id)
+    GenericDirectUploadStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto incremental = addAspect<BoolAspect>();
-        incremental->setSettingsKey("RemoteLinux.GenericDirectUploadStep.Incremental");
-        incremental->setLabel(Tr::tr("Incremental deployment"),
-                              BoolAspect::LabelPlacement::AtCheckBox);
-        incremental->setValue(true);
-        incremental->setDefaultValue(true);
+        incremental.setSettingsKey("RemoteLinux.GenericDirectUploadStep.Incremental");
+        incremental.setLabelText(Tr::tr("Incremental deployment"));
+        incremental.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+        incremental.setDefaultValue(true);
 
-        auto ignoreMissingFiles = addAspect<BoolAspect>();
-        ignoreMissingFiles->setSettingsKey("RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles");
-        ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files"),
-                                     BoolAspect::LabelPlacement::AtCheckBox);
-        ignoreMissingFiles->setValue(false);
+        ignoreMissingFiles.setSettingsKey("RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles");
+        ignoreMissingFiles.setLabelText(Tr::tr("Ignore missing files"));
+        ignoreMissingFiles.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
-        setInternalInitializer([this, incremental, ignoreMissingFiles] {
-            m_incremental = incremental->value()
+        setInternalInitializer([this] {
+            m_incremental = incremental()
                                    ? IncrementalDeployment::Enabled : IncrementalDeployment::Disabled;
-            m_ignoreMissingFiles = ignoreMissingFiles->value();
             return isDeploymentPossible();
         });
 
@@ -84,8 +79,10 @@ public:
     GroupItem chmodTree(const TreeStorage<UploadStorage> &storage);
 
     IncrementalDeployment m_incremental = IncrementalDeployment::NotSupported;
-    bool m_ignoreMissingFiles = false;
     mutable QList<DeployableFile> m_deployableFiles;
+
+    BoolAspect incremental{this};
+    BoolAspect ignoreMissingFiles{this};
 };
 
 static QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
@@ -203,7 +200,7 @@ GroupItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &
             if (!file.localFilePath().exists()) {
                 const QString message = Tr::tr("Local file \"%1\" does not exist.")
                                               .arg(file.localFilePath().toUserOutput());
-                if (m_ignoreMissingFiles) {
+                if (ignoreMissingFiles()) {
                     addWarningMessage(message);
                     continue;
                 }
