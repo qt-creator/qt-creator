@@ -855,4 +855,18 @@ TEST_F(Model, change_root_node_type_changes_meta_info)
     ASSERT_THAT(rootNode.metaInfo(), model.qmlQtObjectMetaInfo());
 }
 
+TEST_F(Model, meta_info)
+{
+    auto meta_info = model.metaInfo("QtObject");
+
+    ASSERT_THAT(meta_info, model.qmlQtObjectMetaInfo());
+}
+
+TEST_F(Model, meta_info_of_not_existing_type_is_invalid)
+{
+    auto meta_info = model.metaInfo("Foo");
+
+    ASSERT_THAT(meta_info, IsFalse());
+}
+
 } // namespace

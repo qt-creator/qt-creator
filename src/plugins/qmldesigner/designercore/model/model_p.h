@@ -311,6 +311,7 @@ private:
     static QList<std::tuple<InternalBindingPropertyPointer, QString>> toInternalBindingProperties(
         const ModelResourceSet::SetExpressions &setExpressions);
     EnabledViewRange enabledViews() const;
+    ImportedTypeNameId importedTypeNameId(Utils::SmallStringView typeName);
     void setTypeId(InternalNode *node, Utils::SmallStringView typeName);
 
 public:

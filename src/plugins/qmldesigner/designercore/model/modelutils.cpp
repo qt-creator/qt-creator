@@ -4,6 +4,7 @@
 #include "modelutils.h"
 
 #include <nodemetainfo.h>
+#include <projectstorage/sourcepathcache.h>
 
 #include <utils/expected.h>
 
@@ -100,6 +101,31 @@ PropertyMetaInfo metainfo(const AbstractProperty &property)
 PropertyMetaInfo metainfo(const ModelNode &node, const PropertyName &propertyName)
 {
     return node.metaInfo().property(propertyName);
+}
+
+QString componentFilePath(const PathCacheType &pathCache, const NodeMetaInfo &metaInfo)
+{
+    if constexpr (useProjectStorage()) {
+        auto typeSourceId = metaInfo.sourceId();
+
+        if (typeSourceId && metaInfo.isFileComponent()) {
+            return pathCache.sourcePath(typeSourceId).toQString();
+        }
+    } else {
+        return metaInfo.componentFileName();
+    }
+
+    return {};
+}
+
+QString componentFilePath(const ModelNode &node)
+{
+    if (node) {
+        const auto &pathCache = node.model()->pathCache();
+        return ModelUtils::componentFilePath(pathCache, node.metaInfo());
+    }
+
+    return {};
 }
 
 } // namespace QmlDesigner::ModelUtils

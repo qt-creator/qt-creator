@@ -65,8 +65,8 @@ public:
     PropertyMetaInfo defaultProperty() const;
     bool hasDefaultProperty() const;
 
-    std::vector<NodeMetaInfo> classHierarchy() const;
-    std::vector<NodeMetaInfo> superClasses() const;
+    std::vector<NodeMetaInfo> selfAndPrototypes() const;
+    std::vector<NodeMetaInfo> prototypes() const;
     NodeMetaInfo commonBase(const NodeMetaInfo &metaInfo) const;
 
     bool defaultPropertyIsComponent() const;
@@ -76,6 +76,7 @@ public:
     int majorVersion() const;
     int minorVersion() const;
 
+    SourceId sourceId() const;
     QString componentFileName() const;
 
     bool isBasedOn(const NodeMetaInfo &metaInfo) const;
@@ -126,7 +127,6 @@ public:
     bool isQmlComponent() const;
     bool isQtMultimediaSoundEffect() const;
     bool isQtObject() const;
-    bool isQtQuick3D() const;
     bool isQtQuick3DBakedLightmap() const;
     bool isQtQuick3DBuffer() const;
     bool isQtQuick3DCamera() const;
@@ -139,7 +139,7 @@ public:
     bool isQtQuick3DMaterial() const;
     bool isQtQuick3DModel() const;
     bool isQtQuick3DNode() const;
-    bool isQtQuick3DParticleAbstractShape() const;
+    bool isQtQuick3DParticlesAbstractShape() const;
     bool isQtQuick3DParticles3DAffector3D() const;
     bool isQtQuick3DParticles3DAttractor3D() const;
     bool isQtQuick3DParticles3DParticle3D() const;

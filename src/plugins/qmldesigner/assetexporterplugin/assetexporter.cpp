@@ -4,12 +4,13 @@
 #include "componentexporter.h"
 #include "exportnotification.h"
 
-#include "designdocument.h"
-#include "nodemetainfo.h"
-#include "qmldesignerplugin.h"
-#include "rewriterview.h"
-#include "qmlitemnode.h"
-#include "qmlobjectnode.h"
+#include <designdocument.h>
+#include <model/modelutils.h>
+#include <nodemetainfo.h>
+#include <qmldesignerplugin.h>
+#include <qmlitemnode.h>
+#include <qmlobjectnode.h>
+#include <rewriterview.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
@@ -340,12 +341,11 @@ QString AssetExporter::componentUuid(const ModelNode &instance) const
     // Returns the UUID of the component's root node
     // Empty string is returned if the node is not an instance of a component within
     // the project.
-    NodeMetaInfo metaInfo = instance.metaInfo();
-    if (!metaInfo.isValid())
-        return {};
-    const QString path = metaInfo.componentFileName();
-    if (m_componentUuidCache.contains(path))
-        return m_componentUuidCache[path];
+    if (instance) {
+        const QString path = ModelUtils::componentFilePath(instance);
+        return m_componentUuidCache.value(path);
+    }
+
     return {};
 }
 

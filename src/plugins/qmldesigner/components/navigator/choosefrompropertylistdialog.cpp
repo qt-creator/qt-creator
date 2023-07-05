@@ -90,7 +90,7 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     } else if (insertInfo.isQtQuick3DParticles3DParticle3D()) {
         if (parentInfo.isQtQuick3DParticles3DParticleEmitter3D())
             propertyList.append("particle");
-    } else if (insertInfo.isQtQuick3DParticleAbstractShape()) {
+    } else if (insertInfo.isQtQuick3DParticlesAbstractShape()) {
         if (parentInfo.isQtQuick3DParticles3DParticleEmitter3D()
             || parentInfo.isQtQuick3DParticles3DAttractor3D())
             propertyList.append("shape");

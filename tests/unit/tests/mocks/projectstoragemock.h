@@ -47,12 +47,14 @@ public:
         QmlDesigner::Storage::PropertyDeclarationTraits defaultPropertyTraits,
         QmlDesigner::TypeId defaultPropertyTypeId,
         QmlDesigner::Storage::TypeTraits typeTraits,
-        QmlDesigner::TypeIds baseTypeIds = {});
+        QmlDesigner::TypeIds baseTypeIds = {},
+        QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
 
     QmlDesigner::TypeId createType(QmlDesigner::ModuleId moduleId,
                                    Utils::SmallStringView typeName,
                                    QmlDesigner::Storage::TypeTraits typeTraits,
-                                   QmlDesigner::TypeIds baseTypeIds = {});
+                                   QmlDesigner::TypeIds baseTypeIds = {},
+                                   QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
 
     QmlDesigner::TypeId createObject(
         QmlDesigner::ModuleId moduleId,
@@ -60,7 +62,8 @@ public:
         Utils::SmallStringView defaultPropertyName,
         QmlDesigner::Storage::PropertyDeclarationTraits defaultPropertyTraits,
         QmlDesigner::TypeId defaultPropertyTypeId,
-        QmlDesigner::TypeIds baseTypeIds = {});
+        QmlDesigner::TypeIds baseTypeIds = {},
+        QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
 
     QmlDesigner::TypeId createObject(QmlDesigner::ModuleId moduleId,
                                      Utils::SmallStringView typeName,
@@ -99,7 +102,11 @@ public:
                 typeId,
                 (QmlDesigner::ImportedTypeNameId typeNameId),
                 (const, override));
-
+    QmlDesigner::TypeId typeId(QmlDesigner::ModuleId moduleId,
+                               ::Utils::SmallStringView exportedTypeName) const
+    {
+        return typeId(moduleId, exportedTypeName, QmlDesigner::Storage::Version{});
+    }
     MOCK_METHOD(QmlDesigner::TypeId,
                 typeId,
                 (QmlDesigner::ModuleId moduleId,

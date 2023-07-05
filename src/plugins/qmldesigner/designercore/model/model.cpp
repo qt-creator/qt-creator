@@ -347,7 +347,7 @@ std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Util
 QT_WARNING_POP
 } // namespace
 
-void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName)
+ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeName)
 {
     if constexpr (useProjectStorage()) {
         auto [moduleName, shortTypeName] = decomposeTypePath(typeName);
@@ -361,15 +361,21 @@ void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName
                 ModuleId moduleId = projectStorage->moduleId(Utils::PathString{found->url()});
                 ImportId importId = projectStorage->importId(
                     Storage::Import{moduleId, found->majorVersion(), found->minorVersion(), m_sourceId});
-                ImportedTypeNameId typeNameId = projectStorage->importedTypeNameId(importId,
-                                                                                   shortTypeName);
-                node->typeId = projectStorage->typeId(typeNameId);
-                return;
+                return projectStorage->importedTypeNameId(importId, shortTypeName);
             }
         }
 
-        ImportedTypeNameId typeNameId = projectStorage->importedTypeNameId(m_sourceId, shortTypeName);
-        node->typeId = projectStorage->typeId(typeNameId);
+        return projectStorage->importedTypeNameId(m_sourceId, shortTypeName);
+    }
+
+    return ImportedTypeNameId{};
+}
+
+void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName)
+{
+    if constexpr (useProjectStorage()) {
+        node->importedTypeNameId = importedTypeNameId(typeName);
+        node->typeId = projectStorage->typeId(node->importedTypeNameId);
     }
 }
 
@@ -1824,6 +1830,16 @@ NotNullPointer<const ProjectStorageType> Model::projectStorage() const
     return d->projectStorage;
 }
 
+const PathCacheType &Model::pathCache() const
+{
+    return *d->pathCache;
+}
+
+PathCacheType &Model::pathCache()
+{
+    return *d->pathCache;
+}
+
 void ModelDeleter::operator()(class Model *model)
 {
     model->detachAllViews();
@@ -2008,6 +2024,16 @@ NodeMetaInfo Model::qtQmlModelsListModelMetaInfo() const
         return createNodeMetaInfo<QtQml_Models, ListModel>();
     } else {
         return metaInfo("QtQml.Models.ListModel");
+    }
+}
+
+NodeMetaInfo Model::qtQmlModelsListElementMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQml_Models, ListElement>();
+    } else {
+        return metaInfo("QtQml.Models.ListElement");
     }
 }
 
@@ -2317,13 +2343,8 @@ namespace {
 NodeMetaInfo Model::metaInfo(const TypeName &typeName, int majorVersion, int minorVersion) const
 {
     if constexpr (useProjectStorage()) {
-        auto [module, componentName] = moduleTypeName(typeName);
-
-        ModuleId moduleId = d->projectStorage->moduleId(module);
-        TypeId typeId = d->projectStorage->typeId(moduleId,
-                                                  componentName,
-                                                  Storage::Version{majorVersion, minorVersion});
-        return NodeMetaInfo(typeId, d->projectStorage);
+        return NodeMetaInfo(d->projectStorage->typeId(d->importedTypeNameId(typeName)),
+                            d->projectStorage);
     } else {
         return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
     }

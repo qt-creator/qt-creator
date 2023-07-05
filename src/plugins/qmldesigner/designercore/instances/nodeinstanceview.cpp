@@ -3,66 +3,67 @@
 
 #include "nodeinstanceview.h"
 
-#include "abstractproperty.h"
-#include "bindingproperty.h"
-#include "captureddatacommand.h"
-#include "changeauxiliarycommand.h"
-#include "changebindingscommand.h"
-#include "changefileurlcommand.h"
-#include "changeidscommand.h"
-#include "changelanguagecommand.h"
-#include "changenodesourcecommand.h"
-#include "changepreviewimagesizecommand.h"
-#include "changeselectioncommand.h"
-#include "changestatecommand.h"
-#include "changevaluescommand.h"
-#include "childrenchangedcommand.h"
-#include "clearscenecommand.h"
-#include "completecomponentcommand.h"
-#include "componentcompletedcommand.h"
-#include "connectionmanagerinterface.h"
-#include "createinstancescommand.h"
-#include "createscenecommand.h"
-#include "debugoutputcommand.h"
-#include "informationchangedcommand.h"
-#include "imageutils.h"
-#include "inputeventcommand.h"
-#include "nodeabstractproperty.h"
-#include "nodeinstanceserverproxy.h"
-#include "nodelistproperty.h"
-#include "pixmapchangedcommand.h"
-#include "puppettocreatorcommand.h"
-#include "qml3dnode.h"
-#include "qmlchangeset.h"
-#include "qmldesignerconstants.h"
-#include "qmlstate.h"
-#include "qmltimeline.h"
-#include "qmltimelinekeyframegroup.h"
-#include "qmlvisualnode.h"
-#include "removeinstancescommand.h"
-#include "removepropertiescommand.h"
-#include "removesharedmemorycommand.h"
-#include "reparentinstancescommand.h"
-#include "scenecreatedcommand.h"
-#include "statepreviewimagechangedcommand.h"
-#include "tokencommand.h"
-#include "update3dviewstatecommand.h"
-#include "valueschangedcommand.h"
-#include "variantproperty.h"
-#include "view3dactioncommand.h"
-#include "requestmodelnodepreviewimagecommand.h"
-#include "nanotracecommand.h"
-#include "nanotrace/nanotrace.h"
+#include <abstractproperty.h>
+#include <bindingproperty.h>
+#include <captureddatacommand.h>
+#include <changeauxiliarycommand.h>
+#include <changebindingscommand.h>
+#include <changefileurlcommand.h>
+#include <changeidscommand.h>
+#include <changelanguagecommand.h>
+#include <changenodesourcecommand.h>
+#include <changepreviewimagesizecommand.h>
+#include <changeselectioncommand.h>
+#include <changestatecommand.h>
+#include <changevaluescommand.h>
+#include <childrenchangedcommand.h>
+#include <clearscenecommand.h>
+#include <completecomponentcommand.h>
+#include <componentcompletedcommand.h>
+#include <connectionmanagerinterface.h>
+#include <createinstancescommand.h>
+#include <createscenecommand.h>
+#include <debugoutputcommand.h>
+#include <imageutils.h>
+#include <informationchangedcommand.h>
+#include <inputeventcommand.h>
+#include <nanotrace/nanotrace.h>
+#include <nanotracecommand.h>
+#include <nodeabstractproperty.h>
+#include <nodeinstanceserverproxy.h>
+#include <nodelistproperty.h>
+#include <pixmapchangedcommand.h>
+#include <puppettocreatorcommand.h>
+#include <qml3dnode.h>
+#include <qmlchangeset.h>
+#include <qmldesignerconstants.h>
+#include <qmlstate.h>
+#include <qmltimeline.h>
+#include <qmltimelinekeyframegroup.h>
+#include <qmlvisualnode.h>
+#include <removeinstancescommand.h>
+#include <removepropertiescommand.h>
+#include <removesharedmemorycommand.h>
+#include <reparentinstancescommand.h>
+#include <requestmodelnodepreviewimagecommand.h>
+#include <scenecreatedcommand.h>
+#include <statepreviewimagechangedcommand.h>
+#include <tokencommand.h>
+#include <update3dviewstatecommand.h>
+#include <valueschangedcommand.h>
+#include <variantproperty.h>
+#include <view3dactioncommand.h>
 
 #include <auxiliarydataproperties.h>
 #include <designersettings.h>
 #include <externaldependenciesinterface.h>
 #include <metainfo.h>
 #include <model.h>
+#include <model/modelutils.h>
 #include <modelnode.h>
 #include <nodehints.h>
-#include <rewriterview.h>
 #include <qmlitemnode.h>
+#include <rewriterview.h>
 
 #include <utils/hdrimage.h>
 
@@ -1077,18 +1078,20 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         if (parentTakesOverRendering(instance.modelNode()))
             nodeFlags |= InstanceContainer::ParentTakesOverRendering;
 
+        const auto modelNode = instance.modelNode();
         InstanceContainer container(instance.instanceId(),
-                                    instance.modelNode().type(),
-                                    instance.modelNode().majorVersion(),
-                                    instance.modelNode().minorVersion(),
-                                    instance.modelNode().metaInfo().componentFileName(),
-                                    instance.modelNode().nodeSource(),
+                                    modelNode.type(),
+                                    modelNode.majorVersion(),
+                                    modelNode.minorVersion(),
+                                    ModelUtils::componentFilePath(modelNode),
+                                    modelNode.nodeSource(),
                                     nodeSourceType,
                                     nodeMetaType,
                                     nodeFlags);
 
-        if (!parentIsBehavior(instance.modelNode()))
+        if (!parentIsBehavior(modelNode)) {
             instanceContainerList.append(container);
+        }
     }
 
     QVector<ReparentContainer> reparentContainerList;
@@ -1243,12 +1246,13 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
         if (parentTakesOverRendering(instance.modelNode()))
             nodeFlags |= InstanceContainer::ParentTakesOverRendering;
 
+        const auto modelNode = instance.modelNode();
         InstanceContainer container(instance.instanceId(),
-                                    instance.modelNode().type(),
-                                    instance.modelNode().majorVersion(),
-                                    instance.modelNode().minorVersion(),
-                                    instance.modelNode().metaInfo().componentFileName(),
-                                    instance.modelNode().nodeSource(),
+                                    modelNode.type(),
+                                    modelNode.majorVersion(),
+                                    modelNode.minorVersion(),
+                                    ModelUtils::componentFilePath(modelNode),
+                                    modelNode.nodeSource(),
                                     nodeSourceType,
                                     nodeMetaType,
                                     nodeFlags);
@@ -1783,9 +1787,9 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
                 if (renderInstance.isValid())
                     renderItemId = renderInstance.instanceId();
                 if (renderNode.isComponent())
-                    componentPath = renderNode.metaInfo().componentFileName();
+                    componentPath = ModelUtils::componentFilePath(renderNode);
             } else if (node.isComponent()) {
-                componentPath = node.metaInfo().componentFileName();
+                componentPath = ModelUtils::componentFilePath(node);
             }
             const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
             const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;

@@ -128,6 +128,7 @@ public:
     NodeMetaInfo fontMetaInfo() const;
     NodeMetaInfo qmlQtObjectMetaInfo() const;
     NodeMetaInfo qtQmlModelsListModelMetaInfo() const;
+    NodeMetaInfo qtQmlModelsListElementMetaInfo() const;
     NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
     NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
@@ -214,6 +215,8 @@ public:
     void endDrag();
 
     NotNullPointer<const ProjectStorageType> projectStorage() const;
+    const PathCacheType &pathCache() const;
+    PathCacheType &pathCache();
 
 private:
     template<const auto &moduleName, const auto &typeName>

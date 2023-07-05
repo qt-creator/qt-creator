@@ -3,19 +3,20 @@
 
 #include "bakelights.h"
 
-#include "abstractview.h"
-#include "auxiliarydataproperties.h"
-#include "bakelightsdatamodel.h"
-#include "bakelightsconnectionmanager.h"
-#include "bindingproperty.h"
-#include "documentmanager.h"
-#include "modelnode.h"
-#include "nodeabstractproperty.h"
-#include "nodeinstanceview.h"
-#include "nodemetainfo.h"
-#include "plaintexteditmodifier.h"
-#include "rewriterview.h"
-#include "variantproperty.h"
+#include <abstractview.h>
+#include <auxiliarydataproperties.h>
+#include <bakelightsconnectionmanager.h>
+#include <bakelightsdatamodel.h>
+#include <bindingproperty.h>
+#include <documentmanager.h>
+#include <model/modelutils.h>
+#include <modelnode.h>
+#include <nodeabstractproperty.h>
+#include <nodeinstanceview.h>
+#include <nodemetainfo.h>
+#include <plaintexteditmodifier.h>
+#include <rewriterview.h>
+#include <variantproperty.h>
 
 #include <coreplugin/icore.h>
 
@@ -240,18 +241,21 @@ void BakeLights::rebake()
 void BakeLights::exposeModelsAndLights(const QString &nodeId)
 {
     ModelNode compNode = m_view->modelNodeForId(nodeId);
-    if (!compNode.isValid() || !compNode.isComponent()
-        || compNode.metaInfo().componentFileName().isEmpty()) {
+    if (!compNode.isValid() || !compNode.isComponent()) {
+        return;
+    }
+
+    auto componentFilePath = ModelUtils::componentFilePath(compNode);
+    if (componentFilePath.isEmpty()) {
         return;
     }
 
     RewriterView rewriter{m_view->externalDependencies(), RewriterView::Amend};
     ModelPointer compModel = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
-    const QString compFile = compNode.metaInfo().componentFileName();
-    const Utils::FilePath compFilePath = Utils::FilePath::fromString(compFile);
+    const Utils::FilePath compFilePath = Utils::FilePath::fromString(componentFilePath);
     QByteArray src = compFilePath.fileContents().value();
 
-    compModel->setFileUrl(QUrl::fromLocalFile(compFile));
+    compModel->setFileUrl(QUrl::fromLocalFile(componentFilePath));
 
     auto textDocument = std::make_unique<QTextDocument>(QString::fromUtf8(src));
     auto modifier = std::make_unique<IndentingTextEditModifier>(
@@ -295,12 +299,12 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
 
     QString newText = modifier->text();
     if (newText != originalText) {
-        QSaveFile saveFile(compFile);
+        QSaveFile saveFile(componentFilePath);
         if (saveFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
             saveFile.write(newText.toUtf8());
             saveFile.commit();
         } else {
-            qWarning() << __FUNCTION__ << "Failed to save changes to:" << compFile;
+            qWarning() << __FUNCTION__ << "Failed to save changes to:" << componentFilePath;
         }
     }
 

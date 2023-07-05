@@ -927,10 +927,9 @@ static int getMajorVersionFromImport(const Model *model)
 static int getMajorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
-        for (const NodeMetaInfo &info :  modelNode.metaInfo().classHierarchy()) {
-            if (info.typeName() == "QtQml.QtObject"
-             || info.typeName() == "QtQuick.QtObject"
-             || info.typeName() == "QtQuick.Item") {
+        for (const NodeMetaInfo &info : modelNode.metaInfo().selfAndPrototypes()) {
+            if (info.typeName() == "QtQml.QtObject" || info.typeName() == "QtQuick.QtObject"
+                || info.typeName() == "QtQuick.Item") {
                 return info.majorVersion();
             }
         }
@@ -942,7 +941,7 @@ static int getMajorVersionFromNode(const ModelNode &modelNode)
 static int getMinorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
-        const NodeMetaInfos infos =  modelNode.metaInfo().classHierarchy();
+        const NodeMetaInfos infos = modelNode.metaInfo().selfAndPrototypes();
         for (const NodeMetaInfo &info :  infos) {
             if (info.typeName() == "QtQuick.QtObject" || info.typeName() == "QtQuick.Item")
                 return info.minorVersion();

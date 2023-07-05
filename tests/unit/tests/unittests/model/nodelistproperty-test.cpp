@@ -62,7 +62,7 @@ protected:
 
         ON_CALL(projectStorageMock, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
         ON_CALL(projectStorageMock, type(Eq(typeId)))
-            .WillByDefault(Return(Info::Type{defaultPropertyId, {}}));
+            .WillByDefault(Return(Info::Type{defaultPropertyId, QmlDesigner::SourceId{}, {}}));
         ON_CALL(projectStorageMock, propertyName(Eq(defaultPropertyId)))
             .WillByDefault(Return(defaultPeopertyName));
     }

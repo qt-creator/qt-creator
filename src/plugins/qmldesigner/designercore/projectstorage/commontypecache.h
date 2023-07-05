@@ -31,6 +31,7 @@ inline constexpr char Camera[] = "Camera";
 inline constexpr char Command[] = "Command";
 inline constexpr char Component[] = "Component";
 inline constexpr char Connections[] = "Connections";
+inline constexpr char Control[] = "Control";
 inline constexpr char CubeMapTexture[] = "CubeMapTexture";
 inline constexpr char DefaultMaterial[] = "DefaultMaterial";
 inline constexpr char Dialog[] = "Dialog";
@@ -55,11 +56,13 @@ inline constexpr char Item[] = "Item";
 inline constexpr char KeyframeGroup[] = "KeyframeGroup";
 inline constexpr char Keyframe[] = "Keyframe";
 inline constexpr char Layout[] = "Layout";
+inline constexpr char ListElement[] = "ListElement";
 inline constexpr char ListModel[] = "ListModel";
 inline constexpr char ListView[] = "ListView";
 inline constexpr char Loader[] = "Loader";
 inline constexpr char Material[] = "Material";
 inline constexpr char Model[] = "Model";
+inline constexpr char MouseArea[] = "MouseArea";
 inline constexpr char Node[] = "Node";
 inline constexpr char Particle3D[] = "Particle3D";
 inline constexpr char ParticleEmitter3D[] = "ParticleEmitter3D";
@@ -92,6 +95,7 @@ inline constexpr char QtQuick_Dialogs[] = "QtQuick.Dialogs";
 inline constexpr char QtQuick_Extras[] = "QtQuick.Extras";
 inline constexpr char QtQuick_Layouts[] = "QtQuick.Layouts";
 inline constexpr char QtQuick_Studio_Components[] = "QtQuick.Studio.Components";
+inline constexpr char QtQuick_Templates[] = "QtQuick.Templates";
 inline constexpr char QtQuick_Timeline[] = "QtQuick.Timeline";
 inline constexpr char QtQuick_Window[] = "QtQuick.Window";
 inline constexpr char Qt_SafeRenderer[] = "Qt.SafeRenderer";
@@ -160,6 +164,7 @@ class CommonTypeCache
                      CacheType<QML, var>,
                      CacheType<QML_cppnative, FloatType>,
                      CacheType<QtMultimedia, SoundEffect>,
+                     CacheType<QtQml_Models, ListElement>,
                      CacheType<QtQml_Models, ListModel>,
                      CacheType<QtQuick, BorderImage>,
                      CacheType<QtQuick, Connections>,
@@ -168,6 +173,7 @@ class CommonTypeCache
                      CacheType<QtQuick, Item>,
                      CacheType<QtQuick, ListView>,
                      CacheType<QtQuick, Loader>,
+                     CacheType<QtQuick, MouseArea>,
                      CacheType<QtQuick, Path>,
                      CacheType<QtQuick, PathView>,
                      CacheType<QtQuick, PauseAnimation>,
@@ -214,6 +220,7 @@ class CommonTypeCache
                      CacheType<QtQuick3D_Particles3D, ParticleEmitter3D>,
                      CacheType<QtQuick3D_Particles3D, SpriteParticle3D>,
                      CacheType<QtQuick3D_Particles3D_cppnative, QQuick3DParticleAbstractShape>,
+                     CacheType<QtQuick_Controls, Control>,
                      CacheType<QtQuick_Controls, Popup>,
                      CacheType<QtQuick_Controls, SplitView>,
                      CacheType<QtQuick_Controls, SwipeView>,
@@ -223,6 +230,7 @@ class CommonTypeCache
                      CacheType<QtQuick_Extras, Picture>,
                      CacheType<QtQuick_Layouts, Layout>,
                      CacheType<QtQuick_Studio_Components, GroupItem>,
+                     CacheType<QtQuick_Templates, Control>,
                      CacheType<QtQuick_Timeline, Keyframe>,
                      CacheType<QtQuick_Timeline, KeyframeGroup>,
                      CacheType<QtQuick_Timeline, Timeline>,

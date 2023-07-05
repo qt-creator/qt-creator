@@ -89,12 +89,14 @@ public:
 class Type
 {
 public:
-    Type(PropertyDeclarationId defaultPropertyId, TypeTraits traits)
+    Type(PropertyDeclarationId defaultPropertyId, SourceId sourceId, TypeTraits traits)
         : defaultPropertyId{defaultPropertyId}
+        , sourceId{sourceId}
         , traits{traits}
     {}
 
     PropertyDeclarationId defaultPropertyId;
+    SourceId sourceId;
     TypeTraits traits;
 };
 

@@ -5,13 +5,14 @@
 #include "qmldesignerplugin.h"
 
 #include <bindingproperty.h>
+#include <model/modelutils.h>
 #include <modelnode.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <variantproperty.h>
 #include <qmldesignerprojectmanager.h>
 #include <qmlitemnode.h>
+#include <variantproperty.h>
 
 #include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
@@ -100,7 +101,7 @@ static void openFileComponentForFile(const QString &fileName)
 
 static void openFileComponent(const ModelNode &modelNode)
 {
-    openFileComponentForFile(modelNode.metaInfo().componentFileName());
+    openFileComponentForFile(ModelUtils::componentFilePath(modelNode));
 }
 
 static void openFileComponentForDelegate(const ModelNode &modelNode)

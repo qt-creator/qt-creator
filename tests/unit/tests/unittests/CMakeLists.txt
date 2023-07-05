@@ -3,7 +3,7 @@ file(RELATIVE_PATH TEST_RELATIVE_LIBEXEC_PATH "/${RELATIVE_TEST_PATH}" "/${IDE_L
 
 add_qtc_test(unittest GTEST
   PROPERTIES COMPILE_WARNING_AS_ERROR OFF
-  SKIP_AUTOMOC ON
+  SKIP_AUTOGEN ON
   DEPENDS
     Qt::Core Qt::Network Qt::Widgets
     Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui

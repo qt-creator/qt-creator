@@ -3268,8 +3268,8 @@ public:
         "UPDATE types SET defaultPropertyId=?2 WHERE typeId=?1", database};
     WriteStatement<1> updateDefaultPropertyIdToNullStatement{
         "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
-    mutable ReadStatement<2, 1> selectInfoTypeByTypeIdStatement{
-        "SELECT defaultPropertyId, traits FROM types WHERE typeId=?", database};
+    mutable ReadStatement<3, 1> selectInfoTypeByTypeIdStatement{
+        "SELECT defaultPropertyId, sourceId, traits FROM types WHERE typeId=?", database};
     mutable ReadStatement<1, 1> selectPrototypeIdsForTypeIdInOrderStatement{
         "WITH RECURSIVE "
         "  all_prototype_and_extension(typeId, prototypeId) AS ("
