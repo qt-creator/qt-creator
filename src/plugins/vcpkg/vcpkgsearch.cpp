@@ -53,6 +53,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(QWidget *parent)
     : QDialog(parent)
 {
     resize(920, 400);
+    setWindowTitle(Tr::tr("Add vcpkg package"));
 
     m_packagesFilter = new FancyLineEdit;
     m_packagesFilter->setFiltering(true);
@@ -81,15 +82,19 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(QWidget *parent)
         Row {
             Column {
                 m_packagesFilter,
+                Tr::tr("Packages:"),
                 m_packagesList,
             },
-            Form {
-                Tr::tr("Name："), m_vcpkgName, br,
-                Tr::tr("Version:"), m_vcpkgVersion, br,
-                Tr::tr("License:"), m_vcpkgLicense, br,
-                Tr::tr("Description:"), m_vcpkgDescription, br,
-                Tr::tr("Homepage:"), m_vcpkgHomepage, br,
-            },
+            Group {
+                title(Tr::tr("Package details")),
+                Form {
+                    Tr::tr("Name："), m_vcpkgName, br,
+                    Tr::tr("Version:"), m_vcpkgVersion, br,
+                    Tr::tr("License:"), m_vcpkgLicense, br,
+                    Tr::tr("Description:"), m_vcpkgDescription, br,
+                    Tr::tr("Homepage:"), m_vcpkgHomepage, br,
+                },
+            }
         },
         m_buttonBox,
     }.attachTo(this);

@@ -24,7 +24,7 @@ public:
     VcpkgManifestEditorWidget()
     {
         m_searchPkgAction = toolBar()->addAction(Utils::Icons::ZOOM_TOOLBAR.icon(),
-                                                        Tr::tr("Search package..."));
+                                                        Tr::tr("Add vcpkg package..."));
         connect(m_searchPkgAction, &QAction::triggered, this, [this] {
             const Search::VcpkgManifest package = Search::showVcpkgPackageSearchDialog();
             if (!package.name.isEmpty())
