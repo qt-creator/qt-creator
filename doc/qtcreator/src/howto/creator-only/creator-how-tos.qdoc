@@ -158,24 +158,6 @@
 */
 
 /*!
-    \page creator-how-to-find-keyboard-shortcuts.html
-    \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
-    \ingroup creator-how-to-ui
-
-    \title Find keyboard shortcuts
-
-    \QC has \l{Keyboard Shortcuts}{many useful keyboard shortcuts}.
-    You can see the keyboard shortcut for a menu command in the menu
-    or the tooltip for a button.
-
-    To customize, import, or export keyboard shortcuts, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Environment > \uicontrol Keyboard.
-
-    \image qtcreator-keyboard-shortcuts.png "Keyboard preferences"
-*/
-
-/*!
     \page creator-how-to-run-from-cli.html
     \previouspage creator-how-tos.html
     \nextpage creator-known-issues.html
