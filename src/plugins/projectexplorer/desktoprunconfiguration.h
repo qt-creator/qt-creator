@@ -5,8 +5,7 @@
 
 #include "runconfiguration.h"
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class DesktopQmakeRunConfigurationFactory final : public RunConfigurationFactory
 {
@@ -26,5 +25,4 @@ public:
     CMakeRunConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal
