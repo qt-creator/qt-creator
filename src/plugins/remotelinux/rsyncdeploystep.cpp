@@ -33,7 +33,41 @@ namespace RemoteLinux {
 class RsyncDeployStep : public AbstractRemoteLinuxDeployStep
 {
 public:
-    RsyncDeployStep(BuildStepList *bsl, Id id);
+    RsyncDeployStep(BuildStepList *bsl, Id id)
+        : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        flags.setDisplayStyle(StringAspect::LineEditDisplay);
+        flags.setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
+        flags.setLabelText(Tr::tr("Flags:"));
+        flags.setValue(FileTransferSetupData::defaultRsyncFlags());
+
+        ignoreMissingFiles.setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
+        ignoreMissingFiles.setLabelText(Tr::tr("Ignore missing files:"));
+        ignoreMissingFiles.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+
+        method.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+        method.setDisplayName(Tr::tr("Transfer method:"));
+        method.addOption(Tr::tr("rsync"), Tr::tr("Use rsync if available."));
+        method.addOption(Tr::tr("SFTP"), Tr::tr("Use sftp if available."));
+        method.addOption(Tr::tr("Generic Copy"), Tr::tr("Use generic copy, most likely to succeed."));
+
+        setInternalInitializer([this] {
+            if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
+                // rsync transfer on the same device currently not implemented
+                // and typically not wanted.
+                return CheckResult::failure(
+                    Tr::tr("rsync is only supported for transfers between different devices."));
+            }
+            return isDeploymentPossible();
+        });
+
+        setRunPreparer([this] {
+            const QList<DeployableFile> files = target()->deploymentData().allFiles();
+            m_files.clear();
+            for (const DeployableFile &f : files)
+                m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
+        });
+    }
 
 private:
     bool isDeploymentNecessary() const final;
@@ -41,64 +75,16 @@ private:
     GroupItem mkdirTask();
     GroupItem transferTask();
 
+    StringAspect flags{this};
+    BoolAspect ignoreMissingFiles{this};
+    SelectionAspect method{this};
+
     mutable FilesToTransfer m_files;
-    bool m_ignoreMissingFiles = false;
-    FileTransferMethod m_preferredTransferMethod = FileTransferMethod::Rsync;
-    QString m_flags;
 };
-
-RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
-        : AbstractRemoteLinuxDeployStep(bsl, id)
-{
-    auto flags = addAspect<StringAspect>();
-    flags->setDisplayStyle(StringAspect::LineEditDisplay);
-    flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
-    flags->setLabelText(Tr::tr("Flags:"));
-    flags->setValue(FileTransferSetupData::defaultRsyncFlags());
-
-    auto ignoreMissingFiles = addAspect<BoolAspect>();
-    ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
-    ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files:"),
-                                 BoolAspect::LabelPlacement::InExtraLabel);
-    ignoreMissingFiles->setValue(false);
-
-    auto method = addAspect<SelectionAspect>();
-    method->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    method->setDisplayName(Tr::tr("Transfer method:"));
-    method->addOption(Tr::tr("rsync"), Tr::tr("Use rsync if available."));
-    method->addOption(Tr::tr("SFTP"), Tr::tr("Use sftp if available."));
-    method->addOption(Tr::tr("Generic Copy"), Tr::tr("Use generic copy, most likely to succeed."));
-
-    setInternalInitializer([this, ignoreMissingFiles, flags, method] {
-        if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
-            // rsync transfer on the same device currently not implemented
-            // and typically not wanted.
-            return CheckResult::failure(
-                Tr::tr("rsync is only supported for transfers between different devices."));
-        }
-        m_ignoreMissingFiles = ignoreMissingFiles->value();
-        m_flags = flags->value();
-        if (method->value() == 0)
-            m_preferredTransferMethod = FileTransferMethod::Rsync;
-        else if (method->value() == 1)
-            m_preferredTransferMethod = FileTransferMethod::Sftp;
-        else
-            m_preferredTransferMethod = FileTransferMethod::GenericCopy;
-
-        return isDeploymentPossible();
-    });
-
-    setRunPreparer([this] {
-        const QList<DeployableFile> files = target()->deploymentData().allFiles();
-        m_files.clear();
-        for (const DeployableFile &f : files)
-            m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
-    });
-}
 
 bool RsyncDeployStep::isDeploymentNecessary() const
 {
-    if (m_ignoreMissingFiles)
+    if (ignoreMissingFiles())
         Utils::erase(m_files, [](const FileToTransfer &file) { return !file.m_source.exists(); });
     return !m_files.empty();
 }
@@ -167,14 +153,22 @@ static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileT
 GroupItem RsyncDeployStep::transferTask()
 {
     const auto setupHandler = [this](FileTransfer &transfer) {
-        FileTransferMethod transferMethod = m_preferredTransferMethod;
+        FileTransferMethod preferredTransferMethod = FileTransferMethod::Rsync;
+        if (method() == 0)
+            preferredTransferMethod = FileTransferMethod::Rsync;
+        else if (method() == 1)
+            preferredTransferMethod = FileTransferMethod::Sftp;
+        else
+            preferredTransferMethod = FileTransferMethod::GenericCopy;
+
+        FileTransferMethod transferMethod = preferredTransferMethod;
 
         if (transferMethod != FileTransferMethod::GenericCopy) {
             for (const FileToTransfer &fileToTransfer : m_files) {
                 const FileTransferMethod supportedMethod = supportedTransferMethodFor(
                     fileToTransfer);
 
-                if (supportedMethod != m_preferredTransferMethod) {
+                if (supportedMethod != preferredTransferMethod) {
                     transferMethod = FileTransferMethod::GenericCopy;
                     break;
                 }
@@ -183,7 +177,7 @@ GroupItem RsyncDeployStep::transferTask()
 
         transfer.setTransferMethod(transferMethod);
 
-        transfer.setRsyncFlags(m_flags);
+        transfer.setRsyncFlags(flags());
         transfer.setFilesToTransfer(m_files);
         connect(&transfer, &FileTransfer::progress,
                 this, &AbstractRemoteLinuxDeployStep::handleStdOutData);
