@@ -207,8 +207,9 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
         const FilePath documentPath = document->filePath();
         if (PythonProject *project = pythonProjectForFile(documentPath)) {
             if (Target *target = project->activeTarget()) {
-                if (auto rc = qobject_cast<PythonRunConfiguration *>(target->activeRunConfiguration()))
-                    updateExtraCompilers(project, rc->extraCompilers());
+                if (RunConfiguration *rc = target->activeRunConfiguration())
+                    if (auto aspect = rc->aspect<PythonInterpreterAspect>())
+                        updateExtraCompilers(project, aspect->extraCompilers());
             }
         } else if (isSupportedDocument(document)) {
             const FilePath workspacePath = documentPath.parentDir();

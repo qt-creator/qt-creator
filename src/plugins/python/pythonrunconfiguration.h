@@ -4,21 +4,27 @@
 #pragma once
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 
 namespace Python::Internal {
 
 class PySideUicExtraCompiler;
+class PythonRunConfiguration;
 
-class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
+class PythonInterpreterAspect final : public ProjectExplorer::InterpreterAspect
 {
     Q_OBJECT
 
 public:
-    PythonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-    ~PythonRunConfiguration() override;
+    explicit PythonInterpreterAspect(PythonRunConfiguration *rc);
+    ~PythonInterpreterAspect() final;
 
     QList<PySideUicExtraCompiler *> extraCompilers() const;
+
+private:
+    friend class PythonRunConfiguration;
+    class PythonInterpreterAspectPrivate *d = nullptr;
 };
 
 class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
