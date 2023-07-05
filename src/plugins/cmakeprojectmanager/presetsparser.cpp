@@ -296,6 +296,15 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
                 if (strategy == "external")
                     preset.architecture->strategy
                         = PresetsDetails::ValueStrategyPair::Strategy::external;
+            } else {
+                preset.architecture->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
+            }
+        } else {
+            const QString value = object.value("architecture").toString();
+            if (!value.isEmpty()) {
+                preset.architecture = PresetsDetails::ValueStrategyPair();
+                preset.architecture->value = value;
+                preset.architecture->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
             }
         }
 
@@ -311,6 +320,15 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
                     preset.toolset->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
                 if (strategy == "external")
                     preset.toolset->strategy = PresetsDetails::ValueStrategyPair::Strategy::external;
+            } else {
+                preset.toolset->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
+            }
+        } else {
+            const QString value = object.value("toolset").toString();
+            if (!value.isEmpty()) {
+                preset.toolset = PresetsDetails::ValueStrategyPair();
+                preset.toolset->value = value;
+                preset.toolset->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
             }
         }
 
