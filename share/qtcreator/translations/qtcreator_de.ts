@@ -9307,7 +9307,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Force a specific NDK installation to be used by all Android kits.&lt;br/&gt;Note that the forced NDK might not be compatible with all registered Qt versions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzwingt die Nutzung einer bestimmten NDK-Installation für alle Android-Kits.&lt;br/&gt;Beachten Sie, dass die erzwungene NDK-Installation nicht unbedingt mit allen registrierten Qt-Versionen kompatibel ist.</translation>
     </message>
     <message>
         <source>Open Android NDK download URL in the system&apos;s browser.</source>
@@ -9319,11 +9319,11 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Android SDK path exists and is writable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad des Android-SDK existiert und ist schreibbar.</translation>
     </message>
     <message>
         <source>JDK path exists and is writable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad des JDK existiert und ist schreibbar.</translation>
     </message>
     <message>
         <source>Android OpenSSL settings (Optional)</source>
@@ -9383,19 +9383,19 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>OpenSSL prebuilt libraries cloning failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Klonen der vorgefertigten OpenSSL-Bibliotheken ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>The Git tool might not be installed properly on your system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Git-Werkzeug ist möglicherweise auf Ihrem System nicht richtig installiert.</translation>
     </message>
     <message>
         <source>Unset Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe aufheben</translation>
     </message>
     <message>
         <source>Make Default</source>
-        <translation type="unfinished">Als Vorgabe setzen</translation>
+        <translation>Als Vorgabe setzen</translation>
     </message>
     <message>
         <source>The selected path already has a valid SDK Tools package.</source>
@@ -9407,23 +9407,23 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Android SDK Command-line Tools installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeilen-Werkzeug für Android-SDK ist installiert.</translation>
     </message>
     <message>
         <source>Android SDK Command-line Tools run.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeilen-Werkzeug für Android-SDK startet erfolgreich.</translation>
     </message>
     <message>
         <source>Android SDK Platform-Tools installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plattform-Werkzeuge für Android-SDK sind installiert.</translation>
     </message>
     <message>
         <source>Android SDK Build-Tools installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellwerkzeuge für Android-SDK sind installiert.</translation>
     </message>
     <message>
         <source>Android Platform SDK (version) installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Plattform-SDK (Version) für Android ist installiert.</translation>
     </message>
     <message>
         <source>Select an NDK</source>
@@ -9471,7 +9471,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Failed to create the SDK Tools path %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis &quot;%1&quot; für die SDK-Werkzeuge konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>OpenSSL Cloning</source>
@@ -9503,11 +9503,11 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Encountered SSL errors, download is aborted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es sind SSL-Fehler aufgetreten, das Herunterladen wurde abgebrochen.</translation>
     </message>
     <message>
         <source>The SDK Tools download URL is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die URL zum Herunterladen der SDK-Werkzeuge ist nicht gesetzt.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -9515,27 +9515,27 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Downloading SDK Tools package...</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket mit SDK-Werkzeugen wird heruntergeladen...</translation>
     </message>
     <message>
         <source>Download SDK Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK-Werkzeuge herunterladen</translation>
     </message>
     <message>
         <source>Could not open %1 for writing: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben geöffnet werden: %2.</translation>
     </message>
     <message>
         <source>Downloading Android SDK Tools from URL %1 has failed: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Herunterladen der SDK-Werkzeuge für Android von der URL %1 ist fehlgeschlagen: %2.</translation>
     </message>
     <message>
         <source>Download from %1 was redirected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Herunterladen von %1 wurde umgeleitet.</translation>
     </message>
     <message>
         <source>Writing and verifying the integrity of the downloaded file has failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Schreiben und Prüfen der Integrität der heruntergeladenen Datei sind fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Automatically download Android SDK Tools to selected location.
@@ -9583,55 +9583,55 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
     </message>
     <message>
         <source>Device name:</source>
-        <translation type="unfinished">Gerätename:</translation>
+        <translation>Gerätename:</translation>
     </message>
     <message>
         <source>Device type:</source>
-        <translation type="unfinished">Gerätetyp:</translation>
+        <translation>Gerätetyp:</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <source>Serial number:</source>
-        <translation type="unfinished"></translation>
+        <translation>Seriennummer:</translation>
     </message>
     <message>
         <source>CPU architecture:</source>
-        <translation type="unfinished"></translation>
+        <translation>CPU-Architektur:</translation>
     </message>
     <message>
         <source>OS version:</source>
-        <translation type="unfinished">Betriebssystemversion:</translation>
+        <translation>Betriebssystemversion:</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Ja</translation>
+        <translation>Ja</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">Nein</translation>
+        <translation>Nein</translation>
     </message>
     <message>
         <source>Authorized:</source>
-        <translation type="unfinished"></translation>
+        <translation>Autorisiert:</translation>
     </message>
     <message>
         <source>Android target flavor:</source>
-        <translation type="unfinished"></translation>
+        <translation>Android Target-Flavor:</translation>
     </message>
     <message>
         <source>Skin type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skin-Typ:</translation>
     </message>
     <message>
         <source>OpenGL status:</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenGL-Status:</translation>
     </message>
     <message>
         <source>Android Device Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Android Gerätemanager</translation>
     </message>
     <message>
         <source>Run on Android</source>
@@ -9639,72 +9639,73 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished">Aktualisieren</translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <source>Start AVD</source>
-        <translation type="unfinished"></translation>
+        <translation>AVD starten</translation>
     </message>
     <message>
         <source>Erase AVD</source>
-        <translation type="unfinished"></translation>
+        <translation>AVD löschen</translation>
     </message>
     <message>
         <source>AVD Arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>AVD-Argumente</translation>
     </message>
     <message>
         <source>Set up Wi-Fi</source>
-        <translation type="unfinished"></translation>
+        <translation>Wi-Fi einrichten</translation>
     </message>
     <message>
         <source>Emulator for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Emulator für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Physical device</source>
-        <translation type="unfinished"></translation>
+        <translation>Physisches Gerät</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Keine</translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>Erase the Android AVD &quot;%1&quot;?
 This cannot be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-AVD &quot;%1&quot; löschen?
+Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>The device has to be connected with ADB debugging enabled to use this feature.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät muss mit aktiviertem ADB-Debuggen angeschlossen sein, um diese Funktionalität nutzen zu können.</translation>
     </message>
     <message>
         <source>Opening connection port %1 failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Öffnen des Ports %1 für die Verbindung ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Retrieving the device IP address failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Abfragen der IP-Adresse des Geräts ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>The retrieved IP address is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die erhaltene IP-Adresse ist ungültig.</translation>
     </message>
     <message>
         <source>Connecting to the device IP &quot;%1&quot; failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Verbindung zur Geräte-IP &quot;%1&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>An error occurred while removing the Android AVD &quot;%1&quot; using avdmanager tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Entfernen des Android-AVD &quot;%1&quot; mit dem avdmanager-Werkzeug ist ein Fehler aufgetreten.</translation>
     </message>
     <message>
         <source>Emulator Command-line Startup Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeilenargumente für den Start des Emulators</translation>
     </message>
     <message>
         <source>Emulator command-line startup options (&lt;a href=&quot;%1&quot;&gt;Help Web Page&lt;/a&gt;):</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeilenargumente für den Start des Emulators (&lt;a href=&quot;%1&quot;&gt;Hilfeseite&lt;/a&gt;):</translation>
     </message>
     <message>
         <source>Android Device</source>
@@ -9712,7 +9713,7 @@ This cannot be undone.</source>
     </message>
     <message>
         <source>The device info returned from AvdDialog is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die vom AvdDialog zurückgelieferte Geräteinformation ist ungültig.</translation>
     </message>
     <message>
         <source>NDK is not configured in Devices &gt; Android.</source>
@@ -9781,7 +9782,7 @@ This cannot be undone.</source>
     </message>
     <message>
         <source>Screen orientation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirmausrichtung:</translation>
     </message>
     <message>
         <source>Advanced</source>
@@ -9914,11 +9915,11 @@ This cannot be undone.</source>
     </message>
     <message>
         <source>Cannot create a new AVD. No suitable Android system image is installed.&lt;br/&gt;Install a system image for the intended Android version from the SDK Manager.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen von AVD nicht möglich. Es ist kein geeignetes System-Image installiert.&lt;br/&gt;Installieren Sie ein für die vorgesehene Android-Version passendes System-Image vom SDK-Manager.</translation>
     </message>
     <message>
         <source>Cannot create an AVD for ABI %1.&lt;br/&gt;Install a system image for it from the SDK Manager tab first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen von AVD für ABI %1 nicht möglich.&lt;br/&gt;Installieren Sie zuerst ein passendes System-Image vom SDK-Manager.</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -9966,15 +9967,15 @@ This cannot be undone.</source>
     </message>
     <message>
         <source>Java Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Java Language Server</translation>
     </message>
     <message>
         <source>Would you like to configure Android options? This will ensure Android kits can be usable and all essential packages are installed. To do it later, select Edit &gt; Preferences &gt; Devices &gt; Android.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wollen Sie die Android-Einstellungen konfigurieren? Dies stellt sicher, dass Android-Kits nutzbar und alle notwendigen Pakete installiert sind. Wählen Sie Bearbeiten &gt; Einstellungen &gt; Geräte &gt; Android, um dies später durchzuführen.</translation>
     </message>
     <message>
         <source>Configure Android</source>
-        <translation type="unfinished"></translation>
+        <translation>Android konfigurieren</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; exited normally.</source>
@@ -10006,64 +10007,65 @@ This cannot be undone.</source>
     </message>
     <message>
         <source>Uninstall the existing app before deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Existierende Anwendung vor dem Deployment deinstallieren</translation>
     </message>
     <message>
         <source>No Android architecture (ABI) is set by the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vom Projekt ist keine Android-Architektur (ABI) gesetzt.</translation>
     </message>
     <message>
         <source>The kit&apos;s run configuration is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausführungskonfiguration des Kits ist ungültig.</translation>
     </message>
     <message>
         <source>The kit&apos;s build configuration is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Build-Konfiguration des Kits ist ungültig.</translation>
     </message>
     <message>
         <source>The kit&apos;s build steps list is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Liste der Build-Schritte des Kits sind ungültig.</translation>
     </message>
     <message>
         <source>The kit&apos;s deploy configuration is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Deployment-Konfiguration des Kits ist ungültig.</translation>
     </message>
     <message>
         <source>No valid deployment device is set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es ist kein gültiges Gerät für das Deployment gesetzt.</translation>
     </message>
     <message>
         <source>The deployment device &quot;%1&quot; is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät &quot;%1&quot; für das Deployment ist ungültig.</translation>
     </message>
     <message>
         <source>The deployment device &quot;%1&quot; does not support the architectures used by the kit.
 The kit supports &quot;%2&quot;, but the device uses &quot;%3&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät &quot;%1&quot; für das Deployment unterstützt nicht die Architektur, die vom Kit verwendet wird.
+Das Kit unterstützt &quot;%2&quot;, aber das Gerät verwendet &quot;%3&quot;.</translation>
     </message>
     <message>
         <source>The deployment device &quot;%1&quot; is disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät &quot;%1&quot; für das Deployment ist nicht verbunden.</translation>
     </message>
     <message>
         <source>Android: The main ABI of the deployment device (%1) is not selected. The app execution or debugging might not work properly. Add it from Projects &gt; Build &gt; Build Steps &gt; qmake &gt; ABIs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android: Die Haupt-ABI des Geräts für das Deployment (%1) ist nicht ausgewählt. Das Ausführen oder Debuggen der Anwendung funktioniert möglicherweise nicht korrekt. Fügen Sie sie in Projekte &gt; Erstellen &gt; Schritte zum Erstellen &gt; qmake &gt; ABIs hinzu.</translation>
     </message>
     <message>
         <source>The deployment step&apos;s project node is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Projektknoten des Deployment-Schritts ist nicht gültig.</translation>
     </message>
     <message>
         <source>Cannot find the androiddeployqt input JSON file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die JSON-Datei für androiddeployqt konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <source>Cannot find the package name from the Android Manifest file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Paketname aus der Android-Manifest-Datei &quot;%1&quot; konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <source>Uninstalling the previous package &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deinstalliere das vorherige Paket &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Starting: &quot;%1&quot;</source>
@@ -10071,11 +10073,11 @@ The kit supports &quot;%2&quot;, but the device uses &quot;%3&quot;.</source>
     </message>
     <message>
         <source>Installing the app failed even after uninstalling the previous one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Installation der Anwendung ist selbst nach der Deinstallation der vorherigen fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Installing the app failed with an unknown error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Installation der Anwendung ist mit einem unbekannten Fehler fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Deployment failed with the following errors:
@@ -10095,7 +10097,7 @@ Möchten Sie das vorhandene Paket deinstallieren?</translation>
     </message>
     <message>
         <source>The deployment AVD &quot;%1&quot; cannot be started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das AVD für das Deployment &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Pulling files necessary for debugging.</source>
@@ -10107,7 +10109,7 @@ Möchten Sie das vorhandene Paket deinstallieren?</translation>
     </message>
     <message>
         <source>Deploy to Android device</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment auf Android-Gerät</translation>
     </message>
     <message>
         <source>%1 needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
@@ -10135,11 +10137,11 @@ Möchten Sie das vorhandene Paket deinstallieren?</translation>
     </message>
     <message>
         <source>&quot;%1&quot; step failed initialization.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Initialisierung des Schritts &quot;%1&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Keystore/Certificate password verification failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Überprüfung des Keystore/Zertifikat-Passworts ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Warning: Signing a debug or profile package.</source>
@@ -10147,7 +10149,7 @@ Möchten Sie das vorhandene Paket deinstallieren?</translation>
     </message>
     <message>
         <source>The Qt version for kit %1 is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version für das Kit %1 ist ungültig.</translation>
     </message>
     <message>
         <source>The minimum Qt version required for Gradle build to work is %1. It is recommended to install the latest Qt version.</source>
@@ -10173,7 +10175,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Product type is not an application, not building an APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Produkttyp ist keine Anwendung, erstelle kein APK.</translation>
     </message>
     <message>
         <source>Failed to run keytool.</source>
@@ -10215,7 +10217,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Could not start process &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Cannot create AVD. Command timed out.</source>
@@ -10227,35 +10229,35 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>This is useful for apps that use SSL operations. The path can be defined in Edit &gt; Preferences &gt; Devices &gt; Android.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies ist hilfreich für Anwendungen, die SSL-Operationen durchführen. Der Pfad kann in Bearbeiten &gt; Einstellungen &gt; Geräte &gt; Android angepasst werden.</translation>
     </message>
     <message>
         <source>No valid input file for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine gültige Eingabedatei für &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Android build SDK version is not defined. Check Android settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Version des Android Build-SDK ist nicht definiert. Überprüfen Sie die Android-Einstellungen.</translation>
     </message>
     <message>
         <source>The Android build folder %1 was not found and could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Verzeichnis &quot;%1&quot; für Android wurde nicht gefunden und konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Cannot copy the target&apos;s lib file %1 to the Android build folder %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die lib-Datei &quot;%1&quot; des Targets konnte nicht in das Build-Verzeichnis &quot;%2&quot; für Android kopiert werden.</translation>
     </message>
     <message>
         <source>Cannot copy file &quot;%1&quot; to Android build libs folder &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht in das libs-Verzeichnis des Build-Verzeichnisses für Android &quot;%2&quot; kopiert werden.</translation>
     </message>
     <message>
         <source>Cannot open androiddeployqt input file &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Eingabedatei &quot;%1&quot; für androiddeployqt konnte nicht zum Schreiben geöffnet werden.</translation>
     </message>
     <message>
         <source>Cannot set up &quot;%1&quot;, not building an APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht eingerichtet werden, erstelle kein APK.</translation>
     </message>
     <message>
         <source>Enter keystore password</source>
@@ -10275,11 +10277,11 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Cannot find C++ debug server in NDK installation.</source>
-        <translation type="unfinished"></translation>
+        <translation>In der NDK-Installation wurde kein C++-Debug-Server gefunden.</translation>
     </message>
     <message>
         <source>The lldb-server binary has not been found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei für lldb-server wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>Failed to forward QML debugging ports.</source>
@@ -10291,7 +10293,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Activity Manager threw the error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Activity Manager hat den folgenden Fehler ausgelöst: %1</translation>
     </message>
     <message>
         <source>Failed to forward JDB debugging ports.</source>
@@ -10343,27 +10345,27 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Vorgabe</translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <source>Stable</source>
-        <translation type="unfinished"></translation>
+        <translation>Stabil</translation>
     </message>
     <message>
         <source>Beta</source>
-        <translation type="unfinished"></translation>
+        <translation>Beta</translation>
     </message>
     <message>
         <source>Dev</source>
-        <translation type="unfinished"></translation>
+        <translation>Dev</translation>
     </message>
     <message>
         <source>Canary</source>
-        <translation type="unfinished"></translation>
+        <translation>Canary</translation>
     </message>
     <message>
         <source>Include obsolete</source>
-        <translation type="unfinished"></translation>
+        <translation>Veraltete einschließen</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -10383,13 +10385,15 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Channel:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanal:</translation>
     </message>
     <message>
         <source>%1 cannot find the following essential packages: &quot;%2&quot;.
 Install them manually after the current operation is done.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kann folgende notwendige Pakete nicht finden: &quot;%2&quot;.
+Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
+</translation>
     </message>
     <message>
         <source>Checking pending licenses...
@@ -10400,7 +10404,8 @@ Install them manually after the current operation is done.
     <message>
         <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Die Installation von Android-SDK-Paketen kann fehlschlagen, wenn die entsprechenden Lizenzen nicht akzeptiert werden.
+</translation>
     </message>
     <message>
         <source>
@@ -10563,15 +10568,15 @@ Breche ausstehende Operationen ab...
     </message>
     <message>
         <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Installieren:&lt;/b&gt; Anwendungsdateien nach &quot;%1&quot; kopieren</translation>
     </message>
     <message>
         <source>&quot;%1&quot; step has an invalid C++ toolchain.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schritt &quot;%1&quot; hat eine ungültige C++-Toolchain.</translation>
     </message>
     <message>
         <source>Product type is not an application, not running the Make install step.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Produkttyp ist keine Anwendung, führe den Installationsschritt nicht aus.</translation>
     </message>
     <message>
         <source>Removing directory %1</source>
@@ -10580,7 +10585,8 @@ Breche ausstehende Operationen ab...
     <message>
         <source>Failed to clean &quot;%1&quot; from the previous build, with error:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Bereinigen von &quot;%1&quot; vom vorherigen Build ist fehlgeschlagen:
+%2</translation>
     </message>
     <message>
         <source>Deploy to device</source>
@@ -10604,15 +10610,15 @@ Breche ausstehende Operationen ab...
     </message>
     <message>
         <source>Activity manager start arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Activity Manager Startargumente:</translation>
     </message>
     <message>
         <source>Pre-launch on-device shell commands:</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell-Kommandos auf dem Gerät vor dem Start:</translation>
     </message>
     <message>
         <source>Post-quit on-device shell commands:</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell-Kommandos auf dem Gerät nach dem Beenden:</translation>
     </message>
     <message>
         <source>Create Templates</source>
@@ -10620,7 +10626,7 @@ Breche ausstehende Operationen ab...
     </message>
     <message>
         <source>Build Android App Bundle (*.aab)</source>
-        <translation type="unfinished"></translation>
+        <translation>Android App Bundle (*.aab) erstellen</translation>
     </message>
     <message>
         <source>Additional Libraries</source>
@@ -10652,23 +10658,23 @@ Breche ausstehende Operationen ab...
     </message>
     <message>
         <source>Android build-tools version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Android build-tools-Version:</translation>
     </message>
     <message>
         <source>Android build platform SDK:</source>
-        <translation type="unfinished"></translation>
+        <translation>Android Build-Plattform-SDK:</translation>
     </message>
     <message>
         <source>Create an Android package for Custom Java code, assets, and Gradle configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Android-Paket für benutzerdefinierten Java-Code, Assets und Gradle-Konfigurationen.</translation>
     </message>
     <message>
         <source>Android customization:</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Anpassungen:</translation>
     </message>
     <message>
         <source>Application Signature</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungssignatur</translation>
     </message>
     <message>
         <source>Select Keystore File</source>
@@ -10748,7 +10754,8 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
     <message>
         <source>The Android template files will be created in the %1 set in the .pro file.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1 is the qmake variable ANDROID_PACKAGE_SOURCE_DIR</translatorcomment>
+        <translation>Die Template-Dateien für Android werden in dem Verzeichnis erstellt, dass als %1 in der .pro-Datei angegeben ist.</translation>
     </message>
     <message>
         <source>Create Android Template Files Wizard</source>
@@ -10780,290 +10787,295 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
     <message>
         <source>Master icon</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptsymbol</translation>
     </message>
     <message>
         <source>Select master icon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptsymbol auswählen.</translation>
     </message>
     <message>
         <source>LDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>LDPI-Symbol</translation>
     </message>
     <message>
         <source>Select an icon suitable for low-density (ldpi) screens (~120dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Symbol, das für Bildschirme mit niedrigem DPI-Wert (ldpi, ~120dpi) geeignet ist.</translation>
     </message>
     <message>
         <source>MDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>MDPI-Symbol</translation>
     </message>
     <message>
         <source>Select an icon for medium-density (mdpi) screens (~160dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Symbol, das für Bildschirme mit mittlerem DPI-Wert (mdpi, ~160dpi) geeignet ist.</translation>
     </message>
     <message>
         <source>HDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>HDPI-Symbol</translation>
     </message>
     <message>
         <source>Select an icon for high-density (hdpi) screens (~240dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Symbol, das für Bildschirme mit hohem DPI-Wert (hdpi, ~240dpi) geeignet ist.</translation>
     </message>
     <message>
         <source>XHDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>XHDPI-Symbol</translation>
     </message>
     <message>
         <source>Select an icon for extra-high-density (xhdpi) screens (~320dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Symbol, das für Bildschirme mit besonders hohem DPI-Wert (xdpi, ~320dpi) geeignet ist.</translation>
     </message>
     <message>
         <source>XXHDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>XXHDPI-Symbol</translation>
     </message>
     <message>
         <source>Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Symbol, das für Bildschirme mit ganz besonders hohem DPI-Wert (xxhdpi, ~480dpi) geeignet ist.</translation>
     </message>
     <message>
         <source>XXXHDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXHDPI-Symbol</translation>
     </message>
     <message>
         <source>Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Symbol, das für Bildschirme mit extrem hohem DPI-Wert (xxxdpi, ~640dpi) geeignet ist.</translation>
     </message>
     <message>
         <source>Icon scaled up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergößertes Symbol.</translation>
     </message>
     <message>
         <source>Click to select...</source>
-        <translation type="unfinished"></translation>
+        <translation>Klicken zum Auswählen...</translation>
     </message>
     <message>
         <source>Images (*.png *.jpg *.jpeg *.webp *.svg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilder (*.png *.jpg *.jpeg *.webp *.svg)</translation>
     </message>
     <message>
         <source>%1 has been stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wurde angehalten.</translation>
     </message>
     <message>
         <source>Selected device is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ausgewählte Gerät ist ungültig.</translation>
     </message>
     <message>
         <source>Selected device is disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ausgewählte Gerät ist nicht verbunden.</translation>
     </message>
     <message>
         <source>Launching AVD.</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte AVD.</translation>
     </message>
     <message>
         <source>Could not start AVD.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten des AVD ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>No valid AVD has been selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde kein gültiges AVD ausgewählt.</translation>
     </message>
     <message>
         <source>Checking if %1 app is installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfe, ob die Anwendung %1 installiert ist.</translation>
     </message>
     <message>
         <source>ABI of the selected device is unknown. Cannot install APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ABI des ausgewählten Geräts ist unbekannt. Kann das APK nicht installieren.</translation>
     </message>
     <message>
         <source>Cannot install %1 app for %2 architecture. The appropriate APK was not found in resources folders.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die Anwendung %1 nicht für die Architektur %2 installieren. Es wurde kein passendes APK in den Ressourcenverzeichnissen gefunden.</translation>
     </message>
     <message>
         <source>Installing %1 APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere APK für %1.</translation>
     </message>
     <message>
         <source>Too many .qmlproject files in your project. Open directly the .qmlproject file you want to work with and then run the preview.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es existieren zu viele .qmlproject-Dateien in Ihrem Projekt. Öffnen Sie die gewünschte .qmlproject-Datei direkt und starten Sie dann die Vorschau.</translation>
     </message>
     <message>
         <source>No .qmlproject file found among project files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine .qmlproject-Datei in den Projektdateien gefunden.</translation>
     </message>
     <message>
         <source>Could not gather information on project files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Einholen von Informationen über Projektdateien ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Could not create file for %1 &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%2 is a command line for a rcc call</translatorcomment>
+        <translation>Das Erstellen einer Datei für %1 ist fehlgeschlagen (&quot;%2&quot;).</translation>
     </message>
     <message>
         <source>A timeout occurred running &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Crash while creating file for %1 &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%2 is a command line for a rcc call</translatorcomment>
+        <translation>Der Prozess zum Erstellen einer Datei für %1 ist abgestürzt (&quot;%2&quot;).</translation>
     </message>
     <message>
         <source>Creating file for %1 failed. &quot;%2&quot; (exit code %3).</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Erstellen einer Datei für %1 ist fehlgeschlagen. &quot;%2&quot; (Rückgabewert %3).</translation>
     </message>
     <message>
         <source>Uploading files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade Dateien hoch.</translation>
     </message>
     <message>
         <source>Starting %1.</source>
-        <translation type="unfinished">Starte %1.</translation>
+        <translation>Starte %1.</translation>
     </message>
     <message>
         <source>%1 is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wird ausgeführt.</translation>
     </message>
     <message>
         <source>Java:</source>
-        <translation type="unfinished"></translation>
+        <translation>Java:</translation>
     </message>
     <message>
         <source>Java Language Server:</source>
-        <translation type="unfinished"></translation>
+        <translation>Java Language Server:</translation>
     </message>
     <message>
         <source>Path to equinox launcher jar</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur jar-Datei für den Equinox Launcher</translation>
     </message>
     <message>
         <source>Select splash screen image</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Bild für den Startbildschirm</translation>
     </message>
     <message>
         <source>Portrait splash screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Startbildschirm (Hochformat)</translation>
     </message>
     <message>
         <source>Select portrait splash screen image</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Bild für den Startbildschirm im Hochformat</translation>
     </message>
     <message>
         <source>Landscape splash screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Startbildschirm (Querformat)</translation>
     </message>
     <message>
         <source>Select landscape splash screen image</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Bild für den Startbildschirm im Querformat</translation>
     </message>
     <message>
         <source>Clear All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle löschen</translation>
     </message>
     <message>
         <source>A non-sticky splash screen is hidden automatically when an activity is drawn.
 To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Startbildschirm, der nicht angeheftet (sticky) ist, wird automatisch versteckt, wenn eine Aktivität dargestellt wird.
+Rufen Sie QtAndroid::hideSplashScreen() auf, um einen Startbildschirm zu verstecken, der angeheftet (sticky) ist.</translation>
     </message>
     <message>
         <source>Sticky splash screen:</source>
-        <translation type="unfinished"></translation>
+        <translation>Angehefteter Startbildschirm (sticky):</translation>
     </message>
     <message>
         <source>Image show mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildanzeigemodus:</translation>
     </message>
     <message>
         <source>Background color of the splash screen.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundfarbe des Startbildschirms.</translation>
     </message>
     <message>
         <source>Background color:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundfarbe:</translation>
     </message>
     <message>
         <source>Select master image to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das zu benutzende Hauptbild aus.</translation>
     </message>
     <message>
         <source>Master image:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptbild:</translation>
     </message>
     <message>
         <source>Select portrait master image to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das Hauptbild im Hochformat aus.</translation>
     </message>
     <message>
         <source>Portrait master image:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptbild (Hochformat):</translation>
     </message>
     <message>
         <source>Select landscape master image to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das Hauptbild im Querformat aus.</translation>
     </message>
     <message>
         <source>Landscape master image:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptbild (Querformat):</translation>
     </message>
     <message>
         <source>LDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>LDPI</translation>
     </message>
     <message>
         <source>MDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>MDPI</translation>
     </message>
     <message>
         <source>HDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>HDPI</translation>
     </message>
     <message>
         <source>XHDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>XHDPI</translation>
     </message>
     <message>
         <source>XXHDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>XXHDPI</translation>
     </message>
     <message>
         <source>XXXHDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXHDPI</translation>
     </message>
     <message>
         <source>An image is used for the splashscreen. Qt Creator manages
 splashscreen by using a different method which requires changing
 the manifest file by overriding your settings. Allow override?</source>
-        <translation type="unfinished"></translation>
+        <translation>Für den Startbildschirm wird ein Bild benutzt. Qt Creator verwaltet
+Startbildschirme auf andere Weise, was eine Änderung der Manifest-Datei
+und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlauben?</translation>
     </message>
     <message>
         <source>Convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Umwandeln</translation>
     </message>
     <message>
         <source>Select background color</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundfarbe auswählen</translation>
     </message>
     <message>
         <source>Select master image</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptbild auswählen</translation>
     </message>
     <message>
         <source>Select portrait master image</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptbild im Hochformat auswählen</translation>
     </message>
     <message>
         <source>Select landscape master image</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptbild im Querformat auswählen</translation>
     </message>
     <message>
         <source>Images</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilder</translation>
     </message>
     <message>
         <source>Images (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilder (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
