@@ -16,8 +16,11 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <projectexplorer/projectmanager.h>
+
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
+
 #include <texteditor/snippets/snippetprovider.h>
 
 #include <QAction>
