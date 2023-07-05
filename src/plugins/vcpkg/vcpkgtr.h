@@ -9,7 +9,7 @@ namespace Vcpkg {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Vcpkg)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Vcpkg)
 };
 
 } // namespace Vcpkg

@@ -58251,7 +58251,7 @@ Are you sure you want to remove the material?</source>
     </message>
 </context>
 <context>
-    <name>Vcpkg</name>
+    <name>QtC::Vcpkg</name>
     <message>
         <source>Search package...</source>
         <translation type="unfinished"></translation>
