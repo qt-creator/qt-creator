@@ -37,3 +37,10 @@ const auto s5 = uR"("o
      ne")"_w;
 const auto s6 = u"o\
 ne"_w;
+
+static void parenTest()
+{
+    do {
+        /* comment */ \
+    } while (false);
+}
