@@ -2,5 +2,7 @@
     <qresource prefix="/vcpkg">
         <file>wizards/manifest/vcpkg.json.tpl</file>
         <file>wizards/manifest/wizard.json</file>
+        <file>images/cmakeicon.png</file>
+        <file>images/cmakeicon@2x.png</file>
     </qresource>
 </RCC>

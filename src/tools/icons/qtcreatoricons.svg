@@ -3145,15 +3145,18 @@
          height="100%"
          transform="translate(1090,64)"
          style="display:inline;fill:none" />
-      <path
-         id="path4544-1"
-         style="fill:#000000"
-         d="m 1078,478.85 -8.5,16.15 h 17 z m 0.7724,8.61732 0.4208,4.69491 -4.1948,-1.62916 z" />
-      <path
-         id="path6034"
-         style="fill:none;stroke:#ffffff"
-         d="m 1078,478.85469 1.189,13.30208 m -4.1861,-1.62746 L 1086.5,495 m -17,0 9.272,-7.52758"
-         sodipodi:nodetypes="cccccc" />
+      <g
+         id="CMakeLogo">
+        <path
+           id="path4544-1"
+           style="fill:#000000"
+           d="m 1078,478.85 -8.5,16.15 h 17 z m 0.7724,8.61732 0.4208,4.69491 -4.1948,-1.62916 z" />
+        <path
+           id="path6034"
+           style="fill:none;stroke:#ffffff;stroke-width:1.2"
+           d="m 1078,478.85469 1.189,13.30208 m -4.1861,-1.62746 L 1086.5,495 m -17,0 9.272,-7.52758"
+           sodipodi:nodetypes="cccccc" />
+      </g>
     </g>
     <g
        id="src/plugins/terminal/images/settingscategory_terminal">
@@ -3639,6 +3642,27 @@
          id="path5086-3"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cczczcc" />
+    </g>
+    <g
+       id="src/plugins/vcpkg/images/cmakeicon"
+       transform="translate(862,88.5)"
+       style="display:inline">
+      <use
+         style="display:inline"
+         transform="translate(1137,43.5)"
+         height="100%"
+         width="100%"
+         id="use1952-7-6"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#CMakeLogo"
+         id="use2008"
+         style="display:inline"
+         transform="matrix(0.89482687,0,0,0.89482687,164.39232,51.559627)" />
     </g>
   </g>
   <g
