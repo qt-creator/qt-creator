@@ -19,7 +19,7 @@ Module {
         property bool hasRepo
 
         configure: {
-            repoDir = FileInfo.cleanPath(path + "/../../../tests/unit/3rdparty/googletest");
+            repoDir = FileInfo.cleanPath(path + "/../../../src/libs/3rdparty/googletest");
             gtestDir = FileInfo.joinPaths(repoDir, "googletest");
             gmockDir = FileInfo.joinPaths(repoDir, "googlemock");
             hasRepo = File.exists(gtestDir);
