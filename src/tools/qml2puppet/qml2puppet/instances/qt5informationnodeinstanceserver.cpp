@@ -2367,6 +2367,8 @@ QVariantList Qt5InformationNodeInstanceServer::alignCameraList() const
     }
 
     return cameras;
+#else
+    return {};
 #endif
 }
 
