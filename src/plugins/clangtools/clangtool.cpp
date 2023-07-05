@@ -5,7 +5,7 @@
 
 #include "clangfixitsrefactoringchanges.h"
 #include "clangselectablefilesdialog.h"
-#include "clangtoolruncontrol.h"
+#include "clangtoolrunner.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsdiagnosticmodel.h"
@@ -15,6 +15,7 @@
 #include "clangtoolssettings.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"
+#include "executableinfo.h"
 #include "filterdialog.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -23,6 +24,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/cppmodelmanager.h>
@@ -30,13 +32,17 @@
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+
+#include <solutions/tasking/tasktree.h>
 
 #include <texteditor/textdocument.h>
 
@@ -47,6 +53,8 @@
 #include <utils/infolabel.h>
 #include <utils/progressindicator.h>
 #include <utils/proxyaction.h>
+#include <utils/stringutils.h>
+#include <utils/temporarydirectory.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -54,6 +62,7 @@
 #include <QDesktopServices>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLoggingCategory>
 #include <QToolButton>
 
 using namespace Core;
@@ -62,8 +71,42 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
+
+namespace ClangTools::Internal {
+
+class ProjectBuilderTaskAdapter : public Tasking::TaskAdapter<QPointer<Target>>
+{
+public:
+    void start() final {
+        connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+                this, &TaskInterface::done);
+        Target *target = *task();
+        QTC_ASSERT(target, emit done(false); return);
+        if (!BuildManager::isBuilding(target))
+            BuildManager::buildProjectWithDependencies(target->project());
+    }
+};
+
+} // namespace ClangTools::Internal
+
+TASKING_DECLARE_TASK(ProjectBuilderTask, ClangTools::Internal::ProjectBuilderTaskAdapter);
+
+namespace ClangTools::Internal {
+
+static QDebug operator<<(QDebug debug, const Utils::Environment &environment)
+{
+    for (const QString &entry : environment.toStringList())
+        debug << "\n  " << entry;
+    return debug;
+}
+
+static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
+{
+    for (const AnalyzeUnit &unit : analyzeUnits)
+        debug << "\n  " << unit.file;
+    return debug;
+}
 
 static QString makeLink(const QString &text)
 {
@@ -606,6 +649,187 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
            == QMessageBox::Yes;
 }
 
+Tasking::Group ClangTool::runRecipe(const RunSettings &runSettings,
+                                    const ClangDiagnosticConfig &diagnosticConfig,
+                                    const FileInfos &fileInfos, bool buildBeforeAnalysis)
+{
+    m_filesCount = fileInfos.size();
+
+    using namespace Tasking;
+
+    struct ClangStorage {
+        ClangStorage() { m_timer.start(); }
+        ~ClangStorage() {
+            if (m_elapsedHandler)
+                m_elapsedHandler(m_timer.elapsed());
+        }
+        QElapsedTimer m_timer;
+        std::function<void(qint64 elapsedTime)> m_elapsedHandler = {};
+    };
+    const TreeStorage<ClangStorage> storage;
+
+    std::shared_ptr<TemporaryDirectory> tempDir(new TemporaryDirectory("clangtools-XXXXXX"));
+    tempDir->setAutoRemove(qtcEnvironmentVariable("QTC_CLANG_DONT_DELETE_OUTPUT_FILES") != "1");
+
+    Target *target = m_runControl->target();
+    BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
+    QTC_ASSERT(buildConfiguration, return {});
+    const Environment environment = buildConfiguration->environment();
+
+    const auto onTopSetup = [this, tempDir] {
+        if (tempDir->isValid())
+            return SetupResult::Continue;
+        m_infoBarWidget->setError(InfoBarWidget::Error,
+                                  makeLink(Tr::tr("Failed to start the analyzer.")),
+                                  [this] { showOutputPane(); });
+        m_runControl->postMessage(Tr::tr("Failed to create temporary directory: %1.")
+                                      .arg(tempDir->errorString()), ErrorMessageFormat);
+        setState(State::PreparationFailed);
+        return SetupResult::StopWithError;
+    };
+
+    QList<GroupItem> topTasks { onGroupSetup(onTopSetup) };
+
+    if (buildBeforeAnalysis) {
+        const auto onSetup = [target](QPointer<Target> &buildTarget) {
+            buildTarget = target;
+        };
+        const auto onError = [this](const QPointer<Target> &) {
+            const QString message(Tr::tr("Failed to build the project."));
+            m_infoBarWidget->setError(InfoBarWidget::Error, message, [this] { showOutputPane(); });
+            m_runControl->postMessage(message, ErrorMessageFormat);
+            setState(State::PreparationFailed);
+        };
+        topTasks.append(ProjectBuilderTask(onSetup, {}, onError));
+    }
+
+    const ProjectInfo::ConstPtr projectInfoBeforeBuild
+        = CppModelManager::instance()->projectInfo(target->project());
+
+    const auto onTreeSetup = [this, storage, runSettings, diagnosticConfig, fileInfos, tempDir,
+                              environment, projectInfoBeforeBuild](TaskTree &taskTree) {
+        storage->m_elapsedHandler = [this](qint64 elapsedTime) {
+            m_runControl->postMessage(Utils::formatElapsedTime(elapsedTime), NormalMessageFormat);
+        };
+        auto progress = new TaskProgress(&taskTree);
+        progress->setDisplayName(Tr::tr("Analyzing"));
+
+        const QString failedMessage = makeLink(Tr::tr("Failed to start the analyzer."));
+
+        ProjectExplorerPlugin::saveModifiedFiles();
+
+        Project *project = m_runControl->project();
+        const ProjectInfo::ConstPtr projectInfo = CppModelManager::instance()->projectInfo(project);
+        if (!projectInfo) {
+            m_infoBarWidget->setError(InfoBarWidget::Error, failedMessage,
+                                      [this] { showOutputPane(); });
+            m_runControl->postMessage(Tr::tr("No code model data available for project."),
+                                      ErrorMessageFormat);
+            setState(State::PreparationFailed);
+            return SetupResult::StopWithError;
+        }
+
+        // Project changed in the mean time?
+        if (projectInfo->configurationOrFilesChanged(*projectInfoBeforeBuild)) {
+            // If it's more than a release/debug build configuration change, e.g.
+            // a version control checkout, files might be not valid C++ anymore
+            // or even gone, so better stop here.
+            m_infoBarWidget->setError(InfoBarWidget::Error, failedMessage,
+                                      [this] { showOutputPane(); });
+            m_runControl->postMessage(Tr::tr("The project configuration changed since the start of "
+                                             "the %1. Please re-run with current configuration.")
+                                          .arg(name()), ErrorMessageFormat);
+            setState(State::PreparationFailed);
+            return SetupResult::StopWithError;
+        }
+
+        setState(State::AnalyzerRunning);
+
+        const FilePath projectFile = projectInfo->projectFilePath();
+        m_runControl->postMessage(Tr::tr("Running %1 on %2 with configuration \"%3\".")
+            .arg(name(), projectFile.toUserOutput(), diagnosticConfig.displayName()),
+            NormalMessageFormat);
+
+        const ClangToolType tool = this == ClangTidyTool::instance() ? ClangToolType::Tidy
+                                                                     : ClangToolType::Clazy;
+        const FilePath executable = toolExecutable(tool);
+        const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
+        // Collect files
+        AnalyzeUnits unitsToProcess;
+        for (const FileInfo &fileInfo : fileInfos)
+            unitsToProcess.append({fileInfo, includeDir, clangVersion});
+
+        qCDebug(LOG) << Q_FUNC_INFO << executable << includeDir << clangVersion;
+        qCDebug(LOG) << "Files to process:" << unitsToProcess;
+        qCDebug(LOG) << "Environment:" << environment;
+
+        QList<GroupItem> tasks{parallelLimit(qMax(1, runSettings.parallelJobs()))};
+        for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
+            if (!diagnosticConfig.isEnabled(tool) && !runSettings.hasConfigFileForSourceFile(unit.file))
+                continue;
+
+            const auto setupHandler = [this, unit, tool] {
+                const QString filePath = unit.file.toUserOutput();
+                m_runControl->postMessage(Tr::tr("Analyzing \"%1\" [%2].")
+                                              .arg(filePath, clangToolName(tool)), StdOutFormat);
+                return true;
+            };
+            const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
+                                         environment, unit};
+            const auto outputHandler = [this, runSettings](const AnalyzeOutputData &output) {
+                if (!output.success) {
+                    qCDebug(LOG).noquote() << "Clang tool task finished with an error:"
+                                           << output.errorMessage << '\n' << output.errorDetails;
+                    ++m_filesFailed;
+
+                    const QString message = Tr::tr("Failed to analyze \"%1\": %2")
+                        .arg(output.fileToAnalyze.toUserOutput(), output.errorMessage);
+                    // TODO: postMessage() instead
+                    m_runControl->postMessage(message, StdErrFormat);
+                    m_runControl->postMessage(output.errorDetails, StdErrFormat);
+                } else {
+                    qCDebug(LOG) << "Clang tool task finished with success:"
+                                 << output.outputFilePath;
+                    ++m_filesSucceeded;
+
+                    const Diagnostics diagnostics = output.diagnostics;
+                    if (!diagnostics.isEmpty()) {
+                        // do not generate marks when we always analyze open files since marks from that
+                        // analysis should be more up to date
+                        const bool generateMarks = !runSettings.analyzeOpenFiles();
+                        onNewDiagnosticsAvailable(diagnostics, generateMarks);
+                    }
+                }
+                updateForCurrentState();
+            };
+            tasks.append(clangToolTask(input, setupHandler, outputHandler));
+        }
+        taskTree.setRecipe(tasks);
+        return SetupResult::Continue;
+    };
+
+    const auto onTreeDone = [this, target, runSettings](const TaskTree &) {
+        if (m_filesFailed != 0) {
+            m_runControl->postMessage(Tr::tr("Error: Failed to analyze %n files.", nullptr,
+                                             m_filesFailed), ErrorMessageFormat);
+            if (target && target->activeBuildConfiguration()
+                && !target->activeBuildConfiguration()->buildDirectory().exists()
+                && !runSettings.buildBeforeAnalysis()) {
+                m_runControl->postMessage(
+                    Tr::tr("Note: You might need to build the project to generate or update "
+                           "source files. To build automatically, enable "
+                           "\"Build the project before analysis\"."), NormalMessageFormat);
+            }
+        }
+        m_runControl->postMessage(Tr::tr("%1 finished: Processed %2 files successfully, %3 failed.")
+                                      .arg(name()).arg(m_filesSucceeded).arg(m_filesFailed),
+                                  NormalMessageFormat);
+    };
+
+    topTasks.append(Group { Storage(storage), TaskTreeTask(onTreeSetup, onTreeDone) });
+    return {topTasks};
+}
+
 void ClangTool::startTool(ClangTool::FileSelection fileSelection,
                           const RunSettings &runSettings,
                           const CppEditor::ClangDiagnosticConfig &diagnosticConfig)
@@ -636,6 +860,7 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     m_runControl->setDisplayName(m_name);
     m_runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     m_runControl->setTarget(project->activeTarget());
+    m_runControl->setSupportsReRunning(false);
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
         m_runControl->postMessage(Tr::tr("%1 tool stopped by user.").arg(m_name),
@@ -643,29 +868,18 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
         m_runControl->initiateStop();
         setState(State::StoppedByUser);
     });
-    connect(m_runControl, &RunControl::stopped, this, &ClangTool::onRunControlStopped);
+    connect(m_runControl, &RunControl::stopped, this, [this] {
+        if (m_state != State::StoppedByUser && m_state != State::PreparationFailed)
+            setState(State::AnalyzerFinished);
+        emit finished(m_infoBarWidget->errorText());
+    });
 
-    // Run worker
     const bool preventBuild = std::holds_alternative<FilePath>(fileSelection)
                               || std::get<FileSelectionType>(fileSelection)
                                      == FileSelectionType::CurrentFile;
     const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
-    m_runWorker = new ClangToolRunWorker(this,
-                                         m_runControl,
-                                         runSettings,
-                                         diagnosticConfig,
-                                         fileInfos,
-                                         buildBeforeAnalysis);
-    connect(m_runWorker, &ClangToolRunWorker::buildFailed,this, &ClangTool::onBuildFailed);
-    connect(m_runWorker, &ClangToolRunWorker::startFailed, this, &ClangTool::onStartFailed);
-    connect(m_runWorker, &ClangToolRunWorker::started, this, &ClangTool::onStarted);
-    connect(m_runWorker, &ClangToolRunWorker::runnerFinished, this, [this] {
-        m_filesCount = m_runWorker->totalFilesToAnalyze();
-        m_filesSucceeded = m_runWorker->filesAnalyzed();
-        m_filesFailed = m_runWorker->filesNotAnalyzed();
-        updateForCurrentState();
-    });
-
+    m_runControl->setRunRecipe(runRecipe(runSettings, diagnosticConfig, fileInfos,
+                                         buildBeforeAnalysis));
     // More init and UI update
     m_diagnosticFilterModel->setProject(project);
     m_perspective.select();
@@ -673,7 +887,6 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
         m_infoBarWidget->setInfoText("Waiting for build to finish...");
     setState(State::PreparationStarted);
 
-    // Start
     ProjectExplorerPlugin::startRunControl(m_runControl);
 }
 
@@ -807,7 +1020,6 @@ void ClangTool::reset()
 
     m_state = State::Initial;
     m_runControl = nullptr;
-    m_runWorker = nullptr;
 
     m_filesCount = 0;
     m_filesSucceeded = 0;
@@ -952,32 +1164,6 @@ void ClangTool::filterOutCurrentKind()
     }
 }
 
-void ClangTool::onBuildFailed()
-{
-    m_infoBarWidget->setError(InfoBarWidget::Error, Tr::tr("Failed to build the project."),
-                              [this] { showOutputPane(); });
-    setState(State::PreparationFailed);
-}
-
-void ClangTool::onStartFailed()
-{
-    m_infoBarWidget->setError(InfoBarWidget::Error, makeLink(Tr::tr("Failed to start the analyzer.")),
-                              [this] { showOutputPane(); });
-    setState(State::PreparationFailed);
-}
-
-void ClangTool::onStarted()
-{
-    setState(State::AnalyzerRunning);
-}
-
-void ClangTool::onRunControlStopped()
-{
-    if (m_state != State::StoppedByUser && m_state != State::PreparationFailed)
-        setState(State::AnalyzerFinished);
-    emit finished(m_infoBarWidget->errorText());
-}
-
 void ClangTool::update()
 {
     updateForInitialState();
@@ -1119,7 +1305,7 @@ void ClangTool::updateForCurrentState()
         break;
     case State::AnalyzerRunning:
         showProgressIcon = true;
-        if (m_filesCount == 0) {
+        if (m_filesSucceeded + m_filesFailed == 0) {
             infoText = Tr::tr("Analyzing..."); // Not yet fully started/initialized
         } else {
             infoText = Tr::tr("Analyzing... %1 of %n file(s) processed.", nullptr, m_filesCount)
@@ -1167,12 +1353,12 @@ ClangTidyTool::ClangTidyTool() : ClangTool(Tr::tr("Clang-Tidy"), "ClangTidy.Pers
 {
     m_instance = this;
 }
+
 ClazyTool::ClazyTool() : ClangTool(Tr::tr("Clazy"), "Clazy.Perspective", ClangToolType::Clazy)
 {
     m_instance = this;
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal
 
 #include "clangtool.moc"
