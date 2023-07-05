@@ -60,7 +60,7 @@ public:
         endResetModel();
     }
 
-    int filteredIndex(int actualIndex);
+    int filteredIndex(int actualIndex) const;
     int actualIndex(int filteredIndex);
     void setBackendModel(QStandardItemModel *model);
 
