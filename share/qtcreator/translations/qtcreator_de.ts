@@ -49641,211 +49641,211 @@ Failed to open file &quot;%1&quot;</source>
     <name>QtC::Terminal</name>
     <message>
         <source>Configure...</source>
-        <translation type="unfinished">Einstellungen...</translation>
+        <translation>Einstellungen...</translation>
     </message>
     <message>
         <source>Sends Esc to terminal instead of Qt Creator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sendet Escape zum Terminal statt zu Qt Creator.</translation>
     </message>
     <message>
         <source>Press %1 to send Esc to terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Drücken Sie %1, um Escape zum Terminal zu senden.</translation>
     </message>
     <message>
         <source>Terminal</source>
-        <translation type="unfinished">Terminal</translation>
+        <translation>Terminal</translation>
     </message>
     <message>
         <source>Sends keyboard shortcuts to Terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sendet Tastenkombinationen zum Terminal.</translation>
     </message>
     <message>
         <source>Sends keyboard shortcuts to Qt Creator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sendet Tastenkombinationen zu Qt Creator.</translation>
     </message>
     <message>
         <source>New Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Terminal</translation>
     </message>
     <message>
         <source>Create a new Terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle ein neues Terminal.</translation>
     </message>
     <message>
         <source>Next Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Terminal</translation>
     </message>
     <message>
         <source>Previous Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorangehendes Terminal</translation>
     </message>
     <message>
         <source>Close the current Terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das aktuelle Terminal schließen.</translation>
     </message>
     <message>
         <source>Devices</source>
-        <translation type="unfinished">Geräte</translation>
+        <translation>Geräte</translation>
     </message>
     <message>
         <source>The color used for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die für &quot;%1&quot; benutzte Farbe.</translation>
     </message>
     <message>
         <source>Failed to open file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>JSON parsing error: &quot;%1&quot;, at offset: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten von JSON: &quot;%1&quot;, an Position: %2</translation>
     </message>
     <message>
         <source>No colors found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden keine Farben gefunden.</translation>
     </message>
     <message>
         <source>Invalid color format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Farbformat.</translation>
     </message>
     <message>
         <source>Unknown color scheme format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekanntes Farbschema-Format.</translation>
     </message>
     <message>
         <source>Use internal terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Integriertes Terminal benutzen</translation>
     </message>
     <message>
         <source>Uses the internal terminal when &quot;Run In Terminal&quot; is enabled and for &quot;Open Terminal here&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzt das integrierte Terminal, wenn &quot;Im Terminal ausführen&quot; aktiviert ist und für &quot;Terminalfenster hier öffnen&quot;.</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>The font family used in the terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name der Zeichensatz-Familie, die im Terminal benutzt wird.</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished">Größe:</translation>
+        <translation>Größe:</translation>
     </message>
     <message>
         <source>The font size used in the terminal (in points).</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Größe des Zeichensatzes, der im Terminal benutzt wird (in Punkten).</translation>
     </message>
     <message>
         <source>Allow blinking cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Blinkenden Cursor erlauben</translation>
     </message>
     <message>
         <source>Allow the cursor to blink.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubt dem Cursor zu blinken.</translation>
     </message>
     <message>
         <source>Shell path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell-Pfad:</translation>
     </message>
     <message>
         <source>The shell executable to be started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei der Shell, die gestartet werden soll.</translation>
     </message>
     <message>
         <source>Shell arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell-Argumente:</translation>
     </message>
     <message>
         <source>The arguments to be passed to the shell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Argumente, die an die Shell übergeben werden sollen.</translation>
     </message>
     <message>
         <source>Send escape key to terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Escape-Taste zum Terminal senden</translation>
     </message>
     <message>
         <source>Sends the escape key to the terminal when pressedinstead of closing the terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sendet die Escape-Taste zum Terminal, anstatt das Terminal zu schliessen.</translation>
     </message>
     <message>
         <source>Audible bell</source>
-        <translation type="unfinished"></translation>
+        <translation>Akustische Glocke</translation>
     </message>
     <message>
         <source>Makes the terminal beep when a bell character is received.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lässt das Terminal piepen, wenn ein Glockenzeichen empfangen wird.</translation>
     </message>
     <message>
         <source>Load Theme...</source>
-        <translation type="unfinished"></translation>
+        <translation>Thema laden...</translation>
     </message>
     <message>
         <source>Reset Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Thema zurücksetzen</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation type="unfinished">Zeichensatz</translation>
+        <translation>Zeichensatz</translation>
     </message>
     <message>
         <source>Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Farben</translation>
     </message>
     <message>
         <source>Foreground</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichen</translation>
     </message>
     <message>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrund</translation>
     </message>
     <message>
         <source>Selection</source>
-        <translation type="unfinished">Auswahl</translation>
+        <translation>Auswahl</translation>
     </message>
     <message>
         <source>Find match</source>
-        <translation type="unfinished"></translation>
+        <translation>Fundstelle</translation>
     </message>
     <message>
         <source>Default Shell</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Shell</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation type="unfinished">Einfügen</translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
         <source>Clear Selection</source>
-        <translation type="unfinished">Auswahl löschen</translation>
+        <translation>Auswahl löschen</translation>
     </message>
     <message>
         <source>Clear Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminal-Inhalt löschen</translation>
     </message>
     <message>
         <source>Move Cursor Word Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Cursor ein Wort nach links bewegen</translation>
     </message>
     <message>
         <source>Move Cursor Word Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Cursor ein Wort nach rechts bewegen</translation>
     </message>
     <message>
         <source>Close Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminal schließen</translation>
     </message>
 </context>
 <context>
