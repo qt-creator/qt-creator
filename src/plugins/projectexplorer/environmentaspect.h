@@ -20,7 +20,7 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    EnvironmentAspect();
+    EnvironmentAspect(Utils::AspectContainer *container = nullptr);
 
     // The environment including the user's modifications.
     Utils::Environment environment() const;

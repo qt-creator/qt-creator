@@ -55,8 +55,11 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
 
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
-    if (HostOsInfo::isAnyUnixHost())
-        addAspect<X11ForwardingAspect>(macroExpander());
+
+    if (HostOsInfo::isAnyUnixHost()) {
+        auto x11Forwarding = addAspect<X11ForwardingAspect>();
+        x11Forwarding->setMacroExpander(macroExpander());
+    }
 
     setDefaultDisplayName(runConfigDefaultDisplayName());
 }

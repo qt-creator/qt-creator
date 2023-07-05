@@ -724,7 +724,8 @@ void ExecutableAspect::toMap(QVariantMap &map) const
     on Windows and LD_LIBRARY_PATH everywhere else.
 */
 
-UseLibraryPathsAspect::UseLibraryPathsAspect()
+UseLibraryPathsAspect::UseLibraryPathsAspect(AspectContainer *container)
+    : BoolAspect(container)
 {
     setId("UseLibraryPath");
     setSettingsKey("RunConfiguration.UseLibrarySearchPath");
@@ -749,7 +750,8 @@ UseLibraryPathsAspect::UseLibraryPathsAspect()
     DYLD_IMAGE_SUFFIX environment variable should be used on Mac.
 */
 
-UseDyldSuffixAspect::UseDyldSuffixAspect()
+UseDyldSuffixAspect::UseDyldSuffixAspect(AspectContainer *container)
+    : BoolAspect(container)
 {
     setId("UseDyldSuffix");
     setSettingsKey("RunConfiguration.UseDyldImageSuffix");
@@ -765,7 +767,8 @@ UseDyldSuffixAspect::UseDyldSuffixAspect()
     application should run with root permissions.
 */
 
-RunAsRootAspect::RunAsRootAspect()
+RunAsRootAspect::RunAsRootAspect(AspectContainer *container)
+    : BoolAspect(container)
 {
     setId("RunAsRoot");
     setSettingsKey("RunConfiguration.RunAsRoot");
@@ -794,7 +797,8 @@ Interpreter::Interpreter(const QString &_id,
     to use with files or projects using an interpreted language.
 */
 
-InterpreterAspect::InterpreterAspect()
+InterpreterAspect::InterpreterAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     addDataExtractor(this, &InterpreterAspect::currentInterpreter, &Data::interpreter);
 }
@@ -904,8 +908,8 @@ static QString defaultDisplay()
     return qtcEnvironmentVariable("DISPLAY");
 }
 
-X11ForwardingAspect::X11ForwardingAspect(const MacroExpander *expander)
-    : m_macroExpander(expander)
+X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
+    : StringAspect(container)
 {
     setLabelText(Tr::tr("X11 Forwarding:"));
     setDisplayStyle(LineEditDisplay);
@@ -918,10 +922,33 @@ X11ForwardingAspect::X11ForwardingAspect(const MacroExpander *expander)
     addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
 }
 
+void X11ForwardingAspect::setMacroExpander(const MacroExpander *expander)
+{
+   m_macroExpander = expander;
+}
+
 QString X11ForwardingAspect::display() const
 {
     QTC_ASSERT(m_macroExpander, return value());
     return !isChecked() ? QString() : m_macroExpander->expandProcessArgs(value());
 }
+
+
+/*!
+    \class ProjectExplorer::SymbolFileAspect
+    \inmodule QtCreator
+
+    \brief The SymbolFileAspect class lets a user specify a symbol file
+     for debugging.
+*/
+
+
+SymbolFileAspect::SymbolFileAspect(AspectContainer *container)
+    : FilePathAspect(container)
+{}
+
+MainScriptAspect::MainScriptAspect(AspectContainer *container)
+    : StringAspect(container)
+{}
 
 } // namespace ProjectExplorer

@@ -21,7 +21,8 @@ const char PRINT_ON_RUN_KEY[] = "PE.EnvironmentAspect.PrintOnRun";
 // EnvironmentAspect:
 // --------------------------------------------------------------------
 
-EnvironmentAspect::EnvironmentAspect()
+EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Environment"));
     setId("EnvironmentAspect");

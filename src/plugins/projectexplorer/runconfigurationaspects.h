@@ -131,7 +131,7 @@ class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public Utils::BoolAspect
     Q_OBJECT
 
 public:
-    UseLibraryPathsAspect();
+    UseLibraryPathsAspect(Utils::AspectContainer *container = nullptr);
 };
 
 class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public Utils::BoolAspect
@@ -139,7 +139,7 @@ class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public Utils::BoolAspect
     Q_OBJECT
 
 public:
-    UseDyldSuffixAspect();
+    UseDyldSuffixAspect(Utils::AspectContainer *container = nullptr);
 };
 
 class PROJECTEXPLORER_EXPORT RunAsRootAspect : public Utils::BoolAspect
@@ -147,7 +147,7 @@ class PROJECTEXPLORER_EXPORT RunAsRootAspect : public Utils::BoolAspect
     Q_OBJECT
 
 public:
-    RunAsRootAspect();
+    RunAsRootAspect(Utils::AspectContainer *container = nullptr);
 };
 
 class PROJECTEXPLORER_EXPORT ExecutableAspect : public Utils::BaseAspect
@@ -197,7 +197,7 @@ class PROJECTEXPLORER_EXPORT SymbolFileAspect : public Utils::FilePathAspect
     Q_OBJECT
 
 public:
-     SymbolFileAspect() = default;
+     SymbolFileAspect(Utils::AspectContainer *container = nullptr);
 };
 
 class PROJECTEXPLORER_EXPORT Interpreter
@@ -227,7 +227,7 @@ class PROJECTEXPLORER_EXPORT InterpreterAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    InterpreterAspect();
+    InterpreterAspect(Utils::AspectContainer *container = nullptr);
 
     Interpreter currentInterpreter() const;
     void updateInterpreters(const QList<Interpreter> &interpreters);
@@ -256,7 +256,7 @@ class PROJECTEXPLORER_EXPORT MainScriptAspect : public Utils::StringAspect
     Q_OBJECT
 
 public:
-    MainScriptAspect() = default;
+    MainScriptAspect(Utils::AspectContainer *container = nullptr);
 };
 
 class PROJECTEXPLORER_EXPORT X11ForwardingAspect : public Utils::StringAspect
@@ -264,7 +264,9 @@ class PROJECTEXPLORER_EXPORT X11ForwardingAspect : public Utils::StringAspect
     Q_OBJECT
 
 public:
-    X11ForwardingAspect(const Utils::MacroExpander *macroExpander);
+    X11ForwardingAspect(Utils::AspectContainer *container = nullptr);
+
+    void setMacroExpander(const Utils::MacroExpander *macroExpander);
 
     struct Data : StringAspect::Data { QString display; };
 
