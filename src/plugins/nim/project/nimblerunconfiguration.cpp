@@ -32,8 +32,12 @@ public:
         auto exeAspect = addAspect<ExecutableAspect>();
         exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-        addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
+        auto argsAspect = addAspect<ArgumentsAspect>();
+        argsAspect->setMacroExpander(macroExpander());
+
+        auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
+        workingDirAspect->setMacroExpander(macroExpander());
+
         addAspect<TerminalAspect>();
 
         setUpdater([this] {
@@ -70,9 +74,14 @@ public:
         exeAspect->setDeviceSelector(target, ExecutableAspect::BuildDevice);
         exeAspect->setExecutable(Nim::nimblePathFromKit(target->kit()));
 
-        addAspect<ArgumentsAspect>(macroExpander())->setArguments("test");
-        addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr)
-                ->setDefaultWorkingDirectory(project()->projectDirectory());
+        auto argsAspect = addAspect<ArgumentsAspect>();
+        argsAspect->setMacroExpander(macroExpander());
+        argsAspect->setArguments("test");
+
+        auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
+        workingDirAspect->setMacroExpander(macroExpander());
+        workingDirAspect->setDefaultWorkingDirectory(project()->projectDirectory());
+
         addAspect<TerminalAspect>();
 
         setDisplayName(Tr::tr("Nimble Test"));

@@ -32,8 +32,12 @@ public:
         auto exeAspect = addAspect<ExecutableAspect>();
         exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-        addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
+        auto argsAspect = addAspect<ArgumentsAspect>();
+        argsAspect->setMacroExpander(macroExpander());
+
+        auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
+        workingDirAspect->setMacroExpander(macroExpander());
+
         addAspect<TerminalAspect>();
 
         setDisplayName(Tr::tr("Current Build Target"));

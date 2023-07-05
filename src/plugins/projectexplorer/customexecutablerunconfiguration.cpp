@@ -34,8 +34,13 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     exeAspect->setExpectedKind(PathChooser::ExistingCommand);
     exeAspect->setEnvironment(envAspect->environment());
 
-    addAspect<ArgumentsAspect>(macroExpander());
-    addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
+    auto argsAspect = addAspect<ArgumentsAspect>();
+    argsAspect->setMacroExpander(macroExpander());
+
+    auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
+    workingDirAspect->setMacroExpander(macroExpander());
+    workingDirAspect->setEnvironment(envAspect);
+
     addAspect<TerminalAspect>();
 
     connect(envAspect, &EnvironmentAspect::environmentChanged, this, [exeAspect, envAspect]  {

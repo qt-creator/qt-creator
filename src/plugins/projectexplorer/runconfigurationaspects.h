@@ -27,7 +27,7 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    TerminalAspect();
+    explicit TerminalAspect(Utils::AspectContainer *container = nullptr);
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
@@ -59,8 +59,7 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    explicit WorkingDirectoryAspect(const Utils::MacroExpander *expander,
-                                    EnvironmentAspect *envAspect);
+    explicit WorkingDirectoryAspect(Utils::AspectContainer *container = nullptr);
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
@@ -69,6 +68,8 @@ public:
     Utils::FilePath unexpandedWorkingDirectory() const;
     void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
     Utils::PathChooser *pathChooser() const;
+    void setMacroExpander(const Utils::MacroExpander *expander);
+    void setEnvironment(EnvironmentAspect *envAspect);
 
 private:
     void fromMap(const QVariantMap &map) override;
@@ -89,7 +90,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    explicit ArgumentsAspect(const Utils::MacroExpander *macroExpander);
+    explicit ArgumentsAspect(Utils::AspectContainer *container = nullptr);
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
@@ -100,6 +101,7 @@ public:
     void setLabelText(const QString &labelText);
     void setResetter(const std::function<QString()> &resetter);
     void resetArguments();
+    void setMacroExpander(const Utils::MacroExpander *macroExpander);
 
     struct Data : BaseAspect::Data
     {

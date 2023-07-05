@@ -47,7 +47,8 @@ namespace ProjectExplorer {
     The initial value is provided as a hint from the build systems.
 */
 
-TerminalAspect::TerminalAspect()
+TerminalAspect::TerminalAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Terminal"));
     setId("TerminalAspect");
@@ -152,13 +153,22 @@ bool TerminalAspect::isUserSet() const
     working directory for running the executable.
 */
 
-WorkingDirectoryAspect::WorkingDirectoryAspect(const MacroExpander *expander,
-                                               EnvironmentAspect *envAspect)
-    : m_envAspect(envAspect), m_macroExpander(expander)
+WorkingDirectoryAspect::WorkingDirectoryAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Working Directory"));
     setId("WorkingDirectoryAspect");
     setSettingsKey("RunConfiguration.WorkingDirectory");
+}
+
+void WorkingDirectoryAspect::setMacroExpander(const MacroExpander *expander)
+{
+    m_macroExpander = expander;
+}
+
+void WorkingDirectoryAspect::setEnvironment(EnvironmentAspect *envAspect)
+{
+    m_envAspect = envAspect;
 }
 
 /*!
@@ -297,8 +307,8 @@ PathChooser *WorkingDirectoryAspect::pathChooser() const
     arguments for an executable.
 */
 
-ArgumentsAspect::ArgumentsAspect(const MacroExpander *macroExpander)
-    : m_macroExpander(macroExpander)
+ArgumentsAspect::ArgumentsAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Arguments"));
     setId("ArgumentsAspect");
@@ -307,6 +317,11 @@ ArgumentsAspect::ArgumentsAspect(const MacroExpander *macroExpander)
     addDataExtractor(this, &ArgumentsAspect::arguments, &Data::arguments);
 
     m_labelText = Tr::tr("Command line arguments:");
+}
+
+void ArgumentsAspect::setMacroExpander(const MacroExpander *expander)
+{
+    m_macroExpander = expander;
 }
 
 /*!

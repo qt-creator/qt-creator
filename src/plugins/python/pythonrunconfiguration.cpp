@@ -201,9 +201,12 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     auto envAspect = addAspect<EnvironmentAspect>();
     envAspect->setSupportForBuildEnvironment(target);
 
-    auto argumentsAspect = addAspect<ArgumentsAspect>(macroExpander());
+    auto argumentsAspect = addAspect<ArgumentsAspect>();
+    argumentsAspect->setMacroExpander(macroExpander());
 
-    addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
+    auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
+    workingDirAspect->setMacroExpander(macroExpander());
+
     addAspect<TerminalAspect>();
 
     if (HostOsInfo::isAnyUnixHost())

@@ -77,7 +77,8 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
     m_qmlViewerAspect->setSettingsKey(Constants::QML_VIEWER_KEY);
 
-    auto argumentAspect = addAspect<ArgumentsAspect>(macroExpander());
+    auto argumentAspect = addAspect<ArgumentsAspect>();
+    argumentAspect->setMacroExpander(macroExpander());
     argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
     setCommandLineGetter([this, target] {

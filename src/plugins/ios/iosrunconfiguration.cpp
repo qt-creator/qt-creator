@@ -61,7 +61,8 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
     auto executableAspect = addAspect<ExecutableAspect>();
     executableAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-    addAspect<ArgumentsAspect>(macroExpander());
+    auto argsAspect = addAspect<ArgumentsAspect>();
+    argsAspect->setMacroExpander(macroExpander());
 
     m_deviceTypeAspect = addAspect<IosDeviceTypeAspect>(this);
 

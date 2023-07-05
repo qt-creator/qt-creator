@@ -29,8 +29,11 @@ public:
         exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
         exeAspect->setPlaceHolderText(Tr::tr("Unknown"));
 
-        addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
+        auto argsAspect = addAspect<ArgumentsAspect>();
+        argsAspect->setMacroExpander(macroExpander());
+
+        auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
+        workingDirAspect->setMacroExpander(macroExpander());
 
         setUpdater([this, exeAspect] {
             const BuildTargetInfo bti = buildTargetInfo();
@@ -55,8 +58,11 @@ public:
         exeAspect->setHistoryCompleter("BareMetal.CustomRunConfig.History");
         exeAspect->setExpectedKind(PathChooser::Any);
 
-        addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
+        auto argsAspect = addAspect<ArgumentsAspect>();
+        argsAspect->setMacroExpander(macroExpander());
+
+        auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
+        workingDirAspect->setMacroExpander(macroExpander());
 
         setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(
                                   Tr::tr("Custom Executable"), target));

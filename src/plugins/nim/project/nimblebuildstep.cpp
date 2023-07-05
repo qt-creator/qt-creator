@@ -32,7 +32,8 @@ private:
 NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     : AbstractProcessStep(parentList, id)
 {
-    auto arguments = addAspect<ArgumentsAspect>(macroExpander());
+    auto arguments = addAspect<ArgumentsAspect>();
+    arguments->setMacroExpander(macroExpander());
     arguments->setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
     arguments->setResetter([this] { return defaultArguments(); });
     arguments->setArguments(defaultArguments());

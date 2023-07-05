@@ -53,7 +53,8 @@ public:
         auto envAspect = addAspect<EnvironmentAspect>();
         envAspect->addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
 
-        auto extraAppArgsAspect = addAspect<ArgumentsAspect>(macroExpander());
+        auto extraAppArgsAspect = addAspect<ArgumentsAspect>();
+        extraAppArgsAspect->setMacroExpander(macroExpander());
 
         connect(extraAppArgsAspect, &BaseAspect::changed, this, [target, extraAppArgsAspect] {
             if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {

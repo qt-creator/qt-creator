@@ -46,8 +46,13 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     symbolsAspect->setSettingsKey("RemoteLinux.CustomRunConfig.LocalExecutable");
     symbolsAspect->setLabelText(Tr::tr("Local executable:"));
 
-    addAspect<ArgumentsAspect>(macroExpander());
-    addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
+    auto argsAspect = addAspect<ArgumentsAspect>();
+    argsAspect->setMacroExpander(macroExpander());
+
+    auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
+    workingDirAspect->setMacroExpander(macroExpander());
+    workingDirAspect->setEnvironment(envAspect);
+
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
     if (HostOsInfo::isAnyUnixHost())

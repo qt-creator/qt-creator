@@ -42,8 +42,13 @@ public:
 
         auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
 
-        addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
+        auto argsAspect = addAspect<ArgumentsAspect>();
+        argsAspect->setMacroExpander(macroExpander());
+
+        auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
+        workingDirAspect->setMacroExpander(macroExpander());
+        workingDirAspect->setEnvironment(envAspect);
+
         addAspect<TerminalAspect>();
 
         auto libAspect = addAspect<StringAspect>();
@@ -74,8 +79,6 @@ public:
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
 };
-
-
 
 // QnxRunConfigurationFactory
 
