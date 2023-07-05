@@ -64,8 +64,6 @@ private:
 
     CppEditor::ProjectInfo::ConstPtr m_projectInfoBeforeBuild;
     CppEditor::ProjectInfo::ConstPtr m_projectInfo;
-    QString m_targetTriple;
-    Utils::Id m_toolChainType;
 
     std::unique_ptr<Tasking::TaskTree> m_taskTree;
     QSet<Utils::FilePath> m_projectFiles;

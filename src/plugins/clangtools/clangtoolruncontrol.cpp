@@ -113,11 +113,6 @@ ClangToolRunWorker::ClangToolRunWorker(ClangTool *tool, RunControl *runControl,
     BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return);
     m_environment = buildConfiguration->environment();
-
-    ToolChain *toolChain = ToolChainKitAspect::cxxToolChain(target->kit());
-    QTC_ASSERT(toolChain, return);
-    m_targetTriple = toolChain->originalTargetTriple();
-    m_toolChainType = toolChain->typeId();
 }
 
 ClangToolRunWorker::~ClangToolRunWorker() = default;
