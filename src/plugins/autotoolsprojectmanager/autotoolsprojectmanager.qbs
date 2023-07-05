@@ -23,7 +23,6 @@ QtcPlugin {
         "autotoolsprojectconstants.h",
         "autotoolsprojectmanagertr.h",
         "autotoolsprojectplugin.cpp",
-        "autotoolsprojectplugin.h",
         "configurestep.cpp",
         "configurestep.h",
         "makefileparser.cpp",
