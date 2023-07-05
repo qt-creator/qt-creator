@@ -34,8 +34,6 @@ struct UploadStorage
     QList<DeployableFile> filesToUpload;
 };
 
-enum class IncrementalDeployment { Enabled, Disabled, NotSupported };
-
 class GenericDirectUploadStep : public AbstractRemoteLinuxDeployStep
 {
 public:
@@ -52,8 +50,6 @@ public:
         ignoreMissingFiles.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
         setInternalInitializer([this] {
-            m_incremental = incremental()
-                                   ? IncrementalDeployment::Enabled : IncrementalDeployment::Disabled;
             return isDeploymentPossible();
         });
 
@@ -78,7 +74,6 @@ public:
     GroupItem chmodTask(const DeployableFile &file);
     GroupItem chmodTree(const TreeStorage<UploadStorage> &storage);
 
-    IncrementalDeployment m_incremental = IncrementalDeployment::NotSupported;
     mutable QList<DeployableFile> m_deployableFiles;
 
     BoolAspect incremental{this};
@@ -268,12 +263,10 @@ Group GenericDirectUploadStep::deployRecipe()
     const auto preFilesToStat = [this](UploadStorage *storage) {
         QList<DeployableFile> filesToStat;
         for (const DeployableFile &file : std::as_const(m_deployableFiles)) {
-            if (m_incremental != IncrementalDeployment::Enabled || hasLocalFileChanged(file)) {
+            if (!incremental() || hasLocalFileChanged(file)) {
                 storage->filesToUpload.append(file);
                 continue;
             }
-            if (m_incremental == IncrementalDeployment::NotSupported)
-                continue;
             filesToStat << file;
         }
         return filesToStat;
@@ -285,8 +278,7 @@ Group GenericDirectUploadStep::deployRecipe()
     };
 
     const auto postFilesToStat = [this](UploadStorage *storage) {
-        return m_incremental == IncrementalDeployment::NotSupported
-               ? QList<DeployableFile>() : storage->filesToUpload;
+        return storage->filesToUpload;
     };
     const auto postStatEndHandler = [this](UploadStorage *storage, const DeployableFile &file,
                                            const QDateTime &timestamp) {
