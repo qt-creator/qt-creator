@@ -186,23 +186,40 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   SOURCES
-    abstractproperty.h
     abstractview.h
+    basetexteditmodifier.h
+    bytearraymodifier.h
+    componenttextmodifier.h
+    forwardview.h
+    itemlibraryinfo.h
+    metainforeader.h
+    model.h
+    nodehints.h
+    plaintexteditmodifier.h
+    nodeinstanceview.h
+    propertyparser.h
+    rewriterview.h
+    subcomponentmanager.h
+    textmodifier.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  SOURCES_PROPERTIES SKIP_AUTOMOC ON
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/include
+  SOURCES
+    abstractproperty.h
     anchorline.h
     annotation.h
     asynchronousexplicitimagecache.h
     asynchronousimagecache.h
     auxiliarydata.h
     auxiliarydataproperties.h
-    basetexteditmodifier.h
     bindingproperty.h
-    componenttextmodifier.h
     customnotifications.h
     documentmessage.h
     enumerationmetainfo.h
     exception.h
     externaldependenciesinterface.h
-    forwardview.h
     imagecacheauxiliarydata.h
     import.h
     invalidargumentexception.h
@@ -214,33 +231,26 @@ extend_qtc_library(QmlDesignerCore
     invalidqmlsourceexception.h
     invalidreparentingexception.h
     invalidslideindexexception.h
-    itemlibraryinfo.h
     mathutils.h
     metainfo.h
-    metainforeader.h
-    model.h
     modelfwd.h
     modelmerger.h
     modelnode.h
     modelnodepositionstorage.h
     nodeabstractproperty.h
-    nodehints.h
     nodeinstance.h
-    nodeinstanceview.h
     nodelistproperty.h
     nodemetainfo.h
     nodeproperty.h
     notimplementedexception.h
-    plaintexteditmodifier.h
     propertycontainer.h
     propertymetainfo.h
     propertynode.h
-    propertyparser.h
     qmlanchors.h
     qmlchangeset.h
     qmlconnections.h
-    qmldesignercorelib_global.h
     qmldesignercorelib_exports.h
+    qmldesignercorelib_global.h
     qmlitemnode.h
     qmlmodelnodefacade.h
     qmlobjectnode.h
@@ -248,14 +258,11 @@ extend_qtc_library(QmlDesignerCore
     qmltimeline.h
     qmltimelinekeyframegroup.h
     removebasestateexception.h
-    rewriterview.h
     rewritingexception.h
     signalhandlerproperty.h
     stringutils.h
     stylesheetmerger.h
-    subcomponentmanager.h
     synchronousimagecache.h
-    textmodifier.h
     variantproperty.h
 )
 
