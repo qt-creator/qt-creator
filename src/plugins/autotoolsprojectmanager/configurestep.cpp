@@ -37,47 +37,41 @@ namespace AutotoolsProjectManager::Internal {
 class ConfigureStep final : public AbstractProcessStep
 {
 public:
-    ConfigureStep(BuildStepList *bsl, Id id);
+    ConfigureStep(BuildStepList *bsl, Id id)
+        : AbstractProcessStep(bsl, id)
+    {
+        arguments.setDisplayStyle(StringAspect::LineEditDisplay);
+        arguments.setSettingsKey("AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
+        arguments.setLabelText(Tr::tr("Arguments:"));
+        arguments.setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
 
-    void setAdditionalArguments(const QString &list);
+        connect(&arguments, &BaseAspect::changed, this, [this] {
+            m_runConfigure = true;
+        });
+
+        setCommandLineProvider([this] {
+            return getCommandLine(arguments());
+        });
+
+        setSummaryUpdater([this] {
+            ProcessParameters param;
+            setupProcessParameters(&param);
+
+            return param.summaryInWorkdir(displayName());
+        });
+    }
 
 private:
     void doRun() final;
 
-    CommandLine getCommandLine(const QString &arguments);
+    CommandLine getCommandLine(const QString &arguments)
+    {
+        return {project()->projectDirectory() / "configure", arguments, CommandLine::Raw};
+    }
 
     bool m_runConfigure = false;
+    StringAspect arguments{this};
 };
-
-ConfigureStep::ConfigureStep(BuildStepList *bsl, Id id)
-    : AbstractProcessStep(bsl, id)
-{
-    auto arguments = addAspect<StringAspect>();
-    arguments->setDisplayStyle(StringAspect::LineEditDisplay);
-    arguments->setSettingsKey("AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
-    arguments->setLabelText(Tr::tr("Arguments:"));
-    arguments->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
-
-    connect(arguments, &BaseAspect::changed, this, [this] {
-        m_runConfigure = true;
-    });
-
-    setCommandLineProvider([this, arguments] {
-        return getCommandLine(arguments->value());
-    });
-
-    setSummaryUpdater([this] {
-        ProcessParameters param;
-        setupProcessParameters(&param);
-
-        return param.summaryInWorkdir(displayName());
-    });
-}
-
-CommandLine ConfigureStep::getCommandLine(const QString &arguments)
-{
-    return {project()->projectDirectory() / "configure", arguments, CommandLine::Raw};
-}
 
 void ConfigureStep::doRun()
 {
