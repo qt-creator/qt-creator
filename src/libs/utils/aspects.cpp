@@ -923,35 +923,35 @@ void StringAspect::setPlaceHolderText(const QString &placeHolderText)
         d->m_textEditDisplay->setPlaceholderText(placeHolderText);
 }
 
-void StringAspect::setPromptDialogFilter(const QString &filter)
+void FilePathAspect::setPromptDialogFilter(const QString &filter)
 {
     d->m_prompDialogFilter = filter;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setPromptDialogFilter(filter);
 }
 
-void StringAspect::setPromptDialogTitle(const QString &title)
+void FilePathAspect::setPromptDialogTitle(const QString &title)
 {
     d->m_prompDialogTitle = title;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setPromptDialogTitle(title);
 }
 
-void StringAspect::setCommandVersionArguments(const QStringList &arguments)
+void FilePathAspect::setCommandVersionArguments(const QStringList &arguments)
 {
     d->m_commandVersionArguments = arguments;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setCommandVersionArguments(arguments);
 }
 
-void StringAspect::setAllowPathFromDevice(bool allowPathFromDevice)
+void FilePathAspect::setAllowPathFromDevice(bool allowPathFromDevice)
 {
     d->m_allowPathFromDevice = allowPathFromDevice;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setAllowPathFromDevice(allowPathFromDevice);
 }
 
-void StringAspect::setValidatePlaceHolder(bool validatePlaceHolder)
+void FilePathAspect::setValidatePlaceHolder(bool validatePlaceHolder)
 {
     d->m_validatePlaceHolder = validatePlaceHolder;
     if (d->m_pathChooserDisplay)
@@ -1047,7 +1047,7 @@ void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction
         d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
 }
 
-void StringAspect::setOpenTerminalHandler(const std::function<void ()> &openTerminal)
+void FilePathAspect::setOpenTerminalHandler(const std::function<void ()> &openTerminal)
 {
     d->m_openTerminal = openTerminal;
     if (d->m_pathChooserDisplay)

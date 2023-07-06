@@ -464,9 +464,6 @@ public:
 
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
-    void setPromptDialogFilter(const QString &filter);
-    void setPromptDialogTitle(const QString &title);
-    void setCommandVersionArguments(const QStringList &arguments);
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const PathChooser::Kind expectedKind);
     void setEnvironment(const Environment &env);
@@ -477,11 +474,8 @@ public:
     void setUseGlobalMacroExpander();
     void setUseResetButton();
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
-    void setOpenTerminalHandler(const std::function<void()> &openTerminal);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
-    void setAllowPathFromDevice(bool allowPathFromDevice);
-    void setValidatePlaceHolder(bool validatePlaceHolder);
 
     void validateInput();
 
@@ -527,6 +521,13 @@ public:
     FilePath operator()() const { return filePath(); }
     void setValue(const FilePath &filePath);
     void setDefaultValue(const FilePath &filePath);
+
+    void setPromptDialogFilter(const QString &filter);
+    void setPromptDialogTitle(const QString &title);
+    void setCommandVersionArguments(const QStringList &arguments);
+    void setAllowPathFromDevice(bool allowPathFromDevice);
+    void setValidatePlaceHolder(bool validatePlaceHolder);
+    void setOpenTerminalHandler(const std::function<void()> &openTerminal);
 };
 
 class QTCREATOR_UTILS_EXPORT IntegerAspect : public TypedAspect<qint64>
