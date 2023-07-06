@@ -7,6 +7,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
 
@@ -138,7 +139,7 @@ public:
     static void renameFilesForSymbol(const QString &oldSymbolName, const QString &newSymbolName,
                                      const Utils::FilePaths &files, bool preferLowerCaseFileNames);
 
-    static bool canRunStartupProject(Utils::Id runMode, QString *whyNot = nullptr);
+    static Utils::expected_str<void> canRunStartupProject(Utils::Id runMode);
     static void runProject(Project *pro, Utils::Id, const bool forceSkipDeploy = false);
     static void runStartupProject(Utils::Id runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, Utils::Id runMode,

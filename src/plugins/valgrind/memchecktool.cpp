@@ -888,14 +888,15 @@ void MemcheckToolPrivate::updateRunActions()
         m_startWithGdbAction->setToolTip(Tr::tr("A Valgrind Memcheck analysis is still in progress."));
         m_stopAction->setEnabled(true);
     } else {
-        QString whyNot = Tr::tr("Start a Valgrind Memcheck analysis.");
-        bool canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_RUN_MODE, &whyNot);
-        m_startAction->setToolTip(whyNot);
-        m_startAction->setEnabled(canRun);
-        whyNot = Tr::tr("Start a Valgrind Memcheck with GDB analysis.");
-        canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_WITH_GDB_RUN_MODE, &whyNot);
-        m_startWithGdbAction->setToolTip(whyNot);
-        m_startWithGdbAction->setEnabled(canRun);
+        const auto canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_RUN_MODE);
+        m_startAction->setToolTip(canRun ? Tr::tr("Start a Valgrind Memcheck analysis.")
+                                         : canRun.error());
+        m_startAction->setEnabled(bool(canRun));
+        const auto canRunGdb = ProjectExplorerPlugin::canRunStartupProject(
+            MEMCHECK_WITH_GDB_RUN_MODE);
+        m_startWithGdbAction->setToolTip(
+            canRunGdb ? Tr::tr("Start a Valgrind Memcheck with GDB analysis.") : canRunGdb.error());
+        m_startWithGdbAction->setEnabled(bool(canRunGdb));
         m_stopAction->setEnabled(false);
     }
 }

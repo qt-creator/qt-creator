@@ -3032,85 +3032,63 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
     doUpdateRunActions();
 }
 
-bool ProjectExplorerPlugin::canRunStartupProject(Id runMode, QString *whyNot)
+expected_str<void> ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode)
 {
     Project *project = ProjectManager::startupProject();
-    if (!project) {
-        if (whyNot)
-            *whyNot = Tr::tr("No active project.");
-        return false;
-    }
+    if (!project)
+        return make_unexpected(Tr::tr("No active project."));
 
     if (project->needsConfiguration()) {
-        if (whyNot)
-            *whyNot = Tr::tr("The project \"%1\" is not configured.").arg(project->displayName());
-        return false;
+        return make_unexpected(Tr::tr("The project \"%1\" is not configured.")
+                                   .arg(project->displayName()));
     }
 
     Target *target = project->activeTarget();
     if (!target) {
-        if (whyNot)
-            *whyNot = Tr::tr("The project \"%1\" has no active kit.").arg(project->displayName());
-        return false;
+        return make_unexpected(Tr::tr("The project \"%1\" has no active kit.")
+                                   .arg(project->displayName()));
     }
 
     RunConfiguration *activeRC = target->activeRunConfiguration();
     if (!activeRC) {
-        if (whyNot)
-            *whyNot = Tr::tr("The kit \"%1\" for the project \"%2\" has no active run configuration.")
-                .arg(target->displayName(), project->displayName());
-        return false;
+        return make_unexpected(
+            Tr::tr("The kit \"%1\" for the project \"%2\" has no active run configuration.")
+                .arg(target->displayName(), project->displayName()));
     }
 
-    if (!activeRC->isEnabled()) {
-        if (whyNot)
-            *whyNot = activeRC->disabledReason();
-        return false;
-    }
+    if (!activeRC->isEnabled())
+        return make_unexpected(activeRC->disabledReason());
 
     if (dd->m_projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off
             && dd->m_projectExplorerSettings.deployBeforeRun
             && !BuildManager::isBuilding(project)
             && hasBuildSettings(project)) {
         QPair<bool, QString> buildState = dd->buildSettingsEnabled(project);
-        if (!buildState.first) {
-            if (whyNot)
-                *whyNot = buildState.second;
-            return false;
-        }
+        if (!buildState.first)
+            return make_unexpected(buildState.second);
 
-        if (BuildManager::isBuilding()) {
-            if (whyNot)
-                *whyNot = Tr::tr("A build is still in progress.");
-             return false;
-        }
+        if (BuildManager::isBuilding())
+            return make_unexpected(Tr::tr("A build is still in progress."));
     }
 
     // shouldn't actually be shown to the user...
-    if (!RunControl::canRun(runMode,
-                            DeviceTypeKitAspect::deviceTypeId(target->kit()),
+    if (!RunControl::canRun(runMode, DeviceTypeKitAspect::deviceTypeId(target->kit()),
                             activeRC->id())) {
-        if (whyNot)
-            *whyNot = Tr::tr("Cannot run \"%1\".").arg(activeRC->displayName());
-        return false;
+        return make_unexpected(Tr::tr("Cannot run \"%1\".").arg(activeRC->displayName()));
     }
 
-    if (dd->m_delayedRunConfiguration && dd->m_delayedRunConfiguration->project() == project) {
-        if (whyNot)
-            *whyNot = Tr::tr("A run action is already scheduled for the active project.");
-        return false;
-    }
+    if (dd->m_delayedRunConfiguration && dd->m_delayedRunConfiguration->project() == project)
+        return make_unexpected(Tr::tr("A run action is already scheduled for the active project."));
 
-    return true;
+    return {};
 }
 
 void ProjectExplorerPluginPrivate::doUpdateRunActions()
 {
-    QString whyNot;
-    const bool state = ProjectExplorerPlugin::canRunStartupProject(Constants::NORMAL_RUN_MODE, &whyNot);
-    m_runAction->setEnabled(state);
-    m_runAction->setToolTip(whyNot);
-    m_runWithoutDeployAction->setEnabled(state);
+    const auto canRun = ProjectExplorerPlugin::canRunStartupProject(Constants::NORMAL_RUN_MODE);
+    m_runAction->setEnabled(bool(canRun));
+    m_runAction->setToolTip(canRun ? QString() : canRun.error());
+    m_runWithoutDeployAction->setEnabled(bool(canRun));
 
     emit m_instance->runActionsUpdated();
 }

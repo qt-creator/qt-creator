@@ -276,11 +276,11 @@ void QmlProfilerTool::updateRunActions()
         d->m_startAction->setToolTip(Tr::tr("A QML Profiler analysis is still in progress."));
         d->m_stopAction->setEnabled(true);
     } else {
-        QString tooltip = Tr::tr("Start QML Profiler analysis.");
-        bool canRun = ProjectExplorerPlugin::canRunStartupProject
-                (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, &tooltip);
-        d->m_startAction->setToolTip(tooltip);
-        d->m_startAction->setEnabled(canRun);
+        const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
+            ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+        d->m_startAction->setToolTip(canRun ? Tr::tr("Start QML Profiler analysis.")
+                                            : canRun.error());
+        d->m_startAction->setEnabled(bool(canRun));
         d->m_stopAction->setEnabled(false);
     }
 }

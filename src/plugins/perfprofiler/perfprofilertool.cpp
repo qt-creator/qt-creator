@@ -449,11 +449,10 @@ void PerfProfilerTool::updateRunActions()
         m_loadPerfData->setEnabled(false);
         m_loadTrace->setEnabled(false);
     } else {
-        QString whyNot = Tr::tr("Start a performance analysis.");
-        bool canRun = ProjectExplorerPlugin::canRunStartupProject(
-                    ProjectExplorer::Constants::PERFPROFILER_RUN_MODE, &whyNot);
-        m_startAction->setToolTip(whyNot);
-        m_startAction->setEnabled(canRun);
+        const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
+            ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+        m_startAction->setToolTip(canRun ? Tr::tr("Start a performance analysis.") : canRun.error());
+        m_startAction->setEnabled(bool(canRun));
         m_loadPerfData->setEnabled(true);
         m_loadTrace->setEnabled(true);
     }
