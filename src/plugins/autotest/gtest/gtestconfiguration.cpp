@@ -54,7 +54,7 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
 QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (TestSettings::instance()->processArgs()) {
+    if (testSettings().processArgs()) {
         arguments << filterInterfering(runnable().command.arguments().split(
                                            ' ', Qt::SkipEmptyParts), omitted);
     }

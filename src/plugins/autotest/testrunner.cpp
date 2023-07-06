@@ -258,7 +258,7 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
 
 int TestRunner::precheckTestConfigurations()
 {
-    const bool omitWarnings = TestSettings::instance()->omitRunConfigWarn();
+    const bool omitWarnings = testSettings().omitRunConfigWarn();
     int testCaseCount = 0;
     for (ITestConfiguration *itc : std::as_const(m_selectedTests)) {
         if (itc->testBase()->type() == ITestBase::Tool) {
@@ -402,7 +402,7 @@ void TestRunner::runTestsHelper()
             }
             process.setEnvironment(environment);
 
-            m_cancelTimer.setInterval(TestSettings::instance()->timeout());
+            m_cancelTimer.setInterval(testSettings().timeout());
             m_cancelTimer.start();
 
             qCInfo(runnerLog) << "Command:" << process.commandLine().executable();
@@ -468,7 +468,7 @@ void TestRunner::runTestsHelper()
         cancelCurrent(UserCanceled);
     });
 
-    if (TestSettings::instance()->popupOnStart())
+    if (testSettings().popupOnStart())
         AutotestPlugin::popupResultsPane();
 
     m_taskTree->start();
@@ -590,7 +590,7 @@ void TestRunner::debugTests()
 
     connect(runControl, &RunControl::stopped, this, &TestRunner::onFinished);
     ProjectExplorerPlugin::startRunControl(runControl);
-    if (useOutputProcessor && TestSettings::instance()->popupOnStart())
+    if (useOutputProcessor && testSettings().popupOnStart())
         AutotestPlugin::popupResultsPane();
 }
 
@@ -671,10 +671,10 @@ static RunAfterBuildMode runAfterBuild()
         return RunAfterBuildMode::None;
 
     if (!project->namedSettings(Constants::SK_USE_GLOBAL).isValid())
-        return TestSettings::instance()->runAfterBuildMode();
+        return testSettings().runAfterBuildMode();
 
     TestProjectSettings *projectSettings = AutotestPlugin::projectSettings(project);
-    return projectSettings->useGlobalSettings() ? TestSettings::instance()->runAfterBuildMode()
+    return projectSettings->useGlobalSettings() ? testSettings().runAfterBuildMode()
                                                 : projectSettings->runAfterBuild();
 }
 

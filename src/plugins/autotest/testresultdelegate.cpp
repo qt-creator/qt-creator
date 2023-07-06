@@ -161,10 +161,10 @@ void TestResultDelegate::clearCache()
 
 void TestResultDelegate::limitTextOutput(QString &output) const
 {
-    int maxLineCount = Internal::TestSettings::instance()->resultDescriptionMaxSize();
+    int maxLineCount = testSettings().resultDescriptionMaxSize();
     bool limited = false;
 
-    if (Internal::TestSettings::instance()->limitResultDescription() && maxLineCount > 0) {
+    if (testSettings().limitResultDescription() && maxLineCount > 0) {
         int index = -1;
         int lastChar = output.size() - 1;
 
@@ -182,7 +182,7 @@ void TestResultDelegate::limitTextOutput(QString &output) const
         }
     }
 
-    if (TestSettings::instance()->limitResultOutput() && output.length() > outputLimit) {
+    if (testSettings().limitResultOutput() && output.length() > outputLimit) {
         output = output.left(outputLimit);
         limited = true;
     }

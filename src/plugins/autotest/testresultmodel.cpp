@@ -284,7 +284,7 @@ void TestResultModel::addTestResult(const TestResult &testResult, bool autoExpan
 
     TestResultItem *newItem = new TestResultItem(testResult);
     TestResultItem *root = nullptr;
-    if (TestSettings::instance()->displayApplication()) {
+    if (testSettings().displayApplication()) {
         const QString application = testResult.id();
         if (!application.isEmpty()) {
             root = rootItem()->findFirstLevelChild([&application](TestResultItem *child) {

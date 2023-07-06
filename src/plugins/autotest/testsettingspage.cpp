@@ -80,7 +80,7 @@ TestSettingsWidget::TestSettingsWidget()
         onClicked([] { AutotestPlugin::clearChoiceCache(); }, this)
     };
 
-    TestSettings &s = *TestSettings::instance();
+    TestSettings &s = Internal::testSettings();
     Group generalGroup {
         title(Tr::tr("General")),
         Column {
@@ -123,7 +123,7 @@ TestSettingsWidget::TestSettingsWidget()
     populateFrameworksListWidget(s.frameworks, s.tools);
 
     setOnApply([this] {
-        TestSettings &s = *TestSettings::instance();
+        TestSettings &s = Internal::testSettings();
 
         NonAspectSettings tmp;
         testSettings(tmp);

@@ -88,17 +88,17 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
 {
     auto boostSettings = static_cast<BoostTestSettings *>(framework()->testSettings());
     QStringList arguments;
-    arguments << "-l" << BoostTestSettings::logLevelToOption(LogLevel(boostSettings->logLevel.value()));
-    arguments << "-r" << BoostTestSettings::reportLevelToOption(ReportLevel(boostSettings->reportLevel.value()));
+    arguments << "-l" << BoostTestSettings::logLevelToOption(LogLevel(boostSettings->logLevel()));
+    arguments << "-r" << BoostTestSettings::reportLevelToOption(ReportLevel(boostSettings->reportLevel()));
 
-    if (boostSettings->randomize.value())
-        arguments << QString("--random=").append(QString::number(boostSettings->seed.value()));
+    if (boostSettings->randomize())
+        arguments << QString("--random=").append(QString::number(boostSettings->seed()));
 
-    if (boostSettings->systemErrors.value())
+    if (boostSettings->systemErrors())
         arguments << "-s";
-    if (boostSettings->fpExceptions.value())
+    if (boostSettings->fpExceptions())
         arguments << "--detect_fp_exceptions";
-    if (!boostSettings->memLeaks.value())
+    if (!boostSettings->memLeaks())
         arguments << "--detect_memory_leaks=0";
 
     // TODO improve the test case gathering and arguments building to avoid too long command lines
@@ -110,7 +110,7 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
             arguments << "-t" << "\"" + test + "\"";
     }
 
-    if (TestSettings::instance()->processArgs()) {
+    if (testSettings().processArgs()) {
         arguments << filterInterfering(runnable().command.arguments().split(
                                            ' ', Qt::SkipEmptyParts), omitted);
     }

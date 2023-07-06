@@ -361,7 +361,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
 
     using namespace Tasking;
 
-    int limit = TestSettings::instance()->scanThreadLimit();
+    int limit = testSettings().scanThreadLimit();
     if (limit == 0)
         limit = std::max(QThread::idealThreadCount() / 4, 1);
     qCDebug(LOG) << "Using" << limit << "threads for scan.";

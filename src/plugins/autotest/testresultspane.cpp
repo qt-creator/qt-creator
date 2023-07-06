@@ -291,7 +291,7 @@ void TestResultsPane::clearContents()
     setIconBadgeNumber(0);
     navigateStateChanged();
     m_summaryWidget->setVisible(false);
-    m_autoScroll = TestSettings::instance()->autoScroll();
+    m_autoScroll = testSettings().autoScroll();
     connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
     m_textOutput->clear();
@@ -437,7 +437,7 @@ void TestResultsPane::onRunSelectedTriggered()
 
 void TestResultsPane::initializeFilterMenu()
 {
-    const bool omitIntern = TestSettings::instance()->omitInternalMsg();
+    const bool omitIntern = testSettings().omitInternalMsg();
     // FilterModel has all messages enabled by default
     if (omitIntern)
         m_filterModel->toggleTestResultType(ResultType::MessageInternal);
@@ -553,8 +553,7 @@ void TestResultsPane::onTestRunFinished()
     m_model->removeCurrentTestMessage();
     disconnect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
                this, &TestResultsPane::onScrollBarRangeChanged);
-    if (TestSettings::instance()->popupOnFinish()
-            && (!TestSettings::instance()->popupOnFail() || hasFailedTests(m_model))) {
+    if (testSettings().popupOnFinish() && (!testSettings().popupOnFail() || hasFailedTests(m_model))) {
         popup(IOutputPane::NoModeSwitch);
     }
     createMarks();

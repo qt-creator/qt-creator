@@ -45,15 +45,15 @@ bool TestFrameworkManager::registerTestTool(ITestTool *testTool)
     return true;
 }
 
-void TestFrameworkManager::activateFrameworksAndToolsFromSettings(
-        const Internal::TestSettings *settings)
+void TestFrameworkManager::activateFrameworksAndToolsFromSettings()
 {
+    const Internal::TestSettings &settings = Internal::testSettings();
     for (ITestFramework *framework : std::as_const(s_instance->m_registeredFrameworks)) {
-        framework->setActive(settings->frameworks.value(framework->id(), false));
-        framework->setGrouping(settings->frameworksGrouping.value(framework->id(), false));
+        framework->setActive(settings.frameworks.value(framework->id(), false));
+        framework->setGrouping(settings.frameworksGrouping.value(framework->id(), false));
     }
     for (ITestTool *testTool : std::as_const(s_instance->m_registeredTestTools))
-        testTool->setActive(settings->tools.value(testTool->id(), false));
+        testTool->setActive(settings.tools.value(testTool->id(), false));
 }
 
 const TestFrameworks TestFrameworkManager::registeredFrameworks()
@@ -95,7 +95,7 @@ ITestTool *TestFrameworkManager::testToolForBuildSystemId(Id buildSystemId)
 
 void TestFrameworkManager::synchronizeSettings()
 {
-    Internal::TestSettings::instance()->fromSettings();
+    Internal::testSettings().fromSettings();
     for (ITestFramework *framework : std::as_const(m_registeredFrameworks)) {
         if (ITestSettings *fSettings = framework->testSettings())
             fSettings->readSettings();

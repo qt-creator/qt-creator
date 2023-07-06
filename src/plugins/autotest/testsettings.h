@@ -27,8 +27,6 @@ class TestSettings : public Utils::AspectContainer, public NonAspectSettings
 public:
     TestSettings();
 
-    static TestSettings *instance();
-
     void toSettings() const;
     void fromSettings();
 
@@ -49,5 +47,7 @@ public:
 
     RunAfterBuildMode runAfterBuildMode() const;
 };
+
+TestSettings &testSettings();
 
 } // Autotest::Internal

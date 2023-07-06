@@ -15,17 +15,14 @@ static const char groupSuffix[]                 = ".group";
 
 constexpr int defaultTimeout = 60000;
 
-static TestSettings *s_instance;
-
-TestSettings *TestSettings::instance()
+TestSettings &testSettings()
 {
-    return s_instance;
+    static TestSettings theSettings;
+    return theSettings;
 }
 
 TestSettings::TestSettings()
 {
-    s_instance = this;
-
     setSettingsGroup(Constants::SETTINGSGROUP);
 
     scanThreadLimit.setSettingsKey("ScanThreadLimit");

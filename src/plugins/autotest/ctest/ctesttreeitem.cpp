@@ -88,7 +88,7 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
         return {};
 
     const ProjectExplorer::BuildSystem *buildSystem = target->buildSystem();
-    QStringList options{"--timeout", QString::number(TestSettings::instance()->timeout() / 1000)};
+    QStringList options{"--timeout", QString::number(testSettings().timeout() / 1000)};
     auto ctestSettings = static_cast<CTestSettings *>(testBase()->testSettings());
     options << ctestSettings->activeSettingsAsOptions();
     CommandLine command = buildSystem->commandLineForTests(selected, options);

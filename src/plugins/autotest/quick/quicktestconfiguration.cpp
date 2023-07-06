@@ -32,7 +32,7 @@ TestOutputReader *QuickTestConfiguration::createOutputReader(Process *app) const
 QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (TestSettings::instance()->processArgs()) {
+    if (testSettings().processArgs()) {
         arguments.append(QTestUtils::filterInterfering
                          (runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
                           omitted, true));

@@ -94,7 +94,6 @@ public:
     void onRunFileTriggered();
     void onRunUnderCursorTriggered(TestRunMode mode);
 
-    TestSettings m_settings;
     TestSettingsPage m_testSettingPage;
 
     TestCodeParser m_testCodeParser;
@@ -149,7 +148,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
-    TestFrameworkManager::activateFrameworksAndToolsFromSettings(&m_settings);
+    TestFrameworkManager::activateFrameworksAndToolsFromSettings();
     m_testTreeModel.synchronizeTestFrameworks();
     m_testTreeModel.synchronizeTestTools();
 

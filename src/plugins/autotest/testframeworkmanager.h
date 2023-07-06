@@ -6,9 +6,6 @@
 #include "itestframework.h"
 
 namespace Autotest {
-namespace Internal {
-class TestSettings;
-}
 
 class TestFrameworkManager final
 {
@@ -24,7 +21,7 @@ public:
     static ITestFramework *frameworkForId(Utils::Id frameworkId);
     static ITestTool *testToolForId(Utils::Id testToolId);
     static ITestTool *testToolForBuildSystemId(Utils::Id buildSystemId);
-    static void activateFrameworksAndToolsFromSettings(const Internal::TestSettings *settings);
+    static void activateFrameworksAndToolsFromSettings();
     static const TestFrameworks registeredFrameworks();
     static const TestTools registeredTestTools();
 
