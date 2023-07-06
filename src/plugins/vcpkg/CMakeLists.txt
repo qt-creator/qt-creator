@@ -4,7 +4,7 @@ add_qtc_plugin(Vcpkg
     vcpkg.qrc
     vcpkgconstants.h
     vcpkgmanifesteditor.cpp vcpkgmanifesteditor.h
-    vcpkgplugin.cpp vcpkgplugin.h
+    vcpkgplugin.cpp
     vcpkgsearch.cpp vcpkgsearch.h
     vcpkgsettings.cpp vcpkgsettings.h
 )

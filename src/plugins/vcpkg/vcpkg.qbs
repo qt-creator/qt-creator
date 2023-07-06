@@ -16,7 +16,6 @@ QtcPlugin {
         "vcpkgmanifesteditor.cpp",
         "vcpkgmanifesteditor.h",
         "vcpkgplugin.cpp",
-        "vcpkgplugin.h",
         "vcpkgsearch.cpp",
         "vcpkgsearch.h",
         "vcpkgsettings.cpp",
