@@ -10,7 +10,6 @@
 
 QT_BEGIN_NAMESPACE
 class QJsonObject;
-class QSettings;
 QT_END_NAMESPACE
 
 namespace Axivion::Internal {
@@ -41,8 +40,8 @@ class AxivionSettings : public Utils::AspectContainer
 {
 public:
     AxivionSettings();
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
+    void toSettings() const;
+    void fromSettings();
 
     AxivionServer server; // shall we have more than one?
     Utils::FilePathAspect curl{this};

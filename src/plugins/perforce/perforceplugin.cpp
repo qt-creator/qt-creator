@@ -379,7 +379,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
 
     dd = this;
 
-    m_settings.readSettings(ICore::settings());
+    m_settings.readSettings();
 
     const QString prefix = QLatin1String("p4");
     m_commandLocator = new CommandLocator("Perforce", prefix, prefix, this);
@@ -1678,7 +1678,7 @@ void PerforcePluginPrivate::setTopLevel(const FilePath &topLevel)
 
 void PerforcePluginPrivate::applySettings()
 {
-    m_settings.writeSettings(ICore::settings());
+    m_settings.writeSettings();
     m_managedDirectoryCache.clear();
     getTopLevel();
     emit configurationChanged();

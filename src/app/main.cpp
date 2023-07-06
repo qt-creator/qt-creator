@@ -12,6 +12,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
+#include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
@@ -653,6 +654,8 @@ int main(int argc, char **argv)
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
     PluginManager::setGlobalSettings(globalSettings);
     PluginManager::setSettings(settings);
+
+    Utils::BaseAspect::setGlobalSettings(globalSettings);
 
     using namespace Core;
     Utils::AppInfo info;

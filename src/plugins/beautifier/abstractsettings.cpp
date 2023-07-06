@@ -228,9 +228,7 @@ QString AbstractSettings::documentation(const QString &option) const
 void AbstractSettings::save()
 {
     // Save settings, except styles
-    QSettings *s = Core::ICore::settings();
-
-    AspectContainer::writeSettings(s);
+    AspectContainer::writeSettings();
 
     // Save styles
     if (m_stylesToRemove.isEmpty() && m_styles.isEmpty())
@@ -287,8 +285,7 @@ void AbstractSettings::createDocumentationFile() const
 void AbstractSettings::read()
 {
     // Read settings, except styles
-    QSettings *s = Core::ICore::settings();
-    AspectContainer::readSettings(s);
+    AspectContainer::readSettings();
 
     m_styles.clear();
     m_changedStyles.clear();

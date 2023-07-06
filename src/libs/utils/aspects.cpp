@@ -34,6 +34,19 @@
 using namespace Layouting;
 
 namespace Utils {
+
+static QSettings *theSettings = nullptr;
+
+void BaseAspect::setGlobalSettings(QSettings *settings)
+{
+    theSettings = settings;
+}
+
+QSettings *BaseAspect::settings()
+{
+    return theSettings;
+}
+
 namespace Internal {
 
 class BaseAspectPrivate
@@ -552,19 +565,19 @@ void BaseAspect::toMap(QVariantMap &map) const
     saveToMap(map, toSettingsValue(variantValue()), toSettingsValue(defaultVariantValue()), settingsKey());
 }
 
-void BaseAspect::readSettings(const QSettings *settings)
+void BaseAspect::readSettings()
 {
     if (settingsKey().isEmpty())
         return;
-    const QVariant &val = settings->value(settingsKey());
+    const QVariant val = settings()->value(settingsKey());
     setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue());
 }
 
-void BaseAspect::writeSettings(QSettings *settings) const
+void BaseAspect::writeSettings() const
 {
     if (settingsKey().isEmpty())
         return;
-    QtcSettings::setValueWithDefault(settings,
+    QtcSettings::setValueWithDefault(settings(),
                                      settingsKey(),
                                      toSettingsValue(variantValue()),
                                      toSettingsValue(defaultVariantValue()));
@@ -2314,28 +2327,30 @@ void AspectContainer::toMap(QVariantMap &map) const
         aspect->toMap(map);
 }
 
-void AspectContainer::readSettings(QSettings *settings)
+void AspectContainer::readSettings()
 {
+    QTC_ASSERT(theSettings, return);
     for (const QString &group : d->m_settingsGroup)
-        settings->beginGroup(group);
+        theSettings->beginGroup(group);
 
     for (BaseAspect *aspect : std::as_const(d->m_items))
-        aspect->readSettings(settings);
+        aspect->readSettings();
 
     for (int i = 0; i != d->m_settingsGroup.size(); ++i)
-        settings->endGroup();
+        theSettings->endGroup();
 }
 
-void AspectContainer::writeSettings(QSettings *settings) const
+void AspectContainer::writeSettings() const
 {
+    QTC_ASSERT(theSettings, return);
     for (const QString &group : d->m_settingsGroup)
-        settings->beginGroup(group);
+        theSettings->beginGroup(group);
 
     for (BaseAspect *aspect : std::as_const(d->m_items))
-        aspect->writeSettings(settings);
+        aspect->writeSettings();
 
     for (int i = 0; i != d->m_settingsGroup.size(); ++i)
-        settings->endGroup();
+        theSettings->endGroup();
 }
 
 void AspectContainer::setSettingsGroup(const QString &groupKey)

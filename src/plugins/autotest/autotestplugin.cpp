@@ -30,7 +30,6 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <cplusplus/CppDocument.h>
@@ -138,7 +137,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
 
     m_frameworkManager.registerTestTool(new CTestTool);
 
-    m_frameworkManager.synchronizeSettings(ICore::settings());
+    m_frameworkManager.synchronizeSettings();
     m_resultsPane = TestResultsPane::instance();
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory();

@@ -7,7 +7,6 @@
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
-#include <coreplugin/icore.h>
 #include <utils/aspects.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
@@ -170,7 +169,7 @@ AxivionSettingsWidget::AxivionSettingsWidget(AxivionSettings *settings)
 void AxivionSettingsWidget::apply()
 {
     m_settings->server = m_dashboardDisplay->dashboardServer();
-    m_settings->toSettings(Core::ICore::settings());
+    m_settings->toSettings();
     emit AxivionPlugin::instance()->settingsChanged();
 }
 

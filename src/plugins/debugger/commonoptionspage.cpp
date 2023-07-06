@@ -7,8 +7,6 @@
 #include "debuggerinternalconstants.h"
 #include "debuggertr.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/layoutbuilder.h>
 
 using namespace Core;
@@ -37,7 +35,7 @@ public:
             if (originalPostMortem != currentPostMortem)
                 s.registerForPostMortem->setValue(currentPostMortem);
             s.page1.apply();
-            s.page1.writeSettings(ICore::settings());
+            s.page1.writeSettings();
         });
 
         setOnFinish([&s] { s.page1.finish(); });
@@ -116,7 +114,7 @@ public:
     LocalsAndExpressionsOptionsPageWidget()
     {
         DebuggerSettings &s = *debuggerSettings();
-        setOnApply([&s] { s.page4.apply(); s.page4.writeSettings(ICore::settings()); });
+        setOnApply([&s] { s.page4.apply(); s.page4.writeSettings(); });
         setOnFinish([&s] { s.page4.finish(); });
 
         auto label = new QLabel; //(useHelperGroup);

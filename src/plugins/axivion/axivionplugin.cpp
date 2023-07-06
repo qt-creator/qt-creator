@@ -117,7 +117,7 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
     Q_UNUSED(errorMessage)
 
     dd = new AxivionPluginPrivate;
-    dd->m_axivionSettings.fromSettings(Core::ICore::settings());
+    dd->m_axivionSettings.fromSettings();
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
     panelFactory->setPriority(250);

@@ -202,10 +202,9 @@ bool Console::canNavigate() const
 
 void Console::readSettings()
 {
-    QSettings *settings = Core::ICore::settings();
-    m_showDebug.readSettings(settings);
-    m_showWarning.readSettings(settings);
-    m_showError.readSettings(settings);
+    m_showDebug.readSettings();
+    m_showWarning.readSettings();
+    m_showError.readSettings();
 }
 
 void Console::setContext(const QString &context)
@@ -215,10 +214,9 @@ void Console::setContext(const QString &context)
 
 void Console::writeSettings() const
 {
-    QSettings *settings = Core::ICore::settings();
-    m_showDebug.writeSettings(settings);
-    m_showWarning.writeSettings(settings);
-    m_showError.writeSettings(settings);
+    m_showDebug.writeSettings();
+    m_showWarning.writeSettings();
+    m_showError.writeSettings();
 }
 
 void Console::setScriptEvaluator(const ScriptEvaluator &evaluator)

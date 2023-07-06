@@ -6,8 +6,6 @@
 
 #include "ioptionspage.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
@@ -167,7 +165,7 @@ void IOptionsPage::apply()
         AspectContainer *container = m_settingsProvider();
         if (container->isDirty()) {
             container->apply();
-            container->writeSettings(ICore::settings());
+            container->writeSettings();
          }
     }
 }
@@ -321,11 +319,6 @@ PagedSettings::PagedSettings()
 {
     setSettings(this);
     setAutoApply(false);
-}
-
-void PagedSettings::readSettings()
-{
-    return AspectContainer::readSettings(Core::ICore::settings());
 }
 
 } // Core

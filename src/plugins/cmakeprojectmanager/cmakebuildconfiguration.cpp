@@ -598,7 +598,7 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
         QMessageBox::Yes | QMessageBox::No,
         QMessageBox::Yes);
 
-    settings->writeSettings(Core::ICore::settings());
+    settings->writeSettings();
 
     if (reply != QMessageBox::Yes) {
         return;

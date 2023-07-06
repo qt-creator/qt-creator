@@ -486,9 +486,10 @@ const char sourcePathMappingArrayNameC[] = "SourcePathMappings";
 const char sourcePathMappingSourceKeyC[] = "Source";
 const char sourcePathMappingTargetKeyC[] = "Target";
 
-void SourcePathMapAspect::writeSettings(QSettings *s) const
+void SourcePathMapAspect::writeSettings() const
 {
     const SourcePathMap sourcePathMap = value();
+    QSettings *s = settings();
     s->beginWriteArray(sourcePathMappingArrayNameC);
     if (!sourcePathMap.isEmpty()) {
         const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
@@ -505,10 +506,9 @@ void SourcePathMapAspect::writeSettings(QSettings *s) const
     s->endArray();
 }
 
-void SourcePathMapAspect::readSettings(const QSettings *settings)
+void SourcePathMapAspect::readSettings()
 {
-    // Eeks. But legitimate, this operates on ICore::settings();
-    QSettings *s = const_cast<QSettings *>(settings);
+    QSettings *s = settings();
     SourcePathMap sourcePathMap;
     if (const int count = s->beginReadArray(sourcePathMappingArrayNameC)) {
         const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);

@@ -49,7 +49,7 @@ RegisterPostMortemAction::RegisterPostMortemAction()
     connect(this, &BaseAspect::changed, this, [this] { registerNow(value()); });
 }
 
-void RegisterPostMortemAction::readSettings(const QSettings *)
+void RegisterPostMortemAction::readSettings()
 {
     Q_UNUSED(debuggerRegistryValueNameC) // avoid warning from MinGW
 

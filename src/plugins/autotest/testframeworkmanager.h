@@ -5,10 +5,6 @@
 
 #include "itestframework.h"
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace Autotest {
 namespace Internal {
 class TestSettings;
@@ -23,7 +19,7 @@ public:
 
     bool registerTestFramework(ITestFramework *framework);
     bool registerTestTool(ITestTool *testTool);
-    void synchronizeSettings(QSettings *s);
+    void synchronizeSettings();
 
     static ITestFramework *frameworkForId(Utils::Id frameworkId);
     static ITestTool *testToolForId(Utils::Id testToolId);

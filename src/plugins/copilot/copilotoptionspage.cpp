@@ -8,8 +8,6 @@
 #include "copilotsettings.h"
 #include "copilottr.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
@@ -95,7 +93,7 @@ public:
 
         setOnApply([] {
             CopilotSettings::instance().apply();
-            CopilotSettings::instance().writeSettings(Core::ICore::settings());
+            CopilotSettings::instance().writeSettings();
         });
     }
 };

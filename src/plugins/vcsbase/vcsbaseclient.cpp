@@ -246,7 +246,7 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
 
 void VcsBaseClientImpl::saveSettings()
 {
-    m_baseSettings->writeSettings(ICore::settings());
+    m_baseSettings->writeSettings();
 }
 
 VcsBaseClient::VcsBaseClient(VcsBaseSettings *baseSettings)

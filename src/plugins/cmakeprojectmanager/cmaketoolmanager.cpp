@@ -146,7 +146,7 @@ void CMakeToolManager::restoreCMakeTools()
     if (settings->autorunCMake.value() == settings->autorunCMake.defaultValue()) {
         CMakeTool *cmake = defaultCMakeTool();
         settings->autorunCMake.setValue(cmake ? cmake->isAutoRun() : true);
-        settings->writeSettings(Core::ICore::settings());
+        settings->writeSettings();
     }
 }
 

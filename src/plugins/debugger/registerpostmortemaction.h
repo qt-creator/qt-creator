@@ -12,8 +12,8 @@ class RegisterPostMortemAction : public Utils::BoolAspect
 {
 public:
     RegisterPostMortemAction();
-    void readSettings(const QSettings *settings = nullptr) override;
-    void writeSettings(QSettings *) const override {}
+    void readSettings() override;
+    void writeSettings() const override {}
 
 private:
     void registerNow(bool value);

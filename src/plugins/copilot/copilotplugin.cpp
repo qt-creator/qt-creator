@@ -14,7 +14,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/statusbarmanager.h>
 
 #include <languageclient/languageclientmanager.h>
@@ -58,7 +57,7 @@ void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
 
 void CopilotPlugin::initialize()
 {
-    CopilotSettings::instance().readSettings(ICore::settings());
+    CopilotSettings::instance().readSettings();
 
     restartClient();
 

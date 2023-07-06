@@ -5,7 +5,6 @@
 #include "qmakeprojectmanagertr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -59,7 +58,7 @@ QmakeSettings::QmakeSettings()
         };
     });
 
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 class QmakeSettingsPage : public Core::IOptionsPage

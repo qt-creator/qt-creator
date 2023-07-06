@@ -9,8 +9,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QSettings>
-
 using namespace Utils;
 
 namespace Autotest {
@@ -95,16 +93,16 @@ ITestTool *TestFrameworkManager::testToolForBuildSystemId(Id buildSystemId)
     });
 }
 
-void TestFrameworkManager::synchronizeSettings(QSettings *s)
+void TestFrameworkManager::synchronizeSettings()
 {
-    Internal::TestSettings::instance()->fromSettings(s);
+    Internal::TestSettings::instance()->fromSettings();
     for (ITestFramework *framework : std::as_const(m_registeredFrameworks)) {
         if (ITestSettings *fSettings = framework->testSettings())
-            fSettings->readSettings(s);
+            fSettings->readSettings();
     }
     for (ITestTool *testTool : std::as_const(m_registeredTestTools)) {
         if (ITestSettings *tSettings = testTool->testSettings())
-            tSettings->readSettings(s);
+            tSettings->readSettings();
     }
 }
 

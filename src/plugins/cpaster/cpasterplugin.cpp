@@ -132,7 +132,7 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
     }
 
     // Create the settings Page
-    m_settings.readSettings(ICore::settings());
+    m_settings.readSettings();
 
     connect(&m_urlOpen, &Protocol::fetchDone, this, &CodePasterPluginPrivate::finishFetch);
 
@@ -251,7 +251,7 @@ void CodePasterPluginPrivate::post(QString data, const QString &mimeType)
     // Save new protocol in case user changed it.
     if (dialogResult == QDialog::Accepted && m_settings.protocols.value() != view.protocol()) {
         m_settings.protocols.setValue(view.protocol());
-        m_settings.writeSettings(ICore::settings());
+        m_settings.writeSettings();
     }
 }
 
@@ -282,7 +282,7 @@ void CodePasterPluginPrivate::fetch()
     // Save new protocol in case user changed it.
     if (m_settings.protocols.value() != dialog.protocol()) {
         m_settings.protocols.setValue(dialog.protocol());
-        m_settings.writeSettings(ICore::settings());
+        m_settings.writeSettings();
     }
 
     const QString pasteID = dialog.pasteId();

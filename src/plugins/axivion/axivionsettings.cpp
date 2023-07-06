@@ -5,6 +5,8 @@
 
 #include "axiviontr.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 
@@ -81,9 +83,9 @@ AxivionSettings::AxivionSettings()
     curl.setExpectedKind(Utils::PathChooser::ExistingCommand);
 }
 
-static Utils::FilePath tokensFilePath(const QSettings *s)
+static Utils::FilePath tokensFilePath()
 {
-    return Utils::FilePath::fromString(s->fileName()).parentDir()
+    return Utils::FilePath::fromString(Core::ICore::settings()->fileName()).parentDir()
             .pathAppended("qtcreator/axivion.json");
 }
 
@@ -109,16 +111,16 @@ static AxivionServer readTokenFile(const Utils::FilePath &filePath)
     return AxivionServer::fromJson(doc.object());
 }
 
-void AxivionSettings::toSettings(QSettings *s) const
+void AxivionSettings::toSettings() const
 {
-    writeTokenFile(tokensFilePath(s), server);
-    Utils::AspectContainer::writeSettings(s);
+    writeTokenFile(tokensFilePath(), server);
+    Utils::AspectContainer::writeSettings();
 }
 
-void AxivionSettings::fromSettings(QSettings *s)
+void AxivionSettings::fromSettings()
 {
-    Utils::AspectContainer::readSettings(s);
-    server = readTokenFile(tokensFilePath(s));
+    Utils::AspectContainer::readSettings();
+    server = readTokenFile(tokensFilePath());
 
     if (curl().isEmpty() || !curl().exists()) {
         const QString curlPath = QStandardPaths::findExecutable(

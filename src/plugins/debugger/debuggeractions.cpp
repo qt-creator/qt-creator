@@ -13,7 +13,6 @@
 #endif
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -471,14 +470,14 @@ DebuggerSettings::~DebuggerSettings()
 
 void DebuggerSettings::readSettings()
 {
-    all.readSettings(Core::ICore::settings());
-    GdbSettings::readSettings(Core::ICore::settings());
+    all.readSettings();
+    GdbSettings::readSettings();
 }
 
 void DebuggerSettings::writeSettings() const
 {
-    all.writeSettings(Core::ICore::settings());
-    GdbSettings::writeSettings(Core::ICore::settings());
+    all.writeSettings();
+    GdbSettings::writeSettings();
 }
 
 QString DebuggerSettings::dump()

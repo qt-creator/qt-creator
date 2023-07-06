@@ -29,8 +29,8 @@ public:
 
     static TestSettings *instance();
 
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
+    void toSettings() const;
+    void fromSettings();
 
     Utils::IntegerAspect scanThreadLimit{this};
     Utils::IntegerAspect timeout{this};

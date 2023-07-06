@@ -100,8 +100,8 @@ public:
 
     virtual void addToLayout(Layouting::LayoutItem &parent);
 
-    virtual void readSettings(const QSettings *settings);
-    virtual void writeSettings(QSettings *settings) const;
+    virtual void readSettings();
+    virtual void writeSettings() const;
 
     using SavedValueTransformation = std::function<QVariant(const QVariant &)>;
     void setFromSettingsTransformation(const SavedValueTransformation &transform);
@@ -158,6 +158,9 @@ public:
     using DataExtractor = std::function<void(Data *data)>;
 
     Data::Ptr extractData() const;
+
+    static void setGlobalSettings(QSettings *settings);
+    static QSettings *settings();
 
 signals:
     void changed();
@@ -713,8 +716,8 @@ public:
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
 
-    void readSettings(QSettings *settings);
-    void writeSettings(QSettings *settings) const;
+    void readSettings();
+    void writeSettings() const;
 
     void setSettingsGroup(const QString &groupKey);
     void setSettingsGroups(const QString &groupKey, const QString &subGroupKey);

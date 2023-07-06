@@ -6,8 +6,6 @@
 #include "qmlprofilersettings.h"
 #include "qmlprofilertr.h"
 
-#include <coreplugin/icore.h>
-
 #include <debugger/analyzer/analyzericons.h>
 #include <debugger/debuggertr.h>
 
@@ -76,12 +74,12 @@ QmlProfilerSettings::QmlProfilerSettings()
         "the program."));
 
     // Read stored values
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 void QmlProfilerSettings::writeGlobalSettings() const
 {
-    writeSettings(Core::ICore::settings());
+    writeSettings();
 }
 
 // QmlProfilerOptionsPage

@@ -108,10 +108,11 @@ TestSettings::TestSettings()
     runAfterBuild.addOption(Tr::tr("Selected"));
 }
 
-void TestSettings::toSettings(QSettings *s) const
+void TestSettings::toSettings() const
 {
-    AspectContainer::writeSettings(s);
+    AspectContainer::writeSettings();
 
+    QSettings *s = Utils::BaseAspect::settings();
     s->beginGroup(Constants::SETTINGSGROUP);
 
     // store frameworks and their current active and grouping state
@@ -126,10 +127,11 @@ void TestSettings::toSettings(QSettings *s) const
     s->endGroup();
 }
 
-void TestSettings::fromSettings(QSettings *s)
+void TestSettings::fromSettings()
 {
-    AspectContainer::readSettings(s);
+    AspectContainer::readSettings();
 
+    QSettings *s = Utils::BaseAspect::settings();
     s->beginGroup(Constants::SETTINGSGROUP);
 
     // try to get settings for registered frameworks

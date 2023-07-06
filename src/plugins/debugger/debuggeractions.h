@@ -32,8 +32,8 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
-    void readSettings(const QSettings *settings) override;
-    void writeSettings(QSettings *settings) const override;
+    void readSettings() override;
+    void writeSettings() const override;
 
 private:
     void guiToInternal() override;

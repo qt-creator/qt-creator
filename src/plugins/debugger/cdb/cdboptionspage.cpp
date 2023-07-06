@@ -10,8 +10,6 @@
 #include <debugger/debuggertr.h>
 #include <debugger/shared/cdbsymbolpathlisteditor.h>
 
-#include <coreplugin/icore.h>
-
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 
@@ -215,7 +213,8 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
 
 void CdbOptionsPageWidget::apply()
 {
-    m_group.apply(); m_group.writeSettings(Core::ICore::settings());
+    m_group.apply();
+    m_group.writeSettings();
     debuggerSettings()->cdbBreakEvents.setValue(m_breakEventWidget->breakEvents());
 }
 
@@ -269,7 +268,7 @@ void CdbPathsPageWidget::apply()
 {
     debuggerSettings()->cdbSymbolPaths.setValue(m_symbolPaths->pathList());
     debuggerSettings()->cdbSourcePaths.setValue(m_sourcePaths->pathList());
-    m_group.writeSettings(Core::ICore::settings());
+    m_group.writeSettings();
 }
 
 void CdbPathsPageWidget::finish()

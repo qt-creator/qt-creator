@@ -66,7 +66,7 @@ VcpkgSettings::VcpkgSettings()
         // clang-format on
     });
 
-    readSettings(Core::ICore::settings());
+    readSettings();
 }
 
 class VcpkgSettingsPage : public Core::IOptionsPage

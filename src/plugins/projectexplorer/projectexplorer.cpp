@@ -1681,7 +1681,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, defaultSettings.lowBuildPriority)
               .toBool();
 
-    dd->m_buildPropertiesSettings.readSettings(s);
+    dd->m_buildPropertiesSettings.readSettings();
 
     const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
     for (int i = 0; i < customParserCount; ++i) {
@@ -2255,7 +2255,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                            int(dd->m_projectExplorerSettings.stopBeforeBuild),
                            int(defaultSettings.stopBeforeBuild));
 
-    dd->m_buildPropertiesSettings.writeSettings(s);
+    dd->m_buildPropertiesSettings.writeSettings();
 
     s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, int(dd->m_customParsers.count()), 0);
     for (int i = 0; i < dd->m_customParsers.count(); ++i) {

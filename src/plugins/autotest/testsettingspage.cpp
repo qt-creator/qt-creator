@@ -10,7 +10,6 @@
 #include "testsettings.h"
 #include "testtreemodel.h"
 
-#include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/id.h>
 #include <utils/infolabel.h>
@@ -137,7 +136,7 @@ TestSettingsWidget::TestSettingsWidget()
 
         testSettings(s);
         testToolsSettings(s);
-        s.toSettings(Core::ICore::settings());
+        s.toSettings();
 
         for (ITestFramework *framework : TestFrameworkManager::registeredFrameworks()) {
             framework->setActive(s.frameworks.value(framework->id(), false));
