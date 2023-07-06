@@ -46,7 +46,9 @@ enum class TypeTraits : int {
     Value,
     Sequence,
     IsEnum = 1 << 8,
-    IsFileComponent = 1 << 9
+    IsFileComponent = 1 << 9,
+    IsProjectComponent = 1 << 10,
+    IsInProjectModule = 1 << 11
 };
 
 constexpr TypeTraits operator|(TypeTraits first, TypeTraits second)

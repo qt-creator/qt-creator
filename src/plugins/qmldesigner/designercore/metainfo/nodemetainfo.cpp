@@ -1426,6 +1426,24 @@ bool NodeMetaInfo::isFileComponent() const
         return isValid() && m_privateData->isFileComponent();
 }
 
+bool NodeMetaInfo::isProjectComponent() const
+{
+    if constexpr (useProjectStorage()) {
+        return isValid() && bool(typeData().traits & Storage::TypeTraits::IsProjectComponent);
+    }
+
+    return false;
+}
+
+bool NodeMetaInfo::isInProjectModule() const
+{
+    if constexpr (useProjectStorage()) {
+        return isValid() && bool(typeData().traits & Storage::TypeTraits::IsInProjectModule);
+    }
+
+    return false;
+}
+
 bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName) const
 {
     if constexpr (useProjectStorage())

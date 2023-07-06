@@ -155,6 +155,72 @@ TEST_F(NodeMetaInfo, component_is_file_component)
     ASSERT_TRUE(isFileComponent);
 }
 
+TEST_F(NodeMetaInfo, is_project_component)
+{
+    using QmlDesigner::Storage::TypeTraits;
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", TypeTraits::IsProjectComponent);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    bool isProjectComponent = metaInfo.isProjectComponent();
+
+    ASSERT_TRUE(isProjectComponent);
+}
+
+TEST_F(NodeMetaInfo, is_not_project_component)
+{
+    using QmlDesigner::Storage::TypeTraits;
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", {});
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    bool isProjectComponent = metaInfo.isProjectComponent();
+
+    ASSERT_FALSE(isProjectComponent);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_project_component)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    bool isProjectComponent = metaInfo.isProjectComponent();
+
+    ASSERT_FALSE(isProjectComponent);
+}
+
+TEST_F(NodeMetaInfo, is_in_project_module)
+{
+    using QmlDesigner::Storage::TypeTraits;
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", TypeTraits::IsInProjectModule);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    bool isInProjectModule = metaInfo.isInProjectModule();
+
+    ASSERT_TRUE(isInProjectModule);
+}
+
+TEST_F(NodeMetaInfo, is_not_in_project_module)
+{
+    using QmlDesigner::Storage::TypeTraits;
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", {});
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    bool isInProjectModule = metaInfo.isInProjectModule();
+
+    ASSERT_FALSE(isInProjectModule);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_in_project_module)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    bool isInProjectModule = metaInfo.isInProjectModule();
+
+    ASSERT_FALSE(isInProjectModule);
+}
+
 TEST_F(NodeMetaInfo, has_property)
 {
     auto node = model.createModelNode("Item");

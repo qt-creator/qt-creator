@@ -53,6 +53,8 @@ public:
 
     TypeId id() const { return m_typeId; }
     bool isFileComponent() const;
+    bool isProjectComponent() const;
+    bool isInProjectModule() const;
     bool hasProperty(::Utils::SmallStringView propertyName) const;
     PropertyMetaInfos properties() const;
     PropertyMetaInfos localProperties() const;
