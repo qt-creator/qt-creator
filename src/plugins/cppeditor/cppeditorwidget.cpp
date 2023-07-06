@@ -816,7 +816,7 @@ QList<QTextEdit::ExtraSelection> sourceLocationsToExtraSelections(
 
         selection.cursor = selectAt(cppEditorWidget->textCursor(),
                                     sourceLocation.targetLine,
-                                    sourceLocation.targetColumn + 1,
+                                    sourceLocation.targetColumn,
                                     selectionLength);
         selection.format = textCharFormat;
 

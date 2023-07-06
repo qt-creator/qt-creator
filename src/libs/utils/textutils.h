@@ -59,6 +59,7 @@ QTCREATOR_UTILS_EXPORT int positionInText(const QTextDocument *textDocument, int
 
 QTCREATOR_UTILS_EXPORT QString textAt(QTextCursor tc, int pos, int length);
 
+// line is 1-based, column is 0-based
 QTCREATOR_UTILS_EXPORT QTextCursor selectAt(QTextCursor textCursor, int line, int column, uint length);
 
 QTCREATOR_UTILS_EXPORT QTextCursor flippedCursor(const QTextCursor &cursor);
