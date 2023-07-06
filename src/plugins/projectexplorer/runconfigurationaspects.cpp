@@ -918,6 +918,7 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
     makeCheckable(CheckBoxPlacement::Right, Tr::tr("Forward to local display"),
                   "RunConfiguration.UseX11Forwarding");
     setValue(defaultDisplay());
+    setVisible(HostOsInfo::isAnyUnixHost());
 
     addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
 }
