@@ -86,10 +86,11 @@ bool DropSupport::eventFilter(QObject *obj, QEvent *event)
         auto dee = static_cast<QDragEnterEvent *>(event);
         if ((isFileDrop(dee) || isValueDrop(dee)) && (!m_filterFunction || m_filterFunction(dee, this))) {
             event->accept();
-        } else {
-            event->ignore();
+            return true;
         }
-        return true;
+        //        event->ignore();
+        return false;
+
     } else if (event->type() == QEvent::DragMove) {
         event->accept();
         return true;

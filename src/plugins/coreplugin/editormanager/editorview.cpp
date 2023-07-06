@@ -114,7 +114,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     m_container->addWidget(empty);
     m_widgetEditorMap.insert(empty, nullptr);
 
-    const auto dropSupport = new DropSupport(this, [this](QDropEvent *event, DropSupport *) {
+    /*const auto dropSupport = new DropSupport(this, [this](QDropEvent *event, DropSupport *) {
         // do not accept move events except from other editor views (i.e. their tool bars)
         // otherwise e.g. item views that support moving items within themselves would
         // also "move" the item into the editor view, i.e. the item would be removed from the
@@ -127,7 +127,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     });
     connect(dropSupport, &DropSupport::filesDropped,
             this, &EditorView::openDroppedFiles);
-
+*/
     updateNavigatorActions();
 }
 

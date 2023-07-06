@@ -1,0 +1,50 @@
+
+POST https://godbolt.org/api/compiler/clang_trunk/compile HTTP/1.1
+content-type: application/json
+Accept: application/json
+
+{
+    "source": "int test() {return 20;};\nint main()\n{ return test();}",
+    "compiler": "clang_trunk",
+    "options": {
+        "userArguments": "",
+        "compilerOptions": {
+            "producePp": null,
+            "produceGccDump": {},
+            "produceOptInfo": false,
+            "produceCfg": false,
+            "produceIr": null,
+            "produceLLVMOptPipeline": null,
+            "produceDevice": false,
+            "overrides": []
+        },
+        "filters": {
+            "binaryObject": false,
+            "binary": false,
+            "execute": true,
+            "intel": false,
+            "demangle": true,
+            "labels": true,
+            "libraryCode": false,
+            "directives": true,
+            "commentOnly": true,
+            "trim": false,
+            "debugCalls": false
+        },
+        "tools": [],
+        "libraries": [],
+        "executeParameters": {
+            "args": "",
+            "stdin": ""
+        }
+    },
+    "lang": "c++",
+    "files": [],
+    "bypassCache": 0,
+    "allowStoreCodeDebug": true
+}
+
+###
+
+GET https://godbolt.org/api/compilers/c++
+Accept: application/json

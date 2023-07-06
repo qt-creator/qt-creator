@@ -203,12 +203,12 @@ MainWindow::MainWindow()
 
     statusBar()->setProperty("p_styled", true);
 
-    auto dropSupport = new DropSupport(this, [](QDropEvent *event, DropSupport *) {
+    /*auto dropSupport = new DropSupport(this, [](QDropEvent *event, DropSupport *) {
         return event->source() == nullptr; // only accept drops from the "outside" (e.g. file manager)
     });
     connect(dropSupport, &DropSupport::filesDropped,
             this, &MainWindow::openDroppedFiles);
-
+*/
     if (HostOsInfo::isLinuxHost()) {
         m_trimTimer.setSingleShot(true);
         m_trimTimer.setInterval(60000);
