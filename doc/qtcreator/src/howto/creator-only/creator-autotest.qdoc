@@ -584,7 +584,7 @@
 
     \section1 Viewing Test Output
 
-    The \l{Viewing Output}{Test Results} view shows Qt and Qt Quick test results
+    The \l{View output}{Test Results} view shows Qt and Qt Quick test results
     in XML format and other test results in plain text format.
 
     \section2 Qt Test Output

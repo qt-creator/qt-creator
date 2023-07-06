@@ -1,0 +1,85 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-view-output.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-quick-tour.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-ui
+
+    \title View output
+
+    The \e {output views} show output from several sources, such as a list of
+    errors and warnings encountered during a build, detailed output from the
+    compiler, status of a program when it is executed, debug output, or search
+    results.
+
+    \image qtcreator-output-panes-taskbar.webp {Output views}
+
+    You can open output views in all
+    \if defined (qtcreator)
+    \l{Switch between modes}{modes}
+    \else
+    modes
+    \endif in the following ways:
+
+    \list
+        \if defined(qtcreator)
+        \li Select the output view.
+        \endif
+        \li Select \uicontrol View > \uicontrol Output.
+            The menu items also display the \l{Keyboard Shortcuts}
+            {keyboard shortcuts} that you can use.
+        \li Select \key Alt (\key Cmd on \macos) and the number of the view.
+        \li Select \inlineimage icons/output-pane-menu.png
+            , and then select the view to open.
+    \endlist
+
+    To maximize an open output view, select the \inlineimage icons/arrowup.png
+    (\uicontrol Maximize) button or press \key {Alt+Shift+9}.
+
+    To increase or decrease the output text size, select \inlineimage icons/plus.png
+    (\uicontrol {Zoom In}) or \inlineimage icons/minus.png
+    (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-. Zooming is
+    not supported in all output views.
+
+    \section1 Change text encoding
+
+    If the text in the output is not displayed correctly, \QC might
+    be using a different codec from the one used by the tools that generate
+    the output. To specify the codec to use, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Environment > \uicontrol Interface, and
+    then select the codec in the \uicontrol {Text codec for tools} field.
+
+    \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
+
+    \section1 Find and filter output
+
+    To search from output, press \key {Ctrl+F} when the view is active. Enter
+    search criteria in the \uicontrol Find field. For more information, see
+    \l{Finding and Replacing}.
+
+    To filter output, enter a string in the \uicontrol Filter field.
+
+    To specify filtering options,
+    select the \inlineimage icons/magnifier.png {Filtering options menu}
+    button. You can filter output by using regular expressions or
+    case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
+    hide the lines that match the filter.
+
+    Some output views do not support finding and filtering.
+
+    \section1 Output views
+
+    The following views show output:
+
+    \if defined(qtcreator)
+    \annotatedlist creator-reference-output-views
+    \else
+    \annotatedlist studio-reference-output-views
+    \endif
+*/

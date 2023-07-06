@@ -1,0 +1,257 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \page creator-reference-issues-view.html
+    \previouspage creator-how-to-view-output.html
+
+    \ingroup creator-reference-output-views
+    \ingroup studio-reference-output-views
+
+    \title Issues
+
+    \brief Lists issues from different sources.
+
+    The \uicontrol Issues view filters out irrelevant output from the build tools
+    and presents the issues in an organized way.
+
+    To further filter the output by type, select \inlineimage icons/filtericon.png
+    (\uicontrol {Filter Tree}) and then select a filter:
+
+    \list
+
+        \if defined(qtdesignstudio)
+        \li \uicontrol {Asset Export} - Errors and warnings encountered
+            while exporting assets.
+
+        \li \uicontrol {Asset Importer Error} - Errors and warnings encountered
+            while importing assets from a design tool.
+        \else
+        \li \uicontrol Autotests - Errors and warnings encountered while running
+            tests.
+        \endif
+
+        \li \uicontrol {Build System} - Errors and warnings encountered when
+            opening and managing projects.
+
+        \if defined(qtcreator)
+        \li \uicontrol {Clang Code Model} -
+            \l {Parsing C++ Files with the Clang Code Model}
+            {Errors and warnings from the current editor}.
+        \li \uicontrol {Clang Tools} - Errors and warnings from
+            \l {Using Clang Tools}{Clang-Tidy and Clazy}
+        \endif
+
+        \li \uicontrol Compile - Selected output from the compiler. Open
+            \uicontrol {Compile Output} for more detailed information.
+
+       \li \uicontrol{Debug Information} - Lists debug information packages that might
+            be missing.
+
+        \if defined(qtcreator)
+        \li \uicontrol Debugger - Errors encountered while running the
+            \l{Analyzing Code}{Valgrind code analysis tools}.
+        \endif
+
+       \li \uicontrol{Debugger Runtime} - Errors encountered when starting \QC. For
+            example, information about missing DLLs.
+
+       \li \uicontrol Deployment - Errors encountered between building an application
+            successfully and starting it on a \l{glossary-device}{device}.
+
+        \if defined(qtcreator)
+        \li \uicontrol {My Tasks} - Entries from a task list file (.tasks) generated
+            by \l{Showing Task List Files in Issues}
+            {code scanning and analysis tools}.
+
+        \li \uicontrol Python - Runtime errors and exceptions of Python scripts.
+        \endif
+
+        \li \uicontrol QML and \uicontrol {QML Analysis} -
+            \l{JavaScript and QML Error Codes}
+            {QML and JavaScript syntax errors}.
+
+        \if defined(qtcreator)
+        \li \uicontrol Sanitizer - Tasks created when you run an application if
+            you used an \e {address sanitizer} to detect memory handling issues.
+        \endif
+    \endlist
+
+    To find output in the view, enter search criteria in the \uicontrol Filter
+    field.
+
+    \image qtcreator-issues.webp {Issues}
+
+    Select one or several lines to apply context-menu actions to their contents.
+    You can remove the selected lines or copy their contents to the clipboard.
+    For single lines, you can search the Internet for a solution using the
+    contents of the line as search criteria or open a version control
+    annotation view of the line that causes the error message.
+
+    To view detailed information about the selected line (where available), press
+    \key Space.
+
+    To navigate to the corresponding source code, click an issue or
+    select \uicontrol {Show in Editor} in the context menu. The entry must contain the
+    name of the file where the issue was found.
+
+    To view more information about an issue in \l {Compile Output},
+    select \uicontrol {Show Compile Output} in the context menu.
+
+    To jump from one issue to the next or previous
+    one, select \inlineimage icons/arrowup.png
+    and \inlineimage icons/arrowdown.png
+    or press \key F6 and \key Shift+F6.
+
+    By default, a new build clears the \uicontrol Issues view. To keep
+    the issues from the previous build rounds, deselect \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General >
+    \uicontrol {Clear issues list on new build}.
+*/
+
+/*!
+    \page creator-reference-search-results-view.html
+    \previouspage creator-how-to-view-output.html
+
+    \ingroup creator-reference-output-views
+    \ingroup studio-reference-output-views
+
+    \title Search Results
+
+    \brief Lets you search through projects, files on a file system or the
+    currently open files.
+
+    The search history (1) stores the search results. You can select earlier
+    searches from the history.
+
+    \image qtcreator-search-results.webp {Search Results - criteria}
+
+    The figure below shows an example search result for all
+    occurrences of the search string in the specified directory.
+
+    \image qtcreator-search-results-matches.webp {Search Results - matches found}
+
+    For more information about the different search options, see
+    \l {Finding and Replacing}.
+*/
+
+/*!
+    \page creator-reference-application-output-view.html
+    \previouspage creator-how-to-view-output.html
+
+    \ingroup creator-reference-output-views
+    \ingroup studio-reference-output-views
+
+    \title Application Output
+
+    \brief Displays the status of a program when you execute it, and the debug
+    output.
+
+    \image qtcreator-application-output.webp {Application Output}
+
+    \if defined(qtcreator)
+    If you specify command line arguments in the run settings that are passed
+    to the application when running it, they are displayed as a part of the
+    application output. For more information, see
+    \l{Specifying Run Settings for Desktop Device Types}.
+    \endif
+
+    Select toolbar buttons to run applications, to attach the debugger to the
+    running application, and to stop running or debugging.
+
+    \section1 Application Output Preferences
+
+    To set preferences for displaying application output:
+
+    \list
+        \li Select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol {Build & Run} > \uicontrol {Application Output}.
+        \li Select the \inlineimage icons/settings.png
+            (\uicontrol {Open Settings Page}) button.
+    \endlist
+
+    \image qtcreator-preferences-application-output.webp {Application Output tab in Preferences}
+
+    You can select whether to open \uicontrol{Application Output} on output when
+    running or debugging applications, to clear old output on a new run,
+    to word-wrap output, and to limit output to the specified number of lines.
+*/
+
+/*!
+    \page creator-reference-compile-output-view.html
+    \previouspage creator-how-to-view-output.html
+
+    \ingroup creator-reference-output-views
+    \ingroup studio-reference-output-views
+
+    \title Compile Output
+
+    \brief Shows all output from the compiler.
+
+    \uicontrol{Compile Output} shows a more detailed version of information
+    displayed in \l Issues.
+
+    \image qtcreator-compile-output.webp {Compile Output}
+
+    Double-click a file name in an error message to open the file in the
+    code editor.
+
+    To cancel the build, select the \uicontrol {Cancel Build} button.
+
+    To copy the output to the clipboard, select \uicontrol {Select All} in the
+    context menu, and then select \uicontrol Copy. Save the output as a file if
+    you want to examine it later without having to build the project again.
+    This is useful for large projects that take a long time to build.
+
+    \section1 Compile Output Preferences
+
+    To specify whether to open the \uicontrol {Compile Output} view on output
+    when building applications:
+
+    \list 1
+        \li Open the preferences:
+            \list
+                \li In the \uicontrol {Compile Output} view,
+                    select \inlineimage icons/settings.png
+                    (\uicontrol {Open Settings Page}).
+                \li Select \uicontrol Edit > \uicontrol Preferences >
+                    \uicontrol {Build & Run} > \uicontrol {Compile Output}.
+            \endlist
+            \image qtcreator-preferences-compile-output.webp {Compile Output tab in Preferences}
+        \li Select the \uicontrol {Open Compile Output when building} check box.
+        \li In the \uicontrol {Limit output to} field, you can specify the
+            maximum amount of build output lines to display.
+    \endlist
+
+    \section1 Parsing Existing Compile Output
+
+    You can use \QC's output parsers to parse output from builds done outside
+    of \QC or stored from previous build runs. By default, the parsers from the
+    kit selected for the active project are used, but you can select another
+    kit.
+
+    To parse compile output:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol {Parse Build Output}.
+            \image qtcreator-parse-build-output.png
+        \li Paste the build output in the \uicontrol {Build Output} field, or
+            select \uicontrol {Load from File} to load it from a file.
+        \li Deselect the \uicontrol {Output went to stderr} check box if the
+            parser expects issues on \c stdout.
+        \li In the \uicontrol {Use parsers from kit} field, select the kit to
+            use for parsing the output. Select \uicontrol Manage to view
+            and modify kit settings.
+        \li The parser displays the parsed output in \l Issues. By default, the
+            view is cleared before adding the new output.
+            Deselect the \uicontrol {Clear existing tasks} check box to append
+            the new output to the old output.
+        \li Select \uicontrol OK to start parsing.
+    \endlist
+*/
