@@ -49,7 +49,7 @@ using FormatRanges = QList<QTextLayout::FormatRange>;
 
 QTextCharFormat toFormat(const TextStyle &style)
 {
-    const static FontSettings fontSettings = TextEditorSettings::fontSettings();
+    const static FontSettings &fontSettings = TextEditorSettings::fontSettings();
     auto format = fontSettings.toTextCharFormat(style);
     if (style == C_FUNCTION)
         format.setFontWeight(QFont::Bold); // is explicitly set by the ksyntax format definition
