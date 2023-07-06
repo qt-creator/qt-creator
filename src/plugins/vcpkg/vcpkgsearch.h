@@ -15,6 +15,7 @@ struct VcpkgManifest
     QString name;
     QString version;
     QString license;
+    QStringList dependencies;
     QString shortDescription;
     QStringList description;
     QUrl homepage;

@@ -21,6 +21,7 @@ void VcpkgSearchTest::testVcpkgJsonParser_data()
     QTest::addColumn<QString>("name");
     QTest::addColumn<QString>("version");
     QTest::addColumn<QString>("license");
+    QTest::addColumn<QStringList>("dependencies");
     QTest::addColumn<QString>("shortDescription");
     QTest::addColumn<QStringList>("description");
     QTest::addColumn<QUrl>("homepage");
@@ -33,6 +34,7 @@ void VcpkgSearchTest::testVcpkgJsonParser_data()
                     "description": "The CImg Library is a small, open-source, and modern C++ toolkit for image processing",
                     "homepage": "https://github.com/dtschump/CImg",
                     "dependencies": [
+                      "fmt",
                       {
                         "name": "vcpkg-cmake",
                         "host": true
@@ -42,6 +44,7 @@ void VcpkgSearchTest::testVcpkgJsonParser_data()
             << "cimg"
             << "2.9.9"
             << ""
+            << QStringList({"fmt", "vcpkg-cmake"})
             << "The CImg Library is a small, open-source, and modern C++ toolkit for image processing"
             << QStringList()
             << QUrl::fromUserInput("https://github.com/dtschump/CImg")
@@ -62,6 +65,7 @@ void VcpkgSearchTest::testVcpkgJsonParser_data()
             << "catch-classic"
             << "1.12.2"
             << ""
+            << QStringList()
             << "A modern, header-only test framework for unit tests"
             << QStringList({"This is specifically the legacy 1.x branch provided for compatibility",
                             "with older compilers."})
@@ -77,6 +81,7 @@ void VcpkgSearchTest::testVcpkgJsonParser_data()
             << ""
             << "1.0"
             << "WTFPL"
+            << QStringList()
             << "foo"
             << QStringList()
             << QUrl()
@@ -89,6 +94,7 @@ void VcpkgSearchTest::testVcpkgJsonParser()
     QFETCH(QString, name);
     QFETCH(QString, version);
     QFETCH(QString, license);
+    QFETCH(QStringList, dependencies);
     QFETCH(QString, shortDescription);
     QFETCH(QStringList, description);
     QFETCH(QUrl, homepage);
@@ -101,6 +107,7 @@ void VcpkgSearchTest::testVcpkgJsonParser()
     QCOMPARE(mf.name, name);
     QCOMPARE(mf.version, version);
     QCOMPARE(mf.license, license);
+    QCOMPARE(mf.dependencies, dependencies);
     QCOMPARE(mf.shortDescription, shortDescription);
     QCOMPARE(mf.description, description);
     QCOMPARE(mf.homepage, homepage);

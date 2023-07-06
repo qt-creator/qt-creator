@@ -169,6 +169,15 @@ VcpkgManifest parseVcpkgManifest(const QByteArray &vcpkgManifestJsonData, bool *
     }
     if (const QJsonValue license = jsonObject.value("license"); !license.isUndefined())
         result.license = license.toString();
+    if (const QJsonValue deps = jsonObject.value("dependencies"); !deps.isUndefined()) {
+        const QJsonArray dependencies = deps.toArray();
+        for (const QJsonValue &dependency : dependencies) {
+            if (dependency.isString())
+                result.dependencies.append(dependency.toString());
+            else if (const QJsonValue name = dependency.toObject().value("name"); name.isString())
+                result.dependencies.append(name.toString());
+        }
+    }
     if (const QJsonValue description = jsonObject.value("description"); !description.isUndefined()) {
         if (description.isArray()) {
             const QJsonArray descriptionLines = description.toArray();
