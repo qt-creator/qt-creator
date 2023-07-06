@@ -113,10 +113,7 @@ TextEditorWidget *RefactoringChanges::openEditor(const FilePath &filePath,
     }
     IEditor *editor = EditorManager::openEditorAt(Link{filePath, line, column}, Id(), flags);
 
-    if (editor)
-        return TextEditorWidget::fromEditor(editor);
-    else
-        return nullptr;
+    return TextEditorWidget::fromEditor(editor);
 }
 
 RefactoringFilePtr RefactoringChanges::file(TextEditorWidget *editor)
