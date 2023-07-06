@@ -63,6 +63,7 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
+    Utils::FilePath operator()() const { return workingDirectory(); }
     Utils::FilePath workingDirectory() const;
     Utils::FilePath defaultWorkingDirectory() const;
     Utils::FilePath unexpandedWorkingDirectory() const;
@@ -94,6 +95,7 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
+    QString operator()() const { return arguments(); }
     QString arguments() const;
     QString unexpandedArguments() const;
 
@@ -160,6 +162,7 @@ public:
     explicit ExecutableAspect(Utils::AspectContainer *container = nullptr);
     ~ExecutableAspect() override;
 
+    Utils::FilePath operator()() const { return executable(); }
     Utils::FilePath executable() const;
     void setExecutable(const Utils::FilePath &executable);
 
