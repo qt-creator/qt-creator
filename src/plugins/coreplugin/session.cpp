@@ -609,6 +609,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
             return true;
         }
     } else if (loadImplicitDefault) {
+        emit SessionManager::instance()->sessionLoaded(DEFAULT_SESSION);
         return true;
     }
 
