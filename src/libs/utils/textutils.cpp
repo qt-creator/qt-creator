@@ -124,11 +124,10 @@ QString textAt(QTextCursor tc, int pos, int length)
     if (pos < 0)
         pos = 0;
     tc.movePosition(QTextCursor::End);
-    if (pos + length > tc.position())
-        length = tc.position() - pos;
+    const int end = std::min(pos + length, tc.position());
 
     tc.setPosition(pos);
-    tc.setPosition(pos + length, QTextCursor::KeepAnchor);
+    tc.setPosition(end, QTextCursor::KeepAnchor);
 
     // selectedText() returns U+2029 (PARAGRAPH SEPARATOR) instead of newline
     return tc.selectedText().replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
