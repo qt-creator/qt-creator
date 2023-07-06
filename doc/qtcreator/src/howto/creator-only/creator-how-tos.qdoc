@@ -19,9 +19,11 @@
     \section1 Use the UI
 
     \list
+        \li \l {Assign keyboard shortcuts}
         \li \l {Find a particular preference}
         \li \l {Find keyboard shortcuts}
         \li \l {Find menu items on \macos}
+        \li \l {Import and export keyboard shortcuts}
         \li \l {Set high DPI scaling}
         \li \l {Set the number of recent files shown}
         \li \l {Show and hide sidebars}
@@ -83,8 +85,10 @@
     \key Ctrl+Tab.
 
     To move forward in the location history, press \key {Alt+Right}
-    (\key {Cmd+Opt+Right} on \macos). To move backward, press \key {Alt+Left}
-    (\key {Cmd+Opt+Left} on \macos). For example, if you use the \uicontrol Locator
+    (\key {Cmd+Opt+Right} on \macos).
+
+    To move backward, press \key {Alt+Left} (\key {Cmd+Opt+Left} on \macos).
+    For example, if you use the \uicontrol Locator
     to jump to a symbol in the same file, you can jump back to your original
     location in that file by pressing \key {Alt+Left}.
 */
@@ -399,11 +403,16 @@
 
     \title Set the number of recent files shown
 
-    Set the value of \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Environment > \uicontrol System
-    > \uicontrol {Maximum number of entries in "Recent Files"}.
+    To set the number of files to list in \uicontrol File >
+    \uicontrol {Recent Files}:
 
-    \image qtcreator-options-environment-system.png "System preferences"
+    \list 1
+        \li Select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol Environment > \uicontrol System.
+            \image qtcreator-options-environment-system.png {System preferences}
+        \li In \uicontrol {Maximum number of entries in "Recent Files"}, set
+            the number of files to show.
+    \endlist
 */
 
 /*!

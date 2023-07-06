@@ -32,6 +32,7 @@
         \list 1
             \li Select \uicontrol Edit > \uicontrol Preferences >
                 \uicontrol Environment > \uicontrol Interface.
+                \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
             \li Select \uicontrol {Enable high DPI scaling}.
             \li Restart \QC to have the change take effect.
     \endlist
