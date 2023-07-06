@@ -6,6 +6,7 @@
 #include "terminaltr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
@@ -90,13 +91,13 @@ static expected_str<void> loadXdefaults(const FilePath &path)
             const QString colorName = match.captured(1);
             const QColor color(match.captured(2));
             if (colorName == "foreground") {
-                TerminalSettings::instance().foregroundColor.setVolatileValue(color);
+                settings().foregroundColor.setVolatileValue(color);
             } else if (colorName == "background") {
-                TerminalSettings::instance().backgroundColor.setVolatileValue(color);
+                settings().backgroundColor.setVolatileValue(color);
             } else {
                 const int colorIndex = colorName.mid(5).toInt();
                 if (colorIndex >= 0 && colorIndex < 16)
-                    TerminalSettings::instance().colors[colorIndex].setVolatileValue(color);
+                    settings().colors[colorIndex].setVolatileValue(color);
             }
         }
     }
@@ -152,14 +153,14 @@ static expected_str<void> loadItermColors(const FilePath &path)
                                 const auto c = colorName.mid(5, 2);
                                 const int colorIndex = c.toInt();
                                 if (colorIndex >= 0 && colorIndex < 16)
-                                    TerminalSettings::instance().colors[colorIndex].setVolatileValue(
+                                    settings().colors[colorIndex].setVolatileValue(
                                         color);
                             } else if (colorName == "Foreground Color") {
-                                TerminalSettings::instance().foregroundColor.setVolatileValue(color);
+                                settings().foregroundColor.setVolatileValue(color);
                             } else if (colorName == "Background Color") {
-                                TerminalSettings::instance().backgroundColor.setVolatileValue(color);
+                                settings().backgroundColor.setVolatileValue(color);
                             } else if (colorName == "Selection Color") {
-                                TerminalSettings::instance().selectionColor.setVolatileValue(color);
+                                settings().selectionColor.setVolatileValue(color);
                             }
                         }
                     }
@@ -196,33 +197,33 @@ static expected_str<void> loadVsCodeColors(const FilePath &path)
 
     // clang-format off
     const QList<QPair<QStringView, ColorAspect *>> colorKeys = {
-        qMakePair(u"editor.background", &TerminalSettings::instance().backgroundColor),
-        qMakePair(u"terminal.foreground", &TerminalSettings::instance().foregroundColor),
-        qMakePair(u"terminal.selectionBackground", &TerminalSettings::instance().selectionColor),
+        qMakePair(u"editor.background", &settings().backgroundColor),
+        qMakePair(u"terminal.foreground", &settings().foregroundColor),
+        qMakePair(u"terminal.selectionBackground", &settings().selectionColor),
 
-        qMakePair(u"terminal.ansiBlack", &TerminalSettings::instance().colors[0]),
-        qMakePair(u"terminal.ansiBrightBlack", &TerminalSettings::instance().colors[8]),
+        qMakePair(u"terminal.ansiBlack", &settings().colors[0]),
+        qMakePair(u"terminal.ansiBrightBlack", &settings().colors[8]),
 
-        qMakePair(u"terminal.ansiRed", &TerminalSettings::instance().colors[1]),
-        qMakePair(u"terminal.ansiBrightRed", &TerminalSettings::instance().colors[9]),
+        qMakePair(u"terminal.ansiRed", &settings().colors[1]),
+        qMakePair(u"terminal.ansiBrightRed", &settings().colors[9]),
 
-        qMakePair(u"terminal.ansiGreen", &TerminalSettings::instance().colors[2]),
-        qMakePair(u"terminal.ansiBrightGreen", &TerminalSettings::instance().colors[10]),
+        qMakePair(u"terminal.ansiGreen", &settings().colors[2]),
+        qMakePair(u"terminal.ansiBrightGreen", &settings().colors[10]),
 
-        qMakePair(u"terminal.ansiYellow", &TerminalSettings::instance().colors[3]),
-        qMakePair(u"terminal.ansiBrightYellow", &TerminalSettings::instance().colors[11]),
+        qMakePair(u"terminal.ansiYellow", &settings().colors[3]),
+        qMakePair(u"terminal.ansiBrightYellow", &settings().colors[11]),
 
-        qMakePair(u"terminal.ansiBlue", &TerminalSettings::instance().colors[4]),
-        qMakePair(u"terminal.ansiBrightBlue", &TerminalSettings::instance().colors[12]),
+        qMakePair(u"terminal.ansiBlue", &settings().colors[4]),
+        qMakePair(u"terminal.ansiBrightBlue", &settings().colors[12]),
 
-        qMakePair(u"terminal.ansiMagenta", &TerminalSettings::instance().colors[5]),
-        qMakePair(u"terminal.ansiBrightMagenta", &TerminalSettings::instance().colors[13]),
+        qMakePair(u"terminal.ansiMagenta", &settings().colors[5]),
+        qMakePair(u"terminal.ansiBrightMagenta", &settings().colors[13]),
 
-        qMakePair(u"terminal.ansiCyan", &TerminalSettings::instance().colors[6]),
-        qMakePair(u"terminal.ansiBrightCyan", &TerminalSettings::instance().colors[14]),
+        qMakePair(u"terminal.ansiCyan", &settings().colors[6]),
+        qMakePair(u"terminal.ansiBrightCyan", &settings().colors[14]),
 
-        qMakePair(u"terminal.ansiWhite", &TerminalSettings::instance().colors[7]),
-        qMakePair(u"terminal.ansiBrightWhite", &TerminalSettings::instance().colors[15])
+        qMakePair(u"terminal.ansiWhite", &settings().colors[7]),
+        qMakePair(u"terminal.ansiBrightWhite", &settings().colors[15])
     };
     // clang-format on
 
@@ -247,8 +248,6 @@ static expected_str<void> loadVsCodeColors(const FilePath &path)
 
 static expected_str<void> loadKonsoleColorScheme(const FilePath &path)
 {
-    QSettings settings(path.toFSPathString(), QSettings::IniFormat);
-
     auto parseColor = [](const QStringList &parts) -> expected_str<QColor> {
         if (parts.size() != 3 && parts.size() != 4)
             return make_unexpected(Tr::tr("Invalid color format."));
@@ -257,39 +256,41 @@ static expected_str<void> loadKonsoleColorScheme(const FilePath &path)
     };
 
     // clang-format off
-    const QList<QPair<QString, ColorAspect *>> colorKeys = {
-        qMakePair(QLatin1String("Background/Color"), &TerminalSettings::instance().backgroundColor),
-        qMakePair(QLatin1String("Foreground/Color"), &TerminalSettings::instance().foregroundColor),
+    TerminalSettings &s = settings();
+    const QPair<QString, ColorAspect *> colorKeys[] = {
+        { "Background/Color", &s.backgroundColor },
+        { "Foreground/Color", &s.foregroundColor},
 
-        qMakePair(QLatin1String("Color0/Color"), &TerminalSettings::instance().colors[0]),
-        qMakePair(QLatin1String("Color0Intense/Color"), &TerminalSettings::instance().colors[8]),
+        { "Color0/Color", &s.colors[0] },
+        { "Color0Intense/Color", &s.colors[8] },
 
-        qMakePair(QLatin1String("Color1/Color"), &TerminalSettings::instance().colors[1]),
-        qMakePair(QLatin1String("Color1Intense/Color"), &TerminalSettings::instance().colors[9]),
+        { "Color1/Color", &s.colors[1] },
+        { "Color1Intense/Color", &s.colors[9] },
 
-        qMakePair(QLatin1String("Color2/Color"), &TerminalSettings::instance().colors[2]),
-        qMakePair(QLatin1String("Color2Intense/Color"), &TerminalSettings::instance().colors[10]),
+        { "Color2/Color", &s.colors[2] },
+        { "Color2Intense/Color", &s.colors[10] },
 
-        qMakePair(QLatin1String("Color3/Color"), &TerminalSettings::instance().colors[3]),
-        qMakePair(QLatin1String("Color3Intense/Color"), &TerminalSettings::instance().colors[11]),
+        { "Color3/Color", &s.colors[3] },
+        { "Color3Intense/Color", &s.colors[11] },
 
-        qMakePair(QLatin1String("Color4/Color"), &TerminalSettings::instance().colors[4]),
-        qMakePair(QLatin1String("Color4Intense/Color"), &TerminalSettings::instance().colors[12]),
+        { "Color4/Color", &s.colors[4] },
+        { "Color4Intense/Color", &s.colors[12] },
 
-        qMakePair(QLatin1String("Color5/Color"), &TerminalSettings::instance().colors[5]),
-        qMakePair(QLatin1String("Color5Intense/Color"), &TerminalSettings::instance().colors[13]),
+        { "Color5/Color", &s.colors[5] },
+        { "Color5Intense/Color", &s.colors[13] },
 
-        qMakePair(QLatin1String("Color6/Color"), &TerminalSettings::instance().colors[6]),
-        qMakePair(QLatin1String("Color6Intense/Color"), &TerminalSettings::instance().colors[14]),
+        { "Color6/Color", &s.colors[6] },
+        { "Color6Intense/Color", &s.colors[14] },
 
-        qMakePair(QLatin1String("Color7/Color"), &TerminalSettings::instance().colors[7]),
-        qMakePair(QLatin1String("Color7Intense/Color"), &TerminalSettings::instance().colors[15])
+        { "Color7/Color", &s.colors[7] },
+        { "Color7Intense/Color", &s.colors[15] }
     };
     // clang-format on
 
+    QSettings ini(path.toFSPathString(), QSettings::IniFormat);
     for (const auto &colorKey : colorKeys) {
-        if (settings.contains(colorKey.first)) {
-            const auto color = parseColor(settings.value(colorKey.first).toStringList());
+        if (ini.contains(colorKey.first)) {
+            const auto color = parseColor(ini.value(colorKey.first).toStringList());
             if (!color)
                 return make_unexpected(color.error());
 
@@ -313,26 +314,25 @@ static expected_str<void> loadXFCE4ColorScheme(const FilePath &path)
     f.write(*arr);
     f.close();
 
-    QSettings settings(f.fileName(), QSettings::IniFormat);
+    QSettings ini(f.fileName(), QSettings::IniFormat);
+    TerminalSettings &s = settings();
 
     // clang-format off
-    const QList<QPair<QString, ColorAspect *>> colorKeys = {
-        qMakePair(QLatin1String("Scheme/ColorBackground"), &TerminalSettings::instance().backgroundColor),
-        qMakePair(QLatin1String("Scheme/ColorForeground"), &TerminalSettings::instance().foregroundColor),
+    const QPair<QString, ColorAspect *> colorKeys[] = {
+        { "Scheme/ColorBackground", &s.backgroundColor },
+        { "Scheme/ColorForeground", &s.foregroundColor }
     };
     // clang-format on
 
     for (const auto &colorKey : colorKeys) {
-        if (settings.contains(colorKey.first)) {
-            colorKey.second->setVolatileValue(QColor(settings.value(colorKey.first).toString()));
-        }
+        if (ini.contains(colorKey.first))
+            colorKey.second->setVolatileValue(QColor(ini.value(colorKey.first).toString()));
     }
 
-    QStringList colors = settings.value(QLatin1String("Scheme/ColorPalette")).toStringList();
+    QStringList colors = ini.value(QLatin1String("Scheme/ColorPalette")).toStringList();
     int i = 0;
-    for (const auto &color : colors) {
-        TerminalSettings::instance().colors[i++].setVolatileValue(QColor(color));
-    }
+    for (const QString &color : colors)
+        s.colors[i++].setVolatileValue(QColor(color));
 
     return {};
 }
@@ -353,23 +353,15 @@ static expected_str<void> loadColorScheme(const FilePath &path)
     return make_unexpected(Tr::tr("Unknown color scheme format."));
 }
 
-static TerminalSettings *s_instance;
-
-TerminalSettings &TerminalSettings::instance()
+TerminalSettings &settings()
 {
-    return *s_instance;
+    static TerminalSettings theSettings;
+    return theSettings;
 }
 
 TerminalSettings::TerminalSettings()
 {
-    s_instance = this;
-
     setSettingsGroup("Terminal");
-    setId("Terminal.General");
-    setDisplayName("Terminal");
-    setCategory("ZY.Terminal");
-    setDisplayCategory("Terminal");
-    setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
 
     enableTerminal.setSettingsKey("EnableTerminal");
     enableTerminal.setLabelText(Tr::tr("Use internal terminal"));
@@ -586,5 +578,21 @@ TerminalSettings::TerminalSettings()
 
     readSettings();
 }
+
+class TerminalSettingsPage final : public Core::IOptionsPage
+{
+public:
+    TerminalSettingsPage()
+    {
+        setId("Terminal.General");
+        setDisplayName("Terminal");
+        setCategory("ZY.Terminal");
+        setDisplayCategory("Terminal");
+        setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const TerminalSettingsPage settingsPage;
 
 } // Terminal

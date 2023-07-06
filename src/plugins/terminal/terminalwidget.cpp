@@ -126,7 +126,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
     });
 
-    connect(&TerminalSettings::instance(), &AspectContainer::applied, this, [this] {
+    connect(&settings(), &AspectContainer::applied, this, [this] {
         // Setup colors first, as setupFont will redraw the screen.
         setupColors();
         setupFont();
@@ -143,8 +143,8 @@ void TerminalWidget::setupPty()
     m_process = std::make_unique<Process>();
 
     CommandLine shellCommand = m_openParameters.shellCommand.value_or(
-        CommandLine{TerminalSettings::instance().shell(),
-                    TerminalSettings::instance().shellArguments.value(),
+        CommandLine{settings().shell(),
+                    settings().shellArguments.value(),
                     CommandLine::Raw});
 
     Environment env = m_openParameters.environment.value_or(Environment{})
@@ -230,8 +230,8 @@ void TerminalWidget::setupFont()
 {
     QFont f;
     f.setFixedPitch(true);
-    f.setFamily(TerminalSettings::instance().font.value());
-    f.setPointSize(TerminalSettings::instance().fontSize.value());
+    f.setFamily(settings().font.value());
+    f.setPointSize(settings().fontSize.value());
 
     setFont(f);
 }
@@ -241,12 +241,12 @@ void TerminalWidget::setupColors()
     // Check if the colors have changed.
     std::array<QColor, 20> newColors;
     for (int i = 0; i < 16; ++i) {
-        newColors[i] = TerminalSettings::instance().colors[i].value();
+        newColors[i] = settings().colors[i].value();
     }
-    newColors[ColorIndex::Background] = TerminalSettings::instance().backgroundColor.value();
-    newColors[ColorIndex::Foreground] = TerminalSettings::instance().foregroundColor.value();
-    newColors[ColorIndex::Selection] = TerminalSettings::instance().selectionColor.value();
-    newColors[ColorIndex::FindMatch] = TerminalSettings::instance().findMatchColor.value();
+    newColors[ColorIndex::Background] = settings().backgroundColor.value();
+    newColors[ColorIndex::Foreground] = settings().foregroundColor.value();
+    newColors[ColorIndex::Selection] = settings().selectionColor.value();
+    newColors[ColorIndex::FindMatch] = settings().findMatchColor.value();
 
     if (m_currentColors == newColors)
         return;
@@ -401,7 +401,7 @@ void TerminalWidget::setupSurface()
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
     connect(m_surface.get(), &Internal::TerminalSurface::bell, this, [] {
-        if (TerminalSettings::instance().audibleBell.value())
+        if (settings().audibleBell.value())
             QApplication::beep();
     });
     connect(m_surface.get(),
@@ -438,7 +438,7 @@ void TerminalWidget::setupSurface()
 void TerminalWidget::configBlinkTimer()
 {
     bool shouldRun = m_cursor.visible && m_cursor.blink && hasFocus()
-                     && TerminalSettings::instance().allowBlinkingCursor.value();
+                     && settings().allowBlinkingCursor.value();
     if (shouldRun != m_cursorBlinkTimer.isActive()) {
         if (shouldRun)
             m_cursorBlinkTimer.start();
@@ -1006,7 +1006,7 @@ void TerminalWidget::paintCursor(QPainter &p) const
         cursor.shape = Internal::Cursor::Shape::Underline;
 
     const bool blinkState = !cursor.blink || m_cursorBlinkState
-                            || !TerminalSettings::instance().allowBlinkingCursor.value();
+                            || !settings().allowBlinkingCursor.value();
 
     if (cursor.visible && blinkState) {
         const int cursorCellWidth = m_surface->cellWidthAt(cursor.position.x(), cursor.position.y());
@@ -1162,7 +1162,7 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
     }
 
     if (event->key() == Qt::Key_Escape) {
-        bool sendToTerminal = TerminalSettings::instance().sendEscapeToTerminal.value();
+        bool sendToTerminal = settings().sendEscapeToTerminal.value();
         bool send = false;
         if (sendToTerminal && event->modifiers() == Qt::NoModifier)
             send = true;
@@ -1570,7 +1570,7 @@ void TerminalWidget::showEvent(QShowEvent *event)
 
 bool TerminalWidget::event(QEvent *event)
 {
-    if (TerminalSettings::instance().lockKeyboard() && event->type() == QEvent::ShortcutOverride) {
+    if (settings().lockKeyboard() && event->type() == QEvent::ShortcutOverride) {
         event->accept();
         return true;
     }
@@ -1584,7 +1584,7 @@ bool TerminalWidget::event(QEvent *event)
     if (event->type() == QEvent::KeyPress) {
         auto k = static_cast<QKeyEvent *>(event);
 
-        if (TerminalSettings::instance().lockKeyboard() && m_shortcutMap.tryShortcut(k))
+        if (settings().lockKeyboard() && m_shortcutMap.tryShortcut(k))
             return true;
 
         keyPressEvent(k);

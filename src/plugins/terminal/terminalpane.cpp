@@ -72,13 +72,13 @@ TerminalPane::TerminalPane(QObject *parent)
     });
 
     const auto updateEscButton = [this] {
-        m_escSettingButton->setChecked(TerminalSettings::instance().sendEscapeToTerminal());
+        m_escSettingButton->setChecked(settings().sendEscapeToTerminal());
         static const QString escKey
             = QKeySequence(Qt::Key_Escape).toString(QKeySequence::NativeText);
         static const QString shiftEsc = QKeySequence(
                                             QKeyCombination(Qt::ShiftModifier, Qt::Key_Escape))
                                             .toString(QKeySequence::NativeText);
-        if (TerminalSettings::instance().sendEscapeToTerminal.value()) {
+        if (settings().sendEscapeToTerminal.value()) {
             m_escSettingButton->setText(escKey);
             m_escSettingButton->setToolTip(Tr::tr("Sends Esc to terminal instead of Qt Creator."));
         } else {
@@ -93,12 +93,12 @@ TerminalPane::TerminalPane(QObject *parent)
     updateEscButton();
 
     connect(m_escSettingButton, &QToolButton::toggled, this, [this, updateEscButton] {
-        TerminalSettings::instance().sendEscapeToTerminal.setValue(m_escSettingButton->isChecked());
-        TerminalSettings::instance().writeSettings();
+        settings().sendEscapeToTerminal.setValue(m_escSettingButton->isChecked());
+        settings().writeSettings();
         updateEscButton();
     });
 
-    connect(&TerminalSettings::instance(), &TerminalSettings::applied, this, updateEscButton);
+    connect(&settings(), &TerminalSettings::applied, this, updateEscButton);
 }
 
 TerminalPane::~TerminalPane() {}
@@ -142,7 +142,7 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
             QFileIconProvider iconProvider;
             const FilePath command = parametersCopy.shellCommand
                     ? parametersCopy.shellCommand->executable()
-                    : TerminalSettings::instance().shell.filePath();
+                    : settings().shell.filePath();
             icon = iconProvider.icon(command.toFileInfo());
         }
     }
@@ -250,10 +250,10 @@ void TerminalPane::initActions()
     createShellMenu();
 
     lockKeyboard.setCheckable(true);
-    lockKeyboard.setChecked(TerminalSettings::instance().lockKeyboard());
+    lockKeyboard.setChecked(settings().lockKeyboard());
 
     auto updateLockKeyboard = [this](bool locked) {
-        TerminalSettings::instance().lockKeyboard.setValue(locked);
+        settings().lockKeyboard.setValue(locked);
         if (locked) {
             lockKeyboard.setIcon(LOCK_KEYBOARD_ICON.icon());
             lockKeyboard.setToolTip(Tr::tr("Sends keyboard shortcuts to Terminal."));
@@ -263,7 +263,7 @@ void TerminalPane::initActions()
         }
     };
 
-    updateLockKeyboard(TerminalSettings::instance().lockKeyboard());
+    updateLockKeyboard(settings().lockKeyboard());
     connect(&lockKeyboard, &QAction::toggled, this, updateLockKeyboard);
 
     newTerminal.setText(Tr::tr("New Terminal"));
