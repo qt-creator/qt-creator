@@ -11,7 +11,6 @@
 #include "baremetaltr.h"
 
 #include "debugserverprovidermanager.h"
-#include "debugserverproviderssettingspage.h"
 
 #include "iarewtoolchain.h"
 #include "keiltoolchain.h"
@@ -53,7 +52,6 @@ public:
     BareMetalDeviceFactory deviceFactory;
     BareMetalRunConfigurationFactory runConfigurationFactory;
     BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;
-    DebugServerProvidersSettingsPage debugServerProviderSettinsPage;
     DebugServerProviderManager debugServerProviderManager;
     BareMetalDeployConfigurationFactory deployConfigurationFactory;
     BareMetalDebugSupportFactory runWorkerFactory;

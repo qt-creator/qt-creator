@@ -8,8 +8,9 @@
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
@@ -427,12 +428,18 @@ QModelIndex DebugServerProvidersSettingsWidget::currentIndex() const
 
 // DebugServerProvidersSettingsPage
 
-DebugServerProvidersSettingsPage::DebugServerProvidersSettingsPage()
+class DebugServerProvidersSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::DEBUG_SERVER_PROVIDERS_SETTINGS_ID);
-    setDisplayName(Tr::tr("Bare Metal"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new DebugServerProvidersSettingsWidget; });
-}
+public:
+    DebugServerProvidersSettingsPage()
+    {
+        setId(Constants::DEBUG_SERVER_PROVIDERS_SETTINGS_ID);
+        setDisplayName(Tr::tr("Bare Metal"));
+        setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new DebugServerProvidersSettingsWidget; });
+    }
+};
+
+static const DebugServerProvidersSettingsPage settingsPage;
 
 } // BareMetal::Internal
