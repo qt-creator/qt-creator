@@ -3,14 +3,10 @@
 
 #include "clangtool.h"
 
-#include "clangfixitsrefactoringchanges.h"
 #include "clangselectablefilesdialog.h"
 #include "clangtoolrunner.h"
 #include "clangtoolsconstants.h"
-#include "clangtoolsdiagnostic.h"
-#include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolsdiagnosticview.h"
-#include "clangtoolslogfilereader.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolstr.h"
@@ -20,13 +16,11 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
-#include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/cppmodelmanager.h>
 
 #include <debugger/analyzer/analyzermanager.h>
@@ -94,7 +88,7 @@ TASKING_DECLARE_TASK(ProjectBuilderTask, ClangTools::Internal::ProjectBuilderTas
 
 namespace ClangTools::Internal {
 
-static QDebug operator<<(QDebug debug, const Utils::Environment &environment)
+static QDebug operator<<(QDebug debug, const Environment &environment)
 {
     for (const QString &entry : environment.toStringList())
         debug << "\n  " << entry;
@@ -119,7 +113,7 @@ class InfoBarWidget : public QFrame
 
 public:
     InfoBarWidget()
-        : m_progressIndicator(new Utils::ProgressIndicator(ProgressIndicatorSize::Small))
+        : m_progressIndicator(new ProgressIndicator(ProgressIndicatorSize::Small))
         , m_info(new InfoLabel({}, InfoLabel::Information))
         , m_error(new InfoLabel({}, InfoLabel::Warning))
         , m_diagStats(new QLabel)
@@ -139,8 +133,8 @@ public:
         setLayout(layout);
 
         QPalette pal;
-        pal.setColor(QPalette::Window, Utils::creatorTheme()->color(Utils::Theme::InfoBarBackground));
-        pal.setColor(QPalette::WindowText, Utils::creatorTheme()->color(Utils::Theme::InfoBarText));
+        pal.setColor(QPalette::Window, Utils::creatorTheme()->color(Theme::InfoBarBackground));
+        pal.setColor(QPalette::WindowText, Utils::creatorTheme()->color(Theme::InfoBarText));
         setPalette(pal);
 
         setAutoFillBackground(true);
@@ -197,7 +191,7 @@ public:
     }
 
 private:
-    Utils::ProgressIndicator *m_progressIndicator;
+    ProgressIndicator *m_progressIndicator;
     InfoLabel *m_info;
     InfoLabel *m_error;
     QLabel *m_diagStats;
@@ -228,7 +222,7 @@ public:
     ApplyFixIts(const QVector<DiagnosticItem *> &diagnosticItems)
     {
         for (DiagnosticItem *diagnosticItem : diagnosticItems) {
-            const Utils::FilePath &filePath = diagnosticItem->diagnostic().location.filePath;
+            const FilePath &filePath = diagnosticItem->diagnostic().location.filePath;
             QTC_ASSERT(!filePath.isEmpty(), continue);
 
             // Get or create refactoring file
@@ -262,8 +256,8 @@ public:
             if (!step.isFixIt)
                 continue;
 
-            const Debugger::DiagnosticLocation start = step.ranges.first();
-            const Debugger::DiagnosticLocation end = step.ranges.last();
+            const DiagnosticLocation start = step.ranges.first();
+            const DiagnosticLocation end = step.ranges.last();
             const int startPos = file.position(start.filePath, start.line, start.column);
             const int endPos = file.position(start.filePath, end.line, end.column);
 
@@ -341,28 +335,27 @@ public:
     }
 
 private:
-    QMap<Utils::FilePath, RefactoringFileInfo> m_refactoringFileInfos;
+    QMap<FilePath, RefactoringFileInfo> m_refactoringFileInfos;
 };
 
-static FileInfos sortedFileInfos(const QVector<CppEditor::ProjectPart::ConstPtr> &projectParts)
+static FileInfos sortedFileInfos(const QVector<ProjectPart::ConstPtr> &projectParts)
 {
     FileInfos fileInfos;
 
-    for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectParts) {
+    for (const ProjectPart::ConstPtr &projectPart : projectParts) {
         QTC_ASSERT(projectPart, continue);
         if (!projectPart->selectedForBuilding)
             continue;
 
-        for (const CppEditor::ProjectFile &file : std::as_const(projectPart->files)) {
-            QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unclassified, continue);
-            QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unsupported, continue);
-            if (file.path == CppEditor::CppModelManager::configurationFileName())
+        for (const ProjectFile &file : std::as_const(projectPart->files)) {
+            QTC_ASSERT(file.kind != ProjectFile::Unclassified, continue);
+            QTC_ASSERT(file.kind != ProjectFile::Unsupported, continue);
+            if (file.path == CppModelManager::configurationFileName())
                 continue;
 
-            if (file.active
-                && (CppEditor::ProjectFile::isSource(file.kind)
-                    || CppEditor::ProjectFile::isHeader(file.kind))) {
-                ProjectFile::Kind sourceKind = CppEditor::ProjectFile::sourceKind(file.kind);
+            if (file.active && (ProjectFile::isSource(file.kind)
+                                || ProjectFile::isHeader(file.kind))) {
+                ProjectFile::Kind sourceKind = ProjectFile::sourceKind(file.kind);
                 fileInfos.emplace_back(file.path, sourceKind, projectPart);
             }
         }
@@ -393,7 +386,7 @@ static RunSettings runSettings()
     return ClangToolsSettings::instance()->runSettings();
 }
 
-ClangTool::ClangTool(const QString &name, Utils::Id id, ClangToolType type)
+ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
     : m_name(name), m_perspective{id.toString(), name}, m_type(type)
 {
     setObjectName(name);
@@ -419,8 +412,7 @@ ClangTool::ClangTool(const QString &name, Utils::Id id, ClangToolType type)
     initDiagnosticView();
     m_diagnosticView->setModel(m_diagnosticFilterModel);
     m_diagnosticView->setSortingEnabled(true);
-    m_diagnosticView->sortByColumn(Debugger::DetailedErrorView::DiagnosticColumn,
-                                   Qt::AscendingOrder);
+    m_diagnosticView->sortByColumn(DetailedErrorView::DiagnosticColumn, Qt::AscendingOrder);
     connect(m_diagnosticView, &DiagnosticView::showHelp,
             this, &ClangTool::help);
     connect(m_diagnosticView, &DiagnosticView::showFilter,
@@ -497,8 +489,7 @@ ClangTool::ClangTool(const QString &name, Utils::Id id, ClangToolType type)
 
     // Filter button
     action = m_showFilter = new QAction(this);
-    action->setIcon(
-        Utils::Icon({{":/utils/images/filtericon.png", Utils::Theme::IconsBaseColor}}).icon());
+    action->setIcon(Utils::Icon({{":/utils/images/filtericon.png", Theme::IconsBaseColor}}).icon());
     action->setToolTip(Tr::tr("Filter Diagnostics"));
     action->setCheckable(true);
     connect(action, &QAction::triggered, this, &ClangTool::filter);
@@ -618,7 +609,7 @@ void ClangTool::selectPerspective()
     m_perspective.select();
 }
 
-void ClangTool::startTool(ClangTool::FileSelection fileSelection)
+void ClangTool::startTool(FileSelection fileSelection)
 {
     const RunSettings theRunSettings = runSettings();
     startTool(fileSelection, theRunSettings, diagnosticConfig(theRunSettings.diagnosticConfigId()));
@@ -830,9 +821,8 @@ Tasking::Group ClangTool::runRecipe(const RunSettings &runSettings,
     return {topTasks};
 }
 
-void ClangTool::startTool(ClangTool::FileSelection fileSelection,
-                          const RunSettings &runSettings,
-                          const CppEditor::ClangDiagnosticConfig &diagnosticConfig)
+void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSettings,
+                          const ClangDiagnosticConfig &diagnosticConfig)
 {
     Project *project = ProjectManager::startupProject();
     QTC_ASSERT(project, return);
@@ -902,7 +892,7 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         return {};
     }
 
-    const auto projectInfo = CppEditor::CppModelManager::instance()->projectInfo(project);
+    const auto projectInfo = CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(projectInfo, return FileInfos());
 
     const FileInfos allFileInfos = sortedFileInfos(projectInfo->projectParts());
@@ -1029,8 +1019,8 @@ void ClangTool::reset()
 static bool canAnalyzeProject(Project *project)
 {
     if (const Target *target = project->activeTarget()) {
-        const Utils::Id c = ProjectExplorer::Constants::C_LANGUAGE_ID;
-        const Utils::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+        const Id c = ProjectExplorer::Constants::C_LANGUAGE_ID;
+        const Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
         const bool projectSupportsLanguage = project->projectLanguages().contains(c)
                                              || project->projectLanguages().contains(cxx);
         return projectSupportsLanguage
@@ -1170,13 +1160,13 @@ void ClangTool::update()
     updateForCurrentState();
 }
 
-using DocumentPredicate = std::function<bool(Core::IDocument *)>;
+using DocumentPredicate = std::function<bool(IDocument *)>;
 
 static FileInfos fileInfosMatchingDocuments(const FileInfos &fileInfos,
                                             const DocumentPredicate &predicate)
 {
-    QSet<Utils::FilePath> documentPaths;
-    for (const Core::DocumentModel::Entry *e : Core::DocumentModel::entries()) {
+    QSet<FilePath> documentPaths;
+    for (const DocumentModel::Entry *e : DocumentModel::entries()) {
         if (predicate(e->document))
             documentPaths.insert(e->filePath());
     }
@@ -1189,20 +1179,19 @@ static FileInfos fileInfosMatchingDocuments(const FileInfos &fileInfos,
 static FileInfos fileInfosMatchingOpenedDocuments(const FileInfos &fileInfos)
 {
     // Note that (initially) suspended text documents are still IDocuments, not yet TextDocuments.
-    return fileInfosMatchingDocuments(fileInfos, [](Core::IDocument *) { return true; });
+    return fileInfosMatchingDocuments(fileInfos, [](IDocument *) { return true; });
 }
 
 static FileInfos fileInfosMatchingEditedDocuments(const FileInfos &fileInfos)
 {
-    return fileInfosMatchingDocuments(fileInfos, [](Core::IDocument *document) {
+    return fileInfosMatchingDocuments(fileInfos, [](IDocument *document) {
         if (auto textDocument = qobject_cast<TextEditor::TextDocument*>(document))
             return textDocument->document()->revision() > 1;
         return false;
     });
 }
 
-FileInfoProviders ClangTool::fileInfoProviders(ProjectExplorer::Project *project,
-                                               const FileInfos &allFileInfos)
+FileInfoProviders ClangTool::fileInfoProviders(Project *project, const FileInfos &allFileInfos)
 {
     const QSharedPointer<ClangToolsProjectSettings> s = ClangToolsProjectSettings::getSettings(project);
     static FileInfoSelection openedFilesSelection;
@@ -1232,7 +1221,7 @@ FileInfoProviders ClangTool::fileInfoProviders(ProjectExplorer::Project *project
     };
 }
 
-void ClangTool::setState(ClangTool::State state)
+void ClangTool::setState(State state)
 {
     m_state = state;
     updateForCurrentState();
@@ -1241,7 +1230,6 @@ void ClangTool::setState(ClangTool::State state)
 QSet<Diagnostic> ClangTool::diagnostics() const
 {
     return Utils::filtered(m_diagnosticModel->diagnostics(), [](const Diagnostic &diagnostic) {
-        using CppEditor::ProjectFile;
         return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.filePath.toString()));
     });
 }
