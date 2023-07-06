@@ -23,39 +23,33 @@ public:
     MesonRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        auto envAspect = addAspect<EnvironmentAspect>();
-        envAspect->setSupportForBuildEnvironment(target);
+        environment.setSupportForBuildEnvironment(target);
 
-        auto exeAspect = addAspect<ExecutableAspect>();
-        exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-        auto argsAspect = addAspect<ArgumentsAspect>();
-        argsAspect->setMacroExpander(macroExpander());
+        arguments.setMacroExpander(macroExpander());
 
-        auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
-        workingDirAspect->setMacroExpander(macroExpander());
-        workingDirAspect->setEnvironment(envAspect);
+        workingDir.setMacroExpander(macroExpander());
+        workingDir.setEnvironment(&environment);
 
-        addAspect<TerminalAspect>();
-
-        auto libAspect = addAspect<UseLibraryPathsAspect>();
-        connect(libAspect, &UseLibraryPathsAspect::changed,
-                envAspect, &EnvironmentAspect::environmentChanged);
+        connect(&useLibraryPaths, &BaseAspect::changed,
+                &environment, &EnvironmentAspect::environmentChanged);
 
         if (HostOsInfo::isMacHost()) {
-            auto dyldAspect = addAspect<UseDyldSuffixAspect>();
-            connect(dyldAspect, &UseLibraryPathsAspect::changed,
-                    envAspect, &EnvironmentAspect::environmentChanged);
-            envAspect->addModifier([dyldAspect](Utils::Environment &env) {
-                if (dyldAspect->value())
+            connect(&useDyldSuffix, &BaseAspect::changed,
+                    &environment, &EnvironmentAspect::environmentChanged);
+            environment.addModifier([this](Environment &env) {
+                if (useDyldSuffix())
                     env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
             });
+        } else {
+            useDyldSuffix.setVisible(false);
         }
 
-        envAspect->addModifier([this, libAspect](Environment &env) {
+        environment.addModifier([this](Environment &env) {
             BuildTargetInfo bti = buildTargetInfo();
             if (bti.runEnvModifier)
-                bti.runEnvModifier(env, libAspect->value());
+                bti.runEnvModifier(env, useLibraryPaths());
         });
 
         setUpdater([this] {
@@ -63,14 +57,22 @@ public:
                 return;
 
             BuildTargetInfo bti = buildTargetInfo();
-            aspect<TerminalAspect>()->setUseTerminalHint(bti.usesTerminal);
-            aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-            aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-            emit aspect<EnvironmentAspect>()->environmentChanged();
+            terminal.setUseTerminalHint(bti.usesTerminal);
+            executable.setExecutable(bti.targetFilePath);
+            workingDir.setDefaultWorkingDirectory(bti.workingDirectory);
+            emit environment.environmentChanged();
         });
 
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
+
+    EnvironmentAspect environment{this};
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
+    UseLibraryPathsAspect useLibraryPaths{this};
+    UseDyldSuffixAspect useDyldSuffix{this};
 };
 
 MesonRunConfigurationFactory::MesonRunConfigurationFactory()
