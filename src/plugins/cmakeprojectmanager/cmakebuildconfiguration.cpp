@@ -1441,7 +1441,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     addAspect<BuildTypeAspect>();
     addAspect<QtSupport::QmlDebuggingAspect>(this);
 
-    addAspect<ConfigureEnvironmentAspect>(target);
+    addAspect<ConfigureEnvironmentAspect>(this);
 
     setInitialBuildAndCleanSteps(target);
 
@@ -2254,8 +2254,9 @@ public:
     }
 };
 
-ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(ProjectExplorer::Target *target)
+ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(BuildConfiguration *bc)
 {
+    Target *target = bc->target();
     setIsLocal(true);
     setAllowPrintOnRun(false);
     setConfigWidgetCreator(
@@ -2268,14 +2269,8 @@ ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(ProjectExplorer::Target *
         return device ? device->systemEnvironment() : Environment::systemEnvironment();
     });
 
-    const int buildEnvIndex = addSupportedBaseEnvironment(Tr::tr("Build Environment"), [target] {
-        Environment env;
-        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-            env = bc->environment();
-        } else { // Fallback for targets without buildconfigurations:
-            env = target->kit()->buildEnvironment();
-        }
-        return env;
+    const int buildEnvIndex = addSupportedBaseEnvironment(Tr::tr("Build Environment"), [bc] {
+        return bc->environment();
     });
 
     connect(target,

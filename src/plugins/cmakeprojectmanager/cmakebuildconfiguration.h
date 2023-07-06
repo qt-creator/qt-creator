@@ -142,7 +142,7 @@ class ConfigureEnvironmentAspect final: public ProjectExplorer::EnvironmentAspec
     Q_OBJECT
 
 public:
-    ConfigureEnvironmentAspect(ProjectExplorer::Target *target);
+    explicit ConfigureEnvironmentAspect(ProjectExplorer::BuildConfiguration *buildConfig);
 
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
