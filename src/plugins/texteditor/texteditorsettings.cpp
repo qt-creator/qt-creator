@@ -583,7 +583,6 @@ Utils::Id TextEditorSettings::languageId(const QString &mimeType)
 
 static void setFontZoom(int zoom)
 {
-    d->m_fontSettingsPage.setFontZoom(zoom);
     d->m_fontSettings.setFontZoom(zoom);
     d->m_fontSettings.toSettings(Core::ICore::settings());
     emit m_instance->fontSettingsChanged(d->m_fontSettings);

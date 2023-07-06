@@ -202,6 +202,8 @@ public:
                 this, &FontSettingsPageWidget::importScheme);
         connect(exportButton, &QPushButton::clicked,
                 this, &FontSettingsPageWidget::exportScheme);
+        connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+                this, &FontSettingsPageWidget::updateFontZoom);
 
         updatePointSizes();
         refreshColorSchemeList();
@@ -226,6 +228,7 @@ public:
 
     void maybeSaveColorScheme();
     void updatePointSizes();
+    void updateFontZoom(const FontSettings &fontSettings);
     QList<int> pointSizesForSelectedFont() const;
     void refreshColorSchemeList();
 
@@ -447,6 +450,11 @@ void FontSettingsPageWidget::updatePointSizes()
     }
     if (idx != -1)
         m_sizeComboBox->setCurrentIndex(idx);
+}
+
+void FontSettingsPageWidget::updateFontZoom(const FontSettings &fontSettings)
+{
+    m_zoomSpinBox->setValue(fontSettings.fontZoom());
 }
 
 QList<int> FontSettingsPageWidget::pointSizesForSelectedFont() const
@@ -772,12 +780,6 @@ FontSettingsPage::FontSettingsPage(FontSettings *fontSettings, const FormatDescr
     setDisplayCategory(Tr::tr("Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this, fontSettings, fd] { return new FontSettingsPageWidget(this, fd, fontSettings); });
-}
-
-void FontSettingsPage::setFontZoom(int zoom)
-{
-    if (m_widget)
-        static_cast<FontSettingsPageWidget *>(m_widget.data())->m_zoomSpinBox->setValue(zoom);
 }
 
 } // TextEditor
