@@ -30,8 +30,6 @@ QtcPlugin {
         "clangselectablefilesdialog.h",
         "clangtool.cpp",
         "clangtool.h",
-        "clangtoolruncontrol.cpp",
-        "clangtoolruncontrol.h",
         "clangtoolrunner.cpp",
         "clangtoolrunner.h",
         "clangtools_global.h", "clangtoolstr.h",
