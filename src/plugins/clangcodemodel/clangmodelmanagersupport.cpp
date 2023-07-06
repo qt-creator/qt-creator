@@ -232,9 +232,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(modelManager, &CppModelManager::abstractEditorSupportRemoved,
             this, &ClangModelManagerSupport::onAbstractEditorSupportRemoved);
     connect(modelManager, &CppModelManager::projectPartsUpdated,
-            this, &ClangModelManagerSupport::onProjectPartsUpdated);
-    connect(modelManager, &CppModelManager::projectPartsRemoved,
-            this, &ClangModelManagerSupport::onProjectPartsRemoved);
+            this, &ClangModelManagerSupport::updateLanguageClient);
     connect(modelManager, &CppModelManager::fallbackProjectPartUpdated, this, [this] {
         if (sessionModeEnabled())
             return;
@@ -861,37 +859,6 @@ void ClangModelManagerSupport::onTextMarkContextMenuRequested(TextEditor::TextEd
     }
 }
 
-using ClangEditorDocumentProcessors = QVector<ClangEditorDocumentProcessor *>;
-static ClangEditorDocumentProcessors clangProcessors()
-{
-    ClangEditorDocumentProcessors result;
-    for (const CppEditorDocumentHandle *editorDocument : cppModelManager()->cppEditorDocuments())
-        result.append(qobject_cast<ClangEditorDocumentProcessor *>(editorDocument->processor()));
-
-    return result;
-}
-
-void ClangModelManagerSupport::onProjectPartsUpdated(Project *project)
-{
-    QTC_ASSERT(project, return);
-
-    updateLanguageClient(project);
-
-    QStringList projectPartIds;
-    const ProjectInfo::ConstPtr projectInfo = cppModelManager()->projectInfo(project);
-    QTC_ASSERT(projectInfo, return);
-
-    for (const ProjectPart::ConstPtr &projectPart : projectInfo->projectParts())
-        projectPartIds.append(projectPart->id());
-    onProjectPartsRemoved(projectPartIds);
-}
-
-void ClangModelManagerSupport::onProjectPartsRemoved(const QStringList &projectPartIds)
-{
-    if (!projectPartIds.isEmpty())
-        reinitializeBackendDocuments(projectPartIds);
-}
-
 void ClangModelManagerSupport::onClangdSettingsChanged()
 {
     const bool sessionMode = sessionModeEnabled();
@@ -937,23 +904,6 @@ void ClangModelManagerSupport::onClangdSettingsChanged()
     if (fallbackOrSessionClient->settingsData() != settings.data()) {
         LanguageClientManager::shutdownClient(fallbackOrSessionClient);
         startNewFallbackOrSessionClient();
-    }
-}
-
-static ClangEditorDocumentProcessors
-clangProcessorsWithProjectParts(const QStringList &projectPartIds)
-{
-    return ::Utils::filtered(clangProcessors(), [projectPartIds](ClangEditorDocumentProcessor *p) {
-        return p->hasProjectPart() && projectPartIds.contains(p->projectPart()->id());
-    });
-}
-
-void ClangModelManagerSupport::reinitializeBackendDocuments(const QStringList &projectPartIds)
-{
-    const ClangEditorDocumentProcessors processors = clangProcessorsWithProjectParts(projectPartIds);
-    for (ClangEditorDocumentProcessor *processor : processors) {
-        processor->clearProjectPart();
-        processor->run();
     }
 }
 

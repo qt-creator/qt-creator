@@ -81,11 +81,7 @@ private:
                                         int lineNumber,
                                         QMenu *menu);
 
-    void onProjectPartsUpdated(ProjectExplorer::Project *project);
-    void onProjectPartsRemoved(const QStringList &projectPartIds);
     void onClangdSettingsChanged();
-
-    void reinitializeBackendDocuments(const QStringList &projectPartIds);
 
     void connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument);
     void connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget);
