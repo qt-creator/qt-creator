@@ -7,6 +7,7 @@
 #include "vcpkgtr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
@@ -65,7 +66,7 @@ VcpkgSettings::VcpkgSettings()
         // clang-format on
     });
 
-    readSettings();
+    readSettings(Core::ICore::settings());
 }
 
 class VcpkgSettingsPage : public Core::IOptionsPage
