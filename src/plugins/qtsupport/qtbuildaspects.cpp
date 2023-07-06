@@ -22,8 +22,8 @@ using namespace Utils;
 
 namespace QtSupport {
 
-QmlDebuggingAspect::QmlDebuggingAspect(BuildConfiguration *buildConfig)
-    : m_buildConfig(buildConfig)
+QmlDebuggingAspect::QmlDebuggingAspect(AspectContainer *container)
+    : TriStateAspect(container)
 {
     setSettingsKey("EnableQmlDebugging");
     setDisplayName(Tr::tr("QML debugging and profiling:"));
@@ -59,12 +59,22 @@ void QmlDebuggingAspect::addToLayout(Layouting::LayoutItem &parent)
     changeHandler();
 }
 
-QtQuickCompilerAspect::QtQuickCompilerAspect(BuildConfiguration *buildConfig)
-    : m_buildConfig(buildConfig)
+void QmlDebuggingAspect::setBuildConfiguration(const BuildConfiguration *buildConfig)
+{
+    m_buildConfig = buildConfig;
+}
+
+QtQuickCompilerAspect::QtQuickCompilerAspect(AspectContainer *container)
+    : TriStateAspect(container)
 {
     setSettingsKey("QtQuickCompiler");
     setDisplayName(Tr::tr("Qt Quick Compiler:"));
     setValue(ProjectExplorerPlugin::buildPropertiesSettings().qtQuickCompiler.value());
+}
+
+void QtQuickCompilerAspect::setBuildConfiguration(const BuildConfiguration *buildConfig)
+{
+    m_buildConfig = buildConfig;
 }
 
 void QtQuickCompilerAspect::addToLayout(Layouting::LayoutItem &parent)

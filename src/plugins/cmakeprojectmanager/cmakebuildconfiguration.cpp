@@ -1439,7 +1439,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
     addAspect<SourceDirectoryAspect>();
     addAspect<BuildTypeAspect>();
-    addAspect<QtSupport::QmlDebuggingAspect>(this);
+
+    auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>();
+    qmlDebuggingAspect->setBuildConfiguration(this);
 
     addAspect<ConfigureEnvironmentAspect>(this);
 
