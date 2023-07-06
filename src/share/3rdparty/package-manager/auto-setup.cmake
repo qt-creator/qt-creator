@@ -16,6 +16,17 @@ if (QT_CREATOR_SKIP_PACKAGE_MANAGER_SETUP)
 endif()
 option(QT_CREATOR_SKIP_PACKAGE_MANAGER_SETUP "Skip Qt Creator's package manager auto-setup" OFF)
 
+macro(qtc_auto_setup_compiler_standard toolchainFile)
+  foreach(lang_var C CXX CUDA OBJC OBJCXX)
+    foreach(prop_var STANDARD STANDARD_REQUIRED EXTENSIONS)
+      if (CMAKE_${lang_var}_${prop_var})
+        file(APPEND "${toolchainFile}"
+             "set(CMAKE_${lang_var}_${prop_var} ${CMAKE_${lang_var}_${prop_var}})\n")
+      endif()
+    endforeach()
+  endforeach()
+endmacro()
+
 #
 # conan
 #
@@ -77,6 +88,8 @@ macro(qtc_auto_setup_conan)
         set(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")
         set(CMAKE_CXX_COMPILER \"${CMAKE_CXX_COMPILER}\")
         ")
+      qtc_auto_setup_compiler_standard("${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake")
+
       if (CMAKE_TOOLCHAIN_FILE)
         file(APPEND "${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake"
           "include(\"${CMAKE_TOOLCHAIN_FILE}\")\n")
@@ -175,6 +188,8 @@ macro(qtc_auto_setup_vcpkg)
         set(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")
         set(CMAKE_CXX_COMPILER \"${CMAKE_CXX_COMPILER}\")
         ")
+      qtc_auto_setup_compiler_standard("${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake")
+
       if (CMAKE_TOOLCHAIN_FILE AND NOT
           CMAKE_TOOLCHAIN_FILE STREQUAL "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake")
         file(APPEND "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake"

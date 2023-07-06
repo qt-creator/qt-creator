@@ -16,7 +16,10 @@
     on are also enabled.
 
     You can also disable plugins that you do not use, to streamline \QC.
-    By default, all the plugins that depend on the plugin are also disabled.
+    If you disable a plugin, \QC asks you to disable all plugins that
+    depend on it. This might lead to some features not working properly.
+    Further, the plugins are not automatically enabled if you enable the
+    first plugin again.
 
     To enable and disable plugins:
 

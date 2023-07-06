@@ -200,11 +200,7 @@
                     \list
                         \li \l{Writing Code}
                             \list
-                                \li \l{Working in Edit Mode}
-                                    \list
-                                        \li \l{Browsing Project Contents}
-                                        \li \l{Viewing Output}
-                                    \endlist
+                                \li \l{Viewing Output}
                                 \li \l{Semantic Highlighting}
                                 \li \l{Checking Code Syntax}
                                 \li \l{Completing Code}

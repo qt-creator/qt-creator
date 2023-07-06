@@ -47,9 +47,8 @@
     \section2 Source Component
 
     The \uicontrol {Source Component} property defines the component for
-    \uicontrol Loader3D to instantiate. Currently, the
-    \uicontrol {Source component} needs to be defined in code using the
-    \l {Working in Edit Mode}{Edit} mode or the \l {Code} view.
+    \uicontrol Loader3D to instantiate. Currently, you need to define the
+    \uicontrol {Source component} in the \l {Code} view.
 
     \section2 Asynchronous
 

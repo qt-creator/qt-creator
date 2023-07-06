@@ -5,28 +5,32 @@
     \page creator-projects-view.html
     \if defined(qtdesignstudio)
     \previouspage qtquick-curve-editor.html
-    \else
-    \previouspage creator-views.html
-    \endif
     \nextpage creator-file-system-view.html
+    \else
+    \previouspage creator-how-to-show-and-hide-sidebars.html
+    \nextpage creator-output-panes.html
+    \endif
+
+    \ingroup creator-reference-sidebar-views
+    \ingroup studio-views
 
     \title Projects
 
-    The \uicontrol Projects view displays projects in a project tree.
+    \brief Shows a list of projects in a project tree.
 
+    \if defined(qtcreator)
     The project tree has a list of all projects open in the current
     \l{Managing Sessions}{session}. For each project, the tree visualizes
     the build system structure of the project and lists all files that
     are part of the project.
 
+    \image qtcreator-projects-view-edit.png {Projects view in the sidebar}
+
     \note Usually, \l{Searching with the Locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,
     or almost anything else in your project.
-
-    \if defined(qtdesignstudio)
-    \image qtcreator-projects-view-design.png {Projects view}
     \else
-    \image qtcreator-projects-view-edit.png {Projects view in the sidebar}
+    \image qtcreator-projects-view-design.png {Projects view}
     \endif
 
     You can use the project tree in the following ways:

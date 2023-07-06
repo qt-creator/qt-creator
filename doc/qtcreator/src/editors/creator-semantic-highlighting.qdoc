@@ -1,9 +1,13 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-coding-navigating.html
     \page creator-highlighting.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-output-panes.html
+    \else
+    \previouspage creator-coding-navigating.html
+    \endif
     \nextpage creator-checking-code-syntax.html
 
     \title Semantic Highlighting

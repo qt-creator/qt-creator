@@ -31,7 +31,7 @@
     \section1 Basics
 
     \list
-        \li \l{Getting and Building Qt Creator}
+        \li \l{Getting Qt and Qt Creator}
         \li \l{Creating Your First Plugin}
         \li \l{Plugin Meta Data}
         \li \l{Plugin Life Cycle}

@@ -3,53 +3,67 @@
 
 /*!
     \page getting-and-building.html
-    \title Getting and Building Qt Creator
+    \title Getting Qt and Qt Creator
 
-    \code
-    TODO: This should be extended.
-    * Windows specific hassle, see README in \QC sources
-    \endcode
+    To create and build a \QC plugin, you need a compatible version of Qt,
+    and either a \QC package (released or snapshot) or your own \QC build.
 
     There are several reasons why you might want to do your own build of \QC,
     like using the most current development version and being able to tweak \QC
-    at one or the other place. It is also necessary if you want to create your
-    own \QC plugin.
+    at one or the other place. But it is not strictly necessary for creating
+    plugins. The \QC packages contain a \uicontrol {Plugin Development}
+    component that enables plugin development with the \QC contained in the
+    package.
 
     \section1 Getting Qt
 
-    Prebuilt \QC packages usually use the latest stable release of Qt. You can
-    see the exact minimum requirement at the top of \QC's \c {qtcreator.pro}.
-    (You can find the current version in our source repository here:
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/qtcreator.pro#n4}.)
+    Prebuilt \QC packages usually use the latest stable release of Qt.
+    See the exact Qt version that a \QC package was built with in its
+    \uicontrol {About \QC} dialog.
+
+    The minimum requirement for building \QC is stated in the
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/about/README.md}
+    {README.md} and near the top of the
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/cmake/QtCreatorAPI.cmake}
+    {cmake/QtCreatorAPI.cmake} file in the sources.
 
     You can get prebuilt Qt packages from
     \l{https://download.qt.io}{Qt Downloads}. If you want to use Qt as provided
     by your Linux distribution, you need to make sure that all Qt development
     packages and private header packages are also installed.
 
-    \section1 Getting and Building \QC
+    \section1 Getting \QC
+
+    \section2 Installing a Prebuilt Package
+
+    The prebuilt \QC packages contain a \uicontrol {Plugin Development}
+    component that contains the CMake files, headers and other files
+    that you need to build a plugin. It is not installed by default, so make
+    sure to select the component when installing \QC.
+
+    When developing your plugin, point the \c {CMAKE_PREFIX_PATH} to the
+    installation location of \QC, or the \QC app on macOS.
+
+    Get prebuilt packages either from the
+    \l{https://download.qt.io/official_releases/online_installers/}
+    {Qt online installer}, or a standalone \QC installer either for a
+    \l{https://download.qt.io/official_releases/qtcreator/}
+    {released \QC version} or a \l{https://download.qt.io/snapshots/qtcreator/}
+    {development snapshot}.
+
+    \section2 Building \QC
 
     You can get the \QC sources for a specific version either by using one of
-    the released source bundles, or from the Git repository
+    the released source bundles or by cloning the sources from the Git repository
     \l{https://code.qt.io/cgit/qt-creator/qt-creator.git}. If you intend to
     contribute to \QC itself, you should use the repository from our Gerrit
     review tool as described in:
     \l{https://wiki.qt.io/Setting_up_Gerrit}{Setting up Gerrit}.
 
-    We strongly encourage you to do out-of-source builds of \QC (also called
-    shadow-builds).
+    Refer to the
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/about/README.md}
+    {README.md} included in the sources for details on building \QC.
 
-    After you put the \QC sources somewhere (lets call the path
-    \c {<QtCreatorSources>})
-    you build it on Linux and Mac with
-
-    \code
-    cd <QtCreatorSources>/..
-    mkdir qtcreator-build
-    cd qtcreator-build
-    <QtInstall>/bin/qmake -r <QtCreatorSources>
-    make
-    \endcode
-
-    or the corresponding commands on Windows systems.
+    When developing your plugin, point the \c {CMAKE_PREFIX_PATH} to the
+    build location of \QC.
 */

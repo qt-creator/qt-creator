@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -17,37 +17,25 @@
             \uicontrol {Project Location} dialog.
 
         \li In the \uicontrol Name field, enter a name for the application.
-            When naming your own projects, keep in mind that they cannot be
-            easily renamed later.
+            When naming your own projects, keep in mind that you cannot
+            easily rename them later.
 
         \li In the \uicontrol {Create in} field, enter the path for the project
             files. You can move project folders later without problems.
-
-        \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
-            the \uicontrol {Define Build System} dialog.
-
-        \li In the \uicontrol {Build system} field, select \l {Setting Up CMake}
-            {CMake} as the build system to use for building and running the
-            project.
-
-            \note If you select \l {Setting Up Qbs}{Qbs}, the instructions for
-            configuring the project won't apply.
 
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.
 
             \image qtcreator-project-qt-quick-details.webp {Define Project Details dialog}
 
-        \li In the \uicontrol {Minimum required Qt version} field, select
-            Qt 6.4.
+        \li Deselect the \uicontrol {Create a project that you can open in \QDS}
+            check box.
 
-            \note This tutorial shows you how to create the application in the
-            \uicontrol Edit mode. If you select
-            \uicontrol {Create a project that you can open in \QDS}, the
+            \note This tutorial shows how to create the application in the
+            \uicontrol Edit mode. If you leave the check box selected, the
             following instructions won't apply.
 
-        \li Select \uicontrol Next to use the default settings and to open
-            the \uicontrol {Kit Selection} dialog.
+        \li Select \uicontrol Next to open the \uicontrol {Kit Selection} dialog.
 
         \li Select Qt 6.4 or later \l{glossary-buildandrun-kit}{kits} for the
             platforms that you want to build the application for. To build

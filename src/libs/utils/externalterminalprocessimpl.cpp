@@ -24,9 +24,8 @@ ProcessStubCreator::ProcessStubCreator(TerminalInterface *interface)
 static const QLatin1String TerminalAppScript{R"(
     tell application "Terminal"
         activate
-        set newTab to do script "echo Preparing terminal..."
+        set newTab to do script "%1 && exit"
         set win to (the id of window 1 where its tab 1 = newTab) as text
-        do script "%1 && exit" in newTab
         repeat until ((count of processes of newTab) = 0)
             delay 0.1
         end repeat

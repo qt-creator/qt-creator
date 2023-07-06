@@ -379,8 +379,10 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     args.push_back(qtcQMakeProbeDir.path().path());
     args.push_back("-B");
     args.push_back(qtcQMakeProbeDir.filePath("build").path());
-    args.push_back("-G");
-    args.push_back(cmakeGenerator);
+    if (!cmakeGenerator.isEmpty()) {
+        args.push_back("-G");
+        args.push_back(cmakeGenerator);
+    }
     if (!cmakeGeneratorPlatform.isEmpty()) {
         args.push_back("-A");
         args.push_back(cmakeGeneratorPlatform);
@@ -708,8 +710,9 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->sysroot = cache.filePathValueOf("CMAKE_SYSROOT");
 
         CMakeConfig config;
-        if (cache.valueOf("CMAKE_C_COMPILER").isEmpty()
-            && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty()) {
+        const bool noCompilers = cache.valueOf("CMAKE_C_COMPILER").isEmpty()
+                                 && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty();
+        if (noCompilers || !configurePreset.generator) {
             QApplication::setOverrideCursor(Qt::WaitCursor);
             config = configurationFromPresetProbe(importPath, projectDirectory(), configurePreset);
             QApplication::restoreOverrideCursor();
