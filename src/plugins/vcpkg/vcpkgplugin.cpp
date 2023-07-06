@@ -7,7 +7,6 @@
 #include "vcpkg_test.h"
 #endif // WITH_TESTS
 #include "vcpkgmanifesteditor.h"
-#include "vcpkgsettings.h"
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
@@ -17,7 +16,6 @@ class VcpkgPluginPrivate
 {
 public:
     VcpkgManifestEditorFactory manifestEditorFactory;
-    VcpkgSettings settings;
 };
 
 VcpkgPlugin::~VcpkgPlugin()

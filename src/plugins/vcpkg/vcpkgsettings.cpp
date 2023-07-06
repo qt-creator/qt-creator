@@ -6,6 +6,8 @@
 #include "vcpkgconstants.h"
 #include "vcpkgtr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <utils/environment.h>
@@ -19,21 +21,15 @@ using namespace Utils;
 
 namespace Vcpkg::Internal {
 
-static VcpkgSettings *theSettings = nullptr;
-
 VcpkgSettings &settings()
 {
-    return *theSettings;
+    static VcpkgSettings theSettings;
+    return theSettings;
 }
 
 VcpkgSettings::VcpkgSettings()
 {
-    theSettings = this;
-
     setSettingsGroup("Vcpkg");
-    setId(Constants::TOOLSSETTINGSPAGE_ID);
-    setDisplayName("Vcpkg");
-    setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
 
     vcpkgRoot.setSettingsKey("VcpkgRoot");
     vcpkgRoot.setExpectedKind(PathChooser::ExistingDirectory);
@@ -71,5 +67,19 @@ VcpkgSettings::VcpkgSettings()
 
     readSettings();
 }
+
+class VcpkgSettingsPage : public Core::IOptionsPage
+{
+public:
+    VcpkgSettingsPage()
+    {
+        setId(Constants::TOOLSSETTINGSPAGE_ID);
+        setDisplayName("Vcpkg");
+        setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+static const VcpkgSettingsPage settingsPage;
 
 } // Vcpkg::Internal

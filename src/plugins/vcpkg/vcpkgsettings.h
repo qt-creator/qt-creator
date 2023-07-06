@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace Vcpkg::Internal {
 
-class VcpkgSettings : public Core::PagedSettings
+class VcpkgSettings : public Utils::AspectContainer
 {
 public:
     VcpkgSettings();
