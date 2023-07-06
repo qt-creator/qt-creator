@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace QmakeProjectManager::Internal {
 
-class QmakeSettings : public Core::PagedSettings
+class QmakeSettings : public Utils::AspectContainer
 {
 public:
     QmakeSettings();

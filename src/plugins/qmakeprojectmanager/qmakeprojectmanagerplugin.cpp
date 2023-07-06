@@ -13,7 +13,6 @@
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
-#include "qmakesettings.h"
 #include "qmakestep.h"
 #include "wizards/subdirsprojectwizard.h"
 
@@ -79,8 +78,6 @@ public:
     QmakeBuildConfigurationFactory buildConfigFactory;
 
     ProFileEditorFactory profileEditorFactory;
-
-    QmakeSettings settings;
 
     QmakeProject *m_previousStartupProject = nullptr;
     Target *m_previousTarget = nullptr;
