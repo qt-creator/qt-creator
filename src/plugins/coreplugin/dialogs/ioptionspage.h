@@ -77,9 +77,6 @@ protected:
     void setSettings(Utils::AspectContainer *settings); // FIXME: Remove.
     void setSettingsProvider(const std::function<Utils::AspectContainer *()> &provider);
 
-    // Used in FontSettingsPage. FIXME?
-    QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
-
 private:
     Utils::Id m_id;
     Utils::Id m_category;
@@ -87,6 +84,7 @@ private:
     QString m_displayCategory;
     Utils::Icon m_categoryIcon;
     WidgetCreator m_widgetCreator;
+    QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
 
     mutable bool m_keywordsInitialized = false;
     mutable QStringList m_keywords;
