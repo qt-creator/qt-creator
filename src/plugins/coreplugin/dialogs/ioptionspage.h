@@ -74,7 +74,8 @@ protected:
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
     void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
-    void setSettings(Utils::AspectContainer *settings);
+    void setSettings(Utils::AspectContainer *settings); // FIXME: Remove.
+    void setSettingsProvider(const std::function<Utils::AspectContainer *()> &provider);
 
     // Used in FontSettingsPage. FIXME?
     QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
@@ -90,7 +91,7 @@ private:
     mutable bool m_keywordsInitialized = false;
     mutable QStringList m_keywords;
 
-    Utils::AspectContainer *m_settings = nullptr;
+    std::function<Utils::AspectContainer *()> m_settingsProvider;
 };
 
 /*

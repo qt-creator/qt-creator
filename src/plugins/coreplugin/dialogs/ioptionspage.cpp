@@ -134,9 +134,10 @@ QWidget *IOptionsPage::widget()
     if (!m_widget) {
         if (m_widgetCreator) {
             m_widget = m_widgetCreator();
-        } else if (m_settings) {
+        } else if (m_settingsProvider) {
             m_widget = new IOptionsPageWidget;
-            if (auto layouter = m_settings->layouter()) {
+            AspectContainer *container = m_settingsProvider();
+            if (auto layouter = container->layouter()) {
                 layouter().attachTo(m_widget);
             } else {
                 QTC_CHECK(false);
@@ -162,10 +163,11 @@ void IOptionsPage::apply()
     if (auto widget = qobject_cast<IOptionsPageWidget *>(m_widget))
         widget->apply();
 
-    if (m_settings) {
-        if (m_settings->isDirty()) {
-            m_settings->apply();
-            m_settings->writeSettings(ICore::settings());
+    if (m_settingsProvider) {
+        AspectContainer *container = m_settingsProvider();
+        if (container->isDirty()) {
+            container->apply();
+            container->writeSettings(ICore::settings());
          }
     }
 }
@@ -184,8 +186,10 @@ void IOptionsPage::finish()
     if (auto widget = qobject_cast<IOptionsPageWidget *>(m_widget))
         widget->finish();
 
-    if (m_settings)
-        m_settings->finish();
+    if (m_settingsProvider) {
+        AspectContainer *container = m_settingsProvider();
+        container->finish();
+    }
 
     delete m_widget;
 }
@@ -201,7 +205,12 @@ void IOptionsPage::setCategoryIconPath(const FilePath &categoryIconPath)
 
 void IOptionsPage::setSettings(AspectContainer *settings)
 {
-    m_settings = settings;
+    m_settingsProvider = [settings] { return settings; };
+}
+
+void IOptionsPage::setSettingsProvider(const std::function<AspectContainer *()> &provider)
+{
+    m_settingsProvider = provider;
 }
 
 /*!
@@ -234,7 +243,11 @@ void IOptionsPage::setSettings(AspectContainer *settings)
     Sets \a categoryIcon as the category icon of the options page.
 */
 
-static QList<IOptionsPage *> g_optionsPages;
+static QList<IOptionsPage *> &optionsPages()
+{
+    static QList<IOptionsPage *> thePages;
+    return thePages;
+}
 
 /*!
     Constructs an options page and registers it
@@ -243,7 +256,7 @@ static QList<IOptionsPage *> g_optionsPages;
 IOptionsPage::IOptionsPage(bool registerGlobally)
 {
     if (registerGlobally)
-        g_optionsPages.append(this);
+        optionsPages().append(this);
 }
 
 /*!
@@ -251,7 +264,7 @@ IOptionsPage::IOptionsPage(bool registerGlobally)
  */
 IOptionsPage::~IOptionsPage()
 {
-    g_optionsPages.removeOne(this);
+    optionsPages().removeOne(this);
 }
 
 /*!
@@ -259,7 +272,7 @@ IOptionsPage::~IOptionsPage()
  */
 const QList<IOptionsPage *> IOptionsPage::allOptionsPages()
 {
-    return g_optionsPages;
+    return optionsPages();
 }
 
 /*!
