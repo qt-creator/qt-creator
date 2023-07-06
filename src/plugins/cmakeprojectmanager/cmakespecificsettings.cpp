@@ -7,6 +7,8 @@
 #include "cmakeprojectmanagertr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/layoutbuilder.h>
@@ -15,23 +17,14 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-static CMakeSpecificSettings *theSettings;
-
-CMakeSpecificSettings *CMakeSpecificSettings::instance()
+CMakeSpecificSettings &settings()
 {
+    static CMakeSpecificSettings theSettings;
     return theSettings;
 }
 
 CMakeSpecificSettings::CMakeSpecificSettings()
 {
-    theSettings = this;
-
-    setId(Constants::Settings::GENERAL_ID);
-    setDisplayName(::CMakeProjectManager::Tr::tr("General"));
-    setDisplayCategory("CMake");
-    setCategory(Constants::Settings::CATEGORY);
-    setCategoryIconPath(Constants::Icons::SETTINGS_CATEGORY);
-
     setLayouter([this] {
         using namespace Layouting;
         return Column {
@@ -90,5 +83,21 @@ CMakeSpecificSettings::CMakeSpecificSettings()
 
     readSettings();
 }
+
+class CMakeSpecificSettingsPage final : public Core::IOptionsPage
+{
+public:
+    CMakeSpecificSettingsPage()
+    {
+        setId(Constants::Settings::GENERAL_ID);
+        setDisplayName(::CMakeProjectManager::Tr::tr("General"));
+        setDisplayCategory("CMake");
+        setCategory(Constants::Settings::CATEGORY);
+        setCategoryIconPath(Constants::Icons::SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const CMakeSpecificSettingsPage settingsPage;
 
 } // CMakeProjectManager::Internal

@@ -17,7 +17,6 @@
 #include "cmakeprojectmanagertr.h"
 #include "cmakeprojectnodes.h"
 #include "cmakesettingspage.h"
-#include "cmakespecificsettings.h"
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -54,7 +53,6 @@ public:
     };
 
     CMakeSettingsPage settingsPage;
-    CMakeSpecificSettings specificSettings;
 
     CMakeManager manager;
     CMakeBuildStepFactory buildStepFactory;

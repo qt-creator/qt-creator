@@ -231,14 +231,12 @@ void CMakeManager::enableBuildFileMenus(Node *node)
 
 void CMakeManager::reloadCMakePresets()
 {
-    auto settings = CMakeSpecificSettings::instance();
-
     QMessageBox::StandardButton clickedButton = CheckableMessageBox::question(
         Core::ICore::dialogParent(),
         Tr::tr("Reload CMake Presets"),
         Tr::tr("Re-generates the kits that were created for CMake presets. All manual "
                "modifications to the CMake project settings will be lost."),
-        settings->askBeforePresetsReload.askAgainCheckableDecider(),
+        settings().askBeforePresetsReload.askAgainCheckableDecider(),
         QMessageBox::Yes | QMessageBox::Cancel,
         QMessageBox::Yes,
         QMessageBox::Yes,

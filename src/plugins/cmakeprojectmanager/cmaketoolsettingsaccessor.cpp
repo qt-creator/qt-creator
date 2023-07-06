@@ -174,13 +174,13 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
     data.insert(QLatin1String(CMAKE_TOOL_DEFAULT_KEY), defaultId.toSetting());
 
     int count = 0;
+    const bool autoRun = settings().autorunCMake();
     for (CMakeTool *item : cmakeTools) {
         Utils::FilePath fi = item->cmakeExecutable();
 
         // Gobal Autorun value will be set for all tools
         // TODO: Remove in Qt Creator 13
-        const auto settings = CMakeSpecificSettings::instance();
-        item->setAutorun(settings->autorunCMake.value());
+        item->setAutorun(autoRun);
 
         if (fi.needsDevice() || fi.isExecutableFile()) { // be graceful for device related stuff
             QVariantMap tmp = item->toMap();

@@ -540,10 +540,9 @@ void addCompileGroups(ProjectNode *targetRoot,
                       const Utils::FilePath &buildDirectory,
                       const TargetDetails &td)
 {
-    const bool showSourceFolders = CMakeSpecificSettings::instance()->showSourceSubFolders.value();
+    const bool showSourceFolders = settings().showSourceSubFolders();
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
 
-    std::vector<std::unique_ptr<FileNode>> toList;
     QSet<Utils::FilePath> alreadyListed;
 
     // Files already added by other configurations:
