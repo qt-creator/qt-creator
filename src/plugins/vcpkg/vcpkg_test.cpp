@@ -3,6 +3,7 @@
 
 #include "vcpkg_test.h"
 
+#include "vcpkgmanifesteditor.h"
 #include "vcpkgsearch.h"
 
 #include <QTest>
@@ -112,6 +113,69 @@ void VcpkgSearchTest::testVcpkgJsonParser()
     QCOMPARE(mf.description, description);
     QCOMPARE(mf.homepage, homepage);
     QCOMPARE(ok, success);
+}
+
+void VcpkgSearchTest::testAddDependency_data()
+{
+    QTest::addColumn<QString>("originalVcpkgManifestJsonData");
+    QTest::addColumn<QString>("addedPackage");
+    QTest::addColumn<QString>("modifiedVcpkgManifestJsonData");
+
+    QTest::newRow("Existing dependencies")
+        <<
+R"({
+    "name": "foo",
+    "dependencies": [
+        "fmt",
+        {
+            "name": "vcpkg-cmake",
+            "host": true
+        }
+    ]
+}
+)"
+        << "7zip"
+        <<
+R"({
+    "dependencies": [
+        "fmt",
+        {
+            "host": true,
+            "name": "vcpkg-cmake"
+        },
+        "7zip"
+    ],
+    "name": "foo"
+}
+)";
+
+    QTest::newRow("Without dependencies")
+        <<
+R"({
+    "name": "foo"
+}
+)"
+        << "7zip"
+        <<
+R"({
+    "dependencies": [
+        "7zip"
+    ],
+    "name": "foo"
+}
+)";
+}
+
+void VcpkgSearchTest::testAddDependency()
+{
+    QFETCH(QString, originalVcpkgManifestJsonData);
+    QFETCH(QString, addedPackage);
+    QFETCH(QString, modifiedVcpkgManifestJsonData);
+
+    const QByteArray result = addDependencyToManifest(originalVcpkgManifestJsonData.toUtf8(),
+                                                      addedPackage);
+
+    QCOMPARE(QString::fromUtf8(result), modifiedVcpkgManifestJsonData);
 }
 
 } // namespace Vcpkg::Internal

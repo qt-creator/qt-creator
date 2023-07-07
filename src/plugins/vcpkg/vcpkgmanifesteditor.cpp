@@ -20,6 +20,9 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QDialogButtonBox>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QPlainTextEdit>
 #include <QToolBar>
 
@@ -97,8 +100,11 @@ public:
         m_searchPkgAction = toolBar()->addAction(vcpkgIcon, Tr::tr("Add vcpkg package..."));
         connect(m_searchPkgAction, &QAction::triggered, this, [this] {
             const Search::VcpkgManifest package = Search::showVcpkgPackageSearchDialog();
-            if (!package.name.isEmpty())
-                textCursor().insertText(package.name);
+            if (!package.name.isEmpty()) {
+                const QByteArray modifiedDocument =
+                    addDependencyToManifest(textDocument()->contents(), package.name);
+                textDocument()->setContents(modifiedDocument);
+            }
         });
 
         const QIcon cmakeIcon = Utils::Icon({{":/vcpkg/images/cmakeicon.png",
@@ -151,6 +157,16 @@ VcpkgManifestEditorFactory::VcpkgManifestEditorFactory()
     setDocumentCreator(createVcpkgManifestDocument);
     setEditorWidgetCreator([] { return new VcpkgManifestEditorWidget; });
     setUseGenericHighlighter(true);
+}
+
+QByteArray addDependencyToManifest(const QByteArray &manifest, const QString &package)
+{
+    constexpr char dependenciesKey[] = "dependencies";
+    QJsonObject jsonObject = QJsonDocument::fromJson(manifest).object();
+    QJsonArray dependencies = jsonObject.value(dependenciesKey).toArray();
+    dependencies.append(package);
+    jsonObject.insert(dependenciesKey, dependencies);
+    return QJsonDocument(jsonObject).toJson();
 }
 
 } // namespace Vcpkg::Internal
