@@ -4,5 +4,7 @@
         <file>wizards/manifest/wizard.json</file>
         <file>images/cmakeicon.png</file>
         <file>images/cmakeicon@2x.png</file>
+        <file>images/vcpkgicon.png</file>
+        <file>images/vcpkgicon@2x.png</file>
     </qresource>
 </RCC>

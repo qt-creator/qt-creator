@@ -92,8 +92,9 @@ class VcpkgManifestEditorWidget : public TextEditor::TextEditorWidget
 public:
     VcpkgManifestEditorWidget()
     {
-        m_searchPkgAction = toolBar()->addAction(Utils::Icons::ZOOM_TOOLBAR.icon(),
-                                                 Tr::tr("Add vcpkg package..."));
+        const QIcon vcpkgIcon = Utils::Icon({{":/vcpkg/images/vcpkgicon.png",
+                                              Utils::Theme::IconsBaseColor}}).icon();
+        m_searchPkgAction = toolBar()->addAction(vcpkgIcon, Tr::tr("Add vcpkg package..."));
         connect(m_searchPkgAction, &QAction::triggered, this, [this] {
             const Search::VcpkgManifest package = Search::showVcpkgPackageSearchDialog();
             if (!package.name.isEmpty())
