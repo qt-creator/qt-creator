@@ -6,7 +6,6 @@
 #include "artisticstyle.h"
 
 #include "../beautifierconstants.h"
-#include "../beautifierplugin.h"
 #include "../beautifiertool.h"
 #include "../beautifiertr.h"
 #include "../configurationpanel.h"
@@ -64,7 +63,7 @@ public:
         setVersionRegExp(QRegularExpression("([2-9]{1})\\.([0-9]{1,2})(\\.[1-9]{1})?$"));
         command.setLabelText(Tr::tr("Artistic Style command:"));
         command.setDefaultValue("astyle");
-        command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(displayName()));
+        command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle(displayName()));
 
         useOtherFiles.setSettingsKey("useOtherFiles");
         useOtherFiles.setLabelText(Tr::tr("Use file *.astylerc defined in project files"));
@@ -255,7 +254,7 @@ ArtisticStyle::ArtisticStyle()
     Core::ActionContainer *menu = Core::ActionManager::createMenu("ArtisticStyle.Menu");
     menu->menu()->setTitle(Tr::tr("&Artistic Style"));
 
-    m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
+    m_formatFile = new QAction(msgFormatCurrentFile(), this);
     menu->addAction(Core::ActionManager::registerAction(m_formatFile, "ArtisticStyle.FormatFile"));
     connect(m_formatFile, &QAction::triggered, this, &ArtisticStyle::formatFile);
 
@@ -279,7 +278,7 @@ void ArtisticStyle::formatFile()
 {
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty())
-        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(displayName()));
+        showError(msgCannotGetConfigurationFile(displayName()));
     else
         formatCurrentFile(command(cfgFileName));
 }

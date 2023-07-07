@@ -19,14 +19,17 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+
 #include <texteditor/formattexteditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/mimeutils.h>
@@ -160,52 +163,6 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
         if (auto widget = TextEditorWidget::fromEditor(editors.first()))
             TextEditor::formatEditor(widget, command);
     }
-}
-
-void BeautifierPlugin::showError(const QString &error)
-{
-    Core::MessageManager::writeFlashing(Tr::tr("Error in Beautifier: %1").arg(error.trimmed()));
-}
-
-QString BeautifierPlugin::msgCannotGetConfigurationFile(const QString &command)
-{
-    return Tr::tr("Cannot get configuration file for %1.").arg(command);
-}
-
-QString BeautifierPlugin::msgFormatCurrentFile()
-{
-    //: Menu entry
-    return Tr::tr("Format &Current File");
-}
-
-QString BeautifierPlugin::msgFormatSelectedText()
-{
-    //: Menu entry
-    return Tr::tr("Format &Selected Text");
-}
-
-QString BeautifierPlugin::msgFormatAtCursor()
-{
-    //: Menu entry
-    return Tr::tr("&Format at Cursor");
-}
-
-QString BeautifierPlugin::msgFormatLines()
-{
-    //: Menu entry
-    return Tr::tr("Format &Line(s)");
-}
-
-QString BeautifierPlugin::msgDisableFormattingSelectedText()
-{
-    //: Menu entry
-    return Tr::tr("&Disable Formatting for Selected Text");
-}
-
-QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)
-{
-    //: File dialog title for path chooser when choosing binary
-    return Tr::tr("%1 Command").arg(command);
 }
 
 } // Beautifier::Internal

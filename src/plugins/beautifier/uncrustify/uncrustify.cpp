@@ -6,7 +6,6 @@
 #include "uncrustify.h"
 
 #include "../beautifierconstants.h"
-#include "../beautifierplugin.h"
 #include "../beautifiertool.h"
 #include "../beautifiertr.h"
 #include "../configurationpanel.h"
@@ -64,7 +63,7 @@ public:
 
         command.setDefaultValue("uncrustify");
         command.setLabelText(Tr::tr("Uncrustify command:"));
-        command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(displayName()));
+        command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle(displayName()));
 
         useOtherFiles.setSettingsKey("useOtherFiles");
         useOtherFiles.setDefaultValue(true);
@@ -250,13 +249,13 @@ Uncrustify::Uncrustify()
     Core::ActionContainer *menu = Core::ActionManager::createMenu("Uncrustify.Menu");
     menu->menu()->setTitle(Tr::tr("&Uncrustify"));
 
-    m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
+    m_formatFile = new QAction(msgFormatCurrentFile(), this);
     Core::Command *cmd
             = Core::ActionManager::registerAction(m_formatFile, "Uncrustify.FormatFile");
     menu->addAction(cmd);
     connect(m_formatFile, &QAction::triggered, this, &Uncrustify::formatFile);
 
-    m_formatRange = new QAction(BeautifierPlugin::msgFormatSelectedText(), this);
+    m_formatRange = new QAction(msgFormatSelectedText(), this);
     cmd = Core::ActionManager::registerAction(m_formatRange, "Uncrustify.FormatSelectedText");
     menu->addAction(cmd);
     connect(m_formatRange, &QAction::triggered, this, &Uncrustify::formatSelectedText);
@@ -283,7 +282,7 @@ void Uncrustify::formatFile()
 {
     const FilePath cfgFileName = configurationFile();
     if (cfgFileName.isEmpty())
-        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(displayName()));
+        showError(msgCannotGetConfigurationFile(displayName()));
     else
         formatCurrentFile(command(cfgFileName));
 }
@@ -292,7 +291,7 @@ void Uncrustify::formatSelectedText()
 {
     const FilePath cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(displayName()));
+        showError(msgCannotGetConfigurationFile(displayName()));
         return;
     }
 

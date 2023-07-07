@@ -15,7 +15,6 @@
 #include <QMap>
 #include <QObject>
 #include <QSet>
-#include <QString>
 #include <QStringList>
 
 #include <memory>
@@ -48,6 +47,15 @@ public:
     virtual TextEditor::Command command() const = 0;
 
     virtual bool isApplicable(const Core::IDocument *document) const = 0;
+
+    static QString msgCannotGetConfigurationFile(const QString &command);
+    static QString msgFormatCurrentFile();
+    static QString msgFormatSelectedText();
+    static QString msgFormatAtCursor();
+    static QString msgFormatLines();
+    static QString msgDisableFormattingSelectedText();
+    static QString msgCommandPromptDialogTitle(const QString &command);
+    static void showError(const QString &error);
 };
 
 class VersionUpdater;

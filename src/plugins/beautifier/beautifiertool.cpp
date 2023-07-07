@@ -4,11 +4,11 @@
 #include "beautifiertool.h"
 
 #include "beautifierconstants.h"
-#include "beautifierplugin.h"
 #include "beautifiertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -25,6 +25,52 @@
 using namespace Utils;
 
 namespace Beautifier::Internal {
+
+void BeautifierTool::showError(const QString &error)
+{
+    Core::MessageManager::writeFlashing(Tr::tr("Error in Beautifier: %1").arg(error.trimmed()));
+}
+
+QString BeautifierTool::msgCannotGetConfigurationFile(const QString &command)
+{
+    return Tr::tr("Cannot get configuration file for %1.").arg(command);
+}
+
+QString BeautifierTool::msgFormatCurrentFile()
+{
+    //: Menu entry
+    return Tr::tr("Format &Current File");
+}
+
+QString BeautifierTool::msgFormatSelectedText()
+{
+    //: Menu entry
+    return Tr::tr("Format &Selected Text");
+}
+
+QString BeautifierTool::msgFormatAtCursor()
+{
+    //: Menu entry
+    return Tr::tr("&Format at Cursor");
+}
+
+QString BeautifierTool::msgFormatLines()
+{
+    //: Menu entry
+    return Tr::tr("Format &Line(s)");
+}
+
+QString BeautifierTool::msgDisableFormattingSelectedText()
+{
+    //: Menu entry
+    return Tr::tr("&Disable Formatting for Selected Text");
+}
+
+QString BeautifierTool::msgCommandPromptDialogTitle(const QString &command)
+{
+    //: File dialog title for path chooser when choosing binary
+    return Tr::tr("%1 Command").arg(command);
+}
 
 class VersionUpdater
 {
@@ -90,7 +136,7 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
     command.setSettingsKey("command");
     command.setExpectedKind(PathChooser::ExistingCommand);
     command.setCommandVersionArguments({"--version"});
-    command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
+    command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle("Clang Format"));
     command.setValidatePlaceHolder(true);
 
     supportedMimeTypes.setDisplayStyle(StringAspect::LineEditDisplay);
@@ -253,22 +299,22 @@ void AbstractSettings::save()
 
         const QFileInfo fi(styleFileName(iStyles.key()));
         if (!(m_styleDir.mkpath(fi.absolutePath()))) {
-            BeautifierPlugin::showError(Tr::tr("Cannot save styles. %1 does not exist.")
-                                        .arg(fi.absolutePath()));
+            BeautifierTool::showError(Tr::tr("Cannot save styles. %1 does not exist.")
+                                          .arg(fi.absolutePath()));
             continue;
         }
 
         FileSaver saver(FilePath::fromUserInput(fi.absoluteFilePath()));
         if (saver.hasError()) {
-            BeautifierPlugin::showError(Tr::tr("Cannot open file \"%1\": %2.")
-                                        .arg(saver.filePath().toUserOutput())
-                                        .arg(saver.errorString()));
+            BeautifierTool::showError(Tr::tr("Cannot open file \"%1\": %2.")
+                                          .arg(saver.filePath().toUserOutput())
+                                          .arg(saver.errorString()));
         } else {
             saver.write(iStyles.value().toLocal8Bit());
             if (!saver.finalize()) {
-                BeautifierPlugin::showError(Tr::tr("Cannot save file \"%1\": %2.")
-                                            .arg(saver.filePath().toUserOutput())
-                                            .arg(saver.errorString()));
+                BeautifierTool::showError(Tr::tr("Cannot save file \"%1\": %2.")
+                                              .arg(saver.filePath().toUserOutput())
+                                              .arg(saver.errorString()));
             }
         }
         ++iStyles;
@@ -297,7 +343,7 @@ void AbstractSettings::readDocumentation()
 {
     const FilePath filename = documentationFilePath;
     if (filename.isEmpty()) {
-        BeautifierPlugin::showError(Tr::tr("No documentation file specified."));
+        BeautifierTool::showError(Tr::tr("No documentation file specified."));
         return;
     }
 
@@ -306,8 +352,8 @@ void AbstractSettings::readDocumentation()
         createDocumentationFile();
 
     if (!file.open(QIODevice::ReadOnly)) {
-        BeautifierPlugin::showError(Tr::tr("Cannot open documentation file \"%1\".")
-            .arg(filename.toUserOutput()));
+        BeautifierTool::showError(Tr::tr("Cannot open documentation file \"%1\".")
+                                      .arg(filename.toUserOutput()));
         return;
     }
 
@@ -315,8 +361,8 @@ void AbstractSettings::readDocumentation()
     if (!xml.readNextStartElement())
         return;
     if (xml.name() != QLatin1String(Constants::DOCUMENTATION_XMLROOT)) {
-        BeautifierPlugin::showError(Tr::tr("The file \"%1\" is not a valid documentation file.")
-                                    .arg(filename.toUserOutput()));
+        BeautifierTool::showError(Tr::tr("The file \"%1\" is not a valid documentation file.")
+                                      .arg(filename.toUserOutput()));
         return;
     }
 
@@ -346,8 +392,8 @@ void AbstractSettings::readDocumentation()
     }
 
     if (xml.hasError()) {
-        BeautifierPlugin::showError(Tr::tr("Cannot read documentation file \"%1\": %2.")
-                                    .arg(filename.toUserOutput()).arg(xml.errorString()));
+        BeautifierTool::showError(Tr::tr("Cannot read documentation file \"%1\": %2.")
+                                      .arg(filename.toUserOutput()).arg(xml.errorString()));
     }
 }
 

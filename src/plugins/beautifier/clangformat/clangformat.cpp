@@ -6,7 +6,6 @@
 #include "clangformat.h"
 
 #include "../beautifierconstants.h"
-#include "../beautifierplugin.h"
 #include "../beautifiertool.h"
 #include "../beautifiertr.h"
 #include "../configurationpanel.h"
@@ -51,11 +50,11 @@ const char SETTINGS_NAME[]               = "clangformat";
 class ClangFormatSettings : public AbstractSettings
 {
 public:
-    explicit ClangFormatSettings()
+    ClangFormatSettings()
         : AbstractSettings(SETTINGS_NAME, ".clang-format")
     {
         command.setDefaultValue("clang-format");
-        command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
+        command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle("Clang Format"));
         command.setLabelText(Tr::tr("Clang Format command:"));
 
         usePredefinedStyle.setSettingsKey("usePredefinedStyle");
@@ -333,24 +332,23 @@ ClangFormat::ClangFormat()
     Core::ActionContainer *menu = Core::ActionManager::createMenu("ClangFormat.Menu");
     menu->menu()->setTitle(Tr::tr("&ClangFormat"));
 
-    m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
+    m_formatFile = new QAction(msgFormatCurrentFile(), this);
     Core::Command *cmd
             = Core::ActionManager::registerAction(m_formatFile, "ClangFormat.FormatFile");
     menu->addAction(cmd);
     connect(m_formatFile, &QAction::triggered, this, &ClangFormat::formatFile);
 
-    m_formatLines = new QAction(BeautifierPlugin::msgFormatLines(), this);
+    m_formatLines = new QAction(msgFormatLines(), this);
     cmd = Core::ActionManager::registerAction(m_formatLines, "ClangFormat.FormatLines");
     menu->addAction(cmd);
     connect(m_formatLines, &QAction::triggered, this, &ClangFormat::formatLines);
 
-    m_formatRange = new QAction(BeautifierPlugin::msgFormatAtCursor(), this);
+    m_formatRange = new QAction(msgFormatAtCursor(), this);
     cmd = Core::ActionManager::registerAction(m_formatRange, "ClangFormat.FormatAtCursor");
     menu->addAction(cmd);
     connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatAtCursor);
 
-    m_disableFormattingSelectedText
-        = new QAction(BeautifierPlugin::msgDisableFormattingSelectedText(), this);
+    m_disableFormattingSelectedText = new QAction(msgDisableFormattingSelectedText(), this);
     cmd = Core::ActionManager::registerAction(
         m_disableFormattingSelectedText, "ClangFormat.DisableFormattingSelectedText");
     menu->addAction(cmd);
