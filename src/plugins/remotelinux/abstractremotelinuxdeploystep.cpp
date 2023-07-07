@@ -31,7 +31,6 @@ class AbstractRemoteLinuxDeployStepPrivate
 public:
     bool hasError;
     std::function<expected_str<void>()> internalInit;
-    std::function<void()> runPreparer;
 
     DeploymentTimeInfo deployTimes;
     std::unique_ptr<TaskTree> m_taskTree;
@@ -86,11 +85,6 @@ void AbstractRemoteLinuxDeployStep::setInternalInitializer(
     d->internalInit = init;
 }
 
-void AbstractRemoteLinuxDeployStep::setRunPreparer(const std::function<void ()> &prep)
-{
-    d->runPreparer = prep;
-}
-
 bool AbstractRemoteLinuxDeployStep::fromMap(const QVariantMap &map)
 {
     if (!BuildStep::fromMap(map))
@@ -119,9 +113,6 @@ bool AbstractRemoteLinuxDeployStep::init()
 
 void AbstractRemoteLinuxDeployStep::doRun()
 {
-    if (d->runPreparer)
-        d->runPreparer();
-
     d->hasError = false;
 
     QTC_ASSERT(!d->m_taskTree, return);

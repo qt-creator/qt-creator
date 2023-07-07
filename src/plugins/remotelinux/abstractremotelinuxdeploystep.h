@@ -38,7 +38,6 @@ protected:
     void doCancel() override;
 
     void setInternalInitializer(const std::function<Utils::expected_str<void>()> &init);
-    void setRunPreparer(const std::function<void()> &prep);
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
                                  const QDateTime &remoteTimestamp);

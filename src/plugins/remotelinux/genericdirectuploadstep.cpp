@@ -52,10 +52,6 @@ public:
         setInternalInitializer([this] {
             return isDeploymentPossible();
         });
-
-        setRunPreparer([this] {
-            m_deployableFiles = target()->deploymentData().allFiles();
-        });
     }
 
     bool isDeploymentNecessary() const final;
@@ -97,6 +93,7 @@ static QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployab
 
 bool GenericDirectUploadStep::isDeploymentNecessary() const
 {
+    m_deployableFiles = target()->deploymentData().allFiles();
     QList<DeployableFile> collected;
     for (int i = 0; i < m_deployableFiles.count(); ++i)
         collected.append(collectFilesToUpload(m_deployableFiles.at(i)));
@@ -277,7 +274,7 @@ Group GenericDirectUploadStep::deployRecipe()
             storage->filesToUpload.append(file);
     };
 
-    const auto postFilesToStat = [this](UploadStorage *storage) {
+    const auto postFilesToStat = [](UploadStorage *storage) {
         return storage->filesToUpload;
     };
     const auto postStatEndHandler = [this](UploadStorage *storage, const DeployableFile &file,

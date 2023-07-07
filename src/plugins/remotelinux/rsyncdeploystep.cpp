@@ -60,13 +60,6 @@ public:
             }
             return isDeploymentPossible();
         });
-
-        setRunPreparer([this] {
-            const QList<DeployableFile> files = target()->deploymentData().allFiles();
-            m_files.clear();
-            for (const DeployableFile &f : files)
-                m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
-        });
     }
 
 private:
@@ -84,6 +77,10 @@ private:
 
 bool RsyncDeployStep::isDeploymentNecessary() const
 {
+    const QList<DeployableFile> files = target()->deploymentData().allFiles();
+    m_files.clear();
+    for (const DeployableFile &f : files)
+        m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
     if (ignoreMissingFiles())
         Utils::erase(m_files, [](const FileToTransfer &file) { return !file.m_source.exists(); });
     return !m_files.empty();
