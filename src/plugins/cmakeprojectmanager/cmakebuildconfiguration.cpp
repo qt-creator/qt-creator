@@ -174,7 +174,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     m_configTextFilterModel(new CategorySortFilterModel(this))
 {
     QTC_ASSERT(bs, return);
-    BuildConfiguration *bc = bs->buildConfiguration();
+    CMakeBuildConfiguration *bc = bs->cmakeBuildConfiguration();
 
     m_configureDetailsWidget = new DetailsWidget;
 
@@ -189,11 +189,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
         m_configModel->flush(); // clear out config cache...;
     });
 
-    auto buildTypeAspect = bc->aspect<BuildTypeAspect>();
-    connect(buildTypeAspect, &BaseAspect::changed, this, [this, buildTypeAspect] {
+    connect(&bc->buildTypeAspect, &BaseAspect::changed, this, [this, bc] {
         if (!m_buildSystem->isMultiConfig()) {
             CMakeConfig config;
-            config << CMakeConfigItem("CMAKE_BUILD_TYPE", buildTypeAspect->value().toUtf8());
+            config << CMakeConfigItem("CMAKE_BUILD_TYPE", bc->buildTypeAspect().toUtf8());
 
             m_configModel->setBatchEditConfiguration(config);
         }
@@ -326,15 +325,14 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
         }
     };
 
-    auto configureEnvironmentAspectWidget
-        = bc->aspect<ConfigureEnvironmentAspect>()->createConfigWidget();
+    auto configureEnvironmentAspectWidget = bc->configureEnv.createConfigWidget();
     configureEnvironmentAspectWidget->setContentsMargins(0, 0, 0, 0);
     configureEnvironmentAspectWidget->layout()->setContentsMargins(0, 0, 0, 0);
 
     Column {
         Form {
             buildDirAspect, br,
-            bc->aspect<BuildTypeAspect>(), br,
+            bc->buildTypeAspect, br,
             qmlDebugAspect
         },
         m_warningMessageLabel,
@@ -345,8 +343,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
                 Column {
                     cmakeConfiguration,
                     Row {
-                        bc->aspect<InitialCMakeArgumentsAspect>(), br,
-                        bc->aspect<AdditionalCMakeOptionsAspect>()
+                        bc->initialCMakeArguments, br,
+                        bc->additionalCMakeOptions
                     },
                     m_reconfigureButton,
                 }
@@ -506,14 +504,14 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
         updateInitialCMakeArguments();
     });
 
-    connect(bc->aspect<InitialCMakeArgumentsAspect>(),
+    connect(&bc->initialCMakeArguments,
             &Utils::BaseAspect::labelLinkActivated,
             this,
             [this](const QString &) {
                 const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildSystem->kit());
                 CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
             });
-    connect(bc->aspect<AdditionalCMakeOptionsAspect>(),
+    connect(&bc->additionalCMakeOptions,
             &Utils::BaseAspect::labelLinkActivated, this, [this](const QString &) {
                 const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildSystem->kit());
                 CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
@@ -629,14 +627,14 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
         }
     }
 
-    auto bc = m_buildSystem->buildConfiguration();
-    bc->aspect<InitialCMakeArgumentsAspect>()->setCMakeConfiguration(initialList);
+    auto bc = m_buildSystem->cmakeBuildConfiguration();
+    bc->initialCMakeArguments.setCMakeConfiguration(initialList);
 
     // value() will contain only the unknown arguments (the non -D/-U arguments)
     // As the user would expect to have e.g. "--preset" from "Initial Configuration"
     // to "Current Configuration" as additional parameters
     m_buildSystem->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
-        bc->aspect<InitialCMakeArgumentsAspect>()->value(), HostOsInfo::hostOs()));
+        bc->initialCMakeArguments(), HostOsInfo::hostOs()));
 }
 
 void CMakeBuildSettingsWidget::kitCMakeConfiguration()
@@ -759,12 +757,12 @@ void CMakeBuildSettingsWidget::updateButtonState()
     const bool isInitial = isInitialConfiguration();
     m_resetButton->setEnabled(m_configModel->hasChanges(isInitial) && !isParsing);
 
-    BuildConfiguration *bc = m_buildSystem->buildConfiguration();
-    bc->aspect<InitialCMakeArgumentsAspect>()->setVisible(isInitialConfiguration());
-    bc->aspect<AdditionalCMakeOptionsAspect>()->setVisible(!isInitialConfiguration());
+    CMakeBuildConfiguration *bc = m_buildSystem->cmakeBuildConfiguration();
+    bc->initialCMakeArguments.setVisible(isInitialConfiguration());
+    bc->additionalCMakeOptions.setVisible(!isInitialConfiguration());
 
-    bc->aspect<InitialCMakeArgumentsAspect>()->setEnabled(!isParsing);
-    bc->aspect<AdditionalCMakeOptionsAspect>()->setEnabled(!isParsing);
+    bc->initialCMakeArguments.setEnabled(!isParsing);
+    bc->additionalCMakeOptions.setEnabled(!isParsing);
 
     // Update label and text boldness of the reconfigure button
     QFont reconfigureButtonFont = m_reconfigureButton->font();
@@ -823,7 +821,7 @@ void CMakeBuildSettingsWidget::updateFromKit()
     const QStringList additionalKitCMake = ProcessArgs::splitArgs(
         CMakeConfigurationKitAspect::additionalConfiguration(k), HostOsInfo::hostOs());
     const QStringList additionalInitialCMake = ProcessArgs::splitArgs(
-        m_buildSystem->buildConfiguration()->aspect<InitialCMakeArgumentsAspect>()->value(),
+        m_buildSystem->cmakeBuildConfiguration()->initialCMakeArguments(),
         HostOsInfo::hostOs());
 
     QStringList mergedArgumentList;
@@ -832,8 +830,8 @@ void CMakeBuildSettingsWidget::updateFromKit()
                    additionalKitCMake.begin(),
                    additionalKitCMake.end(),
                    std::back_inserter(mergedArgumentList));
-    m_buildSystem->buildConfiguration()->aspect<InitialCMakeArgumentsAspect>()->setValue(
-        ProcessArgs::joinArgs(mergedArgumentList));
+    m_buildSystem->cmakeBuildConfiguration()->initialCMakeArguments
+        .setValue(ProcessArgs::joinArgs(mergedArgumentList));
 }
 
 void CMakeBuildSettingsWidget::updateConfigurationStateIndex(int index)
@@ -1362,8 +1360,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 {
     m_buildSystem = new CMakeBuildSystem(this);
 
-    const auto buildDirAspect = aspect<BuildDirectoryAspect>();
-    buildDirAspect->setValueAcceptor(
+    buildDir.setValueAcceptor(
         [](const QString &oldDir, const QString &newDir) -> std::optional<QString> {
             if (oldDir.isEmpty())
                 return newDir;
@@ -1385,11 +1382,20 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             return newDir;
         });
 
-    auto initialCMakeArgumentsAspect = addAspect<InitialCMakeArgumentsAspect>();
-    initialCMakeArgumentsAspect->setMacroExpanderProvider([this] { return macroExpander(); });
+    // Will not be displayed, only persisted
+    sourceDirectory.setSettingsKey("CMake.Source.Directory");
 
-    auto additionalCMakeArgumentsAspect = addAspect<AdditionalCMakeOptionsAspect>();
-    additionalCMakeArgumentsAspect->setMacroExpanderProvider([this] { return macroExpander(); });
+    buildTypeAspect.setSettingsKey(CMAKE_BUILD_TYPE);
+    buildTypeAspect.setLabelText(Tr::tr("Build type:"));
+    buildTypeAspect.setDisplayStyle(StringAspect::LineEditDisplay);
+    buildTypeAspect.setDefaultValue("Unknown");
+
+    initialCMakeArguments.setMacroExpanderProvider([this] { return macroExpander(); });
+
+    additionalCMakeOptions.setSettingsKey("CMake.Additional.Options");
+    additionalCMakeOptions.setLabelText(Tr::tr("Additional CMake <a href=\"options\">options</a>:"));
+    additionalCMakeOptions.setDisplayStyle(StringAspect::LineEditDisplay);
+    additionalCMakeOptions.setMacroExpanderProvider([this] { return macroExpander(); });
 
     macroExpander()->registerVariable(DEVELOPMENT_TEAM_FLAG,
                                       Tr::tr("The CMake flag for the development team"),
@@ -1433,13 +1439,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                           return QLatin1String();
                                       });
 
-    addAspect<SourceDirectoryAspect>();
-    addAspect<BuildTypeAspect>();
-
-    auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>();
-    qmlDebuggingAspect->setBuildConfiguration(this);
-
-    addAspect<ConfigureEnvironmentAspect>(this);
+    qmlDebugging.setBuildConfiguration(this);
 
     setInitialBuildAndCleanSteps(target);
 
@@ -1450,10 +1450,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         const QString buildType = extraInfoMap.contains(CMAKE_BUILD_TYPE)
                                       ? extraInfoMap.value(CMAKE_BUILD_TYPE).toString()
                                       : info.typeName;
-        const TriState qmlDebugging = extraInfoMap.contains(Constants::QML_DEBUG_SETTING)
-                                          ? TriState::fromVariant(
-                                              extraInfoMap.value(Constants::QML_DEBUG_SETTING))
-                                          : TriState::Default;
 
         CommandLine cmd = defaultInitialCMakeCommand(k, buildType);
         m_buildSystem->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
@@ -1545,15 +1541,17 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         }
 
         if (extraInfoMap.contains(Constants::CMAKE_HOME_DIR))
-            setSourceDirectory(FilePath::fromVariant(extraInfoMap.value(Constants::CMAKE_HOME_DIR)));
+            sourceDirectory.setValue(FilePath::fromVariant(extraInfoMap.value(Constants::CMAKE_HOME_DIR)));
 
-        aspect<QtSupport::QmlDebuggingAspect>()->setValue(qmlDebugging);
+        qmlDebugging.setValue(extraInfoMap.contains(Constants::QML_DEBUG_SETTING)
+                                  ? TriState::fromVariant(extraInfoMap.value(Constants::QML_DEBUG_SETTING))
+                                  : TriState::Default);
 
         if (qt && qt->isQmlDebuggingSupported())
             cmd.addArg("-DCMAKE_CXX_FLAGS_INIT:STRING=%{" + QLatin1String(QT_QML_DEBUG_FLAG) + "}");
 
         CMakeProject *cmakeProject = static_cast<CMakeProject *>(target->project());
-        aspect<ConfigureEnvironmentAspect>()->setUserEnvironmentChanges(
+        configureEnv.setUserEnvironmentChanges(
             getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k));
 
         QStringList initialCMakeArguments = cmd.splitArguments();
@@ -1664,12 +1662,12 @@ QStringList CMakeBuildSystem::configurationChangesArguments(bool initialParamete
 
 QStringList CMakeBuildSystem::initialCMakeArguments() const
 {
-    return buildConfiguration()->aspect<InitialCMakeArgumentsAspect>()->allValues();
+    return cmakeBuildConfiguration()->initialCMakeArguments.allValues();
 }
 
 CMakeConfig CMakeBuildSystem::initialCMakeConfiguration() const
 {
-    return buildConfiguration()->aspect<InitialCMakeArgumentsAspect>()->cmakeConfiguration();
+    return cmakeBuildConfiguration()->initialCMakeArguments.cmakeConfiguration();
 }
 
 void CMakeBuildSystem::setConfigurationFromCMake(const CMakeConfig &config)
@@ -1706,7 +1704,7 @@ void CMakeBuildSystem::clearError(ForceEnabledChanged fec)
 void CMakeBuildSystem::setInitialCMakeArguments(const QStringList &args)
 {
     QStringList additionalArguments;
-    buildConfiguration()->aspect<InitialCMakeArgumentsAspect>()->setAllValues(args.join('\n'), additionalArguments);
+    cmakeBuildConfiguration()->initialCMakeArguments.setAllValues(args.join('\n'), additionalArguments);
 
     // Set the unknown additional arguments also for the "Current Configuration"
     setAdditionalCMakeArguments(additionalArguments);
@@ -1714,7 +1712,7 @@ void CMakeBuildSystem::setInitialCMakeArguments(const QStringList &args)
 
 QStringList CMakeBuildSystem::additionalCMakeArguments() const
 {
-    return ProcessArgs::splitArgs(buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>()->value(),
+    return ProcessArgs::splitArgs(cmakeBuildConfiguration()->additionalCMakeOptions(),
                                   HostOsInfo::hostOs());
 }
 
@@ -1727,8 +1725,8 @@ void CMakeBuildSystem::setAdditionalCMakeArguments(const QStringList &args)
                                                                     [](const QString &s) {
                                                                         return !s.isEmpty();
                                                                     });
-    buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>()->setValue(
-        ProcessArgs::joinArgs(nonEmptyAdditionalArguments));
+    cmakeBuildConfiguration()->additionalCMakeOptions
+        .setValue(ProcessArgs::joinArgs(nonEmptyAdditionalArguments));
 }
 
 void CMakeBuildSystem::filterConfigArgumentsFromAdditionalCMakeArguments()
@@ -1738,12 +1736,12 @@ void CMakeBuildSystem::filterConfigArgumentsFromAdditionalCMakeArguments()
     // which is already part of the CMake variables and should not be also
     // in the addtional CMake options
     const QStringList arguments = ProcessArgs::splitArgs(
-        buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>()->value(),
+        cmakeBuildConfiguration()->additionalCMakeOptions(),
         HostOsInfo::hostOs());
     QStringList unknownOptions;
     const CMakeConfig config = CMakeConfig::fromArguments(arguments, unknownOptions);
 
-    buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>()->setValue(ProcessArgs::joinArgs(unknownOptions));
+    cmakeBuildConfiguration()->additionalCMakeOptions.setValue(ProcessArgs::joinArgs(unknownOptions));
 }
 
 void CMakeBuildSystem::setError(const QString &message)
@@ -2038,16 +2036,6 @@ BuildSystem *CMakeBuildConfiguration::buildSystem() const
     return m_buildSystem;
 }
 
-void CMakeBuildConfiguration::setSourceDirectory(const FilePath &path)
-{
-    aspect<SourceDirectoryAspect>()->setValue(path);
-}
-
-FilePath CMakeBuildConfiguration::sourceDirectory() const
-{
-    return aspect<SourceDirectoryAspect>()->filePath();
-}
-
 void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
     const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
@@ -2062,7 +2050,7 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 
 Environment CMakeBuildConfiguration::configureEnvironment() const
 {
-    Environment env = aspect<ConfigureEnvironmentAspect>()->environment();
+    Environment env = configureEnv.environment();
     addToEnvironment(env);
 
     return env;
@@ -2082,7 +2070,7 @@ QString CMakeBuildSystem::cmakeBuildType() const
     if (!isMultiConfig())
         setBuildTypeFromConfig(configurationChanges());
 
-    QString cmakeBuildType = buildConfiguration()->aspect<BuildTypeAspect>()->value();
+    QString cmakeBuildType = cmakeBuildConfiguration()->buildTypeAspect();
 
     const Utils::FilePath cmakeCacheTxt = buildConfiguration()->buildDirectory().pathAppended("CMakeCache.txt");
     const bool hasCMakeCache = cmakeCacheTxt.exists();
@@ -2109,7 +2097,7 @@ QString CMakeBuildSystem::cmakeBuildType() const
 
 void CMakeBuildSystem::setCMakeBuildType(const QString &cmakeBuildType, bool quiet)
 {
-    auto aspect = buildConfiguration()->aspect<BuildTypeAspect>();
+    auto aspect = &cmakeBuildConfiguration()->buildTypeAspect;
     if (quiet)
         aspect->setValueQuietly(cmakeBuildType);
     else
@@ -2195,52 +2183,21 @@ void InitialCMakeArgumentsAspect::toMap(QVariantMap &map) const
     saveToMap(map, allValues().join('\n'), defaultValue(), settingsKey());
 }
 
-InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect()
+InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect(AspectContainer *container)
+    : StringAspect(container)
 {
     setSettingsKey("CMake.Initial.Parameters");
     setLabelText(Tr::tr("Additional CMake <a href=\"options\">options</a>:"));
     setDisplayStyle(LineEditDisplay);
 }
 
-// ----------------------------------------------------------------------
-// - AdditionalCMakeOptionsAspect:
-// ----------------------------------------------------------------------
-
-AdditionalCMakeOptionsAspect::AdditionalCMakeOptionsAspect()
-{
-    setSettingsKey("CMake.Additional.Options");
-    setLabelText(Tr::tr("Additional CMake <a href=\"options\">options</a>:"));
-    setDisplayStyle(LineEditDisplay);
-}
-
-// -----------------------------------------------------------------------------
-// SourceDirectoryAspect:
-// -----------------------------------------------------------------------------
-SourceDirectoryAspect::SourceDirectoryAspect()
-{
-    // Will not be displayed, only persisted
-    setSettingsKey("CMake.Source.Directory");
-}
-
-// -----------------------------------------------------------------------------
-// BuildTypeAspect:
-// -----------------------------------------------------------------------------
-BuildTypeAspect::BuildTypeAspect()
-{
-    setSettingsKey(CMAKE_BUILD_TYPE);
-    setLabelText(Tr::tr("Build type:"));
-    setDisplayStyle(LineEditDisplay);
-    setDefaultValue("Unknown");
-}
-
 // -----------------------------------------------------------------------------
 // ConfigureEnvironmentAspect:
 // -----------------------------------------------------------------------------
-class ConfigureEnvironmentAspectWidget final : public ProjectExplorer::EnvironmentAspectWidget
+class ConfigureEnvironmentAspectWidget final : public EnvironmentAspectWidget
 {
 public:
-    ConfigureEnvironmentAspectWidget(ConfigureEnvironmentAspect *aspect,
-                                     ProjectExplorer::Target *target)
+    ConfigureEnvironmentAspectWidget(ConfigureEnvironmentAspect *aspect, Target *target)
         : EnvironmentAspectWidget(aspect)
     {
         envWidget()->setOpenTerminalFunc([target](const Environment &env) {
@@ -2250,7 +2207,9 @@ public:
     }
 };
 
-ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(BuildConfiguration *bc)
+ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(AspectContainer *container,
+                                                       BuildConfiguration *bc)
+    : EnvironmentAspect(container)
 {
     Target *target = bc->target();
     setIsLocal(true);

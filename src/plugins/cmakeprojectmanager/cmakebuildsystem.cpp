@@ -1743,10 +1743,9 @@ void CMakeBuildSystem::runGenerator(Id id)
     }
     for (const CMakeConfigItem &item : std::as_const(configItems))
         cmdLine.addArg(item.toArgument(buildConfiguration()->macroExpander()));
-    if (const auto optionsAspect = buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>();
-            optionsAspect && !optionsAspect->value().isEmpty()) {
-        cmdLine.addArgs(optionsAspect->value(), CommandLine::Raw);
-    }
+
+    cmdLine.addArgs(cmakeBuildConfiguration()->additionalCMakeOptions(), CommandLine::Raw);
+
     const auto proc = new Process(this);
     connect(proc, &Process::done, proc, &Process::deleteLater);
     connect(proc, &Process::readyReadStandardOutput, this, [proc] {
