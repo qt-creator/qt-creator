@@ -28,10 +28,10 @@ public:
     FvBaseAspect() = default;
     virtual ~FvBaseAspect() = default;
 
-    virtual void setVariantValue(const QVariant &value) = 0;
-    virtual void setDefaultVariantValue(const QVariant &value) = 0;
-    virtual QVariant variantValue() const = 0;
-    virtual QVariant defaultVariantValue() const = 0;
+    virtual void setVariantValue(const QVariant &) {}
+    virtual void setDefaultVariantValue(const QVariant &) {}
+    virtual QVariant variantValue() const { return {}; }
+    virtual QVariant defaultVariantValue() const { return {}; }
 
     void setSettingsKey(const QString &group, const QString &key);
     QString settingsKey() const;
@@ -84,7 +84,7 @@ public:
 
 #else
 
-using FvAspectContainer = Core::PagedSettings;
+using FvAspectContainer = Utils::AspectContainer;
 using FvBaseAspect = Utils::BaseAspect;
 using FvBoolAspect = Utils::BoolAspect;
 using FvIntegerAspect = Utils::IntegerAspect;

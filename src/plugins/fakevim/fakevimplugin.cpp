@@ -683,6 +683,8 @@ public:
     }
 };
 
+const FakeVimExCommandsPage exCommandPage;
+
 ///////////////////////////////////////////////////////////////////////
 //
 // FakeVimUserCommandsPage
@@ -752,11 +754,10 @@ public:
 class FakeVimUserCommandsPageWidget : public IOptionsPageWidget
 {
 public:
-    FakeVimUserCommandsPageWidget(FakeVimUserCommandsModel *model)
-        : m_model(model)
+    FakeVimUserCommandsPageWidget()
     {
         auto widget = new QTreeView;
-        widget->setModel(m_model);
+        widget->setModel(&m_model);
         widget->resizeColumnToContents(0);
 
         auto delegate = new FakeVimUserCommandsDelegate(widget);
@@ -771,7 +772,7 @@ private:
     void apply() final
     {
         // now save the mappings if necessary
-        const UserCommandMap &current = m_model->commandMap();
+        const UserCommandMap &current = m_model.commandMap();
         UserCommandMap &userMap = dd->m_userCommandMap;
 
         if (current != userMap) {
@@ -800,7 +801,7 @@ private:
         }
     }
 
-    FakeVimUserCommandsModel *m_model;
+    FakeVimUserCommandsModel m_model;
 };
 
 class FakeVimUserCommandsPage : public IOptionsPage
@@ -811,13 +812,11 @@ public:
         setId(SETTINGS_USER_CMDS_ID);
         setDisplayName(Tr::tr("User Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
-        setWidgetCreator([this] { return new FakeVimUserCommandsPageWidget(&m_model); });
+        setWidgetCreator([this] { return new FakeVimUserCommandsPageWidget; });
     }
-
-private:
-    FakeVimUserCommandsModel m_model;
 };
 
+const FakeVimUserCommandsPage userCommandsPage;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -978,10 +977,6 @@ IAssistProcessor *FakeVimCompletionAssistProvider::createProcessor(const AssistI
 class FakeVimPluginRunData
 {
 public:
-    FakeVimSettings settings;
-    FakeVimExCommandsPage exCommandsPage;
-    FakeVimUserCommandsPage userCommandsPage;
-
     FakeVimCompletionAssistProvider wordProvider;
 };
 

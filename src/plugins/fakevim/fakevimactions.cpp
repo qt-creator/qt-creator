@@ -45,29 +45,15 @@ void setAutoApply(bool ) {}
 #endif
 
 
-static FakeVimSettings *s_settings;
-
 FakeVimSettings &settings()
 {
-    return *s_settings;
+    static FakeVimSettings theSettings;
+    return theSettings;
 }
 
 FakeVimSettings::FakeVimSettings()
 {
-    s_settings = this;
-
-#ifndef FAKEVIM_STANDALONE
-    const char SETTINGS_CATEGORY[]              = "D.FakeVim";
-    const char SETTINGS_ID[]                    = "A.FakeVim.General";
-
-    setId(SETTINGS_ID);
-    setDisplayName(Tr::tr("General"));
-    setCategory(SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("FakeVim"));
-    setCategoryIconPath(":/fakevim/images/settingscategory_fakevim.png");
-
     setup(&useFakeVim,     false, "UseFakeVim",     {},    Tr::tr("Use FakeVim"));
-#endif
 
     // Specific FakeVim settings
     setup(&readVimRc,      false, "ReadVimRc",      {},    Tr::tr("Read .vimrc from location:"));
@@ -302,5 +288,28 @@ void FakeVimSettings::setup(FvBaseAspect *aspect,
     if (!shortName.isEmpty())
         m_nameToAspect[shortName] = aspect;
 }
+
+#ifndef FAKEVIM_STANDALONE
+
+class FakeVimSettingsPage final : public Core::IOptionsPage
+{
+public:
+    FakeVimSettingsPage()
+    {
+        const char SETTINGS_CATEGORY[]              = "D.FakeVim";
+        const char SETTINGS_ID[]                    = "A.FakeVim.General";
+
+        setId(SETTINGS_ID);
+        setDisplayName(Tr::tr("General"));
+        setCategory(SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("FakeVim"));
+        setCategoryIconPath(":/fakevim/images/settingscategory_fakevim.png");
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const FakeVimSettingsPage settingsPage;
+
+#endif
 
 } // FakeVim::Internal
