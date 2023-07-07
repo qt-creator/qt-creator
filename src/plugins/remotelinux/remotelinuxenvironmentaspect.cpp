@@ -72,7 +72,8 @@ static bool displayAlreadySet(const Utils::EnvironmentItems &changes)
     });
 }
 
-RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect()
+RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(AspectContainer *container)
+    : EnvironmentAspect(container)
 {
     addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
     addPreferredBaseEnvironment(Tr::tr("System Environment"), [this] { return m_remoteEnvironment; });
