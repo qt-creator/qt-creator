@@ -29,11 +29,6 @@ public:
         DebuggerSettings &s = settings();
 
         setOnApply([&s] {
-            const bool originalPostMortem = s.registerForPostMortem->value();
-            const bool currentPostMortem = s.registerForPostMortem->volatileValue();
-            // explicitly trigger setValue() to override the setValueSilently() and trigger the registration
-            if (originalPostMortem != currentPostMortem)
-                s.registerForPostMortem->setValue(currentPostMortem);
             s.page1.apply();
             s.page1.writeSettings();
         });

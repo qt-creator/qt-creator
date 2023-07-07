@@ -405,6 +405,8 @@ DebuggerSettings::DebuggerSettings()
     page1.registerAspect(&forceLoggingToConsole);
 
     page1.registerAspect(&sourcePathMap);
+    if (HostOsInfo::isWindowsHost())
+        page1.registerAspect(registerForPostMortem);
 
     // Page 4
     page4.registerAspect(&useDebuggingHelpers);
@@ -429,8 +431,6 @@ DebuggerSettings::DebuggerSettings()
     page5.registerAspect(&firstChanceExceptionTaskEntry);
     page5.registerAspect(&secondChanceExceptionTaskEntry);
     page5.registerAspect(&ignoreFirstChanceAccessViolation);
-    if (HostOsInfo::isWindowsHost())
-        page5.registerAspect(registerForPostMortem);
 
     // Page 6
     page6.registerAspect(&cdbSymbolPaths);
