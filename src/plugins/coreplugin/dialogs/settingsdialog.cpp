@@ -345,9 +345,12 @@ private:
     void showEvent(QShowEvent *event) final
     {
         if (!widget()) {
-            QWidget *inner = m_page->widget();
-            setWidget(inner);
-            inner->setAutoFillBackground(false);
+            if (QWidget *inner = m_page->widget()) {
+                setWidget(inner);
+                inner->setAutoFillBackground(false);
+            } else {
+                QTC_CHECK(false);
+            }
         }
 
         QScrollArea::showEvent(event);

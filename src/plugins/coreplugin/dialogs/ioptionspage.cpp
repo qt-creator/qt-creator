@@ -132,6 +132,7 @@ QWidget *IOptionsPage::widget()
     if (!m_widget) {
         if (m_widgetCreator) {
             m_widget = m_widgetCreator();
+            QTC_CHECK(m_widget);
         } else if (m_settingsProvider) {
             m_widget = new IOptionsPageWidget;
             AspectContainer *container = m_settingsProvider();
