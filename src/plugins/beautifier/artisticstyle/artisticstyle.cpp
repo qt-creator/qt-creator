@@ -5,7 +5,6 @@
 
 #include "artisticstyle.h"
 
-#include "artisticstyleconstants.h"
 #include "../abstractsettings.h"
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
@@ -52,6 +51,8 @@ namespace Beautifier::Internal {
 
 // Settings
 
+static QString displayName() { return Tr::tr("Artistic Style"); }
+
 const char SETTINGS_NAME[]            = "artisticstyle";
 
 class ArtisticStyleSettings : public AbstractSettings
@@ -63,8 +64,7 @@ public:
         setVersionRegExp(QRegularExpression("([2-9]{1})\\.([0-9]{1,2})(\\.[1-9]{1})?$"));
         command.setLabelText(Tr::tr("Artistic Style command:"));
         command.setDefaultValue("astyle");
-        command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-            Tr::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
+        command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(displayName()));
 
         useOtherFiles.setSettingsKey("useOtherFiles");
         useOtherFiles.setLabelText(Tr::tr("Use file *.astylerc defined in project files"));
@@ -239,7 +239,7 @@ public:
     ArtisticStyleOptionsPage()
     {
         setId("ArtisticStyle");
-        setDisplayName(Tr::tr("Artistic Style"));
+        setDisplayName(displayName());
         setCategory(Constants::OPTION_CATEGORY);
         setWidgetCreator([] { return new ArtisticStyleOptionsPageWidget; });
     }
@@ -267,7 +267,7 @@ ArtisticStyle::ArtisticStyle()
 
 QString ArtisticStyle::id() const
 {
-    return QLatin1String(Constants::ARTISTICSTYLE_DISPLAY_NAME);
+    return "Artistic Style";
 }
 
 void ArtisticStyle::updateActions(Core::IEditor *editor)
@@ -278,12 +278,10 @@ void ArtisticStyle::updateActions(Core::IEditor *editor)
 void ArtisticStyle::formatFile()
 {
     const QString cfgFileName = configurationFile();
-    if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        Tr::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
-    } else {
+    if (cfgFileName.isEmpty())
+        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(displayName()));
+    else
         formatCurrentFile(command(cfgFileName));
-    }
 }
 
 QString ArtisticStyle::configurationFile() const

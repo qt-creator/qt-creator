@@ -5,8 +5,6 @@
 
 #include "uncrustify.h"
 
-#include "uncrustifyconstants.h"
-
 #include "../abstractsettings.h"
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
@@ -54,6 +52,8 @@ namespace Beautifier::Internal {
 
 const char SETTINGS_NAME[] = "uncrustify";
 
+static QString displayName()  { return Tr::tr("Uncrustify"); }
+
 class UncrustifySettings : public AbstractSettings
 {
 public:
@@ -64,8 +64,7 @@ public:
 
         command.setDefaultValue("uncrustify");
         command.setLabelText(Tr::tr("Uncrustify command:"));
-        command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-            Tr::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
+        command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(displayName()));
 
         useOtherFiles.setSettingsKey("useOtherFiles");
         useOtherFiles.setDefaultValue(true);
@@ -270,7 +269,7 @@ Uncrustify::Uncrustify()
 
 QString Uncrustify::id() const
 {
-    return QLatin1String(Constants::UNCRUSTIFY_DISPLAY_NAME);
+    return "Uncrustify";
 }
 
 void Uncrustify::updateActions(Core::IEditor *editor)
@@ -283,20 +282,17 @@ void Uncrustify::updateActions(Core::IEditor *editor)
 void Uncrustify::formatFile()
 {
     const FilePath cfgFileName = configurationFile();
-    if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        Tr::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
-    } else {
+    if (cfgFileName.isEmpty())
+        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(displayName()));
+    else
         formatCurrentFile(command(cfgFileName));
-    }
 }
 
 void Uncrustify::formatSelectedText()
 {
     const FilePath cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        Tr::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
+        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(displayName()));
         return;
     }
 

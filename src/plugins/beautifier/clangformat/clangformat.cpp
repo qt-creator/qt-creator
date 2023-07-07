@@ -5,8 +5,6 @@
 
 #include "clangformat.h"
 
-#include "clangformatconstants.h"
-
 #include "../abstractsettings.h"
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
@@ -367,7 +365,7 @@ ClangFormat::ClangFormat()
 
 QString ClangFormat::id() const
 {
-    return QLatin1String(Constants::CLANGFORMAT_DISPLAY_NAME);
+    return "ClangFormat";
 }
 
 void ClangFormat::updateActions(Core::IEditor *editor)

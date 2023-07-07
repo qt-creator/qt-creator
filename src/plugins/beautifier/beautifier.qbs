@@ -35,7 +35,6 @@ QtcPlugin {
         files: [
             "artisticstyle.cpp",
             "artisticstyle.h",
-            "artisticstyleconstants.h",
         ]
     }
 
@@ -45,7 +44,6 @@ QtcPlugin {
         files: [
             "clangformat.cpp",
             "clangformat.h",
-            "clangformatconstants.h",
         ]
     }
 
@@ -55,7 +53,6 @@ QtcPlugin {
         files: [
             "uncrustify.cpp",
             "uncrustify.h",
-            "uncrustifyconstants.h",
         ]
     }
 }

@@ -4,18 +4,15 @@ add_qtc_plugin(Beautifier
   SOURCES
     abstractsettings.cpp abstractsettings.h
     artisticstyle/artisticstyle.cpp artisticstyle/artisticstyle.h
-    artisticstyle/artisticstyleconstants.h
     beautifier.qrc
     beautifierabstracttool.h
     beautifierconstants.h
     beautifierplugin.cpp beautifierplugin.h
     beautifiertr.h
     clangformat/clangformat.cpp clangformat/clangformat.h
-    clangformat/clangformatconstants.h
     configurationdialog.cpp configurationdialog.h
     configurationeditor.cpp configurationeditor.h
     configurationpanel.cpp configurationpanel.h
     generalsettings.cpp generalsettings.h
     uncrustify/uncrustify.cpp uncrustify/uncrustify.h
-    uncrustify/uncrustifyconstants.h
 )
