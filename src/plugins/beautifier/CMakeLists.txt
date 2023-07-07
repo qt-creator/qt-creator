@@ -19,5 +19,4 @@ add_qtc_plugin(Beautifier
     generalsettings.cpp generalsettings.h
     uncrustify/uncrustify.cpp uncrustify/uncrustify.h
     uncrustify/uncrustifyconstants.h
-    uncrustify/uncrustifysettings.cpp uncrustify/uncrustifysettings.h
 )

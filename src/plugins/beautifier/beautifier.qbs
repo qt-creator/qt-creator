@@ -58,8 +58,6 @@ QtcPlugin {
             "uncrustify.cpp",
             "uncrustify.h",
             "uncrustifyconstants.h",
-            "uncrustifysettings.cpp",
-            "uncrustifysettings.h"
         ]
     }
 }
