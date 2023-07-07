@@ -116,7 +116,7 @@ private:
 
     void createUserFields(const QString &fieldConfigFile);
     bool checkSubmitMessage(QString *errorMessage) const;
-    bool runSubmitMessageCheckScript(const QString &script, QString *errorMessage) const;
+    bool runSubmitMessageCheckScript(const Utils::FilePath &script, QString *errorMessage) const;
     QString promptForNickName();
     void close();
 

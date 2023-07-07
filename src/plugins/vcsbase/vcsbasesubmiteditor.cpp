@@ -521,7 +521,7 @@ void VcsBaseSubmitEditor::slotCheckSubmitMessage()
 
 bool VcsBaseSubmitEditor::checkSubmitMessage(QString *errorMessage) const
 {
-    const QString checkScript = commonSettings().submitMessageCheckScript.value();
+    const FilePath checkScript = commonSettings().submitMessageCheckScript();
     if (checkScript.isEmpty())
         return true;
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -530,17 +530,17 @@ bool VcsBaseSubmitEditor::checkSubmitMessage(QString *errorMessage) const
     return rc;
 }
 
-static QString msgCheckScript(const FilePath &workingDir, const QString &cmd)
+static QString msgCheckScript(const FilePath &workingDir, const FilePath &cmd)
 {
-    const QString nativeCmd = QDir::toNativeSeparators(cmd);
+    const QString nativeCmd = cmd.toUserOutput();
     return workingDir.isEmpty() ?
            Tr::tr("Executing %1").arg(nativeCmd) :
-           Tr::tr("Executing [%1] %2").
-           arg(workingDir.toUserOutput(), nativeCmd);
+           Tr::tr("Executing [%1] %2").arg(workingDir.toUserOutput(), nativeCmd);
 }
 
-bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript, QString *errorMessage) const
+bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScript, QString *errorMessage) const
 {
+    QTC_ASSERT(!checkScript.needsDevice(), return false); // Not supported below.
     // Write out message
     TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
     saver.write(fileContents());
@@ -552,7 +552,7 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     Process checkProcess;
     if (!d->m_checkScriptWorkingDirectory.isEmpty())
         checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
-    checkProcess.setCommand({FilePath::fromString(checkScript), {saver.filePath().toString()}});
+    checkProcess.setCommand({checkScript, {saver.filePath().path()}});
     checkProcess.start();
     const bool succeeded = checkProcess.waitForFinished();
 
