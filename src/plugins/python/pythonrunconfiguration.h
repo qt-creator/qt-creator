@@ -17,7 +17,7 @@ class PythonInterpreterAspect final : public ProjectExplorer::InterpreterAspect
     Q_OBJECT
 
 public:
-    explicit PythonInterpreterAspect(PythonRunConfiguration *rc);
+    PythonInterpreterAspect(Utils::AspectContainer *container, ProjectExplorer::RunConfiguration *rc);
     ~PythonInterpreterAspect() final;
 
     QList<PySideUicExtraCompiler *> extraCompilers() const;

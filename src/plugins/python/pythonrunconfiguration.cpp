@@ -122,7 +122,7 @@ private:
 class PythonInterpreterAspectPrivate : public QObject
 {
 public:
-    PythonInterpreterAspectPrivate(PythonInterpreterAspect *parent, PythonRunConfiguration *rc)
+    PythonInterpreterAspectPrivate(PythonInterpreterAspect *parent, RunConfiguration *rc)
         : q(parent), rc(rc)
     {
         connect(q, &InterpreterAspect::changed,
@@ -135,6 +135,9 @@ public:
                         checkForPySide(python);
                 }
         );
+
+        connect(rc->target(), &Target::buildSystemUpdated,
+                this, &PythonInterpreterAspectPrivate::updateExtraCompilers);
     }
 
     ~PythonInterpreterAspectPrivate() { qDeleteAll(m_extraCompilers); }
@@ -150,46 +153,28 @@ public:
     FilePath m_pySideUicPath;
 
     PythonInterpreterAspect *q;
-    PythonRunConfiguration *rc;
+    RunConfiguration *rc;
     QList<PySideUicExtraCompiler *> m_extraCompilers;
     QFutureWatcher<PipPackageInfo> m_watcher;
     QMetaObject::Connection m_watcherConnection;
 };
 
-PythonInterpreterAspect::PythonInterpreterAspect(PythonRunConfiguration *rc)
-    : d(new PythonInterpreterAspectPrivate(this, rc))
-{}
-
-PythonInterpreterAspect::~PythonInterpreterAspect()
+PythonInterpreterAspect::PythonInterpreterAspect(AspectContainer *container, RunConfiguration *rc)
+    : InterpreterAspect(container), d(new PythonInterpreterAspectPrivate(this, rc))
 {
-    delete d;
-}
+    setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
+    setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
 
-class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-public:
-    PythonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-};
-
-PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
-{
-    auto interpreterAspect = addAspect<PythonInterpreterAspect>(this);
-    interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
-    interpreterAspect->setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
-
-    connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
-            interpreterAspect, &InterpreterAspect::updateInterpreters);
+    updateInterpreters(PythonSettings::interpreters());
 
     const QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(
-        project()->projectDirectory());
-    interpreterAspect->updateInterpreters(PythonSettings::interpreters());
+        rc->project()->projectDirectory());
     Interpreter defaultInterpreter = interpreters.isEmpty() ? PythonSettings::defaultInterpreter()
                                                             : interpreters.first();
     if (!defaultInterpreter.command.isExecutableFile())
         defaultInterpreter = PythonSettings::interpreters().value(0);
     if (defaultInterpreter.command.isExecutableFile()) {
-        const IDeviceConstPtr device = DeviceKitAspect::device(target->kit());
+        const IDeviceConstPtr device = DeviceKitAspect::device(rc->kit());
         if (device && !device->handlesFile(defaultInterpreter.command)) {
             defaultInterpreter = Utils::findOr(PythonSettings::interpreters(),
                                                defaultInterpreter,
@@ -198,56 +183,15 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
                                                });
         }
     }
-    interpreterAspect->setDefaultInterpreter(defaultInterpreter);
+    setDefaultInterpreter(defaultInterpreter);
 
-    auto bufferedAspect = addAspect<BoolAspect>();
-    bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
-    bufferedAspect->setLabel(Tr::tr("Buffered output"), BoolAspect::LabelPlacement::AtCheckBox);
-    bufferedAspect->setToolTip(Tr::tr("Enabling improves output performance, "
-                                  "but results in delayed output."));
+    connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
+            this, &InterpreterAspect::updateInterpreters);
+}
 
-    auto scriptAspect = addAspect<MainScriptAspect>();
-    scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
-    scriptAspect->setLabelText(Tr::tr("Script:"));
-    scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
-
-    auto envAspect = addAspect<EnvironmentAspect>();
-    envAspect->setSupportForBuildEnvironment(target);
-
-    auto argumentsAspect = addAspect<ArgumentsAspect>();
-    argumentsAspect->setMacroExpander(macroExpander());
-
-    auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
-    workingDirAspect->setMacroExpander(macroExpander());
-
-    addAspect<TerminalAspect>();
-
-    if (HostOsInfo::isAnyUnixHost()) {
-        auto x11Forwarding = addAspect<X11ForwardingAspect>();
-        x11Forwarding->setMacroExpander(macroExpander());
-    }
-
-    setCommandLineGetter([bufferedAspect, interpreterAspect, argumentsAspect, scriptAspect] {
-        CommandLine cmd{interpreterAspect->currentInterpreter().command};
-        if (!bufferedAspect->value())
-            cmd.addArg("-u");
-        cmd.addArg(scriptAspect->filePath().fileName());
-        cmd.addArgs(argumentsAspect->arguments(), CommandLine::Raw);
-        return cmd;
-    });
-
-    setUpdater([this, scriptAspect] {
-        const BuildTargetInfo bti = buildTargetInfo();
-        const QString script = bti.targetFilePath.toUserOutput();
-        setDefaultDisplayName(Tr::tr("Run %1").arg(script));
-        scriptAspect->setValue(script);
-        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
-    });
-
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-    connect(target, &Target::buildSystemUpdated, this, [this, interpreterAspect] {
-        interpreterAspect->d->updateExtraCompilers();
-    });
+PythonInterpreterAspect::~PythonInterpreterAspect()
+{
+    delete d;
 }
 
 void PythonInterpreterAspectPrivate::checkForPySide(const FilePath &python)
@@ -351,9 +295,9 @@ void PythonInterpreterAspectPrivate::updateExtraCompilers()
     m_extraCompilers.clear();
 
     if (m_pySideUicPath.isExecutableFile()) {
-        auto uiMatcher = [](const ProjectExplorer::Node *node) {
-            if (const ProjectExplorer::FileNode *fileNode = node->asFileNode())
-                return fileNode->fileType() == ProjectExplorer::FileType::Form;
+        auto uiMatcher = [](const Node *node) {
+            if (const FileNode *fileNode = node->asFileNode())
+                return fileNode->fileType() == FileType::Form;
             return false;
         };
         const FilePaths uiFiles = rc->project()->files(uiMatcher);
@@ -382,6 +326,63 @@ void PythonInterpreterAspectPrivate::updateExtraCompilers()
     }
     qDeleteAll(oldCompilers);
 }
+
+// RunConfiguration
+
+class PythonRunConfiguration : public RunConfiguration
+{
+public:
+    PythonRunConfiguration(Target *target, Id id)
+        : RunConfiguration(target, id)
+    {
+        buffered.setSettingsKey("PythonEditor.RunConfiguation.Buffered");
+        buffered.setLabelText(Tr::tr("Buffered output"));
+        buffered.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+        buffered.setToolTip(Tr::tr("Enabling improves output performance, "
+                                   "but results in delayed output."));
+
+        mainScript.setSettingsKey("PythonEditor.RunConfiguation.Script");
+        mainScript.setLabelText(Tr::tr("Script:"));
+        mainScript.setDisplayStyle(StringAspect::LabelDisplay);
+
+        environment.setSupportForBuildEnvironment(target);
+
+        arguments.setMacroExpander(macroExpander());
+
+        workingDir.setMacroExpander(macroExpander());
+
+        x11Forwarding.setMacroExpander(macroExpander());
+        x11Forwarding.setVisible(HostOsInfo::isAnyUnixHost());
+
+        setCommandLineGetter([this] {
+            CommandLine cmd{interpreter.currentInterpreter().command};
+            if (!buffered())
+                cmd.addArg("-u");
+            cmd.addArg(mainScript.filePath().fileName());
+            cmd.addArgs(arguments(), CommandLine::Raw);
+            return cmd;
+        });
+
+        setUpdater([this] {
+            const BuildTargetInfo bti = buildTargetInfo();
+            const QString script = bti.targetFilePath.toUserOutput();
+            setDefaultDisplayName(Tr::tr("Run %1").arg(script));
+            mainScript.setValue(script);
+            workingDir.setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
+        });
+
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    }
+
+    PythonInterpreterAspect interpreter{this, this};
+    BoolAspect buffered{this};
+    MainScriptAspect mainScript{this};
+    EnvironmentAspect environment{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
+    X11ForwardingAspect x11Forwarding{this};
+};
 
 // Factories
 
