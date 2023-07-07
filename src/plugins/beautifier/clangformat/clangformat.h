@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../beautifierabstracttool.h"
+#include "../beautifiertool.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -11,7 +11,7 @@ QT_END_NAMESPACE
 
 namespace Beautifier::Internal {
 
-class ClangFormat : public BeautifierAbstractTool
+class ClangFormat : public BeautifierTool
 {
 public:
     ClangFormat();

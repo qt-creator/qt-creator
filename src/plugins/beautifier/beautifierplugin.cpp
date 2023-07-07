@@ -74,7 +74,7 @@ public:
     ClangFormat clangFormatBeautifier;
     Uncrustify uncrustifyBeautifier;
 
-    BeautifierAbstractTool *m_tools[3] {
+    BeautifierTool *m_tools[3] {
         &artisticStyleBeautifier,
         &uncrustifyBeautifier,
         &clangFormatBeautifier
@@ -105,7 +105,7 @@ ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
 
 BeautifierPluginPrivate::BeautifierPluginPrivate()
 {
-    for (BeautifierAbstractTool *tool : m_tools)
+    for (BeautifierTool *tool : m_tools)
         generalSettings.autoFormatTools.addOption(tool->id());
 
     updateActions();
@@ -119,7 +119,7 @@ BeautifierPluginPrivate::BeautifierPluginPrivate()
 
 void BeautifierPluginPrivate::updateActions(Core::IEditor *editor)
 {
-    for (BeautifierAbstractTool *tool : m_tools)
+    for (BeautifierTool *tool : m_tools)
         tool->updateActions(editor);
 }
 
@@ -147,7 +147,7 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
     // Find tool to use by id and format file!
     const QString id = generalSettings.autoFormatTools.stringValue();
     auto tool = std::find_if(std::begin(m_tools), std::end(m_tools),
-                             [&id](const BeautifierAbstractTool *t){return t->id() == id;});
+                             [&id](const BeautifierTool *t){return t->id() == id;});
     if (tool != std::end(m_tools)) {
         if (!(*tool)->isApplicable(document))
             return;

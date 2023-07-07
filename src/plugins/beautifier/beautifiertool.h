@@ -5,12 +5,15 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <texteditor/command.h>
+
 #include <utils/aspects.h>
 #include <utils/filepath.h>
 
 #include <QDir>
 #include <QHash>
 #include <QMap>
+#include <QObject>
 #include <QSet>
 #include <QString>
 #include <QStringList>
@@ -22,9 +25,30 @@ class QRegularExpression;
 class QVersionNumber;
 QT_END_NAMESPACE
 
-namespace Core { class IDocument; }
+namespace Core {
+class IDocument;
+class IEditor;
+}
 
-namespace Beautifier::Internal {
+namespace Beautifier::Internal  {
+
+class BeautifierTool : public QObject
+{
+public:
+    BeautifierTool() = default;
+
+    virtual QString id() const = 0;
+    virtual void updateActions(Core::IEditor *editor) = 0;
+
+    /**
+     * Returns the tool's command to format an entire file.
+     *
+     * @note    The received command may be invalid.
+     */
+    virtual TextEditor::Command command() const = 0;
+
+    virtual bool isApplicable(const Core::IDocument *document) const = 0;
+};
 
 class VersionUpdater;
 

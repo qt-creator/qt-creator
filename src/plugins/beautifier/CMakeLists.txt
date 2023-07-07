@@ -4,7 +4,6 @@ add_qtc_plugin(Beautifier
   SOURCES
     artisticstyle/artisticstyle.cpp artisticstyle/artisticstyle.h
     beautifier.qrc
-    beautifierabstracttool.h
     beautifierconstants.h
     beautifierplugin.cpp beautifierplugin.h
     beautifiertool.cpp beautifiertool.h
