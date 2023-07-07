@@ -14,8 +14,9 @@ class BuildConfiguration;
 class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public Utils::FilePathAspect
 {
     Q_OBJECT
+
 public:
-    explicit BuildDirectoryAspect(const BuildConfiguration *bc);
+    explicit BuildDirectoryAspect(Utils::AspectContainer *container, const BuildConfiguration *bc);
     ~BuildDirectoryAspect() override;
 
     void allowInSourceBuilds(const Utils::FilePath &sourceDir);

@@ -36,8 +36,9 @@ public:
     QPointer<InfoLabel> problemLabel;
 };
 
-BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc)
-    : d(new Private(bc->target()))
+BuildDirectoryAspect::BuildDirectoryAspect(AspectContainer *container, const BuildConfiguration *bc)
+    : FilePathAspect(container),
+      d(new Private(bc->target()))
 {
     setSettingsKey("ProjectExplorer.BuildConfiguration.BuildDirectory");
     setLabelText(Tr::tr("Build directory:"));

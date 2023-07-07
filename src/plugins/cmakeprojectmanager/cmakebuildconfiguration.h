@@ -79,7 +79,7 @@ public:
     void setInitialCMakeArguments(const QStringList &args);
     void setCMakeBuildType(const QString &cmakeBuildType, bool quiet = false);
 
-    ProjectExplorer::BuildDirectoryAspect buildDir{this};
+    ProjectExplorer::BuildDirectoryAspect buildDir{this, this};
     Internal::InitialCMakeArgumentsAspect initialCMakeArguments{this};
     Utils::StringAspect additionalCMakeOptions{this};
     Utils::FilePathAspect sourceDirectory{this};
