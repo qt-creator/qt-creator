@@ -9,7 +9,7 @@
 
 /*!
     \page creator-reference-issues-view.html
-    \previouspage creator-how-to-view-output.html
+    \previouspage creator-reference.html
 
     \ingroup creator-reference-output-views
     \ingroup studio-reference-output-views
@@ -117,7 +117,7 @@
 
 /*!
     \page creator-reference-search-results-view.html
-    \previouspage creator-how-to-view-output.html
+    \previouspage creator-reference.html
 
     \ingroup creator-reference-output-views
     \ingroup studio-reference-output-views
@@ -143,7 +143,7 @@
 
 /*!
     \page creator-reference-application-output-view.html
-    \previouspage creator-how-to-view-output.html
+    \previouspage creator-reference.html
 
     \ingroup creator-reference-output-views
     \ingroup studio-reference-output-views
@@ -185,7 +185,7 @@
 
 /*!
     \page creator-reference-compile-output-view.html
-    \previouspage creator-how-to-view-output.html
+    \previouspage creator-reference.html
 
     \ingroup creator-reference-output-views
     \ingroup studio-reference-output-views

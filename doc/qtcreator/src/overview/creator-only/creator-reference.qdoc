@@ -1,0 +1,22 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-reference.html
+    \previouspage creator-how-tos.html
+    \nextpage creator-known-issues.html
+
+    \title Reference
+
+    The following topics describe the different parts of the UI in detail.
+
+    \section1 Sidebar Views
+
+    \annotatedlist creator-reference-sidebar-views
+
+    \section1 Output Views
+
+    \annotatedlist creator-reference-output-views
+
+    \sa {User Interface}, {Show and hide sidebars}, {View output}
+*/
