@@ -7,9 +7,11 @@
 
 #include "clangformatconstants.h"
 
+#include "../abstractsettings.h"
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
 #include "../beautifiertr.h"
+#include "../configurationpanel.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -17,21 +19,316 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+
 #include <texteditor/formattexteditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
+#include <utils/aspects.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 
 #include <QAction>
+#include <QButtonGroup>
+#include <QComboBox>
+#include <QDateTime>
+#include <QGroupBox>
 #include <QMenu>
+#include <QRadioButton>
 #include <QTextBlock>
 #include <QTextCodec>
+#include <QXmlStreamWriter>
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace Beautifier::Internal {
+
+const char SETTINGS_NAME[]               = "clangformat";
+
+class ClangFormatSettings : public AbstractSettings
+{
+public:
+    explicit ClangFormatSettings()
+        : AbstractSettings(SETTINGS_NAME, ".clang-format")
+    {
+        command.setDefaultValue("clang-format");
+        command.setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
+        command.setLabelText(Tr::tr("Clang Format command:"));
+
+        usePredefinedStyle.setSettingsKey("usePredefinedStyle");
+        usePredefinedStyle.setLabelText(Tr::tr("Use predefined style:"));
+        usePredefinedStyle.setDefaultValue(true);
+
+        predefinedStyle.setSettingsKey("predefinedStyle");
+        predefinedStyle.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+        predefinedStyle.addOption("LLVM");
+        predefinedStyle.addOption("Google");
+        predefinedStyle.addOption("Chromium");
+        predefinedStyle.addOption("Mozilla");
+        predefinedStyle.addOption("WebKit");
+        predefinedStyle.addOption("File");
+        predefinedStyle.setDefaultValue("LLVM");
+
+        fallbackStyle.setSettingsKey("fallbackStyle");
+        fallbackStyle.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+        fallbackStyle.addOption("Default");
+        fallbackStyle.addOption("None");
+        fallbackStyle.addOption("LLVM");
+        fallbackStyle.addOption("Google");
+        fallbackStyle.addOption("Chromium");
+        fallbackStyle.addOption("Mozilla");
+        fallbackStyle.addOption("WebKit");
+        fallbackStyle.setDefaultValue("Default");
+
+        predefinedStyle.setSettingsKey("predefinedStyle");
+        predefinedStyle.setDefaultValue("LLVM");
+
+        customStyle.setSettingsKey("customStyle");
+
+        documentationFilePath = Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)
+                                    .pathAppended(Constants::DOCUMENTATION_DIRNAME)
+                                    .pathAppended(SETTINGS_NAME).stringAppended(".xml");
+
+        read();
+    }
+
+    void createDocumentationFile() const override;
+
+    QStringList completerWords() override;
+
+    BoolAspect usePredefinedStyle{this};
+    SelectionAspect predefinedStyle{this};
+    SelectionAspect fallbackStyle{this};
+    StringAspect customStyle{this};
+
+    QString styleFileName(const QString &key) const override;
+
+private:
+    void readStyles() override;
+};
+
+void ClangFormatSettings::createDocumentationFile() const
+{
+    QFile file(documentationFilePath.toFSPathString());
+    const QFileInfo fi(file);
+    if (!fi.exists())
+        fi.dir().mkpath(fi.absolutePath());
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+        return;
+
+    QXmlStreamWriter stream(&file);
+    stream.setAutoFormatting(true);
+    stream.writeStartDocument("1.0", true);
+    stream.writeComment("Created " + QDateTime::currentDateTime().toString(Qt::ISODate));
+    stream.writeStartElement(Constants::DOCUMENTATION_XMLROOT);
+
+    const QStringList lines = {
+        "BasedOnStyle {string: LLVM, Google, Chromium, Mozilla, WebKit}",
+        "AccessModifierOffset {int}",
+        "AlignEscapedNewlinesLeft {bool}",
+        "AlignTrailingComments {bool}",
+        "AllowAllParametersOfDeclarationOnNextLine {bool}",
+        "AllowShortFunctionsOnASingleLine {bool}",
+        "AllowShortIfStatementsOnASingleLine {bool}",
+        "AllowShortLoopsOnASingleLine {bool}",
+        "AlwaysBreakBeforeMultilineStrings {bool}",
+        "AlwaysBreakTemplateDeclarations {bool}",
+        "BinPackParameters {bool}",
+        "BreakBeforeBinaryOperators {bool}",
+        "BreakBeforeBraces {BraceBreakingStyle: BS_Attach, BS_Linux, BS_Stroustrup, BS_Allman, BS_GNU}",
+        "BreakBeforeTernaryOperators {bool}",
+        "BreakConstructorInitializersBeforeComma {bool}",
+        "ColumnLimit {unsigned}",
+        "CommentPragmas {string}",
+        "ConstructorInitializerAllOnOneLineOrOnePerLine {bool}",
+        "ConstructorInitializerIndentWidth {unsigned}",
+        "ContinuationIndentWidth {unsigned}",
+        "Cpp11BracedListStyle {bool}",
+        "IndentCaseLabels {bool}",
+        "IndentFunctionDeclarationAfterType {bool}",
+        "IndentWidth {unsigned}",
+        "Language {LanguageKind: LK_None, LK_Cpp, LK_JavaScript, LK_Proto}",
+        "MaxEmptyLinesToKeep {unsigned}",
+        "NamespaceIndentation {NamespaceIndentationKind: NI_None, NI_Inner, NI_All}",
+        "ObjCSpaceAfterProperty {bool}",
+        "ObjCSpaceBeforeProtocolList {bool}",
+        "PenaltyBreakBeforeFirstCallParameter {unsigned}",
+        "PenaltyBreakComment {unsigned}",
+        "PenaltyBreakFirstLessLess {unsigned}",
+        "PenaltyBreakString {unsigned}",
+        "PenaltyExcessCharacter {unsigned}",
+        "PenaltyReturnTypeOnItsOwnLine {unsigned}",
+        "PointerBindsToType {bool}",
+        "SpaceBeforeAssignmentOperators {bool}",
+        "SpaceBeforeParens {SpaceBeforeParensOptions: SBPO_Never, SBPO_ControlStatements, SBPO_Always}",
+        "SpaceInEmptyParentheses {bool}",
+        "SpacesBeforeTrailingComments {unsigned}",
+        "SpacesInAngles {bool}",
+        "SpacesInCStyleCastParentheses {bool}",
+        "SpacesInContainerLiterals {bool}",
+        "SpacesInParentheses {bool}",
+        "Standard {LanguageStandard: LS_Cpp03, LS_Cpp11, LS_Auto}",
+        "TabWidth {unsigned}",
+        "UseTab {UseTabStyle: UT_Never, UT_ForIndentation, UT_Always}"
+    };
+
+    for (const QString& line : lines) {
+        const int firstSpace = line.indexOf(' ');
+        const QString keyword = line.left(firstSpace);
+        const QString options = line.right(line.size() - firstSpace).trimmed();
+        const QString text = "<p><span class=\"option\">" + keyword
+                + "</span> <span class=\"param\">" + options
+                + "</span></p><p>" + Tr::tr("No description available.") + "</p>";
+        stream.writeStartElement(Constants::DOCUMENTATION_XMLENTRY);
+        stream.writeTextElement(Constants::DOCUMENTATION_XMLKEY, keyword);
+        stream.writeTextElement(Constants::DOCUMENTATION_XMLDOC, text);
+        stream.writeEndElement();
+    }
+
+    stream.writeEndElement();
+    stream.writeEndDocument();
+}
+
+QStringList ClangFormatSettings::completerWords()
+{
+    return {
+        "LLVM",
+        "Google",
+        "Chromium",
+        "Mozilla",
+        "WebKit",
+        "BS_Attach",
+        "BS_Linux",
+        "BS_Stroustrup",
+        "BS_Allman",
+        "NI_None",
+        "NI_Inner",
+        "NI_All",
+        "LS_Cpp03",
+        "LS_Cpp11",
+        "LS_Auto",
+        "UT_Never",
+        "UT_ForIndentation",
+        "UT_Always"
+    };
+}
+
+QString ClangFormatSettings::styleFileName(const QString &key) const
+{
+    return m_styleDir.absolutePath() + '/' + key + '/' + m_ending;
+}
+
+void ClangFormatSettings::readStyles()
+{
+    const QStringList dirs = m_styleDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+    for (const QString &dir : dirs) {
+        QFile file(m_styleDir.absoluteFilePath(dir + '/' + m_ending));
+        if (file.open(QIODevice::ReadOnly))
+            m_styles.insert(dir, QString::fromLocal8Bit(file.readAll()));
+    }
+}
+
+static ClangFormatSettings &settings()
+{
+    static ClangFormatSettings theSettings;
+    return theSettings;
+}
+
+class ClangFormatOptionsPageWidget : public Core::IOptionsPageWidget
+{
+public:
+    explicit ClangFormatOptionsPageWidget()
+    {
+        ClangFormatSettings &s = settings();
+        QGroupBox *options = nullptr;
+
+        auto predefinedStyleButton = new QRadioButton;
+        s.usePredefinedStyle.adoptButton(predefinedStyleButton);
+
+        auto customizedStyleButton = new QRadioButton(Tr::tr("Use customized style:"));
+
+        auto styleButtonGroup = new QButtonGroup;
+        styleButtonGroup->addButton(predefinedStyleButton);
+        styleButtonGroup->addButton(customizedStyleButton);
+
+        auto configurations = new ConfigurationPanel(this);
+        configurations->setSettings(&s);
+        configurations->setCurrentConfiguration(s.customStyle());
+
+        using namespace Layouting;
+
+        auto fallbackBlob = Row { noMargin, Tr::tr("Fallback style:"), s.fallbackStyle }.emerge();
+
+        auto predefinedBlob = Column { noMargin, s.predefinedStyle, fallbackBlob }.emerge();
+
+        Column {
+            Group {
+                title(Tr::tr("Configuration")),
+                Form {
+                    s.command, br,
+                    s.supportedMimeTypes
+                }
+            },
+            Group {
+                title(Tr::tr("Options")),
+                bindTo(&options),
+                Form {
+                    s.usePredefinedStyle, predefinedBlob, br,
+                    customizedStyleButton, configurations,
+                },
+            },
+            st
+        }.attachTo(this);
+
+        if (s.usePredefinedStyle.value())
+            predefinedStyleButton->click();
+        else
+            customizedStyleButton->click();
+
+        const auto updateEnabled = [&s, styleButtonGroup, predefinedBlob, fallbackBlob,
+                                    configurations, predefinedStyleButton] {
+            const bool predefSelected = styleButtonGroup->checkedButton() == predefinedStyleButton;
+            predefinedBlob->setEnabled(predefSelected);
+            fallbackBlob->setEnabled(predefSelected && s.predefinedStyle.volatileValue() == 5); // File
+            configurations->setEnabled(!predefSelected);
+        };
+        updateEnabled();
+        connect(styleButtonGroup, &QButtonGroup::buttonClicked, this, updateEnabled);
+        connect(&s.predefinedStyle, &SelectionAspect::volatileValueChanged, this, updateEnabled);
+
+        setOnApply([configurations] {
+            settings().customStyle.setValue(configurations->currentConfiguration());
+            settings().save();
+        });
+
+        s.read();
+
+        connect(s.command.pathChooser(), &PathChooser::validChanged, options, &QWidget::setEnabled);
+        options->setEnabled(s.command.pathChooser()->isValid());
+    }
+};
+
+class ClangFormatOptionsPage final : public Core::IOptionsPage
+{
+public:
+    ClangFormatOptionsPage()
+    {
+        setId("ClangFormat");
+        setDisplayName(Tr::tr("Clang Format"));
+        setCategory(Constants::OPTION_CATEGORY);
+        setWidgetCreator([] { return new ClangFormatOptionsPageWidget; });
+    }
+};
+
+const ClangFormatOptionsPage settingsPage;
+
+
+// ClangFormat
 
 ClangFormat::ClangFormat()
 {
@@ -64,7 +361,7 @@ ClangFormat::ClangFormat()
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
-    connect(&m_settings.supportedMimeTypes, &Utils::BaseAspect::changed,
+    connect(&settings().supportedMimeTypes, &BaseAspect::changed,
             this, [this] { updateActions(Core::EditorManager::currentEditor()); });
 }
 
@@ -75,7 +372,7 @@ QString ClangFormat::id() const
 
 void ClangFormat::updateActions(Core::IEditor *editor)
 {
-    const bool enabled = editor && m_settings.isApplicable(editor->document());
+    const bool enabled = editor && settings().isApplicable(editor->document());
     m_formatFile->setEnabled(enabled);
     m_formatRange->setEnabled(enabled);
 }
@@ -187,14 +484,14 @@ void ClangFormat::disableFormattingSelectedText()
 Command ClangFormat::command() const
 {
     Command command;
-    command.setExecutable(m_settings.command());
+    command.setExecutable(settings().command());
     command.setProcessing(Command::PipeProcessing);
 
-    if (m_settings.usePredefinedStyle()) {
-        const QString predefinedStyle = m_settings.predefinedStyle.stringValue();
+    if (settings().usePredefinedStyle()) {
+        const QString predefinedStyle = settings().predefinedStyle.stringValue();
         command.addOption("-style=" + predefinedStyle);
         if (predefinedStyle == "File") {
-            const QString fallbackStyle = m_settings.fallbackStyle.stringValue();
+            const QString fallbackStyle = settings().fallbackStyle.stringValue();
             if (fallbackStyle != "Default")
                 command.addOption("-fallback-style=" + fallbackStyle);
         }
@@ -203,7 +500,7 @@ Command ClangFormat::command() const
     } else {
         command.addOption("-style=file");
         const QString path =
-                QFileInfo(m_settings.styleFileName(m_settings.customStyle())).absolutePath();
+                QFileInfo(settings().styleFileName(settings().customStyle())).absolutePath();
         command.addOption("-assume-filename=" + path + QDir::separator() + "%filename");
     }
 
@@ -212,7 +509,7 @@ Command ClangFormat::command() const
 
 bool ClangFormat::isApplicable(const Core::IDocument *document) const
 {
-    return m_settings.isApplicable(document);
+    return settings().isApplicable(document);
 }
 
 Command ClangFormat::command(int offset, int length) const

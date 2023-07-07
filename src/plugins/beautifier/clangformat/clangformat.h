@@ -5,7 +5,9 @@
 
 #include "../beautifierabstracttool.h"
 
-#include "clangformatsettings.h"
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 namespace Beautifier::Internal {
 
@@ -31,8 +33,6 @@ private:
     QAction *m_formatLines = nullptr;
     QAction *m_formatRange = nullptr;
     QAction *m_disableFormattingSelectedText = nullptr;
-    ClangFormatSettings m_settings;
-    ClangFormatOptionsPage m_page{&m_settings};
 };
 
 } // Beautifier::Internal
