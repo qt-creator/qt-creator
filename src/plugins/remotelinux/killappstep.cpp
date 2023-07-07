@@ -27,12 +27,12 @@ public:
     {
         setWidgetExpandedByDefault(false);
 
-        setInternalInitializer([this] {
+        setInternalInitializer([this]() -> expected_str<void> {
             Target * const theTarget = target();
-            QTC_ASSERT(theTarget, return CheckResult::failure());
+            QTC_ASSERT(theTarget, return make_unexpected(QString()));
             RunConfiguration * const rc = theTarget->activeRunConfiguration();
             m_remoteExecutable =  rc ? rc->runnable().command.executable() : FilePath();
-            return CheckResult::success();
+            return {};
         });
     }
 

@@ -17,22 +17,6 @@ namespace RemoteLinux {
 
 namespace Internal { class AbstractRemoteLinuxDeployStepPrivate; }
 
-class REMOTELINUX_EXPORT CheckResult
-{
-public:
-    static CheckResult success() { return {true, {}}; }
-    static CheckResult failure(const QString &error = {}) { return {false, error}; }
-
-    operator bool() const { return m_ok; }
-    QString errorMessage() const { return m_error; }
-
-private:
-    CheckResult(bool ok, const QString &error) : m_ok(ok), m_error(error) {}
-
-    bool m_ok = false;
-    QString m_error;
-};
-
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer::BuildStep
 {
 public:
@@ -41,7 +25,7 @@ public:
 
     ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
 
-    virtual CheckResult isDeploymentPossible() const;
+    virtual Utils::expected_str<void> isDeploymentPossible() const;
 
     void handleStdOutData(const QString &data);
     void handleStdErrData(const QString &data);
@@ -53,7 +37,7 @@ protected:
     void doRun() final;
     void doCancel() override;
 
-    void setInternalInitializer(const std::function<CheckResult()> &init);
+    void setInternalInitializer(const std::function<Utils::expected_str<void>()> &init);
     void setRunPreparer(const std::function<void()> &prep);
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,

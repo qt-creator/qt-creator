@@ -51,11 +51,11 @@ public:
         method.addOption(Tr::tr("SFTP"), Tr::tr("Use sftp if available."));
         method.addOption(Tr::tr("Generic Copy"), Tr::tr("Use generic copy, most likely to succeed."));
 
-        setInternalInitializer([this] {
+        setInternalInitializer([this]() -> expected_str<void> {
             if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
                 // rsync transfer on the same device currently not implemented
                 // and typically not wanted.
-                return CheckResult::failure(
+                return make_unexpected(
                     Tr::tr("rsync is only supported for transfers between different devices."));
             }
             return isDeploymentPossible();

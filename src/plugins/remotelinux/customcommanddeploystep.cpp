@@ -35,7 +35,7 @@ public:
         addMacroExpander();
     }
 
-    CheckResult isDeploymentPossible() const final;
+    expected_str<void> isDeploymentPossible() const final;
 
 private:
     Group deployRecipe() final;
@@ -43,10 +43,10 @@ private:
     StringAspect commandLine{this};
 };
 
-CheckResult CustomCommandDeployStep::isDeploymentPossible() const
+expected_str<void> CustomCommandDeployStep::isDeploymentPossible() const
 {
     if (commandLine().isEmpty())
-        return CheckResult::failure(Tr::tr("No command line given."));
+        return make_unexpected(Tr::tr("No command line given."));
 
     return AbstractRemoteLinuxDeployStep::isDeploymentPossible();
 }

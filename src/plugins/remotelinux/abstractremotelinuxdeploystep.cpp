@@ -30,7 +30,7 @@ class AbstractRemoteLinuxDeployStepPrivate
 {
 public:
     bool hasError;
-    std::function<CheckResult()> internalInit;
+    std::function<expected_str<void>()> internalInit;
     std::function<void()> runPreparer;
 
     DeploymentTimeInfo deployTimes;
@@ -73,14 +73,15 @@ bool AbstractRemoteLinuxDeployStep::hasRemoteFileChanged(
     return d->deployTimes.hasRemoteFileChanged(deployableFile, kit(), remoteTimestamp);
 }
 
-CheckResult AbstractRemoteLinuxDeployStep::isDeploymentPossible() const
+expected_str<void> AbstractRemoteLinuxDeployStep::isDeploymentPossible() const
 {
     if (!deviceConfiguration())
-        return CheckResult::failure(Tr::tr("No device configuration set."));
-    return CheckResult::success();
+        return make_unexpected(Tr::tr("No device configuration set."));
+    return {};
 }
 
-void AbstractRemoteLinuxDeployStep::setInternalInitializer(const std::function<CheckResult ()> &init)
+void AbstractRemoteLinuxDeployStep::setInternalInitializer(
+    const std::function<expected_str<void>()> &init)
 {
     d->internalInit = init;
 }
@@ -108,12 +109,12 @@ QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
 bool AbstractRemoteLinuxDeployStep::init()
 {
     QTC_ASSERT(d->internalInit, return false);
-    const CheckResult canDeploy = d->internalInit();
+    const auto canDeploy = d->internalInit();
     if (!canDeploy) {
-        emit addOutput(Tr::tr("Cannot deploy: %1").arg(canDeploy.errorMessage()),
+        emit addOutput(Tr::tr("Cannot deploy: %1").arg(canDeploy.error()),
                        OutputFormat::ErrorMessage);
     }
-    return canDeploy;
+    return bool(canDeploy);
 }
 
 void AbstractRemoteLinuxDeployStep::doRun()
@@ -125,9 +126,9 @@ void AbstractRemoteLinuxDeployStep::doRun()
 
     QTC_ASSERT(!d->m_taskTree, return);
 
-    const CheckResult check = isDeploymentPossible();
-    if (!check) {
-        addErrorMessage(check.errorMessage());
+    const auto canDeploy = isDeploymentPossible();
+    if (!canDeploy) {
+        addErrorMessage(canDeploy.error());
         handleFinished();
         return;
     }

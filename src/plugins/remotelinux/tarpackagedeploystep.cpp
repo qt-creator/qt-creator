@@ -31,7 +31,7 @@ public:
     {
         setWidgetExpandedByDefault(false);
 
-        setInternalInitializer([this] {
+        setInternalInitializer([this]() -> expected_str<void> {
             const BuildStep *tarCreationStep = nullptr;
 
             for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
@@ -43,7 +43,7 @@ public:
                 }
             }
             if (!tarCreationStep)
-                return CheckResult::failure(Tr::tr("No tarball creation step found."));
+                return make_unexpected(Tr::tr("No tarball creation step found."));
 
             m_packageFilePath =
                 FilePath::fromVariant(tarCreationStep->data(Constants::TarPackageFilePathId));
