@@ -29,7 +29,9 @@ namespace Beautifier::Internal  {
 class BeautifierTool : public QObject
 {
 public:
-    BeautifierTool() = default;
+    BeautifierTool();
+
+    static const QList<BeautifierTool *> &allTools();
 
     virtual QString id() const = 0;
     virtual void updateActions(Core::IEditor *editor) = 0;

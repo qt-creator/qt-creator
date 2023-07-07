@@ -25,6 +25,22 @@ using namespace Utils;
 
 namespace Beautifier::Internal {
 
+static QList<BeautifierTool *> &theTools()
+{
+    static QList<BeautifierTool *> tools;
+    return tools;
+}
+
+BeautifierTool::BeautifierTool()
+{
+    theTools().append(this);
+}
+
+const QList<BeautifierTool *> &BeautifierTool::allTools()
+{
+    return theTools();
+}
+
 void BeautifierTool::showError(const QString &error)
 {
     Core::MessageManager::writeFlashing(Tr::tr("Error in Beautifier: %1").arg(error.trimmed()));
