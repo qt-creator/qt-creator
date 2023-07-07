@@ -5,7 +5,9 @@
 
 #include "../beautifierabstracttool.h"
 
-#include "artisticstylesettings.h"
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 namespace Beautifier::Internal {
 
@@ -25,8 +27,6 @@ private:
     TextEditor::Command command(const QString &cfgFile) const;
 
     QAction *m_formatFile = nullptr;
-    ArtisticStyleSettings m_settings;
-    ArtisticStyleOptionsPage m_page{&m_settings};
 };
 
 } // Beautifier::Internal
