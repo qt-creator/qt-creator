@@ -28,46 +28,38 @@ public:
     QnxRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        auto exeAspect = addAspect<ExecutableAspect>();
-        exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
-        exeAspect->setLabelText(Tr::tr("Executable on device:"));
-        exeAspect->setPlaceHolderText(Tr::tr("Remote path not set"));
-        exeAspect->makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
+        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+        executable.setLabelText(Tr::tr("Executable on device:"));
+        executable.setPlaceHolderText(Tr::tr("Remote path not set"));
+        executable.makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
                                    "RemoteLinux.RunConfig.UseAlternateRemoteExecutable");
-        exeAspect->setHistoryCompleter("RemoteLinux.AlternateExecutable.History");
+        executable.setHistoryCompleter("RemoteLinux.AlternateExecutable.History");
 
-        auto symbolsAspect = addAspect<SymbolFileAspect>();
-        symbolsAspect->setLabelText(Tr::tr("Executable on host:"));
-        symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
+        symbolFile.setLabelText(Tr::tr("Executable on host:"));
+        symbolFile.setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
-        auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>();
-        envAspect->setDeviceSelector(target, EnvironmentAspect::RunDevice);
+        environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
 
-        auto argsAspect = addAspect<ArgumentsAspect>();
-        argsAspect->setMacroExpander(macroExpander());
+        arguments.setMacroExpander(macroExpander());
 
-        auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
-        workingDirAspect->setMacroExpander(macroExpander());
-        workingDirAspect->setEnvironment(envAspect);
+        workingDir.setMacroExpander(macroExpander());
+        workingDir.setEnvironment(&environment);
 
-        addAspect<TerminalAspect>();
+        qtLibraries.setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");
+        qtLibraries.setLabelText(Tr::tr("Path to Qt libraries on device"));
+        qtLibraries.setDisplayStyle(StringAspect::LineEditDisplay);
 
-        auto libAspect = addAspect<StringAspect>();
-        libAspect->setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");
-        libAspect->setLabelText(Tr::tr("Path to Qt libraries on device"));
-        libAspect->setDisplayStyle(StringAspect::LineEditDisplay);
-
-        setUpdater([this, target, exeAspect, symbolsAspect] {
+        setUpdater([this, target] {
             const BuildTargetInfo bti = buildTargetInfo();
             const FilePath localExecutable = bti.targetFilePath;
             const DeployableFile depFile = target->deploymentData()
                                                .deployableForLocalFile(localExecutable);
-            exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-            symbolsAspect->setValue(localExecutable);
+            executable.setExecutable(FilePath::fromString(depFile.remoteFilePath()));
+            symbolFile.setValue(localExecutable);
         });
 
-        setRunnableModifier([libAspect](Runnable &r) {
-            QString libPath = libAspect->value();
+        setRunnableModifier([this](Runnable &r) {
+            QString libPath = qtLibraries();
             if (!libPath.isEmpty()) {
                 r.environment.appendOrSet("LD_LIBRARY_PATH", libPath + "/lib:$LD_LIBRARY_PATH");
                 r.environment.appendOrSet("QML_IMPORT_PATH", libPath + "/imports:$QML_IMPORT_PATH");
@@ -79,6 +71,14 @@ public:
 
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
+
+    ExecutableAspect executable{this};
+    SymbolFileAspect symbolFile{this};
+    RemoteLinuxEnvironmentAspect environment{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
+    StringAspect qtLibraries{this};
 };
 
 // QnxRunConfigurationFactory
