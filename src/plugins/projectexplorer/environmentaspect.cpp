@@ -30,6 +30,12 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);
 }
 
+void EnvironmentAspect::setDeviceSelector(Target *target, DeviceSelector selector)
+{
+    m_target = target;
+    m_selector = selector;
+}
+
 int EnvironmentAspect::baseEnvironmentBase() const
 {
     return m_base;

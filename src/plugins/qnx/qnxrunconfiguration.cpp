@@ -40,7 +40,8 @@ public:
         symbolsAspect->setLabelText(Tr::tr("Executable on host:"));
         symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
-        auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
+        auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>();
+        envAspect->setDeviceSelector(target, EnvironmentAspect::RunDevice);
 
         auto argsAspect = addAspect<ArgumentsAspect>();
         argsAspect->setMacroExpander(macroExpander());

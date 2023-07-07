@@ -32,7 +32,8 @@ private:
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
+    auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>();
+    envAspect->setDeviceSelector(target, EnvironmentAspect::RunDevice);
 
     auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);

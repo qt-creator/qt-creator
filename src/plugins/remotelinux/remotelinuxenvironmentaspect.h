@@ -14,7 +14,7 @@ class REMOTELINUX_EXPORT RemoteLinuxEnvironmentAspect : public ProjectExplorer::
     Q_OBJECT
 
 public:
-    RemoteLinuxEnvironmentAspect(ProjectExplorer::Target *target);
+    RemoteLinuxEnvironmentAspect();
 
     void setRemoteEnvironment(const Utils::Environment &env);
 

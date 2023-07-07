@@ -80,7 +80,8 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Id id)
     symbolsAspect->setLabelText(Tr::tr("Executable on host:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
-    auto envAspect = addAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>(target);
+    auto envAspect = addAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>();
+    envAspect->setDeviceSelector(target, EnvironmentAspect::RunDevice);
 
     auto argsAspect = addAspect<ArgumentsAspect>();
     argsAspect->setMacroExpander(macroExpander());

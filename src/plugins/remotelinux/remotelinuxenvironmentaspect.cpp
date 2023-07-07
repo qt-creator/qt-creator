@@ -32,24 +32,26 @@ const int ENVIRONMENTASPECT_VERSION = 1; // Version was introduced in 4.3 with t
 class RemoteLinuxEnvironmentAspectWidget : public EnvironmentAspectWidget
 {
 public:
-    RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect, Target *target)
+    RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect)
         : EnvironmentAspectWidget(aspect)
     {
         auto fetchButton = new QPushButton(Tr::tr("Fetch Device Environment"));
         addWidget(fetchButton);
 
-        connect(target, &Target::kitChanged, aspect, [aspect] { aspect->setRemoteEnvironment({}); });
+        connect(aspect->target(), &Target::kitChanged, aspect, [aspect] {
+            aspect->setRemoteEnvironment({});
+        });
 
-        connect(fetchButton, &QPushButton::clicked, this, [aspect, target] {
-            if (IDevice::ConstPtr device = DeviceKitAspect::device(target->kit())) {
+        connect(fetchButton, &QPushButton::clicked, this, [aspect] {
+            if (IDevice::ConstPtr device = DeviceKitAspect::device(aspect->target()->kit())) {
                 DeviceFileAccess *access = device->fileAccess();
                 QTC_ASSERT(access, return);
                 aspect->setRemoteEnvironment(access->deviceEnvironment());
             }
         });
 
-        envWidget()->setOpenTerminalFunc([target](const Environment &env) {
-            IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
+        envWidget()->setOpenTerminalFunc([aspect](const Environment &env) {
+            IDevice::ConstPtr device = DeviceKitAspect::device(aspect->target()->kit());
             if (!device) {
                 QMessageBox::critical(Core::ICore::dialogParent(),
                                       Tr::tr("Cannot Open Terminal"),
@@ -70,14 +72,12 @@ static bool displayAlreadySet(const Utils::EnvironmentItems &changes)
     });
 }
 
-RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(Target *target)
+RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect()
 {
     addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
     addPreferredBaseEnvironment(Tr::tr("System Environment"), [this] { return m_remoteEnvironment; });
 
-    setConfigWidgetCreator([this, target] {
-        return new RemoteLinuxEnvironmentAspectWidget(this, target);
-    });
+    setConfigWidgetCreator([this] { return new RemoteLinuxEnvironmentAspectWidget(this); });
 }
 
 void RemoteLinuxEnvironmentAspect::setRemoteEnvironment(const Utils::Environment &env)
