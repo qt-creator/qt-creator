@@ -1572,7 +1572,8 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
 void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 {
     const CMakeConfig &cm = configurationFromCMake();
-    const CMakeConfig &initialConfig = initialCMakeConfiguration();
+    const CMakeConfig &initialConfig =
+        cmakeBuildConfiguration()->initialCMakeArguments.cmakeConfiguration();
 
     CMakeConfig config;
 
@@ -1733,7 +1734,8 @@ void CMakeBuildSystem::runGenerator(Id id)
     QList<CMakeConfigItem> configItems = Utils::filtered(m_configurationChanges.toList(),
                                                          itemFilter);
     const QList<CMakeConfigItem> initialConfigItems
-            = Utils::filtered(initialCMakeConfiguration().toList(), itemFilter);
+            = Utils::filtered(cmakeBuildConfiguration()->initialCMakeArguments.cmakeConfiguration().toList(),
+                          itemFilter);
     for (const CMakeConfigItem &item : std::as_const(initialConfigItems)) {
         if (!Utils::contains(configItems, [&item](const CMakeConfigItem &existingItem) {
             return existingItem.key == item.key;

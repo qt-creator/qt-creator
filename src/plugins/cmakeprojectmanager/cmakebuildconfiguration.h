@@ -71,6 +71,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
 
     Utils::Environment configureEnvironment() const;
+    Internal::CMakeBuildSystem *cmakeBuildSystem() const;
 
     ProjectExplorer::BuildDirectoryAspect buildDir{this};
     Internal::InitialCMakeArgumentsAspect initialCMakeArguments{this};
@@ -97,6 +98,7 @@ private:
 
     void setInitialBuildAndCleanSteps(const ProjectExplorer::Target *target);
     void setBuildPresetToBuildSteps(const ProjectExplorer::Target *target);
+    void filterConfigArgumentsFromAdditionalCMakeArguments();
 
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
 
