@@ -99,7 +99,8 @@ public:
                                               Utils::Theme::IconsBaseColor}}).icon();
         m_searchPkgAction = toolBar()->addAction(vcpkgIcon, Tr::tr("Add vcpkg package..."));
         connect(m_searchPkgAction, &QAction::triggered, this, [this] {
-            const Search::VcpkgManifest package = Search::showVcpkgPackageSearchDialog();
+            const Search::VcpkgManifest package =
+                Search::showVcpkgPackageSearchDialog(documentToManifest());
             if (!package.name.isEmpty()) {
                 const QByteArray modifiedDocument =
                     addDependencyToManifest(textDocument()->contents(), package.name);
@@ -111,10 +112,7 @@ public:
                                               Utils::Theme::IconsBaseColor}}).icon();
         m_cmakeCodeAction = toolBar()->addAction(cmakeIcon, Tr::tr("CMake code..."));
         connect(m_cmakeCodeAction, &QAction::triggered, this, [this] {
-            bool ok = false;
-            const Search::VcpkgManifest manifest =
-                Search::parseVcpkgManifest(textDocument()->contents(), &ok);
-            CMakeCodeDialog dlg(manifest.dependencies);
+            CMakeCodeDialog dlg(documentToManifest().dependencies);
             dlg.exec();
         });
 
@@ -138,6 +136,11 @@ public:
     }
 
 private:
+    Search::VcpkgManifest documentToManifest() const
+    {
+        return Search::parseVcpkgManifest(textDocument()->contents());
+    }
+
     QAction *m_searchPkgAction;
     QAction *m_cmakeCodeAction;
 };
