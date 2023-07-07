@@ -11,13 +11,13 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
 
     files: [
-        "abstractsettings.h",
-        "abstractsettings.cpp",
         "beautifier.qrc",
         "beautifierabstracttool.h",
         "beautifierconstants.h",
         "beautifierplugin.cpp",
         "beautifierplugin.h",
+        "beautifiertool.h",
+        "beautifiertool.cpp",
         "beautifiertr.h",
         "configurationdialog.cpp",
         "configurationdialog.h",

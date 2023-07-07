@@ -5,9 +5,9 @@
 
 #include "artisticstyle.h"
 
-#include "../abstractsettings.h"
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../beautifiertool.h"
 #include "../beautifiertr.h"
 #include "../configurationpanel.h"
 
