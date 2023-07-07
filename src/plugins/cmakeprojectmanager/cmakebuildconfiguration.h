@@ -73,6 +73,12 @@ public:
     Utils::Environment configureEnvironment() const;
     Internal::CMakeBuildSystem *cmakeBuildSystem() const;
 
+    QStringList additionalCMakeArguments() const;
+    void setAdditionalCMakeArguments(const QStringList &args);
+
+    void setInitialCMakeArguments(const QStringList &args);
+    void setCMakeBuildType(const QString &cmakeBuildType, bool quiet = false);
+
     ProjectExplorer::BuildDirectoryAspect buildDir{this};
     Internal::InitialCMakeArgumentsAspect initialCMakeArguments{this};
     Utils::StringAspect additionalCMakeOptions{this};

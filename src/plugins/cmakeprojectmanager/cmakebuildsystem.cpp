@@ -1182,7 +1182,7 @@ void CMakeBuildSystem::wireUpConnections()
             const CMakeConfig config = CMakeConfig::fromFile(cmakeCacheTxt, &errorMessage);
             if (!config.isEmpty() && errorMessage.isEmpty()) {
                 QString cmakeBuildTypeName = config.stringValueOf("CMAKE_BUILD_TYPE");
-                setCMakeBuildType(cmakeBuildTypeName, true);
+                cmakeBuildConfiguration()->setCMakeBuildType(cmakeBuildTypeName, true);
             }
         }
         reparse(options);

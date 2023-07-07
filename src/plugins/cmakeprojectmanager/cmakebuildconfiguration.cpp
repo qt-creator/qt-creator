@@ -630,7 +630,7 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
     // value() will contain only the unknown arguments (the non -D/-U arguments)
     // As the user would expect to have e.g. "--preset" from "Initial Configuration"
     // to "Current Configuration" as additional parameters
-    m_buildConfig->cmakeBuildSystem()->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
+    m_buildConfig->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
         m_buildConfig->initialCMakeArguments(), HostOsInfo::hostOs()));
 }
 
@@ -1550,8 +1550,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                                   k,
                                                   configureEnvironment(),
                                                   info.buildDirectory);
-        m_buildSystem->setInitialCMakeArguments(initialCMakeArguments);
-        m_buildSystem->setCMakeBuildType(buildType);
+        setInitialCMakeArguments(initialCMakeArguments);
+        setCMakeBuildType(buildType);
 
         setBuildPresetToBuildSteps(target);
     });
@@ -1686,32 +1686,30 @@ void CMakeBuildSystem::clearError(ForceEnabledChanged fec)
     }
 }
 
-void CMakeBuildSystem::setInitialCMakeArguments(const QStringList &args)
+void CMakeBuildConfiguration::setInitialCMakeArguments(const QStringList &args)
 {
     QStringList additionalArguments;
-    cmakeBuildConfiguration()->initialCMakeArguments.setAllValues(args.join('\n'), additionalArguments);
+    initialCMakeArguments.setAllValues(args.join('\n'), additionalArguments);
 
     // Set the unknown additional arguments also for the "Current Configuration"
     setAdditionalCMakeArguments(additionalArguments);
 }
 
-QStringList CMakeBuildSystem::additionalCMakeArguments() const
+QStringList CMakeBuildConfiguration::additionalCMakeArguments() const
 {
-    return ProcessArgs::splitArgs(cmakeBuildConfiguration()->additionalCMakeOptions(),
-                                  HostOsInfo::hostOs());
+    return ProcessArgs::splitArgs(additionalCMakeOptions(), HostOsInfo::hostOs());
 }
 
-void CMakeBuildSystem::setAdditionalCMakeArguments(const QStringList &args)
+void CMakeBuildConfiguration::setAdditionalCMakeArguments(const QStringList &args)
 {
     const QStringList expandedAdditionalArguments = Utils::transform(args, [this](const QString &s) {
-        return buildConfiguration()->macroExpander()->expand(s);
+        return macroExpander()->expand(s);
     });
     const QStringList nonEmptyAdditionalArguments = Utils::filtered(expandedAdditionalArguments,
                                                                     [](const QString &s) {
                                                                         return !s.isEmpty();
                                                                     });
-    cmakeBuildConfiguration()->additionalCMakeOptions
-        .setValue(ProcessArgs::joinArgs(nonEmptyAdditionalArguments));
+    additionalCMakeOptions.setValue(ProcessArgs::joinArgs(nonEmptyAdditionalArguments));
 }
 
 void CMakeBuildConfiguration::filterConfigArgumentsFromAdditionalCMakeArguments()
@@ -2052,8 +2050,7 @@ QString CMakeBuildSystem::cmakeBuildType() const
             return item.key == "CMAKE_BUILD_TYPE" && !item.isInitial;
         });
         if (it != config.end())
-            const_cast<CMakeBuildSystem*>(this)
-                ->setCMakeBuildType(QString::fromUtf8(it->value));
+            cmakeBuildConfiguration()->setCMakeBuildType(QString::fromUtf8(it->value));
     };
 
     if (!isMultiConfig())
@@ -2084,13 +2081,12 @@ QString CMakeBuildSystem::cmakeBuildType() const
     return cmakeBuildType;
 }
 
-void CMakeBuildSystem::setCMakeBuildType(const QString &cmakeBuildType, bool quiet)
+void CMakeBuildConfiguration::setCMakeBuildType(const QString &cmakeBuildType, bool quiet)
 {
-    auto aspect = &cmakeBuildConfiguration()->buildTypeAspect;
     if (quiet)
-        aspect->setValueQuietly(cmakeBuildType);
+        buildTypeAspect.setValueQuietly(cmakeBuildType);
     else
-        aspect->setValue(cmakeBuildType);
+        buildTypeAspect.setValue(cmakeBuildType);
 }
 
 namespace Internal {

@@ -101,7 +101,6 @@ public:
     CMakeProject *project() const;
 
     QString cmakeBuildType() const;
-    void setCMakeBuildType(const QString &cmakeBuildType, bool quiet = false);
     ProjectExplorer::BuildConfiguration::BuildType buildType() const;
 
     CMakeConfig configurationFromCMake() const;
@@ -109,13 +108,8 @@ public:
 
     QStringList configurationChangesArguments(bool initialParameters = false) const;
 
-    QStringList additionalCMakeArguments() const;
-    void setAdditionalCMakeArguments(const QStringList &args);
-
     void setConfigurationFromCMake(const CMakeConfig &config);
     void setConfigurationChanges(const CMakeConfig &config);
-
-    void setInitialCMakeArguments(const QStringList &args);
 
     QString error() const;
     QString warning() const;

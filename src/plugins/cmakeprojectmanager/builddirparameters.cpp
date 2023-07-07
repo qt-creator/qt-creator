@@ -41,7 +41,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
                                                      [this](const QString &s) {
                                                          return expander->expand(s);
                                                      });
-    additionalCMakeArguments = Utils::transform(buildSystem->additionalCMakeArguments(),
+    additionalCMakeArguments = Utils::transform(bc->additionalCMakeArguments(),
                                                 [this](const QString &s) {
                                                     return expander->expand(s);
                                                 });
