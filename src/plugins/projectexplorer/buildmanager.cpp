@@ -213,6 +213,11 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
     return stepLists.count();
 }
 
+struct BuildItem {
+    BuildStep *buildStep = nullptr;
+    bool enabled = true;
+    QString name;
+};
 
 class BuildManagerPrivate
 {
@@ -221,9 +226,7 @@ public:
     Internal::TaskWindow *m_taskWindow = nullptr;
 
     QMetaObject::Connection m_scheduledBuild;
-    QList<BuildStep *> m_buildQueue;
-    QList<bool> m_enabledState;
-    QStringList m_stepNames;
+    QList<BuildItem> m_buildQueue;
     int m_progress = 0;
     int m_maxProgress = 0;
     bool m_poppedUpTaskWindow = false;
@@ -500,14 +503,12 @@ void BuildManager::emitCancelMessage()
 
 void BuildManager::clearBuildQueue()
 {
-    for (BuildStep *bs : std::as_const(d->m_buildQueue)) {
-        decrementActiveBuildSteps(bs);
-        disconnectOutput(bs);
+    for (const BuildItem &item : std::as_const(d->m_buildQueue)) {
+        decrementActiveBuildSteps(item.buildStep);
+        disconnectOutput(item.buildStep);
     }
 
-    d->m_stepNames.clear();
     d->m_buildQueue.clear();
-    d->m_enabledState.clear();
     d->m_running = false;
     d->m_poppedUpTaskWindow = false;
     d->m_isDeploying = false;
@@ -561,7 +562,7 @@ void BuildManager::startBuildQueue()
 
     // Delay if any of the involved build systems are currently parsing.
     const auto buildSystems = transform<QSet<BuildSystem *>>(d->m_buildQueue,
-        [](const BuildStep *bs) { return bs->buildSystem(); });
+        [](const BuildItem &item) { return item.buildStep->buildSystem(); });
     for (const BuildSystem * const bs : buildSystems) {
         if (!bs || !bs->isParsing())
             continue;
@@ -681,8 +682,8 @@ void BuildManager::nextBuildQueue()
         bool abort = ProjectExplorerPlugin::projectExplorerSettings().abortBuildAllOnError;
         if (!abort) {
             while (!d->m_buildQueue.isEmpty()
-                   && d->m_buildQueue.front()->target() == t) {
-                BuildStep * const nextStepForFailedTarget = d->m_buildQueue.takeFirst();
+                   && d->m_buildQueue.front().buildStep->target() == t) {
+                BuildStep * const nextStepForFailedTarget = d->m_buildQueue.takeFirst().buildStep;
                 disconnectOutput(nextStepForFailedTarget);
                 decrementActiveBuildSteps(nextStepForFailedTarget);
             }
@@ -711,12 +712,11 @@ void BuildManager::progressChanged(int percent, const QString &text)
 void BuildManager::nextStep()
 {
     if (!d->m_buildQueue.empty()) {
-        d->m_currentBuildStep = d->m_buildQueue.front();
-        d->m_buildQueue.pop_front();
-        QString name = d->m_stepNames.takeFirst();
-        d->m_skipDisabled = !d->m_enabledState.takeFirst();
+        const BuildItem item = d->m_buildQueue.takeFirst();
+        d->m_currentBuildStep = item.buildStep;
+        d->m_skipDisabled = !item.enabled;
         if (d->m_futureProgress)
-            d->m_futureProgress.data()->setTitle(name);
+            d->m_futureProgress.data()->setTitle(item.name);
 
         if (d->m_currentBuildStep->project() != d->m_previousBuildStepProject) {
             const QString projectName = d->m_currentBuildStep->project()->displayName();
@@ -805,13 +805,12 @@ bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList
 
     // Everthing init() well
     for (i = 0; i < count; ++i) {
-        d->m_buildQueue.append(steps.at(i));
-        d->m_stepNames.append(names.at(i));
-        bool enabled = steps.at(i)->enabled();
-        d->m_enabledState.append(enabled);
+        BuildStep *buildStep = steps.at(i);
+        const bool enabled = buildStep->enabled();
+        d->m_buildQueue.append({buildStep, enabled, names.at(i)});
         if (enabled)
             ++d->m_maxProgress;
-        incrementActiveBuildSteps(steps.at(i));
+        incrementActiveBuildSteps(buildStep);
     }
     return true;
 }
@@ -890,7 +889,8 @@ bool BuildManager::isBuilding(const ProjectConfiguration *p)
 
 bool BuildManager::isBuilding(BuildStep *step)
 {
-    return (d->m_currentBuildStep == step) || d->m_buildQueue.contains(step);
+    return (d->m_currentBuildStep == step) || Utils::anyOf(
+               d->m_buildQueue, [step](const BuildItem &item) { return item.buildStep == step; });
 }
 
 template <class T> bool increment(QHash<T *, int> &hash, T *key)
