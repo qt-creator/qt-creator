@@ -765,16 +765,14 @@ bool SettingsDialog::execDialog()
         m_running = true;
         m_finished = false;
         static const QLatin1String kPreferenceDialogSize("Core/PreferenceDialogSize");
-        if (ICore::settings()->contains(kPreferenceDialogSize))
-            resize(ICore::settings()->value(kPreferenceDialogSize).toSize());
-        else
-            resize(kInitialWidth, kInitialHeight);
+        const QSize initialSize(kInitialWidth, kInitialHeight);
+        resize(ICore::settings()->value(kPreferenceDialogSize, initialSize).toSize());
         exec();
         m_running = false;
         m_instance = nullptr;
         ICore::settings()->setValueWithDefault(kPreferenceDialogSize,
                                                size(),
-                                               QSize(kInitialWidth, kInitialHeight));
+                                               initialSize);
         // make sure that the current "single" instance is deleted
         // we can't delete right away, since we still access the m_applied member
         deleteLater();

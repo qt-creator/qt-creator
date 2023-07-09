@@ -9,6 +9,8 @@
 #include <utils/layoutbuilder.h>
 #include <utils/utilstr.h>
 
+#include <coreplugin/icore.h>
+
 #include <QMap>
 #include <QUrl>
 
@@ -18,12 +20,18 @@
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 
+const int kInitialWidth = 400;
+const int kInitialHeight = 220;
+const char kPreferenceDialogSize[] = "Core/TopicChooserSize";
+
 TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
         const QMultiMap<QString, QUrl> &links)
     : QDialog(parent)
     , m_filterModel(new QSortFilterProxyModel(this))
 {
-    resize(400, 220);
+    const QSize initialSize(kInitialWidth, kInitialHeight);
+    resize(Core::ICore::settings()->value(kPreferenceDialogSize, initialSize).toSize());
+
     setWindowTitle(::Help::Tr::tr("Choose Topic"));
 
     QStandardItemModel *model = new QStandardItemModel(this);
@@ -68,6 +76,13 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
             this, &TopicChooser::activated);
     connect(m_lineEdit, &Utils::FancyLineEdit::filterChanged,
             this, &TopicChooser::setFilter);
+}
+
+TopicChooser::~TopicChooser()
+{
+    Core::ICore::settings()->setValueWithDefault(kPreferenceDialogSize,
+                                           size(),
+                                           QSize(kInitialWidth, kInitialHeight));
 }
 
 QUrl TopicChooser::link() const
