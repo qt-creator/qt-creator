@@ -53,7 +53,8 @@ protected:
 
 private:
     virtual bool isDeploymentNecessary() const;
-    virtual Tasking::Group deployRecipe();
+    virtual Tasking::Group deployRecipe() = 0;
+    Tasking::Group runRecipe();
 
     Internal::AbstractRemoteLinuxDeployStepPrivate *d;
 };

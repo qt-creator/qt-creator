@@ -117,20 +117,7 @@ void AbstractRemoteLinuxDeployStep::doRun()
 
     QTC_ASSERT(!d->m_taskTree, return);
 
-    const auto canDeploy = isDeploymentPossible();
-    if (!canDeploy) {
-        addErrorMessage(canDeploy.error());
-        handleFinished();
-        return;
-    }
-
-    if (!isDeploymentNecessary()) {
-        addProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
-        handleFinished();
-        return;
-    }
-
-    d->m_taskTree.reset(new TaskTree(deployRecipe()));
+    d->m_taskTree.reset(new TaskTree(runRecipe()));
     const auto endHandler = [this] {
         d->m_taskTree.release()->deleteLater();
         handleFinished();
@@ -198,9 +185,23 @@ bool AbstractRemoteLinuxDeployStep::isDeploymentNecessary() const
     return true;
 }
 
-Group AbstractRemoteLinuxDeployStep::deployRecipe()
+Group AbstractRemoteLinuxDeployStep::runRecipe()
 {
-    return {};
+    const auto onSetup = [this] {
+        const auto canDeploy = isDeploymentPossible();
+        if (!canDeploy) {
+            addErrorMessage(canDeploy.error());
+            handleFinished();
+            return SetupResult::StopWithError;
+        }
+        if (!isDeploymentNecessary()) {
+            addProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
+            handleFinished();
+            return SetupResult::StopWithDone;
+        }
+        return SetupResult::Continue;
+    };
+    return Group { onGroupSetup(onSetup), deployRecipe() };
 }
 
 } // namespace RemoteLinux
