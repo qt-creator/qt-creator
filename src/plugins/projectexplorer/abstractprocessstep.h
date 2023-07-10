@@ -25,21 +25,20 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 
 public:
     ProcessParameters *processParameters();
-    bool setupProcessParameters(ProcessParameters *params) const;
 
+protected:
+    AbstractProcessStep(BuildStepList *bsl, Utils::Id id);
+    ~AbstractProcessStep() override;
+
+    bool setupProcessParameters(ProcessParameters *params) const;
     bool ignoreReturnValue() const;
     void setIgnoreReturnValue(bool b);
-
     void setCommandLineProvider(const std::function<Utils::CommandLine()> &provider);
     void setWorkingDirectoryProvider(const std::function<Utils::FilePath()> &provider);
     void setEnvironmentModifier(const std::function<void(Utils::Environment &)> &modifier);
     void setUseEnglishOutput();
 
     void emitFaultyConfigurationMessage();
-
-protected:
-    AbstractProcessStep(BuildStepList *bsl, Utils::Id id);
-    ~AbstractProcessStep() override;
 
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;

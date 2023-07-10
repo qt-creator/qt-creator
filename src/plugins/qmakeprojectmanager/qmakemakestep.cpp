@@ -209,9 +209,9 @@ void QmakeMakeStep::doRun()
     }
 
     if (!m_makeFileToCheck.exists()) {
-        if (!ignoreReturnValue())
-            emit addOutput(Tr::tr("Cannot find Makefile. Check your build settings."), BuildStep::OutputFormat::NormalMessage);
         const bool success = ignoreReturnValue();
+        if (!success)
+            emit addOutput(Tr::tr("Cannot find Makefile. Check your build settings."), BuildStep::OutputFormat::NormalMessage);
         emit finished(success);
         return;
     }
