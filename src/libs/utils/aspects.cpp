@@ -52,6 +52,8 @@ namespace Internal {
 class BaseAspectPrivate
 {
 public:
+    explicit BaseAspectPrivate(AspectContainer *container) : m_container(container) {}
+
     Id m_id;
     std::function<QVariant(const QVariant &)> m_toSettings;
     std::function<QVariant(const QVariant &)> m_fromSettings;
@@ -64,6 +66,7 @@ public:
     QIcon m_icon;
     QPointer<QLabel> m_label; // Owned by configuration widget
     QPointer<QAction> m_action; // Owned by us.
+    AspectContainer *m_container = nullptr; // Not owned by us.
 
     bool m_visible = true;
     bool m_enabled = true;
@@ -106,7 +109,7 @@ public:
     If \a container is non-null, the aspect is made known to the container.
 */
 BaseAspect::BaseAspect(AspectContainer *container)
-    : d(new Internal::BaseAspectPrivate)
+    : d(new Internal::BaseAspectPrivate(container))
 {
     if (container)
         container->registerAspect(this);
@@ -436,6 +439,11 @@ QAction *BaseAspect::action()
         d->m_action->setIcon(d->m_icon);
     }
     return d->m_action;
+}
+
+AspectContainer *BaseAspect::container() const
+{
+    return d->m_container;
 }
 
 /*!
