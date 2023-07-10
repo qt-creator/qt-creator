@@ -361,7 +361,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     action->setIcon(kCachegrindIcon.icon());
     action->setToolTip(Tr::tr("Open results in KCachegrind."));
     connect(action, &QAction::triggered, this, [this, settings] {
-        Process::startDetached({FilePath::fromString(settings->kcachegrindExecutable.value()), { m_lastFileName }});
+        Process::startDetached({settings->kcachegrindExecutable(), { m_lastFileName }});
     });
 
     // dump action
@@ -908,10 +908,10 @@ void CallgrindToolPrivate::takeParserData(ParseData *data)
     doClear(true);
 
     setParseData(data);
-    const QString kcachegrindExecutable =
-            ValgrindGlobalSettings::instance()->kcachegrindExecutable.value();
-    const bool kcachegrindExists = !Utils::Environment::systemEnvironment().searchInPath(
-                kcachegrindExecutable).isEmpty();
+    const FilePath kcachegrindExecutable =
+            ValgrindGlobalSettings::instance()->kcachegrindExecutable();
+    const FilePath found = kcachegrindExecutable.searchInPath();
+    const bool kcachegrindExists = found.isExecutableFile();
     m_startKCachegrind->setEnabled(kcachegrindExists && !m_lastFileName.isEmpty());
     createTextMarks();
 }

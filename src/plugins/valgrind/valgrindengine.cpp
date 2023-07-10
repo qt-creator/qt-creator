@@ -144,11 +144,13 @@ void ValgrindToolRunner::runnerFinished()
 void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::ProcessError error)
 {
     if (error == QProcess::FailedToStart) {
-        const QString valgrind = m_settings.valgrindExecutable.value();
-        if (!valgrind.isEmpty())
-            appendMessage(Tr::tr("Error: \"%1\" could not be started: %2").arg(valgrind, message), ErrorMessageFormat);
-        else
+        const FilePath valgrind = m_settings.valgrindExecutable();
+        if (!valgrind.isEmpty()) {
+            appendMessage(Tr::tr("Error: \"%1\" could not be started: %2")
+                .arg(valgrind.toUserOutput(), message), ErrorMessageFormat);
+        } else {
             appendMessage(Tr::tr("Error: no Valgrind executable set."), ErrorMessageFormat);
+        }
     } else if (m_isStopping && error == QProcess::Crashed) { // process gets killed on stop
         appendMessage(Tr::tr("Process terminated."), ErrorMessageFormat);
     } else {
