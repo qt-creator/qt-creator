@@ -11094,7 +11094,7 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Omit run configuration warnings</source>
-        <translation>Laufzeitkonfigurationsmeldungen auslassen</translation>
+        <translation>Ausführungskonfigurationsmeldungen auslassen</translation>
     </message>
     <message>
         <source>Limit result output</source>
@@ -11102,31 +11102,31 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Limit result description:</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung der Resultate begrenzen:</translation>
     </message>
     <message>
         <source>Limit number of lines shown in test result tooltip and description.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschränkt die Anzahl der Zeilen, die im Tooltip und der Beschreibung von Testergebnissen angezeigt werden.</translation>
     </message>
     <message>
         <source>Open results when tests start</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Testergebnisse&quot; beim Starten von Tests öffnen</translation>
     </message>
     <message>
         <source>Displays test results automatically when tests are started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnet &quot;Testergebnisse&quot; automatisch, wenn Tests gestartet werden.</translation>
     </message>
     <message>
         <source>Open results when tests finish</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Testergebnisse&quot; beim Beenden von Tests öffnen</translation>
     </message>
     <message>
         <source>Displays test results automatically when tests are finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnet &quot;Testergebnisse&quot; automatisch, wenn Tests beendet werden.</translation>
     </message>
     <message>
         <source>Displays test results only if the test run contains failed, fatal or unexpectedly passed tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnet &quot;Testergebnisse&quot; nur, wenn der Testlauf durchgefallene, fatale oder unerwartet bestandene Tests enthält.</translation>
     </message>
     <message>
         <source>Automatically scroll results</source>
@@ -11138,15 +11138,15 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>No active test frameworks or tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine aktiven Test-Frameworks oder -Werkzeuge.</translation>
     </message>
     <message>
         <source>Mixing test frameworks and test tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemischte Test-Frameworks und -Werkzeuge.</translation>
     </message>
     <message>
         <source>Mixing test frameworks and test tools can lead to duplicating run information when using &quot;Run All Tests&quot;, for example.</source>
-        <translation type="unfinished"></translation>
+        <translation>Test-Frameworks und -Werkzeuge im gleichen Projekt zu mischen, kann zum Beispiel zu duplizierter Information beim Nutzen von &quot;Alle Tests ausführen&quot; führen.</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -11228,15 +11228,15 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     </message>
     <message>
         <source>Active frameworks:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Frameworks:</translation>
     </message>
     <message>
         <source>Automatically run tests after build</source>
-        <translation type="unfinished"></translation>
+        <translation>Tests automatisch nach dem Erstellen ausführen</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Keine</translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>All</source>
@@ -11448,11 +11448,11 @@ Ausführbare Datei: %2</translation>
     </message>
     <message>
         <source>unexpected passes</source>
-        <translation>unerwartete Erfolge</translation>
+        <translation>unerwartet bestanden</translation>
     </message>
     <message>
         <source>expected fails</source>
-        <translation>erwartete Fehlschläge</translation>
+        <translation>erwartet durchgefallen</translation>
     </message>
     <message>
         <source>fatals</source>
@@ -11460,7 +11460,7 @@ Ausführbare Datei: %2</translation>
     </message>
     <message>
         <source>blacklisted</source>
-        <translation>indiziert</translation>
+        <translation>blacklisted</translation>
     </message>
     <message>
         <source>skipped</source>
@@ -11484,15 +11484,15 @@ Ausführbare Datei: %2</translation>
     </message>
     <message>
         <source>Run This Test Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Diesen Test ohne Deployment ausführen</translation>
     </message>
     <message>
         <source>Debug This Test Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Diesen Test ohne Deployment debuggen</translation>
     </message>
     <message>
         <source>Run This Test</source>
-        <translation>Diesen Test starten</translation>
+        <translation>Diesen Test ausführen</translation>
     </message>
     <message>
         <source>Debug This Test</source>
@@ -11642,67 +11642,67 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>Number of resamples for bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der Resamples für das Bootstrapping.</translation>
     </message>
     <message>
         <source> ms</source>
-        <translation type="unfinished"> ms</translation>
+        <translation> ms</translation>
     </message>
     <message>
         <source>Abort after</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen nach</translation>
     </message>
     <message>
         <source>Aborts after the specified number of failures.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bricht nach der angegebenen Anzahl Fehlschlägen ab.</translation>
     </message>
     <message>
         <source>Benchmark samples</source>
-        <translation type="unfinished"></translation>
+        <translation>Benchmark-Samples</translation>
     </message>
     <message>
         <source>Number of samples to collect while running benchmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der beim Ausführen von Benchmarks zu sammelnden Samples.</translation>
     </message>
     <message>
         <source>Benchmark resamples</source>
-        <translation type="unfinished"></translation>
+        <translation>Benchmark-Resamples</translation>
     </message>
     <message>
         <source>Number of resamples used for statistical bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der für statistisches Bootstrapping benutzten Resamples.</translation>
     </message>
     <message>
         <source>Confidence interval used for statistical bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für das statistische Bootstrapping benutzte Konfidenzinterval.</translation>
     </message>
     <message>
         <source>Benchmark confidence interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Benchmark-Konfidenzinterval</translation>
     </message>
     <message>
         <source>Benchmark warmup time</source>
-        <translation type="unfinished"></translation>
+        <translation>Benchmark-Warmlaufzeit</translation>
     </message>
     <message>
         <source>Warmup time for each test.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Warmlaufzeit für jeden Test.</translation>
     </message>
     <message>
         <source>Disable analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyse deaktivieren</translation>
     </message>
     <message>
         <source>Disables statistical analysis and bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviert die statistische Analyse und das Bootstrapping.</translation>
     </message>
     <message>
         <source>Show success</source>
-        <translation type="unfinished"></translation>
+        <translation>Erfolge anzeigen</translation>
     </message>
     <message>
         <source>Show success for tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Testerfolge anzeigen.</translation>
     </message>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
@@ -11710,27 +11710,27 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>Skip throwing assertions</source>
-        <translation type="unfinished"></translation>
+        <translation>Assertions auf geworfene Ausnahmen überspringen</translation>
     </message>
     <message>
         <source>Skips all assertions that test for thrown exceptions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überspringt alle Assertions, die auf geworfene Ausnahmen testen.</translation>
     </message>
     <message>
         <source>Visualize whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>Leerzeichen darstellen</translation>
     </message>
     <message>
         <source>Makes whitespace visible.</source>
-        <translation type="unfinished"></translation>
+        <translation>Macht Leerzeichen sichtbar.</translation>
     </message>
     <message>
         <source>Warn on empty tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Bei leeren Tests warnen</translation>
     </message>
     <message>
         <source>Warns if a test section does not check any assertion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnt, wenn ein Testabschnitt keine Assertions prüft.</translation>
     </message>
     <message>
         <source>Break on failure while debugging</source>
@@ -11770,79 +11770,79 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>Output on failure</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe bei Fehlschlag</translation>
     </message>
     <message>
         <source>Output mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabemodus</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Vorgabe</translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <source>Verbose</source>
-        <translation type="unfinished">Ausführlich</translation>
+        <translation>Ausführlich</translation>
     </message>
     <message>
         <source>Very Verbose</source>
-        <translation type="unfinished"></translation>
+        <translation>Sehr ausführlich</translation>
     </message>
     <message>
         <source>Repetition mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholungsmodus</translation>
     </message>
     <message>
         <source>Until Fail</source>
-        <translation type="unfinished"></translation>
+        <translation>Bis zu Fehlschlag</translation>
     </message>
     <message>
         <source>Until Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>Bis zu Erfolg</translation>
     </message>
     <message>
         <source>After Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Zeitüberschreitung</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">Anzahl</translation>
+        <translation>Anzahl</translation>
     </message>
     <message>
         <source>Number of re-runs for the test.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der Wiederholungen des Tests.</translation>
     </message>
     <message>
         <source>Schedule random</source>
-        <translation type="unfinished"></translation>
+        <translation>Zufällig planen</translation>
     </message>
     <message>
         <source>Stop on failure</source>
-        <translation type="unfinished"></translation>
+        <translation>Bei Fehlschlag anhalten</translation>
     </message>
     <message>
         <source>Run tests in parallel mode using given number of jobs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tests in der angegebenen Anzahl parallel ausführen.</translation>
     </message>
     <message>
         <source>Jobs</source>
-        <translation type="unfinished"></translation>
+        <translation>Jobs</translation>
     </message>
     <message>
         <source>Test load</source>
-        <translation type="unfinished"></translation>
+        <translation>Testauslastung</translation>
     </message>
     <message>
         <source>Try not to start tests when they may cause CPU load to pass a threshold.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versucht, keine neuen Tests zu starten, wenn dies die CPU-Last über einen Schwellenwert erhöhen könnte.</translation>
     </message>
     <message>
         <source>Threshold</source>
-        <translation type="unfinished">Grenze</translation>
+        <translation>Schwellenwert</translation>
     </message>
     <message>
         <source>CTest</source>
-        <translation type="unfinished"></translation>
+        <translation>CTest</translation>
     </message>
     <message>
         <source>Repeat tests</source>
@@ -11850,15 +11850,15 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>Run in parallel</source>
-        <translation type="unfinished"></translation>
+        <translation>Parallel ausführen</translation>
     </message>
     <message>
         <source>Log format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollformat:</translation>
     </message>
     <message>
         <source>Report level:</source>
-        <translation type="unfinished"></translation>
+        <translation>Report-Stufe:</translation>
     </message>
     <message>
         <source>Seed:</source>
@@ -11866,39 +11866,39 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>A seed of 0 means no randomization. A value of 1 uses the current time, any other value is used as random seed generator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Startwert von 0 bedeutet keine Randomisierung. Ein Wert von 1 benutzt die aktuelle Zeit, jeder andere Wert wird als Startwert für Zufallszahlen benutzt.</translation>
     </message>
     <message>
         <source>Randomize</source>
-        <translation type="unfinished"></translation>
+        <translation>Randomisieren</translation>
     </message>
     <message>
         <source>Randomize execution order.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungsreihenfolge randomisieren.</translation>
     </message>
     <message>
         <source>Catch system errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Systemfehler auffangen</translation>
     </message>
     <message>
         <source>Catch or ignore system errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Systemfehler auffangen oder ignorieren.</translation>
     </message>
     <message>
         <source>Floating point exceptions</source>
-        <translation type="unfinished"></translation>
+        <translation>Gleitkomma-Ausnahmen</translation>
     </message>
     <message>
         <source>Enable floating point exception traps.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert das Auffangen von Ausnahmen für Gleitkommazahlen.</translation>
     </message>
     <message>
         <source>Detect memory leaks</source>
-        <translation type="unfinished"></translation>
+        <translation>Speicherlecks feststellen</translation>
     </message>
     <message>
         <source>Enable memory leak detection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert das Feststellen von Speicherlecks.</translation>
     </message>
     <message>
         <source>A seed of 0 generates a seed based on the current timestamp.</source>
@@ -11956,24 +11956,25 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
     </message>
     <message>
         <source>Limit warnings</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnungen einschränken</translation>
     </message>
     <message>
         <source>Set the maximum number of warnings. 0 means that the number is not limited.</source>
-        <translation type="unfinished"></translation>
+        <translation>Legt die Höchstzahl an Warnungen fest. 0 bedeutet, dass die Anzahl nicht begrenzt ist.</translation>
     </message>
     <message>
         <source>Unlimited</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbegrenzt</translation>
     </message>
     <message>
         <source>Check for derived Qt Quick tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf abgeleitete Qt Quick-Tests überprüfen</translation>
     </message>
     <message>
         <source>Search for Qt Quick tests that are derived from TestCase.
 Warning: Enabling this feature significantly increases scan time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sucht nach Qt Quick-Tests, die von TestCase abgeleitet sind.
+Achtung: Dies erhöht die zum Durchsuchen benötigte Zeit erheblich.</translation>
     </message>
     <message>
         <source>Benchmark Metrics</source>
@@ -12065,11 +12066,11 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Run &amp;All Tests</source>
-        <translation>Starte &amp;alle Tests</translation>
+        <translation>&amp;Alle Tests ausführen</translation>
     </message>
     <message>
         <source>Run All Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Tests ausführen</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+A</source>
@@ -12081,23 +12082,23 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Run All Tests Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Tests ohne Deployment ausführen</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+E</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+E</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+E</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+E</translation>
     </message>
     <message>
         <source>&amp;Run Selected Tests</source>
-        <translation>Sta&amp;rte ausgewählte Tests</translation>
+        <translation>Ausgewählte Tests ausfüh&amp;ren</translation>
     </message>
     <message>
         <source>Run Selected Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Tests ausführen</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+R</source>
@@ -12109,11 +12110,11 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Run Selected Tests Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Tests ohne Deployment ausführen</translation>
     </message>
     <message>
         <source>Run Failed Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlgeschlagene Tests ausführen</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+F</source>
@@ -12121,23 +12122,23 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Run Tests for Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Tests für die aktuelle Datei ausführen</translation>
     </message>
     <message>
         <source>&amp;Run Selected Tests Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Tests ohne Deployment ausfüh&amp;ren</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+W</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+W</translation>
     </message>
     <message>
         <source>Run &amp;Failed Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Fehlgeschlagene Tests ausführen</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+F</source>
@@ -12145,15 +12146,15 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Run Tests for &amp;Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Tests für die aktuelle &amp;Datei ausführen</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+C</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+C</translation>
     </message>
     <message>
         <source>Re&amp;scan Tests</source>
@@ -12169,15 +12170,15 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Run Test Under Cursor Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Tests unter Einfügemarke ohne Deployment ausführen</translation>
     </message>
     <message>
         <source>Debug Test Under Cursor Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Tests unter Einfügemarke ohne Deployment debuggen</translation>
     </message>
     <message>
         <source>Cannot debug multiple tests at once.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuggen von mehreren Tests gleichzeitig ist nicht möglich.</translation>
     </message>
     <message>
         <source>Selected test was not found (%1).</source>
@@ -12193,49 +12194,51 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Executing test module %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe Test-Modul %1 aus</translation>
     </message>
     <message>
         <source>Test execution took %1.</source>
-        <translation type="unfinished">Testausführung benötigte %1.</translation>
+        <translation>Testausführung benötigte %1.</translation>
     </message>
     <message>
         <source>Test suite execution took %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Test-Suite-Ausführung benötigte %1.</translation>
     </message>
     <message>
         <source>Test module execution took %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Test-Modul-Ausführung benötigte %1.</translation>
     </message>
     <message>
         <source>%1 failures detected in %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Fehlschläge in %2 gefunden.</translation>
     </message>
     <message>
         <source>%1 tests passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Tests bestanden.</translation>
     </message>
     <message>
         <source>No errors detected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Fehler festgestellt.</translation>
     </message>
     <message>
         <source>Running tests exited with %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführung von Tests wurde mit Rückgabewert %1 beendet.</translation>
     </message>
     <message>
         <source>Executable: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei: %1</translation>
     </message>
     <message>
         <source>Running tests failed.
 %1
 Executable: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführung von Tests fehlgeschlagen.
+%1
+Ausführbare Datei: %2</translation>
     </message>
     <message>
         <source>Running tests without output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführung von Tests ohne Ausgabe.</translation>
     </message>
     <message>
         <source>parameterized</source>
@@ -12255,97 +12258,97 @@ Executable: %2</source>
     </message>
     <message>
         <source>Catch Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Catch Test</translation>
     </message>
     <message>
         <source>Exception:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausnahme:</translation>
     </message>
     <message>
         <source>Executing %1 &quot;%2&quot;...</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe %1 &quot;%2&quot; aus...</translation>
     </message>
     <message>
         <source>%1 &quot;%2&quot; passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 &quot;%2&quot; bestanden.</translation>
     </message>
     <message>
         <source>Expression passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausdruck bestanden.</translation>
     </message>
     <message>
         <source>Finished executing %1 &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführung von %1 &quot;%2&quot; beendet.</translation>
     </message>
     <message>
         <source>Expression failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausdruck fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Google Test</source>
-        <translation type="unfinished">Google Test</translation>
+        <translation>Google Test</translation>
     </message>
     <message>
         <source>Enable or disable grouping of test cases by folder or GTest filter.
 See also Google Test settings.</source>
-        <translation type="unfinished">Gruppierung von Testfällen nach Verzeichnis oder GTest-Filter ein- oder ausschalten.
+        <translation>Gruppierung von Testfällen nach Verzeichnis oder GTest-Filter ein- oder ausschalten.
 Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>&lt;matching&gt;</source>
-        <translation type="unfinished">&lt;passend&gt;</translation>
+        <translation>&lt;passend&gt;</translation>
     </message>
     <message>
         <source>&lt;not matching&gt;</source>
-        <translation type="unfinished">&lt;nicht passend&gt;</translation>
+        <translation>&lt;nicht passend&gt;</translation>
     </message>
     <message>
         <source>Change GTest filter in use inside the settings.</source>
-        <translation type="unfinished">Ändern Sie den verwendeten GTest-Filter in den Einstellungen.</translation>
+        <translation>Ändern Sie den verwendeten GTest-Filter in den Einstellungen.</translation>
     </message>
     <message>
         <source>typed</source>
-        <translation type="unfinished">typisiert</translation>
+        <translation>typisiert</translation>
     </message>
     <message>
         <source>Qt Test</source>
-        <translation type="unfinished">Qt Test</translation>
+        <translation>Qt Test</translation>
     </message>
     <message>
         <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Mehrere Testfälle in der gleichen ausführbaren Datei werden nicht offiziell unterstützt. Abhängig von der Implementation werden sie möglicherweise ausgeführt oder auch nicht, aber sie werden niemals explizit auswählbar sein.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>inherited</source>
-        <translation type="unfinished">vererbt</translation>
+        <translation>vererbt</translation>
     </message>
     <message>
         <source>multiple testcases</source>
-        <translation type="unfinished"></translation>
+        <translation>mehrere Testfälle</translation>
     </message>
     <message>
         <source>Quick Test</source>
-        <translation type="unfinished">Quick Test</translation>
+        <translation>Quick Test</translation>
     </message>
     <message>
         <source>&lt;unnamed&gt;</source>
-        <translation type="unfinished">&lt;unbenannt&gt;</translation>
+        <translation>&lt;unbenannt&gt;</translation>
     </message>
     <message>
         <source>Give all test cases a name to ensure correct behavior when running test cases and to be able to select them</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie allen Testfällen einen Namen, um korrektes Verhalten sicherzustellen und sie auswählen zu können</translation>
     </message>
     <message>
         <source>%1 (none)</source>
-        <translation type="unfinished">%1 (keine)</translation>
+        <translation>%1 (keine)</translation>
     </message>
     <message>
         <source>Auto Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto Test</translation>
     </message>
     <message>
         <source>Running tests for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe Tests für &quot;%1&quot; aus.</translation>
     </message>
 </context>
 <context>
