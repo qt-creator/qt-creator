@@ -854,7 +854,7 @@ FilePath StringAspect::filePath() const
     return FilePath::fromUserInput(value());
 }
 
-PathChooser *FilePathAspect::pathChooser() const
+PathChooser *StringAspect::pathChooser() const
 {
     return d->m_pathChooserDisplay.data();
 }
@@ -988,21 +988,21 @@ void StringAspect::setHistoryCompleter(const QString &historyCompleterKey)
 
   \sa Utils::PathChooser::setExpectedKind()
 */
-void FilePathAspect::setExpectedKind(const PathChooser::Kind expectedKind)
+void StringAspect::setExpectedKind(const PathChooser::Kind expectedKind)
 {
     d->m_expectedKind = expectedKind;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setExpectedKind(expectedKind);
 }
 
-void FilePathAspect::setEnvironment(const Environment &env)
+void StringAspect::setEnvironment(const Environment &env)
 {
     d->m_environment = env;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setEnvironment(env);
 }
 
-void FilePathAspect::setBaseFileName(const FilePath &baseFileName)
+void StringAspect::setBaseFileName(const FilePath &baseFileName)
 {
     d->m_baseFileName = baseFileName;
     if (d->m_pathChooserDisplay)
