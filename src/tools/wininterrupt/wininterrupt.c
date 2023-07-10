@@ -11,6 +11,7 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* To debug break a 64bit application under Windows, you must call
  * DebugBreakProcess() from an 64bit apllication. Therefore:
