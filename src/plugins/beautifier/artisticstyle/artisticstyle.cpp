@@ -50,7 +50,7 @@ namespace Beautifier::Internal {
 
 // Settings
 
-static QString displayName() { return Tr::tr("Artistic Style"); }
+static QString asDisplayName() { return Tr::tr("Artistic Style"); }
 
 const char SETTINGS_NAME[]            = "artisticstyle";
 
@@ -63,7 +63,7 @@ public:
         setVersionRegExp(QRegularExpression("([2-9]{1})\\.([0-9]{1,2})(\\.[1-9]{1})?$"));
         command.setLabelText(Tr::tr("Artistic Style command:"));
         command.setDefaultValue("astyle");
-        command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle(displayName()));
+        command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle(asDisplayName()));
 
         useOtherFiles.setSettingsKey("useOtherFiles");
         useOtherFiles.setLabelText(Tr::tr("Use file *.astylerc defined in project files"));
@@ -238,7 +238,7 @@ public:
     ArtisticStyleOptionsPage()
     {
         setId("ArtisticStyle");
-        setDisplayName(displayName());
+        setDisplayName(asDisplayName());
         setCategory(Constants::OPTION_CATEGORY);
         setWidgetCreator([] { return new ArtisticStyleOptionsPageWidget; });
     }
@@ -278,7 +278,7 @@ void ArtisticStyle::formatFile()
 {
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty())
-        showError(msgCannotGetConfigurationFile(displayName()));
+        showError(BeautifierTool::msgCannotGetConfigurationFile(asDisplayName()));
     else
         formatCurrentFile(command(cfgFileName));
 }

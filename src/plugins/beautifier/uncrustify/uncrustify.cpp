@@ -51,7 +51,7 @@ namespace Beautifier::Internal {
 
 const char SETTINGS_NAME[] = "uncrustify";
 
-static QString displayName()  { return Tr::tr("Uncrustify"); }
+static QString uDisplayName()  { return Tr::tr("Uncrustify"); }
 
 class UncrustifySettings : public AbstractSettings
 {
@@ -63,7 +63,7 @@ public:
 
         command.setDefaultValue("uncrustify");
         command.setLabelText(Tr::tr("Uncrustify command:"));
-        command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle(displayName()));
+        command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle(uDisplayName()));
 
         useOtherFiles.setSettingsKey("useOtherFiles");
         useOtherFiles.setDefaultValue(true);
@@ -233,7 +233,7 @@ public:
     UncrustifyOptionsPage()
     {
         setId("Uncrustify");
-        setDisplayName(Tr::tr("Uncrustify"));
+        setDisplayName(uDisplayName());
         setCategory(Constants::OPTION_CATEGORY);
         setWidgetCreator([] { return new UncrustifyOptionsPageWidget; });
     }
@@ -282,7 +282,7 @@ void Uncrustify::formatFile()
 {
     const FilePath cfgFileName = configurationFile();
     if (cfgFileName.isEmpty())
-        showError(msgCannotGetConfigurationFile(displayName()));
+        showError(msgCannotGetConfigurationFile(uDisplayName()));
     else
         formatCurrentFile(command(cfgFileName));
 }
@@ -291,7 +291,7 @@ void Uncrustify::formatSelectedText()
 {
     const FilePath cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
-        showError(msgCannotGetConfigurationFile(displayName()));
+        showError(msgCannotGetConfigurationFile(uDisplayName()));
         return;
     }
 
