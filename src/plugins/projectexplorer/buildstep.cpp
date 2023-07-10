@@ -113,6 +113,7 @@ static QList<BuildStepFactory *> g_buildStepFactories;
 
 BuildStep::BuildStep(BuildStepList *bsl, Id id)
     : ProjectConfiguration(bsl, bsl->target(), id)
+    , m_stepList(bsl)
 {
     connect(this, &ProjectConfiguration::displayNameChanged,
             this, &BuildStep::updateSummary);
@@ -190,7 +191,7 @@ QVariantMap BuildStep::toMap() const
 
 BuildConfiguration *BuildStep::buildConfiguration() const
 {
-    auto config = qobject_cast<BuildConfiguration *>(parent()->parent());
+    auto config = qobject_cast<BuildConfiguration *>(projectConfiguration());
     if (config)
         return config;
 
@@ -200,7 +201,7 @@ BuildConfiguration *BuildStep::buildConfiguration() const
 
 DeployConfiguration *BuildStep::deployConfiguration() const
 {
-    auto config = qobject_cast<DeployConfiguration *>(parent()->parent());
+    auto config = qobject_cast<DeployConfiguration *>(projectConfiguration());
     if (config)
         return config;
     // See comment in buildConfiguration()
@@ -211,7 +212,7 @@ DeployConfiguration *BuildStep::deployConfiguration() const
 
 ProjectConfiguration *BuildStep::projectConfiguration() const
 {
-    return static_cast<ProjectConfiguration *>(parent()->parent());
+    return stepList()->projectConfiguration();
 }
 
 BuildSystem *BuildStep::buildSystem() const
@@ -223,7 +224,7 @@ BuildSystem *BuildStep::buildSystem() const
 
 Environment BuildStep::buildEnvironment() const
 {
-    if (const auto bc = qobject_cast<BuildConfiguration *>(parent()->parent()))
+    if (const auto bc = qobject_cast<BuildConfiguration *>(projectConfiguration()))
         return bc->environment();
     if (const auto bc = target()->activeBuildConfiguration())
         return bc->environment();
@@ -260,8 +261,8 @@ QString BuildStep::fallbackWorkingDirectory() const
 
 void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    if (qobject_cast<BuildConfiguration *>(parent()->parent())) {
-        for (const Id id : buildConfiguration()->customParsers()) {
+    if (auto bc = qobject_cast<BuildConfiguration *>(projectConfiguration())) {
+        for (const Id id : bc->customParsers()) {
             if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
                 formatter->addLineParser(parser);
         }
@@ -317,7 +318,7 @@ void BuildStep::setEnabled(bool b)
 
 BuildStepList *BuildStep::stepList() const
 {
-    return qobject_cast<BuildStepList *>(parent());
+    return m_stepList;
 }
 
 bool BuildStep::enabled() const

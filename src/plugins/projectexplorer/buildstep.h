@@ -131,6 +131,7 @@ private:
     virtual void doRun() = 0;
     virtual void doCancel();
 
+    BuildStepList * const m_stepList;
     std::atomic_bool m_cancelFlag;
     bool m_enabled = true;
     bool m_immutable = false;
