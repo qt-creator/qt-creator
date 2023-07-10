@@ -36,7 +36,7 @@ public:
     }
 
 private:
-    Group deployRecipe() final
+    GroupItem deployRecipe() final
     {
         const auto setupHandler = [this](Process &process) {
             QString remoteExe;
@@ -64,7 +64,7 @@ private:
         const auto errorHandler = [this](const Process &process) {
             addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
         };
-        return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };
+        return ProcessTask(setupHandler, doneHandler, errorHandler);
     }
 
     SelectionAspect selection{this};

@@ -38,12 +38,12 @@ public:
 
 private:
     bool isDeploymentNecessary() const final { return !m_remoteExecutable.isEmpty(); }
-    Group deployRecipe() final;
+    GroupItem deployRecipe() final;
 
     FilePath m_remoteExecutable;
 };
 
-Group KillAppStep::deployRecipe()
+GroupItem KillAppStep::deployRecipe()
 {
     const auto setupHandler = [this](DeviceProcessKiller &killer) {
         killer.setProcessPath(m_remoteExecutable);
@@ -57,7 +57,7 @@ Group KillAppStep::deployRecipe()
         addProgressMessage(Tr::tr("Failed to kill remote application. "
                                     "Assuming it was not running."));
     };
-    return Group { DeviceProcessKillerTask(setupHandler, doneHandler, errorHandler) };
+    return DeviceProcessKillerTask(setupHandler, doneHandler, errorHandler);
 }
 
 KillAppStepFactory::KillAppStepFactory()

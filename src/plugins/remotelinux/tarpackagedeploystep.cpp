@@ -54,7 +54,7 @@ public:
 private:
     QString remoteFilePath() const;
     bool isDeploymentNecessary() const final;
-    Group deployRecipe() final;
+    GroupItem deployRecipe() final;
     GroupItem uploadTask();
     GroupItem installTask();
 
@@ -115,7 +115,7 @@ GroupItem TarPackageDeployStep::installTask()
     return ProcessTask(setupHandler, doneHandler, errorHandler);
 }
 
-Group TarPackageDeployStep::deployRecipe()
+GroupItem TarPackageDeployStep::deployRecipe()
 {
     return Group { uploadTask(), installTask() };
 }

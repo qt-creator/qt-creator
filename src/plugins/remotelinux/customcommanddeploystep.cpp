@@ -38,7 +38,7 @@ public:
     expected_str<void> isDeploymentPossible() const final;
 
 private:
-    Group deployRecipe() final;
+    GroupItem deployRecipe() final;
 
     StringAspect commandLine{this};
 };
@@ -51,7 +51,7 @@ expected_str<void> CustomCommandDeployStep::isDeploymentPossible() const
     return AbstractRemoteLinuxDeployStep::isDeploymentPossible();
 }
 
-Group CustomCommandDeployStep::deployRecipe()
+GroupItem CustomCommandDeployStep::deployRecipe()
 {
     const auto setupHandler = [this](Process &process) {
         addProgressMessage(Tr::tr("Starting remote command \"%1\"...").arg(commandLine()));
@@ -77,7 +77,7 @@ Group CustomCommandDeployStep::deployRecipe()
                 .arg(process.exitCode()));
         }
     };
-    return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };
+    return ProcessTask(setupHandler, doneHandler, errorHandler);
 }
 
 

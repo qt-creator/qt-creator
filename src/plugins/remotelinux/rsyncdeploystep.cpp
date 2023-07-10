@@ -64,7 +64,7 @@ public:
 
 private:
     bool isDeploymentNecessary() const final;
-    Group deployRecipe() final;
+    GroupItem deployRecipe() final;
     GroupItem mkdirTask();
     GroupItem transferTask();
 
@@ -193,7 +193,7 @@ GroupItem RsyncDeployStep::transferTask()
     return FileTransferTask(setupHandler, {}, errorHandler);
 }
 
-Group RsyncDeployStep::deployRecipe()
+GroupItem RsyncDeployStep::deployRecipe()
 {
     return Group { mkdirTask(), transferTask() };
 }

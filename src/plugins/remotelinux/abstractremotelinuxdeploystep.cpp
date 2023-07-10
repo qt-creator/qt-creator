@@ -117,7 +117,7 @@ void AbstractRemoteLinuxDeployStep::doRun()
 
     QTC_ASSERT(!d->m_taskTree, return);
 
-    d->m_taskTree.reset(new TaskTree(runRecipe()));
+    d->m_taskTree.reset(new TaskTree({runRecipe()}));
     const auto endHandler = [this] {
         d->m_taskTree.release()->deleteLater();
         handleFinished();
@@ -185,7 +185,7 @@ bool AbstractRemoteLinuxDeployStep::isDeploymentNecessary() const
     return true;
 }
 
-Group AbstractRemoteLinuxDeployStep::runRecipe()
+GroupItem AbstractRemoteLinuxDeployStep::runRecipe()
 {
     const auto onSetup = [this] {
         const auto canDeploy = isDeploymentPossible();

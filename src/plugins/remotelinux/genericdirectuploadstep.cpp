@@ -55,7 +55,7 @@ public:
     }
 
     bool isDeploymentNecessary() const final;
-    Group deployRecipe() final;
+    GroupItem deployRecipe() final;
 
     QDateTime timestampFromStat(const DeployableFile &file, Process *statProc);
 
@@ -255,7 +255,7 @@ GroupItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &s
     return TaskTreeTask(setupChmodHandler);
 }
 
-Group GenericDirectUploadStep::deployRecipe()
+GroupItem GenericDirectUploadStep::deployRecipe()
 {
     const auto preFilesToStat = [this](UploadStorage *storage) {
         QList<DeployableFile> filesToStat;

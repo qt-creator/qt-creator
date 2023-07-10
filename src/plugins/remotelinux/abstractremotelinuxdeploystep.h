@@ -11,7 +11,7 @@
 #include <QObject>
 
 namespace ProjectExplorer { class DeployableFile; }
-namespace Tasking { class Group; }
+namespace Tasking { class GroupItem; }
 
 namespace RemoteLinux {
 
@@ -53,8 +53,8 @@ protected:
 
 private:
     virtual bool isDeploymentNecessary() const;
-    virtual Tasking::Group deployRecipe() = 0;
-    Tasking::Group runRecipe();
+    virtual Tasking::GroupItem deployRecipe() = 0;
+    Tasking::GroupItem runRecipe();
 
     Internal::AbstractRemoteLinuxDeployStepPrivate *d;
 };
