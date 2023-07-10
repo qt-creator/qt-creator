@@ -193,8 +193,8 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
         }
     }
     // Do we have user fields?
-    if (!settings.nickNameFieldListFile.value().isEmpty())
-        createUserFields(settings.nickNameFieldListFile.value());
+    if (!settings.nickNameFieldListFile().isEmpty())
+        createUserFields(settings.nickNameFieldListFile());
 
     // wrapping. etc
     slotUpdateEditorSettings();
@@ -241,14 +241,12 @@ static inline QStringList fieldTexts(const QString &fileContents)
     return rc;
 }
 
-void VcsBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
+void VcsBaseSubmitEditor::createUserFields(const FilePath &fieldConfigFile)
 {
     FileReader reader;
-    if (!reader.fetch(FilePath::fromString(fieldConfigFile),
-                      QIODevice::Text,
-                      Core::ICore::dialogParent())) {
+    if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::dialogParent()))
         return;
-    }
+
     // Parse into fields
     const QStringList fields = fieldTexts(QString::fromUtf8(reader.data()));
     if (fields.empty())
