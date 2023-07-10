@@ -170,7 +170,7 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
             *ok = false;
         if (errorMessage)
             *errorMessage = Tr::tr("The binary \"%1\" could not be located in the path \"%2\"")
-                .arg(binaryPath.value(), path().toUserOutput());
+                .arg(binaryPath().toUserOutput(), path().toUserOutput());
     }
     return resolvedBinPath;
 }

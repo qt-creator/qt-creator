@@ -1327,6 +1327,21 @@ FilePathAspect::FilePathAspect(AspectContainer *container)
     setDisplayStyle(PathChooserDisplay);
 }
 
+FilePath FilePathAspect::operator()() const
+{
+    return filePath();
+}
+
+FilePath FilePathAspect::value() const
+{
+    return filePath();
+}
+
+QString FilePathAspect::stringValue() const
+{
+    return StringAspect::value();
+}
+
 /*!
     Sets the value of this file path aspect to \a value.
 

@@ -518,7 +518,9 @@ class QTCREATOR_UTILS_EXPORT FilePathAspect : public StringAspect
 public:
     FilePathAspect(AspectContainer *container = nullptr);
 
-    FilePath operator()() const { return filePath(); }
+    FilePath operator()() const;
+    FilePath value() const;
+    QString stringValue() const;
     void setValue(const FilePath &filePath);
     void setDefaultValue(const FilePath &filePath);
 

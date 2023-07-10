@@ -38,7 +38,7 @@ VcsBaseSettings::~VcsBaseSettings() = default;
 
 FilePaths VcsBaseSettings::searchPathList() const
 {
-    return Utils::transform(path.value().split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts),
+    return Utils::transform(path.stringValue().split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts),
                             &FilePath::fromUserInput);
 }
 

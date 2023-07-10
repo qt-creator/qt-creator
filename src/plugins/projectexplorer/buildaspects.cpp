@@ -61,7 +61,7 @@ BuildDirectoryAspect::BuildDirectoryAspect(AspectContainer *container, const Bui
     });
 
     setOpenTerminalHandler([this, bc] {
-        Core::FileUtils::openTerminal(FilePath::fromString(value()), bc->environment());
+        Core::FileUtils::openTerminal(value(), bc->environment());
     });
 }
 

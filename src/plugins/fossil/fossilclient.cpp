@@ -766,7 +766,7 @@ unsigned int FossilClient::binaryVersion() const
     static unsigned int cachedBinaryVersion = 0;
     static QString cachedBinaryPath;
 
-    const QString currentBinaryPath = settings().binaryPath.value();
+    const QString currentBinaryPath = settings().binaryPath.stringValue();
 
     if (currentBinaryPath.isEmpty())
         return 0;
