@@ -219,6 +219,9 @@ private slots:
 
     void testGenerateConstructor_data();
     void testGenerateConstructor();
+
+    void testChangeCommentType_data();
+    void testChangeCommentType();
 };
 
 } // namespace Tests

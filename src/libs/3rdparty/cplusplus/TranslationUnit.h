@@ -65,6 +65,9 @@ public:
     int commentCount() const;
     const Token &commentAt(int index) const;
 
+    // Including comments.
+    std::vector<Token> allTokens() const;
+
     int matchingBrace(int index) const;
     const Identifier *identifier(int index) const;
     const Literal *literal(int index) const;
@@ -120,8 +123,16 @@ public:
                      int *line,
                      int *column = nullptr,
                      const StringLiteral **fileName = nullptr) const;
+
     int getTokenPositionInDocument(int index, const QTextDocument *doc) const;
     int getTokenEndPositionInDocument(int index, const QTextDocument *doc) const;
+
+    void getTokenPosition(const Token &token, int *line, int *column = nullptr,
+                          const StringLiteral **fileName = nullptr) const;
+    void getTokenEndPosition(const Token &token, int *line, int *column = nullptr,
+                             const StringLiteral **fileName = nullptr) const;
+    int getTokenPositionInDocument(const Token token, const QTextDocument *doc) const;
+    int getTokenEndPositionInDocument(const Token &token, const QTextDocument *doc) const;
 
     void pushLineOffset(int offset);
     void pushPreprocessorLine(int utf16charOffset,

@@ -8982,4 +8982,201 @@ void QuickfixTest::testGenerateConstructor()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void QuickfixTest::testChangeCommentType_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expectedOutput");
+
+    QTest::newRow("C -> C++ / no selection / single line") << R"(
+int var1;
+/* Other comment, unaffected */
+/* Our @comment */
+/* Another unaffected comment */
+int var2;)" << R"(
+int var1;
+/* Other comment, unaffected */
+// Our comment
+/* Another unaffected comment */
+int var2;)";
+
+    QTest::newRow("C -> C++ / no selection / multi-line / preserved header and footer") << R"(
+/****************************************************
+ * some info
+ * more @info
+ ***************************************************/)" << R"(
+/////////////////////////////////////////////////////
+// some info
+// more info
+/////////////////////////////////////////////////////)";
+
+    QTest::newRow("C -> C++ / no selection / multi-line / non-preserved header and footer") << R"(
+/*
+ * some info
+ * more @info
+ */)" << R"(
+// some info
+// more info
+)";
+
+    QTest::newRow("C -> C++ / no selection / qdoc") << R"(
+/*!
+    \qmlproperty string Type::element.name
+    \qmlproperty int Type::element.id
+
+    \brief Holds the @element name and id.
+*/)" << R"(
+//! \qmlproperty string Type::element.name
+//! \qmlproperty @int Type::element.id
+//!
+//! \brief Holds the element name and id.
+)";
+
+    QTest::newRow("C -> C++ / no selection / doxygen") << R"(
+/*! \class Test
+    \brief A test class.
+
+    A more detailed @class description.
+*/)" << R"(
+//! \class Test
+//! \brief A test class.
+//!
+//! A more detailed class description.
+)";
+
+    QTest::newRow("C -> C++ / selection / single line") << R"(
+int var1;
+/* Other comment, unaffected */
+@{start}/* Our comment */@{end}
+/* Another unaffected comment */
+int var2;)" << R"(
+int var1;
+/* Other comment, unaffected */
+// Our comment
+/* Another unaffected comment */
+int var2;)";
+
+    QTest::newRow("C -> C++ / selection / multi-line / preserved header and footer") << R"(
+/****************************************************
+ * @{start}some info
+ * more info@{end}
+ ***************************************************/)" << R"(
+/////////////////////////////////////////////////////
+// some info
+// more info
+/////////////////////////////////////////////////////)";
+
+    QTest::newRow("C -> C++ / selection / multi-line / non-preserved header and footer") << R"(
+/*@{start}
+ * some in@{end}fo
+ * more info
+ */)" << R"(
+// some info
+// more info
+)";
+
+    QTest::newRow("C -> C++ / selection / qdoc") << R"(
+/*!@{start}
+    \qmlproperty string Type::element.name
+    \qmlproperty int Type::element.id
+
+    \brief Holds the element name and id.
+*/@{end})" << R"(
+//! \qmlproperty string Type::element.name
+//! \qmlproperty int Type::element.id
+//!
+//! \brief Holds the element name and id.
+)";
+
+    QTest::newRow("C -> C++ / selection / doxygen") << R"(
+/** Expand envi@{start}ronment variables in a string.
+ *
+ * Environment variables are accepted in the @{end}following forms:
+ * $SOMEVAR, ${SOMEVAR} on Unix and %SOMEVAR% on Windows.
+ * No escapes and quoting are supported.
+ * If a variable is not found, it is not substituted.
+ */)" << R"(
+//! Expand environment variables in a string.
+//!
+//! Environment variables are accepted in the following forms:
+//! $SOMEVAR, ${SOMEVAR} on Unix and %SOMEVAR% on Windows.
+//! No escapes and quoting are supported.
+//! If a variable is not found, it is not substituted.
+)";
+
+    QTest::newRow("C -> C++ / selection / multiple comments") << R"(
+@{start}/* Affected comment */
+/* Another affected comment */
+/* A third affected comment */@{end}
+/* An unaffected comment */)" << R"(
+// Affected comment
+// Another affected comment
+// A third affected comment
+/* An unaffected comment */)";
+
+    QTest::newRow("C++ -> C / no selection / single line") << R"(
+// Other comment, unaffected
+// Our @comment
+// Another unaffected comment)" << R"(
+// Other comment, unaffected
+/* Our comment */
+// Another unaffected comment)";
+
+    QTest::newRow("C++ -> C / selection / single line") << R"(
+// Other comment, unaffected
+@{start}// Our comment@{end}
+// Another unaffected comment)" << R"(
+// Other comment, unaffected
+/* Our comment */
+// Another unaffected comment)";
+
+    QTest::newRow("C++ -> C / selection / multi-line / preserved header and footer") << R"(
+@{start}/////////////////////////////////////////////////////
+// some info
+// more info
+/////////////////////////////////////////////////////@{end})" << R"(
+/****************************************************/
+/* some info                                        */
+/* more info                                        */
+/****************************************************/)";
+
+    QTest::newRow("C++ -> C / selection / qdoc") << R"(
+@{start}//! \qmlproperty string Type::element.name
+//! \qmlproperty int Type::element.id
+//!
+//! \brief Holds the element name and id.@{end}
+)" << R"(
+/*!
+    \qmlproperty string Type::element.name
+    \qmlproperty int Type::element.id
+
+    \brief Holds the element name and id.
+*/
+)";
+
+    QTest::newRow("C++ -> C / selection / doxygen") << R"(
+@{start}//! \class Test
+//! \brief A test class.
+//!
+//! A more detailed class description.@{end}
+)" << R"(
+/*!
+    \class Test
+    \brief A test class.
+
+    A more detailed class description.
+*/
+)";
+}
+
+void QuickfixTest::testChangeCommentType()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, expectedOutput);
+
+    ConvertCommentStyle factory;
+    QuickFixOperationTest(
+        {CppTestDocument::create("file.h", input.toUtf8(), expectedOutput.toUtf8())},
+        &factory);
+}
+
 } // namespace CppEditor::Internal::Tests

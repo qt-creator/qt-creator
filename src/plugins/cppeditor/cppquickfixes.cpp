@@ -9306,6 +9306,231 @@ void GenerateConstructor::match(const CppQuickFixInterface &interface, QuickFixO
     result << op;
 }
 
+namespace {
+class ConvertCommentStyleOp : public CppQuickFixOperation
+{
+public:
+    ConvertCommentStyleOp(const CppQuickFixInterface &interface, const QList<Token> &tokens,
+                          Kind kind)
+        : CppQuickFixOperation(interface),
+          m_tokens(tokens),
+          m_kind(kind),
+          m_wasCxxStyle(m_kind == T_CPP_COMMENT || m_kind == T_CPP_DOXY_COMMENT),
+          m_isDoxygen(m_kind == T_DOXY_COMMENT || m_kind == T_CPP_DOXY_COMMENT)
+    {
+        setDescription(m_wasCxxStyle ? Tr::tr("Convert comment to C style")
+                                    : Tr::tr("Convert comment to C++ style"));
+    }
+
+private:
+    // Turns every line of a C-style comment into a C++-style comment and vice versa.
+    // For C++ -> C, we use one /* */ comment block per line. However, doxygen
+    // requires a single comment, so there we just replace the prefix with whitespace and
+    // add the start and end comment in extra lines.
+    // For cosmetic reasons, we offer some convenience functionality:
+    //   - Turn /***** ... into ////// ... and vice versa
+    //   - With C -> C++, remove leading asterisks.
+    //   - With C -> C++, remove the first and last line of a block if they have no content
+    //     other than the comment start and end characters.
+    //   - With C++ -> C, try to align the end comment characters.
+    // These are obviously heuristics; we do not guarantee perfect results for everybody.
+    // We also don't second-guess the users's selection: E.g. if there is an empty
+    // line between the tokens, then it's not the same doxygen comment, but we merge
+    // it anyway in C++ to C mode.
+    void perform() override
+    {
+        TranslationUnit * const tu = currentFile()->cppDocument()->translationUnit();
+        const QString newCommentStart = getNewCommentStart();
+        ChangeSet changeSet;
+        int endCommentColumn = -1;
+        const QChar oldFillChar = m_wasCxxStyle ? '/' : '*';
+        const QChar newFillChar = m_wasCxxStyle ? '*' : '/';
+
+        for (const Token &token : m_tokens) {
+            const int startPos = tu->getTokenPositionInDocument(token, textDocument());
+            const int endPos = tu->getTokenEndPositionInDocument(token, textDocument());
+
+            if (m_wasCxxStyle && m_isDoxygen) {
+                // Replace "///" characters with whitespace (to keep alignment).
+                // The insertion of "/*" and "*/" is done once after the loop.
+                changeSet.replace(startPos, startPos + 3, "   ");
+                continue;
+            }
+
+            const QTextBlock firstBlock = textDocument()->findBlock(startPos);
+            const QTextBlock lastBlock = textDocument()->findBlock(endPos);
+            for (QTextBlock block = firstBlock; block.isValid() && block.position() <= endPos;
+                 block = block.next()) {
+                const QString &blockText = block.text();
+                const int firstColumn = block == firstBlock ? startPos - block.position() : 0;
+                const int endColumn = block == lastBlock ? endPos - block.position()
+                                                         : block.length();
+
+                // Returns true if the current line looks like "/********/" or "//////////",
+                // as is often the case at the start and end of comment blocks.
+                const auto fillChecker = [&] {
+                    if (m_isDoxygen)
+                        return false;
+                    QString textToCheck = blockText;
+                    if (block == firstBlock)
+                        textToCheck.remove(0, 1);
+                    if (block == lastBlock)
+                        textToCheck.chop(block.length() - endColumn);
+                    return Utils::allOf(textToCheck, [oldFillChar](const QChar &c)
+                                        { return c == oldFillChar || c == ' ';
+                    }) && textToCheck.count(oldFillChar) > 2;
+                };
+
+                // Returns the index of the first character of actual comment content,
+                // as opposed to visual stuff like slashes, stars or whitespace.
+                const auto indexOfActualContent = [&] {
+                    const int offset = block == firstBlock ? firstColumn + newCommentStart.length()
+                                                           : firstColumn;
+
+                    for (int i = offset, lastFillChar = -1; i < blockText.length(); ++i) {
+                        if (blockText.at(i) == oldFillChar) {
+                            lastFillChar = i;
+                            continue;
+                        }
+                        if (!blockText.at(i).isSpace())
+                            return lastFillChar + 1;
+                    }
+                    return -1;
+                };
+
+                if (fillChecker()) {
+                    const QString replacement = QString(endColumn - 1 - firstColumn, newFillChar);
+                    changeSet.replace(block.position() + firstColumn,
+                                      block.position() + endColumn - 1,
+                                      replacement);
+                    if (m_wasCxxStyle) {
+                        changeSet.replace(block.position() + firstColumn,
+                                          block.position() + firstColumn + 1, "/");
+                        changeSet.insert(block.position() + endColumn - 1, "*");
+                        endCommentColumn = endColumn - 1;
+                    }
+                    continue;
+                }
+
+                // Remove leading noise or even the entire block, if applicable.
+                const bool blockIsRemovable = (block == firstBlock || block == lastBlock)
+                                              && firstBlock != lastBlock;
+                const auto removeBlock = [&] {
+                    changeSet.remove(block.position() + firstColumn, block.position() + endColumn);
+                };
+                const int contentIndex = indexOfActualContent();
+                if (contentIndex == -1) {
+                    if (blockIsRemovable) {
+                        removeBlock();
+                        continue;
+                    } else if (!m_wasCxxStyle) {
+                        changeSet.replace(block.position() + firstColumn,
+                                          block.position() + endColumn - 1, newCommentStart);
+                        continue;
+                    }
+                } else if (block == lastBlock && contentIndex == endColumn - 1) {
+                    if (blockIsRemovable) {
+                        removeBlock();
+                        break;
+                    }
+                } else {
+                    changeSet.remove(block.position() + firstColumn,
+                                     block.position() + firstColumn + contentIndex);
+                }
+
+                if (block == firstBlock) {
+                    changeSet.replace(startPos, startPos + newCommentStart.length(),
+                                      newCommentStart);
+                } else {
+                    // If the line starts with enough whitespace, replace it with the
+                    // comment start characters, so we don't move the content to the right
+                    // unnecessarily. Otherwise, insert the comment start characters.
+                    if (blockText.startsWith(QString(newCommentStart.size() + 1, ' '))) {
+                        changeSet.replace(block.position(),
+                                          block.position() + newCommentStart.length(),
+                                          newCommentStart);
+                    } else {
+                        changeSet.insert(block.position(), newCommentStart);
+                    }
+                }
+
+                if (block == lastBlock) {
+                    if (m_wasCxxStyle) {
+                        // This is for proper alignment of the end comment character.
+                        if (endCommentColumn != -1) {
+                            const int endCommentPos = block.position() + endCommentColumn;
+                            if (endPos < endCommentPos)
+                                changeSet.insert(endPos, QString(endCommentPos - endPos - 1, ' '));
+                        }
+                        changeSet.insert(endPos, " */");
+                    } else {
+                        changeSet.remove(endPos - 2, endPos);
+                    }
+                }
+            }
+        }
+
+        if (m_wasCxxStyle && m_isDoxygen) {
+            const int startPos = tu->getTokenPositionInDocument(m_tokens.first(), textDocument());
+            const int endPos = tu->getTokenEndPositionInDocument(m_tokens.last(), textDocument());
+            changeSet.insert(startPos, "/*!\n");
+            changeSet.insert(endPos, "\n*/");
+        }
+
+        changeSet.apply(textDocument());
+    }
+
+    QString getNewCommentStart() const
+    {
+        if (m_wasCxxStyle) {
+            if (m_isDoxygen)
+                return "/*!";
+            return "/*";
+        }
+        if (m_isDoxygen)
+            return "//!";
+        return "//";
+    }
+
+    const QList<Token> m_tokens;
+    const Kind m_kind;
+    const bool m_wasCxxStyle;
+    const bool m_isDoxygen;
+};
+} // namespace
+
+void ConvertCommentStyle::match(const CppQuickFixInterface &interface,
+                                TextEditor::QuickFixOperations &result)
+{
+    // If there's a selection, then it must entirely consist of comment tokens.
+    // If there's no selection, the cursor must be on a comment.
+    const QList<Token> &cursorTokens = interface.currentFile()->tokensForCursor();
+    if (cursorTokens.empty())
+        return;
+    if (!cursorTokens.front().isComment())
+        return;
+
+    // All tokens must be the same kind of comment, but we make an exception for doxygen comments
+    // that start with "///", as these are often not intended to be doxygen. For our purposes,
+    // we treat them as normal comments.
+    const auto effectiveKind = [&interface](const Token &token) {
+        if (token.kind() != T_CPP_DOXY_COMMENT)
+            return token.kind();
+        TranslationUnit * const tu = interface.currentFile()->cppDocument()->translationUnit();
+        const int startPos = tu->getTokenPositionInDocument(token, interface.textDocument());
+        const QString commentStart = interface.textAt(startPos, 3);
+        return commentStart == "///" ? T_CPP_COMMENT : T_CPP_DOXY_COMMENT;
+    };
+    const Kind kind = effectiveKind(cursorTokens.first());
+    for (int i = 1; i < cursorTokens.count(); ++i) {
+        if (effectiveKind(cursorTokens.at(i)) != kind)
+            return;
+    }
+
+    // Ok, all tokens are of same(ish) comment type, offer quickfix.
+    result << new ConvertCommentStyleOp(interface, cursorTokens, kind);
+}
+
 void createCppQuickFixes()
 {
     new AddIncludeForUndefinedIdentifier;
@@ -9362,6 +9587,7 @@ void createCppQuickFixes()
 
     new RemoveUsingNamespace;
     new GenerateConstructor;
+    new ConvertCommentStyle;
 }
 
 void destroyCppQuickFixes()

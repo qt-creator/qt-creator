@@ -585,5 +585,13 @@ private:
     bool m_test = false;
 };
 
+//! Converts C-style to C++-style comments and vice versa
+class ConvertCommentStyle : public CppQuickFixFactory
+{
+private:
+    void match(const CppQuickFixInterface &interface,
+               TextEditor::QuickFixOperations &result) override;
+};
+
 } // namespace Internal
 } // namespace CppEditor
