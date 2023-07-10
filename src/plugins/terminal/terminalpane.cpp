@@ -142,7 +142,7 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
             QFileIconProvider iconProvider;
             const FilePath command = parametersCopy.shellCommand
                     ? parametersCopy.shellCommand->executable()
-                    : settings().shell.filePath();
+                    : settings().shell();
             icon = iconProvider.icon(command.toFileInfo());
         }
     }
