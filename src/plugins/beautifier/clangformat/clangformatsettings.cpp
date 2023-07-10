@@ -35,6 +35,7 @@ ClangFormatSettings::ClangFormatSettings()
 
     usePredefinedStyle.setSettingsKey("usePredefinedStyle");
     usePredefinedStyle.setLabelText(Tr::tr("Use predefined style:"));
+    usePredefinedStyle.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
     usePredefinedStyle.setDefaultValue(true);
 
     predefinedStyle.setSettingsKey("predefinedStyle");

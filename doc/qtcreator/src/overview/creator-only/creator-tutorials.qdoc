@@ -8,8 +8,6 @@
 
     \title Tutorials
 
-    \image front-help.png
-
     You can use \QC to create applications for several \l{Supported Platforms}
     {platforms} by using several \l{User Interfaces}{UI technologies}. Follow
     the tutorials to learn how to create some basic Qt applications.

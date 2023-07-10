@@ -60,7 +60,7 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
     auto additionalArgumentsLineEdit = new QLineEdit(widget);
 
     auto commandTextEdit = new QTextEdit(widget);
-    commandTextEdit->setEnabled(false);
+    commandTextEdit->setReadOnly(true);
     commandTextEdit->setMinimumSize(QSize(0, 0));
 
     auto defaultArgumentsComboBox = new QComboBox(widget);

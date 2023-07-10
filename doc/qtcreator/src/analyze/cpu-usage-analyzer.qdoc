@@ -500,9 +500,9 @@
             \endlist
     \endlist
 
-    Output from the helper program that processes the data is displayed in
-    \l{Viewing Output}{General Messages}.
+    The \uicontrol {General Messages} view shows \l{View output}{output} from the
+    helper program that processes the data.
 
-    Some information is displayed in \l {Application Output} even if the
+    The \l {Application Output} view shows some information even if the
     Performance Analyzer displays error messages.
 */

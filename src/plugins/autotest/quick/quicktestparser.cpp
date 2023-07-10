@@ -181,8 +181,9 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Fi
 
     QList<Document::Ptr> foundDocs;
 
+    const Snapshot snapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
     for (const FilePath &path : std::as_const(dirs)) {
-        const QList<Document::Ptr> docs = m_qmlSnapshot.documentsInDirectory(path);
+        const QList<Document::Ptr> docs = snapshot.documentsInDirectory(path);
         for (const Document::Ptr &doc : docs) {
             const FilePath fi = doc->fileName();
             //const QFileInfo fi(doc->fileName());

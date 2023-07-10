@@ -754,6 +754,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         // Update QT_QMAKE_EXECUTABLE and CMAKE_C|XX_COMPILER config values
         updateConfigWithDirectoryData(config, data);
 
+        data->hasQmlDebugging = CMakeBuildConfiguration::hasQmlDebugging(config);
+
         QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
         if (buildConfigurationTypes.front().isEmpty()) {
             buildConfigurationTypes.clear();
@@ -773,6 +775,13 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         for (const auto &buildType : buildConfigurationTypes) {
             DirectoryData *newData = new DirectoryData(*data);
             newData->cmakeBuildType = buildType;
+
+            // Handle QML Debugging
+            auto type = CMakeBuildConfigurationFactory::buildTypeFromByteArray(
+                newData->cmakeBuildType);
+            if (type == CMakeBuildConfigurationFactory::BuildTypeDebug
+                || type == CMakeBuildConfigurationFactory::BuildTypeProfile)
+                newData->hasQmlDebugging = true;
 
             result.emplace_back(newData);
         }

@@ -52,6 +52,8 @@ public:
 private slots:
     void test_data();
     void test();
+    void testParentheses_data();
+    void testParentheses();
 
 private:
     QTextDocument m_doc;

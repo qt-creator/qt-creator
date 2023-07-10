@@ -28,7 +28,7 @@ def main():
         baseName = os.path.basename(currentFile)
         fileName = os.path.join(directory, baseName)
         test.log("Testing file %s" % fileName)
-        content = readFile(currentFile)
+        content = stringify(readFile(currentFile))
         preparedContent, emptyLine, trailingWS = prepareFileExternal(fileName, content)
         isIgnored = isIgnoredFile(baseName, ignoredFiles)
         test.verify(preparedContent.find('\t') != -1, "Added at least one tab.")

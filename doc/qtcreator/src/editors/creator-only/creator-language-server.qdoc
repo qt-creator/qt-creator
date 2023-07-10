@@ -92,7 +92,7 @@
             patterns to extend the MIME types, separated by semicolons.
         \li In the \uicontrol {Startup behavior} field, select whether the
             language server is started when \QC starts or when a project or file
-            with a matching MIME type is opened. \l{Viewing Output}
+            with a matching MIME type is opened. \l{View output}
             {General Messages} displays information about the connection to the
             language server.
         \li In the \uicontrol {Initialization options} field, you can add

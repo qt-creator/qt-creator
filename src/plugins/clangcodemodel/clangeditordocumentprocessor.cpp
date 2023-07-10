@@ -59,26 +59,6 @@ void ClangEditorDocumentProcessor::semanticRehighlight()
     BuiltinEditorDocumentProcessor::semanticRehighlight();
 }
 
-bool ClangEditorDocumentProcessor::hasProjectPart() const
-{
-    return !m_projectPart.isNull();
-}
-
-CppEditor::ProjectPart::ConstPtr ClangEditorDocumentProcessor::projectPart() const
-{
-    return m_projectPart;
-}
-
-void ClangEditorDocumentProcessor::clearProjectPart()
-{
-    m_projectPart.clear();
-}
-
-::Utils::Id ClangEditorDocumentProcessor::diagnosticConfigId() const
-{
-    return m_diagnosticConfigId;
-}
-
 void ClangEditorDocumentProcessor::setParserConfig(
         const CppEditor::BaseEditorDocumentParser::Configuration &config)
 {

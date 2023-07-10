@@ -63,18 +63,18 @@ def prepareTestExamples():
 def switchSession(toSession):
     test.log("Switching to session '%s'" % toSession)
     invokeMenuItem("File", "Sessions", "Manage...")
-    sessionView = ("{name='sessionView' type='ProjectExplorer::Internal::SessionView' visible='1' "
+    sessionView = ("{name='sessionView' type='Core::Internal::SessionView' visible='1' "
                    "window=':Session Manager_ProjectExplorer::Internal::SessionDialog'}")
     mouseClick(waitForObjectItem(sessionView, toSession))
     clickButton(waitForObject("{name='btOpen' type='QPushButton' visible='1' "
                               "window=':Session Manager_ProjectExplorer::Internal::SessionDialog'}"))
 
 def createAndSwitchToSession(toSession):
-    sessionInputDialog = ("{type='ProjectExplorer::Internal::SessionNameInputDialog' unnamed='1' "
+    sessionInputDialog = ("{type='Core::Internal::SessionNameInputDialog' unnamed='1' "
                           "visible='1' windowTitle='New Session Name'}")
     test.log("Switching to session '%s' after creating it." % toSession)
     invokeMenuItem("File", "Sessions", "Manage...")
-    clickButton(waitForObject("{name='btCreateNew' text='New' type='QPushButton' visible='1' "
+    clickButton(waitForObject("{name='btCreateNew' type='QPushButton' visible='1' "
                               "window=':Session Manager_ProjectExplorer::Internal::SessionDialog'}"))
     lineEdit = waitForObject("{type='QLineEdit' unnamed='1' visible='1' window=%s}"
                              % sessionInputDialog)

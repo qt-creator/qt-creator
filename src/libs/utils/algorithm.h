@@ -219,14 +219,6 @@ template<class OutputContainer, class InputContainer1, class InputContainer2, cl
 OutputContainer setUnionMerge(InputContainer1 &&input1, InputContainer2 &&input2, Merge merge);
 
 /////////////////////////
-// usize / ssize
-/////////////////////////
-template<typename Container>
-std::make_unsigned_t<typename Container::size_type> usize(Container container);
-template<typename Container>
-std::make_signed_t<typename Container::size_type> ssize(Container container);
-
-/////////////////////////
 // setUnion
 /////////////////////////
 template<typename InputIterator1, typename InputIterator2, typename OutputIterator, typename Compare>
@@ -1340,15 +1332,15 @@ OutputContainer setUnionMerge(InputContainer1 &&input1,
 }
 
 template<typename Container>
-std::make_unsigned_t<typename Container::size_type> usize(Container container)
+auto usize(const Container &container)
 {
-    return static_cast<std::make_unsigned_t<typename Container::size_type>>(container.size());
+    return static_cast<std::make_unsigned_t<decltype(std::size(container))>>(std::size(container));
 }
 
 template<typename Container>
-std::make_signed_t<typename Container::size_type> ssize(Container container)
+auto ssize(const Container &container)
 {
-    return static_cast<std::make_signed_t<typename Container::size_type>>(container.size());
+    return static_cast<std::make_signed_t<decltype(std::size(container))>>(std::size(container));
 }
 
 template<typename Compare>

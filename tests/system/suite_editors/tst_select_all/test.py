@@ -18,7 +18,7 @@ def main():
         return
     for currentFile in files:
         test.log("Opening file %s" % currentFile)
-        size = len(readFile(currentFile))
+        size = len(stringify(readFile(currentFile)))
         invokeMenuItem("File", "Open File or Project...")
         selectFromFileDialog(currentFile, True)
         editor = getEditorForFileSuffix(currentFile)

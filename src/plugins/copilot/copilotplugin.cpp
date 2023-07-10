@@ -73,7 +73,7 @@ void CopilotPlugin::initialize()
 
     connect(requestAction, &QAction::triggered, this, [this] {
         if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget()) {
-            if (m_client->reachable())
+            if (m_client && m_client->reachable())
                 m_client->requestCompletions(editor);
         }
     });

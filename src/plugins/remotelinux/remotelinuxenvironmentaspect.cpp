@@ -38,7 +38,7 @@ public:
         auto fetchButton = new QPushButton(Tr::tr("Fetch Device Environment"));
         addWidget(fetchButton);
 
-        connect(target, &Target::kitChanged, [aspect] { aspect->setRemoteEnvironment({}); });
+        connect(target, &Target::kitChanged, aspect, [aspect] { aspect->setRemoteEnvironment({}); });
 
         connect(fetchButton, &QPushButton::clicked, this, [aspect, target] {
             if (IDevice::ConstPtr device = DeviceKitAspect::device(target->kit())) {

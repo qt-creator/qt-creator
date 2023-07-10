@@ -11,7 +11,7 @@
     \page creator-editor-functions.html
     \previouspage creator-coding.html
     \if defined(qtdesignstudio)
-    \nextpage creator-output-panes.html
+    \nextpage creator-highlighting.html
     \else
     \nextpage creator-coding-navigating.html
     \endif

@@ -36253,7 +36253,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>The build device failed to prepare for the build of %1 (%2).</source>
-        <translation>Das Build-Gerät konnte nicht für das Erstellen von %1 (%2) vorbereitet werden.</translation>
+        <translation>Das Gerät konnte nicht für das Erstellen von %1 (%2) vorbereitet werden.</translation>
     </message>
     <message>
         <source>Compile</source>
@@ -36395,7 +36395,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Locates files of all open projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Dateien in allen geöffneten Projekten. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>All Projects</source>
@@ -36495,7 +36495,7 @@ Außer: %2
     </message>
     <message>
         <source>Locates files from the current document&apos;s project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Dateien im Projekt des aktuellen Dokuments. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Project &quot;%1&quot;</source>
@@ -37215,23 +37215,23 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Locates files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Dateien in allen Projektverzeichnissen. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Run Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration ausführen</translation>
     </message>
     <message>
         <source>Runs a run configuration of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Ausführungskonfiguration des aktiven Projekts aus.</translation>
     </message>
     <message>
         <source>Switch Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration auswählen</translation>
     </message>
     <message>
         <source>Switches the active run configuration of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wechselt die aktive Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Run %1</source>
@@ -37869,7 +37869,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>Environment:</source>
-        <translation type="unfinished">Umgebung:</translation>
+        <translation>Umgebung:</translation>
     </message>
     <message>
         <source>No executable specified.</source>
@@ -38167,12 +38167,12 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>&amp;Start Wizard to Add Device...</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät mit &amp;Assistent hinzufügen...</translation>
     </message>
     <message>
         <source>Add %1</source>
         <extracomment>Add &lt;Device Type Name&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 hinzufügen</translation>
     </message>
     <message>
         <source>Yes (id is &quot;%1&quot;)</source>
@@ -38475,7 +38475,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>Show in Application Output when running</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Start in &quot;Ausgabe der Anwendung&quot; anzeigen</translation>
     </message>
     <message>
         <source>No device configured.</source>
@@ -38756,7 +38756,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>Ignoring invalid task (no text).</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignoriere ungültige Aufgabe (kein Text).</translation>
     </message>
     <message>
         <source>File Error</source>
@@ -39036,47 +39036,57 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <source>Creates a widget-based Qt application that contains a Qt Designer-based main window and C++ source and header files to implement the application logic.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Widget-basierte Qt-Anwendung mit einem Qt Designer-basierten Hauptfenster und C++-Quell- und Headerdateien zur Implementierung der Applikationslogik.
+
+Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern verfügbar.</translation>
     </message>
     <message>
         <source>Creates a C++ library. You can create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine C++-Bibliothek. Sie können folgendes erstellen:&lt;ul&gt;&lt;li&gt;eine dynamisch gebundene C++-Bibliothek zur Verwendung mit &lt;tt&gt;QPluginLoader&lt;/tt&gt; zur Laufzeit (Plugins)&lt;/li&gt;&lt;li&gt;eine statisch oder dynamisch gebundene C++-Bibliothek zur Verwendung in einem anderen Projekt zur Linkzeit&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Creates a project containing a single main.cpp file with a stub implementation and no graphical UI.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Projekt, das aus einer main.cpp-Datei mit einem Implementationsrumpf ohne grafische Benutzeroberfläche besteht.
+
+Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern verfügbar.</translation>
     </message>
     <message>
         <source>PySide 2</source>
-        <translation type="unfinished">PySide 2</translation>
+        <translation>PySide 2</translation>
     </message>
     <message>
         <source>Define Python Interpreter</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Interpreter festlegen</translation>
     </message>
     <message>
         <source>Creates a Qt Quick application that contains an empty window.
 
 Use this &quot;compat&quot; version if you want to use other build systems than CMake or Qt versions lower than 6.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt Quick-Anwendung, die ein leeres Fenster enthält.
+
+Nutzen Sie diese &quot;Kompatibilitätsversion&quot;, falls Sie andere Buildsysteme als CMake oder frühere Qt-Versionen als Qt 6 benutzen wollen.</translation>
     </message>
     <message>
         <source>Qt Quick Application (compat)</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick-Anwendung (compat)</translation>
     </message>
     <message>
         <source>Creates a Qt Quick UI project for previewing and prototyping designs.
 
 To develop a full application, create a Qt Quick Application project instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Qt Quick UI-Projekt für Vorschauen und Design-Prototypen.
+
+Für vollständige Anwendungen erstellen Sie stattdessen eine Qt Quick-Anwendung.</translation>
     </message>
     <message>
         <source>Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.
 
 You can select an option to create a project that you can open in Qt Design Studio, which has a visual editor for Qt Quick UIs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt Quick-Anwendung, die aus QML- und C++-Code bestehen kann. Unterstützt das Erstellen und Deployment der Anwendung für Desktop, Embedded und Mobile Zielplattformen.
+
+Wahlweise können Sie ein Projekt erstellen, das in Qt Design Studio geöffnet werden kann, welches einen visuellen Editor für Qt Quick-Benutzeroberflächen enthält.</translation>
     </message>
     <message>
         <source>Qt Quick Application</source>
@@ -39088,11 +39098,11 @@ You can select an option to create a project that you can open in Qt Design Stud
     </message>
     <message>
         <source>Boost Test (header only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Boost Test (nur Header)</translation>
     </message>
     <message>
         <source>Boost Test (shared libraries)</source>
-        <translation type="unfinished"></translation>
+        <translation>Boost Test (dynamisch gebundene Bibliotheken)</translation>
     </message>
     <message>
         <source>Test framework:</source>
@@ -39108,7 +39118,7 @@ You can select an option to create a project that you can open in Qt Design Stud
     </message>
     <message>
         <source>Boost install directory (optional):</source>
-        <translation type="unfinished"></translation>
+        <translation>Boost-Installationsverzeichnis (optional):</translation>
     </message>
     <message>
         <source>Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
@@ -39136,11 +39146,11 @@ You can select an option to create a project that you can open in Qt Design Stud
     </message>
     <message>
         <source>Creates a markdown file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt eine Markdown-Datei.</translation>
     </message>
     <message>
         <source>Markdown File</source>
-        <translation type="unfinished"></translation>
+        <translation>Markdown-Datei</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -39198,27 +39208,29 @@ You can select an option to create a project that you can open in Qt Design Stud
         <source>You must tell Qt Creator which test framework is used inside the project.
 
 You should not mix multiple test frameworks in a project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie müssen Qt Creator mitteilen, welches Test-Framework im Projekt benutzt wird.
+
+Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translation>
     </message>
     <message>
         <source>%{JS: &apos;tst_&apos; + value(&apos;TestCaseName&apos;).toLowerCase() + &apos;.&apos; + Util.preferredSuffix(&apos;text/x-c++src&apos;)}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{JS: &apos;tst_&apos; + value(&apos;TestCaseName&apos;).toLowerCase() + &apos;.&apos; + Util.preferredSuffix(&apos;text/x-c++src&apos;)}</translation>
     </message>
     <message>
         <source>%{JS: &apos;tst_&apos; + value(&apos;TestCaseName&apos;).toLowerCase() + &apos;.qml&apos;}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{JS: &apos;tst_&apos; + value(&apos;TestCaseName&apos;).toLowerCase() + &apos;.qml&apos;}</translation>
     </message>
     <message>
         <source>Test Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Testinformation</translation>
     </message>
     <message>
         <source>Creates a source file that you can add to an existing test project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Quelldatei, die zu einem existierenden Testprojekt hinzugefügt werden kann.</translation>
     </message>
     <message>
         <source>Test Case</source>
-        <translation type="unfinished"></translation>
+        <translation>Testfall</translation>
     </message>
     <message>
         <source>Creates an empty Nim script file using UTF-8 charset.</source>
@@ -39836,11 +39848,11 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Qt 6.4</source>
-        <translation type="unfinished">Qt 6.4</translation>
+        <translation>Qt 6.4</translation>
     </message>
     <message>
         <source>Qt 6.5</source>
-        <translation type="unfinished">Qt 6.5</translation>
+        <translation>Qt 6.5</translation>
     </message>
     <message>
         <source>The minimum version of Qt you want to build the application for.</source>
@@ -39890,7 +39902,7 @@ You should not mix multiple test frameworks in a project.</source>
     </message>
     <message>
         <source>Creates a CMake-based test project where you can enter a code snippet to compile and check it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein CMake-basiertes Testprojekt, für welches Sie einen Code-Ausschnitt angegeben können, der erstellt und geprüft wird.</translation>
     </message>
     <message>
         <source>Code Snippet</source>
@@ -41019,7 +41031,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Enter the path to the executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Pfad zur ausführbaren Datei ein</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -41051,7 +41063,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Interpreter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpreter:</translation>
     </message>
     <message>
         <source>X11 Forwarding:</source>
@@ -41217,7 +41229,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>The build directory is not reachable from the build device.</source>
-        <translation>Das Build-Verzeichnis kann auf dem Build-Gerät nicht erreicht werden.</translation>
+        <translation>Das Build-Verzeichnis kann auf dem Gerät nicht erreicht werden.</translation>
     </message>
     <message>
         <source>Shadow build:</source>
@@ -41333,7 +41345,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Run device type</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerätetyp (Ausführung)</translation>
     </message>
     <message>
         <source>Unknown device type</source>
@@ -41341,7 +41353,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Run device</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät (Ausführung)</translation>
     </message>
     <message>
         <source>The device to run the applications on.</source>
@@ -41377,11 +41389,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Device root directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis des Geräts</translation>
     </message>
     <message>
         <source>Build device root directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis des Geräts (Erstellung)</translation>
     </message>
     <message>
         <source>Change...</source>
@@ -41790,7 +41802,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Build device</source>
-        <translation>Build-Gerät</translation>
+        <translation>Gerät (Erstellung)</translation>
     </message>
     <message>
         <source>The device used to build applications on.</source>
@@ -41798,27 +41810,27 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>No build device set.</source>
-        <translation>Kein Build-Gerät gesetzt.</translation>
+        <translation>Kein Gerät für die Erstellung gesetzt.</translation>
     </message>
     <message>
         <source>Build host address</source>
-        <translation>Hostadresse des Build-Geräts</translation>
+        <translation>Hostadresse des Geräts (Erstellung)</translation>
     </message>
     <message>
         <source>Build SSH port</source>
-        <translation>SSH-Port des Build-Geräts</translation>
+        <translation>SSH-Port des Geräts (Erstellung)</translation>
     </message>
     <message>
         <source>Build user name</source>
-        <translation>Benutzername des Build-Geräts</translation>
+        <translation>Benutzername des Geräts (Erstellung)</translation>
     </message>
     <message>
         <source>Build private key file</source>
-        <translation>Private Schlüsseldatei des Build-Geräts</translation>
+        <translation>Private Schlüsseldatei des Geräts (Erstellung)</translation>
     </message>
     <message>
         <source>Build device name</source>
-        <translation>Build-Gerätename</translation>
+        <translation>Gerätename (Erstellung)</translation>
     </message>
     <message>
         <source>Run as root user</source>
@@ -41879,29 +41891,29 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Source:</source>
-        <translation type="unfinished">Quelle:</translation>
+        <translation>Quelle:</translation>
     </message>
     <message>
         <source>Target:</source>
-        <translation type="unfinished">Ziel:</translation>
+        <translation>Ziel:</translation>
     </message>
     <message>
         <source>Copying failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Kopieren.</translation>
     </message>
     <message>
         <source>Copying finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren beendet.</translation>
     </message>
     <message>
         <source>Copy file</source>
         <extracomment>Default CopyStep display name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Datei kopieren</translation>
     </message>
     <message>
         <source>Copy directory recursively</source>
         <extracomment>Default CopyStep display name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis rekursiv kopieren</translation>
     </message>
 </context>
 <context>
@@ -49641,211 +49653,211 @@ Failed to open file &quot;%1&quot;</source>
     <name>QtC::Terminal</name>
     <message>
         <source>Configure...</source>
-        <translation type="unfinished">Einstellungen...</translation>
+        <translation>Einstellungen...</translation>
     </message>
     <message>
         <source>Sends Esc to terminal instead of Qt Creator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sendet Escape zum Terminal statt zu Qt Creator.</translation>
     </message>
     <message>
         <source>Press %1 to send Esc to terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Drücken Sie %1, um Escape zum Terminal zu senden.</translation>
     </message>
     <message>
         <source>Terminal</source>
-        <translation type="unfinished">Terminal</translation>
+        <translation>Terminal</translation>
     </message>
     <message>
         <source>Sends keyboard shortcuts to Terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sendet Tastenkombinationen zum Terminal.</translation>
     </message>
     <message>
         <source>Sends keyboard shortcuts to Qt Creator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sendet Tastenkombinationen zu Qt Creator.</translation>
     </message>
     <message>
         <source>New Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Terminal</translation>
     </message>
     <message>
         <source>Create a new Terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle ein neues Terminal.</translation>
     </message>
     <message>
         <source>Next Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Terminal</translation>
     </message>
     <message>
         <source>Previous Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorangehendes Terminal</translation>
     </message>
     <message>
         <source>Close the current Terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das aktuelle Terminal schließen.</translation>
     </message>
     <message>
         <source>Devices</source>
-        <translation type="unfinished">Geräte</translation>
+        <translation>Geräte</translation>
     </message>
     <message>
         <source>The color used for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die für &quot;%1&quot; benutzte Farbe.</translation>
     </message>
     <message>
         <source>Failed to open file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>JSON parsing error: &quot;%1&quot;, at offset: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten von JSON: &quot;%1&quot;, an Position: %2</translation>
     </message>
     <message>
         <source>No colors found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden keine Farben gefunden.</translation>
     </message>
     <message>
         <source>Invalid color format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Farbformat.</translation>
     </message>
     <message>
         <source>Unknown color scheme format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekanntes Farbschema-Format.</translation>
     </message>
     <message>
         <source>Use internal terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Integriertes Terminal benutzen</translation>
     </message>
     <message>
         <source>Uses the internal terminal when &quot;Run In Terminal&quot; is enabled and for &quot;Open Terminal here&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzt das integrierte Terminal, wenn &quot;Im Terminal ausführen&quot; aktiviert ist und für &quot;Terminalfenster hier öffnen&quot;.</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>The font family used in the terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name der Zeichensatz-Familie, die im Terminal benutzt wird.</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished">Größe:</translation>
+        <translation>Größe:</translation>
     </message>
     <message>
         <source>The font size used in the terminal (in points).</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Größe des Zeichensatzes, der im Terminal benutzt wird (in Punkten).</translation>
     </message>
     <message>
         <source>Allow blinking cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Blinkenden Cursor erlauben</translation>
     </message>
     <message>
         <source>Allow the cursor to blink.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubt dem Cursor zu blinken.</translation>
     </message>
     <message>
         <source>Shell path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell-Pfad:</translation>
     </message>
     <message>
         <source>The shell executable to be started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei der Shell, die gestartet werden soll.</translation>
     </message>
     <message>
         <source>Shell arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell-Argumente:</translation>
     </message>
     <message>
         <source>The arguments to be passed to the shell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Argumente, die an die Shell übergeben werden sollen.</translation>
     </message>
     <message>
         <source>Send escape key to terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Escape-Taste zum Terminal senden</translation>
     </message>
     <message>
         <source>Sends the escape key to the terminal when pressedinstead of closing the terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sendet die Escape-Taste zum Terminal, anstatt das Terminal zu schliessen.</translation>
     </message>
     <message>
         <source>Audible bell</source>
-        <translation type="unfinished"></translation>
+        <translation>Akustische Glocke</translation>
     </message>
     <message>
         <source>Makes the terminal beep when a bell character is received.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lässt das Terminal piepen, wenn ein Glockenzeichen empfangen wird.</translation>
     </message>
     <message>
         <source>Load Theme...</source>
-        <translation type="unfinished"></translation>
+        <translation>Thema laden...</translation>
     </message>
     <message>
         <source>Reset Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Thema zurücksetzen</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation type="unfinished">Zeichensatz</translation>
+        <translation>Zeichensatz</translation>
     </message>
     <message>
         <source>Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Farben</translation>
     </message>
     <message>
         <source>Foreground</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichen</translation>
     </message>
     <message>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrund</translation>
     </message>
     <message>
         <source>Selection</source>
-        <translation type="unfinished">Auswahl</translation>
+        <translation>Auswahl</translation>
     </message>
     <message>
         <source>Find match</source>
-        <translation type="unfinished"></translation>
+        <translation>Fundstelle</translation>
     </message>
     <message>
         <source>Default Shell</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Shell</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation type="unfinished">Einfügen</translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
         <source>Clear Selection</source>
-        <translation type="unfinished">Auswahl löschen</translation>
+        <translation>Auswahl löschen</translation>
     </message>
     <message>
         <source>Clear Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminal-Inhalt löschen</translation>
     </message>
     <message>
         <source>Move Cursor Word Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Cursor ein Wort nach links bewegen</translation>
     </message>
     <message>
         <source>Move Cursor Word Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Cursor ein Wort nach rechts bewegen</translation>
     </message>
     <message>
         <source>Close Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminal schließen</translation>
     </message>
 </context>
 <context>
