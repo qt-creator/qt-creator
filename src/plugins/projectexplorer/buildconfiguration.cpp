@@ -127,10 +127,10 @@ class BuildConfigurationPrivate
 {
 public:
     BuildConfigurationPrivate(BuildConfiguration *bc)
-        : m_buildSteps(bc, Constants::BUILDSTEPS_BUILD),
-          m_cleanSteps(bc, Constants::BUILDSTEPS_CLEAN),
-          m_buildDirectoryAspect(bc, bc),
-          m_tooltipAspect(bc)
+        : m_buildSteps(bc, Constants::BUILDSTEPS_BUILD)
+        , m_cleanSteps(bc, Constants::BUILDSTEPS_CLEAN)
+        , m_buildDirectoryAspect(bc, bc)
+        , m_tooltipAspect(bc)
     {}
 
     bool m_clearSystemEnvironment = false;
@@ -157,10 +157,9 @@ public:
 } // Internal
 
 BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
-    : ProjectConfiguration(target, id), d(new Internal::BuildConfigurationPrivate(this))
+    : ProjectConfiguration(target, target, id)
+    , d(new Internal::BuildConfigurationPrivate(this))
 {
-    QTC_CHECK(target && target == this->target());
-
     MacroExpander *expander = macroExpander();
     expander->setDisplayName(Tr::tr("Build Settings"));
     expander->setAccumulating(true);

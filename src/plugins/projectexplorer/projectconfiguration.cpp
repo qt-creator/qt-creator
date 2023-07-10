@@ -3,7 +3,6 @@
 
 #include "projectconfiguration.h"
 
-#include "kitinformation.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -17,20 +16,15 @@ const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayNam
 
 // ProjectConfiguration
 
-ProjectConfiguration::ProjectConfiguration(QObject *parent, Utils::Id id)
+ProjectConfiguration::ProjectConfiguration(QObject *parent, Target *target, Utils::Id id)
     : AspectContainer(parent)
+    , m_target(target)
     , m_id(id)
 {
     QTC_CHECK(parent);
+    QTC_CHECK(target);
     QTC_CHECK(id.isValid());
     setObjectName(id.toString());
-
-    for (QObject *obj = this; obj; obj = obj->parent()) {
-        m_target = qobject_cast<Target *>(obj);
-        if (m_target)
-            break;
-    }
-    QTC_CHECK(m_target);
 }
 
 ProjectConfiguration::~ProjectConfiguration() = default;

@@ -111,10 +111,9 @@ namespace ProjectExplorer {
 
 static QList<BuildStepFactory *> g_buildStepFactories;
 
-BuildStep::BuildStep(BuildStepList *bsl, Id id) :
-    ProjectConfiguration(bsl, id)
+BuildStep::BuildStep(BuildStepList *bsl, Id id)
+    : ProjectConfiguration(bsl, bsl->target(), id)
 {
-    QTC_CHECK(bsl->target() && bsl->target() == this->target());
     connect(this, &ProjectConfiguration::displayNameChanged,
             this, &BuildStep::updateSummary);
 //    m_displayName = step->displayName();
@@ -346,7 +345,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (!m_supportedStepLists.isEmpty() && !m_supportedStepLists.contains(bsl->id()))
         return false;
 
-    auto config = qobject_cast<ProjectConfiguration *>(bsl->parent());
+    ProjectConfiguration *config = bsl->projectConfiguration();
 
     if (!m_supportedDeviceTypes.isEmpty()) {
         Target *target = bsl->target();

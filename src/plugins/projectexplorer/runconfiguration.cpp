@@ -160,9 +160,8 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
 RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
-    : ProjectConfiguration(target, id)
+    : ProjectConfiguration(target, target, id)
 {
-    QTC_CHECK(target && target == this->target());
     forceDisplayNameSerialization();
     connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
 

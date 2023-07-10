@@ -19,13 +19,10 @@ namespace ProjectExplorer {
 const char STEPS_COUNT_KEY[] = "ProjectExplorer.BuildStepList.StepsCount";
 const char STEPS_PREFIX[] = "ProjectExplorer.BuildStepList.Step.";
 
-BuildStepList::BuildStepList(QObject *parent, Utils::Id id)
-    : QObject(parent), m_id(id)
+BuildStepList::BuildStepList(ProjectConfiguration *config, Utils::Id id)
+    : QObject(config), m_projectConfiguration(config), m_id(id)
 {
-    QTC_ASSERT(parent, return);
-    QTC_ASSERT(parent->parent(), return);
-    m_target = qobject_cast<Target *>(parent->parent());
-    QTC_ASSERT(m_target, return);
+    QTC_CHECK(config);
 }
 
 BuildStepList::~BuildStepList()
@@ -37,6 +34,11 @@ void BuildStepList::clear()
 {
     qDeleteAll(m_steps);
     m_steps.clear();
+}
+
+Target *BuildStepList::target() const
+{
+    return m_projectConfiguration->target();
 }
 
 QVariantMap BuildStepList::toMap() const

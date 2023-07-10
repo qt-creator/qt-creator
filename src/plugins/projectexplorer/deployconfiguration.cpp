@@ -26,10 +26,9 @@ const char USES_DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomD
 const char DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomData";
 
 DeployConfiguration::DeployConfiguration(Target *target, Id id)
-    : ProjectConfiguration(target, id),
-      m_stepList(this, Constants::BUILDSTEPS_DEPLOY)
+    : ProjectConfiguration(target, target, id)
+    , m_stepList(this, Constants::BUILDSTEPS_DEPLOY)
 {
-    QTC_CHECK(target && target == this->target());
     //: Default DeployConfiguration display name
     setDefaultDisplayName(Tr::tr("Deploy locally"));
 }
