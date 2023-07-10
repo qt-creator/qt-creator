@@ -1117,11 +1117,8 @@ bool PerforcePluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 
 bool PerforcePluginPrivate::isConfigured() const
 {
-    const QString binary = m_settings.p4BinaryPath.value();
-    if (binary.isEmpty())
-        return false;
-    QFileInfo fi(binary);
-    return fi.exists() && fi.isFile() && fi.isExecutable();
+    const FilePath binary = m_settings.p4BinaryPath();
+    return !binary.isEmpty() && binary.isExecutableFile();
 }
 
 bool PerforcePluginPrivate::supportsOperation(Operation operation) const
