@@ -935,6 +935,8 @@ extend_qtc_plugin(QmlDesigner
     backendmodel.cpp backendmodel.h
     bindingmodel.cpp bindingmodel.h
     connectioneditor.qrc
+    connectioneditorevaluator.cpp connectioneditorevaluator.h
+    connectioneditorstatements.cpp connectioneditorstatements.h
     connectionmodel.cpp connectionmodel.h
     connectionview.cpp connectionview.h
     connectionviewwidget.cpp connectionviewwidget.h connectionviewwidget.ui
