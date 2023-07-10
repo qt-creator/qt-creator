@@ -167,6 +167,7 @@ private:
     {
         NewlyAdded,
         MarkedForRemoval,
+        ForcedRootRemoval,      // only valid on rootNode
         Cleared
     };
 

@@ -214,12 +214,16 @@ bool TestTreeItem::modifyLineAndColumn(const TestParseResult *result)
 
 void TestTreeItem::markForRemoval(bool mark)
 {
-    m_status = mark ? MarkedForRemoval : Cleared;
+    if (type() == Root)
+        m_status = mark ? ForcedRootRemoval : NewlyAdded;
+    else
+        m_status = mark ? MarkedForRemoval : Cleared;
 }
 
 void TestTreeItem::markForRemovalRecursively(bool mark)
 {
-    markForRemoval(mark);
+    if (type() != Root)
+        markForRemoval(mark);
     for (int row = 0, count = childCount(); row < count; ++row)
         childItem(row)->markForRemovalRecursively(mark);
 }
@@ -231,7 +235,8 @@ void TestTreeItem::markForRemovalRecursively(const QSet<FilePath> &filePaths)
         child->markForRemovalRecursively(filePaths);
         mark &= child->markedForRemoval();
     });
-    markForRemoval(mark);
+    if (type() != Root)
+        markForRemoval(mark);
 }
 
 TestTreeItem *TestTreeItem::childItem(int at) const
