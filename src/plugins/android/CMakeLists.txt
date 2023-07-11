@@ -14,7 +14,6 @@ add_qtc_plugin(Android
     androiddeployqtstep.cpp androiddeployqtstep.h
     androiddevice.cpp androiddevice.h
     androiddeviceinfo.cpp androiddeviceinfo.h
-    androiderrormessage.cpp androiderrormessage.h
     androidextralibrarylistmodel.cpp androidextralibrarylistmodel.h
     androidglobal.h
     androidmanager.cpp androidmanager.h

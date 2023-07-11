@@ -36,8 +36,6 @@ Project {
             "androiddevice.h",
             "androiddeviceinfo.cpp",
             "androiddeviceinfo.h",
-            "androiderrormessage.h",
-            "androiderrormessage.cpp",
             "androidextralibrarylistmodel.cpp",
             "androidextralibrarylistmodel.h",
             "androidglobal.h",
