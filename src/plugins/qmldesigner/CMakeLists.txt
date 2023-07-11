@@ -82,7 +82,6 @@ if(TARGET QmlDesignerCore)
   add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
 endif()
 
-
 extend_qtc_library(QmlDesignerCore
     CONDITION ENABLE_COMPILE_WARNING_AS_ERROR
     PROPERTIES COMPILE_WARNING_AS_ERROR ON
@@ -204,7 +203,7 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
-  SOURCES_PROPERTIES SKIP_AUTOMOC ON
+  SOURCES_PROPERTIES SKIP_AUTOGEN ON
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   SOURCES
     abstractproperty.h
@@ -389,7 +388,7 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX designercore/projectstorage
   PUBLIC_INCLUDES designercore/projectstorage
-  SOURCES_PROPERTIES SKIP_AUTOMOC ON
+  SOURCES_PROPERTIES SKIP_AUTOGEN ON
   SOURCES
     commontypecache.h
     directorypathcompressor.h

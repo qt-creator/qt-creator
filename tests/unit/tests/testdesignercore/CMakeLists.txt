@@ -1,7 +1,7 @@
 add_qtc_library(TestDesignerCore OBJECT
   EXCLUDE_FROM_INSTALL
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
-  SKIP_AUTOMOC ON
+  PROPERTIES SKIP_AUTOGEN ON
   DEPENDS
     Qt::Core Qt::Network Qt::Widgets
     Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui

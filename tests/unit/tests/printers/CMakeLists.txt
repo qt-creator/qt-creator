@@ -1,6 +1,6 @@
 add_qtc_library(TestPrinters OBJECT
   EXCLUDE_FROM_INSTALL
-  SKIP_AUTOMOC ON
+  PROPERTIES SKIP_AUTOGEN ON
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
   DEPENDS
     Qt::Core Qt::Widgets Sqlite Googletest TestDesignerCore
