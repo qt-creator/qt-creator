@@ -1716,8 +1716,11 @@ QString NodeMetaInfo::componentFileName() const
 
 QString NodeMetaInfo::importDirectoryPath() const
 {
-    if (isValid())
-        return m_privateData->importDirectoryPath();
+    if constexpr (!useProjectStorage()) {
+        if (isValid()) {
+            return m_privateData->importDirectoryPath();
+        }
+    }
 
     return {};
 }
