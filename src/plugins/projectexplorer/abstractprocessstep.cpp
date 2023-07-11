@@ -82,6 +82,7 @@ public:
     std::function<CommandLine()> m_commandLineProvider;
     std::function<FilePath()> m_workingDirectoryProvider;
     std::function<void(Environment &)> m_environmentModifier;
+    std::function<void(bool)> m_doneHook; // TODO: Remove me when all subclasses moved to Tasking
     bool m_ignoreReturnValue = false;
     bool m_lowPriority = false;
     std::unique_ptr<QTextDecoder> stdoutStream;
@@ -129,6 +130,11 @@ void AbstractProcessStep::setEnvironmentModifier(const std::function<void (Envir
 void AbstractProcessStep::setUseEnglishOutput()
 {
     d->m_environmentModifier = [](Environment &env) { env.setupEnglishOutput(); };
+}
+
+void AbstractProcessStep::setDoneHook(const std::function<void(bool)> &doneHook)
+{
+    d->m_doneHook = doneHook;
 }
 
 void AbstractProcessStep::setCommandLineProvider(const std::function<CommandLine()> &provider)
@@ -350,15 +356,13 @@ void AbstractProcessStep::setDisplayedParameters(ProcessParameters *params)
     d->m_displayedParams = params;
 }
 
-bool AbstractProcessStep::isSuccess(ProcessResult result) const
-{
-    return result == ProcessResult::FinishedWithSuccess
-            || (result == ProcessResult::FinishedWithError && d->m_ignoreReturnValue);
-}
-
 void AbstractProcessStep::finish(ProcessResult result)
 {
-    emit finished(isSuccess(result));
+    const bool success = result == ProcessResult::FinishedWithSuccess
+                         || (result == ProcessResult::FinishedWithError && d->m_ignoreReturnValue);
+    if (d->m_doneHook)
+        d->m_doneHook(success);
+    emit finished(success);
 }
 
 } // namespace ProjectExplorer

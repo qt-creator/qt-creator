@@ -77,7 +77,6 @@ signals:
 private:
     Utils::CommandLine cmakeCommand() const;
 
-    void finish(Utils::ProcessResult result) override;
     bool fromMap(const QVariantMap &map) override;
 
     bool init() override;

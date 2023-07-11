@@ -40,7 +40,6 @@ public:
     QmakeMakeStep(BuildStepList *bsl, Id id);
 
 private:
-    void finish(ProcessResult result) override;
     bool init() override;
     void setupOutputFormatter(OutputFormatter *formatter) override;
     void doRun() override;
@@ -60,6 +59,15 @@ QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Id id)
         setUserArguments("clean");
     }
     supportDisablingForSubdirs();
+
+    setDoneHook([this](bool success) {
+        if (!success && !isCanceled() && m_unalignedBuildDir
+            && settings().warnAgainstUnalignedBuildDir()) {
+            const QString msg = Tr::tr("The build directory is not at the same level as the source "
+                                       "directory, which could be the reason for the build failure.");
+            emit addTask(BuildSystemTask(Task::Warning, msg));
+        }
+    });
 }
 
 bool QmakeMakeStep::init()
@@ -217,17 +225,6 @@ void QmakeMakeStep::doRun()
     }
 
     AbstractProcessStep::doRun();
-}
-
-void QmakeMakeStep::finish(ProcessResult result)
-{
-    if (!isSuccess(result) && !isCanceled() && m_unalignedBuildDir
-            && settings().warnAgainstUnalignedBuildDir()) {
-        const QString msg = Tr::tr("The build directory is not at the same level as the source "
-                               "directory, which could be the reason for the build failure.");
-        emit addTask(BuildSystemTask(Task::Warning, msg));
-    }
-    MakeStep::finish(result);
 }
 
 QStringList QmakeMakeStep::displayArguments() const

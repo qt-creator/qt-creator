@@ -484,6 +484,11 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
         if (format == OutputFormat::Stderr)
             stdError(string);
     });
+
+    setDoneHook([this](bool success) {
+        if (m_openPackageLocationForRun && success)
+            QTimer::singleShot(0, this, &AndroidBuildApkStep::showInGraphicalShell);
+    });
 }
 
 bool AndroidBuildApkStep::init()
@@ -630,13 +635,6 @@ void AndroidBuildApkStep::showInGraphicalShell()
 QWidget *AndroidBuildApkStep::createConfigWidget()
 {
     return new AndroidBuildApkWidget(this);
-}
-
-void AndroidBuildApkStep::finish(ProcessResult result)
-{
-    if (m_openPackageLocationForRun && isSuccess(result))
-        QTimer::singleShot(0, this, &AndroidBuildApkStep::showInGraphicalShell);
-    AbstractProcessStep::finish(result);
 }
 
 bool AndroidBuildApkStep::verifyKeystorePassword()

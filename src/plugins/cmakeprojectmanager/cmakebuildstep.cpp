@@ -253,6 +253,11 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
 
     connect(target(), &Target::activeRunConfigurationChanged,
             this, &CMakeBuildStep::updateBuildTargetsModel);
+
+    setDoneHook([this](bool) {
+        updateDeploymentData();
+        emit progress(100, {});
+    });
 }
 
 QVariantMap CMakeBuildStep::toMap() const
@@ -793,14 +798,6 @@ void CMakeBuildStep::updateDeploymentData()
                              {{}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});
 
     buildSystem()->setDeploymentData(deploymentData);
-}
-
-void CMakeBuildStep::finish(ProcessResult result)
-{
-    updateDeploymentData();
-
-    emit progress(100, {});
-    AbstractProcessStep::finish(result);
 }
 
 // CMakeBuildStepFactory
