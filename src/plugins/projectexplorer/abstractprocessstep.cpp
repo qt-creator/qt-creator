@@ -185,7 +185,14 @@ void AbstractProcessStep::doRun()
 
     d->m_process.reset(new Process);
     setupProcess(d->m_process.get());
-    connect(d->m_process.get(), &Process::done, this, &AbstractProcessStep::handleProcessDone);
+    connect(d->m_process.get(), &Process::done, this, [this] {
+        if (d->m_process->error() == QProcess::FailedToStart) {
+            processStartupFailed();
+            d->m_process.release()->deleteLater();
+            return;
+        }
+        d->cleanUp(d->m_process->exitCode(), d->m_process->exitStatus());
+    });
     d->m_process->start();
 }
 
@@ -239,6 +246,29 @@ void AbstractProcessStep::setupProcess(Process *process)
                        .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
                        OutputFormat::NormalMessage);
     });
+}
+
+void AbstractProcessStep::handleProcessDone(const Process &process)
+{
+    const QString command = displayedParameters()->effectiveCommand().toUserOutput();
+    if (process.result() == ProcessResult::FinishedWithSuccess) {
+        emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
+                       OutputFormat::NormalMessage);
+    } else if (process.result() == ProcessResult::FinishedWithError) {
+        emit addOutput(Tr::tr("The process \"%1\" exited with code %2.")
+                           .arg(command, QString::number(process.exitCode())),
+                       OutputFormat::ErrorMessage);
+    } else if (process.result() == ProcessResult::StartFailed) {
+        emit addOutput(Tr::tr("Could not start process \"%1\" %2.")
+                           .arg(command, displayedParameters()->prettyArguments()),
+                       OutputFormat::ErrorMessage);
+        const QString errorString = process.errorString();
+        if (!errorString.isEmpty())
+            emit addOutput(errorString, OutputFormat::ErrorMessage);
+    } else {
+        emit addOutput(Tr::tr("The process \"%1\" crashed.").arg(command),
+                       OutputFormat::ErrorMessage);
+    }
 }
 
 void AbstractProcessStep::runTaskTree(const Group &recipe)
@@ -373,17 +403,6 @@ bool AbstractProcessStep::isSuccess(ProcessResult result) const
 void AbstractProcessStep::finish(ProcessResult result)
 {
     emit finished(isSuccess(result));
-}
-
-void AbstractProcessStep::handleProcessDone()
-{
-    QTC_ASSERT(d->m_process.get(), return);
-    if (d->m_process->error() == QProcess::FailedToStart) {
-        processStartupFailed();
-        d->m_process.release()->deleteLater();
-        return;
-    }
-    d->cleanUp(d->m_process->exitCode(), d->m_process->exitStatus());
 }
 
 } // namespace ProjectExplorer

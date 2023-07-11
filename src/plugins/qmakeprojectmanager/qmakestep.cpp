@@ -281,8 +281,6 @@ void QMakeStep::doRun()
     if (!checkWorkingDirectory())
         return;
 
-    m_needToRunQMake = false;
-
     using namespace Tasking;
 
     const auto setupQMake = [this](Process &process) {
@@ -301,39 +299,16 @@ void QMakeStep::doRun()
         setupProcess(&process);
     };
 
-    const auto onProcessDone = [this](const Process &) {
-        const QString command = displayedParameters()->effectiveCommand().toUserOutput();
-        emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
-                       OutputFormat::NormalMessage);
-    };
-
-    const auto onProcessError = [this](const Process &process) {
-        const QString command = displayedParameters()->effectiveCommand().toUserOutput();
-        if (process.result() == ProcessResult::FinishedWithError) {
-            emit addOutput(Tr::tr("The process \"%1\" exited with code %2.")
-                           .arg(command, QString::number(process.exitCode())),
-                           OutputFormat::ErrorMessage);
-        } else if (process.result() == ProcessResult::StartFailed) {
-            emit addOutput(Tr::tr("Could not start process \"%1\" %2.")
-                           .arg(command, displayedParameters()->prettyArguments()),
-                           OutputFormat::ErrorMessage);
-            const QString errorString = process.errorString();
-            if (!errorString.isEmpty())
-                emit addOutput(errorString, OutputFormat::ErrorMessage);
-        } else {
-            emit addOutput(Tr::tr("The process \"%1\" crashed.").arg(command),
-                           OutputFormat::ErrorMessage);
-        }
-        m_needToRunQMake = true;
-    };
+    const auto onProcessDone = [this](const Process &process) { handleProcessDone(process); };
 
     const auto onDone = [this] {
         emit buildConfiguration()->buildDirectoryInitialized();
+        m_needToRunQMake = false;
     };
 
-    QList<GroupItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessError)};
+    QList<GroupItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessDone)};
     if (m_runMakeQmake)
-        processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessError);
+        processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessDone);
     processList << onGroupDone(onDone);
 
     runTaskTree(Group(processList));

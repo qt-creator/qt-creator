@@ -52,13 +52,13 @@ protected:
 
     bool checkWorkingDirectory();
     void setupProcess(Utils::Process *process);
+    void handleProcessDone(const Utils::Process &process);
     void runTaskTree(const Tasking::Group &recipe);
     ProcessParameters *displayedParameters() const;
 
 private:
     void setupStreams();
     void processStartupFailed();
-    void handleProcessDone();
 
     class Private;
     Private *d;
