@@ -129,7 +129,6 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
     , m_styleDir(Core::ICore::userResourcePath(Beautifier::Constants::SETTINGS_DIRNAME)
                      .pathAppended(name)
                      .toString())
-    , m_versionUpdater(new VersionUpdater)
 {
     setSettingsGroups(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP, name);
 
@@ -159,9 +158,7 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
         return types.join("; ");
     });
 
-    connect(&command, &BaseAspect::changed, this, [this] {
-        m_versionUpdater->update(command());
-    });
+    connect(&command, &BaseAspect::changed, this, [this] { m_version = {}; version(); });
 }
 
 AbstractSettings::~AbstractSettings() = default;
@@ -232,12 +229,18 @@ QString AbstractSettings::styleFileName(const QString &key) const
 
 QVersionNumber AbstractSettings::version() const
 {
-    return m_versionUpdater->version();
+    if (m_version.isNull()) {
+        VersionUpdater updater;
+        updater.setVersionRegExp(m_versionRegExp);
+        updater.update(command());
+        m_version = updater.version();
+    }
+    return m_version;
 }
 
 void AbstractSettings::setVersionRegExp(const QRegularExpression &versionRegExp)
 {
-    m_versionUpdater->setVersionRegExp(versionRegExp);
+    m_versionRegExp = versionRegExp;
 }
 
 bool AbstractSettings::isApplicable(const Core::IDocument *document) const

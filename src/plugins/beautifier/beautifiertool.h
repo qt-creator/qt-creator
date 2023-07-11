@@ -8,21 +8,17 @@
 #include <texteditor/command.h>
 
 #include <utils/aspects.h>
-#include <utils/filepath.h>
 
 #include <QDir>
 #include <QHash>
 #include <QMap>
 #include <QObject>
+#include <QRegularExpression>
 #include <QSet>
 #include <QStringList>
+#include <QVersionNumber>
 
 #include <memory>
-
-QT_BEGIN_NAMESPACE
-class QRegularExpression;
-class QVersionNumber;
-QT_END_NAMESPACE
 
 namespace Core {
 class IDocument;
@@ -57,8 +53,6 @@ public:
     static QString msgCommandPromptDialogTitle(const QString &command);
     static void showError(const QString &error);
 };
-
-class VersionUpdater;
 
 class AbstractSettings : public Utils::AspectContainer
 {
@@ -104,12 +98,13 @@ protected:
     virtual void readStyles();
 
 private:
-    std::unique_ptr<VersionUpdater> m_versionUpdater;
     QStringList m_stylesToRemove;
     QSet<QString> m_changedStyles;
     QHash<QString, int> m_options;
     QStringList m_docu;
     QStringList m_supportedMimeTypes;
+    mutable QVersionNumber m_version;
+    QRegularExpression m_versionRegExp;
 };
 
 } // Beautifier::Internal
