@@ -5,13 +5,16 @@
 #include "quicktestparser.h"
 #include "quicktesttreeitem.h"
 
-#include "../autotestconstants.h"
 #include "../autotesttr.h"
-#include "../testframeworkmanager.h"
-#include "../qtest/qttestconstants.h"
 
 namespace Autotest {
 namespace Internal {
+
+QuickTestFramework &theQuickTestFramework()
+{
+    static QuickTestFramework framework;
+    return framework;
+}
 
 ITestParser *QuickTestFramework::createTestParser()
 {
@@ -36,14 +39,6 @@ QString QuickTestFramework::displayName() const
 unsigned QuickTestFramework::priority() const
 {
     return 5;
-}
-
-ITestSettings *QuickTestFramework::testSettings()
-{
-    static const Utils::Id id
-            = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
-    ITestFramework *qtTestFramework = TestFrameworkManager::frameworkForId(id);
-    return qtTestFramework->testSettings();
 }
 
 } // namespace Internal

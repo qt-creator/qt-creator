@@ -3,14 +3,16 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "../itestframework.h"
+
+#include "gtestconstants.h"
 
 namespace Autotest::Internal {
 
-class GTestSettings : public Core::PagedSettings
+class GTestFramework : public ITestFramework
 {
 public:
-    explicit GTestSettings(Utils::Id settingsId);
+    GTestFramework();
 
     Utils::IntegerAspect iterations{this};
     Utils::IntegerAspect seed{this};
@@ -21,6 +23,20 @@ public:
     Utils::BoolAspect breakOnFailure{this};
     Utils::SelectionAspect groupMode{this};
     Utils::StringAspect gtestFilter{this};
+
+    static GTest::Constants::GroupMode staticGroupMode();
+    static QString currentGTestFilter();
+
+    QStringList testNameForSymbolName(const QString &symbolName) const override;
+
+    const char *name() const override;
+    QString displayName() const override;
+    unsigned priority() const override;
+    QString groupingToolTip() const override;
+    ITestParser *createTestParser() override;
+    ITestTreeItem *createRootNode() override;
 };
+
+GTestFramework &theGTestFramework();
 
 } // Autotest::Internal

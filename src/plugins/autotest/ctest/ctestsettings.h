@@ -3,14 +3,23 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "../itestframework.h"
 
-namespace Autotest::Internal  {
+namespace Autotest::Internal {
 
-class CTestSettings : public Core::PagedSettings
+class CTestTool final : public Autotest::ITestTool
 {
 public:
-    explicit CTestSettings(Utils::Id settingsId);
+    CTestTool();
+
+    Utils::Id buildSystemId() const final;
+
+    ITestTreeItem *createItemFromTestCaseInfo(const ProjectExplorer::TestCaseInfo &tci) final;
+
+    const char *name() const final;
+    QString displayName() const final;
+    ITestTreeItem *createRootNode() final;
+
 
     QStringList activeSettingsAsOptions() const;
 
@@ -27,6 +36,8 @@ public:
     Utils::BoolAspect testLoad{this};
     Utils::IntegerAspect threshold{this};
 };
+
+CTestTool &theCTestTool();
 
 } // Autotest::Internal
 

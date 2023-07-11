@@ -3,8 +3,15 @@
 
 #include "ctestsettings.h"
 
+#include "ctesttreeitem.h"
 #include "../autotestconstants.h"
 #include "../autotesttr.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
+
+#include <projectexplorer/buildsystem.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -13,12 +20,16 @@ using namespace Utils;
 
 namespace Autotest::Internal {
 
-CTestSettings::CTestSettings(Id settingsId)
+CTestTool &theCTestTool()
+{
+    static CTestTool tool;
+    return tool;
+}
+
+CTestTool::CTestTool()
+    : Autotest::ITestTool(false)
 {
     setSettingsGroups("Autotest", "CTest");
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr("CTest"));
 
     setLayouter([this] {
         return Row { Form {
@@ -97,7 +108,7 @@ CTestSettings::CTestSettings(Id settingsId)
     threshold.setEnabler(&testLoad);
 }
 
-QStringList CTestSettings::activeSettingsAsOptions() const
+QStringList CTestTool::activeSettingsAsOptions() const
 {
     QStringList options;
     if (outputOnFail.value())
@@ -132,5 +143,48 @@ QStringList CTestSettings::activeSettingsAsOptions() const
     }
     return options;
 }
+
+Id CTestTool::buildSystemId() const
+{
+    return Id(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+}
+
+ITestTreeItem *CTestTool::createItemFromTestCaseInfo(const ProjectExplorer::TestCaseInfo &tci)
+{
+    CTestTreeItem *item = new CTestTreeItem(this, tci.name, tci.path, TestTreeItem::TestCase);
+    item->setLine(tci.line);
+    return item;
+}
+
+const char *CTestTool::name() const
+{
+    return "CTest";
+}
+
+QString CTestTool::displayName() const
+{
+    return Tr::tr("CTest");
+}
+
+ITestTreeItem *CTestTool::createRootNode()
+{
+    return new CTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
+}
+
+// CTestToolSettingsPage
+
+class CTestToolSettingsPage final : public Core::IOptionsPage
+{
+public:
+    CTestToolSettingsPage()
+    {
+        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("255.CTest")));
+        setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+        setDisplayName(Tr::tr("CTest"));
+        setSettingsProvider([] { return &theCTestTool(); });
+    }
+};
+
+const CTestToolSettingsPage settingsPage;
 
 } // Autotest::Internal

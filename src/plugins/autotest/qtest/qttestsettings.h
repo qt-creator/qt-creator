@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "../itestframework.h"
 
 namespace Autotest::Internal {
 
@@ -16,10 +16,10 @@ enum MetricsType
     Perf
 };
 
-class QtTestSettings : public Core::PagedSettings
+class QtTestFramework : public ITestFramework
 {
 public:
-    explicit QtTestSettings(Utils::Id settingsId);
+    QtTestFramework();
 
     static QString metricsTypeToOption(const MetricsType type);
 
@@ -31,6 +31,16 @@ public:
     Utils::BoolAspect limitWarnings{this};
     Utils::IntegerAspect maxWarnings{this};
     Utils::BoolAspect quickCheckForDerivedTests{this};
+
+    QStringList testNameForSymbolName(const QString &symbolName) const override;
+
+    const char *name() const override;
+    QString displayName() const override;
+    unsigned priority() const override;
+    ITestParser *createTestParser() override;
+    ITestTreeItem *createRootNode() override;
 };
+
+QtTestFramework &theQtTestFramework();
 
 } // Autotest::Internal

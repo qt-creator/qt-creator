@@ -6,6 +6,10 @@
 #include "../autotestconstants.h"
 #include "../autotesttr.h"
 #include "qttestconstants.h"
+#include "qttestparser.h"
+#include "qttesttreeitem.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -15,12 +19,15 @@ using namespace Utils;
 
 namespace Autotest::Internal {
 
-QtTestSettings::QtTestSettings(Id settingsId)
+QtTestFramework &theQtTestFramework()
+{
+    static QtTestFramework framework;
+    return framework;
+}
+
+QtTestFramework::QtTestFramework() : ITestFramework(true)
 {
     setSettingsGroups("Autotest", "QtTest");
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
 
     setLayouter([this] {
         return Row { Form {
@@ -91,7 +98,7 @@ QtTestSettings::QtTestSettings(Id settingsId)
                "feature significantly increases scan time."));
 }
 
-QString QtTestSettings::metricsTypeToOption(const MetricsType type)
+QString QtTestFramework::metricsTypeToOption(const MetricsType type)
 {
     switch (type) {
     case MetricsType::Walltime:
@@ -107,5 +114,56 @@ QString QtTestSettings::metricsTypeToOption(const MetricsType type)
     }
     return {};
 }
+
+ITestParser *QtTestFramework::createTestParser()
+{
+    return new QtTestParser(this);
+}
+
+ITestTreeItem *QtTestFramework::createRootNode()
+{
+    return new QtTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
+}
+
+const char *QtTestFramework::name() const
+{
+    return QtTest::Constants::FRAMEWORK_NAME;
+}
+
+QString QtTestFramework::displayName() const
+{
+    return Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
+}
+
+unsigned QtTestFramework::priority() const
+{
+    return QtTest::Constants::FRAMEWORK_PRIORITY;
+}
+
+QStringList QtTestFramework::testNameForSymbolName(const QString &symbolName) const
+{
+    int index = symbolName.lastIndexOf("::");
+    if (index == -1)
+        return {};
+    return { symbolName.left(index), symbolName.mid(index + 2) };
+}
+
+// QtTestSettingsPage
+
+class QtTestSettingPage final : public Core::IOptionsPage
+{
+public:
+    QtTestSettingPage()
+    {
+        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("%1.%2")
+            .arg(QtTest::Constants::FRAMEWORK_PRIORITY)
+            .arg(QtTest::Constants::FRAMEWORK_NAME)));
+        setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+        setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+        setSettingsProvider([] { return &theQtTestFramework(); });
+    }
+};
+
+const QtTestSettingPage settingsPage;
 
 } // Autotest::Internal

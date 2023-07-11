@@ -18,11 +18,11 @@
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
-#include "boost/boosttestframework.h"
-#include "catch/catchframework.h"
-#include "ctest/ctesttool.h"
-#include "gtest/gtestframework.h"
-#include "qtest/qttestframework.h"
+#include "boost/boosttestsettings.h"
+#include "catch/catchtestsettings.h"
+#include "ctest/ctestsettings.h"
+#include "gtest/gtestsettings.h"
+#include "qtest/qttestsettings.h"
 #include "quick/quicktestframework.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -128,13 +128,13 @@ AutotestPluginPrivate::AutotestPluginPrivate()
 {
     dd = this; // Needed as the code below access it via the static plugin interface
     initializeMenuEntries();
-    m_frameworkManager.registerTestFramework(new QtTestFramework);
-    m_frameworkManager.registerTestFramework(new QuickTestFramework);
-    m_frameworkManager.registerTestFramework(new GTestFramework);
-    m_frameworkManager.registerTestFramework(new BoostTestFramework);
-    m_frameworkManager.registerTestFramework(new CatchFramework);
+    m_frameworkManager.registerTestFramework(&theQtTestFramework());
+    m_frameworkManager.registerTestFramework(&theQuickTestFramework());
+    m_frameworkManager.registerTestFramework(&theGTestFramework());
+    m_frameworkManager.registerTestFramework(&theBoostTestFramework());
+    m_frameworkManager.registerTestFramework(&theCatchFramework());
 
-    m_frameworkManager.registerTestTool(new CTestTool);
+    m_frameworkManager.registerTestTool(&theCTestTool());
 
     m_frameworkManager.synchronizeSettings();
     m_resultsPane = TestResultsPane::instance();

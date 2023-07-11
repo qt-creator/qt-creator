@@ -4,7 +4,7 @@
 #include "catchtestparser.h"
 
 #include "catchcodeparser.h"
-#include "catchframework.h"
+#include "catchtestsettings.h"
 #include "catchtreeitem.h"
 
 #include <cppeditor/cppmodelmanager.h>

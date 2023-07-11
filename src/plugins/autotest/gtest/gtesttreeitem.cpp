@@ -5,7 +5,7 @@
 
 #include "gtestconfiguration.h"
 #include "gtestconstants.h"
-#include "gtestframework.h"
+#include "gtestsettings.h"
 #include "gtestparser.h"
 #include "../autotesttr.h"
 
@@ -113,7 +113,7 @@ QVariant GTestTreeItem::data(int column, int role) const
     }
     case Qt::DecorationRole:
         if (type() == GroupNode
-                && GTestFramework::groupMode() == GTest::Constants::GTestFilter) {
+                && GTestFramework::staticGroupMode() == GTest::Constants::GTestFilter) {
             static const QIcon filterIcon = Icon({{":/utils/images/filtericon.png",
                                                    Theme::PanelTextColorMid}}).icon();
             return filterIcon;
@@ -121,7 +121,7 @@ QVariant GTestTreeItem::data(int column, int role) const
         break;
     case Qt::ToolTipRole:
         if (type() == GroupNode
-                && GTestFramework::groupMode() == GTest::Constants::GTestFilter) {
+                && GTestFramework::staticGroupMode() == GTest::Constants::GTestFilter) {
             const auto tpl = QString("<p>%1</p><p>%2</p>").arg(filePath().toString());
             return tpl.arg(Tr::tr("Change GTest filter in use inside the settings."));
         }
@@ -361,7 +361,7 @@ TestTreeItem *GTestTreeItem::find(const TestParseResult *result)
     switch (type()) {
     case Root:
         if (result->framework->grouping()) {
-            if (GTestFramework::groupMode() == GTest::Constants::Directory) {
+            if (GTestFramework::staticGroupMode() == GTest::Constants::Directory) {
                 const FilePath base = parseResult->fileName.absolutePath();
                 for (int row = 0; row < childCount(); ++row) {
                     GTestTreeItem *group = static_cast<GTestTreeItem *>(childAt(row));
@@ -445,7 +445,7 @@ bool GTestTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *GTestTreeItem::createParentGroupNode() const
 {
-    if (GTestFramework::groupMode() == GTest::Constants::Directory) {
+    if (GTestFramework::staticGroupMode() == GTest::Constants::Directory) {
         const FilePath &absPath = filePath().absolutePath();
         return new GTestTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
     } else { // GTestFilter
@@ -531,7 +531,7 @@ bool GTestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
     if (type() != TestTreeItem::GroupNode)
         return false;
 
-    if (GTestFramework::groupMode() == GTest::Constants::Directory) {
+    if (GTestFramework::staticGroupMode() == GTest::Constants::Directory) {
         return other->filePath().absolutePath() == filePath();
     } else { // GTestFilter
         QString fullName;
@@ -566,7 +566,7 @@ TestTreeItem *GTestTreeItem::applyFilters()
     if (type() != TestSuite)
         return nullptr;
 
-    if (GTestFramework::groupMode() != GTest::Constants::GTestFilter)
+    if (GTestFramework::staticGroupMode() != GTest::Constants::GTestFilter)
         return nullptr;
 
     const QString gtestFilter = GTestFramework::currentGTestFilter();

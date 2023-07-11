@@ -22,8 +22,8 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
 
 TestOutputReader *QuickTestConfiguration::createOutputReader(Process *app) const
 {
-    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
-    const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
+    QtTestFramework &qtSettings = *static_cast<QtTestFramework *>(framework());
+    const QtTestOutputReader::OutputMode mode = qtSettings.useXMLOutput()
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
     return new QtTestOutputReader(app, buildDirectory(), projectFile(), mode, TestType::QuickTest);
@@ -38,25 +38,23 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
                           omitted, true));
     }
 
-    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
-    if (!qtSettings)
-        return arguments;
-    if (qtSettings->useXMLOutput.value())
+    QtTestFramework &qtSettings = *static_cast<QtTestFramework *>(framework());
+    if (qtSettings.useXMLOutput())
         arguments << "-xml";
     if (!testCases().isEmpty())
         arguments << testCases();
 
-    const QString &metricsOption = QtTestSettings::metricsTypeToOption(MetricsType(qtSettings->metrics.value()));
+    const QString &metricsOption = QtTestFramework::metricsTypeToOption(MetricsType(qtSettings.metrics()));
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
 
     if (isDebugRunMode()) {
-        if (qtSettings->noCrashHandler.value())
+        if (qtSettings.noCrashHandler())
             arguments << "-nocrashhandler";
     }
 
-    if (qtSettings->limitWarnings.value() && qtSettings->maxWarnings.value() != 2000)
-        arguments << "-maxwarnings" << QString::number(qtSettings->maxWarnings.value());
+    if (qtSettings.limitWarnings() && qtSettings.maxWarnings() != 2000)
+        arguments << "-maxwarnings" << QString::number(qtSettings.maxWarnings());
 
     return arguments;
 }

@@ -4,9 +4,12 @@
 #include "boosttestsettings.h"
 
 #include "boosttestconstants.h"
-
+#include "boosttesttreeitem.h"
+#include "boosttestparser.h"
 #include "../autotestconstants.h"
 #include "../autotesttr.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -15,11 +18,15 @@ using namespace Utils;
 
 namespace Autotest::Internal {
 
-BoostTestSettings::BoostTestSettings(Id settingsId)
+BoostTestFramework &theBoostTestFramework()
 {
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    static BoostTestFramework framework;
+    return framework;
+}
+
+BoostTestFramework::BoostTestFramework()
+    : ITestFramework(true)
+{
     setSettingsGroups("Autotest", "BoostTest");
 
     setLayouter([this] {
@@ -88,7 +95,7 @@ BoostTestSettings::BoostTestSettings(Id settingsId)
     memLeaks.setToolTip(Tr::tr("Enable memory leak detection."));
 }
 
-QString BoostTestSettings::logLevelToOption(const LogLevel logLevel)
+QString BoostTestFramework::logLevelToOption(const LogLevel logLevel)
 {
     switch (logLevel) {
     case LogLevel::All: return QString("all");
@@ -106,7 +113,7 @@ QString BoostTestSettings::logLevelToOption(const LogLevel logLevel)
     return {};
 }
 
-QString BoostTestSettings::reportLevelToOption(const ReportLevel reportLevel)
+QString BoostTestFramework::reportLevelToOption(const ReportLevel reportLevel)
 {
     switch (reportLevel) {
     case ReportLevel::Confirm: return QString("confirm");
@@ -116,5 +123,48 @@ QString BoostTestSettings::reportLevelToOption(const ReportLevel reportLevel)
     }
     return {};
 }
+
+ITestParser *BoostTestFramework::createTestParser()
+{
+    return new BoostTestParser(this);
+}
+
+ITestTreeItem *BoostTestFramework::createRootNode()
+{
+    return new BoostTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
+}
+
+const char *BoostTestFramework::name() const
+{
+    return BoostTest::Constants::FRAMEWORK_NAME;
+}
+
+QString BoostTestFramework::displayName() const
+{
+    return Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
+}
+
+unsigned BoostTestFramework::priority() const
+{
+    return BoostTest::Constants::FRAMEWORK_PRIORITY;
+}
+
+// BoostSettingsPage
+
+class BoostSettingsPage final : public Core::IOptionsPage
+{
+public:
+    BoostSettingsPage()
+    {
+        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("%1.%2")
+            .arg(BoostTest::Constants::FRAMEWORK_PRIORITY)
+            .arg(BoostTest::Constants::FRAMEWORK_NAME)));
+        setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+        setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+        setSettingsProvider([] { return &theBoostTestFramework() ; });
+    }
+};
+
+const BoostSettingsPage settingsPage;
 
 } // Autotest::Internal

@@ -17,12 +17,6 @@ ITestBase::ITestBase(bool activeByDefault, const ITestBase::TestBaseType type)
     , m_type(type)
 {}
 
-Id ITestBase::settingsId() const
-{
-    return Id(Constants::SETTINGSPAGE_PREFIX)
-            .withSuffix(QString("%1.%2").arg(priority()).arg(QLatin1String(name())));
-}
-
 Id ITestBase::id() const
 {
     return Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
@@ -41,7 +35,9 @@ void ITestBase::resetRootNode()
 
 ITestFramework::ITestFramework(bool activeByDefault)
     : ITestBase(activeByDefault, ITestBase::Framework)
-{}
+{
+    setAutoApply(false);
+}
 
 ITestFramework::~ITestFramework()
 {

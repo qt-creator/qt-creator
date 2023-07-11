@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "../itestframework.h"
 
 namespace Autotest::Internal {
 
-class CatchTestSettings : public Core::PagedSettings
+class CatchFramework : public ITestFramework
 {
 public:
-    explicit CatchTestSettings(Utils::Id settingsId);
+    CatchFramework();
 
     Utils::IntegerAspect abortAfter{this};
     Utils::IntegerAspect benchmarkSamples{this};
@@ -28,6 +28,16 @@ public:
     Utils::BoolAspect noThrow{this};
     Utils::BoolAspect visibleWhitespace{this};
     Utils::BoolAspect warnOnEmpty{this};
+
+    const char *name() const override;
+    QString displayName() const override;
+    unsigned priority() const override;
+
+protected:
+    ITestParser *createTestParser() override;
+    ITestTreeItem *createRootNode() override;
 };
+
+CatchFramework &theCatchFramework();
 
 } // Autotest::Internal

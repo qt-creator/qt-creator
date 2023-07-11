@@ -3,8 +3,13 @@
 
 #include "catchtestsettings.h"
 
+#include "catchtestparser.h"
+#include "catchtreeitem.h"
+
 #include "../autotestconstants.h"
 #include "../autotesttr.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -13,11 +18,15 @@ using namespace Utils;
 
 namespace Autotest::Internal {
 
-CatchTestSettings::CatchTestSettings(Id settingsId)
+CatchFramework &theCatchFramework()
 {
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr("Catch Test"));
+    static CatchFramework framework;
+    return framework;
+}
+
+CatchFramework::CatchFramework()
+    : ITestFramework(true)
+{
     setSettingsGroups("Autotest", "Catch2");
 
     setLayouter([this] {
@@ -106,5 +115,46 @@ CatchTestSettings::CatchTestSettings(Id settingsId)
     warnOnEmpty.setLabelText(Tr::tr("Warn on empty tests"));
     warnOnEmpty.setToolTip(Tr::tr("Warns if a test section does not check any assertion."));
 }
+
+const char *CatchFramework::name() const
+{
+    return "Catch";
+}
+
+QString CatchFramework::displayName() const
+{
+    return Tr::tr("Catch Test");
+}
+
+unsigned CatchFramework::priority() const
+{
+    return 12;
+}
+
+ITestParser *CatchFramework::createTestParser()
+{
+    return new CatchTestParser(this);
+}
+
+ITestTreeItem *CatchFramework::createRootNode()
+{
+    return new CatchTreeItem(this, displayName(), {}, ITestTreeItem::Root);
+}
+
+// CatchTestSettingsPage
+
+class CatchTestSettingsPage final : public Core::IOptionsPage
+{
+public:
+    CatchTestSettingsPage()
+    {
+        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix("12.Catch"));
+        setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+        setDisplayName(Tr::tr("Catch Test"));
+        setSettingsProvider([] { return &theCatchFramework(); });
+    }
+};
+
+const CatchTestSettingsPage settingsPage;
 
 } // Autotest::Internal

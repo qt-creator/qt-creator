@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <utils/aspects.h>
 #include <utils/id.h>
 
 namespace ProjectExplorer { struct TestCaseInfo; }
@@ -12,12 +13,11 @@ namespace Autotest {
 
 class ITestFramework;
 class ITestParser;
-using ITestSettings = Utils::AspectContainer;
 class ITestTool;
 class ITestTreeItem;
 class TestTreeItem;
 
-class ITestBase
+class ITestBase : public Utils::AspectContainer
 {
 public:
     enum TestBaseType
@@ -35,9 +35,6 @@ public:
     virtual unsigned priority() const = 0;          // should this be modifyable?
     TestBaseType type() const { return m_type; }
 
-    virtual ITestSettings *testSettings() { return nullptr; }
-
-    Utils::Id settingsId() const;
     Utils::Id id() const;
 
     bool active() const { return m_active; }

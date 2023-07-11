@@ -22,8 +22,6 @@ TestFrameworkManager::TestFrameworkManager()
 
 TestFrameworkManager::~TestFrameworkManager()
 {
-    qDeleteAll(m_registeredFrameworks);
-    qDeleteAll(m_registeredTestTools);
     s_instance = nullptr;
 }
 
@@ -96,14 +94,11 @@ ITestTool *TestFrameworkManager::testToolForBuildSystemId(Id buildSystemId)
 void TestFrameworkManager::synchronizeSettings()
 {
     Internal::testSettings().fromSettings();
-    for (ITestFramework *framework : std::as_const(m_registeredFrameworks)) {
-        if (ITestSettings *fSettings = framework->testSettings())
-            fSettings->readSettings();
-    }
-    for (ITestTool *testTool : std::as_const(m_registeredTestTools)) {
-        if (ITestSettings *tSettings = testTool->testSettings())
-            tSettings->readSettings();
-    }
+    for (ITestFramework *framework : std::as_const(m_registeredFrameworks))
+        framework->readSettings();
+
+    for (ITestTool *testTool : std::as_const(m_registeredTestTools))
+        testTool->readSettings();
 }
 
 } // namespace Autotest

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "../itestframework.h"
 
 namespace Autotest::Internal {
 
@@ -30,10 +30,16 @@ enum class ReportLevel
     No
 };
 
-class BoostTestSettings : public Core::PagedSettings
+class BoostTestFramework : public ITestFramework
 {
 public:
-    explicit BoostTestSettings(Utils::Id settingsId);
+    BoostTestFramework();
+
+    const char *name() const override;
+    QString displayName() const override;
+    unsigned priority() const override;
+    ITestParser *createTestParser() override;
+    ITestTreeItem *createRootNode() override;
 
     static QString logLevelToOption(const LogLevel logLevel);
     static QString reportLevelToOption(const ReportLevel reportLevel);
@@ -46,6 +52,8 @@ public:
     Utils::BoolAspect fpExceptions{this};
     Utils::BoolAspect memLeaks{this};
 };
+
+BoostTestFramework &theBoostTestFramework();
 
 } // Autotest::Internal
 

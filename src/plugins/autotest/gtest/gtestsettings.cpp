@@ -4,10 +4,16 @@
 #include "gtestsettings.h"
 
 #include "gtest_utils.h"
+#include "gtesttreeitem.h"
+#include "gtestparser.h"
 #include "gtestconstants.h"
 #include "../autotestconstants.h"
 #include "../autotesttr.h"
 #include "../testtreemodel.h"
+
+#include <QRegularExpression>
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -16,12 +22,16 @@ using namespace Utils;
 
 namespace Autotest::Internal {
 
-GTestSettings::GTestSettings(Id settingsId)
+GTestFramework &theGTestFramework()
+{
+    static GTestFramework framework;
+    return framework;
+}
+
+GTestFramework::GTestFramework()
+    : ITestFramework(true)
 {
     setSettingsGroups("Autotest", "GTest");
-    setId(settingsId);
-    setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-    setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
 
     setLayouter([this] {
         return Row { Form {
@@ -112,15 +122,83 @@ GTestSettings::GTestSettings(Id settingsId)
         return edit && GTestUtils::isValidGTestFilter(edit->text());
     });
 
-    QObject::connect(&groupMode, &SelectionAspect::volatileValueChanged, &gtestFilter, [this] {
+    connect(&groupMode, &SelectionAspect::volatileValueChanged, &gtestFilter, [this] {
         gtestFilter.setEnabled(groupMode.itemValueForIndex(groupMode.volatileValue())
                                == GTest::Constants::GTestFilter);
     });
-
-    QObject::connect(this, &AspectContainer::applied, this, [] {
+    connect(this, &AspectContainer::applied, this, [] {
         Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
         TestTreeModel::instance()->rebuild({id});
     });
 }
+
+ITestParser *GTestFramework::createTestParser()
+{
+    return new GTestParser(this);
+}
+
+ITestTreeItem *GTestFramework::createRootNode()
+{
+    return new GTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
+}
+
+const char *GTestFramework::name() const
+{
+    return GTest::Constants::FRAMEWORK_NAME;
+}
+
+QString GTestFramework::displayName() const
+{
+    return Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
+}
+
+unsigned GTestFramework::priority() const
+{
+    return GTest::Constants::FRAMEWORK_PRIORITY;
+}
+
+QString GTestFramework::currentGTestFilter()
+{
+    return theGTestFramework().gtestFilter();
+}
+
+QString GTestFramework::groupingToolTip() const
+{
+    return Tr::tr("Enable or disable grouping of test cases by folder or "
+                  "GTest filter.\nSee also Google Test settings.");
+}
+
+GTest::Constants::GroupMode GTestFramework::staticGroupMode()
+{
+    return GTest::Constants::GroupMode(theGTestFramework().groupMode.itemValue().toInt());
+}
+
+QStringList GTestFramework::testNameForSymbolName(const QString &symbolName) const
+{
+    static const QRegularExpression r("^(.+::)?((DISABLED_)?.+?)_((DISABLED_)?.+)_Test::TestBody$");
+    const QRegularExpressionMatch match = r.match(symbolName);
+    if (!match.hasMatch())
+        return {};
+
+    return { match.captured(2), match.captured(4) };
+}
+
+// GTestSettingPage
+
+class GTestSettingsPage final : public Core::IOptionsPage
+{
+public:
+    GTestSettingsPage()
+    {
+        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("%1.%2")
+            .arg(GTest::Constants::FRAMEWORK_PRIORITY)
+            .arg(GTest::Constants::FRAMEWORK_NAME)));
+        setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
+        setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+        setSettingsProvider([] { return &theGTestFramework(); });
+    }
+};
+
+const GTestSettingsPage settingsPage;
 
 } // Autotest::Internal
