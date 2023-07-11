@@ -49,7 +49,7 @@ protected:
     void setDisplayedParameters(ProcessParameters *params);
 
     bool checkWorkingDirectory();
-    void setupProcess(Utils::Process *process);
+    void setupProcess(Utils::Process &process);
     void handleProcessDone(const Utils::Process &process);
     void runTaskTree(const Tasking::Group &recipe);
 

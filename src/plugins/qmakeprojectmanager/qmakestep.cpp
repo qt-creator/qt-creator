@@ -287,7 +287,7 @@ void QMakeStep::doRun()
         m_outputFormatter->setLineParsers({new QMakeParser});
         ProcessParameters *pp = processParameters();
         pp->setCommandLine(m_qmakeCommand);
-        setupProcess(&process);
+        setupProcess(process);
     };
 
     const auto setupMakeQMake = [this](Process &process) {
@@ -296,7 +296,7 @@ void QMakeStep::doRun()
         m_outputFormatter->setLineParsers({parser});
         ProcessParameters *pp = processParameters();
         pp->setCommandLine(m_makeCommand);
-        setupProcess(&process);
+        setupProcess(process);
     };
 
     const auto onProcessDone = [this](const Process &process) { handleProcessDone(process); };

@@ -191,7 +191,7 @@ void AbstractProcessStep::doRun()
     setupStreams();
 
     d->m_process.reset(new Process);
-    setupProcess(d->m_process.get());
+    setupProcess(*d->m_process.get());
     connect(d->m_process.get(), &Process::done, this, [this] {
         handleProcessDone(*d->m_process);
         const ProcessResult result = d->outputFormatter->hasFatalErrors()
@@ -223,30 +223,30 @@ void AbstractProcessStep::setupStreams()
     d->stderrStream = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
 }
 
-void AbstractProcessStep::setupProcess(Process *process)
+void AbstractProcessStep::setupProcess(Process &process)
 {
-    process->setUseCtrlCStub(HostOsInfo::isWindowsHost());
-    process->setWorkingDirectory(d->m_param.effectiveWorkingDirectory());
+    process.setUseCtrlCStub(HostOsInfo::isWindowsHost());
+    process.setWorkingDirectory(d->m_param.effectiveWorkingDirectory());
     // Enforce PWD in the environment because some build tools use that.
     // PWD can be different from getcwd in case of symbolic links (getcwd resolves symlinks).
     // For example Clang uses PWD for paths in debug info, see QTCREATORBUG-23788
     Environment envWithPwd = d->m_param.environment();
-    envWithPwd.set("PWD", process->workingDirectory().path());
-    process->setEnvironment(envWithPwd);
-    process->setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),
+    envWithPwd.set("PWD", process.workingDirectory().path());
+    process.setEnvironment(envWithPwd);
+    process.setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),
                         CommandLine::Raw});
     if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
-        process->setLowPriority();
+        process.setLowPriority();
 
-    connect(process, &Process::readyReadStandardOutput, this, [this, process] {
-        emit addOutput(d->stdoutStream->toUnicode(process->readAllRawStandardOutput()),
+    connect(&process, &Process::readyReadStandardOutput, this, [this, &process] {
+        emit addOutput(d->stdoutStream->toUnicode(process.readAllRawStandardOutput()),
                        OutputFormat::Stdout, DontAppendNewline);
     });
-    connect(process, &Process::readyReadStandardError, this, [this, process] {
-        emit addOutput(d->stderrStream->toUnicode(process->readAllRawStandardError()),
+    connect(&process, &Process::readyReadStandardError, this, [this, &process] {
+        emit addOutput(d->stderrStream->toUnicode(process.readAllRawStandardError()),
                        OutputFormat::Stderr, DontAppendNewline);
     });
-    connect(process, &Process::started, this, [this] {
+    connect(&process, &Process::started, this, [this] {
         ProcessParameters *params = d->m_displayedParams;
         emit addOutput(Tr::tr("Starting: \"%1\" %2")
                        .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
