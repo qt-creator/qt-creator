@@ -205,8 +205,13 @@ void QmlJSEditorPlugin::extensionsInitialized()
     FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
                                                      "application/x-qt.ui+qml");
 
-    TaskHub::addCategory({Constants::TASK_CATEGORY_QML, Tr::tr("QML")});
-    TaskHub::addCategory({Constants::TASK_CATEGORY_QML_ANALYSIS, Tr::tr("QML Analysis"), false});
+    TaskHub::addCategory({Constants::TASK_CATEGORY_QML,
+                          Tr::tr("QML"),
+                          Tr::tr("Issues that the QML code parser found.")});
+    TaskHub::addCategory({Constants::TASK_CATEGORY_QML_ANALYSIS,
+                          Tr::tr("QML Analysis"),
+                          Tr::tr("Issues that the QML static analyzer found."),
+                          false});
     QmllsSettingsManager::instance()->setupAutoupdate();
 }
 

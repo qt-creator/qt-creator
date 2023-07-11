@@ -8,6 +8,7 @@
 #include "pythonproject.h"
 #include "pythonrunconfiguration.h"
 #include "pythonsettings.h"
+#include "pythontr.h"
 #include "pythonwizardpage.h"
 
 #include <projectexplorer/buildtargetinfo.h>
@@ -70,7 +71,10 @@ void PythonPlugin::extensionsInitialized()
                                                                ::Constants::FILEOVERLAY_PY);
     FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
 
-    TaskHub::addCategory({PythonErrorTaskCategory, "Python", true});
+    TaskHub::addCategory({PythonErrorTaskCategory,
+                          "Python",
+                          Tr::tr("Issues parsed from Python runtime output."),
+                          true});
 }
 
 } // Python::Internal

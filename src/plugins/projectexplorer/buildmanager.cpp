@@ -293,16 +293,26 @@ void BuildManager::extensionsInitialized()
 {
     TaskHub::addCategory({Constants::TASK_CATEGORY_COMPILE,
                           Tr::tr("Compile", "Category for compiler issues listed under 'Issues'"),
-                          true, 100});
-    TaskHub::addCategory({Constants::TASK_CATEGORY_BUILDSYSTEM,
-                          Tr::tr("Build System", "Category for build system issues listed under 'Issues'"),
-                          true, 100});
-    TaskHub::addCategory({Constants::TASK_CATEGORY_DEPLOYMENT,
-                          Tr::tr("Deployment", "Category for deployment issues listed under 'Issues'"),
-                          true, 100});
+                          Tr::tr("Issues parsed from the compile output."),
+                          true,
+                          100});
+    TaskHub::addCategory(
+        {Constants::TASK_CATEGORY_BUILDSYSTEM,
+         Tr::tr("Build System", "Category for build system issues listed under 'Issues'"),
+         Tr::tr("Issues from the build system, such as CMake or qmake."),
+         true,
+         100});
+    TaskHub::addCategory(
+        {Constants::TASK_CATEGORY_DEPLOYMENT,
+         Tr::tr("Deployment", "Category for deployment issues listed under 'Issues'"),
+         Tr::tr("Issues found when deploying applications to devices."),
+         true,
+         100});
     TaskHub::addCategory({Constants::TASK_CATEGORY_AUTOTEST,
                           Tr::tr("Autotests", "Category for autotest issues listed under 'Issues'"),
-                          true, 100});
+                          Tr::tr("Issues found when running tests."),
+                          true,
+                          100});
 }
 
 void BuildManager::buildProjectWithoutDependencies(Project *project)

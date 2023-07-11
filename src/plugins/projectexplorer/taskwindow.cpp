@@ -21,6 +21,7 @@
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
+#include <utils/execmenu.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
@@ -221,6 +222,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
     d->m_categoriesMenu = new QMenu(d->m_categoriesButton);
     connect(d->m_categoriesMenu, &QMenu::aboutToShow, this, &TaskWindow::updateCategoriesMenu);
+    Utils::addToolTipsToMenu(d->m_categoriesMenu);
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
@@ -475,6 +477,7 @@ void TaskWindow::updateCategoriesMenu()
         auto action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
         action->setText(c.displayName);
+        action->setToolTip(c.description);
         action->setChecked(!filteredCategories.contains(c.id));
         connect(action, &QAction::triggered, this, [this, action, id = c.id] {
             setCategoryVisibility(id, action->isChecked());

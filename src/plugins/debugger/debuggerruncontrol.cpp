@@ -427,7 +427,6 @@ void DebuggerRunTool::addSearchDirectory(const Utils::FilePath &dir)
 
 void DebuggerRunTool::start()
 {
-    TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
     if (d->portsGatherer) {

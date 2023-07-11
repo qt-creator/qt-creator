@@ -89,7 +89,9 @@ ClangToolsPlugin::~ClangToolsPlugin()
 
 void ClangToolsPlugin::initialize()
 {
-    TaskHub::addCategory({taskCategory(), Tr::tr("Clang Tools")});
+    TaskHub::addCategory({taskCategory(),
+                          Tr::tr("Clang Tools"),
+                          Tr::tr("Issues that Clang-Tidy and Clazy found when analyzing code.")});
 
     // Import tidy/clazy diagnostic configs from CppEditor now
     // instead of at opening time of the settings page

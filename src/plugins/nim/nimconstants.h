@@ -42,9 +42,6 @@ const QString C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE = QStringLiteral("Nim.NimComp
 // NimCompilerCleanStep
 const char C_NIMCOMPILERCLEANSTEP_ID[] = "Nim.NimCompilerCleanStep";
 
-// Nim task category (Issues pane)
-const char C_NIMPARSE_ID[] = "Nim.NimParse";
-
 const char C_NIMLANGUAGE_ID[] = "Nim";
 const char C_NIMCODESTYLESETTINGSPAGE_ID[] = "Nim.NimCodeStyleSettings";
 const char C_NIMCODESTYLESETTINGSPAGE_CATEGORY[] = "Z.Nim";

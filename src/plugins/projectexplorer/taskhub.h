@@ -17,6 +17,7 @@ class PROJECTEXPLORER_EXPORT TaskCategory
 public:
     Utils::Id id;
     QString displayName;
+    QString description;
     bool visible = true;
     int priority = 0;
 };

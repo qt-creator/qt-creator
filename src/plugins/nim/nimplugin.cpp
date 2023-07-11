@@ -97,7 +97,6 @@ void NimPlugin::extensionsInitialized()
         FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_SCRIPT_MIMETYPE);
         FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIMBLE_MIMETYPE);
     }
-    TaskHub::addCategory({Constants::C_NIMPARSE_ID, "Nim"});
 }
 
 } // namespace Nim
