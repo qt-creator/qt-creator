@@ -3,20 +3,21 @@
 
 #include "layoutbuilder.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QPushButton>
-#include <QStackedLayout>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QSplitter>
+#include <QStackedLayout>
 #include <QStyle>
 #include <QTabWidget>
 #include <QTextEdit>
-#include <QApplication>
+#include <QToolBar>
 
 namespace Layouting {
 
@@ -771,6 +772,26 @@ Splitter::Splitter(std::initializer_list<LayoutItem> items)
         }
         builder.stack.pop_back();
         builder.stack.last().pendingItems.append(ResultItem(splitter));
+    };
+}
+
+ToolBar::ToolBar(std::initializer_list<LayoutItem> items)
+{
+    subItems = items;
+    onAdd = [](LayoutBuilder &builder) {
+        auto toolbar = new QToolBar;
+        toolbar->setOrientation(Qt::Horizontal);
+        builder.stack.append(toolbar);
+    };
+    onExit = [](LayoutBuilder &builder) {
+        const Slice slice = builder.stack.last();
+        QToolBar *toolBar = qobject_cast<QToolBar *>(slice.widget);
+        for (const ResultItem &ri : slice.pendingItems) {
+            if (ri.widget)
+                toolBar->addWidget(ri.widget);
+        }
+        builder.stack.pop_back();
+        builder.stack.last().pendingItems.append(ResultItem(toolBar));
     };
 }
 

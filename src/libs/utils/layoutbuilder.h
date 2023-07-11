@@ -171,6 +171,12 @@ public:
     Splitter(std::initializer_list<LayoutItem> items);
 };
 
+class QTCREATOR_UTILS_EXPORT ToolBar : public LayoutItem
+{
+public:
+    ToolBar(std::initializer_list<LayoutItem> items);
+};
+
 class QTCREATOR_UTILS_EXPORT TabWidget : public LayoutItem
 {
 public:
