@@ -14,6 +14,7 @@ class QPoint;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+class TaskCategory;
 class TaskHub;
 class Task;
 
@@ -60,7 +61,7 @@ signals:
 private:
     void updateFilter() override;
 
-    void addCategory(Utils::Id categoryId, const QString &displayName, bool visible, int priority);
+    void addCategory(const TaskCategory &category);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
     void updatedTaskFileName(const Task &task, const QString &fileName);

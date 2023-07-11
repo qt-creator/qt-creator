@@ -723,7 +723,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     // Task integration.
     //: Category under which Analyzer tasks are listed in Issues view
-    TaskHub::addCategory(ANALYZERTASK_ID, Tr::tr("Debugger"));
+    TaskHub::addCategory({ANALYZERTASK_ID, Tr::tr("Debugger")});
 
     const Context debuggerNotRunning(C_DEBUGGER_NOTRUNNING);
     ICore::addAdditionalContext(debuggerNotRunning);
@@ -765,8 +765,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     act->setEnabled(false);
     Command *cmd = ActionManager::registerAction(act, Constants::OPEN_MEMORY_EDITOR);
 
-    TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_DEBUGINFO, Tr::tr("Debug Information"));
-    TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_RUNTIME, Tr::tr("Debugger Runtime"));
+    TaskHub::addCategory({TASK_CATEGORY_DEBUGGER_DEBUGINFO, Tr::tr("Debug Information")});
+    TaskHub::addCategory({TASK_CATEGORY_DEBUGGER_RUNTIME, Tr::tr("Debugger Runtime")});
 
     m_debuggerSettings.readSettings();
 

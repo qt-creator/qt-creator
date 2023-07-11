@@ -2074,9 +2074,9 @@ void ProjectExplorerPlugin::extensionsInitialized()
     dd->m_projectFilterString = filterStrings.join(filterSeparator);
 
     BuildManager::extensionsInitialized();
-    TaskHub::addCategory(Constants::TASK_CATEGORY_SANITIZER,
-                         Tr::tr("Sanitizer", "Category for sanitizer issues listed under 'Issues'"));
-    TaskHub::addCategory(Constants::TASK_CATEGORY_TASKLIST_ID, Tr::tr("My Tasks"));
+    TaskHub::addCategory({Constants::TASK_CATEGORY_SANITIZER,
+                          Tr::tr("Sanitizer", "Category for sanitizer issues listed under 'Issues'")});
+    TaskHub::addCategory({Constants::TASK_CATEGORY_TASKLIST_ID, Tr::tr("My Tasks")});
 
     SshSettings::loadSettings(ICore::settings());
     const auto searchPathRetriever = [] {

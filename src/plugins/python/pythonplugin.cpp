@@ -70,7 +70,7 @@ void PythonPlugin::extensionsInitialized()
                                                                ::Constants::FILEOVERLAY_PY);
     FileIconProvider::registerIconOverlayForSuffix(imageFile, "py");
 
-    TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);
+    TaskHub::addCategory({PythonErrorTaskCategory, "Python", true});
 }
 
 } // Python::Internal

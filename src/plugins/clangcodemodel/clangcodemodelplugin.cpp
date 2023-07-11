@@ -77,7 +77,7 @@ ClangCodeModelPlugin::~ClangCodeModelPlugin()
 
 void ClangCodeModelPlugin::initialize()
 {
-    TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS, Tr::tr("Clang Code Model"));
+    TaskHub::addCategory({Constants::TASK_CATEGORY_DIAGNOSTICS, Tr::tr("Clang Code Model")});
     CppEditor::CppModelManager::instance()->activateClangCodeModel(
         std::make_unique<ClangModelManagerSupport>());
     createCompilationDBAction();

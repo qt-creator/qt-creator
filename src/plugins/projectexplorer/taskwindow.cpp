@@ -365,12 +365,12 @@ void TaskWindow::visibilityChanged(bool visible)
         delayedInitialization();
 }
 
-void TaskWindow::addCategory(Id categoryId, const QString &displayName, bool visible, int priority)
+void TaskWindow::addCategory(const TaskCategory &category)
 {
-    d->m_model->addCategory(categoryId, displayName, priority);
-    if (!visible) {
+    d->m_model->addCategory(category);
+    if (!category.visible) {
         QList<Id> filters = d->m_filter->filteredCategories();
-        filters += categoryId;
+        filters += category.id;
         d->m_filter->setFilteredCategories(filters);
     }
 }

@@ -60,13 +60,13 @@ bool TaskModel::hasFile(const QModelIndex &index) const
     return !m_tasks.at(row).file.isEmpty();
 }
 
-void TaskModel::addCategory(Utils::Id categoryId, const QString &categoryName, int priority)
+void TaskModel::addCategory(const TaskCategory &category)
 {
-    QTC_ASSERT(categoryId.isValid(), return);
+    QTC_ASSERT(category.id.isValid(), return);
     CategoryData data;
-    data.displayName = categoryName;
-    data.priority = priority;
-    m_categories.insert(categoryId, data);
+    data.displayName = category.displayName;
+    data.priority = category.priority;
+    m_categories.insert(category.id, data);
 }
 
 Tasks TaskModel::tasks(Utils::Id categoryId) const

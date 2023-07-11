@@ -205,8 +205,8 @@ void QmlJSEditorPlugin::extensionsInitialized()
     FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
                                                      "application/x-qt.ui+qml");
 
-    TaskHub::addCategory(Constants::TASK_CATEGORY_QML, Tr::tr("QML"));
-    TaskHub::addCategory(Constants::TASK_CATEGORY_QML_ANALYSIS, Tr::tr("QML Analysis"), false);
+    TaskHub::addCategory({Constants::TASK_CATEGORY_QML, Tr::tr("QML")});
+    TaskHub::addCategory({Constants::TASK_CATEGORY_QML_ANALYSIS, Tr::tr("QML Analysis"), false});
     QmllsSettingsManager::instance()->setupAutoupdate();
 }
 

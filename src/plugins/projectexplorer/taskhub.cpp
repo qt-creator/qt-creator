@@ -107,13 +107,12 @@ TaskHub::~TaskHub()
     m_instance = nullptr;
 }
 
-void TaskHub::addCategory(Utils::Id categoryId, const QString &displayName, bool visible,
-                          int priority)
+void TaskHub::addCategory(const TaskCategory &category)
 {
-    QTC_CHECK(!displayName.isEmpty());
-    QTC_ASSERT(!m_registeredCategories.contains(categoryId), return);
-    m_registeredCategories.push_back(categoryId);
-    emit m_instance->categoryAdded(categoryId, displayName, visible, priority);
+    QTC_CHECK(!category.displayName.isEmpty());
+    QTC_ASSERT(!m_registeredCategories.contains(category.id), return);
+    m_registeredCategories.push_back(category.id);
+    emit m_instance->categoryAdded(category);
 }
 
 TaskHub *TaskHub::instance()

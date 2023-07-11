@@ -11,6 +11,8 @@
 #include "task.h"
 
 namespace ProjectExplorer {
+class TaskCategory;
+
 namespace Internal {
 
 class TaskModel : public QAbstractItemModel
@@ -31,7 +33,7 @@ public:
 
     QList<Utils::Id> categoryIds() const;
     QString categoryDisplayName(Utils::Id categoryId) const;
-    void addCategory(Utils::Id categoryId, const QString &categoryName, int priority);
+    void addCategory(const TaskCategory &category);
 
     Tasks tasks(Utils::Id categoryId = Utils::Id()) const;
     void addTask(const Task &t);
