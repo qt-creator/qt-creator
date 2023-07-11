@@ -67,7 +67,7 @@ struct Target
         if (FilePath::fromString(fname).isAbsolutePath()) {
             fname.remove(buildDir.toString());
             if (fname.startsWith('/'))
-                fname.removeFirst();
+                fname.remove(0, 1);
             return fname;
         } else {
             return fname;
