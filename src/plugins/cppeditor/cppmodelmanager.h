@@ -66,7 +66,7 @@ enum class SignalSlotType {
     None
 };
 
-class CPPEDITOR_EXPORT CppModelManager final : public CPlusPlus::CppModelManagerBase
+class CPPEDITOR_EXPORT CppModelManager final : public QObject
 {
     Q_OBJECT
 
@@ -97,7 +97,7 @@ public:
 
     bool setExtraDiagnostics(const QString &fileName,
                              const QString &kind,
-                             const QList<Document::DiagnosticMessage> &diagnostics) override;
+                             const QList<Document::DiagnosticMessage> &diagnostics);
 
     const QList<Document::DiagnosticMessage> diagnosticMessages();
 
@@ -119,7 +119,7 @@ public:
     ///         all loaded projects.
     ProjectPart::ConstPtr fallbackProjectPart();
 
-    CPlusPlus::Snapshot snapshot() const override;
+    CPlusPlus::Snapshot snapshot() const;
     Document::Ptr document(const Utils::FilePath &filePath) const;
     bool replaceDocument(Document::Ptr newDoc);
 

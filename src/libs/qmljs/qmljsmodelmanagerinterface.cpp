@@ -1366,13 +1366,12 @@ void ModelManagerInterface::startCppQmlTypeUpdate()
         return;
     }
 
-    CPlusPlus::CppModelManagerBase *cppModelManager =
-            CPlusPlus::CppModelManagerBase::instance();
-    if (!cppModelManager)
+    if (!CPlusPlus::CppModelManagerBase::hasSnapshots())
         return;
 
     m_cppQmlTypesUpdater = Utils::asyncRun(&ModelManagerInterface::updateCppQmlTypes, this,
-                                           cppModelManager->snapshot(), m_queuedCppDocuments);
+                                           CPlusPlus::CppModelManagerBase::snapshot(),
+                                           m_queuedCppDocuments);
     m_queuedCppDocuments.clear();
 }
 

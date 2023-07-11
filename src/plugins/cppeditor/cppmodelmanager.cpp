@@ -912,11 +912,24 @@ void CppModelManager::initCppTools()
     });
 }
 
+static bool setExtraDiagnosticsCallback(const QString &fileName, const QString &kind,
+                                     const QList<Document::DiagnosticMessage> &diagnostics)
+{
+    return m_instance->setExtraDiagnostics(fileName, kind, diagnostics);
+}
+
+static Snapshot snapshotCallback()
+{
+    return m_instance->snapshot();
+}
+
 CppModelManager::CppModelManager()
-    : CppModelManagerBase(nullptr)
-    , d(new CppModelManagerPrivate)
+    : d(new CppModelManagerPrivate)
 {
     m_instance = this;
+
+    CppModelManagerBase::registerSetExtraDiagnosticsCallback(&setExtraDiagnosticsCallback);
+    CppModelManagerBase::registerSnapshotCallback(&snapshotCallback);
 
     // Used for weak dependency in VcsBaseSubmitEditor
     setObjectName("CppModelManager");
