@@ -246,6 +246,8 @@ void CMakeManager::reloadCMakePresets()
             {QMessageBox::Yes, Tr::tr("Reload")},
         });
 
+    settings->writeSettings(Core::ICore::settings());
+
     if (clickedButton == QMessageBox::Cancel)
         return;
 
