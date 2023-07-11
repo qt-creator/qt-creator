@@ -177,9 +177,6 @@ void AbstractProcessStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AbstractProcessStep::doRun()
 {
-    if (!checkWorkingDirectory())
-        return;
-
     if (!d->m_param.effectiveCommand().isExecutableFile()) {
         emit addOutput(Tr::tr("The program \"%1\" does not exist or is not executable.")
                            .arg(d->m_displayedParams->effectiveCommand().toUserOutput()),
@@ -191,7 +188,11 @@ void AbstractProcessStep::doRun()
     setupStreams();
 
     d->m_process.reset(new Process);
-    setupProcess(*d->m_process.get());
+    if (!setupProcess(*d->m_process.get())) {
+        d->m_process.reset();
+        finish(ProcessResult::StartFailed);
+        return;
+    }
     connect(d->m_process.get(), &Process::done, this, [this] {
         handleProcessDone(*d->m_process);
         const ProcessResult result = d->outputFormatter->hasFatalErrors()
@@ -202,20 +203,6 @@ void AbstractProcessStep::doRun()
     d->m_process->start();
 }
 
-bool AbstractProcessStep::checkWorkingDirectory()
-{
-    const FilePath wd = d->m_param.effectiveWorkingDirectory();
-    if (!wd.exists()) {
-        if (!wd.createDir()) {
-            emit addOutput(Tr::tr("Could not create directory \"%1\"").arg(wd.toUserOutput()),
-                           OutputFormat::ErrorMessage);
-            finish(ProcessResult::StartFailed);
-            return false;
-        }
-    }
-    return true;
-}
-
 void AbstractProcessStep::setupStreams()
 {
     d->stdoutStream = std::make_unique<QTextDecoder>(buildEnvironment().hasKey("VSLANG")
@@ -223,15 +210,21 @@ void AbstractProcessStep::setupStreams()
     d->stderrStream = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
 }
 
-void AbstractProcessStep::setupProcess(Process &process)
+bool AbstractProcessStep::setupProcess(Process &process)
 {
+    const FilePath workingDir = d->m_param.effectiveWorkingDirectory();
+    if (!workingDir.exists() && !workingDir.createDir()) {
+        emit addOutput(Tr::tr("Could not create directory \"%1\"").arg(workingDir.toUserOutput()),
+                       OutputFormat::ErrorMessage);
+        return false;
+    }
     process.setUseCtrlCStub(HostOsInfo::isWindowsHost());
-    process.setWorkingDirectory(d->m_param.effectiveWorkingDirectory());
+    process.setWorkingDirectory(workingDir);
     // Enforce PWD in the environment because some build tools use that.
     // PWD can be different from getcwd in case of symbolic links (getcwd resolves symlinks).
     // For example Clang uses PWD for paths in debug info, see QTCREATORBUG-23788
     Environment envWithPwd = d->m_param.environment();
-    envWithPwd.set("PWD", process.workingDirectory().path());
+    envWithPwd.set("PWD", workingDir.path());
     process.setEnvironment(envWithPwd);
     process.setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),
                         CommandLine::Raw});
@@ -252,6 +245,7 @@ void AbstractProcessStep::setupProcess(Process &process)
                        .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
                        OutputFormat::NormalMessage);
     });
+    return true;
 }
 
 void AbstractProcessStep::handleProcessDone(const Process &process)

@@ -278,16 +278,13 @@ void QMakeStep::doRun()
         return;
     }
 
-    if (!checkWorkingDirectory())
-        return;
-
     using namespace Tasking;
 
     const auto setupQMake = [this](Process &process) {
         m_outputFormatter->setLineParsers({new QMakeParser});
         ProcessParameters *pp = processParameters();
         pp->setCommandLine(m_qmakeCommand);
-        setupProcess(process);
+        return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
     };
 
     const auto setupMakeQMake = [this](Process &process) {
@@ -296,7 +293,7 @@ void QMakeStep::doRun()
         m_outputFormatter->setLineParsers({parser});
         ProcessParameters *pp = processParameters();
         pp->setCommandLine(m_makeCommand);
-        setupProcess(process);
+        return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
     };
 
     const auto onProcessDone = [this](const Process &process) { handleProcessDone(process); };
