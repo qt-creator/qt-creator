@@ -9,6 +9,7 @@
 #include <QRegularExpression>
 
 #include "task.h"
+#include "taskhub.h"
 
 namespace ProjectExplorer {
 class TaskCategory;
@@ -31,8 +32,7 @@ public:
     Task task(const QModelIndex &index) const;
     Tasks tasks(const QModelIndexList &indexes) const;
 
-    QList<Utils::Id> categoryIds() const;
-    QString categoryDisplayName(Utils::Id categoryId) const;
+    QList<TaskCategory> categories() const;
     void addCategory(const TaskCategory &category);
 
     Tasks tasks(Utils::Id categoryId = Utils::Id()) const;
@@ -86,8 +86,7 @@ private:
             errors = 0;
         }
 
-        QString displayName;
-        int priority = 0;
+        TaskCategory category;
         int count = 0;
         int warnings = 0;
         int errors = 0;
