@@ -103,7 +103,7 @@ public:
     SelectionAspect fallbackStyle{this};
     StringAspect customStyle{this};
 
-    QString styleFileName(const QString &key) const override;
+    Utils::FilePath styleFileName(const QString &key) const override;
 
 private:
     void readStyles() override;
@@ -215,18 +215,17 @@ QStringList ClangFormatSettings::completerWords()
     };
 }
 
-QString ClangFormatSettings::styleFileName(const QString &key) const
+FilePath ClangFormatSettings::styleFileName(const QString &key) const
 {
-    return m_styleDir.absolutePath() + '/' + key + '/' + m_ending;
+    return m_styleDir / key / m_ending;
 }
 
 void ClangFormatSettings::readStyles()
 {
-    const QStringList dirs = m_styleDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
-    for (const QString &dir : dirs) {
-        QFile file(m_styleDir.absoluteFilePath(dir + '/' + m_ending));
-        if (file.open(QIODevice::ReadOnly))
-            m_styles.insert(dir, QString::fromLocal8Bit(file.readAll()));
+    const FilePaths dirs = m_styleDir.dirEntries(QDir::AllDirs | QDir::NoDotAndDotDot);
+    for (const FilePath &dir : dirs) {
+        if (auto contents = dir.pathAppended(m_ending).fileContents())
+            m_styles.insert(dir.fileName(), QString::fromLocal8Bit(*contents));
     }
 }
 
@@ -495,9 +494,9 @@ Command ClangFormat::command() const
         command.addOption("-assume-filename=%file");
     } else {
         command.addOption("-style=file");
-        const QString path =
-                QFileInfo(settings().styleFileName(settings().customStyle())).absolutePath();
-        command.addOption("-assume-filename=" + path + QDir::separator() + "%filename");
+        const FilePath path = settings().styleFileName(settings().customStyle())
+            .absolutePath().pathAppended("%filename");
+        command.addOption("-assume-filename=" + path.nativePath());
     }
 
     return command;

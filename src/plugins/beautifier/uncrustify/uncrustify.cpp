@@ -320,7 +320,7 @@ void Uncrustify::formatSelectedText()
 FilePath Uncrustify::configurationFile() const
 {
     if (settings().useCustomStyle())
-        return FilePath::fromUserInput(settings().styleFileName(settings().customStyle()));
+        return settings().styleFileName(settings().customStyle());
 
     if (settings().useOtherFiles()) {
         using namespace ProjectExplorer;

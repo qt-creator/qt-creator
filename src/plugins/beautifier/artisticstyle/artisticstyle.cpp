@@ -36,7 +36,6 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QFile>
-#include <QFileInfo>
 #include <QGroupBox>
 #include <QMenu>
 #include <QRegularExpression>
@@ -276,14 +275,14 @@ void ArtisticStyle::updateActions(Core::IEditor *editor)
 
 void ArtisticStyle::formatFile()
 {
-    const QString cfgFileName = configurationFile();
+    const FilePath cfgFileName = configurationFile();
     if (cfgFileName.isEmpty())
         showError(BeautifierTool::msgCannotGetConfigurationFile(asDisplayName()));
     else
-        formatCurrentFile(command(cfgFileName));
+        formatCurrentFile(command(cfgFileName.toFSPathString()));
 }
 
-QString ArtisticStyle::configurationFile() const
+FilePath ArtisticStyle::configurationFile() const
 {
     if (settings().useCustomStyle())
         return settings().styleFileName(settings().customStyle());
@@ -291,39 +290,38 @@ QString ArtisticStyle::configurationFile() const
     if (settings().useOtherFiles()) {
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
-            const Utils::FilePaths astyleRcfiles = project->files(
+            const FilePaths astyleRcfiles = project->files(
                 [](const ProjectExplorer::Node *n) { return n->filePath().endsWith(".astylerc"); });
-            for (const Utils::FilePath &file : astyleRcfiles) {
-                const QFileInfo fi = file.toFileInfo();
-                if (fi.isReadable())
-                    return file.toString();
+            for (const FilePath &file : astyleRcfiles) {
+                if (file.isReadableFile())
+                    return file;
             }
         }
     }
 
     if (settings().useSpecificConfigFile()) {
-        const Utils::FilePath file = settings().specificConfigFile();
+        const FilePath file = settings().specificConfigFile();
         if (file.exists())
-            return file.toUserOutput();
+            return file;
     }
 
     if (settings().useHomeFile()) {
-        const QDir homeDirectory = QDir::home();
-        QString file = homeDirectory.filePath(".astylerc");
-        if (QFile::exists(file))
+        const FilePath homeDirectory = FileUtils::homePath();
+        FilePath file = homeDirectory / ".astylerc";
+        if (file.exists())
             return file;
-        file = homeDirectory.filePath("astylerc");
-        if (QFile::exists(file))
+        file = homeDirectory / "astylerc";
+        if (file.exists())
             return file;
     }
 
-    return QString();
+    return {};
 }
 
 Command ArtisticStyle::command() const
 {
-    const QString cfgFile = configurationFile();
-    return cfgFile.isEmpty() ? Command() : command(cfgFile);
+    const FilePath cfgFile = configurationFile();
+    return cfgFile.isEmpty() ? Command() : command(cfgFile.toFSPathString());
 }
 
 bool ArtisticStyle::isApplicable(const Core::IDocument *document) const

@@ -23,7 +23,7 @@ public:
 
 private:
     void formatFile();
-    QString configurationFile() const;
+    Utils::FilePath configurationFile() const;
     TextEditor::Command command(const QString &cfgFile) const;
 
     QAction *m_formatFile = nullptr;

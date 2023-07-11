@@ -17,7 +17,6 @@
 #include <utils/process.h>
 
 #include <QFile>
-#include <QFileInfo>
 #include <QRegularExpression>
 #include <QVersionNumber>
 #include <QXmlStreamReader>
@@ -127,8 +126,7 @@ private:
 AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
     : m_ending(ending)
     , m_styleDir(Core::ICore::userResourcePath(Beautifier::Constants::SETTINGS_DIRNAME)
-                     .pathAppended(name)
-                     .toString())
+                     .pathAppended(name))
 {
     setSettingsGroups(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP, name);
 
@@ -187,15 +185,15 @@ bool AbstractSettings::styleExists(const QString &key) const
 
 bool AbstractSettings::styleIsReadOnly(const QString &key)
 {
-    const QFileInfo fi(m_styleDir.absoluteFilePath(key + m_ending));
-    if (!fi.exists()) {
+    const FilePath filePath = m_styleDir.pathAppended(key + m_ending);
+    if (!filePath.exists()) {
         // newly added style which was not saved yet., thus it is not read only.
         //TODO In a later version when we have predefined styles in Core::ICore::resourcePath()
         //     we need to check if it is a read only global config file...
         return false;
     }
 
-    return !fi.isWritable();
+    return !filePath.isWritableFile();
 }
 
 void AbstractSettings::setStyle(const QString &key, const QString &value)
@@ -222,9 +220,9 @@ void AbstractSettings::replaceStyle(const QString &oldKey, const QString &newKey
     m_changedStyles.insert(newKey);
 }
 
-QString AbstractSettings::styleFileName(const QString &key) const
+FilePath AbstractSettings::styleFileName(const QString &key) const
 {
-    return m_styleDir.absoluteFilePath(key + m_ending);
+    return m_styleDir.pathAppended(key + m_ending);
 }
 
 QVersionNumber AbstractSettings::version() const
@@ -285,10 +283,14 @@ void AbstractSettings::save()
 
     // remove old files and possible subfolder
     for (const QString &key : std::as_const(m_stylesToRemove)) {
-        const QFileInfo fi(styleFileName(key));
-        QFile::remove(fi.absoluteFilePath());
-        if (fi.absoluteDir() != m_styleDir)
-            m_styleDir.rmdir(fi.absolutePath());
+        FilePath filePath = styleFileName(key);
+        filePath.removeFile();
+        QTC_ASSERT(m_styleDir.isAbsolutePath(), break);
+        QTC_ASSERT(!m_styleDir.needsDevice(), break);
+        if (filePath.parentDir() != m_styleDir) {
+            // FIXME: Missing in FilePath
+            QDir(m_styleDir.toString()).rmdir(filePath.parentDir().toString());
+        }
     }
     m_stylesToRemove.clear();
 
@@ -300,23 +302,23 @@ void AbstractSettings::save()
             continue;
         }
 
-        const QFileInfo fi(styleFileName(iStyles.key()));
-        if (!(m_styleDir.mkpath(fi.absolutePath()))) {
+        const FilePath filePath = styleFileName(iStyles.key());
+        if (!filePath.parentDir().ensureWritableDir()) {
             BeautifierTool::showError(Tr::tr("Cannot save styles. %1 does not exist.")
-                                          .arg(fi.absolutePath()));
+                                          .arg(filePath.toUserOutput()));
             continue;
         }
 
-        FileSaver saver(FilePath::fromUserInput(fi.absoluteFilePath()));
+        FileSaver saver(filePath);
         if (saver.hasError()) {
             BeautifierTool::showError(Tr::tr("Cannot open file \"%1\": %2.")
-                                          .arg(saver.filePath().toUserOutput())
+                                          .arg(filePath.toUserOutput())
                                           .arg(saver.errorString()));
         } else {
             saver.write(iStyles.value().toLocal8Bit());
             if (!saver.finalize()) {
                 BeautifierTool::showError(Tr::tr("Cannot save file \"%1\": %2.")
-                                              .arg(saver.filePath().toUserOutput())
+                                              .arg(filePath.toUserOutput())
                                               .arg(saver.errorString()));
             }
         }
@@ -405,18 +407,17 @@ void AbstractSettings::readStyles()
     if (!m_styleDir.exists())
         return;
 
-    const QStringList files
-            = m_styleDir.entryList({'*' + m_ending},
-                                   QDir::Files | QDir::Readable | QDir::NoDotAndDotDot);
-    for (const QString &filename : files) {
+    const FileFilter filter = {{'*' + m_ending}, QDir::Files | QDir::Readable | QDir::NoDotAndDotDot};
+    const FilePaths files = m_styleDir.dirEntries(filter);
+    for (const FilePath &filePath : files) {
         // do not allow empty file names
-        if (filename == m_ending)
+        if (filePath.fileName() == m_ending)
             continue;
 
-        QFile file(m_styleDir.absoluteFilePath(filename));
-        if (file.open(QIODevice::ReadOnly)) {
+        if (auto contents = filePath.fileContents()) {
+            const QString filename = filePath.fileName();
             m_styles.insert(filename.left(filename.length() - m_ending.length()),
-                            QString::fromLocal8Bit(file.readAll()));
+                            QString::fromLocal8Bit(*contents));
         }
     }
 }

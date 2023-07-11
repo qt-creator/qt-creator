@@ -9,7 +9,6 @@
 
 #include <utils/aspects.h>
 
-#include <QDir>
 #include <QHash>
 #include <QMap>
 #include <QObject>
@@ -73,7 +72,7 @@ public:
     void setStyle(const QString &key, const QString &value);
     void removeStyle(const QString &key);
     void replaceStyle(const QString &oldKey, const QString &newKey, const QString &value);
-    virtual QString styleFileName(const QString &key) const;
+    virtual Utils::FilePath styleFileName(const QString &key) const;
 
     Utils::FilePathAspect command{this};
     Utils::StringAspect supportedMimeTypes{this};
@@ -92,7 +91,7 @@ protected:
 
     QMap<QString, QString> m_styles;
     QString m_ending;
-    QDir m_styleDir;
+    Utils::FilePath m_styleDir;
 
     void readDocumentation();
     virtual void readStyles();
