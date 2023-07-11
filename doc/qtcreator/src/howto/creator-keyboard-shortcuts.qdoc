@@ -344,25 +344,7 @@
         \row
             \li  Visualize whitespace
             \li  Ctrl+E, Ctrl+V
-        \row
-            \li  Adjust size
-            \li  Ctrl+J
-        \row
-            \li  Lay out in a grid
-            \li  Ctrl+G
-        \row
-            \li  Lay out horizontally
-            \li  Ctrl+H
-        \row
-            \li  Lay out vertically
-            \li  Ctrl+L
-        \row
-            \li  Preview
-            \li  Alt+Shift+R
         \if defined(qtcreator)
-        \row
-            \li  Edit signals and slots
-            \li  F4
         \row
             \li  Toggle bookmark
             \li  Ctrl+M
@@ -497,6 +479,32 @@
         \li Scroll Half Screen Up
         \li Yank
     \endlist
+
+    \section1 \QD Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Keyboard shortcut
+        \row
+            \li Adjust size
+            \li Ctrl+J
+        \row
+            \li Lay out in a grid
+            \li Ctrl+G
+        \row
+            \li Lay out horizontally
+            \li Ctrl+H
+        \row
+            \li Lay out vertically
+            \li Ctrl+L
+        \row
+            \li Preview
+            \li Alt+Shift+R
+        \row
+            \li Edit signals and slots
+            \li F4
+    \endtable
 
     \section1 Image Viewer Shortcuts
 
