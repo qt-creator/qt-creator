@@ -9,15 +9,12 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
 
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
-#include <QPointer>
 
 using namespace ProjectExplorer;
 using namespace Tasking;
@@ -55,7 +52,7 @@ IDevice::ConstPtr AbstractRemoteLinuxDeployStep::deviceConfiguration() const
 }
 
 void AbstractRemoteLinuxDeployStep::saveDeploymentTimeStamp(const DeployableFile &deployableFile,
-                                                               const QDateTime &remoteTimestamp)
+                                                            const QDateTime &remoteTimestamp)
 {
     d->deployTimes.saveDeploymentTimeStamp(deployableFile, kit(), remoteTimestamp);
 }

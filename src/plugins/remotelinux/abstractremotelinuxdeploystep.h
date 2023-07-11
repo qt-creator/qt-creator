@@ -8,8 +8,6 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
-#include <QObject>
-
 namespace ProjectExplorer { class DeployableFile; }
 namespace Tasking { class GroupItem; }
 
@@ -23,19 +21,17 @@ public:
     explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~AbstractRemoteLinuxDeployStep() override;
 
+protected:
     ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
-
     virtual Utils::expected_str<void> isDeploymentPossible() const;
-
     void handleStdOutData(const QString &data);
     void handleStdErrData(const QString &data);
 
-protected:
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-    bool init() override;
+    bool fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
+    bool init() final;
     void doRun() final;
-    void doCancel() override;
+    void doCancel() final;
 
     void setInternalInitializer(const std::function<Utils::expected_str<void>()> &init);
 

@@ -176,8 +176,7 @@ GroupItem RsyncDeployStep::transferTask()
 
         transfer.setRsyncFlags(flags());
         transfer.setFilesToTransfer(m_files);
-        connect(&transfer, &FileTransfer::progress,
-                this, &AbstractRemoteLinuxDeployStep::handleStdOutData);
+        connect(&transfer, &FileTransfer::progress, this, &RsyncDeployStep::handleStdOutData);
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
