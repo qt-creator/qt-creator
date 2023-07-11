@@ -177,14 +177,6 @@ void AbstractProcessStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AbstractProcessStep::doRun()
 {
-    if (!d->m_param.effectiveCommand().isExecutableFile()) {
-        emit addOutput(Tr::tr("The program \"%1\" does not exist or is not executable.")
-                           .arg(d->m_displayedParams->effectiveCommand().toUserOutput()),
-                       OutputFormat::ErrorMessage);
-        finish(ProcessResult::StartFailed);
-        return;
-    }
-
     setupStreams();
 
     d->m_process.reset(new Process);
@@ -218,6 +210,13 @@ bool AbstractProcessStep::setupProcess(Process &process)
                        OutputFormat::ErrorMessage);
         return false;
     }
+    if (!d->m_param.effectiveCommand().isExecutableFile()) {
+        emit addOutput(Tr::tr("The program \"%1\" does not exist or is not executable.")
+                           .arg(d->m_displayedParams->effectiveCommand().toUserOutput()),
+                       OutputFormat::ErrorMessage);
+        return false;
+    }
+
     process.setUseCtrlCStub(HostOsInfo::isWindowsHost());
     process.setWorkingDirectory(workingDir);
     // Enforce PWD in the environment because some build tools use that.
