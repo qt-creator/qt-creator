@@ -109,7 +109,7 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, U
     outDir->setPlaceHolderText(m_tmpDir.path());
 
     setCommandLineProvider([this, cmd, args, outDir]() -> Utils::CommandLine {
-        auto directory = outDir->value();
+        auto directory = outDir->stringValue();
         if (directory.isEmpty())
             directory = m_tmpDir.path();
 
