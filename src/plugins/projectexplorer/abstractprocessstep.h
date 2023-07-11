@@ -54,11 +54,9 @@ protected:
     void setupProcess(Utils::Process *process);
     void handleProcessDone(const Utils::Process &process);
     void runTaskTree(const Tasking::Group &recipe);
-    ProcessParameters *displayedParameters() const;
 
 private:
     void setupStreams();
-    void processStartupFailed();
 
     class Private;
     Private *d;

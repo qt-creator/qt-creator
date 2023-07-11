@@ -74,8 +74,6 @@ class AbstractProcessStep::Private
 public:
     Private(AbstractProcessStep *q) : q(q) {}
 
-    void cleanUp(int exitCode, QProcess::ExitStatus status);
-
     AbstractProcessStep *q;
     std::unique_ptr<Process> m_process;
     std::unique_ptr<TaskTree> m_taskTree;
@@ -177,7 +175,10 @@ void AbstractProcessStep::doRun()
         return;
 
     if (!d->m_param.effectiveCommand().isExecutableFile()) {
-        processStartupFailed();
+        emit addOutput(Tr::tr("The program \"%1\" does not exist or is not executable.")
+                           .arg(d->m_displayedParams->effectiveCommand().toUserOutput()),
+                       OutputFormat::ErrorMessage);
+        finish(ProcessResult::StartFailed);
         return;
     }
 
@@ -186,12 +187,11 @@ void AbstractProcessStep::doRun()
     d->m_process.reset(new Process);
     setupProcess(d->m_process.get());
     connect(d->m_process.get(), &Process::done, this, [this] {
-        if (d->m_process->error() == QProcess::FailedToStart) {
-            processStartupFailed();
-            d->m_process.release()->deleteLater();
-            return;
-        }
-        d->cleanUp(d->m_process->exitCode(), d->m_process->exitStatus());
+        handleProcessDone(*d->m_process);
+        const ProcessResult result = d->outputFormatter->hasFatalErrors()
+                                   ? ProcessResult::FinishedWithError : d->m_process->result();
+        d->m_process.release()->deleteLater();
+        finish(result);
     });
     d->m_process->start();
 }
@@ -241,7 +241,7 @@ void AbstractProcessStep::setupProcess(Process *process)
                        OutputFormat::Stderr, DontAppendNewline);
     });
     connect(process, &Process::started, this, [this] {
-        ProcessParameters *params = displayedParameters();
+        ProcessParameters *params = d->m_displayedParams;
         emit addOutput(Tr::tr("Starting: \"%1\" %2")
                        .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
                        OutputFormat::NormalMessage);
@@ -250,7 +250,7 @@ void AbstractProcessStep::setupProcess(Process *process)
 
 void AbstractProcessStep::handleProcessDone(const Process &process)
 {
-    const QString command = displayedParameters()->effectiveCommand().toUserOutput();
+    const QString command = d->m_displayedParams->effectiveCommand().toUserOutput();
     if (process.result() == ProcessResult::FinishedWithSuccess) {
         emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
                        OutputFormat::NormalMessage);
@@ -260,7 +260,7 @@ void AbstractProcessStep::handleProcessDone(const Process &process)
                        OutputFormat::ErrorMessage);
     } else if (process.result() == ProcessResult::StartFailed) {
         emit addOutput(Tr::tr("Could not start process \"%1\" %2.")
-                           .arg(command, displayedParameters()->prettyArguments()),
+                           .arg(command, d->m_displayedParams->prettyArguments()),
                        OutputFormat::ErrorMessage);
         const QString errorString = process.errorString();
         if (!errorString.isEmpty())
@@ -297,12 +297,15 @@ void AbstractProcessStep::setLowPriority()
 
 void AbstractProcessStep::doCancel()
 {
+    const QString message = Tr::tr("The build step was ended forcefully.");
     if (d->m_process) {
-        d->cleanUp(-1, QProcess::CrashExit);
+        emit addOutput(message, OutputFormat::ErrorMessage);
+        d->m_process.reset();
+        finish(ProcessResult::TerminatedAbnormally);
     }
     if (d->m_taskTree) {
         d->m_taskTree.reset();
-        emit addOutput(Tr::tr("The build step was ended forcefully."), OutputFormat::ErrorMessage);
+        emit addOutput(message, OutputFormat::ErrorMessage);
         emit finished(false);
     }
 }
@@ -342,56 +345,9 @@ bool AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
     return true;
 }
 
-ProcessParameters *AbstractProcessStep::displayedParameters() const
-{
-    return d->m_displayedParams;
-}
-
 void AbstractProcessStep::setDisplayedParameters(ProcessParameters *params)
 {
     d->m_displayedParams = params;
-}
-
-void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus status)
-{
-    const QString command = q->displayedParameters()->effectiveCommand().toUserOutput();
-    if (status == QProcess::NormalExit && exitCode == 0) {
-        emit q->addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
-                          OutputFormat::NormalMessage);
-    } else if (status == QProcess::NormalExit) {
-        emit q->addOutput(Tr::tr("The process \"%1\" exited with code %2.")
-                          .arg(command, QString::number(exitCode)),
-                          OutputFormat::ErrorMessage);
-    } else {
-        emit q->addOutput(Tr::tr("The process \"%1\" crashed.").arg(command),
-                          OutputFormat::ErrorMessage);
-    }
-
-    if (m_process)
-        m_process.release()->deleteLater();
-    const ProcessResult result = (status == QProcess::NormalExit && exitCode == 0
-                                  && !outputFormatter->hasFatalErrors())
-            ? ProcessResult::FinishedWithSuccess : ProcessResult::FinishedWithError;
-    q->finish(result);
-}
-
-/*!
-    Called if the process could not be started.
-
-    By default, adds a message to the output window.
-*/
-
-void AbstractProcessStep::processStartupFailed()
-{
-    ProcessParameters *params = displayedParameters();
-    emit addOutput(Tr::tr("Could not start process \"%1\" %2.")
-                   .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
-                   OutputFormat::ErrorMessage);
-
-    const QString err = d->m_process ? d->m_process->errorString() : QString();
-    if (!err.isEmpty())
-        emit addOutput(err, OutputFormat::ErrorMessage);
-    finish(ProcessResult::StartFailed);
 }
 
 bool AbstractProcessStep::isSuccess(ProcessResult result) const
