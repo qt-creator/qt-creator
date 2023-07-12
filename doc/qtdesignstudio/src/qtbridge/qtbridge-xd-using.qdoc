@@ -140,6 +140,8 @@
             bounding rectangle.
         \li Select the \uicontrol Visible check box to determine the visibility
             of the layer in the generated UI in \QDS.
+        \li Select the \uicontrol {Start Screen} check box to set the selected component as the
+            start component.
         \li Select \uicontrol Export to launch the export dialog to export the document
             into a .qtbridge archive.
     \endlist
