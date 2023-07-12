@@ -218,7 +218,7 @@ bool TestDataFunctionVisitor::visit(CallAST *ast)
                             return true;
                         int line = 0;
                         int column = 0;
-                        m_currentDoc->translationUnit()->getTokenStartPosition(
+                        m_currentDoc->translationUnit()->getTokenPosition(
                                     firstToken, &line, &column);
                         QtTestCodeLocationAndType locationAndType;
                         locationAndType.m_name = name;

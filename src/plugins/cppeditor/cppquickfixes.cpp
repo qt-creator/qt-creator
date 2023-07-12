@@ -1941,7 +1941,7 @@ LookupResult lookUpDefinition(const CppQuickFixInterface &interface, const NameA
     // Find the enclosing scope
     int line, column;
     const Document::Ptr doc = interface.semanticInfo().doc;
-    doc->translationUnit()->getTokenStartPosition(nameAst->firstToken(), &line, &column);
+    doc->translationUnit()->getTokenPosition(nameAst->firstToken(), &line, &column);
     Scope *scope = doc->scopeAt(line, column);
     if (!scope)
         return LookupResult::NotDeclared;

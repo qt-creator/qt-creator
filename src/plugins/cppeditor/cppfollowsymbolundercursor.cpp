@@ -342,7 +342,7 @@ Link attemptDeclDef(const QTextCursor &cursor, Snapshot snapshot,
         result = target->toLink();
 
         int startLine, startColumn, endLine, endColumn;
-        document->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine,
+        document->translationUnit()->getTokenPosition(name->firstToken(), &startLine,
                                                            &startColumn);
         document->translationUnit()->getTokenEndPosition(name->lastToken() - 1, &endLine,
                                                          &endColumn);

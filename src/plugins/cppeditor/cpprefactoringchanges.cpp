@@ -112,7 +112,7 @@ void CppRefactoringFile::setCppDocument(Document::Ptr document)
 Scope *CppRefactoringFile::scopeAt(unsigned index) const
 {
     int line, column;
-    cppDocument()->translationUnit()->getTokenStartPosition(index, &line, &column);
+    cppDocument()->translationUnit()->getTokenPosition(index, &line, &column);
     return cppDocument()->scopeAt(line, column);
 }
 

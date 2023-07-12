@@ -379,12 +379,6 @@ int TranslationUnit::findColumnNumber(int utf16CharOffset, int lineNumber) const
     return utf16CharOffset - _lineOffsets[lineNumber];
 }
 
-void TranslationUnit::getTokenPosition(int index,
-                                       int *line,
-                                       int *column,
-                                       const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).utf16charsBegin(), line, column, fileName); }
-
 int TranslationUnit::getTokenPositionInDocument(int index, const QTextDocument *doc) const
 {
     int line, column;
@@ -399,9 +393,9 @@ int TranslationUnit::getTokenEndPositionInDocument(int index, const QTextDocumen
     return Utils::Text::positionInText(doc, line, column);
 }
 
-void TranslationUnit::getTokenStartPosition(int index, int *line,
-                                            int *column,
-                                            const StringLiteral **fileName) const
+void TranslationUnit::getTokenPosition(int index, int *line,
+                                       int *column,
+                                       const StringLiteral **fileName) const
 { return getPosition(tokenAt(index).utf16charsBegin(), line, column, fileName); }
 
 void TranslationUnit::getTokenEndPosition(int index, int *line,

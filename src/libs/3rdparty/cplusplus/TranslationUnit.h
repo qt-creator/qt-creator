@@ -110,24 +110,16 @@ public:
     void resetAST();
     void release();
 
-    void getTokenStartPosition(int index, int *line,
-                               int *column = nullptr,
-                               const StringLiteral **fileName = nullptr) const;
-
+    void getTokenPosition(int index, int *line,
+                          int *column = nullptr,
+                          const StringLiteral **fileName = nullptr) const;
     void getTokenEndPosition(int index, int *line,
                              int *column = nullptr,
                              const StringLiteral **fileName = nullptr) const;
-
     void getPosition(int utf16charOffset,
                      int *line,
                      int *column = nullptr,
                      const StringLiteral **fileName = nullptr) const;
-
-    void getTokenPosition(int index,
-                          int *line,
-                          int *column = nullptr,
-                          const StringLiteral **fileName = nullptr) const;
-
     int getTokenPositionInDocument(int index, const QTextDocument *doc) const;
     int getTokenEndPositionInDocument(int index, const QTextDocument *doc) const;
 
