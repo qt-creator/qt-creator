@@ -2240,6 +2240,31 @@ bool NodeMetaInfo::isListOrGridView() const
     }
 }
 
+bool NodeMetaInfo::isNumber() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid()) {
+            return false;
+        }
+
+        using namespace Storage::Info;
+        auto intId = m_projectStorage->builtinTypeId<int>();
+        auto uintId = m_projectStorage->builtinTypeId<uint>();
+        auto floatId = m_projectStorage->builtinTypeId<float>();
+        auto doubleId = m_projectStorage->builtinTypeId<double>();
+
+        return isTypeId(m_typeId, intId, uintId, floatId, doubleId);
+    } else {
+        if (!isValid()) {
+            return false;
+        }
+
+        auto type = simplifiedTypeName();
+
+        return type == "int" || type == "uint" || type == "float" || type == "double";
+    }
+}
+
 bool NodeMetaInfo::isQtQuickExtrasPicture() const
 {
     if constexpr (useProjectStorage()) {

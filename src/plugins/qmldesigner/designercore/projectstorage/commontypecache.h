@@ -120,6 +120,7 @@ inline constexpr char Texture[] = "Texture";
 inline constexpr char TimelineAnimation[] = "TimelineAnimation";
 inline constexpr char Timeline[] = "Timeline";
 inline constexpr char Transition[] = "Transition";
+inline constexpr char UIntType[] = "uint";
 inline constexpr char View3D[] = "View3D";
 inline constexpr char Window[] = "Window";
 inline constexpr char color[] = "color";
@@ -146,99 +147,99 @@ struct CacheType : public BaseCacheType
 template<typename ProjectStorage>
 class CommonTypeCache
 {
-    using CommonTypes
-        = std::tuple<CacheType<FlowView, FlowActionArea>,
-                     CacheType<FlowView, FlowDecision>,
-                     CacheType<FlowView, FlowItem>,
-                     CacheType<FlowView, FlowTransition>,
-                     CacheType<FlowView, FlowView>,
-                     CacheType<FlowView, FlowWildcard>,
-                     CacheType<QML, BoolType>,
-                     CacheType<QML, Component>,
-                     CacheType<QML, DoubleType>,
-                     CacheType<QML, IntType>,
-                     CacheType<QML, QtObject>,
-                     CacheType<QML, date>,
-                     CacheType<QML, string>,
-                     CacheType<QML, url>,
-                     CacheType<QML, var>,
-                     CacheType<QML_cppnative, FloatType>,
-                     CacheType<QtMultimedia, SoundEffect>,
-                     CacheType<QtQml_Models, ListElement>,
-                     CacheType<QtQml_Models, ListModel>,
-                     CacheType<QtQuick, BorderImage>,
-                     CacheType<QtQuick, Connections>,
-                     CacheType<QtQuick, GridView>,
-                     CacheType<QtQuick, Image>,
-                     CacheType<QtQuick, Item>,
-                     CacheType<QtQuick, ListView>,
-                     CacheType<QtQuick, Loader>,
-                     CacheType<QtQuick, MouseArea>,
-                     CacheType<QtQuick, Path>,
-                     CacheType<QtQuick, PathView>,
-                     CacheType<QtQuick, PauseAnimation>,
-                     CacheType<QtQuick, Positioner>,
-                     CacheType<QtQuick, PropertyAnimation>,
-                     CacheType<QtQuick, PropertyChanges>,
-                     CacheType<QtQuick, Rectangle>,
-                     CacheType<QtQuick, Repeater>,
-                     CacheType<QtQuick, State>,
-                     CacheType<QtQuick, StateGroup>,
-                     CacheType<QtQuick, Text>,
-                     CacheType<QtQuick, TextEdit>,
-                     CacheType<QtQuick, Transition>,
-                     CacheType<QtQuick, color>,
-                     CacheType<QtQuick, font>,
-                     CacheType<QtQuick, vector2d>,
-                     CacheType<QtQuick, vector3d>,
-                     CacheType<QtQuick, vector4d>,
-                     CacheType<QtQuick3D, BakedLightmap>,
-                     CacheType<QtQuick3D, Buffer>,
-                     CacheType<QtQuick3D, Camera>,
-                     CacheType<QtQuick3D, Command>,
-                     CacheType<QtQuick3D, CubeMapTexture>,
-                     CacheType<QtQuick3D, DefaultMaterial>,
-                     CacheType<QtQuick3D, Effect>,
-                     CacheType<QtQuick3D, InstanceList>,
-                     CacheType<QtQuick3D, InstanceListEntry>,
-                     CacheType<QtQuick3D, Light>,
-                     CacheType<QtQuick3D, Material>,
-                     CacheType<QtQuick3D, Model>,
-                     CacheType<QtQuick3D, Node>,
-                     CacheType<QtQuick3D, Pass>,
-                     CacheType<QtQuick3D, PrincipledMaterial>,
-                     CacheType<QtQuick3D, SceneEnvironment>,
-                     CacheType<QtQuick3D, SpecularGlossyMaterial>,
-                     CacheType<QtQuick3D, Shader>,
-                     CacheType<QtQuick3D, Texture>,
-                     CacheType<QtQuick3D, TextureInput>,
-                     CacheType<QtQuick3D, View3D>,
-                     CacheType<QtQuick3D_Particles3D, Affector3D>,
-                     CacheType<QtQuick3D_Particles3D, Attractor3D>,
-                     CacheType<QtQuick3D_Particles3D, Model>,
-                     CacheType<QtQuick3D_Particles3D, Particle3D>,
-                     CacheType<QtQuick3D_Particles3D, ParticleEmitter3D>,
-                     CacheType<QtQuick3D_Particles3D, SpriteParticle3D>,
-                     CacheType<QtQuick3D_Particles3D_cppnative, QQuick3DParticleAbstractShape>,
-                     CacheType<QtQuick_Controls, Control>,
-                     CacheType<QtQuick_Controls, Popup>,
-                     CacheType<QtQuick_Controls, SplitView>,
-                     CacheType<QtQuick_Controls, SwipeView>,
-                     CacheType<QtQuick_Controls, TabBar>,
-                     CacheType<QtQuick_Controls, TextArea>,
-                     CacheType<QtQuick_Dialogs, Dialog>,
-                     CacheType<QtQuick_Extras, Picture>,
-                     CacheType<QtQuick_Layouts, Layout>,
-                     CacheType<QtQuick_Studio_Components, GroupItem>,
-                     CacheType<QtQuick_Templates, Control>,
-                     CacheType<QtQuick_Timeline, Keyframe>,
-                     CacheType<QtQuick_Timeline, KeyframeGroup>,
-                     CacheType<QtQuick_Timeline, Timeline>,
-                     CacheType<QtQuick_Timeline, TimelineAnimation>,
-                     CacheType<QtQuick_cppnative, QQuickStateOperation>,
-                     CacheType<Qt_SafeRenderer, SafePicture>,
-                     CacheType<Qt_SafeRenderer, SafeRendererPicture>,
-                     CacheType<QtQuick_Window, Window>>;
+    using CommonTypes = std::tuple<CacheType<FlowView, FlowActionArea>,
+                                   CacheType<FlowView, FlowDecision>,
+                                   CacheType<FlowView, FlowItem>,
+                                   CacheType<FlowView, FlowTransition>,
+                                   CacheType<FlowView, FlowView>,
+                                   CacheType<FlowView, FlowWildcard>,
+                                   CacheType<QML, BoolType>,
+                                   CacheType<QML, Component>,
+                                   CacheType<QML, DoubleType>,
+                                   CacheType<QML, IntType>,
+                                   CacheType<QML, QtObject>,
+                                   CacheType<QML, date>,
+                                   CacheType<QML, string>,
+                                   CacheType<QML, url>,
+                                   CacheType<QML, var>,
+                                   CacheType<QML_cppnative, FloatType>,
+                                   CacheType<QML_cppnative, UIntType>,
+                                   CacheType<QtMultimedia, SoundEffect>,
+                                   CacheType<QtQml_Models, ListElement>,
+                                   CacheType<QtQml_Models, ListModel>,
+                                   CacheType<QtQuick, BorderImage>,
+                                   CacheType<QtQuick, Connections>,
+                                   CacheType<QtQuick, GridView>,
+                                   CacheType<QtQuick, Image>,
+                                   CacheType<QtQuick, Item>,
+                                   CacheType<QtQuick, ListView>,
+                                   CacheType<QtQuick, Loader>,
+                                   CacheType<QtQuick, MouseArea>,
+                                   CacheType<QtQuick, Path>,
+                                   CacheType<QtQuick, PathView>,
+                                   CacheType<QtQuick, PauseAnimation>,
+                                   CacheType<QtQuick, Positioner>,
+                                   CacheType<QtQuick, PropertyAnimation>,
+                                   CacheType<QtQuick, PropertyChanges>,
+                                   CacheType<QtQuick, Rectangle>,
+                                   CacheType<QtQuick, Repeater>,
+                                   CacheType<QtQuick, State>,
+                                   CacheType<QtQuick, StateGroup>,
+                                   CacheType<QtQuick, Text>,
+                                   CacheType<QtQuick, TextEdit>,
+                                   CacheType<QtQuick, Transition>,
+                                   CacheType<QtQuick, color>,
+                                   CacheType<QtQuick, font>,
+                                   CacheType<QtQuick, vector2d>,
+                                   CacheType<QtQuick, vector3d>,
+                                   CacheType<QtQuick, vector4d>,
+                                   CacheType<QtQuick3D, BakedLightmap>,
+                                   CacheType<QtQuick3D, Buffer>,
+                                   CacheType<QtQuick3D, Camera>,
+                                   CacheType<QtQuick3D, Command>,
+                                   CacheType<QtQuick3D, CubeMapTexture>,
+                                   CacheType<QtQuick3D, DefaultMaterial>,
+                                   CacheType<QtQuick3D, Effect>,
+                                   CacheType<QtQuick3D, InstanceList>,
+                                   CacheType<QtQuick3D, InstanceListEntry>,
+                                   CacheType<QtQuick3D, Light>,
+                                   CacheType<QtQuick3D, Material>,
+                                   CacheType<QtQuick3D, Model>,
+                                   CacheType<QtQuick3D, Node>,
+                                   CacheType<QtQuick3D, Pass>,
+                                   CacheType<QtQuick3D, PrincipledMaterial>,
+                                   CacheType<QtQuick3D, SceneEnvironment>,
+                                   CacheType<QtQuick3D, SpecularGlossyMaterial>,
+                                   CacheType<QtQuick3D, Shader>,
+                                   CacheType<QtQuick3D, Texture>,
+                                   CacheType<QtQuick3D, TextureInput>,
+                                   CacheType<QtQuick3D, View3D>,
+                                   CacheType<QtQuick3D_Particles3D, Affector3D>,
+                                   CacheType<QtQuick3D_Particles3D, Attractor3D>,
+                                   CacheType<QtQuick3D_Particles3D, Model>,
+                                   CacheType<QtQuick3D_Particles3D, Particle3D>,
+                                   CacheType<QtQuick3D_Particles3D, ParticleEmitter3D>,
+                                   CacheType<QtQuick3D_Particles3D, SpriteParticle3D>,
+                                   CacheType<QtQuick3D_Particles3D_cppnative, QQuick3DParticleAbstractShape>,
+                                   CacheType<QtQuick_Controls, Control>,
+                                   CacheType<QtQuick_Controls, Popup>,
+                                   CacheType<QtQuick_Controls, SplitView>,
+                                   CacheType<QtQuick_Controls, SwipeView>,
+                                   CacheType<QtQuick_Controls, TabBar>,
+                                   CacheType<QtQuick_Controls, TextArea>,
+                                   CacheType<QtQuick_Dialogs, Dialog>,
+                                   CacheType<QtQuick_Extras, Picture>,
+                                   CacheType<QtQuick_Layouts, Layout>,
+                                   CacheType<QtQuick_Studio_Components, GroupItem>,
+                                   CacheType<QtQuick_Templates, Control>,
+                                   CacheType<QtQuick_Timeline, Keyframe>,
+                                   CacheType<QtQuick_Timeline, KeyframeGroup>,
+                                   CacheType<QtQuick_Timeline, Timeline>,
+                                   CacheType<QtQuick_Timeline, TimelineAnimation>,
+                                   CacheType<QtQuick_cppnative, QQuickStateOperation>,
+                                   CacheType<Qt_SafeRenderer, SafePicture>,
+                                   CacheType<Qt_SafeRenderer, SafeRendererPicture>,
+                                   CacheType<QtQuick_Window, Window>>;
 
 public:
     CommonTypeCache(const ProjectStorage &projectStorage)
@@ -283,30 +284,33 @@ public:
     {
         if constexpr (std::is_same_v<Type, double>)
             return typeId<QML, DoubleType>();
-        if constexpr (std::is_same_v<Type, int>)
+        else if constexpr (std::is_same_v<Type, int>)
             return typeId<QML, IntType>();
-        if constexpr (std::is_same_v<Type, bool>)
+        else if constexpr (std::is_same_v<Type, uint>)
+            return typeId<QML_cppnative, UIntType>();
+        else if constexpr (std::is_same_v<Type, bool>)
             return typeId<QML, BoolType>();
-        if constexpr (std::is_same_v<Type, float>)
+        else if constexpr (std::is_same_v<Type, float>)
             return typeId<QML_cppnative, FloatType>();
-        if constexpr (std::is_same_v<Type, QString>)
+        else if constexpr (std::is_same_v<Type, QString>)
             return typeId<QML, string>();
-        if constexpr (std::is_same_v<Type, QDateTime>)
+        else if constexpr (std::is_same_v<Type, QDateTime>)
             return typeId<QML, date>();
-        if constexpr (std::is_same_v<Type, QUrl>)
+        else if constexpr (std::is_same_v<Type, QUrl>)
             return typeId<QML, url>();
-        if constexpr (std::is_same_v<Type, QVariant>)
+        else if constexpr (std::is_same_v<Type, QVariant>)
             return typeId<QML, var>();
-        if constexpr (std::is_same_v<Type, QColor>)
+        else if constexpr (std::is_same_v<Type, QColor>)
             return typeId<QtQuick, color>();
-        if constexpr (std::is_same_v<Type, QVector2D>)
+        else if constexpr (std::is_same_v<Type, QVector2D>)
             return typeId<QtQuick, vector2d>();
-        if constexpr (std::is_same_v<Type, QVector3D>)
+        else if constexpr (std::is_same_v<Type, QVector3D>)
             return typeId<QtQuick, vector3d>();
-        if constexpr (std::is_same_v<Type, QVector4D>)
+        else if constexpr (std::is_same_v<Type, QVector4D>)
             return typeId<QtQuick, vector4d>();
         else
-            return TypeId{};
+            static_assert(!std::is_same_v<Type, Type>, "built-in type not supported");
+        return TypeId{};
     }
 
 private:

@@ -122,6 +122,7 @@ public:
     bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     void setMetaInfo(const MetaInfo &metaInfo);
 
+    NodeMetaInfo boolMetaInfo() const;
     NodeMetaInfo flowViewFlowActionAreaMetaInfo() const;
     NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
     NodeMetaInfo flowViewFlowItemMetaInfo() const;

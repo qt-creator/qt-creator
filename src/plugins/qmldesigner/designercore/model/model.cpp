@@ -2004,6 +2004,16 @@ void Model::setMetaInfo(const MetaInfo &metaInfo)
     d->setMetaInfo(metaInfo);
 }
 
+NodeMetaInfo Model::boolMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QML, BoolType>();
+    } else {
+        return metaInfo("QML.bool");
+    }
+}
+
 template<const auto &moduleName, const auto &typeName>
 NodeMetaInfo Model::createNodeMetaInfo() const
 {

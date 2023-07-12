@@ -194,18 +194,17 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
                     return;
 
                 const ModelNode node = property.parentModelNode();
-                const TypeName typeName = property.isDynamic() ? property.dynamicTypeName()
-                                                               : node.metaInfo()
-                                                                     .property(property.name())
-                                                                     .propertyType()
-                                                                     .typeName();
+                auto model = node.model();
+                const auto type = property.isDynamic()
+                                      ? model->metaInfo(property.dynamicTypeName())
+                                      : node.metaInfo().property(property.name()).propertyType();
 
                 const QString targetName = node.displayName() + "." + property.name();
 
                 m_bindingEditor->showWidget();
                 m_bindingEditor->setBindingValue(property.expression());
                 m_bindingEditor->setModelNode(node);
-                m_bindingEditor->setBackendValueTypeName(typeName);
+                m_bindingEditor->setBackendValueType(type);
                 m_bindingEditor->setTargetName(targetName);
                 m_bindingEditor->prepareBindings();
                 m_bindingEditor->updateWindowName();
@@ -242,11 +241,12 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
                     return;
 
                 const QString targetName = node.displayName() + "." + abstractProperty.name();
-
+                auto model = node.model();
                 m_dynamicEditor->showWidget();
                 m_dynamicEditor->setBindingValue(newExpression);
                 m_dynamicEditor->setModelNode(node);
-                m_dynamicEditor->setBackendValueTypeName(abstractProperty.dynamicTypeName());
+                m_dynamicEditor->setBackendValueType(
+                    model->metaInfo(abstractProperty.dynamicTypeName()));
                 m_dynamicEditor->setTargetName(targetName);
                 m_dynamicEditor->prepareBindings();
                 m_dynamicEditor->updateWindowName();

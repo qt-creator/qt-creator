@@ -6,6 +6,8 @@
 
 #include <bindingeditor/abstracteditordialog.h>
 
+#include <nodemetainfo.h>
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QCheckBox;
@@ -35,7 +37,7 @@ public:
 
     void adjustProperties() override;
 
-    void setAllBindings(const QList<BindingOption> &bindings, const TypeName &type);
+    void setAllBindings(const QList<BindingOption> &bindings, const NodeMetaInfo &type);
 
 private:
     void setupUIComponents();
@@ -53,7 +55,7 @@ private:
     QCheckBox *m_checkBoxNot = nullptr;
 
     QList<BindingOption> m_bindings;
-    TypeName m_type;
+    NodeMetaInfo m_type;
 };
 
 }

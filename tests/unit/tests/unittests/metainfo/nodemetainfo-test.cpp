@@ -2300,4 +2300,49 @@ TEST_F(NodeMetaInfo, invalid_source_id_has_no_external_type_names_for_source_id)
 
     ASSERT_THAT(exportedTypeNames, IsEmpty());
 }
+
+TEST_F(NodeMetaInfo, float_is_a_number)
+{
+    auto metaInfo = createMetaInfo("QML-cppnative", "float");
+
+    bool isType = metaInfo.isNumber();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, double_is_a_number)
+{
+    auto metaInfo = createMetaInfo(qmlModuleId, "double");
+
+    bool isType = metaInfo.isNumber();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, int_is_a_number)
+{
+    auto metaInfo = createMetaInfo(qmlModuleId, "int");
+
+    bool isType = metaInfo.isNumber();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, uint_is_a_number)
+{
+    auto metaInfo = createMetaInfo("QML-cppnative", "uint");
+
+    bool isType = metaInfo.isNumber();
+
+    ASSERT_THAT(isType, IsTrue());
+}
+
+TEST_F(NodeMetaInfo, default_is_not_number)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    bool isType = metaInfo.isFloat();
+
+    ASSERT_THAT(isType, IsFalse());
+}
 } // namespace

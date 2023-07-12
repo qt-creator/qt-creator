@@ -127,6 +127,7 @@ public:
     bool isInteger() const;
     bool isLayoutable() const;
     bool isListOrGridView() const;
+    bool isNumber() const;
     bool isQmlComponent() const;
     bool isQtMultimediaSoundEffect() const;
     bool isQtObject() const;
