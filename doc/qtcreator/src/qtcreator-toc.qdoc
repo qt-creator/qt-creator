@@ -240,6 +240,8 @@
             \li \l{FAQ}
             \li \l{How-to}
             \li \l{Reference}
+                    \generatelist creator-reference-sidebar-views
+                    \generatelist creator-reference-output-views
             \li \l{Known Issues}
             \li \l{Glossary}
             \li \l{Technical Support}
