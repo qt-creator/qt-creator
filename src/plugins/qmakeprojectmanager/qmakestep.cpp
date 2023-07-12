@@ -181,7 +181,7 @@ bool QMakeStep::init()
     const QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
 
     if (!qtVersion) {
-        emit addOutput(Tr::tr("No Qt version configured."), BuildStep::OutputFormat::ErrorMessage);
+        emit addOutput(Tr::tr("No Qt version configured."), OutputFormat::ErrorMessage);
         return false;
     }
 
@@ -217,7 +217,7 @@ bool QMakeStep::init()
         if (make.isEmpty()) {
             emit addOutput(Tr::tr("Could not determine which \"make\" command to run. "
                                   "Check the \"make\" step in the build configuration."),
-                           BuildStep::OutputFormat::ErrorMessage);
+                           OutputFormat::ErrorMessage);
             return false;
         }
         m_makeCommand = CommandLine{make, makeArguments(makeFile.path()), CommandLine::Raw};
@@ -267,18 +267,17 @@ void QMakeStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void QMakeStep::doRun()
 {
-    if (m_scriptTemplate) {
-        emit finished(true);
-        return;
-    }
-
-    if (!m_needToRunQMake) {
-        emit addOutput(Tr::tr("Configuration unchanged, skipping qmake step."), BuildStep::OutputFormat::NormalMessage);
-        emit finished(true);
-        return;
-    }
-
     using namespace Tasking;
+
+    const auto onSetup = [this] {
+        if (m_scriptTemplate)
+            return SetupResult::StopWithDone;
+        if (m_needToRunQMake)
+            return SetupResult::Continue;
+        emit addOutput(Tr::tr("Configuration unchanged, skipping qmake step."),
+                       OutputFormat::NormalMessage);
+        return SetupResult::StopWithDone;
+    };
 
     const auto setupQMake = [this](Process &process) {
         m_outputFormatter->setLineParsers({new QMakeParser});
@@ -303,10 +302,11 @@ void QMakeStep::doRun()
         m_needToRunQMake = false;
     };
 
-    QList<GroupItem> processList = {ProcessTask(setupQMake, onProcessDone, onProcessDone)};
+    QList<GroupItem> processList = {onGroupSetup(onSetup),
+                                    onGroupDone(onDone),
+                                    ProcessTask(setupQMake, onProcessDone, onProcessDone)};
     if (m_runMakeQmake)
         processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessDone);
-    processList << onGroupDone(onDone);
 
     runTaskTree(Group(processList));
 }
