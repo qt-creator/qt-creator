@@ -3,8 +3,9 @@
 
 #include "../utils/googletest.h"
 
-#include "../mocks/projectstoragemock.h"
-#include "../mocks/sourcepathcachemock.h"
+#include <matchers/info_exportedtypenames-matcher.h>
+#include <mocks/projectstoragemock.h>
+#include <mocks/sourcepathcachemock.h>
 
 #include <designercore/include/model.h>
 #include <designercore/include/modelnode.h>
@@ -2230,5 +2231,73 @@ TEST_F(NodeMetaInfo, default_is_not_enumeration)
     bool isType = metaInfo.isEnumeration();
 
     ASSERT_THAT(isType, IsFalse());
+}
+
+TEST_F(NodeMetaInfo, all_external_type_names)
+{
+    QmlDesigner::Storage::Info::ExportedTypeNames names{{qmlModuleId, "Object", 2, -1},
+                                                        {qmlModuleId, "Obj", 2, 1}};
+    auto metaInfo = createMetaInfo("QML", "Foo");
+    ON_CALL(projectStorageMock, exportedTypeNames(metaInfo.id())).WillByDefault(Return(names));
+
+    auto exportedTypeNames = metaInfo.allExportedTypeNames();
+
+    ASSERT_THAT(exportedTypeNames,
+                UnorderedElementsAre(IsInfoExportTypeNames(qmlModuleId, "Object", 2, -1),
+                                     IsInfoExportTypeNames(qmlModuleId, "Obj", 2, 1)));
+}
+
+TEST_F(NodeMetaInfo, default_has_no_external_type_names)
+{
+    QmlDesigner::Storage::Info::ExportedTypeNames names{{qmlModuleId, "Object", 2, -1},
+                                                        {qmlModuleId, "Obj", 2, 1}};
+    QmlDesigner::NodeMetaInfo metaInfo;
+    ON_CALL(projectStorageMock, exportedTypeNames(_)).WillByDefault(Return(names));
+
+    auto exportedTypeNames = metaInfo.allExportedTypeNames();
+
+    ASSERT_THAT(exportedTypeNames, IsEmpty());
+}
+
+TEST_F(NodeMetaInfo, external_type_names_for_source_id)
+{
+    QmlDesigner::Storage::Info::ExportedTypeNames names{{qmlModuleId, "Object", 2, -1},
+                                                        {qmlModuleId, "Obj", 2, 1}};
+    auto metaInfo = createMetaInfo("QML", "Foo");
+    ON_CALL(projectStorageMock, exportedTypeNames(metaInfo.id(), model.fileUrlSourceId()))
+        .WillByDefault(Return(names));
+
+    auto exportedTypeNames = metaInfo.exportedTypeNamesForSourceId(model.fileUrlSourceId());
+
+    ASSERT_THAT(exportedTypeNames,
+                UnorderedElementsAre(IsInfoExportTypeNames(qmlModuleId, "Object", 2, -1),
+                                     IsInfoExportTypeNames(qmlModuleId, "Obj", 2, 1)));
+}
+
+TEST_F(NodeMetaInfo, default_has_no_external_type_names_for_source_id)
+{
+    QmlDesigner::Storage::Info::ExportedTypeNames names{{qmlModuleId, "Object", 2, -1},
+                                                        {qmlModuleId, "Obj", 2, 1}};
+    QmlDesigner::NodeMetaInfo metaInfo;
+    ON_CALL(projectStorageMock, exportedTypeNames(metaInfo.id(), model.fileUrlSourceId()))
+        .WillByDefault(Return(names));
+
+    auto exportedTypeNames = metaInfo.exportedTypeNamesForSourceId(model.fileUrlSourceId());
+
+    ASSERT_THAT(exportedTypeNames, IsEmpty());
+}
+
+TEST_F(NodeMetaInfo, invalid_source_id_has_no_external_type_names_for_source_id)
+{
+    QmlDesigner::Storage::Info::ExportedTypeNames names{{qmlModuleId, "Object", 2, -1},
+                                                        {qmlModuleId, "Obj", 2, 1}};
+    auto metaInfo = createMetaInfo("QML", "Foo");
+    ON_CALL(projectStorageMock, exportedTypeNames(metaInfo.id(), model.fileUrlSourceId()))
+        .WillByDefault(Return(names));
+    QmlDesigner::SourceId sourceId;
+
+    auto exportedTypeNames = metaInfo.exportedTypeNamesForSourceId(sourceId);
+
+    ASSERT_THAT(exportedTypeNames, IsEmpty());
 }
 } // namespace

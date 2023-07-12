@@ -1688,6 +1688,28 @@ int NodeMetaInfo::minorVersion() const
     return -1;
 }
 
+Storage::Info::ExportedTypeNames NodeMetaInfo::allExportedTypeNames() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid()) {
+            return m_projectStorage->exportedTypeNames(m_typeId);
+        }
+    }
+
+    return {};
+}
+
+Storage::Info::ExportedTypeNames NodeMetaInfo::exportedTypeNamesForSourceId(SourceId sourceId) const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid()) {
+            return m_projectStorage->exportedTypeNames(m_typeId, sourceId);
+        }
+    }
+
+    return {};
+}
+
 SourceId NodeMetaInfo::sourceId() const
 {
     if constexpr (useProjectStorage()) {

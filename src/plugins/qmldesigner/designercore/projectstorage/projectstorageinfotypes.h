@@ -133,20 +133,20 @@ namespace QmlDesigner::Storage::Info {
 class ExportedTypeName
 {
 public:
-    explicit ExportedTypeName() = default;
+    ExportedTypeName() = default;
 
-    explicit ExportedTypeName(ModuleId moduleId,
-                              ::Utils::SmallStringView name,
-                              Storage::Version version = Storage::Version{})
+    ExportedTypeName(ModuleId moduleId,
+                     ::Utils::SmallStringView name,
+                     Storage::Version version = Storage::Version{})
         : name{name}
         , version{version}
         , moduleId{moduleId}
     {}
 
-    explicit ExportedTypeName(ModuleId moduleId,
-                              ::Utils::SmallStringView name,
-                              int majorVersion,
-                              int minorVersion)
+    ExportedTypeName(ModuleId moduleId,
+                     ::Utils::SmallStringView name,
+                     int majorVersion,
+                     int minorVersion)
         : name{name}
         , version{majorVersion, minorVersion}
         , moduleId{moduleId}

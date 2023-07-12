@@ -8,6 +8,7 @@
 #include <documentmessage.h>
 #include <model/modelresourcemanagementinterface.h>
 #include <projectstorage/projectstoragefwd.h>
+#include <projectstorageids.h>
 
 #include <QMimeData>
 #include <QObject>
@@ -112,6 +113,7 @@ public:
     }
 
     QUrl fileUrl() const;
+    SourceId fileUrlSourceId() const;
     void setFileUrl(const QUrl &url);
 
     const MetaInfo metaInfo() const;

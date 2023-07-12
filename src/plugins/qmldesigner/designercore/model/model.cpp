@@ -1970,6 +1970,11 @@ QUrl Model::fileUrl() const
     return d->fileUrl();
 }
 
+SourceId Model::fileUrlSourceId() const
+{
+    return d->m_sourceId;
+}
+
 /*!
   \brief Sets the URL against which relative URLs within the model should be resolved.
   \param url the base URL, i.e. the qml file path.

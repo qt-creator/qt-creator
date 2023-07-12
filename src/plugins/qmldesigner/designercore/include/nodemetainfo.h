@@ -76,6 +76,9 @@ public:
     int majorVersion() const;
     int minorVersion() const;
 
+    Storage::Info::ExportedTypeNames allExportedTypeNames() const;
+    Storage::Info::ExportedTypeNames exportedTypeNamesForSourceId(SourceId sourceId) const;
+
     SourceId sourceId() const;
     QString componentFileName() const;
 
