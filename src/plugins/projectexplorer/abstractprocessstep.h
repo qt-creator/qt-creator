@@ -10,8 +10,6 @@ class CommandLine;
 class Process;
 }
 
-namespace Tasking { class GroupItem; }
-
 namespace ProjectExplorer {
 class ProcessParameters;
 
@@ -39,8 +37,6 @@ protected:
 
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() final;
-    void doCancel() final;
     void setLowPriority();
     void setDisplayedParameters(ProcessParameters *params);
 
@@ -49,7 +45,7 @@ protected:
     void handleProcessDone(const Utils::Process &process);
 
 private:
-    virtual Tasking::GroupItem runRecipe();
+    Tasking::GroupItem runRecipe() override;
 
     class Private;
     Private *d;

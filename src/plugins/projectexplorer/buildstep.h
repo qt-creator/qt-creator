@@ -24,6 +24,11 @@ class MacroExpander;
 class OutputFormatter;
 } // Utils
 
+namespace Tasking {
+class GroupItem;
+class TaskTree;
+}
+
 namespace ProjectExplorer {
 
 class BuildConfiguration;
@@ -44,7 +49,7 @@ protected:
 
 public:
     ~BuildStep() override;
-    virtual bool init() = 0;
+    virtual bool init();
     void run();
     void cancel();
 
@@ -122,13 +127,14 @@ signals:
 
 protected:
     virtual QWidget *createConfigWidget();
-
     bool isCanceled() const;
+    void setCancelMessage(const QString &message);
 
 private:
     using ProjectConfiguration::parent;
 
-    virtual void doRun() = 0;
+    virtual Tasking::GroupItem runRecipe(); // TODO: Make pure virtual when all subclasses implement it.
+    virtual void doRun();
     virtual void doCancel();
 
     BuildStepList * const m_stepList;
@@ -139,8 +145,10 @@ private:
     bool m_addMacroExpander = false;
     std::optional<bool> m_wasExpanded;
     std::function<QString()> m_summaryUpdater;
+    std::unique_ptr<Tasking::TaskTree> m_taskTree;
 
     QString m_summaryText;
+    QString m_cancelMessage;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepFactory

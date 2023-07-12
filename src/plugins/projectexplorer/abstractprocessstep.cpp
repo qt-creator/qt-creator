@@ -72,7 +72,6 @@ public:
     Private(AbstractProcessStep *q) : q(q) {}
 
     AbstractProcessStep *q;
-    std::unique_ptr<TaskTree> m_taskTree;
     ProcessParameters m_param;
     ProcessParameters *m_displayedParams = &m_param;
     std::function<CommandLine()> m_commandLineProvider;
@@ -144,7 +143,7 @@ void AbstractProcessStep::setWorkingDirectoryProvider(const std::function<FilePa
 
 bool AbstractProcessStep::init()
 {
-    if (d->m_taskTree)
+    if (!BuildStep::init())
         return false;
 
     if (!setupProcessParameters(processParameters()))
@@ -161,30 +160,6 @@ void AbstractProcessStep::setupOutputFormatter(OutputFormatter *formatter)
     formatter->setDemoteErrorsToWarnings(d->m_ignoreReturnValue);
     d->outputFormatter = formatter;
     BuildStep::setupOutputFormatter(formatter);
-}
-
-/*!
-    Reimplemented from BuildStep::init(). You need to call this from
-    YourBuildStep::run().
-*/
-
-void AbstractProcessStep::doRun()
-{
-    QTC_ASSERT(!d->m_taskTree, return);
-
-    d->m_taskTree.reset(new TaskTree({runRecipe()}));
-    connect(d->m_taskTree.get(), &TaskTree::progressValueChanged, this, [this](int value) {
-        emit progress(qRound(double(value) * 100 / std::max(d->m_taskTree->progressMaximum(), 1)), {});
-    });
-    connect(d->m_taskTree.get(), &TaskTree::done, this, [this] {
-        d->m_taskTree.release()->deleteLater();
-        emit finished(true);
-    });
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
-        d->m_taskTree.release()->deleteLater();
-        emit finished(false);
-    });
-    d->m_taskTree->start();
 }
 
 GroupItem AbstractProcessStep::defaultProcessTask()
@@ -267,16 +242,6 @@ void AbstractProcessStep::handleProcessDone(const Process &process)
 void AbstractProcessStep::setLowPriority()
 {
     d->m_lowPriority = true;
-}
-
-void AbstractProcessStep::doCancel()
-{
-    if (!d->m_taskTree)
-        return;
-
-    d->m_taskTree.reset();
-    emit addOutput(Tr::tr("The build step was ended forcefully."), OutputFormat::ErrorMessage);
-    emit finished(false);
 }
 
 ProcessParameters *AbstractProcessStep::processParameters()

@@ -9,7 +9,6 @@
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
 namespace ProjectExplorer { class DeployableFile; }
-namespace Tasking { class GroupItem; }
 
 namespace RemoteLinux {
 
@@ -30,8 +29,6 @@ protected:
     bool fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
     bool init() final;
-    void doRun() final;
-    void doCancel() final;
 
     void setInternalInitializer(const std::function<Utils::expected_str<void>()> &init);
 
@@ -45,12 +42,10 @@ protected:
     void addErrorMessage(const QString &message);
     void addWarningMessage(const QString &message);
 
-    void handleFinished();
-
 private:
     virtual bool isDeploymentNecessary() const;
     virtual Tasking::GroupItem deployRecipe() = 0;
-    Tasking::GroupItem runRecipe();
+    Tasking::GroupItem runRecipe() final;
 
     Internal::AbstractRemoteLinuxDeployStepPrivate *d;
 };

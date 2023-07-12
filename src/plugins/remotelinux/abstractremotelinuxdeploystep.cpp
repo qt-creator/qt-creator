@@ -29,7 +29,6 @@ public:
     std::function<expected_str<void>()> internalInit;
 
     DeploymentTimeInfo deployTimes;
-    std::unique_ptr<TaskTree> m_taskTree;
 };
 
 } // Internal
@@ -38,7 +37,9 @@ using namespace Internal;
 
 AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl, Id id)
     : BuildStep(bsl, id), d(new AbstractRemoteLinuxDeployStepPrivate)
-{}
+{
+    setCancelMessage(Tr::tr("User requests deployment to stop; cleaning up."));
+}
 
 AbstractRemoteLinuxDeployStep::~AbstractRemoteLinuxDeployStep()
 {
@@ -99,41 +100,14 @@ QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
 bool AbstractRemoteLinuxDeployStep::init()
 {
     QTC_ASSERT(d->internalInit, return false);
+    if (!BuildStep::init())
+        return false;
     const auto canDeploy = d->internalInit();
     if (!canDeploy) {
         emit addOutput(Tr::tr("Cannot deploy: %1").arg(canDeploy.error()),
                        OutputFormat::ErrorMessage);
     }
     return bool(canDeploy);
-}
-
-void AbstractRemoteLinuxDeployStep::doRun()
-{
-    QTC_ASSERT(!d->m_taskTree, return);
-
-    d->m_taskTree.reset(new TaskTree({runRecipe()}));
-    const auto onDone = [this] {
-        d->m_taskTree.release()->deleteLater();
-        emit finished(true);
-    };
-    const auto onError = [this] {
-        d->m_taskTree.release()->deleteLater();
-        emit finished(false);
-    };
-    connect(d->m_taskTree.get(), &TaskTree::done, this, onDone);
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, onError);
-    d->m_taskTree->start();
-}
-
-void AbstractRemoteLinuxDeployStep::doCancel()
-{
-    if (!d->m_taskTree)
-        return;
-
-    d->m_taskTree.reset();
-    emit addOutput(Tr::tr("User requests deployment to stop; cleaning up."),
-                   OutputFormat::NormalMessage);
-    emit finished(false);
 }
 
 void AbstractRemoteLinuxDeployStep::addProgressMessage(const QString &message)
