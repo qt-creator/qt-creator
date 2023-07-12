@@ -26,7 +26,7 @@ What's new?
 You can open markdown (.md) files for editing or select `File > New File >
 General > Markdown File` to create a new file.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-markdown-editor.html))
+([Documentation](https://docs.qt.io/qtcreator/creator-markdown-editor.html))
 
 ### Terminal
 
@@ -38,7 +38,7 @@ shells, colors, and fonts.
 To use an external terminal, deselect the `Use internal terminal` check box in
 `Preferences > Terminal`.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-output-panes.html#terminal))
+([Documentation](https://docs.qt.io/qtcreator/creator-reference-terminal-view.html))
 
 ### Copilot
 
@@ -48,7 +48,7 @@ suggest code in the `Edit` mode.
 
 To set Copilot preferences, select `Preferences > Copilot`.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-copilot.html))
+([Documentation](https://docs.qt.io/qtcreator/creator-copilot.html))
 
 ### vcpkg
 
@@ -64,7 +64,7 @@ project.
 Edit manifest files in the manifest editor. To search for packages to add to the
 file, select the `Search Package` button on the manifest editor toolbar.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-vcpkg.html))
+([Documentation](https://docs.qt.io/qtcreator/creator-vcpkg.html))
 
 ### Axivion
 
@@ -73,7 +73,7 @@ and link a project to an Axivion project in the project settings, Qt Creator
 shows annotations of the latest run in the editors and allows you to view some
 details on the issues.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-axivion.html))
+([Documentation](https://docs.qt.io/qtcreator/creator-axivion.html))
 
 General
 -------
@@ -161,7 +161,7 @@ Editing
 * Fixed that too many progress indicators could be created
   ([QTCREATORBUG-29224](https://bugreports.qt.io/browse/QTCREATORBUG-29224))
 
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-python-development.html))
+  ([Documentation](https://docs.qt.io/qtcreator/creator-python-development.html))
 
 Projects
 --------
@@ -189,7 +189,7 @@ Projects
   ([Documentation](https://doc.qt.io/qtcreator/creator-project-cmake.html))
 * Added `Build > Reload CMake Presets` to reload CMake presets after making
   changes to them
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-11.0/creator-build-settings-cmake-presets.html))
+  ([Documentation](https://docs.qt.io/qtcreator/creator-build-settings-cmake-presets.html))
 * Added support for the `block()` and `endblock()` CMake commands
   ([CMake documentation](https://cmake.org/cmake/help/latest/command/block.html#command:block))
 * Fixed that CMake Presets were not visible in the `Projects` view
