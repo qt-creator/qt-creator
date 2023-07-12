@@ -209,9 +209,16 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
 
         // Add custom imports for the opened document
         for (const auto &provider : CustomImportsProvider::allProviders()) {
-            const auto providerImports = provider->imports(m_valueOwner, document.data());
+            const auto providerImports = provider->imports(m_valueOwner,
+                                                           document.data(),
+                                                           &m_snapshot);
             for (const auto &import : providerImports)
                 importCache.insert(ImportCacheKey(import.info), import);
+            provider->loadBuiltins(&importsPerDocument,
+                                   imports,
+                                   document.data(),
+                                   m_valueOwner,
+                                   &m_snapshot);
         }
 
         populateImportedTypes(imports, document);

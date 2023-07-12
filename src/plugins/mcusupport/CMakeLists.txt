@@ -25,6 +25,7 @@ add_qtc_plugin(McuSupport
     mcuqmlprojectnode.cpp mcuqmlprojectnode.h
     mcubuildstep.cpp mcubuildstep.h
     dialogs/mcukitcreationdialog.cpp dialogs/mcukitcreationdialog.h
+    mcusupportimportprovider.cpp mcusupportimportprovider.h
 )
 
 add_subdirectory(test)

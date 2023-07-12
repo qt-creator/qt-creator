@@ -8,6 +8,7 @@
 #include "mcuqmlprojectnode.h"
 #include "mcusupportconstants.h"
 #include "mcusupportdevice.h"
+#include "mcusupportimportprovider.h"
 #include "mcusupportoptions.h"
 #include "mcusupportoptionspage.h"
 #include "mcusupportrunconfiguration.h"
@@ -102,6 +103,7 @@ public:
     McuSupportOptions m_options{m_settingsHandler};
     McuSupportOptionsPage optionsPage{m_options, m_settingsHandler};
     MCUBuildStepFactory mcuBuildStepFactory;
+    McuSupportImportProvider mcuImportProvider;
 }; // class McuSupportPluginPrivate
 
 static McuSupportPluginPrivate *dd{nullptr};

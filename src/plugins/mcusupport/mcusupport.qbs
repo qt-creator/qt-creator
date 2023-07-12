@@ -60,6 +60,8 @@ QtcPlugin {
         "settingshandler.cpp",
         "dialogs/mcukitcreationdialog.h",
         "dialogs/mcukitcreationdialog.cpp",
+        "mcusupportimportprovider.h",
+        "mcusupportimportprovider.cpp",
     ]
 
     QtcTestFiles {
