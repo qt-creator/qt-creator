@@ -38,7 +38,6 @@ public:
         cmakeArguments.setDisplayStyle(StringAspect::LineEditDisplay);
 
         setCommandLineProvider([this] { return cmakeCommand(); });
-        setDoneHook([this](bool) { emit progress(100, {}); });
     }
 
 private:

@@ -36,7 +36,6 @@ protected:
     bool setupProcessParameters(ProcessParameters *params) const;
     bool ignoreReturnValue() const;
     void setIgnoreReturnValue(bool b);
-    void setDoneHook(const std::function<void(bool)> &doneHook);
     void setCommandLineProvider(const std::function<Utils::CommandLine()> &provider);
     void setWorkingDirectoryProvider(const std::function<Utils::FilePath()> &provider);
     void setEnvironmentModifier(const std::function<void(Utils::Environment &)> &modifier);
