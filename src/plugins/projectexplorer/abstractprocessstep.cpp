@@ -170,17 +170,19 @@ void AbstractProcessStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AbstractProcessStep::doRun()
 {
+    QTC_ASSERT(!d->m_taskTree, return);
+
     d->m_taskTree.reset(new TaskTree({runRecipe()}));
     connect(d->m_taskTree.get(), &TaskTree::progressValueChanged, this, [this](int value) {
         emit progress(qRound(double(value) * 100 / std::max(d->m_taskTree->progressMaximum(), 1)), {});
     });
     connect(d->m_taskTree.get(), &TaskTree::done, this, [this] {
-        emit finished(true);
         d->m_taskTree.release()->deleteLater();
+        emit finished(true);
     });
     connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
-        emit finished(false);
         d->m_taskTree.release()->deleteLater();
+        emit finished(false);
     });
     d->m_taskTree->start();
 }
@@ -269,12 +271,12 @@ void AbstractProcessStep::setLowPriority()
 
 void AbstractProcessStep::doCancel()
 {
-    const QString message = Tr::tr("The build step was ended forcefully.");
-    if (d->m_taskTree) {
-        d->m_taskTree.reset();
-        emit addOutput(message, OutputFormat::ErrorMessage);
-        emit finished(false);
-    }
+    if (!d->m_taskTree)
+        return;
+
+    d->m_taskTree.reset();
+    emit addOutput(Tr::tr("The build step was ended forcefully."), OutputFormat::ErrorMessage);
+    emit finished(false);
 }
 
 ProcessParameters *AbstractProcessStep::processParameters()
