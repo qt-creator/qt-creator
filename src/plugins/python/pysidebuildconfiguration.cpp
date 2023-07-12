@@ -15,6 +15,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/commandline.h>
+#include <utils/process.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -60,10 +61,15 @@ void PySideBuildStep::updatePySideProjectPath(const FilePath &pySideProjectPath)
 
 void PySideBuildStep::doRun()
 {
-    if (processParameters()->effectiveCommand().isExecutableFile())
-        AbstractProcessStep::doRun();
-    else
-        emit finished(true);
+    using namespace Tasking;
+
+    const auto onSetup = [this] {
+        if (!processParameters()->effectiveCommand().isExecutableFile())
+            return SetupResult::StopWithDone;
+        return SetupResult::Continue;
+    };
+
+    runTaskTree({onGroupSetup(onSetup), defaultProcessTask()});
 }
 
 
