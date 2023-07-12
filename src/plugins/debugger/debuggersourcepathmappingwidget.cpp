@@ -470,16 +470,16 @@ void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
     parent.addItem(d->m_widget.data());
 }
 
-void SourcePathMapAspect::guiToInternal()
+void SourcePathMapAspect::guiToBuffer()
 {
     if (d->m_widget)
-        m_internal = d->m_widget->sourcePathMap();
+        m_buffer = d->m_widget->sourcePathMap();
 }
 
-void SourcePathMapAspect::internalToGui()
+void SourcePathMapAspect::bufferToGui()
 {
     if (d->m_widget)
-        d->m_widget->setSourcePathMap(m_internal);
+        d->m_widget->setSourcePathMap(m_buffer);
 }
 
 const char sourcePathMappingArrayNameC[] = "SourcePathMappings";

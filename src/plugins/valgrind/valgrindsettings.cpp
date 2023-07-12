@@ -159,17 +159,17 @@ void SuppressionAspect::toMap(QVariantMap &map) const
     BaseAspect::toMap(map);
 }
 
-void SuppressionAspect::guiToInternal()
+void SuppressionAspect::guiToBuffer()
 {
-    m_internal.clear();
+    m_buffer.clear();
     for (int i = 0; i < d->m_model.rowCount(); ++i)
-        m_internal.append(FilePath::fromUserInput(d->m_model.item(i)->text()));
+        m_buffer.append(FilePath::fromUserInput(d->m_model.item(i)->text()));
 }
 
-void SuppressionAspect::internalToGui()
+void SuppressionAspect::bufferToGui()
 {
     d->m_model.clear();
-    for (const FilePath &file : m_internal)
+    for (const FilePath &file : m_buffer)
         d->m_model.appendRow(new QStandardItem(file.toUserOutput()));
 }
 

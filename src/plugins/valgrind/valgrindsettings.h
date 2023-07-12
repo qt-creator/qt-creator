@@ -28,8 +28,8 @@ public:
     void addSuppressionFile(const Utils::FilePath &suppressionFile);
 
 private:
-    void internalToGui() override;
-    void guiToInternal() override;
+    void bufferToGui() override;
+    void guiToBuffer() override;
 
     friend class ValgrindBaseSettings;
     SuppressionAspectPrivate *d = nullptr;

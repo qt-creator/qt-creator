@@ -112,7 +112,7 @@ public:
     QVariant fromSettingsValue(const QVariant &val) const;
 
     virtual void apply();
-    virtual bool silentApply();
+    virtual void silentApply();
     virtual void cancel();
     virtual void finish();
     virtual bool isDirty();
@@ -170,10 +170,14 @@ signals:
     void labelLinkActivated(const QString &link);
 
 protected:
-    virtual void internalToGui();
-    virtual void guiToInternal();
-    virtual bool internalToExternal();
+    virtual void internalToBuffer();
+    virtual void bufferToInternal();
+    virtual void bufferToGui();
+    virtual void guiToBuffer();
+    virtual void internalToExternal();
     virtual void externalToInternal();
+
+    virtual void handleGuiChanged();
 
     QLabel *label() const;
     void setupLabel();
@@ -243,46 +247,50 @@ public:
 
     void setValue(const ValueType &value)
     {
-        m_external = value;
-        const bool emitSignal = m_external != m_internal;
-        externalToInternal();
-        internalToGui();
-        if (emitSignal)
-            emit changed();
+        m_internal = value;
+        internalToBuffer();
+        bufferToGui();
+        internalToExternal();
     }
 
     void setValueQuietly(const ValueType &value)
     {
-        m_external = value;
-        externalToInternal();
-        internalToGui();
-    }
-
-    void setVolatileValue(const ValueType &value)
-    {
         m_internal = value;
-        internalToGui();
+        internalToBuffer();
+        bufferToGui();
+        internalToExternal();
     }
 
     ValueType volatileValue() const
     {
-        const_cast<TypedAspect *>(this)->guiToInternal();
-        return m_internal;
+        return m_buffer;
+    }
+
+    void setVolatileValue(const ValueType &value)
+    {
+        m_buffer = value;
+        bufferToGui();
     }
 
 protected:
     bool isDirty() override
     {
-        guiToInternal();
-        return m_internal != m_external;
+        return m_internal != m_buffer;
     }
 
-    bool internalToExternal() override
+    void internalToBuffer() override
     {
-        if (m_external == m_internal)
-            return false;
+        m_buffer = m_internal;
+    }
+
+    void bufferToInternal() override
+    {
+        m_internal = m_buffer;
+    }
+
+    void internalToExternal() override
+    {
         m_external = m_internal;
-        return true;
     }
 
     void externalToInternal() override
@@ -318,6 +326,7 @@ protected:
     ValueType m_default{};
     ValueType m_external{};
     ValueType m_internal{};
+    ValueType m_buffer{};
 };
 
 class QTCREATOR_UTILS_EXPORT BoolAspect : public TypedAspect<bool>
@@ -344,8 +353,8 @@ public:
     void adoptButton(QAbstractButton *button);
 
 private:
-    void internalToGui() override;
-    void guiToInternal() override;
+    void bufferToGui() override;
+    void guiToBuffer() override;
 
     std::unique_ptr<Internal::BoolAspectPrivate> d;
 };
@@ -361,8 +370,8 @@ public:
     void addToLayout(Layouting::LayoutItem &parent) override;
 
 private:
-    void internalToGui() override;
-    void guiToInternal() override;
+    void bufferToGui() override;
+    void guiToBuffer() override;
 
     std::unique_ptr<Internal::ColorAspectPrivate> d;
 };
@@ -409,8 +418,8 @@ public:
     QVariant itemValueForIndex(int index) const;
 
 protected:
-    void internalToGui() override;
-    void guiToInternal() override;
+    void bufferToGui() override;
+    void guiToBuffer() override;
 
 private:
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
@@ -433,8 +442,8 @@ public:
     void setAllValues(const QStringList &val);
 
 protected:
-    void internalToGui() override;
-    void guiToInternal() override;
+    void bufferToGui() override;
+    void guiToBuffer() override;
 
 private:
     std::unique_ptr<Internal::MultiSelectionAspectPrivate> d;
@@ -509,8 +518,11 @@ signals:
     void validChanged(bool validState);
 
 protected:
-    void internalToGui() override;
-    void guiToInternal() override;
+    void bufferToGui() override;
+    void guiToBuffer() override;
+
+    void internalToBuffer() override;
+    void bufferToInternal() override;
 
     std::unique_ptr<Internal::StringAspectPrivate> d;
 };
@@ -556,8 +568,8 @@ public:
     struct Data : BaseAspect::Data { qint64 value = 0; };
 
 protected:
-    void internalToGui() override;
-    void guiToInternal() override;
+    void bufferToGui() override;
+    void guiToBuffer() override;
 
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
@@ -580,8 +592,8 @@ public:
     void setSingleStep(double step);
 
 protected:
-    void internalToGui() override;
-    void guiToInternal() override;
+    void bufferToGui() override;
+    void guiToBuffer() override;
 
 private:
     std::unique_ptr<Internal::DoubleAspectPrivate> d;

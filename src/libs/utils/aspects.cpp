@@ -472,7 +472,8 @@ void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect)
 */
 void BaseAspect::apply()
 {
-    if (silentApply()) {
+    if (isDirty()) {
+        silentApply();
         if (hasAction())
             emit action()->triggered(variantValue().toBool());
         emit changed();
@@ -485,10 +486,11 @@ void BaseAspect::apply()
     \returns whether the value changed. Does not emit signals.
 */
 
-bool BaseAspect::silentApply()
+void BaseAspect::silentApply()
 {
-    guiToInternal();
-    return internalToExternal();
+    guiToBuffer();
+    bufferToInternal();
+    internalToExternal();
 }
 /*!
     Discard user changes in the widget and restore widget contents from
@@ -498,8 +500,8 @@ bool BaseAspect::silentApply()
 */
 void BaseAspect::cancel()
 {
-    externalToInternal();
-    internalToGui();
+    internalToBuffer();
+    bufferToGui();
 }
 
 void BaseAspect::finish()
@@ -873,7 +875,7 @@ PathChooser *StringAspect::pathChooser() const
 void StringAspect::setShowToolTipOnLabel(bool show)
 {
     d->m_showToolTipOnLabel = show;
-    internalToGui();
+    bufferToGui();
 }
 
 /*!
@@ -1125,25 +1127,17 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
         addLabeledItem(parent, d->m_pathChooserDisplay);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
-        if (isAutoApply()) {
-            if (d->m_autoApplyOnEditingFinished) {
-                const auto setPathChooserValue = [this] {
-                    if (d->m_blockAutoApply)
-                        return;
-                    d->m_blockAutoApply = true;
-                    setValue(d->m_pathChooserDisplay->filePath().toString());
-                    d->m_blockAutoApply = false;
-                };
-                connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, setPathChooserValue);
-                connect(d->m_pathChooserDisplay, &PathChooser::browsingFinished, this, setPathChooserValue);
-            } else {
-                connect(d->m_pathChooserDisplay, &PathChooser::textChanged,
-                        this, [this](const QString &path) {
-                    setValue(path);
-                });
-            }
-        }
         connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &StringAspect::validChanged);
+        bufferToGui();
+        if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
+            connect(d->m_pathChooserDisplay, &PathChooser::editingFinished,
+                    this, &StringAspect::handleGuiChanged);
+            connect(d->m_pathChooserDisplay, &PathChooser::browsingFinished,
+                    this, &StringAspect::handleGuiChanged);
+        } else {
+            connect(d->m_pathChooserDisplay, &PathChooser::textChanged,
+                    this, &StringAspect::handleGuiChanged);
+        }
         break;
     case LineEditDisplay:
         d->m_lineEditDisplay = createSubWidget<FancyLineEdit>();
@@ -1159,25 +1153,6 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
         addLabeledItem(parent, d->m_lineEditDisplay);
         useMacroExpander(d->m_lineEditDisplay);
-        if (isAutoApply()) {
-            if (d->m_autoApplyOnEditingFinished) {
-                connect(d->m_lineEditDisplay, &FancyLineEdit::editingFinished, this, [this] {
-                    if (d->m_blockAutoApply)
-                        return;
-                    d->m_blockAutoApply = true;
-                    setValue(d->m_lineEditDisplay->text());
-                    d->m_blockAutoApply = false;
-                });
-            } else {
-                connect(d->m_lineEditDisplay,
-                        &FancyLineEdit::textEdited,
-                        this,
-                        &StringAspect::setValue);
-                connect(d->m_lineEditDisplay, &FancyLineEdit::editingFinished, this, [this] {
-                    setValue(d->m_lineEditDisplay->text());
-                });
-            }
-        }
         if (d->m_useResetButton) {
             auto resetButton = createSubWidget<QPushButton>(Tr::tr("Reset"));
             resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
@@ -1190,6 +1165,14 @@ void StringAspect::addToLayout(LayoutItem &parent)
             parent.addItem(resetButton);
         }
         connect(d->m_lineEditDisplay, &FancyLineEdit::validChanged, this, &StringAspect::validChanged);
+        bufferToGui();
+        if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
+            connect(d->m_lineEditDisplay, &FancyLineEdit::editingFinished,
+                    this, &StringAspect::handleGuiChanged);
+        } else {
+            connect(d->m_lineEditDisplay, &QLineEdit::textEdited,
+                    this, &StringAspect::handleGuiChanged);
+        }
         break;
     case TextEditDisplay:
         d->m_textEditDisplay = createSubWidget<QTextEdit>();
@@ -1202,11 +1185,9 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
         addLabeledItem(parent, d->m_textEditDisplay);
         useMacroExpander(d->m_textEditDisplay);
-        if (isAutoApply()) {
-            connect(d->m_textEditDisplay, &QTextEdit::textChanged, this, [this] {
-                setValue(d->m_textEditDisplay->document()->toPlainText());
-            });
-        }
+        bufferToGui();
+        connect(d->m_textEditDisplay, &QTextEdit::textChanged,
+                this, &StringAspect::handleGuiChanged);
         break;
     case LabelDisplay:
         d->m_labelDisplay = createSubWidget<ElidingLabel>();
@@ -1218,63 +1199,67 @@ void StringAspect::addToLayout(LayoutItem &parent)
         break;
     }
 
-    validateInput();
-
     if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Right)
         d->m_checker->addToLayout(parent);
 }
 
-void StringAspect::guiToInternal()
+void StringAspect::guiToBuffer()
 {
-    QString val;
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         if (d->m_pathChooserDisplay)
-            val = d->m_pathChooserDisplay->lineEdit()->text();
+            m_buffer = d->m_pathChooserDisplay->lineEdit()->text();
         break;
     case LineEditDisplay:
         if (d->m_lineEditDisplay)
-            val = d->m_lineEditDisplay->text();
+            m_buffer = d->m_lineEditDisplay->text();
         break;
     case TextEditDisplay:
         if (d->m_textEditDisplay)
-            val = d->m_textEditDisplay->document()->toPlainText();
+            m_buffer = d->m_textEditDisplay->document()->toPlainText();
     case LabelDisplay:
         break;
     }
-
-    if (d->m_valueAcceptor) {
-        const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, val);
-        if (tmp)
-            m_internal = *tmp;
-    } else {
-        m_internal = val;
-    }
 }
 
-void StringAspect::internalToGui()
+void StringAspect::bufferToInternal()
 {
-    const QString displayed = d->m_displayFilter ? d->m_displayFilter(m_internal) : m_internal;
+    if (d->m_valueAcceptor) {
+        if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
+            m_internal = *tmp;
+        return;
+    }
+
+    m_internal = m_buffer;
+}
+
+void StringAspect::internalToBuffer()
+{
+    m_buffer = d->m_displayFilter ? d->m_displayFilter(m_internal) : m_internal;
+}
+
+void StringAspect::bufferToGui()
+{
     if (d->m_pathChooserDisplay) {
-        d->m_pathChooserDisplay->lineEdit()->setText(displayed);
+        d->m_pathChooserDisplay->lineEdit()->setText(m_buffer);
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     }
 
     if (d->m_lineEditDisplay) {
-        d->m_lineEditDisplay->setTextKeepingActiveCursor(displayed);
+        d->m_lineEditDisplay->setTextKeepingActiveCursor(m_buffer);
         d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
     }
 
     if (d->m_textEditDisplay) {
         const QString old = d->m_textEditDisplay->document()->toPlainText();
-        if (displayed != old)
-            d->m_textEditDisplay->setText(displayed);
+        if (m_buffer != old)
+            d->m_textEditDisplay->setText(m_buffer);
         d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
     }
 
     if (d->m_labelDisplay) {
-        d->m_labelDisplay->setText(displayed);
-        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayed : toolTip());
+        d->m_labelDisplay->setText(m_buffer);
+        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? m_buffer : toolTip());
     }
 
     validateInput();
@@ -1299,17 +1284,20 @@ void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
     d->m_checker->setSettingsKey(checkerKey);
 
     connect(d->m_checker.get(), &BoolAspect::changed, this, [this] {
-        internalToGui();
+        internalToBuffer();
+        bufferToGui();
         emit changed();
         checkedChanged();
     });
 
     connect(d->m_checker.get(), &BoolAspect::volatileValueChanged, this, [this] {
-        internalToGui();
+        internalToBuffer();
+        bufferToGui();
         checkedChanged();
     });
 
-    internalToGui();
+    internalToBuffer();
+    bufferToGui();
 }
 
 
@@ -1392,25 +1380,22 @@ void ColorAspect::addToLayout(Layouting::LayoutItem &parent)
     QTC_CHECK(!d->m_colorButton);
     d->m_colorButton = createSubWidget<QtColorButton>();
     parent.addItem(d->m_colorButton.data());
-    d->m_colorButton->setColor(value());
-    if (isAutoApply()) {
-        connect(d->m_colorButton.data(),
-                &QtColorButton::colorChanged,
-                this,
-                [this](const QColor &color) { setValue(color); });
-    }
+
+    bufferToGui();
+    connect(d->m_colorButton.data(), &QtColorButton::colorChanged,
+            this, &ColorAspect::handleGuiChanged);
 }
 
-void ColorAspect::internalToGui()
+void ColorAspect::guiToBuffer()
 {
     if (d->m_colorButton)
-        m_internal = d->m_colorButton->color();
+        m_buffer = d->m_colorButton->color();
 }
 
-void ColorAspect::guiToInternal()
+void ColorAspect::bufferToGui()
 {
     if (d->m_colorButton)
-        d->m_colorButton->setColor(m_internal);
+        d->m_colorButton->setColor(m_buffer);
 }
 
 /*!
@@ -1445,6 +1430,8 @@ BoolAspect::~BoolAspect() = default;
 */
 void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
 {
+    QTC_ASSERT(m_buffer == m_internal, m_buffer = m_internal);
+
     if (!d->m_buttonIsAdopted) {
         QTC_CHECK(!d->m_button);
         d->m_button = createSubWidget<QCheckBox>();
@@ -1463,13 +1450,10 @@ void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
         addLabeledItem(parent, d->m_button);
         break;
     }
-    d->m_button->setChecked(value());
-    if (isAutoApply()) {
-        connect(d->m_button.data(), &QAbstractButton::clicked,
-                this, [this](bool val) { setValue(val); });
-    }
+
+    bufferToGui();
     connect(d->m_button.data(), &QAbstractButton::clicked,
-            this, &BoolAspect::volatileValueChanged);
+            this, &BoolAspect::handleGuiChanged);
 }
 
 void BoolAspect::adoptButton(QAbstractButton *button)
@@ -1499,35 +1483,28 @@ QAction *BoolAspect::action()
         return TypedAspect::action();
     auto act = TypedAspect::action(); // Creates it.
     act->setCheckable(true);
-    act->setChecked(value());
+    act->setChecked(m_internal);
     act->setToolTip(toolTip());
     connect(act, &QAction::triggered, this, [this](bool newValue) {
-        // The check would be nice to have in simple conditions, but if we
-        // have an action that's used both on a settings page and as action
-        // in a menu like "Use FakeVim", isAutoApply() is false, and yet this
-        // here can trigger.
-        //QTC_CHECK(isAutoApply());
-        m_external = newValue;
-        externalToInternal();
-        internalToGui();
+        setValue(newValue);
     });
     return act;
 }
 
-void BoolAspect::guiToInternal()
+void BoolAspect::guiToBuffer()
 {
     if (d->m_button)
-        m_internal = d->m_button->isChecked();
+        m_buffer = d->m_button->isChecked();
     else if (d->m_groupBox)
-        m_internal = d->m_groupBox->isChecked();
+        m_buffer = d->m_groupBox->isChecked();
 }
 
-void BoolAspect::internalToGui()
+void BoolAspect::bufferToGui()
 {
     if (d->m_button)
-        d->m_button->setChecked(m_internal);
+        d->m_button->setChecked(m_buffer);
     else if (d->m_groupBox)
-        d->m_groupBox->setChecked(m_internal);
+        d->m_groupBox->setChecked(m_buffer);
 }
 
 void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
@@ -1587,6 +1564,7 @@ void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     QTC_CHECK(d->m_buttonGroup == nullptr);
     QTC_CHECK(!d->m_comboBox);
     QTC_ASSERT(d->m_buttons.isEmpty(), d->m_buttons.clear());
+    QTC_ASSERT(m_buffer == m_internal, m_buffer = m_internal);
 
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons:
@@ -1601,50 +1579,45 @@ void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
             parent.addItem(button);
             d->m_buttons.append(button);
             d->m_buttonGroup->addButton(button, i);
-            if (isAutoApply()) {
-                connect(button, &QAbstractButton::clicked, this, [this, i] {
-                    setValue(i);
-                });
-            }
         }
+        bufferToGui();
+        connect(d->m_buttonGroup, &QButtonGroup::idClicked,
+                this, &SelectionAspect::handleGuiChanged);
         break;
     case DisplayStyle::ComboBox:
         setLabelText(displayName());
         d->m_comboBox = createSubWidget<QComboBox>();
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             d->m_comboBox->addItem(d->m_options.at(i).displayName);
-        if (isAutoApply()) {
-            connect(d->m_comboBox.data(), &QComboBox::activated,
-                    this, &SelectionAspect::setValue);
-        }
-        connect(d->m_comboBox.data(), &QComboBox::currentIndexChanged,
-                this, &SelectionAspect::volatileValueChanged);
         d->m_comboBox->setCurrentIndex(value());
         addLabeledItem(parent, d->m_comboBox);
+        bufferToGui();
+        connect(d->m_comboBox.data(), &QComboBox::activated,
+                this, &SelectionAspect::handleGuiChanged);
         break;
     }
 }
 
-void SelectionAspect::guiToInternal()
+void SelectionAspect::guiToBuffer()
 {
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons:
         if (d->m_buttonGroup)
-            m_internal = d->m_buttonGroup->checkedId();
+            m_buffer = d->m_buttonGroup->checkedId();
         break;
     case DisplayStyle::ComboBox:
         if (d->m_comboBox)
-            m_internal = d->m_comboBox->currentIndex();
+            m_buffer = d->m_comboBox->currentIndex();
         break;
     }
 }
 
-void SelectionAspect::internalToGui()
+void SelectionAspect::bufferToGui()
 {
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons: {
         if (d->m_buttonGroup) {
-            QAbstractButton *button = d->m_buttonGroup->button(m_internal);
+            QAbstractButton *button = d->m_buttonGroup->button(m_buffer);
             QTC_ASSERT(button, return);
             button->setChecked(true);
         }
@@ -1652,7 +1625,7 @@ void SelectionAspect::internalToGui()
     }
     case DisplayStyle::ComboBox:
         if (d->m_comboBox)
-            d->m_comboBox->setCurrentIndex(m_internal);
+            d->m_comboBox->setCurrentIndex(m_buffer);
         break;
     }
 }
@@ -1775,17 +1748,13 @@ void MultiSelectionAspect::addToLayout(LayoutItem &builder)
     switch (d->m_displayStyle) {
     case DisplayStyle::ListView:
         d->m_listView = createSubWidget<QListWidget>();
-        for (const QString &val : std::as_const(d->m_allValues)) {
-            auto item = new QListWidgetItem(val, d->m_listView);
-            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-            item->setCheckState(value().contains(item->text()) ? Qt::Checked : Qt::Unchecked);
-        }
-        connect(d->m_listView, &QListWidget::itemChanged, this,
-            [this](QListWidgetItem *item) {
-            if (d->setValueSelectedHelper(item->text(), item->checkState() & Qt::Checked))
-                emit changed();
-        });
+        for (const QString &val : std::as_const(d->m_allValues))
+            (void) new QListWidgetItem(val, d->m_listView);
         addLabeledItem(builder, d->m_listView);
+
+        bufferToGui();
+        connect(d->m_listView, &QListWidget::itemChanged,
+                this, &MultiSelectionAspect::handleGuiChanged);
     }
 }
 
@@ -1820,27 +1789,28 @@ void MultiSelectionAspect::setDisplayStyle(MultiSelectionAspect::DisplayStyle st
     d->m_displayStyle = style;
 }
 
-void MultiSelectionAspect::internalToGui()
+void MultiSelectionAspect::bufferToGui()
 {
     if (d->m_listView) {
         const int n = d->m_listView->count();
         QTC_CHECK(n == d->m_allValues.size());
         for (int i = 0; i != n; ++i) {
             auto item = d->m_listView->item(i);
-            item->setCheckState(m_internal.contains(item->text()) ? Qt::Checked : Qt::Unchecked);
+            item->setCheckState(m_buffer.contains(item->text()) ? Qt::Checked : Qt::Unchecked);
         }
     }
 }
 
-void MultiSelectionAspect::guiToInternal()
+void MultiSelectionAspect::guiToBuffer()
 {
     if (d->m_listView) {
-        m_internal.clear();
-        for (const QString &val : std::as_const(d->m_allValues)) {
-            auto item = new QListWidgetItem(val, d->m_listView);
-            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        m_buffer.clear();
+        const int n = d->m_listView->count();
+        QTC_CHECK(n == d->m_allValues.size());
+        for (int i = 0; i != n; ++i) {
+            auto item = d->m_listView->item(i);
             if (item->checkState() == Qt::Checked)
-                m_internal.append(item->text());
+                m_buffer.append(item->text());
         }
     }
 }
@@ -1897,16 +1867,16 @@ void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
     }
 }
 
-void IntegerAspect::guiToInternal()
+void IntegerAspect::guiToBuffer()
 {
     if (d->m_spinBox)
-        m_internal = d->m_spinBox->value() * d->m_displayScaleFactor;
+        m_buffer = d->m_spinBox->value() * d->m_displayScaleFactor;
 }
 
-void IntegerAspect::internalToGui()
+void IntegerAspect::bufferToGui()
 {
     if (d->m_spinBox)
-        d->m_spinBox->setValue(m_internal / d->m_displayScaleFactor);
+        d->m_spinBox->setValue(m_buffer / d->m_displayScaleFactor);
 }
 
 void IntegerAspect::setRange(qint64 min, qint64 max)
@@ -1990,7 +1960,7 @@ void DoubleAspect::addToLayout(LayoutItem &builder)
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_maximumValue && d->m_maximumValue)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
-    internalToGui(); // Must happen after setRange()!
+    bufferToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
 
     if (isAutoApply()) {
@@ -1999,16 +1969,16 @@ void DoubleAspect::addToLayout(LayoutItem &builder)
     }
 }
 
-void DoubleAspect::guiToInternal()
+void DoubleAspect::guiToBuffer()
 {
     if (d->m_spinBox)
-        m_internal = d->m_spinBox->value();
+        m_buffer = d->m_spinBox->value();
 }
 
-void DoubleAspect::internalToGui()
+void DoubleAspect::bufferToGui()
 {
     if (d->m_spinBox)
-        d->m_spinBox->setValue(m_internal);
+        d->m_spinBox->setValue(m_buffer);
 }
 
 void DoubleAspect::setRange(double min, double max)
@@ -2477,7 +2447,7 @@ BaseAspect::Data::Ptr BaseAspect::extractData() const
 
     No-op otherwise.
 */
-void BaseAspect::internalToGui()
+void BaseAspect::bufferToGui()
 {}
 
 /*
@@ -2486,25 +2456,41 @@ void BaseAspect::internalToGui()
 
     No-op otherwise.
 */
-void BaseAspect::guiToInternal()
+void BaseAspect::guiToBuffer()
 {}
 
 /*
-    Mirrors internal volatile value to the externally visible value.
+    Mirrors buffered volatile value to the internal value.
     This function is used for \c apply().
-
-    \returns whether the value changes.
 */
-bool BaseAspect::internalToExternal()
-{
-    return false;
-}
+
+void BaseAspect::bufferToInternal()
+{}
+
+
+void BaseAspect::internalToBuffer()
+{}
+
+/*
+    Applies common postprocessing like macro expansion.
+*/
+
+void BaseAspect::internalToExternal()
+{}
 
 /*
     Mirrors externally visible value to internal volatile value.
 */
 void BaseAspect::externalToInternal()
 {}
+
+void BaseAspect::handleGuiChanged()
+{
+    guiToBuffer();
+    emit volatileValueChanged();
+    if (isAutoApply())
+        apply();
+}
 
 void BaseAspect::addDataExtractorHelper(const DataExtractor &extractor) const
 {
