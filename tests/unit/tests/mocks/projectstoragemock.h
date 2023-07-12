@@ -114,6 +114,11 @@ public:
                  QmlDesigner::Storage::Version version),
                 (const, override));
 
+    MOCK_METHOD(QmlDesigner::Storage::Info::ExportedTypeNames,
+                exportedTypeNames,
+                (QmlDesigner::TypeId),
+                (const, override));
+
     MOCK_METHOD(QmlDesigner::ImportId,
                 importId,
                 (const QmlDesigner::Storage::Import &import),

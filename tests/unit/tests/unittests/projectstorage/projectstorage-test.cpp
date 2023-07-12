@@ -3,6 +3,8 @@
 
 #include "../utils/googletest.h"
 
+#include <matchers/info_exportedtypenames-matcher.h>
+
 #include <modelnode.h>
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/sourcepathcache.h>
@@ -6941,6 +6943,31 @@ TEST_F(ProjectStorage, synchronize_document_imports_adds_import)
     storage.synchronizeDocumentImports(imports, sourceId1);
 
     ASSERT_TRUE(storage.importId(imports.back()));
+}
+
+TEST_F(ProjectStorage, get_exported_type_names)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId2, "QObject");
+
+    auto exportedTypeNames = storage.exportedTypeNames(typeId);
+
+    ASSERT_THAT(exportedTypeNames,
+                UnorderedElementsAre(IsInfoExportTypeNames(qmlModuleId, "Object", 2, -1),
+                                     IsInfoExportTypeNames(qmlModuleId, "Obj", 2, -1),
+                                     IsInfoExportTypeNames(qmlNativeModuleId, "QObject", -1, -1)));
+}
+
+TEST_F(ProjectStorage, get_no_exported_type_names_if_type_id_is_invalid)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    TypeId typeId;
+
+    auto exportedTypeNames = storage.exportedTypeNames(typeId);
+
+    ASSERT_THAT(exportedTypeNames, IsEmpty());
 }
 
 } // namespace

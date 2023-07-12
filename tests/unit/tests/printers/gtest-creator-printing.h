@@ -170,9 +170,11 @@ std::ostream &operator<<(std::ostream &out, Version version);
 namespace Storage::Info {
 class ProjectDeclaration;
 class Type;
+class ExportedTypeName;
 
 std::ostream &operator<<(std::ostream &out, const ProjectDeclaration &declaration);
 std::ostream &operator<<(std::ostream &out, const Type &type);
+std::ostream &operator<<(std::ostream &out, const ExportedTypeName &name);
 
 } // namespace Storage::Info
 

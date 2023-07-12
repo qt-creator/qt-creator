@@ -153,6 +153,12 @@ public:
         return Sqlite::withDeferredTransaction(database, [&] { return fetchTypeId(typeNameId); });
     }
 
+    Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId) const override
+    {
+        return selectExportedTypesByTypeIdStatement
+            .template valuesWithTransaction<Storage::Info::ExportedTypeName>(4, typeId);
+    }
+
     ImportId importId(const Storage::Import &import) const override
     {
         return Sqlite::withDeferredTransaction(database, [&] {
@@ -2748,7 +2754,7 @@ public:
         "  ON defaultPropertyId=propertyDeclarationId WHERE t.typeId=?",
         database};
     mutable ReadStatement<4, 1> selectExportedTypesByTypeIdStatement{
-        "SELECT moduleId, name, majorVersion, minorVersion FROM "
+        "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM "
         "exportedTypeNames WHERE typeId=?",
         database};
     mutable ReadStatement<7> selectTypesStatement{

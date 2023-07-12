@@ -3,35 +3,9 @@
 
 #pragma once
 
+#include "version-matcher.h"
+
 #include <projectstorage/projectstoragetypes.h>
-
-#include <gmock/gmock-matchers.h>
-#include <gmock/gmock-more-matchers.h>
-
-template<typename Matcher>
-auto IsVersionNumber(const Matcher &matcher)
-{
-    return Field(&QmlDesigner::Storage::VersionNumber::value, matcher);
-}
-
-template<typename Matcher>
-auto IsMinorVersion(const Matcher &matcher)
-{
-    return Field(&QmlDesigner::Storage::Version::minor, matcher);
-}
-
-template<typename Matcher>
-auto IsMajorVersion(const Matcher &matcher)
-{
-    return Field(&QmlDesigner::Storage::Version::major, matcher);
-}
-
-template<typename MajorMatcher, typename MinorMatcher>
-auto IsVersion(const MajorMatcher &majorMatcher, const MinorMatcher &minorMatcher)
-{
-    return AllOf(IsMajorVersion(IsVersionNumber(majorMatcher)),
-                 IsMinorVersion(IsVersionNumber(minorMatcher)));
-}
 
 template<typename ModuleIdMatcher,
          typename SourceIdMatcher,

@@ -25,27 +25,6 @@ add_qtc_test(unittest GTEST
     unittests-main.cpp
 )
 
-function(extend_qtc_test_with_target_sources target)
-  cmake_parse_arguments(_arg "" "" "DEFINES;INCLUDES" ${ARGN})
-
-  get_target_property(${target}Sources ${target} SOURCES)
-  # work around issue with CMake < 3.14 where target sources can contain
-  # $<TARGET_OBJECTS:...>
-  list(FILTER ${target}Sources EXCLUDE REGEX "^\\$<TARGET_OBJECTS:.*")
-
-  get_target_property(${target}SourcesDir ${target} SOURCES_DIR)
-  extend_qtc_test(unittest
-    SOURCES_PREFIX "${${target}SourcesDir}"
-    SOURCES ${${target}Sources}
-    DEFINES
-      $<TARGET_PROPERTY:${target},INTERFACE_COMPILE_DEFINITIONS>
-      ${_arg_DEFINES}
-    INCLUDES
-      $<TARGET_PROPERTY:${target},INTERFACE_INCLUDE_DIRECTORIES>
-      ${_arg_INCLUDES}
-  )
-endfunction()
-
 finalize_qtc_gtest(unittest
   EXCLUDE_SOURCES_REGEX ".c$"
   EXCLUDE_ALL_FROM_PRECHECK

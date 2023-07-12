@@ -63,9 +63,114 @@ constexpr TypeTraits operator&(TypeTraits first, TypeTraits second)
 
 using TypeNameString = ::Utils::BasicSmallString<63>;
 
+class VersionNumber
+{
+public:
+    explicit VersionNumber() = default;
+    explicit VersionNumber(int value)
+        : value{value}
+    {}
+
+    explicit operator bool() const { return value >= 0; }
+
+    friend bool operator==(VersionNumber first, VersionNumber second) noexcept
+    {
+        return first.value == second.value;
+    }
+
+    friend bool operator!=(VersionNumber first, VersionNumber second) noexcept
+    {
+        return !(first == second);
+    }
+
+    friend bool operator<(VersionNumber first, VersionNumber second) noexcept
+    {
+        return first.value < second.value;
+    }
+
+public:
+    int value = -1;
+};
+
+class Version
+{
+public:
+    explicit Version() = default;
+    explicit Version(VersionNumber major, VersionNumber minor = VersionNumber{})
+        : major{major}
+        , minor{minor}
+    {}
+
+    explicit Version(int major, int minor)
+        : major{major}
+        , minor{minor}
+    {}
+
+    explicit Version(int major)
+        : major{major}
+    {}
+
+    friend bool operator==(Version first, Version second) noexcept
+    {
+        return first.major == second.major && first.minor == second.minor;
+    }
+
+    friend bool operator<(Version first, Version second) noexcept
+    {
+        return std::tie(first.major, first.minor) < std::tie(second.major, second.minor);
+    }
+
+    explicit operator bool() const { return major && minor; }
+
+public:
+    VersionNumber major;
+    VersionNumber minor;
+};
 } // namespace QmlDesigner::Storage
 
 namespace QmlDesigner::Storage::Info {
+
+class ExportedTypeName
+{
+public:
+    explicit ExportedTypeName() = default;
+
+    explicit ExportedTypeName(ModuleId moduleId,
+                              ::Utils::SmallStringView name,
+                              Storage::Version version = Storage::Version{})
+        : name{name}
+        , version{version}
+        , moduleId{moduleId}
+    {}
+
+    explicit ExportedTypeName(ModuleId moduleId,
+                              ::Utils::SmallStringView name,
+                              int majorVersion,
+                              int minorVersion)
+        : name{name}
+        , version{majorVersion, minorVersion}
+        , moduleId{moduleId}
+    {}
+
+    friend bool operator==(const ExportedTypeName &first, const ExportedTypeName &second)
+    {
+        return first.moduleId == second.moduleId && first.version == second.version
+               && first.name == second.name;
+    }
+
+    friend bool operator<(const ExportedTypeName &first, const ExportedTypeName &second)
+    {
+        return std::tie(first.moduleId, first.name, first.version)
+               < std::tie(second.moduleId, second.name, second.version);
+    }
+
+public:
+    ::Utils::SmallString name;
+    Storage::Version version;
+    ModuleId moduleId;
+};
+
+using ExportedTypeNames = std::vector<ExportedTypeName>;
 
 class PropertyDeclaration
 {

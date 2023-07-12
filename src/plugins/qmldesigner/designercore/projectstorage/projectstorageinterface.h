@@ -26,6 +26,7 @@ public:
                           Storage::Version version) const
         = 0;
     virtual TypeId typeId(ImportedTypeNameId typeNameId) const = 0;
+    virtual Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId) const = 0;
     virtual ImportId importId(const Storage::Import &import) const = 0;
     virtual ImportedTypeNameId importedTypeNameId(ImportId sourceId, Utils::SmallStringView typeName)
         = 0;

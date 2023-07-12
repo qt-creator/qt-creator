@@ -600,6 +600,11 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
 {
     return out << "(" << type.defaultPropertyId << ")";
 }
+
+std::ostream &operator<<(std::ostream &out, const ExportedTypeName &name)
+{
+    return out << "(\"" << name.name << "\"," << name.moduleId << ", " << name.version << ")";
+}
 } // namespace Storage::Info
 
 namespace Storage::Synchronization {

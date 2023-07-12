@@ -5,6 +5,8 @@ add_qtc_library(TestMatchers OBJECT
   DEPENDS
     Googletest Utils QmlDesigner
   SOURCES
+    info_exportedtypenames-matcher.h
     import-matcher.h
     unittest-matchers.h
+    version-matcher.h
 )
