@@ -4,10 +4,9 @@
 #include "ctesttreeitem.h"
 
 #include "ctestconfiguration.h"
-#include "ctestsettings.h"
+#include "ctesttool.h"
 
 #include "../autotestplugin.h"
-#include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <projectexplorer/buildconfiguration.h>

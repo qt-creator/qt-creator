@@ -3,9 +3,8 @@
 
 #include "quicktestconfiguration.h"
 
-#include "../itestframework.h"
 #include "../qtest/qttestoutputreader.h"
-#include "../qtest/qttestsettings.h"
+#include "../qtest/qttestframework.h"
 #include "../qtest/qttest_utils.h"
 #include "../testsettings.h"
 

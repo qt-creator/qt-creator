@@ -3,7 +3,7 @@
 
 #include "boosttestoutputreader.h"
 
-#include "boosttestsettings.h"
+#include "boosttestframework.h"
 #include "boosttestresult.h"
 
 #include "../autotesttr.h"

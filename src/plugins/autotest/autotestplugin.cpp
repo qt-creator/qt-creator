@@ -18,11 +18,11 @@
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
-#include "boost/boosttestsettings.h"
-#include "catch/catchtestsettings.h"
-#include "ctest/ctestsettings.h"
-#include "gtest/gtestsettings.h"
-#include "qtest/qttestsettings.h"
+#include "boost/boosttestframework.h"
+#include "catch/catchtestframework.h"
+#include "ctest/ctesttool.h"
+#include "gtest/gtestframework.h"
+#include "qtest/qttestframework.h"
 #include "quick/quicktestframework.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>

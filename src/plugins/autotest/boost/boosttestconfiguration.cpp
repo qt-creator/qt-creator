@@ -3,10 +3,9 @@
 
 #include "boosttestconfiguration.h"
 
+#include "boosttestframework.h"
 #include "boosttestoutputreader.h"
-#include "boosttestsettings.h"
 
-#include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>

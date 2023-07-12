@@ -5,7 +5,7 @@
 
 #include "gtestconfiguration.h"
 #include "gtestconstants.h"
-#include "gtestsettings.h"
+#include "gtestframework.h"
 #include "gtestparser.h"
 #include "../autotesttr.h"
 

@@ -4,11 +4,12 @@
 #include "catchtestparser.h"
 
 #include "catchcodeparser.h"
-#include "catchtestsettings.h"
+#include "catchtestframework.h"
 #include "catchtreeitem.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
+
 #include <utils/qtcassert.h>
 
 #include <QPromise>

@@ -3,10 +3,9 @@
 
 #include "catchconfiguration.h"
 
+#include "catchtestframework.h"
 #include "catchoutputreader.h"
-#include "catchtestsettings.h"
 
-#include "../itestframework.h"
 #include "../testsettings.h"
 
 using namespace Utils;

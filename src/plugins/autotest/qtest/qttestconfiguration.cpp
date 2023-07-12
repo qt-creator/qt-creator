@@ -3,11 +3,10 @@
 
 #include "qttestconfiguration.h"
 
+#include "qttestframework.h"
 #include "qttestoutputreader.h"
-#include "qttestsettings.h"
 #include "qttest_utils.h"
 
-#include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>

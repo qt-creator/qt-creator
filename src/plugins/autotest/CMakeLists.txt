@@ -13,27 +13,27 @@ add_qtc_plugin(AutoTest
     boost/boostcodeparser.cpp boost/boostcodeparser.h
     boost/boosttestconfiguration.cpp boost/boosttestconfiguration.h
     boost/boosttestconstants.h
+    boost/boosttestframework.cpp boost/boosttestframework.h
     boost/boosttestoutputreader.cpp boost/boosttestoutputreader.h
     boost/boosttestparser.cpp boost/boosttestparser.h
     boost/boosttestresult.cpp boost/boosttestresult.h
-    boost/boosttestsettings.cpp boost/boosttestsettings.h
     boost/boosttesttreeitem.cpp boost/boosttesttreeitem.h
     catch/catchcodeparser.cpp catch/catchcodeparser.h
     catch/catchconfiguration.cpp catch/catchconfiguration.h
     catch/catchoutputreader.cpp catch/catchresult.h catch/catchresult.cpp catch/catchtestparser.h
+    catch/catchtestframework.cpp catch/catchtestframework.h
     catch/catchtestparser.cpp catch/catchtreeitem.h catch/catchtreeitem.cpp
-    catch/catchtestsettings.cpp catch/catchtestsettings.h
     ctest/ctestconfiguration.cpp ctest/ctestconfiguration.h
     ctest/ctestoutputreader.cpp ctest/ctestoutputreader.h
-    ctest/ctestsettings.cpp ctest/ctestsettings.h
+    ctest/ctesttool.cpp ctest/ctesttool.h
     ctest/ctesttreeitem.cpp ctest/ctesttreeitem.h
     gtest/gtest_utils.cpp gtest/gtest_utils.h
     gtest/gtestconfiguration.cpp gtest/gtestconfiguration.h
     gtest/gtestconstants.h
+    gtest/gtestframework.cpp gtest/gtestframework.h
     gtest/gtestoutputreader.cpp gtest/gtestoutputreader.h
     gtest/gtestparser.cpp gtest/gtestparser.h
     gtest/gtestresult.cpp gtest/gtestresult.h
-    gtest/gtestsettings.cpp gtest/gtestsettings.h
     gtest/gtesttreeitem.cpp gtest/gtesttreeitem.h
     gtest/gtestvisitors.cpp gtest/gtestvisitors.h
     itemdatacache.h
@@ -43,10 +43,10 @@ add_qtc_plugin(AutoTest
     qtest/qttest_utils.cpp qtest/qttest_utils.h
     qtest/qttestconfiguration.cpp qtest/qttestconfiguration.h
     qtest/qttestconstants.h
+    qtest/qttestframework.cpp qtest/qttestframework.h
     qtest/qttestoutputreader.cpp qtest/qttestoutputreader.h
     qtest/qttestparser.cpp qtest/qttestparser.h
     qtest/qttestresult.cpp qtest/qttestresult.h
-    qtest/qttestsettings.cpp qtest/qttestsettings.h
     qtest/qttesttreeitem.cpp qtest/qttesttreeitem.h
     qtest/qttestvisitors.cpp qtest/qttestvisitors.h
     quick/quicktest_utils.cpp quick/quicktest_utils.h

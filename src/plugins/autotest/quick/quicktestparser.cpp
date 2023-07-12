@@ -8,7 +8,7 @@
 #include "quicktest_utils.h"
 #include "../testcodeparser.h"
 #include "../testtreemodel.h"
-#include "../qtest/qttestsettings.h"
+#include "../qtest/qttestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>

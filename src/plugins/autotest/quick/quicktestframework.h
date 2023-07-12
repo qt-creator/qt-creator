@@ -5,7 +5,7 @@
 
 #include "../itestframework.h"
 
-#include "../qtest/qttestsettings.h"
+#include "../qtest/qttestframework.h"
 
 namespace Autotest {
 namespace QuickTest {

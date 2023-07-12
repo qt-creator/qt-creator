@@ -3,10 +3,9 @@
 
 #include "gtestconfiguration.h"
 
+#include "gtestframework.h"
 #include "gtestoutputreader.h"
-#include "gtestsettings.h"
 
-#include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>

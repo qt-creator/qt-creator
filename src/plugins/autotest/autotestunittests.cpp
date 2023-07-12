@@ -7,7 +7,7 @@
 #include "testframeworkmanager.h"
 #include "testtreemodel.h"
 
-#include "qtest/qttestsettings.h"
+#include "qtest/qttestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolstestcase.h>
@@ -20,14 +20,14 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
 
+#include <qtsupport/qtkitinformation.h>
+
 #include <utils/environment.h>
 
 #include <QFileInfo>
 #include <QProcess>
 #include <QSignalSpy>
 #include <QTest>
-
-#include <qtsupport/qtkitinformation.h>
 
 using namespace Core;
 using namespace ExtensionSystem;
