@@ -125,7 +125,7 @@ QWidget *CppEditorOutline::widget() const
 
 QSharedPointer<CPlusPlus::Document> getDocument(const Utils::FilePath &filePath)
 {
-    const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
+    const CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
     return snapshot.document(filePath);
 }
 

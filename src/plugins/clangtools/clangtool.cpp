@@ -695,7 +695,7 @@ Tasking::Group ClangTool::runRecipe(const RunSettings &runSettings,
     }
 
     const ProjectInfo::ConstPtr projectInfoBeforeBuild
-        = CppModelManager::instance()->projectInfo(target->project());
+        = CppModelManager::projectInfo(target->project());
 
     const auto onTreeSetup = [this, storage, runSettings, diagnosticConfig, fileInfos, tempDir,
                               environment, projectInfoBeforeBuild](TaskTree &taskTree) {
@@ -710,7 +710,7 @@ Tasking::Group ClangTool::runRecipe(const RunSettings &runSettings,
         ProjectExplorerPlugin::saveModifiedFiles();
 
         Project *project = m_runControl->project();
-        const ProjectInfo::ConstPtr projectInfo = CppModelManager::instance()->projectInfo(project);
+        const ProjectInfo::ConstPtr projectInfo = CppModelManager::projectInfo(project);
         if (!projectInfo) {
             m_infoBarWidget->setError(InfoBarWidget::Error, failedMessage,
                                       [this] { showOutputPane(); });
@@ -892,7 +892,7 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         return {};
     }
 
-    const auto projectInfo = CppModelManager::instance()->projectInfo(project);
+    const auto projectInfo = CppModelManager::projectInfo(project);
     QTC_ASSERT(projectInfo, return FileInfos());
 
     const FileInfos allFileInfos = sortedFileInfos(projectInfo->projectParts());
@@ -1024,7 +1024,7 @@ static bool canAnalyzeProject(Project *project)
         const bool projectSupportsLanguage = project->projectLanguages().contains(c)
                                              || project->projectLanguages().contains(cxx);
         return projectSupportsLanguage
-               && CppModelManager::instance()->projectInfo(project)
+               && CppModelManager::projectInfo(project)
                && ToolChainKitAspect::cxxToolChain(target->kit());
     }
     return false;

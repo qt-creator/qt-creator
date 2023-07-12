@@ -154,7 +154,7 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
 
 static bool projectHasQmlDefines(ProjectExplorer::Project *project)
 {
-    auto projectInfo = CppEditor::CppModelManager::instance()->projectInfo(project);
+    auto projectInfo = CppEditor::CppModelManager::projectInfo(project);
     if (!projectInfo) // we may have e.g. a Python project
         return false;
     return Utils::anyOf(projectInfo->projectParts(),

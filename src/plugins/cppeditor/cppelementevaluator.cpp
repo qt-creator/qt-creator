@@ -475,7 +475,7 @@ static QFuture<QSharedPointer<CppElement>> exec(SourceFunction &&sourceFunction,
                                                 ExecFunction &&execFunction,
                                                 bool followTypedef = true)
 {
-    const Snapshot &snapshot = CppModelManager::instance()->snapshot();
+    const Snapshot &snapshot = CppModelManager::snapshot();
 
     Document::Ptr doc;
     QString expression;
@@ -497,7 +497,7 @@ static QFuture<QSharedPointer<CppElement>> asyncExec(
         const CPlusPlus::LookupContext &lookupContext)
 {
     return Utils::asyncRun(&createTypeHierarchy, snapshot, lookupItem, lookupContext,
-                           *CppModelManager::instance()->symbolFinder());
+                           *CppModelManager::symbolFinder());
 }
 
 class FromExpressionFunctor
@@ -589,7 +589,7 @@ QFuture<QSharedPointer<CppElement>> FromGuiFunctor::syncExec(
     QFutureInterface<QSharedPointer<CppElement>> futureInterface;
     futureInterface.reportStarted();
     m_element = handleLookupItemMatch(snapshot, lookupItem, lookupContext,
-                                      *CppModelManager::instance()->symbolFinder());
+                                      *CppModelManager::symbolFinder());
     futureInterface.reportResult(m_element);
     futureInterface.reportFinished();
     return futureInterface.future();
@@ -694,7 +694,7 @@ const QString &CppElementEvaluator::diagnosis() const
 
 Utils::Link CppElementEvaluator::linkFromExpression(const QString &expression, const FilePath &filePath)
 {
-    const Snapshot &snapshot = CppModelManager::instance()->snapshot();
+    const Snapshot &snapshot = CppModelManager::snapshot();
     Document::Ptr doc = snapshot.document(filePath);
     if (doc.isNull())
         return Utils::Link();

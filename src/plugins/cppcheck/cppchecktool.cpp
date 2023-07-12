@@ -180,7 +180,7 @@ void CppcheckTool::check(const Utils::FilePaths &files)
         return;
 
     const CppEditor::ProjectInfo::ConstPtr info
-            = CppEditor::CppModelManager::instance()->projectInfo(m_project);
+            = CppEditor::CppModelManager::projectInfo(m_project);
     if (!info)
         return;
     const QVector<CppEditor::ProjectPart::ConstPtr> parts = info->projectParts();

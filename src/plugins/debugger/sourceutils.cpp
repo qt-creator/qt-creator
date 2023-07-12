@@ -223,7 +223,7 @@ QStringList getUninitializedVariables(const Snapshot &snapshot,
 
 QString cppFunctionAt(const FilePath &filePath, int line, int column)
 {
-    const Snapshot snapshot = CppModelManager::instance()->snapshot();
+    const Snapshot snapshot = CppModelManager::snapshot();
     if (const Document::Ptr document = snapshot.document(filePath))
         return document->functionAt(line, column);
 
@@ -240,7 +240,7 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
         function->clear();
 
     const FilePath filePath = editorWidget->textDocument()->filePath();
-    const Snapshot snapshot = CppModelManager::instance()->snapshot();
+    const Snapshot snapshot = CppModelManager::snapshot();
     const Document::Ptr document = snapshot.document(filePath);
     QTextCursor tc = editorWidget->textCursor();
     QString expr;
@@ -376,7 +376,7 @@ static void setValueAnnotationsHelper(BaseTextEditor *textEditor,
     TextEditorWidget *widget = textEditor->editorWidget();
     TextDocument *textDocument = widget->textDocument();
     const FilePath filePath = loc.fileName();
-    const Snapshot snapshot = CppModelManager::instance()->snapshot();
+    const Snapshot snapshot = CppModelManager::snapshot();
     const Document::Ptr cppDocument = snapshot.document(filePath);
     if (!cppDocument) // For non-C++ documents.
         return;

@@ -54,7 +54,7 @@ enum {
 
 static Snapshot globalSnapshot()
 {
-    return CppModelManager::instance()->snapshot();
+    return CppModelManager::snapshot();
 }
 
 struct FileAndLine

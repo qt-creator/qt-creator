@@ -18,8 +18,6 @@ namespace Core { class SearchResult; }
 namespace Utils { class SearchResultItem; }
 
 namespace CppEditor {
-class CppModelManager;
-
 namespace Internal {
 
 class SymbolsFindFilter : public Core::IFindFilter
@@ -30,7 +28,7 @@ public:
     using SearchScope = SymbolSearcher::SearchScope;
 
 public:
-    explicit SymbolsFindFilter(CppModelManager *manager);
+    SymbolsFindFilter();
 
     QString id() const override;
     QString displayName() const override;
@@ -65,7 +63,6 @@ private:
     QString toolTip(Utils::FindFlags findFlags) const;
     void startSearch(Core::SearchResult *search);
 
-    CppModelManager *m_manager;
     bool m_enabled;
     QMap<QFutureWatcher<Utils::SearchResultItem> *, QPointer<Core::SearchResult> > m_watchers;
     QPointer<Core::SearchResult> m_currentSearch;

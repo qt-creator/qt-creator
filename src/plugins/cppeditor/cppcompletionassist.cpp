@@ -417,7 +417,7 @@ std::unique_ptr<AssistInterface> InternalCompletionAssistProvider::createAssistI
                 BuiltinEditorDocumentParser::get(filePath),
                 languageFeatures,
                 reason,
-                CppModelManager::instance()->workingCopy());
+                CppModelManager::workingCopy());
 }
 
 // -----------------
@@ -2076,7 +2076,7 @@ void CppCompletionAssistInterface::getCppSpecifics() const
     m_gotCppSpecifics = true;
 
     if (m_parser) {
-        m_parser->update({CppModelManager::instance()->workingCopy(),
+        m_parser->update({CppModelManager::workingCopy(),
                           nullptr,
                           Utils::Language::Cxx,
                           false});

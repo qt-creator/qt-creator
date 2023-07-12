@@ -216,8 +216,7 @@ qmt::MObject *PxNodeUtilities::findSameObject(const QStringList &relativeElement
 
 bool PxNodeUtilities::isProxyHeader(const QString &file) const
 {
-    CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
-    CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
+    CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
 
     CPlusPlus::Document::Ptr document = snapshot.document(Utils::FilePath::fromString(file));
     if (document) {

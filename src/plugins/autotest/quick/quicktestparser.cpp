@@ -82,9 +82,10 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
     return false;
 }
 
-static QString quickTestSrcDir(const CppEditor::CppModelManager *cppMM, const FilePath &fileName)
+static QString quickTestSrcDir(const FilePath &fileName)
 {
-    const QList<CppEditor::ProjectPart::ConstPtr> parts = cppMM->projectPart(fileName);
+    const QList<CppEditor::ProjectPart::ConstPtr> parts =
+        CppEditor::CppModelManager::projectPart(fileName);
     if (parts.size() > 0) {
         const ProjectExplorer::Macros &macros = parts.at(0)->projectMacros;
         auto found = std::find_if(macros.cbegin(), macros.cend(),
@@ -252,17 +253,17 @@ bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
                                         CPlusPlus::Document::Ptr document,
                                         ITestFramework *framework)
 {
-    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     if (quickTestName(document).isEmpty())
         return false;
 
-    QList<CppEditor::ProjectPart::ConstPtr> ppList = modelManager->projectPart(document->filePath());
+    QList<CppEditor::ProjectPart::ConstPtr> ppList =
+        CppEditor::CppModelManager::projectPart(document->filePath());
     if (ppList.isEmpty()) // happens if shutting down while parsing
         return false;
     const FilePath cppFileName = document->filePath();
     const FilePath proFile = FilePath::fromString(ppList.at(0)->projectFile);
     m_mainCppFiles.insert(cppFileName, proFile);
-    const FilePath srcDir = FilePath::fromString(quickTestSrcDir(modelManager, cppFileName));
+    const FilePath srcDir = FilePath::fromString(quickTestSrcDir(cppFileName));
     if (srcDir.isEmpty())
         return false;
 

@@ -1899,10 +1899,9 @@ ProjectExplorer::HeaderPaths relevantHeaderPaths(const QString &filePath)
 {
     ProjectExplorer::HeaderPaths headerPaths;
 
-    CppModelManager *modelManager = CppModelManager::instance();
-    const QList<ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
+    const QList<ProjectPart::ConstPtr> projectParts = CppModelManager::projectPart(filePath);
     if (projectParts.isEmpty()) { // Not part of any project, better use all include paths than none
-        headerPaths += modelManager->headerPaths();
+        headerPaths += CppModelManager::headerPaths();
     } else {
         for (const ProjectPart::ConstPtr &part : projectParts)
             headerPaths += part->headerPaths;
@@ -1997,7 +1996,7 @@ QList<IndexItem::Ptr> matchName(const Name *name, QString *className)
 
     QString simpleName;
     QList<IndexItem::Ptr> matches;
-    CppLocatorData *locatorData = CppModelManager::instance()->locatorData();
+    CppLocatorData *locatorData = CppModelManager::locatorData();
     const Overview oo;
     if (const QualifiedNameId *qualifiedName = name->asQualifiedNameId()) {
         const Name *name = qualifiedName->name();

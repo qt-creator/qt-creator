@@ -209,7 +209,7 @@ Link findMacroLink(const QByteArray &name, const Document::Ptr &doc)
 {
     if (!name.isEmpty()) {
         if (doc) {
-            const Snapshot snapshot = CppModelManager::instance()->snapshot();
+            const Snapshot snapshot = CppModelManager::snapshot();
             QSet<QString> processed;
             return findMacroLink_helper(name, doc, snapshot, &processed);
         }

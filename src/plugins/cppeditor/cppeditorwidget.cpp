@@ -383,8 +383,6 @@ public:
     bool shouldOfferOutline() const { return !CppModelManager::usesClangd(m_cppEditorDocument); }
 
 public:
-    QPointer<CppModelManager> m_modelManager;
-
     CppEditorDocument *m_cppEditorDocument;
     CppEditorOutline *m_cppEditorOutline = nullptr;
 
@@ -405,8 +403,7 @@ public:
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
-    : m_modelManager(CppModelManager::instance())
-    , m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
+    : m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
     , m_declDefLinkFinder(new FunctionDeclDefLinkFinder(q))
     , m_localRenaming(q)
     , m_useSelectionsUpdater(q)
@@ -611,7 +608,7 @@ void CppEditorWidget::findUsages(QTextCursor cursor)
     // 'this' in cursorInEditor is never used (and must never be used) asynchronously.
     const CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
     QPointer<CppEditorWidget> cppEditorWidget = this;
-    d->m_modelManager->findUsages(cursorInEditor);
+    CppModelManager::findUsages(cursorInEditor);
 }
 
 void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor cursor)
@@ -626,7 +623,7 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
         showRenameWarningIfFileIsGenerated(link.targetFilePath);
         CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
         QPointer<CppEditorWidget> cppEditorWidget = this;
-        d->m_modelManager->globalRename(cursorInEditor, replacement);
+        CppModelManager::globalRename(cursorInEditor, replacement);
     };
     CppModelManager::followSymbol(
                 CursorInEditor{cursor, textDocument()->filePath(), this, textDocument()},
@@ -640,7 +637,7 @@ void CppEditorWidget::renameUsages(const Utils::FilePath &filePath, const QStrin
         cursor = textCursor();
     CursorInEditor cursorInEditor{cursor, filePath, this, textDocument()};
     QPointer<CppEditorWidget> cppEditorWidget = this;
-    d->m_modelManager->globalRename(cursorInEditor, replacement, callback);
+    CppModelManager::globalRename(cursorInEditor, replacement, callback);
 }
 
 bool CppEditorWidget::selectBlockUp()
@@ -695,15 +692,14 @@ bool CppEditorWidget::isWidgetHighlighted(QWidget *widget)
 
 namespace {
 
-QList<ProjectPart::ConstPtr> fetchProjectParts(CppModelManager *modelManager,
-                                               const Utils::FilePath &filePath)
+QList<ProjectPart::ConstPtr> fetchProjectParts(const Utils::FilePath &filePath)
 {
-    QList<ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
+    QList<ProjectPart::ConstPtr> projectParts = CppModelManager::projectPart(filePath);
 
     if (projectParts.isEmpty())
-        projectParts = modelManager->projectPartFromDependencies(filePath);
+        projectParts = CppModelManager::projectPartFromDependencies(filePath);
     if (projectParts.isEmpty())
-        projectParts.append(modelManager->fallbackProjectPart());
+        projectParts.append(CppModelManager::fallbackProjectPart());
 
     return projectParts;
 }
@@ -728,10 +724,10 @@ const ProjectPart *findProjectPartForCurrentProject(
 
 const ProjectPart *CppEditorWidget::projectPart() const
 {
-    if (!d->m_modelManager)
+    if (!CppModelManager::instance())
         return nullptr;
 
-    auto projectParts = fetchProjectParts(d->m_modelManager, textDocument()->filePath());
+    auto projectParts = fetchProjectParts(textDocument()->filePath());
 
     return findProjectPartForCurrentProject(projectParts,
                                             ProjectExplorer::ProjectTree::currentProject());
@@ -868,11 +864,11 @@ void CppEditorWidget::renameSymbolUnderCursor()
     };
 
     viewport()->setCursor(Qt::BusyCursor);
-    d->m_modelManager->startLocalRenaming(CursorInEditor{textCursor(),
-                                                         textDocument()->filePath(),
-                                                         this, textDocument()},
-                                          projPart,
-                                          std::move(renameSymbols));
+    CppModelManager::startLocalRenaming(CursorInEditor{textCursor(),
+                                                       textDocument()->filePath(),
+                                                       this, textDocument()},
+                                        projPart,
+                                        std::move(renameSymbols));
 }
 
 void CppEditorWidget::updatePreprocessorButtonTooltip()
@@ -887,7 +883,7 @@ void CppEditorWidget::updatePreprocessorButtonTooltip()
 
 void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 {
-    if (!d->m_modelManager)
+    if (!CppModelManager::instance())
         return;
 
     const CursorInEditor cursor(textCursor(), textDocument()->filePath(), this, textDocument());
@@ -901,7 +897,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 
 void CppEditorWidget::followSymbolToType(bool inNextSplit)
 {
-    if (!d->m_modelManager)
+    if (!CppModelManager::instance())
         return;
 
     const CursorInEditor cursor(textCursor(), textDocument()->filePath(), this, textDocument());
@@ -968,7 +964,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
                                  bool resolveTarget,
                                  bool inNextSplit)
 {
-    if (!d->m_modelManager)
+    if (!CppModelManager::instance())
         return processLinkCallback(Utils::Link());
 
     if (followUrl(cursor, processLinkCallback))
@@ -1269,8 +1265,7 @@ std::unique_ptr<AssistInterface> CppEditorWidget::createAssistInterface(AssistKi
             return cap->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
 
         if (isOldStyleSignalOrSlot()) {
-            return CppModelManager::instance()
-                ->completionAssistProvider()
+            return CppModelManager::completionAssistProvider()
                 ->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
         }
     }
@@ -1331,7 +1326,7 @@ void CppEditorWidget::updateFunctionDeclDefLinkNow()
     if (!isSemanticInfoValidExceptLocalUses())
         return;
 
-    Snapshot snapshot = d->m_modelManager->snapshot();
+    Snapshot snapshot = CppModelManager::snapshot();
     snapshot.insert(semanticDoc);
 
     d->m_declDefLinkFinder->startFindLinkAt(textCursor(), semanticDoc, snapshot);

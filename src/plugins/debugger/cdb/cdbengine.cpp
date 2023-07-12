@@ -189,7 +189,7 @@ CdbEngine::CdbEngine() :
             this, &CdbEngine::updateLocals);
 
     if (s->useCodeModel.value())
-        m_codeModelSnapshot = CppEditor::CppModelManager::instance()->snapshot();
+        m_codeModelSnapshot = CppEditor::CppModelManager::snapshot();
 }
 
 void CdbEngine::init()
@@ -2500,7 +2500,7 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
     BreakpointParameters response = parameters;
     const QString responseId = breakPointCdbId(bp);
     QScopedPointer<BreakpointCorrectionContext> lineCorrection(
-                new BreakpointCorrectionContext(m_codeModelSnapshot, CppEditor::CppModelManager::instance()->workingCopy()));
+                new BreakpointCorrectionContext(m_codeModelSnapshot, CppEditor::CppModelManager::workingCopy()));
     if (!m_autoBreakPointCorrection
             && parameters.type == BreakpointByFileAndLine
             && debuggerSettings()->cdbBreakPointCorrection.value()) {

@@ -13,14 +13,12 @@ namespace ProjectExplorer { class Project; }
 
 namespace CppEditor {
 
-class CppModelManager;
-
 class CPPEDITOR_EXPORT AbstractEditorSupport : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit AbstractEditorSupport(CppModelManager *modelmanager, QObject *parent = nullptr);
+    explicit AbstractEditorSupport(QObject *parent = nullptr);
     ~AbstractEditorSupport() override;
 
     /// \returns the contents, encoded as UTF-8
@@ -38,7 +36,6 @@ public:
     static bool usePragmaOnce(ProjectExplorer::Project *project);
 
 private:
-    CppModelManager *m_modelmanager;
     unsigned m_revision;
 };
 

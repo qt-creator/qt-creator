@@ -76,7 +76,6 @@ public:
     void fileChanged(const Utils::FilePath &filePath) override;
 
     CPlusPlus::Snapshot m_snapshot;
-    CppModelManager *m_modelManager;
     WorkingCopy m_workingCopy;
 };
 

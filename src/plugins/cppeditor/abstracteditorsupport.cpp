@@ -16,26 +16,26 @@ using namespace Utils;
 
 namespace CppEditor {
 
-AbstractEditorSupport::AbstractEditorSupport(CppModelManager *modelmanager, QObject *parent) :
-    QObject(parent), m_modelmanager(modelmanager), m_revision(1)
+AbstractEditorSupport::AbstractEditorSupport(QObject *parent) :
+    QObject(parent), m_revision(1)
 {
-    modelmanager->addExtraEditorSupport(this);
+    CppModelManager::addExtraEditorSupport(this);
 }
 
 AbstractEditorSupport::~AbstractEditorSupport()
 {
-    m_modelmanager->removeExtraEditorSupport(this);
+    CppModelManager::removeExtraEditorSupport(this);
 }
 
 void AbstractEditorSupport::updateDocument()
 {
     ++m_revision;
-    m_modelmanager->updateSourceFiles({filePath()});
+    CppModelManager::updateSourceFiles({filePath()});
 }
 
 void AbstractEditorSupport::notifyAboutUpdatedContents() const
 {
-    m_modelmanager->emitAbstractEditorSupportContentsUpdated(
+    CppModelManager::emitAbstractEditorSupportContentsUpdated(
                 filePath().toString(), sourceFilePath().toString(), contents());
 }
 

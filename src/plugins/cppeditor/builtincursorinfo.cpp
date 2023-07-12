@@ -218,8 +218,8 @@ private:
 
         if (Symbol *s = Internal::CanonicalSymbol::canonicalSymbol(
                     m_scope, m_expression, typeOfExpression)) {
-            const QList<int> tokenIndices = CppModelManager::instance()
-                    ->references(s, typeOfExpression.context());
+            const QList<int> tokenIndices =
+                CppModelManager::references(s, typeOfExpression.context());
             result = toRanges(tokenIndices, m_document->translationUnit());
         }
 

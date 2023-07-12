@@ -105,7 +105,7 @@ bool navigateToSlot(const QString &uiFileName,
         *errorMessage = Tr::tr("The generated header of the form \"%1\" could not be found.\nRebuilding the project might help.").arg(uiFileName);
         return false;
     }
-    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
     const DocumentPtr generatedHeaderDoc = snapshot.document(generatedHeaderFile);
     if (!generatedHeaderDoc) {
         *errorMessage = Tr::tr("The generated header \"%1\" could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile.toUserOutput());

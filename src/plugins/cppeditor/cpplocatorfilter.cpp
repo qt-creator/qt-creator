@@ -41,7 +41,7 @@ void matchesFor(QPromise<void> &promise, const LocatorStorage &storage,
     const bool hasColonColon = input.contains("::");
     const QRegularExpression shortRegexp = hasColonColon
             ? ILocatorFilter::createRegExp(input.mid(input.lastIndexOf("::") + 2)) : regexp;
-    CppLocatorData *locatorData = CppModelManager::instance()->locatorData();
+    CppLocatorData *locatorData = CppModelManager::locatorData();
     locatorData->filterAllFiles([&](const IndexItem::Ptr &info) {
         if (promise.isCanceled())
             return IndexItem::Break;
@@ -174,7 +174,7 @@ QList<IndexItem::Ptr> itemsOfCurrentDocument(const FilePath &currentFileName)
         return {};
 
     QList<IndexItem::Ptr> results;
-    const Snapshot snapshot = CppModelManager::instance()->snapshot();
+    const Snapshot snapshot = CppModelManager::snapshot();
     if (const Document::Ptr thisDocument = snapshot.document(currentFileName)) {
         SearchSymbols search;
         search.setSymbolsToSearchFor(SymbolSearcher::Declarations |

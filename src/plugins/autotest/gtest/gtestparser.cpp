@@ -86,7 +86,6 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     }
 
     const FilePath filePath = doc->filePath();
-    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
@@ -95,7 +94,8 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
 
     const QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
     FilePath proFile;
-    const QList<CppEditor::ProjectPart::ConstPtr> &ppList = modelManager->projectPart(filePath);
+    const QList<CppEditor::ProjectPart::ConstPtr> &ppList =
+        CppEditor::CppModelManager::projectPart(filePath);
     if (!ppList.isEmpty())
         proFile = FilePath::fromString(ppList.first()->projectFile);
     else

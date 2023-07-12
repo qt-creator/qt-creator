@@ -146,8 +146,7 @@ void UpdateIncludeDependenciesVisitor::updateFilePaths()
 
 void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *component)
 {
-    CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
-    CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
+    CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
 
     const QStringList filePaths = findFilePathOfComponent(component);
     for (const QString &filePath : filePaths) {

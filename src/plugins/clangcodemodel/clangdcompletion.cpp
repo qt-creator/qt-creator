@@ -609,7 +609,7 @@ QList<AssistProposalItemInterface *> ClangdCompletionAssistProcessor::generateCo
     if (!doc || pos < 0 || !Utils::anyOf(items, criterion))
         return itemGenerator(items);
     const QString content = doc->toPlainText();
-    const bool requiresSignal = CppModelManager::instance()->getSignalSlotType(
+    const bool requiresSignal = CppModelManager::getSignalSlotType(
                 filePath(), content.toUtf8(), pos)
             == SignalSlotType::NewStyleSignal;
     if (requiresSignal)

@@ -90,7 +90,7 @@ CppIncludesFilter::CppIncludesFilter()
             if (entry)
                 inputFilePaths.insert(entry->filePath());
         }
-        const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
+        const CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
         return [snapshot, inputFilePaths](const QFuture<void> &future) {
             // This body runs in non-main thread
             return generateFilePaths(future, snapshot, inputFilePaths);

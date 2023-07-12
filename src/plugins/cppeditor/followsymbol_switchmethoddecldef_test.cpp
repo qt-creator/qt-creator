@@ -331,7 +331,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     switch (action) {
     case FollowSymbolUnderCursorAction: {
         CppEditorWidget *widget = initialTestFile->m_editorWidget;
-        if (CppModelManager::instance()->isClangCodeModelActive()) {
+        if (CppModelManager::isClangCodeModelActive()) {
             if (curTestName == "testFollowSymbolQTCREATORBUG7903")
                 QSKIP((curTestName + " is not supported by Clang FollowSymbol").toLatin1());
             widget->enableTestMode();

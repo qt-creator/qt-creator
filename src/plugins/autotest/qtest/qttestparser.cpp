@@ -74,7 +74,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
 static bool qtTestLibDefined(const FilePath &fileName)
 {
     const QList<CppEditor::ProjectPart::ConstPtr> parts =
-            CppEditor::CppModelManager::instance()->projectPart(fileName);
+            CppEditor::CppModelManager::projectPart(fileName);
     if (parts.size() > 0) {
         return Utils::anyOf(parts.at(0)->projectMacros, [](const ProjectExplorer::Macro &macro) {
             return macro.key == "QT_TESTLIB_LIB";
@@ -83,11 +83,10 @@ static bool qtTestLibDefined(const FilePath &fileName)
     return false;
 }
 
-TestCases QtTestParser::testCases(const CppEditor::CppModelManager *modelManager,
-                                  const FilePath &filePath) const
+TestCases QtTestParser::testCases(const FilePath &filePath) const
 {
     const QByteArray &fileContent = getFileContent(filePath);
-    CPlusPlus::Document::Ptr document = modelManager->document(filePath);
+    CPlusPlus::Document::Ptr document = CppEditor::CppModelManager::document(filePath);
     if (document.isNull())
         return {};
 
@@ -305,8 +304,7 @@ bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
         return false;
     }
 
-    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
-    TestCases testCaseList(testCases(modelManager, fileName));
+    TestCases testCaseList(testCases(fileName));
     bool reported = false;
     // we might be in a reparse without the original entry point with the QTest::qExec()
     if (testCaseList.isEmpty() && !oldTestCases.empty())
@@ -319,7 +317,7 @@ bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                 continue;
 
             QList<CppEditor::ProjectPart::ConstPtr> projectParts
-                    = modelManager->projectPart(fileName);
+                    = CppEditor::CppModelManager::projectPart(fileName);
             if (projectParts.isEmpty()) // happens if shutting down while parsing
                 return false;
 

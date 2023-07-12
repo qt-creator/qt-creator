@@ -250,7 +250,7 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
 
 void Parser::updateDocuments(const QSet<FilePath> &documentPaths)
 {
-    updateDocumentsFromSnapshot(documentPaths, CppEditor::CppModelManager::instance()->snapshot());
+    updateDocumentsFromSnapshot(documentPaths, CppEditor::CppModelManager::snapshot());
 }
 
 void Parser::updateDocumentsFromSnapshot(const QSet<FilePath> &documentPaths,
@@ -293,7 +293,7 @@ void Parser::resetData(const QHash<FilePath, QPair<QString, FilePaths>> &project
     d->m_projectCache.clear();
     d->m_documentCache.clear();
 
-    const CPlusPlus::Snapshot &snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    const CPlusPlus::Snapshot &snapshot = CppEditor::CppModelManager::snapshot();
     for (auto it = projects.cbegin(); it != projects.cend(); ++it) {
         const auto projectData = it.value();
         QSet<FilePath> commonFiles;
@@ -313,7 +313,7 @@ void Parser::resetData(const QHash<FilePath, QPair<QString, FilePaths>> &project
 void Parser::addProject(const FilePath &projectPath, const QString &projectName,
                         const FilePaths &filesInProject)
 {
-    const CPlusPlus::Snapshot &snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    const CPlusPlus::Snapshot &snapshot = CppEditor::CppModelManager::snapshot();
     QSet<FilePath> commonFiles;
     for (const auto &fileInProject : filesInProject) {
         CPlusPlus::Document::Ptr doc = snapshot.document(fileInProject);

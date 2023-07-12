@@ -217,8 +217,7 @@ void CppRefactoringFile::fileChanged()
 
 CppRefactoringChangesData::CppRefactoringChangesData(const Snapshot &snapshot)
     : m_snapshot(snapshot)
-    , m_modelManager(CppModelManager::instance())
-    , m_workingCopy(m_modelManager->workingCopy())
+    , m_workingCopy(CppModelManager::workingCopy())
 {}
 
 void CppRefactoringChangesData::indentSelection(const QTextCursor &selection,
@@ -249,7 +248,7 @@ void CppRefactoringChangesData::reindentSelection(const QTextCursor &selection,
 
 void CppRefactoringChangesData::fileChanged(const FilePath &filePath)
 {
-    m_modelManager->updateSourceFiles({filePath});
+    CppModelManager::updateSourceFiles({filePath});
 }
 
 } // CppEditor

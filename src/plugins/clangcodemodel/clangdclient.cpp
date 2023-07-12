@@ -407,7 +407,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
         const Utils::FilePath includeDir
                 = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
         CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
-                    *CppEditor::CppModelManager::instance()->fallbackProjectPart(),
+                    *CppEditor::CppModelManager::fallbackProjectPart(),
                     warningsConfigForProject(nullptr), includeDir, {});
         const CppEditor::UsePrecompiledHeaders usePch = CppEditor::getPchUsage();
         const QJsonArray projectPartOptions = fullProjectPartOptions(
@@ -755,7 +755,7 @@ bool ClangdClient::fileBelongsToProject(const Utils::FilePath &filePath) const
 RefactoringChangesData *ClangdClient::createRefactoringChangesBackend() const
 {
     return new CppEditor::CppRefactoringChangesData(
-                CppEditor::CppModelManager::instance()->snapshot());
+                CppEditor::CppModelManager::snapshot());
 }
 
 QVersionNumber ClangdClient::versionNumber() const
@@ -875,8 +875,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     // TODO: Should we write the editor defines into the json file? It seems strange
     //       that they should affect the index only while the file is open in the editor.
     const auto projectPart = !config.preferredProjectPartId.isEmpty()
-            ? CppEditor::CppModelManager::instance()->projectPartForId(
-                  config.preferredProjectPartId)
+            ? CppEditor::CppModelManager::projectPartForId(config.preferredProjectPartId)
             : projectPartForFile(filePath);
     if (!projectPart)
         return;

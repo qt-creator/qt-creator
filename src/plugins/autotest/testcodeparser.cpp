@@ -337,7 +337,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "StartParsing";
     m_parsingTimer.restart();
     QSet<QString> extensions;
-    const auto cppSnapshot = CppEditor::CppModelManager::instance()->snapshot();
+    const auto cppSnapshot = CppEditor::CppModelManager::snapshot();
 
     for (ITestParser *parser : codeParsers) {
         parser->init(files, isFullParse);

@@ -504,14 +504,14 @@ QString GTestTreeItem::nameSuffix() const
 QSet<QString> internalTargets(const TestTreeItem &item)
 {
     QSet<QString> result;
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    const auto projectInfo = cppMM->projectInfo(ProjectExplorer::ProjectManager::startupProject());
+    const auto projectInfo = CppEditor::CppModelManager::projectInfo(
+        ProjectExplorer::ProjectManager::startupProject());
     if (!projectInfo)
         return {};
     const FilePath filePath = item.filePath();
     const QVector<CppEditor::ProjectPart::ConstPtr> projectParts = projectInfo->projectParts();
     if (projectParts.isEmpty())
-        return cppMM->dependingInternalTargets(item.filePath());
+        return CppEditor::CppModelManager::dependingInternalTargets(item.filePath());
     for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectParts) {
         if (FilePath::fromString(projectPart->projectFile) == item.proFile()
                 && Utils::anyOf(projectPart->files, [&filePath](const CppEditor::ProjectFile &pf) {
@@ -519,7 +519,7 @@ QSet<QString> internalTargets(const TestTreeItem &item)
         })) {
             result.insert(projectPart->buildSystemTarget);
             if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
-                result.unite(cppMM->dependingInternalTargets(filePath));
+                result.unite(CppEditor::CppModelManager::dependingInternalTargets(filePath));
         }
     }
     return result;

@@ -35,9 +35,8 @@ const char SETTINGS_GROUP[] = "CppSymbols";
 const char SETTINGS_SYMBOLTYPES[] = "SymbolsToSearchFor";
 const char SETTINGS_SEARCHSCOPE[] = "SearchScope";
 
-SymbolsFindFilter::SymbolsFindFilter(CppModelManager *manager)
-    : m_manager(manager),
-      m_enabled(true),
+SymbolsFindFilter::SymbolsFindFilter()
+    : m_enabled(true),
       m_symbolsToSearch(SearchSymbols::AllTypes),
       m_scope(SymbolSearcher::SearchProjectsOnly)
 {
@@ -121,7 +120,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     SymbolSearcher *symbolSearcher = new SymbolSearcher(parameters, projectFileNames);
     connect(watcher, &QFutureWatcherBase::finished,
             symbolSearcher, &QObject::deleteLater);
-    watcher->setFuture(Utils::asyncRun(m_manager->sharedThreadPool(),
+    watcher->setFuture(Utils::asyncRun(CppModelManager::sharedThreadPool(),
                                        &SymbolSearcher::runSearch, symbolSearcher));
     FutureProgress *progress = ProgressManager::addTask(watcher->future(), Tr::tr("Searching for Symbol"),
                                                         Core::Constants::TASK_SEARCH);

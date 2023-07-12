@@ -41,11 +41,6 @@ using namespace Utils;
 namespace CppEditor {
 namespace Internal {
 
-static CppEditor::CppModelManager *mm()
-{
-    return CppEditor::CppModelManager::instance();
-}
-
 enum { processDocumentIntervalInMs = 150 };
 
 class CppEditorDocumentHandleImpl : public CppEditorDocumentHandle
@@ -55,12 +50,12 @@ public:
         : m_cppEditorDocument(cppEditorDocument)
         , m_registrationFilePath(cppEditorDocument->filePath().toString())
     {
-        mm()->registerCppEditorDocument(this);
+        CppModelManager::registerCppEditorDocument(this);
     }
 
     ~CppEditorDocumentHandleImpl() override
     {
-        mm()->unregisterCppEditorDocument(m_registrationFilePath);
+        CppModelManager::unregisterCppEditorDocument(m_registrationFilePath);
     }
 
     FilePath filePath() const override { return m_cppEditorDocument->filePath(); }
@@ -101,7 +96,7 @@ CppEditorDocument::CppEditorDocument()
     connect(this, &IDocument::filePathChanged,
             this, &CppEditorDocument::onFilePathChanged);
 
-    connect(mm(), &CppModelManager::diagnosticsChanged,
+    connect(CppModelManager::instance(), &CppModelManager::diagnosticsChanged,
             this, &CppEditorDocument::onDiagnosticsChanged);
 
     connect(&m_parseContextModel, &ParseContextModel::preferredParseContextChanged,
@@ -187,7 +182,7 @@ void CppEditorDocument::onMimeTypeChanged()
     const QString &mt = mimeType();
     m_isObjCEnabled = (mt == QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
                        || mt == QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
-    m_completionAssistProvider = mm()->completionAssistProvider();
+    m_completionAssistProvider = CppModelManager::completionAssistProvider();
 
     initializeTimer();
 }
@@ -380,7 +375,7 @@ void CppEditorDocument::updateOutline()
 {
     CPlusPlus::Document::Ptr document;
     if (!usesClangd())
-        document = CppModelManager::instance()->snapshot().document(filePath());
+        document = CppModelManager::snapshot().document(filePath());
     m_overviewModel.update(document);
 }
 
@@ -392,7 +387,7 @@ QFuture<CursorInfo> CppEditorDocument::cursorInfo(const CursorInfoParams &params
 BaseEditorDocumentProcessor *CppEditorDocument::processor()
 {
     if (!m_processor) {
-        m_processor.reset(mm()->createEditorDocumentProcessor(this));
+        m_processor.reset(CppModelManager::createEditorDocumentProcessor(this));
         connect(m_processor.data(),
                 &BaseEditorDocumentProcessor::projectPartInfoUpdated,
                 [this](const ProjectPartInfo &info) {
@@ -493,7 +488,7 @@ void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QStr
 
     const Utils::Id category = Utils::Id::fromString(kind);
 
-    for (const auto &diagnostic : mm()->diagnosticMessages()) {
+    for (const auto &diagnostic : CppModelManager::diagnosticMessages()) {
         if (diagnostic.filePath() == filePath()) {
             auto it = std::find_if(std::begin(removedMarks),
                                    std::end(removedMarks),

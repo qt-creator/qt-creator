@@ -120,8 +120,6 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return nullptr);
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    QTC_ASSERT(cppMM, return nullptr);
 
     QtTestConfiguration *config = nullptr;
     switch (type()) {
@@ -155,15 +153,13 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
         return nullptr;
     }
     if (config)
-        config->setInternalTargets(cppMM->internalTargets(filePath()));
+        config->setInternalTargets(CppEditor::CppModelManager::internalTargets(filePath()));
     return config;
 }
 
 static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
                                                  QList<ITestConfiguration *> &testConfigurations)
 {
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    QTC_ASSERT(cppMM, return);
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {
         for (int row = 0, count = item->childCount(); row < count; ++row)
@@ -198,15 +194,14 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
         testConfig->setTestCases(testCases);
         testConfig->setProjectFile(item->proFile());
         testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
-        testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
+        testConfig->setInternalTargets(
+            CppEditor::CppModelManager::internalTargets(item->filePath()));
         testConfigurations << testConfig;
     }
 }
 
 static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *> &testConfigs)
 {
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    QTC_ASSERT(cppMM, return);
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {
         for (int row = 0, count = item->childCount(); row < count; ++row)
@@ -232,7 +227,8 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *
     testConfig->setTestCases(testCases);
     testConfig->setProjectFile(item->proFile());
     testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
-    testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
+    testConfig->setInternalTargets(
+        CppEditor::CppModelManager::internalTargets(item->filePath()));
     testConfigs << testConfig;
 }
 

@@ -178,7 +178,7 @@ void SemanticInfoUpdater::updateDetached(const SemanticInfo::Source &source)
         return;
     }
 
-    d->m_future = Utils::asyncRun(CppModelManager::instance()->sharedThreadPool(),
+    d->m_future = Utils::asyncRun(CppModelManager::sharedThreadPool(),
                                   &SemanticInfoUpdaterPrivate::update_helper, d.data(), source);
 }
 

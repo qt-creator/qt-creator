@@ -31,7 +31,7 @@ static Q_LOGGING_CATEGORY(indexerLog, "qtc.cppeditor.indexer", QtWarningMsg)
 
 SymbolSearcher::SymbolSearcher(const SymbolSearcher::Parameters &parameters,
                                const QSet<QString> &fileNames)
-    : m_snapshot(CppModelManager::instance()->snapshot())
+    : m_snapshot(CppModelManager::snapshot())
     , m_parameters(parameters)
     , m_fileNames(fileNames)
 {}
@@ -138,8 +138,7 @@ void indexFindErrors(QPromise<void> &promise, const ParseParams params)
         // Parse the file as precisely as possible
         BuiltinEditorDocumentParser parser(FilePath::fromString(file));
         parser.setReleaseSourceAndAST(false);
-        parser.update({CppModelManager::instance()->workingCopy(), nullptr,
-                       Language::Cxx, false});
+        parser.update({CppModelManager::workingCopy(), nullptr, Language::Cxx, false});
         CPlusPlus::Document::Ptr document = parser.document();
         QTC_ASSERT(document, return);
 
@@ -181,8 +180,7 @@ void index(QPromise<void> &promise, const ParseParams params)
     const FilePath &conf = CppModelManager::configurationFileName();
     bool processingHeaders = false;
 
-    CppModelManager *cmm = CppModelManager::instance();
-    const ProjectExplorer::HeaderPaths fallbackHeaderPaths = cmm->headerPaths();
+    const ProjectExplorer::HeaderPaths fallbackHeaderPaths = CppModelManager::headerPaths();
     const CPlusPlus::LanguageFeatures defaultFeatures =
         CPlusPlus::LanguageFeatures::defaultFeatures();
 
@@ -192,7 +190,7 @@ void index(QPromise<void> &promise, const ParseParams params)
             break;
 
         const QString fileName = files.at(i);
-        const QList<ProjectPart::ConstPtr> parts = cmm->projectPart(fileName);
+        const QList<ProjectPart::ConstPtr> parts = CppModelManager::projectPart(fileName);
         const CPlusPlus::LanguageFeatures languageFeatures = parts.isEmpty()
                                                                  ? defaultFeatures
                                                                  : parts.first()->languageFeatures;
@@ -236,7 +234,7 @@ void parse(QPromise<void> &promise, const ParseParams params)
         index(promise, params);
 
     promise.setProgressValue(files.size());
-    CppModelManager::instance()->finishedRefreshingSourceFiles(files);
+    CppModelManager::finishedRefreshingSourceFiles(files);
 }
 
 } // anonymous namespace
@@ -306,15 +304,13 @@ bool CppIndexingSupport::isFindErrorsIndexingActive()
 QFuture<void> CppIndexingSupport::refreshSourceFiles(const QSet<QString> &sourceFiles,
                                                      CppModelManager::ProgressNotificationMode mode)
 {
-    CppModelManager *mgr = CppModelManager::instance();
-
     ParseParams params;
     params.indexerFileSizeLimitInMb = indexerFileSizeLimitInMb();
-    params.headerPaths = mgr->headerPaths();
-    params.workingCopy = mgr->workingCopy();
+    params.headerPaths = CppModelManager::headerPaths();
+    params.workingCopy = CppModelManager::workingCopy();
     params.sourceFiles = sourceFiles;
 
-    QFuture<void> result = Utils::asyncRun(mgr->sharedThreadPool(), parse, params);
+    QFuture<void> result = Utils::asyncRun(CppModelManager::sharedThreadPool(), parse, params);
     m_synchronizer.addFuture(result);
 
     if (mode == CppModelManager::ForcedProgressNotification || sourceFiles.count() > 1) {

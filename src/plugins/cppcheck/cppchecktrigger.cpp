@@ -56,7 +56,7 @@ void CppcheckTrigger::checkEditors(const QList<IEditor *> &editors)
 
     using CppModelManager = CppEditor::CppModelManager;
     const CppEditor::ProjectInfo::ConstPtr info
-            = CppModelManager::instance()->projectInfo(m_currentProject);
+            = CppModelManager::projectInfo(m_currentProject);
     if (!info)
         return;
 

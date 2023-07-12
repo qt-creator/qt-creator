@@ -95,8 +95,8 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
     // Set appropriate include paths
     if (!headerPaths.isEmpty()) {
         m_restoreHeaderPaths = true;
-        m_headerPathsToRestore = m_modelManager->headerPaths();
-        m_modelManager->setHeaderPaths(headerPaths);
+        m_headerPathsToRestore = CppModelManager::headerPaths();
+        CppModelManager::setHeaderPaths(headerPaths);
     }
 
     // Update Code Model
@@ -154,7 +154,7 @@ BaseQuickFixTestCase::~BaseQuickFixTestCase()
 
     // Restore include paths
     if (m_restoreHeaderPaths)
-        m_modelManager->setHeaderPaths(m_headerPathsToRestore);
+        CppModelManager::setHeaderPaths(m_headerPathsToRestore);
 
     // Remove created files from file system
     for (const TestDocumentPtr &testDocument : std::as_const(m_testDocuments))

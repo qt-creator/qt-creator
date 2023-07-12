@@ -231,7 +231,7 @@ void CppEditorPlugin::initialize()
     d = new CppEditorPluginPrivate;
     d->initialize();
 
-    CppModelManager::instance()->registerJsExtension();
+    CppModelManager::registerJsExtension();
     ExtensionSystem::PluginManager::addObject(&d->m_cppProjectUpdaterFactory);
 
     // Menus
@@ -446,9 +446,8 @@ void CppEditorPlugin::initialize()
     cppToolsMenu->addSeparator(Core::Constants::G_DEFAULT_THREE);
     d->m_reparseExternallyChangedFiles = new QAction(Tr::tr("Reparse Externally Changed Files"), this);
     cmd = ActionManager::registerAction(d->m_reparseExternallyChangedFiles, Constants::UPDATE_CODEMODEL);
-    CppModelManager *cppModelManager = CppModelManager::instance();
     connect(d->m_reparseExternallyChangedFiles, &QAction::triggered,
-            cppModelManager, &CppModelManager::updateModifiedSourceFiles);
+            CppModelManager::instance(), &CppModelManager::updateModifiedSourceFiles);
     cppToolsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
     ActionContainer *toolsDebug = ActionManager::actionContainer(Core::Constants::M_TOOLS_DEBUG);
@@ -515,7 +514,7 @@ void CppEditorPlugin::extensionsInitialized()
     });
     ProjectPanelFactory::registerFactory(fileNamesPanelFactory);
 
-    if (CppModelManager::instance()->isClangCodeModelActive()) {
+    if (CppModelManager::isClangCodeModelActive()) {
         d->m_clangdSettingsPage = new ClangdSettingsPage;
         const auto clangdPanelFactory = new ProjectPanelFactory;
         clangdPanelFactory->setPriority(100);
@@ -528,7 +527,7 @@ void CppEditorPlugin::extensionsInitialized()
 
     // Add the hover handler factories here instead of in initialize()
     // so that the Clang Code Model has a chance to hook in.
-    d->m_cppEditorFactory.addHoverHandler(CppModelManager::instance()->createHoverHandler());
+    d->m_cppEditorFactory.addHoverHandler(CppModelManager::createHoverHandler());
     d->m_cppEditorFactory.addHoverHandler(new ColorPreviewHoverHandler);
     d->m_cppEditorFactory.addHoverHandler(new ResourcePreviewHoverHandler);
 
@@ -876,8 +875,7 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
 
     // Find files in other projects
     } else {
-        CppModelManager *modelManager = CppModelManager::instance();
-        const QList<ProjectInfo::ConstPtr> projectInfos = modelManager->projectInfos();
+        const QList<ProjectInfo::ConstPtr> projectInfos = CppModelManager::projectInfos();
         for (const ProjectInfo::ConstPtr &projectInfo : projectInfos) {
             const Project *project = projectForProjectInfo(*projectInfo);
             if (project == currentProject)

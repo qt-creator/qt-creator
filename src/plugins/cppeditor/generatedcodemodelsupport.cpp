@@ -49,10 +49,10 @@ private:
     QSet<QObject *> m_cache;
 };
 
-GeneratedCodeModelSupport::GeneratedCodeModelSupport(CppModelManager *modelmanager,
-                                                     ExtraCompiler *generator,
+GeneratedCodeModelSupport::GeneratedCodeModelSupport(ExtraCompiler *generator,
                                                      const FilePath &generatedFile) :
-    AbstractEditorSupport(modelmanager, generator), m_generatedFilePath(generatedFile),
+    AbstractEditorSupport(generator),
+    m_generatedFilePath(generatedFile),
     m_generator(generator)
 {
     QLoggingCategory log("qtc.cppeditor.generatedcodemodelsupport", QtWarningMsg);
@@ -66,8 +66,7 @@ GeneratedCodeModelSupport::GeneratedCodeModelSupport(CppModelManager *modelmanag
 
 GeneratedCodeModelSupport::~GeneratedCodeModelSupport()
 {
-    CppModelManager::instance()->emitAbstractEditorSupportRemoved(
-                m_generatedFilePath.toString());
+    CppModelManager::emitAbstractEditorSupportRemoved(m_generatedFilePath.toString());
     QLoggingCategory log("qtc.cppeditor.generatedcodemodelsupport", QtWarningMsg);
     qCDebug(log) << "dtor ~generatedcodemodelsupport for" << m_generatedFilePath;
 }
@@ -99,15 +98,13 @@ void GeneratedCodeModelSupport::update(const QList<ExtraCompiler *> &generators)
 {
     static QObjectCache extraCompilerCache;
 
-    CppModelManager * const mm = CppModelManager::instance();
-
     for (ExtraCompiler *generator : generators) {
         if (extraCompilerCache.contains(generator))
             continue;
 
         extraCompilerCache.insert(generator);
-        generator->forEachTarget([mm, generator](const FilePath &generatedFile) {
-            new GeneratedCodeModelSupport(mm, generator, generatedFile);
+        generator->forEachTarget([generator](const FilePath &generatedFile) {
+            new GeneratedCodeModelSupport(generator, generatedFile);
         });
     }
 }

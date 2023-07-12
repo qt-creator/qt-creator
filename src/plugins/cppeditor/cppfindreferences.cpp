@@ -437,9 +437,9 @@ void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *
 
     if (search->isInteractive())
         SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
-    const WorkingCopy workingCopy = m_modelManager->workingCopy();
+    const WorkingCopy workingCopy = CppModelManager::workingCopy();
     QFuture<CPlusPlus::Usage> result;
-    result = Utils::asyncRun(m_modelManager->sharedThreadPool(), find_helper,
+    result = Utils::asyncRun(CppModelManager::sharedThreadPool(), find_helper,
                              workingCopy, context, symbol, categorize);
     createWatcher(result, search);
 
@@ -484,7 +484,7 @@ void CppFindReferences::searchAgain(SearchResult *search)
 {
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
     parameters.filesToRename.clear();
-    CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
+    CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
     search->restart();
     CPlusPlus::LookupContext context;
     CPlusPlus::Symbol *symbol = findSymbol(parameters, snapshot, &context);
@@ -544,7 +544,7 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
 
     CPlusPlus::Document::Ptr newSymbolDocument = snapshot.document(parameters.symbolFilePath);
     // document is not parsed and has no bindings yet, do it
-    QByteArray source = getSource(newSymbolDocument->filePath(), m_modelManager->workingCopy());
+    QByteArray source = getSource(newSymbolDocument->filePath(), CppModelManager::workingCopy());
     CPlusPlus::Document::Ptr doc =
             snapshot.preprocessedDocument(source, newSymbolDocument->filePath());
     doc->check();
@@ -747,8 +747,8 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
         Core::EditorManager::openEditorAtSearchResult(item);
     });
 
-    const CPlusPlus::Snapshot snapshot = m_modelManager->snapshot();
-    const WorkingCopy workingCopy = m_modelManager->workingCopy();
+    const CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    const WorkingCopy workingCopy = CppModelManager::workingCopy();
 
     // add the macro definition itself
     {
@@ -768,7 +768,7 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
     }
 
     QFuture<CPlusPlus::Usage> result;
-    result = Utils::asyncRun(m_modelManager->sharedThreadPool(), findMacroUses_helper,
+    result = Utils::asyncRun(CppModelManager::sharedThreadPool(), findMacroUses_helper,
                              workingCopy, snapshot, macro);
     createWatcher(result, search);
 
@@ -829,8 +829,8 @@ void CppFindReferences::checkUnused(Core::SearchResult *search, const Link &link
     });
     connect(search, &SearchResult::canceled, watcher, [watcher] { watcher->cancel(); });
     connect(search, &SearchResult::destroyed, watcher, [watcher] { watcher->cancel(); });
-    watcher->setFuture(Utils::asyncRun(m_modelManager->sharedThreadPool(), find_helper,
-                                       m_modelManager->workingCopy(), context, symbol, true));
+    watcher->setFuture(Utils::asyncRun(CppModelManager::sharedThreadPool(), find_helper,
+                                       CppModelManager::workingCopy(), context, symbol, true));
 }
 
 void CppFindReferences::createWatcher(const QFuture<CPlusPlus::Usage> &future, SearchResult *search)

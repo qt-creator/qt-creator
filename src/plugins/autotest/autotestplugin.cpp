@@ -392,7 +392,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
     const int line = currentEditor->currentLine();
     const FilePath filePath = currentEditor->textDocument()->filePath();
 
-    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
     const CPlusPlus::Document::Ptr doc = snapshot.document(filePath);
     if (doc.isNull()) // not part of C++ snapshot
         return;

@@ -62,11 +62,6 @@ using namespace Utils;
 
 namespace ClangCodeModel::Internal {
 
-static CppModelManager *cppModelManager()
-{
-    return CppModelManager::instance();
-}
-
 static Project *fallbackProject()
 {
     if (Project * const p = ProjectTree::currentProject())
@@ -202,10 +197,10 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     watchForInternalChanges();
     setupClangdConfigFile();
     checkSystemForClangdSuitability();
-    cppModelManager()->setCurrentDocumentFilter(std::make_unique<ClangdCurrentDocumentFilter>());
-    cppModelManager()->setLocatorFilter(std::make_unique<ClangdAllSymbolsFilter>());
-    cppModelManager()->setClassesFilter(std::make_unique<ClangdClassesFilter>());
-    cppModelManager()->setFunctionsFilter(std::make_unique<ClangdFunctionsFilter>());
+    CppModelManager::setCurrentDocumentFilter(std::make_unique<ClangdCurrentDocumentFilter>());
+    CppModelManager::setLocatorFilter(std::make_unique<ClangdAllSymbolsFilter>());
+    CppModelManager::setClassesFilter(std::make_unique<ClangdClassesFilter>());
+    CppModelManager::setFunctionsFilter(std::make_unique<ClangdFunctionsFilter>());
     // Setup matchers
     LocatorMatcher::addMatcherCreator(MatcherType::AllSymbols, [] {
         return LanguageClient::languageClientMatchers(
@@ -226,7 +221,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(editorManager, &EditorManager::currentEditorChanged,
             this, &ClangModelManagerSupport::onCurrentEditorChanged);
 
-    CppModelManager *modelManager = cppModelManager();
+    CppModelManager *modelManager = CppModelManager::instance();
     connect(modelManager, &CppModelManager::abstractEditorSupportContentsUpdated,
             this, &ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated);
     connect(modelManager, &CppModelManager::abstractEditorSupportRemoved,
@@ -382,7 +377,7 @@ void ClangModelManagerSupport::checkUnused(const Link &link, SearchResult *searc
         }
     }
 
-    CppModelManager::instance()->modelManagerSupport(
+    CppModelManager::modelManagerSupport(
                 CppModelManager::Backend::Builtin)->checkUnused(link, search, callback);
 }
 
@@ -409,7 +404,7 @@ void ClangModelManagerSupport::onCurrentEditorChanged(IEditor *editor)
 {
     // Update task hub issues for current CppEditorDocument
     TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
-    if (!editor || !editor->document() || !cppModelManager()->isCppEditor(editor))
+    if (!editor || !editor->document() || !CppModelManager::isCppEditor(editor))
         return;
 
     const FilePath filePath = editor->document()->filePath();
@@ -460,12 +455,12 @@ static bool isProjectDataUpToDate(Project *project, ProjectInfoList projectInfo,
         return false;
     ProjectInfoList newProjectInfo;
     if (project) {
-        if (const ProjectInfo::ConstPtr pi = CppModelManager::instance()->projectInfo(project))
+        if (const ProjectInfo::ConstPtr pi = CppModelManager::projectInfo(project))
             newProjectInfo.append(pi);
         else
             return false;
     } else {
-        newProjectInfo = CppModelManager::instance()->projectInfos();
+        newProjectInfo = CppModelManager::projectInfos();
     }
     if (newProjectInfo.size() != projectInfo.size())
         return false;
@@ -486,8 +481,8 @@ void ClangModelManagerSupport::updateLanguageClient(Project *project)
     ProjectInfoList projectInfo;
     if (sessionModeEnabled()) {
         project = nullptr;
-        projectInfo = CppModelManager::instance()->projectInfos();
-    } else if (const ProjectInfo::ConstPtr pi = CppModelManager::instance()->projectInfo(project)) {
+        projectInfo = CppModelManager::projectInfos();
+    } else if (const ProjectInfo::ConstPtr pi = CppModelManager::projectInfo(project)) {
         projectInfo.append(pi);
     } else {
         return;
@@ -771,7 +766,7 @@ void ClangModelManagerSupport::onEditorOpened(IEditor *editor)
     QTC_ASSERT(document, return);
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
-    if (textDocument && cppModelManager()->isCppEditor(editor)) {
+    if (textDocument && CppModelManager::isCppEditor(editor)) {
         connectToWidgetsMarkContextMenuRequested(editor->widget());
 
         Project * project = ProjectManager::projectForFile(document->filePath());

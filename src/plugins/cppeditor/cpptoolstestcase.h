@@ -32,7 +32,6 @@ class IAssistProposal;
 
 namespace CppEditor {
 class CppEditorWidget;
-class CppModelManager;
 
 namespace Internal::Tests {
 
@@ -152,7 +151,6 @@ public:
     static bool writeFile(const Utils::FilePath &filePath, const QByteArray &contents);
 
 protected:
-    CppModelManager *m_modelManager;
     bool m_succeededSoFar;
 
 private:
