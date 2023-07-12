@@ -13,6 +13,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/aspects.h>
+#include <utils/process.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -61,20 +62,24 @@ public:
 
     void doRun() override
     {
-        // Check whether we need to run autoreconf
-        const FilePath configure = project()->projectDirectory() / "configure";
-        if (!configure.exists())
-            m_runAutoreconf = true;
+        using namespace Tasking;
 
-        if (!m_runAutoreconf) {
-            emit addOutput(Tr::tr("Configuration unchanged, skipping autoreconf step."),
-                           OutputFormat::NormalMessage);
-            emit finished(true);
-            return;
-        }
+        const auto onSetup = [this] {
+            // Check whether we need to run autoreconf
+            const FilePath configure = project()->projectDirectory() / "configure";
+            if (!configure.exists())
+                m_runAutoreconf = true;
 
-        m_runAutoreconf = false;
-        AbstractProcessStep::doRun();
+            if (!m_runAutoreconf) {
+                emit addOutput(Tr::tr("Configuration unchanged, skipping autoreconf step."),
+                               OutputFormat::NormalMessage);
+                return SetupResult::StopWithDone;
+            }
+            return SetupResult::Continue;
+        };
+        const auto onDone = [this] { m_runAutoreconf = false; };
+
+        runTaskTree({onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask()});
     }
 
 private:
