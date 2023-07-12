@@ -9,6 +9,8 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/aspects.h>
 #include <utils/qtcassert.h>
 
@@ -16,6 +18,7 @@
 #include <QDateTime>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Nim {
@@ -37,8 +40,7 @@ public:
 
 private:
     bool init() final;
-    void doRun() final;
-    void doCancel() final {}  // Can be left empty. The run() function hardly does anything.
+    GroupItem runRecipe() final;
 
     bool removeCacheDirectory();
     bool removeOutFilePath();
@@ -49,35 +51,36 @@ private:
 
 bool NimCompilerCleanStep::init()
 {
-    FilePath buildDir = buildDirectory();
-    bool result = buildDir.exists();
-    if (result)
+    if (!BuildStep::init())
+        return false;
+    const FilePath buildDir = buildDirectory();
+    const bool exists = buildDir.exists();
+    if (exists)
         m_buildDir = buildDir;
-    return result;
+    return exists;
 }
 
-void NimCompilerCleanStep::doRun()
+GroupItem NimCompilerCleanStep::runRecipe()
 {
-    if (!m_buildDir.exists()) {
-        emit addOutput(Tr::tr("Build directory \"%1\" does not exist.").arg(m_buildDir.toUserOutput()), OutputFormat::ErrorMessage);
-        emit finished(false);
-        return;
-    }
-
-    if (!removeCacheDirectory()) {
-        emit addOutput(Tr::tr("Failed to delete the cache directory."), OutputFormat::ErrorMessage);
-        emit finished(false);
-        return;
-    }
-
-    if (!removeOutFilePath()) {
-        emit addOutput(Tr::tr("Failed to delete the out file."), OutputFormat::ErrorMessage);
-        emit finished(false);
-        return;
-    }
-
-    emit addOutput(Tr::tr("Clean step completed successfully."), OutputFormat::NormalMessage);
-    emit finished(true);
+    const auto onSetup = [this] {
+        if (!m_buildDir.exists()) {
+            emit addOutput(Tr::tr("Build directory \"%1\" does not exist.")
+                               .arg(m_buildDir.toUserOutput()), OutputFormat::ErrorMessage);
+            return false;
+        }
+        if (!removeCacheDirectory()) {
+            emit addOutput(Tr::tr("Failed to delete the cache directory."),
+                           OutputFormat::ErrorMessage);
+            return false;
+        }
+        if (!removeOutFilePath()) {
+            emit addOutput(Tr::tr("Failed to delete the out file."), OutputFormat::ErrorMessage);
+            return false;
+        }
+        emit addOutput(Tr::tr("Clean step completed successfully."), OutputFormat::NormalMessage);
+        return true;
+    };
+    return Sync(onSetup);
 }
 
 bool NimCompilerCleanStep::removeCacheDirectory()
