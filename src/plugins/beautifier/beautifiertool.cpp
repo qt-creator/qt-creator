@@ -129,6 +129,7 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
                      .pathAppended(name))
 {
     setSettingsGroups(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP, name);
+    setAutoApply(false);
 
     command.setSettingsKey("command");
     command.setExpectedKind(PathChooser::ExistingCommand);

@@ -362,6 +362,7 @@ TerminalSettings &settings()
 TerminalSettings::TerminalSettings()
 {
     setSettingsGroup("Terminal");
+    setAutoApply(false);
 
     enableTerminal.setSettingsKey("EnableTerminal");
     enableTerminal.setLabelText(Tr::tr("Use internal terminal"));

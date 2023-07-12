@@ -31,6 +31,7 @@ VcpkgSettings &settings()
 VcpkgSettings::VcpkgSettings()
 {
     setSettingsGroup("Vcpkg");
+    setAutoApply(false);
 
     vcpkgRoot.setSettingsKey("VcpkgRoot");
     vcpkgRoot.setExpectedKind(PathChooser::ExistingDirectory);

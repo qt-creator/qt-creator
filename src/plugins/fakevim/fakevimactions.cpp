@@ -53,6 +53,8 @@ FakeVimSettings &settings()
 
 FakeVimSettings::FakeVimSettings()
 {
+    setAutoApply(false);
+
     setup(&useFakeVim,     false, "UseFakeVim",     {},    Tr::tr("Use FakeVim"));
 
     // Specific FakeVim settings

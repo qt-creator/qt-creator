@@ -30,6 +30,7 @@ CTestTool::CTestTool()
     : Autotest::ITestTool(false)
 {
     setSettingsGroups("Autotest", "CTest");
+    setAutoApply(false);
 
     setLayouter([this] {
         return Row { Form {

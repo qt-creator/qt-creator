@@ -164,6 +164,13 @@ void IOptionsPage::apply()
 
     if (m_settingsProvider) {
         AspectContainer *container = m_settingsProvider();
+        QTC_ASSERT(container, return);
+        // Sanity check: Aspects in option pages should not autoapply.
+        if (!container->aspects().isEmpty()) {
+            BaseAspect *aspect = container->aspects().first();
+            QTC_ASSERT(aspect, return);
+            QTC_ASSERT(!aspect->isAutoApply(), container->setAutoApply(false));
+        }
         if (container->isDirty()) {
             container->apply();
             container->writeSettings();
