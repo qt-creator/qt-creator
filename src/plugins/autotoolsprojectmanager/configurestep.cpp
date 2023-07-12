@@ -13,6 +13,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
+#include <utils/process.h>
 
 #include <QDateTime>
 
@@ -75,27 +76,31 @@ private:
 
 void ConfigureStep::doRun()
 {
-    // Check whether we need to run configure
-    const FilePath configure = project()->projectDirectory() / "configure";
-    const FilePath configStatus = buildDirectory() / "config.status";
+    using namespace Tasking;
 
-    if (!configStatus.exists() || configStatus.lastModified() < configure.lastModified())
-        m_runConfigure = true;
+    const auto onSetup = [this] {
+        // Check whether we need to run configure
+        const FilePath configure = project()->projectDirectory() / "configure";
+        const FilePath configStatus = buildDirectory() / "config.status";
 
-    if (!m_runConfigure) {
-        emit addOutput(Tr::tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
-        emit finished(true);
-        return;
-    }
+        if (!configStatus.exists() || configStatus.lastModified() < configure.lastModified())
+            m_runConfigure = true;
 
-    ProcessParameters *param = processParameters();
-    if (!param->effectiveCommand().exists()) {
-        param->setCommandLine(getCommandLine(param->command().arguments()));
-        setSummaryText(param->summaryInWorkdir(displayName()));
-    }
+        if (!m_runConfigure) {
+            emit addOutput(Tr::tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
+            return SetupResult::StopWithDone;
+        }
 
-    m_runConfigure = false;
-    AbstractProcessStep::doRun();
+        ProcessParameters *param = processParameters();
+        if (!param->effectiveCommand().exists()) {
+            param->setCommandLine(getCommandLine(param->command().arguments()));
+            setSummaryText(param->summaryInWorkdir(displayName()));
+        }
+        return SetupResult::Continue;
+    };
+    const auto onDone = [this] { m_runConfigure = false; };
+
+    runTaskTree({onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask()});
 }
 
 // ConfigureStepFactory
