@@ -57,7 +57,24 @@ const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMakeProjectManager.MakeStep.ClearS
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMakeProjectManager.MakeStep.UserEnvironmentChanges";
 const char BUILD_PRESET_KEY[] = "CMakeProjectManager.MakeStep.BuildPreset";
 
-// CmakeProgressParser
+class ProjectParserTaskAdapter : public Tasking::TaskAdapter<QPointer<Target>>
+{
+public:
+    void start() final {
+        Target *target = *task();
+        if (!target) {
+            emit done(false);
+            return;
+        }
+        connect(target, &Target::parsingFinished, this, &TaskInterface::done);
+    }
+};
+
+} // namespace CMakeProjectManager::Internal
+
+TASKING_DECLARE_TASK(ProjectParserTask, CMakeProjectManager::Internal::ProjectParserTaskAdapter);
+
+namespace CMakeProjectManager::Internal {
 
 class CmakeProgressParser : public Utils::OutputLineParser
 {
@@ -253,11 +270,6 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
 
     connect(target(), &Target::activeRunConfigurationChanged,
             this, &CMakeBuildStep::updateBuildTargetsModel);
-
-    setDoneHook([this](bool) {
-        updateDeploymentData();
-        emit progress(100, {});
-    });
 }
 
 QVariantMap CMakeBuildStep::toMap() const
@@ -337,40 +349,39 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 
 void CMakeBuildStep::doRun()
 {
-    // Make sure CMake state was written to disk before trying to build:
-    auto bs = static_cast<CMakeBuildSystem *>(buildSystem());
-    QString message;
-    if (bs->persistCMakeState()) {
-        message = Tr::tr("Persisting CMake state...");
-    } else if (bs->isWaitingForParse()) {
-        message = Tr::tr("Running CMake in preparation to build...");
-    } else {
-        runImpl();
-        return;
-    }
-    emit addOutput(message, OutputFormat::NormalMessage);
-    m_runTrigger = connect(target(), &Target::parsingFinished,
-                           this, [this](bool success) { handleProjectWasParsed(success); });
-}
+    using namespace Tasking;
 
-void CMakeBuildStep::runImpl()
-{
-    // Do the actual build:
-    CMakeAbstractProcessStep::doRun();
-}
-
-void CMakeBuildStep::handleProjectWasParsed(bool success)
-{
-    disconnect(m_runTrigger);
-    if (isCanceled()) {
-        emit finished(false);
-    } else if (success) {
-        runImpl();
-    } else {
+    const auto onParserSetup = [this](QPointer<Target> &parseTarget) {
+        // Make sure CMake state was written to disk before trying to build:
+        auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
+        QTC_ASSERT(bs, return SetupResult::StopWithError);
+        QString message;
+        if (bs->persistCMakeState())
+            message = Tr::tr("Persisting CMake state...");
+        else if (bs->isWaitingForParse())
+            message = Tr::tr("Running CMake in preparation to build...");
+        else
+            return SetupResult::StopWithDone;
+        emit addOutput(message, OutputFormat::NormalMessage);
+        parseTarget = target();
+        return SetupResult::Continue;
+    };
+    const auto onParserError = [this](const QPointer<Target> &) {
         emit addOutput(Tr::tr("Project did not parse successfully, cannot build."),
                        OutputFormat::ErrorMessage);
-        emit finished(false);
-    }
+    };
+    const auto onEnd = [this] {
+        updateDeploymentData();
+    };
+    const Group root {
+        ignoreReturnValue() ? finishAllAndDone : stopOnError,
+        ProjectParserTask(onParserSetup, {}, onParserError),
+        defaultProcessTask(),
+        onGroupDone(onEnd),
+        onGroupError(onEnd)
+    };
+
+    runTaskTree(root);
 }
 
 QString CMakeBuildStep::defaultBuildTarget() const

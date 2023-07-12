@@ -91,15 +91,10 @@ private:
     QString defaultBuildTarget() const;
     bool isCleanStep() const;
 
-    void runImpl();
-    void handleProjectWasParsed(bool success);
-
     void handleBuildTargetsChanges(bool success);
     void recreateBuildTargetsModel();
     void updateBuildTargetsModel();
     void updateDeploymentData();
-
-    QMetaObject::Connection m_runTrigger;
 
     friend class CMakeBuildStepConfigWidget;
     QStringList m_buildTargets; // Convention: Empty string member signifies "Current executable"
