@@ -265,7 +265,7 @@ void QMakeStep::setupOutputFormatter(OutputFormatter *formatter)
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-void QMakeStep::doRun()
+Tasking::GroupItem QMakeStep::runRecipe()
 {
     using namespace Tasking;
 
@@ -308,7 +308,7 @@ void QMakeStep::doRun()
     if (m_runMakeQmake)
         processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessDone);
 
-    runTaskTree(Group(processList));
+    return Group(processList);
 }
 
 void QMakeStep::setForced(bool b)

@@ -696,7 +696,7 @@ static bool copyFileIfNewer(const FilePath &sourceFilePath,
     return true;
 }
 
-void AndroidBuildApkStep::doRun()
+Tasking::GroupItem AndroidBuildApkStep::runRecipe()
 {
     using namespace Tasking;
 
@@ -854,7 +854,7 @@ void AndroidBuildApkStep::doRun()
         onGroupDone(onDone),
         defaultProcessTask()
     };
-    runTaskTree(root);
+    return root;
 }
 
 void AndroidBuildApkStep::reportWarningOrError(const QString &message, Task::TaskType type)

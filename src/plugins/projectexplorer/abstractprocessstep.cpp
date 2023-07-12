@@ -3,14 +3,11 @@
 
 #include "abstractprocessstep.h"
 
-#include "buildconfiguration.h"
-#include "buildstep.h"
 #include "processparameters.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 
-#include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
@@ -75,7 +72,6 @@ public:
     Private(AbstractProcessStep *q) : q(q) {}
 
     AbstractProcessStep *q;
-    std::unique_ptr<Process> m_process;
     std::unique_ptr<TaskTree> m_taskTree;
     ProcessParameters m_param;
     ProcessParameters *m_displayedParams = &m_param;
@@ -84,8 +80,8 @@ public:
     std::function<void(Environment &)> m_environmentModifier;
     bool m_ignoreReturnValue = false;
     bool m_lowPriority = false;
-    std::unique_ptr<QTextDecoder> stdoutStream;
-    std::unique_ptr<QTextDecoder> stderrStream;
+    std::unique_ptr<QTextDecoder> stdOutDecoder;
+    std::unique_ptr<QTextDecoder> stdErrDecoder;
     OutputFormatter *outputFormatter = nullptr;
 };
 
@@ -148,12 +144,15 @@ void AbstractProcessStep::setWorkingDirectoryProvider(const std::function<FilePa
 
 bool AbstractProcessStep::init()
 {
-    if (d->m_process || d->m_taskTree)
+    if (d->m_taskTree)
         return false;
 
     if (!setupProcessParameters(processParameters()))
         return false;
 
+    d->stdOutDecoder = std::make_unique<QTextDecoder>(buildEnvironment().hasKey("VSLANG")
+        ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
+    d->stdErrDecoder = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
     return true;
 }
 
@@ -171,29 +170,19 @@ void AbstractProcessStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AbstractProcessStep::doRun()
 {
-    setupStreams();
-
-    d->m_process.reset(new Process);
-    if (!setupProcess(*d->m_process.get())) {
-        d->m_process.reset();
-        finish(ProcessResult::StartFailed);
-        return;
-    }
-    connect(d->m_process.get(), &Process::done, this, [this] {
-        handleProcessDone(*d->m_process);
-        const ProcessResult result = d->outputFormatter->hasFatalErrors()
-                                   ? ProcessResult::FinishedWithError : d->m_process->result();
-        d->m_process.release()->deleteLater();
-        finish(result);
+    d->m_taskTree.reset(new TaskTree({runRecipe()}));
+    connect(d->m_taskTree.get(), &TaskTree::progressValueChanged, this, [this](int value) {
+        emit progress(qRound(double(value) * 100 / std::max(d->m_taskTree->progressMaximum(), 1)), {});
     });
-    d->m_process->start();
-}
-
-void AbstractProcessStep::setupStreams()
-{
-    d->stdoutStream = std::make_unique<QTextDecoder>(buildEnvironment().hasKey("VSLANG")
-            ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
-    d->stderrStream = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
+    connect(d->m_taskTree.get(), &TaskTree::done, this, [this] {
+        emit finished(true);
+        d->m_taskTree.release()->deleteLater();
+    });
+    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
+        emit finished(false);
+        d->m_taskTree.release()->deleteLater();
+    });
+    d->m_taskTree->start();
 }
 
 GroupItem AbstractProcessStep::defaultProcessTask()
@@ -234,11 +223,11 @@ bool AbstractProcessStep::setupProcess(Process &process)
         process.setLowPriority();
 
     connect(&process, &Process::readyReadStandardOutput, this, [this, &process] {
-        emit addOutput(d->stdoutStream->toUnicode(process.readAllRawStandardOutput()),
+        emit addOutput(d->stdOutDecoder->toUnicode(process.readAllRawStandardOutput()),
                        OutputFormat::Stdout, DontAppendNewline);
     });
     connect(&process, &Process::readyReadStandardError, this, [this, &process] {
-        emit addOutput(d->stderrStream->toUnicode(process.readAllRawStandardError()),
+        emit addOutput(d->stdErrDecoder->toUnicode(process.readAllRawStandardError()),
                        OutputFormat::Stderr, DontAppendNewline);
     });
     connect(&process, &Process::started, this, [this] {
@@ -273,25 +262,6 @@ void AbstractProcessStep::handleProcessDone(const Process &process)
     }
 }
 
-void AbstractProcessStep::runTaskTree(const Group &recipe)
-{
-    setupStreams();
-
-    d->m_taskTree.reset(new TaskTree(recipe));
-    connect(d->m_taskTree.get(), &TaskTree::progressValueChanged, this, [this](int value) {
-        emit progress(qRound(double(value) * 100 / std::max(d->m_taskTree->progressMaximum(), 1)), {});
-    });
-    connect(d->m_taskTree.get(), &TaskTree::done, this, [this] {
-        emit finished(true);
-        d->m_taskTree.release()->deleteLater();
-    });
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
-        emit finished(false);
-        d->m_taskTree.release()->deleteLater();
-    });
-    d->m_taskTree->start();
-}
-
 void AbstractProcessStep::setLowPriority()
 {
     d->m_lowPriority = true;
@@ -300,11 +270,6 @@ void AbstractProcessStep::setLowPriority()
 void AbstractProcessStep::doCancel()
 {
     const QString message = Tr::tr("The build step was ended forcefully.");
-    if (d->m_process) {
-        emit addOutput(message, OutputFormat::ErrorMessage);
-        d->m_process.reset();
-        finish(ProcessResult::TerminatedAbnormally);
-    }
     if (d->m_taskTree) {
         d->m_taskTree.reset();
         emit addOutput(message, OutputFormat::ErrorMessage);
@@ -352,11 +317,9 @@ void AbstractProcessStep::setDisplayedParameters(ProcessParameters *params)
     d->m_displayedParams = params;
 }
 
-void AbstractProcessStep::finish(ProcessResult result)
+GroupItem AbstractProcessStep::runRecipe()
 {
-    const bool success = result == ProcessResult::FinishedWithSuccess
-                         || (result == ProcessResult::FinishedWithError && d->m_ignoreReturnValue);
-    emit finished(success);
+    return Group { ignoreReturnValue() ? finishAllAndDone : stopOnError, defaultProcessTask() };
 }
 
 } // namespace ProjectExplorer

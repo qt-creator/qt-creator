@@ -41,7 +41,7 @@ private:
     bool fromMap(const QVariantMap &map) override;
     QWidget *createConfigWidget() override;
     bool init() override;
-    void doRun() override;
+    Tasking::GroupItem runRecipe() final;
     bool isJobCountSupported() const override { return false; }
 
     void updateCommandFromAspect();
@@ -188,7 +188,7 @@ bool MakeInstallStep::init()
     return true;
 }
 
-void MakeInstallStep::doRun()
+Tasking::GroupItem MakeInstallStep::runRecipe()
 {
     using namespace Tasking;
 
@@ -222,7 +222,7 @@ void MakeInstallStep::doRun()
         }
     };
 
-    runTaskTree({onGroupDone(onDone), onGroupError(onError), defaultProcessTask()});
+    return Group { onGroupDone(onDone), onGroupError(onError), defaultProcessTask() };
 }
 
 void MakeInstallStep::updateCommandFromAspect()

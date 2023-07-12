@@ -60,7 +60,8 @@ public:
         });
     }
 
-    void doRun() override
+private:
+    Tasking::GroupItem runRecipe() final
     {
         using namespace Tasking;
 
@@ -79,10 +80,9 @@ public:
         };
         const auto onDone = [this] { m_runAutoreconf = false; };
 
-        runTaskTree({onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask()});
+        return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
     }
 
-private:
     bool m_runAutoreconf = false;
     StringAspect arguments{this};
 };

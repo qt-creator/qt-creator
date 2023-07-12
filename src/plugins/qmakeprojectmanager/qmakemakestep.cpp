@@ -42,7 +42,7 @@ public:
 private:
     bool init() override;
     void setupOutputFormatter(OutputFormatter *formatter) override;
-    void doRun() override;
+    Tasking::GroupItem runRecipe() final;
     QStringList displayArguments() const override;
 
     bool m_scriptTarget = false;
@@ -200,7 +200,7 @@ void QmakeMakeStep::setupOutputFormatter(OutputFormatter *formatter)
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-void QmakeMakeStep::doRun()
+Tasking::GroupItem QmakeMakeStep::runRecipe()
 {
     using namespace Tasking;
 
@@ -226,7 +226,12 @@ void QmakeMakeStep::doRun()
         }
     };
 
-    runTaskTree({onGroupSetup(onSetup), onGroupError(onError), defaultProcessTask()});
+    return Group {
+        ignoreReturnValue() ? finishAllAndDone : stopOnError,
+        onGroupSetup(onSetup),
+        onGroupError(onError),
+        defaultProcessTask()
+    };
 }
 
 QStringList QmakeMakeStep::displayArguments() const

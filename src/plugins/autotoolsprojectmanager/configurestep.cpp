@@ -63,7 +63,7 @@ public:
     }
 
 private:
-    void doRun() final;
+    Tasking::GroupItem runRecipe() final;
 
     CommandLine getCommandLine(const QString &arguments)
     {
@@ -74,7 +74,7 @@ private:
     StringAspect arguments{this};
 };
 
-void ConfigureStep::doRun()
+Tasking::GroupItem ConfigureStep::runRecipe()
 {
     using namespace Tasking;
 
@@ -100,7 +100,7 @@ void ConfigureStep::doRun()
     };
     const auto onDone = [this] { m_runConfigure = false; };
 
-    runTaskTree({onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask()});
+    return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
 }
 
 // ConfigureStepFactory

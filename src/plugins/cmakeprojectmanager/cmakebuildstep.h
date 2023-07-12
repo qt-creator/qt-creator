@@ -81,7 +81,7 @@ private:
 
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() override;
+    Tasking::GroupItem runRecipe() final;
     QWidget *createConfigWidget() override;
 
     Utils::FilePath cmakeExecutable() const;

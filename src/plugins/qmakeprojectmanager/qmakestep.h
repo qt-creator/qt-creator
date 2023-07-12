@@ -101,7 +101,6 @@ public:
     QmakeBuildSystem *qmakeBuildSystem() const;
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() override;
     QWidget *createConfigWidget() override;
     void setForced(bool b);
 
@@ -138,6 +137,7 @@ protected:
     bool fromMap(const QVariantMap &map) override;
 
 private:
+    Tasking::GroupItem runRecipe() final;
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
     void qmakeBuildConfigChanged();

@@ -46,7 +46,7 @@ public:
 private:
     bool init() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
-    void doRun() final;
+    Tasking::GroupItem runRecipe() final;
 
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
 
@@ -120,7 +120,7 @@ void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *forma
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-void AndroidPackageInstallationStep::doRun()
+Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
 {
     using namespace Tasking;
 
@@ -171,7 +171,7 @@ void AndroidPackageInstallationStep::doRun()
         return SetupResult::Continue;
     };
 
-    runTaskTree({onGroupSetup(onSetup), defaultProcessTask()});
+    return Group { onGroupSetup(onSetup), defaultProcessTask() };
 }
 
 void AndroidPackageInstallationStep::reportWarningOrError(const QString &message,

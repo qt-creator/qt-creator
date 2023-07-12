@@ -59,7 +59,7 @@ void PySideBuildStep::updatePySideProjectPath(const FilePath &pySideProjectPath)
     m_pysideProject.setValue(pySideProjectPath);
 }
 
-void PySideBuildStep::doRun()
+Tasking::GroupItem PySideBuildStep::runRecipe()
 {
     using namespace Tasking;
 
@@ -69,9 +69,8 @@ void PySideBuildStep::doRun()
         return SetupResult::Continue;
     };
 
-    runTaskTree({onGroupSetup(onSetup), defaultProcessTask()});
+    return Group { onGroupSetup(onSetup), defaultProcessTask() };
 }
-
 
 // PySideBuildConfiguration
 

@@ -5,18 +5,12 @@
 
 #include "buildstep.h"
 
-#include <QProcess>
-
 namespace Utils {
 class CommandLine;
 class Process;
-enum class ProcessResult;
 }
 
-namespace Tasking {
-class Group;
-class GroupItem;
-}
+namespace Tasking { class GroupItem; }
 
 namespace ProjectExplorer {
 class ProcessParameters;
@@ -45,19 +39,17 @@ protected:
 
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() override;
-    void doCancel() override;
+    void doRun() final;
+    void doCancel() final;
     void setLowPriority();
     void setDisplayedParameters(ProcessParameters *params);
 
     Tasking::GroupItem defaultProcessTask();
     bool setupProcess(Utils::Process &process);
     void handleProcessDone(const Utils::Process &process);
-    void runTaskTree(const Tasking::Group &recipe);
 
 private:
-    void setupStreams();
-    void finish(Utils::ProcessResult result);
+    virtual Tasking::GroupItem runRecipe();
 
     class Private;
     Private *d;

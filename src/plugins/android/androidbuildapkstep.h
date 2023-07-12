@@ -66,7 +66,7 @@ private:
     bool verifyKeystorePassword();
     bool verifyCertificatePassword();
 
-    void doRun() override;
+    Tasking::GroupItem runRecipe() final;
     void stdError(const QString &output);
 
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);

@@ -40,7 +40,7 @@ public:
     AutogenStep(BuildStepList *bsl, Id id);
 
 private:
-    void doRun() final;
+    Tasking::GroupItem runRecipe() final;
 
     bool m_runAutogen = false;
     StringAspect m_arguments{this};
@@ -70,7 +70,7 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Id id) : AbstractProcessStep(bsl, i
     });
 }
 
-void AutogenStep::doRun()
+Tasking::GroupItem AutogenStep::runRecipe()
 {
     using namespace Tasking;
 
@@ -96,7 +96,7 @@ void AutogenStep::doRun()
     };
     const auto onDone = [this] { m_runAutogen = false; };
 
-    runTaskTree({onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask()});
+    return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
 }
 
 // AutogenStepFactory
