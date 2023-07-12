@@ -25,6 +25,7 @@
 #include <cstring>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace RemoteLinux::Internal {
@@ -60,8 +61,7 @@ public:
 
 private:
     bool init() final;
-    void doRun() final;
-    void doCancel() final;
+    GroupItem runRecipe() final;
     bool fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
     QVariant data(Id id) const final;
@@ -71,9 +71,9 @@ private:
     bool isPackagingNeeded() const;
     void deployFinished(bool success);
     void addNeededDeploymentFiles(const DeployableFile &deployable, const Kit *kit);
-    void doPackage(QPromise<bool> &promise, const Utils::FilePath &tarFilePath,
+    void doPackage(QPromise<void> &promise, const Utils::FilePath &tarFilePath,
                    bool ignoreMissingFiles);
-    bool appendFile(QPromise<bool> &promise, QFile &tarFile, const QFileInfo &fileInfo,
+    bool appendFile(QPromise<void> &promise, QFile &tarFile, const QFileInfo &fileInfo,
                     const QString &remoteFilePath, const Utils::FilePath &tarFilePath,
                     bool ignoreMissingFiles);
 
@@ -129,48 +129,41 @@ bool TarPackageCreationStep::init()
     return true;
 }
 
-void TarPackageCreationStep::doRun()
+GroupItem TarPackageCreationStep::runRecipe()
 {
-    const QList<DeployableFile> &files = target()->deploymentData().allFiles();
-
-    if (m_incrementalDeployment()) {
-        m_files.clear();
-        for (const DeployableFile &file : files)
-            addNeededDeploymentFiles(file, kit());
-    } else {
-        m_files = files;
-    }
-
-    emit addOutput(Tr::tr("Creating tarball..."), OutputFormat::NormalMessage);
-    if (!m_packagingNeeded) {
-        emit addOutput(Tr::tr("Tarball up to date, skipping packaging."), OutputFormat::NormalMessage);
-        emit finished(true);
-        return;
-    }
-
-    auto * const watcher = new QFutureWatcher<bool>(this);
-    connect(watcher, &QFutureWatcher<bool>::finished, this, [this, watcher] {
-        const bool success = !watcher->isCanceled() && watcher->result();
-        if (success) {
-            m_deploymentDataModified = false;
-            emit addOutput(Tr::tr("Packaging finished successfully."), OutputFormat::NormalMessage);
+    const auto onSetup = [this](Async<void> &async) {
+        const QList<DeployableFile> &files = target()->deploymentData().allFiles();
+        if (m_incrementalDeployment()) {
+            m_files.clear();
+            for (const DeployableFile &file : files)
+                addNeededDeploymentFiles(file, kit());
         } else {
-            emit addOutput(Tr::tr("Packaging failed."), OutputFormat::ErrorMessage);
+            m_files = files;
         }
-        emit finished(success);
-        watcher->deleteLater();
+
+        emit addOutput(Tr::tr("Creating tarball..."), OutputFormat::NormalMessage);
+        if (!m_packagingNeeded) {
+            emit addOutput(Tr::tr("Tarball up to date, skipping packaging."),
+                           OutputFormat::NormalMessage);
+            return SetupResult::StopWithDone;
+        }
+
+        async.setConcurrentCallData(&TarPackageCreationStep::doPackage, this,
+                                    m_tarFilePath, m_ignoreMissingFiles());
+        async.setFutureSynchronizer(&m_synchronizer);
+        return SetupResult::Continue;
+    };
+    const auto onDone = [this](const Async<void> &) {
+        m_deploymentDataModified = false;
+        emit addOutput(Tr::tr("Packaging finished successfully."), OutputFormat::NormalMessage);
+        // TODO: Should it be the next task in sequence?
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
                 this, &TarPackageCreationStep::deployFinished);
-    });
-    auto future = Utils::asyncRun(&TarPackageCreationStep::doPackage, this,
-                                  m_tarFilePath, m_ignoreMissingFiles());
-    watcher->setFuture(future);
-    m_synchronizer.addFuture(future);
-}
-
-void TarPackageCreationStep::doCancel()
-{
-    m_synchronizer.cancelAllFutures();
+    };
+    const auto onError = [this](const Async<void> &) {
+        emit addOutput(Tr::tr("Packaging failed."), OutputFormat::ErrorMessage);
+    };
+    return AsyncTask<void>(onSetup, onDone, onError);
 }
 
 bool TarPackageCreationStep::fromMap(const QVariantMap &map)
@@ -266,7 +259,9 @@ void TarPackageCreationStep::addNeededDeploymentFiles(
     }
 }
 
-void TarPackageCreationStep::doPackage(QPromise<bool> &promise, const FilePath &tarFilePath,
+// TODO: Fix error / message reporting. Currently, the messages may still be posted
+//       (and delivered) after the async task was already canceled.
+void TarPackageCreationStep::doPackage(QPromise<void> &promise, const FilePath &tarFilePath,
                                        bool ignoreMissingFiles)
 {
     // TODO: Optimization: Only package changed files
@@ -275,7 +270,7 @@ void TarPackageCreationStep::doPackage(QPromise<bool> &promise, const FilePath &
     if (!tarFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         raiseError(Tr::tr("Error: tar file %1 cannot be opened (%2).")
                    .arg(tarFilePath.toUserOutput(), tarFile.errorString()));
-        promise.addResult(false);
+        promise.future().cancel();
         return;
     }
 
@@ -289,19 +284,18 @@ void TarPackageCreationStep::doPackage(QPromise<bool> &promise, const FilePath &
         if (!appendFile(promise, tarFile, fileInfo,
                         d.remoteDirectory() + QLatin1Char('/') + fileInfo.fileName(),
                         tarFilePath, ignoreMissingFiles)) {
-            promise.addResult(false);
+            promise.future().cancel();
             return;
         }
     }
 
-    const QByteArray eofIndicator(2*sizeof(TarFileHeader), 0);
+    const QByteArray eofIndicator(2 * sizeof(TarFileHeader), 0);
     if (tarFile.write(eofIndicator) != eofIndicator.length()) {
         raiseError(Tr::tr("Error writing tar file \"%1\": %2.")
             .arg(QDir::toNativeSeparators(tarFile.fileName()), tarFile.errorString()));
-        promise.addResult(false);
+        promise.future().cancel();
         return;
     }
-    promise.addResult(true);
 }
 
 static bool setFilePath(TarFileHeader &header, const QByteArray &filePath)
@@ -383,7 +377,7 @@ static bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo, const QString
     return true;
 }
 
-bool TarPackageCreationStep::appendFile(QPromise<bool> &promise,
+bool TarPackageCreationStep::appendFile(QPromise<void> &promise,
                                         QFile &tarFile,
                                         const QFileInfo &fileInfo,
                                         const QString &remoteFilePath,
