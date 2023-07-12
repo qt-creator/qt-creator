@@ -23,7 +23,17 @@ namespace Nim {
 class NimCompilerCleanStep final : public BuildStep
 {
 public:
-    NimCompilerCleanStep(BuildStepList *parentList, Id id);
+    NimCompilerCleanStep(BuildStepList *parentList, Id id)
+        : BuildStep(parentList, id)
+    {
+        workingDir.setLabelText(Tr::tr("Working directory:"));
+        workingDir.setDisplayStyle(StringAspect::LineEditDisplay);
+
+        setSummaryUpdater([this] {
+            workingDir.setValue(buildDirectory());
+            return displayName();
+        });
+    }
 
 private:
     bool init() final;
@@ -34,20 +44,8 @@ private:
     bool removeOutFilePath();
 
     FilePath m_buildDir;
+    FilePathAspect workingDir{this};
 };
-
-NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList, Id id)
-    : BuildStep(parentList, id)
-{
-    auto workingDirectory = addAspect<FilePathAspect>();
-    workingDirectory->setLabelText(Tr::tr("Working directory:"));
-    workingDirectory->setDisplayStyle(StringAspect::LineEditDisplay);
-
-    setSummaryUpdater([this, workingDirectory] {
-        workingDirectory->setValue(buildDirectory());
-        return displayName();
-    });
-}
 
 bool NimCompilerCleanStep::init()
 {
