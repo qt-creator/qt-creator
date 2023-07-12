@@ -9,11 +9,14 @@
 
 namespace Utils {
 class CommandLine;
-enum class ProcessResult;
 class Process;
+enum class ProcessResult;
 }
 
-namespace Tasking { class Group; }
+namespace Tasking {
+class Group;
+class GroupItem;
+}
 
 namespace ProjectExplorer {
 class ProcessParameters;
@@ -48,6 +51,7 @@ protected:
     void setLowPriority();
     void setDisplayedParameters(ProcessParameters *params);
 
+    Tasking::GroupItem defaultProcessTask();
     bool setupProcess(Utils::Process &process);
     void handleProcessDone(const Utils::Process &process);
     void runTaskTree(const Tasking::Group &recipe);

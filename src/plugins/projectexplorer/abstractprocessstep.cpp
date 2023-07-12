@@ -202,6 +202,15 @@ void AbstractProcessStep::setupStreams()
     d->stderrStream = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
 }
 
+GroupItem AbstractProcessStep::defaultProcessTask()
+{
+    const auto onSetup = [this](Process &process) {
+        return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
+    };
+    const auto onEnd = [this](const Process &process) { handleProcessDone(process); };
+    return ProcessTask(onSetup, onEnd, onEnd);
+}
+
 bool AbstractProcessStep::setupProcess(Process &process)
 {
     const FilePath workingDir = d->m_param.effectiveWorkingDirectory();
