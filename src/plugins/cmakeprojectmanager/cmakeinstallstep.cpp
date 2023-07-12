@@ -16,6 +16,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/layoutbuilder.h>
 
 using namespace Core;
@@ -24,14 +25,20 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-const char CMAKE_ARGUMENTS_KEY[] = "CMakeProjectManager.InstallStep.CMakeArguments";
-
 // CMakeInstallStep
 
 class CMakeInstallStep : public CMakeAbstractProcessStep
 {
 public:
-    CMakeInstallStep(ProjectExplorer::BuildStepList *bsl, Id id);
+    CMakeInstallStep(BuildStepList *bsl, Id id)
+        : CMakeAbstractProcessStep(bsl, id)
+    {
+        cmakeArguments.setSettingsKey("CMakeProjectManager.InstallStep.CMakeArguments");
+        cmakeArguments.setLabelText(Tr::tr("CMake arguments:"));
+        cmakeArguments.setDisplayStyle(StringAspect::LineEditDisplay);
+
+        setCommandLineProvider([this] { return cmakeCommand(); });
+    }
 
 private:
     CommandLine cmakeCommand() const;
@@ -41,19 +48,8 @@ private:
     void setupOutputFormatter(OutputFormatter *formatter) override;
     QWidget *createConfigWidget() override;
 
-    StringAspect *m_cmakeArguments = nullptr;
+    StringAspect cmakeArguments{this};
 };
-
-CMakeInstallStep::CMakeInstallStep(BuildStepList *bsl, Id id)
-    : CMakeAbstractProcessStep(bsl, id)
-{
-    m_cmakeArguments = addAspect<StringAspect>();
-    m_cmakeArguments->setSettingsKey(CMAKE_ARGUMENTS_KEY);
-    m_cmakeArguments->setLabelText(Tr::tr("CMake arguments:"));
-    m_cmakeArguments->setDisplayStyle(StringAspect::LineEditDisplay);
-
-    setCommandLineProvider([this] { return cmakeCommand(); });
-}
 
 void CMakeInstallStep::setupOutputFormatter(OutputFormatter *formatter)
 {
@@ -82,8 +78,7 @@ CommandLine CMakeInstallStep::cmakeCommand() const
         cmd.addArg(bs->cmakeBuildType());
     }
 
-    if (!m_cmakeArguments->value().isEmpty())
-        cmd.addArgs(m_cmakeArguments->value(), CommandLine::Raw);
+    cmd.addArgs(cmakeArguments(), CommandLine::Raw);
 
     return cmd;
 }
@@ -107,11 +102,11 @@ QWidget *CMakeInstallStep::createConfigWidget()
     setDisplayName(Tr::tr("Install", "ConfigWidget display name."));
 
     using namespace Layouting;
-    auto widget =  Form { m_cmakeArguments,  noMargin }.emerge();
+    auto widget = Form { cmakeArguments, noMargin }.emerge();
 
     updateDetails();
 
-    connect(m_cmakeArguments, &StringAspect::changed, this, updateDetails);
+    connect(&cmakeArguments, &StringAspect::changed, this, updateDetails);
 
     connect(ProjectExplorerPlugin::instance(),
             &ProjectExplorerPlugin::settingsChanged,
