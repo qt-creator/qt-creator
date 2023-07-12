@@ -23,36 +23,25 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<EnvironmentAspect>();
-    envAspect->setSupportForBuildEnvironment(target);
+    environment.setSupportForBuildEnvironment(target);
 
-    auto exeAspect = addAspect<ExecutableAspect>();
-    exeAspect->setDeviceSelector(target, ExecutableAspect::HostDevice);
-    exeAspect->setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
-    exeAspect->setReadOnly(false);
-    exeAspect->setHistoryCompleter("Qt.CustomExecutable.History");
-    exeAspect->setExpectedKind(PathChooser::ExistingCommand);
-    exeAspect->setEnvironment(envAspect->environment());
+    executable.setDeviceSelector(target, ExecutableAspect::HostDevice);
+    executable.setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
+    executable.setReadOnly(false);
+    executable.setHistoryCompleter("Qt.CustomExecutable.History");
+    executable.setExpectedKind(PathChooser::ExistingCommand);
+    executable.setEnvironment(environment.environment());
 
-    auto argsAspect = addAspect<ArgumentsAspect>();
-    argsAspect->setMacroExpander(macroExpander());
+    arguments.setMacroExpander(macroExpander());
 
-    auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
-    workingDirAspect->setMacroExpander(macroExpander());
-    workingDirAspect->setEnvironment(envAspect);
+    workingDir.setMacroExpander(macroExpander());
+    workingDir.setEnvironment(&environment);
 
-    addAspect<TerminalAspect>();
-
-    connect(envAspect, &EnvironmentAspect::environmentChanged, this, [exeAspect, envAspect]  {
-         exeAspect->setEnvironment(envAspect->environment());
+    connect(&environment, &EnvironmentAspect::environmentChanged, this, [this]  {
+         executable.setEnvironment(environment.environment());
     });
 
     setDefaultDisplayName(defaultDisplayName());
-}
-
-FilePath CustomExecutableRunConfiguration::executable() const
-{
-    return aspect<ExecutableAspect>()->executable();
 }
 
 bool CustomExecutableRunConfiguration::isEnabled() const
@@ -64,8 +53,8 @@ Runnable CustomExecutableRunConfiguration::runnable() const
 {
     Runnable r;
     r.command = commandLine();
-    r.environment = aspect<EnvironmentAspect>()->environment();
-    r.workingDirectory = aspect<WorkingDirectoryAspect>()->workingDirectory();
+    r.environment = environment.environment();
+    r.workingDirectory = workingDir();
 
     if (!r.command.isEmpty()) {
         const FilePath expanded = macroExpander()->expand(r.command.executable());

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "environmentaspect.h"
+#include "runconfigurationaspects.h"
 #include "runcontrol.h"
 
 namespace ProjectExplorer {
@@ -23,7 +25,12 @@ private:
     Tasks checkForIssues() const override;
 
     void configurationDialogFinished();
-    Utils::FilePath executable() const;
+
+    EnvironmentAspect environment{this};
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
 };
 
 class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory
