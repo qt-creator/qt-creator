@@ -113,8 +113,16 @@
             \c {QtQuick.Controls 2.3} and to use Qt Quick Studio Components 1.0,
             you need the import statement \c {QtQuick.Studio.Components 1.0}.
             You can also import a module as an alias.
-        \li In the \uicontrol {Properties} field, specify properties for the
-            component. You can add and modify properties in \QDS.
+        \li In the \uicontrol {Properties} field, specify new properties or assign
+            value to the existing properties of the component. You can also add and modify
+            properties in \QDS.
+            Following are few examples of properties:
+            \code
+            property int counter: 5
+            property string label: "ok"
+            antialiasing : true
+            width: parent.width / 2
+            \endcode
         \li Select the \uicontrol Clip check box to enable clipping in the
             component generated from the layer. The generated component will clip
             its own painting, as well as the painting of its children, to its
