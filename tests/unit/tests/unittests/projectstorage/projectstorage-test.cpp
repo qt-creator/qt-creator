@@ -6970,4 +6970,41 @@ TEST_F(ProjectStorage, get_no_exported_type_names_if_type_id_is_invalid)
     ASSERT_THAT(exportedTypeNames, IsEmpty());
 }
 
+TEST_F(ProjectStorage, get_exported_type_names_for_source_id)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId2, "QObject");
+
+    auto exportedTypeNames = storage.exportedTypeNames(typeId, sourceId3);
+
+    ASSERT_THAT(exportedTypeNames,
+                UnorderedElementsAre(IsInfoExportTypeNames(qmlModuleId, "Object", 2, -1),
+                                     IsInfoExportTypeNames(qmlModuleId, "Obj", 2, -1)));
+}
+
+TEST_F(ProjectStorage, get_no_exported_type_names_for_source_id_for_invalid_type_id)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId3);
+    storage.synchronize(package);
+    TypeId typeId;
+
+    auto exportedTypeNames = storage.exportedTypeNames(typeId, sourceId3);
+
+    ASSERT_THAT(exportedTypeNames, IsEmpty());
+}
+
+TEST_F(ProjectStorage, get_no_exported_type_names_for_source_id_for_non_matching_import)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId2, "QObject");
+
+    auto exportedTypeNames = storage.exportedTypeNames(typeId, sourceId3);
+
+    ASSERT_THAT(exportedTypeNames, IsEmpty());
+}
 } // namespace

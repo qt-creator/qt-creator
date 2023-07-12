@@ -159,6 +159,13 @@ public:
             .template valuesWithTransaction<Storage::Info::ExportedTypeName>(4, typeId);
     }
 
+    Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId,
+                                                       SourceId sourceId) const override
+    {
+        return selectExportedTypesByTypeIdAndSourceIdStatement
+            .template valuesWithTransaction<Storage::Info::ExportedTypeName>(4, typeId, sourceId);
+    }
+
     ImportId importId(const Storage::Import &import) const override
     {
         return Sqlite::withDeferredTransaction(database, [&] {
@@ -2756,6 +2763,11 @@ public:
     mutable ReadStatement<4, 1> selectExportedTypesByTypeIdStatement{
         "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM "
         "exportedTypeNames WHERE typeId=?",
+        database};
+    mutable ReadStatement<4, 2> selectExportedTypesByTypeIdAndSourceIdStatement{
+        "SELECT etn.moduleId, name, ifnull(etn.majorVersion, -1), ifnull(etn.minorVersion, -1) "
+        "FROM exportedTypeNames AS etn JOIN documentImports USING(moduleId) WHERE typeId=?1 AND "
+        "sourceId=?2",
         database};
     mutable ReadStatement<7> selectTypesStatement{
         "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, pd.name "

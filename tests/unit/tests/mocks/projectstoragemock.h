@@ -118,6 +118,10 @@ public:
                 exportedTypeNames,
                 (QmlDesigner::TypeId),
                 (const, override));
+    MOCK_METHOD(QmlDesigner::Storage::Info::ExportedTypeNames,
+                exportedTypeNames,
+                (QmlDesigner::TypeId, QmlDesigner::SourceId),
+                (const, override));
 
     MOCK_METHOD(QmlDesigner::ImportId,
                 importId,
