@@ -59,15 +59,6 @@ QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Id id)
         setUserArguments("clean");
     }
     supportDisablingForSubdirs();
-
-    setDoneHook([this](bool success) {
-        if (!success && !isCanceled() && m_unalignedBuildDir
-            && settings().warnAgainstUnalignedBuildDir()) {
-            const QString msg = Tr::tr("The build directory is not at the same level as the source "
-                                       "directory, which could be the reason for the build failure.");
-            emit addTask(BuildSystemTask(Task::Warning, msg));
-        }
-    });
 }
 
 bool QmakeMakeStep::init()
@@ -211,20 +202,31 @@ void QmakeMakeStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void QmakeMakeStep::doRun()
 {
-    if (m_scriptTarget || m_ignoredNonTopLevelBuild) {
-        emit finished(true);
-        return;
-    }
+    using namespace Tasking;
 
-    if (!m_makeFileToCheck.exists()) {
-        const bool success = ignoreReturnValue();
-        if (!success)
-            emit addOutput(Tr::tr("Cannot find Makefile. Check your build settings."), BuildStep::OutputFormat::NormalMessage);
-        emit finished(success);
-        return;
-    }
+    const auto onSetup = [this] {
+        if (m_scriptTarget || m_ignoredNonTopLevelBuild)
+            return SetupResult::StopWithDone;
 
-    AbstractProcessStep::doRun();
+        if (!m_makeFileToCheck.exists()) {
+            const bool success = ignoreReturnValue();
+            if (!success) {
+                emit addOutput(Tr::tr("Cannot find Makefile. Check your build settings."),
+                               OutputFormat::NormalMessage);
+            }
+            return success ? SetupResult::StopWithDone : SetupResult::StopWithError;
+        }
+        return SetupResult::Continue;
+    };
+    const auto onError = [this] {
+        if (m_unalignedBuildDir && settings().warnAgainstUnalignedBuildDir()) {
+            const QString msg = Tr::tr("The build directory is not at the same level as the source "
+                                       "directory, which could be the reason for the build failure.");
+            emit addTask(BuildSystemTask(Task::Warning, msg));
+        }
+    };
+
+    runTaskTree({onGroupSetup(onSetup), onGroupError(onError), defaultProcessTask()});
 }
 
 QStringList QmakeMakeStep::displayArguments() const
