@@ -4,6 +4,7 @@
 #include "modelutils.h"
 
 #include <nodemetainfo.h>
+#include <projectstorage/projectstorage.h>
 #include <projectstorage/sourcepathcache.h>
 
 #include <utils/expected.h>
