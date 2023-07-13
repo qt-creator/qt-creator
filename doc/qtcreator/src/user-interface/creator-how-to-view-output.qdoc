@@ -73,13 +73,13 @@
 
     Some output views do not support finding and filtering.
 
+    \if defined(qtcreator)
+    \sa {Output Views}
+    \else
     \section1 Output views
 
     The following views show output:
 
-    \if defined(qtcreator)
-    \annotatedlist creator-reference-output-views
-    \else
     \annotatedlist studio-reference-output-views
     \endif
 */

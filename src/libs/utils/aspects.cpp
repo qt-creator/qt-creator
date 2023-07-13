@@ -1545,7 +1545,7 @@ CheckableDecider BoolAspect::askAgainCheckableDecider()
 {
     return CheckableDecider(
         [this] { return value(); },
-        [this] { setValue(true); }
+        [this] { setValue(false); }
     );
 }
 

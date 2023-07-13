@@ -183,7 +183,7 @@ QList<ProjectExplorer::BuildTargetInfo> MesonProjectParser::appsTargets() const
         if (target.type == Target::Type::executable) {
             ProjectExplorer::BuildTargetInfo bti;
             bti.displayName = target.name;
-            bti.buildKey = Target::fullName(m_srcDir, target);
+            bti.buildKey = Target::fullName(m_buildDir, target);
             bti.displayNameUniquifier = bti.buildKey;
             bti.targetFilePath = Utils::FilePath::fromString(target.fileName.first());
             bti.workingDirectory = Utils::FilePath::fromString(target.fileName.first()).absolutePath();
@@ -237,7 +237,7 @@ void MesonProjectParser::update(const QFuture<MesonProjectParser::ParserData *> 
     m_rootNode = std::move(parserData->rootNode);
     m_targetsNames.clear();
     for (const Target &target : m_parserResult.targets) {
-        m_targetsNames.push_back(Target::fullName(m_srcDir, target));
+        m_targetsNames.push_back(Target::fullName(m_buildDir, target));
     }
     addMissingTargets(m_targetsNames);
     m_targetsNames.sort();
@@ -253,7 +253,7 @@ ProjectExplorer::RawProjectPart MesonProjectParser::buildRawPart(
 {
     ProjectExplorer::RawProjectPart part;
     part.setDisplayName(target.name);
-    part.setBuildSystemTarget(Target::fullName(m_srcDir, target));
+    part.setBuildSystemTarget(Target::fullName(m_buildDir, target));
     part.setFiles(sources.sources + sources.generatedSources);
     auto flags = splitArgs(sources.parameters);
     part.setMacros(flags.macros);

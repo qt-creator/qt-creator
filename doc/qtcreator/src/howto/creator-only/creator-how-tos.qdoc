@@ -10,7 +10,7 @@
 /*!
     \previouspage creator-faq.html
     \page creator-how-tos.html
-    \nextpage creator-known-issues.html
+    \nextpage creator-reference.html
 
     \title How-to
 
@@ -76,7 +76,7 @@
 /*!
     \page creator-how-to-move-between-open-files.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Move between open files
@@ -96,7 +96,7 @@
 /*!
     \page creator-how-to-switch-to-edit-mode.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Switch to Edit mode
@@ -118,7 +118,7 @@
 /*!
     \page creator-how-to-find-preferences.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-ui
 
     \title Find a particular preference
@@ -132,7 +132,7 @@
 /*!
     \page creator-how-to-run-from-cli.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-use
 
     \title Run \QC from the command line
@@ -150,7 +150,7 @@
 /*!
     \page creator-how-to-move-to-symbols.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Move to symbols
@@ -173,7 +173,7 @@
 /*!
     \page creator-how-to-locate-files-using-keyboard.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Locate files using the keyboard
@@ -198,7 +198,7 @@
 /*!
     \page creator-how-to-perform-calculations.html
     \previouspage creator-how-to-move-between-open-files.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Perform calculations
@@ -215,7 +215,7 @@
 /*!
     \page creator-how-to-jump-to-functions-in-qml-code.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Jump to a function in QML code
@@ -227,7 +227,7 @@
 /*!
     \page creator-how-to-add-license-header-templates.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-projects
 
     \title Add a license header template for C++ code
@@ -258,7 +258,7 @@
 /*!
     \page creator-how-to-paste-text-from-clipboard-history.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Paste text from clipboard history
@@ -271,7 +271,7 @@
 /*!
     \page creator-how-to-sort-lines-alphabetically.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Sort lines alphabetically
@@ -284,7 +284,7 @@
 /*!
     \page creator-enclose-code-in-characters.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Enclose selected code in curly braces, parentheses, or double quotes
@@ -309,7 +309,7 @@
 /*!
     \page creator-how-to-select-enclosing-block.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Select the enclosing block in C++
@@ -320,7 +320,7 @@
 /*!
     \page creator-how-to-add-code-snippets.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Add code snippets to the auto-complete menu
@@ -337,7 +337,7 @@
 /*!
     \page creator-how-to-write-notes.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Write down notes
@@ -366,7 +366,7 @@
 /*!
     \page creator-how-to-set-recent-files.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-ui
 
     \title Set the number of recent files shown
@@ -386,7 +386,7 @@
 /*!
     \page creator-how-to-search-and-replace-using-regexp.html
     \previouspage creator-how-to-move-between-open-files.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-edit
 
     \title Search and replace across files using a regular expression
