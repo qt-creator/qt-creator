@@ -155,7 +155,7 @@ void TestSettings::fromSettings()
 
 RunAfterBuildMode TestSettings::runAfterBuildMode() const
 {
-    return static_cast<RunAfterBuildMode>(runAfterBuild.value());
+    return static_cast<RunAfterBuildMode>(runAfterBuild());
 }
 
 } // namespace Autotest::Internal

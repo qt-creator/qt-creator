@@ -114,16 +114,16 @@ CTestTool::CTestTool()
 QStringList CTestTool::activeSettingsAsOptions() const
 {
     QStringList options;
-    if (outputOnFail.value())
+    if (outputOnFail())
         options << "--output-on-failure";
-    switch (outputMode.value()) {
+    switch (outputMode()) {
     case 1: options << "-V"; break;
     case 2: options << "-VV"; break;
     default: break;
     }
-    if (repeat.value()) {
+    if (repeat()) {
         QString repeatOption;
-        switch (repetitionMode.value()) {
+        switch (repetitionMode()) {
         case 0: repeatOption = "until-fail"; break;
         case 1: repeatOption = "until-pass"; break;
         case 2: repeatOption = "after-timeout"; break;
@@ -131,18 +131,18 @@ QStringList CTestTool::activeSettingsAsOptions() const
         }
         if (!repeatOption.isEmpty()) {
             repeatOption.append(':');
-            repeatOption.append(QString::number(repetitionCount.value()));
+            repeatOption.append(QString::number(repetitionCount()));
             options << "--repeat" << repeatOption;
         }
     }
-    if (scheduleRandom.value())
+    if (scheduleRandom())
         options << "--schedule-random";
-    if (stopOnFailure.value())
+    if (stopOnFailure())
         options << "--stop-on-failure";
-    if (parallel.value()) {
-        options << "-j" << QString::number(jobs.value());
-        if (testLoad.value())
-            options << "--test-load" << QString::number(threshold.value());
+    if (parallel()) {
+        options << "-j" << QString::number(jobs());
+        if (testLoad())
+            options << "--test-load" << QString::number(threshold());
     }
     return options;
 }
