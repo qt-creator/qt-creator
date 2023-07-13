@@ -77,10 +77,7 @@ void AutoTestUnitTests::initTestCase()
     }
 
     // Enable quick check for derived tests
-    static const Id id = Id("AutoTest.Framework.QtTest");
-    static_cast<Autotest::Internal::QtTestFramework *>(
-        TestFrameworkManager::frameworkForId(id))
-        ->quickCheckForDerivedTests.setValue(true);
+    theQtTestFramework().quickCheckForDerivedTests.setValue(true);
 }
 
 void AutoTestUnitTests::cleanupTestCase()

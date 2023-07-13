@@ -21,8 +21,7 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
 
 TestOutputReader *QuickTestConfiguration::createOutputReader(Process *app) const
 {
-    QtTestFramework &qtSettings = *static_cast<QtTestFramework *>(framework());
-    const QtTestOutputReader::OutputMode mode = qtSettings.useXMLOutput()
+    const QtTestOutputReader::OutputMode mode = theQtTestFramework().useXMLOutput()
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
     return new QtTestOutputReader(app, buildDirectory(), projectFile(), mode, TestType::QuickTest);
@@ -37,7 +36,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
                           omitted, true));
     }
 
-    QtTestFramework &qtSettings = *static_cast<QtTestFramework *>(framework());
+    QtTestFramework &qtSettings = theQtTestFramework();
     if (qtSettings.useXMLOutput())
         arguments << "-xml";
     if (!testCases().isEmpty())

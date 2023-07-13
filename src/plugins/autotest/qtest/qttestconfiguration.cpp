@@ -28,8 +28,7 @@ static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
 
 TestOutputReader *QtTestConfiguration::createOutputReader(Process *app) const
 {
-    QtTestFramework &qtSettings = *static_cast<QtTestFramework *>(framework());
-    const QtTestOutputReader::OutputMode mode = qtSettings.useXMLOutput()
+    const QtTestOutputReader::OutputMode mode = theQtTestFramework().useXMLOutput()
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
     return new QtTestOutputReader(app, buildDirectory(), projectFile(), mode, TestType::QtTest);
@@ -43,7 +42,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
                              runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
                              omitted, false));
     }
-    QtTestFramework &qtSettings = *static_cast<QtTestFramework *>(framework());
+    QtTestFramework &qtSettings = theQtTestFramework();
     if (qtSettings.useXMLOutput())
         arguments << "-xml";
     if (!testCases().isEmpty())

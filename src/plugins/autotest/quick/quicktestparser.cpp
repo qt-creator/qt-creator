@@ -357,8 +357,7 @@ void QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
         m_mainCppFiles.clear();
     }
 
-    QtTestFramework &qtSettings = *static_cast<QtTestFramework *>(framework());
-    m_checkForDerivedTests = qtSettings.quickCheckForDerivedTests();
+    m_checkForDerivedTests = theQtTestFramework().quickCheckForDerivedTests();
 
     CppParser::init(filesToParse, fullParse);
 }

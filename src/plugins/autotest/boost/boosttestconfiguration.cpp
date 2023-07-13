@@ -17,7 +17,7 @@ namespace Internal {
 
 TestOutputReader *BoostTestConfiguration::createOutputReader(Process *app) const
 {
-    BoostTestFramework &settings = *static_cast<BoostTestFramework *>(framework());
+    BoostTestFramework &settings = theBoostTestFramework();
     return new BoostTestOutputReader(app, buildDirectory(), projectFile(),
                                      LogLevel(settings.logLevel()),
                                      ReportLevel(settings.reportLevel()));
@@ -85,7 +85,7 @@ static QStringList filterInterfering(const QStringList &provided, QStringList *o
 
 QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
-    BoostTestFramework &boostSettings = *static_cast<BoostTestFramework *>(framework());
+    BoostTestFramework &boostSettings = theBoostTestFramework();
     QStringList arguments;
     arguments << "-l" << BoostTestFramework::logLevelToOption(LogLevel(boostSettings.logLevel()));
     arguments << "-r" << BoostTestFramework::reportLevelToOption(ReportLevel(boostSettings.reportLevel()));

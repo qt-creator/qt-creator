@@ -83,7 +83,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
                                            ' ', Qt::SkipEmptyParts), omitted);
     }
 
-    CatchFramework &settings = *static_cast<CatchFramework *>(framework());
+    CatchFramework &settings = theCatchFramework();
 
     if (settings.abortAfterChecked())
         arguments << "-x" << QString::number(settings.abortAfter());

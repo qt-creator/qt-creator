@@ -66,7 +66,7 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
             arguments << "--gtest_filter=\"" + testSets.join(':') + '"';
     }
 
-    GTestFramework &gSettings = *static_cast<GTestFramework *>(framework());
+    GTestFramework &gSettings = theGTestFramework();
 
     if (gSettings.runDisabled())
         arguments << "--gtest_also_run_disabled_tests";
