@@ -92,13 +92,27 @@ void ContentLibraryEffectsModel::createImporter(const QString &bundlePath, const
                                                 const QStringList &sharedFiles)
 {
     m_importer = new Internal::ContentLibraryBundleImporter(bundlePath, bundleId, sharedFiles);
-    connect(m_importer, &Internal::ContentLibraryBundleImporter::importFinished, this,
+#ifdef QDS_USE_PROJECTSTORAGE
+    connect(m_importer,
+            &Internal::ContentLibraryBundleImporter::importFinished,
+            this,
+            [&](const QmlDesigner::TypeName &typeName) {
+                m_importerRunning = false;
+                emit importerRunningChanged();
+                if (typeName.size())
+                    emit bundleItemImported(typeName);
+            });
+#else
+    connect(m_importer,
+            &Internal::ContentLibraryBundleImporter::importFinished,
+            this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 m_importerRunning = false;
                 emit importerRunningChanged();
                 if (metaInfo.isValid())
                     emit bundleItemImported(metaInfo);
             });
+#endif
 
     connect(m_importer, &Internal::ContentLibraryBundleImporter::unimportFinished, this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {

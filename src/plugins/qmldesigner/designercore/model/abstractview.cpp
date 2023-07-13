@@ -787,12 +787,16 @@ void AbstractView::ensureMaterialLibraryNode()
     }
 
     executeInTransaction(__FUNCTION__, [&] {
-        // Create material library node
+    // Create material library node
+#ifdef QDS_USE_PROJECTSTORAGE
+        TypeName nodeTypeName = rootModelNode().metaInfo().isQtQuick3DNode() ? "Node" : "Item";
+        matLib = createModelNode(nodeTypeName, -1, -1);
+#else
         auto nodeType = rootModelNode().metaInfo().isQtQuick3DNode()
                             ? model()->qtQuick3DNodeMetaInfo()
                             : model()->qtQuickItemMetaInfo();
         matLib = createModelNode(nodeType.typeName(), nodeType.majorVersion(), nodeType.minorVersion());
-
+#endif
         matLib.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
         rootModelNode().defaultNodeListProperty().reparentHere(matLib);
     });
@@ -928,10 +932,8 @@ static int getMajorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
         for (const NodeMetaInfo &info : modelNode.metaInfo().selfAndPrototypes()) {
-            if (info.typeName() == "QtQml.QtObject" || info.typeName() == "QtQuick.QtObject"
-                || info.typeName() == "QtQuick.Item") {
+            if (info.isQtObject() || info.isQtQuickItem())
                 return info.majorVersion();
-            }
         }
     }
 
@@ -943,7 +945,7 @@ static int getMinorVersionFromNode(const ModelNode &modelNode)
     if (modelNode.metaInfo().isValid()) {
         const NodeMetaInfos infos = modelNode.metaInfo().selfAndPrototypes();
         for (const NodeMetaInfo &info :  infos) {
-            if (info.typeName() == "QtQuick.QtObject" || info.typeName() == "QtQuick.Item")
+            if (info.isQtObject() || info.isQtQuickItem())
                 return info.minorVersion();
         }
     }

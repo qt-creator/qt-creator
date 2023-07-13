@@ -64,7 +64,11 @@ signals:
     void hasModelSelectionChanged();
     void materialVisibleChanged();
     void applyToSelectedTriggered(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
+#ifdef QDS_USE_PROJECTSTORAGE
+    void bundleMaterialImported(const QmlDesigner::TypeName &typeName);
+#else
     void bundleMaterialImported(const QmlDesigner::NodeMetaInfo &metaInfo);
+#endif
     void bundleMaterialAboutToUnimport(const QmlDesigner::TypeName &type);
     void bundleMaterialUnimported(const QmlDesigner::NodeMetaInfo &metaInfo);
     void importerRunningChanged();

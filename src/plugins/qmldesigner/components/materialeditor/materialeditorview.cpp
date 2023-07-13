@@ -197,13 +197,13 @@ void MaterialEditorView::changeExpression(const QString &propertyName)
         }
 
         if (auto property = m_selectedMaterial.metaInfo().property(name)) {
-            auto propertyTypeName = property.propertyType().typeName();
-            if (propertyTypeName == "QColor") {
+            auto propertyType = property.propertyType();
+            if (propertyType.isColor()) {
                 if (QColor(value->expression().remove('"')).isValid()) {
                     qmlObjectNode.setVariantProperty(name, QColor(value->expression().remove('"')));
                     return;
                 }
-            } else if (propertyTypeName == "bool") {
+            } else if (propertyType.isBool()) {
                 if (isTrueFalseLiteral(value->expression())) {
                     if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
                         qmlObjectNode.setVariantProperty(name, true);
@@ -211,21 +211,21 @@ void MaterialEditorView::changeExpression(const QString &propertyName)
                         qmlObjectNode.setVariantProperty(name, false);
                     return;
                 }
-            } else if (propertyTypeName == "int") {
+            } else if (propertyType.isInteger()) {
                 bool ok;
                 int intValue = value->expression().toInt(&ok);
                 if (ok) {
                     qmlObjectNode.setVariantProperty(name, intValue);
                     return;
                 }
-            } else if (propertyTypeName == "qreal") {
+            } else if (propertyType.isFloat()) {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
                     qmlObjectNode.setVariantProperty(name, realValue);
                     return;
                 }
-            } else if (propertyTypeName == "QVariant") {
+            } else if (propertyType.isVariant()) {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {

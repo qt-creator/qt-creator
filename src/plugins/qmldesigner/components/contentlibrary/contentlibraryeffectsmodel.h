@@ -57,7 +57,11 @@ public:
 signals:
     void isEmptyChanged();
     void hasRequiredQuick3DImportChanged();
+#ifdef QDS_USE_PROJECTSTORAGE
+    void bundleItemImported(const QmlDesigner::TypeName &typeName);
+#else
     void bundleItemImported(const QmlDesigner::NodeMetaInfo &metaInfo);
+#endif
     void bundleItemAboutToUnimport(const QmlDesigner::TypeName &type);
     void bundleItemUnimported(const QmlDesigner::NodeMetaInfo &metaInfo);
     void importerRunningChanged();

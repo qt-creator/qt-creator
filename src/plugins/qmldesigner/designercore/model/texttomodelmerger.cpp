@@ -1221,7 +1221,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     if (defaultPropertyName.isEmpty()) //fallback and use the meta system of the model
         defaultPropertyName = modelNode.metaInfo().defaultPropertyName();
 
-    if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && isComponentType(typeName)) {
+    if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && info.isQmlComponent()) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
             if (auto def = AST::cast<AST::UiObjectDefinition *>(iter->member)) {
                 syncNode(modelNode, def, context, differenceHandler);
