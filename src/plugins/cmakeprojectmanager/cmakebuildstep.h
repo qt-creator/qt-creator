@@ -70,6 +70,12 @@ public:
 
     void setConfiguration(const QString &configuration);
 
+    Utils::StringAspect cmakeArguments{this};
+    Utils::StringAspect toolArguments{this};
+    Utils::BoolAspect useiOSAutomaticProvisioningUpdates{this};
+    Utils::BoolAspect useStaging{this};
+    Utils::FilePathAspect stagingDir{this};
+
 signals:
     void buildTargetsChanged();
     void environmentChanged();
@@ -86,7 +92,6 @@ private:
 
     Utils::FilePath cmakeExecutable() const;
     QString currentInstallPrefix() const;
-    QString currentStagingDir() const;
 
     QString defaultBuildTarget() const;
     bool isCleanStep() const;
@@ -98,11 +103,6 @@ private:
 
     friend class CMakeBuildStepConfigWidget;
     QStringList m_buildTargets; // Convention: Empty string member signifies "Current executable"
-    Utils::StringAspect *m_cmakeArguments = nullptr;
-    Utils::StringAspect *m_toolArguments = nullptr;
-    Utils::BoolAspect *m_useiOSAutomaticProvisioningUpdates = nullptr;
-    Utils::BoolAspect *m_useStaging = nullptr;
-    Utils::FilePathAspect *m_stagingDir = nullptr;
 
     QString m_allTarget = "all";
     QString m_installTarget = "install";
