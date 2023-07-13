@@ -34,6 +34,10 @@
 
             Lists useful \QC features.
 
+        \li \l{Reference}
+
+            Lists the sidebar views and the output views.
+
         \li \l{Known Issues}
 
             Lists known issues in \QC version \qtcversion. The development team
