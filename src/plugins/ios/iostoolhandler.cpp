@@ -65,27 +65,20 @@ public:
         watcher.setFuture(promise.future());
 
         // Process to print the console output while app is running.
-        auto logProcess = [&](QProcess *tailProcess, std::shared_ptr<QTemporaryFile> file) {
-            QObject::connect(tailProcess, &QProcess::readyReadStandardOutput, &loop, [&, tailProcess] {
+        auto logProcess = [&](Process *tailProcess, std::shared_ptr<QTemporaryFile> file) {
+            QObject::connect(tailProcess, &Process::readyReadStandardOutput, &loop, [&, tailProcess] {
                 if (!promise.isCanceled())
-                    emit logMessage(QString::fromLocal8Bit(tailProcess->readAll()));
+                    emit logMessage(QString::fromLocal8Bit(tailProcess->readAllRawStandardOutput()));
             });
-            tailProcess->start(QStringLiteral("tail"), {"-f", file->fileName()});
+            tailProcess->setCommand({FilePath::fromString("tail"), {"-f", file->fileName()}});
+            tailProcess->start();
         };
 
-        auto processDeleter = [](QProcess *process) {
-            if (process->state() != QProcess::NotRunning) {
-                process->terminate();
-                process->waitForFinished();
-            }
-            delete process;
-        };
-
-        std::unique_ptr<QProcess, void(*)(QProcess *)> tailStdout(new QProcess, processDeleter);
+        std::unique_ptr<Process> tailStdout(new Process);
         if (stdoutFile)
             logProcess(tailStdout.get(), stdoutFile);
 
-        std::unique_ptr<QProcess, void(*)(QProcess *)> tailStderr(new QProcess, processDeleter);
+        std::unique_ptr<Process> tailStderr(new Process);
         if (stderrFile)
             logProcess(tailStderr.get(), stderrFile);
 
