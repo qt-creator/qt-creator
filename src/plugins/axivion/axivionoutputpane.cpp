@@ -88,7 +88,7 @@ void DashboardWidget::updateUi()
     const ResultVersion &last = info.versions.last();
     m_loc->setText(QString::number(last.linesOfCode));
     const QDateTime timeStamp = QDateTime::fromString(last.timeStamp, Qt::ISODate);
-    m_timestamp->setText(timeStamp.isValid() ? timeStamp.toString("yyyy-MM-dd HH::mm::ss")
+    m_timestamp->setText(timeStamp.isValid() ? timeStamp.toString("yyyy-MM-dd HH:mm:ss")
                                              : Tr::tr("unknown"));
 
     const QList<IssueKind> &issueKinds = info.issueKinds;
