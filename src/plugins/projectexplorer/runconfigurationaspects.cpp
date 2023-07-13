@@ -949,7 +949,7 @@ SymbolFileAspect::SymbolFileAspect(AspectContainer *container)
 {}
 
 MainScriptAspect::MainScriptAspect(AspectContainer *container)
-    : StringAspect(container)
+    : FilePathAspect(container)
 {}
 
 } // namespace ProjectExplorer

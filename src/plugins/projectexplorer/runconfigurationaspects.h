@@ -254,7 +254,7 @@ private:
     Utils::Id m_settingsDialogId;
 };
 
-class PROJECTEXPLORER_EXPORT MainScriptAspect : public Utils::StringAspect
+class PROJECTEXPLORER_EXPORT MainScriptAspect : public Utils::FilePathAspect
 {
     Q_OBJECT
 

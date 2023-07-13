@@ -343,7 +343,7 @@ public:
 
         mainScript.setSettingsKey("PythonEditor.RunConfiguation.Script");
         mainScript.setLabelText(Tr::tr("Script:"));
-        mainScript.setDisplayStyle(StringAspect::LabelDisplay);
+        mainScript.setReadOnly(true);
 
         environment.setSupportForBuildEnvironment(target);
 
@@ -358,16 +358,15 @@ public:
             CommandLine cmd{interpreter.currentInterpreter().command};
             if (!buffered())
                 cmd.addArg("-u");
-            cmd.addArg(mainScript.filePath().fileName());
+            cmd.addArg(mainScript().fileName());
             cmd.addArgs(arguments(), CommandLine::Raw);
             return cmd;
         });
 
         setUpdater([this] {
             const BuildTargetInfo bti = buildTargetInfo();
-            const QString script = bti.targetFilePath.toUserOutput();
-            setDefaultDisplayName(Tr::tr("Run %1").arg(script));
-            mainScript.setValue(script);
+            setDefaultDisplayName(Tr::tr("Run %1").arg(bti.targetFilePath.toUserOutput()));
+            mainScript.setValue(bti.targetFilePath);
             workingDir.setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
         });
 
