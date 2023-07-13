@@ -29,9 +29,6 @@ using namespace Utils;
 
 namespace RemoteLinux::Internal {
 
-const char IgnoreMissingFilesKey[] = "RemoteLinux.TarPackageCreationStep.IgnoreMissingFiles";
-const char IncrementalDeploymentKey[] = "RemoteLinux.TarPackageCreationStep.IncrementalDeployment";
-
 const int TarBlockSize = 512;
 
 struct TarFileHeader {
@@ -83,8 +80,8 @@ private:
     FilePath m_tarFilePath;
     bool m_deploymentDataModified = false;
     DeploymentTimeInfo m_deployTimes;
-    BoolAspect *m_incrementalDeploymentAspect = nullptr;
-    BoolAspect *m_ignoreMissingFilesAspect = nullptr;
+    BoolAspect m_incrementalDeployment{this};
+    BoolAspect m_ignoreMissingFiles{this};
     bool m_packagingNeeded = false;
     QList<DeployableFile> m_files;
 
@@ -99,15 +96,14 @@ TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Id id)
     });
     m_deploymentDataModified = true;
 
-    m_ignoreMissingFilesAspect = addAspect<BoolAspect>();
-    m_ignoreMissingFilesAspect->setLabel(Tr::tr("Ignore missing files"),
-                                         BoolAspect::LabelPlacement::AtCheckBox);
-    m_ignoreMissingFilesAspect->setSettingsKey(IgnoreMissingFilesKey);
+    m_incrementalDeployment.setSettingsKey(
+        "RemoteLinux.TarPackageCreationStep.IncrementalDeployment");
+    m_incrementalDeployment.setLabelText(Tr::tr("Package modified files only"));
+    m_incrementalDeployment.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
-    m_incrementalDeploymentAspect = addAspect<BoolAspect>();
-    m_incrementalDeploymentAspect->setLabel(Tr::tr("Package modified files only"),
-                                         BoolAspect::LabelPlacement::AtCheckBox);
-    m_incrementalDeploymentAspect->setSettingsKey(IncrementalDeploymentKey);
+    m_ignoreMissingFiles.setSettingsKey("RemoteLinux.TarPackageCreationStep.IgnoreMissingFiles");
+    m_ignoreMissingFiles.setLabelText(Tr::tr("Ignore missing files"));
+    m_ignoreMissingFiles.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
     setSummaryUpdater([this] {
         FilePath path = packageFilePath();
@@ -137,7 +133,7 @@ void TarPackageCreationStep::doRun()
 {
     const QList<DeployableFile> &files = target()->deploymentData().allFiles();
 
-    if (m_incrementalDeploymentAspect->value()) {
+    if (m_incrementalDeployment()) {
         m_files.clear();
         for (const DeployableFile &file : files)
             addNeededDeploymentFiles(file, kit());
@@ -167,7 +163,7 @@ void TarPackageCreationStep::doRun()
                 this, &TarPackageCreationStep::deployFinished);
     });
     auto future = Utils::asyncRun(&TarPackageCreationStep::doPackage, this,
-                                  m_tarFilePath, m_ignoreMissingFilesAspect->value());
+                                  m_tarFilePath, m_ignoreMissingFiles());
     watcher->setFuture(future);
     m_synchronizer.addFuture(future);
 }
