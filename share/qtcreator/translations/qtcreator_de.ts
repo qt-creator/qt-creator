@@ -33163,7 +33163,7 @@ Fehler: %5</translation>
         <source>Team: %1
 App ID: %2
 Expiration date: %3</source>
-        <translation type="unfinished">Team: %1
+        <translation>Team: %1
 App-ID: %2
 Ablaufdatum: %3</translation>
     </message>
@@ -33197,83 +33197,83 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>iOS Settings</source>
-        <translation type="unfinished">iOS-Einstellungen</translation>
+        <translation>iOS-Einstellungen</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Zurücksetzen</translation>
+        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>Automatically manage signing</source>
-        <translation type="unfinished">Signieren automatisch ausführen</translation>
+        <translation>Signieren automatisch verwalten</translation>
     </message>
     <message>
         <source>Development team:</source>
-        <translation type="unfinished">Entwicklerteam:</translation>
+        <translation>Entwicklerteam:</translation>
     </message>
     <message>
         <source>Provisioning profile:</source>
-        <translation type="unfinished">Provisioning-Profil:</translation>
+        <translation>Provisioning-Profil:</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Vorgabe</translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Keine</translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Development team is not selected.</source>
-        <translation type="unfinished">Es ist kein Entwicklerteam ausgewählt.</translation>
+        <translation>Es ist kein Entwicklerteam ausgewählt.</translation>
     </message>
     <message>
         <source>Provisioning profile is not selected.</source>
-        <translation type="unfinished">Es ist kein Provisioning-Profil ausgewählt.</translation>
+        <translation>Es ist kein Provisioning-Profil ausgewählt.</translation>
     </message>
     <message>
         <source>Using default development team and provisioning profile.</source>
-        <translation type="unfinished">Die Vorgaben für Entwicklerteam und Provisioning-Profil werden benutzt.</translation>
+        <translation>Die Vorgaben für Entwicklerteam und Provisioning-Profil werden benutzt.</translation>
     </message>
     <message>
         <source>Development team: %1 (%2)</source>
-        <translation type="unfinished">Entwicklerteam: %1 (%2)</translation>
+        <translation>Entwicklerteam: %1 (%2)</translation>
     </message>
     <message>
         <source>Settings defined here override the QMake environment.</source>
-        <translation type="unfinished">Hier gewählte Einstellungen überschreiben die QMake-Umgebung.</translation>
+        <translation>Hier gewählte Einstellungen überschreiben die QMake-Umgebung.</translation>
     </message>
     <message>
         <source>%1 not configured. Use Xcode and Apple developer account to configure the provisioning profiles and teams.</source>
-        <translation type="unfinished">%1 sind nicht konfiguriert. Benutzen Sie Xcode und Ihr Apple-Entwicklerkonto, um die Provisioning-Profile und Teams zu konfigurieren.</translation>
+        <translation>%1 sind nicht konfiguriert. Benutzen Sie Xcode und Ihr Apple-Entwicklerkonto, um die Provisioning-Profile und Teams zu konfigurieren.</translation>
     </message>
     <message>
         <source>Development teams</source>
-        <translation type="unfinished">Entwicklerteams</translation>
+        <translation>Entwicklerteams</translation>
     </message>
     <message>
         <source>Provisioning profiles</source>
-        <translation type="unfinished">Provisioning-Profile</translation>
+        <translation>Provisioning-Profile</translation>
     </message>
     <message>
         <source>No provisioning profile found for the selected team.</source>
-        <translation type="unfinished">Für das gewählte Team wurde kein Provisioning-Profil gefunden.</translation>
+        <translation>Für das gewählte Team wurde kein Provisioning-Profil gefunden.</translation>
     </message>
     <message>
         <source>Provisioning profile expired. Expiration date: %1</source>
-        <translation type="unfinished">Das Provisioning-Profil ist abgelaufen. Ablaufdatum: %1</translation>
+        <translation>Das Provisioning-Profil ist abgelaufen. Ablaufdatum: %1</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Reset to Default</source>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen</translation>
+        <translation>Auf Vorgabe zurücksetzen</translation>
     </message>
 </context>
 <context>
