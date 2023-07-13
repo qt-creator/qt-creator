@@ -35069,7 +35069,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">Pfad:</translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <source>Global</source>
@@ -35111,27 +35111,27 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Nimble Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen mit Nimble</translation>
     </message>
     <message>
         <source>Nimble Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Nimble-Test</translation>
     </message>
     <message>
         <source>Nimble Task</source>
-        <translation type="unfinished"></translation>
+        <translation>Nimble-Aufgabe</translation>
     </message>
     <message>
         <source>Task arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufgabenargumente:</translation>
     </message>
     <message>
         <source>Tasks:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufgaben:</translation>
     </message>
     <message>
         <source>Nimble task %1 not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nimble-Aufgabe %1 wurde nicht gefunden.</translation>
     </message>
 </context>
 <context>
@@ -42234,7 +42234,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>ABIs:</source>
-        <translation type="unfinished">ABIs:</translation>
+        <translation>ABIs:</translation>
     </message>
     <message>
         <source>Parallel jobs:</source>
@@ -42296,7 +42296,7 @@ fails because Clang does not understand the target architecture.</source>
         <source>Profile</source>
         <comment>Shadow build directory suffix</comment>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
-        <translation type="unfinished">Profile</translation>
+        <translation>Profile</translation>
     </message>
     <message>
         <source>Qbs Build</source>
@@ -42480,20 +42480,20 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Zurücksetzen</translation>
+        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>Use %1 settings directory for Qbs</source>
         <extracomment>%1 == &quot;Qt Creator&quot; or &quot;Qt Design Studio&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis für Einstellungen von %1 auch für Qbs benutzen</translation>
     </message>
     <message>
         <source>Path to qbs executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur ausführbaren qbs-Datei:</translation>
     </message>
     <message>
         <source>Default installation directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Installationsverzeichnis:</translation>
     </message>
     <message>
         <source>Qbs version:</source>
@@ -42501,7 +42501,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Failed to retrieve version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Version konnte nicht ermittelt werden.</translation>
     </message>
     <message>
         <source>General</source>
@@ -42509,54 +42509,56 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Failed to run qbs config: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausführen von qbs config ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Received invalid input.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Eingabe erhalten.</translation>
     </message>
     <message>
         <source>No qbs executable was found, please set the path in the settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine ausführbare qbs-Datei gefunden, bitte setzen Sie den Pfad in den Einstellungen.</translation>
     </message>
     <message>
         <source>The qbs executable was not found at the specified path, or it is not executable (&quot;%1&quot;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare qbs-Datei wurde am angegebenen Pfad nicht gefunden oder ist nicht ausführbar (&quot;%1&quot;).</translation>
     </message>
     <message>
         <source>The qbs process quit unexpectedly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der qbs-Prozess wurde unerwartet beendet.</translation>
     </message>
     <message>
         <source>The qbs process failed to start.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der qbs-Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>The qbs process sent unexpected data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der qbs-Prozess hat unerwartete Daten gesendet.</translation>
     </message>
     <message>
         <source>The qbs API level is not compatible with what %1 expects.</source>
         <extracomment>%1 == &quot;Qt Creator&quot; or &quot;Qt Design Studio&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Der qbs-API-Level ist nicht mit dem von %1 erwarteten kompatibel.</translation>
     </message>
     <message>
         <source>Request timed out.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitüberschreitung bei der Anfrage.</translation>
     </message>
     <message>
         <source>Failed to load qbs build graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der qbs-Build-Graph konnte nicht geladen werden.</translation>
     </message>
     <message>
         <source>The qbs session is not in a valid state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die qbs-Sitzung ist in keinem gültigen Zustand.</translation>
     </message>
     <message>
         <source>Failed to update files in Qbs project: %1.
 The affected files are: 
 	%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Aktualisieren von Dateien im Qbs-Projekt ist fehlgeschlagen: %1.
+Die betroffenen Dateien sind: 
+	%2</translation>
     </message>
 </context>
 <context>
