@@ -9,7 +9,12 @@
 
 /*!
     \page creator-reference-issues-view.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-reference-compile-output-view.html
+    \nextpage creator-reference-search-results-view.html
+    \else
     \previouspage creator-reference.html
+    \endif
 
     \ingroup creator-reference-output-views
     \ingroup studio-reference-output-views
@@ -117,7 +122,11 @@
 
 /*!
     \page creator-reference-search-results-view.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-reference-issues-view.html
+    \else
     \previouspage creator-reference.html
+    \endif
 
     \ingroup creator-reference-output-views
     \ingroup studio-reference-output-views
@@ -143,7 +152,12 @@
 
 /*!
     \page creator-reference-application-output-view.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-how-to-view-output.html
+    \nextpage creator-reference-compile-output-view.html
+    \else
     \previouspage creator-reference.html
+    \endif
 
     \ingroup creator-reference-output-views
     \ingroup studio-reference-output-views
@@ -185,7 +199,12 @@
 
 /*!
     \page creator-reference-compile-output-view.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-reference-application-output-view.html
+    \nextpage creator-reference-issues-view.html
+    \else
     \previouspage creator-reference.html
+    \endif
 
     \ingroup creator-reference-output-views
     \ingroup studio-reference-output-views
