@@ -261,8 +261,8 @@ void IosDeployStep::checkProvisioningProfile()
     }
 
     m_expectFail = true;
-    QString provisioningProfile = provisionPlist.value(QLatin1String("Name")).toString();
-    QString provisioningUid = provisionPlist.value(QLatin1String("UUID")).toString();
+    const QString provisioningProfile = provisionPlist.value(QLatin1String("Name")).toString();
+    const QString provisioningUid = provisionPlist.value(QLatin1String("UUID")).toString();
     CompileTask task(Task::Warning,
               Tr::tr("The provisioning profile \"%1\" (%2) used to sign the application "
                  "does not cover the device %3 (%4). Deployment to it will fail.")
