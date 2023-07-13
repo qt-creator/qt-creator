@@ -4,7 +4,7 @@
 #include "webassembly_test.h"
 
 #include "webassemblyemsdk.h"
-#include "webassemblyrunconfigurationaspects.h"
+#include "webassemblyrunconfiguration.h"
 
 #include <utils/environment.h>
 
@@ -77,7 +77,7 @@ void WebAssemblyTest::testEmrunBrowserListParsing()
     QFETCH(QByteArray, emrunOutput);
     QFETCH(WebBrowserEntries, expectedBrowsers);
 
-    QCOMPARE(WebBrowserSelectionAspect::parseEmrunOutput(emrunOutput), expectedBrowsers);
+    QCOMPARE(parseEmrunOutput(emrunOutput), expectedBrowsers);
 }
 
 void WebAssemblyTest::testEmrunBrowserListParsing_data()
