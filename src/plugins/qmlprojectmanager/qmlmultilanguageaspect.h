@@ -15,8 +15,10 @@ class QMLPROJECTMANAGER_EXPORT QmlMultiLanguageAspect : public Utils::BoolAspect
 {
     Q_OBJECT
 public:
-    explicit QmlMultiLanguageAspect(ProjectExplorer::Target *target);
+    explicit QmlMultiLanguageAspect(Utils::AspectContainer *container = nullptr);
     ~QmlMultiLanguageAspect() override;
+
+    void setTarget(ProjectExplorer::Target *target);
 
     QString currentLocale() const;
     void setCurrentLocale(const QString &locale);

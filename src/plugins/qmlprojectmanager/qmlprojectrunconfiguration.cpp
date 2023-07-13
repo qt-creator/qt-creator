@@ -120,14 +120,16 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return cmd;
     });
 
-    m_qmlMainFileAspect = addAspect<QmlMainFileAspect>(target);
+    m_qmlMainFileAspect = addAspect<QmlMainFileAspect>();
+    m_qmlMainFileAspect->setTarget(target);
     connect(m_qmlMainFileAspect, &QmlMainFileAspect::changed, this, &RunConfiguration::update);
 
     createQtVersionAspect();
 
     connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 
-    m_multiLanguageAspect = addAspect<QmlMultiLanguageAspect>(target);
+    m_multiLanguageAspect = addAspect<QmlMultiLanguageAspect>();
+    m_multiLanguageAspect->setTarget(target);
     auto buildSystem = qobject_cast<const QmlBuildSystem *>(activeBuildSystem());
     if (buildSystem)
         m_multiLanguageAspect->setValue(buildSystem->multilanguageSupport());

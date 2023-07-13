@@ -37,8 +37,8 @@ static bool caseInsensitiveLessThan(const FilePath &s1, const FilePath &s2)
     return s1.toString().toCaseFolded() < s2.toString().toCaseFolded();
 }
 
-QmlMainFileAspect::QmlMainFileAspect(Target *target)
-    : m_target(target)
+QmlMainFileAspect::QmlMainFileAspect(AspectContainer *container)
+    : BaseAspect(container)
     , m_scriptFile(M_CURRENT_FILE)
 {
     addDataExtractor(this, &QmlMainFileAspect::mainScript, &Data::mainScript);
@@ -156,6 +156,11 @@ void QmlMainFileAspect::setMainScript(int index)
         const QString path = m_fileListModel.data(m_fileListModel.index(index, 0)).toString();
         setScriptSource(FileInSettings, path);
     }
+}
+
+void QmlMainFileAspect::setTarget(ProjectExplorer::Target *target)
+{
+    m_target = target;
 }
 
 void QmlMainFileAspect::setScriptSource(MainScriptSource source, const QString &settingsPath)

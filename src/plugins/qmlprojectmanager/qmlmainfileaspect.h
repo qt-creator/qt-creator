@@ -27,7 +27,7 @@ class QMLPROJECTMANAGER_EXPORT QmlMainFileAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    explicit QmlMainFileAspect(ProjectExplorer::Target *target);
+    explicit QmlMainFileAspect(Utils::AspectContainer *container = nullptr);
     ~QmlMainFileAspect() override;
 
     enum MainScriptSource {
@@ -50,6 +50,7 @@ public:
     MainScriptSource mainScriptSource() const;
     void setMainScript(int index);
 
+    void setTarget(ProjectExplorer::Target *target);
     void setScriptSource(MainScriptSource source, const QString &settingsPath = QString());
 
     Utils::FilePath mainScript() const;
