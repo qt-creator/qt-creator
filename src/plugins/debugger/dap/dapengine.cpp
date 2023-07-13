@@ -151,6 +151,8 @@ DapEngine::DapEngine()
 {
     setObjectName("DapEngine");
     setDebuggerName("DAP");
+    m_rootWatchItem = new WatchItem();
+    m_currentWatchItem = m_rootWatchItem;
 }
 
 void DapEngine::executeDebuggerCommand(const QString &/*command*/)
@@ -837,17 +839,20 @@ void DapEngine::handleOutput(const QJsonDocument &data)
                     const QString name = scope.toObject().value("name").toString();
                     const int variablesReference = scope.toObject().value("variablesReference").toInt();
                     qCDebug(dapEngineLog) << "scoped success" << name << variablesReference;
-//                    if (name == "Locals")
-//                        dapVariables(variablesReference);
+                    if (name == "Locals") { // Fix for several scopes
+                        m_rootWatchItem = new WatchItem();
+                        m_currentWatchItem = m_rootWatchItem;
+                        watchHandler()->removeAllData();
+                        watchHandler()->notifyUpdateStarted();
+                        dapVariables(variablesReference);
+                    }
                 }
             }
         }
 
         if (command == "variables") {
-            if (ob.value("success").toBool()) {
-                auto variables = ob.value("body").toObject().value("variables").toArray();
-                refreshLocals(variables);
-            }
+            auto variables = ob.value("body").toObject().value("variables").toArray();
+            refreshLocals(variables);
         }
 
         if (command == "stepIn" || command == "stepOut" || command == "next") {
@@ -985,7 +990,6 @@ void DapEngine::handleOutput(const QJsonDocument &data)
 
 void DapEngine::refreshLocals(const QJsonArray &variables)
 {
-    watchHandler()->notifyUpdateStarted();
     for (auto variable : variables) {
         WatchItem *item = new WatchItem;
         const QString name = variable.toObject().value("name").toString();
@@ -995,10 +999,27 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
         item->value = variable.toObject().value("value").toString();
         item->address = variable.toObject().value("address").toInt();
         item->type = variable.toObject().value("type").toString();
+
         qCDebug(dapEngineLog) << "variable" << name << item->hexAddress();
-        watchHandler()->insertItem(item);
+        m_currentWatchItem->appendChild(item);
+
+        const int variablesReference = variable.toObject().value("variablesReference").toInt();
+        if (variablesReference > 0)
+            m_variablesReferenceQueue.push({variablesReference, item});
     }
-    watchHandler()->notifyUpdateFinished();
+
+    if (m_variablesReferenceQueue.empty()) {
+        for (auto item = m_rootWatchItem->begin(); item != m_rootWatchItem->end(); ++item)
+            watchHandler()->insertItem(*item);
+        watchHandler()->notifyUpdateFinished();
+        return;
+    }
+
+    const auto front = m_variablesReferenceQueue.front();
+    m_variablesReferenceQueue.pop();
+
+    dapVariables(front.first);
+    m_currentWatchItem = front.second;
 }
 
 void DapEngine::refreshStack(const QJsonArray &stackFrames)

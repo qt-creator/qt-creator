@@ -9,6 +9,8 @@
 
 #include <QVariant>
 
+#include <queue>
+
 namespace Debugger::Internal {
 
 class DebuggerCommand;
@@ -126,6 +128,10 @@ private:
 
     int m_nextBreakpointId = 1;
     int m_currentThreadId = -1;
+
+    std::queue<std::pair<int, WatchItem *>> m_variablesReferenceQueue;
+    WatchItem *m_currentWatchItem = nullptr;
+    WatchItem *m_rootWatchItem = nullptr;
 };
 
 } // Debugger::Internal
