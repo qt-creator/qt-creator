@@ -34570,16 +34570,17 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Wipe Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt bereinigen</translation>
     </message>
     <message>
         <source>Wipes build directory and reconfigures using previous command line options.
 Useful if build directory is corrupted or when rebuilding with a newer version of Meson.</source>
-        <translation type="unfinished"></translation>
+        <translation>Löscht das Build-Verzeichnis und konfiguriert das Projekt erneut mit den vorherigen Kommandozeilenargumenten.
+Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt mit einer neuen Version von Meson neu erstellt werden soll.</translation>
     </message>
     <message>
         <source>Parameters:</source>
-        <translation type="unfinished"></translation>
+        <translation>Parameter:</translation>
     </message>
     <message>
         <source>Tool arguments:</source>
@@ -34591,7 +34592,8 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Meson Build</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>name of the build step</translatorcomment>
+        <translation>Erstellen mit Meson</translation>
     </message>
     <message>
         <source>Configure</source>
@@ -34624,7 +34626,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Configuring &quot;%1&quot;.</source>
-        <translation>Konfiguriere &quot;%1&quot;</translation>
+        <translation>Konfiguriere &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Running %1 in %2.</source>
@@ -34636,15 +34638,15 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Command is not executable: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando ist nicht ausführbar: %1</translation>
     </message>
     <message>
         <source>No Meson tool set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Meson-Werkzeug konfiguriert.</translation>
     </message>
     <message>
         <source>No Ninja tool set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Ninja-Werkzeug konfiguriert.</translation>
     </message>
     <message>
         <source>No compilers set in kit.</source>
@@ -34652,19 +34654,19 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Autorun Meson</source>
-        <translation type="unfinished"></translation>
+        <translation>Meson automatisch ausführen</translation>
     </message>
     <message>
         <source>Automatically run Meson when needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt Meson bei Bedarf automatisch aus.</translation>
     </message>
     <message>
         <source>Ninja verbose mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführlicher Ninja-Modus</translation>
     </message>
     <message>
         <source>Enables verbose mode by default when invoking Ninja.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert standardmäßig den ausführlichen Modus beim Ausführen von Ninja.</translation>
     </message>
     <message>
         <source>General</source>
@@ -34672,15 +34674,15 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Meson Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Meson-Werkzeug</translation>
     </message>
     <message>
         <source>The Meson tool to use when building a project with Meson.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das zum Erstellen eines Projektes mit Meson zu verwendende Meson-Werkzeug.&lt;br&gt;Diese Einstellung wird bei der Verwendung anderer Build-Systeme ignoriert.</translation>
     </message>
     <message>
         <source>Cannot validate this meson executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Überprüfung der ausführbaren Meson-Datei ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -34696,7 +34698,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>New Meson or Ninja tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Meson- oder Ninja-Werkzeug</translation>
     </message>
     <message>
         <source>Tools</source>
@@ -34712,67 +34714,67 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Meson executable path does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad für das Meson-Werkzeug existiert nicht.</translation>
     </message>
     <message>
         <source>Meson executable path is not a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad für das Meson-Werkzeug ist keine Datei.</translation>
     </message>
     <message>
         <source>Meson executable path is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad für das Meson-Werkzeug ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Cannot get tool version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ermitteln der Werkzeug-Version ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Meson build: Parsing failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen mit Meson: Fehler beim Auswerten</translation>
     </message>
     <message>
         <source>Ninja Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Ninja-Werkzeug</translation>
     </message>
     <message>
         <source>The Ninja tool to use when building a project with Meson.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das zum Erstellen eines Projektes mit Meson zu verwendende Ninja-Werkzeug.&lt;br&gt;Diese Einstellung wird bei der Verwendung anderer Build-Systeme ignoriert.</translation>
     </message>
     <message>
         <source>Cannot validate this Ninja executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Überprüfung der ausführbaren Ninja-Datei ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Ninja</source>
-        <translation type="unfinished"></translation>
+        <translation>Ninja</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">Pfad:</translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Clone</source>
-        <translation type="unfinished">Klonen</translation>
+        <translation>Klonen</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Make Default</source>
-        <translation type="unfinished">Als Vorgabe setzen</translation>
+        <translation>Als Vorgabe setzen</translation>
     </message>
     <message>
         <source>Set as the default Meson executable to use when creating a new kit or when no value is set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Als vorgegebenes Meson-Werkzeug einstellen, das verwendet wird, wenn eine neues Kit erstellt wird oder kein Wert eingestellt ist.</translation>
     </message>
 </context>
 <context>
