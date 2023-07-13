@@ -4,11 +4,10 @@
 #pragma once
 
 #include "../buildstep.h"
-#include "../projectexplorer_export.h"
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT DeviceCheckBuildStepFactory : public BuildStepFactory
+class DeviceCheckBuildStepFactory : public BuildStepFactory
 {
 public:
     DeviceCheckBuildStepFactory();
