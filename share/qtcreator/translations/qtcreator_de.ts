@@ -22423,23 +22423,23 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Percentage</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozent</translation>
     </message>
     <message>
         <source>Minimum Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimale Zeit</translation>
     </message>
     <message>
         <source>Average Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Durchschnittliche Zeit</translation>
     </message>
     <message>
         <source>Maximum Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Zeit</translation>
     </message>
     <message>
         <source>Stack Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Stack-Level %1</translation>
     </message>
     <message>
         <source>Value</source>
@@ -22447,35 +22447,35 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translation>Min</translation>
     </message>
     <message>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translation>Max</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfang</translation>
     </message>
     <message>
         <source>Wall Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Tatsächliche Dauer</translation>
     </message>
     <message>
         <source>Unfinished</source>
-        <translation type="unfinished"></translation>
+        <translation>Unvollendet</translation>
     </message>
     <message>
         <source>true</source>
-        <translation type="unfinished"></translation>
+        <translation>wahr</translation>
     </message>
     <message>
         <source>Thread %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Thread %1</translation>
     </message>
     <message>
         <source>Categories</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategorien</translation>
     </message>
     <message>
         <source>Arguments</source>
@@ -22483,43 +22483,43 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Instant</source>
-        <translation type="unfinished"></translation>
+        <translation>Instant</translation>
     </message>
     <message>
         <source>Scope</source>
-        <translation type="unfinished"></translation>
+        <translation>Gültigkeitsbereich</translation>
     </message>
     <message>
         <source>global</source>
-        <translation type="unfinished"></translation>
+        <translation>global</translation>
     </message>
     <message>
         <source>process</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess</translation>
     </message>
     <message>
         <source>thread</source>
-        <translation type="unfinished"></translation>
+        <translation>Thread</translation>
     </message>
     <message>
         <source>Return Arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>Rückgabeargument</translation>
     </message>
     <message>
         <source>Chrome Trace Format Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Chrome Trace-Format-Betrachter</translation>
     </message>
     <message>
         <source>Load JSON File</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON-Datei laden</translation>
     </message>
     <message>
         <source>Restrict to Threads</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Threads beschränken</translation>
     </message>
     <message>
         <source>Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitleiste</translation>
     </message>
     <message>
         <source>Reset Zoom</source>
@@ -22531,36 +22531,37 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Load Chrome Trace Format File</source>
-        <translation type="unfinished"></translation>
+        <translation>Chrome Trace-Format-Datei laden</translation>
     </message>
     <message>
         <source>JSON File (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON-Datei (*.json)</translation>
     </message>
     <message>
         <source>The file does not contain any trace data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei enthält keine Trace-Daten.</translation>
     </message>
     <message>
         <source>Loading CTF File</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade CTF-Datei</translation>
     </message>
     <message>
         <source>CTF Visualizer</source>
-        <translation type="unfinished"></translation>
+        <translation>CTF-Betrachter</translation>
     </message>
     <message>
         <source>Cannot read the CTF file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die CTF-Datei kann nicht gelesen werden.</translation>
     </message>
     <message>
         <source>The trace contains threads with stack depth &gt; 512.
 Do you want to display them anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Trace-Daten enthalten Threads mit einer Stack-Tiefe größer als 512.
+Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Chrome Trace Format Visualizer</source>
-        <translation type="unfinished"></translation>
+        <translation>Chrome Trace-Format-Visualisierer</translation>
     </message>
 </context>
 <context>
