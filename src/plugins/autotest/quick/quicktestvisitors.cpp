@@ -166,11 +166,9 @@ void TestQmlVisitor::throwRecursionDepthError()
 
 /************************************** QuickTestAstVisitor *************************************/
 
-QuickTestAstVisitor::QuickTestAstVisitor(CPlusPlus::Document::Ptr doc,
-                                         const CPlusPlus::Snapshot &snapshot)
+QuickTestAstVisitor::QuickTestAstVisitor(CPlusPlus::Document::Ptr doc)
     : ASTVisitor(doc->translationUnit())
     , m_currentDoc(doc)
-    , m_snapshot(snapshot)
 {
 }
 

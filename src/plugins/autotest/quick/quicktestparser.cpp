@@ -128,7 +128,7 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
         return {};
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
-    QuickTestAstVisitor astVisitor(document, m_cppSnapshot);
+    QuickTestAstVisitor astVisitor(document);
     astVisitor.accept(ast);
     if (!astVisitor.testBaseName().isEmpty())
         return astVisitor.testBaseName();
