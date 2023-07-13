@@ -83,11 +83,11 @@ TEST_F(ModelUtils, component_file_path_for_invalid_node_is_empty)
 
 TEST_F(ModelUtils, component_file_path_for_node_without_metainfo_is_empty)
 {
-    auto typeId = projectStorageMock.createType(moduleId,
-                                                "Foo",
-                                                QmlDesigner::Storage::TypeTraits::IsFileComponent,
-                                                {},
-                                                sourceId);
+    projectStorageMock.createType(moduleId,
+                                  "Foo",
+                                  QmlDesigner::Storage::TypeTraits::IsFileComponent,
+                                  {},
+                                  sourceId);
     auto node = model.createModelNode("Foo");
 
     auto path = QmlDesigner::ModelUtils::componentFilePath(node);

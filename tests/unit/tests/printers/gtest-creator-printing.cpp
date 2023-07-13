@@ -221,6 +221,7 @@ std::ostream &operator<<(std::ostream &out, const ValueView &value)
 }
 
 namespace {
+[[maybe_unused]]
 Utils::SmallStringView operationText(int operation)
 {
     switch (operation) {
@@ -235,9 +236,9 @@ Utils::SmallStringView operationText(int operation)
     return {};
 }
 
-std::ostream &operator<<(std::ostream &out, sqlite3_changeset_iter *iter)
-{
 #if 0
+std::ostream &operator<<(std::ostream &out, [[maybe_unused]] sqlite3_changeset_iter *iter)
+{
     out << "(";
 
     const char *tableName = nullptr;
@@ -280,9 +281,9 @@ std::ostream &operator<<(std::ostream &out, sqlite3_changeset_iter *iter)
     }
 
     out << "})";
-#endif
     return out;
 }
+#endif
 
 const char *toText(Operation operation)
 {
@@ -315,7 +316,7 @@ const char *toText(LockingMode lockingMode)
 }
 } // namespace
 
-std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
+std::ostream &operator<<(std::ostream &out, [[maybe_unused]] const SessionChangeSet &changeset)
 {
 #if 0
     sqlite3_changeset_iter *iter = nullptr;
