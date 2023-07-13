@@ -18,7 +18,9 @@ class WebBrowserSelectionAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    WebBrowserSelectionAspect(ProjectExplorer::Target *target);
+    WebBrowserSelectionAspect(Utils::AspectContainer *container);
+
+    void setTarget(ProjectExplorer::Target *target);
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
@@ -37,7 +39,7 @@ public:
 private:
     QComboBox *m_webBrowserComboBox = nullptr;
     QString m_currentBrowser;
-    const WebBrowserEntries m_availableBrowsers;
+    WebBrowserEntries m_availableBrowsers;
 };
 
 } // namespace Internal

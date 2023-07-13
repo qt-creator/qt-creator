@@ -69,25 +69,28 @@ class EmrunRunConfiguration : public ProjectExplorer::RunConfiguration
 {
 public:
     EmrunRunConfiguration(Target *target, Utils::Id id)
-            : RunConfiguration(target, id)
+        : RunConfiguration(target, id)
     {
-        auto webBrowserAspect = addAspect<WebBrowserSelectionAspect>(target);
+        webBrowser.setTarget(target);
 
-        auto effectiveEmrunCall = addAspect<StringAspect>();
-        effectiveEmrunCall->setLabelText(Tr::tr("Effective emrun call:"));
-        effectiveEmrunCall->setDisplayStyle(StringAspect::TextEditDisplay);
-        effectiveEmrunCall->setReadOnly(true);
+        effectiveEmrunCall.setLabelText(Tr::tr("Effective emrun call:"));
+        effectiveEmrunCall.setDisplayStyle(StringAspect::TextEditDisplay);
+        effectiveEmrunCall.setReadOnly(true);
 
-        setUpdater([this, target, effectiveEmrunCall, webBrowserAspect] {
-            effectiveEmrunCall->setValue(emrunCommand(target,
-                                                      buildKey(),
-                                                      webBrowserAspect->currentBrowser(),
-                                                      "<port>").toUserOutput());
+        setUpdater([this, target] {
+            effectiveEmrunCall.setValue(emrunCommand(target,
+                                                     buildKey(),
+                                                     webBrowser.currentBrowser(),
+                                                     "<port>").toUserOutput());
         });
 
-        connect(webBrowserAspect, &BaseAspect::changed, this, &RunConfiguration::update);
+        connect(&webBrowser, &BaseAspect::changed, this, &RunConfiguration::update);
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
+
+private:
+    WebBrowserSelectionAspect webBrowser{this};
+    StringAspect effectiveEmrunCall{this};
 };
 
 class EmrunRunWorker : public SimpleTargetRunner

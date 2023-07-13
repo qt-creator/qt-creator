@@ -41,9 +41,13 @@ static WebBrowserEntries emrunBrowsers(ProjectExplorer::Target *target)
     return result;
 }
 
-WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *target)
-    : m_availableBrowsers(emrunBrowsers(target))
+WebBrowserSelectionAspect::WebBrowserSelectionAspect(AspectContainer *container)
+    : BaseAspect(container)
+{}
+
+void WebBrowserSelectionAspect::setTarget(ProjectExplorer::Target *target)
 {
+    m_availableBrowsers = emrunBrowsers(target);
     if (!m_availableBrowsers.isEmpty()) {
         const int defaultIndex = qBound(0, m_availableBrowsers.count() - 1, 1);
         m_currentBrowser = m_availableBrowsers.at(defaultIndex).first;
