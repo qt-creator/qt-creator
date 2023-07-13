@@ -39,7 +39,6 @@ public:
     WebAssemblyQtVersionFactory qtVersionFactory;
     EmrunRunConfigurationFactory emrunRunConfigurationFactory;
     EmrunRunWorkerFactory emrunRunWorkerFactory;
-    WebAssemblySettings settings;
 };
 
 static WebAssemblyPluginPrivate *dd = nullptr;

@@ -10,6 +10,7 @@
 #include "webassemblytr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/aspects.h>
 #include <utils/environment.h>
@@ -24,13 +25,11 @@
 
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
-static WebAssemblySettings *theSettings = nullptr;
-
-WebAssemblySettings *WebAssemblySettings::instance()
+WebAssemblySettings &settings()
 {
+    static WebAssemblySettings theSettings;
     return theSettings;
 }
 
@@ -52,15 +51,9 @@ static QString environmentDisplay(const FilePath &sdkRoot)
 
 WebAssemblySettings::WebAssemblySettings()
 {
-    theSettings = this;
-
     setSettingsGroup("WebAssembly");
+    setAutoApply(false);
 
-    setId(Id(Constants::SETTINGS_ID));
-    setDisplayName(Tr::tr("WebAssembly"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-
-    registerAspect(&emSdk);
     emSdk.setSettingsKey("EmSdk");
     emSdk.setExpectedKind(Utils::PathChooser::ExistingDirectory);
     emSdk.setDefaultValue(FileUtils::homePath());
@@ -164,5 +157,20 @@ void WebAssemblySettings::updateStatus()
     m_qtVersionDisplay->setVisible(WebAssemblyQtVersion::isUnsupportedQtVersionInstalled());
 }
 
-} // Internal
-} // WebAssembly
+// WebAssemblySettingsPage
+
+class WebAssemblySettingsPage final : public Core::IOptionsPage
+{
+public:
+    WebAssemblySettingsPage()
+    {
+        setId(Id(Constants::SETTINGS_ID));
+        setDisplayName(Tr::tr("WebAssembly"));
+        setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const WebAssemblySettingsPage settingsPage;
+
+} // WebAssembly::Internal

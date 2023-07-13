@@ -3,23 +3,22 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 QT_BEGIN_NAMESPACE
 class QTextBrowser;
 QT_END_NAMESPACE
 
-namespace WebAssembly {
-namespace Internal {
+namespace Utils { class InfoLabel; }
 
-class WebAssemblySettings final : public Core::PagedSettings
+namespace WebAssembly::Internal {
+
+class WebAssemblySettings final : public Utils::AspectContainer
 {
 public:
     WebAssemblySettings();
 
-    static WebAssemblySettings *instance();
-
-    Utils::FilePathAspect emSdk;
+    Utils::FilePathAspect emSdk{this};
 
 private:
     QWidget *m_emSdkEnvGroupBox = nullptr;
@@ -30,5 +29,6 @@ private:
     void updateStatus();
 };
 
-} // namespace Internal
-} // namespace WebAssmbly
+WebAssemblySettings &settings();
+
+} // WebAssmbly::Internal

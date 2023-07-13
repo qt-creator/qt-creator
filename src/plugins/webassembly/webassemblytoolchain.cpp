@@ -51,7 +51,7 @@ static void addRegisteredMinGWToEnvironment(Environment &env)
 
 void WebAssemblyToolChain::addToEnvironment(Environment &env) const
 {
-    const FilePath emSdk = WebAssemblySettings::instance()->emSdk();
+    const FilePath emSdk = settings().emSdk();
     WebAssemblyEmSdk::addToEnvironment(emSdk, env);
     if (env.osType() == OsTypeWindows)
         addRegisteredMinGWToEnvironment(env);
@@ -95,7 +95,7 @@ const QVersionNumber &WebAssemblyToolChain::minimumSupportedEmSdkVersion()
 
 static Toolchains doAutoDetect(const ToolchainDetector &detector)
 {
-    const FilePath sdk = WebAssemblySettings::instance()->emSdk();
+    const FilePath sdk = settings().emSdk();
     if (!WebAssemblyEmSdk::isValid(sdk))
         return {};
 
