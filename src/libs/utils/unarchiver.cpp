@@ -37,9 +37,9 @@ static FilePaths additionalInstallDirs(const QString &registryKey, const QString
 #endif
 }
 
-static const QVector<Tool> &sTools()
+static const QList<Tool> &sTools()
 {
-    static QVector<Tool> tools;
+    static QList<Tool> tools;
     if (tools.isEmpty()) {
         if (HostOsInfo::isWindowsHost()) {
             tools << Tool{{"powershell", "-command Expand-Archive -Force '%{src}' '%{dest}'", CommandLine::Raw},
@@ -76,7 +76,7 @@ static const QVector<Tool> &sTools()
     return tools;
 }
 
-static QVector<Tool> toolsForMimeType(const MimeType &mimeType)
+static QList<Tool> toolsForMimeType(const MimeType &mimeType)
 {
     return Utils::filtered(sTools(), [mimeType](const Tool &tool) {
         return Utils::anyOf(tool.supportedMimeTypes,
@@ -84,7 +84,7 @@ static QVector<Tool> toolsForMimeType(const MimeType &mimeType)
     });
 }
 
-static QVector<Tool> toolsForFilePath(const FilePath &fp)
+static QList<Tool> toolsForFilePath(const FilePath &fp)
 {
     return toolsForMimeType(mimeTypeForFile(fp));
 }
@@ -100,7 +100,7 @@ static std::optional<Tool> resolveTool(const Tool &tool)
 
 expected_str<Unarchiver::SourceAndCommand> Unarchiver::sourceAndCommand(const FilePath &sourceFile)
 {
-    const QVector<Tool> tools = toolsForFilePath(sourceFile);
+    const QList<Tool> tools = toolsForFilePath(sourceFile);
     if (tools.isEmpty())
         return make_unexpected(Tr::tr("File format not supported."));
 
