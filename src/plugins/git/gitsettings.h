@@ -38,6 +38,8 @@ public:
     Utils::IntegerAspect lastResetIndex{this};
     Utils::BoolAspect refLogShowDate{this};
     Utils::BoolAspect instantBlame{this};
+    Utils::BoolAspect instantBlameIgnoreSpaceChanges{this};
+    Utils::BoolAspect instantBlameIgnoreLineMoves{this};
 
     mutable Utils::FilePath resolvedBinPath;
     mutable bool tryResolve = true;

@@ -89,6 +89,18 @@ GitSettings::GitSettings()
     instantBlame.setLabelText(Tr::tr("Add instant blame annotations to editor"));
     instantBlame.setToolTip(
         Tr::tr("Annotate the current line in the editor with Git \"blame\" output."));
+    instantBlameIgnoreSpaceChanges.setSettingsKey("GitInstantIgnoreSpaceChanges");
+    instantBlameIgnoreSpaceChanges.setDefaultValue(false);
+    instantBlameIgnoreSpaceChanges.setLabelText(
+        Tr::tr("Ignore whitespace changes"));
+    instantBlameIgnoreSpaceChanges.setToolTip(
+        Tr::tr("Finds the commit that introduced the last real code changes to the line."));
+    instantBlameIgnoreLineMoves.setSettingsKey("GitInstantIgnoreLineMoves");
+    instantBlameIgnoreLineMoves.setDefaultValue(false);
+    instantBlameIgnoreLineMoves.setLabelText(
+        Tr::tr("Ignore line moves"));
+    instantBlameIgnoreLineMoves.setToolTip(
+        Tr::tr("Finds the commit that introduced the line before it was moved."));
 
     graphLog.setSettingsKey("GraphLog");
 
@@ -137,7 +149,8 @@ GitSettings::GitSettings()
 
             Group {
                 title(Tr::tr("Instant Blame")),
-                Row { instantBlame }
+                instantBlame.groupChecker(),
+                Row { instantBlameIgnoreSpaceChanges, instantBlameIgnoreLineMoves, st },
             },
 
             st

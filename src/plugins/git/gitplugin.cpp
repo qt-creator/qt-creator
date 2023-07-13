@@ -224,7 +224,7 @@ public:
 
     QString toolTipText(const CommitInfo &info) const
     {
-        const QString result = QString(
+        QString result = QString(
                 "<table>"
                 "  <tr><td>commit</td><td>%1</td></tr>"
                 "  <tr><td>Author:</td><td>%2 &lt;%3&gt;</td></tr>"
@@ -234,6 +234,12 @@ public:
                 "</table>")
                 .arg(info.sha1, info.author, info.authorMail,
                      info.authorTime.toString("yyyy-MM-dd hh:mm:ss"), info.summary);
+
+        if (settings().instantBlameIgnoreSpaceChanges()
+            || settings().instantBlameIgnoreLineMoves()) {
+            result.append(Tr::tr("<p><b>Note:</b> Ignore whitespace changes or line moves"
+                                 " is enabled in the instant blame settings.</p>"));
+        }
         return result;
     }
 };
@@ -1574,9 +1580,14 @@ void GitPluginPrivate::instantBlame()
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
     };
-    gitClient().vcsExecWithHandler(workingDirectory,
-                           {"blame", "-p", "-L", lineString, "--", filePath.toString()},
-                           this, commandHandler, RunFlags::NoOutput, m_codec);
+    QStringList options = {"blame", "-p"};
+    if (settings().instantBlameIgnoreSpaceChanges())
+        options.append("-w");
+    if (settings().instantBlameIgnoreLineMoves())
+        options.append("-M");
+    options.append({"-L", lineString, "--", filePath.toString()});
+    gitClient().vcsExecWithHandler(workingDirectory, options, this,
+                                   commandHandler, RunFlags::NoOutput, m_codec);
 }
 
 void GitPluginPrivate::stopInstantBlame()
