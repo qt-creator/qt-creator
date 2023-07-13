@@ -215,7 +215,8 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const FileP
                 QXmlStreamAttributes attributes = reader->attributes();
                 item->name = attributes.value(QLatin1String("name")).toString();
                 const QString projectPath = attributes.value(QLatin1String("projectPath")).toString();
-                item->projectPath = projectsOffset / projectPath;
+                item->projectPath = projectPath.isEmpty() ? FilePath()
+                                                          : projectsOffset / projectPath;
                 item->hasSourceCode = !projectPath.isEmpty();
                 item->imageUrl = Utils::StyleHelper::dpiSpecificImageFile(
                     attributes.value(QLatin1String("imageUrl")).toString());
@@ -239,6 +240,8 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const FileP
             } else if (reader->name() == QLatin1String("tags")) {
                 item->tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement)
                                  .split(QLatin1Char(','));
+            } else if (reader->name() == QLatin1String("meta")) {
+                item->metaData = parseMeta(reader);
             }
             break;
         case QXmlStreamReader::EndElement:
@@ -301,21 +304,6 @@ expected_str<QList<ExampleItem *>> parseExamples(const QByteArray &manifestData,
     return items;
 }
 
-// ordered list of "known" categories
-// TODO this should be defined in the manifest
-Q_GLOBAL_STATIC_WITH_ARGS(QList<QString>,
-                          defaultOrder,
-                          {QStringList() << "Application Examples"
-                           << "Desktop"
-                           << "Mobile"
-                           << "Embedded"
-                           << "Graphics"
-                           << "Input/Output"
-                           << "Connectivity"
-                           << "Networking"
-                           << "Positioning & Location"
-                           << "Internationalization"});
-
 static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
 {
     if (first->isHighlighted && !second->isHighlighted)
@@ -326,7 +314,9 @@ static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
 }
 
 QList<std::pair<Core::Section, QList<ExampleItem *>>> getCategories(const QList<ExampleItem *> &items,
-                                                              bool sortIntoCategories)
+                                                                    bool sortIntoCategories,
+                                                                    const QStringList &defaultOrder,
+                                                                    bool restrictRows)
 {
     static const QString otherDisplayName = Tr::tr("Other", "Category for all other examples");
     const bool useCategories = sortIntoCategories
@@ -365,14 +355,17 @@ QList<std::pair<Core::Section, QList<ExampleItem *>>> getCategories(const QList<
     } else {
         // All original items have been copied into a category or other, delete.
         qDeleteAll(items);
-        static const int defaultOrderSize = defaultOrder->size();
+        static const int defaultOrderSize = defaultOrder.size();
         int index = 0;
         const auto end = categoryMap.constKeyValueEnd();
         for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it) {
             // order "known" categories as wanted, others come afterwards
-            const int defaultIndex = defaultOrder->indexOf(it->first);
+            const int defaultIndex = defaultOrder.indexOf(it->first);
             const int priority = defaultIndex >= 0 ? defaultIndex : (index + defaultOrderSize);
-            categories.append({{it->first, priority, /*maxRows=*/index == 0 ? 2 : 1}, it->second});
+            const std::optional<int> maxRows = restrictRows
+                                                   ? std::make_optional<int>(index == 0 ? 2 : 1)
+                                                   : std::nullopt;
+            categories.append({{it->first, priority, maxRows}, it->second});
             ++index;
         }
         if (!other.isEmpty())

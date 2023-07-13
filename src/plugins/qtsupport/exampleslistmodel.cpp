@@ -325,6 +325,21 @@ static bool isValidExampleOrDemo(ExampleItem *item)
     return ok || debugExamples();
 }
 
+// ordered list of "known" categories
+// TODO this should be defined in the manifest
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
+                          defaultOrder,
+                          {QStringList() << "Application Examples"
+                                         << "Desktop"
+                                         << "Mobile"
+                                         << "Embedded"
+                                         << "Graphics"
+                                         << "Input/Output"
+                                         << "Connectivity"
+                                         << "Networking"
+                                         << "Positioning & Location"
+                                         << "Internationalization"});
+
 void ExamplesViewController::updateExamples()
 {
     QString examplesInstallPath;
@@ -366,9 +381,10 @@ void ExamplesViewController::updateExamples()
         }
     }
 
-    const bool sortIntoCategories = qtVersion >= *minQtVersionForCategories;
+    const bool sortIntoCategories = !m_isExamples || qtVersion >= *minQtVersionForCategories;
+    const QStringList order = m_isExamples ? *defaultOrder : QStringList();
     const QList<std::pair<Section, QList<ExampleItem *>>> sections
-        = getCategories(items, sortIntoCategories);
+        = getCategories(items, sortIntoCategories, order, m_isExamples);
     for (int i = 0; i < sections.size(); ++i) {
         m_view->addSection(sections.at(i).first,
                            static_container_cast<ListItem *>(sections.at(i).second));

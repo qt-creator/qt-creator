@@ -45,7 +45,10 @@ QTSUPPORT_TEST_EXPORT Utils::expected_str<QList<ExampleItem *>> parseExamples(
     bool examples);
 
 QTSUPPORT_TEST_EXPORT QList<std::pair<Core::Section, QList<ExampleItem *>>> getCategories(
-    const QList<ExampleItem *> &items, bool sortIntoCategories);
+    const QList<ExampleItem *> &items,
+    bool sortIntoCategories,
+    const QStringList &defaultOrder,
+    bool restrictRows);
 
 } // namespace QtSupport::Internal
 

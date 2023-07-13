@@ -140,6 +140,27 @@ void tst_Examples::parsing_data()
         << FilePath("examples") << QString() << FilePaths() << FilePath() << FilePaths() << Example
         << /*hasSourceCode=*/false << false << /*isHighlighted=*/true << ""
         << "" << QStringList() << MetaData() << QStringList{"Featured"};
+
+    QTest::addRow("tutorial with category")
+        << QByteArray(R"raw(
+    <tutorials>
+      <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/dummytutorial.html" projectPath="" name="A tutorial">
+        <description><![CDATA[A dummy tutorial.]]></description>
+        <tags>qt creator,build,compile,help</tags>
+        <meta>
+          <entry name="category">Help</entry>
+        </meta>
+      </tutorial>
+    </tutorials>
+)raw") << /*isExamples=*/false
+        << "A tutorial"
+        << "A dummy tutorial."
+        << ":qtsupport/images/icons/tutorialicon.png"
+        << QStringList{"qt creator", "build", "compile", "help"} << FilePath()
+        << "qthelp://org.qt-project.qtcreator/doc/dummytutorial.html" << FilePaths() << FilePath()
+        << FilePaths() << Tutorial << /*hasSourceCode=*/false << /*isVideo=*/false
+        << /*isHighlighted=*/false << QString() << QString() << QStringList()
+        << MetaData({{"category", {"Help"}}}) << QStringList("Help");
 }
 
 void tst_Examples::parsing()
@@ -175,8 +196,8 @@ void tst_Examples::parsing()
     QCOMPARE(item.platforms, expected.platforms);
     QCOMPARE(item.metaData, expected.metaData);
 
-    const QList<std::pair<Section, QList<ExampleItem *>>> resultCategories = getCategories(*result,
-                                                                                           true);
+    const QList<std::pair<Section, QList<ExampleItem *>>> resultCategories
+        = getCategories(*result, true, {}, true);
     QCOMPARE(resultCategories.size(), categories.size());
     for (int i = 0; i < resultCategories.size(); ++i) {
         QCOMPARE(resultCategories.at(i).first.name, categories.at(i));
