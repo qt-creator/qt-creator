@@ -163,11 +163,12 @@ void BuildDirectoryAspect::updateProblemLabel()
     d->problemLabel->setVisible(!d->problem.isEmpty());
 }
 
-SeparateDebugInfoAspect::SeparateDebugInfoAspect()
+SeparateDebugInfoAspect::SeparateDebugInfoAspect(AspectContainer *container)
+    : TriStateAspect(container)
 {
     setDisplayName(Tr::tr("Separate debug info:"));
     setSettingsKey("SeparateDebugInfo");
-    setValue(ProjectExplorerPlugin::buildPropertiesSettings().separateDebugInfo.value());
+    setValue(ProjectExplorerPlugin::buildPropertiesSettings().separateDebugInfo());
 }
 
 } // namespace ProjectExplorer

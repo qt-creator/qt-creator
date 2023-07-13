@@ -60,12 +60,12 @@ public:
     void setProducts(const QStringList &products);
     QStringList products() const;
 
-    QString configurationName() const;
     QString equivalentCommandLine(const QbsBuildStepData &stepData) const;
 
-    Utils::TriState qmlDebuggingSetting() const;
-    Utils::TriState qtQuickCompilerSetting() const;
-    Utils::TriState separateDebugInfoSetting() const;
+    Utils::StringAspect configurationName{this};
+    ProjectExplorer::SeparateDebugInfoAspect separateDebugInfoSetting{this};
+    QtSupport::QmlDebuggingAspect qmlDebuggingSetting{this};
+    QtSupport::QtQuickCompilerAspect qtQuickCompilerSetting{this};
 
 signals:
     void qbsConfigurationChanged();
@@ -78,7 +78,6 @@ private:
     QStringList m_changedFiles;
     QStringList m_activeFileTags;
     QStringList m_products;
-    Utils::StringAspect *m_configurationName = nullptr;
     QbsBuildSystem *m_buildSystem = nullptr;
 };
 

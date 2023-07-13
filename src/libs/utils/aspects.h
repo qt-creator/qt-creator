@@ -621,6 +621,7 @@ public:
                    const QString &offString = {},
                    const QString &defaultString = {});
 
+    TriState operator()() const { return value(); }
     TriState value() const;
     void setValue(TriState setting);
 

@@ -41,7 +41,7 @@ class PROJECTEXPLORER_EXPORT SeparateDebugInfoAspect : public Utils::TriStateAsp
 {
     Q_OBJECT
 public:
-    SeparateDebugInfoAspect();
+    SeparateDebugInfoAspect(Utils::AspectContainer *container = nullptr);
 };
 
 } // namespace ProjectExplorer
