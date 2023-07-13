@@ -15,8 +15,28 @@ class ErrorInfo;
 class QbsProject;
 class QbsSession;
 
-class ArchitecturesAspect;
 class QbsBuildStepConfigWidget;
+
+class ArchitecturesAspect : public Utils::MultiSelectionAspect
+{
+    Q_OBJECT
+
+public:
+    ArchitecturesAspect(Utils::AspectContainer *container = nullptr);
+
+    void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
+    void addToLayout(Layouting::LayoutItem &parent) override;
+    QStringList selectedArchitectures() const;
+    void setSelectedArchitectures(const QStringList& architectures);
+    bool isManagedByTarget() const { return m_isManagedByTarget; }
+
+private:
+    void setVisibleDynamic(bool visible);
+
+    const ProjectExplorer::Kit *m_kit = nullptr;
+    QMap<QString, QString> m_abisToArchMap;
+    bool m_isManagedByTarget = false;
+};
 
 class QbsBuildStep final : public ProjectExplorer::BuildStep
 {
@@ -35,16 +55,20 @@ public:
     QVariantMap qbsConfiguration(VariableHandling variableHandling) const;
     void setQbsConfiguration(const QVariantMap &config);
 
-    bool keepGoing() const { return m_keepGoing->value(); }
-    bool showCommandLines() const { return m_showCommandLines->value(); }
-    bool install() const { return m_install->value(); }
-    bool cleanInstallRoot() const { return m_cleanInstallDir->value(); }
     bool hasCustomInstallRoot() const;
     Utils::FilePath installRoot(VariableHandling variableHandling = ExpandVariables) const;
-    int maxJobs() const;
     QString buildVariant() const;
+    int maxJobs() const;
 
-    bool forceProbes() const { return m_forceProbes->value(); }
+    Utils::SelectionAspect buildVariantHolder{this};
+    ArchitecturesAspect selectedAbis{this};
+    Utils::IntegerAspect maxJobCount{this};
+    Utils::BoolAspect keepGoing{this};
+    Utils::BoolAspect showCommandLines{this};
+    Utils::BoolAspect install{this};
+    Utils::BoolAspect cleanInstallRoot{this};
+    Utils::BoolAspect forceProbes{this};
+    Utils::StringAspect commandLine{this};
 
     QbsBuildSystem *qbsBuildSystem() const;
     QbsBuildStepData stepData() const;
@@ -92,15 +116,6 @@ private:
     QStringList configuredArchitectures() const;
 
     QVariantMap m_qbsConfiguration;
-    Utils::SelectionAspect *m_buildVariant = nullptr;
-    ArchitecturesAspect *m_selectedAbis = nullptr;
-    Utils::IntegerAspect *m_maxJobCount = nullptr;
-    Utils::BoolAspect *m_keepGoing = nullptr;
-    Utils::BoolAspect *m_showCommandLines = nullptr;
-    Utils::BoolAspect *m_install = nullptr;
-    Utils::BoolAspect *m_cleanInstallDir = nullptr;
-    Utils::BoolAspect *m_forceProbes = nullptr;
-    Utils::StringAspect *m_commandLine = nullptr;
 
     // Temporary data:
     QStringList m_changedFiles;
