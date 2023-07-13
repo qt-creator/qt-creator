@@ -872,7 +872,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
         });
 
         m_qmakeGlobals->setCommandLineArguments(rootProFileName, qmakeArgs);
-        m_qmakeGlobals->runSystemFunction = bc->runSystemFunction();
+        m_qmakeGlobals->runSystemFunction = bc->runQmakeSystemFunctions();
 
         QtSupport::ProFileCacheManager::instance()->incRefCount();
 

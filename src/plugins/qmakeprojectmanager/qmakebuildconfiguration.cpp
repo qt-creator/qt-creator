@@ -53,18 +53,6 @@ using namespace QmakeProjectManager::Internal;
 
 namespace QmakeProjectManager {
 
-class RunSystemAspect : public TriStateAspect
-{
-    Q_OBJECT
-public:
-    RunSystemAspect()
-        : TriStateAspect(nullptr, Tr::tr("Run"), Tr::tr("Ignore"), Tr::tr("Use global setting"))
-    {
-        setSettingsKey("RunSystemFunction");
-        setDisplayName(Tr::tr("qmake system() behavior when parsing:"));
-    }
-};
-
 QmakeExtraBuildInfo::QmakeExtraBuildInfo()
 {
     const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
@@ -120,9 +108,9 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         if (!additionalArguments.isEmpty())
             qmakeStep->userArguments.setArguments(additionalArguments);
 
-        aspect<SeparateDebugInfoAspect>()->setValue(qmakeExtra.config.separateDebugInfo);
-        aspect<QmlDebuggingAspect>()->setValue(qmakeExtra.config.linkQmlDebuggingQQ2);
-        aspect<QtQuickCompilerAspect>()->setValue(qmakeExtra.config.useQtQuickCompiler);
+        separateDebugInfo.setValue(qmakeExtra.config.separateDebugInfo);
+        qmlDebugging.setValue(qmakeExtra.config.linkQmlDebuggingQQ2);
+        useQtQuickCompiler.setValue(qmakeExtra.config.useQtQuickCompiler);
 
         setQMakeBuildConfiguration(config);
 
@@ -166,30 +154,33 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     connect(target, &Target::parsingFinished, this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(target, &Target::kitChanged, this, &QmakeBuildConfiguration::updateProblemLabel);
 
-    const auto separateDebugInfoAspect = addAspect<SeparateDebugInfoAspect>();
-    connect(separateDebugInfoAspect, &SeparateDebugInfoAspect::changed, this, [this] {
+    connect(&separateDebugInfo, &BaseAspect::changed, this, [this] {
         emit separateDebugInfoChanged();
         emit qmakeBuildConfigurationChanged();
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
 
-    const auto qmlDebuggingAspect = addAspect<QmlDebuggingAspect>();
-    qmlDebuggingAspect->setBuildConfiguration(this);
-    connect(qmlDebuggingAspect, &QmlDebuggingAspect::changed, this, [this] {
+    qmlDebugging.setBuildConfiguration(this);
+    connect(&qmlDebugging, &BaseAspect::changed, this, [this] {
         emit qmlDebuggingChanged();
         emit qmakeBuildConfigurationChanged();
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
 
-    const auto qtQuickCompilerAspect = addAspect<QtQuickCompilerAspect>();
-    qtQuickCompilerAspect->setBuildConfiguration(this);
-    connect(qtQuickCompilerAspect, &QtQuickCompilerAspect::changed, this, [this] {
+    useQtQuickCompiler.setBuildConfiguration(this);
+    connect(&useQtQuickCompiler, &QtQuickCompilerAspect::changed, this, [this] {
         emit useQtQuickCompilerChanged();
         emit qmakeBuildConfigurationChanged();
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
 
-    addAspect<RunSystemAspect>();
+    runSystemFunctions.setSettingsKey("RunSystemFunction");
+    runSystemFunctions.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    runSystemFunctions.setDisplayName(Tr::tr("qmake system() behavior when parsing:"));
+    runSystemFunctions.addOption(Tr::tr("Run"));
+    runSystemFunctions.addOption(Tr::tr("Ignore"));
+    runSystemFunctions.addOption(Tr::tr("Use global setting"));
+    runSystemFunctions.setDefaultValue(2);
 }
 
 QmakeBuildConfiguration::~QmakeBuildConfiguration()
@@ -390,44 +381,27 @@ bool QmakeBuildConfiguration::isBuildDirAtSafeLocation() const
     return isBuildDirAtSafeLocation(project()->projectDirectory(), buildDirectory());
 }
 
-TriState QmakeBuildConfiguration::separateDebugInfo() const
-{
-    return aspect<SeparateDebugInfoAspect>()->value();
-}
-
 void QmakeBuildConfiguration::forceSeparateDebugInfo(bool sepDebugInfo)
 {
-    aspect<SeparateDebugInfoAspect>()->setValue(sepDebugInfo
-                                                ? TriState::Enabled
-                                                : TriState::Disabled);
-}
-
-TriState QmakeBuildConfiguration::qmlDebugging() const
-{
-    return aspect<QmlDebuggingAspect>()->value();
+    separateDebugInfo.setValue(sepDebugInfo ? TriState::Enabled : TriState::Disabled);
 }
 
 void QmakeBuildConfiguration::forceQmlDebugging(bool enable)
 {
-    aspect<QmlDebuggingAspect>()->setValue(enable ? TriState::Enabled : TriState::Disabled);
-}
-
-TriState QmakeBuildConfiguration::useQtQuickCompiler() const
-{
-    return aspect<QtQuickCompilerAspect>()->value();
+    qmlDebugging.setValue(enable ? TriState::Enabled : TriState::Disabled);
 }
 
 void QmakeBuildConfiguration::forceQtQuickCompiler(bool enable)
 {
-    aspect<QtQuickCompilerAspect>()->setValue(enable ? TriState::Enabled : TriState::Disabled);
+    useQtQuickCompiler.setValue(enable ? TriState::Enabled : TriState::Disabled);
 }
 
-bool QmakeBuildConfiguration::runSystemFunction() const
+bool QmakeBuildConfiguration::runQmakeSystemFunctions() const
 {
-    const TriState runSystem = aspect<RunSystemAspect>()->value();
-    if (runSystem == TriState::Enabled)
+    const int sel = runSystemFunctions();
+    if (sel == 0)
         return true;
-    if (runSystem == TriState::Disabled)
+    if (sel == 1)
         return false;
     return settings().runSystemFunction();
 }
@@ -857,5 +831,3 @@ void QmakeBuildConfiguration::restrictNextBuild(const RunConfiguration *rc)
 }
 
 } // namespace QmakeProjectManager
-
-#include <qmakebuildconfiguration.moc>
