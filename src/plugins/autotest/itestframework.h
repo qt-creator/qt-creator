@@ -27,15 +27,14 @@ public:
         Tool      = 0x2
     };
 
-    explicit ITestBase(bool activeByDefault, const TestBaseType type);
+    ITestBase();
     virtual ~ITestBase() = default;
 
-    virtual const char *name() const = 0;
-    virtual QString displayName() const = 0;
-    virtual unsigned priority() const = 0;          // should this be modifyable?
+    const char *name() const { return m_name; }
+    QString displayName() const { return m_displayName; }
     TestBaseType type() const { return m_type; }
-
     Utils::Id id() const;
+    int priority() const { return m_priority; }
 
     bool active() const { return m_active; }
     void setActive(bool active) { m_active = active; }
@@ -46,12 +45,20 @@ public:
     virtual ITestTool *asTestTool() { return nullptr; }
 
 protected:
+    void setPriority(int priority) { m_priority = priority; }
+    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+    void setType(const TestBaseType type) { m_type = type; }
+    void setName(const char *name) { m_name = name; }
+
     virtual ITestTreeItem *createRootNode() = 0;
 
 private:
     ITestTreeItem *m_rootNode = nullptr;
     bool m_active = false;
     TestBaseType m_type = None;
+    int m_priority = 0;
+    QString m_displayName;
+    const char *m_name = nullptr;
 
     friend class ITestFramework;
     friend class ITestTool;
@@ -60,7 +67,7 @@ private:
 class ITestFramework : public ITestBase
 {
 public:
-    explicit ITestFramework(bool activeByDefault);
+    ITestFramework();
     ~ITestFramework() override;
 
     TestTreeItem *rootNode();
@@ -88,7 +95,7 @@ using TestFrameworks = QList<ITestFramework *>;
 class ITestTool : public ITestBase
 {
 public:
-    explicit ITestTool(bool activeByDefault);
+    ITestTool();
 
     ITestTreeItem *rootNode();
 
@@ -97,9 +104,6 @@ public:
     virtual ITestTreeItem *createItemFromTestCaseInfo(const ProjectExplorer::TestCaseInfo &tci) = 0;
 
     ITestTool *asTestTool() final { return this; }
-
-private:
-    unsigned priority() const final { return 255; }
 };
 
 using TestTools = QList<ITestTool *>;

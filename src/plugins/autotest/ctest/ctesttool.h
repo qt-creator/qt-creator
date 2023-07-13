@@ -16,10 +16,7 @@ public:
 
     ITestTreeItem *createItemFromTestCaseInfo(const ProjectExplorer::TestCaseInfo &tci) final;
 
-    const char *name() const final;
-    QString displayName() const final;
     ITestTreeItem *createRootNode() final;
-
 
     QStringList activeSettingsAsOptions() const;
 

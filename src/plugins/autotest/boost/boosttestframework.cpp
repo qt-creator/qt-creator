@@ -25,9 +25,12 @@ BoostTestFramework &theBoostTestFramework()
 }
 
 BoostTestFramework::BoostTestFramework()
-    : ITestFramework(true)
 {
+    setActive(true);
     setSettingsGroups("Autotest", "BoostTest");
+    setName(BoostTest::Constants::FRAMEWORK_NAME);
+    setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    setPriority(BoostTest::Constants::FRAMEWORK_PRIORITY);
 
     setLayouter([this] {
         return Row { Form {
@@ -132,21 +135,6 @@ ITestParser *BoostTestFramework::createTestParser()
 ITestTreeItem *BoostTestFramework::createRootNode()
 {
     return new BoostTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
-}
-
-const char *BoostTestFramework::name() const
-{
-    return BoostTest::Constants::FRAMEWORK_NAME;
-}
-
-QString BoostTestFramework::displayName() const
-{
-    return Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
-}
-
-unsigned BoostTestFramework::priority() const
-{
-    return BoostTest::Constants::FRAMEWORK_PRIORITY;
 }
 
 // BoostSettingsPage

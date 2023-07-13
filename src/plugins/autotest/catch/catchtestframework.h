@@ -29,10 +29,6 @@ public:
     Utils::BoolAspect visibleWhitespace{this};
     Utils::BoolAspect warnOnEmpty{this};
 
-    const char *name() const override;
-    QString displayName() const override;
-    unsigned priority() const override;
-
 protected:
     ITestParser *createTestParser() override;
     ITestTreeItem *createRootNode() override;

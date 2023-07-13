@@ -25,8 +25,12 @@ QtTestFramework &theQtTestFramework()
     return framework;
 }
 
-QtTestFramework::QtTestFramework() : ITestFramework(true)
+QtTestFramework::QtTestFramework()
 {
+    setActive(true);
+    setName(QtTest::Constants::FRAMEWORK_NAME);
+    setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    setPriority(QtTest::Constants::FRAMEWORK_PRIORITY);
     setSettingsGroups("Autotest", "QtTest");
 
     setLayouter([this] {
@@ -123,21 +127,6 @@ ITestParser *QtTestFramework::createTestParser()
 ITestTreeItem *QtTestFramework::createRootNode()
 {
     return new QtTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
-}
-
-const char *QtTestFramework::name() const
-{
-    return QtTest::Constants::FRAMEWORK_NAME;
-}
-
-QString QtTestFramework::displayName() const
-{
-    return Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
-}
-
-unsigned QtTestFramework::priority() const
-{
-    return QtTest::Constants::FRAMEWORK_PRIORITY;
 }
 
 QStringList QtTestFramework::testNameForSymbolName(const QString &symbolName) const

@@ -21,10 +21,7 @@ namespace Internal {
 class QuickTestFramework : public QtTestFramework
 {
 public:
-    QuickTestFramework() {}
-    const char *name() const override;
-    QString displayName() const override;
-    unsigned priority() const override;
+    QuickTestFramework();
 
 protected:
     ITestParser *createTestParser() override;

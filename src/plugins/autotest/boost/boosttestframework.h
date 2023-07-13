@@ -35,9 +35,6 @@ class BoostTestFramework : public ITestFramework
 public:
     BoostTestFramework();
 
-    const char *name() const override;
-    QString displayName() const override;
-    unsigned priority() const override;
     ITestParser *createTestParser() override;
     ITestTreeItem *createRootNode() override;
 

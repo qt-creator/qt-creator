@@ -16,6 +16,13 @@ QuickTestFramework &theQuickTestFramework()
     return framework;
 }
 
+QuickTestFramework::QuickTestFramework()
+{
+    setName(QuickTest::Constants::FRAMEWORK_NAME);
+    setDisplayName(Tr::tr("Quick Test"));
+    setPriority(5);
+}
+
 ITestParser *QuickTestFramework::createTestParser()
 {
     return new QuickTestParser(this);
@@ -24,21 +31,6 @@ ITestParser *QuickTestFramework::createTestParser()
 ITestTreeItem *QuickTestFramework::createRootNode()
 {
     return new QuickTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
-}
-
-const char *QuickTestFramework::name() const
-{
-    return QuickTest::Constants::FRAMEWORK_NAME;
-}
-
-QString QuickTestFramework::displayName() const
-{
-    return Tr::tr("Quick Test");
-}
-
-unsigned QuickTestFramework::priority() const
-{
-    return 5;
 }
 
 } // namespace Internal

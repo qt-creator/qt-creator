@@ -25,9 +25,12 @@ CatchFramework &theCatchFramework()
 }
 
 CatchFramework::CatchFramework()
-    : ITestFramework(true)
 {
+    setActive(true);
     setSettingsGroups("Autotest", "Catch2");
+    setPriority(12);
+    setName("Catch");
+    setDisplayName(Tr::tr("Catch Test"));
 
     setLayouter([this] {
         return Row { Form {
@@ -114,21 +117,6 @@ CatchFramework::CatchFramework()
     warnOnEmpty.setSettingsKey("WarnEmpty");
     warnOnEmpty.setLabelText(Tr::tr("Warn on empty tests"));
     warnOnEmpty.setToolTip(Tr::tr("Warns if a test section does not check any assertion."));
-}
-
-const char *CatchFramework::name() const
-{
-    return "Catch";
-}
-
-QString CatchFramework::displayName() const
-{
-    return Tr::tr("Catch Test");
-}
-
-unsigned CatchFramework::priority() const
-{
-    return 12;
 }
 
 ITestParser *CatchFramework::createTestParser()

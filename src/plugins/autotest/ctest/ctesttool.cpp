@@ -27,10 +27,12 @@ CTestTool &theCTestTool()
 }
 
 CTestTool::CTestTool()
-    : Autotest::ITestTool(false)
 {
+    setActive(false);
     setSettingsGroups("Autotest", "CTest");
     setAutoApply(false);
+    setName("CTest");
+    setDisplayName(Tr::tr("CTest"));
 
     setLayouter([this] {
         return Row { Form {
@@ -155,16 +157,6 @@ ITestTreeItem *CTestTool::createItemFromTestCaseInfo(const ProjectExplorer::Test
     CTestTreeItem *item = new CTestTreeItem(this, tci.name, tci.path, TestTreeItem::TestCase);
     item->setLine(tci.line);
     return item;
-}
-
-const char *CTestTool::name() const
-{
-    return "CTest";
-}
-
-QString CTestTool::displayName() const
-{
-    return Tr::tr("CTest");
 }
 
 ITestTreeItem *CTestTool::createRootNode()

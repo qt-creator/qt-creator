@@ -29,9 +29,12 @@ GTestFramework &theGTestFramework()
 }
 
 GTestFramework::GTestFramework()
-    : ITestFramework(true)
 {
+    setActive(true);
     setSettingsGroups("Autotest", "GTest");
+    setName(GTest::Constants::FRAMEWORK_NAME);
+    setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
+    setPriority(GTest::Constants::FRAMEWORK_PRIORITY);
 
     setLayouter([this] {
         return Row { Form {
@@ -140,21 +143,6 @@ ITestParser *GTestFramework::createTestParser()
 ITestTreeItem *GTestFramework::createRootNode()
 {
     return new GTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
-}
-
-const char *GTestFramework::name() const
-{
-    return GTest::Constants::FRAMEWORK_NAME;
-}
-
-QString GTestFramework::displayName() const
-{
-    return Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY);
-}
-
-unsigned GTestFramework::priority() const
-{
-    return GTest::Constants::FRAMEWORK_PRIORITY;
 }
 
 QString GTestFramework::currentGTestFilter()
