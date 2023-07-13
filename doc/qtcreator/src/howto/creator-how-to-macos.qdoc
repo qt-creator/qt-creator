@@ -5,7 +5,7 @@
     \page creator-how-to-macos.html
     \if defined(qtcreator)
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \endif
     \ingroup creator-how-to-ui
     \ingroup studio-how-to

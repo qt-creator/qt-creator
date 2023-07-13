@@ -34,7 +34,7 @@ public:
 private:
     CppEditor::SymbolFinder m_symbolFinder;
     QString m_className;
-    const CPlusPlus::Snapshot &m_snapshot;
+    CPlusPlus::Snapshot m_snapshot;
     QMap<QString, QtTestCodeLocationAndType> m_privSlots;
     bool m_valid = false;
     bool m_inherited = false;

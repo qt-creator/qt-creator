@@ -89,9 +89,7 @@ void updateMCUProjectTree(ProjectExplorer::Project *p)
         auto qmlProjectNode = std::make_unique<McuQmlProjectNode>(FilePath(node->filePath()),
                                                                   inputsJsonFile);
 
-        auto qmlProjectNodePtr = qmlProjectNode.get();
-        const_cast<ProjectNode *>(node)->addNode(std::move(qmlProjectNode));
-        ProjectExplorer::ProjectTree::emitSubtreeChanged(qmlProjectNodePtr);
+        const_cast<ProjectNode *>(node)->replaceSubtree(nullptr, std::move(qmlProjectNode));
     });
 };
 
