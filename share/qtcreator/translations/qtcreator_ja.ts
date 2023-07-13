@@ -4383,20 +4383,20 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>セッションマネージャ</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>新規作成(&amp;N)</translation>
+        <source>&amp;New...</source>
+        <translation>新規作成(&amp;N)...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>名前を変更(&amp;R)</translation>
+        <source>&amp;Rename...</source>
+        <translation>名前を変更(&amp;R)...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>複製(&amp;L)</translation>
+        <source>C&amp;lone...</source>
+        <translation>複製(&amp;L)...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>削除(&amp;D)</translation>
+        <source>&amp;Delete...</source>
+        <translation>削除(&amp;D)...</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>

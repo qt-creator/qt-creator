@@ -28204,16 +28204,16 @@ to project &quot;%2&quot;.</source>
         <translation>会话管理器</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>新建(&amp;N)</translation>
+        <source>&amp;New...</source>
+        <translation>新建(&amp;N)...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>克隆(&amp;L)</translation>
+        <source>C&amp;lone...</source>
+        <translation>克隆(&amp;L)...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>删除(&amp;D)</translation>
+        <source>&amp;Delete...</source>
+        <translation>删除(&amp;D)...</translation>
     </message>
     <message>
         <source>&amp;Open</source>

@@ -9724,20 +9724,20 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation type="obsolete">Přepnout na sezení</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Nový</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Nový...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Přejmenovat</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Přejmenovat...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>Zdvo&amp;jit</translation>
+        <source>C&amp;lone...</source>
+        <translation>Zdvo&amp;jit...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Smazat</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Smazat...</translation>
     </message>
     <message>
         <source>&amp;Open</source>

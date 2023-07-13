@@ -34945,20 +34945,20 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>Gestionnaire de session</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Nouveau</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Nouveau...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Renommer</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Renommer...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>C&amp;lone</translation>
+        <source>C&amp;lone...</source>
+        <translation>C&amp;lone...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Supprimer</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Supprimer...</translation>
     </message>
     <message>
         <source>&amp;Open</source>

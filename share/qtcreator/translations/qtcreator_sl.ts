@@ -6752,20 +6752,20 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Upravljalnik sej</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Nova</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Nova...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>Pre&amp;imenuj</translation>
+        <source>&amp;Rename...</source>
+        <translation>Pre&amp;imenuj...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Podvoji</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Podvoji...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Izbriši</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Izbriši...</translation>
     </message>
     <message>
         <source>&amp;Open</source>

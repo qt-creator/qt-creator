@@ -22699,20 +22699,20 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Sessionshåndtering</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Ny</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Ny...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Omdøb</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Omdøb...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Klon</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Klon...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Slet</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Slet...</translation>
     </message>
     <message>
         <source>&amp;Open</source>

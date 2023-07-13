@@ -5564,20 +5564,20 @@ Greška: %5</translation>
         <translation>Upravljač za sesije</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Novi</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Novi...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Preimenuj</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Preimenuj...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>K&amp;loniraj</translation>
+        <source>C&amp;lone...</source>
+        <translation>K&amp;loniraj...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Ukloni</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Ukloni...</translation>
     </message>
     <message>
         <source>&amp;Open</source>

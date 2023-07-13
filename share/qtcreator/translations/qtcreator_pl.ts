@@ -883,20 +883,20 @@
         <translation>Zarządzanie sesjami</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Nowa sesja</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Nowa sesja...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>Z&amp;mień nazwę</translation>
+        <source>&amp;Rename...</source>
+        <translation>Z&amp;mień nazwę...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>S&amp;klonuj</translation>
+        <source>C&amp;lone...</source>
+        <translation>S&amp;klonuj...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Usuń</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Usuń...</translation>
     </message>
     <message>
         <source>&amp;Open</source>

@@ -29135,20 +29135,20 @@ to project &quot;%2&quot;.</source>
         <translation>Управление сессиями</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Новая</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Новая...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Переименовать</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Переименовать...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Копировать</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Копировать...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Удалить</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Удалить...</translation>
     </message>
     <message>
         <source>What is a Session?</source>

@@ -36784,20 +36784,20 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>Sitzungsverwaltung</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Neu</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Neu...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Umbenennen</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Umbenennen...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Duplizieren</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Duplizieren...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Löschen</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Löschen...</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>

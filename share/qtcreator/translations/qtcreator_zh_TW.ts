@@ -6472,19 +6472,19 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>工作階段管理器</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>新增(&amp;N)</translation>
+        <source>&amp;New...</source>
+        <translation>新增(&amp;N)...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>重新命名(&amp;R)</translation>
+        <source>&amp;Rename...</source>
+        <translation>重新命名(&amp;R)...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>複製(&amp;L)</translation>
+        <source>C&amp;lone...</source>
+        <translation>複製(&amp;L)...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
+        <source>&amp;Delete...</source>
         <translation>刪除(&amp;D)</translation>
     </message>
     <message>

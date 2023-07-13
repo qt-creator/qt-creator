@@ -13203,20 +13203,20 @@ to project &quot;%2&quot;.</source>
         <translation>Менеджер сесій</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Нова</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Нова...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>Перей&amp;менувати</translation>
+        <source>&amp;Rename...</source>
+        <translation>Перей&amp;менувати...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Клонувати</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Клонувати...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>Ви&amp;далити</translation>
+        <source>&amp;Delete...</source>
+        <translation>Ви&amp;далити...</translation>
     </message>
     <message>
         <source>&amp;Open</source>
