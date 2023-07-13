@@ -293,7 +293,7 @@ void DebuggerRunTool::setUseTerminal(bool on)
     bool useCdbConsole = m_runParameters.cppEngineType == CdbEngineType
             && (m_runParameters.startMode == StartInternal
                 || m_runParameters.startMode == StartExternal)
-            && debuggerSettings()->useCdbConsole.value();
+            && settings().useCdbConsole();
 
     if (on && !d->terminalRunner && !useCdbConsole) {
         d->terminalRunner =
@@ -759,7 +759,7 @@ bool DebuggerRunTool::fixupParameters()
         }
     }
 
-    if (!debuggerSettings()->autoEnrichParameters.value()) {
+    if (settings().autoEnrichParameters()) {
         const FilePath sysroot = rp.sysRoot;
         if (rp.debugInfoLocation.isEmpty())
             rp.debugInfoLocation = sysroot / "/usr/lib/debug";
@@ -816,7 +816,7 @@ bool DebuggerRunTool::fixupParameters()
     if (rp.isNativeMixedDebugging())
         rp.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
 
-    if (debuggerSettings()->forceLoggingToConsole.value())
+    if (settings().forceLoggingToConsole())
         rp.inferior.environment.set("QT_LOGGING_TO_CONSOLE", "1");
 
     return true;

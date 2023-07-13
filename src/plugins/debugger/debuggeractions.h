@@ -148,7 +148,7 @@ private:
     DebuggerSettings &operator=(const DebuggerSettings &) = delete;
 };
 
-DebuggerSettings *debuggerSettings();
+DebuggerSettings &settings();
 
 } // Debugger::Internal
 

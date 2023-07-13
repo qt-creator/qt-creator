@@ -33,18 +33,14 @@ const char cdbSettingsGroupC[] = "CDB2";
 //
 //////////////////////////////////////////////////////////////////////////
 
-static DebuggerSettings *theDebuggerSettings_ = nullptr;
-
-DebuggerSettings *debuggerSettings()
+DebuggerSettings &settings()
 {
-    QTC_CHECK(theDebuggerSettings_);
-    return theDebuggerSettings_;
+    static DebuggerSettings settings;
+    return settings;
 }
 
 DebuggerSettings::DebuggerSettings()
 {
-    theDebuggerSettings_ = this;
-
     const QString debugModeGroup(debugModeSettingsGroupC);
     const QString cdbSettingsGroup(cdbSettingsGroupC);
 
@@ -482,8 +478,8 @@ void DebuggerSettings::writeSettings() const
 
 QString DebuggerSettings::dump()
 {
-    QStringList settings;
-    debuggerSettings()->all.forEachAspect([&settings](BaseAspect *aspect) {
+    QStringList msg;
+    settings().all.forEachAspect([&msg](BaseAspect *aspect) {
         QString key = aspect->settingsKey();
         if (!key.isEmpty()) {
             const int pos = key.indexOf('/');
@@ -494,11 +490,11 @@ QString DebuggerSettings::dump()
             QString setting = key + ": " + current + "  (default: " + default_ + ')';
             if (current != default_)
                 setting +=  "  ***";
-            settings << setting;
+            msg << setting;
         }
     });
-    settings.sort();
-    return "Debugger settings:\n" + settings.join('\n');
+    msg.sort();
+    return "Debugger settings:\n" + msg.join('\n');
 }
 
 } // Debugger::Internal

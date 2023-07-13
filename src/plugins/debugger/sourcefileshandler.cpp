@@ -114,7 +114,7 @@ bool SourceFilesHandler::setData(const QModelIndex &idx, const QVariant &data, i
                 addAction(Tr::tr("Open File \"%1\"").arg(name), true,
                           [this, name] { m_engine->gotoLocation(FilePath::fromString(name)); });
 
-            menu->addAction(debuggerSettings()->settingsDialog.action());
+            menu->addAction(settings().settingsDialog.action());
             menu->popup(ev.globalPos());
             return true;
         }

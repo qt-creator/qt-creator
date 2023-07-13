@@ -585,7 +585,7 @@ public:
 
     void writeSettings()
     {
-        m_debuggerSettings.writeSettings();
+        settings().writeSettings();
 //        writeWindowSettings();
     }
 
@@ -684,7 +684,6 @@ public:
     QTimer m_shutdownTimer;
 
     Console m_console; // ensure Debugger Console is created before settings are taken into account
-    DebuggerSettings m_debuggerSettings;
     QStringList m_arguments;
 
     DebuggerItemManager m_debuggerItemManager;
@@ -771,7 +770,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
                           Tr::tr("Debugger Runtime"),
                           Tr::tr("Issues with starting the debugger.")});
 
-    m_debuggerSettings.readSettings();
+    settings().readSettings();
 
     const auto addLabel = [](QWidget *widget, const QString &text) {
         auto vbox = qobject_cast<QVBoxLayout *>(widget->layout());
@@ -784,10 +783,10 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     const auto addFontSizeAdaptation = [this](QWidget *widget) {
         QObject::connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-                         this, [widget](const FontSettings &settings) {
-            if (!debuggerSettings()->fontSizeFollowsEditor.value())
+                         this, [widget](const FontSettings &fs) {
+            if (!settings().fontSizeFollowsEditor())
                 return;
-            qreal size = settings.fontZoom() * settings.fontSize() / 100.;
+            qreal size = fs.fontZoom() * fs.fontSize() / 100.;
             QFont font = widget->font();
             font.setPointSizeF(size);
             widget->setFont(font);
@@ -1173,7 +1172,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     // Application interaction
     // Use a queued connection so the dialog isn't triggered in the same event.
-    connect(debuggerSettings()->settingsDialog.action(), &QAction::triggered, this,
+    connect(settings().settingsDialog.action(), &QAction::triggered, this,
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); }, Qt::QueuedConnection);
 
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
@@ -1475,10 +1474,10 @@ void DebuggerPluginPrivate::updatePresetState()
 // FIXME: Decentralize the actions below
     const bool actionsEnabled = currentEngine->debuggerActionsEnabled();
     const bool canDeref = actionsEnabled && currentEngine->hasCapability(AutoDerefPointersCapability);
-    DebuggerSettings *s = debuggerSettings();
-    s->autoDerefPointers.setEnabled(canDeref);
-    s->autoDerefPointers.setEnabled(true);
-    s->expandStack.setEnabled(actionsEnabled);
+    DebuggerSettings &s = settings();
+    s.autoDerefPointers.setEnabled(canDeref);
+    s.autoDerefPointers.setEnabled(true);
+    s.expandStack.setEnabled(actionsEnabled);
 
     m_startAndDebugApplicationAction.setEnabled(true);
     m_attachToQmlPortAction.setEnabled(true);
@@ -1973,8 +1972,8 @@ void DebuggerPluginPrivate::setInitialState()
     m_enableOrDisableBreakpointAction.setEnabled(false);
     //m_snapshotAction.setEnabled(false);
 
-    debuggerSettings()->autoDerefPointers.setEnabled(true);
-    debuggerSettings()->expandStack.setEnabled(false);
+    settings().autoDerefPointers.setEnabled(true);
+    settings().expandStack.setEnabled(false);
 }
 
 void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
@@ -2069,11 +2068,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
 QWidget *DebuggerPluginPrivate::addSearch(BaseTreeView *treeView)
 {
-    BoolAspect &act = debuggerSettings()->useAlternatingRowColors;
-    treeView->setAlternatingRowColors(act.value());
+    BoolAspect &act = settings().useAlternatingRowColors;
+    treeView->setAlternatingRowColors(act());
     treeView->setProperty(PerspectiveState::savesHeaderKey(), true);
     connect(&act, &BaseAspect::changed, treeView, [treeView] {
-        treeView->setAlternatingRowColors(debuggerSettings()->useAlternatingRowColors.value());
+        treeView->setAlternatingRowColors(settings().useAlternatingRowColors());
     });
 
     return ItemViewFind::createSearchableWrapper(treeView);

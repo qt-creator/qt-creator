@@ -26,7 +26,7 @@ class CommonOptionsPageWidget : public Core::IOptionsPageWidget
 public:
     explicit CommonOptionsPageWidget()
     {
-        DebuggerSettings &s = *debuggerSettings();
+        DebuggerSettings &s = settings();
 
         setOnApply([&s] {
             const bool originalPostMortem = s.registerForPostMortem->value();
@@ -113,7 +113,7 @@ class LocalsAndExpressionsOptionsPageWidget : public IOptionsPageWidget
 public:
     LocalsAndExpressionsOptionsPageWidget()
     {
-        DebuggerSettings &s = *debuggerSettings();
+        DebuggerSettings &s = settings();
         setOnApply([&s] { s.page4.apply(); s.page4.writeSettings(); });
         setOnFinish([&s] { s.page4.finish(); });
 

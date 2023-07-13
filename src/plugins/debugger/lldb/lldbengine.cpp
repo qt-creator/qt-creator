@@ -69,7 +69,7 @@ LldbEngine::LldbEngine()
     setObjectName("LldbEngine");
     setDebuggerName("LLDB");
 
-    DebuggerSettings &ds = *debuggerSettings();
+    DebuggerSettings &ds = settings();
     connect(&ds.autoDerefPointers, &BaseAspect::changed, this, &LldbEngine::updateLocals);
     connect(ds.createFullBacktrace.action(), &QAction::triggered,
             this, &LldbEngine::fetchFullBacktrace);
@@ -228,14 +228,14 @@ void LldbEngine::handleLldbStarted()
     if (!commands.isEmpty())
         executeCommand(commands);
 
-    const FilePath path = debuggerSettings()->extraDumperFile();
+    const FilePath path = settings().extraDumperFile();
     if (!path.isEmpty() && path.isReadableFile()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path.path());
         runCommand(cmd);
     }
 
-    commands = debuggerSettings()->extraDumperCommands.value();
+    commands = settings().extraDumperCommands();
     if (!commands.isEmpty()) {
         DebuggerCommand cmd("executeDebuggerCommand");
         cmd.arg("command", commands);
@@ -248,8 +248,7 @@ void LldbEngine::handleLldbStarted()
     };
     runCommand(cmd1);
 
-    const SourcePathMap sourcePathMap =
-            mergePlatformQtPath(rp, debuggerSettings()->sourcePathMap.value());
+    const SourcePathMap sourcePathMap = mergePlatformQtPath(rp, settings().sourcePathMap());
     for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
          it != cend;
          ++it) {
@@ -468,7 +467,7 @@ void LldbEngine::selectThread(const Thread &thread)
     DebuggerCommand cmd("selectThread");
     cmd.arg("id", thread->id());
     cmd.callback = [this](const DebuggerResponse &) {
-        fetchStack(debuggerSettings()->maximalStackDepth());
+        fetchStack(settings().maximalStackDepth());
     };
     runCommand(cmd);
 }
@@ -700,7 +699,7 @@ void LldbEngine::updateAll()
     DebuggerCommand cmd("fetchThreads");
     cmd.callback = [this](const DebuggerResponse &response) {
         threadsHandler()->setThreads(response.data);
-        fetchStack(debuggerSettings()->maximalStackDepth());
+        fetchStack(settings().maximalStackDepth());
         reloadRegisters();
     };
     runCommand(cmd);
@@ -733,21 +732,21 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
     const bool alwaysVerbose = qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
-    const DebuggerSettings &s = *debuggerSettings();
+    const DebuggerSettings &s = settings();
     cmd.arg("passexceptions", alwaysVerbose);
-    cmd.arg("fancy", s.useDebuggingHelpers.value());
-    cmd.arg("autoderef", s.autoDerefPointers.value());
-    cmd.arg("dyntype", s.useDynamicType.value());
+    cmd.arg("fancy", s.useDebuggingHelpers());
+    cmd.arg("autoderef", s.autoDerefPointers());
+    cmd.arg("dyntype", s.useDynamicType());
     cmd.arg("partialvar", params.partialVariable);
-    cmd.arg("qobjectnames", s.showQObjectNames.value());
-    cmd.arg("timestamps", s.logTimeStamps.value());
+    cmd.arg("qobjectnames", s.showQObjectNames());
+    cmd.arg("timestamps", s.logTimeStamps());
 
     StackFrame frame = stackHandler()->currentFrame();
     cmd.arg("context", frame.context);
     cmd.arg("nativemixed", isNativeMixedActive());
 
-    cmd.arg("stringcutoff", s.maximalStringLength.value());
-    cmd.arg("displaystringlimit", s.displayStringLimit.value());
+    cmd.arg("stringcutoff", s.maximalStringLength());
+    cmd.arg("displaystringlimit", s.displayStringLimit());
 
     //cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialvar", params.partialVariable);
@@ -997,7 +996,7 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
     DebuggerCommand cmd("fetchDisassembler");
     cmd.arg("address", loc.address());
     cmd.arg("function", loc.functionName());
-    cmd.arg("flavor", debuggerSettings()->intelFlavor.value() ? "intel" : "att");
+    cmd.arg("flavor", settings().intelFlavor() ? "intel" : "att");
     cmd.callback = [this, id](const DebuggerResponse &response) {
         DisassemblerLines result;
         QPointer<DisassemblerAgent> agent = m_disassemblerAgents.key(id);

@@ -525,7 +525,7 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
         m_engine->updateLocalsWindow(showReturn);
     });
 
-    DebuggerSettings &s = *debuggerSettings();
+    DebuggerSettings &s = settings();
     connect(&s.sortStructMembers, &BaseAspect::changed,
         m_engine, &DebuggerEngine::updateLocals);
     connect(&s.showStdNamespace, &BaseAspect::changed,
@@ -581,9 +581,9 @@ static QString niceTypeHelper(const QString &typeIn)
 
 QString WatchModel::removeNamespaces(QString str) const
 {
-    if (!debuggerSettings()->showStdNamespace.value())
+    if (!settings().showStdNamespace())
         str.remove("std::");
-    if (!debuggerSettings()->showQtNamespace.value()) {
+    if (!settings().showQtNamespace()) {
         const QString qtNamespace = m_engine->qtNamespace();
         if (!qtNamespace.isEmpty())
             str.remove(qtNamespace);
@@ -1113,8 +1113,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         }
 
         case Qt::ToolTipRole:
-            return debuggerSettings()->useToolTipsInLocalsView.value()
-                ? item->toToolTip() : QVariant();
+            return settings().useToolTipsInLocalsView() ? item->toToolTip() : QVariant();
 
         case Qt::ForegroundRole:
             return valueColor(item, column);
@@ -1134,7 +1133,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         default:
             break;
     }
-    return QVariant();
+    return {};
 }
 
 bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role)
@@ -1349,7 +1348,7 @@ void WatchModel::expand(WatchItem *item, bool requestEngineUpdate)
     if (item->isLoadMore()) {
         item = item->parent();
         m_maxArrayCount[item->iname]
-            = m_maxArrayCount.value(item->iname, debuggerSettings()->defaultArraySize.value()) * 10;
+            = m_maxArrayCount.value(item->iname, settings().defaultArraySize()) * 10;
         if (requestEngineUpdate)
             m_engine->updateItem(item->iname);
     } else {
@@ -1823,7 +1822,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
 
-    DebuggerSettings &s = *debuggerSettings();
+    DebuggerSettings &s = settings();
     menu->addAction(s.useDebuggingHelpers.action());
     menu->addAction(s.useToolTipsInLocalsView.action());
     menu->addAction(s.autoDerefPointers.action());
@@ -2190,7 +2189,7 @@ void WatchHandler::insertItems(const GdbMi &data)
 {
     QSet<WatchItem *> itemsToSort;
 
-    const bool sortStructMembers = debuggerSettings()->sortStructMembers.value();
+    const bool sortStructMembers = settings().sortStructMembers();
     for (const GdbMi &child : data) {
         auto item = new WatchItem;
         item->parse(child, sortStructMembers);
@@ -2332,7 +2331,7 @@ void WatchHandler::notifyUpdateFinished()
     });
 
     QMap<QString, QString> values;
-    if (debuggerSettings()->useAnnotationsInMainEditor.value()) {
+    if (settings().useAnnotationsInMainEditor()) {
         m_model->forAllItems([&values](WatchItem *item) {
             const QString expr = item->sourceExpression();
             if (!expr.isEmpty())
@@ -2848,7 +2847,7 @@ QSet<QString> WatchHandler::expandedINames() const
 
 int WatchHandler::maxArrayCount(const QString &iname) const
 {
-    return m_model->m_maxArrayCount.value(iname, debuggerSettings()->defaultArraySize());
+    return m_model->m_maxArrayCount.value(iname, settings().defaultArraySize());
 }
 
 void WatchHandler::recordTypeInfo(const GdbMi &typeInfo)

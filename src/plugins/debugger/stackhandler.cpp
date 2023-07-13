@@ -47,9 +47,9 @@ StackHandler::StackHandler(DebuggerEngine *engine)
     setObjectName("StackModel");
     setHeader({Tr::tr("Level"), Tr::tr("Function"), Tr::tr("File"), Tr::tr("Line"), Tr::tr("Address") });
 
-    connect(debuggerSettings()->expandStack.action(), &QAction::triggered,
+    connect(settings().expandStack.action(), &QAction::triggered,
             this, &StackHandler::reloadFullStack);
-    connect(debuggerSettings()->maximalStackDepth.action(), &QAction::triggered,
+    connect(settings().maximalStackDepth.action(), &QAction::triggered,
             this, &StackHandler::reloadFullStack);
 
     // For now there's always only "the" current thread.
@@ -66,7 +66,7 @@ QVariant SpecialStackItem::data(int column, int role) const
         return Tr::tr("<More>");
     if (role == Qt::DecorationRole && column == StackLevelColumn)
         return Icons::EMPTY.icon();
-    return QVariant();
+    return {};
 }
 
 QVariant StackFrameItem::data(int column, int role) const
@@ -86,16 +86,16 @@ QVariant StackFrameItem::data(int column, int role) const
                 return QString("0x%1").arg(frame.address, 0, 16);
             return QString();
         }
-        return QVariant();
+        return {};
     }
 
     if (role == Qt::DecorationRole && column == StackLevelColumn)
         return handler->iconForRow(row);
 
-    if (role == Qt::ToolTipRole && debuggerSettings()->useToolTipsInStackView.value())
+    if (role == Qt::ToolTipRole && settings().useToolTipsInStackView())
         return frame.toToolTip();
 
-    return QVariant();
+    return {};
 }
 
 Qt::ItemFlags StackFrameItem::flags(int column) const
@@ -234,8 +234,8 @@ void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
             targetFrame = i;
     }
 
-    bool canExpand = !isFull && (n >= debuggerSettings()->maximalStackDepth());
-    debuggerSettings()->expandStack.setEnabled(canExpand);
+    bool canExpand = !isFull && n >= settings().maximalStackDepth();
+    settings().expandStack.setEnabled(canExpand);
     setFrames(stackFrames, canExpand);
 
     // We can't jump to any file if we don't have any frames.
@@ -424,7 +424,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
         frame = frameAt(row);
     const quint64 address = frame.address;
 
-    menu->addAction(debuggerSettings()->expandStack.action());
+    menu->addAction(settings().expandStack.action());
 
     addAction(this, menu, Tr::tr("Copy Contents to Clipboard"), true, [ev] {
         setClipboardAndSelection(selectedText(ev.view(), true));
@@ -437,7 +437,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     addAction(this, menu, Tr::tr("Save as Task File..."), true, [this] { saveTaskFile(); });
 
     if (m_engine->hasCapability(CreateFullBacktraceCapability))
-        menu->addAction(debuggerSettings()->createFullBacktrace.action());
+        menu->addAction(settings().createFullBacktrace.action());
 
     if (m_engine->hasCapability(AdditionalQmlStackCapability))
         addAction(this, menu, Tr::tr("Load QML Stack"), true, [this] { m_engine->loadAdditionalQmlStack(); });
@@ -485,8 +485,8 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     }
 
     menu->addSeparator();
-    menu->addAction(debuggerSettings()->useToolTipsInStackView.action());
-    menu->addAction(debuggerSettings()->settingsDialog.action());
+    menu->addAction(settings().useToolTipsInStackView.action());
+    menu->addAction(settings().settingsDialog.action());
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;

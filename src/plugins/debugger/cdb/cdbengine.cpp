@@ -178,17 +178,17 @@ CdbEngine::CdbEngine() :
     wh->addTypeFormats("QImage", imageFormats);
     wh->addTypeFormats("QImage *", imageFormats);
 
-    DebuggerSettings *s = debuggerSettings();
-    connect(s->createFullBacktrace.action(), &QAction::triggered,
+    DebuggerSettings &s = settings();
+    connect(s.createFullBacktrace.action(), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
     connect(&m_process, &Process::started, this, &CdbEngine::processStarted);
     connect(&m_process, &Process::done, this, &CdbEngine::processDone);
     m_process.setStdOutLineCallback([this](const QString &line) { parseOutputLine(line); });
     m_process.setStdErrLineCallback([this](const QString &line) { parseOutputLine(line); });
-    connect(&s->useDebuggingHelpers, &BaseAspect::changed,
+    connect(&s.useDebuggingHelpers, &BaseAspect::changed,
             this, &CdbEngine::updateLocals);
 
-    if (s->useCodeModel.value())
+    if (s.useCodeModel())
         m_codeModelSnapshot = CppEditor::CppModelManager::snapshot();
 }
 
@@ -225,7 +225,7 @@ void CdbEngine::init()
     }
 
     const SourcePathMap &sourcePathMap
-        = mergePlatformQtPath(runParameters(), debuggerSettings()->sourcePathMap.value());
+        = mergePlatformQtPath(runParameters(), settings().sourcePathMap());
     if (!sourcePathMap.isEmpty()) {
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
             m_sourcePathMappings.push_back({QDir::toNativeSeparators(it.key()),
@@ -364,8 +364,8 @@ void CdbEngine::setupEngine()
     if (sp.useTerminal) // Separate console
         debugger.addArg("-2");
 
-    const DebuggerSettings &s = *debuggerSettings();
-    if (s.ignoreFirstChanceAccessViolation.value())
+    const DebuggerSettings &s = settings();
+    if (s.ignoreFirstChanceAccessViolation())
         debugger.addArg("-x");
 
     const QStringList &sourcePaths = s.cdbSourcePaths.value();
@@ -472,8 +472,8 @@ void CdbEngine::handleInitialSessionIdle()
     // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
     BreakpointManager::claimBreakpointsForEngine(this);
 
-    const DebuggerSettings &s = *debuggerSettings();
-    QStringList symbolPaths = s.cdbSymbolPaths.value();
+    const DebuggerSettings &s = settings();
+    QStringList symbolPaths = s.cdbSymbolPaths();
     QString symbolPath = rp.inferior.environment.expandedValueForKey("_NT_ALT_SYMBOL_PATH");
     if (!symbolPath.isEmpty())
         symbolPaths += symbolPath;
@@ -493,7 +493,7 @@ void CdbEngine::handleInitialSessionIdle()
                 + " secondChance=" + (s.secondChanceExceptionTaskEntry() ? "1" : "0")
                 , NoFlags});
 
-    if (s.cdbUsePythonDumper.value())
+    if (s.cdbUsePythonDumper())
         runCommand({"print(sys.version)", ScriptCommand, CB(setupScripting)});
 
     runCommand({"pid", ExtensionCommand, [this](const DebuggerResponse &response) {
@@ -551,13 +551,13 @@ void CdbEngine::runEngine()
     if (debug)
         qDebug("runEngine");
 
-    const QStringList breakEvents = debuggerSettings()->cdbBreakEvents.value();
+    const QStringList breakEvents = settings().cdbBreakEvents();
     for (const QString &breakEvent : breakEvents)
         runCommand({"sxe " + breakEvent, NoFlags});
     // Break functions: each function must be fully qualified,
     // else the debugger will slow down considerably.
     const auto cb = [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); };
-    if (debuggerSettings()->cdbBreakOnCrtDbgReport.value()) {
+    if (settings().cdbBreakOnCrtDbgReport()) {
         Abi::OSFlavor flavor = runParameters().toolChainAbi.osFlavor();
         // CrtDebugReport cannot be safely resolved for vc 19
         if ((flavor > Abi::WindowsMsvc2005Flavor && flavor <= Abi::WindowsMsvc2013Flavor) ||
@@ -570,11 +570,11 @@ void CdbEngine::runEngine()
             runCommand({breakAtFunctionCommand(Constants::CRT_DEBUG_REPORT, debugModule), BuiltinCommand, cb});
         }
     }
-//    if (debuggerSettings()->breakOnWarning.value())) {
+//    if (settings().breakOnWarning())) {
 //        runCommand({"bm /( QtCored4!qWarning", BuiltinCommand}); // 'bm': All overloads.
 //        runCommand({"bm /( Qt5Cored!QMessageLogger::warning", BuiltinCommand});
 //    }
-//    if (debuggerSettion()->breakOnFatal.value()) {
+//    if (settings().breakOnFatal()) {
 //        runCommand({"bm /( QtCored4!qFatal", BuiltinCommand}); // 'bm': All overloads.
 //        runCommand({"bm /( Qt5Cored!QMessageLogger::fatal", BuiltinCommand});
 //    }
@@ -1058,7 +1058,7 @@ void CdbEngine::activateFrame(int index)
 
 void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
 {
-    const DebuggerSettings &s = *debuggerSettings();
+    const DebuggerSettings &s = settings();
     if (m_pythonVersion > 0x030000) {
         watchHandler()->notifyUpdateStarted(updateParameters);
 
@@ -1068,21 +1068,21 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
 
         const bool alwaysVerbose = qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
         cmd.arg("passexceptions", alwaysVerbose);
-        cmd.arg("fancy", s.useDebuggingHelpers.value());
-        cmd.arg("autoderef", s.autoDerefPointers.value());
-        cmd.arg("dyntype", s.useDynamicType.value());
+        cmd.arg("fancy", s.useDebuggingHelpers());
+        cmd.arg("autoderef", s.autoDerefPointers());
+        cmd.arg("dyntype", s.useDynamicType());
         cmd.arg("partialvar", updateParameters.partialVariable);
-        cmd.arg("qobjectnames", s.showQObjectNames.value());
-        cmd.arg("timestamps", s.logTimeStamps.value());
+        cmd.arg("qobjectnames", s.showQObjectNames());
+        cmd.arg("timestamps", s.logTimeStamps());
 
         StackFrame frame = stackHandler()->currentFrame();
         cmd.arg("context", frame.context);
         cmd.arg("nativemixed", isNativeMixedActive());
 
-        cmd.arg("stringcutoff", s.maximalStringLength.value());
-        cmd.arg("displaystringlimit", s.displayStringLimit.value());
+        cmd.arg("stringcutoff", s.maximalStringLength());
+        cmd.arg("displaystringlimit", s.displayStringLimit());
 
-        if (s.useCodeModel.value()) {
+        if (s.useCodeModel()) {
             QStringList variables = getUninitializedVariables(m_codeModelSnapshot,
                                                               frame.function, frame.file, frame.line);
             cmd.arg("uninitialized", variables);
@@ -1141,9 +1141,9 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
             }
         }
         str << blankSeparator << "-v";
-        if (s.useDebuggingHelpers.value())
+        if (s.useDebuggingHelpers())
             str << blankSeparator << "-c";
-        if (s.sortStructMembers.value())
+        if (s.sortStructMembers())
             str << blankSeparator << "-a";
         const QString typeFormats = watchHandler()->typeFormatRequests();
         if (!typeFormats.isEmpty())
@@ -1153,7 +1153,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
             str << blankSeparator << "-I " << individualFormats;
         // Uninitialized variables if desired. Quote as safeguard against shadowed
         // variables in case of errors in uninitializedVariables().
-        if (s.useCodeModel.value()) {
+        if (s.useCodeModel()) {
             const QStringList variables = getUninitializedVariables(m_codeModelSnapshot,
                                                                     frame.function, frame.file, frame.line);
             if (!variables.isEmpty()) {
@@ -2503,7 +2503,7 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
                 new BreakpointCorrectionContext(m_codeModelSnapshot, CppEditor::CppModelManager::workingCopy()));
     if (!m_autoBreakPointCorrection
             && parameters.type == BreakpointByFileAndLine
-            && debuggerSettings()->cdbBreakPointCorrection.value()) {
+            && settings().cdbBreakPointCorrection()) {
         response.textPosition.line =
             int(lineCorrection->fixLineNumber(parameters.fileName,
                                               unsigned(parameters.textPosition.line)));
@@ -2825,13 +2825,13 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         runCommand({"theDumper = Dumper()", ScriptCommand});
     }
 
-    const FilePath path = debuggerSettings()->extraDumperFile();
+    const FilePath path = settings().extraDumperFile();
     if (!path.isEmpty() && path.isReadableFile()) {
         DebuggerCommand cmd("theDumper.addDumperModule", ScriptCommand);
         cmd.arg("path", path.path());
         runCommand(cmd);
     }
-    const QString commands = debuggerSettings()->extraDumperCommands.value();
+    const QString commands = settings().extraDumperCommands();
     if (!commands.isEmpty()) {
         for (const auto &command : commands.split('\n', Qt::SkipEmptyParts))
             runCommand({command, ScriptCommand});

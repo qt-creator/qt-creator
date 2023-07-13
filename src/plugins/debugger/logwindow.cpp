@@ -193,10 +193,10 @@ public:
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
-        menu->addAction(debuggerSettings()->logTimeStamps.action());
+        menu->addAction(settings().logTimeStamps.action());
         menu->addAction(Core::ActionManager::command(Constants::RELOAD_DEBUGGING_HELPERS)->action());
         menu->addSeparator();
-        menu->addAction(debuggerSettings()->settingsDialog.action());
+        menu->addAction(settings().settingsDialog.action());
         menu->exec(ev->globalPos());
         delete menu;
     }
@@ -494,7 +494,7 @@ void LogWindow::showOutput(int channel, const QString &output)
     QString out;
     out.reserve(output.size() + 1000);
 
-    if (output.at(0) != '~' && debuggerSettings()->logTimeStamps.value()) {
+    if (output.at(0) != '~' && settings().logTimeStamps()) {
         out.append(charForChannel(LogTime));
         out.append(logTimeStamp());
         out.append(nchar);
@@ -562,7 +562,7 @@ void LogWindow::showInput(int channel, const QString &input)
         m_inputText->setTextCursor(cursor);
         return;
     }
-    if (debuggerSettings()->logTimeStamps.value())
+    if (settings().logTimeStamps())
         m_inputText->append(logTimeStamp());
     m_inputText->append(input);
     QTextCursor cursor = m_inputText->textCursor();
@@ -695,7 +695,7 @@ void GlobalLogWindow::doOutput(const QString &output)
 
 void GlobalLogWindow::doInput(const QString &input)
 {
-    if (debuggerSettings()->logTimeStamps.value())
+    if (settings().logTimeStamps())
         m_leftPane->append(LogWindow::logTimeStamp());
     m_leftPane->append(input);
     QTextCursor cursor = m_leftPane->textCursor();
