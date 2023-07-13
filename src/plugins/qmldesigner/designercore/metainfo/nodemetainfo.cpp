@@ -2985,7 +2985,8 @@ PropertyMetaInfo::~PropertyMetaInfo() = default;
 NodeMetaInfo PropertyMetaInfo::propertyType() const
 {
     if constexpr (useProjectStorage()) {
-        return {propertyData().typeId, m_projectStorage};
+        if (isValid())
+            return {propertyData().propertyTypeId, m_projectStorage};
     } else {
         if (isValid())
             return NodeMetaInfo{nodeMetaInfoPrivateData()->model(),
@@ -3012,7 +3013,7 @@ PropertyName PropertyMetaInfo::name() const
 bool PropertyMetaInfo::isWritable() const
 {
     if constexpr (useProjectStorage())
-        return !(propertyData().traits & Storage::PropertyDeclarationTraits::IsReadOnly);
+        return isValid() && !(propertyData().traits & Storage::PropertyDeclarationTraits::IsReadOnly);
     else
         return isValid() && nodeMetaInfoPrivateData()->isPropertyWritable(propertyName());
 }
@@ -3020,7 +3021,7 @@ bool PropertyMetaInfo::isWritable() const
 bool PropertyMetaInfo::isListProperty() const
 {
     if constexpr (useProjectStorage())
-        return propertyData().traits & Storage::PropertyDeclarationTraits::IsList;
+        return isValid() && propertyData().traits & Storage::PropertyDeclarationTraits::IsList;
     else
         return isValid() && nodeMetaInfoPrivateData()->isPropertyList(propertyName());
 }
@@ -3036,7 +3037,7 @@ bool PropertyMetaInfo::isEnumType() const
 bool PropertyMetaInfo::isPrivate() const
 {
     if constexpr (useProjectStorage())
-        return propertyData().name.startsWith("__");
+        return isValid() && propertyData().name.startsWith("__");
     else
         return isValid() && propertyName().startsWith("__");
 }
@@ -3044,15 +3045,23 @@ bool PropertyMetaInfo::isPrivate() const
 bool PropertyMetaInfo::isPointer() const
 {
     if constexpr (useProjectStorage())
-        return propertyData().traits & Storage::PropertyDeclarationTraits::IsPointer;
+        return isValid() && (propertyData().traits & Storage::PropertyDeclarationTraits::IsPointer);
     else
         return isValid() && nodeMetaInfoPrivateData()->isPropertyPointer(propertyName());
 }
 
+namespace {
+template<typename... QMetaTypes>
+bool isType(const QMetaType &type, const QMetaTypes &...types)
+{
+    return ((type == types) || ...);
+}
+} // namespace
+
 QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
 {
     if (!isValid())
-        return value;
+        return {};
 
     if constexpr (!useProjectStorage()) {
         const QVariant variant = value;
@@ -3064,7 +3073,7 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
 
         QVariant::Type typeId = nodeMetaInfoPrivateData()->variantTypeId(propertyName());
 
-        if (variant.typeId() == QVariant::UserType && variant.typeId() == ModelNode::variantTypeId()) {
+        if (variant.typeId() == ModelNode::variantTypeId()) {
             return variant;
         } else if (typeId == QVariant::UserType && typeName == "QVariant") {
             return variant;
@@ -3093,17 +3102,24 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         }
 
     } else {
-        if (isEnumType() || value.canConvert<Enumeration>())
+        if (isEnumType() && value.canConvert<Enumeration>())
             return value;
 
-        const TypeId &typeId = propertyData().typeId;
+        const TypeId &typeId = propertyData().propertyTypeId;
+
+        static constexpr auto boolType = QMetaType::fromType<bool>();
+        static constexpr auto intType = QMetaType::fromType<int>();
+        static constexpr auto longType = QMetaType::fromType<long>();
+        static constexpr auto longLongType = QMetaType::fromType<long long>();
+        static constexpr auto floatType = QMetaType::fromType<float>();
+        static constexpr auto doubleType = QMetaType::fromType<double>();
+        static constexpr auto qStringType = QMetaType::fromType<QString>();
+        static constexpr auto qUrlType = QMetaType::fromType<QUrl>();
+        static constexpr auto qColorType = QMetaType::fromType<QColor>();
 
         if (value.typeId() == QVariant::UserType && value.typeId() == ModelNode::variantTypeId()) {
             return value;
         } else if (typeId == m_projectStorage->builtinTypeId<QVariant>()) {
-            return value;
-        } else if (value.typeId() == QVariant::List) {
-            // TODO: check the contents of the list
             return value;
         } else if (typeId == m_projectStorage->builtinTypeId<double>()) {
             return value.toDouble();
@@ -3112,32 +3128,35 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         } else if (typeId == m_projectStorage->builtinTypeId<int>()) {
             return value.toInt();
         } else if (typeId == m_projectStorage->builtinTypeId<bool>()) {
-            return value.toBool();
+            return isType(value.metaType(), boolType, intType, longType, longLongType, floatType, doubleType)
+                   && value.toBool();
         } else if (typeId == m_projectStorage->builtinTypeId<QString>()) {
-            return value.toString();
+            if (isType(value.metaType(), qStringType))
+                return value;
+            else
+                return QString{};
         } else if (typeId == m_projectStorage->builtinTypeId<QDateTime>()) {
             return value.toDateTime();
         } else if (typeId == m_projectStorage->builtinTypeId<QUrl>()) {
-            return value.toUrl();
+            if (isType(value.metaType(), qUrlType))
+                return value;
+            else
+                return QUrl{};
         } else if (typeId == m_projectStorage->builtinTypeId<QColor>()) {
-            return value.value<QColor>();
+            if (isType(value.metaType(), qColorType))
+                return value;
+            else
+                return QColor{};
         } else if (typeId == m_projectStorage->builtinTypeId<QVector2D>()) {
             return value.value<QVector2D>();
         } else if (typeId == m_projectStorage->builtinTypeId<QVector3D>()) {
             return value.value<QVector3D>();
         } else if (typeId == m_projectStorage->builtinTypeId<QVector4D>()) {
             return value.value<QVector4D>();
-        } else {
-            const auto typeName = propertyTypeName();
-            const auto metaType = QMetaType::fromName(typeName);
-            auto copy = value;
-            bool converted = copy.convert(metaType);
-            if (converted)
-                return copy;
         }
     }
 
-    return Internal::PropertyParser::variantFromString(value.toString());
+    return {};
 }
 
 const Storage::Info::PropertyDeclaration &PropertyMetaInfo::propertyData() const
