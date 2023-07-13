@@ -63,23 +63,20 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
 {
     setLowPriority();
 
-    m_buildType = addAspect<SelectionAspect>();
-    m_buildType->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    m_buildType->setDisplayName(Tr::tr("qmake build configuration:"));
-    m_buildType->addOption(Tr::tr("Debug"));
-    m_buildType->addOption(Tr::tr("Release"));
+    buildType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    buildType.setDisplayName(Tr::tr("qmake build configuration:"));
+    buildType.addOption(Tr::tr("Debug"));
+    buildType.addOption(Tr::tr("Release"));
 
-    m_userArgs = addAspect<ArgumentsAspect>();
-    m_userArgs->setMacroExpander(macroExpander());
-    m_userArgs->setSettingsKey(QMAKE_ARGUMENTS_KEY);
-    m_userArgs->setLabelText(Tr::tr("Additional arguments:"));
+    userArguments.setMacroExpander(macroExpander());
+    userArguments.setSettingsKey(QMAKE_ARGUMENTS_KEY);
+    userArguments.setLabelText(Tr::tr("Additional arguments:"));
 
-    m_effectiveCall = addAspect<StringAspect>();
-    m_effectiveCall->setDisplayStyle(StringAspect::TextEditDisplay);
-    m_effectiveCall->setLabelText(Tr::tr("Effective qmake call:"));
-    m_effectiveCall->setReadOnly(true);
-    m_effectiveCall->setUndoRedoEnabled(false);
-    m_effectiveCall->setEnabled(true);
+    effectiveCall.setDisplayStyle(StringAspect::TextEditDisplay);
+    effectiveCall.setLabelText(Tr::tr("Effective qmake call:"));
+    effectiveCall.setReadOnly(true);
+    effectiveCall.setUndoRedoEnabled(false);
+    effectiveCall.setEnabled(true);
 
     auto updateSummary = [this] {
         QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
@@ -316,11 +313,6 @@ void QMakeStep::setForced(bool b)
     m_forced = b;
 }
 
-void QMakeStep::setUserArguments(const QString &arguments)
-{
-    m_userArgs->setArguments(arguments);
-}
-
 QStringList QMakeStep::extraArguments() const
 {
     return m_extraArgs;
@@ -397,11 +389,6 @@ QStringList QMakeStep::parserArguments()
     return result;
 }
 
-QString QMakeStep::userArguments() const
-{
-    return m_userArgs->arguments();
-}
-
 QString QMakeStep::mkspec() const
 {
     QString additionalArguments = userArguments();
@@ -439,9 +426,9 @@ QWidget *QMakeStep::createConfigWidget()
     abisListWidget = new QListWidget;
 
     Layouting::Form builder;
-    builder.addRow({m_buildType});
-    builder.addRow({m_userArgs});
-    builder.addRow({m_effectiveCall});
+    builder.addRow({buildType});
+    builder.addRow({userArguments});
+    builder.addRow({effectiveCall});
     builder.addRow({abisLabel, abisListWidget});
     builder.addItem(Layouting::noMargin);
     auto widget = builder.emerge();
@@ -452,7 +439,7 @@ QWidget *QMakeStep::createConfigWidget()
     updateAbiWidgets();
     updateEffectiveQMakeCall();
 
-    connect(m_userArgs, &BaseAspect::changed, widget, [this] {
+    connect(&userArguments, &BaseAspect::changed, widget, [this] {
         updateAbiWidgets();
         updateEffectiveQMakeCall();
 
@@ -460,7 +447,7 @@ QWidget *QMakeStep::createConfigWidget()
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
 
-    connect(m_buildType, &BaseAspect::changed,
+    connect(&buildType, &BaseAspect::changed,
             widget, [this] { buildConfigurationSelected(); });
 
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmlDebuggingChanged,
@@ -510,7 +497,7 @@ void QMakeStep::qmakeBuildConfigChanged()
     const bool debug = bc->qmakeBuildConfiguration() & QtVersion::DebugBuild;
     {
         const GuardLocker locker(m_ignoreChanges);
-        m_buildType->setValue(debug ? 0 : 1);
+        buildType.setValue(debug ? 0 : 1);
     }
     updateAbiWidgets();
     updateEffectiveQMakeCall();
@@ -599,7 +586,7 @@ void QMakeStep::buildConfigurationSelected()
         return;
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
-    if (m_buildType->value() == 0) { // debug
+    if (buildType() == 0) { // debug
         buildConfiguration = buildConfiguration | QtVersion::DebugBuild;
     } else {
         buildConfiguration = buildConfiguration & ~QtVersion::DebugBuild;
@@ -683,7 +670,7 @@ void QMakeStep::updateAbiWidgets()
 
 void QMakeStep::updateEffectiveQMakeCall()
 {
-    m_effectiveCall->setValue(effectiveQMakeCall());
+    effectiveCall.setValue(effectiveQMakeCall());
 }
 
 void QMakeStep::handleAbiWidgetChange()

@@ -6,6 +6,7 @@
 #include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/aspects.h>
 #include <utils/commandline.h>
@@ -16,17 +17,11 @@
 #include <QDebug>
 
 QT_BEGIN_NAMESPACE
-class QComboBox;
 class QLabel;
-class QLineEdit;
-class QPlainTextEdit;
 class QListWidget;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class Abi;
-class ArgumentsAspect;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Abi; }
 
 namespace QtSupport { class QtVersion; }
 
@@ -115,9 +110,7 @@ public:
     QMakeStepConfig deducedArguments() const;
     // arguments passed to the pro file parser
     QStringList parserArguments();
-    // arguments set by the user
-    QString userArguments() const;
-    void setUserArguments(const QString &arguments);
+
     // Extra arguments for qmake and pro file parser. Not user editable via UI.
     QStringList extraArguments() const;
     void setExtraArguments(const QStringList &args);
@@ -132,6 +125,10 @@ public:
     QString effectiveQMakeCall() const;
 
     QVariantMap toMap() const override;
+
+    Utils::SelectionAspect buildType{this};
+    ProjectExplorer::ArgumentsAspect userArguments{this};
+    Utils::StringAspect effectiveCall{this};
 
 protected:
     bool fromMap(const QVariantMap &map) override;
@@ -159,7 +156,7 @@ private:
 
     Utils::CommandLine m_qmakeCommand;
     Utils::CommandLine m_makeCommand;
-    ProjectExplorer::ArgumentsAspect *m_userArgs = nullptr;
+
     // Extra arguments for qmake and pro file parser
     QStringList m_extraArgs;
     // Extra arguments for pro file parser only
@@ -177,8 +174,6 @@ private:
     Utils::Guard m_ignoreChanges;
 
     QLabel *abisLabel = nullptr;
-    Utils::SelectionAspect *m_buildType = nullptr;
-    Utils::StringAspect *m_effectiveCall = nullptr;
     QListWidget *abisListWidget = nullptr;
 };
 

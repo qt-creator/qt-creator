@@ -104,7 +104,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     appendInitialCleanStep(Constants::MAKESTEP_BS_ID);
 
     setInitializer([this, target](const BuildInfo &info) {
-        auto qmakeStep = buildSteps()->firstOfType<QMakeStep>();
+        QMakeStep *qmakeStep = buildSteps()->firstOfType<QMakeStep>();
         QTC_ASSERT(qmakeStep, return);
 
         const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
@@ -118,7 +118,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
 
         QString additionalArguments = qmakeExtra.additionalArguments;
         if (!additionalArguments.isEmpty())
-            qmakeStep->setUserArguments(additionalArguments);
+            qmakeStep->userArguments.setArguments(additionalArguments);
 
         aspect<SeparateDebugInfoAspect>()->setValue(qmakeExtra.config.separateDebugInfo);
         aspect<QmlDebuggingAspect>()->setValue(qmakeExtra.config.linkQmlDebuggingQQ2);
