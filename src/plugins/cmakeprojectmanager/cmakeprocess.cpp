@@ -46,11 +46,6 @@ CMakeProcess::~CMakeProcess()
 
 static const int failedToStartExitCode = 0xFF; // See ProcessPrivate::handleDone() impl
 
-static QObject *debuggerPlugin()
-{
-    return ExtensionSystem::PluginManager::getObjectByName("DebuggerPlugin");
-}
-
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {
     QTC_ASSERT(!m_process, return);
