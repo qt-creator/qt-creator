@@ -3,11 +3,10 @@
 
 #pragma once
 
-#include <QObject>
-
 #include "styleengine.h"
 #include "qmt/diagram/dobject.h"
 
+#include <QObject>
 #include <QScopedPointer>
 
 namespace qmt {
@@ -21,7 +20,6 @@ class DBoundary;
 
 class QMT_EXPORT StyleController : public QObject
 {
-    Q_OBJECT
     class Parameters;
 
 public:

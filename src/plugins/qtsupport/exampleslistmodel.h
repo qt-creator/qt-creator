@@ -85,7 +85,6 @@ private:
 
 class ExamplesViewController : public QObject
 {
-    Q_OBJECT
 public:
     explicit ExamplesViewController(ExampleSetModel *exampleSetModel,
                                     Core::SectionedGridView *view,

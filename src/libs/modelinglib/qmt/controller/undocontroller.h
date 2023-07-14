@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
+
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QUndoStack;
@@ -16,8 +17,6 @@ class UndoCommand;
 
 class QMT_EXPORT UndoController : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit UndoController(QObject *parent = nullptr);
     ~UndoController() override;

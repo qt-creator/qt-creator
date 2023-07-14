@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <QObject>
-
 #include "sourcepos.h"
 
 #include "qmt/infrastructure/exceptions.h"
+
+#include <QObject>
 
 namespace qmt {
 
@@ -29,7 +29,6 @@ private:
 
 class QMT_EXPORT TextScanner : public QObject
 {
-    Q_OBJECT
     class TextScannerPrivate;
 
 public:

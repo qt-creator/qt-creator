@@ -13,8 +13,6 @@ namespace qmt {
 
 class QMT_EXPORT NameController : public QObject
 {
-    Q_OBJECT
-
 private:
     explicit NameController(QObject *parent = nullptr);
     ~NameController() override;

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <QObject>
-
 #include "propertiesview.h"
 
 #include "qmt/model/mconstvisitor.h"
@@ -14,6 +12,7 @@
 #include "qmt/style/styleengine.h"
 
 #include <QList>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
@@ -36,8 +35,6 @@ class PaletteBox;
 
 class QMT_EXPORT PropertiesView::MView : public QObject, public MConstVisitor, public DConstVisitor
 {
-    Q_OBJECT
-
 public:
     explicit MView(PropertiesView *propertiesView);
     ~MView() override;

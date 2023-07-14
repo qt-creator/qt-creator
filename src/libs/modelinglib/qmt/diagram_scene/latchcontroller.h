@@ -3,10 +3,11 @@
 
 #pragma once
 
-#include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
 
 #include "capabilities/latchable.h"
+
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;
@@ -22,8 +23,6 @@ class AlignLineItem;
 
 class QMT_EXPORT LatchController : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit LatchController(QObject *parent = nullptr);
     ~LatchController() override;
@@ -44,7 +43,6 @@ private:
     void hideLatches();
     void applyLatches();
 
-private:
     DiagramSceneModel *m_diagramSceneModel = nullptr;
     AlignLineItem *m_horizontalAlignLine = nullptr;
     AlignLineItem *m_verticalAlignLine = nullptr;

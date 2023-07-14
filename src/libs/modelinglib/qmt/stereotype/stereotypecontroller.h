@@ -3,11 +3,10 @@
 
 #pragma once
 
-#include <QObject>
-
 #include "stereotypeicon.h"
 
 #include <QMarginsF>
+#include <QObject>
 
 namespace qmt {
 
@@ -17,7 +16,6 @@ class Style;
 
 class QMT_EXPORT StereotypeController : public QObject
 {
-    Q_OBJECT
     class StereotypeControllerPrivate;
 
 public:
