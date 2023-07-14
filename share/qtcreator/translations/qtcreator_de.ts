@@ -16963,143 +16963,146 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <name>QtC::Copilot</name>
     <message>
         <source>Sign In</source>
-        <translation type="unfinished"></translation>
+        <translation>Anmelden</translation>
     </message>
     <message>
         <source>A browser window will open. Enter the code %1 when asked.
 The code has been copied to your clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wird sich ein Browser-Fenster öffnen. Geben Sie auf Anfrage den Code %1 ein.
+Der Code wurde in die Zwischenablage kopiert.</translation>
     </message>
     <message>
         <source>Login Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Anmeldung fehlgeschlagen</translation>
     </message>
     <message>
         <source>The login request failed: </source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anmeldung ist fehlgeschlagen: </translation>
     </message>
     <message>
         <source>Select Previous Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorangehenden Copilot-Vorschlag auswählen</translation>
     </message>
     <message>
         <source>Select Next Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächsten Copilot-Vorschlag auswählen</translation>
     </message>
     <message>
         <source>Apply (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwenden (%1)</translation>
     </message>
     <message>
         <source>Apply Word (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wort anwenden (%1)</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished">%1 von %2</translation>
+        <translation>%1 von %2</translation>
     </message>
     <message>
         <source>Enabling %1 is subject to your agreement and abidance with your applicable %1 terms. It is your responsibility to know and accept the requirements and parameters of using tools like %1. This may include, but is not limited to, ensuring you have the rights to allow %1 access to your code, as well as understanding any implications of your use of %1 and suggestions produced (like copyright, accuracy, etc.).</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Aktivieren von %1 unterliegt Ihrer Zustimmung und der Einhaltung der für Sie geltenden Bestimmungen für die Nutzung von %1. Es liegt in Ihrer Verantwortung, die Bedingungen und Parameter für die Nutzung von Werkzeugen wie %1 zu kennen und zu akzeptieren. Dies umfasst unter anderem, aber beschränkt sich nicht darauf, sicherzustellen, dass Sie das Recht haben, %1 Zugriff zu Ihrem Code zu geben, und dass Sie die Implikationen Ihrer Nutzung von %1 und der davon erstellten Vorschläge kennen (bzgl. Urheberrecht, Copyright, Genauigkeit, usw.).</translation>
     </message>
     <message>
         <source>The Copilot plugin requires node.js and the Copilot neovim plugin. If you install the neovim plugin as described in %1, the plugin will find the agent.js file automatically.
 
 Otherwise you need to specify the path to the %2 file from the Copilot neovim plugin.</source>
         <comment>Markdown text for the copilot instruction label</comment>
-        <translation type="unfinished"></translation>
+        <translation>Das Copilot-Plugin benötigt node.js und das Copilot-Plugin für Neovim. Wenn Sie das Neovim-Plugin wie in der %1 beschrieben installieren, findet das Plugin die Datei agent.js automatisch.
+
+Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim angeben.</translation>
     </message>
     <message>
         <source>Note:</source>
-        <translation type="unfinished">Hinweis:</translation>
+        <translation>Hinweis:</translation>
     </message>
     <message>
         <source>Request Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorschlag von Copilot anfordern</translation>
     </message>
     <message>
         <source>Request Copilot suggestion at the current editor&apos;s cursor position.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fordert Vorschläge für die Cursorposition des aktuellen Editors von Copilot an.</translation>
     </message>
     <message>
         <source>Show next Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächsten Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
         <source>Cycles through the received Copilot Suggestions showing the next available Suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Iteriert über die Vorschläge von Copilot und zeigt den nächsten verfügbaren Vorschlag.</translation>
     </message>
     <message>
         <source>Show previos Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorangehenden Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
         <source>Cycles through the received Copilot Suggestions showing the previous available Suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Iteriert über die Vorschläge von Copilot und zeigt den vorangehenden verfügbaren Vorschlag.</translation>
     </message>
     <message>
         <source>Disable Copilot</source>
-        <translation type="unfinished"></translation>
+        <translation>Copilot deaktivieren</translation>
     </message>
     <message>
         <source>Disable Copilot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviere Copilot.</translation>
     </message>
     <message>
         <source>Enable Copilot</source>
-        <translation type="unfinished"></translation>
+        <translation>Copilot aktivieren</translation>
     </message>
     <message>
         <source>Enable Copilot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviere Copilot.</translation>
     </message>
     <message>
         <source>Toggle Copilot</source>
-        <translation type="unfinished"></translation>
+        <translation>Copilot umschalten</translation>
     </message>
     <message>
         <source>Copilot</source>
-        <translation type="unfinished"></translation>
+        <translation>Copilot</translation>
     </message>
     <message>
         <source>Enables the Copilot integration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert die Copilot-Integration.</translation>
     </message>
     <message>
         <source>Node.js path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu Node.js:</translation>
     </message>
     <message>
         <source>Node.js Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu Node.js</translation>
     </message>
     <message>
         <source>Select path to node.js executable. See https://nodejs.org/en/download/for installation instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie den Pfad zur ausführbaren node.js-Datei. Siehe auch https://nodejs.org/en/download/ für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Path to agent.js:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu agent.js:</translation>
     </message>
     <message>
         <source>Agent.js path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu agent.js</translation>
     </message>
     <message>
         <source>Select path to agent.js in Copilot Neovim plugin. See https://github.com/github/copilot.vim#getting-started for installation instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie den Pfad zur agent.js-Datei vom Copilot-Plugin für Neovim. Siehe auch https://github.com/github/copilot.vim#getting-started für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Auto Complete</source>
-        <translation type="unfinished">Automatische Vervollständigung</translation>
+        <translation>Automatische Vervollständigung</translation>
     </message>
     <message>
         <source>Request completions automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Vervollständigung automatisch anfordern</translation>
     </message>
     <message>
         <source>Automatically request suggestions for the current text cursor position after changes to the document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fordert Vorschläge für die aktuelle Cursorposition nach Änderungen am Dokument automatisch an.</translation>
     </message>
 </context>
 <context>
