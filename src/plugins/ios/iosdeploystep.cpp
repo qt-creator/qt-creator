@@ -137,7 +137,7 @@ private:
     IosSimulator::ConstPtr iossimulator() const;
 
     QString deviceId() const;
-    void checkProvisioningProfile();
+    bool checkProvisioningProfile();
 
     TransferStatus m_transferStatus = NoTransfer;
     IosToolHandler *m_toolHandler = nullptr;
@@ -207,7 +207,7 @@ void IosDeployStep::doRun()
             this, &IosDeployStep::handleFinished);
     connect(m_toolHandler, &IosToolHandler::errorMsg,
             this, &IosDeployStep::handleErrorMsg);
-    checkProvisioningProfile();
+    m_expectFail = !checkProvisioningProfile();
     m_toolHandler->requestTransferApp(m_bundlePath, m_deviceType.identifier);
 }
 
@@ -297,53 +297,54 @@ QString IosDeployStep::deviceId() const
     return iosdevice()->uniqueDeviceID();
 }
 
-void IosDeployStep::checkProvisioningProfile()
+bool IosDeployStep::checkProvisioningProfile()
 {
     IosDevice::ConstPtr device = iosdevice();
     if (device.isNull())
-        return;
+        return true;
 
     const FilePath provisioningFilePath = m_bundlePath.pathAppended("embedded.mobileprovision");
-
     // the file is a signed plist stored in DER format
     // we simply search for start and end of the plist instead of decoding the DER payload
     if (!provisioningFilePath.exists())
-        return;
+        return true;
+
     QFile provisionFile(provisioningFilePath.toString());
     if (!provisionFile.open(QIODevice::ReadOnly))
-        return;
-    QByteArray provisionData = provisionFile.readAll();
-    int start = provisionData.indexOf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        return true;
+
+    const QByteArray provisionData = provisionFile.readAll();
+    const int start = provisionData.indexOf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     int end = provisionData.indexOf("</plist>");
     if (start == -1 || end == -1)
-        return;
-    end += 8;
+        return true;
 
+    end += 8;
     TemporaryFile f("iosdeploy");
     if (!f.open())
-        return;
+        return true;
+
     f.write(provisionData.mid(start, end - start));
     f.flush();
-    QSettings provisionPlist(f.fileName(), QSettings::NativeFormat);
-
+    const QSettings provisionPlist(f.fileName(), QSettings::NativeFormat);
     if (!provisionPlist.contains(QLatin1String("ProvisionedDevices")))
-        return;
+        return true;
+
     const QStringList deviceIds = provisionPlist.value("ProvisionedDevices").toStringList();
     const QString targetId = device->uniqueDeviceID();
     for (const QString &deviceId : deviceIds) {
         if (deviceId == targetId)
-            return;
+            return true;
     }
 
-    m_expectFail = true;
     const QString provisioningProfile = provisionPlist.value(QLatin1String("Name")).toString();
     const QString provisioningUid = provisionPlist.value(QLatin1String("UUID")).toString();
-    CompileTask task(Task::Warning,
+    const CompileTask task(Task::Warning,
               Tr::tr("The provisioning profile \"%1\" (%2) used to sign the application "
-                 "does not cover the device %3 (%4). Deployment to it will fail.")
-              .arg(provisioningProfile, provisioningUid, device->displayName(),
-                   targetId));
+                     "does not cover the device %3 (%4). Deployment to it will fail.")
+              .arg(provisioningProfile, provisioningUid, device->displayName(), targetId));
     emit addTask(task);
+    return false;
 }
 
 IosDevice::ConstPtr IosDeployStep::iosdevice() const
