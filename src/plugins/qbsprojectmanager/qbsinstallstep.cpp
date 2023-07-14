@@ -3,16 +3,12 @@
 
 #include "qbsinstallstep.h"
 
-#include "qbsbuildconfiguration.h"
 #include "qbsbuildstep.h"
-#include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
+#include "qbsrequest.h"
 #include "qbssession.h"
 
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -24,10 +20,10 @@
 #include <QPlainTextEdit>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 // --------------------------------------------------------------------
 // QbsInstallStep:
@@ -50,44 +46,44 @@ QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Id id)
     cleanInstallRoot.setLabel(Tr::tr("Remove first"), labelPlacement);
 }
 
-QbsInstallStep::~QbsInstallStep()
-{
-    doCancel();
-    if (m_session)
-        m_session->disconnect(this);
-}
-
 bool QbsInstallStep::init()
 {
-    QTC_ASSERT(!target()->buildSystem()->isParsing() && !m_session, return false);
+    if (!BuildStep::init())
+        return false;
+    QTC_ASSERT(!target()->buildSystem()->isParsing(), return false);
     return true;
 }
 
-void QbsInstallStep::doRun()
+GroupItem QbsInstallStep::runRecipe()
 {
-    m_session = static_cast<QbsBuildSystem *>(target()->buildSystem())->session();
+    const auto onSetup = [this](QbsRequest &request) {
+        QbsSession *session = static_cast<QbsBuildSystem*>(buildSystem())->session();
+        if (!session) {
+            emit addOutput(Tr::tr("No qbs session exists for this target."),
+                           OutputFormat::ErrorMessage);
+            return SetupResult::StopWithError;
+        }
+        QJsonObject requestData;
+        requestData.insert("type", "install-project");
+        requestData.insert("install-root", installRoot().path());
+        requestData.insert("clean-install-root", cleanInstallRoot());
+        requestData.insert("keep-going", keepGoing());
+        requestData.insert("dry-run", dryRun());
 
-    QJsonObject request;
-    request.insert("type", "install-project");
-    request.insert("install-root", installRoot().path());
-    request.insert("clean-install-root", cleanInstallRoot());
-    request.insert("keep-going", keepGoing());
-    request.insert("dry-run", dryRun());
-    m_session->sendRequest(request);
+        request.setSession(session);
+        request.setRequestData(requestData);
+        connect(&request, &QbsRequest::progressChanged, this, &BuildStep::progress);
+        connect(&request, &QbsRequest::outputAdded, this,
+                [this](const QString &output, OutputFormat format) {
+            emit addOutput(output, format);
+        });
+        connect(&request, &QbsRequest::taskAdded, this, [this](const Task &task) {
+            emit addTask(task, 1);
+        });
+        return SetupResult::Continue;
+    };
 
-    m_maxProgress = 0;
-    connect(m_session, &QbsSession::projectInstalled, this, &QbsInstallStep::installDone);
-    connect(m_session, &QbsSession::taskStarted, this, &QbsInstallStep::handleTaskStarted);
-    connect(m_session, &QbsSession::taskProgress, this, &QbsInstallStep::handleProgress);
-    connect(m_session, &QbsSession::errorOccurred, this, [this] {
-        installDone(ErrorInfo(Tr::tr("Installing canceled: Qbs session failed.")));
-    });
-}
-
-void QbsInstallStep::doCancel()
-{
-    if (m_session)
-        m_session->cancelCurrentJob();
+    return QbsRequestTask(onSetup);
 }
 
 FilePath QbsInstallStep::installRoot() const
@@ -99,36 +95,6 @@ FilePath QbsInstallStep::installRoot() const
 const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
 {
     return static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration());
-}
-
-void QbsInstallStep::installDone(const ErrorInfo &error)
-{
-    m_session->disconnect(this);
-    m_session = nullptr;
-
-    for (const ErrorInfoItem &item : error.items)
-        createTaskAndOutput(Task::Error, item.description, item.filePath, item.line);
-
-    emit finished(!error.hasError());
-}
-
-void QbsInstallStep::handleTaskStarted(const QString &desciption, int max)
-{
-    m_description = desciption;
-    m_maxProgress = max;
-}
-
-void QbsInstallStep::handleProgress(int value)
-{
-    if (m_maxProgress > 0)
-        emit progress(value * 100 / m_maxProgress, m_description);
-}
-
-void QbsInstallStep::createTaskAndOutput(Task::TaskType type, const QString &message,
-                                         const FilePath &file, int line)
-{
-    emit addOutput(message, OutputFormat::Stdout);
-    emit addTask(CompileTask(type, message, file, line), 1);
 }
 
 QbsBuildStepData QbsInstallStep::stepData() const
@@ -202,5 +168,4 @@ QbsInstallStepFactory::QbsInstallStepFactory()
     setDisplayName(Tr::tr("Qbs Install"));
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

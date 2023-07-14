@@ -14,6 +14,7 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
+#include "qbssession.h"
 #include "qbssettings.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
