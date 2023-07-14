@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "conaninstallstep.h"
-#include "conansettings.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -16,7 +15,6 @@ class ConanPlugin final : public ExtensionSystem::IPlugin
 public:
     ConanPlugin()
     {
-        addManaged<ConanSettings>();
         addManaged<ConanInstallStepFactory>();
     }
 };

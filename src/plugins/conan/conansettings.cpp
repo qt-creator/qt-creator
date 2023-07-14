@@ -9,14 +9,14 @@ using namespace Utils;
 
 namespace Conan::Internal {
 
-static ConanSettings *theSettings;
-
-ConanSettings &settings() { return *theSettings; }
+ConanSettings &settings()
+{
+    static ConanSettings theSettings;
+    return theSettings;
+}
 
 ConanSettings::ConanSettings()
 {
-    theSettings = this;
-
     setSettingsGroup("ConanSettings");
     setAutoApply(false);
 
