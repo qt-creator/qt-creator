@@ -4,8 +4,6 @@
 #include "qbsbuildconfiguration.h"
 
 #include "qbsbuildstep.h"
-#include "qbscleanstep.h"
-#include "qbsinstallstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
@@ -143,10 +141,6 @@ QbsBuildConfiguration::~QbsBuildConfiguration()
     for (BuildStep * const bs : buildSteps()->steps()) {
         if (const auto qbs = qobject_cast<QbsBuildStep *>(bs))
             qbs->dropSession();
-    }
-    for (BuildStep * const cs : cleanSteps()->steps()) {
-        if (const auto qcs = qobject_cast<QbsCleanStep *>(cs))
-            qcs->dropSession();
     }
     delete m_buildSystem;
 }
