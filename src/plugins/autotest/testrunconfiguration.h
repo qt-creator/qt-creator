@@ -23,7 +23,8 @@ class TestRunConfiguration : public ProjectExplorer::RunConfiguration
 {
 public:
     TestRunConfiguration(ProjectExplorer::Target *parent, TestConfiguration *config)
-        : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
+        : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig"),
+          debuggerAspect(parent)
     {
         setDefaultDisplayName(QCoreApplication::translate("QtC::Autotest", "AutoTest Debug"));
 
@@ -31,8 +32,8 @@ public:
         if (auto debuggable = dynamic_cast<DebuggableTestConfiguration *>(config))
             enableQuick = debuggable->mixedDebugging();
 
-        auto debugAspect = addAspect<Debugger::DebuggerRunConfigurationAspect>(parent);
-        debugAspect->setUseQmlDebugger(enableQuick);
+        registerAspect(&debuggerAspect);
+        debuggerAspect.setUseQmlDebugger(enableQuick);
         ProjectExplorer::ProjectExplorerPlugin::updateRunActions();
         m_testConfig = config;
     }
@@ -50,6 +51,7 @@ public:
 
 private:
     TestConfiguration *m_testConfig = nullptr;
+    Debugger::DebuggerRunConfigurationAspect debuggerAspect;
 };
 
 } // namespace Internal
