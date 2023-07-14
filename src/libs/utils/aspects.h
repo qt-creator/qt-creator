@@ -790,14 +790,6 @@ public:
     void registerAspect(BaseAspect *aspect, bool takeOwnership = false);
     void registerAspects(const AspectContainer &aspects);
 
-    template <class Aspect, typename ...Args>
-    Aspect *addAspect(Args && ...args)
-    {
-        auto aspect = new Aspect(args...);
-        registerAspect(aspect, true);
-        return aspect;
-    }
-
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
 
