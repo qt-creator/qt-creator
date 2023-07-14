@@ -37,7 +37,6 @@ class SplashScreenContainerWidget;
 
 class PermissionsModel: public QAbstractListModel
 {
-    Q_OBJECT
 public:
     PermissionsModel(QObject *parent = nullptr);
     void setPermissions(const QStringList &permissions);

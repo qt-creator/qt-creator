@@ -15,7 +15,6 @@ class AndroidSdkManager;
 
 class AndroidSdkModel : public QAbstractItemModel
 {
-    Q_OBJECT
 public:
     enum PackageColumn {
         packageNameColumn = 0,
@@ -53,7 +52,6 @@ private:
     void clearContainers();
     void refreshData();
 
-private:
     const AndroidConfig &m_config;
     AndroidSdkManager *m_sdkManager;
     QList<const SdkPlatform *> m_sdkPlatforms;

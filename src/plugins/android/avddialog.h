@@ -24,10 +24,11 @@ class AndroidConfig;
 class SdkPlatform;
 
 namespace Internal {
+
 class AndroidSdkManager;
+
 class AvdDialog : public QDialog
 {
-    Q_OBJECT
 public:
     explicit AvdDialog(const AndroidConfig &config, QWidget *parent = nullptr);
     int exec() override;
