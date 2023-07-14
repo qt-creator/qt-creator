@@ -749,7 +749,7 @@ bool DebuggerRunTool::fixupParameters()
         }
     }
 
-    if (!debuggerSettings()->autoEnrichParameters.value()) {
+    if (debuggerSettings()->autoEnrichParameters.value()) {
         const FilePath sysroot = rp.sysRoot;
         if (rp.debugInfoLocation.isEmpty())
             rp.debugInfoLocation = sysroot / "/usr/lib/debug";
