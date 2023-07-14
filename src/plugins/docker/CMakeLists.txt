@@ -8,7 +8,7 @@ add_qtc_plugin(Docker
     dockerconstants.h
     dockerdevice.cpp dockerdevice.h
     dockerdevicewidget.cpp dockerdevicewidget.h
-    dockerplugin.cpp dockerplugin.h
+    dockerplugin.cpp
     dockersettings.cpp dockersettings.h
     kitdetector.cpp kitdetector.h
 )
