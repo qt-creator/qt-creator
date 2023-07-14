@@ -54,6 +54,8 @@ QtcPlugin {
         "qbsprojectmanagerplugin.h",
         "qbsprojectparser.cpp",
         "qbsprojectparser.h",
+        "qbsrequest.cpp",
+        "qbsrequest.h",
         "qbssession.cpp",
         "qbssession.h",
         "qbssettings.cpp",

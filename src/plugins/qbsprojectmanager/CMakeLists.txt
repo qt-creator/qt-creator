@@ -25,6 +25,7 @@ add_qtc_plugin(QbsProjectManager
     qbsprojectmanagerconstants.h
     qbsprojectmanagerplugin.cpp qbsprojectmanagerplugin.h
     qbsprojectparser.cpp qbsprojectparser.h
+    qbsrequest.cpp qbsrequest.h
     qbssession.cpp qbssession.h
     qbssettings.cpp qbssettings.h
 )
