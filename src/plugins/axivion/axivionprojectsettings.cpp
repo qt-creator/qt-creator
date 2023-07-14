@@ -17,6 +17,8 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Axivion::Internal {
 
 const char PSK_PROJECTNAME[] = "Axivion.ProjectName";
@@ -45,7 +47,6 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Proj
                                                            QWidget *parent)
     : ProjectExplorer::ProjectSettingsWidget{parent}
     , m_projectSettings(AxivionPlugin::projectSettings(project))
-    , m_globalSettings(AxivionPlugin::settings())
 {
     setUseGlobalSettingsCheckBoxVisible(false);
     setUseGlobalSettingsLabelVisible(true);
@@ -87,7 +88,7 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Proj
             this, &AxivionProjectSettingsWidget::linkProject);
     connect(m_unlink, &QPushButton::clicked,
             this, &AxivionProjectSettingsWidget::unlinkProject);
-    connect(AxivionPlugin::instance(), &AxivionPlugin::settingsChanged,
+    connect(&settings(), &AspectContainer::changed,
             this, &AxivionProjectSettingsWidget::onSettingsChanged);
 
     updateUi();
@@ -163,9 +164,9 @@ void AxivionProjectSettingsWidget::updateUi()
 
 void AxivionProjectSettingsWidget::updateEnabledStates()
 {
-    const bool hasDashboardSettings = m_globalSettings->curl().isExecutableFile()
-            && !m_globalSettings->server.dashboard.isEmpty()
-            && !m_globalSettings->server.token.isEmpty();
+    const bool hasDashboardSettings = settings().curl().isExecutableFile()
+            && !settings().server.dashboard.isEmpty()
+            && !settings().server.token.isEmpty();
     const bool linked = !m_projectSettings->dashboardProjectName().isEmpty();
     const bool linkable = m_dashboardProjects->topLevelItemCount()
             && !m_dashboardProjects->selectedItems().isEmpty();

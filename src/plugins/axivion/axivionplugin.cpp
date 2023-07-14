@@ -7,8 +7,6 @@
 #include "axivionprojectsettings.h"
 #include "axivionquery.h"
 #include "axivionresultparser.h"
-#include "axivionsettings.h"
-#include "axivionsettingspage.h"
 #include "axiviontr.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
@@ -50,15 +48,12 @@ public:
     void handleIssuesForFile(const IssuesList &issues);
     void fetchRuleInfo(const QString &id);
 
-    AxivionSettings m_axivionSettings;
-    AxivionSettingsPage m_axivionSettingsPage{&m_axivionSettings};
     AxivionOutputPane m_axivionOutputPane;
     QHash<ProjectExplorer::Project *, AxivionProjectSettings *> m_axivionProjectSettings;
     ProjectInfo m_currentProjectInfo;
     bool m_runningQuery = false;
 };
 
-static AxivionPlugin *s_instance = nullptr;
 static AxivionPluginPrivate *dd = nullptr;
 
 class AxivionTextMark : public TextEditor::TextMark
@@ -89,11 +84,6 @@ AxivionTextMark::AxivionTextMark(const Utils::FilePath &filePath, const ShortIss
     });
 }
 
-AxivionPlugin::AxivionPlugin()
-{
-    s_instance = this;
-}
-
 AxivionPlugin::~AxivionPlugin()
 {
     if (dd && !dd->m_axivionProjectSettings.isEmpty()) {
@@ -104,18 +94,12 @@ AxivionPlugin::~AxivionPlugin()
     dd = nullptr;
 }
 
-AxivionPlugin *AxivionPlugin::instance()
-{
-    return s_instance;
-}
-
 bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
     dd = new AxivionPluginPrivate;
-    dd->m_axivionSettings.fromSettings();
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
     panelFactory->setPriority(250);
@@ -132,12 +116,6 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
     connect(Core::EditorManager::instance(), &Core::EditorManager::documentClosed,
             dd, &AxivionPluginPrivate::onDocumentClosed);
     return true;
-}
-
-AxivionSettings *AxivionPlugin::settings()
-{
-    QTC_ASSERT(dd, return nullptr);
-    return &dd->m_axivionSettings;
 }
 
 AxivionProjectSettings *AxivionPlugin::projectSettings(ProjectExplorer::Project *project)

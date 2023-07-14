@@ -55,7 +55,6 @@ private:
     void updateEnabledStates();
 
     AxivionProjectSettings *m_projectSettings = nullptr;
-    AxivionSettings *m_globalSettings;
     QLabel *m_linkedProject = nullptr;
     QTreeWidget *m_dashboardProjects = nullptr;
     QPushButton *m_fetchProjects = nullptr;

@@ -40,11 +40,13 @@ class AxivionSettings : public Utils::AspectContainer
 {
 public:
     AxivionSettings();
+
     void toSettings() const;
-    void fromSettings();
 
     AxivionServer server; // shall we have more than one?
     Utils::FilePathAspect curl{this};
 };
+
+AxivionSettings &settings();
 
 } // Axivion::Internal

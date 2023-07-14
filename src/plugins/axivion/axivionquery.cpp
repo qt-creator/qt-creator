@@ -56,8 +56,7 @@ QString AxivionQuery::toString() const
 
 static bool handleCertificateIssue()
 {
-    AxivionSettings *settings = AxivionPlugin::settings();
-    const QString serverHost = QUrl(settings->server.dashboard).host();
+    const QString serverHost = QUrl(settings().server.dashboard).host();
     if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
                               Tr::tr("Server certificate for %1 cannot be authenticated.\n"
                                      "Do you want to disable SSL verification for this server?\n"
@@ -66,8 +65,8 @@ static bool handleCertificateIssue()
             != QMessageBox::Yes) {
         return false;
     }
-    settings->server.validateCert = false;
-    settings->apply();
+    settings().server.validateCert = false;
+    settings().apply();
 
     return true;
 }
@@ -75,8 +74,7 @@ static bool handleCertificateIssue()
 AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *parent)
     : QObject(parent)
 {
-    const AxivionSettings *settings = AxivionPlugin::settings();
-    const AxivionServer server = settings->server;
+    const AxivionServer server = settings().server;
 
     QStringList args = server.curlArguments();
     args << "-i";
@@ -87,7 +85,7 @@ AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *paren
     url += query.toString();
     args << url;
 
-    m_process.setCommand({settings->curl(), args});
+    m_process.setCommand({settings().curl(), args});
     connect(&m_process, &Process::done, this, [this]{
         if (m_process.result() != ProcessResult::FinishedWithSuccess) {
             const int exitCode = m_process.exitCode();

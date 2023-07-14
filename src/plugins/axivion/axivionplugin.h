@@ -9,7 +9,6 @@ namespace ProjectExplorer { class Project; }
 
 namespace Axivion::Internal {
 
-class AxivionSettings;
 class AxivionProjectSettings;
 class ProjectInfo;
 
@@ -19,17 +18,13 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Axivion.json")
 
 public:
-    AxivionPlugin();
+    AxivionPlugin() {}
     ~AxivionPlugin() final;
 
-    static AxivionPlugin *instance();
-    static AxivionSettings *settings();
     static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
 
     static void fetchProjectInfo(const QString &projectName);
     static ProjectInfo projectInfo();
-signals:
-    void settingsChanged();
 
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
