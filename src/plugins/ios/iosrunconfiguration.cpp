@@ -56,25 +56,20 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
 }
 
 IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
+    : RunConfiguration(target, id), iosDeviceType(this, this)
 {
-    auto executableAspect = addAspect<ExecutableAspect>();
-    executableAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
+    executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-    auto argsAspect = addAspect<ArgumentsAspect>();
-    argsAspect->setMacroExpander(macroExpander());
+    arguments.setMacroExpander(macroExpander());
 
-    m_deviceTypeAspect = addAspect<IosDeviceTypeAspect>(this);
-
-    setUpdater([this, target, executableAspect] {
+    setUpdater([this, target] {
         IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
         const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
         setDefaultDisplayName(Tr::tr("Run on %1").arg(devName));
         setDisplayName(Tr::tr("Run %1 on %2").arg(applicationName()).arg(devName));
 
-        executableAspect->setExecutable(localExecutable());
-
-        m_deviceTypeAspect->updateDeviceType();
+        executable.setExecutable(localExecutable());
+        iosDeviceType.updateDeviceType();
     });
 }
 
@@ -279,7 +274,7 @@ QString IosRunConfiguration::disabledReason() const
 
 IosDeviceType IosRunConfiguration::deviceType() const
 {
-    return m_deviceTypeAspect->deviceType();
+    return iosDeviceType.deviceType();
 }
 
 IosDeviceType IosDeviceTypeAspect::deviceType() const
@@ -311,8 +306,8 @@ void IosDeviceTypeAspect::setDeviceType(const IosDeviceType &deviceType)
     m_deviceType = deviceType;
 }
 
-IosDeviceTypeAspect::IosDeviceTypeAspect(IosRunConfiguration *runConfiguration)
-    : m_runConfiguration(runConfiguration)
+IosDeviceTypeAspect::IosDeviceTypeAspect(AspectContainer *container, IosRunConfiguration *rc)
+    : BaseAspect(container), m_runConfiguration(rc)
 {
     addDataExtractor(this, &IosDeviceTypeAspect::deviceType, &Data::deviceType);
     addDataExtractor(this, &IosDeviceTypeAspect::bundleDirectory, &Data::bundleDirectory);

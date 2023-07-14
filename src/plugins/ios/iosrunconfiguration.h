@@ -8,6 +8,7 @@
 #include "iossimulator.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/fileutils.h>
 
@@ -23,7 +24,8 @@ class IosDeviceTypeAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    explicit IosDeviceTypeAspect(IosRunConfiguration *runConfiguration);
+    explicit IosDeviceTypeAspect(Utils::AspectContainer *container,
+                                 IosRunConfiguration *runConfiguration);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
@@ -74,7 +76,9 @@ public:
 private:
     bool isEnabled() const final;
 
-    IosDeviceTypeAspect *m_deviceTypeAspect = nullptr;
+    ProjectExplorer::ExecutableAspect executable{this};
+    ProjectExplorer::ArgumentsAspect arguments{this};
+    IosDeviceTypeAspect iosDeviceType;
 };
 
 class IosRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
