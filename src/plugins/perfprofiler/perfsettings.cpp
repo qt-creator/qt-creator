@@ -99,10 +99,10 @@ void PerfSettings::addPerfRecordArguments(CommandLine *cmd) const
 {
     QString callgraphArg = callgraphMode.itemValue().toString();
     if (callgraphArg == Constants::PerfCallgraphDwarf)
-        callgraphArg += "," + QString::number(stackSize.value());
+        callgraphArg += "," + QString::number(stackSize());
 
     QString events;
-    for (const QString &event : this->events.value()) {
+    for (const QString &event : this->events()) {
         if (!event.isEmpty()) {
             if (!events.isEmpty())
                 events.append(',');
@@ -113,7 +113,7 @@ void PerfSettings::addPerfRecordArguments(CommandLine *cmd) const
     cmd->addArgs({"-e", events,
                   "--call-graph", callgraphArg,
                   sampleMode.itemValue().toString(),
-                  QString::number(period.value())});
+                  QString::number(period())});
     cmd->addArgs(extraArguments(), CommandLine::Raw);
 }
 

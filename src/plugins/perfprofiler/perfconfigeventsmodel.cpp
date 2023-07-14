@@ -22,7 +22,7 @@ PerfConfigEventsModel::PerfConfigEventsModel(PerfSettings *settings, QObject *pa
 
 int PerfConfigEventsModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_settings->events.value().length();
+    return parent.isValid() ? 0 : m_settings->events().length();
 }
 
 int PerfConfigEventsModel::columnCount(const QModelIndex &parent) const
@@ -40,7 +40,7 @@ QVariant PerfConfigEventsModel::data(const QModelIndex &index, int role) const
         return QVariant(); // ignore
     }
 
-    QString event = m_settings->events.value().value(index.row());
+    QString event = m_settings->events().value(index.row());
     const EventDescription description = parseEvent(event);
     switch (index.column()) {
     case ColumnEventType: {
