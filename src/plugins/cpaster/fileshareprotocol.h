@@ -4,7 +4,6 @@
 #pragma once
 
 #include "protocol.h"
-#include "fileshareprotocolsettingspage.h"
 
 namespace CodePaster {
 
@@ -30,9 +29,6 @@ public:
                const QString &username = QString(),
                const QString &comment = QString(),
                const QString &description = QString()) override;
-
-private:
-    FileShareProtocolSettings m_settings;
 };
 
 } // CodePaster

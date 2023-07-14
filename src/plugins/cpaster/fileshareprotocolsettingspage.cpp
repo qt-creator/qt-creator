@@ -13,11 +13,15 @@ using namespace Utils;
 
 namespace CodePaster {
 
+FileShareProtocolSettings &fileShareSettings()
+{
+    static FileShareProtocolSettings theSettings;
+    return theSettings;
+}
+
 FileShareProtocolSettings::FileShareProtocolSettings()
 {
-    setId("X.CodePaster.FileSharePaster");
-    setDisplayName(Tr::tr("Fileshare"));
-    setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
+    setAutoApply(false);
     setSettingsGroup("FileSharePasterSettings");
 
     path.setSettingsKey("Path");
@@ -49,6 +53,24 @@ FileShareProtocolSettings::FileShareProtocolSettings()
     });
 
     readSettings();
+}
+
+class FileShareProtocolSettingsPage final : public Core::IOptionsPage
+{
+public:
+    FileShareProtocolSettingsPage()
+    {
+        setId("X.CodePaster.FileSharePaster");
+        setDisplayName(Tr::tr("Fileshare"));
+        setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &fileShareSettings(); });
+    }
+};
+
+Core::IOptionsPage &fileShareSettingsPage()
+{
+    static FileShareProtocolSettingsPage theSettings;
+    return theSettings;
 }
 
 } // namespace CodePaster
