@@ -28,47 +28,45 @@ class RemoteLinuxRunConfiguration final : public RunConfiguration
 {
 public:
     RemoteLinuxRunConfiguration(Target *target, Id id);
+
+    RemoteLinuxEnvironmentAspect environment{this};
+    ExecutableAspect executable{this};
+    SymbolFileAspect symbolFile{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
+    X11ForwardingAspect x11Forwarding{this};
+    UseLibraryPathsAspect useLibraryPath{this};
 };
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>();
-    envAspect->setDeviceSelector(target, EnvironmentAspect::RunDevice);
+    environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
 
-    auto exeAspect = addAspect<ExecutableAspect>();
-    exeAspect->setDeviceSelector(target, ExecutableAspect::RunDevice);
-    exeAspect->setLabelText(Tr::tr("Executable on device:"));
-    exeAspect->setPlaceHolderText(Tr::tr("Remote path not set"));
-    exeAspect->makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
+    executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+    executable.setLabelText(Tr::tr("Executable on device:"));
+    executable.setPlaceHolderText(Tr::tr("Remote path not set"));
+    executable.makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
                                "RemoteLinux.RunConfig.UseAlternateRemoteExecutable");
-    exeAspect->setHistoryCompleter("RemoteLinux.AlternateExecutable.History");
+    executable.setHistoryCompleter("RemoteLinux.AlternateExecutable.History");
 
-    auto symbolsAspect = addAspect<SymbolFileAspect>();
-    symbolsAspect->setLabelText(Tr::tr("Executable on host:"));
-    symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
+    symbolFile.setLabelText(Tr::tr("Executable on host:"));
+    symbolFile.setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
-    auto argsAspect = addAspect<ArgumentsAspect>();
-    argsAspect->setMacroExpander(macroExpander());
+    arguments.setMacroExpander(macroExpander());
 
-    auto workingDirAspect = addAspect<WorkingDirectoryAspect>();
-    workingDirAspect->setMacroExpander(macroExpander());
-    workingDirAspect->setEnvironment(envAspect);
+    workingDir.setMacroExpander(macroExpander());
+    workingDir.setEnvironment(&environment);
 
-    if (HostOsInfo::isAnyUnixHost())
-        addAspect<TerminalAspect>();
+    terminal.setVisible(HostOsInfo::isAnyUnixHost());
 
-    if (HostOsInfo::isAnyUnixHost()) {
-        auto x11Forwarding = addAspect<X11ForwardingAspect>();
-        x11Forwarding->setMacroExpander(macroExpander());
-    }
+    x11Forwarding.setMacroExpander(macroExpander());
 
-    auto libAspect = addAspect<UseLibraryPathsAspect>();
-    libAspect->setValue(false);
-    connect(libAspect, &UseLibraryPathsAspect::changed,
-            envAspect, &EnvironmentAspect::environmentChanged);
+    connect(&useLibraryPath, &BaseAspect::changed,
+            &environment, &EnvironmentAspect::environmentChanged);
 
-    setUpdater([this, target, exeAspect, symbolsAspect, libAspect] {
+    setUpdater([this, target] {
         const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(target->kit());
         const IDeviceConstPtr runDevice = DeviceKitAspect::device(target->kit());
         QTC_ASSERT(buildDevice, return);
@@ -78,15 +76,15 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
         const DeploymentData deploymentData = target->deploymentData();
         const DeployableFile depFile = deploymentData.deployableForLocalFile(localExecutable);
 
-        exeAspect->setExecutable(runDevice->filePath(depFile.remoteFilePath()));
-        symbolsAspect->setValue(localExecutable);
-        libAspect->setEnabled(buildDevice == runDevice);
+        executable.setExecutable(runDevice->filePath(depFile.remoteFilePath()));
+        symbolFile.setValue(localExecutable);
+        useLibraryPath.setEnabled(buildDevice == runDevice);
     });
 
-    envAspect->addModifier([this, libAspect](Environment &env) {
+    environment.addModifier([this](Environment &env) {
         BuildTargetInfo bti = buildTargetInfo();
         if (bti.runEnvModifier)
-            bti.runEnvModifier(env, libAspect->value());
+            bti.runEnvModifier(env, useLibraryPath());
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
