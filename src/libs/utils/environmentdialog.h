@@ -7,18 +7,16 @@
 
 #include "environmentfwd.h"
 #include "namevaluesdialog.h"
-#include <thread>
 
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT EnvironmentDialog : public NameValuesDialog
 {
-    Q_OBJECT
 public:
     static std::optional<EnvironmentItems> getEnvironmentItems(QWidget *parent = nullptr,
-                                                                 const EnvironmentItems &initial = {},
-                                                                 const QString &placeholderText = {},
-                                                                 Polisher polish = {});
+                                                                const EnvironmentItems &initial = {},
+                                                                const QString &placeholderText = {},
+                                                                Polisher polish = {});
 };
 
 } // namespace Utils

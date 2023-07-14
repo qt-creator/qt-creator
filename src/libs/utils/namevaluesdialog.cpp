@@ -15,7 +15,6 @@
 #include <QVBoxLayout>
 
 namespace Utils {
-
 namespace Internal {
 
 static EnvironmentItems cleanUp(const EnvironmentItems &items)
@@ -34,6 +33,20 @@ static EnvironmentItems cleanUp(const EnvironmentItems &items)
     }
     return uniqueItems;
 }
+
+class NameValueItemsWidget : public QWidget
+{
+public:
+    explicit NameValueItemsWidget(QWidget *parent = nullptr);
+
+    void setEnvironmentItems(const EnvironmentItems &items);
+    EnvironmentItems environmentItems() const;
+
+    void setPlaceholderText(const QString &text);
+
+private:
+    QPlainTextEdit *m_editor;
+};
 
 NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     : QWidget(parent)
@@ -63,6 +76,7 @@ void NameValueItemsWidget::setPlaceholderText(const QString &text)
 {
     m_editor->setPlaceholderText(text);
 }
+
 } // namespace Internal
 
 NameValuesDialog::NameValuesDialog(const QString &windowTitle, const QString &helpText, QWidget *parent)
