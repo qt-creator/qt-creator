@@ -60,10 +60,12 @@ public:
         autoFormatOnlyCurrentProject.setSettingsKey("autoFormatOnlyCurrentProject");
         autoFormatOnlyCurrentProject.setDefaultValue(true);
         autoFormatOnlyCurrentProject.setLabelText(Tr::tr("Restrict to files contained in the current project"));
+        autoFormatOnlyCurrentProject.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
         autoFormatMime.setSettingsKey("autoFormatMime");
         autoFormatMime.setDefaultValue("text/x-cmake");
         autoFormatMime.setLabelText(Tr::tr("Restrict to MIME types:"));
+        autoFormatMime.setDisplayStyle(StringAspect::LineEditDisplay);
 
         setLayouter([this] {
             using namespace Layouting;
@@ -73,9 +75,12 @@ public:
                 Group {
                     title(Tr::tr("Automatic Formatting on File Save")),
                     autoFormatOnSave.groupChecker(),
-                    Form {
-                        autoFormatMime, br,
-                        Span(2, autoFormatOnlyCurrentProject)
+                    // Conceptually, that's a Form, but this would look odd:
+                    // xxxxxx [____]
+                    //        [x] xxxxxxxxxxxxxx
+                    Column {
+                        Row { autoFormatMime },
+                        autoFormatOnlyCurrentProject
                     }
                 },
                 st
