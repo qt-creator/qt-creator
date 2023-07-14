@@ -92,7 +92,7 @@ void CopilotClient::openDocument(TextDocument *document)
             this,
             [this, document](int position, int charsRemoved, int charsAdded) {
                 Q_UNUSED(charsRemoved)
-                if (!CopilotSettings::instance().autoComplete())
+                if (!settings().autoComplete())
                     return;
 
                 auto project = ProjectManager::projectForFile(document->filePath());
@@ -263,7 +263,7 @@ bool CopilotClient::canOpenProject(Project *project)
 bool CopilotClient::isEnabled(Project *project)
 {
     if (!project)
-        return CopilotSettings::instance().enableCopilot();
+        return settings().enableCopilot();
 
     CopilotProjectSettings settings(project);
     return settings.isEnabled();

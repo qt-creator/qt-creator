@@ -5,9 +5,7 @@
 
 #include <utils/aspects.h>
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace Copilot {
 
@@ -16,13 +14,13 @@ class CopilotSettings : public Utils::AspectContainer
 public:
     CopilotSettings();
 
-    static CopilotSettings &instance();
-
     Utils::FilePathAspect nodeJsPath{this};
     Utils::FilePathAspect distPath{this};
     Utils::BoolAspect autoComplete{this};
     Utils::BoolAspect enableCopilot{this};
 };
+
+CopilotSettings &settings();
 
 class CopilotProjectSettings : public Utils::AspectContainer
 {

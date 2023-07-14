@@ -6,7 +6,6 @@
 #include "copilotclient.h"
 #include "copilotconstants.h"
 #include "copiloticons.h"
-#include "copilotoptionspage.h"
 #include "copilotprojectpanel.h"
 #include "copilotsettings.h"
 #include "copilotsuggestion.h"
@@ -34,6 +33,7 @@ namespace Copilot {
 namespace Internal {
 
 enum Direction { Previous, Next };
+
 void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
 {
     QTextBlock block = editor->textCursor().block();
@@ -57,14 +57,9 @@ void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
 
 void CopilotPlugin::initialize()
 {
-    CopilotSettings::instance().readSettings();
-
     restartClient();
 
-    connect(&CopilotSettings::instance(),
-            &CopilotSettings::applied,
-            this,
-            &CopilotPlugin::restartClient);
+    connect(&settings(), &AspectContainer::applied, this, &CopilotPlugin::restartClient);
 
     QAction *requestAction = new QAction(this);
     requestAction->setText(Tr::tr("Request Copilot Suggestion"));
@@ -108,8 +103,8 @@ void CopilotPlugin::initialize()
     disableAction->setText(Tr::tr("Disable Copilot"));
     disableAction->setToolTip(Tr::tr("Disable Copilot."));
     connect(disableAction, &QAction::triggered, this, [] {
-        CopilotSettings::instance().enableCopilot.setValue(true);
-        CopilotSettings::instance().apply();
+        settings().enableCopilot.setValue(true);
+        settings().apply();
     });
     ActionManager::registerAction(disableAction, Constants::COPILOT_DISABLE);
 
@@ -117,32 +112,31 @@ void CopilotPlugin::initialize()
     enableAction->setText(Tr::tr("Enable Copilot"));
     enableAction->setToolTip(Tr::tr("Enable Copilot."));
     connect(enableAction, &QAction::triggered, this, [] {
-        CopilotSettings::instance().enableCopilot.setValue(false);
-        CopilotSettings::instance().apply();
+        settings().enableCopilot.setValue(false);
+        settings().apply();
     });
     ActionManager::registerAction(enableAction, Constants::COPILOT_ENABLE);
 
     QAction *toggleAction = new QAction(this);
     toggleAction->setText(Tr::tr("Toggle Copilot"));
     toggleAction->setCheckable(true);
-    toggleAction->setChecked(CopilotSettings::instance().enableCopilot.value());
+    toggleAction->setChecked(settings().enableCopilot());
     toggleAction->setIcon(COPILOT_ICON.icon());
     connect(toggleAction, &QAction::toggled, this, [](bool checked) {
-        CopilotSettings::instance().enableCopilot.setValue(checked);
-        CopilotSettings::instance().apply();
+        settings().enableCopilot.setValue(checked);
+        settings().apply();
     });
 
     ActionManager::registerAction(toggleAction, Constants::COPILOT_TOGGLE);
 
     auto updateActions = [toggleAction, requestAction] {
-        const bool enabled = CopilotSettings::instance().enableCopilot.value();
+        const bool enabled = settings().enableCopilot();
         toggleAction->setToolTip(enabled ? Tr::tr("Disable Copilot.") : Tr::tr("Enable Copilot."));
         toggleAction->setChecked(enabled);
         requestAction->setEnabled(enabled);
     };
 
-    connect(&CopilotSettings::instance().enableCopilot, &BaseAspect::changed,
-            this, updateActions);
+    connect(&settings().enableCopilot, &BaseAspect::changed, this, updateActions);
 
     updateActions();
 
@@ -157,19 +151,13 @@ void CopilotPlugin::initialize()
     ProjectPanelFactory::registerFactory(panelFactory);
 }
 
-void CopilotPlugin::extensionsInitialized()
-{
-    (void)CopilotOptionsPage::instance();
-}
-
 void CopilotPlugin::restartClient()
 {
     LanguageClient::LanguageClientManager::shutdownClient(m_client);
 
-    if (!CopilotSettings::instance().nodeJsPath().isExecutableFile())
+    if (!settings().nodeJsPath().isExecutableFile())
         return;
-    m_client = new CopilotClient(CopilotSettings::instance().nodeJsPath(),
-                                 CopilotSettings::instance().distPath());
+    m_client = new CopilotClient(settings().nodeJsPath(), settings().distPath());
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CopilotPlugin::aboutToShutdown()

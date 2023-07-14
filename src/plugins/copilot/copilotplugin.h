@@ -19,7 +19,6 @@ class CopilotPlugin : public ExtensionSystem::IPlugin
 
 public:
     void initialize() override;
-    void extensionsInitialized() override;
     void restartClient();
     ShutdownFlag aboutToShutdown() override;
 
