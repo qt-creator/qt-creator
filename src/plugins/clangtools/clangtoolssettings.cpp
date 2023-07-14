@@ -23,8 +23,6 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-const char clangTidyExecutableKey[] = "ClangTidyExecutable";
-const char clazyStandaloneExecutableKey[] = "ClazyStandaloneExecutable";
 
 const char parallelJobsKey[] = "ParallelJobs";
 const char preferConfigFileKey[] = "PreferConfigFile";
@@ -89,15 +87,21 @@ bool RunSettings::hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) 
     return false;
 }
 
-ClangToolsSettings::ClangToolsSettings()
-{
-    readSettings();
-}
-
 ClangToolsSettings *ClangToolsSettings::instance()
 {
     static ClangToolsSettings instance;
     return &instance;
+}
+
+ClangToolsSettings::ClangToolsSettings()
+{
+    setSettingsGroup(Constants::SETTINGS_ID);
+
+    clangTidyExecutable.setSettingsKey("ClangTidyExecutable");
+
+    clazyStandaloneExecutable.setSettingsKey("ClazyStandaloneExecutable");
+
+    readSettings();
 }
 
 static QVariantMap convertToMapFromVersionBefore410(QSettings *s)
@@ -141,10 +145,10 @@ void ClangToolsSettings::readSettings()
     if (!importedConfigs.isEmpty())
         write = true;
 
+    AspectContainer::readSettings();
+
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
-    m_clangTidyExecutable = FilePath::fromSettings(s->value(clangTidyExecutableKey));
-    m_clazyStandaloneExecutable = FilePath::fromSettings(s->value(clazyStandaloneExecutableKey));
     m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
 
     QVariantMap map;
@@ -174,11 +178,11 @@ void ClangToolsSettings::readSettings()
 
 void ClangToolsSettings::writeSettings()
 {
+    AspectContainer::writeSettings();
+
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
 
-    s->setValue(clangTidyExecutableKey, m_clangTidyExecutable.toSettings());
-    s->setValue(clazyStandaloneExecutableKey, m_clazyStandaloneExecutable.toSettings());
     diagnosticConfigsToSettings(s, m_diagnosticConfigs);
 
     QVariantMap map;
@@ -193,16 +197,16 @@ void ClangToolsSettings::writeSettings()
 
 FilePath ClangToolsSettings::executable(ClangToolType tool) const
 {
-    return tool == ClangToolType::Tidy ? m_clangTidyExecutable : m_clazyStandaloneExecutable;
+    return tool == ClangToolType::Tidy ? clangTidyExecutable() : clazyStandaloneExecutable();
 }
 
 void ClangToolsSettings::setExecutable(ClangToolType tool, const FilePath &path)
 {
     if (tool == ClangToolType::Tidy) {
-        m_clangTidyExecutable = path;
+        clangTidyExecutable.setValue(path);
         m_clangTidyVersion = {};
     } else {
-        m_clazyStandaloneExecutable = path;
+        clazyStandaloneExecutable.setValue(path);
         m_clazyVersion = {};
     }
 }

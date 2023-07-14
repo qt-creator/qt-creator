@@ -5,6 +5,7 @@
 
 #include <cppeditor/clangdiagnosticconfig.h>
 
+#include <utils/aspects.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
 
@@ -55,13 +56,18 @@ private:
     bool m_analyzeOpenFiles = true;
 };
 
-class ClangToolsSettings : public QObject
+class ClangToolsSettings : public Utils::AspectContainer
 {
     Q_OBJECT
 
+    ClangToolsSettings();
 public:
     static ClangToolsSettings *instance();
     void writeSettings();
+
+    // Executables
+    Utils::FilePathAspect clangTidyExecutable{this};
+    Utils::FilePathAspect clazyStandaloneExecutable{this};
 
     Utils::FilePath executable(CppEditor::ClangToolType tool) const;
     void setExecutable(CppEditor::ClangToolType tool, const Utils::FilePath &path);
@@ -80,12 +86,7 @@ signals:
     void changed();
 
 private:
-    ClangToolsSettings();
     void readSettings();
-
-    // Executables
-    Utils::FilePath m_clangTidyExecutable;
-    Utils::FilePath m_clazyStandaloneExecutable;
 
     // Diagnostic Configs
     CppEditor::ClangDiagnosticConfigs m_diagnosticConfigs;
