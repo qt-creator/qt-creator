@@ -58,14 +58,14 @@ public:
     using Ptr = QSharedPointer<DockerDevice>;
     using ConstPtr = QSharedPointer<const DockerDevice>;
 
-    explicit DockerDevice(DockerSettings *settings, const DockerDeviceData &data);
+    explicit DockerDevice(const DockerDeviceData &data);
     ~DockerDevice();
 
     void shutdown();
 
-    static Ptr create(DockerSettings *settings, const DockerDeviceData &data)
+    static Ptr create(const DockerDeviceData &data)
     {
-        return Ptr(new DockerDevice(settings, data));
+        return Ptr(new DockerDevice(data));
     }
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
@@ -114,7 +114,7 @@ private:
 class DockerDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
 public:
-    DockerDeviceFactory(DockerSettings *settings);
+    DockerDeviceFactory();
 
     void shutdownExistingDevices();
 

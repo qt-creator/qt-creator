@@ -20,7 +20,7 @@ class DockerApi : public QObject
     Q_OBJECT
 
 public:
-    DockerApi(DockerSettings *settings);
+    DockerApi();
 
     static DockerApi *instance();
 
@@ -40,7 +40,6 @@ private:
 
     std::optional<bool> m_dockerDaemonAvailable;
     QMutex m_daemonCheckGuard;
-    DockerSettings *m_settings;
 };
 
 } // Docker::Internal

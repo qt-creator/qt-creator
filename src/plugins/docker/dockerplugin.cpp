@@ -6,7 +6,6 @@
 #include "dockerapi.h"
 #include "dockerconstants.h"
 #include "dockerdevice.h"
-#include "dockersettings.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -22,13 +21,13 @@ namespace Docker::Internal {
 class DockerPluginPrivate
 {
 public:
-    ~DockerPluginPrivate() {
+    ~DockerPluginPrivate()
+    {
         m_deviceFactory.shutdownExistingDevices();
     }
 
-    DockerSettings m_settings;
-    DockerDeviceFactory m_deviceFactory{&m_settings};
-    DockerApi m_dockerApi{&m_settings};
+    DockerDeviceFactory m_deviceFactory;
+    DockerApi m_dockerApi;
 };
 
 DockerPlugin::DockerPlugin()

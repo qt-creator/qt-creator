@@ -90,16 +90,15 @@ namespace Docker::Internal {
 class ContainerShell : public Utils::DeviceShell
 {
 public:
-    ContainerShell(DockerSettings *settings, const QString &containerId, const FilePath &devicePath)
-        : m_settings(settings)
-        , m_containerId(containerId)
+    ContainerShell(const QString &containerId, const FilePath &devicePath)
+        : m_containerId(containerId)
         , m_devicePath(devicePath)
     {}
 
 private:
     void setupShellProcess(Process *shellProcess) final
     {
-        shellProcess->setCommand({m_settings->dockerBinaryPath(),
+        shellProcess->setCommand({settings().dockerBinaryPath(),
                                   {"container", "start", "-i", "-a", m_containerId}});
     }
 
@@ -111,7 +110,6 @@ private:
     }
 
 private:
-    DockerSettings *m_settings;
     QString m_containerId;
     FilePath m_devicePath;
 };
@@ -133,10 +131,9 @@ public:
 class DockerDevicePrivate : public QObject
 {
 public:
-    DockerDevicePrivate(DockerDevice *parent, DockerSettings *settings, DockerDeviceData data)
+    DockerDevicePrivate(DockerDevice *parent, DockerDeviceData data)
         : q(parent)
         , m_data(std::move(data))
-        , m_settings(settings)
     {}
 
     ~DockerDevicePrivate() { stopCurrentContainer(); }
@@ -152,7 +149,6 @@ public:
     QString containerId() { return m_container; }
     DockerDeviceData data() { return m_data; }
     void setData(const DockerDeviceData &data);
-    DockerSettings *settings() { return m_settings; }
 
     QString repoAndTag() const { return m_data.repoAndTag(); }
     QString repoAndTagEncoded() const { return m_data.repoAndTagEncoded(); }
@@ -190,7 +186,6 @@ public:
 
     DockerDevice *const q;
     DockerDeviceData m_data;
-    DockerSettings *m_settings;
 
     struct TemporaryMountInfo
     {
@@ -414,8 +409,8 @@ QString DockerDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
     return newPath;
 }
 
-DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &data)
-    : d(new DockerDevicePrivate(this, settings, data))
+DockerDevice::DockerDevice(const DockerDeviceData &data)
+    : d(new DockerDevicePrivate(this, data))
 {
     setFileAccess(&d->m_fileAccess);
     setDisplayType(Tr::tr("Docker"));
@@ -492,13 +487,10 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
                                                    bool withPty,
                                                    bool withMarker)
 {
-    if (!m_settings)
-        return {};
-
     if (!updateContainerAccess())
         return {};
 
-    CommandLine dockerCmd{m_settings->dockerBinaryPath(), {"exec"}};
+    CommandLine dockerCmd{settings().dockerBinaryPath(), {"exec"}};
 
     if (interactive)
         dockerCmd.addArg("-i");
@@ -538,8 +530,6 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
 
 void DockerDevicePrivate::stopCurrentContainer()
 {
-    if (!m_settings)
-        return;
     if (m_container.isEmpty())
         return;
     if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
@@ -555,7 +545,7 @@ void DockerDevicePrivate::stopCurrentContainer()
     }
 
     Process proc;
-    proc.setCommand({m_settings->dockerBinaryPath(), {"container", "stop", m_container}});
+    proc.setCommand({settings().dockerBinaryPath(), {"container", "stop", m_container}});
 
     m_container.clear();
 
@@ -660,7 +650,7 @@ bool DockerDevicePrivate::isImageAvailable() const
 {
     Process proc;
     proc.setCommand(
-        {m_settings->dockerBinaryPath(),
+        {settings().dockerBinaryPath(),
          {"image", "list", m_data.repoAndTag(), "--format", "{{.Repository}}:{{.Tag}}"}});
     proc.runBlocking();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
@@ -674,15 +664,12 @@ bool DockerDevicePrivate::isImageAvailable() const
 
 bool DockerDevicePrivate::createContainer()
 {
-    if (!m_settings)
-        return false;
-
     if (!isImageAvailable())
         return false;
 
     const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
                                                       : QString("host.docker.internal:0");
-    CommandLine dockerCreate{m_settings->dockerBinaryPath(),
+    CommandLine dockerCreate{settings().dockerBinaryPath(),
                              {"create",
                               "-i",
                               "--rm",
@@ -734,7 +721,7 @@ bool DockerDevicePrivate::startContainer()
     if (!createContainer())
         return false;
 
-    m_shell = std::make_unique<ContainerShell>(m_settings, m_container, q->rootPath());
+    m_shell = std::make_unique<ContainerShell>(m_container, q->rootPath());
 
     connect(m_shell.get(), &DeviceShell::done, this, [this](const ProcessResultData &resultData) {
         if (m_shell)
@@ -979,9 +966,8 @@ public:
 class DockerDeviceSetupWizard final : public QDialog
 {
 public:
-    DockerDeviceSetupWizard(DockerSettings *settings)
+    DockerDeviceSetupWizard()
         : QDialog(ICore::dialogParent())
-        , m_settings(settings)
     {
         setWindowTitle(Tr::tr("Docker Image Selection"));
         resize(800, 600);
@@ -1050,7 +1036,7 @@ public:
         connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         m_buttons->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-        CommandLine cmd{m_settings->dockerBinaryPath(),
+        CommandLine cmd{settings().dockerBinaryPath(),
                         {"images", "--format", "{{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.Size}}"}};
         m_log->append(Tr::tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
 
@@ -1106,7 +1092,7 @@ public:
             m_proxyModel->mapToSource(selectedRows.front()));
         QTC_ASSERT(item, return {});
 
-        auto device = DockerDevice::create(m_settings, *item);
+        auto device = DockerDevice::create(*item);
 
         return device;
     }
@@ -1117,7 +1103,6 @@ public:
     SortFilterModel *m_proxyModel = nullptr;
     QTextBrowser *m_log = nullptr;
     QDialogButtonBox *m_buttons;
-    DockerSettings *m_settings;
 
     Process *m_process = nullptr;
     QString m_selectedId;
@@ -1125,19 +1110,19 @@ public:
 
 // Factory
 
-DockerDeviceFactory::DockerDeviceFactory(DockerSettings *settings)
+DockerDeviceFactory::DockerDeviceFactory()
     : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
 {
     setDisplayName(Tr::tr("Docker Device"));
     setIcon(QIcon());
-    setCreator([settings] {
-        DockerDeviceSetupWizard wizard(settings);
+    setCreator([] {
+        DockerDeviceSetupWizard wizard;
         if (wizard.exec() != QDialog::Accepted)
             return IDevice::Ptr();
         return wizard.device();
     });
-    setConstructionFunction([settings, this] {
-        auto device = DockerDevice::create(settings, {});
+    setConstructionFunction([this] {
+        auto device = DockerDevice::create({});
         QMutexLocker lk(&m_deviceListMutex);
         m_existingDevices.push_back(device);
         return device;
@@ -1193,7 +1178,6 @@ Environment DockerDevicePrivate::environment()
 void DockerDevicePrivate::shutdown()
 {
     m_isShutdown = true;
-    m_settings = nullptr;
     stopCurrentContainer();
 }
 

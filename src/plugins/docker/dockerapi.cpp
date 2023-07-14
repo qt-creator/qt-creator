@@ -22,8 +22,7 @@ namespace Docker::Internal {
 
 DockerApi *s_instance{nullptr};
 
-DockerApi::DockerApi(DockerSettings *settings)
-    : m_settings(settings)
+DockerApi::DockerApi()
 {
     s_instance = this;
 }
@@ -103,7 +102,7 @@ std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 
 FilePath DockerApi::dockerClient()
 {
-    return m_settings->dockerBinaryPath();
+    return settings().dockerBinaryPath();
 }
 
 } // Docker::Internal
