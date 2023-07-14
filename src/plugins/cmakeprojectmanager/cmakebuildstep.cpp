@@ -245,7 +245,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
             env.set("NINJA_STATUS", ninjaProgressString + "%o/sec] ");
         env.modify(m_userEnvironmentChanges);
 
-        if (m_useStaging)
+        if (m_useStaging && m_useStaging->value())
             env.set("DESTDIR", currentStagingDir());
     });
 
