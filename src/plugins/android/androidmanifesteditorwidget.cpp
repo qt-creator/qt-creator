@@ -41,6 +41,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QImage>
 #include <QLabel>
@@ -83,6 +84,32 @@ static Target *androidTarget(const FilePath &fileName)
     }
     return nullptr;
 }
+
+class PermissionsModel: public QAbstractListModel
+{
+public:
+    PermissionsModel(QObject *parent = nullptr);
+    void setPermissions(const QStringList &permissions);
+    const QStringList &permissions();
+    QModelIndex addPermission(const QString &permission);
+    void removePermission(int index);
+    QVariant data(const QModelIndex &index, int role) const override;
+
+protected:
+    int rowCount(const QModelIndex &parent) const override;
+
+private:
+    QStringList m_permissions;
+};
+
+class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
+{
+public:
+    explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
+
+private:
+    Core::IContext *m_context;
+};
 
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 {
