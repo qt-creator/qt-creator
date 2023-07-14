@@ -6,6 +6,8 @@
 #include "beautifierconstants.h"
 #include "beautifiertr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/algorithm.h>
 #include <utils/genericconstants.h>
 #include <utils/layoutbuilder.h>
@@ -14,13 +16,14 @@ using namespace Utils;
 
 namespace Beautifier::Internal {
 
+GeneralSettings &generalSettings()
+{
+    static GeneralSettings theSettings;
+    return theSettings;
+}
+
 GeneralSettings::GeneralSettings()
 {
-    setId(Constants::OPTION_GENERAL_ID);
-    setDisplayName(Tr::tr("General"));
-    setCategory(Constants::OPTION_CATEGORY);
-    setDisplayCategory(Tr::tr("Beautifier"));
-    setCategoryIconPath(":/beautifier/images/settingscategory_beautifier.png");
     setSettingsGroups("Beautifier", "General");
 
     autoFormatOnSave.setSettingsKey(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE);
@@ -72,5 +75,21 @@ QList<MimeType> GeneralSettings::allowedMimeTypes() const
     }
     return types;
 }
+
+class GeneralSettingsPage final : public Core::IOptionsPage
+{
+public:
+    GeneralSettingsPage()
+    {
+        setId(Constants::OPTION_GENERAL_ID);
+        setDisplayName(Tr::tr("General"));
+        setCategory(Constants::OPTION_CATEGORY);
+        setDisplayCategory(Tr::tr("Beautifier"));
+        setCategoryIconPath(":/beautifier/images/settingscategory_beautifier.png");
+        setSettingsProvider([] { return &generalSettings(); });
+    }
+};
+
+const GeneralSettingsPage settingsPage;
 
 } // Beautifier::Internal
