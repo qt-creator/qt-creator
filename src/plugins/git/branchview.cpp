@@ -115,7 +115,7 @@ BranchView::BranchView()
     connect(m_includeOldEntriesAction, &QAction::toggled,
             this, &BranchView::setIncludeOldEntries);
     m_includeTagsAction->setCheckable(true);
-    m_includeTagsAction->setChecked(settings().showTags.value());
+    m_includeTagsAction->setChecked(settings().showTags());
     connect(m_includeTagsAction, &QAction::toggled,
             this, &BranchView::setIncludeTags);
 

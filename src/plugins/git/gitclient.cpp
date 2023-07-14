@@ -2110,7 +2110,7 @@ Environment GitClient::processEnvironment() const
     Environment environment = VcsBaseClientImpl::processEnvironment();
     const FilePath gitPath = settings().path();
     environment.prependOrSetPath(gitPath);
-    if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment.value()) {
+    if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment()) {
         QString homePath;
         if (qtcEnvironmentVariableIsEmpty("HOMESHARE")) {
             homePath = QDir::toNativeSeparators(QDir::homePath());
@@ -2448,7 +2448,7 @@ void GitClient::tryLaunchingGitK(const Environment &env,
             binary = wish;
         }
     }
-    const QString gitkOpts = settings().gitkOptions.value();
+    const QString gitkOpts = settings().gitkOptions();
     if (!gitkOpts.isEmpty())
         arguments.append(ProcessArgs::splitArgs(gitkOpts, HostOsInfo::hostOs()));
     if (!fileName.isEmpty())

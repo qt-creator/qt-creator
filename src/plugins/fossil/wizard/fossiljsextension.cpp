@@ -50,7 +50,7 @@ QString FossilJsExtension::defaultAdminUser() const
     if (!isConfigured())
         return QString();
 
-    return settings().userName.value();
+    return settings().userName();
 }
 
 QString FossilJsExtension::defaultSslIdentityFile() const
@@ -74,7 +74,7 @@ bool FossilJsExtension::defaultDisableAutosync() const
     if (!isConfigured())
         return false;
 
-    return settings().disableAutosync.value();
+    return settings().disableAutosync();
 }
 
 } // namespace Internal

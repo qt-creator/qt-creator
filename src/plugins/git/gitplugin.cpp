@@ -1437,7 +1437,7 @@ void GitPluginPrivate::setupInstantBlame()
             return;
         }
 
-        if (!settings().instantBlame.value()) {
+        if (!settings().instantBlame()) {
             m_lastVisitedEditorLine = -1;
             stopInstantBlame();
             return;
@@ -1456,7 +1456,7 @@ void GitPluginPrivate::setupInstantBlame()
 
         m_blameCursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
                                 [this] {
-            if (!settings().instantBlame.value()) {
+            if (!settings().instantBlame()) {
                 disconnect(m_blameCursorPosConn);
                 return;
             }
@@ -1515,7 +1515,7 @@ CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &fil
 
 void GitPluginPrivate::instantBlameOnce()
 {
-    if (!settings().instantBlame.value()) {
+    if (!settings().instantBlame()) {
         const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
         if (!widget)
             return;
@@ -1725,7 +1725,7 @@ void GitPluginPrivate::pull()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     FilePath topLevel = state.topLevel();
-    bool rebase = settings().pullRebase.value();
+    bool rebase = settings().pullRebase();
 
     if (!rebase) {
         QString currentBranch = m_gitClient.synchronousCurrentLocalBranch(topLevel);

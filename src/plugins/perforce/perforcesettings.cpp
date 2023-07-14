@@ -149,13 +149,13 @@ PerforceSettings::~PerforceSettings()
 QStringList PerforceSettings::commonP4Arguments() const
 {
     QStringList lst;
-    if (customEnv.value()) {
-        if (!p4Client.value().isEmpty())
-            lst << "-c" << p4Client.value();
-        if (!p4Port.value().isEmpty())
-            lst << "-p" << p4Port.value();
-        if (!p4User.value().isEmpty())
-            lst << "-u" << p4User.value();
+    if (customEnv()) {
+        if (!p4Client().isEmpty())
+            lst << "-c" << p4Client();
+        if (!p4Port().isEmpty())
+            lst << "-p" << p4Port();
+        if (!p4User().isEmpty())
+            lst << "-u" << p4User();
     }
     return lst;
 }
@@ -179,7 +179,7 @@ QStringList PerforceSettings::commonP4Arguments_volatile() const
 
 bool PerforceSettings::isValid() const
 {
-    return !m_topLevel.isEmpty() && !p4BinaryPath.value().isEmpty();
+    return !m_topLevel.isEmpty() && !p4BinaryPath().isEmpty();
 }
 
 bool PerforceSettings::defaultEnv() const

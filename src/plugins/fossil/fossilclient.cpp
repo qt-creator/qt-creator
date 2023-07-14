@@ -433,7 +433,7 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const FilePath &workin
     RepositorySettings repoSettings;
     repoSettings.user = synchronousUserDefaultQuery(workingDirectory);
     if (repoSettings.user.isEmpty())
-        repoSettings.user = settings().userName.value();
+        repoSettings.user = settings().userName();
 
     for (const QString &line : output.split('\n', Qt::SkipEmptyParts)) {
         // parse settings line:
@@ -587,7 +587,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
 
     const QString repoName = workingDirectory.fileName().simplified();
     const FilePath repoPath = settings().defaultRepoPath();
-    const QString adminUser = settings().userName.value();
+    const QString adminUser = settings().userName();
 
     if (repoName.isEmpty() || repoPath.isEmpty())
         return false;

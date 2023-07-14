@@ -1152,7 +1152,7 @@ bool PerforcePluginPrivate::vcsOpen(const FilePath &filePath)
 IVersionControl::SettingsFlags PerforcePluginPrivate::settingsFlags() const
 {
     SettingsFlags rc;
-    if (m_settings.autoOpen.value())
+    if (m_settings.autoOpen())
         rc |= AutoOpen;
     return rc;
 }
@@ -1689,7 +1689,7 @@ void PerforcePluginPrivate::slotTopLevelFailed(const QString &errorMessage)
 void PerforcePluginPrivate::getTopLevel(const FilePath &workingDirectory, bool isSync)
 {
     // Run a new checker
-    if (m_settings.p4BinaryPath.value().isEmpty())
+    if (m_settings.p4BinaryPath().isEmpty())
         return;
     auto checker = new PerforceChecker(dd);
     connect(checker, &PerforceChecker::failed, dd, &PerforcePluginPrivate::slotTopLevelFailed);
