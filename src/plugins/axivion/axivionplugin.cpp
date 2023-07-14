@@ -13,7 +13,6 @@
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -31,7 +30,6 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QMessageBox>
 #include <QTimer>
 
 constexpr char AxivionTextMarkId[] = "AxivionTextMark";
@@ -148,24 +146,6 @@ AxivionProjectSettings *AxivionPlugin::projectSettings(ProjectExplorer::Project 
     QTC_ASSERT(dd, return nullptr);
 
     return dd->projectSettings(project);
-}
-
-bool AxivionPlugin::handleCertificateIssue()
-{
-    QTC_ASSERT(dd, return false);
-
-    const QString serverHost = QUrl(dd->m_axivionSettings.server.dashboard).host();
-    if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
-                              Tr::tr("Server certificate for %1 cannot be authenticated.\n"
-                                     "Do you want to disable SSL verification for this server?\n"
-                                     "Note: This can expose you to man-in-the-middle attack.")
-                              .arg(serverHost))
-            != QMessageBox::Yes) {
-        return false;
-    }
-    dd->m_axivionSettings.server.validateCert = false;
-    emit s_instance->settingsChanged();
-    return true;
 }
 
 void AxivionPlugin::fetchProjectInfo(const QString &projectName)

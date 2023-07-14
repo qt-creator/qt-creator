@@ -26,7 +26,6 @@ public:
     static AxivionSettings *settings();
     static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
 
-    static bool handleCertificateIssue();
     static void fetchProjectInfo(const QString &projectName);
     static ProjectInfo projectInfo();
 signals:

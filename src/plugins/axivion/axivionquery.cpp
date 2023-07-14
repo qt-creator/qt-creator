@@ -5,10 +5,14 @@
 
 #include "axivionplugin.h"
 #include "axivionsettings.h"
+#include "axiviontr.h"
+
+#include <coreplugin/icore.h>
 
 #include <utils/processenums.h>
 #include <utils/qtcassert.h>
 
+#include <QMessageBox>
 #include <QUrl>
 
 using namespace Utils;
@@ -50,6 +54,24 @@ QString AxivionQuery::toString() const
     return {};
 }
 
+static bool handleCertificateIssue()
+{
+    AxivionSettings *settings = AxivionPlugin::settings();
+    const QString serverHost = QUrl(settings->server.dashboard).host();
+    if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
+                              Tr::tr("Server certificate for %1 cannot be authenticated.\n"
+                                     "Do you want to disable SSL verification for this server?\n"
+                                     "Note: This can expose you to man-in-the-middle attack.")
+                              .arg(serverHost))
+            != QMessageBox::Yes) {
+        return false;
+    }
+    settings->server.validateCert = false;
+    settings->apply();
+
+    return true;
+}
+
 AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *parent)
     : QObject(parent)
 {
@@ -71,7 +93,7 @@ AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *paren
             const int exitCode = m_process.exitCode();
             if (m_process.exitStatus() == QProcess::NormalExit
                     && (exitCode == 35 || exitCode == 60)
-                    && AxivionPlugin::handleCertificateIssue()) {
+                    && handleCertificateIssue()) {
                 // prepend -k for re-requesting same query
                 CommandLine cmdline = m_process.commandLine();
                 cmdline.prependArgs({"-k"});
