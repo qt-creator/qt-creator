@@ -37,18 +37,14 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-class CMakeFormatterPrivate : public PagedSettings
+class CMakeFormatterSettings : public AspectContainer
 {
 public:
-    CMakeFormatterPrivate()
+    CMakeFormatterSettings()
     {
+        setAutoApply(false);
         setSettingsGroups(Constants::CMAKEFORMATTER_SETTINGS_GROUP,
                           Constants::CMAKEFORMATTER_GENERAL_GROUP);
-
-        setId(Constants::Settings::FORMATTER_ID);
-        setDisplayName(Tr::tr("Formatter"));
-        setDisplayCategory("CMake");
-        setCategory(Constants::Settings::CATEGORY);
 
         command.setSettingsKey("autoFormatCommand");
         command.setDefaultValue("cmake-format");
@@ -109,7 +105,7 @@ public:
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
                 this, updateActions);
         connect(EditorManager::instance(), &EditorManager::aboutToSave,
-                this, &CMakeFormatterPrivate::applyIfNecessary);
+                this, &CMakeFormatterSettings::applyIfNecessary);
 
         readSettings();
     }
@@ -136,15 +132,15 @@ public:
     QAction formatFile{Tr::tr("Format &Current File")};
 };
 
-bool CMakeFormatterPrivate::isApplicable(const IDocument *document) const
+bool CMakeFormatterSettings::isApplicable(const IDocument *document) const
 {
     if (!document)
         return false;
 
-    if (autoFormatMime.value().isEmpty())
+    if (autoFormatMime().isEmpty())
         return true;
 
-    const QStringList allowedMimeTypes = autoFormatMime.value().split(';');
+    const QStringList allowedMimeTypes = autoFormatMime().split(';');
     const MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
 
     return anyOf(allowedMimeTypes, [&documentMimeType](const QString &mime) {
@@ -152,9 +148,9 @@ bool CMakeFormatterPrivate::isApplicable(const IDocument *document) const
     });
 }
 
-void CMakeFormatterPrivate::applyIfNecessary(IDocument *document) const
+void CMakeFormatterSettings::applyIfNecessary(IDocument *document) const
 {
-    if (!autoFormatOnSave.value())
+    if (!autoFormatOnSave())
         return;
 
     if (!document)
@@ -164,7 +160,7 @@ void CMakeFormatterPrivate::applyIfNecessary(IDocument *document) const
         return;
 
     // Check if file is contained in the current project (if wished)
-    if (autoFormatOnlyCurrentProject.value()) {
+    if (autoFormatOnlyCurrentProject()) {
         const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
         if (!pro || pro->files([document](const ProjectExplorer::Node *n) {
                       return ProjectExplorer::Project::SourceFiles(n)
@@ -188,20 +184,30 @@ void CMakeFormatterPrivate::applyIfNecessary(IDocument *document) const
         TextEditor::formatEditor(widget, command);
 }
 
-// CMakeFormatter
-
-CMakeFormatter::CMakeFormatter()
-    : d(new CMakeFormatterPrivate)
-{}
-
-CMakeFormatter::~CMakeFormatter()
+CMakeFormatterSettings &formatterSettings()
 {
-    delete d;
+    static CMakeFormatterSettings theSettings;
+    return theSettings;
 }
 
-void CMakeFormatter::applyIfNecessary(IDocument *document) const
+class CMakeFormatterSettingsPage final : public Core::IOptionsPage
 {
-    d->applyIfNecessary(document);
+public:
+    CMakeFormatterSettingsPage()
+    {
+        setId(Constants::Settings::FORMATTER_ID);
+        setDisplayName(Tr::tr("Formatter"));
+        setDisplayCategory("CMake");
+        setCategory(Constants::Settings::CATEGORY);
+        setSettingsProvider([] { return &formatterSettings(); });
+    }
+};
+
+const CMakeFormatterSettingsPage settingsPage;
+
+CMakeFormatter::CMakeFormatter()
+{
+    formatterSettings();
 }
 
 } // CMakeProjectManager::Internal

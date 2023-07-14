@@ -65,7 +65,6 @@ public:
     CMakeKitAspect cmakeKitAspect;
     CMakeGeneratorKitAspect cmakeGeneratorKitAspect;
     CMakeConfigurationKitAspect cmakeConfigurationKitAspect;
-
     CMakeFormatter cmakeFormatter;
 };
 
