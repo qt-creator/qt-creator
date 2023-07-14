@@ -42,22 +42,23 @@ static QStringList flashAndRunArgs(const RunConfiguration *rc, const Target *tar
 class FlashAndRunConfiguration final : public RunConfiguration
 {
 public:
-    FlashAndRunConfiguration(Target *target, Utils::Id id)
+    FlashAndRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        auto flashAndRunParameters = addAspect<StringAspect>();
-        flashAndRunParameters->setLabelText(Tr::tr("Flash and run CMake parameters:"));
-        flashAndRunParameters->setDisplayStyle(StringAspect::TextEditDisplay);
-        flashAndRunParameters->setSettingsKey("FlashAndRunConfiguration.Parameters");
+        flashAndRunParameters.setLabelText(Tr::tr("Flash and run CMake parameters:"));
+        flashAndRunParameters.setDisplayStyle(StringAspect::TextEditDisplay);
+        flashAndRunParameters.setSettingsKey("FlashAndRunConfiguration.Parameters");
 
-        setUpdater([target, flashAndRunParameters, this] {
-            flashAndRunParameters->setValue(flashAndRunArgs(this, target).join(' '));
+        setUpdater([target, this] {
+            flashAndRunParameters.setValue(flashAndRunArgs(this, target).join(' '));
         });
 
         update();
 
         connect(target->project(), &Project::displayNameChanged, this, &RunConfiguration::update);
     }
+
+    StringAspect flashAndRunParameters{this};
 };
 
 class FlashAndRunWorker : public SimpleTargetRunner
