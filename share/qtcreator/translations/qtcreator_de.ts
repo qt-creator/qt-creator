@@ -12355,46 +12355,46 @@ Siehe auch die Einstellungen für Google Test.</translation>
     <name>QtC::AutotoolsProjectManager</name>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autogen step.</source>
-        <translation type="unfinished">Unveränderte Konfiguration, autogen-Schritt wird übersprungen.</translation>
+        <translation>Unveränderte Konfiguration, autogen-Schritt wird übersprungen.</translation>
     </message>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
-        <translation type="unfinished">Autogen</translation>
+        <translation>Autogen</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
-        <translation type="unfinished">Unveränderte Konfiguration, autoreconf-Schritt wird übersprungen.</translation>
+        <translation>Unveränderte Konfiguration, autoreconf-Schritt wird übersprungen.</translation>
     </message>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
-        <translation type="unfinished">Autoreconf</translation>
+        <translation>Autoreconf</translation>
     </message>
     <message>
         <source>Autotools Manager</source>
-        <translation type="unfinished">Autotools-Verwaltung</translation>
+        <translation>Autotools-Verwaltung</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping configure step.</source>
-        <translation type="unfinished">Unveränderte Konfiguration, configure-Schritt wird übersprungen.</translation>
+        <translation>Unveränderte Konfiguration, configure-Schritt wird übersprungen.</translation>
     </message>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
-        <translation type="unfinished">Konfigurieren</translation>
+        <translation>Configure</translation>
     </message>
     <message>
         <source>Parsing %1 in directory %2</source>
-        <translation type="unfinished">Werte %1 im Verzeichnis %2 aus</translation>
+        <translation>Werte %1 im Verzeichnis %2 aus</translation>
     </message>
     <message>
         <source>Parsing directory %1</source>
-        <translation type="unfinished">Werte Verzeichnis %1 aus</translation>
+        <translation>Werte Verzeichnis %1 aus</translation>
     </message>
 </context>
 <context>
@@ -16604,19 +16604,19 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Close Check In Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Check-In-Editor schließen</translation>
     </message>
     <message>
         <source>Closing this editor will abort the check in.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie diesen Editor schließen, wird der Check-In abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot check in.</source>
-        <translation type="unfinished"></translation>
+        <translation>Check-In fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Cannot check in: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Check-In fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>Do you want to undo the check out of &quot;%1&quot;?</source>
@@ -16719,23 +16719,23 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <name>QtC::Coco</name>
     <message>
         <source>Select a Squish Coco CoverageBrowser Executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine ausführbare Datei für den Squish-Coco-CoverageBrowser</translation>
     </message>
     <message>
         <source>CoverageBrowser:</source>
-        <translation type="unfinished"></translation>
+        <translation>CoverageBrowser:</translation>
     </message>
     <message>
         <source>Coco instrumentation files (*.csmes)</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco-Instrumentierungsdateien (*.csmes)</translation>
     </message>
     <message>
         <source>Select a Squish Coco Instrumentation File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine Squish-Coco-Instrumentierungsdatei</translation>
     </message>
     <message>
         <source>CSMes:</source>
-        <translation type="unfinished"></translation>
+        <translation>CSMes:</translation>
     </message>
 </context>
 <context>
@@ -16933,30 +16933,30 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Change Root Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis ändern</translation>
     </message>
 </context>
 <context>
     <name>QtC::Conan</name>
     <message>
         <source>Conan install</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Conan installieren</translation>
     </message>
     <message>
         <source>Conan file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Conan-Datei:</translation>
     </message>
     <message>
         <source>Enter location of conanfile.txt or conanfile.py.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Ort der Datei conanfile.txt oder conanfile.py an.</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation type="unfinished">Zusätzliche Argumente:</translation>
+        <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
         <source>Run conan install</source>
-        <translation type="unfinished"></translation>
+        <translation>Conan install ausführen</translation>
     </message>
 </context>
 <context>
