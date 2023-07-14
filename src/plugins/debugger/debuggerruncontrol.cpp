@@ -310,11 +310,6 @@ void DebuggerRunTool::setRunAsRoot(bool on)
     m_runParameters.runAsRoot = on;
 }
 
-void DebuggerRunTool::setCmakeDapDebugging(bool on)
-{
-    m_runParameters.cmakeDapDebugging = on;
-}
-
 void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
 {
     m_runParameters.commandsAfterConnect = commands;
@@ -491,11 +486,10 @@ void DebuggerRunTool::start()
 
     runControl()->setDisplayName(m_runParameters.displayName);
 
-    if (!m_engine && m_runParameters.cmakeDapDebugging)
-        m_engine = createDapEngine();
-
     if (!m_engine) {
-        if (m_runParameters.isCppDebugging()) {
+        if (runControl()->runMode() == ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE)
+            m_engine = createDapEngine();
+        else if (m_runParameters.isCppDebugging()) {
             switch (m_runParameters.cppEngineType) {
             case GdbEngineType:
                 m_engine = createGdbEngine();

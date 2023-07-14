@@ -1724,7 +1724,6 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     debugger->setStartMode(AttachToLocalProcess);
     debugger->setCloseMode(DetachAtClose);
     debugger->setContinueAfterAttach(contAfterAttach);
-    debugger->setCmakeDapDebugging(processInfo.executable.endsWith(QLatin1String("cmake")));
 
     debugger->startRunControl();
 

@@ -150,7 +150,6 @@ public:
     bool multiProcess = false; // Whether to set detach-on-fork off.
     bool useTerminal = false;
     bool runAsRoot = false;
-    bool cmakeDapDebugging = false;
 
     ProjectExplorer::Runnable debugger;
     Utils::FilePath overrideStartScript; // Used in attach to core and remote debugging
