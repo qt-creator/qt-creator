@@ -59,27 +59,29 @@ private:
 
     FilePath mainScript() const;
     FilePath qmlRuntimeFilePath() const;
-    void createQtVersionAspect();
+    void setupQtVersionAspect();
 
-    FilePathAspect *m_qmlViewerAspect = nullptr;
-    QmlMainFileAspect *m_qmlMainFileAspect = nullptr;
-    QmlMultiLanguageAspect *m_multiLanguageAspect = nullptr;
-    SelectionAspect *m_qtversionAspect = nullptr;
+    FilePathAspect qmlViewer{this};
+    ArgumentsAspect arguments{this};
+    QmlMainFileAspect qmlMainFile{this};
+    SelectionAspect qtversion{this};
+    QmlMultiLanguageAspect multiLanguage{this};
+    EnvironmentAspect environment{this};
+    X11ForwardingAspect x11Forwarding{this};
+
     mutable bool usePuppetAsQmlRuntime = false;
 };
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    m_qmlViewerAspect = addAspect<FilePathAspect>();
-    m_qmlViewerAspect->setLabelText(Tr::tr("Override device QML viewer:"));
-    m_qmlViewerAspect->setPlaceHolderText(qmlRuntimeFilePath().toUserOutput());
-    m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
-    m_qmlViewerAspect->setSettingsKey(Constants::QML_VIEWER_KEY);
+    qmlViewer.setSettingsKey(Constants::QML_VIEWER_KEY);
+    qmlViewer.setLabelText(Tr::tr("Override device QML viewer:"));
+    qmlViewer.setPlaceHolderText(qmlRuntimeFilePath().toUserOutput());
+    qmlViewer.setHistoryCompleter("QmlProjectManager.viewer.history");
 
-    auto argumentAspect = addAspect<ArgumentsAspect>();
-    argumentAspect->setMacroExpander(macroExpander());
-    argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
+    arguments.setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
+    arguments.setMacroExpander(macroExpander());
 
     setCommandLineGetter([this, target] {
         const FilePath qmlRuntime = qmlRuntimeFilePath();
@@ -88,7 +90,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
             cmd.addArg("--qml-runtime");
 
         // arguments in .user file
-        cmd.addArgs(aspect<ArgumentsAspect>()->arguments(), CommandLine::Raw);
+        cmd.addArgs(arguments(), CommandLine::Raw);
 
         // arguments from .qmlproject file
         const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target->buildSystem());
@@ -120,35 +122,31 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return cmd;
     });
 
-    m_qmlMainFileAspect = addAspect<QmlMainFileAspect>();
-    m_qmlMainFileAspect->setTarget(target);
-    connect(m_qmlMainFileAspect, &QmlMainFileAspect::changed, this, &RunConfiguration::update);
+    qmlMainFile.setTarget(target);
+    connect(&qmlMainFile, &BaseAspect::changed, this, &RunConfiguration::update);
 
-    createQtVersionAspect();
+    if (QmlProject::isQtDesignStudio())
+        setupQtVersionAspect();
+    else
+        qtversion.setVisible(false);
 
     connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 
-    m_multiLanguageAspect = addAspect<QmlMultiLanguageAspect>();
-    m_multiLanguageAspect->setTarget(target);
+    multiLanguage.setTarget(target);
     auto buildSystem = qobject_cast<const QmlBuildSystem *>(activeBuildSystem());
     if (buildSystem)
-        m_multiLanguageAspect->setValue(buildSystem->multilanguageSupport());
+        multiLanguage.setValue(buildSystem->multilanguageSupport());
 
-    auto envAspect = addAspect<EnvironmentAspect>();
-    connect(m_multiLanguageAspect,
-            &QmlMultiLanguageAspect::changed,
-            envAspect,
-            &EnvironmentAspect::environmentChanged);
+    connect(&multiLanguage, &BaseAspect::changed,
+            &environment, &EnvironmentAspect::environmentChanged);
 
     auto envModifier = [this](Environment env) {
         if (auto bs = qobject_cast<const QmlBuildSystem *>(activeBuildSystem()))
             env.modify(bs->environment());
 
-        if (m_multiLanguageAspect && m_multiLanguageAspect->value()
-            && !m_multiLanguageAspect->databaseFilePath().isEmpty()) {
-            env.set("QT_MULTILANGUAGE_DATABASE",
-                    m_multiLanguageAspect->databaseFilePath().toString());
-            env.set("QT_MULTILANGUAGE_LANGUAGE", m_multiLanguageAspect->currentLocale());
+        if (multiLanguage() && !multiLanguage.databaseFilePath().isEmpty()) {
+            env.set("QT_MULTILANGUAGE_DATABASE", multiLanguage.databaseFilePath().path());
+            env.set("QT_MULTILANGUAGE_LANGUAGE", multiLanguage.currentLocale());
         } else {
             env.unset("QT_MULTILANGUAGE_DATABASE");
             env.unset("QT_MULTILANGUAGE_LANGUAGE");
@@ -158,20 +156,17 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
     const Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(target->kit());
     if (deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        envAspect->addPreferredBaseEnvironment(Tr::tr("System Environment"), [envModifier] {
+        environment.addPreferredBaseEnvironment(Tr::tr("System Environment"), [envModifier] {
             return envModifier(Environment::systemEnvironment());
         });
     }
 
-    envAspect->addSupportedBaseEnvironment(Tr::tr("Clean Environment"), [envModifier] {
+    environment.addSupportedBaseEnvironment(Tr::tr("Clean Environment"), [envModifier] {
         Environment environment;
         return envModifier(environment);
     });
 
-    if (HostOsInfo::isAnyUnixHost()) {
-        auto x11Forwarding = addAspect<X11ForwardingAspect>();
-        x11Forwarding->setMacroExpander(macroExpander());
-    }
+    x11Forwarding.setMacroExpander(macroExpander());
 
     setRunnableModifier([this](Runnable &r) {
         const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());
@@ -202,9 +197,8 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 {
     usePuppetAsQmlRuntime = false;
     // Give precedence to the manual override in the run configuration.
-    const FilePath qmlViewer = m_qmlViewerAspect->filePath();
-    if (!qmlViewer.isEmpty())
-        return qmlViewer;
+    if (!qmlViewer().isEmpty())
+        return qmlViewer();
 
     Kit *kit = target()->kit();
 
@@ -241,15 +235,11 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     return dev ? dev->filePath("qml").searchInPath() : "qml";
 }
 
-void QmlProjectRunConfiguration::createQtVersionAspect()
+void QmlProjectRunConfiguration::setupQtVersionAspect()
 {
-    if (!QmlProject::isQtDesignStudio())
-        return;
-
-    m_qtversionAspect = addAspect<SelectionAspect>();
-    m_qtversionAspect->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    m_qtversionAspect->setLabelText(Tr::tr("Qt Version:"));
-    m_qtversionAspect->setSettingsKey("QmlProjectManager.kit");
+    qtversion.setSettingsKey("QmlProjectManager.kit");
+    qtversion.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    qtversion.setLabelText(Tr::tr("Qt Version:"));
 
     Kit *kit = target()->kit();
     QtVersion *version = QtKitAspect::qtVersion(kit);
@@ -259,23 +249,23 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
         const bool isQt6Project = buildSystem && buildSystem->qt6Project();
 
         if (isQt6Project) {
-            m_qtversionAspect->addOption(Tr::tr("Qt 6"));
-            m_qtversionAspect->setReadOnly(true);
+            qtversion.addOption(Tr::tr("Qt 6"));
+            qtversion.setReadOnly(true);
         } else { /* Only if this is not a Qt 6 project changing kits makes sense */
-            m_qtversionAspect->addOption(Tr::tr("Qt 5"));
-            m_qtversionAspect->addOption(Tr::tr("Qt 6"));
+            qtversion.addOption(Tr::tr("Qt 5"));
+            qtversion.addOption(Tr::tr("Qt 6"));
 
             const int valueForVersion = version->qtVersion().majorVersion() == 6 ? 1 : 0;
 
-            m_qtversionAspect->setValue(valueForVersion);
+            qtversion.setValue(valueForVersion);
 
-            connect(m_qtversionAspect, &SelectionAspect::changed, this, [&]() {
+            connect(&qtversion, &BaseAspect::changed, this, [this] {
                 QTC_ASSERT(target(), return );
                 auto project = target()->project();
                 QTC_ASSERT(project, return );
 
-                int oldValue = !m_qtversionAspect->value();
-                const int preferedQtVersion = m_qtversionAspect->value() > 0 ? 6 : 5;
+                int oldValue = !qtversion();
+                const int preferedQtVersion = qtversion() > 0 ? 6 : 5;
                 Kit *currentKit = target()->kit();
 
                 const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
@@ -296,9 +286,10 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
                     project->setActiveTarget(newTarget, SetActive::Cascade);
 
                     /* Reset the aspect. We changed the target and this aspect should not change. */
-                    m_qtversionAspect->blockSignals(true);
-                    m_qtversionAspect->setValue(oldValue);
-                    m_qtversionAspect->blockSignals(false);
+                    // FIXME: That should use setValueSilently()
+                    qtversion.blockSignals(true);
+                    qtversion.setValue(oldValue);
+                    qtversion.blockSignals(false);
                 }
             });
         }
@@ -307,13 +298,14 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
 
 bool QmlProjectRunConfiguration::isEnabled() const
 {
-    return m_qmlMainFileAspect->isQmlFilePresent() && !commandLine().executable().isEmpty()
-            && activeBuildSystem()->hasParsingData();
+    return const_cast<QmlProjectRunConfiguration *>(this)->qmlMainFile.isQmlFilePresent()
+           && !commandLine().executable().isEmpty()
+           && activeBuildSystem()->hasParsingData();
 }
 
 FilePath QmlProjectRunConfiguration::mainScript() const
 {
-    return m_qmlMainFileAspect->mainScript();
+    return qmlMainFile.mainScript();
 }
 
 // QmlProjectRunConfigurationFactory
