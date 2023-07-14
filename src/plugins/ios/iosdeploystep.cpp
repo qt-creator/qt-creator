@@ -18,13 +18,88 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/temporaryfile.h>
 
 #include <QFile>
 #include <QSettings>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
+
+namespace Ios::Internal {
+
+class IosTransfer : public QObject
+{
+    Q_OBJECT
+
+public:
+    void setDeviceType(const IosDeviceType &deviceType) { m_deviceType = deviceType; }
+    void setBundlePath(const FilePath &bundlePath) { m_bundlePath = bundlePath; }
+    void setExpectSuccess(bool success) { m_expectSuccess = success; }
+    void start()
+    {
+        QTC_ASSERT(m_deviceType, emit done(false); return);
+        QTC_ASSERT(!m_toolHandler, return);
+
+        m_toolHandler.reset(new IosToolHandler(*m_deviceType));
+        connect(m_toolHandler.get(), &IosToolHandler::isTransferringApp, this,
+                [this](IosToolHandler *, const FilePath &, const QString &,
+                       int progress, int maxProgress, const QString &info) {
+            emit progressValueChanged(progress * 100 / maxProgress, info);
+        });
+        connect(m_toolHandler.get(), &IosToolHandler::errorMsg, this,
+                [this](IosToolHandler *, const QString &message) {
+            if (message.contains(QLatin1String("AMDeviceInstallApplication returned -402653103")))
+                TaskHub::addTask(DeploymentTask(Task::Warning, Tr::tr("The Info.plist might be incorrect.")));
+            emit errorMessage(message);
+        });
+        connect(m_toolHandler.get(), &IosToolHandler::didTransferApp, this,
+                [this](IosToolHandler *, const FilePath &, const QString &,
+                       IosToolHandler::OpStatus status) {
+            disconnect(m_toolHandler.get(), nullptr, this, nullptr);
+            m_toolHandler.release()->deleteLater();
+            if (status != IosToolHandler::Success && m_expectSuccess) {
+                TaskHub::addTask(DeploymentTask(Task::Error, Tr::tr("Deployment failed. "
+                    "The settings in the Devices window of Xcode might be incorrect.")));
+            }
+            emit done(status == IosToolHandler::Success);
+        });
+        connect(m_toolHandler.get(), &IosToolHandler::finished, this, [this] {
+            disconnect(m_toolHandler.get(), nullptr, this, nullptr);
+            m_toolHandler.release()->deleteLater();
+            TaskHub::addTask(DeploymentTask(Task::Error, Tr::tr("Deployment failed.")));
+            emit done(false);
+        });
+        m_toolHandler->requestTransferApp(m_bundlePath, m_deviceType->identifier);
+    }
+
+signals:
+    void done(bool success);
+    void progressValueChanged(int progress, const QString &info); // progress in %
+    void errorMessage(const QString &message);
+
+private:
+    std::optional<IosDeviceType> m_deviceType;
+    FilePath m_bundlePath;
+    bool m_expectSuccess = true;
+    std::unique_ptr<IosToolHandler> m_toolHandler;
+};
+
+class IosTransferTaskAdapter : public TaskAdapter<IosTransfer>
+{
+public:
+    IosTransferTaskAdapter() { connect(task(), &IosTransfer::done, this, &TaskInterface::done); }
+
+private:
+    void start() final { task()->start(); }
+};
+
+} // Ios::Internal
+
+TASKING_DECLARE_TASK(IosTransferTask, Ios::Internal::IosTransferTaskAdapter);
 
 namespace Ios::Internal {
 
@@ -293,3 +368,5 @@ IosDeployStepFactory::IosDeployStepFactory()
 }
 
 } // Ios::Internal
+
+#include "iosdeploystep.moc"
