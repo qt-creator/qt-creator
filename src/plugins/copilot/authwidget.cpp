@@ -4,6 +4,7 @@
 #include "authwidget.h"
 
 #include "copilotclient.h"
+#include "copilotsettings.h"
 #include "copilottr.h"
 
 #include <utils/layoutbuilder.h>
@@ -16,6 +17,7 @@
 
 using namespace LanguageClient;
 using namespace Copilot::Internal;
+using namespace Utils;
 
 namespace Copilot {
 
@@ -26,7 +28,7 @@ AuthWidget::AuthWidget(QWidget *parent)
 
     m_button = new QPushButton(Tr::tr("Sign In"));
     m_button->setEnabled(false);
-    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Small);
+    m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Small);
     m_progressIndicator->setVisible(false);
     m_statusLabel = new QLabel();
     m_statusLabel->setVisible(false);
@@ -48,6 +50,16 @@ AuthWidget::AuthWidget(QWidget *parent)
         else if (m_status == Status::SignedOut)
             signIn();
     });
+
+    auto update = [this] {
+        updateClient(FilePath::fromUserInput(settings().nodeJsPath.volatileValue()),
+                     FilePath::fromUserInput(settings().distPath.volatileValue()));
+    };
+
+    connect(settings().nodeJsPath.pathChooser(), &PathChooser::textChanged, this, update);
+    connect(settings().distPath.pathChooser(), &PathChooser::textChanged, this, update);
+
+    update();
 }
 
 AuthWidget::~AuthWidget()
@@ -89,7 +101,7 @@ void AuthWidget::checkStatus()
     });
 }
 
-void AuthWidget::updateClient(const Utils::FilePath &nodeJs, const Utils::FilePath &agent)
+void AuthWidget::updateClient(const FilePath &nodeJs, const FilePath &agent)
 {
     LanguageClientManager::shutdownClient(m_client);
     m_client = nullptr;

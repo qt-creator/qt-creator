@@ -189,22 +189,6 @@ public:
         }.attachTo(this);
         // clang-format on
 
-        auto updateAuthWidget = [authWidget]() {
-            authWidget->updateClient(
-                FilePath::fromUserInput(settings().nodeJsPath.volatileValue()),
-                FilePath::fromUserInput(settings().distPath.volatileValue()));
-        };
-
-        connect(settings().nodeJsPath.pathChooser(),
-                &PathChooser::textChanged,
-                authWidget,
-                updateAuthWidget);
-        connect(settings().distPath.pathChooser(),
-                &PathChooser::textChanged,
-                authWidget,
-                updateAuthWidget);
-        updateAuthWidget();
-
         setOnApply([] {
             settings().apply();
             settings().writeSettings();
