@@ -119,7 +119,7 @@ void QbsCleanStep::cleaningDone(const ErrorInfo &error)
     m_session = nullptr;
 
     for (const ErrorInfoItem &item : error.items)
-        createTaskAndOutput(Task::Error, item.description, item.filePath.toString(), item.line);
+        createTaskAndOutput(Task::Error, item.description, item.filePath, item.line);
     emit finished(!error.hasError());
 }
 
@@ -135,10 +135,11 @@ void QbsCleanStep::handleProgress(int value)
         emit progress(value * 100 / m_maxProgress, m_description);
 }
 
-void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message, const QString &file, int line)
+void QbsCleanStep::createTaskAndOutput(Task::TaskType type, const QString &message,
+                                       const FilePath &file, int line)
 {
     emit addOutput(message, OutputFormat::Stdout);
-    emit addTask(CompileTask(type, message, Utils::FilePath::fromString(file), line), 1);
+    emit addTask(CompileTask(type, message, file, line), 1);
 }
 
 // --------------------------------------------------------------------
