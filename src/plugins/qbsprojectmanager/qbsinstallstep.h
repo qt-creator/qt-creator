@@ -42,9 +42,9 @@ private:
     void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                              const QString &message, const Utils::FilePath &file, int line);
 
-    Utils::BoolAspect *m_cleanInstallRoot = nullptr;
-    Utils::BoolAspect *m_dryRun = nullptr;
-    Utils::BoolAspect *m_keepGoing = nullptr;
+    Utils::BoolAspect cleanInstallRoot{this};
+    Utils::BoolAspect dryRun{this};
+    Utils::BoolAspect keepGoing{this};
 
     QbsSession *m_session = nullptr;
     QString m_description;
