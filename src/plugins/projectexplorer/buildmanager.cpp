@@ -836,6 +836,7 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
                               .arg(item.buildStep->displayName()), BuildStep::OutputFormat::Stderr);
         for (BuildStep *buildStep : std::as_const(connectedSteps))
             disconnectOutput(buildStep);
+        d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         return false;
     }
 
@@ -843,6 +844,9 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
     d->m_maxProgress += enabledCount;
     for (const BuildItem &item : items)
         incrementActiveBuildSteps(item.buildStep);
+    if (CompileOutputSettings::instance().popUp())
+        d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
+    startBuildQueue();
     return true;
 }
 
@@ -862,27 +866,16 @@ bool BuildManager::buildLists(const QList<BuildStepList *> &bsls, const QStringL
         d->m_isDeploying = d->m_isDeploying || list->id() == Constants::BUILDSTEPS_DEPLOY;
     }
 
-    if (!buildQueueAppend(buildItems, preambleMessage)) {
-        d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
-        d->m_isDeploying = false;
-        return false;
-    }
+    if (buildQueueAppend(buildItems, preambleMessage))
+        return true;
 
-    if (CompileOutputSettings::instance().popUp())
-        d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
-    startBuildQueue();
-    return true;
+    d->m_isDeploying = false;
+    return false;
 }
 
 void BuildManager::appendStep(BuildStep *step, const QString &name)
 {
-    if (!buildQueueAppend({{step, step->enabled(), name}})) {
-        d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
-        return;
-    }
-    if (CompileOutputSettings::instance().popUp())
-        d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
-    startBuildQueue();
+    buildQueueAppend({{step, step->enabled(), name}});
 }
 
 template <class T>
