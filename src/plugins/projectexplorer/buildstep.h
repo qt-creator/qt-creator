@@ -133,9 +133,7 @@ protected:
 private:
     using ProjectConfiguration::parent;
 
-    virtual Tasking::GroupItem runRecipe(); // TODO: Make pure virtual when all subclasses implement it.
-    virtual void doRun();
-    virtual void doCancel();
+    virtual Tasking::GroupItem runRecipe() = 0;
 
     BuildStepList * const m_stepList;
     std::atomic_bool m_cancelFlag;

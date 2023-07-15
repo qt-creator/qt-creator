@@ -139,13 +139,33 @@ bool BuildStep::init()
 void BuildStep::run()
 {
     m_cancelFlag = false;
-    doRun();
+    QTC_ASSERT(!m_taskTree, return);
+
+    m_taskTree.reset(new TaskTree({runRecipe()}));
+    connect(m_taskTree.get(), &TaskTree::progressValueChanged, this, [this](int value) {
+        emit progress(qRound(double(value) * 100 / std::max(m_taskTree->progressMaximum(), 1)), {});
+    });
+    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
+        emit finished(true);
+        m_taskTree.release()->deleteLater();
+    });
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
+        emit finished(false);
+        m_taskTree.release()->deleteLater();
+    });
+    m_taskTree->start();
 }
 
 void BuildStep::cancel()
 {
     m_cancelFlag = true;
-    doCancel();
+    if (!m_taskTree)
+        return;
+
+    m_taskTree.reset();
+    if (!m_cancelMessage.isEmpty())
+        emit addOutput(m_cancelMessage, OutputFormat::ErrorMessage);
+    emit finished(false);
 }
 
 QWidget *BuildStep::doCreateConfigWidget()
@@ -309,41 +329,6 @@ bool BuildStep::isCanceled() const
 void BuildStep::setCancelMessage(const QString &message)
 {
     m_cancelMessage = message;
-}
-
-Tasking::GroupItem BuildStep::runRecipe()
-{
-    return Group {};
-}
-
-void BuildStep::doRun()
-{
-    QTC_ASSERT(!m_taskTree, return);
-
-    m_taskTree.reset(new TaskTree({runRecipe()}));
-    connect(m_taskTree.get(), &TaskTree::progressValueChanged, this, [this](int value) {
-        emit progress(qRound(double(value) * 100 / std::max(m_taskTree->progressMaximum(), 1)), {});
-    });
-    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
-        emit finished(true);
-        m_taskTree.release()->deleteLater();
-    });
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
-        emit finished(false);
-        m_taskTree.release()->deleteLater();
-    });
-    m_taskTree->start();
-}
-
-void BuildStep::doCancel()
-{
-    if (!m_taskTree)
-        return;
-
-    m_taskTree.reset();
-    if (!m_cancelMessage.isEmpty())
-        emit addOutput(m_cancelMessage, OutputFormat::ErrorMessage);
-    emit finished(false);
 }
 
 void BuildStep::addMacroExpander()
