@@ -1200,6 +1200,27 @@
          y="0"
          x="0" />
     </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/progressindicator_big"
+       id="src/libs/solutions/spinner/icons/spinner_large"
+       transform="translate(97,-29)"
+       style="display:inline" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/progressindicator_medium"
+       id="src/libs/solutions/spinner/icons/spinner_medium"
+       transform="translate(98,-61)"
+       style="display:inline" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/progressindicator_small"
+       id="src/libs/solutions/spinner/icons/spinner_small"
+       transform="translate(243,-177)"
+       style="display:inline" />
     <g
        id="src/plugins/coreplugin/find/images/wrapindicator">
       <rect
