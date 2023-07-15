@@ -246,7 +246,9 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
     return stepLists.count();
 }
 
-struct BuildItem {
+class BuildItem
+{
+public:
     BuildStep *buildStep = nullptr;
     bool enabled = true;
     QString name;
@@ -800,7 +802,7 @@ void BuildManager::nextStep()
     }
 }
 
-bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList names, const QStringList &preambleMessage)
+bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QStringList &preambleMessage)
 {
     if (!d->m_running) {
         d->m_outputWindow->clearContents();
@@ -810,49 +812,37 @@ bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList
             TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
             TaskHub::clearTasks(Constants::TASK_CATEGORY_AUTOTEST);
         }
-
         for (const QString &str : preambleMessage)
             addToOutputWindow(str, BuildStep::OutputFormat::NormalMessage, BuildStep::DontAppendNewline);
     }
 
-    int count = steps.size();
-    bool init = true;
-    int i = 0;
-    for (; i < count; ++i) {
-        BuildStep *bs = steps.at(i);
-        connect(bs, &BuildStep::addTask, m_instance, &BuildManager::addToTaskWindow);
-        connect(bs, &BuildStep::addOutput, m_instance, &BuildManager::addToOutputWindow);
-        if (bs->enabled()) {
-            init = bs->init();
-            if (!init)
-                break;
-        }
-    }
-    if (!init) {
-        BuildStep *bs = steps.at(i);
-
-        // cleaning up
-        // print something for the user
-        const QString projectName = bs->project()->displayName();
-        const QString targetName = bs->target()->displayName();
-        addToOutputWindow(Tr::tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::OutputFormat::Stderr);
-        addToOutputWindow(Tr::tr("When executing step \"%1\"").arg(bs->displayName()), BuildStep::OutputFormat::Stderr);
-
-        // disconnect the buildsteps again
-        for (int j = 0; j <= i; ++j)
-            disconnectOutput(steps.at(j));
+    QList<BuildStep *> connectedSteps;
+    int enabledCount = 0;
+    for (const BuildItem &item : items) {
+        connect(item.buildStep, &BuildStep::addTask, m_instance, &BuildManager::addToTaskWindow);
+        connect(item.buildStep, &BuildStep::addOutput, m_instance, &BuildManager::addToOutputWindow);
+        connectedSteps.append(item.buildStep);
+        if (!item.enabled)
+            continue;
+        ++enabledCount;
+        if (item.buildStep->init())
+            continue;
+        // init() failed, print something for the user...
+        const QString projectName = item.buildStep->project()->displayName();
+        const QString targetName = item.buildStep->target()->displayName();
+        addToOutputWindow(Tr::tr("Error while building/deploying project %1 (kit: %2)")
+                              .arg(projectName, targetName), BuildStep::OutputFormat::Stderr);
+        addToOutputWindow(Tr::tr("When executing step \"%1\"")
+                              .arg(item.buildStep->displayName()), BuildStep::OutputFormat::Stderr);
+        for (BuildStep *buildStep : std::as_const(connectedSteps))
+            disconnectOutput(buildStep);
         return false;
     }
 
-    // Everthing init() well
-    for (i = 0; i < count; ++i) {
-        BuildStep *buildStep = steps.at(i);
-        const bool enabled = buildStep->enabled();
-        d->m_buildQueue.append({buildStep, enabled, names.at(i)});
-        if (enabled)
-            ++d->m_maxProgress;
-        incrementActiveBuildSteps(buildStep);
-    }
+    d->m_buildQueue << items;
+    d->m_maxProgress += enabledCount;
+    for (const BuildItem &item : items)
+        incrementActiveBuildSteps(item.buildStep);
     return true;
 }
 
@@ -861,25 +851,18 @@ bool BuildManager::buildList(BuildStepList *bsl)
     return buildLists({bsl});
 }
 
-bool BuildManager::buildLists(const QList<BuildStepList *> bsls, const QStringList &preambelMessage)
+bool BuildManager::buildLists(const QList<BuildStepList *> &bsls, const QStringList &preambleMessage)
 {
-    QList<BuildStep *> steps;
-    QStringList stepListNames;
+    QList<BuildItem> buildItems;
     for (BuildStepList *list : bsls) {
-        steps.append(list->steps());
-        stepListNames.append(displayNameForStepId(list->id()));
+        const QString name = displayNameForStepId(list->id());
+        const QList<BuildStep *> steps = list->steps();
+        for (BuildStep *step : steps)
+            buildItems.append({step, step->enabled(), name});
         d->m_isDeploying = d->m_isDeploying || list->id() == Constants::BUILDSTEPS_DEPLOY;
     }
 
-    QStringList names;
-    names.reserve(steps.size());
-    for (int i = 0; i < bsls.size(); ++i) {
-        for (int j = 0; j < bsls.at(i)->count(); ++j)
-            names.append(stepListNames.at(i));
-    }
-
-    bool success = buildQueueAppend(steps, names, preambelMessage);
-    if (!success) {
+    if (!buildQueueAppend(buildItems, preambleMessage)) {
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         d->m_isDeploying = false;
         return false;
@@ -893,8 +876,7 @@ bool BuildManager::buildLists(const QList<BuildStepList *> bsls, const QStringLi
 
 void BuildManager::appendStep(BuildStep *step, const QString &name)
 {
-    bool success = buildQueueAppend({step}, {name});
-    if (!success) {
+    if (!buildQueueAppend({{step, step->enabled(), name}})) {
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         return;
     }

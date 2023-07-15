@@ -11,6 +11,7 @@
 
 namespace ProjectExplorer {
 
+class BuildItem;
 class Project;
 class RunConfiguration;
 class Task;
@@ -33,9 +34,7 @@ public:
     static void cleanProjectWithoutDependencies(Project *project);
     static void rebuildProjectWithoutDependencies(Project *project);
     static void buildProjectWithDependencies(
-            Project *project,
-            ConfigSelection configSelection = ConfigSelection::Active
-            );
+        Project *project, ConfigSelection configSelection = ConfigSelection::Active);
     static void cleanProjectWithDependencies(Project *project, ConfigSelection configSelection);
     static void rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection);
     static void buildProjects(const QList<Project *> &projects, ConfigSelection configSelection);
@@ -50,8 +49,8 @@ public:
     static bool isDeploying();
     static bool tasksAvailable();
 
-    static bool buildLists(const QList<BuildStepList *> bsls,
-                           const QStringList &preambelMessage = QStringList());
+    static bool buildLists(const QList<BuildStepList *> &bsls,
+                           const QStringList &preambelMessage = {});
     static bool buildList(BuildStepList *bsl);
 
     static bool isBuilding(const Project *p);
@@ -93,7 +92,8 @@ private:
     static void startBuildQueue();
     static void nextStep();
     static void clearBuildQueue();
-    static bool buildQueueAppend(const QList<BuildStep *> &steps, QStringList names, const QStringList &preambleMessage = QStringList());
+    static bool buildQueueAppend(const QList<BuildItem> &items,
+                                 const QStringList &preambleMessage = {});
     static void incrementActiveBuildSteps(BuildStep *bs);
     static void decrementActiveBuildSteps(BuildStep *bs);
     static void disconnectOutput(BuildStep *bs);
