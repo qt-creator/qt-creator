@@ -91,7 +91,7 @@ private:
     bool init() override;
     Tasking::GroupItem runRecipe() final;
     void gatherFilesToPull();
-    DeployErrorCode runDeploy();
+    DeployErrorCode runDeploy(QPromise<void> &promise);
     void slotAskForUninstall(DeployErrorCode errorCode);
 
     void runImpl(QPromise<void> &promise);
@@ -341,7 +341,7 @@ bool AndroidDeployQtStep::init()
     return true;
 }
 
-AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
+AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QPromise<void> &promise)
 {
     CommandLine cmd(m_command);
     if (m_useAndroiddeployqt && m_apkPath.isEmpty()) {
@@ -404,7 +404,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
         if (process.state() == QProcess::NotRunning)
             break;
 
-        if (isCanceled()) {
+        if (promise.isCanceled()) {
             process.kill();
             process.waitForFinished();
         }
@@ -494,12 +494,12 @@ void AndroidDeployQtStep::runImpl(QPromise<void> &promise)
         AndroidManager::setDeviceSerialNumber(target(), serialNumber);
     }
 
-    DeployErrorCode returnValue = runDeploy();
+    DeployErrorCode returnValue = runDeploy(promise);
     if (returnValue > DeployErrorCode::NoError && returnValue < DeployErrorCode::Failure) {
         emit askForUninstall(returnValue);
         if (m_askForUninstall) {
             m_uninstallPreviousPackageRun = true;
-            returnValue = runDeploy();
+            returnValue = runDeploy(promise);
         }
     }
 
