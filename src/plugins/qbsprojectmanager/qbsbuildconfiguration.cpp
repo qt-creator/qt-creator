@@ -138,10 +138,6 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
 
 QbsBuildConfiguration::~QbsBuildConfiguration()
 {
-    for (BuildStep * const bs : buildSteps()->steps()) {
-        if (const auto qbs = qobject_cast<QbsBuildStep *>(bs))
-            qbs->dropSession();
-    }
     delete m_buildSystem;
 }
 

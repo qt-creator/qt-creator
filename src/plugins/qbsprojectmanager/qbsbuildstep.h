@@ -3,19 +3,13 @@
 
 #pragma once
 
-#include "qbsbuildconfiguration.h"
-
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/task.h>
 
-namespace QbsProjectManager {
-namespace Internal {
-
-class ErrorInfo;
-class QbsProject;
-class QbsSession;
+namespace QbsProjectManager::Internal {
 
 class QbsBuildStepConfigWidget;
+class QbsBuildStepData;
+class QbsBuildSystem;
 
 class ArchitecturesAspect : public Utils::MultiSelectionAspect
 {
@@ -50,7 +44,6 @@ public:
     };
 
     QbsBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~QbsBuildStep() override;
 
     QVariantMap qbsConfiguration(VariableHandling variableHandling) const;
     void setQbsConfiguration(const QVariantMap &config);
@@ -70,11 +63,6 @@ public:
     Utils::BoolAspect forceProbes{this};
     Utils::StringAspect commandLine{this};
 
-    QbsBuildSystem *qbsBuildSystem() const;
-    QbsBuildStepData stepData() const;
-
-    void dropSession();
-
 signals:
     void qbsConfigurationChanged();
     void qbsBuildOptionsChanged();
@@ -82,35 +70,16 @@ signals:
 private:
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() override;
-    void doCancel() override;
+    Tasking::GroupItem runRecipe() final;
     QWidget *createConfigWidget() override;
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-    void buildingDone(const ErrorInfo &error);
-    void reparsingDone(bool success);
-    void handleTaskStarted(const QString &desciption, int max);
-    void handleProgress(int value);
-    void handleCommandDescription(const QString &message);
-    void handleProcessResult(
-            const Utils::FilePath &executable,
-            const QStringList &arguments,
-            const Utils::FilePath &workingDir,
-            const QStringList &stdOut,
-            const QStringList &stdErr,
-            bool success);
-
-    void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
-                             const QString &message, const QString &file, int line);
-
+    QbsBuildSystem *qbsBuildSystem() const;
+    QbsBuildStepData stepData() const;
     void setBuildVariant(const QString &variant);
     void setConfiguredArchitectures(const QStringList &architectures);
     QString profile() const;
-
-    void parseProject();
-    void build();
-    void finish();
 
     void updateState();
     QStringList configuredArchitectures() const;
@@ -122,14 +91,6 @@ private:
     QStringList m_activeFileTags;
     QStringList m_products;
 
-    QbsSession *m_session = nullptr;
-
-    QString m_currentTask;
-    int m_maxProgress;
-    bool m_lastWasSuccess;
-    bool m_parsingProject = false;
-    bool m_parsingAfterBuild = false;
-
     friend class QbsBuildStepConfigWidget;
 };
 
@@ -139,5 +100,4 @@ public:
     QbsBuildStepFactory();
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

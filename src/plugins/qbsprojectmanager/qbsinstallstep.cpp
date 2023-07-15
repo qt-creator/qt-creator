@@ -3,7 +3,9 @@
 
 #include "qbsinstallstep.h"
 
+#include "qbsbuildconfiguration.h"
 #include "qbsbuildstep.h"
+#include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
 #include "qbsrequest.h"

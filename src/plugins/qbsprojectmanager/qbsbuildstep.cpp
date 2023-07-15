@@ -7,35 +7,29 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
+#include "qbsrequest.h"
 #include "qbssession.h"
 #include "qbssettings.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/aspects.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/outputformatter.h>
 #include <utils/pathchooser.h>
-#include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QLabel>
 #include <QThread>
 
 // --------------------------------------------------------------------
@@ -51,10 +45,43 @@ const char QBS_CLEAN_INSTALL_ROOT[] = "Qbs.CleanInstallRoot";
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
+using namespace Tasking;
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
+
+class QbsParserTaskAdapter : public TaskAdapter<QPointer<QbsBuildSystem>>
+{
+public:
+    ~QbsParserTaskAdapter()
+    {
+        QbsBuildSystem *buildSystem = *task();
+        if (buildSystem && m_isRunning)
+            buildSystem->cancelParsing();
+    }
+    void start() final
+    {
+        QbsBuildSystem *buildSystem = *task();
+        if (!buildSystem) {
+            emit done(false);
+            return;
+        }
+        m_isRunning = true;
+        connect(buildSystem->target(), &Target::parsingFinished, this, [this](bool success) {
+            m_isRunning = false;
+            emit done(success);
+        });
+        buildSystem->parseCurrentBuildConfiguration();
+    }
+private:
+    bool m_isRunning = false;
+};
+
+} // namespace QbsProjectManager::Internal
+
+TASKING_DECLARE_TASK(QbsParserTask, QbsProjectManager::Internal::QbsParserTaskAdapter);
+
+namespace QbsProjectManager::Internal {
 
 ArchitecturesAspect::ArchitecturesAspect(AspectContainer *container)
     : MultiSelectionAspect(container)
@@ -244,16 +271,9 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
         setConfiguredArchitectures(selectedAbis.selectedArchitectures()); });
 }
 
-QbsBuildStep::~QbsBuildStep()
-{
-    doCancel();
-    if (m_session)
-        m_session->disconnect(this);
-}
-
 bool QbsBuildStep::init()
 {
-    if (m_session)
+    if (!BuildStep::init())
         return false;
 
     auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
@@ -274,25 +294,9 @@ void QbsBuildStep::setupOutputFormatter(OutputFormatter *formatter)
     BuildStep::setupOutputFormatter(formatter);
 }
 
-void QbsBuildStep::doRun()
-{
-    // We need a pre-build parsing step in order not to lose project file changes done
-    // right before building (but before the delay has elapsed).
-    m_parsingAfterBuild = false;
-    parseProject();
-}
-
 QWidget *QbsBuildStep::createConfigWidget()
 {
     return new QbsBuildStepConfigWidget(this);
-}
-
-void QbsBuildStep::doCancel()
-{
-    if (m_parsingProject)
-        qbsBuildSystem()->cancelParsing();
-    else if (m_session)
-        m_session->cancelCurrentJob();
 }
 
 QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) const
@@ -386,91 +390,6 @@ void QbsBuildStep::toMap(QVariantMap &map) const
     map.insert(QBS_CONFIG, m_qbsConfiguration);
 }
 
-void QbsBuildStep::buildingDone(const ErrorInfo &error)
-{
-    m_session->disconnect(this);
-    m_session = nullptr;
-    m_lastWasSuccess = !error.hasError();
-    for (const ErrorInfoItem &item : std::as_const(error.items)) {
-        createTaskAndOutput(
-                    ProjectExplorer::Task::Error,
-                    item.description,
-                    item.filePath.toString(),
-                    item.line);
-    }
-
-    // Building can uncover additional target artifacts.
-    qbsBuildSystem()->updateAfterBuild();
-
-    // The reparsing, if it is necessary, has to be done before finished() is emitted, as
-    // otherwise a potential additional build step could conflict with the parsing step.
-    if (qbsBuildSystem()->parsingScheduled()) {
-        m_parsingAfterBuild = true;
-        parseProject();
-    } else {
-        finish();
-    }
-}
-
-void QbsBuildStep::reparsingDone(bool success)
-{
-    disconnect(target(), &Target::parsingFinished, this, &QbsBuildStep::reparsingDone);
-    m_parsingProject = false;
-    if (m_parsingAfterBuild) {
-        finish();
-    } else if (!success) {
-        m_lastWasSuccess = false;
-        finish();
-    } else {
-        build();
-    }
-}
-
-void QbsBuildStep::handleTaskStarted(const QString &desciption, int max)
-{
-    m_currentTask = desciption;
-    m_maxProgress = max;
-}
-
-void QbsBuildStep::handleProgress(int value)
-{
-    if (m_maxProgress > 0)
-        emit progress(value * 100 / m_maxProgress, m_currentTask);
-}
-
-void QbsBuildStep::handleCommandDescription(const QString &message)
-{
-    emit addOutput(message, OutputFormat::Stdout);
-}
-
-void QbsBuildStep::handleProcessResult(
-        const FilePath &executable,
-        const QStringList &arguments,
-        const FilePath &workingDir,
-        const QStringList &stdOut,
-        const QStringList &stdErr,
-        bool success)
-{
-    Q_UNUSED(workingDir);
-    const bool hasOutput = !stdOut.isEmpty() || !stdErr.isEmpty();
-    if (success && !hasOutput)
-        return;
-
-    emit addOutput(executable.toUserOutput() + ' '  + ProcessArgs::joinArgs(arguments),
-                   OutputFormat::Stdout);
-    for (const QString &line : stdErr)
-        emit addOutput(line, OutputFormat::Stderr);
-    for (const QString &line : stdOut)
-        emit addOutput(line, OutputFormat::Stdout);
-}
-
-void QbsBuildStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message,
-                                       const QString &file, int line)
-{
-    emit addOutput(message, OutputFormat::Stdout);
-    emit addTask(CompileTask(type, message, FilePath::fromString(file), line), 1);
-}
-
 QString QbsBuildStep::buildVariant() const
 {
     return qbsConfiguration(PreserveVariables).value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
@@ -496,59 +415,70 @@ QString QbsBuildStep::profile() const
     return qbsConfiguration(PreserveVariables).value(Constants::QBS_CONFIG_PROFILE_KEY).toString();
 }
 
-void QbsBuildStep::parseProject()
+GroupItem QbsBuildStep::runRecipe()
 {
-    m_parsingProject = true;
-    connect(target(), &Target::parsingFinished, this, &QbsBuildStep::reparsingDone);
-    qbsBuildSystem()->parseCurrentBuildConfiguration();
-}
+    const auto onPreParserSetup = [this](QPointer<QbsBuildSystem> &buildSystem) {
+        buildSystem = qbsBuildSystem();
+    };
+    const auto onBuildSetup = [this](QbsRequest &request) {
+        QbsSession *session = static_cast<QbsBuildSystem*>(buildSystem())->session();
+        if (!session) {
+            emit addOutput(Tr::tr("No qbs session exists for this target."),
+                           OutputFormat::ErrorMessage);
+            return SetupResult::StopWithError;
+        }
+        QJsonObject requestData;
+        requestData.insert("type", "build-project");
+        requestData.insert("max-job-count", maxJobs());
+        requestData.insert("keep-going", keepGoing());
+        requestData.insert("command-echo-mode", showCommandLines() ? "command-line" : "summary");
+        requestData.insert("install", install());
+        QbsSession::insertRequestedModuleProperties(requestData);
+        requestData.insert("clean-install-root", cleanInstallRoot());
+        if (!m_products.isEmpty())
+            requestData.insert("products", QJsonArray::fromStringList(m_products));
+        if (!m_changedFiles.isEmpty()) {
+            const auto changedFilesArray = QJsonArray::fromStringList(m_changedFiles);
+            requestData.insert("changed-files", changedFilesArray);
+            requestData.insert("files-to-consider", changedFilesArray);
+        }
+        if (!m_activeFileTags.isEmpty())
+            requestData.insert("active-file-tags", QJsonArray::fromStringList(m_activeFileTags));
+        requestData.insert("data-mode", "only-if-changed");
 
-void QbsBuildStep::build()
-{
-    m_session = qbsBuildSystem()->session();
-    if (!m_session) {
-        emit addOutput(QbsProjectManager::Tr::tr("No qbs session exists for this target."),
-                       OutputFormat::ErrorMessage);
-        emit finished(false);
-        return;
-    }
+        request.setSession(session);
+        request.setRequestData(requestData);
+        connect(&request, &QbsRequest::progressChanged, this, &BuildStep::progress);
+        connect(&request, &QbsRequest::outputAdded, this,
+                [this](const QString &output, OutputFormat format) {
+            emit addOutput(output, format);
+        });
+        connect(&request, &QbsRequest::taskAdded, this, [this](const Task &task) {
+            emit addTask(task, 1);
+        });
+        return SetupResult::Continue;
+    };
+    const auto onPostParserSetup = [this](QPointer<QbsBuildSystem> &buildSystem) {
+        buildSystem = qbsBuildSystem();
+        return buildSystem->parsingScheduled() ? SetupResult::Continue : SetupResult::StopWithDone;
+    };
 
-    QJsonObject request;
-    request.insert("type", "build-project");
-    request.insert("max-job-count", maxJobs());
-    request.insert("keep-going", keepGoing());
-    request.insert("command-echo-mode", showCommandLines() ? "command-line" : "summary");
-    request.insert("install", install());
-    QbsSession::insertRequestedModuleProperties(request);
-    request.insert("clean-install-root", cleanInstallRoot());
-    if (!m_products.isEmpty())
-        request.insert("products", QJsonArray::fromStringList(m_products));
-    if (!m_changedFiles.isEmpty()) {
-        const auto changedFilesArray = QJsonArray::fromStringList(m_changedFiles);
-        request.insert("changed-files", changedFilesArray);
-        request.insert("files-to-consider", changedFilesArray);
-    }
-    if (!m_activeFileTags.isEmpty())
-        request.insert("active-file-tags", QJsonArray::fromStringList(m_activeFileTags));
-    request.insert("data-mode", "only-if-changed");
+    const Group root {
+        // We need a pre-build parsing step in order not to lose project file changes done
+        // right before building (but before the delay has elapsed).
+        QbsParserTask(onPreParserSetup),
+        Group {
+            continueOnError,
+            QbsRequestTask(onBuildSetup),
+            // Building can uncover additional target artifacts.
+            Sync([this] { qbsBuildSystem()->updateAfterBuild(); }),
+            // The reparsing, if it is necessary, has to be done before done() is emitted, as
+            // otherwise a potential additional build step could conflict with the parsing step.
+            QbsParserTask(onPostParserSetup)
+        }
+    };
 
-    m_session->sendRequest(request);
-    m_maxProgress = 0;
-    connect(m_session, &QbsSession::projectBuilt, this, &QbsBuildStep::buildingDone);
-    connect(m_session, &QbsSession::taskStarted, this, &QbsBuildStep::handleTaskStarted);
-    connect(m_session, &QbsSession::taskProgress, this, &QbsBuildStep::handleProgress);
-    connect(m_session, &QbsSession::commandDescription,
-            this, &QbsBuildStep::handleCommandDescription);
-    connect(m_session, &QbsSession::processResult, this, &QbsBuildStep::handleProcessResult);
-    connect(m_session, &QbsSession::errorOccurred, this, [this] {
-        buildingDone(ErrorInfo(QbsProjectManager::Tr::tr("Build canceled: Qbs session failed.")));
-    });
-}
-
-void QbsBuildStep::finish()
-{
-    m_session = nullptr;
-    emit finished(m_lastWasSuccess);
+    return root;
 }
 
 void QbsBuildStep::updateState()
@@ -588,16 +518,6 @@ QbsBuildStepData QbsBuildStep::stepData() const
     data.installRoot = installRoot();
     return data;
 }
-
-void QbsBuildStep::dropSession()
-{
-    if (m_session) {
-        doCancel();
-        m_session->disconnect(this);
-        m_session = nullptr;
-    }
-}
-
 
 // --------------------------------------------------------------------
 // QbsBuildStepConfigWidget:
@@ -857,7 +777,6 @@ QbsBuildStepFactory::QbsBuildStepFactory()
     setSupportedProjectType(Constants::PROJECT_ID);
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal
 
 #include "qbsbuildstep.moc"
