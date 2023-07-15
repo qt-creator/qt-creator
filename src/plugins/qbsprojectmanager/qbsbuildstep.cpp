@@ -139,7 +139,7 @@ private:
 
     QbsBuildStep *qbsStep() const;
 
-    bool validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage);
+    bool validateProperties(FancyLineEdit *edit, QString *errorMessage);
 
     class Property
     {
@@ -173,7 +173,7 @@ private:
 // QbsBuildStep:
 // --------------------------------------------------------------------
 
-QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
+QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
     BuildStep(bsl, id)
 {
     setDisplayName(QbsProjectManager::Tr::tr("Qbs Build"));
@@ -343,7 +343,7 @@ void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
         return;
     m_qbsConfiguration = tmp;
     buildVariantHolder.setValue(buildVariantHolder.indexForItemValue(buildVariant));
-    if (ProjectExplorer::BuildConfiguration *bc = buildConfiguration())
+    if (BuildConfiguration *bc = buildConfiguration())
         emit bc->buildTypeChanged();
     emit qbsConfigurationChanged();
 }
@@ -353,12 +353,12 @@ bool QbsBuildStep::hasCustomInstallRoot() const
     return m_qbsConfiguration.contains(Constants::QBS_INSTALL_ROOT_KEY);
 }
 
-Utils::FilePath QbsBuildStep::installRoot(VariableHandling variableHandling) const
+FilePath QbsBuildStep::installRoot(VariableHandling variableHandling) const
 {
     const QString root =
             qbsConfiguration(variableHandling).value(Constants::QBS_INSTALL_ROOT_KEY).toString();
     if (!root.isNull())
-        return Utils::FilePath::fromUserInput(root);
+        return FilePath::fromUserInput(root);
     QString defaultInstallDir = QbsSettings::defaultInstallDirTemplate();
     if (variableHandling == VariableHandling::ExpandVariables)
         defaultInstallDir = macroExpander()->expand(defaultInstallDir);
@@ -374,7 +374,7 @@ int QbsBuildStep::maxJobs() const
 
 bool QbsBuildStep::fromMap(const QVariantMap &map)
 {
-    if (!ProjectExplorer::BuildStep::fromMap(map))
+    if (!BuildStep::fromMap(map))
         return false;
 
     setQbsConfiguration(map.value(QBS_CONFIG).toMap());
@@ -488,7 +488,7 @@ void QbsBuildStep::setBuildVariant(const QString &variant)
         return;
     m_qbsConfiguration.insert(Constants::QBS_CONFIG_VARIANT_KEY, variant);
     emit qbsConfigurationChanged();
-    if (ProjectExplorer::BuildConfiguration *bc = buildConfiguration())
+    if (BuildConfiguration *bc = buildConfiguration())
         emit bc->buildTypeChanged();
 }
 
@@ -664,7 +664,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
     connect(defaultInstallDirCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeUseDefaultInstallDir);
 
-    connect(installDirChooser, &Utils::PathChooser::rawPathChanged, this,
+    connect(installDirChooser, &PathChooser::rawPathChanged, this,
             &QbsBuildStepConfigWidget::changeInstallDir);
 
     updateState();
@@ -798,7 +798,7 @@ QbsBuildStep *QbsBuildStepConfigWidget::qbsStep() const
     return m_qbsStep;
 }
 
-bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage)
+bool QbsBuildStepConfigWidget::validateProperties(FancyLineEdit *edit, QString *errorMessage)
 {
     ProcessArgs::SplitError err;
     const QStringList argList = ProcessArgs::splitArgs(edit->text(), HostOsInfo::hostOs(), false, &err);
