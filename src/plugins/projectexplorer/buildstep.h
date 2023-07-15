@@ -127,7 +127,6 @@ signals:
 
 protected:
     virtual QWidget *createConfigWidget();
-    bool isCanceled() const;
     void setCancelMessage(const QString &message);
 
 private:
@@ -136,7 +135,6 @@ private:
     virtual Tasking::GroupItem runRecipe() = 0;
 
     BuildStepList * const m_stepList;
-    std::atomic_bool m_cancelFlag;
     bool m_enabled = true;
     bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;

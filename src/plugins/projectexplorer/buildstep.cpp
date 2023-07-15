@@ -138,7 +138,6 @@ bool BuildStep::init()
 
 void BuildStep::run()
 {
-    m_cancelFlag = false;
     QTC_ASSERT(!m_taskTree, return);
 
     m_taskTree.reset(new TaskTree({runRecipe()}));
@@ -158,7 +157,6 @@ void BuildStep::run()
 
 void BuildStep::cancel()
 {
-    m_cancelFlag = true;
     if (!m_taskTree)
         return;
 
@@ -319,11 +317,6 @@ QVariant BuildStep::data(Id id) const
 {
     Q_UNUSED(id)
     return {};
-}
-
-bool BuildStep::isCanceled() const
-{
-    return m_cancelFlag;
 }
 
 void BuildStep::setCancelMessage(const QString &message)
