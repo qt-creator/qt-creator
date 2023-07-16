@@ -652,12 +652,12 @@ void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFor
 void BuildManager::nextBuildQueue()
 {
     d->m_outputWindow->flush();
+    disconnectOutput(d->m_currentBuildStep);
+    decrementActiveBuildSteps(d->m_currentBuildStep);
+
     if (d->m_canceling) {
         d->m_canceling = false;
         QTimer::singleShot(0, m_instance, &BuildManager::emitCancelMessage);
-
-        disconnectOutput(d->m_currentBuildStep);
-        decrementActiveBuildSteps(d->m_currentBuildStep);
 
         //TODO NBS fix in qtconcurrent
         d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100,
@@ -666,11 +666,9 @@ void BuildManager::nextBuildQueue()
         return;
     }
 
-    disconnectOutput(d->m_currentBuildStep);
     if (!d->m_skipDisabled)
         ++d->m_progress;
     d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, msgProgress(d->m_progress, d->m_maxProgress));
-    decrementActiveBuildSteps(d->m_currentBuildStep);
 
     const bool success = d->m_skipDisabled || d->m_lastStepSucceeded;
     if (success) {
