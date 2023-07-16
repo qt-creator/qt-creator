@@ -30,6 +30,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/stringutils.h>
@@ -46,10 +48,41 @@
 #include <QTimer>
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
 using namespace Internal;
+
+class ParserAwaiterTaskAdapter : public TaskAdapter<QSet<BuildSystem *>>
+{
+private:
+    void start() final { checkParsing(); }
+    void checkParsing() {
+        const QSet<BuildSystem *> buildSystems = *task();
+        for (BuildSystem *buildSystem : buildSystems) {
+            if (!buildSystem || !buildSystem->isParsing())
+                continue;
+            connect(buildSystem, &BuildSystem::parsingFinished,
+                    this, [this, buildSystem](bool success) {
+                disconnect(buildSystem, &BuildSystem::parsingFinished, this, nullptr);
+                if (!success) {
+                    emit done(false);
+                    return;
+                }
+                checkParsing();
+            });
+            return;
+        }
+        emit done(true);
+    }
+};
+
+} // ProjectExplorer
+
+TASKING_DECLARE_TASK(ParserAwaiterTask, ProjectExplorer::ParserAwaiterTaskAdapter);
+
+namespace ProjectExplorer {
 
 static QString msgProgress(int progress, int total)
 {
