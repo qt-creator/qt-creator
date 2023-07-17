@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace Debugger::Internal {
 
-class GdbSettings : public Core::PagedSettings
+class GdbSettings : public Utils::AspectContainer
 {
 public:
     GdbSettings();
@@ -35,5 +35,7 @@ public:
     Utils::BoolAspect enableReverseDebugging{this};
     Utils::BoolAspect multiInferior{this};
 };
+
+GdbSettings &gdbSettings();
 
 } // Debugger::Internal

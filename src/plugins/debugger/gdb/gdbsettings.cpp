@@ -3,6 +3,8 @@
 
 #include "gdbsettings.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <debugger/commonoptionspage.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggerconstants.h>
@@ -18,11 +20,15 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
+GdbSettings &gdbSettings()
+{
+    static GdbSettings settings;
+    return settings;
+}
+
 GdbSettings::GdbSettings()
 {
-    setId("M.Gdb");
-    setDisplayName(Tr::tr("GDB"));
-    setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
+    setAutoApply(false);
     setSettingsGroup("DebugMode");
 
     useMessageBoxForSignals.setSettingsKey("UseMessageBoxForSignals");
@@ -249,5 +255,21 @@ GdbSettings::GdbSettings()
 
     readSettings();
 }
+
+// GdbSettingsPage
+
+class GdbSettingsPage final : public Core::IOptionsPage
+{
+public:
+    GdbSettingsPage()
+    {
+        setId("M.Gdb");
+        setDisplayName(Tr::tr("GDB"));
+        setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &gdbSettings(); });
+    }
+};
+
+const GdbSettingsPage settingsPage;
 
 } // Debugger::Internal

@@ -20,12 +20,10 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/aspects.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
 #include <QTextBlock>
-#include <QDir>
 
 using namespace Core;
 using namespace TextEditor;

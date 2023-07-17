@@ -3,12 +3,11 @@
 
 #pragma once
 
-#include "gdb/gdbsettings.h"
+#include <utils/aspects.h>
 
 #include <QCoreApplication>
 #include <QHash>
 #include <QMap>
-#include <QVector>
 
 namespace Debugger::Internal {
 
@@ -48,13 +47,36 @@ class GeneralSettings
     ~GeneralSettings();
 };
 
-class DebuggerSettings : public GdbSettings
+class DebuggerSettings
 {
 public:
     explicit DebuggerSettings();
     ~DebuggerSettings();
 
     static QString dump();
+
+    Utils::IntegerAspect &gdbWatchdogTimeout;
+    Utils::BoolAspect &skipKnownFrames;
+    Utils::BoolAspect &useMessageBoxForSignals;
+    Utils::BoolAspect &adjustBreakpointLocations;
+    Utils::BoolAspect &useDynamicType;
+    Utils::BoolAspect &loadGdbInit;
+    Utils::BoolAspect &loadGdbDumpers;
+    Utils::BoolAspect &intelFlavor;
+    Utils::BoolAspect &usePseudoTracepoints;
+    Utils::BoolAspect &useIndexCache;
+    Utils::StringAspect &gdbStartupCommands;
+    Utils::StringAspect &gdbPostAttachCommands;
+
+    Utils::BoolAspect &targetAsync;
+    Utils::BoolAspect &autoEnrichParameters;
+    Utils::BoolAspect &breakOnThrow;
+    Utils::BoolAspect &breakOnCatch;
+    Utils::BoolAspect &breakOnWarning;
+    Utils::BoolAspect &breakOnFatal;
+    Utils::BoolAspect &breakOnAbort;
+    Utils::BoolAspect &enableReverseDebugging;
+    Utils::BoolAspect &multiInferior;
 
     // Page 1: General
     Utils::BoolAspect useAlternatingRowColors;

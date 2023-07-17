@@ -7,6 +7,7 @@
 #include "debuggericons.h"
 #include "debuggerinternalconstants.h"
 #include "debuggertr.h"
+#include "gdb/gdbsettings.h"
 
 #ifdef Q_OS_WIN
 #include "registerpostmortemaction.h"
@@ -39,7 +40,28 @@ DebuggerSettings &settings()
     return settings;
 }
 
-DebuggerSettings::DebuggerSettings()
+DebuggerSettings::DebuggerSettings() :
+    gdbWatchdogTimeout{gdbSettings().gdbWatchdogTimeout},
+    skipKnownFrames{gdbSettings().skipKnownFrames},
+    useMessageBoxForSignals{gdbSettings().useMessageBoxForSignals},
+    adjustBreakpointLocations{gdbSettings().adjustBreakpointLocations},
+    useDynamicType{gdbSettings().useDynamicType},
+    loadGdbInit{gdbSettings().loadGdbInit},
+    loadGdbDumpers{gdbSettings().loadGdbDumpers},
+    intelFlavor{gdbSettings().intelFlavor},
+    usePseudoTracepoints{gdbSettings().usePseudoTracepoints},
+    useIndexCache{gdbSettings().useIndexCache},
+    gdbStartupCommands{gdbSettings().gdbStartupCommands},
+    gdbPostAttachCommands{gdbSettings().gdbPostAttachCommands},
+    targetAsync{gdbSettings().targetAsync},
+    autoEnrichParameters{gdbSettings().autoEnrichParameters},
+    breakOnThrow{gdbSettings().breakOnThrow},
+    breakOnCatch{gdbSettings().breakOnCatch},
+    breakOnWarning{gdbSettings().breakOnWarning},
+    breakOnFatal{gdbSettings().breakOnFatal},
+    breakOnAbort{gdbSettings().breakOnAbort},
+    enableReverseDebugging{gdbSettings().enableReverseDebugging},
+    multiInferior{gdbSettings().multiInferior}
 {
     const QString debugModeGroup(debugModeSettingsGroupC);
     const QString cdbSettingsGroup(cdbSettingsGroupC);
@@ -467,13 +489,11 @@ DebuggerSettings::~DebuggerSettings()
 void DebuggerSettings::readSettings()
 {
     all.readSettings();
-    GdbSettings::readSettings();
 }
 
 void DebuggerSettings::writeSettings() const
 {
     all.writeSettings();
-    GdbSettings::writeSettings();
 }
 
 QString DebuggerSettings::dump()
