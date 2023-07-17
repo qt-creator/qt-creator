@@ -595,11 +595,9 @@ void DesignModeWidget::initialize()
     if (m_initStatus == NotInitialized) {
         m_initStatus = Initializing;
         setup();
+        emit initialized();
     }
-
     m_initStatus = Initialized;
-
-    emit initialized();
 }
 
 } // namespace Internal

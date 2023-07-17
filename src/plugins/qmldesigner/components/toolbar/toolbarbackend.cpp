@@ -132,17 +132,21 @@ void CrumbleBarModel::onCrumblePathElementClicked(int i)
 
 WorkspaceModel::WorkspaceModel(QObject *)
 {
-    connect(designModeWidget(), &Internal::DesignModeWidget::initialized, this, [this]() {
+    auto connectDockManager = [this]() -> bool {
         const auto dockManager = designModeWidget()->dockManager();
+        if (!dockManager)
+            return false;
 
         connect(dockManager, &ADS::DockManager::workspaceListChanged, this, [this]() {
             beginResetModel();
             endResetModel();
         });
-
         beginResetModel();
         endResetModel();
-    });
+        return true;
+    };
+    if (!connectDockManager())
+        connect(designModeWidget(), &Internal::DesignModeWidget::initialized, this, connectDockManager);
 }
 
 int WorkspaceModel::rowCount(const QModelIndex &) const
@@ -288,19 +292,25 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             this,
             &ToolBarBackend::currentStyleChanged);
 
-    connect(designModeWidget(), &Internal::DesignModeWidget::initialized, this, [this]() {
+    auto connectDockManager = [this]() -> bool {
         const auto dockManager = designModeWidget()->dockManager();
+        if (!dockManager)
+            return false;
 
-        connect(dockManager, &ADS::DockManager::workspaceLoaded, this, [this](const QString &) {
-            emit currentWorkspaceChanged();
-        });
-
-        connect(dockManager, &ADS::DockManager::workspaceListChanged, this, [this]() {
-            emit currentWorkspaceChanged();
-        });
-
+        connect(dockManager,
+                &ADS::DockManager::workspaceLoaded,
+                this,
+                &ToolBarBackend::currentWorkspaceChanged);
+        connect(dockManager,
+                &ADS::DockManager::workspaceListChanged,
+                this,
+                &ToolBarBackend::currentWorkspaceChanged);
         emit currentWorkspaceChanged();
-    });
+        return true;
+    };
+
+    if (!connectDockManager())
+        connect(designModeWidget(), &Internal::DesignModeWidget::initialized, this, connectDockManager);
 
     auto editorManager = Core::EditorManager::instance();
 
