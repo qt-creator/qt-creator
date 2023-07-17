@@ -121,10 +121,17 @@ Editing
 * Fixed that the locator showed both the declaration and the definition of symbols
   ([QTCREATORBUG-13894](https://bugreports.qt.io/browse/QTCREATORBUG-13894))
 * Fixed the handling of C++20 keywords and concepts
+* Fixed that the automatic Doxygen comment generation did not work when
+  initializer lists `{}` were present
+  ([QTCREATORBUG-29198](https://bugreports.qt.io/browse/QTCREATORBUG-29198))
+* Fixed an issue when matching braces
+  ([QTCREATORBUG-29339](https://bugreports.qt.io/browse/QTCREATORBUG-29339))
 * Clangd
     * Fixed that the index could be outdated after VCS operations
     * Fixed the highlighting of labels
       ([QTCREATORBUG-27338](https://bugreports.qt.io/browse/QTCREATORBUG-27338))
+    * Fixed freezes when showing tool tips
+      ([QTCREATORBUG-29356](https://bugreports.qt.io/browse/QTCREATORBUG-29356))
 * Built-in
     * Fixed support for `if`-statements with initializer
       ([QTCREATORBUG-29182](https://bugreports.qt.io/browse/QTCREATORBUG-29182))
@@ -150,7 +157,10 @@ Editing
 * Fixed the completion for Qt Quick Controls
   ([QTCREATORBUG-28648](https://bugreports.qt.io/browse/QTCREATORBUG-28648))
 * Fixed that `qmllint` issues were not shown in the `Issues` view
-  ([QTCREATORBUG-28720](https://bugreports.qt.io/browse/QTCREATORBUG-28720))
+  ([QTCREATORBUG-28720](https://bugreports.qt.io/browse/QTCREATORBUG-28720),
+   [QTCREATORBUG-27762](https://bugreports.qt.io/browse/QTCREATORBUG-27762))
+* Fixed a wrong `M16` warning
+  ([QTCREATORBUG-28468](https://bugreports.qt.io/browse/QTCREATORBUG-28468))
 
 ### Python
 
@@ -162,6 +172,11 @@ Editing
   ([QTCREATORBUG-29224](https://bugreports.qt.io/browse/QTCREATORBUG-29224))
 
   ([Documentation](https://docs.qt.io/qtcreator/creator-python-development.html))
+
+### Meson
+
+* Fixed the file targets
+  ([QTCREATORBUG-29349](https://bugreports.qt.io/browse/QTCREATORBUG-29349))
 
 Projects
 --------
@@ -187,15 +202,28 @@ Projects
    [QTCREATORBUG-28985](https://bugreports.qt.io/browse/QTCREATORBUG-28985),
    [QTCREATORBUG-29006](https://bugreports.qt.io/browse/QTCREATORBUG-29006))
   ([Documentation](https://doc.qt.io/qtcreator/creator-project-cmake.html))
-* Added `Build > Reload CMake Presets` to reload CMake presets after making
-  changes to them
-  ([Documentation](https://docs.qt.io/qtcreator/creator-build-settings-cmake-presets.html))
 * Added support for the `block()` and `endblock()` CMake commands
   ([CMake documentation](https://cmake.org/cmake/help/latest/command/block.html#command:block))
-* Fixed that CMake Presets were not visible in the `Projects` view
-  ([QTCREATORBUG-28966](https://bugreports.qt.io/browse/QTCREATORBUG-28966))
 * Fixed issues with detecting a configured Qt version when importing a build
   ([QTCREATORBUG-29075](https://bugreports.qt.io/browse/QTCREATORBUG-29075))
+* Fixed the project wizards for Qt 6.3 and earlier
+  ([QTCREATORBUG-29067](https://bugreports.qt.io/browse/QTCREATORBUG-29067))
+* Presets
+    * Added `Build > Reload CMake Presets` to reload CMake presets after making
+      changes to them
+      ([Documentation](https://docs.qt.io/qtcreator/creator-build-settings-cmake-presets.html))
+    * Fixed that presets were not visible in the `Projects` view
+      ([QTCREATORBUG-28966](https://bugreports.qt.io/browse/QTCREATORBUG-28966))
+    * Fixed the type handling of the `architecture` and `toolset` fields
+      ([QTCREATORBUG-28693](https://bugreports.qt.io/browse/QTCREATORBUG-28693))
+    * Fixed the setting for QML debugging when creating build configurations
+      ([QTCREATORBUG-29311](https://bugreports.qt.io/browse/QTCREATORBUG-29311))
+
+
+### Qmake
+
+* Fixed an infinite loop when the Qt ABI changed
+  ([QTCREATORBUG-29204](https://bugreports.qt.io/browse/QTCREATORBUG-29204))
 
 ### Python
 
@@ -214,6 +242,10 @@ Debugging
   ([QTCREATORBUG-28950](https://bugreports.qt.io/browse/QTCREATORBUG-28950))
 * Fixed pretty printer for `std::string` for recent `libc++`
   ([QTCREATORBUG-29230](https://bugreports.qt.io/browse/QTCREATORBUG-29230))
+* Fixed the pretty printers on Fedora 37
+  ([QTCREATORBUG-28659](https://bugreports.qt.io/browse/QTCREATORBUG-28659))
+* Fixed the display of arrays with `Array of 10,000 items`
+  ([QTCREATORBUG-29196](https://bugreports.qt.io/browse/QTCREATORBUG-29196))
 
 ### C++
 
@@ -266,6 +298,11 @@ Platforms
 * Fixed an issue with building library targets
   ([QTCREATORBUG-26980](https://bugreports.qt.io/browse/QTCREATORBUG-26980))
 
+### iOS
+
+* Improved the bundle ID that the project wizards create
+  ([QTCREATORBUG-29340](https://bugreports.qt.io/browse/QTCREATORBUG-29340))
+
 ### Remote Linux
 
 * Removed the automatic sourcing of target-side shell profiles
@@ -276,6 +313,14 @@ Platforms
   ([QTCREATORBUG-29140](https://bugreports.qt.io/browse/QTCREATORBUG-29140))
 * Fixed issues after deleting the Docker image for a registered Docker device
   ([QTCREATORBUG-28880](https://bugreports.qt.io/browse/QTCREATORBUG-28880))
+
+### MCU
+
+* Fixed that errors were shown for valid QML code
+  ([QTCREATORBUG-26655](https://bugreports.qt.io/browse/QTCREATORBUG-26655),
+   [QTCREATORBUG-29155](https://bugreports.qt.io/browse/QTCREATORBUG-29155))
+* Fixed that files were missing from locator and project search
+  ([QTCREATORBUG-29297](https://bugreports.qt.io/browse/QTCREATORBUG-29297))
 
 ### QNX
 
@@ -289,6 +334,8 @@ Aleksei German
 Alessandro Portale  
 Alexander Drozdov  
 Alexander Pershin  
+Alexey Edelev  
+Alexis Jeandet  
 Ali Kianian  
 Alibek Omarov  
 Amr Essam  
@@ -309,8 +356,10 @@ Esa Törmänen
 Fabian Kosmale  
 Filippo Gentile  
 Friedemann Kleint  
+Haowei Hsu  
 Henning Gruendl  
 Jaroslaw Kobus  
+Joni Poikelin  
 Jussi Witick  
 Kai Köhne  
 Knud Dollereder  
@@ -324,6 +373,7 @@ Mats Honkamaa
 Miikka Heikkinen  
 Mitch Curtis  
 Niels Weber  
+Olivier Delaune  
 Orgad Shaneh  
 Pranta Dastider  
 Robert Löhning  
@@ -333,8 +383,8 @@ Tasuku Suzuki
 Thiago Macieira  
 Thomas Hartmann  
 Tim Jenssen  
-Tim Jenßen  
 Ulf Hermann  
 Vikas Pachdha  
+Wladimir Leuschner  
 Yasser Grimes  
 Yixue Wang  

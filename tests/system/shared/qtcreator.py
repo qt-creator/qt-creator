@@ -45,8 +45,9 @@ def __closeInfoBarEntry__(leftButtonText):
     leftWidget = "leftWidget={%s}" % (toolButton % leftButtonText)
     test.log("closing %s" % leftButtonText)
     buttonObjStr = "{%s %s}" % (doNotShowAgain, leftWidget)
+    checkIfObjectExists(buttonObjStr, verboseOnFail=True)
     clickButton(waitForObject(buttonObjStr))
-    waitFor('object.exists(buttonObjStr) == False', 2000)
+    checkIfObjectExists(buttonObjStr, False, 2000, True)
 
 # additionalParameters must be a list or tuple of strings or None
 def startQC(additionalParameters=None, withPreparedSettingsPath=True, closeLinkToQt=True, cancelTour=True):

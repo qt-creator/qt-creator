@@ -239,7 +239,76 @@
             \li \l{Using the Help Mode}
             \li \l{FAQ}
             \li \l{How-to}
+                \list
+                    \li Use the UI
+                        \list
+                            \li \l {Assign keyboard shortcuts}
+                            \li \l {Find a particular preference}
+                            \li \l {Find keyboard shortcuts}
+                            \li \l {Find menu items on \macos}
+                            \li \l {Import and export keyboard shortcuts}
+                            \li \l {Set high DPI scaling}
+                            \li \l {Set the number of recent files shown}
+                            \li \l {Show and hide sidebars}
+                            \li \l {Switch between modes}
+                            \li \l {Switch UI themes}
+                            \li \l {View output}
+                        \endlist
+                    \li Edit Code
+                        \list
+                            \li \l {Add code snippets to the auto-complete menu}
+                            \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
+                            \li \l {Jump to a function in QML code}
+                            \li \l {Locate files using the keyboard}
+                            \li \l {Move between open files}
+                            \li \l {Move to symbols}
+                            \li \l {Paste text from clipboard history}
+                            \li \l {Perform calculations}
+                            \li \l {Search and replace across files using a regular expression}
+                            \li \l {Select the enclosing block in C++}
+                            \li \l {Sort lines alphabetically}
+                            \li \l {Switch to Edit mode}
+                            \li \l {Write down notes}
+                        \endlist
+                    \li Design UIs
+                         \list
+                            \li \l {Export SVG images}
+                            \li \l {View images}
+                        \endlist
+                    \li Manage Projects
+                        \list
+                            \li \l {Add a license header template for C++ code}
+                        \endlist
+                    \li Use \QC
+                        \list
+                            \li \l {Enable and disable plugins}
+                            \li \l {Find settings files}
+                            \li \l {Install plugins}
+                            \li \l {Run \QC from the command line}
+                        \endlist
+                \endlist
             \li \l{Reference}
+                \list
+                    \li Sidebar Views
+                        \list
+                            \li \l {Call Hierarchy}
+                            \li \l {Class View}
+                            \li \l {File System}
+                            \li \l {Include Hierarchy}
+                            \li \l {Open Documents}
+                            \li \l {Outline}
+                            \li \l {Projects}
+                            \li \l {Type Hierarchy}
+                        \endlist
+                    \li Output Views
+                        \list
+                            \li \l {Application Output}
+                            \li \l {Compile Output}
+                            \li \l {Issues}
+                            \li \l {Search Results}
+                            \li \l {To-Do Entries}
+                        \endlist
+                \endlist
             \li \l{Known Issues}
             \li \l{Glossary}
             \li \l{Technical Support}
