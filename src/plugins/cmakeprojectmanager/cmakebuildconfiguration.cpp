@@ -1350,7 +1350,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 {
     m_buildSystem = new CMakeBuildSystem(this);
 
-    buildDir.setValueAcceptor(
+    buildDirectoryAspect()->setValueAcceptor(
         [](const QString &oldDir, const QString &newDir) -> std::optional<QString> {
             if (oldDir.isEmpty())
                 return newDir;
