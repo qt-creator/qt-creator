@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace TextEditor { class SimpleCodeStylePreferences; }
 
 namespace Nim {
 
-class NimSettings : public Core::PagedSettings
+class NimSettings final : public Utils::AspectContainer
 {
 public:
     NimSettings();
@@ -19,6 +19,8 @@ public:
 
     static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
 };
+
+NimSettings &settings();
 
 } // Nim
 

@@ -7,6 +7,7 @@
 #include "../nimtr.h"
 #include "nimcodestylepreferencesfactory.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <texteditor/codestylepool.h>
@@ -24,14 +25,16 @@ namespace Nim {
 
 static SimpleCodeStylePreferences *m_globalCodeStyle = nullptr;
 
+NimSettings &settings()
+{
+    static NimSettings theSettings;
+    return theSettings;
+}
+
 NimSettings::NimSettings()
 {
     setSettingsGroups("Nim", "NimSuggest");
-    setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
-    setDisplayName(Tr::tr("Tools"));
-    setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
-    setDisplayCategory(Tr::tr("Nim"));
-    setCategoryIconPath(":/nim/images/settingscategory_nim.png");
+    setAutoApply(false);
 
     setLayouter([this] {
         using namespace Layouting;
@@ -105,7 +108,26 @@ NimSettings::~NimSettings()
 
 SimpleCodeStylePreferences *NimSettings::globalCodeStyle()
 {
+    QTC_ASSERT(m_globalCodeStyle, settings()); // Ensure creation
     return m_globalCodeStyle;
 }
+
+// NimSettingsPage
+
+class NimSettingsPage final : public Core::IOptionsPage
+{
+public:
+    NimSettingsPage()
+    {
+        setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
+        setDisplayName(Tr::tr("Tools"));
+        setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
+        setDisplayCategory(Tr::tr("Nim"));
+        setCategoryIconPath(":/nim/images/settingscategory_nim.png");
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const NimSettingsPage settingsPage;
 
 } // namespace Nim
