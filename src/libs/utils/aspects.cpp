@@ -209,7 +209,7 @@ void BaseAspect::setVisible(bool visible)
         // This may happen during layout building. Explicit setting visibility here
         // may create a show a toplevel widget for a moment until it is parented
         // to some non-shown widget.
-        if (w->parentWidget())
+        if (!visible || w->parentWidget())
             w->setVisible(visible);
     }
 }
