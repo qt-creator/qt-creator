@@ -17,17 +17,18 @@ using namespace std::chrono_literals;
 
 namespace Terminal {
 
-using namespace Terminal::Internal;
-
 constexpr std::chrono::milliseconds debounceInterval = 100ms;
 
-TerminalSearch::TerminalSearch(TerminalSurface *surface)
+TerminalSearch::TerminalSearch(TerminalSolution::TerminalSurface *surface)
     : m_surface(surface)
 {
     m_debounceTimer.setInterval(debounceInterval);
     m_debounceTimer.setSingleShot(true);
 
-    connect(surface, &TerminalSurface::invalidated, this, &TerminalSearch::updateHits);
+    connect(surface,
+            &TerminalSolution::TerminalSurface::invalidated,
+            this,
+            &TerminalSearch::updateHits);
     connect(&m_debounceTimer, &QTimer::timeout, this, &TerminalSearch::debouncedUpdateHits);
 }
 
@@ -85,9 +86,9 @@ bool isSpace(char32_t a, char32_t b)
     return false;
 }
 
-QList<SearchHit> TerminalSearch::search()
+QList<TerminalSolution::SearchHit> TerminalSearch::search()
 {
-    QList<SearchHit> hits;
+    QList<TerminalSolution::SearchHit> hits;
 
     std::function<bool(char32_t, char32_t)> compare;
 
@@ -108,12 +109,12 @@ QList<SearchHit> TerminalSearch::search()
             searchString.insert(searchString.begin(), std::numeric_limits<char32_t>::max());
         }
 
-        Internal::CellIterator it = m_surface->begin();
+        TerminalSolution::CellIterator it = m_surface->begin();
         while (it != m_surface->end()) {
             it = std::search(it, m_surface->end(), searchString.begin(), searchString.end(), compare);
 
             if (it != m_surface->end()) {
-                auto hit = SearchHit{it.position(),
+                auto hit = TerminalSolution::SearchHit{it.position(),
                                      static_cast<int>(it.position() + searchString.size())};
                 if (m_findFlags.testFlag(FindFlag::FindWholeWords)) {
                     hit.start++;
@@ -127,9 +128,9 @@ QList<SearchHit> TerminalSearch::search()
     return hits;
 }
 
-QList<SearchHit> TerminalSearch::searchRegex()
+QList<TerminalSolution::SearchHit> TerminalSearch::searchRegex()
 {
-    QList<SearchHit> hits;
+    QList<TerminalSolution::SearchHit> hits;
 
     QString allText;
     allText.reserve(1000);
@@ -170,7 +171,7 @@ QList<SearchHit> TerminalSearch::searchRegex()
             }
             e -= adjust;
         }
-        hits << SearchHit{s, e};
+        hits << TerminalSolution::SearchHit{s, e};
     }
 
     return hits;
@@ -185,7 +186,7 @@ void TerminalSearch::debouncedUpdateHits()
 
     const bool regex = m_findFlags.testFlag(FindFlag::FindRegularExpression);
 
-    QList<SearchHit> hits = regex ? searchRegex() : search();
+    QList<TerminalSolution::SearchHit> hits = regex ? searchRegex() : search();
 
     if (hits != m_hits) {
         m_currentHit = -1;

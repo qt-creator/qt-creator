@@ -3,15 +3,17 @@
 
 #pragma once
 
+#include "terminal_global.h"
+
 #include <string>
 
 #include <QPoint>
 
-namespace Terminal::Internal {
+namespace TerminalSolution {
 
 class TerminalSurface;
 
-class CellIterator
+class TERMINAL_EXPORT CellIterator
 {
 public:
     using iterator_category = std::bidirectional_iterator_tag;
@@ -94,4 +96,4 @@ private:
     mutable std::u32string::value_type m_char;
 };
 
-} // namespace Terminal::Internal
+} // namespace TerminalSolution

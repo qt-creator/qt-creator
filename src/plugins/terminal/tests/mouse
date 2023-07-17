@@ -1,0 +1,67 @@
+#!/bin/sh
+
+
+function cleanup {
+    stty -echo
+    printf "\e[?1006;1000l"
+}
+
+trap cleanup EXIT
+
+stty -echo
+
+# Enable SGR protocol and button press and release events
+printf "\e[?1006;1000h"
+
+while read -n 1 line
+do
+  printf -v ch "%d" \'$line
+  if [ "27" != "$ch" ]; then
+    continue
+  fi
+  read -n 1 line
+  if [ "[" != "$line" ]; then
+    continue
+  fi
+  read -n 1 line
+  if [ "<" != "$line" ]; then
+    continue
+  fi
+  # Read button state
+  modifier=
+  while read -n 1 line
+  do
+    if [ ";" = "$line" ]; then
+      # End
+      break
+    fi
+    printf -v modifier "$modifier$line"
+  done
+  # Read column
+  col=
+  while read -n 1 line
+  do
+    if [ ";" = "$line" ]; then
+      # End
+      break
+    fi
+    printf -v col "$col$line"
+  done
+  # Read row
+  row=
+  while read -n 1 line
+  do
+    if [ "M" = "$line" ]  || [ "m" = "$line" ]; then
+      # End
+      btn=$line
+      break
+    fi
+    printf -v row "$row$line"
+  done
+  if [ "M" = "$btn" ]; then
+    echo "You pressed at $col x $row (mods: $modifier)"
+  else
+    echo "You released at $col x $row (mods: $modifier)"
+  fi
+done < "${1:-/dev/stdin}"
+

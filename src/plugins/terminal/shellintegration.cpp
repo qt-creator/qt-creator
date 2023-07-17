@@ -3,10 +3,13 @@
 
 #include "shellintegration.h"
 
+#include "terminalsettings.h"
+
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/stringutils.h>
 
+#include <QApplication>
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(integrationLog, "qtc.terminal.shellintegration", QtWarningMsg)
@@ -74,9 +77,12 @@ bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
     return false;
 }
 
-void ShellIntegration::onOsc(int cmd, const VTermStringFragment &fragment)
+void ShellIntegration::onOsc(int cmd, std::string_view str, bool initial, bool final)
 {
-    QString d = QString::fromLocal8Bit(fragment.str, fragment.len);
+    Q_UNUSED(initial);
+    Q_UNUSED(final);
+
+    QString d = QString::fromLocal8Bit(str);
     const auto [command, data] = Utils::splitAtFirst(d, ';');
 
     if (cmd == 1337) {
@@ -101,6 +107,17 @@ void ShellIntegration::onOsc(int cmd, const VTermStringFragment &fragment)
                 emit currentDirChanged(value.toString());
         }
     }
+}
+
+void ShellIntegration::onBell()
+{
+    if (settings().audibleBell.value())
+        QApplication::beep();
+}
+
+void ShellIntegration::onTitle(const QString &title)
+{
+    emit titleChanged(title);
 }
 
 void ShellIntegration::prepareProcess(Utils::Process &process)

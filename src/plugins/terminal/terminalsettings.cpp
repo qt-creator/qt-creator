@@ -8,8 +8,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <libptyqt/ptyqt.h>
-
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/expected.h>
@@ -72,7 +70,6 @@ void setupColor(TerminalSettings *settings,
     color.setSettingsKey(label);
     color.setDefaultValue(defaultColor);
     color.setToolTip(Tr::tr("The color used for %1.").arg(label));
-
     settings->registerAspect(&color);
 }
 
@@ -479,7 +476,7 @@ TerminalSettings::TerminalSettings()
         fontComboBox->setCurrentFont(font());
 
         connect(fontComboBox, &QFontComboBox::currentFontChanged, this, [this](const QFont &f) {
-            font.setValue(f.family());
+            font.setVolatileValue(f.family());
         });
 
         auto loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));

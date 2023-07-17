@@ -8,7 +8,7 @@
 #include <QGlyphRun>
 #include <QString>
 
-namespace Terminal::Internal {
+namespace TerminalSolution {
 
 struct GlyphCacheKey
 {
@@ -31,4 +31,4 @@ public:
     const QGlyphRun *get(const QFont &font, const QString &text);
 };
 
-} // namespace Terminal::Internal
+} // namespace TerminalSolution

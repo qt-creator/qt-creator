@@ -7,9 +7,9 @@
 
 #include <QKeyEvent>
 
-namespace Terminal::Internal {
+namespace TerminalSolution {
 
 VTermKey qtKeyToVTerm(Qt::Key key, bool keypad);
 VTermModifier qtModifierToVTerm(Qt::KeyboardModifiers mod);
 
-} // namespace Terminal::Internal
+} // namespace TerminalSolution

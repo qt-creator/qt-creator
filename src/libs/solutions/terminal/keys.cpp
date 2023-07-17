@@ -1,11 +1,9 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include <utils/hostosinfo.h>
-
 #include "keys.h"
 
-namespace Terminal::Internal {
+namespace TerminalSolution {
 
 VTermModifier qtModifierToVTerm(Qt::KeyboardModifiers mod)
 {
@@ -77,8 +75,9 @@ VTermKey qtKeyToVTerm(Qt::Key key, bool keypad)
     case Qt::Key_Enter: {
         VTermKey enterKey = VTERM_KEY_KP_ENTER;
 
-        if (Utils::HostOsInfo::isWindowsHost())
-            enterKey = VTERM_KEY_ENTER;
+#ifdef Q_OS_WIN
+        enterKey = VTERM_KEY_ENTER;
+#endif
 
         return keypad ? enterKey : VTERM_KEY_NONE;
     }
@@ -88,4 +87,4 @@ VTermKey qtKeyToVTerm(Qt::Key key, bool keypad)
         return VTERM_KEY_NONE;
     }
 }
-} // namespace Terminal::Internal
+} // namespace TerminalSolution

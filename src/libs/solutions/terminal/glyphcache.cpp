@@ -5,7 +5,7 @@
 
 #include <QTextLayout>
 
-namespace Terminal::Internal {
+namespace TerminalSolution {
 
 size_t qHash(const GlyphCacheKey &key, size_t seed = 0)
 {
@@ -45,4 +45,4 @@ const QGlyphRun *GlyphCache::get(const QFont &font, const QString &text)
     return nullptr;
 }
 
-} // namespace Terminal::Internal
+} // namespace TerminalSolution

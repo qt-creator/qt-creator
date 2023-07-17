@@ -3,7 +3,9 @@
 
 #pragma once
 
-#include "terminalsurface.h"
+#include <terminal/terminalsurface.h>
+
+#include <solutions/terminal/terminalview.h>
 
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/find/textfindconstants.h>
@@ -12,19 +14,7 @@
 
 namespace Terminal {
 
-struct SearchHit
-{
-    int start{-1};
-    int end{-1};
-
-    bool operator!=(const SearchHit &other) const
-    {
-        return start != other.start || end != other.end;
-    }
-    bool operator==(const SearchHit &other) const { return !operator!=(other); }
-};
-
-struct SearchHitWithText : SearchHit
+struct SearchHitWithText : TerminalSolution::SearchHit
 {
     QString text;
 };
@@ -33,17 +23,17 @@ class TerminalSearch : public Core::IFindSupport
 {
     Q_OBJECT
 public:
-    TerminalSearch(Internal::TerminalSurface *surface);
+    TerminalSearch(TerminalSolution::TerminalSurface *surface);
 
     void setCurrentSelection(std::optional<SearchHitWithText> selection);
     void setSearchString(const QString &searchString, Utils::FindFlags findFlags);
     void nextHit();
     void previousHit();
 
-    const QList<SearchHit> &hits() const { return m_hits; }
-    SearchHit currentHit() const
+    const QList<TerminalSolution::SearchHit> &hits() const { return m_hits; }
+    TerminalSolution::SearchHit currentHit() const
     {
-        return m_currentHit >= 0 ? m_hits.at(m_currentHit) : SearchHit{};
+        return m_currentHit >= 0 ? m_hits.at(m_currentHit) : TerminalSolution::SearchHit{};
     }
 
 public:
@@ -65,17 +55,17 @@ signals:
 protected:
     void updateHits();
     void debouncedUpdateHits();
-    QList<SearchHit> search();
-    QList<SearchHit> searchRegex();
+    QList<TerminalSolution::SearchHit> search();
+    QList<TerminalSolution::SearchHit> searchRegex();
 
 private:
     std::optional<SearchHitWithText> m_currentSelection;
     QString m_currentSearchString;
     Utils::FindFlags m_findFlags;
-    Internal::TerminalSurface *m_surface;
+    TerminalSolution::TerminalSurface *m_surface;
 
     int m_currentHit{-1};
-    QList<SearchHit> m_hits;
+    QList<TerminalSolution::SearchHit> m_hits;
     QTimer m_debounceTimer;
 };
 

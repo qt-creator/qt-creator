@@ -7,7 +7,7 @@
 
 #include <stdexcept>
 
-namespace Terminal::Internal {
+namespace TerminalSolution {
 
 CellIterator::CellIterator(const TerminalSurface *surface, QPoint pos)
     : CellIterator(surface, pos.x() + (pos.y() * surface->liveSize().width()))
@@ -91,4 +91,4 @@ CellIterator &CellIterator::operator+=(int n)
     return *this;
 }
 
-} // namespace Terminal::Internal
+} // namespace TerminalSolution

@@ -13,7 +13,7 @@
 #include <QFont>
 #include <QTextLayout>
 
-namespace Terminal::Internal {
+namespace TerminalSolution {
 
 class Scrollback
 {
@@ -54,4 +54,4 @@ private:
     std::deque<Line> m_deque;
 };
 
-} // namespace Terminal::Internal
+} // namespace TerminalSolution

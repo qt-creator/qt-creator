@@ -2,17 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "terminalsurface.h"
+#include "surfaceintegration.h"
 
 #include "keys.h"
 #include "scrollback.h"
-
-#include <utils/qtcassert.h>
 
 #include <vterm.h>
 
 #include <QLoggingCategory>
 
-namespace Terminal::Internal {
+namespace TerminalSolution {
 
 Q_LOGGING_CATEGORY(log, "qtc.terminal.surface", QtWarningMsg);
 
@@ -23,13 +22,10 @@ QColor toQColor(const VTermColor &c)
 
 struct TerminalSurfacePrivate
 {
-    TerminalSurfacePrivate(TerminalSurface *surface,
-                           const QSize &initialGridSize,
-                           ShellIntegration *shellIntegration)
+    TerminalSurfacePrivate(TerminalSurface *surface, const QSize &initialGridSize)
         : m_vterm(vterm_new(initialGridSize.height(), initialGridSize.width()), vterm_free)
         , m_vtermScreen(vterm_obtain_screen(m_vterm.get()))
-        , m_scrollback(std::make_unique<Internal::Scrollback>(5000))
-        , m_shellIntegration(shellIntegration)
+        , m_scrollback(std::make_unique<Scrollback>(5000))
         , q(surface)
     {}
 
@@ -74,7 +70,8 @@ struct TerminalSurfacePrivate
         };
         m_vtermScreenCallbacks.bell = [](void *user) {
             auto p = static_cast<TerminalSurfacePrivate *>(user);
-            emit p->q->bell();
+            if (p->m_surfaceIntegration)
+                p->m_surfaceIntegration->onBell();
             return 1;
         };
 
@@ -219,8 +216,12 @@ struct TerminalSurfacePrivate
 
     int osc(int cmd, const VTermStringFragment &fragment)
     {
-        if (m_shellIntegration)
-            m_shellIntegration->onOsc(cmd, fragment);
+        if (m_surfaceIntegration) {
+            m_surfaceIntegration->onOsc(cmd,
+                                        {fragment.str, fragment.len},
+                                        fragment.initial,
+                                        fragment.final);
+        }
 
         return 1;
     }
@@ -249,7 +250,8 @@ struct TerminalSurfacePrivate
         case VTERM_PROP_ICONNAME:
             break;
         case VTERM_PROP_TITLE:
-            emit q->titleChanged(QString::fromUtf8(val->string.str, val->string.len));
+            if (m_surfaceIntegration)
+                m_surfaceIntegration->onTitle(QString::fromUtf8(val->string.str, val->string.len));
             break;
         case VTERM_PROP_ALTSCREEN:
             m_altscreen = val->boolean;
@@ -278,8 +280,11 @@ struct TerminalSurfacePrivate
 
     const VTermScreenCell *cellAt(int x, int y)
     {
-        QTC_ASSERT(y >= 0 && x >= 0, return nullptr);
-        QTC_ASSERT(y < q->fullSize().height() && x < liveSize().width(), return nullptr);
+        if (y < 0 || x < 0 || y >= q->fullSize().height() || x >= liveSize().width()) {
+            qCWarning(log) << "Invalid Parameter for cellAt:" << x << y << "liveSize:" << liveSize()
+                           << "fullSize:" << q->fullSize();
+            return nullptr;
+        }
 
         if (!m_altscreen && y < m_scrollback->size()) {
             const auto &sbl = m_scrollback->line((m_scrollback->size() - 1) - y);
@@ -309,15 +314,15 @@ struct TerminalSurfacePrivate
 
     bool m_altscreen{false};
 
-    std::unique_ptr<Internal::Scrollback> m_scrollback;
+    std::unique_ptr<Scrollback> m_scrollback;
 
-    ShellIntegration *m_shellIntegration{nullptr};
+    SurfaceIntegration *m_surfaceIntegration{nullptr};
 
     TerminalSurface *q;
 };
 
-TerminalSurface::TerminalSurface(QSize initialGridSize, ShellIntegration *shellIntegration)
-    : d(std::make_unique<TerminalSurfacePrivate>(this, initialGridSize, shellIntegration))
+TerminalSurface::TerminalSurface(QSize initialGridSize)
+    : d(std::make_unique<TerminalSurfacePrivate>(this, initialGridSize))
 {
     d->init();
 }
@@ -369,8 +374,10 @@ TerminalCell TerminalSurface::fetchCell(int x, int y) const
                                   QTextCharFormat::NoUnderline,
                                   false};
 
-    QTC_ASSERT(y >= 0, return emptyCell);
-    QTC_ASSERT(y < fullSize().height() && x < fullSize().width(), return emptyCell);
+    if (y < 0 || y >= fullSize().height() || x >= fullSize().width()) {
+        qCWarning(log) << "Invalid Parameter for fetchCell:" << x << y << "fullSize:" << fullSize();
+        return emptyCell;
+    }
 
     const VTermScreenCell *refCell = d->cellAt(x, y);
     if (!refCell)
@@ -450,8 +457,8 @@ void TerminalSurface::sendKey(const QString &text)
 void TerminalSurface::sendKey(QKeyEvent *event)
 {
     bool keypad = event->modifiers() & Qt::KeypadModifier;
-    VTermModifier mod = Internal::qtModifierToVTerm(event->modifiers());
-    VTermKey key = Internal::qtKeyToVTerm(Qt::Key(event->key()), keypad);
+    VTermModifier mod = qtModifierToVTerm(event->modifiers());
+    VTermKey key = qtKeyToVTerm(Qt::Key(event->key()), keypad);
 
     if (key != VTERM_KEY_NONE) {
         if (mod == VTERM_MOD_SHIFT && (key == VTERM_KEY_ESCAPE || key == VTERM_KEY_BACKSPACE))
@@ -489,14 +496,19 @@ Cursor TerminalSurface::cursor() const
     return cursor;
 }
 
-ShellIntegration *TerminalSurface::shellIntegration() const
+SurfaceIntegration *TerminalSurface::surfaceIntegration() const
 {
-    return d->m_shellIntegration;
+    return d->m_surfaceIntegration;
+}
+
+void TerminalSurface::setSurfaceIntegration(SurfaceIntegration *surfaceIntegration)
+{
+    d->m_surfaceIntegration = surfaceIntegration;
 }
 
 void TerminalSurface::mouseMove(QPoint pos, Qt::KeyboardModifiers modifiers)
 {
-    vterm_mouse_move(d->m_vterm.get(), pos.y(), pos.x(), Internal::qtModifierToVTerm(modifiers));
+    vterm_mouse_move(d->m_vterm.get(), pos.y(), pos.x(), qtModifierToVTerm(modifiers));
 }
 
 void TerminalSurface::mouseButton(Qt::MouseButton button,
@@ -524,7 +536,7 @@ void TerminalSurface::mouseButton(Qt::MouseButton button,
         return;
     }
 
-    vterm_mouse_button(d->m_vterm.get(), btnIdx, pressed, Internal::qtModifierToVTerm(modifiers));
+    vterm_mouse_button(d->m_vterm.get(), btnIdx, pressed, qtModifierToVTerm(modifiers));
 }
 
 CellIterator TerminalSurface::begin() const
@@ -568,4 +580,4 @@ std::reverse_iterator<CellIterator> TerminalSurface::rIteratorAt(int pos) const
     return std::make_reverse_iterator(iteratorAt(pos));
 }
 
-} // namespace Terminal::Internal
+} // namespace TerminalSolution

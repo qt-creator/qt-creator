@@ -8,7 +8,7 @@
 #include <cstring>
 #include <future>
 
-namespace Terminal::Internal {
+namespace TerminalSolution {
 
 Scrollback::Line::Line(int cols, const VTermScreenCell *cells)
     : m_cols(cols)
@@ -58,4 +58,4 @@ void Scrollback::clear()
     m_deque.clear();
 }
 
-} // namespace Terminal::Internal
+} // namespace TerminalSolution

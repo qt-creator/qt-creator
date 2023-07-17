@@ -80,7 +80,8 @@ TerminalPane::TerminalPane(QObject *parent)
             m_escSettingButton->setToolTip(Tr::tr("Sends Esc to terminal instead of Qt Creator."));
         } else {
             m_escSettingButton->setText(shiftEsc);
-            m_escSettingButton->setToolTip(Tr::tr("Press %1 to send Esc to terminal.").arg(shiftEsc));
+            m_escSettingButton->setToolTip(
+                Tr::tr("Press %1 to send Esc to terminal.").arg(shiftEsc));
         }
     };
 
@@ -161,8 +162,8 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
         if (icon.isNull()) {
             QFileIconProvider iconProvider;
             const FilePath command = parametersCopy.shellCommand
-                    ? parametersCopy.shellCommand->executable()
-                    : settings().shell();
+                                         ? parametersCopy.shellCommand->executable()
+                                         : settings().shell();
             icon = iconProvider.icon(command.toFileInfo());
         }
     }
