@@ -112,9 +112,7 @@ void CppcheckPluginPrivate::startManualRun()
 
     manualRunTool.updateOptions();
 
-    auto optionsWidget = settings().layouter()().emerge();
-
-    ManualRunDialog dialog(optionsWidget, project);
+    ManualRunDialog dialog(project);
     if (dialog.exec() == ManualRunDialog::Rejected)
         return;
 
