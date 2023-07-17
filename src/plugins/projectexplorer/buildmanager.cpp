@@ -844,7 +844,7 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
     d->m_maxProgress += enabledCount;
     for (const BuildItem &item : items)
         incrementActiveBuildSteps(item.buildStep);
-    if (CompileOutputSettings::instance().popUp())
+    if (compileOutputSettings().popUp())
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
     startBuildQueue();
     return true;

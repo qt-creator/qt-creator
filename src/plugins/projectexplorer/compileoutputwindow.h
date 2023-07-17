@@ -26,17 +26,17 @@ namespace Internal {
 class ShowOutputTaskHandler;
 class CompileOutputTextEdit;
 
-class CompileOutputSettings final : public Core::PagedSettings
+class CompileOutputSettings final : public Utils::AspectContainer
 {
 public:
     CompileOutputSettings();
-
-    static CompileOutputSettings &instance();
 
     Utils::BoolAspect popUp{this};
     Utils::BoolAspect wrapOutput{this};
     Utils::IntegerAspect maxCharCount{this};
 };
+
+CompileOutputSettings &compileOutputSettings();
 
 class CompileOutputWindow final : public Core::IOutputPane
 {
@@ -80,7 +80,6 @@ private:
     ShowOutputTaskHandler *m_handler;
     QToolButton *m_cancelBuildButton;
     QToolButton * const m_settingsButton;
-    CompileOutputSettings m_settings;
 };
 
 } // namespace Internal
