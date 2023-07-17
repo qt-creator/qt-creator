@@ -11,6 +11,7 @@ class NimCodeStyleSettingsPage final : public Core::IOptionsPage
 {
 public:
     NimCodeStyleSettingsPage();
+    ~NimCodeStyleSettingsPage();
 };
 
 } // Nim

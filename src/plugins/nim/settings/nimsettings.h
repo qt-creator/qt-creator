@@ -5,19 +5,14 @@
 
 #include <utils/aspects.h>
 
-namespace TextEditor { class SimpleCodeStylePreferences; }
-
 namespace Nim {
 
 class NimSettings final : public Utils::AspectContainer
 {
 public:
     NimSettings();
-    ~NimSettings();
 
     Utils::FilePathAspect nimSuggestPath{this};
-
-    static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
 };
 
 NimSettings &settings();
