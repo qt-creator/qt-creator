@@ -3,14 +3,16 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
+
+#include <functional>
 
 namespace Cppcheck::Internal {
 
-class CppcheckOptions final : public Core::PagedSettings
+class CppcheckSettings final : public Utils::AspectContainer
 {
 public:
-    CppcheckOptions();
+    CppcheckSettings();
 
     std::function<Layouting::LayoutItem()> layouter();
 
@@ -31,5 +33,8 @@ public:
     Utils::BoolAspect addIncludePaths{this};
     Utils::BoolAspect guessArguments{this};
 };
+
+CppcheckSettings &settings();
+
 
 } // Cppcheck::Internal

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <cppcheck/cppcheckoptions.h>
+#include <utils/id.h>
 
 #include <QFutureInterface>
 #include <QPointer>
@@ -24,14 +24,13 @@ namespace Cppcheck::Internal {
 
 class CppcheckRunner;
 class CppcheckDiagnosticManager;
-class CppcheckOptions;
 
 class CppcheckTool final : public QObject
 {
     Q_OBJECT
 
 public:
-    CppcheckTool(CppcheckOptions &options, CppcheckDiagnosticManager &manager, const Utils::Id &progressId);
+    CppcheckTool(CppcheckDiagnosticManager &manager, const Utils::Id &progressId);
     ~CppcheckTool() override;
 
     void updateOptions();
@@ -49,7 +48,6 @@ private:
     void addToQueue(const Utils::FilePaths &files, const CppEditor::ProjectPart &part);
     QStringList additionalArguments(const CppEditor::ProjectPart &part) const;
 
-    CppcheckOptions &m_options;
     CppcheckDiagnosticManager &m_manager;
     QPointer<ProjectExplorer::Project> m_project;
     std::unique_ptr<CppcheckRunner> m_runner;

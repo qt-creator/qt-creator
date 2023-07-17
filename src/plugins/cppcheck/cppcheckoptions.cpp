@@ -16,6 +16,7 @@
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <debugger/analyzer/analyzericons.h>
@@ -25,14 +26,16 @@ using namespace Utils;
 
 namespace Cppcheck::Internal {
 
-CppcheckOptions::CppcheckOptions()
+CppcheckSettings &settings()
 {
-    setId(Constants::OPTIONS_PAGE_ID);
-    setDisplayName(Tr::tr("Cppcheck"));
-    setCategory("T.Analyzer");
-    setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
-    setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+    static CppcheckSettings theSettings;
+    return theSettings;
+}
+
+CppcheckSettings::CppcheckSettings()
+{
     setSettingsGroup("Cppcheck");
+    setAutoApply(false);
 
     binary.setSettingsKey("binary");
     binary.setExpectedKind(PathChooser::ExistingCommand);
@@ -108,7 +111,7 @@ CppcheckOptions::CppcheckOptions()
     readSettings();
 }
 
-std::function<Layouting::LayoutItem()> CppcheckOptions::layouter()
+std::function<Layouting::LayoutItem()> CppcheckSettings::layouter()
 {
     return [this] {
         using namespace Layouting;
@@ -135,5 +138,21 @@ std::function<Layouting::LayoutItem()> CppcheckOptions::layouter()
         };
     };
 }
+
+class CppCheckSettingsPage final : public Core::IOptionsPage
+{
+public:
+    CppCheckSettingsPage()
+    {
+        setId(Constants::OPTIONS_PAGE_ID);
+        setDisplayName(Tr::tr("Cppcheck"));
+        setCategory("T.Analyzer");
+        setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
+        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const CppCheckSettingsPage settingsPage;
 
 } // Cppcheck::Internal
