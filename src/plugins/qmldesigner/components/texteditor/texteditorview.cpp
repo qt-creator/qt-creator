@@ -16,12 +16,13 @@
 #include <nodelistproperty.h>
 #include <qmldesignerplugin.h>
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -97,9 +98,12 @@ void TextEditorView::modelAboutToBeDetached(Model *model)
     m_widget->setTextEditor(nullptr);
 
     // in case the user closed it explicit we do not want to do anything with the editor
-    if (TextEditor::BaseTextEditor *textEditor =
-            QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()) {
-        QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(textEditor);
+    if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN) {
+        if (TextEditor::BaseTextEditor *textEditor = QmlDesignerPlugin::instance()
+                                                         ->currentDesignDocument()
+                                                         ->textEditor()) {
+            QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(textEditor);
+        }
     }
 }
 
