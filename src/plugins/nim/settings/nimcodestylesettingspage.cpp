@@ -67,8 +67,7 @@ static void createGlobalCodeStyle()
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    QSettings *s = Core::ICore::settings();
-    m_globalCodeStyle->fromSettings(QLatin1String(Nim::Constants::C_NIMLANGUAGE_ID), s);
+    m_globalCodeStyle->fromSettings(QLatin1String(Nim::Constants::C_NIMLANGUAGE_ID));
 
     TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE,
                                                       Nim::Constants::C_NIMLANGUAGE_ID);
@@ -107,17 +106,12 @@ public:
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);
-
-        QTC_ASSERT(m_globalCodeStyle, return);
-        QSettings *s = Core::ICore::settings();
-        m_globalCodeStyle->toSettings(QLatin1String(Nim::Constants::C_NIMLANGUAGE_ID), s);
     }
 
     void apply() final
     {
         QTC_ASSERT(m_globalCodeStyle, return);
-        QSettings *s = Core::ICore::settings();
-        m_globalCodeStyle->toSettings(QLatin1String(Nim::Constants::C_NIMLANGUAGE_ID), s);
+        m_globalCodeStyle->toSettings(QLatin1String(Nim::Constants::C_NIMLANGUAGE_ID));
     }
 
 private:

@@ -3,11 +3,12 @@
 
 #include "storagesettings.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/settingsutils.h>
 
 #include <QRegularExpression>
-#include <QSettings>
 #include <QString>
 
 namespace TextEditor {
@@ -31,15 +32,15 @@ StorageSettings::StorageSettings()
 {
 }
 
-void StorageSettings::toSettings(const QString &category, QSettings *s) const
+void StorageSettings::toSettings(const QString &category) const
 {
-    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
+    Utils::toSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
 }
 
-void StorageSettings::fromSettings(const QString &category, QSettings *s)
+void StorageSettings::fromSettings(const QString &category)
 {
     *this = StorageSettings();
-    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
+    Utils::fromSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
 }
 
 QVariantMap StorageSettings::toMap() const

@@ -31,7 +31,6 @@
 #include <QCoreApplication>
 #include <QGridLayout>
 #include <QPointer>
-#include <QSettings>
 #include <QSpacerItem>
 
 namespace TextEditor {
@@ -64,12 +63,11 @@ BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate()
     m_defaultCodeStylePool = new CodeStylePool(nullptr, this); // Any language
     m_defaultCodeStylePool->addCodeStyle(m_codeStyle);
 
-    QSettings * const s = Core::ICore::settings();
-    m_codeStyle->fromSettings(m_settingsPrefix, s);
-    m_typingSettings.fromSettings(m_settingsPrefix, s);
-    m_storageSettings.fromSettings(m_settingsPrefix, s);
-    m_behaviorSettings.fromSettings(m_settingsPrefix, s);
-    m_extraEncodingSettings.fromSettings(m_settingsPrefix, s);
+    m_codeStyle->fromSettings(m_settingsPrefix);
+    m_typingSettings.fromSettings(m_settingsPrefix);
+    m_storageSettings.fromSettings(m_settingsPrefix);
+    m_behaviorSettings.fromSettings(m_settingsPrefix);
+    m_extraEncodingSettings.fromSettings(m_settingsPrefix);
 }
 
 class BehaviorSettingsWidgetImpl : public Core::IOptionsPageWidget
@@ -153,47 +151,45 @@ void BehaviorSettingsWidgetImpl::apply()
     d->m_behaviorWidget->assignedBehaviorSettings(&newBehaviorSettings);
     d->m_behaviorWidget->assignedExtraEncodingSettings(&newExtraEncodingSettings);
 
-    QSettings *s = Core::ICore::settings();
-    QTC_ASSERT(s, return);
-
     if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings()) {
         d->m_codeStyle->setTabSettings(d->m_pageCodeStyle->tabSettings());
-        d->m_codeStyle->toSettings(d->m_settingsPrefix, s);
+        d->m_codeStyle->toSettings(d->m_settingsPrefix);
     }
 
     if (d->m_codeStyle->currentDelegate() != d->m_pageCodeStyle->currentDelegate()) {
         d->m_codeStyle->setCurrentDelegate(d->m_pageCodeStyle->currentDelegate());
-        d->m_codeStyle->toSettings(d->m_settingsPrefix, s);
+        d->m_codeStyle->toSettings(d->m_settingsPrefix);
     }
 
     if (newTypingSettings != d->m_typingSettings) {
         d->m_typingSettings = newTypingSettings;
-        d->m_typingSettings.toSettings(d->m_settingsPrefix, s);
+        d->m_typingSettings.toSettings(d->m_settingsPrefix);
 
         emit TextEditorSettings::instance()->typingSettingsChanged(newTypingSettings);
     }
 
     if (newStorageSettings != d->m_storageSettings) {
         d->m_storageSettings = newStorageSettings;
-        d->m_storageSettings.toSettings(d->m_settingsPrefix, s);
+        d->m_storageSettings.toSettings(d->m_settingsPrefix);
 
         emit TextEditorSettings::instance()->storageSettingsChanged(newStorageSettings);
     }
 
     if (newBehaviorSettings != d->m_behaviorSettings) {
         d->m_behaviorSettings = newBehaviorSettings;
-        d->m_behaviorSettings.toSettings(d->m_settingsPrefix, s);
+        d->m_behaviorSettings.toSettings(d->m_settingsPrefix);
 
         emit TextEditorSettings::instance()->behaviorSettingsChanged(newBehaviorSettings);
     }
 
     if (newExtraEncodingSettings != d->m_extraEncodingSettings) {
         d->m_extraEncodingSettings = newExtraEncodingSettings;
-        d->m_extraEncodingSettings.toSettings(d->m_settingsPrefix, s);
+        d->m_extraEncodingSettings.toSettings(d->m_settingsPrefix);
 
         emit TextEditorSettings::instance()->extraEncodingSettingsChanged(newExtraEncodingSettings);
     }
 
+    QSettings *s = Core::ICore::settings();
     s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULTTEXTENCODING),
                 d->m_behaviorWidget->assignedCodecName());
     s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULT_LINE_TERMINATOR),

@@ -68,8 +68,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    QSettings *s = Core::ICore::settings();
-    m_globalCodeStyle->fromSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
+    m_globalCodeStyle->fromSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID));
 
     // mimetypes to be handled
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);

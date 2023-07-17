@@ -4,9 +4,10 @@
 #include "icodestylepreferences.h"
 #include "codestylepool.h"
 #include "tabsettings.h"
-#include <utils/settingsutils.h>
 
-#include <QSettings>
+#include <coreplugin/icore.h>
+
+#include <utils/settingsutils.h>
 
 using namespace TextEditor;
 
@@ -211,14 +212,14 @@ void ICodeStylePreferences::setSettingsSuffix(const QString &suffix)
     d->m_settingsSuffix = suffix;
 }
 
-void ICodeStylePreferences::toSettings(const QString &category, QSettings *s) const
+void ICodeStylePreferences::toSettings(const QString &category) const
 {
-    Utils::toSettings(d->m_settingsSuffix, category, s, this);
+    Utils::toSettings(d->m_settingsSuffix, category, Core::ICore::settings(), this);
 }
 
-void ICodeStylePreferences::fromSettings(const QString &category, QSettings *s)
+void ICodeStylePreferences::fromSettings(const QString &category)
 {
-    Utils::fromSettings(d->m_settingsSuffix, category, s, this);
+    Utils::fromSettings(d->m_settingsSuffix, category, Core::ICore::settings(), this);
 }
 
 QVariantMap ICodeStylePreferences::toMap() const

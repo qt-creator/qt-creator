@@ -7,10 +7,6 @@
 
 #include <QVariantMap>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT StorageSettings
@@ -18,8 +14,8 @@ class TEXTEDITOR_EXPORT StorageSettings
 public:
     StorageSettings();
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
+    void toSettings(const QString &category) const;
+    void fromSettings(const QString &category);
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);

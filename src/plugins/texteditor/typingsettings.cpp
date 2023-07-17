@@ -3,7 +3,10 @@
 
 #include "typingsettings.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/settingsutils.h>
+
 #include <QTextCursor>
 #include <QTextDocument>
 
@@ -24,15 +27,15 @@ TypingSettings::TypingSettings():
 {
 }
 
-void TypingSettings::toSettings(const QString &category, QSettings *s) const
+void TypingSettings::toSettings(const QString &category) const
 {
-    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
+    Utils::toSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
 }
 
-void TypingSettings::fromSettings(const QString &category, QSettings *s)
+void TypingSettings::fromSettings(const QString &category)
 {
     *this = TypingSettings(); // Assign defaults
-    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
+    Utils::fromSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
 }
 
 QVariantMap TypingSettings::toMap() const

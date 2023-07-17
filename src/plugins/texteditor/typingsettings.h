@@ -8,7 +8,6 @@
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QTextDocument;
 class QTextCursor;
 QT_END_NAMESPACE
@@ -36,8 +35,8 @@ public:
 
     bool tabShouldIndent(const QTextDocument *document, const QTextCursor &cursor, int *suggestedPosition) const;
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
+    void toSettings(const QString &category) const;
+    void fromSettings(const QString &category);
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);

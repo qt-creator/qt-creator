@@ -9,7 +9,6 @@
 
 QT_BEGIN_NAMESPACE
 class QVariant;
-class QSettings;
 QT_END_NAMESPACE
 
 namespace TextEditor {
@@ -64,8 +63,8 @@ public:
     void setCurrentDelegate(const QByteArray &id);
 
     void setSettingsSuffix(const QString &suffix);
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
+    void toSettings(const QString &category) const;
+    void fromSettings(const QString &category);
 
     // make below 2 protected?
     virtual QVariantMap toMap() const;

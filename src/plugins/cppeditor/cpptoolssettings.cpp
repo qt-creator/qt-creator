@@ -130,9 +130,8 @@ CppToolsSettings::CppToolsSettings()
 
     pool->loadCustomCodeStyles();
 
-    QSettings *s = ICore::settings();
     // load global settings (after built-in settings are added to the pool)
-    d->m_globalCodeStyle->fromSettings(QLatin1String(Constants::CPP_SETTINGS_ID), s);
+    d->m_globalCodeStyle->fromSettings(QLatin1String(Constants::CPP_SETTINGS_ID));
 
     // mimetypes to be handled
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::C_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);

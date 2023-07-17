@@ -3,9 +3,10 @@
 
 #include "behaviorsettings.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/settingsutils.h>
 
-#include <QSettings>
 #include <QString>
 
 static const char mouseHidingKey[] = "MouseHiding";
@@ -30,15 +31,15 @@ BehaviorSettings::BehaviorSettings() :
 {
 }
 
-void BehaviorSettings::toSettings(const QString &category, QSettings *s) const
+void BehaviorSettings::toSettings(const QString &category) const
 {
-    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
+    Utils::toSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
 }
 
-void BehaviorSettings::fromSettings(const QString &category, QSettings *s)
+void BehaviorSettings::fromSettings(const QString &category)
 {
     *this = BehaviorSettings();
-    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
+    Utils::fromSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
 }
 
 QVariantMap BehaviorSettings::toMap() const

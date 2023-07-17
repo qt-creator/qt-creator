@@ -11,8 +11,13 @@
 #include "cpppointerdeclarationformatter.h"
 #include "cpptoolssettings.h"
 
-#include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
+
+#include <cplusplus/Overview.h>
+#include <cplusplus/pp.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
@@ -23,13 +28,9 @@
 #include <texteditor/tabsettingswidget.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
+
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
-
-#include <cplusplus/Overview.h>
-#include <cplusplus/pp.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <QCheckBox>
 #include <QTabWidget>
@@ -588,20 +589,18 @@ public:
 
     void apply() final
     {
-        QSettings *s = Core::ICore::settings();
-
         CppCodeStylePreferences *originalCppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
         if (originalCppCodeStylePreferences->codeStyleSettings() != m_pageCppCodeStylePreferences->codeStyleSettings()) {
             originalCppCodeStylePreferences->setCodeStyleSettings(m_pageCppCodeStylePreferences->codeStyleSettings());
-            originalCppCodeStylePreferences->toSettings(QLatin1String(CppEditor::Constants::CPP_SETTINGS_ID), s);
+            originalCppCodeStylePreferences->toSettings(QLatin1String(CppEditor::Constants::CPP_SETTINGS_ID));
         }
         if (originalCppCodeStylePreferences->tabSettings() != m_pageCppCodeStylePreferences->tabSettings()) {
             originalCppCodeStylePreferences->setTabSettings(m_pageCppCodeStylePreferences->tabSettings());
-            originalCppCodeStylePreferences->toSettings(QLatin1String(CppEditor::Constants::CPP_SETTINGS_ID), s);
+            originalCppCodeStylePreferences->toSettings(QLatin1String(CppEditor::Constants::CPP_SETTINGS_ID));
         }
         if (originalCppCodeStylePreferences->currentDelegate() != m_pageCppCodeStylePreferences->currentDelegate()) {
             originalCppCodeStylePreferences->setCurrentDelegate(m_pageCppCodeStylePreferences->currentDelegate());
-            originalCppCodeStylePreferences->toSettings(QLatin1String(CppEditor::Constants::CPP_SETTINGS_ID), s);
+            originalCppCodeStylePreferences->toSettings(QLatin1String(CppEditor::Constants::CPP_SETTINGS_ID));
         }
 
         m_codeStyleEditor->apply();

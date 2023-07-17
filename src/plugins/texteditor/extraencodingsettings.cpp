@@ -6,35 +6,34 @@
 #include "behaviorsettingswidget.h"
 #include "texteditortr.h"
 
-#include <utils/settingsutils.h>
+#include <coreplugin/icore.h>
 
-#include <QLatin1String>
-#include <QSettings>
+#include <utils/settingsutils.h>
 
 // Keep this for compatibility reasons.
 static const char kGroupPostfix[] = "EditorManager";
 static const char kUtf8BomBehaviorKey[] = "Utf8BomBehavior";
 
-using namespace TextEditor;
+namespace TextEditor {
 
 ExtraEncodingSettings::ExtraEncodingSettings() : m_utf8BomSetting(OnlyKeep)
 {}
 
 ExtraEncodingSettings::~ExtraEncodingSettings() = default;
 
-void ExtraEncodingSettings::toSettings(const QString &category, QSettings *s) const
+void ExtraEncodingSettings::toSettings(const QString &category) const
 {
     Q_UNUSED(category)
 
-    Utils::toSettings(QLatin1String(kGroupPostfix), QString(), s, this);
+    Utils::toSettings(QLatin1String(kGroupPostfix), QString(), Core::ICore::settings(), this);
 }
 
-void ExtraEncodingSettings::fromSettings(const QString &category, QSettings *s)
+void ExtraEncodingSettings::fromSettings(const QString &category)
 {
     Q_UNUSED(category)
 
     *this = ExtraEncodingSettings();
-    Utils::fromSettings(QLatin1String(kGroupPostfix), QString(), s, this);
+    Utils::fromSettings(QLatin1String(kGroupPostfix), QString(), Core::ICore::settings(), this);
 }
 
 QVariantMap ExtraEncodingSettings::toMap() const
@@ -58,3 +57,5 @@ QStringList ExtraEncodingSettings::lineTerminationModeNames()
 {
     return {Tr::tr("Unix (LF)"), Tr::tr("Windows (CRLF)")};
 }
+
+} // TextEditor
