@@ -22,8 +22,8 @@
 #include <coreplugin/jsexpander.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+#include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
@@ -132,7 +132,8 @@ void QtSupportPlugin::initialize()
 
     JsExpander::registerGlobalObject<CodeGenerator>("QtSupport");
     ProjectExplorer::JsonWizardFactory::registerPageFactory(new TranslationWizardPageFactory);
-    ProjectExplorerPlugin::showQtSettings();
+
+    BuildPropertiesSettings::showQtSettings();
 
     d = new QtSupportPluginPrivate;
 

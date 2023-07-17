@@ -8,7 +8,6 @@
 #include "devicesupport/idevice.h"
 #include "kitinformation.h"
 #include "projectexplorerconstants.h"
-#include "projectexplorer.h"
 #include "projectexplorertr.h"
 #include "target.h"
 
@@ -168,7 +167,7 @@ SeparateDebugInfoAspect::SeparateDebugInfoAspect(AspectContainer *container)
 {
     setDisplayName(Tr::tr("Separate debug info:"));
     setSettingsKey("SeparateDebugInfo");
-    setValue(ProjectExplorerPlugin::buildPropertiesSettings().separateDebugInfo());
+    setValue(buildPropertiesSettings().separateDebugInfo());
 }
 
 } // namespace ProjectExplorer

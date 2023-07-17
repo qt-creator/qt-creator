@@ -588,7 +588,6 @@ public:
     QString m_projectFilterString;
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
-    BuildPropertiesSettings m_buildPropertiesSettings;
     QList<CustomParserSettings> m_customParsers;
     bool m_shouldHaveRunConfiguration = false;
     Id m_runMode = Constants::NO_RUN_MODE;
@@ -1681,8 +1680,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, defaultSettings.lowBuildPriority)
               .toBool();
 
-    dd->m_buildPropertiesSettings.readSettings();
-
     const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
     for (int i = 0; i < customParserCount; ++i) {
         CustomParserSettings settings;
@@ -2258,7 +2255,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                            int(dd->m_projectExplorerSettings.stopBeforeBuild),
                            int(defaultSettings.stopBeforeBuild));
 
-    dd->m_buildPropertiesSettings.writeSettings();
+    buildPropertiesSettings().writeSettings(); // FIXME: Should not be needed.
 
     s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, int(dd->m_customParsers.count()), 0);
     for (int i = 0; i < dd->m_customParsers.count(); ++i) {
@@ -3927,16 +3924,6 @@ const AppOutputSettings &ProjectExplorerPlugin::appOutputSettings()
     return dd->m_outputPane.settings();
 }
 
-BuildPropertiesSettings &ProjectExplorerPlugin::buildPropertiesSettings()
-{
-    return dd->m_buildPropertiesSettings;
-}
-
-void ProjectExplorerPlugin::showQtSettings()
-{
-    dd->m_buildPropertiesSettings.showQtSettings.setValue(true);
-}
-
 void ProjectExplorerPlugin::setCustomParsers(const QList<CustomParserSettings> &settings)
 {
     if (dd->m_customParsers != settings) {
@@ -3998,21 +3985,6 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
     const FilePaths files = DocumentManager::getOpenFileNames(dd->m_projectFilterString, path);
     if (!files.isEmpty())
         ICore::openFiles(files, ICore::SwitchMode);
-}
-
-/*!
-    Returns the current build directory template.
-
-    \sa setBuildDirectoryTemplate
-*/
-QString ProjectExplorerPlugin::buildDirectoryTemplate()
-{
-    return dd->m_buildPropertiesSettings.buildDirectoryTemplate.value();
-}
-
-QString ProjectExplorerPlugin::defaultBuildDirectoryTemplate()
-{
-    return dd->m_buildPropertiesSettings.defaultBuildDirectoryTemplate();
 }
 
 void ProjectExplorerPlugin::updateActions()

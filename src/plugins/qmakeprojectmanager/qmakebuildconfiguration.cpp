@@ -26,7 +26,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/makestep.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
@@ -55,10 +54,10 @@ namespace QmakeProjectManager {
 
 QmakeExtraBuildInfo::QmakeExtraBuildInfo()
 {
-    const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
-    config.separateDebugInfo = settings.separateDebugInfo.value();
-    config.linkQmlDebuggingQQ2 = settings.qmlDebugging.value();
-    config.useQtQuickCompiler = settings.qtQuickCompiler.value();
+    const BuildPropertiesSettings &settings = buildPropertiesSettings();
+    config.separateDebugInfo = settings.separateDebugInfo();
+    config.linkQmlDebuggingQQ2 = settings.qmlDebugging();
+    config.useQtQuickCompiler = settings.qtQuickCompiler();
 }
 
 // --------------------------------------------------------------------
@@ -655,7 +654,7 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
 static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
                  BuildConfiguration::BuildType type)
 {
-    const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
+    const BuildPropertiesSettings &settings = buildPropertiesSettings();
     QtVersion *version = QtKitAspect::qtVersion(k);
     QmakeExtraBuildInfo extraInfo;
     BuildInfo info;
@@ -666,7 +665,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
         info.displayName = ::ProjectExplorer::Tr::tr("Release");
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = Tr::tr("Release", "Shadow build directory suffix");
-        if (settings.qtQuickCompiler.value() == TriState::Default) {
+        if (settings.qtQuickCompiler() == TriState::Default) {
             if (version && version->isQtQuickCompilerSupported())
                 extraInfo.config.useQtQuickCompiler = TriState::Enabled;
         }
@@ -681,15 +680,15 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
             info.displayName = ::ProjectExplorer::Tr::tr("Profile");
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = Tr::tr("Profile", "Shadow build directory suffix");
-            if (settings.separateDebugInfo.value() == TriState::Default)
+            if (settings.separateDebugInfo() == TriState::Default)
                 extraInfo.config.separateDebugInfo = TriState::Enabled;
 
-            if (settings.qtQuickCompiler.value() == TriState::Default) {
+            if (settings.qtQuickCompiler() == TriState::Default) {
                 if (version && version->isQtQuickCompilerSupported())
                     extraInfo.config.useQtQuickCompiler = TriState::Enabled;
             }
         }
-        if (settings.qmlDebugging.value() == TriState::Default) {
+        if (settings.qmlDebugging() == TriState::Default) {
             if (version && version->isQmlDebuggingSupported())
                 extraInfo.config.linkQmlDebuggingQQ2 = TriState::Enabled;
         }

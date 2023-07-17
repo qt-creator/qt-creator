@@ -28,7 +28,6 @@ class ProcessHandle;
 } // Utils
 
 namespace ProjectExplorer {
-class BuildPropertiesSettings;
 class CustomParserSettings;
 class FolderNode;
 class Node;
@@ -119,9 +118,6 @@ public:
     static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
     static const Internal::AppOutputSettings &appOutputSettings();
 
-    static BuildPropertiesSettings &buildPropertiesSettings();
-    static void showQtSettings();
-
     static void setCustomParsers(const QList<CustomParserSettings> &settings);
     static void addCustomParser(const CustomParserSettings &settings);
     static void removeCustomParser(Utils::Id id);
@@ -158,9 +154,6 @@ public:
 
     static void openNewProjectDialog();
     static void openOpenProjectDialog();
-
-    static QString buildDirectoryTemplate();
-    static QString defaultBuildDirectoryTemplate();
 
     static void updateActions();
 

@@ -5,6 +5,7 @@
 
 #include "buildaspects.h"
 #include "buildinfo.h"
+#include "buildpropertiessettings.h"
 #include "buildsteplist.h"
 #include "buildstepspage.h"
 #include "buildsystem.h"
@@ -621,7 +622,7 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
                          [buildType] { return buildTypeName(buildType); });
     exp.registerSubProvider([kit] { return kit->macroExpander(); });
 
-    FilePath buildDir = FilePath::fromUserInput(ProjectExplorerPlugin::buildDirectoryTemplate());
+    FilePath buildDir = FilePath::fromUserInput(buildPropertiesSettings().buildDirectoryTemplate());
     qCDebug(bcLog) << "build dir template:" << buildDir.toUserOutput();
     buildDir = exp.expand(buildDir);
     qCDebug(bcLog) << "expanded build:" << buildDir.toUserOutput();
