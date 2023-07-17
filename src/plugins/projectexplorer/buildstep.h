@@ -132,6 +132,7 @@ protected:
 private:
     using ProjectConfiguration::parent;
 
+    friend class BuildManager;
     virtual Tasking::GroupItem runRecipe() = 0;
 
     BuildStepList * const m_stepList;

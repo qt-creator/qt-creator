@@ -78,25 +78,21 @@ signals:
     void buildQueueFinished(bool success);
 
 private:
+    static void cleanupBuild();
     static void addToTaskWindow(const ProjectExplorer::Task &task, int linkedOutputLines, int skipLines);
     static void addToOutputWindow(const QString &string, BuildStep::OutputFormat format,
                            BuildStep::OutputNewlineSetting newlineSettings = BuildStep::DoAppendNewline);
 
-    static void nextBuildQueue();
     static void progressChanged(int percent, const QString &text);
-    static void emitCancelMessage();
     static void showBuildResults();
     static void updateTaskCount();
     static void finish();
 
     static void startBuildQueue();
-    static void nextStep();
-    static void clearBuildQueue();
     static bool buildQueueAppend(const QList<BuildItem> &items,
                                  const QStringList &preambleMessage = {});
     static void incrementActiveBuildSteps(BuildStep *bs);
     static void decrementActiveBuildSteps(BuildStep *bs);
-    static void disconnectOutput(BuildStep *bs);
 };
 
 } // namespace ProjectExplorer
