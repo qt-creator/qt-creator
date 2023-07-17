@@ -273,9 +273,6 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
 
 bool QbsBuildStep::init()
 {
-    if (!BuildStep::init())
-        return false;
-
     auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
 
     if (!bc)

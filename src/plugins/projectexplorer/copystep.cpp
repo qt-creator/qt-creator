@@ -35,8 +35,6 @@ public:
 protected:
     bool init() final
     {
-        if (!BuildStep::init())
-            return false;
         m_source = m_sourceAspect();
         m_target = m_targetAspect();
         return m_source.exists();

@@ -52,8 +52,6 @@ QbsCleanStep::QbsCleanStep(BuildStepList *bsl, Id id)
 
 bool QbsCleanStep::init()
 {
-    if (!BuildStep::init())
-        return false;
     if (buildSystem()->isParsing())
         return false;
     const auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());

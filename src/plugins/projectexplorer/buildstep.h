@@ -3,35 +3,25 @@
 
 #pragma once
 
-#include "projectconfiguration.h"
+#include "projectexplorer_export.h"
 
 #include "buildconfiguration.h"
-#include "projectexplorer_export.h"
+#include "projectconfiguration.h"
 
 #include <utils/qtcassert.h>
 
-#include <QWidget>
-
-#include <atomic>
 #include <functional>
-#include <memory>
 #include <optional>
 
 namespace Utils {
-class Environment;
-class FilePath;
 class MacroExpander;
 class OutputFormatter;
 } // Utils
 
-namespace Tasking {
-class GroupItem;
-class TaskTree;
-}
+namespace Tasking { class GroupItem; }
 
 namespace ProjectExplorer {
 
-class BuildConfiguration;
 class BuildStepFactory;
 class BuildStepList;
 class BuildSystem;
@@ -48,10 +38,7 @@ protected:
     explicit BuildStep(BuildStepList *bsl, Utils::Id id);
 
 public:
-    ~BuildStep() override;
-    virtual bool init();
-    void run();
-    void cancel();
+    virtual bool init() = 0;
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
@@ -98,7 +85,7 @@ public:
     void setImmutable(bool immutable) { m_immutable = immutable; }
 
     virtual QVariant data(Utils::Id id) const;
-    void setSummaryUpdater(const std::function<QString ()> &summaryUpdater);
+    void setSummaryUpdater(const std::function<QString()> &summaryUpdater);
 
     void addMacroExpander();
 
@@ -114,20 +101,18 @@ signals:
     /// Do note that for linking compile output with tasks, you should first emit the output
     /// and then emit the task. \p linkedOutput lines will be linked. And the last \p skipLines will
     /// be skipped.
-    void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
+    void addTask(const Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
     /// Adds \p string to the compile output view, formatted in \p format
-    void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
-        ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline);
+    void addOutput(const QString &string, OutputFormat format,
+                   OutputNewlineSetting newlineSetting = DoAppendNewline);
 
     void enabledChanged();
 
     void progress(int percentage, const QString &message);
-    void finished(bool result);
 
 protected:
     virtual QWidget *createConfigWidget();
-    void setCancelMessage(const QString &message);
 
 private:
     friend class BuildManager;
@@ -140,10 +125,8 @@ private:
     bool m_addMacroExpander = false;
     std::optional<bool> m_wasExpanded;
     std::function<QString()> m_summaryUpdater;
-    std::unique_ptr<Tasking::TaskTree> m_taskTree;
 
     QString m_summaryText;
-    QString m_cancelMessage;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepFactory

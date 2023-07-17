@@ -50,8 +50,6 @@ private:
 
 bool NimCompilerCleanStep::init()
 {
-    if (!BuildStep::init())
-        return false;
     const FilePath buildDir = buildDirectory();
     const bool exists = buildDir.exists();
     if (exists)

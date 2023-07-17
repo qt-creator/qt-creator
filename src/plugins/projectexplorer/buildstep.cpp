@@ -10,17 +10,12 @@
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
-#include "projectexplorertr.h"
 #include "sanitizerparser.h"
 #include "target.h"
 
-#include <solutions/tasking/tasktree.h>
-
-#include <utils/algorithm.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
-#include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
 
 /*!
@@ -41,9 +36,6 @@
 
     \c init() is called in the GUI thread and can be used to query the
     project for any information you need.
-
-    \c run() is run via Utils::asyncRun in a separate thread. If you need an
-    event loop, you need to create it yourself.
 */
 
 /*!
@@ -51,26 +43,6 @@
 
     This function is run in the GUI thread. Use it to retrieve any information
     that you need in the run() function.
-*/
-
-/*!
-    \fn void ProjectExplorer::BuildStep::run(QFutureInterface<bool> &fi)
-
-    Reimplement this function. It is called when the target is built.
-    By default, this function is NOT run in the GUI thread, but runs in its
-    own thread. If you need an event loop, you need to create one.
-    This function should block until the task is done
-
-    The absolute minimal implementation is:
-    \code
-    fi.reportResult(true);
-    \endcode
-
-    By returning \c true from runInGuiThread(), this function is called in
-    the GUI thread. Then the function should not block and instead the
-    finished() signal should be emitted.
-
-    \sa runInGuiThread()
 */
 
 /*!
@@ -94,11 +66,6 @@
 */
 
 /*!
-    \fn  void ProjectExplorer::BuildStep::finished()
-    This signal needs to be emitted if the build step runs in the GUI thread.
-*/
-
-/*!
     \fn bool ProjectExplorer::BuildStep::isImmutable()
 
     If this function returns \c true, the user cannot delete this build step for
@@ -106,7 +73,6 @@
     immutable steps are run. The default implementation returns \c false.
 */
 
-using namespace Tasking;
 using namespace Utils;
 
 static const char buildStepEnabledKey[] = "ProjectExplorer.BuildStep.Enabled";
@@ -118,52 +84,8 @@ static QList<BuildStepFactory *> g_buildStepFactories;
 BuildStep::BuildStep(BuildStepList *bsl, Id id)
     : ProjectConfiguration(bsl, bsl->target(), id)
     , m_stepList(bsl)
-    , m_cancelMessage(Tr::tr("The build step was ended forcefully."))
 {
-    connect(this, &ProjectConfiguration::displayNameChanged,
-            this, &BuildStep::updateSummary);
-//    m_displayName = step->displayName();
-//    m_summaryText = "<b>" + m_displayName + "</b>";
-}
-
-BuildStep::~BuildStep()
-{
-    emit finished(false);
-}
-
-bool BuildStep::init()
-{
-    return !m_taskTree;
-}
-
-void BuildStep::run()
-{
-    QTC_ASSERT(!m_taskTree, return);
-
-    m_taskTree.reset(new TaskTree({runRecipe()}));
-    connect(m_taskTree.get(), &TaskTree::progressValueChanged, this, [this](int value) {
-        emit progress(qRound(double(value) * 100 / std::max(m_taskTree->progressMaximum(), 1)), {});
-    });
-    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
-        emit finished(true);
-        m_taskTree.release()->deleteLater();
-    });
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
-        emit finished(false);
-        m_taskTree.release()->deleteLater();
-    });
-    m_taskTree->start();
-}
-
-void BuildStep::cancel()
-{
-    if (!m_taskTree)
-        return;
-
-    m_taskTree.reset();
-    if (!m_cancelMessage.isEmpty())
-        emit addOutput(m_cancelMessage, OutputFormat::ErrorMessage);
-    emit finished(false);
+    connect(this, &ProjectConfiguration::displayNameChanged, this, &BuildStep::updateSummary);
 }
 
 QWidget *BuildStep::doCreateConfigWidget()
@@ -317,11 +239,6 @@ QVariant BuildStep::data(Id id) const
 {
     Q_UNUSED(id)
     return {};
-}
-
-void BuildStep::setCancelMessage(const QString &message)
-{
-    m_cancelMessage = message;
 }
 
 void BuildStep::addMacroExpander()

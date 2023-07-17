@@ -159,9 +159,6 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
 
 bool AndroidDeployQtStep::init()
 {
-    if (!BuildStep::init())
-        return false;
-
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
     if (!version) {
         reportWarningOrError(Tr::tr("The Qt version for kit %1 is invalid.").arg(kit()->displayName()),

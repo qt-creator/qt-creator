@@ -143,9 +143,6 @@ void AbstractProcessStep::setWorkingDirectoryProvider(const std::function<FilePa
 
 bool AbstractProcessStep::init()
 {
-    if (!BuildStep::init())
-        return false;
-
     if (!setupProcessParameters(processParameters()))
         return false;
 

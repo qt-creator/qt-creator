@@ -27,9 +27,6 @@ public:
 
     bool init() override
     {
-        if (!BuildStep::init())
-            return false;
-
         IDevice::ConstPtr device = DeviceKitAspect::device(kit());
         if (device)
             return true;

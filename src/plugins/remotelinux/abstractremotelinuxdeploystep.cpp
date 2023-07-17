@@ -38,7 +38,6 @@ using namespace Internal;
 AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl, Id id)
     : BuildStep(bsl, id), d(new AbstractRemoteLinuxDeployStepPrivate)
 {
-    setCancelMessage(Tr::tr("User requests deployment to stop; cleaning up."));
 }
 
 AbstractRemoteLinuxDeployStep::~AbstractRemoteLinuxDeployStep()
@@ -99,8 +98,6 @@ void AbstractRemoteLinuxDeployStep::toMap(QVariantMap &map) const
 bool AbstractRemoteLinuxDeployStep::init()
 {
     QTC_ASSERT(d->internalInit, return false);
-    if (!BuildStep::init())
-        return false;
     const auto canDeploy = d->internalInit();
     if (!canDeploy) {
         emit addOutput(Tr::tr("Cannot deploy: %1").arg(canDeploy.error()),

@@ -148,8 +148,6 @@ void IosDeployStep::updateDisplayNames()
 
 bool IosDeployStep::init()
 {
-    if (!BuildStep::init())
-        return false;
     m_device = DeviceKitAspect::device(kit());
     auto runConfig = qobject_cast<const IosRunConfiguration *>(
         this->target()->activeRunConfiguration());

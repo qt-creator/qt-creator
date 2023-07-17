@@ -50,8 +50,6 @@ QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Id id)
 
 bool QbsInstallStep::init()
 {
-    if (!BuildStep::init())
-        return false;
     QTC_ASSERT(!target()->buildSystem()->isParsing(), return false);
     return true;
 }
