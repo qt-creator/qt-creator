@@ -437,6 +437,7 @@ public:
     QTimer *m_cursorPositionChangedTimer = nullptr;
     std::unique_ptr<BlameMark> m_blameMark;
     QMetaObject::Connection m_blameCursorPosConn;
+    QMetaObject::Connection m_documentChangedConn;
 
     GitGrep gitGrep{&m_gitClient};
 
@@ -1462,6 +1463,11 @@ void GitPluginPrivate::setupInstantBlame()
             }
             m_cursorPositionChangedTimer->start(500);
         });
+        IDocument *document = editor->document();
+        m_documentChangedConn = connect(document, &IDocument::changed, this, [this, document] {
+            if (!document->isModified())
+                forceInstantBlame();
+        });
 
         forceInstantBlame();
     };
@@ -1590,6 +1596,7 @@ void GitPluginPrivate::stopInstantBlame()
     m_blameMark.reset();
     m_cursorPositionChangedTimer->stop();
     disconnect(m_blameCursorPosConn);
+    disconnect(m_documentChangedConn);
 }
 
 bool GitPluginPrivate::refreshWorkingDirectory(const FilePath &workingDirectory)
