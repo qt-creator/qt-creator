@@ -90,7 +90,7 @@ void BuildDirectoryAspect::setProblem(const QString &description)
 
 void BuildDirectoryAspect::toMap(QVariantMap &map) const
 {
-    StringAspect::toMap(map);
+    FilePathAspect::toMap(map);
     if (!d->sourceDir.isEmpty()) {
         const FilePath shadowDir = isChecked() ? filePath() : d->savedShadowBuildDir;
         saveToMap(map, shadowDir.toSettings(), QString(), settingsKey() + ".shadowDir");
@@ -99,7 +99,7 @@ void BuildDirectoryAspect::toMap(QVariantMap &map) const
 
 void BuildDirectoryAspect::fromMap(const QVariantMap &map)
 {
-    StringAspect::fromMap(map);
+    FilePathAspect::fromMap(map);
     if (!d->sourceDir.isEmpty()) {
         d->savedShadowBuildDir = FilePath::fromSettings(map.value(settingsKey() + ".shadowDir"));
         if (d->savedShadowBuildDir.isEmpty())
@@ -110,7 +110,7 @@ void BuildDirectoryAspect::fromMap(const QVariantMap &map)
 
 void BuildDirectoryAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    StringAspect::addToLayout(parent);
+    FilePathAspect::addToLayout(parent);
     d->problemLabel = new InfoLabel({}, InfoLabel::Warning);
     d->problemLabel->setElideMode(Qt::ElideNone);
     parent.addItems({Layouting::br, Layouting::empty, d->problemLabel.data()});
