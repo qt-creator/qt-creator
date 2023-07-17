@@ -5,7 +5,7 @@
 
 #include "cppcheckconstants.h"
 #include "cppcheckdiagnosticview.h"
-#include "cppcheckoptions.h"
+#include "cppchecksettings.h"
 #include "cppchecktextmarkmanager.h"
 #include "cppchecktool.h"
 #include "cppchecktr.h"

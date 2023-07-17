@@ -1,7 +1,7 @@
 // Copyright (C) 2018 Sergey Morozov
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cppcheckoptions.h"
+#include "cppchecksettings.h"
 
 #include "cppcheckconstants.h"
 #include "cppchecktool.h"

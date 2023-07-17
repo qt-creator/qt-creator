@@ -4,8 +4,8 @@
 #include "cppchecktool.h"
 
 #include "cppcheckdiagnostic.h"
-#include "cppcheckoptions.h"
 #include "cppcheckrunner.h"
+#include "cppchecksettings.h"
 #include "cppchecktextmarkmanager.h"
 #include "cppchecktr.h"
 

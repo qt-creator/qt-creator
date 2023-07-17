@@ -3,7 +3,7 @@
 
 #include "cppcheckmanualrundialog.h"
 
-#include "cppcheckoptions.h"
+#include "cppchecksettings.h"
 #include "cppchecktr.h"
 
 #include <projectexplorer/selectablefilesmodel.h>
