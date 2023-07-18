@@ -130,8 +130,6 @@ protected:
     void setCancelMessage(const QString &message);
 
 private:
-    using ProjectConfiguration::parent;
-
     friend class BuildManager;
     virtual Tasking::GroupItem runRecipe() = 0;
 
