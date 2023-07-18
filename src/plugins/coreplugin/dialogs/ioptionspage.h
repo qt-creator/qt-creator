@@ -120,10 +120,4 @@ protected:
     Utils::FilePath m_categoryIconPath;
 };
 
-class CORE_EXPORT PagedSettings : public Utils::AspectContainer, public IOptionsPage
-{
-public:
-    PagedSettings();
-};
-
 } // namespace Core

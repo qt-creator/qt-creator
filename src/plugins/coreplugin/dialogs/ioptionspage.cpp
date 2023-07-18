@@ -314,12 +314,4 @@ const QList<IOptionsPageProvider *> IOptionsPageProvider::allOptionsPagesProvide
     return g_optionsPagesProviders;
 }
 
-// PagedSettings
-
-PagedSettings::PagedSettings()
-{
-    setSettings(this);
-    setAutoApply(false);
-}
-
 } // Core
