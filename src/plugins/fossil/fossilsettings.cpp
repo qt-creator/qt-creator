@@ -115,6 +115,8 @@ FossilSettings::FossilSettings()
             st
         };
     });
+
+    readSettings();
 }
 
 // FossilSettingsPage

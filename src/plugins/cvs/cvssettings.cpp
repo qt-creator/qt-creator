@@ -78,6 +78,8 @@ CvsSettings::CvsSettings()
             st
         };
     });
+
+    readSettings();
 }
 
 QStringList CvsSettings::addOptions(const QStringList &args) const

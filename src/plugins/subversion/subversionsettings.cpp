@@ -94,6 +94,8 @@ SubversionSettings::SubversionSettings()
             st
         };
     });
+
+    readSettings();
 }
 
 bool SubversionSettings::hasAuthentication() const

@@ -86,6 +86,8 @@ BazaarSettings::BazaarSettings()
             st
         };
     });
+
+    readSettings();
 }
 
 // BazaarSettingsPage

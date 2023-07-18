@@ -70,6 +70,8 @@ MercurialSettings::MercurialSettings()
             st
         };
     });
+
+    readSettings();
 }
 
 // MercurialSettingsPage
