@@ -40,7 +40,7 @@ public:
     explicit VcsPluginPrivate(VcsPlugin *plugin)
         : q(plugin)
     {
-        QObject::connect(&m_settings, &AspectContainer::changed,
+        QObject::connect(&commonSettings(), &AspectContainer::changed,
                          [this] { slotSettingsChanged(); });
         slotSettingsChanged();
     }
@@ -57,7 +57,7 @@ public:
     void populateNickNameModel()
     {
         QString errorMessage;
-        if (!NickNameDialog::populateModelFromMailCapFile(m_settings.nickNameMailMap(),
+        if (!NickNameDialog::populateModelFromMailCapFile(commonSettings().nickNameMailMap(),
                                                           m_nickNameModel,
                                                           &errorMessage)) {
             qWarning("%s", qPrintable(errorMessage));
@@ -71,7 +71,6 @@ public:
     }
 
     VcsPlugin *q;
-    CommonVcsSettings m_settings;
     QStandardItemModel *m_nickNameModel = nullptr;
 };
 
