@@ -174,7 +174,7 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
     const CommonVcsSettings &settings = commonSettings();
     // Add additional context menu settings
     if (!settings.submitMessageCheckScript().isEmpty()
-            || !settings.nickNameMailMap.value().isEmpty()) {
+            || !settings.nickNameMailMap().isEmpty()) {
         auto sep = new QAction(this);
         sep->setSeparator(true);
         d->m_widget->addDescriptionEditContextMenuAction(sep);
@@ -186,7 +186,7 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
             d->m_widget->addDescriptionEditContextMenuAction(checkAction);
         }
         // Insert nick
-        if (!settings.nickNameMailMap.value().isEmpty()) {
+        if (!settings.nickNameMailMap().isEmpty()) {
             auto insertAction = new QAction(Tr::tr("Insert Name..."), this);
             connect(insertAction, &QAction::triggered, this, &VcsBaseSubmitEditor::slotInsertNickName);
             d->m_widget->addDescriptionEditContextMenuAction(insertAction);

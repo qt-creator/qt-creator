@@ -764,9 +764,9 @@ bool FossilClient::managesFile(const FilePath &workingDirectory, const QString &
 unsigned int FossilClient::binaryVersion() const
 {
     static unsigned int cachedBinaryVersion = 0;
-    static QString cachedBinaryPath;
+    static FilePath cachedBinaryPath;
 
-    const QString currentBinaryPath = settings().binaryPath.stringValue();
+    const FilePath currentBinaryPath = settings().binaryPath();
 
     if (currentBinaryPath.isEmpty())
         return 0;

@@ -546,9 +546,8 @@ public:
     FilePathAspect(AspectContainer *container = nullptr);
 
     FilePath operator()() const;
-    FilePath value() const;
     FilePath expandedValue() const;
-    QString stringValue() const;
+    QString value() const;
     void setValue(const FilePath &filePath);
     void setDefaultValue(const FilePath &filePath);
 

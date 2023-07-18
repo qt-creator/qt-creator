@@ -58,7 +58,7 @@ QString FossilJsExtension::defaultSslIdentityFile() const
     if (!isConfigured())
         return QString();
 
-    return settings().sslIdentityFile.stringValue();
+    return settings().sslIdentityFile().toFSPathString();
 }
 
 QString FossilJsExtension::defaultLocalRepoPath() const
@@ -66,7 +66,7 @@ QString FossilJsExtension::defaultLocalRepoPath() const
     if (!isConfigured())
         return QString();
 
-    return settings().defaultRepoPath.stringValue();
+    return settings().defaultRepoPath().toFSPathString();
 }
 
 bool FossilJsExtension::defaultDisableAutosync() const

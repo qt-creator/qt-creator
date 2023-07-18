@@ -228,7 +228,7 @@ BuildConfiguration::~BuildConfiguration()
 FilePath BuildConfiguration::buildDirectory() const
 {
     FilePath path = FilePath::fromUserInput(
-        environment().expandVariables(d->m_buildDirectoryAspect.stringValue().trimmed()));
+        environment().expandVariables(d->m_buildDirectoryAspect.value().trimmed()));
     // FIXME: If the macro expander is expected to be able to do some
     // structual changes, the fromUserInput() above might already have
     // mis-parsed. Should this here be encapsulated in the FilePathAspect?
