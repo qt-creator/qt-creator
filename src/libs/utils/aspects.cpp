@@ -1860,11 +1860,8 @@ void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
                                int(d->m_maximumValue.value() / d->m_displayScaleFactor));
     d->m_spinBox->setValue(int(value() / d->m_displayScaleFactor)); // Must happen after setRange()
     addLabeledItem(parent, d->m_spinBox);
-
-    if (isAutoApply()) {
-        connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
-                this, [this] { setValue(d->m_spinBox->value() * d->m_displayScaleFactor); });
-    }
+    connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
+            this, &IntegerAspect::handleGuiChanged);
 }
 
 void IntegerAspect::guiToBuffer()
@@ -1962,11 +1959,8 @@ void DoubleAspect::addToLayout(LayoutItem &builder)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
     bufferToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
-
-    if (isAutoApply()) {
-        connect(d->m_spinBox.data(), &QDoubleSpinBox::valueChanged,
-                this, [this] { setValue(d->m_spinBox->value()); });
-    }
+    connect(d->m_spinBox.data(), &QDoubleSpinBox::valueChanged,
+            this, &DoubleAspect::handleGuiChanged);
 }
 
 void DoubleAspect::guiToBuffer()
