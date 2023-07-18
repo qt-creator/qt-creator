@@ -37,7 +37,7 @@ namespace Utils {
 
 static QSettings *theSettings = nullptr;
 
-void BaseAspect::setGlobalSettings(QSettings *settings)
+void BaseAspect::setSettings(QSettings *settings)
 {
     theSettings = settings;
 }

@@ -488,7 +488,7 @@ void PluginManager::setSettings(QtcSettings *settings)
     default disabled plugins.
     Needs to be set before the plugin search path is set with setPluginPaths().
 */
-void PluginManager::setGlobalSettings(QtcSettings *settings)
+void PluginManager::setInstallSettings(QtcSettings *settings)
 {
     d->setGlobalSettings(settings);
 }

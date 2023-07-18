@@ -161,7 +161,7 @@ public:
 
     Data::Ptr extractData() const;
 
-    static void setGlobalSettings(QSettings *settings);
+    static void setSettings(QSettings *settings);
     static QSettings *settings();
 
 signals:

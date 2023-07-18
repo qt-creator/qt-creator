@@ -619,7 +619,7 @@ int main(int argc, char **argv)
     // Re-setup install settings for real
     setupInstallSettings(options.installSettingsPath);
     Utils::QtcSettings *settings = createUserSettings();
-    Utils::QtcSettings *globalSettings
+    Utils::QtcSettings *installSettings
         = new Utils::QtcSettings(QSettings::IniFormat,
                                  QSettings::SystemScope,
                                  QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
@@ -652,10 +652,10 @@ int main(int argc, char **argv)
 
     PluginManager pluginManager;
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
-    PluginManager::setGlobalSettings(globalSettings);
+    PluginManager::setInstallSettings(installSettings);
     PluginManager::setSettings(settings);
 
-    Utils::BaseAspect::setGlobalSettings(globalSettings);
+    Utils::BaseAspect::setSettings(settings);
 
     using namespace Core;
     Utils::AppInfo info;
