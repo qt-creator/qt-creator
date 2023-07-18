@@ -25,7 +25,6 @@
 #include "sourceutils.h"
 #include "shared/hostutils.h"
 #include "console/console.h"
-
 #include "commonoptionspage.h"
 
 #include "analyzer/analyzerconstants.h"
@@ -697,7 +696,6 @@ public:
     std::unique_ptr<Perspective> m_perspectiveCmake;
 
     DebuggerKitAspect debuggerKitAspect;
-    CommonOptionsPage commonOptionsPage;
 
     DebuggerRunWorkerFactory debuggerWorkerFactory;
 

@@ -3,7 +3,7 @@
 
 #include "debuggersourcepathmappingwidget.h"
 
-#include "debuggeractions.h"
+#include "commonoptionspage.h"
 #include "debuggerengine.h"
 #include "debuggertr.h"
 

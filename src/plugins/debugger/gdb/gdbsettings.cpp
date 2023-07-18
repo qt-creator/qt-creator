@@ -69,18 +69,18 @@ GdbSettings::GdbSettings()
     breakOnWarning.setLabelText(Tr::tr("Break on \"qWarning\""));
     breakOnWarning.setSettingsKey("BreakOnWarning");
     // FIXME: Move to common settings page.
-    breakOnWarning.setLabelText(CommonOptionsPage::msgSetBreakpointAtFunction("qWarning"));
-    breakOnWarning.setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qWarning"));
+    breakOnWarning.setLabelText(msgSetBreakpointAtFunction("qWarning"));
+    breakOnWarning.setToolTip(msgSetBreakpointAtFunctionToolTip("qWarning"));
 
     breakOnFatal.setLabelText(Tr::tr("Break on \"qFatal\""));
     breakOnFatal.setSettingsKey("BreakOnFatal");
-    breakOnFatal.setLabelText(CommonOptionsPage::msgSetBreakpointAtFunction("qFatal"));
-    breakOnFatal.setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qFatal"));
+    breakOnFatal.setLabelText(msgSetBreakpointAtFunction("qFatal"));
+    breakOnFatal.setToolTip(msgSetBreakpointAtFunctionToolTip("qFatal"));
 
     breakOnAbort.setLabelText(Tr::tr("Break on \"abort\""));
     breakOnAbort.setSettingsKey("BreakOnAbort");
-    breakOnAbort.setLabelText(CommonOptionsPage::msgSetBreakpointAtFunction("abort"));
-    breakOnAbort.setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
+    breakOnAbort.setLabelText(msgSetBreakpointAtFunction("abort"));
+    breakOnAbort.setToolTip(msgSetBreakpointAtFunctionToolTip("abort"));
 
     loadGdbInit.setSettingsKey("LoadGdbInit");
     loadGdbInit.setDefaultValue(true);

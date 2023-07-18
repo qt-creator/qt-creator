@@ -9,10 +9,6 @@
 #include "debuggertr.h"
 #include "gdb/gdbsettings.h"
 
-#ifdef Q_OS_WIN
-#include "registerpostmortemaction.h"
-#endif
-
 #include <coreplugin/coreconstants.h>
 
 #include <utils/hostosinfo.h>
@@ -25,14 +21,7 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-const char debugModeSettingsGroupC[] = "DebugMode";
-const char cdbSettingsGroupC[] = "CDB2";
-
-//////////////////////////////////////////////////////////////////////////
-//
 // DebuggerSettings
-//
-//////////////////////////////////////////////////////////////////////////
 
 DebuggerSettings &settings()
 {
@@ -41,6 +30,25 @@ DebuggerSettings &settings()
 }
 
 DebuggerSettings::DebuggerSettings() :
+    useAlternatingRowColors{commonSettings().useAlternatingRowColors},
+    useAnnotationsInMainEditor{commonSettings().useAnnotationsInMainEditor},
+    useToolTipsInMainEditor{commonSettings().useToolTipsInMainEditor},
+    closeSourceBuffersOnExit{commonSettings().closeSourceBuffersOnExit},
+    closeMemoryBuffersOnExit{commonSettings().closeMemoryBuffersOnExit},
+    raiseOnInterrupt{commonSettings().raiseOnInterrupt},
+    breakpointsFullPathByDefault{commonSettings().breakpointsFullPathByDefault},
+    warnOnReleaseBuilds{commonSettings().warnOnReleaseBuilds},
+    maximalStackDepth{commonSettings().maximalStackDepth},
+
+    fontSizeFollowsEditor{commonSettings().fontSizeFollowsEditor},
+    switchModeOnExit{commonSettings().switchModeOnExit},
+    showQmlObjectTree{commonSettings().showQmlObjectTree},
+    stationaryEditorWhileStepping{commonSettings().stationaryEditorWhileStepping},
+    forceLoggingToConsole{commonSettings().forceLoggingToConsole},
+
+    sourcePathMap{commonSettings().sourcePathMap},
+    registerForPostMortem{*commonSettings().registerForPostMortem},
+
     gdbWatchdogTimeout{gdbSettings().gdbWatchdogTimeout},
     skipKnownFrames{gdbSettings().skipKnownFrames},
     useMessageBoxForSignals{gdbSettings().useMessageBoxForSignals},
@@ -63,8 +71,8 @@ DebuggerSettings::DebuggerSettings() :
     enableReverseDebugging{gdbSettings().enableReverseDebugging},
     multiInferior{gdbSettings().multiInferior}
 {
-    const QString debugModeGroup(debugModeSettingsGroupC);
-    const QString cdbSettingsGroup(cdbSettingsGroupC);
+    const QString debugModeGroup("DebugMode");
+    const QString cdbSettingsGroup("CDB2");
 
     settingsDialog.setLabelText(Tr::tr("Configure Debugger..."));
 
@@ -101,29 +109,6 @@ DebuggerSettings::DebuggerSettings() :
     alwaysAdjustColumnWidths.setSettingsKey(debugModeGroup, "AlwaysAdjustColumnWidths");
     alwaysAdjustColumnWidths.setDefaultValue(true);
 
-    // Needed by QML Inspector
-    //useAlternatingRowColors.setLabelText(Tr::tr("Use Alternating Row Colors"));
-    useAlternatingRowColors.setSettingsKey(debugModeGroup, "UseAlternatingRowColours");
-    useAlternatingRowColors.setLabelText(Tr::tr("Use alternating row colors in debug views"));
-
-    stationaryEditorWhileStepping.setSettingsKey(debugModeGroup, "StationaryEditorWhileStepping");
-    stationaryEditorWhileStepping.setLabelText(Tr::tr("Keep editor stationary when stepping"));
-    stationaryEditorWhileStepping.setToolTip(Tr::tr("Scrolls the editor only when it is necessary "
-                                                 "to keep the current line in view, "
-                                                 "instead of keeping the next statement centered at "
-                                                 "all times."));
-
-    forceLoggingToConsole.setSettingsKey(debugModeGroup, "ForceLoggingToConsole");
-    forceLoggingToConsole.setLabelText(Tr::tr("Force logging to console"));
-    forceLoggingToConsole.setToolTip(Tr::tr("Sets QT_LOGGING_TO_CONSOLE=1 in the environment "
-        "of the debugged program, preventing storing debug output "
-        "in system logs."));
-
-    fontSizeFollowsEditor.setSettingsKey(debugModeGroup, "FontSizeFollowsEditor");
-    fontSizeFollowsEditor.setToolTip(Tr::tr("Changes the font size in the debugger views when "
-                                        "the font size in the main editor changes."));
-    fontSizeFollowsEditor.setLabelText(Tr::tr("Debugger font size follows main editor"));
-
     logTimeStamps.setLabelText(Tr::tr("Log Time Stamps"));
     logTimeStamps.setSettingsKey(debugModeGroup, "LogTimeStamps");
 
@@ -150,11 +135,9 @@ DebuggerSettings::DebuggerSettings() :
 
     cdbBreakEvents.setSettingsKey(cdbSettingsGroup, "BreakEvent");
     cdbBreakOnCrtDbgReport.setSettingsKey(cdbSettingsGroup, "BreakOnCrtDbgReport");
-    cdbBreakOnCrtDbgReport.setLabelText(
-        CommonOptionsPage::msgSetBreakpointAtFunction(Constants::CRT_DEBUG_REPORT));
-    cdbBreakOnCrtDbgReport.setToolTip(
-        CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(Constants::CRT_DEBUG_REPORT,
-            Tr::tr("Catches runtime error messages caused by assert(), for example.")));
+    cdbBreakOnCrtDbgReport.setLabelText(msgSetBreakpointAtFunction(Constants::CRT_DEBUG_REPORT));
+    cdbBreakOnCrtDbgReport.setToolTip(msgSetBreakpointAtFunctionToolTip(Constants::CRT_DEBUG_REPORT,
+        Tr::tr("Catches runtime error messages caused by assert(), for example.")));
 
     useCdbConsole.setSettingsKey(cdbSettingsGroup, "CDB_Console");
     useCdbConsole.setToolTip("<html><head/><body><p>" + Tr::tr(
@@ -261,56 +244,8 @@ DebuggerSettings::DebuggerSettings() :
     // Label text is intentional empty in the GUI.
     extraDumperFile.setToolTip(Tr::tr("Path to a Python file containing additional data dumpers."));
 
-    const QString t = Tr::tr("Stopping and stepping in the debugger "
-          "will automatically open views associated with the current location.") + '\n';
-
-    closeSourceBuffersOnExit.setSettingsKey(debugModeGroup, "CloseBuffersOnExit");
-    closeSourceBuffersOnExit.setLabelText(Tr::tr("Close temporary source views on debugger exit"));
-    closeSourceBuffersOnExit.setToolTip(t + Tr::tr("Closes automatically opened source views when the debugger exits."));
-
-    closeMemoryBuffersOnExit.setSettingsKey(debugModeGroup, "CloseMemoryBuffersOnExit");
-    closeMemoryBuffersOnExit.setDefaultValue(true);
-    closeMemoryBuffersOnExit.setLabelText(Tr::tr("Close temporary memory views on debugger exit"));
-    closeMemoryBuffersOnExit.setToolTip(t + Tr::tr("Closes automatically opened memory views when the debugger exits."));
-
-    switchModeOnExit.setSettingsKey(debugModeGroup, "SwitchModeOnExit");
-    switchModeOnExit.setLabelText(Tr::tr("Switch to previous mode on debugger exit"));
-
-    breakpointsFullPathByDefault.setSettingsKey(debugModeGroup, "BreakpointsFullPath");
-    breakpointsFullPathByDefault.setToolTip(Tr::tr("Enables a full file path in breakpoints by default also for GDB."));
-    breakpointsFullPathByDefault.setLabelText(Tr::tr("Set breakpoints using a full absolute path"));
-
-    raiseOnInterrupt.setSettingsKey(debugModeGroup, "RaiseOnInterrupt");
-    raiseOnInterrupt.setDefaultValue(true);
-    raiseOnInterrupt.setLabelText(Tr::tr("Bring %1 to foreground when application interrupts")
-                                      .arg(QGuiApplication::applicationDisplayName()));
-
     autoQuit.setSettingsKey(debugModeGroup, "AutoQuit");
     autoQuit.setLabelText(Tr::tr("Automatically Quit Debugger"));
-
-    useAnnotationsInMainEditor.setSettingsKey(debugModeGroup, "UseAnnotations");
-    useAnnotationsInMainEditor.setLabelText(Tr::tr("Use annotations in main editor when debugging"));
-    useAnnotationsInMainEditor.setToolTip(
-        "<p>"
-        + Tr::tr("Shows simple variable values "
-                 "as annotations in the main editor during debugging."));
-    useAnnotationsInMainEditor.setDefaultValue(true);
-
-    warnOnReleaseBuilds.setSettingsKey(debugModeGroup, "WarnOnReleaseBuilds");
-    warnOnReleaseBuilds.setDefaultValue(true);
-    warnOnReleaseBuilds.setLabelText(Tr::tr("Warn when debugging \"Release\" builds"));
-    warnOnReleaseBuilds.setToolTip(Tr::tr("Shows a warning when starting the debugger "
-                                      "on a binary with insufficient debug information."));
-
-    useToolTipsInMainEditor.setSettingsKey(debugModeGroup, "UseToolTips");
-    useToolTipsInMainEditor.setLabelText(Tr::tr("Use tooltips in main editor when debugging"));
-    useToolTipsInMainEditor.setToolTip(
-        "<p>"
-        + Tr::tr("Enables tooltips for variable "
-                 "values during debugging. Since this can slow down debugging and "
-                 "does not provide reliable information as it does not use scope "
-                 "information, it is switched off by default."));
-    useToolTipsInMainEditor.setDefaultValue(true);
 
     useToolTipsInLocalsView.setSettingsKey(debugModeGroup, "UseToolTipsInLocalsView");
     useToolTipsInLocalsView.setLabelText(Tr::tr("Use Tooltips in Locals View when Debugging"));
@@ -331,19 +266,6 @@ DebuggerSettings::DebuggerSettings() :
                                                "view during debugging."));
     useToolTipsInStackView.setDefaultValue(true);
 
-#ifdef Q_OS_WIN
-    registerForPostMortem = new RegisterPostMortemAction;
-    registerForPostMortem->setSettingsKey(debugModeGroup, "RegisterForPostMortem");
-    registerForPostMortem->setToolTip(Tr::tr("Registers %1 for debugging crashed applications.")
-                                          .arg(QGuiApplication::applicationDisplayName()));
-    registerForPostMortem->setLabelText(
-        Tr::tr("Use %1 for post-mortem debugging").arg(QGuiApplication::applicationDisplayName()));
-#else
-    // Some dummy.
-    registerForPostMortem = new BoolAspect;
-    registerForPostMortem->setVisible(false);
-#endif
-
     allPluginBreakpoints.setSettingsKey(debugModeGroup, "AllPluginBreakpoints");
     allPluginBreakpoints.setDefaultValue(true);
 
@@ -353,13 +275,6 @@ DebuggerSettings::DebuggerSettings() :
 
     selectedPluginBreakpointsPattern.setSettingsKey(debugModeGroup, "SelectedPluginBreakpointsPattern");
     selectedPluginBreakpointsPattern.setDefaultValue(QString(".*"));
-
-    maximalStackDepth.setSettingsKey(debugModeGroup, "MaximalStackDepth");
-    maximalStackDepth.setDefaultValue(20);
-    maximalStackDepth.setSpecialValueText(Tr::tr("<unlimited>"));
-    maximalStackDepth.setRange(0, 1000);
-    maximalStackDepth.setSingleStep(5);
-    maximalStackDepth.setLabelText(Tr::tr("Maximum stack depth:"));
 
     displayStringLimit.setSettingsKey(debugModeGroup, "DisplayStringLimit");
     displayStringLimit.setDefaultValue(300);
@@ -400,35 +315,9 @@ DebuggerSettings::DebuggerSettings() :
     //
     // QML Tools
     //
-    showQmlObjectTree.setSettingsKey(debugModeGroup, "ShowQmlObjectTree");
-    showQmlObjectTree.setDefaultValue(true);
-    showQmlObjectTree.setToolTip(Tr::tr("Shows QML object tree in Locals and Expressions "
-                                        "when connected and not stepping."));
-    showQmlObjectTree.setLabelText(Tr::tr("Show QML object tree"));
-
     const QString qmlInspectorGroup = "QML.Inspector";
     showAppOnTop.setSettingsKey(qmlInspectorGroup, "QmlInspector.ShowAppOnTop");
 
-    // Page 1
-    page1.registerAspect(&useAlternatingRowColors);
-    page1.registerAspect(&useAnnotationsInMainEditor);
-    page1.registerAspect(&useToolTipsInMainEditor);
-    page1.registerAspect(&closeSourceBuffersOnExit);
-    page1.registerAspect(&closeMemoryBuffersOnExit);
-    page1.registerAspect(&raiseOnInterrupt);
-    page1.registerAspect(&breakpointsFullPathByDefault);
-    page1.registerAspect(&warnOnReleaseBuilds);
-    page1.registerAspect(&maximalStackDepth);
-
-    page1.registerAspect(&fontSizeFollowsEditor);
-    page1.registerAspect(&switchModeOnExit);
-    page1.registerAspect(&showQmlObjectTree);
-    page1.registerAspect(&stationaryEditorWhileStepping);
-    page1.registerAspect(&forceLoggingToConsole);
-
-    page1.registerAspect(&sourcePathMap);
-    if (HostOsInfo::isWindowsHost())
-        page1.registerAspect(registerForPostMortem);
 
     // Page 4
     page4.registerAspect(&useDebuggingHelpers);
@@ -479,11 +368,6 @@ DebuggerSettings::DebuggerSettings() :
         if (auto boolAspect = dynamic_cast<BoolAspect *>(aspect))
             boolAspect->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     });
-}
-
-DebuggerSettings::~DebuggerSettings()
-{
-    delete registerForPostMortem;
 }
 
 void DebuggerSettings::readSettings()

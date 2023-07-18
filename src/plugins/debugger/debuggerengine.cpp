@@ -2821,7 +2821,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
         bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
         if (hasEmbeddedInfo) {
-            const SourcePathMap sourcePathMap = settings().sourcePathMap();
+            const QMap<QString, QString> sourcePathMap = settings().sourcePathMap();
             QList<QPair<QRegularExpression, QString>> globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(sourcePathMap.size());
             for (auto it = sourcePathMap.begin(), end = sourcePathMap.end(); it != end; ++it) {
