@@ -5,7 +5,6 @@
 
 #include "squishconstants.h"
 #include "squishfilehandler.h"
-#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "suiteconf.h"
@@ -163,10 +162,6 @@ void SquishTestTreeItemDelegate::setEditorData(QWidget *editor, const QModelInde
 
 static bool copyScriptTemplates(const SuiteConf &suiteConf, const Utils::FilePath &destination)
 {
-    const SquishSettings *s = SquishPlugin::squishSettings();
-    QTC_ASSERT(s, return false);
-    // copy template files
-
     Utils::expected_str<void> result = destination.ensureWritableDir();
     QTC_ASSERT_EXPECTED(result, return false);
 
@@ -174,7 +169,7 @@ static bool copyScriptTemplates(const SuiteConf &suiteConf, const Utils::FilePat
     const QString extension = suiteConf.scriptExtension();
     const QString testStr = scripted ? QString("script_som_template") : QString("script_template");
 
-    const Utils::FilePath scripts = s->scriptsPath(suiteConf.language());
+    const Utils::FilePath scripts = settings().scriptsPath(suiteConf.language());
     const Utils::FilePath test = scripts.pathAppended(testStr + extension);
     const Utils::FilePath testFile = destination.pathAppended("test" + extension);
     QTC_ASSERT(!testFile.exists(), return false);

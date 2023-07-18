@@ -8,6 +8,7 @@
 #include "squishtools.h"
 #include "squishtr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <utils/basetreeview.h>
@@ -28,17 +29,16 @@
 
 using namespace Utils;
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
+
+SquishSettings &settings()
+{
+    static SquishSettings theSettings;
+    return theSettings;
+}
 
 SquishSettings::SquishSettings()
 {
-    setId("A.Squish.General");
-    setDisplayName(Tr::tr("General"));
-    setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
-    setDisplayCategory("Squish");
-    setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
-                           Theme::PanelTextColorDark}}, Icon::Tint));
     setSettingsGroup("Squish");
     setAutoApply(false);
 
@@ -113,9 +113,9 @@ SquishSettings::SquishSettings()
     readSettings();
 }
 
-Utils::FilePath SquishSettings::scriptsPath(Language language) const
+FilePath SquishSettings::scriptsPath(Language language) const
 {
-    Utils::FilePath scripts = squishPath().pathAppended("scriptmodules");
+    FilePath scripts = squishPath().pathAppended("scriptmodules");
     switch (language) {
     case Language::Python: scripts = scripts.pathAppended("python"); break;
     case Language::Perl: scripts = scripts.pathAppended("perl"); break;
@@ -124,8 +124,27 @@ Utils::FilePath SquishSettings::scriptsPath(Language language) const
     case Language::Tcl: scripts = scripts.pathAppended("tcl"); break;
     }
 
-    return scripts.isReadableDir() ? scripts : Utils::FilePath();
+    return scripts.isReadableDir() ? scripts : FilePath();
 }
+
+class SquishSettingsPage final : public Core::IOptionsPage
+{
+public:
+    SquishSettingsPage()
+    {
+        setId("A.Squish.General");
+        setDisplayName(Tr::tr("General"));
+        setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
+        setDisplayCategory("Squish");
+        setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
+                               Theme::PanelTextColorDark}}, Icon::Tint));
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const SquishSettingsPage settingsPage;
+
+// SquishServerSettings
 
 SquishServerSettings::SquishServerSettings()
 {
@@ -681,5 +700,4 @@ void SquishServerSettingsDialog::configWriteFailed(QProcess::ProcessError error)
     SquishMessages::criticalMessage(detail);
 }
 
-} // namespace Internal
-} // namespace Squish
+} // Squish::Internal

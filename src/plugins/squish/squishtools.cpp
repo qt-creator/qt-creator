@@ -6,7 +6,6 @@
 #include "scripthelper.h"
 #include "squishmessages.h"
 #include "squishoutputpane.h"
-#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtr.h"
 #include "squishxmloutputhandler.h"
@@ -167,9 +166,7 @@ struct SquishToolsSettings
     // populate members using current settings
     void setup()
     {
-        const SquishSettings *squishSettings = SquishPlugin::squishSettings();
-        QTC_ASSERT(squishSettings, return);
-        squishPath = squishSettings->squishPath();
+        squishPath = settings().squishPath();
 
         if (!squishPath.isEmpty()) {
             const FilePath squishBin(squishPath.pathAppended("bin"));
@@ -181,12 +178,12 @@ struct SquishToolsSettings
                         HostOsInfo::withExecutableSuffix("processcomm")).absoluteFilePath();
         }
 
-        isLocalServer = squishSettings->local();
-        serverHost = squishSettings->serverHost();
-        serverPort = squishSettings->serverPort();
-        verboseLog = squishSettings->verbose();
-        licenseKeyPath = squishSettings->licensePath();
-        minimizeIDE = squishSettings->minimizeIDE();
+        isLocalServer = settings().local();
+        serverHost = settings().serverHost();
+        serverPort = settings().serverPort();
+        verboseLog = settings().verbose();
+        licenseKeyPath = settings().licensePath();
+        minimizeIDE = settings().minimizeIDE();
     }
 };
 

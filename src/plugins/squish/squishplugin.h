@@ -3,14 +3,10 @@
 
 #pragma once
 
-#include "squishplugin_global.h"
-
 #include <extensionsystem/iplugin.h>
 
 namespace Squish {
 namespace Internal {
-
-class SquishSettings;
 
 class SquishPlugin : public ExtensionSystem::IPlugin
 {
@@ -19,8 +15,6 @@ class SquishPlugin : public ExtensionSystem::IPlugin
 public:
     SquishPlugin() = default;
     ~SquishPlugin() override;
-
-    static SquishSettings *squishSettings();
 
     void initialize() override;
     bool delayedInitialize() override;

@@ -6,7 +6,6 @@
 #include "squishconstants.h"
 #include "squishfilehandler.h"
 #include "squishmessages.h"
-#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtesttreeview.h"
@@ -311,10 +310,7 @@ void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QS
 
 void SquishNavigationWidget::onNewTestCaseTriggered(const QModelIndex &index)
 {
-    auto settings = SquishPlugin::squishSettings();
-    QTC_ASSERT(settings, return);
-
-    if (!settings->squishPath().pathAppended("scriptmodules").exists()) {
+    if (!settings().squishPath().pathAppended("scriptmodules").exists()) {
         SquishMessages::criticalMessage(Tr::tr("Set up a valid Squish path to be able to create "
                                                "a new test case.\n(Edit > Preferences > Squish)"));
         return;

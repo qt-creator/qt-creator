@@ -5,7 +5,6 @@
 
 #include "objectsmaptreeitem.h"
 #include "squishconstants.h"
-#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtr.h"
 
@@ -197,7 +196,7 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
 
         text = reader.data();
     } else {
-        const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath();
+        const Utils::FilePath base = settings().squishPath();
         if (base.isEmpty()) {
             if (error)
                 error->append(Tr::tr("Incomplete Squish settings. "
@@ -235,7 +234,7 @@ bool ObjectsMapDocument::writeFile(const Utils::FilePath &fileName) const
     }
 
     // otherwise we need the objectmaptool to write the scripted object map again
-    const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath();
+    const Utils::FilePath base = settings().squishPath();
     if (base.isEmpty())
         return false;
     const Utils::FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();

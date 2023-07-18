@@ -27,9 +27,9 @@
 #include <utils/qtcassert.h>
 
 #include <QMenu>
-#include <QtPlugin>
 
 using namespace Core;
+using namespace Utils;
 
 namespace Squish {
 namespace Internal {
@@ -43,7 +43,6 @@ public:
     void initializeMenuEntries();
     bool initializeGlobalScripts();
 
-    SquishSettings m_squishSettings;
     SquishTestTreeModel m_treeModel;
     SquishNavigationWidgetFactory m_navigationWidgetFactory;
     ObjectsMapEditorFactory m_objectsMapEditorFactory;
@@ -79,12 +78,6 @@ SquishPlugin::~SquishPlugin()
     dd = nullptr;
 }
 
-SquishSettings *SquishPlugin::squishSettings()
-{
-    QTC_ASSERT(dd, return nullptr);
-    return &dd->m_squishSettings;
-}
-
 void SquishPluginPrivate::initializeMenuEntries()
 {
     ActionContainer *menu = ActionManager::createMenu("Squish.Menu");
@@ -95,8 +88,7 @@ void SquishPluginPrivate::initializeMenuEntries()
     Command *command = ActionManager::registerAction(action, "Squish.ServerSettings");
     menu->addAction(command);
     connect(action, &QAction::triggered, this, [] {
-        const SquishSettings *settings = SquishPlugin::squishSettings();
-        if (!settings->squishPath().exists()) {
+        if (!settings().squishPath().exists()) {
             SquishMessages::criticalMessage(Tr::tr("Invalid Squish settings. Configure Squish "
                                                    "installation path inside "
                                                    "Preferences... > Squish > General to use "
@@ -117,8 +109,8 @@ bool SquishPluginPrivate::initializeGlobalScripts()
     QTC_ASSERT(dd->m_squishTools, return false);
     SquishFileHandler::instance()->setSharedFolders({});
 
-    const Utils::FilePath squishserver = dd->m_squishSettings.squishPath().pathAppended(
-                Utils::HostOsInfo::withExecutableSuffix("bin/squishserver"));
+    const FilePath squishserver = settings().squishPath().pathAppended(
+                HostOsInfo::withExecutableSuffix("bin/squishserver"));
     if (!squishserver.isExecutableFile())
         return false;
 
@@ -142,7 +134,7 @@ void SquishPlugin::initialize()
 
 bool SquishPlugin::delayedInitialize()
 {
-    connect(&dd->m_squishSettings.squishPath, &Utils::BaseAspect::changed,
+    connect(&settings().squishPath, &BaseAspect::changed,
             dd, &SquishPluginPrivate::initializeGlobalScripts);
 
     return dd->initializeGlobalScripts();
