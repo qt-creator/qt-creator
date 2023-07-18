@@ -40,8 +40,6 @@ bool isActivationChar(QChar c)
 
 class NimCompletionAssistProcessor : public QObject, public TextEditor::IAssistProcessor
 {
-    Q_OBJECT
-
 public:
     TextEditor::IAssistProposal *perform() final
     {
@@ -249,5 +247,3 @@ bool NimCompletionAssistProvider::isActivationCharSequence(const QString &sequen
 }
 
 }
-
-#include "nimcompletionassistprovider.moc"
