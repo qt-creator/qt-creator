@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace Haskell::Internal {
 
-class HaskellSettings : public Core::PagedSettings
+class HaskellSettings final : public Utils::AspectContainer
 {
 public:
     HaskellSettings();

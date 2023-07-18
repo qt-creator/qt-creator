@@ -9,7 +9,6 @@
 #include "haskellmanager.h"
 #include "haskellproject.h"
 #include "haskellrunconfiguration.h"
-#include "haskellsettings.h"
 #include "haskelltr.h"
 #include "stackbuildstep.h"
 
@@ -31,7 +30,6 @@ namespace Internal {
 class HaskellPluginPrivate
 {
 public:
-    HaskellSettings settings;
     HaskellEditorFactory editorFactory;
     HaskellBuildConfigurationFactory buildConfigFactory;
     StackBuildStepFactory stackBuildStepFactory;
