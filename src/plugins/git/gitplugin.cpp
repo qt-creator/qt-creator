@@ -416,9 +416,9 @@ public:
     QAction *m_fixupCommitAction = nullptr;
     QAction *m_interactiveRebaseAction = nullptr;
 
-    QVector<ParameterAction *> m_fileActions;
-    QVector<ParameterAction *> m_projectActions;
-    QVector<QAction *> m_repositoryActions;
+    QList<ParameterAction *> m_fileActions;
+    QList<ParameterAction *> m_projectActions;
+    QList<QAction *> m_repositoryActions;
     ParameterAction *m_applyCurrentFilePatchAction = nullptr;
     Gerrit::Internal::GerritPlugin m_gerritPlugin;
 
