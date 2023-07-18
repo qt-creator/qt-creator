@@ -74,7 +74,7 @@ private:
     UnifiedView *m_unifiedView = nullptr;
     SideBySideView *m_sideBySideView = nullptr;
     QStackedWidget *m_stackedWidget = nullptr;
-    QVector<IDiffView *> m_views;
+    QList<IDiffView *> m_views;
     QToolBar *m_toolBar = nullptr;
     QComboBox *m_entriesComboBox = nullptr;
     QSpinBox *m_contextSpinBox = nullptr;
