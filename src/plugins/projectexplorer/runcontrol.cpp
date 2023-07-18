@@ -309,6 +309,7 @@ public:
     bool supportsReRunning() const;
     bool isUsingTaskTree() const { return bool(m_runRecipe); }
     void startTaskTree();
+    void checkAutoDeleteAndEmitStopped();
 
     RunControl *q;
     Id runMode;
@@ -445,7 +446,7 @@ void RunControl::initiateStop()
 {
     if (d->isUsingTaskTree()) {
         d->m_taskTree.reset();
-        emit stopped();
+        d->checkAutoDeleteAndEmitStopped();
     } else {
         d->initiateStop();
     }
@@ -1052,11 +1053,22 @@ void RunControlPrivate::startTaskTree()
     connect(m_taskTree.get(), &TaskTree::started, q, &RunControl::started);
     const auto finalize = [this] {
         m_taskTree.release()->deleteLater();
-        emit q->stopped();
+        checkAutoDeleteAndEmitStopped();
     };
     connect(m_taskTree.get(), &TaskTree::done, this, finalize);
     connect(m_taskTree.get(), &TaskTree::errorOccurred, this, finalize);
     m_taskTree->start();
+}
+
+void RunControlPrivate::checkAutoDeleteAndEmitStopped()
+{
+    if (autoDelete) {
+        debugMessage("All finished. Deleting myself");
+        q->deleteLater();
+    } else {
+        q->setApplicationProcessHandle(Utils::ProcessHandle());
+    }
+    emit q->stopped();
 }
 
 bool RunControl::isRunning() const
@@ -1160,13 +1172,7 @@ void RunControlPrivate::setState(RunControlState newState)
         emit q->started();
         break;
     case RunControlState::Stopped:
-        if (autoDelete) {
-            debugMessage("All finished. Deleting myself");
-            q->deleteLater();
-        } else {
-            q->setApplicationProcessHandle(Utils::ProcessHandle());
-        }
-        emit q->stopped();
+        checkAutoDeleteAndEmitStopped();
         break;
     default:
         break;
