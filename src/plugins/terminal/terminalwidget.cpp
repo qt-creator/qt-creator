@@ -143,9 +143,7 @@ void TerminalWidget::setupPty()
     m_process = std::make_unique<Process>();
 
     CommandLine shellCommand = m_openParameters.shellCommand.value_or(
-        CommandLine{settings().shell(),
-                    settings().shellArguments.value(),
-                    CommandLine::Raw});
+        CommandLine{settings().shell(), settings().shellArguments(), CommandLine::Raw});
 
     Environment env = m_openParameters.environment.value_or(Environment{})
                           .appliedToEnvironment(shellCommand.executable().deviceEnvironment());
@@ -230,8 +228,8 @@ void TerminalWidget::setupFont()
 {
     QFont f;
     f.setFixedPitch(true);
-    f.setFamily(settings().font.value());
-    f.setPointSize(settings().fontSize.value());
+    f.setFamily(settings().font());
+    f.setPointSize(settings().fontSize());
 
     setFont(f);
 }
@@ -241,12 +239,12 @@ void TerminalWidget::setupColors()
     // Check if the colors have changed.
     std::array<QColor, 20> newColors;
     for (int i = 0; i < 16; ++i) {
-        newColors[i] = settings().colors[i].value();
+        newColors[i] = settings().colors[i]();
     }
-    newColors[ColorIndex::Background] = settings().backgroundColor.value();
-    newColors[ColorIndex::Foreground] = settings().foregroundColor.value();
-    newColors[ColorIndex::Selection] = settings().selectionColor.value();
-    newColors[ColorIndex::FindMatch] = settings().findMatchColor.value();
+    newColors[ColorIndex::Background] = settings().backgroundColor();
+    newColors[ColorIndex::Foreground] = settings().foregroundColor();
+    newColors[ColorIndex::Selection] = settings().selectionColor();
+    newColors[ColorIndex::FindMatch] = settings().findMatchColor();
 
     if (m_currentColors == newColors)
         return;
@@ -401,7 +399,7 @@ void TerminalWidget::setupSurface()
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
     connect(m_surface.get(), &Internal::TerminalSurface::bell, this, [] {
-        if (settings().audibleBell.value())
+        if (settings().audibleBell())
             QApplication::beep();
     });
     connect(m_surface.get(),
@@ -438,7 +436,7 @@ void TerminalWidget::setupSurface()
 void TerminalWidget::configBlinkTimer()
 {
     bool shouldRun = m_cursor.visible && m_cursor.blink && hasFocus()
-                     && settings().allowBlinkingCursor.value();
+                     && settings().allowBlinkingCursor();
     if (shouldRun != m_cursorBlinkTimer.isActive()) {
         if (shouldRun)
             m_cursorBlinkTimer.start();

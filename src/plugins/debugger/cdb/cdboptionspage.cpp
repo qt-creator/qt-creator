@@ -169,7 +169,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
     using namespace Layouting;
     DebuggerSettings &s = settings();
 
-    m_breakEventWidget->setBreakEvents(settings().cdbBreakEvents.value());
+    m_breakEventWidget->setBreakEvents(settings().cdbBreakEvents());
 
     Column {
         Row {
@@ -220,7 +220,7 @@ void CdbOptionsPageWidget::apply()
 
 void CdbOptionsPageWidget::finish()
 {
-    m_breakEventWidget->setBreakEvents(settings().cdbBreakEvents.value());
+    m_breakEventWidget->setBreakEvents(settings().cdbBreakEvents());
     m_group.finish();
 }
 

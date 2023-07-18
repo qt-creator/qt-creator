@@ -303,7 +303,7 @@ CommandLine MakeStep::effectiveMakeCommand(MakeCommandType type) const
         cmd.addArgs(displayArguments());
     cmd.addArgs(userArguments(), CommandLine::Raw);
     cmd.addArgs(jobArguments());
-    cmd.addArgs(m_buildTargetsAspect.value());
+    cmd.addArgs(m_buildTargetsAspect());
 
     return cmd;
 }

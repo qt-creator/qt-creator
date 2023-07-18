@@ -477,7 +477,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     connect(m_searchFilter, &QLineEdit::textChanged,
             &m_updateTimer, QOverload<>::of(&QTimer::start));
 
-    setCostFormat(CostDelegate::CostFormat(settings->costFormat.value()));
+    setCostFormat(CostDelegate::CostFormat(settings->costFormat()));
 
     m_perspective.addToolBarAction(settings->detectCycles.action());
     m_perspective.addToolBarAction(settings->shortenTemplates.action());
@@ -747,9 +747,9 @@ void CallgrindToolPrivate::setupRunner(CallgrindToolRunner *toolRunner)
     // apply project settings
     ValgrindProjectSettings settings;
     settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
-    m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio.value() / 100.0);
-    m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio.value() / 100.0);
-    m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips.value());
+    m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio() / 100.0);
+    m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio() / 100.0);
+    m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips());
 
     m_toolBusy = true;
     updateRunActions();

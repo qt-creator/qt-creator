@@ -436,7 +436,7 @@ void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &
             return;
 
         conf.setAut(dialog.aut.currentText());
-        conf.setArguments(dialog.arguments.value());
+        conf.setArguments(dialog.arguments());
     }
 
     SquishTools::instance()->recordTestCase(suitePath, testCaseName, conf);

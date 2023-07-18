@@ -61,7 +61,7 @@ GeneralSettings::GeneralSettings()
 
 QList<MimeType> GeneralSettings::allowedMimeTypes() const
 {
-    const QStringList stringTypes = autoFormatMime.value().split(';');
+    const QStringList stringTypes = autoFormatMime().split(';');
 
     QList<MimeType> types;
     for (QString t : stringTypes) {

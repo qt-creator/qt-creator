@@ -383,7 +383,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     connect(bs, &BuildSystem::parsingFinished, this, [this, bs] {
         const CMakeConfig config = bs->configurationFromCMake();
-        const TriState qmlDebugSetting = m_buildConfig->qmlDebugging.value();
+        const TriState qmlDebugSetting = m_buildConfig->qmlDebugging();
         bool qmlDebugConfig = CMakeBuildConfiguration::hasQmlDebugging(config);
         if ((qmlDebugSetting == TriState::Enabled && !qmlDebugConfig)
             || (qmlDebugSetting == TriState::Disabled && qmlDebugConfig)) {
@@ -843,10 +843,10 @@ void CMakeBuildSettingsWidget::updateConfigurationStateIndex(int index)
 
 CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
 {
-    const TriState qmlDebuggingState = m_buildConfig->qmlDebugging.value();
+    const TriState qmlDebuggingState = m_buildConfig->qmlDebugging();
     if (qmlDebuggingState == TriState::Default) // don't touch anything
         return {};
-    const bool enable = m_buildConfig->qmlDebugging.value() == TriState::Enabled;
+    const bool enable = m_buildConfig->qmlDebugging() == TriState::Enabled;
 
     const CMakeConfig configList = m_buildConfig->cmakeBuildSystem()->configurationFromCMake();
     const QByteArrayList cxxFlagsPrev{"CMAKE_CXX_FLAGS",

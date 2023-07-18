@@ -523,8 +523,8 @@ void SquishServerSettingsWidget::addAttachableAut(TreeItem *categoryItem, Squish
     if (dialog.exec() != QDialog::Accepted)
         return;
 
-    const QString executableStr = dialog.executable.value();
-    const QString hostStr = dialog.host.value();
+    const QString executableStr = dialog.executable();
+    const QString hostStr = dialog.host();
     if (executableStr.isEmpty() || hostStr.isEmpty())
         return;
 

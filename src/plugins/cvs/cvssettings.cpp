@@ -84,7 +84,7 @@ CvsSettings::CvsSettings()
 
 QStringList CvsSettings::addOptions(const QStringList &args) const
 {
-    const QString cvsRoot = this->cvsRoot.value();
+    const QString cvsRoot = this->cvsRoot();
     if (cvsRoot.isEmpty())
         return args;
 

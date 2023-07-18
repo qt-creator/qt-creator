@@ -148,7 +148,7 @@ public:
 
     QStringList arguments() const override
     {
-        return settings().diffOptions.value().split(' ', Qt::SkipEmptyParts)
+        return settings().diffOptions().split(' ', Qt::SkipEmptyParts)
                + VcsBaseEditorConfig::arguments();
     }
 };

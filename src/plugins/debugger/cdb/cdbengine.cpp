@@ -368,13 +368,13 @@ void CdbEngine::setupEngine()
     if (s.ignoreFirstChanceAccessViolation())
         debugger.addArg("-x");
 
-    const QStringList &sourcePaths = s.cdbSourcePaths.value();
+    const QStringList &sourcePaths = s.cdbSourcePaths();
     if (!sourcePaths.isEmpty())
         debugger.addArgs({"-srcpath", sourcePaths.join(';')});
 
-    debugger.addArgs({"-y", QChar('"') + s.cdbSymbolPaths.value().join(';') + '"'});
+    debugger.addArgs({"-y", QChar('"') + s.cdbSymbolPaths().join(';') + '"'});
 
-    debugger.addArgs(expand(s.cdbAdditionalArguments.value()), CommandLine::Raw);
+    debugger.addArgs(expand(s.cdbAdditionalArguments()), CommandLine::Raw);
 
     switch (sp.startMode) {
     case StartInternal:

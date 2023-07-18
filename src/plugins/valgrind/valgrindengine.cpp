@@ -103,7 +103,7 @@ QStringList ValgrindToolRunner::genericToolArguments() const
 {
     QString smcCheckValue;
 
-    switch (m_settings.selfModifyingCodeDetection.value()) {
+    switch (m_settings.selfModifyingCodeDetection()) {
     case ValgrindBaseSettings::DetectSmcNo:
         smcCheckValue = "none";
         break;
