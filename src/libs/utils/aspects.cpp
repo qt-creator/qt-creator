@@ -864,7 +864,7 @@ FilePath StringAspect::filePath() const
     return FilePath::fromUserInput(value());
 }
 
-PathChooser *StringAspect::pathChooser() const
+PathChooser *FilePathAspect::pathChooser() const
 {
     return d->m_pathChooserDisplay.data();
 }

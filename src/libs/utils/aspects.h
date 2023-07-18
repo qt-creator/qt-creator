@@ -529,8 +529,6 @@ public:
 
     FilePath filePath() const;
 
-    PathChooser *pathChooser() const; // Avoid to use.
-
 signals:
     void checkedChanged();
     void validChanged(bool validState);
@@ -563,6 +561,8 @@ public:
     void setAllowPathFromDevice(bool allowPathFromDevice);
     void setValidatePlaceHolder(bool validatePlaceHolder);
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
+
+    PathChooser *pathChooser() const; // Avoid to use.
 };
 
 class QTCREATOR_UTILS_EXPORT IntegerAspect : public TypedAspect<qint64>
