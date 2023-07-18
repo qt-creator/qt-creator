@@ -5,12 +5,14 @@
 
 #include "nimconstants.h"
 #include "nimsuggest.h"
+#include "settings/nimsettings.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-namespace Nim {
-namespace Suggest {
+using namespace Utils;
+
+namespace Nim::Suggest {
 
 NimSuggestCache &NimSuggestCache::instance()
 {
@@ -20,12 +22,12 @@ NimSuggestCache &NimSuggestCache::instance()
 
 NimSuggestCache::~NimSuggestCache() = default;
 
-NimSuggest *NimSuggestCache::get(const Utils::FilePath &filename)
+NimSuggest *NimSuggestCache::get(const FilePath &filename)
 {
     auto it = m_nimSuggestInstances.find(filename);
     if (it == m_nimSuggestInstances.end()) {
         auto instance = std::make_unique<Suggest::NimSuggest>(this);
-        instance->setProjectFile(filename.toString());
+        instance->setProjectFile(filename);
         instance->setExecutablePath(m_executablePath);
         it = m_nimSuggestInstances.emplace(filename, std::move(instance)).first;
     }
@@ -41,12 +43,12 @@ NimSuggestCache::NimSuggestCache()
             this, &NimSuggestCache::onEditorClosed);
 }
 
-QString NimSuggestCache::executablePath() const
+FilePath NimSuggestCache::executablePath() const
 {
     return m_executablePath;
 }
 
-void NimSuggestCache::setExecutablePath(const QString &path)
+void NimSuggestCache::setExecutablePath(const FilePath &path)
 {
     if (m_executablePath == path)
         return;
@@ -72,5 +74,4 @@ void Nim::Suggest::NimSuggestCache::onEditorClosed(Core::IEditor *editor)
         m_nimSuggestInstances.erase(it);
 }
 
-}
-}
+} // Nim::Suggest

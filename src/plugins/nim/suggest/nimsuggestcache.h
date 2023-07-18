@@ -11,8 +11,7 @@
 
 namespace Core { class IEditor; }
 
-namespace Nim {
-namespace Suggest {
+namespace Nim::Suggest {
 
 class NimSuggest;
 
@@ -25,8 +24,8 @@ public:
 
     NimSuggest *get(const Utils::FilePath &filename);
 
-    QString executablePath() const;
-    void setExecutablePath(const QString &path);
+    Utils::FilePath executablePath() const;
+    void setExecutablePath(const Utils::FilePath &path);
 
 private:
     NimSuggestCache();
@@ -37,8 +36,7 @@ private:
 
     std::unordered_map<Utils::FilePath, std::unique_ptr<Suggest::NimSuggest>> m_nimSuggestInstances;
 
-    QString m_executablePath;
+    Utils::FilePath m_executablePath;
 };
 
-} // namespace Suggest
-} // namespace Nim
+} // Nim::Suggest
