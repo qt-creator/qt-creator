@@ -31404,271 +31404,271 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <name>QtC::GitLab</name>
     <message>
         <source>Clone Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Repository klonen</translation>
     </message>
     <message>
         <source>Specify repository URL, checkout path and directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Repository-URL, Checkout-Pfad und Verzeichnis an.</translation>
     </message>
     <message>
         <source>Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Repository</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished">Pfad</translation>
+        <translation>Pfad</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; existiert bereits.</translation>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished">Verzeichnis</translation>
+        <translation>Verzeichnis</translation>
     </message>
     <message>
         <source>Recursive</source>
-        <translation type="unfinished">Rekursiv</translation>
+        <translation>Rekursiv</translation>
     </message>
     <message>
         <source>Clone</source>
-        <translation type="unfinished">Klonen</translation>
+        <translation>Klonen</translation>
     </message>
     <message>
         <source>User canceled process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Benutzer hat den Prozess abgebrochen.</translation>
     </message>
     <message>
         <source>Cloning succeeded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Klonen war erfolgreich.</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Cloned project does not have a project file that can be opened. Try importing the project as a generic project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das geklonte Projekt enthält keine Projekt-Datei, die geöffnet werden kann. Versuchen Sie, das Projekt als generisches Projekt zu importieren.</translation>
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished">Projekt öffnen</translation>
+        <translation>Projekt öffnen</translation>
     </message>
     <message>
         <source>Choose the project file to be opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu öffnende Projekt-Datei.</translation>
     </message>
     <message>
         <source>Cloning failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Klonen.</translation>
     </message>
     <message>
         <source>GitLab</source>
-        <translation type="unfinished"></translation>
+        <translation>GitLab</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Suche</translation>
+        <translation>Suche</translation>
     </message>
     <message>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Clone...</source>
-        <translation type="unfinished">Klonen...</translation>
+        <translation>Klonen...</translation>
     </message>
     <message>
         <source>Remote:</source>
-        <translation type="unfinished">Remote:</translation>
+        <translation>Remote:</translation>
     </message>
     <message>
         <source>Not logged in.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht eingeloggt.</translation>
     </message>
     <message>
         <source>Insufficient access token.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungenügendes Zugangstoken.</translation>
     </message>
     <message>
         <source>Permission scope read_api or api needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es werden Rechte für read_api oder api benötigt.</translation>
     </message>
     <message>
         <source>Check settings for misconfiguration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfen Sie die Einstellungen auf falsche Konfigurationen.</translation>
     </message>
     <message>
         <source>Projects (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekte (%1)</translation>
     </message>
     <message>
         <source>Using project access token.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze das Zugriffstoken des Projekts.</translation>
     </message>
     <message>
         <source>Logged in as %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Als %1 eingeloggt</translation>
     </message>
     <message>
         <source>Id: %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>ID: %1 (%2)</translation>
     </message>
     <message>
         <source>Certificate Error</source>
-        <translation type="unfinished">Zertifikatsfehler</translation>
+        <translation>Zertifikatsfehler</translation>
     </message>
     <message>
         <source>Server certificate for %1 cannot be authenticated.
 Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
-        <translation type="unfinished">Server-Zertifikat für %1 kann nicht authentifiziert werden.
+        <translation>Server-Zertifikat für %1 kann nicht authentifiziert werden.
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished">Host:</translation>
+        <translation>Host:</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished">Beschreibung:</translation>
+        <translation>Beschreibung:</translation>
     </message>
     <message>
         <source>Access token:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugriffstoken:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished">Port:</translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>HTTPS:</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTPS:</translation>
     </message>
     <message>
         <source>Default:</source>
-        <translation type="unfinished">Vorgabe:</translation>
+        <translation>Vorgabe:</translation>
     </message>
     <message>
         <source>curl:</source>
-        <translation type="unfinished"></translation>
+        <translation>curl:</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Edit current selected GitLab server configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte GitLab-Serverkonfiguration bearbeiten.</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Remove current selected GitLab server configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne die ausgewählte GitLab-Serverkonfiguration.</translation>
     </message>
     <message>
         <source>Add...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Add new GitLab server configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue GitLab-Serverkonfiguration hinzufügen.</translation>
     </message>
     <message>
         <source>Edit Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>Server bearbeiten...</translation>
     </message>
     <message>
         <source>Modify</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändern</translation>
     </message>
     <message>
         <source>Add Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>Server hinzufügen...</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>GitLab...</source>
-        <translation type="unfinished"></translation>
+        <translation>GitLab...</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Invalid GitLab configuration. For a fully functional configuration, you need to set up host name or address and an access token. Providing the path to curl is mandatory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige GitLab-Konfiguration. Für eine voll funktionsfähige Konfiguration müssen Sie den Namen des Hosts oder die Adresse und ein Zugriffstoken einrichten. Die Angabe des Pfads zu curl ist zwingend erforderlich.</translation>
     </message>
     <message>
         <source>Guest</source>
-        <translation type="unfinished"></translation>
+        <translation>Gast</translation>
     </message>
     <message>
         <source>Reporter</source>
-        <translation type="unfinished"></translation>
+        <translation>Reporter</translation>
     </message>
     <message>
         <source>Developer</source>
-        <translation type="unfinished"></translation>
+        <translation>Entwickler</translation>
     </message>
     <message>
         <source>Maintainer</source>
-        <translation type="unfinished"></translation>
+        <translation>Maintainer</translation>
     </message>
     <message>
         <source>Owner</source>
-        <translation type="unfinished">Autor</translation>
+        <translation>Eigentümer</translation>
     </message>
     <message>
         <source>Linked GitLab Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbundene GitLab-Konfiguration:</translation>
     </message>
     <message>
         <source>Link with GitLab</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit GitLab verbinden</translation>
     </message>
     <message>
         <source>Unlink from GitLab</source>
-        <translation type="unfinished"></translation>
+        <translation>Von GitLab trennen</translation>
     </message>
     <message>
         <source>Test Connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung testen</translation>
     </message>
     <message>
         <source>Projects linked with GitLab receive event notifications in the Version Control output pane.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit GitLab verbundene Projekte erhalten Ereignisbenachrichtigungen in der Ausgabe der Versionskontrolle.</translation>
     </message>
     <message>
         <source>Remote host does not match chosen GitLab configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der remote Host stimmt nicht mit der gewählten GitLab-Konfiguration überein.</translation>
     </message>
     <message>
         <source>Accessible (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugreifbar (%1).</translation>
     </message>
     <message>
         <source>Read only access.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreibgeschützter Zugriff.</translation>
     </message>
     <message>
         <source>Not a git repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Git-Repository.</translation>
     </message>
     <message>
         <source>Local git repository without remotes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokales Git-Repository ohne Remotes.</translation>
     </message>
 </context>
 <context>
