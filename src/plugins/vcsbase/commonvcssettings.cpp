@@ -7,6 +7,7 @@
 #include "vcsbasetr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/environment.h>
