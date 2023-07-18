@@ -124,8 +124,6 @@ public:
     Utils::AspectContainer page5; // CDB
     Utils::AspectContainer page6; // CDB Paths
 
-    void writeSettings() const;
-
 private:
     DebuggerSettings(const DebuggerSettings &) = delete;
     DebuggerSettings &operator=(const DebuggerSettings &) = delete;

@@ -583,12 +583,6 @@ public:
 
     RunControl *attachToRunningProcess(Kit *kit, const ProcessInfo &process, bool contAfterAttach);
 
-    void writeSettings()
-    {
-        settings().writeSettings();
-//        writeWindowSettings();
-    }
-
     void breakpointSetMarginActionTriggered(bool isMessageOnly, const ContextData &data)
     {
         QString message;
@@ -1159,10 +1153,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     //
     //  Connections
     //
-
-    // Core
-    connect(ICore::instance(), &ICore::saveSettingsRequested,
-            this, &DebuggerPluginPrivate::writeSettings);
 
     // ProjectExplorer
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,

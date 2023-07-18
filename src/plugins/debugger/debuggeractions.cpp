@@ -10,6 +10,7 @@
 #include "gdb/gdbsettings.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -370,11 +371,10 @@ DebuggerSettings::DebuggerSettings() :
     });
 
     all.readSettings();
-}
 
-void DebuggerSettings::writeSettings() const
-{
-    all.writeSettings();
+    QObject::connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+                     &all, &AspectContainer::writeSettings);
+
 }
 
 QString DebuggerSettings::dump()
