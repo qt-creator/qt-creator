@@ -44,8 +44,6 @@ public:
     explicit VcsBaseClientImpl(VcsBaseSettings *baseSettings);
     ~VcsBaseClientImpl() override = default;
 
-    VcsBaseSettings &settings() const;
-
     virtual Utils::FilePath vcsBinary() const;
     int vcsTimeoutS() const;
 

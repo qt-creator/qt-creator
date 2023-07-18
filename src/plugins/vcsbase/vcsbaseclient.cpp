@@ -61,11 +61,6 @@ VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
             this, &VcsBaseClientImpl::saveSettings);
 }
 
-VcsBaseSettings &VcsBaseClientImpl::settings() const
-{
-    return *m_baseSettings;
-}
-
 FilePath VcsBaseClientImpl::vcsBinary() const
 {
     return m_baseSettings->binaryPath();

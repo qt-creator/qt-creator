@@ -234,13 +234,12 @@ void SubversionDiffEditorController::setChangeNumber(int changeNumber)
 SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const QString &documentId,
     const FilePath &source, const QString &title, const FilePath &workingDirectory)
 {
-    SubversionSettings &settings = Internal::settings();
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     auto controller = qobject_cast<SubversionDiffEditorController *>(
                 DiffEditorController::controller(document));
     if (!controller) {
         controller = new SubversionDiffEditorController(document);
-        controller->setVcsBinary(settings.binaryPath());
+        controller->setVcsBinary(settings().binaryPath());
         controller->setProcessEnvironment(processEnvironment());
         controller->setWorkingDirectory(workingDirectory);
     }
@@ -271,8 +270,7 @@ void SubversionClient::log(const FilePath &workingDir,
                            bool enableAnnotationContextMenu,
                            const std::function<void(Utils::CommandLine &)> &addAuthOptions)
 {
-    auto &settings = static_cast<SubversionSettings &>(this->settings());
-    const int logCount = settings.logCount();
+    const int logCount = settings().logCount();
     QStringList svnExtraOptions = extraOptions;
     if (logCount > 0)
         svnExtraOptions << QLatin1String("-l") << QString::number(logCount);
