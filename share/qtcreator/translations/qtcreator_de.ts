@@ -27557,216 +27557,217 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <name>QtC::Docker</name>
     <message>
         <source>Checking docker daemon</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfe Docker-Daemon</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a directory or does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; ist kein Verzeichnis oder existiert nicht.</translation>
     </message>
     <message>
         <source>Docker</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker</translation>
     </message>
     <message>
         <source>Docker Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker Image</translation>
     </message>
     <message>
         <source>Docker Image &quot;%1&quot; (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker Image &quot;%1&quot; (%2)</translation>
     </message>
     <message>
         <source>Error starting remote shell. No container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Start der entfernten Shell. Kein Container.</translation>
     </message>
     <message>
         <source>Error starting remote shell: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Start der entfernten Shell: %1</translation>
     </message>
     <message>
         <source>Open Shell in Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell in Container öffnen</translation>
     </message>
     <message>
         <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart Qt Creator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Docker-Daemon scheint nicht zu laufen. Stellen Sie sicher, dass der Daemon ausgeführt wird, und setzen Sie den Docker-Daemon in den Einstellungen des Docker-Geräts zurück oder starten Sie Qt Creator neu.</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl des Docker-Image</translation>
     </message>
     <message>
         <source>Show Unnamed Images</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbenannte Images anzeigen</translation>
     </message>
     <message>
         <source>Loading ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade...</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot;
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Führe &quot;%1&quot; aus
+</translation>
     </message>
     <message>
         <source>Unexpected result: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartetes Ergebnis: %1</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation type="unfinished">Fertig.</translation>
+        <translation>Fertig.</translation>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation>Fehler: %1</translation>
     </message>
     <message>
         <source>Docker Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Gerät</translation>
     </message>
     <message>
         <source>localSource: No mount point found for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>localSource: Kein Einhängepunkt für %1 gefunden</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation type="unfinished">Repository:</translation>
+        <translation>Repository:</translation>
     </message>
     <message>
         <source>Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tag:</translation>
     </message>
     <message>
         <source>Image ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>Image ID:</translation>
     </message>
     <message>
         <source>Daemon state:</source>
-        <translation type="unfinished"></translation>
+        <translation>Daemon-Status:</translation>
     </message>
     <message>
         <source>Clears detected daemon state. It will be automatically re-evaluated next time access is needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Löscht den festgestellten Daemon-Status. Wird automatisch neu ausgewertet, wenn das nächste Mal Zugriff benötigt wird.</translation>
     </message>
     <message>
         <source>Do not modify entry point</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstiegspunkt nicht ändern</translation>
     </message>
     <message>
         <source>Prevents modifying the entry point of the image. Enable only if the image starts into a shell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verhindert, dass der Einstiegspunkt des Image geändert wird. Aktivieren Sie dies nur, wenn das Image in eine Shell gestartet wird.</translation>
     </message>
     <message>
         <source>Enable flags needed for LLDB</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert Optionen, die für LLDB benötigt werden</translation>
     </message>
     <message>
         <source>Adds the following flags to the container to allow LLDB to run: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined</source>
-        <translation type="unfinished"></translation>
+        <translation>Fügt die folgenden Optionen zum Start des Containers hinzu, um das Ausführen von LLDB zu erlauben: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined</translation>
     </message>
     <message>
         <source>Run as outside user</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Benutzer von außerhalb ausführen</translation>
     </message>
     <message>
         <source>Uses user ID and group ID of the user running Qt Creator in the docker container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendet im Docker-Container die Benutzer- und Gruppen-ID des Benutzers, der Qt Creator ausführt.</translation>
     </message>
     <message>
         <source>Clangd Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Clangd:</translation>
     </message>
     <message>
         <source>Paths to mount:</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzuhängende Pfade:</translation>
     </message>
     <message>
         <source>Source directory list should not be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Liste der Quellverzeichnisse sollte nicht leer sein.</translation>
     </message>
     <message>
         <source>Host directories to mount into the container</source>
-        <translation type="unfinished"></translation>
+        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordnet Pfade in dieser Liste 1-zu-1 zum Docker-Container zu.</translation>
     </message>
     <message>
         <source>Auto-detect Kit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit-Einträge automatisch bestimmen</translation>
     </message>
     <message>
         <source>Remove Auto-Detected Kit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch bestimmte Kit-Einträge entfernen</translation>
     </message>
     <message>
         <source>List Auto-Detected Kit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch bestimmte Kit-Einträge anzeigen</translation>
     </message>
     <message>
         <source>Search in PATH</source>
-        <translation type="unfinished"></translation>
+        <translation>Im PATH suchen</translation>
     </message>
     <message>
         <source>Search in Selected Directories</source>
-        <translation type="unfinished"></translation>
+        <translation>In ausgewählten Verzeichnissen suchen</translation>
     </message>
     <message>
         <source>Search in PATH and Additional Directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Im PATH und zusätzlichen Verzeichnissen suchen</translation>
     </message>
     <message>
         <source>Semicolon-separated list of directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine durch Semikola getrennte Liste von Verzeichnissen</translation>
     </message>
     <message>
         <source>Select the paths in the Docker image that should be scanned for kit entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die Verzeichnisse im Docker-Image, in denen nach Kit-Einträgen gesucht werden sollen.</translation>
     </message>
     <message>
         <source>Docker daemon appears to be stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Docker-Daemon scheint angehalten zu sein.</translation>
     </message>
     <message>
         <source>Docker daemon appears to be running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Docker-Daemon scheint zu laufen.</translation>
     </message>
     <message>
         <source>Detection complete.</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche abgeschlossen.</translation>
     </message>
     <message>
         <source>Search Locations:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu durchsuchende Orte:</translation>
     </message>
     <message>
         <source>Detection log:</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchprotokoll:</translation>
     </message>
     <message>
         <source>Daemon state not evaluated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Daemon-Status nicht ermittelt.</translation>
     </message>
     <message>
         <source>Docker daemon running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Daemon läuft.</translation>
     </message>
     <message>
         <source>Docker daemon not running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Daemon läuft nicht.</translation>
     </message>
     <message>
         <source>Docker CLI</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker CLI</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">Konfiguration</translation>
+        <translation>Konfiguration</translation>
     </message>
 </context>
 <context>
