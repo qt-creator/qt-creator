@@ -1981,7 +1981,7 @@ SourceId Model::fileUrlSourceId() const
   */
 void Model::setFileUrl(const QUrl &url)
 {
-    Q_ASSERT(url.isValid() && url.isLocalFile());
+    QTC_ASSERT(url.isValid() && url.isLocalFile(), qDebug() << "url:" << url; return);
     Internal::WriteLocker locker(d.get());
     d->setFileUrl(url);
 }
