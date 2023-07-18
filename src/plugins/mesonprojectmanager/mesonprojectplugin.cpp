@@ -11,7 +11,6 @@
 #include "mesontoolkitaspect.h"
 #include "ninjabuildstep.h"
 #include "ninjatoolkitaspect.h"
-#include "settings.h"
 #include "toolssettingsaccessor.h"
 #include "toolssettingspage.h"
 
@@ -45,7 +44,6 @@ public:
     ~MesonProjectPluginPrivate() {}
 
 private:
-    Settings m_settings;
     ToolsSettingsPage m_toolslSettingsPage;
     ToolsSettingsAccessor m_toolsSettings;
     MesonToolKitAspect m_mesonKitAspect;

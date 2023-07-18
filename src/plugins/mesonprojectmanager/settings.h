@@ -3,21 +3,19 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <utils/aspects.h>
 
 namespace MesonProjectManager::Internal {
 
-class Settings : public Core::PagedSettings
+class MesonSettings final : public Utils::AspectContainer
 {
 public:
-    Settings();
+    MesonSettings();
 
     Utils::BoolAspect autorunMeson{this};
     Utils::BoolAspect verboseNinja{this};
 };
 
-Settings &settings();
+MesonSettings &settings();
 
 } // MesonProjectManager::Internal
