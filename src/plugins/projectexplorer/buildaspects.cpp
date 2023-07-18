@@ -74,12 +74,12 @@ void BuildDirectoryAspect::allowInSourceBuilds(const FilePath &sourceDir)
 {
     d->sourceDir = sourceDir;
     makeCheckable(CheckBoxPlacement::Top, Tr::tr("Shadow build:"), QString());
-    setChecked(d->sourceDir != filePath());
+    setChecked(d->sourceDir != expandedValue());
 }
 
 bool BuildDirectoryAspect::isShadowBuild() const
 {
-    return !d->sourceDir.isEmpty() && d->sourceDir != filePath();
+    return !d->sourceDir.isEmpty() && d->sourceDir != expandedValue();
 }
 
 void BuildDirectoryAspect::setProblem(const QString &description)
@@ -92,7 +92,7 @@ void BuildDirectoryAspect::toMap(QVariantMap &map) const
 {
     FilePathAspect::toMap(map);
     if (!d->sourceDir.isEmpty()) {
-        const FilePath shadowDir = isChecked() ? filePath() : d->savedShadowBuildDir;
+        const FilePath shadowDir = isChecked() ? expandedValue() : d->savedShadowBuildDir;
         saveToMap(map, shadowDir.toSettings(), QString(), settingsKey() + ".shadowDir");
     }
 }
@@ -104,7 +104,7 @@ void BuildDirectoryAspect::fromMap(const QVariantMap &map)
         d->savedShadowBuildDir = FilePath::fromSettings(map.value(settingsKey() + ".shadowDir"));
         if (d->savedShadowBuildDir.isEmpty())
             setValue(d->sourceDir);
-        setChecked(d->sourceDir != filePath());
+        setChecked(d->sourceDir != expandedValue()); // FIXME: Check.
     }
 }
 
@@ -121,7 +121,7 @@ void BuildDirectoryAspect::addToLayout(Layouting::LayoutItem &parent)
                 setValue(d->savedShadowBuildDir.isEmpty()
                             ? d->sourceDir : d->savedShadowBuildDir);
             } else {
-                d->savedShadowBuildDir = filePath();
+                d->savedShadowBuildDir = expandedValue(); // FIXME: Check.
                 setValue(d->sourceDir);
             }
         });

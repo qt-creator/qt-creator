@@ -632,8 +632,8 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
 FilePath ExecutableAspect::executable() const
 {
     FilePath exe = m_alternativeExecutable && m_alternativeExecutable->isChecked()
-            ? m_alternativeExecutable->filePath()
-            : m_executable.filePath();
+            ? (*m_alternativeExecutable)()
+            : m_executable();
 
     if (const IDevice::ConstPtr dev = executionDevice(m_target, m_selector))
         exe = dev->rootPath().withNewMappedPath(exe);

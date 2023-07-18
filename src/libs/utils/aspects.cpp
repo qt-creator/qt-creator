@@ -1325,12 +1325,17 @@ FilePathAspect::FilePathAspect(AspectContainer *container)
 
 FilePath FilePathAspect::operator()() const
 {
-    return filePath();
+    return FilePath::fromUserInput(StringAspect::value());
 }
 
 FilePath FilePathAspect::value() const
 {
-    return filePath();
+    return FilePath::fromUserInput(StringAspect::value());
+}
+
+FilePath FilePathAspect::expandedValue() const
+{
+    return FilePath::fromUserInput(StringAspect::value());
 }
 
 QString FilePathAspect::stringValue() const

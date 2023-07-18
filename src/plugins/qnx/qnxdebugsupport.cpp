@@ -230,7 +230,7 @@ void showAttachToProcessDialog()
     FilePath localExecutable = dlg.localExecutable();
     if (localExecutable.isEmpty()) {
         if (auto aspect = runConfig->aspect<SymbolFileAspect>())
-            localExecutable = aspect->filePath();
+            localExecutable = aspect->expandedValue();
     }
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);

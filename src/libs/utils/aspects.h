@@ -537,6 +537,7 @@ public:
 
     FilePath operator()() const;
     FilePath value() const;
+    FilePath expandedValue() const;
     QString stringValue() const;
     void setValue(const FilePath &filePath);
     void setDefaultValue(const FilePath &filePath);
