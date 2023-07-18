@@ -288,7 +288,6 @@ private:
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
 
-    CvsSettings m_setting;
     CvsClient *m_client = nullptr;
 
     QString m_commitMessageFileName;

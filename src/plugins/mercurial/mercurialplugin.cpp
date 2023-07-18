@@ -169,7 +169,6 @@ private:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
-    MercurialSettings m_settings;
     MercurialClient m_client;
 
     Core::CommandLocator *m_commandLocator = nullptr;

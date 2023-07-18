@@ -5,6 +5,7 @@
 
 #include "cvstr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <utils/hostosinfo.h>
@@ -17,21 +18,16 @@ using namespace Utils;
 
 namespace Cvs::Internal {
 
-static CvsSettings *theSettings;
-
 CvsSettings &settings()
 {
-    return *theSettings;
+    static CvsSettings theSettings;
+    return theSettings;
 }
 
 CvsSettings::CvsSettings()
 {
-    theSettings = this;
+    setAutoApply(false);
     setSettingsGroup("CVS");
-
-    setId(VcsBase::Constants::VCS_ID_CVS);
-    setDisplayName(Tr::tr("CVS"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 
     binaryPath.setDefaultValue("cvs" QTC_HOST_EXE_SUFFIX);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
@@ -96,5 +92,21 @@ QStringList CvsSettings::addOptions(const QStringList &args) const
     rc.append(args);
     return rc;
 }
+
+// CvsSettingsPage
+
+class CvsSettingsPage final : Core::IOptionsPage
+{
+public:
+    CvsSettingsPage()
+    {
+        setId(VcsBase::Constants::VCS_ID_CVS);
+        setDisplayName(Tr::tr("CVS"));
+        setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const CvsSettingsPage settingsPage;
 
 } // Cvs::Internal

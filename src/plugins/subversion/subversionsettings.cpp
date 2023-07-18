@@ -5,6 +5,8 @@
 
 #include "subversiontr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -16,20 +18,15 @@ using namespace VcsBase;
 
 namespace Subversion::Internal {
 
-static SubversionSettings *theSettings;
-
 SubversionSettings &settings()
 {
-    return *theSettings;
+    static SubversionSettings theSettings;
+    return theSettings;
 }
 
 SubversionSettings::SubversionSettings()
 {
-    theSettings = this;
-
-    setId(VcsBase::Constants::VCS_ID_SUBVERSION);
-    setDisplayName(Tr::tr("Subversion"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setAutoApply(false);
     setSettingsGroup("Subversion");
 
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
@@ -103,5 +100,20 @@ bool SubversionSettings::hasAuthentication() const
 {
     return useAuthentication() && !userName().isEmpty();
 }
+
+// SubversionSettingsPage
+
+class SubversionSettingsPage final : public Core::IOptionsPage
+{
+public:
+    SubversionSettingsPage()
+    {
+        setId(VcsBase::Constants::VCS_ID_SUBVERSION);
+        setDisplayName(Tr::tr("Subversion"));
+        setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    }
+};
+
+const SubversionSettingsPage settingsPage;
 
 } // Subversion::Internal

@@ -15,7 +15,7 @@ enum CommitType
 };
 
 // Todo: Add user name and password?
-class GitSettings : public VcsBase::VcsBaseSettings
+class GitSettings final : public VcsBase::VcsBaseSettings
 {
 public:
     GitSettings();

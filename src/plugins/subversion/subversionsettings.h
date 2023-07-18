@@ -7,7 +7,7 @@
 
 namespace Subversion::Internal {
 
-class SubversionSettings : public VcsBase::VcsBaseSettings
+class SubversionSettings final : public VcsBase::VcsBaseSettings
 {
 public:
     SubversionSettings();

@@ -399,7 +399,6 @@ public:
 
     void onApplySettings();
 
-    GitSettings setting;
     CommandLocator *m_commandLocator = nullptr;
 
     QAction *m_menuAction = nullptr;

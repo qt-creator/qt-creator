@@ -187,7 +187,6 @@ public:
     bool pullOrPush(SyncMode mode);
 
     // Variables
-    FossilSettings m_settings;
     FossilClient m_client;
 
     VcsSubmitEditorFactory submitEditorFactory {

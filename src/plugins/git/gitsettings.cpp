@@ -5,6 +5,8 @@
 
 #include "gittr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 
@@ -17,20 +19,15 @@ using namespace VcsBase;
 
 namespace Git::Internal {
 
-static GitSettings *theSettings;
-
 GitSettings &settings()
 {
-    return *theSettings;
+    static GitSettings theSettings;
+    return theSettings;
 }
 
 GitSettings::GitSettings()
 {
-    theSettings = this;
-
-    setId(VcsBase::Constants::VCS_ID_GIT);
-    setDisplayName(Tr::tr("Git"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setAutoApply(false);
     setSettingsGroup("Git");
 
     path.setDisplayStyle(StringAspect::LineEditDisplay);
@@ -174,5 +171,21 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
     }
     return resolvedBinPath;
 }
+
+// GitSettingsPage
+
+class GitSettingsPage final : public Core::IOptionsPage
+{
+public:
+    GitSettingsPage()
+    {
+        setId(VcsBase::Constants::VCS_ID_GIT);
+        setDisplayName(Tr::tr("Git"));
+        setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const GitSettingsPage settingsPage;
 
 } // Git::Internal

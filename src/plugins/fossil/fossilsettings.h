@@ -7,7 +7,7 @@
 
 namespace Fossil::Internal {
 
-class FossilSettings : public VcsBase::VcsBaseSettings
+class FossilSettings final : public VcsBase::VcsBaseSettings
 {
 public:
     FossilSettings();
