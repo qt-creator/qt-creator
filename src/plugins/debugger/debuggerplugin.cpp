@@ -771,8 +771,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
                           Tr::tr("Debugger Runtime"),
                           Tr::tr("Issues with starting the debugger.")});
 
-    settings().readSettings();
-
     const auto addLabel = [](QWidget *widget, const QString &text) {
         auto vbox = qobject_cast<QVBoxLayout *>(widget->layout());
         QTC_ASSERT(vbox, return);

@@ -124,7 +124,6 @@ public:
     Utils::AspectContainer page5; // CDB
     Utils::AspectContainer page6; // CDB Paths
 
-    void readSettings();
     void writeSettings() const;
 
 private:

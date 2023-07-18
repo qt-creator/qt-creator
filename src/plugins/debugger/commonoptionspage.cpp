@@ -127,6 +127,8 @@ CommonSettings::CommonSettings()
                  "does not provide reliable information as it does not use scope "
                  "information, it is switched off by default."));
     useToolTipsInMainEditor.setDefaultValue(true);
+
+    readSettings();
 }
 
 CommonSettings::~CommonSettings()

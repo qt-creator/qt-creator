@@ -368,10 +368,7 @@ DebuggerSettings::DebuggerSettings() :
         if (auto boolAspect = dynamic_cast<BoolAspect *>(aspect))
             boolAspect->setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
     });
-}
 
-void DebuggerSettings::readSettings()
-{
     all.readSettings();
 }
 
