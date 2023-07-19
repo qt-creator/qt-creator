@@ -12355,46 +12355,46 @@ Siehe auch die Einstellungen für Google Test.</translation>
     <name>QtC::AutotoolsProjectManager</name>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autogen step.</source>
-        <translation type="unfinished">Unveränderte Konfiguration, autogen-Schritt wird übersprungen.</translation>
+        <translation>Unveränderte Konfiguration, autogen-Schritt wird übersprungen.</translation>
     </message>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
-        <translation type="unfinished">Autogen</translation>
+        <translation>Autogen</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
-        <translation type="unfinished">Unveränderte Konfiguration, autoreconf-Schritt wird übersprungen.</translation>
+        <translation>Unveränderte Konfiguration, autoreconf-Schritt wird übersprungen.</translation>
     </message>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
-        <translation type="unfinished">Autoreconf</translation>
+        <translation>Autoreconf</translation>
     </message>
     <message>
         <source>Autotools Manager</source>
-        <translation type="unfinished">Autotools-Verwaltung</translation>
+        <translation>Autotools-Verwaltung</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping configure step.</source>
-        <translation type="unfinished">Unveränderte Konfiguration, configure-Schritt wird übersprungen.</translation>
+        <translation>Unveränderte Konfiguration, configure-Schritt wird übersprungen.</translation>
     </message>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
-        <translation type="unfinished">Konfigurieren</translation>
+        <translation>Configure</translation>
     </message>
     <message>
         <source>Parsing %1 in directory %2</source>
-        <translation type="unfinished">Werte %1 im Verzeichnis %2 aus</translation>
+        <translation>Werte %1 im Verzeichnis %2 aus</translation>
     </message>
     <message>
         <source>Parsing directory %1</source>
-        <translation type="unfinished">Werte Verzeichnis %1 aus</translation>
+        <translation>Werte Verzeichnis %1 aus</translation>
     </message>
 </context>
 <context>
@@ -16604,19 +16604,19 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Close Check In Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Check-In-Editor schließen</translation>
     </message>
     <message>
         <source>Closing this editor will abort the check in.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie diesen Editor schließen, wird der Check-In abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot check in.</source>
-        <translation type="unfinished"></translation>
+        <translation>Check-In fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Cannot check in: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Check-In fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>Do you want to undo the check out of &quot;%1&quot;?</source>
@@ -16719,23 +16719,23 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <name>QtC::Coco</name>
     <message>
         <source>Select a Squish Coco CoverageBrowser Executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine ausführbare Datei für den Squish-Coco-CoverageBrowser</translation>
     </message>
     <message>
         <source>CoverageBrowser:</source>
-        <translation type="unfinished"></translation>
+        <translation>CoverageBrowser:</translation>
     </message>
     <message>
         <source>Coco instrumentation files (*.csmes)</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco-Instrumentierungsdateien (*.csmes)</translation>
     </message>
     <message>
         <source>Select a Squish Coco Instrumentation File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine Squish-Coco-Instrumentierungsdatei</translation>
     </message>
     <message>
         <source>CSMes:</source>
-        <translation type="unfinished"></translation>
+        <translation>CSMes:</translation>
     </message>
 </context>
 <context>
@@ -16933,173 +16933,176 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Change Root Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis ändern</translation>
     </message>
 </context>
 <context>
     <name>QtC::Conan</name>
     <message>
         <source>Conan install</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Conan installieren</translation>
     </message>
     <message>
         <source>Conan file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Conan-Datei:</translation>
     </message>
     <message>
         <source>Enter location of conanfile.txt or conanfile.py.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Ort der Datei conanfile.txt oder conanfile.py an.</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation type="unfinished">Zusätzliche Argumente:</translation>
+        <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
         <source>Run conan install</source>
-        <translation type="unfinished"></translation>
+        <translation>Conan install ausführen</translation>
     </message>
 </context>
 <context>
     <name>QtC::Copilot</name>
     <message>
         <source>Sign In</source>
-        <translation type="unfinished"></translation>
+        <translation>Anmelden</translation>
     </message>
     <message>
         <source>A browser window will open. Enter the code %1 when asked.
 The code has been copied to your clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wird sich ein Browser-Fenster öffnen. Geben Sie auf Anfrage den Code %1 ein.
+Der Code wurde in die Zwischenablage kopiert.</translation>
     </message>
     <message>
         <source>Login Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Anmeldung fehlgeschlagen</translation>
     </message>
     <message>
         <source>The login request failed: </source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anmeldung ist fehlgeschlagen: </translation>
     </message>
     <message>
         <source>Select Previous Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorangehenden Copilot-Vorschlag auswählen</translation>
     </message>
     <message>
         <source>Select Next Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächsten Copilot-Vorschlag auswählen</translation>
     </message>
     <message>
         <source>Apply (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwenden (%1)</translation>
     </message>
     <message>
         <source>Apply Word (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wort anwenden (%1)</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished">%1 von %2</translation>
+        <translation>%1 von %2</translation>
     </message>
     <message>
         <source>Enabling %1 is subject to your agreement and abidance with your applicable %1 terms. It is your responsibility to know and accept the requirements and parameters of using tools like %1. This may include, but is not limited to, ensuring you have the rights to allow %1 access to your code, as well as understanding any implications of your use of %1 and suggestions produced (like copyright, accuracy, etc.).</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Aktivieren von %1 unterliegt Ihrer Zustimmung und der Einhaltung der für Sie geltenden Bestimmungen für die Nutzung von %1. Es liegt in Ihrer Verantwortung, die Bedingungen und Parameter für die Nutzung von Werkzeugen wie %1 zu kennen und zu akzeptieren. Dies umfasst unter anderem, aber beschränkt sich nicht darauf, sicherzustellen, dass Sie das Recht haben, %1 Zugriff zu Ihrem Code zu geben, und dass Sie die Implikationen Ihrer Nutzung von %1 und der davon erstellten Vorschläge kennen (bzgl. Urheberrecht, Copyright, Genauigkeit, usw.).</translation>
     </message>
     <message>
         <source>The Copilot plugin requires node.js and the Copilot neovim plugin. If you install the neovim plugin as described in %1, the plugin will find the agent.js file automatically.
 
 Otherwise you need to specify the path to the %2 file from the Copilot neovim plugin.</source>
         <comment>Markdown text for the copilot instruction label</comment>
-        <translation type="unfinished"></translation>
+        <translation>Das Copilot-Plugin benötigt node.js und das Copilot-Plugin für Neovim. Wenn Sie das Neovim-Plugin wie in der %1 beschrieben installieren, findet das Plugin die Datei agent.js automatisch.
+
+Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim angeben.</translation>
     </message>
     <message>
         <source>Note:</source>
-        <translation type="unfinished">Hinweis:</translation>
+        <translation>Hinweis:</translation>
     </message>
     <message>
         <source>Request Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorschlag von Copilot anfordern</translation>
     </message>
     <message>
         <source>Request Copilot suggestion at the current editor&apos;s cursor position.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fordert Vorschläge für die Cursorposition des aktuellen Editors von Copilot an.</translation>
     </message>
     <message>
         <source>Show next Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächsten Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
         <source>Cycles through the received Copilot Suggestions showing the next available Suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Iteriert über die Vorschläge von Copilot und zeigt den nächsten verfügbaren Vorschlag.</translation>
     </message>
     <message>
         <source>Show previos Copilot Suggestion</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorangehenden Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
         <source>Cycles through the received Copilot Suggestions showing the previous available Suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Iteriert über die Vorschläge von Copilot und zeigt den vorangehenden verfügbaren Vorschlag.</translation>
     </message>
     <message>
         <source>Disable Copilot</source>
-        <translation type="unfinished"></translation>
+        <translation>Copilot deaktivieren</translation>
     </message>
     <message>
         <source>Disable Copilot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviere Copilot.</translation>
     </message>
     <message>
         <source>Enable Copilot</source>
-        <translation type="unfinished"></translation>
+        <translation>Copilot aktivieren</translation>
     </message>
     <message>
         <source>Enable Copilot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviere Copilot.</translation>
     </message>
     <message>
         <source>Toggle Copilot</source>
-        <translation type="unfinished"></translation>
+        <translation>Copilot umschalten</translation>
     </message>
     <message>
         <source>Copilot</source>
-        <translation type="unfinished"></translation>
+        <translation>Copilot</translation>
     </message>
     <message>
         <source>Enables the Copilot integration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert die Copilot-Integration.</translation>
     </message>
     <message>
         <source>Node.js path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu Node.js:</translation>
     </message>
     <message>
         <source>Node.js Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu Node.js</translation>
     </message>
     <message>
         <source>Select path to node.js executable. See https://nodejs.org/en/download/for installation instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie den Pfad zur ausführbaren node.js-Datei. Siehe auch https://nodejs.org/en/download/ für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Path to agent.js:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu agent.js:</translation>
     </message>
     <message>
         <source>Agent.js path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu agent.js</translation>
     </message>
     <message>
         <source>Select path to agent.js in Copilot Neovim plugin. See https://github.com/github/copilot.vim#getting-started for installation instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie den Pfad zur agent.js-Datei vom Copilot-Plugin für Neovim. Siehe auch https://github.com/github/copilot.vim#getting-started für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Auto Complete</source>
-        <translation type="unfinished">Automatische Vervollständigung</translation>
+        <translation>Automatische Vervollständigung</translation>
     </message>
     <message>
         <source>Request completions automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Vervollständigung automatisch anfordern</translation>
     </message>
     <message>
         <source>Automatically request suggestions for the current text cursor position after changes to the document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fordert Vorschläge für die aktuelle Cursorposition nach Änderungen am Dokument automatisch an.</translation>
     </message>
 </context>
 <context>
@@ -27554,216 +27557,217 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <name>QtC::Docker</name>
     <message>
         <source>Checking docker daemon</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfe Docker-Daemon</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a directory or does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; ist kein Verzeichnis oder existiert nicht.</translation>
     </message>
     <message>
         <source>Docker</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker</translation>
     </message>
     <message>
         <source>Docker Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker Image</translation>
     </message>
     <message>
         <source>Docker Image &quot;%1&quot; (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker Image &quot;%1&quot; (%2)</translation>
     </message>
     <message>
         <source>Error starting remote shell. No container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Start der entfernten Shell. Kein Container.</translation>
     </message>
     <message>
         <source>Error starting remote shell: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Start der entfernten Shell: %1</translation>
     </message>
     <message>
         <source>Open Shell in Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell in Container öffnen</translation>
     </message>
     <message>
         <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart Qt Creator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Docker-Daemon scheint nicht zu laufen. Stellen Sie sicher, dass der Daemon ausgeführt wird, und setzen Sie den Docker-Daemon in den Einstellungen des Docker-Geräts zurück oder starten Sie Qt Creator neu.</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl des Docker-Image</translation>
     </message>
     <message>
         <source>Show Unnamed Images</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbenannte Images anzeigen</translation>
     </message>
     <message>
         <source>Loading ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade...</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot;
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Führe &quot;%1&quot; aus
+</translation>
     </message>
     <message>
         <source>Unexpected result: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartetes Ergebnis: %1</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation type="unfinished">Fertig.</translation>
+        <translation>Fertig.</translation>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation type="unfinished">Fehler: %1</translation>
+        <translation>Fehler: %1</translation>
     </message>
     <message>
         <source>Docker Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Gerät</translation>
     </message>
     <message>
         <source>localSource: No mount point found for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>localSource: Kein Einhängepunkt für %1 gefunden</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation type="unfinished">Repository:</translation>
+        <translation>Repository:</translation>
     </message>
     <message>
         <source>Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tag:</translation>
     </message>
     <message>
         <source>Image ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>Image ID:</translation>
     </message>
     <message>
         <source>Daemon state:</source>
-        <translation type="unfinished"></translation>
+        <translation>Daemon-Status:</translation>
     </message>
     <message>
         <source>Clears detected daemon state. It will be automatically re-evaluated next time access is needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Löscht den festgestellten Daemon-Status. Wird automatisch neu ausgewertet, wenn das nächste Mal Zugriff benötigt wird.</translation>
     </message>
     <message>
         <source>Do not modify entry point</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstiegspunkt nicht ändern</translation>
     </message>
     <message>
         <source>Prevents modifying the entry point of the image. Enable only if the image starts into a shell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verhindert, dass der Einstiegspunkt des Image geändert wird. Aktivieren Sie dies nur, wenn das Image in eine Shell gestartet wird.</translation>
     </message>
     <message>
         <source>Enable flags needed for LLDB</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert Optionen, die für LLDB benötigt werden</translation>
     </message>
     <message>
         <source>Adds the following flags to the container to allow LLDB to run: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined</source>
-        <translation type="unfinished"></translation>
+        <translation>Fügt die folgenden Optionen zum Start des Containers hinzu, um das Ausführen von LLDB zu erlauben: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined</translation>
     </message>
     <message>
         <source>Run as outside user</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Benutzer von außerhalb ausführen</translation>
     </message>
     <message>
         <source>Uses user ID and group ID of the user running Qt Creator in the docker container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendet im Docker-Container die Benutzer- und Gruppen-ID des Benutzers, der Qt Creator ausführt.</translation>
     </message>
     <message>
         <source>Clangd Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Clangd:</translation>
     </message>
     <message>
         <source>Paths to mount:</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzuhängende Pfade:</translation>
     </message>
     <message>
         <source>Source directory list should not be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Liste der Quellverzeichnisse sollte nicht leer sein.</translation>
     </message>
     <message>
         <source>Host directories to mount into the container</source>
-        <translation type="unfinished"></translation>
+        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordnet Pfade in dieser Liste 1-zu-1 zum Docker-Container zu.</translation>
     </message>
     <message>
         <source>Auto-detect Kit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit-Einträge automatisch bestimmen</translation>
     </message>
     <message>
         <source>Remove Auto-Detected Kit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch bestimmte Kit-Einträge entfernen</translation>
     </message>
     <message>
         <source>List Auto-Detected Kit Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch bestimmte Kit-Einträge anzeigen</translation>
     </message>
     <message>
         <source>Search in PATH</source>
-        <translation type="unfinished"></translation>
+        <translation>Im PATH suchen</translation>
     </message>
     <message>
         <source>Search in Selected Directories</source>
-        <translation type="unfinished"></translation>
+        <translation>In ausgewählten Verzeichnissen suchen</translation>
     </message>
     <message>
         <source>Search in PATH and Additional Directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Im PATH und zusätzlichen Verzeichnissen suchen</translation>
     </message>
     <message>
         <source>Semicolon-separated list of directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine durch Semikola getrennte Liste von Verzeichnissen</translation>
     </message>
     <message>
         <source>Select the paths in the Docker image that should be scanned for kit entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die Verzeichnisse im Docker-Image, in denen nach Kit-Einträgen gesucht werden sollen.</translation>
     </message>
     <message>
         <source>Docker daemon appears to be stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Docker-Daemon scheint angehalten zu sein.</translation>
     </message>
     <message>
         <source>Docker daemon appears to be running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Docker-Daemon scheint zu laufen.</translation>
     </message>
     <message>
         <source>Detection complete.</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche abgeschlossen.</translation>
     </message>
     <message>
         <source>Search Locations:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu durchsuchende Orte:</translation>
     </message>
     <message>
         <source>Detection log:</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchprotokoll:</translation>
     </message>
     <message>
         <source>Daemon state not evaluated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Daemon-Status nicht ermittelt.</translation>
     </message>
     <message>
         <source>Docker daemon running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Daemon läuft.</translation>
     </message>
     <message>
         <source>Docker daemon not running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Daemon läuft nicht.</translation>
     </message>
     <message>
         <source>Docker CLI</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker CLI</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">Konfiguration</translation>
+        <translation>Konfiguration</translation>
     </message>
 </context>
 <context>
@@ -31400,271 +31404,271 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <name>QtC::GitLab</name>
     <message>
         <source>Clone Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Repository klonen</translation>
     </message>
     <message>
         <source>Specify repository URL, checkout path and directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Repository-URL, Checkout-Pfad und Verzeichnis an.</translation>
     </message>
     <message>
         <source>Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Repository</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished">Pfad</translation>
+        <translation>Pfad</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; existiert bereits.</translation>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished">Verzeichnis</translation>
+        <translation>Verzeichnis</translation>
     </message>
     <message>
         <source>Recursive</source>
-        <translation type="unfinished">Rekursiv</translation>
+        <translation>Rekursiv</translation>
     </message>
     <message>
         <source>Clone</source>
-        <translation type="unfinished">Klonen</translation>
+        <translation>Klonen</translation>
     </message>
     <message>
         <source>User canceled process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Benutzer hat den Prozess abgebrochen.</translation>
     </message>
     <message>
         <source>Cloning succeeded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Klonen war erfolgreich.</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Cloned project does not have a project file that can be opened. Try importing the project as a generic project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das geklonte Projekt enthält keine Projekt-Datei, die geöffnet werden kann. Versuchen Sie, das Projekt als generisches Projekt zu importieren.</translation>
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished">Projekt öffnen</translation>
+        <translation>Projekt öffnen</translation>
     </message>
     <message>
         <source>Choose the project file to be opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu öffnende Projekt-Datei.</translation>
     </message>
     <message>
         <source>Cloning failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Klonen.</translation>
     </message>
     <message>
         <source>GitLab</source>
-        <translation type="unfinished"></translation>
+        <translation>GitLab</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Suche</translation>
+        <translation>Suche</translation>
     </message>
     <message>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Clone...</source>
-        <translation type="unfinished">Klonen...</translation>
+        <translation>Klonen...</translation>
     </message>
     <message>
         <source>Remote:</source>
-        <translation type="unfinished">Remote:</translation>
+        <translation>Remote:</translation>
     </message>
     <message>
         <source>Not logged in.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht eingeloggt.</translation>
     </message>
     <message>
         <source>Insufficient access token.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungenügendes Zugangstoken.</translation>
     </message>
     <message>
         <source>Permission scope read_api or api needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es werden Rechte für read_api oder api benötigt.</translation>
     </message>
     <message>
         <source>Check settings for misconfiguration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfen Sie die Einstellungen auf falsche Konfigurationen.</translation>
     </message>
     <message>
         <source>Projects (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekte (%1)</translation>
     </message>
     <message>
         <source>Using project access token.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze das Zugriffstoken des Projekts.</translation>
     </message>
     <message>
         <source>Logged in as %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Als %1 eingeloggt</translation>
     </message>
     <message>
         <source>Id: %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>ID: %1 (%2)</translation>
     </message>
     <message>
         <source>Certificate Error</source>
-        <translation type="unfinished">Zertifikatsfehler</translation>
+        <translation>Zertifikatsfehler</translation>
     </message>
     <message>
         <source>Server certificate for %1 cannot be authenticated.
 Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
-        <translation type="unfinished">Server-Zertifikat für %1 kann nicht authentifiziert werden.
+        <translation>Server-Zertifikat für %1 kann nicht authentifiziert werden.
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished">Host:</translation>
+        <translation>Host:</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished">Beschreibung:</translation>
+        <translation>Beschreibung:</translation>
     </message>
     <message>
         <source>Access token:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugriffstoken:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished">Port:</translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>HTTPS:</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTPS:</translation>
     </message>
     <message>
         <source>Default:</source>
-        <translation type="unfinished">Vorgabe:</translation>
+        <translation>Vorgabe:</translation>
     </message>
     <message>
         <source>curl:</source>
-        <translation type="unfinished"></translation>
+        <translation>curl:</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Edit current selected GitLab server configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte GitLab-Serverkonfiguration bearbeiten.</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Remove current selected GitLab server configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne die ausgewählte GitLab-Serverkonfiguration.</translation>
     </message>
     <message>
         <source>Add...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Add new GitLab server configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue GitLab-Serverkonfiguration hinzufügen.</translation>
     </message>
     <message>
         <source>Edit Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>Server bearbeiten...</translation>
     </message>
     <message>
         <source>Modify</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändern</translation>
     </message>
     <message>
         <source>Add Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>Server hinzufügen...</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>GitLab...</source>
-        <translation type="unfinished"></translation>
+        <translation>GitLab...</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Invalid GitLab configuration. For a fully functional configuration, you need to set up host name or address and an access token. Providing the path to curl is mandatory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige GitLab-Konfiguration. Für eine voll funktionsfähige Konfiguration müssen Sie den Namen des Hosts oder die Adresse und ein Zugriffstoken einrichten. Die Angabe des Pfads zu curl ist zwingend erforderlich.</translation>
     </message>
     <message>
         <source>Guest</source>
-        <translation type="unfinished"></translation>
+        <translation>Gast</translation>
     </message>
     <message>
         <source>Reporter</source>
-        <translation type="unfinished"></translation>
+        <translation>Reporter</translation>
     </message>
     <message>
         <source>Developer</source>
-        <translation type="unfinished"></translation>
+        <translation>Entwickler</translation>
     </message>
     <message>
         <source>Maintainer</source>
-        <translation type="unfinished"></translation>
+        <translation>Maintainer</translation>
     </message>
     <message>
         <source>Owner</source>
-        <translation type="unfinished">Autor</translation>
+        <translation>Eigentümer</translation>
     </message>
     <message>
         <source>Linked GitLab Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbundene GitLab-Konfiguration:</translation>
     </message>
     <message>
         <source>Link with GitLab</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit GitLab verbinden</translation>
     </message>
     <message>
         <source>Unlink from GitLab</source>
-        <translation type="unfinished"></translation>
+        <translation>Von GitLab trennen</translation>
     </message>
     <message>
         <source>Test Connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung testen</translation>
     </message>
     <message>
         <source>Projects linked with GitLab receive event notifications in the Version Control output pane.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit GitLab verbundene Projekte erhalten Ereignisbenachrichtigungen in der Ausgabe der Versionskontrolle.</translation>
     </message>
     <message>
         <source>Remote host does not match chosen GitLab configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der remote Host stimmt nicht mit der gewählten GitLab-Konfiguration überein.</translation>
     </message>
     <message>
         <source>Accessible (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugreifbar (%1).</translation>
     </message>
     <message>
         <source>Read only access.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreibgeschützter Zugriff.</translation>
     </message>
     <message>
         <source>Not a git repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Git-Repository.</translation>
     </message>
     <message>
         <source>Local git repository without remotes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokales Git-Repository ohne Remotes.</translation>
     </message>
 </context>
 <context>

@@ -318,8 +318,8 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
                 isRegex = ".*?" in key or "[.0-9]+" in key
                 if (((isRegex and re.match(key, list(currentFound.keys())[0], flags)))
                     or currentFound.keys() == currentExp.keys()):
-                    if ((isWin and os.path.abspath(currentFound.values()[0].lower())
-                         == os.path.abspath(currentExp.values()[0].lower()))
+                    if ((isWin and os.path.abspath(list(currentFound.values())[0].lower())
+                         == os.path.abspath(list(currentExp.values())[0].lower()))
                         or currentFound.values() == currentExp.values()):
                         foundExp = True
                         break

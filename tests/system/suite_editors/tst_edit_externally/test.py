@@ -26,7 +26,8 @@ def main():
     mBox = ("{text?='The file * has been changed on disk. Do you want to reload it?' "
             "type='QMessageBox' unnamed='1' visible='1'}")
     popupText = ("<p>The file <i>%s</i> has been changed on disk. Do you want to reload it?</p>"
-                 "<p>The default behavior can be set in Edit > Preferences > Environment > System.</p>")
+                 "<p>The default behavior can be set in X > Preferences > Environment > System.</p>")
+    popupText = popupText.replace("X", "Qt Creator" if platform.system() == "Darwin" else "Edit")
     formerContent = None
 
     for i, currentFile in enumerate(files):

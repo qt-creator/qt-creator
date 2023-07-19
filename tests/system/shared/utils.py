@@ -171,6 +171,10 @@ def invokeMenuItem(menu, item, *subItems):
     numberedPrefix = "%d | "
     for subItem in subItems:
         # we might have numbered sub items (e.g. "Recent Files") - these have this special prefix
+        # but on macOS we don't add these prefixes
+        if platform.system() == 'Darwin' and subItem.startswith(numberedPrefix):
+            subItem = subItem[5:]
+
         if subItem.startswith(numberedPrefix):
             triggered = False
             for i in range(1, 10):
@@ -186,7 +190,10 @@ def invokeMenuItem(menu, item, *subItems):
                           "Function arguments: '%s', '%s', %s" % (menu, item, str(subItems)))
                 break # we failed to trigger - no need to process subItems further
         else:
+            noAmpersandItem = item.replace('&', '')
+            waitForObject("{type='QMenu' title='%s'}" % noAmpersandItem, 2000)
             itemObject = waitForObjectItem(itemObject, subItem)
+            waitFor("itemObject.enabled", 2000)
             activateItem(itemObject)
 
 

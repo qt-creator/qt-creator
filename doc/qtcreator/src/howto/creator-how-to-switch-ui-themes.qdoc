@@ -5,8 +5,10 @@
     \page creator-how-to-switch-ui-themes.html
     \if defined(qtcreator)
     \previouspage creator-how-tos.html
-
+    \else
+    \previouspage creator-quick-tour.html
     \endif
+
     \ingroup creator-how-to-ui
     \ingroup studio-how-to
 
