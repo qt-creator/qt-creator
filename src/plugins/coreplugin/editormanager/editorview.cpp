@@ -876,6 +876,20 @@ void SplitterOrView::unsplit()
     emit splitStateChanged();
 }
 
+static QByteArrayList saveHistory(const QList<EditLocation> &history)
+{
+    const QList<EditLocation> nonTempHistory = Utils::filtered(history, [](const EditLocation &loc) {
+        const bool isTemp = loc.filePath.isEmpty() || (loc.document && loc.document->isTemporary());
+        return !isTemp;
+    });
+    return Utils::transform(nonTempHistory, [](const EditLocation &loc) { return loc.save(); });
+}
+
+static QList<EditLocation> loadHistory(const QByteArrayList &data)
+{
+    return Utils::transform(data,
+                            [](const QByteArray &locData) { return EditLocation::load(locData); });
+}
 
 QByteArray SplitterOrView::saveState() const
 {
@@ -902,16 +916,17 @@ QByteArray SplitterOrView::saveState() const
 
         if (!e) {
             stream << QByteArray("empty");
-        } else if (e == EditorManager::currentEditor()) {
-            stream << QByteArray("currenteditor")
-                   << e->document()->filePath().toString()
-                   << e->document()->id().toString()
-                   << e->saveState();
         } else {
-            stream << QByteArray("editor")
-                   << e->document()->filePath().toString()
-                   << e->document()->id().toString()
-                   << e->saveState();
+            if (e == EditorManager::currentEditor()) {
+                stream << QByteArray("currenteditor") << e->document()->filePath().toString()
+                       << e->document()->id().toString() << e->saveState();
+            } else {
+                stream << QByteArray("editor") << e->document()->filePath().toString()
+                       << e->document()->id().toString() << e->saveState();
+            }
+
+            // save edit history
+            stream << saveHistory(view()->editorHistory());
         }
     }
     return bytes;
@@ -934,7 +949,12 @@ void SplitterOrView::restoreState(const QByteArray &state)
         QString fileName;
         QString id;
         QByteArray editorState;
+        QByteArrayList historyData;
         stream >> fileName >> id >> editorState;
+        if (!stream.atEnd())
+            stream >> historyData;
+        view()->m_editorHistory = loadHistory(historyData);
+
         if (!QFile::exists(fileName))
             return;
         IEditor *e = EditorManagerPrivate::openEditor(view(), FilePath::fromString(fileName), Id::fromString(id),
@@ -955,4 +975,24 @@ void SplitterOrView::restoreState(const QByteArray &state)
                 EditorManagerPrivate::setCurrentEditor(e);
         }
     }
+}
+
+QByteArray EditLocation::save() const
+{
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << filePath.toFSPathString() << id << state;
+    return data;
+}
+
+EditLocation EditLocation::load(const QByteArray &data)
+{
+    EditLocation loc;
+    QDataStream stream(data);
+    QString fp;
+    stream >> fp;
+    loc.filePath = FilePath::fromString(fp);
+    stream >> loc.id;
+    stream >> loc.state;
+    return loc;
 }
