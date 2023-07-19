@@ -342,8 +342,6 @@ CallgrindToolPrivate::CallgrindToolPrivate()
 
     updateCostFormat();
 
-    ValgrindGlobalSettings *settings = ValgrindGlobalSettings::instance();
-
     //
     // Control Widget
     //
@@ -360,8 +358,8 @@ CallgrindToolPrivate::CallgrindToolPrivate()
                                         Theme::IconsBaseColor}});
     action->setIcon(kCachegrindIcon.icon());
     action->setToolTip(Tr::tr("Open results in KCachegrind."));
-    connect(action, &QAction::triggered, this, [this, settings] {
-        Process::startDetached({settings->kcachegrindExecutable(), { m_lastFileName }});
+    connect(action, &QAction::triggered, this, [this] {
+        Process::startDetached({globalSettings().kcachegrindExecutable(), { m_lastFileName }});
     });
 
     // dump action
@@ -468,7 +466,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     }
 
     // Filtering
-    action = m_filterProjectCosts = settings->filterExternalIssues.action();
+    action = m_filterProjectCosts = globalSettings().filterExternalIssues.action();
     connect(action, &QAction::toggled, this, &CallgrindToolPrivate::handleFilterProjectCosts);
 
     // Filter
@@ -477,10 +475,10 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     connect(m_searchFilter, &QLineEdit::textChanged,
             &m_updateTimer, QOverload<>::of(&QTimer::start));
 
-    setCostFormat(CostDelegate::CostFormat(settings->costFormat()));
+    setCostFormat(CostDelegate::CostFormat(globalSettings().costFormat()));
 
-    m_perspective.addToolBarAction(settings->detectCycles.action());
-    m_perspective.addToolBarAction(settings->shortenTemplates.action());
+    m_perspective.addToolBarAction(globalSettings().detectCycles.action());
+    m_perspective.addToolBarAction(globalSettings().shortenTemplates.action());
     m_perspective.addToolBarAction(m_filterProjectCosts);
     m_perspective.addToolBarWidget(m_searchFilter);
 
@@ -625,8 +623,7 @@ void CallgrindToolPrivate::updateCostFormat()
         m_calleesView->setCostFormat(format);
         m_callersView->setCostFormat(format);
     }
-    if (ValgrindGlobalSettings *settings = ValgrindGlobalSettings::instance())
-        settings->costFormat.setValue(format);
+    globalSettings().costFormat.setValue(format);
 }
 
 void CallgrindToolPrivate::handleFilterProjectCosts()
@@ -908,8 +905,7 @@ void CallgrindToolPrivate::takeParserData(ParseData *data)
     doClear(true);
 
     setParseData(data);
-    const FilePath kcachegrindExecutable =
-            ValgrindGlobalSettings::instance()->kcachegrindExecutable();
+    const FilePath kcachegrindExecutable = globalSettings().kcachegrindExecutable();
     const FilePath found = kcachegrindExecutable.searchInPath();
     const bool kcachegrindExists = found.isExecutableFile();
     m_startKCachegrind->setEnabled(kcachegrindExists && !m_lastFileName.isEmpty());

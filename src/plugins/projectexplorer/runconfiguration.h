@@ -77,7 +77,6 @@ public:
     void resetProjectToGlobalSettings();
 
     ISettingsAspect *projectSettings() const { return m_projectSettings; }
-    ISettingsAspect *globalSettings() const { return m_globalSettings; }
     ISettingsAspect *currentSettings() const;
 
     struct Data : Utils::BaseAspect::Data

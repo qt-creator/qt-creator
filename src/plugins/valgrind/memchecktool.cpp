@@ -519,7 +519,7 @@ private:
 
 MemcheckToolPrivate::MemcheckToolPrivate()
 {
-    m_settings = ValgrindGlobalSettings::instance();
+    m_settings = &globalSettings();
 
     setObjectName("MemcheckTool");
 
@@ -904,7 +904,7 @@ void MemcheckToolPrivate::updateRunActions()
 void MemcheckToolPrivate::settingsDestroyed(QObject *settings)
 {
     QTC_ASSERT(m_settings == settings, return);
-    m_settings = ValgrindGlobalSettings::instance();
+    m_settings = &globalSettings();
 }
 
 void MemcheckToolPrivate::updateFromSettings()
@@ -943,7 +943,7 @@ void MemcheckToolPrivate::maybeActiveRunConfigurationChanged()
                 settings = rc->currentSettings<ValgrindBaseSettings>(ANALYZER_VALGRIND_SETTINGS);
 
     if (!settings) // fallback to global settings
-        settings = ValgrindGlobalSettings::instance();
+        settings = &globalSettings();
 
     if (m_settings == settings)
         return;
@@ -1045,8 +1045,8 @@ void MemcheckToolPrivate::loadXmlLogFile(const QString &filePath)
     clearErrorView();
     m_loadExternalLogFile->setDisabled(true);
 
-    if (!m_settings || m_settings != ValgrindGlobalSettings::instance()) {
-        m_settings = ValgrindGlobalSettings::instance();
+    if (!m_settings || m_settings != &globalSettings()) {
+        m_settings = &globalSettings();
         m_errorView->settingsChanged(m_settings);
         updateFromSettings();
     }

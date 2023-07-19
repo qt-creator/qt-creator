@@ -7,12 +7,6 @@
 
 namespace Valgrind::Internal {
 
-class ValgrindOptionsPage final : public Core::IOptionsPage
-{
-public:
-    ValgrindOptionsPage();
-
-    static QWidget *createSettingsWidget(class ValgrindBaseSettings *settings);
-};
+QWidget *createSettingsWidget(class ValgrindBaseSettings *settings);
 
 } // Valgrind::Internal

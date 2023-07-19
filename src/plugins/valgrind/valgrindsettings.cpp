@@ -59,18 +59,16 @@ void SuppressionAspect::addSuppressionFile(const FilePath &suppression)
 
 void SuppressionAspectPrivate::slotAddSuppression()
 {
-    ValgrindGlobalSettings *conf = ValgrindGlobalSettings::instance();
-    QTC_ASSERT(conf, return);
     const FilePaths files =
             FileUtils::getOpenFilePaths(nullptr,
                       Tr::tr("Valgrind Suppression Files"),
-                      conf->lastSuppressionDirectory(),
+                      globalSettings().lastSuppressionDirectory(),
                       Tr::tr("Valgrind Suppression File (*.supp);;All Files (*)"));
     //dialog.setHistory(conf->lastSuppressionDialogHistory());
     if (!files.isEmpty()) {
         for (const FilePath &file : files)
             m_model.appendRow(new QStandardItem(file.toString()));
-        conf->lastSuppressionDirectory.setValue(files.at(0).absolutePath());
+        globalSettings().lastSuppressionDirectory.setValue(files.at(0).absolutePath());
         //conf->setLastSuppressionDialogHistory(dialog.history());
         if (!isGlobal)
             q->apply();
@@ -327,13 +325,15 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
 //
 //////////////////////////////////////////////////////////////////
 
-static ValgrindGlobalSettings *theGlobalSettings = nullptr;
+ValgrindGlobalSettings &globalSettings()
+{
+    static ValgrindGlobalSettings theSettings;
+    return theSettings;
+}
 
 ValgrindGlobalSettings::ValgrindGlobalSettings()
     : ValgrindBaseSettings(true)
 {
-    theGlobalSettings = this;
-
     const QString base = "Analyzer.Valgrind";
 
     lastSuppressionDirectory.setSettingsKey(base + "LastSuppressionDirectory");
@@ -355,15 +355,10 @@ ValgrindGlobalSettings::ValgrindGlobalSettings()
     shortenTemplates.setLabelText("<>"); // FIXME: Create a real icon
     shortenTemplates.setToolTip(Tr::tr("Remove template parameter lists when displaying function names."));
 
-    setConfigWidgetCreator([this] { return ValgrindOptionsPage::createSettingsWidget(this); });
+    setConfigWidgetCreator([this] { return createSettingsWidget(this); });
     readSettings();
 
     setAutoApply(false);
-}
-
-ValgrindGlobalSettings *ValgrindGlobalSettings::instance()
-{
-    return theGlobalSettings;
 }
 
 //
@@ -417,7 +412,7 @@ void ValgrindGlobalSettings::writeSettings() const
 ValgrindProjectSettings::ValgrindProjectSettings()
     : ValgrindBaseSettings(false)
 {
-    setConfigWidgetCreator([this] { return ValgrindOptionsPage::createSettingsWidget(this); });
+    setConfigWidgetCreator([this] { return createSettingsWidget(this); });
 
     connect(this, &AspectContainer::fromMapFinished, [this] {
         // FIXME: Update project page e.g. on "Restore Global", aspects

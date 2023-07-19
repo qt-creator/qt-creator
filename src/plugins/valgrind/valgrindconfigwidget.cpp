@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class ValgrindConfigWidget : public Core::IOptionsPageWidget
 {
@@ -26,13 +25,13 @@ public:
 
     void apply() final
     {
-        ValgrindGlobalSettings::instance()->apply();
-        ValgrindGlobalSettings::instance()->writeSettings();
+        globalSettings().apply();
+        globalSettings().writeSettings();
     }
 
     void finish() final
     {
-        ValgrindGlobalSettings::instance()->finish();
+        globalSettings().finish();
     }
 };
 
@@ -87,20 +86,26 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
 
 // ValgrindOptionsPage
 
-ValgrindOptionsPage::ValgrindOptionsPage()
+class ValgrindOptionsPage final : public Core::IOptionsPage
 {
-    setId(ANALYZER_VALGRIND_SETTINGS);
-    setDisplayName(Tr::tr("Valgrind"));
-    setCategory("T.Analyzer");
-    setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
-    setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
-    setWidgetCreator([] { return new ValgrindConfigWidget(ValgrindGlobalSettings::instance()); });
-}
+public:
+    ValgrindOptionsPage()
+    {
+        setId(ANALYZER_VALGRIND_SETTINGS);
+        setDisplayName(Tr::tr("Valgrind"));
+        setCategory("T.Analyzer");
+        setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
+        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+        setWidgetCreator([] { return new ValgrindConfigWidget(&globalSettings()); });
+    }
+};
 
-QWidget *ValgrindOptionsPage::createSettingsWidget(ValgrindBaseSettings *settings)
+const ValgrindOptionsPage settingsPage;
+
+
+QWidget *createSettingsWidget(ValgrindBaseSettings *settings)
 {
     return new ValgrindConfigWidget(settings);
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal

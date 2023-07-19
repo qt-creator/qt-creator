@@ -111,8 +111,6 @@ class ValgrindGlobalSettings : public ValgrindBaseSettings
 public:
     ValgrindGlobalSettings();
 
-    static ValgrindGlobalSettings *instance();
-
     /**
      * Global memcheck settings
      */
@@ -131,6 +129,8 @@ public:
     Utils::BoolAspect detectCycles{this};
     Utils::BoolAspect shortenTemplates{this};
 };
+
+ValgrindGlobalSettings &globalSettings();
 
 
 /**
