@@ -113,7 +113,6 @@ public:
     bool isAlias() const;
     bool isBool() const;
     bool isColor() const;
-    bool isEffectMaker() const;
     bool isFloat() const;
     bool isFlowViewFlowActionArea() const;
     bool isFlowViewFlowDecision() const;

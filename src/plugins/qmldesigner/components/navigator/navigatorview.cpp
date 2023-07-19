@@ -287,7 +287,6 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
             if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
                 // We use arbitrary type name because at this time we don't have effect maker
                 // specific type
-                m_widget->setDragType(Storage::Info::EffectMaker);
                 m_widget->update();
             } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                 m_widget->setDragType(Constants::MIME_TYPE_ASSET_TEXTURE3D);

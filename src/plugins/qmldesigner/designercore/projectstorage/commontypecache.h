@@ -37,7 +37,6 @@ inline constexpr char DefaultMaterial[] = "DefaultMaterial";
 inline constexpr char Dialog[] = "Dialog";
 inline constexpr char DoubleType[] = "double";
 inline constexpr char Effect[] = "Effect";
-inline constexpr char EffectMaker[] = "EffectMaker";
 inline constexpr char FloatType[] = "float";
 inline constexpr char FlowActionArea[] = "FlowActionArea";
 inline constexpr char FlowDecision[] = "FlowDecision";

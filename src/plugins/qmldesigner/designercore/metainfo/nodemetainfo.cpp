@@ -2691,17 +2691,6 @@ bool NodeMetaInfo::isColor() const
     }
 }
 
-bool NodeMetaInfo::isEffectMaker() const
-{
-    // We use arbitrary type name because at this time we don't have effect maker
-    // specific type
-    if constexpr (useProjectStorage()) {
-        return false;
-    } else {
-        return typeName() == QString::fromUtf8(Storage::Info::EffectMaker);
-    }
-}
-
 bool NodeMetaInfo::isBool() const
 {
     if constexpr (useProjectStorage()) {

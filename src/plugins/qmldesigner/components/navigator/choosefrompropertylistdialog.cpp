@@ -100,9 +100,6 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     } else if (insertInfo.typeName().startsWith("ComponentBundles.MaterialBundle")) {
         if (parentInfo.isQtQuick3DModel())
             propertyList.append("materials");
-    } else if (insertInfo.isEffectMaker()) {
-        if (parentInfo.isQtQuickItem())
-            propertyList.append("effect");
     } else if (insertInfo.isQtQuick3DBakedLightmap()) {
         if (parentInfo.isQtQuick3DModel())
             propertyList.append("bakedLightmap");
