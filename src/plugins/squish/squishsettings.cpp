@@ -13,7 +13,6 @@
 
 #include <utils/basetreeview.h>
 #include <utils/fileutils.h>
-#include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
@@ -136,8 +135,7 @@ public:
         setDisplayName(Tr::tr("General"));
         setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
         setDisplayCategory("Squish");
-        setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
-                               Theme::PanelTextColorDark}}, Icon::Tint));
+        setCategoryIconPath(":/squish/images/settingscategory_squish.png");
         setSettingsProvider([] { return &settings(); });
     }
 };
