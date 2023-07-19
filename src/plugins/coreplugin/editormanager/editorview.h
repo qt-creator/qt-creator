@@ -43,7 +43,7 @@ struct EditLocation {
     QPointer<IDocument> document;
     Utils::FilePath filePath;
     Utils::Id id;
-    QVariant state;
+    QByteArray state;
 };
 
 class SplitterOrView;

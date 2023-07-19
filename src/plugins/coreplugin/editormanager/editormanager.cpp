@@ -3487,7 +3487,7 @@ void EditorManager::setLastEditLocation(const IEditor* editor)
     location.document = document;
     location.filePath = document->filePath();
     location.id = document->id();
-    location.state = QVariant(state);
+    location.state = state;
 
     d->m_globalLastEditLocation = location;
 }

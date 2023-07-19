@@ -241,7 +241,7 @@ void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &histo
     location.document = document;
     location.filePath = document->filePath();
     location.id = document->id();
-    location.state = QVariant(state);
+    location.state = state;
 
     for (int i = 0; i < history.size(); ++i) {
         const EditLocation &item = history.at(i);
@@ -472,7 +472,7 @@ void EditorView::addCurrentPositionToNavigationHistory(const QByteArray &saveSta
     location.document = document;
     location.filePath = document->filePath();
     location.id = document->id();
-    location.state = QVariant(state);
+    location.state = state;
     m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
     m_navigationHistory.insert(m_currentNavigationHistoryPosition, location);
     ++m_currentNavigationHistoryPosition;
@@ -527,7 +527,7 @@ void EditorView::updateCurrentPositionInNavigationHistory()
     location->document = document;
     location->filePath = document->filePath();
     location->id = document->id();
-    location->state = QVariant(editor->saveState());
+    location->state = editor->saveState();
 }
 
 static bool fileNameWasRemoved(const FilePath &filePath)
@@ -558,7 +558,7 @@ void EditorView::goBackInNavigationHistory()
                 continue;
             }
         }
-        editor->restoreState(location.state.toByteArray());
+        editor->restoreState(location.state);
         break;
     }
     updateNavigatorActions();
@@ -589,7 +589,7 @@ void EditorView::goForwardInNavigationHistory()
                 continue;
             }
         }
-        editor->restoreState(location.state.toByteArray());
+        editor->restoreState(location.state);
         break;
     }
     if (m_currentNavigationHistoryPosition >= m_navigationHistory.size())
@@ -615,7 +615,7 @@ void EditorView::goToEditLocation(const EditLocation &location)
     }
 
     if (editor) {
-        editor->restoreState(location.state.toByteArray());
+        editor->restoreState(location.state);
     }
 }
 
