@@ -864,7 +864,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
 
     CommandLine args{settings().binaryPath(), {"annotate"}};
     args << SubversionClient::AddAuthOptions();
-    if (settings().spaceIgnorantAnnotation.value())
+    if (settings().spaceIgnorantAnnotation())
         args << "-x" << "-uw";
     if (!revision.isEmpty())
         args << "-r" << revision;

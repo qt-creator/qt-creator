@@ -78,7 +78,7 @@ TerminalPane::TerminalPane(QObject *parent)
         static const QString shiftEsc = QKeySequence(
                                             QKeyCombination(Qt::ShiftModifier, Qt::Key_Escape))
                                             .toString(QKeySequence::NativeText);
-        if (settings().sendEscapeToTerminal.value()) {
+        if (settings().sendEscapeToTerminal()) {
             m_escSettingButton->setText(escKey);
             m_escSettingButton->setToolTip(Tr::tr("Sends Esc to terminal instead of Qt Creator."));
         } else {

@@ -140,7 +140,7 @@ void PythonWizardPage::initializePage()
 
 bool PythonWizardPage::validatePage()
 {
-    if (m_createVenv.value() && !m_venvPath.pathChooser()->isValid())
+    if (m_createVenv() && !m_venvPath.pathChooser()->isValid())
         return false;
     auto wiz = qobject_cast<JsonWizard *>(wizard());
     const QMap<QString, QVariant> data = m_pySideVersion.itemValue().toMap();
@@ -156,7 +156,7 @@ void PythonWizardPage::setupProject(const JsonWizard::GeneratorFiles &files)
             Interpreter interpreter = m_interpreter.currentInterpreter();
             Project *project = ProjectManager::openProject(Utils::mimeTypeForFile(f.file.filePath()),
                                                            f.file.filePath().absoluteFilePath());
-            if (m_createVenv.value()) {
+            if (m_createVenv()) {
                 auto openProjectWithInterpreter = [f](const std::optional<Interpreter> &interpreter) {
                     if (!interpreter)
                         return;
@@ -202,7 +202,7 @@ void PythonWizardPage::updateInterpreters()
 void PythonWizardPage::updateStateLabel()
 {
     QTC_ASSERT(m_stateLabel, return);
-    if (m_createVenv.value()) {
+    if (m_createVenv()) {
         if (PathChooser *pathChooser = m_venvPath.pathChooser()) {
             if (!pathChooser->isValid()) {
                 m_stateLabel->show();

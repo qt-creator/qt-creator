@@ -1004,7 +1004,7 @@ void TerminalWidget::paintCursor(QPainter &p) const
         cursor.shape = Internal::Cursor::Shape::Underline;
 
     const bool blinkState = !cursor.blink || m_cursorBlinkState
-                            || !settings().allowBlinkingCursor.value();
+                            || !settings().allowBlinkingCursor();
 
     if (cursor.visible && blinkState) {
         const int cursorCellWidth = m_surface->cellWidthAt(cursor.position.x(), cursor.position.y());
@@ -1160,7 +1160,7 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
     }
 
     if (event->key() == Qt::Key_Escape) {
-        bool sendToTerminal = settings().sendEscapeToTerminal.value();
+        bool sendToTerminal = settings().sendEscapeToTerminal();
         bool send = false;
         if (sendToTerminal && event->modifiers() == Qt::NoModifier)
             send = true;
