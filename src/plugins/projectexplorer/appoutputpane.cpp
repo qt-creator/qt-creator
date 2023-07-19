@@ -407,10 +407,9 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     });
     if (tab != m_runControlTabs.end()) {
         // Reuse this tab
-        if (tab->runControl) {
-            tab->runControl->setAutoDeleteOnStop(true);
-            tab->runControl->initiateStop();
-        }
+        if (tab->runControl)
+            delete tab->runControl;
+
         tab->runControl = rc;
         tab->window->reset();
         rc->setupFormatter(tab->window->outputFormatter());
@@ -645,12 +644,18 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     m_tabWidget->removeTab(tabIndex);
     delete window;
 
+    Utils::erase(m_runControlTabs, [runControl](const RunControlTab &t) {
+        return t.runControl == runControl; });
     if (runControl) {
-        runControl->setAutoDeleteOnStop(true);
-        runControl->initiateStop();
+        if (runControl->isRunning()) {
+            QMetaObject::invokeMethod(runControl, [runControl] {
+                runControl->setAutoDeleteOnStop(true);
+                runControl->initiateStop();
+            }, Qt::QueuedConnection);
+        } else {
+            delete runControl;
+        }
     }
-    Utils::erase(m_runControlTabs, [tab](const RunControlTab &t) {
-        return t.runControl == tab->runControl; });
     updateCloseActions();
     setFilteringEnabled(m_tabWidget->count() > 0);
 
