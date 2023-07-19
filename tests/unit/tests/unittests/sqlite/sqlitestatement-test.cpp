@@ -887,6 +887,8 @@ public:
 
     Sqlite::Value value;
 
+    bool isNull() const { return value.isNull(); }
+
     template<typename Type>
     friend bool operator==(const FooValue &value, const Type &other)
     {

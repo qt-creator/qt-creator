@@ -9,4 +9,5 @@ add_qtc_library(TestMatchers OBJECT
     import-matcher.h
     unittest-matchers.h
     version-matcher.h
+    qvariant-matcher.h
 )

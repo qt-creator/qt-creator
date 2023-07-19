@@ -8,6 +8,27 @@
 
 #include <utils/smallstringio.h>
 
+#include <QUrl>
+
+QT_BEGIN_NAMESPACE
+
+inline bool empty(const QString &string)
+{
+    return string.isEmpty();
+}
+
+inline bool empty(const QByteArray &bytetArray)
+{
+    return bytetArray.isEmpty();
+}
+
+inline bool empty(const QUrl &url)
+{
+    return url.isEmpty();
+}
+
+QT_END_NAMESPACE
+
 namespace Internal {
 
 template <typename StringType>
@@ -40,8 +61,8 @@ class EndsWithMatcher
         *os << "doesn't end with " << m_suffix;
     }
 
-    EndsWithMatcher(EndsWithMatcher const &) = default;
-    EndsWithMatcher &operator=(EndsWithMatcher const &) = delete;
+    EndsWithMatcher(const EndsWithMatcher &) = default;
+    EndsWithMatcher &operator=(const EndsWithMatcher &) = delete;
 
 private:
     const StringType m_suffix;
@@ -74,36 +95,51 @@ private:
     const QString m_suffix;
 };
 
-class IsEmptyMatcher : public testing::internal::IsEmptyMatcher
+class IsEmptyMatcher
 {
 public:
-    using Base = testing::internal::IsEmptyMatcher;
-
-    using Base::MatchAndExplain;
-
-    bool MatchAndExplain(const QString &s, testing::MatchResultListener *listener) const
+    template<typename Type>
+    bool MatchAndExplain(const Type &value, testing::MatchResultListener *) const
     {
-        if (s.isEmpty()) {
-            return true;
-        }
+        using std::empty;
 
-        *listener << "whose size is " << s.size();
-        return false;
-    }
-
-    bool MatchAndExplain(const QByteArray &s, testing::MatchResultListener *listener) const
-    {
-        if (s.isEmpty()) {
-            return true;
-        }
-
-        *listener << "whose size is " << s.size();
-        return false;
+        return empty(value);
     }
 
     void DescribeTo(std::ostream *os) const { *os << "is empty"; }
 
     void DescribeNegationTo(std::ostream *os) const { *os << "isn't empty"; }
+};
+
+class IsNullMatcher
+{
+public:
+    template<typename Type, typename = std::enable_if_t<!std::is_pointer_v<Type>>>
+    bool MatchAndExplain(const Type &value, testing::MatchResultListener *) const
+    {
+        if constexpr (std::is_pointer_v<Type>)
+            return value == nullptr;
+        else
+            return value.isNull();
+    }
+
+    void DescribeTo(std::ostream *os) const { *os << "is null"; }
+
+    void DescribeNegationTo(std::ostream *os) const { *os << "isn't null"; }
+};
+
+class IsValidMatcher
+{
+public:
+    template<typename Type, typename = std::enable_if_t<!std::is_pointer_v<Type>>>
+    bool MatchAndExplain(const Type &value, testing::MatchResultListener *) const
+    {
+        return value.isValid();
+    }
+
+    void DescribeTo(std::ostream *os) const { *os << "is null"; }
+
+    void DescribeNegationTo(std::ostream *os) const { *os << "isn't null"; }
 };
 
 } // namespace Internal
@@ -121,4 +157,14 @@ inline auto EndsWith(const QStringView &suffix)
 inline auto IsEmpty()
 {
     return ::testing::PolymorphicMatcher(Internal::IsEmptyMatcher());
+}
+
+inline auto IsNull()
+{
+    return ::testing::PolymorphicMatcher(Internal::IsNullMatcher());
+}
+
+inline auto IsValid()
+{
+    return ::testing::PolymorphicMatcher(Internal::IsValidMatcher());
 }
