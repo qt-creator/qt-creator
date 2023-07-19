@@ -167,11 +167,6 @@ public:
      */
     void setIconSize(const QSize &size);
 
-    /**
-     * Returns true, if the tab has been clicked and the mouse is currently pressed.
-     */
-    bool mousePressed() const;
-
     void setVisible(bool visible) override;
 
 signals:

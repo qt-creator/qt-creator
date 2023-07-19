@@ -74,7 +74,8 @@ protected:
      * Returns nullptr if you try and insert into an area where the configuration is not enabled
      */
     AutoHideDockContainer *createAndSetupAutoHideContainer(SideBarLocation area,
-                                                           DockWidget *dockWidget);
+                                                           DockWidget *dockWidget,
+                                                           int tabIndex = -1);
 
     /**
      * Helper function for creation of the root splitter
@@ -98,7 +99,10 @@ protected:
      * a nullptr, then the DropArea indicates the drop area in the given
      * TargetAreaWidget
      */
-    void dropWidget(QWidget *widget, DockWidgetArea dropArea, DockAreaWidget *targetAreaWidget);
+    void dropWidget(QWidget *widget,
+                    DockWidgetArea dropArea,
+                    DockAreaWidget *targetAreaWidget,
+                    int tabIndex = -1);
 
     /**
      * Adds the given dock area to this container widget
@@ -299,7 +303,7 @@ public:
     /**
      * Returns the side tab widget for the given area
      */
-    AutoHideSideBar *sideTabBar(SideBarLocation area) const;
+    AutoHideSideBar *autoHideSideBar(SideBarLocation area) const;
 
     /**
      * Access function for auto hide widgets

@@ -374,6 +374,7 @@ void DockAreaWidget::setAutoHideDockContainer(AutoHideDockContainer *autoHideDoc
     d->m_autoHideDockContainer = autoHideDockContainer;
     updateAutoHideButtonCheckState();
     updateTitleBarButtonsToolTips();
+    d->m_titleBar->button(TitleBarButtonAutoHide)->setShowInTitleBar(true);
 }
 
 void DockAreaWidget::addDockWidget(DockWidget *dockWidget)
@@ -504,12 +505,7 @@ void DockAreaWidget::hideAreaWithNoVisibleContent()
 void DockAreaWidget::onTabCloseRequested(int index)
 {
     qCInfo(adsLog) << Q_FUNC_INFO << "index" << index;
-    auto *currentDockWidget = dockWidget(index);
-    if (currentDockWidget->features().testFlag(DockWidget::DockWidgetDeleteOnClose)
-        || currentDockWidget->features().testFlag(DockWidget::CustomCloseHandling))
-        currentDockWidget->closeDockWidgetInternal();
-    else
-        currentDockWidget->toggleView(false);
+    dockWidget(index)->requestCloseDockWidget();
 }
 
 DockWidget *DockAreaWidget::currentDockWidget() const
@@ -1075,27 +1071,33 @@ SideBarLocation DockAreaWidget::calculateSideTabBarArea() const
     return sideTab;
 }
 
-void DockAreaWidget::setAutoHide(bool enable, SideBarLocation location)
+void DockAreaWidget::setAutoHide(bool enable, SideBarLocation location, int tabIndex)
 {
     if (!isAutoHideFeatureEnabled())
         return;
 
     if (!enable) {
         if (isAutoHide())
-            autoHideDockContainer()->moveContentsToParent();
+            d->m_autoHideDockContainer->moveContentsToParent();
 
         return;
     }
 
+    // If this is already an auto hide container, then move it to new location.
+    if (isAutoHide()) {
+        d->m_autoHideDockContainer->moveToNewSideBarLocation(location, tabIndex);
+        return;
+    }
+
     auto area = (SideBarNone == location) ? calculateSideTabBarArea() : location;
-    for (const auto DockWidget : openedDockWidgets()) {
+    for (const auto dockWidget : openedDockWidgets()) {
         if (enable == isAutoHide())
             continue;
 
-        if (!DockWidget->features().testFlag(DockWidget::DockWidgetPinnable))
+        if (!dockWidget->features().testFlag(DockWidget::DockWidgetPinnable))
             continue;
 
-        dockContainer()->createAndSetupAutoHideContainer(area, DockWidget);
+        dockContainer()->createAndSetupAutoHideContainer(area, dockWidget, tabIndex++);
     }
 }
 
@@ -1110,6 +1112,11 @@ void DockAreaWidget::toggleAutoHide(SideBarLocation location)
 void DockAreaWidget::closeOtherAreas()
 {
     dockContainer()->closeOtherAreas(this);
+}
+
+void DockAreaWidget::setFloating()
+{
+    d->m_titleBar->setAreaFloating();
 }
 
 DockAreaTitleBar *DockAreaWidget::titleBar() const

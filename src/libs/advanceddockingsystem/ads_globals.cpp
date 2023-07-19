@@ -63,6 +63,45 @@ DockInsertParam dockAreaInsertParameters(DockWidgetArea area)
     return DockInsertParam(Qt::Vertical, false);
 }
 
+SideBarLocation toSideBarLocation(DockWidgetArea area)
+{
+    switch (area) {
+    case LeftAutoHideArea:
+        return SideBarLeft;
+    case RightAutoHideArea:
+        return SideBarRight;
+    case TopAutoHideArea:
+        return SideBarTop;
+    case BottomAutoHideArea:
+        return SideBarBottom;
+    default:
+        return SideBarNone;
+    }
+
+    return SideBarNone;
+}
+
+bool isHorizontalSideBarLocation(SideBarLocation location)
+{
+    switch (location) {
+    case SideBarTop:
+    case SideBarBottom:
+        return true;
+    case SideBarLeft:
+    case SideBarRight:
+        return false;
+    default:
+        return false;
+    }
+
+    return false;
+}
+
+bool isSideBarArea(DockWidgetArea area)
+{
+    return toSideBarLocation(area) != SideBarNone;
+}
+
 QPixmap createTransparentPixmap(const QPixmap &source, qreal opacity)
 {
     QPixmap transparentPixmap(source.size());

@@ -409,6 +409,11 @@ bool DockWidget::isAutoHide() const
     return !d->m_sideTabWidget.isNull();
 }
 
+SideBarLocation DockWidget::autoHideLocation() const
+{
+    return isAutoHide() ? autoHideDockContainer()->sideBarLocation() : SideBarNone;
+}
+
 bool DockWidget::isFloating() const
 {
     if (!isInFloatingContainer())
@@ -746,7 +751,10 @@ void DockWidget::setFloating()
     if (isClosed())
         return;
 
-    d->m_tabWidget->detachDockWidget();
+    if (isAutoHide())
+        dockAreaWidget()->setFloating();
+    else
+        d->m_tabWidget->detachDockWidget();
 }
 
 void DockWidget::deleteDockWidget()
@@ -762,6 +770,15 @@ void DockWidget::deleteDockWidget()
 void DockWidget::closeDockWidget()
 {
     closeDockWidgetInternal(true);
+}
+
+void DockWidget::requestCloseDockWidget()
+{
+    if (features().testFlag(DockWidget::DockWidgetDeleteOnClose)
+        || features().testFlag(DockWidget::CustomCloseHandling))
+        closeDockWidgetInternal(false);
+    else
+        toggleView(false);
 }
 
 bool DockWidget::closeDockWidgetInternal(bool forceClose)
@@ -859,21 +876,24 @@ void DockWidget::raise()
     }
 }
 
-void DockWidget::setAutoHide(bool enable, SideBarLocation location)
+void DockWidget::setAutoHide(bool enable, SideBarLocation location, int tabIndex)
 {
     if (!DockManager::testAutoHideConfigFlag(DockManager::AutoHideFeatureEnabled))
         return;
 
     // Do nothing if nothing changes
-    if (enable == isAutoHide())
+    if (enable == isAutoHide() && location == autoHideLocation())
         return;
 
     auto dockArea = dockAreaWidget();
+
     if (!enable) {
         dockArea->setAutoHide(false);
+    } else if (isAutoHide()) {
+        autoHideDockContainer()->moveToNewSideBarLocation(location);
     } else {
         auto area = (SideBarNone == location) ? dockArea->calculateSideTabBarArea() : location;
-        dockContainer()->createAndSetupAutoHideContainer(area, this);
+        dockContainer()->createAndSetupAutoHideContainer(area, this, tabIndex);
     }
 }
 

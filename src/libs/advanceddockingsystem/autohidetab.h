@@ -38,10 +38,16 @@ private:
     friend class DockContainerWidget;
     friend DockContainerWidgetPrivate;
 
+    void onAutoHideToActionClicked();
+
 protected:
     void setSideBar(AutoHideSideBar *sideTabBar);
     void removeFromSideBar();
     virtual bool event(QEvent *event) override;
+    virtual void contextMenuEvent(QContextMenuEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
 
 public:
     using Super = PushButton;
@@ -102,6 +108,26 @@ public:
      * Returns the side bar that contains this tab or a nullptr if the tab is not in a side bar.
      */
     AutoHideSideBar *sideBar() const;
+
+    /**
+     * Returns the index of this tab in the sideBar.
+     */
+    int tabIndex() const;
+
+    /**
+     * Set the dock widget floating, if it is floatable
+     */
+    void setDockWidgetFloating();
+
+    /**
+     * Unpin and dock the auto hide widget.
+     */
+    void unpinDockWidget();
+
+    /**
+     * Calls the requestCloseDockWidget() function for the assigned dock widget.
+     */
+    void requestCloseDockWidget();
 }; // class AutoHideTab
 
 } // namespace ADS

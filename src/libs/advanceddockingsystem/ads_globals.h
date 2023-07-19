@@ -16,11 +16,11 @@ class QSplitter;
 QT_END_NAMESPACE
 
 #if defined(ADVANCEDDOCKINGSYSTEM_LIBRARY)
-#  define ADS_EXPORT Q_DECL_EXPORT
+#define ADS_EXPORT Q_DECL_EXPORT
 #elif defined(ADVANCEDDOCKINGSYSTEM_STATIC_LIBRARY)
-#  define ADS_EXPORT
+#define ADS_EXPORT
 #else
-#  define ADS_EXPORT Q_DECL_IMPORT
+#define ADS_EXPORT Q_DECL_IMPORT
 #endif
 
 //#define ADS_DEBUG_PRINT
@@ -47,13 +47,20 @@ enum DockWidgetArea {
     TopDockWidgetArea = 0x04,
     BottomDockWidgetArea = 0x08,
     CenterDockWidgetArea = 0x10,
+    LeftAutoHideArea = 0x20,
+    RightAutoHideArea = 0x40,
+    TopAutoHideArea = 0x80,
+    BottomAutoHideArea = 0x100,
 
     InvalidDockWidgetArea = NoDockWidgetArea,
     OuterDockAreas = TopDockWidgetArea | LeftDockWidgetArea | RightDockWidgetArea
                      | BottomDockWidgetArea,
+    AutoHideDockAreas = LeftAutoHideArea | RightAutoHideArea | TopAutoHideArea | BottomAutoHideArea,
     AllDockAreas = OuterDockAreas | CenterDockWidgetArea
 };
 Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
+
+enum eTabIndex { TabDefaultInsertIndex = -1, TabInvalidIndex = -2 };
 
 enum eTitleBarButton {
     TitleBarButtonTabsMenu,
@@ -136,6 +143,21 @@ public:
  * Returns the insertion parameters for the given dock area.
  */
 DockInsertParam dockAreaInsertParameters(DockWidgetArea area);
+
+/**
+ * Returns the SieBarLocation for the AutoHide dock widget areas.
+ */
+SideBarLocation toSideBarLocation(DockWidgetArea area);
+
+/**
+ * Returns true for the top or bottom side bar ansd false for the left and right side bar.
+ */
+bool isHorizontalSideBarLocation(SideBarLocation location);
+
+/**
+ * Returns true, if the given dock area is a SideBar area.
+ */
+bool isSideBarArea(DockWidgetArea area);
 
 /**
  * Searches for the parent widget of the given type. Returns the parent widget of the given

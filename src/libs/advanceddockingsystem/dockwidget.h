@@ -338,16 +338,20 @@ public:
     bool isAutoHide() const;
 
     /**
-     * Returns the auto hide dock container of this dock widget
-     * or 0 if there is none
+     * Returns the auto hide dock container of this dock widget or 0 if there is none.
      */
     AutoHideDockContainer *autoHideDockContainer() const;
 
     /**
+     * Returns the auto hide side bar location or SideBarNone if, this is not an autohide dock widget.
+     */
+    SideBarLocation autoHideLocation() const;
+
+    /**
      * This property holds whether the dock widget is floating.
-     * A dock widget is only floating, if it is the one and only widget inside
-     * of a floating container. If there are more than one dock widget in a
-     * floating container, the all dock widgets are docked and not floating.
+     * A dock widget is only floating, if it is the one and only widget inside of a floating
+     * container. If there are more than one dock widget in a floating container, the all dock
+     * widgets are docked and not floating.
      */
     bool isFloating() const;
 
@@ -547,22 +551,27 @@ public: // reimplements QFrame
     void closeDockWidget();
 
     /**
+     * Request closing of the dock widget.
+     * For DockWidget with default close handling, the function does the same like clodeDockWidget()
+     * but if the flag CustomCloseHandling is set, the function only emits the closeRequested() signal.
+     */
+    void requestCloseDockWidget();
+
+    /**
      * Shows the widget in full-screen mode.
-     * Normally this function only affects windows. To make the interface
-     * compatible to QDockWidget, this function also maximizes a floating
-     * dock widget.
+     * Normally this function only affects windows. To make the interface compatible to QDockWidget,
+     * this function also maximizes a floating dock widget.
      *
-     * \note Full-screen mode works fine under Windows, but has certain
-     * problems (doe not work) under X (Linux). These problems are due to
-     * limitations of the ICCCM protocol that specifies the communication
-     * between X11 clients and the window manager. ICCCM simply does not
+     * \note Full-screen mode works fine under Windows, but has certain problems (doe not work)
+     * under X (Linux). These problems are due to limitations of the ICCCM protocol that specifies
+     * the communication between X11 clients and the window manager. ICCCM simply does not
      * understand the concept of non-decorated full-screen windows.
      */
     void showFullScreen();
 
     /**
-     * This function complements showFullScreen() to restore the widget
-     * after it has been in full screen mode.
+     * This function complements showFullScreen() to restore the widget after it has been in full
+     * screen mode.
      */
     void showNormal();
 
@@ -570,11 +579,10 @@ public: // reimplements QFrame
      * Sets the dock widget into auto hide mode if this feature is enabled
      * via CDockManager::setAutoHideFlags(CDockManager::AutoHideFeatureEnabled)
      */
-    void setAutoHide(bool enable, SideBarLocation location = SideBarNone);
+    void setAutoHide(bool enable, SideBarLocation location = SideBarNone, int tabIndex = -1);
 
     /**
-     * Switches the dock widget to auto hide mode or vice versa depending on its
-     * current state.
+     * Switches the dock widget to auto hide mode or vice versa depending on its current state.
      */
     void toggleAutoHide(SideBarLocation location = SideBarNone);
 

@@ -48,6 +48,8 @@ struct DockAreaWidgetPrivate;
 class IconProvider;
 class DockFocusController;
 class AutoHideSideBar;
+class AutoHideTab;
+struct AutoHideTabPrivate;
 
 inline constexpr QStringView workspaceFolderName{u"workspaces"};
 inline constexpr QStringView workspaceFileExtension{u"wrk"};
@@ -84,6 +86,8 @@ private:
     friend class DockAreaTitleBar;
     friend class AutoHideDockContainer;
     friend AutoHideSideBar;
+    friend AutoHideTab;
+    friend AutoHideTabPrivate;
 
 public:
     using Super = DockContainerWidget;
@@ -182,8 +186,8 @@ public:
         = 0x40, ///< Close button of an auto hide container collapses the dock instead of hiding it completely
 
         DefaultAutoHideConfig
-        = AutoHideFeatureEnabled
-          | DockAreaHasAutoHideButton ///< the default configuration for left and right side bars
+        = AutoHideFeatureEnabled | DockAreaHasAutoHideButton
+          | AutoHideCloseButtonCollapsesDock ///< the default configuration for left and right side bars
     };
     Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
 

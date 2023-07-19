@@ -147,6 +147,7 @@ void AutoHideSideBar::insertTab(int index, AutoHideTab *sideTab)
 {
     sideTab->setSideBar(this);
     sideTab->installEventFilter(this);
+    // Default insertion is append
     if (index < 0)
         d->m_tabsLayout->insertWidget(d->m_tabsLayout->count() - 1, sideTab);
     else
@@ -177,11 +178,20 @@ void AutoHideSideBar::removeAutoHideWidget(AutoHideDockContainer *autoHideWidget
     autoHideWidget->setParent(nullptr);
 }
 
-void AutoHideSideBar::addAutoHideWidget(AutoHideDockContainer *autoHideWidget)
+void AutoHideSideBar::addAutoHideWidget(AutoHideDockContainer *autoHideWidget, int index)
 {
     auto sideBar = autoHideWidget->autoHideTab()->sideBar();
-    if (sideBar == this)
-        return;
+    if (sideBar == this) {
+        // If we move to the same tab index or if we insert before the next tab index, then we will
+        // end at the same tab position and can leave.
+        if (autoHideWidget->tabIndex() == index || (autoHideWidget->tabIndex() + 1) == index)
+            return;
+
+        // We remove this auto hide widget from the sidebar in the code below and therefore need
+        // to correct the TabIndex here.
+        if (autoHideWidget->tabIndex() < index)
+            --index;
+    }
 
     if (sideBar)
         sideBar->removeAutoHideWidget(autoHideWidget);
@@ -189,7 +199,7 @@ void AutoHideSideBar::addAutoHideWidget(AutoHideDockContainer *autoHideWidget)
     autoHideWidget->setParent(d->m_containerWidget);
     autoHideWidget->setSideBarLocation(d->m_sideTabArea);
     d->m_containerWidget->registerAutoHideWidget(autoHideWidget);
-    insertTab(-1, autoHideWidget->autoHideTab());
+    insertTab(index, autoHideWidget->autoHideTab());
 }
 
 void AutoHideSideBar::removeTab(AutoHideTab *sideTab)
@@ -228,33 +238,73 @@ Qt::Orientation AutoHideSideBar::orientation() const
     return d->m_orientation;
 }
 
-AutoHideTab *AutoHideSideBar::tabAt(int index) const
+AutoHideTab *AutoHideSideBar::tab(int index) const
 {
     return qobject_cast<AutoHideTab *>(d->m_tabsLayout->itemAt(index)->widget());
 }
 
-int AutoHideSideBar::tabCount() const
+int AutoHideSideBar::tabAt(const QPoint &pos) const
+{
+    if (!isVisible())
+        return TabInvalidIndex;
+
+    if (orientation() == Qt::Horizontal) {
+        if (pos.x() < tab(0)->geometry().x())
+            return -1;
+    } else {
+        if (pos.y() < tab(0)->geometry().y())
+            return -1;
+    }
+
+    for (int i = 0; i < count(); ++i) {
+        if (tab(i)->geometry().contains(pos))
+            return i;
+    }
+
+    return count();
+}
+
+int AutoHideSideBar::tabInsertIndexAt(const QPoint &pos) const
+{
+    int index = tabAt(pos);
+    if (index == TabInvalidIndex)
+        return TabDefaultInsertIndex;
+    else
+        return (index < 0) ? 0 : index;
+}
+
+int AutoHideSideBar::indexOfTab(const AutoHideTab &autoHideTab) const
+{
+    for (auto i = 0; i < count(); i++) {
+        if (tab(i) == &autoHideTab)
+            return i;
+    }
+
+    return -1;
+}
+
+int AutoHideSideBar::count() const
 {
     return d->m_tabsLayout->count() - 1;
 }
 
 int AutoHideSideBar::visibleTabCount() const
 {
-    int count = 0;
+    int c = 0;
     auto parent = parentWidget();
-    for (auto i = 0; i < tabCount(); i++) {
-        if (tabAt(i)->isVisibleTo(parent))
-            count++;
+    for (auto i = 0; i < count(); i++) {
+        if (tab(i)->isVisibleTo(parent))
+            c++;
     }
 
-    return count;
+    return c;
 }
 
 bool AutoHideSideBar::hasVisibleTabs() const
 {
     auto parent = parentWidget();
-    for (auto i = 0; i < tabCount(); i++) {
-        if (tabAt(i)->isVisibleTo(parent))
+    for (auto i = 0; i < count(); i++) {
+        if (tab(i)->isVisibleTo(parent))
             return true;
     }
 
@@ -268,19 +318,19 @@ SideBarLocation AutoHideSideBar::sideBarLocation() const
 
 void AutoHideSideBar::saveState(QXmlStreamWriter &s) const
 {
-    if (!tabCount())
+    if (!count())
         return;
 
     s.writeStartElement("sideBar");
     s.writeAttribute("area", QString::number(sideBarLocation()));
-    s.writeAttribute("tabs", QString::number(tabCount()));
+    s.writeAttribute("tabs", QString::number(count()));
 
-    for (auto i = 0; i < tabCount(); ++i) {
-        auto tab = tabAt(i);
-        if (!tab)
+    for (auto i = 0; i < count(); ++i) {
+        auto currentTab = tab(i);
+        if (!currentTab)
             continue;
 
-        tab->dockWidget()->autoHideDockContainer()->saveState(s);
+        currentTab->dockWidget()->autoHideDockContainer()->saveState(s);
     }
 
     s.writeEndElement();

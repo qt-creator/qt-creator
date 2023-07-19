@@ -84,7 +84,7 @@ public:
     QList<AutoHideDockContainer *> m_autoHideWidgets;
     QMap<SideBarLocation, AutoHideSideBar *> m_sideTabBarWidgets;
     QGridLayout *m_layout = nullptr;
-    QSplitter *m_rootSplitter = nullptr;
+    DockSplitter *m_rootSplitter = nullptr;
     bool m_isFloating = false;
     DockAreaWidget *m_lastAddedAreaCache[5];
     int m_visibleDockAreaCount = -1;
@@ -123,33 +123,50 @@ public:
     void dropIntoContainer(FloatingDockContainer *floatingWidget, DockWidgetArea area);
 
     /**
+     * Drop floating widget into auto hide side bar
+     */
+    void dropIntoAutoHideSideBar(FloatingDockContainer *floatingWidget, DockWidgetArea area);
+
+    /**
+     * Creates a new tab for a widget dropped into the center of a section
+     */
+    void dropIntoCenterOfSection(FloatingDockContainer *floatingWidget,
+                                 DockAreaWidget *targetArea,
+                                 int tabIndex);
+
+    /**
      * Drop floating widget into dock area
      */
     void dropIntoSection(FloatingDockContainer *floatingWidget,
                          DockAreaWidget *targetArea,
-                         DockWidgetArea area);
+                         DockWidgetArea area,
+                         int tabIndex = 0);
 
     /**
-     * Moves the dock widget or dock area given in Widget parameter to a
-     * new dock widget area
+     * Moves the dock widget or dock area given in Widget parameter to a new dock widget area.
      */
-    void moveToNewSection(QWidget *widget, DockAreaWidget *targetArea, DockWidgetArea area);
+    void moveToNewSection(QWidget *widget,
+                          DockAreaWidget *targetArea,
+                          DockWidgetArea area,
+                          int tabIndex = 0);
 
     /**
-     * Moves the dock widget or dock area given in Widget parameter to a
-     * a dock area in container
+     * Moves the dock widget or dock area given in Widget parameter to a dock area in container.
      */
     void moveToContainer(QWidget *widget, DockWidgetArea area);
 
     /**
      * Creates a new tab for a widget dropped into the center of a section
      */
-    void dropIntoCenterOfSection(FloatingDockContainer *floatingWidget, DockAreaWidget *targetArea);
+    void moveIntoCenterOfSection(QWidget *widget, DockAreaWidget *targetArea, int tabIndex = 0);
 
     /**
-     * Creates a new tab for a widget dropped into the center of a section
+     * Moves the dock widget or dock area given in Widget parameter to
+     * a auto hide sidebar area
      */
-    void moveIntoCenterOfSection(QWidget *widget, DockAreaWidget *targetArea);
+    void moveToAutoHideSideBar(QWidget *widget,
+                               DockWidgetArea area,
+                               int tabIndex = TabDefaultInsertIndex);
 
     /**
      * Adds new dock areas to the internal dock area list
@@ -371,12 +388,12 @@ void DockContainerWidgetPrivate::dropIntoContainer(FloatingDockContainer *floati
     auto newDockAreas
         = floatingDockContainer->findChildren<DockAreaWidget *>(QString(),
                                                                 Qt::FindChildrenRecursively);
-    QSplitter *splitter = m_rootSplitter;
+    auto *splitter = m_rootSplitter;
 
     if (m_dockAreas.count() <= 1) {
         splitter->setOrientation(insertParam.orientation());
     } else if (splitter->orientation() != insertParam.orientation()) {
-        QSplitter *newSplitter = createSplitter(insertParam.orientation());
+        auto *newSplitter = createSplitter(insertParam.orientation());
         QLayoutItem *layoutItem = m_layout->replaceWidget(splitter, newSplitter);
         newSplitter->addWidget(splitter);
         updateSplitterHandles(newSplitter);
@@ -411,42 +428,58 @@ void DockContainerWidgetPrivate::dropIntoContainer(FloatingDockContainer *floati
     q->dumpLayout();
 }
 
+void DockContainerWidgetPrivate::dropIntoAutoHideSideBar(FloatingDockContainer *floatingWidget,
+                                                         DockWidgetArea area)
+{
+    auto sideBarLocation = internal::toSideBarLocation(area);
+    auto newDockAreas = floatingWidget->findChildren<DockAreaWidget *>(QString(),
+                                                                       Qt::FindChildrenRecursively);
+    int tabIndex = m_dockManager->containerOverlay()->tabIndexUnderCursor();
+    for (auto dockArea : newDockAreas) {
+        auto dockWidgets = dockArea->dockWidgets();
+        for (auto dockWidget : dockWidgets)
+            q->createAndSetupAutoHideContainer(sideBarLocation, dockWidget, tabIndex++);
+    }
+}
+
 void DockContainerWidgetPrivate::dropIntoCenterOfSection(FloatingDockContainer *floatingWidget,
-                                                         DockAreaWidget *targetArea)
+                                                         DockAreaWidget *targetArea,
+                                                         int tabIndex)
 {
     DockContainerWidget *floatingContainer = floatingWidget->dockContainer();
     auto newDockWidgets = floatingContainer->dockWidgets();
     auto topLevelDockArea = floatingContainer->topLevelDockArea();
     int newCurrentIndex = -1;
+    tabIndex = qMax(0, tabIndex);
 
-    // If the floating widget contains only one single dock are, then the
-    // current dock widget of the dock area will also be the future current
-    // dock widget in the drop area.
+    // If the floating widget contains only one single dock are, then the current dock widget of
+    // the dock area will also be the future current dock widget in the drop area.
     if (topLevelDockArea)
         newCurrentIndex = topLevelDockArea->currentIndex();
 
     for (int i = 0; i < newDockWidgets.count(); ++i) {
         DockWidget *dockWidget = newDockWidgets[i];
+        targetArea->insertDockWidget(tabIndex + i, dockWidget, false);
         targetArea->insertDockWidget(i, dockWidget, false);
-        // If the floating widget contains multiple visible dock areas, then we
-        // simply pick the first visible open dock widget and make it
-        // the current one.
+        // If the floating widget contains multiple visible dock areas, then we simply pick the
+        // first visible open dock widget and make it the current one.
         if (newCurrentIndex < 0 && !dockWidget->isClosed())
             newCurrentIndex = i;
     }
-    targetArea->setCurrentIndex(newCurrentIndex);
+    targetArea->setCurrentIndex(newCurrentIndex + tabIndex);
     targetArea->updateTitleBarVisibility();
     return;
 }
 
 void DockContainerWidgetPrivate::dropIntoSection(FloatingDockContainer *floatingWidget,
                                                  DockAreaWidget *targetArea,
-                                                 DockWidgetArea area)
+                                                 DockWidgetArea area,
+                                                 int tabIndex)
 {
-    // Dropping into center means all dock widgets in the dropped floating
-    // widget will become tabs of the drop area
+    // Dropping into center means all dock widgets in the dropped floating widget will become
+    // tabs of the drop area.
     if (CenterDockWidgetArea == area) {
-        dropIntoCenterOfSection(floatingWidget, targetArea);
+        dropIntoCenterOfSection(floatingWidget, targetArea, tabIndex);
         return;
     }
 
@@ -525,44 +558,15 @@ void DockContainerWidgetPrivate::dropIntoSection(FloatingDockContainer *floating
     q->dumpLayout();
 }
 
-void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget *widget, DockAreaWidget *targetArea)
-{
-    auto droppedDockWidget = qobject_cast<DockWidget *>(widget);
-    auto droppedArea = qobject_cast<DockAreaWidget *>(widget);
-
-    if (droppedDockWidget) {
-        DockAreaWidget *oldDockArea = droppedDockWidget->dockAreaWidget();
-        if (oldDockArea == targetArea)
-            return;
-
-        if (oldDockArea)
-            oldDockArea->removeDockWidget(droppedDockWidget);
-
-        targetArea->insertDockWidget(0, droppedDockWidget, true);
-    } else {
-        QList<DockWidget *> newDockWidgets = droppedArea->dockWidgets();
-        int newCurrentIndex = droppedArea->currentIndex();
-        for (int i = 0; i < newDockWidgets.count(); ++i) {
-            DockWidget *dockWidget = newDockWidgets[i];
-            targetArea->insertDockWidget(i, dockWidget, false);
-        }
-        targetArea->setCurrentIndex(newCurrentIndex);
-        droppedArea->dockContainer()->removeDockArea(droppedArea);
-        droppedArea->deleteLater();
-    }
-
-    targetArea->updateTitleBarVisibility();
-    return;
-}
-
 void DockContainerWidgetPrivate::moveToNewSection(QWidget *widget,
                                                   DockAreaWidget *targetArea,
-                                                  DockWidgetArea area)
+                                                  DockWidgetArea area,
+                                                  int tabIndex)
 {
-    // Dropping into center means all dock widgets in the dropped floating
-    // widget will become tabs of the drop area
+    // Dropping into center means all dock widgets in the dropped floating widget will become
+    // tabs of the drop area.
     if (CenterDockWidgetArea == area) {
-        moveIntoCenterOfSection(widget, targetArea);
+        moveIntoCenterOfSection(widget, targetArea, tabIndex);
         return;
     }
 
@@ -612,31 +616,6 @@ void DockContainerWidgetPrivate::moveToNewSection(QWidget *widget,
     addDockAreasToList({newDockArea});
 }
 
-void DockContainerWidgetPrivate::updateSplitterHandles(QSplitter *splitter)
-{
-    if (!m_dockManager->centralWidget() || !splitter)
-        return;
-
-    for (int i = 0; i < splitter->count(); ++i)
-        splitter->setStretchFactor(i, widgetResizesWithContainer(splitter->widget(i)) ? 1 : 0);
-}
-
-bool DockContainerWidgetPrivate::widgetResizesWithContainer(QWidget *widget)
-{
-    if (!m_dockManager->centralWidget())
-        return true;
-
-    auto area = qobject_cast<DockAreaWidget *>(widget);
-    if (area)
-        return area->isCentralWidgetArea();
-
-    auto innerSplitter = qobject_cast<DockSplitter *>(widget);
-    if (innerSplitter)
-        return innerSplitter->isResizingWithContainer();
-
-    return false;
-}
-
 void DockContainerWidgetPrivate::moveToContainer(QWidget *widget, DockWidgetArea area)
 {
     DockWidget *droppedDockWidget = qobject_cast<DockWidget *>(widget);
@@ -669,6 +648,92 @@ void DockContainerWidgetPrivate::moveToContainer(QWidget *widget, DockWidgetArea
 
     addDockArea(newDockArea, area);
     m_lastAddedAreaCache[areaIdToIndex(area)] = newDockArea;
+}
+
+void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget *widget,
+                                                         DockAreaWidget *targetArea,
+                                                         int tabIndex)
+{
+    auto droppedDockWidget = qobject_cast<DockWidget *>(widget);
+    auto droppedArea = qobject_cast<DockAreaWidget *>(widget);
+    tabIndex = qMax(0, tabIndex);
+
+    if (droppedDockWidget) {
+        DockAreaWidget *oldDockArea = droppedDockWidget->dockAreaWidget();
+        if (oldDockArea == targetArea)
+            return;
+
+        if (oldDockArea)
+            oldDockArea->removeDockWidget(droppedDockWidget);
+
+        targetArea->insertDockWidget(tabIndex, droppedDockWidget, true);
+    } else {
+        QList<DockWidget *> newDockWidgets = droppedArea->dockWidgets();
+        int newCurrentIndex = droppedArea->currentIndex();
+        for (int i = 0; i < newDockWidgets.count(); ++i) {
+            DockWidget *dockWidget = newDockWidgets[i];
+            targetArea->insertDockWidget(tabIndex + i, dockWidget, false);
+        }
+        targetArea->setCurrentIndex(tabIndex + newCurrentIndex);
+        droppedArea->dockContainer()->removeDockArea(droppedArea);
+        droppedArea->deleteLater();
+    }
+
+    targetArea->updateTitleBarVisibility();
+    return;
+}
+
+void DockContainerWidgetPrivate::moveToAutoHideSideBar(QWidget *widget,
+                                                       DockWidgetArea area,
+                                                       int tabIndex)
+{
+    DockWidget *droppedDockWidget = qobject_cast<DockWidget *>(widget);
+    DockAreaWidget *droppedDockArea = qobject_cast<DockAreaWidget *>(widget);
+    auto sideBarLocation = internal::toSideBarLocation(area);
+
+    if (droppedDockWidget) {
+        if (q == droppedDockWidget->dockContainer())
+            droppedDockWidget->setAutoHide(true, sideBarLocation, tabIndex);
+        else
+            q->createAndSetupAutoHideContainer(sideBarLocation, droppedDockWidget, tabIndex);
+
+    } else {
+        if (q == droppedDockArea->dockContainer()) {
+            droppedDockArea->setAutoHide(true, sideBarLocation, tabIndex);
+        } else {
+            for (const auto dockWidget : droppedDockArea->openedDockWidgets()) {
+                if (!dockWidget->features().testFlag(DockWidget::DockWidgetPinnable))
+                    continue;
+
+                q->createAndSetupAutoHideContainer(sideBarLocation, dockWidget, tabIndex++);
+            }
+        }
+    }
+}
+
+void DockContainerWidgetPrivate::updateSplitterHandles(QSplitter *splitter)
+{
+    if (!m_dockManager->centralWidget() || !splitter)
+        return;
+
+    for (int i = 0; i < splitter->count(); ++i)
+        splitter->setStretchFactor(i, widgetResizesWithContainer(splitter->widget(i)) ? 1 : 0);
+}
+
+bool DockContainerWidgetPrivate::widgetResizesWithContainer(QWidget *widget)
+{
+    if (!m_dockManager->centralWidget())
+        return true;
+
+    auto area = qobject_cast<DockAreaWidget *>(widget);
+    if (area)
+        return area->isCentralWidgetArea();
+
+    auto innerSplitter = qobject_cast<DockSplitter *>(widget);
+    if (innerSplitter)
+        return innerSplitter->isResizingWithContainer();
+
+    return false;
 }
 
 void DockContainerWidgetPrivate::addDockAreasToList(const QList<DockAreaWidget *> newDockAreas)
@@ -740,7 +805,7 @@ void DockContainerWidgetPrivate::saveChildNodesState(QXmlStreamWriter &stream, Q
 void DockContainerWidgetPrivate::saveAutoHideWidgetsState(QXmlStreamWriter &s)
 {
     for (const auto sideTabBar : m_sideTabBarWidgets.values()) {
-        if (!sideTabBar->tabCount())
+        if (!sideTabBar->count())
             continue;
 
         sideTabBar->saveState(s);
@@ -896,11 +961,11 @@ bool DockContainerWidgetPrivate::restoreSideBar(DockingStateReader &stateReader,
         if (!dockWidget || testing)
             continue;
 
-        auto sideBar = q->sideTabBar(area);
+        auto sideBar = q->autoHideSideBar(area);
         AutoHideDockContainer *autoHideContainer;
         if (dockWidget->isAutoHide()) {
             autoHideContainer = dockWidget->autoHideDockContainer();
-            if (autoHideContainer->sideBar() != sideBar)
+            if (autoHideContainer->autoHideSideBar() != sideBar)
                 sideBar->addAutoHideWidget(autoHideContainer);
         } else {
             autoHideContainer = sideBar->insertDockWidget(-1, dockWidget);
@@ -931,7 +996,7 @@ void DockContainerWidgetPrivate::addDockArea(DockAreaWidget *newDockArea, DockWi
     if (m_dockAreas.count() <= 1)
         m_rootSplitter->setOrientation(insertParam.orientation());
 
-    QSplitter *splitter = m_rootSplitter;
+    auto *splitter = m_rootSplitter;
     if (splitter->orientation() == insertParam.orientation()) {
         insertWidgetIntoSplitter(splitter, newDockArea, insertParam.append());
         updateSplitterHandles(splitter);
@@ -939,7 +1004,7 @@ void DockContainerWidgetPrivate::addDockArea(DockAreaWidget *newDockArea, DockWi
             splitter->show();
 
     } else {
-        QSplitter *newSplitter = createSplitter(insertParam.orientation());
+        auto *newSplitter = createSplitter(insertParam.orientation());
         if (insertParam.append()) {
             QLayoutItem *layoutItem = m_layout->replaceWidget(splitter, newSplitter);
             newSplitter->addWidget(splitter);
@@ -1108,7 +1173,8 @@ DockAreaWidget *DockContainerWidget::addDockWidget(DockWidgetArea area,
 }
 
 AutoHideDockContainer *DockContainerWidget::createAndSetupAutoHideContainer(SideBarLocation area,
-                                                                            DockWidget *dockWidget)
+                                                                            DockWidget *dockWidget,
+                                                                            int tabIndex)
 {
     if (!DockManager::testAutoHideConfigFlag(DockManager::AutoHideFeatureEnabled)) {
         Q_ASSERT_X(false,
@@ -1121,7 +1187,7 @@ AutoHideDockContainer *DockContainerWidget::createAndSetupAutoHideContainer(Side
             d->m_dockManager); // Auto hide Dock Container needs a valid dock manager
     }
 
-    return sideTabBar(area)->insertDockWidget(-1, dockWidget);
+    return autoHideSideBar(area)->insertDockWidget(tabIndex, dockWidget);
 }
 
 void DockContainerWidget::removeDockWidget(DockWidget *dockWidget)
@@ -1210,7 +1276,7 @@ void DockContainerWidget::removeDockArea(DockAreaWidget *area)
         }
 
         QWidget *widget = splitter->widget(0);
-        QSplitter *childSplitter = qobject_cast<QSplitter *>(widget);
+        auto *childSplitter = qobject_cast<DockSplitter *>(widget);
         // If the one and only content widget of the splitter is not a splitter
         // then we are finished
         if (!childSplitter) {
@@ -1227,7 +1293,7 @@ void DockContainerWidget::removeDockArea(DockAreaWidget *area)
         qCInfo(adsLog) << "RootSplitter replaced by child splitter";
     } else if (splitter->count() == 1) {
         qCInfo(adsLog) << "Replacing splitter with content";
-        QSplitter *parentSplitter = internal::findParent<QSplitter *>(splitter);
+        auto *parentSplitter = internal::findParent<QSplitter *>(splitter);
         auto sizes = parentSplitter->sizes();
         QWidget *widget = splitter->widget(0);
         widget->setParent(this);
@@ -1299,11 +1365,12 @@ void DockContainerWidget::dropFloatingWidget(FloatingDockContainer *floatingWidg
     qCInfo(adsLog) << Q_FUNC_INFO;
     DockWidget *singleDroppedDockWidget = floatingWidget->topLevelDockWidget();
     DockWidget *singleDockWidget = topLevelDockWidget();
-    DockAreaWidget *dockArea = dockAreaAt(targetPosition);
     auto dropArea = InvalidDockWidgetArea;
     auto containerDropArea = d->m_dockManager->containerOverlay()->dropAreaUnderCursor();
     bool dropped = false;
 
+    DockAreaWidget *dockArea = dockAreaAt(targetPosition);
+    // Mouse is over dock area
     if (dockArea) {
         auto dropOverlay = d->m_dockManager->dockAreaOverlay();
         dropOverlay->setAllowedAreas(dockArea->allowedAreas());
@@ -1313,24 +1380,27 @@ void DockContainerWidget::dropFloatingWidget(FloatingDockContainer *floatingWidg
 
         if (dropArea != InvalidDockWidgetArea) {
             qCInfo(adsLog) << "Dock Area Drop Content: " << dropArea;
-            d->dropIntoSection(floatingWidget, dockArea, dropArea);
+            int tabIndex = d->m_dockManager->dockAreaOverlay()->tabIndexUnderCursor();
+            d->dropIntoSection(floatingWidget, dockArea, dropArea, tabIndex);
             dropped = true;
         }
     }
 
-    // mouse is over container
-    if (InvalidDockWidgetArea == dropArea) {
-        dropArea = containerDropArea;
-        qCInfo(adsLog) << "Container Drop Content: " << dropArea;
-        if (dropArea != InvalidDockWidgetArea) {
-            d->dropIntoContainer(floatingWidget, dropArea);
-            dropped = true;
-        }
+    // Mouse is over container or auto hide side bar
+    if (InvalidDockWidgetArea == dropArea && InvalidDockWidgetArea != containerDropArea) {
+        qCInfo(adsLog) << "Container Drop Content: " << containerDropArea;
+
+        if (internal::isSideBarArea(containerDropArea))
+            d->dropIntoAutoHideSideBar(floatingWidget, containerDropArea);
+        else
+            d->dropIntoContainer(floatingWidget, containerDropArea);
+
+        dropped = true;
     }
 
     // Remove the auto hide widgets from the FloatingWidget and insert them into this widget
     for (auto autohideWidget : floatingWidget->dockContainer()->autoHideWidgets()) {
-        auto sideBar = sideTabBar(autohideWidget->sideBarLocation());
+        auto sideBar = autoHideSideBar(autohideWidget->sideBarLocation());
         sideBar->addAutoHideWidget(autohideWidget);
     }
 
@@ -1356,11 +1426,14 @@ void DockContainerWidget::dropFloatingWidget(FloatingDockContainer *floatingWidg
 
 void DockContainerWidget::dropWidget(QWidget *widget,
                                      DockWidgetArea dropArea,
-                                     DockAreaWidget *targetAreaWidget)
+                                     DockAreaWidget *targetAreaWidget,
+                                     int tabIndex)
 {
     DockWidget *singleDockWidget = topLevelDockWidget();
     if (targetAreaWidget)
-        d->moveToNewSection(widget, targetAreaWidget, dropArea);
+        d->moveToNewSection(widget, targetAreaWidget, dropArea, tabIndex);
+    else if (internal::isSideBarArea(dropArea))
+        d->moveToAutoHideSideBar(widget, dropArea, tabIndex);
     else
         d->moveToContainer(widget, dropArea);
 
@@ -1466,7 +1539,7 @@ bool DockContainerWidget::restoreState(DockingStateReader &stateReader, bool tes
 
     d->m_layout->replaceWidget(d->m_rootSplitter, newRootSplitter);
     QSplitter *oldRoot = d->m_rootSplitter;
-    d->m_rootSplitter = qobject_cast<QSplitter *>(newRootSplitter);
+    d->m_rootSplitter = qobject_cast<DockSplitter *>(newRootSplitter);
     oldRoot->deleteLater();
 
     return true;
@@ -1621,7 +1694,7 @@ void DockContainerWidget::closeOtherAreas(DockAreaWidget *keepOpenArea)
     }
 }
 
-AutoHideSideBar *DockContainerWidget::sideTabBar(SideBarLocation area) const
+AutoHideSideBar *DockContainerWidget::autoHideSideBar(SideBarLocation area) const
 {
     return d->m_sideTabBarWidgets[area];
 }
@@ -1639,7 +1712,17 @@ QRect DockContainerWidget::contentRectGlobal() const
     if (!d->m_rootSplitter)
         return QRect();
 
-    return internal::globalGeometry(d->m_rootSplitter);
+    if (d->m_rootSplitter->hasVisibleContent()) {
+        return d->m_rootSplitter->geometry();
+    } else {
+        auto contentRect = rect();
+        contentRect.adjust(autoHideSideBar(SideBarLeft)->sizeHint().width(),
+                           autoHideSideBar(SideBarTop)->sizeHint().height(),
+                           -autoHideSideBar(SideBarRight)->sizeHint().width(),
+                           -autoHideSideBar(SideBarBottom)->sizeHint().height());
+
+        return contentRect;
+    }
 }
 
 DockManager *DockContainerWidget::dockManager() const

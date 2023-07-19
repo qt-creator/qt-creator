@@ -89,7 +89,7 @@ public: // implements AbstractFloatingWidget
     /**
      * Cleanup auto hide container if the dragged widget has one.
      */
-    void cleanupAutoHideContainerWidget();
+    void cleanupAutoHideContainerWidget(DockWidgetArea containerDropArea);
 
 signals:
     /**

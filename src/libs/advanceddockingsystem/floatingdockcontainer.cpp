@@ -455,15 +455,19 @@ void FloatingDockContainerPrivate::titleMouseReleaseEvent()
         if (!overlay->dropOverlayRect().isValid())
             overlay = m_dockManager->dockAreaOverlay();
 
-        // Resize the floating widget to the size of the highlighted drop area rectangle
-        QRect rect = overlay->dropOverlayRect();
-        int frameWidth = (q->frameSize().width() - q->rect().width()) / 2;
-        int titleBarHeight = q->frameSize().height() - q->rect().height() - frameWidth;
-        if (rect.isValid()) {
-            QPoint topLeft = overlay->mapToGlobal(rect.topLeft());
-            topLeft.ry() += titleBarHeight;
-            q->setGeometry(QRect(topLeft, QSize(rect.width(), rect.height() - titleBarHeight)));
-            QApplication::processEvents();
+        // Do not resize if we drop into an autohide sidebar area to preserve the dock area size
+        // for the initial size of the auto hide area.
+        if (!internal::isSideBarArea(overlay->dropAreaUnderCursor())) {
+            // Resize the floating widget to the size of the highlighted drop area rectangle
+            QRect rect = overlay->dropOverlayRect();
+            int frameWidth = (q->frameSize().width() - q->rect().width()) / 2;
+            int titleBarHeight = q->frameSize().height() - q->rect().height() - frameWidth;
+            if (rect.isValid()) {
+                QPoint topLeft = overlay->mapToGlobal(rect.topLeft());
+                topLeft.ry() += titleBarHeight;
+                q->setGeometry(QRect(topLeft, QSize(rect.width(), rect.height() - titleBarHeight)));
+                QApplication::processEvents();
+            }
         }
         m_dropContainer->dropFloatingWidget(q, QCursor::pos());
     }
@@ -510,10 +514,23 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &globalPositi
     }
 
     int visibleDockAreas = topContainer->visibleDockAreaCount();
-    containerOverlay->setAllowedAreas(visibleDockAreas > 1 ? OuterDockAreas : AllDockAreas);
+
+    DockWidgetAreas allowedContainerAreas = (visibleDockAreas > 1) ? OuterDockAreas : AllDockAreas;
+    auto dockArea = topContainer->dockAreaAt(globalPosition);
+    // If the dock container contains only one single DockArea, then we need to respect the allowed
+    // areas - only the center area is relevant here because all other allowed areas are from the
+    // container.
+    if (visibleDockAreas == 1 && dockArea)
+        allowedContainerAreas.setFlag(CenterDockWidgetArea,
+                                      dockArea->allowedAreas().testFlag(CenterDockWidgetArea));
+
+    if (m_dockContainer->features().testFlag(DockWidget::DockWidgetPinnable))
+        allowedContainerAreas |= AutoHideDockAreas;
+
+    containerOverlay->setAllowedAreas(allowedContainerAreas);
+
     DockWidgetArea containerArea = containerOverlay->showOverlay(topContainer);
     containerOverlay->enableDropPreview(containerArea != InvalidDockWidgetArea);
-    auto dockArea = topContainer->dockAreaAt(globalPosition);
     if (dockArea && dockArea->isVisible() && visibleDockAreas > 0) {
         dockAreaOverlay->enableDropPreview(true);
         dockAreaOverlay->setAllowedAreas((visibleDockAreas == 1) ? NoDockWidgetArea

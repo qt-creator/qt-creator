@@ -104,6 +104,75 @@ DockAreaTabBar::~DockAreaTabBar()
     delete d;
 }
 
+void DockAreaTabBar::onTabClicked(DockWidgetTab *sourceTab)
+{
+    const int index = d->m_tabsLayout->indexOf(sourceTab);
+    if (index < 0)
+        return;
+
+    setCurrentIndex(index);
+    emit tabBarClicked(index);
+}
+
+void DockAreaTabBar::onTabCloseRequested(DockWidgetTab *sourceTab)
+{
+    const int index = d->m_tabsLayout->indexOf(sourceTab);
+    closeTab(index);
+}
+
+void DockAreaTabBar::onCloseOtherTabsRequested(DockWidgetTab *sourceTab)
+{
+    for (int i = 0; i < count(); ++i) {
+        auto currentTab = tab(i);
+        if (currentTab->isClosable() && !currentTab->isHidden() && currentTab != sourceTab) {
+            // If the dock widget is deleted with the closeTab() call, its tab it will no longer
+            // be in the layout, and thus the index needs to be updated to not skip any tabs.
+            int offset = currentTab->dockWidget()->features().testFlag(
+                             DockWidget::DockWidgetDeleteOnClose)
+                             ? 1
+                             : 0;
+            closeTab(i);
+            // If the the dock widget blocks closing, i.e. if the flag CustomCloseHandling is set,
+            // and the dock widget is still open, then we do not need to correct the index.
+            if (currentTab->dockWidget()->isClosed())
+                i -= offset;
+        }
+    }
+}
+
+void DockAreaTabBar::onTabWidgetMoved(DockWidgetTab *sourceTab, const QPoint &globalPosition)
+{
+    const int fromIndex = d->m_tabsLayout->indexOf(sourceTab);
+    auto mousePos = mapFromGlobal(globalPosition);
+    mousePos.rx() = qMax(d->firstTab()->geometry().left(), mousePos.x());
+    mousePos.rx() = qMin(d->lastTab()->geometry().right(), mousePos.x());
+    int toIndex = -1;
+    // Find tab under mouse
+    for (int i = 0; i < count(); ++i) {
+        DockWidgetTab *dropTab = tab(i);
+        if (dropTab == sourceTab || !dropTab->isVisibleTo(this)
+            || !dropTab->geometry().contains(mousePos))
+            continue;
+
+        toIndex = d->m_tabsLayout->indexOf(dropTab);
+        if (toIndex == fromIndex)
+            toIndex = -1;
+
+        break;
+    }
+
+    if (toIndex > -1) {
+        d->m_tabsLayout->removeWidget(sourceTab);
+        d->m_tabsLayout->insertWidget(toIndex, sourceTab);
+        qCInfo(adsLog) << "tabMoved from" << fromIndex << "to" << toIndex;
+        emit tabMoved(fromIndex, toIndex);
+        setCurrentIndex(toIndex);
+    } else {
+        // Ensure that the moved tab is reset to its start position
+        d->m_tabsLayout->update();
+    }
+}
+
 void DockAreaTabBar::wheelEvent(QWheelEvent *event)
 {
     event->accept();
@@ -112,23 +181,6 @@ void DockAreaTabBar::wheelEvent(QWheelEvent *event)
         horizontalScrollBar()->setValue(horizontalScrollBar()->value() + 20);
     else
         horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 20);
-}
-
-void DockAreaTabBar::setCurrentIndex(int index)
-{
-    if (index == d->m_currentIndex)
-        return;
-
-    if (index < -1 || index > (count() - 1)) {
-        qWarning() << Q_FUNC_INFO << "Invalid index" << index;
-        return;
-    }
-
-    emit currentChanging(index);
-    d->m_currentIndex = index;
-    d->updateTabs();
-    updateGeometry();
-    emit currentChanged(index);
 }
 
 int DockAreaTabBar::count() const
@@ -226,42 +278,6 @@ DockWidgetTab *DockAreaTabBar::currentTab() const
         return qobject_cast<DockWidgetTab *>(d->m_tabsLayout->itemAt(d->m_currentIndex)->widget());
 }
 
-void DockAreaTabBar::onTabClicked(DockWidgetTab *sourceTab)
-{
-    const int index = d->m_tabsLayout->indexOf(sourceTab);
-    if (index < 0)
-        return;
-
-    setCurrentIndex(index);
-    emit tabBarClicked(index);
-}
-
-void DockAreaTabBar::onTabCloseRequested(DockWidgetTab *sourceTab)
-{
-    const int index = d->m_tabsLayout->indexOf(sourceTab);
-    closeTab(index);
-}
-
-void DockAreaTabBar::onCloseOtherTabsRequested(DockWidgetTab *sourceTab)
-{
-    for (int i = 0; i < count(); ++i) {
-        auto currentTab = tab(i);
-        if (currentTab->isClosable() && !currentTab->isHidden() && currentTab != sourceTab) {
-            // If the dock widget is deleted with the closeTab() call, its tab it will no longer
-            // be in the layout, and thus the index needs to be updated to not skip any tabs.
-            int offset = currentTab->dockWidget()->features().testFlag(
-                             DockWidget::DockWidgetDeleteOnClose)
-                             ? 1
-                             : 0;
-            closeTab(i);
-            // If the the dock widget blocks closing, i.e. if the flag CustomCloseHandling is set,
-            // and the dock widget is still open, then we do not need to correct the index.
-            if (currentTab->dockWidget()->isClosed())
-                i -= offset;
-        }
-    }
-}
-
 DockWidgetTab *DockAreaTabBar::tab(int index) const
 {
     if (index >= count() || index < 0)
@@ -270,49 +286,29 @@ DockWidgetTab *DockAreaTabBar::tab(int index) const
     return qobject_cast<DockWidgetTab *>(d->m_tabsLayout->itemAt(index)->widget());
 }
 
-void DockAreaTabBar::onTabWidgetMoved(DockWidgetTab *sourceTab, const QPoint &globalPosition)
+int DockAreaTabBar::tabAt(const QPoint &pos) const
 {
-    const int fromIndex = d->m_tabsLayout->indexOf(sourceTab);
-    auto mousePos = mapFromGlobal(globalPosition);
-    mousePos.rx() = qMax(d->firstTab()->geometry().left(), mousePos.x());
-    mousePos.rx() = qMin(d->lastTab()->geometry().right(), mousePos.x());
-    int toIndex = -1;
-    // Find tab under mouse
+    if (!isVisible())
+        return TabInvalidIndex;
+
+    if (pos.x() < tab(0)->geometry().x())
+        return -1;
+
     for (int i = 0; i < count(); ++i) {
-        DockWidgetTab *dropTab = tab(i);
-        if (dropTab == sourceTab || !dropTab->isVisibleTo(this)
-            || !dropTab->geometry().contains(mousePos))
-            continue;
-
-        toIndex = d->m_tabsLayout->indexOf(dropTab);
-        if (toIndex == fromIndex)
-            toIndex = -1;
-
-        break;
+        if (tab(i)->geometry().contains(pos))
+            return i;
     }
 
-    if (toIndex > -1) {
-        d->m_tabsLayout->removeWidget(sourceTab);
-        d->m_tabsLayout->insertWidget(toIndex, sourceTab);
-        qCInfo(adsLog) << "tabMoved from" << fromIndex << "to" << toIndex;
-        emit tabMoved(fromIndex, toIndex);
-        setCurrentIndex(toIndex);
-    } else {
-        // Ensure that the moved tab is reset to its start position
-        d->m_tabsLayout->update();
-    }
+    return count();
 }
 
-void DockAreaTabBar::closeTab(int index)
+int DockAreaTabBar::tabInsertIndexAt(const QPoint &pos) const
 {
-    if (index < 0 || index >= count())
-        return;
-
-    auto dockWidgetTab = tab(index);
-    if (dockWidgetTab->isHidden())
-        return;
-
-    emit tabCloseRequested(index);
+    int index = tabAt(pos);
+    if (index == TabInvalidIndex)
+        return TabDefaultInsertIndex;
+    else
+        return (index < 0) ? 0 : index;
 }
 
 bool DockAreaTabBar::eventFilter(QObject *watched, QEvent *event)
@@ -360,6 +356,35 @@ QSize DockAreaTabBar::minimumSizeHint() const
 QSize DockAreaTabBar::sizeHint() const
 {
     return d->m_tabsContainerWidget->sizeHint();
+}
+
+void DockAreaTabBar::setCurrentIndex(int index)
+{
+    if (index == d->m_currentIndex)
+        return;
+
+    if (index < -1 || index > (count() - 1)) {
+        qWarning() << Q_FUNC_INFO << "Invalid index" << index;
+        return;
+    }
+
+    emit currentChanging(index);
+    d->m_currentIndex = index;
+    d->updateTabs();
+    updateGeometry();
+    emit currentChanged(index);
+}
+
+void DockAreaTabBar::closeTab(int index)
+{
+    if (index < 0 || index >= count())
+        return;
+
+    auto dockWidgetTab = tab(index);
+    if (dockWidgetTab->isHidden())
+        return;
+
+    emit tabCloseRequested(index);
 }
 
 } // namespace ADS

@@ -91,7 +91,7 @@ public:
      * Adds the given AutoHideWidget to this sidebar. If the AutoHideWidget is in another sidebar,
      * then it will be removed from this sidebar.
      */
-    void addAutoHideWidget(AutoHideDockContainer *autoHideWidget);
+    void addAutoHideWidget(AutoHideDockContainer *autoHideWidget, int index = TabDefaultInsertIndex);
 
     /**
      * Returns orientation of side tab.
@@ -101,12 +101,29 @@ public:
     /**
      * Get the side tab widget at position, returns nullptr if it's out of bounds.
      */
-    AutoHideTab *tabAt(int index) const;
+    AutoHideTab *tab(int index) const;
+
+    /**
+     * Returns the tab at the given position.
+     * Returns -1 if the position is left of the first tab and count() if the position is right
+     * of the last tab. Returns InvalidTabIndex (-2) to indicate an invalid value.
+     */
+    int tabAt(const QPoint &pos) const;
+
+    /**
+     * Returns the tab insertion index for the given mouse cursor position.
+     */
+    int tabInsertIndexAt(const QPoint &pos) const;
+
+    /**
+     * Returns the index of the given tab.
+     */
+    int indexOfTab(const AutoHideTab &tab) const;
 
     /**
      * Gets the count of the tab widgets.
      */
-    int tabCount() const;
+    int count() const;
 
     /**
      * Returns the number of visible tabs to its parent widget.

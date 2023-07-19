@@ -44,10 +44,10 @@ class DockAreaTitleBarPrivate
 {
 public:
     DockAreaTitleBar *q;
-    QPointer<TitleBarButtonType> m_tabsMenuButton;
-    QPointer<TitleBarButtonType> m_autoHideButton;
-    QPointer<TitleBarButtonType> m_undockButton;
-    QPointer<TitleBarButtonType> m_closeButton;
+    QPointer<TitleBarButton> m_tabsMenuButton;
+    QPointer<TitleBarButton> m_autoHideButton;
+    QPointer<TitleBarButton> m_undockButton;
+    QPointer<TitleBarButton> m_closeButton;
     QBoxLayout *m_layout = nullptr;
     DockAreaWidget *m_dockArea = nullptr;
     DockAreaTabBar *m_tabBar = nullptr;
@@ -306,9 +306,9 @@ void DockAreaTitleBarPrivate::startFloating(const QPoint &offset)
     qApp->postEvent(m_dockArea, new QEvent((QEvent::Type) internal::g_dockedWidgetDragStartEvent));
 }
 
-TitleBarButton::TitleBarButton(bool visible, QWidget *parent)
+TitleBarButton::TitleBarButton(bool showInTitleBar, QWidget *parent)
     : TitleBarButtonType(parent)
-    , m_visible(visible)
+    , m_showInTitleBar(showInTitleBar)
     , m_hideWhenDisabled(
           DockAreaTitleBarPrivate::testConfigFlag(DockManager::DockAreaHideDisabledButtons))
 {
@@ -317,8 +317,8 @@ TitleBarButton::TitleBarButton(bool visible, QWidget *parent)
 
 void TitleBarButton::setVisible(bool visible)
 {
-    // 'visible' can stay 'true' if and only if this button is configured to generaly visible:
-    visible = visible && m_visible;
+    // 'visible' can stay 'true' if and only if this button is configured to generally visible:
+    visible = visible && m_showInTitleBar;
 
     // 'visible' can stay 'true' unless: this button is configured to be invisible when it
     // is disabled and it is currently disabled:
@@ -326,6 +326,14 @@ void TitleBarButton::setVisible(bool visible)
         visible = isEnabled();
 
     Super::setVisible(visible);
+}
+
+void TitleBarButton::setShowInTitleBar(bool show)
+{
+    m_showInTitleBar = show;
+
+    if (!show)
+        setVisible(false);
 }
 
 bool TitleBarButton::event(QEvent *event)
@@ -524,7 +532,7 @@ void DockAreaTitleBar::onAutoHideToActionClicked()
     d->m_dockArea->toggleAutoHide((SideBarLocation) location);
 }
 
-QAbstractButton *DockAreaTitleBar::button(eTitleBarButton which) const
+TitleBarButton *DockAreaTitleBar::button(eTitleBarButton which) const
 {
     switch (which) {
     case TitleBarButtonTabsMenu:
@@ -731,6 +739,21 @@ QString DockAreaTitleBar::titleBarButtonToolTip(eTitleBarButton button) const
         break;
     }
     return QString();
+}
+
+void DockAreaTitleBar::setAreaFloating()
+{
+    // If this is the last dock area in a dock container it does not make  sense to move it to
+    // a new floating widget and leave this one empty.
+    auto dockContainer = d->m_dockArea->dockContainer();
+    if (dockContainer->isFloating() && dockContainer->dockAreaCount() == 1
+        && !d->m_dockArea->isAutoHide())
+        return;
+
+    if (!d->m_dockArea->features().testFlag(DockWidget::DockWidgetFloatable))
+        return;
+
+    d->makeAreaFloating(mapFromGlobal(QCursor::pos()), DraggingInactive);
 }
 
 } // namespace ADS

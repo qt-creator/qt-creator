@@ -58,7 +58,6 @@ public:
     TabButton *m_closeButton = nullptr;
     QPoint m_tabDragStartPosition;
     QSize m_iconSize;
-    bool m_mousePressed = false;
 
     /**
      * Private data constructor
@@ -340,7 +339,6 @@ void DockWidgetTab::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         event->accept();
-        d->m_mousePressed = true;
         d->saveDragStartMousePosition(event->globalPosition().toPoint());
         d->m_dragState = DraggingMousePressed;
         if (DockManager::testConfigFlag(DockManager::FocusHighlighting)) {
@@ -356,7 +354,6 @@ void DockWidgetTab::mousePressEvent(QMouseEvent *event)
 void DockWidgetTab::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        d->m_mousePressed = false;
         auto currentDragState = d->m_dragState;
         d->m_globalDragStartMousePosition = QPoint();
         d->m_dragStartMousePosition = QPoint();
