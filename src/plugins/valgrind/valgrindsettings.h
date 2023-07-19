@@ -100,7 +100,6 @@ public:
     QVariantMap defaultSettings() const;
 };
 
-
 /**
  * Global valgrind settings
  */

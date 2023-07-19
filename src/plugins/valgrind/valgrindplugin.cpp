@@ -3,7 +3,6 @@
 
 #include "callgrindtool.h"
 #include "memchecktool.h"
-#include "valgrindconfigwidget.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
 

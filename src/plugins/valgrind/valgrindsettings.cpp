@@ -4,10 +4,13 @@
 #include "valgrindsettings.h"
 
 #include "callgrindcostdelegate.h"
-#include "valgrindconfigwidget.h"
 #include "valgrindtr.h"
 
 #include <coreplugin/icore.h>
+
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <debugger/analyzer/analyzericons.h>
+#include <debugger/debuggertr.h>
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -173,6 +176,14 @@ void SuppressionAspect::bufferToGui()
         d->m_model.appendRow(new QStandardItem(file.toUserOutput()));
 }
 
+// ValgrindConfigWidget
+
+
+QWidget *createSettingsWidget(ValgrindBaseSettings *settings)
+{
+    return settings->layouter()().emerge();
+}
+
 //////////////////////////////////////////////////////////////////
 //
 // ValgrindBaseSettings
@@ -316,6 +327,54 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     for (int i = 0; i < Valgrind::XmlProtocol::MemcheckErrorKindCount; ++i)
         defaultErrorKinds << i;
     visibleErrorKinds.setDefaultValue(defaultErrorKinds);
+
+    setLayouter([this] {
+        using namespace Layouting;
+
+        // clang-format off
+        Grid generic {
+            valgrindExecutable, br,
+            valgrindArguments, br,
+            selfModifyingCodeDetection, br
+        };
+
+        Grid memcheck {
+            memcheckArguments, br,
+            trackOrigins, br,
+            showReachable, br,
+            leakCheckOnFinish, br,
+            numCallers, br,
+            filterExternalIssues, br,
+            suppressions
+        };
+
+        Grid callgrind {
+            callgrindArguments, br,
+            kcachegrindExecutable, br,
+            minimumInclusiveCostRatio, br,
+            visualizationMinimumInclusiveCostRatio, br,
+            enableEventToolTips, br,
+            Span {
+                2,
+                Group {
+                    Column {
+                        enableCacheSim,
+                        enableBranchSim,
+                        collectSystime,
+                        collectBusEvents,
+                    }
+                }
+            }
+        };
+
+        return Column {
+            Group { title(Tr::tr("Valgrind Generic Settings")), generic },
+            Group { title(Tr::tr("Memcheck Memory Analysis Options")), memcheck },
+            Group { title(Tr::tr("Callgrind Profiling Options")), callgrind },
+            st,
+        };
+        // clang-format on
+    });
 }
 
 
@@ -356,8 +415,8 @@ ValgrindGlobalSettings::ValgrindGlobalSettings()
     shortenTemplates.setToolTip(Tr::tr("Remove template parameter lists when displaying function names."));
 
     setConfigWidgetCreator([this] { return createSettingsWidget(this); });
-    readSettings();
 
+    readSettings();
     setAutoApply(false);
 }
 
@@ -423,5 +482,26 @@ ValgrindProjectSettings::ValgrindProjectSettings()
         setAutoApply(true);
     });
 }
+
+//
+// ValgrindOptionsPage
+//
+
+class ValgrindOptionsPage final : public Core::IOptionsPage
+{
+public:
+    ValgrindOptionsPage()
+    {
+        setId(ANALYZER_VALGRIND_SETTINGS);
+        setDisplayName(Tr::tr("Valgrind"));
+        setCategory("T.Analyzer");
+        setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
+        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+        setSettingsProvider([] { return &globalSettings(); });
+    }
+};
+
+const ValgrindOptionsPage settingsPage;
+
 
 } // Valgrind::Internal
