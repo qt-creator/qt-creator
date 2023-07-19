@@ -339,7 +339,7 @@ void PropertyEditorValue::resetValue()
 
 void PropertyEditorValue::setEnumeration(const QString &scope, const QString &name)
 {
-    Enumeration newEnumeration(scope, name);
+    Enumeration newEnumeration(scope.toUtf8(), name.toUtf8());
 
     setValueWithEmit(QVariant::fromValue(newEnumeration));
 }
