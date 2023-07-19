@@ -680,6 +680,11 @@ QList<StaticAnalysis::Type> Check::defaultDisabledMessagesForNonQuickUi()
     return disabled;
 }
 
+bool Check::incompatibleDesignerQmlId(const QString &id)
+{
+    return idsThatShouldNotBeUsedInDesigner->contains(id);
+}
+
 Check::Check(Document::Ptr doc, const ContextPtr &context, Utils::QtcSettings *qtcSettings)
     : _doc(doc)
     , _context(context)
@@ -1099,7 +1104,7 @@ bool Check::visit(UiScriptBinding *ast)
             return false;
         }
 
-        if (idsThatShouldNotBeUsedInDesigner->contains(id)) {
+        if (incompatibleDesignerQmlId(id)) {
             addMessage(ErrInvalidIdeInVisualDesigner, loc);
         }
 
