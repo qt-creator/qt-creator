@@ -343,12 +343,10 @@ public:
         return BasicSmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
     }
 
-    // precondition: has to be null terminated
     bool contains(SmallStringView subStringToSearch) const
     {
-        const char *found = std::strstr(data(), subStringToSearch.data());
-
-        return found != nullptr;
+        return SmallStringView{*this}.find(subStringToSearch)
+               != SmallStringView::npos;
     }
 
     bool contains(char characterToSearch) const
