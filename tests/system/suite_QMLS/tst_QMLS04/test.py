@@ -48,14 +48,12 @@ def main():
         pass
     # open MyComponent.qml file for verification
     docOpened = openDocument(myCompTE)
-    if JIRA.isBugStillOpen(28985):
-        test.xverify(docOpened, "Was MyComponent.qml properly generated in project explorer?")
-        saveAndExit()
-        return
-    if not test.verify(docOpened, "Was MyComponent.qml properly generated in project explorer?"):
-        test.fatal("Could not open MyComponent.qml.")
-        saveAndExit()
-        return
+    # Work around QTCREATORBUG-28985
+    test.xverify(docOpened, "Was MyComponent.qml properly generated in project explorer?")
+    saveAndExit()
+    return
+    # The workaround will be removed in master branch
+    # Following dead code left in intentionally to still allow merging forward changes in it.
     editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     codeText = str(editorArea.plainText)
     # there should be Text item in new file

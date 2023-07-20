@@ -20,10 +20,11 @@ enum AccessMode {
     Registry64Mode = 0x4  // Corresponds to QSettings::Registry64Format (5.7)
 };
 
-static const char *debuggerApplicationFileC = "qtcdebugger";
-static const WCHAR *debuggerRegistryKeyC = L"Software\\Microsoft\\Windows NT\\CurrentVersion\\AeDebug";
-static const WCHAR *debuggerRegistryValueNameC = L"Debugger";
-static const WCHAR *autoRegistryValueNameC = L"Auto";
+constexpr const char debuggerApplicationFileC[] = "qtcdebugger";
+constexpr const WCHAR debuggerRegistryKeyC[]
+    = L"Software\\Microsoft\\Windows NT\\CurrentVersion\\AeDebug";
+constexpr const WCHAR debuggerRegistryValueNameC[] = L"Debugger";
+constexpr const WCHAR autoRegistryValueNameC[] = L"Auto";
 
 static inline QString wCharToQString(const WCHAR *w)
 {

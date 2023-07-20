@@ -246,7 +246,7 @@
     </message>
     <message>
         <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments or change the used tool chain here and rerun CMake. Or simply finish the wizard directly.</source>
-        <translation type="obsolete">目錄 %1 已存在一份足夠新的 cbp 檔。您可以在此傳送特殊引數，或是變更所使用的工具鍊，然後重新執行 CMake。或者您也可以直接結束此精靈。</translation>
+        <translation type="obsolete">目錄 %1 已存在一份足夠新的 cbp 檔。您可以在此傳送特殊引數，或是變更所使用的工具鏈，然後重新執行 CMake。或者您也可以直接結束此精靈。</translation>
     </message>
     <message>
         <source>The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. Some projects require command line arguments to the initial CMake call.</source>
@@ -315,7 +315,7 @@
     </message>
     <message>
         <source>&lt;b&gt;Unknown tool chain&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;未知的工具鍊&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;未知的工具鏈&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
@@ -3292,7 +3292,7 @@ at debugger startup.</source>
     </message>
     <message>
         <source>&amp;Tool chain:</source>
-        <translation type="obsolete">工具鍊(&amp;T)：</translation>
+        <translation type="obsolete">工具鏈(&amp;T)：</translation>
     </message>
     <message>
         <source>Break at &apos;&amp;main&apos;:</source>
@@ -3304,7 +3304,7 @@ at debugger startup.</source>
     </message>
     <message>
         <source>Tool &amp;chain:</source>
-        <translation type="obsolete">工具鍊(&amp;C)：</translation>
+        <translation type="obsolete">工具鏈(&amp;C)：</translation>
     </message>
     <message>
         <source>&amp;Host and port:</source>
@@ -4480,11 +4480,11 @@ Reason: %3</source>
     </message>
     <message>
         <source>Tool chain:</source>
-        <translation type="obsolete">工具鍊：</translation>
+        <translation type="obsolete">工具鏈：</translation>
     </message>
     <message>
         <source>&lt;Invalid tool chain&gt;</source>
-        <translation type="obsolete">&lt;無效的工具鍊&gt;</translation>
+        <translation type="obsolete">&lt;無效的工具鏈&gt;</translation>
     </message>
     <message>
         <source>Generic Manager</source>
@@ -5512,7 +5512,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Hide Sidebar</source>
-        <translation type="unfinished">隱藏邊列</translation>
+        <translation>隱藏側邊條</translation>
     </message>
     <message>
         <source>Increase Font Size</source>
@@ -7385,11 +7385,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>using Qt version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;with tool chain &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;building in &lt;b&gt;%3&lt;/b&gt;</source>
-        <translation type="obsolete">使用 Qt 版本：&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;和工具鍊 &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;在目錄 &lt;b&gt;%3&lt;/b&gt; 中建置</translation>
+        <translation type="obsolete">使用 Qt 版本：&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;和工具鏈 &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;在目錄 &lt;b&gt;%3&lt;/b&gt; 中建置</translation>
     </message>
     <message>
         <source>&lt;Invalid tool chain&gt;</source>
-        <translation type="obsolete">&lt;無效的工具鍊&gt;</translation>
+        <translation type="obsolete">&lt;無效的工具鏈&gt;</translation>
     </message>
     <message>
         <source>General</source>
@@ -7426,7 +7426,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>&lt;No tool chain selected&gt;</source>
-        <translation type="obsolete">&lt;沒有選擇工具鍊&gt;</translation>
+        <translation type="obsolete">&lt;沒有選擇工具鏈&gt;</translation>
     </message>
     <message>
         <source>An incompatible build exists in %1, which will be overwritten.</source>
@@ -7443,7 +7443,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Tool chain:</source>
-        <translation type="obsolete">工具鍊：</translation>
+        <translation type="obsolete">工具鏈：</translation>
     </message>
     <message>
         <source>Shadow build:</source>
@@ -7592,11 +7592,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator 需要先設定建置組態才能執行建置。請在專案模式下組態工具鍊。</translation>
+        <translation type="obsolete">Qt Creator 需要先設定建置組態才能執行建置。請在專案模式下組態工具鏈。</translation>
     </message>
     <message>
         <source>Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator 需要設置一個工具鍊才能建置。請在專案模式下組態工具鍊。</translation>
+        <translation type="obsolete">Qt Creator 需要設置一個工具鏈才能建置。請在專案模式下組態工具鏈。</translation>
     </message>
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
@@ -7685,7 +7685,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; The tool chain suggests using another mkspec.</source>
-        <translation type="obsolete">&lt;b&gt;警告：&lt;/b&gt; 工具鍊建議使用另一個 mkspec。</translation>
+        <translation type="obsolete">&lt;b&gt;警告：&lt;/b&gt; 工具鏈建議使用另一個 mkspec。</translation>
     </message>
     <message>
         <source>Enable QML debugging:</source>
@@ -13006,11 +13006,11 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Toggle &amp;Left Sidebar</source>
-        <translation>切換左邊欄(&amp;L)</translation>
+        <translation>切換左側邊條(&amp;L)</translation>
     </message>
     <message>
         <source>Toggle &amp;Right Sidebar</source>
-        <translation>切換右邊欄(&amp;R)</translation>
+        <translation>切換右側邊條(&amp;R)</translation>
     </message>
     <message>
         <source>Projects</source>
@@ -13411,7 +13411,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>ABI detection failed: Make sure to use a matching tool chain when building.</source>
-        <translation type="obsolete">ABI 偵測失敗：請確認使用的工具鍊是否正確。</translation>
+        <translation type="obsolete">ABI 偵測失敗：請確認使用的工具鏈是否正確。</translation>
     </message>
     <message>
         <source>No qmlscene installed.</source>
@@ -13466,7 +13466,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     <message>
         <source>Building helper(s) with toolchain &apos;%1&apos;...
 </source>
-        <translation>正在使用工具鍊 &apos;%1&apos; 建置小助手...
+        <translation>正在使用工具鏈 &apos;%1&apos; 建置小助手...
 </translation>
     </message>
     <message>
@@ -13769,11 +13769,11 @@ with a password, which you can enter below.</source>
     </message>
     <message>
         <source>The Symbian tool chain does not handle spaces in the project path &apos;%1&apos;.</source>
-        <translation type="obsolete">Symbian 工具鍊不能處理在專案路徑 &apos;%1&apos; 中的空白。</translation>
+        <translation type="obsolete">Symbian 工具鏈不能處理在專案路徑 &apos;%1&apos; 中的空白。</translation>
     </message>
     <message>
         <source>The Symbian tool chain does not handle special characters in the project name &apos;%1&apos; well.</source>
-        <translation type="obsolete">Symbian 的工具鍊不能處理專案名稱 &apos;%1&apos; 中的特殊字元。</translation>
+        <translation type="obsolete">Symbian 的工具鏈不能處理專案名稱 &apos;%1&apos; 中的特殊字元。</translation>
     </message>
 </context>
 <context>
@@ -14917,11 +14917,11 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Hide Sidebar</source>
-        <translation>隱藏邊列</translation>
+        <translation>隱藏側邊條</translation>
     </message>
     <message>
         <source>Show Sidebar</source>
-        <translation>顯示邊列</translation>
+        <translation>顯示側邊條</translation>
     </message>
 </context>
 <context>
@@ -15671,7 +15671,7 @@ instead of its installation directory when run outside git bash.</source>
     <name>QtC::Help</name>
     <message>
         <source>Show Sidebar</source>
-        <translation>顯示邊列</translation>
+        <translation>顯示側邊條</translation>
     </message>
     <message>
         <source>Qt Creator Offline Help</source>
@@ -18977,15 +18977,15 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>The following tool chain was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
-        <translation type="obsolete">已組態以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次組態。</translation>
+        <translation type="obsolete">已組態以下工具鏈：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次組態。</translation>
     </message>
     <message>
         <source>Duplicate Tool Chains detected</source>
-        <translation type="obsolete">偵測到工具鍊有重複</translation>
+        <translation type="obsolete">偵測到工具鏈有重複</translation>
     </message>
     <message>
         <source>The following tool chains were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation type="obsolete">已組態以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次組態。</translation>
+        <translation type="obsolete">已組態以下工具鏈：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次組態。</translation>
     </message>
 </context>
 <context>
@@ -20328,7 +20328,7 @@ if (a &amp;&amp;
     </message>
     <message>
         <source>Tool chain:</source>
-        <translation type="obsolete">工具鍊：</translation>
+        <translation type="obsolete">工具鏈：</translation>
     </message>
     <message>
         <source>Compiler:</source>
@@ -21416,7 +21416,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>No valid tool chain has been detected.&lt;br&gt;Define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
-        <translation type="obsolete">沒有偵測到有效的工具鍊。&lt;br&gt;請在「選項」─「工具鍊」中定義一個正確的工具鍊</translation>
+        <translation type="obsolete">沒有偵測到有效的工具鏈。&lt;br&gt;請在「選項」─「工具鏈」中定義一個正確的工具鏈</translation>
     </message>
     <message>
         <source>Choose a build configuration:</source>
@@ -21424,7 +21424,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Choose a tool chain:</source>
-        <translation type="obsolete">選擇一個工具鍊：</translation>
+        <translation type="obsolete">選擇一個工具鏈：</translation>
     </message>
     <message>
         <source>Launching</source>
@@ -21562,11 +21562,11 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>No tool chain can produce code for this Qt version. Please define one or more tool chains.</source>
-        <translation type="obsolete">沒有這個 Qt 版本使用的工具鍊。請定義一個或更多工具鍊。</translation>
+        <translation type="obsolete">沒有這個 Qt 版本使用的工具鏈。請定義一個或更多工具鏈。</translation>
     </message>
     <message>
         <source>Not all possible target environments can be supported due to missing tool chains.</source>
-        <translation type="obsolete">因為缺少工具鍊，所以不是所有的目標平台都能被支援。</translation>
+        <translation type="obsolete">因為缺少工具鏈，所以不是所有的目標平台都能被支援。</translation>
     </message>
     <message>
         <source>The following ABIs are currently not supported:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</source>
@@ -26093,11 +26093,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Tool chain:</source>
-        <translation type="obsolete">工具鍊：</translation>
+        <translation type="obsolete">工具鏈：</translation>
     </message>
     <message>
         <source>&lt;Invalid tool chain&gt;</source>
-        <translation type="obsolete">&lt;無效的工具鍊&gt;</translation>
+        <translation type="obsolete">&lt;無效的工具鏈&gt;</translation>
     </message>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
@@ -26174,7 +26174,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>&lt;b&gt;Unknown tool chain&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;未知的工具鍊&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;未知的工具鏈&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -26650,7 +26650,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
     <message>
         <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses the Qt version: &lt;b&gt;%2&lt;/b&gt; and the tool chain: &lt;b&gt;%3&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;options.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;專案 &lt;b&gt;%1&lt;/b&gt;還沒組態。&lt;/p&gt;&lt;p&gt;Qt Creator 使用的 Qt 版本： &lt;b&gt;%2&lt;/b&gt; 和工具鍊： &lt;b&gt;%3&lt;/b&gt; 來解析專案。 你可以編輯這些 &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;選項.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;專案 &lt;b&gt;%1&lt;/b&gt;還沒組態。&lt;/p&gt;&lt;p&gt;Qt Creator 使用的 Qt 版本： &lt;b&gt;%2&lt;/b&gt; 和工具鏈： &lt;b&gt;%3&lt;/b&gt; 來解析專案。 你可以編輯這些 &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;選項.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Qt Version:</source>
@@ -26658,7 +26658,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
     <message>
         <source>Tool Chain:</source>
-        <translation type="obsolete">工具鍊：</translation>
+        <translation type="obsolete">工具鏈：</translation>
     </message>
 </context>
 <context>

@@ -4,7 +4,6 @@
 #include "exampleslistmodel.h"
 
 #include "examplesparser.h"
-#include "qtsupporttr.h"
 
 #include <QBuffer>
 #include <QApplication>
@@ -324,57 +323,6 @@ static bool isValidExampleOrDemo(ExampleItem *item)
     if (debugExamples() && item->description.isEmpty())
         qWarning() << QString::fromLatin1("WARNING: Item \"%1\" has no description").arg(item->name);
     return ok || debugExamples();
-}
-
-static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
-{
-    if (first->isHighlighted && !second->isHighlighted)
-        return true;
-    if (!first->isHighlighted && second->isHighlighted)
-        return false;
-    return first->name.compare(second->name, Qt::CaseInsensitive) < 0;
-}
-
-static QList<std::pair<QString, QList<ExampleItem *>>> getCategories(
-    const QList<ExampleItem *> &items, bool sortIntoCategories)
-{
-    static const QString otherDisplayName = Tr::tr("Other", "Category for all other examples");
-    const bool useCategories = sortIntoCategories
-                               || qtcEnvironmentVariableIsSet("QTC_USE_EXAMPLE_CATEGORIES");
-    QList<ExampleItem *> other;
-    QMap<QString, QList<ExampleItem *>> categoryMap;
-    if (useCategories) {
-        for (ExampleItem *item : items) {
-            const QStringList itemCategories = item->metaData.value("category");
-            for (const QString &category : itemCategories)
-                categoryMap[category].append(item);
-            if (itemCategories.isEmpty())
-                other.append(item);
-        }
-    }
-    QList<std::pair<QString, QList<ExampleItem *>>> categories;
-    if (categoryMap.isEmpty()) {
-        // The example set doesn't define categories. Consider the "highlighted" ones as "featured"
-        QList<ExampleItem *> featured;
-        QList<ExampleItem *> allOther;
-        std::tie(featured, allOther) = Utils::partition(items, [](ExampleItem *i) {
-            return i->isHighlighted;
-        });
-        if (!featured.isEmpty())
-            categories.append({Tr::tr("Featured", "Category for highlighted examples"), featured});
-        if (!allOther.isEmpty())
-            categories.append({otherDisplayName, allOther});
-    } else {
-        const auto end = categoryMap.constKeyValueEnd();
-        for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it)
-            categories.append(*it);
-        if (!other.isEmpty())
-            categories.append({otherDisplayName, other});
-    }
-    const auto end = categories.end();
-    for (auto it = categories.begin(); it != end; ++it)
-        sort(it->second, sortByHighlightedAndName);
-    return categories;
 }
 
 void ExamplesViewController::updateExamples()

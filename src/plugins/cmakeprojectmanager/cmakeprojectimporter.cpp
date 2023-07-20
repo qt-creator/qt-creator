@@ -330,6 +330,7 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     FilePath cmakeExecutable = config.filePathValueOf(QByteArray("CMAKE_COMMAND"));
     FilePath cmakeMakeProgram = config.filePathValueOf(QByteArray("CMAKE_MAKE_PROGRAM"));
     FilePath hostPath = config.filePathValueOf(QByteArray("QT_HOST_PATH"));
+    const QString findRootPath = config.stringValueOf("CMAKE_FIND_ROOT_PATH");
 
     QStringList args;
     args.push_back("-S");
@@ -350,12 +351,15 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     if (!cmakeMakeProgram.isEmpty()) {
         args.push_back(QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram.toString()));
     }
-    if (toolchainFile.isEmpty()) {
-        args.push_back(QStringLiteral("-DCMAKE_PREFIX_PATH=%1").arg(prefixPath));
-    } else {
-        if (!prefixPath.isEmpty())
-            args.push_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(prefixPath));
+
+    if (!toolchainFile.isEmpty()) {
         args.push_back(QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile.toString()));
+    }
+    if (!prefixPath.isEmpty()) {
+        args.push_back(QStringLiteral("-DCMAKE_PREFIX_PATH=%1").arg(prefixPath));
+    }
+    if (!findRootPath.isEmpty()) {
+        args.push_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(findRootPath));
     }
     if (!hostPath.isEmpty()) {
         args.push_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(hostPath.toString()));

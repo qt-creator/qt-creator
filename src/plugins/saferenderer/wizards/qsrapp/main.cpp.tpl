@@ -28,23 +28,23 @@ int main(int argc, char *argv[])
     static SafeRenderer::QSafeLayoutResourceReader layout("/layoutData/main/main.srl");
 
 #if defined(USE_OUTPUTVERIFIER)
-    static OutputVerifier outputVerifier;
+    static SafeRenderer::OutputVerifier outputVerifier;
 #if defined(HOST_BUILD)
     //In host environment the TestVerifier must be explicitly created.
     //In OpeWFD adaptation the MISRVerifier instance is created in the SafeWindow adaptation.
-    static TestVerifier testVerifier(outputVerifier);
+    static SafeRenderer::TestVerifier testVerifier(outputVerifier);
 #endif
-    SafeWindow telltaleWindow(layout.size(), QSafePoint(0U, 0U), outputVerifier);
+    SafeRenderer::SafeWindow telltaleWindow(layout.size(), SafeRenderer::QSafePoint(0U, 0U), outputVerifier);
 #else
-    SafeWindow telltaleWindow(layout.size(), QSafePoint(0U, 0U));
+    SafeRenderer::SafeWindow telltaleWindow(layout.size(), SafeRenderer::QSafePoint(0U, 0U));
 #endif
     static SafeRenderer::StateManager stateManager(telltaleWindow, layout);
     telltaleWindow.requestUpdate(); //Request is required because eventHandler is not running yet.
 
 #if defined(USE_OUTPUTVERIFIER)
-    EventHandler msgHandler(stateManager, telltaleWindow, outputVerifier);
+    SafeRenderer::EventHandler msgHandler(stateManager, telltaleWindow, outputVerifier);
 #else
-    EventHandler msgHandler(stateManager, telltaleWindow);
+    SafeRenderer::EventHandler msgHandler(stateManager, telltaleWindow);
 #endif
 
 #if defined(HOST_BUILD)

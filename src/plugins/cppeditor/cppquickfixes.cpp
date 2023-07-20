@@ -3697,6 +3697,7 @@ public:
         GenerateProperty = 1 << 5,
         GenerateConstantProperty = 1 << 6,
         HaveExistingQProperty = 1 << 7,
+        Invalid = -1,
     };
 
     GenerateGetterSetterOp(const CppQuickFixInterface &interface,
@@ -4394,7 +4395,7 @@ public:
     };
     using Flag = GenerateGetterSetterOp::GenerateFlag;
     constexpr static Flag ColumnFlag[] = {
-        static_cast<Flag>(-1),
+        Flag::Invalid,
         Flag::GenerateGetter,
         Flag::GenerateSetter,
         Flag::GenerateSignal,

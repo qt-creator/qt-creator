@@ -1,0 +1,230 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
+    "id": "V.QtQuickApplicationEmptyCompat",
+    "category": "D.ApplicationQt",
+    "trDescription": "Creates a Qt Quick application that contains an empty window.\n\nUse this \"compat\" version if you want to use other build systems than CMake or Qt versions lower than 6.",
+    "trDisplayName": "Qt Quick Application (compat)",
+    "trDisplayCategory": "Application (Qt)",
+    "icon": "icon.png",
+    "iconKind": "Themed",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt.5.6" ],
+    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'qmake' ? value('ProFile') : (value('BuildSystem') === 'cmake' ? value('CMakeFile') : value('QbsFile'))}" },
+        { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
+        { "key": "QbsFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qbs')}" },
+        { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "IsQt6", "value": "%{JS: value('QtVersion').IsQt6}" },
+        { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
+        { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
+        { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
+        { "key": "QtQuickVirtualKeyboardImport", "value": "%{JS: value('QtVersion').QtQuickVirtualKeyboardImport}" },
+        { "key": "QtQuickFeature", "value": "%{JS: (value('QtQuickVersion')=='') ? 'QtSupport.Wizards.FeatureQt.6.2' : 'QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}'}" },
+        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
+        { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
+        { "key": "SetQPAPhysicalSize", "value": "%{UseVirtualKeyboardByDefault}" },
+        { "key": "AdditionalQmlFiles", "value": "" },
+        { "key": "AdditionalQmlFilesQbs", "value": "" },
+        { "key": "TargetName", "value": "%{JS: 'app' + value('ProjectName')}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Define Build System",
+            "trShortTitle": "Build System",
+            "typeId": "Fields",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data":
+            [
+                {
+                    "name": "BuildSystem",
+                    "trDisplayName": "Build system:",
+                    "type": "ComboBox",
+                    "persistenceKey": "BuildSystemType",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "qmake",
+                                "value": "qmake",
+                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "CMake",
+                                "value": "cmake",
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "Qbs",
+                                "value": "qbs",
+                                "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "QtVersion",
+                    "trDisplayName": "Minimum required Qt version:",
+                    "type": "ComboBox",
+                    "persistenceKey": "QtQuick.minimumQtVersion",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt 6.2",
+                                "value":
+                                {
+                                    "QtQuickVersion": "",
+                                    "QtQuickWindowVersion": "",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard",
+                                    "IsQt6": true
+                                }
+                            },
+                            {
+                                "trKey": "Qt 5.15",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.15",
+                                    "QtQuickWindowVersion": "2.15",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.15",
+                                    "IsQt6": false
+                                }
+                            },
+                            {
+                                "trKey": "Qt 5.14",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.14",
+                                    "QtQuickWindowVersion": "2.14",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.14",
+                                    "IsQt6": false
+                                }
+                            },
+                            {
+                                "trKey": "Qt 5.13",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.13",
+                                    "QtQuickWindowVersion": "2.13",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4",
+                                    "IsQt6": false
+                                }
+                            },
+                            {
+                                "trKey": "Qt 5.12",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.12",
+                                    "QtQuickWindowVersion": "2.12",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4",
+                                    "IsQt6": false
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "UseVirtualKeyboard",
+                    "trDisplayName": "Use Qt Virtual Keyboard",
+                    "type": "CheckBox",
+                    "persistenceKey": "QtQuick.UseVirtualKeyboard.%{UseVirtualKeyboardByDefault}",
+                    "data":
+                    {
+                        "checked": "%{UseVirtualKeyboardByDefault}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Translation File",
+            "trShortTitle": "Translation",
+            "typeId": "QtTranslation"
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data": {
+                "projectFilePath": "%{ProjectFile}",
+                "requiredFeatures": [ "QtSupport.Wizards.FeatureQt", "%{QtQuickFeature}" ]
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "../app.pro",
+                    "target": "%{ProFile}",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'qmake'}"
+                },
+                {
+                    "source": "%{JS: value('QtVersion').IsQt6 ? '../CMakeLists.6.x.txt' : '../CMakeLists.txt'}",
+                    "target": "CMakeLists.txt",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'cmake'}"
+                },
+                {
+                    "source": "../app.qbs",
+                    "target": "%{QbsFile}",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'qbs'}"
+                },
+                {
+                    "source": "../main.cpp",
+                    "target": "%{MainCppFileName}"
+                },
+                {
+                    "source": "main.qml.tpl",
+                    "target": "main.qml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "qml.qrc",
+                    "condition": "%{JS: !value('QtVersion').IsQt6}"
+                },
+                {
+                    "source": "../../translation.ts",
+                    "target": "%{TsFileName}",
+                    "condition": "%{HasTranslation}"
+                },
+                {
+                    "source": "../../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

@@ -42,8 +42,14 @@ def performAutoCompletionTest(editor, lineToStartRegEx, linePrefix, testFunc, *f
 def checkIncludeCompletion(editor, isClangCodeModel):
     test.log("Check auto-completion of include statements.")
     # define special handlings
-    noProposal = ["detail/hea"]
+    noProposal = []
     specialHandling = {"ios":"iostream", "cstd":"cstdio"}
+    if isClangCodeModel:
+        specialHandling["QDe"] = "QDebug"
+        for i in specialHandling.keys():
+            specialHandling[i] = " %s>" % specialHandling[i]
+    else:
+        noProposal += ["detail/hea"]
 
     # define test function to perform the _real_ auto completion test on the current line
     def testIncl(currentLine, *args):
@@ -69,25 +75,24 @@ def checkIncludeCompletion(editor, isClangCodeModel):
 def checkSymbolCompletion(editor, isClangCodeModel):
     test.log("Check auto-completion of symbols.")
     # define special handlings
-    expectedSuggestion = {"in":["internal", "int", "INT_MAX", "INT_MIN"],
+    expectedSuggestion = {"in":["internal", "int", "intmax_t"],
                           "Dum":["Dummy", "dummy"], "Dummy::O":["ONE","one"],
-                          "dummy.":["foo", "bla", "ONE", "one", "PI", "sfunc", "v1", "v2", "v3"],
+                          "dummy.":["one", "ONE", "PI", "v1", "v2", "v3"],
                           "dummy.o":["one", "ONE"], "Dummy::In":["Internal", "INT"],
                           "Dummy::Internal::":["DOUBLE", "one"]
                           }
     missing = ["Dummy::s", "Dummy::P", "dummy.b", "dummy.bla(", "internal.o", "freefunc2"]
-    expectedResults = {"dummy.":"dummy.foo(", "Dummy::s":"Dummy::sfunc()",
+    expectedResults = {"Dummy::s":"Dummy::sfunc()",
                        "Dummy::P":"Dummy::PI", "dummy.b":"dummy.bla(", "dummy.bla(":"dummy.bla(",
                        "internal.o":"internal.one", "freefunc2":"freefunc2(",
                        "using namespace st":"using namespace std", "afun":"afunc()"}
     if isClangCodeModel:
-        missing.remove("internal.o")
-        expectedSuggestion["in"] = ["internal", "int"]  #     QTCREATORBUG-22728
-        expectedSuggestion["internal.o"] = ["one", "operator="]
+        missing = ["dummy.bla("]
+        expectedSuggestion["internal.o"] = ["one"]
         if platform.system() in ('Microsoft', 'Windows'):
             expectedSuggestion["using namespace st"] = ["std", "stdext"]
         else:
-            expectedSuggestion["using namespace st"] = ["std", "struct ", "struct template"]
+            expectedSuggestion["using namespace st"] = ["std", "struct", "struct template"]
     else:
         expectedSuggestion["using namespace st"] = ["std", "st"]
     # define test function to perform the _real_ auto completion test on the current line
@@ -101,27 +106,25 @@ def checkSymbolCompletion(editor, isClangCodeModel):
         found = []
         if propShown:
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')
-            found = dumpItems(proposalListView.model())
+            found = [i.strip() for i in dumpItems(proposalListView.model())]
             diffShownExp = set(expectedSug.get(symbol, [])) - set(found)
             if not test.verify(len(diffShownExp) == 0,
                                "Verify if all expected suggestions could be found"):
                 test.log("Expected but not found suggestions: %s" % diffShownExp,
                          "%s | %s" % (expectedSug[symbol], str(found)))
             # select first item of the expected suggestion list
-            doubleClickItem(':popupFrame_Proposal_QListView', expectedSug.get(symbol, found)[0],
+            suggestionToClick = expectedSug.get(symbol, found)[0]
+            if isClangCodeModel:
+                suggestionToClick = " " + suggestionToClick
+            doubleClickItem(':popupFrame_Proposal_QListView', suggestionToClick,
                             5, 5, 0, Qt.LeftButton)
         changedLine = str(lineUnderCursor(editor)).strip()
         if symbol in expectedRes:
             exp = expectedRes[symbol]
         else:
             exp = (symbol[:max(symbol.rfind(":"), symbol.rfind(".")) + 1]
-                   + expectedSug.get(symbol, found)[0])
-        if isClangCodeModel and changedLine != exp and JIRA.isBugStillOpen(15483):
-            test.xcompare(changedLine, exp, "Verify completion matches (QTCREATORBUG-15483).")
-            test.verify(changedLine.startswith(exp.replace("(", "").replace(")", "")),
-                        "Verify completion starts with expected string.")
-        else:
-            test.compare(changedLine, exp, "Verify completion matches.")
+                   + expectedSug.get(symbol, found)[0]).strip()
+        test.compare(changedLine, exp, "Verify completion matches.")
 
     performAutoCompletionTest(editor, ".*Complete symbols.*", "//",
                               testSymb, missing, expectedSuggestion, expectedResults)
@@ -143,6 +146,10 @@ def main():
                 return
             editor = getEditorForFileSuffix("main.cpp")
             if editor:
+                if useClang:
+                    test.log("Wait for parsing to finish...")
+                    progressBarWait(15000)
+                    test.log("Parsing done.")
                 checkIncludeCompletion(editor, useClang)
                 checkSymbolCompletion(editor, useClang)
                 invokeMenuItem('File', 'Revert "main.cpp" to Saved')

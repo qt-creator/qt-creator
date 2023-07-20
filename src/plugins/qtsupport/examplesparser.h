@@ -44,6 +44,9 @@ QTSUPPORT_EXPORT Utils::expected_str<QList<ExampleItem *>> parseExamples(
     const Utils::FilePath &demosInstallPath,
     bool examples);
 
+QTSUPPORT_TEST_EXPORT QList<std::pair<QString, QList<ExampleItem *>>> getCategories(
+    const QList<ExampleItem *> &items, bool sortIntoCategories);
+
 } // namespace QtSupport::Internal
 
 Q_DECLARE_METATYPE(QtSupport::Internal::ExampleItem *)

@@ -40,6 +40,9 @@ public:
     bool isTemporarilyReadOnly() const;
     void setTemporarilyReadOnly(bool on);
 
+    bool isAdditionalTabDisabled() const;
+    void setIsAdditionalTabDisabled(bool on);
+
     void setTabSettings(const TabSettings &settings);
     TabSettings tabSettings() const;
     TabSettings currentTabSettings() const;

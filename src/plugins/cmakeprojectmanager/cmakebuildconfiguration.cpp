@@ -54,7 +54,6 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
 #include <utils/detailswidget.h>
-#include <utils/headerviewstretcher.h>
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
@@ -68,6 +67,7 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QGridLayout>
+#include <QHeaderView>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMessageBox>
@@ -250,7 +250,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     m_configView->setUniformRowHeights(true);
     m_configView->setSortingEnabled(true);
     m_configView->sortByColumn(0, Qt::AscendingOrder);
-    (void) new HeaderViewStretcher(m_configView->header(), 0);
+    m_configView->header()->setSectionResizeMode(QHeaderView::Stretch);
     m_configView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setAlternatingRowColors(true);
@@ -1468,10 +1468,18 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         // Android magic:
         if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
+            auto addUniqueKeyToCmd = [&cmd] (const QString &prefix, const QString &value) -> bool {
+                const bool isUnique =
+                    !Utils::contains(cmd.splitArguments(), [&prefix] (const QString &arg) {
+                                                               return arg.startsWith(prefix); });
+                if (isUnique)
+                    cmd.addArg(prefix + value);
+                return isUnique;
+            };
             buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
-            const auto &bs = buildSteps()->steps().constLast();
-            cmd.addArg("-DANDROID_PLATFORM:STRING="
-                   + bs->data(Android::Constants::AndroidNdkPlatform).toString());
+            const auto bs = buildSteps()->steps().constLast();
+            addUniqueKeyToCmd("-DANDROID_PLATFORM:STRING=",
+                              bs->data(Android::Constants::AndroidNdkPlatform).toString());
             auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();
             cmd.addArg("-DANDROID_NDK:PATH=" + ndkLocation.path());
 

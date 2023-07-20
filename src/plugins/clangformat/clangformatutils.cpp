@@ -171,9 +171,7 @@ clang::format::FormatStyle qtcStyle()
     style.SpacesInCStyleCastParentheses = false;
     style.SpacesInParentheses = false;
     style.SpacesInSquareBrackets = false;
-    style.StatementMacros.emplace_back("Q_OBJECT");
-    style.StatementMacros.emplace_back("QT_BEGIN_NAMESPACE");
-    style.StatementMacros.emplace_back("QT_END_NAMESPACE");
+    addQtcStatementMacros(style);
     style.Standard = FormatStyle::LS_Cpp11;
     style.TabWidth = 4;
     style.UseTab = FormatStyle::UT_Never;
@@ -215,10 +213,9 @@ bool getCurrentOverriddenSettings(const Utils::FilePath &filePath)
     const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
         filePath);
 
-    return getProjectUseGlobalSettings(project) ? !TextEditor::TextEditorSettings::codeStyle("Cpp")
-                                                       ->currentPreferences()
-                                                       ->isTemporarilyReadOnly()
-                                                : getProjectOverriddenSettings(project);
+    return getProjectUseGlobalSettings(project)
+               ? ClangFormatSettings::instance().overrideDefaultFile()
+               : getProjectOverriddenSettings(project);
 }
 
 ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
@@ -278,9 +275,44 @@ Utils::FilePath configForFile(const Utils::FilePath &fileName)
 
 void addQtcStatementMacros(clang::format::FormatStyle &style)
 {
-    static const std::vector<std::string> macros = {"Q_OBJECT",
+    static const std::vector<std::string> macros = {"Q_CLASSINFO",
+                                                    "Q_ENUM",
+                                                    "Q_ENUM_NS",
+                                                    "Q_FLAG",
+                                                    "Q_FLAG_NS",
+                                                    "Q_GADGET",
+                                                    "Q_GADGET_EXPORT",
+                                                    "Q_INTERFACES",
+                                                    "Q_MOC_INCLUDE",
+                                                    "Q_NAMESPACE",
+                                                    "Q_NAMESPACE_EXPORT",
+                                                    "Q_OBJECT",
+                                                    "Q_PROPERTY",
+                                                    "Q_REVISION",
+                                                    "Q_DISABLE_COPY",
+                                                    "Q_SET_OBJECT_NAME",
                                                     "QT_BEGIN_NAMESPACE",
-                                                    "QT_END_NAMESPACE"};
+                                                    "QT_END_NAMESPACE",
+
+                                                    "QML_ADDED_IN_MINOR_VERSION",
+                                                    "QML_ANONYMOUS",
+                                                    "QML_ATTACHED",
+                                                    "QML_DECLARE_TYPE",
+                                                    "QML_DECLARE_TYPEINFO",
+                                                    "QML_ELEMENT",
+                                                    "QML_EXTENDED",
+                                                    "QML_EXTENDED_NAMESPACE",
+                                                    "QML_EXTRA_VERSION",
+                                                    "QML_FOREIGN",
+                                                    "QML_FOREIGN_NAMESPACE",
+                                                    "QML_IMPLEMENTS_INTERFACES",
+                                                    "QML_INTERFACE",
+                                                    "QML_NAMED_ELEMENT",
+                                                    "QML_REMOVED_IN_MINOR_VERSION",
+                                                    "QML_SINGLETON",
+                                                    "QML_UNAVAILABLE",
+                                                    "QML_UNCREATABLE",
+                                                    "QML_VALUE_TYPE"};
     for (const std::string &macro : macros) {
         if (std::find(style.StatementMacros.begin(), style.StatementMacros.end(), macro)
             == style.StatementMacros.end())

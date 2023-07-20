@@ -38,22 +38,26 @@
     The process of setting up debugging for Qt Quick projects depends on the
     \l{Creating Qt Quick Projects}{type of the project}: Qt Quick UI or Qt Quick
     Application, and the Qt version used.
+
+    \section2 Debugging Qt Quick UI Projects
     \endif
 
-    To debug Qt Quick UI projects, select the \uicontrol {Enable QML} check box in the
-    \uicontrol {Debugger Settings} in \uicontrol Projects mode \uicontrol {Run Settings}.
+    To debug Qt Quick UI projects (.qmlproject), select the
+    \uicontrol {Enable QML} check box in \uicontrol {Debugger settings}
+    in \uicontrol Projects mode \uicontrol {Run Settings}.
 
     \if defined(qtcreator)
+    \section2 Debugging Qt Quick Applications
+
     To debug Qt Quick Applications:
 
         \list 1
 
-        \li If you use qmake as the build system, make sure that
-            debugging is enabled in the \uicontrol {Build Settings},
-            \uicontrol {QML debugging and profiling} field, either
-            explicitly for the project or globally by default.
+        \li To create a build configuration that supports QML debugging,
+            select \uicontrol {Projects} > \uicontrol {Build} >
+            \uicontrol {QML debugging and profiling} > \uicontrol Enable.
 
-            \image qtcreator-projectpane.png "qmake general build settings pane"
+            \image qtcreator-build-settings-cmake-configure.webp {Build settings for a CMake project}
 
             \note Debugging requires opening a socket at a TCP port,
             which presents a security risk. Anyone on the Internet could connect
@@ -61,9 +65,9 @@
             functions. Therefore, you must make sure that the port is properly
             protected by a firewall.
 
-        \li In the \uicontrol {Run Settings}, \uicontrol {Debugger Settings} section, select
-            the \uicontrol {Enable QML} check box to enable
-            QML debugging.
+        \li In \uicontrol {Run Settings} > \uicontrol {Debugger settings}, select
+            the \uicontrol {Enable QML} check box to enable QML debugging for
+            running applications.
 
         \li Select \uicontrol Build > \uicontrol {Rebuild Project} to clean and
             rebuild the project.
@@ -79,6 +83,43 @@
     automatically installed during \QC and Qt installation. Do not delete
     them if you plan to debug QML applications.
 
+    \section2 Using Default Values
+
+    You can enable or disable QML debugging globally in \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol {Build & Run} >
+    \uicontrol {Default Build Properties}.
+
+    \image qtcreator-build-settings-default.png "Default Build Properties tab in Build & Run Preferences"
+
+    The value of the \uicontrol {QML debugging} field determines what happens
+    when creating new build configurations. The values \uicontrol Enable
+    and \uicontrol Disable explicitly set QML debugging for the new build
+    configuration to that value, regardless of what type of build
+    configuration you create.
+
+    \uicontrol {Use Project Default} makes the values depend on the type of
+    build configuration: \uicontrol Debug, \uicontrol Profile, or
+    \uicontrol Release. When you use \l {CMake Build Configuration}{CMake} or
+    \l {qmake Build Configuration}{qmake} as a build system, debug and profile
+    build configurations have QML debugging enabled. However, release build
+    configurations do not include QML debugging because the debugging feature
+    makes applications vulnerable.
+
+    The \uicontrol {Leave at Default} option in \uicontrol {Projects} >
+    \uicontrol {Build} > \uicontrol {QML debugging and profiling} is needed to keep existing,
+    already configured CMake build directories intact. Also, it
+    enables you to import an existing build into \QC without enforced changes,
+    so that you don't have to worry about a complete rebuild of the project, for
+    example. Even if you later change the configuration of the build outside of
+    \QC, it will be kept as you want it.
+
+    There are some known issues in the interaction between the global setting
+    in \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run} >
+    \uicontrol {Default Build Properties} and the build configuration.
+    For example, for qmake the global setting only affects build configurations
+    that are automatically created when enabling a kit. Also, CMake ignores the
+    global setting.
+
     \section1 Mixed C++/QML Debugging
 
     To debug both the C++ and QML parts of your application at the same time,
@@ -87,7 +128,7 @@
     \uicontrol{Run Settings}.
     \endif
 
-    \image qtquick-debugging-settings.png
+    \image qtquick-debugging-settings.png {Debugger settings section in Run Settings}
 
     \section1 Starting QML Debugging
 

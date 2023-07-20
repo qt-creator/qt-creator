@@ -133,7 +133,7 @@ void TextMark::paintAnnotation(QPainter &painter,
     const QColor &markColor = annotationColor();
 
     const FontSettings &fontSettings = m_baseTextDocument->fontSettings();
-    const AnnotationColors &colors = AnnotationColors::getAnnotationColors(
+    const AnnotationColors colors = AnnotationColors::getAnnotationColors(
                 markColor.isValid() ? markColor : painter.pen().color(),
                 fontSettings.toTextCharFormat(C_TEXT).background().color());
 

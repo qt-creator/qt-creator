@@ -149,7 +149,8 @@ QTextCursor CppQuickFixInterface::adjustedCursor()
 QuickFixOperations quickFixOperations(const TextEditor::AssistInterface *interface)
 {
     const auto cppInterface = dynamic_cast<const CppQuickFixInterface *>(interface);
-    QTC_ASSERT(cppInterface, return {});
+    if (!cppInterface)
+        return {};
     QuickFixOperations quickFixes;
     for (CppQuickFixFactory *factory : CppQuickFixFactory::cppQuickFixFactories())
         factory->match(*cppInterface, quickFixes);

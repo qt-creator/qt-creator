@@ -15,8 +15,8 @@
     \title Creating a Qt Widget Based Application
 
     This tutorial describes how to use \QC to create a small Qt application,
-    Text Finder. It is a simplified version of the Qt UI Tools \l{Text Finder
-    Example}. We use \QD to construct the application user interface from
+    Text Finder. It is a simplified version of the Qt UI Tools \l{Text Finder}
+    example. You'll use \QD to construct the application user interface from
     Qt widgets and the code editor to write the application logic in C++.
 
     \image qtcreator-textfinder-screenshot.png

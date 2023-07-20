@@ -19,48 +19,38 @@ instructions:
   - type: InstallSourceArchive
     maxTimeInSeconds: 600
     maxTimeBetweenOutput: 600
-    project: qtsdk/qtsdk
+    project: qtsdk/tqtc-qtsdk
     ref: master
-    directory: "build/qtsdk"
-    userMessageOnFailure: "Failed to install qtsdk, check logs"
-  - type: ExecuteCommand
-    command: "python3 -m pip install pipenv==2022.4.8 --user"
-    maxTimeInSeconds: 1200
-    maxTimeBetweenOutput: 120
-    userMessageOnFailure: "Failed to install Pipenv"
+    directory: "build/tqtc-qtsdk"
+    userMessageOnFailure: "Failed to install tqtc-qtsdk, check logs"
+  - type: Group
+    instructions:
+    - type: ExecuteCommand
+      command: python tqtc-qtsdk/jenkins-templates/jenkins/scripts/pkg_bootstrap.py
+      maxTimeInSeconds: 36000
+      maxTimeBetweenOutput: 3600
+      userMessageOnFailure: "pkg_bootstrap.py failed"
     enable_if:
-      condition: property
-      property: host.os
-      in_values: [MacOS, Linux]
-  - type: ExecuteCommand
-    command: "python -m pip install pipenv==2022.4.8 --user"
-    maxTimeInSeconds: 1200
-    maxTimeBetweenOutput: 120
-    userMessageOnFailure: "Failed to install Pipenv"
+      condition: and
+      conditions:
+        - condition: property
+          property: host.os
+          equals_value: Windows
+  - type: Group
+    instructions:
+    - type: ExecuteCommand
+      command: python3 tqtc-qtsdk/jenkins-templates/jenkins/scripts/pkg_bootstrap.py
+      maxTimeInSeconds: 36000
+      maxTimeBetweenOutput: 3600
+      userMessageOnFailure: "pkg_bootstrap.py failed"
     enable_if:
-      condition: property
-      property: host.os
-      equals_value: Windows
+      condition: and
+      conditions:
+        - condition: property
+          property: host.os
+          not_equals_value: Windows
   - type: ChangeDirectory
-    directory: "{{.AgentWorkingDir}}/build/qtsdk/packaging-tools"
-  - type: ExecuteCommand
-    command: "python3 -m pipenv install --skip-lock"
-    maxTimeInSeconds: 1200
-    maxTimeBetweenOutput: 120
-    userMessageOnFailure: "Failed to install requirements from Pipfile"
-    enable_if:
-      condition: property
-      property: host.os
-      in_values: [MacOS, Linux]
-  - type: ExecuteCommand
-    command: "python -m pipenv install --skip-lock"
-    maxTimeInSeconds: 1200
-    maxTimeBetweenOutput: 120
-    userMessageOnFailure: "Failed to install requirements from Pipfile"
-    enable_if:
-      condition: property
-      property: host.os
-      equals_value: Windows
+    directory: "{{.BuildDir}}/tqtc-qtsdk/packaging_tools"
   - type: ExecuteCommand
     command: "python3 -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z http://master.qt.io/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution

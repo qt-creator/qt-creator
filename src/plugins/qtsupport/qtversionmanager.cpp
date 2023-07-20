@@ -5,7 +5,6 @@
 
 #include "baseqtversion.h"
 #include "exampleslistmodel.h"
-#include "qtkitinformation.h"
 #include "qtsupportconstants.h"
 #include "qtversionfactory.h"
 

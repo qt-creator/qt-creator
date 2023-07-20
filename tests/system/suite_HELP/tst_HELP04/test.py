@@ -87,8 +87,7 @@ def main():
             type(resultWidget, "<Return>")
             waitFor("__getUrl__() != url or selText != __getSelectedText__()", 20000)
             verifySelection(searchKeyword)
-            if not (searchKeyword == "QODBC" and JIRA.isBugStillOpen(10331)):
-                verifyUrl(urlDictionary[searchKeyword])
+            verifyUrl(urlDictionary[searchKeyword])
         else:
             test.verify(waitFor("noMatch in "
                                 "str(resultWidget.plainText)", 1000),
