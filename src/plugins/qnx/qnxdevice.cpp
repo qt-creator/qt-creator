@@ -12,9 +12,9 @@
 
 #include <projectexplorer/devicesupport/sshparameters.h>
 
-#include <remotelinux/genericlinuxdeviceconfigurationwizard.h>
-#include <remotelinux/remotelinuxsignaloperation.h>
 #include <remotelinux/linuxdevice.h>
+#include <remotelinux/remotelinuxsignaloperation.h>
+#include <remotelinux/sshdevicewizard.h>
 
 #include <utils/port.h>
 #include <utils/portlist.h>

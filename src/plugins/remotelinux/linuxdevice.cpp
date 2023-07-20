@@ -4,13 +4,13 @@
 #include "linuxdevice.h"
 
 #include "genericlinuxdeviceconfigurationwidget.h"
-#include "genericlinuxdeviceconfigurationwizard.h"
 #include "linuxdevicetester.h"
 #include "linuxprocessinterface.h"
 #include "publickeydeploymentdialog.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxsignaloperation.h"
 #include "remotelinuxtr.h"
+#include "sshdevicewizard.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
