@@ -112,7 +112,7 @@ void IDeviceFactory::setCombinedIcon(const FilePath &small, const FilePath &larg
                                  Icon({{large, Theme::IconsBaseColor}})});
 }
 
-void IDeviceFactory::setCreator(const std::function<IDevice::Ptr ()> &creator)
+void IDeviceFactory::setCreator(const std::function<IDevice::Ptr()> &creator)
 {
     QTC_ASSERT(creator, return);
     m_creator = creator;

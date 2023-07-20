@@ -1475,8 +1475,6 @@ void LinuxDevice::checkOsType()
 
 namespace Internal {
 
-// Factory
-
 LinuxDeviceFactory::LinuxDeviceFactory()
     : IDeviceFactory(Constants::GenericLinuxOsType)
 {
@@ -1484,11 +1482,13 @@ LinuxDeviceFactory::LinuxDeviceFactory()
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
     setQuickCreationAllowed(true);
-    setCreator([] {
-        GenericLinuxDeviceConfigurationWizard wizard;
+    setCreator([]() -> IDevice::Ptr {
+        const IDevice::Ptr device = LinuxDevice::create();
+        GenericLinuxDeviceConfigurationWizard wizard(
+            Tr::tr("New Remote Linux Device Configuration Setup"), device);
         if (wizard.exec() != QDialog::Accepted)
-            return IDevice::Ptr();
-        return wizard.device();
+            return {};
+        return device;
     });
 }
 

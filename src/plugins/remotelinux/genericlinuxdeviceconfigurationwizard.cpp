@@ -4,57 +4,28 @@
 #include "genericlinuxdeviceconfigurationwizard.h"
 
 #include "genericlinuxdeviceconfigurationwizardpages.h"
-#include "linuxdevice.h"
-#include "remotelinux_constants.h"
-#include "remotelinuxtr.h"
 
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/sshparameters.h>
-
-#include <utils/fileutils.h>
-
-using namespace ProjectExplorer;
-
 namespace RemoteLinux {
-namespace Internal {
 
-class GenericLinuxDeviceConfigurationWizardPrivate
-{
-public:
-    GenericLinuxDeviceConfigurationWizardSetupPage setupPage;
-    GenericLinuxDeviceConfigurationWizardKeyDeploymentPage keyDeploymentPage;
-    GenericLinuxDeviceConfigurationWizardFinalPage finalPage;
-    LinuxDevice::Ptr device;
-};
-
-} // namespace Internal
-
-GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard()
+GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard(
+    const QString &title, const ProjectExplorer::IDevicePtr &device)
     : Utils::Wizard(Core::ICore::dialogParent())
-    , d(new Internal::GenericLinuxDeviceConfigurationWizardPrivate)
 {
-    setWindowTitle(Tr::tr("New Remote Linux Device Configuration Setup"));
-    addPage(&d->setupPage);
-    addPage(&d->keyDeploymentPage);
-    addPage(&d->finalPage);
-    d->finalPage.setCommitPage(true);
+    setWindowTitle(title);
 
-    d->device = LinuxDevice::create();
+    auto setupPage = new GenericLinuxDeviceConfigurationWizardSetupPage;
+    auto keyDeploymentPage = new GenericLinuxDeviceConfigurationWizardKeyDeploymentPage;
+    auto finalPage = new GenericLinuxDeviceConfigurationWizardFinalPage;
 
-    d->setupPage.setDevice(d->device);
-    d->keyDeploymentPage.setDevice(d->device);
-}
+    addPage(setupPage);
+    addPage(keyDeploymentPage);
+    addPage(finalPage);
 
-GenericLinuxDeviceConfigurationWizard::~GenericLinuxDeviceConfigurationWizard()
-{
-    delete d;
-}
-
-IDevice::Ptr GenericLinuxDeviceConfigurationWizard::device()
-{
-    return d->device;
+    finalPage->setCommitPage(true);
+    setupPage->setDevice(device);
+    keyDeploymentPage->setDevice(device);
 }
 
 } // namespace RemoteLinux

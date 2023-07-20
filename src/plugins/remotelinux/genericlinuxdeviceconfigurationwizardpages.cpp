@@ -35,7 +35,7 @@ public:
     QSpinBox *sshPortSpinBox;
     FancyLineEdit *userNameLineEdit;
 
-    LinuxDevice::Ptr device;
+    IDevicePtr device;
 };
 
 class GenericLinuxDeviceConfigurationWizardFinalPagePrivate
@@ -116,7 +116,8 @@ QString GenericLinuxDeviceConfigurationWizardSetupPage::configurationName() cons
     return d->nameLineEdit->text().trimmed();
 }
 
-void GenericLinuxDeviceConfigurationWizardSetupPage::setDevice(const LinuxDevice::Ptr &device)
+void GenericLinuxDeviceConfigurationWizardSetupPage::setDevice(
+    const ProjectExplorer::IDevicePtr &device)
 {
     d->device = device;
 }
@@ -158,7 +159,7 @@ struct GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::Private
 
     PathChooser keyFileChooser;
     QLabel iconLabel;
-    LinuxDevice::Ptr device;
+    IDevicePtr device;
 };
 
 GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::GenericLinuxDeviceConfigurationWizardKeyDeploymentPage(QWidget *parent)
@@ -214,7 +215,8 @@ GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::~GenericLinuxDeviceConfi
     delete d;
 }
 
-void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::setDevice(const LinuxDevice::Ptr &device)
+void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::setDevice(
+    const ProjectExplorer::IDevicePtr &device)
 {
     d->device = device;
 }

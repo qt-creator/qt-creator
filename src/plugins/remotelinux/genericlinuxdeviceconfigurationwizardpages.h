@@ -24,7 +24,7 @@ public:
     explicit GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent = nullptr);
     ~GenericLinuxDeviceConfigurationWizardSetupPage() override;
 
-    void setDevice(const LinuxDevice::Ptr &device);
+    void setDevice(const ProjectExplorer::IDevicePtr &device);
 
 private:
     void initializePage() override;
@@ -44,7 +44,7 @@ public:
     explicit GenericLinuxDeviceConfigurationWizardKeyDeploymentPage(QWidget *parent = nullptr);
     ~GenericLinuxDeviceConfigurationWizardKeyDeploymentPage() override;
 
-    void setDevice(const LinuxDevice::Ptr &device);
+    void setDevice(const ProjectExplorer::IDevicePtr &device);
 
 private:
     void initializePage() override;

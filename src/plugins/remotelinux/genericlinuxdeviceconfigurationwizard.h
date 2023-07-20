@@ -9,20 +9,14 @@
 #include <utils/wizard.h>
 
 namespace RemoteLinux {
-namespace Internal { class GenericLinuxDeviceConfigurationWizardPrivate; }
 
 class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizard : public Utils::Wizard
 {
     Q_OBJECT
 
 public:
-    GenericLinuxDeviceConfigurationWizard();
-    ~GenericLinuxDeviceConfigurationWizard() override;
-
-    ProjectExplorer::IDevicePtr device();
-
-private:
-    Internal::GenericLinuxDeviceConfigurationWizardPrivate * const d;
+    GenericLinuxDeviceConfigurationWizard(const QString &title,
+                                          const ProjectExplorer::IDevicePtr &device);
 };
 
 } // namespace RemoteLinux

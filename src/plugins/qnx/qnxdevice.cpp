@@ -12,7 +12,7 @@
 
 #include <projectexplorer/devicesupport/sshparameters.h>
 
-#include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
+#include <remotelinux/genericlinuxdeviceconfigurationwizard.h>
 #include <remotelinux/remotelinuxsignaloperation.h>
 #include <remotelinux/linuxdevice.h>
 
@@ -86,36 +86,6 @@ public:
     DeviceTester *createDeviceTester() const final { return new QnxDeviceTester; }
 };
 
-class QnxDeviceWizard : public Wizard
-{
-public:
-    QnxDeviceWizard() : Wizard(Core::ICore::dialogParent())
-    {
-        setWindowTitle(Tr::tr("New QNX Device Configuration Setup"));
-
-        addPage(&m_setupPage);
-        addPage(&m_keyDeploymentPage);
-        addPage(&m_finalPage);
-        m_finalPage.setCommitPage(true);
-
-        m_device.reset(new QnxDevice);
-
-        m_setupPage.setDevice(m_device);
-        m_keyDeploymentPage.setDevice(m_device);
-    }
-
-    IDevice::Ptr device() const { return m_device; }
-
-private:
-    GenericLinuxDeviceConfigurationWizardSetupPage m_setupPage;
-    GenericLinuxDeviceConfigurationWizardKeyDeploymentPage m_keyDeploymentPage;
-    GenericLinuxDeviceConfigurationWizardFinalPage m_finalPage;
-
-    LinuxDevice::Ptr m_device;
-};
-
-// Factory
-
 QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE)
 {
     setDisplayName(Tr::tr("QNX Device"));
@@ -123,11 +93,13 @@ QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE
                     ":/qnx/images/qnxdevice.png");
     setQuickCreationAllowed(true);
     setConstructionFunction([] { return IDevice::Ptr(new QnxDevice); });
-    setCreator([] {
-        QnxDeviceWizard wizard;
+    setCreator([]() -> IDevice::Ptr {
+        const IDevice::Ptr device = IDevice::Ptr(new QnxDevice);
+        GenericLinuxDeviceConfigurationWizard wizard(
+            Tr::tr("New QNX Device Configuration Setup"), device);
         if (wizard.exec() != QDialog::Accepted)
-            return IDevice::Ptr();
-        return wizard.device();
+            return {};
+        return device;
     });
 }
 
