@@ -9,6 +9,8 @@
 #include <utils/smallstringio.h>
 #include <utils/smallstringvector.h>
 
+#include <random>
+
 using Utils::PathString;
 using Utils::SmallString;
 using Utils::SmallStringLiteral;
@@ -613,15 +615,43 @@ TEST(SmallString, to_q_string)
     ASSERT_THAT(qStringText, QStringLiteral("short string"));
 }
 
-TEST(SmallString, from_q_string)
+class FromQString : public testing::TestWithParam<qsizetype>
 {
-    QString qStringText = QStringLiteral("short string");
+protected:
+    QString randomString(qsizetype size)
+    {
+        static constexpr char16_t characters[] = u"0123456789"
+                                                 "abcdefghijklmnopqrstuvwxyz"
+                                                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    auto text = SmallString::fromQString(qStringText);
+        static std::mt19937 generator{std::random_device{}()};
+        static std::uniform_int_distribution<std::size_t> pick(0, std::size(characters) - 1);
 
-    ASSERT_THAT(text, SmallString("short string"));
+        QString string;
+
+        string.reserve(size);
+
+        std::generate_n(std::back_inserter(string), size, [&]() {
+            return characters[pick(generator)];
+        });
+
+        return string;
+    }
+
+protected:
+    qsizetype size = GetParam();
+};
+
+INSTANTIATE_TEST_SUITE_P(SmallString, FromQString, testing::Range<qsizetype>(0, 10000, 300));
+
+TEST_P(FromQString, from_qstring)
+{
+    const QString qStringText = randomString(size);
+
+    auto text = SmallString(qStringText);
+
+    ASSERT_THAT(text, qStringText.toStdString());
 }
-
 
 TEST(SmallString, from_q_byte_array)
 {

@@ -455,7 +455,7 @@ public:
         constexpr size_type temporaryArraySize = Size * 6;
 
         size_type oldSize = size();
-        size_type maximumRequiredSize = static_cast<size_type>(encoder.requiredSpace(oldSize));
+        size_type maximumRequiredSize = static_cast<size_type>(encoder.requiredSpace(string.size()));
         char *newEnd = nullptr;
 
         if (maximumRequiredSize > temporaryArraySize) {
