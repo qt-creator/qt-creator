@@ -301,7 +301,7 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Environment &) const final;
     void addToEnvironment(Environment &env) const final;
-    QList<OutputLineParser *> createOutputParsers() const final;
+    QList<OutputLineParser *> createOutputParsers() const final { return {new IarParser()}; }
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
 
@@ -387,11 +387,6 @@ void IarToolChain::addToEnvironment(Environment &env) const
 {
     if (!compilerCommand().isEmpty())
         env.prependOrSetPath(compilerCommand().parentDir());
-}
-
-QList<Utils::OutputLineParser *> IarToolChain::createOutputParsers() const
-{
-    return {new IarParser()};
 }
 
 std::unique_ptr<ToolChainConfigWidget> IarToolChain::createConfigurationWidget()

@@ -216,13 +216,13 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Environment &) const final;
     void addToEnvironment(Environment &env) const final;
-    QList<OutputLineParser *> createOutputParsers() const final;
+    QList<OutputLineParser *> createOutputParsers() const final  { return {new SdccParser}; }
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
 
     bool operator==(const ToolChain &other) const final;
 
-    FilePath makeCommand(const Environment &env) const final;
+    FilePath makeCommand(const Environment &) const final { return {}; }
 
 private:
     friend class SdccToolChainFactory;
@@ -283,11 +283,6 @@ void SdccToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-QList<Utils::OutputLineParser *> SdccToolChain::createOutputParsers() const
-{
-    return {new SdccParser};
-}
-
 std::unique_ptr<ToolChainConfigWidget> SdccToolChain::createConfigurationWidget()
 {
     return std::make_unique<SdccToolChainConfigWidget>(this);
@@ -301,12 +296,6 @@ bool SdccToolChain::operator==(const ToolChain &other) const
     const auto customTc = static_cast<const SdccToolChain *>(&other);
     return compilerCommand() == customTc->compilerCommand()
             && targetAbi() == customTc->targetAbi();
-}
-
-FilePath SdccToolChain::makeCommand(const Environment &env) const
-{
-    Q_UNUSED(env)
-    return {};
 }
 
 // SdccToolChainFactory
