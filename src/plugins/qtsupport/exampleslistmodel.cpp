@@ -333,11 +333,15 @@ Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
                                          << "Desktop"
                                          << "Mobile"
                                          << "Embedded"
+                                         << "Graphics & Multimedia"
                                          << "Graphics"
+                                         << "Data Visualization & 3D"
+                                         << "Data Processing & I/O"
                                          << "Input/Output"
                                          << "Connectivity"
                                          << "Networking"
                                          << "Positioning & Location"
+                                         << "Web Technologies"
                                          << "Internationalization"});
 
 void ExamplesViewController::updateExamples()
