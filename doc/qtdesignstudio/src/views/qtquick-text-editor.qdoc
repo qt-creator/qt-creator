@@ -21,8 +21,7 @@
     \uicontrol Edit > \uicontrol {Find/Replace} > \uicontrol {Find/Replace}.
     You can also select \key Ctrl + \key {F}.
 
-    You can use a subset of the functions available in the
-    \l{Writing Code}{Edit mode}:
+    The view offers the following features:
 
     \list
         \li \l{Semantic Highlighting}

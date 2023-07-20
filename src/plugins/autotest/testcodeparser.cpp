@@ -92,7 +92,7 @@ void TestCodeParser::syncTestFrameworks(const QList<ITestParser *> &parsers)
 {
     if (m_parserState != Idle) {
         // there's a running parse
-        m_postponedUpdateType = UpdateType::NoUpdate;
+        m_postponedUpdateType = UpdateType::FullUpdate;
         m_postponedFiles.clear();
         ProgressManager::cancelTasks(Constants::TASK_PARSE);
     }

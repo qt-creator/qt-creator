@@ -379,8 +379,10 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     args.push_back(qtcQMakeProbeDir.path().path());
     args.push_back("-B");
     args.push_back(qtcQMakeProbeDir.filePath("build").path());
-    args.push_back("-G");
-    args.push_back(cmakeGenerator);
+    if (!cmakeGenerator.isEmpty()) {
+        args.push_back("-G");
+        args.push_back(cmakeGenerator);
+    }
     if (!cmakeGeneratorPlatform.isEmpty()) {
         args.push_back("-A");
         args.push_back(cmakeGeneratorPlatform);
@@ -708,8 +710,9 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->sysroot = cache.filePathValueOf("CMAKE_SYSROOT");
 
         CMakeConfig config;
-        if (cache.valueOf("CMAKE_C_COMPILER").isEmpty()
-            && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty()) {
+        const bool noCompilers = cache.valueOf("CMAKE_C_COMPILER").isEmpty()
+                                 && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty();
+        if (noCompilers || !configurePreset.generator) {
             QApplication::setOverrideCursor(Qt::WaitCursor);
             config = configurationFromPresetProbe(importPath, projectDirectory(), configurePreset);
             QApplication::restoreOverrideCursor();
@@ -751,6 +754,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         // Update QT_QMAKE_EXECUTABLE and CMAKE_C|XX_COMPILER config values
         updateConfigWithDirectoryData(config, data);
 
+        data->hasQmlDebugging = CMakeBuildConfiguration::hasQmlDebugging(config);
+
         QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
         if (buildConfigurationTypes.front().isEmpty()) {
             buildConfigurationTypes.clear();
@@ -770,6 +775,13 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         for (const auto &buildType : buildConfigurationTypes) {
             DirectoryData *newData = new DirectoryData(*data);
             newData->cmakeBuildType = buildType;
+
+            // Handle QML Debugging
+            auto type = CMakeBuildConfigurationFactory::buildTypeFromByteArray(
+                newData->cmakeBuildType);
+            if (type == CMakeBuildConfigurationFactory::BuildTypeDebug
+                || type == CMakeBuildConfigurationFactory::BuildTypeProfile)
+                newData->hasQmlDebugging = true;
 
             result.emplace_back(newData);
         }

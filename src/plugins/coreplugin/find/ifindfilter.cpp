@@ -36,7 +36,7 @@
     A common way to present the search results to the user, is to use the
     shared \uicontrol{Search Results} pane.
 
-    \image qtcreator-searchresults.png
+    \image qtcreator-search-results.webp {Search Results view}
 
     If you want to implement a find filter that is doing a file based text
     search, you should use \l Core::BaseTextFind, which already implements all

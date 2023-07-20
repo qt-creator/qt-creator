@@ -1,4 +1,4 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,9 +8,13 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-coding.html
     \page creator-editor-functions.html
+    \previouspage creator-coding.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-highlighting.html
+    \else
     \nextpage creator-coding-navigating.html
+    \endif
 
     \title Writing Code
 
@@ -19,14 +23,14 @@
     in-line error indicators while you are typing.
 
     \list
-
+        \if defined(qtcreator)
         \li \l{Working in Edit Mode}
 
             You can use the editor toolbar to navigate between open files
             and symbols in use. You can also split the view to work on
             several files simultaneously, add bookmarks, and move between
             symbol definitions and declarations.
-
+        \endif
         \li \l{Semantic Highlighting}
 
             \QC enables you to write well formatted code by highlighting
@@ -75,8 +79,6 @@
             keyboard sequence as a macro. You can then play the macro to
             repeat the sequence. You can save the latest macro and assign a
             keyboard shortcut for running it or run it from the locator.
-        \endif
-
     \endlist
 
     \section1 Related Topics
@@ -88,7 +90,6 @@
             You can use a diff editor to compare two versions of a file and
             view the differences side-by-side in the \uicontrol Edit mode.
 
-        \if defined(qtcreator)
         \li \l{Parsing C++ Files with the Clang Code Model}
 
             The Clang code model offers some of the same services as the

@@ -20,7 +20,7 @@
     To use GitLab, you must create a connection to the GitLab server and clone
     the projects you want to work on. You can also link previously cloned
     projects to GitLab in the project settings. This enables you to receive
-    event notifications in the \l {Viewing Output}{Version Control} pane.
+    event notifications in the \l {View output}{Version Control} pane.
 
     \section1 Connecting to GitLab Servers
 

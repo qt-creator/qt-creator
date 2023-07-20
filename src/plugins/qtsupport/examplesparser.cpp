@@ -306,15 +306,19 @@ expected_str<QList<ExampleItem *>> parseExamples(const QByteArray &manifestData,
 Q_GLOBAL_STATIC_WITH_ARGS(QList<QString>,
                           defaultOrder,
                           {QStringList() << "Application Examples"
-                           << "Desktop"
-                           << "Mobile"
-                           << "Embedded"
-                           << "Graphics"
-                           << "Input/Output"
-                           << "Connectivity"
-                           << "Networking"
-                           << "Positioning & Location"
-                           << "Internationalization"});
+                                         << "Desktop"
+                                         << "Mobile"
+                                         << "Embedded"
+                                         << "Graphics & Multimedia"
+                                         << "Graphics"
+                                         << "Data Visualization & 3D"
+                                         << "Data Processing & I/O"
+                                         << "Input/Output"
+                                         << "Connectivity"
+                                         << "Networking"
+                                         << "Positioning & Location"
+                                         << "Web Technologies"
+                                         << "Internationalization"});
 
 static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
 {

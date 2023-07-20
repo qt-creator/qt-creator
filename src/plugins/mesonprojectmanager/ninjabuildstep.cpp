@@ -59,6 +59,7 @@ QWidget *NinjaBuildStep::createConfigWidget()
     buildTargetsList->setFrameShadow(QFrame::Raised);
 
     auto toolArguments = new QLineEdit(widget);
+    toolArguments->setText(m_commandArgs);
 
     auto wrapper = Core::ItemViewFind::createSearchableWrapper(buildTargetsList,
                                                                Core::ItemViewFind::LightColored);

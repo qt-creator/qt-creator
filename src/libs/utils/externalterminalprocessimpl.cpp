@@ -21,12 +21,11 @@ ProcessStubCreator::ProcessStubCreator(TerminalInterface *interface)
     : m_interface(interface)
 {}
 
-static const QLatin1String TerminalAppScript{R"(
+static const QLatin1String TerminalAppScriptAttached{R"(
     tell application "Terminal"
         activate
-        set newTab to do script "echo Preparing terminal..."
+        set newTab to do script "%1 && exit"
         set win to (the id of window 1 where its tab 1 = newTab) as text
-        do script "%1 && exit" in newTab
         repeat until ((count of processes of newTab) = 0)
             delay 0.1
         end repeat
@@ -34,14 +33,27 @@ static const QLatin1String TerminalAppScript{R"(
     end tell
 )"};
 
+static const QLatin1String TerminalAppScriptDetached{R"(
+    tell application "Terminal"
+        activate
+        do script "%1 && exit"
+    end tell
+)"};
+
+struct AppScript
+{
+    QString attached;
+    QString detached;
+};
+
 expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setupData)
 {
     const TerminalCommand terminal = TerminalCommand::terminalEmulator();
     bool detached = setupData.m_terminalMode == TerminalMode::Detached;
 
     if (HostOsInfo::isMacHost()) {
-        static const QMap<QString, QString> terminalMap = {
-            {"Terminal.app", TerminalAppScript},
+        static const QMap<QString, AppScript> terminalMap = {
+            {"Terminal.app", {TerminalAppScriptAttached, TerminalAppScriptDetached}},
         };
 
         if (terminalMap.contains(terminal.command.toString())) {
@@ -49,29 +61,36 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
                 = Utils::transform(setupData.m_environment.toStringList(), [](const QString &env) {
                       return CommandLine{"export", {env}}.toUserOutput();
                   }).join('\n');
-            const QString shScript = QString("cd '%1'\n%2\nclear\n'%3' %4\n")
+
+            Process *process = new Process(detached ? nullptr : this);
+            if (detached) {
+                QObject::connect(process, &Process::done, process, &Process::deleteLater);
+            }
+
+            QTemporaryFile shFile;
+            shFile.setAutoRemove(false);
+            QTC_ASSERT(shFile.open(),
+                       return make_unexpected(Tr::tr("Failed to open temporary script file.")));
+
+            const QString shScript = QString("cd '%1'\n%2\nclear\n'%3' %4\nrm '%5'\n")
                                          .arg(setupData.m_workingDirectory.nativePath())
                                          .arg(env)
                                          .arg(setupData.m_commandLine.executable().nativePath())
-                                         .arg(setupData.m_commandLine.arguments());
+                                         .arg(setupData.m_commandLine.arguments())
+                                         .arg(shFile.fileName());
 
-            Process *process = new Process(detached ? nullptr : this);
-            if (detached)
-                QObject::connect(process, &Process::done, process, &Process::deleteLater);
+            shFile.write(shScript.toUtf8());
+            shFile.close();
 
-            QTemporaryFile *shFile = new QTemporaryFile(process);
-            QTC_ASSERT(shFile->open(),
-                       return make_unexpected(Tr::tr("Failed to open temporary script file.")));
-            shFile->write(shScript.toUtf8());
-            shFile->close();
-
-            FilePath::fromUserInput(shFile->fileName())
+            FilePath::fromUserInput(shFile.fileName())
                 .setPermissions(QFile::ExeUser | QFile::ExeGroup | QFile::ExeOther | QFile::ReadUser
                                 | QFile::ReadGroup | QFile::ReadOther | QFile::WriteUser
                                 | QFile::WriteGroup | QFile::WriteOther);
 
-            const QString script
-                = terminalMap.value(terminal.command.toString()).arg(shFile->fileName());
+            const QString script = (detached
+                                        ? terminalMap.value(terminal.command.toString()).detached
+                                        : terminalMap.value(terminal.command.toString()).attached)
+                                       .arg(shFile.fileName());
 
             process->setCommand({"osascript", {"-"}});
             process->setWriteData(script.toUtf8());

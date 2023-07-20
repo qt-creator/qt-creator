@@ -60,15 +60,17 @@ struct Target
     const std::optional<QString> subproject;
     const SourceGroupList sources;
 
-    static inline QString fullName(const Utils::FilePath &srcDir, const Target &target)
+    static inline QString fullName(const Utils::FilePath &buildDir, const Target &target)
     {
         using namespace Utils;
-        if (FilePath::fromString((target.fileName.first())).isAbsolutePath()) {
-            const auto fname = target.fileName.first().split('/').last();
-            QString definedIn = FilePath::fromString(target.definedIn).absolutePath().toString();
-            return definedIn.remove(srcDir.toString()) + '/' + fname;
+        auto fname = target.fileName.first();
+        if (FilePath::fromString(fname).isAbsolutePath()) {
+            fname.remove(buildDir.toString());
+            if (fname.startsWith('/'))
+                fname.remove(0, 1);
+            return fname;
         } else {
-            return target.fileName.first();
+            return fname;
         }
     }
 

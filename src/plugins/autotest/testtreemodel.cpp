@@ -485,6 +485,10 @@ void TestTreeModel::markForRemoval(const QSet<Utils::FilePath> &filePaths)
 void TestTreeModel::sweep()
 {
     for (TestTreeItem *frameworkRoot : frameworkRootNodes()) {
+        if (frameworkRoot->m_status == TestTreeItem::ForcedRootRemoval) {
+            frameworkRoot->framework()->resetRootNode();
+            continue;
+        }
         sweepChildren(frameworkRoot);
         revalidateCheckState(frameworkRoot);
     }

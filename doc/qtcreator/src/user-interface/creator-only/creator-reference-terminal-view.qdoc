@@ -1,0 +1,111 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-reference-terminal-view.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-output-views
+
+    \title Terminal
+
+    \brief Opens a terminal.
+
+    When you select the \uicontrol {Run in Terminal} check box and run an
+    application or the \uicontrol {Open Terminal} button to open a terminal,
+    it opens as an output view.
+
+    To open the terminal in a separate window, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Terminal, and deselet the
+    \uicontrol {Use internal terminal} check box.
+
+    On Linux and \macos, you can set the terminal to open by selecting
+    \uicontrol Edit > \uicontrol Preferences >
+    \uicontrol Environment > \uicontrol System.
+
+    \image qtcreator-output-terminal.webp {Terminal pane}
+
+    \list
+        \li To clear the terminal, select \inlineimage icons/clean_pane_small.png
+            (\uicontrol Clear).
+
+        \li To close the current terminal, select \inlineimage icons/terminal-close.png
+            .
+
+        \li To open new terminals as tabs, select \inlineimage icons/terminal-create.png
+            .
+
+        \li To move between terminals, select the tabs or \inlineimage icons/arrowup.png
+            and \inlineimage icons/arrowdown.png
+            .
+
+        \li To select a word in a terminal, double-click it. To select the whole line,
+            triple-click it.
+
+        \li To open links in a browser, files in the editor, or folders in the
+            \l Projects view, hover the mouse over them, and press \key Ctrl.
+
+        \li To \l{Finding and Replacing}{search} through the output, press \key {Ctrl+F}.
+
+        \li To make the font larger or smaller, select the \inlineimage icons/plus.png
+            and \inlineimage icons/minus.png
+            buttons. You can also change the font size in terminal preferences.
+
+        \li To open terminal preferences, select \inlineimage icons/settings.png
+        (\uicontrol Configure).
+    \endlist
+
+    Most of the \QC keyboard shortcuts are disabled in the terminal, except the
+    ones for opening terminal preferences or the locator and quitting \QC. To
+    send the escape key to the terminal instead of closing the terminal, select
+    \uicontrol {Shift+Esc}. You can also specify that the escape key is sent to
+    the terminal in terminal preferences.
+
+    \section1 Terminal Preferences
+
+    To set preferences for the internal terminal, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Terminal, or select the
+    \uicontrol Configure button in the \uicontrol Terminal pane.
+
+    \image qtcreator-preferences-terminal.webp {Terminal tab in Preferences}
+
+    \table
+    \header
+        \li Option
+        \li Value
+    \row
+        \li \uicontrol {Use internal terminal}
+        \li Open the \uicontrol Terminal pane when you select
+            \uicontrol {Run in Terminal} or \uicontrol {Open Terminal}.
+    \row
+        \li \uicontrol {Send escape key to terminal}
+        \li Send the escape key to the terminal instead of closing the terminal.
+    \row
+        \li \uicontrol {Audible bell}
+        \li Play an audible bell when the a bell character is received.
+    \row
+        \li \uicontrol {Allow blinking cursor}
+        \li Allow the cursor to blink.
+    \row
+        \li \uicontrol {Font}
+        \li Select the \uicontrol {Font family} and \uicontrol Size for the text
+            in the terminal. You can also use the \inlineimage icons/plus.png
+            and \inlineimage icons/minus.png buttons in the \uicontrol Terminal
+            pane to change the font size.
+    \row
+        \li \uicontrol {Colors}
+        \li Set colors for the \uicontrol Terminal pane \uicontrol Foreground,
+            \uicontrol Background, \uicontrol Selection, and
+            \uicontrol {Find match}.
+    \row
+        \li \uicontrol {Default shell}
+        \li Set the full path to the default terminal executable in
+            \uicontrol {Shell path} and the arguments to pass to the shell
+            in \uicontrol {Shell arguments}.
+    \endtable
+
+    To use an existing color scheme, select \uicontrol {Load Theme}. To revert
+    color changes, select \uicontrol {Reset Theme}.
+
+    \sa {View output}
+*/

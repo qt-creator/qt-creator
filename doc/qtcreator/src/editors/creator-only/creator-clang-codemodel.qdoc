@@ -28,9 +28,8 @@
             {locator}, \l{Moving to Symbol Definition or Declaration}
             {following symbols}, and so on
 
-        \li Inspecting code by using the \l{Browsing Project Contents}
-            {class browser}, the \l{Viewing Defined Types and Symbols}
-            {outline}, and so on
+        \li Inspecting code by using the \l{Class View}{class browser}, the
+            \l{Outline}{outline}, and so on
 
         \li Diagnostics
 
@@ -154,9 +153,8 @@
     specify that the projects in the session should be managed by a single
     clangd process.
 
-    The document outline in the \l{Viewing Defined Types and Symbols}
-    {Outline} view is backed by clangd's document symbol support, which
-    makes the results more reliable than before.
+    The document outline in the \l{Outline} view is backed by clangd's document
+    symbol support, which makes the results more reliable than before.
 
     To specify settings for clangd:
 

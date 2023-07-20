@@ -83,7 +83,7 @@ NimToolChainConfigWidget::NimToolChainConfigWidget(NimToolChain *tc)
     fillUI();
 
     // Connect
-    connect(m_compilerCommand, &PathChooser::textChanged, this, [this] {
+    connect(m_compilerCommand, &PathChooser::validChanged, this, [this] {
         const FilePath path = m_compilerCommand->rawFilePath();
         auto tc = static_cast<NimToolChain *>(toolChain());
         QTC_ASSERT(tc, return);

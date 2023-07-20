@@ -1,0 +1,129 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-outline-view.html
+    \previouspage creator-reference.html
+    \ingroup creator-reference-sidebar-views
+
+    \title Outline
+
+    \brief Shows an overview of defined types and other symbols, as well as
+    their properties and hierarchy in a source file.
+
+    To move the code for types and symbols around in the source file, drag
+    them in the outline.
+
+    \image qtcreator-outline-view.png {Outline view}
+
+    \list
+        \li To see a complete list of all bindings, select
+            \inlineimage icons/filtericon.png
+            (\uicontrol {Filter Tree}) > \uicontrol {Show All Bindings}.
+        \li To sort types or symbols alphabetically, select
+            \inlineimage icons/sort_alphabetically.png
+            (\uicontrol {Sort Alphabetically}).
+        \li To stop the synchronization with the type or symbol selected in the
+            editor, deselect \inlineimage icons/linkicon.png
+            (\uicontrol {Synchronize with Editor}).
+    \endlist
+*/
+
+/*!
+    \page creator-class-view.html
+    \previouspage creator-reference.html
+    \ingroup creator-reference-sidebar-views
+
+    \title Class View
+
+    \brief Shows the class hierarchy of the currently open projects.
+
+    \image qtcreator-class-view.png {Class View}
+
+    \list
+        \li To organize the view by subprojects, click
+            \inlineimage icons/qtcreator-show-subprojects.png
+            (\uicontrol {Show Subprojects}).
+        \li To visit all parts of a namespace, double-click on the
+            namespace item multiple times.
+    \endlist
+*/
+
+/*!
+    \page creator-call-hierarchy-view.html
+    \previouspage creator-reference.html
+    \ingroup creator-reference-sidebar-views
+
+    \title Call Hierarchy
+
+    \brief Shows information about incoming and outgoing function calls from a
+    \l{Using Language Servers}{language server}.
+
+    Place the cursor on a function definition in the code editor to see lists
+    of functions that call it and the functions it calls. This works recursively,
+    so you can also see the caller of the caller. However, Clangd only lists
+    incoming calls.
+
+    Select the \inlineimage icons/languageclient.png
+    button on the \l{Managing Language Servers}{editor toolbar}, and then select
+    \uicontrol {Restart} to collect call hierarchy information for the function.
+
+    \image qtcreator-call-hierarchy-view.png {Call Hierarchy view}
+*/
+
+/*!
+    \page creator-type-hierarchy.html
+    \previouspage creator-reference.html
+    \ingroup creator-reference-sidebar-views
+
+    \title Type Hierarchy
+
+    \brief Shows the base classes and derived classes of a class.
+
+    To view type hierarchy of a class:
+
+    \list 1
+        \li Right-click a class in the code editor.
+        \li Select \uicontrol {Open Type Hierarchy} or press \key {Ctrl+Shift+T}.
+    \endlist
+
+    \image qtcreator-type-hierarchy-view.png {Type Hierarchy view}
+
+    To navigate in the type hierarchy:
+
+    \list
+        \li Double-click a class or select it.
+        \li Select \uicontrol {Open Type Hierarchy} in the context menu.
+    \endlist
+
+    The view highlights the previous class.
+
+    The definition of the selected class opens in the code editor. You
+    can also select \uicontrol {Open in Editor} in the context menu to open
+    it.
+*/
+
+/*!
+    \page creator-include-hierarchy-view.html
+    \previouspage creator-reference.html
+    \ingroup creator-reference-sidebar-views
+
+    \title Include Hierarchy
+
+    \brief Shows the files that the current file includes and those that include
+    the current file.
+
+    To view the include hierarchy of a file:
+
+    \list 1
+        \li Right-click a file in the editor.
+        \li Select \uicontrol {Open Include Hierarchy}
+            or press \key {Ctrl+Shift+I}.
+    \endlist
+
+    \image qtcreator-include-hierarchy-view.png {Include Hierarchy view}
+
+    To keep the view synchronized with the file currently open in the editor,
+    select \inlineimage icons/linkicon.png
+    (\uicontrol {Synchronize with Editor}).
+*/

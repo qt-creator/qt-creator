@@ -1,40 +1,16 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
-
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
 
 /*!
     \previouspage creator-build-example-application.html
     \page creator-tutorials.html
-    \nextpage {Creating a Qt Quick Application}
+    \nextpage creator-project-managing.html
 
     \title Tutorials
 
-    \image front-help.png
+    You can use \QC to create applications for several \l{Supported Platforms}
+    {platforms} by using several \l{User Interfaces}{UI technologies}. Follow
+    the tutorials to learn how to create some basic Qt applications.
 
-    You can use \QC to create applications for several platforms by using
-    several technologies. The tutorials in this manual explain how to create
-    some basic applications.
-
-    \list
-
-        \li \l{Creating a Qt Quick Application}
-
-            Learn how to create a Qt Quick application.
-
-        \li \l{Creating a Qt Widget Based Application}
-
-            Learn how to create a Qt widget based application for the desktop.
-
-       \li \l{Creating a Mobile Application}
-
-            Learn how to create a Qt Quick application using Qt Quick Controls
-            for Android and iOS devices.
-
-    \endlist
-
+    \annotatedlist creator-tutorials
 */

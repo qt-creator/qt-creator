@@ -16,6 +16,8 @@
 
 #include <ios/iosconstants.h>
 
+#include <webassembly/webassemblyconstants.h>
+
 #include <coreplugin/find/itemviewfind.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -185,7 +187,8 @@ static bool supportsStageForInstallation(const Kit *kit)
     QTC_ASSERT(buildDevice, return false);
     return runDevice->id() != buildDevice->id()
            && runDevice->type() != Android::Constants::ANDROID_DEVICE_TYPE
-           && runDevice->type() != Ios::Constants::IOS_DEVICE_TYPE;
+           && runDevice->type() != Ios::Constants::IOS_DEVICE_TYPE
+           && runDevice->type() != WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
 }
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
@@ -242,7 +245,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
             env.set("NINJA_STATUS", ninjaProgressString + "%o/sec] ");
         env.modify(m_userEnvironmentChanges);
 
-        if (m_useStaging)
+        if (m_useStaging && m_useStaging->value())
             env.set("DESTDIR", currentStagingDir());
     });
 

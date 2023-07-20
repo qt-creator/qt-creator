@@ -492,6 +492,7 @@ void ClangdProjectSettings::setDiagnosticConfigId(Utils::Id configId)
 {
     m_customSettings.diagnosticConfigId = configId;
     saveSettings();
+    emit ClangdSettings::instance().changed();
 }
 
 void ClangdProjectSettings::blockIndexing()

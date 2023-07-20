@@ -113,7 +113,7 @@
             working directory.
 
         \li In the \uicontrol Output field, select how to handle output from the
-            tool. You can ignore the output, view it in \l{Viewing Output}
+            tool. You can ignore the output, view it in \l{View output}
             {General Messages}, or replace the selected text with the
             output in the code editor.
 

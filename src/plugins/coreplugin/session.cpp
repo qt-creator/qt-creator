@@ -100,7 +100,7 @@ SessionManager::SessionManager()
     ActionContainer *msession = ActionManager::createMenu(M_SESSION);
     msession->menu()->setTitle(PE::Tr::tr("S&essions"));
     msession->setOnAllDisabledBehavior(ActionContainer::Show);
-    mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
+    mfile->addMenu(msession, Core::Constants::G_FILE_SESSION);
     sb_d->m_sessionMenu = msession->menu();
     connect(mfile->menu(), &QMenu::aboutToShow, this, [] { sb_d->updateSessionMenu(); });
 
@@ -609,6 +609,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
             return true;
         }
     } else if (loadImplicitDefault) {
+        emit SessionManager::instance()->sessionLoaded(DEFAULT_SESSION);
         return true;
     }
 

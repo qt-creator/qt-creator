@@ -164,6 +164,44 @@ Thus, if you want to work on Qt Creator using Qt Creator, you need a separate
 installation of it. We recommend using a separate, release-built version of Qt
 Creator to work on a debug-built version of Qt Creator.
 
+Alternatively, take the following template of `CMakeUserPresets.json` for
+reference. Write your own configurePreset inheriting `cmake-plugin-minimal` in
+`CMakeUserPresets.json` to build with IDEs (such as QtCreator, VSCode,
+CLion...etc) locally:
+
+```json
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "custom",
+      "displayName": "custom",
+      "description": "custom",
+      "inherits": "cmake-plugin-minimal",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "toolset": {
+        "value": "v142,host=x64",
+        "strategy": "external"
+      },
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_PREFIX_PATH": "c:/Qt/6.2.4/msvc2019_64"
+      }
+    }
+  ]
+}
+```
+
 ### Options
 
 If you do not have Ninja installed and in the `PATH`, remove `-G Ninja` from

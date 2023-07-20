@@ -1614,7 +1614,7 @@ void TaskNode::invokeEndHandler(bool success)
     \endcode
 
     The task tree above has a top level element of the Group type that contains
-    tasks of the type ProcessTask, FileTransferTask, and ConcurrentCallTask<int>.
+    tasks of the ProcessTask, FileTransferTask, and ConcurrentCallTask<int> type.
     After taskTree->start() is called, the tasks are run in a chain, starting
     with ProcessTask. When the ProcessTask finishes successfully, the ConcurrentCallTask<int>
     task is started. Finally, when the asynchronous task finishes successfully, the
@@ -1765,7 +1765,7 @@ void TaskNode::invokeEndHandler(bool success)
     \section2 Task's Start Handler
 
     When a corresponding task class object is created and before it's started,
-    the task tree invokes a mandatory user-provided setup handler. The setup
+    the task tree invokes an optionally user-provided setup handler. The setup
     handler should always take a \e reference to the associated task class object:
 
     \code
@@ -2150,7 +2150,7 @@ void TaskNode::invokeEndHandler(bool success)
 
     \section1 Task Adapters
 
-    To extend a TaskTree with new a task type, implement a simple adapter class
+    To extend a TaskTree with a new task type, implement a simple adapter class
     derived from the TaskAdapter class template. The following class is an
     adapter for a single shot timer, which may be considered as a new
     asynchronous task:
@@ -2164,10 +2164,11 @@ void TaskNode::invokeEndHandler(bool success)
                 task()->setInterval(1000);
                 connect(task(), &QTimer::timeout, this, [this] { emit done(true); });
             }
+        private:
             void start() final { task()->start(); }
         };
 
-        QTC_DECLARE_CUSTOM_TASK(TimeoutTask, TimeoutTaskAdapter);
+        TASKING_DECLARE_TASK(TimeoutTask, TimeoutTaskAdapter);
     \endcode
 
     You must derive the custom adapter from the TaskAdapter class template
@@ -2178,12 +2179,12 @@ void TaskNode::invokeEndHandler(bool success)
     accessible through the TaskAdapter::task() method. The constructor
     of TimeoutTaskAdapter initially configures the QTimer object and connects
     to the QTimer::timeout signal. When the signal is triggered, TimeoutTaskAdapter
-    emits the done(true) signal to inform the task tree that the task finished
-    successfully. If it emits done(false), the task finished with an error.
+    emits the \c done(true) signal to inform the task tree that the task finished
+    successfully. If it emits \c done(false), the task finished with an error.
     The TaskAdapter::start() method starts the timer.
 
     To make QTimer accessible inside TaskTree under the \e TimeoutTask name,
-    register it with QTC_DECLARE_CUSTOM_TASK(TimeoutTask, TimeoutTaskAdapter).
+    register it with TASKING_DECLARE_TASK(TimeoutTask, TimeoutTaskAdapter).
     TimeoutTask becomes a new task type inside Tasking namespace, using TimeoutTaskAdapter.
 
     The new task type is now registered, and you can use it in TaskTree:

@@ -5,8 +5,10 @@
     \page creator-how-to-set-high-dpi-scaling.html
     \if defined(qtcreator)
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+    \else
+    \previouspage creator-quick-tour.html
     \endif
+
     \ingroup creator-how-to-ui
     \ingroup studio-how-to
 
@@ -32,6 +34,7 @@
         \list 1
             \li Select \uicontrol Edit > \uicontrol Preferences >
                 \uicontrol Environment > \uicontrol Interface.
+                \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
             \li Select \uicontrol {Enable high DPI scaling}.
             \li Restart \QC to have the change take effect.
     \endlist

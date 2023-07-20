@@ -3,7 +3,7 @@ import qbs
 StaticLibrary {
     name: "qtcjson"
     Depends { name: "cpp" }
-    cpp.cxxLanguageVersion: "c++11"
+    cpp.cxxLanguageVersion: "c++17"
     cpp.minimumMacosVersion: project.minimumMacosVersion
     files: [
         "json.cpp",

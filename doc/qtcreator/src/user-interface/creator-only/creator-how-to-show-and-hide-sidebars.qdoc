@@ -4,7 +4,7 @@
 /*!
     \page creator-how-to-show-and-hide-sidebars.html
     \previouspage creator-how-tos.html
-    \nextpage creator-known-issues.html
+
     \ingroup creator-how-to-ui
 
     \title Show and hide sidebars
@@ -31,4 +31,9 @@
         \li To close a sidebar view, click \inlineimage icons/splitbutton_closetop.png
             (\uicontrol {Close}).
     \endlist
+
+    In some views, right-clicking opens a context menu that has functions
+    for managing the objects listed in the view.
+
+    \sa {Sidebar Views}
 */

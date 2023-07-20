@@ -1,12 +1,15 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-tutorials.html
     \example transitions
-    \nextpage creator-writing-program.html
+    \previouspage creator-tutorials.html
+    \nextpage creator-project-managing.html
+    \ingroup creator-tutorials
 
     \title Creating a Qt Quick Application
+
+    \brief How to create a Qt Quick Application in the \uicontrol Edit mode.
 
     This tutorial illustrates basic concepts of \l{Qt Quick}. For more
     information about the UI choices you have, see \l{User Interfaces}.
@@ -15,10 +18,10 @@
     {states} and \l{Animation and Transitions in Qt Quick}{transitions}
     when using Qt 6 as the minimum Qt version and CMake as the build system.
 
-    We use the \l{Working in Edit Mode}{Edit mode} to create an application
+    You will use the \l{Working in Edit Mode}{Edit mode} to create an application
     that moves a Qt logo between three rectangles when you click them.
 
-    \image qtquick-tutorial.gif "Transitions example"
+    \image qtquick-tutorial.gif {Transitions example}
 
     For more examples, see \l{Qt Quick Examples and Tutorials}.
 
@@ -35,9 +38,6 @@
     The main view of the application displays a Qt logo inside a rectangle in
     the top left corner of the view and two empty rectangles.
 
-    We use the \e qt-logo.png image in this tutorial, but you can also use
-    any other image or a component, instead.
-
     For the image to appear when you run the application, you must specify it
     as a resource in the \c RESOURCES section of \e CMakeLists.txt file that
     the wizard created for you:
@@ -49,8 +49,8 @@
     \section1 Creating Custom QML Types
 
     Because the \l Window QML type requires that you add states into child
-    components, we use the wizard to create a custom QML type called
-    \e Page that we will refer to from \e main.qml.
+    components, use the wizard to create a custom QML type called
+    \e Page that you refer to from \e Main.qml.
 
     To create a custom QML type:
 
@@ -60,23 +60,20 @@
             \uicontrol {QML File (Qt Quick 2)}.
         \li Select \uicontrol Choose to open the \uicontrol Location dialog.
         \li In the \uicontrol {File name} field, enter a name for the custom
-            QML type. In this example, we call the type \e Page.
+            QML type: \e Page.
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.
         \li Select \uicontrol Finish to create \e Page.qml.
     \endlist
 
     \QC opens \e Page.qml in the \uicontrol Edit mode. It has a root item
-    of the type \l Item that we replace with a \l Rectangle type. We give the
+    of the type \l Item. Replace it with a \l Rectangle type. Give the
     type the ID \e page, anchor it to the parent item on all sides, and set
     its color to white:
 
     \quotefromfile transitions/Page.qml
     \skipto import
     \printuntil color
-
-    Because we develop with Qt 6, where version numbers are not used with
-    modules, we remove the version number from the import statement.
 
     When you start typing the QML type name, \QC suggests available types
     and properties to \l{Completing Code}{complete the code}.
@@ -86,66 +83,67 @@
     {Qt Quick Toolbar for rectangles}. You can use it to specify
     rectangle properties, such as color, transparency, and gradients.
 
-    \image qml-toolbar-rectangle.png "Qt Quick Toolbar for rectangles"
+    \image qml-toolbar-rectangle.png {Qt Quick Toolbar for rectangles}
 
-    Next, we add an \l Image type with \e qt-logo.png as the source. We
-    position the image in the top-left corner of the rectangle:
+    Next, add an \l Image type with \e qt-logo.png as the source. You can also
+    use any other image or a component. Position the image in the top-left
+    corner of the rectangle:
 
     \printuntil }
 
     You can use the \l{Previewing Images}{Qt Quick Toolbar for images} to
     specify image properties, such as source file and fill mode.
 
-    \image qml-toolbar-image.png "Logo visible in Qt Quick Toolbar for images"
+    \image qml-toolbar-image.png {Logo visible in Qt Quick Toolbar for images}
 
-    We now create the rectangles that the image will move between. Their size
+    Now, create the rectangles that the image will move between. Their size
     should match the image size and they should be transparent, so that the
-    image is visible. We set the border color to light gray to make the
+    image is visible. Set the border color to light gray to make the
     rectangles visible:
 
     \printuntil border.color
 
-    We anchor the rectangles to their parent to position them in its
+    Anchor the rectangles to their parent to position them in its
     top-left and bottom-left corners, as well as the vertical center
     of its right edge. The following code snippet anchors a rectangle to
     the top-left corner of its parent:
 
     \printuntil anchors.topMargin
 
-    We add a \l MouseArea type to make the rectangle clickable by users:
+    Add a \l MouseArea type to make the rectangle clickable by users:
 
     \printuntil anchors.fill
 
     To check your code, you can compare it with the \e {Page.qml} example file.
 
-    Next, we will make the image move between the rectangles when users click
-    them, by adding states and by connecting mouse clicks to state changes.
+    Next, make the image move between the rectangles when users click
+    them by adding states and by connecting mouse clicks to state changes.
 
     \section1 Connecting Mouse Clicks to State Changes
 
-    To make the image move between the rectangles when users click them, we add
-    states to the Page component, where we change the values of the \c x and
+    To make the image move between the rectangles when users click them, add
+    states to the Page component where you change the values of the \c x and
     \c y properties of \e icon to match those of the middle right and top left
     rectangles. To make sure that the image stays within the rectangle
-    when the view is scaled on different sizes of screens, we \e bind the values
+    when the view is scaled on different sizes of screens, \e bind the values
     of the \c x and \c y properties of \e icon to those of the rectangles:
 
     \dots
     \skipto states:
     \printuntil ]
 
-    Then, we connect the \c onClicked signals of the mouse areas to the state
+    Then, connect the \c onClicked signals of the mouse areas to the state
     changes:
 
     \quotefromfile transitions/Page.qml
     \skipto Connections {
     \printuntil }
 
-    Because we develop with Qt 6, we must specify the connections as functions.
+    Because you develop with Qt 6, you must specify the connections as functions.
 
     \section1 Adding Page to the Main View
 
-    We now open \e main.qml for editing and add an instance of the Page custom
+    Open \e Main.qml for editing and add an instance of the Page custom
     component to it:
 
     \quotefromfile transitions/main.qml
@@ -157,18 +155,18 @@
 
     \section1 Animating Transitions
 
-    We will now create transitions to apply animation to the image. For example,
+    Create transitions to apply animation to the image. For example,
     the image bounces back when it moves to \e middleRightRect and eases into
     \e bottomLeftRect.
 
-    We specify transitions for switching from each state to the other two
+    Specify transitions for switching from each state to the other two
     states:
 
     \quotefromfile transitions/Page.qml
     \skipto transitions:
     \printuntil },
 
-    We change the easing curve type for transitions to \e State2 from linear to
+    Change the easing curve type for transitions to \e State2 from linear to
     \c Easing.OutBounce to create the bounce effect:
 
     \printuntil },
@@ -177,9 +175,9 @@
     {Qt Quick Toolbar for animation} to specify the
     easing curve type and animation duration.
 
-    \image qml-toolbar-animation.png "Qt Quick Toolbar for animation"
+    \image qml-toolbar-animation.png {Qt Quick Toolbar for animation}
 
-    Then, we change the easing curve type for transitions to \e State2 from
+    Then, change the easing curve type for transitions to \e State2 from
     linear to \c Easing.InOutQuad to create the easing effect:
 
     \printuntil /^\ {0}\}/

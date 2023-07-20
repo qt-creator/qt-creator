@@ -4,7 +4,9 @@
 #include "testprojectsettings.h"
 
 #include "autotestconstants.h"
+#include "testcodeparser.h"
 #include "testframeworkmanager.h"
+#include "testtreemodel.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -49,7 +51,9 @@ void TestProjectSettings::activateFramework(const Id &id, bool activate)
 {
     ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
     m_activeTestFrameworks[framework] = activate;
-    if (!activate)
+    if (TestTreeModel::instance()->parser()->isParsing())
+        framework->rootNode()->markForRemoval(!activate);
+    else if (!activate)
         framework->resetRootNode();
 }
 

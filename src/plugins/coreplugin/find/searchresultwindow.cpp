@@ -319,7 +319,7 @@ using namespace Core::Internal;
     \brief The SearchResultWindow class is the implementation of a commonly
     shared \uicontrol{Search Results} output pane.
 
-    \image qtcreator-searchresults.png
+    \image qtcreator-search-results.webp {Search Results view}
 
     Whenever you want to show the user a list of search results, or want
     to present UI for a global search and replace, use the single instance

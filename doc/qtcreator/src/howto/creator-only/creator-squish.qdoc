@@ -22,7 +22,7 @@
         \li Record test cases (in a very limited way compared to what you can do
             inside the Squish IDE).
         \li Use Squish Runner and Server to run test suites or cases and view
-            the results in the \uicontrol Squish \l{Viewing Output}{output}.
+            the results in the \uicontrol Squish \l{View output}{output}.
         \li Set breakpoints before running tests to stop at certain locations and
             inspect the local variables, similarly to when debugging a test.
     \endlist
