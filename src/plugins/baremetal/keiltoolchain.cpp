@@ -10,6 +10,7 @@
 #include <projectexplorer/abiwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
+#include <projectexplorer/toolchainconfigwidget.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>
@@ -402,13 +403,70 @@ static void addDefaultCpuArgs(const FilePath &compiler, QStringList &extraArgs)
 
 // KeilToolchain
 
-KeilToolChain::KeilToolChain() :
-    ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
+class KeilToolChain;
+
+class KeilToolChainConfigWidget final : public ToolChainConfigWidget
 {
-    setTypeDisplayName(Tr::tr("KEIL"));
-    setTargetAbiKey("TargetAbi");
-    setCompilerCommandKey("CompilerPath");
-}
+public:
+    explicit KeilToolChainConfigWidget(KeilToolChain *tc);
+
+private:
+    void applyImpl() final;
+    void discardImpl() final { setFromToolChain(); }
+    bool isDirtyImpl() const final;
+    void makeReadOnlyImpl() final;
+
+    void setFromToolChain();
+    void handleCompilerCommandChange();
+    void handlePlatformCodeGenFlagsChange();
+
+    PathChooser *m_compilerCommand = nullptr;
+    AbiWidget *m_abiWidget = nullptr;
+    QLineEdit *m_platformCodeGenFlagsLineEdit = nullptr;
+    Macros m_macros;
+};
+
+// KeilToolChain
+
+class KeilToolChain final : public ToolChain
+{
+public:
+    KeilToolChain() :
+        ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
+    {
+        setTypeDisplayName(Tr::tr("KEIL"));
+        setTargetAbiKey("TargetAbi");
+        setCompilerCommandKey("CompilerPath");
+    }
+
+    MacroInspectionRunner createMacroInspectionRunner() const final;
+
+    LanguageExtensions languageExtensions(const QStringList &cxxflags) const final;
+    WarningFlags warningFlags(const QStringList &cxxflags) const final;
+
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Environment &) const final;
+    void addToEnvironment(Environment &env) const final;
+    QList<OutputLineParser *> createOutputParsers() const final;
+
+    QVariantMap toMap() const final;
+    bool fromMap(const QVariantMap &data) final;
+
+    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
+
+    bool operator==(const ToolChain &other) const final;
+
+    void setExtraCodeModelFlags(const QStringList &flags);
+    QStringList extraCodeModelFlags() const final;
+
+    FilePath makeCommand(const Environment &env) const final;
+
+private:
+    QStringList m_extraCodeModelFlags;
+
+    friend class KeilToolChainFactory;
+    friend class KeilToolChainConfigWidget;
+};
+
 
 ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() const
 {
