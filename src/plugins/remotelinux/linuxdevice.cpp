@@ -1485,7 +1485,7 @@ LinuxDeviceFactory::LinuxDeviceFactory()
     setConstructionFunction(&LinuxDevice::create);
     setQuickCreationAllowed(true);
     setCreator([] {
-        GenericLinuxDeviceConfigurationWizard wizard(Core::ICore::dialogParent());
+        GenericLinuxDeviceConfigurationWizard wizard;
         if (wizard.exec() != QDialog::Accepted)
             return IDevice::Ptr();
         return wizard.device();

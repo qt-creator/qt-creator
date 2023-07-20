@@ -8,6 +8,8 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 
@@ -17,33 +19,30 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
-enum PageId { SetupPageId, KeyDeploymentPageId, FinalPageId };
 
 class GenericLinuxDeviceConfigurationWizardPrivate
 {
 public:
-    GenericLinuxDeviceConfigurationWizardPrivate(QWidget *parent)
-        : setupPage(parent), keyDeploymentPage(parent), finalPage(parent)
-    {
-    }
-
     GenericLinuxDeviceConfigurationWizardSetupPage setupPage;
     GenericLinuxDeviceConfigurationWizardKeyDeploymentPage keyDeploymentPage;
     GenericLinuxDeviceConfigurationWizardFinalPage finalPage;
     LinuxDevice::Ptr device;
 };
+
 } // namespace Internal
 
-GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard(QWidget *parent)
-    : Utils::Wizard(parent),
-      d(new Internal::GenericLinuxDeviceConfigurationWizardPrivate(this))
+GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard()
+    : Utils::Wizard(Core::ICore::dialogParent())
+    , d(new Internal::GenericLinuxDeviceConfigurationWizardPrivate)
 {
     setWindowTitle(Tr::tr("New Remote Linux Device Configuration Setup"));
-    setPage(Internal::SetupPageId, &d->setupPage);
-    setPage(Internal::KeyDeploymentPageId, &d->keyDeploymentPage);
-    setPage(Internal::FinalPageId, &d->finalPage);
+    addPage(&d->setupPage);
+    addPage(&d->keyDeploymentPage);
+    addPage(&d->finalPage);
     d->finalPage.setCommitPage(true);
+
     d->device = LinuxDevice::create();
+
     d->setupPage.setDevice(d->device);
     d->keyDeploymentPage.setDevice(d->device);
 }
