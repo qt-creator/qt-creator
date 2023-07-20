@@ -337,6 +337,53 @@ Utils::FilePath qmlPath(::ProjectExplorer::Target *target)
     return {};
 }
 
+template<typename... Path>
+bool skipDirectoriesWith(const QStringView directoryPath, const Path &...paths)
+{
+    return (directoryPath.contains(paths) || ...);
+}
+
+template<typename... Path>
+bool skipDirectoriesEndsWith(const QStringView directoryPath, const Path &...paths)
+{
+    return (directoryPath.endsWith(paths) || ...);
+}
+
+bool skipPath(const QString &directoryPath)
+{
+    return skipDirectoriesWith(directoryPath,
+                               u"QtApplicationManager",
+                               u"QtInterfaceFramework",
+                               u"QtOpcUa",
+                               u"Qt3D",
+                               u"Scene2D",
+                               u"Scene3D",
+                               u"QtWayland",
+                               u"Qt5Compat",
+                               u"QtCharts",
+                               u"QtLocation",
+                               u"QtMultimedia",
+                               u"QtPositioning",
+                               u"MaterialEditor",
+                               u"QtTextToSpeech",
+                               u"QtWebEngine",
+                               u"Qt/labs")
+           || skipDirectoriesEndsWith(directoryPath, u"designer");
+}
+
+void collectQmldirPaths(const QString &path, QStringList &qmldirPaths)
+{
+    QDirIterator dirIterator{path, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories};
+
+    while (dirIterator.hasNext()) {
+        auto directoryPath = dirIterator.next();
+
+        QString qmldirPath = directoryPath + "/qmldir";
+        if (!skipPath(directoryPath) && QFileInfo::exists(qmldirPath))
+            qmldirPaths.push_back(directoryPath);
+    }
+}
+
 void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
     ::QmlProjectManager::QmlBuildSystem *buildSystem = getQmlBuildSystem(target);
@@ -346,53 +393,16 @@ void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPa
     const QDir projectDirectory(projectDirectoryPath.toString());
 
     for (const QString &importPath : importPaths)
-        qmldirPaths.push_back(QDir::cleanPath(projectDirectory.absoluteFilePath(importPath))
-                              + "/qmldir");
+        collectQmldirPaths(importPath, qmldirPaths);
 }
 
-#ifdef QDS_HAS_QMLPRIVATE
-QStringView currentDirectoryName(const QString &path)
+void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
-    auto found = std::find(path.rbegin(), path.rend(), u'/');
-
-    if (found == path.rend())
-        return {};
-
-    return QStringView{found.base(), path.end()};
-}
-bool skipPath(const QString &path)
-{
-    auto directory = currentDirectoryName(path);
-
-    bool skip = directory == u"QtApplicationManager" || directory == u"QtInterfaceFramework"
-                || directory == u"QtOpcUa" || directory == u"Qt3D" || directory == u"Qt3D"
-                || directory == u"Scene2D" || directory == u"Scene3D" || directory == u"QtWayland"
-                || directory == u"Qt5Compat";
-
-    return skip;
-}
-#endif
-
-void qtQmldirPaths([[maybe_unused]] ::ProjectExplorer::Target *target,
-                   [[maybe_unused]] QStringList &qmldirPaths)
-{
-#ifdef QDS_HAS_QMLPRIVATE
-    if (useProjectStorage()) {
-        const QString installDirectory = qmlPath(target).toString();
-        QDirIterator dirIterator{installDirectory, QDir::Dirs, QDirIterator::Subdirectories};
-
-        while (dirIterator.hasNext()) {
-            auto directoryPath = dirIterator.next();
-
-            QString qmldirPath = directoryPath + "/qmldir";
-            if (!skipPath(directoryPath) && QFileInfo::exists(qmldirPath))
-                qmldirPaths.push_back(directoryPath);
-        }
-    }
-#endif
+    if constexpr (useProjectStorage())
+        collectQmldirPaths(qmlPath(target).toString(), qmldirPaths);
 }
 
-QStringList qmlDirs(::ProjectExplorer::Target *target)
+QStringList directories(::ProjectExplorer::Target *target)
 {
     if (!target)
         return {};
@@ -561,7 +571,7 @@ void QmlDesignerProjectManager::update()
     if (!m_projectData || !m_projectData->projectStorageData)
         return;
 
-    m_projectData->projectStorageData->updater.update(qmlDirs(m_projectData->activeTarget),
+    m_projectData->projectStorageData->updater.update(directories(m_projectData->activeTarget),
                                                       qmlTypes(m_projectData->activeTarget));
 }
 

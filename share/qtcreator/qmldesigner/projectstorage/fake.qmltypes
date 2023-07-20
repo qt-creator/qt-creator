@@ -28,10 +28,6 @@ Component {
 }
 
 Component {
-  name: "uint"
-}
-
-Component {
   name: "QGeometryView"
 }
 
@@ -41,18 +37,6 @@ Component {
 
 Component {
   name: "Qt3DRender::QLevelOfDetailBoundingSphere"
-}
-
-Component {
-  name: "QImage"
-}
-
-Component {
-  name: "qlonglong"
-}
-
-Component {
-  name: "qulonglong"
 }
 
 Component {
@@ -88,10 +72,6 @@ Component {
 }
 
 Component {
-  name: "QGraphicsLayout"
-}
-
-Component {
   name: "QPalette"
 }
 
@@ -100,15 +80,7 @@ Component {
 }
 
 Component {
-  name: "QRegExp"
-}
-
-Component {
   name: "QList<QColor>"
-}
-
-Component {
-  name: "QList<QAudioDevice>"
 }
 
 Component {
@@ -236,10 +208,6 @@ Component {
 }
 
 Component {
-  name: "ShadowInputControl_QMLTYPE_16"
-}
-
-Component {
   name: "const QPointingDevice"
 }
 
@@ -284,10 +252,6 @@ Component {
 }
 
 Component {
-  name: "QQuickWebEngineScriptCollection"
-}
-
-Component {
   name: "QOrientationReading::Orientation"
 }
 
@@ -324,18 +288,7 @@ Component {
 }
 
 Component {
-  name: "QDate"
-}
-
-Component {
   name: "Qt::InputMethodHints"
 }
 
-Component {
-  name: "QChar"
-}
-
-Component {
-  name: "QVector3D"
-}
 }
