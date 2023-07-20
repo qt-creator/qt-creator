@@ -470,10 +470,12 @@ void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
     parent.addItem(d->m_widget.data());
 }
 
-void SourcePathMapAspect::guiToBuffer()
+bool SourcePathMapAspect::guiToBuffer()
 {
+    const SourcePathMap old = m_buffer;
     if (d->m_widget)
         m_buffer = d->m_widget->sourcePathMap();
+    return m_buffer != old;
 }
 
 void SourcePathMapAspect::bufferToGui()

@@ -151,7 +151,7 @@ void SuppressionAspect::addToLayout(Layouting::LayoutItem &parent)
 
 void SuppressionAspect::fromMap(const QVariantMap &map)
 {
-    BaseAspect::fromMap(map);
+    BaseAspect::fromMap(map); // FIXME Looks wrong, as it skips the intermediate level
 }
 
 void SuppressionAspect::toMap(QVariantMap &map) const
@@ -159,11 +159,13 @@ void SuppressionAspect::toMap(QVariantMap &map) const
     BaseAspect::toMap(map);
 }
 
-void SuppressionAspect::guiToBuffer()
+bool SuppressionAspect::guiToBuffer()
 {
+    const FilePaths old = m_buffer;
     m_buffer.clear();
     for (int i = 0; i < d->m_model.rowCount(); ++i)
         m_buffer.append(FilePath::fromUserInput(d->m_model.item(i)->text()));
+    return m_buffer != old;
 }
 
 void SuppressionAspect::bufferToGui()

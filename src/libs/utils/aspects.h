@@ -165,17 +165,18 @@ public:
     static QSettings *settings();
 
 signals:
-    void changed();
+    void changed(); // "internal"
     void volatileValueChanged();
+    void externalValueChanged();
     void labelLinkActivated(const QString &link);
 
 protected:
-    virtual void internalToBuffer();
-    virtual void bufferToInternal();
+    virtual bool internalToBuffer();
+    virtual bool bufferToInternal();
     virtual void bufferToGui();
-    virtual void guiToBuffer();
-    virtual void internalToExternal();
-    virtual void externalToInternal();
+    virtual bool guiToBuffer();
+    virtual bool internalToExternal();
+    virtual bool externalToInternal();
 
     virtual void handleGuiChanged();
 
@@ -247,10 +248,14 @@ public:
 
     void setValue(const ValueType &value)
     {
+        const bool changes = m_internal != value;
         m_internal = value;
-        internalToBuffer();
+        if (internalToBuffer())
+            emit volatileValueChanged();
         bufferToGui();
         internalToExternal();
+        if (changes)
+            emit changed();
     }
 
     void setValueQuietly(const ValueType &value)
@@ -281,24 +286,36 @@ protected:
         return m_internal != m_buffer;
     }
 
-    void internalToBuffer() override
+    bool internalToBuffer() override
     {
+        if (m_buffer == m_internal)
+            return false;
         m_buffer = m_internal;
+        return true;
     }
 
-    void bufferToInternal() override
+    bool bufferToInternal() override
     {
+        if (m_buffer == m_internal)
+            return false;
         m_internal = m_buffer;
+        return true;
     }
 
-    void internalToExternal() override
+    bool internalToExternal() override
     {
+        if (m_external == m_internal)
+            return false;
         m_external = m_internal;
+        return true;
     }
 
-    void externalToInternal() override
+    bool externalToInternal() override
     {
+        if (m_external == m_internal)
+            return false;
         m_internal = m_external;
+        return true;
     }
 
     QVariant variantValue() const override
@@ -357,7 +374,7 @@ public:
 
 private:
     void bufferToGui() override;
-    void guiToBuffer() override;
+    bool guiToBuffer() override;
 
     std::unique_ptr<Internal::BoolAspectPrivate> d;
 };
@@ -374,7 +391,7 @@ public:
 
 private:
     void bufferToGui() override;
-    void guiToBuffer() override;
+    bool guiToBuffer() override;
 
     std::unique_ptr<Internal::ColorAspectPrivate> d;
 };
@@ -422,7 +439,7 @@ public:
 
 protected:
     void bufferToGui() override;
-    void guiToBuffer() override;
+    bool guiToBuffer() override;
 
 private:
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
@@ -446,7 +463,7 @@ public:
 
 protected:
     void bufferToGui() override;
-    void guiToBuffer() override;
+    bool guiToBuffer() override;
 
 private:
     std::unique_ptr<Internal::MultiSelectionAspectPrivate> d;
@@ -522,10 +539,10 @@ signals:
 
 protected:
     void bufferToGui() override;
-    void guiToBuffer() override;
+    bool guiToBuffer() override;
 
-    void internalToBuffer() override;
-    void bufferToInternal() override;
+    bool internalToBuffer() override;
+    bool bufferToInternal() override;
 
     std::unique_ptr<Internal::StringAspectPrivate> d;
 };
@@ -573,7 +590,7 @@ public:
 
 protected:
     void bufferToGui() override;
-    void guiToBuffer() override;
+    bool guiToBuffer() override;
 
 private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
@@ -597,7 +614,7 @@ public:
 
 protected:
     void bufferToGui() override;
-    void guiToBuffer() override;
+    bool guiToBuffer() override;
 
 private:
     std::unique_ptr<Internal::DoubleAspectPrivate> d;

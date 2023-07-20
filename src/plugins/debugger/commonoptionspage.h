@@ -31,7 +31,7 @@ public:
     void writeSettings() const override;
 
 private:
-    void guiToBuffer() override;
+    bool guiToBuffer() override;
     void bufferToGui() override;
 
     SourcePathMapAspectPrivate *d = nullptr;

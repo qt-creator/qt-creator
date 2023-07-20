@@ -1203,8 +1203,9 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_checker->addToLayout(parent);
 }
 
-void StringAspect::guiToBuffer()
+bool StringAspect::guiToBuffer()
 {
+    const QString old = m_buffer;
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
         if (d->m_pathChooserDisplay)
@@ -1220,22 +1221,26 @@ void StringAspect::guiToBuffer()
     case LabelDisplay:
         break;
     }
+    return m_buffer != old;
 }
 
-void StringAspect::bufferToInternal()
+bool StringAspect::bufferToInternal()
 {
+    const QString old = m_internal;
     if (d->m_valueAcceptor) {
         if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
             m_internal = *tmp;
-        return;
+    } else {
+        m_internal = m_buffer;
     }
-
-    m_internal = m_buffer;
+    return m_internal != old;
 }
 
-void StringAspect::internalToBuffer()
+bool StringAspect::internalToBuffer()
 {
+    const QString old = m_buffer;
     m_buffer = d->m_displayFilter ? d->m_displayFilter(m_internal) : m_internal;
+    return m_buffer != old;
 }
 
 void StringAspect::bufferToGui()
@@ -1391,10 +1396,12 @@ void ColorAspect::addToLayout(Layouting::LayoutItem &parent)
             this, &ColorAspect::handleGuiChanged);
 }
 
-void ColorAspect::guiToBuffer()
+bool ColorAspect::guiToBuffer()
 {
+    const QColor old = m_buffer;
     if (d->m_colorButton)
         m_buffer = d->m_colorButton->color();
+    return m_buffer != old;
 }
 
 void ColorAspect::bufferToGui()
@@ -1496,12 +1503,14 @@ QAction *BoolAspect::action()
     return act;
 }
 
-void BoolAspect::guiToBuffer()
+bool BoolAspect::guiToBuffer()
 {
+    const bool old = m_buffer;
     if (d->m_button)
         m_buffer = d->m_button->isChecked();
     else if (d->m_groupBox)
         m_buffer = d->m_groupBox->isChecked();
+    return m_buffer != old;
 }
 
 void BoolAspect::bufferToGui()
@@ -1603,8 +1612,9 @@ void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     }
 }
 
-void SelectionAspect::guiToBuffer()
+bool SelectionAspect::guiToBuffer()
 {
+    const int old = m_buffer;
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons:
         if (d->m_buttonGroup)
@@ -1615,6 +1625,7 @@ void SelectionAspect::guiToBuffer()
             m_buffer = d->m_comboBox->currentIndex();
         break;
     }
+    return m_buffer != old;
 }
 
 void SelectionAspect::bufferToGui()
@@ -1806,8 +1817,9 @@ void MultiSelectionAspect::bufferToGui()
     }
 }
 
-void MultiSelectionAspect::guiToBuffer()
+bool MultiSelectionAspect::guiToBuffer()
 {
+    const QStringList old = m_buffer;
     if (d->m_listView) {
         m_buffer.clear();
         const int n = d->m_listView->count();
@@ -1818,6 +1830,7 @@ void MultiSelectionAspect::guiToBuffer()
                 m_buffer.append(item->text());
         }
     }
+    return m_buffer != old;
 }
 
 
@@ -1869,10 +1882,12 @@ void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
             this, &IntegerAspect::handleGuiChanged);
 }
 
-void IntegerAspect::guiToBuffer()
+bool IntegerAspect::guiToBuffer()
 {
+    const qint64 old = m_buffer;
     if (d->m_spinBox)
         m_buffer = d->m_spinBox->value() * d->m_displayScaleFactor;
+    return m_buffer != old;
 }
 
 void IntegerAspect::bufferToGui()
@@ -1968,10 +1983,12 @@ void DoubleAspect::addToLayout(LayoutItem &builder)
             this, &DoubleAspect::handleGuiChanged);
 }
 
-void DoubleAspect::guiToBuffer()
+bool DoubleAspect::guiToBuffer()
 {
+    const double old = m_buffer;
     if (d->m_spinBox)
         m_buffer = d->m_spinBox->value();
+    return m_buffer != old;
 }
 
 void DoubleAspect::bufferToGui()
@@ -2447,46 +2464,61 @@ BaseAspect::Data::Ptr BaseAspect::extractData() const
     No-op otherwise.
 */
 void BaseAspect::bufferToGui()
-{}
+{
+}
 
 /*
     Mirrors the data stored in GUI element if they are already created to
     the internal volatile value.
 
     No-op otherwise.
+
+    \return true when the buffered volatile value changed.
 */
-void BaseAspect::guiToBuffer()
-{}
+bool BaseAspect::guiToBuffer()
+{
+    return false;
+}
 
 /*
     Mirrors buffered volatile value to the internal value.
     This function is used for \c apply().
+
+    \return true when the internal value changed.
 */
 
-void BaseAspect::bufferToInternal()
-{}
+bool BaseAspect::bufferToInternal()
+{
+    return false;
+}
 
 
-void BaseAspect::internalToBuffer()
-{}
+bool BaseAspect::internalToBuffer()
+{
+    return false;
+}
 
 /*
     Applies common postprocessing like macro expansion.
 */
 
-void BaseAspect::internalToExternal()
-{}
+bool BaseAspect::internalToExternal()
+{
+    return false;
+}
 
 /*
     Mirrors externally visible value to internal volatile value.
 */
-void BaseAspect::externalToInternal()
-{}
+bool BaseAspect::externalToInternal()
+{
+    return false;
+}
 
 void BaseAspect::handleGuiChanged()
 {
-    guiToBuffer();
-    emit volatileValueChanged();
+    if (guiToBuffer())
+        volatileValueChanged();
     if (isAutoApply())
         apply();
 }

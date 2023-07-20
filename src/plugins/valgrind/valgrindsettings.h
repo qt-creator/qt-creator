@@ -29,7 +29,7 @@ public:
 
 private:
     void bufferToGui() override;
-    void guiToBuffer() override;
+    bool guiToBuffer() override;
 
     friend class ValgrindBaseSettings;
     SuppressionAspectPrivate *d = nullptr;
