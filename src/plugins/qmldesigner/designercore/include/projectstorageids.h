@@ -5,6 +5,8 @@
 
 #include <sqlite/sqliteids.h>
 
+#include <utils/span.h>
+
 namespace QmlDesigner {
 
 enum class BasicIdType {
@@ -48,6 +50,7 @@ using SourceIds = std::vector<SourceId>;
 
 using ModuleId = Sqlite::BasicId<BasicIdType::Module, int>;
 using ModuleIds = std::vector<ModuleId>;
+using ModuleIdSpan = Utils::span<ModuleId>;
 
 using ProjectPartId = Sqlite::BasicId<BasicIdType::ProjectPartId>;
 using ProjectPartIds = std::vector<ProjectPartId>;

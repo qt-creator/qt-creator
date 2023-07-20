@@ -29,7 +29,7 @@ public:
 #endif
 
     Storage::Synchronization::Type parse(const QString &sourceContent,
-                                         Storage::Synchronization::Imports &imports,
+                                         Storage::Imports &imports,
                                          SourceId sourceId,
                                          Utils::SmallStringView directoryPath) override;
 

@@ -28,7 +28,7 @@ static QByteArrayList populateLineage(const QmlDesigner::ModelNode &node)
     if (!node.isValid() || node.type().isEmpty())
         return {};
 
-    for (auto &info : node.metaInfo().superClasses())
+    for (auto &info : node.metaInfo().prototypes())
         lineage.append(info.typeName());
 
     return lineage;

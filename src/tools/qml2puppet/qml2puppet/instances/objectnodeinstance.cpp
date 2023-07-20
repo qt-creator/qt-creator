@@ -437,7 +437,7 @@ QVariant ObjectNodeInstance::convertEnumToValue(const QVariant &value, const Pro
     QVariant adjustedValue;
     Enumeration enumeration = value.value<Enumeration>();
     if (metaProperty.isValid() && metaProperty.isEnumType()) {
-        adjustedValue = metaProperty.enumerator().keyToValue(enumeration.name());
+        adjustedValue = metaProperty.enumerator().keyToValue(enumeration.toName());
     } else {
         QQmlExpression expression(context(), object(), enumeration.toString());
         adjustedValue =  expression.evaluate();

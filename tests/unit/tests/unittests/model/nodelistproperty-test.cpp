@@ -4,6 +4,7 @@
 #include <abstractviewmock.h>
 #include <googletest.h>
 #include <projectstoragemock.h>
+#include <sourcepathcachemock.h>
 
 #include <model.h>
 #include <modelnode.h>
@@ -61,7 +62,7 @@ protected:
 
         ON_CALL(projectStorageMock, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
         ON_CALL(projectStorageMock, type(Eq(typeId)))
-            .WillByDefault(Return(Info::Type{defaultPropertyId, {}}));
+            .WillByDefault(Return(Info::Type{defaultPropertyId, QmlDesigner::SourceId{}, {}}));
         ON_CALL(projectStorageMock, propertyName(Eq(defaultPropertyId)))
             .WillByDefault(Return(defaultPeopertyName));
     }
@@ -77,9 +78,14 @@ protected:
     }
 
 protected:
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock;
-    std::unique_ptr<QmlDesigner::Model> model{
-        std::make_unique<QmlDesigner::Model>(projectStorageMock, "QtQuick.Item")};
+    NiceMock<SourcePathCacheMockWithPaths> pathCache{"/path/foo.qml"};
+    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCache.sourceId};
+    QmlDesigner::ModelPointer model{
+        QmlDesigner::Model::create(QmlDesigner::ProjectStorageDependencies{projectStorageMock,
+                                                                           pathCache},
+                                   "Item",
+                                   {QmlDesigner::Import::createLibraryImport("QtQuick")},
+                                   QUrl::fromLocalFile(pathCache.path.toQString()))};
     NiceMock<AbstractViewMock> abstractViewMock;
     QmlDesigner::NodeListProperty nodeListProperty;
     ModelNode node1;

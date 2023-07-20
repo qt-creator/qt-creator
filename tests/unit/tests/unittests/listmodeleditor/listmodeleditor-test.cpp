@@ -3,8 +3,9 @@
 
 #include "../utils/googletest.h"
 
-#include "../mocks/mocklistmodeleditorview.h"
-#include "../mocks/projectstoragemock.h"
+#include <mocks/mocklistmodeleditorview.h>
+#include <mocks/projectstoragemock.h>
+#include <mocks/sourcepathcachemock.h>
 
 #include <qmldesigner/components/listmodeleditor/listmodeleditormodel.h>
 #include <qmldesigner/designercore/include/abstractview.h>
@@ -70,15 +71,18 @@ MATCHER_P2(IsAbstractProperty, node, name, std::string(negation ? "isn't " : "is
 
 class ListModelEditor : public testing::Test
 {
+    using SourcePathCache = QmlDesigner::SourcePathCache<NiceMock<ProjectStorageMockWithQtQtuick>,
+                                                         QmlDesigner::NonLockingMutex>;
+
 public:
     ListModelEditor()
     {
         designerModel->attachView(&mockView);
 
-        emptyListModelNode = mockView.createModelNode("QtQml.Models.ListModel", 2, 15);
+        emptyListModelNode = mockView.createModelNode("ListModel");
 
-        listViewNode = mockView.createModelNode("QtQuick.ListView", 2, 15);
-        listModelNode = mockView.createModelNode("QtQml.Models.ListModel", 2, 15);
+        listViewNode = mockView.createModelNode("ListView");
+        listModelNode = mockView.createModelNode("ListModel");
         mockView.rootModelNode().defaultNodeListProperty().reparentHere(listModelNode);
         element1 = createElement({{"name", "foo"}, {"value", 1}, {"value2", 42}},
                                  mockView,
@@ -91,6 +95,7 @@ public:
                                  listModelNode);
 
         componentModel->attachView(&mockComponentView);
+        mockComponentView.changeRootNodeType("ListModel", -1, -1);
 
         componentElement = createElement({{"name", "com"}, {"value", 11}, {"value2", 55}},
                                          mockComponentView,
@@ -178,15 +183,20 @@ public:
     }
 
 protected:
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock;
+    NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
+    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
     NiceMock<MockFunction<ModelNode(const ModelNode &)>> goIntoComponentMock;
     QmlDesigner::ModelPointer designerModel{
-        QmlDesigner::Model::create(projectStorageMock, "QtQuick.Item", 1, 1)};
+        QmlDesigner::Model::create(QmlDesigner::ProjectStorageDependencies{projectStorageMock,
+                                                                           pathCacheMock},
+                                   "Item",
+                                   {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
+                                    QmlDesigner::Import::createLibraryImport("QtQuick")},
+                                   pathCacheMock.path.toQString())};
     NiceMock<MockListModelEditorView> mockView;
-    QmlDesigner::ListModelEditorModel model{
-        [&] { return mockView.createModelNode("QtQml.Models.ListModel", 2, 15); },
-        [&] { return mockView.createModelNode("QtQml.Models.ListElement", 2, 15); },
-        goIntoComponentMock.AsStdFunction()};
+    QmlDesigner::ListModelEditorModel model{[&] { return mockView.createModelNode("ListModel"); },
+                                            [&] { return mockView.createModelNode("ListElement"); },
+                                            goIntoComponentMock.AsStdFunction()};
     ModelNode listViewNode;
     ModelNode listModelNode;
     ModelNode emptyListModelNode;
@@ -194,7 +204,11 @@ protected:
     ModelNode element2;
     ModelNode element3;
     QmlDesigner::ModelPointer componentModel{
-        QmlDesigner::Model::create(projectStorageMock, "QtQml.Models.ListModel", 1, 1)};
+        QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+                                   "ListModel",
+                                   {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
+                                    QmlDesigner::Import::createLibraryImport("QtQuick")},
+                                   pathCacheMock.path.toQString())};
     NiceMock<MockListModelEditorView> mockComponentView;
     ModelNode componentElement;
 };
@@ -289,9 +303,9 @@ TEST_F(ListModelEditor, add_row_creates_new_model_node_and_reparents)
 {
     model.setListModel(listModelNode);
 
-    EXPECT_CALL(mockView, nodeCreated(Property(&ModelNode::type, Eq("QtQml.Models.ListElement"))));
+    EXPECT_CALL(mockView, nodeCreated(Property(&ModelNode::type, Eq("ListElement"))));
     EXPECT_CALL(mockView,
-                nodeReparented(Property(&ModelNode::type, Eq("QtQml.Models.ListElement")),
+                nodeReparented(Property(&ModelNode::type, Eq("ListElement")),
                                Property(&AbstractProperty::parentModelNode, Eq(listModelNode)),
                                _,
                                _));
@@ -1284,7 +1298,7 @@ TEST_F(ListModelEditor, list_view_has_no_model)
 {
     model.setListView(listViewNode);
 
-    ASSERT_THAT(listViewNode.nodeProperty("model").modelNode().type(), Eq("QtQml.Models.ListModel"));
+    ASSERT_THAT(listViewNode.nodeProperty("model").modelNode().type(), Eq("ListModel"));
 }
 
 TEST_F(ListModelEditor, list_view_has_model_inside)

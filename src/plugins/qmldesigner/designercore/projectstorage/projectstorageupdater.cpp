@@ -125,7 +125,7 @@ Storage::Synchronization::IsAutoVersion convertToIsAutoVersion(QmlDirParser::Imp
     return Storage::Synchronization::IsAutoVersion::No;
 }
 
-void addDependencies(Storage::Synchronization::Imports &dependencies,
+void addDependencies(Storage::Imports &dependencies,
                      SourceId sourceId,
                      const QList<QmlDirParser::Import> &qmldirDependencies,
                      ProjectStorageInterface &projectStorage)

@@ -148,7 +148,7 @@ AbstractProperty BindingProperty::resolveToProperty() const
         element = binding;
     }
 
-    if (node.isValid())
+    if (node.isValid() && !element.contains(' '))
         return node.property(element.toUtf8());
     else
         return AbstractProperty();

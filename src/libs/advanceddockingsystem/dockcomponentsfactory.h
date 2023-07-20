@@ -12,6 +12,7 @@ class DockAreaTitleBar;
 class DockAreaTabBar;
 class DockAreaWidget;
 class DockWidget;
+class AutoHideTab;
 
 /**
  * Factory for creation of certain GUI elements for the docking framework.
@@ -36,6 +37,12 @@ public:
      * new DockWidgetTab(dockWidget).
      */
     virtual DockWidgetTab *createDockWidgetTab(DockWidget *dockWidget) const;
+
+    /**
+     * This default implementation just creates a dock widget side tab with
+     * new CDockWidgetTab(DockWidget).
+     */
+    virtual AutoHideTab *createDockWidgetSideTab(DockWidget *dockWidget) const;
 
     /**
      * This default implementation just creates a dock area tab bar with

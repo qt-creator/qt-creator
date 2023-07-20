@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formeditorwidget.h"
+#include "backgroundaction.h"
 #include "designeractionmanager.h"
 #include "designericons.h"
 #include "designersettings.h"
@@ -332,11 +333,13 @@ void FormEditorWidget::changeBackgound(const QColor &color)
     if (color.alpha() == 0) {
         m_graphicsView->activateCheckboardBackground();
         if (m_formEditorView->rootModelNode().hasAuxiliaryData(formeditorColorProperty)) {
-            m_formEditorView->rootModelNode().setAuxiliaryData(formeditorColorProperty, {});
+            m_formEditorView->rootModelNode().setAuxiliaryDataWithoutLock(formeditorColorProperty,
+                                                                          {});
         }
     } else {
         m_graphicsView->activateColoredBackground(color);
-        m_formEditorView->rootModelNode().setAuxiliaryData(formeditorColorProperty, color);
+        m_formEditorView->rootModelNode().setAuxiliaryDataWithoutLock(formeditorColorProperty,
+                                                                      color);
     }
 }
 
@@ -397,6 +400,10 @@ void FormEditorWidget::updateActions()
         } else {
             m_backgroundAction->setColor(Qt::transparent);
         }
+
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData(contextImageProperty))
+            m_backgroundAction->setColor(BackgroundAction::ContextImage);
+
     } else {
         m_rootWidthAction->clearLineEditText();
         m_rootHeightAction->clearLineEditText();
@@ -540,6 +547,40 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
     }
 }
 
+QImage FormEditorWidget::takeFormEditorScreenshot()
+{
+    const QRectF boundingRect = m_formEditorView->scene()->rootFormEditorItem()->boundingRect();
+
+    m_formEditorView->scene()->manipulatorLayerItem()->setVisible(false);
+    QImage image(boundingRect.size().toSize(), QImage::Format_ARGB32);
+
+    if (!m_graphicsView->backgroundImage().isNull()) {
+        image = m_graphicsView->backgroundImage();
+        const QPoint offset = m_graphicsView->backgroundImage().offset();
+
+        QPainter painter(&image);
+        QTransform viewportTransform = m_graphicsView->viewportTransform();
+
+        m_graphicsView->render(&painter,
+                               QRectF(-offset, boundingRect.size()),
+                               viewportTransform.mapRect(boundingRect).toRect());
+
+        image.setOffset(offset);
+
+    } else {
+        QPainter painter(&image);
+        QTransform viewportTransform = m_graphicsView->viewportTransform();
+
+        m_graphicsView->render(&painter,
+                               QRectF(0, 0, image.width(), image.height()),
+                               viewportTransform.mapRect(boundingRect).toRect());
+    }
+
+    m_formEditorView->scene()->manipulatorLayerItem()->setVisible(true);
+
+    return image;
+}
+
 QPicture FormEditorWidget::renderToPicture() const
 {
     QPicture picture;
@@ -566,6 +607,17 @@ FormEditorGraphicsView *FormEditorWidget::graphicsView() const
 bool FormEditorWidget::errorMessageBoxIsVisible() const
 {
     return m_documentErrorWidget && m_documentErrorWidget->isVisible();
+}
+
+void FormEditorWidget::setBackgoundImage(const QImage &image)
+{
+    m_graphicsView->setBackgoundImage(image);
+    updateActions();
+}
+
+QImage FormEditorWidget::backgroundImage() const
+{
+    return m_graphicsView->backgroundImage();
 }
 
 DocumentWarningWidget *FormEditorWidget::errorWidget()

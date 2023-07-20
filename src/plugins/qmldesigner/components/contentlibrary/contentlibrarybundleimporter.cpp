@@ -205,7 +205,7 @@ void ContentLibraryBundleImporter::handleImportTimer()
     for (const QString &pendingType : pendingTypes) {
         NodeMetaInfo metaInfo = model->metaInfo(pendingType.toUtf8());
         const bool isImport = m_pendingTypes[pendingType];
-        const bool typeComplete = metaInfo.isValid() && !metaInfo.superClasses().empty();
+        const bool typeComplete = metaInfo.isValid() && !metaInfo.prototypes().empty();
         if (isImport == typeComplete) {
             m_pendingTypes.remove(pendingType);
             if (isImport)

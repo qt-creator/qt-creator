@@ -3,13 +3,14 @@
 
 #include "modelnodecontextmenu_helper.h"
 
-#include <nodemetainfo.h>
-#include <modelnode.h>
-#include <qmlitemnode.h>
 #include <bindingproperty.h>
+#include <model/modelutils.h>
+#include <modelnode.h>
+#include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <qmldesignerplugin.h>
 #include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmlitemnode.h>
 
 #include <QFile>
 
@@ -76,10 +77,11 @@ bool selectionHasSameParent(const SelectionContext &selectionState)
 
 bool fileComponentExists(const ModelNode &modelNode)
 {
-    if (!modelNode.metaInfo().isFileComponent())
+    if (!modelNode.metaInfo().isFileComponent()) {
         return true;
+    }
 
-    const QString fileName = modelNode.metaInfo().componentFileName();
+    const QString fileName = ModelUtils::componentFilePath(modelNode);
 
     if (fileName.contains("qml/QtQuick"))
         return false;
@@ -97,7 +99,8 @@ bool selectionIsImported3DAsset(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();
     if (selectionState.view() && node.hasMetaInfo()) {
-        QString fileName = node.metaInfo().componentFileName(); // absolute path
+        QString fileName = ModelUtils::componentFilePath(node);
+
         if (fileName.isEmpty()) {
             // Node is not a file component, so we have to check if the current doc itself is
             fileName = node.model()->fileUrl().toLocalFile();

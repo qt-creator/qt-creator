@@ -35,24 +35,27 @@ private:
     bool m_focus;
 };
 
-
 /**
  * A dock widget tab that shows a title and an icon.
- * The dock widget tab is shown in the dock area title bar to switch between
- * tabbed dock widgets
+ * The dock widget tab is shown in the dock area title bar to switch between tabbed dock widgets.
  */
 class ADS_EXPORT DockWidgetTab : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(bool activeTab READ isActiveTab WRITE setActiveTab NOTIFY activeTabChanged)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize NOTIFY iconSizeChanged)
 
 private:
     DockWidgetTabPrivate *d; ///< private data (pimpl)
     friend class DockWidgetTabPrivate;
     friend class DockWidget;
     friend class DockManager;
+    friend class AutoHideDockContainer;
+
     void onDockWidgetFeaturesChanged();
     void detachDockWidget();
+    void autoHideDockWidget();
+    void onAutoHideToActionClicked();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -95,8 +98,7 @@ public:
     DockWidget *dockWidget() const;
 
     /**
-     * Sets the dock area widget the dockWidget returned by dockWidget()
-     * function belongs to.
+     * Sets the dock area widget the dockWidget returned by dockWidget() function belongs to.
      */
     void setDockAreaWidget(DockAreaWidget *dockArea);
 
@@ -152,6 +154,19 @@ public:
      */
     void updateStyle();
 
+    /**
+     * Returns the icon size.
+     * If no explicit icon size has been set, the function returns an invalid QSize.
+     */
+    QSize iconSize() const;
+
+    /**
+     * Set an explicit icon size.
+     * If no icon size has been set explicitly, than the tab sets the icon size depending
+     * on the style.
+     */
+    void setIconSize(const QSize &size);
+
     void setVisible(bool visible) override;
 
 signals:
@@ -161,6 +176,7 @@ signals:
     void closeOtherTabsRequested();
     void moved(const QPoint &globalPosition);
     void elidedChanged(bool elided);
+    void iconSizeChanged();
 }; // class DockWidgetTab
 
 } // namespace ADS

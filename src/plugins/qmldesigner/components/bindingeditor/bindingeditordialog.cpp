@@ -79,7 +79,7 @@ void BindingEditorDialog::adjustProperties()
     m_comboBoxProperty->setCurrentText(property);
 }
 
-void BindingEditorDialog::setAllBindings(const QList<BindingOption> &bindings, const TypeName &type)
+void BindingEditorDialog::setAllBindings(const QList<BindingOption> &bindings, const NodeMetaInfo &type)
 {
     m_lock = true;
 
@@ -118,7 +118,7 @@ void BindingEditorDialog::setupComboBoxes()
 
 void BindingEditorDialog::setupCheckBox()
 {
-    const bool visible = (m_type == "bool");
+    const bool visible = m_type.isBool();
     m_checkBoxNot->setVisible(visible);
 }
 

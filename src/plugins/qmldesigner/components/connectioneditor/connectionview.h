@@ -20,10 +20,13 @@ class BindingModel;
 class ConnectionModel;
 class DynamicPropertiesModel;
 class BackendModel;
+class ConnectionViewQuickWidget;
 
-class  ConnectionView : public AbstractView
+class ConnectionView : public AbstractView
 {
     Q_OBJECT
+
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
 
 public:
     ConnectionView(ExternalDependenciesInterface &externalDependencies);
@@ -70,14 +73,24 @@ public:
     BindingModel *bindingModel() const;
     BackendModel *backendModel() const;
 
+    int currentIndex() const;
+    void setCurrentIndex(int i);
+
     static ConnectionView *instance();
+
+signals:
+    void currentIndexChanged();
 
 private: //variables
     QPointer<ConnectionViewWidget> m_connectionViewWidget;
+
     ConnectionModel *m_connectionModel;
     BindingModel *m_bindingModel;
     DynamicPropertiesModel *m_dynamicPropertiesModel;
     BackendModel *m_backendModel;
+    int m_currentIndex = 0;
+
+    QPointer<ConnectionViewQuickWidget> m_connectionViewQuickWidget;
 };
 
 } // namespace QmlDesigner

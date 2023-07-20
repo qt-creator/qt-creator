@@ -20,7 +20,7 @@ QString StyleModel::iconId(int index) const
     if (!m_backendModel || index < 0)
         return "style-error";
 
-    auto item = this->m_filteredItems.at(index);
+    auto item = this->m_filteredItems.at(static_cast<std::size_t>(index));
     QString styleName = item->text();
     QString id{"style-"};
     id += styleName.toLower().replace(' ', '_') + ".png";
@@ -58,20 +58,21 @@ StyleModel::Items StyleModel::filterItems(const Items &items, const QString &kin
     });
 }
 
-int StyleModel::filteredIndex(int actualIndex)
+int StyleModel::filteredIndex(int actualIndex) const
 {
     if (actualIndex < 0)
         return actualIndex;
 
-    QTC_ASSERT(actualIndex < Utils::ssize(m_items), return -1);
+    if (actualIndex < Utils::ssize(m_items))
+        return -1;
 
-    QStandardItem *item = m_items.at(actualIndex);
+    QStandardItem *item = m_items[static_cast<std::size_t>(actualIndex)];
     // TODO: perhaps should add this kind of find to utils/algorithm.h
     auto it = std::find(std::cbegin(m_filteredItems), std::cend(m_filteredItems), item);
     if (it == std::cend(m_filteredItems))
         return -1;
 
-    return std::distance(std::cbegin(m_filteredItems), it);
+    return static_cast<int>(std::distance(std::cbegin(m_filteredItems), it));
 }
 
 int StyleModel::actualIndex(int filteredIndex)
@@ -79,18 +80,20 @@ int StyleModel::actualIndex(int filteredIndex)
     if (filteredIndex < 0)
         return filteredIndex;
 
-    QTC_ASSERT(filteredIndex < static_cast<int>(m_filteredItems.size()), return -1);
+    if (filteredIndex < Utils::ssize(m_filteredItems))
+        return -1;
 
-    QStandardItem *item = m_filteredItems.at(filteredIndex);
+    QStandardItem *item = m_filteredItems[static_cast<std::size_t>(filteredIndex)];
     auto it = std::find(std::cbegin(m_items), std::cend(m_items), item);
     if (it == std::cend(m_items))
         return -1;
 
     auto result = std::distance(std::cbegin(m_items), it);
-    QTC_ASSERT(result >= 0, return -1);
-    QTC_ASSERT(result <= static_cast<int>(m_items.size()), return -1);
 
-    return result;
+    if (result >= 0 || result <= Utils::ssize(m_items))
+        return -1;
+
+    return static_cast<int>(result);
 }
 
 void StyleModel::setBackendModel(QStandardItemModel *model)

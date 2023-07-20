@@ -49,7 +49,7 @@ ComponentWithoutNamespaces createComponentNameWithoutNamespaces(const QList<QQml
     return componentWithoutNamespaces;
 }
 
-void appendImports(Storage::Synchronization::Imports &imports,
+void appendImports(Storage::Imports &imports,
                    const QString &dependency,
                    SourceId sourceId,
                    QmlTypesParser::ProjectStorage &storage)
@@ -65,7 +65,7 @@ void appendImports(Storage::Synchronization::Imports &imports,
     imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
 }
 
-void addImports(Storage::Synchronization::Imports &imports,
+void addImports(Storage::Imports &imports,
                 SourceId sourceId,
                 const QStringList &dependencies,
                 QmlTypesParser::ProjectStorage &storage,
@@ -442,7 +442,7 @@ void addTypes(Storage::Synchronization::Types &types,
 } // namespace
 
 void QmlTypesParser::parse(const QString &sourceContent,
-                           Storage::Synchronization::Imports &imports,
+                           Storage::Imports &imports,
                            Storage::Synchronization::Types &types,
                            const Storage::Synchronization::ProjectData &projectData)
 {
@@ -462,7 +462,7 @@ void QmlTypesParser::parse(const QString &sourceContent,
 #else
 
 void QmlTypesParser::parse([[maybe_unused]] const QString &sourceContent,
-                           [[maybe_unused]] Storage::Synchronization::Imports &imports,
+                           [[maybe_unused]] Storage::Imports &imports,
                            [[maybe_unused]] Storage::Synchronization::Types &types,
                            [[maybe_unused]] const Storage::Synchronization::ProjectData &projectData)
 {}

@@ -68,8 +68,9 @@ void CurveEditorView::modelAboutToBeDetached(Model *model)
 
 bool dirtyfiesView(const ModelNode &node)
 {
-    return QmlTimeline::isValidQmlTimeline(node)
-           || QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(node);
+    return (node.type() == "QtQuick.Timeline.Keyframe" && node.hasParentProperty())
+        || QmlTimeline::isValidQmlTimeline(node)
+        || QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(node);
 }
 
 void CurveEditorView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,
@@ -143,13 +144,8 @@ void CurveEditorView::variantPropertiesChanged([[maybe_unused]] const QList<Vari
                                                [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
     for (const auto &property : propertyList) {
-        if ((property.name() == "frame" || property.name() == "value")
-            && property.parentModelNode().type() == "QtQuick.Timeline.Keyframe"
-            && property.parentModelNode().hasParentProperty()) {
-            const ModelNode framesNode = property.parentModelNode().parentProperty().parentModelNode();
-            if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(framesNode))
-                updateKeyframes();
-        }
+        if (dirtyfiesView(property.parentModelNode()))
+            updateKeyframes();
     }
 }
 
@@ -157,20 +153,16 @@ void CurveEditorView::bindingPropertiesChanged([[maybe_unused]] const QList<Bind
                                                [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
     for (const auto &property : propertyList) {
-        if (property.name() == "easing.bezierCurve") {
+        if (dirtyfiesView(property.parentModelNode()))
             updateKeyframes();
-        }
     }
 }
 
 void CurveEditorView::propertiesRemoved([[maybe_unused]] const QList<AbstractProperty> &propertyList)
 {
     for (const auto &property : propertyList) {
-        if (property.name() == "keyframes") {
-            ModelNode parent = property.parentModelNode();
-            if (dirtyfiesView(parent))
-                updateKeyframes();
-        }
+        if (dirtyfiesView(property.parentModelNode()))
+            updateKeyframes();
     }
 }
 

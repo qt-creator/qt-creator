@@ -548,7 +548,7 @@ void MaterialEditorView::setupQmlBackend()
         TypeName diffClassName;
         if (NodeMetaInfo metaInfo = m_selectedMaterial.metaInfo()) {
             diffClassName = metaInfo.typeName();
-            for (const NodeMetaInfo &metaInfo : metaInfo.classHierarchy()) {
+            for (const NodeMetaInfo &metaInfo : metaInfo.selfAndPrototypes()) {
                 if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsUrl))
                     break;
                 qmlSpecificsUrl = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName()

@@ -11,17 +11,17 @@ namespace QmlDesigner {
 
 Import Import::createLibraryImport(const QString &url, const QString &version, const QString &alias, const QStringList &importPaths)
 {
-    return Import(url, QString(), version, alias, importPaths);
+    return Import(url, version, alias, importPaths, Type::Library);
 }
 
 Import Import::createFileImport(const QString &file, const QString &version, const QString &alias, const QStringList &importPaths)
 {
-    return Import(QString(), file, version, alias, importPaths);
+    return Import(file, version, alias, importPaths, Type::File);
 }
 
 Import Import::empty()
 {
-    return Import(QString(), QString(), QString(), QString(), QStringList());
+    return Import(QString(), QString(), QString(), QStringList(), Type::Empty);
 }
 
 QString Import::toImportString() const
@@ -33,12 +33,16 @@ QString Import::toImportString() const
     return result;
 }
 
-Import::Import(const QString &url, const QString &file, const QString &version, const QString &alias, const QStringList &importPaths):
-        m_url(url),
-        m_file(file),
-        m_version(version),
-        m_alias(alias),
-        m_importPathList(importPaths)
+Import::Import(const QString &url,
+               const QString &version,
+               const QString &alias,
+               const QStringList &importPaths,
+               Type type)
+    : m_url(url)
+    , m_version(version)
+    , m_alias(alias)
+    , m_importPathList(importPaths)
+    , m_type(type)
 {
 }
 
@@ -137,7 +141,7 @@ size_t qHash(const Import &import)
     return ::qHash(import.url()) ^ ::qHash(import.file()) ^ ::qHash(import.version()) ^ ::qHash(import.alias());
 }
 
-Imports difference(const Imports &first, const Imports &second)
+Imports set_difference(const Imports &first, const Imports &second)
 {
     Imports difference;
     difference.reserve(first.size());
@@ -150,4 +154,53 @@ Imports difference(const Imports &first, const Imports &second)
 
     return difference;
 }
+
+Imports set_union(const Imports &first, const Imports &second)
+{
+    Imports set_union;
+    set_union.reserve(std::min(first.size(), second.size()));
+
+    std::set_union(first.begin(),
+                   first.end(),
+                   second.begin(),
+                   second.end(),
+                   std::back_inserter(set_union));
+
+    return set_union;
+}
+
+Imports set_intersection(const Imports &first, const Imports &second)
+{
+    Imports set_intersection;
+    set_intersection.reserve(std::min(first.size(), second.size()));
+
+    std::set_intersection(first.begin(),
+                          first.end(),
+                          second.begin(),
+                          second.end(),
+                          std::back_inserter(set_intersection));
+
+    return set_intersection;
+}
+
+Imports set_strict_difference(const Imports &first, const Imports &second)
+{
+    Imports difference;
+    difference.reserve(first.size());
+
+    auto strictLess = [](const Import &first, const Import &second) {
+        return std::tie(first.m_url, first.m_type, first.m_version)
+               < std::tie(second.m_url, second.m_type, second.m_version);
+    };
+
+    std::set_difference(first.begin(),
+                        first.end(),
+                        second.begin(),
+                        second.end(),
+                        std::back_inserter(difference),
+                        strictLess);
+
+    return difference;
+}
+
 } // namespace QmlDesigner

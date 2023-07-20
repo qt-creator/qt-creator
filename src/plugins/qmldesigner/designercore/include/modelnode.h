@@ -81,7 +81,7 @@ public:
     ModelNode &operator=(const ModelNode &) = default;
     ModelNode(ModelNode &&) = default;
     ModelNode &operator=(ModelNode &&) noexcept = default;
-    ~ModelNode();
+    ~ModelNode() = default;
 
     TypeName type() const;
     QString simplifiedTypeName() const;
@@ -182,6 +182,7 @@ public:
     QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyView key) const;
     QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyDefaultValue key) const;
     void setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data) const;
+    void setAuxiliaryDataWithoutLock(AuxiliaryDataKeyView key, const QVariant &data) const;
     void setAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name, const QVariant &data) const;
     void setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
                                      Utils::SmallStringView name,
@@ -267,7 +268,7 @@ public:
     }
 
 private: // functions
-    Internal::InternalNodePointer internalNode() const;
+    Internal::InternalNodePointer internalNode() const { return m_internalNode; }
 
     bool hasLocked() const;
 

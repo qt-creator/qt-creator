@@ -13,7 +13,7 @@ public:
     MOCK_METHOD(QmlDesigner::Storage::Synchronization::Type,
                 parse,
                 (const QString &sourceContent,
-                 QmlDesigner::Storage::Synchronization::Imports &imports,
+                 QmlDesigner::Storage::Imports &imports,
                  QmlDesigner::SourceId sourceId,
                  Utils::SmallStringView directoryPath),
                 (override));

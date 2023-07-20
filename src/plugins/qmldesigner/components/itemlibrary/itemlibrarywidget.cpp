@@ -338,7 +338,7 @@ void ItemLibraryWidget::updateModel()
 
 void ItemLibraryWidget::updatePossibleImports(const Imports &possibleImports)
 {
-    m_addModuleModel->update(difference(possibleImports, m_model->imports()));
+    m_addModuleModel->update(set_difference(possibleImports, m_model->imports()));
     delayedUpdateModel();
 }
 
@@ -358,7 +358,7 @@ void ItemLibraryWidget::handlePriorityImportsChanged()
 {
     if (!m_itemLibraryInfo.isNull()) {
         m_addModuleModel->setPriorityImports(m_itemLibraryInfo->priorityImports());
-        m_addModuleModel->update(difference(m_model->possibleImports(), m_model->imports()));
+        m_addModuleModel->update(set_difference(m_model->possibleImports(), m_model->imports()));
     }
 }
 

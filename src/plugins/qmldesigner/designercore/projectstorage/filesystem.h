@@ -19,10 +19,10 @@ class SourcePathCache;
 template<typename Database>
 class ProjectStorage;
 
-using PathCache = SourcePathCache<ProjectStorage<Sqlite::Database>, NonLockingMutex>;
-
 class FileSystem : public FileSystemInterface
 {
+    using PathCache = SourcePathCache<ProjectStorage<Sqlite::Database>, NonLockingMutex>;
+
 public:
     FileSystem(PathCache &sourcePathCache)
         : m_sourcePathCache(sourcePathCache)

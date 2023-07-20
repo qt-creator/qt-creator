@@ -27,8 +27,10 @@ private:
 
 private:
     void onApplicationFocusChanged(QWidget *old, QWidget *now);
+    void onFocusWindowChanged(QWindow *focusWindow);
     void onFocusedDockAreaViewToggled(bool open);
     void onStateRestored();
+    void onDockWidgetVisibilityChanged(bool visible);
 
 public:
     /**
@@ -40,19 +42,6 @@ public:
      * Virtual Destructor
      */
     ~DockFocusController() override;
-
-    /**
-     * Helper function to set focus depending on the configuration of the
-     * FocusStyling flag
-     */
-    template <class QWidgetPtr>
-    static void setWidgetFocus(QWidgetPtr widget)
-    {
-        if (!DockManager::testConfigFlag(DockManager::FocusHighlighting))
-            return;
-
-        widget->setFocus(Qt::OtherFocusReason);
-    }
 
     /**
      * A container needs to call this function if a widget has been dropped
@@ -67,6 +56,28 @@ public:
      * are already inserted into its new position
      */
     void notifyFloatingWidgetDrop(FloatingDockContainer *floatingWidget);
+
+    /**
+     * Returns the dock widget that has focus style in the ui or a nullptr if
+     * not dock widget is painted focused.
+     */
+    DockWidget *focusedDockWidget() const;
+
+    /**
+     * Notifies the dock focus controller, that a the mouse is pressed or released.
+     */
+    void setDockWidgetTabPressed(bool value);
+
+    /**
+     * Request focus highlighting for the given dock widget assigned to the tab
+     * given in Tab parameter
+     */
+    void setDockWidgetTabFocused(DockWidgetTab *tab);
+
+    /*
+     * Request clear focus for a dock widget
+     */
+    void clearDockWidgetFocus(DockWidget *dockWidget);
 
     /**
      * Request a focus change to the given dock widget

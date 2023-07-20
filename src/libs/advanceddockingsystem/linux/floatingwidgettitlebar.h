@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QFrame>
+#include <QIcon>
 
 namespace ADS {
 
@@ -11,11 +12,10 @@ class FloatingDockContainer;
 class FloatingWidgetTitleBarPrivate;
 
 /**
- * Titlebar for floating widgets to capture non client are mouse events.
+ * Title bar for floating widgets to capture non client area mouse events.
  * Linux does not support NonClientArea mouse events like
- * QEvent::NonClientAreaMouseButtonPress. Because these events are required
- * for the docking system to work properly, we use our own titlebar here to
- * capture the required mouse events.
+ * QEvent::NonClientAreaMouseButtonPress. Because these events are required for the docking system
+ * to work properly, we use our own titlebar here to capture the required mouse events.
  */
 class FloatingWidgetTitleBar : public QFrame
 {
@@ -27,6 +27,7 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 public:
     using Super = QWidget;
@@ -52,11 +53,21 @@ public:
      */
     void updateStyle();
 
+    /**
+     * Change the maximize button icon according to current windows state
+     */
+    void setMaximizedIcon(bool maximized);
+
 signals:
     /**
      * This signal is emitted, if the close button is clicked.
      */
     void closeRequested();
+
+    /**
+    * This signal is emitted, if the maximize button is clicked.
+    */
+    void maximizeRequested();
 };
 
 } // namespace ADS

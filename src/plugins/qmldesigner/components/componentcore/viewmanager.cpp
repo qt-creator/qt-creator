@@ -480,6 +480,11 @@ void ViewManager::exportAsImage()
     d->formEditorView.exportAsImage();
 }
 
+QImage ViewManager::takeFormEditorScreenshot()
+{
+    return d->formEditorView.takeFormEditorScreenshot();
+}
+
 void ViewManager::reformatFileUsingTextEditorView()
 {
     d->textEditorView.reformatFile();

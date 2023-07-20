@@ -24,14 +24,14 @@ using QmlDesigner::ModuleId;
 using QmlDesigner::SourceId;
 namespace Storage = QmlDesigner::Storage;
 using QmlDesigner::IdPaths;
-using QmlDesigner::Storage::TypeTraits;
-using QmlDesigner::Storage::Version;
+using QmlDesigner::Storage::Import;
 using QmlDesigner::Storage::Synchronization::FileType;
-using QmlDesigner::Storage::Synchronization::Import;
 using QmlDesigner::Storage::Synchronization::IsAutoVersion;
 using QmlDesigner::Storage::Synchronization::ModuleExportedImport;
 using QmlDesigner::Storage::Synchronization::ProjectData;
 using QmlDesigner::Storage::Synchronization::SynchronizationPackage;
+using QmlDesigner::Storage::TypeTraits;
+using QmlDesigner::Storage::Version;
 
 MATCHER_P5(IsStorageType,
            typeName,
@@ -327,11 +327,11 @@ protected:
     Storage::Synchronization::Type firstType;
     Storage::Synchronization::Type secondType;
     Storage::Synchronization::Type thirdType;
-    Storage::Synchronization::Import import1{qmlModuleId, Storage::Version{2, 3}, qmlDocumentSourceId1};
-    Storage::Synchronization::Import import2{qmlModuleId, Storage::Version{}, qmlDocumentSourceId2};
-    Storage::Synchronization::Import import3{qmlModuleId, Storage::Version{2}, qmlDocumentSourceId3};
-    Storage::Synchronization::Import import4{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
-    Storage::Synchronization::Import import5{qmlModuleId, Storage::Version{2, 3}, qmltypes2PathSourceId};
+    Storage::Import import1{qmlModuleId, Storage::Version{2, 3}, qmlDocumentSourceId1};
+    Storage::Import import2{qmlModuleId, Storage::Version{}, qmlDocumentSourceId2};
+    Storage::Import import3{qmlModuleId, Storage::Version{2}, qmlDocumentSourceId3};
+    Storage::Import import4{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
+    Storage::Import import5{qmlModuleId, Storage::Version{2, 3}, qmltypes2PathSourceId};
     QString qmldirContent{"module Example\ntypeinfo example.qmltypes\n"};
     QString qmltypes1{"Module {\ndependencies: [module1]}"};
     QString qmltypes2{"Module {\ndependencies: [module2]}"};
@@ -445,7 +445,7 @@ TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_no_change)
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_types)
 {
-    Storage::Synchronization::Import import{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
+    Storage::Import import{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
     QString qmltypes{"Module {\ndependencies: []}"};
     setQmlFileNames(u"/path", {});
     setContent(u"/path/example.qmltypes", qmltypes);
@@ -480,7 +480,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_types)
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_types_throws_if_qmltpes_does_not_exists)
 {
-    Storage::Synchronization::Import import{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
+    Storage::Import import{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
     setFilesDontExists({qmltypesPathSourceId});
 
     ASSERT_THROW(updater.update(directories, {}), QmlDesigner::CannotParseQmlTypesFile);

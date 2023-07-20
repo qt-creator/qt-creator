@@ -105,6 +105,9 @@ private slots:
 private: // functions
     void lauchFeedbackPopupInternal(const QString &identifier);
     void integrateIntoQtCreator(QWidget *modeWidget);
+    void clearDesigner();
+    void resetDesignerDocument();
+    void setupDesigner();
     void showDesigner();
     void hideDesigner();
     void changeEditor();

@@ -13,14 +13,16 @@
 #include <rewritertransaction.h>
 #include <rewriterview.h>
 
+#include <utils/qtcassert.h>
+
 #include <QMessageBox>
 #include <QTimer>
 
 namespace QmlDesigner {
 
 BindingModel::BindingModel(ConnectionView *parent)
-    : QStandardItemModel(parent)
-    , m_connectionView(parent)
+    : QStandardItemModel(parent), m_connectionView(parent),
+      m_delegate(new BindingModelBackendDelegate(this))
 {
     connect(this, &QStandardItemModel::dataChanged, this, &BindingModel::handleDataChanged);
 }
@@ -38,6 +40,31 @@ void BindingModel::resetModel()
     }
 
     endResetModel();
+}
+
+void BindingModel::add()
+{
+    addBindingForCurrentNode();
+}
+
+void BindingModel::remove(int row)
+{
+    deleteBindindByRow(row);
+}
+
+int BindingModel::currentIndex() const
+{
+    return m_currentIndex;
+}
+
+void BindingModel::setCurrentIndex(int i)
+{
+    if (m_currentIndex == i)
+        return;
+
+    m_currentIndex = i;
+
+    emit currentIndexChanged();
 }
 
 void BindingModel::bindingChanged(const BindingProperty &bindingProperty)
@@ -232,6 +259,19 @@ void BindingModel::addBindingForCurrentNode()
     }
 }
 
+static void updateDisplayRoles(QStandardItem *item, const BindingProperty &property)
+{
+    item->setData(property.parentModelNode().id(), BindingModel::TargetNameRole);
+    item->setData(property.name(), BindingModel::TargetPropertyNameRole);
+
+    const AbstractProperty source = property.resolveToProperty();
+
+    if (source.isValid()) {
+        item->setData(source.parentModelNode().id(), BindingModel::SourceNameRole);
+        item->setData(source.name(), BindingModel::SourcePropertyNameRole);
+    }
+}
+
 void BindingModel::addBindingProperty(const BindingProperty &property)
 {
     QStandardItem *idItem;
@@ -248,6 +288,7 @@ void BindingModel::addBindingProperty(const BindingProperty &property)
     QList<QStandardItem*> items;
 
     items.append(idItem);
+    updateDisplayRoles(idItem, property);
     items.append(targetPropertyNameItem);
 
     QString sourceNodeName;
@@ -267,6 +308,10 @@ void BindingModel::updateBindingProperty(int rowNumber)
     BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
 
     if (bindingProperty.isValid()) {
+        QStandardItem *idItem = item(rowNumber, 0);
+        if (idItem)
+            updateDisplayRoles(idItem, bindingProperty);
+
         QString targetPropertyName = QString::fromUtf8(bindingProperty.name());
         updateDisplayRole(rowNumber, TargetPropertyNameRow, targetPropertyName);
         QString sourceNodeName;
@@ -355,6 +400,7 @@ void BindingModel::updateCustomData(QStandardItem *item, const BindingProperty &
 {
     item->setData(bindingProperty.parentModelNode().internalId(), Qt::UserRole + 1);
     item->setData(bindingProperty.name(), Qt::UserRole + 2);
+    updateDisplayRoles(item, bindingProperty);
 }
 
 int BindingModel::findRowForBinding(const BindingProperty &bindingProperty)
@@ -369,6 +415,8 @@ int BindingModel::findRowForBinding(const BindingProperty &bindingProperty)
 
 bool BindingModel::getExpressionStrings(const BindingProperty &bindingProperty, QString *sourceNode, QString *sourceProperty)
 {
+    //TODO reimplement using existing helper functions
+
     //### todo we assume no expressions yet
 
     const QString expression = bindingProperty.expression();
@@ -436,6 +484,161 @@ void BindingModel::handleException()
 {
     QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
     resetModel();
+}
+
+QHash<int, QByteArray> BindingModel::roleNames() const
+{
+    static QHash<int, QByteArray> roleNames{{TargetNameRole, "target"},
+                                            {TargetPropertyNameRole, "targetProperty"},
+                                            {SourceNameRole, "source"},
+                                            {SourcePropertyNameRole, "sourceProperty"}};
+
+    return roleNames;
+}
+
+BindingModelBackendDelegate *BindingModel::delegate() const
+{
+    return m_delegate;
+}
+
+BindingModelBackendDelegate::BindingModelBackendDelegate(BindingModel *parent) : QObject(parent)
+{
+    connect(&m_sourceNode, &StudioQmlComboBoxBackend::activated, this, [this]() {
+        handleSourceNodeChanged();
+    });
+
+    connect(&m_sourceNodeProperty, &StudioQmlComboBoxBackend::activated, this, [this]() {
+        handleSourcePropertyChanged();
+    });
+}
+
+int BindingModelBackendDelegate::currentRow() const
+{
+    return m_currentRow;
+}
+
+void BindingModelBackendDelegate::setCurrentRow(int i)
+{
+    // See BindingDelegate::createEditor
+
+    if (m_currentRow == i)
+        return;
+
+    m_currentRow = i;
+
+    //setup
+
+    BindingModel *model = qobject_cast<BindingModel *>(parent());
+
+    QTC_ASSERT(model, return );
+
+    BindingProperty bindingProperty = model->bindingPropertyForRow(currentRow());
+
+    QString idLabel = bindingProperty.parentModelNode().id();
+    if (idLabel.isEmpty())
+        idLabel = bindingProperty.parentModelNode().simplifiedTypeName();
+
+    m_targetNode = idLabel;
+
+    emit targetNodeChanged();
+
+    m_property.setModel(model->possibleTargetProperties(bindingProperty));
+    m_property.setCurrentText(QString::fromUtf8(bindingProperty.name()));
+
+    QStringList sourceNodes;
+
+    for (const ModelNode &modelNode : model->connectionView()->allModelNodes()) {
+        if (!modelNode.id().isEmpty())
+            sourceNodes.append(modelNode.id());
+    }
+
+    std::sort(sourceNodes.begin(), sourceNodes.end());
+    m_sourceNode.setModel(sourceNodes);
+
+    QString sourceNodeName;
+    QString sourcePropertyName;
+    model->getExpressionStrings(bindingProperty, &sourceNodeName, &sourcePropertyName);
+
+    m_sourceNode.setCurrentText(sourceNodeName);
+
+    m_sourceNodeProperty.setModel(model->possibleSourceProperties(bindingProperty));
+    m_sourceNodeProperty.setCurrentText(sourcePropertyName);
+}
+
+void BindingModelBackendDelegate::handleException()
+{
+    QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
+    //reset
+}
+
+QString BindingModelBackendDelegate::targetNode() const
+{
+    return m_targetNode;
+}
+
+StudioQmlComboBoxBackend *BindingModelBackendDelegate::property()
+{
+    return &m_property;
+}
+
+StudioQmlComboBoxBackend *BindingModelBackendDelegate::sourceNode()
+{
+    return &m_sourceNode;
+}
+
+StudioQmlComboBoxBackend *BindingModelBackendDelegate::sourceProperty()
+{
+    return &m_sourceNodeProperty;
+}
+
+void BindingModelBackendDelegate::handleSourceNodeChanged()
+{
+    BindingModel *model = qobject_cast<BindingModel *>(parent());
+
+    QTC_ASSERT(model, return );
+    QTC_ASSERT(model->connectionView(), return );
+
+    const QString sourceNode = m_sourceNode.currentText();
+    const QString sourceProperty = m_sourceNodeProperty.currentText();
+
+    QString expression;
+    if (sourceProperty.isEmpty()) {
+        expression = sourceNode;
+    } else {
+        expression = sourceNode + QLatin1String(".") + sourceProperty;
+    }
+
+    BindingProperty bindingProperty = model->bindingPropertyForRow(currentRow());
+    model->connectionView()->executeInTransaction("BindingModel::updateExpression",
+                                                  [&bindingProperty, expression]() {
+                                                      bindingProperty.setExpression(
+                                                          expression.trimmed());
+                                                  });
+}
+
+void BindingModelBackendDelegate::handleSourcePropertyChanged()
+{
+    BindingModel *model = qobject_cast<BindingModel *>(parent());
+
+    QTC_ASSERT(model, return );
+    QTC_ASSERT(model->connectionView(), return );
+
+    const QString sourceNode = m_sourceNode.currentText();
+    const QString sourceProperty = m_sourceNodeProperty.currentText();
+
+    QString expression;
+    if (sourceProperty.isEmpty()) {
+        expression = sourceNode;
+    } else {
+        expression = sourceNode + QLatin1String(".") + sourceProperty;
+    }
+
+    BindingProperty bindingProperty = model->bindingPropertyForRow(currentRow());
+    model->connectionView()->executeInTransaction("BindingModel::updateExpression",
+                                                  [&bindingProperty, expression]() {
+                                                      bindingProperty.setExpression(
+                                                          expression.trimmed());
+                                                  });
 }
 
 } // namespace QmlDesigner

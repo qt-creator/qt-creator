@@ -49,7 +49,7 @@ public:
 
     //3. modelnode + backend value type name + optional target name
     void setModelNode(const ModelNode &modelNode);
-    void setBackendValueTypeName(const TypeName &backendValueTypeName);
+    void setBackendValueType(const NodeMetaInfo &backendValueType);
     void setTargetName(const QString &target);
 
     Q_INVOKABLE void prepareBindings();
@@ -77,7 +77,7 @@ private:
     QVariant m_modelNodeBackend;
     QVariant m_stateModelNode;
     QmlDesigner::ModelNode m_modelNode;
-    TypeName m_backendValueTypeName;
+    NodeMetaInfo m_backendValueType;
     QString m_targetName;
 };
 

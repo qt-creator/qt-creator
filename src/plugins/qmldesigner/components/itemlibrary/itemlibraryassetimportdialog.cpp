@@ -4,14 +4,15 @@
 #include "itemlibraryassetimportdialog.h"
 #include "ui_itemlibraryassetimportdialog.h"
 
-#include "qmldesignerplugin.h"
-#include "qmldesignerconstants.h"
-#include "model.h"
-#include "nodemetainfo.h"
-#include "variantproperty.h"
+#include <model.h>
+#include <model/modelutils.h>
+#include <nodemetainfo.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <variantproperty.h>
 
-#include "utils/outputformatter.h"
-#include "theme.h"
+#include <theme.h>
+#include <utils/outputformatter.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -283,7 +284,7 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
     QString errorMsg;
     const ModelNode &node = updateNode;
     if (node.hasMetaInfo()) {
-        QString compFileName = node.metaInfo().componentFileName(); // absolute path
+        QString compFileName = ModelUtils::componentFilePath(node); // absolute path
         bool preselectNodeSource = false;
         if (compFileName.isEmpty()) {
             // Node is not a file component, so we have to check if the current doc itself is

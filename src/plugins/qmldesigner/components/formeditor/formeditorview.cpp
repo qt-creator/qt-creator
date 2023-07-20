@@ -63,6 +63,8 @@ void FormEditorView::modelAttached(Model *model)
     if (!isEnabled())
         return;
 
+    m_formEditorWidget->setBackgoundImage({});
+
     temporaryBlockView();
     setupFormEditorWidget();
 
@@ -649,6 +651,10 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node,
         if (FormEditorItem *editorItem = scene()->itemForQmlItemNode(item))
             editorItem->setFrameColor(data.value<QColor>());
     }
+
+    if (key == contextImageProperty) {
+        m_formEditorWidget->setBackgoundImage(data.value<QImage>());
+    }
 }
 
 static void updateTransitions(FormEditorScene *scene, const QmlItemNode &qmlItemNode)
@@ -782,6 +788,11 @@ void FormEditorView::setGotoErrorCallback(std::function<void (int, int)> gotoErr
 void FormEditorView::exportAsImage()
 {
     m_formEditorWidget->exportAsImage(m_scene->rootFormEditorItem()->boundingRect());
+}
+
+QImage FormEditorView::takeFormEditorScreenshot()
+{
+    return m_formEditorWidget->takeFormEditorScreenshot();
 }
 
 QPicture FormEditorView::renderToPicture() const
@@ -954,6 +965,11 @@ void FormEditorView::setupRootItemSize()
 
         formEditorWidget()->setRootItemRect(rootQmlNode.instanceBoundingRect());
         formEditorWidget()->centerScene();
+
+        auto contextImage = rootModelNode().auxiliaryData(contextImageProperty);
+
+        if (contextImage)
+            m_formEditorWidget->setBackgoundImage(contextImage.value().value<QImage>());
     }
 }
 

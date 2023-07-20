@@ -450,7 +450,7 @@ void PropertyEditorView::setupQmlBackend()
     TypeName diffClassName;
     if (commonAncestor.isValid()) {
         diffClassName = commonAncestor.typeName();
-        const NodeMetaInfos hierarchy = commonAncestor.classHierarchy();
+        const NodeMetaInfos hierarchy = commonAncestor.selfAndPrototypes();
         for (const NodeMetaInfo &metaInfo : hierarchy) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
