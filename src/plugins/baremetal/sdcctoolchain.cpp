@@ -35,14 +35,6 @@ using namespace Utils;
 
 namespace BareMetal::Internal {
 
-// Helpers:
-
-static bool compilerExists(const FilePath &compilerPath)
-{
-    const QFileInfo fi = compilerPath.toFileInfo();
-    return fi.exists() && fi.isExecutable() && fi.isFile();
-}
-
 static QString compilerTargetFlag(const Abi &abi)
 {
     switch (abi.architecture()) {
@@ -346,7 +338,7 @@ Toolchains SdccToolChainFactory::autoDetect(const ToolchainDetector &detector) c
             compilerPath += "/bin/sdcc.exe";
             const FilePath fn = FilePath::fromString(
                         QFileInfo(compilerPath).absoluteFilePath());
-            if (!compilerExists(fn))
+            if (!fn.isExecutableFile())
                 return Candidate{};
             // Build compiler version.
             const QString version = QString("%1.%2.%3").arg(
@@ -511,14 +503,14 @@ void SdccToolChainConfigWidget::setFromToolchain()
     const auto tc = static_cast<SdccToolChain *>(toolChain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_abiWidget->setAbis({}, tc->targetAbi());
-    const bool haveCompiler = compilerExists(m_compilerCommand->filePath());
+    const bool haveCompiler = m_compilerCommand->filePath().isExecutableFile();
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
 void SdccToolChainConfigWidget::handleCompilerCommandChange()
 {
     const FilePath compilerPath = m_compilerCommand->filePath();
-    const bool haveCompiler = compilerExists(compilerPath);
+    const bool haveCompiler = compilerPath.isExecutableFile();
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
         m_macros = dumpPredefinedMacros(compilerPath, env, {});

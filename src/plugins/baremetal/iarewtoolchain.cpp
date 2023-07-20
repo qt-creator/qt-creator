@@ -34,14 +34,6 @@ using namespace Utils;
 
 namespace BareMetal::Internal {
 
-// Helpers:
-
-static bool compilerExists(const FilePath &compilerPath)
-{
-    const QFileInfo fi = compilerPath.toFileInfo();
-    return fi.exists() && fi.isExecutable() && fi.isFile();
-}
-
 static QString cppLanguageOption(const FilePath &compiler)
 {
     const QString baseName = compiler.baseName();
@@ -485,7 +477,7 @@ Toolchains IarToolChainFactory::autoDetect(const ToolchainDetector &detector) co
                             // Build full compiler path.
                             compilerPath += entry.subExePath;
                             const FilePath fn = FilePath::fromUserInput(compilerPath);
-                            if (compilerExists(fn)) {
+                            if (fn.isExecutableFile()) {
                                 // Note: threeLevelKey is a guessed toolchain version.
                                 candidates.push_back({fn, threeLevelKey});
                             }
@@ -634,14 +626,14 @@ void IarToolChainConfigWidget::setFromToolchain()
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_abiWidget->setAbis({}, tc->targetAbi());
-    const bool haveCompiler = compilerExists(m_compilerCommand->filePath());
+    const bool haveCompiler = m_compilerCommand->filePath().isExecutableFile();
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
 void IarToolChainConfigWidget::handleCompilerCommandChange()
 {
     const FilePath compilerPath = m_compilerCommand->filePath();
-    const bool haveCompiler = compilerExists(compilerPath);
+    const bool haveCompiler = compilerPath.isExecutableFile();
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
         const QStringList extraArgs = splitString(m_platformCodeGenFlagsLineEdit->text());
