@@ -1484,8 +1484,7 @@ LinuxDeviceFactory::LinuxDeviceFactory()
     setQuickCreationAllowed(true);
     setCreator([]() -> IDevice::Ptr {
         const IDevice::Ptr device = LinuxDevice::create();
-        GenericLinuxDeviceConfigurationWizard wizard(
-            Tr::tr("New Remote Linux Device Configuration Setup"), device);
+        SshDeviceWizard wizard(Tr::tr("New Remote Linux Device Configuration Setup"), device);
         if (wizard.exec() != QDialog::Accepted)
             return {};
         return device;

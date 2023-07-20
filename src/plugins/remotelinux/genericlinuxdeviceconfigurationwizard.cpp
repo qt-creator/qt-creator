@@ -208,8 +208,7 @@ private:
     QLabel m_infoLabel;
 };
 
-GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard(
-    const QString &title, const ProjectExplorer::IDevicePtr &device)
+SshDeviceWizard::SshDeviceWizard(const QString &title, const ProjectExplorer::IDevicePtr &device)
     : Wizard(Core::ICore::dialogParent())
 {
     setWindowTitle(title);

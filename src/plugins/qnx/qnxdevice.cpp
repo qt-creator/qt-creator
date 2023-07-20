@@ -95,8 +95,7 @@ QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE
     setConstructionFunction([] { return IDevice::Ptr(new QnxDevice); });
     setCreator([]() -> IDevice::Ptr {
         const IDevice::Ptr device = IDevice::Ptr(new QnxDevice);
-        GenericLinuxDeviceConfigurationWizard wizard(
-            Tr::tr("New QNX Device Configuration Setup"), device);
+        SshDeviceWizard wizard(Tr::tr("New QNX Device Configuration Setup"), device);
         if (wizard.exec() != QDialog::Accepted)
             return {};
         return device;

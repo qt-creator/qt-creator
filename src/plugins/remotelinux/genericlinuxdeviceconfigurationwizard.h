@@ -10,13 +10,10 @@
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizard : public Utils::Wizard
+class REMOTELINUX_EXPORT SshDeviceWizard : public Utils::Wizard
 {
-    Q_OBJECT
-
 public:
-    GenericLinuxDeviceConfigurationWizard(const QString &title,
-                                          const ProjectExplorer::IDevicePtr &device);
+    SshDeviceWizard(const QString &title, const ProjectExplorer::IDevicePtr &device);
 };
 
 } // namespace RemoteLinux
