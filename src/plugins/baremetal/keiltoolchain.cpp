@@ -446,7 +446,8 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Environment &) const final;
     void addToEnvironment(Environment &env) const final;
-    QList<OutputLineParser *> createOutputParsers() const final;
+
+    QList<OutputLineParser *> createOutputParsers() const final { return {new KeilParser}; }
 
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &data) final;
@@ -458,7 +459,7 @@ public:
     void setExtraCodeModelFlags(const QStringList &flags);
     QStringList extraCodeModelFlags() const final;
 
-    FilePath makeCommand(const Environment &env) const final;
+    FilePath makeCommand(const Environment &) const final { return {}; }
 
 private:
     QStringList m_extraCodeModelFlags;
@@ -525,10 +526,6 @@ void KeilToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-QList<OutputLineParser *> KeilToolChain::createOutputParsers() const
-{
-    return {new KeilParser};
-}
 
 QVariantMap KeilToolChain::toMap() const
 {
@@ -572,12 +569,6 @@ void KeilToolChain::setExtraCodeModelFlags(const QStringList &flags)
 QStringList KeilToolChain::extraCodeModelFlags() const
 {
     return m_extraCodeModelFlags;
-}
-
-FilePath KeilToolChain::makeCommand(const Environment &env) const
-{
-    Q_UNUSED(env)
-    return {};
 }
 
 // KeilToolchainFactory
