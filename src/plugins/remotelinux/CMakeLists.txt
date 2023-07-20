@@ -8,7 +8,6 @@ add_qtc_plugin(RemoteLinux
     genericdirectuploadstep.cpp genericdirectuploadstep.h
     genericlinuxdeviceconfigurationwidget.cpp genericlinuxdeviceconfigurationwidget.h
     genericlinuxdeviceconfigurationwizard.cpp genericlinuxdeviceconfigurationwizard.h
-    genericlinuxdeviceconfigurationwizardpages.cpp genericlinuxdeviceconfigurationwizardpages.h
     killappstep.cpp killappstep.h
     linuxdevice.cpp linuxdevice.h
     linuxdevicetester.cpp linuxdevicetester.h

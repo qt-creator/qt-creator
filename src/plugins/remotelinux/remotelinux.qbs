@@ -25,8 +25,6 @@ Project {
             "genericlinuxdeviceconfigurationwidget.h",
             "genericlinuxdeviceconfigurationwizard.cpp",
             "genericlinuxdeviceconfigurationwizard.h",
-            "genericlinuxdeviceconfigurationwizardpages.cpp",
-            "genericlinuxdeviceconfigurationwizardpages.h",
             "killappstep.cpp",
             "killappstep.h",
             "linuxdevice.cpp",
