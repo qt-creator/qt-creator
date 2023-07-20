@@ -39,7 +39,10 @@ def main():
             test.fatal("Could not get the editor for '%s'" % currentFile,
                        "Skipping this file for now.")
             continue
+
         contentBefore = readFile(currentFile)
+        if not currentFile.endswith(".bin"):
+            contentBefore = stringify(contentBefore)
         if i % 2 == 0:
             # modify current file and store content for next modification
             formerContent = contentBefore

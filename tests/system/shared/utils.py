@@ -611,8 +611,12 @@ def stringify(obj):
     if isinstance(obj, stringTypes):
         return obj
     if isinstance(obj, bytes):
-        tmp = obj.decode('cp1252') if platform.system() in ('Microsoft','Windows') else obj.decode()
-        return tmp
+        if not platform.system() in ('Microsoft', 'Windows'):
+            return obj.decode()
+        try:
+            return obj.decode('cp1252')
+        except UnicodeDecodeError:
+            return obj.decode('utf-8')
 
 
 class GitClone:

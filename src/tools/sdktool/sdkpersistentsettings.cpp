@@ -130,7 +130,7 @@ static QString resolveSymlinks(QString current)
     while (links--) {
         const QFileInfo info(current);
         if (!info.isSymLink())
-            return {};
+            return current;
         current = info.symLinkTarget();
     }
     return current;
