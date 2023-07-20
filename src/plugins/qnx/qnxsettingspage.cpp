@@ -238,8 +238,8 @@ Toolchains QnxConfiguration::createToolChains(const QnxTarget &target)
         toolChain->setDisplayName(Tr::tr("QCC for %1 (%2)")
                     .arg(m_configName)
                     .arg(target.shortDescription()));
-        toolChain->setSdpPath(m_envFile.parentDir());
-        toolChain->setCpuDir(target.cpuDir());
+        toolChain->sdpPath.setValue(m_envFile.parentDir());
+        toolChain->cpuDir.setValue(target.cpuDir());
         toolChain->resetToolChain(m_qccCompiler);
         ToolChainManager::registerToolChain(toolChain);
 
