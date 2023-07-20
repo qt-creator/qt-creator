@@ -38,8 +38,6 @@ namespace BareMetal::Internal {
 
 // Helpers:
 
-static const char compilerPlatformCodeGenFlagsKeyC[] = "PlatformCodeGenFlags";
-
 static bool compilerExists(const FilePath &compilerPath)
 {
     const QFileInfo fi = compilerPath.toFileInfo();
@@ -437,6 +435,10 @@ public:
         setTypeDisplayName(Tr::tr("KEIL"));
         setTargetAbiKey("TargetAbi");
         setCompilerCommandKey("CompilerPath");
+
+        m_extraCodeModelFlags.setSettingsKey("PlatformCodeGenFlags");
+        connect(&m_extraCodeModelFlags, &BaseAspect::changed,
+                this, &KeilToolChain::toolChainUpdated);
     }
 
     MacroInspectionRunner createMacroInspectionRunner() const final;
@@ -449,25 +451,20 @@ public:
 
     QList<OutputLineParser *> createOutputParsers() const final { return {new KeilParser}; }
 
-    void toMap(QVariantMap &data) const final;
-    bool fromMap(const QVariantMap &data) final;
-
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
 
     bool operator==(const ToolChain &other) const final;
 
-    void setExtraCodeModelFlags(const QStringList &flags);
     QStringList extraCodeModelFlags() const final;
 
     FilePath makeCommand(const Environment &) const final { return {}; }
 
 private:
-    QStringList m_extraCodeModelFlags;
+    StringListAspect m_extraCodeModelFlags{this};
 
     friend class KeilToolChainFactory;
     friend class KeilToolChainConfigWidget;
 };
-
 
 ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() const
 {
@@ -478,7 +475,7 @@ ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() co
     const Id lang = language();
 
     MacrosCache macroCache = predefinedMacrosCache();
-    const QStringList extraArgs = m_extraCodeModelFlags;
+    const QStringList extraArgs = m_extraCodeModelFlags();
 
     return [env, compiler, extraArgs, macroCache, lang](const QStringList &flags) {
         Q_UNUSED(flags)
@@ -526,21 +523,6 @@ void KeilToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-
-void KeilToolChain::toMap(QVariantMap &data) const
-{
-    ToolChain::toMap(data);
-    data.insert(compilerPlatformCodeGenFlagsKeyC, m_extraCodeModelFlags);
-}
-
-bool KeilToolChain::fromMap(const QVariantMap &data)
-{
-    if (!ToolChain::fromMap(data))
-        return false;
-    m_extraCodeModelFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
-    return true;
-}
-
 std::unique_ptr<ToolChainConfigWidget> KeilToolChain::createConfigurationWidget()
 {
     return std::make_unique<KeilToolChainConfigWidget>(this);
@@ -554,20 +536,12 @@ bool KeilToolChain::operator ==(const ToolChain &other) const
     const auto customTc = static_cast<const KeilToolChain *>(&other);
     return compilerCommand() == customTc->compilerCommand()
             && targetAbi() == customTc->targetAbi()
-            && m_extraCodeModelFlags == customTc->m_extraCodeModelFlags;
-}
-
-void KeilToolChain::setExtraCodeModelFlags(const QStringList &flags)
-{
-    if (flags == m_extraCodeModelFlags)
-        return;
-    m_extraCodeModelFlags = flags;
-    toolChainUpdated();
+            && m_extraCodeModelFlags() == customTc->m_extraCodeModelFlags();
 }
 
 QStringList KeilToolChain::extraCodeModelFlags() const
 {
-    return m_extraCodeModelFlags;
+    return m_extraCodeModelFlags();
 }
 
 // KeilToolchainFactory
@@ -730,7 +704,7 @@ Toolchains KeilToolChainFactory::autoDetectToolchain(const Candidate &candidate,
     tc->setDetection(ToolChain::AutoDetection);
     tc->setLanguage(language);
     tc->setCompilerCommand(candidate.compilerPath);
-    tc->setExtraCodeModelFlags(extraArgs);
+    tc->m_extraCodeModelFlags.setValue(extraArgs);
     tc->setTargetAbi(abi);
     tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.compilerVersion));
 
@@ -775,7 +749,7 @@ void KeilToolChainConfigWidget::applyImpl()
     const auto tc = static_cast<KeilToolChain *>(toolChain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
-    tc->setExtraCodeModelFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
+    tc->m_extraCodeModelFlags.setValue(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName);
 
