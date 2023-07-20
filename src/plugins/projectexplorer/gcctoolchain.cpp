@@ -795,14 +795,13 @@ QStringList GccToolChain::platformLinkerFlags() const
     return m_platformLinkerFlags;
 }
 
-QVariantMap GccToolChain::toMap() const
+void GccToolChain::toMap(QVariantMap &data) const
 {
-    QVariantMap data = ToolChain::toMap();
+    ToolChain::toMap(data);
     data.insert(compilerPlatformCodeGenFlagsKeyC, m_platformCodeGenFlags);
     data.insert(compilerPlatformLinkerFlagsKeyC, m_platformLinkerFlags);
     data.insert(originalTargetTripleKeyC, m_originalTargetTriple);
     data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
-    return data;
 }
 
 bool GccToolChain::fromMap(const QVariantMap &data)
@@ -1713,12 +1712,11 @@ std::unique_ptr<ToolChainConfigWidget> ClangToolChain::createConfigurationWidget
     return std::make_unique<ClangToolChainConfigWidget>(this);
 }
 
-QVariantMap ClangToolChain::toMap() const
+void ClangToolChain::toMap(QVariantMap &data) const
 {
-    QVariantMap data = GccToolChain::toMap();
+    GccToolChain::toMap(data);
     data.insert(parentToolChainIdKeyC, m_parentToolChainId);
     data.insert(priorityKeyC, m_priority);
-    return data;
 }
 
 bool ClangToolChain::fromMap(const QVariantMap &data)

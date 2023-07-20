@@ -66,7 +66,7 @@ public:
     QStringList suggestedMkspecList() const override;
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
 
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &data) const override;
     bool fromMap(const QVariantMap &data) override;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
@@ -206,7 +206,7 @@ public:
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &data) const override;
     bool fromMap(const QVariantMap &data) override;
 
     void setPriority(int priority) { m_priority = priority; }

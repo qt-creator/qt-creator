@@ -131,12 +131,11 @@ QStringList QnxToolChain::suggestedMkspecList() const
     };
 }
 
-QVariantMap QnxToolChain::toMap() const
+void QnxToolChain::toMap(QVariantMap &data) const
 {
-    QVariantMap data = GccToolChain::toMap();
+    GccToolChain::toMap(data);
     data.insert(QLatin1String(CompilerSdpPath), m_sdpPath.toSettings());
     data.insert(QLatin1String(CpuDirKey), m_cpuDir);
-    return data;
 }
 
 bool QnxToolChain::fromMap(const QVariantMap &data)

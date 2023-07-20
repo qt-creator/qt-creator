@@ -449,7 +449,7 @@ public:
 
     QList<OutputLineParser *> createOutputParsers() const final { return {new KeilParser}; }
 
-    QVariantMap toMap() const final;
+    void toMap(QVariantMap &data) const final;
     bool fromMap(const QVariantMap &data) final;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
@@ -527,11 +527,10 @@ void KeilToolChain::addToEnvironment(Environment &env) const
 }
 
 
-QVariantMap KeilToolChain::toMap() const
+void KeilToolChain::toMap(QVariantMap &data) const
 {
-    QVariantMap data = ToolChain::toMap();
+    ToolChain::toMap(data);
     data.insert(compilerPlatformCodeGenFlagsKeyC, m_extraCodeModelFlags);
-    return data;
 }
 
 bool KeilToolChain::fromMap(const QVariantMap &data)

@@ -217,9 +217,9 @@ QString CustomToolChain::mkspecs() const
     return m_mkspecs.join(',');
 }
 
-QVariantMap CustomToolChain::toMap() const
+void CustomToolChain::toMap(QVariantMap &data) const
 {
-    QVariantMap data = ToolChain::toMap();
+    ToolChain::toMap(data);
     data.insert(QLatin1String(makeCommandKeyC), m_makeCommand.toString());
     QStringList macros = Utils::transform<QList>(m_predefinedMacros, [](const Macro &m) { return QString::fromUtf8(m.toByteArray()); });
     data.insert(QLatin1String(predefinedMacrosKeyC), macros);
@@ -227,8 +227,6 @@ QVariantMap CustomToolChain::toMap() const
     data.insert(QLatin1String(cxx11FlagsKeyC), m_cxx11Flags);
     data.insert(QLatin1String(mkspecsKeyC), mkspecs());
     data.insert(QLatin1String(outputParserKeyC), m_outputParserId.toSetting());
-
-    return data;
 }
 
 bool CustomToolChain::fromMap(const QVariantMap &data)

@@ -220,7 +220,8 @@ void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWi
     for (const ToolChain *tc : toolchains) {
         if (!tc || (!tc->isValid() && tc->isAutoDetected()))
             continue;
-        const QVariantMap tmp = tc->toMap();
+        QVariantMap tmp;
+        tc->toMap(tmp);
         if (tmp.isEmpty())
             continue;
         data.insert(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
@@ -326,11 +327,10 @@ public:
         return true;
     }
 
-    QVariantMap toMap() const final
+    void toMap(QVariantMap &data) const final
     {
-        QVariantMap data = ToolChain::toMap();
+        ToolChain::toMap(data);
         data[TestTokenKey] = token;
-        return data;
     }
 
     QByteArray token;
@@ -339,8 +339,6 @@ private:
     bool m_valid = false;
 
     static QList<TTC *> m_toolChains;
-
-public:
 };
 
 QList<TTC *> TTC::m_toolChains;

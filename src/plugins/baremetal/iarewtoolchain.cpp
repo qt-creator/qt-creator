@@ -309,7 +309,7 @@ public:
     void addToEnvironment(Environment &env) const final;
     QList<OutputLineParser *> createOutputParsers() const final;
 
-    QVariantMap toMap() const final;
+    void toMap(QVariantMap &data) const final;
     bool fromMap(const QVariantMap &data) final;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
@@ -404,11 +404,10 @@ QList<Utils::OutputLineParser *> IarToolChain::createOutputParsers() const
     return {new IarParser()};
 }
 
-QVariantMap IarToolChain::toMap() const
+void IarToolChain::toMap(QVariantMap &data) const
 {
-    QVariantMap data = ToolChain::toMap();
+    ToolChain::toMap(data);
     data.insert(compilerPlatformCodeGenFlagsKeyC, m_extraCodeModelFlags);
-    return data;
 }
 
 bool IarToolChain::fromMap(const QVariantMap &data)

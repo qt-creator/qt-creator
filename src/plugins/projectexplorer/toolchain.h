@@ -145,7 +145,7 @@ public:
 
     // Used by the toolchainmanager to save user-generated tool chains.
     // Make sure to call this function when deriving!
-    virtual QVariantMap toMap() const;
+    virtual void toMap(QVariantMap &map) const;
     virtual Tasks validateKit(const Kit *k) const;
 
     virtual bool isJobCountSupported() const { return true; }

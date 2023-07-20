@@ -21,7 +21,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
     QStringList suggestedMkspecList() const override;
 
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &data) const override;
     bool fromMap(const QVariantMap &data) override;
 
     Utils::FilePath sdpPath() const;

@@ -226,7 +226,9 @@ ToolChain *ToolChain::clone() const
         if (f->supportedToolChainType() == d->m_typeId) {
             ToolChain *tc = f->create();
             QTC_ASSERT(tc, return nullptr);
-            tc->fromMap(toMap());
+            QVariantMap data;
+            toMap(data);
+            tc->fromMap(data);
             // New ID for the clone. It's different.
             tc->d->m_id = QUuid::createUuid().toByteArray();
             return tc;
@@ -242,9 +244,8 @@ ToolChain *ToolChain::clone() const
     Make sure to call this function when deriving.
 */
 
-QVariantMap ToolChain::toMap() const
+void ToolChain::toMap(QVariantMap &result) const
 {
-    QVariantMap result;
     QString idToSave = d->m_typeId.toString() + QLatin1Char(':') + QString::fromUtf8(id());
     result.insert(QLatin1String(ID_KEY), idToSave);
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
@@ -265,7 +266,6 @@ QVariantMap ToolChain::toMap() const
         result.insert(d->m_targetAbiKey, d->m_targetAbi.toString());
     if (!d->m_compilerCommandKey.isEmpty())
         result.insert(d->m_compilerCommandKey, d->m_compilerCommand.toSettings());
-    return result;
 }
 
 void ToolChain::toolChainUpdated()
