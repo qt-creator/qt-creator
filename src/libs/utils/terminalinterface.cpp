@@ -45,12 +45,12 @@ static QString msgUnexpectedOutput(const QByteArray &what)
 
 static QString msgCannotChangeToWorkDir(const FilePath &dir, const QString &why)
 {
-    return Tr::tr("Cannot change to working directory \"%1\": %2").arg(dir.toString(), why);
+    return Tr::tr("Cannot change to working directory \"%1\": %2").arg(dir.toUserOutput(), why);
 }
 
-static QString msgCannotExecute(const QString &p, const QString &why)
+static QString msgCannotExecute(const FilePath &p, const QString &why)
 {
-    return Tr::tr("Cannot execute \"%1\": %2").arg(p, why);
+    return Tr::tr("Cannot execute \"%1\": %2").arg(p.toUserOutput(), why);
 }
 
 static QString msgPromptToClose()
@@ -169,7 +169,7 @@ void TerminalInterface::onStubReadyRead()
                                                errnoToString(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
             emitError(QProcess::FailedToStart,
-                      msgCannotExecute(m_setup.m_commandLine.executable().toString(),
+                      msgCannotExecute(m_setup.m_commandLine.executable(),
                                        errnoToString(out.mid(9).toInt())));
         } else if (out.startsWith("spid ")) {
             d->envListFile.reset();

@@ -181,7 +181,7 @@ void DropMimeData::addFile(const FilePath &filePath, int line, int column)
 {
     // standard mime data
     QList<QUrl> currentUrls = urls();
-    currentUrls.append(QUrl::fromLocalFile(filePath.toString()));
+    currentUrls.append(filePath.toUrl());
     setUrls(currentUrls);
     // special mime data
     m_files.append(DropSupport::FileSpec(filePath, line, column));
