@@ -237,7 +237,7 @@ void PerfProfilerTool::createViews()
         }
 
         PerfConfigWidget *widget = new PerfConfigWidget(
-                    settings ? settings : PerfProfilerPlugin::globalSettings(),
+                    settings ? settings : &globalSettings(),
                     Core::ICore::dialogParent());
         widget->setTracePointsButtonVisible(true);
         widget->setTarget(target);

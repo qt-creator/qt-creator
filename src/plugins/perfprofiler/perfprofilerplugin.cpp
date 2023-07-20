@@ -1,8 +1,8 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "perfoptionspage.h"
 #include "perfprofilerplugin.h"
+
 #include "perfprofilerruncontrol.h"
 #include "perfprofilertool.h"
 #include "perfrunconfigurationaspect.h"
@@ -17,8 +17,6 @@ using namespace ProjectExplorer;
 
 namespace PerfProfiler::Internal {
 
-Q_GLOBAL_STATIC(PerfSettings, perfGlobalSettings)
-
 class PerfProfilerPluginPrivate
 {
 public:
@@ -28,7 +26,6 @@ public:
     }
 
     PerfProfilerRunWorkerFactory profilerWorkerFactory;
-    PerfOptionsPage optionsPage{perfGlobalSettings()};
     PerfProfilerTool profilerTool;
 };
 
@@ -45,11 +42,6 @@ void PerfProfilerPlugin::initialize()
 //   addTest<PerfProfilerTraceFileTest>();  // FIXME these tests have to get rewritten
     addTest<PerfResourceCounterTest>();
 #endif // WITH_TESTS
-}
-
-PerfSettings *PerfProfilerPlugin::globalSettings()
-{
-    return perfGlobalSettings();
 }
 
 } // PerfProfiler::Internal

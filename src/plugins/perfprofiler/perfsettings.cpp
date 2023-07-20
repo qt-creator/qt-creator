@@ -6,15 +6,24 @@
 #include "perfprofilertr.h"
 #include "perfsettings.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <QSettings>
+#include <debugger/analyzer/analyzericons.h>
+#include <debugger/debuggertr.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/process.h>
 
 using namespace Utils;
 
 namespace PerfProfiler {
+
+PerfSettings &globalSettings()
+{
+    static PerfSettings theSettings(nullptr);
+    return theSettings;
+}
 
 PerfSettings::PerfSettings(ProjectExplorer::Target *target)
 {
@@ -62,6 +71,14 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
         stackSize.setEnabled(callgraphMode.volatileValue() == 0);
     });
 
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            createConfigWidget()
+        };
+    });
+
+    readSettings();
     readGlobalSettings();
 }
 
@@ -124,5 +141,23 @@ void PerfSettings::resetToDefault()
     defaults.toMap(map);
     fromMap(map);
 }
+
+// PerfSettingsPage
+
+class PerfSettingsPage final : public Core::IOptionsPage
+{
+public:
+    PerfSettingsPage()
+    {
+        setId(Constants::PerfSettingsId);
+        setDisplayName(Tr::tr("CPU Usage"));
+        setCategory("T.Analyzer");
+        setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
+        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+        setSettingsProvider([] { return &globalSettings(); });
+    }
+};
+
+const PerfSettingsPage settingsPage;
 
 } // namespace PerfProfiler

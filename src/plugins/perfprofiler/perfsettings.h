@@ -7,8 +7,6 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QObject>
-
 namespace PerfProfiler {
 
 class PERFPROFILER_EXPORT PerfSettings final : public ProjectExplorer::ISettingsAspect
@@ -33,5 +31,7 @@ public:
     Utils::StringListAspect events{this};
     Utils::StringAspect extraArguments{this};
 };
+
+PerfSettings &globalSettings();
 
 } // namespace PerfProfiler
