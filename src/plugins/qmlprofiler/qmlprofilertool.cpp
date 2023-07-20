@@ -566,10 +566,10 @@ void QmlProfilerTool::showErrorDialog(const QString &error)
 
 static void saveLastTraceFile(const FilePath &filePath)
 {
-    QmlProfilerSettings *settings = QmlProfilerPlugin::globalSettings();
-    if (filePath != settings->lastTraceFile()) {
-        settings->lastTraceFile.setValue(filePath);
-        settings->writeGlobalSettings();
+    QmlProfilerSettings &s = globalSettings();
+    if (filePath != s.lastTraceFile()) {
+        s.lastTraceFile.setValue(filePath);
+        s.writeSettings();
     }
 }
 
@@ -579,7 +579,7 @@ void QmlProfilerTool::showSaveDialog()
     QLatin1String zFile(QztFileExtension);
     FilePath filePath = FileUtils::getSaveFilePath(
                 nullptr, Tr::tr("Save QML Trace"),
-                QmlProfilerPlugin::globalSettings()->lastTraceFile(),
+                globalSettings().lastTraceFile(),
                 Tr::tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
     if (!filePath.isEmpty()) {
         if (!filePath.endsWith(zFile) && !filePath.endsWith(tFile))
@@ -603,7 +603,7 @@ void QmlProfilerTool::showLoadDialog()
     QLatin1String zFile(QztFileExtension);
     FilePath filePath = FileUtils::getOpenFilePath(
                 nullptr, Tr::tr("Load QML Trace"),
-                QmlProfilerPlugin::globalSettings()->lastTraceFile(),
+                globalSettings().lastTraceFile(),
                 Tr::tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
 
     if (!filePath.isEmpty()) {

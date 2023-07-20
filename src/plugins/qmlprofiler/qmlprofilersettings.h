@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <projectexplorer/runconfiguration.h>
 
 namespace QmlProfiler::Internal {
@@ -14,18 +12,12 @@ class QmlProfilerSettings : public ProjectExplorer::ISettingsAspect
 public:
     QmlProfilerSettings();
 
-    void writeGlobalSettings() const;
-
-    Utils::BoolAspect flushEnabled;
-    Utils::IntegerAspect flushInterval;
-    Utils::FilePathAspect lastTraceFile;
-    Utils::BoolAspect aggregateTraces;
+    Utils::BoolAspect flushEnabled{this};
+    Utils::IntegerAspect flushInterval{this};
+    Utils::FilePathAspect lastTraceFile{this};
+    Utils::BoolAspect aggregateTraces{this};
 };
 
-class QmlProfilerOptionsPage final : public Core::IOptionsPage
-{
-public:
-    QmlProfilerOptionsPage();
-};
+QmlProfilerSettings &globalSettings();
 
 } // QmlProfiler::Internal

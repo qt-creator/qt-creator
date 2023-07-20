@@ -86,11 +86,13 @@ GlobalOrProjectAspect::~GlobalOrProjectAspect()
 void GlobalOrProjectAspect::setProjectSettings(ISettingsAspect *settings)
 {
     m_projectSettings = settings;
+    m_projectSettings->setAutoApply(true);
 }
 
 void GlobalOrProjectAspect::setGlobalSettings(ISettingsAspect *settings)
 {
     m_globalSettings = settings;
+    m_projectSettings->setAutoApply(false);
 }
 
 void GlobalOrProjectAspect::setUsingGlobalSettings(bool value)

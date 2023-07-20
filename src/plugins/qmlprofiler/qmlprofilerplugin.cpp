@@ -53,13 +53,10 @@ using namespace ProjectExplorer;
 
 namespace QmlProfiler::Internal {
 
-Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
-
 class QmlProfilerPluginPrivate
 {
 public:
     QmlProfilerTool m_profilerTool;
-    QmlProfilerOptionsPage m_profilerOptionsPage;
     QmlProfilerActions m_actions;
 
     // The full local profiler.
@@ -117,11 +114,6 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)
     return SynchronousShutdown;
-}
-
-QmlProfilerSettings *QmlProfilerPlugin::globalSettings()
-{
-    return qmlProfilerGlobalSettings();
 }
 
 } // QmlProfiler::Internal
