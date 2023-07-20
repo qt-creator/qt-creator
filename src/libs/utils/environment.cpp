@@ -24,7 +24,7 @@ namespace Utils {
 static QReadWriteLock s_envMutex;
 Q_GLOBAL_STATIC_WITH_ARGS(Environment, staticSystemEnvironment,
                           (QProcessEnvironment::systemEnvironment().toStringList()))
-Q_GLOBAL_STATIC(QVector<EnvironmentProvider>, environmentProviders)
+Q_GLOBAL_STATIC(QList<EnvironmentProvider>, environmentProviders)
 
 Environment::Environment()
     : m_dict(HostOsInfo::hostOs())
@@ -352,7 +352,7 @@ void EnvironmentProvider::addProvider(EnvironmentProvider &&provider)
     environmentProviders->append(std::move(provider));
 }
 
-const QVector<EnvironmentProvider> EnvironmentProvider::providers()
+const QList<EnvironmentProvider> EnvironmentProvider::providers()
 {
     return *environmentProviders;
 }

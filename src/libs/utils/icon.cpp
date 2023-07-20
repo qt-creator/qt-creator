@@ -36,7 +36,7 @@ static QPixmap maskToColorAndAlpha(const QPixmap &mask, const QColor &color)
 
 using MaskAndColor = QPair<QPixmap, QColor>;
 using MasksAndColors = QList<MaskAndColor>;
-static MasksAndColors masksAndColors(const QVector<IconMaskAndColor> &icon, int dpr)
+static MasksAndColors masksAndColors(const QList<IconMaskAndColor> &icon, int dpr)
 {
     MasksAndColors result;
     for (const IconMaskAndColor &i: icon) {
@@ -134,7 +134,7 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
 
 Icon::Icon() = default;
 
-Icon::Icon(QVector<IconMaskAndColor> args, Icon::IconStyleOptions style)
+Icon::Icon(QList<IconMaskAndColor> args, Icon::IconStyleOptions style)
     : m_iconSourceList(std::move(args))
     , m_style(style)
 {

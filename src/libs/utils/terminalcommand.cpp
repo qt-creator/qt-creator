@@ -45,7 +45,7 @@ void TerminalCommand::setSettings(QSettings *settings)
     s_settings = settings;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(const QVector<TerminalCommand>, knownTerminals, (
+Q_GLOBAL_STATIC_WITH_ARGS(const QList<TerminalCommand>, knownTerminals, (
 {
     {"x-terminal-emulator", "", "-e"},
     {"xdg-terminal", "", "", true},
@@ -82,9 +82,9 @@ TerminalCommand TerminalCommand::defaultTerminalEmulator()
     return defaultTerm;
 }
 
-QVector<TerminalCommand> TerminalCommand::availableTerminalEmulators()
+QList<TerminalCommand> TerminalCommand::availableTerminalEmulators()
 {
-    QVector<TerminalCommand> result;
+    QList<TerminalCommand> result;
 
     if (HostOsInfo::isAnyUnixHost()) {
         const Environment env = Environment::systemEnvironment();

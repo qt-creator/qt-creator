@@ -10,8 +10,8 @@
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QFile>
+#include <QList>
 #include <QSharedPointer>
-#include <QVector>
 
 namespace Utils {
 
@@ -130,8 +130,8 @@ public:
     QByteArray debugLink;
     QByteArray buildId;
     DebugSymbolsType symbolsType = UnknownSymbols;
-    QVector<ElfSectionHeader> sectionHeaders;
-    QVector<ElfProgramHeader> programHeaders;
+    QList<ElfSectionHeader> sectionHeaders;
+    QList<ElfProgramHeader> programHeaders;
 };
 
 class QTCREATOR_UTILS_EXPORT ElfReader

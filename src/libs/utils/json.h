@@ -8,7 +8,6 @@
 #include <QDateTime>
 #include <QHash>
 #include <QStringList>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QVariant;
@@ -37,7 +36,7 @@ public:
     }
 
 private:
-    QVector<char *> _objs;
+    QList<char *> _objs;
 };
 
 /*!
@@ -359,7 +358,7 @@ private:
         int m_index;
     };
 
-    QVector<Context> m_schemas;
+    QList<Context> m_schemas;
     const JsonSchemaManager *m_manager;
 };
 

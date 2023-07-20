@@ -9,8 +9,8 @@
 #include "theme/theme.h"
 
 #include <QIcon>
+#include <QList>
 #include <QPair>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QColor;
@@ -40,7 +40,7 @@ public:
     Q_DECLARE_FLAGS(IconStyleOptions, IconStyleOption)
 
     Icon();
-    Icon(QVector<IconMaskAndColor> args, IconStyleOptions style = ToolBarStyle);
+    Icon(QList<IconMaskAndColor> args, IconStyleOptions style = ToolBarStyle);
     Icon(const FilePath &imageFileName);
 
     QIcon icon() const;
@@ -62,7 +62,7 @@ public:
     static QIcon combinedIcon(const QList<Icon> &icons);
 
 private:
-    QVector<IconMaskAndColor> m_iconSourceList;
+    QList<IconMaskAndColor> m_iconSourceList;
     IconStyleOptions m_style = None;
     mutable int m_lastDevicePixelRatio = -1;
     mutable QIcon m_lastIcon;

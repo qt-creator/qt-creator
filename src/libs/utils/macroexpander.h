@@ -7,7 +7,6 @@
 
 #include <QCoreApplication>
 #include <QList>
-#include <QVector>
 
 #include <functional>
 
@@ -18,7 +17,7 @@ namespace Internal { class MacroExpanderPrivate; }
 class FilePath;
 class MacroExpander;
 using MacroExpanderProvider = std::function<MacroExpander *()>;
-using MacroExpanderProviders = QVector<MacroExpanderProvider>;
+using MacroExpanderProviders = QList<MacroExpanderProvider>;
 
 class QTCREATOR_UTILS_EXPORT MacroExpander
 {

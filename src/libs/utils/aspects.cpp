@@ -637,7 +637,7 @@ public:
 
     SelectionAspect::DisplayStyle m_displayStyle
             = SelectionAspect::DisplayStyle::RadioButtons;
-    QVector<SelectionAspect::Option> m_options;
+    QList<SelectionAspect::Option> m_options;
 
     // These are all owned by the configuration widget.
     QList<QPointer<QRadioButton>> m_buttons;

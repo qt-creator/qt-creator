@@ -134,7 +134,7 @@ public:
     std::function<Environment()> environment;
 
     static void addProvider(EnvironmentProvider &&provider);
-    static const QVector<EnvironmentProvider> providers();
+    static const QList<EnvironmentProvider> providers();
     static std::optional<EnvironmentProvider> provider(const QByteArray &id);
 };
 

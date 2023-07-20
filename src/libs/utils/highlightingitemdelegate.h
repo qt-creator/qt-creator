@@ -36,7 +36,7 @@ private:
                   const QRect &rect, const QModelIndex &index) const;
     using QItemDelegate::drawDisplay;
     void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect,
-                     const QString &text, const QVector<QTextLayout::FormatRange> &format) const;
+                     const QString &text, const QList<QTextLayout::FormatRange> &format) const;
     QString m_tabString;
 };
 

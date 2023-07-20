@@ -49,7 +49,7 @@ public:
     TreeItem *lastChild() const;
     int level() const;
 
-    using const_iterator = QVector<TreeItem *>::const_iterator;
+    using const_iterator = QList<TreeItem *>::const_iterator;
     using value_type = TreeItem *;
     int childCount() const { return m_children.size(); }
     int indexInParent() const;
@@ -81,7 +81,7 @@ private:
 
     TreeItem *m_parent = nullptr; // Not owned.
     BaseTreeModel *m_model = nullptr; // Not owned.
-    QVector<TreeItem *> m_children; // Owned.
+    QList<TreeItem *> m_children; // Owned.
     friend class BaseTreeModel;
 };
 

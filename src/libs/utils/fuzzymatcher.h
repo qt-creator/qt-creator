@@ -7,7 +7,7 @@
 
 #include "utils_global.h"
 
-#include <QVector>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QRegularExpression;
@@ -26,8 +26,8 @@ public:
 
     class HighlightingPositions {
     public:
-        QVector<int> starts;
-        QVector<int> lengths;
+        QList<int> starts;
+        QList<int> lengths;
     };
 
     static QRegularExpression createRegExp(

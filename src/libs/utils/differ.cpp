@@ -13,7 +13,6 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 
 #include "utilstr.h"
 
-#include <QList>
 #include <QMap>
 #include <QPair>
 #include <QRegularExpression>

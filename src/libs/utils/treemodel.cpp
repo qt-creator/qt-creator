@@ -717,7 +717,7 @@ void TreeItem::sortChildren(const std::function<bool(const TreeItem *, const Tre
 {
     if (m_model) {
         if (const int n = childCount()) {
-            QVector<TreeItem *> tmp = m_children;
+            QList<TreeItem *> tmp = m_children;
             std::sort(tmp.begin(), tmp.end(), cmp);
             if (tmp == m_children) {
                 // Nothing changed.

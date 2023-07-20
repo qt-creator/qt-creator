@@ -7,8 +7,8 @@
 
 #include "filepath.h"
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -35,7 +35,7 @@ public:
 
     static void setSettings(QSettings *settings);
     static TerminalCommand defaultTerminalEmulator();
-    static QVector<TerminalCommand> availableTerminalEmulators();
+    static QList<TerminalCommand> availableTerminalEmulators();
     static TerminalCommand terminalEmulator();
     static void setTerminalEmulator(const TerminalCommand &term);
 };

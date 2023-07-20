@@ -3,10 +3,10 @@
 
 #pragma once
 
+#include <QFormLayout>
 #include <QList>
 #include <QString>
 #include <QtGlobal>
-#include <QFormLayout>
 
 #include <optional>
 

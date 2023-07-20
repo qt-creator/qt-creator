@@ -5,8 +5,8 @@
 
 #include "utils_global.h"
 
-#include <QMetaType>
 #include <QList>
+#include <QMetaType>
 #include <QString>
 
 namespace Utils {
