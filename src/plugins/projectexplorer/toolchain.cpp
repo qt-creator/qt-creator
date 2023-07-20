@@ -246,6 +246,8 @@ ToolChain *ToolChain::clone() const
 
 void ToolChain::toMap(QVariantMap &result) const
 {
+    AspectContainer::toMap(result);
+
     QString idToSave = d->m_typeId.toString() + QLatin1Char(':') + QString::fromUtf8(id());
     result.insert(QLatin1String(ID_KEY), idToSave);
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
@@ -353,6 +355,8 @@ void ToolChain::setTypeDisplayName(const QString &typeName)
 
 bool ToolChain::fromMap(const QVariantMap &data)
 {
+    AspectContainer::fromMap(data);
+
     d->m_displayName = data.value(QLatin1String(DISPLAY_NAME_KEY)).toString();
 
     // make sure we have new style ids:

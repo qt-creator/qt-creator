@@ -12,6 +12,7 @@
 #include "task.h"
 #include "toolchaincache.h"
 
+#include <utils/aspects.h>
 #include <utils/cpplanguage_details.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -60,7 +61,7 @@ public:
 // ToolChain (documentation inside)
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ToolChain
+class PROJECTEXPLORER_EXPORT ToolChain : public Utils::AspectContainer
 {
 public:
     enum Detection {
