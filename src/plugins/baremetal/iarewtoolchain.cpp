@@ -36,8 +36,6 @@ namespace BareMetal::Internal {
 
 // Helpers:
 
-static const char compilerPlatformCodeGenFlagsKeyC[] = "PlatformCodeGenFlags";
-
 static bool compilerExists(const FilePath &compilerPath)
 {
     const QFileInfo fi = compilerPath.toFileInfo();
@@ -298,6 +296,10 @@ public:
         setTypeDisplayName(Tr::tr("IAREW"));
         setTargetAbiKey("TargetAbi");
         setCompilerCommandKey("CompilerPath");
+
+        m_extraCodeModelFlags.setSettingsKey("PlatformCodeGenFlags");
+        connect(&m_extraCodeModelFlags, &BaseAspect::changed,
+                this, &IarToolChain::toolChainUpdated);
     }
 
     MacroInspectionRunner createMacroInspectionRunner() const final;
@@ -309,20 +311,16 @@ public:
     void addToEnvironment(Environment &env) const final;
     QList<OutputLineParser *> createOutputParsers() const final;
 
-    void toMap(QVariantMap &data) const final;
-    bool fromMap(const QVariantMap &data) final;
-
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
 
     bool operator==(const ToolChain &other) const final;
 
-    void setExtraCodeModelFlags(const QStringList &flags);
-    QStringList extraCodeModelFlags() const final;
+    QStringList extraCodeModelFlags() const final { return m_extraCodeModelFlags(); }
 
-    FilePath makeCommand(const Environment &env) const final;
+    FilePath makeCommand(const Environment &) const final { return {}; }
 
 private:
-    QStringList m_extraCodeModelFlags;
+    StringListAspect m_extraCodeModelFlags{this};
 
     friend class IarToolChainFactory;
     friend class IarToolChainConfigWidget;
@@ -335,7 +333,7 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
 
     const FilePath compiler = compilerCommand();
     const Id languageId = language();
-    const QStringList extraArgs = m_extraCodeModelFlags;
+    const QStringList extraArgs = m_extraCodeModelFlags();
     MacrosCache macrosCache = predefinedMacrosCache();
 
     return [env, compiler, extraArgs, macrosCache, languageId]
@@ -404,20 +402,6 @@ QList<Utils::OutputLineParser *> IarToolChain::createOutputParsers() const
     return {new IarParser()};
 }
 
-void IarToolChain::toMap(QVariantMap &data) const
-{
-    ToolChain::toMap(data);
-    data.insert(compilerPlatformCodeGenFlagsKeyC, m_extraCodeModelFlags);
-}
-
-bool IarToolChain::fromMap(const QVariantMap &data)
-{
-    if (!ToolChain::fromMap(data))
-        return false;
-    m_extraCodeModelFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
-    return true;
-}
-
 std::unique_ptr<ToolChainConfigWidget> IarToolChain::createConfigurationWidget()
 {
     return std::make_unique<IarToolChainConfigWidget>(this);
@@ -430,27 +414,10 @@ bool IarToolChain::operator==(const ToolChain &other) const
 
     const auto customTc = static_cast<const IarToolChain *>(&other);
     return compilerCommand() == customTc->compilerCommand()
-            && m_extraCodeModelFlags == customTc->m_extraCodeModelFlags;
+            && m_extraCodeModelFlags() == customTc->m_extraCodeModelFlags();
 }
 
-void IarToolChain::setExtraCodeModelFlags(const QStringList &flags)
-{
-    if (flags == m_extraCodeModelFlags)
-        return;
-    m_extraCodeModelFlags = flags;
-    toolChainUpdated();
-}
 
-QStringList IarToolChain::extraCodeModelFlags() const
-{
-    return m_extraCodeModelFlags;
-}
-
-FilePath IarToolChain::makeCommand(const Environment &env) const
-{
-    Q_UNUSED(env)
-    return {};
-}
 
 // IarToolChainFactory
 
@@ -629,7 +596,9 @@ void IarToolChainConfigWidget::applyImpl()
     const auto tc = static_cast<IarToolChain *>(toolChain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
-    tc->setExtraCodeModelFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
+
+    tc->m_extraCodeModelFlags.setValue(splitString(m_platformCodeGenFlagsLineEdit->text()));
+
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName);
 
