@@ -134,15 +134,15 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
 
 Icon::Icon() = default;
 
-Icon::Icon(QList<IconMaskAndColor> args, Icon::IconStyleOptions style)
-    : m_iconSourceList(std::move(args))
+Icon::Icon(const QList<IconMaskAndColor> &args, Icon::IconStyleOptions style)
+    : m_iconSourceList(args)
     , m_style(style)
 {
 }
 
 Icon::Icon(const FilePath &imageFileName)
+    : m_iconSourceList({{imageFileName, Theme::Color(-1)}})
 {
-    m_iconSourceList.append({imageFileName, Theme::Color(-1)});
 }
 
 QIcon Icon::icon() const

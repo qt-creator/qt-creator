@@ -40,7 +40,7 @@ public:
     Q_DECLARE_FLAGS(IconStyleOptions, IconStyleOption)
 
     Icon();
-    Icon(QList<IconMaskAndColor> args, IconStyleOptions style = ToolBarStyle);
+    Icon(const QList<IconMaskAndColor> &args, IconStyleOptions style = ToolBarStyle);
     Icon(const FilePath &imageFileName);
 
     QIcon icon() const;
