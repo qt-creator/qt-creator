@@ -268,8 +268,11 @@ public:
 
     void setVolatileValue(const ValueType &value)
     {
+        if (m_buffer == value)
+            return;
         m_buffer = value;
         bufferToGui();
+        emit volatileValueChanged();
     }
 
 protected:
