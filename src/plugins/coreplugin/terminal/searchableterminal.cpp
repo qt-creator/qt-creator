@@ -1,7 +1,7 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "terminalsearch.h"
+#include "searchableterminal.h"
 
 #include <QElapsedTimer>
 #include <QLoggingCategory>
@@ -15,7 +15,7 @@ using namespace Utils;
 
 using namespace std::chrono_literals;
 
-namespace Terminal {
+namespace Core {
 
 constexpr std::chrono::milliseconds debounceInterval = 100ms;
 
@@ -115,7 +115,8 @@ QList<TerminalSolution::SearchHit> TerminalSearch::search()
 
             if (it != m_surface->end()) {
                 auto hit = TerminalSolution::SearchHit{it.position(),
-                                     static_cast<int>(it.position() + searchString.size())};
+                                                       static_cast<int>(it.position()
+                                                                        + searchString.size())};
                 if (m_findFlags.testFlag(FindFlag::FindWholeWords)) {
                     hit.start++;
                     hit.end--;
@@ -207,8 +208,8 @@ void TerminalSearch::debouncedUpdateHits()
 
 FindFlags TerminalSearch::supportedFindFlags() const
 {
-    return FindFlag::FindCaseSensitively | FindFlag::FindBackward
-           | FindFlag::FindRegularExpression | FindFlag::FindWholeWords;
+    return FindFlag::FindCaseSensitively | FindFlag::FindBackward | FindFlag::FindRegularExpression
+           | FindFlag::FindWholeWords;
 }
 
 void TerminalSearch::resetIncrementalSearch()
@@ -273,4 +274,57 @@ void TerminalSearch::highlightAll(const QString &txt, FindFlags findFlags)
     setSearchString(txt, findFlags);
 }
 
-} // namespace Terminal
+SearchableTerminal::SearchableTerminal(QWidget *parent)
+    : TerminalSolution::TerminalView(parent)
+{
+    m_aggregate = new Aggregation::Aggregate(this);
+    m_aggregate->add(this);
+
+    surfaceChanged();
+}
+
+SearchableTerminal::~SearchableTerminal() = default;
+
+void SearchableTerminal::surfaceChanged()
+{
+    TerminalView::surfaceChanged();
+
+    m_search = TerminalSearchPtr(new TerminalSearch(surface()), [this](TerminalSearch *p) {
+        m_aggregate->remove(p);
+        delete p;
+    });
+
+    m_aggregate->add(m_search.get());
+
+    connect(m_search.get(), &TerminalSearch::hitsChanged, this, &SearchableTerminal::updateViewport);
+    connect(m_search.get(), &TerminalSearch::currentHitChanged, this, [this] {
+        TerminalSolution::SearchHit hit = m_search->currentHit();
+        if (hit.start >= 0) {
+            setSelection(Selection{hit.start, hit.end, true}, hit != m_lastSelectedHit);
+            m_lastSelectedHit = hit;
+        }
+    });
+}
+
+void SearchableTerminal::selectionChanged(const std::optional<Selection> &newSelection)
+{
+    TerminalView::selectionChanged(newSelection);
+
+    if (selection() && selection()->final) {
+        QString text = textFromSelection();
+
+        if (m_search) {
+            m_search->setCurrentSelection(
+                SearchHitWithText{{newSelection->start, newSelection->end}, text});
+        }
+    }
+}
+
+const QList<TerminalSolution::SearchHit> &SearchableTerminal::searchHits() const
+{
+    if (!m_search)
+        return TerminalSolution::TerminalView::searchHits();
+    return m_search->hits();
+}
+
+} // namespace Core

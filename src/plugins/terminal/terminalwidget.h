@@ -5,14 +5,12 @@
 
 #include "shellintegration.h"
 #include "shortcutmap.h"
-#include "terminalsearch.h"
-
-#include <solutions/terminal/terminalview.h>
 
 #include <aggregation/aggregate.h>
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/terminal/searchableterminal.h>
 
 #include <utils/link.h>
 #include <utils/process.h>
@@ -22,7 +20,7 @@ namespace Terminal {
 
 using RegisteredAction = std::unique_ptr<QAction, std::function<void(QAction *)>>;
 
-class TerminalWidget : public TerminalSolution::TerminalView
+class TerminalWidget : public Core::SearchableTerminal
 {
     Q_OBJECT
 public:
@@ -30,8 +28,6 @@ public:
                    const Utils::Terminal::OpenTerminalParameters &openParameters = {});
 
     void closeTerminal();
-
-    TerminalSearch *search() { return m_search.get(); }
 
     void setShellName(const QString &shellName);
     QString shellName() const;
@@ -80,8 +76,6 @@ protected:
     void setClipboard(const QString &text) override;
     std::optional<TerminalView::Link> toLink(const QString &text) override;
 
-    const QList<TerminalSolution::SearchHit> &searchHits() const override;
-
     RegisteredAction registerAction(Utils::Id commandId, const Core::Context &context);
     void registerShortcut(Core::Command *command);
 
@@ -95,19 +89,12 @@ private:
     QString m_shellName;
     QString m_title;
 
-    TerminalSolution::SearchHit m_lastSelectedHit{};
-
     Utils::Id m_identifier;
 
     Utils::Terminal::OpenTerminalParameters m_openParameters;
 
     Utils::FilePath m_cwd;
     Utils::CommandLine m_currentCommand;
-
-    using TerminalSearchPtr = std::unique_ptr<TerminalSearch, std::function<void(TerminalSearch *)>>;
-    TerminalSearchPtr m_search;
-
-    Aggregation::Aggregate *m_aggregate{nullptr};
 
     RegisteredAction m_copy;
     RegisteredAction m_paste;

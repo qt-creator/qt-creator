@@ -1,5 +1,5 @@
 add_qtc_plugin(Core
-  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate
+  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate TerminalLib
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils
   SOURCES
     actionmanager/actioncontainer.cpp
@@ -285,6 +285,8 @@ add_qtc_plugin(Core
     statusbarmanager.h
     systemsettings.cpp
     systemsettings.h
+    terminal/searchableterminal.cpp
+    terminal/searchableterminal.h
     textdocument.cpp
     textdocument.h
     themechooser.cpp

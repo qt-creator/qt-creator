@@ -3,23 +3,21 @@
 
 #pragma once
 
-#include <terminal/terminalsurface.h>
+#include "../core_global.h"
+#include "../find/ifindsupport.h"
+
+#include <aggregation/aggregate.h>
 
 #include <solutions/terminal/terminalview.h>
 
-#include <coreplugin/find/ifindsupport.h>
-#include <coreplugin/find/textfindconstants.h>
-
-#include <QTimer>
-
-namespace Terminal {
+namespace Core {
 
 struct SearchHitWithText : TerminalSolution::SearchHit
 {
     QString text;
 };
 
-class TerminalSearch : public Core::IFindSupport
+class TerminalSearch : public IFindSupport
 {
     Q_OBJECT
 public:
@@ -69,4 +67,23 @@ private:
     QTimer m_debounceTimer;
 };
 
-} // namespace Terminal
+class CORE_EXPORT SearchableTerminal : public TerminalSolution::TerminalView
+{
+public:
+    SearchableTerminal(QWidget *parent = nullptr);
+    ~SearchableTerminal() override;
+
+protected:
+    void surfaceChanged() override;
+    const QList<TerminalSolution::SearchHit> &searchHits() const override;
+    void selectionChanged(const std::optional<Selection> &newSelection) override;
+
+private:
+    using TerminalSearchPtr = std::unique_ptr<TerminalSearch, std::function<void(TerminalSearch *)>>;
+    TerminalSearchPtr m_search;
+    TerminalSolution::SearchHit m_lastSelectedHit{};
+
+    Aggregation::Aggregate *m_aggregate{nullptr};
+};
+
+} // namespace Core

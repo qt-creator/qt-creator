@@ -49,7 +49,7 @@ using namespace Core;
 
 namespace Terminal {
 TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &openParameters)
-    : TerminalSolution::TerminalView(parent)
+    : Core::SearchableTerminal(parent)
     , m_context(Utils::Id("TerminalWidget_").withSuffix(QString::number((uintptr_t) this)))
     , m_openParameters(openParameters)
 {
@@ -73,10 +73,6 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
         configBlinkTimer();
         setAllowBlinkingCursor(settings().allowBlinkingCursor());
     });
-
-    m_aggregate = new Aggregation::Aggregate(this);
-    m_aggregate->add(this);
-    m_aggregate->add(m_search.get());
 }
 
 void TerminalWidget::setupPty()
@@ -278,22 +274,10 @@ void TerminalWidget::resizePty(QSize newSize)
 
 void TerminalWidget::surfaceChanged()
 {
+    Core::SearchableTerminal::surfaceChanged();
+
     m_shellIntegration.reset(new ShellIntegration());
     setSurfaceIntegration(m_shellIntegration.get());
-
-    m_search = TerminalSearchPtr(new TerminalSearch(surface()), [this](TerminalSearch *p) {
-        m_aggregate->remove(p);
-        delete p;
-    });
-
-    connect(m_search.get(), &TerminalSearch::hitsChanged, this, &TerminalWidget::updateViewport);
-    connect(m_search.get(), &TerminalSearch::currentHitChanged, this, [this] {
-        TerminalSolution::SearchHit hit = m_search->currentHit();
-        if (hit.start >= 0) {
-            setSelection(Selection{hit.start, hit.end, true}, hit != m_lastSelectedHit);
-            m_lastSelectedHit = hit;
-        }
-    });
 
     connect(m_shellIntegration.get(),
             &ShellIntegration::titleChanged,
@@ -373,11 +357,6 @@ std::optional<TerminalSolution::TerminalView::Link> TerminalWidget::toLink(const
     return std::nullopt;
 }
 
-const QList<TerminalSolution::SearchHit> &TerminalWidget::searchHits() const
-{
-    return m_search->hits();
-}
-
 void TerminalWidget::onReadyRead(bool forceFlush)
 {
     QByteArray data = m_process->readAllRawStandardOutput();
@@ -429,6 +408,8 @@ void TerminalWidget::restart(const OpenTerminalParameters &openParameters)
 
 void TerminalWidget::selectionChanged(const std::optional<Selection> &newSelection)
 {
+    Q_UNUSED(newSelection);
+
     updateCopyState();
 
     if (selection() && selection()->final) {
@@ -437,9 +418,6 @@ void TerminalWidget::selectionChanged(const std::optional<Selection> &newSelecti
         QClipboard *clipboard = QApplication::clipboard();
         if (clipboard->supportsSelection())
             clipboard->setText(text, QClipboard::Selection);
-
-        m_search->setCurrentSelection(
-            SearchHitWithText{{newSelection->start, newSelection->end}, text});
     }
 }
 

@@ -12,7 +12,6 @@ add_qtc_plugin(Terminal
     terminalpane.cpp terminalpane.h
     terminalplugin.cpp
     terminalprocessimpl.cpp terminalprocessimpl.h
-    terminalsearch.cpp terminalsearch.h
     terminalsettings.cpp terminalsettings.h
     terminaltr.h
     terminalwidget.cpp terminalwidget.h
