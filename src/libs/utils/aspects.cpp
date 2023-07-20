@@ -1529,7 +1529,9 @@ QAction *BoolAspect::action()
     act->setChecked(m_internal);
     act->setToolTip(toolTip());
     connect(act, &QAction::triggered, this, [this](bool newValue) {
-        setValue(newValue);
+        setVolatileValue(newValue);
+        if (isAutoApply())
+            apply();
     });
     return act;
 }
