@@ -31,12 +31,12 @@ inline constexpr char Camera[] = "Camera";
 inline constexpr char Command[] = "Command";
 inline constexpr char Component[] = "Component";
 inline constexpr char Connections[] = "Connections";
+inline constexpr char Control[] = "Control";
 inline constexpr char CubeMapTexture[] = "CubeMapTexture";
 inline constexpr char DefaultMaterial[] = "DefaultMaterial";
 inline constexpr char Dialog[] = "Dialog";
 inline constexpr char DoubleType[] = "double";
 inline constexpr char Effect[] = "Effect";
-inline constexpr char EffectMaker[] = "EffectMaker";
 inline constexpr char FloatType[] = "float";
 inline constexpr char FlowActionArea[] = "FlowActionArea";
 inline constexpr char FlowDecision[] = "FlowDecision";
@@ -55,10 +55,13 @@ inline constexpr char Item[] = "Item";
 inline constexpr char KeyframeGroup[] = "KeyframeGroup";
 inline constexpr char Keyframe[] = "Keyframe";
 inline constexpr char Layout[] = "Layout";
+inline constexpr char ListElement[] = "ListElement";
+inline constexpr char ListModel[] = "ListModel";
 inline constexpr char ListView[] = "ListView";
 inline constexpr char Loader[] = "Loader";
 inline constexpr char Material[] = "Material";
 inline constexpr char Model[] = "Model";
+inline constexpr char MouseArea[] = "MouseArea";
 inline constexpr char Node[] = "Node";
 inline constexpr char Particle3D[] = "Particle3D";
 inline constexpr char ParticleEmitter3D[] = "ParticleEmitter3D";
@@ -80,6 +83,7 @@ inline constexpr char QQuickStateOperation[] = "QQuickStateOperation";
 inline constexpr char QtMultimedia[] = "QtMultimedia";
 inline constexpr char QtObject[] = "QtObject";
 inline constexpr char QtQml[] = "QtQml";
+inline constexpr char QtQml_Models[] = "QtQml.Models";
 inline constexpr char QtQuick3D[] = "QtQuick3D";
 inline constexpr char QtQuick3D_Particles3D[] = "QtQuick3D.Particles3D";
 inline constexpr char QtQuick3D_Particles3D_cppnative[] = "QtQuick3D.Particles3D-cppnative";
@@ -90,6 +94,7 @@ inline constexpr char QtQuick_Dialogs[] = "QtQuick.Dialogs";
 inline constexpr char QtQuick_Extras[] = "QtQuick.Extras";
 inline constexpr char QtQuick_Layouts[] = "QtQuick.Layouts";
 inline constexpr char QtQuick_Studio_Components[] = "QtQuick.Studio.Components";
+inline constexpr char QtQuick_Templates[] = "QtQuick.Templates";
 inline constexpr char QtQuick_Timeline[] = "QtQuick.Timeline";
 inline constexpr char QtQuick_Window[] = "QtQuick.Window";
 inline constexpr char Qt_SafeRenderer[] = "Qt.SafeRenderer";
@@ -114,6 +119,7 @@ inline constexpr char Texture[] = "Texture";
 inline constexpr char TimelineAnimation[] = "TimelineAnimation";
 inline constexpr char Timeline[] = "Timeline";
 inline constexpr char Transition[] = "Transition";
+inline constexpr char UIntType[] = "uint";
 inline constexpr char View3D[] = "View3D";
 inline constexpr char Window[] = "Window";
 inline constexpr char color[] = "color";
@@ -156,7 +162,10 @@ class CommonTypeCache
                                    CacheType<QML, url>,
                                    CacheType<QML, var>,
                                    CacheType<QML_cppnative, FloatType>,
+                                   CacheType<QML_cppnative, UIntType>,
                                    CacheType<QtMultimedia, SoundEffect>,
+                                   CacheType<QtQml_Models, ListElement>,
+                                   CacheType<QtQml_Models, ListModel>,
                                    CacheType<QtQuick, BorderImage>,
                                    CacheType<QtQuick, Connections>,
                                    CacheType<QtQuick, GridView>,
@@ -164,6 +173,7 @@ class CommonTypeCache
                                    CacheType<QtQuick, Item>,
                                    CacheType<QtQuick, ListView>,
                                    CacheType<QtQuick, Loader>,
+                                   CacheType<QtQuick, MouseArea>,
                                    CacheType<QtQuick, Path>,
                                    CacheType<QtQuick, PathView>,
                                    CacheType<QtQuick, PauseAnimation>,
@@ -210,6 +220,7 @@ class CommonTypeCache
                                    CacheType<QtQuick3D_Particles3D, ParticleEmitter3D>,
                                    CacheType<QtQuick3D_Particles3D, SpriteParticle3D>,
                                    CacheType<QtQuick3D_Particles3D_cppnative, QQuick3DParticleAbstractShape>,
+                                   CacheType<QtQuick_Controls, Control>,
                                    CacheType<QtQuick_Controls, Popup>,
                                    CacheType<QtQuick_Controls, SplitView>,
                                    CacheType<QtQuick_Controls, SwipeView>,
@@ -219,6 +230,7 @@ class CommonTypeCache
                                    CacheType<QtQuick_Extras, Picture>,
                                    CacheType<QtQuick_Layouts, Layout>,
                                    CacheType<QtQuick_Studio_Components, GroupItem>,
+                                   CacheType<QtQuick_Templates, Control>,
                                    CacheType<QtQuick_Timeline, Keyframe>,
                                    CacheType<QtQuick_Timeline, KeyframeGroup>,
                                    CacheType<QtQuick_Timeline, Timeline>,
@@ -271,30 +283,33 @@ public:
     {
         if constexpr (std::is_same_v<Type, double>)
             return typeId<QML, DoubleType>();
-        if constexpr (std::is_same_v<Type, int>)
+        else if constexpr (std::is_same_v<Type, int>)
             return typeId<QML, IntType>();
-        if constexpr (std::is_same_v<Type, bool>)
+        else if constexpr (std::is_same_v<Type, uint>)
+            return typeId<QML_cppnative, UIntType>();
+        else if constexpr (std::is_same_v<Type, bool>)
             return typeId<QML, BoolType>();
-        if constexpr (std::is_same_v<Type, float>)
+        else if constexpr (std::is_same_v<Type, float>)
             return typeId<QML_cppnative, FloatType>();
-        if constexpr (std::is_same_v<Type, QString>)
+        else if constexpr (std::is_same_v<Type, QString>)
             return typeId<QML, string>();
-        if constexpr (std::is_same_v<Type, QDateTime>)
+        else if constexpr (std::is_same_v<Type, QDateTime>)
             return typeId<QML, date>();
-        if constexpr (std::is_same_v<Type, QUrl>)
+        else if constexpr (std::is_same_v<Type, QUrl>)
             return typeId<QML, url>();
-        if constexpr (std::is_same_v<Type, QVariant>)
+        else if constexpr (std::is_same_v<Type, QVariant>)
             return typeId<QML, var>();
-        if constexpr (std::is_same_v<Type, QColor>)
+        else if constexpr (std::is_same_v<Type, QColor>)
             return typeId<QtQuick, color>();
-        if constexpr (std::is_same_v<Type, QVector2D>)
+        else if constexpr (std::is_same_v<Type, QVector2D>)
             return typeId<QtQuick, vector2d>();
-        if constexpr (std::is_same_v<Type, QVector3D>)
+        else if constexpr (std::is_same_v<Type, QVector3D>)
             return typeId<QtQuick, vector3d>();
-        if constexpr (std::is_same_v<Type, QVector4D>)
+        else if constexpr (std::is_same_v<Type, QVector4D>)
             return typeId<QtQuick, vector4d>();
         else
-            return TypeId{};
+            static_assert(!std::is_same_v<Type, Type>, "built-in type not supported");
+        return TypeId{};
     }
 
 private:

@@ -4,12 +4,14 @@
 #include "dockmanager.h"
 
 #include "ads_globals.h"
-#include "advanceddockingsystemtr.h"
 #include "ads_globals_p.h"
+#include "advanceddockingsystemtr.h"
+#include "autohidedockcontainer.h"
 #include "dockareawidget.h"
 #include "dockfocuscontroller.h"
 #include "dockingstatereader.h"
 #include "dockoverlay.h"
+#include "docksplitter.h"
 #include "dockwidget.h"
 #include "floatingdockcontainer.h"
 #include "iconprovider.h"
@@ -40,7 +42,12 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QVariant>
+#include <QWindow>
 #include <QXmlStreamWriter>
+
+#if !(defined(Q_OS_UNIX) && !defined(Q_OS_MACOS))
+#include <QWindowStateChangeEvent>
+#endif
 
 Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg);
 
@@ -57,6 +64,9 @@ enum eStateFileVersion {
 };
 
 static DockManager::ConfigFlags g_staticConfigFlags = DockManager::DefaultNonOpaqueConfig;
+static DockManager::AutoHideFlags g_staticAutoHideConfigFlags; // auto hide is disabled by default
+
+static QString g_floatingContainersTitle;
 
 /**
  * Private data class of DockManager class (pimpl)
@@ -66,6 +76,7 @@ class DockManagerPrivate
 public:
     DockManager *q;
     QList<QPointer<FloatingDockContainer>> m_floatingWidgets;
+    QList<QPointer<FloatingDockContainer>> m_hiddenFloatingWidgets;
     QList<DockContainerWidget *> m_containers;
     DockOverlay *m_containerOverlay = nullptr;
     DockOverlay *m_dockAreaOverlay = nullptr;
@@ -73,6 +84,8 @@ public:
     bool m_restoringState = false;
     QVector<FloatingDockContainer *> m_uninitializedFloatingWidgets;
     DockFocusController *m_focusController = nullptr;
+    DockWidget *m_centralWidget = nullptr;
+    bool m_isLeavingMinimized = false;
 
     QString m_workspacePresetsPath;
     QList<Workspace> m_workspaces;
@@ -114,7 +127,7 @@ public:
     void markDockWidgetsDirty()
     {
         for (const auto &dockWidget : std::as_const(m_dockWidgetsMap))
-            dockWidget->setProperty("dirty", true);
+            dockWidget->setProperty(internal::g_dirtyProperty, true);
     }
 
     /**
@@ -180,11 +193,27 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state, int versio
             return false;
     }
 
+    qCInfo(adsLog) << stateReader.attributes().value("containers").toInt();
+
+    if (m_centralWidget) {
+        const auto centralWidgetAttribute = stateReader.attributes().value("centralWidget");
+        // If we have a central widget, but a state without central widget, then something is wrong.
+        if (centralWidgetAttribute.isEmpty()) {
+            qWarning()
+                << "DockManager has central widget, but saved state does not have central widget.";
+            return false;
+        }
+
+        // If the object name of the central widget does not match the name of the saved central
+        // widget, something is wrong.
+        if (m_centralWidget->objectName() != centralWidgetAttribute.toString()) {
+            qWarning() << "Object name of central widget does not match name of central widget in "
+                          "saved state.";
+            return false;
+        }
+    }
+
     bool result = true;
-#ifdef ADS_DEBUG_PRINT
-    int dockContainers = stateReader.attributes().value("containers").toInt();
-    qCInfo(adsLog) << dockContainers;
-#endif
     int dockContainerCount = 0;
     while (stateReader.readNextStartElement()) {
         if (stateReader.name() == QLatin1String("container")) {
@@ -199,10 +228,10 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state, int versio
     if (!testing) {
         // Delete remaining empty floating widgets
         int floatingWidgetIndex = dockContainerCount - 1;
-        int deleteCount = m_floatingWidgets.count() - floatingWidgetIndex;
-        for (int i = 0; i < deleteCount; ++i) {
-            m_floatingWidgets[floatingWidgetIndex + i]->deleteLater();
-            q->removeDockContainer(m_floatingWidgets[floatingWidgetIndex + i]->dockContainer());
+        for (int i = floatingWidgetIndex; i < m_floatingWidgets.count(); ++i) {
+            QPointer<FloatingDockContainer> floatingWidget = m_floatingWidgets[i];
+            q->removeDockContainer(floatingWidget->dockContainer());
+            floatingWidget->deleteLater();
         }
     }
 
@@ -215,11 +244,17 @@ void DockManagerPrivate::restoreDockWidgetsOpenState()
     // invisible to the user now and have no assigned dock area. They do not belong to any dock
     // container, until the user toggles the toggle view action the next time.
     for (auto dockWidget : std::as_const(m_dockWidgetsMap)) {
-        if (dockWidget->property(internal::dirtyProperty).toBool()) {
+        if (dockWidget->property(internal::g_dirtyProperty).toBool()) {
+            // If the DockWidget is an auto hide widget that is not assigned yet,
+            // then we need to delete the auto hide container now
+            if (dockWidget->isAutoHide())
+                dockWidget->autoHideDockContainer()->cleanupAndDelete();
+
             dockWidget->flagAsUnassigned();
             emit dockWidget->viewToggled(false);
         } else {
-            dockWidget->toggleViewInternal(!dockWidget->property(internal::closedProperty).toBool());
+            dockWidget->toggleViewInternal(
+                !dockWidget->property(internal::g_closedProperty).toBool());
         }
     }
 }
@@ -251,7 +286,7 @@ void DockManagerPrivate::restoreDockAreasIndices()
 
 void DockManagerPrivate::emitTopLevelEvents()
 {
-    // Finally we need to send the topLevelChanged() signals for all dock widgets if top
+    // Finally we need to send the topLevelChanged() signal for all dock widgets if top
     // level changed.
     for (auto dockContainer : std::as_const(m_containers)) {
         DockWidget *topLevelDockWidget = dockContainer->topLevelDockWidget();
@@ -288,6 +323,7 @@ bool DockManagerPrivate::restoreState(const QByteArray &state, int version)
     restoreDockWidgetsOpenState();
     restoreDockAreasIndices();
     emitTopLevelEvents();
+    q->dumpLayout();
 
     return true;
 }
@@ -301,6 +337,7 @@ DockManager::DockManager(QWidget *parent)
     });
 
     createRootSplitter();
+    createSideTabBarWidgets();
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parent);
     if (mainWindow)
         mainWindow->setCentralWidget(this);
@@ -311,6 +348,17 @@ DockManager::DockManager(QWidget *parent)
 
     if (DockManager::configFlags().testFlag(DockManager::FocusHighlighting))
         d->m_focusController = new DockFocusController(this);
+
+    window()->installEventFilter(this);
+
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+    connect(qApp, &QApplication::focusWindowChanged, this, [](QWindow *focusWindow) {
+        // Bring modal dialogs to foreground to ensure that they are in front of any
+        // floating dock widget.
+        if (focusWindow && focusWindow->isModal())
+            focusWindow->raise();
+    });
+#endif
 }
 
 DockManager::~DockManager()
@@ -318,6 +366,18 @@ DockManager::~DockManager()
     emit aboutToUnloadWorkspace(d->m_workspace.fileName());
     save();
     saveStartupWorkspace();
+
+    // Fix memory leaks, see https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/307
+    std::vector<ADS::DockAreaWidget *> areas;
+    for (int i = 0; i != dockAreaCount(); ++i)
+        areas.push_back(dockArea(i));
+
+    for (auto area : areas) {
+        for (auto widget : area->dockWidgets())
+            delete widget;
+
+        delete area;
+    }
 
     // Using a temporary vector since the destructor of FloatingDockWidgetContainer
     // alters d->m_floatingWidgets.
@@ -334,9 +394,19 @@ DockManager::ConfigFlags DockManager::configFlags()
     return g_staticConfigFlags;
 }
 
+DockManager::AutoHideFlags DockManager::autoHideConfigFlags()
+{
+    return g_staticAutoHideConfigFlags;
+}
+
 void DockManager::setConfigFlags(const ConfigFlags flags)
 {
     g_staticConfigFlags = flags;
+}
+
+void DockManager::setAutoHideConfigFlags(const AutoHideFlags flags)
+{
+    g_staticAutoHideConfigFlags = flags;
 }
 
 void DockManager::setConfigFlag(eConfigFlag flag, bool on)
@@ -344,9 +414,19 @@ void DockManager::setConfigFlag(eConfigFlag flag, bool on)
     internal::setFlag(g_staticConfigFlags, flag, on);
 }
 
+void DockManager::setAutoHideConfigFlag(eAutoHideFlag flag, bool on)
+{
+    internal::setFlag(g_staticAutoHideConfigFlags, flag, on);
+}
+
 bool DockManager::testConfigFlag(eConfigFlag flag)
 {
     return configFlags().testFlag(flag);
+}
+
+bool DockManager::testAutoHideConfigFlag(eAutoHideFlag flag)
+{
+    return autoHideConfigFlags().testFlag(flag);
 }
 
 IconProvider &DockManager::iconProvider()
@@ -372,10 +452,9 @@ void DockManager::setWorkspacePresetsPath(const QString &path)
 
 void DockManager::initialize()
 {
-    qCInfo(adsLog) << "Initialize DockManager";
+    qCInfo(adsLog) << Q_FUNC_INFO;
 
-    // Can't continue if settings are not set yet
-    QTC_ASSERT(d->m_settings, return);
+    QTC_ASSERT(d->m_settings, return); // Can't continue if settings are not set yet
 
     syncWorkspacePresets();
     prepareWorkspaces();
@@ -414,10 +493,40 @@ void DockManager::initialize()
 
 DockAreaWidget *DockManager::addDockWidget(DockWidgetArea area,
                                            DockWidget *dockWidget,
-                                           DockAreaWidget *dockAreaWidget)
+                                           DockAreaWidget *dockAreaWidget,
+                                           int index)
 {
     d->m_dockWidgetsMap.insert(dockWidget->objectName(), dockWidget);
-    return DockContainerWidget::addDockWidget(area, dockWidget, dockAreaWidget);
+    auto container = dockAreaWidget ? dockAreaWidget->dockContainer() : this;
+    auto dockArea = container->addDockWidget(area, dockWidget, dockAreaWidget, index);
+    emit dockWidgetAdded(dockWidget);
+    return dockArea;
+}
+
+DockAreaWidget *DockManager::addDockWidgetToContainer(DockWidgetArea area,
+                                                      DockWidget *dockWidget,
+                                                      DockContainerWidget *dockContainerWidget)
+{
+    d->m_dockWidgetsMap.insert(dockWidget->objectName(), dockWidget);
+    auto dockArea = dockContainerWidget->addDockWidget(area, dockWidget);
+    emit dockWidgetAdded(dockWidget);
+    return dockArea;
+}
+
+AutoHideDockContainer *DockManager::addAutoHideDockWidget(SideBarLocation location,
+                                                          DockWidget *dockWidget)
+{
+    return addAutoHideDockWidgetToContainer(location, dockWidget, this);
+}
+
+AutoHideDockContainer *DockManager::addAutoHideDockWidgetToContainer(
+    SideBarLocation location, DockWidget *dockWidget, DockContainerWidget *dockContainerWidget)
+{
+    d->m_dockWidgetsMap.insert(dockWidget->objectName(), dockWidget);
+    auto container = dockContainerWidget->createAndSetupAutoHideContainer(location, dockWidget);
+    container->collapseView(true);
+    emit dockWidgetAdded(dockWidget);
+    return container;
 }
 
 DockAreaWidget *DockManager::addDockWidgetTab(DockWidgetArea area, DockWidget *dockWidget)
@@ -426,15 +535,16 @@ DockAreaWidget *DockManager::addDockWidgetTab(DockWidgetArea area, DockWidget *d
     if (areaWidget)
         return addDockWidget(ADS::CenterDockWidgetArea, dockWidget, areaWidget);
     else if (!openedDockAreas().isEmpty())
-        return addDockWidget(area, dockWidget, openedDockAreas().constLast());
+        return addDockWidget(area, dockWidget, openedDockAreas().constLast()); // TODO
     else
         return addDockWidget(area, dockWidget, nullptr);
 }
 
 DockAreaWidget *DockManager::addDockWidgetTabToArea(DockWidget *dockWidget,
-                                                    DockAreaWidget *dockAreaWidget)
+                                                    DockAreaWidget *dockAreaWidget,
+                                                    int index)
 {
-    return addDockWidget(ADS::CenterDockWidgetArea, dockWidget, dockAreaWidget);
+    return addDockWidget(ADS::CenterDockWidgetArea, dockWidget, dockAreaWidget, index);
 }
 
 FloatingDockContainer *DockManager::addDockWidgetFloating(DockWidget *dockWidget)
@@ -452,6 +562,7 @@ FloatingDockContainer *DockManager::addDockWidgetFloating(DockWidget *dockWidget
     else
         d->m_uninitializedFloatingWidgets.append(floatingWidget);
 
+    emit dockWidgetAdded(dockWidget);
     return floatingWidget;
 }
 
@@ -465,6 +576,7 @@ void DockManager::removeDockWidget(DockWidget *dockWidget)
     emit dockWidgetAboutToBeRemoved(dockWidget);
     d->m_dockWidgetsMap.remove(dockWidget->objectName());
     DockContainerWidget::removeDockWidget(dockWidget);
+    dockWidget->setDockManager(nullptr);
     emit dockWidgetRemoved(dockWidget);
 }
 
@@ -503,6 +615,10 @@ QByteArray DockManager::saveState(const QString &displayName, int version) const
     stream.writeAttribute("userVersion", QString::number(version));
     stream.writeAttribute("containers", QString::number(d->m_containers.count()));
     stream.writeAttribute(workspaceDisplayNameAttribute.toString(), displayName);
+
+    if (d->m_centralWidget)
+        stream.writeAttribute("centralWidget", d->m_centralWidget->objectName());
+
     for (auto container : std::as_const(d->m_containers))
         container->saveState(stream);
 
@@ -544,10 +660,183 @@ bool DockManager::isRestoringState() const
     return d->m_restoringState;
 }
 
+bool DockManager::isLeavingMinimizedState() const
+{
+    return d->m_isLeavingMinimized;
+}
+
+bool DockManager::eventFilter(QObject *obj, QEvent *event)
+{
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+    // Emulate Qt:Tool behavior.
+    /*
+    // Window always on top of the MainWindow.
+    if (event->type() == QEvent::WindowActivate) {
+        for (auto &floatingWidget : floatingWidgets()) {
+            if (!floatingWidget->isVisible() || window()->isMinimized())
+                continue;
+
+            // setWindowFlags(Qt::WindowStaysOnTopHint) will hide the window and thus requires
+            // a show call. This then leads to flickering and a nasty endless loop (also buggy
+            // behavior on Ubuntu). So we just do it ourself.
+            floatingWidget->setWindowFlag(Qt::WindowStaysOnTopHint, true);
+        }
+    } else if (event->type() == QEvent::WindowDeactivate) {
+        for (auto &floatingWidget : floatingWidgets()) {
+            if (!floatingWidget->isVisible() || window()->isMinimized())
+                continue;
+
+            floatingWidget->setWindowFlag(Qt::WindowStaysOnTopHint, false);
+
+            floatingWidget->raise();
+        }
+    }
+*/
+    // Sync minimize with MainWindow
+    if (event->type() == QEvent::WindowStateChange) {
+        for (auto &floatingWidget : floatingWidgets()) {
+            if (!floatingWidget->isVisible())
+                continue;
+
+            if (window()->isMinimized())
+                floatingWidget->showMinimized();
+            else
+                floatingWidget->setWindowState(floatingWidget->windowState()
+                                               & (~Qt::WindowMinimized));
+        }
+        if (!window()->isMinimized())
+            QApplication::setActiveWindow(window());
+    }
+    return Super::eventFilter(obj, event);
+
+#else
+    if (event->type() == QEvent::WindowStateChange) {
+        QWindowStateChangeEvent *ev = static_cast<QWindowStateChangeEvent *>(event);
+        if (ev->oldState().testFlag(Qt::WindowMinimized)) {
+            d->m_isLeavingMinimized = true;
+            QMetaObject::invokeMethod(this, "endLeavingMinimizedState", Qt::QueuedConnection);
+        }
+    }
+    return Super::eventFilter(obj, event);
+#endif
+}
+
+DockWidget *DockManager::focusedDockWidget() const
+{
+    if (!d->m_focusController)
+        return nullptr;
+    else
+        return d->m_focusController->focusedDockWidget();
+}
+
+QList<int> DockManager::splitterSizes(DockAreaWidget *containedArea) const
+{
+    if (containedArea) {
+        auto splitter = internal::findParent<DockSplitter *>(containedArea);
+        if (splitter)
+            return splitter->sizes();
+    }
+
+    return QList<int>();
+}
+
+void DockManager::setSplitterSizes(DockAreaWidget *containedArea, const QList<int> &sizes)
+{
+    if (!containedArea)
+        return;
+
+    auto splitter = internal::findParent<DockSplitter *>(containedArea);
+    if (splitter && splitter->count() == sizes.count())
+        splitter->setSizes(sizes);
+}
+
+void DockManager::setFloatingContainersTitle(const QString &title)
+{
+    g_floatingContainersTitle = title;
+}
+
+QString DockManager::floatingContainersTitle()
+{
+    if (g_floatingContainersTitle.isEmpty())
+        return qApp->applicationDisplayName();
+
+    return g_floatingContainersTitle;
+}
+
+DockWidget *DockManager::centralWidget() const
+{
+    return d->m_centralWidget;
+}
+
+DockAreaWidget *DockManager::setCentralWidget(DockWidget *widget)
+{
+    if (!widget) {
+        d->m_centralWidget = nullptr;
+        return nullptr;
+    }
+
+    // Setting a new central widget is now allowed if there is already a central widget or
+    // if there are already other dock widgets.
+    if (d->m_centralWidget) {
+        qWarning(
+            "Setting a central widget not possible because there is already a central widget.");
+        return nullptr;
+    }
+
+    // Setting a central widget is now allowed if there are already other dock widgets.
+    if (!d->m_dockWidgetsMap.isEmpty()) {
+        qWarning("Setting a central widget not possible - the central widget need to be the first "
+                 "dock widget that is added to the dock manager.");
+        return nullptr;
+    }
+
+    widget->setFeature(DockWidget::DockWidgetClosable, false);
+    widget->setFeature(DockWidget::DockWidgetMovable, false);
+    widget->setFeature(DockWidget::DockWidgetFloatable, false);
+    widget->setFeature(DockWidget::DockWidgetPinnable, false);
+    d->m_centralWidget = widget;
+    DockAreaWidget *centralArea = addDockWidget(CenterDockWidgetArea, widget);
+    centralArea->setDockAreaFlag(DockAreaWidget::eDockAreaFlag::HideSingleWidgetTitleBar, true);
+    return centralArea;
+}
+
 void DockManager::setDockWidgetFocused(DockWidget *dockWidget)
 {
     if (d->m_focusController)
         d->m_focusController->setDockWidgetFocused(dockWidget);
+}
+
+void DockManager::hideManagerAndFloatingWidgets()
+{
+    hide();
+
+    d->m_hiddenFloatingWidgets.clear();
+    // Hide updates of floating widgets from user.
+    for (auto &floatingWidget : d->m_floatingWidgets) {
+        if (floatingWidget->isVisible()) {
+            QList<DockWidget *> visibleWidgets;
+            for (auto dockWidget : floatingWidget->dockWidgets()) {
+                if (dockWidget->toggleViewAction()->isChecked())
+                    visibleWidgets.push_back(dockWidget);
+            }
+
+            // Save as floating widget to be shown when DockManager will be shown back.
+            d->m_hiddenFloatingWidgets.push_back(floatingWidget);
+            floatingWidget->hide();
+
+            // Hidding floating widget automatically marked contained DockWidgets as hidden
+            // but they must remain marked as visible as we want them to be restored visible
+            // when DockManager will be shown back.
+            for (auto dockWidget : visibleWidgets)
+                dockWidget->toggleViewAction()->setChecked(true);
+        }
+    }
+}
+
+void DockManager::endLeavingMinimizedState()
+{
+    d->m_isLeavingMinimized = false;
+    this->activateWindow();
 }
 
 void DockManager::registerFloatingWidget(FloatingDockContainer *floatingWidget)
@@ -602,13 +891,51 @@ void DockManager::notifyDockAreaRelocation(DockAreaWidget *, DockContainerWidget
 void DockManager::showEvent(QShowEvent *event)
 {
     Super::showEvent(event);
+    // Fix issue #380
+    restoreHiddenFloatingWidgets();
+
     if (d->m_uninitializedFloatingWidgets.empty())
         return;
 
-    for (auto floatingWidget : std::as_const(d->m_uninitializedFloatingWidgets))
-        floatingWidget->show();
+    for (auto floatingWidget : std::as_const(d->m_uninitializedFloatingWidgets)) {
+        // Check, if someone closed a floating dock widget before the dock manager is shown.
+        if (floatingWidget->dockContainer()->hasOpenDockAreas())
+            floatingWidget->show();
+    }
 
     d->m_uninitializedFloatingWidgets.clear();
+}
+
+DockFocusController *DockManager::dockFocusController() const
+{
+    return d->m_focusController;
+}
+
+void DockManager::restoreHiddenFloatingWidgets()
+{
+    if (d->m_hiddenFloatingWidgets.isEmpty())
+        return;
+
+    // Restore floating widgets that were hidden upon hideManagerAndFloatingWidgets
+    for (auto &floatingWidget : d->m_hiddenFloatingWidgets) {
+        bool hasDockWidgetVisible = false;
+
+        // Needed to prevent FloatingDockContainer being shown empty
+        // Could make sense to move this to FloatingDockContainer::showEvent(QShowEvent *event)
+        // if experiencing FloatingDockContainer being shown empty in other situations, but let's keep
+        // it here for now to make sure changes to fix Issue #380 does not impact existing behaviours
+        for (auto dockWidget : floatingWidget->dockWidgets()) {
+            if (dockWidget->toggleViewAction()->isChecked()) {
+                dockWidget->toggleView(true);
+                hasDockWidgetVisible = true;
+            }
+        }
+
+        if (hasDockWidgetVisible)
+            floatingWidget->show();
+    }
+
+    d->m_hiddenFloatingWidgets.clear();
 }
 
 Workspace *DockManager::activeWorkspace() const

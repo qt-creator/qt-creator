@@ -66,10 +66,6 @@ ModelNode::ModelNode(const ModelNode &modelNode, AbstractView *view)
     , m_view(view)
 {}
 
-/*! \brief does nothing
-*/
-ModelNode::~ModelNode() = default;
-
 /*! \brief returns the name of node which is a short cut to a property like objectName
 \return name of the node
 */
@@ -657,15 +653,6 @@ void ModelNode::destroy()
 
 //\}
 
-/*! \name Property Manipulation
- *  This functions interact with properties.
- */
-
-Internal::InternalNodePointer ModelNode::internalNode() const
-{
-    return m_internalNode;
-}
-
 /*!
 \brief returns the model of the node
 \return returns the model of the node
@@ -1000,6 +987,12 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data)
         Internal::WriteLocker locker(m_model.data());
         m_model->d->setAuxiliaryData(internalNode(), key, data);
     }
+}
+
+void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataKeyView key, const QVariant &data) const
+{
+    if (isValid())
+        m_model->d->setAuxiliaryData(internalNode(), key, data);
 }
 
 void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataType type,

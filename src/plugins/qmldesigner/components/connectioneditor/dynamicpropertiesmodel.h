@@ -5,6 +5,8 @@
 
 #include <nodeinstanceglobal.h>
 
+#include <studioquickwidget.h>
+
 #include <QStandardItemModel>
 
 namespace QmlDesigner {
@@ -15,6 +17,8 @@ class BindingProperty;
 class ModelNode;
 class VariantProperty;
 
+class DynamicPropertiesModelBackendDelegate;
+
 class DynamicPropertiesModel : public QStandardItemModel
 {
     Q_OBJECT
@@ -22,10 +26,21 @@ class DynamicPropertiesModel : public QStandardItemModel
 public:
     enum ColumnRoles {
         TargetModelNodeRow = 0,
-        PropertyNameRow    = 1,
-        PropertyTypeRow    = 2,
-        PropertyValueRow   = 3
+        PropertyNameRow = 1,
+        PropertyTypeRow = 2,
+        PropertyValueRow = 3
     };
+
+    enum UserRoles {
+        InternalIdRole = Qt::UserRole + 2,
+        TargetNameRole,
+        PropertyNameRole,
+        PropertyTypeRole,
+        PropertyValueRole
+    };
+
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
+    Q_PROPERTY(DynamicPropertiesModelBackendDelegate *delegate READ delegate CONSTANT)
 
     DynamicPropertiesModel(bool explicitSelection, AbstractView *parent);
 
@@ -62,6 +77,17 @@ public:
     static QVariant defaultValueForType(const TypeName &type);
     static QString defaultExpressionForType(const TypeName &type);
 
+    Q_INVOKABLE void add();
+    Q_INVOKABLE void remove(int row);
+
+    int currentIndex() const;
+    void setCurrentIndex(int i);
+
+    int findRowForProperty(const AbstractProperty &abstractProperty) const;
+
+signals:
+    void currentIndexChanged();
+
 protected:
     void addProperty(const QVariant &propertyValue,
                      const QString &propertyType,
@@ -79,11 +105,16 @@ protected:
     void updateCustomData(int row, const AbstractProperty &property);
     int findRowForBindingProperty(const BindingProperty &bindingProperty) const;
     int findRowForVariantProperty(const VariantProperty &variantProperty) const;
-    int findRowForProperty(const AbstractProperty &abstractProperty) const;
 
-    bool getExpressionStrings(const BindingProperty &bindingProperty, QString *sourceNode, QString *sourceProperty);
+    bool getExpressionStrings(const BindingProperty &bindingProperty,
+                              QString *sourceNode,
+                              QString *sourceProperty);
 
     void updateDisplayRole(int row, int columns, const QString &string);
+
+    QHash<int, QByteArray> roleNames() const override;
+
+    DynamicPropertiesModelBackendDelegate *delegate() const;
 
 private:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -95,6 +126,48 @@ private:
     QString m_exceptionError;
     QList<ModelNode> m_selectedNodes;
     bool m_explicitSelection = false;
+    int m_currentIndex = 0;
+
+    DynamicPropertiesModelBackendDelegate *m_delegate = nullptr;
+};
+
+class DynamicPropertiesModelBackendDelegate : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(StudioQmlComboBoxBackend *type READ type CONSTANT)
+    Q_PROPERTY(int currentRow READ currentRow WRITE setCurrentRow NOTIFY currentRowChanged)
+    Q_PROPERTY(StudioQmlTextBackend *name READ name CONSTANT)
+    Q_PROPERTY(StudioQmlTextBackend *value READ value CONSTANT)
+    //Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
+
+public:
+    DynamicPropertiesModelBackendDelegate(DynamicPropertiesModel *parent = nullptr);
+
+signals:
+    void currentRowChanged();
+    void nameChanged();
+    void valueChanged();
+
+private:
+    int currentRow() const;
+    void setCurrentRow(int i);
+    void handleTypeChanged();
+    void handleNameChanged();
+    void handleValueChanged();
+    void handleException();
+    QVariant variantValue() const;
+
+    StudioQmlComboBoxBackend *type();
+
+    StudioQmlTextBackend *name();
+    StudioQmlTextBackend *value();
+
+    StudioQmlComboBoxBackend m_type;
+    StudioQmlTextBackend m_name;
+    StudioQmlTextBackend m_value;
+    int m_currentRow = -1;
+    QString m_exceptionError;
 };
 
 } // namespace QmlDesigner

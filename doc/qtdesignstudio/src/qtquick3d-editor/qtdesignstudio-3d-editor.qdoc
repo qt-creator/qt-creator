@@ -226,6 +226,8 @@
     To align a camera to the \uicontrol{3D} view:
     \list 1
       \li Select a camera in the \uicontrol{3D} or \uicontrol {Navigator} view.
+      \note If you don't have a camera selected, the most recently selected camera
+      is aligned to the view.
       \li In the \uicontrol{3D} view,
       select \inlineimage icons/align-camera-on.png
       .
@@ -234,9 +236,11 @@
     This moves and rotates the camera so that the camera shows the same view
     as the current view in the \uicontrol{3D} view.
 
-    To align the the \uicontrol{3D} view to a camera:
+    To align the \uicontrol{3D} view to a camera:
         \list 1
       \li Select a camera in the \uicontrol{3D} view or \uicontrol {Navigator}.
+      \note If you don't have a camera selected, the view is aligned to the most recently
+      selected camera.
       \li In the \uicontrol{3D} view,
       select \inlineimage icons/align-view-on.png
       .

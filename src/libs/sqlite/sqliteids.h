@@ -19,8 +19,6 @@ public:
 
     constexpr explicit BasicId() = default;
 
-    constexpr BasicId(const char *) = delete;
-
     static constexpr BasicId create(InternalIntegerType idNumber)
     {
         BasicId id;

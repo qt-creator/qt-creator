@@ -6,44 +6,45 @@
 #include <QVector>
 
 namespace ADS {
+
+/**
+ * Private data class (pimpl)
+ */
+struct IconProviderPrivate
+{
+    IconProvider *q;
+    QVector<QIcon> m_userIcons{IconCount, QIcon()};
+
     /**
-     * Private data class (pimpl)
+     * Private data constructor
      */
-    struct IconProviderPrivate
-    {
-        IconProvider *q;
-        QVector<QIcon> m_userIcons{IconCount, QIcon()};
+    IconProviderPrivate(IconProvider *parent);
+};
+// struct IconProviderPrivate
 
-        /**
-         * Private data constructor
-         */
-        IconProviderPrivate(IconProvider *parent);
-    };
-    // struct IconProviderPrivate
+IconProviderPrivate::IconProviderPrivate(IconProvider *parent)
+    : q(parent)
+{}
 
-    IconProviderPrivate::IconProviderPrivate(IconProvider *parent)
-        : q(parent)
-    {}
+IconProvider::IconProvider()
+    : d(new IconProviderPrivate(this))
+{}
 
-    IconProvider::IconProvider()
-        : d(new IconProviderPrivate(this))
-    {}
+IconProvider::~IconProvider()
+{
+    delete d;
+}
 
-    IconProvider::~IconProvider()
-    {
-        delete d;
-    }
+QIcon IconProvider::customIcon(eIcon iconId) const
+{
+    Q_ASSERT(iconId < d->m_userIcons.size());
+    return d->m_userIcons[iconId];
+}
 
-    QIcon IconProvider::customIcon(eIcon iconId) const
-    {
-        Q_ASSERT(iconId < d->m_userIcons.size());
-        return d->m_userIcons[iconId];
-    }
-
-    void IconProvider::registerCustomIcon(eIcon iconId, const QIcon &icon)
-    {
-        Q_ASSERT(iconId < d->m_userIcons.size());
-        d->m_userIcons[iconId] = icon;
-    }
+void IconProvider::registerCustomIcon(eIcon iconId, const QIcon &icon)
+{
+    Q_ASSERT(iconId < d->m_userIcons.size());
+    d->m_userIcons[iconId] = icon;
+}
 
 } // namespace ADS

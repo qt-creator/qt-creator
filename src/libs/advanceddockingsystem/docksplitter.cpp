@@ -12,61 +12,70 @@
 #include <QLoggingCategory>
 #include <QVariant>
 
-namespace ADS
+namespace ADS {
+/**
+ * Private dock splitter data
+ */
+struct DockSplitterPrivate
 {
-    /**
-     * Private dock splitter data
-     */
-    struct DockSplitterPrivate
-    {
-        DockSplitter *q;
-        int m_visibleContentCount = 0;
+    DockSplitter *q;
+    int m_visibleContentCount = 0;
 
-        DockSplitterPrivate(DockSplitter *parent)
-            : q(parent)
-        {}
-    };
-
-    DockSplitter::DockSplitter(QWidget *parent)
-        : QSplitter(parent)
-        , d(new DockSplitterPrivate(this))
-    {
-        //setProperty("ads-splitter", true); // TODO
-        setProperty(Utils::StyleHelper::C_MINI_SPLITTER, true);
-        setChildrenCollapsible(false);
-    }
-
-    DockSplitter::DockSplitter(Qt::Orientation orientation, QWidget *parent)
-        : QSplitter(orientation, parent)
-        , d(new DockSplitterPrivate(this))
+    DockSplitterPrivate(DockSplitter *parent)
+        : q(parent)
     {}
+};
 
-    DockSplitter::~DockSplitter()
-    {
-        qCInfo(adsLog) << Q_FUNC_INFO;
-        delete d;
-    }
+DockSplitter::DockSplitter(QWidget *parent)
+    : QSplitter(parent)
+    , d(new DockSplitterPrivate(this))
+{
+    //setProperty("ads-splitter", true); // TODO
+    setProperty(Utils::StyleHelper::C_MINI_SPLITTER, true);
+    setChildrenCollapsible(false);
+}
 
-    bool DockSplitter::hasVisibleContent() const
-    {
-        // TODO Cache or precalculate this to speed up
-        for (int i = 0; i < count(); ++i) {
-            if (!widget(i)->isHidden()) {
-                return true;
-            }
+DockSplitter::DockSplitter(Qt::Orientation orientation, QWidget *parent)
+    : QSplitter(orientation, parent)
+    , d(new DockSplitterPrivate(this))
+{}
+
+DockSplitter::~DockSplitter()
+{
+    qCInfo(adsLog) << Q_FUNC_INFO;
+    delete d;
+}
+
+bool DockSplitter::hasVisibleContent() const
+{
+    // TODO Cache or precalculate this to speed up
+    for (int i = 0; i < count(); ++i) {
+        if (!widget(i)->isHidden()) {
+            return true;
         }
-
-        return false;
     }
 
-    QWidget *DockSplitter::firstWidget() const
-    {
-        return (count() > 0) ? widget(0) : nullptr;
+    return false;
+}
+
+QWidget *DockSplitter::firstWidget() const
+{
+    return (count() > 0) ? widget(0) : nullptr;
+}
+
+QWidget *DockSplitter::lastWidget() const
+{
+    return (count() > 0) ? widget(count() - 1) : nullptr;
+}
+
+bool DockSplitter::isResizingWithContainer() const
+{
+    for (auto area : findChildren<DockAreaWidget *>()) {
+        if (area->isCentralWidgetArea())
+            return true;
     }
 
-    QWidget *DockSplitter::lastWidget() const
-    {
-        return (count() > 0) ? widget(count() - 1) : nullptr;
-    }
+    return false;
+}
 
 } // namespace ADS

@@ -419,6 +419,38 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
             });
 }
 
+void QmlDesignerPlugin::clearDesigner()
+{
+    if (d->documentManager.hasCurrentDesignDocument()) {
+        deactivateAutoSynchronization();
+        d->mainWidget.saveSettings();
+    }
+}
+
+void QmlDesignerPlugin::resetDesignerDocument()
+{
+    d->shortCutManager.disconnectUndoActions(currentDesignDocument());
+    d->documentManager.setCurrentDesignDocument(nullptr);
+    d->shortCutManager.updateActions(nullptr);
+    d->shortCutManager.updateUndoActions(nullptr);
+}
+
+void QmlDesignerPlugin::setupDesigner()
+{
+    d->shortCutManager.disconnectUndoActions(currentDesignDocument());
+    d->documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
+    d->shortCutManager.connectUndoActions(currentDesignDocument());
+
+    if (d->documentManager.hasCurrentDesignDocument()) {
+        activateAutoSynchronization();
+        d->shortCutManager.updateActions(currentDesignDocument()->textEditor());
+        d->viewManager.pushFileOnCrumbleBar(currentDesignDocument()->fileName());
+        d->viewManager.setComponentViewToMaster();
+    }
+
+    d->shortCutManager.updateUndoActions(currentDesignDocument());
+}
+
 void QmlDesignerPlugin::showDesigner()
 {
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
@@ -429,7 +461,8 @@ void QmlDesignerPlugin::showDesigner()
 
     const Utils::FilePath fileName = Core::EditorManager::currentEditor()->document()->filePath();
     const QStringList allUiQmlFiles = allUiQmlFilesforCurrentProject(fileName);
-    if (warningsForQmlFilesInsteadOfUiQmlEnabled() && !fileName.endsWith(".ui.qml") && !allUiQmlFiles.isEmpty()) {
+    if (warningsForQmlFilesInsteadOfUiQmlEnabled() && !fileName.endsWith(".ui.qml")
+        && !allUiQmlFiles.isEmpty()) {
         OpenUiQmlFileDialog dialog(&d->mainWidget);
         dialog.setUiQmlFiles(projectPath(fileName), allUiQmlFiles);
         dialog.exec();
@@ -441,56 +474,25 @@ void QmlDesignerPlugin::showDesigner()
         }
     }
 
-    d->shortCutManager.disconnectUndoActions(currentDesignDocument());
-    d->documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
-    d->shortCutManager.connectUndoActions(currentDesignDocument());
-
-    if (d->documentManager.hasCurrentDesignDocument()) {
-        activateAutoSynchronization();
-        d->shortCutManager.updateActions(currentDesignDocument()->textEditor());
-        d->viewManager.pushFileOnCrumbleBar(currentDesignDocument()->fileName());
-    }
-
-    d->shortCutManager.updateUndoActions(currentDesignDocument());
+    setupDesigner();
 
     m_usageTimer.restart();
 }
 
 void QmlDesignerPlugin::hideDesigner()
 {
-    if (d->documentManager.hasCurrentDesignDocument()) {
-        deactivateAutoSynchronization();
-        d->mainWidget.saveSettings();
-    }
-
-    d->shortCutManager.disconnectUndoActions(currentDesignDocument());
-    d->documentManager.setCurrentDesignDocument(nullptr);
-    d->shortCutManager.updateUndoActions(nullptr);
+    clearDesigner();
+    resetDesignerDocument();
     emitUsageStatisticsTime(Constants::EVENT_DESIGNMODE_TIME, m_usageTimer.elapsed());
 }
 
 void QmlDesignerPlugin::changeEditor()
 {
     if (d->blockEditorChange)
-         return;
+        return;
 
-    if (d->documentManager.hasCurrentDesignDocument()) {
-        deactivateAutoSynchronization();
-        d->mainWidget.saveSettings();
-    }
-
-    d->shortCutManager.disconnectUndoActions(currentDesignDocument());
-    d->documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
-    d->mainWidget.initialize();
-    d->shortCutManager.connectUndoActions(currentDesignDocument());
-
-    if (d->documentManager.hasCurrentDesignDocument()) {
-        activateAutoSynchronization();
-        d->viewManager.pushFileOnCrumbleBar(currentDesignDocument()->fileName());
-        d->viewManager.setComponentViewToMaster();
-    }
-
-    d->shortCutManager.updateUndoActions(currentDesignDocument());
+    clearDesigner();
+    setupDesigner();
 }
 
 void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()

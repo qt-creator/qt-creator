@@ -108,13 +108,9 @@ public:
         static_assert(!std::is_array<Type>::value, "Input type is array and not char pointer!");
     }
 
-    BasicSmallString(const QString &qString)
-        : BasicSmallString(BasicSmallString::fromQString(qString))
-    {}
+    BasicSmallString(const QString &qString) { append(qString); }
 
-    BasicSmallString(const QStringView qStringView)
-        : BasicSmallString(BasicSmallString::fromQStringView(qStringView))
-    {}
+    BasicSmallString(const QStringView qStringView) { append(qStringView); }
 
     BasicSmallString(const QByteArray &qByteArray)
         : BasicSmallString(qByteArray.constData(), qByteArray.size())
@@ -127,9 +123,7 @@ public:
     {
     }
 
-    BasicSmallString(const std::wstring &wstring)
-        : BasicSmallString(BasicSmallString::fromQStringView(wstring))
-    {}
+    BasicSmallString(const std::wstring &wstring) { append(wstring); }
 
     template<typename BeginIterator,
              typename EndIterator,
@@ -349,12 +343,10 @@ public:
         return BasicSmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
     }
 
-    // precondition: has to be null terminated
     bool contains(SmallStringView subStringToSearch) const
     {
-        const char *found = std::strstr(data(), subStringToSearch.data());
-
-        return found != nullptr;
+        return SmallStringView{*this}.find(subStringToSearch)
+               != SmallStringView::npos;
     }
 
     bool contains(char characterToSearch) const
@@ -455,7 +447,7 @@ public:
         constexpr size_type temporaryArraySize = Size * 6;
 
         size_type oldSize = size();
-        size_type maximumRequiredSize = static_cast<size_type>(encoder.requiredSpace(oldSize));
+        size_type maximumRequiredSize = static_cast<size_type>(encoder.requiredSpace(string.size()));
         char *newEnd = nullptr;
 
         if (maximumRequiredSize > temporaryArraySize) {

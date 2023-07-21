@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "modelfwd.h"
 #include <projectstoragefwd.h>
 
 #include <QList>
@@ -42,7 +43,7 @@ public:
     void registerPreviewImageProvider(QQmlEngine *engine) const;
 
     class AsynchronousImageCache &asynchronousImageCache();
-    ProjectStorage<Sqlite::Database> &projectStorage();
+    ProjectStorageDependencies projectStorageDependencies();
 
 private:
     void editorOpened(::Core::IEditor *editor);

@@ -2,28 +2,29 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "navigatorview.h"
+
+#include "iconcheckboxitemdelegate.h"
+#include "nameitemdelegate.h"
 #include "navigatortreemodel.h"
 #include "navigatorwidget.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignericons.h"
-#include "qmldesignerplugin.h"
-#include "assetslibrarywidget.h"
-#include "commontypecache.h"
 
-#include "nameitemdelegate.h"
-#include "iconcheckboxitemdelegate.h"
-
+#include <assetslibrarywidget.h>
 #include <bindingproperty.h>
-#include <designmodecontext.h>
+#include <commontypecache.h>
 #include <designersettings.h>
+#include <designmodecontext.h>
 #include <itemlibraryinfo.h>
-#include <nodeproperty.h>
+#include <model/modelutils.h>
+#include <nodeinstanceview.h>
 #include <nodelistproperty.h>
-#include <variantproperty.h>
+#include <nodeproperty.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignericons.h>
+#include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 #include <rewritingexception.h>
-#include <nodeinstanceview.h>
 #include <theme.h>
+#include <variantproperty.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -286,7 +287,6 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
             if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
                 // We use arbitrary type name because at this time we don't have effect maker
                 // specific type
-                m_widget->setDragType(Storage::Info::EffectMaker);
                 m_widget->update();
             } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                 m_widget->setDragType(Constants::MIME_TYPE_ASSET_TEXTURE3D);
@@ -450,7 +450,7 @@ void NavigatorView::changeToComponent(const QModelIndex &index)
         const ModelNode doubleClickNode = modelNodeForIndex(index);
         if (doubleClickNode.metaInfo().isFileComponent())
             Core::EditorManager::openEditor(Utils::FilePath::fromString(
-                                                doubleClickNode.metaInfo().componentFileName()),
+                                                ModelUtils::componentFilePath(doubleClickNode)),
                                             Utils::Id(),
                                             Core::EditorManager::DoNotMakeVisible);
     }
@@ -468,7 +468,7 @@ QAbstractItemModel *NavigatorView::currentModel() const
 
 const ProjectExplorer::FileNode *NavigatorView::fileNodeForModelNode(const ModelNode &node) const
 {
-    QString filename = node.metaInfo().componentFileName();
+    QString filename = ModelUtils::componentFilePath(node);
     Utils::FilePath filePath = Utils::FilePath::fromString(filename);
     ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(
         filePath);

@@ -11,14 +11,12 @@ namespace QmlDesigner {
 
 class BackgroundAction : public QWidgetAction
 {
-    enum BackgroundType {
-        CheckboardBackground,
-        WhiteBackground,
-        BlackBackground
-    };
+    enum BackgroundType { CheckboardBackground, WhiteBackground, BlackBackground };
 
     Q_OBJECT
 public:
+    enum SpecialColor { ContextImage = Qt::yellow };
+
     explicit BackgroundAction(QObject *parent);
     void setColor(const QColor &color);
 

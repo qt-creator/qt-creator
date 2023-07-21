@@ -329,9 +329,9 @@ void QmlPreviewPlugin::previewCurrentFile()
 
 void QmlPreviewPluginPrivate::onEditorChanged(Core::IEditor *editor)
 {
-    if (m_lastEditor) {
-        Core::IDocument *doc = m_lastEditor->document();
-        disconnect(doc, &Core::IDocument::contentsChanged, this, &QmlPreviewPluginPrivate::setDirty);
+    if (m_lastEditor && m_lastEditor->document()) {
+        disconnect(m_lastEditor->document(), &Core::IDocument::contentsChanged,
+                   this, &QmlPreviewPluginPrivate::setDirty);
         if (m_dirty) {
             m_dirty = false;
             checkEditor();

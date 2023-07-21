@@ -199,8 +199,8 @@ public:
     int nodeSourceType = 0;
     QString behaviorPropertyName;
     QStringList scriptFunctions;
-    ModuleId moduleId;                   // is invalid if type is implicit
-    Utils::SmallString documentTypeName; // how the type is written in den Document
+    ModuleId moduleId;
+    ImportedTypeNameId importedTypeNameId;
     TypeId typeId;
 
 private:

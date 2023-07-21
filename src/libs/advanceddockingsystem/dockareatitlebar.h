@@ -17,6 +17,7 @@ namespace ADS {
 class DockAreaTabBar;
 class DockAreaWidget;
 class DockAreaTitleBarPrivate;
+class ElidingLabel;
 
 using TitleBarButtonType = QToolButton;
 
@@ -29,16 +30,21 @@ using TitleBarButtonType = QToolButton;
 class TitleBarButton : public TitleBarButtonType
 {
     Q_OBJECT
-    bool m_visible = true;
+    bool m_showInTitleBar = true;
     bool m_hideWhenDisabled = false;
 public:
     using Super = TitleBarButtonType;
-    TitleBarButton(bool visible = true, QWidget *parent = nullptr);
+    TitleBarButton(bool showInTitleBar = true, QWidget *parent = nullptr);
 
     /**
      * Adjust this visibility change request with our internal settings:
      */
     void setVisible(bool visible) override;
+
+    /**
+     * Configures, if the title bar button should be shown in title bar
+     */
+    void setShowInTitleBar(bool show);
 
 protected:
     /**
@@ -81,6 +87,9 @@ private:
     void onUndockButtonClicked();
     void onTabsMenuActionTriggered(QAction *action);
     void onCurrentTabChanged(int index);
+    void onAutoHideButtonClicked();
+    void onAutoHideDockAreaActionClicked();
+    void onAutoHideToActionClicked();
 
 protected:
     /**
@@ -135,7 +144,12 @@ public:
     /**
      * Returns the button corresponding to the given title bar button identifier
      */
-    QAbstractButton *button(eTitleBarButton which) const;
+    TitleBarButton *button(eTitleBarButton which) const;
+
+    /**
+     * Returns the auto hide title label, used when the dock area is expanded and auto hidden
+     */
+    ElidingLabel* autoHideTitleLabel() const;
 
     /**
      * Updates the visibility of the dock widget actions in the title bar
@@ -165,6 +179,17 @@ public:
      * \endcode
      */
     int indexOf(QWidget *widget) const;
+
+    /**
+     * Close group tool tip based on the current state
+     * Auto hide widgets can only have one dock widget so it does not make sense for the tooltip to show close group
+     */
+    QString titleBarButtonToolTip(eTitleBarButton button) const;
+
+    /**
+     * Moves the dock area into its own floating widget if the area DockWidgetFloatable flag is true.
+     */
+    void setAreaFloating();
 
 signals:
     /**

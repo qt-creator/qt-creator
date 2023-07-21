@@ -416,7 +416,7 @@ void TextureEditorView::setupQmlBackend()
         TypeName diffClassName;
         if (NodeMetaInfo metaInfo = m_selectedTexture.metaInfo()) {
             diffClassName = metaInfo.typeName();
-            for (const NodeMetaInfo &metaInfo : metaInfo.classHierarchy()) {
+            for (const NodeMetaInfo &metaInfo : metaInfo.selfAndPrototypes()) {
                 if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsUrl))
                     break;
                 qmlSpecificsUrl = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName()

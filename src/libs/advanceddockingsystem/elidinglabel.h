@@ -9,20 +9,19 @@
 
 namespace ADS {
 
-struct ElidingLabelPrivate;
+class ElidingLabelPrivate;
 
 /**
  * A QLabel that supports eliding text.
- * Because the functions setText() and text() are no virtual functions setting
- * and reading the text via a pointer to the base class QLabel does not work
- * properly
+ * Because the functions setText() and text() are no virtual functions setting and reading the
+ * text via a pointer to the base class QLabel does not work properly.
  */
 class ADS_EXPORT ElidingLabel : public QLabel
 {
     Q_OBJECT
 private:
     ElidingLabelPrivate *d;
-    friend struct ElidingLabelPrivate;
+    friend class ElidingLabelPrivate;
 
 protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
@@ -32,8 +31,10 @@ protected:
 public:
     using Super = QLabel;
 
-    ElidingLabel(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::Widget);
-    ElidingLabel(const QString &text, QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::Widget);
+    ElidingLabel(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
+    ElidingLabel(const QString &text,
+                 QWidget *parent = nullptr,
+                 Qt::WindowFlags flags = Qt::WindowFlags());
     ~ElidingLabel() override;
 
     /**

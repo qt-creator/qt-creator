@@ -2,9 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formeditorgraphicsview.h"
+#include "backgroundaction.h"
 #include "formeditoritem.h"
 #include "formeditorwidget.h"
 #include "navigation2d.h"
+
+#include <theme.h>
+
 #include <utils/hostosinfo.h>
 
 #include <QAction>
@@ -198,16 +202,45 @@ void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rec
     painter->save();
     painter->setBrushOrigin(0, 0);
 
-    painter->fillRect(rectangle.intersected(rootItemRect()), backgroundBrush());
     // paint rect around editable area
-    painter->setPen(Qt::black);
-    painter->drawRect(rootItemRect());
+
+    if (backgroundBrush().color() == BackgroundAction::ContextImage) {
+        painter->fillRect(rectangle.intersected(rootItemRect()), Qt::gray);
+        painter->setOpacity(0.5);
+        if (!m_backgroundImage.isNull())
+            painter->drawImage(rootItemRect().topLeft() + m_backgroundImage.offset(),
+                               m_backgroundImage);
+        painter->setOpacity(1.0);
+    } else {
+        painter->fillRect(rectangle.intersected(rootItemRect()), backgroundBrush());
+    }
+
+    QPen pen(Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor));
+
+    pen.setStyle(Qt::DotLine);
+    pen.setWidth(1);
+
+    painter->setPen(pen);
+
+    painter->drawRect(rootItemRect().adjusted(-1, -1, 0, 0));
+
     painter->restore();
 }
 
 void FormEditorGraphicsView::frame(const QRectF &boundingRect)
 {
     fitInView(boundingRect, Qt::KeepAspectRatio);
+}
+
+void FormEditorGraphicsView::setBackgoundImage(const QImage &image)
+{
+    m_backgroundImage = image;
+    update();
+}
+
+QImage FormEditorGraphicsView::backgroundImage() const
+{
+    return m_backgroundImage;
 }
 
 void FormEditorGraphicsView::setZoomFactor(double zoom)

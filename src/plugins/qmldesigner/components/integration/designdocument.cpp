@@ -61,7 +61,7 @@ namespace QmlDesigner {
   DesignDocument acts as a facade to a model representing a qml document,
   and the different views/widgets accessing it.
   */
-DesignDocument::DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage,
+DesignDocument::DesignDocument(ProjectStorageDependencies projectStorageDependencies,
                                ExternalDependenciesInterface &externalDependencies)
     : m_documentModel(
         Model::create("QtQuick.Item", 1, 0, nullptr, std::make_unique<ModelResourceManagement>()))
@@ -69,7 +69,7 @@ DesignDocument::DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage,
     , m_rewriterView(new RewriterView(externalDependencies, RewriterView::Amend))
     , m_documentLoaded(false)
     , m_currentTarget(nullptr)
-    , m_projectStorage(projectStorage)
+    , m_projectStorageDependencies(projectStorageDependencies)
     , m_externalDependencies{externalDependencies}
 {
 }

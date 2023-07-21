@@ -8,6 +8,7 @@
 #include <documentmessage.h>
 #include <model/modelresourcemanagementinterface.h>
 #include <projectstorage/projectstoragefwd.h>
+#include <projectstorageids.h>
 
 #include <QMimeData>
 #include <QObject>
@@ -62,12 +63,16 @@ class QMLDESIGNERCORE_EXPORT Model : public QObject
 public:
     enum ViewNotification { NotifyView, DoNotNotifyView };
 
-    Model(ProjectStorageType &projectStorage,
+    Model(ProjectStorageDependencies projectStorageDependencies,
           const TypeName &type,
           int major = 1,
           int minor = 1,
           Model *metaInfoProxyModel = nullptr,
           std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
+    Model(ProjectStorageDependencies projectStorageDependencies,
+          Utils::SmallStringView typeName,
+          Imports imports,
+          const QUrl &fileUrl);
     Model(const TypeName &typeName,
           int major = 1,
           int minor = 1,
@@ -86,17 +91,29 @@ public:
             new Model(typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)));
     }
 
-    static ModelPointer create(ProjectStorageType &projectStorage,
+    static ModelPointer create(ProjectStorageDependencies projectStorageDependencies,
+                               Utils::SmallStringView typeName,
+                               Imports imports,
+                               const QUrl &fileUrl)
+    {
+        return ModelPointer(new Model(projectStorageDependencies, typeName, imports, fileUrl));
+    }
+    static ModelPointer create(ProjectStorageDependencies m_projectStorageDependencies,
                                const TypeName &typeName,
                                int major = 1,
                                int minor = 1,
                                std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
-        return ModelPointer(
-            new Model(projectStorage, typeName, major, minor, nullptr, std::move(resourceManagement)));
+        return ModelPointer(new Model(m_projectStorageDependencies,
+                                      typeName,
+                                      major,
+                                      minor,
+                                      nullptr,
+                                      std::move(resourceManagement)));
     }
 
     QUrl fileUrl() const;
+    SourceId fileUrlSourceId() const;
     void setFileUrl(const QUrl &url);
 
     const MetaInfo metaInfo() const;
@@ -105,12 +122,16 @@ public:
     bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     void setMetaInfo(const MetaInfo &metaInfo);
 
+    NodeMetaInfo boolMetaInfo() const;
     NodeMetaInfo flowViewFlowActionAreaMetaInfo() const;
     NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
     NodeMetaInfo flowViewFlowItemMetaInfo() const;
     NodeMetaInfo flowViewFlowTransitionMetaInfo() const;
     NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
     NodeMetaInfo fontMetaInfo() const;
+    NodeMetaInfo qmlQtObjectMetaInfo() const;
+    NodeMetaInfo qtQmlModelsListModelMetaInfo() const;
+    NodeMetaInfo qtQmlModelsListElementMetaInfo() const;
     NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
     NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
@@ -145,6 +166,7 @@ public:
     QHash<QStringView, ModelNode> idModelNodeDict();
 
     ModelNode createModelNode(const TypeName &typeName);
+    void changeRootNodeType(const TypeName &type);
 
     void removeModelNodes(ModelNodes nodes,
                           BypassModelResourceManagement = BypassModelResourceManagement::No);
@@ -157,7 +179,7 @@ public:
     const Imports &imports() const;
     const Imports &possibleImports() const;
     const Imports &usedImports() const;
-    void changeImports(const Imports &importsToBeAdded, const Imports &importsToBeRemoved);
+    void changeImports(Imports importsToBeAdded, Imports importsToBeRemoved);
     void setPossibleImports(Imports possibleImports);
     void setUsedImports(Imports usedImports);
     bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false) const;
@@ -196,6 +218,8 @@ public:
     void endDrag();
 
     NotNullPointer<const ProjectStorageType> projectStorage() const;
+    const PathCacheType &pathCache() const;
+    PathCacheType &pathCache();
 
 private:
     template<const auto &moduleName, const auto &typeName>

@@ -29,4 +29,8 @@ QMLDESIGNERCORE_EXPORT PropertyMetaInfo metainfo(const AbstractProperty &propert
 QMLDESIGNERCORE_EXPORT PropertyMetaInfo metainfo(const ModelNode &node,
                                                  const PropertyName &propertyName);
 
+QMLDESIGNERCORE_EXPORT QString componentFilePath(const PathCacheType &pathCache,
+                                                 const NodeMetaInfo &metaInfo);
+
+QMLDESIGNERCORE_EXPORT QString componentFilePath(const ModelNode &node);
 } // namespace QmlDesigner::ModelUtils

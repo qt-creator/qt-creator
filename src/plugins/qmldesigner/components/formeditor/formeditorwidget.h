@@ -63,11 +63,16 @@ public:
     void showWarningMessageBox(const QList<DocumentMessage> &warnings);
 
     void exportAsImage(const QRectF &boundingRect);
+
+    QImage takeFormEditorScreenshot();
     QPicture renderToPicture() const;
 
     FormEditorGraphicsView *graphicsView() const;
 
     bool errorMessageBoxIsVisible() const;
+
+    void setBackgoundImage(const QImage &image);
+    QImage backgroundImage() const;
 
 protected:
     QActionGroup *toolActionGroup() const;

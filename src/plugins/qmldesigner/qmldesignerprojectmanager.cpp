@@ -181,7 +181,7 @@ public:
     {}
     Sqlite::Database database;
     ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
-    ProjectStorageUpdater::PathCache pathCache{storage};
+    PathCacheType pathCache{storage};
     FileSystem fileSystem{pathCache};
     FileStatusCache fileStatusCache{fileSystem};
     QmlDocumentParser qmlDocumentParser{storage, pathCache};
@@ -286,14 +286,20 @@ ProjectStorage<Sqlite::Database> *dummyProjectStorage()
     return nullptr;
 }
 
+ProjectStorageUpdater::PathCache *dummyPathCache()
+{
+    return nullptr;
+}
+
 } // namespace
 
-ProjectStorage<Sqlite::Database> &QmlDesignerProjectManager::projectStorage()
+ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies()
 {
     if constexpr (useProjectStorage()) {
-        return m_projectData->projectStorageData->storage;
+        return {m_projectData->projectStorageData->storage,
+                m_projectData->projectStorageData->pathCache};
     } else {
-        return *dummyProjectStorage();
+        return {*dummyProjectStorage(), *dummyPathCache()};
     }
 }
 

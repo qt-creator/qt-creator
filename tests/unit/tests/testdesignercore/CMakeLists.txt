@@ -1,7 +1,7 @@
 add_qtc_library(TestDesignerCore OBJECT
   EXCLUDE_FROM_INSTALL
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
-  SKIP_AUTOMOC ON
+  PROPERTIES SKIP_AUTOGEN ON
   DEPENDS
     Qt::Core Qt::Network Qt::Widgets
     Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui
@@ -54,7 +54,6 @@ add_qtc_library(TestDesignerCore OBJECT
     imagecache/synchronousimagecache.cpp
     imagecache/timestampproviderinterface.h
     include/abstractproperty.h
-    include/abstractview.h
     include/asynchronousexplicitimagecache.h
     include/asynchronousimagecache.h
     include/asynchronousimagecacheinterface.h
@@ -64,7 +63,6 @@ add_qtc_library(TestDesignerCore OBJECT
     include/itemlibraryinfo.h
     include/metainfo.h
     include/metainforeader.h
-    include/model.h
     include/modelnode.h
     include/nodeabstractproperty.h
     include/nodelistproperty.h
@@ -108,6 +106,7 @@ add_qtc_library(TestDesignerCore OBJECT
     model/modelnode.cpp
     model/modelresourcemanagementinterface.h
     model/modelresourcemanagement.cpp model/modelresourcemanagement.h
+    model/modelutils.cpp model/modelutils.h
     model/propertycontainer.cpp
     model/propertyparser.cpp
     model/nodeabstractproperty.cpp

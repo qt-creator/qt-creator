@@ -591,8 +591,7 @@ void StudioStyle::drawComplexControl(
         const QWidget *widget) const
 {
     switch (control) {
-
-    case CC_Slider:
+    case CC_Slider: {
         if (const auto *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             QRect groove = proxy()->subControlRect(CC_Slider, option, SC_SliderGroove, widget);
             QRect handle = proxy()->subControlRect(CC_Slider, option, SC_SliderHandle, widget);
@@ -757,8 +756,14 @@ void StudioStyle::drawComplexControl(
             }
             painter->restore();
         }
-        break;
-
+    } break;
+    case CC_ComboBox: {
+        if (QWidget *parentWidget = widget->parentWidget()) {
+            QBrush bgColor = parentWidget->palette().brush(parentWidget->backgroundRole());
+            painter->fillRect(option->rect, bgColor);
+        }
+        Super::drawComplexControl(control, option, painter, widget);
+    } break;
     default:
         Super::drawComplexControl(control, option, painter, widget);
         break;

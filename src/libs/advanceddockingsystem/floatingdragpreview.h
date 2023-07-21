@@ -86,6 +86,11 @@ public: // implements AbstractFloatingWidget
      */
     void finishDragging() override;
 
+    /**
+     * Cleanup auto hide container if the dragged widget has one.
+     */
+    void cleanupAutoHideContainerWidget(DockWidgetArea containerDropArea);
+
 signals:
     /**
      * This signal is emitted, if dragging has been canceled by escape key

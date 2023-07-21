@@ -958,7 +958,7 @@ void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNod
 QUrl PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo, TypeName &className)
 {
     if (metaInfo.isValid()) {
-        const NodeMetaInfos hierarchy = metaInfo.classHierarchy();
+        const NodeMetaInfos hierarchy = metaInfo.selfAndPrototypes();
         for (const NodeMetaInfo &info : hierarchy) {
             QUrl fileUrl = fileToUrl(locateQmlFile(info, QString::fromUtf8(qmlFileName(info))));
             if (fileUrl.isValid()) {

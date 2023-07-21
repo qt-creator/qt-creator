@@ -4829,11 +4829,11 @@ void tst_TestCore::testMetaInfoSimpleType()
     QCOMPARE(itemMetaInfo.minorVersion(), 1);
 
     // super classes
-    NodeMetaInfo qobject = itemMetaInfo.superClasses()[1];
+    NodeMetaInfo qobject = itemMetaInfo.prototypes()[1];
     QVERIFY(qobject.isValid());
     QVERIFY(qobject.isQtObject());
 
-    QCOMPARE(itemMetaInfo.superClasses().size(), 2); // Item, QtQuick.QtObject
+    QCOMPARE(itemMetaInfo.prototypes().size(), 2); // Item, QtQuick.QtObject
     QVERIFY(itemMetaInfo.isQtQuickItem());
     QVERIFY(itemMetaInfo.isQtObject());
 }
@@ -4852,11 +4852,11 @@ void tst_TestCore::testMetaInfoUncreatableType()
     QCOMPARE(animationTypeInfo.majorVersion(), 2);
     QCOMPARE(animationTypeInfo.minorVersion(), 1);
 
-    NodeMetaInfo qObjectTypeInfo = animationTypeInfo.superClasses()[1];
+    NodeMetaInfo qObjectTypeInfo = animationTypeInfo.prototypes()[1];
     QVERIFY(qObjectTypeInfo.isValid());
     QCOMPARE(qObjectTypeInfo.simplifiedTypeName(), QmlDesigner::TypeName("QtObject"));
 
-    QCOMPARE(animationTypeInfo.superClasses().size(), 2);
+    QCOMPARE(animationTypeInfo.prototypes().size(), 2);
 }
 
 void tst_TestCore::testMetaInfoExtendedType()
@@ -4870,7 +4870,7 @@ void tst_TestCore::testMetaInfoExtendedType()
     QVERIFY(typeInfo.hasProperty("font")); // from QGraphicsWidget
     QVERIFY(typeInfo.hasProperty("enabled")); // from QGraphicsItem
 
-    NodeMetaInfo graphicsObjectTypeInfo = typeInfo.superClasses()[1];
+    NodeMetaInfo graphicsObjectTypeInfo = typeInfo.prototypes()[1];
     QVERIFY(graphicsObjectTypeInfo.isValid());
 }
 
@@ -4892,12 +4892,12 @@ void tst_TestCore::testMetaInfoCustomType()
     QVERIFY(propertyChangesInfo.hasProperty("restoreEntryValues"));
     QVERIFY(propertyChangesInfo.hasProperty("explicit"));
 
-    NodeMetaInfo stateOperationInfo = propertyChangesInfo.superClasses()[1];
+    NodeMetaInfo stateOperationInfo = propertyChangesInfo.prototypes()[1];
     QVERIFY(stateOperationInfo.isValid());
     QCOMPARE(stateOperationInfo.typeName(), QmlDesigner::TypeName("QtQuick.QQuickStateOperation"));
     QCOMPARE(stateOperationInfo.majorVersion(), -1);
     QCOMPARE(stateOperationInfo.minorVersion(), -1);
-    QCOMPARE(propertyChangesInfo.superClasses().size(), 3);
+    QCOMPARE(propertyChangesInfo.prototypes().size(), 3);
 
     // DeclarativePropertyChanges just has 3 properties
     QCOMPARE(propertyChangesInfo.properties().size() - stateOperationInfo.properties().size(), 3);

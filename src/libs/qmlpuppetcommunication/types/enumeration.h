@@ -15,75 +15,79 @@
 namespace QmlDesigner {
 
 using EnumerationName = QByteArray;
+using EnumerationNameView = QByteArrayView;
 
 class Enumeration
 {
-    friend bool operator ==(const Enumeration &first, const Enumeration &second);
-    friend bool operator <(const Enumeration &first, const Enumeration &second);
-    friend QDataStream &operator>>(QDataStream &in, Enumeration &enumeration);
-
 public:
     Enumeration() = default;
-    Enumeration(const EnumerationName &enumerationName)
-        : m_enumerationName(enumerationName)
-    {
-    }
+    Enumeration(EnumerationName enumerationName)
+        : m_enumerationName{std::move(enumerationName)}
+    {}
+
+    Enumeration(const char *text)
+        : m_enumerationName{text, static_cast<qsizetype>(std::strlen(text))}
+    {}
+
     Enumeration(const QString &enumerationName)
         : m_enumerationName(enumerationName.toUtf8())
+    {}
+
+    Enumeration(const EnumerationName &scope, const EnumerationName &name)
     {
-    }
-    Enumeration(const QString &scope, const QString &name)
-    {
-        QString enumerationString = scope + QLatin1Char('.') + name;
-        m_enumerationName = enumerationString.toUtf8();
+        m_enumerationName.reserve(scope.size() + 1 + name.size());
+        m_enumerationName.append(scope);
+        m_enumerationName.append(1);
+        m_enumerationName.append(name);
     }
 
-    EnumerationName scope() const
+    EnumerationNameView scope() const
     {
-        return m_enumerationName.split('.').constFirst();
+        auto found = std::find(m_enumerationName.begin(), m_enumerationName.end(), '.');
+        return {m_enumerationName.begin(), found};
     }
-    EnumerationName name() const
+
+    EnumerationNameView toScope() const { return scope().toByteArray(); }
+
+    EnumerationNameView name() const
     {
-        return m_enumerationName.split('.').last();
+        auto found = std::find(m_enumerationName.begin(), m_enumerationName.end(), '.');
+        if (found != m_enumerationName.end())
+            return {std::next(found), m_enumerationName.end()};
+
+        return {m_enumerationName.end(), m_enumerationName.end()};
     }
-    EnumerationName toEnumerationName() const
+
+    EnumerationName toName() const { return name().toByteArray(); }
+
+    EnumerationName toEnumerationName() const { return m_enumerationName; }
+
+    QString toString() const { return QString::fromUtf8(m_enumerationName); }
+    QString nameToString() const { return QString::fromUtf8(name()); }
+
+    friend bool operator==(const Enumeration &first, const Enumeration &second)
     {
-        return m_enumerationName;
+        return first.m_enumerationName == second.m_enumerationName;
     }
-    QString toString() const
+
+    friend bool operator<(const Enumeration &first, const Enumeration &second)
     {
-        return QString::fromUtf8(m_enumerationName);
+        return first.m_enumerationName < second.m_enumerationName;
     }
-    QString nameToString() const
+
+    friend QDataStream &operator<<(QDataStream &out, const Enumeration &enumeration)
     {
-        return QString::fromUtf8(name());
+        return out << enumeration.m_enumerationName;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, Enumeration &enumeration)
+    {
+        return in >> enumeration.m_enumerationName;
     }
 
 private:
     EnumerationName m_enumerationName;
 };
-
-inline QDataStream &operator<<(QDataStream &out, const Enumeration &enumeration){
-    out << enumeration.toEnumerationName();
-    return out;
-}
-
-inline QDataStream &operator>>(QDataStream &in, Enumeration &enumeration)
-{
-    in >> enumeration.m_enumerationName;
-    return in;
-}
-
-
-inline bool operator==(const Enumeration &first, const Enumeration &second)
-{
-    return first.m_enumerationName == second.m_enumerationName;
-}
-
-inline bool operator<(const Enumeration &first, const Enumeration &second)
-{
-    return first.m_enumerationName < second.m_enumerationName;
-}
 
 inline QDebug operator <<(QDebug debug, const Enumeration &enumeration)
 {

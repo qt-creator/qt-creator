@@ -3,10 +3,15 @@
 
 #include "projectstoragemock.h"
 
+#include <matchers/import-matcher.h>
+
 #include <projectstorage/projectstorageinfotypes.h>
 
+using QmlDesigner::ImportedTypeNameId;
+using QmlDesigner::ImportId;
 using QmlDesigner::ModuleId;
 using QmlDesigner::PropertyDeclarationId;
+using QmlDesigner::SourceId;
 using QmlDesigner::TypeId;
 using QmlDesigner::TypeIds;
 using QmlDesigner::Storage::PropertyDeclarationTraits;
@@ -38,6 +43,10 @@ void setupIsBasedOn(ProjectStorageMock &mock)
 
 ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName)
 {
+    if (auto id = moduleId(moduleName)) {
+        return id;
+    }
+
     static ModuleId moduleId;
     incrementBasicId(moduleId);
 
@@ -46,11 +55,71 @@ ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName)
     return moduleId;
 }
 
+QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
+    SourceId sourceId, Utils::SmallStringView typeName, TypeId typeId)
+{
+    if (auto id = importedTypeNameId(sourceId, typeName)) {
+        return id;
+    }
+
+    static ImportedTypeNameId importedTypeNameId;
+    incrementBasicId(importedTypeNameId);
+
+    ON_CALL(*this, importedTypeNameId(sourceId, Eq(typeName)))
+        .WillByDefault(Return(importedTypeNameId));
+
+    ON_CALL(*this, typeId(importedTypeNameId)).WillByDefault(Return(typeId));
+
+    return importedTypeNameId;
+}
+
+QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
+    QmlDesigner::SourceId sourceId, Utils::SmallStringView typeName, QmlDesigner::ModuleId moduleId)
+{
+    return createImportedTypeNameId(sourceId,
+                                    typeName,
+                                    typeId(moduleId, typeName, QmlDesigner::Storage::Version{}));
+}
+
+QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
+    QmlDesigner::ImportId importId, Utils::SmallStringView typeName, QmlDesigner::TypeId typeId)
+{
+    if (auto id = importedTypeNameId(importId, typeName)) {
+        return id;
+    }
+
+    static ImportedTypeNameId importedTypeNameId;
+    incrementBasicId(importedTypeNameId);
+
+    ON_CALL(*this, importedTypeNameId(importId, Eq(typeName)))
+        .WillByDefault(Return(importedTypeNameId));
+
+    ON_CALL(*this, typeId(importedTypeNameId)).WillByDefault(Return(typeId));
+
+    return importedTypeNameId;
+}
+
+QmlDesigner::ImportId ProjectStorageMock::createImportId(QmlDesigner::ModuleId moduleId,
+                                                         QmlDesigner::SourceId sourceId,
+                                                         QmlDesigner::Storage::Version version)
+{
+    static ImportId importId;
+    incrementBasicId(importId);
+
+    ON_CALL(*this, importId(IsImport(moduleId, sourceId, version))).WillByDefault(Return(importId));
+
+    return importId;
+}
+
 PropertyDeclarationId ProjectStorageMock::createProperty(TypeId typeId,
                                                          Utils::SmallString name,
                                                          PropertyDeclarationTraits traits,
                                                          TypeId propertyTypeId)
 {
+    if (auto id = propertyDeclarationId(typeId, name)) {
+        return id;
+    }
+
     static PropertyDeclarationId propertyId;
     incrementBasicId(propertyId);
 
@@ -95,8 +164,13 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
                                       PropertyDeclarationTraits defaultPropertyTraits,
                                       TypeId defaultPropertyTypeId,
                                       Storage::TypeTraits typeTraits,
-                                      TypeIds baseTypeIds)
+                                      TypeIds baseTypeIds,
+                                      SourceId sourceId)
 {
+    if (auto id = typeId(moduleId, typeName)) {
+        return id;
+    }
+
     static TypeId typeId;
     incrementBasicId(typeId);
 
@@ -114,12 +188,20 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
     }
 
     ON_CALL(*this, type(Eq(typeId)))
-        .WillByDefault(Return(Storage::Info::Type{defaultPropertyDeclarationId, typeTraits}));
+        .WillByDefault(
+            Return(Storage::Info::Type{defaultPropertyDeclarationId, sourceId, typeTraits}));
 
     ON_CALL(*this, isBasedOn(Eq(typeId), Eq(typeId))).WillByDefault(Return(true));
 
     for (TypeId baseTypeId : baseTypeIds)
         ON_CALL(*this, isBasedOn(Eq(typeId), Eq(baseTypeId))).WillByDefault(Return(true));
+
+    TypeIds selfAndPrototypes;
+    selfAndPrototypes.reserve(baseTypeIds.size() + 1);
+    selfAndPrototypes.push_back(typeId);
+    selfAndPrototypes.insert(selfAndPrototypes.end(), baseTypeIds.begin(), baseTypeIds.end());
+    ON_CALL(*this, prototypeAndSelfIds(Eq(typeId))).WillByDefault(Return(selfAndPrototypes));
+    ON_CALL(*this, prototypeIds(Eq(typeId))).WillByDefault(Return(baseTypeIds));
 
     return typeId;
 }
@@ -127,9 +209,10 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
 QmlDesigner::TypeId ProjectStorageMock::createType(QmlDesigner::ModuleId moduleId,
                                                    Utils::SmallStringView typeName,
                                                    QmlDesigner::Storage::TypeTraits typeTraits,
-                                                   QmlDesigner::TypeIds baseTypeIds)
+                                                   QmlDesigner::TypeIds baseTypeIds,
+                                                   SourceId sourceId)
 {
-    return createType(moduleId, typeName, {}, {}, TypeId{}, typeTraits, baseTypeIds);
+    return createType(moduleId, typeName, {}, {}, TypeId{}, typeTraits, baseTypeIds, sourceId);
 }
 
 TypeId ProjectStorageMock::createObject(ModuleId moduleId,
@@ -137,7 +220,8 @@ TypeId ProjectStorageMock::createObject(ModuleId moduleId,
                                         Utils::SmallStringView defaultPropertyName,
                                         PropertyDeclarationTraits defaultPropertyTraits,
                                         QmlDesigner::TypeId defaultPropertyTypeId,
-                                        TypeIds baseTypeIds)
+                                        TypeIds baseTypeIds,
+                                        QmlDesigner::SourceId sourceId)
 {
     return createType(moduleId,
                       typeName,
@@ -145,7 +229,8 @@ TypeId ProjectStorageMock::createObject(ModuleId moduleId,
                       defaultPropertyTraits,
                       defaultPropertyTypeId,
                       Storage::TypeTraits::Reference,
-                      baseTypeIds);
+                      baseTypeIds,
+                      sourceId);
 }
 
 TypeId ProjectStorageMock::createObject(ModuleId moduleId,
@@ -155,16 +240,18 @@ TypeId ProjectStorageMock::createObject(ModuleId moduleId,
     return createType(moduleId, typeName, Storage::TypeTraits::Reference, baseTypeIds);
 }
 
-void ProjectStorageMock::setupQtQtuick()
+void ProjectStorageMock::setupQtQuick()
 {
     setupIsBasedOn(*this);
 
     auto qmlModuleId = createModule("QML");
+    auto qmlNativeModuleId = createModule("QML-cppnative");
     auto qtQmlModelsModuleId = createModule("QtQml.Models");
     auto qtQuickModuleId = createModule("QtQuick");
     auto qtQuickNativeModuleId = createModule("QtQuick-cppnative");
 
     createType(qmlModuleId, "int", Storage::TypeTraits::Value);
+    createType(qmlNativeModuleId, "float", Storage::TypeTraits::Value);
 
     auto qtObjectId = createObject(qmlModuleId,
                                    "QtObject",
@@ -222,7 +309,7 @@ void ProjectStorageMock::setupQtQtuick()
                  "data",
                  PropertyDeclarationTraits::IsList,
                  qtObjectId,
-                 {qtObjectId, itemId});
+                 {itemId, qtObjectId});
     createObject(flowViewModuleId,
                  "FlowWildcard",
                  "data",
@@ -237,6 +324,37 @@ void ProjectStorageMock::setupQtQtuick()
                  PropertyDeclarationTraits::IsList,
                  qtObjectId,
                  {qtObjectId, itemId});
+}
+
+void ProjectStorageMock::setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId sourceId)
+{
+    auto qmlModuleId = moduleId("QML");
+    auto qtQmlModelsModuleId = moduleId("QtQml.Models");
+    auto qtQuickModuleId = moduleId("QtQuick");
+    auto qtQuickNativeModuleId = moduleId("QtQuick-cppnative");
+    auto qtQuickTimelineModuleId = moduleId("QtQuick.Timeline");
+    auto flowViewModuleId = moduleId("FlowView");
+
+    createImportedTypeNameId(sourceId, "int", qmlModuleId);
+    createImportedTypeNameId(sourceId, "QtObject", qmlModuleId);
+    createImportedTypeNameId(sourceId, "ListElement", qtQmlModelsModuleId);
+    createImportedTypeNameId(sourceId, "ListModel", qtQmlModelsModuleId);
+    createImportedTypeNameId(sourceId, "Item", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "ListView", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "StateGroup", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "State", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "Animation", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "Transition", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "PropertyAnimation", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "QQuickStateOperation", qtQuickNativeModuleId);
+    createImportedTypeNameId(sourceId, "PropertyChanges", qtQuickModuleId);
+    createImportedTypeNameId(sourceId, "KeyframeGroup", qtQuickTimelineModuleId);
+    createImportedTypeNameId(sourceId, "Keyframe", qtQuickTimelineModuleId);
+    createImportedTypeNameId(sourceId, "FlowActionArea", flowViewModuleId);
+    createImportedTypeNameId(sourceId, "FlowWildcard", flowViewModuleId);
+    createImportedTypeNameId(sourceId, "FlowDecision", flowViewModuleId);
+    createImportedTypeNameId(sourceId, "FlowTransition", flowViewModuleId);
+    createImportedTypeNameId(sourceId, "FlowItem", flowViewModuleId);
 }
 
 void ProjectStorageMock::setupCommonTypeCache()

@@ -32,7 +32,7 @@ public:
 #endif
 
     void parse(const QString &sourceContent,
-               Storage::Synchronization::Imports &imports,
+               Storage::Imports &imports,
                Storage::Synchronization::Types &types,
                const Storage::Synchronization::ProjectData &projectData) override;
 

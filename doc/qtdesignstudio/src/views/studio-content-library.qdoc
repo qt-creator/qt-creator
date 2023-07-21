@@ -11,7 +11,7 @@
     \note The \uicontrol {Content Library} view is included in the
     \l{https://www.qt.io/pricing}{Qt Design Studio Enterprise license}.
 
-    The \uicontrol{Content Library} view contains material, texture, and
+    The \uicontrol{Content Library} view contains material, texture, effect, and
     environment bundles with assets that you can use in your project. When you
     have added an asset from \uicontrol {Content Library}, you can use it in
     your project.
@@ -61,6 +61,17 @@
           \li \uicontrol Background Mode is set to skybox.
           \li \uicontrol {Light Probe} > \uicontrol Image is set to the selected texture.
         \endlist
+    \endlist
+
+    \section1 Adding an Effect to Your Project
+
+    To add an effect to your project, do one of the following:
+
+    \list
+      \li Right-click the effect in \uicontrol {Content Library} and select
+      \uicontrol {Add an Instance}.
+      \li From \uicontrol {Content Library}, drag the effect to the \uicontrol 3D or
+      \uicontrol Navigator view.
     \endlist
 
 */

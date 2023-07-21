@@ -53,6 +53,8 @@ public:
 
     TypeId id() const { return m_typeId; }
     bool isFileComponent() const;
+    bool isProjectComponent() const;
+    bool isInProjectModule() const;
     bool hasProperty(::Utils::SmallStringView propertyName) const;
     PropertyMetaInfos properties() const;
     PropertyMetaInfos localProperties() const;
@@ -63,8 +65,8 @@ public:
     PropertyMetaInfo defaultProperty() const;
     bool hasDefaultProperty() const;
 
-    std::vector<NodeMetaInfo> classHierarchy() const;
-    std::vector<NodeMetaInfo> superClasses() const;
+    std::vector<NodeMetaInfo> selfAndPrototypes() const;
+    std::vector<NodeMetaInfo> prototypes() const;
     NodeMetaInfo commonBase(const NodeMetaInfo &metaInfo) const;
 
     bool defaultPropertyIsComponent() const;
@@ -74,6 +76,10 @@ public:
     int majorVersion() const;
     int minorVersion() const;
 
+    Storage::Info::ExportedTypeNames allExportedTypeNames() const;
+    Storage::Info::ExportedTypeNames exportedTypeNamesForSourceId(SourceId sourceId) const;
+
+    SourceId sourceId() const;
     QString componentFileName() const;
 
     bool isBasedOn(const NodeMetaInfo &metaInfo) const;
@@ -107,7 +113,6 @@ public:
     bool isAlias() const;
     bool isBool() const;
     bool isColor() const;
-    bool isEffectMaker() const;
     bool isFloat() const;
     bool isFlowViewFlowActionArea() const;
     bool isFlowViewFlowDecision() const;
@@ -121,10 +126,10 @@ public:
     bool isInteger() const;
     bool isLayoutable() const;
     bool isListOrGridView() const;
+    bool isNumber() const;
     bool isQmlComponent() const;
     bool isQtMultimediaSoundEffect() const;
     bool isQtObject() const;
-    bool isQtQuick3D() const;
     bool isQtQuick3DBakedLightmap() const;
     bool isQtQuick3DBuffer() const;
     bool isQtQuick3DCamera() const;
@@ -137,7 +142,7 @@ public:
     bool isQtQuick3DMaterial() const;
     bool isQtQuick3DModel() const;
     bool isQtQuick3DNode() const;
-    bool isQtQuick3DParticleAbstractShape() const;
+    bool isQtQuick3DParticlesAbstractShape() const;
     bool isQtQuick3DParticles3DAffector3D() const;
     bool isQtQuick3DParticles3DAttractor3D() const;
     bool isQtQuick3DParticles3DParticle3D() const;

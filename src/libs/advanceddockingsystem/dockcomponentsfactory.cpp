@@ -3,46 +3,52 @@
 
 #include "dockcomponentsfactory.h"
 
-#include "dockwidgettab.h"
+#include "autohidetab.h"
 #include "dockareatabbar.h"
 #include "dockareatitlebar.h"
-#include "dockwidget.h"
 #include "dockareawidget.h"
+#include "dockwidget.h"
+#include "dockwidgettab.h"
 
 #include <memory>
 
-namespace ADS
+namespace ADS {
+
+static std::unique_ptr<DockComponentsFactory> g_defaultFactory(new DockComponentsFactory());
+
+DockWidgetTab *DockComponentsFactory::createDockWidgetTab(DockWidget *dockWidget) const
 {
-    static std::unique_ptr<DockComponentsFactory> g_defaultFactory(new DockComponentsFactory());
+    return new DockWidgetTab(dockWidget);
+}
 
-    DockWidgetTab *DockComponentsFactory::createDockWidgetTab(DockWidget *dockWidget) const
-    {
-        return new DockWidgetTab(dockWidget);
-    }
+AutoHideTab *DockComponentsFactory::createDockWidgetSideTab(DockWidget *dockWidget) const
+{
+    return new AutoHideTab(dockWidget);
+}
 
-    DockAreaTabBar *DockComponentsFactory::createDockAreaTabBar(DockAreaWidget *dockArea) const
-    {
-        return new DockAreaTabBar(dockArea);
-    }
+DockAreaTabBar *DockComponentsFactory::createDockAreaTabBar(DockAreaWidget *dockArea) const
+{
+    return new DockAreaTabBar(dockArea);
+}
 
-    DockAreaTitleBar *DockComponentsFactory::createDockAreaTitleBar(DockAreaWidget *dockArea) const
-    {
-        return new DockAreaTitleBar(dockArea);
-    }
+DockAreaTitleBar *DockComponentsFactory::createDockAreaTitleBar(DockAreaWidget *dockArea) const
+{
+    return new DockAreaTitleBar(dockArea);
+}
 
-    const DockComponentsFactory *DockComponentsFactory::factory()
-    {
-        return g_defaultFactory.get();
-    }
+const DockComponentsFactory *DockComponentsFactory::factory()
+{
+    return g_defaultFactory.get();
+}
 
-    void DockComponentsFactory::setFactory(DockComponentsFactory *factory)
-    {
-        g_defaultFactory.reset(factory);
-    }
+void DockComponentsFactory::setFactory(DockComponentsFactory *factory)
+{
+    g_defaultFactory.reset(factory);
+}
 
-    void DockComponentsFactory::resetDefaultFactory()
-    {
-        g_defaultFactory.reset(new DockComponentsFactory());
-    }
+void DockComponentsFactory::resetDefaultFactory()
+{
+    g_defaultFactory.reset(new DockComponentsFactory());
+}
 
 } // namespace ADS

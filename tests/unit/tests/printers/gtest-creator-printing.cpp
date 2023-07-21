@@ -14,6 +14,7 @@
 #include <imagecacheauxiliarydata.h>
 #include <import.h>
 #include <modelnode.h>
+#include <nodemetainfo.h>
 #include <projectstorage/filestatus.h>
 #include <projectstorage/projectstoragepathwatchertypes.h>
 #include <projectstorage/projectstoragetypes.h>
@@ -221,6 +222,7 @@ std::ostream &operator<<(std::ostream &out, const ValueView &value)
 
 namespace {
 #if 0
+[[maybe_unused]]
 Utils::SmallStringView operationText(int operation)
 {
     switch (operation) {
@@ -235,7 +237,7 @@ Utils::SmallStringView operationText(int operation)
     return {};
 }
 
-std::ostream &operator<<(std::ostream &out, sqlite3_changeset_iter *iter)
+std::ostream &operator<<(std::ostream &out, [[maybe_unused]] sqlite3_changeset_iter *iter)
 {
     out << "(";
 
@@ -314,7 +316,7 @@ const char *toText(LockingMode lockingMode)
 }
 } // namespace
 
-std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
+std::ostream &operator<<(std::ostream &out, [[maybe_unused]] const SessionChangeSet &changeset)
 {
     Q_UNUSED(changeset)
 #if 0
@@ -465,6 +467,12 @@ std::ostream &operator<<(std::ostream &out, const ModelNode &node)
 
     return out << "(" << node.id() << ")";
 }
+
+std::ostream &operator<<(std::ostream &out, const NodeMetaInfo &metaInfo)
+{
+    return out << "(" << metaInfo.id() << ")";
+}
+
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
 {
     if (!property.isValid())
@@ -575,6 +583,10 @@ std::ostream &operator<<(std::ostream &out, Version version)
     return out << "(" << version.major << ", " << version.minor << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const Import &import)
+{
+    return out << "(" << import.moduleId << ", " << import.version << ", " << import.sourceId << ")";
+}
 } // namespace Storage
 
 namespace Storage::Info {
@@ -589,6 +601,11 @@ std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyD
 std::ostream &operator<<(std::ostream &out, const Type &type)
 {
     return out << "(" << type.defaultPropertyId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ExportedTypeName &name)
+{
+    return out << "(\"" << name.name << "\"," << name.moduleId << ", " << name.version << ")";
 }
 } // namespace Storage::Info
 
@@ -772,11 +789,6 @@ std::ostream &operator<<(std::ostream &out, const ImportKind &importKind)
 std::ostream &operator<<(std::ostream &out, const IsAutoVersion &isAutoVersion)
 {
     return out << isAutoVersionToText(isAutoVersion);
-}
-
-std::ostream &operator<<(std::ostream &out, const Import &import)
-{
-    return out << "(" << import.moduleId << ", " << import.version << ", " << import.sourceId << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import)
