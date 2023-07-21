@@ -329,19 +329,20 @@ void TaskWindow::setCategoryVisibility(Id categoryId, bool visible)
     if (!categoryId.isValid())
         return;
 
-    QList<Id> categories = d->m_filter->filteredCategories();
+    QSet<Id> categories = d->m_filter->filteredCategories();
 
     if (visible)
-        categories.removeOne(categoryId);
+        categories.remove(categoryId);
     else
-        categories.append(categoryId);
+        categories.insert(categoryId);
 
     d->m_filter->setFilteredCategories(categories);
 }
 
 void TaskWindow::saveSettings()
 {
-    QStringList categories = Utils::transform(d->m_filter->filteredCategories(), &Id::toString);
+    const QStringList categories = Utils::toList(
+        Utils::transform(d->m_filter->filteredCategories(), &Id::toString));
     SessionManager::setValue(QLatin1String(SESSION_FILTER_CATEGORIES), categories);
     SessionManager::setValue(QLatin1String(SESSION_FILTER_WARNINGS), d->m_filter->filterIncludesWarnings());
 }
@@ -350,7 +351,8 @@ void TaskWindow::loadSettings()
 {
     QVariant value = SessionManager::value(QLatin1String(SESSION_FILTER_CATEGORIES));
     if (value.isValid()) {
-        QList<Id> categories = Utils::transform(value.toStringList(), &Id::fromString);
+        const QSet<Id> categories = Utils::toSet(
+            Utils::transform(value.toStringList(), &Id::fromString));
         d->m_filter->setFilteredCategories(categories);
     }
     value = SessionManager::value(QLatin1String(SESSION_FILTER_WARNINGS));
@@ -371,8 +373,8 @@ void TaskWindow::addCategory(const TaskCategory &category)
 {
     d->m_model->addCategory(category);
     if (!category.visible) {
-        QList<Id> filters = d->m_filter->filteredCategories();
-        filters += category.id;
+        QSet<Id> filters = d->m_filter->filteredCategories();
+        filters.insert(category.id);
         d->m_filter->setFilteredCategories(filters);
     }
 }
@@ -469,7 +471,7 @@ void TaskWindow::updateCategoriesMenu()
 {
     d->m_categoriesMenu->clear();
 
-    const QList<Id> filteredCategories = d->m_filter->filteredCategories();
+    const QSet<Id> filteredCategories = d->m_filter->filteredCategories();
     const QList<TaskCategory> categories = Utils::sorted(d->m_model->categories(),
                                                          &TaskCategory::displayName);
 
