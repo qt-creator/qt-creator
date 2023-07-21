@@ -85,12 +85,12 @@ QString NimToolChain::compilerVersion() const
                                 std::get<2>(m_version));
 }
 
-bool NimToolChain::fromMap(const QVariantMap &data)
+void NimToolChain::fromMap(const QVariantMap &data)
 {
-    if (!ToolChain::fromMap(data))
-        return false;
+    ToolChain::fromMap(data);
+    if (hasError())
+        return;
     parseVersion(compilerCommand(), m_version);
-    return true;
 }
 
 bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> &result)

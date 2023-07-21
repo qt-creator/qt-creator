@@ -57,7 +57,7 @@ public:
     void setHeaderPaths(const QStringList &list);
 
     void toMap(QVariantMap &data) const override;
-    bool fromMap(const QVariantMap &data) override;
+    void fromMap(const QVariantMap &data) override;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 

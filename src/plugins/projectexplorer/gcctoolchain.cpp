@@ -804,10 +804,11 @@ void GccToolChain::toMap(QVariantMap &data) const
     data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
 }
 
-bool GccToolChain::fromMap(const QVariantMap &data)
+void GccToolChain::fromMap(const QVariantMap &data)
 {
-    if (!ToolChain::fromMap(data))
-        return false;
+    ToolChain::fromMap(data);
+    if (hasError())
+        return;
 
     m_platformCodeGenFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
     m_platformLinkerFlags = data.value(compilerPlatformLinkerFlagsKeyC).toStringList();
@@ -820,8 +821,6 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     const QString targetAbiString = data.value(targetAbiKeyC).toString();
     if (targetAbiString.isEmpty())
         resetToolChain(compilerCommand());
-
-    return true;
 }
 
 bool GccToolChain::operator ==(const ToolChain &other) const
@@ -1719,15 +1718,15 @@ void ClangToolChain::toMap(QVariantMap &data) const
     data.insert(priorityKeyC, m_priority);
 }
 
-bool ClangToolChain::fromMap(const QVariantMap &data)
+void ClangToolChain::fromMap(const QVariantMap &data)
 {
-    if (!GccToolChain::fromMap(data))
-        return false;
+    GccToolChain::fromMap(data);
+    if (hasError())
+        return;
 
     m_parentToolChainId = data.value(parentToolChainIdKeyC).toByteArray();
     m_priority = data.value(priorityKeyC, PriorityNormal).toInt();
     syncAutodetectedWithParentToolchains();
-    return true;
 }
 
 LanguageExtensions ClangToolChain::defaultLanguageExtensions() const

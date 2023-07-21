@@ -182,7 +182,10 @@ protected:
     void toolChainUpdated();
 
     // Make sure to call this function when deriving!
-    virtual bool fromMap(const QVariantMap &data);
+    virtual void fromMap(const QVariantMap &data);
+
+    void reportError();
+    bool hasError() const;
 
     enum class PossiblyConcatenatedFlag { No, Yes };
     static Utils::FilePaths includedFiles(const QString &option,

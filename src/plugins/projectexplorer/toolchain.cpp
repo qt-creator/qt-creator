@@ -74,6 +74,7 @@ public:
     ToolChain::MacrosCache m_predefinedMacrosCache;
     ToolChain::HeaderPathsCache m_headerPathsCache;
     std::optional<bool> m_isValid;
+    bool m_hasError = false;
 };
 
 
@@ -353,7 +354,7 @@ void ToolChain::setTypeDisplayName(const QString &typeName)
     Make sure to call this function when deriving.
 */
 
-bool ToolChain::fromMap(const QVariantMap &data)
+void ToolChain::fromMap(const QVariantMap &data)
 {
     AspectContainer::fromMap(data);
 
@@ -362,7 +363,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
     // make sure we have new style ids:
     const QString id = data.value(QLatin1String(ID_KEY)).toString();
     int pos = id.indexOf(QLatin1Char(':'));
-    QTC_ASSERT(pos > 0, return false);
+    QTC_ASSERT(pos > 0, reportError(); return);
     d->m_typeId = Id::fromString(id.left(pos));
     d->m_id = id.mid(pos + 1).toUtf8();
 
@@ -393,8 +394,16 @@ bool ToolChain::fromMap(const QVariantMap &data)
 
     d->m_compilerCommand = FilePath::fromSettings(data.value(d->m_compilerCommandKey));
     d->m_isValid.reset();
+}
 
-    return true;
+void ToolChain::reportError()
+{
+    d->m_hasError = true;
+}
+
+bool ToolChain::hasError() const
+{
+    return d->m_hasError;
 }
 
 const ToolChain::HeaderPathsCache &ToolChain::headerPathsCache() const
@@ -597,7 +606,8 @@ ToolChain *ToolChainFactory::restore(const QVariantMap &data)
     ToolChain *tc = m_toolchainConstructor();
     QTC_ASSERT(tc, return nullptr);
 
-    if (tc->fromMap(data))
+    tc->fromMap(data);
+    if (!tc->hasError())
         return tc;
 
     delete tc;

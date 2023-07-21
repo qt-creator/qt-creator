@@ -229,10 +229,11 @@ void CustomToolChain::toMap(QVariantMap &data) const
     data.insert(QLatin1String(outputParserKeyC), m_outputParserId.toSetting());
 }
 
-bool CustomToolChain::fromMap(const QVariantMap &data)
+void CustomToolChain::fromMap(const QVariantMap &data)
 {
-    if (!ToolChain::fromMap(data))
-        return false;
+    ToolChain::fromMap(data);
+    if (hasError())
+        return;
 
     m_makeCommand = FilePath::fromString(data.value(QLatin1String(makeCommandKeyC)).toString());
     const QStringList macros = data.value(QLatin1String(predefinedMacrosKeyC)).toStringList();
@@ -241,8 +242,6 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
     m_cxx11Flags = data.value(QLatin1String(cxx11FlagsKeyC)).toStringList();
     setMkspecs(data.value(QLatin1String(mkspecsKeyC)).toString());
     setOutputParserId(Utils::Id::fromSetting(data.value(QLatin1String(outputParserKeyC))));
-
-    return true;
 }
 
 bool CustomToolChain::operator ==(const ToolChain &other) const

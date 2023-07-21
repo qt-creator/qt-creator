@@ -101,11 +101,13 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     env.set(QLatin1String("ANDROID_SDK_ROOT"), config.sdkLocation().toUserOutput());
 }
 
-bool AndroidToolChain::fromMap(const QVariantMap &data)
+void AndroidToolChain::fromMap(const QVariantMap &data)
 {
-    if (!ClangToolChain::fromMap(data))
-        return false;
-    return isValid();
+    ClangToolChain::fromMap(data);
+    if (hasError())
+        return;
+    if (!isValid())
+        reportError();
 }
 
 QStringList AndroidToolChain::suggestedMkspecList() const

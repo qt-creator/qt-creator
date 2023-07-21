@@ -989,11 +989,12 @@ void MsvcToolChain::toMap(QVariantMap &data) const
                 Utils::EnvironmentItem::toVariantList(m_environmentModifications));
 }
 
-bool MsvcToolChain::fromMap(const QVariantMap &data)
+void MsvcToolChain::fromMap(const QVariantMap &data)
 {
-    if (!ToolChain::fromMap(data)) {
+    ToolChain::fromMap(data);
+    if (hasError()) {
         g_availableMsvcToolchains.removeOne(this);
-        return false;
+        return;
     }
     m_vcvarsBat = QDir::fromNativeSeparators(data.value(QLatin1String(varsBatKeyC)).toString());
     m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
@@ -1005,11 +1006,10 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
     initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &MsvcToolChain::environmentModifications,
                                       m_vcvarsBat, m_varsBatArg));
 
-    const bool valid = !m_vcvarsBat.isEmpty() && targetAbi().isValid();
-    if (!valid)
+    if (m_vcvarsBat.isEmpty() || !targetAbi().isValid()) {
+        reportError();
         g_availableMsvcToolchains.removeOne(this);
-
-    return valid;
+    }
 }
 
 std::unique_ptr<ToolChainConfigWidget> MsvcToolChain::createConfigurationWidget()
@@ -1733,16 +1733,19 @@ void ClangClToolChain::toMap(QVariantMap &data) const
     data.insert(llvmDirKey(), m_clangPath.toString());
 }
 
-bool ClangClToolChain::fromMap(const QVariantMap &data)
+void ClangClToolChain::fromMap(const QVariantMap &data)
 {
-    if (!MsvcToolChain::fromMap(data))
-        return false;
-    const QString clangPath = data.value(llvmDirKey()).toString();
-    if (clangPath.isEmpty())
-        return false;
-    m_clangPath = FilePath::fromString(clangPath);
+    MsvcToolChain::fromMap(data);
+    if (hasError())
+        return;
 
-    return true;
+    const QString clangPath = data.value(llvmDirKey()).toString();
+    if (clangPath.isEmpty()) {
+        reportError();
+        return;
+    }
+
+    m_clangPath = FilePath::fromString(clangPath);
 }
 
 std::unique_ptr<ToolChainConfigWidget> ClangClToolChain::createConfigurationWidget()
