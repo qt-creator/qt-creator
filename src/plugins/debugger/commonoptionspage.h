@@ -19,7 +19,7 @@ using SourcePathMap = QMap<QString, QString>;
 class SourcePathMapAspect : public Utils::TypedAspect<SourcePathMap>
 {
 public:
-    SourcePathMapAspect();
+    explicit SourcePathMapAspect(Utils::AspectContainer *container);
     ~SourcePathMapAspect() override;
 
     void fromMap(const QVariantMap &map) override;
@@ -43,23 +43,23 @@ public:
     CommonSettings();
     ~CommonSettings();
 
-    Utils::BoolAspect useAlternatingRowColors;
-    Utils::BoolAspect useAnnotationsInMainEditor;
-    Utils::BoolAspect useToolTipsInMainEditor;
-    Utils::BoolAspect closeSourceBuffersOnExit;
-    Utils::BoolAspect closeMemoryBuffersOnExit;
-    Utils::BoolAspect raiseOnInterrupt;
-    Utils::BoolAspect breakpointsFullPathByDefault;
-    Utils::BoolAspect warnOnReleaseBuilds;
-    Utils::IntegerAspect maximalStackDepth;
+    Utils::BoolAspect useAlternatingRowColors{this};
+    Utils::BoolAspect useAnnotationsInMainEditor{this};
+    Utils::BoolAspect useToolTipsInMainEditor{this};
+    Utils::BoolAspect closeSourceBuffersOnExit{this};
+    Utils::BoolAspect closeMemoryBuffersOnExit{this};
+    Utils::BoolAspect raiseOnInterrupt{this};
+    Utils::BoolAspect breakpointsFullPathByDefault{this};
+    Utils::BoolAspect warnOnReleaseBuilds{this};
+    Utils::IntegerAspect maximalStackDepth{this};
 
-    Utils::BoolAspect fontSizeFollowsEditor;
-    Utils::BoolAspect switchModeOnExit;
-    Utils::BoolAspect showQmlObjectTree;
-    Utils::BoolAspect stationaryEditorWhileStepping;
-    Utils::BoolAspect forceLoggingToConsole;
+    Utils::BoolAspect fontSizeFollowsEditor{this};
+    Utils::BoolAspect switchModeOnExit{this};
+    Utils::BoolAspect showQmlObjectTree{this};
+    Utils::BoolAspect stationaryEditorWhileStepping{this};
+    Utils::BoolAspect forceLoggingToConsole{this};
 
-    SourcePathMapAspect sourcePathMap;
+    SourcePathMapAspect sourcePathMap{this};
 
     Utils::BoolAspect *registerForPostMortem = nullptr;
 };

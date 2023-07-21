@@ -442,8 +442,8 @@ public:
 };
 
 
-SourcePathMapAspect::SourcePathMapAspect()
-    : d(new SourcePathMapAspectPrivate)
+SourcePathMapAspect::SourcePathMapAspect(AspectContainer *container)
+    : TypedAspect(container), d(new SourcePathMapAspectPrivate)
 {
 }
 
