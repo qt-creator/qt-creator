@@ -1205,42 +1205,28 @@ void StringAspect::addToLayout(LayoutItem &parent)
 
 bool StringAspect::guiToBuffer()
 {
-    const QString old = m_buffer;
-    switch (d->m_displayStyle) {
-    case PathChooserDisplay:
-        if (d->m_pathChooserDisplay)
-            m_buffer = d->m_pathChooserDisplay->lineEdit()->text();
-        break;
-    case LineEditDisplay:
-        if (d->m_lineEditDisplay)
-            m_buffer = d->m_lineEditDisplay->text();
-        break;
-    case TextEditDisplay:
-        if (d->m_textEditDisplay)
-            m_buffer = d->m_textEditDisplay->document()->toPlainText();
-    case LabelDisplay:
-        break;
-    }
-    return m_buffer != old;
+    if (d->m_pathChooserDisplay)
+        return updateStorage(m_buffer, d->m_pathChooserDisplay->lineEdit()->text());
+    if (d->m_lineEditDisplay)
+        return updateStorage(m_buffer, d->m_lineEditDisplay->text());
+    if (d->m_textEditDisplay)
+        return updateStorage(m_buffer, d->m_textEditDisplay->document()->toPlainText());
+    return false;
 }
 
 bool StringAspect::bufferToInternal()
 {
-    const QString old = m_internal;
     if (d->m_valueAcceptor) {
         if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
-            m_internal = *tmp;
-    } else {
-        m_internal = m_buffer;
+           return updateStorage(m_internal, *tmp);
     }
-    return m_internal != old;
+    return updateStorage(m_internal, m_buffer);
 }
 
 bool StringAspect::internalToBuffer()
 {
-    const QString old = m_buffer;
-    m_buffer = d->m_displayFilter ? d->m_displayFilter(m_internal) : m_internal;
-    return m_buffer != old;
+    const QString val = d->m_displayFilter ? d->m_displayFilter(m_internal) : m_internal;
+    return updateStorage(m_buffer, val);
 }
 
 void StringAspect::bufferToGui()
@@ -1398,10 +1384,9 @@ void ColorAspect::addToLayout(Layouting::LayoutItem &parent)
 
 bool ColorAspect::guiToBuffer()
 {
-    const QColor old = m_buffer;
     if (d->m_colorButton)
-        m_buffer = d->m_colorButton->color();
-    return m_buffer != old;
+        return updateStorage(m_buffer, d->m_colorButton->color());
+    return false;
 }
 
 void ColorAspect::bufferToGui()
@@ -1630,19 +1615,12 @@ bool SelectionAspect::guiToBuffer()
 
 void SelectionAspect::bufferToGui()
 {
-    switch (d->m_displayStyle) {
-    case DisplayStyle::RadioButtons: {
-        if (d->m_buttonGroup) {
-            QAbstractButton *button = d->m_buttonGroup->button(m_buffer);
-            QTC_ASSERT(button, return);
-            button->setChecked(true);
-        }
-        break;
-    }
-    case DisplayStyle::ComboBox:
-        if (d->m_comboBox)
-            d->m_comboBox->setCurrentIndex(m_buffer);
-        break;
+    if (d->m_buttonGroup) {
+        QAbstractButton *button = d->m_buttonGroup->button(m_buffer);
+        QTC_ASSERT(button, return);
+        button->setChecked(true);
+    } else if (d->m_comboBox) {
+        d->m_comboBox->setCurrentIndex(m_buffer);
     }
 }
 
@@ -1819,18 +1797,18 @@ void MultiSelectionAspect::bufferToGui()
 
 bool MultiSelectionAspect::guiToBuffer()
 {
-    const QStringList old = m_buffer;
     if (d->m_listView) {
-        m_buffer.clear();
+        QStringList val;
         const int n = d->m_listView->count();
         QTC_CHECK(n == d->m_allValues.size());
         for (int i = 0; i != n; ++i) {
             auto item = d->m_listView->item(i);
             if (item->checkState() == Qt::Checked)
-                m_buffer.append(item->text());
+                val.append(item->text());
         }
+        return updateStorage(m_buffer, val);
     }
-    return m_buffer != old;
+    return false;
 }
 
 
@@ -1884,10 +1862,9 @@ void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
 
 bool IntegerAspect::guiToBuffer()
 {
-    const qint64 old = m_buffer;
     if (d->m_spinBox)
-        m_buffer = d->m_spinBox->value() * d->m_displayScaleFactor;
-    return m_buffer != old;
+        return updateStorage(m_buffer, d->m_spinBox->value() * d->m_displayScaleFactor);
+    return false;
 }
 
 void IntegerAspect::bufferToGui()
@@ -1985,10 +1962,9 @@ void DoubleAspect::addToLayout(LayoutItem &builder)
 
 bool DoubleAspect::guiToBuffer()
 {
-    const double old = m_buffer;
     if (d->m_spinBox)
-        m_buffer = d->m_spinBox->value();
-    return m_buffer != old;
+        return updateStorage(m_buffer, d->m_spinBox->value());
+    return false;
 }
 
 void DoubleAspect::bufferToGui()

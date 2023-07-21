@@ -214,6 +214,16 @@ protected:
     static void saveToMap(QVariantMap &data, const QVariant &value,
                           const QVariant &defaultValue, const QString &key);
 
+protected:
+    template <class Value>
+    bool updateStorage(Value &target, const Value &val)
+    {
+        if (target == val)
+            return false;
+        target = val;
+        return true;
+    }
+
 private:
     std::unique_ptr<Internal::BaseAspectPrivate> d;
 };
@@ -288,34 +298,22 @@ protected:
 
     bool internalToBuffer() override
     {
-        if (m_buffer == m_internal)
-            return false;
-        m_buffer = m_internal;
-        return true;
+        return updateStorage(m_buffer, m_internal);
     }
 
     bool bufferToInternal() override
     {
-        if (m_buffer == m_internal)
-            return false;
-        m_internal = m_buffer;
-        return true;
+        return updateStorage(m_internal, m_buffer);
     }
 
     bool internalToExternal() override
     {
-        if (m_external == m_internal)
-            return false;
-        m_external = m_internal;
-        return true;
+        return updateStorage(m_external, m_internal);
     }
 
     bool externalToInternal() override
     {
-        if (m_external == m_internal)
-            return false;
-        m_internal = m_external;
-        return true;
+        return updateStorage(m_internal, m_external);
     }
 
     QVariant variantValue() const override
