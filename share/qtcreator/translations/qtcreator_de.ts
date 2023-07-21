@@ -12469,23 +12469,23 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Choose Keil Toolset Configuration File</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die Konfigurationsdatei für das Keil-Toolset</translation>
     </message>
     <message>
         <source>Tools file path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur Konfiguration:</translation>
     </message>
     <message>
         <source>Target device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zielgerät:</translation>
     </message>
     <message>
         <source>Target driver:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zieltreiber:</translation>
     </message>
     <message>
         <source>Starting %1 ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte %1 ...</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -12561,11 +12561,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Generic</source>
-        <translation type="unfinished"></translation>
+        <translation>Generisch</translation>
     </message>
     <message>
         <source>Use GDB target extended-remote</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB &quot;target extended-remote&quot; benutzen</translation>
     </message>
     <message>
         <source>Extended mode:</source>
@@ -12581,7 +12581,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Connects to the board before executing any instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindet zum Board, bevor Anweisungen ausgeführt werden.</translation>
     </message>
     <message>
         <source>Transport layer type.</source>
@@ -12601,7 +12601,8 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Keep unspecified</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>dropdown for &quot;transport layer version&quot; with values &quot;V1&quot;, &quot;V2&quot;, &quot;Keep unspecified&quot;, for the latter no argument is passed to the corresponding command line</translatorcomment>
+        <translation>Nicht festlegen</translation>
     </message>
     <message>
         <source>Manage...</source>
@@ -12621,17 +12622,19 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>UVSC</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC</translation>
     </message>
     <message>
         <source>GDB compatible provider engine
 (used together with the GDB debuggers).</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB-kompatible Provider-Engine
+(wird zusammen mit GDB-Debuggern benutzt).</translation>
     </message>
     <message>
         <source>UVSC compatible provider engine
 (used together with the KEIL uVision).</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC-kompatible Provider-Engine
+(wird zusammen mit KEIL uVision benutzt).</translation>
     </message>
     <message>
         <source>Name</source>
@@ -12643,7 +12646,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Engine</source>
-        <translation type="unfinished"></translation>
+        <translation>Engine</translation>
     </message>
     <message>
         <source>Duplicate Providers Detected</source>
@@ -12695,19 +12698,19 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Specify the verbosity level (0 to 7).</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Detailgrad an (0 bis 7).</translation>
     </message>
     <message>
         <source>Connect under reset (hotplug).</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbinden unter Reset (hotplug).</translation>
     </message>
     <message>
         <source>Connect under reset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbinden unter Reset:</translation>
     </message>
     <message>
         <source>Interface type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interface-Typ.</translation>
     </message>
     <message>
         <source>Type:</source>
@@ -12715,7 +12718,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Specify the speed of the interface (120 to 8000) in kilohertz (kHz).</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die Geschwindigkeit des Interface in Kilohertz (kHz) an (120 bis 8000).</translation>
     </message>
     <message>
         <source>Speed:</source>
@@ -12723,19 +12726,19 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Do not use EBlink flash cache.</source>
-        <translation type="unfinished"></translation>
+        <translation>EBlink-Flash-Cache nicht benutzen.</translation>
     </message>
     <message>
         <source>Disable cache:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cache deaktivieren:</translation>
     </message>
     <message>
         <source>Shut down EBlink server after disconnect.</source>
-        <translation type="unfinished"></translation>
+        <translation>EBlink-Server nach Trennung der Verbindung abschalten.</translation>
     </message>
     <message>
         <source>Auto shutdown:</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch abschalten:</translation>
     </message>
     <message>
         <source>SWD</source>
@@ -12755,11 +12758,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Host interface:</source>
-        <translation type="unfinished"></translation>
+        <translation>Host-Interface:</translation>
     </message>
     <message>
         <source>Target interface:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ziel-Interface:</translation>
     </message>
     <message>
         <source>Default</source>
@@ -12767,35 +12770,35 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>USB</source>
-        <translation type="unfinished"></translation>
+        <translation>USB</translation>
     </message>
     <message>
         <source>TCP/IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP/IP</translation>
     </message>
     <message>
         <source>Compact JTAG</source>
-        <translation type="unfinished"></translation>
+        <translation>Compact JTAG</translation>
     </message>
     <message>
         <source>Renesas RX FINE</source>
-        <translation type="unfinished"></translation>
+        <translation>Renesas RX FINE</translation>
     </message>
     <message>
         <source>ICSP</source>
-        <translation type="unfinished"></translation>
+        <translation>ICSP</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch</translation>
     </message>
     <message>
         <source>Adaptive</source>
-        <translation type="unfinished"></translation>
+        <translation>Adaptiv</translation>
     </message>
     <message>
         <source>%1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kHz</translation>
     </message>
     <message>
         <source>IP Address</source>
@@ -12815,11 +12818,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Limit speed to real-time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geschwindigkeit auf Echtzeit reduzieren.</translation>
     </message>
     <message>
         <source>Limit speed to real-time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geschwindigkeit auf Echtzeit reduzieren:</translation>
     </message>
     <message>
         <source>uVision St-Link</source>
@@ -12923,39 +12926,39 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>FLASH Start</source>
-        <translation type="unfinished"></translation>
+        <translation>FLASH Start</translation>
     </message>
     <message>
         <source>FLASH Size</source>
-        <translation type="unfinished"></translation>
+        <translation>FLASH Größe</translation>
     </message>
     <message>
         <source>RAM Start</source>
-        <translation type="unfinished"></translation>
+        <translation>RAM Start</translation>
     </message>
     <message>
         <source>RAM Size</source>
-        <translation type="unfinished"></translation>
+        <translation>RAM Größe</translation>
     </message>
     <message>
         <source>Algorithm path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Algorithmus-Pfad.</translation>
     </message>
     <message>
         <source>FLASH:</source>
-        <translation type="unfinished"></translation>
+        <translation>FLASH:</translation>
     </message>
     <message>
         <source>Start address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Startadresse.</translation>
     </message>
     <message>
         <source>Size.</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe.</translation>
     </message>
     <message>
         <source>RAM:</source>
-        <translation type="unfinished"></translation>
+        <translation>RAM:</translation>
     </message>
     <message>
         <source>Vendor:</source>
@@ -12975,15 +12978,15 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Flash algorithm:</source>
-        <translation type="unfinished"></translation>
+        <translation>Flash-Algorithmus:</translation>
     </message>
     <message>
         <source>Target device not selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zielgerät ist nicht ausgewählt.</translation>
     </message>
     <message>
         <source>Available Target Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Verfügbare Zielgeräte</translation>
     </message>
     <message>
         <source>Select Peripheral Description File</source>
@@ -12995,11 +12998,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>IAREW %1 (%2, %3)</source>
-        <translation type="unfinished"></translation>
+        <translation>IAREW %1 (%2, %3)</translation>
     </message>
     <message>
         <source>IAREW</source>
-        <translation type="unfinished"></translation>
+        <translation>IAREW</translation>
     </message>
     <message>
         <source>&amp;Compiler path:</source>
@@ -13027,11 +13030,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>uVision JLink</source>
-        <translation type="unfinished"></translation>
+        <translation>uVision JLink</translation>
     </message>
     <message>
         <source>Adapter options:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adapter-Optionen:</translation>
     </message>
     <message>
         <source>50MHz</source>
@@ -13087,31 +13090,31 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Deploy to BareMetal Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment auf Bare-Metal-Gerät</translation>
     </message>
     <message>
         <source>Debugger CPU library (depends on a CPU core).</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger-CPU-Bibliothek (benötigt einen CPU-Kern).</translation>
     </message>
     <message>
         <source>Debugger driver library.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger-Treiberbibliothek.</translation>
     </message>
     <message>
         <source>Driver library:</source>
-        <translation type="unfinished"></translation>
+        <translation>Treiberbibliothek:</translation>
     </message>
     <message>
         <source>CPU library:</source>
-        <translation type="unfinished"></translation>
+        <translation>CPU-Bibliothek:</translation>
     </message>
     <message>
         <source>Target driver not selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zieltreiber ist nicht ausgewählt.</translation>
     </message>
     <message>
         <source>Available Target Drivers</source>
-        <translation type="unfinished"></translation>
+        <translation>Verfügbare Zieltreiber</translation>
     </message>
 </context>
 <context>
