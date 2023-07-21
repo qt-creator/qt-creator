@@ -195,8 +195,8 @@ public:
         : DebuggerRunTool(runControl)
     {
         setId("QnxAttachDebugSupport");
-
         setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
+        setUseCtrlCStub(true);
 
         if (isCppDebugging()) {
             auto pdebugRunner = new PDebugRunner(runControl, portsGatherer());
@@ -239,7 +239,6 @@ void showAttachToProcessDialog()
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(DetachAtClose);
     debugger->setSymbolFile(localExecutable);
-    debugger->setUseCtrlCStub(true);
     debugger->setAttachPid(pid);
 //    setRunControlName(Tr::tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
     debugger->setRunControlName(Tr::tr("Remote QNX process %1").arg(pid));

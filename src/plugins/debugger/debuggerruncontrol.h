@@ -32,19 +32,10 @@ public:
 
     void startRunControl();
 
-    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
-
     void start() override;
     void stop() override;
 
-    bool isCppDebugging() const;
-    bool isQmlDebugging() const;
-
-    void setUsePortsGatherer(bool useCpp, bool useQml);
-    DebugServerPortsGatherer *portsGatherer() const;
-
     void setSolibSearchPath(const Utils::FilePaths &list);
-    void addSolibSearchDir(const QString &str);
 
     static void setBreakOnMainNextTime();
 
@@ -53,12 +44,9 @@ public:
     void setInferiorEnvironment(const Utils::Environment &env); // Used by GammaRay plugin
     void setRunControlName(const QString &name);
     void setStartMessage(const QString &msg);
-    void addQmlServerInferiorCommandLineArgumentIfNeeded();
-    void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
     void setCrashParameter(const QString &event);
 
     void addExpectedSignal(const QString &signal);
-    void addSearchDirectory(const Utils::FilePath &dir);
 
     void setStartMode(DebuggerStartMode startMode);
     void setCloseMode(DebuggerCloseMode closeMode);
@@ -68,18 +56,13 @@ public:
 
     void setSysRoot(const Utils::FilePath &sysRoot);
     void setSymbolFile(const Utils::FilePath &symbolFile);
-    void setLldbPlatform(const QString &platform);
     void setRemoteChannel(const QString &channel);
     void setRemoteChannel(const QString &host, int port);
-    void setRemoteChannel(const QUrl &url);
     QString remoteChannel() const;
 
     void setUseExtendedRemote(bool on);
     void setUseContinueInsteadOfRun(bool on);
-    void setUseTargetAsync(bool on);
     void setContinueAfterAttach(bool on);
-    void setSkipExecutableValidation(bool on);
-    void setUseCtrlCStub(bool on);
     void setBreakOnMain(bool on);
     void setUseTerminal(bool on);
 
@@ -93,20 +76,40 @@ public:
 
     void setCoreFilePath(const Utils::FilePath &core, bool isSnapshot = false);
 
-    void setIosPlatform(const QString &platform);
-    void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
-
     void setTestCase(int testCase);
     void setOverrideStartScript(const Utils::FilePath &script);
 
-    void setAbi(const ProjectExplorer::Abi &abi);
-
     Internal::TerminalRunner *terminalRunner() const;
-    DebuggerEngineType cppEngineType() const;
 
     Internal::DebuggerRunParameters &runParameters() { return m_runParameters; }
 
+protected:
+    bool isCppDebugging() const;
+    bool isQmlDebugging() const;
+
+    void setUsePortsGatherer(bool useCpp, bool useQml);
+    DebugServerPortsGatherer *portsGatherer() const;
+
+    void addSolibSearchDir(const QString &str);
+    void addQmlServerInferiorCommandLineArgumentIfNeeded();
+    void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
+    void addSearchDirectory(const Utils::FilePath &dir);
+
+    void setLldbPlatform(const QString &platform);
+    void setRemoteChannel(const QUrl &url);
+    void setUseTargetAsync(bool on);
+    void setSkipExecutableValidation(bool on);
+    void setUseCtrlCStub(bool on);
+
+    void setIosPlatform(const QString &platform);
+    void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
+    void setAbi(const ProjectExplorer::Abi &abi);
+
+    DebuggerEngineType cppEngineType() const;
+
 private:
+    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
+
     bool fixupParameters();
     void handleEngineStarted(Internal::DebuggerEngine *engine);
     void handleEngineFinished(Internal::DebuggerEngine *engine);
