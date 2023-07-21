@@ -117,8 +117,12 @@ public:
     bool filterIncludesErrors() const { return m_includeErrors; }
     void setFilterIncludesErrors(bool b) { m_includeErrors = b; invalidateFilter(); }
 
-    QList<Utils::Id> filteredCategories() const { return m_categoryIds; }
-    void setFilteredCategories(const QList<Utils::Id> &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
+    QSet<Utils::Id> filteredCategories() const { return m_categoryIds; }
+    void setFilteredCategories(const QSet<Utils::Id> &categoryIds)
+    {
+        m_categoryIds = categoryIds;
+        invalidateFilter();
+    }
 
     Task task(const QModelIndex &index) const { return taskModel()->task(mapToSource(index)); }
     Tasks tasks(const QModelIndexList &indexes) const;
@@ -144,7 +148,7 @@ private:
     bool m_filterStringIsRegexp = false;
     bool m_filterIsInverted = false;
     Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
-    QList<Utils::Id> m_categoryIds;
+    QSet<Utils::Id> m_categoryIds;
     QString m_filterText;
     QRegularExpression m_filterRegexp;
 };
