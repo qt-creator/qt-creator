@@ -174,7 +174,7 @@ void FloatingWidgetTitleBar::mouseMoveEvent(QMouseEvent *event)
     // Move floating window
     if (DraggingFloatingWidget == d->m_dragState) {
         if (d->m_floatingWidget->isMaximized())
-            d->m_floatingWidget->showNormal(true);
+            d->m_floatingWidget->showNormal();
 
         d->m_floatingWidget->moveFloating();
         Super::mouseMoveEvent(event);
