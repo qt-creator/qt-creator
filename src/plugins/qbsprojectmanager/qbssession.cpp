@@ -372,6 +372,7 @@ void QbsSession::insertRequestedModuleProperties(QJsonObject &request)
         "cpp.useObjcPrecompiledHeader",
         "cpp.useObjcxxPrecompiledHeader",
         "cpp.warningLevel",
+        "java.additionalClassPaths",
         "qbs.architecture",
         "qbs.architectures",
         "qbs.sysroot",

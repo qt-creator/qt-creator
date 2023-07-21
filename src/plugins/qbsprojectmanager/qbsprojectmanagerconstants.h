@@ -68,6 +68,7 @@ const char CPP_PLATFORMLINKERFLAGS[] = "cpp.platformLinkerFlags";
 const char CPP_VCVARSALLPATH[] = "cpp.vcvarsallPath";
 const char XCODE_DEVELOPERPATH[] = "xcode.developerPath";
 const char XCODE_SDK[] = "xcode.sdk";
+const char JAVA_ADDITIONAL_CLASSPATHS[] = "java.additionalClassPaths";
 
 // Settings page
 const char QBS_SETTINGS_CATEGORY[]  = "K.Qbs";

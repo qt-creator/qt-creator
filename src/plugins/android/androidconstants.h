@@ -56,6 +56,7 @@ const char AndroidMkSpecAbis[] = "AndroidMkSpecAbis"; // QStringList
 const char AndroidSoLibPath[] = "AndroidSoLibPath"; // QStringList
 const char AndroidTargets[] = "AndroidTargets"; // QStringList
 const char AndroidApplicationArgs[] = "AndroidApplicationArgs"; // QString
+const char AndroidClassPaths[] = "AndroidClassPath"; // QStringList
 
 // For qbs support
 const char AndroidApk[] = "Android.APK"; // QStringList
