@@ -176,8 +176,8 @@ public:
 
     Data::Ptr extractData() const;
 
-    static void setSettings(QSettings *settings);
-    static QSettings *settings();
+    static void setQtcSettings(QSettings *settings);
+    static QSettings *qtcSettings();
 
     // This is expensive. Do not use without good reason
     void writeToSettingsImmediatly() const;
@@ -809,7 +809,7 @@ private:
     const int m_groupCount;
 };
 
-class QTCREATOR_UTILS_EXPORT AspectContainer : public QObject
+class QTCREATOR_UTILS_EXPORT AspectContainer : public BaseAspect
 {
     Q_OBJECT
 
@@ -823,25 +823,25 @@ public:
     void registerAspect(BaseAspect *aspect, bool takeOwnership = false);
     void registerAspects(const AspectContainer &aspects);
 
-    void fromMap(const QVariantMap &map);
-    void toMap(QVariantMap &map) const;
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
 
-    void readSettings();
-    void writeSettings() const;
+    void readSettings() override;
+    void writeSettings() const override;
 
     void setSettingsGroup(const QString &groupKey);
     void setSettingsGroups(const QString &groupKey, const QString &subGroupKey);
     QStringList settingsGroups() const;
 
-    void apply();
-    void cancel();
-    void finish();
+    void apply() override;
+    void cancel() override;
+    void finish() override;
 
     void reset();
     bool equals(const AspectContainer &other) const;
     void copyFrom(const AspectContainer &other);
     void setAutoApply(bool on);
-    bool isDirty() const;
+    bool isDirty() override;
 
     template <typename T> T *aspect() const
     {

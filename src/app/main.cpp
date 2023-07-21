@@ -655,7 +655,7 @@ int main(int argc, char **argv)
     PluginManager::setInstallSettings(installSettings);
     PluginManager::setSettings(settings);
 
-    Utils::BaseAspect::setSettings(settings);
+    Utils::BaseAspect::setQtcSettings(settings);
 
     using namespace Core;
     Utils::AppInfo info;

@@ -176,7 +176,7 @@ void ClangToolsSettings::readSettings()
         writeSettings();
 }
 
-void ClangToolsSettings::writeSettings()
+void ClangToolsSettings::writeSettings() const
 {
     AspectContainer::writeSettings();
 
@@ -192,7 +192,7 @@ void ClangToolsSettings::writeSettings()
 
     s->endGroup();
 
-    emit changed();
+    emit const_cast<ClangToolsSettings *>(this)->changed(); // FIXME: This is the wrong place
 }
 
 FilePath ClangToolsSettings::executable(ClangToolType tool) const

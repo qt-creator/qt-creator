@@ -58,12 +58,11 @@ private:
 
 class ClangToolsSettings : public Utils::AspectContainer
 {
-    Q_OBJECT
-
     ClangToolsSettings();
+
 public:
     static ClangToolsSettings *instance();
-    void writeSettings();
+    void writeSettings() const override;
 
     // Executables
     Utils::FilePathAspect clangTidyExecutable{this};
@@ -82,11 +81,8 @@ public:
     static VersionAndSuffix clangTidyVersion();
     static QVersionNumber clazyVersion();
 
-signals:
-    void changed();
-
 private:
-    void readSettings();
+    void readSettings() override;
 
     // Diagnostic Configs
     CppEditor::ClangDiagnosticConfigs m_diagnosticConfigs;

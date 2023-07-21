@@ -47,9 +47,9 @@ public:
     bool hasError() const { return m_hasError; }
 
     // Note: Make sure subclasses call the superclasses' fromMap() function!
-    virtual void fromMap(const QVariantMap &map);
+    virtual void fromMap(const QVariantMap &map) override;
     // Note: Make sure subclasses call the superclasses' toMap() function!
-    virtual void toMap(QVariantMap &map) const;
+    virtual void toMap(QVariantMap &map) const override;
 
     Target *target() const;
     Project *project() const;

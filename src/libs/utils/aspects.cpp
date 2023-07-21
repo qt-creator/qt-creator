@@ -37,12 +37,12 @@ namespace Utils {
 
 static QSettings *theSettings = nullptr;
 
-void BaseAspect::setSettings(QSettings *settings)
+void BaseAspect::setQtcSettings(QSettings *settings)
 {
     theSettings = settings;
 }
 
-QSettings *BaseAspect::settings()
+QSettings *BaseAspect::qtcSettings()
 {
     return theSettings;
 }
@@ -591,7 +591,8 @@ void BaseAspect::readSettings()
 {
     if (settingsKey().isEmpty())
         return;
-    const QVariant val = settings()->value(settingsKey());
+    QTC_ASSERT(theSettings, return);
+    const QVariant val = theSettings->value(settingsKey());
     setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue(), BeQuiet);
 }
 
@@ -599,7 +600,8 @@ void BaseAspect::writeSettings() const
 {
     if (settingsKey().isEmpty())
         return;
-    QtcSettings::setValueWithDefault(settings(),
+    QTC_ASSERT(theSettings, return);
+    QtcSettings::setValueWithDefault(theSettings,
                                      settingsKey(),
                                      toSettingsValue(variantValue()),
                                      toSettingsValue(defaultVariantValue()));
@@ -2562,7 +2564,7 @@ void AspectContainer::setAutoApply(bool on)
         aspect->setAutoApply(on);
 }
 
-bool AspectContainer::isDirty() const
+bool AspectContainer::isDirty()
 {
     for (BaseAspect *aspect : std::as_const(d->m_items)) {
         if (aspect->isDirty())

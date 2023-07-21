@@ -109,7 +109,7 @@ void TestSettings::toSettings() const
 {
     AspectContainer::writeSettings();
 
-    QSettings *s = Utils::BaseAspect::settings();
+    QSettings *s = Utils::BaseAspect::qtcSettings();
     s->beginGroup(Constants::SETTINGSGROUP);
 
     // store frameworks and their current active and grouping state
@@ -128,7 +128,7 @@ void TestSettings::fromSettings()
 {
     AspectContainer::readSettings();
 
-    QSettings *s = Utils::BaseAspect::settings();
+    QSettings *s = Utils::BaseAspect::qtcSettings();
     s->beginGroup(Constants::SETTINGSGROUP);
 
     // try to get settings for registered frameworks
