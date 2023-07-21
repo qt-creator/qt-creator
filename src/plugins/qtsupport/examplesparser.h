@@ -31,13 +31,20 @@ public:
     QHash<QString, QStringList> metaData;
 };
 
-QTSUPPORT_TEST_EXPORT Utils::expected_str<QList<ExampleItem *>> parseExamples(
+class QTSUPPORT_TEST_EXPORT ParsedExamples
+{
+public:
+    QList<ExampleItem *> items;
+    QStringList categoryOrder;
+};
+
+QTSUPPORT_TEST_EXPORT Utils::expected_str<ParsedExamples> parseExamples(
     const Utils::FilePath &manifest,
     const Utils::FilePath &examplesInstallPath,
     const Utils::FilePath &demosInstallPath,
     bool examples);
 
-QTSUPPORT_TEST_EXPORT Utils::expected_str<QList<ExampleItem *>> parseExamples(
+QTSUPPORT_TEST_EXPORT Utils::expected_str<ParsedExamples> parseExamples(
     const QByteArray &manifestData,
     const Utils::FilePath &manifestPath,
     const Utils::FilePath &examplesInstallPath,

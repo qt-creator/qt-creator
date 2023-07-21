@@ -355,13 +355,14 @@ void ExamplesViewController::updateExamples()
                                                                   &qtVersion);
     m_view->clear();
 
+    QStringList categoryOrder;
     QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
         const auto manifest = FilePath::fromUserInput(exampleSource);
         qCDebug(log) << QString::fromLatin1("Reading file \"%1\"...")
                             .arg(manifest.absoluteFilePath().toUserOutput());
 
-        const expected_str<QList<ExampleItem *>> result
+        const expected_str<ParsedExamples> result
             = parseExamples(manifest,
                             FilePath::fromUserInput(examplesInstallPath),
                             FilePath::fromUserInput(demosInstallPath),
@@ -371,7 +372,9 @@ void ExamplesViewController::updateExamples()
                          << result.error();
             continue;
         }
-        items += filtered(*result, isValidExampleOrDemo);
+        items += filtered(result->items, isValidExampleOrDemo);
+        if (categoryOrder.isEmpty())
+            categoryOrder = result->categoryOrder;
     }
 
     if (m_isExamples) {
@@ -386,7 +389,8 @@ void ExamplesViewController::updateExamples()
     }
 
     const bool sortIntoCategories = !m_isExamples || qtVersion >= *minQtVersionForCategories;
-    const QStringList order = m_isExamples ? *defaultOrder : QStringList();
+    const QStringList order = categoryOrder.isEmpty() && m_isExamples ? *defaultOrder
+                                                                      : categoryOrder;
     const QList<std::pair<Section, QList<ExampleItem *>>> sections
         = getCategories(items, sortIntoCategories, order, m_isExamples);
     for (int i = 0; i < sections.size(); ++i) {

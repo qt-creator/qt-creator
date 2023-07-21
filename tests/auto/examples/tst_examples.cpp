@@ -90,9 +90,11 @@ void tst_Examples::parsing_data()
     QTest::addColumn<QStringList>("platforms");
     QTest::addColumn<MetaData>("metaData");
     QTest::addColumn<QStringList>("categories");
+    QTest::addColumn<QStringList>("categoryOrder");
 
     QTest::addRow("example")
         << QByteArray(R"raw(
+  <instructionals module="Qt">
     <examples>
         <example docUrl="qthelp://org.qt-project.qtwidgets.660/qtwidgets/qtwidgets-widgets-analogclock-example.html"
                  imageUrl="qthelp://org.qt-project.qtwidgets.660/qtwidgets/images/analogclock-example.png"
@@ -110,6 +112,13 @@ void tst_Examples::parsing_data()
             </meta>
         </example>
     </examples>
+    <categories>
+        <category>Application Examples</category>
+        <category>Desktop</category>
+        <category>Mobile</category>
+        <category>Embedded</category>
+    </categories>
+  </instructionals>
  )raw") << /*isExamples=*/true
         << "Analog Clock"
         << "The Analog Clock example shows how to draw the contents of a custom widget."
@@ -126,23 +135,33 @@ void tst_Examples::parsing_data()
         << FilePaths() << Example << true << false << false << ""
         << "" << QStringList()
         << MetaData({{"category", {"Graphics", "Graphics", "Foobar"}}, {"tags", {"widgets"}}})
-        << QStringList{"Foobar", "Graphics"};
+        << QStringList{"Foobar", "Graphics"}
+        << QStringList{"Application Examples", "Desktop", "Mobile", "Embedded"};
 
     QTest::addRow("no category, highlighted")
         << QByteArray(R"raw(
+  <instructionals module="Qt">
     <examples>
         <example name="No Category, highlighted"
                  isHighlighted="true">
         </example>
     </examples>
+  </instructionals>
  )raw") << /*isExamples=*/true
         << "No Category, highlighted" << QString() << QString() << QStringList()
         << FilePath("examples") << QString() << FilePaths() << FilePath() << FilePaths() << Example
         << /*hasSourceCode=*/false << false << /*isHighlighted=*/true << ""
-        << "" << QStringList() << MetaData() << QStringList{"Featured"};
+        << "" << QStringList() << MetaData() << QStringList{"Featured"} << QStringList();
 
     QTest::addRow("tutorial with category")
         << QByteArray(R"raw(
+  <instructionals module="Qt">
+    <categories>
+      <category>Help</category>
+      <category>Learning</category>
+      <category>Online</category>
+      <category>Talk</category>
+    </categories>
     <tutorials>
       <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/dummytutorial.html" projectPath="" name="A tutorial">
         <description><![CDATA[A dummy tutorial.]]></description>
@@ -152,6 +171,7 @@ void tst_Examples::parsing_data()
         </meta>
       </tutorial>
     </tutorials>
+  </instructionals>
 )raw") << /*isExamples=*/false
         << "A tutorial"
         << "A dummy tutorial."
@@ -160,7 +180,8 @@ void tst_Examples::parsing_data()
         << "qthelp://org.qt-project.qtcreator/doc/dummytutorial.html" << FilePaths() << FilePath()
         << FilePaths() << Tutorial << /*hasSourceCode=*/false << /*isVideo=*/false
         << /*isHighlighted=*/false << QString() << QString() << QStringList()
-        << MetaData({{"category", {"Help"}}}) << QStringList("Help");
+        << MetaData({{"category", {"Help"}}}) << QStringList("Help")
+        << QStringList{"Help", "Learning", "Online", "Talk"};
 }
 
 void tst_Examples::parsing()
@@ -168,16 +189,18 @@ void tst_Examples::parsing()
     QFETCH(QByteArray, data);
     QFETCH(bool, isExamples);
     QFETCH(QStringList, categories);
+    QFETCH(QStringList, categoryOrder);
     const ExampleItem expected = fetchItem();
-    const expected_str<QList<ExampleItem *>> result
-        = parseExamples(data,
-                        FilePath("manifest/examples-manifest.xml"),
-                        FilePath("examples"),
-                        FilePath("demos"),
-                        isExamples);
+    const expected_str<ParsedExamples> result = parseExamples(data,
+                                                              FilePath(
+                                                                  "manifest/examples-manifest.xml"),
+                                                              FilePath("examples"),
+                                                              FilePath("demos"),
+                                                              isExamples);
     QVERIFY(result);
-    QCOMPARE(result->size(), 1);
-    const ExampleItem item = *result->at(0);
+    QCOMPARE(result->categoryOrder, categoryOrder);
+    QCOMPARE(result->items.size(), 1);
+    const ExampleItem item = *result->items.at(0);
     QCOMPARE(item.name, expected.name);
     QCOMPARE(item.description, expected.description);
     QCOMPARE(item.imageUrl, expected.imageUrl);
@@ -197,7 +220,7 @@ void tst_Examples::parsing()
     QCOMPARE(item.metaData, expected.metaData);
 
     const QList<std::pair<Section, QList<ExampleItem *>>> resultCategories
-        = getCategories(*result, true, {}, true);
+        = getCategories(result->items, true, {}, true);
     QCOMPARE(resultCategories.size(), categories.size());
     for (int i = 0; i < resultCategories.size(); ++i) {
         QCOMPARE(resultCategories.at(i).first.name, categories.at(i));

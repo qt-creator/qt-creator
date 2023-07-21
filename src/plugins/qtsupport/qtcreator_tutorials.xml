@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <instructionals module="Qt">
+  <categories>
+    <category>Help</category>
+    <category>Learning</category>
+    <category>Online</category>
+    <category>Talk</category>
+  </categories>
   <tutorials>
     <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Building and Running an Example">
       <description><![CDATA[Testing that your installation is successful by opening an existing example application project.]]></description>

@@ -75,6 +75,26 @@ static QHash<QString, QStringList> parseMeta(QXmlStreamReader *reader)
     return result;
 }
 
+static QStringList parseCategories(QXmlStreamReader *reader)
+{
+    QStringList categoryOrder;
+    while (!reader->atEnd()) {
+        switch (reader->readNext()) {
+        case QXmlStreamReader::StartElement:
+            if (reader->name() == QLatin1String("category"))
+                categoryOrder.append(reader->readElementText());
+            break;
+        case QXmlStreamReader::EndElement:
+            if (reader->name() == QLatin1String("categories"))
+                return categoryOrder;
+            break;
+        default:
+            break;
+        }
+    }
+    return categoryOrder;
+}
+
 static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
                                           const FilePath &projectsOffset,
                                           const FilePath &examplesInstallPath)
@@ -257,10 +277,10 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const FileP
     return result;
 }
 
-expected_str<QList<ExampleItem *>> parseExamples(const FilePath &manifest,
-                                                 const FilePath &examplesInstallPath,
-                                                 const FilePath &demosInstallPath,
-                                                 const bool examples)
+expected_str<ParsedExamples> parseExamples(const FilePath &manifest,
+                                           const FilePath &examplesInstallPath,
+                                           const FilePath &demosInstallPath,
+                                           const bool examples)
 {
     const expected_str<QByteArray> contents = manifest.fileContents();
     if (!contents)
@@ -269,19 +289,22 @@ expected_str<QList<ExampleItem *>> parseExamples(const FilePath &manifest,
     return parseExamples(*contents, manifest, examplesInstallPath, demosInstallPath, examples);
 }
 
-expected_str<QList<ExampleItem *>> parseExamples(const QByteArray &manifestData,
-                                                 const Utils::FilePath &manifestPath,
-                                                 const FilePath &examplesInstallPath,
-                                                 const FilePath &demosInstallPath,
-                                                 const bool examples)
+expected_str<ParsedExamples> parseExamples(const QByteArray &manifestData,
+                                           const Utils::FilePath &manifestPath,
+                                           const FilePath &examplesInstallPath,
+                                           const FilePath &demosInstallPath,
+                                           const bool examples)
 {
     const FilePath path = manifestPath.parentDir();
+    QStringList categoryOrder;
     QList<ExampleItem *> items;
     QXmlStreamReader reader(manifestData);
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
         case QXmlStreamReader::StartElement:
-            if (examples && reader.name() == QLatin1String("examples"))
+            if (categoryOrder.isEmpty() && reader.name() == QLatin1String("categories"))
+                categoryOrder = parseCategories(&reader);
+            else if (examples && reader.name() == QLatin1String("examples"))
                 items += parseExamples(&reader, path, examplesInstallPath);
             else if (examples && reader.name() == QLatin1String("demos"))
                 items += parseDemos(&reader, path, demosInstallPath);
@@ -301,7 +324,7 @@ expected_str<QList<ExampleItem *>> parseExamples(const QByteArray &manifestData,
                                    .arg(reader.columnNumber())
                                    .arg(reader.errorString()));
     }
-    return items;
+    return {{items, categoryOrder}};
 }
 
 static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
@@ -355,7 +378,7 @@ QList<std::pair<Core::Section, QList<ExampleItem *>>> getCategories(const QList<
     } else {
         // All original items have been copied into a category or other, delete.
         qDeleteAll(items);
-        static const int defaultOrderSize = defaultOrder.size();
+        const int defaultOrderSize = defaultOrder.size();
         int index = 0;
         const auto end = categoryMap.constKeyValueEnd();
         for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it) {
