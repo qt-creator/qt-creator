@@ -602,20 +602,29 @@ QVariantMap Target::toMap() const
     const QList<BuildConfiguration *> bcs = buildConfigurations();
     map.insert(QLatin1String(ACTIVE_BC_KEY), bcs.indexOf(d->m_activeBuildConfiguration));
     map.insert(QLatin1String(BC_COUNT_KEY), bcs.size());
-    for (int i = 0; i < bcs.size(); ++i)
-        map.insert(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i), bcs.at(i)->toMap());
+    for (int i = 0; i < bcs.size(); ++i) {
+        QVariantMap data;
+        bcs.at(i)->toMap(data);
+        map.insert(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i), data);
+    }
 
     const QList<DeployConfiguration *> dcs = deployConfigurations();
     map.insert(QLatin1String(ACTIVE_DC_KEY), dcs.indexOf(d->m_activeDeployConfiguration));
     map.insert(QLatin1String(DC_COUNT_KEY), dcs.size());
-    for (int i = 0; i < dcs.size(); ++i)
-        map.insert(QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i), dcs.at(i)->toMap());
+    for (int i = 0; i < dcs.size(); ++i) {
+        QVariantMap data;
+        dcs.at(i)->toMap(data);
+        map.insert(QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i), data);
+    }
 
     const QList<RunConfiguration *> rcs = runConfigurations();
     map.insert(QLatin1String(ACTIVE_RC_KEY), rcs.indexOf(d->m_activeRunConfiguration));
     map.insert(QLatin1String(RC_COUNT_KEY), rcs.size());
-    for (int i = 0; i < rcs.size(); ++i)
-        map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), rcs.at(i)->toMap());
+    for (int i = 0; i < rcs.size(); ++i) {
+        QVariantMap data;
+        rcs.at(i)->toMap(data);
+        map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), data);
+    }
 
     if (!d->m_pluginSettings.isEmpty())
         map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);

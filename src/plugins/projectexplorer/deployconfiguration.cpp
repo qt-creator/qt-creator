@@ -50,9 +50,9 @@ QWidget *DeployConfiguration::createConfigWidget()
     return m_configWidgetCreator(this);
 }
 
-QVariantMap DeployConfiguration::toMap() const
+void DeployConfiguration::toMap(QVariantMap &map) const
 {
-    QVariantMap map(ProjectConfiguration::toMap());
+    ProjectConfiguration::toMap(map);
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 1);
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0'), m_stepList.toMap());
     map.insert(USES_DEPLOYMENT_DATA, usesCustomDeploymentData());
@@ -62,7 +62,6 @@ QVariantMap DeployConfiguration::toMap() const
         deployData.insert(f.localFilePath().toString(), f.remoteDirectory());
     }
     map.insert(DEPLOYMENT_DATA, deployData);
-    return map;
 }
 
 bool DeployConfiguration::fromMap(const QVariantMap &map)
@@ -185,7 +184,9 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent)
 DeployConfiguration *DeployConfigurationFactory::clone(Target *parent,
                                                        const DeployConfiguration *source)
 {
-    return restore(parent, source->toMap());
+    QVariantMap map;
+    source->toMap(map);
+    return restore(parent, map);
 }
 
 DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)

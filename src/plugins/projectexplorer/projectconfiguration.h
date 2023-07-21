@@ -47,7 +47,7 @@ public:
     virtual bool fromMap(const QVariantMap &map);
 
     // Note: Make sure subclasses call the superclasses' toMap() function!
-    virtual QVariantMap toMap() const;
+    virtual void toMap(QVariantMap &map) const;
 
     Target *target() const;
     Project *project() const;

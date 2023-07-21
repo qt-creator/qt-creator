@@ -57,7 +57,7 @@ private:
     bool init() final;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) final;
     bool fromMap(const QVariantMap &map) final;
-    QVariantMap toMap() const final;
+    void toMap(QVariantMap &map) const final;
 
     QStringList m_baseBuildArguments;
     QStringList m_extraArguments;
@@ -166,17 +166,15 @@ void IosBuildStep::setupOutputFormatter(OutputFormatter *formatter)
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-QVariantMap IosBuildStep::toMap() const
+void IosBuildStep::toMap(QVariantMap &map) const
 {
-    QVariantMap map(AbstractProcessStep::toMap());
+    AbstractProcessStep::toMap(map);
 
     map.insert(BUILD_ARGUMENTS_KEY, m_baseBuildArguments);
     map.insert(BUILD_USE_DEFAULT_ARGS_KEY, m_useDefaultArguments);
 
     // Not used anymore since 4.14. But make sure older versions of Creator can read this.
     map.insert(CLEAN_KEY, stepList()->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-
-    return map;
 }
 
 bool IosBuildStep::fromMap(const QVariantMap &map)

@@ -86,7 +86,7 @@ private:
     void doCancel() override;
     QWidget *createConfigWidget() override;
     bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
 
     void buildingDone(const ErrorInfo &error);
     void reparsingDone(bool success);

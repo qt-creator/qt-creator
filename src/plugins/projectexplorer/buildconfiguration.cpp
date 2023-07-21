@@ -372,9 +372,9 @@ void BuildConfiguration::appendInitialCleanStep(Utils::Id id)
     d->m_initialCleanSteps.append(id);
 }
 
-QVariantMap BuildConfiguration::toMap() const
+void BuildConfiguration::toMap(QVariantMap &map) const
 {
-    QVariantMap map = ProjectConfiguration::toMap();
+    ProjectConfiguration::toMap(map);
 
     map.insert(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY), d->m_clearSystemEnvironment);
     map.insert(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY),
@@ -386,8 +386,6 @@ QVariantMap BuildConfiguration::toMap() const
 
     map.insert(PARSE_STD_OUT_KEY, d->m_parseStdOut);
     map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers,&Utils::Id::toSetting));
-
-    return map;
 }
 
 bool BuildConfiguration::fromMap(const QVariantMap &map)
@@ -795,9 +793,11 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVa
 }
 
 BuildConfiguration *BuildConfigurationFactory::clone(Target *parent,
-                                                      const BuildConfiguration *source)
+                                                     const BuildConfiguration *source)
 {
-    return restore(parent, source->toMap());
+    QVariantMap map;
+    source->toMap(map);
+    return restore(parent, map);
 }
 
 } // namespace ProjectExplorer

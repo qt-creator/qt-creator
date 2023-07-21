@@ -894,14 +894,13 @@ bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
-QVariantMap AndroidBuildApkStep::toMap() const
+void AndroidBuildApkStep::toMap(QVariantMap &map) const
 {
-    QVariantMap map = ProjectExplorer::AbstractProcessStep::toMap();
+    ProjectExplorer::AbstractProcessStep::toMap(map);
     map.insert(KeystoreLocationKey, m_keystorePath.toSettings());
     map.insert(BuildTargetSdkKey, m_buildTargetSdk);
     map.insert(BuildToolsVersionKey, m_buildToolsVersion.toString());
     map.insert(VerboseOutputKey, m_verbose);
-    return map;
 }
 
 Utils::FilePath AndroidBuildApkStep::keystorePath() const

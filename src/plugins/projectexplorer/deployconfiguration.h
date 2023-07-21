@@ -32,7 +32,7 @@ public:
     QWidget *createConfigWidget();
 
     bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
 
     bool isActive() const;
 

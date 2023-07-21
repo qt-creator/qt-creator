@@ -67,7 +67,7 @@ public:
             QString *arguments, const Utils::FilePath &directory, const QtSupport::QtVersion *version,
             QStringList *outArgs = nullptr);
 
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
 
     BuildType buildType() const override;
 

@@ -27,7 +27,7 @@ protected:
     void handleStdErrData(const QString &data);
 
     bool fromMap(const QVariantMap &map) final;
-    QVariantMap toMap() const final;
+    void toMap(QVariantMap &map) const final;
     bool init() final;
 
     void setInternalInitializer(const std::function<Utils::expected_str<void>()> &init);

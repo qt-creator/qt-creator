@@ -90,11 +90,10 @@ bool AbstractRemoteLinuxDeployStep::fromMap(const QVariantMap &map)
     return true;
 }
 
-QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
+void AbstractRemoteLinuxDeployStep::toMap(QVariantMap &map) const
 {
-    QVariantMap map = BuildStep::toMap();
+    BuildStep::toMap(map);
     map.insert(d->deployTimes.exportDeployTimes());
-    return map;
 }
 
 bool AbstractRemoteLinuxDeployStep::init()

@@ -272,15 +272,13 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
             this, &CMakeBuildStep::updateBuildTargetsModel);
 }
 
-QVariantMap CMakeBuildStep::toMap() const
+void CMakeBuildStep::toMap(QVariantMap &map) const
 {
-    QVariantMap map(CMakeAbstractProcessStep::toMap());
+    CMakeAbstractProcessStep::toMap(map);
     map.insert(BUILD_TARGETS_KEY, m_buildTargets);
     map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.insert(QLatin1String(BUILD_PRESET_KEY), m_buildPreset);
-
-    return map;
 }
 
 bool CMakeBuildStep::fromMap(const QVariantMap &map)

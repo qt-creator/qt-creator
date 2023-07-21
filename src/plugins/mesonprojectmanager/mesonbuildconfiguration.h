@@ -30,7 +30,7 @@ signals:
     void parametersChanged();
 
 private:
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
     bool fromMap(const QVariantMap &map) override;
     MesonBuildType m_buildType;
     ProjectExplorer::NamedWidget *createConfigWidget() final;

@@ -94,7 +94,7 @@ protected:
     bool fromMap(const QVariantMap &map) override;
 
 private:
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
     BuildType buildType() const override;
 
     ProjectExplorer::NamedWidget *createConfigWidget() override;

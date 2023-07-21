@@ -74,14 +74,12 @@ QString ProjectConfiguration::toolTip() const
     return m_toolTip;
 }
 
-QVariantMap ProjectConfiguration::toMap() const
+void ProjectConfiguration::toMap(QVariantMap &map) const
 {
     QTC_CHECK(m_id.isValid());
-    QVariantMap map;
     map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
     m_displayName.toMap(map, DISPLAY_NAME_KEY);
     AspectContainer::toMap(map);
-    return map;
 }
 
 Target *ProjectConfiguration::target() const

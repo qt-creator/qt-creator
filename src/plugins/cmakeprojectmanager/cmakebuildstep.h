@@ -44,7 +44,7 @@ public:
     bool buildsBuildTarget(const QString &target) const;
     void setBuildsBuildTarget(const QString &target, bool on);
 
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
 
     QString cleanTarget() const;
     QString allTarget() const ;

@@ -24,7 +24,7 @@ public:
     AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
 
     bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
 
     // signing
     Utils::FilePath keystorePath() const;

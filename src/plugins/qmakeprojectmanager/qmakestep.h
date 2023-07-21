@@ -124,7 +124,7 @@ public:
     QString makeArguments(const QString &makefile) const;
     QString effectiveQMakeCall() const;
 
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
 
     Utils::SelectionAspect buildType{this};
     ProjectExplorer::ArgumentsAspect userArguments{this};

@@ -192,11 +192,10 @@ bool BuildStep::fromMap(const QVariantMap &map)
     return ProjectConfiguration::fromMap(map);
 }
 
-QVariantMap BuildStep::toMap() const
+void BuildStep::toMap(QVariantMap &map) const
 {
-    QVariantMap map = ProjectConfiguration::toMap();
+    ProjectConfiguration::toMap(map);
     map.insert(buildStepEnabledKey, m_enabled);
-    return map;
 }
 
 BuildConfiguration *BuildStep::buildConfiguration() const

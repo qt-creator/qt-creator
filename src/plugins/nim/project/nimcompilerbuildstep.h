@@ -27,7 +27,7 @@ private:
     QWidget *createConfigWidget() override;
 
     bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
 
     void updateTargetNimFile();
     Utils::CommandLine commandLine();

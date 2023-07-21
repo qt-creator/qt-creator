@@ -189,7 +189,7 @@ MesonBuildStepFactory::MesonBuildStepFactory()
     setDisplayName(Tr::tr("Meson Build"));
 }
 
-void MesonProjectManager::Internal::NinjaBuildStep::setBuildTarget(const QString &targetName)
+void NinjaBuildStep::setBuildTarget(const QString &targetName)
 {
     m_targetName = targetName;
 }
@@ -199,12 +199,11 @@ void NinjaBuildStep::setCommandArgs(const QString &args)
     m_commandArgs = args.trimmed();
 }
 
-QVariantMap NinjaBuildStep::toMap() const
+void NinjaBuildStep::toMap(QVariantMap &map) const
 {
-    QVariantMap map(AbstractProcessStep::toMap());
+    AbstractProcessStep::toMap(map);
     map.insert(TARGETS_KEY, m_targetName);
     map.insert(TOOL_ARGUMENTS_KEY, m_commandArgs);
-    return map;
 }
 
 bool NinjaBuildStep::fromMap(const QVariantMap &map)

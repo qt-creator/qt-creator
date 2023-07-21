@@ -25,7 +25,8 @@ public:
     const QString &targetName() const { return m_targetName; }
     Q_SIGNAL void targetListChanged();
     Q_SIGNAL void commandChanged();
-    QVariantMap toMap() const override;
+
+    void toMap(QVariantMap &map) const override;
     bool fromMap(const QVariantMap &map) override;
 
 private:

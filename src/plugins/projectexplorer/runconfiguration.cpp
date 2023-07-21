@@ -246,7 +246,8 @@ bool RunConfiguration::isCustomized() const
 {
     if (m_customized)
         return true;
-    QVariantMap state = toMapSimple();
+    QVariantMap state;
+    toMapSimple(state);
 
     // TODO: Why do we save this at all? It's a computed value.
     state.remove("RunConfiguration.WorkingDirectory.default");
@@ -265,7 +266,8 @@ bool RunConfiguration::hasCreator() const
 void RunConfiguration::setPristineState()
 {
     if (!m_customized) {
-        m_pristineState = toMapSimple();
+        m_pristineState.clear();
+        toMapSimple(m_pristineState);
         m_pristineState.remove("RunConfiguration.WorkingDirectory.default");
     }
 }
@@ -306,16 +308,15 @@ Task RunConfiguration::createConfigurationIssue(const QString &description) cons
     return BuildSystemTask(Task::Error, description);
 }
 
-QVariantMap RunConfiguration::toMap() const
+void RunConfiguration::toMap(QVariantMap &map) const
 {
-    QVariantMap map = toMapSimple();
+    toMapSimple(map);
     map.insert(CUSTOMIZED_KEY, isCustomized());
-    return map;
 }
 
-QVariantMap RunConfiguration::toMapSimple() const
+void RunConfiguration::toMapSimple(QVariantMap &map) const
 {
-    QVariantMap map = ProjectConfiguration::toMap();
+    ProjectConfiguration::toMap(map);
     map.insert(BUILD_KEY, m_buildKey);
 
     // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
@@ -323,8 +324,6 @@ QVariantMap RunConfiguration::toMapSimple() const
         const Utils::Id mangled = id().withSuffix(m_buildKey);
         map.insert(settingsIdKey(), mangled.toSetting());
     }
-
-    return map;
 }
 
 void RunConfiguration::setCommandLineGetter(const CommandLineGetter &cmdGetter)
@@ -649,7 +648,9 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
 
 RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
-    return restore(parent, source->toMap());
+    QVariantMap map;
+    source->toMap(map);
+    return restore(parent, map);
 }
 
 const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)

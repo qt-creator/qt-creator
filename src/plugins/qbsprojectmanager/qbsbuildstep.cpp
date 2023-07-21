@@ -381,11 +381,10 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     return true;
 }
 
-QVariantMap QbsBuildStep::toMap() const
+void QbsBuildStep::toMap(QVariantMap &map) const
 {
-    QVariantMap map = ProjectExplorer::BuildStep::toMap();
+    ProjectExplorer::BuildStep::toMap(map);
     map.insert(QBS_CONFIG, m_qbsConfiguration);
-    return map;
 }
 
 void QbsBuildStep::buildingDone(const ErrorInfo &error)

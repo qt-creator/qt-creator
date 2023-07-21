@@ -403,12 +403,11 @@ QString QMakeStep::mkspec() const
     return QmakeKitAspect::effectiveMkspec(target()->kit());
 }
 
-QVariantMap QMakeStep::toMap() const
+void QMakeStep::toMap(QVariantMap &map) const
 {
-    QVariantMap map(AbstractProcessStep::toMap());
+    AbstractProcessStep::toMap(map);
     map.insert(QMAKE_FORCED_KEY, m_forced);
     map.insert(QMAKE_SELECTED_ABIS_KEY, m_selectedAbis);
-    return map;
 }
 
 bool QMakeStep::fromMap(const QVariantMap &map)

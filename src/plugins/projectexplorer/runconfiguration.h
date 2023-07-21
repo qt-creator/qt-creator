@@ -172,8 +172,8 @@ protected:
 private:
     // Any additional data should be handled by aspects.
     bool fromMap(const QVariantMap &map) final;
-    QVariantMap toMap() const final;
-    QVariantMap toMapSimple() const;
+    void toMap(QVariantMap &map) const final;
+    void toMapSimple(QVariantMap &map) const;
 
     static void addAspectFactory(const AspectFactory &aspectFactory);
 

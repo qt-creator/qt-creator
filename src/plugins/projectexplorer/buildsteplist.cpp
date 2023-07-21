@@ -57,8 +57,11 @@ QVariantMap BuildStepList::toMap() const
 
     // Save build steps
     map.insert(QString::fromLatin1(STEPS_COUNT_KEY), m_steps.count());
-    for (int i = 0; i < m_steps.count(); ++i)
-        map.insert(QString::fromLatin1(STEPS_PREFIX) + QString::number(i), m_steps.at(i)->toMap());
+    for (int i = 0; i < m_steps.count(); ++i) {
+        QVariantMap data;
+        m_steps.at(i)->toMap(data);
+        map.insert(QString::fromLatin1(STEPS_PREFIX) + QString::number(i), data);
+    }
 
     return map;
 }

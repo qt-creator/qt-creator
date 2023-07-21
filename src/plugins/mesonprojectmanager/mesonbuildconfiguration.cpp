@@ -137,12 +137,11 @@ void MesonBuildConfiguration::setParameters(const QString &params)
     emit parametersChanged();
 }
 
-QVariantMap MesonBuildConfiguration::toMap() const
+void MesonBuildConfiguration::toMap(QVariantMap &map) const
 {
-    auto data = ProjectExplorer::BuildConfiguration::toMap();
-    data[Constants::BuildConfiguration::BUILD_TYPE_KEY] = mesonBuildTypeName(m_buildType);
-    data[Constants::BuildConfiguration::PARAMETERS_KEY] = m_parameters;
-    return data;
+    ProjectExplorer::BuildConfiguration::toMap(map);
+    map[Constants::BuildConfiguration::BUILD_TYPE_KEY] = mesonBuildTypeName(m_buildType);
+    map[Constants::BuildConfiguration::PARAMETERS_KEY] = m_parameters;
 }
 
 bool MesonBuildConfiguration::fromMap(const QVariantMap &map)

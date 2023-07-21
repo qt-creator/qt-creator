@@ -54,7 +54,7 @@ public:
     void cancel();
 
     bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
 
     bool enabled() const;
     void setEnabled(bool b);

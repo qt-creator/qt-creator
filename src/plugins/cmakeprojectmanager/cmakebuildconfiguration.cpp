@@ -1562,10 +1562,9 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
     delete m_buildSystem;
 }
 
-QVariantMap CMakeBuildConfiguration::toMap() const
+void CMakeBuildConfiguration::toMap(QVariantMap &map) const
 {
-    QVariantMap map(BuildConfiguration::toMap());
-    return map;
+    BuildConfiguration::toMap(map);
 }
 
 bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)

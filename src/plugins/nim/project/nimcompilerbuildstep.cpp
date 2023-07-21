@@ -130,13 +130,12 @@ bool NimCompilerBuildStep::fromMap(const QVariantMap &map)
     return true;
 }
 
-QVariantMap NimCompilerBuildStep::toMap() const
+void NimCompilerBuildStep::toMap(QVariantMap &map) const
 {
-    QVariantMap result = AbstractProcessStep::toMap();
-    result[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS] = m_userCompilerOptions.join('|');
-    result[Constants::C_NIMCOMPILERBUILDSTEP_DEFAULTBUILDOPTIONS] = m_defaultOptions;
-    result[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE] = m_targetNimFile.toString();
-    return result;
+    AbstractProcessStep::toMap(map);
+    map[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS] = m_userCompilerOptions.join('|');
+    map[Constants::C_NIMCOMPILERBUILDSTEP_DEFAULTBUILDOPTIONS] = m_defaultOptions;
+    map[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE] = m_targetNimFile.toString();
 }
 
 void NimCompilerBuildStep::setBuildType(BuildConfiguration::BuildType buildType)
