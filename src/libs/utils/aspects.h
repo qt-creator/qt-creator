@@ -494,9 +494,6 @@ public:
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const QString &historyCompleterKey);
-    void setExpectedKind(const PathChooser::Kind expectedKind);
-    void setEnvironment(const Environment &env);
-    void setBaseFileName(const FilePath &baseFileName);
     void setUndoRedoEnabled(bool readOnly);
     void setAcceptRichText(bool acceptRichText);
     void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
@@ -561,6 +558,9 @@ public:
     void setAllowPathFromDevice(bool allowPathFromDevice);
     void setValidatePlaceHolder(bool validatePlaceHolder);
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
+    void setExpectedKind(const PathChooser::Kind expectedKind);
+    void setEnvironment(const Environment &env);
+    void setBaseFileName(const FilePath &baseFileName);
 
     PathChooser *pathChooser() const; // Avoid to use.
 };
