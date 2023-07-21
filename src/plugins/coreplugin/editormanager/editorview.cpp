@@ -245,8 +245,10 @@ void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &histo
 
     for (int i = 0; i < history.size(); ++i) {
         const EditLocation &item = history.at(i);
-        if (item.document == document
-                || (!item.document && !DocumentModel::indexOfFilePath(item.filePath))) {
+        // remove items that refer to the same document/file,
+        // or that are no longer in the "open documents"
+        if (item.document == document || (!item.document && item.filePath == document->filePath())
+            || (!item.document && !DocumentModel::indexOfFilePath(item.filePath))) {
             history.removeAt(i--);
         }
     }
