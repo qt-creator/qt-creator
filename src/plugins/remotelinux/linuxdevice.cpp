@@ -952,7 +952,7 @@ LinuxDevice::LinuxDevice()
     setSshParameters(sshParams);
 
     addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
-        if (auto d = PublicKeyDeploymentDialog::createDialog(device, parent)) {
+        if (auto d = Internal::PublicKeyDeploymentDialog::createDialog(device, parent)) {
             d->exec();
             delete d;
         }

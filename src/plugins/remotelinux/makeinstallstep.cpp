@@ -30,7 +30,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace RemoteLinux::Internal {
 
 class MakeInstallStep : public MakeStep
 {
@@ -275,4 +275,4 @@ MakeInstallStepFactory::MakeInstallStepFactory()
     setDisplayName(Tr::tr("Install into temporary host directory"));
 }
 
-} // RemoteLinux
+} // RemoteLinux::Internal

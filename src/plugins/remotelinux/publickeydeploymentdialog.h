@@ -3,24 +3,23 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
-
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
 #include <QProgressDialog>
 
 namespace Utils { class FilePath; }
 
-namespace RemoteLinux {
-namespace Internal { class PublicKeyDeploymentDialogPrivate; }
+namespace RemoteLinux::Internal {
 
-class REMOTELINUX_EXPORT PublicKeyDeploymentDialog : public QProgressDialog
+class PublicKeyDeploymentDialogPrivate;
+
+class PublicKeyDeploymentDialog : public QProgressDialog
 {
     Q_OBJECT
 public:
     // Asks for public key and returns null if the file dialog is canceled.
-    static PublicKeyDeploymentDialog *createDialog(const ProjectExplorer::IDeviceConstPtr &deviceConfig,
-        QWidget *parent = nullptr);
+    static PublicKeyDeploymentDialog *createDialog(
+        const ProjectExplorer::IDeviceConstPtr &deviceConfig, QWidget *parent = nullptr);
 
     PublicKeyDeploymentDialog(const ProjectExplorer::IDeviceConstPtr &deviceConfig,
                               const Utils::FilePath &publicKeyFileName, QWidget *parent = nullptr);
@@ -33,4 +32,4 @@ private:
     Internal::PublicKeyDeploymentDialogPrivate * const d;
 };
 
-} // namespace RemoteLinux
+} // namespace RemoteLinux::Internal

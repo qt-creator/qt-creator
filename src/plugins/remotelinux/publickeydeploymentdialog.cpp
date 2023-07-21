@@ -17,8 +17,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class PublicKeyDeploymentDialogPrivate
 {
@@ -26,9 +25,6 @@ public:
     Process m_process;
     bool m_done;
 };
-} // namespace Internal;
-
-using namespace Internal;
 
 PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
         const IDevice::ConstPtr &deviceConfig, QWidget *parent)
@@ -128,4 +124,4 @@ void PublicKeyDeploymentDialog::handleDeploymentDone(bool succeeded, const QStri
     d->m_done = true;
 }
 
-} // namespace RemoteLinux
+} // namespace RemoteLinux::Internal

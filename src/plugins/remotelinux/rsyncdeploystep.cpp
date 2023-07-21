@@ -26,7 +26,7 @@ using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace RemoteLinux::Internal {
 
 // RsyncDeployStep
 
@@ -205,4 +205,4 @@ RsyncDeployStepFactory::RsyncDeployStepFactory()
     setDisplayName(Tr::tr("Deploy files via rsync"));
 }
 
-} // RemoteLinux
+} // RemoteLinux::Internal

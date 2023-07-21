@@ -3,17 +3,14 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
-
 #include <projectexplorer/buildstep.h>
 
-namespace RemoteLinux {
+namespace RemoteLinux::Internal {
 
-class REMOTELINUX_EXPORT MakeInstallStepFactory
-    : public ProjectExplorer::BuildStepFactory
+class MakeInstallStepFactory : public ProjectExplorer::BuildStepFactory
 {
 public:
     MakeInstallStepFactory();
 };
 
-} // namespace RemoteLinux
+} // namespace RemoteLinux::Internal
