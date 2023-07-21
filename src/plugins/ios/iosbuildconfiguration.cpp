@@ -376,7 +376,7 @@ public:
 
 private:
     QList<NamedWidget *> createSubConfigWidgets() override;
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const QVariantMap &map) override;
 
     void updateQmakeCommand();
 
@@ -414,12 +414,11 @@ QList<NamedWidget *> IosQmakeBuildConfiguration::createSubConfigWidgets()
     return subConfigWidgets;
 }
 
-bool IosQmakeBuildConfiguration::fromMap(const QVariantMap &map)
+void IosQmakeBuildConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!QmakeBuildConfiguration::fromMap(map))
-        return false;
-    updateQmakeCommand();
-    return true;
+    QmakeBuildConfiguration::fromMap(map);
+    if (!hasError())
+        updateQmakeCommand();
 }
 
 static QString teamIdForProvisioningProfile(const QString &id)
@@ -489,7 +488,6 @@ public:
 
 private:
     QList<NamedWidget *> createSubConfigWidgets() override;
-    bool fromMap(const QVariantMap &map) override;
 
     CMakeProjectManager::CMakeConfig signingFlags() const final;
 
@@ -525,13 +523,6 @@ QList<NamedWidget *> IosCMakeBuildConfiguration::createSubConfigWidgets()
                                                             &m_signingIdentifier);
     subConfigWidgets.prepend(buildSettingsWidget);
     return subConfigWidgets;
-}
-
-bool IosCMakeBuildConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!CMakeBuildConfiguration::fromMap(map))
-        return false;
-    return true;
 }
 
 CMakeConfig IosCMakeBuildConfiguration::signingFlags() const

@@ -23,7 +23,7 @@ class AndroidBuildApkStep : public ProjectExplorer::AbstractProcessStep
 public:
     AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
 
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
     // signing

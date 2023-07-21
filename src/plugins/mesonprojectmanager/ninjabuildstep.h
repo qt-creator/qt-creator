@@ -27,7 +27,7 @@ public:
     Q_SIGNAL void commandChanged();
 
     void toMap(QVariantMap &map) const override;
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const QVariantMap &map) override;
 
 private:
     void update(bool parsingSuccessful);

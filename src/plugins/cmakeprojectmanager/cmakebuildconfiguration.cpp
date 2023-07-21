@@ -1562,16 +1562,6 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
     delete m_buildSystem;
 }
 
-void CMakeBuildConfiguration::toMap(QVariantMap &map) const
-{
-    BuildConfiguration::toMap(map);
-}
-
-bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
-{
-    return BuildConfiguration::fromMap(map);
-}
-
 FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFilePath,
                                                        const Kit *k,
                                                        const QString &bcName,

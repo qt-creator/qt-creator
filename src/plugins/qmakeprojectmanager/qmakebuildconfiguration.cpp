@@ -193,15 +193,15 @@ void QmakeBuildConfiguration::toMap(QVariantMap &map) const
     map.insert(QLatin1String(BUILD_CONFIGURATION_KEY), int(m_qmakeBuildConfiguration));
 }
 
-bool QmakeBuildConfiguration::fromMap(const QVariantMap &map)
+void QmakeBuildConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!BuildConfiguration::fromMap(map))
-        return false;
+    BuildConfiguration::fromMap(map);
+    if (hasError())
+        return;
 
     m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
 
     m_lastKitState = LastKitState(kit());
-    return true;
 }
 
 void QmakeBuildConfiguration::kitChanged()

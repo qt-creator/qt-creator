@@ -90,11 +90,7 @@ signals:
     void signingFlagsChanged();
     void configureEnvironmentChanged();
 
-protected:
-    bool fromMap(const QVariantMap &map) override;
-
 private:
-    void toMap(QVariantMap &map) const override;
     BuildType buildType() const override;
 
     ProjectExplorer::NamedWidget *createConfigWidget() override;

@@ -372,13 +372,12 @@ int QbsBuildStep::maxJobs() const
     return QThread::idealThreadCount();
 }
 
-bool QbsBuildStep::fromMap(const QVariantMap &map)
+void QbsBuildStep::fromMap(const QVariantMap &map)
 {
-    if (!BuildStep::fromMap(map))
-        return false;
-
+    BuildStep::fromMap(map);
+    if (hasError())
+        return;
     setQbsConfiguration(map.value(QBS_CONFIG).toMap());
-    return true;
 }
 
 void QbsBuildStep::toMap(QVariantMap &map) const

@@ -64,32 +64,36 @@ void DeployConfiguration::toMap(QVariantMap &map) const
     map.insert(DEPLOYMENT_DATA, deployData);
 }
 
-bool DeployConfiguration::fromMap(const QVariantMap &map)
+void DeployConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!ProjectConfiguration::fromMap(map))
-        return false;
+    ProjectConfiguration::fromMap(map);
+    if (hasError())
+        return;
 
     int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
-    if (maxI != 1)
-        return false;
+    if (maxI != 1) {
+        reportError();
+        return;
+    }
     QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0')).toMap();
     if (!data.isEmpty()) {
         m_stepList.clear();
         if (!m_stepList.fromMap(data)) {
             qWarning() << "Failed to restore deploy step list";
             m_stepList.clear();
-            return false;
+            reportError();
+            return;
         }
     } else {
         qWarning() << "No data for deploy step list found!";
-        return false;
+        reportError();
+        return;
     }
 
     m_usesCustomDeploymentData = map.value(USES_DEPLOYMENT_DATA, false).toBool();
     const QVariantMap deployData = map.value(DEPLOYMENT_DATA).toMap();
     for (auto it = deployData.begin(); it != deployData.end(); ++it)
         m_customDeploymentData.addFile(FilePath::fromString(it.key()), it.value().toString());
-    return true;
 }
 
 bool DeployConfiguration::isActive() const
@@ -202,7 +206,8 @@ DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Q
         return nullptr;
     DeployConfiguration *dc = factory->createDeployConfiguration(parent);
     QTC_ASSERT(dc, return nullptr);
-    if (!dc->fromMap(map)) {
+    dc->fromMap(map);
+    if (dc->hasError()) {
         delete dc;
         dc = nullptr;
     } else if (factory->postRestore()) {

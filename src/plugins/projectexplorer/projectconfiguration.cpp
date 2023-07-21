@@ -87,16 +87,15 @@ Target *ProjectConfiguration::target() const
     return m_target;
 }
 
-bool ProjectConfiguration::fromMap(const QVariantMap &map)
+void ProjectConfiguration::fromMap(const QVariantMap &map)
 {
     Utils::Id id = Utils::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
     // Note: This is only "startsWith", not ==, as RunConfigurations currently still
     // mangle in their build keys.
-    QTC_ASSERT(id.toString().startsWith(m_id.toString()), return false);
+    QTC_ASSERT(id.toString().startsWith(m_id.toString()), reportError(); return);
 
     m_displayName.fromMap(map, DISPLAY_NAME_KEY);
     AspectContainer::fromMap(map);
-    return true;
 }
 
 Id ProjectExplorer::idFromMap(const QVariantMap &map)

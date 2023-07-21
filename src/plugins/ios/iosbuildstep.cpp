@@ -56,7 +56,7 @@ private:
 
     bool init() final;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) final;
-    bool fromMap(const QVariantMap &map) final;
+    void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;
 
     QStringList m_baseBuildArguments;
@@ -177,13 +177,13 @@ void IosBuildStep::toMap(QVariantMap &map) const
     map.insert(CLEAN_KEY, stepList()->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 }
 
-bool IosBuildStep::fromMap(const QVariantMap &map)
+void IosBuildStep::fromMap(const QVariantMap &map)
 {
     QVariant bArgs = map.value(BUILD_ARGUMENTS_KEY);
     m_baseBuildArguments = bArgs.toStringList();
     m_useDefaultArguments = map.value(BUILD_USE_DEFAULT_ARGS_KEY).toBool();
 
-    return BuildStep::fromMap(map);
+    BuildStep::fromMap(map);
 }
 
 QStringList IosBuildStep::allArguments() const

@@ -83,7 +83,7 @@ signals:
 private:
     Utils::CommandLine cmakeCommand() const;
 
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const QVariantMap &map) override;
 
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;

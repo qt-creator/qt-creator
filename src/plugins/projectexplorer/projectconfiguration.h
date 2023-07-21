@@ -43,9 +43,11 @@ public:
     void setToolTip(const QString &text);
     QString toolTip() const;
 
-    // Note: Make sure subclasses call the superclasses' fromMap() function!
-    virtual bool fromMap(const QVariantMap &map);
+    void reportError() { m_hasError = true; }
+    bool hasError() const { return m_hasError; }
 
+    // Note: Make sure subclasses call the superclasses' fromMap() function!
+    virtual void fromMap(const QVariantMap &map);
     // Note: Make sure subclasses call the superclasses' toMap() function!
     virtual void toMap(QVariantMap &map) const;
 
@@ -64,6 +66,7 @@ private:
     const Utils::Id m_id;
     Utils::DisplayName m_displayName;
     QString m_toolTip;
+    bool m_hasError = false;
 };
 
 // helper function:

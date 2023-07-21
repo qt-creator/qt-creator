@@ -131,7 +131,7 @@ public:
     Utils::StringAspect effectiveCall{this};
 
 protected:
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const QVariantMap &map) override;
 
 private:
     Tasking::GroupItem runRecipe() final;

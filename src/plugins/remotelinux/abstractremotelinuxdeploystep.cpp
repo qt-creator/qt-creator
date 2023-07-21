@@ -82,12 +82,12 @@ void AbstractRemoteLinuxDeployStep::setInternalInitializer(
     d->internalInit = init;
 }
 
-bool AbstractRemoteLinuxDeployStep::fromMap(const QVariantMap &map)
+void AbstractRemoteLinuxDeployStep::fromMap(const QVariantMap &map)
 {
-    if (!BuildStep::fromMap(map))
-        return false;
+    BuildStep::fromMap(map);
+    if (hasError())
+        return;
     d->deployTimes.importDeployTimes(map);
-    return true;
 }
 
 void AbstractRemoteLinuxDeployStep::toMap(QVariantMap &map) const

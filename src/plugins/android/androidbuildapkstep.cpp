@@ -880,7 +880,7 @@ void AndroidBuildApkStep::updateBuildToolsVersionInJsonFile()
     }
 }
 
-bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
+void AndroidBuildApkStep::fromMap(const QVariantMap &map)
 {
     m_keystorePath = FilePath::fromSettings(map.value(KeystoreLocationKey));
     m_signPackage = false; // don't restore this
@@ -891,7 +891,7 @@ bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
                                                           sdkManager()->latestAndroidSdkPlatform());
     }
     m_verbose = map.value(VerboseOutputKey).toBool();
-    return ProjectExplorer::BuildStep::fromMap(map);
+    ProjectExplorer::BuildStep::fromMap(map);
 }
 
 void AndroidBuildApkStep::toMap(QVariantMap &map) const

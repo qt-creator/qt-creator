@@ -31,7 +31,8 @@ signals:
 
 private:
     void toMap(QVariantMap &map) const override;
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const QVariantMap &map) override;
+
     MesonBuildType m_buildType;
     ProjectExplorer::NamedWidget *createConfigWidget() final;
     MesonBuildSystem *m_buildSystem = nullptr;

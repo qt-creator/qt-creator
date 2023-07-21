@@ -281,7 +281,7 @@ void CMakeBuildStep::toMap(QVariantMap &map) const
     map.insert(QLatin1String(BUILD_PRESET_KEY), m_buildPreset);
 }
 
-bool CMakeBuildStep::fromMap(const QVariantMap &map)
+void CMakeBuildStep::fromMap(const QVariantMap &map)
 {
     setBuildTargets(map.value(BUILD_TARGETS_KEY).toStringList());
 
@@ -294,7 +294,7 @@ bool CMakeBuildStep::fromMap(const QVariantMap &map)
 
     m_buildPreset = map.value(QLatin1String(BUILD_PRESET_KEY)).toString();
 
-    return BuildStep::fromMap(map);
+    BuildStep::fromMap(map);
 }
 
 bool CMakeBuildStep::init()

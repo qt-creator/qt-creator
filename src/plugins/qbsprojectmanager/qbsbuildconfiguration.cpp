@@ -162,10 +162,11 @@ void QbsBuildConfiguration::triggerReparseIfActive()
         m_buildSystem->delayParsing();
 }
 
-bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
+void QbsBuildConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!BuildConfiguration::fromMap(map))
-        return false;
+    BuildConfiguration::fromMap(map);
+    if (hasError())
+        return;
 
     if (configurationName().isEmpty()) { // pre-4.4 backwards compatibility
         const QString profileName = QbsProfileManager::profileNameForKit(target()->kit());
@@ -173,8 +174,6 @@ bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
                 .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
         configurationName.setValue(profileName + '-' + buildVariant);
     }
-
-    return true;
 }
 
 void QbsBuildConfiguration::restrictNextBuild(const RunConfiguration *rc)

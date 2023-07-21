@@ -388,7 +388,7 @@ void BuildConfiguration::toMap(QVariantMap &map) const
     map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers,&Utils::Id::toSetting));
 }
 
-bool BuildConfiguration::fromMap(const QVariantMap &map)
+void BuildConfiguration::fromMap(const QVariantMap &map)
 {
     d->m_clearSystemEnvironment = map.value(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY))
                                       .toBool();
@@ -422,9 +422,8 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     d->m_parseStdOut = map.value(PARSE_STD_OUT_KEY).toBool();
     d->m_customParsers = transform(map.value(CUSTOM_PARSERS_KEY).toList(), &Utils::Id::fromSetting);
 
-    const bool res = ProjectConfiguration::fromMap(map);
+    ProjectConfiguration::fromMap(map);
     setToolTip(d->m_tooltipAspect());
-    return res;
 }
 
 void BuildConfiguration::updateCacheAndEmitEnvironmentChanged()
@@ -783,7 +782,8 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVa
             continue;
         BuildConfiguration *bc = factory->m_creator(parent);
         QTC_ASSERT(bc, return nullptr);
-        if (!bc->fromMap(map)) {
+        bc->fromMap(map);
+        if (bc->hasError()) {
             delete bc;
             bc = nullptr;
         }

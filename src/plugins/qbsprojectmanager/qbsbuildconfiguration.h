@@ -71,7 +71,7 @@ signals:
     void qbsConfigurationChanged();
 
 private:
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const QVariantMap &map) override;
     void restrictNextBuild(const ProjectExplorer::RunConfiguration *rc) override;
     void triggerReparseIfActive();
 

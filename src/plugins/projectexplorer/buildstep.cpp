@@ -186,10 +186,10 @@ QWidget *BuildStep::createConfigWidget()
     return widget;
 }
 
-bool BuildStep::fromMap(const QVariantMap &map)
+void BuildStep::fromMap(const QVariantMap &map)
 {
     m_enabled = map.value(buildStepEnabledKey, true).toBool();
-    return ProjectConfiguration::fromMap(map);
+    ProjectConfiguration::fromMap(map);
 }
 
 void BuildStep::toMap(QVariantMap &map) const
@@ -512,7 +512,8 @@ BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &m
     BuildStep *bs = create(parent);
     if (!bs)
         return nullptr;
-    if (!bs->fromMap(map)) {
+    bs->fromMap(map);
+    if (bs->hasError()) {
         QTC_CHECK(false);
         delete bs;
         return nullptr;

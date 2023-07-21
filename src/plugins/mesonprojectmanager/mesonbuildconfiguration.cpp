@@ -144,14 +144,13 @@ void MesonBuildConfiguration::toMap(QVariantMap &map) const
     map[Constants::BuildConfiguration::PARAMETERS_KEY] = m_parameters;
 }
 
-bool MesonBuildConfiguration::fromMap(const QVariantMap &map)
+void MesonBuildConfiguration::fromMap(const QVariantMap &map)
 {
-    auto res = ProjectExplorer::BuildConfiguration::fromMap(map);
+    ProjectExplorer::BuildConfiguration::fromMap(map);
     m_buildSystem = new MesonBuildSystem{this};
     m_buildType = mesonBuildType(
         map.value(Constants::BuildConfiguration::BUILD_TYPE_KEY).toString());
     m_parameters = map.value(Constants::BuildConfiguration::PARAMETERS_KEY).toString();
-    return res;
 }
 
 class MesonBuildSettingsWidget : public NamedWidget

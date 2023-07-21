@@ -206,7 +206,7 @@ void NinjaBuildStep::toMap(QVariantMap &map) const
     map.insert(TOOL_ARGUMENTS_KEY, m_commandArgs);
 }
 
-bool NinjaBuildStep::fromMap(const QVariantMap &map)
+void NinjaBuildStep::fromMap(const QVariantMap &map)
 {
     m_targetName = map.value(TARGETS_KEY).toString();
     m_commandArgs = map.value(TOOL_ARGUMENTS_KEY).toString();

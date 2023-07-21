@@ -62,7 +62,7 @@ public:
 private:
     bool init() final;
     GroupItem runRecipe() final;
-    bool fromMap(const QVariantMap &map) final;
+    void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;
     QVariant data(Id id) const final;
 
@@ -166,12 +166,12 @@ GroupItem TarPackageCreationStep::runRecipe()
     return AsyncTask<void>(onSetup, onDone, onError);
 }
 
-bool TarPackageCreationStep::fromMap(const QVariantMap &map)
+void TarPackageCreationStep::fromMap(const QVariantMap &map)
 {
-    if (!BuildStep::fromMap(map))
-        return false;
+    BuildStep::fromMap(map);
+    if (hasError())
+        return;
     m_deployTimes.importDeployTimes(map);
-    return true;
 }
 
 void TarPackageCreationStep::toMap(QVariantMap &map) const

@@ -68,7 +68,7 @@ public:
     void appendInitialBuildStep(Utils::Id id);
     void appendInitialCleanStep(Utils::Id id);
 
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
     bool isEnabled() const;

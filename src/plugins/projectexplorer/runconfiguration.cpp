@@ -375,10 +375,11 @@ ProjectNode *RunConfiguration::productNode() const
     });
 }
 
-bool RunConfiguration::fromMap(const QVariantMap &map)
+void RunConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!ProjectConfiguration::fromMap(map))
-        return false;
+    ProjectConfiguration::fromMap(map);
+    if (hasError())
+        return;
 
     m_customized = m_customized || map.value(CUSTOMIZED_KEY, false).toBool();
     m_buildKey = map.value(BUILD_KEY).toString();
@@ -393,8 +394,6 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
         if (magicIndex != -1)
             m_buildKey = m_buildKey.mid(magicIndex + magicSeparator.length());
     }
-
-    return  true;
 }
 
 /*!
@@ -633,7 +632,8 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
             const Utils::Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigurationId.name())) {
                 RunConfiguration *rc = factory->create(parent);
-                if (rc->fromMap(map)) {
+                rc->fromMap(map);
+                if (!rc->hasError()) {
                     rc->update();
                     rc->setPristineState();
                     return rc;

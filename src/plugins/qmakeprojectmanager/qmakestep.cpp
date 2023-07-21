@@ -410,11 +410,11 @@ void QMakeStep::toMap(QVariantMap &map) const
     map.insert(QMAKE_SELECTED_ABIS_KEY, m_selectedAbis);
 }
 
-bool QMakeStep::fromMap(const QVariantMap &map)
+void QMakeStep::fromMap(const QVariantMap &map)
 {
     m_forced = map.value(QMAKE_FORCED_KEY, false).toBool();
     m_selectedAbis = map.value(QMAKE_SELECTED_ABIS_KEY).toStringList();
-    return BuildStep::fromMap(map);
+    BuildStep::fromMap(map);
 }
 
 QWidget *QMakeStep::createConfigWidget()

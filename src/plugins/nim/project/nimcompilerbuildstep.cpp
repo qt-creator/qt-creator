@@ -121,13 +121,12 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
     return widget;
 }
 
-bool NimCompilerBuildStep::fromMap(const QVariantMap &map)
+void NimCompilerBuildStep::fromMap(const QVariantMap &map)
 {
     AbstractProcessStep::fromMap(map);
     m_userCompilerOptions = map[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS].toString().split('|');
     m_defaultOptions = static_cast<DefaultBuildOptions>(map[Constants::C_NIMCOMPILERBUILDSTEP_DEFAULTBUILDOPTIONS].toInt());
     m_targetNimFile = FilePath::fromString(map[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE].toString());
-    return true;
 }
 
 void NimCompilerBuildStep::toMap(QVariantMap &map) const

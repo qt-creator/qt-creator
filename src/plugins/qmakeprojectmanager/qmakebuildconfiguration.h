@@ -99,7 +99,7 @@ signals:
     void useQtQuickCompilerChanged();
 
 protected:
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const QVariantMap &map) override;
     bool regenerateBuildFiles(ProjectExplorer::Node *node = nullptr) override;
 
 private:

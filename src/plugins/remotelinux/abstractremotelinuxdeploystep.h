@@ -26,7 +26,7 @@ protected:
     void handleStdOutData(const QString &data);
     void handleStdErrData(const QString &data);
 
-    bool fromMap(const QVariantMap &map) final;
+    void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;
     bool init() final;
 
