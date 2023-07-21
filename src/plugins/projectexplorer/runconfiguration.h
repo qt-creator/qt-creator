@@ -11,8 +11,6 @@
 #include <utils/environment.h>
 #include <utils/macroexpander.h>
 
-#include <QWidget>
-
 #include <functional>
 #include <memory>
 
@@ -30,32 +28,6 @@ class RunConfigurationCreationInfo;
 class Target;
 
 /**
- * An interface for a hunk of global or per-project
- * configuration data.
- *
- */
-
-class PROJECTEXPLORER_EXPORT ISettingsAspect : public Utils::AspectContainer
-{
-    Q_OBJECT
-
-public:
-    ISettingsAspect();
-
-    /// Create a configuration widget for this settings aspect.
-    QWidget *createConfigWidget() const;
-
-protected:
-    using ConfigWidgetCreator = std::function<QWidget *()>;
-    void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
-
-    friend class GlobalOrProjectAspect;
-
-    ConfigWidgetCreator m_configWidgetCreator;
-};
-
-
-/**
  * An interface to facilitate switching between hunks of
  * global and per-project configuration data.
  *
@@ -69,19 +41,19 @@ public:
     GlobalOrProjectAspect();
     ~GlobalOrProjectAspect() override;
 
-    void setProjectSettings(ISettingsAspect *settings);
-    void setGlobalSettings(ISettingsAspect *settings);
+    void setProjectSettings(Utils::AspectContainer *settings);
+    void setGlobalSettings(Utils::AspectContainer *settings);
 
     bool isUsingGlobalSettings() const { return m_useGlobalSettings; }
     void setUsingGlobalSettings(bool value);
     void resetProjectToGlobalSettings();
 
-    ISettingsAspect *projectSettings() const { return m_projectSettings; }
-    ISettingsAspect *currentSettings() const;
+    Utils::AspectContainer *projectSettings() const { return m_projectSettings; }
+    Utils::AspectContainer *currentSettings() const;
 
     struct Data : Utils::BaseAspect::Data
     {
-        ISettingsAspect *currentSettings = nullptr;
+        Utils::AspectContainer *currentSettings = nullptr;
     };
 
 protected:
@@ -92,8 +64,8 @@ protected:
 
 private:
     bool m_useGlobalSettings = false;
-    ISettingsAspect *m_projectSettings = nullptr; // Owned if present.
-    ISettingsAspect *m_globalSettings = nullptr;  // Not owned.
+    Utils::AspectContainer *m_projectSettings = nullptr; // Owned if present.
+    Utils::AspectContainer *m_globalSettings = nullptr;  // Not owned.
 };
 
 // Documentation inside.
@@ -133,7 +105,7 @@ public:
 
     ProjectExplorer::ProjectNode *productNode() const;
 
-    template <class T = ISettingsAspect> T *currentSettings(Utils::Id id) const
+    template <class T = Utils::AspectContainer> T *currentSettings(Utils::Id id) const
     {
         if (auto a = qobject_cast<GlobalOrProjectAspect *>(aspect(id)))
             return qobject_cast<T *>(a->currentSettings());
@@ -264,5 +236,3 @@ private:
 };
 
 } // namespace ProjectExplorer
-
-Q_DECLARE_METATYPE(ProjectExplorer::ISettingsAspect *);

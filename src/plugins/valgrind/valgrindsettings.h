@@ -38,7 +38,7 @@ private:
 /**
  * Valgrind settings shared for global and per-project.
  */
-class ValgrindBaseSettings : public ProjectExplorer::ISettingsAspect
+class ValgrindBaseSettings : public Utils::AspectContainer
 {
     Q_OBJECT
 

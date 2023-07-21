@@ -9,7 +9,7 @@
 
 namespace PerfProfiler {
 
-class PERFPROFILER_EXPORT PerfSettings final : public ProjectExplorer::ISettingsAspect
+class PERFPROFILER_EXPORT PerfSettings final : public Utils::AspectContainer
 {
     Q_OBJECT
 

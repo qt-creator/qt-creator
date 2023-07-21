@@ -62,8 +62,6 @@ QmlProfilerSettings::QmlProfilerSettings()
         };
     });
 
-    setConfigWidgetCreator([this] { return layouter()().emerge(); });
-
     readSettings();
 }
 

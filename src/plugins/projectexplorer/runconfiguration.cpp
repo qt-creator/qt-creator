@@ -47,25 +47,6 @@ namespace ProjectExplorer {
 const char BUILD_KEY[] = "ProjectExplorer.RunConfiguration.BuildKey";
 const char CUSTOMIZED_KEY[] = "ProjectExplorer.RunConfiguration.Customized";
 
-///////////////////////////////////////////////////////////////////////
-//
-// ISettingsAspect
-//
-///////////////////////////////////////////////////////////////////////
-
-ISettingsAspect::ISettingsAspect() = default;
-
-QWidget *ISettingsAspect::createConfigWidget() const
-{
-    QTC_ASSERT(m_configWidgetCreator, return nullptr);
-    return m_configWidgetCreator();
-}
-
-void ISettingsAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator)
-{
-    m_configWidgetCreator = configWidgetCreator;
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -83,13 +64,13 @@ GlobalOrProjectAspect::~GlobalOrProjectAspect()
     delete m_projectSettings;
 }
 
-void GlobalOrProjectAspect::setProjectSettings(ISettingsAspect *settings)
+void GlobalOrProjectAspect::setProjectSettings(AspectContainer *settings)
 {
     m_projectSettings = settings;
     m_projectSettings->setAutoApply(true);
 }
 
-void GlobalOrProjectAspect::setGlobalSettings(ISettingsAspect *settings)
+void GlobalOrProjectAspect::setGlobalSettings(AspectContainer *settings)
 {
     m_globalSettings = settings;
     m_projectSettings->setAutoApply(false);
@@ -100,7 +81,7 @@ void GlobalOrProjectAspect::setUsingGlobalSettings(bool value)
     m_useGlobalSettings = value;
 }
 
-ISettingsAspect *GlobalOrProjectAspect::currentSettings() const
+AspectContainer *GlobalOrProjectAspect::currentSettings() const
 {
    return m_useGlobalSettings ? m_globalSettings : m_projectSettings;
 }

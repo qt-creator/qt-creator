@@ -176,14 +176,6 @@ void SuppressionAspect::bufferToGui()
         d->m_model.appendRow(new QStandardItem(file.toUserOutput()));
 }
 
-// ValgrindConfigWidget
-
-
-QWidget *createSettingsWidget(ValgrindBaseSettings *settings)
-{
-    return settings->layouter()().emerge();
-}
-
 //////////////////////////////////////////////////////////////////
 //
 // ValgrindBaseSettings
@@ -414,8 +406,6 @@ ValgrindGlobalSettings::ValgrindGlobalSettings()
     shortenTemplates.setLabelText("<>"); // FIXME: Create a real icon
     shortenTemplates.setToolTip(Tr::tr("Remove template parameter lists when displaying function names."));
 
-    setConfigWidgetCreator([this] { return createSettingsWidget(this); });
-
     setSettingsGroup("Analyzer");
     readSettings();
     setAutoApply(false);
@@ -434,8 +424,6 @@ ValgrindGlobalSettings::ValgrindGlobalSettings()
 ValgrindProjectSettings::ValgrindProjectSettings()
     : ValgrindBaseSettings(false)
 {
-    setConfigWidgetCreator([this] { return createSettingsWidget(this); });
-
     connect(this, &AspectContainer::fromMapFinished, [this] {
         // FIXME: Update project page e.g. on "Restore Global", aspects
         // there are 'autoapply', and Aspect::cancel() is normally part of

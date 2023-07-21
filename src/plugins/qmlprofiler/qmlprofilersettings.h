@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
+#include <utils/aspects.h>
 
 namespace QmlProfiler::Internal {
 
-class QmlProfilerSettings : public ProjectExplorer::ISettingsAspect
+class QmlProfilerSettings : public Utils::AspectContainer
 {
 public:
     QmlProfilerSettings();

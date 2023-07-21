@@ -27,13 +27,6 @@ PerfSettings &globalSettings()
 
 PerfSettings::PerfSettings(ProjectExplorer::Target *target)
 {
-    setConfigWidgetCreator([this, target] {
-        auto widget = new Internal::PerfConfigWidget(this);
-        widget->setTracePointsButtonVisible(target != nullptr);
-        widget->setTarget(target);
-        return widget;
-    });
-
     period.setSettingsKey("Analyzer.Perf.Frequency");
     period.setRange(250, 2147483647);
     period.setDefaultValue(250);
@@ -71,11 +64,12 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
         stackSize.setEnabled(callgraphMode.volatileValue() == 0);
     });
 
-    setLayouter([this] {
+    setLayouter([this, target] {
         using namespace Layouting;
-        return Column {
-            createConfigWidget()
-        };
+        auto widget = new Internal::PerfConfigWidget(this);
+        widget->setTracePointsButtonVisible(target != nullptr);
+        widget->setTarget(target);
+        return Column { widget };
     });
 
     readSettings();
