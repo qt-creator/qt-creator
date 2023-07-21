@@ -24,7 +24,7 @@ private:
 
     void extensionsInitialized() final
     {
-        DesignMode::setDesignModeIsRequired();
+        Core::DesignMode::setDesignModeIsRequired();
     }
 
     std::unique_ptr<ScxmlEditorFactory> editorFactory;
