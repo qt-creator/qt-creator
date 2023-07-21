@@ -36,6 +36,11 @@ NimSuggest *NimSuggestCache::get(const FilePath &filename)
 
 NimSuggestCache::NimSuggestCache()
 {
+    setExecutablePath(settings().nimSuggestPath());
+    QObject::connect(&settings().nimSuggestPath, &StringAspect::changed, [this] {
+        setExecutablePath(settings().nimSuggestPath());
+    });
+
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::editorOpened,
             this, &NimSuggestCache::onEditorOpened);
@@ -60,14 +65,13 @@ void NimSuggestCache::setExecutablePath(const FilePath &path)
     }
 }
 
-void Nim::Suggest::NimSuggestCache::onEditorOpened(Core::IEditor *editor)
+void NimSuggestCache::onEditorOpened(Core::IEditor *editor)
 {
-    if (editor->document()->mimeType() == Constants::C_NIM_MIMETYPE) {
+    if (editor->document()->mimeType() == Constants::C_NIM_MIMETYPE)
         get(editor->document()->filePath());
-    }
 }
 
-void Nim::Suggest::NimSuggestCache::onEditorClosed(Core::IEditor *editor)
+void NimSuggestCache::onEditorClosed(Core::IEditor *editor)
 {
     auto it = m_nimSuggestInstances.find(editor->document()->filePath());
     if (it != m_nimSuggestInstances.end())

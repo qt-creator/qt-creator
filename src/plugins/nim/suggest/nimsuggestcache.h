@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QObject>
 
@@ -15,10 +15,8 @@ namespace Nim::Suggest {
 
 class NimSuggest;
 
-class NimSuggestCache : public QObject
+class NimSuggestCache final : public QObject
 {
-    Q_OBJECT
-
 public:
     static NimSuggestCache &instance();
 

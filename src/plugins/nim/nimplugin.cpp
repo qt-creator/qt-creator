@@ -19,8 +19,6 @@
 #include "project/nimbletaskstep.h"
 #include "settings/nimcodestylepreferencesfactory.h"
 #include "settings/nimcodestylesettingspage.h"
-#include "settings/nimsettings.h"
-#include "suggest/nimsuggestcache.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
@@ -39,15 +37,6 @@ namespace Nim {
 class NimPluginPrivate
 {
 public:
-    NimPluginPrivate()
-    {
-        Suggest::NimSuggestCache::instance().setExecutablePath(settings().nimSuggestPath());
-        QObject::connect(&settings().nimSuggestPath, &StringAspect::changed,
-                         &Suggest::NimSuggestCache::instance(), [this] {
-            Suggest::NimSuggestCache::instance().setExecutablePath(settings().nimSuggestPath());
-        });
-    }
-
     NimEditorFactory editorFactory;
     NimBuildConfigurationFactory buildConfigFactory;
     NimbleBuildConfigurationFactory nimbleBuildConfigFactory;
