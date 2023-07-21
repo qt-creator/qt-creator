@@ -39,7 +39,6 @@ public:
 
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
-    int portsUsedByDebugger() const;
 
     void setUsePortsGatherer(bool useCpp, bool useQml);
     DebugServerPortsGatherer *portsGatherer() const;
@@ -83,12 +82,10 @@ public:
     void setUseCtrlCStub(bool on);
     void setBreakOnMain(bool on);
     void setUseTerminal(bool on);
-    void setRunAsRoot(bool on);
 
     void setCommandsAfterConnect(const QString &commands);
     void setCommandsForReset(const QString &commands);
 
-    void setServerStartScript(const Utils::FilePath &serverStartScript);
     void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
 
     void setQmlServer(const QUrl &qmlServer);

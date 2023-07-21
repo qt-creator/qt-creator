@@ -305,11 +305,6 @@ void DebuggerRunTool::setUseTerminal(bool on)
     }
 }
 
-void DebuggerRunTool::setRunAsRoot(bool on)
-{
-    m_runParameters.runAsRoot = on;
-}
-
 void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
 {
     m_runParameters.commandsAfterConnect = commands;
@@ -692,11 +687,6 @@ bool DebuggerRunTool::isCppDebugging() const
 bool DebuggerRunTool::isQmlDebugging() const
 {
     return m_runParameters.isQmlDebugging;
-}
-
-int DebuggerRunTool::portsUsedByDebugger() const
-{
-    return isCppDebugging() + isQmlDebugging();
 }
 
 void DebuggerRunTool::setUsePortsGatherer(bool useCpp, bool useQml)
