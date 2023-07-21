@@ -230,7 +230,7 @@ FormEditorData::FormEditorData() :
         m_settingsPages.append(settingsPage);
     }
 
-    QObject::connect(EditorManager::instance(), &EditorManager::currentEditorChanged, [this](IEditor *editor) {
+    QObject::connect(EditorManager::instance(), &EditorManager::currentEditorChanged, this, [this](IEditor *editor) {
         if (Designer::Constants::Internal::debug)
             qDebug() << Q_FUNC_INFO << editor << " of " << m_fwm->formWindowCount();
 
@@ -360,7 +360,7 @@ void FormEditorData::fullInit()
         delete initTime;
     }
 
-    QObject::connect(EditorManager::instance(), &EditorManager::editorsClosed,
+    QObject::connect(EditorManager::instance(), &EditorManager::editorsClosed, this,
                      [this] (const QList<IEditor *> editors) {
         for (IEditor *editor : editors)
             m_editorWidget->removeFormWindowEditor(editor);
@@ -487,7 +487,7 @@ void FormEditorData::setupActions()
 
     m_actionPrint = new QAction(this);
     bindShortcut(ActionManager::registerAction(m_actionPrint, Core::Constants::PRINT, m_contexts), m_actionPrint);
-    QObject::connect(m_actionPrint, &QAction::triggered, [this]() { print(); });
+    QObject::connect(m_actionPrint, &QAction::triggered, this, [this] { print(); });
 
     //'delete' action. Do not set a shortcut as Designer handles
     // the 'Delete' key by event filter. Setting a shortcut triggers
@@ -500,7 +500,7 @@ void FormEditorData::setupActions()
 
     m_actionGroupEditMode = new QActionGroup(this);
     m_actionGroupEditMode->setExclusive(true);
-    QObject::connect(m_actionGroupEditMode, &QActionGroup::triggered,
+    QObject::connect(m_actionGroupEditMode, &QActionGroup::triggered, this,
             [this](QAction *a) { activateEditMode(a->data().toInt()); });
 
     medit->addSeparator(m_contexts, Core::Constants::G_EDIT_OTHER);
@@ -605,7 +605,7 @@ void FormEditorData::setupActions()
     m_actionAboutPlugins->setEnabled(false);
 
     // FWM
-    QObject::connect(m_fwm, &QDesignerFormWindowManagerInterface::activeFormWindowChanged,
+    QObject::connect(m_fwm, &QDesignerFormWindowManagerInterface::activeFormWindowChanged, this,
         [this] (QDesignerFormWindowInterface *afw) {
             m_fwm->closeAllPreviews();
             setPreviewMenuEnabled(afw != nullptr);
@@ -739,7 +739,7 @@ IEditor *FormEditorData::createEditor()
     QDesignerFormWindowInterface *form = m_fwm->createFormWindow(nullptr);
     QTC_ASSERT(form, return nullptr);
     form->setPalette(Theme::initialPalette());
-    QObject::connect(form, &QDesignerFormWindowInterface::toolChanged, [this] (int i) { toolChanged(i); });
+    QObject::connect(form, &QDesignerFormWindowInterface::toolChanged, this, [this](int i) { toolChanged(i); });
 
     auto widgetHost = new SharedTools::WidgetHost( /* parent */ nullptr, form);
     FormWindowEditor *formWindowEditor = m_xmlEditorFactory->create(form);
