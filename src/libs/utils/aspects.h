@@ -38,6 +38,7 @@ class SelectionAspectPrivate;
 class StringAspectPrivate;
 class StringListAspectPrivate;
 class TextDisplayPrivate;
+class CheckableAspectImplementation;
 } // Internal
 
 class QTCREATOR_UTILS_EXPORT BaseAspect : public QObject
@@ -169,6 +170,7 @@ signals:
     void volatileValueChanged();
     void externalValueChanged();
     void labelLinkActivated(const QString &link);
+    void checkedChanged();
 
 protected:
     virtual bool internalToBuffer();
@@ -226,6 +228,7 @@ protected:
 
 private:
     std::unique_ptr<Internal::BaseAspectPrivate> d;
+    friend class Internal::CheckableAspectImplementation;
 };
 
 QTCREATOR_UTILS_EXPORT void createItem(Layouting::LayoutItem *item, const BaseAspect &aspect);
@@ -467,6 +470,9 @@ private:
     std::unique_ptr<Internal::MultiSelectionAspectPrivate> d;
 };
 
+enum class UncheckedSemantics { Disabled, ReadOnly };
+enum class CheckBoxPlacement { Top, Right };
+
 class QTCREATOR_UTILS_EXPORT StringAspect : public TypedAspect<QString>
 {
     Q_OBJECT
@@ -503,15 +509,11 @@ public:
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
 
-    void validateInput();
-
-    enum class UncheckedSemantics { Disabled, ReadOnly };
-    enum class CheckBoxPlacement { Top, Right };
-    void setUncheckedSemantics(UncheckedSemantics semantics);
+    void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &optionalLabel, const QString &optionalBaseKey);
     bool isChecked() const;
     void setChecked(bool checked);
-    void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &optionalLabel,
-                       const QString &optionalBaseKey);
+
+    void validateInput();
 
     enum DisplayStyle {
         LabelDisplay,
@@ -527,7 +529,6 @@ public:
     FilePath filePath() const;
 
 signals:
-    void checkedChanged();
     void validChanged(bool validState);
 
 protected:

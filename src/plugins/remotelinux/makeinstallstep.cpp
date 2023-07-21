@@ -107,7 +107,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     m_customCommand.setSettingsKey("RemoteLinux.MakeInstall.CustomCommandLine");
     m_customCommand.setDisplayStyle(StringAspect::LineEditDisplay);
     m_customCommand.setLabelText(Tr::tr("Custom command line:"));
-    m_customCommand.makeCheckable(StringAspect::CheckBoxPlacement::Top,
+    m_customCommand.makeCheckable(CheckBoxPlacement::Top,
                                   Tr::tr("Use custom command line instead:"),
                                   "RemoteLinux.MakeInstall.EnableCustomCommandLine");
     const auto updateCommand = [this] {

@@ -661,16 +661,102 @@ public:
     QPointer<QListWidget> m_listView;
 };
 
+class CheckableAspectImplementation
+{
+public:
+    void fromMap(const QVariantMap &map)
+    {
+        if (m_checked)
+            m_checked->fromMap(map);
+    }
+
+    void toMap(QVariantMap &map)
+    {
+        if (m_checked)
+            m_checked->toMap(map);
+    }
+
+    template<class Widget>
+    void updateWidgetFromCheckStatus(BaseAspect *aspect, Widget *w)
+    {
+        const bool enabled = !m_checked || m_checked->value();
+        if (m_uncheckedSemantics == UncheckedSemantics::Disabled)
+            w->setEnabled(enabled && aspect->isEnabled());
+        else
+            w->setReadOnly(!enabled || aspect->isReadOnly());
+    }
+
+    void setUncheckedSemantics(UncheckedSemantics semantics)
+    {
+        m_uncheckedSemantics = semantics;
+    }
+
+    bool isChecked() const
+    {
+        QTC_ASSERT(m_checked, return false);
+        return m_checked->value();
+    }
+
+    void setChecked(bool checked)
+    {
+        QTC_ASSERT(m_checked, return);
+        m_checked->setValue(checked);
+    }
+
+    void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &checkerLabel,
+                       const QString &checkerKey, BaseAspect *aspect)
+    {
+        QTC_ASSERT(!m_checked, return);
+        m_checkBoxPlacement = checkBoxPlacement;
+        m_checked.reset(new BoolAspect);
+        m_checked->setLabel(checkerLabel, checkBoxPlacement == CheckBoxPlacement::Top
+                                              ? BoolAspect::LabelPlacement::InExtraLabel
+                                              : BoolAspect::LabelPlacement::AtCheckBox);
+        m_checked->setSettingsKey(checkerKey);
+
+        QObject::connect(m_checked.get(), &BoolAspect::changed, aspect, [aspect] {
+            // FIXME: Check.
+            aspect->internalToBuffer();
+            aspect->bufferToGui();
+            emit aspect->changed();
+            aspect->checkedChanged();
+        });
+
+        QObject::connect(m_checked.get(), &BoolAspect::volatileValueChanged, aspect, [aspect] {
+            // FIXME: Check.
+            aspect->internalToBuffer();
+            aspect->bufferToGui();
+            aspect->checkedChanged();
+        });
+
+        aspect->internalToBuffer();
+        aspect->bufferToGui();
+    }
+
+    void addToLayoutFirst(LayoutItem &parent)
+    {
+        if (m_checked && m_checkBoxPlacement == CheckBoxPlacement::Top) {
+            m_checked->addToLayout(parent);
+            parent.addItem(br);
+        }
+    }
+
+    void addToLayoutLast(LayoutItem &parent)
+    {
+        if (m_checked && m_checkBoxPlacement == CheckBoxPlacement::Right)
+            m_checked->addToLayout(parent);
+    }
+
+    CheckBoxPlacement m_checkBoxPlacement = CheckBoxPlacement::Right;
+    UncheckedSemantics m_uncheckedSemantics = UncheckedSemantics::Disabled;
+    std::unique_ptr<BoolAspect> m_checked;
+};
+
 class StringAspectPrivate
 {
 public:
     StringAspect::DisplayStyle m_displayStyle = StringAspect::LabelDisplay;
-    StringAspect::CheckBoxPlacement m_checkBoxPlacement
-        = StringAspect::CheckBoxPlacement::Right;
-    StringAspect::UncheckedSemantics m_uncheckedSemantics
-        = StringAspect::UncheckedSemantics::Disabled;
     std::function<QString(const QString &)> m_displayFilter;
-    std::unique_ptr<BoolAspect> m_checker;
 
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
     QString m_placeHolderText;
@@ -690,6 +776,8 @@ public:
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
     std::function<void()> m_openTerminal;
 
+    CheckableAspectImplementation m_checkerImpl;
+
     bool m_undoRedoEnabled = true;
     bool m_acceptRichText = false;
     bool m_showToolTipOnLabel = false;
@@ -701,15 +789,6 @@ public:
     bool m_blockAutoApply = false;
     bool m_allowPathFromDevice = true;
     bool m_validatePlaceHolder = false;
-
-    template<class Widget> void updateWidgetFromCheckStatus(StringAspect *aspect, Widget *w)
-    {
-        const bool enabled = !m_checker || m_checker->value();
-        if (m_uncheckedSemantics == StringAspect::UncheckedSemantics::Disabled)
-            w->setEnabled(enabled && aspect->isEnabled());
-        else
-            w->setReadOnly(!enabled || aspect->isReadOnly());
-    }
 };
 
 class IntegerAspectPrivate
@@ -838,8 +917,7 @@ void StringAspect::fromMap(const QVariantMap &map)
 {
     if (!settingsKey().isEmpty())
         setValueQuietly(map.value(settingsKey(), defaultValue()).toString());
-    if (d->m_checker)
-        d->m_checker->fromMap(map);
+    d->m_checkerImpl.fromMap(map);
 }
 
 /*!
@@ -848,8 +926,7 @@ void StringAspect::fromMap(const QVariantMap &map)
 void StringAspect::toMap(QVariantMap &map) const
 {
     saveToMap(map, value(), defaultValue(), settingsKey());
-    if (d->m_checker)
-        d->m_checker->toMap(map);
+    d->m_checkerImpl.toMap(map);
 }
 
 /*!
@@ -885,27 +962,6 @@ void StringAspect::setShowToolTipOnLabel(bool show)
 void StringAspect::setDisplayFilter(const std::function<QString(const QString &)> &displayFilter)
 {
     d->m_displayFilter = displayFilter;
-}
-
-/*!
-    Returns the check box value.
-
-    \sa makeCheckable(), setChecked()
-*/
-bool StringAspect::isChecked() const
-{
-    return !d->m_checker || d->m_checker->value();
-}
-
-/*!
-    Sets the check box of this aspect to \a checked.
-
-    \sa makeCheckable(), isChecked()
-*/
-void StringAspect::setChecked(bool checked)
-{
-    QTC_ASSERT(d->m_checker, return);
-    d->m_checker->setValue(checked);
 }
 
 /*!
@@ -1077,17 +1133,9 @@ void StringAspect::validateInput()
         d->m_lineEditDisplay->validate();
 }
 
-void StringAspect::setUncheckedSemantics(StringAspect::UncheckedSemantics semantics)
-{
-    d->m_uncheckedSemantics = semantics;
-}
-
 void StringAspect::addToLayout(LayoutItem &parent)
 {
-    if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Top) {
-        d->m_checker->addToLayout(parent);
-        parent.addItem(br);
-    }
+    d->m_checkerImpl.addToLayoutFirst(parent);
 
     const auto useMacroExpander = [this](QWidget *w) {
         if (!d->m_expanderProvider)
@@ -1124,7 +1172,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         // do not override default value with placeholder, but use placeholder if default is empty
         if (d->m_pathChooserDisplay->lineEdit()->placeholderText().isEmpty())
             d->m_pathChooserDisplay->lineEdit()->setPlaceholderText(d->m_placeHolderText);
-        d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
+        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
         addLabeledItem(parent, d->m_pathChooserDisplay);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &StringAspect::validChanged);
@@ -1150,7 +1198,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
         d->m_lineEditDisplay->setReadOnly(isReadOnly());
         d->m_lineEditDisplay->setValidatePlaceHolder(d->m_validatePlaceHolder);
-        d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
+        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
         addLabeledItem(parent, d->m_lineEditDisplay);
         useMacroExpander(d->m_lineEditDisplay);
         if (d->m_useResetButton) {
@@ -1182,7 +1230,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         d->m_textEditDisplay->setTextInteractionFlags(Qt::TextEditorInteraction);
         d->m_textEditDisplay->setText(displayedString);
         d->m_textEditDisplay->setReadOnly(isReadOnly());
-        d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
+        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
         addLabeledItem(parent, d->m_textEditDisplay);
         useMacroExpander(d->m_textEditDisplay);
         bufferToGui();
@@ -1199,8 +1247,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         break;
     }
 
-    if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Right)
-        d->m_checker->addToLayout(parent);
+    d->m_checkerImpl.addToLayoutLast(parent);
 }
 
 bool StringAspect::guiToBuffer()
@@ -1233,19 +1280,19 @@ void StringAspect::bufferToGui()
 {
     if (d->m_pathChooserDisplay) {
         d->m_pathChooserDisplay->lineEdit()->setText(m_buffer);
-        d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
+        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     }
 
     if (d->m_lineEditDisplay) {
         d->m_lineEditDisplay->setTextKeepingActiveCursor(m_buffer);
-        d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
+        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
     }
 
     if (d->m_textEditDisplay) {
         const QString old = d->m_textEditDisplay->document()->toPlainText();
         if (m_buffer != old)
             d->m_textEditDisplay->setText(m_buffer);
-        d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
+        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
     }
 
     if (d->m_labelDisplay) {
@@ -1264,31 +1311,19 @@ void StringAspect::bufferToGui()
     \a checkerKey.
 */
 void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
-                                     const QString &checkerLabel, const QString &checkerKey)
+                                 const QString &checkerLabel, const QString &checkerKey)
 {
-    QTC_ASSERT(!d->m_checker, return);
-    d->m_checkBoxPlacement = checkBoxPlacement;
-    d->m_checker.reset(new BoolAspect);
-    d->m_checker->setLabel(checkerLabel, checkBoxPlacement == CheckBoxPlacement::Top
-                           ? BoolAspect::LabelPlacement::InExtraLabel
-                           : BoolAspect::LabelPlacement::AtCheckBox);
-    d->m_checker->setSettingsKey(checkerKey);
+    d->m_checkerImpl.makeCheckable(checkBoxPlacement, checkerLabel, checkerKey, this);
+}
 
-    connect(d->m_checker.get(), &BoolAspect::changed, this, [this] {
-        internalToBuffer();
-        bufferToGui();
-        emit changed();
-        checkedChanged();
-    });
+bool StringAspect::isChecked() const
+{
+    return d->m_checkerImpl.isChecked();
+}
 
-    connect(d->m_checker.get(), &BoolAspect::volatileValueChanged, this, [this] {
-        internalToBuffer();
-        bufferToGui();
-        checkedChanged();
-    });
-
-    internalToBuffer();
-    bufferToGui();
+void StringAspect::setChecked(bool checked)
+{
+    return d->m_checkerImpl.setChecked(checked);
 }
 
 
