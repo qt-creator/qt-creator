@@ -10,72 +10,79 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <unordered_map>
+
 using namespace Utils;
 
 namespace Nim::Suggest {
 
-NimSuggestCache &NimSuggestCache::instance()
+class NimSuggestCache final : public QObject
 {
-    static NimSuggestCache instance;
-    return instance;
-}
-
-NimSuggestCache::~NimSuggestCache() = default;
-
-NimSuggest *NimSuggestCache::get(const FilePath &filename)
-{
-    auto it = m_nimSuggestInstances.find(filename);
-    if (it == m_nimSuggestInstances.end()) {
-        auto instance = std::make_unique<Suggest::NimSuggest>(this);
-        instance->setProjectFile(filename);
-        instance->setExecutablePath(m_executablePath);
-        it = m_nimSuggestInstances.emplace(filename, std::move(instance)).first;
-    }
-    return it->second.get();
-}
-
-NimSuggestCache::NimSuggestCache()
-{
-    setExecutablePath(settings().nimSuggestPath());
-    QObject::connect(&settings().nimSuggestPath, &StringAspect::changed, [this] {
+public:
+    NimSuggestCache()
+    {
         setExecutablePath(settings().nimSuggestPath());
-    });
+        QObject::connect(&settings().nimSuggestPath, &StringAspect::changed, [this] {
+            setExecutablePath(settings().nimSuggestPath());
+        });
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    connect(editorManager, &Core::EditorManager::editorOpened,
-            this, &NimSuggestCache::onEditorOpened);
-    connect(editorManager, &Core::EditorManager::editorAboutToClose,
-            this, &NimSuggestCache::onEditorClosed);
-}
-
-FilePath NimSuggestCache::executablePath() const
-{
-    return m_executablePath;
-}
-
-void NimSuggestCache::setExecutablePath(const FilePath &path)
-{
-    if (m_executablePath == path)
-        return;
-
-    m_executablePath = path;
-
-    for (const auto &pair : m_nimSuggestInstances) {
-        pair.second->setExecutablePath(path);
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        connect(editorManager, &Core::EditorManager::editorOpened,
+                this, &NimSuggestCache::onEditorOpened);
+        connect(editorManager, &Core::EditorManager::editorAboutToClose,
+                this, &NimSuggestCache::onEditorClosed);
     }
+
+    void setExecutablePath(const FilePath &path)
+    {
+        if (m_executablePath == path)
+            return;
+
+        m_executablePath = path;
+
+        for (const auto &pair : m_nimSuggestInstances)
+            pair.second->setExecutablePath(path);
+    }
+
+    void onEditorOpened(Core::IEditor *editor)
+    {
+        if (editor->document()->mimeType() == Constants::C_NIM_MIMETYPE)
+            getFromCache(editor->document()->filePath());
+    }
+
+    void onEditorClosed(Core::IEditor *editor)
+    {
+        auto it = m_nimSuggestInstances.find(editor->document()->filePath());
+        if (it != m_nimSuggestInstances.end())
+            m_nimSuggestInstances.erase(it);
+    }
+
+    NimSuggest *get(const FilePath &filePath)
+    {
+        auto it = m_nimSuggestInstances.find(filePath);
+        if (it == m_nimSuggestInstances.end()) {
+            auto instance = std::make_unique<NimSuggest>(this);
+            instance->setProjectFile(filePath);
+            instance->setExecutablePath(m_executablePath);
+            it = m_nimSuggestInstances.emplace(filePath, std::move(instance)).first;
+        }
+        return it->second.get();
+    }
+
+    std::unordered_map<FilePath, std::unique_ptr<Suggest::NimSuggest>> m_nimSuggestInstances;
+
+    FilePath m_executablePath;
+};
+
+static NimSuggestCache &cache()
+{
+    static NimSuggestCache theCache;
+    return theCache;
 }
 
-void NimSuggestCache::onEditorOpened(Core::IEditor *editor)
+NimSuggest *getFromCache(const FilePath &filePath)
 {
-    if (editor->document()->mimeType() == Constants::C_NIM_MIMETYPE)
-        get(editor->document()->filePath());
-}
-
-void NimSuggestCache::onEditorClosed(Core::IEditor *editor)
-{
-    auto it = m_nimSuggestInstances.find(editor->document()->filePath());
-    if (it != m_nimSuggestInstances.end())
-        m_nimSuggestInstances.erase(it);
+    return cache().get(filePath);
 }
 
 } // Nim::Suggest
