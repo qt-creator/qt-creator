@@ -32,7 +32,6 @@ public:
 
 private:
     GitGrepParameters gitParameters() const;
-    GitClient *m_client;
     QWidget *m_widget;
     Utils::FancyLineEdit *m_treeLineEdit;
     QCheckBox *m_recurseSubmodules = nullptr;

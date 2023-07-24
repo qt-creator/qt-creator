@@ -190,7 +190,6 @@ static bool isGitDirectory(const FilePath &path)
 }
 
 GitGrep::GitGrep(GitClient *client)
-    : m_client(client)
 {
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);

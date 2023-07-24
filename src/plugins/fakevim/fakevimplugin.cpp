@@ -812,7 +812,7 @@ public:
         setId(SETTINGS_USER_CMDS_ID);
         setDisplayName(Tr::tr("User Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
-        setWidgetCreator([this] { return new FakeVimUserCommandsPageWidget; });
+        setWidgetCreator([] { return new FakeVimUserCommandsPageWidget; });
     }
 };
 
