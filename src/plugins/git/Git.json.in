@@ -1,43 +1,43 @@
 {
-    \"Name\" : \"Git\",
-    \"Version\" : \"$$QTCREATOR_VERSION\",
-    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-    \"Vendor\" : \"The Qt Company Ltd\",
-    \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
-    \"License\" : [ \"Commercial Usage\",
-                  \"\",
-                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
-                  \"\",
-                  \"GNU General Public License Usage\",
-                  \"\",
-                  \"Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html.\"
+    "Name" : "Git",
+    "Version" : "${IDE_VERSION}",
+    "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "Vendor" : "The Qt Company Ltd",
+    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "License" : [ "Commercial Usage",
+                  "",
+                  "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
+                  "",
+                  "GNU General Public License Usage",
+                  "",
+                  "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
-    \"Category\" : \"Version Control\",
-    \"Description\" : \"Git integration.\",
-    \"Url\" : \"http://www.qt.io\",
-    \"Arguments\" : [
+    "Category" : "Version Control",
+    "Description" : "Git integration.",
+    "Url" : "http://www.qt.io",
+    "Arguments" : [
         {
-            \"Name\" : \"-git-show\",
-            \"Parameter\" : \"git commit hash\",
-            \"Description\" : \"Show given commit hash\"
+            "Name" : "-git-show",
+            "Parameter" : "git commit hash",
+            "Description" : "Show given commit hash"
         }
     ],
-    $$dependencyList,
+    ${IDE_PLUGIN_DEPENDENCIES},
 
-    \"Mimetypes\" : [
-        \"<?xml version=\'1.0\'?>\",
-        \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
-        \"    <mime-type type=\'text/vnd.qtcreator.git.commit\'>\",
-        \"        <sub-class-of type=\'text/plain\'/>\",
-        \"        <comment>Git Commit File</comment>\",
-        \"        <glob pattern=\'COMMIT_MSG\'/>\",
-        \"        <glob pattern=\'COMMIT_EDITMSG\'/>\",
-        \"    </mime-type>\",
-        \"    <mime-type type=\'text/vnd.qtcreator.git.rebase\'>\",
-        \"        <sub-class-of type=\'text/plain\'/>\",
-        \"        <comment>Git Commit File</comment>\",
-        \"        <glob pattern=\'git-rebase-todo\'/>\",
-        \"    </mime-type>\",
-        \"</mime-info>\"
+    "Mimetypes" : [
+        "<?xml version='1.0'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='text/vnd.qtcreator.git.commit'>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <comment>Git Commit File</comment>",
+        "        <glob pattern='COMMIT_MSG'/>",
+        "        <glob pattern='COMMIT_EDITMSG'/>",
+        "    </mime-type>",
+        "    <mime-type type='text/vnd.qtcreator.git.rebase'>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <comment>Git Commit File</comment>",
+        "        <glob pattern='git-rebase-todo'/>",
+        "    </mime-type>",
+        "</mime-info>"
     ]
 }

@@ -418,23 +418,20 @@ function(add_qtc_plugin target_name)
   )
   string(APPEND _arg_DEPENDENCY_STRING "\n    ]")
 
-  set(IDE_PLUGIN_DEPENDENCY_STRING ${_arg_DEPENDENCY_STRING})
+  set(IDE_PLUGIN_DEPENDENCIES ${_arg_DEPENDENCY_STRING})
 
   ### Configure plugin.json file:
   if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}.json.in")
     list(APPEND _arg_SOURCES ${name}.json.in)
     file(READ "${name}.json.in" plugin_json_in)
-    string(REPLACE "\\\"" "\"" plugin_json_in ${plugin_json_in})
-    string(REPLACE "\\'" "'" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$QTCREATOR_VERSION" "\${IDE_VERSION}" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$QTCREATOR_COMPAT_VERSION" "\${IDE_VERSION_COMPAT}" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$QTCREATOR_COPYRIGHT_YEAR" "\${IDE_COPYRIGHT_YEAR}" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$QTC_PLUGIN_REVISION" "\${QTC_PLUGIN_REVISION}" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$dependencyList" "\${IDE_PLUGIN_DEPENDENCY_STRING}" plugin_json_in ${plugin_json_in})
-    string(CONFIGURE "${plugin_json_in}" plugin_json)
-    file(GENERATE
-      OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}.json"
-      CONTENT "${plugin_json}")
+    if(plugin_json_in MATCHES "\\$\\$dependencyList")
+      message(FATAL_ERROR "Found $$dependencyList in ${name}.json.in. "
+              "This is no longer supported. "
+              "Use \${IDE_PLUGIN_DEPENDENCIES}, \${IDE_VERSION} "
+              "and other CMake variables directly. "
+              "Also remove escaping of quotes.")
+    endif()
+    configure_file(${name}.json.in "${CMAKE_CURRENT_BINARY_DIR}/${name}.json")
   endif()
 
   if (QTC_STATIC_BUILD)

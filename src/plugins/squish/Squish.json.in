@@ -1,30 +1,30 @@
 {
-\"Name\" : \"Squish\",
-\"Version\" : \"$$QTCREATOR_VERSION\",
-\"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-\"Experimental\" : true,
-\"Vendor\" : \"The Qt Company Ltd\",
-\"Copyright\" : \"(C) 2022 The Qt Company Ltd\",
-\"License\" : [ \"Commercial Usage\",
-\"\",
-\"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
-\"\",
-\"GNU General Public License Usage\",
-\"\",
-\"Alternatively, this file may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this file. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html.\"
+"Name" : "Squish",
+"Version" : "${IDE_VERSION}",
+"CompatVersion" : "${IDE_VERSION_COMPAT}",
+"Experimental" : true,
+"Vendor" : "The Qt Company Ltd",
+"Copyright" : "(C) 2022 The Qt Company Ltd",
+"License" : [ "Commercial Usage",
+"",
+"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
+"",
+"GNU General Public License Usage",
+"",
+"Alternatively, this file may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this file. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
 ],
-\"Description\" : \"Squish plugin. Provides integration of Squish.\",
-\"Url\" : \"http://www.qt.io\",
-$$dependencyList,
+"Description" : "Squish plugin. Provides integration of Squish.",
+"Url" : "http://www.qt.io",
+${IDE_PLUGIN_DEPENDENCIES},
 
-\"Mimetypes\" : [
-    \"<?xml version=\'1.0\'?>\",
-    \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
-    \"    <mime-type type=\'text/squish-objectsmap\'>\",
-    \"        <sub-class-of type=\'text/plain\'/>\",
-    \"        <comment>Squish objects.map File</comment>\",
-    \"        <glob pattern=\'objects.map\'/>\",
-    \"    </mime-type>\",
-    \"</mime-info>\"
+"Mimetypes" : [
+    "<?xml version='1.0'?>",
+    "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+    "    <mime-type type='text/squish-objectsmap'>",
+    "        <sub-class-of type='text/plain'/>",
+    "        <comment>Squish objects.map File</comment>",
+    "        <glob pattern='objects.map'/>",
+    "    </mime-type>",
+    "</mime-info>"
 ]
 }

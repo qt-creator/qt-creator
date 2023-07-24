@@ -1,42 +1,42 @@
 {
-    \"Name\" : \"ProjectExplorer\",
-    \"Version\" : \"$$QTCREATOR_VERSION\",
-    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-    \"Vendor\" : \"The Qt Company Ltd\",
-    \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
-    \"License\" : [ \"Commercial Usage\",
-                  \"\",
-                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
-                  \"\",
-                  \"GNU General Public License Usage\",
-                  \"\",
-                  \"Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html.\"
+    "Name" : "ProjectExplorer",
+    "Version" : "${IDE_VERSION}",
+    "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "Vendor" : "The Qt Company Ltd",
+    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "License" : [ "Commercial Usage",
+                  "",
+                  "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
+                  "",
+                  "GNU General Public License Usage",
+                  "",
+                  "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
-    \"Category\" : \"Core\",
-    \"Description\" : \"ProjectExplorer framework that can be extended with different kind of project types.\",
-    \"Url\" : \"http://www.qt.io\",
-    \"Arguments\" : [
+    "Category" : "Core",
+    "Description" : "ProjectExplorer framework that can be extended with different kind of project types.",
+    "Url" : "http://www.qt.io",
+    "Arguments" : [
         {
-            \"Name\" : \"-customwizard-verbose\",
-            \"Description\" : \"Verbose loading of custom wizards\"
+            "Name" : "-customwizard-verbose",
+            "Description" : "Verbose loading of custom wizards"
         },
         {
-            \"Name\" : \"-ensure-kit-for-binary\",
-            \"Parameter\" : \"file path\",
-            \"Description\" : \"Create kit with architecture matching a given application or library\"
+            "Name" : "-ensure-kit-for-binary",
+            "Parameter" : "file path",
+            "Description" : "Create kit with architecture matching a given application or library"
         }
     ],
-    $$dependencyList,
+    ${IDE_PLUGIN_DEPENDENCIES},
 
-    \"Mimetypes\" : [
-        \"<?xml version=\'1.0\' encoding=\'UTF-8\'?>\",
-        \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
-        \"    <mime-type type=\'text/x-tasklist\'>\",
-        \"        <sub-class-of type=\'text/plain\'/>\",
-        \"        <comment>Qt Creator task list file</comment>\",
-        \"        <glob pattern=\'*.tasks\'/>\",
-        \"        <glob pattern=\'*.tasks.txt\'/>\",
-        \"    </mime-type>\",
-        \"</mime-info>\"
+    "Mimetypes" : [
+        "<?xml version='1.0' encoding='UTF-8'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='text/x-tasklist'>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <comment>Qt Creator task list file</comment>",
+        "        <glob pattern='*.tasks'/>",
+        "        <glob pattern='*.tasks.txt'/>",
+        "    </mime-type>",
+        "</mime-info>"
     ]
 }
