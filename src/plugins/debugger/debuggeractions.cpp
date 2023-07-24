@@ -319,7 +319,7 @@ DebuggerSettings::DebuggerSettings() :
     const QString qmlInspectorGroup = "QML.Inspector";
     showAppOnTop.setSettingsKey(qmlInspectorGroup, "QmlInspector.ShowAppOnTop");
 
-
+    page1.registerAspects(commonSettings());
     // Page 4
     page4.registerAspect(&useDebuggingHelpers);
     page4.registerAspect(&useCodeModel);
