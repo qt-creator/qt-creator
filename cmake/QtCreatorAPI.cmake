@@ -320,7 +320,7 @@ endfunction(add_qtc_library)
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT;SKIP_PCH"
-    "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS"
+    "VERSION;COMPAT_VERSION;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PROPERTIES"
     ${ARGN}
   )
@@ -431,12 +431,6 @@ function(add_qtc_plugin target_name)
     string(REPLACE "$$QTCREATOR_COPYRIGHT_YEAR" "\${IDE_COPYRIGHT_YEAR}" plugin_json_in ${plugin_json_in})
     string(REPLACE "$$QTC_PLUGIN_REVISION" "\${QTC_PLUGIN_REVISION}" plugin_json_in ${plugin_json_in})
     string(REPLACE "$$dependencyList" "\${IDE_PLUGIN_DEPENDENCY_STRING}" plugin_json_in ${plugin_json_in})
-    if(_arg_PLUGIN_JSON_IN)
-        #e.g. UPDATEINFO_EXPERIMENTAL_STR=true
-        string(REGEX REPLACE "=.*$" "" json_key ${_arg_PLUGIN_JSON_IN})
-        string(REGEX REPLACE "^.*=" "" json_value ${_arg_PLUGIN_JSON_IN})
-        string(REPLACE "$$${json_key}" "${json_value}" plugin_json_in ${plugin_json_in})
-    endif()
     string(CONFIGURE "${plugin_json_in}" plugin_json)
     file(GENERATE
       OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}.json"
