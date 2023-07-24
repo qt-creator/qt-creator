@@ -113,6 +113,7 @@ struct SubmitEditorWidgetPrivate
     QActionPushButton *m_submitButton = nullptr;
     QString m_description;
     QTimer delayedVerifyDescriptionTimer;
+    int m_delayedVerifyDescriptionInterval = 2000;
 
     int m_lineWidth = defaultLineWidth;
     int m_activatedRow = -1;
@@ -154,7 +155,6 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->descriptionLayout->addWidget(d->description);
 
     d->delayedVerifyDescriptionTimer.setSingleShot(true);
-    d->delayedVerifyDescriptionTimer.setInterval(500);
     connect(&d->delayedVerifyDescriptionTimer, &QTimer::timeout,
             this, &SubmitEditorWidget::verifyDescription);
 
@@ -335,6 +335,12 @@ void SubmitEditorWidget::wrapDescription()
         }
         cursor.movePosition(QTextCursor::NextBlock);
     }
+}
+
+void VcsBase::SubmitEditorWidget::clearDescriptionHint()
+{
+    d->descriptionHint->setText(QString());
+    d->descriptionHint->setToolTip(QString());
 }
 
 QString SubmitEditorWidget::descriptionText() const
@@ -579,8 +585,7 @@ void SubmitEditorWidget::hideDescription()
 void SubmitEditorWidget::verifyDescription()
 {
     if (!isEnabled()) {
-        d->descriptionHint->setText(QString());
-        d->descriptionHint->setToolTip(QString());
+        clearDescriptionHint();
         return;
     }
 
@@ -604,7 +609,6 @@ void SubmitEditorWidget::verifyDescription()
         subjectLength = descriptionLength;
     }
 
-    enum { MinSubjectLength = 20, MaxSubjectLength = 72, WarningSubjectLength = 55 };
     QStringList hints;
     if (0 < subjectLength && subjectLength < MinSubjectLength)
         hints.append(warning + Tr::tr("Warning: The commit subject is very short."));
@@ -635,7 +639,17 @@ void SubmitEditorWidget::verifyDescription()
 void SubmitEditorWidget::descriptionTextChanged()
 {
     d->m_description = cleanupDescription(d->description->toPlainText());
-    d->delayedVerifyDescriptionTimer.start();
+
+    if (d->m_description.isEmpty()) {
+        d->m_delayedVerifyDescriptionInterval = 2000;
+        clearDescriptionHint();
+    } else if (d->m_description.length() > MinSubjectLength || d->m_description.contains("\n")) {
+        d->m_delayedVerifyDescriptionInterval = 100;
+    } else {
+        d->m_delayedVerifyDescriptionInterval = 2000;
+    }
+    d->delayedVerifyDescriptionTimer.start(d->m_delayedVerifyDescriptionInterval);
+
     wrapDescription();
     trimDescription();
     // append field entries
