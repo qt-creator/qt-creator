@@ -58,8 +58,7 @@ static QHash<QString, QStringList> parseMeta(QXmlStreamReader *reader)
                     reader->raiseError("Tag \"entry\" requires \"name\" attribute");
                     break;
                 }
-                const QString value = reader->readElementText(
-                    QXmlStreamReader::ErrorOnUnexpectedElement);
+                const QString value = reader->readElementText();
                 if (!value.isEmpty())
                     result[key].append(value);
             }
@@ -125,28 +124,22 @@ static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
                 const QString mainFileAttribute
                     = reader->attributes().value(QLatin1String("mainFile")).toString();
                 const FilePath filePath
-                    = relativeOrInstallPath(FilePath::fromUserInput(reader->readElementText(
-                                                QXmlStreamReader::ErrorOnUnexpectedElement)),
+                    = relativeOrInstallPath(FilePath::fromUserInput(reader->readElementText()),
                                             projectsOffset,
                                             examplesInstallPath);
                 item->filesToOpen.append(filePath);
                 if (mainFileAttribute.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0)
                     item->mainFile = filePath;
             } else if (reader->name() == QLatin1String("description")) {
-                item->description = fixStringForTags(
-                    reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item->description = fixStringForTags(reader->readElementText());
             } else if (reader->name() == QLatin1String("dependency")) {
-                item->dependencies.append(
-                    projectsOffset
-                    / reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item->dependencies.append(projectsOffset / reader->readElementText());
             } else if (reader->name() == QLatin1String("tags")) {
                 item->tags = trimStringList(
-                    reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement)
-                        .split(QLatin1Char(','), Qt::SkipEmptyParts));
+                    reader->readElementText().split(QLatin1Char(','), Qt::SkipEmptyParts));
             } else if (reader->name() == QLatin1String("platforms")) {
                 item->platforms = trimStringList(
-                    reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement)
-                        .split(QLatin1Char(','), Qt::SkipEmptyParts));
+                    reader->readElementText().split(QLatin1Char(','), Qt::SkipEmptyParts));
             } else if (reader->name() == QLatin1String("meta")) {
                 item->metaData = parseMeta(reader);
             }
@@ -192,20 +185,18 @@ static QList<ExampleItem *> parseDemos(QXmlStreamReader *reader,
                                       == QLatin1String("true");
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item->filesToOpen.append(
-                    relativeOrInstallPath(FilePath::fromUserInput(reader->readElementText(
-                                              QXmlStreamReader::ErrorOnUnexpectedElement)),
+                    relativeOrInstallPath(FilePath::fromUserInput(reader->readElementText()),
                                           projectsOffset,
                                           demosInstallPath));
             } else if (reader->name() == QLatin1String("description")) {
                 item->description = fixStringForTags(
-                    reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                    reader->readElementText());
             } else if (reader->name() == QLatin1String("dependency")) {
                 item->dependencies.append(
                     projectsOffset
-                    / reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                    / reader->readElementText());
             } else if (reader->name() == QLatin1String("tags")) {
-                item->tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement)
-                                 .split(QLatin1Char(','));
+                item->tags = reader->readElementText().split(QLatin1Char(','));
             }
             break;
         case QXmlStreamReader::EndElement:
@@ -249,17 +240,13 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const FileP
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item->filesToOpen.append(
                     projectsOffset
-                    / reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                    / reader->readElementText());
             } else if (reader->name() == QLatin1String("description")) {
-                item->description = fixStringForTags(
-                    reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item->description = fixStringForTags(reader->readElementText());
             } else if (reader->name() == QLatin1String("dependency")) {
-                item->dependencies.append(
-                    projectsOffset
-                    / reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item->dependencies.append(projectsOffset / reader->readElementText());
             } else if (reader->name() == QLatin1String("tags")) {
-                item->tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement)
-                                 .split(QLatin1Char(','));
+                item->tags = reader->readElementText().split(QLatin1Char(','));
             } else if (reader->name() == QLatin1String("meta")) {
                 item->metaData = parseMeta(reader);
             }
