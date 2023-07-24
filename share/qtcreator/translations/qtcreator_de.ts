@@ -55651,88 +55651,92 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>QtC::WebAssembly</name>
     <message>
         <source>Web Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Webbrowser</translation>
     </message>
     <message>
         <source>WebAssembly Runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>WebAssembly-Runtime</translation>
     </message>
     <message>
         <source>Emscripten SDK path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zum Emscripten-SDK:</translation>
     </message>
     <message>
         <source>Select the root directory of an installed %1. Ensure that the activated SDK version is compatible with the %2 or %3 version that you plan to develop against.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1=Emscripten SDK, %2=Qt 5, %3=Qt 6</translatorcomment>
+        <translation>Wählen Sie das Wurzelverzeichnis einer Installation von %1. Stellen Sie sicher, dass die eingestellte SDK-Version mit der von Ihnen für das Entwickeln geplanten %2- oder %3-Version kompatibel ist.</translation>
     </message>
     <message>
         <source>Emscripten SDK environment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebung für Emscripten-SDK:</translation>
     </message>
     <message>
         <source>Note: %1 supports Qt %2 for WebAssembly and higher. Your installed lower Qt version(s) are not supported.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1=the QtC-Version, %2=minimumSupportedQtVersion</translatorcomment>
+        <translation>Hinweis: %1 unterstützt für WebAssembly nur Qt %2 und höher. Ihre älteren installierten Qt-Versionen werden nicht unterstützt.</translation>
     </message>
     <message>
         <source>Adding directories to PATH:</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge Verzeichnisse zu PATH hinzu:</translation>
     </message>
     <message>
         <source>Setting environment variables:</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze Umgebungsvariablen:</translation>
     </message>
     <message>
         <source>The activated version %1 is not supported by %2. Activate version %3 or higher.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1=sdkVersion, %2=QtC-Version, %3=minVersion</translatorcomment>
+        <translation>Die aktivierte Version %1 wird von %2 nicht unterstützt. Benutzen Sie Version %3 oder höher.</translation>
     </message>
     <message>
         <source>Activated version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivierte Version: %1</translation>
     </message>
     <message>
         <source>WebAssembly</source>
-        <translation type="unfinished"></translation>
+        <translation>WebAssembly</translation>
     </message>
     <message>
         <source>Setup Emscripten SDK for WebAssembly? To do it later, select Edit &gt; Preferences &gt; Devices &gt; WebAssembly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten-SDK für WebAssembly einrichten? Dies geht auch später unter Bearbeiten &gt; Einstellungen &gt; Geräte &gt; WebAssembly.</translation>
     </message>
     <message>
         <source>Setup Emscripten SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten-SDK einrichten</translation>
     </message>
     <message>
         <source>WebAssembly</source>
         <comment>Qt Version is meant for WebAssembly</comment>
-        <translation type="unfinished"></translation>
+        <translation>WebAssembly</translation>
     </message>
     <message>
         <source>%1 does not support Qt for WebAssembly below version %2.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1=QtC-Version</translatorcomment>
+        <translation>%1 unterstützt Qt für WebAssembly nicht unter Version %2.</translation>
     </message>
     <message>
         <source>Effective emrun call:</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultierender emrun-Aufruf:</translation>
     </message>
     <message>
         <source>Default Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Browser</translation>
     </message>
     <message>
         <source>Web browser:</source>
-        <translation type="unfinished"></translation>
+        <translation>Webbrowser:</translation>
     </message>
     <message>
         <source>Emscripten Compiler</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten-Compiler</translation>
     </message>
     <message>
         <source>Emscripten Compiler %1 for %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten-Compiler %1 für %2</translation>
     </message>
     <message>
         <source>Emscripten</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten</translation>
     </message>
 </context>
 <context>
