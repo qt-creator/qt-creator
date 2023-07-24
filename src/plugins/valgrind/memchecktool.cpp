@@ -927,9 +927,11 @@ void MemcheckToolPrivate::updateFromSettings()
     m_filterProjectAction->setChecked(!m_settings->filterExternalIssues());
     m_errorView->settingsChanged(m_settings);
 
+    m_errorProxyModel.setAcceptedKinds(m_settings->visibleErrorKinds());
     connect(&m_settings->visibleErrorKinds, &BaseAspect::changed, &m_errorProxyModel, [this] {
         m_errorProxyModel.setAcceptedKinds(m_settings->visibleErrorKinds());
     });
+    m_errorProxyModel.setFilterExternalIssues(m_settings->filterExternalIssues());
     connect(&m_settings->filterExternalIssues, &BaseAspect::changed, &m_errorProxyModel, [this] {
         m_errorProxyModel.setFilterExternalIssues(m_settings->filterExternalIssues());
     });
@@ -1109,6 +1111,7 @@ void MemcheckToolPrivate::updateErrorFilter()
         }
     }
     m_settings->visibleErrorKinds.setValue(errorKinds);
+    m_settings->visibleErrorKinds.writeToSettingsImmediatly();
 }
 
 int MemcheckToolPrivate::updateUiAfterFinishedHelper()

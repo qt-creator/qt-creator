@@ -96,8 +96,6 @@ public:
     Utils::BoolAspect enableEventToolTips{this};
     Utils::DoubleAspect minimumInclusiveCostRatio{this};
     Utils::DoubleAspect visualizationMinimumInclusiveCostRatio{this};
-
-    QVariantMap defaultSettings() const;
 };
 
 /**
@@ -113,9 +111,6 @@ public:
     /**
      * Global memcheck settings
      */
-
-    void writeSettings() const;
-    void readSettings();
 
     Utils::FilePathAspect lastSuppressionDirectory{this};
     Utils::StringAspect lastSuppressionHistory{this};
