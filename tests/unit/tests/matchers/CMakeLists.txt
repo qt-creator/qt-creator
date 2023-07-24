@@ -2,6 +2,7 @@ add_qtc_library(TestMatchers OBJECT
   EXCLUDE_FROM_INSTALL
   PROPERTIES SKIP_AUTOGEN ON
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
+  CONDITION QmlDesigner
   DEPENDS
     Googletest Utils QmlDesigner
   SOURCES
