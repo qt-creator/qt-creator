@@ -909,14 +909,17 @@ void MemcheckToolPrivate::settingsDestroyed(QObject *settings)
 
 void MemcheckToolPrivate::updateFromSettings()
 {
+    const QList<int> stored = m_settings->visibleErrorKinds();
     for (QAction *action : std::as_const(m_errorFilterActions)) {
         bool contained = true;
         const QList<QVariant> actions = action->data().toList();
         for (const QVariant &v : actions) {
             bool ok;
             int kind = v.toInt(&ok);
-            if (ok && !m_settings->visibleErrorKinds().contains(kind))
+            if (ok && !stored.contains(kind)) {
                 contained = false;
+                break;
+            }
         }
         action->setChecked(contained);
     }
