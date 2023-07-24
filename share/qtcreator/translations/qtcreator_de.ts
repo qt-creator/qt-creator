@@ -31686,48 +31686,48 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <name>QtC::Haskell</name>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Release</translation>
+        <translation>Release</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Build directory:</source>
-        <translation type="unfinished">Build-Verzeichnis:</translation>
+        <translation>Build-Verzeichnis:</translation>
     </message>
     <message>
         <source>GHCi</source>
-        <translation type="unfinished"></translation>
+        <translation>GHCi</translation>
     </message>
     <message>
         <source>Run GHCi</source>
-        <translation type="unfinished"></translation>
+        <translation>GHCi ausführen</translation>
     </message>
     <message>
         <source>Haskell</source>
         <comment>SnippetProvider</comment>
-        <translation type="unfinished"></translation>
+        <translation>Haskell</translation>
     </message>
     <message>
         <source>Executable</source>
-        <translation type="unfinished">Ausführbare Datei</translation>
+        <translation>Ausführbare Datei</translation>
     </message>
     <message>
         <source>Haskell</source>
-        <translation type="unfinished"></translation>
+        <translation>Haskell</translation>
     </message>
     <message>
         <source>Stack executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Stack-Datei:</translation>
     </message>
     <message>
         <source>Choose Stack Executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Stack auswählen</translation>
     </message>
     <message>
         <source>Stack Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen mit Stack</translation>
     </message>
 </context>
 <context>
@@ -46082,7 +46082,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Checking that files can be created in %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfe, ob Dateien in %1 erstellt werden können...</translation>
     </message>
     <message>
         <source>Files can be created in /var/run.</source>
@@ -46090,11 +46090,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>An error occurred while checking that files can be created in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Überprüfen, ob Dateien in %1 erstellt werden können, ist ein Fehler aufgetreten.</translation>
     </message>
     <message>
         <source>Files cannot be created in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>In %1 können keine Dateien erstellt werden.</translation>
     </message>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
@@ -46173,34 +46173,34 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>No files need to be uploaded.</source>
-        <translation type="unfinished">Es müssen keine Dateien hochgeladen werden.</translation>
+        <translation>Es müssen keine Dateien hochgeladen werden.</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) need to be uploaded.</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Eine Datei muss hochgeladen werden.</numerusform>
             <numerusform>%n Dateien müssen hochgeladen werden.</numerusform>
         </translation>
     </message>
     <message>
         <source>Local file &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Es gibt keine lokale Datei &quot;%1&quot;.</translation>
+        <translation>Es gibt keine lokale Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Remote chmod failed for file &quot;%1&quot;: %2</source>
-        <translation type="unfinished">&quot;chmod&quot; für die entfernte Datei &quot;%1&quot; ist fehlgeschlagen: %2</translation>
+        <translation>&quot;chmod&quot; für die entfernte Datei &quot;%1&quot; ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>No device configuration set.</source>
-        <translation type="unfinished">Es ist keine Gerätekonfiguration eingestellt.</translation>
+        <translation>Es ist keine Gerätekonfiguration gesetzt.</translation>
     </message>
     <message>
         <source>No deployment action necessary. Skipping.</source>
-        <translation type="unfinished">Alle Dateien sind auf dem aktuellen Stand, es ist keine Installation erforderlich.</translation>
+        <translation>Alle Dateien sind auf dem aktuellen Stand, es ist keine Installation erforderlich.</translation>
     </message>
     <message>
         <source>All files successfully deployed.</source>
-        <translation type="unfinished">Alle Dateien erfolgreich versandt.</translation>
+        <translation>Deployment für alle Dateien erfolgreich.</translation>
     </message>
     <message>
         <source>Deploy Qt to QNX Device</source>
@@ -46208,7 +46208,7 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Create Kit for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit für %1 erstellen</translation>
     </message>
     <message>
         <source>Configuration Information:</source>
@@ -46232,11 +46232,11 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Compiler:</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler:</translation>
     </message>
     <message>
         <source>Architectures:</source>
-        <translation type="unfinished"></translation>
+        <translation>Architekturen:</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -46252,11 +46252,11 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Configuration already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration existiert bereits.</translation>
     </message>
     <message>
         <source>Configuration is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration ist ungültig.</translation>
     </message>
     <message>
         <source>Remove QNX Configuration</source>
@@ -48636,30 +48636,30 @@ Zeile: %4, Spalte: %5
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Keine</translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>LF</source>
-        <translation type="unfinished">LF</translation>
+        <translation>LF</translation>
     </message>
     <message>
         <source>CR</source>
-        <translation type="unfinished">CR</translation>
+        <translation>CR</translation>
     </message>
     <message>
         <source>CRLF</source>
-        <translation type="unfinished">CRLF</translation>
+        <translation>CRLF</translation>
     </message>
 </context>
 <context>
     <name>QtC::SilverSearcher</name>
     <message>
         <source>Search Options (optional)</source>
-        <translation type="unfinished">Sucheinstellungen (optional)</translation>
+        <translation>Sucheinstellungen (optional)</translation>
     </message>
     <message>
         <source>Silver Searcher is not available on the system.</source>
-        <translation type="unfinished">Silver Searcher ist auf dem System nicht verfügbar.</translation>
+        <translation>Silver Searcher ist auf dem System nicht verfügbar.</translation>
     </message>
 </context>
 <context>
@@ -58293,35 +58293,35 @@ Are you sure you want to remove the material?</source>
     <name>QtC::Vcpkg</name>
     <message>
         <source>Search package...</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket suchen...</translation>
     </message>
     <message>
         <source>Vcpkg Manifest Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vcpkg Manifest-Editor</translation>
     </message>
     <message>
         <source>Name：</source>
-        <translation type="unfinished"></translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">Version:</translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <source>License:</source>
-        <translation type="unfinished">Lizenz:</translation>
+        <translation>Lizenz:</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished">Beschreibung:</translation>
+        <translation>Beschreibung:</translation>
     </message>
     <message>
         <source>Homepage:</source>
-        <translation type="unfinished"></translation>
+        <translation>Homepage:</translation>
     </message>
     <message>
         <source>Vcpkg installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Vcpkg-Installation</translation>
     </message>
 </context>
 <context>
