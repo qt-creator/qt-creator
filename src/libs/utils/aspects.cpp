@@ -413,6 +413,22 @@ void BaseAspect::setSettingsKey(const QString &group, const QString &key)
 }
 
 /*!
+    Immediately writes the value of this aspect into its specified
+    settings, taking a potential container's settings group specification
+    into account.
+
+    \note This is expensive, so it should only be used with good reason.
+*/
+void BaseAspect::writeToSettingsImmediatly() const
+{
+    QStringList groups;
+    if (d->m_container)
+        groups = d->m_container->settingsGroups();
+    const SettingsGroupNester nester(groups);
+    writeSettings();
+}
+
+/*!
     Returns the string that should be used when this action appears in menus
     or other places that are typically used with Book style capitalization.
 
@@ -2344,28 +2360,16 @@ void AspectContainer::toMap(QVariantMap &map) const
 
 void AspectContainer::readSettings()
 {
-    QTC_ASSERT(theSettings, return);
-    for (const QString &group : d->m_settingsGroup)
-        theSettings->beginGroup(group);
-
+    const SettingsGroupNester nester(d->m_settingsGroup);
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->readSettings();
-
-    for (int i = 0; i != d->m_settingsGroup.size(); ++i)
-        theSettings->endGroup();
 }
 
 void AspectContainer::writeSettings() const
 {
-    QTC_ASSERT(theSettings, return);
-    for (const QString &group : d->m_settingsGroup)
-        theSettings->beginGroup(group);
-
+    const SettingsGroupNester nester(d->m_settingsGroup);
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->writeSettings();
-
-    for (int i = 0; i != d->m_settingsGroup.size(); ++i)
-        theSettings->endGroup();
 }
 
 void AspectContainer::setSettingsGroup(const QString &groupKey)
@@ -2376,6 +2380,11 @@ void AspectContainer::setSettingsGroup(const QString &groupKey)
 void AspectContainer::setSettingsGroups(const QString &groupKey, const QString &subGroupKey)
 {
     d->m_settingsGroup = QStringList{groupKey, subGroupKey};
+}
+
+QStringList AspectContainer::settingsGroups() const
+{
+    return d->m_settingsGroup;
 }
 
 void AspectContainer::apply()
@@ -2578,5 +2587,23 @@ void BaseAspect::Data::Ptr::operator=(const Ptr &other)
     delete m_data;
     m_data = other.m_data->clone();
 }
+
+// SettingsGroupNester
+
+SettingsGroupNester::SettingsGroupNester(const QStringList &groups)
+    : m_groupCount(groups.size())
+{
+    QTC_ASSERT(theSettings, return);
+    for (const QString &group : groups)
+        theSettings->beginGroup(group);
+}
+
+SettingsGroupNester::~SettingsGroupNester()
+{
+    QTC_ASSERT(theSettings, return);
+    for (int i = 0; i != m_groupCount; ++i)
+        theSettings->endGroup();
+}
+
 
 } // namespace Utils

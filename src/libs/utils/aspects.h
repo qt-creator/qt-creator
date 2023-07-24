@@ -165,6 +165,9 @@ public:
     static void setSettings(QSettings *settings);
     static QSettings *settings();
 
+    // This is expensive. Do not use without good reason
+    void writeToSettingsImmediatly() const;
+
 signals:
     void changed(); // "internal"
     void volatileValueChanged();
@@ -728,6 +731,18 @@ private:
     QList<BaseAspect::Data::Ptr> m_data; // Owned.
 };
 
+class QTCREATOR_UTILS_EXPORT SettingsGroupNester
+{
+    Q_DISABLE_COPY_MOVE(SettingsGroupNester)
+
+public:
+    explicit SettingsGroupNester(const QStringList &groups);
+    ~SettingsGroupNester();
+
+private:
+    const int m_groupCount;
+};
+
 class QTCREATOR_UTILS_EXPORT AspectContainer : public QObject
 {
     Q_OBJECT
@@ -758,6 +773,7 @@ public:
 
     void setSettingsGroup(const QString &groupKey);
     void setSettingsGroups(const QString &groupKey, const QString &subGroupKey);
+    QStringList settingsGroups() const;
 
     void apply();
     void cancel();
