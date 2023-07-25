@@ -114,7 +114,7 @@ public:
 class IsNullMatcher
 {
 public:
-    template<typename Type, typename = std::enable_if_t<!std::is_pointer_v<Type>>>
+    template<typename Type>
     bool MatchAndExplain(const Type &value, testing::MatchResultListener *) const
     {
         if constexpr (std::is_pointer_v<Type>)
@@ -131,10 +131,13 @@ public:
 class IsValidMatcher
 {
 public:
-    template<typename Type, typename = std::enable_if_t<!std::is_pointer_v<Type>>>
+    template<typename Type>
     bool MatchAndExplain(const Type &value, testing::MatchResultListener *) const
     {
-        return value.isValid();
+        if constexpr (std::is_pointer_v<Type>)
+            return value != nullptr;
+        else
+            return value.isValid();
     }
 
     void DescribeTo(std::ostream *os) const { *os << "is null"; }
