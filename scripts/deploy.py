@@ -19,14 +19,10 @@ encoding = locale.getdefaultlocale()[1]
 
 def get_args():
     parser = argparse.ArgumentParser(description='Deploy Qt Creator dependencies for packaging')
-    parser.add_argument('-i', '--ignore-errors', help='For backward compatibility',
-                        action='store_true', default=False)
     parser.add_argument('--elfutils-path',
                         help='Path to elfutils installation for use by perfprofiler (Windows, Linux)')
-    # TODO remove defaulting to LLVM_INSTALL_DIR when we no longer build qmake based packages
     parser.add_argument('--llvm-path',
-                        help='Path to LLVM installation',
-                        default=os.environ.get('LLVM_INSTALL_DIR'))
+                        help='Path to LLVM installation')
     parser.add_argument('qtcreator_binary', help='Path to Qt Creator binary (or the app bundle on macOS)')
     parser.add_argument('qmake_binary', help='Path to qmake binary')
 
@@ -52,9 +48,6 @@ def get_args():
         sys.exit(2)
 
     return args
-
-def usage():
-    print("Usage: %s <existing_qtcreator_binary> [qmake_path]" % os.path.basename(sys.argv[0]))
 
 def which(program):
     def is_exe(fpath):
