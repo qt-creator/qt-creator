@@ -182,9 +182,12 @@ void SuppressionAspect::bufferToGui()
 //
 //////////////////////////////////////////////////////////////////
 
-ValgrindBaseSettings::ValgrindBaseSettings(bool global)
+ValgrindSettings::ValgrindSettings(bool global)
     : suppressions(this, global)
 {
+    setSettingsGroup("Analyzer");
+    setAutoApply(false);
+
     // Note that this is used twice, once for project settings in the .user files
     // and once for global settings in QtCreator.ini. This uses intentionally
     // the same key to facilitate copying using fromMap/toMap.
@@ -249,6 +252,12 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
     numCallers.setSettingsKey(base + "NumCallers");
     numCallers.setDefaultValue(25);
     numCallers.setLabelText(Tr::tr("Backtrace frame count:"));
+
+    lastSuppressionDirectory.setSettingsKey(base + "LastSuppressionDirectory");
+    lastSuppressionDirectory.setVisible(global);
+
+    lastSuppressionHistory.setSettingsKey(base + "LastSuppressionHistory");
+    lastSuppressionHistory.setVisible(global);
 
     // Callgrind
 
@@ -320,6 +329,24 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
         defaultErrorKinds << i;
     visibleErrorKinds.setDefaultValue(defaultErrorKinds);
 
+    detectCycles.setSettingsKey(base + "Callgrind.CycleDetection");
+    detectCycles.setDefaultValue(true);
+    detectCycles.setLabelText("O"); // FIXME: Create a real icon
+    detectCycles.setToolTip(Tr::tr("Enable cycle detection to properly handle recursive "
+        "or circular function calls."));
+    detectCycles.setVisible(global);
+
+    costFormat.setSettingsKey(base + "Callgrind.CostFormat");
+    costFormat.setDefaultValue(CostDelegate::FormatRelative);
+    costFormat.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    costFormat.setVisible(global);
+
+    shortenTemplates.setSettingsKey(base + "Callgrind.ShortenTemplates");
+    shortenTemplates.setDefaultValue(true);
+    shortenTemplates.setLabelText("<>"); // FIXME: Create a real icon
+    shortenTemplates.setToolTip(Tr::tr("Remove template parameter lists when displaying function names."));
+    shortenTemplates.setVisible(global);
+
     setLayouter([this] {
         using namespace Layouting;
 
@@ -367,71 +394,26 @@ ValgrindBaseSettings::ValgrindBaseSettings(bool global)
         };
         // clang-format on
     });
+
+    if (global) {
+        readSettings();
+    } else {
+        // FIXME: Is this needed?
+        connect(this, &AspectContainer::fromMapFinished, [this] {
+            // FIXME: Update project page e.g. on "Restore Global", aspects
+            // there are 'autoapply', and Aspect::cancel() is normally part of
+            // the 'manual apply' machinery.
+            setAutoApply(false);
+            cancel();
+            setAutoApply(true);
+        });
+    }
 }
 
-
-//////////////////////////////////////////////////////////////////
-//
-// ValgrindGlobalSettings
-//
-//////////////////////////////////////////////////////////////////
-
-ValgrindGlobalSettings &globalSettings()
+ValgrindSettings &globalSettings()
 {
-    static ValgrindGlobalSettings theSettings;
+    static ValgrindSettings theSettings{true};
     return theSettings;
-}
-
-ValgrindGlobalSettings::ValgrindGlobalSettings()
-    : ValgrindBaseSettings(true)
-{
-    const QString base = "Analyzer.Valgrind";
-
-    lastSuppressionDirectory.setSettingsKey(base + "LastSuppressionDirectory");
-
-    lastSuppressionHistory.setSettingsKey(base + "LastSuppressionHistory");
-
-    detectCycles.setSettingsKey(base + "Callgrind.CycleDetection");
-    detectCycles.setDefaultValue(true);
-    detectCycles.setLabelText("O"); // FIXME: Create a real icon
-    detectCycles.setToolTip(Tr::tr("Enable cycle detection to properly handle recursive "
-        "or circular function calls."));
-
-    costFormat.setSettingsKey(base + "Callgrind.CostFormat");
-    costFormat.setDefaultValue(CostDelegate::FormatRelative);
-    costFormat.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-
-    shortenTemplates.setSettingsKey(base + "Callgrind.ShortenTemplates");
-    shortenTemplates.setDefaultValue(true);
-    shortenTemplates.setLabelText("<>"); // FIXME: Create a real icon
-    shortenTemplates.setToolTip(Tr::tr("Remove template parameter lists when displaying function names."));
-
-    setSettingsGroup("Analyzer");
-    readSettings();
-    setAutoApply(false);
-}
-
-//
-// Memcheck
-//
-
-//////////////////////////////////////////////////////////////////
-//
-// ValgrindProjectSettings
-//
-//////////////////////////////////////////////////////////////////
-
-ValgrindProjectSettings::ValgrindProjectSettings()
-    : ValgrindBaseSettings(false)
-{
-    connect(this, &AspectContainer::fromMapFinished, [this] {
-        // FIXME: Update project page e.g. on "Restore Global", aspects
-        // there are 'autoapply', and Aspect::cancel() is normally part of
-        // the 'manual apply' machinery.
-        setAutoApply(false);
-        cancel();
-        setAutoApply(true);
-    });
 }
 
 //
@@ -453,6 +435,5 @@ public:
 };
 
 const ValgrindOptionsPage settingsPage;
-
 
 } // Valgrind::Internal

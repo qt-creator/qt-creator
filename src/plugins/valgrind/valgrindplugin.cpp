@@ -31,7 +31,7 @@ class ValgrindRunConfigurationAspect : public GlobalOrProjectAspect
 public:
     ValgrindRunConfigurationAspect(Target *)
     {
-        setProjectSettings(new ValgrindProjectSettings);
+        setProjectSettings(new ValgrindSettings(false));
         setGlobalSettings(&globalSettings());
         setId(ANALYZER_VALGRIND_SETTINGS);
         setDisplayName(Tr::tr("Valgrind Settings"));

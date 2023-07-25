@@ -742,7 +742,7 @@ void CallgrindToolPrivate::setupRunner(CallgrindToolRunner *toolRunner)
     QTC_ASSERT(m_visualization, return);
 
     // apply project settings
-    ValgrindProjectSettings settings;
+    ValgrindSettings settings{false};
     settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
     m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio() / 100.0);
     m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio() / 100.0);

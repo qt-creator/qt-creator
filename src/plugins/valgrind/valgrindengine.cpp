@@ -104,16 +104,16 @@ QStringList ValgrindToolRunner::genericToolArguments() const
     QString smcCheckValue;
 
     switch (m_settings.selfModifyingCodeDetection()) {
-    case ValgrindBaseSettings::DetectSmcNo:
+    case ValgrindSettings::DetectSmcNo:
         smcCheckValue = "none";
         break;
-    case ValgrindBaseSettings::DetectSmcEverywhere:
+    case ValgrindSettings::DetectSmcEverywhere:
         smcCheckValue = "all";
         break;
-    case ValgrindBaseSettings::DetectSmcEverywhereButFile:
+    case ValgrindSettings::DetectSmcEverywhereButFile:
         smcCheckValue = "all-non-file";
         break;
-    case ValgrindBaseSettings::DetectSmcStackOnly:
+    case ValgrindSettings::DetectSmcStackOnly:
     default:
         smcCheckValue = "stack";
         break;

@@ -86,7 +86,7 @@ FilePath MemcheckErrorView::defaultSuppressionFile() const
 
 // slot, can (for now) be invoked either when the settings were modified *or* when the active
 // settings object has changed.
-void MemcheckErrorView::settingsChanged(ValgrindBaseSettings *settings)
+void MemcheckErrorView::settingsChanged(ValgrindSettings *settings)
 {
     QTC_ASSERT(settings, return);
     m_settings = settings;

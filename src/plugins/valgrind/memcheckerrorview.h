@@ -12,7 +12,7 @@
 namespace Valgrind {
 namespace Internal {
 
-class ValgrindBaseSettings;
+class ValgrindSettings;
 
 class MemcheckErrorView : public Debugger::DetailedErrorView
 {
@@ -22,8 +22,8 @@ public:
 
     void setDefaultSuppressionFile(const Utils::FilePath &suppFile);
     Utils::FilePath defaultSuppressionFile() const;
-    ValgrindBaseSettings *settings() const { return m_settings; }
-    void settingsChanged(ValgrindBaseSettings *settings);
+    ValgrindSettings *settings() const { return m_settings; }
+    void settingsChanged(ValgrindSettings *settings);
 
 private:
     void suppressError();
@@ -31,7 +31,7 @@ private:
 
     QAction *m_suppressAction;
     Utils::FilePath m_defaultSuppFile;
-    ValgrindBaseSettings *m_settings = nullptr;
+    ValgrindSettings *m_settings = nullptr;
 };
 
 } // namespace Internal

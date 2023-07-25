@@ -193,13 +193,13 @@ void MemcheckToolRunner::addToolArguments(CommandLine &cmd) const
 
     QString leakCheckValue;
     switch (m_settings.leakCheckOnFinish()) {
-    case ValgrindBaseSettings::LeakCheckOnFinishNo:
+    case ValgrindSettings::LeakCheckOnFinishNo:
         leakCheckValue = "no";
         break;
-    case ValgrindBaseSettings::LeakCheckOnFinishYes:
+    case ValgrindSettings::LeakCheckOnFinishYes:
         leakCheckValue = "full";
         break;
-    case ValgrindBaseSettings::LeakCheckOnFinishSummaryOnly:
+    case ValgrindSettings::LeakCheckOnFinishSummaryOnly:
     default:
         leakCheckValue = "summary";
         break;
@@ -420,7 +420,7 @@ private:
     void heobAction();
 
 private:
-    ValgrindBaseSettings *m_settings;
+    ValgrindSettings *m_settings;
     QMenu *m_filterMenu = nullptr;
 
     Valgrind::XmlProtocol::ErrorListModel m_errorModel;
@@ -941,11 +941,11 @@ void MemcheckToolPrivate::maybeActiveRunConfigurationChanged()
 {
     updateRunActions();
 
-    ValgrindBaseSettings *settings = nullptr;
+    ValgrindSettings *settings = nullptr;
     if (Project *project = ProjectManager::startupProject())
         if (Target *target = project->activeTarget())
             if (RunConfiguration *rc = target->activeRunConfiguration())
-                settings = rc->currentSettings<ValgrindBaseSettings>(ANALYZER_VALGRIND_SETTINGS);
+                settings = rc->currentSettings<ValgrindSettings>(ANALYZER_VALGRIND_SETTINGS);
 
     if (!settings) // fallback to global settings
         settings = &globalSettings();
@@ -962,7 +962,7 @@ void MemcheckToolPrivate::maybeActiveRunConfigurationChanged()
     // now make the new settings current, update and connect input widgets
     m_settings = settings;
     QTC_ASSERT(m_settings, return);
-    connect(m_settings, &ValgrindBaseSettings::destroyed,
+    connect(m_settings, &ValgrindSettings::destroyed,
             this, &MemcheckToolPrivate::settingsDestroyed);
 
     updateFromSettings();
