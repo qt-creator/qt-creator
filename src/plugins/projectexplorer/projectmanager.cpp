@@ -520,12 +520,11 @@ Project *ProjectManager::projectWithProjectFilePath(const FilePath &filePath)
             [&filePath](const Project *p) { return p->projectFilePath() == filePath; });
 }
 
-void ProjectManager::configureEditor(IEditor *editor, const QString &fileName)
+void ProjectManager::configureEditor(IEditor *editor, const FilePath &filePath)
 {
     if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
-        Project *project = projectForFile(Utils::FilePath::fromString(fileName));
         // Global settings are the default.
-        if (project)
+        if (Project *project = projectForFile(filePath))
             project->editorConfiguration()->configureEditor(textEditor);
     }
 }

@@ -228,9 +228,9 @@ QmlProfilerTool::QmlProfilerTool()
     QmlProfilerTextMarkModel *model = d->m_profilerModelManager->textMarkModel();
     if (EditorManager *editorManager = EditorManager::instance()) {
         connect(editorManager, &EditorManager::editorCreated,
-                model, [this, model](Core::IEditor *editor, const QString &fileName) {
+                model, [this, model](Core::IEditor *editor, const FilePath &filePath) {
             Q_UNUSED(editor)
-            model->createMarks(d->m_viewContainer, fileName);
+            model->createMarks(d->m_viewContainer, filePath.toString());
         });
     }
 

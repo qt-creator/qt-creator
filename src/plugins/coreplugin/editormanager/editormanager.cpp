@@ -1442,7 +1442,7 @@ IEditor *EditorManagerPrivate::createEditor(IEditorFactory *factory, const FileP
         connect(document, &IDocument::changed, d, [document] {
             d->handleDocumentStateChange(document);
         });
-        emit m_instance->editorCreated(editor, filePath.toString());
+        emit m_instance->editorCreated(editor, filePath);
     }
 
     return editor;
@@ -1531,7 +1531,7 @@ IEditor *EditorManagerPrivate::duplicateEditor(IEditor *editor)
         return nullptr;
 
     IEditor *duplicate = editor->duplicate();
-    emit m_instance->editorCreated(duplicate, duplicate->document()->filePath().toString());
+    emit m_instance->editorCreated(duplicate, duplicate->document()->filePath());
     addEditor(duplicate);
     return duplicate;
 }

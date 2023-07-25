@@ -97,7 +97,7 @@ signals:
     void projectFinishedParsing(ProjectExplorer::Project *project);
 
 private:
-    static void configureEditor(Core::IEditor *editor, const QString &fileName);
+    static void configureEditor(Core::IEditor *editor, const Utils::FilePath &filePath);
     static void configureEditors(Project *project);
 
     static void registerProjectCreator(const QString &mimeType,

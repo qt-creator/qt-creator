@@ -154,7 +154,7 @@ signals:
     void currentEditorChanged(Core::IEditor *editor);
     void currentDocumentStateChanged();
     void documentStateChanged(Core::IDocument *document);
-    void editorCreated(Core::IEditor *editor, const QString &fileName);
+    void editorCreated(Core::IEditor *editor, const Utils::FilePath &filePath);
     void editorOpened(Core::IEditor *editor);
     void documentOpened(Core::IDocument *document);
     void editorAboutToClose(Core::IEditor *editor);
