@@ -1548,7 +1548,7 @@ void DockManager::syncWorkspacePresets()
 
     // Try do create the 'workspaces' directory if it doesn't exist already
     if (!userDirectory().ensureWritableDir()) {
-        qWarning() << QString("Could not make directory '%1')").arg(userDirectory().toString());
+        qWarning() << QString("Could not make directory '%1')").arg(userDirectory().toUserOutput());
         return;
     }
 
@@ -1573,8 +1573,8 @@ void DockManager::syncWorkspacePresets()
             userDirectory().pathAppended(filePath.fileName()));
         if (!copyResult)
             qWarning() << QString("Could not copy '%1' to '%2' due to %3")
-                              .arg(filePath.toString(),
-                                   userDirectory().toString(),
+                              .arg(filePath.toUserOutput(),
+                                   userDirectory().toUserOutput(),
                                    copyResult.error());
     }
 }
