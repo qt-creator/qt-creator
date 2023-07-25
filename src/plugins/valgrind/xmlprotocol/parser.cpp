@@ -59,6 +59,13 @@ namespace {
 namespace Valgrind {
 namespace XmlProtocol {
 
+enum class Tool {
+    Unknown,
+    Memcheck,
+    Ptrcheck,
+    Helgrind
+};
+
 class Parser::Private
 {
 public:
@@ -91,12 +98,12 @@ private:
     bool notAtEnd() const;
     QString blockingReadElementText();
 
-    Tool tool;
+    Tool tool = Tool::Unknown;
     QXmlStreamReader reader;
     QHash<QString, MemcheckErrorKind> errorKindsByName_memcheck;
     QHash<QString, HelgrindErrorKind> errorKindsByName_helgrind;
     QHash<QString, PtrcheckErrorKind> errorKindsByName_ptrcheck;
-    QHash<QString, Parser::Tool> toolsByName;
+    QHash<QString, Tool> toolsByName;
 
 private:
     Parser *const q;
@@ -109,11 +116,10 @@ private:
 Parser::Private::Private(Parser *qq)
     : q(qq)
 {
-    tool = Parser::Unknown;
-    toolsByName.insert("memcheck", Parser::Memcheck);
-    toolsByName.insert("ptrcheck", Parser::Ptrcheck);
-    toolsByName.insert("exp-ptrcheck", Parser::Ptrcheck);
-    toolsByName.insert("helgrind", Parser::Helgrind);
+    toolsByName.insert("memcheck", Tool::Memcheck);
+    toolsByName.insert("ptrcheck", Tool::Ptrcheck);
+    toolsByName.insert("exp-ptrcheck", Tool::Ptrcheck);
+    toolsByName.insert("helgrind", Tool::Helgrind);
 
     ADD_ENUM(memcheck, ClientCheck)
     ADD_ENUM(memcheck, InvalidFree)
@@ -257,8 +263,7 @@ void Parser::Private::checkProtocolVersion(const QString &versionStr)
 
 void Parser::Private::checkTool(const QString &reportedStr)
 {
-    const QHash<QString,Parser::Tool>::ConstIterator reported = toolsByName.constFind(reportedStr);
-
+    const auto reported = toolsByName.constFind(reportedStr);
     if (reported == toolsByName.constEnd())
         throw ParserException(Tr::tr("Valgrind tool \"%1\" not supported").arg(reportedStr));
 
@@ -315,7 +320,7 @@ XauxWhat Parser::Private::parseXauxWhat()
 
 MemcheckErrorKind Parser::Private::parseMemcheckErrorKind(const QString &kind)
 {
-    const QHash<QString,MemcheckErrorKind>::ConstIterator it = errorKindsByName_memcheck.constFind(kind);
+    const auto it = errorKindsByName_memcheck.constFind(kind);
     if (it != errorKindsByName_memcheck.constEnd())
         return *it;
     else
@@ -324,7 +329,7 @@ MemcheckErrorKind Parser::Private::parseMemcheckErrorKind(const QString &kind)
 
 HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
 {
-    const QHash<QString,HelgrindErrorKind>::ConstIterator it = errorKindsByName_helgrind.constFind(kind);
+    const auto it = errorKindsByName_helgrind.constFind(kind);
     if (it != errorKindsByName_helgrind.constEnd())
         return *it;
     else
@@ -333,7 +338,7 @@ HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
 
 PtrcheckErrorKind Parser::Private::parsePtrcheckErrorKind(const QString &kind)
 {
-    const QHash<QString,PtrcheckErrorKind>::ConstIterator it = errorKindsByName_ptrcheck.constFind(kind);
+    const auto it = errorKindsByName_ptrcheck.constFind(kind);
     if (it != errorKindsByName_ptrcheck.constEnd())
         return *it;
     else
@@ -343,13 +348,13 @@ PtrcheckErrorKind Parser::Private::parsePtrcheckErrorKind(const QString &kind)
 int Parser::Private::parseErrorKind(const QString &kind)
 {
     switch (tool) {
-    case Memcheck:
+    case Tool::Memcheck:
         return parseMemcheckErrorKind(kind);
-    case Ptrcheck:
+    case Tool::Ptrcheck:
         return parsePtrcheckErrorKind(kind);
-    case Helgrind:
+    case Tool::Helgrind:
         return parseHelgrindErrorKind(kind);
-    case Unknown:
+    case Tool::Unknown:
     default:
         break;
     }

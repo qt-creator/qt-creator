@@ -24,13 +24,6 @@ class Parser : public QObject
     Q_OBJECT
 
 public:
-    enum Tool {
-        Unknown,
-        Memcheck,
-        Ptrcheck,
-        Helgrind
-    };
-
     explicit Parser(QObject *parent = nullptr);
     ~Parser() override;
 
