@@ -8,6 +8,7 @@
 #include "axivionquery.h"
 #include "axivionresultparser.h"
 #include "axiviontr.h"
+#include "dashboard/dto.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -24,11 +25,15 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 
+#include <utils/expected.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QTimer>
+
+#include <exception>
+#include <memory>
 
 constexpr char AxivionTextMarkId[] = "AxivionTextMark";
 
@@ -39,7 +44,7 @@ class AxivionPluginPrivate : public QObject
 public:
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
-    void handleProjectInfo(const ProjectInfo &info);
+    void handleProjectInfo(const QByteArray &result);
     void handleOpenedDocs(ProjectExplorer::Project *project);
     void onDocumentOpened(Core::IDocument *doc);
     void onDocumentClosed(Core::IDocument * doc);
@@ -48,7 +53,7 @@ public:
     void fetchRuleInfo(const QString &id);
 
     AxivionOutputPane m_axivionOutputPane;
-    ProjectInfo m_currentProjectInfo;
+    std::shared_ptr<const Dto::ProjectInfoDto> m_currentProjectInfo;
     bool m_runningQuery = false;
 };
 
@@ -113,7 +118,7 @@ void AxivionPlugin::fetchProjectInfo(const QString &projectName)
     dd->fetchProjectInfo(projectName);
 }
 
-ProjectInfo AxivionPlugin::projectInfo()
+std::shared_ptr<const Dto::ProjectInfoDto> AxivionPlugin::projectInfo()
 {
     QTC_ASSERT(dd, return {});
     return dd->m_currentProjectInfo;
@@ -124,7 +129,7 @@ void AxivionPluginPrivate::onStartupProjectChanged()
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project) {
         clearAllMarks();
-        m_currentProjectInfo = ProjectInfo();
+        m_currentProjectInfo = {};
         m_axivionOutputPane.updateDashboard();
         return;
     }
@@ -141,7 +146,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     }
     clearAllMarks();
     if (projectName.isEmpty()) {
-        m_currentProjectInfo = ProjectInfo();
+        m_currentProjectInfo = {};
         m_axivionOutputPane.updateDashboard();
         return;
     }
@@ -150,7 +155,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     AxivionQuery query(AxivionQuery::ProjectInfo, {projectName});
     AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
     connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
-        handleProjectInfo(ResultParser::parseProjectInfo(result));
+        handleProjectInfo(result);
     });
     connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
     runner->start();
@@ -196,20 +201,16 @@ void AxivionPluginPrivate::clearAllMarks()
         onDocumentClosed(doc);
 }
 
-void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
+void AxivionPluginPrivate::handleProjectInfo(const QByteArray &result)
 {
+    Utils::expected_str<Dto::ProjectInfoDto> raw_info = ResultParser::parseProjectInfo(result);
     m_runningQuery = false;
-    if (!info.error.isEmpty()) {
-        Core::MessageManager::writeFlashing("Axivion: " + info.error);
+    if (!raw_info) {
+        Core::MessageManager::writeFlashing(QStringLiteral(u"Axivion: ") + raw_info.error());
         return;
     }
-
-    m_currentProjectInfo = info;
+    m_currentProjectInfo = std::make_shared<const Dto::ProjectInfoDto>(std::move(raw_info.value()));
     m_axivionOutputPane.updateDashboard();
-
-    if (m_currentProjectInfo.name.isEmpty())
-        return;
-
     // handle already opened documents
     if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
             !buildSystem || !buildSystem->isParsing()) {
@@ -223,7 +224,7 @@ void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
 
 void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
 {
-    if (m_currentProjectInfo.name.isEmpty()) // we do not have a project info (yet)
+    if (!m_currentProjectInfo) // we do not have a project info (yet)
         return;
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
@@ -232,7 +233,7 @@ void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
 
     Utils::FilePath relative = doc->filePath().relativeChildPath(project->projectDirectory());
     // for now only style violations
-    AxivionQuery query(AxivionQuery::IssuesForFileList, {m_currentProjectInfo.name, "SV",
+    AxivionQuery query(AxivionQuery::IssuesForFileList, {m_currentProjectInfo->name, "SV",
                                                          relative.path() } );
     AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
     connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){

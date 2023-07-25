@@ -3,7 +3,11 @@
 
 #pragma once
 
+#include "dashboard/dto.h"
+
 #include <extensionsystem/iplugin.h>
+
+#include <memory>
 
 namespace ProjectExplorer { class Project; }
 
@@ -22,7 +26,7 @@ public:
     ~AxivionPlugin() final;
 
     static void fetchProjectInfo(const QString &projectName);
-    static ProjectInfo projectInfo();
+    static std::shared_ptr<const Dto::ProjectInfoDto> projectInfo();
 
 private:
     void initialize() final;
