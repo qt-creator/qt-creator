@@ -30,8 +30,8 @@ namespace RemoteLinux {
 class SetupPage : public QWizardPage
 {
 public:
-    explicit SetupPage(QWidget *parent = nullptr)
-        : QWizardPage(parent)
+    explicit SetupPage(const ProjectExplorer::IDevicePtr &device)
+        : m_device(device)
     {
         setTitle(Tr::tr("Connection"));
         setWindowTitle(Tr::tr("WizardPage"));
@@ -62,8 +62,6 @@ public:
         connect(m_userNameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
     }
 
-    void setDevice(const ProjectExplorer::IDevicePtr &device) { m_device = device; }
-
 private:
     void initializePage() final {
         m_nameLineEdit->setText(m_device->displayName());
@@ -73,13 +71,12 @@ private:
         m_userNameLineEdit->setText(m_device->sshParameters().userName());
     }
     bool isComplete() const final {
-        return !configurationName().isEmpty()
+        return !m_nameLineEdit->text().trimmed().isEmpty()
                && !m_hostNameLineEdit->text().trimmed().isEmpty()
                && !m_userNameLineEdit->text().trimmed().isEmpty();
-
     }
     bool validatePage() final {
-        m_device->setDisplayName(configurationName());
+        m_device->setDisplayName(m_nameLineEdit->text().trimmed());
         SshParameters sshParams = m_device->sshParameters();
         sshParams.setHost(m_hostNameLineEdit->text().trimmed());
         sshParams.setUserName(m_userNameLineEdit->text().trimmed());
@@ -87,8 +84,6 @@ private:
         m_device->setSshParameters(sshParams);
         return true;
     }
-
-    QString configurationName() const { return m_nameLineEdit->text().trimmed(); }
 
     FancyLineEdit *m_nameLineEdit;
     FancyLineEdit *m_hostNameLineEdit;
@@ -100,19 +95,17 @@ private:
 class KeyDeploymentPage : public QWizardPage
 {
 public:
-    explicit KeyDeploymentPage(QWidget *parent = nullptr)
-        : QWizardPage(parent)
+    explicit KeyDeploymentPage(const ProjectExplorer::IDevicePtr &device)
+        : m_device(device)
     {
         setTitle(Tr::tr("Key Deployment"));
         setSubTitle(" ");
-        const QString info = Tr::tr("We recommend that you log into your device using public key "
-                                    "authentication.\n"
-                                    "If your device is already set up for this, you do not have to do "
-                                    "anything here.\n"
-                                    "Otherwise, please deploy the public key for the private key "
-                                    "with which to connect in the future.\n"
-                                    "If you do not have a private key yet, you can also "
-                                    "create one here.");
+        const QString info = Tr::tr(
+            "We recommend that you log into your device using public key authentication.\n"
+            "If your device is already set up for this, you do not have to do anything here.\n"
+            "Otherwise, please deploy the public key for the private key "
+            "with which to connect in the future.\n"
+            "If you do not have a private key yet, you can also create one here.");
         m_keyFileChooser.setExpectedKind(PathChooser::File);
         m_keyFileChooser.setHistoryCompleter("Ssh.KeyFile.History");
         m_keyFileChooser.setPromptDialogTitle(Tr::tr("Choose a Private Key File"));
@@ -154,8 +147,6 @@ public:
         }
     }
 
-    void setDevice(const ProjectExplorer::IDevicePtr &device) { m_device = device; }
-
 private:
     void initializePage() final {
         if (!m_device->sshParameters().privateKeyFile.isEmpty())
@@ -175,7 +166,6 @@ private:
         }
         return true;
     }
-
     FilePaths defaultKeys() const {
         const FilePath baseDir = FileUtils::homePath() / ".ssh";
         return {baseDir / "id_rsa", baseDir / "id_ecdsa", baseDir / "id_ed25519"};
@@ -189,23 +179,17 @@ private:
 class FinalPage final : public QWizardPage
 {
 public:
-    FinalPage(QWidget *parent = nullptr)
-        : QWizardPage(parent)
+    FinalPage()
     {
         setTitle(Tr::tr("Summary"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        m_infoLabel.setWordWrap(true);
-        auto const layout = new QVBoxLayout(this);
-        layout->addWidget(&m_infoLabel);
+        auto infoLabel = new QLabel(Tr::tr("The new device configuration will now be created.\n"
+                                           "In addition, device connectivity will be tested."));
+        infoLabel->setWordWrap(true);
+        auto layout = new QVBoxLayout(this);
+        layout->addWidget(infoLabel);
+        setCommitPage(true);
     }
-
-private:
-    void initializePage() final {
-        m_infoLabel.setText(Tr::tr("The new device configuration will now be created.\n"
-                                   "In addition, device connectivity will be tested."));
-    }
-
-    QLabel m_infoLabel;
 };
 
 SshDeviceWizard::SshDeviceWizard(const QString &title, const ProjectExplorer::IDevicePtr &device)
@@ -213,17 +197,9 @@ SshDeviceWizard::SshDeviceWizard(const QString &title, const ProjectExplorer::ID
 {
     setWindowTitle(title);
 
-    auto setupPage = new SetupPage;
-    auto keyDeploymentPage = new KeyDeploymentPage;
-    auto finalPage = new FinalPage;
-
-    addPage(setupPage);
-    addPage(keyDeploymentPage);
-    addPage(finalPage);
-
-    finalPage->setCommitPage(true);
-    setupPage->setDevice(device);
-    keyDeploymentPage->setDevice(device);
+    addPage(new SetupPage(device));
+    addPage(new KeyDeploymentPage(device));
+    addPage(new FinalPage);
 }
 
 } // namespace RemoteLinux
