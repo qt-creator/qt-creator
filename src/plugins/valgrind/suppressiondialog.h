@@ -18,7 +18,6 @@ namespace Valgrind {
 namespace Internal {
 
 class MemcheckErrorView;
-class ValgrindBaseSettings;
 
 class SuppressionDialog : public QDialog
 {
@@ -33,7 +32,6 @@ private:
     void reject() override;
 
     MemcheckErrorView *m_view;
-    ValgrindBaseSettings *m_settings;
     bool m_cleanupIfCanceled;
     QList<XmlProtocol::Error> m_errors;
 

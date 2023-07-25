@@ -93,7 +93,6 @@ static bool equalSuppression(const Error &error, const Error &suppressed)
 
 SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error> &errors)
   : m_view(view),
-    m_settings(view->settings()),
     m_cleanupIfCanceled(false),
     m_errors(errors),
     m_fileChooser(new PathChooser(this)),
@@ -191,7 +190,7 @@ void SuppressionDialog::accept()
         }
     }
 
-    m_settings->suppressions.addSuppressionFile(path);
+    m_view->settings()->suppressions.addSuppressionFile(path);
 
     const QModelIndexList indices = Utils::sorted(m_view->selectionModel()->selectedRows(),
                                                   [](const QModelIndex &l, const QModelIndex &r) {
