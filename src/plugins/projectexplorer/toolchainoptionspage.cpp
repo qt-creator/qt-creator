@@ -3,10 +3,11 @@
 
 #include "toolchainoptionspage.h"
 
-#include "toolchain.h"
 #include "abi.h"
+#include "devicesupport/devicemanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "toolchain.h"
 #include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
 
@@ -404,7 +405,7 @@ void ToolChainOptionsWidget::redetectToolchains()
     QSet<ToolChain *> toDelete;
     ToolChainManager::resetBadToolchains();
     for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories()) {
-        const ToolchainDetector detector(knownTcs, {}, {});  // FIXME: Pass device and search paths
+        const ToolchainDetector detector(knownTcs, DeviceManager::defaultDesktopDevice(), {});  // FIXME: Pass search paths
         for (ToolChain * const tc : f->autoDetect(detector)) {
             if (knownTcs.contains(tc) || toDelete.contains(tc))
                 continue;
