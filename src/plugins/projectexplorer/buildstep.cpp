@@ -241,11 +241,6 @@ QVariant BuildStep::data(Id id) const
     return {};
 }
 
-void BuildStep::addMacroExpander()
-{
-    m_addMacroExpander = true;
-}
-
 void BuildStep::setEnabled(bool b)
 {
     if (m_enabled == b)

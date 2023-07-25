@@ -49,17 +49,10 @@ public:
     BuildStepList *stepList() const;
 
     BuildConfiguration *buildConfiguration() const;
-    DeployConfiguration *deployConfiguration() const;
-    ProjectConfiguration *projectConfiguration() const;
 
     BuildSystem *buildSystem() const;
-    Utils::Environment buildEnvironment() const;
-    Utils::FilePath buildDirectory() const;
     BuildConfiguration::BuildType buildType() const;
     Utils::MacroExpander *macroExpander() const;
-    QString fallbackWorkingDirectory() const;
-
-    virtual void setupOutputFormatter(Utils::OutputFormatter *formatter);
 
     enum class OutputFormat {
         Stdout, Stderr, // These are for forwarded output from external tools
@@ -75,23 +68,12 @@ public:
     };
 
     bool widgetExpandedByDefault() const;
-    void setWidgetExpandedByDefault(bool widgetExpandedByDefault);
-
     bool hasUserExpansionState() const { return m_wasExpanded.has_value(); }
     bool wasUserExpanded() const { return m_wasExpanded.value_or(false); }
     void setUserExpanded(bool expanded) { m_wasExpanded = expanded; }
-
     bool isImmutable() const { return m_immutable; }
-    void setImmutable(bool immutable) { m_immutable = immutable; }
-
     virtual QVariant data(Utils::Id id) const;
-    void setSummaryUpdater(const std::function<QString()> &summaryUpdater);
-
-    void addMacroExpander();
-
     QString summaryText() const;
-    void setSummaryText(const QString &summaryText);
-
     QWidget *doCreateConfigWidget();
 
 signals:
@@ -112,11 +94,24 @@ signals:
     void progress(int percentage, const QString &message);
 
 protected:
+    void setWidgetExpandedByDefault(bool widgetExpandedByDefault);
+    void setImmutable(bool immutable) { m_immutable = immutable; }
+    void setSummaryUpdater(const std::function<QString()> &summaryUpdater);
+    void addMacroExpander() { m_addMacroExpander = true; }
+    void setSummaryText(const QString &summaryText);
+
+    DeployConfiguration *deployConfiguration() const;
+    Utils::Environment buildEnvironment() const;
+    Utils::FilePath buildDirectory() const;
+    QString fallbackWorkingDirectory() const;
+
     virtual QWidget *createConfigWidget();
+    virtual void setupOutputFormatter(Utils::OutputFormatter *formatter);
 
 private:
     friend class BuildManager;
     virtual Tasking::GroupItem runRecipe() = 0;
+    ProjectConfiguration *projectConfiguration() const;
 
     BuildStepList * const m_stepList;
     bool m_enabled = true;
