@@ -15,7 +15,7 @@
 #include <QAbstractSocket>
 #include <QHash>
 #include <QIODevice>
-#include <QPair>
+#include <QMetaEnum>
 #include <QXmlStreamReader>
 
 namespace {
@@ -88,9 +88,6 @@ private:
     void checkTool(const QString &tool);
     XWhat parseXWhat();
     XauxWhat parseXauxWhat();
-    MemcheckErrorKind parseMemcheckErrorKind(const QString &kind);
-    HelgrindErrorKind parseHelgrindErrorKind(const QString &kind);
-    PtrcheckErrorKind parsePtrcheckErrorKind(const QString &kind);
     int parseErrorKind(const QString &kind);
 
     void reportInternalError(const QString &errorString);
@@ -100,18 +97,11 @@ private:
 
     Tool tool = Tool::Unknown;
     QXmlStreamReader reader;
-    QHash<QString, MemcheckErrorKind> errorKindsByName_memcheck;
-    QHash<QString, HelgrindErrorKind> errorKindsByName_helgrind;
-    QHash<QString, PtrcheckErrorKind> errorKindsByName_ptrcheck;
     QHash<QString, Tool> toolsByName;
 
 private:
     Parser *const q;
 };
-
-#undef ADD_ENUM
-#define ADD_ENUM(tool,enumV) { errorKindsByName_##tool.insert(#enumV, enumV); }
-
 
 Parser::Private::Private(Parser *qq)
     : q(qq)
@@ -120,37 +110,7 @@ Parser::Private::Private(Parser *qq)
     toolsByName.insert("ptrcheck", Tool::Ptrcheck);
     toolsByName.insert("exp-ptrcheck", Tool::Ptrcheck);
     toolsByName.insert("helgrind", Tool::Helgrind);
-
-    ADD_ENUM(memcheck, ClientCheck)
-    ADD_ENUM(memcheck, InvalidFree)
-    ADD_ENUM(memcheck, InvalidJump)
-    ADD_ENUM(memcheck, InvalidRead)
-    ADD_ENUM(memcheck, InvalidWrite)
-    ADD_ENUM(memcheck, Leak_DefinitelyLost)
-    ADD_ENUM(memcheck, Leak_PossiblyLost)
-    ADD_ENUM(memcheck, Leak_StillReachable)
-    ADD_ENUM(memcheck, Leak_IndirectlyLost)
-    ADD_ENUM(memcheck, MismatchedFree)
-    ADD_ENUM(memcheck, Overlap)
-    ADD_ENUM(memcheck, SyscallParam)
-    ADD_ENUM(memcheck, UninitCondition)
-    ADD_ENUM(memcheck, UninitValue)
-
-    ADD_ENUM(helgrind, Race)
-    ADD_ENUM(helgrind, UnlockUnlocked)
-    ADD_ENUM(helgrind, UnlockForeign)
-    ADD_ENUM(helgrind, UnlockBogus)
-    ADD_ENUM(helgrind, PthAPIerror)
-    ADD_ENUM(helgrind, LockOrder)
-    ADD_ENUM(helgrind, Misc)
-
-    ADD_ENUM(ptrcheck, SorG)
-    ADD_ENUM(ptrcheck, Heap)
-    ADD_ENUM(ptrcheck, Arith)
-    ADD_ENUM(ptrcheck, SysParam)
 }
-
-#undef ADD_ENUM
 
 static quint64 parseHex(const QString &str, const QString &context)
 {
@@ -316,44 +276,26 @@ XauxWhat Parser::Private::parseXauxWhat()
     return what;
 }
 
-
-
-MemcheckErrorKind Parser::Private::parseMemcheckErrorKind(const QString &kind)
+template <typename Enum>
+int parseErrorEnum(const QString &kind)
 {
-    const auto it = errorKindsByName_memcheck.constFind(kind);
-    if (it != errorKindsByName_memcheck.constEnd())
-        return *it;
-    else
-        throw ParserException(Tr::tr("Unknown memcheck error kind \"%1\"").arg(kind));
-}
-
-HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
-{
-    const auto it = errorKindsByName_helgrind.constFind(kind);
-    if (it != errorKindsByName_helgrind.constEnd())
-        return *it;
-    else
-        throw ParserException(Tr::tr("Unknown helgrind error kind \"%1\"").arg(kind));
-}
-
-PtrcheckErrorKind Parser::Private::parsePtrcheckErrorKind(const QString &kind)
-{
-    const auto it = errorKindsByName_ptrcheck.constFind(kind);
-    if (it != errorKindsByName_ptrcheck.constEnd())
-        return *it;
-    else
-        throw ParserException(Tr::tr("Unknown ptrcheck error kind \"%1\"").arg(kind));
+    const QMetaEnum metaEnum = QMetaEnum::fromType<Enum>();
+    const int value = metaEnum.keyToValue(kind.toUtf8());
+    if (value >= 0)
+        return value;
+    throw ParserException(Tr::tr("Unknown %1 kind \"%2\"")
+                              .arg(QString::fromUtf8(metaEnum.enumName()), kind));
 }
 
 int Parser::Private::parseErrorKind(const QString &kind)
 {
     switch (tool) {
     case Tool::Memcheck:
-        return parseMemcheckErrorKind(kind);
+        return parseErrorEnum<MemcheckError>(kind);
     case Tool::Ptrcheck:
-        return parsePtrcheckErrorKind(kind);
+        return parseErrorEnum<PtrcheckError>(kind);
     case Tool::Helgrind:
-        return parseHelgrindErrorKind(kind);
+        return parseErrorEnum<HelgrindError>(kind);
     case Tool::Unknown:
     default:
         break;

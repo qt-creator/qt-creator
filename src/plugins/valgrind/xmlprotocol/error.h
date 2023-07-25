@@ -14,13 +14,15 @@ QT_END_NAMESPACE
 namespace Valgrind {
 namespace XmlProtocol {
 
+Q_NAMESPACE
+
 class Stack;
 class Suppression;
 
 /**
  * Error kinds, specific to memcheck
  */
-enum MemcheckErrorKind
+enum MemcheckError
 {
     InvalidFree,
     MismatchedFree,
@@ -36,19 +38,20 @@ enum MemcheckErrorKind
     Leak_DefinitelyLost,
     Leak_PossiblyLost,
     Leak_StillReachable,
-    Leak_IndirectlyLost,
-    MemcheckErrorKindCount
+    Leak_IndirectlyLost
 };
+Q_ENUM_NS(MemcheckError);
 
-enum PtrcheckErrorKind
+enum PtrcheckError
 {
     SorG,
     Heap,
     Arith,
     SysParam
 };
+Q_ENUM_NS(PtrcheckError);
 
-enum HelgrindErrorKind
+enum HelgrindError
 {
     Race,
     UnlockUnlocked,
@@ -58,6 +61,7 @@ enum HelgrindErrorKind
     LockOrder,
     Misc
 };
+Q_ENUM_NS(HelgrindError);
 
 class Error
 {

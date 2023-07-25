@@ -22,6 +22,7 @@
 
 #include <QDebug>
 #include <QListView>
+#include <QMetaEnum>
 #include <QPushButton>
 #include <QSettings>
 #include <QStandardItemModel>
@@ -325,8 +326,9 @@ ValgrindSettings::ValgrindSettings(bool global)
 
     visibleErrorKinds.setSettingsKey(base + "VisibleErrorKinds");
     QList<int> defaultErrorKinds;
-    for (int i = 0; i < Valgrind::XmlProtocol::MemcheckErrorKindCount; ++i)
-        defaultErrorKinds << i;
+    const QMetaEnum memcheckErrorEnum = QMetaEnum::fromType<XmlProtocol::MemcheckError>();
+    for (int i = 0; i < memcheckErrorEnum.keyCount(); ++i)
+        defaultErrorKinds << memcheckErrorEnum.value(i);
     visibleErrorKinds.setDefaultValue(defaultErrorKinds);
 
     detectCycles.setSettingsKey(base + "Callgrind.CycleDetection");

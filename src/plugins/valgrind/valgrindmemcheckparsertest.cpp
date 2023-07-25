@@ -28,7 +28,7 @@ QT_BEGIN_NAMESPACE
 namespace QTest {
 
 template<>
-inline bool qCompare(int const &t1, MemcheckErrorKind const &t2,
+inline bool qCompare(int const &t1, MemcheckError const &t2,
                      char const *actual, char const *expected, char const *file, int line)
 {
     return qCompare(t1, int(t2), actual, expected, file, line);
