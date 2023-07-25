@@ -421,9 +421,10 @@ public:
     QVector<ParameterAction *> m_projectActions;
     QVector<QAction *> m_repositoryActions;
     ParameterAction *m_applyCurrentFilePatchAction = nullptr;
-    Gerrit::Internal::GerritPlugin m_gerritPlugin;
 
     GitClient m_gitClient;
+    Gerrit::Internal::GerritPlugin m_gerritPlugin;
+
     QPointer<StashDialog> m_stashDialog;
     BranchViewFactory m_branchViewFactory;
     QPointer<RemoteDialog> m_remoteDialog;
