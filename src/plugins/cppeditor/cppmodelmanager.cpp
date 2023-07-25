@@ -2079,12 +2079,12 @@ QThreadPool *CppModelManager::sharedThreadPool()
     return &d->m_threadPool;
 }
 
-bool CppModelManager::setExtraDiagnostics(const QString &fileName,
+bool CppModelManager::setExtraDiagnostics(const FilePath &filePath,
                                           const QString &kind,
                                           const QList<Document::DiagnosticMessage> &diagnostics)
 {
     d->m_diagnosticMessages = diagnostics;
-    emit m_instance->diagnosticsChanged(fileName, kind);
+    emit m_instance->diagnosticsChanged(filePath, kind);
     return true;
 }
 

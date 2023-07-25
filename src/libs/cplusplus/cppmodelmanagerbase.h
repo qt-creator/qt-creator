@@ -5,13 +5,15 @@
 
 #include <cplusplus/CppDocument.h>
 
+namespace Utils { class FilePath; }
+
 namespace CPlusPlus::CppModelManagerBase {
 
 CPLUSPLUS_EXPORT bool trySetExtraDiagnostics
-    (const QString &, const QString &, const QList<Document::DiagnosticMessage> &);
+    (const Utils::FilePath &filePath, const QString &, const QList<Document::DiagnosticMessage> &);
 
 CPLUSPLUS_EXPORT bool setSetExtraDiagnostics
-    (const QString &, const QString &, const QList<Document::DiagnosticMessage> &);
+    (const Utils::FilePath &, const QString &, const QList<Document::DiagnosticMessage> &);
 
 CPLUSPLUS_EXPORT bool hasSnapshots();
 
@@ -23,6 +25,6 @@ CPLUSPLUS_EXPORT CPlusPlus::Snapshot snapshot();
 CPLUSPLUS_EXPORT void registerSnapshotCallback(CPlusPlus::Snapshot (*)(void));
 
 CPLUSPLUS_EXPORT void registerSetExtraDiagnosticsCallback(
-    bool(*)(const QString &, const QString &, const QList<Document::DiagnosticMessage> &));
+    bool(*)(const Utils::FilePath &, const QString &, const QList<Document::DiagnosticMessage> &));
 
 } // CPlusPlus::CppModelManagerBase

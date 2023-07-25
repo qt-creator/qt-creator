@@ -479,9 +479,9 @@ bool CppEditorDocument::usesClangd() const
     return CppModelManager::usesClangd(this);
 }
 
-void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QString &kind)
+void CppEditorDocument::onDiagnosticsChanged(const FilePath &fileName, const QString &kind)
 {
-    if (FilePath::fromString(fileName) != filePath())
+    if (fileName != filePath())
         return;
 
     TextMarks removedMarks = marks();

@@ -95,7 +95,7 @@ public:
     static QByteArray codeModelConfiguration();
     static CppLocatorData *locatorData();
 
-    static bool setExtraDiagnostics(const QString &fileName,
+    static bool setExtraDiagnostics(const Utils::FilePath &filePath,
                                     const QString &kind,
                                     const QList<Document::DiagnosticMessage> &diagnostics);
 
@@ -268,7 +268,7 @@ signals:
     void abstractEditorSupportRemoved(const QString &filePath);
     void fallbackProjectPartUpdated();
 
-    void diagnosticsChanged(const QString &fileName, const QString &kind);
+    void diagnosticsChanged(const Utils::FilePath &filePath, const QString &kind);
 
 public slots:
     static void updateModifiedSourceFiles();

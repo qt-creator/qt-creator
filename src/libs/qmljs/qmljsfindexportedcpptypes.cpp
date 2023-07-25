@@ -842,8 +842,7 @@ QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &doc
     FindExportsVisitor finder(document);
     finder();
     static const QString kindKey = QLatin1String("QmlJSTools.ExportedQmlTypesDiagnostic");
-    CppModelManagerBase::trySetExtraDiagnostics(document->filePath().toString(), kindKey,
-                                                finder.messages());
+    CppModelManagerBase::trySetExtraDiagnostics(document->filePath(), kindKey, finder.messages());
 
     // if nothing was found, done
     const QList<ContextProperty> contextPropertyDescriptions = finder.contextProperties();

@@ -3,29 +3,32 @@
 
 #include "cppmodelmanagerbase.h"
 
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
+
+using namespace Utils;
 
 namespace CPlusPlus::CppModelManagerBase {
 
 static bool (*setExtraDiagnosticsCallback)
-    (const QString &, const QString &, const QList<Document::DiagnosticMessage> &) = nullptr;
+    (const FilePath &, const QString &, const QList<Document::DiagnosticMessage> &) = nullptr;
 
 static CPlusPlus::Snapshot (*snapshotCallback)() = nullptr;
 
 
-bool trySetExtraDiagnostics(const QString &fileName, const QString &kind,
+bool trySetExtraDiagnostics(const FilePath &filePath, const QString &kind,
                             const QList<Document::DiagnosticMessage> &diagnostics)
 {
     if (!setExtraDiagnosticsCallback)
         return false;
-    return setExtraDiagnosticsCallback(fileName, kind, diagnostics);
+    return setExtraDiagnosticsCallback(filePath, kind, diagnostics);
 }
 
-bool setExtraDiagnostics(const QString &fileName, const QString &kind,
-                            const QList<Document::DiagnosticMessage> &diagnostics)
+bool setExtraDiagnostics(const FilePath &filePath, const QString &kind,
+                         const QList<Document::DiagnosticMessage> &diagnostics)
 {
     QTC_ASSERT(setExtraDiagnosticsCallback, return false);
-    return setExtraDiagnosticsCallback(fileName, kind, diagnostics);
+    return setExtraDiagnosticsCallback(filePath, kind, diagnostics);
 }
 
 Snapshot snapshot()
@@ -42,7 +45,7 @@ bool hasSnapshots()
 // Installation
 
 void registerSetExtraDiagnosticsCallback(
-    bool (*callback)(const QString &, const QString &, const QList<Document::DiagnosticMessage> &))
+    bool (*callback)(const FilePath &, const QString &, const QList<Document::DiagnosticMessage> &))
 {
     QTC_ASSERT(callback, return);
     QTC_CHECK(!setExtraDiagnosticsCallback); // bark when used twice
