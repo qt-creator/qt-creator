@@ -418,14 +418,12 @@ ValgrindSettings &globalSettings()
     return theSettings;
 }
 
-//
-// ValgrindOptionsPage
-//
+// ValgrindSettingsPage
 
-class ValgrindOptionsPage final : public Core::IOptionsPage
+class ValgrindSettingsPage final : public Core::IOptionsPage
 {
 public:
-    ValgrindOptionsPage()
+    ValgrindSettingsPage()
     {
         setId(ANALYZER_VALGRIND_SETTINGS);
         setDisplayName(Tr::tr("Valgrind"));
@@ -436,6 +434,6 @@ public:
     }
 };
 
-const ValgrindOptionsPage settingsPage;
+const ValgrindSettingsPage settingsPage;
 
 } // Valgrind::Internal
