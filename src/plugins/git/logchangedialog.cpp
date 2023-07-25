@@ -47,7 +47,7 @@ public:
             const auto it = m_descriptions.constFind(revision);
             if (it != m_descriptions.constEnd())
                 return *it;
-            const QString desc = QString::fromUtf8(GitClient::instance()->synchronousShow(
+            const QString desc = QString::fromUtf8(gitClient().synchronousShow(
                                  m_workingDirectory, revision, RunFlags::NoOutput));
             m_descriptions[revision] = desc;
             return desc;
@@ -170,7 +170,7 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
     }
     arguments << "--";
     QString output;
-    if (!GitClient::instance()->synchronousLog(
+    if (!gitClient().synchronousLog(
                 repository, arguments, &output, nullptr, RunFlags::NoOutput)) {
         return false;
     }

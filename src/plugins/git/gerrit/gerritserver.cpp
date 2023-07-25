@@ -1,9 +1,10 @@
 // Copyright (C) 2017 Orgad Shaneh <orgads@gmail.com>.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "gerritserver.h"
+
 #include "authenticationdialog.h"
 #include "gerritparameters.h"
-#include "gerritserver.h"
 #include "../gitclient.h"
 #include "../gittr.h"
 
@@ -222,9 +223,8 @@ QStringList GerritServer::curlArguments() const
 
 int GerritServer::testConnection()
 {
-    static GitClient *const client = GitClient::instance();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
-    const CommandResult result = client->vcsSynchronousExec({}, {curlBinary, arguments});
+    const CommandResult result = gitClient().vcsSynchronousExec({}, {curlBinary, arguments});
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         QString output = result.cleanedStdOut();
         // Gerrit returns an empty response for /p/qt-creator/a/accounts/self
@@ -310,7 +310,6 @@ bool GerritServer::resolveRoot()
 
 bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
 {
-    static GitClient *const client = GitClient::instance();
     QSettings *settings = Core::ICore::settings();
     const QString fullVersionKey = "Gerrit/" + host + '/' + versionKey;
     version = settings->value(fullVersionKey).toString();
@@ -321,8 +320,8 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
         if (port)
             arguments << p.portFlag << QString::number(port);
         arguments << hostArgument() << "gerrit" << "version";
-        const CommandResult result = client->vcsSynchronousExec({}, {p.ssh, arguments},
-                                                                RunFlags::NoOutput);
+        const CommandResult result = gitClient().vcsSynchronousExec({}, {p.ssh, arguments},
+                                                                    RunFlags::NoOutput);
         QString stdOut = result.cleanedStdOut().trimmed();
         stdOut.remove("gerrit version ");
         version = stdOut;
@@ -330,8 +329,8 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
             return false;
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
-        const CommandResult result = client->vcsSynchronousExec({}, {curlBinary, arguments},
-                                                                RunFlags::NoOutput);
+        const CommandResult result = gitClient().vcsSynchronousExec({}, {curlBinary, arguments},
+                                                                    RunFlags::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.
         if (result.result() == ProcessResult::FinishedWithSuccess) {

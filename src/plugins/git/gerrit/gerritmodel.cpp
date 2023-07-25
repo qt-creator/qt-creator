@@ -268,7 +268,7 @@ QueryContext::QueryContext(const QString &query,
         m_output.append(m_process.readAllRawStandardOutput());
     });
     connect(&m_process, &Process::done, this, &QueryContext::processDone);
-    m_process.setEnvironment(Git::Internal::GitClient::instance()->processEnvironment());
+    m_process.setEnvironment(Git::Internal::gitClient().processEnvironment());
 
     m_timer.setInterval(timeOutMS);
     m_timer.setSingleShot(true);

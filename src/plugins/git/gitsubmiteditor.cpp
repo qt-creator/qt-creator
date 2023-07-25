@@ -69,7 +69,7 @@ CommitDataFetchResult CommitDataFetchResult::fetch(CommitType commitType, const 
     CommitDataFetchResult result;
     result.commitData.commitType = commitType;
     QString commitTemplate;
-    result.success = GitClient::instance()->getCommitData(
+    result.success = gitClient().getCommitData(
                 workingDirectory, &commitTemplate, result.commitData, &result.errorMessage);
     return result;
 }
@@ -181,15 +181,15 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
         }
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
-        GitClient::instance()->diffFiles(m_workingDirectory, unstagedFiles, stagedFiles);
+        gitClient().diffFiles(m_workingDirectory, unstagedFiles, stagedFiles);
     if (!unmergedFiles.empty())
-        GitClient::instance()->merge(m_workingDirectory, unmergedFiles);
+        gitClient().merge(m_workingDirectory, unmergedFiles);
 }
 
 void GitSubmitEditor::showCommit(const QString &commit)
 {
     if (!m_workingDirectory.isEmpty())
-        GitClient::instance()->show(m_workingDirectory, commit);
+        gitClient().show(m_workingDirectory, commit);
 }
 
 void GitSubmitEditor::updateFileModel()

@@ -135,8 +135,8 @@ static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParam
                        const GitGrepParameters &gitParameters)
 {
     const auto setupProcess = [&parameters, gitParameters](Process &process) {
-        const FilePath vcsBinary = GitClient::instance()->vcsBinary();
-        const Environment environment = GitClient::instance()->processEnvironment();
+        const FilePath vcsBinary = gitClient().vcsBinary();
+        const Environment environment = gitClient().processEnvironment();
 
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
@@ -189,7 +189,7 @@ static bool isGitDirectory(const FilePath &path)
     return gitVc == VcsManager::findVersionControlForDirectory(path);
 }
 
-GitGrep::GitGrep(GitClient *client)
+GitGrep::GitGrep()
 {
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);
@@ -202,7 +202,7 @@ GitGrep::GitGrep(GitClient *client)
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
     // asynchronously check git version, add "recurse submodules" option if available
-    Utils::onResultReady(client->gitVersion(), this,
+    Utils::onResultReady(gitClient().gitVersion(), this,
                          [this, pLayout = QPointer<QHBoxLayout>(layout)](unsigned version) {
         if (version >= 0x021300 && pLayout) {
             m_recurseSubmodules = new QCheckBox(Tr::tr("Recurse submodules"));
@@ -271,7 +271,7 @@ EditorOpener GitGrep::editorOpener() const
         if (params.ref.isEmpty() || itemPath.isEmpty())
             return nullptr;
         const FilePath path = FilePath::fromUserInput(itemPath.first());
-        IEditor *editor = GitClient::instance()->openShowEditor(
+        IEditor *editor = gitClient().openShowEditor(
             parameters.searchDir, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
         if (editor)
             editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);

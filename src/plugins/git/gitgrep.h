@@ -13,13 +13,12 @@ namespace Utils { class FancyLineEdit; }
 
 namespace Git::Internal {
 
-class GitClient;
 class GitGrepParameters;
 
 class GitGrep : public TextEditor::SearchEngine
 {
 public:
-    explicit GitGrep(GitClient *client);
+    GitGrep();
     ~GitGrep() override;
 
     QString title() const override;

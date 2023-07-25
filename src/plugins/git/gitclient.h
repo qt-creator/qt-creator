@@ -120,7 +120,7 @@ public:
     };
 
     GitClient();
-    static GitClient *instance();
+    ~GitClient();
 
     Utils::FilePath vcsBinary() const override;
     QFuture<unsigned> gitVersion() const;
@@ -405,6 +405,8 @@ private:
     Utils::FilePaths m_updatedSubmodules;
     bool m_disableEditor = false;
 };
+
+GITSHARED_EXPORT GitClient &gitClient();
 
 class GitRemote : public Core::IVersionControl::RepoUrl
 {

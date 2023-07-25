@@ -224,7 +224,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAc
     if (patchAction == PatchAction::Revert)
         args << "--reverse";
     QString errorMessage;
-    if (GitClient::instance()->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
+    if (gitClient().synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
         if (errorMessage.isEmpty())
             VcsOutputWindow::append(Tr::tr("Chunk successfully staged"));
         else
@@ -244,7 +244,7 @@ void GitEditorWidget::init()
     const bool isRebaseEditor = editorId == Git::Constants::GIT_REBASE_EDITOR_ID;
     if (!isCommitEditor && !isRebaseEditor)
         return;
-    const QChar commentChar = GitClient::instance()->commentChar(source());
+    const QChar commentChar = gitClient().commentChar(source());
     if (isCommitEditor)
         textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter(commentChar));
     else if (isRebaseEditor)
@@ -274,14 +274,14 @@ void GitEditorWidget::aboutToOpen(const FilePath &filePath, const FilePath &real
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
         const FilePath gitPath = filePath.absolutePath();
         setSource(gitPath);
-        textDocument()->setCodec(GitClient::instance()->encoding(GitClient::EncodingCommit, gitPath));
+        textDocument()->setCodec(gitClient().encoding(GitClient::EncodingCommit, gitPath));
     }
 }
 
 QString GitEditorWidget::decorateVersion(const QString &revision) const
 {
     // Format verbose, SHA1 being first token
-    return GitClient::instance()->synchronousShortDescription(sourceWorkingDirectory(), revision);
+    return gitClient().synchronousShortDescription(sourceWorkingDirectory(), revision);
 }
 
 QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision) const
@@ -289,7 +289,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
     QStringList revisions;
     QString errorMessage;
     // Get the SHA1's of the file.
-    if (!GitClient::instance()->synchronousParentRevisions(
+    if (!gitClient().synchronousParentRevisions(
                 sourceWorkingDirectory(), revision, &revisions, &errorMessage)) {
         VcsOutputWindow::appendSilently(errorMessage);
         return QStringList();
@@ -299,7 +299,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
 
 bool GitEditorWidget::isValidRevision(const QString &revision) const
 {
-    return GitClient::instance()->isValidRevision(revision);
+    return gitClient().isValidRevision(revision);
 }
 
 void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)

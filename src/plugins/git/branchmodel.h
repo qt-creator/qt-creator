@@ -16,12 +16,11 @@ class CommandResult;
 namespace Git::Internal {
 
 class BranchNode;
-class GitClient;
 
 class BranchModel : public QAbstractItemModel
 {
 public:
-    explicit BranchModel(GitClient *client, QObject *parent = nullptr);
+    explicit BranchModel(QObject *parent = nullptr);
     ~BranchModel() override;
 
     // QAbstractItemModel

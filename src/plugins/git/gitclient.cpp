@@ -82,8 +82,6 @@ using namespace VcsBase;
 
 namespace Git::Internal {
 
-static GitClient *m_instance = nullptr;
-
 static QString branchesDisplay(const QString &prefix, QStringList *branches, bool *first)
 {
     const int limit = 12;
@@ -128,7 +126,7 @@ static void stage(DiffEditorController *diffController, const QString &patch, bo
     if (revert)
         args << "--reverse";
     QString errorMessage;
-    if (GitClient::instance()->synchronousApplyPatch(baseDir, patchFile.fileName(),
+    if (gitClient().synchronousApplyPatch(baseDir, patchFile.fileName(),
                                                      &errorMessage, args)) {
         if (errorMessage.isEmpty()) {
             if (revert)
@@ -219,7 +217,7 @@ private:
         auto fixRightCommit = [this](const QString &commit) {
             if (!commit.isEmpty())
                 return commit;
-            if (m_instance->checkCommandInProgress(workingDirectory()) == GitClient::NoCommand)
+            if (gitClient().checkCommandInProgress(workingDirectory()) == GitClient::NoCommand)
                 return QString();
             return QString(HEAD);
         };
@@ -399,7 +397,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     };
 
     const auto setupDescription = [this, id](Process &process) {
-        process.setCodec(m_instance->encoding(GitClient::EncodingCommit, workingDirectory()));
+        process.setCodec(gitClient().encoding(GitClient::EncodingCommit, workingDirectory()));
         setupCommand(process, {"show", "-s", noColorOption, showFormatC, id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
         setDescription(Tr::tr("Waiting for data..."));
@@ -499,7 +497,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         QStringList parents;
         QString errorMessage;
         // TODO: it's trivial now to call below asynchonously, too
-        m_instance->synchronousParentRevisions(workingDirectory(), data->m_commit,
+        gitClient().synchronousParentRevisions(workingDirectory(), data->m_commit,
                                                &parents, &errorMessage);
         data->m_follows = {busyMessage};
         data->m_follows.resize(parents.size());
@@ -638,7 +636,7 @@ public:
 
 static bool gitHasRgbColors()
 {
-    const unsigned gitVersion = GitClient::instance()->gitVersion().result();
+    const unsigned gitVersion = gitClient().gitVersion().result();
     return gitVersion >= 0x020300U;
 }
 
@@ -754,10 +752,10 @@ static void handleConflictResponse(const VcsBase::CommandResult &result,
         commit = errMatch.captured(1);
 
     if (commit.isEmpty() && files.isEmpty()) {
-        if (m_instance->checkCommandInProgress(workingDirectory) == GitClient::NoCommand)
-            m_instance->endStashScope(workingDirectory);
+        if (gitClient().checkCommandInProgress(workingDirectory) == GitClient::NoCommand)
+            gitClient().endStashScope(workingDirectory);
     } else {
-        m_instance->handleMergeConflicts(workingDirectory, commit, files, abortCommand);
+        gitClient().handleMergeConflicts(workingDirectory, commit, files, abortCommand);
     }
 }
 
@@ -812,19 +810,21 @@ static inline void msgCannotRun(const QStringList &args, const FilePath &working
 
 // ---------------- GitClient
 
+GitClient &gitClient()
+{
+    static GitClient client;
+    return client;
+}
+
 GitClient::GitClient()
     : VcsBase::VcsBaseClientImpl(&Internal::settings())
 {
-    m_instance = this;
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
 }
 
-GitClient *GitClient::instance()
-{
-    return m_instance;
-}
+GitClient::~GitClient() = default;
 
 GitSettings &GitClient::settings()
 {
@@ -3497,7 +3497,7 @@ bool GitClient::StashInfo::init(const FilePath &workingDirectory, const QString 
     m_pushAction = pushAction;
     QString errorMessage;
     QString statusOutput;
-    switch (m_instance->gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
+    switch (gitClient().gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
                                 &statusOutput, &errorMessage)) {
     case GitClient::StatusChanged:
         if (m_flags & NoPrompt)
@@ -3550,14 +3550,14 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
     msgBox.exec();
 
     if (msgBox.clickedButton() == discardButton) {
-        m_stashResult = m_instance->synchronousReset(m_workingDir, QStringList(), errorMessage) ?
+        m_stashResult = gitClient().synchronousReset(m_workingDir, QStringList(), errorMessage) ?
                     StashUnchanged : StashFailed;
     } else if (msgBox.clickedButton() == ignoreButton) { // At your own risk, so.
         m_stashResult = NotStashed;
     } else if (msgBox.clickedButton() == cancelButton) {
         m_stashResult = StashCanceled;
     } else if (msgBox.clickedButton() == stashButton) {
-        const bool result = m_instance->executeSynchronousStash(
+        const bool result = gitClient().executeSynchronousStash(
                     m_workingDir, creatorStashMessage(command), false, errorMessage);
         m_stashResult = result ? StashUnchanged : StashFailed;
     } else if (msgBox.clickedButton() == stashAndPopButton) {
@@ -3568,7 +3568,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
 void GitClient::StashInfo::executeStash(const QString &command, QString *errorMessage)
 {
     m_message = creatorStashMessage(command);
-    if (!m_instance->executeSynchronousStash(m_workingDir, m_message, false, errorMessage))
+    if (!gitClient().executeSynchronousStash(m_workingDir, m_message, false, errorMessage))
         m_stashResult = StashFailed;
     else
         m_stashResult = Stashed;
@@ -3591,12 +3591,12 @@ void GitClient::StashInfo::end()
 {
     if (m_stashResult == Stashed) {
         QString stashName;
-        if (m_instance->stashNameFromMessage(m_workingDir, m_message, &stashName))
-            m_instance->stashPop(m_workingDir, stashName);
+        if (gitClient().stashNameFromMessage(m_workingDir, m_message, &stashName))
+            gitClient().stashPop(m_workingDir, stashName);
     }
 
     if (m_pushAction == NormalPush)
-        m_instance->push(m_workingDir);
+        gitClient().push(m_workingDir);
     else if (m_pushAction == PushToGerrit)
         GitPlugin::gerritPush(m_workingDir);
 
@@ -3621,7 +3621,7 @@ QString GitClient::suggestedLocalBranchName(
         initialName = target.mid(target.lastIndexOf('/') + 1);
     } else {
         QString subject;
-        instance()->synchronousLog(workingDirectory, {"-n", "1", "--format=%s", target},
+        gitClient().synchronousLog(workingDirectory, {"-n", "1", "--format=%s", target},
                                    &subject, nullptr, RunFlags::NoOutput);
         initialName = subject.trimmed();
     }
@@ -3641,14 +3641,14 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
     const FilePath &workingDir = fileWorkingDirectory(source);
     const bool isRange = change.contains("..");
     menu->addAction(Tr::tr("Cherr&y-Pick %1").arg(change), [workingDir, change] {
-        m_instance->synchronousCherryPick(workingDir, change);
+        gitClient().synchronousCherryPick(workingDir, change);
     });
     menu->addAction(Tr::tr("Re&vert %1").arg(change), [workingDir, change] {
-        m_instance->synchronousRevert(workingDir, change);
+        gitClient().synchronousRevert(workingDir, change);
     });
     if (!isRange) {
         menu->addAction(Tr::tr("C&heckout %1").arg(change), [workingDir, change] {
-            m_instance->checkout(workingDir, change);
+            gitClient().checkout(workingDir, change);
         });
         connect(menu->addAction(Tr::tr("&Interactive Rebase from %1...").arg(change)),
                 &QAction::triggered, [workingDir, change] {
@@ -3656,7 +3656,7 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
         });
     }
     QAction *logAction = menu->addAction(Tr::tr("&Log for %1").arg(change), [workingDir, change] {
-        m_instance->log(workingDir, QString(), false, {change});
+        gitClient().log(workingDir, QString(), false, {change});
     });
     if (isRange) {
         menu->setDefaultAction(logAction);
@@ -3665,13 +3665,13 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
         if (!filePath.isDir()) {
             menu->addAction(Tr::tr("Sh&ow file \"%1\" on revision %2").arg(filePath.fileName(), change),
                             [workingDir, change, source] {
-                m_instance->openShowEditor(workingDir, change, source);
+                gitClient().openShowEditor(workingDir, change, source);
             });
         }
         menu->addAction(Tr::tr("Add &Tag for %1...").arg(change), [workingDir, change] {
             QString output;
             QString errorMessage;
-            m_instance->synchronousTagCmd(workingDir, QStringList(), &output, &errorMessage);
+            gitClient().synchronousTagCmd(workingDir, QStringList(), &output, &errorMessage);
 
             const QStringList tags = output.split('\n');
             BranchAddDialog dialog(tags, BranchAddDialog::Type::AddTag, Core::ICore::dialogParent());
@@ -3679,7 +3679,7 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
             if (dialog.exec() == QDialog::Rejected)
                 return;
 
-            m_instance->synchronousTagCmd(workingDir, {dialog.branchName(), change},
+            gitClient().synchronousTagCmd(workingDir, {dialog.branchName(), change},
                                           &output, &errorMessage);
             VcsOutputWindow::append(output);
             if (!errorMessage.isEmpty())
@@ -3687,7 +3687,7 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
         });
 
         auto resetChange = [workingDir, change](const QByteArray &resetType) {
-            m_instance->reset(workingDir, QLatin1String("--" + resetType), change);
+            gitClient().reset(workingDir, QLatin1String("--" + resetType), change);
         };
         auto resetMenu = new QMenu(Tr::tr("&Reset to Change %1").arg(change), menu);
         resetMenu->addAction(Tr::tr("&Hard"), std::bind(resetChange, "hard"));
@@ -3698,18 +3698,18 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
 
     menu->addAction((isRange ? Tr::tr("Di&ff %1") : Tr::tr("Di&ff Against %1")).arg(change),
                     [workingDir, change] {
-        m_instance->diffRepository(workingDir, change, {});
+        gitClient().diffRepository(workingDir, change, {});
     });
     if (!isRange) {
-        if (!m_instance->m_diffCommit.isEmpty()) {
-            menu->addAction(Tr::tr("Diff &Against Saved %1").arg(m_instance->m_diffCommit),
+        if (!gitClient().m_diffCommit.isEmpty()) {
+            menu->addAction(Tr::tr("Diff &Against Saved %1").arg(gitClient().m_diffCommit),
                             [workingDir, change] {
-                m_instance->diffRepository(workingDir, m_instance->m_diffCommit, change);
-                m_instance->m_diffCommit.clear();
+                gitClient().diffRepository(workingDir, gitClient().m_diffCommit, change);
+                gitClient().m_diffCommit.clear();
             });
         }
         menu->addAction(Tr::tr("&Save for Diff"), [change] {
-            m_instance->m_diffCommit = change;
+            gitClient().m_diffCommit = change;
         });
     }
 }

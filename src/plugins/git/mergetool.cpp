@@ -37,7 +37,7 @@ void MergeTool::start(const FilePath &workingDirectory, const QStringList &files
 {
     QStringList arguments;
     arguments << "mergetool" << "-y" << files;
-    const CommandLine cmd = {GitClient::instance()->vcsBinary(), arguments};
+    const CommandLine cmd = {gitClient().vcsBinary(), arguments};
     VcsOutputWindow::appendCommand(workingDirectory, cmd);
     m_process.setCommand(cmd);
     m_process.setWorkingDirectory(workingDirectory);
@@ -224,7 +224,7 @@ void MergeTool::done()
         VcsOutputWindow::appendError(m_process.exitMessage());
 
     const FilePath workingDirectory = m_process.workingDirectory();
-    GitClient::instance()->continueCommandIfNeeded(workingDirectory, success);
+    gitClient().continueCommandIfNeeded(workingDirectory, success);
     GitPlugin::emitRepositoryChanged(workingDirectory);
     deleteLater();
 }
