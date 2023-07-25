@@ -14,7 +14,14 @@ if(Qt6_VERSION VERSION_GREATER_EQUAL 6.7.0)
     }
     ],")
 else()
-  set(DESIGNER_PLUGIN_ARGUMENTS)
+  set(DESIGNER_PLUGIN_ARGUMENTS
+  "\"Arguments\" : [
+    {
+        \"Name\" : \"-designer-qt-pluginpath\",
+        \"Parameter\" : \"path\",
+        \"Description\" : \"Override the default search path for Qt Designer plugins\"
+    }
+    ],")
 endif()
 
 add_qtc_plugin(Designer

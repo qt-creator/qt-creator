@@ -28,6 +28,7 @@
 
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QDesignerFormEditorPluginInterface>
@@ -224,7 +225,18 @@ FormEditorData::FormEditorData()
     m_formeditor = QDesignerComponents::createFormEditorWithPluginPaths(designerPluginPaths(),
                                                                         nullptr);
 #else
+    // Qt < 6.7.0 doesn't have API for changing the plugin path yet.
+    // Work around it by temporarily changing the application's library paths,
+    // which are used for Designer's plugin paths.
+    // This must be done before creating the FormEditor, and with it QDesignerPluginManager.
+    const QStringList restoreLibraryPaths = sQtPluginPath->isEmpty()
+                                                ? QStringList()
+                                                : QCoreApplication::libraryPaths();
+    if (!sQtPluginPath->isEmpty())
+        QCoreApplication::setLibraryPaths(QStringList(*sQtPluginPath));
     m_formeditor = QDesignerComponents::createFormEditor(nullptr);
+    if (!sQtPluginPath->isEmpty())
+        QCoreApplication::setLibraryPaths(restoreLibraryPaths);
 #endif
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
@@ -894,7 +906,23 @@ void FormEditorData::print()
 void setQtPluginPath(const QString &qtPluginPath)
 {
     QTC_CHECK(!d);
-    *sQtPluginPath = qtPluginPath;
+    *sQtPluginPath = QDir::fromNativeSeparators(qtPluginPath);
+#if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
+    // Cut a "/designer" postfix off, if present.
+    // For Qt < 6.7.0 we hack the plugin path by temporarily setting the application library paths
+    // and Designer adds "/designer" to these.
+    static const QString postfix = "/designer";
+    *sQtPluginPath = Utils::trimBack(*sQtPluginPath, '/');
+    if (sQtPluginPath->endsWith(postfix))
+        sQtPluginPath->chop(postfix.size());
+    if (!QFile::exists(*sQtPluginPath + postfix)) {
+        qWarning() << qPrintable(
+            QLatin1String(
+                "Warning: The path \"%1\" passed to -designer-qt-pluginpath does not exist. "
+                "Note that \"%2\" at the end is enforced.")
+                .arg(*sQtPluginPath + postfix, postfix));
+    }
+#endif
 }
 
 void addPluginPath(const QString &pluginPath)
