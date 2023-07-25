@@ -12,6 +12,76 @@
 
 #define READ_INTERVAL_MSEC 500
 
+//ConPTY is available only on Windows 10 released after 1903 (19H1) Windows release
+class WindowsContext
+{
+private:
+    WindowsContext() {}
+
+public:
+    typedef HRESULT (*CreatePseudoConsolePtr)(
+            COORD size,         // ConPty Dimensions
+            HANDLE hInput,      // ConPty Input
+            HANDLE hOutput,	    // ConPty Output
+            DWORD dwFlags,      // ConPty Flags
+            HPCON* phPC);       // ConPty Reference
+
+    typedef HRESULT (*ResizePseudoConsolePtr)(HPCON hPC, COORD size);
+
+    typedef VOID (*ClosePseudoConsolePtr)(HPCON hPC);
+
+    static WindowsContext &instance() 
+    {
+        static WindowsContext ctx;
+        return ctx;
+    }
+
+    bool init()
+    {
+        //already initialized
+        if (createPseudoConsole)
+            return true;
+
+        //try to load symbols from library
+        //if it fails -> we can't use ConPty API
+        HANDLE kernel32Handle = LoadLibraryExW(L"kernel32.dll", 0, 0);
+
+        if (kernel32Handle != nullptr)
+        {
+            createPseudoConsole = (CreatePseudoConsolePtr)GetProcAddress((HMODULE)kernel32Handle, "CreatePseudoConsole");
+            resizePseudoConsole = (ResizePseudoConsolePtr)GetProcAddress((HMODULE)kernel32Handle, "ResizePseudoConsole");
+            closePseudoConsole = (ClosePseudoConsolePtr)GetProcAddress((HMODULE)kernel32Handle, "ClosePseudoConsole");
+            if (createPseudoConsole == NULL || resizePseudoConsole == NULL || closePseudoConsole == NULL)
+            {
+                m_lastError = QString("WindowsContext/ConPty error: %1").arg("Invalid on load API functions");
+                return false;
+            }
+        }
+        else
+        {
+            m_lastError = QString("WindowsContext/ConPty error: %1").arg("Unable to load kernel32");
+            return false;
+        }
+
+        return true;
+    }
+
+    QString lastError()
+    {
+        return m_lastError;
+    }
+
+public:
+    //vars
+    CreatePseudoConsolePtr createPseudoConsole{nullptr};
+    ResizePseudoConsolePtr resizePseudoConsole{nullptr};
+    ClosePseudoConsolePtr closePseudoConsole{nullptr};
+
+private:
+    QString m_lastError;
+};
+
+
 HRESULT ConPtyProcess::createPseudoConsoleAndPipes(HPCON* phPC, HANDLE* phPipeIn, HANDLE* phPipeOut, qint16 cols, qint16 rows)
 {
     HRESULT hr{ E_UNEXPECTED };
@@ -23,7 +93,7 @@ HRESULT ConPtyProcess::createPseudoConsoleAndPipes(HPCON* phPC, HANDLE* phPipeIn
             CreatePipe(phPipeIn, &hPipePTYOut, NULL, 0))
     {
         // Create the Pseudo Console of the required size, attached to the PTY-end of the pipes
-        hr = m_winContext.createPseudoConsole({cols, rows}, hPipePTYIn, hPipePTYOut, 0, phPC);
+        hr = WindowsContext::instance().createPseudoConsole({cols, rows}, hPipePTYIn, hPipePTYOut, 0, phPC);
 
         // Note: We can close the handles to the PTY-end of the pipes here
         // because the handles are dup'ed into the ConHost and will be released
@@ -108,7 +178,7 @@ bool ConPtyProcess::startProcess(const QString &executable,
                                  qint16 rows)
 {
     if (!isAvailable()) {
-        m_lastError = m_winContext.lastError();
+        m_lastError = WindowsContext::instance().lastError();
         return false;
     }
 
@@ -228,7 +298,7 @@ bool ConPtyProcess::resize(qint16 cols, qint16 rows)
         return false;
     }
 
-    bool res = SUCCEEDED(m_winContext.resizePseudoConsole(m_ptyHandler, {cols, rows}));
+    bool res = SUCCEEDED(WindowsContext::instance().resizePseudoConsole(m_ptyHandler, {cols, rows}));
 
     if (res)
     {
@@ -248,7 +318,7 @@ bool ConPtyProcess::kill()
         m_aboutToDestruct = true;
 
         // Close ConPTY - this will terminate client process if running
-        m_winContext.closePseudoConsole(m_ptyHandler);
+        WindowsContext::instance().closePseudoConsole(m_ptyHandler);
 
         // Clean-up the pipes
         if (INVALID_HANDLE_VALUE != m_hPipeOut)
@@ -334,7 +404,7 @@ bool ConPtyProcess::isAvailable()
     qint32 buildNumber = QSysInfo::kernelVersion().split(".").last().toInt();
     if (buildNumber < CONPTY_MINIMAL_WINDOWS_VERSION)
         return false;
-    return m_winContext.init();
+    return WindowsContext::instance().init();
 }
 
 void ConPtyProcess::moveToThread(QThread *targetThread)

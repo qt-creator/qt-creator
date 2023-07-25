@@ -95,6 +95,8 @@ public:
 
     ShellIntegration *shellIntegration() const;
 
+    void mouseMove(QPoint pos, Qt::KeyboardModifiers modifiers);
+    void mouseButton(Qt::MouseButton button, bool pressed, Qt::KeyboardModifiers modifiers);
 signals:
     void writeToPty(const QByteArray &data);
     void invalidated(QRect grid);

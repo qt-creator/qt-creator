@@ -31,6 +31,8 @@ public:
     Utils::BoolAspect sendEscapeToTerminal{this};
     Utils::BoolAspect audibleBell{this};
     Utils::BoolAspect lockKeyboard{this};
+
+    Utils::BoolAspect enableMouseTracking{this};
 };
 
 TerminalSettings &settings();

@@ -54,7 +54,7 @@ public:
     virtual QIODevice *notifier();
     virtual QByteArray readAll();
     virtual qint64 write(const QByteArray &byteArray);
-    virtual bool isAvailable();
+    static bool isAvailable();
     void moveToThread(QThread *targetThread);
 
 private:

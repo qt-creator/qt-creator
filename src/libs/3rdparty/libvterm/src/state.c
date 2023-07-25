@@ -1311,8 +1311,10 @@ static int on_csi(const char *leader, const long args[], int argcount, const cha
     break;
 
   case LEADER('?', 0x68): // DEC private mode set
-    if(!CSI_ARG_IS_MISSING(args[0]))
-      set_dec_mode(state, CSI_ARG(args[0]), 1);
+    for (int i = 0; i < argcount; i++) {
+      if (!CSI_ARG_IS_MISSING(args[i]))
+          set_dec_mode(state, CSI_ARG(args[i]), 1);
+    }
     break;
 
   case 0x6a: // HPB - ECMA-48 8.3.58
@@ -1333,8 +1335,10 @@ static int on_csi(const char *leader, const long args[], int argcount, const cha
     break;
 
   case LEADER('?', 0x6c): // DEC private mode reset
-    if(!CSI_ARG_IS_MISSING(args[0]))
-      set_dec_mode(state, CSI_ARG(args[0]), 0);
+    for (int i = 0; i < argcount; i++) {
+      if (!CSI_ARG_IS_MISSING(args[i]))
+        set_dec_mode(state, CSI_ARG(args[i]), 0);
+    }
     break;
 
   case 0x6d: // SGR - ECMA-48 8.3.117

@@ -1,7 +1,7 @@
 
 add_qtc_plugin(Terminal
   PLUGIN_DEPENDS Core ProjectExplorer
-  DEPENDS libvterm
+  DEPENDS libvterm ptyqt
   SOURCES
     celliterator.cpp celliterator.h
     glyphcache.cpp glyphcache.h

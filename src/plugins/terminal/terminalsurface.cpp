@@ -494,6 +494,39 @@ ShellIntegration *TerminalSurface::shellIntegration() const
     return d->m_shellIntegration;
 }
 
+void TerminalSurface::mouseMove(QPoint pos, Qt::KeyboardModifiers modifiers)
+{
+    vterm_mouse_move(d->m_vterm.get(), pos.y(), pos.x(), Internal::qtModifierToVTerm(modifiers));
+}
+
+void TerminalSurface::mouseButton(Qt::MouseButton button,
+                                  bool pressed,
+                                  Qt::KeyboardModifiers modifiers)
+{
+    int btnIdx = 0;
+    switch (button) {
+    case Qt::LeftButton:
+        btnIdx = 1;
+        break;
+    case Qt::RightButton:
+        btnIdx = 3;
+        break;
+    case Qt::MiddleButton:
+        btnIdx = 2;
+        break;
+    case Qt::ExtraButton1:
+        btnIdx = 4;
+        break;
+    case Qt::ExtraButton2:
+        btnIdx = 5;
+        break;
+    default:
+        return;
+    }
+
+    vterm_mouse_button(d->m_vterm.get(), btnIdx, pressed, Internal::qtModifierToVTerm(modifiers));
+}
+
 CellIterator TerminalSurface::begin() const
 {
     auto res = CellIterator(this, {0, 0});

@@ -1280,6 +1280,14 @@ void TerminalWidget::updateViewportRect(const QRect &rect)
 void TerminalWidget::wheelEvent(QWheelEvent *event)
 {
     verticalScrollBar()->event(event);
+
+    if (!settings().enableMouseTracking())
+        return;
+
+    if (event->angleDelta().ry() > 0)
+        m_surface->mouseButton(Qt::ExtraButton1, true, event->modifiers());
+    else if (event->angleDelta().ry() < 0)
+        m_surface->mouseButton(Qt::ExtraButton2, true, event->modifiers());
 }
 
 void TerminalWidget::focusInEvent(QFocusEvent *)
@@ -1306,8 +1314,18 @@ void TerminalWidget::inputMethodEvent(QInputMethodEvent *event)
     m_surface->sendKey(event->commitString());
 }
 
+QPoint TerminalWidget::toGridPos(QMouseEvent *event) const
+{
+    return globalToGrid(event->pos().toPointF() + QPointF(0, -topMargin() + 0.5));
+}
+
 void TerminalWidget::mousePressEvent(QMouseEvent *event)
 {
+    if (settings().enableMouseTracking()) {
+        m_surface->mouseMove(toGridPos(event), event->modifiers());
+        m_surface->mouseButton(event->button(), true, event->modifiers());
+    }
+
     m_scrollDirection = 0;
 
     m_activeMouseSelect.start = viewportToGlobal(event->pos());
@@ -1383,8 +1401,12 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
         }
     }
 }
+
 void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    if (settings().enableMouseTracking())
+        m_surface->mouseMove(toGridPos(event), event->modifiers());
+
     if (m_selection && event->buttons() & Qt::LeftButton) {
         Selection newSelection = *m_selection;
         int scrollVelocity = 0;
@@ -1487,6 +1509,11 @@ bool TerminalWidget::checkLinkAt(const QPoint &pos)
 
 void TerminalWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    if (settings().enableMouseTracking()) {
+        m_surface->mouseMove(toGridPos(event), event->modifiers());
+        m_surface->mouseButton(event->button(), false, event->modifiers());
+    }
+
     m_scrollTimer.stop();
 
     if (m_selection && event->button() == Qt::LeftButton) {
@@ -1528,6 +1555,12 @@ TerminalWidget::TextAndOffsets TerminalWidget::textAt(const QPoint &pos) const
 
 void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    if (settings().enableMouseTracking()) {
+        m_surface->mouseMove(toGridPos(event), event->modifiers());
+        m_surface->mouseButton(event->button(), true, event->modifiers());
+        m_surface->mouseButton(event->button(), false, event->modifiers());
+    }
+
     const auto hit = textAt(event->pos());
 
     setSelection(Selection{hit.start, hit.end, true});

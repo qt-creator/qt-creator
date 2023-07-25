@@ -26,7 +26,7 @@ public:
     QIODevice *notifier();
     QByteArray readAll();
     qint64 write(const QByteArray &byteArray);
-    bool isAvailable();
+    static bool isAvailable();
     void moveToThread(QThread *targetThread);
 
 private:

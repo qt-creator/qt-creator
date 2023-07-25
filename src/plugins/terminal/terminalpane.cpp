@@ -54,9 +54,6 @@ TerminalPane::TerminalPane(QObject *parent)
 
     initActions();
 
-    m_lockKeyboardButton = new QToolButton();
-    m_lockKeyboardButton->setDefaultAction(&lockKeyboard);
-
     m_newTerminalButton = new QToolButton();
     m_newTerminalButton->setDefaultAction(&newTerminal);
 
@@ -94,11 +91,34 @@ TerminalPane::TerminalPane(QObject *parent)
 
     connect(m_escSettingButton, &QToolButton::toggled, this, [this, updateEscButton] {
         settings().sendEscapeToTerminal.setValue(m_escSettingButton->isChecked());
-        settings().writeSettings();
         updateEscButton();
     });
 
     connect(&settings(), &TerminalSettings::applied, this, updateEscButton);
+
+    const auto updateLockButton = [this] {
+        m_lockKeyboardButton->setChecked(settings().lockKeyboard());
+        if (settings().lockKeyboard()) {
+            m_lockKeyboardButton->setIcon(LOCK_KEYBOARD_ICON.icon());
+            m_lockKeyboardButton->setToolTip(
+                Tr::tr("Qt Creator shortcuts are blocked when focus is inside the terminal."));
+        } else {
+            m_lockKeyboardButton->setIcon(UNLOCK_KEYBOARD_ICON.icon());
+            m_lockKeyboardButton->setToolTip(Tr::tr("Qt Creator shortcuts take precedence."));
+        }
+    };
+
+    m_lockKeyboardButton = new QToolButton();
+    m_lockKeyboardButton->setCheckable(true);
+
+    updateLockButton();
+
+    connect(m_lockKeyboardButton, &QToolButton::toggled, this, [this, updateLockButton] {
+        settings().lockKeyboard.setValue(m_lockKeyboardButton->isChecked());
+        updateLockButton();
+    });
+
+    connect(&settings(), &TerminalSettings::applied, this, updateLockButton);
 }
 
 TerminalPane::~TerminalPane() {}
@@ -248,23 +268,6 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
 void TerminalPane::initActions()
 {
     createShellMenu();
-
-    lockKeyboard.setCheckable(true);
-    lockKeyboard.setChecked(settings().lockKeyboard());
-
-    auto updateLockKeyboard = [this](bool locked) {
-        settings().lockKeyboard.setValue(locked);
-        if (locked) {
-            lockKeyboard.setIcon(LOCK_KEYBOARD_ICON.icon());
-            lockKeyboard.setToolTip(Tr::tr("Sends keyboard shortcuts to Terminal."));
-        } else {
-            lockKeyboard.setIcon(UNLOCK_KEYBOARD_ICON.icon());
-            lockKeyboard.setToolTip(Tr::tr("Sends keyboard shortcuts to Qt Creator."));
-        }
-    };
-
-    updateLockKeyboard(settings().lockKeyboard());
-    connect(&lockKeyboard, &QAction::toggled, this, updateLockKeyboard);
 
     newTerminal.setText(Tr::tr("New Terminal"));
     newTerminal.setIcon(NEW_TERMINAL_ICON.icon());

@@ -8,6 +8,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <libptyqt/ptyqt.h>
+
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/expected.h>
@@ -410,11 +412,22 @@ TerminalSettings::TerminalSettings()
                "instead of closing the terminal."));
     sendEscapeToTerminal.setDefaultValue(false);
 
+    lockKeyboard.setSettingsKey("LockKeyboard");
+    lockKeyboard.setLabelText(Tr::tr("Block shortcuts in terminal"));
+    lockKeyboard.setToolTip(
+        Tr::tr("Keeps Qt Creator short cuts from interfering with the terminal."));
+    lockKeyboard.setDefaultValue(true);
+
     audibleBell.setSettingsKey("AudibleBell");
     audibleBell.setLabelText(Tr::tr("Audible bell"));
     audibleBell.setToolTip(Tr::tr("Makes the terminal beep when a bell "
                                   "character is received."));
     audibleBell.setDefaultValue(true);
+
+    enableMouseTracking.setSettingsKey("EnableMouseTracking");
+    enableMouseTracking.setLabelText(Tr::tr("Enable mouse tracking"));
+    enableMouseTracking.setToolTip(Tr::tr("Enables mouse tracking in the terminal."));
+    enableMouseTracking.setDefaultValue(true);
 
     setupColor(this,
                foregroundColor,
@@ -528,8 +541,10 @@ TerminalSettings::TerminalSettings()
                 Column {
                     enableTerminal, st,
                     sendEscapeToTerminal, st,
+                    lockKeyboard, st,
                     audibleBell, st,
                     allowBlinkingCursor, st,
+                    enableMouseTracking, st,
                 },
             },
             Group {

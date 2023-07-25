@@ -156,6 +156,7 @@ protected:
     QPoint globalToGrid(QPointF p) const;
     QPointF gridToGlobal(QPoint p, bool bottom = false, bool right = false) const;
     QRect gridToViewport(QRect rect) const;
+    QPoint toGridPos(QMouseEvent *event) const;
 
     void updateViewport();
     void updateViewportRect(const QRect &rect);
