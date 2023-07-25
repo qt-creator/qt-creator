@@ -60,7 +60,25 @@ FormEditorPlugin::~FormEditorPlugin()
     delete d;
 }
 
-void FormEditorPlugin::initialize()
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+static void parseArguments(const QStringList &arguments)
+{
+    const auto doWithNext = [arguments](auto it, const std::function<void(QString)> &fun) {
+        ++it;
+        if (it != arguments.cend())
+            fun(*it);
+    };
+    for (auto it = arguments.cbegin(); it != arguments.cend(); ++it) {
+        if (*it == "-designer-qt-pluginpath")
+            doWithNext(it, [](const QString &path) { setQtPluginPath(path); });
+        else if (*it == "-designer-pluginpath")
+            doWithNext(it, [](const QString &path) { addPluginPath(path); });
+    }
+}
+#endif
+
+bool FormEditorPlugin::initialize([[maybe_unused]] const QStringList &arguments,
+                                  [[maybe_unused]] QString *errorString)
 {
     d = new FormEditorPluginPrivate;
 
@@ -91,6 +109,11 @@ void FormEditorPlugin::initialize()
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
             QCoreApplication::installTranslator(qtr);
     }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    parseArguments(arguments);
+#endif
+    return true;
 }
 
 void FormEditorPlugin::extensionsInitialized()

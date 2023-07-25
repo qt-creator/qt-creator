@@ -78,6 +78,9 @@ static inline QIcon designerIcon(const QString &iconName)
     return icon;
 }
 
+Q_GLOBAL_STATIC(QString, sQtPluginPath);
+Q_GLOBAL_STATIC(QStringList, sAdditionalPluginPaths);
+
 using namespace Core;
 using namespace Designer::Constants;
 using namespace Utils;
@@ -203,9 +206,24 @@ public:
 
 static FormEditorData *d = nullptr;
 
-FormEditorData::FormEditorData() :
-    m_formeditor(QDesignerComponents::createFormEditor(nullptr))
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+static QStringList designerPluginPaths()
 {
+    const QStringList qtPluginPath = sQtPluginPath->isEmpty()
+                                         ? QDesignerComponents::defaultPluginPaths()
+                                         : QStringList(*sQtPluginPath);
+    return qtPluginPath + *sAdditionalPluginPaths;
+}
+#endif
+
+FormEditorData::FormEditorData()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    m_formeditor = QDesignerComponents::createFormEditorWithPluginPaths(designerPluginPaths(),
+                                                                        nullptr);
+#else
+    m_formeditor = QDesignerComponents::createFormEditor(nullptr);
+#endif
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
     QTC_ASSERT(!d, return);
@@ -869,6 +887,18 @@ void FormEditorData::print()
     } while (false);
     printer->setFullPage(oldFullPage);
     printer->setPageOrientation(oldOrientation);
+}
+
+void setQtPluginPath(const QString &qtPluginPath)
+{
+    QTC_CHECK(!d);
+    *sQtPluginPath = qtPluginPath;
+}
+
+void addPluginPath(const QString &pluginPath)
+{
+    QTC_CHECK(!d);
+    sAdditionalPluginPaths->append(pluginPath);
 }
 
 } // namespace Internal

@@ -15,5 +15,6 @@
     "Category" : "Qt Creator",
     "Description" : "Qt Designer integration.",
     "Url" : "http://www.qt.io",
+    ${DESIGNER_PLUGIN_ARGUMENTS}
     ${IDE_PLUGIN_DEPENDENCIES}
 }

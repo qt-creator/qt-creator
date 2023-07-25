@@ -60,5 +60,8 @@ SharedTools::WidgetHost *activeWidgetHost();
 FormWindowEditor *activeEditor();
 QList<Core::IOptionsPage *> optionsPages();
 
+void setQtPluginPath(const QString &qtPluginPath);
+void addPluginPath(const QString &pluginPath);
+
 } // namespace Internal
 } // namespace Designer

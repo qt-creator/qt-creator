@@ -24,7 +24,7 @@ private slots:
 #endif
 
 private:
-    void initialize() override;
+    bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
 
     void switchSourceForm();
