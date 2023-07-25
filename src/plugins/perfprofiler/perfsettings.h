@@ -24,6 +24,8 @@ public:
 
     void resetToDefault();
 
+    QWidget *createPerfConfigWidget(ProjectExplorer::Target *target);
+
     Utils::IntegerAspect period{this};
     Utils::IntegerAspect stackSize{this};
     Utils::SelectionAspect sampleMode{this};

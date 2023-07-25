@@ -3,7 +3,6 @@
 
 #include "perfprofilertool.h"
 
-#include "perfconfigwidget.h"
 #include "perfloaddialog.h"
 #include "perfprofilerplugin.h"
 #include "perfprofilertr.h"
@@ -236,11 +235,8 @@ void PerfProfilerTool::createViews()
                 settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
         }
 
-        PerfConfigWidget *widget = new PerfConfigWidget(
-                    settings ? settings : &globalSettings(),
-                    Core::ICore::dialogParent());
-        widget->setTracePointsButtonVisible(true);
-        widget->setTarget(target);
+        QWidget *widget = settings ? settings->createPerfConfigWidget(target)
+                                   : globalSettings().createPerfConfigWidget(target);
         widget->setWindowFlags(Qt::Dialog);
         widget->setAttribute(Qt::WA_DeleteOnClose);
         widget->show();

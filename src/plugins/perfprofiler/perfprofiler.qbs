@@ -18,8 +18,6 @@ QtcPlugin {
     files: [
         "perfconfigeventsmodel.cpp",
         "perfconfigeventsmodel.h",
-        "perfconfigwidget.cpp",
-        "perfconfigwidget.h",
         "perfdatareader.cpp",
         "perfdatareader.h",
         "perfevent.h",
