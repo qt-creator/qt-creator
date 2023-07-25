@@ -95,8 +95,9 @@ public:
 
     ShellIntegration *shellIntegration() const;
 
+    using WriteToPty = std::function<qint64(const QByteArray &)>;
+    void setWriteToPty(WriteToPty writeToPty);
 signals:
-    void writeToPty(const QByteArray &data);
     void invalidated(QRect grid);
     void fullSizeChanged(QSize newSize);
     void cursorChanged(Cursor oldCursor, Cursor newCursor);
