@@ -161,7 +161,10 @@ AttachCoreDialog::~AttachCoreDialog()
 
 int AttachCoreDialog::exec()
 {
-    connect(d->symbolFileName, &PathChooser::textChanged, this, &AttachCoreDialog::changed);
+    connect(d->symbolFileName, &PathChooser::validChanged, this, &AttachCoreDialog::changed);
+    connect(d->coreFileName, &PathChooser::validChanged, this, [this] {
+        coreFileChanged(d->coreFileName->rawFilePath());
+    });
     connect(d->coreFileName, &PathChooser::textChanged, this, [this] {
         coreFileChanged(d->coreFileName->rawFilePath());
     });
