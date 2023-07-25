@@ -419,8 +419,14 @@ void TerminalSurface::pasteFromClipboard(const QString &clipboardText)
         return;
 
     vterm_keyboard_start_paste(d->m_vterm.get());
-    for (unsigned int ch : clipboardText.toUcs4())
+    for (unsigned int ch : clipboardText.toUcs4()) {
+        // Workaround for weird nano behavior to correctly paste newlines
+        // see: http://savannah.gnu.org/bugs/?49176
+        // and: https://github.com/kovidgoyal/kitty/issues/994
+        if (ch == '\n')
+            ch = '\r';
         vterm_keyboard_unichar(d->m_vterm.get(), ch, VTERM_MOD_NONE);
+    }
     vterm_keyboard_end_paste(d->m_vterm.get());
 
     if (!d->m_altscreen) {
