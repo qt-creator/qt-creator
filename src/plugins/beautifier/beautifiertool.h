@@ -41,7 +41,7 @@ public:
      *
      * @note    The received command may be invalid.
      */
-    virtual TextEditor::Command command() const = 0;
+    virtual TextEditor::Command textCommand() const = 0;
 
     virtual bool isApplicable(const Core::IDocument *document) const = 0;
 

@@ -18,13 +18,13 @@ public:
 
     QString id() const override;
     void updateActions(Core::IEditor *editor) override;
-    TextEditor::Command command() const override;
+    TextEditor::Command textCommand() const override;
     bool isApplicable(const Core::IDocument *document) const override;
 
 private:
     void formatFile();
     Utils::FilePath configurationFile() const;
-    TextEditor::Command command(const QString &cfgFile) const;
+    TextEditor::Command textCommand(const QString &cfgFile) const;
 
     QAction *m_formatFile = nullptr;
 };

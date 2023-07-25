@@ -374,7 +374,7 @@ void ClangFormat::updateActions(Core::IEditor *editor)
 
 void ClangFormat::formatFile()
 {
-    formatCurrentFile(command());
+    formatCurrentFile(textCommand());
 }
 
 void ClangFormat::formatAtPosition(const int pos, const int length)
@@ -385,7 +385,7 @@ void ClangFormat::formatAtPosition(const int pos, const int length)
 
     const QTextCodec *codec = widget->textDocument()->codec();
     if (!codec) {
-        formatCurrentFile(command(pos, length));
+        formatCurrentFile(textCommand(pos, length));
         return;
     }
 
@@ -393,7 +393,7 @@ void ClangFormat::formatAtPosition(const int pos, const int length)
     const QStringView buffer(text);
     const int encodedOffset = codec->fromUnicode(buffer.left(pos)).size();
     const int encodedLength = codec->fromUnicode(buffer.mid(pos, length)).size();
-    formatCurrentFile(command(encodedOffset, encodedLength));
+    formatCurrentFile(textCommand(encodedOffset, encodedLength));
 }
 
 void ClangFormat::formatAtCursor()
@@ -436,7 +436,7 @@ void ClangFormat::formatLines()
         lineEnd = end.blockNumber() + 1;
     }
 
-    auto cmd = command();
+    auto cmd = textCommand();
     cmd.addOption(QString("-lines=%1:%2").arg(QString::number(lineStart)).arg(QString::number(lineEnd)));
     formatCurrentFile(cmd);
 }
@@ -476,30 +476,30 @@ void ClangFormat::disableFormattingSelectedText()
     formatAtPosition(selectionStartBlock.position(), reformatTextLength);
 }
 
-Command ClangFormat::command() const
+Command ClangFormat::textCommand() const
 {
-    Command command;
-    command.setExecutable(settings().command());
-    command.setProcessing(Command::PipeProcessing);
+    Command cmd;
+    cmd.setExecutable(settings().command());
+    cmd.setProcessing(Command::PipeProcessing);
 
     if (settings().usePredefinedStyle()) {
         const QString predefinedStyle = settings().predefinedStyle.stringValue();
-        command.addOption("-style=" + predefinedStyle);
+        cmd.addOption("-style=" + predefinedStyle);
         if (predefinedStyle == "File") {
             const QString fallbackStyle = settings().fallbackStyle.stringValue();
             if (fallbackStyle != "Default")
-                command.addOption("-fallback-style=" + fallbackStyle);
+                cmd.addOption("-fallback-style=" + fallbackStyle);
         }
 
-        command.addOption("-assume-filename=%file");
+        cmd.addOption("-assume-filename=%file");
     } else {
-        command.addOption("-style=file");
+        cmd.addOption("-style=file");
         const FilePath path = settings().styleFileName(settings().customStyle())
             .absolutePath().pathAppended("%filename");
-        command.addOption("-assume-filename=" + path.nativePath());
+        cmd.addOption("-assume-filename=" + path.nativePath());
     }
 
-    return command;
+    return cmd;
 }
 
 bool ClangFormat::isApplicable(const Core::IDocument *document) const
@@ -507,12 +507,12 @@ bool ClangFormat::isApplicable(const Core::IDocument *document) const
     return settings().isApplicable(document);
 }
 
-Command ClangFormat::command(int offset, int length) const
+Command ClangFormat::textCommand(int offset, int length) const
 {
-    Command c = command();
-    c.addOption("-offset=" + QString::number(offset));
-    c.addOption("-length=" + QString::number(length));
-    return c;
+    Command cmd = textCommand();
+    cmd.addOption("-offset=" + QString::number(offset));
+    cmd.addOption("-length=" + QString::number(length));
+    return cmd;
 }
 
 } // Beautifier::Internal

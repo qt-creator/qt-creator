@@ -284,7 +284,7 @@ void Uncrustify::formatFile()
     if (cfgFileName.isEmpty())
         showError(msgCannotGetConfigurationFile(uDisplayName()));
     else
-        formatCurrentFile(command(cfgFileName));
+        formatCurrentFile(textCommand(cfgFileName));
 }
 
 void Uncrustify::formatSelectedText()
@@ -311,7 +311,7 @@ void Uncrustify::formatSelectedText()
         if (tc.positionInBlock() > 0)
             tc.movePosition(QTextCursor::EndOfLine);
         const int endPos = tc.position();
-        formatCurrentFile(command(cfgFileName, true), startPos, endPos);
+        formatCurrentFile(textCommand(cfgFileName, true), startPos, endPos);
     } else if (settings().formatEntireFileFallback()) {
         formatFile();
     }
@@ -349,10 +349,10 @@ FilePath Uncrustify::configurationFile() const
     return {};
 }
 
-Command Uncrustify::command() const
+Command Uncrustify::textCommand() const
 {
     const FilePath cfgFile = configurationFile();
-    return cfgFile.isEmpty() ? Command() : command(cfgFile, false);
+    return cfgFile.isEmpty() ? Command() : textCommand(cfgFile, false);
 }
 
 bool Uncrustify::isApplicable(const Core::IDocument *document) const
@@ -360,25 +360,25 @@ bool Uncrustify::isApplicable(const Core::IDocument *document) const
     return settings().isApplicable(document);
 }
 
-Command Uncrustify::command(const FilePath &cfgFile, bool fragment) const
+Command Uncrustify::textCommand(const FilePath &cfgFile, bool fragment) const
 {
-    Command command;
-    command.setExecutable(settings().command());
-    command.setProcessing(Command::PipeProcessing);
+    Command cmd;
+    cmd.setExecutable(settings().command());
+    cmd.setProcessing(Command::PipeProcessing);
     if (settings().version() >= QVersionNumber(0, 62)) {
-        command.addOption("--assume");
-        command.addOption("%file");
+        cmd.addOption("--assume");
+        cmd.addOption("%file");
     } else {
-        command.addOption("-l");
-        command.addOption("cpp");
+        cmd.addOption("-l");
+        cmd.addOption("cpp");
     }
-    command.addOption("-L");
-    command.addOption("1-2");
+    cmd.addOption("-L");
+    cmd.addOption("1-2");
     if (fragment)
-        command.addOption("--frag");
-    command.addOption("-c");
-    command.addOption(cfgFile.path());
-    return command;
+        cmd.addOption("--frag");
+    cmd.addOption("-c");
+    cmd.addOption(cfgFile.path());
+    return cmd;
 }
 
 } // Beautifier::Internal

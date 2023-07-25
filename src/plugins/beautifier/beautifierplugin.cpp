@@ -139,7 +139,7 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
     if (tool != std::end(tools)) {
         if (!(*tool)->isApplicable(document))
             return;
-        const TextEditor::Command command = (*tool)->command();
+        const TextEditor::Command command = (*tool)->textCommand();
         if (!command.isValid())
             return;
         const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);

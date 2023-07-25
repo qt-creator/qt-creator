@@ -279,7 +279,7 @@ void ArtisticStyle::formatFile()
     if (cfgFileName.isEmpty())
         showError(BeautifierTool::msgCannotGetConfigurationFile(asDisplayName()));
     else
-        formatCurrentFile(command(cfgFileName.toFSPathString()));
+        formatCurrentFile(textCommand(cfgFileName.toFSPathString()));
 }
 
 FilePath ArtisticStyle::configurationFile() const
@@ -318,10 +318,10 @@ FilePath ArtisticStyle::configurationFile() const
     return {};
 }
 
-Command ArtisticStyle::command() const
+Command ArtisticStyle::textCommand() const
 {
     const FilePath cfgFile = configurationFile();
-    return cfgFile.isEmpty() ? Command() : command(cfgFile.toFSPathString());
+    return cfgFile.isEmpty() ? Command() : textCommand(cfgFile.toFSPathString());
 }
 
 bool ArtisticStyle::isApplicable(const Core::IDocument *document) const
@@ -329,25 +329,25 @@ bool ArtisticStyle::isApplicable(const Core::IDocument *document) const
     return settings().isApplicable(document);
 }
 
-Command ArtisticStyle::command(const QString &cfgFile) const
+Command ArtisticStyle::textCommand(const QString &cfgFile) const
 {
-    Command command;
-    command.setExecutable(settings().command());
-    command.addOption("-q");
-    command.addOption("--options=" + cfgFile);
+    Command cmd;
+    cmd.setExecutable(settings().command());
+    cmd.addOption("-q");
+    cmd.addOption("--options=" + cfgFile);
 
     const QVersionNumber version = settings().version();
     if (version > QVersionNumber(2, 3)) {
-        command.setProcessing(Command::PipeProcessing);
+        cmd.setProcessing(Command::PipeProcessing);
         if (version == QVersionNumber(2, 4))
-            command.setPipeAddsNewline(true);
-        command.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
-        command.addOption("-z2");
+            cmd.setPipeAddsNewline(true);
+        cmd.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
+        cmd.addOption("-z2");
     } else {
-        command.addOption("%file");
+        cmd.addOption("%file");
     }
 
-    return command;
+    return cmd;
 }
 
 } // Beautifier::Internal

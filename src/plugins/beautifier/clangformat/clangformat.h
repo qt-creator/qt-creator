@@ -18,7 +18,7 @@ public:
 
     QString id() const override;
     void updateActions(Core::IEditor *editor) override;
-    TextEditor::Command command() const override;
+    TextEditor::Command textCommand() const override;
     bool isApplicable(const Core::IDocument *document) const override;
 
 private:
@@ -27,7 +27,7 @@ private:
     void formatAtCursor();
     void formatLines();
     void disableFormattingSelectedText();
-    TextEditor::Command command(int offset, int length) const;
+    TextEditor::Command textCommand(int offset, int length) const;
 
     QAction *m_formatFile = nullptr;
     QAction *m_formatLines = nullptr;
