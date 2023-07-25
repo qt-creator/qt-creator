@@ -3099,11 +3099,6 @@ void GitClient::handleMergeConflicts(const FilePath &workingDir, const QString &
     }
 }
 
-void GitClient::addFuture(const QFuture<void> &future)
-{
-    m_synchronizer.addFuture(future);
-}
-
 // Subversion: git svn
 void GitClient::synchronousSubversionFetch(const FilePath &workingDirectory) const
 {
