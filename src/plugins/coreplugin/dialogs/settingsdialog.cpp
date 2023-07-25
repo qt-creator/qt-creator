@@ -10,6 +10,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/icon.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 
@@ -166,8 +167,10 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
         }
         if (category->displayName.isEmpty())
             category->displayName = page->displayCategory();
-        if (category->icon.isNull())
-            category->icon = page->categoryIcon();
+        if (category->icon.isNull()) {
+            Icon icon({{page->categoryIconPath(), Theme::PanelTextColorDark}}, Icon::Tint);
+            category->icon = icon.icon();
+        }
         category->pages.append(page);
     }
 
@@ -183,8 +186,10 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
         }
         if (category->displayName.isEmpty())
             category->displayName = provider->displayCategory();
-        if (category->icon.isNull())
-            category->icon = provider->categoryIcon();
+        if (category->icon.isNull()) {
+            Icon icon({{provider->categoryIconPath(), Theme::PanelTextColorDark}}, Icon::Tint);
+            category->icon = icon.icon();
+        }
         category->providers.append(provider);
     }
 

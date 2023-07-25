@@ -7,14 +7,12 @@
 #include "ioptionspage.h"
 
 #include <utils/algorithm.h>
-#include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QCheckBox>
 #include <QGroupBox>
-#include <QIcon>
 #include <QLabel>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -74,12 +72,12 @@ namespace Core {
 */
 
 /*!
-    Returns the category icon of the options page. This icon is displayed in the list on the left
-    side of the \uicontrol Options dialog.
+    Returns the path to the category icon of the options page. This icon will be read from this
+    path and displayed in the list on the left side of the \uicontrol Options dialog.
 */
-QIcon IOptionsPage::categoryIcon() const
+FilePath IOptionsPage::categoryIconPath() const
 {
-    return m_categoryIcon.icon();
+    return m_categoryIconPath;
 }
 
 /*!
@@ -206,7 +204,7 @@ void IOptionsPage::finish()
 */
 void IOptionsPage::setCategoryIconPath(const FilePath &categoryIconPath)
 {
-    m_categoryIcon = Icon({{categoryIconPath, Theme::PanelTextColorDark}}, Icon::Tint);
+    m_categoryIconPath = categoryIconPath;
 }
 
 void IOptionsPage::setSettings(AspectContainer *settings)
@@ -314,11 +312,6 @@ IOptionsPageProvider::~IOptionsPageProvider()
 const QList<IOptionsPageProvider *> IOptionsPageProvider::allOptionsPagesProviders()
 {
     return g_optionsPagesProviders;
-}
-
-QIcon IOptionsPageProvider::categoryIcon() const
-{
-    return m_categoryIcon.icon();
 }
 
 // PagedSettings

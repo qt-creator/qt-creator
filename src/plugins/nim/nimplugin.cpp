@@ -28,6 +28,8 @@
 #include <texteditor/snippets/snippetprovider.h>
 
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/icon.h>
+#include <utils/theme/theme.h>
 
 using namespace Utils;
 using namespace ProjectExplorer;

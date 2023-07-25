@@ -47,8 +47,7 @@ SettingsPageProvider::SettingsPageProvider()
 {
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr(Designer::Constants::SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon({{":/core/images/settingscategory_design.png",
-                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
+    setCategoryIconPath(":/core/images/settingscategory_design.png");
 }
 
 QList<Core::IOptionsPage *> SettingsPageProvider::pages() const

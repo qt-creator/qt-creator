@@ -25,8 +25,10 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/outputpane.h>
+
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QDesignerFormEditorPluginInterface>
 #include <QDesignerFormEditorInterface>

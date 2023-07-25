@@ -17,6 +17,7 @@
 #include "clangtoolsunittests.h"
 #endif
 
+#include <utils/icon.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
