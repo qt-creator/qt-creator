@@ -24,7 +24,6 @@ add_qtc_plugin(Valgrind
     callgrindvisualisation.cpp callgrindvisualisation.h
     memcheckerrorview.cpp memcheckerrorview.h
     memchecktool.cpp memchecktool.h
-    suppressiondialog.cpp suppressiondialog.h
     valgrind.qrc
     valgrindengine.cpp valgrindengine.h
     valgrindplugin.cpp
