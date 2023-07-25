@@ -27,6 +27,7 @@ PerfSettings &globalSettings()
 
 PerfSettings::PerfSettings(ProjectExplorer::Target *target)
 {
+    setAutoApply(false);
     period.setSettingsKey("Analyzer.Perf.Frequency");
     period.setRange(250, 2147483647);
     period.setDefaultValue(250);
