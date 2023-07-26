@@ -41,6 +41,7 @@ function(setup_dependencies_component)
         endif()
         execute_process(COMMAND
           \"${Python3_EXECUTABLE}\"
+          \"-u\"
           \"${CMAKE_CURRENT_LIST_DIR}/scripts/deploy.py\"
           ${_llvm_arg}
           ${_elfutils_arg}

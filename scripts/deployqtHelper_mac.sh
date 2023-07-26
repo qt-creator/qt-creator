@@ -16,14 +16,6 @@ quick2_src="$5"
 
 echo "Deploying Qt"
 
-# copy qtdiag
-echo "- Copying qtdiag"
-cp "$bin_src/qtdiag" "$app_path/Contents/MacOS/" || exit 1
-# fix rpath if qtdiag was from binary Qt package
-( xcrun install_name_tool -delete_rpath "@loader_path/../lib" "$app_path/Contents/MacOS/qtdiag" &&
-  xcrun install_name_tool -add_rpath "@loader_path/../Frameworks" "$app_path/Contents/MacOS/qtdiag" ) || true
-
-
 # collect designer plugins
 designerDestDir="$app_path/Contents/PlugIns/designer"
 if [ ! -d "$designerDestDir" ]; then
