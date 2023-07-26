@@ -319,7 +319,6 @@ DebuggerSettings::DebuggerSettings() :
     const QString qmlInspectorGroup = "QML.Inspector";
     showAppOnTop.setSettingsKey(qmlInspectorGroup, "QmlInspector.ShowAppOnTop");
 
-    page1.registerAspects(commonSettings());
     // Page 4
     page4.registerAspect(&useDebuggingHelpers);
     page4.registerAspect(&useCodeModel);
@@ -358,7 +357,6 @@ DebuggerSettings::DebuggerSettings() :
     all.registerAspect(&sortStructMembers);
 
     // Collect all
-    all.registerAspects(page1);
     all.registerAspects(page4);
     all.registerAspects(page5);
     all.registerAspects(page6);

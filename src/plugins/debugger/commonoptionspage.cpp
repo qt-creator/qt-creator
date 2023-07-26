@@ -31,6 +31,7 @@ CommonSettings &commonSettings()
 
 CommonSettings::CommonSettings()
 {
+    setAutoApply(false);
     const QString debugModeGroup("DebugMode");
 
     useAlternatingRowColors.setSettingsKey(debugModeGroup, "UseAlternatingRowColours");
@@ -128,6 +129,38 @@ CommonSettings::CommonSettings()
                  "information, it is switched off by default."));
     useToolTipsInMainEditor.setDefaultValue(true);
 
+    setLayouter([this] {
+        using namespace Layouting;
+
+        Column col1 {
+            useAlternatingRowColors,
+            useAnnotationsInMainEditor,
+            useToolTipsInMainEditor,
+            closeSourceBuffersOnExit,
+            closeMemoryBuffersOnExit,
+            raiseOnInterrupt,
+            breakpointsFullPathByDefault,
+            warnOnReleaseBuilds,
+            Row { maximalStackDepth, st }
+        };
+
+        Column col2 {
+            fontSizeFollowsEditor,
+            switchModeOnExit,
+            showQmlObjectTree,
+            stationaryEditorWhileStepping,
+            forceLoggingToConsole,
+            registerForPostMortem,
+            st
+        };
+
+        return Column {
+            Group { title("Behavior"), Row { col1, col2, st } },
+            sourcePathMap,
+            st
+        };
+    });
+
     readSettings();
 }
 
@@ -135,53 +168,6 @@ CommonSettings::~CommonSettings()
 {
     delete registerForPostMortem;
 }
-
-
-class CommonOptionsPageWidget : public Core::IOptionsPageWidget
-{
-public:
-    explicit CommonOptionsPageWidget()
-    {
-        DebuggerSettings &s = settings();
-
-        setOnApply([&s] {
-            s.page1.apply();
-            s.page1.writeSettings();
-        });
-
-        setOnFinish([&s] { s.page1.finish(); });
-
-        using namespace Layouting;
-
-        Column col1 {
-            s.useAlternatingRowColors,
-            s.useAnnotationsInMainEditor,
-            s.useToolTipsInMainEditor,
-            s.closeSourceBuffersOnExit,
-            s.closeMemoryBuffersOnExit,
-            s.raiseOnInterrupt,
-            s.breakpointsFullPathByDefault,
-            s.warnOnReleaseBuilds,
-            Row { s.maximalStackDepth, st }
-        };
-
-        Column col2 {
-            s.fontSizeFollowsEditor,
-            s.switchModeOnExit,
-            s.showQmlObjectTree,
-            s.stationaryEditorWhileStepping,
-            s.forceLoggingToConsole,
-            s.registerForPostMortem,
-            st
-        };
-
-        Column {
-            Group { title("Behavior"), Row { col1, col2, st } },
-            s.sourcePathMap,
-            st
-        }.attachTo(this);
-    }
-};
 
 QString msgSetBreakpointAtFunction(const char *function)
 {
@@ -213,7 +199,7 @@ public:
         setCategory(DEBUGGER_SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("Debugger"));
         setCategoryIconPath(":/debugger/images/settingscategory_debugger.png");
-        setWidgetCreator([] { return new CommonOptionsPageWidget; });
+        setSettingsProvider([] { return &commonSettings(); });
     }
 };
 
