@@ -50,7 +50,6 @@ class MimeTypeSettings;
 class VersionDialog;
 class WindowSupport;
 class SystemEditor;
-class SystemSettings;
 
 class MainWindow : public Utils::AppMainWindow
 {
@@ -80,9 +79,6 @@ public:
 
     void updateAdditionalContexts(const Context &remove, const Context &add,
                                   ICore::ContextPriority priority);
-
-    bool askConfirmationBeforeExit() const;
-    void setAskConfirmationBeforeExit(bool ask);
 
     void setOverrideColor(const QColor &color);
 
@@ -160,7 +156,6 @@ private:
 
     std::unordered_map<QWidget *, IContext *> m_contextWidgets;
 
-    SystemSettings *m_systemSettings = nullptr;
     ShortcutSettings *m_shortcutSettings = nullptr;
     ToolSettings *m_toolSettings = nullptr;
     MimeTypeSettings *m_mimeTypeSettings = nullptr;
@@ -186,7 +181,6 @@ private:
 
     QToolButton *m_toggleLeftSideBarButton = nullptr;
     QToolButton *m_toggleRightSideBarButton = nullptr;
-    bool m_askConfirmationBeforeExit = false;
     QColor m_overrideColor;
     QList<std::function<bool()>> m_preCloseListeners;
 };

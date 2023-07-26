@@ -33,6 +33,7 @@
 #include "../outputpanemanager.h"
 #include "../rightpane.h"
 #include "../settingsdatabase.h"
+#include "../systemsettings.h"
 #include "../vcsmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -90,15 +91,6 @@ static const char kCurrentDocumentYPos[] = "CurrentDocument:YPos";
 static const char kMakeWritableWarning[] = "Core.EditorManager.MakeWritable";
 
 static const char documentStatesKey[] = "EditorManager/DocumentStates";
-static const char reloadBehaviorKey[] = "EditorManager/ReloadBehavior";
-static const char autoSaveEnabledKey[] = "EditorManager/AutoSaveEnabled";
-static const char autoSaveIntervalKey[] = "EditorManager/AutoSaveInterval";
-static const char autoSaveAfterRefactoringKey[] = "EditorManager/AutoSaveAfterRefactoring";
-static const char autoSuspendEnabledKey[] = "EditorManager/AutoSuspendEnabled";
-static const char autoSuspendMinDocumentCountKey[] = "EditorManager/AutoSuspendMinDocuments";
-static const char warnBeforeOpeningBigTextFilesKey[] = "EditorManager/WarnBeforeOpeningBigTextFiles";
-static const char bigTextFileSizeLimitKey[] = "EditorManager/BigTextFileSizeLimitInMB";
-static const char maxRecentFilesKey[] = "EditorManager/MaxRecentFiles";
 static const char fileSystemCaseSensitivityKey[] = "Core/FileSystemCaseSensitivity";
 static const char preferredEditorFactoriesKey[] = "EditorManager/PreferredEditorFactories";
 
@@ -732,7 +724,7 @@ EditorArea *EditorManagerPrivate::mainEditorArea()
 
 bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
 {
-    if (!d->m_settings.warnBeforeOpeningBigFilesEnabled)
+    if (!systemSettings().warnBeforeOpeningBigFiles())
         return false;
 
     if (!filePath.exists())
@@ -745,7 +737,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
 
     const qint64 fileSize = filePath.fileSize();
     const double fileSizeInMB = fileSize / 1000.0 / 1000.0;
-    if (fileSizeInMB > d->m_settings.bigFileSizeLimitInMB
+    if (fileSizeInMB > systemSettings().bigFileSizeLimitInMB()
         && fileSize < EditorManager::maxTextFileSize()) {
         const QString title = ::Core::Tr::tr("Continue Opening Huge Text File?");
         const QString text = ::Core::Tr::tr(
@@ -761,7 +753,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
 
         QMessageBox::StandardButton clickedButton
             = CheckableMessageBox::question(ICore::dialogParent(), title, text, decider);
-        setWarnBeforeOpeningBigFilesEnabled(askAgain);
+        systemSettings().warnBeforeOpeningBigFiles.setValue(askAgain);
         return clickedButton != QMessageBox::Yes;
     }
 
@@ -1217,51 +1209,14 @@ void EditorManagerPrivate::saveSettings()
 {
     ICore::settingsDatabase()->setValue(documentStatesKey, d->m_editorStates);
 
-    const Settings def;
     QtcSettings *qsettings = ICore::settings();
-    qsettings->setValueWithDefault(reloadBehaviorKey,
-                                   int(d->m_settings.reloadSetting),
-                                   int(def.reloadSetting));
-    qsettings->setValueWithDefault(autoSaveEnabledKey,
-                                   d->m_settings.autoSaveEnabled,
-                                   def.autoSaveEnabled);
-    qsettings->setValueWithDefault(autoSaveIntervalKey,
-                                   d->m_settings.autoSaveInterval,
-                                   def.autoSaveInterval);
-    qsettings->setValueWithDefault(autoSaveAfterRefactoringKey,
-                                   d->m_settings.autoSaveAfterRefactoring,
-                                   def.autoSaveAfterRefactoring);
-    qsettings->setValueWithDefault(autoSuspendEnabledKey,
-                                   d->m_settings.autoSuspendEnabled,
-                                   def.autoSuspendEnabled);
-    qsettings->setValueWithDefault(autoSuspendMinDocumentCountKey,
-                                   d->m_settings.autoSuspendMinDocumentCount,
-                                   def.autoSuspendMinDocumentCount);
-    qsettings->setValueWithDefault(warnBeforeOpeningBigTextFilesKey,
-                                   d->m_settings.warnBeforeOpeningBigFilesEnabled,
-                                   def.warnBeforeOpeningBigFilesEnabled);
-    qsettings->setValueWithDefault(bigTextFileSizeLimitKey,
-                                   d->m_settings.bigFileSizeLimitInMB,
-                                   def.bigFileSizeLimitInMB);
-    qsettings->setValueWithDefault(maxRecentFilesKey,
-                                   d->m_settings.maxRecentFiles,
-                                   def.maxRecentFiles);
     qsettings->setValueWithDefault(preferredEditorFactoriesKey,
                                    toMap(userPreferredEditorTypes()));
 }
 
 void EditorManagerPrivate::readSettings()
 {
-    Settings def;
     QSettings *qs = ICore::settings();
-    d->m_settings.warnBeforeOpeningBigFilesEnabled
-        = qs->value(warnBeforeOpeningBigTextFilesKey, def.warnBeforeOpeningBigFilesEnabled).toBool();
-    d->m_settings.bigFileSizeLimitInMB
-        = qs->value(bigTextFileSizeLimitKey, def.bigFileSizeLimitInMB).toInt();
-
-    const int maxRecentFiles = qs->value(maxRecentFilesKey, def.maxRecentFiles).toInt();
-    if (maxRecentFiles > 0)
-        d->m_settings.maxRecentFiles = maxRecentFiles;
 
     const Qt::CaseSensitivity defaultSensitivity = OsSpecificAspects::fileNameCaseSensitivity(
         HostOsInfo::hostOs());
@@ -1280,19 +1235,6 @@ void EditorManagerPrivate::readSettings()
         d->m_editorStates = settings->value(documentStatesKey)
             .value<QMap<QString, QVariant> >();
     }
-
-    d->m_settings.reloadSetting = IDocument::ReloadSetting(
-        qs->value(reloadBehaviorKey, def.reloadSetting).toInt());
-
-    d->m_settings.autoSaveEnabled = qs->value(autoSaveEnabledKey, def.autoSaveEnabled).toBool();
-    d->m_settings.autoSaveInterval = qs->value(autoSaveIntervalKey, def.autoSaveInterval).toInt();
-    d->m_settings.autoSaveAfterRefactoring = qs->value(autoSaveAfterRefactoringKey,
-                                                       def.autoSaveAfterRefactoring).toBool();
-
-    d->m_settings.autoSuspendEnabled = qs->value(autoSuspendEnabledKey, def.autoSuspendEnabled)
-                                           .toBool();
-    d->m_settings.autoSuspendMinDocumentCount
-        = qs->value(autoSuspendMinDocumentCountKey, def.autoSuspendMinDocumentCount).toInt();
 
     updateAutoSave();
 }
@@ -1323,88 +1265,6 @@ void EditorManagerPrivate::writeFileSystemSensitivity(Utils::QtcSettings *settin
                                   int(sensitivity),
                                   int(OsSpecificAspects::fileNameCaseSensitivity(
                                       HostOsInfo::hostOs())));
-}
-
-void EditorManagerPrivate::setAutoSaveEnabled(bool enabled)
-{
-    d->m_settings.autoSaveEnabled = enabled;
-    updateAutoSave();
-}
-
-bool EditorManagerPrivate::autoSaveEnabled()
-{
-    return d->m_settings.autoSaveEnabled;
-}
-
-void EditorManagerPrivate::setAutoSaveInterval(int interval)
-{
-    d->m_settings.autoSaveInterval = interval;
-    updateAutoSave();
-}
-
-int EditorManagerPrivate::autoSaveInterval()
-{
-    return d->m_settings.autoSaveInterval;
-}
-
-void EditorManagerPrivate::setAutoSaveAfterRefactoring(bool enabled)
-{
-    d->m_settings.autoSaveAfterRefactoring = enabled;
-}
-
-bool EditorManagerPrivate::autoSaveAfterRefactoring()
-{
-    return d->m_settings.autoSaveAfterRefactoring;
-}
-
-void EditorManagerPrivate::setAutoSuspendEnabled(bool enabled)
-{
-    d->m_settings.autoSuspendEnabled = enabled;
-}
-
-bool EditorManagerPrivate::autoSuspendEnabled()
-{
-    return d->m_settings.autoSuspendEnabled;
-}
-
-void EditorManagerPrivate::setAutoSuspendMinDocumentCount(int count)
-{
-    d->m_settings.autoSuspendMinDocumentCount = count;
-}
-
-int EditorManagerPrivate::autoSuspendMinDocumentCount()
-{
-    return d->m_settings.autoSuspendMinDocumentCount;
-}
-
-bool EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled()
-{
-    return d->m_settings.warnBeforeOpeningBigFilesEnabled;
-}
-
-void EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(bool enabled)
-{
-    d->m_settings.warnBeforeOpeningBigFilesEnabled = enabled;
-}
-
-int EditorManagerPrivate::bigFileSizeLimit()
-{
-    return d->m_settings.bigFileSizeLimitInMB;
-}
-
-void EditorManagerPrivate::setMaxRecentFiles(int count)
-{
-    d->m_settings.maxRecentFiles = count;
-}
-
-int EditorManagerPrivate::maxRecentFiles()
-{
-    return d->m_settings.maxRecentFiles;
-}
-
-void EditorManagerPrivate::setBigFileSizeLimit(int limitInMB)
-{
-    d->m_settings.bigFileSizeLimitInMB = limitInMB;
 }
 
 EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const FilePath &filePath)
@@ -2005,8 +1865,8 @@ void EditorManagerPrivate::addDocumentToRecentFiles(IDocument *document)
 
 void EditorManagerPrivate::updateAutoSave()
 {
-    if (d->m_settings.autoSaveEnabled)
-        d->m_autoSaveTimer->start(d->m_settings.autoSaveInterval * (60 * 1000));
+    if (systemSettings().autoSaveModifiedFiles())
+        d->m_autoSaveTimer->start(systemSettings().autoSaveInterval() * (60 * 1000));
     else
         d->m_autoSaveTimer->stop();
 }
@@ -2595,20 +2455,21 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
 
 void EditorManagerPrivate::autoSuspendDocuments()
 {
-    if (!d->m_settings.autoSuspendEnabled)
+    if (!systemSettings().autoSuspendEnabled())
         return;
 
     auto visibleDocuments = Utils::transform<QSet>(EditorManager::visibleEditors(),
                                                    &IEditor::document);
     int keptEditorCount = 0;
     QList<IDocument *> documentsToSuspend;
+    const int minDocumentCount = systemSettings().autoSuspendMinDocumentCount();
     for (const EditLocation &editLocation : std::as_const(d->m_globalHistory)) {
         IDocument *document = editLocation.document;
         if (!document || !document->isSuspendAllowed() || document->isModified()
                 || document->isTemporary() || document->filePath().isEmpty()
                 || visibleDocuments.contains(document))
             continue;
-        if (keptEditorCount >= d->m_settings.autoSuspendMinDocumentCount)
+        if (keptEditorCount >= minDocumentCount)
             documentsToSuspend.append(document);
         else
             ++keptEditorCount;
@@ -3001,7 +2862,8 @@ void EditorManager::runWithTemporaryEditor(const Utils::FilePath &filePath,
 */
 IDocument::ReloadSetting EditorManager::reloadSetting()
 {
-    return d->m_settings.reloadSetting;
+    // FIXME: Used TypedSelectionAspect once we have that.
+    return IDocument::ReloadSetting(systemSettings().reloadSetting.value());
 }
 
 /*!
@@ -3011,7 +2873,7 @@ IDocument::ReloadSetting EditorManager::reloadSetting()
 */
 void EditorManager::setReloadSetting(IDocument::ReloadSetting behavior)
 {
-    d->m_settings.reloadSetting = behavior;
+    systemSettings().reloadSetting.setValue(behavior);
 }
 
 /*!
@@ -3228,7 +3090,7 @@ bool EditorManager::isAutoSaveFile(const QString &filePath)
 
 bool EditorManager::autoSaveAfterRefactoring()
 {
-    return EditorManagerPrivate::autoSaveAfterRefactoring();
+    return systemSettings().autoSaveAfterRefactoring();
 }
 
 /*!

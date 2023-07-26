@@ -103,7 +103,6 @@ namespace Internal {
 
 static const char settingsGroup[] = "MainWindow";
 static const char colorKey[] = "Color";
-static const char askBeforeExitKey[] = "AskBeforeExit";
 static const char windowGeometryKey[] = "WindowGeometry";
 static const char windowStateKey[] = "WindowState";
 static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
@@ -129,7 +128,6 @@ MainWindow::MainWindow()
     , m_jsExpander(JsExpander::createGlobalJsExpander())
     , m_vcsManager(new VcsManager)
     , m_modeStack(new FancyTabWidget(this))
-    , m_systemSettings(new SystemSettings)
     , m_shortcutSettings(new ShortcutSettings)
     , m_toolSettings(new ToolSettings)
     , m_mimeTypeSettings(new MimeTypeSettings)
@@ -232,16 +230,6 @@ void MainWindow::setSidebarVisible(bool visible, Side side)
         navigationWidget(side)->setShown(visible);
 }
 
-bool MainWindow::askConfirmationBeforeExit() const
-{
-    return m_askConfirmationBeforeExit;
-}
-
-void MainWindow::setAskConfirmationBeforeExit(bool ask)
-{
-    m_askConfirmationBeforeExit = ask;
-}
-
 void MainWindow::setOverrideColor(const QColor &color)
 {
     m_overrideColor = color;
@@ -275,8 +263,6 @@ MainWindow::~MainWindow()
     m_messageManager = nullptr;
     delete m_shortcutSettings;
     m_shortcutSettings = nullptr;
-    delete m_systemSettings;
-    m_systemSettings = nullptr;
     delete m_toolSettings;
     m_toolSettings = nullptr;
     delete m_mimeTypeSettings;
@@ -376,7 +362,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    if (m_askConfirmationBeforeExit
+    if (systemSettings().askBeforeExit()
         && (QMessageBox::question(this,
                                   Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
                                   Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
@@ -1181,8 +1167,6 @@ void MainWindow::readSettings()
                                   QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
 
-    m_askConfirmationBeforeExit = settings->value(askBeforeExitKey, askBeforeExitDefault).toBool();
-
     {
         ModeManager::Style modeStyle =
                 ModeManager::Style(settings->value(modeSelectorLayoutKey, int(ModeManager::Style::IconsAndText)).toInt());
@@ -1215,10 +1199,6 @@ void MainWindow::saveSettings()
         settings->setValueWithDefault(colorKey,
                                       StyleHelper::requestedBaseColor(),
                                       QColor(StyleHelper::DEFAULT_BASE_COLOR));
-
-    settings->setValueWithDefault(askBeforeExitKey,
-                                  m_askConfirmationBeforeExit,
-                                  askBeforeExitDefault);
 
     settings->endGroup();
 

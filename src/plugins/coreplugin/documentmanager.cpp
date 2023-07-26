@@ -22,6 +22,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
+#include <coreplugin/systemsettings.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -1336,7 +1337,8 @@ void DocumentManager::addToRecentFiles(const FilePath &filePath, Id editorId)
     Utils::erase(d->m_recentFiles, [fileKey](const RecentFile &file) {
         return fileKey == filePathKey(file.first, DocumentManager::KeepLinks);
     });
-    while (d->m_recentFiles.count() >= EditorManagerPrivate::maxRecentFiles())
+    const int maxRecentFiles = systemSettings().maxRecentFiles();
+    while (d->m_recentFiles.count() >= maxRecentFiles)
         d->m_recentFiles.removeLast();
     d->m_recentFiles.prepend(RecentFile(filePath, editorId));
 }
