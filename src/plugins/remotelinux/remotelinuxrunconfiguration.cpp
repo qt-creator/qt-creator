@@ -52,7 +52,6 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     executable.setHistoryCompleter("RemoteLinux.AlternateExecutable.History");
 
     symbolFile.setLabelText(Tr::tr("Executable on host:"));
-    symbolFile.setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
     arguments.setMacroExpander(macroExpander());
 
