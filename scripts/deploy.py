@@ -197,18 +197,58 @@ def deploy_imports(qtc_binary_path, qt_install):
     common.copytree(qt_install.qml, destdir, ignore=ignored_qt_lib_files, symlinks=True)
 
 
+def qt_conf_contents():
+    if common.is_linux_platform():
+        return '''[Paths]
+Prefix={0}
+Binaries=bin
+Libraries=lib
+Plugins=plugins
+Qml2Imports=qml
+'''
+    if common.is_windows_platform():
+        return '''[Paths]
+Prefix={0}
+Binaries=.
+Libraries=.
+Plugins=plugins
+Qml2Imports=qml
+'''
+    return '''[Paths]
+Prefix={0}
+Binaries=MacOS
+Libraries=Frameworks
+Plugins=PlugIns
+Qml2Imports=Imports/qtquick2
+'''
+
+
 def add_qt_conf(target_path, qt_prefix_path):
     qtconf_filepath = os.path.join(target_path, 'qt.conf')
     prefix_path = os.path.relpath(qt_prefix_path, target_path).replace('\\', '/')
     print('Creating qt.conf in "{0}":'.format(qtconf_filepath))
     f = open(qtconf_filepath, 'w')
-    f.write('[Paths]\n')
-    f.write('Prefix={0}\n'.format(prefix_path))
-    f.write('Binaries={0}\n'.format('bin' if common.is_linux_platform() else '.'))
-    f.write('Libraries={0}\n'.format('lib' if common.is_linux_platform() else '.'))
-    f.write('Plugins=plugins\n')
-    f.write('Qml2Imports=qml\n')
+    f.write(qt_conf_contents().format(prefix_path))
     f.close()
+
+
+def deploy_qt_conf_files(qtc_binary_path):
+    if common.is_linux_platform():
+        qt_prefix_path = os.path.join(qtc_binary_path, '..', 'lib', 'Qt')
+        add_qt_conf(os.path.join(qtc_binary_path, '..', 'libexec', 'qtcreator'), qt_prefix_path)
+        add_qt_conf(os.path.join(qtc_binary_path, '..', 'lib', 'Qt', 'bin'), qt_prefix_path) # qtdiag
+        add_qt_conf(qtc_binary_path, qt_prefix_path) # QtC itself
+    if common.is_windows_platform():
+        add_qt_conf(qtc_binary_path, qtc_binary_path) # QtC itself, libexec, and qtdiag etc
+    if common.is_mac_platform():
+        qt_prefix_path = os.path.join(qtc_binary_path, 'Contents')
+        qtc_resources_path = os.path.join(qtc_binary_path, 'Contents', 'Resources')
+        add_qt_conf(os.path.join(qtc_resources_path, 'libexec'), qt_prefix_path)
+        add_qt_conf(os.path.join(qtc_resources_path, 'libexec', 'ios'), qt_prefix_path)
+        # The Prefix path for a qt.conf in Contents/Resources/ is handled specially/funny by Qt,
+        # relative paths are resolved relative to Contents/, so we must enforces Prefix=.
+        add_qt_conf(qtc_resources_path, qtc_resources_path) # QtC itself
+
 
 def deploy_translations(qtc_binary_path, qt_install):
     print("Copying translations...")
@@ -387,6 +427,7 @@ def main():
     deploy_plugins(qtcreator_binary_path, qt_install)
     deploy_imports(qtcreator_binary_path, qt_install)
     deploy_translations(qtcreator_binary_path, qt_install)
+    deploy_qt_conf_files(qtcreator_binary_path)
 
     if common.is_mac_platform():
         deploy_mac(args)
@@ -411,9 +452,6 @@ def main():
     if not common.is_windows_platform():
         print("fixing rpaths...")
         common.fix_rpaths(install_dir, os.path.join(qt_deploy_prefix, 'lib'), qt_install_info, chrpath_bin)
-        add_qt_conf(os.path.join(install_dir, 'libexec', 'qtcreator'), qt_deploy_prefix) # e.g. for qml2puppet
-        add_qt_conf(os.path.join(qt_deploy_prefix, 'bin'), qt_deploy_prefix) # e.g. qtdiag
-    add_qt_conf(os.path.join(install_dir, 'bin'), qt_deploy_prefix)
 
 if __name__ == "__main__":
     main()

@@ -13,24 +13,6 @@ bin_src="$2"
 
 echo "Deploying Qt"
 
-# copy qt creator qt.conf
-if [ ! -f "$resource_path/qt.conf" ]; then
-    echo "- Copying qt.conf"
-    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qt.conf" "$resource_path/qt.conf" || exit 1
-fi
-
-# copy libexec tools' qt.conf
-if [ ! -f "$libexec_path/qt.conf" ]; then
-    echo "- Copying libexec/qt.conf"
-    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/libexec_qt.conf" "$libexec_path/qt.conf" || exit 1
-fi
-
-# copy ios tools' qt.conf
-if [ ! -f "$libexec_path/ios/qt.conf" ]; then
-    echo "- Copying libexec/ios/qt.conf"
-    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/ios_qt.conf" "$libexec_path/ios/qt.conf" || exit 1
-fi
-
 # copy clang if needed
 if [ $LLVM_INSTALL_DIR ]; then
     if [ "$LLVM_INSTALL_DIR"/bin/clangd -nt "$libexec_path"/clang/bin/clangd ]; then
