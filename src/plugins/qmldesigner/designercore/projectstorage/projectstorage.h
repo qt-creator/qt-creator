@@ -739,7 +739,7 @@ private:
         SourceIds exportedSourceIds;
         exportedSourceIds.reserve(types.size());
 
-        for (auto &&type : types) {
+        for (auto &type : types) {
             if (!type.sourceId)
                 throw TypeHasInvalidSourceId{};
 
@@ -1056,7 +1056,7 @@ private:
                 auto typeId = fetchTypeId(alias.aliasImportedTypeNameId);
 
                 if (!typeId)
-                    throw TypeNameDoesNotExists{};
+                    throw TypeNameDoesNotExists{fetchImportedTypeName(alias.aliasImportedTypeNameId)};
 
                 auto [propertyTypeId, aliasId, propertyTraits] = fetchPropertyDeclarationByTypeIdAndNameUngarded(
                     typeId, alias.aliasPropertyName);
@@ -1084,7 +1084,7 @@ private:
                 TypeId propertyTypeId = fetchTypeId(property.importedTypeNameId);
 
                 if (!propertyTypeId)
-                    throw TypeNameDoesNotExists{};
+                    throw TypeNameDoesNotExists{fetchImportedTypeName(property.importedTypeNameId)};
 
                 updatePropertyDeclarationTypeStatement.write(property.propertyDeclarationId,
                                                              propertyTypeId);
@@ -1108,7 +1108,7 @@ private:
                 TypeId prototypeId = fetchTypeId(prototype.prototypeNameId);
 
                 if (!prototypeId)
-                    throw TypeNameDoesNotExists{};
+                    throw TypeNameDoesNotExists{fetchImportedTypeName(prototype.prototypeNameId)};
 
                 updateStatement(prototype.typeId, prototypeId);
                 checkForPrototypeChainCycle(prototype.typeId);
@@ -1178,8 +1178,10 @@ private:
         for (const auto &aliasDeclaration : aliasDeclarations) {
             auto aliasTypeId = fetchTypeId(aliasDeclaration.aliasImportedTypeNameId);
 
-            if (!aliasTypeId)
-                throw TypeNameDoesNotExists{};
+            if (!aliasTypeId) {
+                throw TypeNameDoesNotExists{
+                    fetchImportedTypeName(aliasDeclaration.aliasImportedTypeNameId)};
+            }
 
             auto aliasId = fetchAliasId(aliasTypeId,
                                         aliasDeclaration.aliasPropertyName,
@@ -1288,7 +1290,7 @@ private:
                                                                          type.typeId);
                 }
             } catch (const Sqlite::ConstraintPreventsModification &) {
-                throw QmlDesigner::ExportedTypeCannotBeInserted{};
+                throw QmlDesigner::ExportedTypeCannotBeInserted{type.name};
             }
         };
 
@@ -1344,7 +1346,7 @@ private:
         auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId);
 
         if (!propertyTypeId)
-            throw TypeNameDoesNotExists{};
+            throw TypeNameDoesNotExists{fetchImportedTypeName(propertyImportedTypeNameId)};
 
         auto propertyDeclarationId = insertPropertyDeclarationStatement.template value<PropertyDeclarationId>(
             typeId, value.name, propertyTypeId, value.traits, propertyImportedTypeNameId);
@@ -1386,7 +1388,7 @@ private:
         auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId);
 
         if (!propertyTypeId)
-            throw TypeNameDoesNotExists{};
+            throw TypeNameDoesNotExists{fetchImportedTypeName(propertyImportedTypeNameId)};
 
         if (view.traits == value.traits && propertyTypeId == view.typeId
             && propertyImportedTypeNameId == view.typeNameId)
@@ -2038,7 +2040,7 @@ private:
             typeId = fetchTypeId(typeNameId);
 
             if (!typeId)
-                throw TypeNameDoesNotExists{};
+                throw TypeNameDoesNotExists{fetchImportedTypeName(typeNameId)};
         }
 
         return {typeId, typeNameId};
@@ -2144,6 +2146,11 @@ private:
                         .template value<Storage::Synchronization::TypeNameKind>(typeNameId);
 
         return fetchTypeId(typeNameId, kind);
+    }
+
+    Utils::SmallString fetchImportedTypeName(ImportedTypeNameId typeNameId) const
+    {
+        return selectNameFromImportedTypeNamesStatement.template value<Utils::SmallString>(typeNameId);
     }
 
     TypeId fetchTypeId(ImportedTypeNameId typeNameId, Storage::Synchronization::TypeNameKind kind) const
@@ -3109,6 +3116,8 @@ public:
         database};
     mutable ReadStatement<1, 1> selectKindFromImportedTypeNamesStatement{
         "SELECT kind FROM importedTypeNames WHERE importedTypeNameId=?1", database};
+    mutable ReadStatement<1, 1> selectNameFromImportedTypeNamesStatement{
+        "SELECT name FROM importedTypeNames WHERE importedTypeNameId=?1", database};
     mutable ReadStatement<1, 1> selectTypeIdForQualifiedImportedTypeNameNamesStatement{
         "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
         "importOrSourceId=di.importId JOIN documentImports AS di2 ON di.sourceId=di2.sourceId AND "

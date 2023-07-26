@@ -291,4 +291,31 @@ Component {
   name: "Qt::InputMethodHints"
 }
 
+Component {
+  name: "QRgb"
+}
+
+Component {
+  name: "ulong"
+}
+
+Component {
+  name: "QQuickTapHandler::ExclusiveSignals"
+}
+
+Component {
+  name: "QColorDialogOptions::ColorDialogOptions"
+}
+
+Component {
+  name: "QPolygonF"
+}
+
+Component {
+  name: "QScreen"
+}
+
+Component {
+  name: "QScxmlError"
+}
 }

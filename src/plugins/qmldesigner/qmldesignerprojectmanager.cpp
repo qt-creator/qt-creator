@@ -362,12 +362,12 @@ bool skipPath(const QString &directoryPath)
                                u"Qt5Compat",
                                u"QtCharts",
                                u"QtLocation",
-                               u"QtMultimedia",
                                u"QtPositioning",
                                u"MaterialEditor",
                                u"QtTextToSpeech",
                                u"QtWebEngine",
-                               u"Qt/labs")
+                               u"Qt/labs",
+                               u"QtDataVisualization")
            || skipDirectoriesEndsWith(directoryPath, u"designer");
 }
 
