@@ -2108,8 +2108,7 @@ bool GitClient::synchronousApplyPatch(const FilePath &workingDirectory,
 Environment GitClient::processEnvironment() const
 {
     Environment environment = VcsBaseClientImpl::processEnvironment();
-    const FilePath gitPath = settings().path();
-    environment.prependOrSetPath(gitPath);
+    environment.prependOrSetPath(settings().path());
     if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment()) {
         QString homePath;
         if (qtcEnvironmentVariableIsEmpty("HOMESHARE")) {

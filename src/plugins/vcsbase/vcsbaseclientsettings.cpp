@@ -39,7 +39,7 @@ VcsBaseSettings::~VcsBaseSettings() = default;
 FilePaths VcsBaseSettings::searchPathList() const
 {
     // FIXME: Filepathify
-    return Utils::transform(path.value().split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts),
+    return Utils::transform(path().split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts),
                             &FilePath::fromUserInput);
 }
 
