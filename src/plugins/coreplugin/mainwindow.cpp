@@ -22,7 +22,6 @@
 #include "fileutils.h"
 #include "find/basetextfind.h"
 #include "findplaceholder.h"
-#include "generalsettings.h"
 #include "helpmanager.h"
 #include "icore.h"
 #include "idocumentfactory.h"
@@ -130,7 +129,6 @@ MainWindow::MainWindow()
     , m_jsExpander(JsExpander::createGlobalJsExpander())
     , m_vcsManager(new VcsManager)
     , m_modeStack(new FancyTabWidget(this))
-    , m_generalSettings(new GeneralSettings)
     , m_systemSettings(new SystemSettings)
     , m_shortcutSettings(new ShortcutSettings)
     , m_toolSettings(new ToolSettings)
@@ -165,8 +163,6 @@ MainWindow::MainWindow()
     }
 
     QApplication::setStyle(new ManhattanStyle(baseName));
-    m_generalSettings->setShowShortcutsInContextMenu(
-        GeneralSettings::showShortcutsInContextMenu());
 
     setDockNestingEnabled(true);
 
@@ -279,8 +275,6 @@ MainWindow::~MainWindow()
     m_messageManager = nullptr;
     delete m_shortcutSettings;
     m_shortcutSettings = nullptr;
-    delete m_generalSettings;
-    m_generalSettings = nullptr;
     delete m_systemSettings;
     m_systemSettings = nullptr;
     delete m_toolSettings;

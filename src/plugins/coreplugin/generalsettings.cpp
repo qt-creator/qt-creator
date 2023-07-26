@@ -8,6 +8,7 @@
 #include "themechooser.h"
 
 #include <coreplugin/dialogs/restartdialog.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -35,18 +36,45 @@
 using namespace Utils;
 using namespace Layouting;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 const char settingsKeyDPI[] = "Core/EnableHighDpiScaling";
-const char settingsKeyShortcutsInContextMenu[] = "General/ShowShortcutsInContextMenu";
 const char settingsKeyCodecForLocale[] = "General/OverrideCodecForLocale";
 const char settingsKeyToolbarStyle[] = "General/ToolbarStyle";
+
+static bool defaultShowShortcutsInContextMenu()
+{
+    return QGuiApplication::styleHints()->showShortcutsInContextMenus();
+}
+
+GeneralSettings &generalSettings()
+{
+    static GeneralSettings theSettings;
+    return theSettings;
+}
+
+GeneralSettings::GeneralSettings()
+{
+    setAutoApply(false);
+
+    showShortcutsInContextMenus.setSettingsKey("General/ShowShortcutsInContextMenu");
+    showShortcutsInContextMenus.setDefaultValue(defaultShowShortcutsInContextMenu());
+    showShortcutsInContextMenus.setLabelText(
+        Tr::tr("Show keyboard shortcuts in context menus (default: %1)")
+            .arg(defaultShowShortcutsInContextMenu() ? Tr::tr("on") : Tr::tr("off")));
+
+    connect(&showShortcutsInContextMenus, &BaseAspect::changed, this, [this] {
+        QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus,
+                                       !showShortcutsInContextMenus());
+    });
+
+    readSettings();
+}
 
 class GeneralSettingsWidget final : public IOptionsPageWidget
 {
 public:
-    explicit GeneralSettingsWidget(GeneralSettings *q);
+    GeneralSettingsWidget();
 
     void apply() final;
 
@@ -63,21 +91,17 @@ public:
     static void setCodecForLocale(const QByteArray&);
     void fillToolbarSyleBox() const;
 
-    GeneralSettings *q;
     QComboBox *m_languageBox;
     QComboBox *m_codecBox;
-    QCheckBox *m_showShortcutsInContextMenus;
     QtColorButton *m_colorButton;
     ThemeChooser *m_themeChooser;
     QPushButton *m_resetWarningsButton;
     QComboBox *m_toolbarStyleBox;
 };
 
-GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
-    : q(q)
-    , m_languageBox(new QComboBox)
+GeneralSettingsWidget::GeneralSettingsWidget()
+    : m_languageBox(new QComboBox)
     , m_codecBox(new QComboBox)
-    , m_showShortcutsInContextMenus(new QCheckBox)
     , m_colorButton(new QtColorButton)
     , m_themeChooser(new ThemeChooser)
     , m_resetWarningsButton(new QPushButton)
@@ -123,7 +147,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
         });
     }
 
-    form.addRow({empty, m_showShortcutsInContextMenus});
+    form.addRow({empty, generalSettings().showShortcutsInContextMenus});
     form.addRow({Row{m_resetWarningsButton, st}});
     form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
@@ -134,11 +158,6 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
 
     m_colorButton->setColor(StyleHelper::requestedBaseColor());
     m_resetWarningsButton->setEnabled(canResetWarnings());
-
-    m_showShortcutsInContextMenus->setText(
-        Tr::tr("Show keyboard shortcuts in context menus (default: %1)")
-            .arg(q->m_defaultShowShortcutsInContextMenu ? Tr::tr("on") : Tr::tr("off")));
-    m_showShortcutsInContextMenus->setChecked(GeneralSettings::showShortcutsInContextMenu());
 
     connect(resetColorButton,
             &QAbstractButton::clicked,
@@ -191,11 +210,13 @@ void GeneralSettingsWidget::fillLanguageBox() const
 
 void GeneralSettingsWidget::apply()
 {
+    generalSettings().apply();
+    generalSettings().writeSettings();
+
     int currentIndex = m_languageBox->currentIndex();
     setLanguage(m_languageBox->itemData(currentIndex, Qt::UserRole).toString());
     currentIndex = m_codecBox->currentIndex();
     setCodecForLocale(m_codecBox->itemText(currentIndex).toLocal8Bit());
-    q->setShowShortcutsInContextMenu(m_showShortcutsInContextMenus->isChecked());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_colorButton->color());
     m_themeChooser->apply();
@@ -208,14 +229,6 @@ void GeneralSettingsWidget::apply()
         for (QWidget *widget : QApplication::allWidgets())
             applicationStyle->polish(widget);
     }
-}
-
-bool GeneralSettings::showShortcutsInContextMenu()
-{
-    return ICore::settings()
-        ->value(settingsKeyShortcutsInContextMenu,
-                QGuiApplication::styleHints()->showShortcutsInContextMenus())
-        .toBool();
 }
 
 void GeneralSettingsWidget::resetInterfaceColor()
@@ -305,31 +318,27 @@ void GeneralSettingsWidget::fillToolbarSyleBox() const
     m_toolbarStyleBox->setCurrentIndex(curId);
 }
 
-void GeneralSettings::setShowShortcutsInContextMenu(bool show)
-{
-    ICore::settings()->setValueWithDefault(settingsKeyShortcutsInContextMenu,
-                                           show,
-                                           m_defaultShowShortcutsInContextMenu);
-    QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus, !show);
-}
-
 void GeneralSettings::applyToolbarStyleFromSettings()
 {
     StyleHelper::setToolbarStyle(toolbarStylefromSettings());
 }
 
-GeneralSettings::GeneralSettings()
+// GeneralSettingsPage
+
+class GeneralSettingsPage final : public IOptionsPage
 {
-    setId(Constants::SETTINGS_ID_INTERFACE);
-    setDisplayName(Tr::tr("Interface"));
-    setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(Tr::tr("Environment"));
-    setCategoryIconPath(":/core/images/settingscategory_core.png");
-    setWidgetCreator([this] { return new GeneralSettingsWidget(this); });
+public:
+    GeneralSettingsPage()
+    {
+        setId(Constants::SETTINGS_ID_INTERFACE);
+        setDisplayName(Tr::tr("Interface"));
+        setCategory(Constants::SETTINGS_CATEGORY_CORE);
+        setDisplayCategory(Tr::tr("Environment"));
+        setCategoryIconPath(":/core/images/settingscategory_core.png");
+        setWidgetCreator([] { return new GeneralSettingsWidget; });
+    }
+};
 
-    m_defaultShowShortcutsInContextMenu = QGuiApplication::styleHints()
-                                              ->showShortcutsInContextMenus();
-}
+const GeneralSettingsPage settingsPage;
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal
