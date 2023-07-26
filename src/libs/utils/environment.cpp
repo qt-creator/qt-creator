@@ -149,6 +149,11 @@ void Environment::prependOrSetPath(const FilePath &value)
     prependOrSet("PATH", value.nativePath(), OsSpecificAspects::pathListSeparator(osType()));
 }
 
+void Environment::prependOrSetPath(const QString &directories)
+{
+    prependOrSet("PATH", directories, OsSpecificAspects::pathListSeparator(osType()));
+}
+
 void Environment::appendOrSet(const QString &key, const QString &value, const QString &sep)
 {
     addItem(Item{std::in_place_index_t<AppendOrSet>(), key, value, sep});

@@ -48,6 +48,7 @@ public:
 
     void appendOrSetPath(const FilePath &value);
     void prependOrSetPath(const FilePath &value);
+    void prependOrSetPath(const QString &directories); // Could be several ':'/';' separated entries.
 
     void prependOrSetLibrarySearchPath(const FilePath &value);
     void prependOrSetLibrarySearchPaths(const FilePaths &values);
