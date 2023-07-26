@@ -39,14 +39,12 @@ using namespace PerfProfiler::Internal;
 
 namespace PerfProfiler {
 
-class PerfConfigWidget : public Core::IOptionsPageWidget
+class PerfConfigWidget : public QWidget
 {
 public:
     PerfConfigWidget(PerfSettings *settings, Target *target);
 
 private:
-    void apply() final;
-
     void readTracePoints();
     void handleProcessDone();
 
@@ -143,11 +141,6 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
             this, &PerfConfigWidget::handleProcessDone);
 
     useTracePointsButton->setEnabled(true);
-}
-
-void PerfConfigWidget::apply()
-{
-    m_settings->writeGlobalSettings();
 }
 
 void PerfConfigWidget::readTracePoints()
