@@ -32,6 +32,7 @@ class BaseAspectPrivate;
 class BoolAspectPrivate;
 class ColorAspectPrivate;
 class DoubleAspectPrivate;
+class FilePathAspectPrivate;
 class IntegerAspectPrivate;
 class MultiSelectionAspectPrivate;
 class SelectionAspectPrivate;
@@ -484,22 +485,13 @@ public:
     StringAspect(AspectContainer *container = nullptr);
     ~StringAspect() override;
 
-    struct Data : BaseAspect::Data
-    {
-        QString value;
-        FilePath filePath;
-    };
-
     void addToLayout(Layouting::LayoutItem &parent) override;
 
     // Hook between UI and StringAspect:
     using ValueAcceptor = std::function<std::optional<QString>(const QString &, const QString &)>;
     void setValueAcceptor(ValueAcceptor &&acceptor);
 
-    QString value() const;
-
     void setShowToolTipOnLabel(bool show);
-
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const QString &historyCompleterKey);
@@ -521,15 +513,12 @@ public:
     enum DisplayStyle {
         LabelDisplay,
         LineEditDisplay,
-        TextEditDisplay,
-        PathChooserDisplay
+        TextEditDisplay
     };
     void setDisplayStyle(DisplayStyle style);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
-
-    FilePath filePath() const;
 
 signals:
     void validChanged(bool validState);
@@ -544,10 +533,19 @@ protected:
     std::unique_ptr<Internal::StringAspectPrivate> d;
 };
 
-class QTCREATOR_UTILS_EXPORT FilePathAspect : public StringAspect
+class QTCREATOR_UTILS_EXPORT FilePathAspect : public TypedAspect<QString>
 {
+    Q_OBJECT
+
 public:
     FilePathAspect(AspectContainer *container = nullptr);
+    ~FilePathAspect();
+
+    struct Data : BaseAspect::Data
+    {
+        QString value;
+        FilePath filePath;
+    };
 
     FilePath operator()() const;
     FilePath expandedValue() const;
@@ -565,7 +563,42 @@ public:
     void setEnvironment(const Environment &env);
     void setBaseFileName(const FilePath &baseFileName);
 
+    void setPlaceHolderText(const QString &placeHolderText);
+    void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
+    void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
+    void setHistoryCompleter(const QString &historyCompleterKey);
+    void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
+    void setShowToolTipOnLabel(bool show);
+    void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
+
+    void validateInput();
+
+    void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &optionalLabel, const QString &optionalBaseKey);
+    bool isChecked() const;
+    void setChecked(bool checked);
+
+    // Hook between UI and StringAspect:
+    using ValueAcceptor = std::function<std::optional<QString>(const QString &, const QString &)>;
+    void setValueAcceptor(ValueAcceptor &&acceptor);
+
     PathChooser *pathChooser() const; // Avoid to use.
+
+    void addToLayout(Layouting::LayoutItem &parent) override;
+
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+signals:
+    void validChanged(bool validState);
+
+protected:
+    void bufferToGui() override;
+    bool guiToBuffer() override;
+
+    bool internalToBuffer() override;
+    bool bufferToInternal() override;
+
+    std::unique_ptr<Internal::FilePathAspectPrivate> d;
 };
 
 class QTCREATOR_UTILS_EXPORT IntegerAspect : public TypedAspect<qint64>

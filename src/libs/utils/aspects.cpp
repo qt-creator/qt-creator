@@ -776,34 +776,21 @@ public:
 
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
     QString m_placeHolderText;
-    QString m_prompDialogFilter;
-    QString m_prompDialogTitle;
-    QStringList m_commandVersionArguments;
     QString m_historyCompleterKey;
-    PathChooser::Kind m_expectedKind = PathChooser::File;
-    Environment m_environment;
     QPointer<ElidingLabel> m_labelDisplay;
     QPointer<FancyLineEdit> m_lineEditDisplay;
-    QPointer<PathChooser> m_pathChooserDisplay;
     QPointer<QTextEdit> m_textEditDisplay;
     MacroExpanderProvider m_expanderProvider;
-    FilePath m_baseFileName;
     StringAspect::ValueAcceptor m_valueAcceptor;
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
-    std::function<void()> m_openTerminal;
 
     CheckableAspectImplementation m_checkerImpl;
 
     bool m_undoRedoEnabled = true;
     bool m_acceptRichText = false;
     bool m_showToolTipOnLabel = false;
-    bool m_fileDialogOnly = false;
     bool m_useResetButton = false;
     bool m_autoApplyOnEditingFinished = false;
-    // Used to block recursive editingFinished signals for example when return is pressed, and
-    // the validation changes focus by opening a dialog
-    bool m_blockAutoApply = false;
-    bool m_allowPathFromDevice = true;
     bool m_validatePlaceHolder = false;
 };
 
@@ -900,9 +887,6 @@ StringAspect::StringAspect(AspectContainer *container)
     : TypedAspect(container), d(new Internal::StringAspectPrivate)
 {
     setSpan(2, 1); // Default: Label + something
-
-    addDataExtractor(this, &StringAspect::value, &Data::value);
-    addDataExtractor(this, &StringAspect::filePath, &Data::filePath);
 }
 
 /*!
@@ -916,14 +900,6 @@ StringAspect::~StringAspect() = default;
 void StringAspect::setValueAcceptor(StringAspect::ValueAcceptor &&acceptor)
 {
     d->m_valueAcceptor = std::move(acceptor);
-}
-
-/*!
-    Returns the value of this StringAspect as an ordinary \c QString.
-*/
-QString StringAspect::value() const
-{
-    return TypedAspect::value();
 }
 
 /*!
@@ -943,23 +919,6 @@ void StringAspect::toMap(QVariantMap &map) const
 {
     saveToMap(map, value(), defaultValue(), settingsKey());
     d->m_checkerImpl.toMap(map);
-}
-
-/*!
-    Returns the value of this string aspect as \c Utils::FilePath.
-
-    \note This simply uses \c FilePath::fromUserInput() for the
-    conversion. It does not use any check that the value is actually
-    a valid file path.
-*/
-FilePath StringAspect::filePath() const
-{
-    return FilePath::fromUserInput(value());
-}
-
-PathChooser *FilePathAspect::pathChooser() const
-{
-    return d->m_pathChooserDisplay.data();
 }
 
 /*!
@@ -1005,41 +964,6 @@ void StringAspect::setPlaceHolderText(const QString &placeHolderText)
         d->m_textEditDisplay->setPlaceholderText(placeHolderText);
 }
 
-void FilePathAspect::setPromptDialogFilter(const QString &filter)
-{
-    d->m_prompDialogFilter = filter;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setPromptDialogFilter(filter);
-}
-
-void FilePathAspect::setPromptDialogTitle(const QString &title)
-{
-    d->m_prompDialogTitle = title;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setPromptDialogTitle(title);
-}
-
-void FilePathAspect::setCommandVersionArguments(const QStringList &arguments)
-{
-    d->m_commandVersionArguments = arguments;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setCommandVersionArguments(arguments);
-}
-
-void FilePathAspect::setAllowPathFromDevice(bool allowPathFromDevice)
-{
-    d->m_allowPathFromDevice = allowPathFromDevice;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setAllowPathFromDevice(allowPathFromDevice);
-}
-
-void FilePathAspect::setValidatePlaceHolder(bool validatePlaceHolder)
-{
-    d->m_validatePlaceHolder = validatePlaceHolder;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(validatePlaceHolder);
-}
-
 /*!
     Sets \a elideMode as label elide mode.
 */
@@ -1061,34 +985,6 @@ void StringAspect::setHistoryCompleter(const QString &historyCompleterKey)
     d->m_historyCompleterKey = historyCompleterKey;
     if (d->m_lineEditDisplay)
         d->m_lineEditDisplay->setHistoryCompleter(historyCompleterKey);
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setHistoryCompleter(historyCompleterKey);
-}
-
-/*!
-  Sets \a expectedKind as expected kind for path chooser displays.
-
-  \sa Utils::PathChooser::setExpectedKind()
-*/
-void FilePathAspect::setExpectedKind(const PathChooser::Kind expectedKind)
-{
-    d->m_expectedKind = expectedKind;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setExpectedKind(expectedKind);
-}
-
-void FilePathAspect::setEnvironment(const Environment &env)
-{
-    d->m_environment = env;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setEnvironment(env);
-}
-
-void FilePathAspect::setBaseFileName(const FilePath &baseFileName)
-{
-    d->m_baseFileName = baseFileName;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setBaseDirectory(baseFileName);
 }
 
 void StringAspect::setUndoRedoEnabled(bool undoRedoEnabled)
@@ -1125,15 +1021,6 @@ void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction
     d->m_validator = validator;
     if (d->m_lineEditDisplay)
         d->m_lineEditDisplay->setValidationFunction(*d->m_validator);
-    else if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
-}
-
-void FilePathAspect::setOpenTerminalHandler(const std::function<void ()> &openTerminal)
-{
-    d->m_openTerminal = openTerminal;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setOpenTerminalHandler(openTerminal);
 }
 
 void StringAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
@@ -1143,8 +1030,6 @@ void StringAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
 
 void StringAspect::validateInput()
 {
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->triggerChanged();
     if (d->m_lineEditDisplay)
         d->m_lineEditDisplay->validate();
 }
@@ -1164,45 +1049,6 @@ void StringAspect::addToLayout(LayoutItem &parent)
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
 
     switch (d->m_displayStyle) {
-    case PathChooserDisplay:
-        d->m_pathChooserDisplay = createSubWidget<PathChooser>();
-        d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
-        if (!d->m_historyCompleterKey.isEmpty())
-            d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
-
-        if (d->m_validator)
-            d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
-        d->m_pathChooserDisplay->setEnvironment(d->m_environment);
-        d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
-        d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
-        d->m_pathChooserDisplay->setPromptDialogFilter(d->m_prompDialogFilter);
-        d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
-        d->m_pathChooserDisplay->setCommandVersionArguments(d->m_commandVersionArguments);
-        d->m_pathChooserDisplay->setAllowPathFromDevice(d->m_allowPathFromDevice);
-        d->m_pathChooserDisplay->setReadOnly(isReadOnly());
-        d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(d->m_validatePlaceHolder);
-        if (defaultValue() == value())
-            d->m_pathChooserDisplay->setDefaultValue(defaultValue());
-        else
-            d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
-        // do not override default value with placeholder, but use placeholder if default is empty
-        if (d->m_pathChooserDisplay->lineEdit()->placeholderText().isEmpty())
-            d->m_pathChooserDisplay->lineEdit()->setPlaceholderText(d->m_placeHolderText);
-        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
-        addLabeledItem(parent, d->m_pathChooserDisplay);
-        useMacroExpander(d->m_pathChooserDisplay->lineEdit());
-        connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &StringAspect::validChanged);
-        bufferToGui();
-        if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
-            connect(d->m_pathChooserDisplay, &PathChooser::editingFinished,
-                    this, &StringAspect::handleGuiChanged);
-            connect(d->m_pathChooserDisplay, &PathChooser::browsingFinished,
-                    this, &StringAspect::handleGuiChanged);
-        } else {
-            connect(d->m_pathChooserDisplay, &PathChooser::textChanged,
-                    this, &StringAspect::handleGuiChanged);
-        }
-        break;
     case LineEditDisplay:
         d->m_lineEditDisplay = createSubWidget<FancyLineEdit>();
         d->m_lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
@@ -1268,8 +1114,6 @@ void StringAspect::addToLayout(LayoutItem &parent)
 
 bool StringAspect::guiToBuffer()
 {
-    if (d->m_pathChooserDisplay)
-        return updateStorage(m_buffer, d->m_pathChooserDisplay->lineEdit()->text());
     if (d->m_lineEditDisplay)
         return updateStorage(m_buffer, d->m_lineEditDisplay->text());
     if (d->m_textEditDisplay)
@@ -1294,11 +1138,6 @@ bool StringAspect::internalToBuffer()
 
 void StringAspect::bufferToGui()
 {
-    if (d->m_pathChooserDisplay) {
-        d->m_pathChooserDisplay->lineEdit()->setText(m_buffer);
-        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
-    }
-
     if (d->m_lineEditDisplay) {
         d->m_lineEditDisplay->setTextKeepingActiveCursor(m_buffer);
         d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
@@ -1358,26 +1197,66 @@ void StringAspect::setChecked(bool checked)
     \sa Utils::StringAspect
 */
 
+class Internal::FilePathAspectPrivate
+{
+public:
+    std::function<QString(const QString &)> m_displayFilter;
+
+    QString m_placeHolderText;
+    QString m_prompDialogFilter;
+    QString m_prompDialogTitle;
+    QStringList m_commandVersionArguments;
+    QString m_historyCompleterKey;
+    PathChooser::Kind m_expectedKind = PathChooser::File;
+    Environment m_environment;
+    QPointer<PathChooser> m_pathChooserDisplay;
+    MacroExpanderProvider m_expanderProvider;
+    FilePath m_baseFileName;
+    StringAspect::ValueAcceptor m_valueAcceptor;
+    std::optional<FancyLineEdit::ValidationFunction> m_validator;
+    std::function<void()> m_openTerminal;
+
+    CheckableAspectImplementation m_checkerImpl;
+
+    bool m_showToolTipOnLabel = false;
+    bool m_fileDialogOnly = false;
+    bool m_autoApplyOnEditingFinished = false;
+    bool m_allowPathFromDevice = true;
+    bool m_validatePlaceHolder = false;
+};
 
 FilePathAspect::FilePathAspect(AspectContainer *container)
-    : StringAspect(container)
+    : TypedAspect(container), d(new Internal::FilePathAspectPrivate)
 {
-    setDisplayStyle(PathChooserDisplay);
+    setSpan(2, 1); // Default: Label + something
+
+    addDataExtractor(this, &FilePathAspect::value, &Data::value);
+    addDataExtractor(this, &FilePathAspect::operator(), &Data::filePath);
 }
+
+FilePathAspect::~FilePathAspect() = default;
+
+/*!
+    Returns the value of this aspect as \c Utils::FilePath.
+
+    \note This simply uses \c FilePath::fromUserInput() for the
+    conversion. It does not use any check that the value is actually
+    a valid file path.
+*/
 
 FilePath FilePathAspect::operator()() const
 {
-    return FilePath::fromUserInput(StringAspect::value());
+    return FilePath::fromUserInput(TypedAspect::value());
 }
 
 FilePath FilePathAspect::expandedValue() const
 {
-    return FilePath::fromUserInput(StringAspect::value());
+    return FilePath::fromUserInput(TypedAspect::value());
 }
 
 QString FilePathAspect::value() const
 {
-    return StringAspect::value();
+    return TypedAspect::value();
 }
 
 /*!
@@ -1389,12 +1268,265 @@ QString FilePathAspect::value() const
 
 void FilePathAspect::setValue(const FilePath &filePath)
 {
-    StringAspect::setValue(filePath.toUserOutput());
+    TypedAspect::setValue(filePath.toUserOutput());
 }
 
 void FilePathAspect::setDefaultValue(const FilePath &filePath)
 {
-    StringAspect::setDefaultValue(filePath.toUserOutput());
+    TypedAspect::setDefaultValue(filePath.toUserOutput());
+}
+
+/*!
+    Adds a check box with a \a checkerLabel according to \a checkBoxPlacement
+    to the line edit.
+
+    The state of the check box is made persistent when using a non-emtpy
+    \a checkerKey.
+*/
+void FilePathAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
+                                 const QString &checkerLabel, const QString &checkerKey)
+{
+    d->m_checkerImpl.makeCheckable(checkBoxPlacement, checkerLabel, checkerKey, this);
+}
+
+bool FilePathAspect::isChecked() const
+{
+    return d->m_checkerImpl.isChecked();
+}
+
+void FilePathAspect::setChecked(bool checked)
+{
+    return d->m_checkerImpl.setChecked(checked);
+}
+
+void FilePathAspect::setValueAcceptor(ValueAcceptor &&acceptor)
+{
+    d->m_valueAcceptor = std::move(acceptor);
+}
+
+bool FilePathAspect::guiToBuffer()
+{
+    if (d->m_pathChooserDisplay)
+        return updateStorage(m_buffer, d->m_pathChooserDisplay->lineEdit()->text());
+    return false;
+}
+
+bool FilePathAspect::bufferToInternal()
+{
+    if (d->m_valueAcceptor) {
+        if (const std::optional<QString> tmp = d->m_valueAcceptor(m_internal, m_buffer))
+           return updateStorage(m_internal, *tmp);
+    }
+    return updateStorage(m_internal, m_buffer);
+}
+
+bool FilePathAspect::internalToBuffer()
+{
+    const QString val = d->m_displayFilter ? d->m_displayFilter(m_internal) : m_internal;
+    return updateStorage(m_buffer, val);
+}
+
+void FilePathAspect::bufferToGui()
+{
+    if (d->m_pathChooserDisplay) {
+        d->m_pathChooserDisplay->lineEdit()->setText(m_buffer);
+        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
+    }
+
+    validateInput();
+}
+
+PathChooser *FilePathAspect::pathChooser() const
+{
+    return d->m_pathChooserDisplay.data();
+}
+
+void FilePathAspect::addToLayout(Layouting::LayoutItem &parent)
+{
+    d->m_checkerImpl.addToLayoutFirst(parent);
+
+    const auto useMacroExpander = [this](QWidget *w) {
+        if (!d->m_expanderProvider)
+            return;
+        const auto chooser = new VariableChooser(w);
+        chooser->addSupportedWidget(w);
+        chooser->addMacroExpanderProvider(d->m_expanderProvider);
+    };
+
+    const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
+
+    d->m_pathChooserDisplay = createSubWidget<PathChooser>();
+    d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
+    if (!d->m_historyCompleterKey.isEmpty())
+        d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+
+    if (d->m_validator)
+        d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
+    d->m_pathChooserDisplay->setEnvironment(d->m_environment);
+    d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
+    d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
+    d->m_pathChooserDisplay->setPromptDialogFilter(d->m_prompDialogFilter);
+    d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
+    d->m_pathChooserDisplay->setCommandVersionArguments(d->m_commandVersionArguments);
+    d->m_pathChooserDisplay->setAllowPathFromDevice(d->m_allowPathFromDevice);
+    d->m_pathChooserDisplay->setReadOnly(isReadOnly());
+    d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(d->m_validatePlaceHolder);
+    if (defaultValue() == value())
+        d->m_pathChooserDisplay->setDefaultValue(defaultValue());
+    else
+        d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
+    // do not override default value with placeholder, but use placeholder if default is empty
+    if (d->m_pathChooserDisplay->lineEdit()->placeholderText().isEmpty())
+        d->m_pathChooserDisplay->lineEdit()->setPlaceholderText(d->m_placeHolderText);
+    d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
+    addLabeledItem(parent, d->m_pathChooserDisplay);
+    useMacroExpander(d->m_pathChooserDisplay->lineEdit());
+    connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &FilePathAspect::validChanged);
+    bufferToGui();
+    if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
+        connect(d->m_pathChooserDisplay, &PathChooser::editingFinished,
+                this, &FilePathAspect::handleGuiChanged);
+        connect(d->m_pathChooserDisplay, &PathChooser::browsingFinished,
+                this, &FilePathAspect::handleGuiChanged);
+    } else {
+        connect(d->m_pathChooserDisplay, &PathChooser::textChanged,
+                this, &FilePathAspect::handleGuiChanged);
+    }
+
+    d->m_checkerImpl.addToLayoutLast(parent);
+}
+
+/*!
+    \reimp
+*/
+void FilePathAspect::fromMap(const QVariantMap &map)
+{
+    if (!settingsKey().isEmpty())
+        setValueQuietly(map.value(settingsKey(), defaultValue()).toString());
+    d->m_checkerImpl.fromMap(map);
+}
+
+/*!
+    \reimp
+*/
+void FilePathAspect::toMap(QVariantMap &map) const
+{
+    saveToMap(map, value(), defaultValue(), settingsKey());
+    d->m_checkerImpl.toMap(map);
+}
+
+void FilePathAspect::setPromptDialogFilter(const QString &filter)
+{
+    d->m_prompDialogFilter = filter;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setPromptDialogFilter(filter);
+}
+
+void FilePathAspect::setPromptDialogTitle(const QString &title)
+{
+    d->m_prompDialogTitle = title;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setPromptDialogTitle(title);
+}
+
+void FilePathAspect::setCommandVersionArguments(const QStringList &arguments)
+{
+    d->m_commandVersionArguments = arguments;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setCommandVersionArguments(arguments);
+}
+
+void FilePathAspect::setAllowPathFromDevice(bool allowPathFromDevice)
+{
+    d->m_allowPathFromDevice = allowPathFromDevice;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setAllowPathFromDevice(allowPathFromDevice);
+}
+
+void FilePathAspect::setValidatePlaceHolder(bool validatePlaceHolder)
+{
+    d->m_validatePlaceHolder = validatePlaceHolder;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(validatePlaceHolder);
+}
+
+void FilePathAspect::setShowToolTipOnLabel(bool show)
+{
+    d->m_showToolTipOnLabel = show;
+    bufferToGui();
+}
+
+void FilePathAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
+{
+    d->m_autoApplyOnEditingFinished = applyOnEditingFinished;
+}
+
+/*!
+  Sets \a expectedKind as expected kind for path chooser displays.
+
+  \sa Utils::PathChooser::setExpectedKind()
+*/
+void FilePathAspect::setExpectedKind(const PathChooser::Kind expectedKind)
+{
+    d->m_expectedKind = expectedKind;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setExpectedKind(expectedKind);
+}
+
+void FilePathAspect::setEnvironment(const Environment &env)
+{
+    d->m_environment = env;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setEnvironment(env);
+}
+
+void FilePathAspect::setBaseFileName(const FilePath &baseFileName)
+{
+    d->m_baseFileName = baseFileName;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setBaseDirectory(baseFileName);
+}
+
+void FilePathAspect::setPlaceHolderText(const QString &placeHolderText)
+{
+    d->m_placeHolderText = placeHolderText;
+}
+
+void FilePathAspect::setValidationFunction(const FancyLineEdit::ValidationFunction &validator)
+{
+    d->m_validator = validator;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
+}
+
+void FilePathAspect::setDisplayFilter(const std::function<QString (const QString &)> &displayFilter)
+{
+    d->m_displayFilter = displayFilter;
+}
+
+void FilePathAspect::setHistoryCompleter(const QString &historyCompleterKey)
+{
+    d->m_historyCompleterKey = historyCompleterKey;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setHistoryCompleter(historyCompleterKey);
+}
+
+void FilePathAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
+{
+    d->m_expanderProvider = expanderProvider;
+}
+
+void FilePathAspect::validateInput()
+{
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->triggerChanged();
+}
+
+void FilePathAspect::setOpenTerminalHandler(const std::function<void ()> &openTerminal)
+{
+    d->m_openTerminal = openTerminal;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setOpenTerminalHandler(openTerminal);
 }
 
 /*!
