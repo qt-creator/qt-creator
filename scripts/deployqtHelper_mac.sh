@@ -10,7 +10,6 @@ app_path="$1"
 resource_path="$app_path/Contents/Resources"
 libexec_path="$app_path/Contents/Resources/libexec"
 bin_src="$2"
-translation_src="$3"
 
 echo "Deploying Qt"
 
@@ -30,13 +29,6 @@ fi
 if [ ! -f "$libexec_path/ios/qt.conf" ]; then
     echo "- Copying libexec/ios/qt.conf"
     cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/ios_qt.conf" "$libexec_path/ios/qt.conf" || exit 1
-fi
-
-# copy Qt translations
-# check for known existing translation to avoid copying multiple times
-if [ ! -f "$resource_path/translations/qt_de.qm" ]; then
-    echo "- Copying Qt translations"
-    cp "$translation_src"/*.qm "$resource_path/translations/" || exit 1
 fi
 
 # copy clang if needed

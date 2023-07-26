@@ -210,14 +210,14 @@ def add_qt_conf(target_path, qt_prefix_path):
     f.write('Qml2Imports=qml\n')
     f.close()
 
-def copy_translations(install_dir, qt_tr_dir):
-    translations = glob(os.path.join(qt_tr_dir, '*.qm'))
-    tr_dir = os.path.join(install_dir, 'share', 'qtcreator', 'translations')
-
-    print("copying translations...")
+def deploy_translations(qtc_binary_path, qt_install):
+    print("Copying translations...")
+    translations = glob(os.path.join(qt_install.translations, '*.qm'))
+    destdir = (os.path.join(qtc_binary_path, 'Contents', 'Resources', 'translations') if common.is_mac_platform()
+               else os.path.join(qtc_binary_path, '..', 'share', 'qtcreator', 'translations'))
     for translation in translations:
-        print(translation, '->', tr_dir)
-        shutil.copy(translation, tr_dir)
+        print(translation, '->', destdir)
+        shutil.copy(translation, destdir)
 
 def copyPreservingLinks(source, destination):
     if os.path.islink(source):
@@ -386,6 +386,7 @@ def main():
     deploy_qtdiag(qtcreator_binary_path, qt_install)
     deploy_plugins(qtcreator_binary_path, qt_install)
     deploy_imports(qtcreator_binary_path, qt_install)
+    deploy_translations(qtcreator_binary_path, qt_install)
 
     if common.is_mac_platform():
         deploy_mac(args)
@@ -401,7 +402,7 @@ def main():
         copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.bin)
     else:
         copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.lib)
-    copy_translations(install_dir, qt_install.translations)
+
     if args.llvm_path:
         deploy_clang(install_dir, args.llvm_path, chrpath_bin)
 
