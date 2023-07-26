@@ -86,12 +86,12 @@ def __clickCommit__(count):
     show = str(description.plainText)
     id = "Nobody <nobody@nowhere\.com>"
     time = "\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.* seconds ago\)"
-    expected = [{"commit %s" % commit:False},
-                {"Author: %s, %s" % (id, time): True},
-                {"Committer: %s, %s" % (id, time): True}]
+    expected = [["commit %s" % commit, False],
+                ["Author: %s, %s" % (id, time), True],
+                ["Committer: %s, %s" % (id, time), True]]
     for line, exp in zip(show.splitlines(), expected):
-        expLine = next(iter(exp.keys()))
-        isRegex = next(iter(exp.values()))
+        expLine = exp[0]
+        isRegex = exp[1]
         if isRegex:
             test.verify(re.match(expLine, line), "Verifying commit header line '%s'" % line)
         else:

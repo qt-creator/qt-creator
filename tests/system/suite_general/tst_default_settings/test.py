@@ -359,24 +359,22 @@ def __lowerStrs__(iterable):
 def __checkCreatedSettings__(settingsFolder):
     waitForCleanShutdown()
     qtProj = os.path.join(settingsFolder, "QtProject")
-    folders = []
-    files = [{os.path.join(qtProj, "QtCreator.db"):0},
-             {os.path.join(qtProj, "QtCreator.ini"):30}]
-    folders.append(os.path.join(qtProj, "qtcreator"))
-    files.extend([{os.path.join(folders[0], "debuggers.xml"):0},
-                  {os.path.join(folders[0], "devices.xml"):0},
-                  {os.path.join(folders[0], "helpcollection.qhc"):0},
-                  {os.path.join(folders[0], "profiles.xml"):0},
-                  {os.path.join(folders[0], "qtversion.xml"):0},
-                  {os.path.join(folders[0], "toolchains.xml"):0}])
-    folders.extend([os.path.join(folders[0], "generic-highlighter"),
-                    os.path.join(folders[0], "macros")])
+    creatorFolder = os.path.join(qtProj, "qtcreator")
+    folders = [creatorFolder,
+               os.path.join(creatorFolder, "generic-highlighter"),
+               os.path.join(creatorFolder, "macros")]
+    files = {os.path.join(qtProj, "QtCreator.db"):0,
+             os.path.join(qtProj, "QtCreator.ini"):30,
+             os.path.join(creatorFolder, "debuggers.xml"):0,
+             os.path.join(creatorFolder, "devices.xml"):0,
+             os.path.join(creatorFolder, "helpcollection.qhc"):0,
+             os.path.join(creatorFolder, "profiles.xml"):0,
+             os.path.join(creatorFolder, "qtversion.xml"):0,
+             os.path.join(creatorFolder, "toolchains.xml"):0}
     for f in folders:
         test.verify(os.path.isdir(f),
                     "Verifying whether folder '%s' has been created." % os.path.basename(f))
-    for f in files:
-        fName = next(iter(f.keys()))
-        fMinSize = next(iter(f.values()))
+    for fName, fMinSize in files.items():
         text = "created non-empty"
         if fMinSize > 0:
             text = "modified"
