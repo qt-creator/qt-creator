@@ -129,7 +129,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
 
     // Enforce the default cpp code style, so we are independent of config file settings.
     // This is needed by e.g. the GenerateGetterSetter quick fix.
-    m_cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+    m_cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
     QVERIFY(m_cppCodeStylePreferences);
     m_cppCodeStylePreferencesOriginalDelegateId = m_cppCodeStylePreferences->currentDelegateId();
     m_cppCodeStylePreferences->setCurrentDelegate("qt");
@@ -3479,14 +3479,12 @@ void CppCodeStyleSettingsChanger::setSettings(const CppCodeStyleSettings &settin
     QVariant variant;
     variant.setValue(settings);
 
-    CppCodeStylePreferences *preferences = CppToolsSettings::instance()->cppCodeStyle();
-    preferences->currentDelegate()->setValue(variant);
+    CppToolsSettings::cppCodeStyle()->currentDelegate()->setValue(variant);
 }
 
 CppCodeStyleSettings CppCodeStyleSettingsChanger::currentSettings()
 {
-    CppCodeStylePreferences *preferences = CppToolsSettings::instance()->cppCodeStyle();
-    return preferences->currentDelegate()->value().value<CppCodeStyleSettings>();
+    return CppToolsSettings::cppCodeStyle()->currentDelegate()->value().value<CppCodeStyleSettings>();
 }
 
 void QuickfixTest::testGenerateGettersSetters_data()
@@ -5392,7 +5390,7 @@ SpaceBeforeParens: Always
         CppTestDocument::create("file.cpp", origSource, expectedSource)});
     InsertDefsFromDecls factory;
     factory.setMode(InsertDefsFromDecls::Mode::Impl);
-    CppCodeStylePreferences * const prefs = CppToolsSettings::instance()->cppCodeStyle();
+    CppCodeStylePreferences * const prefs = CppToolsSettings::cppCodeStyle();
     const CppCodeStyleSettings settings = prefs->codeStyleSettings();
     CppCodeStyleSettings tempSettings = settings;
     tempSettings.forceFormatting = true;

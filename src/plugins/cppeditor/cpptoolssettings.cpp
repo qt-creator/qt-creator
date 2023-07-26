@@ -29,21 +29,24 @@ using namespace TextEditor;
 
 namespace CppEditor {
 namespace Internal {
+
 class CppToolsSettingsPrivate
 {
 public:
     CommentsSettings m_commentsSettings;
     CppCodeStylePreferences *m_globalCodeStyle = nullptr;
 };
-} // namespace Internal
 
-CppToolsSettings *CppToolsSettings::m_instance = nullptr;
+} // Internal
+
+CppToolsSettings *m_instance = nullptr;
+Internal::CppToolsSettingsPrivate *d = nullptr;
 
 CppToolsSettings::CppToolsSettings()
-    : d(new Internal::CppToolsSettingsPrivate)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
+    d = new Internal::CppToolsSettingsPrivate;
 
     qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
 
@@ -156,12 +159,12 @@ CppToolsSettings *CppToolsSettings::instance()
     return m_instance;
 }
 
-CppCodeStylePreferences *CppToolsSettings::cppCodeStyle() const
+CppCodeStylePreferences *CppToolsSettings::cppCodeStyle()
 {
     return d->m_globalCodeStyle;
 }
 
-const CommentsSettings &CppToolsSettings::commentsSettings() const
+const CommentsSettings &CppToolsSettings::commentsSettings()
 {
     return d->m_commentsSettings;
 }
@@ -178,7 +181,7 @@ static QString sortEditorDocumentOutlineKey()
          + QLatin1String(Constants::CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE);
 }
 
-bool CppToolsSettings::sortedEditorDocumentOutline() const
+bool CppToolsSettings::sortedEditorDocumentOutline()
 {
     return ICore::settings()
         ->value(sortEditorDocumentOutlineKey(), kSortEditorDocumentOutlineDefault)
@@ -190,7 +193,6 @@ void CppToolsSettings::setSortedEditorDocumentOutline(bool sorted)
     ICore::settings()->setValueWithDefault(sortEditorDocumentOutlineKey(),
                                            sorted,
                                            kSortEditorDocumentOutlineDefault);
-    emit editorDocumentOutlineSortingChanged(sorted);
 }
 
 } // namespace CppEditor

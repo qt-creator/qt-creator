@@ -79,7 +79,7 @@ CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     m_proxyModel->setSourceModel(m_model);
 
     // Set up proxy model
-    if (CppToolsSettings::instance()->sortedEditorDocumentOutline())
+    if (CppToolsSettings::sortedEditorDocumentOutline())
         m_proxyModel->sort(0, Qt::AscendingOrder);
     else
         m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedOutline()

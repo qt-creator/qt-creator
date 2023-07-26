@@ -565,7 +565,7 @@ Utils::EditOperations ClangFormatBaseIndenter::format(const TextEditor::RangesIn
 {
     bool doFormatting = mode == FormattingMode::Forced || formatCodeInsteadOfIndent();
 #ifdef WITH_TESTS
-    doFormatting = doFormatting || CppEditor::CppToolsSettings::instance()->cppCodeStyle()
+    doFormatting = doFormatting || CppEditor::CppToolsSettings::cppCodeStyle()
             ->codeStyleSettings().forceFormatting;
 #endif
     if (!doFormatting)

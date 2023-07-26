@@ -469,7 +469,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
 {
     CppCodeStylePreferences *cppCodeStylePreferences = m_preferences
             ? m_preferences
-            : CppToolsSettings::instance()->cppCodeStyle();
+            : CppToolsSettings::cppCodeStyle();
     const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
     const TabSettings ts = cppCodeStylePreferences->currentTabSettings();
     QtStyleCodeFormatter formatter(ts, ccss);
@@ -568,8 +568,7 @@ class CppCodeStyleSettingsPageWidget : public Core::IOptionsPageWidget
 public:
     CppCodeStyleSettingsPageWidget()
     {
-        CppCodeStylePreferences *originalCodeStylePreferences = CppToolsSettings::instance()
-                                                                    ->cppCodeStyle();
+        CppCodeStylePreferences *originalCodeStylePreferences = CppToolsSettings::cppCodeStyle();
         m_pageCppCodeStylePreferences = new CppCodeStylePreferences();
         m_pageCppCodeStylePreferences->setDelegatingPool(
             originalCodeStylePreferences->delegatingPool());
@@ -589,7 +588,7 @@ public:
 
     void apply() final
     {
-        CppCodeStylePreferences *originalCppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+        CppCodeStylePreferences *originalCppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
         if (originalCppCodeStylePreferences->codeStyleSettings() != m_pageCppCodeStylePreferences->codeStyleSettings()) {
             originalCppCodeStylePreferences->setCodeStyleSettings(m_pageCppCodeStylePreferences->codeStyleSettings());
             originalCppCodeStylePreferences->toSettings(QLatin1String(CppEditor::Constants::CPP_SETTINGS_ID));

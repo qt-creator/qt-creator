@@ -40,7 +40,7 @@ void DoxygenTest::cleanTestCase()
 void DoxygenTest::cleanup()
 {
     if (oldSettings)
-        CppToolsSettings::instance()->setCommentsSettings(*oldSettings);
+        CppToolsSettings::setCommentsSettings(*oldSettings);
     QVERIFY(Core::EditorManager::closeAllEditors(false));
     QVERIFY(TestCase::garbageCollectGlobalSnapshot());
 }
@@ -434,9 +434,8 @@ void DoxygenTest::runTest(const QByteArray &original,
                                     &testDocument.m_editorWidget));
 
     if (settings) {
-        auto *cts = CppToolsSettings::instance();
-        oldSettings.reset(new TextEditor::CommentsSettings(cts->commentsSettings()));
-        cts->setCommentsSettings(*settings);
+        oldSettings.reset(new TextEditor::CommentsSettings(CppToolsSettings::commentsSettings()));
+        CppToolsSettings::setCommentsSettings(*settings);
     }
 
     // We want to test documents that start with a comment. By default, the

@@ -161,7 +161,7 @@ CppCodeStyleSettings CppCodeStyleSettings::currentProjectCodeStyle()
 
 CppCodeStyleSettings CppCodeStyleSettings::currentGlobalCodeStyle()
 {
-    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
     QTC_ASSERT(cppCodeStylePreferences, return CppCodeStyleSettings());
 
     return cppCodeStylePreferences->currentCodeStyleSettings();
@@ -188,8 +188,7 @@ TextEditor::TabSettings CppCodeStyleSettings::currentProjectTabSettings()
 
 TextEditor::TabSettings CppCodeStyleSettings::currentGlobalTabSettings()
 {
-    CppCodeStylePreferences *cppCodeStylePreferences
-            = CppToolsSettings::instance()->cppCodeStyle();
+    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
     QTC_ASSERT(cppCodeStylePreferences, return TextEditor::TabSettings());
 
     return cppCodeStylePreferences->currentTabSettings();
