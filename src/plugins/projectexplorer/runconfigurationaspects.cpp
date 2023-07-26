@@ -613,7 +613,6 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
 {
     QTC_ASSERT(!m_alternativeExecutable, return);
     m_alternativeExecutable = new FilePathAspect;
-    m_alternativeExecutable->setDisplayStyle(StringAspect::LineEditDisplay);
     m_alternativeExecutable->setLabelText(Tr::tr("Alternate executable on device:"));
     m_alternativeExecutable->setSettingsKey(overridingKey);
     m_alternativeExecutable->makeCheckable(CheckBoxPlacement::Right,
