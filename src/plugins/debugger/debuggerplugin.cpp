@@ -1122,7 +1122,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 //        QTC_CHECK(false);
 //    });
 
-    m_optionPages.append(new LocalsAndExpressionsOptionsPage);
     addCdbOptionPages(&m_optionPages);
 
     connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange, this, [] {

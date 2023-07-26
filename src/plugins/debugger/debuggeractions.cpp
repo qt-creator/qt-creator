@@ -70,7 +70,21 @@ DebuggerSettings::DebuggerSettings() :
     breakOnFatal{gdbSettings().breakOnFatal},
     breakOnAbort{gdbSettings().breakOnAbort},
     enableReverseDebugging{gdbSettings().enableReverseDebugging},
-    multiInferior{gdbSettings().multiInferior}
+    multiInferior{gdbSettings().multiInferior},
+
+    // Page 4
+    useDebuggingHelpers{localsAndExpressionSettings().useDebuggingHelpers},
+    useCodeModel{localsAndExpressionSettings().useCodeModel},
+    showThreadNames{localsAndExpressionSettings().showThreadNames},
+    extraDumperFile{localsAndExpressionSettings().extraDumperFile},   // For loading a file. Recommended.
+    extraDumperCommands{localsAndExpressionSettings().extraDumperCommands}, // To modify an existing setup.
+
+    showStdNamespace{localsAndExpressionSettings().showStdNamespace},
+    showQtNamespace{localsAndExpressionSettings().showQtNamespace},
+    showQObjectNames{localsAndExpressionSettings().showQObjectNames},
+    maximalStringLength{localsAndExpressionSettings().maximalStringLength},
+    displayStringLimit{localsAndExpressionSettings().displayStringLimit},
+    defaultArraySize{localsAndExpressionSettings().defaultArraySize}
 {
     const QString debugModeGroup("DebugMode");
     const QString cdbSettingsGroup("CDB2");
@@ -175,75 +189,15 @@ DebuggerSettings::DebuggerSettings() :
 
     //
     // Locals & Watchers
-    //
-    showStdNamespace.setSettingsKey(debugModeGroup, "ShowStandardNamespace");
-    showStdNamespace.setDefaultValue(true);
-    showStdNamespace.setDisplayName(Tr::tr("Show \"std::\" Namespace in Types"));
-    showStdNamespace.setLabelText(Tr::tr("Show \"std::\" namespace in types"));
-    showStdNamespace.setToolTip(
-        "<p>" + Tr::tr("Shows \"std::\" prefix for types from the standard library."));
-
-    showQtNamespace.setSettingsKey(debugModeGroup, "ShowQtNamespace");
-    showQtNamespace.setDefaultValue(true);
-    showQtNamespace.setDisplayName(Tr::tr("Show Qt's Namespace in Types"));
-    showQtNamespace.setLabelText(Tr::tr("Show Qt's namespace in types"));
-    showQtNamespace.setToolTip("<p>"
-                               + Tr::tr("Shows Qt namespace prefix for Qt types. This is only "
-                                        "relevant if Qt was configured with \"-qtnamespace\"."));
-
-    showQObjectNames.setSettingsKey(debugModeGroup, "ShowQObjectNames2");
-    showQObjectNames.setDefaultValue(true);
-    showQObjectNames.setDisplayName(Tr::tr("Show QObject names if available"));
-    showQObjectNames.setLabelText(Tr::tr("Show QObject names if available"));
-    showQObjectNames.setToolTip(
-        "<p>"
-        + Tr::tr("Displays the objectName property of QObject based items. "
-                 "Note that this can negatively impact debugger performance "
-                 "even if no QObjects are present."));
-
     sortStructMembers.setSettingsKey(debugModeGroup, "SortStructMembers");
     sortStructMembers.setDisplayName(Tr::tr("Sort Members of Classes and Structs Alphabetically"));
     sortStructMembers.setLabelText(Tr::tr("Sort members of classes and structs alphabetically"));
     sortStructMembers.setDefaultValue(true);
 
     //
-    // DebuggingHelper
-    //
-    useDebuggingHelpers.setSettingsKey(debugModeGroup, "UseDebuggingHelper");
-    useDebuggingHelpers.setDefaultValue(true);
-    useDebuggingHelpers.setLabelText(Tr::tr("Use Debugging Helpers"));
-
-    useCodeModel.setSettingsKey(debugModeGroup, "UseCodeModel");
-    useCodeModel.setDefaultValue(true);
-    useCodeModel.setLabelText(Tr::tr("Use code model"));
-    useCodeModel.setToolTip(
-        "<p>"
-        + Tr::tr("Selecting this causes the C++ Code Model being asked "
-                 "for variable scope information. This might result in slightly faster "
-                 "debugger operation but may fail for optimized code."));
-
-    showThreadNames.setSettingsKey(debugModeGroup, "ShowThreadNames");
-    showThreadNames.setLabelText(Tr::tr("Display thread names"));
-    showThreadNames.setToolTip("<p>" + Tr::tr("Displays names of QThread based threads."));
-
-    //
     // Breakpoints
     //
     synchronizeBreakpoints.setLabelText(Tr::tr("Synchronize Breakpoints"));
-
-    extraDumperCommands.setSettingsKey(debugModeGroup, "GdbCustomDumperCommands");
-    extraDumperCommands.setDisplayStyle(StringAspect::TextEditDisplay);
-    extraDumperCommands.setUseGlobalMacroExpander();
-    extraDumperCommands.setToolTip("<html><head/><body><p>"
-                        + Tr::tr("Python commands entered here will be executed after built-in "
-                             "debugging helpers have been loaded and fully initialized. You can "
-                             "load additional debugging helpers or modify existing ones here.")
-                        + "</p></body></html>");
-
-    extraDumperFile.setSettingsKey(debugModeGroup, "ExtraDumperFile");
-    extraDumperFile.setDisplayName(Tr::tr("Extra Debugging Helpers"));
-    // Label text is intentional empty in the GUI.
-    extraDumperFile.setToolTip(Tr::tr("Path to a Python file containing additional data dumpers."));
 
     autoQuit.setSettingsKey(debugModeGroup, "AutoQuit");
     autoQuit.setLabelText(Tr::tr("Automatically Quit Debugger"));
@@ -277,38 +231,6 @@ DebuggerSettings::DebuggerSettings() :
     selectedPluginBreakpointsPattern.setSettingsKey(debugModeGroup, "SelectedPluginBreakpointsPattern");
     selectedPluginBreakpointsPattern.setDefaultValue(QString(".*"));
 
-    displayStringLimit.setSettingsKey(debugModeGroup, "DisplayStringLimit");
-    displayStringLimit.setDefaultValue(300);
-    displayStringLimit.setSpecialValueText(Tr::tr("<unlimited>"));
-    displayStringLimit.setRange(20, 10000);
-    displayStringLimit.setSingleStep(10);
-    displayStringLimit.setLabelText(Tr::tr("Display string length:"));
-    displayStringLimit.setToolTip(
-        "<p>"
-        + Tr::tr("The maximum length of string entries in the "
-                 "Locals and Expressions views. Longer than that are cut off "
-                 "and displayed with an ellipsis attached."));
-
-    maximalStringLength.setSettingsKey(debugModeGroup, "MaximalStringLength");
-    maximalStringLength.setDefaultValue(10000);
-    maximalStringLength.setSpecialValueText(Tr::tr("<unlimited>"));
-    maximalStringLength.setRange(20, 10000000);
-    maximalStringLength.setSingleStep(20);
-    maximalStringLength.setLabelText(Tr::tr("Maximum string length:"));
-    maximalStringLength.setToolTip(
-        "<p>"
-        + Tr::tr("The maximum length for strings in separated windows. "
-                 "Longer strings are cut off and displayed with an ellipsis attached."));
-
-    defaultArraySize.setSettingsKey(debugModeGroup, "DefaultArraySize");
-    defaultArraySize.setDefaultValue(100);
-    defaultArraySize.setRange(10, 1000000000);
-    defaultArraySize.setSingleStep(100);
-    defaultArraySize.setLabelText(Tr::tr("Default array size:"));
-    defaultArraySize.setToolTip("<p>"
-                                + Tr::tr("The number of array elements requested when expanding "
-                                         "entries in the Locals and Expressions views."));
-
     expandStack.setLabelText(Tr::tr("Reload Full Stack"));
 
     createFullBacktrace.setLabelText(Tr::tr("Create Full Backtrace"));
@@ -319,18 +241,6 @@ DebuggerSettings::DebuggerSettings() :
     const QString qmlInspectorGroup = "QML.Inspector";
     showAppOnTop.setSettingsKey(qmlInspectorGroup, "QmlInspector.ShowAppOnTop");
 
-    // Page 4
-    page4.registerAspect(&useDebuggingHelpers);
-    page4.registerAspect(&useCodeModel);
-    page4.registerAspect(&showThreadNames);
-    page4.registerAspect(&showStdNamespace);
-    page4.registerAspect(&showQtNamespace);
-    page4.registerAspect(&extraDumperFile);
-    page4.registerAspect(&extraDumperCommands);
-    page4.registerAspect(&showQObjectNames);
-    page4.registerAspect(&displayStringLimit);
-    page4.registerAspect(&maximalStringLength);
-    page4.registerAspect(&defaultArraySize);
 
     // Page 5
     page5.registerAspect(&cdbAdditionalArguments);
@@ -357,7 +267,6 @@ DebuggerSettings::DebuggerSettings() :
     all.registerAspect(&sortStructMembers);
 
     // Collect all
-    all.registerAspects(page4);
     all.registerAspects(page5);
     all.registerAspects(page6);
 

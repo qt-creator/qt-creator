@@ -62,15 +62,19 @@ public:
     Utils::BoolAspect &multiInferior;
 
     // Page 4: Locals and expressions
-    Utils::BoolAspect useDebuggingHelpers;
-    Utils::BoolAspect useCodeModel;
-    Utils::BoolAspect showThreadNames;
-    Utils::FilePathAspect extraDumperFile;   // For loading a file. Recommended.
-    Utils::StringAspect extraDumperCommands; // To modify an existing setup.
+    Utils::BoolAspect &useDebuggingHelpers;
+    Utils::BoolAspect &useCodeModel;
+    Utils::BoolAspect &showThreadNames;
+    Utils::FilePathAspect &extraDumperFile;   // For loading a file. Recommended.
+    Utils::StringAspect &extraDumperCommands; // To modify an existing setup.
 
-    Utils::BoolAspect showStdNamespace;
-    Utils::BoolAspect showQtNamespace;
-    Utils::BoolAspect showQObjectNames;
+    Utils::BoolAspect &showStdNamespace;
+    Utils::BoolAspect &showQtNamespace;
+    Utils::BoolAspect &showQObjectNames;
+
+    Utils::IntegerAspect &maximalStringLength;
+    Utils::IntegerAspect &displayStringLimit;
+    Utils::IntegerAspect &defaultArraySize;
 
     // Page 5: CDB
     Utils::StringAspect cdbAdditionalArguments;
@@ -101,9 +105,6 @@ public:
 
     // Watchers & Locals
     Utils::BoolAspect autoDerefPointers;
-    Utils::IntegerAspect maximalStringLength;
-    Utils::IntegerAspect displayStringLimit;
-    Utils::IntegerAspect defaultArraySize;
     Utils::BoolAspect sortStructMembers;
     Utils::BoolAspect useToolTipsInLocalsView;
 
@@ -119,7 +120,6 @@ public:
     Utils::BoolAspect showAppOnTop;
 
     Utils::AspectContainer all; // All
-    Utils::AspectContainer page4; // Locals & Expressions
     Utils::AspectContainer page5; // CDB
     Utils::AspectContainer page6; // CDB Paths
 

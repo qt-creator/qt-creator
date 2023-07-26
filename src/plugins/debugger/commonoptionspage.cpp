@@ -11,6 +11,8 @@
 #include "registerpostmortemaction.h"
 #endif
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/layoutbuilder.h>
 
 #include <QGuiApplication>
@@ -205,21 +207,110 @@ public:
 
 const CommonSettingsPage commonSettingsPage;
 
-///////////////////////////////////////////////////////////////////////
-//
-// LocalsAndExpressionsOptionsPage
-//
-///////////////////////////////////////////////////////////////////////
 
-class LocalsAndExpressionsOptionsPageWidget : public IOptionsPageWidget
+// LocalsAndExpressions
+
+LocalsAndExpressionsSettings &localsAndExpressionSettings()
 {
-public:
-    LocalsAndExpressionsOptionsPageWidget()
-    {
-        DebuggerSettings &s = settings();
-        setOnApply([&s] { s.page4.apply(); s.page4.writeSettings(); });
-        setOnFinish([&s] { s.page4.finish(); });
+    static LocalsAndExpressionsSettings settings;
+    return settings;
+}
 
+LocalsAndExpressionsSettings::LocalsAndExpressionsSettings()
+{
+    setAutoApply(false);
+
+    const QString debugModeGroup("DebugMode");
+
+    useDebuggingHelpers.setSettingsKey(debugModeGroup, "UseDebuggingHelper");
+    useDebuggingHelpers.setDefaultValue(true);
+    useDebuggingHelpers.setLabelText(Tr::tr("Use Debugging Helpers"));
+
+    useCodeModel.setSettingsKey(debugModeGroup, "UseCodeModel");
+    useCodeModel.setDefaultValue(true);
+    useCodeModel.setLabelText(Tr::tr("Use code model"));
+    useCodeModel.setToolTip(
+        "<p>"
+        + Tr::tr("Selecting this causes the C++ Code Model being asked "
+                 "for variable scope information. This might result in slightly faster "
+                 "debugger operation but may fail for optimized code."));
+
+    showThreadNames.setSettingsKey(debugModeGroup, "ShowThreadNames");
+    showThreadNames.setLabelText(Tr::tr("Display thread names"));
+    showThreadNames.setToolTip("<p>" + Tr::tr("Displays names of QThread based threads."));
+
+    showStdNamespace.setSettingsKey(debugModeGroup, "ShowStandardNamespace");
+    showStdNamespace.setDefaultValue(true);
+    showStdNamespace.setDisplayName(Tr::tr("Show \"std::\" Namespace in Types"));
+    showStdNamespace.setLabelText(Tr::tr("Show \"std::\" namespace in types"));
+    showStdNamespace.setToolTip(
+        "<p>" + Tr::tr("Shows \"std::\" prefix for types from the standard library."));
+
+    showQtNamespace.setSettingsKey(debugModeGroup, "ShowQtNamespace");
+    showQtNamespace.setDefaultValue(true);
+    showQtNamespace.setDisplayName(Tr::tr("Show Qt's Namespace in Types"));
+    showQtNamespace.setLabelText(Tr::tr("Show Qt's namespace in types"));
+    showQtNamespace.setToolTip("<p>"
+                               + Tr::tr("Shows Qt namespace prefix for Qt types. This is only "
+                                        "relevant if Qt was configured with \"-qtnamespace\"."));
+
+    showQObjectNames.setSettingsKey(debugModeGroup, "ShowQObjectNames2");
+    showQObjectNames.setDefaultValue(true);
+    showQObjectNames.setDisplayName(Tr::tr("Show QObject names if available"));
+    showQObjectNames.setLabelText(Tr::tr("Show QObject names if available"));
+    showQObjectNames.setToolTip(
+        "<p>"
+        + Tr::tr("Displays the objectName property of QObject based items. "
+                 "Note that this can negatively impact debugger performance "
+                 "even if no QObjects are present."));
+
+    extraDumperCommands.setSettingsKey(debugModeGroup, "GdbCustomDumperCommands");
+    extraDumperCommands.setDisplayStyle(StringAspect::TextEditDisplay);
+    extraDumperCommands.setUseGlobalMacroExpander();
+    extraDumperCommands.setToolTip("<html><head/><body><p>"
+                        + Tr::tr("Python commands entered here will be executed after built-in "
+                             "debugging helpers have been loaded and fully initialized. You can "
+                             "load additional debugging helpers or modify existing ones here.")
+                        + "</p></body></html>");
+
+    extraDumperFile.setSettingsKey(debugModeGroup, "ExtraDumperFile");
+    extraDumperFile.setDisplayName(Tr::tr("Extra Debugging Helpers"));
+    // Label text is intentional empty in the GUI.
+    extraDumperFile.setToolTip(Tr::tr("Path to a Python file containing additional data dumpers."));
+
+    displayStringLimit.setSettingsKey(debugModeGroup, "DisplayStringLimit");
+    displayStringLimit.setDefaultValue(300);
+    displayStringLimit.setSpecialValueText(Tr::tr("<unlimited>"));
+    displayStringLimit.setRange(20, 10000);
+    displayStringLimit.setSingleStep(10);
+    displayStringLimit.setLabelText(Tr::tr("Display string length:"));
+    displayStringLimit.setToolTip(
+        "<p>"
+        + Tr::tr("The maximum length of string entries in the "
+                 "Locals and Expressions views. Longer than that are cut off "
+                 "and displayed with an ellipsis attached."));
+
+    maximalStringLength.setSettingsKey(debugModeGroup, "MaximalStringLength");
+    maximalStringLength.setDefaultValue(10000);
+    maximalStringLength.setSpecialValueText(Tr::tr("<unlimited>"));
+    maximalStringLength.setRange(20, 10000000);
+    maximalStringLength.setSingleStep(20);
+    maximalStringLength.setLabelText(Tr::tr("Maximum string length:"));
+    maximalStringLength.setToolTip(
+        "<p>"
+        + Tr::tr("The maximum length for strings in separated windows. "
+                 "Longer strings are cut off and displayed with an ellipsis attached."));
+
+    defaultArraySize.setSettingsKey(debugModeGroup, "DefaultArraySize");
+    defaultArraySize.setDefaultValue(100);
+    defaultArraySize.setRange(10, 1000000000);
+    defaultArraySize.setSingleStep(100);
+    defaultArraySize.setLabelText(Tr::tr("Default array size:"));
+    defaultArraySize.setToolTip("<p>"
+                                + Tr::tr("The number of array elements requested when expanding "
+                                         "entries in the Locals and Expressions views."));
+
+    setLayouter([this] {
         auto label = new QLabel; //(useHelperGroup);
         label->setTextFormat(Qt::AutoText);
         label->setWordWrap(true);
@@ -232,9 +323,9 @@ public:
         using namespace Layouting;
         Column left {
             label,
-            s.useCodeModel,
-            s.showThreadNames,
-            Group { title(Tr::tr("Extra Debugging Helper")), Column { s.extraDumperFile } }
+            useCodeModel,
+            showThreadNames,
+            Group { title(Tr::tr("Extra Debugging Helper")), Column { extraDumperFile } }
         };
 
         Group useHelper {
@@ -242,38 +333,46 @@ public:
                 left,
                 Group {
                     title(Tr::tr("Debugging Helper Customization")),
-                    Column { s.extraDumperCommands }
+                    Column { extraDumperCommands }
                 }
             }
         };
 
         Grid limits {
-            s.maximalStringLength, br,
-            s.displayStringLimit, br,
-            s.defaultArraySize
+            maximalStringLength, br,
+            displayStringLimit, br,
+            defaultArraySize
         };
 
-        Column {
-            s.useDebuggingHelpers,
+        return Column {
+            useDebuggingHelpers,
             useHelper,
             Space(10),
-            s.showStdNamespace,
-            s.showQtNamespace,
-            s.showQObjectNames,
+            showStdNamespace,
+            showQtNamespace,
+            showQObjectNames,
             Space(10),
             Row { limits, st },
             st
-        }.attachTo(this);
+        };
+    });
+
+    readSettings();
+}
+
+class LocalsAndExpressionsSettingsPage final : public Core::IOptionsPage
+{
+public:
+    LocalsAndExpressionsSettingsPage()
+    {
+        setId("Z.Debugger.LocalsAndExpressions");
+        //: '&&' will appear as one (one is marking keyboard shortcut)
+        setDisplayName(Tr::tr("Locals && Expressions"));
+        setCategory(DEBUGGER_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &localsAndExpressionSettings(); });
     }
 };
 
-LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
-{
-    setId("Z.Debugger.LocalsAndExpressions");
-    //: '&&' will appear as one (one is marking keyboard shortcut)
-    setDisplayName(Tr::tr("Locals && Expressions"));
-    setCategory(DEBUGGER_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new LocalsAndExpressionsOptionsPageWidget; });
-}
+const LocalsAndExpressionsSettingsPage localsAndExpressionSettingsPage;
 
 } // Debugger::Internal

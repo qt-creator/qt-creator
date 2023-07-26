@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace Debugger::Internal {
 
@@ -66,11 +66,29 @@ public:
 
 CommonSettings &commonSettings();
 
-class LocalsAndExpressionsOptionsPage final : public Core::IOptionsPage
+
+class LocalsAndExpressionsSettings final : public Utils::AspectContainer
 {
 public:
-    LocalsAndExpressionsOptionsPage();
+    LocalsAndExpressionsSettings();
+
+    Utils::BoolAspect useDebuggingHelpers{this};
+    Utils::BoolAspect useCodeModel{this};
+    Utils::BoolAspect showThreadNames{this};
+    Utils::FilePathAspect extraDumperFile{this};   // For loading a file. Recommended.
+    Utils::StringAspect extraDumperCommands{this}; // To modify an existing setup.
+
+    Utils::BoolAspect showStdNamespace{this};
+    Utils::BoolAspect showQtNamespace{this};
+    Utils::BoolAspect showQObjectNames{this};
+
+    Utils::IntegerAspect maximalStringLength{this};
+    Utils::IntegerAspect displayStringLimit{this};
+    Utils::IntegerAspect defaultArraySize{this};
 };
+
+LocalsAndExpressionsSettings &localsAndExpressionSettings();
+
 
 } // Debugger::Internal
 
