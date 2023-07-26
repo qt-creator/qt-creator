@@ -90,8 +90,8 @@ def __clickCommit__(count):
                 {"Author: %s, %s" % (id, time): True},
                 {"Committer: %s, %s" % (id, time): True}]
     for line, exp in zip(show.splitlines(), expected):
-        expLine = list(exp.keys())[0]
-        isRegex = list(exp.values())[0]
+        expLine = next(iter(exp.keys()))
+        isRegex = next(iter(exp.values()))
         if isRegex:
             test.verify(re.match(expLine, line), "Verifying commit header line '%s'" % line)
         else:

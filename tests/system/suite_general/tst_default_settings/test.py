@@ -311,15 +311,15 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
             for currentExp in expectedCompilers:
                 if isString(currentExp):
                     continue
-                key = list(currentExp.keys())[0]
+                key = next(iter(currentExp.keys()))
                 # the regex .*? is used for the different possible version strings of the WinSDK
                 # if it's present a regex will be validated otherwise simple string comparison
                 # same applies for [.0-9]+ which is used for minor/patch versions
                 isRegex = ".*?" in key or "[.0-9]+" in key
-                if (((isRegex and re.match(key, list(currentFound.keys())[0], flags)))
+                if (((isRegex and re.match(key, next(iter(currentFound.keys())), flags)))
                     or currentFound.keys() == currentExp.keys()):
-                    if ((isWin and os.path.abspath(list(currentFound.values())[0].lower())
-                         == os.path.abspath(list(currentExp.values())[0].lower()))
+                    if ((isWin and os.path.abspath(next(iter(currentFound.values())).lower())
+                         == os.path.abspath(next(iter(currentExp.values())).lower()))
                         or currentFound.values() == currentExp.values()):
                         foundExp = True
                         break
@@ -375,8 +375,8 @@ def __checkCreatedSettings__(settingsFolder):
         test.verify(os.path.isdir(f),
                     "Verifying whether folder '%s' has been created." % os.path.basename(f))
     for f in files:
-        fName = list(f.keys())[0]
-        fMinSize = list(f.values())[0]
+        fName = next(iter(f.keys()))
+        fMinSize = next(iter(f.values()))
         text = "created non-empty"
         if fMinSize > 0:
             text = "modified"

@@ -206,7 +206,8 @@ def substituteCdb(settingsDir):
         try:
             serverIni = readFile(os.path.join(os.getenv("APPDATA"), "froglogic",
                                               "Squish", "ver1", "server.ini"))
-            autLine = list(filter(lambda line: "AUT/qtcreator" in line, serverIni.splitlines()))[0]
+            autLine = next(iter(filter(lambda line: "AUT/qtcreator" in line,
+                                       serverIni.splitlines())))
             autPath = autLine.split("\"")[1]
             return os.path.exists(os.path.join(autPath, "..", "lib", "qtcreatorcdbext64"))
         except:
