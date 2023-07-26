@@ -108,12 +108,15 @@ def is_ignored_windows_file(use_debug, basepath, filename):
 def ignored_qt_lib_files(path, filenames):
     # Qt ships some unneeded object files in the qml plugins
     # On Windows we also do not want to ship the wrong debug/release .dlls or .lib files etc
-    if not common.is_windows_platform():
+    # And get rid of debug info directories (.dSYM) on macOS
+    if common.is_linux_platform():
         return [fn for fn in filenames if fn.endswith('.cpp.o')]
+    if common.is_mac_platform():
+        return [fn for fn in filenames if fn.endswith('.dylib.dSYM')]
     return [fn for fn in filenames
             if fn.endswith('.cpp.obj') or is_ignored_windows_file(debug_build, path, fn)]
 
-def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir, qt_plugin_dir, qt_qml_dir, plugins):
+def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir, qt_qml_dir):
     print("copying Qt libraries...")
 
     if common.is_windows_platform():
@@ -143,16 +146,6 @@ def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir, qt_plugin_dir, 
         else:
             shutil.copy(library, lib_dest)
 
-    print("Copying plugins:", plugins)
-    for plugin in plugins:
-        target = os.path.join(target_qt_prefix_path, 'plugins', plugin)
-        if (os.path.exists(target)):
-            shutil.rmtree(target)
-        pluginPath = os.path.join(qt_plugin_dir, plugin)
-        if (os.path.exists(pluginPath)):
-            print('{0} -> {1}'.format(pluginPath, target))
-            common.copytree(pluginPath, target, ignore=ignored_qt_lib_files, symlinks=True)
-
     if (os.path.exists(qt_qml_dir)):
         print("Copying qt quick 2 imports")
         target = os.path.join(target_qt_prefix_path, 'qml')
@@ -176,6 +169,29 @@ def deploy_qtdiag(qtc_binary_path, qt_install):
         qtdiag_dest = os.path.join(destdir, 'qtdiag')
         subprocess.check_call(['xcrun', 'install_name_tool', '-add_rpath', '@loader_path/../Frameworks', qtdiag_dest])
         subprocess.check_call(['xcrun', 'install_name_tool', '-delete_rpath', '@loader_path/../lib', qtdiag_dest])
+
+
+def deploy_plugins(qtc_binary_path, qt_install):
+    plugins = ['assetimporters', 'accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes',
+               'platforminputcontexts', 'platforms', 'printsupport', 'qmltooling', 'sqldrivers', 'styles',
+               'xcbglintegrations',
+               'wayland-decoration-client',
+               'wayland-graphics-integration-client',
+               'wayland-shell-integration',
+               'tls'
+               ]
+    print("Copying plugins:", plugins)
+    destdir = (os.path.join(qtc_binary_path, 'plugins') if common.is_windows_platform()
+               else os.path.join(qtc_binary_path, 'Contents', 'PlugIns') if common.is_mac_platform()
+               else os.path.join(qtc_binary_path, '..', 'lib', 'Qt', 'plugins'))
+    for plugin in plugins:
+        target = os.path.join(destdir, plugin)
+        if (os.path.exists(target)):
+            shutil.rmtree(target)
+        pluginPath = os.path.join(qt_install.plugins, plugin)
+        if (os.path.exists(pluginPath)):
+            print('{0} -> {1}'.format(pluginPath, target))
+            common.copytree(pluginPath, target, ignore=ignored_qt_lib_files, symlinks=True)
 
 
 def add_qt_conf(target_path, qt_prefix_path):
@@ -355,12 +371,17 @@ def main():
             print("Cannot find required binary 'chrpath'.")
             sys.exit(2)
 
+    if common.is_windows_platform():
+        global debug_build
+        debug_build = is_debug(args.qtcreator_binary)
+
     (qt_install_info, qt_install) = get_qt_install_info(args.qmake_binary)
     # <qtc>/bin for Win/Lin, <path>/<appname>.app for macOS
     qtcreator_binary_path = (args.qtcreator_binary if common.is_mac_platform()
                              else os.path.dirname(args.qtcreator_binary))
 
     deploy_qtdiag(qtcreator_binary_path, qt_install)
+    deploy_plugins(qtcreator_binary_path, qt_install)
 
     if common.is_mac_platform():
         deploy_mac(args)
@@ -372,23 +393,10 @@ def main():
     else:
         qt_deploy_prefix = os.path.join(install_dir, 'bin')
 
-    plugins = ['assetimporters', 'accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes',
-               'platforminputcontexts', 'platforms', 'printsupport', 'qmltooling', 'sqldrivers', 'styles',
-               'xcbglintegrations',
-               'wayland-decoration-client',
-               'wayland-graphics-integration-client',
-               'wayland-shell-integration',
-               'tls'
-               ]
-
     if common.is_windows_platform():
-        global debug_build
-        debug_build = is_debug(args.qtcreator_binary)
-
-    if common.is_windows_platform():
-        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.bin, qt_install.plugins, qt_install.qml, plugins)
+        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.bin, qt_install.qml)
     else:
-        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.lib, qt_install.plugins, qt_install.qml, plugins)
+        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.lib, qt_install.qml)
     copy_translations(install_dir, qt_install.translations)
     if args.llvm_path:
         deploy_clang(install_dir, args.llvm_path, chrpath_bin)
