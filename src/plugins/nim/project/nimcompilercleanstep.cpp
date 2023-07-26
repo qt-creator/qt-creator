@@ -30,7 +30,6 @@ public:
         : BuildStep(parentList, id)
     {
         workingDir.setLabelText(Tr::tr("Working directory:"));
-        workingDir.setDisplayStyle(StringAspect::LineEditDisplay);
 
         setSummaryUpdater([this] {
             workingDir.setValue(buildDirectory());
