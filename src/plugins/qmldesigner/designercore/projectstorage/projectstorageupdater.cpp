@@ -505,7 +505,7 @@ void ProjectStorageUpdater::parseProjectDatas(const Storage::Synchronization::Pr
 
             parseQmlComponent(projectData.sourceId, package, notUpdatedSourceIds);
         }
-        };
+        }
     }
 }
 
