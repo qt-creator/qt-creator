@@ -94,7 +94,7 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                                      << CommandLine(config.sdkManagerToolPath(), newArgs)
                                         .toUserOutput();
     Process proc;
-    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
+    proc.setEnvironment(config.toolsEnvironment());
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
@@ -122,7 +122,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                                         .toUserOutput();
     int offset = promise.future().progressValue();
     Process proc;
-    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
+    proc.setEnvironment(config.toolsEnvironment());
     bool assertionFound = false;
     proc.setTimeoutS(timeout);
     proc.setStdOutCallback([offset, progressQuota, &proc, &assertionFound, &promise](const QString &out) {
@@ -523,7 +523,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
 
     Process licenseCommand;
     licenseCommand.setProcessMode(ProcessMode::Writer);
-    licenseCommand.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
+    licenseCommand.setEnvironment(m_config.toolsEnvironment());
     bool reviewingLicenses = false;
     licenseCommand.setCommand(CommandLine(m_config.sdkManagerToolPath(), {"--licenses", sdkRootArg(m_config)}));
     licenseCommand.setUseCtrlCStub(true);

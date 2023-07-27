@@ -641,7 +641,7 @@ void AndroidDeviceManager::setupDevicesWatcher()
     const CommandLine command = CommandLine(m_androidConfig.adbToolPath(), {"track-devices"});
     m_adbDeviceWatcherProcess->setCommand(command);
     m_adbDeviceWatcherProcess->setWorkingDirectory(command.executable().parentDir());
-    m_adbDeviceWatcherProcess->setEnvironment(AndroidConfigurations::toolsEnvironment(m_androidConfig));
+    m_adbDeviceWatcherProcess->setEnvironment(m_androidConfig.toolsEnvironment());
     m_adbDeviceWatcherProcess->start();
 
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,

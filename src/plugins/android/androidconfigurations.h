@@ -150,6 +150,8 @@ public:
     static QStringList getAbis(const QString &device);
     static int getSDKVersion(const QString &device);
 
+    Utils::Environment toolsEnvironment() const;
+
 private:
     static QString getDeviceProperty(const QString &device, const QString &property);
 
@@ -197,7 +199,6 @@ public:
     static void removeOldToolChains();
     static void updateAutomaticKitList();
     static bool force32bitEmulator();
-    static Utils::Environment toolsEnvironment(const AndroidConfig &config);
 
 signals:
     void aboutToUpdate();

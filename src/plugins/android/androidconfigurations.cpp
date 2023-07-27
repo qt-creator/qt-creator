@@ -1424,10 +1424,10 @@ void AndroidConfigurations::updateAutomaticKitList()
         KitManager::deregisterKit(k);
 }
 
-Environment AndroidConfigurations::toolsEnvironment(const AndroidConfig &config)
+Environment AndroidConfig::toolsEnvironment() const
 {
     Environment env = Environment::systemEnvironment();
-    FilePath jdkLocation = config.openJDKLocation();
+    FilePath jdkLocation = openJDKLocation();
     if (!jdkLocation.isEmpty()) {
         env.set(Constants::JAVA_HOME_ENV_VAR, jdkLocation.toUserOutput());
         env.prependOrSetPath(jdkLocation.pathAppended("bin"));

@@ -38,8 +38,7 @@ bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QSt
 {
     CommandLine cmd(config.avdManagerToolPath(), args);
     Process proc;
-    Environment env = AndroidConfigurations::toolsEnvironment(config);
-    proc.setEnvironment(env);
+    proc.setEnvironment(config.toolsEnvironment());
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
     proc.setCommand(cmd);
     proc.runBlocking();
@@ -87,7 +86,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << avdManager.toUserOutput();
     Process proc;
     proc.setProcessMode(ProcessMode::Writer);
-    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
+    proc.setEnvironment(config.toolsEnvironment());
     proc.setCommand(avdManager);
     proc.start();
     if (!proc.waitForStarted()) {
@@ -148,7 +147,7 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     qCDebug(avdManagerLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
     Process proc;
     proc.setTimeoutS(5);
-    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
+    proc.setEnvironment(m_config.toolsEnvironment());
     proc.setCommand(command);
     proc.runBlocking();
     return proc.result() == ProcessResult::FinishedWithSuccess;
