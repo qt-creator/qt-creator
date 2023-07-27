@@ -1675,8 +1675,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                           setFlowStartDisplayName,
                           {},
                           flowCategory,
-                          2,
                           {},
+                          2,
                           &setFlowStartItem,
                           &isFlowItem,
                           &flowOptionVisible));
