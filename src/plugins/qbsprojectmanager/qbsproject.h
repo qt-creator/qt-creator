@@ -139,7 +139,7 @@ private:
     enum CancelStatus {
         CancelStatusNone,
         CancelStatusCancelingForReparse,
-        CancelStatusCancelingAltoghether
+        CancelStatusCancelingAltogether
     } m_cancelStatus = CancelStatusNone;
 
     CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;

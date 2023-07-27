@@ -641,7 +641,7 @@ void QbsBuildSystem::parseCurrentBuildConfiguration()
 void QbsBuildSystem::cancelParsing()
 {
     QTC_ASSERT(m_qbsProjectParser, return);
-    m_cancelStatus = CancelStatusCancelingAltoghether;
+    m_cancelStatus = CancelStatusCancelingAltogether;
     m_qbsProjectParser->cancel();
 }
 
