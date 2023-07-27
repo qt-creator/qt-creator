@@ -112,7 +112,7 @@ def ignored_qt_lib_files(path, filenames):
     if common.is_linux_platform():
         return [fn for fn in filenames if fn.endswith('.cpp.o')]
     if common.is_mac_platform():
-        return [fn for fn in filenames if fn.endswith('.dylib.dSYM')]
+        return [fn for fn in filenames if fn.endswith('.dylib.dSYM') or fn.startswith('objects-')]
     return [fn for fn in filenames
             if fn.endswith('.cpp.obj') or is_ignored_windows_file(debug_build, path, fn)]
 
@@ -391,18 +391,54 @@ def deploy_elfutils(qtc_install_dir, chrpath_bin, args):
         print(file, '->', backends_install_path)
         shutil.copy(file, backends_install_path)
 
-def deploy_mac(args):
-    (_, qt_install) = get_qt_install_info(args.qmake_binary)
+def deploy_qt_mac(qtc_binary_path, qt_install):
+    # This runs macdeployqt
+    # Collect things to pass via -executable
+    libexec_path = os.path.join(qtc_binary_path, 'Contents', 'Resources', 'libexec')
+    bin_path = os.path.join(qtc_binary_path, 'Contents', 'MacOS')
+    plugins_path = os.path.join(qtc_binary_path, 'Contents', 'PlugIns')
+    frameworks_path = os.path.join(qtc_binary_path, 'Contents', 'Frameworks')
+    additional_paths = []
+    # Qbs
+    apps = ['qbs', 'qbs-config', 'qbs-config-ui', 'qbs-setup-android', 'qbs-setup-qt',
+            'qbs-setup-toolchains', 'qbs-create-project']
+    for app in apps:
+        additional_paths.append(os.path.join(bin_path, app))
+    additional_paths.append(os.path.join(libexec_path, 'qbs_processlauncher'))
+    # qml2puppet
+    puppets = glob(os.path.join(libexec_path, 'qml2puppet*'))
+    for puppet in puppets:
+        additional_paths.append(puppet)
+    # qtdiag
+    additional_paths.append(os.path.join(bin_path, 'qtdiag'))
+    # other libexec
+    additional_paths.append(os.path.join(libexec_path, 'sdktool'))
+    additional_paths.append(os.path.join(libexec_path, 'qtpromaker'))
+    additional_paths.append(os.path.join(libexec_path, 'buildoutputparser'))
+    additional_paths.append(os.path.join(libexec_path, 'cpaster'))
+    additional_paths.append(os.path.join(libexec_path, 'ios', 'iostool'))
 
-    env = dict(os.environ)
-    if args.llvm_path:
-        env['LLVM_INSTALL_DIR'] = args.llvm_path
+    existing_additional_paths = [p for p in additional_paths if os.path.exists(p)]
+    macdeployqt = os.path.join(qt_install.bin, 'macdeployqt')
+    print('Running macdeployqt (' + macdeployqt + ')')
+    print('- with additional paths:', existing_additional_paths)
+    executable_args = ['-executable='+path for path in existing_additional_paths]
+    subprocess.check_call([macdeployqt, qtc_binary_path] + executable_args)
 
-    script_path = os.path.dirname(os.path.realpath(__file__))
-    deployqtHelper_mac = os.path.join(script_path, 'deployqtHelper_mac.sh')
-    common.check_print_call([deployqtHelper_mac, args.qtcreator_binary, qt_install.bin,
-                             qt_install.translations, qt_install.plugins, qt_install.qml],
-                            env=env)
+    # clean up some things that might have been deployed, but we don't want
+    to_remove = [
+        os.path.join(plugins_path, 'tls', 'libqopensslbackend.dylib'),
+        os.path.join(plugins_path, 'sqldrivers', 'libqsqlpsql.dylib'),
+        os.path.join(plugins_path, 'sqldrivers', 'libqsqlodbc.dylib'),
+    ]
+    to_remove.extend(glob(os.path.join(frameworks_path, 'libpq.*dylib')))
+    to_remove.extend(glob(os.path.join(frameworks_path, 'libssl.*dylib')))
+    to_remove.extend(glob(os.path.join(frameworks_path, 'libcrypto.*dylib')))
+    for path in to_remove:
+        if os.path.isfile(path):
+            print('- Removing ' + path)
+            os.remove(path)
+
 
 def get_qt_install_info(qmake_binary):
     qt_install_info = common.get_qt_install_info(qmake_binary)
@@ -442,25 +478,25 @@ def main():
         deploy_clang(qtcreator_binary_path, args.llvm_path, chrpath_bin)
 
     if common.is_mac_platform():
-        deploy_mac(args)
-        return
-
-    install_dir = os.path.abspath(os.path.join(qtcreator_binary_path, '..'))
-    if common.is_linux_platform():
-        qt_deploy_prefix = os.path.join(install_dir, 'lib', 'Qt')
+        deploy_qt_mac(qtcreator_binary_path, qt_install)
     else:
-        qt_deploy_prefix = os.path.join(install_dir, 'bin')
+        install_dir = os.path.abspath(os.path.join(qtcreator_binary_path, '..'))
+        if common.is_linux_platform():
+            qt_deploy_prefix = os.path.join(install_dir, 'lib', 'Qt')
+        else:
+            qt_deploy_prefix = os.path.join(install_dir, 'bin')
 
-    if common.is_windows_platform():
-        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.bin)
-    else:
-        copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.lib)
+        if common.is_windows_platform():
+            copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.bin)
+        else:
+            copy_qt_libs(qt_deploy_prefix, qt_install.bin, qt_install.lib)
 
-    if args.elfutils_path:
-        deploy_elfutils(install_dir, chrpath_bin, args)
-    if not common.is_windows_platform():
-        print("fixing rpaths...")
-        common.fix_rpaths(install_dir, os.path.join(qt_deploy_prefix, 'lib'), qt_install_info, chrpath_bin)
+        if args.elfutils_path:
+            deploy_elfutils(install_dir, chrpath_bin, args)
+        if not common.is_windows_platform():
+            print("fixing rpaths...")
+            common.fix_rpaths(install_dir, os.path.join(qt_deploy_prefix, 'lib'), qt_install_info, chrpath_bin)
+
 
 if __name__ == "__main__":
     main()
