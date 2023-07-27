@@ -26,7 +26,7 @@ const char USES_DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomD
 const char DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomData";
 
 DeployConfiguration::DeployConfiguration(Target *target, Id id)
-    : ProjectConfiguration(target, target, id)
+    : ProjectConfiguration(target, id)
     , m_stepList(this, Constants::BUILDSTEPS_DEPLOY)
 {
     //: Default DeployConfiguration display name

@@ -158,7 +158,7 @@ public:
 } // Internal
 
 BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
-    : ProjectConfiguration(target, target, id)
+    : ProjectConfiguration(target, id)
     , d(new Internal::BuildConfigurationPrivate(this))
 {
     MacroExpander *expander = macroExpander();

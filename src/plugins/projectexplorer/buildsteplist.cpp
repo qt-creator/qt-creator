@@ -20,7 +20,7 @@ const char STEPS_COUNT_KEY[] = "ProjectExplorer.BuildStepList.StepsCount";
 const char STEPS_PREFIX[] = "ProjectExplorer.BuildStepList.Step.";
 
 BuildStepList::BuildStepList(ProjectConfiguration *config, Utils::Id id)
-    : QObject(config), m_projectConfiguration(config), m_id(id)
+    : m_projectConfiguration(config), m_id(id)
 {
     QTC_CHECK(config);
 }

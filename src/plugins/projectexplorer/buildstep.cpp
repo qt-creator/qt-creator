@@ -82,7 +82,7 @@ namespace ProjectExplorer {
 static QList<BuildStepFactory *> g_buildStepFactories;
 
 BuildStep::BuildStep(BuildStepList *bsl, Id id)
-    : ProjectConfiguration(bsl, bsl->target(), id)
+    : ProjectConfiguration(bsl->target(), id)
     , m_stepList(bsl)
 {
     connect(this, &ProjectConfiguration::displayNameChanged, this, &BuildStep::updateSummary);

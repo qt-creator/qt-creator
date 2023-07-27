@@ -26,7 +26,7 @@ class PROJECTEXPLORER_EXPORT ProjectConfiguration : public Utils::AspectContaine
     Q_OBJECT
 
 protected:
-    explicit ProjectConfiguration(QObject *parent, Target *target, Utils::Id id);
+    explicit ProjectConfiguration(Target *target, Utils::Id id);
 
 public:
     ~ProjectConfiguration() override;
