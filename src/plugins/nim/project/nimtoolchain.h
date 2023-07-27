@@ -34,4 +34,13 @@ private:
     std::tuple<int, int, int> m_version;
 };
 
+class NimToolChainFactory : public ProjectExplorer::ToolChainFactory
+{
+public:
+    NimToolChainFactory();
+
+    ProjectExplorer::Toolchains autoDetect(const ProjectExplorer::ToolchainDetector &detector) const final;
+    ProjectExplorer::Toolchains detectForImport(const ProjectExplorer::ToolChainDescription &tcd) const final;
+};
+
 } // Nim

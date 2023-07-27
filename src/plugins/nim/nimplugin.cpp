@@ -14,7 +14,7 @@
 #include "project/nimproject.h"
 #include "project/nimbleproject.h"
 #include "project/nimrunconfiguration.h"
-#include "project/nimtoolchainfactory.h"
+#include "project/nimtoolchain.h"
 #include "project/nimblebuildstep.h"
 #include "project/nimbletaskstep.h"
 #include "settings/nimcodestylepreferencesfactory.h"
