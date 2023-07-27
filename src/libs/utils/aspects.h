@@ -830,7 +830,7 @@ class QTCREATOR_UTILS_EXPORT AspectContainer : public QObject
     Q_OBJECT
 
 public:
-    AspectContainer(QObject *parent = nullptr);
+    AspectContainer();
     ~AspectContainer();
 
     AspectContainer(const AspectContainer &) = delete;

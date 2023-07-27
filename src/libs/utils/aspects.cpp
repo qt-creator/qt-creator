@@ -2399,9 +2399,7 @@ void TextDisplay::setText(const QString &message)
     Sub-aspects ownership can be declared using \a setOwnsSubAspects.
 */
 
-namespace Internal {
-
-class AspectContainerPrivate
+class Internal::AspectContainerPrivate
 {
 public:
     QList<BaseAspect *> m_items; // Both owned and non-owned.
@@ -2411,10 +2409,8 @@ public:
     std::function<Layouting::LayoutItem ()> m_layouter;
 };
 
-} // Internal
-
-AspectContainer::AspectContainer(QObject *parent)
-    : QObject(parent), d(new Internal::AspectContainerPrivate)
+AspectContainer::AspectContainer()
+    : d(new Internal::AspectContainerPrivate)
 {}
 
 /*!

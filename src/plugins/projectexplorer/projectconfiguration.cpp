@@ -17,11 +17,11 @@ const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayNam
 // ProjectConfiguration
 
 ProjectConfiguration::ProjectConfiguration(QObject *parent, Target *target, Utils::Id id)
-    : AspectContainer(parent)
-    , m_target(target)
+    : m_target(target)
     , m_id(id)
 {
     QTC_CHECK(parent);
+    setParent(parent);
     QTC_CHECK(target);
     QTC_CHECK(id.isValid());
     setObjectName(id.toString());

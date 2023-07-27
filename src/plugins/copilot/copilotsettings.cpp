@@ -91,8 +91,7 @@ CopilotSettings::CopilotSettings()
     readSettings();
 }
 
-CopilotProjectSettings::CopilotProjectSettings(ProjectExplorer::Project *project, QObject *parent)
-    : AspectContainer(parent)
+CopilotProjectSettings::CopilotProjectSettings(ProjectExplorer::Project *project)
 {
     setAutoApply(true);
 

@@ -25,7 +25,7 @@ CopilotSettings &settings();
 class CopilotProjectSettings : public Utils::AspectContainer
 {
 public:
-    CopilotProjectSettings(ProjectExplorer::Project *project, QObject *parent = nullptr);
+    explicit CopilotProjectSettings(ProjectExplorer::Project *project);
 
     void save(ProjectExplorer::Project *project);
     void setUseGlobalSettings(bool useGlobalSettings);
