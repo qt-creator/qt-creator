@@ -32,6 +32,16 @@ def main():
         if not SpeedCrunchPath:
             test.fatal("Could not clone SpeedCrunch")
             return
+        # patch CMakeLists.txt outside of QC
+        try:
+            patchFile = os.path.join(os.path.dirname(__file__),
+                                     "..", "..", "0001-Fix-build-on-macOS.patch")
+            subprocess.check_call(["git", "am", patchFile], cwd=SpeedCrunchPath)
+            test.log("Patched speedcrunch.")
+        except:
+            t, v = sys.exc_info()[:2]
+            test.warning("Patching speedcrunch failed.", "%s(%s)" % (str(t), str(v)))
+
         startQC()
         if not startedWithoutPluginError():
             return
