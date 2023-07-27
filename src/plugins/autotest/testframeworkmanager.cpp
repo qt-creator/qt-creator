@@ -25,22 +25,20 @@ TestFrameworkManager::~TestFrameworkManager()
     s_instance = nullptr;
 }
 
-bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
+void TestFrameworkManager::registerTestFramework(ITestFramework *framework)
 {
-    QTC_ASSERT(framework, return false);
-    QTC_ASSERT(!m_registeredFrameworks.contains(framework), return false);
+    QTC_ASSERT(framework, return);
+    QTC_ASSERT(!m_registeredFrameworks.contains(framework), return);
     // TODO check for unique priority before registering
     m_registeredFrameworks.append(framework);
     Utils::sort(m_registeredFrameworks, &ITestFramework::priority);
-    return true;
 }
 
-bool TestFrameworkManager::registerTestTool(ITestTool *testTool)
+void TestFrameworkManager::registerTestTool(ITestTool *testTool)
 {
-    QTC_ASSERT(testTool, return false);
-    QTC_ASSERT(!m_registeredTestTools.contains(testTool), return false);
+    QTC_ASSERT(testTool, return);
+    QTC_ASSERT(!m_registeredTestTools.contains(testTool), return);
     m_registeredTestTools.append(testTool);
-    return true;
 }
 
 void TestFrameworkManager::activateFrameworksAndToolsFromSettings()

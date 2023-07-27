@@ -14,8 +14,8 @@ public:
     TestFrameworkManager();
     ~TestFrameworkManager();
 
-    bool registerTestFramework(ITestFramework *framework);
-    bool registerTestTool(ITestTool *testTool);
+    void registerTestFramework(ITestFramework *framework);
+    void registerTestTool(ITestTool *testTool);
     void synchronizeSettings();
 
     static ITestFramework *frameworkForId(Utils::Id frameworkId);
