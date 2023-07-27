@@ -3,7 +3,6 @@
 
 #include "qbsrequest.h"
 
-#include "qbsprojectmanagertr.h"
 #include "qbssession.h"
 
 #include <projectexplorer/task.h>
@@ -17,26 +16,99 @@ using namespace Utils;
 
 namespace QbsProjectManager::Internal {
 
-QbsRequest::~QbsRequest()
+class QbsRequestManager : public QObject
 {
-    if (m_isRunning)
-        m_session->cancelCurrentJob();
+public:
+    void sendRequest(QbsRequestObject *requestObject);
+    void cancelRequest(QbsRequestObject *requestObject);
+
+private:
+    void continueSessionQueue(QbsSession *session);
+
+    QHash<QObject *, QList<QbsRequestObject *>> m_queuedRequests;
+};
+
+class QbsRequestObject final : public QObject
+{
+    Q_OBJECT
+
+public:
+    void setSession(QbsSession *session) { m_session = session; }
+    QbsSession *session() const { return m_session; }
+    void setRequestData(const QJsonObject &requestData) { m_requestData = requestData; }
+    void start();
+
+signals:
+    void done(bool success);
+    void progressChanged(int progress, const QString &info); // progress in %
+    void outputAdded(const QString &output, ProjectExplorer::BuildStep::OutputFormat format);
+    void taskAdded(const ProjectExplorer::Task &task);
+
+private:
+    QbsSession *m_session = nullptr;
+    QJsonObject m_requestData;
+    QString m_description;
+    int m_maxProgress = 100;
+};
+
+void QbsRequestManager::sendRequest(QbsRequestObject *requestObject)
+{
+    QbsSession *session = requestObject->session();
+    QList<QbsRequestObject *> &queue = m_queuedRequests[session];
+    if (queue.isEmpty()) {
+        connect(session, &QObject::destroyed, this, [this, session] {
+            qDeleteAll(m_queuedRequests.value(session));
+            m_queuedRequests.remove(session);
+        });
+    }
+    queue.append(requestObject);
+    if (queue.size() == 1)
+        continueSessionQueue(session);
 }
 
-void QbsRequest::setSession(QbsSession *session)
+void QbsRequestManager::cancelRequest(QbsRequestObject *requestObject)
 {
-    QTC_ASSERT(!m_isRunning, return);
-    m_session = session;
+    QbsSession *session = requestObject->session();
+    QList<QbsRequestObject *> &queue = m_queuedRequests[session];
+    const int index = queue.indexOf(requestObject);
+    QTC_ASSERT(index >= 0, return);
+    if (index > 0) {
+        delete queue.takeAt(index);
+        return;
+    }
+    session->cancelCurrentJob();
 }
 
-void QbsRequest::start()
+void QbsRequestManager::continueSessionQueue(QbsSession *session)
 {
-    QTC_ASSERT(!m_isRunning, return);
-    QTC_ASSERT(m_session, emit done(false); return);
-    QTC_ASSERT(m_requestData, emit done(false); return);
+    const QList<QbsRequestObject *> &queue = m_queuedRequests[session];
+    if (queue.isEmpty()) {
+        m_queuedRequests.remove(session);
+        disconnect(session, &QObject::destroyed, this, nullptr);
+        return;
+    }
+    QbsRequestObject *requestObject = queue.first();
+    connect(requestObject, &QbsRequestObject::done, this, [this, requestObject] {
+        QbsSession *session = requestObject->session();
+        requestObject->deleteLater();
+        QList<QbsRequestObject *> &queue = m_queuedRequests[session];
+        QTC_ASSERT(!queue.isEmpty(), return);
+        QTC_CHECK(queue.first() == requestObject);
+        queue.removeFirst();
+        continueSessionQueue(session);
+    });
+    requestObject->start();
+}
 
+static QbsRequestManager &manager()
+{
+    static QbsRequestManager theManager;
+    return theManager;
+}
+
+void QbsRequestObject::start()
+{
     const auto handleDone = [this](const ErrorInfo &error) {
-        m_isRunning = false;
         m_session->disconnect(this);
         for (const ErrorInfoItem &item : error.items) {
             emit outputAdded(item.description, BuildStep::OutputFormat::Stdout);
@@ -81,8 +153,40 @@ void QbsRequest::start()
         for (const QString &line : stdOut)
             emit outputAdded(line, BuildStep::OutputFormat::Stdout);
     });
-    m_isRunning = true;
-    m_session->sendRequest(*m_requestData);
+    m_session->sendRequest(m_requestData);
+}
+
+QbsRequest::~QbsRequest()
+{
+    if (!m_requestObject)
+        return;
+    disconnect(m_requestObject, nullptr, this, nullptr);
+    manager().cancelRequest(m_requestObject);
+}
+
+void QbsRequest::start()
+{
+    QTC_ASSERT(!m_requestObject, return);
+    QTC_ASSERT(m_session, emit done(false); return);
+    QTC_ASSERT(m_requestData, emit done(false); return);
+
+    m_requestObject = new QbsRequestObject;
+    m_requestObject->setSession(m_session);
+    m_requestObject->setRequestData(*m_requestData);
+
+    connect(m_requestObject, &QbsRequestObject::done, this, [this](bool success) {
+        m_requestObject->deleteLater();
+        m_requestObject = nullptr;
+        emit done(success);
+    });
+    connect(m_requestObject, &QbsRequestObject::progressChanged,
+            this, &QbsRequest::progressChanged);
+    connect(m_requestObject, &QbsRequestObject::outputAdded, this, &QbsRequest::outputAdded);
+    connect(m_requestObject, &QbsRequestObject::taskAdded, this, &QbsRequest::taskAdded);
+
+    manager().sendRequest(m_requestObject);
 }
 
 } // namespace QbsProjectManager::Internal
+
+#include "qbsrequest.moc"

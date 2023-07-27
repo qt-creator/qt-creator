@@ -12,6 +12,7 @@
 namespace QbsProjectManager::Internal {
 
 class QbsSession;
+class QbsRequestObject;
 
 class QbsRequest final : public QObject
 {
@@ -20,7 +21,7 @@ class QbsRequest final : public QObject
 public:
     ~QbsRequest() override;
 
-    void setSession(QbsSession *session);
+    void setSession(QbsSession *session) { m_session = session; }
     void setRequestData(const QJsonObject &requestData) { m_requestData = requestData; }
     void start();
 
@@ -31,11 +32,9 @@ signals:
     void taskAdded(const ProjectExplorer::Task &task);
 
 private:
-    QbsSession *m_session = nullptr;
+    QbsSession *m_session = nullptr; // TODO: Should we keep a QPointer?
     std::optional<QJsonObject> m_requestData;
-    bool m_isRunning = false;
-    QString m_description;
-    int m_maxProgress = 100;
+    QbsRequestObject *m_requestObject = nullptr;
 };
 
 class QbsRequestTaskAdapter : public Tasking::TaskAdapter<QbsRequest>
