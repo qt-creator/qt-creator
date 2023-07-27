@@ -6,13 +6,13 @@
 #include "../nimconstants.h"
 #include "../nimtr.h"
 #include "nimbuildsystem.h"
-#include "nimtoolchain.h"
 
 #include <coreplugin/icontext.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/toolchain.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -52,7 +52,7 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
 Tasks NimProject::projectIssues(const Kit *k) const
 {
     Tasks result = Project::projectIssues(k);
-    auto tc = dynamic_cast<NimToolChain *>(ToolChainKitAspect::toolChain(k, Constants::C_NIMLANGUAGE_ID));
+    auto tc = ToolChainKitAspect::toolChain(k, Constants::C_NIMLANGUAGE_ID);
     if (!tc) {
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Nim compiler set.")));
         return result;
