@@ -56,7 +56,6 @@
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QSet>
-#include <QTimer>
 #include <QVariantMap>
 
 #include <algorithm>
@@ -454,11 +453,6 @@ void QbsBuildSystem::updateAfterParse()
         m_guard = {};
         emitBuildSystemUpdated();
     });
-}
-
-void QbsBuildSystem::delayedUpdateAfterParse()
-{
-    QTimer::singleShot(0, this, &QbsBuildSystem::updateAfterParse);
 }
 
 void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuation)

@@ -119,7 +119,6 @@ private:
     void updateBuildTargetData();
     bool checkCancelStatus();
     void updateAfterParse();
-    void delayedUpdateAfterParse();
     void updateProjectNodes(const std::function<void()> &continuation);
     Utils::FilePath installRoot();
 
