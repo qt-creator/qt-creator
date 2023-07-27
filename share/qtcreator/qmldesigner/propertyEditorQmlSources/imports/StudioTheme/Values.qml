@@ -218,11 +218,18 @@ QtObject {
     property real colorEditorPopupCmoboBoxWidth: 110
     property real colorEditorPopupSpinBoxWidth: 54
 
+    // Popup Window
+    property real titleBarHeight: values.height + 4
+    property real popupMargin: 10
+
     // Toolbar
     property real toolbarHeight: 41
     property real doubleToolbarHeight: values.toolbarHeight * 2
     property real toolbarSpacing: 10
 
+    property real toolbarColumnSpacing: 12
+    property real toolbarHorizontalMargin: 10
+    property real toolbarVerticalMargin: 6
 
     // Dialog
     property real dialogPadding: 12

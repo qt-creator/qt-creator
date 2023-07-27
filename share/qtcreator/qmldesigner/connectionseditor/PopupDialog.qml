@@ -3,70 +3,88 @@
 
 import QtQuick
 import QtQuick.Controls
+import HelperWidgets 2.0 as HelperWidgets
+import StudioTheme 1.0 as StudioTheme
+import ConnectionsEditorEditorBackend
 
 Window {
     id: window
+
+    property alias titleBar: titleBarContent.children
+    default property alias content: mainContent.children
+
     width: 400
-    height: 800
+    height: column.implicitHeight
     visible: true
-    flags: Qt.FramelessWindowHint || Qt.Dialog
-
-    color: Qt.transparent
-
-    property int bw: 5
+    flags: Qt.FramelessWindowHint | Qt.Dialog
+    color: "#060606"
 
     function popup(item) {
         print("popup " + item)
         var padding = 12
         var p = item.mapToGlobal(0, 0)
-        dialog.x = p.x - dialog.width - padding
-        if (dialog.x < 0)
-            dialog.x = p.x + item.width + padding
-        dialog.y = p.y
-        dialog.show()
-        dialog.raise()
+        window.x = p.x - window.width - padding
+        if (window.x < 0)
+            window.x = p.x + item.width + padding
+        window.y = p.y
+        window.show()
+        window.raise()
     }
 
-    Rectangle {
-        id: rectangle1
-        color: "#d7d7d7"
-        border.color: "#232323"
+    Column {
+        id: column
         anchors.fill: parent
 
+        Item {
+            id: titleBarItem
+            width: parent.width
+            height: StudioTheme.Values.titleBarHeight
 
-
-        Rectangle {
-            id: rectangle
-            height: 32
-            color: "#797979"
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.topMargin: 0
-            anchors.leftMargin: 0
-            anchors.rightMargin: 0
             DragHandler {
-                grabPermissions: TapHandler.CanTakeOverFromAnything
-                onActiveChanged: if (active) { window.startSystemMove(); }
+                id: dragHandler
+
+                target: null
+                grabPermissions: PointerHandler.CanTakeOverFromAnything
+                onActiveChanged: {
+                    if (dragHandler.active)
+                        window.startSystemMove() // QTBUG-102488
+                }
             }
 
-            Rectangle {
-                id: rectangle2
-                x: 329
-                width: 16
-                height: 16
-                color: "#ffffff"
-                radius: 4
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                anchors.rightMargin: 6
+            Row {
+                id: row
+                anchors.fill: parent
+                anchors.leftMargin: StudioTheme.Values.popupMargin
+                spacing: 0
 
-                MouseArea {
-                    id: mouseArea
-                    anchors.fill: parent
+                Item {
+                    id: titleBarContent
+                    width: row.width - closeIndicator.width //- row.anchors.leftMargin
+                    height: row.height
+                }
+
+                HelperWidgets.IconIndicator {
+                    id: closeIndicator
+                    anchors.verticalCenter: parent.verticalCenter
+                    icon: StudioTheme.Constants.colorPopupClose
+                    pixelSize: StudioTheme.Values.myIconFontSize// * 1.4
                     onClicked: window.close()
                 }
             }
+        }
+
+        Rectangle {
+            width: parent.width - 8
+            height: 1
+            anchors.horizontalCenter: parent.horizontalCenter
+            color: "#636363"
+        }
+
+        Item {
+            id: mainContent
+            width: parent.width - 2 * StudioTheme.Values.popupMargin
+            height: mainContent.childrenRect.height + 2 * StudioTheme.Values.popupMargin
+            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 }

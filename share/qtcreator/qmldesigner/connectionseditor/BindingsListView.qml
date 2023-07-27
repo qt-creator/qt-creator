@@ -3,7 +3,6 @@
 
 import QtQuick
 import QtQuick.Controls
-import ConnectionsEditor
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
@@ -22,9 +21,9 @@ ListView {
 
     property int modelCurrentIndex: listView.model.currentIndex ?? 0
 
-    /* Something weird with currentIndex happens when items are removed added.
-  listView.model.currentIndex contains the persistent index.
-  */
+    // Something weird with currentIndex happens when items are removed added.
+    // listView.model.currentIndex contains the persistent index.
+
     onModelCurrentIndexChanged: {
         listView.currentIndex = listView.model.currentIndex
     }

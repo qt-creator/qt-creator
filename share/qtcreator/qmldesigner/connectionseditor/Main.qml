@@ -4,114 +4,125 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import ConnectionsEditor
-import HelperWidgets 2.0 as HelperWidgets
-import StudioControls 1.0 as StudioControls
+import HelperWidgets as HelperWidgets
+import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import ConnectionsEditorEditorBackend
 
 Rectangle {
-    width: 640
-    height: 1080
-    color: "#232222"
+    id: root
 
-    Rectangle {
-        id: rectangle
-        x: 10
-        y: 10
-        width: 620
-        height: 97
-        color: "#333333"
+    color: StudioTheme.Values.themePanelBackground
+
+    Column {
+        id: column
+        anchors.fill: parent
+        spacing: 8 // TODO
 
         Rectangle {
-            id: rectangle1
-            x: 10
-            y: 10
-            width: 600
-            height: 34
-            color: "#00ffffff"
-            border.width: 1
+            id: toolbar
+            width: parent.width
+            height: StudioTheme.Values.doubleToolbarHeight
+            color: StudioTheme.Values.themeToolbarBackground
 
-            Text {
-                id: text1
-                x: 10
-                y: 10
-                color: "#b5b2b2"
-                text: qsTr("Search")
-                font.pixelSize: 12
-            }
-        }
-
-        RowLayout {
-            x: 10
-            y: 50
-            TabCheckButton {
-                id: connections
-                text: "Connections"
-                checked: true
-                autoExclusive: true
-                checkable: true
-            }
-
-            TabCheckButton {
-                id: bindings
-                text: "Bindings"
-                autoExclusive: true
-                checkable: true
-            }
-
-            TabCheckButton {
-                id: properties
-                text: "Properties"
-                autoExclusive: true
-                checkable: true
-            }
-        }
-
-        Text {
-            id: text2
-            x: 577
-            y: 58
-            color: "#ffffff"
-            text: qsTr("+")
-            font.pixelSize: 18
-            font.bold: true
-            MouseArea {
+            Column {
                 anchors.fill: parent
-                onClicked: {
-                    print(ConnectionsEditorEditorBackend.dynamicPropertiesModel.delegate)
-                    print(ConnectionsEditorEditorBackend.dynamicPropertiesModel.delegate.type)
-                    print(ConnectionsEditorEditorBackend.dynamicPropertiesModel.delegate.type.model)
+                anchors.topMargin: StudioTheme.Values.toolbarVerticalMargin
+                anchors.bottomMargin: StudioTheme.Values.toolbarVerticalMargin
+                anchors.leftMargin: StudioTheme.Values.toolbarHorizontalMargin
+                anchors.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
+                spacing: StudioTheme.Values.toolbarColumnSpacing
 
-                    if (connections.checked)
-                        ConnectionsEditorEditorBackend.connectionModel.add()
-                    else if (bindings.checked)
-                        ConnectionsEditorEditorBackend.bindingModel.add()
-                    else if (properties.checked)
-                        ConnectionsEditorEditorBackend.dynamicPropertiesModel.add()
+                StudioControls.SearchBox {
+                    id: searchBox
+                    width: parent.width
+                    style: StudioTheme.Values.searchControlStyle
+
+                    onSearchChanged: function(searchText) {}
+                }
+
+                Row {
+                    id: row
+                    width: parent.width
+                    height: StudioTheme.Values.toolbarHeight
+                    spacing: 6
+
+                    TabCheckButton {
+                        id: connections
+                        buttonIcon: StudioTheme.Constants.connections_medium
+                        text: qsTr("Connections")
+                        tooltip: qsTr("This is a tooltip.")
+                        checked: true
+                        autoExclusive: true
+                        checkable: true
+                    }
+
+                    TabCheckButton {
+                        id: bindings
+                        buttonIcon: StudioTheme.Constants.binding_medium
+                        text: qsTr("Bindings")
+                        tooltip: qsTr("This is a tooltip.")
+                        autoExclusive: true
+                        checkable: true
+                    }
+
+                    TabCheckButton {
+                        id: properties
+                        buttonIcon: StudioTheme.Constants.connections_medium
+                        text: qsTr("Properties")
+                        tooltip: qsTr("This is a tooltip.")
+                        autoExclusive: true
+                        checkable: true
+                    }
+
+                    Item {
+                        id: spacer
+                        width: row.width - connections.width - bindings.width
+                               - properties.width - addButton.width - row.spacing * 4
+                        height: 1
+                    }
+
+                    HelperWidgets.AbstractButton {
+                        id: addButton
+                        style: StudioTheme.Values.viewBarButtonStyle
+                        buttonIcon: StudioTheme.Constants.add_medium
+                        tooltip: qsTr("Add something.")
+                        onClicked: {
+                            print(ConnectionsEditorEditorBackend.dynamicPropertiesModel.delegate)
+                            print(ConnectionsEditorEditorBackend.dynamicPropertiesModel.delegate.type)
+                            print(ConnectionsEditorEditorBackend.dynamicPropertiesModel.delegate.type.model)
+
+                            if (connections.checked)
+                                ConnectionsEditorEditorBackend.connectionModel.add()
+                            else if (bindings.checked)
+                                ConnectionsEditorEditorBackend.bindingModel.add()
+                            else if (properties.checked)
+                                ConnectionsEditorEditorBackend.dynamicPropertiesModel.add()
+                        }
+                    }
                 }
             }
         }
-    }
 
-    ConnectionsListView {
-        visible: connections.checked
-        x: 17
-        y: 124
-        model: ConnectionsEditorEditorBackend.connectionModel
-    }
+        ConnectionsListView {
+            visible: connections.checked
+            width: parent.width
+            height: parent.height - toolbar.height - column.spacing
+            model: ConnectionsEditorEditorBackend.connectionModel
+        }
 
-    BindingsListView {
-        visible: bindings.checked
-        x: 17
-        y: 124
-        model: ConnectionsEditorEditorBackend.bindingModel
-    }
+        BindingsListView {
+            visible: bindings.checked
+            width: parent.width
+            height: parent.height - toolbar.height - column.spacing
+            model: ConnectionsEditorEditorBackend.bindingModel
+        }
 
-    PropertiesListView {
-        visible: properties.checked
-        x: 17
-        y: 124
-        model: ConnectionsEditorEditorBackend.dynamicPropertiesModel
+        PropertiesListView {
+            visible: properties.checked
+            width: parent.width
+            height: parent.height - toolbar.height - column.spacing
+            model: ConnectionsEditorEditorBackend.dynamicPropertiesModel
+        }
     }
 }

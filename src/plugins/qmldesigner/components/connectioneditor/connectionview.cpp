@@ -68,13 +68,9 @@ public:
             "ConnectionsEditorEditorBackend", 1);
 
         map->setProperties(
-            {{"connectionModel", QVariant::fromValue(m_connectionEditorView->connectionModel())}});
-
-        map->setProperties(
-            {{"bindingModel", QVariant::fromValue(m_connectionEditorView->bindingModel())}});
-
-        map->setProperties(
-            {{"dynamicPropertiesModel",
+            {{"connectionModel", QVariant::fromValue(m_connectionEditorView->connectionModel())},
+             {"bindingModel", QVariant::fromValue(m_connectionEditorView->bindingModel())},
+             {"dynamicPropertiesModel",
               QVariant::fromValue(m_connectionEditorView->dynamicPropertiesModel())}});
 
         Theme::setupTheme(engine());
@@ -85,6 +81,7 @@ public:
         // init the first load of the QML UI elements
         reloadQmlSource();
     }
+
     ~ConnectionViewQuickWidget() = default;
 
     static QString qmlSourcesPath()
@@ -297,7 +294,7 @@ void ConnectionView::currentStateChanged(const ModelNode &)
 WidgetInfo ConnectionView::widgetInfo()
 {
     /* Enable new connection editor here */
-    const bool newEditor = false;
+    const bool newEditor = true;
 
     QWidget *widget = m_connectionViewWidget.data();
     if (newEditor)
@@ -381,7 +378,6 @@ void ConnectionView::setCurrentIndex(int i)
 
 ConnectionView *ConnectionView::instance()
 {
-
     static ConnectionView *s_instance = nullptr;
 
     if (s_instance)
