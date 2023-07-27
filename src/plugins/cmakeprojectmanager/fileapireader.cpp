@@ -16,6 +16,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
 #include <QLoggingCategory>
 
@@ -97,9 +98,9 @@ void FileApiReader::parse(bool forceCMakeRun,
                                        + m_parameters.additionalCMakeArguments)
                                     : QStringList());
     if (debugging) {
-        FilePath file = FilePath::fromString("/tmp/cmake-dap.sock");
+        FilePath file = FilePath::fromString(TemporaryDirectory::masterDirectoryPath() + "/cmake-dap.sock");
         file.removeFile();
-        args << "--debugger" << "--debugger-pipe=/tmp/cmake-dap.sock";
+        args << "--debugger" << "--debugger-pipe=" + file.path();
     }
 
     qCDebug(cmakeFileApiMode) << "Parameters request these CMake arguments:" << args;

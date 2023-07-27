@@ -29,6 +29,7 @@
 #include <utils/environment.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -253,7 +254,8 @@ void DapEngine::setupEngine()
         qCDebug(dapEngineLog) << "build system name" << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
 
         m_nextBreakpointId = 0;
-        m_dataGenerator = std::make_unique<LocalSocketDataProvider>("/tmp/cmake-dap.sock");
+        m_dataGenerator = std::make_unique<LocalSocketDataProvider>(
+            TemporaryDirectory::masterDirectoryPath() + "/cmake-dap.sock");
         connectDataGeneratorSignals();
 
         connect(ProjectExplorer::ProjectTree::currentBuildSystem(),
