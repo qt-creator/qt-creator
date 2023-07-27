@@ -99,7 +99,6 @@ public:
     TestCodeParser m_testCodeParser;
     TestTreeModel m_testTreeModel{&m_testCodeParser};
     TestRunner m_testRunner;
-    TestFrameworkManager m_frameworkManager;
 #ifdef WITH_TESTS
     LoadProjectScenario m_loadProjectScenario{&m_testTreeModel};
 #endif
@@ -128,15 +127,15 @@ AutotestPluginPrivate::AutotestPluginPrivate()
 {
     dd = this; // Needed as the code below access it via the static plugin interface
     initializeMenuEntries();
-    m_frameworkManager.registerTestFramework(&theQtTestFramework());
-    m_frameworkManager.registerTestFramework(&theQuickTestFramework());
-    m_frameworkManager.registerTestFramework(&theGTestFramework());
-    m_frameworkManager.registerTestFramework(&theBoostTestFramework());
-    m_frameworkManager.registerTestFramework(&theCatchFramework());
+    TestFrameworkManager::registerTestFramework(&theQtTestFramework());
+    TestFrameworkManager::registerTestFramework(&theQuickTestFramework());
+    TestFrameworkManager::registerTestFramework(&theGTestFramework());
+    TestFrameworkManager::registerTestFramework(&theBoostTestFramework());
+    TestFrameworkManager::registerTestFramework(&theCatchFramework());
 
-    m_frameworkManager.registerTestTool(&theCTestTool());
+    TestFrameworkManager::registerTestTool(&theCTestTool());
+    TestFrameworkManager::synchronizeSettings();
 
-    m_frameworkManager.synchronizeSettings();
     m_resultsPane = TestResultsPane::instance();
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory();

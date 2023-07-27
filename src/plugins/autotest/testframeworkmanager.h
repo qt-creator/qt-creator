@@ -5,29 +5,18 @@
 
 #include "itestframework.h"
 
-namespace Autotest {
+namespace Autotest::TestFrameworkManager {
 
-class TestFrameworkManager final
-{
+void registerTestFramework(ITestFramework *framework);
+void registerTestTool(ITestTool *testTool);
+void synchronizeSettings();
 
-public:
-    TestFrameworkManager();
-    ~TestFrameworkManager();
+ITestFramework *frameworkForId(Utils::Id frameworkId);
+ITestTool *testToolForId(Utils::Id testToolId);
+ITestTool *testToolForBuildSystemId(Utils::Id buildSystemId);
+void activateFrameworksAndToolsFromSettings();
+const TestFrameworks registeredFrameworks();
+const TestTools registeredTestTools();
 
-    void registerTestFramework(ITestFramework *framework);
-    void registerTestTool(ITestTool *testTool);
-    void synchronizeSettings();
 
-    static ITestFramework *frameworkForId(Utils::Id frameworkId);
-    static ITestTool *testToolForId(Utils::Id testToolId);
-    static ITestTool *testToolForBuildSystemId(Utils::Id buildSystemId);
-    static void activateFrameworksAndToolsFromSettings();
-    static const TestFrameworks registeredFrameworks();
-    static const TestTools registeredTestTools();
-
-private:
-    TestFrameworks m_registeredFrameworks;
-    TestTools m_registeredTestTools;
-};
-
-} // namespace Autotest
+} // Autotest::TestFrameworkManager
