@@ -7,34 +7,10 @@
 [ $(uname -s) != "Darwin" ] && echo "Run this script on Mac OS X" && exit 2;
 
 app_path="$1"
-resource_path="$app_path/Contents/Resources"
 libexec_path="$app_path/Contents/Resources/libexec"
 bin_src="$2"
 
 echo "Deploying Qt"
-
-# copy clang if needed
-if [ $LLVM_INSTALL_DIR ]; then
-    if [ "$LLVM_INSTALL_DIR"/bin/clangd -nt "$libexec_path"/clang/bin/clangd ]; then
-        echo "- Copying clang"
-        mkdir -p "$app_path/Contents/Frameworks" || exit 1
-        # use recursive copy to make it copy symlinks as symlinks
-        mkdir -p "$libexec_path/clang/bin"
-        mkdir -p "$libexec_path/clang/lib"
-        cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$libexec_path/clang/lib/" || exit 1
-        cp -Rf "$LLVM_INSTALL_DIR"/lib/ClazyPlugin.dylib "$libexec_path/clang/lib/" || exit 1
-        clangdsource="$LLVM_INSTALL_DIR"/bin/clangd
-        cp -Rf "$clangdsource" "$libexec_path/clang/bin/" || exit 1
-        clangtidysource="$LLVM_INSTALL_DIR"/bin/clang-tidy
-        cp -Rf "$clangtidysource" "$libexec_path/clang/bin/" || exit 1
-        clangformatsource="$LLVM_INSTALL_DIR"/bin/clang-format
-        cp -Rf "$clangformatsource" "$libexec_path/clang/bin/" || exit 1
-        clazysource="$LLVM_INSTALL_DIR"/bin/clazy-standalone
-        cp -Rf "$clazysource" "$libexec_path/clang/bin/" || exit 1
-        install_name_tool -add_rpath "@executable_path/../lib" "$libexec_path/clang/bin/clazy-standalone" 2> /dev/null
-        install_name_tool -delete_rpath "/Users/qt/work/build/libclang/lib" "$libexec_path/clang/bin/clazy-standalone" 2> /dev/null
-    fi
-fi
 
 #### macdeployqt
 
