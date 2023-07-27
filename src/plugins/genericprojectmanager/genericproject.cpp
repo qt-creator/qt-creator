@@ -663,7 +663,7 @@ void GenericProject::configureAsExampleProject(ProjectExplorer::Kit *kit)
                 BuildInfo buildInfo;
                 buildInfo.displayName = Tr::tr("Build %1").arg(i + 1);
                 buildInfo.factory = factory;
-                buildInfo.kitId = kit->id();
+                buildInfo.kitId = k->id();
                 buildInfo.buildDirectory = projectFilePath();
                 infoList << buildInfo;
             }
