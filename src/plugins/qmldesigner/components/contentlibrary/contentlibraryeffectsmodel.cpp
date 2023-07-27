@@ -11,6 +11,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
 #include <QJsonArray>
@@ -116,7 +117,12 @@ void ContentLibraryEffectsModel::loadBundle()
     if (m_bundleExists || m_probeBundleDir)
         return;
 
-    QDir bundleDir = qEnvironmentVariable("EFFECT_BUNDLE_PATH");
+    QDir bundleDir;
+
+    if (!qEnvironmentVariable("EFFECT_BUNDLE_PATH").isEmpty())
+        bundleDir.setPath(qEnvironmentVariable("EFFECT_BUNDLE_PATH"));
+    else if (Utils::HostOsInfo::isMacHost())
+        bundleDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/effect_bundle");
 
     // search for bundleDir from exec dir and up
     if (bundleDir.dirName() == ".") {
