@@ -27,7 +27,7 @@ public:
     Tasks projectIssues(const Kit *k) const final;
 
     // Keep for compatibility with Qt Creator 4.10
-    QVariantMap toMap() const final;
+    void toMap(QVariantMap &map) const final;
 
     QStringList excludedFiles() const;
     void setExcludedFiles(const QStringList &excludedFiles);
@@ -63,11 +63,10 @@ Tasks NimProject::projectIssues(const Kit *k) const
     return result;
 }
 
-QVariantMap NimProject::toMap() const
+void NimProject::toMap(QVariantMap &map) const
 {
-    QVariantMap result = Project::toMap();
-    result[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
-    return result;
+    Project::toMap(map);
+    map[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
 }
 
 Project::RestoreResult NimProject::fromMap(const QVariantMap &map, QString *errorMessage)

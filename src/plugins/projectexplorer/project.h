@@ -111,7 +111,7 @@ public:
                                 const NodeMatcher &extraMatcher = {}) const;
     Utils::FilePaths binariesForSourceFile(const Utils::FilePath &sourceFile) const;
 
-    virtual QVariantMap toMap() const;
+    virtual void toMap(QVariantMap &map) const;
 
     Core::Context projectContext() const;
     Core::Context projectLanguages() const;

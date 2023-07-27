@@ -16,7 +16,7 @@ public:
     NimbleProject(const Utils::FilePath &filename);
 
     // Keep for compatibility with Qt Creator 4.10
-    QVariantMap toMap() const final;
+    void toMap(QVariantMap &map) const final;
 
     QStringList excludedFiles() const;
     void setExcludedFiles(const QStringList &excludedFiles);

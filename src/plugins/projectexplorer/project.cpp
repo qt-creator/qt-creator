@@ -634,8 +634,11 @@ void Project::saveSettings()
     emit aboutToSaveSettings();
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
-    if (!targets().isEmpty())
-        d->m_accessor->saveSettings(toMap(), ICore::dialogParent());
+    if (!targets().isEmpty()) {
+        QVariantMap map;
+        toMap(map);
+        d->m_accessor->saveSettings(map, ICore::dialogParent());
+    }
 }
 
 Project::RestoreResult Project::restoreSettings(QString *errorMessage)
@@ -688,11 +691,10 @@ FilePaths Project::files(const NodeMatcher &filter) const
     creating new build configurations.
 */
 
-QVariantMap Project::toMap() const
+void Project::toMap(QVariantMap &map) const
 {
     const QList<Target *> ts = targets();
 
-    QVariantMap map;
     map.insert(QLatin1String(ACTIVE_TARGET_KEY), ts.indexOf(d->m_activeTarget));
     map.insert(QLatin1String(TARGET_COUNT_KEY), ts.size());
     for (int i = 0; i < ts.size(); ++i)
@@ -701,8 +703,6 @@ QVariantMap Project::toMap() const
     map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration.toMap());
     if (!d->m_pluginSettings.isEmpty())
         map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
-
-    return map;
 }
 
 /*!

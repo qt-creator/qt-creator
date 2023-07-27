@@ -26,11 +26,10 @@ NimbleProject::NimbleProject(const Utils::FilePath &fileName)
     setBuildSystemCreator([] (Target *t) { return new NimbleBuildSystem(t); });
 }
 
-QVariantMap NimbleProject::toMap() const
+void NimbleProject::toMap(QVariantMap &map) const
 {
-    QVariantMap result = Project::toMap();
-    result[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
-    return result;
+    Project::toMap(map);
+    map[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
 }
 
 Project::RestoreResult NimbleProject::fromMap(const QVariantMap &map, QString *errorMessage)
