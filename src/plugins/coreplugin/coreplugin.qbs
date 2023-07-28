@@ -18,6 +18,7 @@ Project {
 
         Depends { name: "Utils" }
         Depends { name: "Aggregation" }
+        Depends { name: "TerminalLib" }
 
         cpp.dynamicLibraries: {
             if (qbs.targetOS.contains("windows"))
@@ -364,6 +365,15 @@ Project {
                 "spotlightlocatorfilter.cpp",
                 "urllocatorfilter.cpp",
                 "urllocatorfilter.h"
+            ]
+        }
+
+        Group {
+            name: "Terminal"
+            prefix: "terminal/"
+            files: [
+                "searchableterminal.cpp",
+                "searchableterminal.h",
             ]
         }
 

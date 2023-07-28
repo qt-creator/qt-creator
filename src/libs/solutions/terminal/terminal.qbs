@@ -6,6 +6,10 @@ QtcLibrary {
     Depends { name: "vterm" }
     Depends { name: "Qt"; submodules: "widgets" }
 
+    cpp.defines: base.concat([
+        "TERMINALLIB_LIBRARY"
+    ])
+
     files: [
         "celliterator.cpp",
         "celliterator.h",
