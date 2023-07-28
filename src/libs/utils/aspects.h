@@ -419,7 +419,7 @@ public:
 
     QAction *action() override;
 
-    enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
+    enum class LabelPlacement { AtCheckBox, Compact, InExtraLabel };
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);

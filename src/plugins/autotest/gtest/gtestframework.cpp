@@ -64,29 +64,29 @@ GTestFramework::GTestFramework()
 
     runDisabled.setSettingsKey("RunDisabled");
     runDisabled.setLabelText(Tr::tr("Run disabled tests"));
-    runDisabled.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    runDisabled.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     runDisabled.setToolTip(Tr::tr("Executes disabled tests when performing a test run."));
 
     shuffle.setSettingsKey("Shuffle");
     shuffle.setLabelText(Tr::tr("Shuffle tests"));
-    shuffle.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    shuffle.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     shuffle.setToolTip(Tr::tr("Shuffles tests automatically on every iteration by the given seed."));
 
     repeat.setSettingsKey("Repeat");
     repeat.setLabelText(Tr::tr("Repeat tests"));
-    repeat.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    repeat.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     repeat.setToolTip(Tr::tr("Repeats a test run (you might be required to increase the timeout to "
                              "avoid canceling the tests)."));
 
     throwOnFailure.setSettingsKey("ThrowOnFailure");
     throwOnFailure.setLabelText(Tr::tr("Throw on failure"));
-    throwOnFailure.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    throwOnFailure.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     throwOnFailure.setToolTip(Tr::tr("Turns assertion failures into C++ exceptions."));
 
     breakOnFailure.setSettingsKey("BreakOnFailure");
     breakOnFailure.setDefaultValue(true);
     breakOnFailure.setLabelText(Tr::tr("Break on failure while debugging"));
-    breakOnFailure.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    breakOnFailure.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     breakOnFailure.setToolTip(Tr::tr("Turns failures into debugger breakpoints."));
 
     groupMode.setSettingsKey("GroupMode");

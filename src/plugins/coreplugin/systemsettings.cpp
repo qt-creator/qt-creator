@@ -73,8 +73,7 @@ SystemSettings::SystemSettings()
     autoSaveModifiedFiles.setSettingsKey("EditorManager/AutoSaveEnabled");
     autoSaveModifiedFiles.setDefaultValue(true);
     autoSaveModifiedFiles.setLabelText(Tr::tr("Auto-save modified files"));
-    autoSaveModifiedFiles.setLabelPlacement(
-        BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    autoSaveModifiedFiles.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     autoSaveModifiedFiles.setToolTip(
         Tr::tr("Automatically creates temporary copies of modified files. "
                "If %1 is restarted after a crash or power failure, it asks whether to "
@@ -90,8 +89,7 @@ SystemSettings::SystemSettings()
 
     autoSaveAfterRefactoring.setSettingsKey("EditorManager/AutoSaveAfterRefactoring");
     autoSaveAfterRefactoring.setDefaultValue(true);
-    autoSaveAfterRefactoring.setLabelPlacement(
-        BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    autoSaveAfterRefactoring.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     autoSaveAfterRefactoring.setLabelText(Tr::tr("Auto-save files after refactoring"));
     autoSaveAfterRefactoring.setToolTip(
         Tr::tr("Automatically saves all open files affected by a refactoring operation,\n"
@@ -100,8 +98,7 @@ SystemSettings::SystemSettings()
     autoSuspendEnabled.setSettingsKey("EditorManager/AutoSuspendEnabled");
     autoSuspendEnabled.setDefaultValue(true);
     autoSuspendEnabled.setLabelText(Tr::tr("Auto-suspend unmodified files"));
-    autoSuspendEnabled.setLabelPlacement(
-        BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    autoSuspendEnabled.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     autoSuspendEnabled.setToolTip(
         Tr::tr("Automatically free resources of old documents that are not visible and not "
                "modified. They stay visible in the list of open documents."));
@@ -117,8 +114,7 @@ SystemSettings::SystemSettings()
 
     warnBeforeOpeningBigFiles.setSettingsKey("EditorManager/WarnBeforeOpeningBigTextFiles");
     warnBeforeOpeningBigFiles.setDefaultValue(true);
-    warnBeforeOpeningBigFiles.setLabelPlacement(
-        BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    warnBeforeOpeningBigFiles.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     warnBeforeOpeningBigFiles.setLabelText(Tr::tr("Warn before opening text files greater than"));
 
     bigFileSizeLimitInMB.setSettingsKey("EditorManager/BigTextFileSizeLimitInMB");
@@ -141,7 +137,7 @@ SystemSettings::SystemSettings()
 
     askBeforeExit.setSettingsKey("AskBeforeExit");
     askBeforeExit.setLabelText(Tr::tr("Ask for confirmation before exiting"));
-    askBeforeExit.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    askBeforeExit.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
 #ifdef ENABLE_CRASHPAD
     enableCrashReporting.setSettingsKey("CrashReportingEnabled");

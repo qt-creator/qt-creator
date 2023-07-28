@@ -58,7 +58,7 @@ CTestTool::CTestTool()
 
     outputOnFail.setSettingsKey("OutputOnFail");
     outputOnFail.setLabelText(Tr::tr("Output on failure"));
-    outputOnFail.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    outputOnFail.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     outputOnFail.setDefaultValue(true);
 
     outputMode.setSettingsKey("OutputMode");
@@ -85,11 +85,11 @@ CTestTool::CTestTool()
 
     scheduleRandom.setSettingsKey("ScheduleRandom");
     scheduleRandom.setLabelText(Tr::tr("Schedule random"));
-    scheduleRandom.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    scheduleRandom.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
     stopOnFailure.setSettingsKey("StopOnFail");
     stopOnFailure.setLabelText(Tr::tr("Stop on failure"));
-    stopOnFailure.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    stopOnFailure.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
     parallel.setSettingsKey("Parallel");
     parallel.setToolTip(Tr::tr("Run tests in parallel mode using given number of jobs."));

@@ -1612,7 +1612,7 @@ void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
         d->m_button = createSubWidget<QCheckBox>();
     }
     switch (d->m_labelPlacement) {
-    case LabelPlacement::AtCheckBoxWithoutDummyLabel:
+    case LabelPlacement::Compact:
         d->m_button->setText(labelText());
         parent.addItem(d->m_button.data());
         break;
