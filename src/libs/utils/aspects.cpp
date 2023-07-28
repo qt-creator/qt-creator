@@ -2739,5 +2739,4 @@ SettingsGroupNester::~SettingsGroupNester()
         theSettings->endGroup();
 }
 
-
 } // namespace Utils

@@ -222,7 +222,7 @@ protected:
 
 protected:
     template <class Value>
-    bool updateStorage(Value &target, const Value &val)
+    static bool updateStorage(Value &target, const Value &val)
     {
         if (target == val)
             return false;
@@ -352,6 +352,55 @@ protected:
     ValueType m_external{};
     ValueType m_internal{};
     ValueType m_buffer{};
+};
+
+template <typename ValueType>
+class FlexibleTypedAspect : public TypedAspect<ValueType>
+{
+public:
+    using Base = TypedAspect<ValueType>;
+    using Updater = std::function<bool(ValueType &, const ValueType &)>;
+
+    using Base::Base;
+
+    void setInternalToBuffer(const Updater &updater) { m_internalToBuffer = updater; }
+    void setBufferToInternal(const Updater &updater) { m_bufferToInternal = updater; }
+    void setInternalToExternal(const Updater &updater) { m_internalToExternal = updater; }
+    void setExternalToInternal(const Updater &updater) { m_externalToInternal = updater; }
+
+protected:
+    bool internalToBuffer() override
+    {
+        if (m_internalToBuffer)
+            return m_internalToBuffer(Base::m_buffer, Base::m_internal);
+        return Base::internalToBuffer();
+    }
+
+    bool bufferToInternal() override
+    {
+        if (m_bufferToInternal)
+            return m_bufferToInternal(Base::m_internal, Base::m_buffer);
+        return Base::bufferToInternal();
+    }
+
+    bool internalToExternal() override
+    {
+        if (m_internalToExternal)
+            return m_internalToExternal(Base::m_external, Base::m_internal);
+        return Base::internalToExternal();
+    }
+
+    bool externalToInternal() override
+    {
+        if (m_externalToInternal)
+            return m_externalToInternal(Base::m_internal, Base::m_external);
+        return Base::externalToInternal();
+    }
+
+    Updater m_internalToBuffer;
+    Updater m_bufferToInternal;
+    Updater m_internalToExternal;
+    Updater m_externalToInternal;
 };
 
 class QTCREATOR_UTILS_EXPORT BoolAspect : public TypedAspect<bool>
