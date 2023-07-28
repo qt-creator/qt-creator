@@ -1290,7 +1290,8 @@ void StringAspect::addToLayout(LayoutItem &parent)
 
 QString StringAspect::expandedValue() const
 {
-    // FIXME: Use macroexpander here later.
+    if (!m_internal.isEmpty() && d->m_expanderProvider)
+        return d->m_expanderProvider()->expand(m_internal);
     return m_internal;
 }
 
