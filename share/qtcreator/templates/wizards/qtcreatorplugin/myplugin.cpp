@@ -26,7 +26,7 @@ namespace %{PluginName}::Internal {
     // Delete members
 }
 
-bool %{CN}::initialize(const QStringList &arguments, QString *errorString)
+void %{CN}::initialize()
 {
     // Register objects in the plugin manager's object pool
     // Load settings
@@ -35,8 +35,9 @@ bool %{CN}::initialize(const QStringList &arguments, QString *errorString)
     // In the initialize function, a plugin can be sure that the plugins it
     // depends on have initialized their members.
 
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    // If you need access to command line arguments or to report errors, use the
+    //    bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
+    // overload.
 
     auto action = new QAction(tr("%{PluginName} Action"), this);
     Core::Command *cmd = Core::ActionManager::registerAction(action, Constants::ACTION_ID,
@@ -48,8 +49,6 @@ bool %{CN}::initialize(const QStringList &arguments, QString *errorString)
     menu->menu()->setTitle(tr("%{PluginName}"));
     menu->addAction(cmd);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
-
-    return true;
 }
 
 void %{CN}::extensionsInitialized()
