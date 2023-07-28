@@ -4042,7 +4042,7 @@ void GdbEngine::handleGdbStarted()
         runCommand(cmd);
     }
 
-    const QString commands = expand(settings().extraDumperCommands());
+    const QString commands = settings().extraDumperCommands();
     if (!commands.isEmpty())
         runCommand({commands});
 
@@ -4619,7 +4619,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
     {
         showMessage("INFERIOR ATTACHED");
 
-        QString commands = expand(settings().gdbPostAttachCommands());
+        QString commands = settings().gdbPostAttachCommands();
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
 
@@ -4799,7 +4799,7 @@ void GdbEngine::handleExecRun(const DebuggerResponse &response)
     if (response.resultClass == ResultRunning) {
 
         if (isLocalRunEngine()) {
-            QString commands = expand(settings().gdbPostAttachCommands());
+            QString commands = settings().gdbPostAttachCommands();
             if (!commands.isEmpty())
                 runCommand({commands, NativeCommand});
         }
@@ -4853,7 +4853,7 @@ void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
         // gdb server will stop the remote application itself.
         showMessage("INFERIOR STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString commands = expand(settings().gdbPostAttachCommands());
+        QString commands = settings().gdbPostAttachCommands();
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
         handleInferiorPrepared();
@@ -4869,7 +4869,7 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         showMessage("ATTACHED TO GDB SERVER STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString commands = expand(settings().gdbPostAttachCommands());
+        QString commands = settings().gdbPostAttachCommands();
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
         if (runParameters().attachPID.isValid()) { // attach to pid if valid
