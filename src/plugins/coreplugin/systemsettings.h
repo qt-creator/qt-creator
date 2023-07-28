@@ -12,6 +12,8 @@ class SystemSettings final : public Utils::AspectContainer
 public:
     SystemSettings();
 
+    Utils::FilePathAspect patchCommand{this};
+
     Utils::BoolAspect autoSaveModifiedFiles{this};
     Utils::IntegerAspect autoSaveInterval{this};
 

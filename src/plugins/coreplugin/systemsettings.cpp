@@ -13,7 +13,6 @@
 #include "icore.h"
 #include "iversioncontrol.h"
 #include "mainwindow.h"
-#include "patchtool.h"
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
@@ -27,15 +26,12 @@
 #include <utils/terminalcommand.h>
 #include <utils/unixutils.h>
 
-#include <QCheckBox>
 #include <QComboBox>
-#include <QCoreApplication>
 #include <QGuiApplication>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
-#include <QSpinBox>
 #include <QToolButton>
 
 using namespace Utils;
@@ -69,6 +65,13 @@ SystemSettings &systemSettings()
 SystemSettings::SystemSettings()
 {
     setAutoApply(false);
+
+    patchCommand.setSettingsKey("General/PatchCommand");
+    patchCommand.setDefaultValue("patch");
+    patchCommand.setExpectedKind(PathChooser::ExistingCommand);
+    patchCommand.setHistoryCompleter("General.PatchCommand.History");
+    patchCommand.setLabelText(Tr::tr("Patch command:"));
+    patchCommand.setToolTip(Tr::tr("Command used for reverting diff chunks."));
 
     autoSaveModifiedFiles.setSettingsKey("EditorManager/AutoSaveEnabled");
     autoSaveModifiedFiles.setDefaultValue(true);
@@ -163,7 +166,6 @@ public:
         , m_terminalComboBox(new QComboBox)
         , m_terminalOpenArgs(new QLineEdit)
         , m_terminalExecuteArgs(new QLineEdit)
-        , m_patchChooser(new Utils::PathChooser)
         , m_environmentChangesLabel(new Utils::ElidingLabel)
         , m_clearCrashReportsButton(new QPushButton(Tr::tr("Clear Local Crash Reports")))
         , m_crashReportsSizeText(new QLabel)
@@ -195,7 +197,6 @@ public:
         helpCrashReportingButton->setText(Tr::tr("?"));
         auto resetTerminalButton = new QPushButton(Tr::tr("Reset"));
         resetTerminalButton->setToolTip(Tr::tr("Reset to default.", "Terminal"));
-        auto patchCommandLabel = new QLabel(Tr::tr("Patch command:"));
         auto environmentButton = new QPushButton(Tr::tr("Change..."));
         environmentButton->setSizePolicy(QSizePolicy::Fixed,
                                          environmentButton->sizePolicy().verticalPolicy());
@@ -218,7 +219,7 @@ public:
                                   resetFileBrowserButton,
                                   helpExternalFileBrowserButton})});
         }
-        form.addRow({patchCommandLabel, Span(2, m_patchChooser)});
+        form.addRow({Span(3, s.patchCommand)});
         if (HostOsInfo::isMacHost()) {
             form.addRow({fileSystemCaseSensitivityLabel,
                          Span(2, Row{m_fileSystemCaseSensitivityChooser, st})});
@@ -257,13 +258,6 @@ public:
         if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
             m_externalFileBrowserEdit->setText(UnixUtils::fileBrowser(ICore::settings()));
         }
-
-        const QString patchToolTip = Tr::tr("Command used for reverting diff chunks.");
-        patchCommandLabel->setToolTip(patchToolTip);
-        m_patchChooser->setToolTip(patchToolTip);
-        m_patchChooser->setExpectedKind(PathChooser::ExistingCommand);
-        m_patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
-        m_patchChooser->setFilePath(PatchTool::patchCommand());
 
 #ifdef ENABLE_CRASHPAD
         if (s.showCrashButton()) {
@@ -374,7 +368,6 @@ private:
     QComboBox *m_terminalComboBox;
     QLineEdit *m_terminalOpenArgs;
     QLineEdit *m_terminalExecuteArgs;
-    Utils::PathChooser *m_patchChooser;
     Utils::ElidingLabel *m_environmentChangesLabel;
     QPushButton *m_clearCrashReportsButton;
     QLabel *m_crashReportsSizeText;
@@ -398,7 +391,6 @@ void SystemSettingsWidget::apply()
             UnixUtils::setFileBrowser(settings, m_externalFileBrowserEdit->text());
         }
     }
-    PatchTool::setPatchCommand(m_patchChooser->filePath());
 
     if (HostOsInfo::isMacHost()) {
         const Qt::CaseSensitivity sensitivity = EditorManagerPrivate::readFileSystemSensitivity(
@@ -440,7 +432,7 @@ void SystemSettingsWidget::updatePath()
 {
     Environment env;
     env.appendToPath(VcsManager::additionalToolsPath());
-    m_patchChooser->setEnvironment(env);
+    systemSettings().patchCommand.setEnvironment(env);
 }
 
 void SystemSettingsWidget::updateEnvironmentChangesLabel()

@@ -18,7 +18,6 @@ class CORE_EXPORT PatchTool
 {
 public:
     static Utils::FilePath patchCommand();
-    static void setPatchCommand(const Utils::FilePath &newCommand);
 
     static bool confirmPatching(QWidget *parent, PatchAction patchAction, bool isModified);
 

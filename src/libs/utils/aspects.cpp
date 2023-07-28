@@ -159,6 +159,11 @@ void BaseAspect::setDefaultVariantValue(const QVariant &value)
     QTC_CHECK(false);
 }
 
+bool BaseAspect::isDefaultValue() const
+{
+    return defaultVariantValue() == variantValue();
+}
+
 QVariant BaseAspect::defaultVariantValue() const
 {
     return {};

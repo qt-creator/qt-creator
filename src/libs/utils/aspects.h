@@ -60,6 +60,7 @@ public:
 
     virtual QVariant defaultVariantValue() const;
     virtual void setDefaultVariantValue(const QVariant &value);
+    virtual bool isDefaultValue() const;
 
     QString settingsKey() const;
     void setSettingsKey(const QString &settingsKey);
@@ -276,6 +277,11 @@ public:
         m_default = value;
         m_internal = value;
         internalToBuffer(); // Might be more than a plain copy.
+    }
+
+    bool isDefaultValue() const override
+    {
+        return m_default == m_internal;
     }
 
     void setValue(const ValueType &value, Announcement howToAnnounce = DoEmit)
