@@ -357,7 +357,7 @@ void QbsProjectManagerPlugin::buildFileContextMenu()
 {
     const Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
-    auto project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
+    auto project = qobject_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
     buildSingleFile(project, node->filePath().toString());
 }
@@ -392,7 +392,7 @@ void QbsProjectManagerPlugin::runStepsForProductContextMenu(const QList<Utils::I
 {
     const Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
-    auto project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
+    auto project = qobject_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
 
     const auto * const productNode = dynamic_cast<const QbsProductNode *>(node);
@@ -455,7 +455,7 @@ void QbsProjectManagerPlugin::runStepsForSubprojectContextMenu(const QList<Utils
 {
     const Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
-    auto project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
+    auto project = qobject_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
 
     const auto subProject = dynamic_cast<const QbsProjectNode *>(node);
@@ -533,12 +533,12 @@ void QbsProjectManagerPlugin::runStepsForProducts(QbsProject *project,
 
 void QbsProjectManagerPlugin::reparseSelectedProject()
 {
-    reparseProject(dynamic_cast<QbsProject *>(ProjectTree::currentProject()));
+    reparseProject(qobject_cast<QbsProject *>(ProjectTree::currentProject()));
 }
 
 void QbsProjectManagerPlugin::reparseCurrentProject()
 {
-    reparseProject(dynamic_cast<QbsProject *>(ProjectManager::startupProject()));
+    reparseProject(qobject_cast<QbsProject *>(ProjectManager::startupProject()));
 }
 
 void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
