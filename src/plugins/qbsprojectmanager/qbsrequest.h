@@ -11,8 +11,9 @@
 
 namespace QbsProjectManager::Internal {
 
-class QbsSession;
+class QbsBuildSystem;
 class QbsRequestObject;
+class QbsSession;
 
 class QbsRequest final : public QObject
 {
@@ -23,6 +24,7 @@ public:
 
     void setSession(QbsSession *session) { m_session = session; }
     void setRequestData(const QJsonObject &requestData) { m_requestData = requestData; }
+    void setParseData(const QPointer<QbsBuildSystem> &buildSystem) { m_parseData = buildSystem; }
     void start();
 
 signals:
@@ -34,6 +36,7 @@ signals:
 private:
     QbsSession *m_session = nullptr; // TODO: Should we keep a QPointer?
     std::optional<QJsonObject> m_requestData;
+    QPointer<QbsBuildSystem> m_parseData;
     QbsRequestObject *m_requestObject = nullptr;
 };
 

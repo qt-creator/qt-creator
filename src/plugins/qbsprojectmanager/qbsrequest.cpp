@@ -3,15 +3,16 @@
 
 #include "qbsrequest.h"
 
+#include "qbsproject.h"
 #include "qbssession.h"
 
+#include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
 
 #include <utils/commandline.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
 using namespace Utils;
 
 namespace QbsProjectManager::Internal {
@@ -21,10 +22,8 @@ class QbsRequestManager : public QObject
 public:
     void sendRequest(QbsRequestObject *requestObject);
     void cancelRequest(QbsRequestObject *requestObject);
-
 private:
     void continueSessionQueue(QbsSession *session);
-
     QHash<QObject *, QList<QbsRequestObject *>> m_queuedRequests;
 };
 
@@ -36,7 +35,9 @@ public:
     void setSession(QbsSession *session) { m_session = session; }
     QbsSession *session() const { return m_session; }
     void setRequestData(const QJsonObject &requestData) { m_requestData = requestData; }
+    void setParseData(const QPointer<QbsBuildSystem> &buildSystem) { m_parseData = buildSystem; }
     void start();
+    void cancel();
 
 signals:
     void done(bool success);
@@ -47,6 +48,7 @@ signals:
 private:
     QbsSession *m_session = nullptr;
     QJsonObject m_requestData;
+    QPointer<QbsBuildSystem> m_parseData;
     QString m_description;
     int m_maxProgress = 100;
 };
@@ -76,7 +78,7 @@ void QbsRequestManager::cancelRequest(QbsRequestObject *requestObject)
         delete queue.takeAt(index);
         return;
     }
-    session->cancelCurrentJob();
+    requestObject->cancel();
 }
 
 void QbsRequestManager::continueSessionQueue(QbsSession *session)
@@ -108,6 +110,14 @@ static QbsRequestManager &manager()
 
 void QbsRequestObject::start()
 {
+    if (m_parseData) {
+        connect(m_parseData->target(), &Target::parsingFinished, this, [this](bool success) {
+            emit done(success);
+        });
+        m_parseData->parseCurrentBuildConfiguration();
+        return;
+    }
+
     const auto handleDone = [this](const ErrorInfo &error) {
         m_session->disconnect(this);
         for (const ErrorInfoItem &item : error.items) {
@@ -156,6 +166,14 @@ void QbsRequestObject::start()
     m_session->sendRequest(m_requestData);
 }
 
+void QbsRequestObject::cancel()
+{
+    if (m_parseData)
+        m_parseData->cancelParsing();
+    else
+        m_session->cancelCurrentJob();
+}
+
 QbsRequest::~QbsRequest()
 {
     if (!m_requestObject)
@@ -167,12 +185,16 @@ QbsRequest::~QbsRequest()
 void QbsRequest::start()
 {
     QTC_ASSERT(!m_requestObject, return);
-    QTC_ASSERT(m_session, emit done(false); return);
-    QTC_ASSERT(m_requestData, emit done(false); return);
+    QTC_ASSERT(m_parseData || (m_session && m_requestData), emit done(false); return);
 
     m_requestObject = new QbsRequestObject;
     m_requestObject->setSession(m_session);
-    m_requestObject->setRequestData(*m_requestData);
+    if (m_requestData)
+        m_requestObject->setRequestData(*m_requestData);
+    if (m_parseData) {
+        m_requestObject->setSession(m_parseData->session());
+        m_requestObject->setParseData(m_parseData);
+    }
 
     connect(m_requestObject, &QbsRequestObject::done, this, [this](bool success) {
         m_requestObject->deleteLater();

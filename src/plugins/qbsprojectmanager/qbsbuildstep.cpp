@@ -50,39 +50,6 @@ using namespace Utils;
 
 namespace QbsProjectManager::Internal {
 
-class QbsParserTaskAdapter : public TaskAdapter<QPointer<QbsBuildSystem>>
-{
-public:
-    ~QbsParserTaskAdapter()
-    {
-        QbsBuildSystem *buildSystem = *task();
-        if (buildSystem && m_isRunning)
-            buildSystem->cancelParsing();
-    }
-    void start() final
-    {
-        QbsBuildSystem *buildSystem = *task();
-        if (!buildSystem) {
-            emit done(false);
-            return;
-        }
-        m_isRunning = true;
-        connect(buildSystem->target(), &Target::parsingFinished, this, [this](bool success) {
-            m_isRunning = false;
-            emit done(success);
-        });
-        buildSystem->parseCurrentBuildConfiguration();
-    }
-private:
-    bool m_isRunning = false;
-};
-
-} // namespace QbsProjectManager::Internal
-
-TASKING_DECLARE_TASK(QbsParserTask, QbsProjectManager::Internal::QbsParserTaskAdapter);
-
-namespace QbsProjectManager::Internal {
-
 ArchitecturesAspect::ArchitecturesAspect(AspectContainer *container)
     : MultiSelectionAspect(container)
 {
@@ -414,11 +381,11 @@ QString QbsBuildStep::profile() const
 
 GroupItem QbsBuildStep::runRecipe()
 {
-    const auto onPreParserSetup = [this](QPointer<QbsBuildSystem> &buildSystem) {
-        buildSystem = qbsBuildSystem();
+    const auto onPreParserSetup = [this](QbsRequest &request) {
+        request.setParseData(qbsBuildSystem());
     };
     const auto onBuildSetup = [this](QbsRequest &request) {
-        QbsSession *session = static_cast<QbsBuildSystem*>(buildSystem())->session();
+        QbsSession *session = qbsBuildSystem()->session();
         if (!session) {
             emit addOutput(Tr::tr("No qbs session exists for this target."),
                            OutputFormat::ErrorMessage);
@@ -455,15 +422,16 @@ GroupItem QbsBuildStep::runRecipe()
         });
         return SetupResult::Continue;
     };
-    const auto onPostParserSetup = [this](QPointer<QbsBuildSystem> &buildSystem) {
-        buildSystem = qbsBuildSystem();
-        return buildSystem->parsingScheduled() ? SetupResult::Continue : SetupResult::StopWithDone;
+    const auto onPostParserSetup = [this](QbsRequest &request) {
+        auto bs = qbsBuildSystem();
+        request.setParseData(bs);
+        return bs->parsingScheduled() ? SetupResult::Continue : SetupResult::StopWithDone;
     };
 
     const Group root {
         // We need a pre-build parsing step in order not to lose project file changes done
         // right before building (but before the delay has elapsed).
-        QbsParserTask(onPreParserSetup),
+        QbsRequestTask(onPreParserSetup),
         Group {
             continueOnError,
             QbsRequestTask(onBuildSetup),
@@ -471,7 +439,7 @@ GroupItem QbsBuildStep::runRecipe()
             Sync([this] { qbsBuildSystem()->updateAfterBuild(); }),
             // The reparsing, if it is necessary, has to be done before done() is emitted, as
             // otherwise a potential additional build step could conflict with the parsing step.
-            QbsParserTask(onPostParserSetup)
+            QbsRequestTask(onPostParserSetup)
         }
     };
 
