@@ -5,11 +5,13 @@
 
 #include "createsimulatordialog.h"
 #include "iosconfigurations.h"
-#include "iosconfigurations.h"
+#include "iosconstants.h"
 #include "iostr.h"
 #include "simulatorcontrol.h"
 #include "simulatorinfomodel.h"
 #include "simulatoroperationdialog.h"
+
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -31,6 +33,35 @@
 using namespace std::placeholders;
 
 namespace Ios::Internal {
+
+class IosSettingsWidget final : public Core::IOptionsPageWidget
+{
+public:
+    IosSettingsWidget();
+    ~IosSettingsWidget() final;
+
+private:
+    void apply() final;
+
+    void saveSettings();
+
+    void onStart();
+    void onCreate();
+    void onReset();
+    void onRename();
+    void onDelete();
+    void onScreenshot();
+    void onSelectionChanged();
+
+private:
+    Utils::PathChooser *m_pathWidget;
+    QPushButton *m_startButton;
+    QPushButton *m_renameButton;
+    QPushButton *m_deleteButton;
+    QPushButton *m_resetButton;
+    QTreeView *m_deviceView;
+    QCheckBox *m_deviceAskCheckBox;
+};
 
 const int simStartWarnCount = 4;
 
@@ -356,6 +387,16 @@ void IosSettingsWidget::saveSettings()
 {
     IosConfigurations::setIgnoreAllDevices(!m_deviceAskCheckBox->isChecked());
     IosConfigurations::setScreenshotDir(m_pathWidget->filePath());
+}
+
+// IosSettingsPage
+
+IosSettingsPage::IosSettingsPage()
+{
+    setId(Constants::IOS_SETTINGS_ID);
+    setDisplayName(Tr::tr("iOS"));
+    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setWidgetCreator([] { return new IosSettingsWidget; });
 }
 
 } // Ios::Internal

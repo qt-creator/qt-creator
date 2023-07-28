@@ -16,7 +16,6 @@ add_qtc_plugin(Ios
     iosqtversion.cpp iosqtversion.h
     iosrunconfiguration.cpp iosrunconfiguration.h
     iosrunner.cpp iosrunner.h
-    iossettingspage.cpp iossettingspage.h
     iossettingswidget.cpp iossettingswidget.h
     iossimulator.cpp iossimulator.h
     iostoolhandler.cpp iostoolhandler.h

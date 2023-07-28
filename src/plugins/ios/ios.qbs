@@ -41,8 +41,6 @@ QtcPlugin {
         "iosrunconfiguration.h",
         "iosrunner.cpp",
         "iosrunner.h",
-        "iossettingspage.cpp",
-        "iossettingspage.h",
         "iossettingswidget.cpp",
         "iossettingswidget.h",
         "iossimulator.cpp",
