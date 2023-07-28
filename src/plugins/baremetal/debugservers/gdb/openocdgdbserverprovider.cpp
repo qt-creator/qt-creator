@@ -125,14 +125,13 @@ bool OpenOcdGdbServerProvider::isValid() const
     return true;
 }
 
-QVariantMap OpenOcdGdbServerProvider::toMap() const
+void OpenOcdGdbServerProvider::toMap(QVariantMap &data) const
 {
-    QVariantMap data = GdbServerProvider::toMap();
+    GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(rootScriptsDirKeyC, m_rootScriptsDir.toSettings());
     data.insert(configurationFileKeyC, m_configurationFile.toSettings());
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
-    return data;
 }
 
 bool OpenOcdGdbServerProvider::fromMap(const QVariantMap &data)

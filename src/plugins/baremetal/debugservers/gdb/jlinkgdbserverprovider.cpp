@@ -118,9 +118,9 @@ bool JLinkGdbServerProvider::isValid() const
     return true;
 }
 
-QVariantMap JLinkGdbServerProvider::toMap() const
+void JLinkGdbServerProvider::toMap(QVariantMap &data) const
 {
-    QVariantMap data = GdbServerProvider::toMap();
+    GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(jlinkDeviceKeyC, m_jlinkDevice);
     data.insert(jlinkHostInterfaceKeyC, m_jlinkHost);
@@ -128,7 +128,6 @@ QVariantMap JLinkGdbServerProvider::toMap() const
     data.insert(jlinkTargetInterfaceKeyC, m_jlinkTargetIface);
     data.insert(jlinkTargetInterfaceSpeedKeyC, m_jlinkTargetIfaceSpeed);
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
-    return data;
 }
 
 bool JLinkGdbServerProvider::fromMap(const QVariantMap &data)

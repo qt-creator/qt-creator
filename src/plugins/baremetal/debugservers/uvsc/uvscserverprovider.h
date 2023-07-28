@@ -48,7 +48,7 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const override;
 
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &map) const override;
 
     bool aboutToRun(Debugger::DebuggerRunTool *runTool, QString &errorMessage) const final;
     ProjectExplorer::RunWorker *targetRunner(ProjectExplorer::RunControl *runControl) const final;

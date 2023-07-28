@@ -158,11 +158,10 @@ JLinkUvscServerProvider::JLinkUvscServerProvider()
     setSupportedDrivers({"Segger\\JL2CM3.dll"});
 }
 
-QVariantMap JLinkUvscServerProvider::toMap() const
+void JLinkUvscServerProvider::toMap(QVariantMap &data) const
 {
-    QVariantMap data = UvscServerProvider::toMap();
+    UvscServerProvider::toMap(data);
     data.insert(adapterOptionsKeyC, m_adapterOpts.toMap());
-    return data;
 }
 
 bool JLinkUvscServerProvider::fromMap(const QVariantMap &data)

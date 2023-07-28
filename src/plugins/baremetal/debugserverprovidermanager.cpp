@@ -126,7 +126,8 @@ void DebugServerProviderManager::saveProviders()
     int count = 0;
     for (const IDebugServerProvider *p : std::as_const(m_providers)) {
         if (p->isValid()) {
-            const QVariantMap tmp = p->toMap();
+            QVariantMap tmp;
+            p->toMap(tmp);
             if (tmp.isEmpty())
                 continue;
             const QString key = QString::fromLatin1(dataKeyC) + QString::number(count);

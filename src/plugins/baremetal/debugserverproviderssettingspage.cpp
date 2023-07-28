@@ -347,7 +347,9 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
             for (const auto f : DebugServerProviderManager::factories()) {
                 if (id.startsWith(f->id())) {
                     IDebugServerProvider *p = f->create();
-                    p->fromMap(old->toMap());
+                    QVariantMap map;
+                    old->toMap(map);
+                    p->fromMap(map);
                     p->setDisplayName(Tr::tr("Clone of %1").arg(old->displayName()));
                     p->resetId();
                     addProviderToModel(p);

@@ -120,15 +120,14 @@ bool GdbServerProvider::operator==(const IDebugServerProvider &other) const
             && m_useExtendedRemote == p->m_useExtendedRemote;
 }
 
-QVariantMap GdbServerProvider::toMap() const
+void GdbServerProvider::toMap(QVariantMap &data) const
 {
-    QVariantMap data = IDebugServerProvider::toMap();
+    IDebugServerProvider::toMap(data);
     data.insert(startupModeKeyC, m_startupMode);
     data.insert(peripheralDescriptionFileKeyC, m_peripheralDescriptionFile.toSettings());
     data.insert(initCommandsKeyC, m_initCommands);
     data.insert(resetCommandsKeyC, m_resetCommands);
     data.insert(useExtendedRemoteKeyC, m_useExtendedRemote);
-    return data;
 }
 
 bool GdbServerProvider::isValid() const
@@ -136,8 +135,7 @@ bool GdbServerProvider::isValid() const
     return !channelString().isEmpty();
 }
 
-bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
-                                   QString &errorMessage) const
+bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessage) const
 {
     QTC_ASSERT(runTool, return false);
     const RunControl *runControl = runTool->runControl();

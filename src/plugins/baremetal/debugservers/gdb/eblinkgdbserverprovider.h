@@ -21,7 +21,7 @@ class EBlinkGdbServerProvider final : public GdbServerProvider
 public:
     enum InterfaceType { SWD, JTAG };
 
-    QVariantMap toMap() const final;
+    void toMap(QVariantMap &data) const final;
     bool fromMap(const QVariantMap &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;

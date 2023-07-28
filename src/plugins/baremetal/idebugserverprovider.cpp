@@ -137,15 +137,13 @@ IDebugServerProviderConfigWidget *IDebugServerProvider::configurationWidget() co
     return m_configurationWidgetCreator();
 }
 
-QVariantMap IDebugServerProvider::toMap() const
+void IDebugServerProvider::toMap(QVariantMap &data) const
 {
-    return {
-        {idKeyC, m_id},
-        {displayNameKeyC, m_displayName},
-        {engineTypeKeyC, m_engineType},
-        {hostKeyC, m_channel.host()},
-        {portKeyC, m_channel.port()},
-    };
+    data.insert(idKeyC, m_id);
+    data.insert(displayNameKeyC, m_displayName);
+    data.insert(engineTypeKeyC, m_engineType);
+    data.insert(hostKeyC, m_channel.host());
+    data.insert(portKeyC, m_channel.port());
 }
 
 void IDebugServerProvider::registerDevice(BareMetalDevice *device)

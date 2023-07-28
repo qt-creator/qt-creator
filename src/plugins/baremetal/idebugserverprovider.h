@@ -65,7 +65,7 @@ public:
     void setConfigurationWidgetCreator
         (const std::function<IDebugServerProviderConfigWidget *()> &configurationWidgetCreator);
 
-    virtual QVariantMap toMap() const;
+    virtual void toMap(QVariantMap &data) const;
     virtual bool fromMap(const QVariantMap &data);
 
     virtual bool aboutToRun(Debugger::DebuggerRunTool *runTool,

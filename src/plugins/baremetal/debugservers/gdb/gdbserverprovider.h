@@ -33,7 +33,7 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const override;
 
-    QVariantMap toMap() const override;
+    void toMap(QVariantMap &data) const override;
 
     virtual Utils::CommandLine command() const;
 

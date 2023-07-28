@@ -114,11 +114,10 @@ StLinkUvscServerProvider::StLinkUvscServerProvider()
     setSupportedDrivers({"STLink\\ST-LINKIII-KEIL_SWO.dll"});
 }
 
-QVariantMap StLinkUvscServerProvider::toMap() const
+void StLinkUvscServerProvider::toMap(QVariantMap &data) const
 {
-    QVariantMap data = UvscServerProvider::toMap();
+    UvscServerProvider::toMap(data);
     data.insert(adapterOptionsKeyC, m_adapterOpts.toMap());
-    return data;
 }
 
 bool StLinkUvscServerProvider::fromMap(const QVariantMap &data)

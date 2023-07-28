@@ -147,13 +147,12 @@ FilePath UvscServerProvider::buildOptionsFilePath(DebuggerRunTool *runTool) cons
     return path;
 }
 
-QVariantMap UvscServerProvider::toMap() const
+void UvscServerProvider::toMap(QVariantMap &data) const
 {
-    QVariantMap data = IDebugServerProvider::toMap();
+    IDebugServerProvider::toMap(data);
     data.insert(toolsIniKeyC, m_toolsIniFile.toSettings());
     data.insert(deviceSelectionKeyC, m_deviceSelection.toMap());
     data.insert(driverSelectionKeyC, m_driverSelection.toMap());
-    return data;
 }
 
 bool UvscServerProvider::isValid() const

@@ -142,9 +142,9 @@ bool EBlinkGdbServerProvider::isValid() const
     }
 }
 
-QVariantMap EBlinkGdbServerProvider::toMap() const
+void EBlinkGdbServerProvider::toMap(QVariantMap &data) const
 {
-    QVariantMap data = GdbServerProvider::toMap();
+    GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(verboseLevelKeyC, m_verboseLevel);
     data.insert(interfaceTypeC, m_interfaceType);
@@ -156,8 +156,6 @@ QVariantMap EBlinkGdbServerProvider::toMap() const
     data.insert(targetDisableStackC, m_targetDisableStack);
     data.insert(gdbShutDownAfterDisconnectC, m_gdbShutDownAfterDisconnect);
     data.insert(gdbNotUseCacheC, m_gdbNotUseCache);
-
-    return data;
 }
 
 bool EBlinkGdbServerProvider::fromMap(const QVariantMap &data)

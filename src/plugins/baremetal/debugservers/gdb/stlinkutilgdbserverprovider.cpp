@@ -113,16 +113,15 @@ bool StLinkUtilGdbServerProvider::isValid() const
     return true;
 }
 
-QVariantMap StLinkUtilGdbServerProvider::toMap() const
+void StLinkUtilGdbServerProvider::toMap(QVariantMap &data) const
 {
-    QVariantMap data = GdbServerProvider::toMap();
+    GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(verboseLevelKeyC, m_verboseLevel);
     data.insert(extendedModeKeyC, m_extendedMode);
     data.insert(resetBoardKeyC, m_resetBoard);
     data.insert(transportLayerKeyC, m_transport);
     data.insert(connectUnderResetKeyC, m_connectUnderReset);
-    return data;
 }
 
 bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
