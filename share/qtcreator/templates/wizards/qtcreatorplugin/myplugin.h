@@ -1,9 +1,4 @@
-@if '%{Cpp:PragmaOnce}'
 #pragma once
-@else
-#ifndef %{GUARD}
-#define %{GUARD}
-@endif
 
 #include "%{GlobalHdrFileName}"
 
@@ -29,7 +24,3 @@ private:
 };
 
 } // namespace %{PluginName}::Internal
-
-@if ! '%{Cpp:PragmaOnce}'
-#endif // %{GUARD}
-@endif

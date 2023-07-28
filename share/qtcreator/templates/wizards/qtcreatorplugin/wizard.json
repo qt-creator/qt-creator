@@ -23,10 +23,7 @@
         { "key": "GlobalHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + '_global', Util.preferredSuffix('text/x-c++hdr'))}" },
         { "key": "ConstantsHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + 'constants', Util.preferredSuffix('text/x-c++hdr'))}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('PluginName') + 'Plugin')}" },
-        { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('CN'), Util.suffix(value('HdrFileName')))}" },
-        { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
-        { "key": "GLOBAL_GUARD", "value": "%{JS: Cpp.headerGuard(value('GlobalHdrFileName'))}" },
-        { "key": "CONSTANTS_GUARD", "value": "%{JS: Cpp.headerGuard(value('ConstantsHdrFileName'))}" }
+        { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" }
     ],
 
     "pages":
