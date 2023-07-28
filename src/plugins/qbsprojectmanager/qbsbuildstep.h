@@ -7,6 +7,7 @@
 
 namespace QbsProjectManager::Internal {
 
+class QbsBuildConfiguration;
 class QbsBuildStepConfigWidget;
 class QbsBuildStepData;
 class QbsBuildSystem;
@@ -45,6 +46,7 @@ public:
 
     QbsBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
+    QbsBuildConfiguration *qbsBuildConfiguration() const;
     QVariantMap qbsConfiguration(VariableHandling variableHandling) const;
     void setQbsConfiguration(const QVariantMap &config);
 

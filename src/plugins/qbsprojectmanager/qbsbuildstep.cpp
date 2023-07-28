@@ -240,15 +240,13 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
 
 bool QbsBuildStep::init()
 {
-    auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-
+    const auto bc = qbsBuildConfiguration();
     if (!bc)
         return false;
 
     m_changedFiles = bc->changedFiles();
     m_activeFileTags = bc->activeFileTags();
     m_products = bc->products();
-
     return true;
 }
 
@@ -266,7 +264,7 @@ QWidget *QbsBuildStep::createConfigWidget()
 QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) const
 {
     QVariantMap config = m_qbsConfiguration;
-    const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(buildConfiguration());
+    const auto qbsBuildConfig = qbsBuildConfiguration();
     config.insert(Constants::QBS_FORCE_PROBES_KEY, forceProbes());
 
     const auto store = [&config](TriState ts, const QString &key) {
@@ -357,6 +355,11 @@ void QbsBuildStep::toMap(QVariantMap &map) const
 QString QbsBuildStep::buildVariant() const
 {
     return qbsConfiguration(PreserveVariables).value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
+}
+
+QbsBuildConfiguration *QbsBuildStep::qbsBuildConfiguration() const
+{
+    return static_cast<QbsBuildConfiguration *>(buildConfiguration());
 }
 
 QbsBuildSystem *QbsBuildStep::qbsBuildSystem() const
@@ -493,8 +496,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
 {
     connect(step, &ProjectConfiguration::displayNameChanged,
             this, &QbsBuildStepConfigWidget::updateState);
-    connect(static_cast<QbsBuildConfiguration *>(step->buildConfiguration()),
-            &QbsBuildConfiguration::qbsConfigurationChanged,
+    connect(step->qbsBuildConfiguration(), &QbsBuildConfiguration::qbsConfigurationChanged,
             this, &QbsBuildStepConfigWidget::updateState);
     connect(step, &QbsBuildStep::qbsBuildOptionsChanged,
             this, &QbsBuildStepConfigWidget::updateState);
@@ -563,7 +565,7 @@ void QbsBuildStepConfigWidget::updateState()
         m_qbsStep->selectedAbis.setSelectedArchitectures(m_qbsStep->configuredArchitectures());
     }
 
-    const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(m_qbsStep->buildConfiguration());
+    const auto qbsBuildConfig = m_qbsStep->qbsBuildConfiguration();
 
     QString command = qbsBuildConfig->equivalentCommandLine(m_qbsStep->stepData());
 
