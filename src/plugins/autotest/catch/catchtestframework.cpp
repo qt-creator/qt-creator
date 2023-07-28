@@ -29,7 +29,7 @@ CatchFramework::CatchFramework()
     setActive(true);
     setSettingsGroups("Autotest", "Catch2");
     setPriority(12);
-    setName("Catch");
+    setId("AutoTest.Framework.Catch");
     setDisplayName(Tr::tr("Catch Test"));
 
     setLayouter([this] {

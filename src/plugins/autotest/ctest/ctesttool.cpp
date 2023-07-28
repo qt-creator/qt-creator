@@ -31,7 +31,7 @@ CTestTool::CTestTool()
     setActive(false);
     setSettingsGroups("Autotest", "CTest");
     setAutoApply(false);
-    setName("CTest");
+    setId("AutoTest.Framework.CTest");
     setDisplayName(Tr::tr("CTest"));
 
     setLayouter([this] {
@@ -171,7 +171,7 @@ class CTestToolSettingsPage final : public Core::IOptionsPage
 public:
     CTestToolSettingsPage()
     {
-        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("255.CTest")));
+        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix("255.CTest"));
         setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
         setDisplayName(Tr::tr("CTest"));
         setSettingsProvider([] { return &theCTestTool(); });

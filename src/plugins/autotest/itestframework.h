@@ -30,10 +30,9 @@ public:
     ITestBase();
     virtual ~ITestBase() = default;
 
-    const char *name() const { return m_name; }
     QString displayName() const { return m_displayName; }
     TestBaseType type() const { return m_type; }
-    Utils::Id id() const;
+    Utils::Id id() const { return m_id; }
     int priority() const { return m_priority; }
 
     bool active() const { return m_active; }
@@ -48,7 +47,7 @@ protected:
     void setPriority(int priority) { m_priority = priority; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setType(const TestBaseType type) { m_type = type; }
-    void setName(const char *name) { m_name = name; }
+    void setId(const Utils::Id id) { m_id = id; }
 
     virtual ITestTreeItem *createRootNode() = 0;
 
@@ -58,7 +57,7 @@ private:
     TestBaseType m_type = None;
     int m_priority = 0;
     QString m_displayName;
-    const char *m_name = nullptr;
+    Utils::Id m_id;
 
     friend class ITestFramework;
     friend class ITestTool;

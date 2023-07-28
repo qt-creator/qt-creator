@@ -9,7 +9,7 @@ namespace Autotest {
 namespace QtTest {
 namespace Constants {
 
-const char FRAMEWORK_NAME[]              = "QtTest";
+const char FRAMEWORK_ID[]                = "AutoTest.Framework.QtTest";
 const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Qt Test");
 const unsigned FRAMEWORK_PRIORITY        = 1;
 

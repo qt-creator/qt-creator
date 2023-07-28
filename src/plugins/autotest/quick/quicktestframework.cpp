@@ -18,7 +18,7 @@ QuickTestFramework &theQuickTestFramework()
 
 QuickTestFramework::QuickTestFramework()
 {
-    setName(QuickTest::Constants::FRAMEWORK_NAME);
+    setId(QuickTest::Constants::FRAMEWORK_ID);
     setDisplayName(Tr::tr("Quick Test"));
     setPriority(5);
 }

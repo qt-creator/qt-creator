@@ -11,7 +11,7 @@ namespace Autotest {
 namespace QuickTest {
 namespace Constants {
 
-const char FRAMEWORK_NAME[]              = "QtQuickTest";
+const char FRAMEWORK_ID[]                = "Autotest.Framework.QtQuickTest";
 
 } // namespace Constants
 } // namespace QuickTest

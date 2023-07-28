@@ -28,7 +28,7 @@ BoostTestFramework::BoostTestFramework()
 {
     setActive(true);
     setSettingsGroups("Autotest", "BoostTest");
-    setName(BoostTest::Constants::FRAMEWORK_NAME);
+    setId(BoostTest::Constants::FRAMEWORK_ID);
     setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
     setPriority(BoostTest::Constants::FRAMEWORK_PRIORITY);
 
@@ -144,9 +144,8 @@ class BoostSettingsPage final : public Core::IOptionsPage
 public:
     BoostSettingsPage()
     {
-        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("%1.%2")
-            .arg(BoostTest::Constants::FRAMEWORK_PRIORITY)
-            .arg(BoostTest::Constants::FRAMEWORK_NAME)));
+        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("%1.Boost")
+            .arg(BoostTest::Constants::FRAMEWORK_PRIORITY)));
         setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
         setDisplayName(Tr::tr(BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
         setSettingsProvider([] { return &theBoostTestFramework() ; });

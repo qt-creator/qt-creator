@@ -32,7 +32,7 @@ GTestFramework::GTestFramework()
 {
     setActive(true);
     setSettingsGroups("Autotest", "GTest");
-    setName(GTest::Constants::FRAMEWORK_NAME);
+    setId(GTest::Constants::FRAMEWORK_ID);
     setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
     setPriority(GTest::Constants::FRAMEWORK_PRIORITY);
 
@@ -130,8 +130,7 @@ GTestFramework::GTestFramework()
                                == GTest::Constants::GTestFilter);
     });
     connect(this, &AspectContainer::applied, this, [] {
-        Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
-        TestTreeModel::instance()->rebuild({id});
+        TestTreeModel::instance()->rebuild({GTest::Constants::FRAMEWORK_ID});
     });
 }
 
@@ -178,9 +177,8 @@ class GTestSettingsPage final : public Core::IOptionsPage
 public:
     GTestSettingsPage()
     {
-        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("%1.%2")
-            .arg(GTest::Constants::FRAMEWORK_PRIORITY)
-            .arg(GTest::Constants::FRAMEWORK_NAME)));
+        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("%1.GTest")
+            .arg(GTest::Constants::FRAMEWORK_PRIORITY)));
         setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
         setDisplayName(Tr::tr(GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
         setSettingsProvider([] { return &theGTestFramework(); });

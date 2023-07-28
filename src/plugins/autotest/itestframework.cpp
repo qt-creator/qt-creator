@@ -15,11 +15,6 @@ namespace Autotest {
 ITestBase::ITestBase()
 {}
 
-Id ITestBase::id() const
-{
-    return Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
-}
-
 void ITestBase::resetRootNode()
 {
     if (!m_rootNode)

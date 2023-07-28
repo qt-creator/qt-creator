@@ -28,7 +28,7 @@ QtTestFramework &theQtTestFramework()
 QtTestFramework::QtTestFramework()
 {
     setActive(true);
-    setName(QtTest::Constants::FRAMEWORK_NAME);
+    setId(QtTest::Constants::FRAMEWORK_ID);
     setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
     setPriority(QtTest::Constants::FRAMEWORK_PRIORITY);
     setSettingsGroups("Autotest", "QtTest");
@@ -144,9 +144,8 @@ class QtTestSettingPage final : public Core::IOptionsPage
 public:
     QtTestSettingPage()
     {
-        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("%1.%2")
-            .arg(QtTest::Constants::FRAMEWORK_PRIORITY)
-            .arg(QtTest::Constants::FRAMEWORK_NAME)));
+        setId(Id(Constants::SETTINGSPAGE_PREFIX).withSuffix(QString("%1.QtTest")
+            .arg(QtTest::Constants::FRAMEWORK_PRIORITY)));
         setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
         setDisplayName(Tr::tr(QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
         setSettingsProvider([] { return &theQtTestFramework(); });

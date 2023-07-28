@@ -130,8 +130,8 @@ static ResultHooks::FindTestItemHook findTestItemHook(const FilePath &projectFil
 {
     return [=](const TestResult &result) -> ITestTreeItem * {
         const Id id = type == TestType::QtTest
-                ? Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME)
-                : Id(Constants::FRAMEWORK_PREFIX).withSuffix(QuickTest::Constants::FRAMEWORK_NAME);
+                ? Id(QtTest::Constants::FRAMEWORK_ID)
+                : Id(QuickTest::Constants::FRAMEWORK_ID);
         ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
         QTC_ASSERT(framework, return nullptr);
         const TestTreeItem *rootNode = framework->rootNode();
@@ -151,8 +151,8 @@ struct QtTestData
     TestType m_type;
     QString m_function;
     QString m_dataTag;
-    bool isTestFunction() const { return !m_function.isEmpty() && m_dataTag.isEmpty(); };
-    bool isDataTag() const { return !m_function.isEmpty() && !m_dataTag.isEmpty(); };
+    bool isTestFunction() const { return !m_function.isEmpty() && m_dataTag.isEmpty(); }
+    bool isDataTag() const { return !m_function.isEmpty() && !m_dataTag.isEmpty(); }
 };
 
 static ResultHooks::DirectParentHook directParentHook(const QString &functionName,
