@@ -69,12 +69,10 @@ void SimulatorUvscServerProvider::toMap(QVariantMap &data) const
     data.insert(limitSpeedKeyC, m_limitSpeed);
 }
 
-bool SimulatorUvscServerProvider::fromMap(const QVariantMap &data)
+void SimulatorUvscServerProvider::fromMap(const QVariantMap &data)
 {
-    if (!UvscServerProvider::fromMap(data))
-        return false;
+    UvscServerProvider::fromMap(data);
     m_limitSpeed = data.value(limitSpeedKeyC).toBool();
-    return true;
 }
 
 bool SimulatorUvscServerProvider::operator==(const IDebugServerProvider &other) const

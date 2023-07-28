@@ -69,7 +69,7 @@ protected:
     Utils::FilePath buildProjectFilePath(Debugger::DebuggerRunTool *runTool) const;
     Utils::FilePath buildOptionsFilePath(Debugger::DebuggerRunTool *runTool) const;
 
-    bool fromMap(const QVariantMap &data) override;
+    void fromMap(const QVariantMap &data) override;
 
     // uVision specific stuff.
     virtual Utils::FilePath projectFilePath(Debugger::DebuggerRunTool *runTool,

@@ -179,17 +179,14 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
     return new GdbServerProviderRunner(runControl, command());
 }
 
-bool GdbServerProvider::fromMap(const QVariantMap &data)
+void GdbServerProvider::fromMap(const QVariantMap &data)
 {
-    if (!IDebugServerProvider::fromMap(data))
-        return false;
-
+    IDebugServerProvider::fromMap(data);
     m_startupMode = static_cast<StartupMode>(data.value(startupModeKeyC).toInt());
     m_peripheralDescriptionFile = FilePath::fromSettings(data.value(peripheralDescriptionFileKeyC));
     m_initCommands = data.value(initCommandsKeyC).toString();
     m_resetCommands = data.value(resetCommandsKeyC).toString();
     m_useExtendedRemote = data.value(useExtendedRemoteKeyC).toBool();
-    return true;
 }
 
 // GdbServerProviderConfigWidget

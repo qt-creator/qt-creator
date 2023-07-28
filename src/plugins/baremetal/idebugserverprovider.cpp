@@ -166,7 +166,7 @@ void IDebugServerProvider::resetId()
     m_id = createId(m_id);
 }
 
-bool IDebugServerProvider::fromMap(const QVariantMap &data)
+void IDebugServerProvider::fromMap(const QVariantMap &data)
 {
     m_id = data.value(idKeyC).toString();
     m_displayName = data.value(displayNameKeyC).toString();
@@ -174,7 +174,6 @@ bool IDebugServerProvider::fromMap(const QVariantMap &data)
                 data.value(engineTypeKeyC, NoEngineType).toInt());
     m_channel.setHost(data.value(hostKeyC).toString());
     m_channel.setPort(data.value(portKeyC).toInt());
-    return true;
 }
 
 void IDebugServerProvider::setConfigurationWidgetCreator(const std::function<IDebugServerProviderConfigWidget *()> &configurationWidgetCreator)
@@ -209,10 +208,8 @@ IDebugServerProvider *IDebugServerProviderFactory::create() const
 IDebugServerProvider *IDebugServerProviderFactory::restore(const QVariantMap &data) const
 {
     IDebugServerProvider *p = m_creator();
-    if (p->fromMap(data))
-        return p;
-    delete p;
-    return nullptr;
+    p->fromMap(data);
+    return p;
 }
 
 bool IDebugServerProviderFactory::canRestore(const QVariantMap &data) const

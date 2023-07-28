@@ -37,7 +37,7 @@ class JLinkUvscServerProvider final : public UvscServerProvider
 {
 public:
     void toMap(QVariantMap &data) const final;
-    bool fromMap(const QVariantMap &data) final;
+    void fromMap(const QVariantMap &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;
     Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,

@@ -55,7 +55,7 @@ protected:
     void setResetCommands(const QString &);
     void setUseExtendedRemote(bool);
 
-    bool fromMap(const QVariantMap &data) override;
+    void fromMap(const QVariantMap &data) override;
 
     StartupMode m_startupMode = StartupOnNetwork;
     Utils::FilePath m_peripheralDescriptionFile;

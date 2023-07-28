@@ -134,16 +134,13 @@ void OpenOcdGdbServerProvider::toMap(QVariantMap &data) const
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
 }
 
-bool OpenOcdGdbServerProvider::fromMap(const QVariantMap &data)
+void OpenOcdGdbServerProvider::fromMap(const QVariantMap &data)
 {
-    if (!GdbServerProvider::fromMap(data))
-        return false;
-
+    GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_rootScriptsDir = FilePath::fromSettings(data.value(rootScriptsDirKeyC));
     m_configurationFile = FilePath::fromSettings(data.value(configurationFileKeyC));
     m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
-    return true;
 }
 
 bool OpenOcdGdbServerProvider::operator==(const IDebugServerProvider &other) const

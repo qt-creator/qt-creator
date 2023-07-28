@@ -124,11 +124,9 @@ void StLinkUtilGdbServerProvider::toMap(QVariantMap &data) const
     data.insert(connectUnderResetKeyC, m_connectUnderReset);
 }
 
-bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
+void StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
 {
-    if (!GdbServerProvider::fromMap(data))
-        return false;
-
+    GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_verboseLevel = data.value(verboseLevelKeyC).toInt();
     m_extendedMode = data.value(extendedModeKeyC).toBool();
@@ -136,7 +134,6 @@ bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
     m_transport = static_cast<TransportLayer>(
                 data.value(transportLayerKeyC).toInt());
     m_connectUnderReset = data.value(connectUnderResetKeyC).toBool();
-    return true;
 }
 
 bool StLinkUtilGdbServerProvider::operator==(const IDebugServerProvider &other) const

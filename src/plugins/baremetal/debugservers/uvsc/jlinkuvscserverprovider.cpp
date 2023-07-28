@@ -164,12 +164,10 @@ void JLinkUvscServerProvider::toMap(QVariantMap &data) const
     data.insert(adapterOptionsKeyC, m_adapterOpts.toMap());
 }
 
-bool JLinkUvscServerProvider::fromMap(const QVariantMap &data)
+void JLinkUvscServerProvider::fromMap(const QVariantMap &data)
 {
-    if (!UvscServerProvider::fromMap(data))
-        return false;
+    UvscServerProvider::fromMap(data);
     m_adapterOpts.fromMap(data.value(adapterOptionsKeyC).toMap());
-    return true;
 }
 
 bool JLinkUvscServerProvider::operator==(const IDebugServerProvider &other) const

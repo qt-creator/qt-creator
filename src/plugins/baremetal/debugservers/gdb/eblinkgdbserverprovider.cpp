@@ -158,16 +158,13 @@ void EBlinkGdbServerProvider::toMap(QVariantMap &data) const
     data.insert(gdbNotUseCacheC, m_gdbNotUseCache);
 }
 
-bool EBlinkGdbServerProvider::fromMap(const QVariantMap &data)
+void EBlinkGdbServerProvider::fromMap(const QVariantMap &data)
 {
-    if (!GdbServerProvider::fromMap(data))
-        return false;
-
+    GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_verboseLevel = data.value(verboseLevelKeyC).toInt();
     m_interfaceResetOnConnect = data.value(interfaceResetOnConnectC).toBool();
-    m_interfaceType = static_cast<InterfaceType>(
-                data.value(interfaceTypeC).toInt());
+    m_interfaceType = static_cast<InterfaceType>(data.value(interfaceTypeC).toInt());
     m_deviceScript = FilePath::fromSettings(data.value(deviceScriptC));
     m_interfaceResetOnConnect = data.value(interfaceResetOnConnectC).toBool();
     m_interfaceSpeed = data.value(interfaceSpeedC).toInt();
@@ -176,8 +173,6 @@ bool EBlinkGdbServerProvider::fromMap(const QVariantMap &data)
     m_targetDisableStack = data.value(targetDisableStackC).toBool();
     m_gdbShutDownAfterDisconnect = data.value(gdbShutDownAfterDisconnectC).toBool();
     m_gdbNotUseCache = data.value(gdbNotUseCacheC).toBool();
-
-    return true;
 }
 
 bool EBlinkGdbServerProvider::operator==(const IDebugServerProvider &other) const

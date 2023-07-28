@@ -22,7 +22,7 @@ public:
     enum InterfaceType { SWD, JTAG };
 
     void toMap(QVariantMap &data) const final;
-    bool fromMap(const QVariantMap &data) final;
+    void fromMap(const QVariantMap &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;
 

@@ -130,11 +130,9 @@ void JLinkGdbServerProvider::toMap(QVariantMap &data) const
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
 }
 
-bool JLinkGdbServerProvider::fromMap(const QVariantMap &data)
+void JLinkGdbServerProvider::fromMap(const QVariantMap &data)
 {
-    if (!GdbServerProvider::fromMap(data))
-        return false;
-
+    GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_jlinkDevice = data.value(jlinkDeviceKeyC).toString();
     m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
@@ -142,7 +140,6 @@ bool JLinkGdbServerProvider::fromMap(const QVariantMap &data)
     m_jlinkHostAddr = data.value(jlinkHostInterfaceIPAddressKeyC).toString();
     m_jlinkTargetIface = data.value(jlinkTargetInterfaceKeyC).toString();
     m_jlinkTargetIfaceSpeed = data.value(jlinkTargetInterfaceSpeedKeyC).toString();
-    return true;
 }
 
 bool JLinkGdbServerProvider::operator==(const IDebugServerProvider &other) const

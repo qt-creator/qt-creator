@@ -219,14 +219,12 @@ ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runCont
     return new UvscServerProviderRunner(runControl, r);
 }
 
-bool UvscServerProvider::fromMap(const QVariantMap &data)
+void UvscServerProvider::fromMap(const QVariantMap &data)
 {
-    if (!IDebugServerProvider::fromMap(data))
-        return false;
+    IDebugServerProvider::fromMap(data);
     m_toolsIniFile = FilePath::fromSettings(data.value(toolsIniKeyC));
     m_deviceSelection.fromMap(data.value(deviceSelectionKeyC).toMap());
     m_driverSelection.fromMap(data.value(driverSelectionKeyC).toMap());
-    return true;
 }
 
 FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool, QString &errorMessage) const

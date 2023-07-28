@@ -120,12 +120,10 @@ void StLinkUvscServerProvider::toMap(QVariantMap &data) const
     data.insert(adapterOptionsKeyC, m_adapterOpts.toMap());
 }
 
-bool StLinkUvscServerProvider::fromMap(const QVariantMap &data)
+void StLinkUvscServerProvider::fromMap(const QVariantMap &data)
 {
-    if (!UvscServerProvider::fromMap(data))
-        return false;
+    UvscServerProvider::fromMap(data);
     m_adapterOpts.fromMap(data.value(adapterOptionsKeyC).toMap());
-    return true;
 }
 
 bool StLinkUvscServerProvider::operator==(const IDebugServerProvider &other) const
