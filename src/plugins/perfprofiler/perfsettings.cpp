@@ -422,8 +422,8 @@ PerfSettings::PerfSettings(ProjectExplorer::Target *target)
         return Column { widget };
     });
 
-    readSettings();
     readGlobalSettings();
+    readSettings();
 }
 
 PerfSettings::~PerfSettings()
