@@ -47,9 +47,12 @@ QSettings *BaseAspect::settings()
     return theSettings;
 }
 
-namespace Internal {
+BaseAspect::Changes::Changes()
+{
+    memset(this, 0, sizeof(*this));
+}
 
-class BaseAspectPrivate
+class Internal::BaseAspectPrivate
 {
 public:
     explicit BaseAspectPrivate(AspectContainer *container) : m_container(container) {}
@@ -81,8 +84,6 @@ public:
     BaseAspect::DataCloner m_dataCloner;
     QList<BaseAspect::DataExtractor> m_dataExtractors;
 };
-
-} // Internal
 
 /*!
     \class Utils::BaseAspect
@@ -144,26 +145,14 @@ QVariant BaseAspect::variantValue() const
 
     Prefer the typed setValue() of derived classes.
 */
-void BaseAspect::setVariantValue(const QVariant &value)
+void BaseAspect::setVariantValue(const QVariant &value, Announcement howToAnnounce)
 {
     Q_UNUSED(value)
+    Q_UNUSED(howToAnnounce)
     QTC_CHECK(false);
 }
 
 void BaseAspect::setDefaultVariantValue(const QVariant &value)
-{
-    Q_UNUSED(value)
-    QTC_CHECK(false);
-}
-
-/*!
-    \internal
-
-    Sets \a value without emitting signals.
-
-    Prefer the typed setValueQuietly() of derived classes.
-*/
-void BaseAspect::setVariantValueQuietly(const QVariant &value)
 {
     Q_UNUSED(value)
     QTC_CHECK(false);
@@ -488,26 +477,18 @@ void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect)
 */
 void BaseAspect::apply()
 {
-    if (isDirty()) {
-        silentApply();
-        if (hasAction())
-            emit action()->triggered(variantValue().toBool());
-        emit changed();
-    }
+    // We assume m_buffer to reflect current gui state as invariant after signalling settled down.
+    // It's an aspect (-subclass) implementation problem if this doesn't hold. Fix it up and bark.
+    QTC_CHECK(!guiToBuffer());
+
+    if (!bufferToInternal()) // Nothing to do.
+        return;
+
+    Changes changes;
+    changes.internalFromBuffer = true;
+    announceChanges(changes);
 }
 
-/*!
-    Updates this aspect's value from user-initiated changes in the widget.
-
-    \returns whether the value changed. Does not emit signals.
-*/
-
-void BaseAspect::silentApply()
-{
-    guiToBuffer();
-    bufferToInternal();
-    internalToExternal();
-}
 /*!
     Discard user changes in the widget and restore widget contents from
     aspect's value.
@@ -530,6 +511,21 @@ void BaseAspect::finish()
 bool BaseAspect::hasAction() const
 {
     return d->m_action != nullptr;
+}
+
+void BaseAspect::announceChanges(Changes changes, Announcement howToAnnounce)
+{
+    if (howToAnnounce == BeQuiet)
+        return;
+
+    if (changes.bufferFromInternal || changes.bufferFromOutside || changes.bufferFromGui)
+        emit volatileValueChanged();
+
+    if (changes.internalFromOutside || changes.internalFromBuffer) {
+        emit changed();
+        if (hasAction())
+            emit action()->triggered(variantValue().toBool());
+    }
 }
 
 bool BaseAspect::isDirty()
@@ -578,7 +574,7 @@ void BaseAspect::fromMap(const QVariantMap &map)
     if (settingsKey().isEmpty())
         return;
     const QVariant val = map.value(settingsKey(), toSettingsValue(defaultVariantValue()));
-    setVariantValue(fromSettingsValue(val));
+    setVariantValue(fromSettingsValue(val), BeQuiet);
 }
 
 /*!
@@ -596,7 +592,7 @@ void BaseAspect::readSettings()
     if (settingsKey().isEmpty())
         return;
     const QVariant val = settings()->value(settingsKey());
-    setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue());
+    setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue(), BeQuiet);
 }
 
 void BaseAspect::writeSettings() const
@@ -908,7 +904,7 @@ void StringAspect::setValueAcceptor(StringAspect::ValueAcceptor &&acceptor)
 void StringAspect::fromMap(const QVariantMap &map)
 {
     if (!settingsKey().isEmpty())
-        setValueQuietly(map.value(settingsKey(), defaultValue()).toString());
+        setValue(map.value(settingsKey(), defaultValue()).toString(), BeQuiet);
     d->m_checkerImpl.fromMap(map);
 }
 
@@ -1112,6 +1108,12 @@ void StringAspect::addToLayout(LayoutItem &parent)
     d->m_checkerImpl.addToLayoutLast(parent);
 }
 
+QString StringAspect::expandedValue() const
+{
+    // FIXME: Use macroexpander here later.
+    return m_internal;
+}
+
 bool StringAspect::guiToBuffer()
 {
     if (d->m_lineEditDisplay)
@@ -1266,9 +1268,14 @@ QString FilePathAspect::value() const
     a file path.
 */
 
-void FilePathAspect::setValue(const FilePath &filePath)
+void FilePathAspect::setValue(const FilePath &filePath, Announcement howToAnnounce)
 {
-    TypedAspect::setValue(filePath.toUserOutput());
+    TypedAspect::setValue(filePath.toUserOutput(), howToAnnounce);
+}
+
+void FilePathAspect::setValue(const QString &filePath, Announcement howToAnnounce)
+{
+    TypedAspect::setValue(filePath, howToAnnounce);
 }
 
 void FilePathAspect::setDefaultValue(const FilePath &filePath)
@@ -1402,7 +1409,7 @@ void FilePathAspect::addToLayout(Layouting::LayoutItem &parent)
 void FilePathAspect::fromMap(const QVariantMap &map)
 {
     if (!settingsKey().isEmpty())
-        setValueQuietly(map.value(settingsKey(), defaultValue()).toString());
+        setValue(map.value(settingsKey(), defaultValue()).toString(), BeQuiet);
     d->m_checkerImpl.fromMap(map);
 }
 
@@ -2545,7 +2552,7 @@ void AspectContainer::finish()
 void AspectContainer::reset()
 {
     for (BaseAspect *aspect : std::as_const(d->m_items))
-        aspect->setVariantValueQuietly(aspect->defaultVariantValue());
+        aspect->setVariantValue(aspect->defaultVariantValue());
 }
 
 void AspectContainer::setAutoApply(bool on)
@@ -2639,23 +2646,6 @@ bool BaseAspect::bufferToInternal()
 
 
 bool BaseAspect::internalToBuffer()
-{
-    return false;
-}
-
-/*
-    Applies common postprocessing like macro expansion.
-*/
-
-bool BaseAspect::internalToExternal()
-{
-    return false;
-}
-
-/*
-    Mirrors externally visible value to internal volatile value.
-*/
-bool BaseAspect::externalToInternal()
 {
     return false;
 }

@@ -60,7 +60,7 @@ void RegisterPostMortemAction::readSettings()
         registered = isRegistered(handle, debuggerCall(), &errorMessage);
     if (handle)
         RegCloseKey(handle);
-    setValueQuietly(registered);
+    setValue(registered, BaseAspect::BeQuiet);
 }
 
 } // namespace Internal

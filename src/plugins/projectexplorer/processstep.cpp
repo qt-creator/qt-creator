@@ -37,7 +37,7 @@ public:
         arguments.setLabelText(Tr::tr("Arguments:"));
 
         workingDirectory.setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
-        workingDirectory.setValue(Constants::DEFAULT_WORKING_DIR);
+        workingDirectory.setValue(QString(Constants::DEFAULT_WORKING_DIR));
         workingDirectory.setLabelText(Tr::tr("Working directory:"));
         workingDirectory.setExpectedKind(PathChooser::Directory);
 
