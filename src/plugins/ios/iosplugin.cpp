@@ -12,7 +12,7 @@
 #include "iosdsymbuildstep.h"
 #include "iosqtversion.h"
 #include "iosrunner.h"
-#include "iossettingswidget.h"
+#include "iossettingspage.h"
 #include "iossimulator.h"
 #include "iostoolhandler.h"
 #include "iostr.h"
