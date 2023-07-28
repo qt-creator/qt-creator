@@ -490,6 +490,12 @@ void FindToolBar::adaptToCandidate()
     updateActions();
     if (findToolBarPlaceHolder() == FindToolBarPlaceHolder::getCurrent()) {
         m_currentDocumentFind->acceptCandidate();
+        if (QWidget *widget = m_currentDocumentFind->currentWidget()) {
+            QFont f = font();
+            f.setFamily(widget->font().family());
+            m_findEdit->setFont(f);
+            m_replaceEdit->setFont(f);
+        }
         if (isVisible() && m_currentDocumentFind->isEnabled())
             m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
     }
