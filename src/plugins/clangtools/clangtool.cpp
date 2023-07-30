@@ -644,7 +644,7 @@ Tasking::Group ClangTool::runRecipe(const RunSettings &runSettings,
                                     const ClangDiagnosticConfig &diagnosticConfig,
                                     const FileInfos &fileInfos, bool buildBeforeAnalysis)
 {
-    m_filesCount = fileInfos.size();
+    m_filesCount = int(fileInfos.size());
 
     using namespace Tasking;
 
