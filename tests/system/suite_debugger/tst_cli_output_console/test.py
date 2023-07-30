@@ -12,7 +12,11 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    createProject_Qt_Console(tempDir(), project)
+    targets = []
+    if platform.system() in ('Microsoft', 'Windows'):
+        # Qt5.10 has constructs that do not work on Win because of limitation to older C++
+        targets = [Targets.DESKTOP_5_14_1_DEFAULT, Targets.DESKTOP_6_2_4]
+    createProject_Qt_Console(tempDir(), project, targets=targets)
 
     mainEditor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     replaceEditorContent(mainEditor, "")

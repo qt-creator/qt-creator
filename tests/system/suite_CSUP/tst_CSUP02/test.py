@@ -41,8 +41,9 @@ def main():
             listView = waitForObject(":popupFrame_Proposal_QListView")
             shownProposals = dumpItems(listView.model())
             usedProposal = "class derived from QObject"
-            expectedProposals = ["class", "class ", "class template",
+            expectedProposals = ["class ", "class template",
                                  usedProposal, "class derived from QWidget"]
+            expectedProposals += [" class"] if useClang else ["class"]
             test.xcompare(len(shownProposals), len(expectedProposals),  # QTCREATORBUG-23159
                           "Number of proposed templates")
             test.verify(set(expectedProposals).issubset(set(shownProposals)),

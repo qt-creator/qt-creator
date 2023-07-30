@@ -260,10 +260,12 @@ void TerminalWidget::closeTerminal()
     deleteLater();
 }
 
-void TerminalWidget::writeToPty(const QByteArray &data)
+qint64 TerminalWidget::writeToPty(const QByteArray &data)
 {
     if (m_process && m_process->isRunning())
-        m_process->writeRaw(data);
+        return m_process->writeRaw(data);
+
+    return data.size();
 }
 
 void TerminalWidget::resizePty(QSize newSize)

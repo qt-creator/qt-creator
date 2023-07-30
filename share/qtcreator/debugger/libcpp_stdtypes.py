@@ -163,8 +163,8 @@ def qdump__std____1__stack(d, value):
     d.putBetterType(value.type)
 
 
-def GetChildMemberWithName(value: DumperBase.Value, name: str) -> DumperBase.Value:
-    members: list[DumperBase.Value] = value.members(True)
+def GetChildMemberWithName(value, name):
+    members = value.members(True)
 
     for member in members:
         if member.name == name:
@@ -172,8 +172,8 @@ def GetChildMemberWithName(value: DumperBase.Value, name: str) -> DumperBase.Val
     return None
 
 
-def GetIndexOfChildWithName(value: DumperBase.Value, name: str) -> int:
-    members: list[DumperBase.Value] = value.members(True)
+def GetIndexOfChildWithName(value, name):
+    members = value.members(True)
 
     for i, member in enumerate(members):
         if member.name == name:
@@ -229,8 +229,8 @@ def std_1_string_dumper_v2(d, value):
     if not Short_Sp:
         raise Exception("Could not find __s")
 
-    Is_Long: DumperBase.Value = GetChildMemberWithName(Short_Sp, "__is_long_")
-    Size_Sp: DumperBase.Value = GetChildMemberWithName(Short_Sp, "__size_")
+    Is_Long = GetChildMemberWithName(Short_Sp, "__is_long_")
+    Size_Sp = GetChildMemberWithName(Short_Sp, "__size_")
     if not Size_Sp:
         raise Exception("Could not find __size_")
 

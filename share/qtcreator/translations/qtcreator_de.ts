@@ -31686,48 +31686,48 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <name>QtC::Haskell</name>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Release</translation>
+        <translation>Release</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Build directory:</source>
-        <translation type="unfinished">Build-Verzeichnis:</translation>
+        <translation>Build-Verzeichnis:</translation>
     </message>
     <message>
         <source>GHCi</source>
-        <translation type="unfinished"></translation>
+        <translation>GHCi</translation>
     </message>
     <message>
         <source>Run GHCi</source>
-        <translation type="unfinished"></translation>
+        <translation>GHCi ausführen</translation>
     </message>
     <message>
         <source>Haskell</source>
         <comment>SnippetProvider</comment>
-        <translation type="unfinished"></translation>
+        <translation>Haskell</translation>
     </message>
     <message>
         <source>Executable</source>
-        <translation type="unfinished">Ausführbare Datei</translation>
+        <translation>Ausführbare Datei</translation>
     </message>
     <message>
         <source>Haskell</source>
-        <translation type="unfinished"></translation>
+        <translation>Haskell</translation>
     </message>
     <message>
         <source>Stack executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Stack-Datei:</translation>
     </message>
     <message>
         <source>Choose Stack Executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Stack auswählen</translation>
     </message>
     <message>
         <source>Stack Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen mit Stack</translation>
     </message>
 </context>
 <context>
@@ -46082,7 +46082,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Checking that files can be created in %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfe, ob Dateien in %1 erstellt werden können...</translation>
     </message>
     <message>
         <source>Files can be created in /var/run.</source>
@@ -46090,11 +46090,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>An error occurred while checking that files can be created in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Überprüfen, ob Dateien in %1 erstellt werden können, ist ein Fehler aufgetreten.</translation>
     </message>
     <message>
         <source>Files cannot be created in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>In %1 können keine Dateien erstellt werden.</translation>
     </message>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
@@ -46173,34 +46173,34 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>No files need to be uploaded.</source>
-        <translation type="unfinished">Es müssen keine Dateien hochgeladen werden.</translation>
+        <translation>Es müssen keine Dateien hochgeladen werden.</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) need to be uploaded.</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Eine Datei muss hochgeladen werden.</numerusform>
             <numerusform>%n Dateien müssen hochgeladen werden.</numerusform>
         </translation>
     </message>
     <message>
         <source>Local file &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Es gibt keine lokale Datei &quot;%1&quot;.</translation>
+        <translation>Es gibt keine lokale Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Remote chmod failed for file &quot;%1&quot;: %2</source>
-        <translation type="unfinished">&quot;chmod&quot; für die entfernte Datei &quot;%1&quot; ist fehlgeschlagen: %2</translation>
+        <translation>&quot;chmod&quot; für die entfernte Datei &quot;%1&quot; ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>No device configuration set.</source>
-        <translation type="unfinished">Es ist keine Gerätekonfiguration eingestellt.</translation>
+        <translation>Es ist keine Gerätekonfiguration gesetzt.</translation>
     </message>
     <message>
         <source>No deployment action necessary. Skipping.</source>
-        <translation type="unfinished">Alle Dateien sind auf dem aktuellen Stand, es ist keine Installation erforderlich.</translation>
+        <translation>Alle Dateien sind auf dem aktuellen Stand, es ist keine Installation erforderlich.</translation>
     </message>
     <message>
         <source>All files successfully deployed.</source>
-        <translation type="unfinished">Alle Dateien erfolgreich versandt.</translation>
+        <translation>Deployment für alle Dateien erfolgreich.</translation>
     </message>
     <message>
         <source>Deploy Qt to QNX Device</source>
@@ -46208,7 +46208,7 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Create Kit for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit für %1 erstellen</translation>
     </message>
     <message>
         <source>Configuration Information:</source>
@@ -46232,11 +46232,11 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Compiler:</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler:</translation>
     </message>
     <message>
         <source>Architectures:</source>
-        <translation type="unfinished"></translation>
+        <translation>Architekturen:</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -46252,11 +46252,11 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Configuration already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration existiert bereits.</translation>
     </message>
     <message>
         <source>Configuration is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration ist ungültig.</translation>
     </message>
     <message>
         <source>Remove QNX Configuration</source>
@@ -46957,7 +46957,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Key deployment failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment des Schlüssels fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Deployment finished successfully.</source>
@@ -47003,7 +47003,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Uploading package to device...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade Paket auf das Gerät hoch...</translation>
     </message>
     <message>
         <source>Successfully uploaded package file.</source>
@@ -47015,19 +47015,19 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Successfully installed package file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Paketdatei wurde erfolgreich installiert.</translation>
     </message>
     <message>
         <source>Failed to start &quot;stat&quot;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;stat&quot; konnte nicht gestartet werden: %1</translation>
     </message>
     <message>
         <source>&quot;stat&quot; crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;stat&quot; ist abgestürzt.</translation>
     </message>
     <message>
         <source>&quot;stat&quot; failed with exit code %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;stat&quot; ist mit Rückgabewert %1 fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Failed to retrieve remote timestamp for file &quot;%1&quot;. Incremental deployment will not work. Error message was: %2</source>
@@ -47066,7 +47066,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Ignore missing files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Dateien ignorieren</translation>
     </message>
     <message>
         <source>Upload files via SFTP</source>
@@ -47074,19 +47074,19 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Sending echo to device...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sende Echo zum Gerät...</translation>
     </message>
     <message>
         <source>echo failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Echo fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>echo failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Echo fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Device replied to echo with expected contents.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät hat mit dem erwarteten Inhalt auf das Echo geantwortet.</translation>
     </message>
     <message>
         <source>Checking kernel version...</source>
@@ -47110,7 +47110,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Device replied to echo with unexpected contents: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät hat auf das Echo mit unerwartetem Inhalt geantwortet: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>The following specified ports are currently in use: %1</source>
@@ -47119,56 +47119,62 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     <message>
         <source>Some tools will not work out of the box.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Einige Werkzeuge werden nicht ohne weitere Einstellungen funktionieren.
+</translation>
     </message>
     <message>
         <source>Checking whether &quot;%1&quot; works...</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfe, ob &quot;%1&quot; funktioniert...</translation>
     </message>
     <message>
         <source>Failed to start &quot;%1&quot;: %2
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht gestartet werden: %2
+</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; ist abgestürzt.
+</translation>
     </message>
     <message>
         <source>&quot;%1&quot; failed with exit code %2: %3
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; ist mit Rückgabewert %2 fehlgeschlagen: %3
+</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is functional.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; funktioniert.
+</translation>
     </message>
     <message>
         <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; wird für das Deployment benutzt, da &quot;%2&quot; und &quot;%3&quot; nicht verfügbar sind.
+</translation>
     </message>
     <message>
         <source>Checking if required commands are available...</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfe Verfügbarkeit der benötigten Kommandos...</translation>
     </message>
     <message>
         <source>%1...</source>
-        <translation type="unfinished"></translation>
+        <translation>%1...</translation>
     </message>
     <message>
         <source>%1 found.</source>
-        <translation type="unfinished">%1 gefunden.</translation>
+        <translation>%1 gefunden.</translation>
     </message>
     <message>
         <source>An error occurred while checking for %1.</source>
-        <translation type="unfinished">Bei der Prüfung von %1 trat ein Fehler auf.</translation>
+        <translation>Bei der Überprüfung von %1 trat ein Fehler auf.</translation>
     </message>
     <message>
         <source>%1 not found.</source>
-        <translation type="unfinished">%1 nicht gefunden.</translation>
+        <translation>%1 nicht gefunden.</translation>
     </message>
     <message>
         <source>Deployment to this device will not work out of the box.
@@ -47182,7 +47188,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Deploy to Remote Linux Host</source>
-        <translation>Auf Linux-Mobilgerät ausführen</translation>
+        <translation>Deployment auf entferntes Linuxgerät</translation>
     </message>
     <message>
         <source>Installing package failed.</source>
@@ -47290,7 +47296,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>The device&apos;s SSH port number:</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Port des Geräts:</translation>
     </message>
     <message>
         <source>The username to log into the device:</source>
@@ -47326,11 +47332,12 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Source %1 and %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Source (verb) /etc/profile and $HOME/.profile</translatorcomment>
+        <translation>%1 und %2 einbeziehen</translation>
     </message>
     <message>
         <source>Direct</source>
-        <translation type="unfinished"></translation>
+        <translation>Direkt</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -47338,11 +47345,12 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>QML runtime executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei der QML-Runtime:</translation>
     </message>
     <message>
         <source>Access via:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>drop down with devices</translatorcomment>
+        <translation>Zugriff über:</translation>
     </message>
     <message>
         <source>Physical Device</source>
@@ -47402,62 +47410,65 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Cannot establish SSH connection: ssh binary &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">SSH-Verbindung kann nicht aufgebaut werden: Eine ausführbare SSH-Datei &quot;%1&quot; existiert nicht.</translation>
+        <translation>SSH-Verbindung kann nicht hergestellt werden: Eine ausführbare SSH-Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>Cannot establish SSH connection: Failed to create temporary directory for control socket: %1</source>
-        <translation type="unfinished">SSH-Verbindung kann nicht aufgebaut werden: Es konnte kein temporäres Verzeichnis für den Steuer-Socket angelegt werden: %1</translation>
+        <translation>SSH-Verbindung kann nicht hergestellt werden: Es konnte kein temporäres Verzeichnis für den Steuer-Socket angelegt werden: %1</translation>
     </message>
     <message>
         <source>Cannot establish SSH connection.
 Control process failed to start.</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Verbindung kann nicht hergestellt werden.
+Der Kontrollprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>SSH connection failure.</source>
-        <translation type="unfinished">SSH-Verbindungsfehler.</translation>
+        <translation>SSH-Verbindungsfehler.</translation>
     </message>
     <message>
         <source>SSH connection failure:</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Verbindungsfehler:</translation>
     </message>
     <message>
         <source>Remote Linux</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Linuxgerät</translation>
     </message>
     <message>
         <source>Failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Remote Linux Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Linuxgerät</translation>
     </message>
     <message>
         <source>&quot;%1&quot; failed to start: %2</source>
-        <translation type="unfinished">&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
+        <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
-        <translation type="unfinished">&quot;%1&quot; ist abgestürzt.</translation>
+        <translation>&quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
         <source>&quot;sftp&quot; binary &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare &quot;sftp&quot;-Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>Creating directory: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Verzeichnis: %1
+</translation>
     </message>
     <message>
         <source>Failed.</source>
-        <translation type="unfinished">Fehlgeschlagen.</translation>
+        <translation>Fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Copying %1/%2: %3 -&gt; %4
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere %1/%2: %3 -&gt; %4
+</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -47559,7 +47570,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Deploy via rsync: failed to create remote directories:</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment über rsync: Erstellen von entfernten Verzeichnissen ist fehlgeschlagen:</translation>
     </message>
     <message>
         <source>rsync failed to start: %1</source>
@@ -47583,7 +47594,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>rsync is only supported for transfers between different devices.</source>
-        <translation type="unfinished"></translation>
+        <translation>rsync wird nur für das Übertragen zwischen unterschiedlichen Geräten unterstützt.</translation>
     </message>
     <message>
         <source>Deploy files via rsync</source>
@@ -47591,7 +47602,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Install root:</source>
@@ -47599,43 +47610,43 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Clean install root first:</source>
-        <translation type="unfinished"></translation>
+        <translation>Install-Root zuerst bereinigen:</translation>
     </message>
     <message>
         <source>Full command line:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständige Kommandozeile:</translation>
     </message>
     <message>
         <source>Custom command line:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Kommandozeile:</translation>
     </message>
     <message>
         <source>Use custom command line instead:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Kommandozeile verwenden:</translation>
     </message>
     <message>
         <source>Install into temporary host directory</source>
-        <translation type="unfinished"></translation>
+        <translation>In temporäres Host-Verzeichnis installieren</translation>
     </message>
     <message>
         <source>You must provide an install root.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie müssen ein Installationsverzeichnis angeben.</translation>
     </message>
     <message>
         <source>The install root &quot;%1&quot; could not be cleaned.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Installationsverzeichnis &quot;%1&quot; konnte nicht bereinigt werden.</translation>
     </message>
     <message>
         <source>The install root &quot;%1&quot; could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Installationsverzeichnis &quot;%1&quot; konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>The &quot;make install&quot; step should probably not be last in the list of deploy steps. Consider moving it up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der &quot;make install&quot;-Schritt sollte wahrscheinlich nicht der letzte Deployment-Schritt sein. Ziehen Sie in Betracht, ihn nach oben zu verschieben.</translation>
     </message>
     <message>
         <source>You need to add an install statement to your CMakeLists.txt file for deployment to work.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie müssen zu Ihrer CMakeLists.txt-Datei eine &quot;install&quot;-Anweisung hinzufügen, damit das Deployment funktioniert.</translation>
     </message>
     <message>
         <source>Executable on device:</source>
@@ -47651,59 +47662,59 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>New Remote Linux Device Configuration Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrichtung der Konfiguration für neues entferntes Linuxgerät</translation>
     </message>
     <message>
         <source>SSH Key Configuration</source>
-        <translation type="unfinished">SSH-Schlüsselkonfiguration</translation>
+        <translation>SSH-Schlüsselkonfiguration</translation>
     </message>
     <message>
         <source>&amp;RSA</source>
-        <translation type="unfinished">&amp;RSA</translation>
+        <translation>&amp;RSA</translation>
     </message>
     <message>
         <source>ECDSA</source>
-        <translation type="unfinished">ECDSA</translation>
+        <translation>ECDSA</translation>
     </message>
     <message>
         <source>&amp;Generate And Save Key Pair</source>
-        <translation type="unfinished">&amp;Erzeuge und speichere Schlüsselpaar</translation>
+        <translation>&amp;Erzeuge und speichere Schlüsselpaar</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Einstellungen</translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <source>Key algorithm:</source>
-        <translation type="unfinished">Schlüsselalgorithmus:</translation>
+        <translation>Schlüsselalgorithmus:</translation>
     </message>
     <message>
         <source>Key &amp;size:</source>
-        <translation type="unfinished">Schlüssel&amp;länge:</translation>
+        <translation>Schlüssel&amp;länge:</translation>
     </message>
     <message>
         <source>Public key file:</source>
-        <translation type="unfinished">Öffentliche Schlüsseldatei:</translation>
+        <translation>Öffentliche Schlüsseldatei:</translation>
     </message>
     <message>
         <source>The ssh-keygen tool was not found.</source>
-        <translation type="unfinished">Das Programm &quot;ssh-keygen&quot; wurde nicht gefunden.</translation>
+        <translation>Das Programm &quot;ssh-keygen&quot; wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>Refusing to overwrite existing private key file &quot;%1&quot;.</source>
-        <translation type="unfinished">Die private Schlüsseldatei &quot;%1&quot; wird nicht überschrieben.</translation>
+        <translation>Die private Schlüsseldatei &quot;%1&quot; wird nicht überschrieben.</translation>
     </message>
     <message>
         <source>The ssh-keygen tool at &quot;%1&quot; failed: %2</source>
-        <translation type="unfinished">Das Programm &quot;ssh-keygen&quot; in &quot;%1&quot; hat einen Fehler festgestellt: %2</translation>
+        <translation>Das Programm &quot;ssh-keygen&quot; in &quot;%1&quot; hat einen Fehler festgestellt: %2</translation>
     </message>
     <message>
         <source>Choose Private Key File Name</source>
-        <translation type="unfinished">Name der privaten Schlüsseldatei auswählen</translation>
+        <translation>Private Schlüsseldatei auswählen</translation>
     </message>
     <message>
         <source>Key Generation Failed</source>
-        <translation type="unfinished">Fehler bei Erzeugung der Schlüssel</translation>
+        <translation>Schlüsselerzeugung ist fehlgeschlagen</translation>
     </message>
 </context>
 <context>
@@ -48636,30 +48647,30 @@ Zeile: %4, Spalte: %5
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Keine</translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>LF</source>
-        <translation type="unfinished">LF</translation>
+        <translation>LF</translation>
     </message>
     <message>
         <source>CR</source>
-        <translation type="unfinished">CR</translation>
+        <translation>CR</translation>
     </message>
     <message>
         <source>CRLF</source>
-        <translation type="unfinished">CRLF</translation>
+        <translation>CRLF</translation>
     </message>
 </context>
 <context>
     <name>QtC::SilverSearcher</name>
     <message>
         <source>Search Options (optional)</source>
-        <translation type="unfinished">Sucheinstellungen (optional)</translation>
+        <translation>Sucheinstellungen (optional)</translation>
     </message>
     <message>
         <source>Silver Searcher is not available on the system.</source>
-        <translation type="unfinished">Silver Searcher ist auf dem System nicht verfügbar.</translation>
+        <translation>Silver Searcher ist auf dem System nicht verfügbar.</translation>
     </message>
 </context>
 <context>
@@ -55651,88 +55662,92 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>QtC::WebAssembly</name>
     <message>
         <source>Web Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Webbrowser</translation>
     </message>
     <message>
         <source>WebAssembly Runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>WebAssembly-Runtime</translation>
     </message>
     <message>
         <source>Emscripten SDK path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zum Emscripten-SDK:</translation>
     </message>
     <message>
         <source>Select the root directory of an installed %1. Ensure that the activated SDK version is compatible with the %2 or %3 version that you plan to develop against.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1=Emscripten SDK, %2=Qt 5, %3=Qt 6</translatorcomment>
+        <translation>Wählen Sie das Wurzelverzeichnis einer Installation von %1. Stellen Sie sicher, dass die eingestellte SDK-Version mit der von Ihnen für das Entwickeln geplanten %2- oder %3-Version kompatibel ist.</translation>
     </message>
     <message>
         <source>Emscripten SDK environment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebung für Emscripten-SDK:</translation>
     </message>
     <message>
         <source>Note: %1 supports Qt %2 for WebAssembly and higher. Your installed lower Qt version(s) are not supported.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1=the QtC-Version, %2=minimumSupportedQtVersion</translatorcomment>
+        <translation>Hinweis: %1 unterstützt für WebAssembly nur Qt %2 und höher. Ihre älteren installierten Qt-Versionen werden nicht unterstützt.</translation>
     </message>
     <message>
         <source>Adding directories to PATH:</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge Verzeichnisse zu PATH hinzu:</translation>
     </message>
     <message>
         <source>Setting environment variables:</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze Umgebungsvariablen:</translation>
     </message>
     <message>
         <source>The activated version %1 is not supported by %2. Activate version %3 or higher.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1=sdkVersion, %2=QtC-Version, %3=minVersion</translatorcomment>
+        <translation>Die aktivierte Version %1 wird von %2 nicht unterstützt. Benutzen Sie Version %3 oder höher.</translation>
     </message>
     <message>
         <source>Activated version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivierte Version: %1</translation>
     </message>
     <message>
         <source>WebAssembly</source>
-        <translation type="unfinished"></translation>
+        <translation>WebAssembly</translation>
     </message>
     <message>
         <source>Setup Emscripten SDK for WebAssembly? To do it later, select Edit &gt; Preferences &gt; Devices &gt; WebAssembly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten-SDK für WebAssembly einrichten? Dies geht auch später unter Bearbeiten &gt; Einstellungen &gt; Geräte &gt; WebAssembly.</translation>
     </message>
     <message>
         <source>Setup Emscripten SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten-SDK einrichten</translation>
     </message>
     <message>
         <source>WebAssembly</source>
         <comment>Qt Version is meant for WebAssembly</comment>
-        <translation type="unfinished"></translation>
+        <translation>WebAssembly</translation>
     </message>
     <message>
         <source>%1 does not support Qt for WebAssembly below version %2.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1=QtC-Version</translatorcomment>
+        <translation>%1 unterstützt Qt für WebAssembly nicht unter Version %2.</translation>
     </message>
     <message>
         <source>Effective emrun call:</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultierender emrun-Aufruf:</translation>
     </message>
     <message>
         <source>Default Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Browser</translation>
     </message>
     <message>
         <source>Web browser:</source>
-        <translation type="unfinished"></translation>
+        <translation>Webbrowser:</translation>
     </message>
     <message>
         <source>Emscripten Compiler</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten-Compiler</translation>
     </message>
     <message>
         <source>Emscripten Compiler %1 for %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten-Compiler %1 für %2</translation>
     </message>
     <message>
         <source>Emscripten</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten</translation>
     </message>
 </context>
 <context>
@@ -58293,35 +58308,35 @@ Are you sure you want to remove the material?</source>
     <name>QtC::Vcpkg</name>
     <message>
         <source>Search package...</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket suchen...</translation>
     </message>
     <message>
         <source>Vcpkg Manifest Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vcpkg Manifest-Editor</translation>
     </message>
     <message>
         <source>Name：</source>
-        <translation type="unfinished"></translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">Version:</translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <source>License:</source>
-        <translation type="unfinished">Lizenz:</translation>
+        <translation>Lizenz:</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished">Beschreibung:</translation>
+        <translation>Beschreibung:</translation>
     </message>
     <message>
         <source>Homepage:</source>
-        <translation type="unfinished"></translation>
+        <translation>Homepage:</translation>
     </message>
     <message>
         <source>Vcpkg installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Vcpkg-Installation</translation>
     </message>
 </context>
 <context>

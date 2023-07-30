@@ -13,7 +13,7 @@ def main():
         if not pathSpeedcrunch:
             test.fatal("Could not clone SpeedCrunch")
             return
-        startQC()
+        startQC(["-noload", "ClangCodeModel"])
         if not startedWithoutPluginError():
             return
 

@@ -426,6 +426,7 @@ public:
     QList<ParameterAction *> m_projectActions;
     QList<QAction *> m_repositoryActions;
     ParameterAction *m_applyCurrentFilePatchAction = nullptr;
+
     Gerrit::Internal::GerritPlugin m_gerritPlugin;
 
     QPointer<StashDialog> m_stashDialog;

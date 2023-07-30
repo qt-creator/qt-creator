@@ -10,6 +10,7 @@
 #include <vterm.h>
 
 #include <QLoggingCategory>
+#include <QTimer>
 
 namespace TerminalSolution {
 
@@ -20,6 +21,8 @@ QColor toQColor(const VTermColor &c)
     return QColor(qRgb(c.rgb.red, c.rgb.green, c.rgb.blue));
 };
 
+constexpr int batchFlushSize = 256;
+
 struct TerminalSurfacePrivate
 {
     TerminalSurfacePrivate(TerminalSurface *surface, const QSize &initialGridSize)
@@ -29,13 +32,64 @@ struct TerminalSurfacePrivate
         , q(surface)
     {}
 
+    void flush()
+    {
+        if (m_writeBuffer.isEmpty())
+            return;
+
+        QByteArray data = m_writeBuffer.left(batchFlushSize);
+        qint64 result = m_writeToPty(data);
+
+        if (result != data.size()) {
+            // Not all data was written, remove the unwritten data from the array
+            data.resize(qMax(0, result));
+        }
+
+        // Remove the written data from the buffer
+        if (data.size() > 0)
+            m_writeBuffer = m_writeBuffer.mid(data.size());
+
+        if (!m_writeBuffer.isEmpty())
+            m_delayWriteTimer.start();
+    }
+
     void init()
     {
+        m_delayWriteTimer.setInterval(1);
+        m_delayWriteTimer.setSingleShot(true);
+
+        QObject::connect(&m_delayWriteTimer, &QTimer::timeout, &m_delayWriteTimer, [this] {
+            flush();
+        });
+
         vterm_set_utf8(m_vterm.get(), true);
 
         static auto writeToPty = [](const char *s, size_t len, void *user) {
             auto p = static_cast<TerminalSurfacePrivate *>(user);
-            emit p->q->writeToPty(QByteArray(s, static_cast<int>(len)));
+            QByteArray d(s, len);
+
+            // If its just a couple of chars, or we already have data in the writeBuffer,
+            // add the new data to the write buffer and start the delay timer
+            if (d.size() < batchFlushSize || !p->m_writeBuffer.isEmpty()) {
+                p->m_writeBuffer.append(d);
+                p->m_delayWriteTimer.start();
+                return;
+            }
+
+            // Try to write the data ...
+            qint64 result = p->m_writeToPty(d);
+
+            if (result != d.size()) {
+                // if writing failed, append the data to the writeBuffer and start the delay timer
+
+                // Check if partial data may have already been written ...
+                if (result <= 0)
+                    p->m_writeBuffer.append(d);
+                else
+                    p->m_writeBuffer.append(d.mid(result));
+
+                p->m_delayWriteTimer.start();
+            }
         };
 
         vterm_output_set_callback(m_vterm.get(), writeToPty, this);
@@ -319,6 +373,10 @@ struct TerminalSurfacePrivate
     SurfaceIntegration *m_surfaceIntegration{nullptr};
 
     TerminalSurface *q;
+    QTimer m_delayWriteTimer;
+    QByteArray m_writeBuffer;
+
+    TerminalSurface::WriteToPty m_writeToPty;
 };
 
 TerminalSurface::TerminalSurface(QSize initialGridSize)
@@ -393,7 +451,7 @@ void TerminalSurface::clearAll()
     vterm_input_write(d->m_vterm.get(), data.constData(), data.size());
 
     // Send Ctrl+L which will clear the screen
-    emit writeToPty(QByteArray("\f"));
+    d->m_writeToPty(QByteArray("\f"));
 }
 
 void TerminalSurface::resize(QSize newSize)
@@ -537,6 +595,11 @@ void TerminalSurface::mouseButton(Qt::MouseButton button,
     }
 
     vterm_mouse_button(d->m_vterm.get(), btnIdx, pressed, qtModifierToVTerm(modifiers));
+}
+
+void TerminalSurface::setWriteToPty(WriteToPty writeToPty)
+{
+    d->m_writeToPty = writeToPty;
 }
 
 CellIterator TerminalSurface::begin() const

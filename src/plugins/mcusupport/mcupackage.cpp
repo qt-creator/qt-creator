@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -447,7 +448,8 @@ static ToolChain *iarToolChain(const FilePath &path, Id language)
                                               == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
                                    });
         if (iarFactory) {
-            Toolchains detected = iarFactory->autoDetect(ToolchainDetector({}, {}, {}));
+            Toolchains detected = iarFactory->autoDetect(
+                {{}, DeviceManager::defaultDesktopDevice(), {}});
             if (detected.isEmpty())
                 detected = iarFactory->detectForImport({path, language});
             for (auto tc : detected) {
