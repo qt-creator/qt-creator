@@ -106,9 +106,7 @@ QbsBuildStepData QbsInstallStep::stepData() const
     data.noBuild = true;
     data.cleanInstallRoot = cleanInstallRoot();
     data.isInstallStep = true;
-    auto bs = static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration())->qbsStep();
-    if (bs)
-        data.installRoot = bs->installRoot();
+    data.installRoot = installRoot();
     return data;
 }
 
