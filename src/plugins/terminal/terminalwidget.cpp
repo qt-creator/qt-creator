@@ -410,7 +410,7 @@ void TerminalWidget::restart(const OpenTerminalParameters &openParameters)
 
 void TerminalWidget::selectionChanged(const std::optional<Selection> &newSelection)
 {
-    Q_UNUSED(newSelection);
+    SearchableTerminal::selectionChanged(newSelection);
 
     updateCopyState();
 
