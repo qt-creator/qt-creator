@@ -167,7 +167,7 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
         }
         if (category->displayName.isEmpty())
             category->displayName = page->displayCategory();
-        if (category->icon.isNull()) {
+        if (category->icon.isNull() && !page->categoryIconPath().isEmpty()) {
             Icon icon({{page->categoryIconPath(), Theme::PanelTextColorDark}}, Icon::Tint);
             category->icon = icon.icon();
         }
