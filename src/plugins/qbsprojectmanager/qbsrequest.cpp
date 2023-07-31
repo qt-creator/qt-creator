@@ -91,6 +91,7 @@ void QbsRequestManager::continueSessionQueue(QbsSession *session)
     }
     QbsRequestObject *requestObject = queue.first();
     connect(requestObject, &QbsRequestObject::done, this, [this, requestObject] {
+        disconnect(requestObject, &QbsRequestObject::done, this, nullptr);
         QbsSession *session = requestObject->session();
         requestObject->deleteLater();
         QList<QbsRequestObject *> &queue = m_queuedRequests[session];
@@ -112,9 +113,11 @@ void QbsRequestObject::start()
 {
     if (m_parseData) {
         connect(m_parseData->target(), &Target::parsingFinished, this, [this](bool success) {
+            disconnect(m_parseData->target(), &Target::parsingFinished, this, nullptr);
             emit done(success);
         });
-        m_parseData->parseCurrentBuildConfiguration();
+        QMetaObject::invokeMethod(m_parseData.get(), &QbsBuildSystem::startParsing,
+                                  Qt::QueuedConnection);
         return;
     }
 

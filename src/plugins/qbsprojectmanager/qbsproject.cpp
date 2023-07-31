@@ -13,6 +13,7 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
 #include "qbsprojectparser.h"
+#include "qbsrequest.h"
 #include "qbssession.h"
 #include "qbssettings.h"
 
@@ -198,6 +199,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
 
 QbsBuildSystem::~QbsBuildSystem()
 {
+    m_parseRequest.reset();
     delete m_cppCodeModelUpdater;
     delete m_qbsProjectParser;
     if (m_qbsUpdateFutureInterface) {
@@ -434,7 +436,7 @@ bool QbsBuildSystem::checkCancelStatus()
     m_qbsProjectParser = nullptr;
     m_treeCreationWatcher = nullptr;
     m_guard = {};
-    parseCurrentBuildConfiguration();
+    startParsing();
     return true;
 }
 
@@ -564,14 +566,7 @@ void QbsBuildSystem::changeActiveTarget(Target *t)
 
 void QbsBuildSystem::triggerParsing()
 {
-    // Qbs does update the build graph during the build. So we cannot
-    // start to parse while a build is running or we will lose information.
-    if (BuildManager::isBuilding(project())) {
-        scheduleParsing();
-        return;
-    }
-
-    parseCurrentBuildConfiguration();
+    scheduleParsing();
 }
 
 void QbsBuildSystem::delayParsing()
@@ -585,9 +580,18 @@ ExtraCompiler *QbsBuildSystem::findExtraCompiler(const ExtraCompilerFilter &filt
     return Utils::findOrDefault(m_extraCompilers, filter);
 }
 
-void QbsBuildSystem::parseCurrentBuildConfiguration()
+void QbsBuildSystem::scheduleParsing()
 {
-    m_parsingScheduled = false;
+    m_parseRequest.reset(new QbsRequest);
+    m_parseRequest->setParseData(this);
+    connect(m_parseRequest.get(), &QbsRequest::done, this, [this] {
+        m_parseRequest.release()->deleteLater();
+    });
+    m_parseRequest->start();
+}
+
+void QbsBuildSystem::startParsing()
+{
     if (m_cancelStatus == CancelStatusCancelingForReparse)
         return;
 

@@ -425,11 +425,6 @@ GroupItem QbsBuildStep::runRecipe()
         });
         return SetupResult::Continue;
     };
-    const auto onPostParserSetup = [this](QbsRequest &request) {
-        auto bs = qbsBuildSystem();
-        request.setParseData(bs);
-        return bs->parsingScheduled() ? SetupResult::Continue : SetupResult::StopWithDone;
-    };
 
     const Group root {
         // We need a pre-build parsing step in order not to lose project file changes done
@@ -440,9 +435,6 @@ GroupItem QbsBuildStep::runRecipe()
             QbsRequestTask(onBuildSetup),
             // Building can uncover additional target artifacts.
             Sync([this] { qbsBuildSystem()->updateAfterBuild(); }),
-            // The reparsing, if it is necessary, has to be done before done() is emitted, as
-            // otherwise a potential additional build step could conflict with the parsing step.
-            QbsRequestTask(onPostParserSetup)
         }
     };
 

@@ -550,16 +550,8 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
     if (!t)
         return;
 
-    QbsBuildSystem *bs = static_cast<QbsBuildSystem *>(t->buildSystem());
-    if (!bs)
-        return;
-
-    // Qbs does update the build graph during the build. So we cannot
-    // start to parse while a build is running or we will lose information.
-    if (BuildManager::isBuilding(project))
+    if (auto bs = qobject_cast<QbsBuildSystem *>(t->buildSystem()))
         bs->scheduleParsing();
-    else
-        bs->parseCurrentBuildConfiguration();
 }
 
 void QbsProjectManagerPlugin::buildNamedProduct(QbsProject *project, const QString &product)
