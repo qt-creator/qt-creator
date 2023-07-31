@@ -181,6 +181,7 @@ void ContentLibraryView::modelAttached(Model *model)
 
     m_sceneId = model->active3DSceneId();
 
+    m_widget->setHasActive3DScene(m_sceneId != -1);
     m_widget->clearSearchFilter();
 
     m_widget->effectsModel()->loadBundle();
@@ -214,6 +215,7 @@ void ContentLibraryView::importsChanged(const Imports &addedImports, const Impor
 void ContentLibraryView::active3DSceneChanged(qint32 sceneId)
 {
     m_sceneId = sceneId;
+    m_widget->setHasActive3DScene(m_sceneId != -1);
 }
 
 void ContentLibraryView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

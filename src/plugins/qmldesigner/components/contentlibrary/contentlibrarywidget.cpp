@@ -662,6 +662,20 @@ void ContentLibraryWidget::setHasMaterialLibrary(bool b)
     m_materialsModel->updateIsEmpty();
 }
 
+bool ContentLibraryWidget::hasActive3DScene() const
+{
+    return m_hasActive3DScene;
+}
+
+void ContentLibraryWidget::setHasActive3DScene(bool b)
+{
+    if (m_hasActive3DScene == b)
+        return;
+
+    m_hasActive3DScene = b;
+    emit hasActive3DSceneChanged();
+}
+
 void ContentLibraryWidget::reloadQmlSource()
 {
     const QString materialBrowserQmlPath = qmlSourcesPath() + "/ContentLibrary.qml";
