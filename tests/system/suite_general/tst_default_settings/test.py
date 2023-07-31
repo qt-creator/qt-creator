@@ -311,15 +311,15 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
             for currentExp in expectedCompilers:
                 if isString(currentExp):
                     continue
-                key = list(currentExp.keys())[0]
+                key = next(iter(currentExp.keys()))
                 # the regex .*? is used for the different possible version strings of the WinSDK
                 # if it's present a regex will be validated otherwise simple string comparison
                 # same applies for [.0-9]+ which is used for minor/patch versions
                 isRegex = ".*?" in key or "[.0-9]+" in key
-                if (((isRegex and re.match(key, list(currentFound.keys())[0], flags)))
+                if (((isRegex and re.match(key, next(iter(currentFound.keys())), flags)))
                     or currentFound.keys() == currentExp.keys()):
-                    if ((isWin and os.path.abspath(list(currentFound.values())[0].lower())
-                         == os.path.abspath(list(currentExp.values())[0].lower()))
+                    if ((isWin and os.path.abspath(next(iter(currentFound.values())).lower())
+                         == os.path.abspath(next(iter(currentExp.values())).lower()))
                         or currentFound.values() == currentExp.values()):
                         foundExp = True
                         break
@@ -359,24 +359,22 @@ def __lowerStrs__(iterable):
 def __checkCreatedSettings__(settingsFolder):
     waitForCleanShutdown()
     qtProj = os.path.join(settingsFolder, "QtProject")
-    folders = []
-    files = [{os.path.join(qtProj, "QtCreator.db"):0},
-             {os.path.join(qtProj, "QtCreator.ini"):30}]
-    folders.append(os.path.join(qtProj, "qtcreator"))
-    files.extend([{os.path.join(folders[0], "debuggers.xml"):0},
-                  {os.path.join(folders[0], "devices.xml"):0},
-                  {os.path.join(folders[0], "helpcollection.qhc"):0},
-                  {os.path.join(folders[0], "profiles.xml"):0},
-                  {os.path.join(folders[0], "qtversion.xml"):0},
-                  {os.path.join(folders[0], "toolchains.xml"):0}])
-    folders.extend([os.path.join(folders[0], "generic-highlighter"),
-                    os.path.join(folders[0], "macros")])
+    creatorFolder = os.path.join(qtProj, "qtcreator")
+    folders = [creatorFolder,
+               os.path.join(creatorFolder, "generic-highlighter"),
+               os.path.join(creatorFolder, "macros")]
+    files = {os.path.join(qtProj, "QtCreator.db"):0,
+             os.path.join(qtProj, "QtCreator.ini"):30,
+             os.path.join(creatorFolder, "debuggers.xml"):0,
+             os.path.join(creatorFolder, "devices.xml"):0,
+             os.path.join(creatorFolder, "helpcollection.qhc"):0,
+             os.path.join(creatorFolder, "profiles.xml"):0,
+             os.path.join(creatorFolder, "qtversion.xml"):0,
+             os.path.join(creatorFolder, "toolchains.xml"):0}
     for f in folders:
         test.verify(os.path.isdir(f),
                     "Verifying whether folder '%s' has been created." % os.path.basename(f))
-    for f in files:
-        fName = list(f.keys())[0]
-        fMinSize = list(f.values())[0]
+    for fName, fMinSize in files.items():
         text = "created non-empty"
         if fMinSize > 0:
             text = "modified"

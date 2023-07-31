@@ -1564,9 +1564,11 @@ qint64 Process::writeRaw(const QByteArray &input)
     QTC_ASSERT(state() == QProcess::Running, return -1);
     QTC_ASSERT(QThread::currentThread() == thread(), return -1);
     qint64 result = -1;
-    QMetaObject::invokeMethod(d->m_process.get(), [this, input] {
-        d->m_process->write(input);
-    }, d->connectionType(), &result);
+    QMetaObject::invokeMethod(
+        d->m_process.get(),
+        [this, input] { return d->m_process->write(input); },
+        d->connectionType(),
+        &result);
     return result;
 }
 

@@ -1,0 +1,33 @@
+From e5aec585120ca65b92e642b50b1552f75df26b93 Mon Sep 17 00:00:00 2001
+From: Christian Stenger <christian.stenger@qt.io>
+Date: Thu, 27 Jul 2023 08:49:30 +0200
+Subject: [PATCH] Fix build on macOS
+
+---
+ src/CMakeLists.txt | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 7be6aad..0cad721 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -18,7 +18,6 @@ if(APPLE)
+     set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${speedcrunch_VERSION})
+     set(MACOSX_BUNDLE_VERSION ${speedcrunch_VERSION})
+     set(MACOSX_BUNDLE_LONG_VERSION_STRING Version ${speedcrunch_VERSION})
+-    set(CMAKE_OSX_ARCHITECTURES ppc;i386)
+ else(APPLE)
+     set(PROGNAME speedcrunch)
+ endif(APPLE)
+@@ -71,7 +70,7 @@ if(APPLE)
+     set( speedcrunch_RESOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/${PROGNAME}.app/Contents/Resources )
+     add_custom_command(TARGET ${PROGNAME} POST_BUILD
+                        COMMAND mkdir ARGS -p ${speedcrunch_RESOURCE_DIR}
+-                       COMMAND cp ARGS -f resources/${MACOSX_BUNDLE_ICON_FILE} ${speedcrunch_RESOURCE_DIR})
++                       COMMAND cp ARGS -f ${CMAKE_CURRENT_SOURCE_DIR}/resources/${MACOSX_BUNDLE_ICON_FILE} ${speedcrunch_RESOURCE_DIR})
+ endif(APPLE)
+ 
+ add_custom_target(confclean COMMAND rm -rf Makefile CMakeFiles/ CMakeCache.txt cmake_install.cmake DartTestfile.txt install_manifest.txt)
+-- 
+2.32.0 (Apple Git-132)
+

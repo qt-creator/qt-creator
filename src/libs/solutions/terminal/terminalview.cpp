@@ -170,7 +170,7 @@ void TerminalView::setupSurface()
     if (d->m_surfaceIntegration)
         d->m_surface->setSurfaceIntegration(d->m_surfaceIntegration);
 
-    connect(d->m_surface.get(), &TerminalSurface::writeToPty, this, &TerminalView::writeToPty);
+    d->m_surface->setWriteToPty([this](const QByteArray &data) { return writeToPty(data); });
 
     connect(d->m_surface.get(), &TerminalSurface::fullSizeChanged, this, [this] {
         updateScrollBars();

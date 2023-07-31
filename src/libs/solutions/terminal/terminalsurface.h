@@ -98,10 +98,12 @@ public:
     SurfaceIntegration *surfaceIntegration() const;
     void setSurfaceIntegration(SurfaceIntegration *surfaceIntegration);
 
+    using WriteToPty = std::function<qint64(const QByteArray &)>;
+    void setWriteToPty(WriteToPty writeToPty);
+
     void mouseMove(QPoint pos, Qt::KeyboardModifiers modifiers);
     void mouseButton(Qt::MouseButton button, bool pressed, Qt::KeyboardModifiers modifiers);
 signals:
-    void writeToPty(const QByteArray &data);
     void invalidated(QRect grid);
     void fullSizeChanged(QSize newSize);
     void cursorChanged(Cursor oldCursor, Cursor newCursor);

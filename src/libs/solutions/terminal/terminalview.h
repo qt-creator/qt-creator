@@ -105,7 +105,11 @@ public:
         }
     };
 
-    virtual void writeToPty(const QByteArray &data) { Q_UNUSED(data); }
+    virtual qint64 writeToPty(const QByteArray &data)
+    {
+        Q_UNUSED(data);
+        return 0;
+    }
     void writeToTerminal(const QByteArray &data, bool forceFlush);
 
     void restart();
