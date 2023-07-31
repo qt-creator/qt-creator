@@ -130,7 +130,10 @@ public:
     void highlightBlock(const QString &text);
 
 private:
+    QBrush codeBgBrush();
+
     QBrush h2Brush;
+    QBrush m_codeBgBrush;
 };
 
 } // namespace Utils
