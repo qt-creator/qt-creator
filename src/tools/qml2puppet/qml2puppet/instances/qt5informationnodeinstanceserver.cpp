@@ -2337,8 +2337,8 @@ void Qt5InformationNodeInstanceServer::setSceneEnvironmentColor(const PropertyVa
 // If scene is not View3D scene, return first camera in the scene
 QVariantList Qt5InformationNodeInstanceServer::alignCameraList() const
 {
-#ifdef QUICK3D_MODULE
     QVariantList cameras;
+#ifdef QUICK3D_MODULE
     if (m_selectedCameras.contains(m_active3DScene)) {
         const QObjectList cameraList = m_selectedCameras[m_active3DScene];
         for (const auto camera : cameraList) {
@@ -2365,9 +2365,8 @@ QVariantList Qt5InformationNodeInstanceServer::alignCameraList() const
             }
         }
     }
-
-    return cameras;
 #endif
+    return cameras;
 }
 
 void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
