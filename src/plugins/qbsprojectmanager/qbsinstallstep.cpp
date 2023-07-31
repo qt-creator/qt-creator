@@ -132,19 +132,14 @@ QWidget *QbsInstallStep::createConfigWidget()
     };
 
     connect(target(), &Target::parsingFinished, this, updateState);
+    connect(buildConfig(), &QbsBuildConfiguration::qbsConfigurationChanged, this, updateState);
     connect(this, &ProjectConfiguration::displayNameChanged, this, updateState);
 
     connect(&dryRun, &BaseAspect::changed, this, updateState);
     connect(&keepGoing, &BaseAspect::changed, this, updateState);
     connect(&cleanInstallRoot, &BaseAspect::changed, this, updateState);
 
-    const QbsBuildConfiguration * const bc = buildConfig();
-    connect(bc, &QbsBuildConfiguration::qbsConfigurationChanged, this, updateState);
-    if (bc->qbsStep())
-        connect(bc->qbsStep(), &QbsBuildStep::qbsBuildOptionsChanged, this, updateState);
-
     updateState();
-
     return widget;
 }
 

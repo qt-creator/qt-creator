@@ -64,7 +64,6 @@ public:
 
 signals:
     void qbsConfigurationChanged();
-    void qbsBuildOptionsChanged();
 
 private:
     bool init() override;

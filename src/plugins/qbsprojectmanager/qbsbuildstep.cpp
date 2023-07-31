@@ -490,8 +490,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
             this, &QbsBuildStepConfigWidget::updateState);
     connect(step->qbsBuildConfiguration(), &QbsBuildConfiguration::qbsConfigurationChanged,
             this, &QbsBuildStepConfigWidget::updateState);
-    connect(step, &QbsBuildStep::qbsBuildOptionsChanged,
-            this, &QbsBuildStepConfigWidget::updateState);
     connect(&QbsSettings::instance(), &QbsSettings::settingsChanged,
             this, &QbsBuildStepConfigWidget::updateState);
     connect(step->buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
