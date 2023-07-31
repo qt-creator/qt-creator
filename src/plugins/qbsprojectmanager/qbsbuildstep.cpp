@@ -232,10 +232,24 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
     connect(&forceProbes, &BaseAspect::changed, this, &QbsBuildStep::updateState);
 
     connect(&buildVariantHolder, &BaseAspect::changed, this, [this] {
-        setBuildVariant(buildVariantHolder.itemValue().toString());
+        const QString variant = buildVariantHolder.itemValue().toString();
+        if (m_qbsConfiguration.value(Constants::QBS_CONFIG_VARIANT_KEY).toString() == variant)
+            return;
+        m_qbsConfiguration.insert(Constants::QBS_CONFIG_VARIANT_KEY, variant);
+        emit qbsConfigurationChanged();
+        if (BuildConfiguration *bc = buildConfiguration())
+            emit bc->buildTypeChanged();
     });
-    connect(&selectedAbis, &BaseAspect::changed, [this] {
-        setConfiguredArchitectures(selectedAbis.selectedArchitectures()); });
+    connect(&selectedAbis, &BaseAspect::changed, this, [this] {
+        const QStringList architectures = selectedAbis.selectedArchitectures();
+        if (configuredArchitectures() == architectures)
+            return;
+        if (architectures.isEmpty())
+            m_qbsConfiguration.remove(Constants::QBS_ARCHITECTURES);
+        else
+            m_qbsConfiguration.insert(Constants::QBS_ARCHITECTURES, architectures.join(','));
+        emit qbsConfigurationChanged();
+    });
 }
 
 bool QbsBuildStep::init()
@@ -367,21 +381,6 @@ QbsBuildSystem *QbsBuildStep::qbsBuildSystem() const
     return static_cast<QbsBuildSystem *>(buildSystem());
 }
 
-void QbsBuildStep::setBuildVariant(const QString &variant)
-{
-    if (m_qbsConfiguration.value(Constants::QBS_CONFIG_VARIANT_KEY).toString() == variant)
-        return;
-    m_qbsConfiguration.insert(Constants::QBS_CONFIG_VARIANT_KEY, variant);
-    emit qbsConfigurationChanged();
-    if (BuildConfiguration *bc = buildConfiguration())
-        emit bc->buildTypeChanged();
-}
-
-QString QbsBuildStep::profile() const
-{
-    return qbsConfiguration(PreserveVariables).value(Constants::QBS_CONFIG_PROFILE_KEY).toString();
-}
-
 GroupItem QbsBuildStep::runRecipe()
 {
     const auto onPreParserSetup = [this](QbsRequest &request) {
@@ -443,17 +442,6 @@ GroupItem QbsBuildStep::runRecipe()
 
 void QbsBuildStep::updateState()
 {
-    emit qbsConfigurationChanged();
-}
-
-void QbsBuildStep::setConfiguredArchitectures(const QStringList &architectures)
-{
-    if (configuredArchitectures() == architectures)
-        return;
-    if (architectures.isEmpty())
-        m_qbsConfiguration.remove(Constants::QBS_ARCHITECTURES);
-    else
-        m_qbsConfiguration.insert(Constants::QBS_ARCHITECTURES, architectures.join(','));
     emit qbsConfigurationChanged();
 }
 

@@ -76,9 +76,6 @@ private:
     QbsBuildConfiguration *qbsBuildConfiguration() const;
     QbsBuildSystem *qbsBuildSystem() const;
     QbsBuildStepData stepData() const;
-    void setBuildVariant(const QString &variant);
-    void setConfiguredArchitectures(const QStringList &architectures);
-    QString profile() const;
     bool hasCustomInstallRoot() const;
     int maxJobs() const;
 
