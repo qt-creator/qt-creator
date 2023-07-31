@@ -119,7 +119,6 @@ private:
     void updateApplicationTargets();
     void updateDeploymentInfo();
     void updateBuildTargetData();
-    bool checkCancelStatus();
     void updateAfterParse();
     void updateProjectNodes(const std::function<void()> &continuation);
     Utils::FilePath installRoot();
@@ -136,12 +135,6 @@ private:
     TreeCreationWatcher *m_treeCreationWatcher = nullptr;
     Utils::Environment m_lastParseEnv;
     std::unique_ptr<QbsRequest> m_parseRequest;
-
-    enum CancelStatus {
-        CancelStatusNone,
-        CancelStatusCancelingForReparse,
-        CancelStatusCancelingAltogether
-    } m_cancelStatus = CancelStatusNone;
 
     CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 

@@ -425,21 +425,6 @@ QString QbsBuildSystem::profile() const
     return QbsProfileManager::ensureProfileForKit(target()->kit());
 }
 
-bool QbsBuildSystem::checkCancelStatus()
-{
-    const CancelStatus cancelStatus = m_cancelStatus;
-    m_cancelStatus = CancelStatusNone;
-    if (cancelStatus != CancelStatusCancelingForReparse)
-        return false;
-    qCDebug(qbsPmLog) << "Cancel request while parsing, starting re-parse";
-    m_qbsProjectParser->deleteLater();
-    m_qbsProjectParser = nullptr;
-    m_treeCreationWatcher = nullptr;
-    m_guard = {};
-    startParsing();
-    return true;
-}
-
 void QbsBuildSystem::updateAfterParse()
 {
     qCDebug(qbsPmLog) << "Updating data after parse";
@@ -508,9 +493,6 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
 
     qCDebug(qbsPmLog) << "Parsing done, success:" << success;
 
-    if (checkCancelStatus())
-        return;
-
     generateErrors(m_qbsProjectParser->error());
 
     bool dataChanged = false;
@@ -545,9 +527,9 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
     if (dataChanged) {
         updateAfterParse();
         return;
-    }
-    else if (envChanged)
+    } else if (envChanged) {
         updateCppCodeModel();
+    }
     if (success)
         m_guard.markAsSuccess();
     m_guard = {};
@@ -592,25 +574,7 @@ void QbsBuildSystem::scheduleParsing()
 
 void QbsBuildSystem::startParsing()
 {
-    if (m_cancelStatus == CancelStatusCancelingForReparse)
-        return;
-
-    // The CancelStatusCancelingAltoghether type can only be set by a build job, during
-    // which no other parse requests come through to this point (except by the build job itself,
-    // but of course not while canceling is in progress).
-    QTC_ASSERT(m_cancelStatus == CancelStatusNone, return);
-
-    // New parse requests override old ones.
-    // NOTE: We need to wait for the current operation to finish, since otherwise there could
-    //       be a conflict. Consider the case where the old qbs::ProjectSetupJob is writing
-    //       to the build graph file when the cancel request comes in. If we don't wait for
-    //       acknowledgment, it might still be doing that when the new one already reads from the
-    //       same file.
-    if (m_qbsProjectParser) {
-        m_cancelStatus = CancelStatusCancelingForReparse;
-        m_qbsProjectParser->cancel();
-        return;
-    }
+    QTC_ASSERT(!m_qbsProjectParser, return);
 
     QVariantMap config = m_buildConfiguration->qbsConfiguration();
     if (!config.contains(Constants::QBS_INSTALL_ROOT_KEY)) {
@@ -639,7 +603,6 @@ void QbsBuildSystem::startParsing()
 void QbsBuildSystem::cancelParsing()
 {
     QTC_ASSERT(m_qbsProjectParser, return);
-    m_cancelStatus = CancelStatusCancelingAltogether;
     m_qbsProjectParser->cancel();
 }
 

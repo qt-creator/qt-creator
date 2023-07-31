@@ -62,8 +62,7 @@ BuildSystem::BuildSystem(Target *target)
     // Timer:
     d->m_delayedParsingTimer.setSingleShot(true);
 
-    connect(&d->m_delayedParsingTimer, &QTimer::timeout, this,
-            [this] {
+    connect(&d->m_delayedParsingTimer, &QTimer::timeout, this, [this] {
         if (ProjectManager::hasProject(project()))
             triggerParsing();
         else
