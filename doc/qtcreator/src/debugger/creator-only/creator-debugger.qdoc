@@ -156,7 +156,7 @@
     a long time. Typically, in the range of several seconds to minutes if you use
     complex features.
 
-    For \l {Creating Widget-Based Qt for Python Applications}{Python} projects,
+    For \l {Creating a Qt for Python Application with Qt Widgets}{Python} projects,
     start debugging the \c main.py file. If you encounter problems, check the
     active build target in the \l{Building for Multiple Platforms}{kit selector}.
 

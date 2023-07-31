@@ -1,0 +1,173 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page tutorial-python-application-qt-widgets.html
+    \previouspage creator-tutorials.html
+    \nextpage creator-project-managing.html
+
+    \ingroup creator-tutorials
+
+    \title Creating a Qt for Python Application with Qt Widgets
+
+    \brief How to develop a Qt widget-based application with Python.
+
+    First, create a Qt for Python application project. Then, edit the boilerplate
+    code to develop a small application that uses Qt widgets to display the text
+    \e {Hello World} in several languages.
+
+    \image qtcreator-new-qt-for-python-app-widgets-ready.webp {A small Qt Widgets application}
+
+    For more examples of creating Qt for Python applications, see
+    \l {https://doc.qt.io/qtforpython/tutorials/index.html}
+    {Qt for Python Examples and Tutorials}.
+
+    \section1 Creating an Empty Window Project
+
+    To create a Qt for Python application that has the source file for a main
+    class:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New Project} >
+            \uicontrol {Application (Qt for Python)} > \uicontrol {Empty Window}
+            > \uicontrol Choose.
+
+            The \uicontrol {Project Location} dialog opens.
+            \image qtcreator-new-qt-for-python-app-widgets-project-location.webp {Project Location dialog}
+        \li In \uicontrol {Name}, enter the project name. For example,
+            \e {hello_world}.
+        \li In \uicontrol {Create in}, enter the path for the project files.
+            For example, \c {C:\Qt\examples}.
+        \li Select \uicontrol{Next} (on Windows and Linux) or \uicontrol Continue
+            (on \macos) to open the \uicontrol {Define Class} dialog.
+            \image qtcreator-new-qt-for-python-app-widgets-define-class.webp {Define Class dialog}
+        \li In \uicontrol {Class name}, type \b {MyWidget} as the class
+            name.
+        \li In \uicontrol {Base class}, select \b {QWidget} as the base class.
+            \note The \uicontrol {Source file} field is automatically updated to
+            match the name of the class.
+        \li In \uicontrol {Project file}, enter a name for the project file.
+        \li Select \uicontrol{Next} or \uicontrol Continue to open the
+            \uicontrol {Define Project Details} dialog.
+            \image qtcreator-new-qt-for-python-app-widgets-project-details.webp {Define Project Details dialog}
+        \li In \uicontrol {PySide version}, select the PySide version of the
+            generated code.
+        \li In \uicontrol {Interpreter}, select the Python interpreter to use for
+            the project.
+        \li Select the \uicontrol {Create new virtual environment} check box to
+            use a clean \l{https://docs.python.org/3/library/venv.html}{Python}
+            environment that is independent of your global Python installation.
+        \li In \uicontrol {Path to virtual environment}, specify the directory
+            where to create the environment.
+        \li Select \uicontrol{Next} or \uicontrol Continue.
+        \li Review the project settings, and select \uicontrol {Finish} (on
+            Windows and Linux) or \uicontrol Done (on \macos) to create the
+            project.
+    \endlist
+
+    The wizard generates the following files:
+
+    \list
+        \li \c {hellow_world.pyproject}, which lists the files in the Python
+            project.
+        \li \c {mywidget.py}, which has some boilerplate code for a class.
+    \endlist
+
+    \section1 Adding Qt Widgets Imports
+
+    The wizard adds the imports to the \c mywidget.py source file for access to
+    the QApplication and the base class you selected in the Qt Widgets module,
+    QWidget. In addition, you need to import \c random and QtCore for randomly
+    selecting the language of the displayed text and QtWidgets for adding UI
+    elements:
+
+    \badcode
+    import sys
+    import random
+    from PySide6.QtWidgets import QApplication, QWidget
+    from PySide6 import QtCore, QtWidgets
+    \endcode
+
+   \section1 Adding a Widgets-Based UI
+
+    The wizard adds a main class with the specified name that inherits from the
+    specified base class:
+
+    \badcode
+    class MyWidget(QWidget):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            ...
+    \endcode
+
+    Add button, label, and layout widgets to create UI elements:
+
+    \badcode
+        ...
+        self.hello = ["Hallo Welt", "Hei maailma", "Hola Mundo", "Привет мир"]
+
+        self.button = QtWidgets.QPushButton("Click me!")
+        self.text = QtWidgets.QLabel("Hello World",
+                                     alignment=QtCore.Qt.AlignCenter)
+
+        self.layout = QtWidgets.QVBoxLayout(self)
+        self.layout.addWidget(self.text)
+        self.layout.addWidget(self.button)
+        ...
+    \endcode
+
+    \section1 Adding Signals and Slots
+
+    Then, add a signal and a slot to implement the random function:
+
+    \badcode
+        ...
+        self.button.clicked.connect(self.magic)
+
+    @QtCore.Slot()
+    def magic(self):
+        self.text.setText(random.choice(self.hello))
+    \endcode
+
+    \section1 Adding a Main Function
+
+    The wizard adds a main function, where it creates a QApplication instance. As
+    Qt can receive arguments from the command line, you can pass any arguments to
+    the QApplication object. Usually, you do not need to pass any arguments, and
+    you can use the following approach:
+
+    \badcode
+    if __name__ == "__main__":
+        app = QApplication(sys.argv)
+        ...
+    \endcode
+
+    \section1 Instantiating the MainWindow Class
+
+    The wizard instantiates the \c MainWindow class and shows it:
+
+    \badcode
+        ...
+        widget = MyWidget()
+        widget.show()
+        ...
+    \endcode
+
+    \section1 Executing the Qt Code
+
+    Finally, the wizard calls the \c app.exec() method to enter the Qt
+    main loop and start executing the Qt code:
+
+    \badcode
+        ...
+        sys.exit(app.exec())
+    \endcode
+
+    \section1 Running the Application
+
+    Select the \inlineimage icons/run_small.png
+    button to run the application.
+
+    \sa {Creating a Qt for Python Application with Qt Quick},
+    {Develop Qt for Python Applications}
+*/

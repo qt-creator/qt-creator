@@ -133,8 +133,6 @@
     For more information about creating Qt Quick projects, see
     \l {Creating Qt Quick Projects}.
 
-    \include creator-python-project.qdocinc python project wizards
-
     \section1 Specifying Project Contents
 
     A project can have files that should be:

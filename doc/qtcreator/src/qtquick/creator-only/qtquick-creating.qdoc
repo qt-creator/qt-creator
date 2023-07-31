@@ -110,7 +110,7 @@
     \QC creates a QML file, \e Main.qml, that you can modify in the
     \uicontrol Edit mode.
 
-    \include creator-python-project.qdocinc python qml project wizards
+    \sa {Creating a Qt for Python Application with Qt Quick}
 
     \section1 Qt Quick UI Projects
 

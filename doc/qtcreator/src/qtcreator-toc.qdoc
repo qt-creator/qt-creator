@@ -117,7 +117,6 @@
             \li \l{Editing Markdown Files}
             \li \l{Using Language Servers}
             \li \l{Using GitHub Copilot}
-            \li \l{Developing Qt for Python Applications}
             \li \l{Editing MIME Types}
             \li \l{Modeling}
             \li \l{Editing State Charts}
@@ -278,6 +277,7 @@
                     \li Manage Projects
                         \list
                             \li \l {Add a license header template for C++ code}
+                            \li \l {Develop Qt for Python applications}
                         \endlist
                     \li Use \QC
                         \list

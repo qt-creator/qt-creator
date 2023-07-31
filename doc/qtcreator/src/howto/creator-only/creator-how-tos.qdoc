@@ -61,6 +61,7 @@
 
     \list
         \li \l {Add a license header template for C++ code}
+        \li \l {Develop Qt for Python applications}
     \endlist
 
     \section1 Use \QC
