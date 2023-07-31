@@ -735,7 +735,8 @@ public:
     friend bool operator==(const ProjectData &first, const ProjectData &second)
     {
         return first.projectSourceId == second.projectSourceId && first.sourceId == second.sourceId
-               && first.moduleId == second.moduleId && first.fileType == second.fileType;
+               && first.moduleId.internalId() == second.moduleId.internalId()
+               && first.fileType == second.fileType;
     }
 
 public:

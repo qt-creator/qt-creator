@@ -806,8 +806,7 @@ private:
                 throw ProjectDataHasInvalidProjectSourceId{};
             if (!projectData.sourceId)
                 throw ProjectDataHasInvalidSourceId{};
-            if (!projectData.moduleId)
-                throw ProjectDataHasInvalidModuleId{};
+
 
             insertProjectDataStatement.write(projectData.projectSourceId,
                                              projectData.sourceId,
@@ -817,11 +816,8 @@ private:
 
         auto update = [&](const Storage::Synchronization::ProjectData &projectDataFromDatabase,
                           const Storage::Synchronization::ProjectData &projectData) {
-            if (!projectData.moduleId)
-                throw ProjectDataHasInvalidModuleId{};
-
             if (projectDataFromDatabase.fileType != projectData.fileType
-                || projectDataFromDatabase.moduleId != projectData.moduleId) {
+                || !compareInvalidAreTrue(projectDataFromDatabase.moduleId, projectData.moduleId)) {
                 updateProjectDataStatement.write(projectData.projectSourceId,
                                                  projectData.sourceId,
                                                  projectData.moduleId,

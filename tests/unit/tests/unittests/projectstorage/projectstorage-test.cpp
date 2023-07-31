@@ -5067,18 +5067,20 @@ TEST_F(ProjectStorage, throw_for_invalid_source_id_in_project_data)
                  QmlDesigner::ProjectDataHasInvalidSourceId);
 }
 
-TEST_F(ProjectStorage, throw_for_invalid_module_id_in_project_data)
+TEST_F(ProjectStorage, insert_project_data_with_invalid_module_id)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
                                                        ModuleId{},
                                                        Storage::Synchronization::FileType::QmlDocument};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}}),
-                 QmlDesigner::ProjectDataHasInvalidModuleId);
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}});
+
+    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(projectData1));
 }
 
-TEST_F(ProjectStorage, throw_for_updating_with_invalid_module_id_in_project_data)
+TEST_F(ProjectStorage, update_project_data_with_invalid_module_id)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5087,8 +5089,10 @@ TEST_F(ProjectStorage, throw_for_updating_with_invalid_module_id_in_project_data
     storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}});
     projectData1.moduleId = ModuleId{};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}}),
-                 QmlDesigner::ProjectDataHasInvalidModuleId);
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}});
+
+    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(projectData1));
 }
 
 TEST_F(ProjectStorage, throw_for_updating_with_invalid_project_source_id_in_project_data)
