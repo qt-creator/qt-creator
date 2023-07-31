@@ -46,14 +46,11 @@ public:
 
     QbsBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
-    QbsBuildConfiguration *qbsBuildConfiguration() const;
     QVariantMap qbsConfiguration(VariableHandling variableHandling) const;
     void setQbsConfiguration(const QVariantMap &config);
 
-    bool hasCustomInstallRoot() const;
     Utils::FilePath installRoot(VariableHandling variableHandling = ExpandVariables) const;
     QString buildVariant() const;
-    int maxJobs() const;
 
     Utils::SelectionAspect buildVariantHolder{this};
     ArchitecturesAspect selectedAbis{this};
@@ -77,11 +74,14 @@ private:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
+    QbsBuildConfiguration *qbsBuildConfiguration() const;
     QbsBuildSystem *qbsBuildSystem() const;
     QbsBuildStepData stepData() const;
     void setBuildVariant(const QString &variant);
     void setConfiguredArchitectures(const QStringList &architectures);
     QString profile() const;
+    bool hasCustomInstallRoot() const;
+    int maxJobs() const;
 
     void updateState();
     QStringList configuredArchitectures() const;
