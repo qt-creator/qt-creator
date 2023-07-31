@@ -232,6 +232,9 @@ void StateItem::transitionsChanged()
     }
 
     m_transitionRect = rectInternalTransitions;
+    positionOnEntryItems();
+    positionOnExitItems();
+
     updateBoundingRect();
 }
 
@@ -437,8 +440,7 @@ void StateItem::updatePolygon()
     f.setPixelSize(m_titleRect.height() * 0.65);
     m_stateNameItem->setFont(f);
 
-    if (m_onEntryItem)
-        m_onEntryItem->setPos(m_titleRect.x(), m_titleRect.bottom());
+    positionOnEntryItems();
     positionOnExitItems();
 
     updateTextPositions();
@@ -552,7 +554,7 @@ void StateItem::addChild(ScxmlTag *child)
         item->setTag(child);
         item->finalizeCreation();
         item->updateAttributes();
-        m_onEntryItem->setPos(m_titleRect.x(), m_titleRect.bottom());
+        positionOnEntryItems();
     } else if (child->tagName() == "onexit") {
         OnEntryExitItem *item = new OnEntryExitItem(this);
         m_onExitItem = item;
@@ -566,8 +568,18 @@ void StateItem::addChild(ScxmlTag *child)
 void StateItem::positionOnExitItems()
 {
     int offset = m_onEntryItem ? m_onEntryItem->boundingRect().height() : 0;
-    if (m_onExitItem)
-        m_onExitItem->setPos(m_titleRect.x(), m_titleRect.bottom() + offset);
+    if (m_onExitItem) {
+        auto x = m_transitionRect.isValid() ? m_transitionRect.right() : m_titleRect.x();
+        m_onExitItem->setPos(x, m_titleRect.bottom() + offset);
+    }
+}
+
+void StateItem::positionOnEntryItems()
+{
+    if (m_onEntryItem) {
+        auto x = m_transitionRect.isValid() ? m_transitionRect.right() : m_titleRect.x();
+        m_onEntryItem->setPos(x, m_titleRect.bottom());
+    }
 }
 
 QString StateItem::itemId() const
