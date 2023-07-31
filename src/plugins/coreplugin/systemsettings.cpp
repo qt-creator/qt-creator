@@ -152,12 +152,10 @@ SystemSettings::SystemSettings()
 
     showCrashButton.setSettingsKey("ShowCrashButton");
 #endif
-
-    const auto updateAutoSave = [] {  EditorManagerPrivate::updateAutoSave(); };
-    connect(&autoSaveModifiedFiles, &BaseAspect::changed, this, updateAutoSave);
-    connect(&autoSaveInterval, &BaseAspect::changed, this, updateAutoSave);
-
     readSettings();
+    connect(&autoSaveModifiedFiles, &BaseAspect::changed,
+            this, &EditorManagerPrivate::updateAutoSave);
+    connect(&autoSaveInterval, &BaseAspect::changed, this, &EditorManagerPrivate::updateAutoSave);
 }
 
 class SystemSettingsWidget : public IOptionsPageWidget
