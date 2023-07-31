@@ -97,19 +97,6 @@ const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
     return static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration());
 }
 
-QbsBuildStepData QbsInstallStep::stepData() const
-{
-    QbsBuildStepData data;
-    data.command = "install";
-    data.dryRun = dryRun();
-    data.keepGoing = keepGoing();
-    data.noBuild = true;
-    data.cleanInstallRoot = cleanInstallRoot();
-    data.isInstallStep = true;
-    data.installRoot = installRoot();
-    return data;
-}
-
 QWidget *QbsInstallStep::createConfigWidget()
 {
     auto widget = new QWidget;
@@ -133,7 +120,15 @@ QWidget *QbsInstallStep::createConfigWidget()
 
     const auto updateState = [this, commandLineTextEdit, installRootValueLabel] {
         installRootValueLabel->setText(installRoot().toUserOutput());
-        commandLineTextEdit->setPlainText(buildConfig()->equivalentCommandLine(stepData()));
+        QbsBuildStepData data;
+        data.command = "install";
+        data.dryRun = dryRun();
+        data.keepGoing = keepGoing();
+        data.noBuild = true;
+        data.cleanInstallRoot = cleanInstallRoot();
+        data.isInstallStep = true;
+        data.installRoot = installRoot();
+        commandLineTextEdit->setPlainText(buildConfig()->equivalentCommandLine(data));
     };
 
     connect(target(), &Target::parsingFinished, this, updateState);

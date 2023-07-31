@@ -18,7 +18,6 @@ public:
     QbsInstallStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
     Utils::FilePath installRoot() const;
-    QbsBuildStepData stepData() const;
 
 private:
     bool init() override;
