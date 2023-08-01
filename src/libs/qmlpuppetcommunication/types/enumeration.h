@@ -37,7 +37,7 @@ public:
     {
         m_enumerationName.reserve(scope.size() + 1 + name.size());
         m_enumerationName.append(scope);
-        m_enumerationName.append(1);
+        m_enumerationName.append('.');
         m_enumerationName.append(name);
     }
 
