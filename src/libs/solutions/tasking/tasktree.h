@@ -200,7 +200,7 @@ private:
     TaskHandler m_taskHandler;
 };
 
-class TASKING_EXPORT Group : public GroupItem
+class TASKING_EXPORT Group final : public GroupItem
 {
 public:
     Group(const QList<GroupItem> &children) { addChildren(children); }
