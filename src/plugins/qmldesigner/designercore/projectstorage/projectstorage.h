@@ -807,7 +807,6 @@ private:
             if (!projectData.sourceId)
                 throw ProjectDataHasInvalidSourceId{};
 
-
             insertProjectDataStatement.write(projectData.projectSourceId,
                                              projectData.sourceId,
                                              projectData.moduleId,
