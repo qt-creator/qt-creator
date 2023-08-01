@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
     auto withLink = new Utils::InfoLabel("With <a href=\"link clicked!\">link</a>", InfoLabel::Error);
     withLink->setElideMode(Qt::ElideNone);
-    QObject::connect(withLink, &QLabel::linkActivated, [widget](const QString& link){
+    QObject::connect(withLink, &QLabel::linkActivated, &app, [widget](const QString& link) {
         QMessageBox::information(widget, {}, link);
     });
     mainLayout->addWidget(withLink);
