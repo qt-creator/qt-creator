@@ -72,7 +72,8 @@ public:
     Model(ProjectStorageDependencies projectStorageDependencies,
           Utils::SmallStringView typeName,
           Imports imports,
-          const QUrl &fileUrl);
+          const QUrl &fileUrl,
+          std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
     Model(const TypeName &typeName,
           int major = 1,
           int minor = 1,
@@ -91,12 +92,18 @@ public:
             new Model(typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)));
     }
 
-    static ModelPointer create(ProjectStorageDependencies projectStorageDependencies,
-                               Utils::SmallStringView typeName,
-                               Imports imports,
-                               const QUrl &fileUrl)
+    static ModelPointer create(
+        ProjectStorageDependencies projectStorageDependencies,
+        Utils::SmallStringView typeName,
+        Imports imports,
+        const QUrl &fileUrl,
+        std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
-        return ModelPointer(new Model(projectStorageDependencies, typeName, imports, fileUrl));
+        return ModelPointer(new Model(projectStorageDependencies,
+                                      typeName,
+                                      imports,
+                                      fileUrl,
+                                      std::move(resourceManagement)));
     }
     static ModelPointer create(ProjectStorageDependencies m_projectStorageDependencies,
                                const TypeName &typeName,

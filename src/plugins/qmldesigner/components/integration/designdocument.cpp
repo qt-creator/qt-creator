@@ -63,23 +63,31 @@ namespace QmlDesigner {
   */
 DesignDocument::DesignDocument(ProjectStorageDependencies projectStorageDependencies,
                                ExternalDependenciesInterface &externalDependencies)
+#ifdef QDS_USE_PROJECTSTORAGE
+    : m_documentModel(Model::create(projectStorageDependencies,
+                                    "Item",
+                                    {Import::createLibraryImport("QtQuick")},
+                                    {},
+                                    std::make_unique<ModelResourceManagement>()))
+#else
     : m_documentModel(
         Model::create("QtQuick.Item", 1, 0, nullptr, std::make_unique<ModelResourceManagement>()))
+#endif
     , m_subComponentManager(new SubComponentManager(m_documentModel.get(), externalDependencies))
     , m_rewriterView(new RewriterView(externalDependencies, RewriterView::Amend))
     , m_documentLoaded(false)
     , m_currentTarget(nullptr)
     , m_projectStorageDependencies(projectStorageDependencies)
     , m_externalDependencies{externalDependencies}
-{
-}
+{}
 
 DesignDocument::~DesignDocument() = default;
 
 Model *DesignDocument::currentModel() const
 {
-    if (m_inFileComponentModel)
+    if (m_inFileComponentModel) {
         return m_inFileComponentModel.get();
+    }
 
     return m_documentModel.get();
 }

@@ -100,7 +100,8 @@ public:
                  ProjectStorageDependencies m_projectStorageDependencies,
                  Utils::SmallStringView typeName,
                  Imports imports,
-                 const QUrl &filePath);
+                 const QUrl &filePath,
+                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
     ModelPrivate(Model *model,
                  const TypeName &type,
                  int major,

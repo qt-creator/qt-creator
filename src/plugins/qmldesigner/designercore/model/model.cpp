@@ -88,10 +88,12 @@ ModelPrivate::ModelPrivate(Model *model,
                            ProjectStorageDependencies projectStorageDependencies,
                            Utils::SmallStringView typeName,
                            Imports imports,
-                           const QUrl &fileUrl)
+                           const QUrl &fileUrl,
+                           std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : projectStorage{&projectStorageDependencies.storage}
     , pathCache{&projectStorageDependencies.cache}
     , m_model{model}
+    , m_resourceManagement{std::move(resourceManagement)}
 {
     setFileUrl(fileUrl);
     changeImports(std::move(imports), {});
@@ -1643,9 +1645,14 @@ Model::Model(ProjectStorageDependencies projectStorageDependencies,
 Model::Model(ProjectStorageDependencies projectStorageDependencies,
              Utils::SmallStringView typeName,
              Imports imports,
-             const QUrl &fileUrl)
-    : d(std::make_unique<Internal::ModelPrivate>(
-        this, projectStorageDependencies, typeName, std::move(imports), fileUrl))
+             const QUrl &fileUrl,
+             std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
+    : d(std::make_unique<Internal::ModelPrivate>(this,
+                                                 projectStorageDependencies,
+                                                 typeName,
+                                                 std::move(imports),
+                                                 fileUrl,
+                                                 std::move(resourceManagement)))
 {}
 
 Model::Model(const TypeName &typeName,
