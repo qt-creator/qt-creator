@@ -702,19 +702,19 @@ QList<OutputLineParser *> KitAspect::createOutputParsers(const Kit *k) const
 QString KitAspect::displayNamePostfix(const Kit *k) const
 {
     Q_UNUSED(k)
-    return QString();
+    return {};
 }
 
 QSet<Id> KitAspect::supportedPlatforms(const Kit *k) const
 {
     Q_UNUSED(k)
-    return QSet<Id>();
+    return {};
 }
 
 QSet<Id> KitAspect::availableFeatures(const Kit *k) const
 {
     Q_UNUSED(k)
-    return QSet<Id>();
+    return {};
 }
 
 void KitAspect::addToMacroExpander(Kit *k, MacroExpander *expander) const
@@ -816,7 +816,7 @@ QString KitFeatureProvider::displayNameForPlatform(Id id) const
         QTC_CHECK(!dn.isEmpty());
         return dn;
     }
-    return QString();
+    return {};
 }
 
 } // namespace ProjectExplorer

@@ -114,7 +114,7 @@ static FilePath filePathValue(const FilePath &value, const QStringList &candidat
         if (!filePath.isEmpty())
             return filePath;
     }
-    return FilePath();
+    return {};
 }
 
 // Keep read locker locked while calling this method

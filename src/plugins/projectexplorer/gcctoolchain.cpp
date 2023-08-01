@@ -1670,7 +1670,7 @@ QString ClangToolChain::sysRoot() const
 {
     const MingwToolChain *parentTC = mingwToolChainFromId(m_parentToolChainId);
     if (!parentTC)
-        return QString();
+        return {};
 
     const FilePath mingwCompiler = parentTC->compilerCommand();
     return mingwCompiler.parentDir().parentDir().toString();

@@ -59,7 +59,7 @@ private:
     QVariant data(int column, int role) const override
     {
         if (column != 0 || role != Qt::DisplayRole)
-            return QVariant();
+            return {};
         return m_candidate->file.filePath().toUserOutput();
     }
 
@@ -192,7 +192,7 @@ JsonWizard::GeneratorFiles JsonWizard::generateFileList()
                               Tr::tr("The wizard failed to generate files.<br>"
                                  "The error message was: \"%1\".").arg(errorMessage));
         reject();
-        return GeneratorFiles();
+        return {};
     }
 
     QList<GeneratorFile *> projectFiles;
@@ -216,7 +216,7 @@ QString JsonWizard::stringValue(const QString &n) const
 {
     QVariant v = value(n);
     if (!v.isValid())
-        return QString();
+        return {};
 
     if (v.typeId() == QVariant::String) {
         QString tmp = m_expander.expand(v.toString());
@@ -271,7 +271,7 @@ QVariant JsonWizard::value(const QString &n) const
         return v;
     if (hasField(n))
         return field(n); // Cannot contain macros!
-    return QVariant();
+    return {};
 }
 
 bool JsonWizard::boolFromVariant(const QVariant &v, MacroExpander *expander)
@@ -287,7 +287,7 @@ QString JsonWizard::stringListToArrayString(const QStringList &list, const Macro
 {
     // Todo: Handle ' embedded in the strings better.
     if (list.isEmpty())
-        return QString();
+        return {};
 
     QStringList tmp = Utils::transform(list, [expander](const QString &i) {
         return expander->expand(i).replace(QLatin1Char('\''), QLatin1String("\\'"));

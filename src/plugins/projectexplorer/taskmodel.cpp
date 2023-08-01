@@ -283,7 +283,7 @@ Task TaskModel::task(const QModelIndex &index) const
     int row = index.row();
     if (!index.isValid() || row < 0 || row >= m_tasks.count() || index.internalId()
         || index.column() > 0) {
-        return Task();
+        return {};
     }
     return m_tasks.at(row);
 }

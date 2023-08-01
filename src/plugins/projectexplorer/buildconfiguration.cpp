@@ -546,9 +546,8 @@ bool BuildConfiguration::isEnabled() const
 
 QString BuildConfiguration::disabledReason() const
 {
-    if (!buildSystem()->hasParsingData())
-        return (Tr::tr("The project was not parsed successfully."));
-    return QString();
+    return buildSystem()->hasParsingData() ? QString()
+                                           : Tr::tr("The project was not parsed successfully.");
 }
 
 bool BuildConfiguration::regenerateBuildFiles(Node *node)

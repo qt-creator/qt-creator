@@ -90,7 +90,7 @@ Id fromLanguageV1(int language)
         return Id(Constants::CXX_LANGUAGE_ID);
     case Deprecated::Toolchain::None:
     default:
-        return Id();
+        return {};
     }
 }
 
@@ -108,7 +108,7 @@ QString languageId(Language l)
     case Language::Cxx:
         return QStringLiteral("Cxx");
     };
-    return QString();
+    return {};
 }
 
 } // namespace Deprecated::ToolChain
@@ -517,7 +517,7 @@ Tasks ToolChain::validateKit(const Kit *) const
 
 QString ToolChain::sysRoot() const
 {
-    return QString();
+    return {};
 }
 
 QString ToolChain::explicitCodeModelTargetTriple() const

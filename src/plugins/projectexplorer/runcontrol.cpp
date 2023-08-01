@@ -1771,7 +1771,7 @@ QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, cons
             // "The last waitFor...() function timed out. "
             //   "The state of QProcess is unchanged, and you can try calling "
             // "waitFor...() again."
-            return QString(); // sic!
+            return {}; // sic!
         case QProcess::WriteError:
             msg = Tr::tr("An error occurred when attempting to write "
                 "to the process. For example, the process may not be running, "

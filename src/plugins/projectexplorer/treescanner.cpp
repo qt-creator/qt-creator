@@ -77,7 +77,7 @@ TreeScanner::Result TreeScanner::result() const
 {
     if (isFinished())
         return m_scanFuture.result();
-    return Result();
+    return {};
 }
 
 TreeScanner::Result TreeScanner::release()
@@ -88,7 +88,7 @@ TreeScanner::Result TreeScanner::release()
         return result;
     }
     m_scanFuture = Future();
-    return Result();
+    return {};
 }
 
 void TreeScanner::reset()

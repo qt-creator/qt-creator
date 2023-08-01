@@ -141,9 +141,9 @@ int DeviceManagerModel::rowCount(const QModelIndex &parent) const
 QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= rowCount())
-        return QVariant();
+        return {};
     if (role != Qt::DisplayRole && role != Qt::UserRole)
-        return QVariant();
+        return {};
     const IDevice::ConstPtr dev = device(index.row());
     if (role == Qt::UserRole)
         return dev->id().toSetting();

@@ -73,7 +73,7 @@ DesktopDevice::~DesktopDevice() = default;
 
 IDevice::DeviceInfo DesktopDevice::deviceInformation() const
 {
-    return DeviceInfo();
+    return {};
 }
 
 IDeviceWidget *DesktopDevice::createWidget()

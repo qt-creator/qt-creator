@@ -94,9 +94,9 @@ public:
     void setTargetAbi(const Abi &abi);
 
     virtual ProjectExplorer::Abis supportedAbis() const;
-    virtual QString originalTargetTriple() const { return QString(); }
-    virtual QStringList extraCodeModelFlags() const { return QStringList(); }
-    virtual Utils::FilePath installDir() const { return Utils::FilePath(); }
+    virtual QString originalTargetTriple() const { return {}; }
+    virtual QStringList extraCodeModelFlags() const { return {}; }
+    virtual Utils::FilePath installDir() const { return {}; }
     virtual bool hostPrefersToolchain() const { return true; }
 
     virtual bool isValid() const;

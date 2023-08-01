@@ -142,7 +142,7 @@ public:
     virtual ContainerNode *asContainerNode() { return nullptr; }
     virtual const ContainerNode *asContainerNode() const { return nullptr; }
 
-    virtual QString buildKey() const { return QString(); }
+    virtual QString buildKey() const { return {}; }
 
     static bool sortByPath(const Node *a, const Node *b);
     void setParentFolderNode(FolderNode *parentFolder);

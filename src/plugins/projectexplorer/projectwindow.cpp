@@ -246,8 +246,7 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
 
     if (role == ActiveItemRole)  // We are the active one.
         return QVariant::fromValue<TreeItem *>(const_cast<MiscSettingsPanelItem *>(this));
-
-    return QVariant();
+    return {};
 }
 
 Qt::ItemFlags MiscSettingsPanelItem::flags(int column) const
@@ -300,7 +299,7 @@ public:
             if (0 <= m_currentPanelIndex && m_currentPanelIndex < childCount())
                 return childAt(m_currentPanelIndex)->data(column, role);
         }
-        return QVariant();
+        return {};
     }
 
     bool setData(int column, const QVariant &data, int role) override
@@ -363,7 +362,7 @@ public:
             if (m_currentChildIndex == 1)
                 return m_miscItem->data(column, role);
         }
-        return QVariant();
+        return {};
     }
 
     bool setData(int column, const QVariant &dat, int role) override

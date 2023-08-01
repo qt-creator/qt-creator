@@ -149,7 +149,7 @@ Utils::Id SysRootKitAspect::id()
 FilePath SysRootKitAspect::sysRoot(const Kit *k)
 {
     if (!k)
-        return FilePath();
+        return {};
 
     if (!k->value(SysRootKitAspect::id()).toString().isEmpty())
         return FilePath::fromString(k->value(SysRootKitAspect::id()).toString());
@@ -158,8 +158,7 @@ FilePath SysRootKitAspect::sysRoot(const Kit *k)
         if (!tc->sysRoot().isEmpty())
             return FilePath::fromString(tc->sysRoot());
     }
-
-    return FilePath();
+    return {};
 }
 
 void SysRootKitAspect::setSysRoot(Kit *k, const FilePath &v)
@@ -584,7 +583,7 @@ QByteArray ToolChainKitAspect::toolChainId(const Kit *k, Id language)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return nullptr);
     if (!k)
-        return QByteArray();
+        return {};
     QVariantMap value = k->value(ToolChainKitAspect::id()).toMap();
     return value.value(language.toString(), QByteArray()).toByteArray();
 }
@@ -977,7 +976,7 @@ QVariant DeviceKitAspect::defaultValue(const Kit *k) const
             return dev->id().toString();
     }
     // Fail: No device set up.
-    return QString();
+    return {};
 }
 
 Tasks DeviceKitAspect::validate(const Kit *k) const
@@ -1544,7 +1543,7 @@ EnvironmentItems EnvironmentKitAspect::environmentChanges(const Kit *k)
 {
      if (k)
          return EnvironmentItem::fromStringList(k->value(EnvironmentKitAspect::id()).toStringList());
-     return EnvironmentItems();
+     return {};
 }
 
 void EnvironmentKitAspect::setEnvironmentChanges(Kit *k, const EnvironmentItems &changes)

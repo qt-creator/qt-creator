@@ -725,7 +725,7 @@ FilePath Project::projectDirectory() const
 FilePath Project::projectDirectory(const FilePath &top)
 {
     if (top.isEmpty())
-        return FilePath();
+        return {};
     return top.absolutePath();
 }
 
@@ -1232,10 +1232,10 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                              //: %1 is something like "Active project"
                              ::PE::Tr::tr("%1: Variables in the active build environment.")
                                  .arg(descriptor),
-                             [bcGetter](const QString &var) {
+                             [bcGetter](const QString &var) -> QString {
                                  if (BuildConfiguration *const bc = bcGetter())
                                      return bc->environment().expandedValueForKey(var);
-                                 return QString();
+                                 return {};
                              });
 
     expander->registerVariable(fullPrefix + "RunConfig:Name",
@@ -1245,7 +1245,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                [rcGetter]() -> QString {
                                    if (const RunConfiguration *const rc = rcGetter())
                                        return rc->displayName();
-                                   return QString();
+                                   return {};
                                });
     expander->registerFileVariables(fullPrefix + "RunConfig:Executable",
                                     //: %1 is something like "Active project"
@@ -1262,25 +1262,25 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                          ::PE::Tr::tr(
                              "%1: Variables in the environment of the active run configuration.")
                              .arg(descriptor),
-                         [rcGetter](const QString &var) {
+                         [rcGetter](const QString &var) -> QString {
                              if (const RunConfiguration *const rc = rcGetter()) {
                                  if (const auto envAspect = rc->aspect<EnvironmentAspect>())
                                      return envAspect->environment().expandedValueForKey(var);
                              }
-                             return QString();
+                             return {};
                          });
     expander->registerVariable(fullPrefix + "RunConfig:WorkingDir",
                                //: %1 is something like "Active project"
                                ::PE::Tr::tr(
                                    "%1: Working directory of the active run configuration.")
                                    .arg(descriptor),
-                               [rcGetter] {
+                               [rcGetter]() -> QString {
                                    if (const RunConfiguration *const rc = rcGetter()) {
                                        if (const auto wdAspect
                                            = rc->aspect<WorkingDirectoryAspect>())
                                            return wdAspect->workingDirectory().toString();
                                    }
-                                   return QString();
+                                   return {};
                                });
 }
 

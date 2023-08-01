@@ -116,7 +116,7 @@ static QString platformName(MsvcToolChain::Platform t)
 {
     if (const MsvcPlatform *p = platformEntry(t))
         return QLatin1String(p->name);
-    return QString();
+    return {};
 }
 
 static bool hostPrefersPlatform(MsvcToolChain::Platform platform)
@@ -2120,7 +2120,7 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     if (!saver.finalize()) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
-        return QString();
+        return {};
     }
 
     Utils::Process run;
@@ -2161,13 +2161,13 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     const int start = stdOut.indexOf(marker);
     if (start == -1) {
         qWarning("Could not find start marker in stdout output.");
-        return QString();
+        return {};
     }
 
     const int end = stdOut.indexOf(marker, start + 1);
     if (end == -1) {
         qWarning("Could not find end marker in stdout output.");
-        return QString();
+        return {};
     }
 
     const QString output = stdOut.mid(start, end - start);

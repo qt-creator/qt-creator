@@ -259,7 +259,7 @@ ProcessInfo DeviceProcessesDialogPrivate::selectedProcess() const
 {
     const QModelIndexList indexes = procView->selectionModel()->selectedIndexes();
     if (indexes.empty() || !processList)
-        return ProcessInfo();
+        return {};
     return processList->at(proxyModel.mapToSource(indexes.first()).row());
 }
 

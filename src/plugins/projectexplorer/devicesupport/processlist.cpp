@@ -118,7 +118,7 @@ QVariant DeviceProcessTreeItem::data(int column, int role) const
         else
             return process.commandLine;
     }
-    return QVariant();
+    return {};
 }
 
 void ProcessList::setFinished()

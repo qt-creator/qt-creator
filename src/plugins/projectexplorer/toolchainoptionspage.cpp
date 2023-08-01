@@ -78,7 +78,7 @@ public:
                 return column == 0 && !toolChain->isValid()
                         ? Utils::Icons::CRITICAL.icon() : QVariant();
         }
-        return QVariant();
+        return {};
     }
 
     ToolChainConfigWidget *widget()

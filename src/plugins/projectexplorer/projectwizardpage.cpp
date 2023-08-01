@@ -108,7 +108,7 @@ QVariant AddNewTree::data(int, int role) const
     case Qt::UserRole:
         return QVariant::fromValue(static_cast<void*>(node()));
     default:
-        return QVariant();
+        return {};
     }
 }
 
@@ -201,7 +201,7 @@ QString BestNodeSelector::deployingProjects() const
 {
     if (m_deploys)
         return m_deployText;
-    return QString();
+    return {};
 }
 
 // --------------------------------------------------------------------

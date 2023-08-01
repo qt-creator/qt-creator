@@ -52,7 +52,7 @@ private:
             }
             return displayPath.isEmpty() ? Tr::tr("[none]") : displayPath.toUserOutput();
         }
-        return QVariant();
+        return {};
     }
 
     const RunConfigurationCreationInfo m_creationInfo;

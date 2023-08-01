@@ -24,8 +24,7 @@ QByteArray Macro::toByteArray() const
         case MacroType::Undefine: return QByteArray("#undef ") + key;
         case MacroType::Invalid: break;
     }
-
-    return QByteArray();
+    return {};
 }
 
 QByteArray Macro::toByteArray(const Macros &macros)

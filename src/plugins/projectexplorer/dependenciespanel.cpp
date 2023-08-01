@@ -81,7 +81,7 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
         return Utils::FileIconProvider::icon(p->projectFilePath());
     default:
-        return QVariant();
+        return {};
     }
 }
 

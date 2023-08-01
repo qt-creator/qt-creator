@@ -190,7 +190,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
 {
     const Node * const node = nodeForIndex(index);
     if (!node)
-        return QVariant();
+        return {};
 
     const FolderNode * const folderNode = node->asFolderNode();
     const ContainerNode * const containerNode = node->asContainerNode();
@@ -247,8 +247,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     case Project::isParsingRole:
         return project && bs ? bs->isParsing() && !project->needsConfiguration() : false;
     }
-
-    return QVariant();
+    return {};
 }
 
 Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const

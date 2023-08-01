@@ -184,12 +184,12 @@ QModelIndex SelectableFilesModel::index(int row, int column, const QModelIndex &
 QModelIndex SelectableFilesModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
-        return QModelIndex();
+        return {};
     if (!child.internalPointer())
-        return QModelIndex();
+        return {};
     auto parent = static_cast<Tree *>(child.internalPointer())->parent;
     if (!parent)
-        return QModelIndex();
+        return {};
     if (!parent->parent) //then the parent is the root
         return createIndex(0, 0, parent);
     // figure out where the parent is
@@ -202,7 +202,7 @@ QModelIndex SelectableFilesModel::parent(const QModelIndex &child) const
 QVariant SelectableFilesModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-        return QVariant();
+        return {};
     auto t = static_cast<Tree *>(index.internalPointer());
     if (role == Qt::DisplayRole)
         return t->name;
@@ -213,7 +213,7 @@ QVariant SelectableFilesModel::data(const QModelIndex &index, int role) const
             t->icon = Utils::FileIconProvider::icon(t->fullPath);
         return t->icon;
     }
-    return QVariant();
+    return {};
 }
 
 bool SelectableFilesModel::setData(const QModelIndex &index, const QVariant &value, int role)

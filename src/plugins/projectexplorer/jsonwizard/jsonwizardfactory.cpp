@@ -660,7 +660,7 @@ QList<QVariant> JsonWizardFactory::objectOrList(const QVariant &data, QString *e
 QString JsonWizardFactory::localizedString(const QVariant &value)
 {
     if (value.isNull())
-        return QString();
+        return {};
     if (value.typeId() == QVariant::Map) {
         QVariantMap tmp = value.toMap();
         const QString locale = languageSetting().toLower();
@@ -671,7 +671,7 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
             if (!result.isEmpty())
                 return result;
         }
-        return QString();
+        return {};
     }
     return Tr::tr(value.toByteArray());
 }
@@ -871,7 +871,7 @@ QVariant JsonWizardFactoryJsExtension::value(const QString &name) const
         return Id::toStringList(m_availableFeatures);
     if (name == "Plugins")
         return Id::toStringList(m_pluginFeatures);
-    return QVariant();
+    return {};
 }
 
 } // namespace Internal

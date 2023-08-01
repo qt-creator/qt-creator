@@ -81,10 +81,10 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
         const Id projectBase = PROJECT_BASE_ID;
         if (Command *cmd = ActionManager::command(projectBase.withSuffix(index.row() + 1)))
             return cmd->keySequence().toString(QKeySequence::NativeText);
-        return QVariant();
+        return {};
     }
     default:
-        return QVariant();
+        return {};
     }
 }
 

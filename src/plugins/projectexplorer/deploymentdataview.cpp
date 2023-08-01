@@ -45,7 +45,7 @@ public:
     {
         if (role == Qt::DisplayRole || role == Qt::EditRole)
             return column == 0 ? file.localFilePath().toUserOutput() : file.remoteDirectory();
-        return QVariant();
+        return {};
     }
 
     bool setData(int column, const QVariant &data, int role) override

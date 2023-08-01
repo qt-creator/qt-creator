@@ -230,11 +230,11 @@ void KitOptionsPageWidget::updateState()
 QModelIndex KitOptionsPageWidget::currentIndex() const
 {
     if (!m_selectionModel)
-        return QModelIndex();
+        return {};
 
     QModelIndexList idxs = m_selectionModel->selectedRows();
     if (idxs.count() != 1)
-        return QModelIndex();
+        return {};
     return idxs.at(0);
 }
 

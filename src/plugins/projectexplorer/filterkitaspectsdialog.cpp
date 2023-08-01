@@ -48,7 +48,7 @@ private:
             return displayName();
         if (column == 1 && role == Qt::CheckStateRole)
             return m_enabled ? Qt::Checked : Qt::Unchecked;
-        return QVariant();
+        return {};
     }
 
     bool setData(int column, const QVariant &data, int role) override

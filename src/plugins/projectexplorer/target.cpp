@@ -584,7 +584,7 @@ QString Target::overlayIconToolTip()
 QVariantMap Target::toMap() const
 {
     if (!d->m_kit) // Kit was deleted, target is only around to be copied.
-        return QVariantMap();
+        return {};
 
     QVariantMap map;
     map.insert(displayNameKey(), displayName());

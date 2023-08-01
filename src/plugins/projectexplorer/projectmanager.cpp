@@ -406,14 +406,14 @@ QString ProjectManagerPrivate::sessionTitle(const FilePath &filePath)
     } else {
         return sessionName.isEmpty() ? Tr::tr("Untitled") : sessionName;
     }
-    return QString();
+    return {};
 }
 
 QString ProjectManagerPrivate::locationInProject(const FilePath &filePath)
 {
     const Project *project = ProjectManager::projectForFile(filePath);
     if (!project)
-        return QString();
+        return {};
 
     const FilePath parentDir = filePath.parentDir();
     if (parentDir == project->projectDirectory())

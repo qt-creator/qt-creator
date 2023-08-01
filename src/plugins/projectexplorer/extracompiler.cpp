@@ -350,12 +350,12 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
 
 FilePath ProcessExtraCompiler::workingDirectory() const
 {
-    return FilePath();
+    return {};
 }
 
 QStringList ProcessExtraCompiler::arguments() const
 {
-    return QStringList();
+    return {};
 }
 
 bool ProcessExtraCompiler::prepareToRun(const QByteArray &sourceContents)

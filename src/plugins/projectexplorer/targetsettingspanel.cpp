@@ -309,8 +309,7 @@ public:
         default:
             break;
         }
-
-        return QVariant();
+        return {};
     }
 
     bool setData(int column, const QVariant &data, int role) override
@@ -554,8 +553,7 @@ public:
         default:
             break;
         }
-
-        return QVariant();
+        return {};
     }
 
     Qt::ItemFlags flags(int column) const override
@@ -611,8 +609,7 @@ public:
             font.setItalic(true);
             return font;
         }
-
-        return QVariant();
+        return {};
     }
 
     bool setData(int column, const QVariant &data, int role) override
@@ -700,8 +697,7 @@ QVariant TargetGroupItem::data(int column, int role) const
         d->ensureWidget();
         return QVariant::fromValue<QWidget *>(d->m_configurePage.data());
     }
-
-    return QVariant();
+    return {};
 }
 
 bool TargetGroupItem::setData(int column, const QVariant &data, int role)
