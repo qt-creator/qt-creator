@@ -173,7 +173,7 @@ public:
             "file from the Copilot neovim plugin.",
             "Markdown text for the copilot instruction label")
                            .arg("[README.md](https://github.com/github/copilot.vim)")
-                           .arg("[agent.js](https://github.com/github/copilot.vim/tree/release/copilot/dist)"));
+                           .arg("[agent.js](https://github.com/github/copilot.vim/tree/release/dist)"));
 
         Column {
             QString("<b>" + Tr::tr("Note:") + "</b>"), br,
