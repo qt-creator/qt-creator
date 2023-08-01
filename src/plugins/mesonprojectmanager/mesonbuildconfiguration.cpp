@@ -221,7 +221,8 @@ public:
 
         m_showProgressTimer.setSingleShot(true);
         m_showProgressTimer.setInterval(50); // don't show progress for < 50ms tasks
-        connect(&m_showProgressTimer, &QTimer::timeout, [this]() { m_progressIndicator.show(); });
+        connect(&m_showProgressTimer, &QTimer::timeout,
+                this, [this] { m_progressIndicator.show(); });
         connect(&m_optionsModel, &BuidOptionsModel::configurationChanged, this, [configureButton] {
             configureButton->setEnabled(true);
         });
@@ -274,13 +275,15 @@ public:
                 optionsTreeView,
                 [tree = optionsTreeView](const QModelIndex &idx) { tree->edit(idx); });
 
-        connect(configureButton, &QPushButton::clicked, [this, bs, configureButton, optionsTreeView] {
+        connect(configureButton, &QPushButton::clicked,
+                this, [this, bs, configureButton, optionsTreeView] {
             optionsTreeView->setEnabled(false);
             configureButton->setEnabled(false);
             m_showProgressTimer.start();
             bs->configure();
         });
-        connect(wipeButton, &QPushButton::clicked, [this, bs, configureButton, optionsTreeView] {
+        connect(wipeButton, &QPushButton::clicked,
+                this, [this, bs, configureButton, optionsTreeView] {
             optionsTreeView->setEnabled(false);
             configureButton->setEnabled(false);
             m_showProgressTimer.start();

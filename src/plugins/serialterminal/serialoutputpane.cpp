@@ -257,14 +257,12 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
         return;
 
     // Signals to update buttons
-    connect(rc, &SerialControl::started,
-            [this, rc]() {
+    connect(rc, &SerialControl::started, this, [this, rc] {
         if (isCurrent(rc))
             enableButtons(rc, true);
     });
 
-    connect(rc, &SerialControl::finished,
-            [this, rc]() {
+    connect(rc, &SerialControl::finished, this, [this, rc] {
         const int tabIndex = indexOf(rc);
         if (tabIndex != -1)
             m_serialControlTabs[tabIndex].window->flush();

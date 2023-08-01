@@ -74,7 +74,7 @@ public:
 
         connect(m_sectionedProducts, &SectionedProducts::toggleProgressIndicator,
                 progressIndicator, &Utils::ProgressIndicator::setVisible);
-        connect(m_sectionedProducts, &SectionedProducts::errorOccurred,
+        connect(m_sectionedProducts, &SectionedProducts::errorOccurred, this,
                 [this, progressIndicator, searchBox](int, const QString &message) {
             progressIndicator->hide();
             progressIndicator->deleteLater();

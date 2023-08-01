@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QTimer::singleShot(0, [] {
+    QTimer::singleShot(0, &app, [] {
         QInputDialog dlg;
         const QStringList appArgs = qApp->arguments();
         QString labelText = QCoreApplication::translate("qtc-askpass",

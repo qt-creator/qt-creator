@@ -323,14 +323,11 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     helpTargetButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
     helpTargetButton->setPopupMode(QToolButton::DelayedPopup);
     helpTargetButton->setMenu(createHelpTargetMenu(helpTargetButton));
-    connect(LocalHelpManager::instance(),
-            &LocalHelpManager::contextHelpOptionChanged,
+    connect(LocalHelpManager::instance(), &LocalHelpManager::contextHelpOptionChanged, this,
             [this, helpTargetAction] {
                 helpTargetAction->setChecked(isTargetOfContextHelp(m_style));
             });
-    connect(helpTargetAction,
-            &QAction::triggered,
-            this,
+    connect(helpTargetAction, &QAction::triggered, this,
             [this, helpTargetAction, helpTargetButton](bool checked) {
                 if (checked) {
                     LocalHelpManager::setContextHelpOption(optionForStyle(m_style));

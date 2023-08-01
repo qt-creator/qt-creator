@@ -97,8 +97,7 @@ void CtfVisualizerTool::createViews()
 
     m_statisticsView = new CtfStatisticsView(m_statisticsModel.get());
     m_statisticsView->setWindowTitle(Tr::tr("Statistics"));
-    connect(m_statisticsView, &CtfStatisticsView::eventTypeSelected, [this] (QString title)
-    {
+    connect(m_statisticsView, &CtfStatisticsView::eventTypeSelected, this, [this](QString title) {
         int typeId = m_traceManager->getSelectionId(title.toStdString());
         m_traceView->selectByTypeId(typeId);
     });

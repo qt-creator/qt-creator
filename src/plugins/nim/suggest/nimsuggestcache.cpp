@@ -22,7 +22,7 @@ public:
     NimSuggestCache()
     {
         setExecutablePath(settings().nimSuggestPath());
-        QObject::connect(&settings().nimSuggestPath, &StringAspect::changed, [this] {
+        QObject::connect(&settings().nimSuggestPath, &StringAspect::changed, this, [this] {
             setExecutablePath(settings().nimSuggestPath());
         });
 

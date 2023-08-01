@@ -31,7 +31,7 @@ CtfStatisticsView::CtfStatisticsView(CtfStatisticsModel *model, QWidget *parent)
     setUniformRowHeights(true);
     setSortingEnabled(true);
 
-    connect(selectionModel(), &QItemSelectionModel::currentChanged,
+    connect(selectionModel(), &QItemSelectionModel::currentChanged, this,
             [this] (const QModelIndex &current, const QModelIndex &previous)
     {
         Q_UNUSED(previous);

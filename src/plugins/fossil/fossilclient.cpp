@@ -915,8 +915,10 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
         if (VcsBaseEditorConfig *editorConfig = createLogEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested,
-                [=]() { this->log(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu, addAuthOptions); } );
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+                log(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu,
+                    addAuthOptions);
+            });
             fossilEditor->setEditorConfig(editorConfig);
         }
     }
@@ -968,8 +970,10 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
         if (VcsBaseEditorConfig *editorConfig = createLogCurrentFileEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested,
-                [=]() { this->logCurrentFile(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu, addAuthOptions); } );
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+                logCurrentFile(workingDir, files, editorConfig->arguments(),
+                               enableAnnotationContextMenu, addAuthOptions);
+            });
             fossilEditor->setEditorConfig(editorConfig);
         }
     }

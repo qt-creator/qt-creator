@@ -55,7 +55,7 @@ public:
 CppcheckPluginPrivate::CppcheckPluginPrivate()
 {
     tool.updateOptions();
-    connect(&settings(), &AspectContainer::changed, [this] {
+    connect(&settings(), &AspectContainer::changed, this, [this] {
         tool.updateOptions();
         trigger.recheck();
     });

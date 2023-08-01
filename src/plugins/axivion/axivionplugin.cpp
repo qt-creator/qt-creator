@@ -205,7 +205,7 @@ void AxivionPluginPrivate::onStartupProjectChanged()
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
     if (m_runningQuery) { // re-schedule
-        QTimer::singleShot(3000, [this, projectName]{ fetchProjectInfo(projectName); });
+        QTimer::singleShot(3000, this, [this, projectName] { fetchProjectInfo(projectName); });
         return;
     }
     clearAllMarks();
@@ -228,7 +228,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
 {
     if (m_runningQuery) {
-        QTimer::singleShot(3000, [this, id]{ fetchRuleInfo(id); });
+        QTimer::singleShot(3000, this, [this, id] { fetchRuleInfo(id); });
         return;
     }
 

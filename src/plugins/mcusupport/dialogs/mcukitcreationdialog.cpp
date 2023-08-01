@@ -89,9 +89,9 @@ McuKitCreationDialog::McuKitCreationDialog(const MessagesList &messages,
     if (qtMCUPackage->isValidStatus())
         m_qtMCUsPathLabel->setText(
             Tr::tr("Qt for MCUs path %1").arg(qtMCUPackage->path().toUserOutput()));
-    connect(m_nextButton, &QPushButton::clicked, [=] { updateMessage(1); });
-    connect(m_previousButton, &QPushButton::clicked, [=] { updateMessage(-1); });
-    connect(fixButton, &QPushButton::clicked, [=] {
+    connect(m_nextButton, &QPushButton::clicked, this, [this] { updateMessage(1); });
+    connect(m_previousButton, &QPushButton::clicked, this, [this] { updateMessage(-1); });
+    connect(fixButton, &QPushButton::clicked, this, [this, settingsHandler] {
         // Open the MCU Options widget on the current platform
         settingsHandler->setInitialPlatformName(m_messages[m_currentIndex].platform);
         Core::ICore::showOptionsDialog(Constants::SETTINGS_ID);

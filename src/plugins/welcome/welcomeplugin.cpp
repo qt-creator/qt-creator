@@ -351,12 +351,12 @@ WelcomeMode::WelcomeMode()
 
     m_modeWidget = new ResizeSignallingWidget;
     m_modeWidget->setPalette(palette);
-    connect(m_modeWidget, &ResizeSignallingWidget::resized,
+    connect(m_modeWidget, &ResizeSignallingWidget::resized, this,
             [this](const QSize &size, const QSize &) {
         const bool hideSideArea = size.width() <= 750;
         const bool hideBottomArea = size.width() <= 850;
         const bool compactVertically = size.height() <= 530;
-        QTimer::singleShot(0, [this, hideSideArea, hideBottomArea, compactVertically]() {
+        QTimer::singleShot(0, this, [this, hideSideArea, hideBottomArea, compactVertically] {
             m_sideArea->setVisible(!hideSideArea);
             m_bottomArea->setVisible(!(hideBottomArea || compactVertically));
             m_topArea->setCompact(compactVertically);

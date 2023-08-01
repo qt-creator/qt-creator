@@ -93,7 +93,7 @@ SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
     }.attachTo(this);
     // clang-format on
 
-    connect(m_newSessionLineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+    connect(m_newSessionLineEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
         m_okButton->setEnabled(!text.isEmpty());
         m_switchToButton->setEnabled(!text.isEmpty());
     });

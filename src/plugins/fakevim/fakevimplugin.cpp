@@ -502,7 +502,7 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
 
     auto infoLabel = new InfoLabel(Tr::tr("Invalid regular expression."), InfoLabel::Error);
     infoLabel->setVisible(false);
-    connect(m_commandEdit, &FancyLineEdit::validChanged, [infoLabel](bool valid){
+    connect(m_commandEdit, &FancyLineEdit::validChanged, this, [infoLabel](bool valid){
         infoLabel->setVisible(!valid);
     });
     commandBoxLayout->addWidget(infoLabel);
