@@ -590,7 +590,7 @@ void LanguageClientManager::trackClientDeletion(Client *client)
 {
     QTC_ASSERT(!m_scheduledForDeletion.contains(client->id()), return);
     m_scheduledForDeletion.insert(client->id());
-    connect(client, &QObject::destroyed, [this, id = client->id()](){
+    connect(client, &QObject::destroyed, this, [this, id = client->id()] {
         m_scheduledForDeletion.remove(id);
         if (isShutdownFinished())
             emit shutdownFinished();
