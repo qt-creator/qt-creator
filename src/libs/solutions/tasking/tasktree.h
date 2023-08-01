@@ -318,6 +318,9 @@ class CustomTask : public GroupItem
 {
 public:
     using Task = typename Adapter::Type;
+    static_assert(std::is_base_of_v<TaskAdapter<Task>, Adapter>,
+                  "The Adapter type for the CustomTask<Adapter> needs to be derived from "
+                  "TaskAdapter<Task>.");
     using EndHandler = std::function<void(const Task &)>;
     static Adapter *createAdapter() { return new Adapter; }
     CustomTask() : GroupItem({&createAdapter}) {}
