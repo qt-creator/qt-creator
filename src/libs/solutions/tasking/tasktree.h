@@ -267,16 +267,15 @@ TASKING_EXPORT extern const GroupItem stopOnFinished;
 TASKING_EXPORT extern const GroupItem finishAllAndDone;
 TASKING_EXPORT extern const GroupItem finishAllAndError;
 
-class TASKING_EXPORT Storage : public GroupItem
+class TASKING_EXPORT Storage final : public GroupItem
 {
 public:
     Storage(const TreeStorageBase &storage) : GroupItem(storage) { }
 };
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
-class TASKING_EXPORT Sync : public Group
+class TASKING_EXPORT Sync final : public Group
 {
-
 public:
     template<typename Function>
     Sync(Function &&function) : Group(init(std::forward<Function>(function))) {}
@@ -314,7 +313,7 @@ private:
 };
 
 template <typename Adapter>
-class CustomTask : public GroupItem
+class CustomTask final : public GroupItem
 {
 public:
     using Task = typename Adapter::Type;
