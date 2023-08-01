@@ -41,6 +41,7 @@ public:
     Q_PROPERTY(QString statusType MEMBER m_qmlStatusType READ getStatusType NOTIFY statusTypeChanged)
     Q_PROPERTY(bool fieldsValid MEMBER m_qmlFieldsValid READ getFieldsValid NOTIFY fieldsValidChanged)
     Q_PROPERTY(QString presetName MEMBER m_qmlPresetName)
+    Q_PROPERTY(QStringList targetQtVersions MEMBER m_targetQtVersions NOTIFY targetQtVersionsChanged)
 
     Q_PROPERTY(bool detailsLoaded MEMBER m_qmlDetailsLoaded)
     Q_PROPERTY(bool stylesLoaded MEMBER m_qmlStylesLoaded)
@@ -108,6 +109,7 @@ signals:
     void targetQtVersionIndexChanged();
     void userPresetSaved();
     void lastUserPresetRemoved();
+    void targetQtVersionsChanged();
 
 private slots:
     void onStatusMessageChanged(Utils::InfoLabel::InfoType type, const QString &message);
@@ -174,6 +176,7 @@ private:
     WizardHandler m_wizard;
     UserPresetsStore m_recentsStore;
     UserPresetsStore m_userPresetsStore;
+    QStringList m_targetQtVersions;
 };
 
 } //namespace StudioWelcome
