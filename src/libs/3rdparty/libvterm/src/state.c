@@ -934,6 +934,7 @@ static int on_csi(const char *leader, const long args[], int argcount, const cha
       return 0;
 
     switch(leader[0]) {
+    case '!':
     case '?':
     case '>':
       leader_byte = leader[0];

@@ -203,7 +203,7 @@ size_t vterm_input_write(VTerm *vt, const char *bytes, size_t len)
     switch(vt->parser.state) {
     case CSI_LEADER:
       /* Extract leader bytes 0x3c to 0x3f */
-      if(c >= 0x3c && c <= 0x3f) {
+      if(c >= 0x3c && c <= 0x3f || c == '!') {
         if(vt->parser.v.csi.leaderlen < CSI_LEADER_MAX-1)
           vt->parser.v.csi.leader[vt->parser.v.csi.leaderlen++] = c;
         break;
