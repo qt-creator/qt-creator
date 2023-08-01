@@ -855,7 +855,7 @@ void InterpreterAspect::addToLayout(LayoutItem &builder)
             this, &InterpreterAspect::updateCurrentInterpreter);
 
     auto manageButton = new QPushButton(Tr::tr("Manage..."));
-    connect(manageButton, &QPushButton::clicked, [this] {
+    connect(manageButton, &QPushButton::clicked, this, [this] {
         Core::ICore::showOptionsDialog(m_settingsDialogId);
     });
 

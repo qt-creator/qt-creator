@@ -324,7 +324,7 @@ void RunSettingsWidget::aboutToShowDeployMenu()
 
     for (DeployConfigurationFactory *factory : DeployConfigurationFactory::find(m_target)) {
         QAction *action = m_addDeployMenu->addAction(factory->defaultDisplayName());
-        connect(action, &QAction::triggered, [factory, this]() {
+        connect(action, &QAction::triggered, this, [factory, this] {
             DeployConfiguration *newDc = factory->create(m_target);
             if (!newDc)
                 return;

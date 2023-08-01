@@ -210,7 +210,7 @@ public:
             m_addButton->setStyleSheet("text-align:center;");
 
         m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
-        connect(m_cloneButton, &QAbstractButton::clicked, [this] { cloneToolChain(); });
+        connect(m_cloneButton, &QAbstractButton::clicked, this, [this] { cloneToolChain(); });
 
         m_delButton = new QPushButton(Tr::tr("Remove"), this);
 
@@ -280,7 +280,7 @@ public:
         connect(ToolChainManager::instance(), &ToolChainManager::toolChainsChanged,
                 this, &ToolChainOptionsWidget::toolChainSelectionChanged);
 
-        connect(m_delButton, &QAbstractButton::clicked, [this] {
+        connect(m_delButton, &QAbstractButton::clicked, this, [this] {
             if (ToolChainTreeItem *item = currentTreeItem())
                 markForRemoval(item);
         });
@@ -303,7 +303,8 @@ public:
     QAction *createAction(const QString &name, ToolChainFactory *factory, Utils::Id language)
     {
         auto action = new QAction(name, nullptr);
-        connect(action, &QAction::triggered, [this, factory, language] { createToolChain(factory, language); });
+        connect(action, &QAction::triggered, this,
+                [this, factory, language] { createToolChain(factory, language); });
         return action;
     }
 

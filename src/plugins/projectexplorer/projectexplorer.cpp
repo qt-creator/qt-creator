@@ -1290,7 +1290,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // FIXME: This menu will never become visible if the user tried to open it once
     //        without a project loaded.
-    connect(generatorContainer->menu(), &QMenu::aboutToShow, [menu = generatorContainer->menu()] {
+    connect(generatorContainer->menu(), &QMenu::aboutToShow,
+            this, [menu = generatorContainer->menu()] {
         menu->clear();
         if (Project * const project = ProjectManager::startupProject()) {
             for (const auto &generator : project->allGenerators()) {
@@ -3124,8 +3125,8 @@ void ProjectExplorerPluginPrivate::updateUnloadProjectMenu()
     menu->clear();
     for (Project *project : ProjectManager::projects()) {
         QAction *action = menu->addAction(Tr::tr("Close Project \"%1\"").arg(project->displayName()));
-        connect(action, &QAction::triggered,
-                [project] { ProjectExplorerPlugin::unloadProject(project); } );
+        connect(action, &QAction::triggered, this,
+                [project] { ProjectExplorerPlugin::unloadProject(project); });
     }
 }
 
@@ -3853,7 +3854,8 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
 
     const HandleIncludeGuards handleGuards = canTryToRenameIncludeGuards(node);
     if (!folderNode->canRenameFile(oldFilePath, newFilePath)) {
-        QTimer::singleShot(0, [oldFilePath, newFilePath, projectFileName, handleGuards] {
+        QTimer::singleShot(0, m_instance,
+                           [oldFilePath, newFilePath, projectFileName, handleGuards] {
             int res = QMessageBox::question(ICore::dialogParent(),
                                             Tr::tr("Project Editing Failed"),
                                             Tr::tr("The project file %1 cannot be automatically changed.\n\n"
@@ -3877,7 +3879,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
                                                 .arg(newFilePath.toUserOutput())
                                                 .arg(projectFileName);
 
-            QTimer::singleShot(0, [renameFileError] {
+            QTimer::singleShot(0, m_instance, [renameFileError] {
                 QMessageBox::warning(ICore::dialogParent(),
                                      Tr::tr("Project Editing Failed"),
                                      renameFileError);
@@ -3888,7 +3890,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
                                             .arg(oldFilePath.toUserOutput())
                                             .arg(newFilePath.toUserOutput());
 
-        QTimer::singleShot(0, [renameFileError] {
+        QTimer::singleShot(0, m_instance, [renameFileError] {
             QMessageBox::warning(ICore::dialogParent(), Tr::tr("Cannot Rename File"), renameFileError);
         });
     }

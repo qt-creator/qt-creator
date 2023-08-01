@@ -1508,8 +1508,8 @@ void ClangToolChain::syncAutodetectedWithParentToolchains()
     QObject::disconnect(m_mingwToolchainAddedConnection);
 
     if (!ToolChainManager::isLoaded()) {
-        QObject::connect(ToolChainManager::instance(), &ToolChainManager::toolChainsLoaded,
-                         [id = id()] {
+        connect(ToolChainManager::instance(), &ToolChainManager::toolChainsLoaded, this,
+                [id = id()] {
             if (ToolChain * const tc = ToolChainManager::findToolChain(id)) {
                 if (tc->typeId() == Constants::CLANG_TOOLCHAIN_TYPEID)
                     static_cast<ClangToolChain *>(tc)->syncAutodetectedWithParentToolchains();
@@ -1526,14 +1526,14 @@ void ClangToolChain::syncAutodetectedWithParentToolchains()
     // Subscribe only autodetected toolchains.
     ToolChainManager *tcManager = ToolChainManager::instance();
     m_mingwToolchainAddedConnection
-        = QObject::connect(tcManager, &ToolChainManager::toolChainAdded, [this](ToolChain *tc) {
+        = connect(tcManager, &ToolChainManager::toolChainAdded, this, [this](ToolChain *tc) {
               if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID
                   && !mingwToolChainFromId(m_parentToolChainId)) {
                   m_parentToolChainId = tc->id();
               }
           });
     m_thisToolchainRemovedConnection
-        = QObject::connect(tcManager, &ToolChainManager::toolChainRemoved, [this](ToolChain *tc) {
+        = connect(tcManager, &ToolChainManager::toolChainRemoved, this, [this](ToolChain *tc) {
               if (tc == this) {
                   QObject::disconnect(m_thisToolchainRemovedConnection);
                   QObject::disconnect(m_mingwToolchainAddedConnection);

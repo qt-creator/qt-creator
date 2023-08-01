@@ -172,10 +172,10 @@ public:
         layout->addRow(Tr::tr("Default installation directory:"), &m_defaultInstallDirLineEdit);
         layout->addRow(Tr::tr("Qbs version:"), &m_versionLabel);
 
-        connect(&m_qbsExePathChooser, &PathChooser::textChanged, [this] {
+        connect(&m_qbsExePathChooser, &PathChooser::textChanged, this, [this] {
             m_versionLabel.setText(getQbsVersionString());
         });
-        connect(&m_resetQbsExeButton, &QPushButton::clicked, [this] {
+        connect(&m_resetQbsExeButton, &QPushButton::clicked, this, [this] {
             m_qbsExePathChooser.setFilePath(QbsSettings::defaultQbsExecutableFilePath());
         });
     }

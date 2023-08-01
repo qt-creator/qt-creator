@@ -322,7 +322,7 @@ private:
 CustomParsersSelectionWidget::CustomParsersSelectionWidget(QWidget *parent) : DetailsWidget(parent)
 {
     const auto widget = new SelectionWidget(this);
-    connect(widget, &SelectionWidget::selectionChanged, [this] {
+    connect(widget, &SelectionWidget::selectionChanged, this, [this] {
         updateSummary();
         emit selectionChanged();
     });

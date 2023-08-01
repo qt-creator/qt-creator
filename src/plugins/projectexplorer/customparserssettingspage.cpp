@@ -49,7 +49,7 @@ public:
         buttonLayout->addWidget(editButton);
         buttonLayout->addStretch(1);
 
-        connect(addButton, &QPushButton::clicked, [this] {
+        connect(addButton, &QPushButton::clicked, this, [this] {
             CustomParserConfigDialog dlg(this);
             dlg.setSettings(CustomParserSettings());
             if (dlg.exec() != QDialog::Accepted)
@@ -60,13 +60,13 @@ public:
             m_customParsers << newParser;
             resetListView();
         });
-        connect(removeButton, &QPushButton::clicked, [this] {
+        connect(removeButton, &QPushButton::clicked, this, [this] {
             const QList<QListWidgetItem *> sel = m_parserListView.selectedItems();
             QTC_ASSERT(sel.size() == 1, return);
             m_customParsers.removeAt(m_parserListView.row(sel.first()));
             delete sel.first();
         });
-        connect(editButton, &QPushButton::clicked, [this] {
+        connect(editButton, &QPushButton::clicked, this, [this] {
             const QList<QListWidgetItem *> sel = m_parserListView.selectedItems();
             QTC_ASSERT(sel.size() == 1, return);
             CustomParserSettings &s = m_customParsers[m_parserListView.row(sel.first())];
@@ -78,7 +78,7 @@ public:
             s.warning = dlg.settings().warning;
         });
 
-        connect(&m_parserListView, &QListWidget::itemChanged, [this](QListWidgetItem *item) {
+        connect(&m_parserListView, &QListWidget::itemChanged, this, [this](QListWidgetItem *item) {
             m_customParsers[m_parserListView.row(item)].displayName = item->text();
             resetListView();
         });

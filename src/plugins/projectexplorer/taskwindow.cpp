@@ -241,17 +241,17 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     connect(hub, &TaskHub::showTask, this, &TaskWindow::showTask);
     connect(hub, &TaskHub::openTask, this, &TaskWindow::openTask);
 
-    connect(d->m_filter, &TaskFilterModel::rowsAboutToBeRemoved,
+    connect(d->m_filter, &TaskFilterModel::rowsAboutToBeRemoved, this,
             [this](const QModelIndex &, int first, int last) {
         d->m_visibleIssuesCount -= d->m_filter->issuesCount(first, last);
         emit setBadgeNumber(d->m_visibleIssuesCount);
     });
-    connect(d->m_filter, &TaskFilterModel::rowsInserted,
+    connect(d->m_filter, &TaskFilterModel::rowsInserted, this,
             [this](const QModelIndex &, int first, int last) {
         d->m_visibleIssuesCount += d->m_filter->issuesCount(first, last);
         emit setBadgeNumber(d->m_visibleIssuesCount);
     });
-    connect(d->m_filter, &TaskFilterModel::modelReset, [this] {
+    connect(d->m_filter, &TaskFilterModel::modelReset, this, [this] {
         d->m_visibleIssuesCount = d->m_filter->issuesCount(0, d->m_filter->rowCount());
         emit setBadgeNumber(d->m_visibleIssuesCount);
     });

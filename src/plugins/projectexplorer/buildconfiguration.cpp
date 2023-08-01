@@ -115,7 +115,7 @@ public:
         const auto selectionWidget = new CustomParsersSelectionWidget(this);
         layout->addWidget(selectionWidget);
 
-        connect(selectionWidget, &CustomParsersSelectionWidget::selectionChanged,
+        connect(selectionWidget, &CustomParsersSelectionWidget::selectionChanged, this,
                 [selectionWidget, bc] {
             bc->setCustomParsers(selectionWidget->selectedParsers());
         });

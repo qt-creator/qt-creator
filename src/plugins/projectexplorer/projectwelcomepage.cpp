@@ -523,14 +523,14 @@ public:
                 QAction *action = new QAction(Tr::tr("Remove Project from Recent Projects"));
                 const auto projectModel = qobject_cast<ProjectModel *>(model);
                 contextMenu.addAction(action);
-                connect(action, &QAction::triggered, [idx, projectModel](){
+                connect(action, &QAction::triggered, this, [idx, projectModel] {
                     const QVariant projectFile = idx.data(ProjectModel::FilePathRole);
                     ProjectExplorerPlugin::removeFromRecentProjects(FilePath::fromVariant(projectFile));
                     projectModel->resetProjects();
                 });
                 contextMenu.addSeparator();
                 action = new QAction(Tr::tr("Clear Recent Project List"));
-                connect(action, &QAction::triggered, [projectModel]() {
+                connect(action, &QAction::triggered, this, [projectModel] {
                     ProjectExplorerPlugin::clearRecentProjects();
                     projectModel->resetProjects();
                 });

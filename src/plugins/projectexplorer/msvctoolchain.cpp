@@ -780,7 +780,7 @@ void MsvcToolChain::environmentModifications(QPromise<MsvcToolChain::GenerateEnv
 
 void MsvcToolChain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
 {
-    QObject::connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt, [&]() {
+    connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt, this, [this] {
         const GenerateEnvResult &result = m_envModWatcher.result();
         if (result.error) {
             QString errorMessage = *result.error;
