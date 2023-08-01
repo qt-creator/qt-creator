@@ -456,30 +456,6 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
 }
 
 /*!
-   Returns a bool indicating whether a file or directory with this FilePath exists.
-*/
-bool FilePath::exists() const
-{
-    return fileAccess()->exists(*this);
-}
-
-/*!
-    Returns a bool indicating whether this is a writable directory.
-*/
-bool FilePath::isWritableDir() const
-{
-    return fileAccess()->isWritableDirectory(*this);
-}
-
-/*!
-    Returns a bool indicating whether this is a writable file.
-*/
-bool FilePath::isWritableFile() const
-{
-    return fileAccess()->isWritableFile(*this);
-}
-
-/*!
     \brief Re-uses or creates a directory in this location.
 
     Returns true if the directory is writable afterwards.
@@ -494,14 +470,6 @@ expected_str<void> FilePath::ensureWritableDir() const
 bool FilePath::ensureExistingFile() const
 {
     return fileAccess()->ensureExistingFile(*this);
-}
-
-/*!
-    Returns a bool indicating whether this is an executable file.
-*/
-bool FilePath::isExecutableFile() const
-{
-    return fileAccess()->isExecutableFile(*this);
 }
 
 /*!
@@ -549,31 +517,6 @@ expected_str<FilePath> FilePath::createTempFile() const
     }
 
     return fileAccess()->createTempFile(*this);
-}
-
-bool FilePath::isReadableFile() const
-{
-    return fileAccess()->isReadableFile(*this);
-}
-
-bool FilePath::isReadableDir() const
-{
-    return fileAccess()->isReadableDirectory(*this);
-}
-
-bool FilePath::isFile() const
-{
-    return fileAccess()->isFile(*this);
-}
-
-bool FilePath::isDir() const
-{
-    return fileAccess()->isDirectory(*this);
-}
-
-bool FilePath::isSymLink() const
-{
-    return fileAccess()->isSymLink(*this);
 }
 
 bool FilePath::hasHardLinks() const
@@ -1215,6 +1158,100 @@ bool FilePath::hasFileAccess() const
 {
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     return access && access.value();
+}
+
+/*!
+   Returns a bool indicating whether a file or directory with this FilePath exists.
+*/
+bool FilePath::exists() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->exists(*this);
+}
+
+/*!
+    Returns a bool indicating whether this is an executable file.
+*/
+bool FilePath::isExecutableFile() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isExecutableFile(*this);
+}
+
+/*!
+    Returns a bool indicating whether this is a writable directory.
+*/
+bool FilePath::isWritableDir() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isWritableDirectory(*this);
+}
+
+/*!
+    Returns a bool indicating whether this is a writable file.
+*/
+bool FilePath::isWritableFile() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isWritableFile(*this);
+}
+
+
+bool FilePath::isReadableFile() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isReadableFile(*this);
+}
+
+bool FilePath::isReadableDir() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isReadableDirectory(*this);
+}
+
+bool FilePath::isFile() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isFile(*this);
+}
+
+bool FilePath::isDir() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isDirectory(*this);
+}
+
+bool FilePath::isSymLink() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isSymLink(*this);
 }
 
 /*!
