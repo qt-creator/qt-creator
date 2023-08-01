@@ -463,7 +463,7 @@ QStringList DynamicPropertiesModel::possibleTargetProperties(const BindingProper
 
     if (!modelNode.isValid()) {
         qWarning() << " BindingModel::possibleTargetPropertiesForRow invalid model node";
-        return QStringList();
+        return {};
     }
 
     NodeMetaInfo metaInfo = modelNode.metaInfo();
@@ -519,7 +519,7 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
 
     if (!modelNode.isValid()) {
         qWarning() << " BindingModel::possibleSourcePropertiesForRow invalid model node";
-        return QStringList();
+        return {};
     }
 
     NodeMetaInfo metaInfo = modelNode.metaInfo();

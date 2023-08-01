@@ -46,7 +46,7 @@ static QStringList interfering(InterferingType type)
             return QString("BOOST_TEST_" + item).toUpper();
         });
     }
-    return QStringList();
+    return {};
 }
 
 static QStringList filterInterfering(const QStringList &provided, QStringList *omitted)

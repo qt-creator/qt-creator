@@ -104,7 +104,7 @@ QStringList WidgetPluginPath::libraryFilePaths(const QDir &dir)
 {
     const QFileInfoList infoList = dir.entryInfoList(QDir::Files|QDir::Readable|QDir::NoDotAndDotDot);
     if (infoList.empty())
-        return QStringList();
+        return {};
       // Load symbolic links but make sure all file names are unique as not
     // to fall for something like 'libplugin.so.1 -> libplugin.so'
     QStringList result;

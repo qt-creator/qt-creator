@@ -115,7 +115,7 @@ QStringList VcsBaseClientImpl::splitLines(const QString &s)
     if (output.endsWith(newLine))
         output.truncate(output.size() - 1);
     if (output.isEmpty())
-        return QStringList();
+        return {};
     return output.split(newLine);
 }
 

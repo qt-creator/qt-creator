@@ -131,7 +131,7 @@ QStringList PropertyEditorContextObject::autoComplete(const QString &text, int p
         return  Utils::filtered(m_model->rewriterView()->autoComplete(text, pos, explicitComplete), [filter](const QString &string) {
             return !filter || (!string.isEmpty() && string.at(0).isUpper()); });
 
-    return QStringList();
+    return {};
 }
 
 void PropertyEditorContextObject::toogleExportAlias()

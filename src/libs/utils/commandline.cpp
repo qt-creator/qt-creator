@@ -182,7 +182,7 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
                 if (inquote) {
                     if (err)
                         *err = ProcessArgs::BadQuoting;
-                    return QStringList();
+                    return {};
                 }
                 break;
             }
@@ -265,7 +265,7 @@ static QStringList splitArgsWin(const QString &_args, bool abortOnMeta,
             err = &perr;
         QString args = prepareArgsWin(_args, &perr, env, pwd).toWindowsArgs();
         if (*err != ProcessArgs::SplitOk)
-            return QStringList();
+            return {};
         return doSplitArgsWin(args, err);
     } else {
         QString args = _args;
@@ -470,12 +470,12 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
   quoteerr:
     if (err)
         *err = ProcessArgs::BadQuoting;
-    return QStringList();
+    return {};
 
   metaerr:
     if (err)
         *err = ProcessArgs::FoundMeta;
-    return QStringList();
+    return {};
 }
 
 inline static bool isSpecialCharUnix(ushort c)

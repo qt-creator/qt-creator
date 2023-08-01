@@ -300,7 +300,7 @@ QStringList MakefileParser::directorySources(const QString &directory,
 {
     if (isCanceled()) {
         m_success = false;
-        return QStringList();
+        return {};
     }
 
     emit status(Tr::tr("Parsing directory %1").arg(directory));
@@ -343,7 +343,7 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
     const int index = m_line.indexOf(QLatin1Char('='));
     if (index < 0) {
         m_success = false;
-        return QStringList();
+        return {};
     }
 
     m_line.remove(0, index + 1); // remove the 'target = ' prefix
@@ -423,7 +423,7 @@ QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
 {
     int assignPos = line.indexOf(QLatin1Char('=')) + 1;
     if (assignPos <= 0 || assignPos >= line.size())
-        return QStringList();
+        return {};
 
     const QStringList parts = ProcessArgs::splitArgs(line.mid(assignPos), HostOsInfo::hostOs());
     QStringList result;

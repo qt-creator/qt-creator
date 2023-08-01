@@ -280,7 +280,7 @@ ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId)
 static QStringList extraOptions(const QString &envVar)
 {
     if (!qtcEnvironmentVariableIsSet(envVar))
-        return QStringList();
+        return {};
     QString arguments = qtcEnvironmentVariable(envVar);
     return ProcessArgs::splitArgs(arguments, HostOsInfo::hostOs());
 }

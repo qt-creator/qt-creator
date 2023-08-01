@@ -1167,11 +1167,11 @@ Model *NodeMetaInfoPrivate::model() const
 QStringList NodeMetaInfoPrivate::keysForEnum(const QString &enumName) const
 {
     if (!isValid())
-        return QStringList();
+        return {};
 
     const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
-        return QStringList();
+        return {};
     return qmlObjectValue->getEnum(enumName).keys();
 }
 

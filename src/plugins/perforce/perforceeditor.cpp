@@ -70,7 +70,7 @@ QStringList PerforceEditorWidget::annotationPreviousVersions(const QString &v) c
     bool ok;
     const int changeList = v.toInt(&ok);
     if (!ok || changeList < 2)
-        return QStringList();
+        return {};
     return QStringList(QString::number(changeList - 1));
 }
 

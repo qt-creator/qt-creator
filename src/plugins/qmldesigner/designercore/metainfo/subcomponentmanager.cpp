@@ -384,7 +384,7 @@ QStringList SubComponentManager::importPaths() const
     if (model())
         return model()->importPaths();
 
-    return QStringList();
+    return {};
 }
 
 void SubComponentManager::parseQuick3DAssetsDir(const QString &quick3DAssetsPath)

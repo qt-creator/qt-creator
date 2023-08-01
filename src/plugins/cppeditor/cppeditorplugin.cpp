@@ -663,7 +663,7 @@ static QStringList findFilesInProject(const QString &name, const Project *projec
         qDebug() << Q_FUNC_INFO << name << project;
 
     if (!project)
-        return QStringList();
+        return {};
 
     QString pattern = QString(1, QLatin1Char('/'));
     pattern += name;
@@ -702,7 +702,7 @@ static QStringList matchingCandidateSuffixes(ProjectFile::Kind kind)
     case ProjectFile::OpenCLSource:
         return mimeTypeForName(Constants::CPP_HEADER_MIMETYPE).suffixes();
     default:
-        return QStringList();
+        return {};
     }
 }
 

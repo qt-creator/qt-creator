@@ -398,7 +398,7 @@ static QStringList readFlags(const QString &filePath)
 {
     const QStringList lines = readLines(filePath);
     if (lines.isEmpty())
-        return QStringList();
+        return {};
     QStringList flags;
     for (const auto &line : lines)
         flags.append(ProcessArgs::splitArgs(line, HostOsInfo::hostOs()));

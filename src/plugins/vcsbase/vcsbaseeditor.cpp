@@ -1454,7 +1454,7 @@ void VcsBaseEditorWidget::slotAnnotateRevision(const QString &change)
 
 QStringList VcsBaseEditorWidget::annotationPreviousVersions(const QString &) const
 {
-    return QStringList();
+    return {};
 }
 
 void VcsBaseEditorWidget::slotPaste()

@@ -2520,7 +2520,7 @@ QStringList FileSystemModelPrivate::unwatchPathsAt(const QModelIndex &index)
     QTC_CHECK(useFileSystemWatcher());
     const FileSystemNode *indexNode = node(index);
     if (indexNode == nullptr)
-        return QStringList();
+        return {};
     const Qt::CaseSensitivity caseSensitivity = indexNode->caseSensitive()
         ? Qt::CaseSensitive : Qt::CaseInsensitive;
     const QString path = indexNode->fileInfo().absoluteFilePath();

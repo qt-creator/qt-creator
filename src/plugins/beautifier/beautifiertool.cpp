@@ -180,7 +180,7 @@ AbstractSettings::~AbstractSettings() = default;
 
 QStringList AbstractSettings::completerWords()
 {
-    return QStringList();
+    return {};
 }
 
 QStringList AbstractSettings::styles() const

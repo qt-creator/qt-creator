@@ -101,7 +101,7 @@ VcsBase::BaseAnnotationHighlighter *CvsEditorWidget::createAnnotationHighlighter
 QStringList CvsEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
     if (isFirstRevision(revision))
-        return QStringList();
+        return {};
     return QStringList(previousRevision(revision));
 }
 

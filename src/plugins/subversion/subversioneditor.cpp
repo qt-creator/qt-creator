@@ -85,6 +85,6 @@ QStringList SubversionEditorWidget::annotationPreviousVersions(const QString &v)
     bool ok;
     const int revision = v.toInt(&ok);
     if (!ok || revision < 2)
-        return QStringList();
+        return {};
     return QStringList(QString::number(revision - 1));
 }

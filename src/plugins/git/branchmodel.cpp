@@ -543,8 +543,7 @@ QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
 QStringList BranchModel::localBranchNames() const
 {
     if (!d->rootNode || !d->rootNode->count())
-        return QStringList();
-
+        return {};
     return d->rootNode->children.at(LocalBranches)->childrenNames() + d->obsoleteLocalBranches;
 }
 

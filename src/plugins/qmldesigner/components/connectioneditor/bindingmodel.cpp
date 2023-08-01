@@ -134,7 +134,7 @@ QStringList BindingModel::possibleTargetProperties(const BindingProperty &bindin
 
     if (!modelNode.isValid()) {
         qWarning() << " BindingModel::possibleTargetPropertiesForRow invalid model node";
-        return QStringList();
+        return {};
     }
 
     NodeMetaInfo metaInfo = modelNode.metaInfo();
@@ -151,7 +151,7 @@ QStringList BindingModel::possibleTargetProperties(const BindingProperty &bindin
         return writableProperties;
     }
 
-    return QStringList();
+    return {};
 }
 
 QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindingProperty) const
@@ -191,7 +191,7 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
         }
 
         qWarning() << " BindingModel::possibleSourcePropertiesForRow invalid model node";
-        return QStringList();
+        return {};
     }
 
     NodeMetaInfo metaInfo = modelNode.metaInfo();

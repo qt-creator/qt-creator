@@ -2116,7 +2116,7 @@ static QByteArray scanQtBinaryForBuildString(const FilePath &library)
 static QStringList extractFieldsFromBuildString(const QByteArray &buildString)
 {
     if (buildString.isEmpty() || buildString.size() > 4096)
-        return QStringList();
+        return {};
 
     const QRegularExpression buildStringMatcher("^Qt "
                                                 "([\\d\\.a-zA-Z]*) " // Qt version
@@ -2132,7 +2132,7 @@ static QStringList extractFieldsFromBuildString(const QByteArray &buildString)
 
     const QRegularExpressionMatch match = buildStringMatcher.match(QString::fromUtf8(buildString));
     if (!match.hasMatch())
-        return QStringList();
+        return {};
 
     QStringList result;
     result.append(match.captured(1)); // qtVersion

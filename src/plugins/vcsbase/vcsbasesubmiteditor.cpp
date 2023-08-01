@@ -385,7 +385,7 @@ SubmitFileModel *VcsBaseSubmitEditor::fileModel() const
 QStringList VcsBaseSubmitEditor::rowsToFiles(const QList<int> &rows) const
 {
     if (rows.empty())
-        return QStringList();
+        return {};
 
     QStringList rc;
     const SubmitFileModel *model = fileModel();

@@ -240,7 +240,7 @@ QStringList PropertiesModel::allPropertyNames() const
 {
     TreeItem *root = rootItem();
     if (!root)
-        return QStringList();
+        return {};
 
     QStringList result;
     result.reserve(root->childCount());

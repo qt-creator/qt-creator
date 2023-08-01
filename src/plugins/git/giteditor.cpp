@@ -292,7 +292,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
     if (!gitClient().synchronousParentRevisions(
                 sourceWorkingDirectory(), revision, &revisions, &errorMessage)) {
         VcsOutputWindow::appendSilently(errorMessage);
-        return QStringList();
+        return {};
     }
     return revisions;
 }
