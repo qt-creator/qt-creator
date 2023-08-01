@@ -76,7 +76,9 @@ private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    const PropertyName &name, const QVariant &value,
                                    PropertyEditorView *propertyEditor);
-    void setupPropertyEditorValue(const PropertyName &name, PropertyEditorView *propertyEditor, const QString &type);
+    void setupPropertyEditorValue(const PropertyName &name,
+                                  PropertyEditorView *propertyEditor,
+                                  const NodeMetaInfo &type);
 
     static TypeName qmlFileName(const NodeMetaInfo &nodeInfo);
     static QUrl fileToUrl(const QString &filePath);
