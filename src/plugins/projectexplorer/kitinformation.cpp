@@ -1377,6 +1377,17 @@ void BuildDeviceKitAspect::devicesChanged()
 // --------------------------------------------------------------------------
 // EnvironmentKitAspect:
 // --------------------------------------------------------------------------
+static EnvironmentItem forceMSVCEnglishItem()
+{
+    static EnvironmentItem item("VSLANG", "1033");
+    return item;
+}
+
+static bool enforcesMSVCEnglish(const EnvironmentItems &changes)
+{
+    return changes.contains(forceMSVCEnglishItem());
+}
+
 namespace Internal {
 class EnvironmentKitAspectWidget final : public KitAspectWidget
 {
@@ -1411,7 +1422,7 @@ private:
 
     void refresh() override
     {
-        const EnvironmentItems changes = currentEnvironment();
+        const EnvironmentItems changes = envWithoutMSVCEnglishEnforcement();
         const QString shortSummary = EnvironmentItem::toStringList(changes).join("; ");
         m_summaryLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.") : shortSummary);
     }
@@ -1423,32 +1434,29 @@ private:
             VariableChooser::addSupportForChildWidgets(w, expander);
         };
         auto changes = EnvironmentDialog::getEnvironmentItems(m_summaryLabel,
-                                                              currentEnvironment(),
+                                                              envWithoutMSVCEnglishEnforcement(),
                                                               QString(),
                                                               polisher);
         if (!changes)
             return;
 
         if (HostOsInfo::isWindowsHost()) {
-            const EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
-            if (m_vslangCheckbox->isChecked() && changes->indexOf(forceMSVCEnglishItem) < 0)
-                changes->append(forceMSVCEnglishItem);
+            // re-add what envWithoutMSVCEnglishEnforcement removed
+            // or update vslang checkbox if user added it manually
+            if (m_vslangCheckbox->isChecked() && !enforcesMSVCEnglish(*changes))
+                changes->append(forceMSVCEnglishItem());
+            else if (enforcesMSVCEnglish(*changes))
+                m_vslangCheckbox->setChecked(true);
         }
-
         EnvironmentKitAspect::setEnvironmentChanges(m_kit, *changes);
     }
 
-    EnvironmentItems currentEnvironment() const
+    EnvironmentItems envWithoutMSVCEnglishEnforcement() const
     {
         EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
 
-        if (HostOsInfo::isWindowsHost()) {
-            const EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
-            if (changes.indexOf(forceMSVCEnglishItem) >= 0) {
-                m_vslangCheckbox->setCheckState(Qt::Checked);
-                changes.removeAll(forceMSVCEnglishItem);
-            }
-        }
+        if (HostOsInfo::isWindowsHost())
+            changes.removeAll(forceMSVCEnglishItem());
 
         return sorted(std::move(changes), [](const EnvironmentItem &lhs, const EnvironmentItem &rhs)
         { return QString::localeAwareCompare(lhs.name, rhs.name) < 0; });
@@ -1461,13 +1469,14 @@ private:
         m_vslangCheckbox->setToolTip(Tr::tr("Either switches MSVC to English or keeps the language and "
                                         "just forces UTF-8 output (may vary depending on the used MSVC "
                                         "compiler)."));
-        connect(m_vslangCheckbox, &QCheckBox::toggled, this, [this](bool checked) {
+        if (enforcesMSVCEnglish(EnvironmentKitAspect::environmentChanges(m_kit)))
+            m_vslangCheckbox->setChecked(true);
+        connect(m_vslangCheckbox, &QCheckBox::clicked, this, [this](bool checked) {
             EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
-            const EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
-            if (!checked && changes.indexOf(forceMSVCEnglishItem) >= 0)
-                changes.removeAll(forceMSVCEnglishItem);
-            if (checked && changes.indexOf(forceMSVCEnglishItem) < 0)
-                changes.append(forceMSVCEnglishItem);
+            if (!checked && changes.indexOf(forceMSVCEnglishItem()) >= 0)
+                changes.removeAll(forceMSVCEnglishItem());
+            if (checked && changes.indexOf(forceMSVCEnglishItem()) < 0)
+                changes.append(forceMSVCEnglishItem());
             EnvironmentKitAspect::setEnvironmentChanges(m_kit, changes);
         });
     }
