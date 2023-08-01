@@ -1846,7 +1846,7 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 1),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(2),
                 createSuccessTask(3)
             }
@@ -1871,7 +1871,7 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 1),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(2),
                 createSuccessTask(3)
             }
@@ -1902,7 +1902,7 @@ void tst_Tasking::testTree_data()
             parallel,
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(2),
                 createSuccessTask(3)
             },
@@ -1928,12 +1928,12 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 1),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(4)
             },
             Group {
                 groupSetup(3),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(5)
             }
         };
@@ -1963,8 +1963,8 @@ void tst_Tasking::testTree_data()
                 Group {
                     parallel,
                     groupSetup(1),
-                    WaitForBarrierTask(barrier),
-                    WaitForBarrierTask(barrier2)
+                    waitForBarrierTask(barrier),
+                    waitForBarrierTask(barrier2)
                 },
                 createSuccessTask(3)
             },
@@ -2006,7 +2006,7 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 2),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(2),
                 createSuccessTask(3)
             }
@@ -2034,7 +2034,7 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 2),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(3),
                 createSuccessTask(4)
             }
@@ -2067,7 +2067,7 @@ void tst_Tasking::testTree_data()
             parallel,
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(3),
                 createSuccessTask(4)
             },
@@ -2097,12 +2097,12 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 2),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(3)
             },
             Group {
                 groupSetup(3),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(4)
             }
         };
