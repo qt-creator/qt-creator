@@ -146,7 +146,7 @@
     enables you to specify exactly where to place a new file in the build system.
 
     If you cannot see some files, you might have to declare them as part of the
-    project. For more information, see \l{Specifying Project Contents}.
+    project. For more information, see \l{Specify project contents}.
 
     If the project is under version control, you might see information
     from the version control system in brackets after the project name.

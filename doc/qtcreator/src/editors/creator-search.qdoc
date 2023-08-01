@@ -122,7 +122,7 @@
 
                     \if defined(qtcreator)
                     If you cannot find some files, see
-                    \l{Specifying Project Contents} for how
+                    \l{Specify project contents} for how
                     to declare them as a part of the project.
                     \endif
 

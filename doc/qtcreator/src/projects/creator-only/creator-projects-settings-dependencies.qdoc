@@ -45,7 +45,7 @@
     specify for the projects loaded in the session.
 
     \note You cannot use this view to specify subprojects for projects.
-    For more information on how to add subprojects, see \l{Adding Subprojects
-    to Projects}.
+
+    \sa {Add subprojects to projects}
 
 */

@@ -92,7 +92,7 @@
     open, select \uicontrol File > \uicontrol {New Project} >
     \uicontrol {Import Project} > \uicontrol {Import Existing Project} to
     import the project as a generic project. For more information, see
-    \l {Using Project Wizards}.
+    \l {Use project wizards}.
 
     \section1 Linking Projects with GitLab
 

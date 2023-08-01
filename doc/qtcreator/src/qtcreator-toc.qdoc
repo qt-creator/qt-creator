@@ -277,7 +277,11 @@
                     \li Manage Projects
                         \list
                             \li \l {Add a license header template for C++ code}
+                            \li \l {Add subprojects to projects}
                             \li \l {Develop Qt for Python applications}
+                            \li \l {Select the build system}
+                            \li \l {Specify project contents}
+                            \li \l {Use project wizards}
                         \endlist
                     \li Use \QC
                         \list

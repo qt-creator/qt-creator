@@ -104,7 +104,7 @@
     or use the handle next to the locator window to increase the window width.
 
     \if defined(qtcreator)
-    If the locator does not find some files, see \l{Specifying Project Contents}
+    If the locator does not find some files, see \l{Specify project contents}
     for how to make them known to the locator.
     \endif
 

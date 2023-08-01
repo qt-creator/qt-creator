@@ -6,7 +6,7 @@
     \section1 Running Python Projects
 
     You can execute Qt for Python applications directly from \QC. If you
-    used the \l{Using Project Wizards}{new project wizard}
+    used the \l{Use project wizards}{new project wizard}
     to create the application project, the \c main.py file is automatically
     executed when you select the \uicontrol Run button.
 
