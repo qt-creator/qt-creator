@@ -82,7 +82,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
     m_ignorePatternTextEdit->setToolTip(m_ignoreFilesCheckBox->toolTip());
     m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
 
-    connect(m_ignoreFilesCheckBox, &QCheckBox::stateChanged, [this] {
+    connect(m_ignoreFilesCheckBox, &QCheckBox::stateChanged, this, [this] {
        m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
     });
 

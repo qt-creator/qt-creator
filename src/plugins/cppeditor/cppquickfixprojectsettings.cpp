@@ -36,7 +36,7 @@ CppQuickFixProjectsSettings::CppQuickFixProjectsSettings(ProjectExplorer::Projec
             m_useGlobalSettings = true;
         }
     }
-    connect(project, &ProjectExplorer::Project::aboutToSaveSettings, [this] {
+    connect(project, &ProjectExplorer::Project::aboutToSaveSettings, this, [this] {
         auto settings = m_project->namedSettings(QUICK_FIX_SETTINGS_ID).toMap();
         settings.insert(USE_GLOBAL_SETTINGS, m_useGlobalSettings);
         m_project->setNamedSettings(QUICK_FIX_SETTINGS_ID, settings);

@@ -8907,9 +8907,8 @@ public:
         QSizePolicy labelSizePolicy = errorLabel->sizePolicy();
         labelSizePolicy.setRetainSizeWhenHidden(true);
         errorLabel->setSizePolicy(labelSizePolicy);
-        connect(constructorParamsModel,
-                &ConstructorParams::validOrder,
-                [=, button = buttonBox->button(QDialogButtonBox::Ok)](bool valid) {
+        connect(constructorParamsModel, &ConstructorParams::validOrder, this,
+                [errorLabel, button = buttonBox->button(QDialogButtonBox::Ok)](bool valid) {
                     button->setEnabled(valid);
                     errorLabel->setVisible(!valid);
                 });
@@ -8917,7 +8916,8 @@ public:
         // setup select all/none checkbox
         QCheckBox *const checkBox = new QCheckBox(Tr::tr("Initialize all members"));
         checkBox->setChecked(true);
-        connect(checkBox, &QCheckBox::stateChanged, [model = constructorParamsModel](int state) {
+        connect(checkBox, &QCheckBox::stateChanged, this,
+                [model = constructorParamsModel](int state) {
             if (state != Qt::PartiallyChecked) {
                 for (int i = 0; i < model->rowCount(); ++i)
                     model->setData(model->index(i, ConstructorParams::ShouldInitColumn),

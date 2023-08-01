@@ -381,7 +381,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
             QObject::connect(&t, &QTimer::timeout, &l, &QEventLoop::quit);
             const IAssistProposal *immediateProposal = nullptr;
             const IAssistProposal *finalProposal = nullptr;
-            QObject::connect(initialTestFile->m_editorWidget, &CppEditorWidget::proposalsReady,
+            QObject::connect(initialTestFile->m_editorWidget, &CppEditorWidget::proposalsReady, &l,
                              [&](const IAssistProposal *i, const IAssistProposal *f) {
                 immediateProposal = i;
                 finalProposal = f;

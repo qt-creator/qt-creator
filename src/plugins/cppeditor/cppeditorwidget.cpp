@@ -454,7 +454,7 @@ void CppEditorWidget::finalizeInitialization()
 
     connect(document(), &QTextDocument::contentsChange,
             &d->m_localRenaming, &CppLocalRenaming::onContentsChangeOfEditorWidgetDocument);
-    connect(&d->m_localRenaming, &CppLocalRenaming::finished, [this] {
+    connect(&d->m_localRenaming, &CppLocalRenaming::finished, this, [this] {
         cppEditorDocument()->recalculateSemanticInfoDetached();
     });
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,

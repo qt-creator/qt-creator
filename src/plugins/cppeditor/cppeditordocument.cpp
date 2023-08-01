@@ -388,8 +388,7 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
 {
     if (!m_processor) {
         m_processor.reset(CppModelManager::createEditorDocumentProcessor(this));
-        connect(m_processor.data(),
-                &BaseEditorDocumentProcessor::projectPartInfoUpdated,
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::projectPartInfoUpdated, this,
                 [this](const ProjectPartInfo &info) {
                     const bool hasProjectPart = !(info.hints & ProjectPartInfo::IsFallbackMatch);
                     minimizableInfoBars()->setInfoVisible(NO_PROJECT_CONFIGURATION, !hasProjectPart);
@@ -398,15 +397,15 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
                     const bool isProjectFile = info.hints & ProjectPartInfo::IsFromProjectMatch;
                     showHideInfoBarAboutMultipleParseContexts(isAmbiguous && isProjectFile);
                 });
-        connect(m_processor.data(), &BaseEditorDocumentProcessor::codeWarningsUpdated,
-                [this] (unsigned revision,
-                        const QList<QTextEdit::ExtraSelection> selections,
-                        const TextEditor::RefactorMarkers &refactorMarkers) {
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::codeWarningsUpdated, this,
+                [this](unsigned revision,
+                       const QList<QTextEdit::ExtraSelection> selections,
+                       const TextEditor::RefactorMarkers &refactorMarkers) {
             emit codeWarningsUpdated(revision, selections, refactorMarkers);
         });
         connect(m_processor.data(), &BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
                 this, &CppEditorDocument::ifdefedOutBlocksUpdated);
-        connect(m_processor.data(), &BaseEditorDocumentProcessor::cppDocumentUpdated,
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::cppDocumentUpdated, this,
                 [this](const CPlusPlus::Document::Ptr document) {
                     // Update syntax highlighter
                     auto *highlighter = qobject_cast<CppHighlighter *>(syntaxHighlighter());

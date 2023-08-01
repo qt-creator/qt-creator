@@ -1048,7 +1048,7 @@ void InsertVirtualMethodsDialog::initGui()
     auto clearUserAddedReplacements = new QAction(this);
     clearUserAddedReplacements->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
     clearUserAddedReplacements->setText(Tr::tr("Clear Added \"override\" Equivalents"));
-    connect(clearUserAddedReplacements, &QAction::triggered, [this] {
+    connect(clearUserAddedReplacements, &QAction::triggered, this, [this] {
        m_availableOverrideReplacements = defaultOverrideReplacements();
        updateOverrideReplacementsComboBox();
        m_clearUserAddedReplacementsButton->setEnabled(false);

@@ -190,24 +190,24 @@ e.g. name = "m_test_foo_":
     connect(m_listWidget_customTemplates, &QListWidget::currentItemChanged,
             this, &CppQuickFixSettingsWidget::currentCustomItemChanged);
 
-    connect(pushButton_addValueType, &QPushButton::clicked, [this] {
+    connect(pushButton_addValueType, &QPushButton::clicked, this, [this] {
         auto item = new QListWidgetItem("<type>", m_valueTypes);
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled
                        | Qt::ItemNeverHasChildren);
         m_valueTypes->scrollToItem(item);
         item->setSelected(true);
     });
-    connect(pushButton_addCustomTemplate, &QPushButton::clicked, [this] {
+    connect(pushButton_addCustomTemplate, &QPushButton::clicked, this, [this] {
         auto item = new QListWidgetItem("<type>", m_listWidget_customTemplates);
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
         m_listWidget_customTemplates->scrollToItem(item);
         m_listWidget_customTemplates->setCurrentItem(item);
         m_lineEdit_customTemplateTypes->setText("<type>");
     });
-    connect(m_pushButton_removeCustomTemplate, &QPushButton::clicked, [this] {
+    connect(m_pushButton_removeCustomTemplate, &QPushButton::clicked, this, [this] {
         delete m_listWidget_customTemplates->currentItem();
     });
-    connect(pushButton_removeValueType, &QPushButton::clicked, [this] {
+    connect(pushButton_removeValueType, &QPushButton::clicked, this, [this] {
         delete m_valueTypes->currentItem();
     });
 
