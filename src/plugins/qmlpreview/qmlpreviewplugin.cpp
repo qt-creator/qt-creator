@@ -44,6 +44,7 @@
 #include <android/androidconstants.h>
 
 #include <QAction>
+#include <QPointer>
 #include <QTimer>
 
 using namespace ProjectExplorer;
@@ -127,7 +128,7 @@ public:
     QmlPreviewPlugin *q = nullptr;
     QThread m_parseThread;
     QString m_previewedFile;
-    Core::IEditor *m_lastEditor = nullptr;
+    QPointer<Core::IEditor> m_lastEditor;
     QmlPreviewRunControlList m_runningPreviews;
     bool m_dirty = false;
     QString m_localeIsoCode;
