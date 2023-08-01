@@ -482,7 +482,7 @@ QList<QmlTimeline> TimelineView::getTimelines() const
 QList<ModelNode> TimelineView::getAnimations(const QmlTimeline &timeline)
 {
     if (!timeline.isValid())
-        return QList<ModelNode>();
+        return {};
 
     if (isAttached()) {
         return Utils::filtered(timeline.modelNode().directSubModelNodes(),

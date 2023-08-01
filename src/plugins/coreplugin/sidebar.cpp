@@ -42,7 +42,7 @@ QString SideBarItem::title() const
 
 QList<QToolButton *> SideBarItem::createToolBarWidgets()
 {
-    return QList<QToolButton *>();
+    return {};
 }
 
 struct SideBarPrivate {

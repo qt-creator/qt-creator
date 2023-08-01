@@ -607,7 +607,7 @@ ToolChain *ToolChainKitAspect::cxxToolChain(const Kit *k)
 
 QList<ToolChain *> ToolChainKitAspect::toolChains(const Kit *k)
 {
-    QTC_ASSERT(k, return QList<ToolChain *>());
+    QTC_ASSERT(k, return {});
 
     const QVariantMap value = k->value(ToolChainKitAspect::id()).toMap();
     const QList<ToolChain *> tcList

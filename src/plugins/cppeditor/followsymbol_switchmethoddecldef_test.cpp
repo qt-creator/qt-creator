@@ -174,7 +174,7 @@ private:
 
 QList<TestDocumentPtr> singleDocument(const QByteArray &source)
 {
-    return QList<TestDocumentPtr>() << CppTestDocument::create(source, "file.cpp");
+    return {CppTestDocument::create(source, "file.cpp")};
 }
 
 /**

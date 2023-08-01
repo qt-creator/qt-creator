@@ -192,7 +192,7 @@ QList<Dialect> Dialect::companionLanguages() const
               << Dialect::QmlQtQuick2Ui << Dialect::Qml;
         break;
     case Dialect::NoLanguage:
-        return QList<Dialect>(); // return at least itself?
+        return {}; // return at least itself?
     }
     if (*this != Dialect::AnyLanguage)
         langs << Dialect::AnyLanguage;

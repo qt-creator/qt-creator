@@ -112,7 +112,7 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
 
 QList<QAction*> CppOutlineWidget::filterMenuActions() const
 {
-    return QList<QAction*>();
+    return {};
 }
 
 void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)

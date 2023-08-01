@@ -52,5 +52,5 @@ Symbol *Scope::lookup(const QString &name) const
 
 QList<Symbol *> Scope::members() const
 {
-    return QList<Symbol *>();
+    return {};
 }

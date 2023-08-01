@@ -331,7 +331,7 @@ ITestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
 
 QList<ITestConfiguration *> TestTreeItem::getTestConfigurationsForFile(const FilePath &) const
 {
-    return QList<ITestConfiguration *>();
+    return {};
 }
 
 bool TestTreeItem::isGroupNodeFor(const TestTreeItem *other) const

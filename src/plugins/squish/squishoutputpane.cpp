@@ -115,7 +115,7 @@ QWidget *SquishOutputPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> SquishOutputPane::toolBarWidgets() const
 {
-    return QList<QWidget *>() << m_filterButton << m_expandAll << m_collapseAll;
+    return {m_filterButton, m_expandAll, m_collapseAll};
 }
 
 QString SquishOutputPane::displayName() const

@@ -79,7 +79,7 @@ QList<LineParser::KeywordEntry> LineParser::keywordEntriesFromCandidates(
 {
     // Ensure something is found
     if (candidates.isEmpty())
-        return QList<KeywordEntry>();
+        return {};
 
     // Convert candidates to entries
     std::vector<KeywordEntry> tmp;

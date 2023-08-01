@@ -737,7 +737,7 @@ QList<int> DockManager::splitterSizes(DockAreaWidget *containedArea) const
             return splitter->sizes();
     }
 
-    return QList<int>();
+    return {};
 }
 
 void DockManager::setSplitterSizes(DockAreaWidget *containedArea, const QList<int> &sizes)

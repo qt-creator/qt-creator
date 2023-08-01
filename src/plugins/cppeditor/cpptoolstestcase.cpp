@@ -332,7 +332,7 @@ QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(const Fil
                 break;
             }
             if (t.elapsed() > timeOutInMs)
-                return QList<CPlusPlus::Document::Ptr>();
+                return {};
             QCoreApplication::processEvents();
         }
     }

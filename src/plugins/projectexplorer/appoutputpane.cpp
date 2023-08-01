@@ -299,7 +299,7 @@ QWidget *AppOutputPane::outputWidget(QWidget *)
     return m_tabWidget;
 }
 
-QList<QWidget*> AppOutputPane::toolBarWidgets() const
+QList<QWidget *> AppOutputPane::toolBarWidgets() const
 {
     return QList<QWidget *>{m_reRunButton, m_stopButton, m_attachButton, m_settingsButton,
                 m_formatterWidget} + IOutputPane::toolBarWidgets();

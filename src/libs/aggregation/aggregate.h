@@ -83,14 +83,14 @@ template <typename T> T *query(QObject *obj)
 template <typename T> QList<T *> query_all(Aggregate *obj)
 {
     if (!obj)
-        return QList<T *>();
+        return {};
     return obj->template components<T>();
 }
 
 template <typename T> QList<T *> query_all(QObject *obj)
 {
     if (!obj)
-        return QList<T *>();
+        return {};
     QReadLocker locker(&Aggregate::lock());
     Aggregate *parentAggregation = Aggregate::parentAggregate(obj);
     QList<T *> results;

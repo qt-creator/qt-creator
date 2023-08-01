@@ -29,7 +29,7 @@ JsonCheck::~JsonCheck()
 
 QList<Message> JsonCheck::operator ()(JsonSchema *schema)
 {
-    QTC_ASSERT(schema, return QList<Message>());
+    QTC_ASSERT(schema, return {});
 
     m_schema = schema;
 

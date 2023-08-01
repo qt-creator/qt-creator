@@ -590,7 +590,7 @@ QList<IEditor *> DocumentModel::editorsForFilePath(const Utils::FilePath &filePa
     IDocument *document = documentForFilePath(filePath);
     if (document)
         return editorsForDocument(document);
-    return QList<IEditor *>();
+    return {};
 }
 
 DocumentModel::Entry *DocumentModel::entryAtRow(int row)

@@ -231,7 +231,7 @@ QList<LookupItem> ResolveExpression::reference(ExpressionAST *ast, Scope *scope)
 QList<LookupItem> ResolveExpression::resolve(ExpressionAST *ast, Scope *scope, bool ref)
 {
     if (! scope)
-        return QList<LookupItem>();
+        return {};
 
     std::swap(_scope, scope);
     std::swap(_reference, ref);

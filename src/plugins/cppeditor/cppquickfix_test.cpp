@@ -57,8 +57,7 @@ public:
 QList<TestDocumentPtr> singleDocument(const QByteArray &original,
                                                 const QByteArray &expected)
 {
-    return QList<TestDocumentPtr>()
-            << CppTestDocument::create("file.cpp", original, expected);
+    return {CppTestDocument::create("file.cpp", original, expected)};
 }
 
 BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDocuments,

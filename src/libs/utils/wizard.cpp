@@ -630,7 +630,7 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
     if (!item)
         item = m_startItem;
     if (!item)
-        return QList<WizardProgressItem *>();
+        return {};
 
     // Optimization. It is workaround for case A->B, B->C, A->C where "from" is A and "to" is C.
     // When we had X->A in addition and "from" was X and "to" was C, this would not work
@@ -666,7 +666,7 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
     while (itItem != itEnd) {
         path.prepend(itItem.key());
         if (itItem.value().count() != 1)
-            return QList<WizardProgressItem *>();
+            return {};
         it = itItem.value().constBegin().key();
         if (it == item)
             return path;

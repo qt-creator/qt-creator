@@ -578,7 +578,7 @@ static QList<Diff> decodeExpandedWhitespace(const QList<Diff> &input,
             const int replacementSize = it.value().first;
             const int reversePosition = diffCount + counter - it.key();
             if (reversePosition < replacementSize)
-                return QList<Diff>(); // replacement exceeds one Diff
+                return {}; // replacement exceeds one Diff
             const QString replacement = it.value().second;
             const int updatedDiffCount = diff.text.size();
             diff.text.replace(updatedDiffCount - reversePosition,
@@ -977,7 +977,7 @@ Differ::DiffMode Differ::diffMode() const
 QList<Diff> Differ::preprocess1AndDiff(const QString &text1, const QString &text2)
 {
     if (text1.isNull() && text2.isNull())
-        return QList<Diff>();
+        return {};
 
     if (text1 == text2) {
         QList<Diff> diffList;
@@ -1074,7 +1074,7 @@ QList<Diff> Differ::diffMyers(const QString &text1, const QString &text2)
         if (m_future && m_future->isCanceled()) {
             delete [] forwardV;
             delete [] reverseV;
-            return QList<Diff>();
+            return {};
         }
         // going forward
         for (int k = qMax(-d, kMinForward + qAbs(d + kMinForward) % 2);
