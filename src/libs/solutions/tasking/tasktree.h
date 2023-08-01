@@ -190,7 +190,7 @@ protected:
     static GroupItem parallelLimit(int limit) { return GroupItem({{}, limit}); }
     static GroupItem workflowPolicy(WorkflowPolicy policy) { return GroupItem({{}, {}, policy}); }
     static GroupItem withTimeout(const GroupItem &item, std::chrono::milliseconds timeout,
-                                const GroupEndHandler &handler = {});
+                                 const GroupEndHandler &handler = {});
 
 private:
     Type m_type = Type::Group;
@@ -274,15 +274,15 @@ public:
 };
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
-class TASKING_EXPORT Sync final : public Group
+class TASKING_EXPORT Sync final : public GroupItem
 {
 public:
     template<typename Function>
-    Sync(Function &&function) : Group(init(std::forward<Function>(function))) {}
+    Sync(Function &&function) { addChildren({init(std::forward<Function>(function))}); }
 
 private:
     template<typename Function>
-    static QList<GroupItem> init(Function &&function) {
+    static GroupItem init(Function &&function) {
         constexpr bool isInvocable = std::is_invocable_v<std::decay_t<Function>>;
         static_assert(isInvocable,
                       "Sync element: The synchronous function can't take any arguments.");
@@ -291,10 +291,10 @@ private:
         static_assert(isBool || isVoid,
                       "Sync element: The synchronous function has to return void or bool.");
         if constexpr (isBool) {
-            return {onGroupSetup([function] { return function() ? SetupResult::StopWithDone
-                                                                : SetupResult::StopWithError; })};
+            return onGroupSetup([function] { return function() ? SetupResult::StopWithDone
+                                                               : SetupResult::StopWithError; });
         }
-        return {onGroupSetup([function] { function(); return SetupResult::StopWithDone; })};
+        return onGroupSetup([function] { function(); return SetupResult::StopWithDone; });
     };
 };
 
