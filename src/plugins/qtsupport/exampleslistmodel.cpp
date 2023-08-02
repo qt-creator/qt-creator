@@ -9,7 +9,6 @@
 #include <QApplication>
 #include <QDir>
 #include <QFile>
-#include <QImageReader>
 #include <QPixmapCache>
 #include <QUrl>
 
@@ -244,13 +243,10 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
         return pixmap;
 
     if (url.startsWith("qthelp://")) {
-        QByteArray fetchedData = Core::HelpManager::fileData(url);
+        const QByteArray fetchedData = Core::HelpManager::fileData(url);
         if (!fetchedData.isEmpty()) {
-            QBuffer imgBuffer(&fetchedData);
-            imgBuffer.open(QIODevice::ReadOnly);
-            QImageReader reader(&imgBuffer, QFileInfo(url).suffix().toLatin1());
-            QImage img = reader.read();
-            img.convertTo(QImage::Format_RGB32);
+            const QImage img = QImage::fromData(fetchedData, QFileInfo(url).suffix().toLatin1())
+                                   .convertToFormat(QImage::Format_RGB32);
             const int dpr = qApp->devicePixelRatio();
             // boundedTo -> don't scale thumbnails up
             const QSize scaledSize =
