@@ -163,7 +163,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
 
     using namespace Tasking;
 
-    const TreeStorage<QString> diffInputStorage = inputStorage();
+    const TreeStorage<QString> diffInputStorage;
 
     const auto setupDescription = [this](Process &process) {
         if (m_changeNumber == 0)
@@ -209,7 +209,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         },
         Group {
             ProcessTask(setupDiff, onDiffDone),
-            postProcessTask()
+            postProcessTask(diffInputStorage)
         }
     };
     setReloadRecipe(root);

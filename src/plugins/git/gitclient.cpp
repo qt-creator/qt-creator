@@ -238,7 +238,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
 {
     using namespace Tasking;
 
-    const TreeStorage<QString> diffInputStorage = inputStorage();
+    const TreeStorage<QString> diffInputStorage;
 
     const auto setupDiff = [=](Process &process) {
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), {}));
@@ -252,7 +252,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
     const Group root {
         Storage(diffInputStorage),
         ProcessTask(setupDiff, onDiffDone),
-        postProcessTask()
+        postProcessTask(diffInputStorage)
     };
     setReloadRecipe(root);
 }
@@ -304,7 +304,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
     };
 
     const TreeStorage<DiffStorage> storage;
-    const TreeStorage<QString> diffInputStorage = inputStorage();
+    const TreeStorage<QString> diffInputStorage;
 
     const auto setupStaged = [this, stagedFiles](Process &process) {
         if (stagedFiles.isEmpty())
@@ -346,7 +346,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
             ProcessTask(setupUnstaged, onUnstagedDone),
             onGroupDone(onStagingDone)
         },
-        postProcessTask()
+        postProcessTask(diffInputStorage)
     };
     setReloadRecipe(root);
 }
@@ -377,7 +377,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     };
 
     const TreeStorage<ReloadStorage> storage;
-    const TreeStorage<QString> diffInputStorage = inputStorage();
+    const TreeStorage<QString> diffInputStorage;
 
     const auto updateDescription = [this](const ReloadStorage &storage) {
         QString desc = storage.m_header;
@@ -552,7 +552,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         },
         Group {
             ProcessTask(setupDiff, onDiffDone),
-            postProcessTask()
+            postProcessTask(diffInputStorage)
         }
     };
     setReloadRecipe(root);

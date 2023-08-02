@@ -28,8 +28,7 @@ public:
     void setVcsBinary(const Utils::FilePath &path);
 
 protected:
-    Tasking::TreeStorage<QString> inputStorage() const;
-    Tasking::GroupItem postProcessTask();
+    Tasking::GroupItem postProcessTask(const Tasking::TreeStorage<QString> &inputStorage);
 
     void setupCommand(Utils::Process &process, const QStringList &args) const;
 
