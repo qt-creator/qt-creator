@@ -477,7 +477,7 @@ FilePath chooseFileFromList(const FilePaths &candidates)
         filesMenu.addAction(candidate.toUserOutput());
     if (const QAction * const action = filesMenu.exec(QCursor::pos()))
         return FilePath::fromUserInput(action->text());
-    return FilePath();
+    return {};
 }
 
 } // namespace Utils

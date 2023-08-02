@@ -26,7 +26,7 @@ Utils::FilePath projectFilePath()
         if (auto *proj = ProjectExplorer::ProjectManager::projectForFile(doc->fileName()))
             return proj->projectDirectory();
     }
-    return Utils::FilePath();
+    return {};
 }
 
 static Utils::FilePath findFile(const Utils::FilePath &path, const QString &fileName)

@@ -98,7 +98,7 @@ FilePath QnxQtVersion::qnxTarget() const
             return FilePath::fromUserInput(item.value);
     }
 
-    return FilePath();
+    return {};
 }
 
 QString QnxQtVersion::cpuDir() const

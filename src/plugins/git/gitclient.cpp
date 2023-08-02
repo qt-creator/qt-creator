@@ -2428,7 +2428,7 @@ static FilePath gitBinDir(const GitClient::GitKLaunchTrial trial, const FilePath
     if (trial == GitClient::SystemPath)
         return Environment::systemEnvironment().searchInPath("gitk").parentDir();
     QTC_CHECK(false);
-    return FilePath();
+    return {};
 }
 
 void GitClient::tryLaunchingGitK(const Environment &env,
@@ -2518,7 +2518,7 @@ FilePath GitClient::gitBinDirectory() const
 {
     const QString git = vcsBinary().toString();
     if (git.isEmpty())
-        return FilePath();
+        return {};
 
     // Is 'git\cmd' in the path (folder containing .bats)?
     QString path = QFileInfo(git).absolutePath();
@@ -2564,7 +2564,7 @@ FilePath GitClient::vcsBinary() const
     bool ok;
     Utils::FilePath binary = settings().gitExecutable(&ok);
     if (!ok)
-        return Utils::FilePath();
+        return {};
     return binary;
 }
 

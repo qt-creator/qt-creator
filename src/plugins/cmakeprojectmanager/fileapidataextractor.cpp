@@ -480,7 +480,7 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
 FilePath directorySourceDir(const Configuration &c, const FilePath &sourceDir, int directoryIndex)
 {
     const size_t di = static_cast<size_t>(directoryIndex);
-    QTC_ASSERT(di < c.directories.size(), return FilePath());
+    QTC_ASSERT(di < c.directories.size(), return {});
 
     return sourceDir.resolvePath(c.directories[di].sourcePath);
 }
@@ -488,7 +488,7 @@ FilePath directorySourceDir(const Configuration &c, const FilePath &sourceDir, i
 FilePath directoryBuildDir(const Configuration &c, const FilePath &buildDir, int directoryIndex)
 {
     const size_t di = static_cast<size_t>(directoryIndex);
-    QTC_ASSERT(di < c.directories.size(), return FilePath());
+    QTC_ASSERT(di < c.directories.size(), return {});
 
     return buildDir.resolvePath(c.directories[di].buildPath);
 }

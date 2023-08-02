@@ -196,7 +196,7 @@ Utils::FilePath ClangFormatConfigWidget::projectPath()
     if (d->project)
         return globalPath().pathAppended("clang-format/" + projectUniqueId(d->project));
 
-    return Utils::FilePath();
+    return {};
 }
 
 void ClangFormatConfigWidget::createStyleFileIfNeeded(bool isGlobal)

@@ -384,7 +384,7 @@ Utils::FilePath DocumentUri::toFilePath(const PathMapper &mapToHostPath) const
         QTC_ASSERT(mapToHostPath, return serverPath);
         return mapToHostPath(serverPath);
     }
-    return Utils::FilePath();
+    return {};
 }
 
 DocumentUri DocumentUri::fromProtocol(const QString &uri)

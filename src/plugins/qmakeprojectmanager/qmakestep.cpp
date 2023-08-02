@@ -341,7 +341,7 @@ FilePath QMakeStep::makeCommand() const
 {
     if (auto ms = stepList()->firstOfType<MakeStep>())
         return ms->makeExecutable();
-    return FilePath();
+    return {};
 }
 
 QString QMakeStep::makeArguments(const QString &makefile) const

@@ -452,7 +452,7 @@ FilePath AndroidConfig::emulatorToolPath() const
     if (emulatorFile.exists())
         return emulatorFile;
 
-    return FilePath();
+    return {};
 }
 
 FilePath AndroidConfig::sdkManagerToolPath() const
@@ -468,7 +468,7 @@ FilePath AndroidConfig::sdkManagerToolPath() const
     if (sdkmanagerTmpPath.exists())
         return sdkmanagerTmpPath;
 
-    return FilePath();
+    return {};
 }
 
 FilePath AndroidConfig::avdManagerToolPath() const
@@ -478,7 +478,7 @@ FilePath AndroidConfig::avdManagerToolPath() const
     if (sdkmanagerPath.exists())
         return sdkmanagerPath;
 
-    return FilePath();
+    return {};
 }
 
 void AndroidConfig::setTemporarySdkToolsPath(const Utils::FilePath &path)
@@ -498,7 +498,7 @@ FilePath AndroidConfig::sdkToolsVersionPath() const
     if (tmpSdkPath.exists())
         return tmpSdkPath;
 
-    return FilePath();
+    return {};
 }
 
 FilePath AndroidConfig::toolchainPathFromNdk(const FilePath &ndkLocation, OsType hostOs)
@@ -523,7 +523,7 @@ FilePath AndroidConfig::toolchainPathFromNdk(const FilePath &ndkLocation, OsType
     case OsTypeMac:
         hostPatterns << QLatin1String("darwin*");
         break;
-    default: /* unknown host */ return FilePath();
+    default: /* unknown host */ return {};
     }
 
     QDirIterator iter(toolchainPath.toString(), hostPatterns, QDir::Dirs);

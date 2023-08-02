@@ -334,10 +334,7 @@ void DesignDocument::updateFileName(const Utils::FilePath & /*oldFileName*/, con
 
 Utils::FilePath DesignDocument::fileName() const
 {
-    if (editor())
-        return editor()->document()->filePath();
-
-    return Utils::FilePath();
+    return editor() ? editor()->document()->filePath() : Utils::FilePath();
 }
 
 ProjectExplorer::Target *DesignDocument::currentTarget() const

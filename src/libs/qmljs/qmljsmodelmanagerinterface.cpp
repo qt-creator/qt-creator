@@ -901,7 +901,7 @@ static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
 static FilePath modulePath(const ImportInfo &import, const FilePaths &paths)
 {
     if (!import.version().isValid())
-        return FilePath();
+        return {};
 
     const FilePaths modPaths = modulePaths(import.name(), import.version().toString(), paths);
     return modPaths.value(0); // first is best match

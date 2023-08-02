@@ -338,7 +338,7 @@ Utils::FilePath findConfig(const Utils::FilePath &fileName)
 
         parentDirectory = parentDirectory.parentDir();
     }
-    return Utils::FilePath();
+    return {};
 }
 
 Utils::FilePath configForFile(const Utils::FilePath &fileName)

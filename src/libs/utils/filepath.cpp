@@ -985,12 +985,12 @@ FilePath FilePath::parentDir() const
 {
     const QString basePath = path();
     if (basePath.isEmpty())
-        return FilePath();
+        return {};
 
     const QString path = basePath + QLatin1String("/..");
     const QString parent = doCleanPath(path);
     if (parent == path)
-        return FilePath();
+        return {};
 
     return withNewPath(parent);
 }

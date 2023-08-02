@@ -397,7 +397,7 @@ static FilePaths gatherQmakePathsFromQtChooser()
 {
     const QString qtchooser = QStandardPaths::findExecutable(QStringLiteral("qtchooser"));
     if (qtchooser.isEmpty())
-        return FilePaths();
+        return {};
 
     const QList<QByteArray> versions = runQtChooser(qtchooser, QStringList("-l"));
     QSet<FilePath> foundQMakes;

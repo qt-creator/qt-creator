@@ -64,7 +64,7 @@ bool ObjectsMapDocument::saveImpl(QString *errorString,
 
 Utils::FilePath ObjectsMapDocument::fallbackSaveAsPath() const
 {
-    return Utils::FilePath();
+    return {};
 }
 
 QString ObjectsMapDocument::fallbackSaveAsFileName() const

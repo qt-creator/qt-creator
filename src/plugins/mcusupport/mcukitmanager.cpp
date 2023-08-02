@@ -413,7 +413,7 @@ static FilePath kitDependencyPath(const Kit *kit, const QString &cmakeVariableNa
         if (configItem.key == keyName)
             return FilePath::fromUserInput(QString::fromUtf8(configItem.value));
     }
-    return FilePath();
+    return {};
 }
 
 // Kit Information

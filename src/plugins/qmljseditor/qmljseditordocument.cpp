@@ -741,7 +741,7 @@ static Utils::FilePath qmllsForFile(const Utils::FilePath &file,
     QmllsSettings settings = settingsManager->lastSettings();
     bool enabled = settings.useQmlls;
     if (!enabled)
-        return Utils::FilePath();
+        return {};
     if (settings.useLatestQmlls)
         return settingsManager->latestQmlls();
     QmlJS::ModelManagerInterface::ProjectInfo pInfo = modelManager->projectInfoForPath(file);

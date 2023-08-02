@@ -1567,7 +1567,7 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
                                                        BuildConfiguration::BuildType buildType)
 {
     if (projectFilePath.isEmpty())
-        return FilePath();
+        return {};
 
     const QString projectName = projectFilePath.parentDir().fileName();
     const FilePath projectDir = Project::projectDirectory(projectFilePath);

@@ -1773,7 +1773,7 @@ FilePath QtVersionPrivate::mkspecDirectoryFromVersionInfo(const QHash<ProKey, Pr
 {
     QString dataDir = qmakeProperty(versionInfo, "QT_HOST_DATA", PropertyVariantSrc);
     if (dataDir.isEmpty())
-        return FilePath();
+        return {};
     return qmakeCommand.withNewPath(dataDir + "/mkspecs").cleanPath();
 }
 
@@ -1782,7 +1782,7 @@ FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> 
 {
     FilePath baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo, qmakeCommand);
     if (baseMkspecDir.isEmpty())
-        return FilePath();
+        return {};
 
     bool qt5 = false;
     QString theSpec = qmakeProperty(versionInfo, "QMAKE_XSPEC");

@@ -39,7 +39,7 @@ Utils::FilePath UicGenerator::command() const
         version = QtSupport::QtKitAspect::qtVersion(KitManager::defaultKit());
 
     if (!version)
-        return Utils::FilePath();
+        return {};
 
     return version->uicFilePath();
 }
