@@ -234,14 +234,14 @@ static inline QString nextStash(const QString &stash)
 {
     const int openingBracePos = stash.indexOf('{');
     if (openingBracePos == -1)
-        return QString();
+        return {};
     const int closingBracePos = stash.indexOf('}', openingBracePos + 2);
     if (closingBracePos == -1)
-        return QString();
+        return {};
     bool ok;
     const int n = stash.mid(openingBracePos + 1, closingBracePos - openingBracePos - 1).toInt(&ok);
     if (!ok)
-        return QString();
+        return {};
     QString rc =  stash.left(openingBracePos + 1);
     rc += QString::number(n + 1);
     rc += '}';

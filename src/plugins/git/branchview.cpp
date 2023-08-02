@@ -333,7 +333,7 @@ QModelIndex BranchView::selectedIndex()
 {
     QModelIndexList selected = m_branchView->selectionModel()->selectedIndexes();
     if (selected.isEmpty())
-        return QModelIndex();
+        return {};
     return m_filterModel->mapToSource(selected.at(0));
 }
 

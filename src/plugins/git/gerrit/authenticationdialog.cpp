@@ -39,7 +39,7 @@ static QString findEntry(const QString &line, const QString &type)
     const QRegularExpressionMatch match = entryMatch(line, type);
     if (match.hasMatch())
         return match.captured(1);
-    return QString();
+    return {};
 }
 
 static bool replaceEntry(QString &line, const QString &type, const QString &value)

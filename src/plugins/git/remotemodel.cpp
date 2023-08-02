@@ -112,14 +112,13 @@ QVariant RemoteModel::data(const QModelIndex &index, int role) const
     default:
         break;
     }
-    return QVariant();
+    return {};
 }
 
 QVariant RemoteModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
-        return QVariant();
-
+        return {};
     return (section == 0) ? Tr::tr("Name") : Tr::tr("URL");
 }
 

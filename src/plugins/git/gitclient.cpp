@@ -1677,7 +1677,7 @@ QString GitClient::synchronousTopic(const FilePath &workingDirectory) const
     // Detached HEAD, try a tag or remote branch
     QStringList references;
     if (!synchronousHeadRefs(workingDirectory, &references))
-        return QString();
+        return {};
 
     const QString tagStart("refs/tags/");
     const QString remoteStart("refs/remotes/");
@@ -2262,7 +2262,7 @@ QString GitClient::commandInProgressDescription(const FilePath &workingDirectory
     case Merge:
         return Tr::tr("MERGING");
     }
-    return QString();
+    return {};
 }
 
 GitClient::CommandInProgress GitClient::checkCommandInProgress(const FilePath &workingDirectory) const

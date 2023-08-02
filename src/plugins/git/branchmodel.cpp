@@ -264,22 +264,22 @@ BranchModel::~BranchModel()
 QModelIndex BranchModel::index(int row, int column, const QModelIndex &parentIdx) const
 {
     if (column > 1)
-        return QModelIndex();
+        return {};
     BranchNode *parentNode = indexToNode(parentIdx);
 
     if (row >= parentNode->count())
-        return QModelIndex();
+        return {};
     return nodeToIndex(parentNode->children.at(row), column);
 }
 
 QModelIndex BranchModel::parent(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return QModelIndex();
+        return {};
 
     BranchNode *node = indexToNode(index);
     if (node->parent == d->rootNode)
-        return QModelIndex();
+        return {};
     return nodeToIndex(node->parent, ColumnBranch);
 }
 
@@ -304,7 +304,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
 
     BranchNode *node = indexToNode(index);
     if (!node)
-        return QVariant();
+        return {};
 
     switch (role) {
     case Qt::DisplayRole: {
@@ -330,7 +330,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         return index.column() == 0 ? node->fullRef() : QVariant();
     case Qt::ToolTipRole:
         if (!node->isLeaf())
-            return QVariant();
+            return {};
         if (node->toolTip.isEmpty())
             node->toolTip = toolTip(node->sha);
         return node->toolTip;
@@ -346,7 +346,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         return font;
     }
     default:
-        return QVariant();
+        return {};
     }
 }
 
@@ -524,17 +524,17 @@ FilePath BranchModel::workingDirectory() const
 QModelIndex BranchModel::currentBranch() const
 {
     if (!d->currentBranch)
-        return QModelIndex();
+        return {};
     return nodeToIndex(d->currentBranch, ColumnBranch);
 }
 
 QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
 {
     if (!idx.isValid())
-        return QString();
+        return {};
     BranchNode *node = indexToNode(idx);
     if (!node || !node->isLeaf())
-        return QString();
+        return {};
     if (node == d->headNode)
         return QString("HEAD");
     return node->fullRef(includePrefix);
@@ -550,7 +550,7 @@ QStringList BranchModel::localBranchNames() const
 QString BranchModel::sha(const QModelIndex &idx) const
 {
     if (!idx.isValid())
-        return QString();
+        return {};
     BranchNode *node = indexToNode(idx);
     return node->sha;
 }
@@ -558,12 +558,10 @@ QString BranchModel::sha(const QModelIndex &idx) const
 QDateTime BranchModel::dateTime(const QModelIndex &idx) const
 {
     if (!idx.isValid())
-        return QDateTime();
+        return {};
     BranchNode *node = indexToNode(idx);
     return node->dateTime;
 }
-
-
 
 bool BranchModel::isHead(const QModelIndex &idx) const
 {
@@ -679,7 +677,7 @@ static int positionForName(BranchNode *node, const QString &name)
 QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModelIndex &startPoint)
 {
     if (!d->rootNode || !d->rootNode->count())
-        return QModelIndex();
+        return {};
 
     const QString trackedBranch = fullName(startPoint);
     const QString fullTrackedBranch = fullName(startPoint, true);
@@ -705,7 +703,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
 
     if (!gitClient().synchronousBranchCmd(d->workingDirectory, args, &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
-        return QModelIndex();
+        return {};
     }
 
     BranchNode *local = d->rootNode->children.at(LocalBranches);
@@ -761,7 +759,7 @@ std::optional<QString> BranchModel::remoteName(const QModelIndex &idx) const
     if (!node)
         return std::nullopt;
     if (node == remotesNode)
-        return QString();
+        return {};
     if (node->parent == remotesNode)
         return node->name;
     return std::nullopt;
@@ -888,7 +886,7 @@ BranchNode *BranchModel::indexToNode(const QModelIndex &index) const
 QModelIndex BranchModel::nodeToIndex(BranchNode *node, int column) const
 {
     if (node == d->rootNode)
-        return QModelIndex();
+        return {};
     return createIndex(node->parent->rowOf(node), column, static_cast<void *>(node));
 }
 

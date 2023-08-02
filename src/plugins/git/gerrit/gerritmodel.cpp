@@ -81,7 +81,7 @@ static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p,
 QString GerritPatchSet::approvalsToHtml() const
 {
     if (approvals.isEmpty())
-        return QString();
+        return {};
 
     QString result;
     QTextStream str(&result);
@@ -411,7 +411,7 @@ QString GerritModel::toHtml(const QModelIndex& index) const
     static const QString neededByHeader = Git::Tr::tr("Needed by");
 
     if (!index.isValid())
-        return QString();
+        return {};
     const GerritChangePtr c = change(index);
     const QString serverPrefix = c->url.left(c->url.lastIndexOf('/') + 1);
     QString result;

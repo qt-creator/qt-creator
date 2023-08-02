@@ -94,7 +94,7 @@ QString MergeTool::mergeTypeName()
     case DeletedMerge: return Tr::tr("Deleted");
     case SymbolicLinkMerge: return Tr::tr("Symbolic link");
     }
-    return QString();
+    return {};
 }
 
 QString MergeTool::stateName(MergeTool::FileState state, const QString &extraInfo)
@@ -107,7 +107,7 @@ QString MergeTool::stateName(MergeTool::FileState state, const QString &extraInf
     case SymbolicLinkState: return Tr::tr("Symbolic link -> %1").arg(extraInfo);
     default: break;
     }
-    return QString();
+    return {};
 }
 
 void MergeTool::chooseAction()

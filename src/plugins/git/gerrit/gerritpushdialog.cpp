@@ -56,7 +56,7 @@ QString GerritPushDialog::determineRemoteBranch(const QString &localBranch)
 
     if (!gitClient().synchronousBranchCmd(
                 m_workingDir, {"-r", "--contains", earliestCommit + '^'}, &output, &error)) {
-        return QString();
+        return {};
     }
     const QString head = "/HEAD";
     const QStringList refs = output.split('\n');

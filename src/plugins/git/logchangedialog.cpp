@@ -95,7 +95,7 @@ QString LogChangeWidget::commit() const
 {
     if (const QStandardItem *sha1Item = currentItem(Sha1Column))
         return sha1Item->text();
-    return QString();
+    return {};
 }
 
 int LogChangeWidget::commitIndex() const
@@ -113,7 +113,7 @@ QString LogChangeWidget::earliestCommit() const
         if (const QStandardItem *item = m_model->item(rows - 1, Sha1Column))
             return item->text();
     }
-    return QString();
+    return {};
 }
 
 void LogChangeWidget::setItemDelegate(QAbstractItemDelegate *delegate)
@@ -269,7 +269,7 @@ int LogChangeDialog::commitIndex() const
 QString LogChangeDialog::resetFlag() const
 {
     if (!m_resetTypeComboBox)
-        return QString();
+        return {};
     return m_resetTypeComboBox->itemData(m_resetTypeComboBox->currentIndex()).toString();
 }
 

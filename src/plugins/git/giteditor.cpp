@@ -110,11 +110,11 @@ QString GitEditorWidget::changeUnderCursor(const QTextCursor &c) const
     // Any number is regarded as change number.
     cursor.select(QTextCursor::WordUnderCursor);
     if (!cursor.hasSelection())
-        return QString();
+        return {};
     const QString change = cursor.selectedText();
     if (m_changeNumberPattern.match(change).hasMatch())
         return change;
-    return QString();
+    return {};
 }
 
 BaseAnnotationHighlighter *GitEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
@@ -317,7 +317,7 @@ QString GitEditorWidget::revisionSubject(const QTextBlock &inBlock) const
             return block.text().trimmed();
         }
     }
-    return QString();
+    return {};
 }
 
 bool GitEditorWidget::supportChangeLinks() const
@@ -363,21 +363,21 @@ QWidget *GitEditorWidget::addFilterWidget()
 QString GitEditorWidget::grepValue() const
 {
     if (!m_logFilterWidget)
-        return QString();
+        return {};
     return m_logFilterWidget->grepLineEdit->text();
 }
 
 QString GitEditorWidget::pickaxeValue() const
 {
     if (!m_logFilterWidget)
-        return QString();
+        return {};
     return m_logFilterWidget->pickaxeLineEdit->text();
 }
 
 QString GitEditorWidget::authorValue() const
 {
     if (!m_logFilterWidget)
-        return QString();
+        return {};
     return m_logFilterWidget->authorLineEdit->text();
 }
 
