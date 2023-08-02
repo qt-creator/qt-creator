@@ -41,21 +41,85 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_AlignArrayOfStructures->addItems({"Left","Right","None",});
     m_AlignArrayOfStructures->setObjectName("AlignArrayOfStructures");
 
-    m_AlignConsecutiveMacros = new QComboBox(this);
-    m_AlignConsecutiveMacros->addItems({"None","Consecutive","AcrossEmptyLines","AcrossComments","AcrossEmptyLinesAndComments",});
-    m_AlignConsecutiveMacros->setObjectName("AlignConsecutiveMacros");
+    m_AlignConsecutiveMacrosEnabled = new QComboBox(this);
+    m_AlignConsecutiveMacrosEnabled->addItems({"Default","true","false",});
+    m_AlignConsecutiveMacrosEnabled->setObjectName("AlignConsecutiveMacrosEnabled");
 
-    m_AlignConsecutiveAssignments = new QComboBox(this);
-    m_AlignConsecutiveAssignments->addItems({"None","Consecutive","AcrossEmptyLines","AcrossComments","AcrossEmptyLinesAndComments",});
-    m_AlignConsecutiveAssignments->setObjectName("AlignConsecutiveAssignments");
+    m_AlignConsecutiveMacrosAcrossEmptyLines = new QComboBox(this);
+    m_AlignConsecutiveMacrosAcrossEmptyLines->addItems({"Default","true","false",});
+    m_AlignConsecutiveMacrosAcrossEmptyLines->setObjectName("AlignConsecutiveMacrosAcrossEmptyLines");
 
-    m_AlignConsecutiveBitFields = new QComboBox(this);
-    m_AlignConsecutiveBitFields->addItems({"None","Consecutive","AcrossEmptyLines","AcrossComments","AcrossEmptyLinesAndComments",});
-    m_AlignConsecutiveBitFields->setObjectName("AlignConsecutiveBitFields");
+    m_AlignConsecutiveMacrosAcrossComments = new QComboBox(this);
+    m_AlignConsecutiveMacrosAcrossComments->addItems({"Default","true","false",});
+    m_AlignConsecutiveMacrosAcrossComments->setObjectName("AlignConsecutiveMacrosAcrossComments");
 
-    m_AlignConsecutiveDeclarations = new QComboBox(this);
-    m_AlignConsecutiveDeclarations->addItems({"None","Consecutive","AcrossEmptyLines","AcrossComments","AcrossEmptyLinesAndComments",});
-    m_AlignConsecutiveDeclarations->setObjectName("AlignConsecutiveDeclarations");
+    m_AlignConsecutiveMacrosAlignCompound = new QComboBox(this);
+    m_AlignConsecutiveMacrosAlignCompound->addItems({"Default","true","false",});
+    m_AlignConsecutiveMacrosAlignCompound->setObjectName("AlignConsecutiveMacrosAlignCompound");
+
+    m_AlignConsecutiveMacrosPadOperators = new QComboBox(this);
+    m_AlignConsecutiveMacrosPadOperators->addItems({"Default","true","false",});
+    m_AlignConsecutiveMacrosPadOperators->setObjectName("AlignConsecutiveMacrosPadOperators");
+
+    m_AlignConsecutiveAssignmentsEnabled = new QComboBox(this);
+    m_AlignConsecutiveAssignmentsEnabled->addItems({"Default","true","false",});
+    m_AlignConsecutiveAssignmentsEnabled->setObjectName("AlignConsecutiveAssignmentsEnabled");
+
+    m_AlignConsecutiveAssignmentsAcrossEmptyLines = new QComboBox(this);
+    m_AlignConsecutiveAssignmentsAcrossEmptyLines->addItems({"Default","true","false",});
+    m_AlignConsecutiveAssignmentsAcrossEmptyLines->setObjectName("AlignConsecutiveAssignmentsAcrossEmptyLines");
+
+    m_AlignConsecutiveAssignmentsAcrossComments = new QComboBox(this);
+    m_AlignConsecutiveAssignmentsAcrossComments->addItems({"Default","true","false",});
+    m_AlignConsecutiveAssignmentsAcrossComments->setObjectName("AlignConsecutiveAssignmentsAcrossComments");
+
+    m_AlignConsecutiveAssignmentsAlignCompound = new QComboBox(this);
+    m_AlignConsecutiveAssignmentsAlignCompound->addItems({"Default","true","false",});
+    m_AlignConsecutiveAssignmentsAlignCompound->setObjectName("AlignConsecutiveAssignmentsAlignCompound");
+
+    m_AlignConsecutiveAssignmentsPadOperators = new QComboBox(this);
+    m_AlignConsecutiveAssignmentsPadOperators->addItems({"Default","true","false",});
+    m_AlignConsecutiveAssignmentsPadOperators->setObjectName("AlignConsecutiveAssignmentsPadOperators");
+
+    m_AlignConsecutiveBitFieldsEnabled = new QComboBox(this);
+    m_AlignConsecutiveBitFieldsEnabled->addItems({"Default","true","false",});
+    m_AlignConsecutiveBitFieldsEnabled->setObjectName("AlignConsecutiveBitFieldsEnabled");
+
+    m_AlignConsecutiveBitFieldsAcrossEmptyLines = new QComboBox(this);
+    m_AlignConsecutiveBitFieldsAcrossEmptyLines->addItems({"Default","true","false",});
+    m_AlignConsecutiveBitFieldsAcrossEmptyLines->setObjectName("AlignConsecutiveBitFieldsAcrossEmptyLines");
+
+    m_AlignConsecutiveBitFieldsAcrossComments = new QComboBox(this);
+    m_AlignConsecutiveBitFieldsAcrossComments->addItems({"Default","true","false",});
+    m_AlignConsecutiveBitFieldsAcrossComments->setObjectName("AlignConsecutiveBitFieldsAcrossComments");
+
+    m_AlignConsecutiveBitFieldsAlignCompound = new QComboBox(this);
+    m_AlignConsecutiveBitFieldsAlignCompound->addItems({"Default","true","false",});
+    m_AlignConsecutiveBitFieldsAlignCompound->setObjectName("AlignConsecutiveBitFieldsAlignCompound");
+
+    m_AlignConsecutiveBitFieldsPadOperators = new QComboBox(this);
+    m_AlignConsecutiveBitFieldsPadOperators->addItems({"Default","true","false",});
+    m_AlignConsecutiveBitFieldsPadOperators->setObjectName("AlignConsecutiveBitFieldsPadOperators");
+
+    m_AlignConsecutiveDeclarationsEnabled = new QComboBox(this);
+    m_AlignConsecutiveDeclarationsEnabled->addItems({"Default","true","false",});
+    m_AlignConsecutiveDeclarationsEnabled->setObjectName("AlignConsecutiveDeclarationsEnabled");
+
+    m_AlignConsecutiveDeclarationsAcrossEmptyLines = new QComboBox(this);
+    m_AlignConsecutiveDeclarationsAcrossEmptyLines->addItems({"Default","true","false",});
+    m_AlignConsecutiveDeclarationsAcrossEmptyLines->setObjectName("AlignConsecutiveDeclarationsAcrossEmptyLines");
+
+    m_AlignConsecutiveDeclarationsAcrossComments = new QComboBox(this);
+    m_AlignConsecutiveDeclarationsAcrossComments->addItems({"Default","true","false",});
+    m_AlignConsecutiveDeclarationsAcrossComments->setObjectName("AlignConsecutiveDeclarationsAcrossComments");
+
+    m_AlignConsecutiveDeclarationsAlignCompound = new QComboBox(this);
+    m_AlignConsecutiveDeclarationsAlignCompound->addItems({"Default","true","false",});
+    m_AlignConsecutiveDeclarationsAlignCompound->setObjectName("AlignConsecutiveDeclarationsAlignCompound");
+
+    m_AlignConsecutiveDeclarationsPadOperators = new QComboBox(this);
+    m_AlignConsecutiveDeclarationsPadOperators->addItems({"Default","true","false",});
+    m_AlignConsecutiveDeclarationsPadOperators->setObjectName("AlignConsecutiveDeclarationsPadOperators");
 
     m_AlignEscapedNewlines = new QComboBox(this);
     m_AlignEscapedNewlines->addItems({"DontAlign","Left","Right",});
@@ -65,21 +129,18 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_AlignOperands->addItems({"DontAlign","Align","AlignAfterOperator",});
     m_AlignOperands->setObjectName("AlignOperands");
 
-    m_AlignTrailingComments = new QComboBox(this);
-    m_AlignTrailingComments->addItems({"Default","true","false",});
-    m_AlignTrailingComments->setObjectName("AlignTrailingComments");
+    m_AlignTrailingCommentsKind = new QComboBox(this);
+    m_AlignTrailingCommentsKind->addItems({"Leave","Always","Never",});
+    m_AlignTrailingCommentsKind->setObjectName("AlignTrailingCommentsKind");
 
+    m_AlignTrailingCommentsOverEmptyLines = new QLineEdit(this);
+    m_AlignTrailingCommentsOverEmptyLines->setObjectName("AlignTrailingCommentsOverEmptyLines");
+    m_setAlignTrailingCommentsOverEmptyLines = new QPushButton("Set", this);
+
+    m_setAlignTrailingCommentsOverEmptyLines->setObjectName("setAlignTrailingCommentsOverEmptyLines");
     m_AllowAllArgumentsOnNextLine = new QComboBox(this);
     m_AllowAllArgumentsOnNextLine->addItems({"Default","true","false",});
     m_AllowAllArgumentsOnNextLine->setObjectName("AllowAllArgumentsOnNextLine");
-
-    m_AllowAllParametersOfDeclarationOnNextLine = new QComboBox(this);
-    m_AllowAllParametersOfDeclarationOnNextLine->addItems({"Default","true","false",});
-    m_AllowAllParametersOfDeclarationOnNextLine->setObjectName("AllowAllParametersOfDeclarationOnNextLine");
-
-    m_AllowShortEnumsOnASingleLine = new QComboBox(this);
-    m_AllowShortEnumsOnASingleLine->addItems({"Default","true","false",});
-    m_AllowShortEnumsOnASingleLine->setObjectName("AllowShortEnumsOnASingleLine");
 
     m_AllowShortBlocksOnASingleLine = new QComboBox(this);
     m_AllowShortBlocksOnASingleLine->addItems({"Never","Empty","Always",});
@@ -88,6 +149,10 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_AllowShortCaseLabelsOnASingleLine = new QComboBox(this);
     m_AllowShortCaseLabelsOnASingleLine->addItems({"Default","true","false",});
     m_AllowShortCaseLabelsOnASingleLine->setObjectName("AllowShortCaseLabelsOnASingleLine");
+
+    m_AllowShortEnumsOnASingleLine = new QComboBox(this);
+    m_AllowShortEnumsOnASingleLine->addItems({"Default","true","false",});
+    m_AllowShortEnumsOnASingleLine->setObjectName("AllowShortEnumsOnASingleLine");
 
     m_AllowShortFunctionsOnASingleLine = new QComboBox(this);
     m_AllowShortFunctionsOnASingleLine->addItems({"None","InlineOnly","Empty","Inline","All",});
@@ -127,13 +192,93 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_BinPackArguments->addItems({"Default","true","false",});
     m_BinPackArguments->setObjectName("BinPackArguments");
 
-    m_InsertTrailingCommas = new QComboBox(this);
-    m_InsertTrailingCommas->addItems({"None","Wrapped",});
-    m_InsertTrailingCommas->setObjectName("InsertTrailingCommas");
-
     m_BinPackParameters = new QComboBox(this);
     m_BinPackParameters->addItems({"Default","true","false",});
     m_BinPackParameters->setObjectName("BinPackParameters");
+
+    m_BitFieldColonSpacing = new QComboBox(this);
+    m_BitFieldColonSpacing->addItems({"Both","None","Before","After",});
+    m_BitFieldColonSpacing->setObjectName("BitFieldColonSpacing");
+
+    m_BraceWrappingAfterCaseLabel = new QComboBox(this);
+    m_BraceWrappingAfterCaseLabel->addItems({"Default","true","false",});
+    m_BraceWrappingAfterCaseLabel->setObjectName("BraceWrappingAfterCaseLabel");
+
+    m_BraceWrappingAfterClass = new QComboBox(this);
+    m_BraceWrappingAfterClass->addItems({"Default","true","false",});
+    m_BraceWrappingAfterClass->setObjectName("BraceWrappingAfterClass");
+
+    m_BraceWrappingAfterControlStatement = new QComboBox(this);
+    m_BraceWrappingAfterControlStatement->addItems({"Never","MultiLine","Always",});
+    m_BraceWrappingAfterControlStatement->setObjectName("BraceWrappingAfterControlStatement");
+
+    m_BraceWrappingAfterEnum = new QComboBox(this);
+    m_BraceWrappingAfterEnum->addItems({"Default","true","false",});
+    m_BraceWrappingAfterEnum->setObjectName("BraceWrappingAfterEnum");
+
+    m_BraceWrappingAfterFunction = new QComboBox(this);
+    m_BraceWrappingAfterFunction->addItems({"Default","true","false",});
+    m_BraceWrappingAfterFunction->setObjectName("BraceWrappingAfterFunction");
+
+    m_BraceWrappingAfterNamespace = new QComboBox(this);
+    m_BraceWrappingAfterNamespace->addItems({"Default","true","false",});
+    m_BraceWrappingAfterNamespace->setObjectName("BraceWrappingAfterNamespace");
+
+    m_BraceWrappingAfterObjCDeclaration = new QComboBox(this);
+    m_BraceWrappingAfterObjCDeclaration->addItems({"Default","true","false",});
+    m_BraceWrappingAfterObjCDeclaration->setObjectName("BraceWrappingAfterObjCDeclaration");
+
+    m_BraceWrappingAfterStruct = new QComboBox(this);
+    m_BraceWrappingAfterStruct->addItems({"Default","true","false",});
+    m_BraceWrappingAfterStruct->setObjectName("BraceWrappingAfterStruct");
+
+    m_BraceWrappingAfterUnion = new QComboBox(this);
+    m_BraceWrappingAfterUnion->addItems({"Default","true","false",});
+    m_BraceWrappingAfterUnion->setObjectName("BraceWrappingAfterUnion");
+
+    m_BraceWrappingAfterExternBlock = new QComboBox(this);
+    m_BraceWrappingAfterExternBlock->addItems({"Default","true","false",});
+    m_BraceWrappingAfterExternBlock->setObjectName("BraceWrappingAfterExternBlock");
+
+    m_BraceWrappingBeforeCatch = new QComboBox(this);
+    m_BraceWrappingBeforeCatch->addItems({"Default","true","false",});
+    m_BraceWrappingBeforeCatch->setObjectName("BraceWrappingBeforeCatch");
+
+    m_BraceWrappingBeforeElse = new QComboBox(this);
+    m_BraceWrappingBeforeElse->addItems({"Default","true","false",});
+    m_BraceWrappingBeforeElse->setObjectName("BraceWrappingBeforeElse");
+
+    m_BraceWrappingBeforeLambdaBody = new QComboBox(this);
+    m_BraceWrappingBeforeLambdaBody->addItems({"Default","true","false",});
+    m_BraceWrappingBeforeLambdaBody->setObjectName("BraceWrappingBeforeLambdaBody");
+
+    m_BraceWrappingBeforeWhile = new QComboBox(this);
+    m_BraceWrappingBeforeWhile->addItems({"Default","true","false",});
+    m_BraceWrappingBeforeWhile->setObjectName("BraceWrappingBeforeWhile");
+
+    m_BraceWrappingIndentBraces = new QComboBox(this);
+    m_BraceWrappingIndentBraces->addItems({"Default","true","false",});
+    m_BraceWrappingIndentBraces->setObjectName("BraceWrappingIndentBraces");
+
+    m_BraceWrappingSplitEmptyFunction = new QComboBox(this);
+    m_BraceWrappingSplitEmptyFunction->addItems({"Default","true","false",});
+    m_BraceWrappingSplitEmptyFunction->setObjectName("BraceWrappingSplitEmptyFunction");
+
+    m_BraceWrappingSplitEmptyRecord = new QComboBox(this);
+    m_BraceWrappingSplitEmptyRecord->addItems({"Default","true","false",});
+    m_BraceWrappingSplitEmptyRecord->setObjectName("BraceWrappingSplitEmptyRecord");
+
+    m_BraceWrappingSplitEmptyNamespace = new QComboBox(this);
+    m_BraceWrappingSplitEmptyNamespace->addItems({"Default","true","false",});
+    m_BraceWrappingSplitEmptyNamespace->setObjectName("BraceWrappingSplitEmptyNamespace");
+
+    m_BreakAfterAttributes = new QComboBox(this);
+    m_BreakAfterAttributes->addItems({"Always","Leave","Never",});
+    m_BreakAfterAttributes->setObjectName("BreakAfterAttributes");
+
+    m_BreakArrays = new QComboBox(this);
+    m_BreakArrays->addItems({"Default","true","false",});
+    m_BreakArrays->setObjectName("BreakArrays");
 
     m_BreakBeforeBinaryOperators = new QComboBox(this);
     m_BreakBeforeBinaryOperators->addItems({"None","NonAssignment","All",});
@@ -143,81 +288,13 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_BreakBeforeBraces->addItems({"Attach","Linux","Mozilla","Stroustrup","Allman","Whitesmiths","GNU","WebKit","Custom",});
     m_BreakBeforeBraces->setObjectName("BreakBeforeBraces");
 
-    m_AfterCaseLabel = new QComboBox(this);
-    m_AfterCaseLabel->addItems({"Default","true","false",});
-    m_AfterCaseLabel->setObjectName("AfterCaseLabel");
-
-    m_AfterClass = new QComboBox(this);
-    m_AfterClass->addItems({"Default","true","false",});
-    m_AfterClass->setObjectName("AfterClass");
-
-    m_AfterControlStatement = new QComboBox(this);
-    m_AfterControlStatement->addItems({"Never","MultiLine","Always",});
-    m_AfterControlStatement->setObjectName("AfterControlStatement");
-
-    m_AfterEnum = new QComboBox(this);
-    m_AfterEnum->addItems({"Default","true","false",});
-    m_AfterEnum->setObjectName("AfterEnum");
-
-    m_AfterFunction = new QComboBox(this);
-    m_AfterFunction->addItems({"Default","true","false",});
-    m_AfterFunction->setObjectName("AfterFunction");
-
-    m_AfterNamespace = new QComboBox(this);
-    m_AfterNamespace->addItems({"Default","true","false",});
-    m_AfterNamespace->setObjectName("AfterNamespace");
-
-    m_AfterObjCDeclaration = new QComboBox(this);
-    m_AfterObjCDeclaration->addItems({"Default","true","false",});
-    m_AfterObjCDeclaration->setObjectName("AfterObjCDeclaration");
-
-    m_AfterStruct = new QComboBox(this);
-    m_AfterStruct->addItems({"Default","true","false",});
-    m_AfterStruct->setObjectName("AfterStruct");
-
-    m_AfterUnion = new QComboBox(this);
-    m_AfterUnion->addItems({"Default","true","false",});
-    m_AfterUnion->setObjectName("AfterUnion");
-
-    m_AfterExternBlock = new QComboBox(this);
-    m_AfterExternBlock->addItems({"Default","true","false",});
-    m_AfterExternBlock->setObjectName("AfterExternBlock");
-
-    m_BeforeCatch = new QComboBox(this);
-    m_BeforeCatch->addItems({"Default","true","false",});
-    m_BeforeCatch->setObjectName("BeforeCatch");
-
-    m_BeforeElse = new QComboBox(this);
-    m_BeforeElse->addItems({"Default","true","false",});
-    m_BeforeElse->setObjectName("BeforeElse");
-
-    m_BeforeLambdaBody = new QComboBox(this);
-    m_BeforeLambdaBody->addItems({"Default","true","false",});
-    m_BeforeLambdaBody->setObjectName("BeforeLambdaBody");
-
-    m_BeforeWhile = new QComboBox(this);
-    m_BeforeWhile->addItems({"Default","true","false",});
-    m_BeforeWhile->setObjectName("BeforeWhile");
-
-    m_IndentBraces = new QComboBox(this);
-    m_IndentBraces->addItems({"Default","true","false",});
-    m_IndentBraces->setObjectName("IndentBraces");
-
-    m_SplitEmptyFunction = new QComboBox(this);
-    m_SplitEmptyFunction->addItems({"Default","true","false",});
-    m_SplitEmptyFunction->setObjectName("SplitEmptyFunction");
-
-    m_SplitEmptyRecord = new QComboBox(this);
-    m_SplitEmptyRecord->addItems({"Default","true","false",});
-    m_SplitEmptyRecord->setObjectName("SplitEmptyRecord");
-
-    m_SplitEmptyNamespace = new QComboBox(this);
-    m_SplitEmptyNamespace->addItems({"Default","true","false",});
-    m_SplitEmptyNamespace->setObjectName("SplitEmptyNamespace");
-
     m_BreakBeforeConceptDeclarations = new QComboBox(this);
-    m_BreakBeforeConceptDeclarations->addItems({"Default","true","false",});
+    m_BreakBeforeConceptDeclarations->addItems({"Never","Allowed","Always",});
     m_BreakBeforeConceptDeclarations->setObjectName("BreakBeforeConceptDeclarations");
+
+    m_BreakBeforeInlineASMColon = new QComboBox(this);
+    m_BreakBeforeInlineASMColon->addItems({"Never","OnlyMultiline","Always",});
+    m_BreakBeforeInlineASMColon->setObjectName("BreakBeforeInlineASMColon");
 
     m_BreakBeforeTernaryOperators = new QComboBox(this);
     m_BreakBeforeTernaryOperators->addItems({"Default","true","false",});
@@ -245,16 +322,6 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_setCommentPragmas = new QPushButton("Set", this);
 
     m_setCommentPragmas->setObjectName("setCommentPragmas");
-    m_QualifierAlignment = new QComboBox(this);
-    m_QualifierAlignment->addItems({"Leave","Left","Right","Custom",});
-    m_QualifierAlignment->setObjectName("QualifierAlignment");
-
-    m_QualifierOrder = new QPlainTextEdit(this);
-    m_QualifierOrder->setObjectName("QualifierOrder");
-    m_QualifierOrder->setFixedHeight(100);
-    m_setQualifierOrder = new QPushButton("Set", this);
-
-    m_setQualifierOrder->setObjectName("setQualifierOrder");
     m_BreakInheritanceList = new QComboBox(this);
     m_BreakInheritanceList->addItems({"BeforeColon","BeforeComma","AfterColon","AfterComma",});
     m_BreakInheritanceList->setObjectName("BreakInheritanceList");
@@ -263,11 +330,6 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_CompactNamespaces->addItems({"Default","true","false",});
     m_CompactNamespaces->setObjectName("CompactNamespaces");
 
-    m_ConstructorInitializerIndentWidth = new QLineEdit(this);
-    m_ConstructorInitializerIndentWidth->setObjectName("ConstructorInitializerIndentWidth");
-    m_setConstructorInitializerIndentWidth = new QPushButton("Set", this);
-
-    m_setConstructorInitializerIndentWidth->setObjectName("setConstructorInitializerIndentWidth");
     m_ContinuationIndentWidth = new QLineEdit(this);
     m_ContinuationIndentWidth->setObjectName("ContinuationIndentWidth");
     m_setContinuationIndentWidth = new QPushButton("Set", this);
@@ -276,14 +338,6 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_Cpp11BracedListStyle = new QComboBox(this);
     m_Cpp11BracedListStyle->addItems({"Default","true","false",});
     m_Cpp11BracedListStyle->setObjectName("Cpp11BracedListStyle");
-
-    m_DeriveLineEnding = new QComboBox(this);
-    m_DeriveLineEnding->addItems({"Default","true","false",});
-    m_DeriveLineEnding->setObjectName("DeriveLineEnding");
-
-    m_DerivePointerAlignment = new QComboBox(this);
-    m_DerivePointerAlignment->addItems({"Default","true","false",});
-    m_DerivePointerAlignment->setObjectName("DerivePointerAlignment");
 
     m_DisableFormat = new QComboBox(this);
     m_DisableFormat->addItems({"Default","true","false",});
@@ -301,10 +355,6 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_ExperimentalAutoDetectBinPacking->addItems({"Default","true","false",});
     m_ExperimentalAutoDetectBinPacking->setObjectName("ExperimentalAutoDetectBinPacking");
 
-    m_PackConstructorInitializers = new QComboBox(this);
-    m_PackConstructorInitializers->addItems({"Never","BinPack","CurrentLine","NextLine",});
-    m_PackConstructorInitializers->setObjectName("PackConstructorInitializers");
-
     m_FixNamespaceComments = new QComboBox(this);
     m_FixNamespaceComments->addItems({"Default","true","false",});
     m_FixNamespaceComments->setObjectName("FixNamespaceComments");
@@ -321,57 +371,33 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_setIfMacros = new QPushButton("Set", this);
 
     m_setIfMacros->setObjectName("setIfMacros");
-    m_TypenameMacros = new QPlainTextEdit(this);
-    m_TypenameMacros->setObjectName("TypenameMacros");
-    m_TypenameMacros->setFixedHeight(100);
-    m_setTypenameMacros = new QPushButton("Set", this);
-
-    m_setTypenameMacros->setObjectName("setTypenameMacros");
-    m_StatementMacros = new QPlainTextEdit(this);
-    m_StatementMacros->setObjectName("StatementMacros");
-    m_StatementMacros->setFixedHeight(100);
-    m_setStatementMacros = new QPushButton("Set", this);
-
-    m_setStatementMacros->setObjectName("setStatementMacros");
-    m_NamespaceMacros = new QPlainTextEdit(this);
-    m_NamespaceMacros->setObjectName("NamespaceMacros");
-    m_NamespaceMacros->setFixedHeight(100);
-    m_setNamespaceMacros = new QPushButton("Set", this);
-
-    m_setNamespaceMacros->setObjectName("setNamespaceMacros");
-    m_WhitespaceSensitiveMacros = new QPlainTextEdit(this);
-    m_WhitespaceSensitiveMacros->setObjectName("WhitespaceSensitiveMacros");
-    m_WhitespaceSensitiveMacros->setFixedHeight(100);
-    m_setWhitespaceSensitiveMacros = new QPushButton("Set", this);
-
-    m_setWhitespaceSensitiveMacros->setObjectName("setWhitespaceSensitiveMacros");
     m_IndentAccessModifiers = new QComboBox(this);
     m_IndentAccessModifiers->addItems({"Default","true","false",});
     m_IndentAccessModifiers->setObjectName("IndentAccessModifiers");
-
-    m_IndentCaseLabels = new QComboBox(this);
-    m_IndentCaseLabels->addItems({"Default","true","false",});
-    m_IndentCaseLabels->setObjectName("IndentCaseLabels");
 
     m_IndentCaseBlocks = new QComboBox(this);
     m_IndentCaseBlocks->addItems({"Default","true","false",});
     m_IndentCaseBlocks->setObjectName("IndentCaseBlocks");
 
+    m_IndentCaseLabels = new QComboBox(this);
+    m_IndentCaseLabels->addItems({"Default","true","false",});
+    m_IndentCaseLabels->setObjectName("IndentCaseLabels");
+
     m_IndentGotoLabels = new QComboBox(this);
     m_IndentGotoLabels->addItems({"Default","true","false",});
     m_IndentGotoLabels->setObjectName("IndentGotoLabels");
-
-    m_IndentPPDirectives = new QComboBox(this);
-    m_IndentPPDirectives->addItems({"None","AfterHash","BeforeHash",});
-    m_IndentPPDirectives->setObjectName("IndentPPDirectives");
 
     m_IndentExternBlock = new QComboBox(this);
     m_IndentExternBlock->addItems({"AfterExternBlock","NoIndent","Indent",});
     m_IndentExternBlock->setObjectName("IndentExternBlock");
 
-    m_IndentRequires = new QComboBox(this);
-    m_IndentRequires->addItems({"Default","true","false",});
-    m_IndentRequires->setObjectName("IndentRequires");
+    m_IndentPPDirectives = new QComboBox(this);
+    m_IndentPPDirectives->addItems({"None","AfterHash","BeforeHash",});
+    m_IndentPPDirectives->setObjectName("IndentPPDirectives");
+
+    m_IndentRequiresClause = new QComboBox(this);
+    m_IndentRequiresClause->addItems({"Default","true","false",});
+    m_IndentRequiresClause->setObjectName("IndentRequiresClause");
 
     m_IndentWidth = new QLineEdit(this);
     m_IndentWidth->setObjectName("IndentWidth");
@@ -381,6 +407,18 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_IndentWrappedFunctionNames = new QComboBox(this);
     m_IndentWrappedFunctionNames->addItems({"Default","true","false",});
     m_IndentWrappedFunctionNames->setObjectName("IndentWrappedFunctionNames");
+
+    m_InsertBraces = new QComboBox(this);
+    m_InsertBraces->addItems({"Default","true","false",});
+    m_InsertBraces->setObjectName("InsertBraces");
+
+    m_InsertNewlineAtEOF = new QComboBox(this);
+    m_InsertNewlineAtEOF->addItems({"Default","true","false",});
+    m_InsertNewlineAtEOF->setObjectName("InsertNewlineAtEOF");
+
+    m_InsertTrailingCommas = new QComboBox(this);
+    m_InsertTrailingCommas->addItems({"None","Wrapped",});
+    m_InsertTrailingCommas->setObjectName("InsertTrailingCommas");
 
     m_JavaImportGroups = new QPlainTextEdit(this);
     m_JavaImportGroups->setObjectName("JavaImportGroups");
@@ -400,13 +438,17 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_KeepEmptyLinesAtTheStartOfBlocks->addItems({"Default","true","false",});
     m_KeepEmptyLinesAtTheStartOfBlocks->setObjectName("KeepEmptyLinesAtTheStartOfBlocks");
 
-    m_Language = new QComboBox(this);
-    m_Language->addItems({"None","Cpp","CSharp","Java","JavaScript","Json","ObjC","Proto","TableGen","TextProto",});
-    m_Language->setObjectName("Language");
-
     m_LambdaBodyIndentation = new QComboBox(this);
     m_LambdaBodyIndentation->addItems({"Signature","OuterScope",});
     m_LambdaBodyIndentation->setObjectName("LambdaBodyIndentation");
+
+    m_Language = new QComboBox(this);
+    m_Language->addItems({"None","Cpp","CSharp","Java","JavaScript","Json","ObjC","Proto","TableGen","TextProto","Verilog",});
+    m_Language->setObjectName("Language");
+
+    m_LineEnding = new QComboBox(this);
+    m_LineEnding->addItems({"LF","CRLF","DeriveLF","DeriveCRLF",});
+    m_LineEnding->setObjectName("LineEnding");
 
     m_MacroBlockBegin = new QLineEdit(this);
     m_MacroBlockBegin->setObjectName("MacroBlockBegin");
@@ -427,6 +469,12 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_NamespaceIndentation->addItems({"None","Inner","All",});
     m_NamespaceIndentation->setObjectName("NamespaceIndentation");
 
+    m_NamespaceMacros = new QPlainTextEdit(this);
+    m_NamespaceMacros->setObjectName("NamespaceMacros");
+    m_NamespaceMacros->setFixedHeight(100);
+    m_setNamespaceMacros = new QPushButton("Set", this);
+
+    m_setNamespaceMacros->setObjectName("setNamespaceMacros");
     m_ObjCBinPackProtocolList = new QComboBox(this);
     m_ObjCBinPackProtocolList->addItems({"Auto","Always","Never",});
     m_ObjCBinPackProtocolList->setObjectName("ObjCBinPackProtocolList");
@@ -436,17 +484,21 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_setObjCBlockIndentWidth = new QPushButton("Set", this);
 
     m_setObjCBlockIndentWidth->setObjectName("setObjCBlockIndentWidth");
-    m_ObjCSpaceAfterProperty = new QComboBox(this);
-    m_ObjCSpaceAfterProperty->addItems({"Default","true","false",});
-    m_ObjCSpaceAfterProperty->setObjectName("ObjCSpaceAfterProperty");
-
     m_ObjCBreakBeforeNestedBlockParam = new QComboBox(this);
     m_ObjCBreakBeforeNestedBlockParam->addItems({"Default","true","false",});
     m_ObjCBreakBeforeNestedBlockParam->setObjectName("ObjCBreakBeforeNestedBlockParam");
 
+    m_ObjCSpaceAfterProperty = new QComboBox(this);
+    m_ObjCSpaceAfterProperty->addItems({"Default","true","false",});
+    m_ObjCSpaceAfterProperty->setObjectName("ObjCSpaceAfterProperty");
+
     m_ObjCSpaceBeforeProtocolList = new QComboBox(this);
     m_ObjCSpaceBeforeProtocolList->addItems({"Default","true","false",});
     m_ObjCSpaceBeforeProtocolList->setObjectName("ObjCSpaceBeforeProtocolList");
+
+    m_PackConstructorInitializers = new QComboBox(this);
+    m_PackConstructorInitializers->addItems({"Never","BinPack","CurrentLine","NextLine",});
+    m_PackConstructorInitializers->setObjectName("PackConstructorInitializers");
 
     m_PenaltyBreakAssignment = new QLineEdit(this);
     m_PenaltyBreakAssignment->setObjectName("PenaltyBreakAssignment");
@@ -488,16 +540,16 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_setPenaltyExcessCharacter = new QPushButton("Set", this);
 
     m_setPenaltyExcessCharacter->setObjectName("setPenaltyExcessCharacter");
-    m_PenaltyReturnTypeOnItsOwnLine = new QLineEdit(this);
-    m_PenaltyReturnTypeOnItsOwnLine->setObjectName("PenaltyReturnTypeOnItsOwnLine");
-    m_setPenaltyReturnTypeOnItsOwnLine = new QPushButton("Set", this);
-
-    m_setPenaltyReturnTypeOnItsOwnLine->setObjectName("setPenaltyReturnTypeOnItsOwnLine");
     m_PenaltyIndentedWhitespace = new QLineEdit(this);
     m_PenaltyIndentedWhitespace->setObjectName("PenaltyIndentedWhitespace");
     m_setPenaltyIndentedWhitespace = new QPushButton("Set", this);
 
     m_setPenaltyIndentedWhitespace->setObjectName("setPenaltyIndentedWhitespace");
+    m_PenaltyReturnTypeOnItsOwnLine = new QLineEdit(this);
+    m_PenaltyReturnTypeOnItsOwnLine->setObjectName("PenaltyReturnTypeOnItsOwnLine");
+    m_setPenaltyReturnTypeOnItsOwnLine = new QPushButton("Set", this);
+
+    m_setPenaltyReturnTypeOnItsOwnLine->setObjectName("setPenaltyReturnTypeOnItsOwnLine");
     m_PointerAlignment = new QComboBox(this);
     m_PointerAlignment->addItems({"Left","Right","Middle",});
     m_PointerAlignment->setObjectName("PointerAlignment");
@@ -507,6 +559,16 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_setPPIndentWidth = new QPushButton("Set", this);
 
     m_setPPIndentWidth->setObjectName("setPPIndentWidth");
+    m_QualifierAlignment = new QComboBox(this);
+    m_QualifierAlignment->addItems({"Leave","Left","Right","Custom",});
+    m_QualifierAlignment->setObjectName("QualifierAlignment");
+
+    m_QualifierOrder = new QPlainTextEdit(this);
+    m_QualifierOrder->setObjectName("QualifierOrder");
+    m_QualifierOrder->setFixedHeight(100);
+    m_setQualifierOrder = new QPushButton("Set", this);
+
+    m_setQualifierOrder->setObjectName("setQualifierOrder");
     m_ReferenceAlignment = new QComboBox(this);
     m_ReferenceAlignment->addItems({"Pointer","Left","Right","Middle",});
     m_ReferenceAlignment->setObjectName("ReferenceAlignment");
@@ -518,6 +580,18 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_RemoveBracesLLVM = new QComboBox(this);
     m_RemoveBracesLLVM->addItems({"Default","true","false",});
     m_RemoveBracesLLVM->setObjectName("RemoveBracesLLVM");
+
+    m_RemoveSemicolon = new QComboBox(this);
+    m_RemoveSemicolon->addItems({"Default","true","false",});
+    m_RemoveSemicolon->setObjectName("RemoveSemicolon");
+
+    m_RequiresClausePosition = new QComboBox(this);
+    m_RequiresClausePosition->addItems({"OwnLine","WithPreceding","WithFollowing","SingleLine",});
+    m_RequiresClausePosition->setObjectName("RequiresClausePosition");
+
+    m_RequiresExpressionIndentation = new QComboBox(this);
+    m_RequiresExpressionIndentation->addItems({"OuterScope","Keyword",});
+    m_RequiresExpressionIndentation->setObjectName("RequiresExpressionIndentation");
 
     m_SeparateDefinitionBlocks = new QComboBox(this);
     m_SeparateDefinitionBlocks->addItems({"Leave","Always","Never",});
@@ -537,7 +611,7 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_SortJavaStaticImport->setObjectName("SortJavaStaticImport");
 
     m_SortUsingDeclarations = new QComboBox(this);
-    m_SortUsingDeclarations->addItems({"Default","true","false",});
+    m_SortUsingDeclarations->addItems({"Never","Lexicographic","LexicographicNumeric",});
     m_SortUsingDeclarations->setObjectName("SortUsingDeclarations");
 
     m_SpaceAfterCStyleCast = new QComboBox(this);
@@ -580,33 +654,45 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_SpaceBeforeParens->addItems({"Never","ControlStatements","ControlStatementsExceptControlMacros","NonEmptyParentheses","Always","Custom",});
     m_SpaceBeforeParens->setObjectName("SpaceBeforeParens");
 
-    m_AfterControlStatements = new QComboBox(this);
-    m_AfterControlStatements->addItems({"Default","true","false",});
-    m_AfterControlStatements->setObjectName("AfterControlStatements");
+    m_SpaceBeforeParensOptionsAfterControlStatements = new QComboBox(this);
+    m_SpaceBeforeParensOptionsAfterControlStatements->addItems({"Default","true","false",});
+    m_SpaceBeforeParensOptionsAfterControlStatements->setObjectName("SpaceBeforeParensOptionsAfterControlStatements");
 
-    m_AfterForeachMacros = new QComboBox(this);
-    m_AfterForeachMacros->addItems({"Default","true","false",});
-    m_AfterForeachMacros->setObjectName("AfterForeachMacros");
+    m_SpaceBeforeParensOptionsAfterForeachMacros = new QComboBox(this);
+    m_SpaceBeforeParensOptionsAfterForeachMacros->addItems({"Default","true","false",});
+    m_SpaceBeforeParensOptionsAfterForeachMacros->setObjectName("SpaceBeforeParensOptionsAfterForeachMacros");
 
-    m_AfterFunctionDeclarationName = new QComboBox(this);
-    m_AfterFunctionDeclarationName->addItems({"Default","true","false",});
-    m_AfterFunctionDeclarationName->setObjectName("AfterFunctionDeclarationName");
+    m_SpaceBeforeParensOptionsAfterFunctionDeclarationName = new QComboBox(this);
+    m_SpaceBeforeParensOptionsAfterFunctionDeclarationName->addItems({"Default","true","false",});
+    m_SpaceBeforeParensOptionsAfterFunctionDeclarationName->setObjectName("SpaceBeforeParensOptionsAfterFunctionDeclarationName");
 
-    m_AfterFunctionDefinitionName = new QComboBox(this);
-    m_AfterFunctionDefinitionName->addItems({"Default","true","false",});
-    m_AfterFunctionDefinitionName->setObjectName("AfterFunctionDefinitionName");
+    m_SpaceBeforeParensOptionsAfterFunctionDefinitionName = new QComboBox(this);
+    m_SpaceBeforeParensOptionsAfterFunctionDefinitionName->addItems({"Default","true","false",});
+    m_SpaceBeforeParensOptionsAfterFunctionDefinitionName->setObjectName("SpaceBeforeParensOptionsAfterFunctionDefinitionName");
 
-    m_AfterIfMacros = new QComboBox(this);
-    m_AfterIfMacros->addItems({"Default","true","false",});
-    m_AfterIfMacros->setObjectName("AfterIfMacros");
+    m_SpaceBeforeParensOptionsAfterIfMacros = new QComboBox(this);
+    m_SpaceBeforeParensOptionsAfterIfMacros->addItems({"Default","true","false",});
+    m_SpaceBeforeParensOptionsAfterIfMacros->setObjectName("SpaceBeforeParensOptionsAfterIfMacros");
 
-    m_AfterOverloadedOperator = new QComboBox(this);
-    m_AfterOverloadedOperator->addItems({"Default","true","false",});
-    m_AfterOverloadedOperator->setObjectName("AfterOverloadedOperator");
+    m_SpaceBeforeParensOptionsAfterOverloadedOperator = new QComboBox(this);
+    m_SpaceBeforeParensOptionsAfterOverloadedOperator->addItems({"Default","true","false",});
+    m_SpaceBeforeParensOptionsAfterOverloadedOperator->setObjectName("SpaceBeforeParensOptionsAfterOverloadedOperator");
 
-    m_BeforeNonEmptyParentheses = new QComboBox(this);
-    m_BeforeNonEmptyParentheses->addItems({"Default","true","false",});
-    m_BeforeNonEmptyParentheses->setObjectName("BeforeNonEmptyParentheses");
+    m_SpaceBeforeParensOptionsAfterRequiresInClause = new QComboBox(this);
+    m_SpaceBeforeParensOptionsAfterRequiresInClause->addItems({"Default","true","false",});
+    m_SpaceBeforeParensOptionsAfterRequiresInClause->setObjectName("SpaceBeforeParensOptionsAfterRequiresInClause");
+
+    m_SpaceBeforeParensOptionsAfterRequiresInExpression = new QComboBox(this);
+    m_SpaceBeforeParensOptionsAfterRequiresInExpression->addItems({"Default","true","false",});
+    m_SpaceBeforeParensOptionsAfterRequiresInExpression->setObjectName("SpaceBeforeParensOptionsAfterRequiresInExpression");
+
+    m_SpaceBeforeParensOptionsBeforeNonEmptyParentheses = new QComboBox(this);
+    m_SpaceBeforeParensOptionsBeforeNonEmptyParentheses->addItems({"Default","true","false",});
+    m_SpaceBeforeParensOptionsBeforeNonEmptyParentheses->setObjectName("SpaceBeforeParensOptionsBeforeNonEmptyParentheses");
+
+    m_SpaceBeforeSquareBrackets = new QComboBox(this);
+    m_SpaceBeforeSquareBrackets->addItems({"Default","true","false",});
+    m_SpaceBeforeSquareBrackets->setObjectName("SpaceBeforeSquareBrackets");
 
     m_SpaceBeforeRangeBasedForLoopColon = new QComboBox(this);
     m_SpaceBeforeRangeBasedForLoopColon->addItems({"Default","true","false",});
@@ -641,16 +727,16 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_SpacesInCStyleCastParentheses->addItems({"Default","true","false",});
     m_SpacesInCStyleCastParentheses->setObjectName("SpacesInCStyleCastParentheses");
 
-    m_Minimum = new QLineEdit(this);
-    m_Minimum->setObjectName("Minimum");
-    m_setMinimum = new QPushButton("Set", this);
+    m_SpacesInLineCommentPrefixMinimum = new QLineEdit(this);
+    m_SpacesInLineCommentPrefixMinimum->setObjectName("SpacesInLineCommentPrefixMinimum");
+    m_setSpacesInLineCommentPrefixMinimum = new QPushButton("Set", this);
 
-    m_setMinimum->setObjectName("setMinimum");
-    m_Maximum = new QLineEdit(this);
-    m_Maximum->setObjectName("Maximum");
-    m_setMaximum = new QPushButton("Set", this);
+    m_setSpacesInLineCommentPrefixMinimum->setObjectName("setSpacesInLineCommentPrefixMinimum");
+    m_SpacesInLineCommentPrefixMaximum = new QLineEdit(this);
+    m_SpacesInLineCommentPrefixMaximum->setObjectName("SpacesInLineCommentPrefixMaximum");
+    m_setSpacesInLineCommentPrefixMaximum = new QPushButton("Set", this);
 
-    m_setMaximum->setObjectName("setMaximum");
+    m_setSpacesInLineCommentPrefixMaximum->setObjectName("setSpacesInLineCommentPrefixMaximum");
     m_SpacesInParentheses = new QComboBox(this);
     m_SpacesInParentheses->addItems({"Default","true","false",});
     m_SpacesInParentheses->setObjectName("SpacesInParentheses");
@@ -658,14 +744,6 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_SpacesInSquareBrackets = new QComboBox(this);
     m_SpacesInSquareBrackets->addItems({"Default","true","false",});
     m_SpacesInSquareBrackets->setObjectName("SpacesInSquareBrackets");
-
-    m_SpaceBeforeSquareBrackets = new QComboBox(this);
-    m_SpaceBeforeSquareBrackets->addItems({"Default","true","false",});
-    m_SpaceBeforeSquareBrackets->setObjectName("SpaceBeforeSquareBrackets");
-
-    m_BitFieldColonSpacing = new QComboBox(this);
-    m_BitFieldColonSpacing->addItems({"Both","None","Before","After",});
-    m_BitFieldColonSpacing->setObjectName("BitFieldColonSpacing");
 
     m_Standard = new QComboBox(this);
     m_Standard->addItems({"Cpp03","Cpp11","Cpp14","Cpp17","Cpp20","Latest","Auto",});
@@ -677,19 +755,33 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     m_setStatementAttributeLikeMacros = new QPushButton("Set", this);
 
     m_setStatementAttributeLikeMacros->setObjectName("setStatementAttributeLikeMacros");
+    m_StatementMacros = new QPlainTextEdit(this);
+    m_StatementMacros->setObjectName("StatementMacros");
+    m_StatementMacros->setFixedHeight(100);
+    m_setStatementMacros = new QPushButton("Set", this);
+
+    m_setStatementMacros->setObjectName("setStatementMacros");
     m_TabWidth = new QLineEdit(this);
     m_TabWidth->setObjectName("TabWidth");
     m_setTabWidth = new QPushButton("Set", this);
 
     m_setTabWidth->setObjectName("setTabWidth");
-    m_UseCRLF = new QComboBox(this);
-    m_UseCRLF->addItems({"Default","true","false",});
-    m_UseCRLF->setObjectName("UseCRLF");
+    m_TypenameMacros = new QPlainTextEdit(this);
+    m_TypenameMacros->setObjectName("TypenameMacros");
+    m_TypenameMacros->setFixedHeight(100);
+    m_setTypenameMacros = new QPushButton("Set", this);
 
+    m_setTypenameMacros->setObjectName("setTypenameMacros");
     m_UseTab = new QComboBox(this);
     m_UseTab->addItems({"Never","ForIndentation","ForContinuationAndIndentation","AlignWithSpaces","Always",});
     m_UseTab->setObjectName("UseTab");
 
+    m_WhitespaceSensitiveMacros = new QPlainTextEdit(this);
+    m_WhitespaceSensitiveMacros->setObjectName("WhitespaceSensitiveMacros");
+    m_WhitespaceSensitiveMacros->setFixedHeight(100);
+    m_setWhitespaceSensitiveMacros = new QPushButton("Set", this);
+
+    m_setWhitespaceSensitiveMacros->setObjectName("setWhitespaceSensitiveMacros");
 
     using namespace Layouting;
 
@@ -699,18 +791,39 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
         new QLabel("AccessModifierOffset"), Row {m_AccessModifierOffset, m_setAccessModifierOffset}, br,
         new QLabel("AlignAfterOpenBracket"), m_AlignAfterOpenBracket, br,
         new QLabel("AlignArrayOfStructures"), m_AlignArrayOfStructures, br,
-        new QLabel("AlignConsecutiveMacros"), m_AlignConsecutiveMacros, br,
-        new QLabel("AlignConsecutiveAssignments"), m_AlignConsecutiveAssignments, br,
-        new QLabel("AlignConsecutiveBitFields"), m_AlignConsecutiveBitFields, br,
-        new QLabel("AlignConsecutiveDeclarations"), m_AlignConsecutiveDeclarations, br,
+        new QLabel("AlignConsecutiveMacros"), br,
+        new QLabel("  Enabled"), m_AlignConsecutiveMacrosEnabled, br,
+        new QLabel("  AcrossEmptyLines"), m_AlignConsecutiveMacrosAcrossEmptyLines, br,
+        new QLabel("  AcrossComments"), m_AlignConsecutiveMacrosAcrossComments, br,
+        new QLabel("  AlignCompound"), m_AlignConsecutiveMacrosAlignCompound, br,
+        new QLabel("  PadOperators"), m_AlignConsecutiveMacrosPadOperators, br,
+        new QLabel("AlignConsecutiveAssignments"), br,
+        new QLabel("  Enabled"), m_AlignConsecutiveAssignmentsEnabled, br,
+        new QLabel("  AcrossEmptyLines"), m_AlignConsecutiveAssignmentsAcrossEmptyLines, br,
+        new QLabel("  AcrossComments"), m_AlignConsecutiveAssignmentsAcrossComments, br,
+        new QLabel("  AlignCompound"), m_AlignConsecutiveAssignmentsAlignCompound, br,
+        new QLabel("  PadOperators"), m_AlignConsecutiveAssignmentsPadOperators, br,
+        new QLabel("AlignConsecutiveBitFields"), br,
+        new QLabel("  Enabled"), m_AlignConsecutiveBitFieldsEnabled, br,
+        new QLabel("  AcrossEmptyLines"), m_AlignConsecutiveBitFieldsAcrossEmptyLines, br,
+        new QLabel("  AcrossComments"), m_AlignConsecutiveBitFieldsAcrossComments, br,
+        new QLabel("  AlignCompound"), m_AlignConsecutiveBitFieldsAlignCompound, br,
+        new QLabel("  PadOperators"), m_AlignConsecutiveBitFieldsPadOperators, br,
+        new QLabel("AlignConsecutiveDeclarations"), br,
+        new QLabel("  Enabled"), m_AlignConsecutiveDeclarationsEnabled, br,
+        new QLabel("  AcrossEmptyLines"), m_AlignConsecutiveDeclarationsAcrossEmptyLines, br,
+        new QLabel("  AcrossComments"), m_AlignConsecutiveDeclarationsAcrossComments, br,
+        new QLabel("  AlignCompound"), m_AlignConsecutiveDeclarationsAlignCompound, br,
+        new QLabel("  PadOperators"), m_AlignConsecutiveDeclarationsPadOperators, br,
         new QLabel("AlignEscapedNewlines"), m_AlignEscapedNewlines, br,
         new QLabel("AlignOperands"), m_AlignOperands, br,
-        new QLabel("AlignTrailingComments"), m_AlignTrailingComments, br,
+        new QLabel("AlignTrailingComments"), br,
+        new QLabel("  Kind"), m_AlignTrailingCommentsKind, br,
+        new QLabel("  OverEmptyLines"), Row {m_AlignTrailingCommentsOverEmptyLines, m_setAlignTrailingCommentsOverEmptyLines}, br,
         new QLabel("AllowAllArgumentsOnNextLine"), m_AllowAllArgumentsOnNextLine, br,
-        new QLabel("AllowAllParametersOfDeclarationOnNextLine"), m_AllowAllParametersOfDeclarationOnNextLine, br,
-        new QLabel("AllowShortEnumsOnASingleLine"), m_AllowShortEnumsOnASingleLine, br,
         new QLabel("AllowShortBlocksOnASingleLine"), m_AllowShortBlocksOnASingleLine, br,
         new QLabel("AllowShortCaseLabelsOnASingleLine"), m_AllowShortCaseLabelsOnASingleLine, br,
+        new QLabel("AllowShortEnumsOnASingleLine"), m_AllowShortEnumsOnASingleLine, br,
         new QLabel("AllowShortFunctionsOnASingleLine"), m_AllowShortFunctionsOnASingleLine, br,
         new QLabel("AllowShortIfStatementsOnASingleLine"), m_AllowShortIfStatementsOnASingleLine, br,
         new QLabel("AllowShortLambdasOnASingleLine"), m_AllowShortLambdasOnASingleLine, br,
@@ -720,81 +833,81 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
         new QLabel("AlwaysBreakTemplateDeclarations"), m_AlwaysBreakTemplateDeclarations, br,
         new QLabel("AttributeMacros"), Row {m_AttributeMacros, m_setAttributeMacros}, br,
         new QLabel("BinPackArguments"), m_BinPackArguments, br,
-        new QLabel("InsertTrailingCommas"), m_InsertTrailingCommas, br,
         new QLabel("BinPackParameters"), m_BinPackParameters, br,
+        new QLabel("BitFieldColonSpacing"), m_BitFieldColonSpacing, br,
+        new QLabel("BraceWrapping"), br,
+        new QLabel("  AfterCaseLabel"), m_BraceWrappingAfterCaseLabel, br,
+        new QLabel("  AfterClass"), m_BraceWrappingAfterClass, br,
+        new QLabel("  AfterControlStatement"), m_BraceWrappingAfterControlStatement, br,
+        new QLabel("  AfterEnum"), m_BraceWrappingAfterEnum, br,
+        new QLabel("  AfterFunction"), m_BraceWrappingAfterFunction, br,
+        new QLabel("  AfterNamespace"), m_BraceWrappingAfterNamespace, br,
+        new QLabel("  AfterObjCDeclaration"), m_BraceWrappingAfterObjCDeclaration, br,
+        new QLabel("  AfterStruct"), m_BraceWrappingAfterStruct, br,
+        new QLabel("  AfterUnion"), m_BraceWrappingAfterUnion, br,
+        new QLabel("  AfterExternBlock"), m_BraceWrappingAfterExternBlock, br,
+        new QLabel("  BeforeCatch"), m_BraceWrappingBeforeCatch, br,
+        new QLabel("  BeforeElse"), m_BraceWrappingBeforeElse, br,
+        new QLabel("  BeforeLambdaBody"), m_BraceWrappingBeforeLambdaBody, br,
+        new QLabel("  BeforeWhile"), m_BraceWrappingBeforeWhile, br,
+        new QLabel("  IndentBraces"), m_BraceWrappingIndentBraces, br,
+        new QLabel("  SplitEmptyFunction"), m_BraceWrappingSplitEmptyFunction, br,
+        new QLabel("  SplitEmptyRecord"), m_BraceWrappingSplitEmptyRecord, br,
+        new QLabel("  SplitEmptyNamespace"), m_BraceWrappingSplitEmptyNamespace, br,
+        new QLabel("BreakAfterAttributes"), m_BreakAfterAttributes, br,
+        new QLabel("BreakArrays"), m_BreakArrays, br,
         new QLabel("BreakBeforeBinaryOperators"), m_BreakBeforeBinaryOperators, br,
         new QLabel("BreakBeforeBraces"), m_BreakBeforeBraces, br,
-        new QLabel("BraceWrapping"), br,
-        new QLabel("  AfterCaseLabel"), m_AfterCaseLabel, br,
-        new QLabel("  AfterClass"), m_AfterClass, br,
-        new QLabel("  AfterControlStatement"), m_AfterControlStatement, br,
-        new QLabel("  AfterEnum"), m_AfterEnum, br,
-        new QLabel("  AfterFunction"), m_AfterFunction, br,
-        new QLabel("  AfterNamespace"), m_AfterNamespace, br,
-        new QLabel("  AfterObjCDeclaration"), m_AfterObjCDeclaration, br,
-        new QLabel("  AfterStruct"), m_AfterStruct, br,
-        new QLabel("  AfterUnion"), m_AfterUnion, br,
-        new QLabel("  AfterExternBlock"), m_AfterExternBlock, br,
-        new QLabel("  BeforeCatch"), m_BeforeCatch, br,
-        new QLabel("  BeforeElse"), m_BeforeElse, br,
-        new QLabel("  BeforeLambdaBody"), m_BeforeLambdaBody, br,
-        new QLabel("  BeforeWhile"), m_BeforeWhile, br,
-        new QLabel("  IndentBraces"), m_IndentBraces, br,
-        new QLabel("  SplitEmptyFunction"), m_SplitEmptyFunction, br,
-        new QLabel("  SplitEmptyRecord"), m_SplitEmptyRecord, br,
-        new QLabel("  SplitEmptyNamespace"), m_SplitEmptyNamespace, br,
         new QLabel("BreakBeforeConceptDeclarations"), m_BreakBeforeConceptDeclarations, br,
+        new QLabel("BreakBeforeInlineASMColon"), m_BreakBeforeInlineASMColon, br,
         new QLabel("BreakBeforeTernaryOperators"), m_BreakBeforeTernaryOperators, br,
         new QLabel("BreakConstructorInitializers"), m_BreakConstructorInitializers, br,
         new QLabel("BreakAfterJavaFieldAnnotations"), m_BreakAfterJavaFieldAnnotations, br,
         new QLabel("BreakStringLiterals"), m_BreakStringLiterals, br,
         new QLabel("ColumnLimit"), Row {m_ColumnLimit, m_setColumnLimit}, br,
         new QLabel("CommentPragmas"), Row {m_CommentPragmas, m_setCommentPragmas}, br,
-        new QLabel("QualifierAlignment"), m_QualifierAlignment, br,
-        new QLabel("QualifierOrder"), Row {m_QualifierOrder, m_setQualifierOrder}, br,
         new QLabel("BreakInheritanceList"), m_BreakInheritanceList, br,
         new QLabel("CompactNamespaces"), m_CompactNamespaces, br,
-        new QLabel("ConstructorInitializerIndentWidth"), Row {m_ConstructorInitializerIndentWidth, m_setConstructorInitializerIndentWidth}, br,
         new QLabel("ContinuationIndentWidth"), Row {m_ContinuationIndentWidth, m_setContinuationIndentWidth}, br,
         new QLabel("Cpp11BracedListStyle"), m_Cpp11BracedListStyle, br,
-        new QLabel("DeriveLineEnding"), m_DeriveLineEnding, br,
-        new QLabel("DerivePointerAlignment"), m_DerivePointerAlignment, br,
         new QLabel("DisableFormat"), m_DisableFormat, br,
         new QLabel("EmptyLineAfterAccessModifier"), m_EmptyLineAfterAccessModifier, br,
         new QLabel("EmptyLineBeforeAccessModifier"), m_EmptyLineBeforeAccessModifier, br,
         new QLabel("ExperimentalAutoDetectBinPacking"), m_ExperimentalAutoDetectBinPacking, br,
-        new QLabel("PackConstructorInitializers"), m_PackConstructorInitializers, br,
         new QLabel("FixNamespaceComments"), m_FixNamespaceComments, br,
         new QLabel("ForEachMacros"), Row {m_ForEachMacros, m_setForEachMacros}, br,
         new QLabel("IfMacros"), Row {m_IfMacros, m_setIfMacros}, br,
-        new QLabel("TypenameMacros"), Row {m_TypenameMacros, m_setTypenameMacros}, br,
-        new QLabel("StatementMacros"), Row {m_StatementMacros, m_setStatementMacros}, br,
-        new QLabel("NamespaceMacros"), Row {m_NamespaceMacros, m_setNamespaceMacros}, br,
-        new QLabel("WhitespaceSensitiveMacros"), Row {m_WhitespaceSensitiveMacros, m_setWhitespaceSensitiveMacros}, br,
         new QLabel("IndentAccessModifiers"), m_IndentAccessModifiers, br,
-        new QLabel("IndentCaseLabels"), m_IndentCaseLabels, br,
         new QLabel("IndentCaseBlocks"), m_IndentCaseBlocks, br,
+        new QLabel("IndentCaseLabels"), m_IndentCaseLabels, br,
         new QLabel("IndentGotoLabels"), m_IndentGotoLabels, br,
-        new QLabel("IndentPPDirectives"), m_IndentPPDirectives, br,
         new QLabel("IndentExternBlock"), m_IndentExternBlock, br,
-        new QLabel("IndentRequires"), m_IndentRequires, br,
+        new QLabel("IndentPPDirectives"), m_IndentPPDirectives, br,
+        new QLabel("IndentRequiresClause"), m_IndentRequiresClause, br,
         new QLabel("IndentWidth"), Row {m_IndentWidth, m_setIndentWidth}, br,
         new QLabel("IndentWrappedFunctionNames"), m_IndentWrappedFunctionNames, br,
+        new QLabel("InsertBraces"), m_InsertBraces, br,
+        new QLabel("InsertNewlineAtEOF"), m_InsertNewlineAtEOF, br,
+        new QLabel("InsertTrailingCommas"), m_InsertTrailingCommas, br,
+        new QLabel("IntegerLiteralSeparator"), br,
         new QLabel("JavaImportGroups"), Row {m_JavaImportGroups, m_setJavaImportGroups}, br,
         new QLabel("JavaScriptQuotes"), m_JavaScriptQuotes, br,
         new QLabel("JavaScriptWrapImports"), m_JavaScriptWrapImports, br,
         new QLabel("KeepEmptyLinesAtTheStartOfBlocks"), m_KeepEmptyLinesAtTheStartOfBlocks, br,
-        new QLabel("Language"), m_Language, br,
         new QLabel("LambdaBodyIndentation"), m_LambdaBodyIndentation, br,
+        new QLabel("Language"), m_Language, br,
+        new QLabel("LineEnding"), m_LineEnding, br,
         new QLabel("MacroBlockBegin"), Row {m_MacroBlockBegin, m_setMacroBlockBegin}, br,
         new QLabel("MacroBlockEnd"), Row {m_MacroBlockEnd, m_setMacroBlockEnd}, br,
         new QLabel("MaxEmptyLinesToKeep"), Row {m_MaxEmptyLinesToKeep, m_setMaxEmptyLinesToKeep}, br,
         new QLabel("NamespaceIndentation"), m_NamespaceIndentation, br,
+        new QLabel("NamespaceMacros"), Row {m_NamespaceMacros, m_setNamespaceMacros}, br,
         new QLabel("ObjCBinPackProtocolList"), m_ObjCBinPackProtocolList, br,
         new QLabel("ObjCBlockIndentWidth"), Row {m_ObjCBlockIndentWidth, m_setObjCBlockIndentWidth}, br,
-        new QLabel("ObjCSpaceAfterProperty"), m_ObjCSpaceAfterProperty, br,
         new QLabel("ObjCBreakBeforeNestedBlockParam"), m_ObjCBreakBeforeNestedBlockParam, br,
+        new QLabel("ObjCSpaceAfterProperty"), m_ObjCSpaceAfterProperty, br,
         new QLabel("ObjCSpaceBeforeProtocolList"), m_ObjCSpaceBeforeProtocolList, br,
+        new QLabel("PackConstructorInitializers"), m_PackConstructorInitializers, br,
         new QLabel("PenaltyBreakAssignment"), Row {m_PenaltyBreakAssignment, m_setPenaltyBreakAssignment}, br,
         new QLabel("PenaltyBreakBeforeFirstCallParameter"), Row {m_PenaltyBreakBeforeFirstCallParameter, m_setPenaltyBreakBeforeFirstCallParameter}, br,
         new QLabel("PenaltyBreakComment"), Row {m_PenaltyBreakComment, m_setPenaltyBreakComment}, br,
@@ -803,13 +916,18 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
         new QLabel("PenaltyBreakString"), Row {m_PenaltyBreakString, m_setPenaltyBreakString}, br,
         new QLabel("PenaltyBreakTemplateDeclaration"), Row {m_PenaltyBreakTemplateDeclaration, m_setPenaltyBreakTemplateDeclaration}, br,
         new QLabel("PenaltyExcessCharacter"), Row {m_PenaltyExcessCharacter, m_setPenaltyExcessCharacter}, br,
-        new QLabel("PenaltyReturnTypeOnItsOwnLine"), Row {m_PenaltyReturnTypeOnItsOwnLine, m_setPenaltyReturnTypeOnItsOwnLine}, br,
         new QLabel("PenaltyIndentedWhitespace"), Row {m_PenaltyIndentedWhitespace, m_setPenaltyIndentedWhitespace}, br,
+        new QLabel("PenaltyReturnTypeOnItsOwnLine"), Row {m_PenaltyReturnTypeOnItsOwnLine, m_setPenaltyReturnTypeOnItsOwnLine}, br,
         new QLabel("PointerAlignment"), m_PointerAlignment, br,
         new QLabel("PPIndentWidth"), Row {m_PPIndentWidth, m_setPPIndentWidth}, br,
+        new QLabel("QualifierAlignment"), m_QualifierAlignment, br,
+        new QLabel("QualifierOrder"), Row {m_QualifierOrder, m_setQualifierOrder}, br,
         new QLabel("ReferenceAlignment"), m_ReferenceAlignment, br,
         new QLabel("ReflowComments"), m_ReflowComments, br,
         new QLabel("RemoveBracesLLVM"), m_RemoveBracesLLVM, br,
+        new QLabel("RemoveSemicolon"), m_RemoveSemicolon, br,
+        new QLabel("RequiresClausePosition"), m_RequiresClausePosition, br,
+        new QLabel("RequiresExpressionIndentation"), m_RequiresExpressionIndentation, br,
         new QLabel("SeparateDefinitionBlocks"), m_SeparateDefinitionBlocks, br,
         new QLabel("ShortNamespaceLines"), Row {m_ShortNamespaceLines, m_setShortNamespaceLines}, br,
         new QLabel("SortIncludes"), m_SortIncludes, br,
@@ -826,13 +944,16 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
         new QLabel("SpaceBeforeInheritanceColon"), m_SpaceBeforeInheritanceColon, br,
         new QLabel("SpaceBeforeParens"), m_SpaceBeforeParens, br,
         new QLabel("SpaceBeforeParensOptions"), br,
-        new QLabel("  AfterControlStatements"), m_AfterControlStatements, br,
-        new QLabel("  AfterForeachMacros"), m_AfterForeachMacros, br,
-        new QLabel("  AfterFunctionDeclarationName"), m_AfterFunctionDeclarationName, br,
-        new QLabel("  AfterFunctionDefinitionName"), m_AfterFunctionDefinitionName, br,
-        new QLabel("  AfterIfMacros"), m_AfterIfMacros, br,
-        new QLabel("  AfterOverloadedOperator"), m_AfterOverloadedOperator, br,
-        new QLabel("  BeforeNonEmptyParentheses"), m_BeforeNonEmptyParentheses, br,
+        new QLabel("  AfterControlStatements"), m_SpaceBeforeParensOptionsAfterControlStatements, br,
+        new QLabel("  AfterForeachMacros"), m_SpaceBeforeParensOptionsAfterForeachMacros, br,
+        new QLabel("  AfterFunctionDeclarationName"), m_SpaceBeforeParensOptionsAfterFunctionDeclarationName, br,
+        new QLabel("  AfterFunctionDefinitionName"), m_SpaceBeforeParensOptionsAfterFunctionDefinitionName, br,
+        new QLabel("  AfterIfMacros"), m_SpaceBeforeParensOptionsAfterIfMacros, br,
+        new QLabel("  AfterOverloadedOperator"), m_SpaceBeforeParensOptionsAfterOverloadedOperator, br,
+        new QLabel("  AfterRequiresInClause"), m_SpaceBeforeParensOptionsAfterRequiresInClause, br,
+        new QLabel("  AfterRequiresInExpression"), m_SpaceBeforeParensOptionsAfterRequiresInExpression, br,
+        new QLabel("  BeforeNonEmptyParentheses"), m_SpaceBeforeParensOptionsBeforeNonEmptyParentheses, br,
+        new QLabel("SpaceBeforeSquareBrackets"), m_SpaceBeforeSquareBrackets, br,
         new QLabel("SpaceBeforeRangeBasedForLoopColon"), m_SpaceBeforeRangeBasedForLoopColon, br,
         new QLabel("SpaceInEmptyBlock"), m_SpaceInEmptyBlock, br,
         new QLabel("SpaceInEmptyParentheses"), m_SpaceInEmptyParentheses, br,
@@ -842,16 +963,16 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
         new QLabel("SpacesInContainerLiterals"), m_SpacesInContainerLiterals, br,
         new QLabel("SpacesInCStyleCastParentheses"), m_SpacesInCStyleCastParentheses, br,
         new QLabel("SpacesInLineCommentPrefix"), br,
-        new QLabel("  Minimum"), Row {m_Minimum, m_setMinimum}, br,
-        new QLabel("  Maximum"), Row {m_Maximum, m_setMaximum}, br,
+        new QLabel("  Minimum"), Row {m_SpacesInLineCommentPrefixMinimum, m_setSpacesInLineCommentPrefixMinimum}, br,
+        new QLabel("  Maximum"), Row {m_SpacesInLineCommentPrefixMaximum, m_setSpacesInLineCommentPrefixMaximum}, br,
         new QLabel("SpacesInParentheses"), m_SpacesInParentheses, br,
         new QLabel("SpacesInSquareBrackets"), m_SpacesInSquareBrackets, br,
-        new QLabel("SpaceBeforeSquareBrackets"), m_SpaceBeforeSquareBrackets, br,
-        new QLabel("BitFieldColonSpacing"), m_BitFieldColonSpacing, br,
         new QLabel("Standard"), m_Standard, br,
         new QLabel("StatementAttributeLikeMacros"), Row {m_StatementAttributeLikeMacros, m_setStatementAttributeLikeMacros}, br,
+        new QLabel("StatementMacros"), Row {m_StatementMacros, m_setStatementMacros}, br,
         new QLabel("TabWidth"), Row {m_TabWidth, m_setTabWidth}, br,
-        new QLabel("UseCRLF"), m_UseCRLF, br,
+        new QLabel("TypenameMacros"), Row {m_TypenameMacros, m_setTypenameMacros}, br,
         new QLabel("UseTab"), m_UseTab, br,
+        new QLabel("WhitespaceSensitiveMacros"), Row {m_WhitespaceSensitiveMacros, m_setWhitespaceSensitiveMacros}, br,
     }.attachTo(this);
 }
