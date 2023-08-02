@@ -9,7 +9,6 @@
 #include <utils/environment.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/process.h>
-#include <utils/qtcassert.h>
 
 using namespace DiffEditor;
 using namespace Tasking;
@@ -25,7 +24,6 @@ public:
     VcsBaseDiffEditorController *q;
     Environment m_processEnvironment;
     FilePath m_vcsBinary;
-    const TreeStorage<QString> m_inputStorage;
 };
 
 /////////////////////
