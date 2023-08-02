@@ -21,7 +21,7 @@ QByteArray loadSource(const QString &fileName)
     QFile inf(QLatin1String(SRCDIR) + QLatin1Char('/') + fileName);
     if (!inf.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug("Cannot open \"%s\"", fileName.toUtf8().constData());
-        return QByteArray();
+        return {};
     }
 
     QTextStream ins(&inf);
@@ -194,11 +194,7 @@ public:
         else
             dir = QFileInfo(currentFileName).dir();
         const QFileInfo inc(dir, includedFileName);
-        if (inc.exists()) {
-            return inc.filePath();
-        } else {
-            return QString();
-        }
+        return inc.exists() ? inc.filePath() : QString();
     }
 
     QString resolveGlobally(const QString &currentFileName) const
@@ -208,8 +204,7 @@ public:
             if (f.exists())
                 return f.filePath();
         }
-
-        return QString();
+        return {};
     }
 
     void setIncludePaths(const QStringList &includePaths)

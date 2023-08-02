@@ -20,13 +20,13 @@ static QJsonObject metaData(const QString &fileName)
     QFile f(fileName);
     if (!f.open(QIODevice::ReadOnly)) {
         qWarning() << "Could not open" << fileName;
-        return QJsonObject();
+        return {};
     }
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(f.readAll(), &error);
     if (error.error != QJsonParseError::NoError) {
         qWarning() << "Could not parse" << fileName << ":" << error.errorString();
-        return QJsonObject();
+        return {};
     }
     return doc.object();
 }
