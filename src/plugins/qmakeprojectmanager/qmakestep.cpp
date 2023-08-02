@@ -381,7 +381,7 @@ QStringList QMakeStep::parserArguments()
     // NOTE: extra parser args placed before the other args intentionally
     QStringList result = m_extraParserArgs;
     QtVersion *qt = QtKitAspect::qtVersion(kit());
-    QTC_ASSERT(qt, return QStringList());
+    QTC_ASSERT(qt, return {});
     for (ProcessArgs::ConstArgIterator ait(allArguments(qt, ArgumentFlag::Expand)); ait.next(); ) {
         if (ait.isSimple())
             result << ait.value();

@@ -2143,7 +2143,7 @@ static QStringList extractFieldsFromBuildString(const QByteArray &buildString)
     result.append(abiInfo.takeFirst()); // cpu
 
     const QString endian = abiInfo.takeFirst();
-    QTC_ASSERT(endian.endsWith("_endian"), return QStringList());
+    QTC_ASSERT(endian.endsWith("_endian"), return {});
     result.append(endian.left(endian.size() - 7)); // without the "_endian"
 
     result.append(abiInfo.takeFirst()); // pointer

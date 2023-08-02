@@ -167,7 +167,7 @@ bool QmakePriFileNode::removeSubProject(const FilePath &proFilePath)
 
 QStringList QmakePriFileNode::subProjectFileNamePatterns() const
 {
-    return QStringList("*.pro");
+    return {"*.pro"};
 }
 
 bool QmakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)

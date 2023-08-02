@@ -129,11 +129,11 @@ FilePath IosDsymBuildStep::defaultCommand() const
 QStringList IosDsymBuildStep::defaultCleanCmdList() const
 {
     auto runConf = qobject_cast<IosRunConfiguration *>(target()->activeRunConfiguration());
-    QTC_ASSERT(runConf, return QStringList("echo"));
+    QTC_ASSERT(runConf, return {"echo"});
     QString dsymPath = runConf->bundleDirectory().toUserOutput();
     dsymPath.chop(4);
     dsymPath.append(".dSYM");
-    return QStringList({"rm", "-rf", dsymPath});
+    return {"rm", "-rf", dsymPath};
 }
 
 QStringList IosDsymBuildStep::defaultCmdList() const
@@ -144,11 +144,11 @@ QStringList IosDsymBuildStep::defaultCmdList() const
     if (dsymUtilPath.exists())
         dsymutilCmd = dsymUtilPath.toUserOutput();
     auto runConf = qobject_cast<const IosRunConfiguration *>(target()->activeRunConfiguration());
-    QTC_ASSERT(runConf, return QStringList("echo"));
+    QTC_ASSERT(runConf, return {"echo"});
     QString dsymPath = runConf->bundleDirectory().toUserOutput();
     dsymPath.chop(4);
     dsymPath.append(".dSYM");
-    return QStringList({dsymutilCmd, "-o", dsymPath, runConf->localExecutable().toUserOutput()});
+    return {dsymutilCmd, "-o", dsymPath, runConf->localExecutable().toUserOutput()};
 }
 
 FilePath IosDsymBuildStep::command() const

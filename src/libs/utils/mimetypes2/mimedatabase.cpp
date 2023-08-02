@@ -223,7 +223,7 @@ MimeType MimeDatabasePrivate::mimeTypeForName(const QString &nameOrAlias)
 QStringList MimeDatabasePrivate::mimeTypeForFileName(const QString &fileName)
 {
     if (fileName.endsWith(QLatin1Char('/')))
-        return QStringList() << QLatin1String("inode/directory");
+        return {"inode/directory"};
 
     const MimeGlobMatchResult result = findByFileName(fileName);
     QStringList matchingMimeTypes = result.m_matchingMimeTypes;

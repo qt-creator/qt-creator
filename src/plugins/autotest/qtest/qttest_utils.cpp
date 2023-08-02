@@ -99,13 +99,13 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
         if (knownAllowedOptionsWithParameter.contains(currentOpt)) {
             allowed.append(currentOpt);
             ++it;
-            QTC_ASSERT(it != end, return QStringList());
+            QTC_ASSERT(it != end, return {});
             allowed.append(*it);
         } else if (knownInterferingOptionWithParameter.contains(currentOpt)) {
             if (omitted) {
                 omitted->append(currentOpt);
                 ++it;
-                QTC_ASSERT(it != end, return QStringList());
+                QTC_ASSERT(it != end, return {});
                 omitted->append(*it);
             }
         } else if (knownInterferingSingleOptions.contains(currentOpt)) {
@@ -115,7 +115,7 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
             if (knownAllowedQuickOptionsWithParameter.contains(currentOpt)) {
                 allowed.append(currentOpt);
                 ++it;
-                QTC_ASSERT(it != end, return QStringList());
+                QTC_ASSERT(it != end, return {});
                 allowed.append(*it);
             } else if (knownAllowedSingleQuickOptions.contains(currentOpt)) {
                 allowed.append(currentOpt);

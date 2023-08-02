@@ -252,7 +252,7 @@ QStringList JsonSchema::properties(JsonObjectValue *v) const
 
 QStringList JsonSchema::properties() const
 {
-    QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::Object)), return QStringList());
+    QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::Object)), return {});
 
     return properties(currentValue());
 }

@@ -827,7 +827,7 @@ FindExportedCppTypes::FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot)
 
 QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 {
-    QTC_ASSERT(!document.isNull(), return QStringList());
+    QTC_ASSERT(!document.isNull(), return {});
 
     m_contextProperties.clear();
     m_exportedTypes.clear();
