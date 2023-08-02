@@ -675,7 +675,7 @@ QString AndroidConfig::getDeviceProperty(const QString &device, const QString &p
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)
-        return QString();
+        return {};
 
     return adbProc.allOutput();
 }
@@ -692,18 +692,18 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
 {
     int index = serialnumber.indexOf(QLatin1String("-"));
     if (index == -1)
-        return QString();
+        return {};
     bool ok;
     int port = serialnumber.mid(index + 1).toInt(&ok);
     if (!ok)
-        return QString();
+        return {};
 
     const QByteArray avdName = "avd name\n";
 
     QTcpSocket tcpSocket;
     tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
     if (!tcpSocket.waitForConnected(100)) // Don't wait more than 100ms for a local connection
-        return QString{};
+        return {};
 
     tcpSocket.write(avdName + "exit\n");
     tcpSocket.waitForDisconnected(500);

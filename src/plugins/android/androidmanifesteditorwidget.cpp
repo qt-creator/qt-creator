@@ -1387,7 +1387,7 @@ void PermissionsModel::removePermission(int index)
 QVariant PermissionsModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole || !index.isValid())
-        return QVariant();
+        return {};
     return m_permissions[index.row()];
 }
 

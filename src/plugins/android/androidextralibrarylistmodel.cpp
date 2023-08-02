@@ -43,7 +43,7 @@ QModelIndex AndroidExtraLibraryListModel::index(int row, int column, const QMode
 
 QModelIndex AndroidExtraLibraryListModel::parent(const QModelIndex &) const
 {
-    return QModelIndex();
+    return {};
 }
 
 int AndroidExtraLibraryListModel::rowCount(const QModelIndex &) const

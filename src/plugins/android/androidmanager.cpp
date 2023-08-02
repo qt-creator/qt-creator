@@ -91,7 +91,7 @@ QString AndroidManager::packageName(const Target *target)
 {
     QDomDocument doc;
     if (!openManifest(target, doc))
-        return QString();
+        return {};
     QDomElement manifestElem = doc.documentElement();
     return manifestElem.attribute(QLatin1String("package"));
 }
@@ -100,7 +100,7 @@ QString AndroidManager::packageName(const FilePath &manifestFile)
 {
     QDomDocument doc;
     if (!openXmlFile(doc, manifestFile))
-        return QString();
+        return {};
     QDomElement manifestElem = doc.documentElement();
     return manifestElem.attribute(QLatin1String("package"));
 }
@@ -109,7 +109,7 @@ QString AndroidManager::activityName(const Target *target)
 {
     QDomDocument doc;
     if (!openManifest(target, doc))
-        return QString();
+        return {};
     QDomElement activityElem = doc.documentElement().firstChildElement(
                 QLatin1String("application")).firstChildElement(QLatin1String("activity"));
     return activityElem.attribute(QLatin1String("android:name"));

@@ -450,8 +450,7 @@ QString AndroidBuildApkWidget::openSslIncludeFileContent(const FilePath &project
         return "android: include(" + openSslPath + "/openssl.pri)";
     if (projectPath.endsWith("CMakeLists.txt"))
         return "if (ANDROID)\n    include(" + openSslPath + "/CMakeLists.txt)\nendif()";
-
-    return QString();
+    return {};
 }
 
 void AndroidBuildApkWidget::setCertificates()
