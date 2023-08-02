@@ -1554,7 +1554,7 @@ bool VcsBaseEditorWidget::isValidRevision(const QString &revision) const
 QString VcsBaseEditorWidget::revisionSubject(const QTextBlock &inBlock) const
 {
     Q_UNUSED(inBlock)
-    return QString();
+    return {};
 }
 
 bool VcsBaseEditorWidget::hasDiff() const

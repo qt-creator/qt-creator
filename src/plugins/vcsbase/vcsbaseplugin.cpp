@@ -220,7 +220,7 @@ QString StateListener::windowTitleVcsTopic(const FilePath &filePath)
             searchPath = projects.first()->projectDirectory();
     }
     if (searchPath.isEmpty())
-        return QString();
+        return {};
     FilePath topLevelPath;
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(
                 searchPath, &topLevelPath);
@@ -232,7 +232,7 @@ static inline QString displayNameOfEditor(const FilePath &fileName)
     IDocument *document = DocumentModel::documentForFilePath(fileName);
     if (document)
         return document->displayName();
-    return QString();
+    return {};
 }
 
 void StateListener::slotStateChanged()

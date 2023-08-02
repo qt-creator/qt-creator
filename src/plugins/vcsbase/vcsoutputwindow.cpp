@@ -123,13 +123,13 @@ QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos
     const int cursorDocumentPos = cursor.position();
     cursor.select(QTextCursor::BlockUnderCursor);
     if (!cursor.hasSelection())
-        return QString();
+        return {};
     const QString block = cursor.selectedText();
     // Determine cursor position within line and find blank-delimited word
     const int cursorPos = cursorDocumentPos - cursor.block().position();
     const int blockSize = block.size();
     if (cursorPos < 0 || cursorPos >= blockSize || block.at(cursorPos).isSpace())
-        return QString();
+        return {};
     // Retrieve repository if desired
     if (repository)
         if (QTextBlockUserData *data = cursor.block().userData())

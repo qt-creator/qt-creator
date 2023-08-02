@@ -121,14 +121,14 @@ QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const Q
 QString SubmitFileModel::state(int row) const
 {
     if (row < 0 || row >= rowCount())
-        return QString();
+        return {};
     return item(row)->text();
 }
 
 QString SubmitFileModel::file(int row) const
 {
     if (row < 0 || row >= rowCount())
-        return QString();
+        return {};
     return item(row, FileColumn)->text();
 }
 

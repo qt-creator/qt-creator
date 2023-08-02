@@ -487,7 +487,7 @@ QString VcsBaseSubmitEditor::promptForNickName()
         d->m_nickNameDialog = new NickNameDialog(VcsPlugin::instance()->nickNameModel(), d->m_widget);
     if (d->m_nickNameDialog->exec() == QDialog::Accepted)
        return d->m_nickNameDialog->nickName();
-    return QString();
+    return {};
 }
 
 void VcsBaseSubmitEditor::slotInsertNickName()

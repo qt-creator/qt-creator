@@ -107,8 +107,7 @@ void VcsPlugin::initialize()
 
     MacroExpander *expander = globalMacroExpander();
     expander->registerVariable(Constants::VAR_VCS_NAME,
-        Tr::tr("Name of the version control system in use by the current project."),
-        []() -> QString {
+        Tr::tr("Name of the version control system in use by the current project."), [] {
             IVersionControl *vc = nullptr;
             if (Project *project = ProjectTree::currentProject())
                 vc = VcsManager::findVersionControlForDirectory(project->projectDirectory());
@@ -116,8 +115,8 @@ void VcsPlugin::initialize()
         });
 
     expander->registerVariable(Constants::VAR_VCS_TOPIC,
-        Tr::tr("The current version control topic (branch or tag) identification of the current project."),
-        []() -> QString {
+        Tr::tr("The current version control topic (branch or tag) identification "
+               "of the current project."), [] {
             IVersionControl *vc = nullptr;
             FilePath topLevel;
             if (Project *project = ProjectTree::currentProject())
@@ -126,8 +125,7 @@ void VcsPlugin::initialize()
         });
 
     expander->registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
-        Tr::tr("The top level path to the repository the current project is in."),
-        []() -> QString {
+        Tr::tr("The top level path to the repository the current project is in."), [] {
             if (Project *project = ProjectTree::currentProject())
                 return VcsManager::findTopLevelForDirectory(project->projectDirectory()).toString();
             return QString();

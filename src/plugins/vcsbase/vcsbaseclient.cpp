@@ -515,7 +515,7 @@ QString VcsBaseClient::vcsCommandString(VcsCommandTag cmd) const
     case LogCommand: return QLatin1String("log");
     case StatusCommand: return QLatin1String("status");
     }
-    return QString();
+    return {};
 }
 
 ExitCodeInterpreter VcsBaseClient::exitCodeInterpreter(VcsCommandTag cmd) const
