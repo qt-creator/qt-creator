@@ -65,8 +65,15 @@ public:
 
         setLayouter([this] {
             using namespace Layouting;
+
+            auto cmakeFormatter = new QLabel(
+                Tr::tr("<a href=\"%1\">CMakeFormat</a> command:")
+                    .arg("qthelp://org.qt-project.qtcreator/doc/"
+                         "creator-project-cmake.html#formatting-cmake-files"));
+            cmakeFormatter->setOpenExternalLinks(true);
+
             return Column {
-                Row { Tr::tr("CMakeFormat command:"), command },
+                Row { cmakeFormatter, command },
                 Space(10),
                 Group {
                     title(Tr::tr("Automatic Formatting on File Save")),
@@ -97,7 +104,9 @@ public:
 
         auto updateActions = [this] {
             auto editor = EditorManager::currentEditor();
-            formatFile.setEnabled(editor && isApplicable(editor->document()));
+
+            formatFile.setEnabled(haveValidFormatCommand && editor
+                                  && isApplicable(editor->document()));
         };
 
         connect(&autoFormatMime, &Utils::StringAspect::changed,
@@ -108,6 +117,15 @@ public:
                 this, &CMakeFormatterSettings::applyIfNecessary);
 
         readSettings();
+
+        const FilePath commandPath = command().searchInPath();
+        haveValidFormatCommand = commandPath.exists() && commandPath.isExecutableFile();
+
+        formatFile.setEnabled(haveValidFormatCommand);
+        connect(&command, &FilePathAspect::validChanged, this, [this](bool validState) {
+            haveValidFormatCommand = validState;
+            formatFile.setEnabled(haveValidFormatCommand);
+        });
     }
 
     bool isApplicable(const IDocument *document) const;
@@ -125,6 +143,7 @@ public:
     }
 
     FilePathAspect command{this};
+    bool haveValidFormatCommand{false};
     BoolAspect autoFormatOnSave{this};
     BoolAspect autoFormatOnlyCurrentProject{this};
     StringAspect autoFormatMime{this};
