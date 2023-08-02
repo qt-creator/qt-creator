@@ -45,7 +45,7 @@ QString MercurialEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) co
         if (exactIdentifier40.match(change).hasMatch())
             return change;
     }
-    return QString();
+    return {};
 }
 
 VcsBase::BaseAnnotationHighlighter *MercurialEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const

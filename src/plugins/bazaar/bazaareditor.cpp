@@ -56,7 +56,7 @@ QString BazaarEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const
             }
         }
     }
-    return QString();
+    return {};
 }
 
 VcsBase::BaseAnnotationHighlighter *BazaarEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const

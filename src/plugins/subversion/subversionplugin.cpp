@@ -994,7 +994,7 @@ QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
                 return fi.absoluteFilePath();
         }
     }
-    return QString();
+    return {};
 }
 
 QString SubversionPluginPrivate::synchronousTopic(const FilePath &repository) const

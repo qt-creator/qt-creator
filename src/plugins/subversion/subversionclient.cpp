@@ -89,7 +89,7 @@ Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
     case VcsBaseClient::LogCommand: return Constants::SUBVERSION_LOG_EDITOR_ID;
     case VcsBaseClient::AnnotateCommand: return Constants::SUBVERSION_BLAME_EDITOR_ID;
     default:
-        return Id();
+        return {};
     }
 }
 

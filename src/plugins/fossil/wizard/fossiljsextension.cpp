@@ -47,26 +47,17 @@ QString FossilJsExtension::displayName() const
 
 QString FossilJsExtension::defaultAdminUser() const
 {
-    if (!isConfigured())
-        return QString();
-
-    return settings().userName();
+    return isConfigured() ? settings().userName() : QString();
 }
 
 QString FossilJsExtension::defaultSslIdentityFile() const
 {
-    if (!isConfigured())
-        return QString();
-
-    return settings().sslIdentityFile().toFSPathString();
+    return isConfigured() ? settings().sslIdentityFile().toFSPathString() : QString();
 }
 
 QString FossilJsExtension::defaultLocalRepoPath() const
 {
-    if (!isConfigured())
-        return QString();
-
-    return settings().defaultRepoPath().toFSPathString();
+    return isConfigured() ? settings().defaultRepoPath().toFSPathString() : QString();
 }
 
 bool FossilJsExtension::defaultDisableAutosync() const

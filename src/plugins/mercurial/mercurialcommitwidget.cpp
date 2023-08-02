@@ -151,7 +151,7 @@ QString MercurialCommitWidget::committer() const
     const QString author = mercurialCommitPanel->m_authorLineEdit->text();
     const QString email = mercurialCommitPanel->m_emailLineEdit->text();
     if (author.isEmpty())
-        return QString();
+        return {};
 
     QString user = author;
     if (!email.isEmpty()) {

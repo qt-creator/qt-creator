@@ -46,7 +46,7 @@ QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const
     // Any number is regarded as change number.
     cursor.select(QTextCursor::LineUnderCursor);
     if (!cursor.hasSelection())
-        return QString();
+        return {};
     const QString change = cursor.selectedText();
     const int pos = c.position() - cursor.selectionStart() + 1;
     // Annotation output has number, log output has revision numbers,
@@ -72,7 +72,7 @@ QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const
         if (pos > start && pos <= end)
             return rev;
     }
-    return QString();
+    return {};
 }
 
 VcsBase::BaseAnnotationHighlighter *SubversionEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const

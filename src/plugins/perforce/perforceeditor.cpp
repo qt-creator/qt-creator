@@ -46,7 +46,7 @@ QString PerforceEditorWidget::changeUnderCursor(const QTextCursor &c) const
     // Any number is regarded as change number.
     cursor.select(QTextCursor::WordUnderCursor);
     if (!cursor.hasSelection())
-        return QString();
+        return {};
     const QString change = cursor.selectedText();
     return m_changeNumberPattern.match(change).hasMatch() ? change : QString();
 }

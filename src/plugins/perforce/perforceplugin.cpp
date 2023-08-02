@@ -1589,7 +1589,7 @@ QString PerforcePluginPrivate::clientFilePath(const QString &serverFilePath)
     const PerforceResponse response = runP4Cmd(m_settings.topLevelSymLinkTarget(), args,
                                                ShowBusyCursor|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (response.error)
-        return QString();
+        return {};
 
     const QRegularExpression r("\\.\\.\\.\\sclientFile\\s(.+?)\n");
     const QRegularExpressionMatch match = r.match(response.stdOut);
@@ -1604,14 +1604,14 @@ QString PerforcePluginPrivate::pendingChangesData()
     const PerforceResponse userResponse = runP4Cmd(m_settings.topLevelSymLinkTarget(), args,
                                                RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (userResponse.error)
-        return QString();
+        return {};
 
     const QRegularExpression r("User\\sname:\\s(\\S+?)\\s*?\n");
     QTC_ASSERT(r.isValid(), return QString());
     const QRegularExpressionMatch match = r.match(userResponse.stdOut);
     const QString user = match.hasMatch() ? match.captured(1).trimmed() : QString();
     if (user.isEmpty())
-        return QString();
+        return {};
     args.clear();
     args << QLatin1String("changes") << QLatin1String("-s") << QLatin1String("pending") << QLatin1String("-u") << user;
     const PerforceResponse dataResponse = runP4Cmd(m_settings.topLevelSymLinkTarget(), args,
@@ -1644,7 +1644,7 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
     const PerforceResponse response = dd->runP4Cmd(dd->m_settings.topLevelSymLinkTarget(), args, flags);
     if (response.error) {
         *errorMessage = msgWhereFailed(perforceName, response.message);
-        return QString();
+        return {};
     }
 
     QString output = response.stdOut;
@@ -1656,7 +1656,7 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
     if (output.isEmpty()) {
         //: File is not managed by Perforce
         *errorMessage = msgWhereFailed(perforceName, Tr::tr("The file is not mapped"));
-        return QString();
+        return {};
     }
     const QString p4fileSpec = output.mid(output.lastIndexOf(QLatin1Char(' ')) + 1);
     return dd->m_settings.mapToFileSystem(p4fileSpec);
