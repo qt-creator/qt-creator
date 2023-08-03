@@ -33,7 +33,7 @@ namespace Internal {
 class CppToolsSettingsPrivate
 {
 public:
-    CommentsSettings m_commentsSettings;
+    CommentsSettings::Data m_commentsSettings;
     CppCodeStylePreferences *m_globalCodeStyle = nullptr;
 };
 
@@ -164,12 +164,12 @@ CppCodeStylePreferences *CppToolsSettings::cppCodeStyle()
     return d->m_globalCodeStyle;
 }
 
-const CommentsSettings &CppToolsSettings::commentsSettings()
+const CommentsSettings::Data &CppToolsSettings::commentsSettings()
 {
     return d->m_commentsSettings;
 }
 
-void CppToolsSettings::setCommentsSettings(const CommentsSettings &commentsSettings)
+void CppToolsSettings::setCommentsSettings(const CommentsSettings::Data &commentsSettings)
 {
     d->m_commentsSettings = commentsSettings;
 }

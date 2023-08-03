@@ -5,6 +5,7 @@
 
 #include "behaviorsettings.h"
 #include "behaviorsettingspage.h"
+#include "commentssettings.h"
 #include "completionsettings.h"
 #include "completionsettingspage.h"
 #include "displaysettings.h"
@@ -47,6 +48,7 @@ public:
     HighlighterSettingsPage m_highlighterSettingsPage;
     SnippetsSettingsPage m_snippetsSettingsPage;
     CompletionSettingsPage m_completionSettingsPage;
+    CommentsSettingsPage m_commentsSettingsPage;
 
     QMap<Utils::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
 
@@ -501,9 +503,9 @@ const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings()
     return d->m_behaviorSettingsPage.extraEncodingSettings();
 }
 
-const CommentsSettings &TextEditorSettings::commentsSettings()
+CommentsSettings::Data TextEditorSettings::commentsSettings()
 {
-    return d->m_completionSettingsPage.commentsSettings();
+    return CommentsSettings::data();
 }
 
 void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *factory)

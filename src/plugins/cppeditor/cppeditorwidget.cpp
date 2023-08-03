@@ -307,8 +307,8 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
 static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
                      const CPlusPlus::Snapshot &snapshot)
 {
-    const TextEditor::CommentsSettings &settings = CppToolsSettings::instance()->commentsSettings();
-    if (!settings.m_enableDoxygen && !settings.m_leadingAsterisks)
+    const TextEditor::CommentsSettings::Data &settings = CppToolsSettings::instance()->commentsSettings();
+    if (!settings.enableDoxygen && !settings.leadingAsterisks)
         return false;
 
     if (editorWidget->multiTextCursor().hasMultipleCursors())
@@ -325,7 +325,7 @@ static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
     //      enter. If leading asterisk(s) is set we need to write a comment continuation
     //      with those.
 
-    if (settings.m_enableDoxygen && cursor.positionInBlock() >= 3) {
+    if (settings.enableDoxygen && cursor.positionInBlock() >= 3) {
         const int pos = cursor.position();
         if (isStartOfDoxygenComment(cursor)) {
             QTextDocument *textDocument = editorWidget->document();
@@ -340,8 +340,8 @@ static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
 
             DoxygenGenerator doxygen;
             doxygen.setStyle(style);
-            doxygen.setAddLeadingAsterisks(settings.m_leadingAsterisks);
-            doxygen.setGenerateBrief(settings.m_generateBrief);
+            doxygen.setAddLeadingAsterisks(settings.leadingAsterisks);
+            doxygen.setGenerateBrief(settings.generateBrief);
             doxygen.setStartComment(false);
 
             // Move until we reach any possibly meaningful content.
@@ -369,8 +369,8 @@ static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
 
     return handleDoxygenContinuation(cursor,
                                      editorWidget,
-                                     settings.m_enableDoxygen,
-                                     settings.m_leadingAsterisks);
+                                     settings.enableDoxygen,
+                                     settings.leadingAsterisks);
 }
 
 } // anonymous namespace

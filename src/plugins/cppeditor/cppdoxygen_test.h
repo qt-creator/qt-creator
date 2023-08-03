@@ -36,10 +36,10 @@ private:
     void verifyCleanState() const;
     void runTest(const QByteArray &original,
                  const QByteArray &expected,
-                 TextEditor::CommentsSettings *settings = 0,
+                 TextEditor::CommentsSettings::Data *settings = 0,
                  const TestDocuments &includedHeaderDocuments = TestDocuments());
 
-    QScopedPointer<TextEditor::CommentsSettings> oldSettings;
+    QScopedPointer<TextEditor::CommentsSettings::Data> oldSettings;
 };
 
 } // namespace Tests
