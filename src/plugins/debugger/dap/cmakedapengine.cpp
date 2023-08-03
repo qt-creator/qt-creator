@@ -3,6 +3,8 @@
 
 #include "cmakedapengine.h"
 
+#include <coreplugin/messagemanager.h>
+
 #include <debugger/debuggermainwindow.h>
 
 #include <utils/temporarydirectory.h>
@@ -14,6 +16,7 @@
 #include <QDebug>
 #include <QLocalSocket>
 #include <QLoggingCategory>
+#include <QTimer>
 
 using namespace Core;
 using namespace Utils;
@@ -112,6 +115,16 @@ void CMakeDapEngine::setupEngine()
             [this] { m_dataGenerator->start(); });
 
     ProjectExplorer::ProjectTree::currentBuildSystem()->requestDebugging();
+
+    QTimer::singleShot(5000, this, [this] {
+        if (!m_dataGenerator->isRunning()) {
+            m_dataGenerator->kill();
+            MessageManager::writeDisrupting(
+                "CMake server is not running. Please check that your CMake is 3.27 or higher.");
+            return;
+        }
+    });
+
     notifyEngineSetupOk();
 }
 

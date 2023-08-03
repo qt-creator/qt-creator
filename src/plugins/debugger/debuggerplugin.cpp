@@ -830,8 +830,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     });
 
     connect(&m_startCmakeAction, &QAction::triggered, this, [] {
-//        ProjectTree::currentBuildSystem()->requestDebugging();
-        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE, true);
+        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE,
+                                                 true);
     });
 
     connect(&m_debugWithoutDeployAction, &QAction::triggered, this, [] {

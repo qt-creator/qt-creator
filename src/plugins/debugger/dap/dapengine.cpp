@@ -41,8 +41,8 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projecttree.h>
 
 #include <QDateTime>
 #include <QDebug>

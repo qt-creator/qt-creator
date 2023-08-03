@@ -191,11 +191,15 @@ void CMakeBuildSystem::triggerParsing()
     // active code model updater when the next one will be triggered.
     m_cppCodeModelUpdater->cancel();
 
+    const CMakeTool *tool = m_parameters.cmakeTool();
+    CMakeTool::Version version = tool ? tool->version() : CMakeTool::Version();
+    const bool isDebuggable = (version.major == 3 && version.minor >= 27) || version.major > 3;
+
     qCDebug(cmakeBuildSystemLog) << "Asking reader to parse";
     m_reader.parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,
                    reparseParameters & REPARSE_FORCE_INITIAL_CONFIGURATION,
                    reparseParameters & REPARSE_FORCE_EXTRA_CONFIGURATION,
-                   reparseParameters & REPARSE_DEBUG);
+                   (reparseParameters & REPARSE_DEBUG) && isDebuggable);
 }
 
 void CMakeBuildSystem::requestDebugging()
