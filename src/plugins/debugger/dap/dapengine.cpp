@@ -132,7 +132,14 @@ public:
 
     bool isRunning() const override { return m_socket.isOpen(); }
     void writeRaw(const QByteArray &data) override { m_socket.write(data); }
-    void kill() override { m_socket.disconnectFromServer(); }
+    void kill() override {
+        if (m_socket.isOpen())
+            m_socket.disconnectFromServer();
+        else {
+            m_socket.abort();
+            emit done();
+        }
+    }
     QByteArray readAllStandardOutput() override { return m_socket.readAll(); }
     QString readAllStandardError() override { return QString(); }
     int exitCode() const override { return 0; }
@@ -253,7 +260,6 @@ void DapEngine::setupEngine()
     if (currentPerspective->parentPerspectiveId() == Constants::CMAKE_PERSPECTIVE_ID) {
         qCDebug(dapEngineLog) << "build system name" << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
 
-        m_nextBreakpointId = 0;
         m_dataGenerator = std::make_unique<LocalSocketDataProvider>(
             TemporaryDirectory::masterDirectoryPath() + "/cmake-dap.sock");
         connectDataGeneratorSignals();
@@ -541,6 +547,7 @@ void DapEngine::insertBreakpoint(const Breakpoint &bp)
         }}
     });
 
+    notifyBreakpointChangeOk(bp);
     qCDebug(dapEngineLog) << "insertBreakpoint" << bp->modelId() << bp->responseId();
 }
 
@@ -594,6 +601,7 @@ void DapEngine::removeBreakpoint(const Breakpoint &bp)
     });
 
     qCDebug(dapEngineLog) << "removeBreakpoint" << bp->modelId() << bp->responseId();
+    notifyBreakpointRemoveOk(bp);
 }
 
 void DapEngine::loadSymbols(const Utils::FilePath  &/*moduleName*/)
