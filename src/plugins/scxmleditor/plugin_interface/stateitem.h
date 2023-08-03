@@ -75,6 +75,7 @@ private:
     void checkParentBoundingRect();
     void checkWarningItems();
     void positionOnExitItems();
+    void positionOnEntryItems();
 
     TextItem *m_stateNameItem;
     StateWarningItem *m_stateWarningItem = nullptr;

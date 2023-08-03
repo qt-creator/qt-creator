@@ -485,6 +485,26 @@ static std::vector<FileApiDetails::FragmentInfo> extractFragments(const QJsonObj
     });
 }
 
+static void addIncludeInfo(std::vector<IncludeInfo> *includes,
+                           const QJsonObject &compileGroups,
+                           const QString &section)
+{
+    const std::vector<IncludeInfo> add
+        = transform<std::vector>(compileGroups.value(section).toArray(), [](const QJsonValue &v) {
+              const QJsonObject i = v.toObject();
+              const QString path = i.value("path").toString();
+              const bool isSystem = i.value("isSystem").toBool();
+              const ProjectExplorer::HeaderPath hp(path,
+                                                   isSystem
+                                                       ? ProjectExplorer::HeaderPathType::System
+                                                       : ProjectExplorer::HeaderPathType::User);
+
+              return IncludeInfo{ProjectExplorer::RawProjectPart::frameworkDetectionHeuristic(hp),
+                                 i.value("backtrace").toInt(-1)};
+          });
+    std::copy(add.cbegin(), add.cend(), std::back_inserter(*includes));
+}
+
 static TargetDetails extractTargetDetails(const QJsonObject &root, QString &errorMessage)
 {
     TargetDetails t;
@@ -580,6 +600,10 @@ static TargetDetails extractTargetDetails(const QJsonObject &root, QString &erro
         const QJsonArray compileGroups = root.value("compileGroups").toArray();
         t.compileGroups = transform<std::vector>(compileGroups, [](const QJsonValue &v) {
             const QJsonObject o = v.toObject();
+            std::vector<IncludeInfo> includes;
+            addIncludeInfo(&includes, o, "includes");
+            // new in CMake 3.27+:
+            addIncludeInfo(&includes, o, "frameworks");
             return CompileInfo{
                 transform<std::vector>(o.value("sourceIndexes").toArray(),
                                        [](const QJsonValue &v) { return v.toInt(-1); }),
@@ -589,21 +613,7 @@ static TargetDetails extractTargetDetails(const QJsonObject &root, QString &erro
                                      const QJsonObject o = v.toObject();
                                      return o.value("fragment").toString();
                                  }),
-                transform<std::vector>(
-                    o.value("includes").toArray(),
-                    [](const QJsonValue &v) {
-                        const QJsonObject i = v.toObject();
-                        const QString path = i.value("path").toString();
-                        const bool isSystem = i.value("isSystem").toBool();
-                        const ProjectExplorer::HeaderPath
-                            hp(path,
-                               isSystem ? ProjectExplorer::HeaderPathType::System
-                                        : ProjectExplorer::HeaderPathType::User);
-
-                        return IncludeInfo{
-                            ProjectExplorer::RawProjectPart::frameworkDetectionHeuristic(hp),
-                            i.value("backtrace").toInt(-1)};
-                    }),
+                includes,
                 transform<std::vector>(o.value("defines").toArray(),
                                        [](const QJsonValue &v) {
                                            const QJsonObject d = v.toObject();

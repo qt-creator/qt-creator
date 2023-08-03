@@ -59,12 +59,15 @@ def main():
             type(editorWidget, "<Tab>")
             type(editorWidget, "Myname")
             result = re.search(pattern.replace("name", "Myname"), str(editorWidget.plainText))
+            failMsg = ("Step 5: Seems that not all instances of variable had been renamed "
+                       "- Content of editor:\n%s" % editorWidget.plainText)
             if result:
                 test.passes("Step 5: Verifying if: A value for a variable is inserted and all "
                             "instances of the variable within the snippet are renamed.")
+            elif JIRA.isBugStillOpen(29012):
+                test.xfail(failMsg)
             else:
-                test.fail("Step 5: Seems that not all instances of variable had been renamed "
-                          "- Content of editor:\n%s" % editorWidget.plainText)
+                test.fail(failMsg)
             invokeMenuItem('File', 'Revert "main.cpp" to Saved')
             clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
             invokeMenuItem("File", "Exit")

@@ -34,7 +34,7 @@
         \if defined(qtcreator)
         \row
             \li View examples of what you can do with Qt
-            \li \l{List of Qt Examples}
+            \li \l{Qt Examples and Tutorials}
 
         \row
             \li Develop Qt applications for desktop and \l{glossary-device}{devices}
