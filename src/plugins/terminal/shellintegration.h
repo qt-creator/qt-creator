@@ -23,6 +23,8 @@ public:
     void onBell() override;
     void onTitle(const QString &title) override;
 
+    void onSetClipboard(const QByteArray &text) override;
+
     void prepareProcess(Utils::Process &process);
 
 signals:

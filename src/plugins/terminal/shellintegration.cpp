@@ -179,4 +179,9 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
     process.setEnvironment(env);
 }
 
+void ShellIntegration::onSetClipboard(const QByteArray &text)
+{
+    setClipboardAndSelection(QString::fromLocal8Bit(text));
+}
+
 } // namespace Terminal

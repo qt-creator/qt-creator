@@ -142,6 +142,41 @@ struct TerminalSurfacePrivate
 
         VTermState *vts = vterm_obtain_state(m_vterm.get());
         vterm_state_set_unrecognised_fallbacks(vts, &m_vtermStateFallbacks, this);
+
+        memset(&m_vtermSelectionCallbacks, 0, sizeof(m_vtermSelectionCallbacks));
+
+        m_vtermSelectionCallbacks.query = [](VTermSelectionMask mask, void *user) {
+            if (!(mask & 0xF))
+                return 0;
+
+            auto p = static_cast<TerminalSurfacePrivate *>(user);
+            if (p->m_surfaceIntegration)
+                p->m_surfaceIntegration->onGetClipboard();
+
+            return 0;
+        };
+
+        m_vtermSelectionCallbacks.set =
+            [](VTermSelectionMask mask, VTermStringFragment frag, void *user) {
+                if (!(mask & 0xF))
+                    return 0;
+
+                auto p = static_cast<TerminalSurfacePrivate *>(user);
+                if (frag.initial)
+                    p->m_selectionBuffer.clear();
+
+                p->m_selectionBuffer.append(frag.str, frag.len);
+                if (!frag.final)
+                    return 1;
+
+                if (p->m_surfaceIntegration)
+                    p->m_surfaceIntegration->onSetClipboard(p->m_selectionBuffer);
+
+                return 1;
+            };
+
+        vterm_state_set_selection_callbacks(vts, &m_vtermSelectionCallbacks, this, nullptr, 256);
+
         vterm_state_set_bold_highbright(vts, true);
 
         VTermColor fg;
@@ -363,6 +398,8 @@ struct TerminalSurfacePrivate
     VTermScreenCallbacks m_vtermScreenCallbacks;
     VTermStateFallbacks m_vtermStateFallbacks;
 
+    VTermSelectionCallbacks m_vtermSelectionCallbacks;
+
     Cursor m_cursor;
     QString m_currentCommand;
 
@@ -375,6 +412,7 @@ struct TerminalSurfacePrivate
     TerminalSurface *q;
     QTimer m_delayWriteTimer;
     QByteArray m_writeBuffer;
+    QByteArray m_selectionBuffer;
 
     TerminalSurface::WriteToPty m_writeToPty;
 };

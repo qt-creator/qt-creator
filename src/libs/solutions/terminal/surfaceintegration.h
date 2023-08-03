@@ -14,6 +14,9 @@ public:
 
     virtual void onBell() {}
     virtual void onTitle(const QString &title) { Q_UNUSED(title); }
+
+    virtual void onSetClipboard(const QByteArray &text) { Q_UNUSED(text); }
+    virtual void onGetClipboard() {}
 };
 
 } // namespace TerminalSolution
