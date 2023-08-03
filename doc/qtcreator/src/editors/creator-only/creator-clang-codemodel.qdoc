@@ -136,7 +136,7 @@
 
     The clangd \e index provides exact and complete results for services such
     as finding references, following symbols under cursor, and using the
-    locator, even for complex constructs. When you \l{Opening Projects}
+    locator, even for complex constructs. When you \l{Open projects}
     {open a project}, clangd scans the source files to generate the index. For
     large projects, this can take a while, but the index is persistent and
     re-scanning is incremental, so nothing is lost by closing and re-starting

@@ -67,6 +67,7 @@
         \li \l {Create OpenGL fragment and vertex shaders}
         \li \l {Create resource files}
         \li \l {Develop Qt for Python applications}
+        \li \l {Open projects}
         \li \l {Specify project contents}
         \li \l {Select the build system}
         \li \l {Use project wizards}

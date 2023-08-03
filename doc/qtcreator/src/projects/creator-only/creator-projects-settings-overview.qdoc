@@ -20,7 +20,7 @@
     targets. Select the kits to use in the \uicontrol {Configure Projects}
     view when you open a project for the first time. At least one kit must be
     active. For more information about selecting the initial kit, see
-    \l{Opening Projects}.
+    \l{Open projects}.
 
     To maintain the list of active kits for a currently open project, switch to
     the \uicontrol Projects mode by pressing \key Ctrl+5.

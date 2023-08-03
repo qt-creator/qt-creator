@@ -25,7 +25,6 @@
         \list
             \li \l{Creating Projects}
             \list
-                \li \l{Opening Projects}
                 \li \l{Adding Libraries to Projects}
                 \li \l{Adding New Custom Wizards}
             \endlist
@@ -282,6 +281,7 @@
                             \li \l {Create OpenGL fragment and vertex shaders}
                             \li \l {Create resource files}
                             \li \l {Develop Qt for Python applications}
+                            \li \l {Open projects}
                             \li \l {Select the build system}
                             \li \l {Specify project contents}
                             \li \l {Use project wizards}

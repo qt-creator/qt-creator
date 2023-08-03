@@ -69,7 +69,7 @@
             and open that in \QC, as described in \l{Using Compilation Databases}.
 
         \li Create an ad-hoc project file for a qmake build using
-            \c{qmake -project} and \l{Opening Projects}{open} that in \QC.
+            \c{qmake -project} and \l{Open projects}{open} that in \QC.
             Be aware that this is typically
             not compilable without further manual changes.
 
@@ -215,7 +215,7 @@
     \section1 Related Topics
 
     \list
-        \li \l {Opening Projects}
+        \li \l {Open projects}
         \li \l {CMake Build Configuration}
         \li \l {Specifying Run Settings}
         \li \l {Deploying to Remote Linux}

@@ -10,7 +10,7 @@
 /*!
     \previouspage creator-project-managing.html
     \page creator-project-creating.html
-    \nextpage creator-file-creating.html
+    \nextpage creator-project-qmake-libraries.html
 
     \ingroup creator-explanation-projects
 
@@ -70,8 +70,7 @@
     \l{Connecting Devices}{connect} to them from the development PC.
 
     \sa {Manage Projects}{How-to: Manage Projects},
-    {Adding Libraries to Projects}, {Opening Projects},
-    {Adding New Custom Wizards}
+    {Adding Libraries to Projects}, {Adding New Custom Wizards}
 */
 
 /*!
