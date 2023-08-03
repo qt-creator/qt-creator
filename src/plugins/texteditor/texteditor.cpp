@@ -7881,38 +7881,48 @@ void TextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettings &ext
     d->m_document->setExtraEncodingSettings(extraEncodingSettings);
 }
 
-void TextEditorWidget::fold()
+void TextEditorWidget::foldCurrentBlock()
+{
+    fold(textCursor().block());
+}
+
+void TextEditorWidget::fold(const QTextBlock &block)
 {
     QTextDocument *doc = document();
     auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
-    QTextBlock block = textCursor().block();
-    if (!(TextDocumentLayout::canFold(block) && block.next().isVisible())) {
+    QTextBlock b = block;
+    if (!(TextDocumentLayout::canFold(b) && b.next().isVisible())) {
         // find the closest previous block which can fold
-        int indent = TextDocumentLayout::foldingIndent(block);
-        while (block.isValid() && (TextDocumentLayout::foldingIndent(block) >= indent || !block.isVisible()))
-            block = block.previous();
+        int indent = TextDocumentLayout::foldingIndent(b);
+        while (b.isValid() && (TextDocumentLayout::foldingIndent(b) >= indent || !b.isVisible()))
+            b = b.previous();
     }
-    if (block.isValid()) {
-        TextDocumentLayout::doFoldOrUnfold(block, false);
+    if (b.isValid()) {
+        TextDocumentLayout::doFoldOrUnfold(b, false);
         d->moveCursorVisible();
         documentLayout->requestUpdate();
         documentLayout->emitDocumentSizeChanged();
     }
 }
 
-void TextEditorWidget::unfold()
+void TextEditorWidget::unfold(const QTextBlock &block)
 {
     QTextDocument *doc = document();
     auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
-    QTextBlock block = textCursor().block();
-    while (block.isValid() && !block.isVisible())
-        block = block.previous();
-    TextDocumentLayout::doFoldOrUnfold(block, true);
+    QTextBlock b = block;
+    while (b.isValid() && !b.isVisible())
+        b = b.previous();
+    TextDocumentLayout::doFoldOrUnfold(b, true);
     d->moveCursorVisible();
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
+}
+
+void TextEditorWidget::unfoldCurrentBlock()
+{
+    unfold(textCursor().block());
 }
 
 void TextEditorWidget::unfoldAll()

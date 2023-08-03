@@ -396,6 +396,19 @@ void CppEditorPlugin::initialize()
     connect(showPreprocessedInSplitAction, &QAction::triggered,
             this, [] { CppModelManager::showPreprocessedFile(true); });
 
+    QAction * const foldCommentsAction = new QAction(Tr::tr("Fold All Comment Blocks"), this);
+    command = ActionManager::registerAction(foldCommentsAction,
+                                            "CppTools.FoldCommentBlocks", context);
+    mcpptools->addAction(command);
+    contextMenu->addAction(command, Constants::G_CONTEXT_FIRST);
+    connect(foldCommentsAction, &QAction::triggered, this, [] { CppModelManager::foldComments(); });
+    QAction * const unfoldCommentsAction = new QAction(Tr::tr("Unfold All Comment Blocks"), this);
+    command = ActionManager::registerAction(unfoldCommentsAction,
+                                            "CppTools.UnfoldCommentBlocks", context);
+    mcpptools->addAction(command);
+    contextMenu->addAction(command, Constants::G_CONTEXT_FIRST);
+    connect(unfoldCommentsAction, &QAction::triggered, this, [] { CppModelManager::unfoldComments(); });
+
     QAction *const findUnusedFunctionsAction = new QAction(Tr::tr("Find Unused Functions"), this);
     command = ActionManager::registerAction(findUnusedFunctionsAction,
                                             "CppTools.FindUnusedFunctions");

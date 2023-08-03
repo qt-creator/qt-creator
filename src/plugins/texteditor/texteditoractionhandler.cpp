@@ -344,11 +344,11 @@ void TextEditorActionHandlerPrivate::createActions()
             QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+Shift+S") : Tr::tr("Alt+Shift+S")),
             G_EDIT_TEXT, advancedEditMenu);
     registerAction(FOLD,
-            [] (TextEditorWidget *w) { w->fold(); }, true, Tr::tr("Fold"),
+            [] (TextEditorWidget *w) { w->foldCurrentBlock(); }, true, Tr::tr("Fold"),
             QKeySequence(Tr::tr("Ctrl+<")),
             G_EDIT_COLLAPSING, advancedEditMenu);
     registerAction(UNFOLD,
-            [] (TextEditorWidget *w) { w->unfold(); }, true, Tr::tr("Unfold"),
+            [] (TextEditorWidget *w) { w->unfoldCurrentBlock(); }, true, Tr::tr("Unfold"),
             QKeySequence(Tr::tr("Ctrl+>")),
             G_EDIT_COLLAPSING, advancedEditMenu);
     m_unfoldAllAction = registerAction(UNFOLD_ALL,

@@ -363,8 +363,10 @@ public:
     void deleteStartOfWord();
     void deleteStartOfWordCamelCase();
     void unfoldAll();
-    void fold();
-    void unfold();
+    void fold(const QTextBlock &block);
+    void foldCurrentBlock();
+    void unfold(const QTextBlock &block);
+    void unfoldCurrentBlock();
     void selectEncoding();
     void updateTextCodecLabel();
     void selectLineEnding(int index);
