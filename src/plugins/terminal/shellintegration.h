@@ -34,6 +34,7 @@ signals:
 
 private:
     QTemporaryDir m_tempDir;
+    QByteArray m_oscBuffer;
 };
 
 } // namespace Terminal

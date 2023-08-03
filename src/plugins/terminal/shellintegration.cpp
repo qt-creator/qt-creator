@@ -79,10 +79,15 @@ bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
 
 void ShellIntegration::onOsc(int cmd, std::string_view str, bool initial, bool final)
 {
-    Q_UNUSED(initial);
-    Q_UNUSED(final);
+    if (initial)
+        m_oscBuffer.clear();
 
-    QString d = QString::fromLocal8Bit(str);
+    m_oscBuffer.append(str);
+
+    if (!final)
+        return;
+
+    QString d = QString::fromLocal8Bit(m_oscBuffer);
     const auto [command, data] = Utils::splitAtFirst(d, ';');
 
     if (cmd == 1337) {
