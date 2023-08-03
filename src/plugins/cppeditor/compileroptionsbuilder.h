@@ -87,6 +87,7 @@ private:
     QStringList wrappedMingwHeadersIncludePath() const;
     QByteArray msvcVersion() const;
     void addIncludeFile(const QString &file);
+    void removeUnsupportedCpuFlags();
 
 private:
     const ProjectPart &m_projectPart;

@@ -297,7 +297,8 @@ public:
         connect(styleButtonGroup, &QButtonGroup::buttonClicked, this, updateEnabled);
         connect(&s.predefinedStyle, &SelectionAspect::volatileValueChanged, this, updateEnabled);
 
-        setOnApply([configurations] {
+        setOnApply([configurations, customizedStyleButton] {
+            settings().usePredefinedStyle.setValue(!customizedStyleButton->isChecked());
             settings().customStyle.setValue(configurations->currentConfiguration());
             settings().save();
         });
