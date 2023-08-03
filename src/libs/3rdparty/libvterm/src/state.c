@@ -1735,7 +1735,7 @@ static void osc_selection(VTermState *state, VTermStringFragment frag)
               .str     = state->selection.buffer,
               .len     = bufcur,
               .initial = state->tmp.selection.state == SELECTION_SET_INITIAL,
-              .final   = frag.final,
+              .final   = frag.final && frag.len == 0,
             }, state->selection.user);
           state->tmp.selection.state = SELECTION_SET;
         }
