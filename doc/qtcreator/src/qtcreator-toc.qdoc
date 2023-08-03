@@ -25,7 +25,6 @@
         \list
             \li \l{Creating Projects}
             \list
-                \li \l{Creating Files}
                 \li \l{Opening Projects}
                 \li \l{Adding Libraries to Projects}
                 \li \l{Adding New Custom Wizards}
@@ -278,6 +277,10 @@
                         \list
                             \li \l {Add a license header template for C++ code}
                             \li \l {Add subprojects to projects}
+                            \li \l {Create C++ classes}
+                            \li \l {Create files}
+                            \li \l {Create OpenGL fragment and vertex shaders}
+                            \li \l {Create resource files}
                             \li \l {Develop Qt for Python applications}
                             \li \l {Select the build system}
                             \li \l {Specify project contents}

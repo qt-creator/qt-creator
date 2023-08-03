@@ -183,7 +183,7 @@
 
     \section1 Managing Files
 
-    When you use project wizard templates to \l{Creating Files}{add files} to
+    When you use project wizard templates to \l{Create files}{add files} to
     a project, \QC automatically adds them to the \c {qt_add_executable()},
     \c {add_executable()}, or \c {qt_add_library()} function in the
     CMakeLists.txt file.

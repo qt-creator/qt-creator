@@ -33,7 +33,7 @@
 
     \QC creates the necessary boilerplate files. Some of the files are
     specific to a particular target platform. You can use wizard templates
-    also to \l{Creating Files}{add files} to the projects.
+    also to \l{Create files}{add files} to the projects.
 
     \section1 Qt Quick Applications
 

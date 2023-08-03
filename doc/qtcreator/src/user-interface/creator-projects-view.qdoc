@@ -73,7 +73,7 @@
             \if defined(qtdesignstudio)
             \l{Adding Files to Projects}.
             \else
-            \l{Creating Files}.
+            \l{Create files}.
             \endif
         \li Rename existing files. If you change the base name of a
             file, \QC displays a list of other files with the same base name

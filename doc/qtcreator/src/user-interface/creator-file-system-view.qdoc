@@ -77,7 +77,7 @@
             \if defined(qtdesignstudio)
             \l{Adding Files to Projects}.
             \else
-            \l{Creating Files}.
+            \l{Create files}.
             \endif
         \li Rename existing files. To move the file to another directory, enter
             the relative or absolute path to its new location in addition to the

@@ -62,6 +62,10 @@
     \list
         \li \l {Add a license header template for C++ code}
         \li \l {Add subprojects to projects}
+        \li \l {Create C++ classes}
+        \li \l {Create files}
+        \li \l {Create OpenGL fragment and vertex shaders}
+        \li \l {Create resource files}
         \li \l {Develop Qt for Python applications}
         \li \l {Specify project contents}
         \li \l {Select the build system}
