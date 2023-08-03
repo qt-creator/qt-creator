@@ -147,9 +147,9 @@ public:
 
 } // namespace Internal
 
-inline auto EndsWith(const Utils::SmallString &suffix)
+inline auto EndsWith(const Utils::SmallStringView &suffix)
 {
-    return Internal::EndsWithMatcher(suffix);
+    return ::testing::PolymorphicMatcher(Internal::EndsWithMatcher(suffix));
 }
 
 inline auto EndsWith(const QStringView &suffix)

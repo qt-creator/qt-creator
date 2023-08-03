@@ -697,7 +697,10 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
                << ", fileStatuses: " << package.fileStatuses
                << ", updatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
                << ", updatedProjectSourceIds: " << package.updatedProjectSourceIds
-               << ", projectDatas: " << package.projectDatas << ")";
+               << ", projectDatas: " << package.projectDatas
+               << ", propertyEditorQmlPaths: " << package.propertyEditorQmlPaths
+               << ", updatedPropertyEditorQmlPathSourceIds: "
+               << package.updatedPropertyEditorQmlPathSourceIds << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ProjectData &data)
@@ -794,6 +797,11 @@ std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import)
 {
     return out << "(" << import.moduleId << ", " << import.exportedModuleId << ", "
                << import.version << ", " << import.isAutoVersion << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const PropertyEditorQmlPath &path)
+{
+    return out << "(" << path.moduleId << ", " << path.typeName << ", " << path.pathId << ")";
 }
 
 } // namespace Storage::Synchronization

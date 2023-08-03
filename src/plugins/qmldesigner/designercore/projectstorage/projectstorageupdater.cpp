@@ -14,6 +14,9 @@
 
 #include <sqlitedatabase.h>
 
+#include <QDirIterator>
+#include <QRegularExpression>
+
 #include <algorithm>
 #include <functional>
 
@@ -177,7 +180,9 @@ std::vector<IdPaths> createIdPaths(ProjectStorageUpdater::WatchedSourceIdsIds wa
 
 } // namespace
 
-void ProjectStorageUpdater::update(QStringList directories, QStringList qmlTypesPaths)
+void ProjectStorageUpdater::update(QStringList directories,
+                                   QStringList qmlTypesPaths,
+                                   const QString &propertyEditorResourcesPath)
 {
     Storage::Synchronization::SynchronizationPackage package;
     WatchedSourceIdsIds watchedSourceIds{Utils::span{directories}.size()};
@@ -185,6 +190,7 @@ void ProjectStorageUpdater::update(QStringList directories, QStringList qmlTypes
 
     updateDirectories(directories, package, notUpdatedSourceIds, watchedSourceIds);
     updateQmlTypes(qmlTypesPaths, package, notUpdatedSourceIds, watchedSourceIds);
+    updatePropertyEditorPaths(propertyEditorResourcesPath, package, notUpdatedSourceIds);
 
     package.updatedSourceIds = filterNotUpdatedSourceIds(std::move(package.updatedSourceIds),
                                                          std::move(notUpdatedSourceIds.sourceIds));
@@ -338,6 +344,63 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
 
         break;
     }
+    }
+}
+
+void ProjectStorageUpdater::updatePropertyEditorPaths(
+    const QString &propertyEditorResourcesPath,
+    Storage::Synchronization::SynchronizationPackage &package,
+    NotUpdatedSourceIds &notUpdatedSourceIds)
+{
+    if (propertyEditorResourcesPath.isEmpty())
+        return;
+
+    QDirIterator dirIterator{QDir::cleanPath(propertyEditorResourcesPath),
+                             QDir::Dirs | QDir::NoDotAndDotDot,
+                             QDirIterator::Subdirectories};
+
+    while (dirIterator.hasNext()) {
+        auto pathInfo = dirIterator.nextFileInfo();
+
+        SourceId directorySourceId = m_pathCache.sourceId(SourcePath{pathInfo.filePath() + "/."});
+
+        auto state = fileState(directorySourceId, package, notUpdatedSourceIds);
+
+        if (state == FileState::Changed)
+            updatePropertyEditorPath(pathInfo.filePath(), package, directorySourceId);
+    }
+}
+
+void ProjectStorageUpdater::updatePropertyEditorPath(
+    const QString &directoryPath,
+    Storage::Synchronization::SynchronizationPackage &package,
+    SourceId directorySourceId)
+{
+    package.updatedPropertyEditorQmlPathSourceIds.push_back(directorySourceId);
+    auto dir = QDir{directoryPath};
+    const auto fileInfos = dir.entryInfoList({"*Pane.qml", "*Specifics.qml"}, QDir::Files);
+    for (const auto &fileInfo : fileInfos)
+        updatePropertyEditorFilePath(fileInfo.filePath(), package, directorySourceId);
+}
+
+void ProjectStorageUpdater::updatePropertyEditorFilePath(
+    const QString &path,
+    Storage::Synchronization::SynchronizationPackage &package,
+    SourceId directorySourceId)
+{
+    QRegularExpression regex{R"xo(.+\/(\w+)\/(\w+)(Specifics|Pane).qml)xo"};
+    auto match = regex.match(path);
+    QString oldModuleName;
+    ModuleId moduleId;
+    if (match.hasMatch()) {
+        auto moduleName = match.capturedView(1);
+        if (oldModuleName != moduleName) {
+            oldModuleName = moduleName.toString();
+            moduleId = m_projectStorage.moduleId(Utils::SmallString{moduleName});
+        }
+        Storage::TypeNameString typeName{match.capturedView(2)};
+        SourceId pathId = m_pathCache.sourceId(SourcePath{path});
+        package.propertyEditorQmlPaths.emplace_back(moduleId, typeName, pathId, directorySourceId);
     }
 }
 

@@ -722,6 +722,26 @@ public:
 
 using Types = std::vector<Type>;
 
+class PropertyEditorQmlPath
+{
+public:
+    PropertyEditorQmlPath(ModuleId moduleId, TypeNameString typeName, SourceId pathId, SourceId directoryId)
+        : typeName{typeName}
+        , pathId{pathId}
+        , directoryId{directoryId}
+        , moduleId{moduleId}
+    {}
+
+public:
+    TypeNameString typeName;
+    TypeId typeId;
+    SourceId pathId;
+    SourceId directoryId;
+    ModuleId moduleId;
+};
+
+using PropertyEditorQmlPaths = std::vector<class PropertyEditorQmlPath>;
+
 class ProjectData
 {
 public:
@@ -800,6 +820,8 @@ public:
     SourceIds updatedModuleDependencySourceIds;
     ModuleExportedImports moduleExportedImports;
     ModuleIds updatedModuleIds;
+    PropertyEditorQmlPaths propertyEditorQmlPaths;
+    SourceIds updatedPropertyEditorQmlPathSourceIds;
 };
 
 } // namespace Synchronization

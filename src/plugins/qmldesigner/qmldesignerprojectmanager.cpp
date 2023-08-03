@@ -438,6 +438,16 @@ QStringList qmlTypes(::ProjectExplorer::Target *target)
     return qmldirPaths;
 }
 
+QString propertyEditorResourcesPath()
+{
+#ifdef SHARE_QML_PATH
+    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE")) {
+        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+    }
+#endif
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+}
+
 } // namespace
 
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
@@ -572,7 +582,8 @@ void QmlDesignerProjectManager::update()
         return;
 
     m_projectData->projectStorageData->updater.update(directories(m_projectData->activeTarget),
-                                                      qmlTypes(m_projectData->activeTarget));
+                                                      qmlTypes(m_projectData->activeTarget),
+                                                      propertyEditorResourcesPath());
 }
 
 } // namespace QmlDesigner
