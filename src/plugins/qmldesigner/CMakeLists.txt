@@ -21,6 +21,7 @@ add_qtc_library(QmlDesignerUtils STATIC
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES
     asset.cpp asset.h
+    designeralgorithm.h
     filedownloader.cpp filedownloader.h
     multifiledownloader.cpp multifiledownloader.h
     fileextractor.cpp fileextractor.h
