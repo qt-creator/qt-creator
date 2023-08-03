@@ -478,9 +478,25 @@ void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
     }
 }
 
+static void findDockChildren(QWidget *parent, QList<QDockWidget *> &result)
+{
+    for (QObject *child : parent->children()) {
+        QWidget *childWidget = qobject_cast<QWidget *>(child);
+        if (!childWidget)
+            continue;
+
+        if (auto dockWidget = qobject_cast<QDockWidget *>(child))
+            result.append(dockWidget);
+        else if (!qobject_cast<QMainWindow *>(child))
+            findDockChildren(qobject_cast<QWidget *>(child), result);
+    }
+}
+
 const QList<QDockWidget *> FancyMainWindow::dockWidgets() const
 {
-    return findChildren<QDockWidget *>();
+    QList<QDockWidget *> result;
+    findDockChildren((QWidget *) this, result);
+    return result;
 }
 
 bool FancyMainWindow::autoHideTitleBars() const
