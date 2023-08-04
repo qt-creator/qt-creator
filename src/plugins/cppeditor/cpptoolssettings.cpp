@@ -9,7 +9,6 @@
 #include "cppcodestylepreferencesfactory.h"
 
 #include <coreplugin/icore.h>
-#include <texteditor/commentssettings.h>
 #include <texteditor/completionsettingspage.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/tabsettings.h>
@@ -33,7 +32,6 @@ namespace Internal {
 class CppToolsSettingsPrivate
 {
 public:
-    CommentsSettings::Data m_commentsSettings;
     CppCodeStylePreferences *m_globalCodeStyle = nullptr;
 };
 
@@ -49,10 +47,6 @@ CppToolsSettings::CppToolsSettings()
     d = new Internal::CppToolsSettingsPrivate;
 
     qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
-
-    d->m_commentsSettings = TextEditorSettings::commentsSettings();
-    connect(TextEditorSettings::instance(), &TextEditorSettings::commentsSettingsChanged,
-            this, &CppToolsSettings::setCommentsSettings);
 
     // code style factory
     ICodeStylePreferencesFactory *factory = new CppCodeStylePreferencesFactory();
@@ -162,16 +156,6 @@ CppToolsSettings *CppToolsSettings::instance()
 CppCodeStylePreferences *CppToolsSettings::cppCodeStyle()
 {
     return d->m_globalCodeStyle;
-}
-
-const CommentsSettings::Data &CppToolsSettings::commentsSettings()
-{
-    return d->m_commentsSettings;
-}
-
-void CppToolsSettings::setCommentsSettings(const CommentsSettings::Data &commentsSettings)
-{
-    d->m_commentsSettings = commentsSettings;
 }
 
 static QString sortEditorDocumentOutlineKey()

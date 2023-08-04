@@ -55,6 +55,7 @@
 #include "parseissuesdialog.h"
 #include "processstep.h"
 #include "project.h"
+#include "projectcommentssettings.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
@@ -115,6 +116,7 @@
 #include <texteditor/findinfiles.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -882,6 +884,17 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     panelFactory->setDisplayName(Tr::tr("Code Style"));
     panelFactory->setCreateWidgetFunction([](Project *project) { return new CodeStyleSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
+
+    panelFactory = new ProjectExplorer::ProjectPanelFactory;
+    panelFactory->setPriority(45);
+    panelFactory->setDisplayName(Tr::tr("Documentation Comments"));
+    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
+        return new ProjectCommentsSettingsWidget(project);
+    });
+    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    TextEditor::TextEditorSettings::setCommentsSettingsRetriever([](const FilePath &filePath) {
+        return ProjectCommentsSettings(ProjectManager::projectForFile(filePath)).settings();
+    });
 
     panelFactory = new ProjectPanelFactory;
     panelFactory->setPriority(50);

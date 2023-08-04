@@ -226,6 +226,7 @@ const char TEXT_EDITOR_BEHAVIOR_SETTINGS[] = "B.BehaviourSettings";
 const char TEXT_EDITOR_DISPLAY_SETTINGS[] = "D.DisplaySettings";
 const char TEXT_EDITOR_HIGHLIGHTER_SETTINGS[] = "E.HighlighterSettings";
 const char TEXT_EDITOR_SNIPPETS_SETTINGS[] = "F.SnippetsSettings";
+const char TEXT_EDITOR_COMMENTS_SETTINGS[] = "Q.CommentsSettings";
 
 const char HIGHLIGHTER_SETTINGS_CATEGORY[] = "HighlighterSettings";
 

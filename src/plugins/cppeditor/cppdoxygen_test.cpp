@@ -8,6 +8,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <texteditor/commentssettings.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -20,12 +21,26 @@ namespace { typedef QByteArray _; }
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::TestCase;
 using CppEditor::Internal::Tests::VerifyCleanCppModelManager;
+using namespace TextEditor;
 
 using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {
 namespace Tests {
+
+class SettingsInjector
+{
+public:
+    SettingsInjector(const CommentsSettings::Data &tempSettings)
+    {
+        CommentsSettings::setData(tempSettings);
+    }
+    ~SettingsInjector() { CommentsSettings::setData(m_oldSettings); }
+
+private:
+    const CommentsSettings::Data m_oldSettings = CommentsSettings::data();
+};
 
 void DoxygenTest::initTestCase()
 {
@@ -39,8 +54,6 @@ void DoxygenTest::cleanTestCase()
 
 void DoxygenTest::cleanup()
 {
-    if (oldSettings)
-        CppToolsSettings::setCommentsSettings(*oldSettings);
     QVERIFY(Core::EditorManager::closeAllEditors(false));
     QVERIFY(TestCase::garbageCollectGlobalSnapshot());
 }
@@ -372,7 +385,7 @@ void DoxygenTest::testWithMacroFromHeaderBeforeFunction()
 
     const CppTestDocument headerDocumentDefiningMacro("header.h", "#define API\n");
 
-    runTest(given, expected, /*settings=*/ 0, {headerDocumentDefiningMacro});
+    runTest(given, expected, {headerDocumentDefiningMacro});
 }
 
 void DoxygenTest::testNoLeadingAsterisks_data()
@@ -396,8 +409,9 @@ void DoxygenTest::testNoLeadingAsterisks()
     TextEditor::CommentsSettings::Data injection;
     injection.enableDoxygen = true;
     injection.leadingAsterisks = false;
+    const SettingsInjector injector(injection);
 
-    runTest(given, expected, &injection);
+    runTest(given, expected);
 }
 
 void DoxygenTest::verifyCleanState() const
@@ -410,7 +424,6 @@ void DoxygenTest::verifyCleanState() const
 /// The '|' in the input denotes the cursor position.
 void DoxygenTest::runTest(const QByteArray &original,
                           const QByteArray &expected,
-                          TextEditor::CommentsSettings::Data *settings,
                           const TestDocuments &includedHeaderDocuments)
 {
     // Write files to disk
@@ -432,11 +445,6 @@ void DoxygenTest::runTest(const QByteArray &original,
     // Open Editor
     QVERIFY(TestCase::openCppEditor(testDocument.filePath(), &testDocument.m_editor,
                                     &testDocument.m_editorWidget));
-
-    if (settings) {
-        oldSettings.reset(new TextEditor::CommentsSettings::Data(CppToolsSettings::commentsSettings()));
-        CppToolsSettings::setCommentsSettings(*settings);
-    }
 
     // We want to test documents that start with a comment. By default, the
     // editor will fold the very first comment it encounters, assuming

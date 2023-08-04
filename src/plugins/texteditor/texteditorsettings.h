@@ -10,6 +10,8 @@
 
 #include <QObject>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 template <typename Key, typename T>
 class QMap;
@@ -55,7 +57,10 @@ public:
     static const CompletionSettings &completionSettings();
     static const HighlighterSettings &highlighterSettings();
     static const ExtraEncodingSettings &extraEncodingSettings();
-    static CommentsSettings::Data commentsSettings();
+
+    static void setCommentsSettingsRetriever(
+        const std::function<CommentsSettings::Data(const Utils::FilePath &)> &);
+    static CommentsSettings::Data commentsSettings(const Utils::FilePath &filePath);
 
     static ICodeStylePreferencesFactory *codeStyleFactory(Utils::Id languageId);
     static const QMap<Utils::Id, ICodeStylePreferencesFactory *> &codeStyleFactories();
@@ -87,7 +92,7 @@ signals:
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
     void completionSettingsChanged(const TextEditor::CompletionSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
-    void commentsSettingsChanged(const TextEditor::CommentsSettings::Data &);
+    void commentsSettingsChanged();
 };
 
 } // namespace TextEditor

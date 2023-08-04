@@ -307,7 +307,8 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
 static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
                      const CPlusPlus::Snapshot &snapshot)
 {
-    const TextEditor::CommentsSettings::Data &settings = CppToolsSettings::instance()->commentsSettings();
+    const TextEditor::CommentsSettings::Data &settings
+        = TextEditorSettings::commentsSettings(editorWidget->textDocument()->filePath());
     if (!settings.enableDoxygen && !settings.leadingAsterisks)
         return false;
 

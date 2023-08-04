@@ -124,6 +124,7 @@ add_qtc_plugin(ProjectExplorer
     processparameters.cpp processparameters.h
     processstep.cpp processstep.h
     project.cpp project.h
+    projectcommentssettings.cpp projectcommentssettings.h
     projectconfiguration.cpp projectconfiguration.h
     projectconfigurationmodel.cpp projectconfigurationmodel.h
     projectexplorer.cpp projectexplorer.h

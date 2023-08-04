@@ -5,11 +5,7 @@
 
 #include "cppeditor_global.h"
 
-#include <texteditor/texteditorsettings.h>
-
 #include <QObject>
-
-namespace TextEditor { class CommentsSettings; }
 
 namespace CppEditor {
 
@@ -26,9 +22,6 @@ public:
     static CppToolsSettings *instance();
 
     static CppCodeStylePreferences *cppCodeStyle();
-
-    static const TextEditor::CommentsSettings::Data &commentsSettings();
-    static void setCommentsSettings(const TextEditor::CommentsSettings::Data &commentsSettings);
 
     static bool sortedEditorDocumentOutline();
     static void setSortedEditorDocumentOutline(bool sorted);

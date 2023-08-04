@@ -7,9 +7,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace ProjectExplorer { class Project; }
 
 namespace TextEditor {
 
@@ -18,9 +16,6 @@ class TEXTEDITOR_EXPORT CommentsSettings
 public:
     class Data {
     public:
-        friend bool operator==(const Data &a, const Data &b);
-        friend bool operator!=(const Data &a, const Data &b) { return !(a == b); }
-
         bool enableDoxygen = true;
         bool generateBrief = true;
         bool leadingAsterisks = true;
@@ -29,6 +24,11 @@ public:
     static Data data() { return instance().m_data; }
     static void setData(const Data &data);
 
+    static QString mainSettingsKey();
+    static QString enableDoxygenSettingsKey();
+    static QString generateBriefSettingsKey();
+    static QString leadingAsterisksSettingsKey();
+
 private:
     CommentsSettings();
     static CommentsSettings &instance();
@@ -36,6 +36,38 @@ private:
     void load();
 
     Data m_data;
+};
+inline bool operator==(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
+{
+    return a.enableDoxygen == b.enableDoxygen
+           && a.generateBrief == b.generateBrief
+           && a.leadingAsterisks == b.leadingAsterisks;
+}
+inline bool operator!=(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
+{
+    return !(a == b);
+}
+
+
+class TEXTEDITOR_EXPORT CommentsSettingsWidget final : public Core::IOptionsPageWidget
+{
+    Q_OBJECT
+public:
+    CommentsSettingsWidget(const CommentsSettings::Data &settings);
+    ~CommentsSettingsWidget();
+
+    CommentsSettings::Data settingsData() const;
+
+signals:
+    void settingsChanged();
+
+private:
+    void apply() override;
+
+    void initFromSettings(const CommentsSettings::Data &settings);
+
+    class Private;
+    Private * const d;
 };
 
 namespace Internal {
@@ -47,5 +79,4 @@ public:
 };
 
 } // namespace Internal
-
 } // namespace TextEditor

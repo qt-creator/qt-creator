@@ -8,6 +8,7 @@
 #include "texteditortr.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/project.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
@@ -24,21 +25,18 @@ const char kGenerateBrief[] = "GenerateBrief";
 const char kAddLeadingAsterisks[] = "AddLeadingAsterisks";
 }
 
-bool operator==(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
-{
-    return a.enableDoxygen == b.enableDoxygen
-           && a.generateBrief == b.generateBrief
-           && a.leadingAsterisks == b.leadingAsterisks;
-}
-
 void CommentsSettings::setData(const Data &data)
 {
     if (data == instance().m_data)
         return;
     instance().m_data = data;
     instance().save();
-    emit TextEditorSettings::instance()->commentsSettingsChanged(data);
 }
+
+QString CommentsSettings::mainSettingsKey() { return kDocumentationCommentsGroup; }
+QString CommentsSettings::enableDoxygenSettingsKey() { return kEnableDoxygenBlocks; }
+QString CommentsSettings::generateBriefSettingsKey() { return kGenerateBrief; }
+QString CommentsSettings::leadingAsterisksSettingsKey() { return kAddLeadingAsterisks; }
 
 CommentsSettings::CommentsSettings()
 {
@@ -71,79 +69,86 @@ void CommentsSettings::load()
     s->endGroup();
 }
 
-namespace Internal {
-
-class CommentsSettingsWidget final : public Core::IOptionsPageWidget
+class CommentsSettingsWidget::Private
 {
 public:
-    explicit CommentsSettingsWidget()
-    {
-        initFromSettings();
-
-        m_enableDoxygenCheckBox.setText(Tr::tr("Enable Doxygen blocks"));
-        m_enableDoxygenCheckBox.setToolTip(
-            Tr::tr("Automatically creates a Doxygen comment upon pressing "
-                   "enter after a '/**', '/*!', '//!' or '///'."));
-
-        m_generateBriefCheckBox.setText(Tr::tr("Generate brief description"));
-        m_generateBriefCheckBox.setToolTip(
-            Tr::tr("Generates a <i>brief</i> command with an initial "
-                   "description for the corresponding declaration."));
-
-        m_leadingAsterisksCheckBox.setText(Tr::tr("Add leading asterisks"));
-        m_leadingAsterisksCheckBox.setToolTip(
-            Tr::tr("Adds leading asterisks when continuing C/C++ \"/*\", Qt \"/*!\" "
-                   "and Java \"/**\" style comments on new lines."));
-
-        Column {
-            &m_enableDoxygenCheckBox,
-            Row { Space(30), &m_generateBriefCheckBox },
-            &m_leadingAsterisksCheckBox,
-            st
-        }.attachTo(this);
-
-        connect(&m_enableDoxygenCheckBox, &QCheckBox::toggled,
-                &m_generateBriefCheckBox, &QCheckBox::setEnabled);
-    }
-
-private:
-    void initFromSettings()
-    {
-        const CommentsSettings::Data &settings = CommentsSettings::data();
-        m_enableDoxygenCheckBox.setChecked(settings.enableDoxygen);
-        m_generateBriefCheckBox.setEnabled(m_enableDoxygenCheckBox.isChecked());
-        m_generateBriefCheckBox.setChecked(settings.generateBrief);
-        m_leadingAsterisksCheckBox.setChecked(settings.leadingAsterisks);
-    }
-
-    CommentsSettings::Data toSettings() const
-    {
-        CommentsSettings::Data settings;
-        settings.enableDoxygen = m_enableDoxygenCheckBox.isChecked();
-        settings.generateBrief = m_generateBriefCheckBox.isChecked();
-        settings.leadingAsterisks = m_leadingAsterisksCheckBox.isChecked();
-        return settings;
-    }
-
-    void apply() override
-    {
-        CommentsSettings::setData(toSettings());
-    }
-
     QCheckBox m_overwriteClosingChars;
     QCheckBox m_enableDoxygenCheckBox;
     QCheckBox m_generateBriefCheckBox;
     QCheckBox m_leadingAsterisksCheckBox;
 };
 
+CommentsSettingsWidget::CommentsSettingsWidget(const CommentsSettings::Data &settings)
+    : d(new Private)
+{
+    initFromSettings(settings);
+
+    d->m_enableDoxygenCheckBox.setText(Tr::tr("Enable Doxygen blocks"));
+    d->m_enableDoxygenCheckBox.setToolTip(
+        Tr::tr("Automatically creates a Doxygen comment upon pressing "
+               "enter after a '/**', '/*!', '//!' or '///'."));
+
+    d->m_generateBriefCheckBox.setText(Tr::tr("Generate brief description"));
+    d->m_generateBriefCheckBox.setToolTip(
+        Tr::tr("Generates a <i>brief</i> command with an initial "
+               "description for the corresponding declaration."));
+
+    d->m_leadingAsterisksCheckBox.setText(Tr::tr("Add leading asterisks"));
+    d->m_leadingAsterisksCheckBox.setToolTip(
+        Tr::tr("Adds leading asterisks when continuing C/C++ \"/*\", Qt \"/*!\" "
+               "and Java \"/**\" style comments on new lines."));
+
+    Column {
+        &d->m_enableDoxygenCheckBox,
+        Row { Space(30), &d->m_generateBriefCheckBox },
+        &d->m_leadingAsterisksCheckBox,
+        st
+    }.attachTo(this);
+
+    connect(&d->m_enableDoxygenCheckBox, &QCheckBox::toggled,
+            &d->m_generateBriefCheckBox, &QCheckBox::setEnabled);
+
+    for (QCheckBox *checkBox : {&d->m_enableDoxygenCheckBox, &d->m_generateBriefCheckBox,
+                                &d->m_leadingAsterisksCheckBox}) {
+        connect(checkBox, &QCheckBox::clicked, this, &CommentsSettingsWidget::settingsChanged);
+    }
+}
+
+CommentsSettingsWidget::~CommentsSettingsWidget() { delete d; }
+
+CommentsSettings::Data CommentsSettingsWidget::settingsData() const
+{
+    CommentsSettings::Data settings;
+    settings.enableDoxygen = d->m_enableDoxygenCheckBox.isChecked();
+    settings.generateBrief = d->m_generateBriefCheckBox.isChecked();
+    settings.leadingAsterisks = d->m_leadingAsterisksCheckBox.isChecked();
+    return settings;
+}
+
+void CommentsSettingsWidget::apply()
+{
+    // This function is only ever called for the global settings page.
+    CommentsSettings::setData(settingsData());
+}
+
+void CommentsSettingsWidget::initFromSettings(const CommentsSettings::Data &settings)
+{
+    d->m_enableDoxygenCheckBox.setChecked(settings.enableDoxygen);
+    d->m_generateBriefCheckBox.setEnabled(d->m_enableDoxygenCheckBox.isChecked());
+    d->m_generateBriefCheckBox.setChecked(settings.generateBrief);
+    d->m_leadingAsterisksCheckBox.setChecked(settings.leadingAsterisks);
+}
+
+namespace Internal {
+
 CommentsSettingsPage::CommentsSettingsPage()
 {
-    setId("Q.Comments");
+    setId(Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
     setDisplayName(Tr::tr("Documentation Comments"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr("Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
-    setWidgetCreator([] { return new CommentsSettingsWidget; });
+    setWidgetCreator([] { return new CommentsSettingsWidget(CommentsSettings::data()); });
 }
 
 } // namespace Internal

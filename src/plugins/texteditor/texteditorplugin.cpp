@@ -3,6 +3,7 @@
 
 #include "texteditorplugin.h"
 
+#include "commentssettings.h"
 #include "findincurrentfile.h"
 #include "findinfiles.h"
 #include "findinopenfiles.h"
@@ -34,6 +35,8 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+
+#include <projectexplorer/projectpanelfactory.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
