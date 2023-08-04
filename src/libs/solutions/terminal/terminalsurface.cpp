@@ -629,11 +629,27 @@ void TerminalSurface::mouseButton(Qt::MouseButton button,
     case Qt::ExtraButton2:
         btnIdx = 5;
         break;
+    case Qt::ExtraButton3:
+        btnIdx = 6;
+        break;
+    case Qt::ExtraButton4:
+        btnIdx = 7;
+        break;
     default:
         return;
     }
 
     vterm_mouse_button(d->m_vterm.get(), btnIdx, pressed, qtModifierToVTerm(modifiers));
+}
+
+void TerminalSurface::sendFocus(bool hasFocus)
+{
+    VTermState *vts = vterm_obtain_state(d->m_vterm.get());
+
+    if (hasFocus)
+        vterm_state_focus_in(vts);
+    else
+        vterm_state_focus_out(vts);
 }
 
 void TerminalSurface::setWriteToPty(WriteToPty writeToPty)

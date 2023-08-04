@@ -103,6 +103,8 @@ public:
 
     void mouseMove(QPoint pos, Qt::KeyboardModifiers modifiers);
     void mouseButton(Qt::MouseButton button, bool pressed, Qt::KeyboardModifiers modifiers);
+
+    void sendFocus(bool hasFocus);
 signals:
     void invalidated(QRect grid);
     void fullSizeChanged(QSize newSize);

@@ -990,11 +990,13 @@ void TerminalView::focusInEvent(QFocusEvent *)
     updateViewport();
     configBlinkTimer();
     selectionChanged(d->m_selection);
+    d->m_surface->sendFocus(true);
 }
 void TerminalView::focusOutEvent(QFocusEvent *)
 {
     updateViewport();
     configBlinkTimer();
+    d->m_surface->sendFocus(false);
 }
 
 void TerminalView::inputMethodEvent(QInputMethodEvent *event)
