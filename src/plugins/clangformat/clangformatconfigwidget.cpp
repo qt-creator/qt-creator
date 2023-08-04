@@ -31,6 +31,7 @@
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QComboBox>
 #include <QLabel>
@@ -39,9 +40,11 @@
 #include <QScrollArea>
 #include <QSharedPointer>
 #include <QVBoxLayout>
+#include <QVersionNumber>
 #include <QWeakPointer>
 #include <QWidget>
 
+#include <clang/Basic/Version.h>
 #include <clang/Format/Format.h>
 
 #include <sstream>
@@ -62,6 +65,9 @@ public:
     clang::format::FormatStyle style;
     Utils::Guard ignoreChanges;
     QLabel *fallbackConfig;
+    QLabel *clangVersion;
+    QLabel *clangWarningText;
+    QLabel *clangWarningIcon;
 };
 
 bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
@@ -90,6 +96,28 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     d->checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
                                 && !codeStyle->isAdditionalTabDisabled());
 
+
+    static const int expectedMajorVersion = 16;
+    d->clangVersion = new QLabel(Tr::tr("Current clang-format version: ") + LLVM_VERSION_STRING,
+                                 this);
+    d->clangWarningText
+        = new QLabel(Tr::tr("The widget was generated for ClangFormat %1. "
+                            "If you use a different version, the widget may work incorrectly.")
+                         .arg(expectedMajorVersion),
+                     this);
+
+    QPalette palette = d->clangWarningText->palette();
+    palette.setColor(QPalette::WindowText, Qt::red);
+    d->clangWarningText->setPalette(palette);
+
+    d->clangWarningIcon = new QLabel(this);
+    d->clangWarningIcon->setPixmap(Utils::Icons::WARNING.icon().pixmap(16, 16));
+
+    if (LLVM_VERSION_MAJOR == expectedMajorVersion) {
+        d->clangWarningText->hide();
+        d->clangWarningIcon->hide();
+    }
+
     FilePath fileName;
     if (d->project)
         fileName = d->project->projectFilePath().pathAppended("snippet.cpp");
@@ -110,6 +138,8 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
 
     Column {
         d->fallbackConfig,
+        Row {d->clangWarningIcon, d->clangWarningText, st},
+        d->clangVersion,
         Row { d->checksScrollArea, d->preview },
     }.attachTo(this);
 
