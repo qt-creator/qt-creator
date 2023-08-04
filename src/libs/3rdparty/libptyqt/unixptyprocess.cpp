@@ -184,34 +184,33 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
         m_readMasterNotify->disconnect();
     });
 
-    QStringList defaultVars;
-
-    defaultVars.append("TERM=xterm-256color");
-    defaultVars.append("ITERM_PROFILE=Default");
-    defaultVars.append("XPC_FLAGS=0x0");
-    defaultVars.append("XPC_SERVICE_NAME=0");
-    defaultVars.append("LANG=en_US.UTF-8");
-    defaultVars.append("LC_ALL=en_US.UTF-8");
-    defaultVars.append("LC_CTYPE=UTF-8");
-    defaultVars.append("INIT_CWD=" + QCoreApplication::applicationDirPath());
-    defaultVars.append("COMMAND_MODE=unix2003");
-    defaultVars.append("COLORTERM=truecolor");
+    const QStringList defaultVars = {
+        "TERM=xterm-256color",
+        "ITERM_PROFILE=Default",
+        "XPC_FLAGS=0x0",
+        "XPC_SERVICE_NAME=0",
+        "LANG=en_US.UTF-8",
+        "LC_ALL=en_US.UTF-8",
+        "LC_CTYPE=UTF-8",
+        "INIT_CWD=" + QCoreApplication::applicationDirPath(),
+        "COMMAND_MODE=unix2003",
+        "COLORTERM=truecolor"
+    };
 
     QStringList varNames;
-    foreach (QString line, environment) {
+    for (const QString &line : std::as_const(environment))
         varNames.append(line.split("=").first());
-    }
 
     //append default env vars only if they don't exists in current env
-    foreach (QString defVar, defaultVars) {
+    for (const QString &defVar : defaultVars) {
         if (!varNames.contains(defVar.split("=").first()))
             environment.append(defVar);
     }
 
     QProcessEnvironment envFormat;
-    foreach (QString line, environment) {
+    for (const QString &line : std::as_const(environment))
         envFormat.insert(line.split("=").first(), line.split("=").last());
-    }
+
     m_shellProcess.setWorkingDirectory(workingDir);
     m_shellProcess.setProcessEnvironment(envFormat);
     m_shellProcess.setReadChannel(QProcess::StandardOutput);
