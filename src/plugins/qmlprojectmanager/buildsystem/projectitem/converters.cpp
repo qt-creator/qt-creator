@@ -63,9 +63,8 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
 
     auto appendArray = [&appendItem](const QString &key, const QStringList &vals) {
         QString finalString;
-        foreach (const QString &value, vals) {
+        for (const QString &value : vals)
             finalString.append("\"").append(value).append("\"").append(",");
-        }
         finalString.remove(finalString.length() - 1, 1);
         finalString.prepend("[ ").append(" ]");
         appendItem(key, finalString, false);
@@ -86,8 +85,8 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         [&startObject, &endObject, &appendString, &filesConfig](const QString &jsonKey,
                                                                 const QString &qmlKey) {
             QJsonValue dirsObj = filesConfig[jsonKey].toObject()["directories"];
-            QStringList dirs = dirsObj.toVariant().toStringList();
-            foreach (const QString &directory, dirs) {
+            const QStringList dirs = dirsObj.toVariant().toStringList();
+            for (const QString &directory : dirs) {
                 startObject(qmlKey);
                 appendString("directory", directory);
                 endObject();
@@ -103,16 +102,17 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         QJsonValue filesObj = filesConfig[jsonKey].toObject()["files"];
         QJsonValue filtersObj = filesConfig[jsonKey].toObject()["filters"];
 
-        foreach (const QString &directory, dirsObj.toVariant().toStringList()) {
+        const QStringList directories = dirsObj.toVariant().toStringList();
+        for (const QString &directory : directories) {
             startObject(qmlKey);
             appendString("directory", directory);
             appendString("filters", filtersObj.toVariant().toStringList().join(";"));
 
             if (!filesObj.toArray().isEmpty()) {
                 QStringList fileList;
-                foreach (const QJsonValue &file, filesObj.toArray()) {
+                const QJsonArray files = filesObj.toArray();
+                for (const QJsonValue &file : files)
                     fileList.append(file.toObject()["name"].toString());
-                }
                 appendArray("files", fileList);
             }
             endObject();
@@ -147,9 +147,9 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
 
         { // append Environment object
             startObject("Environment");
-            foreach (const QString &key, environmentConfig.keys()) {
+            const QStringList keys = environmentConfig.keys();
+            for (const QString &key : keys)
                 appendItem(key, environmentConfig[key].toString(), true);
-            }
             endObject();
         }
 
@@ -201,9 +201,9 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 
     auto nodeToJsonObject = [](const QmlJS::SimpleReaderNode::Ptr &node) {
         QJsonObject tObj;
-        foreach (const QString &childPropName, node->propertyNames()) {
+        const QStringList childPropNames = node->propertyNames();
+        for (const QString &childPropName : childPropNames)
             tObj.insert(childPropName, node->property(childPropName).value.toJsonValue());
-        }
         return tObj;
     };
 
@@ -336,9 +336,9 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 
             // populate & update files
             if (childNodeFiles.isValid()) {
-                foreach (const QJsonValue &file, childNodeFiles.value.toJsonArray()) {
+                const QJsonArray fileList = childNodeFiles.value.toJsonArray();
+                for (const QJsonValue &file : fileList)
                     files.append(QJsonObject{{"name", file.toString()}});
-                }
             }
 
             // put everything back into the root object
