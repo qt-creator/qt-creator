@@ -573,11 +573,10 @@ void TerminalSurface::sendKey(QKeyEvent *event)
         // like ctrl+i for tab or ctrl+j for newline.
 
         // Workaround for "ALT+SHIFT+/" (\ on german mac keyboards)
-        if (mod == (VTERM_MOD_SHIFT | VTERM_MOD_ALT) && event->key() == Qt::Key_Slash) {
+        if (mod == (VTERM_MOD_SHIFT | VTERM_MOD_ALT) && event->key() == Qt::Key_Slash)
             mod = VTERM_MOD_NONE;
-        }
 
-        vterm_keyboard_unichar(d->m_vterm.get(), event->text().toUcs4()[0], VTERM_MOD_NONE);
+        vterm_keyboard_unichar(d->m_vterm.get(), event->text().toUcs4()[0], mod);
     } else if (mod == VTERM_MOD_CTRL && event->key() >= Qt::Key_A && event->key() < Qt::Key_Z) {
         vterm_keyboard_unichar(d->m_vterm.get(), 'a' + (event->key() - Qt::Key_A), mod);
     }
