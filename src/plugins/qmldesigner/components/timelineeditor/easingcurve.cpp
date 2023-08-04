@@ -65,15 +65,14 @@ int EasingCurve::segmentCount() const
 bool EasingCurve::isLegal() const
 {
     QPainterPath painterPath(path());
-
-    double increment = 1.0 / 30.0;
-    QPointF max = painterPath.pointAtPercent(0.0);
-    for (double i = increment; i <= 1.0; i += increment) {
-        QPointF current = painterPath.pointAtPercent(i);
-        if (current.x() < max.x())
+    qreal maxX = painterPath.pointAtPercent(0.0).x();
+    const int denominator = 30;
+    for (int i = 1; i <= denominator; ++i) {
+        const qreal currentX = painterPath.pointAtPercent(qreal(i) / denominator).x();
+        if (currentX < maxX)
             return false;
         else
-            max = current;
+            maxX = currentX;
     }
     return true;
 }
