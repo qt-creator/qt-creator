@@ -247,15 +247,15 @@ QPointF CubicSegment::sample(double t) const
 double CubicSegment::minimumDistance(const QPointF &pickPoint, double &tReturnValue) const
 {
     double actualMinimumDistance = 10000000.;
-    for (double t = 0.0; t <= 1.0; t += 0.1) {
-        QPointF samplePoint = sample(t);
-        QPointF distanceVector = pickPoint - samplePoint;
+    const int tMax = 10;
+    for (int t = 0; t <= tMax; ++t) {
+        const QPointF samplePoint = sample(double(t) / tMax);
+        const QPointF distanceVector = pickPoint - samplePoint;
         if (distanceVector.manhattanLength() < actualMinimumDistance) {
             actualMinimumDistance = distanceVector.manhattanLength();
             tReturnValue = t;
         }
     }
-
     return actualMinimumDistance;
 }
 
