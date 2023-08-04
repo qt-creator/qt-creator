@@ -1120,7 +1120,9 @@ bool RunControl::showPromptToStopDialog(const QString &title,
                                                   text,
                                                   decider,
                                                   QMessageBox::Yes | QMessageBox::Cancel,
-                                                  QMessageBox::Yes);
+                                                  QMessageBox::Yes,
+                                                  QMessageBox::Yes,
+                                                  buttonTexts);
 
     return selected == QMessageBox::Yes;
 }
