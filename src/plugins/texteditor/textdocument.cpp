@@ -843,7 +843,7 @@ bool TextDocument::reload(QString *errorString, const FilePath &realFilePath)
     auto documentLayout =
         qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     if (documentLayout)
-        documentLayout->documentAboutToReload(); // removes text marks non-permanently
+        documentLayout->documentAboutToReload(this); // removes text marks non-permanently
 
     bool success = openImpl(errorString, filePath(), realFilePath, /*reload =*/true)
                    == OpenResult::Success;

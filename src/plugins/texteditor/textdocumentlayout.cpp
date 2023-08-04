@@ -4,9 +4,14 @@
 #include "textdocumentlayout.h"
 #include "fontsettings.h"
 #include "textdocument.h"
+#include "texteditorplugin.h"
 #include "texteditorsettings.h"
+
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
+
 #include <QDebug>
+#include <QTest>
 
 namespace TextEditor {
 
@@ -667,11 +672,15 @@ TextMarks TextDocumentLayout::documentClosing()
     return marks;
 }
 
-void TextDocumentLayout::documentAboutToReload()
+void TextDocumentLayout::documentAboutToReload(TextDocument *baseTextDocument)
 {
     m_reloadMarks = documentClosing();
-    for (TextMark *mark : std::as_const(m_reloadMarks))
-        mark->setDeleteCallback([this, mark] { m_reloadMarks.removeOne(mark); });
+    for (TextMark *mark : std::as_const(m_reloadMarks)) {
+        mark->setDeleteCallback([this, mark, baseTextDocument] {
+            baseTextDocument->removeMarkFromMarksCache(mark);
+            m_reloadMarks.removeOne(mark);
+        });
+    }
 }
 
 void TextDocumentLayout::documentReloaded(TextDocument *baseTextDocument)
@@ -859,5 +868,24 @@ TextSuggestion::TextSuggestion()
 }
 
 TextSuggestion::~TextSuggestion() = default;
+
+#ifdef WITH_TESTS
+
+void Internal::TextEditorPlugin::testDeletingMarkOnReload()
+{
+    auto doc = new TextDocument();
+    doc->setFilePath(Utils::TemporaryDirectory::masterDirectoryFilePath() / "TestMarkDoc.txt");
+    doc->setPlainText("asd");
+    auto documentLayout = qobject_cast<TextDocumentLayout *>(doc->document()->documentLayout());
+    QVERIFY(documentLayout);
+    auto mark = new TextMark(doc, 1, TextMarkCategory{"testMark","testMark"});
+    QVERIFY(doc->marks().contains(mark));
+    documentLayout->documentAboutToReload(doc); // removes text marks non-permanently
+    delete mark;
+    documentLayout->documentReloaded(doc); // re-adds text marks
+    QVERIFY(!doc->marks().contains(mark));
+}
+
+#endif
 
 } // namespace TextEditor

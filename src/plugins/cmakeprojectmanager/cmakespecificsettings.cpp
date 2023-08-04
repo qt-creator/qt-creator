@@ -54,6 +54,12 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     // never save this to the settings:
     ninjaPath.setToSettingsTransformation(
         [](const QVariant &) { return QVariant::fromValue(QString()); });
+    ninjaPath.setFromSettingsTransformation([](const QVariant &from) {
+        // Sometimes the installer appends the same ninja path to the qtcreator.ini file
+        const QString path = from.canConvert<QStringList>() ? from.toStringList().last()
+                                                            : from.toString();
+        return FilePath::fromUserInput(path).toVariant();
+    });
 
     packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
     packageManagerAutoSetup.setDefaultValue(true);
