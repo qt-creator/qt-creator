@@ -348,22 +348,21 @@ TreeView {
         root.currentFilePath = filePath
     }
 
-    Keys.enabled: true
-
-    Keys.onUpPressed: {
-        if (!root.currentFilePath)
+    function moveSelection(amount)
+    {
+        if (!assetsModel.haveFiles || !amount)
             return
 
-        let index = assetsModel.indexForPath(root.currentFilePath)
+        let index = root.currentFilePath ? assetsModel.indexForPath(root.currentFilePath)
+                                         : root.__modelIndex(root.firstRow)
         let row = root.rowAtIndex(index)
         let nextRow = row
         let nextIndex = index
 
         do {
-            if (nextRow <= root.firstRow)
-                return // don't select hidden rows
-
-            nextRow--
+            nextRow = nextRow + amount
+            if ((amount < 0 && nextRow < root.firstRow) || (amount > 0 && nextRow > root.lastRow))
+                return
             nextIndex = root.__modelIndex(nextRow)
         } while (assetsModel.isDirectory(nextIndex))
 
@@ -371,26 +370,14 @@ TreeView {
         root.positionViewAtRow(nextRow, TableView.Contain)
     }
 
+    Keys.enabled: true
+
+    Keys.onUpPressed: {
+        moveSelection(-1)
+    }
+
     Keys.onDownPressed: {
-        if (!root.currentFilePath)
-            return
-
-        let index = assetsModel.indexForPath(root.currentFilePath)
-        let row = root.rowAtIndex(index)
-
-        let nextRow = row
-        let nextIndex = index
-
-        do {
-            if (nextRow >= root.lastRow)
-                return // don't select hidden rows
-
-            nextRow++
-            nextIndex = root.__modelIndex(nextRow)
-        } while (assetsModel.isDirectory(nextIndex))
-
-        root.__selectRow(nextRow)
-        root.positionViewAtRow(nextRow, TableView.Contain)
+        moveSelection(1)
     }
 
     ConfirmDeleteFilesDialog {

@@ -264,6 +264,7 @@ Item {
             contextMenu: contextMenu
             width: parent.width
             height: parent.height - assetsView.y
+            focus: true
         }
     }
 }
