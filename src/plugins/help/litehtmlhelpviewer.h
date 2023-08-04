@@ -24,8 +24,8 @@ public:
     ~LiteHtmlHelpViewer() override;
 
     void setViewerFont(const QFont &font) override;
-
     void setScale(qreal scale) override;
+    void setAntialias(bool on) final;
 
     QString title() const override;
 

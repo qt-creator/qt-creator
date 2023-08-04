@@ -52,21 +52,23 @@ QHelpEngine* LocalHelpManager::m_guiEngine = nullptr;
 QMutex LocalHelpManager::m_bkmarkMutex;
 BookmarkManager* LocalHelpManager::m_bookmarkManager = nullptr;
 
-static const char kHelpHomePageKey[] = "Help/HomePage";
-static const char kFontFamilyKey[] = "Help/FallbackFontFamily";
-static const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
-static const char kFontSizeKey[] = "Help/FallbackFontSize";
-static const char kFontZoomKey[] = "Help/FontZoom";
-static const char kStartOptionKey[] = "Help/StartOption";
-static const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
-static const char kReturnOnCloseKey[] = "Help/ReturnOnClose";
-static const char kUseScrollWheelZooming[] = "Help/UseScrollWheelZooming";
-static const char kLastShownPagesKey[] = "Help/LastShownPages";
-static const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
-static const char kViewerBackend[] = "Help/ViewerBackend";
+const char kHelpHomePageKey[] = "Help/HomePage";
+const char kFontFamilyKey[] = "Help/FallbackFontFamily";
+const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
+const char kFontSizeKey[] = "Help/FallbackFontSize";
+const char kFontZoomKey[] = "Help/FontZoom";
+const char kAntialiasKey[] = "Help/FontAntialias";
+const char kStartOptionKey[] = "Help/StartOption";
+const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
+const char kReturnOnCloseKey[] = "Help/ReturnOnClose";
+const char kUseScrollWheelZooming[] = "Help/UseScrollWheelZooming";
+const char kLastShownPagesKey[] = "Help/LastShownPages";
+const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
+const char kViewerBackend[] = "Help/ViewerBackend";
 
-static const int kDefaultFallbackFontSize = 14;
-static const int kDefaultFontZoom = 100;
+const int kDefaultFallbackFontSize = 14;
+const int kDefaultFontZoom = 100;
+const bool kDefaultAntialias = true;
 const int kDefaultStartOption = LocalHelpManager::ShowLastPages;
 const int kDefaultContextHelpOption = Core::HelpManager::SideBySideIfPossible;
 const bool kDefaultReturnOnClose = false;
@@ -173,6 +175,19 @@ int LocalHelpManager::setFontZoom(int percentage)
     Core::ICore::settings()->setValueWithDefault(kFontZoomKey, newZoom, kDefaultFontZoom);
     emit m_instance->fontZoomChanged(newZoom);
     return newZoom;
+}
+
+bool LocalHelpManager::antialias()
+{
+    return Core::ICore::settings()->value(kAntialiasKey, kDefaultAntialias).toBool();
+}
+
+void LocalHelpManager::setAntialias(bool on)
+{
+    if (on != antialias()) {
+        Core::ICore::settings()->setValueWithDefault(kAntialiasKey, on, kDefaultAntialias);
+        emit m_instance->antialiasChanged(on);
+    }
 }
 
 LocalHelpManager::StartOption LocalHelpManager::startOption()

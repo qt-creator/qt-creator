@@ -134,6 +134,11 @@ void LiteHtmlHelpViewer::setScale(qreal scale)
     m_viewer->setZoomFactor(scale == 0 ? qreal(1) : scale);
 }
 
+void LiteHtmlHelpViewer::setAntialias(bool on)
+{
+    m_viewer->setAntialias(on);
+}
+
 QString LiteHtmlHelpViewer::title() const
 {
     return m_viewer->title();

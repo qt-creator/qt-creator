@@ -374,6 +374,13 @@ HelpViewer *HelpPlugin::createHelpViewer()
     connect(LocalHelpManager::instance(), &LocalHelpManager::fontZoomChanged,
             viewer, &HelpViewer::setFontZoom);
 
+    // initialize antialias
+    viewer->setAntialias(LocalHelpManager::antialias());
+    connect(LocalHelpManager::instance(),
+            &LocalHelpManager::antialiasChanged,
+            viewer,
+            &HelpViewer::setAntialias);
+
     viewer->setScrollWheelZoomingEnabled(LocalHelpManager::isScrollWheelZoomingEnabled());
     connect(LocalHelpManager::instance(), &LocalHelpManager::scrollWheelZoomingEnabledChanged,
             viewer, &HelpViewer::setScrollWheelZoomingEnabled);

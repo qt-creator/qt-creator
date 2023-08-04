@@ -55,22 +55,28 @@ TextBrowserHelpViewer::~TextBrowserHelpViewer() = default;
 
 void TextBrowserHelpViewer::setViewerFont(const QFont &newFont)
 {
-    setFontAndScale(newFont, LocalHelpManager::fontZoom() / 100.0);
+    setFontAndScale(newFont, LocalHelpManager::fontZoom() / 100.0, LocalHelpManager::antialias());
 }
 
-void TextBrowserHelpViewer::setFontAndScale(const QFont &font, qreal scale)
+void TextBrowserHelpViewer::setFontAndScale(const QFont &font, qreal scale, bool antialias)
 {
-    m_textBrowser->withFixedTopPosition([this, &font, scale] {
+    m_textBrowser->withFixedTopPosition([this, &font, scale, antialias] {
         QFont newFont = font;
         const float newSize = font.pointSizeF() * scale;
         newFont.setPointSizeF(newSize);
+        newFont.setStyleStrategy(antialias ? QFont::PreferAntialias : QFont::NoAntialias);
         m_textBrowser->setFont(newFont);
     });
 }
 
 void TextBrowserHelpViewer::setScale(qreal scale)
 {
-    setFontAndScale(LocalHelpManager::fallbackFont(), scale);
+    setFontAndScale(LocalHelpManager::fallbackFont(), scale, LocalHelpManager::antialias());
+}
+
+void TextBrowserHelpViewer::setAntialias(bool on)
+{
+    setFontAndScale(LocalHelpManager::fallbackFont(), LocalHelpManager::fontZoom() / 100.0, on);
 }
 
 QString TextBrowserHelpViewer::title() const

@@ -32,6 +32,7 @@ public:
     ~HelpViewer() override;
 
     virtual void setViewerFont(const QFont &font) = 0;
+    virtual void setAntialias(bool on);
 
     virtual void setScale(qreal scale) = 0;
 
