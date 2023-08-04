@@ -1203,6 +1203,7 @@ void tst_Dumpers::initTestCase()
         QProcess debugger;
         debugger.start(m_debuggerBinary, {"-i", "mi", "-quiet", "-nx"});
         bool ok = debugger.waitForStarted();
+        QVERIFY(ok);
         debugger.write("set confirm off\npython print 43\nshow version\nquit\n");
         ok = debugger.waitForFinished();
         QVERIFY(ok);
