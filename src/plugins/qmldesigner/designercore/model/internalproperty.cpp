@@ -37,17 +37,6 @@ PropertyName InternalProperty::name() const
     return m_name;
 }
 
-InternalNode::Pointer InternalProperty::propertyOwner() const
-{
-    return m_propertyOwner.lock();
-}
-
-void InternalProperty::remove()
-{
-    propertyOwner()->removeProperty(name());
-    m_propertyOwner.reset();
-}
-
 TypeName InternalProperty::dynamicTypeName() const
 {
     return m_dynamicType;

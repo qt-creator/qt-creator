@@ -607,8 +607,8 @@ void ModelNode::removeProperty(const PropertyName &name) const
     if (!model()->d->propertyNameIsValid(name))
         return;
 
-    if (m_internalNode->hasProperty(name))
-        model()->d->removePropertyAndRelatedResources(m_internalNode->property(name));
+    if (auto property = m_internalNode->property(name))
+        model()->d->removePropertyAndRelatedResources(property);
 }
 
 /*! \brief removes this node from the node tree
@@ -800,7 +800,7 @@ PropertyNameList ModelNode::propertyNames() const
 */
 bool ModelNode::hasProperty(const PropertyName &name) const
 {
-    return isValid() && m_internalNode->hasProperty(name);
+    return isValid() && m_internalNode->property(name);
 }
 
 bool ModelNode::hasVariantProperty(const PropertyName &name) const

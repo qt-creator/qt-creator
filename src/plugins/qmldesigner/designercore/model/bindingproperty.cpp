@@ -22,7 +22,7 @@ bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingPropert
 BindingProperty::BindingProperty() = default;
 
 BindingProperty::BindingProperty(const BindingProperty &property, AbstractView *view)
-    : AbstractProperty(property.name(), property.internalNode(), property.model(), view)
+    : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
 {
 }
 
@@ -58,14 +58,15 @@ void BindingProperty::setExpression(const QString &expression)
             privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    privateModel()->setBindingProperty(internalNode(), name(), expression);
+    privateModel()->setBindingProperty(internalNodeSharedPointer(), name(), expression);
 }
 
 QString BindingProperty::expression() const
 {
-    if (isValid() && internalNode()->hasProperty(name())
-        && internalNode()->property(name())->isBindingProperty())
-        return internalNode()->bindingProperty(name())->expression();
+    if (isValid()) {
+        if (auto property = internalNode()->bindingProperty(name()))
+            return property->expression();
+    }
 
     return QString();
 }
@@ -351,7 +352,7 @@ void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, 
             privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    privateModel()->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
+    privateModel()->setDynamicBindingProperty(internalNodeSharedPointer(), name(), typeName, expression);
 }
 
 QDebug operator<<(QDebug debug, const BindingProperty &property)

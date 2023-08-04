@@ -54,7 +54,7 @@ public:
     ~AbstractProperty();
     AbstractProperty(const AbstractProperty &property, AbstractView *view);
 
-    PropertyName name() const;
+    const PropertyName &name() const;
 
     bool isValid() const;
     explicit operator bool() const { return isValid(); }
@@ -125,8 +125,14 @@ public:
 
 protected:
     AbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
-    AbstractProperty(const Internal::InternalPropertyPointer &property, Model* model, AbstractView *view);
-    Internal::InternalNodePointer internalNode() const { return m_internalNode; }
+    AbstractProperty(const Internal::InternalPropertyPointer &property,
+                     Model *model,
+                     AbstractView *view);
+
+    Internal::InternalNode *internalNode() const { return m_internalNode.get(); }
+
+    Internal::InternalNodePointer internalNodeSharedPointer() const { return m_internalNode; }
+
     Internal::ModelPrivate *privateModel() const;
 
 private:

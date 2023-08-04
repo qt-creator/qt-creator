@@ -21,10 +21,10 @@ public:
     int count() const override;
     int indexOf(const InternalNodePointer &node) const override;
 
-    QList<InternalNodePointer> allSubNodes() const override;
-    QList<InternalNodePointer> directSubNodes() const override;
+    QList<InternalNodePointer> allSubNodes() const;
+    void addSubNodes(QList<InternalNodePointer> &container) const;
 
-    InternalNodePointer node() const;
+    const InternalNodePointer &node() const { return m_node; }
 
 protected:
     void add(const InternalNodePointer &node) override;

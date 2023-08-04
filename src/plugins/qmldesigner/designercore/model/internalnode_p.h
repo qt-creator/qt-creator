@@ -52,7 +52,7 @@ public:
         , internalId(internalId)
     {}
 
-    InternalNodeAbstractProperty::Pointer parentProperty() const;
+    InternalNodeAbstractProperty::Pointer parentProperty() const { return m_parentProperty.lock(); }
 
     // Reparent within model
     void setParentProperty(const InternalNodeAbstractProperty::Pointer &parent);
@@ -66,18 +66,25 @@ public:
     AuxiliaryDatasView auxiliaryData() const { return std::as_const(m_auxiliaryDatas); }
 
     template<typename Type>
-    typename Type::Pointer property(const PropertyName &name) const
+    Type *property(const PropertyName &name) const
     {
-        auto property = m_namePropertyHash.value(name);
-        if (property && property->propertyType() == Type::type)
-            return std::static_pointer_cast<Type>(property);
+        auto propertyIter = m_namePropertyHash.find(name);
+
+        if (propertyIter != m_namePropertyHash.end()) {
+            if (auto property = propertyIter->get(); property && property->propertyType() == Type::type)
+                return static_cast<Type *>(property);
+        }
 
         return {};
     }
 
-    InternalProperty::Pointer property(const PropertyName &name) const
+    InternalProperty *property(const PropertyName &name) const
     {
-        return m_namePropertyHash.value(name);
+        auto propertyIter = m_namePropertyHash.find(name);
+        if (propertyIter != m_namePropertyHash.end())
+            return propertyIter->get();
+
+        return nullptr;
     }
 
     auto bindingProperty(const PropertyName &name) const
@@ -116,60 +123,62 @@ public:
         return {};
     }
 
-    InternalNodeProperty::Pointer nodeProperty(const PropertyName &name) const
+    auto nodeProperty(const PropertyName &name) const
     {
         return property<InternalNodeProperty>(name);
     }
 
     template<typename Type>
-    auto &addProperty(const PropertyName &name)
+    Type *addProperty(const PropertyName &name)
     {
         auto newProperty = std::make_shared<Type>(name, shared_from_this());
-        auto inserted = m_namePropertyHash.insert(name, std::move(newProperty));
+        auto pointer = newProperty.get();
+        m_namePropertyHash.insert(name, std::move(newProperty));
 
-        return *inserted->get();
+        return pointer;
     }
 
-    void addBindingProperty(const PropertyName &name)
+    auto addBindingProperty(const PropertyName &name)
     {
-        addProperty<InternalBindingProperty>(name);
+        return addProperty<InternalBindingProperty>(name);
     }
 
-    void addSignalHandlerProperty(const PropertyName &name)
+    auto addSignalHandlerProperty(const PropertyName &name)
     {
-        addProperty<InternalSignalHandlerProperty>(name);
+        return addProperty<InternalSignalHandlerProperty>(name);
     }
 
-    void addSignalDeclarationProperty(const PropertyName &name)
+    auto addSignalDeclarationProperty(const PropertyName &name)
     {
-        addProperty<InternalSignalDeclarationProperty>(name);
+        return addProperty<InternalSignalDeclarationProperty>(name);
     }
 
-    void addNodeListProperty(const PropertyName &name)
+    auto addNodeListProperty(const PropertyName &name)
     {
-        addProperty<InternalNodeListProperty>(name);
+        return addProperty<InternalNodeListProperty>(name);
     }
 
-    void addVariantProperty(const PropertyName &name)
+    auto addVariantProperty(const PropertyName &name)
     {
-        addProperty<InternalVariantProperty>(name);
+        return addProperty<InternalVariantProperty>(name);
     }
 
-    void addNodeProperty(const PropertyName &name, const TypeName &dynamicTypeName)
+    auto addNodeProperty(const PropertyName &name, const TypeName &dynamicTypeName)
     {
-        auto &property = addProperty<InternalNodeProperty>(name);
-        property.setDynamicTypeName(dynamicTypeName);
+        auto property = addProperty<InternalNodeProperty>(name);
+        property->setDynamicTypeName(dynamicTypeName);
+
+        return property;
     }
 
     PropertyNameList propertyNameList() const;
 
-    bool hasProperties() const;
-    bool hasProperty(const PropertyName &name) const;
-
-    QList<InternalProperty::Pointer> propertyList() const;
-    QList<InternalNodeAbstractProperty::Pointer> nodeAbstractPropertyList() const;
     QList<InternalNode::Pointer> allSubNodes() const;
     QList<InternalNode::Pointer> allDirectSubNodes() const;
+    void addSubNodes(QList<InternalNodePointer> &nodes) const;
+    void addDirectSubNodes(QList<InternalNodePointer> &nodes) const;
+    static void addSubNodes(QList<InternalNodePointer> &nodes, const InternalProperty *property);
+    static void addDirectSubNodes(QList<InternalNodePointer> &nodes, const InternalProperty *property);
 
     friend bool operator<(const InternalNode::Pointer &firstNode,
                           const InternalNode::Pointer &secondNode)
@@ -185,8 +194,9 @@ public:
 
     friend size_t qHash(const InternalNodePointer &node) { return ::qHash(node.get()); }
 
-protected:
     void removeProperty(const PropertyName &name);
+
+protected:
 
 public:
     TypeName typeName;

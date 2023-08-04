@@ -18,10 +18,6 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalNodeAbstractProperty::Pointer InternalNode::parentProperty() const
-{
-    return m_parentProperty.lock();
-}
 void InternalNode::setParentProperty(const InternalNodeAbstractProperty::Pointer &parent)
 {
     InternalNodeAbstractProperty::Pointer parentProperty = m_parentProperty.lock();
@@ -116,8 +112,7 @@ AuxiliaryDatasForType InternalNode::auxiliaryData(AuxiliaryDataType type) const
 
 void InternalNode::removeProperty(const PropertyName &name)
 {
-    InternalProperty::Pointer property = m_namePropertyHash.take(name);
-    Q_ASSERT(property);
+    m_namePropertyHash.remove(name);
 }
 
 PropertyNameList InternalNode::propertyNameList() const
@@ -125,53 +120,73 @@ PropertyNameList InternalNode::propertyNameList() const
     return m_namePropertyHash.keys();
 }
 
-bool InternalNode::hasProperties() const
-{
-    return !m_namePropertyHash.isEmpty();
-}
-
-bool InternalNode::hasProperty(const PropertyName &name) const
-{
-    return m_namePropertyHash.contains(name);
-}
-
-QList<InternalProperty::Pointer> InternalNode::propertyList() const
-{
-    return m_namePropertyHash.values();
-}
-
-QList<InternalNodeAbstractProperty::Pointer> InternalNode::nodeAbstractPropertyList() const
-{
-    QList<InternalNodeAbstractProperty::Pointer> abstractPropertyList;
-    const QList<InternalProperty::Pointer> properties = propertyList();
-    for (const InternalProperty::Pointer &property : properties) {
-        if (property->isNodeAbstractProperty())
-            abstractPropertyList.append(property->toProperty<InternalNodeAbstractProperty>());
-    }
-
-    return abstractPropertyList;
-}
-
 QList<InternalNode::Pointer> InternalNode::allSubNodes() const
 {
-    QList<InternalNode::Pointer> nodeList;
-    const QList<InternalNodeAbstractProperty::Pointer> properties = nodeAbstractPropertyList();
-    for (const InternalNodeAbstractProperty::Pointer &property : properties) {
-        nodeList.append(property->allSubNodes());
-    }
+    QList<InternalNode::Pointer> nodes;
+    nodes.reserve(1024);
 
-    return nodeList;
+    addSubNodes(nodes);
+
+    return nodes;
+}
+
+void InternalNode::addSubNodes(QList<InternalNodePointer> &nodes, const InternalProperty *property)
+{
+    switch (property->type()) {
+    case PropertyType::NodeList:
+        property->to<PropertyType::NodeList>()->addSubNodes(nodes);
+        break;
+    case PropertyType::Node:
+        property->to<PropertyType::Node>()->addSubNodes(nodes);
+        break;
+    case PropertyType::Binding:
+    case PropertyType::None:
+    case PropertyType::SignalDeclaration:
+    case PropertyType::SignalHandler:
+    case PropertyType::Variant:
+        break;
+    }
+}
+
+void InternalNode::addSubNodes(QList<InternalNodePointer> &nodes) const
+{
+    for (const InternalProperty::Pointer &property : m_namePropertyHash)
+        addSubNodes(nodes, property.get());
+}
+
+void InternalNode::addDirectSubNodes(QList<InternalNodePointer> &nodes) const
+{
+    for (const InternalProperty::Pointer &property : m_namePropertyHash)
+        addDirectSubNodes(nodes, property.get());
+}
+
+void InternalNode::addDirectSubNodes(QList<InternalNodePointer> &nodes,
+                                     const InternalProperty *property)
+{
+    switch (property->type()) {
+    case PropertyType::NodeList:
+        nodes.append(property->to<PropertyType::NodeList>()->nodes());
+        break;
+    case PropertyType::Node:
+        nodes.append(property->to<PropertyType::Node>()->node());
+        break;
+    case PropertyType::Binding:
+    case PropertyType::None:
+    case PropertyType::SignalDeclaration:
+    case PropertyType::SignalHandler:
+    case PropertyType::Variant:
+        break;
+    }
 }
 
 QList<InternalNode::Pointer> InternalNode::allDirectSubNodes() const
 {
-    QList<InternalNode::Pointer> nodeList;
-    const QList<InternalNodeAbstractProperty::Pointer> properties = nodeAbstractPropertyList();
-    for (const InternalNodeAbstractProperty::Pointer &property : properties) {
-        nodeList.append(property->directSubNodes());
-    }
+    QList<InternalNode::Pointer> nodes;
+    nodes.reserve(96);
 
-    return nodeList;
+    addDirectSubNodes(nodes);
+
+    return nodes;
 }
 
 } // namespace Internal

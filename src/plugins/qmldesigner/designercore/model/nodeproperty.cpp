@@ -30,10 +30,13 @@ void NodeProperty::setModelNode(const ModelNode &modelNode)
         return;
     }
 
-    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeProperty())
-        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
+    if (auto property = internalNode()->property(name()); !property->isNodeProperty())
+        privateModel()->removePropertyAndRelatedResources(property);
 
-    privateModel()->reparentNode(internalNode(), name(), modelNode.internalNode(), false); //### we have to add a flag that this is not a list
+    privateModel()->reparentNode(internalNodeSharedPointer(),
+                                 name(),
+                                 modelNode.internalNode(),
+                                 false); //### we have to add a flag that this is not a list
 }
 
 ModelNode NodeProperty::modelNode() const
