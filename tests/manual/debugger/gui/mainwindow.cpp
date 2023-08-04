@@ -306,9 +306,8 @@ void MainWindow::on_actionExtTypes_triggered()
 
 void MainWindow::on_actionForeach_triggered()
 {
-    QStringList sl;
-    sl << "1" << "2" << "3";
-    foreach(const QString &s, sl)
+    QStringList sl {"1", "2", "3"};
+    for (const QString &s : std::as_const(sl))
         qDebug() << s;
     sl.clear();
     qDebug() << sl;
