@@ -884,7 +884,7 @@ void FossilLogHighlighter::highlightBlock(const QString &text)
 void FossilClient::log(const FilePath &workingDir, const QStringList &files,
                        const QStringList &extraOptions,
                        bool enableAnnotationContextMenu,
-                       const std::function<void(Utils::CommandLine &)> &addAuthOptions)
+                       const std::function<void(CommandLine &)> &addAuthOptions)
 {
     // Show timeline for both repository and a file or path (--path <file-or-path>)
     // When used for log repository, the files list is empty
@@ -940,7 +940,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
 void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList &files,
                                   const QStringList &extraOptions,
                                   bool enableAnnotationContextMenu,
-                                  const std::function<void(Utils::CommandLine &)> &addAuthOptions)
+                                  const std::function<void(CommandLine &)> &addAuthOptions)
 {
     // Show commit history for the given file/file-revision
     // NOTE: 'fossil finfo' shows full history from all branches.

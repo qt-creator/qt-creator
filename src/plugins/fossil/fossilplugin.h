@@ -3,9 +3,7 @@
 
 #pragma once
 
-#include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <coreplugin/icontext.h>
 
 namespace Fossil {
 namespace Internal {
