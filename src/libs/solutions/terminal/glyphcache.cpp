@@ -38,8 +38,8 @@ const QGlyphRun *GlyphCache::get(const QFont &font, const QString &text)
         const auto runs = line.glyphRuns();
         if (!runs.isEmpty()) {
             QGlyphRun *run = new QGlyphRun(layout.lineAt(0).glyphRuns().first());
-            insert(key, run);
-            return run;
+            if (insert(key, run))
+                return run;
         }
     }
     return nullptr;
