@@ -354,6 +354,8 @@ struct TerminalSurfacePrivate
             break;
         case VTERM_N_PROPS:
             break;
+        case VTERM_PROP_FOCUSREPORT:
+            break;
         }
         return 1;
     }

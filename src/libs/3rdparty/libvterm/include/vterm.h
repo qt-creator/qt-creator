@@ -13,6 +13,7 @@ extern "C" {
 
 #define VTERM_VERSION_MAJOR 0
 #define VTERM_VERSION_MINOR 3
+#define VTERM_VERSION_PATCH 3
 
 #define VTERM_CHECK_VERSION \
         vterm_check_version(VTERM_VERSION_MAJOR, VTERM_VERSION_MINOR)
@@ -258,6 +259,7 @@ typedef enum {
   VTERM_PROP_REVERSE,           // bool
   VTERM_PROP_CURSORSHAPE,       // number
   VTERM_PROP_MOUSE,             // number
+  VTERM_PROP_FOCUSREPORT,       // bool
 
   VTERM_N_PROPS
 } VTermProp;
