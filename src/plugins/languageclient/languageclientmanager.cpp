@@ -165,7 +165,7 @@ void LanguageClientManager::clientFinished(Client *client)
         if (!PluginManager::isShuttingDown()) {
             const QList<TextEditor::TextDocument *> &clientDocs
                 = managerInstance->m_clientForDocument.keys(client);
-            if (client->reset()) {
+            if (client->state() == Client::Initialized && client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->log(
                     Tr::tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
