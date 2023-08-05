@@ -3,23 +3,21 @@
 
 #include "valgrindmemcheckparsertest.h"
 
+#include "valgrindrunner.h"
+#include "xmlprotocol/error.h"
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/parser.h"
 #include "xmlprotocol/stack.h"
+#include "xmlprotocol/status.h"
 #include "xmlprotocol/suppression.h"
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <QFile>
 #include <QFileInfo>
 #include <QProcess>
-#include <QString>
-#include <QTest>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QSignalSpy>
+#include <QTest>
 
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
@@ -43,16 +41,9 @@ inline bool qCompare(const QString &t1, char const *t2,
 } // namespace QTest
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace Test {
+namespace Valgrind::Test {
 
-static void dumpFrame(const Frame &f)
-{
-    qDebug() << f.instructionPointer() << f.directory() << f.fileName() << f.functionName()
-             << f.line() << f.object();
-}
-
-void dumpError(const Error &e)
+static void dumpError(const Error &e)
 {
     qDebug() << e.kind() << e.leakedBlocks() << e.leakedBytes() << e.what() << e.tid() << e.unique();
     qDebug() << "stacks:" << e.stacks().size();
@@ -60,15 +51,61 @@ void dumpError(const Error &e)
         qDebug() << s.auxWhat() << s.directory() << s.file() << s.line() << s.helgrindThreadId();
         qDebug() << "frames:";
         for (const Frame &f : s.frames()) {
-            dumpFrame(f);
+            qDebug() << f.instructionPointer() << f.directory() << f.fileName() << f.functionName()
+                     << f.line() << f.object();
         }
     }
 }
 
+class Recorder : public QObject
+{
+public:
+    explicit Recorder(Parser *parser)
+    {
+        connect(parser, &Parser::error, this, [this](const Error &err) { errors.append(err); });
+        connect(parser, &Parser::errorCount, this, [this](qint64 unique, qint64 count) {
+            errorcounts.push_back({unique, count});
+        });
+        connect(parser, &Parser::suppressionCount, this, [this](const QString &name, qint64 count) {
+            suppcounts.push_back({name, count});
+        });
+    }
+
+    QList<Error> errors;
+    QList<QPair<qint64, qint64>> errorcounts;
+    QList<QPair<QString, qint64>> suppcounts;
+};
+
+class RunnerDumper : public QObject
+{
+public:
+    explicit RunnerDumper(ValgrindRunner *runner)
+    {
+        connect(runner, &ValgrindRunner::error, this, [](const Error &err) {
+            qDebug() << "error received";
+            dumpError(err);
+        });
+        connect(runner, &ValgrindRunner::internalError, this, [](const QString &err) {
+            qDebug() << "internal error received:" << err;
+        });
+        connect(runner, &ValgrindRunner::status, this, [](const Status &status) {
+            qDebug() << "status received:" << status.state() << status.time();
+        });
+        connect(runner, &ValgrindRunner::logMessageReceived, this, [](const QByteArray &log) {
+            qDebug() << "log message received:" << log;
+        });
+        connect(runner, &ValgrindRunner::processErrorReceived, this, [this](const QString &) {
+            m_errorReceived = true;
+        });
+    }
+
+    bool m_errorReceived = false;
+};
+
 static QString fakeValgrindExecutable()
 {
-    QString valgrindFakePath(VALGRIND_FAKE_PATH);
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    const QString valgrindFakePath(VALGRIND_FAKE_PATH);
+    if (HostOsInfo::isWindowsHost()) {
         QFileInfo fi(QString(valgrindFakePath + "/debug"), "valgrind-fake.exe");
         if (fi.exists())
             return fi.canonicalFilePath();
@@ -465,7 +502,7 @@ void ValgrindMemcheckParserTest::testParserStop()
 
 void ValgrindMemcheckParserTest::testRealValgrind()
 {
-    const Utils::Environment &sysEnv = Utils::Environment::systemEnvironment();
+    const Environment &sysEnv = Environment::systemEnvironment();
     auto fileName = sysEnv.searchInPath("valgrind");
     if (fileName.isEmpty())
         QSKIP("This test needs valgrind in PATH");
@@ -510,7 +547,7 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     ProjectExplorer::Runnable debuggeeExecutable;
     debuggeeExecutable.command.setExecutable(FilePath::fromString(debuggee));
     debuggeeExecutable.command.setArguments(debuggeeArgs);
-    debuggeeExecutable.environment = Utils::Environment::systemEnvironment();
+    debuggeeExecutable.environment = Environment::systemEnvironment();
 
     ValgrindRunner runner;
     runner.setValgrindCommand({FilePath::fromString(valgrindExe), valgrindArgs});
@@ -522,5 +559,4 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     // just finish without deadlock and we are fine
 }
 
-} // namespace Test
-} // namespace Valgrind
+} // namespace Valgrind::Test
