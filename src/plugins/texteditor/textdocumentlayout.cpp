@@ -11,7 +11,9 @@
 #include <utils/temporarydirectory.h>
 
 #include <QDebug>
+#ifdef WITH_TESTS
 #include <QTest>
+#endif
 
 namespace TextEditor {
 
