@@ -245,11 +245,11 @@ static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &pr
 {
     return [projectFiles](const Error &error) {
         const Frame defaultFrame = Frame();
-        const QVector<Stack> stacks = error.stacks();
+        const QList<Stack> stacks = error.stacks();
         if (stacks.isEmpty())
             return defaultFrame;
         const Stack &stack = stacks[0];
-        const QVector<Frame> frames = stack.frames();
+        const QList<Frame> frames = stack.frames();
         if (frames.isEmpty())
             return defaultFrame;
 
@@ -348,7 +348,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
             }
         }
 
-        const QVector<Frame> frames = error.stacks().constFirst().frames();
+        const QList<Frame> frames = error.stacks().constFirst().frames();
 
         const int framesToLookAt = qMin(6, frames.size());
 

@@ -25,7 +25,7 @@ class CycleDetection
 {
 public:
     explicit CycleDetection(ParseData *data);
-    QVector<const Function *> run(const QVector<const Function *> &input);
+    QList<const Function *> run(const QList<const Function *> &input);
 
 private:
     ParseData *m_data;
@@ -41,7 +41,7 @@ private:
 
     QHash<const Function *, Node *> m_nodes;
     QStack<Node *> m_stack;
-    QVector<const Function *> m_ret;
+    QList<const Function *> m_ret;
     int m_depth = 0;
 
     int m_cycle = 0;

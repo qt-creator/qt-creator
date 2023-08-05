@@ -13,9 +13,9 @@
 
 #include <QChar>
 #include <QDebug>
+#include <QList>
 #include <QStringList>
 #include <QTextDocument>
-#include <QVector>
 
 namespace Valgrind {
 namespace Callgrind {
@@ -30,7 +30,7 @@ public:
     bool m_verboseToolTips = true;
     bool m_cycleDetection = false;
     bool m_shortenTemplates = false;
-    QVector<const Function *> m_functions;
+    QList<const Function *> m_functions;
 };
 
 void DataModel::Private::updateFunctions()

@@ -4,9 +4,9 @@
 #include "stack.h"
 #include "frame.h"
 
+#include <QList>
 #include <QSharedData>
 #include <QString>
-#include <QVector>
 
 namespace Valgrind {
 namespace XmlProtocol {
@@ -19,7 +19,7 @@ public:
     QString dir;
     qint64 line = -1;
     qint64 hthreadid = -1;
-    QVector<Frame> frames;
+    QList<Frame> frames;
 };
 
 Stack::Stack()
@@ -62,12 +62,12 @@ void Stack::setAuxWhat(const QString &auxwhat)
     d->auxwhat = auxwhat;
 }
 
-QVector<Frame> Stack::frames() const
+QList<Frame> Stack::frames() const
 {
     return d->frames;
 }
 
-void Stack::setFrames(const QVector<Frame> &frames)
+void Stack::setFrames(const QList<Frame> &frames)
 {
     d->frames = frames;
 }

@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QSharedDataPointer>
-#include <QVector>
 
 namespace Valgrind {
 namespace XmlProtocol {
@@ -24,8 +24,8 @@ public:
     QString auxWhat() const;
     void setAuxWhat(const QString &auxwhat);
 
-    QVector<Frame> frames() const;
-    void setFrames(const QVector<Frame> &frames);
+    QList<Frame> frames() const;
+    void setFrames(const QList<Frame> &frames);
 
     //memcheck, ptrcheck, helgrind:
     QString file() const;

@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QSharedDataPointer>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QString;
@@ -40,7 +40,7 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-using SuppressionFrames = QVector<SuppressionFrame>;
+using SuppressionFrames = QList<SuppressionFrame>;
 
 class Suppression
 {

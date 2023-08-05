@@ -4,7 +4,7 @@
 #pragma once
 
 #include <QSharedDataPointer>
-#include <QVector>
+#include <QList>
 
 namespace Valgrind {
 namespace XmlProtocol {
@@ -23,8 +23,8 @@ public:
     qint64 helgrindThreadId() const;
     void setHelgrindThreadId(qint64 id);
 
-    QVector<Frame> stack() const;
-    void setStack(const QVector<Frame> &stack);
+    QList<Frame> stack() const;
+    void setStack(const QList<Frame> &stack);
 
 private:
     class Private;

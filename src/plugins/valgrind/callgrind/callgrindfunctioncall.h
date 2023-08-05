@@ -4,7 +4,7 @@
 #pragma once
 
 #include <QMetaType>
-#include <QVector>
+#include <QList>
 
 namespace Valgrind {
 namespace Callgrind {
@@ -37,16 +37,16 @@ public:
      * @see ParseData::positions()
      */
     quint64 destination(int posIdx) const;
-    QVector<quint64> destinations() const;
-    void setDestinations(const QVector<quint64> &destinations);
+    QList<quint64> destinations() const;
+    void setDestinations(const QList<quint64> &destinations);
 
     /**
      * Inclusive cost of the function call.
      * @see ParseData::events()
      */
     quint64 cost(int event) const;
-    QVector<quint64> costs() const;
-    void setCosts(const QVector<quint64> &costs);
+    QList<quint64> costs() const;
+    void setCosts(const QList<quint64> &costs);
 
 private:
     Q_DISABLE_COPY(FunctionCall)

@@ -11,7 +11,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDir>
-#include <QVector>
+#include <QList>
 
 namespace Valgrind {
 namespace XmlProtocol {
@@ -76,7 +76,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
         }
     } else {
         const Stack stack = d->stack(index.parent().row());
-        const QVector<Frame> frames = stack.frames();
+        const QList<Frame> frames = stack.frames();
         const int fidx = index.row();
         if (fidx < 0 || fidx >= frames.size())
             return QVariant();

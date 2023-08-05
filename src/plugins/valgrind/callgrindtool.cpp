@@ -187,7 +187,7 @@ public:
 
     QTimer m_updateTimer;
 
-    QVector<CallgrindTextMark *> m_textMarks;
+    QList<CallgrindTextMark *> m_textMarks;
 
     QAction *m_startAction = nullptr;
     QAction *m_stopAction = nullptr;

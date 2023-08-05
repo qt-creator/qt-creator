@@ -18,11 +18,11 @@
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>
 #include <QGraphicsSimpleTextItem>
+#include <QList>
 #include <QMouseEvent>
 #include <QPair>
 #include <QStaticText>
 #include <QStyleOptionGraphicsItem>
-#include <QVector>
 
 #define VISUALISATION_DEBUG 0
 // Margin from hardcoded value in:
@@ -345,7 +345,7 @@ void Visualization::populateScene()
     qreal total = 0;
 
     using Pair = QPair<QModelIndex, qreal>;
-    QVector<Pair> costs;
+    QList<Pair> costs;
     for (int row = 0; row < d->m_model->rowCount(); ++row) {
         const QModelIndex index = d->m_model->index(row, DataModel::InclusiveCostColumn);
 

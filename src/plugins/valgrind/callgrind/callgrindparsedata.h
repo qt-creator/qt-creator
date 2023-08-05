@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QVector>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QString;
@@ -53,7 +53,7 @@ public:
      *
      * @return All functions that where reported in the data file.
      */
-    QVector<const Function *> functions(bool detectCycles = false) const;
+    QList<const Function *> functions(bool detectCycles = false) const;
     /// NOTE: The @c ParseData will take ownership.
     void addFunction(const Function *function);
 

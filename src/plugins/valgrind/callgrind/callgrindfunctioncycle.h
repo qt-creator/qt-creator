@@ -24,9 +24,9 @@ public:
 
     /// sets the list of functions that make up this cycle
     /// NOTE: ownership is *not* transferred to the cycle
-    void setFunctions(const QVector<const Function *> &functions);
+    void setFunctions(const QList<const Function *> &functions);
     /// @return the functions that make up this cycle
-    QVector<const Function *> functions() const;
+    QList<const Function *> functions() const;
 
 private:
     class Private;

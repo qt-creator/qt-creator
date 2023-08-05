@@ -13,7 +13,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
-#include <QVector>
+#include <QList>
 
 #include <cmath>
 
@@ -72,11 +72,11 @@ Frame ErrorListModel::findRelevantFrame(const Error &error) const
 {
     if (m_relevantFrameFinder)
         return m_relevantFrameFinder(error);
-    const QVector<Stack> stacks = error.stacks();
+    const QList<Stack> stacks = error.stacks();
     if (stacks.isEmpty())
         return Frame();
     const Stack &stack = stacks[0];
-    const QVector<Frame> frames = stack.frames();
+    const QList<Frame> frames = stack.frames();
     if (!frames.isEmpty())
         return frames.first();
     return Frame();
@@ -142,11 +142,11 @@ ErrorItem::ErrorItem(const ErrorListModel *model, const Error &error)
     // just annoy the user.
     // The same goes for the frame level.
     if (m_error.stacks().count() > 1) {
-        const QVector<Stack> stacks = m_error.stacks();
+        const QList<Stack> stacks = m_error.stacks();
         for (const Stack &s : stacks)
             appendChild(new StackItem(s));
     } else if (m_error.stacks().constFirst().frames().count() > 1) {
-        const QVector<Frame> frames = m_error.stacks().constFirst().frames();
+        const QList<Frame> frames = m_error.stacks().constFirst().frames();
         for (const Frame &f : frames)
             appendChild(new FrameItem(f));
     }
@@ -176,12 +176,12 @@ QVariant ErrorItem::data(int column, int role) const
                << m_model->errorLocation(m_error)
                << "\n";
 
-        const QVector<Stack> stacks = m_error.stacks();
+        const QList<Stack> stacks = m_error.stacks();
         for (const Stack &stack : stacks) {
             if (!stack.auxWhat().isEmpty())
                 stream << stack.auxWhat();
             int i = 1;
-            const QVector<Frame> frames = stack.frames();
+            const QList<Frame> frames = stack.frames();
             for (const Frame &frame : frames)
                 stream << "  " << i++ << ": " << makeFrameName(frame, true) << "\n";
         }
@@ -210,7 +210,7 @@ QVariant ErrorItem::data(int column, int role) const
 
 StackItem::StackItem(const Stack &stack) : m_stack(stack)
 {
-    const QVector<Frame> frames = m_stack.frames();
+    const QList<Frame> frames = m_stack.frames();
     for (const Frame &f : frames)
         appendChild(new FrameItem(f));
 }

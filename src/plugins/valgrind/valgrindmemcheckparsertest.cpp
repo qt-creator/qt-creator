@@ -212,7 +212,7 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
         frame12.setDirectory("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread");
         frame12.setFileName("qmutex.h");
         frame12.setLine(120);
-        stack1.setFrames(QVector<Frame>() << frame11 << frame12);
+        stack1.setFrames(QList<Frame>() << frame11 << frame12);
 
         Stack stack2;
         stack2.setAuxWhat("Required order was established by acquisition of lock at 0xA39C270");
@@ -230,7 +230,7 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
         frame22.setDirectory("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread");
         frame22.setFileName("qmutex.h");
         frame22.setLine(121);
-        stack2.setFrames(QVector<Frame>() << frame21 << frame22);
+        stack2.setFrames(QList<Frame>() << frame21 << frame22);
 
         Stack stack3;
         stack3.setAuxWhat("followed by a later acquisition of lock at 0xA3AC010");
@@ -249,8 +249,8 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
         frame32.setFileName("qmutex.h");
         frame32.setLine(122);
 
-        stack3.setFrames(QVector<Frame>() << frame31 << frame32);
-        error1.setStacks(QVector<Stack>() << stack1 << stack2 << stack3);
+        stack3.setFrames(QList<Frame>() << frame31 << frame32);
+        error1.setStacks(QList<Stack>() << stack1 << stack2 << stack3);
         expectedErrors.append(error1);
     }
 
@@ -316,14 +316,14 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
         f4.setLine(4396);
         Stack s1;
         s1.setAuxWhat("Address 0x11527cb8 is not stack'd, malloc'd or (recently) free'd");
-        s1.setFrames(QVector<Frame>() << f1 << f2 << f3 << f4);
-        error.setStacks( QVector<Stack>() << s1 );
+        s1.setFrames(QList<Frame>() << f1 << f2 << f3 << f4);
+        error.setStacks(QList<Stack>() << s1);
 
         expectedErrors << error;
     }
 
-    const QVector<QPair<qint64,qint64>> expectedErrorCounts{{9, 2}};
-    const QVector<QPair<QString,qint64>> expectedSuppCounts{
+    const QList<QPair<qint64, qint64>> expectedErrorCounts{{9, 2}};
+    const QList<QPair<QString, qint64>> expectedSuppCounts{
         {QString("X on SUSE11 writev uninit padding"), 12},
         {QString("dl-hack3-cond-1"), 2},
         {QString("glibc-2.5.x-on-SUSE-10.2-(PPC)-2a"), 2}};
@@ -375,7 +375,7 @@ void ValgrindMemcheckParserTest::testMemcheckSample2()
     //the first auxwhat should be assigned to the _second_ stack.
     const QList<Error> errors = rec.errors;
     QCOMPARE(errors.size(), 1);
-    const QVector<Stack> stacks = errors.first().stacks();
+    const QList<Stack> stacks = errors.first().stacks();
     QCOMPARE(stacks.size(), 2);
     QCOMPARE(stacks.first().auxWhat(), QString());
     QCOMPARE(stacks.last().auxWhat(), "Address 0x11b66c50 is 0 bytes inside a block of size 16 free'd");
@@ -404,7 +404,7 @@ void ValgrindMemcheckParserTest::testMemcheckSample3()
 
     {
         const Error error = errors.at(0);
-        const QVector<Stack> stacks = error.stacks();
+        const QList<Stack> stacks = error.stacks();
 
         QCOMPARE(error.unique(), 0x1ll);
         QCOMPARE(error.what(), "Conditional jump or move depends on uninitialised value(s)");

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QVector>
+#include <QList>
 
 namespace Valgrind::Callgrind {
 
@@ -27,7 +27,7 @@ public:
      */
     quint64 position(int posIdx) const;
     void setPosition(int posIdx, quint64 position);
-    QVector<quint64> positions() const;
+    QList<quint64> positions() const;
 
     /**
      * Cost data for the given event-index @p event
@@ -35,7 +35,7 @@ public:
      */
     quint64 cost(int event) const;
     void setCost(int event, quint64 cost);
-    QVector<quint64> costs() const;
+    QList<quint64> costs() const;
 
     /**
      * If this cost item represents a function call, this will return the @c Callee.

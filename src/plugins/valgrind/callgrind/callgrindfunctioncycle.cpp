@@ -19,7 +19,7 @@ class FunctionCycle::Private : public Function::Private
 {
 public:
     Private(const ParseData *data);
-    QVector<const Function *> m_functions;
+    QList<const Function *> m_functions;
 };
 
 FunctionCycle::Private::Private(const ParseData *data)
@@ -39,7 +39,7 @@ FunctionCycle::FunctionCycle(const ParseData *data)
 // d should be deleted by Function::~Function()
 FunctionCycle::~FunctionCycle() = default;
 
-void FunctionCycle::setFunctions(const QVector<const Function *> &functions)
+void FunctionCycle::setFunctions(const QList<const Function *> &functions)
 {
     Private *d = CYCLE_D;
 
@@ -55,13 +55,13 @@ void FunctionCycle::setFunctions(const QVector<const Function *> &functions)
         // just add up self cost
         Private::accumulateCost(d->m_selfCost, func->selfCosts());
         // add outgoing calls to functions that are not part of the cycle
-        const QVector<const FunctionCall *> calls = func->outgoingCalls();
+        const QList<const FunctionCall *> calls = func->outgoingCalls();
         for (const FunctionCall *call : calls) {
             if (!functions.contains(call->callee()))
                 d->accumulateCall(call, Function::Private::Outgoing);
         }
         // add incoming calls from functions that are not part of the cycle
-        const QVector<const FunctionCall *> inCalls = func->incomingCalls();
+        const QList<const FunctionCall *> inCalls = func->incomingCalls();
         for (const FunctionCall *call : inCalls) {
             if (!functions.contains(call->caller())) {
                 d->accumulateCall(call, Function::Private::Incoming);
@@ -80,7 +80,7 @@ void FunctionCycle::setFunctions(const QVector<const Function *> &functions)
     }
 }
 
-QVector<const Function *> FunctionCycle::functions() const
+QList<const Function *> FunctionCycle::functions() const
 {
     return CYCLE_D->m_functions;
 }

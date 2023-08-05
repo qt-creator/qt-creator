@@ -76,7 +76,7 @@ public:
 
 private:
     void parseError();
-    QVector<Frame> parseStack();
+    QList<Frame> parseStack();
     Suppression parseSuppression();
     SuppressionFrame parseSuppressionFrame();
     Frame parseFrame();
@@ -318,7 +318,7 @@ void Parser::Private::reportInternalError(const QString &e)
     emit q->internalError(e);
 }
 
-static Stack makeStack(const XauxWhat &xauxwhat, const QVector<Frame> &frames)
+static Stack makeStack(const XauxWhat &xauxwhat, const QList<Frame> &frames)
 {
     Stack s;
     s.setFrames(frames);
@@ -333,9 +333,9 @@ static Stack makeStack(const XauxWhat &xauxwhat, const QVector<Frame> &frames)
 void Parser::Private::parseError()
 {
     Error e;
-    QVector<QVector<Frame> > frames;
+    QList<QList<Frame>> frames;
     XauxWhat currentAux;
-    QVector<XauxWhat> auxs;
+    QList<XauxWhat> auxs;
 
     int lastAuxWhat = -1;
     while (notAtEnd()) {
@@ -396,9 +396,9 @@ void Parser::Private::parseError()
 
     //add empty stacks until sizes match
     while (frames.size() < auxs.size())
-        frames.push_back(QVector<Frame>());
+        frames.push_back({});
 
-    QVector<Stack> stacks;
+    QList<Stack> stacks;
     for (int i = 0; i < auxs.size(); ++i)
         stacks.append(makeStack(auxs[i], frames[i]));
     e.setStacks(stacks);
@@ -543,9 +543,9 @@ void Parser::Private::parseStatus()
     emit q->status(s);
 }
 
-QVector<Frame> Parser::Private::parseStack()
+QList<Frame> Parser::Private::parseStack()
 {
-    QVector<Frame> frames;
+    QList<Frame> frames;
     while (notAtEnd()) {
         blockingReadNext();
         if (reader.isEndElement())

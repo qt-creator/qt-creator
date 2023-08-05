@@ -6,10 +6,10 @@
 #include "stack.h"
 #include "suppression.h"
 
+#include <QList>
 #include <QSharedData>
 #include <QString>
 #include <QTextStream>
-#include <QVector>
 
 #include <algorithm>
 
@@ -23,7 +23,7 @@ public:
     qint64 tid = 0;
     QString what;
     int kind = 0;
-    QVector<Stack> stacks;
+    QList<Stack> stacks;
     Suppression suppression;
     quint64 leakedBytes = 0;
     qint64 leakedBlocks = 0;
@@ -144,12 +144,12 @@ void Error::setKind(int k)
     d->kind = k;
 }
 
-QVector<Stack> Error::stacks() const
+QList<Stack> Error::stacks() const
 {
     return d->stacks;
 }
 
-void Error::setStacks(const QVector<Stack> &stacks)
+void Error::setStacks(const QList<Stack> &stacks)
 {
     d->stacks = stacks;
 }
@@ -187,7 +187,7 @@ QString Error::toXml() const
             stream << "  <auxwhat>" << stack.auxWhat() << "</auxwhat>\n";
         stream << "  <stack>\n";
 
-        const QVector<Frame> frames = stack.frames();
+        const QList<Frame> frames = stack.frames();
         for (const Frame &frame : frames) {
             stream << "    <frame>\n";
             stream << "      <ip>0x" << QString::number(frame.instructionPointer(), 16) << "</ip>\n";
