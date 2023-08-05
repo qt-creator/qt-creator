@@ -16,7 +16,10 @@ namespace ProjectExplorer { class Runnable; }
 
 namespace Valgrind {
 
-namespace XmlProtocol { class ThreadedParser; }
+namespace XmlProtocol {
+class Error;
+class Status;
+}
 
 class ValgrindRunner : public QObject
 {
@@ -39,8 +42,6 @@ public:
     bool start();
     void stop();
 
-    XmlProtocol::ThreadedParser *parser() const;
-
 signals:
     void appendMessage(const QString &, Utils::OutputFormat);
 
@@ -49,6 +50,11 @@ signals:
     void valgrindExecuted(const QString &);
     void valgrindStarted(qint64 pid);
     void finished();
+
+    // Parser's signals
+    void status(const Valgrind::XmlProtocol::Status &status);
+    void error(const Valgrind::XmlProtocol::Error &error);
+    void internalError(const QString &errorString);
 
 private:
     class Private;

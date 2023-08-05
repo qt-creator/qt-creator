@@ -175,7 +175,7 @@ void MemcheckToolRunner::start()
 
 void MemcheckToolRunner::stop()
 {
-    disconnect(m_runner.parser(), &ThreadedParser::internalError,
+    disconnect(&m_runner, &ValgrindRunner::internalError,
                this, &MemcheckToolRunner::internalParserError);
     ValgrindToolRunner::stop();
 }
@@ -1154,8 +1154,7 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
       m_localServerAddress(QHostAddress::LocalHost)
 {
     setId("MemcheckToolRunner");
-    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::error,
-            this, &MemcheckToolRunner::parserError);
+    connect(&m_runner, &ValgrindRunner::error, this, &MemcheckToolRunner::parserError);
 
     if (m_withGdb) {
         connect(&m_runner, &ValgrindRunner::valgrindStarted,
@@ -1164,7 +1163,7 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
                 this, &MemcheckToolRunner::appendLog);
 //        m_runner.disableXml();
     } else {
-        connect(m_runner.parser(), &XmlProtocol::ThreadedParser::internalError,
+        connect(&m_runner, &ValgrindRunner::internalError,
                 this, &MemcheckToolRunner::internalParserError);
     }
 

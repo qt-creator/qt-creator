@@ -5,7 +5,6 @@
 
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/stack.h"
-#include "xmlprotocol/threadedparser.h"
 #include "valgrindrunner.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -117,10 +116,8 @@ void ValgrindTestRunnerTest::init()
             this, &ValgrindTestRunnerTest::logMessageReceived);
     connect(m_runner, &ValgrindRunner::processErrorReceived,
             this, &ValgrindTestRunnerTest::internalError);
-    connect(m_runner->parser(), &ThreadedParser::internalError,
-            this, &ValgrindTestRunnerTest::internalError);
-    connect(m_runner->parser(), &ThreadedParser::error,
-            this, &ValgrindTestRunnerTest::error);
+    connect(m_runner, &ValgrindRunner::internalError, this, &ValgrindTestRunnerTest::internalError);
+    connect(m_runner, &ValgrindRunner::error, this, &ValgrindTestRunnerTest::error);
 }
 
 //BEGIN: Actual test cases

@@ -34,11 +34,9 @@ int main(int argc, char *argv[])
     runner.setValgrindCommand({VALGRIND_FAKE_PATH,
                               {"-i", PARSERTESTS_DATA_DIR "/memcheck-output-sample1.xml"}});
     ModelDemo demo(&runner);
-    QObject::connect(&runner, &ValgrindRunner::finished,
-                     &demo, &ModelDemo::finished);
+    QObject::connect(&runner, &ValgrindRunner::finished, &demo, &ModelDemo::finished);
     ErrorListModel model;
-    QObject::connect(runner.parser(), &ThreadedParser::error,
-                     &model, &ErrorListModel::addError,
+    QObject::connect(&runner, &ValgrindRunner::error, &model, &ErrorListModel::addError,
                      Qt::QueuedConnection);
 
     QTreeView errorview;

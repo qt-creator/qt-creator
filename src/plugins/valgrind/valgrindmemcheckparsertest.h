@@ -11,7 +11,6 @@
 
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/status.h"
-#include "xmlprotocol/threadedparser.h"
 #include "xmlprotocol/parser.h"
 #include "valgrindrunner.h"
 
@@ -66,12 +65,9 @@ class RunnerDumper : public QObject
 public:
     explicit RunnerDumper(ValgrindRunner *runner)
     {
-        connect(runner->parser(), &XmlProtocol::ThreadedParser::error,
-                this, &RunnerDumper::error);
-        connect(runner->parser(), &XmlProtocol::ThreadedParser::internalError,
-                this, &RunnerDumper::internalError);
-        connect(runner->parser(), &XmlProtocol::ThreadedParser::status,
-                this, &RunnerDumper::status);
+        connect(runner, &ValgrindRunner::error, this, &RunnerDumper::error);
+        connect(runner, &ValgrindRunner::internalError, this, &RunnerDumper::internalError);
+        connect(runner, &ValgrindRunner::status, this, &RunnerDumper::status);
         connect(runner, &ValgrindRunner::logMessageReceived,
                 this, &RunnerDumper::logMessageReceived);
         connect(runner, &ValgrindRunner::processErrorReceived,
