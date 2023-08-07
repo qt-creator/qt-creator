@@ -83,12 +83,6 @@ void ThreadedParser::parse(QIODevice *device)
     connect(parser, &Parser::internalError,
             this, &ThreadedParser::slotInternalError,
             Qt::QueuedConnection);
-    connect(parser, &Parser::errorCount,
-            this, &ThreadedParser::errorCount,
-            Qt::QueuedConnection);
-    connect(parser, &Parser::suppressionCount,
-            this, &ThreadedParser::suppressionCount,
-            Qt::QueuedConnection);
     connect(parser, &Parser::finished,
             this, &ThreadedParser::finished,
             Qt::QueuedConnection);
