@@ -4,7 +4,7 @@
 /*!
     \page studio-creating-uis-for-mcus.html
     \previouspage studio-projects-for-mcus.html
-    \nextpage studio-help.html
+    \nextpage studio-developing-apps-for-mcus.html
 
     \title Creating UIs for MCUs
 
@@ -20,9 +20,9 @@
     your MCU application, to visualize its structure. To modify the look and feel
     of your UI further, utilize the preset UI components available in \QDS.
 
-    \section1 Using \QDS to create application UIs for MCU devices
+    \section1 Using MCU Components
 
-    With \l{\QDS}, you can use subsets of components to create UIs for
+    With \QDS, you can use subsets of components to create UIs for
     devices that are powered by microcontroller units (MCU). The subset of
     supported components depends on the \QMCU version that you use for
     development.

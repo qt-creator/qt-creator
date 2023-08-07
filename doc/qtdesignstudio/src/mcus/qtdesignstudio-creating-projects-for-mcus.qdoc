@@ -8,14 +8,14 @@
 
     \title Creating Projects for MCUs
 
-    Use the \QMCU preset in the \QDS wizard to set up a new \QMCU project. When
-    you create a project with the wizard, all the necessary files are created,
-    you can adjust the project settings, and save custom presets.
+    Use the \uicontrol {\QMCU} preset in the \QDS wizard to set up a new \QMCU
+    project. When you create a project with the wizard, all the necessary files
+    are created, you can adjust the project settings, and save custom presets.
 
     \image studio-preset-for-mcus.png
 
-    Using the \QMCU preset creates an application that uses a subset of the
-    default components that you can deploy, run, and debug on MCU boards.
+    Using the \uicontrol {\QMCU} preset creates an application that uses a subset
+    of the default components that you can deploy, run, and debug on MCU boards.
 
     \note For more information on the default components available for MCU
     projects, see \l {Qt Design Studio Features on MCU Projects}.
