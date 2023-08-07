@@ -200,8 +200,8 @@ void QmlBuildSystem::refresh(RefreshOptions options)
             = modelManager->defaultProjectInfoForProject(project(),
                                                          project()->files(Project::HiddenRccFolders));
 
-    for (const QString &searchPath : customImportPaths()) {
-        projectInfo.importPaths.maybeInsert(projectDirectory().pathAppended(searchPath),
+    for (const QString &importPath : absoluteImportPaths()) {
+        projectInfo.importPaths.maybeInsert(Utils::FilePath::fromString(importPath),
                                             QmlJS::Dialect::Qml);
     }
 
@@ -647,6 +647,16 @@ QStringList QmlBuildSystem::shaderToolFiles() const
 QStringList QmlBuildSystem::importPaths() const
 {
     return m_projectItem->importPaths();
+}
+
+QStringList QmlBuildSystem::absoluteImportPaths()
+{
+    return Utils::transform<QStringList>(m_projectItem->importPaths(), [&](const QString &importPath) {
+        Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
+        if (!filePath.isAbsolutePath())
+            return (projectDirectory() / importPath).toString();
+        return projectDirectory().resolvePath(importPath).toString();
+    });
 }
 
 Utils::FilePaths QmlBuildSystem::files() const

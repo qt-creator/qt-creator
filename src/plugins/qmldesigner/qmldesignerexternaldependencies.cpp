@@ -236,9 +236,7 @@ QStringList ExternalDependencies::modulePaths() const
         if (auto path = qmlPath(target); !path.isEmpty())
             modulePaths.push_back(path);
 
-        for (const QString &modulePath : qmlBuildSystem->customImportPaths())
-            modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
-
+        modulePaths.append(qmlBuildSystem->absoluteImportPaths());
         return modulePaths;
     }
 
@@ -250,10 +248,7 @@ QStringList ExternalDependencies::projectModulePaths() const
     auto [project, target, qmlBuildSystem] = activeProjectEntries();
 
     if (project && target && qmlBuildSystem) {
-        QStringList modulePaths;
-
-        for (const QString &modulePath : qmlBuildSystem->customImportPaths())
-            modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
+        return qmlBuildSystem->absoluteImportPaths();
     }
 
     return {};

@@ -68,18 +68,24 @@ public:
     Utils::FilePath targetFile(const Utils::FilePath &sourceFile) const;
 
     Utils::EnvironmentItems environment() const;
+
+    QStringList importPaths() const;
+    QStringList absoluteImportPaths();
     QStringList customImportPaths() const;
     QStringList customFileSelectors() const;
+
     bool multilanguageSupport() const;
     QStringList supportedLanguages() const;
     void setSupportedLanguages(QStringList languages);
+
     QString primaryLanguage() const;
     void setPrimaryLanguage(QString language);
+
     bool forceFreeType() const;
     bool widgetApp() const;
+
     QStringList shaderToolArgs() const;
     QStringList shaderToolFiles() const;
-    QStringList importPaths() const;
     Utils::FilePaths files() const;
 
     QString versionQt() const;
