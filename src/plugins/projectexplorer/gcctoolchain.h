@@ -45,8 +45,6 @@ inline const QStringList gccPredefinedMacrosOptions(Utils::Id languageId)
 
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
-    Q_OBJECT
-
 public:
     GccToolChain(Utils::Id typeId);
 
@@ -95,6 +93,7 @@ public:
         Abis supportedAbis;
         QString originalTargetTriple;
     };
+    GccToolChain *asGccToolChain() final { return this; }
 
 protected:
     using CacheItem = QPair<QStringList, Macros>;

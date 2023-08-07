@@ -44,6 +44,7 @@ QString languageId(Language l);
 } // namespace Toolchain
 } // namespace Deprecated
 
+class GccToolChain;
 class ToolChainConfigWidget;
 class ToolChainFactory;
 class Kit;
@@ -165,6 +166,7 @@ public:
     };
 
     virtual int priority() const { return PriorityNormal; }
+    virtual GccToolChain *asGccToolChain() { return nullptr; }
 
 protected:
     explicit ToolChain(Utils::Id typeId);
