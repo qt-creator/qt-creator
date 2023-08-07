@@ -66,6 +66,17 @@ enum class Tool {
     Helgrind
 };
 
+const QHash<QString, Tool> &toolByName()
+{
+    static const QHash<QString, Tool> theHash {
+        {"memcheck", Tool::Memcheck},
+        {"ptrcheck", Tool::Ptrcheck},
+        {"exp-ptrcheck", Tool::Ptrcheck},
+        {"helgrind", Tool::Helgrind}
+    };
+    return theHash;
+}
+
 class Parser::Private
 {
 public:
@@ -97,7 +108,6 @@ private:
 
     Tool tool = Tool::Unknown;
     QXmlStreamReader reader;
-    QHash<QString, Tool> toolsByName;
 
 private:
     Parser *const q;
@@ -106,10 +116,6 @@ private:
 Parser::Private::Private(Parser *qq)
     : q(qq)
 {
-    toolsByName.insert("memcheck", Tool::Memcheck);
-    toolsByName.insert("ptrcheck", Tool::Ptrcheck);
-    toolsByName.insert("exp-ptrcheck", Tool::Ptrcheck);
-    toolsByName.insert("helgrind", Tool::Helgrind);
 }
 
 static quint64 parseHex(const QString &str, const QString &context)
@@ -223,8 +229,8 @@ void Parser::Private::checkProtocolVersion(const QString &versionStr)
 
 void Parser::Private::checkTool(const QString &reportedStr)
 {
-    const auto reported = toolsByName.constFind(reportedStr);
-    if (reported == toolsByName.constEnd())
+    const auto reported = toolByName().constFind(reportedStr);
+    if (reported == toolByName().constEnd())
         throw ParserException(Tr::tr("Valgrind tool \"%1\" not supported").arg(reportedStr));
 
     tool = reported.value();
