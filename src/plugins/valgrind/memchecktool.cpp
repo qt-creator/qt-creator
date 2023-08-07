@@ -107,7 +107,6 @@ public:
 signals:
     void internalParserError(const QString &errorString);
     void parserError(const Valgrind::XmlProtocol::Error &error);
-    void suppressionCount(const QString &name, qint64 count);
 
 private:
     QString progressTitle() const override;
@@ -1157,8 +1156,6 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
     setId("MemcheckToolRunner");
     connect(m_runner.parser(), &XmlProtocol::ThreadedParser::error,
             this, &MemcheckToolRunner::parserError);
-    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::suppressionCount,
-            this, &MemcheckToolRunner::suppressionCount);
 
     if (m_withGdb) {
         connect(&m_runner, &ValgrindRunner::valgrindStarted,
