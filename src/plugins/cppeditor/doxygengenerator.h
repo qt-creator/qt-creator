@@ -26,17 +26,15 @@ public:
     };
 
     void setStyle(DocumentationStyle style);
-    void setStartComment(bool start);
     void setGenerateBrief(bool gen);
     void setAddLeadingAsterisks(bool add);
 
     QString generate(QTextCursor cursor,
                      const CPlusPlus::Snapshot &snapshot,
                      const Utils::FilePath &documentFilePath);
-    QString generate(QTextCursor cursor, CPlusPlus::DeclarationAST *decl);
 
 private:
-    QChar startMark() const;
+    QString generate(QTextCursor cursor, CPlusPlus::DeclarationAST *decl);
     QChar styleMark() const;
 
     enum Command {
@@ -46,7 +44,6 @@ private:
     };
     static QString commandSpelling(Command command);
 
-    void writeStart(QString *comment) const;
     void writeEnd(QString *comment) const;
     void writeContinuation(QString *comment) const;
     void writeNewLine(QString *comment) const;
@@ -63,7 +60,6 @@ private:
 
     bool m_addLeadingAsterisks = true;
     bool m_generateBrief = true;
-    bool m_startComment = true;
     DocumentationStyle m_style = QtStyle;
     CPlusPlus::Overview m_printer;
     QString m_commentOffset;

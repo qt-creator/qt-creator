@@ -342,7 +342,6 @@ static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
             doxygen.setStyle(style);
             doxygen.setAddLeadingAsterisks(settings.leadingAsterisks);
             doxygen.setGenerateBrief(settings.generateBrief);
-            doxygen.setStartComment(false);
 
             // Move until we reach any possibly meaningful content.
             while (textDocument->characterAt(cursor.position()).isSpace()

@@ -29,11 +29,6 @@ void DoxygenGenerator::setStyle(DocumentationStyle style)
     m_style = style;
 }
 
-void DoxygenGenerator::setStartComment(bool start)
-{
-    m_startComment = start;
-}
-
 void DoxygenGenerator::setGenerateBrief(bool get)
 {
     m_generateBrief = get;
@@ -136,8 +131,6 @@ QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
     assignCommentOffset(cursor);
 
     QString comment;
-    if (m_startComment)
-        writeStart(&comment);
     writeNewLine(&comment);
     writeContinuation(&comment);
 
@@ -221,13 +214,6 @@ QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
     return comment;
 }
 
-QChar DoxygenGenerator::startMark() const
-{
-    if (m_style == QtStyle)
-        return QLatin1Char('!');
-    return QLatin1Char('*');
-}
-
 QChar DoxygenGenerator::styleMark() const
 {
     if (m_style == QtStyle || m_style == CppStyleA || m_style == CppStyleB)
@@ -244,16 +230,6 @@ QString DoxygenGenerator::commandSpelling(Command command)
 
     QTC_ASSERT(command == BriefCommand, return QString());
     return QLatin1String("brief ");
-}
-
-void DoxygenGenerator::writeStart(QString *comment) const
-{
-    if (m_style == CppStyleA)
-        comment->append(QLatin1String("///"));
-    if (m_style == CppStyleB)
-        comment->append(QLatin1String("//!"));
-    else
-        comment->append(offsetString() + "/*" + startMark());
 }
 
 void DoxygenGenerator::writeEnd(QString *comment) const
