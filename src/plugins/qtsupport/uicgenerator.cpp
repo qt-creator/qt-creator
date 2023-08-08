@@ -14,22 +14,30 @@
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
-#include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QtSupport {
 
-UicGenerator::UicGenerator(const Project *project, const Utils::FilePath &source,
-                           const Utils::FilePaths &targets, QObject *parent) :
-    ProcessExtraCompiler(project, source, targets, parent)
+class UicGenerator final : public ProcessExtraCompiler
 {
-    QTC_ASSERT(targets.count() == 1, return);
-}
+public:
+    UicGenerator(const Project *project, const FilePath &source,
+                 const FilePaths &targets, QObject *parent)
+        : ProcessExtraCompiler(project, source, targets, parent)
+    {
+        QTC_ASSERT(targets.count() == 1, return);
+    }
 
-Utils::FilePath UicGenerator::command() const
+protected:
+    FilePath command() const override;
+    QStringList arguments() const override { return {"-p"}; }
+    FileNameToContentsHash handleProcessFinished(Process *process) override;
+};
+
+FilePath UicGenerator::command() const
 {
     QtSupport::QtVersion *version = nullptr;
     Target *target;
@@ -44,18 +52,13 @@ Utils::FilePath UicGenerator::command() const
     return version->uicFilePath();
 }
 
-QStringList UicGenerator::arguments() const
-{
-    return {"-p"};
-}
-
-FileNameToContentsHash UicGenerator::handleProcessFinished(Utils::Process *process)
+FileNameToContentsHash UicGenerator::handleProcessFinished(Process *process)
 {
     FileNameToContentsHash result;
     if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
         return result;
 
-    const Utils::FilePaths targetList = targets();
+    const FilePaths targetList = targets();
     if (targetList.size() != 1)
         return result;
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
@@ -77,8 +80,8 @@ QString UicGeneratorFactory::sourceTag() const
 }
 
 ExtraCompiler *UicGeneratorFactory::create(const Project *project,
-                                           const Utils::FilePath &source,
-                                           const Utils::FilePaths &targets)
+                                           const FilePath &source,
+                                           const FilePaths &targets)
 {
     return new UicGenerator(project, source, targets, this);
 }
