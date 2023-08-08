@@ -56,8 +56,7 @@ namespace {
 
 } // namespace anon
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 enum class Tool {
     Unknown,
@@ -82,8 +81,9 @@ class Parser::Private
 public:
     explicit Private(Parser *qq);
 
-    void parse(QIODevice *device);
+    void start();
     QString errorString;
+    std::unique_ptr<QIODevice> m_device;
 
 private:
     void parseError();
@@ -108,8 +108,6 @@ private:
 
     Tool tool = Tool::Unknown;
     QXmlStreamReader reader;
-
-private:
     Parser *const q;
 };
 
@@ -608,10 +606,9 @@ Suppression Parser::Private::parseSuppression()
     return supp;
 }
 
-void Parser::Private::parse(QIODevice *device)
+void Parser::Private::start()
 {
-    QTC_ASSERT(device, return);
-    reader.setDevice(device);
+    reader.setDevice(m_device.get());
     errorString.clear();
 
     bool success = true;
@@ -660,10 +657,17 @@ QString Parser::errorString() const
     return d->errorString;
 }
 
-void Parser::parse(QIODevice *device)
+void Parser::setIODevice(QIODevice *device)
 {
-    d->parse(device);
+    QTC_ASSERT(device, return);
+    QTC_ASSERT(device->isOpen(), return);
+    d->m_device.reset(device);
 }
 
-} // namespace XmlParser
-} // namespace Valgrind
+void Parser::start()
+{
+    QTC_ASSERT(d->m_device, return);
+    d->start();
+}
+
+} // namespace Valgrind::XmlProtocol

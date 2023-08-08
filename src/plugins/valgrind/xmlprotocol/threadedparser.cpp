@@ -21,15 +21,12 @@ public:
     void run() override
     {
         QTC_ASSERT(QThread::currentThread() == this, return);
-        m_parser->parse(m_device);
+        m_parser->start();
         delete m_parser;
         m_parser = nullptr;
-        delete m_device;
-        m_device = nullptr;
     }
 
-    Valgrind::XmlProtocol::Parser *m_parser = nullptr;
-    QIODevice *m_device = nullptr;
+    Parser *m_parser = nullptr;
 };
 
 ThreadedParser::ThreadedParser(QObject *parent)
@@ -64,8 +61,8 @@ void ThreadedParser::start()
     connect(m_parserThread.get(), &QThread::finished, m_parserThread.get(), &QObject::deleteLater);
     m_device->setParent(nullptr);
     m_device->moveToThread(m_parserThread);
+    parser->setIODevice(m_device.release());
     parser->moveToThread(m_parserThread);
-    m_parserThread->m_device = m_device.release();
     m_parserThread->m_parser = parser;
     m_parserThread->start();
 }

@@ -5,11 +5,11 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QTcpSocket>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
 class QTcpServer;
-class QTcpSocket;
 QT_END_NAMESPACE
 
 namespace Valgrind::Test {
@@ -41,7 +41,7 @@ private:
 
     QTcpServer *m_server = nullptr;
     QProcess *m_process = nullptr;
-    QTcpSocket *m_socket = nullptr;
+    std::unique_ptr<QTcpSocket> m_socket;
 };
 
 } // namespace Valgrind::Test

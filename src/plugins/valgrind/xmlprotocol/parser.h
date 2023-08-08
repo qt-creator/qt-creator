@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QIODevice;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class AnnounceThread;
 class Error;
@@ -28,14 +27,16 @@ public:
     ~Parser() override;
 
     QString errorString() const;
-    void parse(QIODevice *stream);
+    // The passed device needs to be open. The parser takes ownership of the passed device.
+    void setIODevice(QIODevice *device);
+    void start();
 
 signals:
-    void status(const Valgrind::XmlProtocol::Status &status);
-    void error(const Valgrind::XmlProtocol::Error &error);
+    void status(const Status &status);
+    void error(const Error &error);
     void errorCount(qint64 unique, qint64 count);
     void suppressionCount(const QString &name, qint64 count);
-    void announceThread(const Valgrind::XmlProtocol::AnnounceThread &announceThread);
+    void announceThread(const AnnounceThread &announceThread);
     void done(bool success, const QString &errorString);
 
 private:
@@ -43,5 +44,4 @@ private:
     Private *const d;
 };
 
-} // XmlProtocol
-} // Valgrind
+} // Valgrind::XmlProtocol
