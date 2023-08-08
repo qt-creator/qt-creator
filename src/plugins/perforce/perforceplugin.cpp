@@ -312,8 +312,6 @@ public:
     bool revertProject(const FilePath &workingDir, const QStringList &args, bool unchangedOnly);
     bool managesDirectoryFstat(const FilePath &directory);
 
-    void applySettings();
-
     CommandLocator *m_commandLocator = nullptr;
     ParameterAction *m_editAction = nullptr;
     ParameterAction *m_addAction = nullptr;
@@ -553,7 +551,10 @@ PerforcePluginPrivate::PerforcePluginPrivate()
 
     QObject::connect(&settings(), &AspectContainer::applied, this, [this] {
         settings().clearTopLevel();
-        applySettings();
+        settings().writeSettings();
+        m_managedDirectoryCache.clear();
+        getTopLevel();
+        emit configurationChanged();
     });
 }
 
@@ -1666,14 +1667,6 @@ void PerforcePluginPrivate::setTopLevel(const FilePath &topLevel)
 
     const QString msg = Tr::tr("Perforce repository: %1").arg(topLevel.toUserOutput());
     VcsOutputWindow::appendSilently(msg);
-}
-
-void PerforcePluginPrivate::applySettings()
-{
-    settings().writeSettings();
-    m_managedDirectoryCache.clear();
-    getTopLevel();
-    emit configurationChanged();
 }
 
 void PerforcePluginPrivate::slotTopLevelFailed(const QString &errorMessage)
