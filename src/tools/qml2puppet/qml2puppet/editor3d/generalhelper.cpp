@@ -154,16 +154,16 @@ float GeneralHelper::zoomCamera([[maybe_unused]] QQuick3DViewport *viewPort,
     float newZoomFactor = relative ? qBound(.01f, zoomFactor * multiplier, 100.f)
                                    : zoomFactor;
 
-    if (qobject_cast<QQuick3DOrthographicCamera *>(camera)) {
-        // Ortho camera we can simply scale
-        float orthoFactor = newZoomFactor;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        if (viewPort) {
-            if (const QQuickWindow *w = viewPort->window())
-                orthoFactor *= w->devicePixelRatio();
+    if (auto orthoCamera = qobject_cast<QQuick3DOrthographicCamera *>(camera)) {
+        // Ortho camera we can simply magnify
+        if (newZoomFactor != 0.f) {
+            orthoCamera->setHorizontalMagnification(1.f / newZoomFactor);
+            orthoCamera->setVerticalMagnification(1.f / newZoomFactor);
+            // Force update on transform, so gizmos get correctly scaled and positioned
+            float x = orthoCamera->x();
+            orthoCamera->setX(x + 1.f);
+            orthoCamera->setX(x);
         }
-#endif
-        camera->setScale(QVector3D(orthoFactor, orthoFactor, orthoFactor));
     } else if (qobject_cast<QQuick3DPerspectiveCamera *>(camera)) {
         // Perspective camera is zoomed by moving camera forward or backward while keeping the
         // look-at point the same

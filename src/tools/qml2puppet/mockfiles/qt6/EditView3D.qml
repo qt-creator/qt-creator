@@ -747,7 +747,8 @@ Item {
             clipNear: viewRoot.editView ? viewRoot.editView.orthoCamera.clipNear : 1
             position: viewRoot.editView ? viewRoot.editView.orthoCamera.position : Qt.vector3d(0, 0, 0)
             rotation: viewRoot.editView ? viewRoot.editView.orthoCamera.rotation : Qt.quaternion(1, 0, 0, 0)
-            scale: viewRoot.editView ? viewRoot.editView.orthoCamera.scale : Qt.vector3d(0, 0, 0)
+            horizontalMagnification: viewRoot.editView ? viewRoot.editView.orthoCamera.horizontalMagnification : 1
+            verticalMagnification: viewRoot.editView ? viewRoot.editView.orthoCamera.verticalMagnification : 1
         }
 
         MouseArea3D {
