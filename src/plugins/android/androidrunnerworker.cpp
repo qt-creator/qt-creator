@@ -674,7 +674,7 @@ bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
                        << "platform"
                        // << "--server"  // Can lead to zombie servers
                        << "--listen" << QString("*:%1").arg(m_localDebugServerPort.toString());
-        m_debugServerProcess.reset(AndroidManager::runAdbCommandDetached(lldbServerArgs, &lldbServerErr));
+        m_debugServerProcess.reset(AndroidManager::startAdbProcess(lldbServerArgs, &lldbServerErr));
 
         if (!m_debugServerProcess) {
             qCDebug(androidRunWorkerLog) << "Debugger process failed to start" << lldbServerErr;
@@ -694,7 +694,7 @@ bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
         gdbServerErr += adbArgs;
         gdbServerErr << debugServerFile
                      << "--multi" << "+" + gdbServerSocket;
-        m_debugServerProcess.reset(AndroidManager::runAdbCommandDetached(gdbServerErr, &gdbProcessErr));
+        m_debugServerProcess.reset(AndroidManager::startAdbProcess(gdbServerErr, &gdbProcessErr));
 
         if (!m_debugServerProcess) {
             qCDebug(androidRunWorkerLog) << "Debugger process failed to start" << gdbServerErr;
@@ -861,7 +861,7 @@ void AndroidRunnerWorker::onProcessIdChanged(PidUserPair pidUser)
         logcatReadStandardOutput();
         QTC_ASSERT(!m_psIsAlive, /**/);
         QStringList isAliveArgs = selector() << "shell" << pidPollingScript.arg(m_processPID);
-        m_psIsAlive.reset(AndroidManager::runAdbCommandDetached(isAliveArgs));
+        m_psIsAlive.reset(AndroidManager::startAdbProcess(isAliveArgs));
         QTC_ASSERT(m_psIsAlive, return);
         m_psIsAlive->setObjectName("IsAliveProcess");
         m_psIsAlive->setProcessChannelMode(QProcess::MergedChannels);

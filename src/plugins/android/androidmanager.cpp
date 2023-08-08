@@ -612,7 +612,7 @@ void AndroidManager::installQASIPackage(Target *target, const FilePath &packageP
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
     arguments << "install" << "-r " << packagePath.path();
     QString error;
-    QProcess *process = runAdbCommandDetached(arguments, &error);
+    QProcess *process = startAdbProcess(arguments, &error);
     if (process) {
         // TODO: Potential leak when the process is still running on Creator shutdown.
         QObject::connect(process, &QProcess::finished, process, &QObject::deleteLater);
@@ -671,7 +671,7 @@ bool AndroidManager::checkCertificateExists(const FilePath &keystorePath,
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
-QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString *err)
+QProcess *AndroidManager::startAdbProcess(const QStringList &args, QString *err)
 {
     std::unique_ptr<QProcess> p(new QProcess);
     const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();

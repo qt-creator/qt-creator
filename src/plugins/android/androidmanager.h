@@ -97,7 +97,7 @@ public:
     static bool checkCertificateExists(const Utils::FilePath &keystorePath,
                                        const QString &keystorePasswd, const QString &alias);
 
-    static QProcess *runAdbCommandDetached(const QStringList &args, QString *err = nullptr);
+    static QProcess *startAdbProcess(const QStringList &args, QString *err = nullptr);
     static SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData = {},
                                        int timeoutS = 30);
 
