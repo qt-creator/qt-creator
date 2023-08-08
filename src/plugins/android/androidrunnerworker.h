@@ -16,7 +16,10 @@ QT_BEGIN_NAMESPACE
 class QProcess;
 QT_END_NAMESPACE
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class Process;
+}
 namespace ProjectExplorer { class RunWorker; }
 
 namespace Android {
@@ -88,7 +91,7 @@ private:
     QStringList m_amStartExtraArgs;
     qint64 m_processPID = -1;
     qint64 m_processUser = -1;
-    std::unique_ptr<QProcess, Deleter> m_adbLogcatProcess;
+    std::unique_ptr<Utils::Process> m_adbLogcatProcess;
     std::unique_ptr<QProcess, Deleter> m_psIsAlive;
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;

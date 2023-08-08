@@ -215,7 +215,6 @@ static FilePath debugServer(bool useLldb, const Target *target)
 
 AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packageName)
     : m_packageName(packageName)
-    , m_adbLogcatProcess(nullptr, deleter)
     , m_psIsAlive(nullptr, deleter)
     , m_debugServerProcess(nullptr, deleter)
     , m_jdbProcess(nullptr, deleter)
@@ -406,13 +405,13 @@ void AndroidRunnerWorker::forceStop()
 void AndroidRunnerWorker::logcatReadStandardError()
 {
     if (m_processPID != -1)
-        logcatProcess(m_adbLogcatProcess->readAllStandardError(), m_stderrBuffer, true);
+        logcatProcess(m_adbLogcatProcess->readAllRawStandardError(), m_stderrBuffer, true);
 }
 
 void AndroidRunnerWorker::logcatReadStandardOutput()
 {
     if (m_processPID != -1)
-        logcatProcess(m_adbLogcatProcess->readAllStandardOutput(), m_stdoutBuffer, false);
+        logcatProcess(m_adbLogcatProcess->readAllRawStandardOutput(), m_stdoutBuffer, false);
 }
 
 void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError)
@@ -504,16 +503,16 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
 {
     // Its assumed that the device or avd returned by selector() is online.
     // Start the logcat process before app starts.
-    QTC_ASSERT(!m_adbLogcatProcess, /**/);
+    QTC_CHECK(!m_adbLogcatProcess);
 
     // Ideally AndroidManager::runAdbCommandDetached() should be used, but here
     // we need to connect the readyRead signals from logcat otherwise we might
     // lost some output between the process start and connecting those signals.
-    m_adbLogcatProcess.reset(new QProcess());
+    m_adbLogcatProcess.reset(new Process);
 
-    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardOutput,
+    connect(m_adbLogcatProcess.get(), &Process::readyReadStandardOutput,
             this, &AndroidRunnerWorker::logcatReadStandardOutput);
-    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardError,
+    connect(m_adbLogcatProcess.get(), &Process::readyReadStandardError,
             this, &AndroidRunnerWorker::logcatReadStandardError);
 
     // Get target current time to fetch only recent logs
@@ -529,7 +528,8 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
     const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
     qCDebug(androidRunWorkerLog).noquote() << "Running logcat command (async):"
                                            << CommandLine(adb, logcatArgs).toUserOutput();
-    m_adbLogcatProcess->start(adb.toString(), logcatArgs);
+    m_adbLogcatProcess->setCommand({adb, logcatArgs});
+    m_adbLogcatProcess->start();
     if (m_adbLogcatProcess->waitForStarted(500) && m_adbLogcatProcess->state() == QProcess::Running)
         m_adbLogcatProcess->setObjectName("AdbLogcatProcess");
 }
