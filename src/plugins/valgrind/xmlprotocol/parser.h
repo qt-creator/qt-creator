@@ -33,11 +33,10 @@ public:
 signals:
     void status(const Valgrind::XmlProtocol::Status &status);
     void error(const Valgrind::XmlProtocol::Error &error);
-    void internalError(const QString &errorString);
     void errorCount(qint64 unique, qint64 count);
     void suppressionCount(const QString &name, qint64 count);
     void announceThread(const Valgrind::XmlProtocol::AnnounceThread &announceThread);
-    void finished();
+    void done(bool success, const QString &errorString);
 
 private:
     class Private;

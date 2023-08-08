@@ -318,12 +318,6 @@ static Status::State parseState(const QString &state)
     throw ParserException(Tr::tr("Unknown state \"%1\"").arg(state));
 }
 
-void Parser::Private::reportInternalError(const QString &e)
-{
-    errorString = e;
-    emit q->internalError(e);
-}
-
 static Stack makeStack(const XauxWhat &xauxwhat, const QList<Frame> &frames)
 {
     Stack s;
@@ -618,7 +612,9 @@ void Parser::Private::parse(QIODevice *device)
 {
     QTC_ASSERT(device, return);
     reader.setDevice(device);
+    errorString.clear();
 
+    bool success = true;
     try {
         while (notAtEnd()) {
             blockingReadNext();
@@ -639,11 +635,13 @@ void Parser::Private::parse(QIODevice *device)
                 checkTool(blockingReadElementText());
         }
     } catch (const ParserException &e) {
-        reportInternalError(e.message());
+        errorString = e.message();
+        success = false;
     } catch (...) {
-        reportInternalError(Tr::tr("Unexpected exception caught during parsing."));
+        errorString = Tr::tr("Unexpected exception caught during parsing.");
+        success = false;
     }
-    emit q->finished();
+    emit q->done(success, errorString);
 }
 
 Parser::Parser(QObject *parent)

@@ -162,7 +162,10 @@ ValgrindRunner::ValgrindRunner(QObject *parent)
 {
     connect(&d->m_parser, &ThreadedParser::status, this, &ValgrindRunner::status);
     connect(&d->m_parser, &ThreadedParser::error, this, &ValgrindRunner::error);
-    connect(&d->m_parser, &ThreadedParser::internalError, this, &ValgrindRunner::internalError);
+    connect(&d->m_parser, &ThreadedParser::done, this, [this](bool success, const QString &err) {
+        if (!success)
+            emit internalError(err);
+    });
 }
 
 ValgrindRunner::~ValgrindRunner()

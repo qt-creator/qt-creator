@@ -1058,12 +1058,12 @@ void MemcheckToolPrivate::loadXmlLogFile(const QString &filePath)
     auto parser = new ThreadedParser;
     connect(parser, &ThreadedParser::error,
             this, &MemcheckToolPrivate::parserError);
-    connect(parser, &ThreadedParser::internalError,
-            this, &MemcheckToolPrivate::internalParserError);
-    connect(parser, &ThreadedParser::finished,
-            this, &MemcheckToolPrivate::loadingExternalXmlLogFileFinished);
-    connect(parser, &ThreadedParser::finished,
-            parser, &ThreadedParser::deleteLater);
+    connect(parser, &ThreadedParser::done, this, [this, parser](bool success, const QString &err) {
+        if (!success)
+            internalParserError(err);
+        loadingExternalXmlLogFileFinished();
+        parser->deleteLater();
+    });
 
     parser->parse(logFile); // ThreadedParser owns the file
 }

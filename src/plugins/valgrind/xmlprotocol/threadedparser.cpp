@@ -50,9 +50,7 @@ void ThreadedParser::parse(QIODevice *device)
     qRegisterMetaType<Error>();
     connect(parser, &Parser::status, this, &ThreadedParser::status, Qt::QueuedConnection);
     connect(parser, &Parser::error, this, &ThreadedParser::error, Qt::QueuedConnection);
-    connect(parser, &Parser::internalError, this, &ThreadedParser::internalError,
-            Qt::QueuedConnection);
-    connect(parser, &Parser::finished, this, &ThreadedParser::finished, Qt::QueuedConnection);
+    connect(parser, &Parser::done, this, &ThreadedParser::done, Qt::QueuedConnection);
 
     m_parserThread = new Thread;
     connect(m_parserThread.get(), &QThread::finished, m_parserThread.get(), &QObject::deleteLater);

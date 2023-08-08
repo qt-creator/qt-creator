@@ -37,8 +37,7 @@ public:
 signals:
     void status(const Status &status);
     void error(const Error &error);
-    void internalError(const QString &errorString);
-    void finished();
+    void done(bool success, const QString &errorString);
 
 private:
     QPointer<Thread> m_parserThread;
