@@ -661,9 +661,17 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
     FilePath generatedFilePath = buildConfiguration()->buildDirectory().resolvePath(relativePath);
 
     if (sourceFile.suffix() == "ui") {
-        generatedFilePath = generatedFilePath
-                                .pathAppended("ui_" + sourceFile.completeBaseName() + ".h");
-        return {generatedFilePath};
+        const QString generatedFileSuffix = "ui_" + sourceFile.completeBaseName() + ".h";
+
+        // If AUTOUIC reports the generated header file name, use that path
+        FilePaths generatedFilePaths = this->project()->files([generatedFileSuffix](const Node *n) {
+            return Project::GeneratedFiles(n) && n->filePath().endsWith(generatedFileSuffix);
+        });
+
+        if (generatedFilePaths.empty())
+            generatedFilePaths = {generatedFilePath.pathAppended(generatedFileSuffix)};
+
+        return generatedFilePaths;
     }
     if (sourceFile.suffix() == "scxml") {
         generatedFilePath = generatedFilePath.pathAppended(sourceFile.completeBaseName());
