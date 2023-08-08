@@ -32,6 +32,7 @@ add_qtc_library(CPlusPlus
     TypeOfExpression.cpp TypeOfExpression.h
     TypePrettyPrinter.cpp TypePrettyPrinter.h
     cppmodelmanagerbase.cpp cppmodelmanagerbase.h
+    declarationcomments.cpp declarationcomments.h
     findcdbbreakpoint.cpp findcdbbreakpoint.h
     pp-cctype.h pp-engine.cpp
     pp-engine.h pp-scanner.cpp

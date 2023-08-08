@@ -9,6 +9,7 @@ Project {
         "codeformatter/codeformatter.qbs",
         "cppselectionchanger/cppselectionchanger.qbs",
         "cxx11/cxx11.qbs",
+        "declarationcomments/declarationcomments.qbs",
         "fileiterationorder/fileiterationorder.qbs",
         "findusages/findusages.qbs",
         "lexer/lexer.qbs",

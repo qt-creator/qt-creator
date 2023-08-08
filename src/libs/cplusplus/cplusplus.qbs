@@ -96,6 +96,7 @@ Project {
                 "CppDocument.cpp", "CppDocument.h",
                 "CppRewriter.cpp", "CppRewriter.h",
                 "cppmodelmanagerbase.cpp", "cppmodelmanagerbase.h",
+                "declarationcomments.cpp", "declarationcomments.h",
                 "DependencyTable.cpp", "DependencyTable.h",
                 "DeprecatedGenTemplateInstance.cpp", "DeprecatedGenTemplateInstance.h",
                 "ExpressionUnderCursor.cpp", "ExpressionUnderCursor.h",
