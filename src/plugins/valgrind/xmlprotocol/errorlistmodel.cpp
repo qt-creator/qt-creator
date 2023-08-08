@@ -5,7 +5,6 @@
 #include "error.h"
 #include "frame.h"
 #include "stack.h"
-#include "modelhelpers.h"
 #include "../valgrindtr.h"
 
 #include <debugger/analyzer/diagnosticlocation.h>
@@ -201,7 +200,7 @@ QVariant ErrorItem::data(int column, int role) const
         return Tr::tr("%1 in function %2")
                 .arg(m_error.what(), m_error.stacks().constFirst().frames().constFirst().functionName());
     case Qt::ToolTipRole:
-        return toolTipForFrame(m_model->findRelevantFrame(m_error));
+        return m_model->findRelevantFrame(m_error).toolTip();
     default:
         return QVariant();
     }
@@ -228,7 +227,7 @@ QVariant StackItem::data(int column, int role) const
     case Qt::DisplayRole:
         return m_stack.auxWhat().isEmpty() ? errorItem->error().what() : m_stack.auxWhat();
     case Qt::ToolTipRole:
-        return toolTipForFrame(errorItem->modelPrivate()->findRelevantFrame(errorItem->error()));
+        return errorItem->modelPrivate()->findRelevantFrame(errorItem->error()).toolTip();
     default:
         return QVariant();
     }
@@ -263,7 +262,7 @@ QVariant FrameItem::data(int column, int role) const
                 .arg(makeFrameName(m_frame, false));
     }
     case Qt::ToolTipRole:
-        return toolTipForFrame(m_frame);
+        return m_frame.toolTip();
     default:
         return QVariant();
     }

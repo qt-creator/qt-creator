@@ -5,7 +5,6 @@
 #include "error.h"
 #include "frame.h"
 #include "stack.h"
-#include "modelhelpers.h"
 #include "../valgrindtr.h"
 
 #include <utils/qtcassert.h>
@@ -106,7 +105,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Qt::ToolTipRole:
-            return toolTipForFrame(frame);
+            return frame.toolTip();
         case ObjectRole:
             return frame.object();
         case FunctionNameRole:

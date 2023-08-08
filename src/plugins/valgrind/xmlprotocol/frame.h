@@ -5,8 +5,7 @@
 
 #include <QSharedDataPointer>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class Frame
 {
@@ -41,10 +40,11 @@ public:
     int line() const;
     void setLine(int line);
 
+    QString toolTip() const;
+
 private:
     class Private;
     QSharedDataPointer<Private> d;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

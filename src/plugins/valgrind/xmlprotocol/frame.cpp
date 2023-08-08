@@ -3,12 +3,15 @@
 
 #include "frame.h"
 
+#include "../valgrindtr.h"
+
+#include <QList>
+#include <QPair>
 #include <QString>
 
 #include <algorithm>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class Frame::Private : public QSharedData
 {
@@ -129,5 +132,42 @@ void Frame::setLine(int line)
     d->line = line;
 }
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+QString Frame::toolTip() const
+{
+    QString location;
+    if (!fileName().isEmpty()) {
+        location = filePath();
+        if (line() > 0)
+            location += ':' + QString::number(line());
+    }
+
+    using StringPair = QPair<QString, QString>;
+    QList<StringPair> lines;
+
+    if (!functionName().isEmpty())
+        lines.append({Tr::tr("Function:"), functionName()});
+    if (!location.isEmpty())
+        lines.append({Tr::tr("Location:"), location});
+    if (instructionPointer()) {
+        lines.append({Tr::tr("Instruction pointer:"),
+                      QString("0x%1").arg(instructionPointer(), 0, 16)});
+    }
+    if (!object().isEmpty())
+        lines.append({Tr::tr("Object:"), object()});
+
+    QString html = "<html><head>"
+                   "<style>dt { font-weight:bold; } dd { font-family: monospace; }</style>\n"
+                   "</head><body><dl>";
+
+    for (const StringPair &pair : std::as_const(lines)) {
+        html += "<dt>";
+        html += pair.first;
+        html += "</dt><dd>";
+        html += pair.second;
+        html += "</dd>\n";
+    }
+    html += "</dl></body></html>";
+    return html;
+}
+
+} // namespace Valgrind::XmlProtocol

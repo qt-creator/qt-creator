@@ -64,7 +64,6 @@ QtcPlugin {
             "error.cpp", "error.h",
             "errorlistmodel.cpp", "errorlistmodel.h",
             "frame.cpp", "frame.h",
-            "modelhelpers.cpp", "modelhelpers.h",
             "parser.cpp", "parser.h",
             "stack.cpp", "stack.h",
             "stackmodel.cpp", "stackmodel.h",

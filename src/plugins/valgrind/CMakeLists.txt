@@ -34,7 +34,6 @@ add_qtc_plugin(Valgrind
     xmlprotocol/error.cpp xmlprotocol/error.h
     xmlprotocol/errorlistmodel.cpp xmlprotocol/errorlistmodel.h
     xmlprotocol/frame.cpp xmlprotocol/frame.h
-    xmlprotocol/modelhelpers.cpp xmlprotocol/modelhelpers.h
     xmlprotocol/parser.cpp xmlprotocol/parser.h
     xmlprotocol/stack.cpp xmlprotocol/stack.h
     xmlprotocol/stackmodel.cpp xmlprotocol/stackmodel.h

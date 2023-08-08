@@ -19,7 +19,6 @@ function(extend_valgrind_test targetName)
       xmlprotocol/error.h xmlprotocol/error.cpp
       xmlprotocol/errorlistmodel.h xmlprotocol/errorlistmodel.cpp
       xmlprotocol/frame.h xmlprotocol/frame.cpp
-      xmlprotocol/modelhelpers.h xmlprotocol/modelhelpers.cpp
       xmlprotocol/parser.h xmlprotocol/parser.cpp
       xmlprotocol/stack.h xmlprotocol/stack.cpp
       xmlprotocol/stackmodel.h xmlprotocol/stackmodel.cpp
