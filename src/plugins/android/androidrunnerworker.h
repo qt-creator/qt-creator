@@ -12,10 +12,6 @@
 #include <QFuture>
 #include <utility>
 
-QT_BEGIN_NAMESPACE
-class QProcess;
-QT_END_NAMESPACE
-
 namespace Utils {
 class FilePath;
 class Process;
@@ -80,7 +76,6 @@ private:
         Settled
     };
     void onProcessIdChanged(PidUserPair pidUser);
-    using Deleter = void (*)(QProcess *);
 
     // Create the processes and timer in the worker thread, for correct thread affinity
     bool m_isPreNougat = false;
@@ -92,7 +87,7 @@ private:
     qint64 m_processPID = -1;
     qint64 m_processUser = -1;
     std::unique_ptr<Utils::Process> m_adbLogcatProcess;
-    std::unique_ptr<QProcess, Deleter> m_psIsAlive;
+    std::unique_ptr<Utils::Process> m_psIsAlive;
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;
     QFuture<PidUserPair> m_pidFinder;
@@ -103,7 +98,7 @@ private:
     QUrl m_qmlServer;
     JDBState m_jdbState = JDBState::Idle;
     Utils::Port m_localJdbServerPort;
-    std::unique_ptr<QProcess, Deleter> m_debugServerProcess; // gdbserver or lldb-server
+    std::unique_ptr<Utils::Process> m_debugServerProcess; // gdbserver or lldb-server
     std::unique_ptr<Utils::Process> m_jdbProcess;
     QString m_deviceSerialNumber;
     int m_apiLevel = -1;

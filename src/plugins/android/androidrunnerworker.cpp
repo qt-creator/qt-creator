@@ -141,18 +141,6 @@ static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
         promise.addResult(PidUserPair(processPID, processUser));
 }
 
-static void deleter(QProcess *p)
-{
-    qCDebug(androidRunWorkerLog) << "Killing process:" << p->objectName();
-    p->terminate();
-    if (!p->waitForFinished(1000)) {
-        p->kill();
-        p->waitForFinished();
-    }
-    // Might get deleted from its own signal handler.
-    p->deleteLater();
-}
-
 static QString gdbServerArch(const QString &androidAbi)
 {
     if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
@@ -214,11 +202,8 @@ static FilePath debugServer(bool useLldb, const Target *target)
     return {};
 }
 
-
 AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packageName)
     : m_packageName(packageName)
-    , m_psIsAlive(nullptr, deleter)
-    , m_debugServerProcess(nullptr, deleter)
 {
     auto runControl = runner->runControl();
     m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
@@ -865,8 +850,7 @@ void AndroidRunnerWorker::onProcessIdChanged(PidUserPair pidUser)
         QTC_ASSERT(m_psIsAlive, return);
         m_psIsAlive->setObjectName("IsAliveProcess");
         m_psIsAlive->setProcessChannelMode(QProcess::MergedChannels);
-        connect(m_psIsAlive.get(), &QProcess::finished,
-                this, bind(&AndroidRunnerWorker::onProcessIdChanged, this, PidUserPair(-1, -1)));
+        connect(m_psIsAlive.get(), &Process::done, this, [this] { onProcessIdChanged({-1, -1}); });
     }
 }
 

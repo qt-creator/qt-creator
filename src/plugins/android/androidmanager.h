@@ -12,10 +12,6 @@
 #include <qtsupport/baseqtversion.h>
 #include <projectexplorer/abi.h>
 
-QT_BEGIN_NAMESPACE
-class QProcess;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 class Kit;
 class Target;
@@ -24,6 +20,7 @@ class Target;
 namespace Utils {
 class CommandLine;
 class FilePath;
+class Process;
 }
 
 namespace Android {
@@ -97,7 +94,7 @@ public:
     static bool checkCertificateExists(const Utils::FilePath &keystorePath,
                                        const QString &keystorePasswd, const QString &alias);
 
-    static QProcess *startAdbProcess(const QStringList &args, QString *err = nullptr);
+    static Utils::Process *startAdbProcess(const QStringList &args, QString *err = nullptr);
     static SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData = {},
                                        int timeoutS = 30);
 
