@@ -31,8 +31,10 @@ public:
     bool waitForFinished();
     bool isRunning() const;
 
+    // The passed device needs to be open. The parser takes ownership of the passed device.
+    void setIODevice(QIODevice *device);
     ///@warning will move @p stream to a different thread and take ownership of it
-    void parse(QIODevice *stream);
+    void start();
 
 signals:
     void status(const Status &status);
@@ -40,6 +42,7 @@ signals:
     void done(bool success, const QString &errorString);
 
 private:
+    std::unique_ptr<QIODevice> m_device;
     QPointer<Thread> m_parserThread;
 };
 

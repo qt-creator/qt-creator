@@ -41,9 +41,17 @@ bool ThreadedParser::isRunning() const
     return m_parserThread ? m_parserThread->isRunning() : false;
 }
 
-void ThreadedParser::parse(QIODevice *device)
+void ThreadedParser::setIODevice(QIODevice *device)
+{
+    QTC_ASSERT(device, return);
+    QTC_ASSERT(device->isOpen(), return);
+    m_device.reset(device);
+}
+
+void ThreadedParser::start()
 {
     QTC_ASSERT(!m_parserThread, return);
+    QTC_ASSERT(m_device, return);
 
     auto parser = new Parser;
     qRegisterMetaType<Status>();
@@ -54,10 +62,10 @@ void ThreadedParser::parse(QIODevice *device)
 
     m_parserThread = new Thread;
     connect(m_parserThread.get(), &QThread::finished, m_parserThread.get(), &QObject::deleteLater);
-    device->setParent(nullptr);
-    device->moveToThread(m_parserThread);
+    m_device->setParent(nullptr);
+    m_device->moveToThread(m_parserThread);
     parser->moveToThread(m_parserThread);
-    m_parserThread->m_device = device;
+    m_parserThread->m_device = m_device.release();
     m_parserThread->m_parser = parser;
     m_parserThread->start();
 }

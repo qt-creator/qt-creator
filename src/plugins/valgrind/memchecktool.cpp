@@ -1065,7 +1065,8 @@ void MemcheckToolPrivate::loadXmlLogFile(const QString &filePath)
         parser->deleteLater();
     });
 
-    parser->parse(logFile); // ThreadedParser owns the file
+    parser->setIODevice(logFile);
+    parser->start();
 }
 
 void MemcheckToolPrivate::parserError(const Error &error)

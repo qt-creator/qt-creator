@@ -68,7 +68,8 @@ void ValgrindRunner::Private::xmlSocketConnected()
     QTcpSocket *socket = m_xmlServer.nextPendingConnection();
     QTC_ASSERT(socket, return);
     m_xmlServer.close();
-    m_parser.parse(socket);
+    m_parser.setIODevice(socket);
+    m_parser.start();
 }
 
 void ValgrindRunner::Private::logSocketConnected()
