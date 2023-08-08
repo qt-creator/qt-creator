@@ -1204,7 +1204,7 @@ FilePath Process::workingDirectory() const
 void Process::setWorkingDirectory(const FilePath &dir)
 {
     if (dir.needsDevice() && d->m_setup.m_commandLine.executable().needsDevice()) {
-        QTC_CHECK(dir.host() == d->m_setup.m_commandLine.executable().host());
+        QTC_CHECK(dir.isSameDevice(d->m_setup.m_commandLine.executable()));
     }
     d->m_setup.m_workingDirectory = dir;
 }
