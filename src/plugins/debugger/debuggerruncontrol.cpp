@@ -70,7 +70,7 @@ DebuggerEngine *createPdbEngine();
 DebuggerEngine *createQmlEngine();
 DebuggerEngine *createLldbEngine();
 DebuggerEngine *createUvscEngine();
-DebuggerEngine *createDapEngine();
+DebuggerEngine *createDapEngine(Utils::Id runMode = ProjectExplorer::Constants::NO_RUN_MODE);
 
 static QString noEngineMessage()
 {
@@ -483,7 +483,7 @@ void DebuggerRunTool::start()
 
     if (!m_engine) {
         if (runControl()->runMode() == ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE)
-            m_engine = createDapEngine();
+            m_engine = createDapEngine(runControl()->runMode());
         else if (m_runParameters.isCppDebugging()) {
             switch (m_runParameters.cppEngineType) {
             case GdbEngineType:

@@ -27,7 +27,9 @@ add_qtc_plugin(Debugger
     console/consoleitemmodel.cpp console/consoleitemmodel.h
     console/consoleproxymodel.cpp console/consoleproxymodel.h
     console/consoleview.cpp console/consoleview.h
+    dap/cmakedapengine.cpp dap/cmakedapengine.h
     dap/dapengine.cpp dap/dapengine.h
+    dap/gdbdapengine.cpp dap/gdbdapengine.h
     debugger.qrc
     debugger_global.h
     debuggeractions.cpp debuggeractions.h

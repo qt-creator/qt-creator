@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "dapengine.h"
+#include "cmakedapengine.h"
+#include "gdbdapengine.h"
 
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
@@ -40,6 +42,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -59,106 +62,8 @@ static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg)
 
 namespace Debugger::Internal {
 
-class ProcessDataProvider : public IDataProvider
-{
-public:
-    ProcessDataProvider(const DebuggerRunParameters &rp, const CommandLine &cmd)
-        : m_runParameters(rp)
-        , m_cmd(cmd)
-    {
-        connect(&m_proc, &Process::started, this, &IDataProvider::started);
-        connect(&m_proc, &Process::done, this, &IDataProvider::done);
-        connect(&m_proc,
-                &Process::readyReadStandardOutput,
-                this,
-                &IDataProvider::readyReadStandardOutput);
-        connect(&m_proc,
-                &Process::readyReadStandardError,
-                this,
-                &IDataProvider::readyReadStandardError);
-    }
-
-    ~ProcessDataProvider()
-    {
-        m_proc.kill();
-        m_proc.waitForFinished();
-    }
-
-    void start() override
-    {
-        m_proc.setProcessMode(ProcessMode::Writer);
-        m_proc.setEnvironment(m_runParameters.debugger.environment);
-        m_proc.setCommand(m_cmd);
-        m_proc.start();
-    }
-
-    bool isRunning() const override { return m_proc.isRunning(); }
-    void writeRaw(const QByteArray &data) override { m_proc.writeRaw(data); }
-    void kill() override { m_proc.kill(); }
-    QByteArray readAllStandardOutput() override { return m_proc.readAllStandardOutput().toUtf8(); }
-    QString readAllStandardError() override { return m_proc.readAllStandardError(); }
-    int exitCode() const override { return m_proc.exitCode(); }
-    QString executable() const override { return m_proc.commandLine().executable().toUserOutput(); }
-
-    QProcess::ExitStatus exitStatus() const override { return m_proc.exitStatus(); }
-    QProcess::ProcessError error() const override { return m_proc.error(); }
-    Utils::ProcessResult result() const override { return m_proc.result(); }
-    QString exitMessage() const override { return m_proc.exitMessage(); };
-
-private:
-    Utils::Process m_proc;
-    const DebuggerRunParameters m_runParameters;
-    const CommandLine m_cmd;
-};
-
-class LocalSocketDataProvider : public IDataProvider
-{
-public:
-    LocalSocketDataProvider(const QString &socketName)
-        : m_socketName(socketName)
-    {
-        connect(&m_socket, &QLocalSocket::connected, this, &IDataProvider::started);
-        connect(&m_socket, &QLocalSocket::disconnected, this, &IDataProvider::done);
-        connect(&m_socket, &QLocalSocket::readyRead, this, &IDataProvider::readyReadStandardOutput);
-        connect(&m_socket,
-                &QLocalSocket::errorOccurred,
-                this,
-                &IDataProvider::readyReadStandardError);
-    }
-
-    ~LocalSocketDataProvider() { m_socket.disconnectFromServer(); }
-
-    void start() override { m_socket.connectToServer(m_socketName, QIODevice::ReadWrite); }
-
-    bool isRunning() const override { return m_socket.isOpen(); }
-    void writeRaw(const QByteArray &data) override { m_socket.write(data); }
-    void kill() override {
-        if (m_socket.isOpen())
-            m_socket.disconnectFromServer();
-        else {
-            m_socket.abort();
-            emit done();
-        }
-    }
-    QByteArray readAllStandardOutput() override { return m_socket.readAll(); }
-    QString readAllStandardError() override { return QString(); }
-    int exitCode() const override { return 0; }
-    QString executable() const override { return m_socket.serverName(); }
-
-    QProcess::ExitStatus exitStatus() const override { return QProcess::NormalExit; }
-    QProcess::ProcessError error() const override { return QProcess::UnknownError; }
-    Utils::ProcessResult result() const override { return ProcessResult::FinishedWithSuccess; }
-    QString exitMessage() const override { return QString(); };
-
-private:
-    QLocalSocket m_socket;
-    const QString m_socketName;
-};
-
 DapEngine::DapEngine()
 {
-    setObjectName("DapEngine");
-    setDebuggerName("DAP");
     m_rootWatchItem = new WatchItem();
     m_currentWatchItem = m_rootWatchItem;
 }
@@ -236,58 +141,6 @@ void DapEngine::shutdownEngine()
     m_dataGenerator->kill();
 }
 
-void DapEngine::setupEngine()
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qCDebug(dapEngineLog) << state());
-
-    const auto connectDataGeneratorSignals = [this] {
-        if (!m_dataGenerator)
-            return;
-
-        connect(m_dataGenerator.get(), &IDataProvider::started, this, &DapEngine::handleDapStarted);
-        connect(m_dataGenerator.get(), &IDataProvider::done, this, &DapEngine::handleDapDone);
-        connect(m_dataGenerator.get(),
-                &IDataProvider::readyReadStandardOutput,
-                this,
-                &DapEngine::readDapStandardOutput);
-        connect(m_dataGenerator.get(),
-                &IDataProvider::readyReadStandardError,
-                this,
-                &DapEngine::readDapStandardError);
-    };
-
-    Perspective *currentPerspective = DebuggerMainWindow::instance()->currentPerspective();
-    if (currentPerspective->parentPerspectiveId() == Constants::CMAKE_PERSPECTIVE_ID) {
-        qCDebug(dapEngineLog) << "build system name" << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
-
-        if (TemporaryDirectory::masterDirectoryFilePath().osType() == Utils::OsType::OsTypeWindows) {
-            m_dataGenerator = std::make_unique<LocalSocketDataProvider>("\\\\.\\pipe\\cmake-dap");
-        } else {
-            m_dataGenerator = std::make_unique<LocalSocketDataProvider>(
-                TemporaryDirectory::masterDirectoryPath() + "/cmake-dap.sock");
-        }
-        connectDataGeneratorSignals();
-
-        connect(ProjectExplorer::ProjectTree::currentBuildSystem(),
-                &ProjectExplorer::BuildSystem::debuggingStarted,
-                this,
-                [this] {
-                    m_dataGenerator->start();
-                });
-
-        ProjectExplorer::ProjectTree::currentBuildSystem()->requestDebugging();
-    } else {
-        const DebuggerRunParameters &rp = runParameters();
-        const CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
-
-        m_dataGenerator = std::make_unique<ProcessDataProvider>(rp, cmd);
-        connectDataGeneratorSignals();
-        m_dataGenerator->start();
-
-    }
-    notifyEngineSetupOk();
-}
-
 // From the docs:
 // The sequence of events/requests is as follows:
 //   * adapters sends initialized event (after the initialize request has returned)
@@ -310,9 +163,7 @@ void DapEngine::handleDapStarted()
         {"type", "request"},
         {"arguments", QJsonObject {
             {"clientID",  "QtCreator"}, // The ID of the client using this adapter.
-            {"clientName",  "QtCreator"}, //  The human-readable name of the client using this adapter.
-            {"adapterID", "cmake"},
-            {"pathFormat", "path"}
+            {"clientName",  "QtCreator"} //  The human-readable name of the client using this adapter.
         }}
     });
 
@@ -1083,9 +934,29 @@ void DapEngine::claimInitialBreakpoints()
     qCDebug(dapEngineLog) << "claimInitialBreakpoints";
 }
 
-DebuggerEngine *createDapEngine()
+void DapEngine::connectDataGeneratorSignals()
 {
-    return new DapEngine;
+    if (!m_dataGenerator)
+        return;
+
+    connect(m_dataGenerator.get(), &IDataProvider::started, this, &DapEngine::handleDapStarted);
+    connect(m_dataGenerator.get(), &IDataProvider::done, this, &DapEngine::handleDapDone);
+    connect(m_dataGenerator.get(),
+            &IDataProvider::readyReadStandardOutput,
+            this,
+            &DapEngine::readDapStandardOutput);
+    connect(m_dataGenerator.get(),
+            &IDataProvider::readyReadStandardError,
+            this,
+            &DapEngine::readDapStandardError);
+}
+
+DebuggerEngine *createDapEngine(Utils::Id runMode)
+{
+    if (runMode == ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE)
+        return new CMakeDapEngine;
+
+    return new GdbDapEngine;
 }
 
 } // Debugger::Internal

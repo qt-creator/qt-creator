@@ -50,12 +50,11 @@ class DapEngine : public DebuggerEngine
 public:
     DapEngine();
 
-private:
+protected:
     void executeStepIn(bool) override;
     void executeStepOut() override;
     void executeStepOver(bool) override;
 
-    void setupEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;
 
@@ -106,7 +105,7 @@ private:
 
     void claimInitialBreakpoints();
 
-    void handleDapStarted();
+    virtual void handleDapStarted();
     void handleDapLaunch();
     void handleDapConfigurationDone();
 
@@ -122,6 +121,7 @@ private:
     void handleResponse(const QString &ba);
     void updateAll() override;
     void updateLocals() override;
+    void connectDataGeneratorSignals();
 
     QByteArray m_inbuffer;
     std::unique_ptr<IDataProvider> m_dataGenerator = nullptr;
