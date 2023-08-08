@@ -63,6 +63,9 @@ void ProjectCommentsSettings::loadSettings()
                                                 m_customSettings.generateBrief).toBool();
     m_customSettings.leadingAsterisks = data.value(CommentsSettings::leadingAsterisksSettingsKey(),
                                                    m_customSettings.leadingAsterisks).toBool();
+    m_customSettings.commandPrefix = static_cast<CommentsSettings::CommandPrefix>(
+        data.value(CommentsSettings::commandPrefixKey(),
+                   int(m_customSettings.commandPrefix)).toInt());
 }
 
 void ProjectCommentsSettings::saveSettings()
@@ -81,6 +84,7 @@ void ProjectCommentsSettings::saveSettings()
     data.insert(CommentsSettings::enableDoxygenSettingsKey(), m_customSettings.enableDoxygen);
     data.insert(CommentsSettings::generateBriefSettingsKey(), m_customSettings.generateBrief);
     data.insert(CommentsSettings::leadingAsterisksSettingsKey(), m_customSettings.leadingAsterisks);
+    data.insert(CommentsSettings::commandPrefixKey(), int(m_customSettings.commandPrefix));
     m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), data);
 }
 

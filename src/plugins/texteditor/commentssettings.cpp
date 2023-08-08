@@ -12,6 +12,7 @@
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QSettings>
 
 using namespace Layouting;
@@ -23,6 +24,7 @@ const char kDocumentationCommentsGroup[] = "CppToolsDocumentationComments";
 const char kEnableDoxygenBlocks[] = "EnableDoxygenBlocks";
 const char kGenerateBrief[] = "GenerateBrief";
 const char kAddLeadingAsterisks[] = "AddLeadingAsterisks";
+const char kCommandPrefix[] = "CommandPrefix";
 }
 
 void CommentsSettings::setData(const Data &data)
@@ -37,6 +39,7 @@ QString CommentsSettings::mainSettingsKey() { return kDocumentationCommentsGroup
 QString CommentsSettings::enableDoxygenSettingsKey() { return kEnableDoxygenBlocks; }
 QString CommentsSettings::generateBriefSettingsKey() { return kGenerateBrief; }
 QString CommentsSettings::leadingAsterisksSettingsKey() { return kAddLeadingAsterisks; }
+QString CommentsSettings::commandPrefixKey() { return kCommandPrefix; }
 
 CommentsSettings::CommentsSettings()
 {
@@ -56,6 +59,7 @@ void CommentsSettings::save() const
     s->setValue(kEnableDoxygenBlocks, m_data.enableDoxygen);
     s->setValue(kGenerateBrief, m_data.generateBrief);
     s->setValue(kAddLeadingAsterisks, m_data.leadingAsterisks);
+    s->setValueWithDefault(kCommandPrefix, int(m_data.commandPrefix));
     s->endGroup();
 }
 
@@ -66,6 +70,8 @@ void CommentsSettings::load()
     m_data.enableDoxygen = s->value(kEnableDoxygenBlocks, true).toBool();
     m_data.generateBrief = m_data.enableDoxygen && s->value(kGenerateBrief, true).toBool();
     m_data.leadingAsterisks = s->value(kAddLeadingAsterisks, true).toBool();
+    m_data.commandPrefix = static_cast<CommandPrefix>(
+        s->value(kCommandPrefix, int(m_data.commandPrefix)).toInt());
     s->endGroup();
 }
 
@@ -76,13 +82,12 @@ public:
     QCheckBox m_enableDoxygenCheckBox;
     QCheckBox m_generateBriefCheckBox;
     QCheckBox m_leadingAsterisksCheckBox;
+    QComboBox m_commandPrefixComboBox;
 };
 
 CommentsSettingsWidget::CommentsSettingsWidget(const CommentsSettings::Data &settings)
     : d(new Private)
 {
-    initFromSettings(settings);
-
     d->m_enableDoxygenCheckBox.setText(Tr::tr("Enable Doxygen blocks"));
     d->m_enableDoxygenCheckBox.setToolTip(
         Tr::tr("Automatically creates a Doxygen comment upon pressing "
@@ -98,10 +103,23 @@ CommentsSettingsWidget::CommentsSettingsWidget(const CommentsSettings::Data &set
         Tr::tr("Adds leading asterisks when continuing C/C++ \"/*\", Qt \"/*!\" "
                "and Java \"/**\" style comments on new lines."));
 
+    const auto commandPrefixLabel = new QLabel(Tr::tr("Doxygen command prefix:"));
+    const QString commandPrefixToolTip = Tr::tr(R"(Doxygen allows "@" and "\" to start commands.
+By default, "@" is used if the surrounding comment starts with "/**" or "///", and "\" is used
+if the comment starts with "/*!" or "//!)");
+    commandPrefixLabel->setToolTip(commandPrefixToolTip);
+    d->m_commandPrefixComboBox.setToolTip(commandPrefixToolTip);
+    d->m_commandPrefixComboBox.addItem(Tr::tr("Automatic"));
+    d->m_commandPrefixComboBox.addItem("@");
+    d->m_commandPrefixComboBox.addItem("\\");
+
+    initFromSettings(settings);
+
     Column {
         &d->m_enableDoxygenCheckBox,
         Row { Space(30), &d->m_generateBriefCheckBox },
         &d->m_leadingAsterisksCheckBox,
+        Row { commandPrefixLabel, &d->m_commandPrefixComboBox, st },
         st
     }.attachTo(this);
 
@@ -112,6 +130,8 @@ CommentsSettingsWidget::CommentsSettingsWidget(const CommentsSettings::Data &set
                                 &d->m_leadingAsterisksCheckBox}) {
         connect(checkBox, &QCheckBox::clicked, this, &CommentsSettingsWidget::settingsChanged);
     }
+    connect(&d->m_commandPrefixComboBox, &QComboBox::currentIndexChanged,
+            this, &CommentsSettingsWidget::settingsChanged);
 }
 
 CommentsSettingsWidget::~CommentsSettingsWidget() { delete d; }
@@ -122,6 +142,8 @@ CommentsSettings::Data CommentsSettingsWidget::settingsData() const
     settings.enableDoxygen = d->m_enableDoxygenCheckBox.isChecked();
     settings.generateBrief = d->m_generateBriefCheckBox.isChecked();
     settings.leadingAsterisks = d->m_leadingAsterisksCheckBox.isChecked();
+    settings.commandPrefix = static_cast<CommentsSettings::CommandPrefix>(
+        d->m_commandPrefixComboBox.currentIndex());
     return settings;
 }
 
@@ -137,6 +159,7 @@ void CommentsSettingsWidget::initFromSettings(const CommentsSettings::Data &sett
     d->m_generateBriefCheckBox.setEnabled(d->m_enableDoxygenCheckBox.isChecked());
     d->m_generateBriefCheckBox.setChecked(settings.generateBrief);
     d->m_leadingAsterisksCheckBox.setChecked(settings.leadingAsterisks);
+    d->m_commandPrefixComboBox.setCurrentIndex(int(settings.commandPrefix));
 }
 
 namespace Internal {

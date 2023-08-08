@@ -201,6 +201,12 @@ QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
 
 QChar DoxygenGenerator::styleMark() const
 {
+    switch (m_settings.commandPrefix) {
+    case TextEditor::CommentsSettings::CommandPrefix::At: return '@';
+    case TextEditor::CommentsSettings::CommandPrefix::Backslash: return '\\';
+    case TextEditor::CommentsSettings::CommandPrefix::Auto: break;
+    }
+
     if (m_style == QtStyle || m_style == CppStyleA || m_style == CppStyleB)
         return QLatin1Char('\\');
     return QLatin1Char('@');

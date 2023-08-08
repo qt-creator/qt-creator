@@ -14,8 +14,10 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT CommentsSettings
 {
 public:
+    enum class CommandPrefix { Auto, At, Backslash };
     class Data {
     public:
+        CommandPrefix commandPrefix = CommandPrefix::Auto;
         bool enableDoxygen = true;
         bool generateBrief = true;
         bool leadingAsterisks = true;
@@ -28,6 +30,7 @@ public:
     static QString enableDoxygenSettingsKey();
     static QString generateBriefSettingsKey();
     static QString leadingAsterisksSettingsKey();
+    static QString commandPrefixKey();
 
 private:
     CommentsSettings();
@@ -40,6 +43,7 @@ private:
 inline bool operator==(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
 {
     return a.enableDoxygen == b.enableDoxygen
+           && a.commandPrefix == b.commandPrefix
            && a.generateBrief == b.generateBrief
            && a.leadingAsterisks == b.leadingAsterisks;
 }
