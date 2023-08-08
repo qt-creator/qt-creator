@@ -14,7 +14,6 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <QFileInfo>
-#include <QProcess>
 #include <QTcpServer>
 #include <QTest>
 
@@ -148,17 +147,17 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
 {
     QVERIFY(!m_server->hasPendingConnections());
 
-    m_process = new QProcess(m_server);
+    m_process.reset(new Process);
     m_process->setProcessChannelMode(QProcess::ForwardedChannels);
     const QString fakeValgrind = fakeValgrindExecutable();
     const QFileInfo fileInfo(fakeValgrind);
     QVERIFY2(fileInfo.isExecutable(), qPrintable(fakeValgrind));
     QVERIFY2(!fileInfo.isDir(), qPrintable(fakeValgrind));
 
-    m_process->start(
-        fakeValgrind,
-        QStringList({QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()), "-i",
-                     testfile}) << otherArgs);
+    const QStringList args = {QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()),
+                              "-i", testfile};
+    m_process->setCommand({FilePath::fromString(fakeValgrind), args + otherArgs});
+    m_process->start();
 
     QVERIFY(m_process->waitForStarted(5000));
     QCOMPARE(m_process->state(), QProcess::Running);
@@ -171,10 +170,7 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
 void ValgrindMemcheckParserTest::cleanup()
 {
     m_socket.reset();
-    if (m_process) {
-        delete m_process;
-        m_process = nullptr;
-    }
+    m_process.reset();
 }
 
 void ValgrindMemcheckParserTest::testHelgrindSample1()
