@@ -53,6 +53,8 @@ namespace Internal {
 static const QString pidPollingScript = QStringLiteral("while [ -d /proc/%1 ]; do sleep 1; done");
 static const QRegularExpression userIdPattern("u(\\d+)_a");
 
+static const int s_jdbTimeout = 5000;
+
 static int APP_START_TIMEOUT = 45000;
 static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
                             int msecs = APP_START_TIMEOUT)
@@ -217,8 +219,6 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     : m_packageName(packageName)
     , m_psIsAlive(nullptr, deleter)
     , m_debugServerProcess(nullptr, deleter)
-    , m_jdbProcess(nullptr, deleter)
-
 {
     auto runControl = runner->runControl();
     m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
@@ -755,7 +755,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     }
     m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
-    FilePath jdbPath = AndroidConfigurations::currentConfig().openJDKLocation()
+    const FilePath jdbPath = AndroidConfigurations::currentConfig().openJDKLocation()
             .pathAppended("bin/jdb").withExecutableSuffix();
 
     QStringList jdbArgs("-connect");
@@ -763,14 +763,16 @@ void AndroidRunnerWorker::handleJdbWaiting()
                .arg(m_localJdbServerPort.toString());
     qCDebug(androidRunWorkerLog).noquote()
             << "Starting JDB:" << CommandLine(jdbPath, jdbArgs).toUserOutput();
-    std::unique_ptr<QProcess, Deleter> jdbProcess(new QProcess, &deleter);
-    jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
-    jdbProcess->start(jdbPath.toString(), jdbArgs);
-    if (!jdbProcess->waitForStarted()) {
+    m_jdbProcess.reset(new Process);
+    m_jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
+    m_jdbProcess->setCommand({jdbPath, jdbArgs});
+    m_jdbProcess->setReaperTimeout(s_jdbTimeout);
+    m_jdbProcess->start();
+    if (!m_jdbProcess->waitForStarted()) {
         emit remoteProcessFinished(Tr::tr("Failed to start JDB."));
+        m_jdbProcess.reset();
         return;
     }
-    m_jdbProcess = std::move(jdbProcess);
     m_jdbProcess->setObjectName("JdbProcess");
 }
 
@@ -780,7 +782,7 @@ void AndroidRunnerWorker::handleJdbSettled()
     auto waitForCommand = [this] {
         for (int i = 0; i < 120 && m_jdbProcess->state() == QProcess::Running; ++i) {
             m_jdbProcess->waitForReadyRead(500);
-            QByteArray lines = m_jdbProcess->readAll();
+            const QByteArray lines = m_jdbProcess->readAllRawStandardOutput();
             const auto linesList = lines.split('\n');
             for (const auto &line : linesList) {
                 auto msg = line.trimmed();
@@ -792,22 +794,14 @@ void AndroidRunnerWorker::handleJdbSettled()
     };
 
     const QStringList commands{"threads", "cont", "exit"};
-    const int jdbTimeout = 5000;
 
     for (const QString &command : commands) {
-        if (waitForCommand()) {
-            m_jdbProcess->write(QString("%1\n").arg(command).toLatin1());
-            m_jdbProcess->waitForBytesWritten(jdbTimeout);
-        }
+        if (waitForCommand())
+            m_jdbProcess->write(QString("%1\n").arg(command));
     }
 
-    if (!m_jdbProcess->waitForFinished(jdbTimeout)) {
-        m_jdbProcess->terminate();
-        if (!m_jdbProcess->waitForFinished(jdbTimeout)) {
-            qCDebug(androidRunWorkerLog) << "Killing JDB process";
-            m_jdbProcess->kill();
-            m_jdbProcess->waitForFinished();
-        }
+    if (!m_jdbProcess->waitForFinished(s_jdbTimeout)) {
+        m_jdbProcess.reset();
     } else if (m_jdbProcess->exitStatus() == QProcess::NormalExit && m_jdbProcess->exitCode() == 0) {
         qCDebug(androidRunWorkerLog) << "JDB settled";
         return;

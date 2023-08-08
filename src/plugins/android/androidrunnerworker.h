@@ -104,7 +104,7 @@ private:
     JDBState m_jdbState = JDBState::Idle;
     Utils::Port m_localJdbServerPort;
     std::unique_ptr<QProcess, Deleter> m_debugServerProcess; // gdbserver or lldb-server
-    std::unique_ptr<QProcess, Deleter> m_jdbProcess;
+    std::unique_ptr<Utils::Process> m_jdbProcess;
     QString m_deviceSerialNumber;
     int m_apiLevel = -1;
     QString m_extraAppParams;
