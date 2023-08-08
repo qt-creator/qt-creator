@@ -24,21 +24,6 @@ namespace CppEditor::Internal {
 
 DoxygenGenerator::DoxygenGenerator() = default;
 
-void DoxygenGenerator::setStyle(DocumentationStyle style)
-{
-    m_style = style;
-}
-
-void DoxygenGenerator::setGenerateBrief(bool get)
-{
-    m_generateBrief = get;
-}
-
-void DoxygenGenerator::setAddLeadingAsterisks(bool add)
-{
-    m_addLeadingAsterisks = add;
-}
-
 QString DoxygenGenerator::generate(QTextCursor cursor,
                                    const CPlusPlus::Snapshot &snapshot,
                                    const Utils::FilePath &documentFilePath)
@@ -139,7 +124,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
             && decltr->core_declarator->asDeclaratorId()
             && decltr->core_declarator->asDeclaratorId()->name) {
         CoreDeclaratorAST *coreDecl = decltr->core_declarator;
-        if (m_generateBrief)
+        if (m_settings.generateBrief)
             writeBrief(&comment, m_printer.prettyName(coreDecl->asDeclaratorId()->name->name));
         else
             writeNewLine(&comment);
@@ -177,7 +162,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
                 writeCommand(&comment, ReturnCommand);
             }
         }
-    } else if (spec && m_generateBrief) {
+    } else if (spec && m_settings.generateBrief) {
         bool briefWritten = false;
         if (ClassSpecifierAST *classSpec = spec->asClassSpecifier()) {
             if (classSpec->name) {
@@ -248,7 +233,7 @@ void DoxygenGenerator::writeContinuation(QString *comment) const
         comment->append(offsetString() + "///");
     else if (m_style == CppStyleB)
         comment->append(offsetString() + "//!");
-    else if (m_addLeadingAsterisks)
+    else if (m_settings.leadingAsterisks)
         comment->append(offsetString() + " *");
     else
         comment->append(offsetString() + "  ");

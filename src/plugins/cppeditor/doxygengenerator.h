@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <texteditor/commentssettings.h>
+
 #include <cplusplus/Overview.h>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
@@ -25,9 +27,8 @@ public:
         CppStyleB   ///< CppStyle comment variant B: //!
     };
 
-    void setStyle(DocumentationStyle style);
-    void setGenerateBrief(bool gen);
-    void setAddLeadingAsterisks(bool add);
+    void setStyle(DocumentationStyle style) { m_style = style; }
+    void setSettings(const TextEditor::CommentsSettings::Data &settings) { m_settings = settings; }
 
     QString generate(QTextCursor cursor,
                      const CPlusPlus::Snapshot &snapshot,
@@ -58,11 +59,10 @@ private:
     void assignCommentOffset(QTextCursor cursor);
     QString offsetString() const;
 
-    bool m_addLeadingAsterisks = true;
-    bool m_generateBrief = true;
-    DocumentationStyle m_style = QtStyle;
+    TextEditor::CommentsSettings::Data m_settings;
     CPlusPlus::Overview m_printer;
     QString m_commentOffset;
+    DocumentationStyle m_style = QtStyle;
 };
 
 } // namespace CppEditor::Internal
