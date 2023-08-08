@@ -489,9 +489,6 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
 
     When triggering an action, a copy of the state should be made to
     keep it, as it may rapidly change due to context changes, etc.
-
-    The class also detects the VCS plugin submit editor closing and calls
-    the virtual submitEditorAboutToClose() to trigger the submit process.
 */
 
 bool VcsBasePluginPrivate::supportsRepositoryCreation() const
@@ -504,18 +501,19 @@ static Internal::StateListener *m_listener = nullptr;
 VcsBasePluginPrivate::VcsBasePluginPrivate(const Context &context)
     : m_context(context)
 {
-    Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
-    connect(plugin, &Internal::VcsPlugin::submitEditorAboutToClose,
-            this, [this](VcsBaseSubmitEditor *submitEditor, bool *result) {
-        if (submitEditor == m_submitEditor) {
-            *result = submitEditor->promptSubmit(this);
-            if (*result)
+    EditorManager::addCloseEditorListener([this](IEditor *editor) {
+        bool result = true;
+        if (editor == m_submitEditor) {
+            result = m_submitEditor->promptSubmit(this);
+            if (result)
                 discardCommit();
         }
+        return result;
     });
+
     // First time: create new listener
     if (!m_listener)
-        m_listener = new Internal::StateListener(plugin);
+        m_listener = new Internal::StateListener(Internal::VcsPlugin::instance());
     connect(m_listener, &Internal::StateListener::stateChanged,
             this, &VcsBasePluginPrivate::slotStateChanged);
     // VCSes might have become (un-)available, so clear the VCS directory cache
