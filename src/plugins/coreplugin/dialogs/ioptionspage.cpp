@@ -207,11 +207,6 @@ void IOptionsPage::setCategoryIconPath(const FilePath &categoryIconPath)
     m_categoryIconPath = categoryIconPath;
 }
 
-void IOptionsPage::setSettings(AspectContainer *settings)
-{
-    m_settingsProvider = [settings] { return settings; };
-}
-
 void IOptionsPage::setSettingsProvider(const std::function<AspectContainer *()> &provider)
 {
     m_settingsProvider = provider;

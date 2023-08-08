@@ -67,7 +67,6 @@ protected:
     void setCategory(Utils::Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
-    void setSettings(Utils::AspectContainer *settings); // FIXME: Remove.
     void setSettingsProvider(const std::function<Utils::AspectContainer *()> &provider);
 
 private:
