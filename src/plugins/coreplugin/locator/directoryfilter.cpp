@@ -6,6 +6,8 @@
 #include "locator.h"
 #include "../coreplugintr.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fileutils.h>
@@ -87,6 +89,7 @@ DirectoryFilter::DirectoryFilter(Id id)
         return SetupResult::StopWithDone; // Group stops, skips async task
     };
     const auto asyncSetup = [this](Async<FilePaths> &async) {
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
                                     displayName());
     };
