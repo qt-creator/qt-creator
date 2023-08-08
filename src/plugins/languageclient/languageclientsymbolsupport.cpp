@@ -137,13 +137,13 @@ static TextDocumentPositionParams generateDocPosParams(TextEditor::TextDocument 
     return TextDocumentPositionParams(documentId, pos);
 }
 
-void SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
-                               const QTextCursor &cursor,
-                               Utils::LinkHandler callback,
-                               const bool resolveTarget)
+MessageId SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
+                                    const QTextCursor &cursor,
+                                    Utils::LinkHandler callback,
+                                    const bool resolveTarget)
 {
     if (!m_client->reachable())
-        return;
+        return {};
     GotoDefinitionRequest request(generateDocPosParams(document, cursor, m_client));
     std::optional<Utils::Link> linkUnderCursor;
     if (!resolveTarget) {
@@ -165,6 +165,7 @@ void SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
                                           request,
                                           m_client->dynamicCapabilities(),
                                           m_client->capabilities());
+    return request.id();
 }
 
 bool SymbolSupport::supportsFindUsages(TextEditor::TextDocument *document) const

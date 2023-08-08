@@ -149,6 +149,13 @@ public:
     void addAssistProcessor(TextEditor::IAssistProcessor *processor);
     void removeAssistProcessor(TextEditor::IAssistProcessor *processor);
     SymbolSupport &symbolSupport();
+    // In contrast to the findLinkAt of symbol support this find link makes sure that there is only
+    // one request running at a time and cancels the running request if the document changes, cursor
+    // moves or another link is requested
+    void findLinkAt(TextEditor::TextDocument *document,
+                    const QTextCursor &cursor,
+                    Utils::LinkHandler callback,
+                    const bool resolveTarget);
     DocumentSymbolCache *documentSymbolCache();
     HoverHandler *hoverHandler();
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(const Utils::FilePath &filePath,

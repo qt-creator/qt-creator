@@ -25,7 +25,7 @@ class LANGUAGECLIENT_EXPORT SymbolSupport : public QObject
 public:
     explicit SymbolSupport(Client *client);
 
-    void findLinkAt(TextEditor::TextDocument *document,
+    LanguageServerProtocol::MessageId findLinkAt(TextEditor::TextDocument *document,
                     const QTextCursor &cursor,
                     Utils::LinkHandler callback,
                     const bool resolveTarget);

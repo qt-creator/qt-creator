@@ -328,6 +328,7 @@ public:
     ProjectExplorer::Project *m_project = nullptr;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
     SymbolSupport m_symbolSupport;
+    MessageId m_runningFindLinkRequest;
     ProgressManager m_progressManager;
     bool m_activateDocAutomatically = false;
     SemanticTokenSupport m_tokenSupport;
@@ -1112,6 +1113,8 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 {
     if (!d->m_openedDocument.contains(document) || !reachable())
         return;
+    if (d->m_runningFindLinkRequest.isValid())
+        cancelRequest(d->m_runningFindLinkRequest);
     if (d->m_diagnosticManager)
         d->m_diagnosticManager->disableDiagnostics(document);
     const QString method(DidChangeTextDocumentNotification::methodName);
@@ -1252,6 +1255,8 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
 
 void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 {
+    if (d->m_runningFindLinkRequest.isValid())
+        cancelRequest(d->m_runningFindLinkRequest);
     TextEditor::TextDocument *document = widget->textDocument();
     if (d->m_documentsToUpdate.find(document) != d->m_documentsToUpdate.end())
         return; // we are currently changing this document so postpone the DocumentHighlightsRequest
@@ -1272,6 +1277,23 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 SymbolSupport &Client::symbolSupport()
 {
     return d->m_symbolSupport;
+}
+
+void Client::findLinkAt(TextEditor::TextDocument *document,
+                        const QTextCursor &cursor,
+                        Utils::LinkHandler callback,
+                        const bool resolveTarget)
+{
+    if (d->m_runningFindLinkRequest.isValid())
+        cancelRequest(d->m_runningFindLinkRequest);
+    d->m_runningFindLinkRequest = symbolSupport().findLinkAt(
+        document,
+        cursor,
+        [this, callback](const Link &link) {
+            d->m_runningFindLinkRequest = {};
+            callback(link);
+        },
+        resolveTarget);
 }
 
 void Client::requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
