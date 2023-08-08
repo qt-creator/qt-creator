@@ -17,8 +17,6 @@ class DiffAndLogHighlighterPrivate;
 
 class VCSBASE_EXPORT DiffAndLogHighlighter : public TextEditor::SyntaxHighlighter
 {
-    Q_OBJECT
-
 public:
     explicit DiffAndLogHighlighter(const QRegularExpression &filePattern,
                                    const QRegularExpression &changePattern);

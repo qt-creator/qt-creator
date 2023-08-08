@@ -18,8 +18,6 @@ class VcsBaseDiffEditorControllerPrivate;
 
 class VCSBASE_EXPORT VcsBaseDiffEditorController : public DiffEditor::DiffEditorController
 {
-    Q_OBJECT
-
 public:
     explicit VcsBaseDiffEditorController(Core::IDocument *document);
     ~VcsBaseDiffEditorController() override;

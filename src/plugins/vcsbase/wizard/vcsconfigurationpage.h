@@ -30,8 +30,6 @@ public:
 
 class VCSBASE_EXPORT VcsConfigurationPage : public Utils::WizardPage
 {
-    Q_OBJECT
-
 public:
     VcsConfigurationPage();
     ~VcsConfigurationPage() override;

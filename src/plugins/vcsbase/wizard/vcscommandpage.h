@@ -33,8 +33,6 @@ public:
 
 class VcsCommandPage : public Utils::WizardPage
 {
-    Q_OBJECT
-
 public:
     VcsCommandPage();
     ~VcsCommandPage() override;

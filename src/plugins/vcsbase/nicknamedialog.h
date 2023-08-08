@@ -22,8 +22,6 @@ namespace VcsBase::Internal {
 
 class NickNameDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit NickNameDialog(QStandardItemModel *model, QWidget *parent = nullptr);
     ~NickNameDialog() override;
