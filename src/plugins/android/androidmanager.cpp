@@ -1,55 +1,35 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androidmanager.h"
+
 #include "androidavdmanager.h"
 #include "androidbuildapkstep.h"
-#include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androiddeployqtstep.h"
 #include "androiddevice.h"
-#include "androidglobal.h"
-#include "androidmanager.h"
 #include "androidqtversion.h"
-#include "androidrunconfiguration.h"
-#include "androidsdkmanager.h"
-#include "androidtoolchain.h"
 #include "androidtr.h"
-
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/icore.h>
-
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/buildsystem.h>
-
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/baseqtversion.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
+#include <coreplugin/messagemanager.h>
+
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
+
+#include <qtsupport/qtkitaspect.h>
+
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
-#include <QApplication>
 #include <QDomDocument>
-#include <QFileSystemWatcher>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QList>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QProcess>
-#include <QRegularExpression>
 #include <QVersionNumber>
 
 using namespace ProjectExplorer;
