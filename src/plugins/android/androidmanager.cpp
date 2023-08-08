@@ -612,9 +612,14 @@ void AndroidManager::installQASIPackage(Target *target, const FilePath &packageP
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
     arguments << "install" << "-r " << packagePath.path();
     QString error;
-    if (!runAdbCommandDetached(arguments, &error, true))
+    QProcess *process = runAdbCommandDetached(arguments, &error);
+    if (process) {
+        // TODO: Potential leak when the process is still running on Creator shutdown.
+        QObject::connect(process, &QProcess::finished, process, &QObject::deleteLater);
+    } else {
         Core::MessageManager::writeDisrupting(
             Tr::tr("Android package installation failed.\n%1").arg(error));
+    }
 }
 
 bool AndroidManager::checkKeystorePassword(const FilePath &keystorePath,
@@ -666,20 +671,15 @@ bool AndroidManager::checkCertificateExists(const FilePath &keystorePath,
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
-QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString *err,
-                                                bool deleteOnFinish)
+QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString *err)
 {
     std::unique_ptr<QProcess> p(new QProcess);
     const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
     qCDebug(androidManagerLog).noquote() << "Running command (async):"
                                          << CommandLine(adb, args).toUserOutput();
     p->start(adb.toString(), args);
-    if (p->waitForStarted(500) && p->state() == QProcess::Running) {
-        if (deleteOnFinish) {
-            connect(p.get(), &QProcess::finished, p.get(), &QObject::deleteLater);
-        }
+    if (p->waitForStarted(500) && p->state() == QProcess::Running)
         return p.release();
-    }
 
     QString errorStr = QString::fromUtf8(p->readAllStandardError());
     qCDebug(androidManagerLog).noquote() << "Running command (async) failed:"
