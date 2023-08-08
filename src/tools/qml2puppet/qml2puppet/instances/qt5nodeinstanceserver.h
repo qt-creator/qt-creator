@@ -81,10 +81,13 @@ protected:
     virtual QImage grabRenderControl(RenderViewData &viewData);
 
 private:
+    void handleRciSet();
+
     RenderViewData m_viewData;
     QByteArray m_pipelineCacheData;
     QString m_pipelineCacheLocation;
     QString m_pipelineCacheFile;
+    QString m_shaderCacheFile;
     std::unique_ptr<QQuickDesignerSupport> m_designerSupport;
     QQmlEngine *m_qmlEngine = nullptr;
 };

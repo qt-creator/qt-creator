@@ -47,6 +47,13 @@
 #include <QQuickGraphicsConfiguration>
 #include <QStandardPaths>
 #include <QTimer>
+#define USE_PIPELINE_CACHE 1
+
+#if defined(QUICK3D_MODULE) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 2)
+#include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
+#include <QtQuick3D/private/qquick3dscenemanager_p.h>
+#define USE_SHADER_CACHE 1
+#endif
 #endif
 
 namespace QmlDesigner {
@@ -170,7 +177,7 @@ void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
     setupInstances(command);
     resizeCanvasToRootItem();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+#ifdef USE_PIPELINE_CACHE
     if (!m_pipelineCacheLocation.isEmpty()) {
         QString fileId = command.fileUrl.toLocalFile();
         fileId.remove(':');
@@ -181,6 +188,10 @@ void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
         QFile cacheFile(m_pipelineCacheFile);
         if (cacheFile.open(QIODevice::ReadOnly))
             m_pipelineCacheData = cacheFile.readAll();
+
+#ifdef USE_SHADER_CACHE
+        m_shaderCacheFile = m_pipelineCacheFile + ".qsbc";
+#endif
     }
 #endif
 }
@@ -213,7 +224,7 @@ bool Qt5NodeInstanceServer::rootIsRenderable3DObject() const
 
 void Qt5NodeInstanceServer::savePipelineCacheData()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+#ifdef USE_PIPELINE_CACHE
     if (!m_viewData.rhi)
         return;
 
@@ -239,10 +250,24 @@ void Qt5NodeInstanceServer::savePipelineCacheData()
             // Cache file can grow indefinitely, so let's just purge it every so often.
             // The count is stored as the last char in the data.
             char count = m_pipelineCacheData[m_pipelineCacheData.size() - 1];
-            if (count > 25)
+            const char maxCount = 25;
+            if (count > maxCount)
                 cacheFile.remove();
             else if (cacheFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
                 cacheFile.write(m_pipelineCacheData);
+
+#ifdef USE_SHADER_CACHE
+            auto wa = QQuick3DSceneManager::getOrSetWindowAttachment(*m_viewData.window);
+            auto context = wa ? wa->rci().get() : nullptr;
+            if (context && context->shaderCache()) {
+                if (count > maxCount) {
+                    QFile shaderCacheFile(m_shaderCacheFile);
+                    shaderCacheFile.remove();
+                } else {
+                    context->shaderCache()->persistentShaderBakingCache().save(m_shaderCacheFile);
+                }
+            }
+#endif
         });
     }
 #endif
@@ -250,7 +275,7 @@ void Qt5NodeInstanceServer::savePipelineCacheData()
 
 void Qt5NodeInstanceServer::setPipelineCacheConfig([[maybe_unused]] QQuickWindow *w)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+#ifdef USE_PIPELINE_CACHE
     // This dummy file is not actually used for cache as we manage cache save/load ourselves,
     // but some file needs to be set to enable pipeline caching
     const QString cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
@@ -262,6 +287,23 @@ void Qt5NodeInstanceServer::setPipelineCacheConfig([[maybe_unused]] QQuickWindow
     config.setPipelineCacheSaveFile(dummyCache);
     config.setAutomaticPipelineCache(false);
     w->setGraphicsConfiguration(config);
+
+#ifdef USE_SHADER_CACHE
+    QtQuick3DEditorHelpers::ShaderCache::setAutomaticDiskCache(false);
+    auto wa = QQuick3DSceneManager::getOrSetWindowAttachment(*w);
+    connect(wa, &QQuick3DWindowAttachment::renderContextInterfaceChanged,
+            this, &Qt5NodeInstanceServer::handleRciSet);
+#endif
+#endif
+}
+
+void Qt5NodeInstanceServer::handleRciSet()
+{
+#ifdef USE_SHADER_CACHE
+    auto wa = qobject_cast<QQuick3DWindowAttachment *>(sender());
+    auto context = wa ? wa->rci().get() : nullptr;
+    if (context && context->shaderCache())
+        context->shaderCache()->persistentShaderBakingCache().load(m_shaderCacheFile);
 #endif
 }
 
@@ -281,7 +323,7 @@ bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
             qWarning() << __FUNCTION__ << "Rhi is null";
             return false;
         }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+#ifdef USE_PIPELINE_CACHE
         if (!m_pipelineCacheData.isEmpty())
             viewData.rhi->setPipelineCacheData(m_pipelineCacheData.left(m_pipelineCacheData.size() - 1));
 #endif
