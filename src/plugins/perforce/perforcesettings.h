@@ -84,10 +84,6 @@ private:
     QDir *m_topLevelDir = nullptr;
 };
 
-class PerforceSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit PerforceSettingsPage(PerforceSettings *settings);
-};
+PerforceSettings &settings();
 
 } // Perforce::Internal

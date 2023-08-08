@@ -30,6 +30,12 @@ static QString defaultCommand()
     return QLatin1String("p4" QTC_HOST_EXE_SUFFIX);
 }
 
+PerforceSettings &settings()
+{
+    static PerforceSettings theSettings;
+    return theSettings;
+}
+
 PerforceSettings::PerforceSettings()
 {
     setSettingsGroup("Perforce");
@@ -138,6 +144,8 @@ PerforceSettings::PerforceSettings()
             st
         };
     });
+
+    readSettings();
 }
 
 // --------------------PerforceSettings
@@ -270,13 +278,19 @@ QString PerforceSettings::mapToFileSystem(const QString &perforceFilePath) const
 
 // SettingsPage
 
-PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
+class PerforceSettingsPage final : public Core::IOptionsPage
 {
-    setId(VcsBase::Constants::VCS_ID_PERFORCE);
-    setDisplayName(Tr::tr("Perforce"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(settings);
+public:
+    explicit PerforceSettingsPage()
+    {
+        setId(VcsBase::Constants::VCS_ID_PERFORCE);
+        setDisplayName(Tr::tr("Perforce"));
+        setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
 
-}
+    }
+};
+
+const PerforceSettingsPage settingsPage;
 
 } // Perforce::Internal
