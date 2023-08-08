@@ -260,8 +260,12 @@ void DapEngine::setupEngine()
     if (currentPerspective->parentPerspectiveId() == Constants::CMAKE_PERSPECTIVE_ID) {
         qCDebug(dapEngineLog) << "build system name" << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
 
-        m_dataGenerator = std::make_unique<LocalSocketDataProvider>(
-            TemporaryDirectory::masterDirectoryPath() + "/cmake-dap.sock");
+        if (TemporaryDirectory::masterDirectoryFilePath().osType() == Utils::OsType::OsTypeWindows) {
+            m_dataGenerator = std::make_unique<LocalSocketDataProvider>("\\\\.\\pipe\\cmake-dap");
+        } else {
+            m_dataGenerator = std::make_unique<LocalSocketDataProvider>(
+                TemporaryDirectory::masterDirectoryPath() + "/cmake-dap.sock");
+        }
         connectDataGeneratorSignals();
 
         connect(ProjectExplorer::ProjectTree::currentBuildSystem(),
