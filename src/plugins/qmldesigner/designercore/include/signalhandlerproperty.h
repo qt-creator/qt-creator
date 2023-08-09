@@ -24,7 +24,6 @@ public:
     static PropertyName prefixAdded(const PropertyName &propertyName);
     static PropertyName prefixRemoved(const PropertyName &propertyName);
 
-protected:
     SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };
 
@@ -40,8 +39,6 @@ public:
 
     SignalDeclarationProperty();
     SignalDeclarationProperty(const SignalDeclarationProperty &property, AbstractView *view);
-
-protected:
     SignalDeclarationProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };
 

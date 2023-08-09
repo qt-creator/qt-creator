@@ -270,6 +270,8 @@ public:
 private: // functions
     Internal::InternalNodePointer internalNode() const { return m_internalNode; }
 
+    template<typename Type, typename... PropertyType>
+    QList<Type> properties(PropertyType... type) const;
     bool hasLocked() const;
 
 private: // variables

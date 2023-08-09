@@ -509,46 +509,22 @@ The list of all properties containing just an atomic value.
 */
 QList<VariantProperty> ModelNode::variantProperties() const
 {
-    QList<VariantProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &abstractProperty : abstractProperties)
-        if (abstractProperty.isVariantProperty())
-            propertyList.append(abstractProperty.toVariantProperty());
-    return propertyList;
+    return properties<VariantProperty>(PropertyType::Variant);
 }
 
 QList<NodeAbstractProperty> ModelNode::nodeAbstractProperties() const
 {
-    QList<NodeAbstractProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &nodeAbstractProperty : abstractProperties)
-        if (nodeAbstractProperty.isNodeAbstractProperty())
-            propertyList.append(nodeAbstractProperty.toNodeAbstractProperty());
-    return propertyList;
+    return properties<NodeAbstractProperty>(PropertyType::Node, PropertyType::NodeList);
 }
 
 QList<NodeProperty> ModelNode::nodeProperties() const
 {
-    QList<NodeProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &nodeProperty : abstractProperties)
-        if (nodeProperty.isNodeProperty())
-            propertyList.append(nodeProperty.toNodeProperty());
-    return propertyList;
+    return properties<NodeProperty>(PropertyType::Node);
 }
 
 QList<NodeListProperty> ModelNode::nodeListProperties() const
 {
-    QList<NodeListProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &nodeListProperty : abstractProperties)
-        if (nodeListProperty.isNodeListProperty())
-            propertyList.append(nodeListProperty.toNodeListProperty());
-    return propertyList;
+    return properties<NodeListProperty>(PropertyType::NodeList);
 }
 
 /*! \brief returns a list of all BindingProperties
@@ -559,36 +535,29 @@ The list of all properties containing an expression.
 */
 QList<BindingProperty> ModelNode::bindingProperties() const
 {
-    QList<BindingProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &bindingProperty : abstractProperties)
-        if (bindingProperty.isBindingProperty())
-            propertyList.append(bindingProperty.toBindingProperty());
-    return propertyList;
+    return properties<BindingProperty>(PropertyType::Binding);
 }
 
 QList<SignalHandlerProperty> ModelNode::signalProperties() const
 {
-    QList<SignalHandlerProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &property : abstractProperties)
-        if (property.isSignalHandlerProperty())
-            propertyList.append(property.toSignalHandlerProperty());
-    return propertyList;
+    return properties<SignalHandlerProperty>(PropertyType::SignalHandler);
 }
 
 QList<AbstractProperty> ModelNode::dynamicProperties() const
 {
-    QList<AbstractProperty> propertyList;
+    if (!isValid())
+        return {};
 
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &abstractProperty : abstractProperties) {
-        if (abstractProperty.isDynamic())
-            propertyList.append(abstractProperty);
+    QList<AbstractProperty> properties;
+
+    for (const auto &propertyEntry : *m_internalNode.get()) {
+        auto propertyName = propertyEntry.first;
+        auto property = propertyEntry.second;
+        if (property->dynamicTypeName().size())
+            properties.emplace_back(propertyName, m_internalNode, model(), view());
     }
-    return propertyList;
+
+    return properties;
 }
 
 /*!
@@ -793,6 +762,25 @@ PropertyNameList ModelNode::propertyNames() const
         return {};
 
     return m_internalNode->propertyNameList();
+}
+
+template<typename Type, typename... PropertyType>
+QList<Type> ModelNode::properties(PropertyType... type) const
+{
+    if (!isValid())
+        return {};
+
+    QList<Type> properties;
+
+    for (const auto &propertyEntry : *m_internalNode.get()) {
+        auto propertyName = propertyEntry.first;
+        auto property = propertyEntry.second;
+        auto propertyType = property->type();
+        if (((propertyType == type) || ...))
+            properties.emplace_back(propertyName, m_internalNode, model(), view());
+    }
+
+    return properties;
 }
 
 /*! \brief test a if a property is set for this node

@@ -53,6 +53,10 @@ public:
     AbstractProperty &operator=(AbstractProperty &&) noexcept = default;
     ~AbstractProperty();
     AbstractProperty(const AbstractProperty &property, AbstractView *view);
+    AbstractProperty(const PropertyName &propertyName,
+                     const Internal::InternalNodePointer &internalNode,
+                     Model *model,
+                     AbstractView *view);
 
     const PropertyName &name() const;
 
@@ -124,7 +128,6 @@ public:
     }
 
 protected:
-    AbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
     AbstractProperty(const Internal::InternalPropertyPointer &property,
                      Model *model,
                      AbstractView *view);

@@ -119,8 +119,8 @@ public:
         auto found = m_nameProperties.find(name);
         if (found != m_nameProperties.end()) {
             auto property = found->second;
-            if (property->propertyType() == PropertyType::NodeList
-                || property->propertyType() == PropertyType::Node) {
+            auto propertyType = property->propertyType();
+            if (propertyType == PropertyType::NodeList || propertyType == PropertyType::Node) {
                 return std::static_pointer_cast<InternalNodeAbstractProperty>(property);
             }
         }
@@ -201,7 +201,11 @@ public:
         m_nameProperties.erase(found); // C++ 23 -> m_nameProperties.erase(name)
     }
 
-protected:
+    using PropertyDict = std::map<PropertyName, InternalPropertyPointer, std::less<>>;
+
+    PropertyDict::const_iterator begin() const { return m_nameProperties.begin(); }
+
+    PropertyDict::const_iterator end() const { return m_nameProperties.end(); }
 
 public:
     TypeName typeName;
@@ -221,7 +225,7 @@ public:
 private:
     AuxiliaryDatas m_auxiliaryDatas;
     InternalNodeAbstractProperty::WeakPointer m_parentProperty;
-    std::map<PropertyName, InternalPropertyPointer, std::less<>> m_nameProperties;
+    PropertyDict m_nameProperties;
 };
 
 } // Internal
