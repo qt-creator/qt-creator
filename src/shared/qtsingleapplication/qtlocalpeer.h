@@ -3,11 +3,12 @@
 
 #pragma once
 
-#include <qtlockedfile.h>
 
+#include <QDir>
 #include <QLocalServer>
 #include <QLocalSocket>
-#include <QDir>
+#include <QLockFile>
+#include <QScopedPointer>
 
 namespace SharedTools {
 
@@ -31,8 +32,8 @@ protected:
 
     QString id;
     QString socketName;
-    QLocalServer* server;
-    QtLockedFile lockFile;
+    QLocalServer* server{nullptr};
+    QScopedPointer<QLockFile> lockFile;
 };
 
 } // namespace SharedTools
