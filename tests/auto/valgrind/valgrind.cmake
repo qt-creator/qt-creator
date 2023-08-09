@@ -24,6 +24,5 @@ function(extend_valgrind_test targetName)
       xmlprotocol/stackmodel.h xmlprotocol/stackmodel.cpp
       xmlprotocol/status.h xmlprotocol/status.cpp
       xmlprotocol/suppression.h xmlprotocol/suppression.cpp
-      xmlprotocol/threadedparser.h xmlprotocol/threadedparser.cpp
   )
 endfunction()

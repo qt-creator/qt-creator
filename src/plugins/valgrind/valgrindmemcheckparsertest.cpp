@@ -249,8 +249,8 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
     Parser parser;
     Recorder rec(&parser);
 
-    parser.setIODevice(m_socket.release());
-    parser.start();
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -258,7 +258,7 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
 
     QVERIFY2(parser.errorString().isEmpty(), qPrintable(parser.errorString()));
     const QList<Error> actualErrors = rec.errors;
-
+    QVERIFY(!actualErrors.isEmpty());
     if (actualErrors.first() != expectedErrors.first()) {
         dumpError(actualErrors.first());
         dumpError(expectedErrors.first());
@@ -324,8 +324,8 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
     Parser parser;
     Recorder rec(&parser);
 
-    parser.setIODevice(m_socket.release());
-    parser.start();
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -333,7 +333,7 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
 
     QVERIFY2(parser.errorString().isEmpty(), qPrintable(parser.errorString()));
     const QList<Error> actualErrors = rec.errors;
-
+    QVERIFY(!actualErrors.isEmpty());
     if (actualErrors.first() != expectedErrors.first()) {
         dumpError(actualErrors.first());
         dumpError(expectedErrors.first());
@@ -358,8 +358,8 @@ void ValgrindMemcheckParserTest::testMemcheckSample2()
     Parser parser;
     Recorder rec(&parser);
 
-    parser.setIODevice(m_socket.release());
-    parser.start();
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -387,8 +387,8 @@ void ValgrindMemcheckParserTest::testMemcheckSample3()
     Parser parser;
     Recorder rec(&parser);
 
-    parser.setIODevice(m_socket.release());
-    parser.start();
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -443,8 +443,8 @@ void ValgrindMemcheckParserTest::testMemcheckCharm()
     Parser parser;
     Recorder rec(&parser);
 
-    parser.setIODevice(m_socket.release());
-    parser.start();
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -460,8 +460,8 @@ void ValgrindMemcheckParserTest::testValgrindCrash()
     initTest(dataFile("memcheck-output-sample1.xml"), QStringList("--crash"));
 
     Parser parser;
-    parser.setIODevice(m_socket.release());
-    parser.start();
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
     m_process->waitForFinished();
     QCOMPARE(m_process->state(), QProcess::NotRunning);
     QCOMPARE(m_process->exitStatus(), QProcess::CrashExit);
@@ -474,8 +474,8 @@ void ValgrindMemcheckParserTest::testValgrindGarbage()
     initTest(dataFile("memcheck-output-sample1.xml"), QStringList("--garbage"));
 
     Parser parser;
-    parser.setIODevice(m_socket.release());
-    parser.start();
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
     m_process->waitForFinished();
     QCOMPARE(m_process->state(), QProcess::NotRunning);
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);

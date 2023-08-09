@@ -69,7 +69,6 @@ QtcPlugin {
             "stackmodel.cpp", "stackmodel.h",
             "status.cpp", "status.h",
             "suppression.cpp", "suppression.h",
-            "threadedparser.cpp", "threadedparser.h",
         ]
     }
 

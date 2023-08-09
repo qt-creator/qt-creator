@@ -6,13 +6,14 @@
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
-class QIODevice;
+class QAbstractSocket;
 QT_END_NAMESPACE
 
 namespace Valgrind::XmlProtocol {
 
 class AnnounceThread;
 class Error;
+class ParserPrivate;
 class Status;
 
 /**
@@ -28,8 +29,13 @@ public:
 
     QString errorString() const;
     // The passed device needs to be open. The parser takes ownership of the passed device.
-    void setIODevice(QIODevice *device);
+    void setSocket(QAbstractSocket *socket);
+    // Alternatively, the data to be parsed may be set manually
+    void setData(const QByteArray &data);
+
     void start();
+    bool isRunning() const;
+    bool runBlocking();
 
 signals:
     void status(const Status &status);
@@ -40,8 +46,7 @@ signals:
     void done(bool success, const QString &errorString);
 
 private:
-    class Private;
-    Private *const d;
+    std::unique_ptr<ParserPrivate> d;
 };
 
 } // Valgrind::XmlProtocol

@@ -13,8 +13,8 @@
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/errorlistmodel.h"
 #include "xmlprotocol/frame.h"
+#include "xmlprotocol/parser.h"
 #include "xmlprotocol/stack.h"
-#include "xmlprotocol/threadedparser.h"
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
@@ -438,6 +438,7 @@ private:
     QAction *m_goNext;
     bool m_toolBusy = false;
 
+    std::unique_ptr<Parser> m_logParser;
     QString m_exitMsg;
     Perspective m_perspective{"Memcheck.Perspective", Tr::tr("Memcheck")};
 
@@ -1034,9 +1035,8 @@ void MemcheckToolPrivate::loadExternalXmlLogFile()
 
 void MemcheckToolPrivate::loadXmlLogFile(const QString &filePath)
 {
-    auto logFile = new QFile(filePath);
-    if (!logFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
-        delete logFile;
+    QFile logFile(filePath);
+    if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QString msg = Tr::tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
@@ -1055,18 +1055,17 @@ void MemcheckToolPrivate::loadXmlLogFile(const QString &filePath)
         updateFromSettings();
     }
 
-    auto parser = new ThreadedParser;
-    connect(parser, &ThreadedParser::error,
-            this, &MemcheckToolPrivate::parserError);
-    connect(parser, &ThreadedParser::done, this, [this, parser](bool success, const QString &err) {
+    m_logParser.reset(new Parser);
+    connect(m_logParser.get(), &Parser::error, this, &MemcheckToolPrivate::parserError);
+    connect(m_logParser.get(), &Parser::done, this, [this](bool success, const QString &err) {
         if (!success)
             internalParserError(err);
         loadingExternalXmlLogFileFinished();
-        parser->deleteLater();
+        m_logParser.release()->deleteLater();
     });
 
-    parser->setIODevice(logFile);
-    parser->start();
+    m_logParser->setData(logFile.readAll());
+    m_logParser->start();
 }
 
 void MemcheckToolPrivate::parserError(const Error &error)

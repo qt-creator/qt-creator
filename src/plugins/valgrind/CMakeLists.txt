@@ -39,7 +39,6 @@ add_qtc_plugin(Valgrind
     xmlprotocol/stackmodel.cpp xmlprotocol/stackmodel.h
     xmlprotocol/status.cpp xmlprotocol/status.h
     xmlprotocol/suppression.cpp xmlprotocol/suppression.h
-    xmlprotocol/threadedparser.cpp xmlprotocol/threadedparser.h
 )
 
 extend_qtc_plugin(Valgrind

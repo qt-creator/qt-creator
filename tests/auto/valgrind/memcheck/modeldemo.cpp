@@ -9,7 +9,6 @@
 #include <valgrind/xmlprotocol/parser.h>
 #include <valgrind/xmlprotocol/stack.h>
 #include <valgrind/xmlprotocol/status.h>
-#include <valgrind/xmlprotocol/threadedparser.h>
 
 #include "modeldemo.h"
 

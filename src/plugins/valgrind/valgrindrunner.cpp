@@ -4,7 +4,7 @@
 #include "valgrindrunner.h"
 
 #include "valgrindtr.h"
-#include "xmlprotocol/threadedparser.h"
+#include "xmlprotocol/parser.h"
 
 #include <projectexplorer/runcontrol.h>
 
@@ -59,7 +59,7 @@ public:
     QHostAddress m_localServerAddress;
 
     QTcpServer m_xmlServer;
-    ThreadedParser m_parser;
+    Parser m_parser;
     QTcpServer m_logServer;
 };
 
@@ -68,7 +68,7 @@ void ValgrindRunner::Private::xmlSocketConnected()
     QTcpSocket *socket = m_xmlServer.nextPendingConnection();
     QTC_ASSERT(socket, return);
     m_xmlServer.close();
-    m_parser.setIODevice(socket);
+    m_parser.setSocket(socket);
     m_parser.start();
 }
 
@@ -161,9 +161,9 @@ bool ValgrindRunner::Private::run()
 ValgrindRunner::ValgrindRunner(QObject *parent)
     : QObject(parent), d(new Private(this))
 {
-    connect(&d->m_parser, &ThreadedParser::status, this, &ValgrindRunner::status);
-    connect(&d->m_parser, &ThreadedParser::error, this, &ValgrindRunner::error);
-    connect(&d->m_parser, &ThreadedParser::done, this, [this](bool success, const QString &err) {
+    connect(&d->m_parser, &Parser::status, this, &ValgrindRunner::status);
+    connect(&d->m_parser, &Parser::error, this, &ValgrindRunner::error);
+    connect(&d->m_parser, &Parser::done, this, [this](bool success, const QString &err) {
         if (!success)
             emit internalError(err);
     });
