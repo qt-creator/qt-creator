@@ -1269,7 +1269,16 @@ FilePath FilePath::fromSettings(const QVariant &variant)
         const QUrl url = variant.toUrl();
         return FilePath::fromParts(url.scheme(), url.host(), url.path());
     }
-    return FilePath::fromUserInput(variant.toString());
+
+    // The installer sometimes fails and adds "docker:/..." instead of "docker://...
+    // So we fix these paths here in those cases.
+    QString data = variant.toString();
+    if (data.length() > 8 && data.startsWith("docker:/") && data[8] != '/') {
+        qWarning() << "Broken path in settings:" << data << ", applying workaround.";
+        data.insert(8, '/');
+    }
+
+    return FilePath::fromUserInput(data);
 }
 
 QVariant FilePath::toSettings() const
