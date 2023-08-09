@@ -44,9 +44,17 @@ QTextCursor rangeToTextCursor(const Range &range, QTextDocument *doc)
 
 ChangeSet::Range convertRange(const QTextDocument *doc, const Range &range)
 {
-    return ChangeSet::Range(
-        Text::positionInText(doc, range.start().line() + 1, range.start().character() + 1),
-        Text::positionInText(doc, range.end().line() + 1, range.end().character()) + 1);
+    int start = range.start().toPositionInDocument(doc);
+    int end = range.end().toPositionInDocument(doc);
+    // This addesses an issue from the python language server where the reported end line
+    // was behind the actual end of the document. As a workaround treat every position after
+    // the end of the document as the end of the document.
+    if (end < 0 && range.end().line() >= doc->blockCount()) {
+        QTextCursor tc(doc->firstBlock());
+        tc.movePosition(QTextCursor::End);
+        end = tc.position();
+    }
+    return ChangeSet::Range(start, end);
 }
 
 ChangeSet editsToChangeSet(const QList<TextEdit> &edits, const QTextDocument *doc)
