@@ -681,8 +681,6 @@ public:
     Console m_console; // ensure Debugger Console is created before settings are taken into account
     QStringList m_arguments;
 
-    DebuggerItemManager m_debuggerItemManager;
-
     QList<IOptionsPage *> m_optionPages;
     IContext m_debugModeContext;
 
@@ -1772,17 +1770,17 @@ void DebuggerPlugin::autoDetectDebuggersForDevice(const FilePaths &searchPaths,
                                                   const QString &detectionSource,
                                                   QString *logMessage)
 {
-    dd->m_debuggerItemManager.autoDetectDebuggersForDevice(searchPaths, detectionSource, logMessage);
+    DebuggerItemManager::autoDetectDebuggersForDevice(searchPaths, detectionSource, logMessage);
 }
 
 void DebuggerPlugin::removeDetectedDebuggers(const QString &detectionSource, QString *logMessage)
 {
-    dd->m_debuggerItemManager.removeDetectedDebuggers(detectionSource, logMessage);
+    DebuggerItemManager::removeDetectedDebuggers(detectionSource, logMessage);
 }
 
 void DebuggerPlugin::listDetectedDebuggers(const QString &detectionSource, QString *logMessage)
 {
-    dd->m_debuggerItemManager.listDetectedDebuggers(detectionSource, logMessage);
+    DebuggerItemManager::listDetectedDebuggers(detectionSource, logMessage);
 }
 
 void DebuggerPluginPrivate::attachToQmlPort()

@@ -17,8 +17,6 @@
 
 namespace Debugger {
 
-class DebuggerItemManager;
-
 namespace Internal {
 class DebuggerConfigWidget;
 class DebuggerItemConfigWidget;
@@ -107,7 +105,6 @@ private:
     friend class Internal::DebuggerConfigWidget;
     friend class Internal::DebuggerItemConfigWidget;
     friend class Internal::DebuggerItemModel;
-    friend class DebuggerItemManager;
 };
 
 } // namespace Debugger

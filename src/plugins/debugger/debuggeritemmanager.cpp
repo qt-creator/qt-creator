@@ -56,32 +56,10 @@ const char DEBUGGER_FILE_VERSION_KEY[] = "Version";
 const char DEBUGGER_FILENAME[] = "debuggers.xml";
 const char debuggingToolsWikiLinkC[] = "http://wiki.qt.io/Qt_Creator_Windows_Debugging";
 
-class DebuggerItemModel;
-
-class DebuggerItemManagerPrivate
+static FilePath userSettingsFileName()
 {
-public:
-    DebuggerItemManagerPrivate();
-    ~DebuggerItemManagerPrivate();
-
-    void restoreDebuggers();
-    void saveDebuggers();
-
-    void addDebugger(const DebuggerItem &item);
-    QVariant registerDebugger(const DebuggerItem &item);
-    void readDebuggers(const FilePath &fileName, bool isSystem);
-    void autoDetectCdbDebuggers();
-    void autoDetectGdbOrLldbDebuggers(const FilePaths &searchPaths,
-                                      const QString &detectionSource,
-                                      QString *logMessage = nullptr);
-    void autoDetectUvscDebuggers();
-    QString uniqueDisplayName(const QString &base);
-
-    PersistentSettingsWriter m_writer;
-    DebuggerItemModel *m_model = nullptr;
-};
-
-static DebuggerItemManagerPrivate *d = nullptr;
+    return ICore::userResourcePath(DEBUGGER_FILENAME);
+}
 
 // -----------------------------------------------------------------------
 // DebuggerItemConfigWidget
@@ -177,19 +155,39 @@ public:
 
     QModelIndex lastIndex() const;
     void setCurrentIndex(const QModelIndex &index);
-    DebuggerTreeItem *addDebugger(const DebuggerItem &item, bool changed = false);
+    DebuggerTreeItem *addDebuggerItem(const DebuggerItem &item, bool changed = false);
     void updateDebugger(const DebuggerItem &item);
     void apply();
     void cancel();
     DebuggerTreeItem *currentTreeItem();
 
+    void restoreDebuggers();
+    void saveDebuggers();
+
+    void addDebugger(const DebuggerItem &item);
+    QVariant registerDebugger(const DebuggerItem &item);
+    void readDebuggers(const FilePath &fileName, bool isSystem);
+    void autoDetectCdbDebuggers();
+    void autoDetectGdbOrLldbDebuggers(const FilePaths &searchPaths,
+                                      const QString &detectionSource,
+                                      QString *logMessage = nullptr);
+    void autoDetectUvscDebuggers();
+    QString uniqueDisplayName(const QString &base);
+
+    PersistentSettingsWriter m_writer{userSettingsFileName(), "QtCreatorDebuggers"};
     QPersistentModelIndex m_currentIndex;
 };
+
+static DebuggerItemModel &itemModel()
+{
+    static DebuggerItemModel theModel;
+    return theModel;
+}
 
 template <typename Predicate>
 void forAllDebuggers(const Predicate &pred)
 {
-    d->m_model->forItemsAtLevel<2>([pred](DebuggerTreeItem *titem) {
+    itemModel().forItemsAtLevel<2>([pred](DebuggerTreeItem *titem) {
         pred(titem->m_item);
     });
 }
@@ -197,7 +195,7 @@ void forAllDebuggers(const Predicate &pred)
 template <typename Predicate>
 const DebuggerItem *findDebugger(const Predicate &pred)
 {
-    DebuggerTreeItem *titem = d->m_model->findItemAtLevel<2>([pred](DebuggerTreeItem *titem) {
+    DebuggerTreeItem *titem = itemModel().findItemAtLevel<2>([pred](DebuggerTreeItem *titem) {
         return pred(titem->m_item);
     });
     return titem ? &titem->m_item : nullptr;
@@ -231,9 +229,12 @@ DebuggerItemModel::DebuggerItemModel()
     genericLldb.setCommand("lldb");
     genericLldb.setUnexpandedDisplayName(Tr::tr("LLDB from PATH on Build Device"));
     generic->appendChild(new DebuggerTreeItem(genericLldb, false));
+
+    connect(ICore::instance(), &ICore::saveSettingsRequested,
+            this, &DebuggerItemModel::saveDebuggers);
 }
 
-DebuggerTreeItem *DebuggerItemModel::addDebugger(const DebuggerItem &item, bool changed)
+DebuggerTreeItem *DebuggerItemModel::addDebuggerItem(const DebuggerItem &item, bool changed)
 {
     QTC_ASSERT(item.id().isValid(), return {});
     int group = item.isGeneric() ? Generic : (item.isAutoDetected() ? AutoDetected : Manual);
@@ -410,7 +411,7 @@ DebuggerItem DebuggerItemConfigWidget::item() const
 void DebuggerItemConfigWidget::store() const
 {
     if (!m_id.isNull())
-        d->m_model->updateDebugger(item());
+        itemModel().updateDebugger(item());
 }
 
 void DebuggerItemConfigWidget::setAbis(const QStringList &abiNames)
@@ -492,7 +493,7 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
     store();
 }
 
-void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
+void DebuggerItemModel::autoDetectCdbDebuggers()
 {
     FilePaths cdbs;
 
@@ -563,7 +564,7 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
         item.setEngineType(CdbEngineType);
         item.setUnexpandedDisplayName(uniqueDisplayName(Tr::tr("Auto-detected CDB at %1").arg(cdb.toUserOutput())));
         item.reinitializeFromFile(); // collect version number
-        m_model->addDebugger(item);
+        addDebuggerItem(item);
     }
 }
 
@@ -599,7 +600,7 @@ static Utils::FilePaths searchGdbPathsFromRegistry()
     return searchPaths;
 }
 
-void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPaths,
+void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPaths,
                                                               const QString &detectionSource,
                                                               QString *logMessage)
 {
@@ -646,7 +647,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
         const auto commandMatches = [command](const DebuggerTreeItem *titem) {
             return titem->m_item.command() == command;
         };
-        if (DebuggerTreeItem *existingItem = m_model->findItemAtLevel<2>(commandMatches)) {
+        if (DebuggerTreeItem *existingItem = findItemAtLevel<2>(commandMatches)) {
             if (command.lastModified() != existingItem->m_item.lastModified())
                 existingItem->m_item.reinitializeFromFile();
             continue;
@@ -662,14 +663,14 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
         //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
         const QString name = detectionSource.isEmpty() ? Tr::tr("System %1 at %2") : Tr::tr("Detected %1 at %2");
         item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
-        m_model->addDebugger(item);
+        addDebuggerItem(item);
         logMessages.append(Tr::tr("Found: \"%1\"").arg(command.toUserOutput()));
 
         if (item.engineType() == GdbEngineType) {
             if (item.version().startsWith("GNU gdb (GDB) 14.0.50.2023")) {
                 // FIXME: Use something more robust
                 item.setEngineType(DapEngineType);
-                m_model->addDebugger(item);
+                addDebuggerItem(item);
             }
         }
     }
@@ -677,7 +678,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
         *logMessage = logMessages.join('\n');
 }
 
-void DebuggerItemManagerPrivate::autoDetectUvscDebuggers()
+void DebuggerItemModel::autoDetectUvscDebuggers()
 {
     if (!HostOsInfo::isWindowsHost())
         return;
@@ -714,28 +715,11 @@ void DebuggerItemManagerPrivate::autoDetectUvscDebuggers()
         item.setUnexpandedDisplayName(
                     uniqueDisplayName(Tr::tr("Auto-detected uVision at %1")
                                       .arg(uVision.toUserOutput())));
-        m_model->addDebugger(item);
+        addDebuggerItem(item);
     }
 }
 
-static FilePath userSettingsFileName()
-{
-    return ICore::userResourcePath(DEBUGGER_FILENAME);
-}
-
-DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
-    : m_writer(userSettingsFileName(), "QtCreatorDebuggers")
-{
-    d = this;
-    m_model = new DebuggerItemModel;
-}
-
-DebuggerItemManagerPrivate::~DebuggerItemManagerPrivate()
-{
-    delete m_model;
-}
-
-QString DebuggerItemManagerPrivate::uniqueDisplayName(const QString &base)
+QString DebuggerItemModel::uniqueDisplayName(const QString &base)
 {
     const DebuggerItem *item = findDebugger([base](const DebuggerItem &item) {
         return item.unexpandedDisplayName() == base;
@@ -743,10 +727,10 @@ QString DebuggerItemManagerPrivate::uniqueDisplayName(const QString &base)
     return item ? uniqueDisplayName(base + " (1)") : base;
 }
 
-QVariant DebuggerItemManagerPrivate::registerDebugger(const DebuggerItem &item)
+QVariant DebuggerItemModel::registerDebugger(const DebuggerItem &item)
 {
     // Try re-using existing item first.
-    DebuggerTreeItem *titem = m_model->findItemAtLevel<2>([item](DebuggerTreeItem *titem) {
+    DebuggerTreeItem *titem = findItemAtLevel<2>([item](DebuggerTreeItem *titem) {
         const DebuggerItem &d = titem->m_item;
         return d.command() == item.command()
                 && d.isAutoDetected() == item.isAutoDetected()
@@ -762,11 +746,11 @@ QVariant DebuggerItemManagerPrivate::registerDebugger(const DebuggerItem &item)
     if (!di.id().isValid())
         di.createId();
 
-    m_model->addDebugger(di);
+    addDebuggerItem(di);
     return di.id();
 }
 
-void DebuggerItemManagerPrivate::readDebuggers(const FilePath &fileName, bool isSystem)
+void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
 {
     PersistentSettingsReader reader;
     if (!reader.load(fileName))
@@ -809,7 +793,7 @@ void DebuggerItemManagerPrivate::readDebuggers(const FilePath &fileName, bool is
     }
 }
 
-void DebuggerItemManagerPrivate::restoreDebuggers()
+void DebuggerItemModel::restoreDebuggers()
 {
     // Read debuggers from SDK
     readDebuggers(ICore::installerResourcePath(DEBUGGER_FILENAME), true);
@@ -825,7 +809,7 @@ void DebuggerItemManagerPrivate::restoreDebuggers()
     autoDetectUvscDebuggers();
 }
 
-void DebuggerItemManagerPrivate::saveDebuggers()
+void DebuggerItemModel::saveDebuggers()
 {
     QVariantMap data;
     data.insert(DEBUGGER_FILE_VERSION_KEY, 1);
@@ -854,21 +838,9 @@ void DebuggerItemManagerPrivate::saveDebuggers()
 // DebuggerItemManager
 // --------------------------------------------------------------------------
 
-DebuggerItemManager::DebuggerItemManager()
-{
-    new DebuggerItemManagerPrivate;
-    QObject::connect(ICore::instance(), &ICore::saveSettingsRequested,
-                     [] { d->saveDebuggers(); });
-}
-
-DebuggerItemManager::~DebuggerItemManager()
-{
-    delete d;
-}
-
 void DebuggerItemManager::restoreDebuggers()
 {
-    d->restoreDebuggers();
+    itemModel().restoreDebuggers();
 }
 
 const QList<DebuggerItem> DebuggerItemManager::debuggers()
@@ -901,14 +873,14 @@ const DebuggerItem *DebuggerItemManager::findByEngineType(DebuggerEngineType eng
 
 QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
-    return d->registerDebugger(item);
+    return itemModel().registerDebugger(item);
 }
 
 void DebuggerItemManager::deregisterDebugger(const QVariant &id)
 {
-    d->m_model->forItemsAtLevel<2>([id](DebuggerTreeItem *titem) {
+    itemModel().forItemsAtLevel<2>([id](DebuggerTreeItem *titem) {
         if (titem->m_item.id() == id)
-            d->m_model->destroyItem(titem);
+            itemModel().destroyItem(titem);
     });
 }
 
@@ -916,7 +888,7 @@ void DebuggerItemManager::autoDetectDebuggersForDevice(const FilePaths &searchPa
                                                        const QString &detectionSource,
                                                        QString *logMessage)
 {
-    d->autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource, logMessage);
+    itemModel().autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource, logMessage);
 }
 
 void DebuggerItemManager::removeDetectedDebuggers(const QString &detectionSource,
@@ -925,7 +897,7 @@ void DebuggerItemManager::removeDetectedDebuggers(const QString &detectionSource
     QStringList logMessages{Tr::tr("Removing debugger entries...")};
     QList<DebuggerTreeItem *> toBeRemoved;
 
-    d->m_model->forItemsAtLevel<2>([detectionSource, &toBeRemoved](DebuggerTreeItem *titem) {
+    itemModel().forItemsAtLevel<2>([detectionSource, &toBeRemoved](DebuggerTreeItem *titem) {
         if (titem->m_item.detectionSource() == detectionSource) {
             toBeRemoved.append(titem);
             return;
@@ -937,7 +909,7 @@ void DebuggerItemManager::removeDetectedDebuggers(const QString &detectionSource
     });
     for (DebuggerTreeItem *current : toBeRemoved) {
         logMessages.append(Tr::tr("Removed \"%1\"").arg(current->m_item.displayName()));
-        d->m_model->destroyItem(current);
+        itemModel().destroyItem(current);
     }
 
     if (logMessage)
@@ -948,7 +920,7 @@ void DebuggerItemManager::listDetectedDebuggers(const QString &detectionSource, 
 {
     QTC_ASSERT(logMessage, return);
     QStringList logMessages{Tr::tr("Debuggers:")};
-    d->m_model->forItemsAtLevel<2>([detectionSource, &logMessages](DebuggerTreeItem *titem) {
+    itemModel().forItemsAtLevel<2>([detectionSource, &logMessages](DebuggerTreeItem *titem) {
         if (titem->m_item.detectionSource() == detectionSource)
             logMessages.append(titem->m_item.displayName());
     });
@@ -976,7 +948,7 @@ public:
         m_container->setVisible(false);
 
         m_debuggerView = new QTreeView(this);
-        m_debuggerView->setModel(d->m_model);
+        m_debuggerView->setModel(&itemModel());
         m_debuggerView->setUniformRowHeights(true);
         m_debuggerView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_debuggerView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -1022,12 +994,12 @@ public:
     void apply() final
     {
         m_itemConfigWidget->store();
-        d->m_model->apply();
+        itemModel().apply();
     }
 
     void finish() final
     {
-        d->m_model->cancel();
+        itemModel().cancel();
     }
 
     void cloneDebugger();
@@ -1046,7 +1018,7 @@ public:
 
 void DebuggerSettingsPageWidget::cloneDebugger()
 {
-    DebuggerTreeItem *treeItem = d->m_model->currentTreeItem();
+    DebuggerTreeItem *treeItem = itemModel().currentTreeItem();
     if (!treeItem)
         return;
 
@@ -1054,13 +1026,13 @@ void DebuggerSettingsPageWidget::cloneDebugger()
     DebuggerItem newItem;
     newItem.createId();
     newItem.setCommand(item->command());
-    newItem.setUnexpandedDisplayName(d->uniqueDisplayName(Tr::tr("Clone of %1").arg(item->displayName())));
+    newItem.setUnexpandedDisplayName(itemModel().uniqueDisplayName(Tr::tr("Clone of %1").arg(item->displayName())));
     newItem.reinitializeFromFile();
     newItem.setAutoDetected(false);
     newItem.setGeneric(item->isGeneric());
     newItem.setEngineType(item->engineType());
-    auto addedItem = d->m_model->addDebugger(newItem, true);
-    m_debuggerView->setCurrentIndex(d->m_model->indexForItem(addedItem));
+    auto addedItem = itemModel().addDebuggerItem(newItem, true);
+    m_debuggerView->setCurrentIndex(itemModel().indexForItem(addedItem));
 }
 
 void DebuggerSettingsPageWidget::addDebugger()
@@ -1068,15 +1040,15 @@ void DebuggerSettingsPageWidget::addDebugger()
     DebuggerItem item;
     item.createId();
     item.setEngineType(NoEngineType);
-    item.setUnexpandedDisplayName(d->uniqueDisplayName(Tr::tr("New Debugger")));
+    item.setUnexpandedDisplayName(itemModel().uniqueDisplayName(Tr::tr("New Debugger")));
     item.setAutoDetected(false);
-    auto addedItem = d->m_model->addDebugger(item, true);
-    m_debuggerView->setCurrentIndex(d->m_model->indexForItem(addedItem));
+    auto addedItem = itemModel().addDebuggerItem(item, true);
+    m_debuggerView->setCurrentIndex(itemModel().indexForItem(addedItem));
 }
 
 void DebuggerSettingsPageWidget::removeDebugger()
 {
-    DebuggerTreeItem *treeItem = d->m_model->currentTreeItem();
+    DebuggerTreeItem *treeItem = itemModel().currentTreeItem();
     QTC_ASSERT(treeItem, return);
     treeItem->m_removed = !treeItem->m_removed;
     treeItem->update();
@@ -1085,13 +1057,13 @@ void DebuggerSettingsPageWidget::removeDebugger()
 
 void DebuggerSettingsPageWidget::currentDebuggerChanged(const QModelIndex &newCurrent)
 {
-    d->m_model->setCurrentIndex(newCurrent);
+    itemModel().setCurrentIndex(newCurrent);
     updateButtons();
 }
 
 void DebuggerSettingsPageWidget::updateButtons()
 {
-    DebuggerTreeItem *titem = d->m_model->currentTreeItem();
+    DebuggerTreeItem *titem = itemModel().currentTreeItem();
     DebuggerItem *item = titem ? &titem->m_item : nullptr;
 
     m_itemConfigWidget->load(item);
