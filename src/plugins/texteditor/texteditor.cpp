@@ -8365,6 +8365,11 @@ void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
         if (!menu->actions().contains(findUsage))
             menu->addAction(findUsage);
     }
+    if (optionalActions() & TextEditorActionHandler::RenameSymbol) {
+        const auto renameSymbol = ActionManager::command(Constants::RENAME_SYMBOL)->action();
+        if (!menu->actions().contains(renameSymbol))
+            menu->addAction(renameSymbol);
+    }
     if (optionalActions() & TextEditorActionHandler::CallHierarchy) {
         const auto callHierarchy = ActionManager::command(Constants::OPEN_CALL_HIERARCHY)->action();
         if (!menu->actions().contains(callHierarchy))
