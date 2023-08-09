@@ -141,22 +141,9 @@ void DapEngine::shutdownEngine()
     m_dataGenerator->kill();
 }
 
-// From the docs:
-// The sequence of events/requests is as follows:
-//   * adapters sends initialized event (after the initialize request has returned)
-//   * client sends zero or more setBreakpoints requests
-//   * client sends one setFunctionBreakpoints request
-//     (if corresponding capability supportsFunctionBreakpoints is true)
-//   * client sends a setExceptionBreakpoints request if one or more exceptionBreakpointFilters
-//     have been defined (or if supportsConfigurationDoneRequest is not true)
-//   * client sends other future configuration requests
-//   * client sends one configurationDone request to indicate the end of the configuration.
-
 void DapEngine::handleDapStarted()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
-
-//    CHECK_STATE(EngineRunRequested);
 
     postDirectCommand({
         {"command", "initialize"},
@@ -173,8 +160,6 @@ void DapEngine::handleDapStarted()
 void DapEngine::handleDapConfigurationDone()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
-
-    //    CHECK_STATE(EngineRunRequested);
 
     postDirectCommand({
         {"command", "configurationDone"},
@@ -402,7 +387,7 @@ void DapEngine::insertBreakpoint(const Breakpoint &bp)
         }}
     });
 
-    notifyBreakpointChangeOk(bp);
+    notifyBreakpointInsertOk(bp);
     qCDebug(dapEngineLog) << "insertBreakpoint" << bp->modelId() << bp->responseId();
 }
 
@@ -662,195 +647,234 @@ void DapEngine::handleOutput(const QJsonDocument &data)
 
     const QJsonValue t = ob.value("type");
     const QString type = t.toString();
-    qCDebug(dapEngineLog) << "response" << ob;
+
+    qCDebug(dapEngineLog) << "dap response" << ob;
 
     if (type == "response") {
-        const QString command = ob.value("command").toString();
-        if (command == "configurationDone") {
-            showMessage("configurationDone", LogDebug);
-            qCDebug(dapEngineLog) << "configurationDone success";
-            notifyEngineRunAndInferiorRunOk();
-            return;
-        }
-
-        if (command == "continue") {
-            showMessage("continue", LogDebug);
-            qCDebug(dapEngineLog) << "continue success";
-            notifyInferiorRunOk();
-            return;
-        }
-
-        if (command == "stackTrace") {
-            QJsonArray stackFrames = ob.value("body").toObject().value("stackFrames").toArray();
-            if (stackFrames.isEmpty())
-                return;
-
-            QJsonObject stackFrame = stackFrames[0].toObject();
-            const FilePath file = FilePath::fromString(
-                stackFrame.value("source").toObject().value("path").toString());
-            const int line = stackFrame.value("line").toInt();
-            qCDebug(dapEngineLog) << "stackTrace success" << file << line;
-            gotoLocation(Location(file, line));
-
-            refreshStack(stackFrames);
-            dapScopes(stackFrame.value("id").toInt());
-            return;
-        }
-
-        if (command == "scopes") {
-            if (ob.value("success").toBool()) {
-                auto scopes = ob.value("body").toObject().value("scopes").toArray();
-                for (auto scope : scopes) {
-                    const QString name = scope.toObject().value("name").toString();
-                    const int variablesReference = scope.toObject().value("variablesReference").toInt();
-                    qCDebug(dapEngineLog) << "scoped success" << name << variablesReference;
-                    if (name == "Locals") { // Fix for several scopes
-                        m_rootWatchItem = new WatchItem();
-                        m_currentWatchItem = m_rootWatchItem;
-                        watchHandler()->removeAllData();
-                        watchHandler()->notifyUpdateStarted();
-                        dapVariables(variablesReference);
-                    }
-                }
-            }
-        }
-
-        if (command == "variables") {
-            auto variables = ob.value("body").toObject().value("variables").toArray();
-            refreshLocals(variables);
-        }
-
-        if (command == "stepIn" || command == "stepOut" || command == "next") {
-            if (ob.value("success").toBool()) {
-                showMessage(command, LogDebug);
-                notifyInferiorRunOk();
-            } else {
-                notifyInferiorRunFailed();
-            }
-            return;
-        }
-
-        if (command == "threads") {
-            QJsonArray threads = ob.value("body").toObject().value("threads").toArray();
-
-            if (threads.isEmpty())
-                return;
-
-            ThreadsHandler *handler = threadsHandler();
-            for (auto thread : threads) {
-                ThreadData threadData;
-                threadData.id = QString::number(thread.toObject().value("id").toInt());
-                threadData.name = thread.toObject().value("name").toString();
-                handler->updateThread(threadData);
-            }
-
-            if (m_currentThreadId)
-                handler->setCurrentThread(
-                    threadsHandler()->threadForId(QString::number(m_currentThreadId)));
-            return;
-        }
+        handleResponse(ob);
+        return;
     }
 
     if (type == "event") {
-        const QString event = ob.value("event").toString();
-        const QJsonObject body = ob.value("body").toObject();
-
-        if (event == "exited") {
-            notifyInferiorExited();
-            showMessage("exited", LogDebug);
-            return;
-        }
-
-        if (event == "output") {
-            const QString category = body.value("category").toString();
-            const QString output = body.value("output").toString();
-            if (category == "stdout")
-                showMessage(output, AppOutput);
-            else if (category == "stderr")
-                showMessage(output, AppError);
-            else
-                showMessage(output, LogDebug);
-            return;
-        }
-        qCDebug(dapEngineLog) << data;
-
-        if (event == "initialized") {
-            showMessage(event, LogDebug);
-            qCDebug(dapEngineLog) << "initialize success";
-            handleDapLaunch();
-            handleDapConfigurationDone();
-            return;
-        }
-
-        if (event == "stopped") {
-            m_currentThreadId = body.value("threadId").toInt();
-            showMessage(event, LogDebug);
-            if (body.value("reason").toString() == "breakpoint") {
-                QString id = QString::number(
-                    body.value("hitBreakpointIds").toArray().first().toInteger());
-
-                Breakpoint bp = breakHandler()->findBreakpointByResponseId(id);
-                if (bp) {
-                    const BreakpointParameters &params = bp->requestedParameters();
-                    gotoLocation(Location(params.fileName, params.textPosition));
-                }
-            }
-
-            if (state() == InferiorStopRequested)
-                notifyInferiorStopOk();
-            else
-                notifyInferiorSpontaneousStop();
-
-            dapStackTrace();
-            threads();
-            return;
-        }
-
-        if (event == "thread") {
-            // threads(); // breaks cmake debugging for now
-
-            showMessage(event, LogDebug);
-            if (body.value("reason").toString() == "started" && body.value("threadId").toInt() == 1)
-                claimInitialBreakpoints();
-            return;
-        }
-
-        if (event == "breakpoint") {
-            showMessage(event, LogDebug);
-            QJsonObject breakpoint = body.value("breakpoint").toObject();
-            Breakpoint bp = breakHandler()->findBreakpointByResponseId(
-                QString::number(breakpoint.value("id").toInt()));
-            qCDebug(dapEngineLog) << "breakpoint id :" << breakpoint.value("id").toInt();
-
-            if (body.value("reason").toString() == "new") {
-                if (breakpoint.value("verified").toBool()) {
-                    notifyBreakpointInsertOk(bp);
-                    qCDebug(dapEngineLog) << "breakpoint inserted";
-                } else {
-                    notifyBreakpointInsertFailed(bp);
-                    qCDebug(dapEngineLog) << "breakpoint insertion failed";
-                }
-                return;
-            }
-
-            if (body.value("reason").toString() == "removed") {
-                if (breakpoint.value("verified").toBool()) {
-                    notifyBreakpointRemoveOk(bp);
-                    qCDebug(dapEngineLog) << "breakpoint removed";
-                } else {
-                    notifyBreakpointRemoveFailed(bp);
-                    qCDebug(dapEngineLog) << "breakpoint remove failed";
-                }
-                return;
-            }
-            return;
-        }
-
-        showMessage("UNKNOWN EVENT:" + event);
+        handleEvent(ob);
         return;
     }
 
     showMessage("UNKNOWN TYPE:" + type);
+}
+
+void DapEngine::handleResponse(const QJsonObject &response)
+{
+    const QString command = response.value("command").toString();
+
+    if (command == "configurationDone") {
+        showMessage("configurationDone", LogDebug);
+        qCDebug(dapEngineLog) << "configurationDone success";
+        notifyEngineRunAndInferiorRunOk();
+        return;
+    }
+
+    if (command == "continue") {
+        showMessage("continue", LogDebug);
+        qCDebug(dapEngineLog) << "continue success";
+        notifyInferiorRunOk();
+        return;
+    }
+
+    if (command == "stackTrace") {
+        handleStackTraceResponse(response);
+        return;
+    }
+
+    if (command == "scopes") {
+        handleScopesResponse(response);
+        return;
+    }
+
+    if (command == "variables") {
+        auto variables = response.value("body").toObject().value("variables").toArray();
+        refreshLocals(variables);
+        return;
+    }
+
+    if (command == "stepIn" || command == "stepOut" || command == "next") {
+        if (response.value("success").toBool()) {
+            showMessage(command, LogDebug);
+            notifyInferiorRunOk();
+        } else {
+            notifyInferiorRunFailed();
+        }
+        return;
+    }
+
+    if (command == "threads") {
+        handleThreadsResponse(response);
+        return;
+    }
+
+    showMessage("UNKNOWN RESPONSE:" + command);
+}
+
+void DapEngine::handleStackTraceResponse(const QJsonObject &response)
+{
+    QJsonArray stackFrames = response.value("body").toObject().value("stackFrames").toArray();
+    if (stackFrames.isEmpty())
+        return;
+
+    QJsonObject stackFrame = stackFrames[0].toObject();
+    const FilePath file = FilePath::fromString(
+        stackFrame.value("source").toObject().value("path").toString());
+    const int line = stackFrame.value("line").toInt();
+    qCDebug(dapEngineLog) << "stackTrace success" << file << line;
+    gotoLocation(Location(file, line));
+
+    refreshStack(stackFrames);
+    dapScopes(stackFrame.value("id").toInt());
+}
+
+void DapEngine::handleScopesResponse(const QJsonObject &response)
+{
+    if (!response.value("success").toBool())
+        return;
+
+    QJsonArray scopes = response.value("body").toObject().value("scopes").toArray();
+    for (const QJsonValueRef &scope : scopes) {
+        const QString name = scope.toObject().value("name").toString();
+        const int variablesReference = scope.toObject().value("variablesReference").toInt();
+        qCDebug(dapEngineLog) << "scoped success" << name << variablesReference;
+        if (name == "Locals") { // Fix for several scopes
+            m_rootWatchItem = new WatchItem();
+            m_currentWatchItem = m_rootWatchItem;
+            watchHandler()->removeAllData();
+            watchHandler()->notifyUpdateStarted();
+            dapVariables(variablesReference);
+        }
+    }
+}
+
+void DapEngine::handleThreadsResponse(const QJsonObject &response)
+{
+    QJsonArray threads = response.value("body").toObject().value("threads").toArray();
+
+    if (threads.isEmpty())
+        return;
+
+    ThreadsHandler *handler = threadsHandler();
+    for (const QJsonValueRef &thread : threads) {
+        ThreadData threadData;
+        threadData.id = QString::number(thread.toObject().value("id").toInt());
+        threadData.name = thread.toObject().value("name").toString();
+        handler->updateThread(threadData);
+    }
+
+    if (m_currentThreadId)
+        handler->setCurrentThread(threadsHandler()->threadForId(QString::number(m_currentThreadId)));
+}
+
+void DapEngine::handleEvent(const QJsonObject &event)
+{
+    const QString eventType = event.value("event").toString();
+    const QJsonObject body = event.value("body").toObject();
+    showMessage(eventType, LogDebug);
+
+    if (eventType == "exited") {
+        notifyInferiorExited();
+        return;
+    }
+
+    if (eventType == "output") {
+        const QString category = body.value("category").toString();
+        const QString output = body.value("output").toString();
+        if (category == "stdout")
+            showMessage(output, AppOutput);
+        else if (category == "stderr")
+            showMessage(output, AppError);
+        else
+            showMessage(output, LogDebug);
+        return;
+    }
+
+    if (eventType == "initialized") {
+        qCDebug(dapEngineLog) << "initialize success";
+        handleDapLaunch();
+        handleDapConfigurationDone();
+        return;
+    }
+
+    if (eventType == "stopped") {
+        handleStoppedEvent(event);
+        return;
+    }
+
+    if (eventType == "thread") {
+        threads();
+        if (body.value("reason").toString() == "started" && body.value("threadId").toInt() == 1)
+            claimInitialBreakpoints();
+        return;
+    }
+
+    if (eventType == "breakpoint") {
+        handleBreakpointEvent(event);
+        return;
+    }
+
+    showMessage("UNKNOWN EVENT:" + eventType);
+}
+
+void DapEngine::handleStoppedEvent(const QJsonObject &event)
+{
+    const QJsonObject body = event.value("body").toObject();
+    m_currentThreadId = body.value("threadId").toInt();
+
+    if (body.value("reason").toString() == "breakpoint") {
+        QString id = QString::number(body.value("hitBreakpointIds").toArray().first().toInteger());
+
+        Breakpoint bp = breakHandler()->findBreakpointByResponseId(id);
+        if (bp) {
+            const BreakpointParameters &params = bp->requestedParameters();
+            gotoLocation(Location(params.fileName, params.textPosition));
+        }
+    }
+
+    if (state() == InferiorStopRequested)
+        notifyInferiorStopOk();
+    else
+        notifyInferiorSpontaneousStop();
+
+    dapStackTrace();
+    threads();
+}
+
+void DapEngine::handleBreakpointEvent(const QJsonObject &event)
+{
+    const QJsonObject body = event.value("body").toObject();
+    QJsonObject breakpoint = body.value("breakpoint").toObject();
+
+    Breakpoint bp = breakHandler()->findBreakpointByResponseId(
+        QString::number(breakpoint.value("id").toInt()));
+    qCDebug(dapEngineLog) << "breakpoint id :" << breakpoint.value("id").toInt();
+
+    if (body.value("reason").toString() == "new") {
+        if (breakpoint.value("verified").toBool()) {
+            notifyBreakpointInsertOk(bp);
+            qCDebug(dapEngineLog) << "breakpoint inserted";
+        } else {
+            notifyBreakpointInsertFailed(bp);
+            qCDebug(dapEngineLog) << "breakpoint insertion failed";
+        }
+        return;
+    }
+
+    if (body.value("reason").toString() == "removed") {
+        if (breakpoint.value("verified").toBool()) {
+            notifyBreakpointRemoveOk(bp);
+            qCDebug(dapEngineLog) << "breakpoint removed";
+        } else {
+            notifyBreakpointRemoveFailed(bp);
+            qCDebug(dapEngineLog) << "breakpoint remove failed";
+        }
+        return;
+    }
 }
 
 void DapEngine::refreshLocals(const QJsonArray &variables)

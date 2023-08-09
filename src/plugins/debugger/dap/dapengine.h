@@ -117,8 +117,18 @@ protected:
     void handleDapDone();
     void readDapStandardOutput();
     void readDapStandardError();
+
     void handleOutput(const QJsonDocument &data);
-    void handleResponse(const QString &ba);
+
+    void handleResponse(const QJsonObject &response);
+    void handleStackTraceResponse(const QJsonObject &response);
+    void handleScopesResponse(const QJsonObject &response);
+    void handleThreadsResponse(const QJsonObject &response);
+
+    void handleEvent(const QJsonObject &event);
+    void handleBreakpointEvent(const QJsonObject &event);
+    void handleStoppedEvent(const QJsonObject &event);
+
     void updateAll() override;
     void updateLocals() override;
     void connectDataGeneratorSignals();

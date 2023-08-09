@@ -1179,7 +1179,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         m_startCmakeAction.setText(Tr::tr("Start CMake Debugging"));
         m_startCmakeAction.setEnabled(true);
         m_startCmakeAction.setIcon(startIcon(true));
-        m_startCmakeAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         m_startCmakeAction.setVisible(true);
 
         m_perspectiveCmake->addToolBarAction(&m_startCmakeAction);
