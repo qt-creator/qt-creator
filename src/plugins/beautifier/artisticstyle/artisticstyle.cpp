@@ -182,10 +182,10 @@ static ArtisticStyleSettings &settings()
 
 // ArtisticStyleOptionsPage
 
-class ArtisticStyleOptionsPageWidget : public Core::IOptionsPageWidget
+class ArtisticStyleSettingsPageWidget : public Core::IOptionsPageWidget
 {
 public:
-    ArtisticStyleOptionsPageWidget()
+    ArtisticStyleSettingsPageWidget()
     {
         QGroupBox *options = nullptr;
 
@@ -230,21 +230,6 @@ public:
         options->setEnabled(s.command.pathChooser()->isValid());
     }
 };
-
-class ArtisticStyleOptionsPage final : public Core::IOptionsPage
-{
-public:
-    ArtisticStyleOptionsPage()
-    {
-        setId("ArtisticStyle");
-        setDisplayName(asDisplayName());
-        setCategory(Constants::OPTION_CATEGORY);
-        setWidgetCreator([] { return new ArtisticStyleOptionsPageWidget; });
-    }
-};
-
-const ArtisticStyleOptionsPage settingsPage;
-
 
 // Style
 
@@ -349,5 +334,22 @@ Command ArtisticStyle::textCommand(const QString &cfgFile) const
 
     return cmd;
 }
+
+
+//  ArtisticStyleSettingsPage
+
+class ArtisticStyleSettingsPage final : public Core::IOptionsPage
+{
+public:
+    ArtisticStyleSettingsPage()
+    {
+        setId("ArtisticStyle");
+        setDisplayName(asDisplayName());
+        setCategory(Constants::OPTION_CATEGORY);
+        setWidgetCreator([] { return new ArtisticStyleSettingsPageWidget; });
+    }
+};
+
+const ArtisticStyleSettingsPage settingsPage;
 
 } // Beautifier::Internal
