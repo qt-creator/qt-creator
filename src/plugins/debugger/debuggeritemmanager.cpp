@@ -79,7 +79,6 @@ public:
 
     PersistentSettingsWriter m_writer;
     DebuggerItemModel *m_model = nullptr;
-    IOptionsPage *m_optionsPage = nullptr;
 };
 
 static DebuggerItemManagerPrivate *d = nullptr;
@@ -493,168 +492,6 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
     store();
 }
 
-// --------------------------------------------------------------------------
-// DebuggerConfigWidget
-// --------------------------------------------------------------------------
-
-class DebuggerConfigWidget : public IOptionsPageWidget
-{
-public:
-    DebuggerConfigWidget()
-    {
-        m_addButton = new QPushButton(Tr::tr("Add"), this);
-
-        m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
-        m_cloneButton->setEnabled(false);
-
-        m_delButton = new QPushButton(this);
-        m_delButton->setEnabled(false);
-
-        m_container = new DetailsWidget(this);
-        m_container->setState(DetailsWidget::NoSummary);
-        m_container->setVisible(false);
-
-        m_debuggerView = new QTreeView(this);
-        m_debuggerView->setModel(d->m_model);
-        m_debuggerView->setUniformRowHeights(true);
-        m_debuggerView->setSelectionMode(QAbstractItemView::SingleSelection);
-        m_debuggerView->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_debuggerView->expandAll();
-
-        auto header = m_debuggerView->header();
-        header->setStretchLastSection(false);
-        header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-        header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-        header->setSectionResizeMode(2, QHeaderView::Stretch);
-
-        auto buttonLayout = new QVBoxLayout();
-        buttonLayout->setSpacing(6);
-        buttonLayout->setContentsMargins(0, 0, 0, 0);
-        buttonLayout->addWidget(m_addButton);
-        buttonLayout->addWidget(m_cloneButton);
-        buttonLayout->addWidget(m_delButton);
-        buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-        auto verticalLayout = new QVBoxLayout();
-        verticalLayout->addWidget(m_debuggerView);
-        verticalLayout->addWidget(m_container);
-
-        auto horizontalLayout = new QHBoxLayout(this);
-        horizontalLayout->addLayout(verticalLayout);
-        horizontalLayout->addLayout(buttonLayout);
-
-        connect(m_debuggerView->selectionModel(), &QItemSelectionModel::currentChanged,
-                this, &DebuggerConfigWidget::currentDebuggerChanged, Qt::QueuedConnection);
-
-        connect(m_addButton, &QAbstractButton::clicked,
-                this, &DebuggerConfigWidget::addDebugger, Qt::QueuedConnection);
-        connect(m_cloneButton, &QAbstractButton::clicked,
-                this, &DebuggerConfigWidget::cloneDebugger, Qt::QueuedConnection);
-        connect(m_delButton, &QAbstractButton::clicked,
-                this, &DebuggerConfigWidget::removeDebugger, Qt::QueuedConnection);
-
-        m_itemConfigWidget = new DebuggerItemConfigWidget;
-        m_container->setWidget(m_itemConfigWidget);
-        updateButtons();
-    }
-
-    void apply() final
-    {
-        m_itemConfigWidget->store();
-        d->m_model->apply();
-    }
-
-    void finish() final
-    {
-        d->m_model->cancel();
-    }
-
-    void cloneDebugger();
-    void addDebugger();
-    void removeDebugger();
-    void currentDebuggerChanged(const QModelIndex &newCurrent);
-    void updateButtons();
-
-    QTreeView *m_debuggerView;
-    QPushButton *m_addButton;
-    QPushButton *m_cloneButton;
-    QPushButton *m_delButton;
-    DetailsWidget *m_container;
-    DebuggerItemConfigWidget *m_itemConfigWidget;
-};
-
-void DebuggerConfigWidget::cloneDebugger()
-{
-    DebuggerTreeItem *treeItem = d->m_model->currentTreeItem();
-    if (!treeItem)
-        return;
-
-    DebuggerItem *item = &treeItem->m_item;
-    DebuggerItem newItem;
-    newItem.createId();
-    newItem.setCommand(item->command());
-    newItem.setUnexpandedDisplayName(d->uniqueDisplayName(Tr::tr("Clone of %1").arg(item->displayName())));
-    newItem.reinitializeFromFile();
-    newItem.setAutoDetected(false);
-    newItem.setGeneric(item->isGeneric());
-    newItem.setEngineType(item->engineType());
-    auto addedItem = d->m_model->addDebugger(newItem, true);
-    m_debuggerView->setCurrentIndex(d->m_model->indexForItem(addedItem));
-}
-
-void DebuggerConfigWidget::addDebugger()
-{
-    DebuggerItem item;
-    item.createId();
-    item.setEngineType(NoEngineType);
-    item.setUnexpandedDisplayName(d->uniqueDisplayName(Tr::tr("New Debugger")));
-    item.setAutoDetected(false);
-    auto addedItem = d->m_model->addDebugger(item, true);
-    m_debuggerView->setCurrentIndex(d->m_model->indexForItem(addedItem));
-}
-
-void DebuggerConfigWidget::removeDebugger()
-{
-    DebuggerTreeItem *treeItem = d->m_model->currentTreeItem();
-    QTC_ASSERT(treeItem, return);
-    treeItem->m_removed = !treeItem->m_removed;
-    treeItem->update();
-    updateButtons();
-}
-
-void DebuggerConfigWidget::currentDebuggerChanged(const QModelIndex &newCurrent)
-{
-    d->m_model->setCurrentIndex(newCurrent);
-    updateButtons();
-}
-
-void DebuggerConfigWidget::updateButtons()
-{
-    DebuggerTreeItem *titem = d->m_model->currentTreeItem();
-    DebuggerItem *item = titem ? &titem->m_item : nullptr;
-
-    m_itemConfigWidget->load(item);
-    m_container->setVisible(item != nullptr);
-    m_cloneButton->setEnabled(item && item->isValid() && item->canClone());
-    m_delButton->setEnabled(item && !item->isAutoDetected());
-    m_delButton->setText(item && titem->m_removed ? Tr::tr("Restore") : Tr::tr("Remove"));
-}
-
-// --------------------------------------------------------------------------
-// DebuggerOptionsPage
-// --------------------------------------------------------------------------
-
-class DebuggerOptionsPage : public Core::IOptionsPage
-{
-public:
-    DebuggerOptionsPage() {
-        setId(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
-        setDisplayName(Tr::tr("Debuggers"));
-        setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
-        setWidgetCreator([] { return new DebuggerConfigWidget; });
-    }
-};
-
 void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
 {
     FilePaths cdbs;
@@ -891,12 +728,10 @@ DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
 {
     d = this;
     m_model = new DebuggerItemModel;
-    m_optionsPage = new DebuggerOptionsPage;
 }
 
 DebuggerItemManagerPrivate::~DebuggerItemManagerPrivate()
 {
-    delete m_optionsPage;
     delete m_model;
 }
 
@@ -1119,5 +954,167 @@ void DebuggerItemManager::listDetectedDebuggers(const QString &detectionSource, 
     });
     *logMessage = logMessages.join('\n');
 }
+
+
+// DebuggerSettingsPageWidget
+
+class DebuggerSettingsPageWidget : public IOptionsPageWidget
+{
+public:
+    DebuggerSettingsPageWidget()
+    {
+        m_addButton = new QPushButton(Tr::tr("Add"), this);
+
+        m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
+        m_cloneButton->setEnabled(false);
+
+        m_delButton = new QPushButton(this);
+        m_delButton->setEnabled(false);
+
+        m_container = new DetailsWidget(this);
+        m_container->setState(DetailsWidget::NoSummary);
+        m_container->setVisible(false);
+
+        m_debuggerView = new QTreeView(this);
+        m_debuggerView->setModel(d->m_model);
+        m_debuggerView->setUniformRowHeights(true);
+        m_debuggerView->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_debuggerView->setSelectionBehavior(QAbstractItemView::SelectRows);
+        m_debuggerView->expandAll();
+
+        auto header = m_debuggerView->header();
+        header->setStretchLastSection(false);
+        header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+        header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+        header->setSectionResizeMode(2, QHeaderView::Stretch);
+
+        auto buttonLayout = new QVBoxLayout();
+        buttonLayout->setSpacing(6);
+        buttonLayout->setContentsMargins(0, 0, 0, 0);
+        buttonLayout->addWidget(m_addButton);
+        buttonLayout->addWidget(m_cloneButton);
+        buttonLayout->addWidget(m_delButton);
+        buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+        auto verticalLayout = new QVBoxLayout();
+        verticalLayout->addWidget(m_debuggerView);
+        verticalLayout->addWidget(m_container);
+
+        auto horizontalLayout = new QHBoxLayout(this);
+        horizontalLayout->addLayout(verticalLayout);
+        horizontalLayout->addLayout(buttonLayout);
+
+        connect(m_debuggerView->selectionModel(), &QItemSelectionModel::currentChanged,
+                this, &DebuggerSettingsPageWidget::currentDebuggerChanged, Qt::QueuedConnection);
+
+        connect(m_addButton, &QAbstractButton::clicked,
+                this, &DebuggerSettingsPageWidget::addDebugger, Qt::QueuedConnection);
+        connect(m_cloneButton, &QAbstractButton::clicked,
+                this, &DebuggerSettingsPageWidget::cloneDebugger, Qt::QueuedConnection);
+        connect(m_delButton, &QAbstractButton::clicked,
+                this, &DebuggerSettingsPageWidget::removeDebugger, Qt::QueuedConnection);
+
+        m_itemConfigWidget = new DebuggerItemConfigWidget;
+        m_container->setWidget(m_itemConfigWidget);
+        updateButtons();
+    }
+
+    void apply() final
+    {
+        m_itemConfigWidget->store();
+        d->m_model->apply();
+    }
+
+    void finish() final
+    {
+        d->m_model->cancel();
+    }
+
+    void cloneDebugger();
+    void addDebugger();
+    void removeDebugger();
+    void currentDebuggerChanged(const QModelIndex &newCurrent);
+    void updateButtons();
+
+    QTreeView *m_debuggerView;
+    QPushButton *m_addButton;
+    QPushButton *m_cloneButton;
+    QPushButton *m_delButton;
+    DetailsWidget *m_container;
+    DebuggerItemConfigWidget *m_itemConfigWidget;
+};
+
+void DebuggerSettingsPageWidget::cloneDebugger()
+{
+    DebuggerTreeItem *treeItem = d->m_model->currentTreeItem();
+    if (!treeItem)
+        return;
+
+    DebuggerItem *item = &treeItem->m_item;
+    DebuggerItem newItem;
+    newItem.createId();
+    newItem.setCommand(item->command());
+    newItem.setUnexpandedDisplayName(d->uniqueDisplayName(Tr::tr("Clone of %1").arg(item->displayName())));
+    newItem.reinitializeFromFile();
+    newItem.setAutoDetected(false);
+    newItem.setGeneric(item->isGeneric());
+    newItem.setEngineType(item->engineType());
+    auto addedItem = d->m_model->addDebugger(newItem, true);
+    m_debuggerView->setCurrentIndex(d->m_model->indexForItem(addedItem));
+}
+
+void DebuggerSettingsPageWidget::addDebugger()
+{
+    DebuggerItem item;
+    item.createId();
+    item.setEngineType(NoEngineType);
+    item.setUnexpandedDisplayName(d->uniqueDisplayName(Tr::tr("New Debugger")));
+    item.setAutoDetected(false);
+    auto addedItem = d->m_model->addDebugger(item, true);
+    m_debuggerView->setCurrentIndex(d->m_model->indexForItem(addedItem));
+}
+
+void DebuggerSettingsPageWidget::removeDebugger()
+{
+    DebuggerTreeItem *treeItem = d->m_model->currentTreeItem();
+    QTC_ASSERT(treeItem, return);
+    treeItem->m_removed = !treeItem->m_removed;
+    treeItem->update();
+    updateButtons();
+}
+
+void DebuggerSettingsPageWidget::currentDebuggerChanged(const QModelIndex &newCurrent)
+{
+    d->m_model->setCurrentIndex(newCurrent);
+    updateButtons();
+}
+
+void DebuggerSettingsPageWidget::updateButtons()
+{
+    DebuggerTreeItem *titem = d->m_model->currentTreeItem();
+    DebuggerItem *item = titem ? &titem->m_item : nullptr;
+
+    m_itemConfigWidget->load(item);
+    m_container->setVisible(item != nullptr);
+    m_cloneButton->setEnabled(item && item->isValid() && item->canClone());
+    m_delButton->setEnabled(item && !item->isAutoDetected());
+    m_delButton->setText(item && titem->m_removed ? Tr::tr("Restore") : Tr::tr("Remove"));
+}
+
+
+// DebuggerSettingsPage
+
+class DebuggerSettingsPage : public Core::IOptionsPage
+{
+public:
+    DebuggerSettingsPage() {
+        setId(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
+        setDisplayName(Tr::tr("Debuggers"));
+        setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new DebuggerSettingsPageWidget; });
+    }
+};
+
+const DebuggerSettingsPage settingsPage;
 
 } // namespace Debugger
