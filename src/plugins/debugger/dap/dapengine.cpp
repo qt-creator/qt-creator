@@ -336,6 +336,9 @@ void DapEngine::activateFrame(int frameIndex)
 void DapEngine::selectThread(const Thread &thread)
 {
     Q_UNUSED(thread)
+    m_currentThreadId = thread->id().toInt();
+    threadsHandler()->setCurrentThread(thread);
+    updateLocals();
 }
 
 bool DapEngine::acceptsBreakpoint(const BreakpointParameters &) const
@@ -935,6 +938,11 @@ void DapEngine::refreshStack(const QJsonArray &stackFrames)
         gotoLocation(handler->frameAt(index));
 }
 
+void DapEngine::reloadFullStack()
+{
+    updateAll();
+}
+
 void DapEngine::updateAll()
 {
     runCommand({"stackListFrames"});
@@ -943,6 +951,7 @@ void DapEngine::updateAll()
 
 void DapEngine::updateLocals()
 {
+    dapStackTrace();
 }
 
 bool DapEngine::hasCapability(unsigned cap) const

@@ -85,7 +85,7 @@ protected:
     void reloadModules() override;
     void reloadRegisters() override {}
     void reloadSourceFiles() override {}
-    void reloadFullStack() override {}
+    void reloadFullStack() override;
 
     bool supportsThreads() const { return true; }
     void updateItem(const QString &iname) override;
