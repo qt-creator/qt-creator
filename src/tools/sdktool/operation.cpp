@@ -84,7 +84,7 @@ bool Operation::save(const QVariantMap &map, const QString &file) const
         return false;
     }
 
-    QString dirName = QDir::cleanPath(path + "/..");
+    QString dirName = cleanPath(path + "/..");
     QDir dir(dirName);
     if (!dir.exists() && !dir.mkpath(QLatin1String("."))) {
         std::cerr << "Error: Could not create directory " << qPrintable(dirName)
@@ -107,4 +107,13 @@ bool Operation::save(const QVariantMap &map, const QString &file) const
         return false;
     }
     return true;
+}
+
+QString cleanPath(const QString &orig)
+{
+    // QDir::cleanPath() destroys "//", one of which might be needed.
+    const int pos = orig.indexOf("://");
+    if (pos == -1)
+        return QDir::cleanPath(orig);
+    return orig.left(pos) + "://" + QDir::cleanPath(orig.mid(pos + 3));
 }
