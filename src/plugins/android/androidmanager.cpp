@@ -95,6 +95,20 @@ QString activityName(const Target *target)
     return activityElem.attribute(QLatin1String("android:name"));
 }
 
+static FilePath manifestSourcePath(const Target *target)
+{
+    if (const ProjectNode *node = currentProjectNode(target)) {
+        const QString packageSource
+            = node->data(Android::Constants::AndroidPackageSourceDir).toString();
+        if (!packageSource.isEmpty()) {
+            const FilePath manifest = FilePath::fromUserInput(packageSource + "/AndroidManifest.xml");
+            if (manifest.exists())
+                return manifest;
+        }
+    }
+    return manifestPath(target);
+}
+
 /*!
     Returns the minimum Android API level set for the APK. Minimum API level
     of the kit is returned if the manifest file of the APK cannot be found
@@ -103,7 +117,7 @@ QString activityName(const Target *target)
 int minimumSDK(const Target *target)
 {
     QDomDocument doc;
-    if (!openXmlFile(doc, AndroidManager::manifestSourcePath(target)))
+    if (!openXmlFile(doc, manifestSourcePath(target)))
         return minimumSDK(target->kit());
     const int minSdkVersion = parseMinSdk(doc.documentElement());
     if (minSdkVersion == 0)
@@ -289,24 +303,6 @@ FilePath packagePath(const Target *target)
     return androidBuildDirectory(target) / "build/outputs" / subPath;
 }
 
-bool matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis)
-{
-    for (const auto &abi : appAbis) {
-        if (deviceAbis.contains(abi))
-            return true;
-    }
-    return false;
-}
-
-QString devicePreferredAbi(const QStringList &deviceAbis, const QStringList &appAbis)
-{
-    for (const auto &abi : appAbis) {
-        if (deviceAbis.contains(abi))
-            return abi;
-    }
-    return {};
-}
-
 Abi androidAbi2Abi(const QString &androidAbi)
 {
     if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A) {
@@ -363,20 +359,6 @@ bool skipInstallationAndPackageSteps(const Target *target)
         return n->productType() == ProductType::App;
     });
     return n == nullptr; // If no Application target found, then skip steps
-}
-
-FilePath manifestSourcePath(const Target *target)
-{
-    if (const ProjectNode *node = currentProjectNode(target)) {
-        const QString packageSource
-                = node->data(Android::Constants::AndroidPackageSourceDir).toString();
-        if (!packageSource.isEmpty()) {
-            const FilePath manifest = FilePath::fromUserInput(packageSource + "/AndroidManifest.xml");
-            if (manifest.exists())
-                return manifest;
-        }
-    }
-    return manifestPath(target);
 }
 
 FilePath manifestPath(const Target *target)
