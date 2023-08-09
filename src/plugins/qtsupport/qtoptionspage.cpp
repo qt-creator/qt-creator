@@ -436,7 +436,15 @@ void QtOptionsPageWidget::toolChainsUpdated()
 
 void QtOptionsPageWidget::setInfoWidgetVisibility()
 {
-    m_versionInfoWidget->setVisible(m_infoWidget->state() == DetailsWidget::Collapsed);
+    bool isExpanded = m_infoWidget->state() == DetailsWidget::Expanded;
+    if (isExpanded && m_infoBrowser->toPlainText().isEmpty()) {
+        QtVersionItem *item = currentItem();
+        const QtVersion *version = item ? item->version() : nullptr;
+        if (version)
+            m_infoBrowser->setHtml(version->toHtml(true));
+    }
+
+    m_versionInfoWidget->setVisible(!isExpanded);
     m_infoWidget->setVisible(true);
 }
 
@@ -755,11 +763,10 @@ void QtOptionsPageWidget::updateDescriptionLabel()
     if (item)
         item->setIcon(info.icon);
 
+    m_infoBrowser->clear();
     if (version) {
-        m_infoBrowser->setHtml(version->toHtml(true));
         setInfoWidgetVisibility();
     } else {
-        m_infoBrowser->clear();
         m_versionInfoWidget->setVisible(false);
         m_infoWidget->setVisible(false);
     }
