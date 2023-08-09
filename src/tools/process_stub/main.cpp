@@ -24,6 +24,7 @@
 
 #ifdef Q_OS_LINUX
 #include <sys/ptrace.h>
+#include <sys/wait.h>
 #endif
 
 #include <iostream>
@@ -221,7 +222,23 @@ void onInferiorStarted()
     if (!debugMode)
         sendPid(inferiorId);
 #else
+    qCInfo(log) << "Detaching ...";
     ptrace(PTRACE_DETACH, inferiorId, 0, SIGSTOP);
+
+    // Wait until the process actually finished detaching
+    int status = 0;
+    waitpid(inferiorId, &status, WUNTRACED);
+    if (log().isInfoEnabled()) {
+        if (WIFEXITED(status))
+            qCInfo(log) << "inferior exited, status=" << WEXITSTATUS(status);
+        else if (WIFSIGNALED(status))
+            qCInfo(log) << "inferior killed by signal" << WTERMSIG(status);
+        else if (WIFSTOPPED(status))
+            qCInfo(log) << "inferior stopped by signal" << WSTOPSIG(status);
+        else if (WIFCONTINUED(status))
+            qCInfo(log) << "inferior continued";
+    }
+
     sendPid(inferiorId);
 #endif
 }
