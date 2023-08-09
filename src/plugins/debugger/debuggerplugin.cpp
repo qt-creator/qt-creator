@@ -2059,9 +2059,7 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options)
 
 void DebuggerPluginPrivate::extensionsInitialized()
 {
-    QTimer::singleShot(0, this, [this]{
-        m_debuggerItemManager.extensionsInitialized();
-    });
+    QTimer::singleShot(0, this, &DebuggerItemManager::restoreDebuggers);
 
     // If the CppEditor or QmlJS editor plugin is there, we want to add something to
     // the editor context menu.

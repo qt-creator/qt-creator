@@ -22,7 +22,7 @@ public:
     DebuggerItemManager();
     ~DebuggerItemManager();
 
-    void extensionsInitialized();
+    static void restoreDebuggers();
 
     static const QList<DebuggerItem> debuggers();
 

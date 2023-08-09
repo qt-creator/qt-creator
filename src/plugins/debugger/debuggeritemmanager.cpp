@@ -64,8 +64,6 @@ public:
     DebuggerItemManagerPrivate();
     ~DebuggerItemManagerPrivate();
 
-    void extensionsInitialized();
-
     void restoreDebuggers();
     void saveDebuggers();
 
@@ -896,11 +894,6 @@ DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
     m_optionsPage = new DebuggerOptionsPage;
 }
 
-void DebuggerItemManagerPrivate::extensionsInitialized()
-{
-    restoreDebuggers();
-}
-
 DebuggerItemManagerPrivate::~DebuggerItemManagerPrivate()
 {
     delete m_optionsPage;
@@ -1038,9 +1031,9 @@ DebuggerItemManager::~DebuggerItemManager()
     delete d;
 }
 
-void DebuggerItemManager::extensionsInitialized()
+void DebuggerItemManager::restoreDebuggers()
 {
-    d->extensionsInitialized();
+    d->restoreDebuggers();
 }
 
 const QList<DebuggerItem> DebuggerItemManager::debuggers()
