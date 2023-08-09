@@ -186,7 +186,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 {
     QmlJS::SimpleReader simpleQmlJSReader;
 
-    const QmlJS::SimpleReaderNode::Ptr rootNode = simpleQmlJSReader.readFile(projectFile.toString());
+    const QmlJS::SimpleReaderNode::Ptr rootNode = simpleQmlJSReader.readFile(projectFile.toFSPathString());
 
     if (!simpleQmlJSReader.errors().isEmpty() || !rootNode->isValid()) {
         qCritical() << "Unable to parse:" << projectFile;

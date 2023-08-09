@@ -228,9 +228,9 @@ void QmlBuildSystem::parseProjectFiles()
     }
 
 
-    Utils::FilePath mainFilePath{Utils::FilePath::fromString(m_projectItem->mainFile())};
-    if (!mainFilePath.isEmpty()) {
-        mainFilePath = canonicalProjectDir().resolvePath(m_projectItem->mainFile());
+    const QString mainFileName = m_projectItem->mainFile();
+    if (!mainFileName.isEmpty()) {
+        Utils::FilePath mainFilePath = canonicalProjectDir().resolvePath(mainFileName);
         Utils::FileReader reader;
         QString errorMessage;
         if (!reader.fetch(mainFilePath, &errorMessage)) {

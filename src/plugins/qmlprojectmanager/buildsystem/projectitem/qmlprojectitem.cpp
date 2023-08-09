@@ -78,7 +78,7 @@ void QmlProjectItem::setupFileFilters()
             fileFilterItem->setRecursive(fileGroup["recursive"].toBool(true));
             fileFilterItem->setPathsProperty(fileGroup["directories"].toVariant().toStringList());
             fileFilterItem->setPathsProperty(filesArr);
-            fileFilterItem->setDefaultDirectory(m_projectFile.parentDir().toString());
+            fileFilterItem->setDefaultDirectory(m_projectFile.parentDir().toFSPathString());
 #ifndef TESTS_ENABLED_QMLPROJECTITEM
             connect(fileFilterItem.get(),
                     &FileFilterItem::filesChanged,
