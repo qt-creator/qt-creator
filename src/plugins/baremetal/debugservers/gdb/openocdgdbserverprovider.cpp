@@ -27,7 +27,62 @@ const char rootScriptsDirKeyC[] = "RootScriptsDir";
 const char configurationFileKeyC[] = "ConfigurationPath";
 const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
+// OpenOcdGdbServerProviderConfigWidget
+
+class OpenOcdGdbServerProvider;
+
+class OpenOcdGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
+{
+public:
+    explicit OpenOcdGdbServerProviderConfigWidget(OpenOcdGdbServerProvider *provider);
+
+private:
+    void apply() final;
+    void discard() final;
+
+    void startupModeChanged();
+    void setFromProvider();
+
+    HostWidget *m_hostWidget = nullptr;
+    Utils::PathChooser *m_executableFileChooser = nullptr;
+    Utils::PathChooser *m_rootScriptsDirChooser = nullptr;
+    Utils::PathChooser *m_configurationFileChooser = nullptr;
+    QLineEdit *m_additionalArgumentsLineEdit = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
+};
+
 // OpenOcdGdbServerProvider
+
+class OpenOcdGdbServerProvider final : public GdbServerProvider
+{
+public:
+    void toMap(QVariantMap &data) const final;
+    void fromMap(const QVariantMap &data) final;
+
+    bool operator==(const IDebugServerProvider &other) const final;
+
+    QString channelString() const final;
+    Utils::CommandLine command() const final;
+
+    QSet<StartupMode> supportedStartupModes() const final;
+    bool isValid() const final;
+
+private:
+    explicit OpenOcdGdbServerProvider();
+
+    static QString defaultInitCommands();
+    static QString defaultResetCommands();
+
+    Utils::FilePath m_executableFile = "openocd";
+    Utils::FilePath m_rootScriptsDir;
+    Utils::FilePath m_configurationFile;
+    QString m_additionalArguments;
+
+    friend class OpenOcdGdbServerProviderConfigWidget;
+    friend class OpenOcdGdbServerProviderFactory;
+};
+
 
 OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_OPENOCD_PROVIDER_ID)

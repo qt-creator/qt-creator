@@ -32,6 +32,24 @@ constexpr char adapterOptionsKeyC[] = "AdapterOptions";
 constexpr char adapterPortKeyC[] = "AdapterPort";
 constexpr char adapterSpeedKeyC[] = "AdapterSpeed";
 
+class JLinkUvscAdapterOptions final
+{
+public:
+    enum Port { JTAG, SWD };
+    enum Speed {
+        Speed_50MHz = 50000, Speed_33MHz = 33000, Speed_25MHz = 25000,
+        Speed_20MHz = 20000, Speed_10MHz = 10000, Speed_5MHz = 5000,
+        Speed_3MHz = 3000, Speed_2MHz = 2000, Speed_1MHz = 1000,
+        Speed_500kHz = 500, Speed_200kHz = 200, Speed_100kHz = 100,
+    };
+    Port port = Port::SWD;
+    Speed speed = Speed::Speed_1MHz;
+
+    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &data);
+    bool operator==(const JLinkUvscAdapterOptions &other) const;
+};
+
 static int decodeSpeedCode(JLinkUvscAdapterOptions::Speed speed)
 {
     switch (speed) {
@@ -102,6 +120,49 @@ static QString buildDllRegistryName(const DeviceSelection &device,
     return content;
 }
 
+// JLinkUvscAdapterOptions
+
+QVariantMap JLinkUvscAdapterOptions::toMap() const
+{
+    QVariantMap map;
+    map.insert(adapterPortKeyC, port);
+    map.insert(adapterSpeedKeyC, speed);
+    return map;
+}
+
+bool JLinkUvscAdapterOptions::fromMap(const QVariantMap &data)
+{
+    port = static_cast<Port>(data.value(adapterPortKeyC, SWD).toInt());
+    speed = static_cast<Speed>(data.value(adapterSpeedKeyC, Speed_1MHz).toInt());
+    return true;
+}
+
+bool JLinkUvscAdapterOptions::operator==(const JLinkUvscAdapterOptions &other) const
+{
+    return port == other.port && speed == other.speed;
+}
+
+// JLinkUvscServerProvider
+
+class JLinkUvscServerProvider final : public UvscServerProvider
+{
+public:
+    void toMap(QVariantMap &data) const final;
+    void fromMap(const QVariantMap &data) final;
+
+    bool operator==(const IDebugServerProvider &other) const final;
+    Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,
+                                    QString &errorMessage) const final;
+private:
+    explicit JLinkUvscServerProvider();
+
+    JLinkUvscAdapterOptions m_adapterOpts;
+
+    friend class JLinkUvscServerProviderConfigWidget;
+    friend class JLinkUvscServerProviderFactory;
+    friend class JLinkUvProjectOptions;
+};
+
 // JLinkUvProjectOptions
 
 class JLinkUvProjectOptions final : public Uv::ProjectOptions
@@ -126,29 +187,50 @@ public:
     }
 };
 
-// JLinkUvscAdapterOptions
+// JLinkUvscServerProviderFactory
 
-QVariantMap JLinkUvscAdapterOptions::toMap() const
+class JLinkUvscAdapterOptionsWidget;
+
+class JLinkUvscServerProviderConfigWidget final : public UvscServerProviderConfigWidget
 {
-    QVariantMap map;
-    map.insert(adapterPortKeyC, port);
-    map.insert(adapterSpeedKeyC, speed);
-    return map;
-}
+public:
+    explicit JLinkUvscServerProviderConfigWidget(JLinkUvscServerProvider *provider);
 
-bool JLinkUvscAdapterOptions::fromMap(const QVariantMap &data)
+private:
+    void apply() override;
+    void discard() override;
+
+    void setAdapterOpitons(const JLinkUvscAdapterOptions &adapterOpts);
+    JLinkUvscAdapterOptions adapterOptions() const;
+    void setFromProvider();
+
+    JLinkUvscAdapterOptionsWidget *m_adapterOptionsWidget = nullptr;
+};
+
+// JLinkUvscAdapterOptionsWidget
+
+class JLinkUvscAdapterOptionsWidget final : public QWidget
 {
-    port = static_cast<Port>(data.value(adapterPortKeyC, SWD).toInt());
-    speed = static_cast<Speed>(data.value(adapterSpeedKeyC, Speed_1MHz).toInt());
-    return true;
-}
+    Q_OBJECT
 
-bool JLinkUvscAdapterOptions::operator==(const JLinkUvscAdapterOptions &other) const
-{
-    return port == other.port && speed == other.speed;
-}
+public:
+    explicit JLinkUvscAdapterOptionsWidget(QWidget *parent = nullptr);
+    void setAdapterOptions(const JLinkUvscAdapterOptions &adapterOpts);
+    JLinkUvscAdapterOptions adapterOptions() const;
 
-// JLinkUvscServerProvider
+signals:
+    void optionsChanged();
+
+private:
+    JLinkUvscAdapterOptions::Port portAt(int index) const;
+    JLinkUvscAdapterOptions::Speed speedAt(int index) const;
+
+    void populatePorts();
+    void populateSpeeds();
+
+    QComboBox *m_portBox = nullptr;
+    QComboBox *m_speedBox = nullptr;
+};
 
 JLinkUvscServerProvider::JLinkUvscServerProvider()
     : UvscServerProvider(Constants::UVSC_JLINK_PROVIDER_ID)
@@ -340,3 +422,5 @@ void JLinkUvscAdapterOptionsWidget::populateSpeeds()
 }
 
 } // BareMetal::Internal
+
+#include "jlinkuvscserverprovider.moc"

@@ -32,7 +32,83 @@ const char jlinkTargetInterfaceKeyC[] = "JLinkTargetInterface";
 const char jlinkTargetInterfaceSpeedKeyC[] = "JLinkTargetInterfaceSpeed";
 const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
+// JLinkGdbServerProviderConfigWidget
+
+class JLinkGdbServerProvider;
+
+class JLinkGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
+{
+public:
+    explicit JLinkGdbServerProviderConfigWidget(JLinkGdbServerProvider *provider);
+
+private:
+    void apply() final;
+    void discard() final;
+
+    void populateHostInterfaces();
+    void populateTargetInterfaces();
+    void populateTargetSpeeds();
+
+    void setHostInterface(const QString &newIface);
+    void setTargetInterface(const QString &newIface);
+    void setTargetSpeed(const QString &newSpeed);
+
+    void updateAllowedControls();
+
+    void setFromProvider();
+
+    HostWidget *m_hostWidget = nullptr;
+    PathChooser *m_executableFileChooser = nullptr;
+
+    QWidget *m_hostInterfaceWidget = nullptr;
+    QComboBox *m_hostInterfaceComboBox = nullptr;
+    QLabel *m_hostInterfaceAddressLabel = nullptr;
+    QLineEdit *m_hostInterfaceAddressLineEdit = nullptr;
+
+    QWidget *m_targetInterfaceWidget = nullptr;
+    QComboBox *m_targetInterfaceComboBox = nullptr;
+    QLabel *m_targetInterfaceSpeedLabel = nullptr;
+    QComboBox *m_targetInterfaceSpeedComboBox = nullptr;
+
+    QLineEdit *m_jlinkDeviceLineEdit = nullptr;
+    QPlainTextEdit *m_additionalArgumentsTextEdit = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
+};
+
 // JLinkGdbServerProvider
+
+class JLinkGdbServerProvider final : public GdbServerProvider
+{
+public:
+    void toMap(QVariantMap &data) const final;
+    void fromMap(const QVariantMap &data) final;
+
+    bool operator==(const IDebugServerProvider &other) const final;
+
+    QString channelString() const final;
+    CommandLine command() const final;
+
+    QSet<StartupMode> supportedStartupModes() const final;
+    bool isValid() const final;
+
+private:
+    JLinkGdbServerProvider();
+
+    static QString defaultInitCommands();
+    static QString defaultResetCommands();
+
+    FilePath m_executableFile;
+    QString m_jlinkDevice;
+    QString m_jlinkHost = {"USB"};
+    QString m_jlinkHostAddr;
+    QString m_jlinkTargetIface = {"SWD"};
+    QString m_jlinkTargetIfaceSpeed = {"12000"};
+    QString m_additionalArguments;
+
+    friend class JLinkGdbServerProviderConfigWidget;
+    friend class JLinkGdbServerProviderFactory;
+};
 
 JLinkGdbServerProvider::JLinkGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_JLINK_PROVIDER_ID)

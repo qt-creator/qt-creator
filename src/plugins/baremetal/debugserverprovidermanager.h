@@ -6,7 +6,7 @@
 #include <QList>
 #include <QObject>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace Utils { class PersistentSettingsWriter; }
 
