@@ -40,7 +40,6 @@ QtcProduct {
                                              : ["$ORIGIN/../" + qtc.libDirName + "/qtcreator"]
     cpp.includePaths: [
         project.sharedSourcesDir + "/qtsingleapplication",
-        project.sharedSourcesDir + "/qtlockedfile",
     ]
 
     cpp.frameworks: base.concat(qbs.targetOS.contains("macos") ? ["Foundation"] : [])
@@ -58,7 +57,6 @@ QtcProduct {
         "../shared/qtsingleapplication/qtsingleapplication.cpp",
         "../shared/qtsingleapplication/qtlocalpeer.h",
         "../shared/qtsingleapplication/qtlocalpeer.cpp",
-        "../shared/qtlockedfile/qtlockedfile.cpp",
         "../tools/qtcreatorcrashhandler/crashhandlersetup.cpp",
         "../tools/qtcreatorcrashhandler/crashhandlersetup.h"
     ]
@@ -82,22 +80,6 @@ QtcProduct {
         files: "../../bin/qtcreator.sh"
         qbs.install: true
         qbs.installDir: "bin"
-    }
-
-    Group {
-        name: "QtLockedFile_unix"
-        condition: qbs.targetOS.contains("unix")
-        files: [
-            "../shared/qtlockedfile/qtlockedfile_unix.cpp"
-        ]
-    }
-
-    Group {
-        name: "QtLockedFile_win"
-        condition: qbs.targetOS.contains("windows")
-        files: [
-            "../shared/qtlockedfile/qtlockedfile_win.cpp"
-        ]
     }
 
     Group {
