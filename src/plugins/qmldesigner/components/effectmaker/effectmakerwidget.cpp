@@ -34,31 +34,31 @@ static QString propertyEditorResourcesPath()
 EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     : m_effectMakerModel{new EffectMakerModel(this)}
     , m_effectMakerView(view)
-    , m_effectMakerWidget{new StudioQuickWidget(this)}
+    , m_quickWidget{new StudioQuickWidget(this)}
 {
     setWindowTitle(tr("Effect Maker", "Title of effect maker widget"));
     setMinimumWidth(250);
 
-    m_effectMakerWidget->quickWidget()->installEventFilter(this);
+    m_quickWidget->quickWidget()->installEventFilter(this);
 
     // create the inner widget
-    m_effectMakerWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_EFFECT_MAKER);
-    m_effectMakerWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    Theme::setupTheme(m_effectMakerWidget->engine());
-    m_effectMakerWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
-    m_effectMakerWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+    m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_EFFECT_MAKER);
+    m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    Theme::setupTheme(m_quickWidget->engine());
+    m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_quickWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
 
     auto layout = new QHBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
-    layout->addWidget(m_effectMakerWidget.data());
+    layout->addWidget(m_quickWidget.data());
 
     setStyleSheet(Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_EFFECTMAKER_TIME);
 
-    auto map = m_effectMakerWidget->registerPropertyMap("EffectMakerBackend");
+    auto map = m_quickWidget->registerPropertyMap("EffectMakerBackend");
     map->setProperties({{"effectMakerModel", QVariant::fromValue(m_effectMakerModel.data())},
                         {"rootView", QVariant::fromValue(this)}});
 
@@ -83,7 +83,7 @@ void EffectMakerWidget::contextHelp(const Core::IContext::HelpCallback &callback
 
 StudioQuickWidget *EffectMakerWidget::quickWidget() const
 {
-    return m_effectMakerWidget.data();
+    return m_quickWidget.data();
 }
 
 QPointer<EffectMakerModel> EffectMakerWidget::effectMakerModel() const
@@ -109,7 +109,7 @@ void EffectMakerWidget::reloadQmlSource()
 {
     const QString effectMakerQmlPath = qmlSourcesPath() + "/EffectMaker.qml";
     QTC_ASSERT(QFileInfo::exists(effectMakerQmlPath), return);
-    m_effectMakerWidget->setSource(QUrl::fromLocalFile(effectMakerQmlPath));
+    m_quickWidget->setSource(QUrl::fromLocalFile(effectMakerQmlPath));
 }
 
 } // namespace QmlDesigner

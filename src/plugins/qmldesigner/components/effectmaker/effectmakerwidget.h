@@ -44,7 +44,7 @@ private:
 
     QPointer<EffectMakerModel> m_effectMakerModel;
     QPointer<EffectMakerView> m_effectMakerView;
-    QPointer<StudioQuickWidget> m_effectMakerWidget;
+    QPointer<StudioQuickWidget> m_quickWidget;
 };
 
 } // namespace QmlDesigner

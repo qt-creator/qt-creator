@@ -39,7 +39,58 @@ Item {
             height: StudioTheme.Values.toolbarHeight
             color: StudioTheme.Values.themeToolbarBackground
 
-            // TODO
+            StudioControls.ComboBox {
+                id: effectNodesComboBox
+
+                actionIndicatorVisible: false
+                x: 5
+                width: parent.width - 50
+                anchors.verticalCenter: parent.verticalCenter
+
+                model: [qsTr("+ Add Effect")]
+
+                // hide default popup
+                popup.width: 0
+                popup.height: 0
+
+                Connections {
+                    target: effectNodesComboBox.popup
+
+                    function onAboutToShow() {
+                        var a = root.mapToGlobal(0, 0)
+                        var b = effectNodesComboBox.mapToItem(root, 0, 0)
+
+                        effectNodesWindow.x = a.x + b.x + effectNodesComboBox.width - effectNodesWindow.width
+                        effectNodesWindow.y = a.y + b.y + effectNodesComboBox.height - 1
+                        effectNodesWindow.show()
+                        effectNodesWindow.requestActivate()
+                    }
+
+                    function onAboutToHide() {
+                        effectNodesWindow.hide()
+                    }
+                }
+
+                Window {
+                    id: effectNodesWindow
+
+                    width: 600
+                    height: Math.min(400, Screen.height - y - 40) // TODO: window sizing will be refined
+                    flags:  Qt.Popup | Qt.FramelessWindowHint
+
+                    onActiveChanged: {
+                        if (!active)
+                            effectNodesComboBox.popup.close()
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        color: StudioTheme.Values.themePopupBackground
+                        border.color: StudioTheme.Values.themeInteraction
+                        border.width: 1
+                    }
+                }
+            }
         }
 
         Image {
