@@ -130,7 +130,7 @@ private:
 };
 } // namespace Internal
 
-QtKitAspect::QtKitAspect()
+QtKitAspectFactory::QtKitAspectFactory()
 {
     setObjectName(QLatin1String("QtKitAspect"));
     setId(QtKitAspect::id());
@@ -141,10 +141,10 @@ QtKitAspect::QtKitAspect()
     setPriority(26000);
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
-            this, &QtKitAspect::kitsWereLoaded);
+            this, &QtKitAspectFactory::kitsWereLoaded);
 }
 
-void QtKitAspect::setup(Kit *k)
+void QtKitAspectFactory::setup(Kit *k)
 {
     if (!k || k->hasValue(id()))
         return;
@@ -175,25 +175,25 @@ void QtKitAspect::setup(Kit *k)
         k->setValue(id(), candidates.first()->uniqueId());
 }
 
-Tasks QtKitAspect::validate(const Kit *k) const
+Tasks QtKitAspectFactory::validate(const Kit *k) const
 {
     QTC_ASSERT(QtVersionManager::isLoaded(), return {});
-    QtVersion *version = qtVersion(k);
+    QtVersion *version = QtKitAspect::qtVersion(k);
     if (!version)
         return {};
 
     return version->validateKit(k);
 }
 
-void QtKitAspect::fix(Kit *k)
+void QtKitAspectFactory::fix(Kit *k)
 {
     QTC_ASSERT(QtVersionManager::isLoaded(), return);
-    QtVersion *version = qtVersion(k);
+    QtVersion *version = QtKitAspect::qtVersion(k);
     if (!version) {
-        if (qtVersionId(k) >= 0) {
+        if (QtKitAspect::qtVersionId(k) >= 0) {
             qWarning("Qt version is no longer known, removing from kit \"%s\".",
                      qPrintable(k->displayName()));
-            setQtVersionId(k, -1);
+            QtKitAspect::setQtVersionId(k, -1);
         }
         return;
     }
@@ -260,34 +260,34 @@ void QtKitAspect::fix(Kit *k)
     }
 }
 
-KitAspect *QtKitAspect::createKitAspect(Kit *k) const
+KitAspect *QtKitAspectFactory::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new Internal::QtKitAspectWidget(k, this);
 }
 
-QString QtKitAspect::displayNamePostfix(const Kit *k) const
+QString QtKitAspectFactory::displayNamePostfix(const Kit *k) const
 {
-    QtVersion *version = qtVersion(k);
+    QtVersion *version = QtKitAspect::qtVersion(k);
     return version ? version->displayName() : QString();
 }
 
-KitAspectFactory::ItemList QtKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList QtKitAspectFactory::toUserOutput(const Kit *k) const
 {
-    QtVersion *version = qtVersion(k);
+    QtVersion *version = QtKitAspect::qtVersion(k);
     return {{Tr::tr("Qt version"), version ? version->displayName() : Tr::tr("None")}};
 }
 
-void QtKitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
+void QtKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
-    QtVersion *version = qtVersion(k);
+    QtVersion *version = QtKitAspect::qtVersion(k);
     if (version)
         version->addToEnvironment(k, env);
 }
 
-QList<OutputLineParser *> QtKitAspect::createOutputParsers(const Kit *k) const
+QList<OutputLineParser *> QtKitAspectFactory::createOutputParsers(const Kit *k) const
 {
-    if (qtVersion(k))
+    if (QtKitAspect::qtVersion(k))
         return {new Internal::QtTestParser, new QtParser};
     return {};
 }
@@ -308,19 +308,19 @@ public:
     std::shared_ptr<MacroExpander> expander;
 };
 
-void QtKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
+void QtKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
     expander->registerSubProvider(QtMacroSubProvider(kit));
 
     expander->registerVariable("Qt:Name", Tr::tr("Name of Qt Version"),
                 [kit]() -> QString {
-                   QtVersion *version = qtVersion(kit);
+                   QtVersion *version = QtKitAspect::qtVersion(kit);
                    return version ? version->displayName() : Tr::tr("unknown");
                 });
     expander->registerVariable("Qt:qmakeExecutable", Tr::tr("Path to the qmake executable"),
                 [kit]() -> QString {
-                    QtVersion *version = qtVersion(kit);
+                    QtVersion *version = QtKitAspect::qtVersion(kit);
                     return version ? version->qmakeFilePath().path() : QString();
                 });
 }
@@ -385,27 +385,27 @@ void QtKitAspect::addHostBinariesToPath(const Kit *k, Environment &env)
         env.prependOrSetPath(qt->hostBinPath());
 }
 
-void QtKitAspect::qtVersionsChanged(const QList<int> &addedIds,
-                                    const QList<int> &removedIds,
-                                    const QList<int> &changedIds)
+void QtKitAspectFactory::qtVersionsChanged(const QList<int> &addedIds,
+                                           const QList<int> &removedIds,
+                                           const QList<int> &changedIds)
 {
     Q_UNUSED(addedIds)
     Q_UNUSED(removedIds)
     for (Kit *k : KitManager::kits()) {
-        if (changedIds.contains(qtVersionId(k))) {
+        if (changedIds.contains(QtKitAspect::qtVersionId(k))) {
             k->validate(); // Qt version may have become (in)valid
             notifyAboutUpdate(k);
         }
     }
 }
 
-void QtKitAspect::kitsWereLoaded()
+void QtKitAspectFactory::kitsWereLoaded()
 {
     for (Kit *k : KitManager::kits())
         fix(k);
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
-            this, &QtKitAspect::qtVersionsChanged);
+            this, &QtKitAspectFactory::qtVersionsChanged);
 }
 
 Kit::Predicate QtKitAspect::platformPredicate(Id platform)
@@ -433,21 +433,21 @@ Kit::Predicate QtKitAspect::qtVersionPredicate(const QSet<Id> &required,
     };
 }
 
-QSet<Id> QtKitAspect::supportedPlatforms(const Kit *k) const
+QSet<Id> QtKitAspectFactory::supportedPlatforms(const Kit *k) const
 {
     QtVersion *version = QtKitAspect::qtVersion(k);
     return version ? version->targetDeviceTypes() : QSet<Id>();
 }
 
-QSet<Id> QtKitAspect::availableFeatures(const Kit *k) const
+QSet<Id> QtKitAspectFactory::availableFeatures(const Kit *k) const
 {
     QtVersion *version = QtKitAspect::qtVersion(k);
     return version ? version->features() : QSet<Id>();
 }
 
-int QtKitAspect::weight(const Kit *k) const
+int QtKitAspectFactory::weight(const Kit *k) const
 {
-    const QtVersion * const qt = qtVersion(k);
+    const QtVersion * const qt = QtKitAspect::qtVersion(k);
     if (!qt)
         return 0;
     if (!qt->targetDeviceTypes().contains(DeviceTypeKitAspect::deviceTypeId(k)))

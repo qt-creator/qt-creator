@@ -13,12 +13,30 @@ namespace Utils { class MacroExpander; }
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT QtKitAspect : public ProjectExplorer::KitAspectFactory
+class QTSUPPORT_EXPORT QtKitAspect
+{
+public:
+    static Utils::Id id();
+    static int qtVersionId(const ProjectExplorer::Kit *k);
+    static void setQtVersionId(ProjectExplorer::Kit *k, const int id);
+    static QtVersion *qtVersion(const ProjectExplorer::Kit *k);
+    static void setQtVersion(ProjectExplorer::Kit *k, const QtVersion *v);
+
+    static void addHostBinariesToPath(const ProjectExplorer::Kit *k, Utils::Environment &env);
+
+    static ProjectExplorer::Kit::Predicate platformPredicate(Utils::Id availablePlatforms);
+    static ProjectExplorer::Kit::Predicate
+    qtVersionPredicate(const QSet<Utils::Id> &required = QSet<Utils::Id>(),
+                       const QVersionNumber &min = QVersionNumber(0, 0, 0),
+                       const QVersionNumber &max = QVersionNumber(INT_MAX, INT_MAX, INT_MAX));
+};
+
+class QTSUPPORT_EXPORT QtKitAspectFactory : public ProjectExplorer::KitAspectFactory
 {
     Q_OBJECT
 
 public:
-    QtKitAspect();
+    QtKitAspectFactory();
 
     void setup(ProjectExplorer::Kit *k) override;
 
@@ -34,20 +52,6 @@ public:
     void addToBuildEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
     QList<Utils::OutputLineParser *> createOutputParsers(const ProjectExplorer::Kit *k) const override;
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
-
-    static Utils::Id id();
-    static int qtVersionId(const ProjectExplorer::Kit *k);
-    static void setQtVersionId(ProjectExplorer::Kit *k, const int id);
-    static QtVersion *qtVersion(const ProjectExplorer::Kit *k);
-    static void setQtVersion(ProjectExplorer::Kit *k, const QtVersion *v);
-
-    static void addHostBinariesToPath(const ProjectExplorer::Kit *k, Utils::Environment &env);
-
-    static ProjectExplorer::Kit::Predicate platformPredicate(Utils::Id availablePlatforms);
-    static ProjectExplorer::Kit::Predicate
-    qtVersionPredicate(const QSet<Utils::Id> &required = QSet<Utils::Id>(),
-                       const QVersionNumber &min = QVersionNumber(0, 0, 0),
-                       const QVersionNumber &max = QVersionNumber(INT_MAX, INT_MAX, INT_MAX));
 
     QSet<Utils::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const override;
     QSet<Utils::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;

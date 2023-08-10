@@ -58,7 +58,7 @@ public:
     ExamplesWelcomePage examplesPage{true};
     ExamplesWelcomePage tutorialPage{false};
 
-    QtKitAspect qtKiAspect;
+    QtKitAspectFactory qtKitAspectFactory;
 
     QtOutputFormatterFactory qtOutputFormatterFactory;
 
