@@ -74,7 +74,7 @@ public:
     QbsInstallStepFactory installStepFactory;
     QbsSettingsPage settingsPage;
     QbsProfilesSettingsPage profilesSetttingsPage;
-    QbsKitAspect qbsKitAspect;
+    QbsKitAspectFactory qbsKitAspectFactory;
 };
 
 QbsProjectManagerPlugin::~QbsProjectManagerPlugin()

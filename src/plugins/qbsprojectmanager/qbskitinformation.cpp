@@ -20,15 +20,15 @@ using namespace ProjectExplorer;
 namespace QbsProjectManager {
 namespace Internal {
 
-class AspectWidget final : public KitAspect
+class QbsKitAspectImpl final : public KitAspect
 {
 public:
-    AspectWidget(Kit *kit, const KitAspectFactory *kitInfo)
+    QbsKitAspectImpl(Kit *kit, const KitAspectFactory *kitInfo)
         : KitAspect(kit, kitInfo),
           m_contentLabel(createSubWidget<Utils::ElidingLabel>()),
           m_changeButton(createSubWidget<QPushButton>(Tr::tr("Change...")))
     {
-        connect(m_changeButton, &QPushButton::clicked, this, &AspectWidget::changeProperties);
+        connect(m_changeButton, &QPushButton::clicked, this, &QbsKitAspectImpl::changeProperties);
     }
 
 private:
@@ -53,7 +53,7 @@ private:
     QPushButton * const m_changeButton;
 };
 
-QbsKitAspect::QbsKitAspect()
+QbsKitAspectFactory::QbsKitAspectFactory()
 {
     setObjectName(QLatin1String("QbsKitAspect"));
     setId(QbsKitAspect::id());
@@ -90,16 +90,19 @@ Utils::Id QbsKitAspect::id()
     return "Qbs.KitInformation";
 }
 
-Tasks QbsKitAspect::validate(const Kit *) const { return {}; }
-
-KitAspectFactory::ItemList QbsKitAspect::toUserOutput(const Kit *k) const
+Tasks QbsKitAspectFactory::validate(const Kit *) const
 {
-    return {{displayName(), representation(k)}};
+    return {};
 }
 
-KitAspect *QbsKitAspect::createKitAspect(Kit *k) const
+KitAspectFactory::ItemList QbsKitAspectFactory::toUserOutput(const Kit *k) const
 {
-    return new AspectWidget(k, this);
+    return {{displayName(), QbsKitAspect::representation(k)}};
+}
+
+KitAspect *QbsKitAspectFactory::createKitAspect(Kit *k) const
+{
+    return new QbsKitAspectImpl(k, this);
 }
 
 } // namespace Internal

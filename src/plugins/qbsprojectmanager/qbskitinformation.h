@@ -8,20 +8,24 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsKitAspect final : public ProjectExplorer::KitAspectFactory
+class QbsKitAspect final
 {
-    Q_OBJECT
-
 public:
-    QbsKitAspect();
-
     static QString representation(const ProjectExplorer::Kit *kit);
     static QVariantMap properties(const ProjectExplorer::Kit *kit);
     static void setProperties(ProjectExplorer::Kit *kit, const QVariantMap &properties);
 
-private:
     static Utils::Id id();
+};
 
+class QbsKitAspectFactory final : public ProjectExplorer::KitAspectFactory
+{
+    Q_OBJECT
+
+public:
+    QbsKitAspectFactory();
+
+private:
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *) const override;
     ItemList toUserOutput(const ProjectExplorer::Kit *) const override;
     ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *) const override;
