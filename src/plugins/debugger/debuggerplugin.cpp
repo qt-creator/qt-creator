@@ -60,6 +60,7 @@
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/itaskhandler.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -686,8 +687,6 @@ public:
 
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, Tr::tr("Debugger")};
     std::unique_ptr<Perspective> m_perspectiveCmake;
-
-    DebuggerKitAspectFactory debuggerKitAspect;
 
     DebuggerRunWorkerFactory debuggerWorkerFactory;
 

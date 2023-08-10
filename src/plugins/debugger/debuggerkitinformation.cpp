@@ -8,6 +8,7 @@
 #include "debuggertr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/toolchain.h>
@@ -20,7 +21,6 @@
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
-#include <QFileInfo>
 
 #include <utility>
 
@@ -128,119 +128,6 @@ private:
 };
 } // namespace Internal
 
-DebuggerKitAspectFactory::DebuggerKitAspectFactory()
-{
-    setObjectName("DebuggerKitAspect");
-    setId(DebuggerKitAspect::id());
-    setDisplayName(Tr::tr("Debugger"));
-    setDescription(Tr::tr("The debugger to use for this kit."));
-    setPriority(28000);
-}
-
-void DebuggerKitAspectFactory::setup(Kit *k)
-{
-    QTC_ASSERT(k, return);
-
-    // This can be anything (Id, binary path, "auto")
-    // With 3.0 we have:
-    // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
-    // Before we had:
-    // <valuemap type="QVariantMap" key="Debugger.Information">
-    //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
-    //    <value type="int" key="EngineType">1</value>
-    //  </valuemap>
-    // Or for force auto-detected CDB
-    // <valuemap type="QVariantMap" key="Debugger.Information">
-    //    <value type="QString" key="Binary">auto</value>
-    //    <value type="int" key="EngineType">4</value>
-    //  </valuemap>
-    const QVariant rawId = k->value(DebuggerKitAspectFactory::id());
-
-    const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
-
-    // Get the best of the available debugger matching the kit's toolchain.
-    // The general idea is to find an item that exactly matches what
-    // is stored in the kit information, but also accept item based
-    // on toolchain matching as fallback with a lower priority.
-
-    DebuggerItem bestItem;
-    DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
-    const Environment systemEnvironment = Environment::systemEnvironment();
-    for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
-        DebuggerItem::MatchLevel level = DebuggerItem::DoesNotMatch;
-
-        if (rawId.isNull()) {
-            // Initial setup of a kit.
-            level = item.matchTarget(tcAbi);
-            // Hack to prefer a debugger from PATH (e.g. autodetected) over other matches.
-            // This improves the situation a bit if a cross-compilation tool chain has the
-            // same ABI as the host.
-            if (level == DebuggerItem::MatchesPerfectly
-                    && !item.command().needsDevice()
-                    && systemEnvironment.path().contains(item.command().parentDir())) {
-                level = DebuggerItem::MatchesPerfectlyInPath;
-            }
-            if (!item.detectionSource().isEmpty() && item.detectionSource() == k->autoDetectionSource())
-                level = DebuggerItem::MatchLevel(level + 2);
-        } else if (rawId.type() == QVariant::String) {
-            // New structure.
-            if (item.id() == rawId) {
-                // Detected by ID.
-                level = DebuggerItem::MatchesPerfectly;
-            } else {
-                // This item does not match by ID, and is an unlikely candidate.
-                // However, consider using it as fallback if the tool chain fits.
-                level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
-            }
-        } else {
-            // Old structure.
-            const QMap<QString, QVariant> map = rawId.toMap();
-            QString binary = map.value("Binary").toString();
-            if (binary == "auto") {
-                // This is close to the "new kit" case, except that we know
-                // an engine type.
-                DebuggerEngineType autoEngine = DebuggerEngineType(map.value("EngineType").toInt());
-                if (item.engineType() == autoEngine) {
-                    // Use item if host toolchain fits, but only as fallback.
-                    level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
-                }
-            } else {
-                // We have an executable path.
-                FilePath fileName = FilePath::fromUserInput(binary);
-                if (item.command() == fileName) {
-                    // And it's is the path of this item.
-                    level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
-                } else {
-                    // This item does not match by filename, and is an unlikely candidate.
-                    // However, consider using it as fallback if the tool chain fits.
-                    level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
-                }
-            }
-        }
-
-        if (level > bestLevel) {
-            bestLevel = level;
-            bestItem = item;
-        } else if (level == bestLevel) {
-            if (item.engineType() == bestItem.engineType()) {
-                const QStringList itemVersion = item.version().split('.');
-                const QStringList bestItemVersion = bestItem.version().split('.');
-                int end = qMax(item.version().size(), bestItemVersion.size());
-                for (int i = 0; i < end; ++i) {
-                    if (itemVersion.value(i) == bestItemVersion.value(i))
-                        continue;
-                    if (itemVersion.value(i).toInt() > bestItemVersion.value(i).toInt())
-                        bestItem = item;
-                    break;
-                }
-            }
-        }
-    }
-
-    // Use the best id we found, or an invalid one.
-    k->setValue(DebuggerKitAspect::id(), bestLevel != DebuggerItem::DoesNotMatch ? bestItem.id() : QVariant());
-}
-
 // Check the configuration errors and return a flag mask. Provide a quick check and
 // a verbose one with a list of errors.
 
@@ -343,46 +230,6 @@ Tasks DebuggerKitAspect::validateDebugger(const Kit *k)
     return result;
 }
 
-KitAspect *DebuggerKitAspectFactory::createKitAspect(Kit *k) const
-{
-    return new Internal::DebuggerKitAspectImpl(k, this);
-}
-
-void DebuggerKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
-{
-    QTC_ASSERT(kit, return);
-    expander->registerVariable("Debugger:Name", Tr::tr("Name of Debugger"),
-                               [kit]() -> QString {
-                                   const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
-                                   return item ? item->displayName() : Tr::tr("Unknown debugger");
-                               });
-
-    expander->registerVariable("Debugger:Type", Tr::tr("Type of Debugger Backend"),
-                               [kit]() -> QString {
-                                   const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
-                                   return item ? item->engineTypeName() : Tr::tr("Unknown debugger type");
-                               });
-
-    expander->registerVariable("Debugger:Version", Tr::tr("Debugger"),
-                               [kit]() -> QString {
-                                   const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
-                                   return item && !item->version().isEmpty()
-                                        ? item->version() : Tr::tr("Unknown debugger version");
-                               });
-
-    expander->registerVariable("Debugger:Abi", Tr::tr("Debugger"),
-                               [kit]() -> QString {
-                                   const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
-                                   return item && !item->abis().isEmpty()
-                                           ? item->abiNames().join(' ')
-                                           : Tr::tr("Unknown debugger ABI");
-                               });
-}
-
-KitAspectFactory::ItemList DebuggerKitAspectFactory::toUserOutput(const Kit *k) const
-{
-    return {{Tr::tr("Debugger"), DebuggerKitAspect::displayString(k)}};
-}
 
 DebuggerEngineType DebuggerKitAspect::engineType(const Kit *k)
 {
@@ -413,5 +260,172 @@ Utils::Id DebuggerKitAspect::id()
 {
     return "Debugger.Information";
 }
+
+// DebuggerKitAspectFactory
+
+class DebuggerKitAspectFactory : public KitAspectFactory
+{
+public:
+    DebuggerKitAspectFactory()
+    {
+        setObjectName("DebuggerKitAspect");
+        setId(DebuggerKitAspect::id());
+        setDisplayName(Tr::tr("Debugger"));
+        setDescription(Tr::tr("The debugger to use for this kit."));
+        setPriority(28000);
+    }
+
+    Tasks validate(const Kit *k) const override
+    {
+        return DebuggerKitAspect::validateDebugger(k);
+    }
+
+    void setup(Kit *k) override
+    {
+        QTC_ASSERT(k, return);
+
+        // This can be anything (Id, binary path, "auto")
+        // With 3.0 we have:
+        // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
+        // Before we had:
+        // <valuemap type="QVariantMap" key="Debugger.Information">
+        //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
+        //    <value type="int" key="EngineType">1</value>
+        //  </valuemap>
+        // Or for force auto-detected CDB
+        // <valuemap type="QVariantMap" key="Debugger.Information">
+        //    <value type="QString" key="Binary">auto</value>
+        //    <value type="int" key="EngineType">4</value>
+        //  </valuemap>
+        const QVariant rawId = k->value(DebuggerKitAspectFactory::id());
+
+        const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+
+        // Get the best of the available debugger matching the kit's toolchain.
+        // The general idea is to find an item that exactly matches what
+        // is stored in the kit information, but also accept item based
+        // on toolchain matching as fallback with a lower priority.
+
+        DebuggerItem bestItem;
+        DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
+        const Environment systemEnvironment = Environment::systemEnvironment();
+        for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
+            DebuggerItem::MatchLevel level = DebuggerItem::DoesNotMatch;
+
+            if (rawId.isNull()) {
+                // Initial setup of a kit.
+                level = item.matchTarget(tcAbi);
+                // Hack to prefer a debugger from PATH (e.g. autodetected) over other matches.
+                // This improves the situation a bit if a cross-compilation tool chain has the
+                // same ABI as the host.
+                if (level == DebuggerItem::MatchesPerfectly
+                    && !item.command().needsDevice()
+                    && systemEnvironment.path().contains(item.command().parentDir())) {
+                    level = DebuggerItem::MatchesPerfectlyInPath;
+                }
+                if (!item.detectionSource().isEmpty() && item.detectionSource() == k->autoDetectionSource())
+                    level = DebuggerItem::MatchLevel(level + 2);
+            } else if (rawId.type() == QVariant::String) {
+                // New structure.
+                if (item.id() == rawId) {
+                    // Detected by ID.
+                    level = DebuggerItem::MatchesPerfectly;
+                } else {
+                    // This item does not match by ID, and is an unlikely candidate.
+                    // However, consider using it as fallback if the tool chain fits.
+                    level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
+                }
+            } else {
+                // Old structure.
+                const QMap<QString, QVariant> map = rawId.toMap();
+                QString binary = map.value("Binary").toString();
+                if (binary == "auto") {
+                    // This is close to the "new kit" case, except that we know
+                    // an engine type.
+                    DebuggerEngineType autoEngine = DebuggerEngineType(map.value("EngineType").toInt());
+                    if (item.engineType() == autoEngine) {
+                        // Use item if host toolchain fits, but only as fallback.
+                        level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
+                    }
+                } else {
+                    // We have an executable path.
+                    FilePath fileName = FilePath::fromUserInput(binary);
+                    if (item.command() == fileName) {
+                        // And it's is the path of this item.
+                        level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
+                    } else {
+                        // This item does not match by filename, and is an unlikely candidate.
+                        // However, consider using it as fallback if the tool chain fits.
+                        level = std::min(item.matchTarget(tcAbi), DebuggerItem::MatchesSomewhat);
+                    }
+                }
+            }
+
+            if (level > bestLevel) {
+                bestLevel = level;
+                bestItem = item;
+            } else if (level == bestLevel) {
+                if (item.engineType() == bestItem.engineType()) {
+                    const QStringList itemVersion = item.version().split('.');
+                    const QStringList bestItemVersion = bestItem.version().split('.');
+                    int end = qMax(item.version().size(), bestItemVersion.size());
+                    for (int i = 0; i < end; ++i) {
+                        if (itemVersion.value(i) == bestItemVersion.value(i))
+                            continue;
+                        if (itemVersion.value(i).toInt() > bestItemVersion.value(i).toInt())
+                            bestItem = item;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Use the best id we found, or an invalid one.
+        k->setValue(DebuggerKitAspect::id(), bestLevel != DebuggerItem::DoesNotMatch ? bestItem.id() : QVariant());
+    }
+
+    KitAspect *createKitAspect(Kit *k) const override
+    {
+        return new Internal::DebuggerKitAspectImpl(k, this);
+    }
+
+    void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override
+    {
+        QTC_ASSERT(kit, return);
+        expander->registerVariable("Debugger:Name", Tr::tr("Name of Debugger"),
+                                   [kit]() -> QString {
+                                       const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
+                                       return item ? item->displayName() : Tr::tr("Unknown debugger");
+                                   });
+
+        expander->registerVariable("Debugger:Type", Tr::tr("Type of Debugger Backend"),
+                                   [kit]() -> QString {
+                                       const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
+                                       return item ? item->engineTypeName() : Tr::tr("Unknown debugger type");
+                                   });
+
+        expander->registerVariable("Debugger:Version", Tr::tr("Debugger"),
+                                   [kit]() -> QString {
+                                       const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
+                                       return item && !item->version().isEmpty()
+                                                  ? item->version() : Tr::tr("Unknown debugger version");
+                                   });
+
+        expander->registerVariable("Debugger:Abi", Tr::tr("Debugger"),
+                                   [kit]() -> QString {
+                                       const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
+                                       return item && !item->abis().isEmpty()
+                                                  ? item->abiNames().join(' ')
+                                                  : Tr::tr("Unknown debugger ABI");
+                                   });
+    }
+
+    ItemList toUserOutput(const Kit *k) const override
+    {
+        return {{Tr::tr("Debugger"), DebuggerKitAspect::displayString(k)}};
+    }
+};
+
+const DebuggerKitAspectFactory debuggerKitAspectFactory;
 
 } // namespace Debugger

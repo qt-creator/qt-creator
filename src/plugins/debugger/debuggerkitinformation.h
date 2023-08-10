@@ -7,10 +7,9 @@
 #include "debuggerconstants.h"
 
 #include <projectexplorer/kitaspects.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 namespace Debugger {
-class DebuggerItem;
 
 class DEBUGGER_EXPORT DebuggerKitAspect
 {
@@ -28,28 +27,12 @@ public:
 
     static ProjectExplorer::Tasks validateDebugger(const ProjectExplorer::Kit *k);
     static ConfigurationErrors configurationErrors(const ProjectExplorer::Kit *k);
-    static const DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
+    static const class DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
     static ProjectExplorer::Runnable runnable(const ProjectExplorer::Kit *kit);
     static void setDebugger(ProjectExplorer::Kit *k, const QVariant &id);
     static DebuggerEngineType engineType(const ProjectExplorer::Kit *k);
     static QString displayString(const ProjectExplorer::Kit *k);
     static Utils::Id id();
-};
-
-class DEBUGGER_EXPORT DebuggerKitAspectFactory : public ProjectExplorer::KitAspectFactory
-{
-public:
-    DebuggerKitAspectFactory();
-
-    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override
-        { return DebuggerKitAspect::validateDebugger(k); }
-
-    void setup(ProjectExplorer::Kit *k) override;
-
-    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k) const override;
-    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
-
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
 };
 
 } // Debugger
