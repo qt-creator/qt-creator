@@ -8,12 +8,11 @@
 
 #include <utils/qtcassert.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 static const char TOOL_ID[] = "MesonProjectManager.MesonKitInformation.Ninja";
 
-NinjaToolKitAspect::NinjaToolKitAspect()
+NinjaToolKitAspectFactory::NinjaToolKitAspectFactory()
 {
     setObjectName(QLatin1String("NinjaKitAspect"));
     setId(TOOL_ID);
@@ -23,41 +22,41 @@ NinjaToolKitAspect::NinjaToolKitAspect()
     setPriority(9000);
 }
 
-ProjectExplorer::Tasks NinjaToolKitAspect::validate(const ProjectExplorer::Kit *k) const
+ProjectExplorer::Tasks NinjaToolKitAspectFactory::validate(const ProjectExplorer::Kit *k) const
 {
     ProjectExplorer::Tasks tasks;
-    const auto tool = ninjaTool(k);
+    const auto tool = NinjaToolKitAspect::ninjaTool(k);
     if (tool && !tool->isValid())
         tasks << ProjectExplorer::BuildSystemTask{ProjectExplorer::Task::Warning,
                                                   Tr::tr("Cannot validate this Ninja executable.")};
     return tasks;
 }
 
-void NinjaToolKitAspect::setup(ProjectExplorer::Kit *k)
+void NinjaToolKitAspectFactory::setup(ProjectExplorer::Kit *k)
 {
-    const auto tool = ninjaTool(k);
+    const auto tool = NinjaToolKitAspect::ninjaTool(k);
     if (!tool) {
         const auto autoDetected = MesonTools::ninjaWrapper();
         if (autoDetected)
-            setNinjaTool(k, autoDetected->id());
+            NinjaToolKitAspect::setNinjaTool(k, autoDetected->id());
     }
 }
 
-void NinjaToolKitAspect::fix(ProjectExplorer::Kit *k)
+void NinjaToolKitAspectFactory::fix(ProjectExplorer::Kit *k)
 {
     setup(k);
 }
 
-ProjectExplorer::KitAspectFactory::ItemList NinjaToolKitAspect::toUserOutput(
+ProjectExplorer::KitAspectFactory::ItemList NinjaToolKitAspectFactory::toUserOutput(
     const ProjectExplorer::Kit *k) const
 {
-    const auto tool = ninjaTool(k);
+    const auto tool = NinjaToolKitAspect::ninjaTool(k);
     if (tool)
         return {{Tr::tr("Ninja"), tool->name()}};
     return {{Tr::tr("Ninja"), Tr::tr("Unconfigured")}};
 }
 
-ProjectExplorer::KitAspect *NinjaToolKitAspect::createKitAspect(ProjectExplorer::Kit *k) const
+ProjectExplorer::KitAspect *NinjaToolKitAspectFactory::createKitAspect(ProjectExplorer::Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new ToolKitAspectWidget{k, this, ToolKitAspectWidget::ToolType::Ninja};
@@ -74,5 +73,5 @@ Utils::Id NinjaToolKitAspect::ninjaToolId(const ProjectExplorer::Kit *kit)
     QTC_ASSERT(kit, return {});
     return Utils::Id::fromSetting(kit->value(TOOL_ID));
 }
-} // namespace Internal
-} // namespace MesonProjectManager
+
+} // MesonProjectManager::Internal

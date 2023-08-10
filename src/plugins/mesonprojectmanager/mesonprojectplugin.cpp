@@ -46,8 +46,8 @@ public:
 private:
     ToolsSettingsPage m_toolslSettingsPage;
     ToolsSettingsAccessor m_toolsSettings;
-    MesonToolKitAspect m_mesonKitAspect;
-    NinjaToolKitAspect m_ninjaKitAspect;
+    MesonToolKitAspectFactory m_mesonKitAspectFactory;
+    NinjaToolKitAspectFactory m_ninjaKitAspectFactory;
     MesonBuildStepFactory m_buildStepFactory;
     MesonBuildConfigurationFactory m_buildConfigurationFactory;
     MesonRunConfigurationFactory m_runConfigurationFactory;

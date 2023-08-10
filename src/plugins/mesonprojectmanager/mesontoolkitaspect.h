@@ -8,20 +8,11 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
-class MesonToolKitAspect final : public ProjectExplorer::KitAspectFactory
+class MesonToolKitAspect final
 {
 public:
-    MesonToolKitAspect();
-
-    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
-    void setup(ProjectExplorer::Kit *k) final;
-    void fix(ProjectExplorer::Kit *k) final;
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *) const final;
-
     static void setMesonTool(ProjectExplorer::Kit *kit, Utils::Id id);
     static Utils::Id mesonToolId(const ProjectExplorer::Kit *kit);
 
@@ -37,5 +28,17 @@ public:
     }
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+class MesonToolKitAspectFactory final : public ProjectExplorer::KitAspectFactory
+{
+public:
+    MesonToolKitAspectFactory();
+
+    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
+    void setup(ProjectExplorer::Kit *k) final;
+    void fix(ProjectExplorer::Kit *k) final;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *) const final;
+
+};
+
+} // MesonProjectManager::Internal

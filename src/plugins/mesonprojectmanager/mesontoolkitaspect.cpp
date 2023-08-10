@@ -8,12 +8,11 @@
 
 #include <utils/qtcassert.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 static const char TOOL_ID[] = "MesonProjectManager.MesonKitInformation.Meson";
 
-MesonToolKitAspect::MesonToolKitAspect()
+MesonToolKitAspectFactory::MesonToolKitAspectFactory()
 {
     setObjectName(QLatin1String("MesonKitAspect"));
     setId(TOOL_ID);
@@ -23,41 +22,41 @@ MesonToolKitAspect::MesonToolKitAspect()
     setPriority(9000);
 }
 
-ProjectExplorer::Tasks MesonToolKitAspect::validate(const ProjectExplorer::Kit *k) const
+ProjectExplorer::Tasks MesonToolKitAspectFactory::validate(const ProjectExplorer::Kit *k) const
 {
     ProjectExplorer::Tasks tasks;
-    const auto tool = mesonTool(k);
+    const auto tool = MesonToolKitAspect::mesonTool(k);
     if (tool && !tool->isValid())
         tasks << ProjectExplorer::BuildSystemTask{ProjectExplorer::Task::Warning,
                                                   Tr::tr("Cannot validate this meson executable.")};
     return tasks;
 }
 
-void MesonToolKitAspect::setup(ProjectExplorer::Kit *k)
+void MesonToolKitAspectFactory::setup(ProjectExplorer::Kit *k)
 {
-    const auto tool = mesonTool(k);
+    const auto tool = MesonToolKitAspect::mesonTool(k);
     if (!tool) {
         const auto autoDetected = MesonTools::mesonWrapper();
         if (autoDetected)
-            setMesonTool(k, autoDetected->id());
+            MesonToolKitAspect::setMesonTool(k, autoDetected->id());
     }
 }
 
-void MesonToolKitAspect::fix(ProjectExplorer::Kit *k)
+void MesonToolKitAspectFactory::fix(ProjectExplorer::Kit *k)
 {
     setup(k);
 }
 
-ProjectExplorer::KitAspectFactory::ItemList MesonToolKitAspect::toUserOutput(
+ProjectExplorer::KitAspectFactory::ItemList MesonToolKitAspectFactory::toUserOutput(
     const ProjectExplorer::Kit *k) const
 {
-    const auto tool = mesonTool(k);
+    const auto tool = MesonToolKitAspect::mesonTool(k);
     if (tool)
         return {{Tr::tr("Meson"), tool->name()}};
     return {{Tr::tr("Meson"), Tr::tr("Unconfigured")}};
 }
 
-ProjectExplorer::KitAspect *MesonToolKitAspect::createKitAspect(ProjectExplorer::Kit *k) const
+ProjectExplorer::KitAspect *MesonToolKitAspectFactory::createKitAspect(ProjectExplorer::Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new ToolKitAspectWidget{k, this, ToolKitAspectWidget::ToolType::Meson};
@@ -74,5 +73,5 @@ Utils::Id MesonToolKitAspect::mesonToolId(const ProjectExplorer::Kit *kit)
     QTC_ASSERT(kit, return {});
     return Utils::Id::fromSetting(kit->value(TOOL_ID));
 }
-} // namespace Internal
-} // namespace MesonProjectManager
+
+} // MesonProjectManager::Internal
