@@ -204,6 +204,11 @@ public:
             return first.m_privateData == second.m_privateData;
     }
 
+    friend bool operator!=(const NodeMetaInfo &first, const NodeMetaInfo &second)
+    {
+        return !(first == second);
+    }
+
 private:
     const Storage::Info::Type &typeData() const;
     bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;

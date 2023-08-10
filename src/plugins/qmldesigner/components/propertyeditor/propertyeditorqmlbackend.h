@@ -51,7 +51,7 @@ public:
     static QString templateGeneration(const NodeMetaInfo &type, const NodeMetaInfo &superType, const QmlObjectNode &node);
 
     static QUrl getQmlFileUrl(const TypeName &relativeTypeName, const NodeMetaInfo &info);
-    static QUrl getQmlUrlForMetaInfo(const NodeMetaInfo &modelNode, TypeName &className);
+    static std::tuple<QUrl, NodeMetaInfo> getQmlUrlForMetaInfo(const NodeMetaInfo &modelNode);
 
     static bool checkIfUrlExists(const QUrl &url);
 
