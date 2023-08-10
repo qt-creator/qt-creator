@@ -85,13 +85,9 @@ public:
         CreateTerminalProcessInterface createTerminalProcessInterface;
     };
 
-    using GetTerminalCommandsForDevicesHook = Hook<QList<NameAndCommandLine>>;
-
 public:
     static Hooks &instance();
     ~Hooks();
-
-    GetTerminalCommandsForDevicesHook &getTerminalCommandsForDevicesHook();
 
     void openTerminal(const OpenTerminalParameters &parameters) const;
     ProcessInterface *createTerminalProcessInterface() const;

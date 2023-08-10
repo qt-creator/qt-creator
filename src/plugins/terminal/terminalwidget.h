@@ -16,6 +16,10 @@
 #include <utils/process.h>
 #include <utils/terminalhooks.h>
 
+#include <QFutureWatcher>
+
+#include <memory>
+
 namespace Terminal {
 
 using RegisteredAction = std::unique_ptr<QAction, std::function<void(QAction *)>>;
@@ -105,6 +109,8 @@ private:
     RegisteredAction m_close;
 
     Internal::ShortcutMap m_shortcutMap;
+
+    std::unique_ptr<QFutureWatcher<Utils::FilePath>> m_findShellWatcher;
 };
 
 } // namespace Terminal

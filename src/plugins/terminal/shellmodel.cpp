@@ -3,6 +3,9 @@
 
 #include "shellmodel.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -138,11 +141,10 @@ ShellModelPrivate::ShellModelPrivate()
         });
 
         // ... and filter out non-existing shells.
-        localShells = Utils::transform(
-                    Utils::filtered(shells, [](const FilePath &shell) {return shell.exists(); }),
-                    [&iconProvider](const FilePath &shell) {
-            return ShellItemBuilder(iconProvider, shell).item();
-        });
+        localShells = Utils::transform(Utils::filtered(shells, &FilePath::exists),
+                                       [&iconProvider](const FilePath &shell) {
+                                           return ShellItemBuilder(iconProvider, shell).item();
+                                       });
     }
 }
 
@@ -161,14 +163,15 @@ QList<ShellModelItem> ShellModel::local() const
 
 QList<ShellModelItem> ShellModel::remote() const
 {
-    const auto deviceCmds = Utils::Terminal::Hooks::instance().getTerminalCommandsForDevicesHook()();
+    QList<ShellModelItem> result;
 
-    const QList<ShellModelItem> deviceItems = Utils::transform(
-        deviceCmds, [](const Utils::Terminal::NameAndCommandLine &item) -> ShellModelItem {
-            return ShellModelItem{item.name, {item.commandLine}};
+    ProjectExplorer::DeviceManager::instance()->forEachDevice(
+        [&result](const QSharedPointer<const ProjectExplorer::IDevice> &device) {
+            if (device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+                result << ShellModelItem{device->displayName(), {{device->rootPath(), {}}}};
         });
 
-    return deviceItems;
+    return result;
 }
 
 } // namespace Terminal::Internal

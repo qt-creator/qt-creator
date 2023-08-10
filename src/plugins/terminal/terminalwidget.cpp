@@ -16,6 +16,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -81,6 +82,33 @@ void TerminalWidget::setupPty()
 
     CommandLine shellCommand = m_openParameters.shellCommand.value_or(
         CommandLine{settings().shell(), settings().shellArguments(), CommandLine::Raw});
+
+    if (shellCommand.executable().isRootPath()) {
+        writeToTerminal(Tr::tr("Connecting ...\r\n").toUtf8(), true);
+        // We still have to find the shell to start ...
+        m_findShellWatcher.reset(new QFutureWatcher<FilePath>());
+        connect(m_findShellWatcher.get(), &QFutureWatcher<FilePath>::finished, this, [this] {
+            const FilePath result = m_findShellWatcher->result();
+            if (!result.isEmpty()) {
+                m_openParameters.shellCommand->setExecutable(m_findShellWatcher->result());
+                restart(m_openParameters);
+                return;
+            }
+
+            writeToTerminal(
+                ("\r\n\033[31m" + Tr::tr("Could not find shell to start.") + "\r\n").toUtf8(), true);
+        });
+
+        m_findShellWatcher->setFuture(Utils::asyncRun([shellCommand] {
+            const FilePath result = Utils::Terminal::defaultShellForDevice(
+                shellCommand.executable());
+            if (result.isExecutableFile())
+                return result;
+            return FilePath{};
+        }));
+
+        return;
+    }
 
     Environment env = m_openParameters.environment.value_or(Environment{})
                           .appliedToEnvironment(shellCommand.executable().deviceEnvironment());

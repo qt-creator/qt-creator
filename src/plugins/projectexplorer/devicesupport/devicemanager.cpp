@@ -465,22 +465,6 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     };
 
     Process::setRemoteProcessHooks(processHooks);
-
-    Terminal::Hooks::instance().getTerminalCommandsForDevicesHook().set(
-        [this]() -> QList<Terminal::NameAndCommandLine> {
-            QList<Terminal::NameAndCommandLine> result;
-            for (const IDevice::ConstPtr device : d->devices) {
-                if (device->type() == Constants::DESKTOP_DEVICE_TYPE)
-                    continue;
-
-                const FilePath shell = Terminal::defaultShellForDevice(device->rootPath());
-
-                if (!shell.isEmpty())
-                    result << Terminal::NameAndCommandLine{device->displayName(),
-                                                           CommandLine{shell, {}}};
-            }
-            return result;
-        });
 }
 
 DeviceManager::~DeviceManager()
@@ -495,6 +479,14 @@ IDevice::ConstPtr DeviceManager::deviceAt(int idx) const
 {
     QTC_ASSERT(idx >= 0 && idx < deviceCount(), return IDevice::ConstPtr());
     return d->devices.at(idx);
+}
+
+void DeviceManager::forEachDevice(const std::function<void(const IDeviceConstPtr &)> &func) const
+{
+    const QList<IDevice::Ptr> devices = d->deviceList();
+
+    for (const IDevice::Ptr &device : devices)
+        func(device);
 }
 
 IDevice::Ptr DeviceManager::mutableDevice(Id id) const

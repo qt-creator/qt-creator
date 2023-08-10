@@ -17,6 +17,9 @@ FilePath defaultShellForDevice(const FilePath &deviceRoot)
         return deviceRoot.withNewPath("cmd.exe").searchInPath();
 
     const Environment env = deviceRoot.deviceEnvironment();
+    if (!env.hasChanges())
+        return {};
+
     FilePath shell = FilePath::fromUserInput(env.value_or("SHELL", "/bin/sh"));
 
     if (!shell.isAbsolutePath())
@@ -32,7 +35,6 @@ class HooksPrivate
 {
 public:
     HooksPrivate()
-        : m_getTerminalCommandsForDevicesHook([] { return QList<NameAndCommandLine>{}; })
     {
         auto openTerminal = [](const OpenTerminalParameters &parameters) {
             DeviceFileHooks::instance().openTerminal(parameters.workingDirectory.value_or(
@@ -79,8 +81,6 @@ public:
         return m_openTerminal;
     }
 
-    Hooks::GetTerminalCommandsForDevicesHook m_getTerminalCommandsForDevicesHook;
-
 private:
     Hooks::OpenTerminal m_openTerminal;
     Hooks::CreateTerminalProcessInterface m_createTerminalProcessInterface;
@@ -109,11 +109,6 @@ void Hooks::openTerminal(const OpenTerminalParameters &parameters) const
 ProcessInterface *Hooks::createTerminalProcessInterface() const
 {
     return d->createTerminalProcessInterface()();
-}
-
-Hooks::GetTerminalCommandsForDevicesHook &Hooks::getTerminalCommandsForDevicesHook()
-{
-    return d->m_getTerminalCommandsForDevicesHook;
 }
 
 void Hooks::addCallbackSet(const QString &name, const CallbackSet &callbackSet)

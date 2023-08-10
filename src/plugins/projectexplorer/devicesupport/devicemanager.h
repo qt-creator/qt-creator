@@ -35,6 +35,8 @@ public:
     int deviceCount() const;
     IDevice::ConstPtr deviceAt(int index) const;
 
+    void forEachDevice(const std::function<void(const IDeviceConstPtr &)> &) const;
+
     IDevice::ConstPtr find(Utils::Id id) const;
     IDevice::ConstPtr defaultDevice(Utils::Id deviceType) const;
     bool hasDevice(const QString &name) const;
