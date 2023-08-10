@@ -8,12 +8,23 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeKitAspect : public ProjectExplorer::KitAspectFactory
+class QmakeKitAspect
+{
+public:
+    static Utils::Id id();
+    enum class MkspecSource { User, Code };
+    static void setMkspec(ProjectExplorer::Kit *k, const QString &mkspec, MkspecSource source);
+    static QString mkspec(const ProjectExplorer::Kit *k);
+    static QString effectiveMkspec(const ProjectExplorer::Kit *k);
+    static QString defaultMkspec(const ProjectExplorer::Kit *k);
+};
+
+class QmakeKitAspectFactory : public ProjectExplorer::KitAspectFactory
 {
     Q_OBJECT
 
 public:
-    QmakeKitAspect();
+    QmakeKitAspectFactory();
 
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
 
@@ -22,13 +33,6 @@ public:
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
 
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
-
-    static Utils::Id id();
-    enum class MkspecSource { User, Code };
-    static void setMkspec(ProjectExplorer::Kit *k, const QString &mkspec, MkspecSource source);
-    static QString mkspec(const ProjectExplorer::Kit *k);
-    static QString effectiveMkspec(const ProjectExplorer::Kit *k);
-    static QString defaultMkspec(const ProjectExplorer::Kit *k);
 };
 
 } // namespace Internal

@@ -26,18 +26,18 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeKitAspectWidget final : public KitAspect
+class QmakeKitAspectImpl final : public KitAspect
 {
 public:
-    QmakeKitAspectWidget(Kit *k, const KitAspectFactory *ki)
+    QmakeKitAspectImpl(Kit *k, const KitAspectFactory *ki)
         : KitAspect(k, ki), m_lineEdit(createSubWidget<QLineEdit>())
     {
         refresh(); // set up everything according to kit
         m_lineEdit->setToolTip(ki->description());
-        connect(m_lineEdit, &QLineEdit::textEdited, this, &QmakeKitAspectWidget::mkspecWasChanged);
+        connect(m_lineEdit, &QLineEdit::textEdited, this, &QmakeKitAspectImpl::mkspecWasChanged);
     }
 
-    ~QmakeKitAspectWidget() override { delete m_lineEdit; }
+    ~QmakeKitAspectImpl() override { delete m_lineEdit; }
 
 private:
     void addToLayout(Layouting::LayoutItem &parent) override
@@ -65,7 +65,7 @@ private:
 };
 
 
-QmakeKitAspect::QmakeKitAspect()
+QmakeKitAspectFactory::QmakeKitAspectFactory()
 {
     setObjectName(QLatin1String("QmakeKitAspect"));
     setId(QmakeKitAspect::id());
@@ -75,7 +75,7 @@ QmakeKitAspect::QmakeKitAspect()
     setPriority(24000);
 }
 
-Tasks QmakeKitAspect::validate(const Kit *k) const
+Tasks QmakeKitAspectFactory::validate(const Kit *k) const
 {
     Tasks result;
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
@@ -89,21 +89,21 @@ Tasks QmakeKitAspect::validate(const Kit *k) const
     return result;
 }
 
-KitAspect *QmakeKitAspect::createKitAspect(Kit *k) const
+KitAspect *QmakeKitAspectFactory::createKitAspect(Kit *k) const
 {
-    return new Internal::QmakeKitAspectWidget(k, this);
+    return new Internal::QmakeKitAspectImpl(k, this);
 }
 
-KitAspectFactory::ItemList QmakeKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList QmakeKitAspectFactory::toUserOutput(const Kit *k) const
 {
-    return {{Tr::tr("mkspec"), QDir::toNativeSeparators(mkspec(k))}};
+    return {{Tr::tr("mkspec"), QDir::toNativeSeparators(QmakeKitAspect::mkspec(k))}};
 }
 
-void QmakeKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
+void QmakeKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     expander->registerVariable("Qmake:mkspec", Tr::tr("Mkspec configured for qmake by the kit."),
                 [kit]() -> QString {
-                    return QDir::toNativeSeparators(mkspec(kit));
+                    return QDir::toNativeSeparators(QmakeKitAspect::mkspec(kit));
                 });
 }
 

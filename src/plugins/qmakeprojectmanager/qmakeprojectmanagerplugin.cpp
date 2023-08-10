@@ -96,7 +96,7 @@ public:
     QAction *m_addLibraryAction = nullptr;
     QAction *m_addLibraryActionContextMenu = nullptr;
 
-    QmakeKitAspect qmakeKitAspect;
+    QmakeKitAspectFactory qmakeKitAspectFactory;
 
     void addLibrary();
     void addLibraryContextMenu();
