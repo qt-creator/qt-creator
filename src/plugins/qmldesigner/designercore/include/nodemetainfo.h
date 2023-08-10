@@ -29,6 +29,8 @@ class Model;
 class AbstractProperty;
 class NodeMetaInfoPrivate;
 
+enum class MetaInfoType { None, Reference, Value, Sequence };
+
 class QMLDESIGNERCORE_EXPORT NodeMetaInfo
 {
 public:
@@ -52,6 +54,8 @@ public:
     explicit operator bool() const { return isValid(); }
 
     TypeId id() const { return m_typeId; }
+
+    MetaInfoType type() const;
     bool isFileComponent() const;
     bool isProjectComponent() const;
     bool isInProjectModule() const;

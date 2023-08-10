@@ -2366,4 +2366,49 @@ TEST_F(NodeMetaInfo, default_property_editor_specifics_path_is_empty)
     ASSERT_THAT(id, IsFalse());
 }
 
+TEST_F(NodeMetaInfo, is_reference)
+{
+    auto metaInfo = createMetaInfo("QtQuick", "Item", QmlDesigner::Storage::TypeTraits::Reference);
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::Reference);
+}
+
+TEST_F(NodeMetaInfo, is_value)
+{
+    auto metaInfo = createMetaInfo("QML", "bool", QmlDesigner::Storage::TypeTraits::Value);
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::Value);
+}
+
+TEST_F(NodeMetaInfo, is_sequence)
+{
+    auto metaInfo = createMetaInfo("QML", "QObjectList", QmlDesigner::Storage::TypeTraits::Sequence);
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::Sequence);
+}
+
+TEST_F(NodeMetaInfo, is_none)
+{
+    auto metaInfo = createMetaInfo("QML", "void", QmlDesigner::Storage::TypeTraits::None);
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::None);
+}
+
+TEST_F(NodeMetaInfo, default_is_none)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::None);
+}
+
 } // namespace

@@ -1456,6 +1456,26 @@ bool NodeMetaInfo::isValid() const
         return m_privateData && m_privateData->isValid();
 }
 
+MetaInfoType NodeMetaInfo::type() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid()) {
+            switch (typeData().traits) {
+            case Storage::TypeTraits::Reference:
+                return MetaInfoType::Reference;
+            case Storage::TypeTraits::Value:
+                return MetaInfoType::Value;
+            case Storage::TypeTraits::Sequence:
+                return MetaInfoType::Sequence;
+            default:
+                break;
+            }
+        }
+    }
+
+    return MetaInfoType::None;
+}
+
 bool NodeMetaInfo::isFileComponent() const
 {
     if constexpr (useProjectStorage())
