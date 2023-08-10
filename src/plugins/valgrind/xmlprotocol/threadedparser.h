@@ -25,6 +25,7 @@ class ThreadedParser : public QObject
 
 public:
     explicit ThreadedParser(QObject *parent = nullptr);
+    ~ThreadedParser();
 
     /// interface additions relative to Parser because Parser is synchronous and this
     /// class parses asynchronously in a non-public secondary thread.

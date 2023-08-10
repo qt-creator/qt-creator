@@ -33,6 +33,8 @@ ThreadedParser::ThreadedParser(QObject *parent)
     : QObject(parent)
 {}
 
+ThreadedParser::~ThreadedParser() = default;
+
 bool ThreadedParser::isRunning() const
 {
     return m_parserThread ? m_parserThread->isRunning() : false;
