@@ -124,7 +124,11 @@ Project {
         Group {
             name: "dap"
             prefix: "dap/"
-            files: ["dapengine.cpp", "dapengine.h"]
+            files: [
+                "cmakedapengine.cpp", "cmakedapengine.h",
+                "dapengine.cpp", "dapengine.h",
+                "gdbdapengine.cpp", "gdbdapengine.h",
+            ]
         }
 
         Group {
