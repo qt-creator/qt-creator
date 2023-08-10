@@ -811,7 +811,7 @@ function(extend_qtc_executable name)
 endfunction()
 
 function(add_qtc_test name)
-  cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK" "TIMEOUT"
+  cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK;NEEDS_GUI" "TIMEOUT"
       "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION;PROPERTIES" ${ARGN})
 
   if (${_arg_UNPARSED_ARGUMENTS})
@@ -878,8 +878,12 @@ function(add_qtc_test name)
     enable_pch(${name})
   endif()
 
+  if (_arg_NEEDS_GUI)
+    set(EXTRA_ARGUMENTS "-platform" "minimal")
+  endif()
+
   if (NOT _arg_GTEST AND NOT _arg_MANUALTEST)
-    add_test(NAME ${name} COMMAND ${name})
+    add_test(NAME ${name} COMMAND ${name} ${EXTRA_ARGUMENTS})
     if (_arg_EXCLUDE_FROM_PRECHECK)
       set_tests_properties(${name} PROPERTIES LABELS exclude_from_precheck)
     endif()
