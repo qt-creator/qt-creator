@@ -1735,6 +1735,10 @@ void TextEditorWidgetPrivate::insertSuggestion(std::unique_ptr<TextSuggestion> &
 
     auto cursor = q->textCursor();
     cursor.setPosition(suggestion->position());
+    QTextOption option = suggestion->document()->defaultTextOption();
+    option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);
+    suggestion->document()->setDefaultTextOption(option);
+    auto options = suggestion->document()->defaultTextOption();
     m_suggestionBlock = cursor.block();
     m_document->insertSuggestion(std::move(suggestion));
 }
@@ -8731,6 +8735,11 @@ void TextEditorWidgetPrivate::updateTabStops()
     QTextOption option = q->document()->defaultTextOption();
     option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);
     q->document()->setDefaultTextOption(option);
+    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(m_suggestionBlock)) {
+        QTextOption option = suggestion->document()->defaultTextOption();
+        option.setTabStopDistance(option.tabStopDistance());
+        suggestion->document()->setDefaultTextOption(option);
+    }
 }
 
 void TextEditorWidgetPrivate::applyTabSettings()
