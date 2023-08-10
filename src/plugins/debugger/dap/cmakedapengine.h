@@ -16,6 +16,12 @@ private:
     void handleDapStarted() override;
     void setupEngine() override;
 
+    /* Needed for CMake support issue:25176 */
+    void insertBreakpoint(const Breakpoint &bp) override;
+    void updateBreakpoint(const Breakpoint &bp) override;
+    void removeBreakpoint(const Breakpoint &bp) override;
+    /* Needed for CMake support issue:25176 */
+
     bool hasCapability(unsigned cap) const override;
 };
 

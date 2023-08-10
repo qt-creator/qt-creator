@@ -113,6 +113,8 @@ protected:
     void dapScopes(int frameId);
     void threads();
     void dapVariables(int variablesReference);
+    void dapRemoveBreakpoint(const Breakpoint &bp);
+    void dapInsertBreakpoint(const Breakpoint &bp);
 
     void handleDapDone();
     void readDapStandardOutput();

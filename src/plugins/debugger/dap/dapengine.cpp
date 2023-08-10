@@ -378,8 +378,13 @@ void DapEngine::insertBreakpoint(const Breakpoint &bp)
     QTC_CHECK(bp->state() == BreakpointInsertionRequested);
     notifyBreakpointInsertProceeding(bp);
 
-    const BreakpointParameters &params = bp->requestedParameters();
+    dapInsertBreakpoint(bp);
+}
+
+void DapEngine::dapInsertBreakpoint(const Breakpoint &bp)
+{
     bp->setResponseId(QString::number(m_nextBreakpointId++));
+    const BreakpointParameters &params = bp->requestedParameters();
 
     QJsonArray breakpoints;
     for (const auto &breakpoint : breakHandler()->breakpoints()) {
@@ -401,30 +406,21 @@ void DapEngine::insertBreakpoint(const Breakpoint &bp)
         }}
     });
 
-    notifyBreakpointInsertOk(bp);
     qCDebug(dapEngineLog) << "insertBreakpoint" << bp->modelId() << bp->responseId();
 }
 
 void DapEngine::updateBreakpoint(const Breakpoint &bp)
 {
+    BreakpointParameters parameters = bp->requestedParameters();
     notifyBreakpointChangeProceeding(bp);
-//    QTC_ASSERT(bp, return);
-//    const BreakpointState state = bp->state();
-//    if (QTC_GUARD(state == BreakpointUpdateRequested))
-//    if (bp->responseId().isEmpty()) // FIXME postpone update somehow (QTimer::singleShot?)
-//        return;
+    qDebug() << "updateBreakpoint";
 
-//    // FIXME figure out what needs to be changed (there might be more than enabled state)
-//    const BreakpointParameters &requested = bp->requestedParameters();
-//    if (requested.enabled != bp->isEnabled()) {
-//        if (bp->isEnabled())
-//            postDirectCommand("disable " + bp->responseId());
-//        else
-//            postDirectCommand("enable " + bp->responseId());
-//        bp->setEnabled(!bp->isEnabled());
-//    }
-//    // Pretend it succeeds without waiting for response.
-    notifyBreakpointChangeOk(bp);
+    if (parameters.enabled != bp->isEnabled()) {
+        if (bp->isEnabled())
+            dapRemoveBreakpoint(bp);
+        else
+            dapInsertBreakpoint(bp);
+    }
 }
 
 void DapEngine::removeBreakpoint(const Breakpoint &bp)
@@ -433,6 +429,11 @@ void DapEngine::removeBreakpoint(const Breakpoint &bp)
     QTC_CHECK(bp->state() == BreakpointRemoveRequested);
     notifyBreakpointRemoveProceeding(bp);
 
+    dapRemoveBreakpoint(bp);
+}
+
+void DapEngine::dapRemoveBreakpoint(const Breakpoint &bp)
+{
     const BreakpointParameters &params = bp->requestedParameters();
 
     QJsonArray breakpoints;
@@ -455,7 +456,6 @@ void DapEngine::removeBreakpoint(const Breakpoint &bp)
     });
 
     qCDebug(dapEngineLog) << "removeBreakpoint" << bp->modelId() << bp->responseId();
-    notifyBreakpointRemoveOk(bp);
 }
 
 void DapEngine::loadSymbols(const Utils::FilePath  &/*moduleName*/)
@@ -869,6 +869,16 @@ void DapEngine::handleBreakpointEvent(const QJsonObject &event)
     Breakpoint bp = breakHandler()->findBreakpointByResponseId(
         QString::number(breakpoint.value("id").toInt()));
     qCDebug(dapEngineLog) << "breakpoint id :" << breakpoint.value("id").toInt();
+
+    if (bp) {
+        BreakpointParameters parameters = bp->requestedParameters();
+        if (parameters.enabled != bp->isEnabled()) {
+            parameters.pending = false;
+            bp->setParameters(parameters);
+            notifyBreakpointChangeOk(bp);
+            return;
+        }
+    }
 
     if (body.value("reason").toString() == "new") {
         if (breakpoint.value("verified").toBool()) {
