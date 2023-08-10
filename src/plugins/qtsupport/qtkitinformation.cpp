@@ -30,10 +30,10 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-class QtKitAspectWidget final : public KitAspectWidget
+class QtKitAspectWidget final : public KitAspect
 {
 public:
-    QtKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
+    QtKitAspectWidget(Kit *k, const KitAspectFactory *ki) : KitAspect(k, ki)
     {
         m_combo = createSubWidget<QComboBox>();
         m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
@@ -260,7 +260,7 @@ void QtKitAspect::fix(Kit *k)
     }
 }
 
-KitAspectWidget *QtKitAspect::createConfigWidget(Kit *k) const
+KitAspect *QtKitAspect::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new Internal::QtKitAspectWidget(k, this);
@@ -272,7 +272,7 @@ QString QtKitAspect::displayNamePostfix(const Kit *k) const
     return version ? version->displayName() : QString();
 }
 
-KitAspect::ItemList QtKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList QtKitAspect::toUserOutput(const Kit *k) const
 {
     QtVersion *version = qtVersion(k);
     return {{Tr::tr("Qt version"), version ? version->displayName() : Tr::tr("None")}};

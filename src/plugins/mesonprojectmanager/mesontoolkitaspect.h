@@ -11,7 +11,7 @@
 namespace MesonProjectManager {
 namespace Internal {
 
-class MesonToolKitAspect final : public ProjectExplorer::KitAspect
+class MesonToolKitAspect final : public ProjectExplorer::KitAspectFactory
 {
 public:
     MesonToolKitAspect();
@@ -20,7 +20,7 @@ public:
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const final;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *) const final;
 
     static void setMesonTool(ProjectExplorer::Kit *kit, Utils::Id id);
     static Utils::Id mesonToolId(const ProjectExplorer::Kit *kit);

@@ -48,7 +48,7 @@ void MesonToolKitAspect::fix(ProjectExplorer::Kit *k)
     setup(k);
 }
 
-ProjectExplorer::KitAspect::ItemList MesonToolKitAspect::toUserOutput(
+ProjectExplorer::KitAspectFactory::ItemList MesonToolKitAspect::toUserOutput(
     const ProjectExplorer::Kit *k) const
 {
     const auto tool = mesonTool(k);
@@ -57,7 +57,7 @@ ProjectExplorer::KitAspect::ItemList MesonToolKitAspect::toUserOutput(
     return {{Tr::tr("Meson"), Tr::tr("Unconfigured")}};
 }
 
-ProjectExplorer::KitAspectWidget *MesonToolKitAspect::createConfigWidget(ProjectExplorer::Kit *k) const
+ProjectExplorer::KitAspect *MesonToolKitAspect::createKitAspect(ProjectExplorer::Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new ToolKitAspectWidget{k, this, ToolKitAspectWidget::ToolType::Meson};

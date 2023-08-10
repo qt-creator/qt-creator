@@ -142,7 +142,7 @@ private:
 
     const std::unique_ptr<Internal::KitPrivate> d;
 
-    friend class KitAspect;
+    friend class KitAspectFactory;
     friend class KitManager;
     friend class Internal::KitManagerPrivate;
     friend class Internal::KitModel; // needed for setAutoDetected() when cloning kits

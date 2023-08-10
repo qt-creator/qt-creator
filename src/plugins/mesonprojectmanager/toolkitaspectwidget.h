@@ -15,13 +15,13 @@
 namespace MesonProjectManager {
 namespace Internal {
 
-class ToolKitAspectWidget final : public ProjectExplorer::KitAspectWidget
+class ToolKitAspectWidget final : public ProjectExplorer::KitAspect
 {
 public:
     enum class ToolType { Meson, Ninja };
 
     ToolKitAspectWidget(ProjectExplorer::Kit *kit,
-                        const ProjectExplorer::KitAspect *ki,
+                        const ProjectExplorer::KitAspectFactory *ki,
                         ToolType type);
     ~ToolKitAspectWidget();
 

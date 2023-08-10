@@ -13,7 +13,7 @@ namespace Utils { class MacroExpander; }
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT QtKitAspect : public ProjectExplorer::KitAspect
+class QTSUPPORT_EXPORT QtKitAspect : public ProjectExplorer::KitAspectFactory
 {
     Q_OBJECT
 
@@ -25,7 +25,7 @@ public:
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
     void fix(ProjectExplorer::Kit *) override;
 
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k) const override;
 
     QString displayNamePostfix(const ProjectExplorer::Kit *k) const override;
 

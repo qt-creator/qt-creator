@@ -8,7 +8,7 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsKitAspect final : public ProjectExplorer::KitAspect
+class QbsKitAspect final : public ProjectExplorer::KitAspectFactory
 {
     Q_OBJECT
 
@@ -24,7 +24,7 @@ private:
 
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *) const override;
     ItemList toUserOutput(const ProjectExplorer::Kit *) const override;
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const override;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *) const override;
 };
 
 } // namespace Internal

@@ -8,7 +8,7 @@
 namespace McuSupport {
 namespace Internal {
 
-class McuDependenciesKitAspect final : public ProjectExplorer::KitAspect
+class McuDependenciesKitAspect final : public ProjectExplorer::KitAspectFactory
 {
     Q_OBJECT
 
@@ -18,7 +18,7 @@ public:
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *kit) const override;
     void fix(ProjectExplorer::Kit *kit) override;
 
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *kit) const override;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *kit) const override;
 
     ItemList toUserOutput(const ProjectExplorer::Kit *kit) const override;
 

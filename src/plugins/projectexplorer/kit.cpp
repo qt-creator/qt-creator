@@ -69,7 +69,7 @@ public:
             [kit] { return kit->id().toString(); });
         m_macroExpander.registerVariable("Kit:FileSystemName", Tr::tr("Kit filesystem-friendly name"),
             [kit] { return kit->fileSystemFriendlyName(); });
-        for (KitAspect *aspect : KitManager::kitAspects())
+        for (KitAspectFactory *aspect : KitManager::kitAspects())
             aspect->addToMacroExpander(kit, &m_macroExpander);
 
         m_macroExpander.registerVariable("Kit:Name",
@@ -235,7 +235,7 @@ bool Kit::hasWarning() const
 Tasks Kit::validate() const
 {
     Tasks result;
-    for (KitAspect *aspect : KitManager::kitAspects())
+    for (KitAspectFactory *aspect : KitManager::kitAspects())
         result.append(aspect->validate(this));
 
     d->m_hasError = containsType(result, Task::TaskType::Error);
@@ -248,15 +248,15 @@ Tasks Kit::validate() const
 void Kit::fix()
 {
     KitGuard g(this);
-    for (KitAspect *aspect : KitManager::kitAspects())
+    for (KitAspectFactory *aspect : KitManager::kitAspects())
         aspect->fix(this);
 }
 
 void Kit::setup()
 {
     KitGuard g(this);
-    const QList<KitAspect *> aspects = KitManager::kitAspects();
-    for (KitAspect * const aspect : aspects)
+    const QList<KitAspectFactory *> aspects = KitManager::kitAspects();
+    for (KitAspectFactory * const aspect : aspects)
         aspect->setup(this);
 }
 
@@ -265,7 +265,7 @@ void Kit::upgrade()
     KitGuard g(this);
     // Process the KitAspects in reverse order: They may only be based on other information
     // lower in the stack.
-    for (KitAspect *aspect : KitManager::kitAspects())
+    for (KitAspectFactory *aspect : KitManager::kitAspects())
         aspect->upgrade(this);
 }
 
@@ -336,9 +336,9 @@ Id Kit::id() const
 
 int Kit::weight() const
 {
-    const QList<KitAspect *> &aspects = KitManager::kitAspects();
+    const QList<KitAspectFactory *> &aspects = KitManager::kitAspects();
     return std::accumulate(aspects.begin(), aspects.end(), 0,
-                           [this](int sum, const KitAspect *aspect) {
+                           [this](int sum, const KitAspectFactory *aspect) {
         return sum + aspect->weight(this);
     });
 }
@@ -526,13 +526,13 @@ QVariantMap Kit::toMap() const
 
 void Kit::addToBuildEnvironment(Environment &env) const
 {
-    for (KitAspect *aspect : KitManager::kitAspects())
+    for (KitAspectFactory *aspect : KitManager::kitAspects())
         aspect->addToBuildEnvironment(this, env);
 }
 
 void Kit::addToRunEnvironment(Environment &env) const
 {
-    for (KitAspect *aspect : KitManager::kitAspects())
+    for (KitAspectFactory *aspect : KitManager::kitAspects())
         aspect->addToRunEnvironment(this, env);
 }
 
@@ -555,7 +555,7 @@ Environment Kit::runEnvironment() const
 QList<OutputLineParser *> Kit::createOutputParsers() const
 {
     QList<OutputLineParser *> parsers{new OsParser};
-    for (KitAspect *aspect : KitManager::kitAspects())
+    for (KitAspectFactory *aspect : KitManager::kitAspects())
         parsers << aspect->createOutputParsers(this);
     return parsers;
 }
@@ -574,9 +574,9 @@ QString Kit::toHtml(const Tasks &additional, const QString &extraText) const
         str << "<p>" << ProjectExplorer::toHtml(additional + validate()) << "</p>";
 
     str << "<dl style=\"white-space:pre\">";
-    for (KitAspect *aspect : KitManager::kitAspects()) {
-        const KitAspect::ItemList list = aspect->toUserOutput(this);
-        for (const KitAspect::Item &j : list) {
+    for (KitAspectFactory *aspect : KitManager::kitAspects()) {
+        const KitAspectFactory::ItemList list = aspect->toUserOutput(this);
+        for (const KitAspectFactory::Item &j : list) {
             QString contents = j.second;
             if (contents.size() > 256) {
                 int pos = contents.lastIndexOf("<br>", 256);
@@ -619,7 +619,7 @@ void Kit::setSdkProvided(bool sdkProvided)
 
 void Kit::makeSticky()
 {
-    for (KitAspect *aspect : KitManager::kitAspects()) {
+    for (KitAspectFactory *aspect : KitManager::kitAspects()) {
         if (hasValue(aspect->id()))
             setSticky(aspect->id(), true);
     }
@@ -675,7 +675,7 @@ QSet<Id> Kit::irrelevantAspects() const
 QSet<Id> Kit::supportedPlatforms() const
 {
     QSet<Id> platforms;
-    for (const KitAspect *aspect : KitManager::kitAspects()) {
+    for (const KitAspectFactory *aspect : KitManager::kitAspects()) {
         const QSet<Id> ip = aspect->supportedPlatforms(this);
         if (ip.isEmpty())
             continue;
@@ -690,7 +690,7 @@ QSet<Id> Kit::supportedPlatforms() const
 QSet<Id> Kit::availableFeatures() const
 {
     QSet<Id> features;
-    for (const KitAspect *aspect : KitManager::kitAspects())
+    for (const KitAspectFactory *aspect : KitManager::kitAspects())
         features |= aspect->availableFeatures(this);
     return features;
 }

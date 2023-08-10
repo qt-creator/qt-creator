@@ -102,7 +102,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
     chooser->addSupportedWidget(m_nameEdit);
     chooser->addMacroExpanderProvider([this] { return m_modifiedKit->macroExpander(); });
 
-    for (KitAspect *aspect : KitManager::kitAspects())
+    for (KitAspectFactory *aspect : KitManager::kitAspects())
         addAspectToWorkingCopy(page, aspect);
 
     page.attachTo(this);
@@ -195,10 +195,10 @@ QString KitManagerConfigWidget::validityMessage() const
     return m_modifiedKit->toHtml(tmp);
 }
 
-void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::LayoutItem &parent, KitAspect *aspect)
+void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::LayoutItem &parent, KitAspectFactory *factory)
 {
-    QTC_ASSERT(aspect, return);
-    KitAspectWidget *widget = aspect->createConfigWidget(workingCopy());
+    QTC_ASSERT(factory, return);
+    KitAspect *widget = factory->createKitAspect(workingCopy());
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);
 
@@ -213,8 +213,8 @@ void KitManagerConfigWidget::updateVisibility()
 {
     int count = m_widgets.count();
     for (int i = 0; i < count; ++i) {
-        KitAspectWidget *widget = m_widgets.at(i);
-        const KitAspect *ki = widget->kitInformation();
+        KitAspect *widget = m_widgets.at(i);
+        const KitAspectFactory *ki = widget->kitInformation();
         const bool visibleInKit = ki->isApplicableToKit(m_modifiedKit.get());
         const bool irrelevant = m_modifiedKit->irrelevantAspects().contains(ki->id());
         widget->setVisible(visibleInKit && !irrelevant);
@@ -223,7 +223,7 @@ void KitManagerConfigWidget::updateVisibility()
 
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
-    for (KitAspectWidget *w : std::as_const(m_widgets)) {
+    for (KitAspect *w : std::as_const(m_widgets)) {
         if (w->kit()->isSticky(w->kitInformation()->id()))
             w->makeReadOnly();
     }
@@ -314,7 +314,7 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
     k->fix();
     m_fixingKit = false;
 
-    for (KitAspectWidget *w : std::as_const(m_widgets))
+    for (KitAspect *w : std::as_const(m_widgets))
         w->refresh();
 
     m_cachedDisplayName.clear();
@@ -342,7 +342,7 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
 void KitManagerConfigWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
-    for (KitAspectWidget *widget : std::as_const(m_widgets))
+    for (KitAspect *widget : std::as_const(m_widgets))
         widget->refresh();
 }
 

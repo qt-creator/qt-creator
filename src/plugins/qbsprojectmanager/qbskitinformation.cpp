@@ -20,11 +20,11 @@ using namespace ProjectExplorer;
 namespace QbsProjectManager {
 namespace Internal {
 
-class AspectWidget final : public KitAspectWidget
+class AspectWidget final : public KitAspect
 {
 public:
-    AspectWidget(Kit *kit, const KitAspect *kitInfo)
-        : KitAspectWidget(kit, kitInfo),
+    AspectWidget(Kit *kit, const KitAspectFactory *kitInfo)
+        : KitAspect(kit, kitInfo),
           m_contentLabel(createSubWidget<Utils::ElidingLabel>()),
           m_changeButton(createSubWidget<QPushButton>(Tr::tr("Change...")))
     {
@@ -92,12 +92,12 @@ Utils::Id QbsKitAspect::id()
 
 Tasks QbsKitAspect::validate(const Kit *) const { return {}; }
 
-KitAspect::ItemList QbsKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList QbsKitAspect::toUserOutput(const Kit *k) const
 {
     return {{displayName(), representation(k)}};
 }
 
-KitAspectWidget *QbsKitAspect::createConfigWidget(Kit *k) const
+KitAspect *QbsKitAspect::createKitAspect(Kit *k) const
 {
     return new AspectWidget(k, this);
 }

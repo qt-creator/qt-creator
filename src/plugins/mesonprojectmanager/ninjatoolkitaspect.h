@@ -11,7 +11,7 @@
 namespace MesonProjectManager {
 namespace Internal {
 
-class NinjaToolKitAspect final : public ProjectExplorer::KitAspect
+class NinjaToolKitAspect final : public ProjectExplorer::KitAspectFactory
 {
 public:
     NinjaToolKitAspect();
@@ -20,7 +20,7 @@ public:
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const final;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *) const final;
 
     static void setNinjaTool(ProjectExplorer::Kit *kit, Utils::Id id);
     static Utils::Id ninjaToolId(const ProjectExplorer::Kit *kit);

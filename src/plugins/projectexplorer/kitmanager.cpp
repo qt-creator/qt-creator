@@ -75,23 +75,23 @@ public:
     std::unique_ptr<PersistentSettingsWriter> m_writer;
     QSet<Id> m_irrelevantAspects;
 
-    void addKitAspect(KitAspect *ki)
+    void addKitAspect(KitAspectFactory *ki)
     {
         QTC_ASSERT(!m_aspectList.contains(ki), return);
         m_aspectList.append(ki);
         m_aspectListIsSorted = false;
     }
 
-    void removeKitAspect(KitAspect *ki)
+    void removeKitAspect(KitAspectFactory *ki)
     {
         int removed = m_aspectList.removeAll(ki);
         QTC_CHECK(removed == 1);
     }
 
-    const QList<KitAspect *> kitAspects()
+    const QList<KitAspectFactory *> kitAspects()
     {
         if (!m_aspectListIsSorted) {
-            Utils::sort(m_aspectList, [](const KitAspect *a, const KitAspect *b) {
+            Utils::sort(m_aspectList, [](const KitAspectFactory *a, const KitAspectFactory *b) {
                 return a->priority() > b->priority();
             });
             m_aspectListIsSorted = true;
@@ -104,7 +104,7 @@ public:
 
 private:
     // Sorted by priority, in descending order...
-    QList<KitAspect *> m_aspectList;
+    QList<KitAspectFactory *> m_aspectList;
     // ... if this here is set:
     bool m_aspectListIsSorted = true;
 
@@ -196,7 +196,7 @@ void KitManager::restoreKits()
                 Kit *ptr = i->get();
 
                 // Overwrite settings that the SDK sets to those values:
-                for (const KitAspect *aspect : KitManager::kitAspects()) {
+                for (const KitAspectFactory *aspect : KitManager::kitAspects()) {
                     // Copy sticky settings over:
                     ptr->setSticky(aspect->id(), toStore->isSticky(aspect->id()));
                     if (ptr->isSticky(aspect->id()))
@@ -455,7 +455,7 @@ bool KitManager::isLoaded()
     return d->m_initialized;
 }
 
-void KitManager::registerKitAspect(KitAspect *ki)
+void KitManager::registerKitAspect(KitAspectFactory *ki)
 {
     instance();
     QTC_ASSERT(d, return);
@@ -468,7 +468,7 @@ void KitManager::registerKitAspect(KitAspect *ki)
     QTC_CHECK(d->m_kitList.empty());
 }
 
-void KitManager::deregisterKitAspect(KitAspect *ki)
+void KitManager::deregisterKitAspect(KitAspectFactory *ki)
 {
     // Happens regularly for the aspects from the ProjectExplorerPlugin as these
     // are destroyed after the manual call to KitManager::destroy() there, but as
@@ -578,7 +578,7 @@ Kit *KitManager::defaultKit()
     return d->m_defaultKit;
 }
 
-const QList<KitAspect *> KitManager::kitAspects()
+const QList<KitAspectFactory *> KitManager::kitAspects()
 {
     return d->kitAspects();
 }
@@ -653,7 +653,7 @@ void KitManager::completeKit(Kit *k)
 {
     QTC_ASSERT(k, return);
     KitGuard g(k);
-    for (KitAspect *ki : d->kitAspects()) {
+    for (KitAspectFactory *ki : d->kitAspects()) {
         ki->upgrade(k);
         if (!k->hasValue(ki->id()))
             ki->setup(k);
@@ -666,73 +666,73 @@ void KitManager::completeKit(Kit *k)
 // KitAspect:
 // --------------------------------------------------------------------
 
-KitAspect::KitAspect()
+KitAspectFactory::KitAspectFactory()
 {
     KitManager::registerKitAspect(this);
 }
 
-KitAspect::~KitAspect()
+KitAspectFactory::~KitAspectFactory()
 {
     KitManager::deregisterKitAspect(this);
 }
 
-int KitAspect::weight(const Kit *k) const
+int KitAspectFactory::weight(const Kit *k) const
 {
     return k->value(id()).isValid() ? 1 : 0;
 }
 
-void KitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
+void KitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k)
     Q_UNUSED(env)
 }
 
-void KitAspect::addToRunEnvironment(const Kit *k, Environment &env) const
+void KitAspectFactory::addToRunEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k)
     Q_UNUSED(env)
 }
 
-QList<OutputLineParser *> KitAspect::createOutputParsers(const Kit *k) const
+QList<OutputLineParser *> KitAspectFactory::createOutputParsers(const Kit *k) const
 {
     Q_UNUSED(k)
     return {};
 }
 
-QString KitAspect::displayNamePostfix(const Kit *k) const
+QString KitAspectFactory::displayNamePostfix(const Kit *k) const
 {
     Q_UNUSED(k)
     return {};
 }
 
-QSet<Id> KitAspect::supportedPlatforms(const Kit *k) const
+QSet<Id> KitAspectFactory::supportedPlatforms(const Kit *k) const
 {
     Q_UNUSED(k)
     return {};
 }
 
-QSet<Id> KitAspect::availableFeatures(const Kit *k) const
+QSet<Id> KitAspectFactory::availableFeatures(const Kit *k) const
 {
     Q_UNUSED(k)
     return {};
 }
 
-void KitAspect::addToMacroExpander(Kit *k, MacroExpander *expander) const
+void KitAspectFactory::addToMacroExpander(Kit *k, MacroExpander *expander) const
 {
     Q_UNUSED(k)
     Q_UNUSED(expander)
 }
 
-void KitAspect::notifyAboutUpdate(Kit *k)
+void KitAspectFactory::notifyAboutUpdate(Kit *k)
 {
     if (k)
         k->kitUpdated();
 }
 
-KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki)
-    : m_kit(kit), m_kitInformation(ki)
+KitAspect::KitAspect(Kit *kit, const KitAspectFactory *factory)
+    : m_kit(kit), m_factory(factory)
 {
-    const Id id = ki->id();
+    const Id id = factory->id();
     m_mutableAction = new QAction(Tr::tr("Mark as Mutable"));
     m_mutableAction->setCheckable(true);
     m_mutableAction->setChecked(m_kit->isMutable(id));
@@ -742,16 +742,16 @@ KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki)
     });
 }
 
-KitAspectWidget::~KitAspectWidget()
+KitAspect::~KitAspect()
 {
     delete m_mutableAction;
 }
 
-void KitAspectWidget::addToLayoutWithLabel(Layouting::LayoutItem &parentItem, QWidget *parent)
+void KitAspect::addToLayoutWithLabel(Layouting::LayoutItem &parentItem, QWidget *parent)
 {
     QTC_ASSERT(parent, return);
-    auto label = createSubWidget<QLabel>(m_kitInformation->displayName() + ':');
-    label->setToolTip(m_kitInformation->description());
+    auto label = createSubWidget<QLabel>(m_factory->displayName() + ':');
+    label->setToolTip(m_factory->description());
     connect(label, &QLabel::linkActivated, this, [this](const QString &link) {
         emit labelLinkActivated(link);
     });
@@ -761,14 +761,14 @@ void KitAspectWidget::addToLayoutWithLabel(Layouting::LayoutItem &parentItem, QW
     parentItem.addItem(Layouting::br);
 }
 
-void KitAspectWidget::addMutableAction(QWidget *child)
+void KitAspect::addMutableAction(QWidget *child)
 {
     QTC_ASSERT(child, return);
     child->addAction(m_mutableAction);
     child->setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
-QWidget *KitAspectWidget::createManageButton(Id pageId)
+QWidget *KitAspect::createManageButton(Id pageId)
 {
     auto button = createSubWidget<QPushButton>(msgManage());
     connect(button, &QPushButton::clicked, this, [pageId] {
@@ -777,7 +777,7 @@ QWidget *KitAspectWidget::createManageButton(Id pageId)
     return button;
 }
 
-QString KitAspectWidget::msgManage()
+QString KitAspect::msgManage()
 {
     return Tr::tr("Manage...");
 }

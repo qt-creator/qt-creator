@@ -8,7 +8,7 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeKitAspect : public ProjectExplorer::KitAspect
+class QmakeKitAspect : public ProjectExplorer::KitAspectFactory
 {
     Q_OBJECT
 
@@ -17,7 +17,7 @@ public:
 
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
 
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k) const override;
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
 

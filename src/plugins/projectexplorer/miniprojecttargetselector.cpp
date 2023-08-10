@@ -565,7 +565,7 @@ int SelectorView::padding()
 /////////
 // KitAreaWidget
 /////////
-void doLayout(KitAspectWidget *widget, Layouting::LayoutItem &builder)
+void doLayout(KitAspect *widget, Layouting::LayoutItem &builder)
 {
     widget->addToLayout(builder);
 }
@@ -593,9 +593,9 @@ public:
         delete layout();
 
         Layouting::Grid grid;
-        for (KitAspect *aspect : KitManager::kitAspects()) {
+        for (KitAspectFactory *aspect : KitManager::kitAspects()) {
             if (k && k->isMutable(aspect->id())) {
-                KitAspectWidget *widget = aspect->createConfigWidget(k);
+                KitAspect *widget = aspect->createKitAspect(k);
                 m_widgets << widget;
                 grid.addItems({aspect->displayName(), widget, Layouting::br});
             }
@@ -615,10 +615,10 @@ private:
             return;
 
         bool addedMutables = false;
-        QList<const KitAspect *> knownList
-            = Utils::transform(m_widgets, &KitAspectWidget::kitInformation);
+        QList<const KitAspectFactory *> knownList
+            = Utils::transform(m_widgets, &KitAspect::kitInformation);
 
-        for (KitAspect *aspect : KitManager::kitAspects()) {
+        for (KitAspectFactory *aspect : KitManager::kitAspects()) {
             const Utils::Id currentId = aspect->id();
             if (m_kit->isMutable(currentId) && !knownList.removeOne(aspect)) {
                 addedMutables = true;
@@ -632,13 +632,13 @@ private:
             setKit(m_kit);
         } else {
             // Refresh all widgets if the number of mutable settings did not change
-            for (KitAspectWidget *w : std::as_const(m_widgets))
+            for (KitAspect *w : std::as_const(m_widgets))
                 w->refresh();
         }
     }
 
     Kit *m_kit = nullptr;
-    QList<KitAspectWidget *> m_widgets;
+    QList<KitAspect *> m_widgets;
 };
 
 /////////

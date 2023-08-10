@@ -26,11 +26,11 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeKitAspectWidget final : public KitAspectWidget
+class QmakeKitAspectWidget final : public KitAspect
 {
 public:
-    QmakeKitAspectWidget(Kit *k, const KitAspect *ki)
-        : KitAspectWidget(k, ki), m_lineEdit(createSubWidget<QLineEdit>())
+    QmakeKitAspectWidget(Kit *k, const KitAspectFactory *ki)
+        : KitAspect(k, ki), m_lineEdit(createSubWidget<QLineEdit>())
     {
         refresh(); // set up everything according to kit
         m_lineEdit->setToolTip(ki->description());
@@ -89,12 +89,12 @@ Tasks QmakeKitAspect::validate(const Kit *k) const
     return result;
 }
 
-KitAspectWidget *QmakeKitAspect::createConfigWidget(Kit *k) const
+KitAspect *QmakeKitAspect::createKitAspect(Kit *k) const
 {
     return new Internal::QmakeKitAspectWidget(k, this);
 }
 
-KitAspect::ItemList QmakeKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList QmakeKitAspect::toUserOutput(const Kit *k) const
 {
     return {{Tr::tr("mkspec"), QDir::toNativeSeparators(mkspec(k))}};
 }

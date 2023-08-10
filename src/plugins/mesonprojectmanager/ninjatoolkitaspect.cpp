@@ -48,7 +48,7 @@ void NinjaToolKitAspect::fix(ProjectExplorer::Kit *k)
     setup(k);
 }
 
-ProjectExplorer::KitAspect::ItemList NinjaToolKitAspect::toUserOutput(
+ProjectExplorer::KitAspectFactory::ItemList NinjaToolKitAspect::toUserOutput(
     const ProjectExplorer::Kit *k) const
 {
     const auto tool = ninjaTool(k);
@@ -57,7 +57,7 @@ ProjectExplorer::KitAspect::ItemList NinjaToolKitAspect::toUserOutput(
     return {{Tr::tr("Ninja"), Tr::tr("Unconfigured")}};
 }
 
-ProjectExplorer::KitAspectWidget *NinjaToolKitAspect::createConfigWidget(ProjectExplorer::Kit *k) const
+ProjectExplorer::KitAspect *NinjaToolKitAspect::createKitAspect(ProjectExplorer::Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new ToolKitAspectWidget{k, this, ToolKitAspectWidget::ToolType::Ninja};

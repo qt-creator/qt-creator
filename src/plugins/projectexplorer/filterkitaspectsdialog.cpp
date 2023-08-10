@@ -24,7 +24,7 @@ namespace Internal {
 class FilterTreeItem : public TreeItem
 {
 public:
-    FilterTreeItem(const KitAspect *aspect, bool enabled) : m_aspect(aspect), m_enabled(enabled)
+    FilterTreeItem(const KitAspectFactory *aspect, bool enabled) : m_aspect(aspect), m_enabled(enabled)
     { }
 
     QString displayName() const {
@@ -72,7 +72,7 @@ private:
         return flags;
     }
 
-    const KitAspect * const m_aspect;
+    const KitAspectFactory * const m_aspect;
     bool m_enabled;
 };
 
@@ -82,7 +82,7 @@ public:
     FilterKitAspectsModel(const Kit *kit, QObject *parent) : TreeModel(parent)
     {
         setHeader({Tr::tr("Setting"), Tr::tr("Visible")});
-        for (const KitAspect * const aspect : KitManager::kitAspects()) {
+        for (const KitAspectFactory * const aspect : KitManager::kitAspects()) {
             if (kit && !aspect->isApplicableToKit(kit))
                 continue;
             const QSet<Utils::Id> irrelevantAspects = kit ? kit->irrelevantAspects()

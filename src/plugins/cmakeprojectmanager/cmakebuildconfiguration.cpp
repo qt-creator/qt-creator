@@ -651,13 +651,13 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
     CMakeConfigurationKitAspect configurationKitAspect;
 
     Layouting::Grid grid;
-    KitAspectWidget *widget = kitAspect.createConfigWidget(m_buildConfig->kit());
+    KitAspect *widget = kitAspect.createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
     widget->addToLayoutWithLabel(grid, dialog);
-    widget = generatorAspect.createConfigWidget(m_buildConfig->kit());
+    widget = generatorAspect.createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
     widget->addToLayoutWithLabel(grid, dialog);
-    widget = configurationKitAspect.createConfigWidget(m_buildConfig->kit());
+    widget = configurationKitAspect.createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
     widget->addToLayoutWithLabel(grid, dialog);
     grid.attachTo(dialog);

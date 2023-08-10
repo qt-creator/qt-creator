@@ -13,11 +13,11 @@ using namespace ProjectExplorer;
 
 namespace {
 
-class McuDependenciesKitAspectWidget final : public KitAspectWidget
+class McuDependenciesKitAspectWidget final : public KitAspect
 {
 public:
-    McuDependenciesKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
-        : KitAspectWidget(workingCopy, ki)
+    McuDependenciesKitAspectWidget(Kit *workingCopy, const KitAspectFactory *ki)
+        : KitAspect(workingCopy, ki)
     {}
 
     void makeReadOnly() override {}
@@ -83,13 +83,13 @@ void McuDependenciesKitAspect::fix(Kit *kit)
     }
 }
 
-KitAspectWidget *McuDependenciesKitAspect::createConfigWidget(Kit *kit) const
+KitAspect *McuDependenciesKitAspect::createKitAspect(Kit *kit) const
 {
     QTC_ASSERT(kit, return nullptr);
     return new McuDependenciesKitAspectWidget(kit, this);
 }
 
-KitAspect::ItemList McuDependenciesKitAspect::toUserOutput(const Kit *kit) const
+KitAspectFactory::ItemList McuDependenciesKitAspect::toUserOutput(const Kit *kit) const
 {
     Q_UNUSED(kit)
 

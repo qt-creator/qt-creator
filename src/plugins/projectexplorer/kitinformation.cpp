@@ -46,10 +46,10 @@ const char KITINFORMATION_ID_V3[] = "PE.Profile.ToolChainsV3";
 // --------------------------------------------------------------------------
 
 namespace Internal {
-class SysRootKitAspectWidget : public KitAspectWidget
+class SysRootKitAspectWidget : public KitAspect
 {
 public:
-    SysRootKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
+    SysRootKitAspectWidget(Kit *k, const KitAspectFactory *ki) : KitAspect(k, ki)
     {
         m_chooser = createSubWidget<PathChooser>();
         m_chooser->setExpectedKind(PathChooser::ExistingDirectory);
@@ -120,14 +120,14 @@ Tasks SysRootKitAspect::validate(const Kit *k) const
     return result;
 }
 
-KitAspectWidget *SysRootKitAspect::createConfigWidget(Kit *k) const
+KitAspect *SysRootKitAspect::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
 
     return new Internal::SysRootKitAspectWidget(k, this);
 }
 
-KitAspect::ItemList SysRootKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList SysRootKitAspect::toUserOutput(const Kit *k) const
 {
     return {{Tr::tr("Sys Root"), sysRoot(k).toUserOutput()}};
 }
@@ -184,10 +184,10 @@ void SysRootKitAspect::setSysRoot(Kit *k, const FilePath &v)
 // --------------------------------------------------------------------------
 
 namespace Internal {
-class ToolChainKitAspectWidget final : public KitAspectWidget
+class ToolChainKitAspectWidget final : public KitAspect
 {
 public:
-    ToolChainKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
+    ToolChainKitAspectWidget(Kit *k, const KitAspectFactory *ki) : KitAspect(k, ki)
     {
         m_mainWidget = createSubWidget<QWidget>();
         m_mainWidget->setContentsMargins(0, 0, 0, 0);
@@ -502,7 +502,7 @@ void ToolChainKitAspect::setup(Kit *k)
     k->setSticky(id(), lockToolchains);
 }
 
-KitAspectWidget *ToolChainKitAspect::createConfigWidget(Kit *k) const
+KitAspect *ToolChainKitAspect::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new Internal::ToolChainKitAspectWidget(k, this);
@@ -514,7 +514,7 @@ QString ToolChainKitAspect::displayNamePostfix(const Kit *k) const
     return tc ? tc->displayName() : QString();
 }
 
-KitAspect::ItemList ToolChainKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList ToolChainKitAspect::toUserOutput(const Kit *k) const
 {
     ToolChain *tc = cxxToolChain(k);
     return {{Tr::tr("Compiler"), tc ? tc->displayName() : Tr::tr("None")}};
@@ -755,11 +755,11 @@ void ToolChainKitAspect::toolChainRemoved(ToolChain *tc)
 // DeviceTypeKitAspect:
 // --------------------------------------------------------------------------
 namespace Internal {
-class DeviceTypeKitAspectWidget final : public KitAspectWidget
+class DeviceTypeKitAspectWidget final : public KitAspect
 {
 public:
-    DeviceTypeKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
-        : KitAspectWidget(workingCopy, ki), m_comboBox(createSubWidget<QComboBox>())
+    DeviceTypeKitAspectWidget(Kit *workingCopy, const KitAspectFactory *ki)
+        : KitAspect(workingCopy, ki), m_comboBox(createSubWidget<QComboBox>())
     {
         for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
             m_comboBox->addItem(factory->displayName(), factory->deviceType().toSetting());
@@ -825,13 +825,13 @@ Tasks DeviceTypeKitAspect::validate(const Kit *k) const
     return {};
 }
 
-KitAspectWidget *DeviceTypeKitAspect::createConfigWidget(Kit *k) const
+KitAspect *DeviceTypeKitAspect::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new Internal::DeviceTypeKitAspectWidget(k, this);
 }
 
-KitAspect::ItemList DeviceTypeKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList DeviceTypeKitAspect::toUserOutput(const Kit *k) const
 {
     QTC_ASSERT(k, return {});
     Id type = deviceTypeId(k);
@@ -876,11 +876,11 @@ QSet<Id> DeviceTypeKitAspect::availableFeatures(const Kit *k) const
 // DeviceKitAspect:
 // --------------------------------------------------------------------------
 namespace Internal {
-class DeviceKitAspectWidget final : public KitAspectWidget
+class DeviceKitAspectWidget final : public KitAspect
 {
 public:
-    DeviceKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
-        : KitAspectWidget(workingCopy, ki),
+    DeviceKitAspectWidget(Kit *workingCopy, const KitAspectFactory *ki)
+        : KitAspect(workingCopy, ki),
         m_comboBox(createSubWidget<QComboBox>()),
         m_model(new DeviceManagerModel(DeviceManager::instance()))
     {
@@ -1014,7 +1014,7 @@ void DeviceKitAspect::setup(Kit *k)
     setDeviceId(k, Id::fromSetting(defaultValue(k)));
 }
 
-KitAspectWidget *DeviceKitAspect::createConfigWidget(Kit *k) const
+KitAspect *DeviceKitAspect::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new Internal::DeviceKitAspectWidget(k, this);
@@ -1026,7 +1026,7 @@ QString DeviceKitAspect::displayNamePostfix(const Kit *k) const
     return dev.isNull() ? QString() : dev->displayName();
 }
 
-KitAspect::ItemList DeviceKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList DeviceKitAspect::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = device(k);
     return {{Tr::tr("Device"), dev.isNull() ? Tr::tr("Unconfigured") : dev->displayName()}};
@@ -1138,11 +1138,11 @@ void DeviceKitAspect::devicesChanged()
 // BuildDeviceKitAspect:
 // --------------------------------------------------------------------------
 namespace Internal {
-class BuildDeviceKitAspectWidget final : public KitAspectWidget
+class BuildDeviceKitAspectWidget final : public KitAspect
 {
 public:
-    BuildDeviceKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
-        : KitAspectWidget(workingCopy, ki),
+    BuildDeviceKitAspectWidget(Kit *workingCopy, const KitAspectFactory *ki)
+        : KitAspect(workingCopy, ki),
         m_comboBox(createSubWidget<QComboBox>()),
         m_model(new DeviceManagerModel(DeviceManager::instance()))
     {
@@ -1256,7 +1256,7 @@ Tasks BuildDeviceKitAspect::validate(const Kit *k) const
     return result;
 }
 
-KitAspectWidget *BuildDeviceKitAspect::createConfigWidget(Kit *k) const
+KitAspect *BuildDeviceKitAspect::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new Internal::BuildDeviceKitAspectWidget(k, this);
@@ -1268,7 +1268,7 @@ QString BuildDeviceKitAspect::displayNamePostfix(const Kit *k) const
     return dev.isNull() ? QString() : dev->displayName();
 }
 
-KitAspect::ItemList BuildDeviceKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList BuildDeviceKitAspect::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = device(k);
     return {{Tr::tr("Build device"), dev.isNull() ? Tr::tr("Unconfigured") : dev->displayName()}};
@@ -1388,11 +1388,11 @@ static bool enforcesMSVCEnglish(const EnvironmentItems &changes)
 }
 
 namespace Internal {
-class EnvironmentKitAspectWidget final : public KitAspectWidget
+class EnvironmentKitAspectWidget final : public KitAspect
 {
 public:
-    EnvironmentKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
-        : KitAspectWidget(workingCopy, ki),
+    EnvironmentKitAspectWidget(Kit *workingCopy, const KitAspectFactory *ki)
+        : KitAspect(workingCopy, ki),
           m_summaryLabel(createSubWidget<ElidingLabel>()),
           m_manageButton(createSubWidget<QPushButton>()),
           m_mainWidget(createSubWidget<QWidget>())
@@ -1532,13 +1532,13 @@ void EnvironmentKitAspect::addToRunEnvironment(const Kit *k, Environment &env) c
     addToBuildEnvironment(k, env);
 }
 
-KitAspectWidget *EnvironmentKitAspect::createConfigWidget(Kit *k) const
+KitAspect *EnvironmentKitAspect::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new Internal::EnvironmentKitAspectWidget(k, this);
 }
 
-KitAspect::ItemList EnvironmentKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList EnvironmentKitAspect::toUserOutput(const Kit *k) const
 {
     return {{Tr::tr("Environment"), EnvironmentItem::toStringList(environmentChanges(k)).join("<br>")}};
 }

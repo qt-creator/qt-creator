@@ -63,10 +63,10 @@ static Id defaultCMakeToolId()
     return defaultTool ? defaultTool->id() : Id();
 }
 
-class CMakeKitAspectWidget final : public KitAspectWidget
+class CMakeKitAspectWidget final : public KitAspect
 {
 public:
-    CMakeKitAspectWidget(Kit *kit, const KitAspect *ki) : KitAspectWidget(kit, ki),
+    CMakeKitAspectWidget(Kit *kit, const KitAspectFactory *ki) : KitAspect(kit, ki),
         m_comboBox(createSubWidget<QComboBox>()),
         m_manageButton(createManageButton(Constants::Settings::TOOLS_ID))
     {
@@ -242,13 +242,13 @@ void CMakeKitAspect::fix(Kit *k)
     setup(k);
 }
 
-KitAspect::ItemList CMakeKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList CMakeKitAspect::toUserOutput(const Kit *k) const
 {
     const CMakeTool *const tool = cmakeTool(k);
     return {{Tr::tr("CMake"), tool ? tool->displayName() : Tr::tr("Unconfigured")}};
 }
 
-KitAspectWidget *CMakeKitAspect::createConfigWidget(Kit *k) const
+KitAspect *CMakeKitAspect::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
     return new CMakeKitAspectWidget(k, this);
@@ -289,16 +289,16 @@ const char EXTRA_GENERATOR_KEY[] = "ExtraGenerator";
 const char PLATFORM_KEY[] = "Platform";
 const char TOOLSET_KEY[] = "Toolset";
 
-class CMakeGeneratorKitAspectWidget final : public KitAspectWidget
+class CMakeGeneratorKitAspectWidget final : public KitAspect
 {
 public:
-    CMakeGeneratorKitAspectWidget(Kit *kit, const KitAspect *ki)
-        : KitAspectWidget(kit, ki),
+    CMakeGeneratorKitAspectWidget(Kit *kit, const KitAspectFactory *ki)
+        : KitAspect(kit, ki),
           m_label(createSubWidget<ElidingLabel>()),
           m_changeButton(createSubWidget<QPushButton>())
     {
         const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit);
-        connect(this, &KitAspectWidget::labelLinkActivated, this, [=](const QString &) {
+        connect(this, &KitAspect::labelLinkActivated, this, [=](const QString &) {
             CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-generators.7.html");
         });
 
@@ -798,7 +798,7 @@ void CMakeGeneratorKitAspect::upgrade(Kit *k)
     }
 }
 
-KitAspect::ItemList CMakeGeneratorKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList CMakeGeneratorKitAspect::toUserOutput(const Kit *k) const
 {
     const GeneratorInfo info = generatorInfo(k);
     QString message;
@@ -814,7 +814,7 @@ KitAspect::ItemList CMakeGeneratorKitAspect::toUserOutput(const Kit *k) const
     return {{Tr::tr("CMake Generator"), message}};
 }
 
-KitAspectWidget *CMakeGeneratorKitAspect::createConfigWidget(Kit *k) const
+KitAspect *CMakeGeneratorKitAspect::createKitAspect(Kit *k) const
 {
     return new CMakeGeneratorKitAspectWidget(k, this);
 }
@@ -843,11 +843,11 @@ const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
 const char CMAKE_PREFIX_PATH_KEY[] = "CMAKE_PREFIX_PATH";
 const char QTC_CMAKE_PRESET_KEY[] = "QTC_CMAKE_PRESET";
 
-class CMakeConfigurationKitAspectWidget final : public KitAspectWidget
+class CMakeConfigurationKitAspectWidget final : public KitAspect
 {
 public:
-    CMakeConfigurationKitAspectWidget(Kit *kit, const KitAspect *ki)
-        : KitAspectWidget(kit, ki),
+    CMakeConfigurationKitAspectWidget(Kit *kit, const KitAspectFactory *ki)
+        : KitAspect(kit, ki),
           m_summaryLabel(createSubWidget<ElidingLabel>()),
           m_manageButton(createSubWidget<QPushButton>())
     {
@@ -1217,12 +1217,12 @@ void CMakeConfigurationKitAspect::fix(Kit *k)
     Q_UNUSED(k)
 }
 
-KitAspect::ItemList CMakeConfigurationKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList CMakeConfigurationKitAspect::toUserOutput(const Kit *k) const
 {
     return {{Tr::tr("CMake Configuration"), toStringList(k).join("<br>")}};
 }
 
-KitAspectWidget *CMakeConfigurationKitAspect::createConfigWidget(Kit *k) const
+KitAspect *CMakeConfigurationKitAspect::createKitAspect(Kit *k) const
 {
     if (!k)
         return nullptr;

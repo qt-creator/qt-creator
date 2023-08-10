@@ -13,7 +13,7 @@ namespace CMakeProjectManager {
 
 class CMakeTool;
 
-class CMAKE_EXPORT CMakeKitAspect : public ProjectExplorer::KitAspect
+class CMAKE_EXPORT CMakeKitAspect : public ProjectExplorer::KitAspectFactory
 {
 public:
     CMakeKitAspect();
@@ -29,7 +29,7 @@ public:
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k) const final;
 
     void addToMacroExpander(ProjectExplorer::Kit *k, Utils::MacroExpander *expander) const final;
 
@@ -38,7 +38,7 @@ public:
     static QString msgUnsupportedVersion(const QByteArray &versionString);
 };
 
-class CMAKE_EXPORT CMakeGeneratorKitAspect : public ProjectExplorer::KitAspect
+class CMAKE_EXPORT CMakeGeneratorKitAspect : public ProjectExplorer::KitAspectFactory
 {
 public:
     CMakeGeneratorKitAspect();
@@ -63,14 +63,14 @@ public:
     void fix(ProjectExplorer::Kit *k) final;
     void upgrade(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k) const final;
     void addToBuildEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const final;
 
 private:
     QVariant defaultValue(const ProjectExplorer::Kit *k) const;
 };
 
-class CMAKE_EXPORT CMakeConfigurationKitAspect : public ProjectExplorer::KitAspect
+class CMAKE_EXPORT CMakeConfigurationKitAspect : public ProjectExplorer::KitAspectFactory
 {
 public:
     CMakeConfigurationKitAspect();
@@ -96,7 +96,7 @@ public:
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k) const final;
 
 private:
     QVariant defaultValue(const ProjectExplorer::Kit *k) const;

@@ -35,11 +35,11 @@ namespace Debugger {
 
 namespace Internal {
 
-class DebuggerKitAspectWidget final : public KitAspectWidget
+class DebuggerKitAspectWidget final : public KitAspect
 {
 public:
-    DebuggerKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
-        : KitAspectWidget(workingCopy, ki)
+    DebuggerKitAspectWidget(Kit *workingCopy, const KitAspectFactory *ki)
+        : KitAspect(workingCopy, ki)
     {
         m_comboBox = createSubWidget<QComboBox>();
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
@@ -348,7 +348,7 @@ Tasks DebuggerKitAspect::validateDebugger(const Kit *k)
     return result;
 }
 
-KitAspectWidget *DebuggerKitAspect::createConfigWidget(Kit *k) const
+KitAspect *DebuggerKitAspect::createKitAspect(Kit *k) const
 {
     return new Internal::DebuggerKitAspectWidget(k, this);
 }
@@ -384,7 +384,7 @@ void DebuggerKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) co
                                });
 }
 
-KitAspect::ItemList DebuggerKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList DebuggerKitAspect::toUserOutput(const Kit *k) const
 {
     return {{Tr::tr("Debugger"), displayString(k)}};
 }

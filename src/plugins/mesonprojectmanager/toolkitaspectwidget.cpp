@@ -13,9 +13,9 @@ namespace MesonProjectManager {
 namespace Internal {
 
 ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
-                                         const ProjectExplorer::KitAspect *ki,
+                                         const ProjectExplorer::KitAspectFactory *ki,
                                          ToolType type)
-    : ProjectExplorer::KitAspectWidget(kit, ki)
+    : ProjectExplorer::KitAspect(kit, ki)
     , m_toolsComboBox(createSubWidget<QComboBox>())
     , m_manageButton(createManageButton(Constants::SettingsPage::TOOLS_ID))
     , m_type{type}

@@ -16,13 +16,13 @@ namespace ProjectExplorer {
 class OutputTaskParser;
 class ToolChain;
 
-class KitAspectWidget;
+class KitAspect;
 
 // --------------------------------------------------------------------------
 // SysRootInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT SysRootKitAspect : public KitAspect
+class PROJECTEXPLORER_EXPORT SysRootKitAspect : public KitAspectFactory
 {
     Q_OBJECT
 
@@ -30,7 +30,7 @@ public:
     SysRootKitAspect();
 
     Tasks validate(const Kit *k) const override;
-    KitAspectWidget *createConfigWidget(Kit *k) const override;
+    KitAspect *createKitAspect(Kit *k) const override;
     ItemList toUserOutput(const Kit *k) const override;
     void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override;
 
@@ -43,7 +43,7 @@ public:
 // ToolChainInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ToolChainKitAspect : public KitAspect
+class PROJECTEXPLORER_EXPORT ToolChainKitAspect : public KitAspectFactory
 {
     Q_OBJECT
 
@@ -55,7 +55,7 @@ public:
     void fix(Kit *k) override;
     void setup(Kit *k) override;
 
-    KitAspectWidget *createConfigWidget(Kit *k) const override;
+    KitAspect *createKitAspect(Kit *k) const override;
 
     QString displayNamePostfix(const Kit *k) const override;
 
@@ -91,7 +91,7 @@ private:
 // DeviceTypeInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT DeviceTypeKitAspect : public KitAspect
+class PROJECTEXPLORER_EXPORT DeviceTypeKitAspect : public KitAspectFactory
 {
     Q_OBJECT
 
@@ -100,7 +100,7 @@ public:
 
     void setup(Kit *k) override;
     Tasks validate(const Kit *k) const override;
-    KitAspectWidget *createConfigWidget(Kit *k) const override;
+    KitAspect *createKitAspect(Kit *k) const override;
     ItemList toUserOutput(const Kit *k) const override;
 
     static const Utils::Id id();
@@ -115,7 +115,7 @@ public:
 // DeviceInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT DeviceKitAspect : public KitAspect
+class PROJECTEXPLORER_EXPORT DeviceKitAspect : public KitAspectFactory
 {
     Q_OBJECT
 
@@ -126,7 +126,7 @@ public:
     void fix(Kit *k) override;
     void setup(Kit *k) override;
 
-    KitAspectWidget *createConfigWidget(Kit *k) const override;
+    KitAspect *createKitAspect(Kit *k) const override;
 
     QString displayNamePostfix(const Kit *k) const override;
 
@@ -154,7 +154,7 @@ private:
 // BuildDeviceInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT BuildDeviceKitAspect : public KitAspect
+class PROJECTEXPLORER_EXPORT BuildDeviceKitAspect : public KitAspectFactory
 {
     Q_OBJECT
 
@@ -164,7 +164,7 @@ public:
     void setup(Kit *k) override;
     Tasks validate(const Kit *k) const override;
 
-    KitAspectWidget *createConfigWidget(Kit *k) const override;
+    KitAspect *createKitAspect(Kit *k) const override;
 
     QString displayNamePostfix(const Kit *k) const override;
 
@@ -191,7 +191,7 @@ private:
 // EnvironmentKitAspect:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT EnvironmentKitAspect : public KitAspect
+class PROJECTEXPLORER_EXPORT EnvironmentKitAspect : public KitAspectFactory
 {
     Q_OBJECT
 
@@ -204,7 +204,7 @@ public:
     void addToBuildEnvironment(const Kit *k, Utils::Environment &env) const override;
     void addToRunEnvironment(const Kit *, Utils::Environment &) const override;
 
-    KitAspectWidget *createConfigWidget(Kit *k) const override;
+    KitAspect *createKitAspect(Kit *k) const override;
 
     ItemList toUserOutput(const Kit *k) const override;
 

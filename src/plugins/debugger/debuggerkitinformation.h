@@ -12,7 +12,7 @@
 namespace Debugger {
 class DebuggerItem;
 
-class DEBUGGER_EXPORT DebuggerKitAspect : public ProjectExplorer::KitAspect
+class DEBUGGER_EXPORT DebuggerKitAspect : public ProjectExplorer::KitAspectFactory
 {
 public:
     DebuggerKitAspect();
@@ -39,7 +39,7 @@ public:
     static ProjectExplorer::Tasks validateDebugger(const ProjectExplorer::Kit *k);
     static ConfigurationErrors configurationErrors(const ProjectExplorer::Kit *k);
 
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k) const override;
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
