@@ -213,13 +213,12 @@ QString FilePath::encodedHost() const
     QString result = host().toString();
     result.replace('%', "%25");
     result.replace('/', "%2f");
-    result.replace(':', "%3a");
     return result;
 }
 
 QString decodeHost(QString host)
 {
-    return host.replace("%25", "%").replace("%2f", "/").replace("%3a", ":");
+    return host.replace("%25", "%").replace("%2f", "/");
 }
 
 /*!
