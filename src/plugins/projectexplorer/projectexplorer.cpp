@@ -677,12 +677,12 @@ public:
     IDocumentFactory m_taskFileFactory;
     StopMonitoringHandler closeTaskFile;
 
-    DeviceTypeKitAspect deviceTypeKitAspect;
-    DeviceKitAspect deviceKitAspect;
-    BuildDeviceKitAspect buildDeviceKitAspect;
-    ToolChainKitAspect toolChainKitAspect;
-    SysRootKitAspect sysRootKitAspect;
-    EnvironmentKitAspect environmentKitAspect;
+    DeviceTypeKitAspectFactory deviceTypeKitAspectFactory;
+    DeviceKitAspectFactory deviceKitAspectFactory;
+    BuildDeviceKitAspectFactory buildDeviceKitAspectFactory;
+    ToolChainKitAspectFactory toolChainKitAspectFactory;
+    SysRootKitAspectFactory sysRootKitAspectFactory;
+    EnvironmentKitAspectFactory environmentKitAspectFactory;
 
     DesktopQmakeRunConfigurationFactory qmakeRunConfigFactory;
     QbsRunConfigurationFactory qbsRunConfigFactory;

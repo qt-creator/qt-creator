@@ -22,33 +22,54 @@ class KitAspect;
 // SysRootInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT SysRootKitAspect : public KitAspectFactory
+class PROJECTEXPLORER_EXPORT SysRootKitAspect
+{
+public:
+    static Utils::Id id();
+    static Utils::FilePath sysRoot(const Kit *k);
+    static void setSysRoot(Kit *k, const Utils::FilePath &v);
+};
+
+class PROJECTEXPLORER_EXPORT SysRootKitAspectFactory : public KitAspectFactory
 {
     Q_OBJECT
 
 public:
-    SysRootKitAspect();
+    SysRootKitAspectFactory();
 
     Tasks validate(const Kit *k) const override;
     KitAspect *createKitAspect(Kit *k) const override;
     ItemList toUserOutput(const Kit *k) const override;
     void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override;
-
-    static Utils::Id id();
-    static Utils::FilePath sysRoot(const Kit *k);
-    static void setSysRoot(Kit *k, const Utils::FilePath &v);
 };
 
 // --------------------------------------------------------------------------
 // ToolChainInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ToolChainKitAspect : public KitAspectFactory
+class PROJECTEXPLORER_EXPORT ToolChainKitAspect
+{
+public:
+    static Utils::Id id();
+    static QByteArray toolChainId(const Kit *k, Utils::Id language);
+    static ToolChain *toolChain(const Kit *k, Utils::Id language);
+    static ToolChain *cToolChain(const Kit *k);
+    static ToolChain *cxxToolChain(const Kit *k);
+    static QList<ToolChain *> toolChains(const Kit *k);
+    static void setToolChain(Kit *k, ToolChain *tc);
+    static void setAllToolChainsToMatch(Kit *k, ToolChain *tc);
+    static void clearToolChain(Kit *k, Utils::Id language);
+    static Abi targetAbi(const Kit *k);
+
+    static QString msgNoToolChainInTarget();
+};
+
+class PROJECTEXPLORER_EXPORT ToolChainKitAspectFactory : public KitAspectFactory
 {
     Q_OBJECT
 
 public:
-    ToolChainKitAspect();
+    ToolChainKitAspectFactory();
 
     Tasks validate(const Kit *k) const override;
     void upgrade(Kit *k) override;
@@ -68,19 +89,6 @@ public:
     QList<Utils::OutputLineParser *> createOutputParsers(const Kit *k) const override;
     QSet<Utils::Id> availableFeatures(const Kit *k) const override;
 
-    static Utils::Id id();
-    static QByteArray toolChainId(const Kit *k, Utils::Id language);
-    static ToolChain *toolChain(const Kit *k, Utils::Id language);
-    static ToolChain *cToolChain(const Kit *k);
-    static ToolChain *cxxToolChain(const Kit *k);
-    static QList<ToolChain *> toolChains(const Kit *k);
-    static void setToolChain(Kit *k, ToolChain *tc);
-    static void setAllToolChainsToMatch(Kit *k, ToolChain *tc);
-    static void clearToolChain(Kit *k, Utils::Id language);
-    static Abi targetAbi(const Kit *k);
-
-    static QString msgNoToolChainInTarget();
-
 private:
     void kitsWereLoaded();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
@@ -91,21 +99,25 @@ private:
 // DeviceTypeInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT DeviceTypeKitAspect : public KitAspectFactory
+class PROJECTEXPLORER_EXPORT DeviceTypeKitAspect
+{
+public:
+    static const Utils::Id id();
+    static const Utils::Id deviceTypeId(const Kit *k);
+    static void setDeviceTypeId(Kit *k, Utils::Id type);
+};
+
+class PROJECTEXPLORER_EXPORT DeviceTypeKitAspectFactory : public KitAspectFactory
 {
     Q_OBJECT
 
 public:
-    DeviceTypeKitAspect();
+    DeviceTypeKitAspectFactory();
 
     void setup(Kit *k) override;
     Tasks validate(const Kit *k) const override;
     KitAspect *createKitAspect(Kit *k) const override;
     ItemList toUserOutput(const Kit *k) const override;
-
-    static const Utils::Id id();
-    static const Utils::Id deviceTypeId(const Kit *k);
-    static void setDeviceTypeId(Kit *k, Utils::Id type);
 
     QSet<Utils::Id> supportedPlatforms(const Kit *k) const override;
     QSet<Utils::Id> availableFeatures(const Kit *k) const override;
@@ -115,12 +127,23 @@ public:
 // DeviceInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT DeviceKitAspect : public KitAspectFactory
+class PROJECTEXPLORER_EXPORT DeviceKitAspect
+{
+public:
+    static Utils::Id id();
+    static IDeviceConstPtr device(const Kit *k);
+    static Utils::Id deviceId(const Kit *k);
+    static void setDevice(Kit *k, IDeviceConstPtr dev);
+    static void setDeviceId(Kit *k, Utils::Id dataId);
+    static Utils::FilePath deviceFilePath(const Kit *k, const QString &pathOnDevice);
+};
+
+class PROJECTEXPLORER_EXPORT DeviceKitAspectFactory : public KitAspectFactory
 {
     Q_OBJECT
 
 public:
-    DeviceKitAspect();
+    DeviceKitAspectFactory();
 
     Tasks validate(const Kit *k) const override;
     void fix(Kit *k) override;
@@ -133,13 +156,6 @@ public:
     ItemList toUserOutput(const Kit *k) const override;
 
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
-
-    static Utils::Id id();
-    static IDeviceConstPtr device(const Kit *k);
-    static Utils::Id deviceId(const Kit *k);
-    static void setDevice(Kit *k, IDeviceConstPtr dev);
-    static void setDeviceId(Kit *k, Utils::Id dataId);
-    static Utils::FilePath deviceFilePath(const Kit *k, const QString &pathOnDevice);
 
 private:
     QVariant defaultValue(const Kit *k) const;
@@ -154,12 +170,22 @@ private:
 // BuildDeviceInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT BuildDeviceKitAspect : public KitAspectFactory
+class PROJECTEXPLORER_EXPORT BuildDeviceKitAspect
+{
+public:
+    static Utils::Id id();
+    static IDeviceConstPtr device(const Kit *k);
+    static Utils::Id deviceId(const Kit *k);
+    static void setDevice(Kit *k, IDeviceConstPtr dev);
+    static void setDeviceId(Kit *k, Utils::Id dataId);
+};
+
+class PROJECTEXPLORER_EXPORT BuildDeviceKitAspectFactory : public KitAspectFactory
 {
     Q_OBJECT
 
 public:
-    BuildDeviceKitAspect();
+    BuildDeviceKitAspectFactory();
 
     void setup(Kit *k) override;
     Tasks validate(const Kit *k) const override;
@@ -172,15 +198,7 @@ public:
 
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
-    static Utils::Id id();
-    static IDeviceConstPtr device(const Kit *k);
-    static Utils::Id deviceId(const Kit *k);
-    static void setDevice(Kit *k, IDeviceConstPtr dev);
-    static void setDeviceId(Kit *k, Utils::Id dataId);
-
 private:
-    static IDeviceConstPtr defaultDevice();
-
     void kitsWereLoaded();
     void deviceUpdated(Utils::Id dataId);
     void devicesChanged();
@@ -191,12 +209,20 @@ private:
 // EnvironmentKitAspect:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT EnvironmentKitAspect : public KitAspectFactory
+class PROJECTEXPLORER_EXPORT EnvironmentKitAspect
+{
+public:
+    static Utils::Id id();
+    static Utils::EnvironmentItems environmentChanges(const Kit *k);
+    static void setEnvironmentChanges(Kit *k, const Utils::EnvironmentItems &changes);
+};
+
+class PROJECTEXPLORER_EXPORT EnvironmentKitAspectFactory : public KitAspectFactory
 {
     Q_OBJECT
 
 public:
-    EnvironmentKitAspect();
+    EnvironmentKitAspectFactory();
 
     Tasks validate(const Kit *k) const override;
     void fix(Kit *k) override;
@@ -207,10 +233,6 @@ public:
     KitAspect *createKitAspect(Kit *k) const override;
 
     ItemList toUserOutput(const Kit *k) const override;
-
-    static Utils::Id id();
-    static Utils::EnvironmentItems environmentChanges(const Kit *k);
-    static void setEnvironmentChanges(Kit *k, const Utils::EnvironmentItems &changes);
 };
 
 } // namespace ProjectExplorer
