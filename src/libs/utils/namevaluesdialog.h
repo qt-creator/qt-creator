@@ -19,8 +19,6 @@ namespace Internal { class NameValueItemsWidget; }
 
 class QTCREATOR_UTILS_EXPORT NameValuesDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     void setNameValueItems(const NameValueItems &items);
     NameValueItems nameValueItems() const;

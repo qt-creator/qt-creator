@@ -11,8 +11,6 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT FakeToolTip : public QWidget
 {
-    Q_OBJECT
-
 public:
     explicit FakeToolTip(QWidget *parent = nullptr);
 

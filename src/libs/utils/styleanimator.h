@@ -62,8 +62,6 @@ public :
 
 class QTCREATOR_UTILS_EXPORT StyleAnimator : public QObject
 {
-    Q_OBJECT
-
 public:
     StyleAnimator(QObject *parent = nullptr) : QObject(parent) {}
 

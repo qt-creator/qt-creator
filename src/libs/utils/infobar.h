@@ -123,8 +123,6 @@ private:
 
 class QTCREATOR_UTILS_EXPORT InfoBarDisplay : public QObject
 {
-    Q_OBJECT
-
 public:
     InfoBarDisplay(QObject *parent = nullptr);
     void setTarget(QBoxLayout *layout, int index);

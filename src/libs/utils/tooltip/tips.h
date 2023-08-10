@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "../utils_global.h"
-
 #include <QLabel>
 #include <QPixmap>
 #include <QVariant>
@@ -41,7 +39,6 @@ using TextItem = std::pair<QString, Qt::TextFormat>;
 
 class TextTip : public TipLabel
 {
-    Q_OBJECT
 public:
     TextTip(QWidget *parent);
 
@@ -61,7 +58,6 @@ private:
 
 class ColorTip : public TipLabel
 {
-    Q_OBJECT
 public:
     ColorTip(QWidget *parent);
 

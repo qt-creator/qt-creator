@@ -128,7 +128,6 @@ private:
 
 class LauncherHandle : public QObject
 {
-    Q_OBJECT
 public:
     // Called from caller's thread, moved to launcher's thread afterwards.
     LauncherHandle(quintptr token) : m_token(token) {}
