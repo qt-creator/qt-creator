@@ -646,18 +646,18 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
         m_buildConfig->kit()->unblockNotification();
     });
 
-    CMakeKitAspect kitAspect;
-    CMakeGeneratorKitAspect generatorAspect;
-    CMakeConfigurationKitAspect configurationKitAspect;
+    CMakeKitAspectFactory kitAspectFactory;
+    CMakeGeneratorKitAspectFactory generatorAspectFactory;
+    CMakeConfigurationKitAspectFactory configurationKitAspectFactory;
 
     Layouting::Grid grid;
-    KitAspect *widget = kitAspect.createKitAspect(m_buildConfig->kit());
+    KitAspect *widget = kitAspectFactory.createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
     widget->addToLayoutWithLabel(grid, dialog);
-    widget = generatorAspect.createKitAspect(m_buildConfig->kit());
+    widget = generatorAspectFactory.createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
     widget->addToLayoutWithLabel(grid, dialog);
-    widget = configurationKitAspect.createKitAspect(m_buildConfig->kit());
+    widget = configurationKitAspectFactory.createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
     widget->addToLayoutWithLabel(grid, dialog);
     grid.attachTo(dialog);

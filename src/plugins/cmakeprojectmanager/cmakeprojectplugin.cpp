@@ -62,9 +62,9 @@ public:
     CMakeBuildTargetFilter cMakeBuildTargetFilter;
     CMakeOpenTargetFilter cMakeOpenTargetFilter;
 
-    CMakeKitAspect cmakeKitAspect;
-    CMakeGeneratorKitAspect cmakeGeneratorKitAspect;
-    CMakeConfigurationKitAspect cmakeConfigurationKitAspect;
+    CMakeKitAspectFactory cmakeKitAspectFactory;
+    CMakeGeneratorKitAspectFactory cmakeGeneratorKitAspectFactory;
+    CMakeConfigurationKitAspectFactory cmakeConfigurationKitAspectFactory;
     CMakeFormatter cmakeFormatter;
 };
 
