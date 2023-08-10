@@ -22,6 +22,8 @@ using KeyValuePairList = QList<KeyValuePair>;
 
 QVariant valueFromString(const QString &v);
 
+QString cleanPath(const QString &orig);
+
 class Operation
 {
 public:

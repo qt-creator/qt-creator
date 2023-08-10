@@ -280,26 +280,16 @@ static Utils::QtcSettings *createUserSettings()
 
 static void setHighDpiEnvironmentVariable()
 {
-    if (Utils::HostOsInfo::isMacHost())
+    if (Utils::HostOsInfo::isMacHost() || qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
         return;
 
     std::unique_ptr<QSettings> settings(createUserSettings());
 
     const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
     const bool enableHighDpiScaling = settings->value("Core/EnableHighDpiScaling", defaultValue).toBool();
-
-    static const char ENV_VAR_QT_DEVICE_PIXEL_RATIO[] = "QT_DEVICE_PIXEL_RATIO";
-    if (enableHighDpiScaling
-            && !qEnvironmentVariableIsSet(ENV_VAR_QT_DEVICE_PIXEL_RATIO) // legacy in 5.6, but still functional
-            && !qEnvironmentVariableIsSet("QT_AUTO_SCREEN_SCALE_FACTOR")
-            && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
-            && !qEnvironmentVariableIsSet("QT_SCREEN_SCALE_FACTORS")) {
-        return;
-    }
-
-    if (!qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
-        QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
-            Qt::HighDpiScaleFactorRoundingPolicy::Floor);
+    const auto policy = enableHighDpiScaling ? Qt::HighDpiScaleFactorRoundingPolicy::PassThrough
+                                             : Qt::HighDpiScaleFactorRoundingPolicy::Floor;
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(policy);
 }
 
 void setPixmapCacheLimit()

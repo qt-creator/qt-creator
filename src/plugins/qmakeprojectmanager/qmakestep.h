@@ -152,7 +152,6 @@ private:
 
     void updateAbiWidgets();
     void updateEffectiveQMakeCall();
-    void handleAbiWidgetChange();
 
     Utils::CommandLine m_qmakeCommand;
     Utils::CommandLine m_makeCommand;

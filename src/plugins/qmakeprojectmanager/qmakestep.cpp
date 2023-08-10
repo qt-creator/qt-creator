@@ -471,7 +471,9 @@ QWidget *QMakeStep::createConfigWidget()
     connect(abisListWidget, &QListWidget::itemChanged, this, [this] {
         if (m_ignoreChanges.isLocked())
             return;
-        handleAbiWidgetChange();
+        updateAbiWidgets();
+        if (QmakeBuildConfiguration *bc = qmakeBuildConfiguration())
+            BuildManager::buildLists({bc->cleanSteps()});
     });
 
     connect(widget, &QObject::destroyed, this, [this] {
@@ -663,20 +665,13 @@ void QMakeStep::updateAbiWidgets()
             item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             item->setCheckState(selectedAbis.contains(param) ? Qt::Checked : Qt::Unchecked);
         }
-        handleAbiWidgetChange();
+        abisChanged();
     }
 }
 
 void QMakeStep::updateEffectiveQMakeCall()
 {
     effectiveCall.setValue(effectiveQMakeCall());
-}
-
-void QMakeStep::handleAbiWidgetChange()
-{
-    abisChanged();
-    if (QmakeBuildConfiguration *bc = qmakeBuildConfiguration())
-        BuildManager::buildLists({bc->cleanSteps()});
 }
 
 void QMakeStep::recompileMessageBoxFinished(int button)

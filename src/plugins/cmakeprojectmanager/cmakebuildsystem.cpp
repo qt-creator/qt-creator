@@ -661,15 +661,29 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
     FilePath generatedFilePath = buildConfiguration()->buildDirectory().resolvePath(relativePath);
 
     if (sourceFile.suffix() == "ui") {
-        const QString generatedFileSuffix = "ui_" + sourceFile.completeBaseName() + ".h";
+        const QString generatedFileName = "ui_" + sourceFile.completeBaseName() + ".h";
 
-        // If AUTOUIC reports the generated header file name, use that path
-        FilePaths generatedFilePaths = this->project()->files([generatedFileSuffix](const Node *n) {
-            return Project::GeneratedFiles(n) && n->filePath().endsWith(generatedFileSuffix);
-        });
+        auto targetNode = this->project()->nodeForFilePath(sourceFile);
+        while (!dynamic_cast<const CMakeTargetNode *>(targetNode))
+            targetNode = targetNode->parentFolderNode();
+
+        FilePaths generatedFilePaths;
+        if (targetNode) {
+            const QString autogenSignature = targetNode->buildKey() + "_autogen/include";
+
+            // If AUTOUIC reports the generated header file name, use that path
+            generatedFilePaths = this->project()->files(
+                [autogenSignature, generatedFileName](const Node *n) {
+                    const FilePath filePath = n->filePath();
+                    if (!filePath.contains(autogenSignature))
+                        return false;
+
+                    return Project::GeneratedFiles(n) && filePath.endsWith(generatedFileName);
+                });
+        }
 
         if (generatedFilePaths.empty())
-            generatedFilePaths = {generatedFilePath.pathAppended(generatedFileSuffix)};
+            generatedFilePaths = {generatedFilePath.pathAppended(generatedFileName)};
 
         return generatedFilePaths;
     }
