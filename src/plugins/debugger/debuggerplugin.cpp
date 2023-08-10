@@ -687,7 +687,7 @@ public:
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, Tr::tr("Debugger")};
     std::unique_ptr<Perspective> m_perspectiveCmake;
 
-    DebuggerKitAspect debuggerKitAspect;
+    DebuggerKitAspectFactory debuggerKitAspect;
 
     DebuggerRunWorkerFactory debuggerWorkerFactory;
 

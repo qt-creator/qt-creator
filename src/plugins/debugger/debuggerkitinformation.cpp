@@ -35,10 +35,10 @@ namespace Debugger {
 
 namespace Internal {
 
-class DebuggerKitAspectWidget final : public KitAspect
+class DebuggerKitAspectImpl final : public KitAspect
 {
 public:
-    DebuggerKitAspectWidget(Kit *workingCopy, const KitAspectFactory *ki)
+    DebuggerKitAspectImpl(Kit *workingCopy, const KitAspectFactory *ki)
         : KitAspect(workingCopy, ki)
     {
         m_comboBox = createSubWidget<QComboBox>();
@@ -47,13 +47,19 @@ public:
 
         refresh();
         m_comboBox->setToolTip(ki->description());
-        connect(m_comboBox, &QComboBox::currentIndexChanged,
-                this, &DebuggerKitAspectWidget::currentDebuggerChanged);
+        connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this] {
+            if (m_ignoreChanges.isLocked())
+                return;
+
+            int currentIndex = m_comboBox->currentIndex();
+            QVariant id = m_comboBox->itemData(currentIndex);
+            m_kit->setValue(DebuggerKitAspect::id(), id);
+        });
 
         m_manageButton = createManageButton(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
     }
 
-    ~DebuggerKitAspectWidget() override
+    ~DebuggerKitAspectImpl() override
     {
         delete m_comboBox;
         delete m_manageButton;
@@ -103,17 +109,6 @@ private:
         updateComboBox(item ? item->id() : QVariant());
     }
 
-    void currentDebuggerChanged(int idx)
-    {
-        Q_UNUSED(idx)
-        if (m_ignoreChanges.isLocked())
-            return;
-
-        int currentIndex = m_comboBox->currentIndex();
-        QVariant id = m_comboBox->itemData(currentIndex);
-        m_kit->setValue(DebuggerKitAspect::id(), id);
-    }
-
     QVariant currentId() const { return m_comboBox->itemData(m_comboBox->currentIndex()); }
 
     void updateComboBox(const QVariant &id)
@@ -133,7 +128,7 @@ private:
 };
 } // namespace Internal
 
-DebuggerKitAspect::DebuggerKitAspect()
+DebuggerKitAspectFactory::DebuggerKitAspectFactory()
 {
     setObjectName("DebuggerKitAspect");
     setId(DebuggerKitAspect::id());
@@ -142,7 +137,7 @@ DebuggerKitAspect::DebuggerKitAspect()
     setPriority(28000);
 }
 
-void DebuggerKitAspect::setup(Kit *k)
+void DebuggerKitAspectFactory::setup(Kit *k)
 {
     QTC_ASSERT(k, return);
 
@@ -159,7 +154,7 @@ void DebuggerKitAspect::setup(Kit *k)
     //    <value type="QString" key="Binary">auto</value>
     //    <value type="int" key="EngineType">4</value>
     //  </valuemap>
-    const QVariant rawId = k->value(DebuggerKitAspect::id());
+    const QVariant rawId = k->value(DebuggerKitAspectFactory::id());
 
     const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
 
@@ -348,45 +343,45 @@ Tasks DebuggerKitAspect::validateDebugger(const Kit *k)
     return result;
 }
 
-KitAspect *DebuggerKitAspect::createKitAspect(Kit *k) const
+KitAspect *DebuggerKitAspectFactory::createKitAspect(Kit *k) const
 {
-    return new Internal::DebuggerKitAspectWidget(k, this);
+    return new Internal::DebuggerKitAspectImpl(k, this);
 }
 
-void DebuggerKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
+void DebuggerKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
     expander->registerVariable("Debugger:Name", Tr::tr("Name of Debugger"),
                                [kit]() -> QString {
-                                   const DebuggerItem *item = debugger(kit);
+                                   const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
                                    return item ? item->displayName() : Tr::tr("Unknown debugger");
                                });
 
     expander->registerVariable("Debugger:Type", Tr::tr("Type of Debugger Backend"),
                                [kit]() -> QString {
-                                   const DebuggerItem *item = debugger(kit);
+                                   const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
                                    return item ? item->engineTypeName() : Tr::tr("Unknown debugger type");
                                });
 
     expander->registerVariable("Debugger:Version", Tr::tr("Debugger"),
                                [kit]() -> QString {
-                                   const DebuggerItem *item = debugger(kit);
+                                   const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
                                    return item && !item->version().isEmpty()
                                         ? item->version() : Tr::tr("Unknown debugger version");
                                });
 
     expander->registerVariable("Debugger:Abi", Tr::tr("Debugger"),
                                [kit]() -> QString {
-                                   const DebuggerItem *item = debugger(kit);
+                                   const DebuggerItem *item = DebuggerKitAspect::debugger(kit);
                                    return item && !item->abis().isEmpty()
                                            ? item->abiNames().join(' ')
                                            : Tr::tr("Unknown debugger ABI");
                                });
 }
 
-KitAspectFactory::ItemList DebuggerKitAspect::toUserOutput(const Kit *k) const
+KitAspectFactory::ItemList DebuggerKitAspectFactory::toUserOutput(const Kit *k) const
 {
-    return {{Tr::tr("Debugger"), displayString(k)}};
+    return {{Tr::tr("Debugger"), DebuggerKitAspect::displayString(k)}};
 }
 
 DebuggerEngineType DebuggerKitAspect::engineType(const Kit *k)
