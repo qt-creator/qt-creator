@@ -4,10 +4,10 @@
 
 #include "qmlprofilerbindingloopsrenderpass_test.h"
 
+#include <tracing/timelineabstractrenderer.h>
 #include <qmlprofiler/qmlprofilerbindingloopsrenderpass.h>
 #include <qmlprofiler/qmlprofilerrangemodel.h>
-#include <tracing/timelineabstractrenderer.h>
-#include <tracing/runscenegraphtest.h>
+
 #include <QtTest>
 
 namespace QmlProfiler {
@@ -131,8 +131,8 @@ void QmlProfilerBindingLoopsRenderPassTest::testUpdate()
     parentState.setPassState(0, result);
     parentState.assembleNodeTree(&model, 1, 1);
 
-    Timeline::runSceneGraphTest(parentState.collapsedOverlayRoot());
-    Timeline::runSceneGraphTest(parentState.expandedRowRoot());
+    QVERIFY(parentState.collapsedOverlayRoot());
+    QVERIFY(parentState.expandedRowRoot());
 }
 
 } // namespace Internal

@@ -47,14 +47,6 @@ Project {
             files: "qml/**"
         }
 
-        Group {
-            name: "Unit test utilities"
-            condition: project.withAutotests
-            files: [
-                "runscenegraphtest.cpp", "runscenegraphtest.h"
-            ]
-        }
-
         cpp.defines: base.concat("TRACING_LIBRARY")
     }
 }

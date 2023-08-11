@@ -1,11 +1,3 @@
-if (WITH_TESTS)
-  set(TEST_SOURCES
-    runscenegraphtest.cpp runscenegraphtest.h
-  )
-else()
-  set(TEST_SOURCES "")
-endif()
-
 set(TRACING_CPP_SOURCES
   flamegraph.cpp flamegraph.h
   flamegraphattached.h
@@ -40,8 +32,6 @@ add_qtc_library(Tracing
   FEATURE_INFO
   DEPENDS Utils Qt::Quick
   PUBLIC_DEPENDS Qt::Widgets Qt::Qml
-  SOURCES
-    ${TEST_SOURCES}
 )
 
 if (NOT TARGET Tracing)

@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <tracing/runscenegraphtest.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinenotesrenderpass.h>
 #include <tracing/timelinerenderstate.h>
@@ -110,8 +109,8 @@ void tst_TimelineNotesRenderPass::update()
     parentState.setPassState(0, result);
     parentState.assembleNodeTree(&model, 1, 1);
 
-    runSceneGraphTest(parentState.collapsedOverlayRoot());
-    runSceneGraphTest(parentState.expandedRowRoot());
+    QVERIFY(parentState.collapsedOverlayRoot());
+    QVERIFY(parentState.expandedRowRoot());
 }
 
 QTEST_MAIN(tst_TimelineNotesRenderPass)
