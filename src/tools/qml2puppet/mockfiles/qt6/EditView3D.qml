@@ -83,13 +83,13 @@ Item {
                                                "showGrid": showGrid,
                                                "gridColor": gridColor,
                                                "importScene": activeScene,
-                                               "cameraZoomFactor": cameraControl._zoomFactor,
+                                               "cameraLookAt": cameraControl._lookAtPoint,
                                                "z": 1});
             editView.usePerspective = Qt.binding(function() {return usePerspective;});
             editView.showSceneLight = Qt.binding(function() {return showEditLight;});
             editView.showGrid = Qt.binding(function() {return showGrid;});
             editView.gridColor = Qt.binding(function() {return gridColor;});
-            editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
+            editView.cameraLookAt = Qt.binding(function() {return cameraControl._lookAtPoint;});
 
             selectionBoxes.length = 0;
             cameraControl.forceActiveFocus();
