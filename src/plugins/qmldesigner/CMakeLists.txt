@@ -712,8 +712,9 @@ extend_qtc_plugin(QmlDesigner
     effectmakerwidget.cpp effectmakerwidget.h
     effectmakerview.cpp effectmakerview.h
     effectmakermodel.cpp effectmakermodel.h
+    effectmakernodesmodel.cpp effectmakernodesmodel.h
     effectnode.cpp effectnode.h
-    effectscategory.cpp effectscategory.h
+    effectnodescategory.cpp effectnodescategory.h
 )
 
 extend_qtc_plugin(QmlDesigner

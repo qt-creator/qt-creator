@@ -7,8 +7,12 @@
 
 namespace QmlDesigner {
 
-class EffectNode
+class EffectNode : public QObject
 {
+    Q_OBJECT
+
+    Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
+
 public:
     EffectNode(const QString &name);
 

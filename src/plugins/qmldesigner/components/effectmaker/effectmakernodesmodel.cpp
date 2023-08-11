@@ -1,7 +1,7 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "effectmakermodel.h"
+#include "effectmakernodesmodel.h"
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projecttree.h>
@@ -13,51 +13,37 @@
 
 namespace QmlDesigner {
 
-EffectMakerModel::EffectMakerModel(QObject *parent)
+EffectMakerNodesModel::EffectMakerNodesModel(QObject *parent)
     : QAbstractListModel{parent}
 {
 }
 
-QHash<int, QByteArray> EffectMakerModel::roleNames() const
+QHash<int, QByteArray> EffectMakerNodesModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
-    roles[CategoryRole] = "categoryName";
-    roles[EffectsRole] = "effectNames";
+    roles[CategoryNameRole] = "categoryName";
+    roles[CategoryNodesRole] = "categoryNodes";
+
     return roles;
 }
 
-int EffectMakerModel::rowCount(const QModelIndex &parent) const
+int EffectMakerNodesModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
 
     return m_categories.count();
 }
 
-QVariant EffectMakerModel::data(const QModelIndex &index, int role) const
+QVariant EffectMakerNodesModel::data(const QModelIndex &index, int role) const
 {
-    // TODO: to be updated
+    QTC_ASSERT(index.isValid() && index.row() < m_categories.size(), return {});
+    QTC_ASSERT(roleNames().contains(role), return {});
 
-    if (index.row() < 0 || index.row() >= m_categories.count())
-        return {};
-
-    const EffectNodesCategory *category = m_categories.at(index.row());
-    if (role == CategoryRole)
-        return category->name();
-
-    if (role == EffectsRole) {
-        QStringList effectsNames;
-        const QList<EffectNode *> effects = category->nodes();
-        for (const EffectNode *effect : effects)
-            effectsNames << effect->name();
-
-        return effectsNames;
-    }
-
-    return {};
+    return m_categories.at(index.row())->property(roleNames().value(role));
 }
 
 // static
-Utils::FilePath EffectMakerModel::getQmlEffectsPath()
+Utils::FilePath EffectMakerNodesModel::getQmlEffectNodesPath()
 {
     const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
     if (!target) {
@@ -69,20 +55,22 @@ Utils::FilePath EffectMakerModel::getQmlEffectsPath()
     return baseQtVersion->qmlPath().pathAppended("QtQuickEffectMaker/defaultnodes");
 }
 
-void EffectMakerModel::loadModel()
+void EffectMakerNodesModel::loadModel()
 {
-    const Utils::FilePath effectsPath = getQmlEffectsPath();
+    const Utils::FilePath effectsPath = getQmlEffectNodesPath();
 
     if (!effectsPath.exists()) {
-        qWarning() << __FUNCTION__ << "Effects are not found.";
+        qWarning() << __FUNCTION__ << "Effects not found.";
         return;
     }
+
     QDirIterator itCategories(effectsPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
     while (itCategories.hasNext()) {
-        beginInsertRows(QModelIndex(), rowCount(), rowCount());
         itCategories.next();
+
         if (itCategories.fileName() == "images")
             continue;
+
         QList<EffectNode *> effects = {};
         Utils::FilePath categoryPath = effectsPath.resolvePath(itCategories.fileName());
         QDirIterator itEffects(categoryPath.toString(), QDir::Files | QDir::NoDotAndDotDot);
@@ -92,30 +80,15 @@ void EffectMakerModel::loadModel()
         }
         EffectNodesCategory *category = new EffectNodesCategory(itCategories.fileName(), effects);
         m_categories.push_back(category);
-        endInsertRows();
     }
+
+    resetModel();
 }
 
-void EffectMakerModel::resetModel()
+void EffectMakerNodesModel::resetModel()
 {
     beginResetModel();
     endResetModel();
-}
-
-void EffectMakerModel::selectEffect(int idx, bool force)
-{
-    Q_UNUSED(idx)
-    Q_UNUSED(force)
-
-    // TODO
-}
-
-void EffectMakerModel::applyToSelected(qint64 internalId, bool add)
-{
-    Q_UNUSED(internalId)
-    Q_UNUSED(add)
-
-    // TODO: remove?
 }
 
 } // namespace QmlDesigner

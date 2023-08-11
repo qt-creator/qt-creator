@@ -5,7 +5,7 @@
 
 #include <QStandardItemModel>
 
-#include "effectscategory.h"
+#include "effectnodescategory.h"
 
 namespace Utils {
 class FilePath;
@@ -37,7 +37,7 @@ public:
     void loadModel();
     void resetModel();
 
-    QList<EffectsCategory *> categories() { return  m_categories; }
+    QList<EffectNodesCategory *> categories() { return  m_categories; }
 
     Q_INVOKABLE void selectEffect(int idx, bool force = false);
     Q_INVOKABLE void applyToSelected(qint64 internalId, bool add = false);
@@ -51,7 +51,7 @@ private:
     bool isValidIndex(int idx) const;
     static Utils::FilePath getQmlEffectsPath();
 
-    QList<EffectsCategory *> m_categories;
+    QList<EffectNodesCategory *> m_categories;
 
     int m_selectedIndex = -1;
     bool m_isEmpty = true;

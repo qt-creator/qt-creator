@@ -13,6 +13,7 @@ namespace QmlDesigner {
 
 class EffectMakerView;
 class EffectMakerModel;
+class EffectMakerNodesModel;
 
 class EffectMakerWidget : public QFrame
 {
@@ -32,9 +33,9 @@ public:
 
     StudioQuickWidget *quickWidget() const;
     QPointer<EffectMakerModel> effectMakerModel() const;
+    QPointer<EffectMakerNodesModel> effectMakerNodesModel() const;
 
     Q_INVOKABLE void focusSection(int section);
-
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -43,6 +44,7 @@ private:
     void reloadQmlSource();
 
     QPointer<EffectMakerModel> m_effectMakerModel;
+    QPointer<EffectMakerNodesModel> m_effectMakerNodesModel;
     QPointer<EffectMakerView> m_effectMakerView;
     QPointer<StudioQuickWidget> m_quickWidget;
 };

@@ -12,9 +12,6 @@ import EffectMakerBackend
 Item {
     id: root
 
-    property var effectMakerModel: EffectMakerBackend.effectMakerModel
-    property var rootView: EffectMakerBackend.rootView
-
     Column {
         id: col
         anchors.fill: parent
@@ -28,7 +25,7 @@ Item {
             color: StudioTheme.Values.themeToolbarBackground
 
             Row {
-                // TODO: Filter row
+                // TODO
             }
         }
 
@@ -62,6 +59,7 @@ Item {
 
                         effectNodesWindow.x = a.x + b.x + effectNodesComboBox.width - effectNodesWindow.width
                         effectNodesWindow.y = a.y + b.y + effectNodesComboBox.height - 1
+
                         effectNodesWindow.show()
                         effectNodesWindow.requestActivate()
                     }
@@ -74,7 +72,7 @@ Item {
                 Window {
                     id: effectNodesWindow
 
-                    width: 600
+                    width: row.width
                     height: Math.min(400, Screen.height - y - 40) // TODO: window sizing will be refined
                     flags:  Qt.Popup | Qt.FramelessWindowHint
 
@@ -85,9 +83,84 @@ Item {
 
                     Rectangle {
                         anchors.fill: parent
-                        color: StudioTheme.Values.themePopupBackground
+                        color: StudioTheme.Values.themePanelBackground
                         border.color: StudioTheme.Values.themeInteraction
                         border.width: 1
+
+                        Row {
+                            id: row
+
+                            onWidthChanged: {
+                                // Needed to update on first window showing, as row.width only gets
+                                // correct value after the window is shown, so first showing is off
+
+                                var a = root.mapToGlobal(0, 0)
+                                var b = effectNodesComboBox.mapToItem(root, 0, 0)
+
+                                effectNodesWindow.x = a.x + b.x + effectNodesComboBox.width - row.width
+                            }
+
+                            padding: 10
+                            spacing: 10
+
+                            Repeater {
+                                model: EffectMakerBackend.effectMakerNodesModel
+
+                                Column {
+                                    spacing: 10
+
+                                    Text {
+                                        text: categoryName
+                                        color: StudioTheme.Values.themeTextColor
+                                        font.pointSize: StudioTheme.Values.baseFontSize
+                                    }
+
+                                    Item { width: 1; height: 10 } // spacer
+
+                                    Repeater {
+                                        model: categoryNodes
+
+                                        Rectangle {
+                                            width: 180
+                                            height: 30
+
+                                            color: mouseArea.containsMouse ? StudioTheme.Values.themeControlBackgroundInteraction
+                                                                           : "transparent"
+
+                                            MouseArea {
+                                                id: mouseArea
+
+                                                anchors.fill: parent
+                                                hoverEnabled: true
+                                            }
+
+                                            Row {
+                                                spacing: 5
+
+                                                Image {
+                                                    id: nodeIcon
+
+                                                    width: 30
+                                                    height: 30
+
+                                                    Rectangle { // TODO: placeholder until setting image source
+                                                        anchors.fill: parent
+                                                        color: "gray"
+                                                    }
+                                                }
+
+                                                Text {
+                                                    text: modelData.nodeName
+                                                    color: StudioTheme.Values.themeTextColor
+                                                    font.pointSize: StudioTheme.Values.baseFontSize
+                                                    anchors.verticalCenter: nodeIcon.verticalCenter
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -123,7 +196,7 @@ Item {
                         Repeater {
                             id: categories
                             width: root.width
-                            model: effectMakerModel
+                            model: EffectMakerBackend.effectMakerModel
 
                             delegate: HelperWidgets.Section {
                                 id: effectsSection

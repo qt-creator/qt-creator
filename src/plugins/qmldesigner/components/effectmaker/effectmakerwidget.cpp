@@ -4,6 +4,7 @@
 #include "effectmakerwidget.h"
 
 #include "effectmakermodel.h"
+#include "effectmakernodesmodel.h"
 #include "effectmakerview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
@@ -33,6 +34,7 @@ static QString propertyEditorResourcesPath()
 
 EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     : m_effectMakerModel{new EffectMakerModel(this)}
+    , m_effectMakerNodesModel{new EffectMakerNodesModel(this)}
     , m_effectMakerView(view)
     , m_quickWidget{new StudioQuickWidget(this)}
 {
@@ -59,7 +61,8 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_EFFECTMAKER_TIME);
 
     auto map = m_quickWidget->registerPropertyMap("EffectMakerBackend");
-    map->setProperties({{"effectMakerModel", QVariant::fromValue(m_effectMakerModel.data())},
+    map->setProperties({{"effectMakerNodesModel", QVariant::fromValue(m_effectMakerNodesModel.data())},
+                        {"effectMakerModel", QVariant::fromValue(m_effectMakerModel.data())},
                         {"rootView", QVariant::fromValue(this)}});
 
     // init the first load of the QML UI elements
@@ -89,6 +92,11 @@ StudioQuickWidget *EffectMakerWidget::quickWidget() const
 QPointer<EffectMakerModel> EffectMakerWidget::effectMakerModel() const
 {
     return m_effectMakerModel;
+}
+
+QPointer<EffectMakerNodesModel> EffectMakerWidget::effectMakerNodesModel() const
+{
+    return m_effectMakerNodesModel;
 }
 
 void EffectMakerWidget::focusSection(int section)

@@ -4,7 +4,7 @@
 #include "effectmakerview.h"
 
 #include "effectmakerwidget.h"
-#include "effectmakermodel.h"
+#include "effectmakernodesmodel.h"
 #include "designmodecontext.h"
 #include "nodeinstanceview.h"
 
@@ -57,7 +57,7 @@ void EffectMakerView::modelAttached(Model *model)
 
     // Add some dummy effects data
     //m_widget->effectMakerModel()->setEffects({"Drop Shadow", "Colorize", "Fast Blue"}); // TODO
-    m_widget->effectMakerModel()->loadModel();
+    m_widget->effectMakerNodesModel()->loadModel();
 }
 
 void EffectMakerView::modelAboutToBeDetached(Model *model)
