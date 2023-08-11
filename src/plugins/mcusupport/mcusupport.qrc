@@ -13,8 +13,8 @@
         <file>wizards/qmlproject/DejaVuSansMono.ttf</file>
         <file>wizards/qmlproject/LICENSE</file>
         <file>wizards/qmlproject/translation.nb_NO.ts</file>
+        <file>wizards/qmlproject/translation.en_US.ts</file>
         <file>wizards/qmlproject/BackendObject.h</file>
-        <file>wizards/qmlproject/main_big.qml.tpl</file>
         <file>wizards/qmlproject/main.qml.tpl</file>
         <file>wizards/qmlproject/project.qmlproject.tpl</file>
         <file>wizards/qmlproject/module.qmlproject.tpl</file>

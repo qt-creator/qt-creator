@@ -21,7 +21,8 @@
         { "key": "ModuleFile", "value": "CustomModule.qmlproject"},
         { "key": "QmlComponent", "value": "CustomButton.qml"},
         { "key": "InterfaceFile", "value": "BackendObject.h"},
-        { "key": "TsFile", "value": "%{CorrectedProjectName}.nb_NO.ts"}
+        { "key": "TsFileEn", "value": "%{CorrectedProjectName}.en_US.ts"},
+        { "key": "TsFileNo", "value": "%{CorrectedProjectName}.nb_NO.ts"}
     ],
 
     "pages":
@@ -103,7 +104,12 @@
                 },
                 {
                     "source": "translation.nb_NO.ts",
-                    "target": "%{QmlProjectDirectory}/translations/%{TsFile}",
+                    "target": "%{QmlProjectDirectory}/translations/%{TsFileNo}",
+                    "openInEditor": false
+                },
+                {
+                    "source": "translation.en_US.ts",
+                    "target": "%{QmlProjectDirectory}/translations/%{TsFileEn}",
                     "openInEditor": false
                 },
                 {
