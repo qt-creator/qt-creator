@@ -3020,6 +3020,11 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
         if (!_languageFeatures.cxx11Enabled || LA(2) == T_NUMERIC_LITERAL) {
             parseInitializer(node->initializer, &node->equal_token);
         } else {
+            if (LA(2) != T_NUMERIC_LITERAL && LA(2) != T_DEFAULT && LA(2) != T_DELETE) {
+                error(cursor(), "expected 'default', 'delete' or '0', got '%s'", tok(2).spell());
+                return false;
+            }
+
             node->equal_token = consumeToken();
 
             IdExpressionAST *id_expr = new (_pool) IdExpressionAST;
