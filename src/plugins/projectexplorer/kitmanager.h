@@ -127,13 +127,12 @@ protected:
     QAction *m_mutableAction = nullptr;
 };
 
-class PROJECTEXPLORER_EXPORT KitManager : public QObject
+class PROJECTEXPLORER_EXPORT KitManager final : public QObject
 {
     Q_OBJECT
 
 public:
     static KitManager *instance();
-    ~KitManager() override;
 
     static const QList<Kit *> kits();
     static Kit *kit(const Kit::Predicate &predicate);
@@ -170,6 +169,7 @@ signals:
 
 private:
     KitManager();
+    ~KitManager() override;
 
     static void destroy();
 

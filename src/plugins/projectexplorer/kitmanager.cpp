@@ -118,20 +118,16 @@ private:
 // --------------------------------------------------------------------------
 
 static Internal::KitManagerPrivate *d = nullptr;
-static KitManager *m_instance = nullptr;
 
 KitManager *KitManager::instance()
 {
-    if (!m_instance)
-        m_instance = new KitManager;
-    return m_instance;
+    static KitManager theManager;
+    return &theManager;
 }
 
 KitManager::KitManager()
 {
     d = new KitManagerPrivate;
-    QTC_CHECK(!m_instance);
-    m_instance = this;
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &KitManager::saveKits);
 
@@ -144,8 +140,6 @@ void KitManager::destroy()
 {
     delete d;
     d = nullptr;
-    delete m_instance;
-    m_instance = nullptr;
 }
 
 void KitManager::restoreKits()
@@ -417,8 +411,8 @@ void KitManager::restoreKits()
 
     d->m_writer = std::make_unique<PersistentSettingsWriter>(settingsFileName(), "QtCreatorProfiles");
     d->m_initialized = true;
-    emit m_instance->kitsLoaded();
-    emit m_instance->kitsChanged();
+    emit instance()->kitsLoaded();
+    emit instance()->kitsChanged();
 }
 
 KitManager::~KitManager()
@@ -600,9 +594,9 @@ void KitManager::notifyAboutUpdate(Kit *k)
         return;
 
     if (Utils::contains(d->m_kitList, k))
-        emit m_instance->kitUpdated(k);
+        emit instance()->kitUpdated(k);
     else
-        emit m_instance->unmanagedKitUpdated(k);
+        emit instance()->unmanagedKitUpdated(k);
 }
 
 Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id id)
@@ -624,7 +618,7 @@ Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id 
     if (!d->m_defaultKit || (!d->m_defaultKit->isValid() && kptr->isValid()))
         setDefaultKit(kptr);
 
-    emit m_instance->kitAdded(kptr);
+    emit instance()->kitAdded(kptr);
     return kptr;
 }
 
@@ -647,7 +641,7 @@ void KitManager::setDefaultKit(Kit *k)
     if (k && !Utils::contains(d->m_kitList, k))
         return;
     d->m_defaultKit = k;
-    emit m_instance->defaultkitChanged();
+    emit instance()->defaultkitChanged();
 }
 
 void KitManager::completeKit(Kit *k)
