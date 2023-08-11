@@ -3,13 +3,11 @@
 
 #pragma once
 
-#include <QStandardItemModel>
-
 #include "effectnodescategory.h"
 
-namespace Utils {
-class FilePath;
-}
+#include <utils/filepath.h>
+
+#include <QStandardItemModel>
 
 namespace QmlDesigner {
 
@@ -35,9 +33,11 @@ public:
     QList<EffectNodesCategory *> categories() const { return  m_categories; }
 
 private:
-    static Utils::FilePath getQmlEffectNodesPath();
+    void findNodesPath();
 
     QList<EffectNodesCategory *> m_categories;
+    Utils::FilePath m_nodesPath;
+    bool m_probeNodesDir = false;
 };
 
 } // namespace QmlDesigner

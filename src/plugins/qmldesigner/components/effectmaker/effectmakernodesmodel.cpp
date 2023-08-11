@@ -3,13 +3,9 @@
 
 #include "effectmakernodesmodel.h"
 
-#include <projectexplorer/kit.h>
-#include <projectexplorer/projecttree.h>
-#include <projectexplorer/target.h>
+#include <utils/hostosinfo.h>
 
-#include <qtsupport/qtkitinformation.h>
-
-#include <utils/filepath.h>
+#include <QCoreApplication>
 
 namespace QmlDesigner {
 
@@ -42,29 +38,42 @@ QVariant EffectMakerNodesModel::data(const QModelIndex &index, int role) const
     return m_categories.at(index.row())->property(roleNames().value(role));
 }
 
-// static
-Utils::FilePath EffectMakerNodesModel::getQmlEffectNodesPath()
+void EffectMakerNodesModel::findNodesPath()
 {
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (!target) {
-        qWarning() << __FUNCTION__ << "No project open";
-        return "";
+    if (m_nodesPath.exists() || m_probeNodesDir)
+        return;
+
+    QDir nodesDir;
+
+    if (!qEnvironmentVariable("EFFECT_MAKER_NODES_PATH").isEmpty())
+        nodesDir.setPath(qEnvironmentVariable("EFFECT_MAKER_NODES_PATH"));
+    else if (Utils::HostOsInfo::isMacHost())
+        nodesDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/effect_maker_nodes");
+
+    // search for nodesDir from exec dir and up
+    if (nodesDir.dirName() == ".") {
+        m_probeNodesDir = true; // probe only once
+        nodesDir.setPath(QCoreApplication::applicationDirPath());
+        while (!nodesDir.cd("effect_maker_nodes") && nodesDir.cdUp())
+            ; // do nothing
+
+        if (nodesDir.dirName() != "effect_maker_nodes") // bundlePathDir not found
+            return;
     }
 
-    const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
-    return baseQtVersion->qmlPath().pathAppended("QtQuickEffectMaker/defaultnodes");
+    m_nodesPath = Utils::FilePath::fromString(nodesDir.path());
 }
 
 void EffectMakerNodesModel::loadModel()
 {
-    const Utils::FilePath effectsPath = getQmlEffectNodesPath();
+    findNodesPath();
 
-    if (!effectsPath.exists()) {
+    if (!m_nodesPath.exists()) {
         qWarning() << __FUNCTION__ << "Effects not found.";
         return;
     }
 
-    QDirIterator itCategories(effectsPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
+    QDirIterator itCategories(m_nodesPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
     while (itCategories.hasNext()) {
         itCategories.next();
 
@@ -72,7 +81,7 @@ void EffectMakerNodesModel::loadModel()
             continue;
 
         QList<EffectNode *> effects = {};
-        Utils::FilePath categoryPath = effectsPath.resolvePath(itCategories.fileName());
+        Utils::FilePath categoryPath = m_nodesPath.resolvePath(itCategories.fileName());
         QDirIterator itEffects(categoryPath.toString(), QDir::Files | QDir::NoDotAndDotDot);
         while (itEffects.hasNext()) {
             itEffects.next();
