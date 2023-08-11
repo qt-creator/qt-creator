@@ -99,7 +99,7 @@ class SymbolDetails : public JsonObject
 public:
     using JsonObject::JsonObject;
 
-    static constexpr char16_t usrKey[] = u"usr";
+    static constexpr char usrKey[] = "usr";
 
     // the unqualified name of the symbol
     QString name() const { return typedValue<QString>(nameKey); }
@@ -226,15 +226,15 @@ class DiagnosticsCapabilities : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    void enableCategorySupport() { insert(u"categorySupport", true); }
-    void enableCodeActionsInline() {insert(u"codeActionsInline", true);}
+    void enableCategorySupport() { insert("categorySupport", true); }
+    void enableCodeActionsInline() {insert("codeActionsInline", true);}
 };
 
 class InactiveRegionsCapabilities : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    void enableInactiveRegionsSupport() { insert(u"inactiveRegions", true); }
+    void enableInactiveRegionsSupport() { insert("inactiveRegions", true); }
 };
 
 class ClangdTextDocumentClientCapabilities : public TextDocumentClientCapabilities
@@ -243,9 +243,9 @@ public:
     using TextDocumentClientCapabilities::TextDocumentClientCapabilities;
 
     void setPublishDiagnostics(const DiagnosticsCapabilities &caps)
-    { insert(u"publishDiagnostics", caps); }
+    { insert("publishDiagnostics", caps); }
     void setInactiveRegionsCapabilities(const InactiveRegionsCapabilities &caps)
-    { insert(u"inactiveRegionsCapabilities", caps); }
+    { insert("inactiveRegionsCapabilities", caps); }
 };
 
 static qint64 getRevision(const TextDocument *doc)
@@ -1572,7 +1572,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
 
 std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 {
-    auto actions = optionalArray<LanguageServerProtocol::CodeAction>(u"codeActions");
+    auto actions = optionalArray<LanguageServerProtocol::CodeAction>("codeActions");
     if (!actions)
         return actions;
     static const QStringList badCodeActions{
@@ -1589,7 +1589,7 @@ std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 
 QString ClangdDiagnostic::category() const
 {
-    return typedValue<QString>(u"category");
+    return typedValue<QString>("category");
 }
 
 MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,

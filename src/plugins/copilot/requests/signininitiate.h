@@ -17,8 +17,8 @@ using SignInInitiateParams = LanguageServerProtocol::JsonObject;
 
 class SignInInitiateResponse : public LanguageServerProtocol::JsonObject
 {
-    static constexpr char16_t verificationUriKey[] = u"verificationUri";
-    static constexpr char16_t userCodeKey[] = u"userCode";
+    static constexpr char verificationUriKey[] = "verificationUri";
+    static constexpr char userCodeKey[] = "userCode";
 
 public:
     using JsonObject::JsonObject;

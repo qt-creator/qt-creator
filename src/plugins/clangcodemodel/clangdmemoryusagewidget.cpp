@@ -27,10 +27,10 @@ public:
     using JsonObject::JsonObject;
 
     // number of bytes used, including child components
-    qint64 total() const { return qint64(typedValue<double>(totalKey())); }
+    qint64 total() const { return qint64(typedValue<double>(totalKey)); }
 
     // number of bytes used, excluding child components
-    qint64 self() const { return qint64(typedValue<double>(selfKey())); }
+    qint64 self() const { return qint64(typedValue<double>(selfKey)); }
 
     // named child components
     using NamedComponent = std::pair<MemoryTree, QString>;
@@ -39,16 +39,15 @@ public:
         QList<NamedComponent> components;
         const auto obj = operator const QJsonObject &();
         for (auto it = obj.begin(); it != obj.end(); ++it) {
-            if (it.key() == totalKey() || it.key() == selfKey())
+            if (it.key() == QLatin1String(totalKey) || it.key() == QLatin1String(selfKey))
                 continue;
             components.push_back({MemoryTree(it.value()), it.key()});
         }
         return components;
     }
 
-private:
-    static QString totalKey() { return QLatin1String("_total"); }
-    static QString selfKey() { return QLatin1String("_self"); }
+    static constexpr char totalKey[] = "_total";
+    static constexpr char selfKey[] =  "_self";
 };
 
 

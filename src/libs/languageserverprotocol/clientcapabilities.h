@@ -628,7 +628,7 @@ public:
     void clearWorkDoneProgress() { remove(workDoneProgressKey); }
 
 private:
-    constexpr static const char16_t workDoneProgressKey[] = u"workDoneProgress";
+    constexpr static const char workDoneProgressKey[] = "workDoneProgress";
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT ClientCapabilities : public JsonObject

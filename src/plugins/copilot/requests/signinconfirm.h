@@ -12,7 +12,7 @@ namespace Copilot {
 
 class SignInConfirmParams : public LanguageServerProtocol::JsonObject
 {
-    static constexpr char16_t userCodeKey[] = u"userCode";
+    static constexpr char userCodeKey[] = "userCode";
 
 public:
     using JsonObject::JsonObject;

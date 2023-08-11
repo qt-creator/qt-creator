@@ -967,8 +967,8 @@ class InactiveRegionsParams : public JsonObject
 public:
     using JsonObject::JsonObject;
 
-    DocumentUri uri() const { return TextDocumentIdentifier(value(u"textDocument")).uri(); }
-    QList<Range> inactiveRegions() const { return array<Range>(u"regions"); }
+    DocumentUri uri() const { return TextDocumentIdentifier(value("textDocument")).uri(); }
+    QList<Range> inactiveRegions() const { return array<Range>("regions"); }
 };
 
 class InactiveRegionsNotification : public Notification<InactiveRegionsParams>
