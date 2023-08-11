@@ -5,12 +5,8 @@
 
 namespace QmlDesigner {
 
-EffectNode::EffectNode(const QString &name)
-    : m_name(name) {}
-
-QString EffectNode::name() const
-{
-    return m_name;
-}
+EffectNode::EffectNode(const QString &name, const QString &iconPath)
+    : m_name(name)
+    , m_iconPath(QUrl::fromLocalFile(iconPath)) {}
 
 } // namespace QmlDesigner

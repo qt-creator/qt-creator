@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QObject>
+#include <QUrl>
 
 namespace QmlDesigner {
 
@@ -12,14 +13,14 @@ class EffectNode : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
+    Q_PROPERTY(QUrl nodeIcon MEMBER m_iconPath CONSTANT)
 
 public:
-    EffectNode(const QString &name);
-
-    QString name() const;
+    EffectNode(const QString &name, const QString &iconPath);
 
 private:
     QString m_name;
+    QUrl m_iconPath;
 };
 
 } // namespace QmlDesigner

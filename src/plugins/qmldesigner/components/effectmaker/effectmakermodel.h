@@ -7,10 +7,6 @@
 
 #include "effectnodescategory.h"
 
-namespace Utils {
-class FilePath;
-}
-
 namespace QmlDesigner {
 
 class EffectMakerModel : public QAbstractListModel
@@ -34,7 +30,6 @@ public:
 
     bool isEmpty() const { return m_isEmpty; }
 
-    void loadModel();
     void resetModel();
 
     QList<EffectNodesCategory *> categories() { return  m_categories; }
@@ -49,7 +44,6 @@ signals:
 
 private:
     bool isValidIndex(int idx) const;
-    static Utils::FilePath getQmlEffectsPath();
 
     QList<EffectNodesCategory *> m_categories;
 

@@ -137,16 +137,14 @@ Item {
                                             Row {
                                                 spacing: 5
 
-                                                Image {
+                                                IconImage {
                                                     id: nodeIcon
 
                                                     width: 30
                                                     height: 30
 
-                                                    Rectangle { // TODO: placeholder until setting image source
-                                                        anchors.fill: parent
-                                                        color: "gray"
-                                                    }
+                                                    color: StudioTheme.Values.themeTextColor
+                                                    source: modelData.nodeIcon
                                                 }
 
                                                 Text {

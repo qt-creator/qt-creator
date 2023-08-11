@@ -80,15 +80,20 @@ void EffectMakerNodesModel::loadModel()
         if (itCategories.fileName() == "images")
             continue;
 
+        QString catName = itCategories.fileName();
+
         QList<EffectNode *> effects = {};
         Utils::FilePath categoryPath = m_nodesPath.resolvePath(itCategories.fileName());
         QDirIterator itEffects(categoryPath.toString(), {"*.qen"}, QDir::Files);
         while (itEffects.hasNext()) {
             itEffects.next();
-            effects.push_back(new EffectNode(QFileInfo(itEffects.fileName()).baseName()));
+            QString fileName = QFileInfo(itEffects.fileName()).baseName();
+            QString iconPath = m_nodesPath.path() + '/' + catName + "/icon/" + fileName + ".svg";
+            if (!QFileInfo::exists(iconPath))
+                iconPath = m_nodesPath.path() + "/placeholder.svg";
+            effects.push_back(new EffectNode(fileName, iconPath));
         }
 
-        QString catName = itCategories.fileName();
         catName[0] = catName[0].toUpper(); // capitalize first letter
         EffectNodesCategory *category = new EffectNodesCategory(catName, effects);
         m_categories.push_back(category);

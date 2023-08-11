@@ -3,14 +3,6 @@
 
 #include "effectmakermodel.h"
 
-#include <projectexplorer/kit.h>
-#include <projectexplorer/projecttree.h>
-#include <projectexplorer/target.h>
-
-#include <qtsupport/qtkitinformation.h>
-
-#include <utils/filepath.h>
-
 namespace QmlDesigner {
 
 EffectMakerModel::EffectMakerModel(QObject *parent)
@@ -33,67 +25,14 @@ int EffectMakerModel::rowCount(const QModelIndex &parent) const
     return m_categories.count();
 }
 
-QVariant EffectMakerModel::data(const QModelIndex &index, int role) const
+QVariant EffectMakerModel::data(const QModelIndex &index, int /*role*/) const
 {
-    // TODO: to be updated
-
     if (index.row() < 0 || index.row() >= m_categories.count())
         return {};
 
-    const EffectNodesCategory *category = m_categories.at(index.row());
-    if (role == CategoryRole)
-        return category->name();
-
-    if (role == EffectsRole) {
-        QStringList effectsNames;
-        const QList<EffectNode *> effects = category->nodes();
-        for (const EffectNode *effect : effects)
-            effectsNames << effect->name();
-
-        return effectsNames;
-    }
+    // TODO
 
     return {};
-}
-
-// static
-Utils::FilePath EffectMakerModel::getQmlEffectsPath()
-{
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (!target) {
-        qWarning() << __FUNCTION__ << "No project open";
-        return "";
-    }
-
-    const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
-    return baseQtVersion->qmlPath().pathAppended("QtQuickEffectMaker/defaultnodes");
-}
-
-void EffectMakerModel::loadModel()
-{
-    const Utils::FilePath effectsPath = getQmlEffectsPath();
-
-    if (!effectsPath.exists()) {
-        qWarning() << __FUNCTION__ << "Effects are not found.";
-        return;
-    }
-    QDirIterator itCategories(effectsPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
-    while (itCategories.hasNext()) {
-        beginInsertRows(QModelIndex(), rowCount(), rowCount());
-        itCategories.next();
-        if (itCategories.fileName() == "images")
-            continue;
-        QList<EffectNode *> effects = {};
-        Utils::FilePath categoryPath = effectsPath.resolvePath(itCategories.fileName());
-        QDirIterator itEffects(categoryPath.toString(), QDir::Files | QDir::NoDotAndDotDot);
-        while (itEffects.hasNext()) {
-            itEffects.next();
-            effects.push_back(new EffectNode(QFileInfo(itEffects.fileName()).baseName()));
-        }
-        EffectNodesCategory *category = new EffectNodesCategory(itCategories.fileName(), effects);
-        m_categories.push_back(category);
-        endInsertRows();
-    }
 }
 
 void EffectMakerModel::resetModel()
