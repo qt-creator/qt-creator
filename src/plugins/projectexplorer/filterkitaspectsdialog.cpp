@@ -82,13 +82,13 @@ public:
     FilterKitAspectsModel(const Kit *kit, QObject *parent) : TreeModel(parent)
     {
         setHeader({Tr::tr("Setting"), Tr::tr("Visible")});
-        for (const KitAspectFactory * const aspect : KitManager::kitAspects()) {
-            if (kit && !aspect->isApplicableToKit(kit))
+        for (const KitAspectFactory * const factory : KitManager::kitAspectFactories()) {
+            if (kit && !factory->isApplicableToKit(kit))
                 continue;
             const QSet<Utils::Id> irrelevantAspects = kit ? kit->irrelevantAspects()
                                                          : KitManager::irrelevantAspects();
-            auto * const item = new FilterTreeItem(aspect,
-                                                   !irrelevantAspects.contains(aspect->id()));
+            auto * const item = new FilterTreeItem(factory,
+                                                   !irrelevantAspects.contains(factory->id()));
             rootItem()->appendChild(item);
         }
         static const auto cmp = [](const TreeItem *item1, const TreeItem *item2) {

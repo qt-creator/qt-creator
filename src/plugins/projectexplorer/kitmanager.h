@@ -140,7 +140,7 @@ public:
     static Kit *kit(Utils::Id id);
     static Kit *defaultKit();
 
-    static const QList<KitAspectFactory *> kitAspects();
+    static const QList<KitAspectFactory *> kitAspectFactories();
     static const QSet<Utils::Id> irrelevantAspects();
     static void setIrrelevantAspects(const QSet<Utils::Id> &aspects);
 

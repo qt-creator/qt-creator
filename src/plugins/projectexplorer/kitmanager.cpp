@@ -75,20 +75,20 @@ public:
     std::unique_ptr<PersistentSettingsWriter> m_writer;
     QSet<Id> m_irrelevantAspects;
 
-    void addKitAspect(KitAspectFactory *ki)
+    void addKitAspect(KitAspectFactory *factory)
     {
-        QTC_ASSERT(!m_aspectList.contains(ki), return);
-        m_aspectList.append(ki);
+        QTC_ASSERT(!m_aspectList.contains(factory), return);
+        m_aspectList.append(factory);
         m_aspectListIsSorted = false;
     }
 
-    void removeKitAspect(KitAspectFactory *ki)
+    void removeKitAspect(KitAspectFactory *factory)
     {
-        int removed = m_aspectList.removeAll(ki);
+        int removed = m_aspectList.removeAll(factory);
         QTC_CHECK(removed == 1);
     }
 
-    const QList<KitAspectFactory *> kitAspects()
+    const QList<KitAspectFactory *> kitAspectFactories()
     {
         if (!m_aspectListIsSorted) {
             Utils::sort(m_aspectList, [](const KitAspectFactory *a, const KitAspectFactory *b) {
@@ -196,11 +196,12 @@ void KitManager::restoreKits()
                 Kit *ptr = i->get();
 
                 // Overwrite settings that the SDK sets to those values:
-                for (const KitAspectFactory *aspect : KitManager::kitAspects()) {
+                for (const KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+                    const Id id = factory->id();
                     // Copy sticky settings over:
-                    ptr->setSticky(aspect->id(), toStore->isSticky(aspect->id()));
-                    if (ptr->isSticky(aspect->id()))
-                        ptr->setValue(aspect->id(), toStore->value(aspect->id()));
+                    ptr->setSticky(id, toStore->isSticky(id));
+                    if (ptr->isSticky(id))
+                        ptr->setValue(id, toStore->value(id));
                 }
                 toStore = std::move(*i);
                 kitsToCheck.erase(i);
@@ -455,11 +456,11 @@ bool KitManager::isLoaded()
     return d->m_initialized;
 }
 
-void KitManager::registerKitAspect(KitAspectFactory *ki)
+void KitManager::registerKitAspect(KitAspectFactory *factory)
 {
     instance();
     QTC_ASSERT(d, return);
-    d->addKitAspect(ki);
+    d->addKitAspect(factory);
 
     // Adding this aspect to possibly already existing kits is currently not
     // needed here as kits are only created after all aspects are created
@@ -468,14 +469,14 @@ void KitManager::registerKitAspect(KitAspectFactory *ki)
     QTC_CHECK(d->m_kitList.empty());
 }
 
-void KitManager::deregisterKitAspect(KitAspectFactory *ki)
+void KitManager::deregisterKitAspect(KitAspectFactory *factory)
 {
     // Happens regularly for the aspects from the ProjectExplorerPlugin as these
     // are destroyed after the manual call to KitManager::destroy() there, but as
     // this here is just for sanity reasons that the KitManager does not access
     // a destroyed aspect, a destroyed KitManager is not a problem.
     if (d)
-        d->removeKitAspect(ki);
+        d->removeKitAspect(factory);
 }
 
 void KitManager::setBinaryForKit(const FilePath &binary)
@@ -578,9 +579,9 @@ Kit *KitManager::defaultKit()
     return d->m_defaultKit;
 }
 
-const QList<KitAspectFactory *> KitManager::kitAspects()
+const QList<KitAspectFactory *> KitManager::kitAspectFactories()
 {
-    return d->kitAspects();
+    return d->kitAspectFactories();
 }
 
 const QSet<Id> KitManager::irrelevantAspects()
@@ -636,7 +637,7 @@ void KitManager::deregisterKit(Kit *k)
         Kit *newDefault = Utils::findOrDefault(kits(), [](Kit *k) { return k->isValid(); });
         setDefaultKit(newDefault);
     }
-    emit m_instance->kitRemoved(k);
+    emit instance()->kitRemoved(k);
 }
 
 void KitManager::setDefaultKit(Kit *k)
@@ -653,12 +654,12 @@ void KitManager::completeKit(Kit *k)
 {
     QTC_ASSERT(k, return);
     KitGuard g(k);
-    for (KitAspectFactory *ki : d->kitAspects()) {
-        ki->upgrade(k);
-        if (!k->hasValue(ki->id()))
-            ki->setup(k);
+    for (KitAspectFactory *factory : d->kitAspectFactories()) {
+        factory->upgrade(k);
+        if (!k->hasValue(factory->id()))
+            factory->setup(k);
         else
-            ki->fix(k);
+            factory->fix(k);
     }
 }
 

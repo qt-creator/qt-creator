@@ -593,11 +593,11 @@ public:
         delete layout();
 
         Layouting::Grid grid;
-        for (KitAspectFactory *aspect : KitManager::kitAspects()) {
-            if (k && k->isMutable(aspect->id())) {
-                KitAspect *widget = aspect->createKitAspect(k);
+        for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+            if (k && k->isMutable(factory->id())) {
+                KitAspect *widget = factory->createKitAspect(k);
                 m_widgets << widget;
-                grid.addItems({aspect->displayName(), widget, Layouting::br});
+                grid.addItems({factory->displayName(), widget, Layouting::br});
             }
         }
         grid.attachTo(this);
@@ -618,9 +618,9 @@ private:
         QList<const KitAspectFactory *> knownList
             = Utils::transform(m_widgets, &KitAspect::kitInformation);
 
-        for (KitAspectFactory *aspect : KitManager::kitAspects()) {
-            const Utils::Id currentId = aspect->id();
-            if (m_kit->isMutable(currentId) && !knownList.removeOne(aspect)) {
+        for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+            const Utils::Id currentId = factory->id();
+            if (m_kit->isMutable(currentId) && !knownList.removeOne(factory)) {
                 addedMutables = true;
                 break;
             }

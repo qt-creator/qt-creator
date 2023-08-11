@@ -102,8 +102,8 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
     chooser->addSupportedWidget(m_nameEdit);
     chooser->addMacroExpanderProvider([this] { return m_modifiedKit->macroExpander(); });
 
-    for (KitAspectFactory *aspect : KitManager::kitAspects())
-        addAspectToWorkingCopy(page, aspect);
+    for (KitAspectFactory *factory : KitManager::kitAspectFactories())
+        addAspectToWorkingCopy(page, factory);
 
     page.attachTo(this);
 
