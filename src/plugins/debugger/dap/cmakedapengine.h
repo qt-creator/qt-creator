@@ -15,6 +15,8 @@ public:
 private:
     void handleDapStarted() override;
     void setupEngine() override;
+
+    bool hasCapability(unsigned cap) const override;
 };
 
 } // Debugger::Internal

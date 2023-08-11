@@ -305,8 +305,19 @@ void DapEngine::continueInferior()
 
 void DapEngine::executeRunToLine(const ContextData &data)
 {
-    Q_UNUSED(data)
-    QTC_CHECK("FIXME:  DapEngine::runToLineExec()" && false);
+    // Add one-shot breakpoint
+    BreakpointParameters bp;
+    bp.oneShot = true;
+    if (data.address) {
+        bp.type = BreakpointByAddress;
+        bp.address = data.address;
+    } else {
+        bp.type = BreakpointByFileAndLine;
+        bp.fileName = data.fileName;
+        bp.textPosition = data.textPosition;
+    }
+
+    BreakpointManager::createBreakpointForEngine(bp, this);
 }
 
 void DapEngine::executeRunToFunction(const QString &functionName)
@@ -836,6 +847,8 @@ void DapEngine::handleStoppedEvent(const QJsonObject &event)
         if (bp) {
             const BreakpointParameters &params = bp->requestedParameters();
             gotoLocation(Location(params.fileName, params.textPosition));
+            if (params.oneShot)
+                removeBreakpoint(bp);
         }
     }
 
@@ -860,6 +873,9 @@ void DapEngine::handleBreakpointEvent(const QJsonObject &event)
     if (body.value("reason").toString() == "new") {
         if (breakpoint.value("verified").toBool()) {
             notifyBreakpointInsertOk(bp);
+            const BreakpointParameters &params = bp->requestedParameters();
+            if (params.oneShot)
+                continueInferior();
             qCDebug(dapEngineLog) << "breakpoint inserted";
         } else {
             notifyBreakpointInsertFailed(bp);
@@ -958,7 +974,8 @@ bool DapEngine::hasCapability(unsigned cap) const
 {
     return cap & (ReloadModuleCapability
                   | BreakConditionCapability
-                  | ShowModuleSymbolsCapability);
+                  | ShowModuleSymbolsCapability
+                  | RunToLineCapability);
 }
 
 void DapEngine::claimInitialBreakpoints()

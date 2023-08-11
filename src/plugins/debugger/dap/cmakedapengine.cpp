@@ -115,4 +115,12 @@ void CMakeDapEngine::setupEngine()
     notifyEngineSetupOk();
 }
 
+bool CMakeDapEngine::hasCapability(unsigned cap) const
+{
+    return cap & (ReloadModuleCapability
+                  | BreakConditionCapability
+                  | ShowModuleSymbolsCapability
+                  /*| RunToLineCapability*/); // disable while the #25176 bug is not fixed
+}
+
 } // namespace Debugger::Internal
