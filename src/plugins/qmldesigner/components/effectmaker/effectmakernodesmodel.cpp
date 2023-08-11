@@ -82,12 +82,15 @@ void EffectMakerNodesModel::loadModel()
 
         QList<EffectNode *> effects = {};
         Utils::FilePath categoryPath = m_nodesPath.resolvePath(itCategories.fileName());
-        QDirIterator itEffects(categoryPath.toString(), QDir::Files | QDir::NoDotAndDotDot);
+        QDirIterator itEffects(categoryPath.toString(), {"*.qen"}, QDir::Files);
         while (itEffects.hasNext()) {
             itEffects.next();
             effects.push_back(new EffectNode(QFileInfo(itEffects.fileName()).baseName()));
         }
-        EffectNodesCategory *category = new EffectNodesCategory(itCategories.fileName(), effects);
+
+        QString catName = itCategories.fileName();
+        catName[0] = catName[0].toUpper(); // capitalize first letter
+        EffectNodesCategory *category = new EffectNodesCategory(catName, effects);
         m_categories.push_back(category);
     }
 
