@@ -16,7 +16,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>

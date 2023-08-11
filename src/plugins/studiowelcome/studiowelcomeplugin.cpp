@@ -28,7 +28,7 @@
 #include <qmlprojectmanager/qmlproject.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <qmldesigner/components/componentcore/theme.h>
 #include <qmldesigner/dynamiclicensecheck.h>

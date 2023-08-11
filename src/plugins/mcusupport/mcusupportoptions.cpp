@@ -22,7 +22,7 @@
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/infobar.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <QMessageBox>

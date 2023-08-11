@@ -16,7 +16,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>

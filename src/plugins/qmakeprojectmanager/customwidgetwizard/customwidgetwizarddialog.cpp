@@ -9,7 +9,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 namespace QmakeProjectManager {

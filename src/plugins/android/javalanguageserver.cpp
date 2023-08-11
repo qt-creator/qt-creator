@@ -14,7 +14,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>

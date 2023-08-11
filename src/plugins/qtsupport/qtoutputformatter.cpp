@@ -3,7 +3,7 @@
 
 #include "qtoutputformatter.h"
 
-#include "qtkitinformation.h"
+#include "qtkitaspect.h"
 #include "qtsupportconstants.h"
 #include "qttestparser.h"
 

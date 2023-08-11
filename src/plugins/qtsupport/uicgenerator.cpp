@@ -4,7 +4,7 @@
 #include "uicgenerator.h"
 
 #include "baseqtversion.h"
-#include "qtkitinformation.h"
+#include "qtkitaspect.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitmanager.h>

@@ -3,7 +3,7 @@
 
 #include "qtprojectimporter.h"
 
-#include "qtkitinformation.h"
+#include "qtkitaspect.h"
 #include "qtversionfactory.h"
 #include "qtversionmanager.h"
 

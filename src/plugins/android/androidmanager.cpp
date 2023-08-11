@@ -28,7 +28,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildsystem.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/baseqtversion.h>
 

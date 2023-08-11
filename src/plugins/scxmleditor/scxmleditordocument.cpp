@@ -7,7 +7,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 

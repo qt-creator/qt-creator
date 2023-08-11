@@ -6,7 +6,7 @@
 #include <coreplugin/icore.h>
 #include <qmljs/qmljsbundle.h>
 #include <qmljs/qmljsconstants.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <QDir>

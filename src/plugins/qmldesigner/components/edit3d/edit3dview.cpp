@@ -31,7 +31,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

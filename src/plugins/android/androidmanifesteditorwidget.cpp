@@ -14,7 +14,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitaspects.h>

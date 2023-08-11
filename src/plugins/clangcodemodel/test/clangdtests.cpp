@@ -25,7 +25,7 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/textutils.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <QElapsedTimer>
 #include <QEventLoop>

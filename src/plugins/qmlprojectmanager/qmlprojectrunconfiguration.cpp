@@ -27,7 +27,7 @@
 #include <qmldesignerbase/qmldesignerbaseplugin.h>
 #include <qmldesignerbase/utils/qmlpuppetpaths.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>

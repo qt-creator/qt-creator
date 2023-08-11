@@ -33,7 +33,7 @@
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>

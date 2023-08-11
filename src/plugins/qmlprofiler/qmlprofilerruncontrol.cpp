@@ -15,7 +15,7 @@
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>

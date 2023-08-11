@@ -51,7 +51,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <QCoreApplication>

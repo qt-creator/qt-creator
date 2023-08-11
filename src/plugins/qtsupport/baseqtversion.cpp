@@ -5,7 +5,7 @@
 
 #include "profilereader.h"
 #include "qtconfigwidget.h"
-#include "qtkitinformation.h"
+#include "qtkitaspect.h"
 #include "qtsupportconstants.h"
 #include "qtsupporttr.h"
 #include "qtversionfactory.h"

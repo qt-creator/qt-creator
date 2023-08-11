@@ -4,7 +4,7 @@
 #include "qscxmlcgenerator.h"
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>

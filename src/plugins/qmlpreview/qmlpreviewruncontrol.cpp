@@ -14,7 +14,7 @@
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/filepath.h>
 #include <utils/port.h>

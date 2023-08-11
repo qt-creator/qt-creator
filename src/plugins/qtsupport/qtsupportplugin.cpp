@@ -9,7 +9,7 @@
 #include "gettingstartedwelcomepage.h"
 #include "profilereader.h"
 #include "qscxmlcgenerator.h"
-#include "qtkitinformation.h"
+#include "qtkitaspect.h"
 #include "qtoptionspage.h"
 #include "qtoutputformatter.h"
 #include "qtsupporttr.h"

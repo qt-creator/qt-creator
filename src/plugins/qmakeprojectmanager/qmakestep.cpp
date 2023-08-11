@@ -27,7 +27,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 

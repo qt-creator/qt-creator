@@ -17,7 +17,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 

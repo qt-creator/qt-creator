@@ -38,7 +38,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>

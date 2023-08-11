@@ -9,7 +9,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 namespace QmlDesigner {
 namespace QmlPuppetPaths {

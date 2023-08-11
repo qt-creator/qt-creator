@@ -13,7 +13,7 @@
 #include <utils/hostosinfo.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #include <qmlprojectmanager/qmlproject.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversions.h>
 
 #include <QLibraryInfo>

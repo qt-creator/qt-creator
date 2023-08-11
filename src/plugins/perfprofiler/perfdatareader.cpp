@@ -24,7 +24,7 @@
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <QDateTime>
 #include <QDebug>

@@ -24,7 +24,7 @@
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 

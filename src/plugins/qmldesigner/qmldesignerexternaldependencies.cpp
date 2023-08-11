@@ -13,7 +13,7 @@
 #include <puppetenvironmentbuilder.h>
 #include <qmlpuppetpaths.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 
 #include <coreplugin/icore.h>

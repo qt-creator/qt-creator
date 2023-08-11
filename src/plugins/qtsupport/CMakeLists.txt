@@ -17,7 +17,7 @@ add_qtc_plugin(QtSupport
     qtbuildaspects.cpp qtbuildaspects.h
     qtconfigwidget.cpp qtconfigwidget.h
     qtcppkitinfo.cpp qtcppkitinfo.h
-    qtkitinformation.cpp qtkitinformation.h
+    qtkitaspect.cpp qtkitaspect.h
     qtoptionspage.cpp qtoptionspage.h
     qtoutputformatter.cpp qtoutputformatter.h
     qtparser.cpp qtparser.h

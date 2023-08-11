@@ -19,7 +19,7 @@
 #include <projectexplorer/targetsetuppage.h>
 #include <projectexplorer/task.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>

@@ -24,7 +24,7 @@
 #include <android/androidconstants.h>
 #include <ios/iosconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <QDir>
 #include <QFileInfo>

@@ -23,7 +23,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/kit.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 #include <coreplugin/icore.h>
