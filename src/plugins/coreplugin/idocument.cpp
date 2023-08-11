@@ -343,10 +343,10 @@ IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePat
 */
 bool IDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
-    emit aboutToSave(filePath, autoSave);
+    emit aboutToSave(filePath.isEmpty() ? this->filePath() : filePath, autoSave);
     const bool success = saveImpl(errorString, filePath, autoSave);
     if (success)
-        emit saved(filePath, autoSave);
+        emit saved(filePath.isEmpty() ? this->filePath() : filePath, autoSave);
     return success;
 }
 
