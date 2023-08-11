@@ -4,7 +4,6 @@
 #include "mesonbuildsystem.h"
 
 #include "kitdata.h"
-#include "kithelper.h"
 #include "mesonbuildconfiguration.h"
 #include "mesonprojectmanagertr.h"
 #include "mesontoolkitaspect.h"

@@ -27,7 +27,6 @@ Project {
             "toolwrapper.cpp",
             "toolwrapper.h",
             "kitdata.h",
-            "kithelper.h",
             "mesonactionsmanager.cpp",
             "mesonactionsmanager.h",
             "buildoptions.h",
