@@ -5,7 +5,7 @@
 
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "kitmanager.h"
 #include "ioutputparser.h"
 #include "osparser.h"

@@ -8,7 +8,7 @@
 #include "cmakekitinformation.h"
 #include "cmaketoolmanager.h"
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>

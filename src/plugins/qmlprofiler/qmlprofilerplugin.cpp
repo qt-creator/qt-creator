@@ -41,7 +41,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>

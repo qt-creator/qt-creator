@@ -5,7 +5,7 @@
 
 #include "buildsteplist.h"
 #include "deploymentdataview.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"

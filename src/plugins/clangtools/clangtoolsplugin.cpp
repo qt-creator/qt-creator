@@ -35,7 +35,7 @@
 
 #include <texteditor/texteditor.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>

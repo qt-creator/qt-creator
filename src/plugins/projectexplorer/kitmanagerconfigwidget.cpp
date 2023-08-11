@@ -5,7 +5,7 @@
 
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorertr.h"
 #include "task.h"

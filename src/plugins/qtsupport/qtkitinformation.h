@@ -7,7 +7,7 @@
 
 #include "baseqtversion.h"
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 
 namespace Utils { class MacroExpander; }
 

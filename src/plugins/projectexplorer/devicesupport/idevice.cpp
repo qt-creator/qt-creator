@@ -9,7 +9,7 @@
 #include "sshparameters.h"
 
 #include "../kit.h"
-#include "../kitinformation.h"
+#include "../kitaspects.h"
 #include "../projectexplorertr.h"
 #include "../target.h"
 

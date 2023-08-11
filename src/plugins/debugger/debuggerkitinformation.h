@@ -6,7 +6,7 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/runconfiguration.h>
 
 namespace Debugger {

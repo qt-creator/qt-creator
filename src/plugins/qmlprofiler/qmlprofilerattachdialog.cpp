@@ -4,8 +4,8 @@
 #include "qmlprofilerattachdialog.h"
 #include "qmlprofilertr.h"
 
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitchooser.h>
-#include <projectexplorer/kitinformation.h>
 
 #include <QDialogButtonBox>
 #include <QFormLayout>

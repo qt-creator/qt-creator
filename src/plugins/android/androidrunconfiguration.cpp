@@ -8,7 +8,7 @@
 #include "androidtr.h"
 
 #include <projectexplorer/buildsystem.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>

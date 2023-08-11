@@ -44,7 +44,7 @@
 #include <languageserverprotocol/progresssupport.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectmanager.h>

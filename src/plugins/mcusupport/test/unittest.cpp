@@ -38,7 +38,7 @@
 #include <gmock/gmock.h>
 
 #include <projectexplorer/customtoolchain.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>

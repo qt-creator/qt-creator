@@ -4,7 +4,7 @@
 #include "extracompiler.h"
 
 #include "buildmanager.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "projectmanager.h"
 #include "target.h"
 

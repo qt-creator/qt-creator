@@ -9,9 +9,9 @@
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>

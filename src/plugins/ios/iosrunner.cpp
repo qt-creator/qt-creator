@@ -16,7 +16,7 @@
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerruncontrol.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>

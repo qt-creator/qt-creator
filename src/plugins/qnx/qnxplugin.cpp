@@ -19,16 +19,16 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicecheckbuildstep.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 

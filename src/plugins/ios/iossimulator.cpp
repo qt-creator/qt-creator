@@ -5,7 +5,7 @@
 #include "iosconstants.h"
 #include "iostr.h"
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 
 #include <utils/port.h>
 #include <utils/process.h>

@@ -8,7 +8,7 @@
 
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 
 #include <solutions/tasking/tasktree.h>
 

@@ -47,7 +47,7 @@
 #include "jsonwizard/jsonwizardgeneratorfactory.h"
 #include "jsonwizard/jsonwizardpagefactory_p.h"
 #include "kitfeatureprovider.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 #include "miniprojecttargetselector.h"

@@ -14,7 +14,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildinfo.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchainmanager.h>

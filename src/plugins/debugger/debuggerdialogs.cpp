@@ -10,7 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/sshparameters.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>

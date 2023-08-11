@@ -6,9 +6,9 @@
 #include "nimconstants.h"
 #include "nimbleproject.h"
 
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/kitinformation.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>

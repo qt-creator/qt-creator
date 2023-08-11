@@ -6,7 +6,7 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/target.h>
 
 #include <QDateTime>

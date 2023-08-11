@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 
 namespace QbsProjectManager {
 namespace Internal {

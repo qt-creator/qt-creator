@@ -10,7 +10,7 @@
 #include "editorconfiguration.h"
 #include "environmentaspect.h"
 #include "kit.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "msvctoolchain.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"

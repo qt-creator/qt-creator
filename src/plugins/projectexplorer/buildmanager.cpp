@@ -10,7 +10,7 @@
 #include "deployconfiguration.h"
 #include "devicesupport/devicemanager.h"
 #include "kit.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"

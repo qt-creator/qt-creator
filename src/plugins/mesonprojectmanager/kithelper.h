@@ -7,7 +7,7 @@
 #include "versionhelper.h"
 
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>

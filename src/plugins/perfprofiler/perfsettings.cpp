@@ -16,7 +16,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>

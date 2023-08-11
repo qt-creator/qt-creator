@@ -12,7 +12,7 @@
 #include "customparser.h"
 #include "environmentwidget.h"
 #include "kit.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "namedwidget.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"

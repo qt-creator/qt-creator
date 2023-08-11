@@ -12,7 +12,7 @@
 #include "deploymentdata.h"
 #include "devicesupport/devicemanager.h"
 #include "kit.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "kitmanager.h"
 #include "miniprojecttargetselector.h"
 #include "project.h"

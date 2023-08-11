@@ -3,7 +3,7 @@
 
 #include "devicecheckbuildstep.h"
 
-#include "../kitinformation.h"
+#include "../kitaspects.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 

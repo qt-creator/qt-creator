@@ -5,7 +5,7 @@
 
 #include "buildinfo.h"
 #include "kit.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"

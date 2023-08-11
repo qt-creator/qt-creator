@@ -6,7 +6,7 @@
 #include "buildconfiguration.h"
 #include "buildpropertiessettings.h"
 #include "devicesupport/idevice.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "target.h"

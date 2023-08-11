@@ -10,7 +10,7 @@
 #include <languageclient/client.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientutils.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>

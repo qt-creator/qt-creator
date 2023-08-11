@@ -18,7 +18,7 @@
 #include "projectexplorer/target.h"
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>

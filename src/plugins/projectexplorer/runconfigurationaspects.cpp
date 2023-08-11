@@ -6,7 +6,7 @@
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "environmentaspect.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"

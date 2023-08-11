@@ -7,7 +7,7 @@
 #include "buildsteplist.h"
 #include "customparser.h"
 #include "deployconfiguration.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "sanitizerparser.h"

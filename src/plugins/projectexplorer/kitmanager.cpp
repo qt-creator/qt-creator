@@ -7,7 +7,7 @@
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitfeatureprovider.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "toolchainmanager.h"
