@@ -8,12 +8,19 @@
 namespace McuSupport {
 namespace Internal {
 
-class McuDependenciesKitAspect final : public ProjectExplorer::KitAspectFactory
+class McuDependenciesKitAspect final
 {
-    Q_OBJECT
-
 public:
-    McuDependenciesKitAspect();
+    static Utils::Id id();
+    static Utils::NameValueItems dependencies(const ProjectExplorer::Kit *kit);
+    static void setDependencies(ProjectExplorer::Kit *kit, const Utils::NameValueItems &dependencies);
+    static Utils::NameValuePairs configuration(const ProjectExplorer::Kit *kit);
+};
+
+class McuDependenciesKitAspectFactory final : public ProjectExplorer::KitAspectFactory
+{
+public:
+    McuDependenciesKitAspectFactory();
 
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *kit) const override;
     void fix(ProjectExplorer::Kit *kit) override;
@@ -21,11 +28,6 @@ public:
     ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *kit) const override;
 
     ItemList toUserOutput(const ProjectExplorer::Kit *kit) const override;
-
-    static Utils::Id id();
-    static Utils::NameValueItems dependencies(const ProjectExplorer::Kit *kit);
-    static void setDependencies(ProjectExplorer::Kit *kit, const Utils::NameValueItems &dependencies);
-    static Utils::NameValuePairs configuration(const ProjectExplorer::Kit *kit);
 };
 
 } // namespace Internal

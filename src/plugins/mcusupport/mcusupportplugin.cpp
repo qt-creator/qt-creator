@@ -102,7 +102,7 @@ public:
     SettingsHandler::Ptr m_settingsHandler{new SettingsHandler};
     McuSupportOptions m_options{m_settingsHandler};
     McuSupportOptionsPage optionsPage{m_options, m_settingsHandler};
-    McuDependenciesKitAspect environmentPathsKitAspect;
+    McuDependenciesKitAspectFactory mcuDependenciesKitAspectFactory;
     MCUBuildStepFactory mcuBuildStepFactory;
 }; // class McuSupportPluginPrivate
 

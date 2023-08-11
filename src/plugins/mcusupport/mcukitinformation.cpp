@@ -13,10 +13,10 @@ using namespace ProjectExplorer;
 
 namespace {
 
-class McuDependenciesKitAspectWidget final : public KitAspect
+class McuDependenciesKitAspectImpl final : public KitAspect
 {
 public:
-    McuDependenciesKitAspectWidget(Kit *workingCopy, const KitAspectFactory *ki)
+    McuDependenciesKitAspectImpl(Kit *workingCopy, const KitAspectFactory *ki)
         : KitAspect(workingCopy, ki)
     {}
 
@@ -30,7 +30,7 @@ public:
 namespace McuSupport {
 namespace Internal {
 
-McuDependenciesKitAspect::McuDependenciesKitAspect()
+McuDependenciesKitAspectFactory::McuDependenciesKitAspectFactory()
 {
     setObjectName(QLatin1String("McuDependenciesKitAspect"));
     setId(McuDependenciesKitAspect::id());
@@ -39,7 +39,7 @@ McuDependenciesKitAspect::McuDependenciesKitAspect()
     setPriority(28500);
 }
 
-Tasks McuDependenciesKitAspect::validate(const Kit *kit) const
+Tasks McuDependenciesKitAspectFactory::validate(const Kit *kit) const
 {
     Tasks result;
     QTC_ASSERT(kit, return result);
@@ -52,8 +52,8 @@ Tasks McuDependenciesKitAspect::validate(const Kit *kit) const
         return {BuildSystemTask(Task::Error, Tr::tr("The MCU dependencies setting value is invalid."))};
 
     // check paths defined in cmake variables for given dependencies exist
-    const auto cMakeEntries = Utils::NameValueDictionary(configuration(kit));
-    for (const auto &dependency : dependencies(kit)) {
+    const auto cMakeEntries = Utils::NameValueDictionary(McuDependenciesKitAspect::configuration(kit));
+    for (const auto &dependency : McuDependenciesKitAspect::dependencies(kit)) {
         auto givenPath = Utils::FilePath::fromUserInput(cMakeEntries.value(dependency.name));
         if (givenPath.isEmpty()) {
             result << BuildSystemTask(Task::Warning,
@@ -71,7 +71,7 @@ Tasks McuDependenciesKitAspect::validate(const Kit *kit) const
     return result;
 }
 
-void McuDependenciesKitAspect::fix(Kit *kit)
+void McuDependenciesKitAspectFactory::fix(Kit *kit)
 {
     QTC_ASSERT(kit, return );
 
@@ -79,17 +79,17 @@ void McuDependenciesKitAspect::fix(Kit *kit)
     if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
         qWarning("Kit \"%s\" has a wrong mcu dependencies value set.",
                  qPrintable(kit->displayName()));
-        setDependencies(kit, Utils::NameValueItems());
+        McuDependenciesKitAspect::setDependencies(kit, Utils::NameValueItems());
     }
 }
 
-KitAspect *McuDependenciesKitAspect::createKitAspect(Kit *kit) const
+KitAspect *McuDependenciesKitAspectFactory::createKitAspect(Kit *kit) const
 {
     QTC_ASSERT(kit, return nullptr);
-    return new McuDependenciesKitAspectWidget(kit, this);
+    return new McuDependenciesKitAspectImpl(kit, this);
 }
 
-KitAspectFactory::ItemList McuDependenciesKitAspect::toUserOutput(const Kit *kit) const
+KitAspectFactory::ItemList McuDependenciesKitAspectFactory::toUserOutput(const Kit *kit) const
 {
     Q_UNUSED(kit)
 
