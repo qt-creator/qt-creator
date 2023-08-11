@@ -80,7 +80,6 @@ add_qtc_library(Utils
     infobar.cpp infobar.h
     infolabel.cpp infolabel.h
     itemviews.cpp itemviews.h
-    json.cpp json.h
     jsontreeitem.cpp jsontreeitem.h
     launcherinterface.cpp launcherinterface.h
     launcherpackets.cpp launcherpackets.h

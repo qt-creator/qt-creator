@@ -3,13 +3,14 @@
 
 #include "qmljsbundle.h"
 
-#include <utils/json.h>
+#include "jsoncheck.h"
 
 #include <QString>
 #include <QFile>
 #include <QRegularExpression>
 #include <QTextStream>
 #include <QHash>
+
 
 namespace QmlJS {
 typedef PersistentTrie::Trie Trie;
@@ -45,18 +46,15 @@ Trie QmlBundle::implicitImports() const
     return m_implicitImports;
 }
 
-
 Trie QmlBundle::supportedImports() const
 {
     return m_supportedImports;
 }
 
-
 void QmlBundle::merge(const QmlBundle &o)
 {
     *this = mergeF(o);
 }
-
 
 void QmlBundle::intersect(const QmlBundle &o)
 {
@@ -186,7 +184,7 @@ QString QmlBundle::toString(const QString &indent)
     return res;
 }
 
-QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
+QStringList QmlBundle::maybeReadTrie(Trie &trie, JsonObjectValue *config,
                                      const QString &path, const QString &propertyName,
                                      bool required, bool stripVersions)
 {
@@ -198,12 +196,13 @@ QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
                                                                                        path);
         return res;
     }
-    Utils::JsonValue *imp0 = config->member(propertyName);
-    Utils::JsonArrayValue *imp = ((imp0 != nullptr) ? imp0->toArray() : nullptr);
+
+    JsonValue *imp0 = config->member(propertyName);
+    JsonArrayValue *imp = ((imp0 != nullptr) ? imp0->toArray() : nullptr);
     if (imp != nullptr) {
-        const QList<Utils::JsonValue *> elements = imp->elements();
-        for (Utils::JsonValue *v : elements) {
-            Utils::JsonStringValue *impStr = ((v != nullptr) ? v->toString() : nullptr);
+        const QList<JsonValue *> elements = imp->elements();
+        for (JsonValue *v : elements) {
+            JsonStringValue *impStr = ((v != nullptr) ? v->toString() : nullptr);
             if (impStr != nullptr) {
                 QString value = impStr->value();
                 if (stripVersions) {
@@ -228,9 +227,8 @@ QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
 
 bool QmlBundle::readFrom(QString path, bool stripVersions, QStringList *errors)
 {
-    Utils::JsonMemoryPool pool;
+    JsonMemoryPool pool;
 
-    using namespace Utils;
     QFile f(path);
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (errors)

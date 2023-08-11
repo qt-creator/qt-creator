@@ -171,8 +171,6 @@ Project {
             "infolabel.h",
             "itemviews.cpp",
             "itemviews.h",
-            "json.cpp",
-            "json.h",
             "jsontreeitem.cpp",
             "jsontreeitem.h",
             "launcherinterface.cpp",
