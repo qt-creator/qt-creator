@@ -32,8 +32,6 @@ public:
 
 class PROJECTEXPLORER_EXPORT SysRootKitAspectFactory : public KitAspectFactory
 {
-    Q_OBJECT
-
 public:
     SysRootKitAspectFactory();
 
@@ -66,8 +64,6 @@ public:
 
 class PROJECTEXPLORER_EXPORT ToolChainKitAspectFactory : public KitAspectFactory
 {
-    Q_OBJECT
-
 public:
     ToolChainKitAspectFactory();
 
@@ -109,8 +105,6 @@ public:
 
 class PROJECTEXPLORER_EXPORT DeviceTypeKitAspectFactory : public KitAspectFactory
 {
-    Q_OBJECT
-
 public:
     DeviceTypeKitAspectFactory();
 
@@ -140,8 +134,6 @@ public:
 
 class PROJECTEXPLORER_EXPORT DeviceKitAspectFactory : public KitAspectFactory
 {
-    Q_OBJECT
-
 public:
     DeviceKitAspectFactory();
 
@@ -182,8 +174,6 @@ public:
 
 class PROJECTEXPLORER_EXPORT BuildDeviceKitAspectFactory : public KitAspectFactory
 {
-    Q_OBJECT
-
 public:
     BuildDeviceKitAspectFactory();
 
@@ -219,8 +209,6 @@ public:
 
 class PROJECTEXPLORER_EXPORT EnvironmentKitAspectFactory : public KitAspectFactory
 {
-    Q_OBJECT
-
 public:
     EnvironmentKitAspectFactory();
 

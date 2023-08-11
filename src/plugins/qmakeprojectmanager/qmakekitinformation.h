@@ -21,8 +21,6 @@ public:
 
 class QmakeKitAspectFactory : public ProjectExplorer::KitAspectFactory
 {
-    Q_OBJECT
-
 public:
     QmakeKitAspectFactory();
 

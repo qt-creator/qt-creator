@@ -42,8 +42,6 @@ class KitManagerConfigWidget;
  */
 class PROJECTEXPLORER_EXPORT KitAspectFactory : public QObject
 {
-    Q_OBJECT
-
 public:
     using Item = QPair<QString, QString>;
     using ItemList = QList<Item>;

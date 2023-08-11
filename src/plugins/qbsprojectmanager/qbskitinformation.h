@@ -20,8 +20,6 @@ public:
 
 class QbsKitAspectFactory final : public ProjectExplorer::KitAspectFactory
 {
-    Q_OBJECT
-
 public:
     QbsKitAspectFactory();
 

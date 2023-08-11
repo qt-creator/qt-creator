@@ -33,8 +33,6 @@ public:
 
 class QTSUPPORT_EXPORT QtKitAspectFactory : public ProjectExplorer::KitAspectFactory
 {
-    Q_OBJECT
-
 public:
     QtKitAspectFactory();
 
