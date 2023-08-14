@@ -72,8 +72,8 @@ Item {
                 Window {
                     id: effectNodesWindow
 
-                    width: row.width
-                    height: Math.min(400, Screen.height - y - 40) // TODO: window sizing will be refined
+                    width: row.width + 2 // 2: scrollView left and right 1px margins
+                    height: Math.min(800, Math.min(row.height + 2, Screen.height - y - 40)) // 40: some bottom margin to cover OS bottom toolbar
                     flags:  Qt.Popup | Qt.FramelessWindowHint
 
                     onActiveChanged: {
@@ -87,71 +87,76 @@ Item {
                         border.color: StudioTheme.Values.themeInteraction
                         border.width: 1
 
-                        Row {
-                            id: row
+                        HelperWidgets.ScrollView {
+                            anchors.fill: parent
+                            anchors.margins: 1
 
-                            onWidthChanged: {
-                                // Needed to update on first window showing, as row.width only gets
-                                // correct value after the window is shown, so first showing is off
+                            Row {
+                                id: row
 
-                                var a = root.mapToGlobal(0, 0)
-                                var b = effectNodesComboBox.mapToItem(root, 0, 0)
+                                onWidthChanged: {
+                                    // Needed to update on first window showing, as row.width only gets
+                                    // correct value after the window is shown, so first showing is off
 
-                                effectNodesWindow.x = a.x + b.x + effectNodesComboBox.width - row.width
-                            }
+                                    var a = root.mapToGlobal(0, 0)
+                                    var b = effectNodesComboBox.mapToItem(root, 0, 0)
 
-                            padding: 10
-                            spacing: 10
+                                    effectNodesWindow.x = a.x + b.x + effectNodesComboBox.width - row.width
+                                }
 
-                            Repeater {
-                                model: EffectMakerBackend.effectMakerNodesModel
+                                padding: 10
+                                spacing: 10
 
-                                Column {
-                                    spacing: 10
+                                Repeater {
+                                    model: EffectMakerBackend.effectMakerNodesModel
 
-                                    Text {
-                                        text: categoryName
-                                        color: StudioTheme.Values.themeTextColor
-                                        font.pointSize: StudioTheme.Values.baseFontSize
-                                    }
+                                    Column {
+                                        spacing: 10
 
-                                    Item { width: 1; height: 10 } // spacer
+                                        Text {
+                                            text: categoryName
+                                            color: StudioTheme.Values.themeTextColor
+                                            font.pointSize: StudioTheme.Values.baseFontSize
+                                        }
 
-                                    Repeater {
-                                        model: categoryNodes
+                                        Item { width: 1; height: 5 } // spacer
 
-                                        Rectangle {
-                                            width: 180
-                                            height: 30
+                                        Repeater {
+                                            model: categoryNodes
 
-                                            color: mouseArea.containsMouse ? StudioTheme.Values.themeControlBackgroundInteraction
-                                                                           : "transparent"
+                                            Rectangle {
+                                                width: 140
+                                                height: 22
 
-                                            MouseArea {
-                                                id: mouseArea
+                                                color: mouseArea.containsMouse ? StudioTheme.Values.themeControlBackgroundInteraction
+                                                                               : "transparent"
 
-                                                anchors.fill: parent
-                                                hoverEnabled: true
-                                            }
+                                                MouseArea {
+                                                    id: mouseArea
 
-                                            Row {
-                                                spacing: 5
-
-                                                IconImage {
-                                                    id: nodeIcon
-
-                                                    width: 30
-                                                    height: 30
-
-                                                    color: StudioTheme.Values.themeTextColor
-                                                    source: modelData.nodeIcon
+                                                    anchors.fill: parent
+                                                    hoverEnabled: true
                                                 }
 
-                                                Text {
-                                                    text: modelData.nodeName
-                                                    color: StudioTheme.Values.themeTextColor
-                                                    font.pointSize: StudioTheme.Values.baseFontSize
-                                                    anchors.verticalCenter: nodeIcon.verticalCenter
+                                                Row {
+                                                    spacing: 5
+
+                                                    IconImage {
+                                                        id: nodeIcon
+
+                                                        width: 22
+                                                        height: 22
+
+                                                        color: StudioTheme.Values.themeTextColor
+                                                        source: modelData.nodeIcon
+                                                    }
+
+                                                    Text {
+                                                        text: modelData.nodeName
+                                                        color: StudioTheme.Values.themeTextColor
+                                                        font.pointSize: StudioTheme.Values.smallFontSize
+                                                        anchors.verticalCenter: nodeIcon.verticalCenter
+                                                    }
                                                 }
                                             }
                                         }
