@@ -14,6 +14,8 @@
 
 #include <android/androidconstants.h>
 
+#include <baremetal/baremetalconstants.h>
+
 #include <ios/iosconstants.h>
 
 #include <webassembly/webassemblyconstants.h>
@@ -189,6 +191,7 @@ static bool supportsStageForInstallation(const Kit *kit)
            && runDevice->type() != Android::Constants::ANDROID_DEVICE_TYPE
            && runDevice->type() != Ios::Constants::IOS_DEVICE_TYPE
            && runDevice->type() != Ios::Constants::IOS_SIMULATOR_TYPE
+           && runDevice->type() != BareMetal::Constants::BareMetalOsType
            && runDevice->type() != WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
 }
 
