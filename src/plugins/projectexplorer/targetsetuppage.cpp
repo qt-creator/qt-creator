@@ -546,27 +546,10 @@ void TargetSetupPagePrivate::kitSelectionChanged()
 
 void TargetSetupPagePrivate::kitFilterChanged(const QString &filterText)
 {
-    QPointer<QWidget> focusWidget = QApplication::focusWidget();
-    // Remember selected kits:
-    const std::vector<TargetSetupWidget *> selectedWidgets
-        = filtered(m_widgets, &TargetSetupWidget::isKitSelected);
-    const QVector<Id> selectedKitIds = transform<QVector>(selectedWidgets,
-                                                                [](const TargetSetupWidget *w) {
-                                                                    return w->kit()->id();
-                                                                });
-
-    // Reset currently shown kits
-    reset();
-    setupWidgets(filterText);
-
-    // Re-select kits:
-    for (TargetSetupWidget *w : std::as_const(m_widgets))
-        w->setKitSelected(selectedKitIds.contains(w->kit()->id()));
-
-    emit q->completeChanged();
-
-    if (focusWidget)
-        focusWidget->setFocus();
+    for (TargetSetupWidget *widget : m_widgets) {
+        Kit *kit = widget->kit();
+        widget->setVisible(filterText.isEmpty() || kit->displayName().contains(filterText, Qt::CaseInsensitive));
+    }
 }
 
 void TargetSetupPagePrivate::doInitializePage()
