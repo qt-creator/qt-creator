@@ -44,7 +44,6 @@ CopilotSettings::CopilotSettings()
     const FilePath nodeFromPath = FilePath("node").searchInPath();
 
     const FilePaths searchDirs
-
         = {FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/dist/agent.js"),
            FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
            FilePath::fromUserInput(
@@ -80,13 +79,75 @@ CopilotSettings::CopilotSettings()
 
     autoComplete.setDisplayName(Tr::tr("Auto Complete"));
     autoComplete.setSettingsKey("Copilot.Autocomplete");
-    autoComplete.setLabelText(Tr::tr("Request completions automatically"));
+    autoComplete.setLabelText(Tr::tr("Auto request"));
     autoComplete.setDefaultValue(true);
     autoComplete.setEnabler(&enableCopilot);
     autoComplete.setToolTip(Tr::tr("Automatically request suggestions for the current text cursor "
                                    "position after changes to the document."));
+    autoComplete.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+
+    useProxy.setDisplayName(Tr::tr("Use Proxy"));
+    useProxy.setSettingsKey("Copilot.UseProxy");
+    useProxy.setLabelText(Tr::tr("Use Proxy"));
+    useProxy.setDefaultValue(false);
+    useProxy.setEnabler(&enableCopilot);
+    useProxy.setToolTip(Tr::tr("Use a proxy to connect to the Copilot servers."));
+    useProxy.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+
+    proxyHost.setDisplayName(Tr::tr("Proxy Host"));
+    proxyHost.setDisplayStyle(StringAspect::LineEditDisplay);
+    proxyHost.setSettingsKey("Copilot.ProxyHost");
+    proxyHost.setLabelText(Tr::tr("Proxy Host"));
+    proxyHost.setDefaultValue("");
+    proxyHost.setEnabler(&useProxy);
+    proxyHost.setToolTip(Tr::tr("The host name of the proxy server."));
+    proxyHost.setHistoryCompleter("Copilot.ProxyHost.History");
+
+    proxyPort.setDisplayName(Tr::tr("Proxy Port"));
+    proxyPort.setSettingsKey("Copilot.ProxyPort");
+    proxyPort.setLabelText(Tr::tr("Proxy Port"));
+    proxyPort.setDefaultValue(3128);
+    proxyPort.setEnabler(&useProxy);
+    proxyPort.setToolTip(Tr::tr("The port of the proxy server."));
+    proxyPort.setRange(1, 65535);
+
+    proxyUser.setDisplayName(Tr::tr("Proxy User"));
+    proxyUser.setDisplayStyle(StringAspect::LineEditDisplay);
+    proxyUser.setSettingsKey("Copilot.ProxyUser");
+    proxyUser.setLabelText(Tr::tr("Proxy User"));
+    proxyUser.setDefaultValue("");
+    proxyUser.setEnabler(&useProxy);
+    proxyUser.setToolTip(Tr::tr("The user name for the proxy server."));
+    proxyUser.setHistoryCompleter("Copilot.ProxyUser.History");
+
+    saveProxyPassword.setDisplayName(Tr::tr("Save Proxy Password"));
+    saveProxyPassword.setSettingsKey("Copilot.SaveProxyPassword");
+    saveProxyPassword.setLabelText(Tr::tr("Save Proxy Password"));
+    saveProxyPassword.setDefaultValue(false);
+    saveProxyPassword.setEnabler(&useProxy);
+    saveProxyPassword.setToolTip(
+        Tr::tr("Save the password for the proxy server (Password is stored insecurely!)."));
+    saveProxyPassword.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+
+    proxyPassword.setDisplayName(Tr::tr("Proxy Password"));
+    proxyPassword.setDisplayStyle(StringAspect::PasswordLineEditDisplay);
+    proxyPassword.setSettingsKey("Copilot.ProxyPassword");
+    proxyPassword.setLabelText(Tr::tr("Proxy Password"));
+    proxyPassword.setDefaultValue("");
+    proxyPassword.setEnabler(&saveProxyPassword);
+    proxyPassword.setToolTip(Tr::tr("The password for the proxy server."));
+
+    proxyRejectUnauthorized.setDisplayName(Tr::tr("Reject Unauthorized"));
+    proxyRejectUnauthorized.setSettingsKey("Copilot.ProxyRejectUnauthorized");
+    proxyRejectUnauthorized.setLabelText(Tr::tr("Reject Unauthorized"));
+    proxyRejectUnauthorized.setDefaultValue(true);
+    proxyRejectUnauthorized.setEnabler(&useProxy);
+    proxyRejectUnauthorized.setToolTip(Tr::tr("Reject unauthorized certificates from the proxy "
+                                              "server. This is a security risk."));
+    proxyRejectUnauthorized.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     initEnableAspect(enableCopilot);
+    enableCopilot.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     readSettings();
 }
@@ -140,25 +201,24 @@ public:
 
         auto warningLabel = new QLabel;
         warningLabel->setWordWrap(true);
-        warningLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse
-                                              | Qt::LinksAccessibleByKeyboard
-                                              | Qt::TextSelectableByMouse);
-        warningLabel->setText(Tr::tr(
-            "Enabling %1 is subject to your agreement and abidance with your applicable "
-            "%1 terms. It is your responsibility to know and accept the requirements and "
-            "parameters of using tools like %1. This may include, but is not limited to, "
-            "ensuring you have the rights to allow %1 access to your code, as well as "
-            "understanding any implications of your use of %1 and suggestions produced "
-            "(like copyright, accuracy, etc.)." ).arg("Copilot"));
+        warningLabel->setTextInteractionFlags(
+            Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard | Qt::TextSelectableByMouse);
+        warningLabel->setText(
+            Tr::tr("Enabling %1 is subject to your agreement and abidance with your applicable "
+                   "%1 terms. It is your responsibility to know and accept the requirements and "
+                   "parameters of using tools like %1. This may include, but is not limited to, "
+                   "ensuring you have the rights to allow %1 access to your code, as well as "
+                   "understanding any implications of your use of %1 and suggestions produced "
+                   "(like copyright, accuracy, etc.).")
+                .arg("Copilot"));
 
         auto authWidget = new AuthWidget();
 
         auto helpLabel = new QLabel();
         helpLabel->setTextFormat(Qt::MarkdownText);
         helpLabel->setWordWrap(true);
-        helpLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse
-                                           | Qt::LinksAccessibleByKeyboard
-                                           | Qt::TextSelectableByMouse);
+        helpLabel->setTextInteractionFlags(
+            Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard | Qt::TextSelectableByMouse);
         helpLabel->setOpenExternalLinks(true);
         connect(helpLabel, &QLabel::linkHovered, [](const QString &link) {
             QToolTip::showText(QCursor::pos(), link);
@@ -176,14 +236,28 @@ public:
                            .arg("[agent.js](https://github.com/github/copilot.vim/tree/release/dist)"));
 
         Column {
-            QString("<b>" + Tr::tr("Note:") + "</b>"), br,
-            warningLabel, br,
-            settings().enableCopilot, br,
-            authWidget, br,
-            settings().nodeJsPath, br,
-            settings().distPath, br,
-            settings().autoComplete, br,
-            helpLabel, br,
+            Group {
+                title(Tr::tr("Note")),
+                Column {
+                    warningLabel, br,
+                    helpLabel, br,
+                }
+            },
+            Form {
+                authWidget, br,
+                settings().enableCopilot, br,
+                settings().nodeJsPath, br,
+                settings().distPath, br,
+                settings().autoComplete, br,
+                hr, br,
+                settings().useProxy, br,
+                settings().proxyHost, br,
+                settings().proxyPort, br,
+                settings().proxyRejectUnauthorized, br,
+                settings().proxyUser, br,
+                settings().saveProxyPassword, br,
+                settings().proxyPassword, br,
+            },
             st
         }.attachTo(this);
         // clang-format on
@@ -211,4 +285,4 @@ public:
 
 const CopilotSettingsPage settingsPage;
 
-} // Copilot
+} // namespace Copilot

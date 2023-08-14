@@ -2,26 +2,32 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "copilotclient.h"
-#include "copilotconstants.h"
 #include "copilotsettings.h"
 #include "copilotsuggestion.h"
+#include "copilottr.h"
+
+#include <app/app_version.h>
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
+#include <languageserverprotocol/lsptypes.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/projectmanager.h>
-
-#include <utils/filepath.h>
 
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 
-#include <languageserverprotocol/lsptypes.h>
+#include <utils/checkablemessagebox.h>
+#include <utils/filepath.h>
+#include <utils/passworddialog.h>
 
+#include <QInputDialog>
+#include <QLoggingCategory>
 #include <QTimer>
 #include <QToolButton>
 
@@ -30,6 +36,8 @@ using namespace TextEditor;
 using namespace Utils;
 using namespace ProjectExplorer;
 using namespace Core;
+
+Q_LOGGING_CATEGORY(copilotClientLog, "qtc.copilot.client", QtWarningMsg)
 
 namespace Copilot::Internal {
 
@@ -52,6 +60,23 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
     langFilter.filePattern = {"*"};
 
     setSupportedLanguage(langFilter);
+
+    registerCustomMethod("LogMessage", [this](const LanguageServerProtocol::JsonRpcMessage &message) {
+        QString msg = message.toJsonObject().value("params").toObject().value("message").toString();
+        qCDebug(copilotClientLog) << message.toJsonObject()
+                                         .value("params")
+                                         .toObject()
+                                         .value("message")
+                                         .toString();
+
+        if (msg.contains("Socket Connect returned status code,407")) {
+            qCWarning(copilotClientLog) << "Proxy authentication required";
+            QMetaObject::invokeMethod(this,
+                                      &CopilotClient::proxyAuthenticationFailed,
+                                      Qt::QueuedConnection);
+        }
+    });
+
     start();
 
     auto openDoc = [this](IDocument *document) {
@@ -67,6 +92,8 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
                 if (auto textDocument = qobject_cast<TextDocument *>(document))
                     closeDocument(textDocument);
             });
+
+    connect(this, &LanguageClient::Client::initialized, this, &CopilotClient::requestSetEditorInfo);
 
     for (IDocument *doc : DocumentModel::openedDocuments())
         openDoc(doc);
@@ -218,6 +245,32 @@ void CopilotClient::cancelRunningRequest(TextEditor::TextEditorWidget *editor)
     m_runningRequests.erase(it);
 }
 
+static QString currentProxyPassword;
+
+void CopilotClient::requestSetEditorInfo()
+{
+    if (settings().saveProxyPassword())
+        currentProxyPassword = settings().proxyPassword();
+
+    const EditorInfo editorInfo{Core::Constants::IDE_VERSION_DISPLAY, "Qt Creator"};
+    const EditorPluginInfo editorPluginInfo{Core::Constants::IDE_VERSION_DISPLAY,
+                                            "Qt Creator Copilot plugin"};
+
+    SetEditorInfoParams params(editorInfo, editorPluginInfo);
+
+    if (settings().useProxy()) {
+        params.setNetworkProxy(
+            Copilot::NetworkProxy{settings().proxyHost(),
+                                  static_cast<int>(settings().proxyPort()),
+                                  settings().proxyUser(),
+                                  currentProxyPassword,
+                                  settings().proxyRejectUnauthorized()});
+    }
+
+    SetEditorInfoRequest request(params);
+    sendMessage(request);
+}
+
 void CopilotClient::requestCheckStatus(
     bool localChecksOnly, std::function<void(const CheckStatusRequest::Response &response)> callback)
 {
@@ -267,6 +320,38 @@ bool CopilotClient::isEnabled(Project *project)
 
     CopilotProjectSettings settings(project);
     return settings.isEnabled();
+}
+
+void CopilotClient::proxyAuthenticationFailed()
+{
+    static bool doNotAskAgain = false;
+
+    if (m_isAskingForPassword || !settings().enableCopilot())
+        return;
+
+    m_isAskingForPassword = true;
+
+    auto answer = Utils::PasswordDialog::getUserAndPassword(
+        Tr::tr("Copilot"),
+        Tr::tr("Proxy username and password required:"),
+        Tr::tr("Do not ask again. This will disable Copilot for now."),
+        settings().proxyUser(),
+        &doNotAskAgain,
+        Core::ICore::dialogParent());
+
+    if (answer) {
+        settings().proxyUser.setValue(answer->first);
+        currentProxyPassword = answer->second;
+    } else {
+        settings().enableCopilot.setValue(false);
+    }
+
+    if (settings().saveProxyPassword())
+        settings().proxyPassword.setValue(currentProxyPassword);
+
+    settings().apply();
+
+    m_isAskingForPassword = false;
 }
 
 } // namespace Copilot::Internal

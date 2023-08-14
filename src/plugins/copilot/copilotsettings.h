@@ -18,6 +18,15 @@ public:
     Utils::FilePathAspect distPath{this};
     Utils::BoolAspect autoComplete{this};
     Utils::BoolAspect enableCopilot{this};
+
+    Utils::BoolAspect useProxy{this};
+    Utils::StringAspect proxyHost{this};
+    Utils::IntegerAspect proxyPort{this};
+    Utils::StringAspect proxyUser{this};
+
+    Utils::BoolAspect saveProxyPassword{this};
+    Utils::StringAspect proxyPassword{this};
+    Utils::BoolAspect proxyRejectUnauthorized{this};
 };
 
 CopilotSettings &settings();
