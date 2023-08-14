@@ -16,10 +16,36 @@ class EffectNode : public QObject
     Q_PROPERTY(QUrl nodeIcon MEMBER m_iconPath CONSTANT)
 
 public:
-    EffectNode(const QString &name, const QString &iconPath);
+    EffectNode(const QString &qenPath);
+
+    QString qenPath() const;
+
+    QString name() const;
+    int nodeId() const;
+    QString fragmentCode() const;
+    QString vertexCode() const;
+    QString qmlCode() const;
+    QString description() const;
+
+    bool operator==(const EffectNode &rhs) const noexcept
+    {
+        return this->m_nodeId == rhs.m_nodeId;
+    }
+    bool operator!=(const EffectNode &rhs) const noexcept
+    {
+        return !operator==(rhs);
+    }
 
 private:
+    void parse(const QString &qenPath);
+
+    QString m_qenPath;
     QString m_name;
+    int m_nodeId = -1;
+    QString m_fragmentCode;
+    QString m_vertexCode;
+    QString m_qmlCode;
+    QString m_description;
     QUrl m_iconPath;
 };
 

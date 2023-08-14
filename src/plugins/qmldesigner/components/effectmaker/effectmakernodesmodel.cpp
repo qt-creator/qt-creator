@@ -87,11 +87,7 @@ void EffectMakerNodesModel::loadModel()
         QDirIterator itEffects(categoryPath.toString(), {"*.qen"}, QDir::Files);
         while (itEffects.hasNext()) {
             itEffects.next();
-            QString fileName = QFileInfo(itEffects.fileName()).baseName();
-            QString iconPath = m_nodesPath.path() + '/' + catName + "/icon/" + fileName + ".svg";
-            if (!QFileInfo::exists(iconPath))
-                iconPath = m_nodesPath.path() + "/placeholder.svg";
-            effects.push_back(new EffectNode(fileName, iconPath));
+            effects.push_back(new EffectNode(itEffects.filePath()));
         }
 
         catName[0] = catName[0].toUpper(); // capitalize first letter
