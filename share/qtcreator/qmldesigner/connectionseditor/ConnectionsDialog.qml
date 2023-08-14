@@ -19,7 +19,8 @@ PopupDialog {
 
         StudioControls.TopLevelComboBox {
             id: target
-            width: 210
+            style: StudioTheme.Values.connectionPopupControlStyle
+            width: 180
             anchors.verticalCenter: parent.verticalCenter
             model: ["mySpinbox", "foo", "backendObject"]
         }

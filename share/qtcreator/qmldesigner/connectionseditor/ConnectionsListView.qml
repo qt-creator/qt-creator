@@ -16,6 +16,7 @@ ListView {
     clip: true
     interactive: true
     highlightMoveDuration: 0
+    highlightResizeDuration: 0
 
     ScrollBar.vertical: ScrollBar {
         id: comboBoxPopupScrollBar

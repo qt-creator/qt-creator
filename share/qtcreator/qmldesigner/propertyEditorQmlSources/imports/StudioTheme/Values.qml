@@ -219,7 +219,7 @@ QtObject {
     property real colorEditorPopupSpinBoxWidth: 54
 
     // Popup Window
-    property real titleBarHeight: values.height + 4
+    property real titleBarHeight: values.height + 10
     property real popupMargin: 10
 
     // Toolbar
@@ -274,6 +274,30 @@ QtObject {
     //run project button
     property color themeIdleGreen: Theme.color(Theme.DSidleGreen)
     property color themeRunningGreen: Theme.color(Theme.DSrunningGreen)
+
+    //popoutWindow (connections)
+    property color themePopoutBackground: Theme.color(Theme.DSpopoutBackground)
+    property color themePopoutControlBackground_idle: Theme.color(Theme.DSpopoutControlBackground_idle)
+    property color themePopoutControlBackground_hover: Theme.color(Theme.DSpopoutControlBackground_hover)
+    property color themePopoutControlBackground_globalHover: Theme.color(Theme.DSpopoutControlBackground_globalHover)
+    property color themePopoutControlBackground_interaction: Theme.color(Theme.DSpopoutControlBackground_interaction)
+    property color themePopoutControlBackground_disabled: Theme.color(Theme.DSpopoutControlBackground_disabled)
+
+    property color themePopoutPopupBackground: Theme.color(Theme.DSpopoutPopupBackground)
+
+    property color themePopoutControlBorder_idle: Theme.color(Theme.DSpopoutControlBorder_idle)
+    property color themePopoutControlBorder_hover: Theme.color(Theme.DSpopoutControlBorder_hover)
+    property color themePopoutControlBorder_interaction: Theme.color(Theme.DSpopoutControlBorder_interaction)
+    property color themePopoutControlBorder_disabled: Theme.color(Theme.DSpopoutControlBorder_disabled)
+
+    property color themePopoutButtonBackground_idle: Theme.color(Theme.DSpopoutButtonBackground_idle)
+    property color themePopoutButtonBackground_hover: Theme.color(Theme.DSpopoutButtonBackground_hover)
+    property color themePopoutButtonBackground_interaction: Theme.color(Theme.DSpopoutButtonBackground_interaction)
+    property color themePopoutButtonBackground_disabled: Theme.color(Theme.DSpopoutButtonBackground_disabled)
+
+    property color themePopoutButtonBorder_idle: Theme.color(Theme.DSpopoutButtonBorder_idle)
+    property color themePopoutButtonBorder_hover: Theme.color(Theme.DSpopoutButtonBorder_hover)
+    property color themePopoutButtonBorder_interaction: Theme.color(Theme.DSpopoutButtonBorder_interaction)
 
     //END NEW COLORS QtDS 4.0
 
@@ -409,6 +433,8 @@ QtObject {
 
     // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}
+    property ControlStyle connectionPopupControlStyle: ConnectionPopupControlStyle {}
+    property ControlStyle connectionPopupButtonStyle: ConnectionPopupButtonStyle {}
     property ControlStyle toolbarStyle: ToolbarStyle {}
     property ControlStyle primaryToolbarStyle: PrimaryButtonStyle {}
     property ControlStyle toolbarButtonStyle: TopToolbarButtonStyle {}

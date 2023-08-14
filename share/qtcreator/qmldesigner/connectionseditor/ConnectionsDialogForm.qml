@@ -11,7 +11,7 @@ Column {
     id: root
 
     readonly property real horizontalSpacing: 10
-    readonly property real verticalSpacing: 10
+    readonly property real verticalSpacing: 16
     readonly property real columnWidth: (root.width - root.horizontalSpacing) / 2
 
     component PopupLabel : Text {
@@ -45,12 +45,14 @@ Column {
 
         StudioControls.TopLevelComboBox {
             id: signal
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             model: ["Clicked", "Pressed", "Released"]
         }
 
         StudioControls.TopLevelComboBox {
             id: action
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             textRole: "text"
             valueRole: "value"
@@ -80,11 +82,13 @@ Column {
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             model: ["mySpinBox", "myAnimation", "myCustomComponent"]
         }
 
         StudioControls.TopLevelComboBox {
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             model: ["start", "stop", "reset"]
         }
@@ -104,11 +108,13 @@ Column {
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             model: ["value", "foo", "bar"]
         }
 
         StudioControls.TopLevelComboBox {
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             model: ["myValue", "yourValue", "ourValue"]
         }
@@ -128,11 +134,13 @@ Column {
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             model: ["main", "group1", "group2"]
         }
 
         StudioControls.TopLevelComboBox {
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             model: ["state1", "state2", "state3", "state4"]
         }
@@ -152,11 +160,13 @@ Column {
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             model: ["value", "foo", "bar"]
         }
 
         StudioControls.TopLevelComboBox {
+            style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
             model: ["myValue", "yourValue", "ourValue"]
         }
@@ -193,12 +203,16 @@ Column {
     PopupLabel {
         visible: action.currentValue === ConnectionsDialogForm.Custom
         text: qsTr("Custom Connections can only be edited with the binding editor")
-        width: root.width
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.margins: 30
         horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WordWrap
     }
 
     HelperWidgets.AbstractButton {
-        width: 200
+        style: StudioTheme.Values.connectionPopupButtonStyle
+        width: 160
         buttonIcon: qsTr("Add Condition")
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
@@ -212,8 +226,8 @@ Column {
     Rectangle {
         id: editor
         width: parent.width
-        height: 200
-        color: "#333333"
+        height: 150
+        color: StudioTheme.Values.themeToolbarBackground
 
         Text {
             anchors.centerIn: parent

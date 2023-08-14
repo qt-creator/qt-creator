@@ -68,7 +68,7 @@ Rectangle {
 
                     TabCheckButton {
                         id: properties
-                        buttonIcon: StudioTheme.Constants.connections_medium
+                        buttonIcon: StudioTheme.Constants.properties_medium
                         text: qsTr("Properties")
                         tooltip: qsTr("This is a tooltip.")
                         autoExclusive: true

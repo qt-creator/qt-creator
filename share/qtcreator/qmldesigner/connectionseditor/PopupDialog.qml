@@ -13,11 +13,11 @@ Window {
     property alias titleBar: titleBarContent.children
     default property alias content: mainContent.children
 
-    width: 400
+    width: 320
     height: column.implicitHeight
     visible: true
     flags: Qt.FramelessWindowHint | Qt.Dialog
-    color: "#060606"
+    color: StudioTheme.Values.themePopoutBackground
 
     function popup(item) {
         print("popup " + item)
@@ -55,6 +55,7 @@ Window {
                 id: row
                 anchors.fill: parent
                 anchors.leftMargin: StudioTheme.Values.popupMargin
+                anchors.rightMargin: StudioTheme.Values.popupMargin
                 spacing: 0
 
                 Item {
