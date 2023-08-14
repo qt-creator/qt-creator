@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <optional>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -66,74 +67,74 @@ public:
     AuxiliaryDatasView auxiliaryData() const { return std::as_const(m_auxiliaryDatas); }
 
     template<typename Type>
-    Type *property(const PropertyName &name) const
+    Type *property(PropertyNameView name) const
     {
-        auto propertyIter = m_namePropertyHash.find(name);
+        auto propertyIter = m_nameProperties.find(name);
 
-        if (propertyIter != m_namePropertyHash.end()) {
-            if (auto property = propertyIter->get(); property && property->propertyType() == Type::type)
+        if (propertyIter != m_nameProperties.end()) {
+            if (auto property = propertyIter->second.get();
+                property && property->propertyType() == Type::type)
                 return static_cast<Type *>(property);
         }
 
         return {};
     }
 
-    InternalProperty *property(const PropertyName &name) const
+    InternalProperty *property(PropertyNameView name) const
     {
-        auto propertyIter = m_namePropertyHash.find(name);
-        if (propertyIter != m_namePropertyHash.end())
-            return propertyIter->get();
+        auto propertyIter = m_nameProperties.find(name);
+        if (propertyIter != m_nameProperties.end())
+            return propertyIter->second.get();
 
         return nullptr;
     }
 
-    auto bindingProperty(const PropertyName &name) const
+    auto bindingProperty(PropertyNameView name) const
     {
         return property<InternalBindingProperty>(name);
     }
 
-    auto signalHandlerProperty(const PropertyName &name) const
+    auto signalHandlerProperty(PropertyNameView name) const
     {
         return property<InternalSignalHandlerProperty>(name);
     }
 
-    auto signalDeclarationProperty(const PropertyName &name) const
+    auto signalDeclarationProperty(PropertyNameView name) const
     {
         return property<InternalSignalDeclarationProperty>(name);
     }
 
-    auto variantProperty(const PropertyName &name) const
+    auto variantProperty(PropertyNameView name) const
     {
         return property<InternalVariantProperty>(name);
     }
 
-    auto nodeListProperty(const PropertyName &name) const
+    auto nodeListProperty(PropertyNameView name) const
     {
         return property<InternalNodeListProperty>(name);
     }
 
-    InternalNodeAbstractProperty::Pointer nodeAbstractProperty(const PropertyName &name) const
+    InternalNodeAbstractProperty::Pointer nodeAbstractProperty(PropertyNameView name) const
     {
-        auto property = m_namePropertyHash.value(name);
-        if (property
-            && (property->propertyType() == PropertyType::NodeList
-                || property->propertyType() == PropertyType::Node)) {
-            return std::static_pointer_cast<InternalNodeAbstractProperty>(property);
+        auto found = m_nameProperties.find(name);
+        if (found != m_nameProperties.end()) {
+            auto property = found->second;
+            if (property->propertyType() == PropertyType::NodeList
+                || property->propertyType() == PropertyType::Node) {
+                return std::static_pointer_cast<InternalNodeAbstractProperty>(property);
+            }
         }
         return {};
     }
 
-    auto nodeProperty(const PropertyName &name) const
-    {
-        return property<InternalNodeProperty>(name);
-    }
+    auto nodeProperty(PropertyNameView name) const { return property<InternalNodeProperty>(name); }
 
     template<typename Type>
     Type *addProperty(const PropertyName &name)
     {
         auto newProperty = std::make_shared<Type>(name, shared_from_this());
         auto pointer = newProperty.get();
-        m_namePropertyHash.insert(name, std::move(newProperty));
+        m_nameProperties.try_emplace(name, std::move(newProperty));
 
         return pointer;
     }
@@ -194,7 +195,11 @@ public:
 
     friend size_t qHash(const InternalNodePointer &node) { return ::qHash(node.get()); }
 
-    void removeProperty(const PropertyName &name);
+    void removeProperty(PropertyNameView name)
+    {
+        auto found = m_nameProperties.find(name);
+        m_nameProperties.erase(found); // C++ 23 -> m_nameProperties.erase(name)
+    }
 
 protected:
 
@@ -216,7 +221,7 @@ public:
 private:
     AuxiliaryDatas m_auxiliaryDatas;
     InternalNodeAbstractProperty::WeakPointer m_parentProperty;
-    QHash<PropertyName, InternalPropertyPointer> m_namePropertyHash;
+    std::map<PropertyName, InternalPropertyPointer, std::less<>> m_nameProperties;
 };
 
 } // Internal

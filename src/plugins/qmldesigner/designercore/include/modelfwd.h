@@ -10,6 +10,7 @@
 
 namespace QmlDesigner {
 using PropertyName = QByteArray;
+using PropertyNameView = QByteArrayView;
 using PropertyNameList = QList<PropertyName>;
 using TypeName = QByteArray;
 using PropertyTypeList = QList<PropertyName>;

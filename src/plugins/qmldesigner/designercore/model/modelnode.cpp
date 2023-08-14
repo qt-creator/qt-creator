@@ -599,7 +599,7 @@ Does nothing if the node state does not set this property.
 
 \see addProperty property  properties hasProperties
 */
-void ModelNode::removeProperty(const PropertyName &name) const
+void ModelNode::removeProperty(PropertyNameView name) const
 {
     if (!isValid())
         return;
@@ -798,60 +798,74 @@ PropertyNameList ModelNode::propertyNames() const
 /*! \brief test a if a property is set for this node
 \return true if property a property ins this or a ancestor state exists
 */
-bool ModelNode::hasProperty(const PropertyName &name) const
+bool ModelNode::hasProperty(PropertyNameView name) const
 {
     return isValid() && m_internalNode->property(name);
 }
 
-bool ModelNode::hasVariantProperty(const PropertyName &name) const
+bool ModelNode::hasVariantProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isVariantProperty();
+    return hasProperty(name, PropertyType::Variant);
 }
 
-bool ModelNode::hasBindingProperty(const PropertyName &name) const
+bool ModelNode::hasBindingProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isBindingProperty();
+    return hasProperty(name, PropertyType::Binding);
 }
 
-bool ModelNode::hasSignalHandlerProperty(const PropertyName &name) const
+bool ModelNode::hasSignalHandlerProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isSignalHandlerProperty();
+    return hasProperty(name, PropertyType::SignalHandler);
 }
 
-bool ModelNode::hasNodeAbstractProperty(const PropertyName &name) const
+bool ModelNode::hasNodeAbstractProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isNodeAbstractProperty();
+    if (!isValid())
+        return false;
+
+    if (auto property = m_internalNode->property(name))
+        return property->isNodeAbstractProperty();
+
+    return false;
 }
 
 bool ModelNode::hasDefaultNodeAbstractProperty() const
 {
     auto defaultPropertyName = metaInfo().defaultPropertyName();
-    return hasProperty(defaultPropertyName)
-           && m_internalNode->property(defaultPropertyName)->isNodeAbstractProperty();
+    return hasNodeAbstractProperty(defaultPropertyName);
 }
 
 bool ModelNode::hasDefaultNodeListProperty() const
 {
     auto defaultPropertyName = metaInfo().defaultPropertyName();
-    return hasProperty(defaultPropertyName)
-           && m_internalNode->property(defaultPropertyName)->isNodeListProperty();
+    return hasNodeListProperty(defaultPropertyName);
 }
 
 bool ModelNode::hasDefaultNodeProperty() const
 {
     auto defaultPropertyName = metaInfo().defaultPropertyName();
-    return hasProperty(defaultPropertyName)
-           && m_internalNode->property(defaultPropertyName)->isNodeProperty();
+    return hasNodeProperty(defaultPropertyName);
 }
 
-bool ModelNode::hasNodeProperty(const PropertyName &name) const
+bool ModelNode::hasNodeProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isNodeProperty();
+    return hasProperty(name, PropertyType::Node);
 }
 
-bool ModelNode::hasNodeListProperty(const PropertyName &name) const
+bool ModelNode::hasNodeListProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isNodeListProperty();
+    return hasProperty(name, PropertyType::NodeList);
+}
+
+bool ModelNode::hasProperty(PropertyNameView name, PropertyType propertyType) const
+{
+    if (!isValid())
+        return false;
+
+    if (auto property = m_internalNode->property(name))
+        return property->type() == propertyType;
+
+    return false;
 }
 
 static bool recursiveAncestor(const ModelNode &possibleAncestor, const ModelNode &node)

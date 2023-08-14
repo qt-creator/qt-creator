@@ -465,7 +465,7 @@ void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &
     }
 }
 
-bool ModelPrivate::propertyNameIsValid(const PropertyName &propertyName) const
+bool ModelPrivate::propertyNameIsValid(PropertyNameView propertyName)
 {
     if (propertyName.isEmpty())
         return false;

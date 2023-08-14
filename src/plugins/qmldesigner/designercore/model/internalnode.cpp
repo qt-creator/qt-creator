@@ -10,6 +10,8 @@
 #include "internalsignalhandlerproperty.h"
 #include "internalvariantproperty.h"
 
+#include <utils/algorithm.h>
+
 #include <QDebug>
 
 #include <algorithm>
@@ -110,14 +112,10 @@ AuxiliaryDatasForType InternalNode::auxiliaryData(AuxiliaryDataType type) const
     return data;
 }
 
-void InternalNode::removeProperty(const PropertyName &name)
-{
-    m_namePropertyHash.remove(name);
-}
-
 PropertyNameList InternalNode::propertyNameList() const
 {
-    return m_namePropertyHash.keys();
+    return Utils::transform<PropertyNameList>(m_nameProperties,
+                                              [](const auto &entry) { return entry.first; });
 }
 
 QList<InternalNode::Pointer> InternalNode::allSubNodes() const
@@ -150,14 +148,14 @@ void InternalNode::addSubNodes(QList<InternalNodePointer> &nodes, const Internal
 
 void InternalNode::addSubNodes(QList<InternalNodePointer> &nodes) const
 {
-    for (const InternalProperty::Pointer &property : m_namePropertyHash)
-        addSubNodes(nodes, property.get());
+    for (const auto &entry : m_nameProperties)
+        addSubNodes(nodes, entry.second.get());
 }
 
 void InternalNode::addDirectSubNodes(QList<InternalNodePointer> &nodes) const
 {
-    for (const InternalProperty::Pointer &property : m_namePropertyHash)
-        addDirectSubNodes(nodes, property.get());
+    for (const auto &entry : m_nameProperties)
+        addDirectSubNodes(nodes, entry.second.get());
 }
 
 void InternalNode::addDirectSubNodes(QList<InternalNodePointer> &nodes,
