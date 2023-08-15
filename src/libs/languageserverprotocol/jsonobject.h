@@ -52,11 +52,11 @@ protected:
     iterator insertVariant(const std::string_view key, const V &variant);
 
     // QJSonObject redirections
-    QJsonValue value(const std::string_view key) const { return m_jsonObject.value(QLatin1StringView(key)); }
-    bool contains(const std::string_view key) const { return m_jsonObject.contains(QLatin1StringView(key)); }
-    iterator find(const std::string_view key) { return m_jsonObject.find(QLatin1StringView(key)); }
-    const_iterator find(const std::string_view key) const { return m_jsonObject.find(QLatin1StringView(key)); }
-    void remove(const std::string_view key) { m_jsonObject.remove(QLatin1StringView(key)); }
+    QJsonValue value(const std::string_view key) const { return m_jsonObject.value(QLatin1String(key)); }
+    bool contains(const std::string_view key) const { return m_jsonObject.contains(QLatin1String(key)); }
+    iterator find(const std::string_view key) { return m_jsonObject.find(QLatin1String(key)); }
+    const_iterator find(const std::string_view key) const { return m_jsonObject.find(QLatin1String(key)); }
+    void remove(const std::string_view key) { m_jsonObject.remove(QLatin1String(key)); }
     QStringList keys() const { return m_jsonObject.keys(); }
 
     // convenience value access
