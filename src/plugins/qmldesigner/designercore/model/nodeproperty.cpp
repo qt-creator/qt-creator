@@ -24,14 +24,14 @@ void NodeProperty::setModelNode(const ModelNode &modelNode)
     if (!modelNode.isValid())
         return;
 
-    auto internalProperty = internalNode()->nodeProperty(name());
-    if (internalProperty
-        && internalProperty->node() == modelNode.internalNode()) { //check if oldValue != value
-        return;
-    }
+    if (auto property = internalNode()->property(name()); property) {
+        auto nodeProperty = property->to<PropertyType::Node>();
+        if (nodeProperty && nodeProperty->node() == modelNode.internalNode())
+            return;
 
-    if (auto property = internalNode()->property(name()); !property->isNodeProperty())
-        privateModel()->removePropertyAndRelatedResources(property);
+        if (!nodeProperty)
+            privateModel()->removePropertyAndRelatedResources(property);
+    }
 
     privateModel()->reparentNode(internalNodeSharedPointer(),
                                  name(),
