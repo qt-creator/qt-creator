@@ -165,11 +165,9 @@ static const QIcon &dirIcon()
     return icon;
 }
 
-QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
+QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 {
-    qCDebug(fileIconProvider) << "FileIconProvider::icon" << fi.absoluteFilePath();
-
-    const FilePath filePath = FilePath::fromString(fi.filePath());
+    qCDebug(fileIconProvider) << "FileIconProvider::icon" << filePath.absoluteFilePath();
 
     if (filePath.isEmpty())
         return unknownFileIcon();
@@ -181,17 +179,17 @@ QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
             return dirIcon();
     }
 
-    bool isDir = fi.isDir();
+    const bool isDir = filePath.isDir();
 
     // Check for cached overlay icons by file suffix.
-    const QString filename = !isDir ? fi.fileName() : QString();
+    const QString filename = !isDir ? filePath.fileName() : QString();
     if (!filename.isEmpty()) {
         const std::optional<QIcon> icon = getIcon(m_filenameCache, filename);
         if (icon)
             return *icon;
     }
 
-    const QString suffix = !isDir ? fi.suffix() : QString();
+    const QString suffix = !isDir ? filePath.suffix() : QString();
     if (!suffix.isEmpty()) {
         const std::optional<QIcon> icon = getIcon(m_suffixCache, suffix);
         if (icon)
@@ -213,11 +211,11 @@ QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
     return icon;
 }
 
-QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
+QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
 {
-    qCDebug(fileIconProvider) << "FileIconProvider::icon" << filePath.absoluteFilePath();
+    qCDebug(fileIconProvider) << "FileIconProvider::icon" << fi.absoluteFilePath();
 
-    return icon(QFileInfo(filePath.toFSPathString()));
+    return icon(FilePath::fromString(fi.filePath()));
 }
 
 /*!
