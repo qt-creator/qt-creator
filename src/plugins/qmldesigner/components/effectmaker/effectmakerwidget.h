@@ -35,6 +35,7 @@ public:
     QPointer<EffectMakerModel> effectMakerModel() const;
     QPointer<EffectMakerNodesModel> effectMakerNodesModel() const;
 
+    Q_INVOKABLE void addEffectNode(const QString &nodeName);
     Q_INVOKABLE void focusSection(int section);
 
 protected:

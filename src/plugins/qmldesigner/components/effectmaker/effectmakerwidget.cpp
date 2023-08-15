@@ -99,6 +99,15 @@ QPointer<EffectMakerNodesModel> EffectMakerWidget::effectMakerNodesModel() const
     return m_effectMakerNodesModel;
 }
 
+void EffectMakerWidget::addEffectNode(const QString &nodeName)
+{
+    Q_UNUSED(nodeName)
+
+    // TODO: implement adding a node to the composition
+    // TODO: nodeName might be changed to nodeId?
+//    m_effectMakerModel.addNode(nodeName);
+}
+
 void EffectMakerWidget::focusSection(int section)
 {
     Q_UNUSED(section)
