@@ -174,6 +174,7 @@ private:
     QAction *m_loggerAction = nullptr;
     QAction *m_toggleLeftSideBarAction = nullptr;
     QAction *m_toggleRightSideBarAction = nullptr;
+    QAction *m_toggleMenubarAction = nullptr;
     QAction *m_cycleModeSelectorStyleAction = nullptr;
     QAction *m_setModeSelectorStyleIconsAndTextAction = nullptr;
     QAction *m_setModeSelectorStyleHiddenAction = nullptr;

@@ -60,6 +60,7 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/touchbar/touchbar.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/terminalcommand.h>
 #include <utils/utilsicons.h>
 
@@ -106,6 +107,7 @@ static const char colorKey[] = "Color";
 static const char windowGeometryKey[] = "WindowGeometry";
 static const char windowStateKey[] = "WindowState";
 static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
+static const char menubarVisibleKey[] = "MenubarVisible";
 
 static const bool askBeforeExitDefault = false;
 
@@ -833,6 +835,27 @@ void MainWindow::registerDefaultActions()
     mview->addAction(cmd, Constants::G_VIEW_VIEWS);
     m_toggleRightSideBarButton->setEnabled(false);
 
+    // Show Menubar Action
+    if (menuBar() && !menuBar()->isNativeMenuBar()) {
+        m_toggleMenubarAction = new QAction(Tr::tr("Show Menubar"), this);
+        m_toggleMenubarAction->setCheckable(true);
+        cmd = ActionManager::registerAction(m_toggleMenubarAction, Constants::TOGGLE_MENUBAR);
+        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+M")));
+        connect(m_toggleMenubarAction, &QAction::toggled, this, [this, cmd](bool visible) {
+            if (!visible) {
+                CheckableMessageBox::information(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("Hide Menubar"),
+                    Tr::tr(
+                        "This will hide the menu bar completely. You can show it again by typing ")
+                        + cmd->keySequence().toString(QKeySequence::NativeText),
+                    QString("ToogleMenuBarHint"));
+            }
+            menuBar()->setVisible(visible);
+        });
+        mview->addAction(cmd, Constants::G_VIEW_VIEWS);
+    }
+
     registerModeSelectorStyleActions();
 
     // Window->Views
@@ -1184,6 +1207,14 @@ void MainWindow::readSettings()
         updateModeSelectorStyleMenu();
     }
 
+    if (menuBar() && !menuBar()->isNativeMenuBar()) {
+        const bool isVisible = settings->value(menubarVisibleKey, true).toBool();
+
+        menuBar()->setVisible(isVisible);
+        if (m_toggleMenubarAction)
+            m_toggleMenubarAction->setChecked(isVisible);
+    }
+
     settings->endGroup();
 
     EditorManagerPrivate::readSettings();
@@ -1201,6 +1232,9 @@ void MainWindow::saveSettings()
         settings->setValueWithDefault(colorKey,
                                       StyleHelper::requestedBaseColor(),
                                       QColor(StyleHelper::DEFAULT_BASE_COLOR));
+
+    if (menuBar() && !menuBar()->isNativeMenuBar())
+        settings->setValue(menubarVisibleKey, menuBar()->isVisible());
 
     settings->endGroup();
 

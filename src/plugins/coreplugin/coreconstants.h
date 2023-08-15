@@ -86,6 +86,7 @@ const char OPTIONS[]               = "QtCreator.Options";
 const char LOGGER[]                = "QtCreator.Logger";
 const char TOGGLE_LEFT_SIDEBAR[]   = "QtCreator.ToggleLeftSidebar";
 const char TOGGLE_RIGHT_SIDEBAR[]  = "QtCreator.ToggleRightSidebar";
+const char TOGGLE_MENUBAR[]        = "QtCreator.ToggleMenubar";
 const char CYCLE_MODE_SELECTOR_STYLE[] =
                                      "QtCreator.CycleModeSelectorStyle";
 const char TOGGLE_FULLSCREEN[]     = "QtCreator.ToggleFullScreen";
