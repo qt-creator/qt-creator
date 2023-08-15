@@ -776,8 +776,11 @@ QList<Type> ModelNode::properties(PropertyType... type) const
         auto propertyName = propertyEntry.first;
         auto property = propertyEntry.second;
         auto propertyType = property->type();
+        QT_WARNING_PUSH
+        QT_WARNING_DISABLE_CLANG("-Wparentheses-equality")
         if (((propertyType == type) || ...))
             properties.emplace_back(propertyName, m_internalNode, model(), view());
+        QT_WARNING_POP
     }
 
     return properties;
