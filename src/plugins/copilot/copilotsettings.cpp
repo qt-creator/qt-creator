@@ -150,6 +150,73 @@ CopilotSettings::CopilotSettings()
     enableCopilot.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     readSettings();
+
+    setLayouter([this] {
+        using namespace Layouting;
+
+        auto warningLabel = new QLabel;
+        warningLabel->setWordWrap(true);
+        warningLabel->setTextInteractionFlags(
+            Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard | Qt::TextSelectableByMouse);
+        warningLabel->setText(
+            Tr::tr("Enabling %1 is subject to your agreement and abidance with your applicable "
+                   "%1 terms. It is your responsibility to know and accept the requirements and "
+                   "parameters of using tools like %1. This may include, but is not limited to, "
+                   "ensuring you have the rights to allow %1 access to your code, as well as "
+                   "understanding any implications of your use of %1 and suggestions produced "
+                   "(like copyright, accuracy, etc.).")
+                .arg("Copilot"));
+
+        auto authWidget = new AuthWidget();
+
+        auto helpLabel = new QLabel();
+        helpLabel->setTextFormat(Qt::MarkdownText);
+        helpLabel->setWordWrap(true);
+        helpLabel->setTextInteractionFlags(
+            Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard | Qt::TextSelectableByMouse);
+        helpLabel->setOpenExternalLinks(true);
+        connect(helpLabel, &QLabel::linkHovered, [](const QString &link) {
+            QToolTip::showText(QCursor::pos(), link);
+        });
+
+        // clang-format off
+        helpLabel->setText(Tr::tr(
+            "The Copilot plugin requires node.js and the Copilot neovim plugin. "
+            "If you install the neovim plugin as described in %1, "
+            "the plugin will find the agent.js file automatically.\n\n"
+            "Otherwise you need to specify the path to the %2 "
+            "file from the Copilot neovim plugin.",
+            "Markdown text for the copilot instruction label")
+                           .arg("[README.md](https://github.com/github/copilot.vim)")
+                           .arg("[agent.js](https://github.com/github/copilot.vim/tree/release/dist)"));
+
+        return Column {
+            Group {
+                title(Tr::tr("Note")),
+                Column {
+                    warningLabel, br,
+                    helpLabel, br,
+                }
+            },
+            Form {
+                authWidget, br,
+                enableCopilot, br,
+                nodeJsPath, br,
+                distPath, br,
+                autoComplete, br,
+                hr, br,
+                useProxy, br,
+                proxyHost, br,
+                proxyPort, br,
+                proxyRejectUnauthorized, br,
+                proxyUser, br,
+                saveProxyPassword, br,
+                proxyPassword, br,
+            },
+            st
+        };
+        // clang-format on
+    });
 }
 
 CopilotProjectSettings::CopilotProjectSettings(ProjectExplorer::Project *project)
@@ -190,85 +257,6 @@ void CopilotProjectSettings::save(ProjectExplorer::Project *project)
     settings().apply();
 }
 
-// CopilotOptionsPageWidget
-
-class CopilotOptionsPageWidget : public Core::IOptionsPageWidget
-{
-public:
-    CopilotOptionsPageWidget()
-    {
-        using namespace Layouting;
-
-        auto warningLabel = new QLabel;
-        warningLabel->setWordWrap(true);
-        warningLabel->setTextInteractionFlags(
-            Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard | Qt::TextSelectableByMouse);
-        warningLabel->setText(
-            Tr::tr("Enabling %1 is subject to your agreement and abidance with your applicable "
-                   "%1 terms. It is your responsibility to know and accept the requirements and "
-                   "parameters of using tools like %1. This may include, but is not limited to, "
-                   "ensuring you have the rights to allow %1 access to your code, as well as "
-                   "understanding any implications of your use of %1 and suggestions produced "
-                   "(like copyright, accuracy, etc.).")
-                .arg("Copilot"));
-
-        auto authWidget = new AuthWidget();
-
-        auto helpLabel = new QLabel();
-        helpLabel->setTextFormat(Qt::MarkdownText);
-        helpLabel->setWordWrap(true);
-        helpLabel->setTextInteractionFlags(
-            Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard | Qt::TextSelectableByMouse);
-        helpLabel->setOpenExternalLinks(true);
-        connect(helpLabel, &QLabel::linkHovered, [](const QString &link) {
-            QToolTip::showText(QCursor::pos(), link);
-        });
-
-        // clang-format off
-        helpLabel->setText(Tr::tr(
-            "The Copilot plugin requires node.js and the Copilot neovim plugin. "
-            "If you install the neovim plugin as described in %1, "
-            "the plugin will find the agent.js file automatically.\n\n"
-            "Otherwise you need to specify the path to the %2 "
-            "file from the Copilot neovim plugin.",
-            "Markdown text for the copilot instruction label")
-                           .arg("[README.md](https://github.com/github/copilot.vim)")
-                           .arg("[agent.js](https://github.com/github/copilot.vim/tree/release/dist)"));
-
-        Column {
-            Group {
-                title(Tr::tr("Note")),
-                Column {
-                    warningLabel, br,
-                    helpLabel, br,
-                }
-            },
-            Form {
-                authWidget, br,
-                settings().enableCopilot, br,
-                settings().nodeJsPath, br,
-                settings().distPath, br,
-                settings().autoComplete, br,
-                hr, br,
-                settings().useProxy, br,
-                settings().proxyHost, br,
-                settings().proxyPort, br,
-                settings().proxyRejectUnauthorized, br,
-                settings().proxyUser, br,
-                settings().saveProxyPassword, br,
-                settings().proxyPassword, br,
-            },
-            st
-        }.attachTo(this);
-        // clang-format on
-
-        setOnApply([] {
-            settings().apply();
-            settings().writeSettings();
-        });
-    }
-};
-
 class CopilotSettingsPage : public Core::IOptionsPage
 {
 public:
@@ -279,7 +267,7 @@ public:
         setCategory(Constants::COPILOT_GENERAL_OPTIONS_CATEGORY);
         setDisplayCategory(Constants::COPILOT_GENERAL_OPTIONS_DISPLAY_CATEGORY);
         setCategoryIconPath(":/copilot/images/settingscategory_copilot.png");
-        setWidgetCreator([] { return new CopilotOptionsPageWidget; });
+        setSettingsProvider([] { return &settings(); });
     }
 };
 
