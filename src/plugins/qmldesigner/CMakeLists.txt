@@ -37,7 +37,7 @@ extend_qtc_library(QmlDesignerUtils
 )
 
 add_qtc_library(QmlDesignerCore STATIC
-  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3 AND TARGET QmlDesignerBase AND TARGET Qt6::QmlPrivate AND TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate
+  CONDITION TARGET QmlDesignerBase AND TARGET Qt6::QmlPrivate AND TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate
   EXCLUDE_FROM_INSTALL
   PROPERTIES SKIP_AUTOUIC ON
   DEPENDS
@@ -428,7 +428,7 @@ extend_qtc_library(QmlDesignerCore
 
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
-  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3 AND TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
+  CONDITION TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlDesignerBase QmlJSEditor QmakeProjectManager QmlProjectManager
     QtSupport
