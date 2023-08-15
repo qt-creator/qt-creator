@@ -41,14 +41,13 @@ class TASKING_EXPORT TreeStorageBase
 public:
     bool isValid() const;
 
-protected:
+private:
     using StorageConstructor = std::function<void *(void)>;
     using StorageDestructor = std::function<void(void *)>;
 
     TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor);
     void *activeStorageVoid() const;
 
-private:
     int createStorage() const;
     void deleteStorage(int id) const;
     void activateStorage(int id) const;
@@ -71,13 +70,15 @@ private:
         int m_storageCounter = 0;
     };
     QSharedPointer<StorageData> m_storageData;
+
+    template <typename StorageStruct> friend class TreeStorage;
     friend ExecutionContextActivator;
     friend TaskContainer;
     friend TaskTreePrivate;
 };
 
 template <typename StorageStruct>
-class TreeStorage : public TreeStorageBase
+class TreeStorage final : public TreeStorageBase
 {
 public:
     TreeStorage() : TreeStorageBase(TreeStorage::ctor(), TreeStorage::dtor()) {}
