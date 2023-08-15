@@ -14,7 +14,7 @@
 #include "debuggermainwindow.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
-#include "debuggerkitinformation.h"
+#include "debuggerkitaspect.h"
 #include "debuggertr.h"
 #include "breakhandler.h"
 #include "enginemanager.h"

@@ -8,7 +8,7 @@
 #include "androidmanager.h"
 #include "androidqtversion.h"
 
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerruncontrol.h>
 

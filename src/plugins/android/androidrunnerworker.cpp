@@ -7,7 +7,7 @@
 #include "androidrunnerworker.h"
 #include "androidtr.h"
 
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 
 #include <projectexplorer/buildconfiguration.h>

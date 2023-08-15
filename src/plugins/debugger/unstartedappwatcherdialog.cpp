@@ -4,7 +4,7 @@
 #include "unstartedappwatcherdialog.h"
 
 #include "debuggeritem.h"
-#include "debuggerkitinformation.h"
+#include "debuggerkitaspect.h"
 #include "debuggertr.h"
 
 #include <utils/pathchooser.h>

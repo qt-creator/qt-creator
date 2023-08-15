@@ -3,7 +3,7 @@
 
 #include "loadcoredialog.h"
 
-#include "debuggerkitinformation.h"
+#include "debuggerkitaspect.h"
 #include "debuggertr.h"
 #include "gdb/gdbengine.h"
 

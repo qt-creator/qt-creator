@@ -13,7 +13,7 @@
 
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>

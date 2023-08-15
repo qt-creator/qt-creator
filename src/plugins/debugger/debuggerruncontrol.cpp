@@ -11,7 +11,7 @@
 #include "debuggeractions.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
-#include "debuggerkitinformation.h"
+#include "debuggerkitaspect.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "breakhandler.h"
 #include "enginemanager.h"

@@ -23,7 +23,7 @@
 
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggeritem.h>
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>

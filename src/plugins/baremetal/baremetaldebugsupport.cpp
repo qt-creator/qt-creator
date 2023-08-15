@@ -10,7 +10,7 @@
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>

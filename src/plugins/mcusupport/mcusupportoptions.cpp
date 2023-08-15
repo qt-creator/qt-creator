@@ -18,7 +18,7 @@
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/infobar.h>

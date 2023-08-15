@@ -16,7 +16,7 @@
 #include "xmlprotocol/parser.h"
 #include "xmlprotocol/stack.h"
 
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/analyzer/analyzerconstants.h>
 #include <debugger/analyzer/analyzermanager.h>

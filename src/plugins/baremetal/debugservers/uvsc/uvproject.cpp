@@ -6,7 +6,7 @@
 
 #include <cppeditor/cppmodelmanager.h>
 
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/projectmanager.h>

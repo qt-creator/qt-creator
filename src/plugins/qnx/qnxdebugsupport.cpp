@@ -10,7 +10,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertr.h>
 
