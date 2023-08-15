@@ -13,6 +13,8 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
+#include <qtsupport/qtoptionspage.h>
+
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
@@ -21,6 +23,9 @@
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
+#include <QBoxLayout>
+#include <QComboBox>
+#include <QDialogButtonBox>
 #include <QRegularExpression>
 #include <QTextCursor>
 
@@ -79,7 +84,19 @@ void PySideInstaller::installPyside(const FilePath &python,
                                     const QString &pySide,
                                     TextEditor::TextDocument *document)
 {
-    document->infoBar()->removeInfo(installPySideInfoBarId);
+    QMap<QVersionNumber, Utils::FilePath> availablePySides;
+
+    const std::optional<FilePath> qtInstallDir
+        = QtSupport::LinkWithQtSupport::linkedQt().tailRemoved("Tools/sdktool/share/qtcreator");
+    if (qtInstallDir) {
+        const FilePath qtForPythonDir = qtInstallDir->pathAppended("QtForPython");
+        for (const FilePath &versionDir : qtForPythonDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            FilePath requirements = versionDir.pathAppended("requirements.txt");
+            if (requirements.exists())
+                availablePySides[QVersionNumber::fromString(versionDir.fileName())] = requirements;
+        }
+    }
+
 
     auto install = new PipInstallTask(python);
     connect(install, &PipInstallTask::finished, install, &QObject::deleteLater);
@@ -87,7 +104,40 @@ void PySideInstaller::installPyside(const FilePath &python,
         if (success)
             emit pySideInstalled(python, pySide);
     });
-    install->setPackages({PipPackage(pySide)});
+    if (qtInstallDir->isEmpty()) {
+        install->setPackages({PipPackage(pySide)});
+    } else {
+        QDialog dialog;
+        dialog.setWindowTitle(Tr::tr("Select PySide version"));
+        dialog.setLayout(new QVBoxLayout());
+        dialog.layout()->addWidget(new QLabel(Tr::tr("Select which PySide version to install:")));
+        QComboBox *pySideSelector = new QComboBox();
+        pySideSelector->addItem(Tr::tr("Latest PySide from the Python Package Index"));
+        for (const Utils::FilePath &version : availablePySides) {
+            const FilePath dir = version.parentDir();
+            const QString text
+                = Tr::tr("PySide %1 wheel (%2)").arg(dir.fileName(), dir.toUserOutput());
+            pySideSelector->addItem(text, version.toVariant());
+        }
+        dialog.layout()->addWidget(pySideSelector);
+        QDialogButtonBox box;
+        box.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        dialog.layout()->addWidget(&box);
+        connect(&box, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        connect(&box, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+        if (dialog.exec() == QDialog::Rejected)
+            return;
+
+        const FilePath requirementsFile = FilePath::fromVariant(pySideSelector->currentData());
+        if (requirementsFile.isEmpty()) {
+            install->setPackages({PipPackage(pySide)});
+        } else {
+            install->setWorkingDirectory(requirementsFile.parentDir());
+            install->setRequirements(requirementsFile);
+        }
+    }
+    document->infoBar()->removeInfo(installPySideInfoBarId);
     install->run();
 }
 

@@ -1788,6 +1788,13 @@ FilePath FilePath::stringAppended(const QString &str) const
     return FilePath::fromString(toString() + str);
 }
 
+std::optional<FilePath> FilePath::tailRemoved(const QString &str) const
+{
+    if (pathView().endsWith(str))
+        return withNewPath(pathView().chopped(str.size()).toString());
+    return {};
+}
+
 QDateTime FilePath::lastModified() const
 {
     return fileAccess()->lastModified(*this);

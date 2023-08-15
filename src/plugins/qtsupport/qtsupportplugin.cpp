@@ -143,7 +143,7 @@ static void askAboutQtInstallation()
 {
     // if the install settings exist, the Qt Creator installation is (probably) already linked to
     // a Qt installation, so don't ask
-    if (!QtOptionsPage::canLinkWithQt() || QtOptionsPage::isLinkedWithQt()
+    if (!LinkWithQtSupport::canLinkWithQt() || LinkWithQtSupport::isLinkedWithQt()
         || !ICore::infoBar()->canInfoBeAdded(kLinkWithQtInstallationSetting))
         return;
 
@@ -155,7 +155,7 @@ static void askAboutQtInstallation()
         Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.addCustomButton(Tr::tr("Link with Qt"), [] {
         ICore::infoBar()->removeInfo(kLinkWithQtInstallationSetting);
-        QTimer::singleShot(0, ICore::dialogParent(), &QtOptionsPage::linkWithQt);
+        QTimer::singleShot(0, ICore::dialogParent(), &LinkWithQtSupport::linkWithQt);
     });
     ICore::infoBar()->addInfo(info);
 }

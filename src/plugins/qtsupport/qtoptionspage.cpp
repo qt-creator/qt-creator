@@ -52,7 +52,8 @@ using namespace Utils;
 
 const char kInstallSettingsKey[] = "Settings/InstallSettings";
 
-namespace QtSupport::Internal {
+namespace QtSupport {
+namespace Internal {
 
 class QtVersionItem : public TreeItem
 {
@@ -869,7 +870,7 @@ void QtOptionsPageWidget::setupLinkWithQtButton()
     const bool canLink = canLinkWithQt(&tip);
     m_linkWithQtButton->setEnabled(canLink);
     m_linkWithQtButton->setToolTip(tip);
-    connect(m_linkWithQtButton, &QPushButton::clicked, this, &QtOptionsPage::linkWithQt);
+    connect(m_linkWithQtButton, &QPushButton::clicked, this, &LinkWithQtSupport::linkWithQt);
 }
 
 void QtOptionsPageWidget::updateCurrentQtName()
@@ -1080,19 +1081,26 @@ QStringList QtOptionsPage::keywords() const
     };
 }
 
-bool QtOptionsPage::canLinkWithQt()
+} // Internal
+
+bool LinkWithQtSupport::canLinkWithQt()
 {
     return Internal::canLinkWithQt(nullptr);
 }
 
-bool QtOptionsPage::isLinkedWithQt()
+bool LinkWithQtSupport::isLinkedWithQt()
 {
-    return currentlyLinkedQtDir(nullptr).has_value();
+    return Internal::currentlyLinkedQtDir(nullptr).has_value();
 }
 
-void QtOptionsPage::linkWithQt()
+Utils::FilePath LinkWithQtSupport::linkedQt()
 {
-    QtOptionsPageWidget::linkWithQt();
+    return Internal::currentlyLinkedQtDir(nullptr).value_or(Utils::FilePath());
 }
 
-} // QtSupport::Internal
+void LinkWithQtSupport::linkWithQt()
+{
+    Internal::QtOptionsPageWidget::linkWithQt();
+}
+
+} // QtSupport

@@ -15,8 +15,7 @@ Q_DECLARE_METATYPE(QmlPreview::TestFpsHandler)
 namespace QmlPreview {
 
 QmlPreviewPluginTest::QmlPreviewPluginTest(QObject *parent) : QObject(parent)
-{
-}
+{ }
 
 static ExtensionSystem::IPlugin *getPlugin()
 {
