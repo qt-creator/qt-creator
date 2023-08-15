@@ -33,7 +33,7 @@ void ShowPasswordButton::paintEvent(QPaintEvent *e)
     QPainter p(this);
     QRect r(QPoint(), size());
 
-    if (m_containsMouse)
+    if (m_containsMouse && isEnabled())
         StyleHelper::drawPanelBgRect(&p, r, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
 
     QWindow *window = this->window()->windowHandle();
