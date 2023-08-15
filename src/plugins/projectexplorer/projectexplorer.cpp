@@ -677,13 +677,6 @@ public:
     IDocumentFactory m_taskFileFactory;
     StopMonitoringHandler closeTaskFile;
 
-    DeviceTypeKitAspectFactory deviceTypeKitAspectFactory;
-    DeviceKitAspectFactory deviceKitAspectFactory;
-    BuildDeviceKitAspectFactory buildDeviceKitAspectFactory;
-    ToolChainKitAspectFactory toolChainKitAspectFactory;
-    SysRootKitAspectFactory sysRootKitAspectFactory;
-    EnvironmentKitAspectFactory environmentKitAspectFactory;
-
     DesktopQmakeRunConfigurationFactory qmakeRunConfigFactory;
     QbsRunConfigurationFactory qbsRunConfigFactory;
     CMakeRunConfigurationFactory cmakeRunConfigFactory;

@@ -87,6 +87,17 @@ private:
 };
 } // namespace Internal
 
+class SysRootKitAspectFactory : public KitAspectFactory
+{
+public:
+    SysRootKitAspectFactory();
+
+    Tasks validate(const Kit *k) const override;
+    KitAspect *createKitAspect(Kit *k) const override;
+    ItemList toUserOutput(const Kit *k) const override;
+    void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
+};
+
 SysRootKitAspectFactory::SysRootKitAspectFactory()
 {
     setObjectName(QLatin1String("SysRootInformation"));
@@ -141,7 +152,7 @@ void SysRootKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expand
     });
 }
 
-Utils::Id SysRootKitAspect::id()
+Id SysRootKitAspect::id()
 {
     return "PE.Profile.SysRoot";
 }
@@ -178,6 +189,8 @@ void SysRootKitAspect::setSysRoot(Kit *k, const FilePath &v)
     }
     k->setValue(SysRootKitAspect::id(), v.toString());
 }
+
+const SysRootKitAspectFactory theSyRootKitAspectFactory;
 
 // --------------------------------------------------------------------------
 // ToolChainKitAspect:
@@ -311,6 +324,35 @@ private:
     bool m_isReadOnly = false;
 };
 } // namespace Internal
+
+class ToolChainKitAspectFactory : public KitAspectFactory
+{
+public:
+    ToolChainKitAspectFactory();
+
+    Tasks validate(const Kit *k) const override;
+    void upgrade(Kit *k) override;
+    void fix(Kit *k) override;
+    void setup(Kit *k) override;
+
+    KitAspect *createKitAspect(Kit *k) const override;
+
+    QString displayNamePostfix(const Kit *k) const override;
+
+    ItemList toUserOutput(const Kit *k) const override;
+
+    void addToBuildEnvironment(const Kit *k, Environment &env) const override;
+    void addToRunEnvironment(const Kit *, Environment &) const override {}
+
+    void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
+    QList<OutputLineParser *> createOutputParsers(const Kit *k) const override;
+    QSet<Id> availableFeatures(const Kit *k) const override;
+
+private:
+    void kitsWereLoaded();
+    void toolChainUpdated(ToolChain *tc);
+    void toolChainRemoved(ToolChain *tc);
+};
 
 ToolChainKitAspectFactory::ToolChainKitAspectFactory()
 {
@@ -751,6 +793,8 @@ void ToolChainKitAspectFactory::toolChainRemoved(ToolChain *tc)
         fix(k);
 }
 
+const ToolChainKitAspectFactory thsToolChainKitAspectFactory;
+
 // --------------------------------------------------------------------------
 // DeviceTypeKitAspect:
 // --------------------------------------------------------------------------
@@ -802,6 +846,20 @@ private:
     QComboBox *m_comboBox;
 };
 } // namespace Internal
+
+class DeviceTypeKitAspectFactory : public KitAspectFactory
+{
+public:
+    DeviceTypeKitAspectFactory();
+
+    void setup(Kit *k) override;
+    Tasks validate(const Kit *k) const override;
+    KitAspect *createKitAspect(Kit *k) const override;
+    ItemList toUserOutput(const Kit *k) const override;
+
+    QSet<Id> supportedPlatforms(const Kit *k) const override;
+    QSet<Id> availableFeatures(const Kit *k) const override;
+};
 
 DeviceTypeKitAspectFactory::DeviceTypeKitAspectFactory()
 {
@@ -949,6 +1007,32 @@ private:
     Id m_selectedId;
 };
 } // namespace Internal
+
+class DeviceKitAspectFactory : public KitAspectFactory
+{
+public:
+    DeviceKitAspectFactory();
+
+    Tasks validate(const Kit *k) const override;
+    void fix(Kit *k) override;
+    void setup(Kit *k) override;
+
+    KitAspect *createKitAspect(Kit *k) const override;
+
+    QString displayNamePostfix(const Kit *k) const override;
+
+    ItemList toUserOutput(const Kit *k) const override;
+
+    void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
+
+private:
+    QVariant defaultValue(const Kit *k) const;
+
+    void kitsWereLoaded();
+    void deviceUpdated(Id dataId);
+    void devicesChanged();
+    void kitUpdated(Kit *k);
+};
 
 DeviceKitAspectFactory::DeviceKitAspectFactory()
 {
@@ -1134,6 +1218,9 @@ void DeviceKitAspectFactory::devicesChanged()
         setup(k); // Set default device if necessary
 }
 
+const DeviceKitAspectFactory theDeviceKitAspectFactory;
+
+
 // --------------------------------------------------------------------------
 // BuildDeviceKitAspect:
 // --------------------------------------------------------------------------
@@ -1217,6 +1304,29 @@ private:
     Id m_selectedId;
 };
 } // namespace Internal
+
+class BuildDeviceKitAspectFactory : public KitAspectFactory
+{
+public:
+    BuildDeviceKitAspectFactory();
+
+    void setup(Kit *k) override;
+    Tasks validate(const Kit *k) const override;
+
+    KitAspect *createKitAspect(Kit *k) const override;
+
+    QString displayNamePostfix(const Kit *k) const override;
+
+    ItemList toUserOutput(const Kit *k) const override;
+
+    void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
+
+private:
+    void kitsWereLoaded();
+    void deviceUpdated(Id dataId);
+    void devicesChanged();
+    void kitUpdated(Kit *k);
+};
 
 BuildDeviceKitAspectFactory::BuildDeviceKitAspectFactory()
 {
@@ -1376,6 +1486,8 @@ void BuildDeviceKitAspectFactory::devicesChanged()
         setup(k); // Set default device if necessary
 }
 
+const BuildDeviceKitAspectFactory theBuildDeviceKitAspectFactory;
+
 // --------------------------------------------------------------------------
 // EnvironmentKitAspect:
 // --------------------------------------------------------------------------
@@ -1490,6 +1602,22 @@ private:
 };
 } // namespace Internal
 
+class EnvironmentKitAspectFactory : public KitAspectFactory
+{
+public:
+    EnvironmentKitAspectFactory();
+
+    Tasks validate(const Kit *k) const override;
+    void fix(Kit *k) override;
+
+    void addToBuildEnvironment(const Kit *k, Environment &env) const override;
+    void addToRunEnvironment(const Kit *, Environment &) const override;
+
+    KitAspect *createKitAspect(Kit *k) const override;
+
+    ItemList toUserOutput(const Kit *k) const override;
+};
+
 EnvironmentKitAspectFactory::EnvironmentKitAspectFactory()
 {
     setObjectName(QLatin1String("EnvironmentKitAspect"));
@@ -1564,5 +1692,7 @@ void EnvironmentKitAspect::setEnvironmentChanges(Kit *k, const EnvironmentItems 
     if (k)
         k->setValue(EnvironmentKitAspect::id(), EnvironmentItem::toStringList(changes));
 }
+
+const EnvironmentKitAspectFactory theEnvironmentKitAspectFactory;
 
 } // namespace ProjectExplorer
