@@ -29,8 +29,11 @@ FileTransferMethod defaultTransferMethod(Kit *kit)
             return FileTransferMethod::Rsync;
     }
 
-    if (runDevice && runDevice->extraData(Constants::SupportsSftp).toBool())
-        return FileTransferMethod::Sftp;
+    if (runDevice) {
+        const QVariant sftpInfo = runDevice->extraData(Constants::SupportsSftp);
+        if (!sftpInfo.isValid() || sftpInfo.toBool())
+            return FileTransferMethod::Sftp;
+    }
 
     return FileTransferMethod::GenericCopy;
 }

@@ -95,14 +95,19 @@ void AuthWidget::updateClient(const Utils::FilePath &nodeJs, const Utils::FilePa
     m_client = nullptr;
     setState(Tr::tr("Sign In"), false);
     m_button->setEnabled(false);
-    if (!nodeJs.isExecutableFile() || !agent.exists()) {
+    if (!nodeJs.isExecutableFile() || !agent.exists())
         return;
-    }
 
     setState(Tr::tr("Sign In"), true);
 
     m_client = new CopilotClient(nodeJs, agent);
     connect(m_client, &Client::initialized, this, &AuthWidget::checkStatus);
+    connect(m_client, &QObject::destroyed, this, [destroyedClient = m_client, this]() {
+        if (destroyedClient != m_client)
+            return;
+        m_client = nullptr;
+        m_progressIndicator->hide();
+    });
 }
 
 void AuthWidget::signIn()

@@ -204,7 +204,27 @@ FilePath FilePath::currentWorkingPath()
 
 bool FilePath::isRootPath() const
 {
-    // FIXME: Make host-independent
+    if (needsDevice()) {
+        QStringView path = pathView();
+        if (osType() != OsTypeWindows)
+            return path == QLatin1String("/");
+
+        // Remote windows paths look like this: "/c:/", so we remove the leading '/'
+        if (path.startsWith('/'))
+            path = path.mid(1);
+
+        if (path.length() > 3)
+            return false;
+
+        if (!startsWithDriveLetter())
+            return false;
+
+        if (path.length() == 3 && path[2] != QLatin1Char('/'))
+            return false;
+
+        return true;
+    }
+
     return *this == FilePath::fromString(QDir::rootPath());
 }
 
@@ -1269,7 +1289,16 @@ FilePath FilePath::fromSettings(const QVariant &variant)
         const QUrl url = variant.toUrl();
         return FilePath::fromParts(url.scheme(), url.host(), url.path());
     }
-    return FilePath::fromUserInput(variant.toString());
+
+    // The installer sometimes fails and adds "docker:/..." instead of "docker://...
+    // So we fix these paths here in those cases.
+    QString data = variant.toString();
+    if (data.length() > 8 && data.startsWith("docker:/") && data[8] != '/') {
+        qWarning() << "Broken path in settings:" << data << ", applying workaround.";
+        data.insert(8, '/');
+    }
+
+    return FilePath::fromUserInput(data);
 }
 
 QVariant FilePath::toSettings() const
@@ -1337,15 +1366,15 @@ bool FilePath::contains(const QString &s) const
 
 /*!
     \brief Checks whether the FilePath starts with a drive letter.
-
-    Defaults to \c false if it is a non-Windows host or represents a path on device
-
     Returns whether FilePath starts with a drive letter
 */
 bool FilePath::startsWithDriveLetter() const
 {
-    const QStringView p = pathView();
-    return !needsDevice() && p.size() >= 2 && isWindowsDriveLetter(p[0]) && p.at(1) == ':';
+    QStringView p = pathView();
+    if (needsDevice() && !p.isEmpty())
+        p = p.mid(1);
+
+    return p.size() >= 2 && isWindowsDriveLetter(p[0]) && p.at(1) == ':';
 }
 
 /*!

@@ -287,8 +287,13 @@ public:
 
     void setProposal(IAssistProposal *proposal, const QString &prefix)
     {
-        if (!proposal)
+        if (!proposal) {
+            // Close the proposal if we have no running processor otherwise ignore the empty
+            // proposal and wait for the processor to finish
+            if (!m_processor || !m_processor->running())
+                closeProposal();
             return;
+        }
         if (proposal->id() != TextEditor::Constants::GENERIC_PROPOSAL_ID) {
             // We received something else than a generic proposal so we cannot update the model
             closeProposal();
@@ -305,13 +310,14 @@ public:
             GenericProposalWidget::updateProposal(std::move(interface));
             return;
         }
-        auto processor = m_provider->createProcessor(interface.get());
-        QTC_ASSERT(processor, return);
+        m_processor = m_provider->createProcessor(interface.get());
+        QTC_ASSERT(m_processor, return);
 
         const QString prefix = interface->textAt(m_basePosition,
                                                  interface->position() - m_basePosition);
 
-        processor->setAsyncCompletionAvailableHandler([this, processor, prefix](IAssistProposal *proposal) {
+        m_processor->setAsyncCompletionAvailableHandler([this, processor = m_processor, prefix](
+                                                            IAssistProposal *proposal) {
             QTC_ASSERT(processor == m_processor, return);
             if (!processor->running()) {
                 // do not delete this processor directly since this function is called from within the processor
@@ -324,11 +330,11 @@ public:
             setProposal(proposal, prefix);
         });
 
-        setProposal(processor->start(std::move(interface)), prefix);
-        if (processor->running())
-            m_processor = processor;
-        else
-            delete processor;
+        setProposal(m_processor->start(std::move(interface)), prefix);
+        if (!m_processor->running()) {
+            delete m_processor;
+            m_processor = nullptr;
+        }
     }
 
 private:

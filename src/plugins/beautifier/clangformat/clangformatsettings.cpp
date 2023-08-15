@@ -59,9 +59,6 @@ ClangFormatSettings::ClangFormatSettings()
     fallbackStyle.addOption("WebKit");
     fallbackStyle.setDefaultValue("Default");
 
-    predefinedStyle.setSettingsKey("predefinedStyle");
-    predefinedStyle.setDefaultValue("LLVM");
-
     customStyle.setSettingsKey("customStyle");
 
     documentationFilePath = Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)
@@ -254,7 +251,8 @@ public:
         connect(styleButtonGroup, &QButtonGroup::buttonClicked, this, updateEnabled);
         connect(&s.predefinedStyle, &SelectionAspect::volatileValueChanged, this, updateEnabled);
 
-        setOnApply([settings, configurations] {
+        setOnApply([settings, configurations, customizedStyleButton] {
+            settings->usePredefinedStyle.setValue(!customizedStyleButton->isChecked());
             settings->customStyle.setValue(configurations->currentConfiguration());
             settings->save();
         });

@@ -248,11 +248,16 @@ def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<N
 # param path specifies where to create the project
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
-def createProject_Qt_Console(path, projectName, checks = True, buildSystem = None):
+def createProject_Qt_Console(path, projectName, checks = True, buildSystem = None, targets=[]):
     available = __createProjectOrFileSelectType__("  Application (Qt)", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     buildSystem = __handleBuildSystem__(buildSystem)
     __createProjectHandleTranslationSelection__()
+    if targets:
+        available = set(targets).intersection(available)
+        if len(available) < len(targets):
+            test.warning("Could not use all desired targets.",
+                         "%s vs %s" % (str(available), str(targets)))
     __selectQtVersionDesktop__(buildSystem, checks, available)
 
     expectedFiles = []

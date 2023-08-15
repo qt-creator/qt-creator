@@ -49,6 +49,36 @@ CommandsFile::CommandsFile(const FilePath &filename)
 
 }
 
+// XML attributes cannot contain these characters, and
+// QXmlStreamWriter just bails out with an error.
+// QKeySequence::toString() should probably not result in these
+// characters, but it currently does, see QTCREATORBUG-29431
+static bool containsInvalidCharacters(const QString &s)
+{
+    const auto end = s.constEnd();
+    for (auto it = s.constBegin(); it != end; ++it) {
+        // from QXmlStreamWriterPrivate::writeEscaped
+        if (*it == u'\v' || *it == u'\f' || *it <= u'\x1F' || *it >= u'\uFFFE') {
+            return true;
+        }
+    }
+    return false;
+}
+
+static QString toAttribute(const QString &s)
+{
+    if (containsInvalidCharacters(s))
+        return "0x" + QString::fromUtf8(s.toUtf8().toHex());
+    return s;
+}
+
+static QString fromAttribute(const QStringView &s)
+{
+    if (s.startsWith(QLatin1String("0x")))
+        return QString::fromUtf8(QByteArray::fromHex(s.sliced(2).toUtf8()));
+    return s.toString();
+}
+
 /*!
     \internal
 */
@@ -77,7 +107,7 @@ QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
                 QTC_ASSERT(!currentId.isEmpty(), continue);
                 const QXmlStreamAttributes attributes = r.attributes();
                 if (attributes.hasAttribute(ctx.valueAttribute)) {
-                    const QString keyString = attributes.value(ctx.valueAttribute).toString();
+                    const QString keyString = fromAttribute(attributes.value(ctx.valueAttribute));
                     QList<QKeySequence> keys = result.value(currentId);
                     result.insert(currentId, keys << QKeySequence(keyString));
                 }
@@ -94,7 +124,6 @@ QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
 /*!
     \internal
 */
-
 bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
 {
     FileSaver saver(m_filePath, QIODevice::Text);
@@ -119,7 +148,7 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
                 w.writeAttribute(ctx.idAttribute, id.toString());
                 for (const QKeySequence &k : item->m_keys) {
                     w.writeEmptyElement(ctx.keyElement);
-                    w.writeAttribute(ctx.valueAttribute, k.toString());
+                    w.writeAttribute(ctx.valueAttribute, toAttribute(k.toString()));
                 }
                 w.writeEndElement(); // Shortcut
             }
@@ -127,7 +156,8 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
         w.writeEndElement();
         w.writeEndDocument();
 
-        saver.setResult(&w);
+        if (!saver.setResult(&w))
+            qWarning() << saver.errorString();
     }
     return saver.finalize();
 }

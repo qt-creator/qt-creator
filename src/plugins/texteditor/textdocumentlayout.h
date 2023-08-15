@@ -246,7 +246,7 @@ public:
     QRectF blockBoundingRect(const QTextBlock &block) const override;
 
     TextMarks documentClosing();
-    void documentAboutToReload();
+    void documentAboutToReload(TextDocument *baseTextDocument);
     void documentReloaded(TextDocument *baseextDocument);
     void updateMarksLineNumber();
     void updateMarksBlock(const QTextBlock &block);

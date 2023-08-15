@@ -1204,7 +1204,7 @@ FilePath Process::workingDirectory() const
 void Process::setWorkingDirectory(const FilePath &dir)
 {
     if (dir.needsDevice() && d->m_setup.m_commandLine.executable().needsDevice()) {
-        QTC_CHECK(dir.host() == d->m_setup.m_commandLine.executable().host());
+        QTC_CHECK(dir.isSameDevice(d->m_setup.m_commandLine.executable()));
     }
     d->m_setup.m_workingDirectory = dir;
 }
@@ -1564,9 +1564,11 @@ qint64 Process::writeRaw(const QByteArray &input)
     QTC_ASSERT(state() == QProcess::Running, return -1);
     QTC_ASSERT(QThread::currentThread() == thread(), return -1);
     qint64 result = -1;
-    QMetaObject::invokeMethod(d->m_process.get(), [this, input] {
-        d->m_process->write(input);
-    }, d->connectionType(), &result);
+    QMetaObject::invokeMethod(
+        d->m_process.get(),
+        [this, input] { return d->m_process->write(input); },
+        d->connectionType(),
+        &result);
     return result;
 }
 

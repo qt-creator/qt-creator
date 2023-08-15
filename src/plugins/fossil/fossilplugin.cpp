@@ -247,8 +247,10 @@ class RevertDialog : public QDialog
 {
 public:
     RevertDialog(const QString &title, QWidget *parent = nullptr);
+    QString revision() const { return m_revisionLineEdit->text(); }
 
-    QLineEdit *m_revisionLineEdit;
+private:
+    QLineEdit *m_revisionLineEdit = nullptr;
 };
 
 FossilPlugin::~FossilPlugin()
@@ -429,15 +431,11 @@ void FossilPluginPrivate::revertCurrentFile()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
 
-    QDialog dialog(Core::ICore::dialogParent());
-
-    auto revisionLineEdit = new QLineEdit;
-
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-    m_client.revertFile(state.currentFileTopLevel(),
-                        state.relativeCurrentFile(),
-                        revisionLineEdit->text());
+    RevertDialog dialog(Tr::tr("Revert"), Core::ICore::dialogParent());
+    if (dialog.exec() == QDialog::Accepted) {
+        m_client.revertFile(state.currentFileTopLevel(), state.relativeCurrentFile(),
+                            dialog.revision());
+    }
 }
 
 void FossilPluginPrivate::statusCurrentFile()
@@ -512,7 +510,7 @@ void FossilPluginPrivate::revertAll()
 
     RevertDialog dialog(Tr::tr("Revert"), Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted)
-        m_client.revertAll(state.topLevel(), dialog.m_revisionLineEdit->text());
+        m_client.revertAll(state.topLevel(), dialog.revision());
 }
 
 void FossilPluginPrivate::statusMulti()
@@ -628,7 +626,7 @@ void FossilPluginPrivate::update()
 
     RevertDialog dialog(Tr::tr("Update"), Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted)
-        m_client.update(state.topLevel(), dialog.m_revisionLineEdit->text());
+        m_client.update(state.topLevel(), dialog.revision());
 }
 
 void FossilPluginPrivate::configureRepository()

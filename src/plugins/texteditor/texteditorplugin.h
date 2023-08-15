@@ -40,6 +40,8 @@ private slots:
 
     void testFormatting_data();
     void testFormatting();
+
+    void testDeletingMarkOnReload();
 #endif
 };
 

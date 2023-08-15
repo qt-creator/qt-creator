@@ -161,7 +161,9 @@ clang::format::FormatStyle qtcStyle()
     style.SpaceAfterTemplateKeyword = false;
     style.SpaceBeforeAssignmentOperators = true;
     style.SpaceBeforeParens = FormatStyle::SBPO_ControlStatements;
+#if LLVM_VERSION_MAJOR < 17
     style.SpaceInEmptyParentheses = false;
+#endif
     style.SpacesBeforeTrailingComments = 1;
 #if LLVM_VERSION_MAJOR >= 13
     style.SpacesInAngles = FormatStyle::SIAS_Never;
@@ -169,8 +171,12 @@ clang::format::FormatStyle qtcStyle()
     style.SpacesInAngles = false;
 #endif
     style.SpacesInContainerLiterals = false;
+#if LLVM_VERSION_MAJOR >= 17
+    style.SpacesInParens = FormatStyle::SIPO_Never;
+#else
     style.SpacesInCStyleCastParentheses = false;
     style.SpacesInParentheses = false;
+#endif
     style.SpacesInSquareBrackets = false;
     addQtcStatementMacros(style);
     style.Standard = FormatStyle::LS_Cpp11;

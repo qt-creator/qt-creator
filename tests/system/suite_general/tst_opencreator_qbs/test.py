@@ -8,7 +8,7 @@ def main():
     if not neededFilePresent(pathCreator):
         return
 
-    startQC()
+    startQC(["-noload", "ClangCodeModel"])
     if not startedWithoutPluginError():
         return
     openQbsProject(pathCreator)
@@ -24,7 +24,7 @@ def main():
     else:
         test.warning("Parsing project timed out")
     compareProjectTree(rootNodeTemplate % "Qt Creator", "projecttree_creator.tsv")
-    buildIssuesTexts = map(lambda i: str(i[0]), getBuildIssues())
+    buildIssuesTexts = map(lambda i: str(i[0]), getBuildIssues(False))
     deprecationWarnings = "\n".join(set(filter(lambda s: "deprecated" in s, buildIssuesTexts)))
     if deprecationWarnings:
         test.warning("Creator claims that the .qbs file uses deprecated features.",

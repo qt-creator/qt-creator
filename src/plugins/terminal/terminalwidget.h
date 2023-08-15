@@ -129,7 +129,7 @@ protected:
     void setupColors();
     void setupActions();
 
-    void writeToPty(const QByteArray &data);
+    qint64 writeToPty(const QByteArray &data);
 
     int paintCell(QPainter &p,
                   const QRectF &cellRect,

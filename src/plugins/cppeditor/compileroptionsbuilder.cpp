@@ -64,6 +64,13 @@ static QString defineDirectiveToDefineOption(const Macro &macro)
     return QString::fromUtf8(option);
 }
 
+static QStringList cpuBlacklist()
+{
+    QStringList blacklist = qtcEnvironmentVariable("QTC_CLANGD_CPU_BLACKLIST")
+                                .split(':', Qt::SkipEmptyParts);
+    return blacklist << "cortex-a72.cortex-a53"; // See QTCREATORBUG-29304
+}
+
 QStringList XclangArgs(const QStringList &args)
 {
     QStringList options;
@@ -270,6 +277,7 @@ void CompilerOptionsBuilder::addPicIfCompilerFlagsContainsIt()
 void CompilerOptionsBuilder::addCompilerFlags()
 {
     add(m_compilerFlags.flags);
+    removeUnsupportedCpuFlags();
 }
 
 void CompilerOptionsBuilder::addMsvcExceptions()
@@ -372,6 +380,17 @@ void CompilerOptionsBuilder::addIncludeFile(const QString &file)
         add({isClStyle() ? QLatin1String(includeFileOptionCl)
                          : QLatin1String(includeFileOptionGcc),
              QDir::toNativeSeparators(file)});
+    }
+}
+
+void CompilerOptionsBuilder::removeUnsupportedCpuFlags()
+{
+    const QStringList blacklist = cpuBlacklist();
+    for (auto it = m_options.begin(); it != m_options.end();) {
+        if (it->startsWith("-mcpu=") && blacklist.contains(it->mid(6)))
+            it = m_options.erase(it);
+        else
+            ++it;
     }
 }
 

@@ -54,6 +54,10 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
     int rc = 0;
 
     m_shellProcess.m_handleMaster = ::posix_openpt(O_RDWR | O_NOCTTY);
+
+    int flags = fcntl(m_shellProcess.m_handleMaster, F_GETFL, 0);
+    fcntl(m_shellProcess.m_handleMaster, F_SETFL, flags | O_NONBLOCK);
+
     if (m_shellProcess.m_handleMaster <= 0) {
         m_lastError = QString("UnixPty Error: unable to open master -> %1").arg(QLatin1String(strerror(errno)));
         kill();
@@ -308,10 +312,7 @@ QByteArray UnixPtyProcess::readAll()
 
 qint64 UnixPtyProcess::write(const QByteArray &byteArray)
 {
-    int result = ::write(m_shellProcess.m_handleMaster, byteArray.constData(), byteArray.size());
-    Q_UNUSED(result)
-
-    return byteArray.size();
+    return ::write(m_shellProcess.m_handleMaster, byteArray.constData(), byteArray.size());
 }
 
 bool UnixPtyProcess::isAvailable()

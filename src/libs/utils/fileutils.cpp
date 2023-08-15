@@ -722,8 +722,7 @@ bool FileUtils::copyRecursively(
 bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
 {
     QTC_ASSERT(srcFilePath.exists(), return false);
-    QTC_ASSERT(srcFilePath.scheme() == tgtFilePath.scheme(), return false);
-    QTC_ASSERT(srcFilePath.host() == tgtFilePath.host(), return false);
+    QTC_ASSERT(srcFilePath.isSameDevice(tgtFilePath), return false);
 
     if (tgtFilePath.exists()) {
         const QDateTime srcModified = srcFilePath.lastModified();

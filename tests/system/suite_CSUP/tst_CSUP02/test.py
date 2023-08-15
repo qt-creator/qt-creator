@@ -41,8 +41,9 @@ def main():
             listView = waitForObject(":popupFrame_Proposal_QListView")
             shownProposals = dumpItems(listView.model())
             usedProposal = "class derived from QObject"
-            expectedProposals = ["class", "class ", "class template",
+            expectedProposals = ["class ", "class template",
                                  usedProposal, "class derived from QWidget"]
+            expectedProposals += [" class"] if useClang else ["class"]
             test.xcompare(len(shownProposals), len(expectedProposals),  # QTCREATORBUG-23159
                           "Number of proposed templates")
             test.verify(set(expectedProposals).issubset(set(shownProposals)),
@@ -58,12 +59,15 @@ def main():
             type(editorWidget, "<Tab>")
             type(editorWidget, "Myname")
             result = re.search(pattern.replace("name", "Myname"), str(editorWidget.plainText))
+            failMsg = ("Step 5: Seems that not all instances of variable had been renamed "
+                       "- Content of editor:\n%s" % editorWidget.plainText)
             if result:
                 test.passes("Step 5: Verifying if: A value for a variable is inserted and all "
                             "instances of the variable within the snippet are renamed.")
+            elif JIRA.isBugStillOpen(29012):
+                test.xfail(failMsg)
             else:
-                test.fail("Step 5: Seems that not all instances of variable had been renamed "
-                          "- Content of editor:\n%s" % editorWidget.plainText)
+                test.fail(failMsg)
             invokeMenuItem('File', 'Revert "main.cpp" to Saved')
             clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
             invokeMenuItem("File", "Exit")

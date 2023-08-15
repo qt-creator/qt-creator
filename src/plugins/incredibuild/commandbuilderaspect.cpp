@@ -61,7 +61,8 @@ public:
 };
 
 CommandBuilderAspect::CommandBuilderAspect(BuildStep *step)
-    : d(new CommandBuilderAspectPrivate(step))
+    : BaseAspect(step)
+    , d(new CommandBuilderAspectPrivate(step))
 {
 }
 

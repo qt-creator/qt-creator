@@ -49,8 +49,8 @@ def main():
                 availableProjectTypes.append({category:template})
     safeClickButton("Cancel")
     for current in availableProjectTypes:
-        category = list(current.keys())[0]
-        template = list(current.values())[0]
+        category = next(iter(current.keys()))
+        template = next(iter(current.values()))
         with TestSection("Testing project template %s -> %s" % (category, template)):
             displayedPlatforms = __createProject__(category, template)
             if template.startswith("Qt Quick Application"):

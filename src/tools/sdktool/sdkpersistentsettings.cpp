@@ -3,6 +3,8 @@
 
 #include "sdkpersistentsettings.h"
 
+#include "operation.h" // for cleanPath()
+
 #include <QCoreApplication>
 #include <QDataStream>
 #include <QDateTime>
@@ -826,7 +828,7 @@ void SdkPersistentSettingsWriter::setContents(const QVariantMap &data)
 
 bool SdkPersistentSettingsWriter::write(const QVariantMap &data, QString *errorString) const
 {
-    const QString parentDir = QDir::cleanPath(m_fileName + "/..");
+    const QString parentDir = cleanPath(m_fileName + "/..");
 
     const QFileInfo fi(parentDir);
     if (!(fi.exists() && fi.isDir() && fi.isWritable())) {
