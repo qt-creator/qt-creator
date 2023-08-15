@@ -299,11 +299,16 @@ bool BaseAspect::isEnabled() const
 
 void BaseAspect::setEnabled(bool enabled)
 {
-    d->m_enabled = enabled;
     for (QWidget *w : std::as_const(d->m_subWidgets)) {
         QTC_ASSERT(w, continue);
         w->setEnabled(enabled);
     }
+
+    if (enabled == d->m_enabled)
+        return;
+
+    d->m_enabled = enabled;
+    emit enabledChanged();
 }
 
 /*!
@@ -312,13 +317,16 @@ void BaseAspect::setEnabled(bool enabled)
 void BaseAspect::setEnabler(BoolAspect *checker)
 {
     QTC_ASSERT(checker, return);
-    setEnabled(checker->value());
-    connect(checker, &BoolAspect::volatileValueChanged, this, [this, checker] {
-        BaseAspect::setEnabled(checker->volatileValue());
-    });
-    connect(checker, &BoolAspect::changed, this, [this, checker] {
-        BaseAspect::setEnabled(checker->volatileValue());
-    });
+
+    auto update = [this, checker] {
+        BaseAspect::setEnabled(checker->isEnabled() && checker->volatileValue());
+    };
+
+    connect(checker, &BoolAspect::volatileValueChanged, this, update);
+    connect(checker, &BoolAspect::changed, this, update);
+    connect(checker, &BaseAspect::enabledChanged, this, update);
+
+    update();
 }
 
 bool BaseAspect::isReadOnly() const

@@ -187,6 +187,7 @@ signals:
     void volatileValueChanged();
     void labelLinkActivated(const QString &link);
     void checkedChanged();
+    void enabledChanged();
 
 protected:
     virtual bool internalToBuffer();
