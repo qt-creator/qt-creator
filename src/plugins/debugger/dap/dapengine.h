@@ -13,38 +13,16 @@
 
 namespace Debugger::Internal {
 
+class DapClient;
 class DebuggerCommand;
+class IDataProvider;
 class GdbMi;
+enum class DapResponseType;
+enum class DapEventType;
 
 /*
  * A debugger engine for the debugger adapter protocol.
  */
-
-class IDataProvider : public QObject
-{
-    Q_OBJECT
-public:
-    virtual void start() = 0;
-    virtual bool isRunning() const = 0;
-    virtual void writeRaw(const QByteArray &input) = 0;
-    virtual void kill() = 0;
-    virtual QByteArray readAllStandardOutput() = 0;
-    virtual QString readAllStandardError() = 0;
-    virtual int exitCode() const = 0;
-    virtual QString executable() const = 0;
-
-    virtual QProcess::ExitStatus exitStatus() const = 0;
-    virtual QProcess::ProcessError error() const = 0;
-    virtual Utils::ProcessResult result() const = 0;
-    virtual QString exitMessage() const = 0;
-
-signals:
-    void started();
-    void done();
-    void readyReadStandardOutput();
-    void readyReadStandardError();
-};
-
 class DapEngine : public DebuggerEngine
 {
 public:
@@ -91,7 +69,6 @@ protected:
     void updateItem(const QString &iname) override;
 
     void runCommand(const DebuggerCommand &cmd) override;
-    void postDirectCommand(const QJsonObject &ob);
 
     void refreshLocation(const GdbMi &reportedLocation);
     void refreshStack(const QJsonArray &stackFrames);
@@ -105,14 +82,10 @@ protected:
 
     void claimInitialBreakpoints();
 
-    virtual void handleDapStarted();
+    void handleDapStarted();
     void handleDapLaunch();
     void handleDapConfigurationDone();
 
-    void dapStackTrace();
-    void dapScopes(int frameId);
-    void threads();
-    void dapVariables(int variablesReference);
     void dapRemoveBreakpoint(const Breakpoint &bp);
     void dapInsertBreakpoint(const Breakpoint &bp);
 
@@ -120,14 +93,12 @@ protected:
     void readDapStandardOutput();
     void readDapStandardError();
 
-    void handleOutput(const QJsonDocument &data);
-
-    void handleResponse(const QJsonObject &response);
+    void handleResponse(DapResponseType type, const QJsonObject &response);
     void handleStackTraceResponse(const QJsonObject &response);
     void handleScopesResponse(const QJsonObject &response);
     void handleThreadsResponse(const QJsonObject &response);
 
-    void handleEvent(const QJsonObject &event);
+    void handleEvent(DapEventType type, const QJsonObject &event);
     void handleBreakpointEvent(const QJsonObject &event);
     void handleStoppedEvent(const QJsonObject &event);
 
@@ -136,7 +107,7 @@ protected:
     void connectDataGeneratorSignals();
 
     QByteArray m_inbuffer;
-    std::unique_ptr<IDataProvider> m_dataGenerator = nullptr;
+    std::unique_ptr<DapClient> m_dapClient = nullptr;
 
     int m_nextBreakpointId = 1;
     int m_currentThreadId = -1;

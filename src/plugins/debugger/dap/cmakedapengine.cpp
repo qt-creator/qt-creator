@@ -3,6 +3,8 @@
 
 #include "cmakedapengine.h"
 
+#include "dapclient.h"
+
 #include <coreplugin/messagemanager.h>
 
 #include <debugger/debuggermainwindow.h>
@@ -69,29 +71,28 @@ private:
     const QString m_socketName;
 };
 
+class CMakeDapClient : public DapClient
+{
+public:
+    CMakeDapClient(std::unique_ptr<IDataProvider> provider)
+        : DapClient(std::move(provider))
+    {}
+
+    void sendInitialize()
+    {
+        postRequest("initialize",
+                    QJsonObject{{"clientID", "QtCreator"},
+                                {"clientName", "QtCreator"},
+                                {"adapterID", "cmake"},
+                                {"pathFormat", "path"}});
+    }
+};
+
 CMakeDapEngine::CMakeDapEngine()
     : DapEngine()
 {
     setObjectName("CmakeDapEngine");
     setDebuggerName("CmakeDAP");
-}
-
-void CMakeDapEngine::handleDapStarted()
-{
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
-
-    postDirectCommand({
-        {"command", "initialize"},
-        {"type", "request"},
-        {"arguments", QJsonObject {
-            {"clientID",  "QtCreator"}, // The ID of the client using this adapter.
-            {"clientName",  "QtCreator"}, //  The human-readable name of the client using this adapter.
-            {"adapterID", "cmake"},
-            {"pathFormat", "path"}
-        }}
-    });
-
-    qCDebug(dapEngineLog) << "handleDapStarted";
 }
 
 void CMakeDapEngine::setupEngine()
@@ -101,24 +102,26 @@ void CMakeDapEngine::setupEngine()
     qCDebug(dapEngineLog) << "build system name"
                           << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
 
+    std::unique_ptr<IDataProvider> dataProvider;
     if (TemporaryDirectory::masterDirectoryFilePath().osType() == Utils::OsType::OsTypeWindows) {
-        m_dataGenerator = std::make_unique<LocalSocketDataProvider>("\\\\.\\pipe\\cmake-dap");
+        dataProvider = std::make_unique<LocalSocketDataProvider>("\\\\.\\pipe\\cmake-dap");
     } else {
-        m_dataGenerator = std::make_unique<LocalSocketDataProvider>(
+        dataProvider = std::make_unique<LocalSocketDataProvider>(
             TemporaryDirectory::masterDirectoryPath() + "/cmake-dap.sock");
     }
+    m_dapClient = std::make_unique<CMakeDapClient>(std::move(dataProvider));
     connectDataGeneratorSignals();
 
     connect(ProjectExplorer::ProjectTree::currentBuildSystem(),
             &ProjectExplorer::BuildSystem::debuggingStarted,
             this,
-            [this] { m_dataGenerator->start(); });
+            [this] { m_dapClient->dataProvider()->start(); });
 
     ProjectExplorer::ProjectTree::currentBuildSystem()->requestDebugging();
 
     QTimer::singleShot(5000, this, [this] {
-        if (!m_dataGenerator->isRunning()) {
-            m_dataGenerator->kill();
+        if (!m_dapClient->dataProvider()->isRunning()) {
+            m_dapClient->dataProvider()->kill();
             MessageManager::writeDisrupting(
                 "CMake server is not running. Please check that your CMake is 3.27 or higher.");
             return;

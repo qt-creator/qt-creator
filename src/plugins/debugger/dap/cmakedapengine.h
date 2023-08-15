@@ -13,7 +13,6 @@ public:
     CMakeDapEngine();
 
 private:
-    void handleDapStarted() override;
     void setupEngine() override;
 
     /* Needed for CMake support issue:25176 */
