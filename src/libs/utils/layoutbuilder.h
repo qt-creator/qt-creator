@@ -141,6 +141,12 @@ public:
     Tab(const QString &tabName, const LayoutItem &item);
 };
 
+class QTCREATOR_UTILS_EXPORT If : public LayoutItem
+{
+public:
+    If(bool condition, const LayoutItems &item, const LayoutItems &other = {});
+};
+
 class QTCREATOR_UTILS_EXPORT Group : public LayoutItem
 {
 public:

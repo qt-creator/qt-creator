@@ -819,6 +819,13 @@ Tab::Tab(const QString &tabName, const LayoutItem &item)
     };
 }
 
+// Special If
+
+If::If(bool condition, const LayoutItems &items, const LayoutItems &other)
+{
+    subItems.append(condition ? items : other);
+}
+
 // Special Application
 
 Application::Application(std::initializer_list<LayoutItem> items)
