@@ -61,7 +61,6 @@ CopilotSettings::CopilotSettings()
     nodeJsPath.setLabelText(Tr::tr("Node.js path:"));
     nodeJsPath.setHistoryCompleter("Copilot.NodePath.History");
     nodeJsPath.setDisplayName(Tr::tr("Node.js Path"));
-    nodeJsPath.setEnabler(&enableCopilot);
     nodeJsPath.setToolTip(
         Tr::tr("Select path to node.js executable. See https://nodejs.org/en/download/"
                "for installation instructions."));
@@ -72,7 +71,6 @@ CopilotSettings::CopilotSettings()
     distPath.setLabelText(Tr::tr("Path to agent.js:"));
     distPath.setHistoryCompleter("Copilot.DistPath.History");
     distPath.setDisplayName(Tr::tr("Agent.js path"));
-    distPath.setEnabler(&enableCopilot);
     distPath.setToolTip(Tr::tr(
         "Select path to agent.js in Copilot Neovim plugin. See "
         "https://github.com/github/copilot.vim#getting-started for installation instructions."));
@@ -81,7 +79,6 @@ CopilotSettings::CopilotSettings()
     autoComplete.setSettingsKey("Copilot.Autocomplete");
     autoComplete.setLabelText(Tr::tr("Auto request"));
     autoComplete.setDefaultValue(true);
-    autoComplete.setEnabler(&enableCopilot);
     autoComplete.setToolTip(Tr::tr("Automatically request suggestions for the current text cursor "
                                    "position after changes to the document."));
     autoComplete.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
@@ -90,7 +87,6 @@ CopilotSettings::CopilotSettings()
     useProxy.setSettingsKey("Copilot.UseProxy");
     useProxy.setLabelText(Tr::tr("Use Proxy"));
     useProxy.setDefaultValue(false);
-    useProxy.setEnabler(&enableCopilot);
     useProxy.setToolTip(Tr::tr("Use a proxy to connect to the Copilot servers."));
     useProxy.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
@@ -99,7 +95,6 @@ CopilotSettings::CopilotSettings()
     proxyHost.setSettingsKey("Copilot.ProxyHost");
     proxyHost.setLabelText(Tr::tr("Proxy Host"));
     proxyHost.setDefaultValue("");
-    proxyHost.setEnabler(&useProxy);
     proxyHost.setToolTip(Tr::tr("The host name of the proxy server."));
     proxyHost.setHistoryCompleter("Copilot.ProxyHost.History");
 
@@ -107,7 +102,6 @@ CopilotSettings::CopilotSettings()
     proxyPort.setSettingsKey("Copilot.ProxyPort");
     proxyPort.setLabelText(Tr::tr("Proxy Port"));
     proxyPort.setDefaultValue(3128);
-    proxyPort.setEnabler(&useProxy);
     proxyPort.setToolTip(Tr::tr("The port of the proxy server."));
     proxyPort.setRange(1, 65535);
 
@@ -116,7 +110,6 @@ CopilotSettings::CopilotSettings()
     proxyUser.setSettingsKey("Copilot.ProxyUser");
     proxyUser.setLabelText(Tr::tr("Proxy User"));
     proxyUser.setDefaultValue("");
-    proxyUser.setEnabler(&useProxy);
     proxyUser.setToolTip(Tr::tr("The user name for the proxy server."));
     proxyUser.setHistoryCompleter("Copilot.ProxyUser.History");
 
@@ -124,7 +117,6 @@ CopilotSettings::CopilotSettings()
     saveProxyPassword.setSettingsKey("Copilot.SaveProxyPassword");
     saveProxyPassword.setLabelText(Tr::tr("Save Proxy Password"));
     saveProxyPassword.setDefaultValue(false);
-    saveProxyPassword.setEnabler(&useProxy);
     saveProxyPassword.setToolTip(
         Tr::tr("Save the password for the proxy server (Password is stored insecurely!)."));
     saveProxyPassword.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
@@ -134,14 +126,12 @@ CopilotSettings::CopilotSettings()
     proxyPassword.setSettingsKey("Copilot.ProxyPassword");
     proxyPassword.setLabelText(Tr::tr("Proxy Password"));
     proxyPassword.setDefaultValue("");
-    proxyPassword.setEnabler(&saveProxyPassword);
     proxyPassword.setToolTip(Tr::tr("The password for the proxy server."));
 
     proxyRejectUnauthorized.setDisplayName(Tr::tr("Reject Unauthorized"));
     proxyRejectUnauthorized.setSettingsKey("Copilot.ProxyRejectUnauthorized");
     proxyRejectUnauthorized.setLabelText(Tr::tr("Reject Unauthorized"));
     proxyRejectUnauthorized.setDefaultValue(true);
-    proxyRejectUnauthorized.setEnabler(&useProxy);
     proxyRejectUnauthorized.setToolTip(Tr::tr("Reject unauthorized certificates from the proxy "
                                               "server. This is a security risk."));
     proxyRejectUnauthorized.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
@@ -150,6 +140,21 @@ CopilotSettings::CopilotSettings()
     enableCopilot.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     readSettings();
+
+    // TODO: As a workaround we set the enabler after reading the settings, as that does not signal
+    // a change.
+    nodeJsPath.setEnabler(&enableCopilot);
+    distPath.setEnabler(&enableCopilot);
+    autoComplete.setEnabler(&enableCopilot);
+    useProxy.setEnabler(&enableCopilot);
+
+    proxyHost.setEnabler(&useProxy);
+    proxyPort.setEnabler(&useProxy);
+    proxyUser.setEnabler(&useProxy);
+    saveProxyPassword.setEnabler(&useProxy);
+    proxyRejectUnauthorized.setEnabler(&useProxy);
+
+    proxyPassword.setEnabler(&saveProxyPassword);
 
     setLayouter([this] {
         using namespace Layouting;
