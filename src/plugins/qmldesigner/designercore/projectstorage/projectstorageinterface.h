@@ -59,6 +59,7 @@ public:
     virtual Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId sourceId) const = 0;
     virtual std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const = 0;
 
+    virtual SourceId propertyEditorPathId(TypeId typeId) const = 0;
     virtual const Storage::Info::CommonTypeCache<ProjectStorageInterface> &commonTypeCache() const = 0;
 
     template<const char *moduleName, const char *typeName>

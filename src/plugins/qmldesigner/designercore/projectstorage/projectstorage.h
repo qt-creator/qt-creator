@@ -83,6 +83,8 @@ public:
                              relinkablePrototypes,
                              relinkableExtensions,
                              package.updatedSourceIds);
+            synchronizePropertyEditorQmlPaths(package.propertyEditorQmlPaths,
+                                              package.updatedPropertyEditorQmlPathSourceIds);
 
             deleteNotUpdatedTypes(updatedTypeIds,
                                   package.updatedSourceIds,
@@ -521,6 +523,20 @@ public:
     {
         return selectProjectDatasForSourceIdsStatement.template valuesWithTransaction<
             Storage::Synchronization::ProjectData>(64, toIntegers(projectSourceIds));
+    }
+
+    void setPropertyEditorPathId(TypeId typeId, SourceId pathId)
+    {
+        Sqlite::ImmediateSessionTransaction transaction{database};
+
+        upsertPropertyEditorPathIdStatement.write(typeId, pathId);
+
+        transaction.commit();
+    }
+
+    SourceId propertyEditorPathId(TypeId typeId) const override
+    {
+        return selectPropertyEditorPathIdStatement.template valueWithTransaction<SourceId>(typeId);
     }
 
 private:
@@ -1660,6 +1676,76 @@ private:
         return json;
     }
 
+    TypeId fetchTypeIdByModuleIdAndExportedName(ModuleId moduleId, Utils::SmallStringView name) const
+    {
+        return selectTypeIdByModuleIdAndExportedNameStatement.template value<TypeId>(moduleId, name);
+    }
+
+    void addTypeIdToPropertyEditorQmlPaths(Storage::Synchronization::PropertyEditorQmlPaths &paths)
+    {
+        for (auto &path : paths)
+            path.typeId = fetchTypeIdByModuleIdAndExportedName(path.moduleId, path.typeName);
+    }
+
+    class PropertyEditorQmlPathView
+    {
+    public:
+        PropertyEditorQmlPathView(TypeId typeId, SourceId pathId, SourceId directoryId)
+            : typeId{typeId}
+            , pathId{pathId}
+            , directoryId{directoryId}
+        {}
+
+    public:
+        TypeId typeId;
+        SourceId pathId;
+        SourceId directoryId;
+    };
+
+    void synchronizePropertyEditorPaths(Storage::Synchronization::PropertyEditorQmlPaths &paths,
+                                        SourceIds updatedPropertyEditorQmlPathsSourceIds)
+    {
+        using Storage::Synchronization::PropertyEditorQmlPath;
+        std::sort(paths.begin(), paths.end(), [](auto &&first, auto &&second) {
+            return first.typeId < second.typeId;
+        });
+
+        auto range = selectPropertyEditorPathsForForSourceIdsStatement
+                         .template range<PropertyEditorQmlPathView>(
+                             toIntegers(updatedPropertyEditorQmlPathsSourceIds));
+
+        auto compareKey = [](const PropertyEditorQmlPathView &view,
+                             const PropertyEditorQmlPath &value) -> long long {
+            return view.typeId - value.typeId;
+        };
+
+        auto insert = [&](const PropertyEditorQmlPath &path) {
+            if (path.typeId)
+                insertPropertyEditorPathStatement.write(path.typeId, path.pathId, path.directoryId);
+        };
+
+        auto update = [&](const PropertyEditorQmlPathView &view, const PropertyEditorQmlPath &value) {
+            if (value.pathId != view.pathId || value.directoryId != view.directoryId) {
+                updatePropertyEditorPathsStatement.write(value.typeId, value.pathId, value.directoryId);
+                return Sqlite::UpdateChange::Update;
+            }
+            return Sqlite::UpdateChange::No;
+        };
+
+        auto remove = [&](const PropertyEditorQmlPathView &view) {
+            deletePropertyEditorPathStatement.write(view.typeId);
+        };
+
+        Sqlite::insertUpdateDelete(range, paths, compareKey, insert, update, remove);
+    }
+
+    void synchronizePropertyEditorQmlPaths(Storage::Synchronization::PropertyEditorQmlPaths &paths,
+                                           SourceIds updatedPropertyEditorQmlPathsSourceIds)
+    {
+        addTypeIdToPropertyEditorQmlPaths(paths);
+        synchronizePropertyEditorPaths(paths, updatedPropertyEditorQmlPathsSourceIds);
+    }
+
     void synchronizeFunctionDeclarations(
         TypeId typeId, Storage::Synchronization::FunctionDeclarations &functionsDeclarations)
     {
@@ -2313,6 +2399,7 @@ private:
                 createDocumentImportsTable(database, moduleIdColumn);
                 createFileStatusesTable(database);
                 createProjectDatasTable(database);
+                createPropertyEditorPathsTable(database);
             }
             database.setIsInitialized(true);
         }
@@ -2643,6 +2730,22 @@ private:
 
             table.addPrimaryKeyContraint({projectSourceIdColumn, sourceIdColumn});
             table.addUniqueIndex({sourceIdColumn});
+
+            table.initialize(database);
+        }
+
+        void createPropertyEditorPathsTable(Database &database)
+        {
+            Sqlite::StrictTable table;
+            table.setUseIfNotExists(true);
+            table.setUseWithoutRowId(true);
+            table.setName("propertyEditorPaths");
+            table.addColumn("typeId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
+            table.addColumn("pathSourceId", Sqlite::StrictColumnType::Integer);
+            auto &directoryIdColumn = table.addColumn("directoryId",
+                                                      Sqlite::StrictColumnType::Integer);
+
+            table.addIndex({directoryIdColumn});
 
             table.initialize(database);
         }
@@ -3331,6 +3434,28 @@ public:
         "        USING(typeId))"
         "SELECT typeId FROM typeSelection",
         database};
+    WriteStatement<2> upsertPropertyEditorPathIdStatement{
+        "INSERT INTO propertyEditorPaths(typeId, pathSourceId) VALUES(?1, ?2) ON CONFLICT DO "
+        "UPDATE SET pathSourceId=excluded.pathSourceId WHERE pathSourceId IS NOT "
+        "excluded.pathSourceId",
+        database};
+    mutable ReadStatement<1, 1> selectPropertyEditorPathIdStatement{
+        "SELECT pathSourceId FROM propertyEditorPaths WHERE typeId=?", database};
+    mutable ReadStatement<3, 1> selectPropertyEditorPathsForForSourceIdsStatement{
+        "SELECT typeId, pathSourceId, directoryId "
+        "FROM propertyEditorPaths "
+        "WHERE directoryId IN carray(?1) "
+        "ORDER BY typeId",
+        database};
+    WriteStatement<3> insertPropertyEditorPathStatement{
+        "INSERT INTO propertyEditorPaths(typeId, pathSourceId, directoryId) VALUES (?1, ?2, ?3)",
+        database};
+    WriteStatement<3> updatePropertyEditorPathsStatement{"UPDATE propertyEditorPaths "
+                                                         "SET pathSourceId=?2, directoryId=?3 "
+                                                         "WHERE typeId=?1",
+                                                         database};
+    WriteStatement<1> deletePropertyEditorPathStatement{
+        "DELETE FROM propertyEditorPaths WHERE typeId=?1", database};
 };
 extern template class ProjectStorage<Sqlite::Database>;
 } // namespace QmlDesigner

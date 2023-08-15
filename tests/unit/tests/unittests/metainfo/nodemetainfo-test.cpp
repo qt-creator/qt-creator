@@ -2345,4 +2345,25 @@ TEST_F(NodeMetaInfo, default_is_not_number)
 
     ASSERT_THAT(isType, IsFalse());
 }
+
+TEST_F(NodeMetaInfo, property_editor_specifics_path)
+{
+    auto metaInfo = createMetaInfo("QtQuick", "Item");
+    auto pathId = QmlDesigner::SourceId::create(45);
+    ON_CALL(projectStorageMock, propertyEditorPathId(metaInfo.id())).WillByDefault(Return(pathId));
+
+    auto id = metaInfo.propertyEditorPathId();
+
+    ASSERT_THAT(id, pathId);
+}
+
+TEST_F(NodeMetaInfo, default_property_editor_specifics_path_is_empty)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    auto id = metaInfo.propertyEditorPathId();
+
+    ASSERT_THAT(id, IsFalse());
+}
+
 } // namespace

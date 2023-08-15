@@ -1797,6 +1797,16 @@ QString NodeMetaInfo::requiredImportString() const
     return {};
 }
 
+SourceId NodeMetaInfo::propertyEditorPathId() const
+{
+    if (useProjectStorage()) {
+        if (isValid())
+            return m_projectStorage->propertyEditorPathId(m_typeId);
+    }
+
+    return SourceId{};
+}
+
 const Storage::Info::Type &NodeMetaInfo::typeData() const
 {
     if (!m_typeData)

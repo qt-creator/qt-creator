@@ -259,6 +259,10 @@ public:
     MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceContext>, fetchAllSourceContexts, (), ());
     MOCK_METHOD(std::vector<QmlDesigner::Cache::Source>, fetchAllSources, (), ());
 
+    MOCK_METHOD(QmlDesigner::SourceId,
+                propertyEditorPathId,
+                (QmlDesigner::TypeId typeId),
+                (const, override));
     QmlDesigner::Storage::Info::CommonTypeCache<QmlDesigner::ProjectStorageInterface> typeCache{*this};
 };
 

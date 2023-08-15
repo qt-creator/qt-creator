@@ -965,6 +965,48 @@ protected:
         return package;
     }
 
+    auto createPropertyEditorPathsSynchronizationPackage()
+    {
+        SynchronizationPackage package;
+
+        package.updatedModuleIds.push_back(qtQuickModuleId);
+        package.types.push_back(Storage::Synchronization::Type{
+            "QQuickItem",
+            Storage::Synchronization::ImportedType{},
+            Storage::Synchronization::ImportedType{},
+            TypeTraits::Reference,
+            sourceId1,
+            {Storage::Synchronization::ExportedType{qtQuickModuleId, "Item", Storage::Version{1, 0}}}});
+        package.types.push_back(
+            Storage::Synchronization::Type{"QObject",
+                                           Storage::Synchronization::ImportedType{},
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Reference,
+                                           sourceId2,
+                                           {Storage::Synchronization::ExportedType{
+                                               qtQuickModuleId, "QtObject", Storage::Version{1, 0}}}});
+        package.updatedModuleIds.push_back(qtQuick3DModuleId);
+        package.types.push_back(
+            Storage::Synchronization::Type{"QQuickItem3d",
+                                           Storage::Synchronization::ImportedType{},
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Reference,
+                                           sourceId3,
+                                           {Storage::Synchronization::ExportedType{
+                                               qtQuickModuleId, "Item3D", Storage::Version{1, 0}}}});
+
+        package.imports.emplace_back(qtQuick3DModuleId, Storage::Version{1}, sourceId4);
+
+        package.updatedSourceIds = {sourceId1, sourceId2, sourceId3};
+
+        package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "QtObject", sourceId1, sourceIdPath);
+        package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item", sourceId2, sourceIdPath);
+        package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item3D", sourceId3, sourceIdPath);
+        package.updatedPropertyEditorQmlPathSourceIds.emplace_back(sourceIdPath);
+
+        return package;
+    }
+
     template<typename Range>
     static FileStatuses convert(const Range &range)
     {
@@ -1027,12 +1069,14 @@ protected:
     QmlDesigner::SourcePathView path4{"/path4/to"};
     QmlDesigner::SourcePathView path5{"/path5/to"};
     QmlDesigner::SourcePathView path6{"/path6/to"};
+    QmlDesigner::SourcePathView pathPath{"/path6/."};
     SourceId sourceId1{sourcePathCache.sourceId(path1)};
     SourceId sourceId2{sourcePathCache.sourceId(path2)};
     SourceId sourceId3{sourcePathCache.sourceId(path3)};
     SourceId sourceId4{sourcePathCache.sourceId(path4)};
     SourceId sourceId5{sourcePathCache.sourceId(path5)};
     SourceId sourceId6{sourcePathCache.sourceId(path6)};
+    SourceId sourceIdPath{sourcePathCache.sourceId(path6)};
     SourceId qmlProjectSourceId{sourcePathCache.sourceId("/path1/qmldir")};
     SourceId qtQuickProjectSourceId{sourcePathCache.sourceId("/path2/qmldir")};
     ModuleId qmlModuleId{storage.moduleId("Qml")};
@@ -7011,4 +7055,73 @@ TEST_F(ProjectStorage, get_no_exported_type_names_for_source_id_for_non_matching
 
     ASSERT_THAT(exportedTypeNames, IsEmpty());
 }
+
+TEST_F(ProjectStorage, get_property_editor_path_is)
+{
+    TypeId typeId = TypeId::create(21);
+    SourceId sourceId = SourceId::create(5);
+    storage.setPropertyEditorPathId(typeId, sourceId);
+
+    auto id = storage.propertyEditorPathId(typeId);
+
+    ASSERT_THAT(id, sourceId);
+}
+
+TEST_F(ProjectStorage, get_empty_property_editor_specifics_path_id_if_not_exists)
+{
+    TypeId typeId = TypeId::create(21);
+
+    auto id = storage.propertyEditorPathId(typeId);
+
+    ASSERT_THAT(id, IsFalse());
+}
+
+TEST_F(ProjectStorage, synchronize_property_editor_paths)
+{
+    auto package{createPropertyEditorPathsSynchronizationPackage()};
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId2, "QObject")), sourceId1);
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId1, "QQuickItem")), sourceId2);
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId3, "QQuickItem3d")), sourceId3);
+}
+
+TEST_F(ProjectStorage, synchronize_property_editor_paths_removes_path)
+{
+    auto package{createPropertyEditorPathsSynchronizationPackage()};
+    storage.synchronize(package);
+    package.propertyEditorQmlPaths.pop_back();
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId2, "QObject")), sourceId1);
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId1, "QQuickItem")), sourceId2);
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId3, "QQuickItem3d")), IsFalse());
+}
+
+TEST_F(ProjectStorage, synchronize_property_editor_adds_path)
+{
+    auto package{createPropertyEditorPathsSynchronizationPackage()};
+    package.propertyEditorQmlPaths.pop_back();
+    storage.synchronize(package);
+    package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item3D", sourceId3, sourceIdPath);
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId2, "QObject")), sourceId1);
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId1, "QQuickItem")), sourceId2);
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId3, "QQuickItem3d")), sourceId3);
+}
+
+TEST_F(ProjectStorage, synchronize_property_editor_with_non_existing_type_name)
+{
+    auto package{createPropertyEditorPathsSynchronizationPackage()};
+    package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item4D", sourceId4, sourceIdPath);
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId4, "Item4D")), IsFalse());
+}
+
 } // namespace
