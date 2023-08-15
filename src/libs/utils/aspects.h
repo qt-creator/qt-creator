@@ -545,7 +545,8 @@ public:
     enum DisplayStyle {
         LabelDisplay,
         LineEditDisplay,
-        TextEditDisplay
+        TextEditDisplay,
+        PasswordLineEditDisplay,
     };
     void setDisplayStyle(DisplayStyle style);
 

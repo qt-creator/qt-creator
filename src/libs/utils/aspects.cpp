@@ -8,6 +8,7 @@
 #include "environment.h"
 #include "fancylineedit.h"
 #include "layoutbuilder.h"
+#include "passworddialog.h"
 #include "pathchooser.h"
 #include "qtcassert.h"
 #include "qtcolorbutton.h"
@@ -777,6 +778,7 @@ public:
     QString m_historyCompleterKey;
     QPointer<ElidingLabel> m_labelDisplay;
     QPointer<FancyLineEdit> m_lineEditDisplay;
+    QPointer<ShowPasswordButton> m_showPasswordButton;
     QPointer<QTextEdit> m_textEditDisplay;
     MacroExpanderProvider m_expanderProvider;
     StringAspect::ValueAcceptor m_valueAcceptor;
@@ -855,6 +857,9 @@ public:
 
       \value PathChooserDisplay
              Based on Utils::PathChooser.
+
+      \value PasswordLineEditDisplay
+             Based on QLineEdit, used for password strings
 
     \sa Utils::PathChooser
 */
@@ -1047,6 +1052,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
 
     switch (d->m_displayStyle) {
+    case PasswordLineEditDisplay:
     case LineEditDisplay:
         d->m_lineEditDisplay = createSubWidget<FancyLineEdit>();
         d->m_lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
@@ -1080,6 +1086,19 @@ void StringAspect::addToLayout(LayoutItem &parent)
         } else {
             connect(d->m_lineEditDisplay, &QLineEdit::textEdited,
                     this, &StringAspect::handleGuiChanged);
+        }
+        if (d->m_displayStyle == PasswordLineEditDisplay) {
+            d->m_showPasswordButton = createSubWidget<ShowPasswordButton>();
+            d->m_lineEditDisplay->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+            parent.addItem(d->m_showPasswordButton);
+            connect(d->m_showPasswordButton,
+                    &ShowPasswordButton::toggled,
+                    d->m_lineEditDisplay,
+                    [this] {
+                        d->m_lineEditDisplay->setEchoMode(d->m_showPasswordButton->isChecked()
+                                                              ? QLineEdit::Normal
+                                                              : QLineEdit::PasswordEchoOnEdit);
+                    });
         }
         break;
     case TextEditDisplay:
