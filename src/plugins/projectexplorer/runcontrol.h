@@ -83,7 +83,6 @@ public:
 
     void reportFailure(const QString &msg = QString());
     void setSupportsReRunning(bool reRunningSupported);
-    bool supportsReRunning() const;
 
     static QString userMessageForProcessError(QProcess::ProcessError,
                                               const Utils::FilePath &programName);

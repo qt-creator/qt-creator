@@ -1751,11 +1751,6 @@ void RunWorker::setSupportsReRunning(bool reRunningSupported)
     d->supportsReRunning = reRunningSupported;
 }
 
-bool RunWorker::supportsReRunning() const
-{
-    return d->supportsReRunning;
-}
-
 QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const FilePath &program)
 {
     QString failedToStart = Tr::tr("The process failed to start.");
