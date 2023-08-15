@@ -173,9 +173,6 @@ private:
 
     static void destroy();
 
-    static void registerKitAspect(KitAspectFactory *ki);
-    static void deregisterKitAspect(KitAspectFactory *ki);
-
     static void setBinaryForKit(const Utils::FilePath &binary);
 
     // Make sure the this is only called after all
@@ -188,7 +185,6 @@ private:
     friend class ProjectExplorerPlugin; // for constructor
     friend class Kit;
     friend class Internal::KitManagerConfigWidget;
-    friend class KitAspectFactory; // for notifyAboutUpdate and self-registration
 };
 
 } // namespace ProjectExplorer

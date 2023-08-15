@@ -66,15 +66,9 @@ static FilePath settingsFileName()
 // KitManagerPrivate:
 // --------------------------------------------------------------------------
 
-class KitManagerPrivate
+class KitAspectFactories
 {
 public:
-    Kit *m_defaultKit = nullptr;
-    bool m_initialized = false;
-    std::vector<std::unique_ptr<Kit>> m_kitList;
-    std::unique_ptr<PersistentSettingsWriter> m_writer;
-    QSet<Id> m_irrelevantAspects;
-
     void addKitAspect(KitAspectFactory *factory)
     {
         QTC_ASSERT(!m_aspectList.contains(factory), return);
@@ -99,15 +93,31 @@ public:
         return m_aspectList;
     }
 
-    void setBinaryForKit(const FilePath &fp) { m_binaryForKit = fp; }
-    FilePath binaryForKit() const { return m_binaryForKit; }
-
-private:
     // Sorted by priority, in descending order...
     QList<KitAspectFactory *> m_aspectList;
     // ... if this here is set:
     bool m_aspectListIsSorted = true;
+};
 
+static KitAspectFactories &kitAspectFactoriesStorage()
+{
+    static KitAspectFactories theKitAspectFactories;
+    return theKitAspectFactories;
+}
+
+class KitManagerPrivate
+{
+public:
+    Kit *m_defaultKit = nullptr;
+    bool m_initialized = false;
+    std::vector<std::unique_ptr<Kit>> m_kitList;
+    std::unique_ptr<PersistentSettingsWriter> m_writer;
+    QSet<Id> m_irrelevantAspects;
+
+    void setBinaryForKit(const FilePath &fp) { m_binaryForKit = fp; }
+    FilePath binaryForKit() const { return m_binaryForKit; }
+
+private:
     FilePath m_binaryForKit;
 };
 
@@ -450,29 +460,6 @@ bool KitManager::isLoaded()
     return d->m_initialized;
 }
 
-void KitManager::registerKitAspect(KitAspectFactory *factory)
-{
-    instance();
-    QTC_ASSERT(d, return);
-    d->addKitAspect(factory);
-
-    // Adding this aspect to possibly already existing kits is currently not
-    // needed here as kits are only created after all aspects are created
-    // in *Plugin::initialize().
-    // Make sure we notice when this assumption breaks:
-    QTC_CHECK(d->m_kitList.empty());
-}
-
-void KitManager::deregisterKitAspect(KitAspectFactory *factory)
-{
-    // Happens regularly for the aspects from the ProjectExplorerPlugin as these
-    // are destroyed after the manual call to KitManager::destroy() there, but as
-    // this here is just for sanity reasons that the KitManager does not access
-    // a destroyed aspect, a destroyed KitManager is not a problem.
-    if (d)
-        d->removeKitAspect(factory);
-}
-
 void KitManager::setBinaryForKit(const FilePath &binary)
 {
     QTC_ASSERT(d, return);
@@ -575,7 +562,7 @@ Kit *KitManager::defaultKit()
 
 const QList<KitAspectFactory *> KitManager::kitAspectFactories()
 {
-    return d->kitAspectFactories();
+    return kitAspectFactoriesStorage().m_aspectList;
 }
 
 const QSet<Id> KitManager::irrelevantAspects()
@@ -648,7 +635,7 @@ void KitManager::completeKit(Kit *k)
 {
     QTC_ASSERT(k, return);
     KitGuard g(k);
-    for (KitAspectFactory *factory : d->kitAspectFactories()) {
+    for (KitAspectFactory *factory : kitAspectFactories()) {
         factory->upgrade(k);
         if (!k->hasValue(factory->id()))
             factory->setup(k);
@@ -663,12 +650,19 @@ void KitManager::completeKit(Kit *k)
 
 KitAspectFactory::KitAspectFactory()
 {
-    KitManager::registerKitAspect(this);
+    kitAspectFactoriesStorage().addKitAspect(this);
+
+    // Adding aspects created by this factory to possibly already existing kits is
+    // currently not needed here as kits are only created after all factories
+    // are created in *Plugin::initialize() or plugin load.
+    // Make sure we notice when this assumption breaks:
+    KitManager::instance(); // Ensure existence
+    QTC_CHECK(d->m_kitList.empty());
 }
 
 KitAspectFactory::~KitAspectFactory()
 {
-    KitManager::deregisterKitAspect(this);
+    kitAspectFactoriesStorage().removeKitAspect(this);
 }
 
 int KitAspectFactory::weight(const Kit *k) const
