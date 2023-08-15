@@ -127,7 +127,6 @@ public:
     {
         connect(q, &InterpreterAspect::changed,
                 this, &PythonInterpreterAspectPrivate::currentInterpreterChanged);
-        currentInterpreterChanged();
 
         connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
                 [this](const FilePath &python) {

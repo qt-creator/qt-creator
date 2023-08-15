@@ -809,6 +809,8 @@ Interpreter InterpreterAspect::currentInterpreter() const
 
 void InterpreterAspect::updateInterpreters(const QList<Interpreter> &interpreters)
 {
+    if (m_interpreters == interpreters)
+        return;
     m_interpreters = interpreters;
     if (m_comboBox)
         updateComboBox();
@@ -816,9 +818,11 @@ void InterpreterAspect::updateInterpreters(const QList<Interpreter> &interpreter
 
 void InterpreterAspect::setDefaultInterpreter(const Interpreter &interpreter)
 {
+    if (m_defaultId == interpreter.id)
+        return;
     m_defaultId = interpreter.id;
     if (m_currentId.isEmpty())
-        m_currentId = m_defaultId;
+        setCurrentInterpreter(interpreter);
 }
 
 void InterpreterAspect::setCurrentInterpreter(const Interpreter &interpreter)
@@ -829,14 +833,13 @@ void InterpreterAspect::setCurrentInterpreter(const Interpreter &interpreter)
             return;
         m_comboBox->setCurrentIndex(index);
     } else {
-        m_currentId = interpreter.id;
+        setCurrentInterpreterId(interpreter.id);
     }
-    emit changed();
 }
 
 void InterpreterAspect::fromMap(const QVariantMap &map)
 {
-    m_currentId = map.value(settingsKey(), m_defaultId).toString();
+    setCurrentInterpreterId(map.value(settingsKey(), m_defaultId).toString());
 }
 
 void InterpreterAspect::toMap(QVariantMap &map) const
@@ -862,15 +865,22 @@ void InterpreterAspect::addToLayout(LayoutItem &builder)
     builder.addItems({Tr::tr("Interpreter:"), m_comboBox.data(), manageButton});
 }
 
+void InterpreterAspect::setCurrentInterpreterId(const QString &id)
+{
+    if (id == m_currentId)
+        return;
+    m_currentId = id;
+    emit changed();
+}
+
 void InterpreterAspect::updateCurrentInterpreter()
 {
     const int index = m_comboBox->currentIndex();
     if (index < 0)
         return;
     QTC_ASSERT(index < m_interpreters.size(), return);
-    m_currentId = m_interpreters[index].id;
     m_comboBox->setToolTip(m_interpreters[index].command.toUserOutput());
-    emit changed();
+    setCurrentInterpreterId(m_interpreters[index].id);
 }
 
 void InterpreterAspect::updateComboBox()

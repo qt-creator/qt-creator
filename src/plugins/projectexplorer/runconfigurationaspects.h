@@ -245,6 +245,7 @@ public:
     struct Data : Utils::BaseAspect::Data { Interpreter interpreter; };
 
 private:
+    void setCurrentInterpreterId(const QString &id);
     void updateCurrentInterpreter();
     void updateComboBox();
     QList<Interpreter> m_interpreters;
