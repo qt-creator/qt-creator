@@ -3,7 +3,7 @@ add_qtc_library(TestMatchers OBJECT
   PROPERTIES SKIP_AUTOGEN ON
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
   DEPENDS
-    Googletest Utils QmlDesigner
+    Googletest Utils TestDesignerCore
   SOURCES
     info_exportedtypenames-matcher.h
     import-matcher.h
