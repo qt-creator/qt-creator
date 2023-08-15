@@ -37,13 +37,14 @@ list(APPEND DEFAULT_DEFINES
 # use CMAKE_CURRENT_FUNCTION_LIST_DIR when we can require CMake 3.17
 set(_THIS_MODULE_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
+env_with_default("QTC_WITH_CCACHE_SUPPORT" ENV_WITH_CCACHE_SUPPORT OFF)
 option(BUILD_PLUGINS_BY_DEFAULT "Build plugins by default. This can be used to build all plugins by default, or none." ON)
 option(BUILD_EXECUTABLES_BY_DEFAULT "Build executables by default. This can be used to build all executables by default, or none." ON)
 option(BUILD_LIBRARIES_BY_DEFAULT "Build libraries by default. This can be used to build all libraries by default, or none." ON)
 option(BUILD_TESTS_BY_DEFAULT "Build tests by default. This can be used to build all tests by default, or none." ON)
 option(QTC_SEPARATE_DEBUG_INFO "Extract debug information from binary files." OFF)
 option(WITH_SCCACHE_SUPPORT "Enables support for building with SCCACHE and separate debug info with MSVC, which SCCACHE normally doesn't support." OFF)
-option(WITH_CCACHE_SUPPORT "Enables support for building with CCACHE and separate debug info with MSVC, which CCACHE normally doesn't support." OFF)
+option(WITH_CCACHE_SUPPORT "Enables support for building with CCACHE and separate debug info with MSVC, which CCACHE normally doesn't support." "${ENV_WITH_CCACHE_SUPPORT}")
 option(QTC_STATIC_BUILD "Builds libraries and plugins as static libraries" OFF)
 
 # If we provide a list of plugins, executables, libraries, then the BUILD_<type>_BY_DEFAULT will be set to OFF
