@@ -280,7 +280,7 @@ int DockAreaTabBar::currentIndex() const
 
 DockWidgetTab *DockAreaTabBar::currentTab() const
 {
-    if (d->m_currentIndex < 0)
+    if (d->m_currentIndex < 0 || d->m_currentIndex >= d->m_tabsLayout->count())
         return nullptr;
     else
         return qobject_cast<DockWidgetTab *>(d->m_tabsLayout->itemAt(d->m_currentIndex)->widget());
