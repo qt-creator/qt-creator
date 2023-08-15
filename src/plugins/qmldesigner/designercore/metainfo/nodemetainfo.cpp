@@ -1502,10 +1502,40 @@ bool NodeMetaInfo::isInProjectModule() const
     return false;
 }
 
+namespace {
+[[maybe_unused]] bool hasPropertyForTypeId(const ProjectStorageType &projectStorage,
+                                           TypeId typeId,
+                                           Utils::SmallStringView propertyName)
+{
+    auto begin = propertyName.begin();
+    const auto end = propertyName.end();
+
+    auto found = std::find(begin, end, '.');
+    auto propertyId = projectStorage.propertyDeclarationId(typeId, {begin, found});
+
+    if (propertyId && found != end) {
+        auto propertyData = projectStorage.propertyDeclaration(propertyId);
+        if (auto propertyTypeId = propertyData->propertyTypeId) {
+            begin = std::next(found);
+            found = std::find(begin, end, '.');
+            propertyId = projectStorage.propertyDeclarationId(propertyTypeId, {begin, found});
+
+            if (propertyId && found != end) {
+                begin = std::next(found);
+                return bool(projectStorage.propertyDeclarationId(propertyTypeId, {begin, end}));
+            }
+        }
+    }
+
+    return bool(propertyId);
+}
+
+} // namespace
+
 bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName) const
 {
     if constexpr (useProjectStorage())
-        return isValid() && bool(m_projectStorage->propertyDeclarationId(m_typeId, propertyName));
+        return isValid() && hasPropertyForTypeId(*m_projectStorage, m_typeId, propertyName);
     else
         return isValid() && m_privateData->properties().contains(propertyName);
 }

@@ -307,6 +307,74 @@ TEST_F(NodeMetaInfo, invalid_has_not_property)
     ASSERT_FALSE(hasProperty);
 }
 
+TEST_F(NodeMetaInfo, has_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", itemMetaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.data");
+
+    ASSERT_TRUE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+
+    bool hasProperty = metaInfo.hasProperty("foo.data");
+
+    ASSERT_FALSE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_property_for_last_entry)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.foo");
+
+    ASSERT_FALSE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_dot_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.parent.data");
+
+    ASSERT_TRUE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+
+    bool hasProperty = metaInfo.hasProperty("parent.foo.data");
+
+    ASSERT_FALSE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_dot_property_for_last_entry)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.parent.foo");
+
+    ASSERT_FALSE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_dot_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.parent.parent.data");
+
+    ASSERT_FALSE(hasProperty);
+}
+
 TEST_F(NodeMetaInfo, get_property)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();
