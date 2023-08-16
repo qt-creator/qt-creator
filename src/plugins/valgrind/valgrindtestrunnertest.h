@@ -8,11 +8,9 @@
 #include <QObject>
 #include <QStringList>
 
-namespace Valgrind {
+namespace Valgrind { class ValgrindProcess; }
 
-class ValgrindProcess;
-
-namespace Test {
+namespace Valgrind::Test {
 
 class ValgrindTestRunnerTest : public QObject
 {
@@ -54,5 +52,4 @@ private:
     bool m_expectCrash = false;
 };
 
-} // namespace Test
-} // namespace Valgrind
+} // namespace Valgrind::Test

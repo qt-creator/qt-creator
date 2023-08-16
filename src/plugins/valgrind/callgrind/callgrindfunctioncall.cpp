@@ -9,8 +9,7 @@
 
 #include <QList>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 //BEGIN FunctionCall::Private
 class FunctionCall::Private
@@ -97,5 +96,4 @@ void FunctionCall::setCosts(const QList<quint64> &costs)
     d->m_costs = costs;
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

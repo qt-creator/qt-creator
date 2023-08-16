@@ -33,8 +33,7 @@
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class SuppressionDialog : public QDialog
 {
@@ -316,5 +315,4 @@ void SuppressionDialog::validate()
     m_buttonBox->button(QDialogButtonBox::Save)->setEnabled(valid);
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

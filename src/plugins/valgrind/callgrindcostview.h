@@ -7,8 +7,7 @@
 
 #include <utils/basetreeview.h>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class CostDelegate;
 class NameDelegate;
@@ -38,5 +37,4 @@ private:
     NameDelegate *m_nameDelegate;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

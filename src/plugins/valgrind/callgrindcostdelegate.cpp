@@ -13,8 +13,7 @@
 
 using namespace Valgrind::Callgrind;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class CostDelegate::Private
 {
@@ -134,5 +133,4 @@ QSize CostDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     return size;
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

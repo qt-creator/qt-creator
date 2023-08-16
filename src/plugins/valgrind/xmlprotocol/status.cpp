@@ -6,8 +6,7 @@
 #include <QSharedData>
 #include <QString>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class Status::Private : public QSharedData
 {
@@ -62,5 +61,4 @@ QString Status::time() const
     return d->time;
 }
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

@@ -14,8 +14,7 @@
 #include <QDir>
 #include <QList>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class ErrorItem : public Utils::TreeItem
 {
@@ -277,5 +276,4 @@ const ErrorItem *FrameItem::getErrorItem() const
     return nullptr;
 }
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

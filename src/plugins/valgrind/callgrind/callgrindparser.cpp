@@ -20,8 +20,7 @@
 
 using namespace Utils;
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 static void skipSpace(const char **current, const char *end)
 {
@@ -642,5 +641,4 @@ ParseData *Parser::takeData()
     return data;
 }
 
-} //Callgrind
-} //Valgrind
+} // namespace Valgrind::Callgrind

@@ -20,8 +20,7 @@ using namespace ProjectExplorer;
 using namespace Valgrind::Callgrind;
 using namespace Utils;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 const char CALLGRIND_CONTROL_BINARY[] = "callgrind_control";
 
@@ -269,5 +268,4 @@ void CallgrindToolRunner::cleanupTempFile()
     m_hostOutputFile.clear();
 }
 
-} // Internal
-} // Valgrind
+} // namespace Valgrind::Internal

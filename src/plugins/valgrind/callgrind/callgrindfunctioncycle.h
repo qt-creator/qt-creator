@@ -5,8 +5,7 @@
 
 #include "callgrindfunction.h"
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 /**
  * self cost of a function cycle: sum of self costs of functions in the cycle
@@ -32,5 +31,4 @@ private:
     class Private;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

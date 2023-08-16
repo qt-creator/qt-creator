@@ -13,8 +13,7 @@
 
 #include <algorithm>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class Error::Private : public QSharedData
 {
@@ -212,5 +211,4 @@ QString Error::toXml() const
     return xml;
 }
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

@@ -7,11 +7,9 @@
 
 #include <QPersistentModelIndex>
 
-namespace Valgrind {
+namespace Valgrind::Callgrind { class Function; }
 
-namespace Callgrind { class Function; }
-
-namespace Internal {
+namespace Valgrind::Internal {
 
 class CallgrindTextMark : public TextEditor::TextMark
 {
@@ -34,5 +32,4 @@ private:
     QPersistentModelIndex m_modelIndex;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

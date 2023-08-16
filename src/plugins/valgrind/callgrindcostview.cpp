@@ -11,8 +11,7 @@
 
 using namespace Valgrind::Callgrind;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 CostView::CostView(QWidget *parent)
     : Utils::BaseTreeView(parent)
@@ -66,5 +65,4 @@ CostDelegate::CostFormat CostView::costFormat() const
     return m_costDelegate->format();
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

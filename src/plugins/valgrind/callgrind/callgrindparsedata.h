@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class Function;
 
@@ -110,5 +109,4 @@ private:
     Private *d;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

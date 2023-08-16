@@ -13,8 +13,7 @@
 
 #include <QFileInfo>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 //BEGIN Function::Private
 
@@ -294,5 +293,4 @@ void Function::finalize()
     }
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

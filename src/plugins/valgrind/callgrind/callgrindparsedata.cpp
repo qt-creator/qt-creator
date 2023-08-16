@@ -13,8 +13,7 @@
 #include <QHash>
 #include <QStringList>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class ParseData::Private
 {
@@ -341,5 +340,4 @@ void ParseData::addCompressedFunction(const QString &function, qint64 &id)
     d->addCompressedString(d->m_functionCompression, function, id);
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

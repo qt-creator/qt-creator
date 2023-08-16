@@ -29,8 +29,7 @@ static const int FIT_IN_VIEW_MARGIN = 2;
 
 using namespace Valgrind::Callgrind;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class FunctionGraphicsTextItem : public QAbstractGraphicsShapeItem
 {
@@ -415,5 +414,4 @@ void Visualization::resizeEvent(QResizeEvent *event)
     QGraphicsView::resizeEvent(event);
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

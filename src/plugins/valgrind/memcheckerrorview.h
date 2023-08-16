@@ -9,8 +9,7 @@
 
 #include <QListView>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class ValgrindSettings;
 
@@ -34,5 +33,4 @@ private:
     ValgrindSettings *m_settings = nullptr;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

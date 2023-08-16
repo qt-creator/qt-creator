@@ -6,8 +6,7 @@
 #include <QSharedDataPointer>
 #include <QList>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class Frame;
 
@@ -31,5 +30,4 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

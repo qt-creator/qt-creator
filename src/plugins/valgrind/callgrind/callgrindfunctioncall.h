@@ -6,8 +6,7 @@
 #include <QMetaType>
 #include <QList>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class Function;
 
@@ -55,7 +54,6 @@ private:
     Private *d;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind
 
 Q_DECLARE_METATYPE(const Valgrind::Callgrind::FunctionCall *)

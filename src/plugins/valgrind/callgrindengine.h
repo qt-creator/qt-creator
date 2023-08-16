@@ -11,8 +11,7 @@
 #include <utils/process.h>
 #include <utils/processinterface.h>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class CallgrindToolRunner : public ValgrindToolRunner
 {
@@ -90,5 +89,4 @@ private:
     QString m_argumentForToggleCollect;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

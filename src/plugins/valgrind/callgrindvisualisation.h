@@ -9,12 +9,9 @@ QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace Callgrind { class Function; }
-}
+namespace Valgrind::Callgrind { class Function; }
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class Visualization : public QGraphicsView
 {
@@ -51,5 +48,4 @@ private:
     Private *d;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

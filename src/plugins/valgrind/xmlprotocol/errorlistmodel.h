@@ -8,8 +8,7 @@
 
 #include <functional>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class Error;
 class Frame;
@@ -39,5 +38,4 @@ private:
     RelevantFrameFinder m_relevantFrameFinder;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

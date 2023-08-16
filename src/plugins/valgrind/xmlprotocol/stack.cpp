@@ -8,8 +8,7 @@
 #include <QSharedData>
 #include <QString>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class Stack::Private : public QSharedData
 {
@@ -112,5 +111,4 @@ void Stack::setHelgrindThreadId(qint64 id)
     d->hthreadid = id;
 }
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

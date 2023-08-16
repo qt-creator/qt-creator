@@ -5,8 +5,7 @@
 
 #include <QSortFilterProxyModel>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class DataModel;
 class Function;
@@ -52,5 +51,4 @@ private:
     double m_minimumInclusiveCostRatio = 0;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

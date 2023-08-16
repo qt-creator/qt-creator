@@ -10,8 +10,7 @@
 #include <QRandomGenerator>
 #include <QString>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 QColor CallgrindHelper::colorForString(const QString &text)
 {
@@ -46,5 +45,4 @@ QString CallgrindHelper::toPercent(float costs, const QLocale &locale)
     return '<' + locale.toString(0.01f) + locale.percent();
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

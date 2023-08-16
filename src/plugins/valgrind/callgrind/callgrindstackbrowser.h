@@ -6,8 +6,7 @@
 #include <QObject>
 #include <QStack>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class Function;
 
@@ -35,5 +34,4 @@ private:
     QStack<const Function *> m_redoStack;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

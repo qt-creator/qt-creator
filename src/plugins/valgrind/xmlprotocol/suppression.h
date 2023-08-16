@@ -10,8 +10,7 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class SuppressionFrame
 {
@@ -77,5 +76,4 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

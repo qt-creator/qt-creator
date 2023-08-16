@@ -7,8 +7,7 @@
 #include "callgrindfunctioncall.h"
 #include "callgrindparsedata.h"
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 //BEGIN FunctionCycle::Private
 
@@ -82,5 +81,4 @@ QList<const Function *> FunctionCycle::functions() const
     return CYCLE_D->m_functions;
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

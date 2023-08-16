@@ -11,8 +11,7 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 Q_NAMESPACE
 
@@ -113,7 +112,6 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol
 
 Q_DECLARE_METATYPE(Valgrind::XmlProtocol::Error)

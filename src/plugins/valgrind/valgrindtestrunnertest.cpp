@@ -19,8 +19,7 @@
 using namespace Valgrind::XmlProtocol;
 using namespace Utils;
 
-namespace Valgrind {
-namespace Test {
+namespace Valgrind::Test {
 
 //BEGIN Test Helpers and boilerplate code
 
@@ -750,5 +749,4 @@ void ValgrindTestRunnerTest::testOverlap()
     }
 }
 
-} // namespace Test
-} // namespace Valgrind
+} // namespace Valgrind::Test

@@ -10,8 +10,7 @@
 
 #include <utils/qtcassert.h>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 DataProxyModel::DataProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -133,5 +132,4 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
     return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

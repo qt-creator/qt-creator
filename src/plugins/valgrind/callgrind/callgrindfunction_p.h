@@ -11,8 +11,7 @@
 #include <QHash>
 #include <QList>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class Function::Private
 {
@@ -46,5 +45,4 @@ public:
     quint64 m_called = 0;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

@@ -9,8 +9,7 @@
 
 #include <utils/qtcassert.h>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class StackModel::Private
 {
@@ -201,5 +200,4 @@ void StackModel::clear()
     endResetModel();
 }
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

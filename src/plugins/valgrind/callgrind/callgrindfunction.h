@@ -6,8 +6,7 @@
 #include <QList>
 #include <QMetaType>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class FunctionCall;
 class CostItem;
@@ -118,7 +117,6 @@ private:
     Q_DISABLE_COPY(Function)
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind
 
 Q_DECLARE_METATYPE(const Valgrind::Callgrind::Function *)
