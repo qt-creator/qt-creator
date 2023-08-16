@@ -134,8 +134,6 @@ KitManager::KitManager()
 {
     d = new KitManagerPrivate;
 
-    connect(ICore::instance(), &ICore::saveSettingsRequested, this, &KitManager::saveKits);
-
     connect(this, &KitManager::kitAdded, this, &KitManager::kitsChanged);
     connect(this, &KitManager::kitRemoved, this, &KitManager::kitsChanged);
     connect(this, &KitManager::kitUpdated, this, &KitManager::kitsChanged);
@@ -150,6 +148,8 @@ void KitManager::destroy()
 void KitManager::restoreKits()
 {
     QTC_ASSERT(!d->m_initialized, return );
+
+    connect(ICore::instance(), &ICore::saveSettingsRequested, &KitManager::saveKits);
 
     std::vector<std::unique_ptr<Kit>> resultList;
 
