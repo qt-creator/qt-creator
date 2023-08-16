@@ -150,16 +150,16 @@ using ListTransformationMethod = void(QStringList &);
 
 static constexpr char dropProperty[] = "dropProp";
 
-class LineColumnLabel : public FixedSizeClickLabel
+class LineColumnButton : public QToolButton
 {
     Q_OBJECT
 public:
-    LineColumnLabel(TextEditorWidget *parent)
-        : FixedSizeClickLabel(parent)
+    LineColumnButton(TextEditorWidget *parent)
+        : QToolButton(parent)
         , m_editor(parent)
     {
-        connect(m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnLabel::update);
-        connect(this, &FixedSizeClickLabel::clicked, ActionManager::instance(), [this] {
+        connect(m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
+        connect(this, &QToolButton::pressed, ActionManager::instance(), [this] {
             emit m_editor->activateEditor(EditorManager::IgnoreNavigationHistory);
             QMetaObject::invokeMethod(ActionManager::instance(), [] {
                 if (Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
@@ -198,7 +198,7 @@ private:
     bool event(QEvent *event) override
     {
         if (event->type() != QEvent::ToolTip)
-            return FixedSizeClickLabel::event(event);
+            return QToolButton::event(event);
 
         QString tooltipText = "<table cellpadding='2'>\n";
 
@@ -243,6 +243,19 @@ private:
         return true;
     }
 
+    QSize sizeHint() const override
+    {
+        const QSize size = QToolButton::sizeHint();
+        auto wider = [](const QSize &left, const QSize &right) {
+            return left.width() < right.width();
+        };
+        if (m_editor->multiTextCursor().hasSelection())
+            return std::max(m_maxSize, size, wider); // do not save the size if we have a selection
+        m_maxSize = std::max(m_maxSize, size, wider);
+        return m_maxSize;
+    }
+
+    mutable QSize m_maxSize;
     TextEditorWidget *m_editor;
 };
 
@@ -714,7 +727,7 @@ public:
     QWidget *m_stretchWidget = nullptr;
     QAction *m_stretchAction = nullptr;
     QAction *m_toolbarOutlineAction = nullptr;
-    LineColumnLabel *m_cursorPositionLabel = nullptr;
+    LineColumnButton *m_cursorPositionLabel = nullptr;
     FixedSizeClickLabel *m_fileEncodingLabel = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
     BaseTextFind *m_find = nullptr;
@@ -1023,8 +1036,8 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_stretchAction = m_toolBar->addWidget(m_stretchWidget);
     m_toolBarWidget->layout()->addWidget(m_toolBar);
 
-    m_cursorPositionLabel = new LineColumnLabel(q);
     const int spacing = q->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
+    m_cursorPositionLabel = new LineColumnButton(q);
     m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
     m_toolBarWidget->layout()->addWidget(m_cursorPositionLabel);
 
