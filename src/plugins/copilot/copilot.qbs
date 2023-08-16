@@ -7,6 +7,7 @@ QtcPlugin {
     Depends { name: "LanguageClient" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
+    Depends { name: "app_version_header" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     files: [
