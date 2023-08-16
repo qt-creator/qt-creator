@@ -26,21 +26,6 @@ class ValgrindRunner::Private : public QObject
 {
 public:
     Private(ValgrindRunner *owner) : q(owner) {
-        connect(&m_process, &Process::started, this, [this] {
-            emit q->valgrindStarted(m_process.processId());
-        });
-        connect(&m_process, &Process::done, this, [this] {
-            if (m_process.result() != ProcessResult::FinishedWithSuccess)
-                emit q->processErrorReceived(m_process.errorString(), m_process.error());
-            emit q->finished();
-        });
-        connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
-            emit q->appendMessage(m_process.readAllStandardOutput(), StdOutFormat);
-        });
-        connect(&m_process, &Process::readyReadStandardError, this, [this] {
-            emit q->appendMessage(m_process.readAllStandardError(), StdErrFormat);
-        });
-
         connect(&m_xmlServer, &QTcpServer::newConnection, this, [this] {
             QTcpSocket *socket = m_xmlServer.nextPendingConnection();
             QTC_ASSERT(socket, return);
@@ -62,6 +47,44 @@ public:
         connect(&m_parser, &Parser::done, this, [this](bool success, const QString &err) {
             if (!success)
                 emit q->internalError(err);
+        });
+    }
+
+    void setupValgrindProcess(Process *process, const CommandLine &command) const {
+        CommandLine cmd = command;
+        cmd.addArgs(m_valgrindCommand.arguments(), CommandLine::Raw);
+
+        // consider appending our options last so they override any interfering user-supplied
+        // options -q as suggested by valgrind manual
+
+        if (cmd.executable().osType() == OsTypeMac) {
+            // May be slower to start but without it we get no filenames for symbols.
+            cmd.addArg("--dsymutil=yes");
+        }
+
+        cmd.addCommandLineAsArgs(m_debuggee.command);
+
+        emit q->appendMessage(cmd.toUserOutput(), NormalMessageFormat);
+
+        process->setCommand(cmd);
+        process->setWorkingDirectory(m_debuggee.workingDirectory);
+        process->setEnvironment(m_debuggee.environment);
+        process->setProcessChannelMode(m_channelMode);
+        process->setTerminalMode(m_useTerminal ? TerminalMode::Run : TerminalMode::Off);
+
+        connect(process, &Process::started, this, [this, process] {
+            emit q->valgrindStarted(process->processId());
+        });
+        connect(process, &Process::done, this, [this, process] {
+            if (process->result() != ProcessResult::FinishedWithSuccess)
+                emit q->processErrorReceived(process->errorString(), process->error());
+            emit q->finished();
+        });
+        connect(process, &Process::readyReadStandardOutput, this, [this, process] {
+            emit q->appendMessage(process->readAllStandardOutput(), StdOutFormat);
+        });
+        connect(process, &Process::readyReadStandardError, this, [this, process] {
+            emit q->appendMessage(process->readAllStandardError(), StdErrFormat);
         });
     }
 
@@ -137,25 +160,7 @@ bool ValgrindRunner::Private::run()
         if (enableXml)
             cmd.addArg("--xml=yes");
     }
-    cmd.addArgs(m_valgrindCommand.arguments(), CommandLine::Raw);
-
-    // consider appending our options last so they override any interfering user-supplied options
-    // -q as suggested by valgrind manual
-
-    if (cmd.executable().osType() == OsTypeMac) {
-        // May be slower to start but without it we get no filenames for symbols.
-        cmd.addArg("--dsymutil=yes");
-    }
-
-    cmd.addCommandLineAsArgs(m_debuggee.command);
-
-    emit q->appendMessage(cmd.toUserOutput(), NormalMessageFormat);
-
-    m_process.setCommand(cmd);
-    m_process.setWorkingDirectory(m_debuggee.workingDirectory);
-    m_process.setEnvironment(m_debuggee.environment);
-    m_process.setProcessChannelMode(m_channelMode);
-    m_process.setTerminalMode(m_useTerminal ? TerminalMode::Run : TerminalMode::Off);
+    setupValgrindProcess(&m_process, cmd);
     m_process.start();
     return true;
 }
