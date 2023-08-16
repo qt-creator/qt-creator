@@ -651,13 +651,6 @@ void KitManager::completeKit(Kit *k)
 KitAspectFactory::KitAspectFactory()
 {
     kitAspectFactoriesStorage().addKitAspect(this);
-
-    // Adding aspects created by this factory to possibly already existing kits is
-    // currently not needed here as kits are only created after all factories
-    // are created in *Plugin::initialize() or plugin load.
-    // Make sure we notice when this assumption breaks:
-    KitManager::instance(); // Ensure existence
-    QTC_CHECK(d->m_kitList.empty());
 }
 
 KitAspectFactory::~KitAspectFactory()
