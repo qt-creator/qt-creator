@@ -44,10 +44,8 @@ public:
 
 signals:
     void appendMessage(const QString &, Utils::OutputFormat);
-
     void logMessageReceived(const QByteArray &);
     void processErrorReceived(const QString &, QProcess::ProcessError);
-    void valgrindExecuted(const QString &);
     void valgrindStarted(qint64 pid);
     void finished();
 

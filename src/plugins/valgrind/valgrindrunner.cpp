@@ -156,7 +156,7 @@ bool ValgrindRunner::Private::run()
 
     cmd.addCommandLineAsArgs(m_debuggee.command);
 
-    emit q->valgrindExecuted(cmd.toUserOutput());
+    emit q->appendMessage(cmd.toUserOutput(), NormalMessageFormat);
 
     m_process.setCommand(cmd);
     m_process.setWorkingDirectory(m_debuggee.workingDirectory);
