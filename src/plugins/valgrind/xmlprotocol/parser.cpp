@@ -761,6 +761,7 @@ void Parser::setSocket(QAbstractSocket *socket)
     QTC_ASSERT(socket, return);
     QTC_ASSERT(socket->isOpen(), return);
     QTC_ASSERT(!isRunning(), return);
+    socket->setParent(nullptr); // Don't delete it together with parent QTcpServer anymore.
     d->m_socket.reset(socket);
 }
 
