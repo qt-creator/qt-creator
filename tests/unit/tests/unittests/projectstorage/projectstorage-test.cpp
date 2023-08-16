@@ -391,10 +391,32 @@ protected:
         package.updatedModuleDependencySourceIds.push_back(sourceId1);
 
         importsSourceId1.emplace_back(QMLModuleId, Storage::Version{}, sourceId1);
-        moduleDependenciesSourceId1.emplace_back(QMLModuleId,
-                                                 Storage::Version{},
-                                                 sourceId1);
+        moduleDependenciesSourceId1.emplace_back(QMLModuleId, Storage::Version{}, sourceId1);
 
+        package.types.push_back(
+            Storage::Synchronization::Type{"bool",
+                                           Storage::Synchronization::ImportedType{},
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Value,
+                                           sourceId1,
+                                           {Storage::Synchronization::ExportedType{QMLModuleId,
+                                                                                   "bool"}}});
+        package.types.push_back(
+            Storage::Synchronization::Type{"int",
+                                           Storage::Synchronization::ImportedType{},
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Value,
+                                           sourceId1,
+                                           {Storage::Synchronization::ExportedType{QMLModuleId,
+                                                                                   "int"}}});
+        package.types.push_back(
+            Storage::Synchronization::Type{"uint",
+                                           Storage::Synchronization::ImportedType{},
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Value,
+                                           sourceId1,
+                                           {Storage::Synchronization::ExportedType{QMLNativeModuleId,
+                                                                                   "uint"}}});
         package.types.push_back(
             Storage::Synchronization::Type{"double",
                                            Storage::Synchronization::ImportedType{},
@@ -403,6 +425,38 @@ protected:
                                            sourceId1,
                                            {Storage::Synchronization::ExportedType{QMLModuleId,
                                                                                    "double"}}});
+        package.types.push_back(
+            Storage::Synchronization::Type{"float",
+                                           Storage::Synchronization::ImportedType{},
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Value,
+                                           sourceId1,
+                                           {Storage::Synchronization::ExportedType{QMLNativeModuleId,
+                                                                                   "float"}}});
+        package.types.push_back(
+            Storage::Synchronization::Type{"date",
+                                           Storage::Synchronization::ImportedType{},
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Value,
+                                           sourceId1,
+                                           {Storage::Synchronization::ExportedType{QMLModuleId,
+                                                                                   "date"}}});
+        package.types.push_back(
+            Storage::Synchronization::Type{"string",
+                                           Storage::Synchronization::ImportedType{},
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Value,
+                                           sourceId1,
+                                           {Storage::Synchronization::ExportedType{QMLModuleId,
+                                                                                   "string"}}});
+        package.types.push_back(
+            Storage::Synchronization::Type{"url",
+                                           Storage::Synchronization::ImportedType{},
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Value,
+                                           sourceId1,
+                                           {Storage::Synchronization::ExportedType{QMLModuleId,
+                                                                                   "url"}}});
         package.types.push_back(
             Storage::Synchronization::Type{"var",
                                            Storage::Synchronization::ImportedType{},
@@ -1087,6 +1141,7 @@ protected:
     ModuleId qtQuick3DModuleId{storage.moduleId("QtQuick3D")};
     ModuleId myModuleModuleId{storage.moduleId("MyModule")};
     ModuleId QMLModuleId{storage.moduleId("QML")};
+    ModuleId QMLNativeModuleId{storage.moduleId("QML-cppnative")};
     Storage::Imports importsSourceId1;
     Storage::Imports importsSourceId2;
     Storage::Imports importsSourceId3;
@@ -6625,6 +6680,15 @@ TEST_F(ProjectStorage, get_common_type_after_changing_type)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QQuickItem2"));
 }
 
+TEST_F(ProjectStorage, type_ids_without_properties_get_initialized)
+{
+    auto package{createBuiltinSynchronizationPackage()};
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.commonTypeCache().typeIdsWithoutProperties(), Each(IsTrue()));
+}
+
 TEST_F(ProjectStorage, get_builtin_type)
 {
     auto package{createBuiltinSynchronizationPackage()};
@@ -6650,14 +6714,14 @@ TEST_F(ProjectStorage, get_builtin_type_after_changing_type)
 {
     auto package{createBuiltinSynchronizationPackage()};
     storage.synchronize(package);
-    auto oldTypeId = storage.builtinTypeId<double>();
-    package.types.front().typeName = "float";
+    auto oldTypeId = storage.builtinTypeId<bool>();
+    package.types.front().typeName = "bool2";
     storage.synchronize(package);
 
-    auto typeId = storage.builtinTypeId<double>();
+    auto typeId = storage.builtinTypeId<bool>();
 
     ASSERT_THAT(typeId, Ne(oldTypeId));
-    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "float"));
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "bool2"));
 }
 
 TEST_F(ProjectStorage, get_builtin_string_type)

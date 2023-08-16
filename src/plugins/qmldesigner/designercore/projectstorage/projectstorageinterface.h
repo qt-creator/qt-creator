@@ -14,7 +14,14 @@ namespace QmlDesigner {
 
 class ProjectStorageInterface
 {
+    friend Storage::Info::CommonTypeCache<ProjectStorageInterface>;
+
 public:
+    ProjectStorageInterface(const ProjectStorageInterface &) = delete;
+    ProjectStorageInterface &operator=(const ProjectStorageInterface &) = delete;
+    ProjectStorageInterface(ProjectStorageInterface &&) = default;
+    ProjectStorageInterface &operator=(ProjectStorageInterface &&) = default;
+
     virtual void synchronize(Storage::Synchronization::SynchronizationPackage package) = 0;
     virtual void synchronizeDocumentImports(const Storage::Imports imports, SourceId sourceId) = 0;
 
@@ -81,7 +88,11 @@ public:
     }
 
 protected:
+    ProjectStorageInterface() = default;
     ~ProjectStorageInterface() = default;
+
+    virtual ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const = 0;
+    virtual TypeId fetchTypeIdByModuleIdAndExportedName(ModuleId moduleId, Utils::SmallStringView name) const = 0;
 };
 
 } // namespace QmlDesigner

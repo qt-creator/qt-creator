@@ -28,6 +28,8 @@ namespace QmlDesigner {
 template<typename Database>
 class ProjectStorage final : public ProjectStorageInterface
 {
+    friend Storage::Info::CommonTypeCache<Database>;
+
 public:
     template<int ResultCount, int BindParameterCount = 0>
     using ReadStatement = typename Database::template ReadStatement<ResultCount, BindParameterCount>;
@@ -961,7 +963,7 @@ private:
         Sqlite::insertUpdateDelete(range, moduleExportedImports, compareKey, insert, update, remove);
     }
 
-    ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const
+    ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const override
     {
         auto moduleId = selectModuleIdByNameStatement.template value<ModuleId>(name);
 
@@ -1676,7 +1678,8 @@ private:
         return json;
     }
 
-    TypeId fetchTypeIdByModuleIdAndExportedName(ModuleId moduleId, Utils::SmallStringView name) const
+    TypeId fetchTypeIdByModuleIdAndExportedName(ModuleId moduleId,
+                                                Utils::SmallStringView name) const override
     {
         return selectTypeIdByModuleIdAndExportedNameStatement.template value<TypeId>(moduleId, name);
     }

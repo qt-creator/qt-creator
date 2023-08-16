@@ -5,6 +5,9 @@
 
 #include "projectstoragetypes.h"
 
+#include <modelfwd.h>
+
+#include <algorithm>
 #include <tuple>
 #include <type_traits>
 
@@ -243,23 +246,20 @@ class CommonTypeCache
 public:
     CommonTypeCache(const ProjectStorage &projectStorage)
         : m_projectStorage{projectStorage}
-    {}
+    {
+        m_typesWithoutProperties.fill(TypeId{});
+    }
+
+    CommonTypeCache(const CommonTypeCache &) = delete;
+    CommonTypeCache &operator=(const CommonTypeCache &) = delete;
+    CommonTypeCache(CommonTypeCache &&) = default;
+    CommonTypeCache &operator=(CommonTypeCache &&) = default;
 
     void resetTypeIds()
     {
         std::apply([](auto &...type) { ((type.typeId = QmlDesigner::TypeId{}), ...); }, m_types);
-    }
 
-    TypeId refreshTypedId(BaseCacheType &type,
-                          ::Utils::SmallStringView moduleName,
-                          ::Utils::SmallStringView typeName) const
-    {
-        if (!type.moduleId)
-            type.moduleId = m_projectStorage.moduleId(moduleName);
-
-        type.typeId = m_projectStorage.typeId(type.moduleId, typeName, QmlDesigner::Storage::Version{});
-
-        return type.typeId;
+        updateTypeIdsWithoutProperties();
     }
 
     template<const char *moduleName, const char *typeName>
@@ -312,9 +312,70 @@ public:
         return TypeId{};
     }
 
+    const TypeIdsWithoutProperties &typeIdsWithoutProperties() const
+    {
+        return m_typesWithoutProperties;
+    }
+
+private:
+    TypeId refreshTypedId(BaseCacheType &type,
+                          ::Utils::SmallStringView moduleName,
+                          ::Utils::SmallStringView typeName) const
+    {
+        if (!type.moduleId)
+            type.moduleId = m_projectStorage.moduleId(moduleName);
+
+        type.typeId = m_projectStorage.typeId(type.moduleId, typeName, Storage::Version{});
+
+        return type.typeId;
+    }
+
+    TypeId refreshTypedIdWithoutTransaction(BaseCacheType &type,
+                                            ::Utils::SmallStringView moduleName,
+                                            ::Utils::SmallStringView typeName) const
+    {
+        if (!type.moduleId)
+            type.moduleId = m_projectStorage.fetchModuleIdUnguarded(moduleName);
+
+        type.typeId = m_projectStorage.fetchTypeIdByModuleIdAndExportedName(type.moduleId, typeName);
+
+        return type.typeId;
+    }
+
+    template<std::size_t size>
+    void setupTypeIdsWithoutProperties(const TypeId (&typeIds)[size])
+    {
+        static_assert(size == std::tuple_size_v<TypeIdsWithoutProperties>,
+                      "array size must match type id count!");
+        std::copy(std::begin(typeIds), std::end(typeIds), std::begin(m_typesWithoutProperties));
+    }
+
+    template<const char *moduleName, const char *typeName>
+    TypeId typeIdWithoutTransaction() const
+    {
+        auto &type = std::get<CacheType<moduleName, typeName>>(m_types);
+        if (type.typeId)
+            return type.typeId;
+
+        return refreshTypedIdWithoutTransaction(type, moduleName, typeName);
+    }
+
+    void updateTypeIdsWithoutProperties()
+    {
+        setupTypeIdsWithoutProperties({typeIdWithoutTransaction<QML, BoolType>(),
+                                       typeIdWithoutTransaction<QML, IntType>(),
+                                       typeIdWithoutTransaction<QML_cppnative, UIntType>(),
+                                       typeIdWithoutTransaction<QML, DoubleType>(),
+                                       typeIdWithoutTransaction<QML_cppnative, FloatType>(),
+                                       typeIdWithoutTransaction<QML, date>(),
+                                       typeIdWithoutTransaction<QML, string>(),
+                                       typeIdWithoutTransaction<QML, url>()});
+    }
+
 private:
     const ProjectStorage &m_projectStorage;
     mutable CommonTypes m_types;
+    TypeIdsWithoutProperties m_typesWithoutProperties;
 };
 
 } // namespace QmlDesigner::Storage::Info

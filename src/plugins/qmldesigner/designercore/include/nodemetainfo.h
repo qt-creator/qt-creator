@@ -215,6 +215,8 @@ public:
 
     SourceId propertyEditorPathId() const;
 
+    const ProjectStorageType &projectStorage() const { return *m_projectStorage; }
+
 private:
     const Storage::Info::Type &typeData() const;
     bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;

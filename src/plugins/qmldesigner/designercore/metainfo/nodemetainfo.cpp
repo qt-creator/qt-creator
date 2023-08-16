@@ -3107,6 +3107,16 @@ NodeMetaInfo PropertyMetaInfo::propertyType() const
     return {};
 }
 
+NodeMetaInfo PropertyMetaInfo::type() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return NodeMetaInfo(propertyData().typeId, m_projectStorage);
+    }
+
+    return {};
+}
+
 PropertyName PropertyMetaInfo::name() const
 {
     if (isValid()) {
@@ -3125,6 +3135,11 @@ bool PropertyMetaInfo::isWritable() const
         return isValid() && !(propertyData().traits & Storage::PropertyDeclarationTraits::IsReadOnly);
     else
         return isValid() && nodeMetaInfoPrivateData()->isPropertyWritable(propertyName());
+}
+
+bool PropertyMetaInfo::isReadOnly() const
+{
+    return !isWritable();
 }
 
 bool PropertyMetaInfo::isListProperty() const
@@ -3325,6 +3340,80 @@ NodeMetaInfo NodeMetaInfo::commonBase(const NodeMetaInfo &metaInfo) const
     }
 
     return {};
+}
+
+namespace {
+
+void addCompoundProperties(CompoundPropertyMetaInfos &inflatedProperties,
+                           const PropertyMetaInfo &parentProperty,
+                           PropertyMetaInfos properties)
+{
+    for (PropertyMetaInfo &property : properties)
+        inflatedProperties.emplace_back(std::move(property), parentProperty);
+}
+
+bool maybeCanHaveProperties(const NodeMetaInfo &type)
+{
+    if (!type)
+        return false;
+
+    using namespace Storage::Info;
+    const auto &cache = type.projectStorage().commonTypeCache();
+    auto typeId = type.id();
+    const auto &typeIdsWithoutProperties = cache.typeIdsWithoutProperties();
+    const auto begin = typeIdsWithoutProperties.begin();
+    const auto end = typeIdsWithoutProperties.end();
+
+    return std::find(begin, end, typeId) == end;
+}
+
+void addSubProperties(CompoundPropertyMetaInfos &inflatedProperties,
+                      PropertyMetaInfo &propertyMetaInfo,
+                      const NodeMetaInfo &propertyType)
+{
+    if (maybeCanHaveProperties(propertyType)) {
+        auto subProperties = propertyType.properties();
+        if (!subProperties.empty()) {
+            addCompoundProperties(inflatedProperties, propertyMetaInfo, subProperties);
+            return;
+        }
+    }
+
+    inflatedProperties.emplace_back(std::move(propertyMetaInfo));
+}
+
+} // namespace
+
+CompoundPropertyMetaInfos MetaInfoUtils::inflateValueProperties(PropertyMetaInfos properties)
+{
+    CompoundPropertyMetaInfos inflatedProperties;
+    inflatedProperties.reserve(properties.size() * 2);
+
+    for (auto &property : properties) {
+        if (auto propertyType = property.propertyType(); propertyType.type() == MetaInfoType::Value)
+            addSubProperties(inflatedProperties, property, propertyType);
+        else
+            inflatedProperties.emplace_back(std::move(property));
+    }
+
+    return inflatedProperties;
+}
+
+CompoundPropertyMetaInfos MetaInfoUtils::inflateValueAndReadOnlyProperties(PropertyMetaInfos properties)
+{
+    CompoundPropertyMetaInfos inflatedProperties;
+    inflatedProperties.reserve(properties.size() * 2);
+
+    for (auto &property : properties) {
+        if (auto propertyType = property.propertyType();
+            propertyType.type() == MetaInfoType::Value || property.isReadOnly()) {
+            addSubProperties(inflatedProperties, property, propertyType);
+        } else {
+            inflatedProperties.emplace_back(std::move(property));
+        }
+    }
+
+    return inflatedProperties;
 }
 
 } // namespace QmlDesigner

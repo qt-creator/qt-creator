@@ -22,6 +22,26 @@ auto PropertyId(const Matcher &matcher)
     return Property(&QmlDesigner::PropertyMetaInfo::id, matcher);
 }
 
+template<typename PropertyMatcher, typename ParentPropertyMatcher, typename NameMatcher>
+auto CompoundProperty(const PropertyMatcher &propertyMatcher,
+                      const ParentPropertyMatcher &parentPropertyMatcher,
+                      const NameMatcher &nameMatcher)
+{
+    return AllOf(Field(&QmlDesigner::CompoundPropertyMetaInfo::property, propertyMatcher),
+                 Field(&QmlDesigner::CompoundPropertyMetaInfo::parent, parentPropertyMatcher),
+                 Property(&QmlDesigner::CompoundPropertyMetaInfo::name, nameMatcher));
+}
+
+template<typename PropertyIdMatcher, typename ParentPropertyIdMatcher, typename NameMatcher>
+auto CompoundPropertyIds(const PropertyIdMatcher &propertyIdMatcher,
+                         const ParentPropertyIdMatcher &parentPropertyIdMatcher,
+                         const NameMatcher &nameMatcher)
+{
+    return CompoundProperty(PropertyId(propertyIdMatcher),
+                            PropertyId(parentPropertyIdMatcher),
+                            nameMatcher);
+}
+
 class NodeMetaInfo : public testing::Test
 {
 protected:
@@ -481,6 +501,72 @@ TEST_F(NodeMetaInfo, get_no_properties_if_is_invalid)
     auto properties = metaInfo.properties();
 
     ASSERT_THAT(properties, IsEmpty());
+}
+
+TEST_F(NodeMetaInfo, inflate_value_properties)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    auto fontTypeId = projectStorageMock.typeId(qtQuickModuleId, "font");
+    auto xPropertyId = projectStorageMock.createProperty(metaInfo.id(), "x", intTypeId);
+    auto fontPropertyId = projectStorageMock.createProperty(metaInfo.id(), "font", fontTypeId);
+    auto familyPropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "family");
+    auto pixelSizePropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "pixelSize");
+
+    auto properties = QmlDesigner::MetaInfoUtils::inflateValueProperties(metaInfo.properties());
+
+    ASSERT_THAT(properties,
+                AllOf(Contains(CompoundPropertyIds(xPropertyId, IsFalse(), "x")),
+                      Not(Contains(CompoundPropertyIds(fontPropertyId, IsFalse(), _))),
+                      Contains(CompoundPropertyIds(familyPropertyId, fontPropertyId, "font.family")),
+                      Contains(
+                          CompoundPropertyIds(pixelSizePropertyId, fontPropertyId, "font.pixelSize"))));
+}
+
+TEST_F(NodeMetaInfo, inflate_value_properties_handles_invalid)
+{
+    QmlDesigner::PropertyMetaInfos propertiesWithInvalid = {QmlDesigner::PropertyMetaInfo{}};
+
+    auto properties = QmlDesigner::MetaInfoUtils::inflateValueProperties(propertiesWithInvalid);
+
+    ASSERT_THAT(properties, ElementsAre(CompoundProperty(IsFalse(), IsFalse(), IsEmpty())));
+}
+
+TEST_F(NodeMetaInfo, inflate_value_and_readonly_properties)
+{
+    using QmlDesigner::Storage::PropertyDeclarationTraits;
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    auto fontTypeId = projectStorageMock.typeId(qtQuickModuleId, "font");
+    auto inputDeviceId = projectStorageMock.typeId(qtQuickModuleId, "InputDevice");
+    auto xPropertyId = projectStorageMock.createProperty(metaInfo.id(), "x", intTypeId);
+    auto fontPropertyId = projectStorageMock.createProperty(metaInfo.id(), "font", fontTypeId);
+    auto familyPropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "family");
+    auto pixelSizePropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "pixelSize");
+    auto devicePropertyId = projectStorageMock.createProperty(metaInfo.id(),
+                                                              "device",
+                                                              PropertyDeclarationTraits::IsReadOnly,
+                                                              inputDeviceId);
+    auto seatNamePropertyId = projectStorageMock.propertyDeclarationId(inputDeviceId, "seatName");
+
+    auto properties = QmlDesigner::MetaInfoUtils::inflateValueAndReadOnlyProperties(
+        metaInfo.properties());
+
+    ASSERT_THAT(
+        properties,
+        AllOf(Contains(CompoundPropertyIds(xPropertyId, IsFalse(), "x")),
+              Not(Contains(CompoundPropertyIds(fontPropertyId, IsFalse(), _))),
+              Contains(CompoundPropertyIds(familyPropertyId, fontPropertyId, "font.family")),
+              Contains(CompoundPropertyIds(pixelSizePropertyId, fontPropertyId, "font.pixelSize")),
+              Contains(CompoundPropertyIds(seatNamePropertyId, devicePropertyId, "device.seatName"))));
+}
+
+TEST_F(NodeMetaInfo, inflate_value_and_readonly_properties_handles_invalid)
+{
+    QmlDesigner::PropertyMetaInfos propertiesWithInvalid = {QmlDesigner::PropertyMetaInfo{}};
+
+    auto properties = QmlDesigner::MetaInfoUtils::inflateValueAndReadOnlyProperties(
+        propertiesWithInvalid);
+
+    ASSERT_THAT(properties, ElementsAre(CompoundProperty(IsFalse(), IsFalse(), IsEmpty())));
 }
 
 TEST_F(NodeMetaInfo, get_local_properties)

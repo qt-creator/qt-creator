@@ -69,6 +69,10 @@ public:
                                      Utils::SmallStringView typeName,
                                      QmlDesigner::TypeIds baseTypeIds = {});
 
+    QmlDesigner::TypeId createValue(QmlDesigner::ModuleId moduleId,
+                                    Utils::SmallStringView typeName,
+                                    QmlDesigner::TypeIds baseTypeIds = {});
+
     QmlDesigner::PropertyDeclarationId createProperty(
         QmlDesigner::TypeId typeId,
         Utils::SmallString name,
@@ -263,6 +267,15 @@ public:
                 propertyEditorPathId,
                 (QmlDesigner::TypeId typeId),
                 (const, override));
+    MOCK_METHOD(QmlDesigner::ModuleId,
+                fetchModuleIdUnguarded,
+                (Utils::SmallStringView name),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::TypeId,
+                fetchTypeIdByModuleIdAndExportedName,
+                (QmlDesigner::ModuleId moduleId, Utils::SmallStringView name),
+                (const, override));
+
     QmlDesigner::Storage::Info::CommonTypeCache<QmlDesigner::ProjectStorageInterface> typeCache{*this};
 };
 

@@ -89,6 +89,26 @@ TEST_F(PropertyMetaInfo, default_hads_invalid_property_type)
     ASSERT_THAT(type, IsFalse());
 }
 
+TEST_F(PropertyMetaInfo, type)
+{
+    auto barInfo = createNodeMetaInfo("QtQuick", "Bar");
+    projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, barInfo.id());
+    auto propertyInfo = nodeInfo.property("bar");
+
+    auto type = propertyInfo.type();
+
+    ASSERT_THAT(type, nodeInfo);
+}
+
+TEST_F(PropertyMetaInfo, default_has_invalid_type)
+{
+    QmlDesigner::PropertyMetaInfo propertyInfo;
+
+    auto type = propertyInfo.type();
+
+    ASSERT_THAT(type, IsFalse());
+}
+
 TEST_F(PropertyMetaInfo, is_writable)
 {
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, nodeInfo.id());

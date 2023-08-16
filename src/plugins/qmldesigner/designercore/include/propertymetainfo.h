@@ -54,7 +54,9 @@ public:
 
     PropertyName name() const;
     NodeMetaInfo propertyType() const;
+    NodeMetaInfo type() const;
     bool isWritable() const;
+    bool isReadOnly() const;
     bool isListProperty() const;
     bool isEnumType() const;
     bool isPrivate() const;
@@ -70,6 +72,8 @@ public:
                && first.name() == second.name();
 #endif
     }
+
+    const ProjectStorageType &projectStorage() const { return *m_projectStorage; }
 
 private:
     const Storage::Info::PropertyDeclaration &propertyData() const;
@@ -88,5 +92,36 @@ private:
 };
 
 using PropertyMetaInfos = std::vector<PropertyMetaInfo>;
+
+struct CompoundPropertyMetaInfo
+{
+    CompoundPropertyMetaInfo(PropertyMetaInfo &&property)
+        : property(std::move(property))
+    {}
+
+    CompoundPropertyMetaInfo(PropertyMetaInfo &&property, const PropertyMetaInfo &parent)
+        : property(std::move(property))
+        , parent(parent)
+    {}
+
+    PropertyName name() const
+    {
+        if (parent)
+            return parent.name() + '.' + property.name();
+
+        return property.name();
+    }
+
+    PropertyMetaInfo property;
+    PropertyMetaInfo parent;
+};
+
+using CompoundPropertyMetaInfos = std::vector<CompoundPropertyMetaInfo>;
+
+namespace MetaInfoUtils {
+
+CompoundPropertyMetaInfos inflateValueProperties(PropertyMetaInfos properties);
+CompoundPropertyMetaInfos inflateValueAndReadOnlyProperties(PropertyMetaInfos properties);
+} // namespace MetaInfoUtils
 
 } // namespace QmlDesigner

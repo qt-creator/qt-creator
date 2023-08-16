@@ -7,6 +7,7 @@
 
 #include <utils/smallstring.h>
 
+#include <array>
 #include <tuple>
 #include <variant>
 #include <vector>
@@ -204,5 +205,7 @@ public:
     SourceId sourceId;
     TypeTraits traits;
 };
+
+using TypeIdsWithoutProperties = std::array<TypeId, 8>;
 
 } // namespace QmlDesigner::Storage::Info

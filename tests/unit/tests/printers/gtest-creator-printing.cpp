@@ -472,6 +472,17 @@ std::ostream &operator<<(std::ostream &out, const NodeMetaInfo &metaInfo)
     return out << "(" << metaInfo.id() << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const PropertyMetaInfo &metaInfo)
+{
+    return out << "(" << metaInfo.type() << ", " << metaInfo.name() << ", "
+               << metaInfo.propertyType() << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const CompoundPropertyMetaInfo &metaInfo)
+{
+    return out << "(" << metaInfo.property << ", " << metaInfo.parent << ")";
+}
+
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
 {
     if (!property.isValid())
