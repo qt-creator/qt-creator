@@ -4,29 +4,28 @@
 #pragma once
 
 #include <QObject>
-#include <QUrl>
 
 namespace QmlDesigner {
 
-class EffectNode : public QObject
+class CompositionNode : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
-    Q_PROPERTY(QUrl nodeIcon MEMBER m_iconPath CONSTANT)
-
 public:
-    EffectNode(const QString &qenPath);
+    CompositionNode(const QString &qenPath);
 
-    QString qenPath() const;
-    QString name() const;
+    QString fragmentCode() const;
+    QString vertexCode() const;
     QString description() const;
 
 private:
-    QString m_qenPath;
+    void parse(const QString &qenPath);
+
     QString m_name;
+    QString m_fragmentCode;
+    QString m_vertexCode;
     QString m_description;
-    QUrl m_iconPath;
 };
 
 } // namespace QmlDesigner
+
