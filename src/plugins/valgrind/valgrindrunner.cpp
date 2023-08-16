@@ -8,15 +8,18 @@
 
 #include <projectexplorer/runcontrol.h>
 
-#include <utils/hostosinfo.h>
+#include <solutions/tasking/barrier.h>
+
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
 #include <QEventLoop>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QTimer>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
@@ -56,33 +59,12 @@ static CommandLine valgrindCommand(const CommandLine &command,
     return cmd;
 }
 
-class ValgrindRunner::Private : public QObject
+class ValgrindRunnerPrivate : public QObject
 {
 public:
-    Private(ValgrindRunner *owner) : q(owner) {
-        connect(&m_xmlServer, &QTcpServer::newConnection, this, [this] {
-            QTcpSocket *socket = m_xmlServer.nextPendingConnection();
-            QTC_ASSERT(socket, return);
-            m_xmlServer.close();
-            m_parser.setSocket(socket);
-            m_parser.start();
-        });
-        connect(&m_logServer, &QTcpServer::newConnection, this, [this] {
-            QTcpSocket *socket = m_logServer.nextPendingConnection();
-            QTC_ASSERT(socket, return);
-            connect(socket, &QIODevice::readyRead, this, [this, socket] {
-                emit q->logMessageReceived(socket->readAll());
-            });
-            m_logServer.close();
-        });
-
-        connect(&m_parser, &Parser::status, q, &ValgrindRunner::status);
-        connect(&m_parser, &Parser::error, q, &ValgrindRunner::error);
-        connect(&m_parser, &Parser::done, this, [this](bool success, const QString &err) {
-            if (!success)
-                emit q->internalError(err);
-        });
-    }
+    ValgrindRunnerPrivate(ValgrindRunner *owner)
+        : q(owner)
+    {}
 
     void setupValgrindProcess(Process *process, const CommandLine &command) const {
         CommandLine cmd = command;
@@ -123,7 +105,8 @@ public:
         });
     }
 
-    bool startServers();
+    Group runRecipe() const;
+
     bool run();
 
     ValgrindRunner *q = nullptr;
@@ -134,65 +117,120 @@ public:
     QHostAddress m_localServerAddress;
     bool m_useTerminal = false;
 
-    Process m_process;
-    QTcpServer m_xmlServer;
-    QTcpServer m_logServer;
-    Parser m_parser;
+    std::unique_ptr<TaskTree> m_taskTree;
 };
 
-bool ValgrindRunner::Private::startServers()
+Group ValgrindRunnerPrivate::runRecipe() const
 {
-    const bool xmlOK = m_xmlServer.listen(m_localServerAddress);
-    const QString ip = m_localServerAddress.toString();
-    if (!xmlOK) {
-        emit q->processErrorReceived(Tr::tr("XmlServer on %1:").arg(ip) + ' '
-                                     + m_xmlServer.errorString(), QProcess::FailedToStart );
-        return false;
-    }
-    m_xmlServer.setMaxPendingConnections(1);
-    const bool logOK = m_logServer.listen(m_localServerAddress);
-    if (!logOK) {
-        emit q->processErrorReceived(Tr::tr("LogServer on %1:").arg(ip) + ' '
-                                     + m_logServer.errorString(), QProcess::FailedToStart );
-        return false;
-    }
-    m_logServer.setMaxPendingConnections(1);
-    return true;
+    struct ValgrindStorage {
+        CommandLine m_valgrindCommand;
+        std::unique_ptr<QTcpServer> m_xmlServer;
+        std::unique_ptr<QTcpServer> m_logServer;
+        std::unique_ptr<QTcpSocket> m_xmlSocket;
+    };
+
+    TreeStorage<ValgrindStorage> storage;
+    SingleBarrier xmlBarrier;
+
+    const auto onSetup = [this, storage, xmlBarrier] {
+        ValgrindStorage *storagePtr = storage.activeStorage();
+        storagePtr->m_valgrindCommand.setExecutable(m_valgrindCommand.executable());
+        if (!m_localServerAddress.isNull()) {
+            Barrier *barrier = xmlBarrier->barrier();
+            const QString ip = m_localServerAddress.toString();
+
+            QTcpServer *xmlServer = new QTcpServer;
+            storagePtr->m_xmlServer.reset(xmlServer);
+            connect(xmlServer, &QTcpServer::newConnection, this, [xmlServer, storagePtr, barrier] {
+                QTcpSocket *socket = xmlServer->nextPendingConnection();
+                QTC_ASSERT(socket, return);
+                xmlServer->close();
+                storagePtr->m_xmlSocket.reset(socket);
+                barrier->advance(); // Release Parser task
+            });
+            if (!xmlServer->listen(m_localServerAddress)) {
+                emit q->processErrorReceived(Tr::tr("XmlServer on %1:").arg(ip) + ' '
+                                             + xmlServer->errorString(), QProcess::FailedToStart);
+                return SetupResult::StopWithError;
+            }
+            xmlServer->setMaxPendingConnections(1);
+
+            QTcpServer *logServer = new QTcpServer;
+            storagePtr->m_logServer.reset(logServer);
+            connect(logServer, &QTcpServer::newConnection, this, [this, logServer] {
+                QTcpSocket *socket = logServer->nextPendingConnection();
+                QTC_ASSERT(socket, return);
+                connect(socket, &QIODevice::readyRead, this, [this, socket] {
+                    emit q->logMessageReceived(socket->readAll());
+                });
+                logServer->close();
+            });
+            if (!logServer->listen(m_localServerAddress)) {
+                emit q->processErrorReceived(Tr::tr("LogServer on %1:").arg(ip) + ' '
+                                             + logServer->errorString(), QProcess::FailedToStart);
+                return SetupResult::StopWithError;
+            }
+            logServer->setMaxPendingConnections(1);
+
+            storagePtr->m_valgrindCommand = valgrindCommand(storagePtr->m_valgrindCommand,
+                                                            *xmlServer, *logServer);
+        }
+        return SetupResult::Continue;
+    };
+
+    const auto onProcessSetup = [this, storage](Process &process) {
+        setupValgrindProcess(&process, storage->m_valgrindCommand);
+    };
+
+    const auto onParserGroupSetup = [this] {
+        return m_localServerAddress.isNull() ? SetupResult::StopWithDone : SetupResult::Continue;
+    };
+
+    const auto onParserSetup = [this, storage](Parser &parser) {
+        connect(&parser, &Parser::status, q, &ValgrindRunner::status);
+        connect(&parser, &Parser::error, q, &ValgrindRunner::error);
+        parser.setSocket(storage->m_xmlSocket.release());
+    };
+
+    const auto onParserError = [this](const Parser &parser) {
+        emit q->internalError(parser.errorString());
+    };
+
+    const Group root {
+        parallel,
+        Storage(storage),
+        Storage(xmlBarrier),
+        onGroupSetup(onSetup),
+        ProcessTask(onProcessSetup),
+        Group {
+            onGroupSetup(onParserGroupSetup),
+            waitForBarrierTask(xmlBarrier),
+            ParserTask(onParserSetup, {}, onParserError)
+        }
+    };
+    return root;
 }
 
-bool ValgrindRunner::Private::run()
+bool ValgrindRunnerPrivate::run()
 {
-    CommandLine cmd;
-    cmd.setExecutable(m_valgrindCommand.executable());
-
-    if (!m_localServerAddress.isNull()) {
-        if (!startServers())
-            return false;
-        cmd = valgrindCommand(cmd, m_xmlServer, m_logServer);
-    }
-    setupValgrindProcess(&m_process, cmd);
-    m_process.start();
-    return true;
+    m_taskTree.reset(new TaskTree);
+    m_taskTree->setRecipe(runRecipe());
+    const auto finalize = [this](bool success) {
+        m_taskTree.release()->deleteLater();
+        emit q->done(success);
+    };
+    connect(m_taskTree.get(), &TaskTree::done, this, [finalize] { finalize(true); });
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [finalize] { finalize(false); });
+    m_taskTree->start();
+    return bool(m_taskTree);
 }
 
 ValgrindRunner::ValgrindRunner(QObject *parent)
     : QObject(parent)
-    , d(new Private(this))
+    , d(new ValgrindRunnerPrivate(this))
 {}
 
-ValgrindRunner::~ValgrindRunner()
-{
-    if (d->m_process.isRunning()) {
-        // make sure we don't delete the thread while it's still running
-        waitForFinished();
-    }
-    if (d->m_parser.isRunning()) {
-        // make sure we don't delete the thread while it's still running
-        waitForFinished();
-    }
-    delete d;
-    d = nullptr;
-}
+ValgrindRunner::~ValgrindRunner() = default;
 
 void ValgrindRunner::setValgrindCommand(const CommandLine &command)
 {
@@ -219,16 +257,6 @@ void ValgrindRunner::setUseTerminal(bool on)
     d->m_useTerminal = on;
 }
 
-void ValgrindRunner::waitForFinished() const
-{
-    if (d->m_process.state() == QProcess::NotRunning)
-        return;
-
-    QEventLoop loop;
-    connect(this, &ValgrindRunner::done, &loop, &QEventLoop::quit);
-    loop.exec();
-}
-
 bool ValgrindRunner::start()
 {
     return d->run();
@@ -236,7 +264,24 @@ bool ValgrindRunner::start()
 
 void ValgrindRunner::stop()
 {
-    d->m_process.stop();
+    d->m_taskTree.reset();
+}
+
+bool ValgrindRunner::runBlocking()
+{
+    bool ok = false;
+    QEventLoop loop;
+
+    const auto finalize = [&loop, &ok](bool success) {
+        ok = success;
+        // Refer to the QObject::deleteLater() docs.
+        QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
+    };
+
+    connect(this, &ValgrindRunner::done, &loop, finalize);
+    QTimer::singleShot(0, this, &ValgrindRunner::start);
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
+    return ok;
 }
 
 } // namespace Valgrind

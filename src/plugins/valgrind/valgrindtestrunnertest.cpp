@@ -66,8 +66,7 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
     m_runner->setLocalServerAddress(QHostAddress::LocalHost);
     m_runner->setValgrindCommand(valgrind);
     m_runner->setDebuggee(debuggee);
-    m_runner->start();
-    m_runner->waitForFinished();
+    m_runner->runBlocking();
     return binPath;
 }
 

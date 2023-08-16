@@ -21,6 +21,8 @@ class Error;
 class Status;
 }
 
+class ValgrindRunnerPrivate;
+
 class ValgrindRunner : public QObject
 {
     Q_OBJECT
@@ -35,10 +37,9 @@ public:
     void setLocalServerAddress(const QHostAddress &localServerAddress);
     void setUseTerminal(bool on);
 
-    void waitForFinished() const;
-
     bool start();
     void stop();
+    bool runBlocking();
 
 signals:
     void appendMessage(const QString &, Utils::OutputFormat);
@@ -53,8 +54,7 @@ signals:
     void internalError(const QString &errorString);
 
 private:
-    class Private;
-    Private *d;
+    std::unique_ptr<ValgrindRunnerPrivate> d;
 };
 
 } // namespace Valgrind

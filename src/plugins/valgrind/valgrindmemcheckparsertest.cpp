@@ -514,8 +514,7 @@ void ValgrindMemcheckParserTest::testRealValgrind()
     runner.setValgrindCommand({"valgrind", {}});
     runner.setDebuggee(debuggee);
     RunnerDumper dumper(&runner);
-    runner.start();
-    runner.waitForFinished();
+    runner.runBlocking();
 }
 
 void ValgrindMemcheckParserTest::testValgrindStartError_data()
@@ -551,8 +550,7 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     runner.setValgrindCommand({FilePath::fromString(valgrindExe), valgrindArgs});
     runner.setDebuggee(debuggeeExecutable);
     RunnerDumper dumper(&runner);
-    runner.start();
-    runner.waitForFinished();
+    runner.runBlocking();
     QVERIFY(dumper.m_errorReceived);
     // just finish without deadlock and we are fine
 }
