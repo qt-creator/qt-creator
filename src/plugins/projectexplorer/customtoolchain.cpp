@@ -31,31 +31,84 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::Internal {
 
-// --------------------------------------------------------------------------
-// Helpers:
-// --------------------------------------------------------------------------
-
-static const char makeCommandKeyC[] = "ProjectExplorer.CustomToolChain.MakePath";
-static const char predefinedMacrosKeyC[] = "ProjectExplorer.CustomToolChain.PredefinedMacros";
-static const char headerPathsKeyC[] = "ProjectExplorer.CustomToolChain.HeaderPaths";
-static const char cxx11FlagsKeyC[] = "ProjectExplorer.CustomToolChain.Cxx11Flags";
-static const char mkspecsKeyC[] = "ProjectExplorer.CustomToolChain.Mkspecs";
-static const char outputParserKeyC[] = "ProjectExplorer.CustomToolChain.OutputParser";
+const char makeCommandKeyC[] = "ProjectExplorer.CustomToolChain.MakePath";
+const char predefinedMacrosKeyC[] = "ProjectExplorer.CustomToolChain.PredefinedMacros";
+const char headerPathsKeyC[] = "ProjectExplorer.CustomToolChain.HeaderPaths";
+const char cxx11FlagsKeyC[] = "ProjectExplorer.CustomToolChain.Cxx11Flags";
+const char mkspecsKeyC[] = "ProjectExplorer.CustomToolChain.Mkspecs";
+const char outputParserKeyC[] = "ProjectExplorer.CustomToolChain.OutputParser";
 
 // --------------------------------------------------------------------------
 // CustomToolChain
 // --------------------------------------------------------------------------
 
-CustomToolChain::CustomToolChain() :
-    ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID),
-    m_outputParserId(GccParser::id())
+class CustomToolChain : public ToolChain
 {
-    setTypeDisplayName(Tr::tr("Custom"));
-    setTargetAbiKey("ProjectExplorer.CustomToolChain.TargetAbi");
-    setCompilerCommandKey("ProjectExplorer.CustomToolChain.CompilerPath");
-}
+public:
+    CustomToolChain()
+        : ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID)
+        , m_outputParserId(GccParser::id())
+    {
+        setTypeDisplayName(Tr::tr("Custom"));
+        setTargetAbiKey("ProjectExplorer.CustomToolChain.TargetAbi");
+        setCompilerCommandKey("ProjectExplorer.CustomToolChain.CompilerPath");
+    }
+
+    class Parser {
+    public:
+        Id parserId;   ///< A unique id identifying a parser
+        QString displayName; ///< A translateable name to show in the user interface
+    };
+
+    bool isValid() const override;
+
+    MacroInspectionRunner createMacroInspectionRunner() const override;
+    LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
+    WarningFlags warningFlags(const QStringList &cxxflags) const override;
+    const Macros &rawPredefinedMacros() const;
+    void setPredefinedMacros(const Macros &macros);
+
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Environment &) const override;
+    void addToEnvironment(Environment &env) const override;
+    QStringList suggestedMkspecList() const override;
+    QList<OutputLineParser *> createOutputParsers() const override;
+    QStringList headerPathsList() const;
+    void setHeaderPaths(const QStringList &list);
+
+    void toMap(QVariantMap &data) const override;
+    void fromMap(const QVariantMap &data) override;
+
+    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
+
+    bool operator ==(const ToolChain &) const override;
+
+    void setMakeCommand(const FilePath &);
+    FilePath makeCommand(const Environment &environment) const override;
+
+    void setCxx11Flags(const QStringList &);
+    const QStringList &cxx11Flags() const;
+
+    void setMkspecs(const QString &);
+    QString mkspecs() const;
+
+    Id outputParserId() const;
+    void setOutputParserId(Id parserId);
+    static QList<CustomToolChain::Parser> parsers();
+
+    CustomParserSettings customParserSettings() const;
+
+private:
+    FilePath m_makeCommand;
+
+    Macros m_predefinedMacros;
+    HeaderPaths m_builtInHeaderPaths;
+    QStringList m_cxx11Flags;
+    QStringList m_mkspecs;
+
+    Id m_outputParserId;
+};
 
 CustomParserSettings CustomToolChain::customParserSettings() const
 {
@@ -73,7 +126,7 @@ bool CustomToolChain::isValid() const
 ToolChain::MacroInspectionRunner CustomToolChain::createMacroInspectionRunner() const
 {
     const Macros theMacros = m_predefinedMacros;
-    const Utils::Id lang = language();
+    const Id lang = language();
 
     // This runner must be thread-safe!
     return [theMacros, lang](const QStringList &cxxflags){
@@ -89,7 +142,7 @@ ToolChain::MacroInspectionRunner CustomToolChain::createMacroInspectionRunner() 
     };
 }
 
-Utils::LanguageExtensions CustomToolChain::languageExtensions(const QStringList &) const
+LanguageExtensions CustomToolChain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;
 }
@@ -148,7 +201,7 @@ QStringList CustomToolChain::suggestedMkspecList() const
     return m_mkspecs;
 }
 
-QList<Utils::OutputLineParser *> CustomToolChain::createOutputParsers() const
+QList<OutputLineParser *> CustomToolChain::createOutputParsers() const
 {
     if (m_outputParserId == GccParser::id())
         return GccParser::gccParserSuite();
@@ -158,7 +211,7 @@ QList<Utils::OutputLineParser *> CustomToolChain::createOutputParsers() const
         return LinuxIccParser::iccParserSuite();
     if (m_outputParserId == MsvcParser::id())
         return {new MsvcParser};
-    return {new Internal::CustomParser(customParserSettings())};
+    return {new CustomParser(customParserSettings())};
 }
 
 QStringList CustomToolChain::headerPathsList() const
@@ -242,7 +295,7 @@ void CustomToolChain::fromMap(const QVariantMap &data)
     setHeaderPaths(data.value(QLatin1String(headerPathsKeyC)).toStringList());
     m_cxx11Flags = data.value(QLatin1String(cxx11FlagsKeyC)).toStringList();
     setMkspecs(data.value(QLatin1String(mkspecsKeyC)).toString());
-    setOutputParserId(Utils::Id::fromSetting(data.value(QLatin1String(outputParserKeyC))));
+    setOutputParserId(Id::fromSetting(data.value(QLatin1String(outputParserKeyC))));
 }
 
 bool CustomToolChain::operator ==(const ToolChain &other) const
@@ -257,12 +310,12 @@ bool CustomToolChain::operator ==(const ToolChain &other) const
             && m_builtInHeaderPaths == customTc->m_builtInHeaderPaths;
 }
 
-Utils::Id CustomToolChain::outputParserId() const
+Id CustomToolChain::outputParserId() const
 {
     return m_outputParserId;
 }
 
-void CustomToolChain::setOutputParserId(Utils::Id parserId)
+void CustomToolChain::setOutputParserId(Id parserId)
 {
     if (m_outputParserId == parserId)
         return;
@@ -279,8 +332,6 @@ QList<CustomToolChain::Parser> CustomToolChain::parsers()
     result.append({MsvcParser::id(),     Tr::tr("MSVC")});
     return result;
 }
-
-namespace Internal {
 
 // --------------------------------------------------------------------------
 // Helper for ConfigWidget
@@ -346,8 +397,8 @@ private:
 
     void setFromToolchain();
 
-    Utils::PathChooser *m_compilerCommand;
-    Utils::PathChooser *m_makeCommand;
+    PathChooser *m_compilerCommand;
+    PathChooser *m_makeCommand;
     AbiWidget *m_abiWidget;
     QPlainTextEdit *m_predefinedMacros;
     QPlainTextEdit *m_headerPaths;
@@ -454,7 +505,7 @@ void CustomToolChainConfigWidget::applyImpl()
     tc->setCxx11Flags(m_cxx11Flags->text().split(QLatin1Char(',')));
     tc->setMkspecs(m_mkspecs->text());
     tc->setDisplayName(displayName); // reset display name
-    tc->setOutputParserId(Utils::Id::fromSetting(m_errorParserComboBox->currentData()));
+    tc->setOutputParserId(Id::fromSetting(m_errorParserComboBox->currentData()));
 
     setFromToolchain(); // Refresh with actual data from the toolchain. This shows what e.g. the
                         // macro parser did with the input.
@@ -490,7 +541,7 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
             || m_headerDetails->entries() != tc->headerPathsList()
             || m_cxx11Flags->text().split(QLatin1Char(',')) != tc->cxx11Flags()
             || m_mkspecs->text() != tc->mkspecs()
-            || Utils::Id::fromSetting(m_errorParserComboBox->currentData()) == tc->outputParserId();
+            || Id::fromSetting(m_errorParserComboBox->currentData()) == tc->outputParserId();
 }
 
 void CustomToolChainConfigWidget::makeReadOnlyImpl()
@@ -498,14 +549,10 @@ void CustomToolChainConfigWidget::makeReadOnlyImpl()
     m_mainLayout->setEnabled(false);
 }
 
-} // Internal
-
 std::unique_ptr<ToolChainConfigWidget> CustomToolChain::createConfigurationWidget()
 {
-    return std::make_unique<Internal::CustomToolChainConfigWidget>(this);
+    return std::make_unique<CustomToolChainConfigWidget>(this);
 }
-
-namespace Internal {
 
 // --------------------------------------------------------------------------
 // CustomToolChainFactory
@@ -520,5 +567,4 @@ CustomToolChainFactory::CustomToolChainFactory()
     setUserCreatable(true);
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

@@ -82,6 +82,7 @@
 #include "msvctoolchain.h"
 #endif
 
+#include "customparser.h"
 #include "projecttree.h"
 #include "projectwelcomepage.h"
 
