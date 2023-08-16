@@ -40,7 +40,7 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     connect(&m_runner, &ValgrindRunner::valgrindStarted, this, [this](qint64 pid) {
         m_pid = pid;
     });
-    connect(&m_runner, &ValgrindRunner::finished, this, [this] {
+    connect(&m_runner, &ValgrindRunner::done, this, [this] {
         triggerParse();
         emit parserDataReady(this);
     });

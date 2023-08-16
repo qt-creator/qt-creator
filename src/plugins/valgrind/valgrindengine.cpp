@@ -41,7 +41,7 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
             [this](const QString &msg, Utils::OutputFormat format) { appendMessage(msg, format); });
     connect(&m_runner, &ValgrindRunner::processErrorReceived,
             this, &ValgrindToolRunner::receiveProcessError);
-    connect(&m_runner, &ValgrindRunner::finished,
+    connect(&m_runner, &ValgrindRunner::done,
             this, &ValgrindToolRunner::runnerFinished);
 }
 

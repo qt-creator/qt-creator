@@ -110,9 +110,10 @@ public:
             emit q->valgrindStarted(process->processId());
         });
         connect(process, &Process::done, this, [this, process] {
-            if (process->result() != ProcessResult::FinishedWithSuccess)
+            const bool success = process->result() == ProcessResult::FinishedWithSuccess;
+            if (!success)
                 emit q->processErrorReceived(process->errorString(), process->error());
-            emit q->finished();
+            emit q->done(success);
         });
         connect(process, &Process::readyReadStandardOutput, this, [this, process] {
             emit q->appendMessage(process->readAllStandardOutput(), StdOutFormat);
@@ -224,7 +225,7 @@ void ValgrindRunner::waitForFinished() const
         return;
 
     QEventLoop loop;
-    connect(this, &ValgrindRunner::finished, &loop, &QEventLoop::quit);
+    connect(this, &ValgrindRunner::done, &loop, &QEventLoop::quit);
     loop.exec();
 }
 
