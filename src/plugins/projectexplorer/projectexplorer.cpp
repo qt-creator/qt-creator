@@ -2964,17 +2964,6 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
     dd->doUpdateRunActions();
 }
 
-QList<QPair<CommandLine, ProcessHandle>> ProjectExplorerPlugin::runningRunControlProcesses()
-{
-    QList<QPair<CommandLine, ProcessHandle>> processes;
-    const QList<RunControl *> runControls = allRunControls();
-    for (RunControl *rc : runControls) {
-        if (rc->isRunning())
-            processes.push_back({rc->commandLine(), rc->applicationProcessHandle()});
-    }
-    return processes;
-}
-
 QList<RunControl *> ProjectExplorerPlugin::allRunControls()
 {
     return dd->m_outputPane.allRunControls();

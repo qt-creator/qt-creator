@@ -22,10 +22,7 @@ namespace Core {
 class OutputWindow;
 } // Core
 
-namespace Utils {
-class CommandLine;
-class ProcessHandle;
-} // Utils
+namespace Utils { class CommandLine; }
 
 namespace ProjectExplorer {
 class CustomParserSettings;
@@ -140,7 +137,6 @@ public:
     static void runStartupProject(Utils::Id runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, Utils::Id runMode,
                              const bool forceSkipDeploy = false);
-    static QList<QPair<Utils::CommandLine, Utils::ProcessHandle>> runningRunControlProcesses();
     static QList<RunControl *> allRunControls();
 
     static void addExistingFiles(FolderNode *folderNode, const Utils::FilePaths &filePaths);
