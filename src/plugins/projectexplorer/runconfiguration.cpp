@@ -419,11 +419,17 @@ Runnable RunConfiguration::runnable() const
         r.workingDirectory = r.command.executable().withNewMappedPath(workingDirectoryAspect->workingDirectory());
     if (auto environmentAspect = aspect<EnvironmentAspect>())
         r.environment = environmentAspect->environment();
-    if (auto forwardingAspect = aspect<X11ForwardingAspect>())
-        r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
     if (m_runnableModifier)
         m_runnableModifier(r);
     return r;
+}
+
+QVariantHash RunConfiguration::extraData() const
+{
+    QVariantHash data;
+    if (auto forwardingAspect = aspect<X11ForwardingAspect>())
+        data.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
+    return data;
 }
 
 /*!

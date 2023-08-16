@@ -96,6 +96,7 @@ public:
     void setRunnableModifier(const RunnableModifier &extraModifier);
 
     virtual Runnable runnable() const;
+    virtual QVariantHash extraData() const;
 
     // Return a handle to the build system target that created this run configuration.
     // May return an empty string if no target built the executable!

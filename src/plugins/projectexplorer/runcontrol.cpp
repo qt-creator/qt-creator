@@ -235,6 +235,7 @@ class RunControlPrivateData
 public:
     QString displayName;
     Runnable runnable;
+    QVariantHash extraData;
     IDevice::ConstPtr device;
     Icon icon;
     const MacroExpander *macroExpander = nullptr;
@@ -336,6 +337,7 @@ void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
     QTC_ASSERT(runConfig, return);
     d->runConfigId = runConfig->id();
     d->runnable = runConfig->runnable();
+    d->extraData = runConfig->extraData();
     d->displayName = runConfig->expandedDisplayName();
     d->buildKey = runConfig->buildKey();
     d->settingsData = runConfig->settingsData();
@@ -880,12 +882,12 @@ void RunControl::setEnvironment(const Environment &environment)
 
 const QVariantHash &RunControl::extraData() const
 {
-    return d->runnable.extraData;
+    return d->extraData;
 }
 
 void RunControl::setExtraData(const QVariantHash &extraData)
 {
-    d->runnable.extraData = extraData;
+    d->extraData = extraData;
 }
 
 QString RunControl::displayName() const

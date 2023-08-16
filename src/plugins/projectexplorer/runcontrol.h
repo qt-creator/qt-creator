@@ -42,12 +42,9 @@ class SimpleTargetRunnerPrivate;
 class PROJECTEXPLORER_EXPORT Runnable
 {
 public:
-    Runnable() = default;
-
     Utils::CommandLine command;
     Utils::FilePath workingDirectory;
     Utils::Environment environment;
-    QVariantHash extraData;
 };
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject
