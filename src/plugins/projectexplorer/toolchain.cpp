@@ -5,16 +5,12 @@
 
 #include "abi.h"
 #include "devicesupport/idevice.h"
-#include "headerpath.h"
 #include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
 #include "task.h"
 
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
-#include <QFileInfo>
 #include <QUuid>
 
 #include <utility>
