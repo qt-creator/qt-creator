@@ -22,6 +22,40 @@ using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
 
+static CommandLine valgrindCommand(const CommandLine &command,
+                                   const QTcpServer &xmlServer,
+                                   const QTcpServer &logServer)
+{
+    CommandLine cmd = command;
+    cmd.addArg("--child-silent-after-fork=yes");
+
+    // Workaround for valgrind bug when running vgdb with xml output
+    // https://bugs.kde.org/show_bug.cgi?id=343902
+    bool enableXml = true;
+
+    auto handleSocketParameter = [&enableXml, &cmd](const QString &prefix,
+                                                    const QTcpServer &tcpServer)
+    {
+        QHostAddress serverAddress = tcpServer.serverAddress();
+        if (serverAddress.protocol() != QAbstractSocket::IPv4Protocol) {
+            // Report will end up in the Application Output pane, i.e. not have
+            // clickable items, but that's better than nothing.
+            qWarning("Need IPv4 for valgrind");
+            enableXml = false;
+        } else {
+            cmd.addArg(QString("%1=%2:%3").arg(prefix).arg(serverAddress.toString())
+                           .arg(tcpServer.serverPort()));
+        }
+    };
+
+    handleSocketParameter("--xml-socket", xmlServer);
+    handleSocketParameter("--log-socket", logServer);
+
+    if (enableXml)
+        cmd.addArg("--xml=yes");
+    return cmd;
+}
+
 class ValgrindRunner::Private : public QObject
 {
 public:
@@ -133,32 +167,7 @@ bool ValgrindRunner::Private::run()
     if (!m_localServerAddress.isNull()) {
         if (!startServers())
             return false;
-
-        cmd.addArg("--child-silent-after-fork=yes");
-
-        // Workaround for valgrind bug when running vgdb with xml output
-        // https://bugs.kde.org/show_bug.cgi?id=343902
-        bool enableXml = true;
-
-        auto handleSocketParameter = [&enableXml, &cmd](const QString &prefix, const QTcpServer &tcpServer)
-        {
-            QHostAddress serverAddress = tcpServer.serverAddress();
-            if (serverAddress.protocol() != QAbstractSocket::IPv4Protocol) {
-                // Report will end up in the Application Output pane, i.e. not have
-                // clickable items, but that's better than nothing.
-                qWarning("Need IPv4 for valgrind");
-                enableXml = false;
-            } else {
-                cmd.addArg(QString("%1=%2:%3").arg(prefix).arg(serverAddress.toString())
-                           .arg(tcpServer.serverPort()));
-            }
-        };
-
-        handleSocketParameter("--xml-socket", m_xmlServer);
-        handleSocketParameter("--log-socket", m_logServer);
-
-        if (enableXml)
-            cmd.addArg("--xml=yes");
+        cmd = valgrindCommand(cmd, m_xmlServer, m_logServer);
     }
     setupValgrindProcess(&m_process, cmd);
     m_process.start();
