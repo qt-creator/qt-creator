@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/outputformat.h>
 
 #include <QProcess>
@@ -59,4 +61,15 @@ private:
     std::unique_ptr<ValgrindProcessPrivate> d;
 };
 
+class ValgrindProcessTaskAdapter : public Tasking::TaskAdapter<ValgrindProcess>
+{
+public:
+    ValgrindProcessTaskAdapter() {
+        connect(task(), &ValgrindProcess::done, this, &Tasking::TaskInterface::done);
+    }
+    void start() final { task()->start(); }
+};
+
 } // namespace Valgrind
+
+TASKING_DECLARE_TASK(ValgrindProcessTask, Valgrind::ValgrindProcessTaskAdapter);
