@@ -41,8 +41,21 @@ public:
             emit q->appendMessage(m_process.readAllStandardError(), StdErrFormat);
         });
 
-        connect(&m_xmlServer, &QTcpServer::newConnection, this, &Private::xmlSocketConnected);
-        connect(&m_logServer, &QTcpServer::newConnection, this, &Private::logSocketConnected);
+        connect(&m_xmlServer, &QTcpServer::newConnection, this, [this] {
+            QTcpSocket *socket = m_xmlServer.nextPendingConnection();
+            QTC_ASSERT(socket, return);
+            m_xmlServer.close();
+            m_parser.setSocket(socket);
+            m_parser.start();
+        });
+        connect(&m_logServer, &QTcpServer::newConnection, this, [this] {
+            QTcpSocket *socket = m_logServer.nextPendingConnection();
+            QTC_ASSERT(socket, return);
+            connect(socket, &QIODevice::readyRead, this, [this, socket] {
+                emit q->logMessageReceived(socket->readAll());
+            });
+            m_logServer.close();
+        });
 
         connect(&m_parser, &Parser::status, q, &ValgrindRunner::status);
         connect(&m_parser, &Parser::error, q, &ValgrindRunner::error);
@@ -52,8 +65,6 @@ public:
         });
     }
 
-    void xmlSocketConnected();
-    void logSocketConnected();
     bool startServers();
     bool run();
 
@@ -70,25 +81,6 @@ public:
     QTcpServer m_logServer;
     Parser m_parser;
 };
-
-void ValgrindRunner::Private::xmlSocketConnected()
-{
-    QTcpSocket *socket = m_xmlServer.nextPendingConnection();
-    QTC_ASSERT(socket, return);
-    m_xmlServer.close();
-    m_parser.setSocket(socket);
-    m_parser.start();
-}
-
-void ValgrindRunner::Private::logSocketConnected()
-{
-    QTcpSocket *logSocket = m_logServer.nextPendingConnection();
-    QTC_ASSERT(logSocket, return);
-    connect(logSocket, &QIODevice::readyRead, this, [this, logSocket] {
-        emit q->logMessageReceived(logSocket->readAll());
-    });
-    m_logServer.close();
-}
 
 bool ValgrindRunner::Private::startServers()
 {
