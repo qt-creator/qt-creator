@@ -72,10 +72,10 @@ find_package(Qt6
   REQUIRED
 )
 
-if (Qt6_VERSION VERSION_LESS_EQUAL 6.4.3)
-    option(WITH_QMLDESIGNER "Build QmlDesigner" OFF)
-else()
+if (Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3)
     option(WITH_QMLDESIGNER "Build QmlDesigner" ${ENV_QTC_WITH_QMLDESIGNER})
+else()
+    option(WITH_QMLDESIGNER "Build QmlDesigner" OFF)
 endif()
 add_feature_info("Build QmlDesigner and related code (only if Qt is 6.4.3 or newer)" ${WITH_QMLDESIGNER} "")
 
