@@ -72,12 +72,14 @@
 #include <utils/uncommentselection.h>
 
 #include <QAbstractTextDocumentLayout>
+#include <QActionGroup>
 #include <QApplication>
 #include <QClipboard>
-#include <QCoreApplication>
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDesktopServices>
+#include <QDrag>
 #include <QFutureWatcher>
 #include <QGridLayout>
 #include <QKeyEvent>
@@ -91,7 +93,6 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPropertyAnimation>
-#include <QDrag>
 #include <QRegularExpression>
 #include <QScopeGuard>
 #include <QScreen>
@@ -267,6 +268,97 @@ QSize LineColumnButton::sizeHint() const
 }
 
 namespace Internal {
+
+class TabSettingsButton : public QToolButton
+{
+public:
+    TabSettingsButton(TextEditorWidget *parent)
+        : QToolButton(parent)
+    {
+        connect(this, &QToolButton::clicked, this, &TabSettingsButton::showMenu);
+    }
+
+    void setDocument(TextDocument *doc)
+    {
+        if (m_doc)
+            disconnect(m_doc, &TextDocument::tabSettingsChanged, this, &TabSettingsButton::update);
+        m_doc = doc;
+        if (QTC_GUARD(m_doc)) {
+            connect(m_doc, &TextDocument::tabSettingsChanged, this, &TabSettingsButton::update);
+            update();
+        }
+    }
+
+private:
+    void update()
+    {
+        QTC_ASSERT(m_doc, return);
+        const TabSettings ts = m_doc->tabSettings();
+        QString policy;
+        switch (ts.m_tabPolicy) {
+        case TabSettings::SpacesOnlyTabPolicy:
+            policy = Tr::tr("Spaces");
+            break;
+        case TabSettings::TabsOnlyTabPolicy:
+            policy = Tr::tr("Tabs");
+            break;
+        case TabSettings::MixedTabPolicy:
+            policy = Tr::tr("Mixed");
+            break;
+        }
+        setText(QString("%1: %2").arg(policy).arg(ts.m_indentSize));
+    }
+
+    void showMenu()
+    {
+        QTC_ASSERT(m_doc, return);
+        auto menu = new QMenu;
+        menu->addAction(ActionManager::command(Constants::AUTO_INDENT_SELECTION)->action());
+        auto documentSettings = menu->addMenu(Tr::tr("Document Settings"));
+
+        auto tabSettings = documentSettings->addMenu(Tr::tr("Tab Settings"));
+        auto modifyTabSettings = [this](std::function<void(TabSettings &tabSettings)> modifier) {
+            return [this, modifier]() {
+                auto ts = m_doc->tabSettings();
+                modifier(ts);
+                m_doc->setTabSettings(ts);
+            };
+        };
+        tabSettings->addAction(Tr::tr("Spaces"), modifyTabSettings([](TabSettings &tabSettings) {
+                                   tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+                               }));
+        tabSettings->addAction(Tr::tr("Tabs"), modifyTabSettings([](TabSettings &tabSettings) {
+                                   tabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
+                               }));
+        auto indentSize = documentSettings->addMenu(Tr::tr("Indent Size"));
+        auto indentSizeGroup = new QActionGroup(indentSize);
+        indentSizeGroup->setExclusive(true);
+        for (int i = 1; i <= 8; ++i) {
+            auto action = indentSizeGroup->addAction(QString::number(i));
+            action->setCheckable(true);
+            action->setChecked(i == m_doc->tabSettings().m_indentSize);
+            connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
+                        tabSettings.m_indentSize = i;
+                    }));
+        }
+        indentSize->addActions(indentSizeGroup->actions());
+        auto tabSize = documentSettings->addMenu(Tr::tr("Tab Size"));
+        auto tabSizeGroup = new QActionGroup(tabSize);
+        tabSizeGroup->setExclusive(true);
+        for (int i = 1; i <= 8; ++i) {
+            auto action = tabSizeGroup->addAction(QString::number(i));
+            action->setCheckable(true);
+            action->setChecked(i == m_doc->tabSettings().m_tabSize);
+            connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
+                tabSettings.m_tabSize = i;
+            }));
+        }
+        tabSize->addActions(tabSizeGroup->actions());
+        menu->popup(QCursor::pos());
+    }
+
+    TextDocument *m_doc = nullptr;
+};
 
 class TextEditorAnimator : public QObject
 {
@@ -776,6 +868,7 @@ public:
     QAction *m_stretchAction = nullptr;
     QAction *m_toolbarOutlineAction = nullptr;
     LineColumnButton *m_cursorPositionButton = nullptr;
+    TabSettingsButton *m_tabSettingsButton = nullptr;
     QToolButton *m_fileEncodingButton = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
     BaseTextFind *m_find = nullptr;
@@ -1116,6 +1209,10 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_cursorPositionButton = new LineColumnButton(q);
     m_cursorPositionButton->setContentsMargins(spacing, 0, spacing, 0);
     m_toolBarWidget->layout()->addWidget(m_cursorPositionButton);
+
+    m_tabSettingsButton = new TabSettingsButton(q);
+    m_tabSettingsButton->setContentsMargins(spacing, 0, spacing, 0);
+    m_toolBarWidget->layout()->addWidget(m_tabSettingsButton);
 
     m_fileLineEnding = new QToolButton(q);
     m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
@@ -1490,6 +1587,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     q->setCompletionSettings(TextEditorSettings::completionSettings());
     q->setExtraEncodingSettings(globalExtraEncodingSettings());
     q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
+    m_tabSettingsButton->setDocument(q->textDocument());
 
     m_blockCount = doc->document()->blockCount();
 
@@ -10077,6 +10175,7 @@ void TextEditorWidgetPrivate::applyTabSettings()
 {
     updateTabStops();
     m_autoCompleter->setTabSettings(m_document->tabSettings());
+    emit q->tabSettingsChanged();
 }
 
 int TextEditorWidget::columnCount() const

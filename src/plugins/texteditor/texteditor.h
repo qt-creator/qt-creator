@@ -556,6 +556,7 @@ signals:
     void requestRename(const QTextCursor &cursor);
     void requestCallHierarchy(const QTextCursor &cursor);
     void toolbarOutlineChanged(QWidget *newOutline);
+    void tabSettingsChanged();
 
     // used by the IEditor
     void saveCurrentStateForNavigationHistory();
