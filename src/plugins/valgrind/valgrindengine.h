@@ -26,7 +26,7 @@ protected:
 
     ValgrindSettings m_settings{false};
     QFutureInterface<void> m_progress;
-    ValgrindRunner m_runner;
+    ValgrindProcess m_runner;
 
 private:
     void handleProgressCanceled();

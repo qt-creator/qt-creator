@@ -32,10 +32,10 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
 {
     setId("CallgrindToolRunner");
 
-    connect(&m_runner, &ValgrindRunner::valgrindStarted, this, [this](qint64 pid) {
+    connect(&m_runner, &ValgrindProcess::valgrindStarted, this, [this](qint64 pid) {
         m_pid = pid;
     });
-    connect(&m_runner, &ValgrindRunner::done, this, [this] {
+    connect(&m_runner, &ValgrindProcess::done, this, [this] {
         triggerParse();
         emit parserDataReady(this);
     });

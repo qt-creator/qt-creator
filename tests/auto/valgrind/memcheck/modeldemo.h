@@ -18,7 +18,7 @@ class ModelDemo : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModelDemo(Valgrind::ValgrindRunner *r, QObject *parent = 0)
+    explicit ModelDemo(Valgrind::ValgrindProcess *r, QObject *parent = 0)
         : QObject(parent)
         , runner(r)
     {
@@ -37,5 +37,5 @@ public Q_SLOTS:
     }
 
 private:
-    Valgrind::ValgrindRunner *runner;
+    Valgrind::ValgrindProcess *runner;
 };

@@ -57,10 +57,10 @@ static CommandLine valgrindCommand(const CommandLine &command,
     return cmd;
 }
 
-class ValgrindRunnerPrivate : public QObject
+class ValgrindProcessPrivate : public QObject
 {
 public:
-    ValgrindRunnerPrivate(ValgrindRunner *owner)
+    ValgrindProcessPrivate(ValgrindProcess *owner)
         : q(owner)
     {}
 
@@ -107,7 +107,7 @@ public:
 
     bool run();
 
-    ValgrindRunner *q = nullptr;
+    ValgrindProcess *q = nullptr;
 
     CommandLine m_valgrindCommand;
     ProcessRunData m_debuggee;
@@ -118,7 +118,7 @@ public:
     std::unique_ptr<TaskTree> m_taskTree;
 };
 
-Group ValgrindRunnerPrivate::runRecipe() const
+Group ValgrindProcessPrivate::runRecipe() const
 {
     struct ValgrindStorage {
         CommandLine m_valgrindCommand;
@@ -185,8 +185,8 @@ Group ValgrindRunnerPrivate::runRecipe() const
     };
 
     const auto onParserSetup = [this, storage](Parser &parser) {
-        connect(&parser, &Parser::status, q, &ValgrindRunner::status);
-        connect(&parser, &Parser::error, q, &ValgrindRunner::error);
+        connect(&parser, &Parser::status, q, &ValgrindProcess::status);
+        connect(&parser, &Parser::error, q, &ValgrindProcess::error);
         parser.setSocket(storage->m_xmlSocket.release());
     };
 
@@ -209,7 +209,7 @@ Group ValgrindRunnerPrivate::runRecipe() const
     return root;
 }
 
-bool ValgrindRunnerPrivate::run()
+bool ValgrindProcessPrivate::run()
 {
     m_taskTree.reset(new TaskTree);
     m_taskTree->setRecipe(runRecipe());
@@ -223,49 +223,49 @@ bool ValgrindRunnerPrivate::run()
     return bool(m_taskTree);
 }
 
-ValgrindRunner::ValgrindRunner(QObject *parent)
+ValgrindProcess::ValgrindProcess(QObject *parent)
     : QObject(parent)
-    , d(new ValgrindRunnerPrivate(this))
+    , d(new ValgrindProcessPrivate(this))
 {}
 
-ValgrindRunner::~ValgrindRunner() = default;
+ValgrindProcess::~ValgrindProcess() = default;
 
-void ValgrindRunner::setValgrindCommand(const CommandLine &command)
+void ValgrindProcess::setValgrindCommand(const CommandLine &command)
 {
     d->m_valgrindCommand = command;
 }
 
-void ValgrindRunner::setDebuggee(const ProcessRunData &debuggee)
+void ValgrindProcess::setDebuggee(const ProcessRunData &debuggee)
 {
     d->m_debuggee = debuggee;
 }
 
-void ValgrindRunner::setProcessChannelMode(QProcess::ProcessChannelMode mode)
+void ValgrindProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
     d->m_channelMode = mode;
 }
 
-void ValgrindRunner::setLocalServerAddress(const QHostAddress &localServerAddress)
+void ValgrindProcess::setLocalServerAddress(const QHostAddress &localServerAddress)
 {
     d->m_localServerAddress = localServerAddress;
 }
 
-void ValgrindRunner::setUseTerminal(bool on)
+void ValgrindProcess::setUseTerminal(bool on)
 {
     d->m_useTerminal = on;
 }
 
-bool ValgrindRunner::start()
+bool ValgrindProcess::start()
 {
     return d->run();
 }
 
-void ValgrindRunner::stop()
+void ValgrindProcess::stop()
 {
     d->m_taskTree.reset();
 }
 
-bool ValgrindRunner::runBlocking()
+bool ValgrindProcess::runBlocking()
 {
     bool ok = false;
     QEventLoop loop;
@@ -276,8 +276,8 @@ bool ValgrindRunner::runBlocking()
         QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
     };
 
-    connect(this, &ValgrindRunner::done, &loop, finalize);
-    QTimer::singleShot(0, this, &ValgrindRunner::start);
+    connect(this, &ValgrindProcess::done, &loop, finalize);
+    QTimer::singleShot(0, this, &ValgrindProcess::start);
     loop.exec(QEventLoop::ExcludeUserInputEvents);
     return ok;
 }

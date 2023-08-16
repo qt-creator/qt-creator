@@ -23,15 +23,15 @@ class Error;
 class Status;
 }
 
-class ValgrindRunnerPrivate;
+class ValgrindProcessPrivate;
 
-class ValgrindRunner : public QObject
+class ValgrindProcess : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ValgrindRunner(QObject *parent = nullptr);
-    ~ValgrindRunner() override;
+    explicit ValgrindProcess(QObject *parent = nullptr);
+    ~ValgrindProcess() override;
 
     void setValgrindCommand(const Utils::CommandLine &command);
     void setDebuggee(const Utils::ProcessRunData &debuggee);
@@ -56,7 +56,7 @@ signals:
     void internalError(const QString &errorString);
 
 private:
-    std::unique_ptr<ValgrindRunnerPrivate> d;
+    std::unique_ptr<ValgrindProcessPrivate> d;
 };
 
 } // namespace Valgrind

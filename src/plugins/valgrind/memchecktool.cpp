@@ -169,7 +169,7 @@ void MemcheckToolRunner::start()
 
 void MemcheckToolRunner::stop()
 {
-    disconnect(&m_runner, &ValgrindRunner::internalError,
+    disconnect(&m_runner, &ValgrindProcess::internalError,
                this, &MemcheckToolRunner::internalParserError);
     ValgrindToolRunner::stop();
 }
@@ -1148,15 +1148,15 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
       m_localServerAddress(QHostAddress::LocalHost)
 {
     setId("MemcheckToolRunner");
-    connect(&m_runner, &ValgrindRunner::error, this, &MemcheckToolRunner::parserError);
+    connect(&m_runner, &ValgrindProcess::error, this, &MemcheckToolRunner::parserError);
 
     if (m_withGdb) {
-        connect(&m_runner, &ValgrindRunner::valgrindStarted,
+        connect(&m_runner, &ValgrindProcess::valgrindStarted,
                 this, &MemcheckToolRunner::startDebugger);
-        connect(&m_runner, &ValgrindRunner::logMessageReceived,
+        connect(&m_runner, &ValgrindProcess::logMessageReceived,
                 this, &MemcheckToolRunner::appendLog);
     } else {
-        connect(&m_runner, &ValgrindRunner::internalError,
+        connect(&m_runner, &ValgrindProcess::internalError,
                 this, &MemcheckToolRunner::internalParserError);
     }
 

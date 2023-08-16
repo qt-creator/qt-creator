@@ -29,18 +29,18 @@ int main(int argc, char *argv[])
 
     qRegisterMetaType<Error>();
 
-    ValgrindRunner runner;
+    ValgrindProcess runner;
     runner.setValgrindCommand({VALGRIND_FAKE_PATH,
                               {"-i", PARSERTESTS_DATA_DIR "/memcheck-output-sample1.xml"}});
     ModelDemo demo(&runner);
-    QObject::connect(&runner, &ValgrindRunner::processErrorReceived, &app, [](const QString &err) {
+    QObject::connect(&runner, &ValgrindProcess::processErrorReceived, &app, [](const QString &err) {
         qDebug() << err;
     });
-    QObject::connect(&runner, &ValgrindRunner::done, &app, [](bool success) {
+    QObject::connect(&runner, &ValgrindProcess::done, &app, [](bool success) {
         qApp->exit(success ? 0 : 1);
     });
     ErrorListModel model;
-    QObject::connect(&runner, &ValgrindRunner::error, &model, &ErrorListModel::addError,
+    QObject::connect(&runner, &ValgrindProcess::error, &model, &ErrorListModel::addError,
                      Qt::QueuedConnection);
 
     QTreeView errorview;

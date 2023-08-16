@@ -10,7 +10,7 @@
 
 namespace Valgrind {
 
-class ValgrindRunner;
+class ValgrindProcess;
 
 namespace Test {
 
@@ -48,7 +48,7 @@ private slots:
 private:
     QString runTestBinary(const QString &binary, const QStringList &vArgs = QStringList());
 
-    ValgrindRunner *m_runner = nullptr;
+    ValgrindProcess *m_runner = nullptr;
     QList<QByteArray> m_logMessages;
     QList<XmlProtocol::Error> m_errors;
     bool m_expectCrash = false;

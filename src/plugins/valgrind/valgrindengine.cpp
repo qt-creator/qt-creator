@@ -33,11 +33,11 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
 
     m_settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
 
-    connect(&m_runner, &ValgrindRunner::appendMessage, this,
+    connect(&m_runner, &ValgrindProcess::appendMessage, this,
             [this](const QString &msg, Utils::OutputFormat format) { appendMessage(msg, format); });
-    connect(&m_runner, &ValgrindRunner::processErrorReceived,
+    connect(&m_runner, &ValgrindProcess::processErrorReceived,
             this, &ValgrindToolRunner::receiveProcessError);
-    connect(&m_runner, &ValgrindRunner::done,
+    connect(&m_runner, &ValgrindProcess::done,
             this, &ValgrindToolRunner::runnerFinished);
 }
 

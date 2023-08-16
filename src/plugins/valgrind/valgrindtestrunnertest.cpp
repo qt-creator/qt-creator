@@ -103,14 +103,14 @@ void ValgrindTestRunnerTest::init()
     Q_ASSERT(m_logMessages.isEmpty());
 
     Q_ASSERT(!m_runner);
-    m_runner = new ValgrindRunner;
+    m_runner = new ValgrindProcess;
     m_runner->setProcessChannelMode(QProcess::ForwardedChannels);
-    connect(m_runner, &ValgrindRunner::logMessageReceived,
+    connect(m_runner, &ValgrindProcess::logMessageReceived,
             this, &ValgrindTestRunnerTest::logMessageReceived);
-    connect(m_runner, &ValgrindRunner::processErrorReceived,
+    connect(m_runner, &ValgrindProcess::processErrorReceived,
             this, &ValgrindTestRunnerTest::internalError);
-    connect(m_runner, &ValgrindRunner::internalError, this, &ValgrindTestRunnerTest::internalError);
-    connect(m_runner, &ValgrindRunner::error, this, &ValgrindTestRunnerTest::error);
+    connect(m_runner, &ValgrindProcess::internalError, this, &ValgrindTestRunnerTest::internalError);
+    connect(m_runner, &ValgrindProcess::error, this, &ValgrindTestRunnerTest::error);
 }
 
 //BEGIN: Actual test cases

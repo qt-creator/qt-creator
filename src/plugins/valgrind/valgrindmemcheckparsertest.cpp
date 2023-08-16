@@ -77,22 +77,22 @@ public:
 class RunnerDumper : public QObject
 {
 public:
-    explicit RunnerDumper(ValgrindRunner *runner)
+    explicit RunnerDumper(ValgrindProcess *runner)
     {
-        connect(runner, &ValgrindRunner::error, this, [](const Error &err) {
+        connect(runner, &ValgrindProcess::error, this, [](const Error &err) {
             qDebug() << "error received";
             dumpError(err);
         });
-        connect(runner, &ValgrindRunner::internalError, this, [](const QString &err) {
+        connect(runner, &ValgrindProcess::internalError, this, [](const QString &err) {
             qDebug() << "internal error received:" << err;
         });
-        connect(runner, &ValgrindRunner::status, this, [](const Status &status) {
+        connect(runner, &ValgrindProcess::status, this, [](const Status &status) {
             qDebug() << "status received:" << status.state() << status.time();
         });
-        connect(runner, &ValgrindRunner::logMessageReceived, this, [](const QByteArray &log) {
+        connect(runner, &ValgrindProcess::logMessageReceived, this, [](const QByteArray &log) {
             qDebug() << "log message received:" << log;
         });
-        connect(runner, &ValgrindRunner::processErrorReceived, this, [this](const QString &) {
+        connect(runner, &ValgrindProcess::processErrorReceived, this, [this](const QString &) {
             m_errorReceived = true;
         });
     }
@@ -486,7 +486,7 @@ void ValgrindMemcheckParserTest::testValgrindGarbage()
 
 void ValgrindMemcheckParserTest::testParserStop()
 {
-    ValgrindRunner runner;
+    ValgrindProcess runner;
     runner.setValgrindCommand({FilePath::fromString(fakeValgrindExecutable()),
                                {QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()),
                                 "-i", dataFile("memcheck-output-sample1.xml"), "--wait", "5" }});
@@ -510,7 +510,7 @@ void ValgrindMemcheckParserTest::testRealValgrind()
     ProcessRunData debuggee;
     debuggee.command.setExecutable(FilePath::fromString(executable));
     debuggee.environment = sysEnv;
-    ValgrindRunner runner;
+    ValgrindProcess runner;
     runner.setValgrindCommand({"valgrind", {}});
     runner.setDebuggee(debuggee);
     RunnerDumper dumper(&runner);
@@ -546,7 +546,7 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     debuggeeExecutable.command.setArguments(debuggeeArgs);
     debuggeeExecutable.environment = Environment::systemEnvironment();
 
-    ValgrindRunner runner;
+    ValgrindProcess runner;
     runner.setValgrindCommand({FilePath::fromString(valgrindExe), valgrindArgs});
     runner.setDebuggee(debuggeeExecutable);
     RunnerDumper dumper(&runner);
