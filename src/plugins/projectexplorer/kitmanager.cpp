@@ -141,10 +141,6 @@ KitManager *KitManager::instance()
 KitManager::KitManager()
 {
     d = new KitManagerPrivate;
-
-    connect(this, &KitManager::kitAdded, this, &KitManager::kitsChanged);
-    connect(this, &KitManager::kitRemoved, this, &KitManager::kitsChanged);
-    connect(this, &KitManager::kitUpdated, this, &KitManager::kitsChanged);
 }
 
 void KitManager::destroy()
@@ -619,10 +615,12 @@ void KitManager::notifyAboutUpdate(Kit *k)
     if (!k || !isLoaded())
         return;
 
-    if (Utils::contains(d->m_kitList, k))
+    if (Utils::contains(d->m_kitList, k)) {
         emit instance()->kitUpdated(k);
-    else
+        emit instance()->kitsChanged();
+    } else {
         emit instance()->unmanagedKitUpdated(k);
+    }
 }
 
 Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id id)
@@ -645,6 +643,7 @@ Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id 
         setDefaultKit(kptr);
 
     emit instance()->kitAdded(kptr);
+    emit instance()->kitsChanged();
     return kptr;
 }
 
@@ -660,6 +659,7 @@ void KitManager::deregisterKit(Kit *k)
         setDefaultKit(newDefault);
     }
     emit instance()->kitRemoved(k);
+    emit instance()->kitsChanged();
 }
 
 void KitManager::setDefaultKit(Kit *k)
