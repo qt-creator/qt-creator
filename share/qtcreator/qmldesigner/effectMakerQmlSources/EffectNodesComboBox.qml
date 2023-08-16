@@ -14,7 +14,6 @@ StudioControls.ComboBox {
     actionIndicatorVisible: false
     x: 5
     width: parent.width - 50
-    anchors.verticalCenter: parent.verticalCenter
 
     model: [qsTr("+ Add Effect")]
 
@@ -51,7 +50,7 @@ StudioControls.ComboBox {
         flags:  Qt.Popup | Qt.FramelessWindowHint
 
         onActiveChanged: {
-            if (!active)
+            if (!active && !root.hover)
                 root.popup.close()
         }
 

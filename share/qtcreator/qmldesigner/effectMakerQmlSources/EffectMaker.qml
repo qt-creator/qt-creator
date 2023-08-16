@@ -13,37 +13,40 @@ Item {
     Column {
         id: col
         anchors.fill: parent
-        spacing: 5
+        spacing: 1
 
-        Rectangle {
-            id: topHeader
+        EffectMakerTopBar {
 
-            width: parent.width
-            height: StudioTheme.Values.toolbarHeight
-            color: StudioTheme.Values.themeToolbarBackground
+        }
 
-            Row {
-                // TODO
-            }
+        EffectMakerPreview {
+
         }
 
         Rectangle {
-            id: previewHeader
-
             width: parent.width
             height: StudioTheme.Values.toolbarHeight
             color: StudioTheme.Values.themeToolbarBackground
 
             EffectNodesComboBox {
                 mainRoot: root
+
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            HelperWidgets.AbstractButton {
+                anchors.right: parent.right
+                anchors.rightMargin: 5
+                anchors.verticalCenter: parent.verticalCenter
+
+                style: StudioTheme.Values.viewBarButtonStyle
+                buttonIcon: StudioTheme.Constants.code
+                tooltip: qsTr("Open Shader in Code Editor")
+
+                onClicked: {} // TODO
             }
         }
 
-        Image {
-            id: previewImage
-
-            // TODO
-        }
 
         HelperWidgets.ScrollView {
             id: scrollView
