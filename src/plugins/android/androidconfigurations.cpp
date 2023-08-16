@@ -1131,9 +1131,7 @@ static bool matchToolChain(const ToolChain *atc, const ToolChain *btc)
     if (atc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID || btc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID)
         return false;
 
-    auto aatc = static_cast<const AndroidToolChain *>(atc);
-    auto abtc = static_cast<const AndroidToolChain *>(btc);
-    return aatc->targetAbi() == abtc->targetAbi();
+    return atc->targetAbi() == btc->targetAbi();
 }
 
 void AndroidConfigurations::registerNewToolChains()
