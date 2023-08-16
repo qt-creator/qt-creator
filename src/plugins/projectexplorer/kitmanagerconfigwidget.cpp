@@ -210,21 +210,19 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::LayoutItem &paren
 
 void KitManagerConfigWidget::updateVisibility()
 {
-    int count = m_kitAspects.count();
-    for (int i = 0; i < count; ++i) {
-        KitAspect *aspect = m_kitAspects.at(i);
-        const KitAspectFactory *ki = aspect->kitInformation();
-        const bool visibleInKit = ki->isApplicableToKit(m_modifiedKit.get());
-        const bool irrelevant = m_modifiedKit->irrelevantAspects().contains(ki->id());
+    for (KitAspect *aspect : std::as_const(m_kitAspects)) {
+        const KitAspectFactory *factory = aspect->factory();
+        const bool visibleInKit = factory->isApplicableToKit(m_modifiedKit.get());
+        const bool irrelevant = m_modifiedKit->irrelevantAspects().contains(factory->id());
         aspect->setVisible(visibleInKit && !irrelevant);
     }
 }
 
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
-    for (KitAspect *w : std::as_const(m_kitAspects)) {
-        if (w->kit()->isSticky(w->kitInformation()->id()))
-            w->makeReadOnly();
+    for (KitAspect *aspect : std::as_const(m_kitAspects)) {
+        if (aspect->kit()->isSticky(aspect->factory()->id()))
+            aspect->makeReadOnly();
     }
 }
 

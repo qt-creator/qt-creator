@@ -49,8 +49,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 const int RunColumnWidth = 30;
 
@@ -565,9 +564,9 @@ int SelectorView::padding()
 /////////
 // KitAreaWidget
 /////////
-void doLayout(KitAspect *widget, Layouting::LayoutItem &builder)
+void doLayout(KitAspect *aspect, Layouting::LayoutItem &builder)
 {
-    widget->addToLayout(builder);
+    aspect->addToLayout(builder);
 }
 
 class KitAreaWidget : public QWidget
@@ -584,8 +583,8 @@ public:
 
     void setKit(Kit *k)
     {
-        qDeleteAll(m_widgets);
-        m_widgets.clear();
+        qDeleteAll(m_kitAspects);
+        m_kitAspects.clear();
 
         if (!k)
             return;
@@ -595,9 +594,9 @@ public:
         Layouting::Grid grid;
         for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
             if (k && k->isMutable(factory->id())) {
-                KitAspect *widget = factory->createKitAspect(k);
-                m_widgets << widget;
-                grid.addItems({factory->displayName(), widget, Layouting::br});
+                KitAspect *aspect = factory->createKitAspect(k);
+                m_kitAspects << aspect;
+                grid.addItems({factory->displayName(), aspect, Layouting::br});
             }
         }
         grid.attachTo(this);
@@ -605,7 +604,7 @@ public:
 
         m_kit = k;
 
-        setHidden(m_widgets.isEmpty());
+        setHidden(m_kitAspects.isEmpty());
     }
 
 private:
@@ -616,7 +615,7 @@ private:
 
         bool addedMutables = false;
         QList<const KitAspectFactory *> knownList
-            = Utils::transform(m_widgets, &KitAspect::kitInformation);
+            = Utils::transform(m_kitAspects, &KitAspect::factory);
 
         for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
             const Utils::Id currentId = factory->id();
@@ -632,13 +631,13 @@ private:
             setKit(m_kit);
         } else {
             // Refresh all widgets if the number of mutable settings did not change
-            for (KitAspect *w : std::as_const(m_widgets))
+            for (KitAspect *w : std::as_const(m_kitAspects))
                 w->refresh();
         }
     }
 
     Kit *m_kit = nullptr;
-    QList<KitAspect *> m_widgets;
+    QList<KitAspect *> m_kitAspects;
 };
 
 /////////
@@ -1592,7 +1591,6 @@ void MiniProjectTargetSelector::switchToProjectsMode()
     hide();
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal
 
 #include <miniprojecttargetselector.moc>

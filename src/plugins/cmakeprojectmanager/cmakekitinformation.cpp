@@ -66,13 +66,13 @@ static Id defaultCMakeToolId()
 class CMakeKitAspectImpl final : public KitAspect
 {
 public:
-    CMakeKitAspectImpl(Kit *kit, const KitAspectFactory *ki) : KitAspect(kit, ki),
+    CMakeKitAspectImpl(Kit *kit, const KitAspectFactory *factory) : KitAspect(kit, factory),
         m_comboBox(createSubWidget<QComboBox>()),
         m_manageButton(createManageButton(Constants::Settings::TOOLS_ID))
     {
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(false);
-        m_comboBox->setToolTip(ki->description());
+        m_comboBox->setToolTip(factory->description());
 
         refresh();
 
@@ -293,8 +293,8 @@ const char TOOLSET_KEY[] = "Toolset";
 class CMakeGeneratorKitAspectImpl final : public KitAspect
 {
 public:
-    CMakeGeneratorKitAspectImpl(Kit *kit, const KitAspectFactory *ki)
-        : KitAspect(kit, ki),
+    CMakeGeneratorKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
+        : KitAspect(kit, factory),
           m_label(createSubWidget<ElidingLabel>()),
           m_changeButton(createSubWidget<QPushButton>())
     {
@@ -303,7 +303,7 @@ public:
             CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-generators.7.html");
         });
 
-        m_label->setToolTip(ki->description());
+        m_label->setToolTip(factory->description());
         m_changeButton->setText(Tr::tr("Change..."));
         refresh();
         connect(m_changeButton, &QPushButton::clicked,
@@ -847,8 +847,8 @@ const char QTC_CMAKE_PRESET_KEY[] = "QTC_CMAKE_PRESET";
 class CMakeConfigurationKitAspectWidget final : public KitAspect
 {
 public:
-    CMakeConfigurationKitAspectWidget(Kit *kit, const KitAspectFactory *ki)
-        : KitAspect(kit, ki),
+    CMakeConfigurationKitAspectWidget(Kit *kit, const KitAspectFactory *factory)
+        : KitAspect(kit, factory),
           m_summaryLabel(createSubWidget<ElidingLabel>()),
           m_manageButton(createSubWidget<QPushButton>())
     {

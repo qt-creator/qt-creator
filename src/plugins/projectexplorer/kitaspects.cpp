@@ -49,7 +49,7 @@ namespace Internal {
 class SysRootKitAspectImpl : public KitAspect
 {
 public:
-    SysRootKitAspectImpl(Kit *k, const KitAspectFactory *ki) : KitAspect(k, ki)
+    SysRootKitAspectImpl(Kit *k, const KitAspectFactory *factory) : KitAspect(k, factory)
     {
         m_chooser = createSubWidget<PathChooser>();
         m_chooser->setExpectedKind(PathChooser::ExistingDirectory);
@@ -200,7 +200,7 @@ namespace Internal {
 class ToolChainKitAspectImpl final : public KitAspect
 {
 public:
-    ToolChainKitAspectImpl(Kit *k, const KitAspectFactory *ki) : KitAspect(k, ki)
+    ToolChainKitAspectImpl(Kit *k, const KitAspectFactory *factory) : KitAspect(k, factory)
     {
         m_mainWidget = createSubWidget<QWidget>();
         m_mainWidget->setContentsMargins(0, 0, 0, 0);
@@ -219,7 +219,7 @@ public:
             layout->addWidget(new QLabel(ToolChainManager::displayNameOfLanguageId(l) + ':'), row, 0);
             auto cb = new QComboBox;
             cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());
-            cb->setToolTip(ki->description());
+            cb->setToolTip(factory->description());
 
             m_languageComboboxMap.insert(l, cb);
             layout->addWidget(cb, row, 1);
@@ -802,12 +802,12 @@ namespace Internal {
 class DeviceTypeKitAspectImpl final : public KitAspect
 {
 public:
-    DeviceTypeKitAspectImpl(Kit *workingCopy, const KitAspectFactory *ki)
-        : KitAspect(workingCopy, ki), m_comboBox(createSubWidget<QComboBox>())
+    DeviceTypeKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
+        : KitAspect(workingCopy, factory), m_comboBox(createSubWidget<QComboBox>())
     {
         for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
             m_comboBox->addItem(factory->displayName(), factory->deviceType().toSetting());
-        m_comboBox->setToolTip(ki->description());
+        m_comboBox->setToolTip(factory->description());
         refresh();
         connect(m_comboBox, &QComboBox::currentIndexChanged,
                 this, &DeviceTypeKitAspectImpl::currentTypeChanged);
@@ -937,8 +937,8 @@ namespace Internal {
 class DeviceKitAspectImpl final : public KitAspect
 {
 public:
-    DeviceKitAspectImpl(Kit *workingCopy, const KitAspectFactory *ki)
-        : KitAspect(workingCopy, ki),
+    DeviceKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
+        : KitAspect(workingCopy, factory),
         m_comboBox(createSubWidget<QComboBox>()),
         m_model(new DeviceManagerModel(DeviceManager::instance()))
     {
@@ -948,7 +948,7 @@ public:
         m_comboBox->setMinimumContentsLength(16); // Don't stretch too much for Kit Page
         m_manageButton = createManageButton(Constants::DEVICE_SETTINGS_PAGE_ID);
         refresh();
-        m_comboBox->setToolTip(ki->description());
+        m_comboBox->setToolTip(factory->description());
 
         connect(m_model, &QAbstractItemModel::modelAboutToBeReset,
                 this, &DeviceKitAspectImpl::modelAboutToReset);
@@ -1228,8 +1228,8 @@ namespace Internal {
 class BuildDeviceKitAspectImpl final : public KitAspect
 {
 public:
-    BuildDeviceKitAspectImpl(Kit *workingCopy, const KitAspectFactory *ki)
-        : KitAspect(workingCopy, ki),
+    BuildDeviceKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
+        : KitAspect(workingCopy, factory),
         m_comboBox(createSubWidget<QComboBox>()),
         m_model(new DeviceManagerModel(DeviceManager::instance()))
     {
@@ -1237,7 +1237,7 @@ public:
         m_comboBox->setModel(m_model);
         m_manageButton = createManageButton(Constants::DEVICE_SETTINGS_PAGE_ID);
         refresh();
-        m_comboBox->setToolTip(ki->description());
+        m_comboBox->setToolTip(factory->description());
 
         connect(m_model, &QAbstractItemModel::modelAboutToBeReset,
                 this, &BuildDeviceKitAspectImpl::modelAboutToReset);
@@ -1506,8 +1506,8 @@ namespace Internal {
 class EnvironmentKitAspectImpl final : public KitAspect
 {
 public:
-    EnvironmentKitAspectImpl(Kit *workingCopy, const KitAspectFactory *ki)
-        : KitAspect(workingCopy, ki),
+    EnvironmentKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
+        : KitAspect(workingCopy, factory),
           m_summaryLabel(createSubWidget<ElidingLabel>()),
           m_manageButton(createSubWidget<QPushButton>()),
           m_mainWidget(createSubWidget<QWidget>())

@@ -16,8 +16,8 @@ namespace {
 class McuDependenciesKitAspectImpl final : public KitAspect
 {
 public:
-    McuDependenciesKitAspectImpl(Kit *workingCopy, const KitAspectFactory *ki)
-        : KitAspect(workingCopy, ki)
+    McuDependenciesKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
+        : KitAspect(workingCopy, factory)
     {}
 
     void makeReadOnly() override {}

@@ -116,7 +116,7 @@ public:
     static QString msgManage();
 
     Kit *kit() const { return m_kit; }
-    const KitAspectFactory *kitInformation() const { return m_factory; }
+    const KitAspectFactory *factory() const { return m_factory; }
     QAction *mutableAction() const { return m_mutableAction; }
     void addMutableAction(QWidget *child);
     QWidget *createManageButton(Utils::Id pageId);

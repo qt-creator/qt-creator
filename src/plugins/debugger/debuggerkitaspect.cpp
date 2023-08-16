@@ -38,15 +38,15 @@ namespace Internal {
 class DebuggerKitAspectImpl final : public KitAspect
 {
 public:
-    DebuggerKitAspectImpl(Kit *workingCopy, const KitAspectFactory *ki)
-        : KitAspect(workingCopy, ki)
+    DebuggerKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
+        : KitAspect(workingCopy, factory)
     {
         m_comboBox = createSubWidget<QComboBox>();
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(true);
 
         refresh();
-        m_comboBox->setToolTip(ki->description());
+        m_comboBox->setToolTip(factory->description());
         connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this] {
             if (m_ignoreChanges.isLocked())
                 return;

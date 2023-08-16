@@ -21,7 +21,7 @@ public:
     enum class ToolType { Meson, Ninja };
 
     ToolKitAspectWidget(ProjectExplorer::Kit *kit,
-                        const ProjectExplorer::KitAspectFactory *ki,
+                        const ProjectExplorer::KitAspectFactory *factory,
                         ToolType type);
     ~ToolKitAspectWidget();
 
