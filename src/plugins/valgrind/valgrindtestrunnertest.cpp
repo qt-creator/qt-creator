@@ -3,24 +3,19 @@
 
 #include "valgrindtestrunnertest.h"
 
+#include "valgrindrunner.h"
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/stack.h"
-#include "valgrindrunner.h"
-
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/projectexplorer.h>
 
 #include <utils/algorithm.h>
 #include <utils/processinterface.h>
 
 #include <QDebug>
-#include <QTest>
 #include <QDir>
-#include <QSignalSpy>
+#include <QTest>
 
 #define HEADER_LENGTH 3
 
-using namespace ProjectExplorer;
 using namespace Valgrind::XmlProtocol;
 using namespace Utils;
 

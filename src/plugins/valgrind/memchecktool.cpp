@@ -16,6 +16,14 @@
 #include "xmlprotocol/parser.h"
 #include "xmlprotocol/stack.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
+
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/analyzer/analyzerconstants.h>
@@ -35,19 +43,7 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
-#include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginmanager.h>
-
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/helpmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
-
 #include <utils/checkablemessagebox.h>
-#include <utils/fancymainwindow.h>
 #include <utils/pathchooser.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
@@ -55,22 +51,20 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QFile>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QHostAddress>
 #include <QInputDialog>
 #include <QLabel>
-#include <QMenu>
-#include <QToolButton>
-#include <QSortFilterProxyModel>
-
-#include <QCheckBox>
-#include <QComboBox>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStandardPaths>
+#include <QToolButton>
+#include <QSortFilterProxyModel>
 #include <QVBoxLayout>
 
 #ifdef Q_OS_WIN
@@ -1161,7 +1155,6 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
                 this, &MemcheckToolRunner::startDebugger);
         connect(&m_runner, &ValgrindRunner::logMessageReceived,
                 this, &MemcheckToolRunner::appendLog);
-//        m_runner.disableXml();
     } else {
         connect(&m_runner, &ValgrindRunner::internalError,
                 this, &MemcheckToolRunner::internalParserError);
@@ -1176,7 +1169,6 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
 
     dd->setupRunner(this);
 }
-
 
 const char heobProfileC[] = "Heob/Profile";
 const char heobProfileNameC[] = "Name";

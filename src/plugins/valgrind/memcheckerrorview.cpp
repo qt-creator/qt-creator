@@ -5,7 +5,6 @@
 
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
-
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/errorlistmodel.h"
 #include "xmlprotocol/frame.h"

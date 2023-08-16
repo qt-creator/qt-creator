@@ -5,12 +5,10 @@
 
 #include "callgrindfunction.h"
 #include "callgrindfunctioncall.h"
-#include "callgrindparsedata.h"
 #include "callgrindfunctioncycle.h"
+#include "callgrindparsedata.h"
 
 #include <utils/qtcassert.h>
-
-#include <QDebug>
 
 namespace Valgrind::Callgrind::Internal {
 

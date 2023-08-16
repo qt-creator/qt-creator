@@ -2,13 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "callgrindfunctioncycle.h"
-#include "callgrindfunction_p.h"
 
+#include "callgrindfunction_p.h"
 #include "callgrindfunctioncall.h"
 #include "callgrindparsedata.h"
-
-#include <QStringList>
-#include <QDebug>
 
 namespace Valgrind {
 namespace Callgrind {

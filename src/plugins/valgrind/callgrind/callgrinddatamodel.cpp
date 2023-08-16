@@ -11,11 +11,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QChar>
-#include <QDebug>
-#include <QList>
 #include <QStringList>
-#include <QTextDocument>
 
 namespace Valgrind {
 namespace Callgrind {

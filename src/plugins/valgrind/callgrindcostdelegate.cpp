@@ -3,9 +3,8 @@
 
 #include "callgrindcostdelegate.h"
 
-#include "callgrindhelper.h"
-
 #include "callgrind/callgrindabstractmodel.h"
+#include "callgrindhelper.h"
 
 #include <utils/qtcassert.h>
 

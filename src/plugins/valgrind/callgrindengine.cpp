@@ -3,11 +3,8 @@
 
 #include "callgrindengine.h"
 
-#include "valgrindsettings.h"
-
-#include <valgrind/callgrind/callgrindparser.h>
-#include <valgrind/valgrindrunner.h>
-#include <valgrind/valgrindtr.h>
+#include "callgrind/callgrindparser.h"
+#include "valgrindtr.h"
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -16,8 +13,6 @@
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
-
-#include <QDebug>
 
 #define CALLGRIND_CONTROL_DEBUG 0
 

@@ -10,8 +10,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDebug>
-
 namespace Valgrind {
 namespace Callgrind {
 

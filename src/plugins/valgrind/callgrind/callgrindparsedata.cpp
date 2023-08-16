@@ -10,7 +10,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QHash>
 #include <QStringList>
 

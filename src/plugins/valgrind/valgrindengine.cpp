@@ -6,23 +6,19 @@
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
 
-#include <debugger/analyzer/analyzermanager.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/progressmanager/progressmanager.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runconfigurationaspects.h>
 
 #include <QApplication>
 
-using namespace Debugger;
 using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer;

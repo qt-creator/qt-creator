@@ -3,17 +3,11 @@
 
 #include "callgrindcostview.h"
 
+#include "callgrind/callgrinddatamodel.h"
+#include "callgrind/callgrindcallmodel.h"
 #include "callgrindnamedelegate.h"
 
-#include <valgrind/callgrind/callgrindabstractmodel.h>
-#include <valgrind/callgrind/callgrinddatamodel.h>
-#include <valgrind/callgrind/callgrindfunction.h>
-#include <valgrind/callgrind/callgrindcallmodel.h>
-
 #include <QAbstractProxyModel>
-#include <QContextMenuEvent>
-#include <QMenu>
-#include <QDebug>
 
 using namespace Valgrind::Callgrind;
 

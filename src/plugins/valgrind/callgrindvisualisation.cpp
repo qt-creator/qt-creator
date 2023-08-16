@@ -3,22 +3,18 @@
 
 #include "callgrindvisualisation.h"
 
+#include "callgrind/callgrinddatamodel.h"
+#include "callgrind/callgrindfunction.h"
+#include "callgrind/callgrindproxymodel.h"
 #include "callgrindhelper.h"
 #include "valgrindtr.h"
-
-#include <valgrind/callgrind/callgrindabstractmodel.h>
-#include <valgrind/callgrind/callgrinddatamodel.h>
-#include <valgrind/callgrind/callgrindfunction.h>
-#include <valgrind/callgrind/callgrindproxymodel.h>
 
 #include <utils/qtcassert.h>
 
 #include <QAbstractItemModel>
-#include <QDebug>
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>
 #include <QGraphicsSimpleTextItem>
-#include <QList>
 #include <QMouseEvent>
 #include <QPair>
 #include <QStaticText>

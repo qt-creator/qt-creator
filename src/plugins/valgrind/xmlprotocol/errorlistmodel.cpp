@@ -8,13 +8,11 @@
 #include "../valgrindtr.h"
 
 #include <debugger/analyzer/diagnosticlocation.h>
+
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QList>
-
-#include <cmath>
 
 namespace Valgrind {
 namespace XmlProtocol {

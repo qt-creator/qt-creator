@@ -3,29 +3,21 @@
 
 #include "callgrindtool.h"
 
+#include "callgrind/callgrindcallmodel.h"
+#include "callgrind/callgrinddatamodel.h"
+#include "callgrind/callgrindfunction.h"
+#include "callgrind/callgrindfunctioncall.h"
+#include "callgrind/callgrindparsedata.h"
+#include "callgrind/callgrindparser.h"
+#include "callgrind/callgrindproxymodel.h"
+#include "callgrind/callgrindstackbrowser.h"
 #include "callgrindcostdelegate.h"
 #include "callgrindcostview.h"
 #include "callgrindengine.h"
 #include "callgrindtextmark.h"
 #include "callgrindvisualisation.h"
+#include "valgrindsettings.h"
 #include "valgrindtr.h"
-
-#include <valgrind/callgrind/callgrindcallmodel.h>
-#include <valgrind/callgrind/callgrindcostitem.h>
-#include <valgrind/callgrind/callgrinddatamodel.h>
-#include <valgrind/callgrind/callgrindfunction.h>
-#include <valgrind/callgrind/callgrindfunctioncall.h>
-#include <valgrind/callgrind/callgrindparsedata.h>
-#include <valgrind/callgrind/callgrindparser.h>
-#include <valgrind/callgrind/callgrindproxymodel.h>
-#include <valgrind/callgrind/callgrindstackbrowser.h>
-#include <valgrind/valgrindsettings.h>
-
-#include <debugger/debuggerconstants.h>
-#include <debugger/analyzer/analyzerconstants.h>
-#include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerutils.h>
-#include <debugger/analyzer/startremotedialog.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -39,10 +31,10 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <texteditor/texteditor.h>
-#include <texteditor/textdocument.h>
+#include <debugger/debuggerconstants.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/analyzer/startremotedialog.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -51,23 +43,22 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/taskhub.h>
 
-#include <utils/fancymainwindow.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
+
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QActionGroup>
 #include <QComboBox>
 #include <QFile>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QLineEdit>
 #include <QMenu>
 #include <QSortFilterProxyModel>
 #include <QTimer>
-#include <QToolBar>
 #include <QToolButton>
 
 using namespace Debugger;

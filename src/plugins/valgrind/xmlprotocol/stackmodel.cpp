@@ -9,9 +9,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDir>
-#include <QList>
-
 namespace Valgrind {
 namespace XmlProtocol {
 

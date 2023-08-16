@@ -3,10 +3,10 @@
 
 #include "callgrindparser.h"
 
-#include "callgrindparsedata.h"
-#include "callgrindfunctioncall.h"
 #include "callgrindcostitem.h"
 #include "callgrindfunction.h"
+#include "callgrindfunctioncall.h"
+#include "callgrindparsedata.h"
 
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
@@ -14,7 +14,6 @@
 
 #include <QDebug>
 #include <QHash>
-#include <QList>
 #include <QStringList>
 
 // #define DEBUG_PARSER

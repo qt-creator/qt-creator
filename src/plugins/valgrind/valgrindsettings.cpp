@@ -5,26 +5,21 @@
 
 #include "callgrindcostdelegate.h"
 #include "valgrindtr.h"
-
-#include <coreplugin/icore.h>
+#include "xmlprotocol/error.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+
 #include <debugger/analyzer/analyzericons.h>
 #include <debugger/debuggertr.h>
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
-#include <valgrind/xmlprotocol/error.h>
-
-#include <QDebug>
 #include <QListView>
 #include <QMetaEnum>
 #include <QPushButton>
-#include <QSettings>
 #include <QStandardItemModel>
 
 using namespace Utils;

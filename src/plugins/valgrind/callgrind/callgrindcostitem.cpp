@@ -6,8 +6,6 @@
 #include "callgrindparsedata.h"
 #include "callgrindfunctioncall.h"
 
-#include <QList>
-#include <QString>
 #include <QStringList>
 
 namespace Valgrind::Callgrind {
