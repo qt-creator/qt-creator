@@ -229,11 +229,6 @@ void ValgrindRunner::waitForFinished() const
     loop.exec();
 }
 
-QString ValgrindRunner::errorString() const
-{
-    return d->m_process.errorString();
-}
-
 bool ValgrindRunner::start()
 {
     return d->run();

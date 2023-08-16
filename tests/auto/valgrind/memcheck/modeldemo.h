@@ -27,11 +27,6 @@ public:
     Valgrind::XmlProtocol::StackModel* stackModel;
 
 public Q_SLOTS:
-    void finished() {
-        qDebug() << runner->errorString();
-        qApp->exit(!runner->errorString().isEmpty());
-    }
-
     void selectionChanged(const QItemSelection &sel, const QItemSelection &) {
         if (sel.indexes().isEmpty())
             return;
@@ -40,7 +35,6 @@ public Q_SLOTS:
         qDebug() << idx.row() << err.what();
         stackModel->setError(err);
     }
-
 
 private:
     Valgrind::ValgrindRunner *runner;
