@@ -30,6 +30,7 @@ class Environment;
 class DeviceProcessHooks;
 class ProcessInterface;
 class ProcessResultData;
+class ProcessRunData;
 
 class QTCREATOR_UTILS_EXPORT Process final : public QObject
 {
@@ -78,6 +79,21 @@ public:
 
     // ProcessSetupData related
 
+    void setRunData(const ProcessRunData &data);
+    ProcessRunData runData() const;
+
+    void setCommand(const CommandLine &cmdLine);
+    const CommandLine &commandLine() const;
+
+    void setWorkingDirectory(const FilePath &dir);
+    FilePath workingDirectory() const;
+
+    void setEnvironment(const Environment &env);  // Main process
+    const Environment &environment() const;
+
+    void setControlEnvironment(const Environment &env); // Possible helper process (ssh on host etc)
+    const Environment &controlEnvironment() const;
+
     void setProcessImpl(ProcessImpl processImpl);
 
     void setPtyData(const std::optional<Pty::Data> &data);
@@ -90,18 +106,6 @@ public:
     void setProcessMode(ProcessMode processMode);
     ProcessMode processMode() const;
 
-    void setEnvironment(const Environment &env);  // Main process
-    const Environment &environment() const;
-
-    void setControlEnvironment(const Environment &env); // Possible helper process (ssh on host etc)
-    const Environment &controlEnvironment() const;
-
-    void setCommand(const CommandLine &cmdLine);
-    const CommandLine &commandLine() const;
-
-    void setWorkingDirectory(const FilePath &dir);
-    FilePath workingDirectory() const;
-
     void setWriteData(const QByteArray &writeData);
 
     void setUseCtrlCStub(bool enabled); // release only
@@ -111,8 +115,9 @@ public:
     bool isRunAsRoot() const;
     void setAbortOnMetaChars(bool abort);
 
-    QProcess::ProcessChannelMode processChannelMode() const;
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
+    QProcess::ProcessChannelMode processChannelMode() const;
+
     void setStandardInputFile(const QString &inputFile);
 
     void setExtraData(const QString &key, const QVariant &value);

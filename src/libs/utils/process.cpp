@@ -1183,10 +1183,25 @@ const Environment &Process::controlEnvironment() const
     return d->m_setup.m_controlEnvironment;
 }
 
+void Process::setRunData(const ProcessRunData &data)
+{
+    if (data.workingDirectory.needsDevice() && data.command.executable().needsDevice()) {
+        QTC_CHECK(data.workingDirectory.isSameDevice(data.command.executable()));
+    }
+    d->m_setup.m_commandLine = data.command;
+    d->m_setup.m_workingDirectory = data.workingDirectory;
+    d->m_setup.m_environment = data.environment;
+}
+
+ProcessRunData Process::runData() const
+{
+    return {d->m_setup.m_commandLine, d->m_setup.m_workingDirectory, d->m_setup.m_environment};
+}
+
 void Process::setCommand(const CommandLine &cmdLine)
 {
     if (d->m_setup.m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {
-        QTC_CHECK(d->m_setup.m_workingDirectory.host() == cmdLine.executable().host());
+        QTC_CHECK(d->m_setup.m_workingDirectory.isSameDevice(cmdLine.executable()));
     }
     d->m_setup.m_commandLine = cmdLine;
 }
