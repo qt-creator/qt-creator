@@ -57,17 +57,18 @@ public:
     bool startServers();
     bool run();
 
-    ValgrindRunner *q;
+    ValgrindRunner *q = nullptr;
+
+    CommandLine m_valgrindCommand;
     Runnable m_debuggee;
-
-    CommandLine m_command;
-    Process m_process;
-
+    QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
     QHostAddress m_localServerAddress;
+    bool m_useTerminal = false;
 
+    Process m_process;
     QTcpServer m_xmlServer;
-    Parser m_parser;
     QTcpServer m_logServer;
+    Parser m_parser;
 };
 
 void ValgrindRunner::Private::xmlSocketConnected()
@@ -112,7 +113,7 @@ bool ValgrindRunner::Private::startServers()
 bool ValgrindRunner::Private::run()
 {
     CommandLine cmd;
-    cmd.setExecutable(m_command.executable());
+    cmd.setExecutable(m_valgrindCommand.executable());
 
     if (!m_localServerAddress.isNull()) {
         if (!startServers())
@@ -144,7 +145,7 @@ bool ValgrindRunner::Private::run()
         if (enableXml)
             cmd.addArg("--xml=yes");
     }
-    cmd.addArgs(m_command.arguments(), CommandLine::Raw);
+    cmd.addArgs(m_valgrindCommand.arguments(), CommandLine::Raw);
 
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
@@ -161,6 +162,8 @@ bool ValgrindRunner::Private::run()
     m_process.setCommand(cmd);
     m_process.setWorkingDirectory(m_debuggee.workingDirectory);
     m_process.setEnvironment(m_debuggee.environment);
+    m_process.setProcessChannelMode(m_channelMode);
+    m_process.setTerminalMode(m_useTerminal ? TerminalMode::Run : TerminalMode::Off);
     m_process.start();
     return true;
 }
@@ -186,7 +189,7 @@ ValgrindRunner::~ValgrindRunner()
 
 void ValgrindRunner::setValgrindCommand(const CommandLine &command)
 {
-    d->m_command = command;
+    d->m_valgrindCommand = command;
 }
 
 void ValgrindRunner::setDebuggee(const Runnable &debuggee)
@@ -196,7 +199,7 @@ void ValgrindRunner::setDebuggee(const Runnable &debuggee)
 
 void ValgrindRunner::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
-    d->m_process.setProcessChannelMode(mode);
+    d->m_channelMode = mode;
 }
 
 void ValgrindRunner::setLocalServerAddress(const QHostAddress &localServerAddress)
@@ -206,7 +209,7 @@ void ValgrindRunner::setLocalServerAddress(const QHostAddress &localServerAddres
 
 void ValgrindRunner::setUseTerminal(bool on)
 {
-    d->m_process.setTerminalMode(on ? TerminalMode::Run : TerminalMode::Off);
+    d->m_useTerminal = on;
 }
 
 void ValgrindRunner::waitForFinished() const
