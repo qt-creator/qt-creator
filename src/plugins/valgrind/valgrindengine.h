@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "valgrindrunner.h"
+#include "valgrindprocess.h"
 #include "valgrindsettings.h"
 
 #include <projectexplorer/runcontrol.h>

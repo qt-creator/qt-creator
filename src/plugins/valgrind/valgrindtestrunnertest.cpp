@@ -3,7 +3,7 @@
 
 #include "valgrindtestrunnertest.h"
 
-#include "valgrindrunner.h"
+#include "valgrindprocess.h"
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/stack.h"
 

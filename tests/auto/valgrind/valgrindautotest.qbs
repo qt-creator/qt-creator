@@ -26,7 +26,7 @@ QtcAutotest {
         name: "Other files from plugin"
         prefix: product.pluginDir + "/"
         files: [
-            "valgrindrunner.h", "valgrindrunner.cpp",
+            "valgrindprocess.h", "valgrindprocess.cpp",
         ]
     }
     cpp.includePaths: base.concat([project.ide_source_tree + "/src/plugins"])

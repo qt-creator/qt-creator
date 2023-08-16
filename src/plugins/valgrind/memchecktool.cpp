@@ -5,7 +5,7 @@
 
 #include "memcheckerrorview.h"
 #include "valgrindengine.h"
-#include "valgrindrunner.h"
+#include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
 

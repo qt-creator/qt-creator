@@ -3,7 +3,7 @@
 
 #include "valgrindmemcheckparsertest.h"
 
-#include "valgrindrunner.h"
+#include "valgrindprocess.h"
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/parser.h"

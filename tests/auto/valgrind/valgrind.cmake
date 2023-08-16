@@ -14,7 +14,7 @@ function(extend_valgrind_test targetName)
       callgrind/callgrindparser.h callgrind/callgrindparser.cpp
       callgrind/callgrindproxymodel.h callgrind/callgrindproxymodel.cpp
       callgrind/callgrindstackbrowser.h callgrind/callgrindstackbrowser.cpp
-      valgrindrunner.h valgrindrunner.cpp
+      valgrindprocess.h valgrindprocess.cpp
       xmlprotocol/announcethread.h xmlprotocol/announcethread.cpp
       xmlprotocol/error.h xmlprotocol/error.cpp
       xmlprotocol/errorlistmodel.h xmlprotocol/errorlistmodel.cpp

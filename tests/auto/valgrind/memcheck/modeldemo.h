@@ -12,7 +12,7 @@
 #include <valgrind/xmlprotocol/error.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>
 #include <valgrind/xmlprotocol/stackmodel.h>
-#include <valgrind/valgrindrunner.h>
+#include <valgrind/valgrindprocess.h>
 
 class ModelDemo : public QObject
 {
