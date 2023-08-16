@@ -4,7 +4,6 @@
 #include "perfprofilertool.h"
 
 #include "perfloaddialog.h"
-#include "perfprofilerplugin.h"
 #include "perfprofilertr.h"
 #include "perfsettings.h"
 #include "perftracepointdialog.h"

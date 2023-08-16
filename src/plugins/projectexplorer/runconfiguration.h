@@ -14,14 +14,16 @@
 #include <functional>
 #include <memory>
 
-namespace Utils { class OutputFormatter; }
+namespace Utils {
+class OutputFormatter;
+class ProcessRunData;
+}
 
 namespace ProjectExplorer {
 class BuildConfiguration;
 class BuildSystem;
 class GlobalOrProjectAspect;
 class ProjectNode;
-class Runnable;
 class RunConfigurationFactory;
 class RunConfiguration;
 class RunConfigurationCreationInfo;
@@ -92,10 +94,10 @@ public:
     Utils::CommandLine commandLine() const;
     bool isPrintEnvironmentEnabled() const;
 
-    using RunnableModifier = std::function<void(Runnable &)>;
+    using RunnableModifier = std::function<void(Utils::ProcessRunData &)>;
     void setRunnableModifier(const RunnableModifier &extraModifier);
 
-    virtual Runnable runnable() const;
+    virtual Utils::ProcessRunData runnable() const;
     virtual QVariantHash extraData() const;
 
     // Return a handle to the build system target that created this run configuration.

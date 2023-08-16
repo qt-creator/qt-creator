@@ -539,7 +539,7 @@ void TestRunner::debugTests()
     runControl->copyDataFromRunConfiguration(config->runConfiguration());
 
     QStringList omitted;
-    Runnable inferior = config->runnable();
+    ProcessRunData inferior = config->runnable();
     inferior.command.setExecutable(commandFilePath);
 
     const QStringList args = config->argumentsForTestRunner(&omitted);

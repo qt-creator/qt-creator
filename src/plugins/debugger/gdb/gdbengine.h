@@ -37,7 +37,7 @@ struct CoreInfo
     Utils::FilePath foundExecutableName; // empty if no corresponding exec could be found
     bool isCore = false;
 
-    static CoreInfo readExecutableNameFromCore(const ProjectExplorer::Runnable &debugger,
+    static CoreInfo readExecutableNameFromCore(const Utils::ProcessRunData &debugger,
                                                const Utils::FilePath &coreFile);
 };
 

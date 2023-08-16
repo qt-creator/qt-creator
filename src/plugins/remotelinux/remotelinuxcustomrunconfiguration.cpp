@@ -8,7 +8,6 @@
 #include "remotelinuxenvironmentaspect.h"
 
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <utils/hostosinfo.h>

@@ -9,6 +9,7 @@
 #include "callgrind/callgrindparser.h"
 
 #include <utils/process.h>
+#include <utils/processinterface.h>
 
 namespace Valgrind {
 namespace Internal {
@@ -74,7 +75,7 @@ private:
     bool m_markAsPaused = false;
 
     std::unique_ptr<Utils::Process> m_controllerProcess;
-    ProjectExplorer::Runnable m_valgrindRunnable;
+    Utils::ProcessRunData m_valgrindRunnable;
     qint64 m_pid = 0;
 
     Option m_lastOption = Unknown;

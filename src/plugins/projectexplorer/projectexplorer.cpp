@@ -125,6 +125,7 @@
 #include <utils/mimeutils.h>
 #include <utils/parameteraction.h>
 #include <utils/processhandle.h>
+#include <utils/processinterface.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/removefiledialog.h>
@@ -3646,7 +3647,7 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
                                                                 currentNode->asProjectNode());
     QTC_ASSERT(runConfig, return);
 
-    const Runnable runnable = runConfig->runnable();
+    const ProcessRunData runnable = runConfig->runnable();
     IDevice::ConstPtr device = DeviceManager::deviceForPath(runnable.command.executable());
     if (!device)
         device = DeviceKitAspect::device(target->kit());

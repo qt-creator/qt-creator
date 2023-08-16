@@ -11,8 +11,10 @@ QT_BEGIN_NAMESPACE
 class QHostAddress;
 QT_END_NAMESPACE
 
-namespace Utils { class CommandLine; }
-namespace ProjectExplorer { class Runnable; }
+namespace Utils {
+class CommandLine;
+class ProcessRunData;
+}
 
 namespace Valgrind {
 
@@ -32,7 +34,7 @@ public:
     ~ValgrindRunner() override;
 
     void setValgrindCommand(const Utils::CommandLine &command);
-    void setDebuggee(const ProjectExplorer::Runnable &debuggee);
+    void setDebuggee(const Utils::ProcessRunData &debuggee);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setLocalServerAddress(const QHostAddress &localServerAddress);
     void setUseTerminal(bool on);

@@ -12,8 +12,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+
+#include <utils/processinterface.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -45,10 +46,10 @@ public:
     }
 
 private:
-    ProjectExplorer::Runnable runnable() const final
+    Utils::ProcessRunData runnable() const final
     {
         const FilePath projectDirectory = project()->projectDirectory();
-        Runnable r;
+        ProcessRunData r;
         QStringList args;
         if (BuildConfiguration *buildConfiguration = target()->activeBuildConfiguration()) {
             args << "--work-dir"

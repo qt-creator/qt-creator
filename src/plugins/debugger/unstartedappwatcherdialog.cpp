@@ -18,8 +18,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+
+#include <utils/processinterface.h>
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
@@ -98,7 +99,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     pathLayout->addWidget(resetExecutable);
     if (activeTarget) {
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
-            const Runnable runnable = runConfig->runnable();
+            const ProcessRunData runnable = runConfig->runnable();
             if (isLocal(runConfig)) {
                 resetExecutable->setEnabled(true);
                 connect(resetExecutable, &QPushButton::clicked, this, [this, runnable] {
@@ -179,7 +180,7 @@ void UnstartedAppWatcherDialog::selectExecutable()
 
     if (activeTarget) {
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
-            const Runnable runnable = runConfig->runnable();
+            const ProcessRunData runnable = runConfig->runnable();
             if (isLocal(runConfig))
                 path = runnable.command.executable().parentDir();
         }

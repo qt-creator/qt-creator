@@ -9,7 +9,6 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "runconfiguration.h"
-#include "runcontrol.h"
 #include "target.h"
 
 #include <coreplugin/messagemanager.h>
@@ -20,6 +19,7 @@
 #include <projectexplorer/makestep.h>
 
 #include <utils/algorithm.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>

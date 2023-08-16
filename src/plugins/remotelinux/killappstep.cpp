@@ -9,9 +9,10 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runcontrol.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

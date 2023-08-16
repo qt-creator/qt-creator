@@ -9,10 +9,9 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <utils/algorithm.h>
+#include <utils/processinterface.h>
 
 #include <QDebug>
 #include <QTest>
@@ -55,7 +54,7 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
     if (!binPathFileInfo.isExecutable())
         return QString();
 
-    Runnable debuggee;
+    ProcessRunData debuggee;
     const QString &binPath = binPathFileInfo.canonicalFilePath();
     debuggee.command.setExecutable(Utils::FilePath::fromString(binPath));
     debuggee.environment = Utils::Environment::systemEnvironment();

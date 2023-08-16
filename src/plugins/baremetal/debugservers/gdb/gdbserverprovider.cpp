@@ -153,7 +153,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
         return false;
     }
 
-    Runnable inferior;
+    ProcessRunData inferior;
     inferior.command.setExecutable(bin);
     if (const auto argAspect = runControl->aspect<ArgumentsAspect>())
         inferior.command.setArguments(argAspect->arguments);

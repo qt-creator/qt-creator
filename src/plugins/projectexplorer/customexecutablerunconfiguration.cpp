@@ -8,6 +8,8 @@
 #include "runconfigurationaspects.h"
 #include "target.h"
 
+#include <utils/processinterface.h>
+
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -49,9 +51,9 @@ bool CustomExecutableRunConfiguration::isEnabled() const
     return true;
 }
 
-Runnable CustomExecutableRunConfiguration::runnable() const
+ProcessRunData CustomExecutableRunConfiguration::runnable() const
 {
-    Runnable r;
+    ProcessRunData r;
     r.command = commandLine();
     r.environment = environment.environment();
     r.workingDirectory = workingDir();

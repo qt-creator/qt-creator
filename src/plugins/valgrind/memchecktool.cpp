@@ -712,7 +712,7 @@ MemcheckToolPrivate::~MemcheckToolPrivate()
 
 void MemcheckToolPrivate::heobAction()
 {
-    Runnable sr;
+    ProcessRunData sr;
     Abi abi;
     bool hasLocalRc = false;
     Kit *kit = nullptr;

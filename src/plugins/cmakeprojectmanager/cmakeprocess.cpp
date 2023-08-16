@@ -14,7 +14,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/kitchooser.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <extensionsystem/invoker.h>
 #include <extensionsystem/pluginmanager.h>

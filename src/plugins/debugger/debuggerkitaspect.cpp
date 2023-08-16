@@ -10,7 +10,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/toolchain.h>
 
 #include <utils/environment.h>
@@ -18,6 +17,7 @@
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
@@ -177,9 +177,9 @@ const DebuggerItem *DebuggerKitAspect::debugger(const Kit *kit)
     return DebuggerItemManager::findById(id);
 }
 
-Runnable DebuggerKitAspect::runnable(const Kit *kit)
+ProcessRunData DebuggerKitAspect::runnable(const Kit *kit)
 {
-    Runnable runnable;
+    ProcessRunData runnable;
     if (const DebuggerItem *item = debugger(kit)) {
         FilePath cmd = item->command();
         if (cmd.isRelativePath()) {

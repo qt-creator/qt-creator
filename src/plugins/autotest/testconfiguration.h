@@ -6,13 +6,18 @@
 #include "autotestconstants.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/runcontrol.h>
+#include <projectexplorer/runconfiguration.h>
+
 #include <utils/environment.h>
+#include <utils/processinterface.h>
 
 #include <QPointer>
 #include <QStringList>
 
-namespace Utils { class Process; }
+namespace Utils {
+class Process;
+class ProcessRunData;
+}
 
 namespace Autotest {
 namespace Internal {
@@ -49,10 +54,10 @@ public:
     void setTestCaseCount(int count) { m_testCaseCount = count; }
     int testCaseCount() const { return m_testCaseCount; }
     ProjectExplorer::Project *project() const { return m_project.data(); }
-    ProjectExplorer::Runnable runnable() const { return m_runnable; }
+    Utils::ProcessRunData runnable() const { return m_runnable; }
 
 protected:
-    ProjectExplorer::Runnable m_runnable;
+    Utils::ProcessRunData m_runnable;
 
 private:
     ITestBase *m_testBase = nullptr;

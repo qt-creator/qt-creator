@@ -25,6 +25,7 @@ namespace Utils {
 class Icon;
 class MacroExpander;
 class OutputLineParser;
+class ProcessRunData;
 } // Utils
 
 namespace ProjectExplorer {
@@ -37,15 +38,6 @@ class RunControlPrivate;
 class RunWorkerPrivate;
 class SimpleTargetRunnerPrivate;
 } // Internal
-
-
-class PROJECTEXPLORER_EXPORT Runnable
-{
-public:
-    Utils::CommandLine command;
-    Utils::FilePath workingDirectory;
-    Utils::Environment environment;
-};
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject
 {
@@ -208,7 +200,7 @@ public:
     Utils::Id runMode() const;
     bool isPrintEnvironmentEnabled() const;
 
-    const Runnable &runnable() const;
+    const Utils::ProcessRunData &runnable() const;
 
     const Utils::CommandLine &commandLine() const;
     void setCommandLine(const Utils::CommandLine &command);
@@ -280,8 +272,8 @@ private:
     void start() final;
     void stop() final;
 
-    const Runnable &runnable() const = delete;
-    void setRunnable(const Runnable &) = delete;
+    const Utils::ProcessRunData &runnable() const = delete;
+    void setRunnable(const Utils::ProcessRunData &) = delete;
 
     const std::unique_ptr<Internal::SimpleTargetRunnerPrivate> d;
 };

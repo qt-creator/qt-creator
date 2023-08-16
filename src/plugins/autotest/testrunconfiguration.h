@@ -38,9 +38,9 @@ public:
         m_testConfig = config;
     }
 
-    ProjectExplorer::Runnable runnable() const override
+    Utils::ProcessRunData runnable() const override
     {
-        ProjectExplorer::Runnable r;
+        Utils::ProcessRunData r;
         QTC_ASSERT(m_testConfig, return r);
         r.command.setExecutable(m_testConfig->executableFilePath());
         r.command.addArgs(m_testConfig->argumentsForTestRunner().join(' '), Utils::CommandLine::Raw);

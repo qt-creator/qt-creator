@@ -95,7 +95,7 @@ public:
     Id kitId;
     uint serverPort;
     QString serverAddress;
-    Runnable runnable;
+    ProcessRunData runnable;
     bool breakAtMain = false;
     bool runInTerminal = false;
     bool useTargetExtendedRemote = false;
@@ -399,7 +399,7 @@ void StartApplicationDialog::run(bool attachRemote)
     }
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    Runnable inferior = newParameters.runnable;
+    ProcessRunData inferior = newParameters.runnable;
     const QString inputAddress = dialog.d->channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
         debugger->setRemoteChannel(inputAddress);

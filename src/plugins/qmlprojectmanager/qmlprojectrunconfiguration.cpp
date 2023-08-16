@@ -20,7 +20,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
@@ -35,6 +34,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/process.h>
+#include <utils/processinterface.h>
 #include <utils/winutils.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
@@ -168,7 +168,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
     x11Forwarding.setMacroExpander(macroExpander());
 
-    setRunnableModifier([this](Runnable &r) {
+    setRunnableModifier([this](ProcessRunData &r) {
         const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());
         r.workingDirectory = bs->targetDirectory();
     });

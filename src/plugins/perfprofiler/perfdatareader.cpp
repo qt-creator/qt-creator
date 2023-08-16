@@ -3,11 +3,7 @@
 
 #include "perfdatareader.h"
 #include "perfprofilerconstants.h"
-#include "perfprofilerplugin.h"
 #include "perfprofilertr.h"
-#include "perfrunconfigurationaspect.h"
-#include "perfsettings.h"
-#include "perftimelinemodel.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>

@@ -11,7 +11,7 @@
 #include "xmlprotocol/status.h"
 #include "xmlprotocol/suppression.h"
 
-#include <projectexplorer/runcontrol.h>
+#include <utils/processinterface.h>
 
 #include <QFileInfo>
 #include <QTcpServer>
@@ -507,7 +507,7 @@ void ValgrindMemcheckParserTest::testRealValgrind()
                                                                         fakeValgrindExecutable());
     qDebug() << "running exe:" << executable << " HINT: set VALGRIND_TEST_BIN to change this";
 
-    ProjectExplorer::Runnable debuggee;
+    ProcessRunData debuggee;
     debuggee.command.setExecutable(FilePath::fromString(executable));
     debuggee.environment = sysEnv;
     ValgrindRunner runner;
@@ -541,7 +541,7 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     QFETCH(QString, debuggee);
     QFETCH(QString, debuggeeArgs);
 
-    ProjectExplorer::Runnable debuggeeExecutable;
+    ProcessRunData debuggeeExecutable;
     debuggeeExecutable.command.setExecutable(FilePath::fromString(debuggee));
     debuggeeExecutable.command.setArguments(debuggeeArgs);
     debuggeeExecutable.environment = Environment::systemEnvironment();

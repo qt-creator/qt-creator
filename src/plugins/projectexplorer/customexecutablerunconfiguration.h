@@ -20,7 +20,7 @@ public:
     QString defaultDisplayName() const;
 
 private:
-    Runnable runnable() const override;
+    Utils::ProcessRunData runnable() const override;
     bool isEnabled() const override;
     Tasks checkForIssues() const override;
 

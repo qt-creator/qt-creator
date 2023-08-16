@@ -14,7 +14,6 @@
 #include "projectmanager.h"
 #include "projectnodes.h"
 #include "runconfigurationaspects.h"
-#include "runcontrol.h"
 #include "target.h"
 
 #include <coreplugin/icontext.h>
@@ -28,6 +27,7 @@
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
@@ -411,9 +411,9 @@ void RunConfiguration::fromMap(const QVariantMap &map)
     \brief Returns a \l Runnable described by this RunConfiguration.
 */
 
-Runnable RunConfiguration::runnable() const
+ProcessRunData RunConfiguration::runnable() const
 {
-    Runnable r;
+    ProcessRunData r;
     r.command = commandLine();
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
         r.workingDirectory = r.command.executable().withNewMappedPath(workingDirectoryAspect->workingDirectory());

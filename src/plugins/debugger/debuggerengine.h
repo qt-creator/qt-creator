@@ -13,11 +13,13 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/devicesupport/idevicefwd.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <texteditor/textmark.h>
 
 #include <utils/filepath.h>
+#include <utils/outputformat.h>
+#include <utils/processhandle.h>
+#include <utils/processinterface.h>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -99,7 +101,7 @@ public:
     DebuggerStartMode startMode = NoStartMode;
     DebuggerCloseMode closeMode = KillAtClose;
 
-    ProjectExplorer::Runnable inferior;
+    Utils::ProcessRunData inferior;
     QString displayName; // Used in the Snapshots view.
     Utils::ProcessHandle attachPID;
     Utils::FilePaths solibSearchPath;
@@ -151,7 +153,7 @@ public:
     bool useTerminal = false;
     bool runAsRoot = false;
 
-    ProjectExplorer::Runnable debugger;
+    Utils::ProcessRunData debugger;
     Utils::FilePath overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
     Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".

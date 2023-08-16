@@ -7,7 +7,8 @@
 #include "debuggerconstants.h"
 
 #include <projectexplorer/kitaspects.h>
-#include <projectexplorer/runcontrol.h>
+
+namespace Utils { class ProcessRunData; }
 
 namespace Debugger {
 
@@ -28,7 +29,7 @@ public:
     static ProjectExplorer::Tasks validateDebugger(const ProjectExplorer::Kit *k);
     static ConfigurationErrors configurationErrors(const ProjectExplorer::Kit *k);
     static const class DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
-    static ProjectExplorer::Runnable runnable(const ProjectExplorer::Kit *kit);
+    static Utils::ProcessRunData runnable(const ProjectExplorer::Kit *kit);
     static void setDebugger(ProjectExplorer::Kit *k, const QVariant &id);
     static DebuggerEngineType engineType(const ProjectExplorer::Kit *k);
     static QString displayString(const ProjectExplorer::Kit *k);

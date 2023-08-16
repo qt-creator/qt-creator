@@ -16,6 +16,8 @@
 
 #include <qtsupport/qtoutputformatter.h>
 
+#include <utils/processinterface.h>
+
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
 using namespace Utils;
@@ -57,7 +59,7 @@ public:
             symbolFile.setValue(localExecutable);
         });
 
-        setRunnableModifier([this](Runnable &r) {
+        setRunnableModifier([this](ProcessRunData &r) {
             QString libPath = qtLibraries();
             if (!libPath.isEmpty()) {
                 r.environment.appendOrSet("LD_LIBRARY_PATH", libPath + "/lib:$LD_LIBRARY_PATH");

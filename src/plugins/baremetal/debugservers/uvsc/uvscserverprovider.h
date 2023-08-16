@@ -121,7 +121,7 @@ class UvscServerProviderRunner final : public ProjectExplorer::RunWorker
 {
 public:
     explicit UvscServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                      const ProjectExplorer::Runnable &runnable);
+                                      const Utils::ProcessRunData &runnable);
 
 private:
     void start() final;

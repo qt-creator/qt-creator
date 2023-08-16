@@ -6,11 +6,10 @@
 #include "valgrindtr.h"
 #include "xmlprotocol/parser.h"
 
-#include <projectexplorer/runcontrol.h>
-
 #include <solutions/tasking/barrier.h>
 
 #include <utils/process.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 #include <QEventLoop>
@@ -18,7 +17,6 @@
 #include <QTcpSocket>
 #include <QTimer>
 
-using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
@@ -112,7 +110,7 @@ public:
     ValgrindRunner *q = nullptr;
 
     CommandLine m_valgrindCommand;
-    Runnable m_debuggee;
+    ProcessRunData m_debuggee;
     QProcess::ProcessChannelMode m_channelMode = QProcess::SeparateChannels;
     QHostAddress m_localServerAddress;
     bool m_useTerminal = false;
@@ -237,7 +235,7 @@ void ValgrindRunner::setValgrindCommand(const CommandLine &command)
     d->m_valgrindCommand = command;
 }
 
-void ValgrindRunner::setDebuggee(const Runnable &debuggee)
+void ValgrindRunner::setDebuggee(const ProcessRunData &debuggee)
 {
     d->m_debuggee = debuggee;
 }

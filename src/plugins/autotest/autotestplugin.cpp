@@ -13,7 +13,6 @@
 #include "testprojectsettings.h"
 #include "testresultspane.h"
 #include "testrunner.h"
-#include "testsettings.h"
 #include "testsettingspage.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
@@ -47,13 +46,14 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/runcontrol.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/processinterface.h>
 #include <utils/textutils.h>
 #include <utils/utilsicons.h>
 

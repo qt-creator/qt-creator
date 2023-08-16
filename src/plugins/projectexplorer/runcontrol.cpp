@@ -234,7 +234,7 @@ class RunControlPrivateData
 {
 public:
     QString displayName;
-    Runnable runnable;
+    ProcessRunData runnable;
     QVariantHash extraData;
     IDevice::ConstPtr device;
     Icon icon;
@@ -845,7 +845,7 @@ bool RunControl::isPrintEnvironmentEnabled() const
     return d->printEnvironment;
 }
 
-const Runnable &RunControl::runnable() const
+const ProcessRunData &RunControl::runnable() const
 {
     return d->runnable;
 }

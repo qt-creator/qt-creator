@@ -192,7 +192,7 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
 
     const FilePath peripheralDescriptionFile = FilePath::fromString(m_deviceSelection.svd);
 
-    Runnable inferior;
+    ProcessRunData inferior;
     inferior.command.setExecutable(bin);
     runTool->runParameters().peripheralDescriptionFile = peripheralDescriptionFile;
     runTool->runParameters().uVisionProjectFilePath = projFilePath;
@@ -209,12 +209,12 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
 ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runControl) const
 {
     // Get uVision executable path.
-    const Runnable uv = DebuggerKitAspect::runnable(runControl->kit());
+    const ProcessRunData uv = DebuggerKitAspect::runnable(runControl->kit());
     CommandLine server(uv.command.executable());
     server.addArg("-j0");
     server.addArg(QStringLiteral("-s%1").arg(m_channel.port()));
 
-    Runnable r;
+    ProcessRunData r;
     r.command = server;
     return new UvscServerProviderRunner(runControl, r);
 }
@@ -348,7 +348,7 @@ void UvscServerProviderConfigWidget::setFromProvider()
 // UvscServerProviderRunner
 
 UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                                   const Runnable &runnable)
+                                                   const ProcessRunData &runnable)
     : RunWorker(runControl)
 {
     setId("BareMetalUvscServer");

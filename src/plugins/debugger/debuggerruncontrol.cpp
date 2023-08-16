@@ -354,7 +354,7 @@ void DebuggerRunTool::setAbi(const Abi &abi)
     m_runParameters.toolChainAbi = abi;
 }
 
-void DebuggerRunTool::setInferior(const Runnable &runnable)
+void DebuggerRunTool::setInferior(const ProcessRunData &runnable)
 {
     m_runParameters.inferior = runnable;
 }
@@ -882,7 +882,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         }
     }
 
-    Runnable inferior = runControl->runnable();
+    ProcessRunData inferior = runControl->runnable();
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
     inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
     m_runParameters.inferior = inferior;

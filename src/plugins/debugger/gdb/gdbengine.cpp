@@ -5033,7 +5033,7 @@ static FilePath findExecutableFromName(const QString &fileNameFromCore, const Fi
     return {};
 }
 
-CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const FilePath &coreFile)
+CoreInfo CoreInfo::readExecutableNameFromCore(const ProcessRunData &debugger, const FilePath &coreFile)
 {
     CoreInfo cinfo;
 #if 0
