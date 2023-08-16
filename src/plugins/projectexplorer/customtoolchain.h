@@ -9,27 +9,10 @@
 #include "customparser.h"
 #include "headerpath.h"
 #include "toolchain.h"
-#include "toolchainconfigwidget.h"
-
-#include <utils/fileutils.h>
-
-QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
-class QTextEdit;
-class QComboBox;
-QT_END_NAMESPACE
-
-namespace Utils { class PathChooser; }
 
 namespace ProjectExplorer {
 
-class AbiWidget;
-
 namespace Internal { class CustomToolChainFactory; }
-
-// --------------------------------------------------------------------------
-// CustomToolChain
-// --------------------------------------------------------------------------
 
 class PROJECTEXPLORER_EXPORT CustomToolChain : public ToolChain
 {
@@ -100,43 +83,6 @@ class CustomToolChainFactory : public ToolChainFactory
 {
 public:
     CustomToolChainFactory();
-};
-
-// --------------------------------------------------------------------------
-// CustomToolChainConfigWidget
-// --------------------------------------------------------------------------
-
-class TextEditDetailsWidget;
-
-class CustomToolChainConfigWidget : public ToolChainConfigWidget
-{
-    Q_OBJECT
-
-public:
-    CustomToolChainConfigWidget(CustomToolChain *);
-
-private:
-    void updateSummaries(TextEditDetailsWidget *detailsWidget);
-    void errorParserChanged(int index = -1);
-
-protected:
-    void applyImpl() override;
-    void discardImpl() override { setFromToolchain(); }
-    bool isDirtyImpl() const override;
-    void makeReadOnlyImpl() override;
-
-    void setFromToolchain();
-
-    Utils::PathChooser *m_compilerCommand;
-    Utils::PathChooser *m_makeCommand;
-    AbiWidget *m_abiWidget;
-    QPlainTextEdit *m_predefinedMacros;
-    QPlainTextEdit *m_headerPaths;
-    TextEditDetailsWidget *m_predefinedDetails;
-    TextEditDetailsWidget *m_headerDetails;
-    QLineEdit *m_cxx11Flags;
-    QLineEdit *m_mkspecs;
-    QComboBox *m_errorParserComboBox;
 };
 
 } // namespace Internal

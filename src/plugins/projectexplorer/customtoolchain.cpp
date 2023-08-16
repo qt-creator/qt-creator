@@ -13,6 +13,7 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmacro.h"
+#include "toolchainconfigwidget.h"
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
@@ -279,25 +280,7 @@ QList<CustomToolChain::Parser> CustomToolChain::parsers()
     return result;
 }
 
-std::unique_ptr<ToolChainConfigWidget> CustomToolChain::createConfigurationWidget()
-{
-    return std::make_unique<Internal::CustomToolChainConfigWidget>(this);
-}
-
 namespace Internal {
-
-// --------------------------------------------------------------------------
-// CustomToolChainFactory
-// --------------------------------------------------------------------------
-
-CustomToolChainFactory::CustomToolChainFactory()
-{
-    setDisplayName(Tr::tr("Custom"));
-    setSupportedToolChainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
-    setSupportsAllLanguages(true);
-    setToolchainConstructor([] { return new CustomToolChain; });
-    setUserCreatable(true);
-}
 
 // --------------------------------------------------------------------------
 // Helper for ConfigWidget
@@ -311,7 +294,7 @@ public:
         setWidget(textEdit);
     }
 
-    inline QPlainTextEdit *textEditWidget() const
+    QPlainTextEdit *textEditWidget() const
     {
         return static_cast<QPlainTextEdit *>(widget());
     }
@@ -346,6 +329,34 @@ public:
 // --------------------------------------------------------------------------
 // CustomToolChainConfigWidget
 // --------------------------------------------------------------------------
+
+class CustomToolChainConfigWidget final : public ToolChainConfigWidget
+{
+public:
+    explicit CustomToolChainConfigWidget(CustomToolChain *);
+
+private:
+    void updateSummaries(TextEditDetailsWidget *detailsWidget);
+    void errorParserChanged(int index = -1);
+
+    void applyImpl() override;
+    void discardImpl() override { setFromToolchain(); }
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override;
+
+    void setFromToolchain();
+
+    Utils::PathChooser *m_compilerCommand;
+    Utils::PathChooser *m_makeCommand;
+    AbiWidget *m_abiWidget;
+    QPlainTextEdit *m_predefinedMacros;
+    QPlainTextEdit *m_headerPaths;
+    TextEditDetailsWidget *m_predefinedDetails;
+    TextEditDetailsWidget *m_headerDetails;
+    QLineEdit *m_cxx11Flags;
+    QLineEdit *m_mkspecs;
+    QComboBox *m_errorParserComboBox;
+};
 
 CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     ToolChainConfigWidget(tc),
@@ -485,6 +496,28 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
 void CustomToolChainConfigWidget::makeReadOnlyImpl()
 {
     m_mainLayout->setEnabled(false);
+}
+
+} // Internal
+
+std::unique_ptr<ToolChainConfigWidget> CustomToolChain::createConfigurationWidget()
+{
+    return std::make_unique<Internal::CustomToolChainConfigWidget>(this);
+}
+
+namespace Internal {
+
+// --------------------------------------------------------------------------
+// CustomToolChainFactory
+// --------------------------------------------------------------------------
+
+CustomToolChainFactory::CustomToolChainFactory()
+{
+    setDisplayName(Tr::tr("Custom"));
+    setSupportedToolChainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
+    setSupportsAllLanguages(true);
+    setToolchainConstructor([] { return new CustomToolChain; });
+    setUserCreatable(true);
 }
 
 } // namespace Internal
