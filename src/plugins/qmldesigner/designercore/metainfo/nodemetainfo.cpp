@@ -1503,9 +1503,10 @@ bool NodeMetaInfo::isInProjectModule() const
 }
 
 namespace {
-[[maybe_unused]] bool hasPropertyForTypeId(const ProjectStorageType &projectStorage,
-                                           TypeId typeId,
-                                           Utils::SmallStringView propertyName)
+
+[[maybe_unused]] auto propertyId(const ProjectStorageType &projectStorage,
+                                 TypeId typeId,
+                                 Utils::SmallStringView propertyName)
 {
     auto begin = propertyName.begin();
     const auto end = propertyName.end();
@@ -1522,12 +1523,12 @@ namespace {
 
             if (propertyId && found != end) {
                 begin = std::next(found);
-                return bool(projectStorage.propertyDeclarationId(propertyTypeId, {begin, end}));
+                return projectStorage.propertyDeclarationId(propertyTypeId, {begin, end});
             }
         }
     }
 
-    return bool(propertyId);
+    return propertyId;
 }
 
 } // namespace
@@ -1535,7 +1536,7 @@ namespace {
 bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName) const
 {
     if constexpr (useProjectStorage())
-        return isValid() && hasPropertyForTypeId(*m_projectStorage, m_typeId, propertyName);
+        return isValid() && bool(propertyId(*m_projectStorage, m_typeId, propertyName));
     else
         return isValid() && m_privateData->properties().contains(propertyName);
 }
@@ -1594,10 +1595,8 @@ PropertyMetaInfos NodeMetaInfo::localProperties() const
 PropertyMetaInfo NodeMetaInfo::property(const PropertyName &propertyName) const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return {m_projectStorage->propertyDeclarationId(m_typeId, propertyName),
-                    m_projectStorage};
-        }
+        if (isValid())
+            return {propertyId(*m_projectStorage, m_typeId, propertyName), m_projectStorage};
     } else {
         if (hasProperty(propertyName)) {
             return PropertyMetaInfo{m_privateData, propertyName};

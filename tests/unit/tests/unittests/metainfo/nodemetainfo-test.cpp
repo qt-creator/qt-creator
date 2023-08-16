@@ -413,6 +413,46 @@ TEST_F(NodeMetaInfo, get_invalid_property_if_meta_info_is_invalid)
     ASSERT_THAT(property, PropertyId(IsFalse()));
 }
 
+TEST_F(NodeMetaInfo, get_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    auto propertyId = metaInfo.property("data").id();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    auto property = metaInfo.property("parent.data");
+
+    ASSERT_THAT(property, PropertyId(propertyId));
+}
+
+TEST_F(NodeMetaInfo, get_no_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+
+    auto property = metaInfo.property("foo.data");
+
+    ASSERT_THAT(property, PropertyId(IsFalse()));
+}
+
+TEST_F(NodeMetaInfo, get_no_dot_property_for_last_entry)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    auto property = metaInfo.property("parent.foo");
+
+    ASSERT_THAT(property, PropertyId(IsFalse()));
+}
+
+TEST_F(NodeMetaInfo, get_no_dot_dot_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    auto property = metaInfo.property("parent.parent.parent.data");
+
+    ASSERT_THAT(property, PropertyId(IsFalse()));
+}
+
 TEST_F(NodeMetaInfo, get_properties)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();
