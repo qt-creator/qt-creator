@@ -43,6 +43,13 @@ public:
 
         connect(&m_xmlServer, &QTcpServer::newConnection, this, &Private::xmlSocketConnected);
         connect(&m_logServer, &QTcpServer::newConnection, this, &Private::logSocketConnected);
+
+        connect(&m_parser, &Parser::status, q, &ValgrindRunner::status);
+        connect(&m_parser, &Parser::error, q, &ValgrindRunner::error);
+        connect(&m_parser, &Parser::done, this, [this](bool success, const QString &err) {
+            if (!success)
+                emit q->internalError(err);
+        });
     }
 
     void xmlSocketConnected();
@@ -159,15 +166,9 @@ bool ValgrindRunner::Private::run()
 }
 
 ValgrindRunner::ValgrindRunner(QObject *parent)
-    : QObject(parent), d(new Private(this))
-{
-    connect(&d->m_parser, &Parser::status, this, &ValgrindRunner::status);
-    connect(&d->m_parser, &Parser::error, this, &ValgrindRunner::error);
-    connect(&d->m_parser, &Parser::done, this, [this](bool success, const QString &err) {
-        if (!success)
-            emit internalError(err);
-    });
-}
+    : QObject(parent)
+    , d(new Private(this))
+{}
 
 ValgrindRunner::~ValgrindRunner()
 {
