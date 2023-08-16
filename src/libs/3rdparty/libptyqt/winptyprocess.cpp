@@ -77,7 +77,7 @@ bool WinPtyProcess::startProcess(const QString &executable,
 
     //env
     std::wstringstream envBlock;
-    foreach (QString line, environment)
+    for (const QString &line : environment)
     {
         envBlock << line.toStdWString() << L'\0';
     }
