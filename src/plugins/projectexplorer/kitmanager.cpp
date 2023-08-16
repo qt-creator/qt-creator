@@ -461,15 +461,16 @@ void KitManager::setBinaryForKit(const FilePath &binary)
     d->m_binaryForKit = binary;
 }
 
-QList<Kit *> KitManager::sortKits(const QList<Kit *> &kits)
+const QList<Kit *> KitManager::sortedKits()
 {
     // This method was added to delay the sorting of kits as long as possible.
     // Since the displayName can contain variables it can be costly (e.g. involve
     // calling executables to find version information, etc.) to call that
     // method!
     // Avoid lots of potentially expensive calls to Kit::displayName():
-    QList<QPair<QString, Kit *>> sortList = Utils::transform(kits, [](Kit *k) {
-        return qMakePair(k->displayName(), k);
+    std::vector<QPair<QString, Kit *>> sortList =
+        Utils::transform(d->m_kitList, [](const std::unique_ptr<Kit> &k) {
+        return qMakePair(k->displayName(), k.get());
     });
     Utils::sort(sortList,
                 [](const QPair<QString, Kit *> &a, const QPair<QString, Kit *> &b) -> bool {
@@ -477,7 +478,7 @@ QList<Kit *> KitManager::sortKits(const QList<Kit *> &kits)
                         return a.second < b.second;
                     return a.first < b.first;
                 });
-    return Utils::transform(sortList, &QPair<QString, Kit *>::second);
+    return Utils::transform<QList>(sortList, &QPair<QString, Kit *>::second);
 }
 
 static KitList restoreKitsHelper(const FilePath &fileName)

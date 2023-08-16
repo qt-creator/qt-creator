@@ -302,8 +302,7 @@ bool TargetSetupPage::isComplete() const
 
 void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
 {
-    const auto kitList = KitManager::sortKits(KitManager::kits());
-    for (Kit *k : kitList) {
+    for (Kit *k : KitManager::sortedKits()) {
         if (!filterText.isEmpty() && !k->displayName().contains(filterText, Qt::CaseInsensitive))
             continue;
         const auto widget = new TargetSetupWidget(k, m_projectPath);

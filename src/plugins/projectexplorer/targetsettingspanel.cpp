@@ -764,8 +764,7 @@ void TargetGroupItemPrivate::rebuildContents()
 {
     q->removeChildren();
 
-    const QList<Kit *> kits = KitManager::sortKits(KitManager::kits());
-    for (Kit *kit : kits)
+    for (Kit *kit : KitManager::sortedKits())
         q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
 
     if (q->parent())

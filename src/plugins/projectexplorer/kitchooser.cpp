@@ -102,8 +102,7 @@ void KitChooser::populate()
             m_hasStartupKit = true;
         }
     }
-    const QList<Kit *> kits = KitManager::sortKits(KitManager::kits());
-    for (Kit *kit : kits) {
+    for (Kit *kit : KitManager::sortedKits()) {
         if (m_kitPredicate(kit)) {
             m_chooser->addItem(kitText(kit), kit->id().toSetting());
             const int pos = m_chooser->count() - 1;

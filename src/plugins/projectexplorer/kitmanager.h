@@ -135,6 +135,7 @@ public:
     static KitManager *instance();
 
     static const QList<Kit *> kits();
+    static const QList<Kit *> sortedKits(); // Avoid sorting whenever possible!
     static Kit *kit(const Kit::Predicate &predicate);
     static Kit *kit(Utils::Id id);
     static Kit *defaultKit();
@@ -146,8 +147,6 @@ public:
     static Kit *registerKit(const std::function<void(Kit *)> &init, Utils::Id id = {});
     static void deregisterKit(Kit *k);
     static void setDefaultKit(Kit *k);
-
-    static QList<Kit *> sortKits(const QList<Kit *> &kits); // Avoid sorting whenever possible!
 
     static void saveKits();
 

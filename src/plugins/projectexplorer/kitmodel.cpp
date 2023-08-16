@@ -159,8 +159,7 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
     rootItem()->appendChild(m_autoRoot);
     rootItem()->appendChild(m_manualRoot);
 
-    const QList<Kit *> kits = KitManager::sortKits(KitManager::kits());
-    for (Kit *k : kits)
+    for (Kit *k : KitManager::sortedKits())
         addKit(k);
 
     changeDefaultKit();
