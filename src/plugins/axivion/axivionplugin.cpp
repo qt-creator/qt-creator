@@ -94,11 +94,8 @@ AxivionPlugin::~AxivionPlugin()
     dd = nullptr;
 }
 
-bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void AxivionPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     dd = new AxivionPluginPrivate;
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
@@ -115,7 +112,6 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
             dd, &AxivionPluginPrivate::onDocumentOpened);
     connect(Core::EditorManager::instance(), &Core::EditorManager::documentClosed,
             dd, &AxivionPluginPrivate::onDocumentClosed);
-    return true;
 }
 
 AxivionProjectSettings *AxivionPlugin::projectSettings(ProjectExplorer::Project *project)
