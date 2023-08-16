@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <solutions/tasking/tasktree.h>
+
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -49,4 +51,13 @@ private:
     std::unique_ptr<ParserPrivate> d;
 };
 
+class ParserTaskAdapter : public Tasking::TaskAdapter<Parser>
+{
+public:
+    ParserTaskAdapter() { connect(task(), &Parser::done, this, &Tasking::TaskInterface::done); }
+    void start() final { task()->start(); }
+};
+
 } // Valgrind::XmlProtocol
+
+TASKING_DECLARE_TASK(ParserTask, Valgrind::XmlProtocol::ParserTaskAdapter);
