@@ -550,3 +550,12 @@ function(extend_qtc_target target_name)
     set_source_files_properties(${_arg_SOURCES} PROPERTIES ${_arg_SOURCES_PROPERTIES})
   endif()
 endfunction()
+
+function (qtc_env_with_default envName varToSet default)
+  if(DEFINED ENV{${envName}})
+    set(${varToSet} $ENV{${envName}} PARENT_SCOPE)
+  else()
+    set(${varToSet} ${default} PARENT_SCOPE)
+  endif()
+endfunction()
+

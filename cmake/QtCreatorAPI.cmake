@@ -37,7 +37,7 @@ list(APPEND DEFAULT_DEFINES
 # use CMAKE_CURRENT_FUNCTION_LIST_DIR when we can require CMake 3.17
 set(_THIS_MODULE_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
-env_with_default("QTC_WITH_CCACHE_SUPPORT" ENV_WITH_CCACHE_SUPPORT OFF)
+qtc_env_with_default("QTC_WITH_CCACHE_SUPPORT" ENV_WITH_CCACHE_SUPPORT OFF)
 option(BUILD_PLUGINS_BY_DEFAULT "Build plugins by default. This can be used to build all plugins by default, or none." ON)
 option(BUILD_EXECUTABLES_BY_DEFAULT "Build executables by default. This can be used to build all executables by default, or none." ON)
 option(BUILD_LIBRARIES_BY_DEFAULT "Build libraries by default. This can be used to build all libraries by default, or none." ON)
