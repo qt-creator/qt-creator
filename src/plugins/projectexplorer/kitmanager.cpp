@@ -113,11 +113,6 @@ public:
     std::vector<std::unique_ptr<Kit>> m_kitList;
     std::unique_ptr<PersistentSettingsWriter> m_writer;
     QSet<Id> m_irrelevantAspects;
-
-    void setBinaryForKit(const FilePath &fp) { m_binaryForKit = fp; }
-    FilePath binaryForKit() const { return m_binaryForKit; }
-
-private:
     FilePath m_binaryForKit;
 };
 
@@ -243,8 +238,8 @@ void KitManager::restoreKits()
         return false;
     };
 
-    const Abis abisOfBinary = d->binaryForKit().isEmpty()
-            ? Abis() : Abi::abisOfBinary(d->binaryForKit());
+    const Abis abisOfBinary = d->m_binaryForKit.isEmpty()
+            ? Abis() : Abi::abisOfBinary(d->m_binaryForKit);
     const auto kitMatchesAbiOfBinary = [&abisOfBinary](const Kit *kit) {
         return kitMatchesAbiList(kit, abisOfBinary);
     };
@@ -463,7 +458,7 @@ bool KitManager::isLoaded()
 void KitManager::setBinaryForKit(const FilePath &binary)
 {
     QTC_ASSERT(d, return);
-    d->setBinaryForKit(binary);
+    d->m_binaryForKit = binary;
 }
 
 QList<Kit *> KitManager::sortKits(const QList<Kit *> &kits)
