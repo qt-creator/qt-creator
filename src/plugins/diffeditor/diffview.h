@@ -11,7 +11,9 @@
 #include <QString>
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QWidget)
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
 namespace TextEditor { class TextEditorWidget; }
 

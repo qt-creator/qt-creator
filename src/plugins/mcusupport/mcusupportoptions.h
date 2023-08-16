@@ -13,8 +13,6 @@
 #include <QObject>
 #include <QVersionNumber>
 
-QT_FORWARD_DECLARE_CLASS(QWidget)
-
 namespace Utils {
 class FilePath;
 class PathChooser;

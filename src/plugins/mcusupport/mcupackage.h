@@ -12,8 +12,6 @@
 
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QWidget)
-
 namespace ProjectExplorer {
 class ToolChain;
 }

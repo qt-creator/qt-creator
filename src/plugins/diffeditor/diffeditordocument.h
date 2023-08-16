@@ -8,8 +8,6 @@
 #include <coreplugin/patchtool.h>
 #include <coreplugin/textdocument.h>
 
-QT_FORWARD_DECLARE_CLASS(QMenu)
-
 namespace DiffEditor {
 
 class DiffEditorController;

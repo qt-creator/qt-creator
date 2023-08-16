@@ -6,7 +6,9 @@
 #include <QtGlobal>
 #include <QDesignerIntegration>
 
-QT_FORWARD_DECLARE_CLASS(QUrl)
+QT_BEGIN_NAMESPACE
+class QUrl;
+QT_END_NAMESPACE
 
 namespace Designer {
 namespace Internal {

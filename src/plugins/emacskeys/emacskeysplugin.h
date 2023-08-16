@@ -30,9 +30,10 @@
 
 #include <QTextCursor>
 
-// forward declarations
-QT_FORWARD_DECLARE_CLASS(QAction)
-QT_FORWARD_DECLARE_CLASS(QPlainTextEdit)
+QT_BEGIN_NAMESPACE
+class QAction;
+class QPlainTextEdit;
+QT_END_NAMESPACE
 
 namespace Core {
 class IEditor;

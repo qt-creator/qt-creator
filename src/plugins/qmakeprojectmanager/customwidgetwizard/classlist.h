@@ -5,8 +5,6 @@
 
 #include <QListView>
 
-QT_FORWARD_DECLARE_CLASS(QModelIndex)
-
 namespace QmakeProjectManager {
 namespace Internal {
 class ClassModel;

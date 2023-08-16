@@ -12,7 +12,9 @@
 
 #include <atomic>
 
-QT_FORWARD_DECLARE_CLASS(QDir)
+QT_BEGIN_NAMESPACE
+class QDir;
+QT_END_NAMESPACE
 
 namespace AutotoolsProjectManager::Internal {
 

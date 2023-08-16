@@ -8,7 +8,9 @@
 #include <QSize>
 #include <QVector>
 
-QT_FORWARD_DECLARE_CLASS(QLineEdit)
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
 
 namespace Utils {
 class FilePath;

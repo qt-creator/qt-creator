@@ -6,7 +6,9 @@
 
 #include "keyword.h"
 
-QT_FORWARD_DECLARE_CLASS(QSettings)
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace Todo {
 namespace Internal {
