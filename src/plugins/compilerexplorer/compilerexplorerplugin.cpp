@@ -1,8 +1,6 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "compilerexplorerplugin.h"
-
 #include "compilerexplorerconstants.h"
 #include "compilerexplorereditor.h"
 #include "compilerexplorersettings.h"
@@ -18,39 +16,45 @@
 
 #include <QMenu>
 
-namespace CompilerExplorer {
-namespace Internal {
+#include <extensionsystem/iplugin.h>
 
-CompilerExplorerPlugin::CompilerExplorerPlugin() {}
+using namespace Core;
 
-CompilerExplorerPlugin::~CompilerExplorerPlugin() {}
+namespace CompilerExplorer::Internal {
 
-void CompilerExplorerPlugin::initialize()
+class CompilerExplorerPlugin : public ExtensionSystem::IPlugin
 {
-    static CompilerExplorer::EditorFactory ceEditorFactory;
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CompilerExplorer.json")
 
-    auto action = new QAction(Tr::tr("Open Compiler Explorer"), this);
-    connect(action, &QAction::triggered, this, [] {
-        CompilerExplorer::Settings settings;
+public:
+    CompilerExplorerPlugin();
+    ~CompilerExplorerPlugin() override;
 
-        const QString src = settings.source();
-        QString name("Compiler Explorer");
-        Core::EditorManager::openEditorWithContents(Constants::CE_EDITOR_ID, &name, src.toUtf8());
-    });
+    void initialize() override
+    {
+        static CompilerExplorer::EditorFactory ceEditorFactory;
 
-    Core::ActionContainer *mtools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    Core::ActionContainer *mCompilerExplorer = Core::ActionManager::createMenu(
-        "Tools.CompilerExplorer");
-    QMenu *menu = mCompilerExplorer->menu();
-    menu->setTitle(Tr::tr("Compiler Explorer"));
-    mtools->addMenu(mCompilerExplorer);
+        auto action = new QAction(Tr::tr("Open Compiler Explorer"), this);
+        connect(action, &QAction::triggered, this, [] {
+            CompilerExplorer::Settings settings;
 
-    Core::Command *cmd
-        = Core::ActionManager::registerAction(action, "CompilerExplorer.CompilerExplorerAction");
-    mCompilerExplorer->addAction(cmd);
-}
+            const QString src = settings.source();
+            QString name("Compiler Explorer");
+            EditorManager::openEditorWithContents(Constants::CE_EDITOR_ID, &name, src.toUtf8());
+        });
 
-void CompilerExplorerPlugin::extensionsInitialized() {}
+        ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+        ActionContainer *mCompilerExplorer = ActionManager::createMenu("Tools.CompilerExplorer");
+        QMenu *menu = mCompilerExplorer->menu();
+        menu->setTitle(Tr::tr("Compiler Explorer"));
+        mtools->addMenu(mCompilerExplorer);
 
-} // namespace Internal
-} // namespace CompilerExplorer
+        Command *cmd = ActionManager::registerAction(action, "CompilerExplorer.CompilerExplorerAction");
+        mCompilerExplorer->addAction(cmd);
+    }
+};
+
+} // CompilerExplorer::Internl
+
+#include "compilerexplorerplugin.moc"

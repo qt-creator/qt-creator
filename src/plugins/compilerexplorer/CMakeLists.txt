@@ -17,7 +17,6 @@ add_qtc_plugin(CompilerExplorer
     compilerexploreraspects.cpp
     compilerexploreraspects.h
     compilerexplorerplugin.cpp
-    compilerexplorerplugin.h
     compilerexplorertr.h
     compilerexplorereditor.cpp
     compilerexplorereditor.h

@@ -30,7 +30,6 @@ QtcPlugin {
         "compilerexploreroptions.cpp",
         "compilerexploreroptions.h",
         "compilerexplorerplugin.cpp",
-        "compilerexplorerplugin.h",
         "compilerexplorersettings.cpp",
         "compilerexplorersettings.h",
         "compilerexplorertr.h",
