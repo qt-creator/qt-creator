@@ -569,8 +569,11 @@ void DapEngine::handleThreadsResponse(const QJsonObject &response)
         handler->updateThread(threadData);
     }
 
-    if (m_currentThreadId)
-        handler->setCurrentThread(threadsHandler()->threadForId(QString::number(m_currentThreadId)));
+    if (m_currentThreadId) {
+        Thread thread = threadsHandler()->threadForId(QString::number(m_currentThreadId));
+        if (thread && thread != threadsHandler()->currentThread())
+            handler->setCurrentThread(thread);
+    }
 }
 
 void DapEngine::handleEvent(DapEventType type, const QJsonObject &event)
