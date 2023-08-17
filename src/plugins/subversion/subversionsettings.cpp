@@ -113,6 +113,7 @@ public:
         setId(VcsBase::Constants::VCS_ID_SUBVERSION);
         setDisplayName(Tr::tr("Subversion"));
         setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
     }
 };
 
