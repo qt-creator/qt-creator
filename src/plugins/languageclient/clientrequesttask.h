@@ -16,10 +16,10 @@
 namespace LanguageClient {
 
 template <typename Request>
-class LANGUAGECLIENT_EXPORT ClientRequestTask
+class LANGUAGECLIENT_EXPORT ClientRequest
 {
 public:
-    virtual ~ClientRequestTask()
+    virtual ~ClientRequest()
     {
         if (m_id)
             m_client->cancelRequest(*m_id); // In order to not to invoke a response callback anymore
@@ -60,21 +60,22 @@ private:
     typename Request::Response m_response;
 };
 
-class LANGUAGECLIENT_EXPORT WorkspaceSymbolRequestTask
-    : public ClientRequestTask<LanguageServerProtocol::WorkspaceSymbolRequest>
+class LANGUAGECLIENT_EXPORT ClientWorkspaceSymbolRequest
+    : public ClientRequest<LanguageServerProtocol::WorkspaceSymbolRequest>
 {
 public:
     bool preStartCheck() override;
 };
 
-class LANGUAGECLIENT_EXPORT WorkspaceSymbolRequestTaskAdapter
-    : public Tasking::TaskAdapter<WorkspaceSymbolRequestTask>
+class LANGUAGECLIENT_EXPORT ClientWorkspaceSymbolRequestTaskAdapter
+    : public Tasking::TaskAdapter<ClientWorkspaceSymbolRequest>
 {
 public:
-    WorkspaceSymbolRequestTaskAdapter();
+    ClientWorkspaceSymbolRequestTaskAdapter();
     void start() final;
 };
 
-using SymbolRequest = Tasking::CustomTask<WorkspaceSymbolRequestTaskAdapter>;
+using ClientWorkspaceSymbolRequestTask
+    = Tasking::CustomTask<ClientWorkspaceSymbolRequestTaskAdapter>;
 
 } // namespace LanguageClient

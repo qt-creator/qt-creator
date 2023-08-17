@@ -7,21 +7,21 @@ using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
-WorkspaceSymbolRequestTaskAdapter::WorkspaceSymbolRequestTaskAdapter()
+ClientWorkspaceSymbolRequestTaskAdapter::ClientWorkspaceSymbolRequestTaskAdapter()
 {
     task()->setResponseCallback([this](const WorkspaceSymbolRequest::Response &response){
         emit done(response.result().has_value());
     });
 }
 
-void WorkspaceSymbolRequestTaskAdapter::start()
+void ClientWorkspaceSymbolRequestTaskAdapter::start()
 {
     task()->start();
 }
 
-bool WorkspaceSymbolRequestTask::preStartCheck()
+bool ClientWorkspaceSymbolRequest::preStartCheck()
 {
-    if (!ClientRequestTask::preStartCheck())
+    if (!ClientRequest::preStartCheck())
         return false;
 
     const std::optional<std::variant<bool, WorkDoneProgressOptions>> capability
