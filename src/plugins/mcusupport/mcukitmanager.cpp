@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcukitmanager.h"
-#include "mculegacyconstants.h"
-#include "mcusupport_global.h"
-#include "mcusupportoptions.h"
 
-#include "mcukitinformation.h"
+#include "mcukitaspect.h"
+#include "mculegacyconstants.h"
 #include "mcupackage.h"
+#include "mcusupport_global.h"
 #include "mcusupportconstants.h"
+#include "mcusupportoptions.h"
 #include "mcusupportplugin.h"
 #include "mcusupportsdk.h"
 #include "mcusupporttr.h"
@@ -16,7 +16,6 @@
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
-#include <coreplugin/icore.h>
 
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
