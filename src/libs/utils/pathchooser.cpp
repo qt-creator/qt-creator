@@ -630,9 +630,7 @@ FancyLineEdit::AsyncValidationFunction PathChooser::defaultValidationFunction() 
         return Utils::asyncRun(
             [expanded,
              defVal = d->m_defaultValue,
-             kind = d->m_acceptingKind,
-             env = d->m_environment,
-             baseDirectory = d->m_baseDirectory]() -> FancyLineEdit::AsyncValidationResult {
+             kind = d->m_acceptingKind]() -> FancyLineEdit::AsyncValidationResult {
                 return validatePath(expanded, defVal, kind);
             });
     };
