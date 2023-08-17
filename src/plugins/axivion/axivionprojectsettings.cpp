@@ -17,11 +17,38 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Axivion::Internal {
 
 const char PSK_PROJECTNAME[] = "Axivion.ProjectName";
+
+class AxivionProjectSettingsHandler : public QObject
+{
+public:
+    AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project)
+    {
+        auto &settings = m_axivionProjectSettings[project];
+        if (!settings)
+            settings = new AxivionProjectSettings(project);
+        return settings;
+    }
+
+    void destroy()
+    {
+        qDeleteAll(m_axivionProjectSettings);
+        m_axivionProjectSettings.clear();
+    }
+
+    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> m_axivionProjectSettings;
+};
+
+static AxivionProjectSettingsHandler &projectSettingsHandler()
+{
+    static AxivionProjectSettingsHandler theProjectSettingsHandler;
+    return theProjectSettingsHandler;
+}
 
 AxivionProjectSettings::AxivionProjectSettings(ProjectExplorer::Project *project)
     : m_project{project}
@@ -31,6 +58,16 @@ AxivionProjectSettings::AxivionProjectSettings(ProjectExplorer::Project *project
             this, &AxivionProjectSettings::load);
     connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
             this, &AxivionProjectSettings::save);
+}
+
+AxivionProjectSettings *AxivionProjectSettings::projectSettings(ProjectExplorer::Project *project)
+{
+    return projectSettingsHandler().projectSettings(project);
+}
+
+void AxivionProjectSettings::destroyProjectSettings()
+{
+    projectSettingsHandler().destroy();
 }
 
 void AxivionProjectSettings::load()
@@ -46,7 +83,7 @@ void AxivionProjectSettings::save()
 AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Project *project,
                                                            QWidget *parent)
     : ProjectExplorer::ProjectSettingsWidget{parent}
-    , m_projectSettings(AxivionPlugin::projectSettings(project))
+    , m_projectSettings(projectSettingsHandler().projectSettings(project))
 {
     setUseGlobalSettingsCheckBoxVisible(false);
     setUseGlobalSettingsLabelVisible(true);

@@ -21,8 +21,6 @@ public:
     AxivionPlugin() {}
     ~AxivionPlugin() final;
 
-    static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
-
     static void fetchProjectInfo(const QString &projectName);
     static ProjectInfo projectInfo();
 

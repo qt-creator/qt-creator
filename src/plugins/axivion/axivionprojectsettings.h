@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "axivionsettings.h"
-
 #include <projectexplorer/projectsettingswidget.h>
 
 #include <QObject>
@@ -30,6 +28,9 @@ public:
 
     void setDashboardProjectName(const QString &name) { m_dashboardProjectName = name; }
     QString dashboardProjectName() const { return m_dashboardProjectName; }
+
+    static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
+    static void destroyProjectSettings();
 
 private:
     void load();

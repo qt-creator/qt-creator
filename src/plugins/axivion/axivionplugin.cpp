@@ -37,7 +37,6 @@ namespace Axivion::Internal {
 class AxivionPluginPrivate : public QObject
 {
 public:
-    AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
     void handleProjectInfo(const ProjectInfo &info);
@@ -49,7 +48,6 @@ public:
     void fetchRuleInfo(const QString &id);
 
     AxivionOutputPane m_axivionOutputPane;
-    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> m_axivionProjectSettings;
     ProjectInfo m_currentProjectInfo;
     bool m_runningQuery = false;
 };
@@ -86,10 +84,7 @@ AxivionTextMark::AxivionTextMark(const Utils::FilePath &filePath, const ShortIss
 
 AxivionPlugin::~AxivionPlugin()
 {
-    if (dd && !dd->m_axivionProjectSettings.isEmpty()) {
-        qDeleteAll(dd->m_axivionProjectSettings);
-        dd->m_axivionProjectSettings.clear();
-    }
+    AxivionProjectSettings::destroyProjectSettings();
     delete dd;
     dd = nullptr;
 }
@@ -114,14 +109,6 @@ void AxivionPlugin::initialize()
             dd, &AxivionPluginPrivate::onDocumentClosed);
 }
 
-AxivionProjectSettings *AxivionPlugin::projectSettings(ProjectExplorer::Project *project)
-{
-    QTC_ASSERT(project, return nullptr);
-    QTC_ASSERT(dd, return nullptr);
-
-    return dd->projectSettings(project);
-}
-
 void AxivionPlugin::fetchProjectInfo(const QString &projectName)
 {
     QTC_ASSERT(dd, return);
@@ -134,14 +121,6 @@ ProjectInfo AxivionPlugin::projectInfo()
     return dd->m_currentProjectInfo;
 }
 
-AxivionProjectSettings *AxivionPluginPrivate::projectSettings(ProjectExplorer::Project *project)
-{
-    auto &settings = m_axivionProjectSettings[project];
-    if (!settings)
-        settings = new AxivionProjectSettings(project);
-    return settings;
-}
-
 void AxivionPluginPrivate::onStartupProjectChanged()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
@@ -152,7 +131,7 @@ void AxivionPluginPrivate::onStartupProjectChanged()
         return;
     }
 
-    const AxivionProjectSettings *projSettings = projectSettings(project);
+    const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(project);
     fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
