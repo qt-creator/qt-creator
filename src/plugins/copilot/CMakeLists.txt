@@ -1,5 +1,5 @@
 add_qtc_plugin(Copilot
-  PLUGIN_DEPENDS Core LanguageClient
+  PLUGIN_DEPENDS Core LanguageClient app_version
   SOURCES
     authwidget.cpp authwidget.h
     copilot.qrc
