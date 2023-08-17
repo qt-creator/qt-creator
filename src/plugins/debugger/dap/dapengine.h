@@ -26,8 +26,8 @@ enum class DapEventType;
 class DapEngine : public DebuggerEngine
 {
 public:
-    DapEngine();
-    ~DapEngine() override;
+    DapEngine() = default;
+    ~DapEngine() override = default;
 
 protected:
     void executeStepIn(bool) override;
@@ -115,7 +115,7 @@ protected:
 
     std::queue<std::pair<int, WatchItem *>> m_variablesReferenceQueue;
     WatchItem *m_currentWatchItem = nullptr;
-    WatchItem *m_rootWatchItem = nullptr;
+    QList<WatchItem *> m_watchItems;
 };
 
 } // Debugger::Internal

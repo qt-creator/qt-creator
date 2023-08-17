@@ -64,17 +64,6 @@ static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg)
 
 namespace Debugger::Internal {
 
-DapEngine::DapEngine()
-{
-    m_rootWatchItem = new WatchItem();
-    m_currentWatchItem = m_rootWatchItem;
-}
-
-DapEngine::~DapEngine()
-{
-    delete m_rootWatchItem;
-}
-
 void DapEngine::executeDebuggerCommand(const QString &/*command*/)
 {
     QTC_ASSERT(state() == InferiorStopOk, qCDebug(dapEngineLog) << state());
@@ -558,8 +547,6 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
         const int variablesReference = scope.toObject().value("variablesReference").toInt();
         qCDebug(dapEngineLog) << "scoped success" << name << variablesReference;
         if (name == "Locals") { // Fix for several scopes
-            m_rootWatchItem = new WatchItem();
-            m_currentWatchItem = m_rootWatchItem;
             watchHandler()->removeAllData();
             watchHandler()->notifyUpdateStarted();
             m_dapClient->variables(variablesReference);
@@ -701,6 +688,7 @@ void DapEngine::handleBreakpointEvent(const QJsonObject &event)
 
 void DapEngine::refreshLocals(const QJsonArray &variables)
 {
+    bool isFirstLayer = m_watchItems.isEmpty();
     for (auto variable : variables) {
         WatchItem *item = new WatchItem;
         const QString name = variable.toObject().value("name").toString();
@@ -712,7 +700,10 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
         item->type = variable.toObject().value("type").toString();
 
         qCDebug(dapEngineLog) << "variable" << name << item->hexAddress();
-        m_currentWatchItem->appendChild(item);
+        if (isFirstLayer)
+            m_watchItems.append(item);
+        else
+            m_currentWatchItem->appendChild(item);
 
         const int variablesReference = variable.toObject().value("variablesReference").toInt();
         if (variablesReference > 0)
@@ -720,8 +711,10 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
     }
 
     if (m_variablesReferenceQueue.empty()) {
-        for (auto item = m_rootWatchItem->begin(); item != m_rootWatchItem->end(); ++item)
-            watchHandler()->insertItem(*item);
+        for (auto item : m_watchItems)
+            watchHandler()->insertItem(item);
+        m_watchItems.clear();
+
         watchHandler()->notifyUpdateFinished();
         return;
     }
