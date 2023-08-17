@@ -27,6 +27,7 @@ class DapEngine : public DebuggerEngine
 {
 public:
     DapEngine();
+    ~DapEngine() override;
 
 protected:
     void executeStepIn(bool) override;
@@ -107,7 +108,7 @@ protected:
     void connectDataGeneratorSignals();
 
     QByteArray m_inbuffer;
-    std::unique_ptr<DapClient> m_dapClient = nullptr;
+    DapClient *m_dapClient = nullptr;
 
     int m_nextBreakpointId = 1;
     int m_currentThreadId = -1;

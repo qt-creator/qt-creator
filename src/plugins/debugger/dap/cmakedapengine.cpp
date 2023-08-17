@@ -29,8 +29,9 @@ namespace Debugger::Internal {
 class LocalSocketDataProvider : public IDataProvider
 {
 public:
-    LocalSocketDataProvider(const QString &socketName)
-        : m_socketName(socketName)
+    LocalSocketDataProvider(const QString &socketName, QObject *parent = nullptr)
+        : IDataProvider(parent)
+        , m_socketName(socketName)
     {
         connect(&m_socket, &QLocalSocket::connected, this, &IDataProvider::started);
         connect(&m_socket, &QLocalSocket::disconnected, this, &IDataProvider::done);
@@ -74,8 +75,8 @@ private:
 class CMakeDapClient : public DapClient
 {
 public:
-    CMakeDapClient(std::unique_ptr<IDataProvider> provider)
-        : DapClient(std::move(provider))
+    CMakeDapClient(IDataProvider *provider, QObject *parent = nullptr)
+        : DapClient(provider, parent)
     {}
 
     void sendInitialize()
@@ -102,14 +103,15 @@ void CMakeDapEngine::setupEngine()
     qCDebug(dapEngineLog) << "build system name"
                           << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
 
-    std::unique_ptr<IDataProvider> dataProvider;
+    IDataProvider *dataProvider;
     if (TemporaryDirectory::masterDirectoryFilePath().osType() == Utils::OsType::OsTypeWindows) {
-        dataProvider = std::make_unique<LocalSocketDataProvider>("\\\\.\\pipe\\cmake-dap");
+        dataProvider = new LocalSocketDataProvider("\\\\.\\pipe\\cmake-dap", this);
     } else {
-        dataProvider = std::make_unique<LocalSocketDataProvider>(
-            TemporaryDirectory::masterDirectoryPath() + "/cmake-dap.sock");
+        dataProvider = new LocalSocketDataProvider(TemporaryDirectory::masterDirectoryPath()
+                                                       + "/cmake-dap.sock",
+                                                   this);
     }
-    m_dapClient = std::make_unique<CMakeDapClient>(std::move(dataProvider));
+    m_dapClient = new CMakeDapClient(dataProvider, this);
     connectDataGeneratorSignals();
 
     connect(ProjectExplorer::ProjectTree::currentBuildSystem(),

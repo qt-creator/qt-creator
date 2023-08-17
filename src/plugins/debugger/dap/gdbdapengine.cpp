@@ -26,8 +26,11 @@ namespace Debugger::Internal {
 class ProcessDataProvider : public IDataProvider
 {
 public:
-    ProcessDataProvider(const DebuggerRunParameters &rp, const CommandLine &cmd)
-        : m_runParameters(rp)
+    ProcessDataProvider(const DebuggerRunParameters &rp,
+                        const CommandLine &cmd,
+                        QObject *parent = nullptr)
+        : IDataProvider(parent)
+        , m_runParameters(rp)
         , m_cmd(cmd)
     {
         connect(&m_proc, &Process::started, this, &IDataProvider::started);
@@ -89,8 +92,8 @@ void GdbDapEngine::setupEngine()
     const DebuggerRunParameters &rp = runParameters();
     const CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
 
-    std::unique_ptr<IDataProvider> dataProvider = std::make_unique<ProcessDataProvider>(rp, cmd);
-    m_dapClient = std::make_unique<DapClient>(std::move(dataProvider));
+    IDataProvider *dataProvider =  new ProcessDataProvider(rp, cmd, this);
+    m_dapClient = new DapClient(dataProvider, this);
 
     connectDataGeneratorSignals();
     m_dapClient->dataProvider()->start();

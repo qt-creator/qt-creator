@@ -13,6 +13,8 @@ class IDataProvider : public QObject
 {
     Q_OBJECT
 public:
+    IDataProvider(QObject *parent = nullptr) : QObject(parent) {}
+    ~IDataProvider() override = default;
     virtual void start() = 0;
     virtual bool isRunning() const = 0;
     virtual void writeRaw(const QByteArray &input) = 0;
@@ -64,10 +66,10 @@ class DapClient : public QObject
     Q_OBJECT
 
 public:
-    DapClient(std::unique_ptr<IDataProvider> dataProvider);
-    ~DapClient();
+    DapClient(IDataProvider *dataProvider, QObject *parent = nullptr);
+    ~DapClient() override;
 
-    IDataProvider *dataProvider() const { return m_dataProvider.get(); }
+    IDataProvider *dataProvider() const { return m_dataProvider; }
 
     void postRequest(const QString &command, const QJsonObject &arguments = {});
 
@@ -105,7 +107,7 @@ private:
     void readOutput();
 
 private:
-    std::unique_ptr<IDataProvider> m_dataProvider = nullptr;
+    IDataProvider *m_dataProvider = nullptr;
 
     QByteArray m_inbuffer;
 };

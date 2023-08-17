@@ -17,20 +17,21 @@ static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg);
 
 namespace Debugger::Internal {
 
-DapClient::DapClient(std::unique_ptr<IDataProvider> dataProvider)
-    : m_dataProvider(std::move(dataProvider))
+DapClient::DapClient(IDataProvider *dataProvider, QObject *parent)
+    : QObject(parent)
+    , m_dataProvider(dataProvider)
 {
-    connect(m_dataProvider.get(),
+    connect(m_dataProvider,
             &IDataProvider::readyReadStandardOutput,
             this,
             &DapClient::readOutput);
-    connect(m_dataProvider.get(),
+    connect(m_dataProvider,
             &IDataProvider::readyReadStandardError,
             this,
             &DapClient::readyReadStandardError);
 
-    connect(m_dataProvider.get(), &IDataProvider::done, this, &DapClient::done);
-    connect(m_dataProvider.get(), &IDataProvider::started, this, &DapClient::started);
+    connect(m_dataProvider, &IDataProvider::done, this, &DapClient::done);
+    connect(m_dataProvider, &IDataProvider::started, this, &DapClient::started);
 }
 
 DapClient::~DapClient() = default;

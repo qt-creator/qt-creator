@@ -70,6 +70,11 @@ DapEngine::DapEngine()
     m_currentWatchItem = m_rootWatchItem;
 }
 
+DapEngine::~DapEngine()
+{
+    delete m_rootWatchItem;
+}
+
 void DapEngine::executeDebuggerCommand(const QString &/*command*/)
 {
     QTC_ASSERT(state() == InferiorStopOk, qCDebug(dapEngineLog) << state());
@@ -787,15 +792,15 @@ void DapEngine::connectDataGeneratorSignals()
     if (!m_dapClient)
         return;
 
-    connect(m_dapClient.get(), &DapClient::started, this, &DapEngine::handleDapStarted);
-    connect(m_dapClient.get(), &DapClient::done, this, &DapEngine::handleDapDone);
-    connect(m_dapClient.get(),
+    connect(m_dapClient, &DapClient::started, this, &DapEngine::handleDapStarted);
+    connect(m_dapClient, &DapClient::done, this, &DapEngine::handleDapDone);
+    connect(m_dapClient,
             &DapClient::readyReadStandardError,
             this,
             &DapEngine::readDapStandardError);
 
-    connect(m_dapClient.get(), &DapClient::responseReady, this, &DapEngine::handleResponse);
-    connect(m_dapClient.get(), &DapClient::eventReady, this, &DapEngine::handleEvent);
+    connect(m_dapClient, &DapClient::responseReady, this, &DapEngine::handleResponse);
+    connect(m_dapClient, &DapClient::eventReady, this, &DapEngine::handleEvent);
 }
 
 DebuggerEngine *createDapEngine(Utils::Id runMode)
