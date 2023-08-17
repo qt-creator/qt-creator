@@ -40,7 +40,7 @@ using namespace Core;
 
 namespace BinEditor::Internal {
 
-class BinEditorFactory final : public IEditorFactory
+class BinEditorFactory final : public QObject, public IEditorFactory
 {
 public:
     BinEditorFactory();

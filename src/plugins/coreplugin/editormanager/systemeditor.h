@@ -10,8 +10,6 @@ namespace Internal {
 
 class SystemEditor : public IExternalEditor
 {
-    Q_OBJECT
-
 public:
     explicit SystemEditor();
 

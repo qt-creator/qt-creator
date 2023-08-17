@@ -11,6 +11,8 @@ class PythonEditorFactory : public TextEditor::TextEditorFactory
 {
 public:
     PythonEditorFactory();
+private:
+    QObject m_guard;
 };
 
 } // Python::Internal

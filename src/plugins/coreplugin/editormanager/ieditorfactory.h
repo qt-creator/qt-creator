@@ -27,11 +27,10 @@ class EditorType;
 using EditorFactoryList = QList<IEditorFactory *>;
 using EditorTypeList = QList<EditorType *>;
 
-class CORE_EXPORT EditorType : public QObject
+class CORE_EXPORT EditorType
 {
-    Q_OBJECT
 public:
-    ~EditorType() override;
+    virtual ~EditorType();
 
     static const EditorTypeList allEditorTypes();
     static EditorType *editorTypeForId(const Utils::Id &id);
@@ -60,8 +59,6 @@ private:
 
 class CORE_EXPORT IEditorFactory : public EditorType
 {
-    Q_OBJECT
-
 public:
     IEditorFactory();
     ~IEditorFactory() override;

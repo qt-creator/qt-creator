@@ -228,11 +228,12 @@ const EditorFactoryList IEditorFactory::allEditorFactories()
 const EditorFactoryList IEditorFactory::preferredEditorFactories(const FilePath &filePath)
 {
     const auto defaultEditorFactories = [](const MimeType &mimeType) {
-        const EditorTypeList types = defaultEditorTypes(mimeType);
-        const EditorTypeList ieditorTypes = Utils::filtered(types, [](EditorType *type) {
-            return type->asEditorFactory() != nullptr;
-        });
-        return Utils::qobject_container_cast<IEditorFactory *>(ieditorTypes);
+        QList<IEditorFactory *> editorFactories;
+        for (EditorType *type : defaultEditorTypes(mimeType)) {
+            if (IEditorFactory *editorFactory = type->asEditorFactory())
+                editorFactories.append(editorFactory);
+        }
+        return editorFactories;
     };
 
     // default factories by mime type

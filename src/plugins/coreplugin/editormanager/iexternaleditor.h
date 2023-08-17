@@ -24,8 +24,6 @@ using ExternalEditorList = QList<IExternalEditor *>;
 
 class CORE_EXPORT IExternalEditor : public EditorType
 {
-    Q_OBJECT
-
 public:
     explicit IExternalEditor();
     ~IExternalEditor() override;

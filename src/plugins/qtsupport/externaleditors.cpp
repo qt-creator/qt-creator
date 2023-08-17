@@ -307,12 +307,12 @@ bool DesignerExternalEditor::startEditor(const FilePath &filePath, QString *erro
     // Insert into cache if socket is created, else try again next time
     if (server.waitForNewConnection(3000)) {
         QTcpSocket *socket = server.nextPendingConnection();
-        socket->setParent(this);
+        socket->setParent(&m_guard);
         const QString binary = data.binary;
         m_processCache.insert(binary, socket);
         auto mapSlot = [binary] { processTerminated(binary); };
-        connect(socket, &QAbstractSocket::disconnected, this, mapSlot);
-        connect(socket, &QAbstractSocket::errorOccurred, this, mapSlot);
+        QObject::connect(socket, &QAbstractSocket::disconnected, &m_guard, mapSlot);
+        QObject::connect(socket, &QAbstractSocket::errorOccurred, &m_guard, mapSlot);
     }
     return true;
 }

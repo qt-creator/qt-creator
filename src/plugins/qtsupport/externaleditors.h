@@ -13,6 +13,9 @@ public:
     DesignerExternalEditor();
 
     bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) final;
+
+private:
+    QObject m_guard;
 };
 
 class LinguistEditor : public Core::IExternalEditor
