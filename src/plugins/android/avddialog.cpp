@@ -24,7 +24,6 @@
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QLoggingCategory>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QToolTip>

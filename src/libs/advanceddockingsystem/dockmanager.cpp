@@ -39,7 +39,6 @@
 #include <QMainWindow>
 #include <QMap>
 #include <QMenu>
-#include <QMessageBox>
 #include <QSettings>
 #include <QVariant>
 #include <QWindow>

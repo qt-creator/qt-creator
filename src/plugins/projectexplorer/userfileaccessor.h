@@ -8,7 +8,6 @@
 
 #include <QHash>
 #include <QVariantMap>
-#include <QMessageBox>
 
 namespace ProjectExplorer {
 

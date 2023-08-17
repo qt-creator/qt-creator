@@ -6,7 +6,6 @@
 #include <QApplication>
 #include <QFontMetrics>
 #include <QMainWindow>
-#include <QMessageBox>
 #include <QPainter>
 #include <QPlainTextEdit>
 #include <QRegularExpression>

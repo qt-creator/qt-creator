@@ -33,7 +33,6 @@
 
 #include <QDebug>
 #include <QLoggingCategory>
-#include <QMessageBox>
 #include <QRegularExpression>
 #include <QTextCodec>
 #include <QTimer>
