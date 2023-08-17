@@ -1,8 +1,6 @@
 // Copyright (C) 2022 The Qt Company Ltd
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "squishplugin.h"
-
 #include "objectsmapeditor.h"
 #include "squishfilehandler.h"
 #include "squishmessages.h"
@@ -20,6 +18,7 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
@@ -31,10 +30,9 @@
 using namespace Core;
 using namespace Utils;
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
-class SquishPluginPrivate : public QObject
+class SquishPluginPrivate final : public QObject
 {
 public:
     SquishPluginPrivate();
@@ -47,7 +45,7 @@ public:
     SquishNavigationWidgetFactory m_navigationWidgetFactory;
     ObjectsMapEditorFactory m_objectsMapEditorFactory;
     SquishOutputPane *m_outputPane = nullptr;
-    SquishTools * m_squishTools = nullptr;
+    SquishTools m_squishTools;
 
     SquishToolkitsPageFactory m_squishToolkitsPageFactory;
     SquishScriptLanguagePageFactory m_squishScriptLanguagePageFactory;
@@ -55,27 +53,17 @@ public:
     SquishGeneratorFactory m_squishGeneratorFactory;
 };
 
-static SquishPluginPrivate *dd = nullptr;
-
 SquishPluginPrivate::SquishPluginPrivate()
 {
     qRegisterMetaType<SquishResultItem*>("SquishResultItem*");
 
     m_outputPane = SquishOutputPane::instance();
-    m_squishTools = new SquishTools;
     initializeMenuEntries();
 }
 
 SquishPluginPrivate::~SquishPluginPrivate()
 {
     delete m_outputPane;
-    delete m_squishTools;
-}
-
-SquishPlugin::~SquishPlugin()
-{
-    delete dd;
-    dd = nullptr;
 }
 
 void SquishPluginPrivate::initializeMenuEntries()
@@ -106,7 +94,6 @@ void SquishPluginPrivate::initializeMenuEntries()
 
 bool SquishPluginPrivate::initializeGlobalScripts()
 {
-    QTC_ASSERT(dd->m_squishTools, return false);
     SquishFileHandler::instance()->setSharedFolders({});
 
     const FilePath squishserver = settings().squishPath().pathAppended(
@@ -114,7 +101,7 @@ bool SquishPluginPrivate::initializeGlobalScripts()
     if (!squishserver.isExecutableFile())
         return false;
 
-    dd->m_squishTools->queryGlobalScripts([](const QString &output, const QString &error) {
+    m_squishTools.queryGlobalScripts([](const QString &output, const QString &error) {
         if (output.isEmpty() || !error.isEmpty())
             return; // ignore (for now?)
 
@@ -126,31 +113,38 @@ bool SquishPluginPrivate::initializeGlobalScripts()
     return true;
 }
 
-void SquishPlugin::initialize()
+class SquishPlugin final : public ExtensionSystem::IPlugin
 {
-    dd = new SquishPluginPrivate;
-    ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Squish.json")
 
-bool SquishPlugin::delayedInitialize()
-{
-    connect(&settings().squishPath, &BaseAspect::changed,
-            dd, &SquishPluginPrivate::initializeGlobalScripts);
+private:
+    void initialize() final
+    {
+        d.reset(new SquishPluginPrivate);
+        ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
+    }
 
-    return dd->initializeGlobalScripts();
-}
+    bool delayedInitialize() final
+    {
+        connect(&settings().squishPath, &BaseAspect::changed,
+                d.get(), &SquishPluginPrivate::initializeGlobalScripts);
 
-ExtensionSystem::IPlugin::ShutdownFlag SquishPlugin::aboutToShutdown()
-{
-    if (dd->m_squishTools) {
-        if (dd->m_squishTools->shutdown())
+        return d->initializeGlobalScripts();
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        if (d->m_squishTools.shutdown())
             return SynchronousShutdown;
-        connect(dd->m_squishTools, &SquishTools::shutdownFinished,
+        connect(&d->m_squishTools, &SquishTools::shutdownFinished,
                 this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished);
         return AsynchronousShutdown;
     }
-    return SynchronousShutdown;
-}
 
-} // namespace Internal
-} // namespace Squish
+    std::unique_ptr<SquishPluginPrivate> d;
+};
+
+} // Squish::Internal
+
+#include "squishplugin.moc"

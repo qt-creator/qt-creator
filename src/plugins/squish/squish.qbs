@@ -44,7 +44,6 @@ QtcPlugin {
         "squishperspective.cpp",
         "squishperspective.h",
         "squishplugin.cpp",
-        "squishplugin.h",
         "squishplugin_global.h",
         "squishprocessbase.cpp",
         "squishprocessbase.h",
