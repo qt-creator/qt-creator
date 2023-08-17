@@ -9,6 +9,9 @@ PlanarDraggable {
     id: planarHandle
     scale: Qt.vector3d(0.024, 0.024, 0.024)
 
+    property vector3d dragAxes
+    property bool globalOrientation
+
     signal positionCommit()
     signal positionMove()
 
@@ -18,6 +21,9 @@ PlanarDraggable {
                     _targetStartPos.x + sceneRelativeDistance.x,
                     _targetStartPos.y + sceneRelativeDistance.y,
                     _targetStartPos.z + sceneRelativeDistance.z);
+        newScenePos = _generalHelper.adjustTranslationForSnap(newScenePos, _targetStartPos,
+                                                              dragAxes, globalOrientation,
+                                                              targetNode);
         return targetNode.parent ? targetNode.parent.mapPositionFromScene(newScenePos) : newScenePos;
     }
 

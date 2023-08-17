@@ -23,9 +23,10 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class BakeLights;
-class Edit3DWidget;
 class Edit3DAction;
 class Edit3DBakeLightsAction;
+class Edit3DWidget;
+class SnapConfiguration;
 
 class QMLDESIGNERCOMPONENTS_EXPORT Edit3DView : public AbstractView
 {
@@ -62,6 +63,7 @@ public:
     QVector<Edit3DAction *> rightActions() const;
     QVector<Edit3DAction *> visibilityToggleActions() const;
     QVector<Edit3DAction *> backgroundColorActions() const;
+    QVector<Edit3DAction *> snapActions() const;
     Edit3DAction *edit3DAction(View3DActionType type) const;
     Edit3DBakeLightsAction *bakeLightsAction() const;
 
@@ -75,6 +77,8 @@ public:
     void dropAsset(const QString &file, const QPointF &pos);
 
     bool isBakingLightsSupported() const;
+
+    const char *settingKeyForAction(const QByteArray &actionId);
 
 private slots:
     void onEntriesChanged();
@@ -110,6 +114,7 @@ private:
     QVector<Edit3DAction *> m_rightActions;
     QVector<Edit3DAction *> m_visibilityToggleActions;
     QVector<Edit3DAction *> m_backgroundColorActions;
+    QVector<Edit3DAction *> m_snapActions;
 
     QMap<View3DActionType, QSharedPointer<Edit3DAction>> m_edit3DActions;
     Edit3DAction *m_selectionModeAction = nullptr;
@@ -133,6 +138,10 @@ private:
     Edit3DAction *m_particlesRestartAction = nullptr;
     Edit3DAction *m_visibilityTogglesAction = nullptr;
     Edit3DAction *m_backgrondColorMenuAction = nullptr;
+    Edit3DAction *m_snapMenuAction = nullptr;
+    Edit3DAction *m_snapConfigAction = nullptr;
+    Edit3DAction *m_snapPositionAction = nullptr;
+    Edit3DAction *m_snapAbsoluteAction = nullptr;
     Edit3DAction *m_seekerAction = nullptr;
     Edit3DBakeLightsAction *m_bakeLightsAction = nullptr;
     int particlemode;
@@ -145,6 +154,7 @@ private:
     QTimer m_compressionTimer;
     QPointer<BakeLights> m_bakeLights;
     bool m_isBakingLightsSupported = false;
+    QPointer<SnapConfiguration> m_snapConfiguration;
 
     friend class Edit3DAction;
 };

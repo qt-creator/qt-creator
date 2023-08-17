@@ -6,6 +6,7 @@
 
 #include "selectionboxgeometry.h"
 
+#include <QGuiApplication>
 #include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3D/private/qquick3dperspectivecamera_p.h>
@@ -768,6 +769,119 @@ void GeneralHelper::removeRotationBlocks(const QSet<QQuick3DNode *> &nodes)
 bool GeneralHelper::isRotationBlocked(QQuick3DNode *node) const
 {
     return m_rotationBlockedNodes.contains(node);
+}
+
+QVector3D GeneralHelper::adjustTranslationForSnap(const QVector3D &newPos,
+                                                  const QVector3D &startPos,
+                                                  const QVector3D &snapAxes,
+                                                  bool globalOrientation,
+                                                  QQuick3DNode *node)
+{
+    bool snapPos = m_snapPosition;
+    bool snapAbs = m_snapAbsolute;
+    double increment = m_snapPositionInterval;
+
+    if (!node || increment == 0. || snapAxes.isNull() || qFuzzyIsNull((newPos - startPos).length()))
+        return newPos;
+
+    // Need to do a hard query for key mods as puppet is not handling real events
+    Qt::KeyboardModifiers mods = QGuiApplication::queryKeyboardModifiers();
+    const bool shiftMod = mods & Qt::ShiftModifier;
+    const bool ctrlMod = mods & Qt::ControlModifier;
+
+    if ((!ctrlMod && !snapPos) || (ctrlMod && snapPos))
+        return newPos;
+
+    if (shiftMod)
+        increment *= 0.1;
+
+    // The node is aligned if there is only 0/90/180/270 degree sceneRotation on the node
+    // on the drag axis, or the drag plane normal for plane drags
+    QVector3D mappedSnapAxes = snapAxes;
+    bool isAligned = globalOrientation;
+    if (!isAligned) {
+        isAligned = true;
+        int axisCount = 0;
+        QVector3D planeNormal(1.f, 1.f, 1.f);
+        QVector3D checkAxis;
+        for (int i = 0; i < 3; ++i) {
+            if (snapAxes[i] != 0) {
+                ++axisCount;
+                checkAxis[i] = snapAxes[i];
+                planeNormal[i] = 0.f;
+            }
+        }
+
+        // If all 3 axes are snapped, we always use aligned snapping, and we also so not need
+        // snapAxes remapping
+        if (axisCount == 1 || axisCount == 2) {
+            if (axisCount == 2)
+                checkAxis = planeNormal;
+
+            QMatrix4x4 m;
+            m.rotate(node->sceneRotation());
+            QVector3D rotatedAxis = m.mapVector(checkAxis);
+
+            // If the axis vector is still aligned with any global axis after rotate,
+            // we can use the aligned math
+            int ones = 0;
+            int zeros = 0;
+            for (int j = 0; j < 3; ++j) {
+                if (qFuzzyIsNull(rotatedAxis[j])) {
+                    ++zeros;
+                    if (axisCount == 2)
+                        mappedSnapAxes[j] = 1.f;
+                    else
+                        mappedSnapAxes[j] = 0.f;
+                } else if (qFuzzyCompare(qAbs(rotatedAxis[j]), 1.f)) {
+                    ++ones;
+                    if (axisCount == 1)
+                        mappedSnapAxes[j] = 1.f;
+                    else
+                        mappedSnapAxes[j] = 0.f;
+                }
+            }
+            if (ones != 1 || zeros != 2)
+                isAligned = false;
+        }
+    }
+
+    if (isAligned) {
+        // When dragging along the global axes, we can snap to grid
+        auto snapAxis = [&](int axis) -> float {
+            if (mappedSnapAxes[axis] != 0.f) {
+                double c = newPos[axis];
+
+                if (!snapAbs)
+                    c -= startPos[axis];
+
+                const double snapMult = double(int(c / increment));
+                const double comp1 = snapMult * increment;
+                const double comp2 = c < 0 ? comp1 - increment : comp1 + increment;
+                c = qAbs(c - comp1) < qAbs(comp2 - c) ? comp1 : comp2;
+
+                if (!snapAbs)
+                    c += startPos[axis];
+
+                return float(c);
+            } else {
+                return newPos[axis];
+            }
+        };
+        return QVector3D(snapAxis(0), snapAxis(1), snapAxis(2));
+    } else {
+        // When drag is not aligned along global axes, just snap to interval along the drag vector
+        QVector3D dragVector = newPos - startPos;
+        float len = dragVector.length();
+        float comp1 = double(int(len / increment)) * increment;
+        float comp2 = comp1 + increment;
+        float snapLen = len - comp1 > comp2 - len ? comp2 : comp1;
+        dragVector.normalize();
+        dragVector *= snapLen;
+
+        return startPos + dragVector;
+    }
+    return newPos;
 }
 
 void GeneralHelper::handlePendingToolStateUpdate()

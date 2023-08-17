@@ -6,8 +6,9 @@
 #include "designericons.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
+#include "edit3dtoolbarmenu.h"
 #include "edit3dview.h"
-#include "edit3dvisibilitytogglesmenu.h"
+#include "edit3dviewconfig.h"
 #include "materialutils.h"
 #include "metainfo.h"
 #include "modelnodeoperations.h"
@@ -157,13 +158,26 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     handleActions(view->leftActions(), nullptr, true);
     handleActions(view->rightActions(), nullptr, false);
 
-    m_visibilityTogglesMenu = new Edit3DVisibilityTogglesMenu(this);
+    m_visibilityTogglesMenu = new Edit3DToolbarMenu(this);
     handleActions(view->visibilityToggleActions(), m_visibilityTogglesMenu, false);
 
     m_backgroundColorMenu = new QMenu(this);
     m_backgroundColorMenu->setToolTipsVisible(true);
 
     handleActions(view->backgroundColorActions(), m_backgroundColorMenu, false);
+
+    m_snapMenu = new Edit3DToolbarMenu(this);
+    handleActions(view->snapActions(), m_snapMenu, false);
+    connect(m_snapMenu, &QMenu::aboutToHide, this, [view]() {
+        // Persist the checkable settings of the menu
+        const auto actions = view->snapActions();
+        for (auto &action : actions) {
+            if (action->action()->isCheckable()) {
+                Edit3DViewConfig::save(view->settingKeyForAction(action->menuId()),
+                                       action->action()->isChecked());
+            }
+        }
+    });
 
     createContextMenu();
 
@@ -451,6 +465,21 @@ void Edit3DWidget::showVisibilityTogglesMenu(bool show, const QPoint &pos)
         m_visibilityTogglesMenu->popup(pos);
     else
         m_visibilityTogglesMenu->close();
+}
+
+QMenu *Edit3DWidget::snapMenu() const
+{
+    return m_snapMenu.data();
+}
+
+void Edit3DWidget::showSnapMenu(bool show, const QPoint &pos)
+{
+    if (m_snapMenu.isNull())
+        return;
+    if (show)
+        m_snapMenu->popup(pos);
+    else
+        m_snapMenu->close();
 }
 
 QMenu *Edit3DWidget::backgroundColorMenu() const

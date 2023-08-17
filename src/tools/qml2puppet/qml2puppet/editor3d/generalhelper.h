@@ -101,6 +101,15 @@ public:
     void removeRotationBlocks(const QSet<QQuick3DNode *> &nodes);
     Q_INVOKABLE bool isRotationBlocked(QQuick3DNode *node) const;
 
+    Q_INVOKABLE QVector3D adjustTranslationForSnap(const QVector3D &newPos,
+                                                   const QVector3D &startPos,
+                                                   const QVector3D &snapAxes,
+                                                   bool globalOrientation,
+                                                   QQuick3DNode *node);
+    void setSnapPosition(bool enable) { m_snapPosition = enable; }
+    void setSnapAbsolute(bool enable) { m_snapAbsolute = enable; }
+    void setSnapPositionInterval(double interval) { m_snapPositionInterval = interval; }
+
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
@@ -134,6 +143,10 @@ private:
     QQuick3DNode *m_multiSelectRootNode = nullptr;
     QList<QMetaObject::Connection> m_multiSelectConnections;
     bool m_blockMultiSelectionNodePositioning = false;
+
+    bool m_snapAbsolute = true;
+    bool m_snapPosition = false;
+    double m_snapPositionInterval = 10.;
 };
 
 }

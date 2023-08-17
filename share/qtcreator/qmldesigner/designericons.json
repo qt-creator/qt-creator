@@ -258,6 +258,9 @@
         "ScaleToolIcon": {
             "iconName": "scale_medium"
         },
+        "SnappingIcon": {
+            "iconName": "snapping_small"
+        },
         "ToggleGroupIcon": {
             "Off": {
                 "iconName": "selectOutline_medium"

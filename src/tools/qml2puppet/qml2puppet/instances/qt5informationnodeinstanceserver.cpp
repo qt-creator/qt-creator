@@ -368,6 +368,23 @@ void Qt5InformationNodeInstanceServer::updateRotationBlocks(
 #endif
 }
 
+void Qt5InformationNodeInstanceServer::updateSnapSettings(const QVector<PropertyValueContainer> &valueChanges)
+{
+#ifdef QUICK3D_MODULE
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    if (helper) {
+        for (const auto &container : valueChanges) {
+            if (container.name() == "snapPos3d")
+                helper->setSnapPosition(container.value().toBool());
+            else if (container.name() == "snapAbs3d")
+                helper->setSnapAbsolute(container.value().toBool());
+            else if (container.name() == "snapPosInt3d")
+                helper->setSnapPositionInterval(container.value().toDouble());
+        }
+    }
+#endif
+}
+
 void Qt5InformationNodeInstanceServer::removeRotationBlocks(
     [[maybe_unused]] const QVector<qint32> &instanceIds)
 {
@@ -2113,6 +2130,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
         setup3DEditView(instanceList, command);
         updateRotationBlocks(command.auxiliaryChanges);
         updateMaterialPreviewData(command.auxiliaryChanges);
+        updateSnapSettings(command.auxiliaryChanges);
     }
 
     QObject::connect(&m_renderModelNodeImageViewTimer, &QTimer::timeout,
@@ -2553,6 +2571,7 @@ void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxilia
 {
     updateRotationBlocks(command.auxiliaryChanges);
     updateMaterialPreviewData(command.auxiliaryChanges);
+    updateSnapSettings(command.auxiliaryChanges);
     Qt5NodeInstanceServer::changeAuxiliaryValues(command);
     render3DEditView();
 }

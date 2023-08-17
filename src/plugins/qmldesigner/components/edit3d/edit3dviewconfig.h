@@ -28,6 +28,16 @@ public:
         });
     }
 
+    static QVariant load(const QByteArray &key, const QVariant &defaultValue = {})
+    {
+        return QmlDesignerPlugin::settings().value(key, defaultValue);
+    }
+
+    static void save(const QByteArray &key, const QVariant &value)
+    {
+        QmlDesignerPlugin::settings().insert(key, value);
+    }
+
     static void setColors(AbstractView *view, View3DActionType type, const QList<QColor> &colorConfig)
     {
         setVariant(view, type, QVariant::fromValue(colorConfig));
@@ -45,21 +55,17 @@ public:
             return color.name();
         });
 
-        saveVariant(key, QVariant::fromValue(colorNames));
+        save(key, QVariant::fromValue(colorNames));
     }
 
     static bool colorsValid(const QList<QColor> &colorConfig) { return !colorConfig.isEmpty(); }
 
 private:
-    static void setVariant(AbstractView *view, View3DActionType type, const QVariant &colorConfig)
+    static void setVariant(AbstractView *view, View3DActionType type, const QVariant &value)
     {
-        view->emitView3DAction(type, colorConfig);
+        view->emitView3DAction(type, value);
     }
 
-    static void saveVariant(const QByteArray &key, const QVariant &colorConfig)
-    {
-        QmlDesignerPlugin::settings().insert(key, colorConfig);
-    }
 };
 
 } // namespace QmlDesigner
