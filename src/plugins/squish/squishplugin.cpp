@@ -83,8 +83,8 @@ bool SquishPluginPrivate::initializeGlobalScripts()
 {
     SquishFileHandler::instance()->setSharedFolders({});
 
-    const FilePath squishserver = settings().squishPath().pathAppended(
-                HostOsInfo::withExecutableSuffix("bin/squishserver"));
+    const FilePath squishserver = settings().squishPath().pathAppended("bin/squishserver")
+            .withExecutableSuffix();
     if (!squishserver.isExecutableFile())
         return false;
 
