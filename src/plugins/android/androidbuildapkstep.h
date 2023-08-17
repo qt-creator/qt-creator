@@ -37,8 +37,7 @@ public:
     bool signPackage() const;
     void setSignPackage(bool b);
 
-    bool buildAAB() const;
-    void setBuildAAB(bool aab);
+    Utils::BoolAspect buildAAB{this};
 
     bool openPackageLocation() const;
     void setOpenPackageLocation(bool open);
@@ -72,7 +71,6 @@ private:
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
     void updateBuildToolsVersionInJsonFile();
 
-    bool m_buildAAB = false;
     bool m_signPackage = false;
     bool m_verbose = false;
     bool m_openPackageLocation = false;
