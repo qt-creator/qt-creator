@@ -3,6 +3,8 @@
 
 #include "compositionnode.h"
 
+#include "uniform.h"
+
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -53,29 +55,46 @@ void CompositionNode::parse(const QString &qenPath)
 
     QJsonObject json = jsonDoc.object().value("QEN").toObject();
 
-    m_name = json.value("name").toString();
+    int version = -1;
+    if (json.contains("version"))
+        version = json["version"].toInt(-1);
+    if (version != 1) {
+        QString error = QString("Error: Unknown effect version (%1)").arg(version);
+        qWarning() << qPrintable(error);
+        return;
+    }
+
+    m_name = json.value("name").toString(); //TODO: there is a difference between name and type
+    m_description = json.value("description").toString();
+    m_fragmentCode = codeFromJsonArray(json.value("fragmentCode").toArray());
+    m_vertexCode = codeFromJsonArray(json.value("vertexCode").toArray());
 
     // parse properties
     QJsonArray properties = json.value("properties").toArray();
     for (const auto /*QJsonValueRef*/ &prop : properties) {
         QJsonObject propObj = prop.toObject();
+        Uniform *u = new Uniform(propObj);
+        Q_UNUSED(u)
+
+        // TODO
         propObj.value("name");
         propObj.value("type");
         propObj.value("defaultValue");
         propObj.value("description");
-        // TODO
     }
+}
 
-    // parse shaders
-    QJsonArray vertexCode = json.value("vertexCode").toArray();
-    if (!vertexCode.isEmpty()) {
-        // TODO
-    }
+QString CompositionNode::codeFromJsonArray(const QJsonArray &codeArray)
+{
+    if (codeArray.isEmpty())
+        return {};
 
-    QJsonArray fragmentCode = json.value("fragmentCode").toArray();
-    if (!fragmentCode.isEmpty()) {
-        // TODO
-    }
+    QString codeString;
+    for (const auto &element : codeArray)
+        codeString += element.toString() + '\n';
+
+    codeString.chop(1); // Remove last '\n'
+    return codeString;
 }
 
 } // namespace QmlDesigner
