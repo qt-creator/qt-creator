@@ -24,11 +24,6 @@ EffectNode::EffectNode(const QString &qenPath)
     m_iconPath = QUrl::fromLocalFile(iconPath);
 }
 
-QString EffectNode::qenPath() const
-{
-    return m_qenPath;
-}
-
 QString EffectNode::name() const
 {
     return m_name;
@@ -37,6 +32,11 @@ QString EffectNode::name() const
 QString EffectNode::description() const
 {
     return m_description;
+}
+
+QString EffectNode::qenPath() const
+{
+    return m_qenPath;
 }
 
 } // namespace QmlDesigner

@@ -18,6 +18,8 @@ Rectangle {
     color: mouseArea.containsMouse ? StudioTheme.Values.themeControlBackgroundInteraction
                                    : "transparent"
 
+    signal addEffectNode(var nodeQenPath)
+
     MouseArea {
         id: mouseArea
 
@@ -26,7 +28,7 @@ Rectangle {
         acceptedButtons: Qt.LeftButton
 
         onClicked: {
-            EffectMakerBackend.rootView.addEffectNode(modelData.nodeName)
+            root.addEffectNode(modelData.nodeQenPath)
         }
     }
 

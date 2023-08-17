@@ -97,7 +97,12 @@ StudioControls.ComboBox {
                             Repeater {
                                 model: categoryNodes
 
-                                EffectNode {}
+                                EffectNode {
+                                    onAddEffectNode: (nodeQenPath) => {
+                                        EffectMakerBackend.rootView.addEffectNode(modelData.nodeQenPath)
+                                        root.popup.close()
+                                    }
+                                }
                             }
                         }
                     }

@@ -3,20 +3,16 @@
 
 #pragma once
 
+#include <QMap>
 #include <QStandardItemModel>
 
-#include "effectnodescategory.h"
-
 namespace QmlDesigner {
+
+class CompositionNode;
 
 class EffectMakerModel : public QAbstractListModel
 {
     Q_OBJECT
-
-    enum Roles {
-        CategoryRole = Qt::UserRole + 1,
-        EffectsRole
-    };
 
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
@@ -32,7 +28,7 @@ public:
 
     void resetModel();
 
-    QList<EffectNodesCategory *> categories() { return  m_categories; }
+    void addNode(const QString &nodeQenPath);
 
     Q_INVOKABLE void selectEffect(int idx, bool force = false);
     Q_INVOKABLE void applyToSelected(qint64 internalId, bool add = false);
@@ -43,13 +39,17 @@ signals:
     void hasModelSelectionChanged();
 
 private:
+    enum Roles {
+        NameRole = Qt::UserRole + 1,
+//        TODO
+    };
+
     bool isValidIndex(int idx) const;
 
-    QList<EffectNodesCategory *> m_categories;
+    QMap<int, CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
     bool m_isEmpty = true;
-    bool m_hasModelSelection = false;
 };
 
 } // namespace QmlDesigner

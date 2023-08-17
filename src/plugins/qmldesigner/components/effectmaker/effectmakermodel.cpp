@@ -3,6 +3,8 @@
 
 #include "effectmakermodel.h"
 
+#include "compositionnode.h"
+
 namespace QmlDesigner {
 
 EffectMakerModel::EffectMakerModel(QObject *parent)
@@ -13,8 +15,7 @@ EffectMakerModel::EffectMakerModel(QObject *parent)
 QHash<int, QByteArray> EffectMakerModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
-    roles[CategoryRole] = "categoryName";
-    roles[EffectsRole] = "effectNames";
+    roles[NameRole] = "nodeName";
     return roles;
 }
 
@@ -22,12 +23,12 @@ int EffectMakerModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
 
-    return m_categories.count();
+    return m_nodes.count();
 }
 
 QVariant EffectMakerModel::data(const QModelIndex &index, int /*role*/) const
 {
-    if (index.row() < 0 || index.row() >= m_categories.count())
+    if (index.row() < 0 || index.row() >= m_nodes.count())
         return {};
 
     // TODO
@@ -39,6 +40,15 @@ void EffectMakerModel::resetModel()
 {
     beginResetModel();
     endResetModel();
+}
+
+void EffectMakerModel::addNode(const QString &nodeQenPath)
+{
+    static int id = 0;
+
+    auto *node = new CompositionNode(nodeQenPath);
+    m_nodes.insert(id++, node);
+//    TODO: update model
 }
 
 void EffectMakerModel::selectEffect(int idx, bool force)

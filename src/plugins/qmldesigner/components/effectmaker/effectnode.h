@@ -13,19 +13,21 @@ class EffectNode : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
+    Q_PROPERTY(QString nodeDescription MEMBER m_description CONSTANT)
     Q_PROPERTY(QUrl nodeIcon MEMBER m_iconPath CONSTANT)
+    Q_PROPERTY(QString nodeQenPath MEMBER m_qenPath CONSTANT)
 
 public:
     EffectNode(const QString &qenPath);
 
-    QString qenPath() const;
     QString name() const;
     QString description() const;
+    QString qenPath() const;
 
 private:
-    QString m_qenPath;
     QString m_name;
     QString m_description;
+    QString m_qenPath;
     QUrl m_iconPath;
 };
 
