@@ -3,7 +3,7 @@
 
 #include "locatorfilter.h"
 
-#include "clientrequesttask.h"
+#include "clientrequest.h"
 #include "currentdocumentsymbolsrequest.h"
 #include "languageclientmanager.h"
 #include "languageclienttr.h"

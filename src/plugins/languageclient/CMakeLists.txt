@@ -10,7 +10,7 @@ add_qtc_plugin(LanguageClient
   SOURCES
     callhierarchy.cpp callhierarchy.h
     client.cpp client.h
-    clientrequesttask.cpp clientrequesttask.h
+    clientrequest.cpp clientrequest.h
     currentdocumentsymbolsrequest.cpp currentdocumentsymbolsrequest.h
     diagnosticmanager.cpp diagnosticmanager.h
     documentsymbolcache.cpp documentsymbolcache.h
