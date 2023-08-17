@@ -20,6 +20,7 @@ Project {
         "classview/classview.qbs",
         "clearcase/clearcase.qbs",
         "cmakeprojectmanager/cmakeprojectmanager.qbs",
+        "compilerexplorer/compilerexplorer.qbs",
         "mesonprojectmanager/mesonprojectmanager.qbs",
         "coco/coco.qbs",
         "compilationdatabaseprojectmanager/compilationdatabaseprojectmanager.qbs",

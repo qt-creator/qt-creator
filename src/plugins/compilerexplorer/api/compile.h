@@ -4,8 +4,9 @@
 #pragma once
 
 #include "compiler.h"
-#include "compilerexploreraspects.h"
 #include "config.h"
+
+#include "../compilerexploreraspects.h"
 
 #include <QList>
 #include <QString>
