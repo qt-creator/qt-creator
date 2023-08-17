@@ -5,8 +5,7 @@
 
 #include <projectexplorer/kitaspects.h>
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 class McuDependenciesKitAspect final
 {
@@ -17,18 +16,4 @@ public:
     static Utils::NameValuePairs configuration(const ProjectExplorer::Kit *kit);
 };
 
-class McuDependenciesKitAspectFactory final : public ProjectExplorer::KitAspectFactory
-{
-public:
-    McuDependenciesKitAspectFactory();
-
-    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *kit) const override;
-    void fix(ProjectExplorer::Kit *kit) override;
-
-    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *kit) const override;
-
-    ItemList toUserOutput(const ProjectExplorer::Kit *kit) const override;
-};
-
-} // namespace Internal
-} // namespace McuSupport
+} // McuSupport::Internal

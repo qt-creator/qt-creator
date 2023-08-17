@@ -4,7 +4,6 @@
 #include "mcusupportplugin.h"
 
 #include "mcubuildstep.h"
-#include "mcukitinformation.h"
 #include "mcukitmanager.h"
 #include "mcuqmlprojectnode.h"
 #include "mcusupportconstants.h"
@@ -102,7 +101,6 @@ public:
     SettingsHandler::Ptr m_settingsHandler{new SettingsHandler};
     McuSupportOptions m_options{m_settingsHandler};
     McuSupportOptionsPage optionsPage{m_options, m_settingsHandler};
-    McuDependenciesKitAspectFactory mcuDependenciesKitAspectFactory;
     MCUBuildStepFactory mcuBuildStepFactory;
 }; // class McuSupportPluginPrivate
 
