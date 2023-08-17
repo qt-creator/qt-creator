@@ -690,6 +690,15 @@ public:
 
     DeviceCheckBuildStepFactory deviceCheckBuildStepFactory;
     SanitizerOutputFormatterFactory sanitizerFormatterFactory;
+
+    // JsonWizard related
+    FieldPageFactory fieldPageFactory;
+    FilePageFactory filePageFactory;
+    KitsPageFactory kitsPageFactory;
+    ProjectPageFactory projectPageFactory;
+    SummaryPageFactory summaryPageFactory;
+    FileGeneratorFactory fileGeneratorFactory;
+    ScannerGeneratorFactory scannerGeneratorFactory;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -756,7 +765,6 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     QTC_ASSERT(dd, return);
 
     delete dd->m_proWindow; // Needs access to the kit manager.
-    JsonWizardFactory::destroyAllFactories();
 
     // Force sequence of deletion:
     KitManager::destroy(); // remove all the profile information
@@ -842,15 +850,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         TextEditor::FindInFiles::instance()->setBaseDirectory(project ? project->projectDirectory()
                                                                       : FilePath());
     });
-
-    // For JsonWizard:
-    JsonWizardFactory::registerPageFactory(new FieldPageFactory);
-    JsonWizardFactory::registerPageFactory(new FilePageFactory);
-    JsonWizardFactory::registerPageFactory(new KitsPageFactory);
-    JsonWizardFactory::registerPageFactory(new ProjectPageFactory);
-    JsonWizardFactory::registerPageFactory(new SummaryPageFactory);
-    JsonWizardFactory::registerGeneratorFactory(new FileGeneratorFactory);
-    JsonWizardFactory::registerGeneratorFactory(new ScannerGeneratorFactory);
 
     dd->m_proWindow = new ProjectWindow;
 

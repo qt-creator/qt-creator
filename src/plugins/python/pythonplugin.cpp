@@ -37,6 +37,7 @@ public:
     PySideBuildConfigurationFactory buildConfigFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     PythonSettings settings;
+    PythonWizardPageFactory pythonWizardPageFactory;
 };
 
 PythonPlugin::PythonPlugin()
@@ -61,7 +62,6 @@ void PythonPlugin::initialize()
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
     ProjectManager::registerProjectType<PythonProject>(PythonMimeTypeLegacy);
-    JsonWizardFactory::registerPageFactory(new PythonWizardPageFactory);
 }
 
 void PythonPlugin::extensionsInitialized()

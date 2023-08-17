@@ -52,6 +52,7 @@ public:
     FormEditorFactory formEditorFactory;
     SettingsPageProvider settingsPageProvider;
     QtDesignerFormClassCodeGenerator formClassCodeGenerator;
+    FormPageFactory formPageFactory;
 };
 
 FormEditorPlugin::~FormEditorPlugin()
@@ -98,8 +99,6 @@ bool FormEditorPlugin::initialize([[maybe_unused]] const QStringList &arguments,
         return wizard;
     });
 #endif
-
-    ProjectExplorer::JsonWizardFactory::registerPageFactory(new Internal::FormPageFactory);
 
     // Ensure that loading designer translations is done before FormEditorW is instantiated
     const QString locale = ICore::userInterfaceLanguage();

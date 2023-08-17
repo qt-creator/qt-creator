@@ -47,6 +47,9 @@ class PROJECTEXPLORER_EXPORT JsonWizardGeneratorFactory : public QObject
     Q_OBJECT
 
 public:
+    JsonWizardGeneratorFactory();
+    ~JsonWizardGeneratorFactory() override;
+
     bool canCreate(Utils::Id typeId) const { return m_typeIds.contains(typeId); }
     QList<Utils::Id> supportedIds() const { return m_typeIds; }
 

@@ -48,6 +48,11 @@ public:
     ObjectsMapEditorFactory m_objectsMapEditorFactory;
     SquishOutputPane *m_outputPane = nullptr;
     SquishTools * m_squishTools = nullptr;
+
+    SquishToolkitsPageFactory m_squishToolkitsPageFactory;
+    SquishScriptLanguagePageFactory m_squishScriptLanguagePageFactory;
+    SquishAUTPageFactory m_squishAUTPageFactory;
+    SquishGeneratorFactory m_squishGeneratorFactory;
 };
 
 static SquishPluginPrivate *dd = nullptr;
@@ -59,11 +64,6 @@ SquishPluginPrivate::SquishPluginPrivate()
     m_outputPane = SquishOutputPane::instance();
     m_squishTools = new SquishTools;
     initializeMenuEntries();
-
-    ProjectExplorer::JsonWizardFactory::registerPageFactory(new SquishToolkitsPageFactory);
-    ProjectExplorer::JsonWizardFactory::registerPageFactory(new SquishScriptLanguagePageFactory);
-    ProjectExplorer::JsonWizardFactory::registerPageFactory(new SquishAUTPageFactory);
-    ProjectExplorer::JsonWizardFactory::registerGeneratorFactory(new SquishGeneratorFactory);
 }
 
 SquishPluginPrivate::~SquishPluginPrivate()

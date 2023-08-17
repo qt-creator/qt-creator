@@ -18,6 +18,7 @@ class JsonWizard;
 class PROJECTEXPLORER_EXPORT JsonWizardPageFactory
 {
 public:
+    JsonWizardPageFactory();
     virtual ~JsonWizardPageFactory();
 
     bool canCreate(Utils::Id typeId) const { return m_typeIds.contains(typeId); }

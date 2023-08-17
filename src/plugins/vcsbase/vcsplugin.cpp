@@ -72,6 +72,9 @@ public:
 
     VcsPlugin *q;
     QStandardItemModel *m_nickNameModel = nullptr;
+
+    VcsConfigurationPageFactory m_vcsConfigurationPageFactory;
+    VcsCommandPageFactory m_vcsCommandPageFactory;
 };
 
 static VcsPlugin *m_instance = nullptr;
@@ -99,9 +102,6 @@ void VcsPlugin::initialize()
             emit submitEditorAboutToClose(se, &result);
         return result;
     });
-
-    JsonWizardFactory::registerPageFactory(new Internal::VcsConfigurationPageFactory);
-    JsonWizardFactory::registerPageFactory(new Internal::VcsCommandPageFactory);
 
     JsExpander::registerGlobalObject<VcsJsExtension>("Vcs");
 

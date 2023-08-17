@@ -67,6 +67,8 @@ public:
 
     DesignerExternalEditor designerEditor;
     LinguistEditor linguistEditor;
+
+    TranslationWizardPageFactory translationWizardPageFactory;
 };
 
 QtSupportPlugin::~QtSupportPlugin()
@@ -131,7 +133,6 @@ void QtSupportPlugin::initialize()
     new ProFileCacheManager(this);
 
     JsExpander::registerGlobalObject<CodeGenerator>("QtSupport");
-    ProjectExplorer::JsonWizardFactory::registerPageFactory(new TranslationWizardPageFactory);
 
     BuildPropertiesSettings::showQtSettings();
 

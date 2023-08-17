@@ -15,9 +15,6 @@
 
 namespace ProjectExplorer {
 
-class JsonWizardFactory;
-class JsonWizardPageFactory;
-class JsonWizardGeneratorFactory;
 class ProjectExplorerPlugin;
 class ProjectExplorerPluginPrivate;
 
@@ -52,9 +49,6 @@ public:
         QVariant data;
     };
 
-    static void registerPageFactory(JsonWizardPageFactory *factory);
-    static void registerGeneratorFactory(JsonWizardGeneratorFactory *factory);
-
     static QList<QVariant> objectOrList(const QVariant &data, QString *errorMessage);
 
     static QString localizedString(const QVariant &value);
@@ -78,7 +72,6 @@ private:
     static void setVerbose(int level);
     static int verbose();
 
-    static void destroyAllFactories();
     bool initialize(const QVariantMap &data, const Utils::FilePath &baseDir, QString *errorMessage);
 
     JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMessage);
