@@ -70,6 +70,6 @@ public:
     void start() final { task()->start(); }
 };
 
-} // namespace Valgrind
+using ValgrindProcessTask = Tasking::CustomTask<ValgrindProcessTaskAdapter>;
 
-TASKING_DECLARE_TASK(ValgrindProcessTask, Valgrind::ValgrindProcessTaskAdapter);
+} // namespace Valgrind

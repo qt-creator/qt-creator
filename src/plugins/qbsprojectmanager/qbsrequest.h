@@ -49,6 +49,6 @@ private:
     void start() final { task()->start(); }
 };
 
-} // namespace QbsProjectManager::Internal
+using QbsRequestTask = Tasking::CustomTask<QbsRequestTaskAdapter>;
 
-TASKING_DECLARE_TASK(QbsRequestTask, QbsProjectManager::Internal::QbsRequestTaskAdapter);
+} // namespace QbsProjectManager::Internal

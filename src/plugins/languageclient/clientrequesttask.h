@@ -75,6 +75,6 @@ public:
     void start() final;
 };
 
-} // namespace LanguageClient
+using SymbolRequest = Tasking::CustomTask<WorkspaceSymbolRequestTaskAdapter>;
 
-TASKING_DECLARE_TASK(SymbolRequest, LanguageClient::WorkspaceSymbolRequestTaskAdapter);
+} // namespace LanguageClient

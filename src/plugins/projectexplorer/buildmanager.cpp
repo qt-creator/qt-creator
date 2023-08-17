@@ -78,11 +78,7 @@ private:
     }
 };
 
-} // ProjectExplorer
-
-TASKING_DECLARE_TASK(ParserAwaiterTask, ProjectExplorer::ParserAwaiterTaskAdapter);
-
-namespace ProjectExplorer {
+using ParserAwaiterTask = CustomTask<ParserAwaiterTaskAdapter>;
 
 static QString msgProgress(int progress, int total)
 {

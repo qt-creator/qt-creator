@@ -460,16 +460,7 @@ private:
     std::optional<int> m_timerId;
 };
 
+using TaskTreeTask = CustomTask<TaskTreeTaskAdapter>;
+using TimeoutTask = CustomTask<TimeoutTaskAdapter>;
+
 } // namespace Tasking
-
-#define TASKING_DECLARE_TASK(CustomTaskName, TaskAdapterClass)\
-namespace Tasking { using CustomTaskName = CustomTask<TaskAdapterClass>; }
-
-#define TASKING_DECLARE_TEMPLATE_TASK(CustomTaskName, TaskAdapterClass)\
-namespace Tasking {\
-template <typename ...Args>\
-using CustomTaskName = CustomTask<TaskAdapterClass<Args...>>;\
-} // namespace Tasking
-
-TASKING_DECLARE_TASK(TaskTreeTask, TaskTreeTaskAdapter);
-TASKING_DECLARE_TASK(TimeoutTask, TimeoutTaskAdapter);

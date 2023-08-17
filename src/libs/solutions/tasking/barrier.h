@@ -41,11 +41,7 @@ public:
     void start() final { task()->start(); }
 };
 
-} // namespace Tasking
-
-TASKING_DECLARE_TASK(BarrierTask, Tasking::BarrierTaskAdapter);
-
-namespace Tasking {
+using BarrierTask = CustomTask<BarrierTaskAdapter>;
 
 template <int Limit = 1>
 class SharedBarrier

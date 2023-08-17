@@ -118,8 +118,6 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
     emit checkForUpdatesRunningChanged(true);
 
-    using namespace Tasking;
-
     const auto doSetup = [this](Process &process, const QStringList &args) {
         process.setCommand({d->m_maintenanceTool, args});
         process.setLowPriority();

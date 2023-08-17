@@ -52,6 +52,6 @@ public:
     void start() final;
 };
 
-} // namespace Utils
+using UnarchiverTask = Tasking::CustomTask<UnarchiverTaskAdapter>;
 
-TASKING_DECLARE_TASK(UnarchiverTask, Utils::UnarchiverTaskAdapter);
+} // namespace Utils

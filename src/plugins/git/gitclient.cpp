@@ -236,8 +236,6 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
                                                  const QStringList &extraArgs)
     : GitBaseDiffEditorController(document)
 {
-    using namespace Tasking;
-
     const TreeStorage<QString> diffInputStorage;
 
     const auto setupDiff = [=](Process &process) {
@@ -296,8 +294,6 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
                                                const QStringList &unstagedFiles)
         : GitBaseDiffEditorController(document)
 {
-    using namespace Tasking;
-
     struct DiffStorage {
         QString m_stagedOutput;
         QString m_unstagedOutput;
@@ -363,7 +359,6 @@ ShowController::ShowController(IDocument *document, const QString &id)
 {
     setDisplayName("Git Show");
     static const QString busyMessage = Tr::tr("<resolving>");
-    using namespace Tasking;
 
     struct ReloadStorage {
         bool m_postProcessDescription = false;

@@ -44,6 +44,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
@@ -59,7 +60,7 @@ const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMakeProjectManager.MakeStep.ClearS
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMakeProjectManager.MakeStep.UserEnvironmentChanges";
 const char BUILD_PRESET_KEY[] = "CMakeProjectManager.MakeStep.BuildPreset";
 
-class ProjectParserTaskAdapter : public Tasking::TaskAdapter<QPointer<Target>>
+class ProjectParserTaskAdapter : public TaskAdapter<QPointer<Target>>
 {
 public:
     void start() final {
@@ -72,11 +73,7 @@ public:
     }
 };
 
-} // namespace CMakeProjectManager::Internal
-
-TASKING_DECLARE_TASK(ProjectParserTask, CMakeProjectManager::Internal::ProjectParserTaskAdapter);
-
-namespace CMakeProjectManager::Internal {
+using ProjectParserTask = CustomTask<ProjectParserTaskAdapter>;
 
 class CmakeProgressParser : public Utils::OutputLineParser
 {
@@ -345,10 +342,8 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     CMakeAbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-Tasking::GroupItem CMakeBuildStep::runRecipe()
+GroupItem CMakeBuildStep::runRecipe()
 {
-    using namespace Tasking;
-
     const auto onParserSetup = [this](QPointer<Target> &parseTarget) {
         // Make sure CMake state was written to disk before trying to build:
         auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());

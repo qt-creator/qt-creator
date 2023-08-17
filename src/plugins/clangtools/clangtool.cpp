@@ -63,13 +63,14 @@ using namespace Core;
 using namespace CppEditor;
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
 
 namespace ClangTools::Internal {
 
-class ProjectBuilderTaskAdapter : public Tasking::TaskAdapter<QPointer<Target>>
+class ProjectBuilderTaskAdapter : public TaskAdapter<QPointer<Target>>
 {
 public:
     void start() final {
@@ -82,11 +83,7 @@ public:
     }
 };
 
-} // namespace ClangTools::Internal
-
-TASKING_DECLARE_TASK(ProjectBuilderTask, ClangTools::Internal::ProjectBuilderTaskAdapter);
-
-namespace ClangTools::Internal {
+using ProjectBuilderTask = CustomTask<ProjectBuilderTaskAdapter>;
 
 static QDebug operator<<(QDebug debug, const Environment &environment)
 {
@@ -640,13 +637,12 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
            == QMessageBox::Yes;
 }
 
-Tasking::Group ClangTool::runRecipe(const RunSettings &runSettings,
-                                    const ClangDiagnosticConfig &diagnosticConfig,
-                                    const FileInfos &fileInfos, bool buildBeforeAnalysis)
+Group ClangTool::runRecipe(const RunSettings &runSettings,
+                           const ClangDiagnosticConfig &diagnosticConfig,
+                           const FileInfos &fileInfos,
+                           bool buildBeforeAnalysis)
 {
     m_filesCount = int(fileInfos.size());
-
-    using namespace Tasking;
 
     struct ClangStorage {
         ClangStorage() { m_timer.start(); }

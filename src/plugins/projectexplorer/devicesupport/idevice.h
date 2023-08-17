@@ -282,6 +282,6 @@ public:
     void start() final;
 };
 
-} // namespace ProjectExplorer
+using DeviceProcessKillerTask = Tasking::CustomTask<DeviceProcessKillerTaskAdapter>;
 
-TASKING_DECLARE_TASK(DeviceProcessKillerTask, ProjectExplorer::DeviceProcessKillerTaskAdapter);
+} // namespace ProjectExplorer

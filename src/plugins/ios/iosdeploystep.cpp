@@ -97,11 +97,7 @@ private:
     void start() final { task()->start(); }
 };
 
-} // Ios::Internal
-
-TASKING_DECLARE_TASK(IosTransferTask, Ios::Internal::IosTransferTaskAdapter);
-
-namespace Ios::Internal {
+using IosTransferTask = CustomTask<IosTransferTaskAdapter>;
 
 class IosDeployStep final : public BuildStep
 {

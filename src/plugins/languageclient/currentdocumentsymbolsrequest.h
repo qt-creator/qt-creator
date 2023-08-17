@@ -47,7 +47,7 @@ public:
     void start() final;
 };
 
-} // namespace LanguageClient
+using CurrentDocumentSymbolsRequestTask
+    = Tasking::CustomTask<CurrentDocumentSymbolsRequestTaskAdapter>;
 
-TASKING_DECLARE_TASK(CurrentDocumentSymbolsRequestTask,
-                        LanguageClient::CurrentDocumentSymbolsRequestTaskAdapter);
+} // namespace LanguageClient

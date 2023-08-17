@@ -565,7 +565,7 @@ Tasking::GroupItem AndroidDeployQtStep::runRecipe()
         async.setConcurrentCallData(&AndroidDeployQtStep::runImpl, this);
         async.setFutureSynchronizer(&m_synchronizer);
     };
-    return Tasking::AsyncTask<void>(onSetup);
+    return AsyncTask<void>(onSetup);
 }
 
 void AndroidDeployQtStep::runCommand(const CommandLine &command)

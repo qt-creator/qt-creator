@@ -222,8 +222,8 @@ public:
     void start() final;
 };
 
-} // namespace Utils
+using ProcessTask = Tasking::CustomTask<ProcessTaskAdapter>;
 
-TASKING_DECLARE_TASK(ProcessTask, Utils::ProcessTaskAdapter);
+} // namespace Utils
 
 #endif // UTILS_PROCESS_H

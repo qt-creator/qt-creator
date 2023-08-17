@@ -194,7 +194,7 @@ public:
     void start() final { task()->start(); }
 };
 
-TASKING_DECLARE_TASK(TickAndDoneTask, TickAndDoneTaskAdapter);
+using TickAndDoneTask = CustomTask<TickAndDoneTaskAdapter>;
 
 template <typename SharedBarrierType>
 GroupItem createBarrierAdvance(const TreeStorage<CustomStorage> &storage,

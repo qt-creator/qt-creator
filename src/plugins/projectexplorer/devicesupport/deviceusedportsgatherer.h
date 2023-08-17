@@ -87,7 +87,6 @@ private:
     QVector<Internal::SubChannelProvider *> m_channelProviders;
 };
 
-} // namespace ProjectExplorer
+using DeviceUsedPortsGathererTask = Tasking::CustomTask<DeviceUsedPortsGathererTaskAdapter>;
 
-TASKING_DECLARE_TASK(DeviceUsedPortsGathererTask,
-                     ProjectExplorer::DeviceUsedPortsGathererTaskAdapter);
+} // namespace ProjectExplorer

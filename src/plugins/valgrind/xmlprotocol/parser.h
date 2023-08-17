@@ -58,6 +58,6 @@ public:
     void start() final { task()->start(); }
 };
 
-} // Valgrind::XmlProtocol
+using ParserTask = Tasking::CustomTask<ParserTaskAdapter>;
 
-TASKING_DECLARE_TASK(ParserTask, Valgrind::XmlProtocol::ParserTaskAdapter);
+} // Valgrind::XmlProtocol

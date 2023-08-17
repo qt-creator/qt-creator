@@ -304,12 +304,8 @@ public:
     void start() override { task()->start(); }
 };
 
-} // namespace Utils
-
-TASKING_DECLARE_TASK(FileStreamReaderTask, Utils::FileStreamReaderAdapter);
-TASKING_DECLARE_TASK(FileStreamWriterTask, Utils::FileStreamWriterAdapter);
-
-namespace Utils {
+using FileStreamReaderTask = CustomTask<FileStreamReaderAdapter>;
+using FileStreamWriterTask = CustomTask<FileStreamWriterAdapter>;
 
 static Group sameRemoteDeviceTransferTask(const FilePath &source, const FilePath &destination)
 {

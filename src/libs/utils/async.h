@@ -210,6 +210,7 @@ public:
     void start() final { this->task()->start(); }
 };
 
-} // namespace Utils
+template <typename T>
+using AsyncTask = Tasking::CustomTask<AsyncTaskAdapter<T>>;
 
-TASKING_DECLARE_TEMPLATE_TASK(AsyncTask, Utils::AsyncTaskAdapter);
+} // namespace Utils
