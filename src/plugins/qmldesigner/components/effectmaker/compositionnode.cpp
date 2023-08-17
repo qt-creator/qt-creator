@@ -4,9 +4,9 @@
 #include "compositionnode.h"
 
 #include <QFileInfo>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 
 namespace QmlDesigner {
 
@@ -33,14 +33,14 @@ QString CompositionNode::description() const
 void CompositionNode::parse(const QString &qenPath)
 {
 
-    QFile loadFile(qenPath);
+    QFile qenFile(qenPath);
 
-    if (!loadFile.open(QIODevice::ReadOnly)) {
+    if (!qenFile.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open effect file.");
         return;
     }
 
-    QByteArray loadData = loadFile.readAll();
+    QByteArray loadData = qenFile.readAll();
     QJsonParseError parseError;
     QJsonDocument jsonDoc(QJsonDocument::fromJson(loadData, &parseError));
     if (parseError.error != QJsonParseError::NoError) {
@@ -51,13 +51,31 @@ void CompositionNode::parse(const QString &qenPath)
         return;
     }
 
-    QJsonObject json = jsonDoc.object();
-    QFileInfo fi(loadFile);
+    QJsonObject json = jsonDoc.object().value("QEN").toObject();
 
-    // TODO: QDS-10467
-    // Parse the effect from QEN file
-    // The process from the older implementation has the concept of `project`
-    // and it contains source & dest nodes that we don't need
+    m_name = json.value("name").toString();
+
+    // parse properties
+    QJsonArray properties = json.value("properties").toArray();
+    for (const auto /*QJsonValueRef*/ &prop : properties) {
+        QJsonObject propObj = prop.toObject();
+        propObj.value("name");
+        propObj.value("type");
+        propObj.value("defaultValue");
+        propObj.value("description");
+        // TODO
+    }
+
+    // parse shaders
+    QJsonArray vertexCode = json.value("vertexCode").toArray();
+    if (!vertexCode.isEmpty()) {
+        // TODO
+    }
+
+    QJsonArray fragmentCode = json.value("fragmentCode").toArray();
+    if (!fragmentCode.isEmpty()) {
+        // TODO
+    }
 }
 
-}
+} // namespace QmlDesigner

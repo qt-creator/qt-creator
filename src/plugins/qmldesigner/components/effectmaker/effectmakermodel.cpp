@@ -5,6 +5,8 @@
 
 #include "compositionnode.h"
 
+#include <utils/qtcassert.h>
+
 namespace QmlDesigner {
 
 EffectMakerModel::EffectMakerModel(QObject *parent)
@@ -26,14 +28,12 @@ int EffectMakerModel::rowCount(const QModelIndex &parent) const
     return m_nodes.count();
 }
 
-QVariant EffectMakerModel::data(const QModelIndex &index, int /*role*/) const
+QVariant EffectMakerModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() < 0 || index.row() >= m_nodes.count())
-        return {};
+    QTC_ASSERT(index.isValid() && index.row() < m_nodes.size(), return {});
+    QTC_ASSERT(roleNames().contains(role), return {});
 
-    // TODO
-
-    return {};
+    return m_nodes.values().at(index.row())->property(roleNames().value(role));
 }
 
 void EffectMakerModel::resetModel()
@@ -46,9 +46,10 @@ void EffectMakerModel::addNode(const QString &nodeQenPath)
 {
     static int id = 0;
 
+    beginInsertRows({}, m_nodes.size(), m_nodes.size());
     auto *node = new CompositionNode(nodeQenPath);
     m_nodes.insert(id++, node);
-//    TODO: update model
+    endInsertRows();
 }
 
 void EffectMakerModel::selectEffect(int idx, bool force)

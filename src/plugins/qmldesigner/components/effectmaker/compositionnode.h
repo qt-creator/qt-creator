@@ -11,6 +11,8 @@ class CompositionNode : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
+
 public:
     CompositionNode(const QString &qenPath);
 
@@ -28,4 +30,3 @@ private:
 };
 
 } // namespace QmlDesigner
-

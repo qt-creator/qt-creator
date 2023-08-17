@@ -64,40 +64,18 @@ Item {
             }
 
             Column {
-                Item {
-                    width: scrollView.width
-                    height: categories.height
+                width: scrollView.width
+                height: compositionRepeater.height
+                spacing: 1
 
-                    Column {
-                        Repeater {
-                            id: categories
-                            width: root.width
-                            model: EffectMakerBackend.effectMakerModel
+                Repeater {
+                    id: compositionRepeater
 
-                            delegate: HelperWidgets.Section {
-                                id: effectsSection
-                                width: root.width
-                                caption: model.categoryName
-                                category: "EffectMaker"
+                    width: root.width
+                    model: EffectMakerBackend.effectMakerModel
 
-                                property var effectList: model.effectNames
-
-                                onExpandedChanged: {
-                                    effects.visible = expanded // TODO: update
-                                }
-
-                                Repeater {
-                                    id: effects
-                                    model: effectList
-                                    width: parent.width
-                                    height: parent.height
-                                    delegate: EffectNode {
-                                        width: parent.width
-                                        //height: StudioTheme.Values.checkIndicatorHeight * 2 // TODO: update or remove
-                                    }
-                                }
-                            }
-                        }
+                    delegate: EffectCompositionNode {
+                        width: root.width
                     }
                 }
             }
