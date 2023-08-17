@@ -27,16 +27,4 @@ public:
     }
 };
 
-class NinjaToolKitAspectFactory final : public ProjectExplorer::KitAspectFactory
-{
-public:
-    NinjaToolKitAspectFactory();
-
-    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
-    void setup(ProjectExplorer::Kit *k) final;
-    void fix(ProjectExplorer::Kit *k) final;
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *) const final;
-};
-
 } // MesonProjectManager::Internal
