@@ -29,4 +29,18 @@ QtcPlugin {
         "axivionsettingspage.h",
         "axiviontr.h",
     ]
+
+    cpp.includePaths: base.concat(["."]) // needed for the generated stuff below
+
+    Group {
+        name: "Generated DTOs"
+        prefix: "dashboard/"
+
+        files: [
+            "concat.cpp",
+            "concat.h",
+            "dto.cpp",
+            "dto.h",
+        ]
+    }
 }
