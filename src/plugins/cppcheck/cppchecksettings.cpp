@@ -44,10 +44,10 @@ CppcheckSettings::CppcheckSettings()
     if (HostOsInfo::isAnyUnixHost()) {
         binary.setDefaultValue("cppcheck");
     } else {
-        FilePath programFiles = FilePath::fromUserInput(qtcEnvironmentVariable("PROGRAMFILES"));
+        QString programFiles = qtcEnvironmentVariable("PROGRAMFILES");
         if (programFiles.isEmpty())
             programFiles = "C:/Program Files";
-        binary.setDefaultValue(programFiles.pathAppended("Cppcheck/cppcheck.exe"));
+        binary.setDefaultValue(programFiles + "/Cppcheck/cppcheck.exe");
     }
 
     warning.setSettingsKey("warning");

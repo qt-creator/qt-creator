@@ -592,7 +592,7 @@ public:
     QString value() const;
     void setValue(const FilePath &filePath, Announcement howToAnnounce = DoEmit);
     void setValue(const QString &filePath, Announcement howToAnnounce = DoEmit);
-    void setDefaultValue(const FilePath &filePath);
+    void setDefaultValue(const QString &filePath);
 
     void setPromptDialogFilter(const QString &filter);
     void setPromptDialogTitle(const QString &title);

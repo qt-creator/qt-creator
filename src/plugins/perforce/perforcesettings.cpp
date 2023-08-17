@@ -42,7 +42,8 @@ PerforceSettings::PerforceSettings()
     setAutoApply(false);
 
     p4BinaryPath.setSettingsKey("Command");
-    p4BinaryPath.setDefaultValue(Environment::systemEnvironment().searchInPath(defaultCommand()));
+    p4BinaryPath.setDefaultValue(
+        Environment::systemEnvironment().searchInPath(defaultCommand()).toUserOutput());
     p4BinaryPath.setHistoryCompleter("Perforce.Command.History");
     p4BinaryPath.setExpectedKind(PathChooser::Command);
     p4BinaryPath.setDisplayName(Tr::tr("Perforce Command"));

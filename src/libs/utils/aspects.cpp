@@ -1312,9 +1312,9 @@ void FilePathAspect::setValue(const QString &filePath, Announcement howToAnnounc
     TypedAspect::setValue(filePath, howToAnnounce);
 }
 
-void FilePathAspect::setDefaultValue(const FilePath &filePath)
+void FilePathAspect::setDefaultValue(const QString &filePath)
 {
-    TypedAspect::setDefaultValue(filePath.toUserOutput());
+    TypedAspect::setDefaultValue(filePath);
 }
 
 /*!

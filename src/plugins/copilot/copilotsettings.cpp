@@ -56,7 +56,7 @@ CopilotSettings::CopilotSettings()
     const FilePath distFromVim = findOrDefault(searchDirs, &FilePath::exists);
 
     nodeJsPath.setExpectedKind(PathChooser::ExistingCommand);
-    nodeJsPath.setDefaultValue(nodeFromPath);
+    nodeJsPath.setDefaultValue(nodeFromPath.toUserOutput());
     nodeJsPath.setSettingsKey("Copilot.NodeJsPath");
     nodeJsPath.setLabelText(Tr::tr("Node.js path:"));
     nodeJsPath.setHistoryCompleter("Copilot.NodePath.History");
@@ -66,7 +66,7 @@ CopilotSettings::CopilotSettings()
                "for installation instructions."));
 
     distPath.setExpectedKind(PathChooser::File);
-    distPath.setDefaultValue(distFromVim);
+    distPath.setDefaultValue(distFromVim.toUserOutput());
     distPath.setSettingsKey("Copilot.DistPath");
     distPath.setLabelText(Tr::tr("Path to agent.js:"));
     distPath.setHistoryCompleter("Copilot.DistPath.History");

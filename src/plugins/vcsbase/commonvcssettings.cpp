@@ -66,7 +66,7 @@ CommonVcsSettings::CommonVcsSettings()
     sshPasswordPrompt.setSettingsKey("SshPasswordPrompt");
     sshPasswordPrompt.setExpectedKind(PathChooser::ExistingCommand);
     sshPasswordPrompt.setHistoryCompleter("Vcs.SshPrompt.History");
-    sshPasswordPrompt.setDefaultValue(FilePath::fromUserInput(sshPasswordPromptDefault()));
+    sshPasswordPrompt.setDefaultValue(sshPasswordPromptDefault());
     sshPasswordPrompt.setLabelText(Tr::tr("&SSH prompt command:"));
     sshPasswordPrompt.setToolTip(Tr::tr("Specifies a command that is executed to graphically prompt "
         "for a password,\nshould a repository require SSH-authentication "

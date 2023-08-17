@@ -49,7 +49,7 @@ DockerSettings::DockerSettings()
 
     dockerBinaryPath.setExpectedKind(PathChooser::ExistingCommand);
     dockerBinaryPath.setDefaultValue(
-        FilePath::fromString("docker").searchInPath(additionalPaths));
+        FilePath::fromString("docker").searchInPath(additionalPaths).toUserOutput());
     dockerBinaryPath.setDisplayName(Tr::tr("Docker CLI"));
     dockerBinaryPath.setHistoryCompleter("Docker.Command.History");
     dockerBinaryPath.setLabelText(Tr::tr("Command:"));

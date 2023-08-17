@@ -37,10 +37,10 @@ VcpkgSettings::VcpkgSettings()
     vcpkgRoot.setExpectedKind(PathChooser::ExistingDirectory);
     FilePath defaultPath = Environment::systemEnvironment().searchInPath(Constants::VCPKG_COMMAND)
                                .parentDir();
-    if (!defaultPath.isDir())
+    if (defaultPath.isDir())
         defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
     if (defaultPath.isDir())
-        vcpkgRoot.setDefaultValue(defaultPath);
+        vcpkgRoot.setDefaultValue(defaultPath.toUserOutput());
 
     setLayouter([this] {
         using namespace Layouting;

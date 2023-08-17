@@ -33,8 +33,8 @@ HaskellSettings::HaskellSettings()
     // stack from brew or the installer script from https://docs.haskellstack.org
     // install to /usr/local/bin.
     stackPath.setDefaultValue(HostOsInfo::isAnyUnixHost()
-        ? FilePath::fromString("/usr/local/bin/stack")
-        : FilePath::fromString("stack"));
+        ? QLatin1String("/usr/local/bin/stack")
+        : QLatin1String("stack"));
 
     setLayouter([this] {
         using namespace Layouting;

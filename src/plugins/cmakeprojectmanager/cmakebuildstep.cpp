@@ -222,7 +222,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
 
     stagingDir.setSettingsKey(STAGING_DIR_KEY);
     stagingDir.setLabelText(Tr::tr("Staging directory:"));
-    stagingDir.setDefaultValue(FilePath::fromUserInput(initialStagingDir(kit())));
+    stagingDir.setDefaultValue(initialStagingDir(kit()));
 
     Kit *kit = buildConfiguration()->kit();
     if (CMakeBuildConfiguration::isIos(kit)) {
