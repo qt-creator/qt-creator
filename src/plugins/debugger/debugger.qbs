@@ -126,6 +126,7 @@ Project {
             prefix: "dap/"
             files: [
                 "cmakedapengine.cpp", "cmakedapengine.h",
+                "dapclient.cpp", "dapclient.h",
                 "dapengine.cpp", "dapengine.h",
                 "gdbdapengine.cpp", "gdbdapengine.h",
             ]
