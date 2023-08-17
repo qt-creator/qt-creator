@@ -10,6 +10,8 @@
 #include "axiviontr.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectsettingswidget.h>
+
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
 
@@ -23,6 +25,8 @@ using namespace Utils;
 namespace Axivion::Internal {
 
 const char PSK_PROJECTNAME[] = "Axivion.ProjectName";
+
+// AxivionProjectSettingsHandler
 
 class AxivionProjectSettingsHandler : public QObject
 {
@@ -49,6 +53,8 @@ static AxivionProjectSettingsHandler &projectSettingsHandler()
     static AxivionProjectSettingsHandler theProjectSettingsHandler;
     return theProjectSettingsHandler;
 }
+
+// AxivionProjectSettings
 
 AxivionProjectSettings::AxivionProjectSettings(ProjectExplorer::Project *project)
     : m_project{project}
@@ -80,10 +86,33 @@ void AxivionProjectSettings::save()
     m_project->setNamedSettings(PSK_PROJECTNAME, m_dashboardProjectName);
 }
 
-AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Project *project,
-                                                           QWidget *parent)
-    : ProjectExplorer::ProjectSettingsWidget{parent}
-    , m_projectSettings(projectSettingsHandler().projectSettings(project))
+// AxivionProjectSettingsWidget
+
+class AxivionProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+{
+public:
+    explicit AxivionProjectSettingsWidget(ProjectExplorer::Project *project);
+
+private:
+    void fetchProjects();
+    void onDashboardInfoReceived(const DashboardInfo &info);
+    void onSettingsChanged();
+    void linkProject();
+    void unlinkProject();
+    void updateUi();
+    void updateEnabledStates();
+
+    AxivionProjectSettings *m_projectSettings = nullptr;
+    QLabel *m_linkedProject = nullptr;
+    QTreeWidget *m_dashboardProjects = nullptr;
+    QPushButton *m_fetchProjects = nullptr;
+    QPushButton *m_link = nullptr;
+    QPushButton *m_unlink = nullptr;
+    Utils::InfoLabel *m_infoLabel = nullptr;
+};
+
+AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Project *project)
+    : m_projectSettings(projectSettingsHandler().projectSettings(project))
 {
     setUseGlobalSettingsCheckBoxVisible(false);
     setUseGlobalSettingsLabelVisible(true);
@@ -217,6 +246,11 @@ void AxivionProjectSettingsWidget::updateEnabledStates()
         m_infoLabel->setType(Utils::InfoLabel::NotOk);
         m_infoLabel->setVisible(true);
     }
+}
+
+ProjectSettingsWidget *AxivionProjectSettings::createSettingsWidget(ProjectExplorer::Project *project)
+{
+   return new AxivionProjectSettingsWidget(project);
 }
 
 } // Axivion::Internal

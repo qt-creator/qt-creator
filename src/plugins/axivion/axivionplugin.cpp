@@ -96,9 +96,7 @@ void AxivionPlugin::initialize()
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
     panelFactory->setPriority(250);
     panelFactory->setDisplayName(Tr::tr("Axivion"));
-    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project){
-        return new AxivionProjectSettingsWidget(project);
-    });
+    panelFactory->setCreateWidgetFunction(&AxivionProjectSettings::createSettingsWidget);
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
     connect(ProjectExplorer::ProjectManager::instance(),
             &ProjectExplorer::ProjectManager::startupProjectChanged,
