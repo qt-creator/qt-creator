@@ -6,8 +6,6 @@
 #include "copilotsuggestion.h"
 #include "copilottr.h"
 
-#include <app/app_version.h>
-
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
@@ -26,6 +24,7 @@
 #include <utils/filepath.h>
 #include <utils/passworddialog.h>
 
+#include <QGuiApplication>
 #include <QInputDialog>
 #include <QLoggingCategory>
 #include <QTimer>
@@ -252,8 +251,9 @@ void CopilotClient::requestSetEditorInfo()
     if (settings().saveProxyPassword())
         currentProxyPassword = settings().proxyPassword();
 
-    const EditorInfo editorInfo{Core::Constants::IDE_VERSION_DISPLAY, "Qt Creator"};
-    const EditorPluginInfo editorPluginInfo{Core::Constants::IDE_VERSION_DISPLAY,
+    const EditorInfo editorInfo{QCoreApplication::applicationVersion(),
+                                QGuiApplication::applicationDisplayName()};
+    const EditorPluginInfo editorPluginInfo{QCoreApplication::applicationVersion(),
                                             "Qt Creator Copilot plugin"};
 
     SetEditorInfoParams params(editorInfo, editorPluginInfo);
