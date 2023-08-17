@@ -36,15 +36,13 @@ class SquishPluginPrivate final : public QObject
 {
 public:
     SquishPluginPrivate();
-    ~SquishPluginPrivate();
 
-    void initializeMenuEntries();
     bool initializeGlobalScripts();
 
     SquishTestTreeModel m_treeModel;
     SquishNavigationWidgetFactory m_navigationWidgetFactory;
     ObjectsMapEditorFactory m_objectsMapEditorFactory;
-    SquishOutputPane *m_outputPane = nullptr;
+    SquishOutputPane m_outputPane;
     SquishTools m_squishTools;
 
     SquishToolkitsPageFactory m_squishToolkitsPageFactory;
@@ -57,17 +55,6 @@ SquishPluginPrivate::SquishPluginPrivate()
 {
     qRegisterMetaType<SquishResultItem*>("SquishResultItem*");
 
-    m_outputPane = SquishOutputPane::instance();
-    initializeMenuEntries();
-}
-
-SquishPluginPrivate::~SquishPluginPrivate()
-{
-    delete m_outputPane;
-}
-
-void SquishPluginPrivate::initializeMenuEntries()
-{
     ActionContainer *menu = ActionManager::createMenu("Squish.Menu");
     menu->menu()->setTitle(Tr::tr("&Squish"));
     menu->setOnAllDisabledBehavior(ActionContainer::Show);
