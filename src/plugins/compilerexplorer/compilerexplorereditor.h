@@ -27,17 +27,75 @@ class CppEditorWidget;
 
 namespace CompilerExplorer {
 
+class JsonSettingsDocument;
+class SourceEditorWidget;
 class CodeEditorWidget;
+
+class JsonSettingsDocument : public Core::IDocument
+{
+    Q_OBJECT
+public:
+    JsonSettingsDocument(CompilerExplorerSettings *ceSettings);
+    OpenResult open(QString *errorString,
+                    const Utils::FilePath &filePath,
+                    const Utils::FilePath &realFilePath) override;
+
+    bool saveImpl(QString *errorString,
+                  const Utils::FilePath &filePath = Utils::FilePath(),
+                  bool autoSave = false) override;
+
+    bool setContents(const QByteArray &contents) override;
+
+    bool shouldAutoSave() const override { return !filePath().isEmpty(); }
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override { return true; }
+
+    CompilerExplorerSettings *settings() { return m_ceSettings; }
+
+    void setWindowStateCallback(std::function<QVariantMap()> callback)
+    {
+        m_windowStateCallback = callback;
+    }
+
+signals:
+    void settingsChanged();
+
+private:
+    CompilerExplorerSettings *m_ceSettings;
+    std::function<QVariantMap()> m_windowStateCallback;
+};
+
+class SourceEditorWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    SourceEditorWidget(const std::shared_ptr<SourceSettings> &settings);
+
+    QString sourceCode();
+
+    std::shared_ptr<SourceSettings> m_sourceSettings;
+signals:
+    void sourceCodeChanged();
+
+private:
+    CodeEditorWidget *m_codeEditor{nullptr};
+};
 
 class CompilerWidget : public QWidget
 {
     Q_OBJECT
 public:
-    CompilerWidget();
+    CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSettings,
+                   const std::shared_ptr<CompilerSettings> &compilerSettings);
+
+    ~CompilerWidget();
 
     Core::SearchableTerminal *createTerminal();
 
     void compile(const QString &source);
+
+    std::shared_ptr<SourceSettings> m_sourceSettings;
+    std::shared_ptr<CompilerSettings> m_compilerSettings;
 
 private:
     void doCompile();
@@ -51,8 +109,6 @@ private:
 
     std::unique_ptr<QFutureWatcher<Api::CompileResult>> m_compileWatcher;
 
-    CompilerExplorer::CompilerSettings m_compilerSettings;
-
     QString m_source;
     QTimer *m_delayTimer{nullptr};
     QList<TextEditor::TextMark *> m_marks;
@@ -62,25 +118,21 @@ class EditorWidget : public Utils::FancyMainWindow
 {
     Q_OBJECT
 public:
-    EditorWidget(QSharedPointer<TextEditor::TextDocument> document = nullptr, QWidget *parent = nullptr);
-
-    void addCompiler();
-
-protected:
-    Core::SearchableTerminal *createTerminal();
-
-    void onLanguageChanged();
+    EditorWidget(QSharedPointer<JsonSettingsDocument> document = nullptr, QWidget *parent = nullptr);
+    ~EditorWidget() override;
 
 signals:
     void sourceCodeChanged();
 
 private:
-    CodeEditorWidget *m_codeEditor;
-    CompilerExplorer::Settings m_currentSettings;
     QSplitter *m_mainSplitter;
     int m_compilerCount{0};
+    QSharedPointer<JsonSettingsDocument> m_document;
 
     Core::IContext *m_context;
+
+    QList<QDockWidget *> m_compilerWidgets;
+    QList<QDockWidget *> m_sourceWidgets;
 };
 
 class EditorFactory : public Core::IEditorFactory

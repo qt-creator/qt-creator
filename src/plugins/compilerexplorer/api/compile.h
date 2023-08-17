@@ -133,11 +133,11 @@ struct CompileParameters
             return *this;
         }
 
-        Options &libraries(const CompilerExplorer::LibrarySelectionAspect &aspect)
+        Options &libraries(const QMap<QString, QString> &libraries)
         {
             Libraries result;
-            for (const auto &key : aspect.value().keys()) {
-                result.add(key, aspect.value()[key]);
+            for (const auto &key : libraries.keys()) {
+                result.add(key, libraries[key]);
             }
             obj["libraries"] = result.array;
             return *this;

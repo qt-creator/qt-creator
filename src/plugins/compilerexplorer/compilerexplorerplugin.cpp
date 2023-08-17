@@ -34,11 +34,10 @@ public:
 
         auto action = new QAction(Tr::tr("Open Compiler Explorer"), this);
         connect(action, &QAction::triggered, this, [] {
-            CompilerExplorer::Settings settings;
-
-            const QString src = settings.source();
             QString name("Compiler Explorer");
-            EditorManager::openEditorWithContents(Constants::CE_EDITOR_ID, &name, src.toUtf8());
+            Core::EditorManager::openEditorWithContents(Constants::CE_EDITOR_ID,
+                                                        &name,
+                                                        settings().defaultDocument().toUtf8());
         });
 
         ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
@@ -47,11 +46,12 @@ public:
         menu->setTitle(Tr::tr("Compiler Explorer"));
         mtools->addMenu(mCompilerExplorer);
 
-        Command *cmd = ActionManager::registerAction(action, "CompilerExplorer.CompilerExplorerAction");
+        Command *cmd = ActionManager::registerAction(action,
+                                                     "CompilerExplorer.CompilerExplorerAction");
         mCompilerExplorer->addAction(cmd);
     }
 };
 
-} // CompilerExplorer::Internl
+} // namespace CompilerExplorer::Internal
 
 #include "compilerexplorerplugin.moc"

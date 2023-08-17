@@ -14,10 +14,27 @@
 
 namespace CompilerExplorer {
 
-Settings &settings()
+PluginSettings &settings()
 {
-    static Settings instance;
+    static PluginSettings instance;
     return instance;
+}
+
+PluginSettings::PluginSettings()
+{
+    defaultDocument.setSettingsKey("DefaultDocument");
+    defaultDocument.setDefaultValue(R"(
+{
+    "Sources": [{
+        "LanguageId": "c++",
+        "Source": "int main() {\n  return 0;\n}",
+        "Compilers": [{
+            "Id": "clang_trunk",
+            "Options": "-O3"
+        }]
+    }]
+}
+        )");
 }
 
 static Api::Languages &cachedLanguages()
@@ -43,41 +60,58 @@ static QMap<QString, QMap<QString, QString>> &cachedCompilers()
     return instance;
 }
 
-Settings::Settings()
+SourceSettings::SourceSettings(const ApiConfigFunction &apiConfigFunction)
+    : m_apiConfigFunction(apiConfigFunction)
 {
-    static QNetworkAccessManager networkManager;
-    m_networkAccessManager = &networkManager;
+    setAutoApply(false);
 
-    setSettingsGroup("CompilerExplorer");
+    source.setSettingsKey("Source");
 
-    source.setDefaultValue(R"(
-int main()
-{
-    return 0;
-}
-
-)");
-
-    compilerExplorerUrl.setLabelText(Tr::tr("Compiler Explorer URL:"));
-    compilerExplorerUrl.setToolTip(Tr::tr("URL of the Compiler Explorer instance to use"));
-    compilerExplorerUrl.setDefaultValue("https://godbolt.org/");
-    compilerExplorerUrl.setDisplayStyle(Utils::StringAspect::DisplayStyle::LineEditDisplay);
-    compilerExplorerUrl.setHistoryCompleter("CompilerExplorer.Url.History");
-
+    languageId.setSettingsKey("LanguageId");
     languageId.setDefaultValue("c++");
     languageId.setLabelText(Tr::tr("Language:"));
     languageId.setFillCallback([this](auto cb) { fillLanguageIdModel(cb); });
 
-    connect(&compilerExplorerUrl, &Utils::StringAspect::changed, this, [this] {
-        languageId.setValue(languageId.defaultValue());
-        cachedLanguages().clear();
-        languageId.refill();
+    compilers.setSettingsKey("Compilers");
+    compilers.setCreateItemFunction([this, apiConfigFunction] {
+        auto result = std::make_shared<CompilerSettings>(apiConfigFunction);
+        connect(this, &SourceSettings::languagesChanged, result.get(), &CompilerSettings::refresh);
+        connect(&languageId,
+                &StringSelectionAspect::changed,
+                result.get(),
+                [this, result = result.get()] { result->setLanguageId(languageId()); });
+
+        connect(result.get(), &Utils::AspectContainer::changed, this, &SourceSettings::changed);
+
+        result->setLanguageId(languageId());
+        return result;
     });
 
-    readSettings();
+    compilers.setToBaseAspectFunction([](const std::shared_ptr<CompilerSettings> &item) {
+        return static_cast<Utils::BaseAspect *>(item.get());
+    });
+    compilers.setIsDirtyFunction(
+        [](const std::shared_ptr<CompilerSettings> &settings) { return settings->isDirty(); });
+    compilers.setApplyFunction(
+        [](const std::shared_ptr<CompilerSettings> &settings) { settings->apply(); });
+
+    for (const auto &aspect : this->aspects())
+        connect(aspect,
+                &Utils::BaseAspect::volatileValueChanged,
+                this,
+                &CompilerExplorerSettings::changed);
 }
 
-QString Settings::languageExtension() const
+void SourceSettings::refresh()
+{
+    languageId.setValue(languageId.defaultValue());
+    cachedLanguages().clear();
+    languageId.refill();
+
+    compilers.forEachItem(&CompilerSettings::refresh);
+}
+
+QString SourceSettings::languageExtension() const
 {
     auto it = std::find_if(std::begin(cachedLanguages()),
                            std::end(cachedLanguages()),
@@ -89,50 +123,70 @@ QString Settings::languageExtension() const
     return ".cpp";
 }
 
-CompilerSettings::CompilerSettings(Settings *settings)
-    : m_parent(settings)
+CompilerSettings::CompilerSettings(const ApiConfigFunction &apiConfigFunction)
+    : m_apiConfigFunction(apiConfigFunction)
 {
-    setAutoApply(true);
-    compilerOptions.setDefaultValue("-O3");
+    setAutoApply(false);
+    compiler.setSettingsKey("Id");
+    compiler.setLabelText(Tr::tr("Compiler:"));
+    compiler.setFillCallback([this](auto cb) { fillCompilerModel(cb); });
+
+    compilerOptions.setSettingsKey("Options");
     compilerOptions.setLabelText(Tr::tr("Compiler options:"));
     compilerOptions.setToolTip(Tr::tr("Arguments passed to the compiler"));
     compilerOptions.setDisplayStyle(Utils::StringAspect::DisplayStyle::LineEditDisplay);
 
-    compiler.setDefaultValue("clang_trunk");
-    compiler.setLabelText(Tr::tr("Compiler:"));
-    compiler.setFillCallback([this](auto cb) { fillCompilerModel(cb); });
-
+    libraries.setSettingsKey("Libraries");
     libraries.setLabelText(Tr::tr("Libraries:"));
     libraries.setFillCallback([this](auto cb) { fillLibraries(cb); });
 
+    executeCode.setSettingsKey("ExecuteCode");
     executeCode.setLabelText(Tr::tr("Execute the code"));
+
+    compileToBinaryObject.setSettingsKey("CompileToBinaryObject");
     compileToBinaryObject.setLabelText(Tr::tr("Compile to binary object"));
+
+    intelAsmSyntax.setSettingsKey("IntelAsmSyntax");
     intelAsmSyntax.setLabelText(Tr::tr("Intel asm syntax"));
     intelAsmSyntax.setDefaultValue(true);
+
+    demangleIdentifiers.setSettingsKey("DemangleIdentifiers");
     demangleIdentifiers.setLabelText(Tr::tr("Demangle identifiers"));
     demangleIdentifiers.setDefaultValue(true);
 
-    connect(&settings->compilerExplorerUrl, &Utils::StringAspect::changed, this, [this] {
-        cachedCompilers().clear();
-        cachedLibraries().clear();
+    for (const auto &aspect : this->aspects())
+        connect(aspect,
+                &Utils::BaseAspect::volatileValueChanged,
+                this,
+                &CompilerExplorerSettings::changed);
+}
 
-        compiler.refill();
-        libraries.refill();
-    });
+void CompilerSettings::refresh()
+{
+    cachedCompilers().clear();
+    cachedLibraries().clear();
 
-    connect(&settings->languageId, &StringSelectionAspect::changed, this, [this] {
-        compiler.refill();
-        libraries.refill();
-        if (m_parent->languageId() == "c++")
-            compilerOptions.setValue("-O3");
-        else
-            compilerOptions.setValue("");
-    });
+    compiler.refill();
+    libraries.refill();
+}
+
+void CompilerSettings::setLanguageId(const QString &languageId)
+{
+    m_languageId = languageId;
+
+    compiler.refill();
+    libraries.refill();
+
+    // TODO: Set real defaults ...
+    if (m_languageId == "c++")
+        compilerOptions.setValue("-O3");
+    else
+        compilerOptions.setValue("");
 }
 
 void CompilerSettings::fillLibraries(LibrarySelectionAspect::ResultCallback cb)
 {
-    const QString lang = m_parent->languageId();
+    const QString lang = m_languageId;
     auto fillFromCache = [cb, lang] {
         QList<QStandardItem *> items;
         for (const Api::Library &lib : cachedLibraries(lang)) {
@@ -148,7 +202,7 @@ void CompilerSettings::fillLibraries(LibrarySelectionAspect::ResultCallback cb)
         return;
     }
 
-    auto future = Api::libraries(m_parent->apiConfig(), lang);
+    auto future = Api::libraries(m_apiConfigFunction(), lang);
 
     auto watcher = new QFutureWatcher<Api::Libraries>(this);
     watcher->setFuture(future);
@@ -166,7 +220,7 @@ void CompilerSettings::fillLibraries(LibrarySelectionAspect::ResultCallback cb)
                      });
 }
 
-void Settings::fillLanguageIdModel(StringSelectionAspect::ResultCallback cb)
+void SourceSettings::fillLanguageIdModel(StringSelectionAspect::ResultCallback cb)
 {
     auto fillFromCache = [cb, this] {
         QList<QStandardItem *> items;
@@ -190,7 +244,7 @@ void Settings::fillLanguageIdModel(StringSelectionAspect::ResultCallback cb)
         return;
     }
 
-    auto future = Api::languages(apiConfig());
+    auto future = Api::languages(m_apiConfigFunction());
 
     auto watcher = new QFutureWatcher<Api::Languages>(this);
     watcher->setFuture(future);
@@ -220,13 +274,13 @@ void CompilerSettings::fillCompilerModel(StringSelectionAspect::ResultCallback c
         cb(items);
     };
 
-    auto it = cachedCompilers().find(m_parent->languageId());
+    auto it = cachedCompilers().find(m_languageId);
     if (it != cachedCompilers().end()) {
         fillFromCache(it);
         return;
     }
 
-    auto future = Api::compilers(m_parent->apiConfig(), m_parent->languageId());
+    auto future = Api::compilers(m_apiConfigFunction(), m_languageId);
 
     auto watcher = new QFutureWatcher<Api::Compilers>(this);
     watcher->setFuture(future);
@@ -236,7 +290,7 @@ void CompilerSettings::fillCompilerModel(StringSelectionAspect::ResultCallback c
                      [watcher, this, fillFromCache]() {
                          try {
                              auto result = watcher->result();
-                             auto itCache = cachedCompilers().insert(m_parent->languageId(), {});
+                             auto itCache = cachedCompilers().insert(m_languageId, {});
 
                              for (const Api::Compiler &compiler : result)
                                  itCache->insert(compiler.name, compiler.id);
@@ -248,5 +302,51 @@ void CompilerSettings::fillCompilerModel(StringSelectionAspect::ResultCallback c
                          }
                      });
 }
+
+CompilerExplorerSettings::CompilerExplorerSettings()
+{
+    setAutoApply(false);
+    setSettingsKey("CompilerExplorer");
+    static QNetworkAccessManager networkManager;
+    m_networkAccessManager = &networkManager;
+
+    compilerExplorerUrl.setSettingsKey("CompilerExplorerUrl");
+    compilerExplorerUrl.setLabelText(Tr::tr("Compiler Explorer URL:"));
+    compilerExplorerUrl.setToolTip(Tr::tr("URL of the Compiler Explorer instance to use"));
+    compilerExplorerUrl.setDefaultValue("https://godbolt.org/");
+    compilerExplorerUrl.setDisplayStyle(Utils::StringAspect::DisplayStyle::LineEditDisplay);
+    compilerExplorerUrl.setHistoryCompleter("CompilerExplorer.Url.History");
+
+    windowState.setSettingsKey("WindowState");
+
+    m_sources.setSettingsKey("Sources");
+    m_sources.setCreateItemFunction([this] {
+        auto newSourceSettings = std::make_shared<SourceSettings>([this] { return apiConfig(); });
+        connect(newSourceSettings.get(),
+                &Utils::AspectContainer::changed,
+                this,
+                &CompilerExplorerSettings::changed);
+        return newSourceSettings;
+    });
+    m_sources.setIsDirtyFunction(
+        [](const std::shared_ptr<SourceSettings> &settings) { return settings->isDirty(); });
+    m_sources.setApplyFunction(
+        [](const std::shared_ptr<SourceSettings> &settings) { settings->apply(); });
+    m_sources.setToBaseAspectFunction([](const std::shared_ptr<SourceSettings> &item) {
+        return static_cast<Utils::BaseAspect *>(item.get());
+    });
+
+    connect(&compilerExplorerUrl, &Utils::StringAspect::volatileValueChanged, this, [this] {
+        m_sources.forEachItem(&SourceSettings::refresh);
+    });
+
+    for (const auto &aspect : this->aspects())
+        connect(aspect,
+                &Utils::BaseAspect::volatileValueChanged,
+                this,
+                &CompilerExplorerSettings::changed);
+}
+
+CompilerExplorerSettings::~CompilerExplorerSettings() = default;
 
 } // namespace CompilerExplorer
