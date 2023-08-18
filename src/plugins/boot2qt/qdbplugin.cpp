@@ -5,7 +5,6 @@
 
 #include "device-detection/devicedetector.h"
 #include "qdbconstants.h"
-#include "qdbdeployconfigurationfactory.h"
 #include "qdbdevice.h"
 #include "qdbstopapplicationstep.h"
 #include "qdbmakedefaultappstep.h"
@@ -19,9 +18,11 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -104,6 +105,50 @@ public:
         cloneStepCreator(existingStepId);
         setSupportedConfiguration(Constants::QdbDeployConfigurationId);
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+class QdbDeployConfigurationFactory final : public DeployConfigurationFactory
+{
+public:
+    QdbDeployConfigurationFactory()
+    {
+        setConfigBaseId(Constants::QdbDeployConfigurationId);
+        addSupportedTargetDeviceType(Constants::QdbLinuxOsType);
+        setDefaultDisplayName(Tr::tr("Deploy to Boot2Qt target"));
+        setUseDeploymentDataView();
+
+        addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](Target *target) {
+            const Project * const prj = target->project();
+            return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
+                   && prj->hasMakeInstallEquivalent();
+        });
+        addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
+        addInitialStep(RemoteLinux::Constants::RsyncDeployStepId, [](Target *target) {
+            auto device = DeviceKitAspect::device(target->kit());
+            auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+            if (buildDevice && buildDevice->rootPath().needsDevice())
+                return false;
+            return !device || (device
+                   && device->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool());
+        });
+        addInitialStep(RemoteLinux::Constants::DirectUploadStepId, [](Target *target) {
+            auto device = DeviceKitAspect::device(target->kit());
+            auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+            if (buildDevice && buildDevice->rootPath().needsDevice())
+                return false;
+            return device && !device->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool();
+        });
+        // This step is for:
+        // a) A remote build device, as they do not support real rsync yet.
+        // b) If there is no target device setup yet.
+        addInitialStep(RemoteLinux::Constants::DirectUploadStepId, [](Target *target) {
+            auto device = DeviceKitAspect::device(target->kit());
+            auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+            if (buildDevice && buildDevice->rootPath().needsDevice())
+                return true;
+            return false;
+        });
     }
 };
 

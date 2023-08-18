@@ -21,8 +21,6 @@ QtcPlugin {
             "qdbutils.h",
             "qdbconstants.h",
             "qdb_global.h",
-            "qdbdeployconfigurationfactory.cpp",
-            "qdbdeployconfigurationfactory.h",
             "qdbdevice.cpp",
             "qdbdevice.h",
             "qdbdevicedebugsupport.cpp",
