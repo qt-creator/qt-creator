@@ -440,6 +440,7 @@ public:
     DebuggerEngine *m_engine = nullptr; // Not owned.
     QString m_runId;
     QString m_debuggerName;
+    QString m_debuggerType;
     QPointer<Perspective> m_perspective;
     DebuggerRunParameters m_runParameters;
     IDevice::ConstPtr m_device;
@@ -728,6 +729,8 @@ void DebuggerEnginePrivate::setupViews()
 
     if (!currentPerspective || currentPerspective->id() == Constants::PRESET_PERSPECTIVE_ID)
         m_perspective->useSubPerspectiveSwitcher(EngineManager::engineChooser());
+    else
+        m_perspective->useSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
 
     m_perspective->addToolBarAction(&m_continueAction);
     m_perspective->addToolBarAction(&m_interruptAction);
@@ -870,6 +873,16 @@ void DebuggerEngine::setDebuggerName(const QString &name)
 QString DebuggerEngine::debuggerName() const
 {
     return d->m_debuggerName;
+}
+
+void DebuggerEngine::setDebuggerType(const QString &type)
+{
+    d->m_debuggerType = type;
+}
+
+QString DebuggerEngine::debuggerType() const
+{
+    return d->m_debuggerType;
 }
 
 QString DebuggerEngine::stateName(int s)
@@ -2590,7 +2603,6 @@ bool DebuggerRunParameters::isCppDebugging() const
     return cppEngineType == GdbEngineType
         || cppEngineType == LldbEngineType
         || cppEngineType == CdbEngineType
-        || cppEngineType == DapEngineType
         || cppEngineType == UvscEngineType;
 }
 

@@ -177,9 +177,6 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
 
     if (output.contains("gdb")) {
         m_engineType = GdbEngineType;
-        // FIXME: HACK while introducing DAP support
-        if (m_command.fileName().endsWith("-dap"))
-            m_engineType = DapEngineType;
 
         // Version
         bool isMacGdb, isQnxGdb;
@@ -283,8 +280,6 @@ QString DebuggerItem::engineTypeName() const
         return QLatin1String("CDB");
     case LldbEngineType:
         return QLatin1String("LLDB");
-    case DapEngineType:
-        return QLatin1String("DAP");
     case UvscEngineType:
         return QLatin1String("UVSC");
     default:

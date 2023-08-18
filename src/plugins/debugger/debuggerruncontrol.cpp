@@ -484,6 +484,8 @@ void DebuggerRunTool::start()
     if (!m_engine) {
         if (runControl()->runMode() == ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE)
             m_engine = createDapEngine(runControl()->runMode());
+        else if (runControl()->runMode() == ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE)
+            m_engine = createDapEngine();
         else if (m_runParameters.isCppDebugging()) {
             switch (m_runParameters.cppEngineType) {
             case GdbEngineType:
@@ -505,9 +507,6 @@ void DebuggerRunTool::start()
                 break;
             case UvscEngineType:
                 m_engine = createUvscEngine();
-                break;
-            case DapEngineType:
-                m_engine = createDapEngine();
                 break;
             default:
                 if (!m_runParameters.isQmlDebugging) {
@@ -856,6 +855,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     m_runParameters.macroExpander = runControl->macroExpander();
     m_runParameters.debugger = DebuggerKitAspect::runnable(kit);
     m_runParameters.cppEngineType = DebuggerKitAspect::engineType(kit);
+    m_runParameters.version = DebuggerKitAspect::version(kit);
 
     if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
         m_runParameters.qtPackageSourceLocation = qtVersion->qtPackageSourcePath().toString();
@@ -1121,6 +1121,7 @@ DebuggerRunWorkerFactory::DebuggerRunWorkerFactory()
     setProduct<DebuggerRunTool>();
     addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     addSupportedRunMode(ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE);
+    addSupportedRunMode(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedDeviceType("DockerDeviceType");
 }

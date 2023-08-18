@@ -5,6 +5,8 @@
 
 #include "dapclient.h"
 
+#include <coreplugin/messagemanager.h>
+
 #include <debugger/debuggermainwindow.h>
 
 #include <utils/temporarydirectory.h>
@@ -16,6 +18,7 @@
 #include <QDebug>
 #include <QLocalSocket>
 #include <QLoggingCategory>
+#include <QVersionNumber>
 
 using namespace Core;
 using namespace Utils;
@@ -82,7 +85,8 @@ GdbDapEngine::GdbDapEngine()
     : DapEngine()
 {
     setObjectName("GdbDapEngine");
-    setDebuggerName("GdbDAP");
+    setDebuggerName("Gdb");
+    setDebuggerType("DAP");
 }
 
 void GdbDapEngine::setupEngine()
@@ -91,6 +95,16 @@ void GdbDapEngine::setupEngine()
 
     const DebuggerRunParameters &rp = runParameters();
     const CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
+
+    QVersionNumber oldestVersion(14, 0, 50);
+    QVersionNumber version = QVersionNumber::fromString(rp.version);
+    if (version < oldestVersion) {
+        notifyEngineSetupFailed();
+        MessageManager::writeDisrupting("Debugger version " + rp.version
+                                        + " is too old. Please upgrade to at least "
+                                        + oldestVersion.toString());
+        return;
+    }
 
     IDataProvider *dataProvider =  new ProcessDataProvider(rp, cmd, this);
     m_dapClient = new DapClient(dataProvider, this);

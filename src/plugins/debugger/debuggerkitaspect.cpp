@@ -248,6 +248,13 @@ QString DebuggerKitAspect::displayString(const Kit *k)
     return binary.isEmpty() ? Tr::tr("%1 <None>").arg(name) : Tr::tr("%1 using \"%2\"").arg(name, binary);
 }
 
+QString DebuggerKitAspect::version(const Kit *k)
+{
+    const DebuggerItem *item = debugger(k);
+    QTC_ASSERT(item, return {});
+    return item->version();
+}
+
 void DebuggerKitAspect::setDebugger(Kit *k, const QVariant &id)
 {
     // Only register reasonably complete debuggers.

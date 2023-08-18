@@ -105,20 +105,21 @@
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QInputDialog>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
 #include <QScopeGuard>
 #include <QSettings>
+#include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QTextBlock>
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QVBoxLayout>
 #include <QVariant>
-#include <QJsonDocument>
-#include <QJsonObject>
 
 #ifdef WITH_TESTS
 
@@ -509,6 +510,7 @@ public:
         splitter->setObjectName("DebugModeWidget");
 
         mainWindow->addSubPerspectiveSwitcher(EngineManager::engineChooser());
+        mainWindow->addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
 
         setWidget(splitter);
 
@@ -616,12 +618,14 @@ public:
                                            const QString &title,
                                            const QString &objectName);
 
-    BaseTreeView *createEngineManagerView(const QString &title, const QByteArray &settingsKey);
+    BaseTreeView *createEngineManagerView(QAbstractItemModel *model,
+                                          const QString &title,
+                                          const QByteArray &settingsKey);
     QWidget *createEngineManagerWindow(BaseTreeView *engineManagerView,
                                        const QString &title,
                                        const QString &objectName);
 
-    void createCMakeDebuggerPerspective(QWidget *globalLogWindow);
+    void createDapDebuggerPerspective(QWidget *globalLogWindow);
 
     void editorOpened(IEditor *editor);
     void updateBreakMenuItem(IEditor *editor);
@@ -668,7 +672,7 @@ public:
     ProxyAction m_hiddenStopAction;
     QAction m_undisturbableAction;
     OptionalAction m_startAction;
-    OptionalAction m_startCmakeAction;
+    OptionalAction m_startDapAction;
     QAction m_debugWithoutDeployAction{Tr::tr("Start Debugging Without Deployment")};
     QAction m_startAndDebugApplicationAction{Tr::tr("Start and Debug External Application...")};
     QAction m_attachToRunningApplication{Tr::tr("Attach to Running Application...")};
@@ -699,7 +703,7 @@ public:
     IContext m_debugModeContext;
 
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, Tr::tr("Debugger")};
-    std::unique_ptr<Perspective> m_perspectiveCmake;
+    Perspective m_perspectiveDap{Constants::DAP_PERSPECTIVE_ID, Tr::tr("DAP")};
 
     DebuggerRunWorkerFactory debuggerWorkerFactory;
 
@@ -761,13 +765,15 @@ QWidget *DebuggerPluginPrivate::createBreakpointManagerWindow(BaseTreeView *brea
     return breakpointManagerWindow;
 }
 
-BaseTreeView *DebuggerPluginPrivate::createEngineManagerView(const QString &title, const QByteArray &settingsKey)
+BaseTreeView *DebuggerPluginPrivate::createEngineManagerView(QAbstractItemModel *model,
+                                                             const QString &title,
+                                                             const QByteArray &settingsKey)
 {
     auto engineManagerView = new BaseTreeView;
     engineManagerView->setWindowTitle(title);
     engineManagerView->setSettings(ICore::settings(), settingsKey);
     engineManagerView->setIconSize(QSize(10, 10));
-    engineManagerView->setModel(EngineManager::model());
+    engineManagerView->setModel(model);
     engineManagerView->setSelectionMode(QAbstractItemView::SingleSelection);
     engineManagerView->enableColumnHiding();
     return engineManagerView;
@@ -858,7 +864,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
                                         "Debugger.Docks.BreakpointManager");
 
     // Snapshot
-    auto engineManagerView = createEngineManagerView(Tr::tr("Running Debuggers"),
+    auto engineManagerView = createEngineManagerView(EngineManager::model(),
+                                                     Tr::tr("Running Debuggers"),
                                                      "Debugger.SnapshotView");
     auto engineManagerWindow = createEngineManagerWindow(engineManagerView,
                                                          Tr::tr("Debugger Perspectives"),
@@ -875,11 +882,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     // The main "Start Debugging" action. Acts as "Continue" at times.
     connect(&m_startAction, &QAction::triggered, this, [] {
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
-    });
-
-    connect(&m_startCmakeAction, &QAction::triggered, this, [] {
-        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE,
-                                                 true);
     });
 
     connect(&m_debugWithoutDeployAction, &QAction::triggered, this, [] {
@@ -1214,6 +1216,10 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     connect(settings().settingsDialog.action(), &QAction::triggered, this,
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); }, Qt::QueuedConnection);
 
+    EngineManager::registerDefaultPerspective(Tr::tr("Debugger Preset"),
+                                              {},
+                                              Constants::PRESET_PERSPECTIVE_ID);
+
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
     m_perspective.addToolBarAction(&m_startAction);
 
@@ -1221,7 +1227,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     m_perspective.addWindow(breakpointManagerWindow, Perspective::SplitHorizontal, engineManagerWindow);
     m_perspective.addWindow(globalLogWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
 
-    createCMakeDebuggerPerspective(globalLogWindow);
+    createDapDebuggerPerspective(globalLogWindow);
     setInitialState();
 
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
@@ -1232,41 +1238,61 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         this, &DebuggerPluginPrivate::updatePresetState);
 }
 
-void DebuggerPluginPrivate::createCMakeDebuggerPerspective(QWidget *globalLogWindow)
+void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindow)
 {
-    auto breakpointManagerView = createBreakpointManagerView("CMake.BreakWindow");
+    EngineManager::registerDefaultPerspective(Tr::tr("CMake Preset"),
+                                              "DAP",
+                                              ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE);
+
+    EngineManager::registerDefaultPerspective(Tr::tr("GDB Preset"),
+                                              "DAP",
+                                              ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
+
+    auto breakpointManagerView = createBreakpointManagerView("DAPDebugger.BreakWindow");
     auto breakpointManagerWindow
         = createBreakpointManagerWindow(breakpointManagerView,
-                                        Tr::tr("CMake Breakpoint Preset"),
-                                        "CMake.Docks.BreakpointManager");
+                                        Tr::tr("DAP Breakpoint Preset"),
+                                        "DAPDebugger.Docks.BreakpointManager");
 
     // Snapshot
-    auto engineManagerView = createEngineManagerView(Tr::tr("Running Debuggers"),
-                                                     "CMake.SnapshotView");
+    auto engineManagerView = createEngineManagerView(EngineManager::dapModel(),
+                                                     Tr::tr("Running Debuggers"),
+                                                     "DAPDebugger.SnapshotView");
     auto engineManagerWindow = createEngineManagerWindow(engineManagerView,
-                                                         Tr::tr("CMake Debugger Perspectives"),
-                                                         "CMake.Docks.Snapshots");
+                                                         Tr::tr("DAP Debugger Perspectives"),
+                                                         "DAPDebugger.Docks.Snapshots");
 
-    m_perspectiveCmake = std::make_unique<Perspective>(Constants::CMAKE_PERSPECTIVE_ID,
-                                                       Tr::tr("CMake"));
-    m_startCmakeAction.setText(Tr::tr("Start CMake Debugging"));
-    m_startCmakeAction.setEnabled(true);
-    m_startCmakeAction.setIcon(startIcon(true));
-    m_startCmakeAction.setVisible(true);
+    connect(&m_startDapAction, &QAction::triggered, this, [] {
+        QComboBox *combo = qobject_cast<QComboBox *>(EngineManager::dapEngineChooser());
+        if (combo->currentText() == "CMake Preset") {
+            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE,
+                                                     true);
+        } else {
+            ProjectExplorerPlugin::runStartupProject(
+                ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE, true);
+        }
+    });
 
-    m_perspectiveCmake->addToolBarAction(&m_startCmakeAction);
+    m_startDapAction.setToolTip(Tr::tr("Start DAP Debugging"));
+    m_startDapAction.setText(Tr::tr("Start DAP Debugging"));
+    m_startDapAction.setEnabled(true);
+    m_startDapAction.setIcon(startIcon(true));
+    m_startDapAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_startDapAction.setVisible(true);
 
-    m_perspectiveCmake->addWindow(engineManagerWindow, Perspective::SplitVertical, nullptr);
-    m_perspectiveCmake->addWindow(breakpointManagerWindow,
-                                  Perspective::SplitHorizontal,
-                                  engineManagerWindow);
-    m_perspectiveCmake->addWindow(globalLogWindow,
-                                  Perspective::AddToTab,
-                                  nullptr,
-                                  false,
-                                  Qt::TopDockWidgetArea);
+    m_perspectiveDap.useSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
+    m_perspectiveDap.addToolBarAction(&m_startDapAction);
+
+    m_perspectiveDap.addWindow(engineManagerWindow, Perspective::SplitVertical, nullptr);
+    m_perspectiveDap.addWindow(breakpointManagerWindow,
+                               Perspective::SplitHorizontal,
+                               engineManagerWindow);
+    m_perspectiveDap.addWindow(globalLogWindow,
+                               Perspective::AddToTab,
+                               nullptr,
+                               false,
+                               Qt::TopDockWidgetArea);
 }
-
 
 DebuggerPluginPrivate::~DebuggerPluginPrivate()
 {
