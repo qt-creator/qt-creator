@@ -100,10 +100,4 @@ private:
     PostRestore m_postRestore;
 };
 
-class DefaultDeployConfigurationFactory : public DeployConfigurationFactory
-{
-public:
-    DefaultDeployConfigurationFactory();
-};
-
 } // namespace ProjectExplorer

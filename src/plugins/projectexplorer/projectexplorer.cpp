@@ -426,6 +426,18 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
+class DefaultDeployConfigurationFactory final : public DeployConfigurationFactory
+{
+public:
+    DefaultDeployConfigurationFactory()
+    {
+        setConfigBaseId("ProjectExplorer.DefaultDeployConfiguration");
+        addSupportedTargetDeviceType(Constants::DESKTOP_DEVICE_TYPE);
+        //: Display name of the default deploy configuration
+        setDefaultDisplayName(Tr::tr("Deploy Configuration"));
+    }
+};
+
 class ProjectExplorerPluginPrivate : public QObject
 {
 public:
