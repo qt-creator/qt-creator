@@ -149,6 +149,13 @@ void TerminalWidget::setupPty()
     Environment env = m_openParameters.environment.value_or(Environment{})
                           .appliedToEnvironment(shellCommand.executable().deviceEnvironment());
 
+    // Set some useful defaults
+    env.setFallback("TERM", "xterm-256color");
+    env.setFallback("TERM_PROGRAM", QCoreApplication::applicationName());
+    env.setFallback("COLORTERM", "truecolor");
+    env.setFallback("COMMAND_MODE", "unix2003");
+    env.setFallback("INIT_CWD", QCoreApplication::applicationDirPath());
+
     // For git bash on Windows
     env.prependOrSetPath(shellCommand.executable().parentDir());
     if (env.hasKey("CLINK_NOAUTORUN"))
