@@ -41,8 +41,6 @@ Project {
             "remotelinuxcustomrunconfiguration.h",
             "remotelinuxdebugsupport.cpp",
             "remotelinuxdebugsupport.h",
-            "remotelinuxdeployconfiguration.cpp",
-            "remotelinuxdeployconfiguration.h",
             "remotelinuxenvironmentaspect.cpp",
             "remotelinuxenvironmentaspect.h",
             "remotelinuxplugin.cpp",

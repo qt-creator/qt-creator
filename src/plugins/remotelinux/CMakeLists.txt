@@ -18,7 +18,6 @@ add_qtc_plugin(RemoteLinux
     remotelinux_export.h
     remotelinuxcustomrunconfiguration.cpp remotelinuxcustomrunconfiguration.h
     remotelinuxdebugsupport.cpp remotelinuxdebugsupport.h
-    remotelinuxdeployconfiguration.cpp remotelinuxdeployconfiguration.h
     remotelinuxenvironmentaspect.cpp remotelinuxenvironmentaspect.h
     remotelinuxplugin.cpp remotelinuxplugin.h
     remotelinuxrunconfiguration.cpp remotelinuxrunconfiguration.h
