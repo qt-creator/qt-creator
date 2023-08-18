@@ -4,6 +4,8 @@ QtcPlugin {
     name: "CompilerExplorer"
 
     Depends { name: "Core" }
+    Depends { name: "Spinner" }
+    Depends { name: "TerminalLib" }
     Depends { name: "TextEditor" }
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
 
