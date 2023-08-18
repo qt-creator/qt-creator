@@ -717,6 +717,7 @@ extend_qtc_plugin(QmlDesigner
     effectnodescategory.cpp effectnodescategory.h
     compositionnode.cpp compositionnode.h
     uniform.cpp uniform.h
+    effectutils.cpp effectutils.h
 )
 
 extend_qtc_plugin(QmlDesigner

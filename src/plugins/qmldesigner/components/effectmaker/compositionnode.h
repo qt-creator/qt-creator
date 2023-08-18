@@ -22,7 +22,6 @@ public:
 
 private:
     void parse(const QString &qenPath);
-    QString codeFromJsonArray(const QJsonArray &codeArray);
 
     QString m_name;
     QString m_fragmentCode;

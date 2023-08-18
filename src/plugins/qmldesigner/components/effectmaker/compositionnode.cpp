@@ -3,6 +3,7 @@
 
 #include "compositionnode.h"
 
+#include "effectutils.h"
 #include "uniform.h"
 
 #include <QFileInfo>
@@ -64,10 +65,10 @@ void CompositionNode::parse(const QString &qenPath)
         return;
     }
 
-    m_name = json.value("name").toString(); //TODO: there is a difference between name and type
+    m_name = json.value("name").toString();
     m_description = json.value("description").toString();
-    m_fragmentCode = codeFromJsonArray(json.value("fragmentCode").toArray());
-    m_vertexCode = codeFromJsonArray(json.value("vertexCode").toArray());
+    m_fragmentCode = EffectUtils::codeFromJsonArray(json.value("fragmentCode").toArray());
+    m_vertexCode = EffectUtils::codeFromJsonArray(json.value("vertexCode").toArray());
 
     // parse properties
     QJsonArray properties = json.value("properties").toArray();
@@ -82,19 +83,6 @@ void CompositionNode::parse(const QString &qenPath)
         propObj.value("defaultValue");
         propObj.value("description");
     }
-}
-
-QString CompositionNode::codeFromJsonArray(const QJsonArray &codeArray)
-{
-    if (codeArray.isEmpty())
-        return {};
-
-    QString codeString;
-    for (const auto &element : codeArray)
-        codeString += element.toString() + '\n';
-
-    codeString.chop(1); // Remove last '\n'
-    return codeString;
 }
 
 } // namespace QmlDesigner

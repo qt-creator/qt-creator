@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QVariant>
 
+QT_FORWARD_DECLARE_CLASS(QJsonObject)
+
 namespace QmlDesigner {
 
 class Uniform : public QObject
@@ -36,17 +38,13 @@ public:
     QVariant defaultValue() const;
 
     QVariant minValue() const;
-
     QVariant maxValue() const;
 
     QString name() const;
-    void setName(const QString &newName);
-
     QString description() const;
 
     QString customValue() const;
     void setCustomValue(const QString &newCustomValue);
-
     bool useCustomValue() const;
 
     bool enabled() const;
@@ -55,6 +53,12 @@ public:
     bool enableMipmap() const;
 
 private:
+    QString mipmapPropertyName(const QString &name) const;
+
+    Uniform::Type typeFromString(const QString &typeString) const;
+    bool getBoolValue(const QJsonValue &jsonValue, bool defaultValue);
+    QString getResourcePath(const QString &value) const;
+
     Type m_type;
     QVariant m_value;
     QVariant m_defaultValue;
