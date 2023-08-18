@@ -58,8 +58,6 @@ public:
     ExamplesWelcomePage examplesPage{true};
     ExamplesWelcomePage tutorialPage{false};
 
-    QtKitAspectFactory qtKitAspectFactory;
-
     QtOutputFormatterFactory qtOutputFormatterFactory;
 
     UicGeneratorFactory uicGeneratorFactory;

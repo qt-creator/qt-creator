@@ -9,8 +9,6 @@
 
 #include <projectexplorer/kitaspects.h>
 
-namespace Utils { class MacroExpander; }
-
 namespace QtSupport {
 
 class QTSUPPORT_EXPORT QtKitAspect
@@ -29,38 +27,6 @@ public:
     qtVersionPredicate(const QSet<Utils::Id> &required = QSet<Utils::Id>(),
                        const QVersionNumber &min = QVersionNumber(0, 0, 0),
                        const QVersionNumber &max = QVersionNumber(INT_MAX, INT_MAX, INT_MAX));
-};
-
-class QTSUPPORT_EXPORT QtKitAspectFactory : public ProjectExplorer::KitAspectFactory
-{
-public:
-    QtKitAspectFactory();
-
-private:
-    void setup(ProjectExplorer::Kit *k) override;
-
-    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
-    void fix(ProjectExplorer::Kit *) override;
-
-    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k) const override;
-
-    QString displayNamePostfix(const ProjectExplorer::Kit *k) const override;
-
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
-
-    void addToBuildEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
-    QList<Utils::OutputLineParser *> createOutputParsers(const ProjectExplorer::Kit *k) const override;
-    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
-
-    QSet<Utils::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const override;
-    QSet<Utils::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;
-
-    int weight(const ProjectExplorer::Kit *k) const override;
-
-    void qtVersionsChanged(const QList<int> &addedIds,
-                           const QList<int> &removedIds,
-                           const QList<int> &changedIds);
-    void onKitsLoaded() override;
 };
 
 class QTSUPPORT_EXPORT SuppliesQtQuickImportPath

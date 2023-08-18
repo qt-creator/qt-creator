@@ -130,6 +130,40 @@ private:
 };
 } // namespace Internal
 
+class QtKitAspectFactory : public KitAspectFactory
+{
+public:
+    QtKitAspectFactory();
+
+private:
+    void setup(Kit *k) override;
+
+    Tasks validate(const Kit *k) const override;
+    void fix(Kit *) override;
+
+    KitAspect *createKitAspect(Kit *k) const override;
+
+    QString displayNamePostfix(const Kit *k) const override;
+
+    ItemList toUserOutput(const Kit *k) const override;
+
+    void addToBuildEnvironment(const Kit *k, Environment &env) const override;
+    QList<OutputLineParser *> createOutputParsers(const Kit *k) const override;
+    void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
+
+    QSet<Id> supportedPlatforms(const Kit *k) const override;
+    QSet<Id> availableFeatures(const Kit *k) const override;
+
+    int weight(const Kit *k) const override;
+
+    void qtVersionsChanged(const QList<int> &addedIds,
+                           const QList<int> &removedIds,
+                           const QList<int> &changedIds);
+    void onKitsLoaded() override;
+};
+
+const QtKitAspectFactory theQtKitAspectFactory;
+
 QtKitAspectFactory::QtKitAspectFactory()
 {
     setObjectName(QLatin1String("QtKitAspect"));
