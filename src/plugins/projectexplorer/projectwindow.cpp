@@ -741,8 +741,17 @@ public:
 
     void handleManageKits()
     {
-        if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
-            KitOptionsPage::showKit(KitManager::kit(Id::fromSetting(projectItem->data(0, KitIdRole))));
+        const QModelIndexList selected = m_selectorTree->selectionModel()->selectedIndexes();
+        if (!selected.isEmpty()) {
+            TreeItem *treeItem = m_projectsModel.itemForIndex(selected.front());
+            while (treeItem) {
+                const Id kitId = Id::fromSetting(treeItem->data(0, KitIdRole));
+                if (kitId.isValid()) {
+                    setSelectectKitId(kitId);
+                    break;
+                }
+                treeItem = treeItem->parent();
+            }
         }
         ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID);
     }

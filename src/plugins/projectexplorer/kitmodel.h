@@ -5,6 +5,7 @@
 
 #include "projectexplorer_export.h"
 
+#include <utils/id.h>
 #include <utils/treemodel.h>
 
 QT_BEGIN_NAMESPACE
@@ -36,6 +37,7 @@ public:
     Kit *kit(const QModelIndex &);
     KitNode *kitNode(const QModelIndex &);
     QModelIndex indexOf(Kit *k) const;
+    QModelIndex indexOf(Utils::Id kitId) const;
 
     void setDefaultKit(const QModelIndex &index);
     bool isDefaultKit(Kit *k) const;

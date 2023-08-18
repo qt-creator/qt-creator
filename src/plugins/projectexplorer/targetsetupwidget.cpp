@@ -180,7 +180,7 @@ void TargetSetupWidget::manageKit()
     if (!m_kit)
         return;
 
-    KitOptionsPage::showKit(m_kit);
+    setSelectectKitId(m_kit->id());
     Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, parentWidget());
 }
 

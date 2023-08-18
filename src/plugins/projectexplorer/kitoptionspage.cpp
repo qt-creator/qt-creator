@@ -11,6 +11,8 @@
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
@@ -20,14 +22,20 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
-namespace ProjectExplorer {
-namespace Internal {
+using namespace Utils;
+
+namespace ProjectExplorer::Internal {
+
+// Page pre-selection
+
+static Id selectedKitId;
+
+void setSelectectKitId(const Utils::Id &kitId)
+{
+    selectedKitId = kitId;
+}
 
 // KitOptionsPageWidget
-
-class KitOptionsPageWidget;
-
-static QPointer<KitOptionsPageWidget> kitOptionsPageWidget;
 
 class KitOptionsPageWidget : public Core::IOptionsPageWidget
 {
@@ -43,6 +51,8 @@ public:
     void removeKit();
     void makeDefaultKit();
     void updateState();
+
+    void scrollToSelectedKit();
 
     void apply() final { m_model->apply(); }
 
@@ -62,7 +72,6 @@ public:
 
 KitOptionsPageWidget::KitOptionsPageWidget()
 {
-    kitOptionsPageWidget = this;
     m_kitsView = new QTreeView(this);
     m_kitsView->setUniformRowHeights(true);
     m_kitsView->header()->setStretchLastSection(true);
@@ -140,7 +149,20 @@ KitOptionsPageWidget::KitOptionsPageWidget()
             m_model->updateVisibility();
         }
     });
+
+    scrollToSelectedKit();
+
     updateState();
+}
+
+void KitOptionsPageWidget::scrollToSelectedKit()
+{
+    QModelIndex index = m_model->indexOf(selectedKitId);
+    m_selectionModel->select(index,
+                             QItemSelectionModel::Clear
+                                 | QItemSelectionModel::SelectCurrent
+                                 | QItemSelectionModel::Rows);
+    m_kitsView->scrollTo(index);
 }
 
 void KitOptionsPageWidget::kitSelectionChanged()
@@ -238,37 +260,22 @@ QModelIndex KitOptionsPageWidget::currentIndex() const
     return idxs.at(0);
 }
 
-} // namespace Internal
+// KitOptionsPage
 
-// --------------------------------------------------------------------------
-// KitOptionsPage:
-// --------------------------------------------------------------------------
-
-KitOptionsPage::KitOptionsPage()
+class KitsSettingsPage : public Core::IOptionsPage
 {
-    setId(Constants::KITS_SETTINGS_PAGE_ID);
-    setDisplayName(Tr::tr("Kits"));
-    setCategory(Constants::KITS_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Kits"));
-    setCategoryIconPath(":/projectexplorer/images/settingscategory_kits.png");
-    setWidgetCreator([] { return new Internal::KitOptionsPageWidget; });
-}
+public:
+    KitsSettingsPage()
+    {
+        setId(Constants::KITS_SETTINGS_PAGE_ID);
+        setDisplayName(Tr::tr("Kits"));
+        setCategory(Constants::KITS_SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("Kits"));
+        setCategoryIconPath(":/projectexplorer/images/settingscategory_kits.png");
+        setWidgetCreator([] { return new Internal::KitOptionsPageWidget; });
+    }
+};
 
-void KitOptionsPage::showKit(Kit *k)
-{
-    if (!k)
-        return;
+const KitsSettingsPage theKitsSettingsPage;
 
-    Internal::KitOptionsPageWidget *widget = Internal::kitOptionsPageWidget;
-    if (!widget)
-        return;
-
-    QModelIndex index = widget->m_model->indexOf(k);
-    widget->m_selectionModel->select(index,
-                                QItemSelectionModel::Clear
-                                | QItemSelectionModel::SelectCurrent
-                                | QItemSelectionModel::Rows);
-    widget->m_kitsView->scrollTo(index);
-}
-
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

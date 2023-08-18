@@ -636,7 +636,6 @@ public:
     DesktopDeviceFactory m_desktopDeviceFactory;
 
     ToolChainOptionsPage m_toolChainOptionsPage;
-    KitOptionsPage m_kitOptionsPage;
 
     TaskHub m_taskHub;
 

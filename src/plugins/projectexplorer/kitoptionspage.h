@@ -3,20 +3,10 @@
 
 #pragma once
 
-#include "projectexplorer_export.h"
+namespace Utils { class Id; }
 
-#include <coreplugin/dialogs/ioptionspage.h>
+namespace ProjectExplorer::Internal {
 
-namespace ProjectExplorer {
+void setSelectectKitId(const Utils::Id &kitId);
 
-class Kit;
-
-class PROJECTEXPLORER_EXPORT KitOptionsPage : public Core::IOptionsPage
-{
-public:
-    KitOptionsPage();
-
-    static void showKit(Kit *k);
-};
-
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

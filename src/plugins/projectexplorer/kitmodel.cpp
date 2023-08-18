@@ -188,6 +188,12 @@ KitNode *KitModel::kitNode(const QModelIndex &index)
     return (n && n->level() == 2) ? static_cast<KitNode *>(n) : nullptr;
 }
 
+QModelIndex KitModel::indexOf(Id kitId) const
+{
+    KitNode *n = findItemAtLevel<2>([kitId](KitNode *n) { return n->kit()->id() == kitId; });
+    return n ? indexForItem(n) : QModelIndex();
+}
+
 QModelIndex KitModel::indexOf(Kit *k) const
 {
     KitNode *n = findWorkingCopy(k);
