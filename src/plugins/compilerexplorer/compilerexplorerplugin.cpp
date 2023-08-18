@@ -28,9 +28,6 @@ class CompilerExplorerPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CompilerExplorer.json")
 
 public:
-    CompilerExplorerPlugin();
-    ~CompilerExplorerPlugin() override;
-
     void initialize() override
     {
         static CompilerExplorer::EditorFactory ceEditorFactory;
