@@ -5,8 +5,7 @@
 
 #include <projectexplorer/kitaspects.h>
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class QbsKitAspect final
 {
@@ -18,16 +17,4 @@ public:
     static Utils::Id id();
 };
 
-class QbsKitAspectFactory final : public ProjectExplorer::KitAspectFactory
-{
-public:
-    QbsKitAspectFactory();
-
-private:
-    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *) const override;
-    ItemList toUserOutput(const ProjectExplorer::Kit *) const override;
-    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *) const override;
-};
-
-} // namespace Internal
-} // namespace QbsProjectManager
+} // QbsProjectManager::Internal

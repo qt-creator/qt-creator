@@ -17,8 +17,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class QbsKitAspectImpl final : public KitAspect
 {
@@ -53,14 +52,6 @@ private:
     QPushButton * const m_changeButton;
 };
 
-QbsKitAspectFactory::QbsKitAspectFactory()
-{
-    setObjectName(QLatin1String("QbsKitAspect"));
-    setId(QbsKitAspect::id());
-    setDisplayName(Tr::tr("Additional Qbs Profile Settings"));
-    setPriority(22000);
-}
-
 QString QbsKitAspect::representation(const Kit *kit)
 {
     const QVariantMap props = properties(kit);
@@ -90,20 +81,33 @@ Utils::Id QbsKitAspect::id()
     return "Qbs.KitInformation";
 }
 
-Tasks QbsKitAspectFactory::validate(const Kit *) const
-{
-    return {};
-}
+// QbsKitAspectFactory
 
-KitAspectFactory::ItemList QbsKitAspectFactory::toUserOutput(const Kit *k) const
+class QbsKitAspectFactory final : public KitAspectFactory
 {
-    return {{displayName(), QbsKitAspect::representation(k)}};
-}
+public:
+    QbsKitAspectFactory()
+    {
+        setObjectName(QLatin1String("QbsKitAspect"));
+        setId(QbsKitAspect::id());
+        setDisplayName(Tr::tr("Additional Qbs Profile Settings"));
+        setPriority(22000);
+    }
 
-KitAspect *QbsKitAspectFactory::createKitAspect(Kit *k) const
-{
-    return new QbsKitAspectImpl(k, this);
-}
+private:
+    Tasks validate(const Kit *) const override { return {}; }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+    ItemList toUserOutput(const Kit *k) const override
+    {
+        return {{displayName(), QbsKitAspect::representation(k)}};
+    }
+
+    KitAspect *createKitAspect(Kit *k) const override
+    {
+        return new QbsKitAspectImpl(k, this);
+    }
+};
+
+const QbsKitAspectFactory theQbsKitAspectFactory;
+
+} // QbsProjectManager::Internal

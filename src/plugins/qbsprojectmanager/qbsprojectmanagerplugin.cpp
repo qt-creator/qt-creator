@@ -7,7 +7,6 @@
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
 #include "qbsinstallstep.h"
-#include "qbskitinformation.h"
 #include "qbsnodes.h"
 #include "qbsprofilemanager.h"
 #include "qbsprofilessettingspage.h"
@@ -74,7 +73,6 @@ public:
     QbsInstallStepFactory installStepFactory;
     QbsSettingsPage settingsPage;
     QbsProfilesSettingsPage profilesSetttingsPage;
-    QbsKitAspectFactory qbsKitAspectFactory;
 };
 
 QbsProjectManagerPlugin::~QbsProjectManagerPlugin()
