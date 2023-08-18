@@ -3,7 +3,9 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/iexternaleditor.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+
+#include <QObject>
 
 namespace QtSupport::Internal {
 

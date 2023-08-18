@@ -7,7 +7,6 @@
 
 #include <utils/id.h>
 
-#include <QObject>
 #include <QStringList>
 
 #include <functional>
@@ -26,6 +25,7 @@ class EditorType;
 
 using EditorFactoryList = QList<IEditorFactory *>;
 using EditorTypeList = QList<EditorType *>;
+using ExternalEditorList = QList<IExternalEditor *>;
 
 class CORE_EXPORT EditorType
 {
@@ -75,6 +75,20 @@ protected:
 
 private:
     std::function<IEditor *()> m_creator;
+};
+
+class CORE_EXPORT IExternalEditor : public EditorType
+{
+public:
+    explicit IExternalEditor();
+    ~IExternalEditor() override;
+
+    static const ExternalEditorList allExternalEditors();
+    static const ExternalEditorList externalEditors(const Utils::MimeType &mimeType);
+
+    IExternalEditor *asExternalEditor() override { return this; }
+
+    virtual bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) = 0;
 };
 
 } // namespace Core

@@ -3,10 +3,9 @@
 
 #pragma once
 
-#include "iexternaleditor.h"
+#include "ieditorfactory.h"
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class SystemEditor : public IExternalEditor
 {
@@ -16,5 +15,4 @@ public:
     bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) override;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

@@ -86,8 +86,6 @@ add_qtc_plugin(Core
     editormanager/ieditorfactory.cpp
     editormanager/ieditorfactory.h
     editormanager/ieditorfactory_p.h
-    editormanager/iexternaleditor.cpp
-    editormanager/iexternaleditor.h
     editormanager/openeditorsview.cpp
     editormanager/openeditorsview.h
     editormanager/openeditorswindow.cpp

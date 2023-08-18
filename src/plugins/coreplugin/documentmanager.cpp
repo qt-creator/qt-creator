@@ -21,7 +21,6 @@
 #include <coreplugin/editormanager/editorview.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/systemsettings.h>
 
 #include <extensionsystem/pluginmanager.h>
