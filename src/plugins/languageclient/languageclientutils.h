@@ -47,4 +47,6 @@ updateCodeActionRefactoringMarker(Client *client,
 void updateEditorToolBar(Core::IEditor *editor);
 const QIcon LANGUAGECLIENT_EXPORT symbolIcon(int type);
 
+void autoSetupLanguageServer(TextEditor::TextDocument *document);
+
 } // namespace LanguageClient

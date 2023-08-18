@@ -530,6 +530,8 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
             if (TextEditor::TextDocument *document = textEditor->textDocument()) {
                 if (Client *client = m_clientForDocument[document])
                     client->activateEditor(editor);
+                else
+                    autoSetupLanguageServer(document);
             }
         }
     }
