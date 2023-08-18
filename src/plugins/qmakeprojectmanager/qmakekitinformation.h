@@ -5,8 +5,7 @@
 
 #include <projectexplorer/kitmanager.h>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class QmakeKitAspect
 {
@@ -19,19 +18,4 @@ public:
     static QString defaultMkspec(const ProjectExplorer::Kit *k);
 };
 
-class QmakeKitAspectFactory : public ProjectExplorer::KitAspectFactory
-{
-public:
-    QmakeKitAspectFactory();
-
-    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
-
-    ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k) const override;
-
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
-
-    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
-};
-
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // QmakeProjectManager::Internal

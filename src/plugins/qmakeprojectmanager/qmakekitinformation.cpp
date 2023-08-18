@@ -23,8 +23,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 class QmakeKitAspectImpl final : public KitAspect
 {
@@ -64,49 +63,6 @@ private:
     Guard m_ignoreChanges;
 };
 
-
-QmakeKitAspectFactory::QmakeKitAspectFactory()
-{
-    setObjectName(QLatin1String("QmakeKitAspect"));
-    setId(QmakeKitAspect::id());
-    setDisplayName(Tr::tr("Qt mkspec"));
-    setDescription(Tr::tr("The mkspec to use when building the project with qmake.<br>"
-                      "This setting is ignored when using other build systems."));
-    setPriority(24000);
-}
-
-Tasks QmakeKitAspectFactory::validate(const Kit *k) const
-{
-    Tasks result;
-    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-
-    const QString mkspec = QmakeKitAspect::mkspec(k);
-    if (!version && !mkspec.isEmpty())
-        result << BuildSystemTask(Task::Warning, Tr::tr("No Qt version set, so mkspec is ignored."));
-    if (version && !version->hasMkspec(mkspec))
-        result << BuildSystemTask(Task::Error, Tr::tr("Mkspec not found for Qt version."));
-
-    return result;
-}
-
-KitAspect *QmakeKitAspectFactory::createKitAspect(Kit *k) const
-{
-    return new Internal::QmakeKitAspectImpl(k, this);
-}
-
-KitAspectFactory::ItemList QmakeKitAspectFactory::toUserOutput(const Kit *k) const
-{
-    return {{Tr::tr("mkspec"), QDir::toNativeSeparators(QmakeKitAspect::mkspec(k))}};
-}
-
-void QmakeKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
-{
-    expander->registerVariable("Qmake:mkspec", Tr::tr("Mkspec configured for qmake by the kit."),
-                [kit]() -> QString {
-                    return QDir::toNativeSeparators(QmakeKitAspect::mkspec(kit));
-                });
-}
-
 Id QmakeKitAspect::id()
 {
     return Constants::KIT_INFORMATION_ID;
@@ -145,5 +101,54 @@ QString QmakeKitAspect::defaultMkspec(const Kit *k)
     return version->mkspecFor(ToolChainKitAspect::cxxToolChain(k));
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+// QmakeKitAspectFactory
+
+class QmakeKitAspectFactory : public KitAspectFactory
+{
+public:
+    QmakeKitAspectFactory()
+    {
+        setObjectName(QLatin1String("QmakeKitAspect"));
+        setId(QmakeKitAspect::id());
+        setDisplayName(Tr::tr("Qt mkspec"));
+        setDescription(Tr::tr("The mkspec to use when building the project with qmake.<br>"
+                              "This setting is ignored when using other build systems."));
+        setPriority(24000);
+    }
+
+    Tasks validate(const Kit *k) const override
+    {
+        Tasks result;
+        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+
+        const QString mkspec = QmakeKitAspect::mkspec(k);
+        if (!version && !mkspec.isEmpty())
+            result << BuildSystemTask(Task::Warning, Tr::tr("No Qt version set, so mkspec is ignored."));
+        if (version && !version->hasMkspec(mkspec))
+            result << BuildSystemTask(Task::Error, Tr::tr("Mkspec not found for Qt version."));
+
+        return result;
+    }
+
+    KitAspect *createKitAspect(Kit *k) const override
+    {
+        return new QmakeKitAspectImpl(k, this);
+    }
+
+    ItemList toUserOutput(const Kit *k) const override
+    {
+        return {{Tr::tr("mkspec"), QDir::toNativeSeparators(QmakeKitAspect::mkspec(k))}};
+    }
+
+    void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override
+    {
+        expander->registerVariable("Qmake:mkspec", Tr::tr("Mkspec configured for qmake by the kit."),
+                                   [kit]() -> QString {
+                                       return QDir::toNativeSeparators(QmakeKitAspect::mkspec(kit));
+                                   });
+    }
+};
+
+const QmakeKitAspectFactory theQmakeKitAspectFactory;
+
+} // QmakeProjectManager::Internal

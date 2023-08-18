@@ -7,7 +7,6 @@
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "profileeditor.h"
 #include "qmakebuildconfiguration.h"
-#include "qmakekitinformation.h"
 #include "qmakemakestep.h"
 #include "qmakenodes.h"
 #include "qmakeproject.h"
@@ -95,8 +94,6 @@ public:
     ParameterAction *m_buildFileAction = nullptr;
     QAction *m_addLibraryAction = nullptr;
     QAction *m_addLibraryActionContextMenu = nullptr;
-
-    QmakeKitAspectFactory qmakeKitAspectFactory;
 
     void addLibrary();
     void addLibraryContextMenu();
