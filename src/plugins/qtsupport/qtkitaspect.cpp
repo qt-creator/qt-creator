@@ -490,19 +490,4 @@ int QtKitAspectFactory::weight(const Kit *k) const
         return qtAbi.isCompatibleWith(tcAbi); }) ? 1 : 0;
 }
 
-Id SuppliesQtQuickImportPath::id()
-{
-    return QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH;
-}
-
-Id KitQmlImportPath::id()
-{
-    return QtSupport::Constants::KIT_QML_IMPORT_PATH;
-}
-
-Id KitHasMergedHeaderPathsWithQmlImportPaths::id()
-{
-    return QtSupport::Constants::KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS;
-}
-
 } // namespace QtSupport

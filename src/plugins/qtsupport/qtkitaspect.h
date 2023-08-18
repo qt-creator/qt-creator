@@ -29,22 +29,4 @@ public:
                        const QVersionNumber &max = QVersionNumber(INT_MAX, INT_MAX, INT_MAX));
 };
 
-class QTSUPPORT_EXPORT SuppliesQtQuickImportPath
-{
-public:
-    static Utils::Id id();
-};
-
-class QTSUPPORT_EXPORT KitQmlImportPath
-{
-public:
-    static Utils::Id id();
-};
-
-class QTSUPPORT_EXPORT KitHasMergedHeaderPathsWithQmlImportPaths
-{
-public:
-    static Utils::Id id();
-};
-
 } // namespace QtSupport
