@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "android_global.h"
-
 #include <QAbstractItemModel>
 #include <QStringList>
 
@@ -13,7 +11,7 @@ namespace ProjectExplorer { class BuildSystem; }
 
 namespace Android {
 
-class ANDROID_EXPORT AndroidExtraLibraryListModel : public QAbstractItemModel
+class AndroidExtraLibraryListModel : public QAbstractItemModel
 {
     Q_OBJECT
 

@@ -3,7 +3,6 @@ add_qtc_plugin(Android
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport LanguageClient
   SOURCES
     android.qrc
-    android_global.h
     androidtr.h
     androidavdmanager.cpp androidavdmanager.h
     androidbuildapkstep.cpp androidbuildapkstep.h

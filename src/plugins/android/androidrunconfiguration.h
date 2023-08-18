@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "android_global.h"
-
 #include <projectexplorer/runconfiguration.h>
 
 namespace Android {

@@ -17,7 +17,7 @@ Project {
         Depends { name: "Utils" }
 
         files: [
-            "android_global.h", "androidtr.h",
+            "androidtr.h",
             "android.qrc",
             "androidavdmanager.cpp",
             "androidavdmanager.h",

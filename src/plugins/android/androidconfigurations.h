@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "android_global.h"
 #include "androiddeviceinfo.h"
 #include "androidsdkmanager.h"
 #include "androidsdkpackage.h"
@@ -56,7 +55,7 @@ public:
     bool containsVersion(const QVersionNumber &qtVersion) const;
 };
 
-class ANDROID_EXPORT AndroidConfig
+class AndroidConfig
 {
 public:
     void load(const QSettings &settings);
@@ -183,7 +182,7 @@ private:
     mutable QHash<QString, QString> m_serialNumberToDeviceName;
 };
 
-class ANDROID_EXPORT AndroidConfigurations : public QObject
+class AndroidConfigurations : public QObject
 {
     Q_OBJECT
 
