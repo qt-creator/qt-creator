@@ -9,11 +9,34 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
-
 using namespace Utils;
 
 namespace Core {
+
+/* Find the one best matching the mimetype passed in.
+ * Recurse over the parent classes of the mimetype to find them. */
+template<class EditorTypeLike>
+static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
+                                  const QList<EditorTypeLike *> &allFactories,
+                                  QList<EditorTypeLike *> *list)
+{
+    QSet<EditorTypeLike *> matches;
+    Utils::visitMimeParents(mimeType, [&](const Utils::MimeType &mt) -> bool {
+        // check for matching factories
+        for (EditorTypeLike *factory : allFactories) {
+            if (!matches.contains(factory)) {
+                const QStringList mimeTypes = factory->mimeTypes();
+                for (const QString &mimeName : mimeTypes) {
+                    if (mt.matchesName(mimeName)) {
+                        list->append(factory);
+                        matches.insert(factory);
+                    }
+                }
+            }
+        }
+        return true; // continue
+    });
+}
 
 /*!
     \class Core::IEditorFactory
@@ -158,8 +181,8 @@ const EditorTypeList EditorType::defaultEditorTypes(const MimeType &mimeType)
     const EditorTypeList allExternalEditors = Utils::filtered(allTypes, [](EditorType *e) {
         return e->asExternalEditor() != nullptr;
     });
-    Internal::mimeTypeFactoryLookup(mimeType, allEditorFactories, &result);
-    Internal::mimeTypeFactoryLookup(mimeType, allExternalEditors, &result);
+    mimeTypeFactoryLookup(mimeType, allEditorFactories, &result);
+    mimeTypeFactoryLookup(mimeType, allExternalEditors, &result);
     return result;
 }
 
@@ -349,7 +372,7 @@ const ExternalEditorList IExternalEditor::externalEditors(const Utils::MimeType 
 {
     ExternalEditorList rc;
     const ExternalEditorList allEditors = IExternalEditor::allExternalEditors();
-    Internal::mimeTypeFactoryLookup(mimeType, allEditors, &rc);
+    mimeTypeFactoryLookup(mimeType, allEditors, &rc);
     return rc;
 }
 
