@@ -33,6 +33,9 @@ private:
     template <typename Task> friend class TaskAdapter;
     friend class TaskNode;
     TaskInterface() = default;
+#ifdef Q_QDOC
+protected:
+#endif
     virtual void start() = 0;
 };
 
