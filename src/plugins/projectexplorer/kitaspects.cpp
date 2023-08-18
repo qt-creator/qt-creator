@@ -330,6 +330,7 @@ class ToolChainKitAspectFactory : public KitAspectFactory
 public:
     ToolChainKitAspectFactory();
 
+private:
     Tasks validate(const Kit *k) const override;
     void upgrade(Kit *k) override;
     void fix(Kit *k) override;
@@ -348,8 +349,8 @@ public:
     QList<OutputLineParser *> createOutputParsers(const Kit *k) const override;
     QSet<Id> availableFeatures(const Kit *k) const override;
 
-private:
-    void kitsWereLoaded();
+    void onKitsLoaded() override;
+
     void toolChainUpdated(ToolChain *tc);
     void toolChainRemoved(ToolChain *tc);
 };
@@ -363,9 +364,6 @@ ToolChainKitAspectFactory::ToolChainKitAspectFactory()
                       "Make sure the compiler will produce binaries compatible "
                       "with the target device, Qt version and other libraries used."));
     setPriority(30000);
-
-    connect(KitManager::instance(), &KitManager::kitsLoaded,
-            this, &ToolChainKitAspectFactory::kitsWereLoaded);
 }
 
 // language id -> tool chain id
@@ -765,10 +763,9 @@ QString ToolChainKitAspect::msgNoToolChainInTarget()
     return Tr::tr("No compiler set in kit.");
 }
 
-void ToolChainKitAspectFactory::kitsWereLoaded()
+void ToolChainKitAspectFactory::onKitsLoaded()
 {
-    const QList<Kit *> kits = KitManager::kits();
-    for (Kit *k : kits)
+    for (Kit *k : KitManager::kits())
         fix(k);
 
     connect(ToolChainManager::instance(), &ToolChainManager::toolChainRemoved,
@@ -788,8 +785,7 @@ void ToolChainKitAspectFactory::toolChainUpdated(ToolChain *tc)
 void ToolChainKitAspectFactory::toolChainRemoved(ToolChain *tc)
 {
     Q_UNUSED(tc)
-    const QList<Kit *> kits = KitManager::kits();
-    for (Kit *k : kits)
+    for (Kit *k : KitManager::kits())
         fix(k);
 }
 
@@ -1013,6 +1009,7 @@ class DeviceKitAspectFactory : public KitAspectFactory
 public:
     DeviceKitAspectFactory();
 
+private:
     Tasks validate(const Kit *k) const override;
     void fix(Kit *k) override;
     void setup(Kit *k) override;
@@ -1025,10 +1022,9 @@ public:
 
     void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
 
-private:
     QVariant defaultValue(const Kit *k) const;
 
-    void kitsWereLoaded();
+    void onKitsLoaded() override;
     void deviceUpdated(Id dataId);
     void devicesChanged();
     void kitUpdated(Kit *k);
@@ -1041,9 +1037,6 @@ DeviceKitAspectFactory::DeviceKitAspectFactory()
     setDisplayName(Tr::tr("Run device"));
     setDescription(Tr::tr("The device to run the applications on."));
     setPriority(32000);
-
-    connect(KitManager::instance(), &KitManager::kitsLoaded,
-            this, &DeviceKitAspectFactory::kitsWereLoaded);
 }
 
 QVariant DeviceKitAspectFactory::defaultValue(const Kit *k) const
@@ -1179,10 +1172,9 @@ FilePath DeviceKitAspect::deviceFilePath(const Kit *k, const QString &pathOnDevi
     return FilePath::fromString(pathOnDevice);
 }
 
-void DeviceKitAspectFactory::kitsWereLoaded()
+void DeviceKitAspectFactory::onKitsLoaded()
 {
-    const QList<Kit *> kits = KitManager::kits();
-    for (Kit *k : kits)
+    for (Kit *k : KitManager::kits())
         fix(k);
 
     DeviceManager *dm = DeviceManager::instance();
@@ -1199,8 +1191,7 @@ void DeviceKitAspectFactory::kitsWereLoaded()
 
 void DeviceKitAspectFactory::deviceUpdated(Id id)
 {
-    const QList<Kit *> kits = KitManager::kits();
-    for (Kit *k : kits) {
+    for (Kit *k : KitManager::kits()) {
         if (DeviceKitAspect::deviceId(k) == id)
             notifyAboutUpdate(k);
     }
@@ -1213,8 +1204,7 @@ void DeviceKitAspectFactory::kitUpdated(Kit *k)
 
 void DeviceKitAspectFactory::devicesChanged()
 {
-    const QList<Kit *> kits = KitManager::kits();
-    for (Kit *k : kits)
+    for (Kit *k : KitManager::kits())
         setup(k); // Set default device if necessary
 }
 
@@ -1310,6 +1300,7 @@ class BuildDeviceKitAspectFactory : public KitAspectFactory
 public:
     BuildDeviceKitAspectFactory();
 
+private:
     void setup(Kit *k) override;
     Tasks validate(const Kit *k) const override;
 
@@ -1321,8 +1312,7 @@ public:
 
     void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
 
-private:
-    void kitsWereLoaded();
+    void onKitsLoaded() override;
     void deviceUpdated(Id dataId);
     void devicesChanged();
     void kitUpdated(Kit *k);
@@ -1335,9 +1325,6 @@ BuildDeviceKitAspectFactory::BuildDeviceKitAspectFactory()
     setDisplayName(Tr::tr("Build device"));
     setDescription(Tr::tr("The device used to build applications on."));
     setPriority(31900);
-
-    connect(KitManager::instance(), &KitManager::kitsLoaded,
-            this, &BuildDeviceKitAspectFactory::kitsWereLoaded);
 }
 
 static IDeviceConstPtr defaultDevice()
@@ -1444,10 +1431,9 @@ void BuildDeviceKitAspect::setDeviceId(Kit *k, Id id)
     k->setValue(BuildDeviceKitAspect::id(), id.toSetting());
 }
 
-void BuildDeviceKitAspectFactory::kitsWereLoaded()
+void BuildDeviceKitAspectFactory::onKitsLoaded()
 {
-    const QList<Kit *> kits = KitManager::kits();
-    for (Kit *k : kits)
+    for (Kit *k : KitManager::kits())
         fix(k);
 
     DeviceManager *dm = DeviceManager::instance();

@@ -139,9 +139,6 @@ QtKitAspectFactory::QtKitAspectFactory()
                           "A Qt version is required for qmake-based projects "
                           "and optional when using other build systems."));
     setPriority(26000);
-
-    connect(KitManager::instance(), &KitManager::kitsLoaded,
-            this, &QtKitAspectFactory::kitsWereLoaded);
 }
 
 void QtKitAspectFactory::setup(Kit *k)
@@ -399,7 +396,7 @@ void QtKitAspectFactory::qtVersionsChanged(const QList<int> &addedIds,
     }
 }
 
-void QtKitAspectFactory::kitsWereLoaded()
+void QtKitAspectFactory::onKitsLoaded()
 {
     for (Kit *k : KitManager::kits())
         fix(k);

@@ -69,6 +69,12 @@ static FilePath settingsFileName()
 class KitAspectFactories
 {
 public:
+    void onKitsLoaded() const
+    {
+        for (KitAspectFactory *factory : m_aspectList)
+            factory->onKitsLoaded();
+    }
+
     void addKitAspect(KitAspectFactory *factory)
     {
         QTC_ASSERT(!m_aspectList.contains(factory), return);
@@ -416,6 +422,9 @@ void KitManager::restoreKits()
 
     d->m_writer = std::make_unique<PersistentSettingsWriter>(settingsFileName(), "QtCreatorProfiles");
     d->m_initialized = true;
+
+    kitAspectFactoriesStorage().onKitsLoaded();
+
     emit instance()->kitsLoaded();
     emit instance()->kitsChanged();
 }

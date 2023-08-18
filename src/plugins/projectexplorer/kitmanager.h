@@ -81,6 +81,8 @@ public:
 
     virtual bool isApplicableToKit(const Kit *) const { return true; }
 
+    virtual void onKitsLoaded() {}
+
 protected:
     KitAspectFactory();
     ~KitAspectFactory();

@@ -36,6 +36,7 @@ class QTSUPPORT_EXPORT QtKitAspectFactory : public ProjectExplorer::KitAspectFac
 public:
     QtKitAspectFactory();
 
+private:
     void setup(ProjectExplorer::Kit *k) override;
 
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
@@ -54,13 +55,12 @@ public:
     QSet<Utils::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const override;
     QSet<Utils::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;
 
-private:
     int weight(const ProjectExplorer::Kit *k) const override;
 
     void qtVersionsChanged(const QList<int> &addedIds,
                            const QList<int> &removedIds,
                            const QList<int> &changedIds);
-    void kitsWereLoaded();
+    void onKitsLoaded() override;
 };
 
 class QTSUPPORT_EXPORT SuppliesQtQuickImportPath
