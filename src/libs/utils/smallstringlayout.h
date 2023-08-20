@@ -95,7 +95,7 @@ struct alignas(16) StringDataLayout
                   "Size + 1 must be dividable by 16 if under 64 and Size + 2 must be dividable by "
                   "16 if over 64!");
 
-    StringDataLayout() noexcept { reset(); }
+    constexpr StringDataLayout() noexcept { reset(); }
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
         : control{0, true, true}
@@ -147,7 +147,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
                   "Size + 1 must be dividable by 16 if under 64 and Size + 2 must be dividable by "
                   "16 if over 64!");
 
-    StringDataLayout() noexcept { reset(); }
+    constexpr StringDataLayout() noexcept { reset(); }
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
         : control{0, true, true}

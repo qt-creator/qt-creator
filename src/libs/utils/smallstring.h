@@ -50,15 +50,11 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
 
-    static_assert(Size < 64
-                ? sizeof(Internal::StringDataLayout<Size>) == Size + 1
-                : sizeof(Internal::StringDataLayout<Size>) == Size + 2,
+    static_assert(Size < 64 ? sizeof(Internal::StringDataLayout<Size>) == Size + 1
+                            : sizeof(Internal::StringDataLayout<Size>) == Size + 2,
                   "Size is wrong");
-    constexpr
-    BasicSmallString() noexcept
-        : m_data(Internal::StringDataLayout<Size>())
-    {
-    }
+
+    constexpr BasicSmallString() = default;
 
     constexpr
     BasicSmallString(const BasicSmallStringLiteral<Size> &stringReference)
