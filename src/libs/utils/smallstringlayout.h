@@ -109,8 +109,20 @@ struct alignas(16) StringDataLayout
             control = {Size - 1, false, false};
             for (size_type i = 0; i < Size; ++i)
                 shortString[i] = string[i];
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+            if (std::is_constant_evaluated()) {
+                for (size_type i = Size; i < MaximumShortStringDataAreaSize; ++i)
+                    shortString[i] = 0;
+            }
+#endif
         } else {
             control = {0, true, true};
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+            if (std::is_constant_evaluated()) {
+                for (size_type i = 0; i < sizeof(dummy); ++i)
+                    dummy[i] = 0;
+            }
+#endif
             reference = {{string}, Size - 1, 0};
         }
     }
@@ -120,7 +132,16 @@ struct alignas(16) StringDataLayout
         return MaximumShortStringDataAreaSize;
     }
 
-    constexpr void reset() { control = ControlBlock<MaximumShortStringDataAreaSize>(); }
+    constexpr void reset()
+    {
+        control = ControlBlock<MaximumShortStringDataAreaSize>();
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+        if (std::is_constant_evaluated()) {
+            for (size_type i = 0; i < MaximumShortStringDataAreaSize; ++i)
+                shortString[i] = 0;
+        }
+#endif
+    }
 
 #pragma pack(push)
 #pragma pack(1)
@@ -161,8 +182,20 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
             control = {Size - 1, false, false};
             for (size_type i = 0; i < Size; ++i)
                 shortString[i] = string[i];
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+            if (std::is_constant_evaluated()) {
+                for (size_type i = Size; i < MaximumShortStringDataAreaSize; ++i)
+                    shortString[i] = 0;
+            }
+#endif
         } else {
             control = {0, true, true};
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+            if (std::is_constant_evaluated()) {
+                for (size_type i = 0; i < sizeof(dummy); ++i)
+                    dummy[i] = 0;
+            }
+#endif
             reference = {{string}, Size - 1, 0};
         }
     }
@@ -184,7 +217,16 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
         return MaximumShortStringDataAreaSize;
     }
 
-    constexpr void reset() { control = ControlBlock<MaximumShortStringDataAreaSize>(); }
+    constexpr void reset()
+    {
+        control = ControlBlock<MaximumShortStringDataAreaSize>();
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+        if (std::is_constant_evaluated()) {
+            for (size_type i = 0; i < MaximumShortStringDataAreaSize; ++i)
+                shortString[i] = 0;
+        }
+#endif
+    }
 
 #pragma pack(push)
 #pragma pack(1)

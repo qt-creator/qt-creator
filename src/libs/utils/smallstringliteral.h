@@ -20,6 +20,8 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
 
+    constexpr BasicSmallStringLiteral() = default;
+
     template<size_type ArraySize>
     constexpr
     BasicSmallStringLiteral(const char(&string)[ArraySize]) noexcept
