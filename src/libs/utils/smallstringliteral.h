@@ -20,11 +20,10 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
 
-    constexpr BasicSmallStringLiteral() = default;
+    constexpr BasicSmallStringLiteral() noexcept = default;
 
     template<size_type ArraySize>
-    constexpr
-    BasicSmallStringLiteral(const char(&string)[ArraySize]) noexcept
+    constexpr BasicSmallStringLiteral(const char (&string)[ArraySize]) noexcept
         : m_data(string)
     {
         static_assert(ArraySize >= 1, "Invalid string literal! Length is zero!");
@@ -82,11 +81,7 @@ public:
         return m_data.control.isReadOnlyReference();
     }
 
-    constexpr
-    operator SmallStringView() const
-    {
-        return SmallStringView(data(), size());
-    }
+    constexpr operator SmallStringView() const noexcept { return SmallStringView(data(), size()); }
 
 private:
     BasicSmallStringLiteral(const Internal::StringDataLayout<Size> &data) noexcept

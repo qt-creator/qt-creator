@@ -31,45 +31,29 @@ struct ControlBlock
         , m_isReference(isReference)
     {}
 
-    constexpr void setShortStringSize(size_type size)
+    constexpr void setShortStringSize(size_type size) noexcept
     {
        m_shortStringSize = static_cast<SizeType>(size);
     }
 
-    constexpr size_type shortStringSize() const { return m_shortStringSize; }
+    constexpr size_type shortStringSize() const noexcept { return m_shortStringSize; }
 
-    constexpr void setIsReadOnlyReference(bool isReadOnlyReference)
+    constexpr void setIsReadOnlyReference(bool isReadOnlyReference) noexcept
     {
         m_isReadOnlyReference = isReadOnlyReference;
     }
 
-    constexpr void setIsReference(bool isReference) { m_isReference = isReference; }
+    constexpr void setIsReference(bool isReference) noexcept { m_isReference = isReference; }
 
-    constexpr void setIsShortString(bool isShortString) { m_isReference = !isShortString; }
+    constexpr void setIsShortString(bool isShortString) noexcept { m_isReference = !isShortString; }
 
-    constexpr
-    SizeType stringSize() const
-    {
-        return m_shortStringSize;
-    }
+    constexpr SizeType stringSize() const noexcept { return m_shortStringSize; }
 
-    constexpr
-    bool isReadOnlyReference() const
-    {
-        return m_isReadOnlyReference;
-    }
+    constexpr bool isReadOnlyReference() const noexcept { return m_isReadOnlyReference; }
 
-    constexpr
-    bool isReference() const
-    {
-        return m_isReference;
-    }
+    constexpr bool isReference() const noexcept { return m_isReference; }
 
-    constexpr
-    bool isShortString() const
-    {
-        return !m_isReference;
-    }
+    constexpr bool isShortString() const noexcept { return !m_isReference; }
 
 private:
     ControlType m_shortStringSize : (sizeof(ControlType) * 8) - 2;
@@ -132,7 +116,7 @@ struct alignas(16) StringDataLayout
         return MaximumShortStringDataAreaSize;
     }
 
-    constexpr void reset()
+    constexpr void reset() noexcept
     {
         control = ControlBlock<MaximumShortStringDataAreaSize>();
 #if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
@@ -217,7 +201,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
         return MaximumShortStringDataAreaSize;
     }
 
-    constexpr void reset()
+    constexpr void reset() noexcept
     {
         control = ControlBlock<MaximumShortStringDataAreaSize>();
 #if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
