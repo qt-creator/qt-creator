@@ -184,14 +184,19 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
         }
     }
 
-    StringDataLayout(const StringDataLayout &other) noexcept { *this = other; }
-
-    StringDataLayout &operator=(const StringDataLayout &other) noexcept
+    void copyHere(const StringDataLayout &other) noexcept
     {
         constexpr auto controlBlockSize = sizeof(ControlBlock<MaximumShortStringDataAreaSize>);
         auto shortStringLayoutSize = other.control.stringSize() + controlBlockSize;
         constexpr auto referenceLayoutSize = sizeof(ReferenceLayout);
         std::memcpy(this, &other, std::max(shortStringLayoutSize, referenceLayoutSize));
+    }
+
+    StringDataLayout(const StringDataLayout &other) noexcept { copyHere(other); }
+
+    StringDataLayout &operator=(const StringDataLayout &other) noexcept
+    {
+        copyHere(other);
 
         return *this;
     }
