@@ -3,15 +3,15 @@
 
 #include "uniform.h"
 
+#include <QColor>
 #include <QJsonObject>
+#include <QVector2D>
 
 namespace QmlDesigner {
 
 Uniform::Uniform(const QJsonObject &propObj)
 {
-    //TODO: some cases such as missing values or default values not yet implemented
-
-    QString value, defaultValue;
+    QString value, defaultValue, minValue, maxValue;
 
     m_name = propObj.value("name").toString();
     m_description = propObj.value("description").toString();
@@ -34,13 +34,10 @@ Uniform::Uniform(const QJsonObject &propObj)
         // QEN files don't store the current value, so with those use default value
         value = defaultValue;
     }
-    m_customValue = propObj.value("customValue").toString();
-    m_useCustomValue = getBoolValue(propObj.value("useCustomValue"), false);
-    m_minValue = propObj.value("minValue").toString();
-    m_maxValue = propObj.value("maxValue").toString();
-    //TODO: set uniform value data after validating, for now just set to current value
-    m_defaultValue = defaultValue;
-    m_value = value;
+    minValue = propObj.value("minValue").toString();
+    maxValue = propObj.value("maxValue").toString();
+
+    setValueData(value, defaultValue, minValue, maxValue);
 }
 
 Uniform::Type Uniform::type() const
@@ -169,6 +166,88 @@ QString Uniform::getResourcePath(const QString &value) const
     Q_UNUSED(value)
     //TODO
     return {};
+}
+
+// Validation and setting values
+void Uniform::setValueData(const QString &value, const QString &defaultValue,
+                           const QString &minValue, const QString &maxValue)
+{
+    m_value = value.isEmpty() ? getInitializedVariant(m_type, false) : valueStringToVariant(m_type, value);
+    m_defaultValue = defaultValue.isEmpty() ? getInitializedVariant(m_type, false)
+                                            : valueStringToVariant(m_type, defaultValue);
+    m_minValue = minValue.isEmpty() ? getInitializedVariant(m_type, false) : valueStringToVariant(m_type, minValue);
+    m_maxValue = maxValue.isEmpty() ? getInitializedVariant(m_type, true) : valueStringToVariant(m_type, maxValue);
+}
+
+// Initialize the value variant with correct type
+QVariant Uniform::getInitializedVariant(Uniform::Type type, bool maxValue)
+{
+    switch (type) {
+    case Uniform::Type::Bool:
+        return maxValue ? true : false;
+    case Uniform::Type::Int:
+        return maxValue ? 100 : 0;
+    case Uniform::Type::Float:
+        return maxValue ? 1.0 : 0.0;
+    case Uniform::Type::Vec2:
+        return maxValue ? QVector2D(1.0, 1.0) : QVector2D(0.0, 0.0);
+    case Uniform::Type::Vec3:
+        return maxValue ? QVector3D(1.0, 1.0, 1.0) : QVector3D(0.0, 0.0, 0.0);
+    case Uniform::Type::Vec4:
+        return maxValue ? QVector4D(1.0, 1.0, 1.0, 1.0) : QVector4D(0.0, 0.0, 0.0, 0.0);
+    case Uniform::Type::Color:
+        return maxValue ? QColor::fromRgbF(1.0f, 1.0f, 1.0f, 1.0f) : QColor::fromRgbF(0.0f, 0.0f, 0.0f, 0.0f);
+    default:
+        return QVariant();
+    }
+}
+
+QVariant Uniform::valueStringToVariant(const Uniform::Type type, const QString &value)
+{
+    QVariant variant;
+    switch (type) {
+    case Type::Bool:
+        variant = (value == "true");
+        break;
+    case Type::Int:
+    case Type::Float:
+        variant = value;
+        break;
+    case Type::Vec2: {
+        QStringList list = value.split(QLatin1Char(','));
+        if (list.size() >= 2)
+            variant = QVector2D(list.at(0).toDouble(), list.at(1).toDouble());
+    }
+    break;
+    case Type::Vec3: {
+        QStringList list = value.split(QLatin1Char(','));
+        if (list.size() >= 3)
+            variant = QVector3D(list.at(0).toDouble(), list.at(1).toDouble(), list.at(2).toDouble());
+    }
+    break;
+    case Type::Vec4: {
+        QStringList list = value.split(QLatin1Char(','));
+        if (list.size() >= 4)
+            variant = QVector4D(list.at(0).toDouble(), list.at(1).toDouble(),
+                                list.at(2).toDouble(), list.at(3).toDouble());
+    }
+    break;
+    case Type::Color: {
+        QStringList list = value.split(QLatin1Char(','));
+        if (list.size() >= 4)
+            variant = QColor::fromRgbF(list.at(0).toDouble(), list.at(1).toDouble(),
+                                       list.at(2).toDouble(), list.at(3).toDouble());
+    }
+    break;
+    case Type::Sampler:
+        variant = value;
+        break;
+    case Uniform::Type::Define:
+        variant = value;
+        break;
+    }
+
+    return variant;
 }
 
 } // namespace QmlDesigner

@@ -6,7 +6,9 @@
 #include <QObject>
 #include <QVariant>
 
+QT_FORWARD_DECLARE_CLASS(QColor)
 QT_FORWARD_DECLARE_CLASS(QJsonObject)
+QT_FORWARD_DECLARE_CLASS(QVector2D)
 
 namespace QmlDesigner {
 
@@ -64,6 +66,10 @@ private:
     Uniform::Type typeFromString(const QString &typeString) const;
     bool getBoolValue(const QJsonValue &jsonValue, bool defaultValue);
     QString getResourcePath(const QString &value) const;
+    void setValueData(const QString &value, const QString &defaultValue,
+                      const QString &minValue, const QString &maxValue);
+    QVariant getInitializedVariant(Uniform::Type type, bool maxValue);
+    QVariant valueStringToVariant(const Uniform::Type type, const QString &value);
 
     Type m_type;
     QVariant m_value;
