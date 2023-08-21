@@ -109,8 +109,8 @@ public:
     bool isValid() const override { return contains(itemsKey); }
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationRequest : public Request<
-        LanguageClientArray<QJsonValue>, std::nullptr_t, ConfigurationParams>
+class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationRequest
+    : public Request<QJsonArray, std::nullptr_t, ConfigurationParams>
 {
 public:
     explicit ConfigurationRequest(const ConfigurationParams &params);

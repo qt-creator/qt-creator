@@ -1941,6 +1941,18 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
             if (ProgressManager::isProgressEndMessage(*params))
                 emit q->workDone(params->token());
         }
+    } else if (method == ConfigurationRequest::methodName) {
+        ConfigurationRequest::Response response;
+        QJsonArray result;
+        if (QTC_GUARD(id.isValid()))
+            response.setId(id);
+        ConfigurationRequest configurationRequest(message.toJsonObject());
+        if (auto params = configurationRequest.params()) {
+            for (int i = 0, end = params->items().count(); i < end; ++i)
+                result.append({});
+        }
+        response.setResult(result);
+        sendResponse(response);
     } else if (isRequest) {
         Response<JsonObject, JsonObject> response(id);
         ResponseError<JsonObject> error;
