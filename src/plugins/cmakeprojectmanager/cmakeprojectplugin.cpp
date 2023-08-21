@@ -9,7 +9,6 @@
 #include "cmakeeditor.h"
 #include "cmakeformatter.h"
 #include "cmakeinstallstep.h"
-#include "cmakekitaspect.h"
 #include "cmakelocatorfilter.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
@@ -62,9 +61,6 @@ public:
     CMakeBuildTargetFilter cMakeBuildTargetFilter;
     CMakeOpenTargetFilter cMakeOpenTargetFilter;
 
-    CMakeKitAspectFactory cmakeKitAspectFactory;
-    CMakeGeneratorKitAspectFactory cmakeGeneratorKitAspectFactory;
-    CMakeConfigurationKitAspectFactory cmakeConfigurationKitAspectFactory;
     CMakeFormatter cmakeFormatter;
 };
 

@@ -215,7 +215,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_kitConfiguration = new QPushButton(Tr::tr("Kit Configuration"));
     m_kitConfiguration->setToolTip(Tr::tr("Edit the current kit's CMake configuration."));
     m_kitConfiguration->setFixedWidth(m_kitConfiguration->sizeHint().width());
-    connect(m_kitConfiguration, &QPushButton::clicked, this, [this] { kitCMakeConfiguration(); });
+    connect(m_kitConfiguration, &QPushButton::clicked,
+            this, &CMakeBuildSettingsWidget::kitCMakeConfiguration,
+            Qt::QueuedConnection);
 
     m_filterEdit = new FancyLineEdit;
     m_filterEdit->setPlaceholderText(Tr::tr("Filter"));
@@ -646,18 +648,14 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
         m_buildConfig->kit()->unblockNotification();
     });
 
-    CMakeKitAspectFactory kitAspectFactory;
-    CMakeGeneratorKitAspectFactory generatorAspectFactory;
-    CMakeConfigurationKitAspectFactory configurationKitAspectFactory;
-
     Layouting::Grid grid;
-    KitAspect *widget = kitAspectFactory.createKitAspect(m_buildConfig->kit());
+    KitAspect *widget = CMakeKitAspect::createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
     widget->addToLayoutWithLabel(grid, dialog);
-    widget = generatorAspectFactory.createKitAspect(m_buildConfig->kit());
+    widget = CMakeGeneratorKitAspect::createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
     widget->addToLayoutWithLabel(grid, dialog);
-    widget = configurationKitAspectFactory.createKitAspect(m_buildConfig->kit());
+    widget = CMakeConfigurationKitAspect::createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
     widget->addToLayoutWithLabel(grid, dialog);
     grid.attachTo(dialog);
