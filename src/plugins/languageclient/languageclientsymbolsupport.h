@@ -78,6 +78,7 @@ private:
 
     Client *m_client = nullptr;
     SymbolMapper m_defaultSymbolMapper;
+    QHash<Core::SearchResult *, LanguageServerProtocol::MessageId> m_renameRequestIds;
     bool m_limitRenamingToProjects = false;
 };
 

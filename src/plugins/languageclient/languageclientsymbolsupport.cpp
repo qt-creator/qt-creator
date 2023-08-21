@@ -452,21 +452,24 @@ void SymbolSupport::requestPrepareRename(TextEditor::TextDocument *document,
 void SymbolSupport::requestRename(const TextDocumentPositionParams &positionParams,
                                   Core::SearchResult *search)
 {
+    if (m_renameRequestIds[search].isValid())
+        m_client->cancelRequest(m_renameRequestIds[search]);
     RenameParams params(positionParams);
     params.setNewName(search->textToReplace());
     RenameRequest request(params);
     request.setResponseCallback([this, search](const RenameRequest::Response &response) {
         handleRenameResponse(search, response);
     });
+    m_renameRequestIds[search] = request.id();
     m_client->sendMessage(request);
     if (search->isInteractive())
         search->popup();
 }
 
 Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
-                                                   Core::SearchResult *search,
-                                                   bool limitToProjects,
-                                                   const DocumentUri::PathMapper &pathMapper)
+                                              Core::SearchResult *search,
+                                              bool limitToProjects,
+                                              const DocumentUri::PathMapper &pathMapper)
 {
     auto convertEdits = [](const QList<TextEdit> &edits) {
         return Utils::transform(edits, [](const TextEdit &edit) {
@@ -546,6 +549,7 @@ void SymbolSupport::startRenameSymbol(const TextDocumentPositionParams &position
 void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
                                          const RenameRequest::Response &response)
 {
+    m_renameRequestIds.remove(search);
     const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
     QString errorMessage;
     if (error.has_value()) {
