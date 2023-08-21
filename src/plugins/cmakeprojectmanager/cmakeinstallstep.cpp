@@ -5,7 +5,7 @@
 
 #include "cmakeabstractprocessstep.h"
 #include "cmakebuildsystem.h"
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmakeparser.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"

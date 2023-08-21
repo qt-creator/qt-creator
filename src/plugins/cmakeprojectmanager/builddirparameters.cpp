@@ -5,7 +5,7 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildsystem.h"
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmaketoolmanager.h"
 
 #include <projectexplorer/kitaspects.h>

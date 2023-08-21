@@ -5,7 +5,7 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildsystem.h"
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmakeparser.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"

@@ -14,7 +14,7 @@
 #include "mcutarget.h"
 #include "settingshandler.h"
 
-#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>

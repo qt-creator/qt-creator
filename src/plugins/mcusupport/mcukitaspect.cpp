@@ -4,7 +4,7 @@
 #include "mcukitaspect.h"
 #include "mcusupporttr.h"
 
-#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>

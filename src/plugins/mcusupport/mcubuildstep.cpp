@@ -7,7 +7,7 @@
 #include "mculegacyconstants.h"
 #include "mcusupportconstants.h"
 
-#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildsteplist.h>

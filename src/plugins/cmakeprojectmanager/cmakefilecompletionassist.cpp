@@ -3,7 +3,7 @@
 
 #include "cmakefilecompletionassist.h"
 
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmakeprojectconstants.h"
 #include "cmaketool.h"
 

@@ -9,7 +9,7 @@
 #include "cmakeeditor.h"
 #include "cmakeformatter.h"
 #include "cmakeinstallstep.h"
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmakelocatorfilter.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"

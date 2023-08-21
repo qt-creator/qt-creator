@@ -11,7 +11,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
-#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
 #include <cmakeprojectmanager/cmaketool.h>
 
 #include <utils/aspects.h>

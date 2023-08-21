@@ -6,7 +6,7 @@
 #include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakeconfigitem.h"
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"

@@ -1,7 +1,7 @@
 // Copyright (C) 2016 Canonical Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 
 #include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"

@@ -33,7 +33,7 @@
 
 #include <baremetal/baremetalconstants.h>
 #include <cmakeprojectmanager/cmakeconfigitem.h>
-#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
 #include <gmock/gmock-actions.h>
 #include <gmock/gmock.h>
 

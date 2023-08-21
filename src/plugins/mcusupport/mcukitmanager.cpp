@@ -14,7 +14,7 @@
 #include "mcusupporttr.h"
 #include "mcutarget.h"
 
-#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 
 #include <debugger/debuggeritem.h>

@@ -18,7 +18,7 @@ add_qtc_plugin(CMakeProjectManager
     cmakeformatter.cpp cmakeformatter.h
     cmakeindenter.cpp cmakeindenter.h
     cmakeinstallstep.cpp cmakeinstallstep.h
-    cmakekitinformation.cpp cmakekitinformation.h
+    cmakekitaspect.cpp cmakekitaspect.h
     cmakelocatorfilter.cpp cmakelocatorfilter.h
     cmakeparser.cpp cmakeparser.h
     cmakeprocess.cpp cmakeprocess.h
