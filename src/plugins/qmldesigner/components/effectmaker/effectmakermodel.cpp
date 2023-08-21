@@ -18,6 +18,7 @@ QHash<int, QByteArray> EffectMakerModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[NameRole] = "nodeName";
+    roles[UniformsRole] = "nodeUniformsModel";
     return roles;
 }
 

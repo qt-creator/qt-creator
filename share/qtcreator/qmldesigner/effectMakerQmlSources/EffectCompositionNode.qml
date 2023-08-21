@@ -12,26 +12,19 @@ import EffectMakerBackend
 HelperWidgets.Section {
     id: root
 
-    caption: model.nodeName
+    caption: nodeName
     category: "EffectMaker"
 
-//    TODO: implement effect properties
-//    property var propList: model.props
-
     Column {
-        anchors.fill: parent
-        spacing: 2
+        spacing: 10
 
-    //    Repeater {
-    //        id: effects
-    //        model: effectList
-    //        width: parent.width
-    //        height: parent.height
-    //        delegate: Text {
-    //            width: parent.width
-    //            //height: StudioTheme.Values.checkIndicatorHeight * 2 // TODO: update or remove
-    //        }
-    //    }
+        Repeater {
+            model: nodeUniformsModel
+
+            EffectCompositionNodeUniform {
+                width: root.width
+            }
+        }
     }
 }
 

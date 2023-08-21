@@ -14,6 +14,10 @@ class Uniform : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString uniformName MEMBER m_name CONSTANT)
+    Q_PROPERTY(Type uniformType MEMBER m_type CONSTANT)
+    Q_PROPERTY(QVariant uniformValue MEMBER m_value CONSTANT)
+
 public:
     enum class Type
     {
@@ -71,11 +75,10 @@ private:
     bool m_enabled = true;
     bool m_enableMipmap = false;
 
-    bool operator==(const Uniform& rhs) const noexcept
+    bool operator==(const Uniform &rhs) const noexcept
     {
         return this->m_name == rhs.m_name;
     }
 };
 
 } // namespace QmlDesigner
-

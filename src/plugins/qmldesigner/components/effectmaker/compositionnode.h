@@ -3,15 +3,20 @@
 
 #pragma once
 
+#include "effectmakeruniformsmodel.h"
+
 #include <QObject>
 
 namespace QmlDesigner {
+
+class Uniform;
 
 class CompositionNode : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
+    Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel NOTIFY uniformsModelChanged)
 
 public:
     CompositionNode(const QString &qenPath);
@@ -20,6 +25,11 @@ public:
     QString vertexCode() const;
     QString description() const;
 
+    QObject *uniformsModel();
+
+signals:
+    void uniformsModelChanged();
+
 private:
     void parse(const QString &qenPath);
 
@@ -27,6 +37,8 @@ private:
     QString m_fragmentCode;
     QString m_vertexCode;
     QString m_description;
+
+    EffectMakerUniformsModel m_unifomrsModel;
 };
 
 } // namespace QmlDesigner

@@ -4,6 +4,7 @@
 #include "compositionnode.h"
 
 #include "effectutils.h"
+#include "effectmakeruniformsmodel.h"
 #include "uniform.h"
 
 #include <QFileInfo>
@@ -31,6 +32,11 @@ QString CompositionNode::vertexCode() const
 QString CompositionNode::description() const
 {
     return m_description;
+}
+
+QObject *CompositionNode::uniformsModel()
+{
+    return &m_unifomrsModel;
 }
 
 void CompositionNode::parse(const QString &qenPath)
@@ -72,17 +78,8 @@ void CompositionNode::parse(const QString &qenPath)
 
     // parse properties
     QJsonArray properties = json.value("properties").toArray();
-    for (const auto /*QJsonValueRef*/ &prop : properties) {
-        QJsonObject propObj = prop.toObject();
-        Uniform *u = new Uniform(propObj);
-        Q_UNUSED(u)
-
-        // TODO
-        propObj.value("name");
-        propObj.value("type");
-        propObj.value("defaultValue");
-        propObj.value("description");
-    }
+    for (const auto /*QJsonValueRef*/ &prop : properties)
+        m_unifomrsModel.addUniform(new Uniform(prop.toObject()));
 }
 
 } // namespace QmlDesigner

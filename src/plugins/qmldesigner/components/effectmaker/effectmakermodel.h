@@ -41,7 +41,7 @@ signals:
 private:
     enum Roles {
         NameRole = Qt::UserRole + 1,
-//        TODO
+        UniformsRole
     };
 
     bool isValidIndex(int idx) const;
