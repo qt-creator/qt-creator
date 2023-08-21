@@ -1220,7 +1220,8 @@ void ModelPrivate::removePropertyWithoutNotification(InternalProperty *property)
         for (const InternalNodePointer &node : allSubNodes)
             removeNodeFromModel(node);
     } else if (auto nodeProperty = property->to<PropertyType::Node>()) {
-        removeNodeFromModel(nodeProperty->node());
+        if (auto node = nodeProperty->node())
+            removeNodeFromModel(node);
     }
 
     auto propertyOwner = property->propertyOwner();
