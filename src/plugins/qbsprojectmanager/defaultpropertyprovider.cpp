@@ -3,7 +3,7 @@
 
 #include "defaultpropertyprovider.h"
 
-#include "qbskitinformation.h"
+#include "qbskitaspect.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
 
