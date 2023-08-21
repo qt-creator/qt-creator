@@ -567,7 +567,7 @@ Kit *KitManager::defaultKit()
 
 const QList<KitAspectFactory *> KitManager::kitAspectFactories()
 {
-    return kitAspectFactoriesStorage().m_aspectList;
+    return kitAspectFactoriesStorage().kitAspectFactories();
 }
 
 const QSet<Id> KitManager::irrelevantAspects()
