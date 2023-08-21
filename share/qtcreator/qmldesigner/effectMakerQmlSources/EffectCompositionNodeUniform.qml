@@ -53,7 +53,7 @@ Item {
                 realValue: uniformValue
                 realStepSize: .01
                 decimals: 2
-                onRealValueChanged: slider.value = realValue
+                onRealValueModified: uniformValue = realValue
             }
 
             StudioControls.Slider {
@@ -61,10 +61,15 @@ Item {
 
                 width: parent.width - 80
                 labels: false
+                decimals: 2
                 actionIndicatorVisible: false
                 from: uniformMinValue
                 to: uniformMaxValue
-                onValueChanged: spinBox.realValue = value
+                value: uniformValue
+                onMoved: {
+                    uniformValue = value
+                    spinBox.realValue = value // binding isn't working for this property so update it
+                }
             }
         }
     }

@@ -42,6 +42,17 @@ QVariant EffectMakerUniformsModel::data(const QModelIndex &index, int role) cons
     return m_uniforms.at(index.row())->property(roleNames().value(role));
 }
 
+bool EffectMakerUniformsModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid() || !roleNames().contains(role))
+        return false;
+
+    m_uniforms.at(index.row())->setValue(value);
+    emit dataChanged(index, index, {role});
+
+    return true;
+}
+
 void EffectMakerUniformsModel::resetModel()
 {
     beginResetModel();

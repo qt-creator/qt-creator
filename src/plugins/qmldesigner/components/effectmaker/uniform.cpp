@@ -52,7 +52,10 @@ QVariant Uniform::value() const
 
 void Uniform::setValue(const QVariant &newValue)
 {
-    m_value = newValue;
+    if (m_value != newValue) {
+        m_value = newValue;
+        emit uniformValueChanged();
+    }
 }
 
 QVariant Uniform::defaultValue() const
