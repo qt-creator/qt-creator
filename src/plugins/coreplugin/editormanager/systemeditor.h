@@ -7,12 +7,10 @@
 
 namespace Core::Internal {
 
-class SystemEditor : public IExternalEditor
+class SystemEditor final : public IEditorFactory
 {
 public:
-    explicit SystemEditor();
-
-    bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) override;
+    SystemEditor();
 };
 
 } // namespace Core::Internal

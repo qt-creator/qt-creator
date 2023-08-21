@@ -9,12 +9,12 @@
 
 namespace Core {
 
-class EditorType;
+class IEditorFactory;
 
 namespace Internal {
 
-QHash<Utils::MimeType, EditorType *> userPreferredEditorTypes();
-void setUserPreferredEditorTypes(const QHash<Utils::MimeType, EditorType *> &factories);
+QHash<Utils::MimeType, IEditorFactory *> userPreferredEditorTypes();
+void setUserPreferredEditorTypes(const QHash<Utils::MimeType, IEditorFactory *> &factories);
 
 } // Internal
 } // Core

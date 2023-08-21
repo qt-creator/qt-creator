@@ -98,13 +98,13 @@ public:
 
     void load();
 
-    QList<EditorType *> handlersForMimeType(const Utils::MimeType &mimeType) const;
-    EditorType *defaultHandlerForMimeType(const Utils::MimeType &mimeType) const;
+    QList<IEditorFactory *> handlersForMimeType(const Utils::MimeType &mimeType) const;
+    IEditorFactory *defaultHandlerForMimeType(const Utils::MimeType &mimeType) const;
     void resetUserDefaults();
 
     QList<Utils::MimeType> m_mimeTypes;
-    mutable QHash<Utils::MimeType, QList<EditorType *>> m_handlersByMimeType;
-    QHash<Utils::MimeType, EditorType *> m_userDefault;
+    mutable QHash<Utils::MimeType, QList<IEditorFactory *>> m_handlersByMimeType;
+    QHash<Utils::MimeType, IEditorFactory *> m_userDefault;
 };
 
 int MimeTypeSettingsModel::rowCount(const QModelIndex &) const
@@ -139,7 +139,7 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
         if (column == 0) {
             return type.name();
         } else {
-            EditorType *defaultHandler = defaultHandlerForMimeType(type);
+            IEditorFactory *defaultHandler = defaultHandlerForMimeType(type);
             return defaultHandler ? defaultHandler->displayName() : QString();
         }
     } else if (role == Qt::EditRole) {
@@ -166,12 +166,12 @@ bool MimeTypeSettingsModel::setData(const QModelIndex &index, const QVariant &va
 {
     if (role != int(Role::DefaultHandler) || index.column() != 1)
         return false;
-    auto factory = value.value<EditorType *>();
+    auto factory = value.value<IEditorFactory *>();
     QTC_ASSERT(factory, return false);
     const int row = index.row();
     QTC_ASSERT(row >= 0 && row < m_mimeTypes.size(), return false);
     const Utils::MimeType mimeType = m_mimeTypes.at(row);
-    const QList<EditorType *> handlers = handlersForMimeType(mimeType);
+    const QList<IEditorFactory *> handlers = handlersForMimeType(mimeType);
     QTC_ASSERT(handlers.contains(factory), return false);
     if (handlers.first() == factory) // selection is the default anyhow
         m_userDefault.remove(mimeType);
@@ -200,18 +200,18 @@ void MimeTypeSettingsModel::load()
     endResetModel();
 }
 
-QList<EditorType *> MimeTypeSettingsModel::handlersForMimeType(const Utils::MimeType &mimeType) const
+QList<IEditorFactory *> MimeTypeSettingsModel::handlersForMimeType(const Utils::MimeType &mimeType) const
 {
     if (!m_handlersByMimeType.contains(mimeType))
-        m_handlersByMimeType.insert(mimeType, EditorType::defaultEditorTypes(mimeType));
+        m_handlersByMimeType.insert(mimeType, IEditorFactory::defaultEditorFactories(mimeType));
     return m_handlersByMimeType.value(mimeType);
 }
 
-EditorType *MimeTypeSettingsModel::defaultHandlerForMimeType(const Utils::MimeType &mimeType) const
+IEditorFactory *MimeTypeSettingsModel::defaultHandlerForMimeType(const Utils::MimeType &mimeType) const
 {
     if (m_userDefault.contains(mimeType))
         return m_userDefault.value(mimeType);
-    const QList<EditorType *> handlers = handlersForMimeType(mimeType);
+    const QList<IEditorFactory *> handlers = handlersForMimeType(mimeType);
     return handlers.isEmpty() ? nullptr : handlers.first();
 }
 
@@ -808,13 +808,13 @@ QWidget *MimeEditorDelegate::createEditor(QWidget *parent,
 void MimeEditorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     auto box = static_cast<QComboBox *>(editor);
-    const auto factories = index.model()->data(index, Qt::EditRole).value<QList<EditorType *>>();
-    for (EditorType *factory : factories)
+    const auto factories = index.model()->data(index, Qt::EditRole).value<QList<IEditorFactory *>>();
+    for (IEditorFactory *factory : factories)
         box->addItem(factory->displayName(), QVariant::fromValue(factory));
     int currentIndex = factories.indexOf(
         index.model()
             ->data(index, int(MimeTypeSettingsModel::Role::DefaultHandler))
-            .value<EditorType *>());
+            .value<IEditorFactory *>());
     if (QTC_GUARD(currentIndex != -1))
         box->setCurrentIndex(currentIndex);
 }

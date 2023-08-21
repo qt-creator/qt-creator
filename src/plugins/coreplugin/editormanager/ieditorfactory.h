@@ -18,77 +18,48 @@ class MimeType;
 
 namespace Core {
 
-class IExternalEditor;
 class IEditor;
 class IEditorFactory;
-class EditorType;
 
-using EditorFactoryList = QList<IEditorFactory *>;
-using EditorTypeList = QList<EditorType *>;
-using ExternalEditorList = QList<IExternalEditor *>;
+using EditorFactories = QList<IEditorFactory *>;
 
-class CORE_EXPORT EditorType
+class CORE_EXPORT IEditorFactory
 {
 public:
-    virtual ~EditorType();
+    virtual ~IEditorFactory();
 
-    static const EditorTypeList allEditorTypes();
-    static EditorType *editorTypeForId(const Utils::Id &id);
-    static const EditorTypeList defaultEditorTypes(const Utils::MimeType &mimeType);
-    static const EditorTypeList preferredEditorTypes(const Utils::FilePath &filePath);
+    static const EditorFactories allEditorFactories();
+    static IEditorFactory *editorFactoryForId(const Utils::Id &id);
+    static const EditorFactories defaultEditorFactories(const Utils::MimeType &mimeType);
+    static const EditorFactories preferredEditorTypes(const Utils::FilePath &filePath);
+    static const EditorFactories preferredEditorFactories(const Utils::FilePath &filePath);
 
     Utils::Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
     QStringList mimeTypes() const { return m_mimeTypes; }
 
-    virtual IEditorFactory *asEditorFactory() { return nullptr; };
-    virtual IExternalEditor *asExternalEditor() { return nullptr; };
+    bool isInternalEditor() const;
+    bool isExternalEditor() const;
+
+    IEditor *createEditor() const;
+    bool startEditor(const Utils::FilePath &filePath, QString *errorMessage);
 
 protected:
-    EditorType();
+    IEditorFactory();
+
     void setId(Utils::Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
+    void setEditorCreator(const std::function<IEditor *()> &creator);
+    void setEditorStarter(const std::function<bool(const Utils::FilePath &, QString *)> &starter);
 
 private:
     Utils::Id m_id;
     QString m_displayName;
     QStringList m_mimeTypes;
-};
-
-class CORE_EXPORT IEditorFactory : public EditorType
-{
-public:
-    IEditorFactory();
-    ~IEditorFactory() override;
-
-    static const EditorFactoryList allEditorFactories();
-    static const EditorFactoryList preferredEditorFactories(const Utils::FilePath &filePath);
-
-    IEditor *createEditor() const;
-
-    IEditorFactory *asEditorFactory() override { return this; }
-
-protected:
-    void setEditorCreator(const std::function<IEditor *()> &creator);
-
-private:
     std::function<IEditor *()> m_creator;
-};
-
-class CORE_EXPORT IExternalEditor : public EditorType
-{
-public:
-    explicit IExternalEditor();
-    ~IExternalEditor() override;
-
-    static const ExternalEditorList allExternalEditors();
-    static const ExternalEditorList externalEditors(const Utils::MimeType &mimeType);
-
-    IExternalEditor *asExternalEditor() override { return this; }
-
-    virtual bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) = 0;
+    std::function<bool(const Utils::FilePath &, QString *)> m_starter;
 };
 
 } // namespace Core

@@ -192,7 +192,7 @@ void FilePropertiesDialog::refresh()
         const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_filePath);
         m_mimeType->setText(mimeType.name());
 
-        const EditorTypeList factories = IEditorFactory::preferredEditorTypes(m_filePath);
+        const EditorFactories factories = IEditorFactory::preferredEditorTypes(m_filePath);
         m_defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName()
                                                       : Tr::tr("Undefined"));
 
