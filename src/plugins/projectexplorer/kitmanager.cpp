@@ -734,9 +734,8 @@ KitAspect::~KitAspect()
     delete m_mutableAction;
 }
 
-void KitAspect::addToLayoutWithLabel(Layouting::LayoutItem &parentItem, QWidget *parent)
+void KitAspect::addToLayoutWithLabel(Layouting::LayoutItem &parentItem)
 {
-    QTC_ASSERT(parent, return);
     auto label = createSubWidget<QLabel>(m_factory->displayName() + ':');
     label->setToolTip(m_factory->description());
     connect(label, &QLabel::linkActivated, this, [this](const QString &link) {

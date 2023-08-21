@@ -113,7 +113,7 @@ public:
     virtual void makeReadOnly() = 0;
     virtual void refresh() = 0;
 
-    void addToLayoutWithLabel(Layouting::LayoutItem &parentItem, QWidget *parent);
+    void addToLayoutWithLabel(Layouting::LayoutItem &parentItem);
 
     static QString msgManage();
 
