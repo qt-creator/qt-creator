@@ -92,8 +92,8 @@ public:
     public:
         using JsonObject::JsonObject;
 
-        std::optional<QString> scopeUri() const { return optionalValue<QString>(scopeUriKey); }
-        void setScopeUri(const QString &scopeUri) { insert(scopeUriKey, scopeUri); }
+        std::optional<DocumentUri> scopeUri() const;
+        void setScopeUri(const DocumentUri &scopeUri) { insert(scopeUriKey, scopeUri); }
         void clearScopeUri() { remove(scopeUriKey); }
 
         std::optional<QString> section() const { return optionalValue<QString>(sectionKey); }

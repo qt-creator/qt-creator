@@ -72,4 +72,11 @@ LanguageServerProtocol::WorkSpaceFolderResult::operator const QJsonValue() const
     return array;
 }
 
+std::optional<DocumentUri> ConfigurationParams::ConfigurationItem::scopeUri() const
+{
+    if (const std::optional<QString> optionalScope = optionalValue<QString>(scopeUriKey))
+        return std::make_optional(DocumentUri::fromProtocol(*optionalScope));
+    return std::nullopt;
+}
+
 } // namespace LanguageServerProtocol
