@@ -65,7 +65,6 @@ Item {
 
             Column {
                 width: scrollView.width
-                height: compositionRepeater.height
                 spacing: 1
 
                 Repeater {

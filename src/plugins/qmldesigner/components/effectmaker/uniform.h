@@ -17,6 +17,8 @@ class Uniform : public QObject
     Q_PROPERTY(QString uniformName MEMBER m_name CONSTANT)
     Q_PROPERTY(Type uniformType MEMBER m_type CONSTANT)
     Q_PROPERTY(QVariant uniformValue MEMBER m_value CONSTANT)
+    Q_PROPERTY(QVariant uniformMinValue MEMBER m_minValue CONSTANT)
+    Q_PROPERTY(QVariant uniformMaxValue MEMBER m_maxValue CONSTANT)
 
 public:
     enum class Type

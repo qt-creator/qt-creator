@@ -23,7 +23,9 @@ Item {
             color: StudioTheme.Values.themeTextColor
             font.pointSize: StudioTheme.Values.smallFontSize
             horizontalAlignment: Text.AlignRight
-            Layout.preferredWidth: 80
+            Layout.maximumWidth: 140
+            Layout.minimumWidth: 140
+            Layout.preferredWidth: 140
         }
 
         Loader {
@@ -46,21 +48,22 @@ Item {
                 actionIndicatorVisible: false
                 spinBoxIndicatorVisible: false
                 inputHAlignment: Qt.AlignHCenter
-                from: 21
-                to: 78
-                stepSize: 1
-                onValueChanged: slider.value = realValue
+                realFrom: uniformMinValue
+                realTo: uniformMaxValue
+                realValue: uniformValue
+                realStepSize: .01
+                decimals: 2
+                onRealValueChanged: slider.value = realValue
             }
 
             StudioControls.Slider {
                 id: slider
 
-                width: parent.width - 60
+                width: parent.width - 80
                 labels: false
                 actionIndicatorVisible: false
-                from: 21
-                to: 78
-                stepSize: 1
+                from: uniformMinValue
+                to: uniformMaxValue
                 onValueChanged: spinBox.realValue = value
             }
         }
