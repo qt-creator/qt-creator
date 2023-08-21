@@ -6,7 +6,7 @@
 #include "makefileparse.h"
 #include "qmakebuildconfiguration.h"
 #include "qmakebuildinfo.h"
-#include "qmakekitinformation.h"
+#include "qmakekitaspect.h"
 #include "qmakeproject.h"
 #include "qmakeprojectmanagertr.h"
 #include "qmakestep.h"

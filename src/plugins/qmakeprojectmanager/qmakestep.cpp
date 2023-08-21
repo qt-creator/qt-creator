@@ -4,7 +4,7 @@
 #include "qmakestep.h"
 
 #include "qmakebuildconfiguration.h"
-#include "qmakekitinformation.h"
+#include "qmakekitaspect.h"
 #include "qmakenodes.h"
 #include "qmakeparser.h"
 #include "qmakeproject.h"

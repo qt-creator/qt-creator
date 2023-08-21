@@ -26,7 +26,7 @@ Project {
                 "profilehighlighter.cpp", "profilehighlighter.h",
                 "profilehoverhandler.cpp", "profilehoverhandler.h",
                 "qmakebuildinfo.h",
-                "qmakekitinformation.cpp", "qmakekitinformation.h",
+                "qmakekitaspect.cpp", "qmakekitaspect.h",
                 "qmakemakestep.cpp", "qmakemakestep.h",
                 "qmakeparser.cpp", "qmakeparser.h",
                 "qmakeparsernodes.cpp", "qmakeparsernodes.h",
