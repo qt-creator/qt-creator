@@ -25,10 +25,7 @@
     You can use the \l{http://code.google.com/p/gerrit/}{Gerrit} code review
     tool for projects that use Git.
 
-    \if defined(qtdesignstudio)
-    \include creator-vcs-options.qdocinc vcs options
-    \endif
-
+    \if defined(qtcreator)
     \section1 Using Git for Windows
 
     If you configure Git for use with \c {git bash}, only, and use SSH
@@ -47,6 +44,16 @@
     authorization works as it would with \c {git bash}.
 
     \image qtcreator-preferences-vcs-git.webp {Git preferences}
+    \endif
+
+    \section1 Initializing Git Repositories
+
+    To start controlling a project directory that is currently not under
+    version control, select \uicontrol Tools > \uicontrol Git >
+    \uicontrol {Create Repository}. \QC creates a new subdirectory named .git
+    that has all the necessary repository files. However, Git does not track
+    anything in the project yet, so you will need to create an initial commit to
+    start tracking the project files.
 
     \section1 Working with the Current File
 
@@ -182,7 +189,7 @@
 
     \section2 Cleaning Projects
 
-    To clean the working directory, select \uicontrol {Build Project} > \uicontrol {Clean}.
+    To clean the working directory, select \uicontrol {Clean Project}.
     All files that are not under version control are displayed in
     the \uicontrol {Clean Repository} dialog. Ignored files are deselected by
     default. Select the files to delete, and then select \uicontrol Delete.
@@ -463,15 +470,6 @@
             \li \uicontrol Show
             \li Show the commit in the diff editor.
     \endtable
-
-    \section1 Initializing Git Repositories
-
-    To start controlling a project directory that is currently not under
-    version control, select \uicontrol Tools > \uicontrol Git >
-    \uicontrol {Create Repository}. \QC creates a new subdirectory named .git
-    that has all the necessary repository files. However, Git does not track
-    anything in the project yet, so you will need to create an initial commit to
-    start tracking the project files.
 
     \section1 Working with Remote Repositories
 
