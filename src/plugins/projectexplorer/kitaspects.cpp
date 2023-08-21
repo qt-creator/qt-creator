@@ -105,7 +105,7 @@ SysRootKitAspectFactory::SysRootKitAspectFactory()
     setDisplayName(Tr::tr("Sysroot"));
     setDescription(Tr::tr("The root directory of the system image to use.<br>"
                       "Leave empty when building for the desktop."));
-    setPriority(31000);
+    setPriority(27000);
 }
 
 Tasks SysRootKitAspectFactory::validate(const Kit *k) const
