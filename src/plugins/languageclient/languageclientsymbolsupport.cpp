@@ -577,7 +577,7 @@ void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
     QSet<Utils::FilePath> affectedNonOpenFilePaths;
     QMap<Utils::FilePath, QList<TextEdit>> editsForDocuments;
     for (const Utils::SearchResultItem &item : checkedItems) {
-        const auto filePath = Utils::FilePath::fromString(item.path().value(0));
+        const auto filePath = Utils::FilePath::fromUserInput(item.path().value(0));
         if (!m_client->documentForFilePath(filePath))
             affectedNonOpenFilePaths << filePath;
         TextEdit edit(item.userData().toJsonObject());
