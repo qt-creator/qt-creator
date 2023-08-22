@@ -55,7 +55,7 @@ inline ConditionToken operator2ConditionToken(const int &op)
         return ConditionToken::Not;
     default:
         return ConditionToken::Unknown;
-    };
+    }
 }
 
 inline bool isStatementNode(const int &kind)
@@ -111,7 +111,7 @@ public:
 
     bool operator!=(Kind kind) const { return m_kind != kind; }
 
-    int increaseChildNo() { return m_children++; };
+    int increaseChildNo() { return m_children++; }
 
     bool isStatementNode() const { return m_isStatementNode; }
 
@@ -255,7 +255,7 @@ protected:
     {
         checkValidityAndReturn(false, "Recursion depth problem");
         qDebug() << Q_FUNC_INFO << this;
-    };
+    }
 
     void checkAndResetVariable()
     {
@@ -478,7 +478,7 @@ protected:
     {
         setFailed();
         qDebug() << Q_FUNC_INFO << this;
-    };
+    }
 
     void checkAndResetCal()
     {
@@ -520,8 +520,7 @@ MatchedStatement checkForStateSet(const MatchedStatement &currentState)
     using namespace ConnectionEditorStatements;
     return std::visit(
         Overload{[](const PropertySet &propertySet) -> MatchedStatement {
-                     if (propertySet.lhs.nodeId.size()
-                         && propertySet.lhs.propertyName.compare("state") == 0
+                     if (propertySet.lhs.nodeId.size() && propertySet.lhs.propertyName == u"state"
                          && std::holds_alternative<QString>(propertySet.rhs))
                          return StateSet{propertySet.lhs.nodeId,
                                          ConnectionEditorStatements::toString(propertySet.rhs)};
@@ -539,7 +538,7 @@ public:
     ConnectionEditorStatements::ConsoleLog expression()
     {
         return ConnectionEditorStatements::ConsoleLog{m_arg};
-    };
+    }
 
 protected:
     bool preVisit(QmlJS::AST::Node *node) override
@@ -578,8 +577,8 @@ protected:
         if (m_completed)
             return true;
 
-        const QString identifierName = identifier->name.toString();
-        if (identifierName.compare("console") != 0) {
+        const QStringView identifierName = identifier->name;
+        if (identifierName != u"console") {
             m_failed = true;
             return false;
         }
@@ -591,8 +590,8 @@ protected:
         if (m_completed)
             return true;
 
-        const QString fieldName = fieldExpression->name.toString();
-        if (fieldName.compare("log") != 0) {
+        const QStringView fieldName = fieldExpression->name;
+        if (fieldName != u"log") {
             m_failed = true;
             return false;
         }
@@ -619,7 +618,7 @@ protected:
     {
         m_failed = true;
         qDebug() << Q_FUNC_INFO << this;
-    };
+    }
 
 private:
     bool m_failed = false;
@@ -970,9 +969,8 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::BinaryExpression *binaryExpres
 
 bool ConnectionEditorEvaluator::visit(QmlJS::AST::FieldMemberExpression *fieldExpression)
 {
-    if (d->parentNodeStatus() == Kind::Kind_CallExpression)
-        if (fieldExpression->name.toString().compare("log") == 0)
-            d->m_consoleLogCount++;
+    if (d->parentNodeStatus() == Kind::Kind_CallExpression && fieldExpression->name == u"log")
+        d->m_consoleLogCount++;
 
     d->addVariableCondition(fieldExpression);
 
@@ -1056,7 +1054,7 @@ void ConnectionEditorEvaluator::endVisit(QmlJS::AST::FieldMemberExpression *fiel
     if (status() != UnFinished)
         return;
 
-    if (fieldExpression->name.toString().compare("log") == 0) {
+    if (fieldExpression->name == u"log") {
         if (d->m_consoleIdentifierCount != d->m_consoleLogCount) {
             d->m_acceptLogArgument = false;
         } else {
