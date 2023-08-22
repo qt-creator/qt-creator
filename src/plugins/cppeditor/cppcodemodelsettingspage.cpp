@@ -467,6 +467,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             labelSetter.setWarning(errorMessage);
     };
     connect(&d->clangdChooser, &Utils::PathChooser::textChanged, this, updateWarningLabel);
+    connect(&d->clangdChooser, &Utils::PathChooser::validChanged, this, updateWarningLabel);
     updateWarningLabel();
 
     connect(&d->useClangdCheckBox, &QCheckBox::toggled,

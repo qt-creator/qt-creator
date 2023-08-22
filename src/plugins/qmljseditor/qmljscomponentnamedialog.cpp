@@ -48,10 +48,9 @@ ComponentNameDialog::ComponentNameDialog(QWidget *parent) :
 
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &ComponentNameDialog::accept);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &ComponentNameDialog::reject);
-    connect(m_pathEdit, &Utils::PathChooser::rawPathChanged,
-            this, &ComponentNameDialog::validate);
-    connect(m_componentNameEdit, &QLineEdit::textChanged,
-            this, &ComponentNameDialog::validate);
+    connect(m_pathEdit, &Utils::PathChooser::rawPathChanged, this, &ComponentNameDialog::validate);
+    connect(m_pathEdit, &Utils::PathChooser::validChanged, this, &ComponentNameDialog::validate);
+    connect(m_componentNameEdit, &QLineEdit::textChanged, this, &ComponentNameDialog::validate);
 }
 
 bool ComponentNameDialog::go(QString *proposedName,
