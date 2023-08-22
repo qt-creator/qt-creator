@@ -17,7 +17,7 @@ class Uniform : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString uniformName MEMBER m_name CONSTANT)
-    Q_PROPERTY(Type uniformType MEMBER m_type CONSTANT)
+    Q_PROPERTY(QString uniformType READ type CONSTANT)
     Q_PROPERTY(QVariant uniformValue READ value WRITE setValue NOTIFY uniformValueChanged)
     Q_PROPERTY(QVariant uniformMinValue MEMBER m_minValue CONSTANT)
     Q_PROPERTY(QVariant uniformMaxValue MEMBER m_maxValue CONSTANT)
@@ -38,7 +38,7 @@ public:
 
     Uniform(const QJsonObject &props);
 
-    Type type() const;
+    QString type() const;
 
     QVariant value() const;
     void setValue(const QVariant &newValue);

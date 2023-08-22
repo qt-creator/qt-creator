@@ -40,9 +40,29 @@ Uniform::Uniform(const QJsonObject &propObj)
     setValueData(value, defaultValue, minValue, maxValue);
 }
 
-Uniform::Type Uniform::type() const
+QString Uniform::type() const
 {
-    return m_type;
+    if (m_type == Type::Bool)
+        return "bool";
+    if (m_type == Type::Int)
+        return "int";
+    if (m_type == Type::Float)
+        return "float";
+    if (m_type == Type::Vec2)
+        return "vec2";
+    if (m_type == Type::Vec3)
+        return "vec3";
+    if (m_type == Type::Vec4)
+        return "vec4";
+    if (m_type == Type::Color)
+        return "color";
+    if (m_type == Type::Sampler)
+        return "image";
+    if (m_type == Type::Define)
+        return "define";
+
+    qWarning() << "Unknown type";
+    return "float";
 }
 
 QVariant Uniform::value() const
