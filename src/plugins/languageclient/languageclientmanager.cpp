@@ -116,6 +116,13 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
                 for (QList<Client *> &clients : managerInstance->m_clientsForSetting)
                     QTC_CHECK(clients.removeAll(client) == 0);
             });
+
+    ProjectExplorer::Project *project = client->project();
+    if (!project)
+        project = ProjectExplorer::ProjectManager::startupProject();
+    if (project)
+        client->updateConfiguration(ProjectSettings(project).workspaceConfiguration());
+
     emit managerInstance->clientAdded(client);
 }
 
@@ -388,6 +395,16 @@ const BaseSettings *LanguageClientManager::settingForClient(Client *client)
         }
     }
     return nullptr;
+}
+
+void LanguageClientManager::updateWorkspaceConfiguration(const ProjectExplorer::Project *project,
+                                                         const QJsonValue &json)
+{
+    for (Client *client : managerInstance->m_clients) {
+        ProjectExplorer::Project *clientProject = client->project();
+        if (!clientProject || clientProject == project)
+            client->updateConfiguration(json);
+    }
 }
 
 Client *LanguageClientManager::clientForDocument(TextEditor::TextDocument *document)

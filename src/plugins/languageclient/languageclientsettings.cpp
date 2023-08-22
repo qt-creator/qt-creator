@@ -36,6 +36,7 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QGroupBox>
 #include <QHeaderView>
 #include <QJsonDocument>
 #include <QLabel>
@@ -1042,7 +1043,6 @@ TextEditor::BaseTextEditor *jsonEditor()
     TextEditorWidget *widget = textEditor->editorWidget();
     widget->configureGenericHighlighter(Utils::mimeTypeForName("application/json"));
     widget->setLineNumbersVisible(false);
-    widget->setMarksVisible(false);
     widget->setRevisionsVisible(false);
     widget->setCodeFoldingSupported(false);
     QObject::connect(document, &TextDocument::contentsChanged, widget, [document](){
@@ -1071,6 +1071,65 @@ TextEditor::BaseTextEditor *jsonEditor()
         document->addMark(mark);
     });
     return textEditor;
+}
+
+constexpr const char projectSettingsId[] = "LanguageClient.ProjectSettings";
+
+ProjectSettings::ProjectSettings(ProjectExplorer::Project *project)
+    : m_project(project)
+{
+    m_json = m_project->namedSettings(projectSettingsId).toByteArray();
+}
+
+QJsonValue ProjectSettings::workspaceConfiguration() const
+{
+    const auto doc = QJsonDocument::fromJson(m_json);
+    if (doc.isObject())
+        return doc.object();
+    if (doc.isArray())
+        return doc.array();
+    return {};
+}
+
+QByteArray ProjectSettings::json() const
+{
+    return m_json;
+}
+
+void ProjectSettings::setJson(const QByteArray &json)
+{
+    const QJsonValue oldConfig = workspaceConfiguration();
+    m_json = json;
+    m_project->setNamedSettings(projectSettingsId, m_json);
+    const QJsonValue newConfig = workspaceConfiguration();
+    if (oldConfig != newConfig)
+        LanguageClientManager::updateWorkspaceConfiguration(m_project, newConfig);
+}
+
+ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project)
+    : m_settings(project)
+{
+    setUseGlobalSettingsCheckBoxVisible(false);
+    setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+    setExpanding(true);
+
+    TextEditor::BaseTextEditor *editor = jsonEditor();
+    editor->document()->setContents(m_settings.json());
+
+    auto layout = new QVBoxLayout;
+    setLayout(layout);
+    auto group = new QGroupBox(Tr::tr("Language Server Workspace Configuration"));
+    group->setLayout(new QVBoxLayout);
+    group->layout()->addWidget(new QLabel(Tr::tr(
+        "Additional json configuration sent to all running language servers for this project.\n"
+        "See the documentation of the specific language server for valid settings.")));
+    group->layout()->addWidget(editor->widget());
+    layout->addWidget(group);
+
+    connect(editor->editorWidget()->textDocument(),
+            &TextEditor::TextDocument::contentsChanged,
+            this,
+            [=]() { m_settings.setJson(editor->document()->contents()); });
 }
 
 } // namespace LanguageClient

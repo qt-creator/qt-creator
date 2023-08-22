@@ -7,6 +7,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <projectexplorer/projectsettingswidget.h>
+
 #include <QAbstractItemModel>
 #include <QCoreApplication>
 #include <QJsonObject>
@@ -189,6 +191,30 @@ public:
 private:
     Utils::PathChooser *m_executable = nullptr;
     QLineEdit *m_arguments = nullptr;
+};
+
+class ProjectSettings
+{
+public:
+    explicit ProjectSettings(ProjectExplorer::Project *project);
+
+    QJsonValue workspaceConfiguration() const;
+
+    QByteArray json() const;
+    void setJson(const QByteArray &json);
+
+private:
+    ProjectExplorer::Project *m_project = nullptr;
+    QByteArray m_json;
+};
+
+class ProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+{
+public:
+    explicit ProjectSettingsWidget(ProjectExplorer::Project *project);
+
+private:
+    ProjectSettings m_settings;
 };
 
 LANGUAGECLIENT_EXPORT TextEditor::BaseTextEditor *jsonEditor();
