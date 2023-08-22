@@ -4,7 +4,7 @@
 #include "../utils/googletest.h"
 
 #include <matchers/import-matcher.h>
-#include <mocks/mocklistmodeleditorview.h>
+#include <mocks/abstractviewmock.h>
 #include <mocks/modelresourcemanagementmock.h>
 #include <mocks/projectstoragemock.h>
 #include <mocks/sourcepathcachemock.h>
@@ -77,7 +77,7 @@ protected:
     }
 
 protected:
-    NiceMock<MockListModelEditorView> viewMock;
+    NiceMock<AbstractViewMock> viewMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
