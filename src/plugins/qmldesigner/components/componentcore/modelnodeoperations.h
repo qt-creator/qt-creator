@@ -4,6 +4,7 @@
 #pragma once
 
 #include "selectioncontext.h"
+#include <qmldesignercomponents_global.h>
 
 #include <utils/fileutils.h>
 
@@ -98,7 +99,9 @@ void addItemToStackedContainer(const SelectionContext &selectionContext);
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void addTabBarToStackedContainer(const SelectionContext &selectionContext);
-QMLDESIGNERCORE_EXPORT AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog = true);
+QMLDESIGNERCOMPONENTS_EXPORT AddFilesResult addFilesToProject(const QStringList &fileNames,
+                                                              const QString &defaultDir,
+                                                              bool showDialog = true);
 AddFilesResult addImageToProject(const QStringList &fileNames, const QString &directory, bool showDialog = true);
 AddFilesResult addFontToProject(const QStringList &fileNames, const QString &directory, bool showDialog = true);
 AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &directory, bool showDialog = true);
@@ -119,8 +122,8 @@ void addMouseAreaFill(const SelectionContext &selectionContext);
 void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);
 
-QMLDESIGNERCORE_EXPORT Utils::FilePath getEffectsImportDirectory();
-QMLDESIGNERCORE_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir);
+QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getEffectsImportDirectory();
+QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir);
 void openEffectMaker(const QString &filePath);
 QString getEffectIcon(const QString &effectPath);
 bool useLayerEffect();

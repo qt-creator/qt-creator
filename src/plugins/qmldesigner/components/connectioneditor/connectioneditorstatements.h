@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <qmldesignercorelib_exports.h>
+#include <qmldesigner_global.h>
 #include <qmljs/parser/qmljsast_p.h>
 
 namespace QmlDesigner {
@@ -102,22 +102,22 @@ struct ConditionalStatement
     MatchedCondition condition;
 };
 
-QMLDESIGNERCORE_EXPORT bool isEmptyStatement(const MatchedStatement &stat);
-QMLDESIGNERCORE_EXPORT QString toString(const ComparativeStatement &stat);
-QMLDESIGNERCORE_EXPORT QString toString(const RightHandSide &rhs);
-QMLDESIGNERCORE_EXPORT QString toString(const Literal &literal);
-QMLDESIGNERCORE_EXPORT QString toString(const MatchedStatement &statement);
+QMLDESIGNER_EXPORT bool isEmptyStatement(const MatchedStatement &stat);
+QMLDESIGNER_EXPORT QString toString(const ComparativeStatement &stat);
+QMLDESIGNER_EXPORT QString toString(const RightHandSide &rhs);
+QMLDESIGNER_EXPORT QString toString(const Literal &literal);
+QMLDESIGNER_EXPORT QString toString(const MatchedStatement &statement);
 
-QMLDESIGNERCORE_EXPORT bool isConsoleLog(const MatchedStatement &curState);
-QMLDESIGNERCORE_EXPORT bool isLiteralType(const RightHandSide &var);
+QMLDESIGNER_EXPORT bool isConsoleLog(const MatchedStatement &curState);
+QMLDESIGNER_EXPORT bool isLiteralType(const RightHandSide &var);
 
-QMLDESIGNERCORE_EXPORT QString toString(const Handler &handler);
-QMLDESIGNERCORE_EXPORT QString toJavascript(const Handler &handler);
-QMLDESIGNERCORE_EXPORT QString toDisplayName(const MatchedStatement &statement);
-QMLDESIGNERCORE_EXPORT QString toDisplayName(const Handler &handler);
+QMLDESIGNER_EXPORT QString toString(const Handler &handler);
+QMLDESIGNER_EXPORT QString toJavascript(const Handler &handler);
+QMLDESIGNER_EXPORT QString toDisplayName(const MatchedStatement &statement);
+QMLDESIGNER_EXPORT QString toDisplayName(const Handler &handler);
 
-QMLDESIGNERCORE_EXPORT MatchedStatement okStatement(const ConnectionEditorStatements::Handler &handler);
-QMLDESIGNERCORE_EXPORT MatchedStatement koStatement(const ConnectionEditorStatements::Handler &handler);
+QMLDESIGNER_EXPORT MatchedStatement okStatement(const ConnectionEditorStatements::Handler &handler);
+QMLDESIGNER_EXPORT MatchedStatement koStatement(const ConnectionEditorStatements::Handler &handler);
 
 } // namespace ConnectionEditorStatements
 
