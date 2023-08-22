@@ -344,10 +344,13 @@ public:
 
     ConnectionEditorStatements::Variable lhs() const
     {
-        if (!couldBeLHS())
+        if (!isValid())
             return {};
 
-        return std::get<ConnectionEditorStatements::Variable>(m_rhs);
+        if (auto rhs = std::get_if<ConnectionEditorStatements::Variable>(&m_rhs))
+            return *rhs;
+
+        return {};
     }
 
     ConnectionEditorStatements::Variable variable() const
@@ -355,8 +358,8 @@ public:
         if (!isValid())
             return {};
 
-        if (std::holds_alternative<ConnectionEditorStatements::Variable>(m_rhs))
-            return std::get<ConnectionEditorStatements::Variable>(m_rhs);
+        if (auto rhs = std::get_if<ConnectionEditorStatements::Variable>(&m_rhs))
+            return *rhs;
 
         return {};
     }
@@ -702,8 +705,8 @@ public:
 
     MatchedCondition *currentCondition()
     {
-        if (std::holds_alternative<ConditionalStatement>(m_handler))
-            return &std::get<ConditionalStatement>(m_handler).condition;
+        if (auto handler = std::get_if<ConditionalStatement>(&m_handler))
+            return &handler->condition;
         return nullptr;
     }
 
@@ -997,8 +1000,8 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::CallExpression *callExpression
                 callExpression->accept(&callVisitor);
                 if (callVisitor.isValid()) {
                     ConnectionEditorStatements::RightHandSide rhs = callVisitor.rhs();
-                    if (std::holds_alternative<ConnectionEditorStatements::MatchedFunction>(rhs))
-                        *currentStatement = std::get<ConnectionEditorStatements::MatchedFunction>(rhs);
+                    if (auto rhs_ = std::get_if<ConnectionEditorStatements::MatchedFunction>(&rhs))
+                        *currentStatement = *rhs_;
                     else
                         return d->checkValidityAndReturn(false, "Invalid Matched Function type.");
                 } else {
