@@ -166,7 +166,6 @@ const QtKitAspectFactory theQtKitAspectFactory;
 
 QtKitAspectFactory::QtKitAspectFactory()
 {
-    setObjectName(QLatin1String("QtKitAspect"));
     setId(QtKitAspect::id());
     setDisplayName(Tr::tr("Qt version"));
     setDescription(Tr::tr("The Qt library to use for all projects using this kit.<br>"

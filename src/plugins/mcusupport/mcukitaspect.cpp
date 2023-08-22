@@ -63,7 +63,6 @@ class McuDependenciesKitAspectFactory final : public KitAspectFactory
 public:
     McuDependenciesKitAspectFactory()
     {
-        setObjectName(QLatin1String("McuDependenciesKitAspect"));
         setId(McuDependenciesKitAspect::id());
         setDisplayName(Tr::tr("MCU Dependencies"));
         setDescription(Tr::tr("Paths to 3rd party dependencies"));

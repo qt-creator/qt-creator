@@ -100,7 +100,6 @@ public:
 
 SysRootKitAspectFactory::SysRootKitAspectFactory()
 {
-    setObjectName(QLatin1String("SysRootInformation"));
     setId(SysRootKitAspect::id());
     setDisplayName(Tr::tr("Sysroot"));
     setDescription(Tr::tr("The root directory of the system image to use.<br>"
@@ -357,7 +356,6 @@ private:
 
 ToolChainKitAspectFactory::ToolChainKitAspectFactory()
 {
-    setObjectName(QLatin1String("ToolChainInformation"));
     setId(ToolChainKitAspect::id());
     setDisplayName(Tr::tr("Compiler"));
     setDescription(Tr::tr("The compiler to use for building.<br>"
@@ -859,7 +857,6 @@ public:
 
 DeviceTypeKitAspectFactory::DeviceTypeKitAspectFactory()
 {
-    setObjectName(QLatin1String("DeviceTypeInformation"));
     setId(DeviceTypeKitAspect::id());
     setDisplayName(Tr::tr("Run device type"));
     setDescription(Tr::tr("The type of device to run applications on."));
@@ -1032,7 +1029,6 @@ private:
 
 DeviceKitAspectFactory::DeviceKitAspectFactory()
 {
-    setObjectName(QLatin1String("DeviceInformation"));
     setId(DeviceKitAspect::id());
     setDisplayName(Tr::tr("Run device"));
     setDescription(Tr::tr("The device to run the applications on."));
@@ -1320,7 +1316,6 @@ private:
 
 BuildDeviceKitAspectFactory::BuildDeviceKitAspectFactory()
 {
-    setObjectName("BuildDeviceInformation");
     setId(BuildDeviceKitAspect::id());
     setDisplayName(Tr::tr("Build device"));
     setDescription(Tr::tr("The device used to build applications on."));
@@ -1606,7 +1601,6 @@ public:
 
 EnvironmentKitAspectFactory::EnvironmentKitAspectFactory()
 {
-    setObjectName(QLatin1String("EnvironmentKitAspect"));
     setId(EnvironmentKitAspect::id());
     setDisplayName(Tr::tr("Environment"));
     setDescription(Tr::tr("Additional build environment settings when using this kit."));

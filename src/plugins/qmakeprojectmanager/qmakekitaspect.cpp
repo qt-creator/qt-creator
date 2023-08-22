@@ -108,7 +108,6 @@ class QmakeKitAspectFactory : public KitAspectFactory
 public:
     QmakeKitAspectFactory()
     {
-        setObjectName(QLatin1String("QmakeKitAspect"));
         setId(QmakeKitAspect::id());
         setDisplayName(Tr::tr("Qt mkspec"));
         setDescription(Tr::tr("The mkspec to use when building the project with qmake.<br>"

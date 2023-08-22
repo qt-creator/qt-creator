@@ -33,7 +33,6 @@ class NinjaToolKitAspectFactory final : public ProjectExplorer::KitAspectFactory
 public:
     NinjaToolKitAspectFactory()
     {
-        setObjectName(QLatin1String("NinjaKitAspect"));
         setId(TOOL_ID);
         setDisplayName(Tr::tr("Ninja Tool"));
         setDescription(Tr::tr("The Ninja tool to use when building a project with Meson.<br>"

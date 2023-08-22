@@ -268,7 +268,6 @@ class DebuggerKitAspectFactory : public KitAspectFactory
 public:
     DebuggerKitAspectFactory()
     {
-        setObjectName("DebuggerKitAspect");
         setId(DebuggerKitAspect::id());
         setDisplayName(Tr::tr("Debugger"));
         setDescription(Tr::tr("The debugger to use for this kit."));

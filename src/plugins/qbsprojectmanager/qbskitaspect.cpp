@@ -88,7 +88,6 @@ class QbsKitAspectFactory final : public KitAspectFactory
 public:
     QbsKitAspectFactory()
     {
-        setObjectName(QLatin1String("QbsKitAspect"));
         setId(QbsKitAspect::id());
         setDisplayName(Tr::tr("Additional Qbs Profile Settings"));
         setPriority(22000);

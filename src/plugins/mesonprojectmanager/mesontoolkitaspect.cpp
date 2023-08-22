@@ -33,7 +33,6 @@ class MesonToolKitAspectFactory final : public KitAspectFactory
 public:
     MesonToolKitAspectFactory()
     {
-        setObjectName(QLatin1String("MesonKitAspect"));
         setId(TOOL_ID);
         setDisplayName(Tr::tr("Meson Tool"));
         setDescription(Tr::tr("The Meson tool to use when building a project with Meson.<br>"

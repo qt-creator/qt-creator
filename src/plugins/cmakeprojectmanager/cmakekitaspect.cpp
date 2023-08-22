@@ -218,7 +218,6 @@ private:
 
 CMakeKitAspectFactory::CMakeKitAspectFactory()
 {
-    setObjectName(QLatin1String("CMakeKitAspect"));
     setId(Constants::TOOL_ID);
     setDisplayName(Tr::tr("CMake Tool"));
     setDescription(Tr::tr("The CMake Tool to use when building a project with CMake.<br>"
@@ -568,7 +567,6 @@ static void setGeneratorInfo(Kit *k, const GeneratorInfo &info)
 
 CMakeGeneratorKitAspectFactory::CMakeGeneratorKitAspectFactory()
 {
-    setObjectName(QLatin1String("CMakeGeneratorKitAspect"));
     setId(GENERATOR_ID);
     setDisplayName(Tr::tr("CMake <a href=\"generator\">generator</a>"));
     setDescription(Tr::tr("CMake generator defines how a project is built when using CMake.<br>"
@@ -1058,7 +1056,6 @@ private:
 
 CMakeConfigurationKitAspectFactory::CMakeConfigurationKitAspectFactory()
 {
-    setObjectName(QLatin1String("CMakeConfigurationKitAspect"));
     setId(CONFIGURATION_ID);
     setDisplayName(Tr::tr("CMake Configuration"));
     setDescription(Tr::tr("Default configuration passed to CMake when setting up a project."));
