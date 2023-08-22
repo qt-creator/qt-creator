@@ -18,26 +18,25 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class FilterTreeItem : public TreeItem
 {
 public:
-    FilterTreeItem(const KitAspectFactory *aspect, bool enabled) : m_aspect(aspect), m_enabled(enabled)
+    FilterTreeItem(const KitAspectFactory *factory, bool enabled) : m_factory(factory), m_enabled(enabled)
     { }
 
     QString displayName() const {
-        if (m_aspect->displayName().indexOf('<') < 0)
-            return m_aspect->displayName();
+        if (m_factory->displayName().indexOf('<') < 0)
+            return m_factory->displayName();
 
         // removing HTML tag because KitAspect::displayName could contain html
         // e.g. "CMake <a href=\"generator\">generator</a>" (CMakeGeneratorKitAspect)
         QTextDocument html;
-        html.setHtml(m_aspect->displayName());
+        html.setHtml(m_factory->displayName());
         return html.toPlainText();
     }
-    Utils::Id id() const { return m_aspect->id(); }
+    Utils::Id id() const { return m_factory->id(); }
     bool enabled() const { return m_enabled; }
 
 private:
@@ -53,7 +52,7 @@ private:
 
     bool setData(int column, const QVariant &data, int role) override
     {
-        QTC_ASSERT(column == 1 && !m_aspect->isEssential(), return false);
+        QTC_ASSERT(column == 1 && !m_factory->isEssential(), return false);
         if (role == Qt::CheckStateRole) {
             m_enabled = data.toInt() == Qt::Checked;
             return true;
@@ -65,14 +64,14 @@ private:
     {
         QTC_ASSERT(column < 2, return Qt::ItemFlags());
         Qt::ItemFlags flags = Qt::ItemIsSelectable;
-        if (column == 0 || !m_aspect->isEssential())
+        if (column == 0 || !m_factory->isEssential())
             flags |= Qt::ItemIsEnabled;
-        if (column == 1 && !m_aspect->isEssential())
+        if (column == 1 && !m_factory->isEssential())
             flags |= Qt::ItemIsUserCheckable;
         return flags;
     }
 
-    const KitAspectFactory * const m_aspect;
+    const KitAspectFactory * const m_factory;
     bool m_enabled;
 };
 
@@ -148,5 +147,4 @@ QSet<Utils::Id> FilterKitAspectsDialog::irrelevantAspects() const
     return static_cast<FilterKitAspectsModel *>(m_model)->disabledItems();
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal
