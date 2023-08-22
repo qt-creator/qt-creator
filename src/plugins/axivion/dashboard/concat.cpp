@@ -17,7 +17,8 @@
 #include <utility>
 
 template<typename Input, typename Output>
-static Output concat(const std::initializer_list<const Input> &args) {
+static Output concat(const std::initializer_list<const Input> &args)
+{
     size_t size = 0;
     for (const Input &arg : args)
         size += arg.size();
@@ -28,14 +29,17 @@ static Output concat(const std::initializer_list<const Input> &args) {
     return output;
 }
 
-std::string concat(const std::initializer_list<const std::string_view> &args) {
+std::string concat(const std::initializer_list<const std::string_view> &args)
+{
     return concat<std::string_view, std::string>(args);
 }
 
-QString concat(const std::initializer_list<const QStringView> &args) {
+QString concat(const std::initializer_list<const QStringView> &args)
+{
     return concat<QStringView, QString>(args);
 }
 
-QByteArray concat_bytes(const std::initializer_list<const QByteArrayView> &args) {
+QByteArray concat_bytes(const std::initializer_list<const QByteArrayView> &args)
+{
     return concat<QByteArrayView, QByteArray>(args);
 }

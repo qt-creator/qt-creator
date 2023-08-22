@@ -150,9 +150,9 @@ void DashboardWidget::updateUi()
     // not use the issue counts, thus the QtCreator Axivion Plugin
     // is going to stop using them, too.
     if (last.issueCounts.isMap()) {
-        for (const auto &issueCount : last.issueCounts.getMap()) {
+        for (const Dto::Any::MapEntry &issueCount : last.issueCounts.getMap()) {
             if (issueCount.second.isMap()) {
-                const auto &counts = issueCount.second.getMap();
+                const Dto::Any::Map &counts = issueCount.second.getMap();
                 qint64 total = extract_value(counts, QStringLiteral(u"Total"));
                 allTotal += total;
                 qint64 added = extract_value(counts, QStringLiteral(u"Added"));

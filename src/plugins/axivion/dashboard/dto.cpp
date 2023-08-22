@@ -597,11 +597,11 @@ namespace Axivion::Internal::Dto {
             }
             if (json.isObject())
             {
-                return Any(deserialize_json<std::map<QString, Any>>(json));
+                return Any(deserialize_json<Any::Map>(json));
             }
             if (json.isArray())
             {
-                return Any(deserialize_json<std::vector<Any>>(json));
+                return Any(deserialize_json<Any::Vector>(json));
             }
             if (json.isBool())
             {
@@ -657,9 +657,9 @@ namespace Axivion::Internal::Dto {
 
     Any::Any(double value) : data(std::move(value)) {}
 
-    Any::Any(std::map<QString, Any> value) : data(std::move(value)) {}
+    Any::Any(Map value) : data(std::move(value)) {}
 
-    Any::Any(std::vector<Any> value) : data(std::move(value)) {}
+    Any::Any(Vector value) : data(std::move(value)) {}
 
     Any::Any(bool value) : data(std::move(value)) {}
 
@@ -702,12 +702,12 @@ namespace Axivion::Internal::Dto {
         return this->data.index() == 3;
     }
 
-    std::map<QString, Any> &Any::getMap()
+    Any::Map &Any::getMap()
     {
         return std::get<3>(this->data);
     }
 
-    const std::map<QString, Any> &Any::getMap() const
+    const Any::Map &Any::getMap() const
     {
         return std::get<3>(this->data);
     }
@@ -717,12 +717,12 @@ namespace Axivion::Internal::Dto {
         return this->data.index() == 4;
     }
 
-    std::vector<Any> &Any::getList()
+    Any::Vector &Any::getList()
     {
         return std::get<4>(this->data);
     }
 
-    const std::vector<Any> &Any::getList() const
+    const Any::Vector &Any::getList() const
     {
         return std::get<4>(this->data);
     }

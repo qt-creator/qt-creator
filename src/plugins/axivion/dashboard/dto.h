@@ -62,18 +62,13 @@ namespace Axivion::Internal::Dto
         virtual ~Serializable() = default;
     };
 
-    class Any : public Serializable {
-    private:
-        std::variant<
-            std::nullptr_t, // .index() == 0
-            QString, // .index() == 1
-            double, // .index() == 2
-            std::map<QString, Any>, // .index() == 3
-            std::vector<Any>, // .index() == 4
-            bool // .index() == 5
-        > data;
-
+    class Any : public Serializable
+    {
     public:
+        using Map = std::map<QString, Any>;
+        using MapEntry = std::pair<const QString, Any>;
+        using Vector = std::vector<Any>;
+
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static Any deserialize(const QByteArray &json);
 
@@ -83,9 +78,9 @@ namespace Axivion::Internal::Dto
 
         Any(double value);
 
-        Any(std::map<QString, Any> value);
+        Any(Map value);
 
-        Any(std::vector<Any> value);
+        Any(Vector value);
 
         Any(bool value);
 
@@ -110,18 +105,18 @@ namespace Axivion::Internal::Dto
         bool isMap() const;
 
         // Throws std::bad_variant_access
-        std::map<QString, Any> &getMap();
+        Map &getMap();
 
         // Throws std::bad_variant_access
-        const std::map<QString, Any> &getMap() const;
+        const Map &getMap() const;
 
         bool isList() const;
 
         // Throws std::bad_variant_access
-        std::vector<Any> &getList();
+        Vector &getList();
 
         // Throws std::bad_variant_access
-        const std::vector<Any> &getList() const;
+        const Vector &getList() const;
 
         bool isBool() const;
 
@@ -132,9 +127,20 @@ namespace Axivion::Internal::Dto
         const bool &getBool() const;
 
         virtual QByteArray serialize() const override;
+
+    private:
+        std::variant<
+            std::nullptr_t, // .index() == 0
+            QString, // .index() == 1
+            double, // .index() == 2
+            Map, // .index() == 3
+            Vector, // .index() == 4
+            bool // .index() == 5
+        > data;
     };
 
-    class ApiVersion {
+    class ApiVersion
+    {
     public:
         static const std::array<qint32, 4> number;
         static const QLatin1String string;
