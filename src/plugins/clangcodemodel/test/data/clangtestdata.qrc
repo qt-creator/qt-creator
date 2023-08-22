@@ -60,5 +60,10 @@
         <file>fixits/diagnostic_comparison_fixit.cpp</file>
         <file>fixits/diagnostic_semicolon_fixit_expected.cpp</file>
         <file>fixits/diagnostic_semicolon_fixit.cpp</file>
+        <file>indirect-changes/directheader.h</file>
+        <file>indirect-changes/indirect-changes.pro</file>
+        <file>indirect-changes/indirectheader.h</file>
+        <file>indirect-changes/main.cpp</file>
+        <file>indirect-changes/unrelatedheader.h</file>
     </qresource>
 </RCC>

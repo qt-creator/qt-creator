@@ -2061,6 +2061,47 @@ void ClangdTestExternalChanges::test()
         QVERIFY(waitForSignalOrTimeout(newClient, &ClangdClient::textMarkCreated, timeOutInMs()));
 }
 
+ClangdTestIndirectChanges::ClangdTestIndirectChanges()
+{
+    setProjectFileName("indirect-changes.pro");
+    setSourceFileNames({"main.cpp", "directheader.h", "indirectheader.h", "unrelatedheader.h"});
+}
+
+void ClangdTestIndirectChanges::test()
+{
+    // Initially, everything is fine.
+    const TextDocument * const src = document("main.cpp");
+    QVERIFY(src);
+    QVERIFY(src->marks().isEmpty());
+
+    // Write into an indirectly included header file. Our source file should have diagnostics now.
+    const TextDocument * const indirectHeader = document("indirectheader.h");
+    QVERIFY(indirectHeader);
+    QTextCursor cursor(indirectHeader->document());
+    cursor.insertText("blubb");
+    while (src->marks().isEmpty())
+        QVERIFY(waitForSignalOrTimeout(client(), &ClangdClient::textMarkCreated, timeOutInMs()));
+
+    // Remove the inserted text again; the diagnostics should disappear.
+    cursor.document()->undo();
+    QVERIFY(cursor.document()->toPlainText().isEmpty());
+    while (!src->marks().isEmpty()) {
+        QVERIFY(waitForSignalOrTimeout(client(), &ClangdClient::highlightingResultsReady,
+                                       timeOutInMs()));
+    }
+
+    // Now write into a header file that is not included anywhere.
+    // We expect diagnostics only for the header itself.
+    const TextDocument * const unrelatedHeader = document("unrelatedheader.h");
+    QVERIFY(indirectHeader);
+    QTextCursor cursor2(unrelatedHeader->document());
+    cursor2.insertText("blubb");
+    while (waitForSignalOrTimeout(client(), &ClangdClient::textMarkCreated, timeOutInMs()))
+        ;
+    QVERIFY(!unrelatedHeader->marks().isEmpty());
+    QVERIFY(src->marks().isEmpty());
+}
+
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel

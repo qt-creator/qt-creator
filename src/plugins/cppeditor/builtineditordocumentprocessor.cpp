@@ -283,6 +283,7 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
         if (!cppDoc->includedFiles().contains(document->filePath()))
             continue;
         cppEditorDoc->scheduleProcessDocument();
+        forceUpdate(cppEditorDoc);
     }
 }
 

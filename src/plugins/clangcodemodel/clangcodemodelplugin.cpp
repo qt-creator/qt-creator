@@ -90,6 +90,7 @@ void ClangCodeModelPlugin::initialize()
     addTest<Tests::ClangdTestFindReferences>();
     addTest<Tests::ClangdTestFollowSymbol>();
     addTest<Tests::ClangdTestHighlighting>();
+    addTest<Tests::ClangdTestIndirectChanges>();
     addTest<Tests::ClangdTestLocalReferences>();
     addTest<Tests::ClangdTestTooltips>();
     addTest<Tests::ClangFixItTest>();
