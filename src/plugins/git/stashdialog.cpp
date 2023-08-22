@@ -132,7 +132,6 @@ StashDialog::StashDialog(QWidget *parent) : QDialog(parent),
     m_stashView->setModel(m_proxyModel);
     m_stashView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_stashView->setAllColumnsShowFocus(true);
-    m_stashView->setUniformRowHeights(true);
     m_stashView->setFocus();
 
     using namespace Layouting;

@@ -71,7 +71,6 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     m_model->setHorizontalHeaderLabels(headers);
     setModel(m_model);
     setMinimumWidth(300);
-    setUniformRowHeights(true);
     setRootIsDecorated(false);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setActivationMode(Utils::DoubleClickActivation);

@@ -16,7 +16,6 @@ AssetImportUpdateTreeView::AssetImportUpdateTreeView(QWidget *parent)
 {
     setModel(m_model);
     setItemDelegate(new AssetImportUpdateTreeItemDelegate(this));
-    setUniformRowHeights(true);
     setExpandsOnDoubleClick(true);
     header()->hide();
 }

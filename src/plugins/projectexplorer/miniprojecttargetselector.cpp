@@ -488,7 +488,6 @@ SelectorView::SelectorView(QWidget *parent) : TreeView(parent)
     setFocusPolicy(Qt::NoFocus);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setAlternatingRowColors(false);
-    setUniformRowHeights(true);
     setIndentation(0);
     setFocusPolicy(Qt::WheelFocus);
     setItemDelegate(new TargetSelectorDelegate(this));

@@ -44,7 +44,6 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
 
     setItemDelegate(new SearchResultTreeItemDelegate(8, this));
     setIndentation(14);
-    setUniformRowHeights(true);
     setExpandsOnDoubleClick(true);
     header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     header()->setStretchLastSection(false);

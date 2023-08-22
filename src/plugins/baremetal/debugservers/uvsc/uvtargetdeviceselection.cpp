@@ -264,6 +264,7 @@ void DeviceSelectionMemoryModel::refresh()
 DeviceSelectionMemoryView::DeviceSelectionMemoryView(DeviceSelection &selection, QWidget *parent)
     : TreeView(parent)
 {
+    setUniformRowHeights(false);
     setRootIsDecorated(true);
     setSelectionMode(QAbstractItemView::SingleSelection);
 

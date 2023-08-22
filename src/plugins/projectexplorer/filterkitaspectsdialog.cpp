@@ -113,10 +113,7 @@ public:
 class FilterTreeView : public TreeView
 {
 public:
-    FilterTreeView(QWidget *parent) : TreeView(parent)
-    {
-        setUniformRowHeights(true);
-    }
+    FilterTreeView(QWidget *parent) : TreeView(parent) {}
 
 private:
     QSize sizeHint() const override

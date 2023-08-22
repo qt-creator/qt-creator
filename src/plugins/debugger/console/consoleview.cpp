@@ -32,6 +32,7 @@ namespace Internal {
 ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
     Utils::TreeView(parent), m_model(model)
 {
+    setUniformRowHeights(false);
     setFrameStyle(QFrame::NoFrame);
     setHeaderHidden(true);
     setRootIsDecorated(false);

@@ -46,6 +46,7 @@ WorkspaceView::WorkspaceView(DockManager *manager, QWidget *parent)
     , m_manager(manager)
     , m_workspaceModel(manager)
 {
+    setUniformRowHeights(false);
     setItemDelegate(new RemoveItemFocusDelegate(this));
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);

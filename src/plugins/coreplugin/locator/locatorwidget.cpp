@@ -250,7 +250,6 @@ CompletionList::CompletionList(QWidget *parent)
 
     setItemDelegate(new CompletionDelegate(this));
     setRootIsDecorated(false);
-    setUniformRowHeights(true);
     header()->hide();
     header()->setStretchLastSection(true);
     // This is too slow when done on all results

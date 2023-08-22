@@ -246,7 +246,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     m_configView->setModel(m_configTextFilterModel);
     m_configView->setMinimumHeight(300);
-    m_configView->setUniformRowHeights(true);
     m_configView->setSortingEnabled(true);
     m_configView->sortByColumn(0, Qt::AscendingOrder);
     m_configView->header()->setSectionResizeMode(QHeaderView::Stretch);

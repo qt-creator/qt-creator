@@ -185,7 +185,6 @@ public:
         optionsTreeView->setMinimumHeight(300);
         optionsTreeView->setFrameShape(QFrame::NoFrame);
         optionsTreeView->setSelectionBehavior(QAbstractItemView::SelectItems);
-        optionsTreeView->setUniformRowHeights(true);
         optionsTreeView->setSortingEnabled(true);
 
         using namespace Layouting;

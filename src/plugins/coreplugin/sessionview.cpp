@@ -36,6 +36,7 @@ void RemoveItemFocusDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 SessionView::SessionView(QWidget *parent)
     : Utils::TreeView(parent)
 {
+    setUniformRowHeights(false);
     setItemDelegate(new RemoveItemFocusDelegate(this));
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::ExtendedSelection);

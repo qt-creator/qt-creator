@@ -118,6 +118,7 @@ void Quick3DFrameView::onVisibleFeaturesChanged(quint64)
 Quick3DMainView::Quick3DMainView(Quick3DFrameModel *model, bool compareView, QWidget *parent)
     : Utils::TreeView(parent), m_model(model), m_compareView(compareView)
 {
+    setUniformRowHeights(false);
     setObjectName("Quick3DMainView");
     setFrameStyle(QFrame::NoFrame);
     QHeaderView *h = header();

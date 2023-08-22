@@ -64,33 +64,25 @@ public:
 class QTCREATOR_UTILS_EXPORT TreeView : public View<QTreeView>
 {
 public:
-    TreeView(QWidget *parent = nullptr)
-        : View<QTreeView>(parent)
-    {}
+    TreeView(QWidget *parent = nullptr);
 };
 
 class QTCREATOR_UTILS_EXPORT TreeWidget : public View<QTreeWidget>
 {
 public:
-    TreeWidget(QWidget *parent = nullptr)
-        : View<QTreeWidget>(parent)
-    {}
+    TreeWidget(QWidget *parent = nullptr);
 };
 
 class QTCREATOR_UTILS_EXPORT ListView : public View<QListView>
 {
 public:
-    ListView(QWidget *parent = nullptr)
-        : View<QListView>(parent)
-    {}
+    ListView(QWidget *parent = nullptr);
 };
 
 class QTCREATOR_UTILS_EXPORT ListWidget : public View<QListWidget>
 {
 public:
-    ListWidget(QWidget *parent = nullptr)
-        : View<QListWidget>(parent)
-    {}
+    ListWidget(QWidget *parent = nullptr);
 };
 
 } // Utils

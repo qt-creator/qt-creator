@@ -28,7 +28,6 @@ CtfStatisticsView::CtfStatisticsView(CtfStatisticsModel *model, QWidget *parent)
     header()->setStretchLastSection(false);
     header()->setSectionResizeMode(CtfStatisticsModel::Column::Title, QHeaderView::Stretch);
     setRootIsDecorated(false);
-    setUniformRowHeights(true);
     setSortingEnabled(true);
 
     connect(selectionModel(), &QItemSelectionModel::currentChanged, this,

@@ -345,7 +345,6 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     setRootIsDecorated(false);
     setIconSize(QSize(16, 16));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-    setUniformRowHeights(true);
     setItemDelegate(new BaseTreeViewDelegate(this));
     setAlternatingRowColors(false);
 

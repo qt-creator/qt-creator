@@ -121,7 +121,6 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     procView->setModel(&proxyModel);
     procView->setSelectionBehavior(QAbstractItemView::SelectRows);
     procView->setSelectionMode(QAbstractItemView::SingleSelection);
-    procView->setUniformRowHeights(true);
     procView->setRootIsDecorated(false);
     procView->setAlternatingRowColors(true);
     procView->setSortingEnabled(true);

@@ -277,6 +277,7 @@ public:
         filterEdit->setFiltering(true);
 
         m_filterList = new TreeView;
+        m_filterList->setUniformRowHeights(false);
         m_filterList->setSelectionMode(QAbstractItemView::SingleSelection);
         m_filterList->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_filterList->setSortingEnabled(true);

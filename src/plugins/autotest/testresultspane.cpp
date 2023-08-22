@@ -56,6 +56,7 @@ namespace Internal {
 ResultsTreeView::ResultsTreeView(QWidget *parent)
     : TreeView(parent)
 {
+    setUniformRowHeights(false);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(NoFrame);
 }

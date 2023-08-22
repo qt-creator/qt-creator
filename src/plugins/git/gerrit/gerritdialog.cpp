@@ -82,7 +82,6 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_treeView = new TreeView(changesGroup);
     m_treeView->setMinimumSize(QSize(600, 0));
     m_treeView->setRootIsDecorated(false);
-    m_treeView->setUniformRowHeights(true);
     m_treeView->setSortingEnabled(true);
 
     auto detailsGroup = new QGroupBox(Git::Tr::tr("Details"));

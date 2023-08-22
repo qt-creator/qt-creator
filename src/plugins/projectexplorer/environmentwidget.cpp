@@ -212,7 +212,6 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     d->m_environmentView->setItemDelegate(new EnvironmentDelegate(d->m_model, d->m_environmentView));
     d->m_environmentView->setMinimumHeight(400);
     d->m_environmentView->setRootIsDecorated(false);
-    d->m_environmentView->setUniformRowHeights(true);
     const auto stretcher = new HeaderViewStretcher(d->m_environmentView->header(), 1);
     connect(d->m_model, &QAbstractItemModel::dataChanged,
             stretcher, &HeaderViewStretcher::softStretch);
