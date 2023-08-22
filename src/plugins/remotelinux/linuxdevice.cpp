@@ -1284,8 +1284,10 @@ private:
         QByteArray batchData;
 
         const FilePaths dirs = dirsToCreate(m_setup.m_files);
-        for (const FilePath &dir : dirs)
-            batchData += "-mkdir " + ProcessArgs::quoteArgUnix(dir.path()).toLocal8Bit() + '\n';
+        for (const FilePath &dir : dirs) {
+            if (!dir.exists())
+                batchData += "-mkdir " + ProcessArgs::quoteArgUnix(dir.path()).toLocal8Bit() + '\n';
+        }
 
         for (const FileToTransfer &file : m_setup.m_files) {
             FilePath sourceFileOrLinkTarget = file.m_source;
