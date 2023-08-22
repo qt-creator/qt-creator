@@ -2239,7 +2239,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
                 if (node) {
                     const auto childItems = node->childItems();
                     for (const auto &childItem : childItems) {
-                        if (qobject_cast<QQuick3DNode *>(childItem))
+                        if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
                             return true;
                     }
                 }
