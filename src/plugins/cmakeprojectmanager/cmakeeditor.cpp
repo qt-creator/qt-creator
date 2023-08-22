@@ -11,6 +11,10 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreplugintr.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <utils/textutils.h>
@@ -21,6 +25,7 @@
 #include <functional>
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace TextEditor;
 
 namespace CMakeProjectManager::Internal {
@@ -184,6 +189,26 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     QDir dir(textDocument()->filePath().toFileInfo().absolutePath());
     buffer.replace("${CMAKE_CURRENT_SOURCE_DIR}", dir.path());
     buffer.replace("${CMAKE_CURRENT_LIST_DIR}", dir.path());
+
+    if (auto project = ProjectTree::currentProject()) {
+        buffer.replace("${CMAKE_SOURCE_DIR}", project->projectDirectory().path());
+        if (auto bs = ProjectTree::currentBuildSystem()) {
+            buffer.replace("${CMAKE_BINARY_DIR}", bs->buildConfiguration()->buildDirectory().path());
+
+            // Get the path suffix from current source dir to project source dir and apply it
+            // for the binary dir
+            const QString relativePathSuffix = textDocument()
+                                                   ->filePath()
+                                                   .parentDir()
+                                                   .relativePathFrom(project->projectDirectory())
+                                                   .path();
+            buffer.replace("${CMAKE_CURRENT_BINARY_DIR}",
+                           bs->buildConfiguration()
+                               ->buildDirectory()
+                               .pathAppended(relativePathSuffix)
+                               .path());
+        }
+    }
     // TODO: Resolve more variables
 
     QString fileName = dir.filePath(unescape(buffer));
