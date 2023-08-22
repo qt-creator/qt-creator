@@ -201,7 +201,7 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::LayoutItem &paren
     QTC_ASSERT(aspect, return);
     QTC_ASSERT(!m_kitAspects.contains(aspect), return);
 
-    aspect->addToLayoutWithLabel(parent);
+    aspect->addToLayout(parent);
     m_kitAspects.append(aspect);
 
     connect(aspect->mutableAction(), &QAction::toggled,

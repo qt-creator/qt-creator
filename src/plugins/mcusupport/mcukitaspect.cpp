@@ -24,7 +24,7 @@ public:
 
     void makeReadOnly() override {}
     void refresh() override {}
-    void addToLayout(Layouting::LayoutItem &) override {}
+    void addToLayoutImpl(Layouting::LayoutItem &) override {}
 };
 
 Utils::Id McuDependenciesKitAspect::id()

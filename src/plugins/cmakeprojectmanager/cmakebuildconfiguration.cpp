@@ -651,13 +651,13 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
     Layouting::Grid grid;
     KitAspect *widget = CMakeKitAspect::createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
-    widget->addToLayoutWithLabel(grid);
+    widget->addToLayout(grid);
     widget = CMakeGeneratorKitAspect::createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
-    widget->addToLayoutWithLabel(grid);
+    widget->addToLayout(grid);
     widget = CMakeConfigurationKitAspect::createKitAspect(m_buildConfig->kit());
     widget->setParent(dialog);
-    widget->addToLayoutWithLabel(grid);
+    widget->addToLayout(grid);
     grid.attachTo(dialog);
 
     auto layout = qobject_cast<QGridLayout *>(dialog->layout());

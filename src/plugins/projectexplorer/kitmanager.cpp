@@ -734,7 +734,7 @@ KitAspect::~KitAspect()
     delete m_mutableAction;
 }
 
-void KitAspect::addToLayoutWithLabel(Layouting::LayoutItem &parentItem)
+void KitAspect::addToLayout(Layouting::LayoutItem &parentItem)
 {
     auto label = createSubWidget<QLabel>(m_factory->displayName() + ':');
     label->setToolTip(m_factory->description());
@@ -743,7 +743,7 @@ void KitAspect::addToLayoutWithLabel(Layouting::LayoutItem &parentItem)
     });
 
     parentItem.addItem(label);
-    addToLayout(parentItem);
+    addToLayoutImpl(parentItem);
     parentItem.addItem(Layouting::br);
 }
 

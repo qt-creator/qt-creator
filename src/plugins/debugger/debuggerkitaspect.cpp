@@ -66,7 +66,7 @@ public:
     }
 
 private:
-    void addToLayout(Layouting::LayoutItem &parent) override
+    void addToLayoutImpl(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_comboBox);
         parent.addItem(m_comboBox);

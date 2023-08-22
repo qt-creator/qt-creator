@@ -113,7 +113,7 @@ public:
     virtual void makeReadOnly() = 0;
     virtual void refresh() = 0;
 
-    void addToLayoutWithLabel(Layouting::LayoutItem &parentItem);
+    void addToLayout(Layouting::LayoutItem &parentItem) override;
 
     static QString msgManage();
 
@@ -124,6 +124,8 @@ public:
     QWidget *createManageButton(Utils::Id pageId);
 
 protected:
+    virtual void addToLayoutImpl(Layouting::LayoutItem &parentItem) = 0;
+
     Kit *m_kit;
     const KitAspectFactory *m_factory;
     QAction *m_mutableAction = nullptr;

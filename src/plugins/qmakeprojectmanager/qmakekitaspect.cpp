@@ -39,7 +39,7 @@ public:
     ~QmakeKitAspectImpl() override { delete m_lineEdit; }
 
 private:
-    void addToLayout(Layouting::LayoutItem &parent) override
+    void addToLayoutImpl(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_lineEdit);
         parent.addItem(m_lineEdit);

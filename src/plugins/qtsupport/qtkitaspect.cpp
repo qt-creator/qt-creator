@@ -30,10 +30,10 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-class QtKitAspectWidget final : public KitAspect
+class QtKitAspectImpl final : public KitAspect
 {
 public:
-    QtKitAspectWidget(Kit *k, const KitAspectFactory *ki) : KitAspect(k, ki)
+    QtKitAspectImpl(Kit *k, const KitAspectFactory *ki) : KitAspect(k, ki)
     {
         m_combo = createSubWidget<QComboBox>();
         m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
@@ -51,10 +51,10 @@ public:
         connect(QtVersionManager::instance(),
                 &QtVersionManager::qtVersionsChanged,
                 this,
-                &QtKitAspectWidget::refresh);
+                &QtKitAspectImpl::refresh);
     }
 
-    ~QtKitAspectWidget() final
+    ~QtKitAspectImpl() final
     {
         delete m_combo;
         delete m_manageButton;
@@ -63,7 +63,7 @@ public:
 private:
     void makeReadOnly() final { m_combo->setEnabled(false); }
 
-    void addToLayout(Layouting::LayoutItem &parent)
+    void addToLayoutImpl(Layouting::LayoutItem &parent)
     {
         addMutableAction(m_combo);
         parent.addItem(m_combo);
@@ -293,7 +293,7 @@ void QtKitAspectFactory::fix(Kit *k)
 KitAspect *QtKitAspectFactory::createKitAspect(Kit *k) const
 {
     QTC_ASSERT(k, return nullptr);
-    return new Internal::QtKitAspectWidget(k, this);
+    return new Internal::QtKitAspectImpl(k, this);
 }
 
 QString QtKitAspectFactory::displayNamePostfix(const Kit *k) const
