@@ -80,9 +80,10 @@ void PipInstallTask::run()
         arguments << "--user";
 
     m_process.setCommand({m_python, arguments});
+    m_process.setTerminalMode(TerminalMode::Run);
     m_process.start();
 
-    Core::MessageManager::writeDisrupting(
+    Core::MessageManager::writeSilently(
         Tr::tr("Running \"%1\" to install %2.")
             .arg(m_process.commandLine().toUserOutput(), packagesDisplayName()));
 
