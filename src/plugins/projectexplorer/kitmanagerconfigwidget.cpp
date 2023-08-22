@@ -222,10 +222,8 @@ void KitManagerConfigWidget::updateVisibility()
 
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
-    for (KitAspect *aspect : std::as_const(m_kitAspects)) {
-        if (aspect->kit()->isSticky(aspect->factory()->id()))
-            aspect->makeReadOnly();
-    }
+    for (KitAspect *aspect : std::as_const(m_kitAspects))
+        aspect->makeStickySubWidgetsReadOnly();
 }
 
 Kit *KitManagerConfigWidget::workingCopy() const

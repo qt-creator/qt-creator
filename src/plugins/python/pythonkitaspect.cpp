@@ -27,6 +27,8 @@ public:
     PythonKitAspectImpl(Kit *kit, const KitAspectFactory *kitInfo)
         : KitAspect(kit, kitInfo)
     {
+        setManagingPage(Constants::C_PYTHONOPTIONS_PAGE_ID);
+
         m_comboBox = createSubWidget<QComboBox>();
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
 
@@ -38,13 +40,10 @@ public:
 
             PythonKitAspect::setPython(m_kit, m_comboBox->currentData().toString());
         });
-
-        m_manageButton = createManageButton(Constants::C_PYTHONOPTIONS_PAGE_ID);
     }
 
     void makeReadOnly() override
     {
-        m_manageButton->setEnabled(false);
         m_comboBox->setEnabled(false);
     }
 
@@ -71,13 +70,11 @@ protected:
     {
         addMutableAction(m_comboBox);
         parent.addItem(m_comboBox);
-        parent.addItem(m_manageButton);
     }
 
 private:
     Guard m_ignoreChanges;
     QComboBox *m_comboBox = nullptr;
-    QWidget *m_manageButton = nullptr;
 };
 
 class PythonKitAspectFactory : public KitAspectFactory

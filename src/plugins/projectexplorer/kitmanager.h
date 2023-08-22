@@ -108,7 +108,6 @@ public:
     KitAspect(Kit *kit, const KitAspectFactory *factory);
     ~KitAspect();
 
-    virtual void makeReadOnly() = 0;
     virtual void refresh() = 0;
 
     void addToLayout(Layouting::LayoutItem &parentItem) override;
@@ -119,14 +118,19 @@ public:
     const KitAspectFactory *factory() const { return m_factory; }
     QAction *mutableAction() const { return m_mutableAction; }
     void addMutableAction(QWidget *child);
-    QWidget *createManageButton(Utils::Id pageId);
+    void setManagingPage(Utils::Id pageId) { m_managingPageId = pageId; }
+
+    void makeStickySubWidgetsReadOnly();
 
 protected:
+    virtual void makeReadOnly() {}
     virtual void addToLayoutImpl(Layouting::LayoutItem &parentItem) = 0;
 
     Kit *m_kit;
     const KitAspectFactory *m_factory;
     QAction *m_mutableAction = nullptr;
+    Utils::Id m_managingPageId;
+    QPushButton *m_manageButton = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT KitManager final : public QObject

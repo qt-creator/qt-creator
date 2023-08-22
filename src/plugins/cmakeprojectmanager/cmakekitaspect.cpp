@@ -120,10 +120,10 @@ private:
 class CMakeKitAspectImpl final : public KitAspect
 {
 public:
-    CMakeKitAspectImpl(Kit *kit, const KitAspectFactory *factory) : KitAspect(kit, factory),
-        m_comboBox(createSubWidget<QComboBox>()),
-        m_manageButton(createManageButton(Constants::Settings::TOOLS_ID))
+    CMakeKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
+        : KitAspect(kit, factory), m_comboBox(createSubWidget<QComboBox>())
     {
+        setManagingPage(Constants::Settings::TOOLS_ID);
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(false);
         m_comboBox->setToolTip(factory->description());
@@ -142,7 +142,6 @@ public:
     ~CMakeKitAspectImpl() override
     {
         delete m_comboBox;
-        delete m_manageButton;
     }
 
 private:
@@ -153,7 +152,6 @@ private:
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
-        builder.addItem(m_manageButton);
     }
 
     void refresh() override
@@ -213,7 +211,6 @@ private:
 
     Guard m_ignoreChanges;
     QComboBox *m_comboBox;
-    QWidget *m_manageButton;
 };
 
 CMakeKitAspectFactory::CMakeKitAspectFactory()

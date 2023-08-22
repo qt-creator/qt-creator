@@ -772,6 +772,17 @@ KitAspect::~KitAspect()
     delete m_mutableAction;
 }
 
+void KitAspect::makeStickySubWidgetsReadOnly()
+{
+    if (!m_kit->isSticky(m_factory->id()))
+        return;
+
+    if (m_manageButton)
+        m_manageButton->setEnabled(false);
+
+    makeReadOnly();
+}
+
 void KitAspect::addToLayout(Layouting::LayoutItem &parentItem)
 {
     auto label = createSubWidget<QLabel>(m_factory->displayName() + ':');
@@ -782,6 +793,13 @@ void KitAspect::addToLayout(Layouting::LayoutItem &parentItem)
 
     parentItem.addItem(label);
     addToLayoutImpl(parentItem);
+    if (m_managingPageId.isValid()) {
+        m_manageButton = createSubWidget<QPushButton>(msgManage());
+        connect(m_manageButton, &QPushButton::clicked, [this] {
+            Core::ICore::showOptionsDialog(m_managingPageId);
+        });
+        parentItem.addItem(m_manageButton);
+    }
     parentItem.addItem(Layouting::br);
 }
 
@@ -790,15 +808,6 @@ void KitAspect::addMutableAction(QWidget *child)
     QTC_ASSERT(child, return);
     child->addAction(m_mutableAction);
     child->setContextMenuPolicy(Qt::ActionsContextMenu);
-}
-
-QWidget *KitAspect::createManageButton(Id pageId)
-{
-    auto button = createSubWidget<QPushButton>(msgManage());
-    connect(button, &QPushButton::clicked, this, [pageId] {
-        Core::ICore::showOptionsDialog(pageId);
-    });
-    return button;
 }
 
 QString KitAspect::msgManage()

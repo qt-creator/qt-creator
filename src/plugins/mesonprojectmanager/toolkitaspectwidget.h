@@ -40,7 +40,6 @@ private:
     {
         addMutableAction(m_toolsComboBox);
         parent.addItem(m_toolsComboBox);
-        parent.addItem(m_manageButton);
     }
 
     void refresh() override
@@ -58,7 +57,6 @@ private:
     }
 
     QComboBox *m_toolsComboBox;
-    QWidget *m_manageButton;
     ToolType m_type;
 };
 

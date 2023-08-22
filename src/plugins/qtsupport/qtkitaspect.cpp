@@ -35,10 +35,10 @@ class QtKitAspectImpl final : public KitAspect
 public:
     QtKitAspectImpl(Kit *k, const KitAspectFactory *ki) : KitAspect(k, ki)
     {
+        setManagingPage(Constants::QTVERSION_SETTINGS_PAGE_ID);
+
         m_combo = createSubWidget<QComboBox>();
         m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
-
-        m_manageButton = createManageButton(Constants::QTVERSION_SETTINGS_PAGE_ID);
 
         refresh();
         m_combo->setToolTip(ki->description());
@@ -57,7 +57,6 @@ public:
     ~QtKitAspectImpl() final
     {
         delete m_combo;
-        delete m_manageButton;
     }
 
 private:
@@ -67,7 +66,6 @@ private:
     {
         addMutableAction(m_combo);
         parent.addItem(m_combo);
-        parent.addItem(m_manageButton);
     }
 
     void refresh() final
@@ -126,7 +124,6 @@ private:
 
     Guard m_ignoreChanges;
     QComboBox *m_combo;
-    QWidget *m_manageButton;
 };
 } // namespace Internal
 
