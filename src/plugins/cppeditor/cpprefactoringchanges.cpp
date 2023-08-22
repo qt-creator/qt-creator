@@ -131,6 +131,9 @@ bool CppRefactoringFile::isCursorOn(unsigned tokenIndex) const
 
 bool CppRefactoringFile::isCursorOn(const AST *ast) const
 {
+    if (!ast)
+        return false;
+
     QTextCursor tc = cursor();
     int cursorBegin = tc.selectionStart();
 

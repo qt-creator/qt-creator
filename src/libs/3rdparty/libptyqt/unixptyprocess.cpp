@@ -184,28 +184,9 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
         m_readMasterNotify->disconnect();
     });
 
-    const QStringList defaultVars = {
-        "TERM=xterm-256color",
-        "ITERM_PROFILE=Default",
-        "XPC_FLAGS=0x0",
-        "XPC_SERVICE_NAME=0",
-        "LANG=en_US.UTF-8",
-        "LC_ALL=en_US.UTF-8",
-        "LC_CTYPE=UTF-8",
-        "INIT_CWD=" + QCoreApplication::applicationDirPath(),
-        "COMMAND_MODE=unix2003",
-        "COLORTERM=truecolor"
-    };
-
     QStringList varNames;
     for (const QString &line : std::as_const(environment))
         varNames.append(line.split("=").first());
-
-    //append default env vars only if they don't exists in current env
-    for (const QString &defVar : defaultVars) {
-        if (!varNames.contains(defVar.split("=").first()))
-            environment.append(defVar);
-    }
 
     QProcessEnvironment envFormat;
     for (const QString &line : std::as_const(environment))
