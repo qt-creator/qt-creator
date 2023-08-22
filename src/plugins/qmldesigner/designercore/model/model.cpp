@@ -82,6 +82,8 @@ ModelPrivate::ModelPrivate(Model *model,
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
+
+    projectStorage->addRefreshCallback(&m_metaInfoRefreshCallback);
 }
 
 ModelPrivate::ModelPrivate(Model *model,
@@ -103,6 +105,8 @@ ModelPrivate::ModelPrivate(Model *model,
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
+
+    projectStorage->addRefreshCallback(&m_metaInfoRefreshCallback);
 }
 
 ModelPrivate::ModelPrivate(Model *model,
@@ -123,10 +127,15 @@ ModelPrivate::ModelPrivate(Model *model,
     m_currentTimelineNode = m_rootInternalNode;
 }
 
-ModelPrivate::~ModelPrivate() = default;
+ModelPrivate::~ModelPrivate()
+{
+    projectStorage->removeRefreshCallback(&m_metaInfoRefreshCallback);
+};
 
 void ModelPrivate::detachAllViews()
 {
+    projectStorage->removeRefreshCallback(&m_metaInfoRefreshCallback);
+
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         detachView(view.data(), true);
 
@@ -379,6 +388,11 @@ void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName
         node->importedTypeNameId = importedTypeNameId(typeName);
         node->typeId = projectStorage->typeId(node->importedTypeNameId);
     }
+}
+
+void ModelPrivate::emitRefreshMetaInfos()
+{
+    notifyNodeInstanceViewLast([&](AbstractView *view) { view->refreshMetaInfos(); });
 }
 
 void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)

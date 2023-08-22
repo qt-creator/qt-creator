@@ -869,4 +869,30 @@ TEST_F(Model, meta_info_of_not_existing_type_is_invalid)
     ASSERT_THAT(meta_info, IsFalse());
 }
 
+TEST_F(Model, add_refresh_callback_to_project_storage)
+{
+    EXPECT_CALL(projectStorageMock, addRefreshCallback(_));
+
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
+}
+
+TEST_F(Model, remove_refresh_callback_from_project_storage)
+{
+    EXPECT_CALL(projectStorageMock, removeRefreshCallback(_)).Times(2); // there is a model in the fixture
+
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
+}
+
+TEST_F(Model, refresh_callback_is_calling_abstract_view)
+{
+    std::function<void()> *callback = nullptr;
+    ON_CALL(projectStorageMock, addRefreshCallback(_)).WillByDefault([&](auto *c) { callback = c; });
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
+    model.attachView(&viewMock);
+
+    EXPECT_CALL(viewMock, refreshMetaInfos());
+
+    (*callback)();
+}
+
 } // namespace

@@ -27,6 +27,9 @@ public:
     virtual void synchronize(Storage::Synchronization::SynchronizationPackage package) = 0;
     virtual void synchronizeDocumentImports(const Storage::Imports imports, SourceId sourceId) = 0;
 
+    virtual void addRefreshCallback(std::function<void()> *callback) = 0;
+    virtual void removeRefreshCallback(std::function<void()> *callback) = 0;
+
     virtual ModuleId moduleId(::Utils::SmallStringView name) const = 0;
     virtual std::optional<Storage::Info::PropertyDeclaration>
     propertyDeclaration(PropertyDeclarationId propertyDeclarationId) const = 0;

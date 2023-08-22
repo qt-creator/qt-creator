@@ -18,6 +18,7 @@
 #include <utils/set_algorithm.h>
 
 #include <algorithm>
+#include <functional>
 #include <optional>
 #include <tuple>
 #include <type_traits>
@@ -109,6 +110,8 @@ public:
 
             commonTypeCache_.resetTypeIds();
         });
+
+        callRefreshMetaInfoCallback();
     }
 
     void synchronizeDocumentImports(Storage::Imports imports, SourceId sourceId) override
@@ -118,6 +121,17 @@ public:
                                        {sourceId},
                                        Storage::Synchronization::ImportKind::Import);
         });
+    }
+
+    void addRefreshCallback(std::function<void()> *callback) override
+    {
+        m_refreshCallbacks.push_back(callback);
+    }
+
+    void removeRefreshCallback(std::function<void()> *callback) override
+    {
+        m_refreshCallbacks.erase(
+            std::find(m_refreshCallbacks.begin(), m_refreshCallbacks.end(), callback));
     }
 
     ModuleId moduleId(Utils::SmallStringView moduleName) const override
@@ -600,6 +614,12 @@ private:
     auto fetchAllModules() const
     {
         return selectAllModulesStatement.template valuesWithTransaction<Module, 128>();
+    }
+
+    void callRefreshMetaInfoCallback()
+    {
+        for (auto *callback : m_refreshCallbacks)
+            (*callback)();
     }
 
     class AliasPropertyDeclaration
@@ -2767,6 +2787,7 @@ public:
     Initializer initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
     Storage::Info::CommonTypeCache<ProjectStorageInterface> commonTypeCache_{*this};
+    std::vector<std::function<void()> *> m_refreshCallbacks;
     ReadWriteStatement<1, 3> upsertTypeStatement{
         "INSERT INTO types(sourceId, name,  traits) VALUES(?1, ?2, ?3) ON CONFLICT DO "
         "UPDATE SET traits=excluded.traits WHERE traits IS NOT "

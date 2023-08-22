@@ -95,6 +95,9 @@ public:
                 (const QmlDesigner::Storage::Imports imports, QmlDesigner::SourceId sourceId),
                 (override));
 
+    MOCK_METHOD(void, addRefreshCallback, (std::function<void()> * callback), (override));
+    MOCK_METHOD(void, removeRefreshCallback, (std::function<void()> * callback), (override));
+
     MOCK_METHOD(QmlDesigner::ModuleId, moduleId, (::Utils::SmallStringView), (const, override));
 
     MOCK_METHOD(std::optional<QmlDesigner::Storage::Info::PropertyDeclaration>,
