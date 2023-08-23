@@ -86,6 +86,11 @@ void Settings::setDefault()
     keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
     keywords.append(keyword);
 
+    keyword.name = R"(\todo)";
+    keyword.iconType = IconType::Todo;
+    keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
+    keywords.append(keyword);
+
     keyword.name = "NOTE";
     keyword.iconType = IconType::Info;
     keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
