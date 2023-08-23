@@ -563,11 +563,22 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
 
     const std::optional<WorkspaceEdit> &edits = response.result();
     if (edits.has_value()) {
-        search->addResults(generateReplaceItems(*edits,
-                                                search,
-                                                m_limitRenamingToProjects,
-                                                m_client->hostPathMapper()),
-                           Core::SearchResult::AddOrdered);
+        const Utils::SearchResultItems items = generateReplaceItems(
+            *edits, search, m_limitRenamingToProjects, m_client->hostPathMapper());
+        search->addResults(items, Core::SearchResult::AddOrdered);
+        if (m_renameResultsEnhancer) {
+            Utils::SearchResultItems additionalItems = m_renameResultsEnhancer(items);
+            for (Utils::SearchResultItem &item : additionalItems) {
+                TextEdit edit;
+                const Utils::Text::Position startPos = item.mainRange().begin;
+                const Utils::Text::Position endPos = item.mainRange().end;
+                edit.setRange({{startPos.line - 1, startPos.column},
+                               {endPos.line - 1, endPos.column}});
+                edit.setNewText(search->textToReplace());
+                item.setUserData(QVariant(edit));
+            }
+            search->addResults(additionalItems, Core::SearchResult::AddSortedByPosition);
+        }
         qobject_cast<ReplaceWidget *>(search->additionalReplaceWidget())->showLabel(false);
         search->setReplaceEnabled(true);
         search->finishSearch(false);
@@ -632,6 +643,11 @@ Utils::Text::Range SymbolSupport::convertRange(const Range &range)
 void SymbolSupport::setDefaultRenamingSymbolMapper(const SymbolMapper &mapper)
 {
     m_defaultSymbolMapper = mapper;
+}
+
+void SymbolSupport::setRenameResultsEnhancer(const RenameResultsEnhancer &enhancer)
+{
+    m_renameResultsEnhancer = enhancer;
 }
 
 } // namespace LanguageClient

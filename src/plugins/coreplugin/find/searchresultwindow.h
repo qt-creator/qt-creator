@@ -43,7 +43,8 @@ class CORE_EXPORT SearchResult : public QObject
 
 public:
     enum AddMode {
-        AddSorted,
+        AddSortedByContent,
+        AddSortedByPosition,
         AddOrdered
     };
 
@@ -57,6 +58,7 @@ public:
     void setAdditionalReplaceWidget(QWidget *widget);
     void makeNonInteractive(const std::function<void()> &callback);
     bool isInteractive() const { return !m_finishedHandler; }
+    Utils::SearchResultItems allItems() const;
 
 public slots:
     void addResult(const Utils::SearchResultItem &item);

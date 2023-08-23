@@ -10,6 +10,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <cplusplus/FindUsages.h>
 #include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/semantichighlighter.h>
@@ -536,6 +537,8 @@ void ClangdTestLocalReferences::test_data()
     QTest::newRow("overloaded operators arguments from outside") << 171 << 7
             << QList<Range>{{171, 6, 1}, {172, 6, 1}, {172, 11, 1},
                      {173, 6, 1}, {173, 9, 1}};
+    QTest::newRow("documented function parameter") << 181 << 32
+            << QList<Range>{{177, 10, 6}, {179, 9, 6}, {181, 31, 6}, {183, 6, 6}, {184, 17, 6}};
 }
 
 void ClangdTestLocalReferences::test()
@@ -546,6 +549,11 @@ void ClangdTestLocalReferences::test()
 
     TextEditor::TextDocument * const doc = document("references.cpp");
     QVERIFY(doc);
+    const QList<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
+    QCOMPARE(editors.size(), 1);
+    const auto editorWidget = qobject_cast<CppEditor::CppEditorWidget *>(
+        editors.first()->editorWidget());
+    QVERIFY(editorWidget);
 
     QTimer timer;
     timer.setSingleShot(true);
@@ -561,7 +569,7 @@ void ClangdTestLocalReferences::test()
     QTextCursor cursor(doc->document());
     const int pos = Text::positionInText(doc->document(), sourceLine, sourceColumn);
     cursor.setPosition(pos);
-    client()->findLocalUsages(doc, cursor, std::move(handler));
+    client()->findLocalUsages(editorWidget, cursor, std::move(handler));
     timer.start(10000);
     loop.exec();
     QVERIFY(timer.isActive());

@@ -21,7 +21,8 @@ public:
     SearchResultTreeItem *parent() const;
     SearchResultTreeItem *childAt(int index) const;
     int insertionIndex(const QString &text, SearchResultTreeItem **existingItem) const;
-    int insertionIndex(const Utils::SearchResultItem &item, SearchResultTreeItem **existingItem) const;
+    int insertionIndex(const Utils::SearchResultItem &item, SearchResultTreeItem **existingItem,
+                       SearchResult::AddMode mode) const;
     void insertChild(int index, SearchResultTreeItem *child);
     void insertChild(int index, const Utils::SearchResultItem &item);
     void appendChild(const Utils::SearchResultItem &item);

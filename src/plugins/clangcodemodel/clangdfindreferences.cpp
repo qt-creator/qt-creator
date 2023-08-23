@@ -14,6 +14,7 @@
 #include <cplusplus/FindUsages.h>
 
 #include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppfindreferences.h>
 #include <cppeditor/cpptoolsreuse.h>
 
@@ -670,10 +671,10 @@ ClangdFindReferences::CheckUnusedData::~CheckUnusedData()
 class ClangdFindLocalReferences::Private
 {
 public:
-    Private(ClangdFindLocalReferences *q, TextDocument *document, const QTextCursor &cursor,
+    Private(ClangdFindLocalReferences *q, CppEditorWidget *editorWidget, const QTextCursor &cursor,
             const RenameCallback &callback)
-        : q(q), document(document), cursor(cursor), callback(callback),
-          uri(client()->hostPathToServerUri(document->filePath())),
+        : q(q), editorWidget(editorWidget), document(editorWidget->textDocument()), cursor(cursor),
+          callback(callback), uri(client()->hostPathToServerUri(document->filePath())),
           revision(document->document()->revision())
     {}
 
@@ -685,6 +686,7 @@ public:
     void finish();
 
     ClangdFindLocalReferences * const q;
+    const QPointer<CppEditorWidget> editorWidget;
     const QPointer<TextDocument> document;
     const QTextCursor cursor;
     RenameCallback callback;
@@ -694,9 +696,9 @@ public:
 };
 
 ClangdFindLocalReferences::ClangdFindLocalReferences(
-        ClangdClient *client, TextDocument *document, const QTextCursor &cursor,
-        const RenameCallback &callback)
-    : QObject(client), d(new Private(this, document, cursor, callback))
+    ClangdClient *client, CppEditorWidget *editorWidget, const QTextCursor &cursor,
+    const RenameCallback &callback)
+    : QObject(client), d(new Private(this, editorWidget, cursor, callback))
 {
     d->findDefinition();
 }
@@ -780,7 +782,7 @@ void ClangdFindLocalReferences::Private::handleReferences(const QList<Location> 
         return loc.toLink(mapper);
     };
 
-    const Utils::Links links = Utils::transform(references, transformLocation);
+    Utils::Links links = Utils::transform(references, transformLocation);
 
     // The callback only uses the symbol length, so we just create a dummy.
     // Note that the calculation will be wrong for identifiers with
@@ -788,7 +790,27 @@ void ClangdFindLocalReferences::Private::handleReferences(const QList<Location> 
     QString symbol;
     if (!references.isEmpty()) {
         const Range r = references.first().range();
-        symbol = QString(r.end().character() - r.start().character(), 'x');
+        const Position pos = r.start();
+        symbol = QString(r.end().character() - pos.character(), 'x');
+        if (editorWidget && document) {
+            QTextCursor cursor(document->document());
+            cursor.setPosition(Text::positionInText(document->document(), pos.line() + 1,
+                                                    pos.character() + 1));
+            const QList<Text::Range> occurrencesInComments
+                = symbolOccurrencesInDeclarationComments(editorWidget, cursor);
+            for (const Text::Range &range : occurrencesInComments) {
+                static const auto cmp = [](const Link &l, const Text::Range &r) {
+                    if (l.targetLine < r.begin.line)
+                        return true;
+                    if (l.targetLine > r.begin.line)
+                        return false;
+                    return l.targetColumn < r.begin.column;
+                };
+                const auto it = std::lower_bound(links.begin(), links.end(), range, cmp);
+                links.emplace(it, links.first().targetFilePath, range.begin.line,
+                              range.begin.column);
+            }
+        }
     }
     callback(symbol, links, revision);
     callback = {};

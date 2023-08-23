@@ -51,6 +51,9 @@ public:
 
     void setLimitRenamingToProjects(bool limit) { m_limitRenamingToProjects = limit; }
 
+    using RenameResultsEnhancer = std::function<Utils::SearchResultItems(const Utils::SearchResultItems &)>;
+    void setRenameResultsEnhancer(const RenameResultsEnhancer &enhancer);
+
 private:
     void handleFindReferencesResponse(
         const LanguageServerProtocol::FindReferencesRequest::Response &response,
@@ -78,6 +81,7 @@ private:
 
     Client *m_client = nullptr;
     SymbolMapper m_defaultSymbolMapper;
+    RenameResultsEnhancer m_renameResultsEnhancer;
     QHash<Core::SearchResult *, LanguageServerProtocol::MessageId> m_renameRequestIds;
     bool m_limitRenamingToProjects = false;
 };

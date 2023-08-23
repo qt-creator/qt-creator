@@ -900,6 +900,11 @@ void Core::SearchResult::makeNonInteractive(const std::function<void ()> &callba
     m_finishedHandler = callback;
 }
 
+Utils::SearchResultItems SearchResult::allItems() const
+{
+    return m_widget->items(false);
+}
+
 } // namespace Core
 
 #include "searchresultwindow.moc"

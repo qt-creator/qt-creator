@@ -82,19 +82,19 @@ void MyClass::run() {}
     origHeaderClassName.insert(classOffset + 6, '@');
     const QByteArray newHeaderClassName = R"cpp(
 /**
- * \brief MyClass
+ * \brief MyNewClass
  */
 class MyNewClass {
-  /** \brief MyClass::MyClass */
+  /** \brief MyNewClass::MyNewClass */
   MyNewClass() {}
   ~MyNewClass();
-  /** \brief MyClass::run */
+  /** \brief MyNewClass::run */
   void run();
 };
 )cpp";
     const QByteArray newSourceClassName = R"cpp(
 #include "file.h"
-/** \brief MyClass::~MyClass */
+/** \brief MyNewClass::~MyNewClass */
 MyNewClass::~MyNewClass() {}
 
 void MyNewClass::run() {}
@@ -115,7 +115,7 @@ class MyClass {
   /** \brief MyClass::MyClass */
   MyClass() {}
   ~MyClass();
-  /** \brief MyClass::run */
+  /** \brief MyClass::runAgain */
   void runAgain();
 };
 )cpp";

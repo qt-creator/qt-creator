@@ -82,9 +82,26 @@ int SearchResultTreeItem::insertionIndex(const QString &text, SearchResultTreeIt
 }
 
 int SearchResultTreeItem::insertionIndex(const Utils::SearchResultItem &item,
-                                         SearchResultTreeItem **existingItem) const
+                                         SearchResultTreeItem **existingItem,
+                                         SearchResult::AddMode mode) const
 {
-    return insertionIndex(item.lineText(), existingItem);
+    switch (mode) {
+    case SearchResult::AddSortedByContent:
+        return insertionIndex(item.lineText(), existingItem);
+    case SearchResult::AddSortedByPosition:
+        break;
+    case Core::SearchResult::AddOrdered:
+        QTC_ASSERT(false, return 0);
+    }
+
+    static const auto cmp = [](const SearchResultTreeItem *a, const Utils::Text::Position b) {
+        return a->item.mainRange().begin < b;
+    };
+    const auto insertionPosition =
+        std::lower_bound(m_children.begin(), m_children.end(), item.mainRange().begin, cmp);
+    if (existingItem)
+        *existingItem = nullptr;
+    return insertionPosition - m_children.begin();
 }
 
 void SearchResultTreeItem::insertChild(int index, SearchResultTreeItem *child)

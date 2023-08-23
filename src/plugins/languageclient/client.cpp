@@ -848,7 +848,7 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
             q->cancelRequest(m_highlightRequests.take(widget));
     });
     request.setResponseCallback(
-        [widget, this, uri, connection]
+        [widget, this, uri, connection, adjustedCursor]
         (const DocumentHighlightsRequest::Response &response)
         {
             m_highlightRequests.remove(widget);
@@ -873,6 +873,30 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
                 selection.cursor.setPosition(start);
                 selection.cursor.setPosition(end, QTextCursor::KeepAnchor);
                 selections << selection;
+            }
+            if (!selections.isEmpty()) {
+                const QList<Text::Range> extraRanges = q->additionalDocumentHighlights(
+                    widget, adjustedCursor);
+                for (const Text::Range &range : extraRanges) {
+                    QTextEdit::ExtraSelection selection{widget->textCursor(), format};
+                    const Text::Position &startPos = range.begin;
+                    const Text::Position &endPos = range.end;
+                    const int start = Text::positionInText(document, startPos.line,
+                                                           startPos.column + 1);
+                    const int end = Text::positionInText(document, endPos.line,
+                                                         endPos.column + 1);
+                    if (start < 0 || end < 0 || start >= end)
+                        continue;
+                    selection.cursor.setPosition(start);
+                    selection.cursor.setPosition(end, QTextCursor::KeepAnchor);
+                    static const auto cmp = [](const QTextEdit::ExtraSelection &s1,
+                                        const QTextEdit::ExtraSelection &s2) {
+                        return s1.cursor.position() < s2.cursor.position();
+                    };
+                    const auto it = std::lower_bound(selections.begin(), selections.end(),
+                                                     selection, cmp);
+                    selections.insert(it, selection);
+                }
             }
             widget->setExtraSelections(id, selections);
         });

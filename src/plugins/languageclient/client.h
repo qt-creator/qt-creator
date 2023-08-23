@@ -16,6 +16,8 @@ class TextDocument;
 class TextEditorWidget;
 }
 
+namespace Utils { namespace Text { class Range; } }
+
 QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
@@ -226,6 +228,8 @@ private:
                                                       TextEditor::TextDocument *doc);
     virtual bool referencesShadowFile(const TextEditor::TextDocument *doc,
                                       const Utils::FilePath &candidate);
+    virtual QList<Utils::Text::Range> additionalDocumentHighlights(
+        TextEditor::TextEditorWidget *, const QTextCursor &) { return {}; }
 };
 
 } // namespace LanguageClient

@@ -155,7 +155,7 @@ void TestDeclarationComments::commentsForDecl()
     const Symbol * const symbol = finder.find();
     QVERIFY(symbol);
 
-    const QList<Token> commentTokens = commentsForDeclaration(symbol, m_snapshot, m_textDoc);
+    const QList<Token> commentTokens = commentsForDeclaration(symbol, m_textDoc, m_cppDoc);
     if (expectedCommentPrefix.isEmpty()) {
         QVERIFY(commentTokens.isEmpty());
         return;

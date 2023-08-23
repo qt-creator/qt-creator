@@ -402,6 +402,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
     setQuickFixAssistProvider(new ClangdQuickFixProvider(this));
     symbolSupport().setLimitRenamingToProjects(true);
+    symbolSupport().setRenameResultsEnhancer([](const SearchResultItems &symbolOccurrencesInCode) {
+        return CppEditor::symbolOccurrencesInDeclarationComments(symbolOccurrencesInCode);
+    });
     if (!project) {
         QJsonObject initOptions;
         const Utils::FilePath includeDir
@@ -752,6 +755,13 @@ bool ClangdClient::fileBelongsToProject(const Utils::FilePath &filePath) const
     return Client::fileBelongsToProject(filePath);
 }
 
+QList<Text::Range> ClangdClient::additionalDocumentHighlights(
+    TextEditorWidget *editorWidget, const QTextCursor &cursor)
+{
+    return CppEditor::symbolOccurrencesInDeclarationComments(
+        qobject_cast<CppEditor::CppEditorWidget *>(editorWidget), cursor);
+}
+
 RefactoringChangesData *ClangdClient::createRefactoringChangesBackend() const
 {
     return new CppEditor::CppRefactoringChangesData(
@@ -1056,9 +1066,11 @@ void ClangdClient::switchHeaderSource(const Utils::FilePath &filePath, bool inNe
     sendMessage(req);
 }
 
-void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cursor,
-        CppEditor::RenameCallback &&callback)
+void ClangdClient::findLocalUsages(CppEditor::CppEditorWidget *editorWidget,
+                                   const QTextCursor &cursor, CppEditor::RenameCallback &&callback)
 {
+    QTC_ASSERT(editorWidget, return);
+    TextDocument * const document = editorWidget->textDocument();
     QTC_ASSERT(documentOpen(document), openDocument(document));
 
     qCDebug(clangdLog) << "local references requested" << document->filePath()
@@ -1076,7 +1088,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
         return;
     }
 
-    d->findLocalRefs = new ClangdFindLocalReferences(this, document, cursor, callback);
+    d->findLocalRefs = new ClangdFindLocalReferences(this, editorWidget, cursor, callback);
     connect(d->findLocalRefs, &ClangdFindLocalReferences::done, this, [this] {
         d->findLocalRefs->deleteLater();
         d->findLocalRefs = nullptr;

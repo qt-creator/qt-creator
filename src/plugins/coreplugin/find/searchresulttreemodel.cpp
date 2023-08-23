@@ -402,10 +402,10 @@ void SearchResultTreeModel::addResultsToCurrentParent(const SearchResultItems &i
             m_currentParent->appendChild(item);
         }
         endInsertRows();
-    } else if (mode == SearchResult::AddSorted) {
+    } else {
         for (const SearchResultItem &item : items) {
             SearchResultTreeItem *existingItem;
-            const int insertionIndex = m_currentParent->insertionIndex(item, &existingItem);
+            const int insertionIndex = m_currentParent->insertionIndex(item, &existingItem, mode);
             if (existingItem) {
                 existingItem->setGenerated(false);
                 existingItem->item = item;

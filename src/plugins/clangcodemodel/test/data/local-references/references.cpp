@@ -172,3 +172,14 @@ int testOperator() {
   vec[n] = n * 100;
   vec(n, n) = 100;
 }
+
+/*
+ * @param param1
+ * @param param2
+ * @note param1 and param2 should be the same.
+ */
+void funcWithParamComments(int param1, int param2)
+{
+  if (param1 != param2)
+        param2 = param1;
+}

@@ -96,6 +96,11 @@ private:
 
 using SearchResultItems = QList<SearchResultItem>;
 
+inline size_t qHash(const SearchResultItem &item)
+{
+    return item.mainRange().begin.line << 16 | item.mainRange().begin.column;
+}
+
 } // namespace Utils
 
 Q_DECLARE_METATYPE(Utils::SearchResultItem)

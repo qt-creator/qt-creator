@@ -309,7 +309,7 @@ void ClangModelManagerSupport::startLocalRenaming(const CursorInEditor &data,
 {
     if (ClangdClient * const client = clientForFile(data.filePath());
             client && client->reachable()) {
-        client->findLocalUsages(data.textDocument(), data.cursor(),
+        client->findLocalUsages(data.editorWidget(), data.cursor(),
                                 std::move(renameSymbolsCallback));
         return;
     }

@@ -600,6 +600,10 @@ static void displayResults(SearchResult *search,
 
 static void searchFinished(SearchResult *search, QFutureWatcher<CPlusPlus::Usage> *watcher)
 {
+    if (!watcher->isCanceled() && search->supportsReplace()) {
+        search->addResults(symbolOccurrencesInDeclarationComments(search->allItems()),
+                           SearchResult::AddSortedByPosition);
+    }
     search->finishSearch(watcher->isCanceled());
 
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
