@@ -32,7 +32,7 @@ const int BELOW_CONTENTS_MARGIN = 16;
 // PanelsWidget
 ///
 
-PanelsWidget::PanelsWidget(QWidget *parent) : QWidget(parent)
+PanelsWidget::PanelsWidget(QWidget *parent, bool addStretch) : QWidget(parent)
 {
     m_root = new QWidget(nullptr);
     m_root->setFocusPolicy(Qt::NoFocus);
@@ -53,7 +53,8 @@ PanelsWidget::PanelsWidget(QWidget *parent) : QWidget(parent)
     m_layout->setSpacing(0);
 
     topLayout->addLayout(m_layout);
-    topLayout->addStretch(100);
+    if (addStretch)
+        topLayout->addStretch(1);
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -72,7 +73,7 @@ PanelsWidget::PanelsWidget(const QString &displayName, QWidget *widget)
 }
 
 PanelsWidget::PanelsWidget(const QString &displayName, ProjectSettingsWidget *widget)
-    : PanelsWidget(nullptr)
+    : PanelsWidget(nullptr, !widget->expanding())
 {
     addPropertiesPanel(displayName);
     addGlobalSettingsProperties(widget);
