@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "utils_global.h"
 #include "storage.h"
 
 namespace Utils {
