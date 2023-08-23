@@ -57,6 +57,7 @@ private:
                                          const QString &projectFile) const;
     QHash<Utils::FilePath, TestCases> m_testCases;
     QMultiHash<Utils::FilePath, Utils::FilePath> m_alternativeFiles;
+    QSet<Utils::FilePath> m_prefilteredFiles;
 };
 
 } // namespace Internal

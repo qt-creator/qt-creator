@@ -44,6 +44,7 @@ private:
     QFileSystemWatcher m_directoryWatcher;
     QMap<QString, QMap<QString, QDateTime> > m_watchedFiles;
     QMap<Utils::FilePath, Utils::FilePath> m_mainCppFiles;
+    QSet<Utils::FilePath> m_prefilteredFiles;
     bool m_checkForDerivedTests = false;
 };
 

@@ -295,6 +295,9 @@ static bool isQObject(const CPlusPlus::Document::Ptr &declaringDoc)
 bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                    const FilePath &fileName)
 {
+    if (!m_prefilteredFiles.contains(fileName))
+        return false;
+
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull())
         return false;
@@ -418,6 +421,12 @@ void QtTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
         m_testCases = QTestUtils::testCaseNamesForFiles(framework(), filesToParse);
         m_alternativeFiles = QTestUtils::alternativeFiles(framework(), filesToParse);
     }
+
+    if (std::optional<QSet<Utils::FilePath>> prefiltered = filesContainingMacro("QT_TESTLIB_LIB"))
+        m_prefilteredFiles = prefiltered->intersect(filesToParse);
+    else
+        m_prefilteredFiles = filesToParse;
+
     CppParser::init(filesToParse, fullParse);
 }
 
@@ -425,6 +434,7 @@ void QtTestParser::release()
 {
     m_testCases.clear();
     m_alternativeFiles.clear();
+    m_prefilteredFiles.clear();
     CppParser::release();
 }
 

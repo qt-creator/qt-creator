@@ -28,8 +28,7 @@
 using namespace QmlJS;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestTreeItem *QuickTestParseResult::createTestTreeItem() const
 {
@@ -359,6 +358,11 @@ void QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 
     m_checkForDerivedTests = theQtTestFramework().quickCheckForDerivedTests();
 
+    if (std::optional<QSet<Utils::FilePath>> prefiltered = filesContainingMacro("QT_QMLTEST_LIB"))
+        m_prefilteredFiles = prefiltered->intersect(filesToParse);
+    else
+        m_prefilteredFiles = filesToParse;
+
     CppParser::init(filesToParse, fullParse);
 }
 
@@ -366,6 +370,7 @@ void QuickTestParser::release()
 {
     m_qmlSnapshot = Snapshot();
     m_proFilesForQmlFiles.clear();
+    m_prefilteredFiles.clear();
     CppParser::release();
 }
 
@@ -384,6 +389,9 @@ bool QuickTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                                 m_checkForDerivedTests);
     }
 
+    if (!m_prefilteredFiles.contains(fileName))
+        return false;
+
    CPlusPlus::Document::Ptr cppdoc = document(fileName);
    if (cppdoc.isNull() || !includesQtQuickTest(cppdoc, m_cppSnapshot))
        return false;
@@ -396,5 +404,4 @@ FilePath QuickTestParser::projectFileForMainCppFile(const FilePath &fileName) co
     return m_mainCppFiles.contains(fileName) ? m_mainCppFiles.value(fileName) : FilePath();
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

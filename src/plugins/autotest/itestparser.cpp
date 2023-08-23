@@ -5,6 +5,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <utils/textfileformat.h>
 #include <utils/algorithm.h>
 
@@ -103,6 +104,31 @@ bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
                                                [&](const FilePath &include) {
                                                    return headerFileRegex.match(include.path()).hasMatch();
                                                });
+}
+
+std::optional<QSet<FilePath>> CppParser::filesContainingMacro(const QByteArray &macroName)
+{
+    // safety net to avoid adding some option
+    static const bool noPrefilter = qtcEnvironmentVariableIsSet("QTC_AUTOTEST_DISABLE_PREFILTER");
+    if (noPrefilter)
+        return std::nullopt;
+
+    QSet<FilePath> result;
+    CppEditor::ProjectInfo::ConstPtr infos = CppEditor::CppModelManager::projectInfo(
+                ProjectExplorer::ProjectManager::startupProject());
+    if (!infos)
+        return std::nullopt;
+
+    const auto projectParts = infos->projectParts();
+    for (const auto &pp : projectParts) {
+        if (!pp->selectedForBuilding)
+            continue;
+
+        const ProjectExplorer::Macros macros = pp->projectMacros;
+        if (Utils::anyOf(pp->projectMacros, Utils::equal(&ProjectExplorer::Macro::key, macroName)))
+            result.unite(Utils::transform<QSet>(pp->files, &CppEditor::ProjectFile::path));
+    }
+    return std::make_optional(result);
 }
 
 void CppParser::release()
