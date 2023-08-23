@@ -10,7 +10,7 @@ add_qtc_library(Googletest STATIC
   CONDITION GOOGLETEST_SUBMODULE_IS_CHECKED_OUT
   DEPENDS
     Threads::Threads
-  PUBLIC_INCLUDES
+  PUBLIC_SYSTEM_INCLUDES
     "${GOOGLETEST_DIR}/googletest/include"
     "${GOOGLETEST_DIR}/googlemock/include"
   INCLUDES

@@ -246,13 +246,13 @@ function(update_resource_files_list sources)
   endforeach()
 endfunction()
 
-function(set_public_includes target includes)
+function(set_public_includes target includes system)
   foreach(inc_dir IN LISTS includes)
     if (NOT IS_ABSOLUTE ${inc_dir})
       set(inc_dir "${CMAKE_CURRENT_SOURCE_DIR}/${inc_dir}")
     endif()
     file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${inc_dir})
-    target_include_directories(${target} PUBLIC
+    target_include_directories(${target} ${system} PUBLIC
       $<BUILD_INTERFACE:${inc_dir}>
       $<INSTALL_INTERFACE:${_IDE_HEADER_INSTALL_PATH}/${include_dir_relative_path}>
     )
@@ -465,7 +465,7 @@ function(extend_qtc_target target_name)
   cmake_parse_arguments(_arg
     ""
     "SOURCES_PREFIX;SOURCES_PREFIX_FROM_TARGET;FEATURE_INFO"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES;SOURCES_PROPERTIES"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES;SOURCES_PROPERTIES"
     ${ARGN}
   )
 
@@ -507,7 +507,8 @@ function(extend_qtc_target target_name)
   )
   target_include_directories(${target_name} PRIVATE ${_arg_INCLUDES})
 
-  set_public_includes(${target_name} "${_arg_PUBLIC_INCLUDES}")
+  set_public_includes(${target_name} "${_arg_PUBLIC_INCLUDES}" "")
+  set_public_includes(${target_name} "${_arg_PUBLIC_SYSTEM_INCLUDES}" "SYSTEM")
 
   if (_arg_SOURCES_PREFIX)
     foreach(source IN LISTS _arg_SOURCES)
