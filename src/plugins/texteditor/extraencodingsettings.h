@@ -15,7 +15,7 @@ public:
     ExtraEncodingSettings();
     ~ExtraEncodingSettings();
 
-    void toSettings(const QString &category) const;
+    void toSettings(const Utils::Key &category) const;
     void fromSettings(const Utils::Key &category);
 
     Utils::Store toMap() const;

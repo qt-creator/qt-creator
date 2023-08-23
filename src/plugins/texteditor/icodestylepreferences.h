@@ -65,7 +65,7 @@ public:
     void setCurrentDelegate(const QByteArray &id);
 
     void setSettingsSuffix(const Utils::Key &suffix);
-    void toSettings(const QString &category) const;
+    void toSettings(const Utils::Key &category) const;
     void fromSettings(const Utils::Key &category);
 
     // make below 2 protected?

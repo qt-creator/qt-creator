@@ -38,7 +38,7 @@ void ExtraEncodingSettings::fromSettings(const Key &category)
     Utils::fromSettings(kGroupPostfix, Key(), Core::ICore::settings(), this);
 }
 
-QVariantMap ExtraEncodingSettings::toMap() const
+Store ExtraEncodingSettings::toMap() const
 {
     return {
         {kUtf8BomBehaviorKey, m_utf8BomSetting}

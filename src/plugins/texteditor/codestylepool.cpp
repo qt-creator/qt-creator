@@ -208,7 +208,7 @@ ICodeStylePreferences *CodeStylePool::loadCodeStyle(const FilePath &fileName)
     if (m.contains(QLatin1String(codeStyleDataKey))) {
         const QByteArray id = fileName.completeBaseName().toUtf8();
         const QString displayName = reader.restoreValue(QLatin1String(displayNameKey)).toString();
-        const QVariantMap map = reader.restoreValue(QLatin1String(codeStyleDataKey)).toMap();
+        const Store map = reader.restoreValue(codeStyleDataKey).value<Store>();
         if (d->m_factory) {
             codeStyle = d->m_factory->createCodeStyle();
             codeStyle->setId(id);
@@ -242,10 +242,10 @@ void CodeStylePool::saveCodeStyle(ICodeStylePreferences *codeStyle) const
 
 void CodeStylePool::exportCodeStyle(const FilePath &fileName, ICodeStylePreferences *codeStyle) const
 {
-    const QVariantMap map = codeStyle->toMap();
-    const QVariantMap tmp = {
+    const Store map = codeStyle->toMap();
+    const Store tmp = {
         {displayNameKey, codeStyle->displayName()},
-        {codeStyleDataKey, map}
+        {codeStyleDataKey, QVariant::fromValue(map)}
     };
     PersistentSettingsWriter writer(fileName, QLatin1String(codeStyleDocKey));
     writer.save(tmp, Core::ICore::dialogParent());
