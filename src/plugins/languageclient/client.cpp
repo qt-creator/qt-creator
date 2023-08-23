@@ -1947,9 +1947,14 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         if (QTC_GUARD(id.isValid()))
             response.setId(id);
         ConfigurationRequest configurationRequest(message.toJsonObject());
-        if (auto params = configurationRequest.params()) {
-            for (int i = 0, end = params->items().count(); i < end; ++i)
-                result.append({});
+        if (std::optional<ConfigurationParams> params = configurationRequest.params()) {
+            const QList<ConfigurationParams::ConfigurationItem> items = params->items();
+            for (const ConfigurationParams::ConfigurationItem &item : items) {
+                if (const std::optional<QString> section = item.section())
+                    result.append(m_configuration[*section]);
+                else
+                    result.append({});
+            }
         }
         response.setResult(result);
         sendResponse(response);
