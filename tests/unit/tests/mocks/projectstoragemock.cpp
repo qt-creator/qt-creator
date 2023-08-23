@@ -112,6 +112,16 @@ QmlDesigner::ImportId ProjectStorageMock::createImportId(QmlDesigner::ModuleId m
     return importId;
 }
 
+void ProjectStorageMock::addExportedTypeName(QmlDesigner::TypeId typeId,
+                                             QmlDesigner::ModuleId moduleId,
+                                             Utils::SmallStringView typeName)
+{
+    ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
+    ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
+        .WillByDefault(Return(typeId));
+    exportedTypeName[typeId].emplace_back(moduleId, typeName);
+}
+
 PropertyDeclarationId ProjectStorageMock::createProperty(TypeId typeId,
                                                          Utils::SmallString name,
                                                          PropertyDeclarationTraits traits,
@@ -159,6 +169,12 @@ void ProjectStorageMock::createFunction(QmlDesigner::TypeId typeId, Utils::Small
     ON_CALL(*this, functionDeclarationNames(Eq(typeId))).WillByDefault(Return(functionNames));
 }
 
+void ProjectStorageMock::setPropertyEditorPathId(QmlDesigner::TypeId typeId,
+                                                 QmlDesigner::SourceId sourceId)
+{
+    ON_CALL(*this, propertyEditorPathId(Eq(typeId))).WillByDefault(Return(sourceId));
+}
+
 namespace {
 void addBaseProperties(TypeId typeId, TypeIds baseTypeIds, ProjectStorageMock &storage)
 {
@@ -192,6 +208,10 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
     ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
     ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
         .WillByDefault(Return(typeId));
+    addExportedTypeName(typeId, moduleId, typeName);
+    ON_CALL(*this, exportedTypeNames(Eq(typeId))).WillByDefault([&](TypeId id) {
+        return exportedTypeName[id];
+    });
     PropertyDeclarationId defaultPropertyDeclarationId;
     if (defaultPropertyName.size()) {
         if (!defaultPropertyTypeId) {
@@ -280,6 +300,7 @@ void ProjectStorageMock::setupQtQuick()
     auto intId = createValue(qmlModuleId, "int");
     createValue(qmlNativeModuleId, "uint");
     auto doubleId = createValue(qmlModuleId, "double");
+    addExportedTypeName(doubleId, qmlModuleId, "real");
     createValue(qmlNativeModuleId, "float");
     createValue(qmlModuleId, "date");
     auto stringId = createValue(qmlModuleId, "string");
@@ -307,7 +328,7 @@ void ProjectStorageMock::setupQtQuick()
     createProperty(fontValueTypeId, "overline", boolId);
     createProperty(fontValueTypeId, "pointSize", doubleId);
     createProperty(fontValueTypeId, "pixelSize", intId);
-    createValue(qtQuickModuleId, "font", {fontValueTypeId});
+    auto fontId = createValue(qtQuickModuleId, "font", {fontValueTypeId});
 
     auto itemId = createObject(qtQuickModuleId,
                                "Item",
@@ -315,6 +336,8 @@ void ProjectStorageMock::setupQtQuick()
                                PropertyDeclarationTraits::IsList,
                                qtObjectId,
                                {qtObjectId});
+    createProperty(itemId, "x", doubleId);
+    createProperty(itemId, "font", fontId);
 
     auto inputDeviceId = createObject(qtQuickModuleId, "InputDevice", {qtObjectId});
     createProperty(inputDeviceId, "seatName", stringId);

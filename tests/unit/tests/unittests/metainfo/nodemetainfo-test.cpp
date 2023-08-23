@@ -409,7 +409,7 @@ TEST_F(NodeMetaInfo, get_invalid_property_if_not_exists)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();
 
-    auto property = metaInfo.property("x");
+    auto property = metaInfo.property("foo");
 
     ASSERT_THAT(property, PropertyId(IsFalse()));
 }

@@ -2436,12 +2436,31 @@ NodeMetaInfo Model::metaInfo(const TypeName &typeName, int majorVersion, int min
     }
 }
 
+NodeMetaInfo Model::metaInfo(Module module, Utils::SmallStringView typeName, Storage::Version version) const
+{
+    if constexpr (useProjectStorage()) {
+        return NodeMetaInfo(d->projectStorage->typeId(module.id(), typeName, version),
+                            d->projectStorage);
+    } else {
+        return {};
+    }
+}
+
 /*!
   \brief Returns list of QML types available within the model.
   */
 MetaInfo Model::metaInfo()
 {
     return d->metaInfo();
+}
+
+Module Model::module(Utils::SmallStringView moduleName)
+{
+    if constexpr (useProjectStorage()) {
+        return Module(d->projectStorage->moduleId(moduleName), d->projectStorage);
+    }
+
+    return {};
 }
 
 /*! \name View related functions

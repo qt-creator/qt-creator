@@ -238,6 +238,7 @@ extend_qtc_library(QmlDesignerCore
     modelmerger.h
     modelnode.h
     modelnodepositionstorage.h
+    module.h
     nodeabstractproperty.h
     nodeinstance.h
     nodelistproperty.h

@@ -33,6 +33,11 @@ std::ostream &operator<<(std::ostream &out, const QString &text)
     return out << text.toUtf8();
 }
 
+std::ostream &operator<<(std::ostream &out, QStringView text)
+{
+    return out << text.toString();
+}
+
 std::ostream &operator<<(std::ostream &out, const QVariant &variant)
 {
     QString output;

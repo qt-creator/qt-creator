@@ -9,6 +9,7 @@
 
 #include <projectstorage/commontypecache.h>
 #include <projectstorage/filestatus.h>
+#include <projectstorage/projectstorageinfotypes.h>
 #include <projectstorage/projectstorageinterface.h>
 #include <projectstorage/sourcepathcache.h>
 
@@ -40,15 +41,18 @@ public:
         QmlDesigner::SourceId sourceId,
         QmlDesigner::Storage::Version version = QmlDesigner::Storage::Version{});
 
-    QmlDesigner::TypeId createType(
-        QmlDesigner::ModuleId moduleId,
-        Utils::SmallStringView typeName,
-        Utils::SmallStringView defaultPropertyName,
-        QmlDesigner::Storage::PropertyDeclarationTraits defaultPropertyTraits,
-        QmlDesigner::TypeId defaultPropertyTypeId,
-        QmlDesigner::Storage::TypeTraits typeTraits,
-        QmlDesigner::TypeIds baseTypeIds = {},
-        QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
+    void addExportedTypeName(QmlDesigner::TypeId typeId,
+                             QmlDesigner::ModuleId moduleId,
+                             Utils::SmallStringView typeName);
+
+    QmlDesigner::TypeId createType(QmlDesigner::ModuleId moduleId,
+                                   Utils::SmallStringView typeName,
+                                   Utils::SmallStringView defaultPropertyName,
+                                   QmlDesigner::Storage::PropertyDeclarationTraits defaultPropertyTraits,
+                                   QmlDesigner::TypeId defaultPropertyTypeId,
+                                   QmlDesigner::Storage::TypeTraits typeTraits,
+                                   QmlDesigner::TypeIds baseTypeIds = {},
+                                   QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
 
     QmlDesigner::TypeId createType(QmlDesigner::ModuleId moduleId,
                                    Utils::SmallStringView typeName,
@@ -85,6 +89,7 @@ public:
 
     void createSignal(QmlDesigner::TypeId typeId, Utils::SmallString name);
     void createFunction(QmlDesigner::TypeId typeId, Utils::SmallString name);
+    void setPropertyEditorPathId(QmlDesigner::TypeId typeId, QmlDesigner::SourceId sourceId);
 
     MOCK_METHOD(void,
                 synchronize,
@@ -280,6 +285,7 @@ public:
                 (const, override));
 
     QmlDesigner::Storage::Info::CommonTypeCache<QmlDesigner::ProjectStorageInterface> typeCache{*this};
+    std::map<QmlDesigner::TypeId, QmlDesigner::Storage::Info::ExportedTypeNames> exportedTypeName;
 };
 
 class ProjectStorageMockWithQtQtuick : public ProjectStorageMock

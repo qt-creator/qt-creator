@@ -65,6 +65,7 @@ add_qtc_library(TestDesignerCore OBJECT
     include/metainfo.h
     include/metainforeader.h
     include/modelnode.h
+    include/module.h
     include/nodeabstractproperty.h
     include/nodelistproperty.h
     include/nodemetainfo.h
