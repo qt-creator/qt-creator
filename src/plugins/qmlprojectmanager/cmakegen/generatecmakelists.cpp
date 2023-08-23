@@ -352,7 +352,7 @@ void CmakeFileGenerator::generateImportCmake(const FilePath &dir, const QString 
             continue;
         fileContent.append(QString(ADD_SUBDIR).arg(subDir.fileName()));
         QString prefix = modulePrefix.isEmpty() ?
-                modulePrefix % subDir.fileName() :
+                QString(modulePrefix % subDir.fileName()) :
                 QString(modulePrefix + '.') + subDir.fileName();
         if (getDirectoryQmls(subDir).isEmpty()) {
             generateImportCmake(subDir, prefix);
