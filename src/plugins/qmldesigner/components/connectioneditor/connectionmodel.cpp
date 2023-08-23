@@ -80,10 +80,6 @@ void ConnectionModel::resetModel()
         for (const ModelNode &modelNode : connectionView()->allModelNodes())
             addModelNode(modelNode);
     }
-
-    const int columnWidthTarget = connectionView()->connectionTableView()->columnWidth(0);
-    connectionView()->connectionTableView()->setColumnWidth(0, columnWidthTarget - 80);
-
     endResetModel();
 }
 

@@ -485,7 +485,6 @@ add_qtc_plugin(QmlDesigner
     editorproxy.cpp editorproxy.h
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
-    components/connectioneditor/connectionviewwidget.h
     qmldesignerplugin.h
   EXTRA_TRANSLATIONS
     "${PROJECT_SOURCE_DIR}/share/qtcreator/qmldesigner"
@@ -940,14 +939,15 @@ extend_qtc_plugin(QmlDesigner
     addnewbackenddialog.cpp addnewbackenddialog.h addnewbackenddialog.ui
     backendmodel.cpp backendmodel.h
     bindingmodel.cpp bindingmodel.h
+    bindingmodelitem.cpp bindingmodelitem.h
     connectioneditor.qrc
     connectioneditorevaluator.cpp connectioneditorevaluator.h
     connectioneditorstatements.cpp connectioneditorstatements.h
     connectionmodel.cpp connectionmodel.h
     connectionview.cpp connectionview.h
-    connectionviewwidget.cpp connectionviewwidget.h connectionviewwidget.ui
-    delegates.cpp delegates.h
     dynamicpropertiesmodel.cpp dynamicpropertiesmodel.h
+    dynamicpropertiesitem.cpp dynamicpropertiesitem.h
+    connectioneditorutils.cpp connectioneditorutils.h
     selectiondynamicpropertiesproxymodel.cpp selectiondynamicpropertiesproxymodel.h
     propertytreemodel.cpp propertytreemodel.h
 )

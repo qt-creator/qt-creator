@@ -2,164 +2,44 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "dynamicpropertiesmodel.h"
+#include "dynamicpropertiesitem.h"
+#include "connectioneditorutils.h"
 
-#include "bindingproperty.h"
-#include "nodeabstractproperty.h"
-#include "nodemetainfo.h"
-#include "qmlchangeset.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
-#include "qmlobjectnode.h"
-#include "qmltimeline.h"
-#include "rewritertransaction.h"
-#include "rewritingexception.h"
-#include "variantproperty.h"
-
+#include <abstractproperty.h>
+#include <bindingproperty.h>
+#include <modelfwd.h>
+#include <rewritertransaction.h>
+#include <rewritingexception.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <variantproperty.h>
+#include <qmlchangeset.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include <qmltimeline.h>
 
-#include <QMessageBox>
-#include <QTimer>
-
-namespace {
-
-bool compareVariantProperties(const QmlDesigner::VariantProperty &variantProp1,
-                              const QmlDesigner::VariantProperty &variantProp2)
-{
-    if (variantProp1.parentModelNode() != variantProp2.parentModelNode())
-        return false;
-    if (variantProp1.name() != variantProp2.name())
-        return false;
-    return true;
-}
-
-QString idOrTypeNameForNode(const QmlDesigner::ModelNode &modelNode)
-{
-    QString idLabel = modelNode.id();
-    if (idLabel.isEmpty())
-        idLabel = modelNode.simplifiedTypeName();
-
-    return idLabel;
-}
-
-QVariant convertVariantForTypeName(const QVariant &variant, const QmlDesigner::TypeName &typeName)
-{
-    QVariant returnValue = variant;
-
-    if (typeName == "int") {
-        bool ok;
-        returnValue = variant.toInt(&ok);
-        if (!ok)
-            returnValue = 0;
-    } else if (typeName == "real") {
-        bool ok;
-        returnValue = variant.toReal(&ok);
-        if (!ok)
-            returnValue = 0.0;
-
-    } else if (typeName == "string") {
-        returnValue = variant.toString();
-
-    } else if (typeName == "bool") {
-        returnValue = variant.toBool();
-    } else if (typeName == "url") {
-        returnValue = variant.toUrl();
-    } else if (typeName == "color") {
-        if (QColor::isValidColor(variant.toString())) {
-            returnValue = variant.toString();
-        } else {
-            returnValue = QColor(Qt::black);
-        }
-    } else if (typeName == "vector2d") {
-        returnValue = "Qt.vector2d(0, 0)";
-    } else if (typeName == "vector3d") {
-        returnValue = "Qt.vector3d(0, 0, 0)";
-    } else if (typeName == "vector4d") {
-        returnValue = "Qt.vector4d(0, 0, 0 ,0)";
-    } else if (typeName == "TextureInput") {
-        returnValue = "null";
-    } else if (typeName == "alias") {
-        returnValue = "null";
-    } else if (typeName == "Item") {
-        returnValue = "null";
-    }
-
-    return returnValue;
-}
-
-} // namespace
+#include <optional>
 
 namespace QmlDesigner {
 
-PropertyName DynamicPropertiesModel::unusedProperty(const ModelNode &modelNode)
+DynamicPropertiesModel::DynamicPropertiesModel(bool exSelection, AbstractView *parent)
+    : QStandardItemModel(parent)
+    , m_view(parent)
+    , m_delegate(new DynamicPropertiesModelBackendDelegate(this))
+    , m_explicitSelection(exSelection)
 {
-    PropertyName propertyName = "property";
-    int i = 0;
-    if (modelNode.isValid() && modelNode.metaInfo().isValid()) {
-        while (true) {
-            const PropertyName currentPropertyName = propertyName + QString::number(i++).toLatin1();
-            if (!modelNode.hasProperty(currentPropertyName) && !modelNode.metaInfo().hasProperty(currentPropertyName))
-                return currentPropertyName;
-        }
-    }
-
-    return propertyName;
+    setHorizontalHeaderLabels(DynamicPropertiesItem::headerLabels());
 }
 
-bool DynamicPropertiesModel::isValueType(const TypeName &type)
+AbstractView *DynamicPropertiesModel::view() const
 {
-    // "variant" is considered value type as it is initialized as one.
-    // This may need to change if we provide any kind of proper editor for it.
-    static const QSet<TypeName> valueTypes {"int", "real", "color", "string", "bool", "url", "variant"};
-    return valueTypes.contains(type);
+    return m_view;
 }
 
-QVariant DynamicPropertiesModel::defaultValueForType(const TypeName &type)
+DynamicPropertiesModelBackendDelegate *DynamicPropertiesModel::delegate() const
 {
-    QVariant value;
-    if (type == "int")
-        value = 0;
-    else if (type == "real")
-        value = 0.0;
-    else if (type == "color")
-        value = QColor(255, 255, 255);
-    else if (type == "string")
-        value = "This is a string";
-    else if (type == "bool")
-        value = false;
-    else if (type == "url")
-        value = "";
-    else if (type == "variant")
-        value = "";
-
-    return value;
-}
-
-QString DynamicPropertiesModel::defaultExpressionForType(const TypeName &type)
-{
-    QString expression;
-    if (type == "alias")
-        expression = "null";
-    else if (type == "TextureInput")
-        expression = "null";
-    else if (type == "vector2d")
-        expression = "Qt.vector2d(0, 0)";
-    else if (type == "vector3d")
-        expression = "Qt.vector3d(0, 0, 0)";
-    else if (type == "vector4d")
-        expression = "Qt.vector4d(0, 0, 0 ,0)";
-
-    return expression;
-}
-
-void DynamicPropertiesModel::add()
-{
-    addDynamicPropertyForCurrentNode();
-}
-
-void DynamicPropertiesModel::remove(int row)
-{
-    deleteDynamicPropertyByRow(row);
+    return m_delegate;
 }
 
 int DynamicPropertiesModel::currentIndex() const
@@ -167,112 +47,293 @@ int DynamicPropertiesModel::currentIndex() const
     return m_currentIndex;
 }
 
-void DynamicPropertiesModel::setCurrentIndex(int i)
+AbstractProperty DynamicPropertiesModel::currentProperty() const
 {
-    if (m_currentIndex == i)
-        return;
-
-    m_currentIndex = i;
-
-    emit currentIndexChanged();
+    return propertyForRow(m_currentIndex);
 }
 
-DynamicPropertiesModel::DynamicPropertiesModel(bool explicitSelection, AbstractView *parent)
-    : QStandardItemModel(parent), m_view(parent), m_explicitSelection(explicitSelection),
-      m_delegate(new DynamicPropertiesModelBackendDelegate(this))
+void DynamicPropertiesModel::add()
 {
-    connect(this, &QStandardItemModel::dataChanged, this, &DynamicPropertiesModel::handleDataChanged);
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_PROPERTY_ADDED);
+
+    if (const QList<ModelNode> nodes = selectedNodes(); nodes.size() == 1) {
+        const ModelNode modelNode = nodes.constFirst();
+        if (!modelNode.isValid())
+            return;
+
+        try {
+            PropertyName newName = uniquePropertyName("property", modelNode);
+            VariantProperty newProperty = modelNode.variantProperty(newName);
+            newProperty.setDynamicTypeNameAndValue("string", "This is a string");
+        } catch (RewritingException &e) {
+            showErrorMessage(e.description());
+        }
+    } else {
+        qWarning() << "DynamicPropertiesModel::add not one node selected";
+    }
 }
 
-void DynamicPropertiesModel::resetModel()
+void DynamicPropertiesModel::remove(int row)
 {
-    beginResetModel();
-    const int backIndex = m_currentIndex;
+    m_view->executeInTransaction(__FUNCTION__, [this, row]() {
+        if (DynamicPropertiesItem *item = itemForRow(row)) {
+            PropertyName name = item->propertyName();
+            if (ModelNode node = modelNodeForItem(item); node.isValid()) {
+                node.removeProperty(name);
+
+                QmlObjectNode objectNode = QmlObjectNode(node);
+                const auto stateOperations = objectNode.allAffectingStatesOperations();
+                for (const QmlModelStateOperation &stateOperation : stateOperations) {
+                    if (stateOperation.modelNode().hasProperty(name))
+                        stateOperation.modelNode().removeProperty(name);
+                }
+                for (auto &timelineNode : objectNode.allTimelines()) {
+                    QmlTimeline timeline(timelineNode);
+                    timeline.removeKeyframesForTargetAndProperty(node, name);
+                }
+            }
+        }
+    });
+    reset();
+}
+
+void DynamicPropertiesModel::reset(const QList<ModelNode> &modelNodes)
+{
+    AbstractProperty current = currentProperty();
+
     clear();
-    setHorizontalHeaderLabels({tr("Item"), tr("Property"), tr("Property Type"), tr("Property Value")});
+
+    if (!modelNodes.isEmpty()) {
+        for (const ModelNode &modelNode : modelNodes)
+            addModelNode(modelNode);
+        return;
+    }
 
     if (m_view->isAttached()) {
-        const auto nodes = selectedNodes();
-        for (const ModelNode &modelNode : nodes)
+        const QList<ModelNode> selected = selectedNodes();
+        for (const ModelNode &modelNode : selected)
             addModelNode(modelNode);
     }
 
-    emit currentIndexChanged();
-    endResetModel();
-    m_currentIndex = backIndex;
+    setCurrentProperty(current);
 }
 
-
-// Method creates dynamic BindingProperty with the same name and type as old VariantProperty
-// Value copying is optional
-BindingProperty DynamicPropertiesModel::replaceVariantWithBinding(const PropertyName &name, bool copyValue)
+void DynamicPropertiesModel::setCurrentIndex(int i)
 {
-    if (selectedNodes().size() == 1) {
-        const ModelNode modelNode = selectedNodes().constFirst();
-        if (modelNode.isValid()) {
-            if (modelNode.hasVariantProperty(name)) {
-                try {
-                    VariantProperty vprop = modelNode.variantProperty(name);
-                    TypeName oldType = vprop.dynamicTypeName();
-                    QVariant oldValue = vprop.value();
-
-                    modelNode.removeProperty(name);
-
-                    BindingProperty bprop = modelNode.bindingProperty(name);
-                    if (bprop.isValid()) {
-                        if (copyValue)
-                            bprop.setDynamicTypeNameAndExpression(oldType, oldValue.toString());
-                        return bprop;
-                    }
-                } catch (RewritingException &e) {
-                    m_exceptionError = e.description();
-                    QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
-                }
-            }
-        }
-    } else {
-        qWarning() << "DynamicPropertiesModel::replaceVariantWithBinding: no selected nodes";
+    if (m_currentIndex != i) {
+        m_currentIndex = i;
+        emit currentIndexChanged();
     }
+    // Property properties may have changed.
+    m_delegate->update(currentProperty());
+}
 
+void DynamicPropertiesModel::setCurrentProperty(const AbstractProperty &property)
+{
+    if (!property.isValid())
+        return;
+
+    if (auto index = findRow(property.parentModelNode().internalId(), property.name()))
+        setCurrentIndex(*index);
+}
+
+void DynamicPropertiesModel::setCurrent(int internalId, const PropertyName &name)
+{
+    if (internalId < 0)
+        return;
+
+    if (auto index = findRow(internalId, name))
+        setCurrentIndex(*index);
+}
+
+void DynamicPropertiesModel::updateItem(const AbstractProperty &property)
+{
+    if (!property.isDynamic())
+        return;
+
+    if (auto *item = itemForProperty(property))
+        item->updateProperty(property);
+    else
+        addProperty(property);
+}
+
+void DynamicPropertiesModel::removeItem(const AbstractProperty &property)
+{
+    if (!property.isValid())
+        return;
+
+    AbstractProperty current = currentProperty();
+
+    if (auto index = findRow(property.parentModelNode().internalId(), property.name()))
+        static_cast<void>(removeRow(*index));
+
+    setCurrentProperty(current);
+    emit currentIndexChanged();
+}
+
+QHash<int, QByteArray> DynamicPropertiesModel::roleNames() const
+{
+    return DynamicPropertiesItem::roleNames();
+}
+
+AbstractProperty DynamicPropertiesModel::propertyForRow(int row) const
+{
+    if (!m_view)
+        return {};
+
+    if (!m_view->isAttached())
+        return {};
+
+    if (auto *item = itemForRow(row)) {
+        int internalId = item->internalId();
+        if (ModelNode node = m_view->modelNodeForInternalId(internalId); node.isValid())
+            return node.property(item->propertyName());
+    }
     return {};
 }
 
-// Finds selected property, and changes it to empty value (QVariant())
-// If it's a BindingProperty, then replaces it with empty VariantProperty
-void DynamicPropertiesModel::resetProperty(const PropertyName &name)
+std::optional<int> DynamicPropertiesModel::findRow(int nodeId, const PropertyName &name) const
 {
-    if (selectedNodes().size() == 1) {
-        const ModelNode modelNode = selectedNodes().constFirst();
-        if (modelNode.isValid()) {
-            if (modelNode.hasProperty(name)) {
-                try {
-                    AbstractProperty abProp = modelNode.property(name);
+    for (int i = 0; i < rowCount(); ++i) {
+        if (auto *item = itemForRow(i)) {
+            if (item->propertyName() == name && item->internalId() == nodeId)
+                return i;
+        }
+    }
+    return std::nullopt;
+}
 
-                    if (abProp.isVariantProperty()) {
-                        VariantProperty property = abProp.toVariantProperty();
-                        QVariant newValue = convertVariantForTypeName({}, property.dynamicTypeName());
-                        property.setDynamicTypeNameAndValue(property.dynamicTypeName(),
-                                                            newValue);
-                    } else if (abProp.isBindingProperty()) {
-                        BindingProperty property = abProp.toBindingProperty();
-                        TypeName oldType = property.dynamicTypeName();
+DynamicPropertiesItem *DynamicPropertiesModel::itemForRow(int row) const
+{
+    if (QModelIndex idx = index(row, 0); idx.isValid())
+        return dynamic_cast<DynamicPropertiesItem *>(itemFromIndex(idx));
+    return nullptr;
+}
 
-                        // removing old property, to create the new one with the same name
-                        modelNode.removeProperty(name);
+DynamicPropertiesItem *DynamicPropertiesModel::itemForProperty(const AbstractProperty &property) const
+{
+    if (!property.isValid())
+        return nullptr;
 
-                        VariantProperty newProperty = modelNode.variantProperty(name);
-                        QVariant newValue = convertVariantForTypeName({}, oldType);
-                        newProperty.setDynamicTypeNameAndValue(oldType, newValue);
-                    }
+    if (auto row = findRow(property.parentModelNode().internalId(), property.name()))
+        return itemForRow(*row);
 
-                } catch (RewritingException &e) {
-                    m_exceptionError = e.description();
-                    QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
-                }
+    return nullptr;
+}
+
+ModelNode DynamicPropertiesModel::modelNodeForItem(DynamicPropertiesItem *item)
+{
+    if (!m_view->isAttached())
+        return {};
+
+    return m_view->modelNodeForInternalId(item->internalId());
+}
+
+void DynamicPropertiesModel::addModelNode(const ModelNode &node)
+{
+    if (!node.isValid())
+        return;
+
+    for (const AbstractProperty &property : dynamicPropertiesFromNode(node))
+        addProperty(property);
+}
+
+void DynamicPropertiesModel::addProperty(const AbstractProperty &property)
+{
+    const PropertyName name = property.name();
+    for (int i = 0; i < rowCount(); ++i) {
+        if (auto *item = itemForRow(i)) {
+            if (item->propertyName() > name) {
+                insertRow(i, new DynamicPropertiesItem(property));
+                return;
             }
         }
-    } else {
-        qWarning() << "DynamicPropertiesModel::resetProperty: no selected nodes";
+    }
+    appendRow(new DynamicPropertiesItem(property));
+}
+
+void DynamicPropertiesModel::commitPropertyType(int row, const TypeName &type)
+{
+    AbstractProperty property = propertyForRow(row);
+    if (!property.isValid())
+        return;
+
+    ModelNode node = property.parentModelNode();
+    RewriterTransaction transaction = m_view->beginRewriterTransaction(__FUNCTION__);
+    try {
+        if (property.isBindingProperty()) {
+            BindingProperty binding = property.toBindingProperty();
+            const QString expression = binding.expression();
+            binding.parentModelNode().removeProperty(binding.name());
+            binding.setDynamicTypeNameAndExpression(type, expression);
+        } else if (property.isVariantProperty()) {
+            VariantProperty variant = property.toVariantProperty();
+            QVariant val = typeConvertVariant(variant.value(), type);
+            variant.parentModelNode().removeProperty(variant.name());
+            variant.setDynamicTypeNameAndValue(type, val);
+        }
+        transaction.commit();
+
+    } catch (Exception &e) {
+        showErrorMessage(e.description());
+    }
+}
+
+void DynamicPropertiesModel::commitPropertyName(int row, const PropertyName &name)
+{
+    AbstractProperty property = propertyForRow(row);
+    if (!property.isValid())
+        return;
+
+    ModelNode node = property.parentModelNode();
+    if (property.isBindingProperty()) {
+        BindingProperty binding = property.toBindingProperty();
+        m_view->executeInTransaction(__FUNCTION__, [binding, name, &node]() {
+            const QString expression = binding.expression();
+            const TypeName type = binding.dynamicTypeName();
+            node.removeProperty(binding.name());
+            node.bindingProperty(name).setDynamicTypeNameAndExpression(type, expression);
+        });
+
+    } else if (property.isVariantProperty()) {
+        VariantProperty variant = property.toVariantProperty();
+        m_view->executeInTransaction(__FUNCTION__, [variant, name, &node]() {
+            const QVariant value = variant.value();
+            const TypeName type = variant.dynamicTypeName();
+            node.removeProperty(variant.name());
+            node.variantProperty(name).setDynamicTypeNameAndValue(type, value);
+        });
+    }
+}
+
+void DynamicPropertiesModel::commitPropertyValue(int row, const QVariant &value)
+{
+    AbstractProperty property = propertyForRow(row);
+    if (!property.isValid())
+        return;
+
+    RewriterTransaction transaction = m_view->beginRewriterTransaction(__FUNCTION__);
+    try {
+        bool isBindingValue = isBindingExpression(value);
+        if (property.isBindingProperty()) {
+            BindingProperty binding = property.toBindingProperty();
+            if (!isBindingValue) {
+                convertBindingToVariantProperty(binding, value);
+            } else {
+                const QString expression = value.toString();
+                const TypeName typeName = binding.dynamicTypeName();
+                binding.setDynamicTypeNameAndExpression(typeName, expression);
+            }
+        } else if (property.isVariantProperty()) {
+            VariantProperty variant = property.toVariantProperty();
+            if (isBindingValue)
+                convertVariantToBindingProperty(variant, value);
+            else
+                variant.setDynamicTypeNameAndValue(variant.dynamicTypeName(), value);
+        }
+        transaction.commit();
+    } catch (Exception &e) {
+        showErrorMessage(e.description());
     }
 }
 
@@ -285,676 +346,13 @@ void DynamicPropertiesModel::dispatchPropertyChanges(const AbstractProperty &abs
             const PropertyName propertyName = abstractProperty.name();
             const AbstractProperty targetProperty = target.variantProperty(propertyName);
             if (target.hasProperty(propertyName) && targetProperty.isDynamic())
-                abstractPropertyChanged(targetProperty);
+                updateItem(targetProperty);
         }
     }
-}
-
-void DynamicPropertiesModel::bindingPropertyChanged(const BindingProperty &bindingProperty)
-{
-    if (!bindingProperty.isDynamic())
-        return;
-
-    m_handleDataChanged = false;
-
-    const QList<ModelNode> nodes = selectedNodes();
-    if (!nodes.contains(bindingProperty.parentModelNode()))
-        return;
-
-    if (!m_lock) {
-        int rowNumber = findRowForBindingProperty(bindingProperty);
-
-        if (rowNumber == -1)
-            addBindingProperty(bindingProperty);
-        else
-            updateBindingProperty(rowNumber);
-    }
-
-    m_handleDataChanged = true;
-}
-
-void DynamicPropertiesModel::abstractPropertyChanged(const AbstractProperty &property)
-{
-    if (!property.isDynamic())
-        return;
-
-    m_handleDataChanged = false;
-
-    const QList<ModelNode> nodes = selectedNodes();
-    if (!nodes.contains(property.parentModelNode()))
-        return;
-
-    int rowNumber = findRowForProperty(property);
-    if (rowNumber > -1) {
-        if (property.isVariantProperty())
-            updateVariantProperty(rowNumber);
-        else
-            updateBindingProperty(rowNumber);
-    }
-
-    m_handleDataChanged = true;
-}
-
-void DynamicPropertiesModel::variantPropertyChanged(const VariantProperty &variantProperty)
-{
-    if (!variantProperty.isDynamic())
-        return;
-
-    m_handleDataChanged = false;
-
-    const QList<ModelNode> nodes = selectedNodes();
-    if (!nodes.contains(variantProperty.parentModelNode()))
-        return;
-
-    if (!m_lock) {
-        int rowNumber = findRowForVariantProperty(variantProperty);
-
-        if (rowNumber == -1)
-            addVariantProperty(variantProperty);
-        else
-            updateVariantProperty(rowNumber);
-    }
-
-    m_handleDataChanged = true;
-}
-
-void DynamicPropertiesModel::bindingRemoved(const BindingProperty &bindingProperty)
-{
-    m_handleDataChanged = false;
-
-    const QList<ModelNode> nodes = selectedNodes();
-    if (!nodes.contains(bindingProperty.parentModelNode()))
-        return;
-
-    if (!m_lock) {
-        int rowNumber = findRowForBindingProperty(bindingProperty);
-        removeRow(rowNumber);
-    }
-
-    emit currentIndexChanged();
-
-    m_handleDataChanged = true;
-}
-
-void DynamicPropertiesModel::variantRemoved(const VariantProperty &variantProperty)
-{
-    m_handleDataChanged = false;
-
-    const QList<ModelNode> nodes = selectedNodes();
-    if (!nodes.contains(variantProperty.parentModelNode()))
-        return;
-
-    if (!m_lock) {
-        int rowNumber = findRowForVariantProperty(variantProperty);
-        removeRow(rowNumber);
-    }
-
-    emit currentIndexChanged();
-
-    m_handleDataChanged = true;
-}
-
-void DynamicPropertiesModel::reset()
-{
-    m_handleDataChanged = false;
-    resetModel();
-    m_handleDataChanged = true;
-    emit currentIndexChanged();
-}
-
-void DynamicPropertiesModel::setSelectedNode(const ModelNode &node)
-{
-    QTC_ASSERT(m_explicitSelection, return);
-
-    if (!node.isValid())
-        return;
-
-    m_selectedNodes.clear();
-    m_selectedNodes.append(node);
-    reset();
-}
-
-AbstractProperty DynamicPropertiesModel::abstractPropertyForRow(int rowNumber) const
-{
-    const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
-    const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2)
-                                           .toString();
-
-    if (!m_view->isAttached())
-        return AbstractProperty();
-
-    ModelNode modelNode = m_view->modelNodeForInternalId(internalId);
-
-    if (modelNode.isValid())
-        return modelNode.property(targetPropertyName.toUtf8());
-
-    return {};
-}
-
-BindingProperty DynamicPropertiesModel::bindingPropertyForRow(int rowNumber) const
-{
-    const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
-    const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
-
-    ModelNode  modelNode = m_view->modelNodeForInternalId(internalId);
-
-    if (modelNode.isValid())
-        return modelNode.bindingProperty(targetPropertyName.toUtf8());
-
-    return {};
-}
-
-VariantProperty DynamicPropertiesModel::variantPropertyForRow(int rowNumber) const
-{
-    const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
-    const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
-
-    ModelNode  modelNode = m_view->modelNodeForInternalId(internalId);
-
-    if (modelNode.isValid())
-        return modelNode.variantProperty(targetPropertyName.toUtf8());
-
-    return {};
-}
-
-QStringList DynamicPropertiesModel::possibleTargetProperties(const BindingProperty &bindingProperty) const
-{
-    const ModelNode modelNode = bindingProperty.parentModelNode();
-
-    if (!modelNode.isValid()) {
-        qWarning() << " BindingModel::possibleTargetPropertiesForRow invalid model node";
-        return QStringList();
-    }
-
-    NodeMetaInfo metaInfo = modelNode.metaInfo();
-
-    if (metaInfo.isValid()) {
-        QStringList possibleProperties;
-        const PropertyMetaInfos props = metaInfo.properties();
-        for (const auto &property : props) {
-            if (property.isWritable())
-                possibleProperties.push_back(QString::fromUtf8(property.name()));
-        }
-
-        return possibleProperties;
-    }
-
-    return {};
-}
-
-void DynamicPropertiesModel::addDynamicPropertyForCurrentNode()
-{
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_PROPERTY_ADDED);
-
-    if (selectedNodes().size() == 1) {
-        const ModelNode modelNode = selectedNodes().constFirst();
-        if (modelNode.isValid()) {
-            try {
-                modelNode.variantProperty(unusedProperty(modelNode)).setDynamicTypeNameAndValue("string", "This is a string");
-            } catch (RewritingException &e) {
-                m_exceptionError = e.description();
-                QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
-            }
-        }
-    } else {
-        qWarning() << " BindingModel::addBindingForCurrentNode not one node selected";
-    }
-}
-
-QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProperty &bindingProperty) const
-{
-    const QString expression = bindingProperty.expression();
-    const QStringList stringlist = expression.split(QLatin1String("."));
-
-    NodeMetaInfo type;
-
-    if (auto metaInfo = bindingProperty.parentModelNode().metaInfo(); metaInfo.isValid())
-        type = metaInfo.property(bindingProperty.name()).propertyType();
-    else
-        qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for target node";
-
-    const QString &id = stringlist.constFirst();
-
-    ModelNode modelNode = getNodeByIdOrParent(id, bindingProperty.parentModelNode());
-
-    if (!modelNode.isValid()) {
-        qWarning() << " BindingModel::possibleSourcePropertiesForRow invalid model node";
-        return QStringList();
-    }
-
-    NodeMetaInfo metaInfo = modelNode.metaInfo();
-
-    if (metaInfo.isValid())  {
-        QStringList possibleProperties;
-        const PropertyMetaInfos props = metaInfo.properties();
-        for (const auto &property : props) {
-            if (property.propertyType() == type) // TODO: proper check
-                possibleProperties.push_back(QString::fromUtf8(property.name()));
-        }
-        return possibleProperties;
-    } else {
-        qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for source node";
-    }
-
-    return {};
-}
-
-void DynamicPropertiesModel::deleteDynamicPropertyByRow(int rowNumber)
-{
-    m_view->executeInTransaction(__FUNCTION__, [this, rowNumber]() {
-        const AbstractProperty property = abstractPropertyForRow(rowNumber);
-        const PropertyName propertyName = property.name();
-        BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-        if (bindingProperty.isValid()) {
-            bindingProperty.parentModelNode().removeProperty(bindingProperty.name());
-        } else {
-            VariantProperty variantProperty = variantPropertyForRow(rowNumber);
-            if (variantProperty.isValid())
-                variantProperty.parentModelNode().removeProperty(variantProperty.name());
-        }
-
-        if (property.isValid()) {
-            QmlObjectNode objectNode = QmlObjectNode(property.parentModelNode());
-            const auto stateOperations = objectNode.allAffectingStatesOperations();
-            for (const QmlModelStateOperation &stateOperation : stateOperations) {
-                if (stateOperation.modelNode().hasProperty(propertyName))
-                    stateOperation.modelNode().removeProperty(propertyName);
-            }
-
-            const QList<ModelNode> timelineNodes = objectNode.allTimelines();
-            for (auto &timelineNode : timelineNodes) {
-                QmlTimeline timeline(timelineNode);
-                timeline.removeKeyframesForTargetAndProperty(objectNode.modelNode(),
-                                                             propertyName);
-            }
-        }
-    });
-
-    resetModel();
-}
-
-void DynamicPropertiesModel::addProperty(const QVariant &propertyValue,
-                                         const QString &propertyType,
-                                         const AbstractProperty &abstractProperty)
-{
-    QList<QStandardItem*> items;
-
-    QStandardItem *idItem;
-    QStandardItem *propertyNameItem;
-    QStandardItem *propertyTypeItem;
-    QStandardItem *propertyValueItem;
-
-    idItem = new QStandardItem(idOrTypeNameForNode(abstractProperty.parentModelNode()));
-    updateCustomData(idItem, abstractProperty);
-
-    const QString propName = QString::fromUtf8(abstractProperty.name());
-    propertyNameItem = new QStandardItem(propName);
-
-    items.append(idItem);
-    items.append(propertyNameItem);
-
-    propertyTypeItem = new QStandardItem(propertyType);
-    items.append(propertyTypeItem);
-
-    propertyValueItem = new QStandardItem();
-    propertyValueItem->setData(propertyValue, Qt::DisplayRole);
-    items.append(propertyValueItem);
-
-    for (int i = 0; i < rowCount(); ++i) {
-        if (data(index(i, PropertyNameRow)).toString() > propName) {
-            insertRow(i, items);
-            return;
-        }
-    }
-
-    appendRow(items);
-}
-
-void DynamicPropertiesModel::addBindingProperty(const BindingProperty &property)
-{
-    QVariant value = property.expression();
-    QString type = QString::fromLatin1(property.dynamicTypeName());
-    addProperty(value, type, property);
-}
-
-void DynamicPropertiesModel::addVariantProperty(const VariantProperty &property)
-{
-    QVariant value = property.value();
-    QString type = QString::fromLatin1(property.dynamicTypeName());
-    addProperty(value, type, property);
-}
-
-void DynamicPropertiesModel::updateBindingProperty(int rowNumber)
-{
-    BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-
-    if (bindingProperty.isValid()) {
-        updateCustomData(rowNumber, bindingProperty);
-
-        QString propertyName = QString::fromUtf8(bindingProperty.name());
-        updateDisplayRole(rowNumber, PropertyNameRow, propertyName);
-        QString value = bindingProperty.expression();
-        QString type = QString::fromUtf8(bindingProperty.dynamicTypeName());
-        updateDisplayRole(rowNumber, PropertyTypeRow, type);
-        updateDisplayRole(rowNumber, PropertyValueRow, value);
-
-        const QmlObjectNode objectNode = QmlObjectNode(bindingProperty.parentModelNode());
-        if (objectNode.isValid() && !objectNode.view()->currentState().isBaseState())
-            value = objectNode.expression(bindingProperty.name());
-
-        updateDisplayRole(rowNumber, PropertyValueRow, value);
-    }
-}
-
-void DynamicPropertiesModel::updateVariantProperty(int rowNumber)
-{
-    VariantProperty variantProperty = variantPropertyForRow(rowNumber);
-
-    if (variantProperty.isValid()) {
-        updateCustomData(rowNumber, variantProperty);
-        QString propertyName = QString::fromUtf8(variantProperty.name());
-        updateDisplayRole(rowNumber, PropertyNameRow, propertyName);
-        QVariant value = variantProperty.value();
-        QString type = QString::fromUtf8(variantProperty.dynamicTypeName());
-        updateDisplayRole(rowNumber, PropertyTypeRow, type);
-        const QmlObjectNode objectNode = QmlObjectNode(variantProperty.parentModelNode());
-        if (objectNode.isValid() && !objectNode.view()->currentState().isBaseState())
-            value = objectNode.modelValue(variantProperty.name());
-
-        updateDisplayRoleFromVariant(rowNumber, PropertyValueRow, value);
-    }
-}
-
-void DynamicPropertiesModel::addModelNode(const ModelNode &modelNode)
-{
-    if (!modelNode.isValid())
-        return;
-
-    const QList<AbstractProperty> properties = modelNode.properties();
-    QList<AbstractProperty> dynamicProperties = Utils::filtered(properties, [](const AbstractProperty &p) {
-        return p.isDynamic();
-    });
-
-    Utils::sort(dynamicProperties, [](const AbstractProperty &a, const AbstractProperty &b) {
-        return a.name() < b.name();
-    });
-
-    for (const AbstractProperty &property : std::as_const(dynamicProperties)) {
-        if (property.isBindingProperty())
-            addBindingProperty(property.toBindingProperty());
-        else if (property.isVariantProperty())
-            addVariantProperty(property.toVariantProperty());
-    }
-}
-
-void DynamicPropertiesModel::updateValue(int row)
-{
-    BindingProperty bindingProperty = bindingPropertyForRow(row);
-
-    if (bindingProperty.isBindingProperty()) {
-        const QString expression = data(index(row, PropertyValueRow)).toString();
-
-        RewriterTransaction transaction = m_view->beginRewriterTransaction(__FUNCTION__);
-        try {
-            bindingProperty.setDynamicTypeNameAndExpression(bindingProperty.dynamicTypeName(), expression);
-            transaction.commit(); // committing in the try block
-        } catch (Exception &e) {
-            m_exceptionError = e.description();
-            QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
-        }
-        return;
-    }
-
-    VariantProperty variantProperty = variantPropertyForRow(row);
-
-    if (variantProperty.isVariantProperty()) {
-        const QVariant value = data(index(row, PropertyValueRow));
-
-        RewriterTransaction transaction = m_view->beginRewriterTransaction(__FUNCTION__);
-        try {
-            variantProperty.setDynamicTypeNameAndValue(variantProperty.dynamicTypeName(), value);
-            transaction.commit(); // committing in the try block
-        } catch (Exception &e) {
-            m_exceptionError = e.description();
-            QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
-        }
-    }
-}
-
-void DynamicPropertiesModel::updatePropertyName(int rowNumber)
-{
-    const PropertyName newName = data(index(rowNumber, PropertyNameRow)).toString().toUtf8();
-    QTC_ASSERT(!newName.isEmpty(), return);
-
-    BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-
-    ModelNode targetNode = bindingProperty.parentModelNode();
-
-    if (bindingProperty.isBindingProperty()) {
-        m_view->executeInTransaction(__FUNCTION__, [bindingProperty, newName, &targetNode]() {
-            const QString expression = bindingProperty.expression();
-            const PropertyName dynamicPropertyType = bindingProperty.dynamicTypeName();
-
-            targetNode.bindingProperty(newName).setDynamicTypeNameAndExpression(dynamicPropertyType, expression);
-            targetNode.removeProperty(bindingProperty.name());
-        });
-
-        updateCustomData(rowNumber, targetNode.bindingProperty(newName));
-        return;
-    }
-
-    VariantProperty variantProperty = variantPropertyForRow(rowNumber);
-
-    if (variantProperty.isVariantProperty()) {
-        const QVariant value = variantProperty.value();
-        const PropertyName dynamicPropertyType = variantProperty.dynamicTypeName();
-        ModelNode targetNode = variantProperty.parentModelNode();
-
-        m_view->executeInTransaction(__FUNCTION__, [=]() {
-            targetNode.variantProperty(newName).setDynamicTypeNameAndValue(dynamicPropertyType, value);
-            targetNode.removeProperty(variantProperty.name());
-        });
-
-        updateCustomData(rowNumber, targetNode.variantProperty(newName));
-    }
-}
-
-void DynamicPropertiesModel::updatePropertyType(int rowNumber)
-{
-    const TypeName newType = data(index(rowNumber, PropertyTypeRow)).toString().toLatin1();
-    QTC_ASSERT(!newType.isEmpty(), return);
-
-    BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-
-    if (bindingProperty.isBindingProperty()) {
-        const QString expression = bindingProperty.expression();
-        const PropertyName propertyName = bindingProperty.name();
-        ModelNode targetNode = bindingProperty.parentModelNode();
-
-        m_view->executeInTransaction(__FUNCTION__, [=]() {
-            targetNode.removeProperty(bindingProperty.name());
-            targetNode.bindingProperty(propertyName).setDynamicTypeNameAndExpression(newType, expression);
-        });
-
-        updateCustomData(rowNumber, targetNode.bindingProperty(propertyName));
-        return;
-    }
-
-    VariantProperty variantProperty = variantPropertyForRow(rowNumber);
-
-    if (variantProperty.isVariantProperty()) {
-        const QVariant value = variantProperty.value();
-        ModelNode targetNode = variantProperty.parentModelNode();
-        const PropertyName propertyName = variantProperty.name();
-
-        m_view->executeInTransaction(__FUNCTION__, [=]() {
-            targetNode.removeProperty(variantProperty.name());
-            if (!isValueType(newType)) {
-                targetNode.bindingProperty(propertyName).setDynamicTypeNameAndExpression(
-                            newType, convertVariantForTypeName({}, newType).toString());
-            } else {
-                targetNode.variantProperty(propertyName).setDynamicTypeNameAndValue(
-                            newType, convertVariantForTypeName(value, newType));
-            }
-        });
-
-        updateCustomData(rowNumber, targetNode.variantProperty(propertyName));
-
-        if (variantProperty.isVariantProperty())
-            updateVariantProperty(rowNumber);
-        else if (bindingProperty.isBindingProperty())
-            updateBindingProperty(rowNumber);
-    }
-}
-
-ModelNode DynamicPropertiesModel::getNodeByIdOrParent(const QString &id, const ModelNode &targetNode) const
-{
-    if (id != QLatin1String("parent"))
-        return m_view->modelNodeForId(id);
-
-    if (targetNode.hasParentProperty())
-        return targetNode.parentProperty().parentModelNode();
-
-    return {};
-}
-
-void DynamicPropertiesModel::updateCustomData(QStandardItem *item, const AbstractProperty &property)
-{
-    item->setData(property.parentModelNode().internalId(), Qt::UserRole + 1);
-    item->setData(property.name(), Qt::UserRole + 2);
-
-    item->setData(property.parentModelNode().id(), TargetNameRole);
-    item->setData(property.name(), PropertyNameRole);
-    item->setData(property.parentModelNode().id(), TargetNameRole);
-    item->setData(property.dynamicTypeName(), PropertyTypeRole);
-
-    if (property.isVariantProperty())
-        item->setData(property.toVariantProperty().value(), PropertyValueRole);
-    if (property.isBindingProperty())
-        item->setData(property.toBindingProperty().expression(), PropertyValueRole);
-}
-
-void DynamicPropertiesModel::updateCustomData(int row, const AbstractProperty &property)
-{
-    QStandardItem* idItem = item(row, 0);
-    updateCustomData(idItem, property);
-}
-
-int DynamicPropertiesModel::findRowForBindingProperty(const BindingProperty &bindingProperty) const
-{
-    for (int i = 0; i < rowCount(); ++i) {
-        if (compareBindingProperties(bindingPropertyForRow(i), bindingProperty))
-            return i;
-    }
-
-    return -1; // not found
-}
-
-int DynamicPropertiesModel::findRowForVariantProperty(const VariantProperty &variantProperty) const
-{
-    for (int i = 0; i < rowCount(); ++i) {
-        if (compareVariantProperties(variantPropertyForRow(i), variantProperty))
-            return i;
-    }
-
-    return -1; // not found
-}
-
-int DynamicPropertiesModel::findRowForProperty(const AbstractProperty &abstractProperty) const
-{
-    for (int i = 0; i < rowCount(); ++i) {
-        if ((abstractPropertyForRow(i).name() == abstractProperty.name()))
-            return i;
-    }
-
-    return -1; // not found
-}
-
-bool DynamicPropertiesModel::getExpressionStrings(const BindingProperty &bindingProperty, QString *sourceNode,
-                                                  QString *sourceProperty)
-{
-    // TODO: we assume no expressions yet
-
-    const QString expression = bindingProperty.expression();
-
-    if (true) {
-        const QStringList expressionParts = expression.split('.');
-
-        *sourceNode = expressionParts.constFirst();
-
-        QString propertyName;
-
-        for (int i = 1; i < expressionParts.size(); ++i) {
-            propertyName += expressionParts.at(i);
-            if (i != expressionParts.size() - 1)
-                propertyName += QLatin1String(".");
-        }
-        *sourceProperty = propertyName;
-    }
-
-    return true;
-}
-
-void DynamicPropertiesModel::updateDisplayRole(int row, int columns, const QString &string)
-{
-    QModelIndex modelIndex = index(row, columns);
-    if (data(modelIndex).toString() != string)
-        setData(modelIndex, string);
-}
-
-void DynamicPropertiesModel::updateDisplayRoleFromVariant(int row, int columns, const QVariant &variant)
-{
-    QModelIndex modelIndex = index(row, columns);
-    if (data(modelIndex) != variant)
-        setData(modelIndex, variant);
-}
-
-
-void DynamicPropertiesModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    if (!m_handleDataChanged)
-        return;
-
-    if (topLeft != bottomRight) {
-        qWarning() << __FUNCTION__ << ": multi edit?";
-        return;
-    }
-
-    m_lock = true;
-
-    int currentColumn = topLeft.column();
-    int currentRow = topLeft.row();
-
-    switch (currentColumn) {
-    case TargetModelNodeRow: {
-        // updating user data
-    } break;
-    case PropertyNameRow: {
-        updatePropertyName(currentRow);
-    } break;
-    case PropertyTypeRow: {
-        updatePropertyType(currentRow);
-    } break;
-    case PropertyValueRow: {
-        updateValue(currentRow);
-    } break;
-
-    default: qWarning() << __FUNCTION__ << " column" << currentColumn;
-    }
-
-    m_lock = false;
-}
-
-void DynamicPropertiesModel::handleException()
-{
-    QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
-    resetModel();
 }
 
 const QList<ModelNode> DynamicPropertiesModel::selectedNodes() const
 {
-    // If selected nodes are explicitly set, return those.
-    // Otherwise return actual selected nodes of the model.
     if (m_explicitSelection)
         return m_selectedNodes;
 
@@ -969,52 +367,34 @@ const ModelNode DynamicPropertiesModel::singleSelectedNode() const
     return m_view->singleSelectedModelNode();
 }
 
-QHash<int, QByteArray> DynamicPropertiesModel::roleNames() const
+void DynamicPropertiesModel::setSelectedNode(const ModelNode &node)
 {
-    static QHash<int, QByteArray> roleNames{{TargetNameRole, "target"},
-                                            {PropertyNameRole, "name"},
-                                            {PropertyTypeRole, "type"},
-                                            {PropertyValueRole, "value"}};
+    QTC_ASSERT(m_explicitSelection, return);
 
-    return roleNames;
+    if (!node.isValid())
+        return;
+
+    m_selectedNodes.clear();
+    m_selectedNodes.append(node);
+    reset();
 }
 
-DynamicPropertiesModelBackendDelegate *DynamicPropertiesModel::delegate() const
-{
-    return m_delegate;
-}
-
-DynamicPropertiesModelBackendDelegate::DynamicPropertiesModelBackendDelegate(
-    DynamicPropertiesModel *parent)
+DynamicPropertiesModelBackendDelegate::DynamicPropertiesModelBackendDelegate(DynamicPropertiesModel *parent)
     : QObject(parent)
+    , m_internalNodeId(std::nullopt)
 {
     m_type.setModel({"int", "bool", "var", "real", "string", "url", "color"});
-
     connect(&m_type, &StudioQmlComboBoxBackend::activated, this, [this]() { handleTypeChanged(); });
     connect(&m_name, &StudioQmlTextBackend::activated, this, [this]() { handleNameChanged(); });
     connect(&m_value, &StudioQmlTextBackend::activated, this, [this]() { handleValueChanged(); });
 }
 
-int DynamicPropertiesModelBackendDelegate::currentRow() const
+void DynamicPropertiesModelBackendDelegate::update(const AbstractProperty &property)
 {
-    return m_currentRow;
-}
-
-void DynamicPropertiesModelBackendDelegate::setCurrentRow(int i)
-{
-    if (m_currentRow == i)
+    if (!property.isValid())
         return;
 
-    m_currentRow = i;
-
-    //setup
-
-    DynamicPropertiesModel *model = qobject_cast<DynamicPropertiesModel *>(parent());
-
-    QTC_ASSERT(model, return );
-
-    AbstractProperty property = model->abstractPropertyForRow(i);
-
+    m_internalNodeId = property.parentModelNode().internalId();
     m_type.setCurrentText(QString::fromUtf8(property.dynamicTypeName()));
     m_name.setText(QString::fromUtf8(property.name()));
 
@@ -1024,153 +404,62 @@ void DynamicPropertiesModelBackendDelegate::setCurrentRow(int i)
         m_value.setText(property.toBindingProperty().expression());
 
     m_targetNode = property.parentModelNode().id();
-
     emit targetNodeChanged();
 }
 
 void DynamicPropertiesModelBackendDelegate::handleTypeChanged()
 {
-    //void DynamicPropertiesModel::updatePropertyType(int rowNumber)
-    const TypeName type = m_type.currentText().toUtf8();
-
     DynamicPropertiesModel *model = qobject_cast<DynamicPropertiesModel *>(parent());
+    QTC_ASSERT(model, return);
 
-    QTC_ASSERT(model, return );
-    QTC_ASSERT(model->view(), return );
+    const PropertyName name = m_name.text().toUtf8();
 
-    BindingProperty bindingProperty = model->bindingPropertyForRow(currentRow());
+    int current = model->currentIndex();
+    const TypeName type = m_type.currentText().toUtf8();
+    model->commitPropertyType(current, type);
 
-    VariantProperty variantProperty = model->variantPropertyForRow(currentRow());
-
-    RewriterTransaction transaction = model->view()->beginRewriterTransaction(__FUNCTION__);
-
-    try {
-        if (bindingProperty.isBindingProperty() || type == "var") { //var is always a binding
-            const QString expression = bindingProperty.expression();
-            variantProperty.parentModelNode().removeProperty(variantProperty.name());
-            bindingProperty.setDynamicTypeNameAndExpression(type, expression);
-        } else if (variantProperty.isVariantProperty()) {
-            variantProperty.parentModelNode().removeProperty(variantProperty.name());
-            variantProperty.setDynamicTypeNameAndValue(type, variantValue());
-        }
-        transaction.commit(); // committing in the try block
-    } catch (Exception &e) {
-        m_exceptionError = e.description();
-        QTimer::singleShot(200, this, &DynamicPropertiesModelBackendDelegate::handleException);
-    }
+    // The order might have changed!
+    model->setCurrent(m_internalNodeId.value_or(-1), name);
 }
 
 void DynamicPropertiesModelBackendDelegate::handleNameChanged()
 {
-    //see  DynamicPropertiesModel::updatePropertyName
-
-    const PropertyName newName = m_name.text().toUtf8();
-    QTC_ASSERT(!newName.isEmpty(), return );
-
     DynamicPropertiesModel *model = qobject_cast<DynamicPropertiesModel *>(parent());
+    QTC_ASSERT(model, return);
 
-    QTC_ASSERT(model, return );
-    QTC_ASSERT(model->view(), return );
+    const PropertyName name = m_name.text().toUtf8();
+    QTC_ASSERT(!name.isEmpty(), return);
 
-    BindingProperty bindingProperty = model->bindingPropertyForRow(currentRow());
+    int current = model->currentIndex();
+    model->commitPropertyName(current, name);
 
-    ModelNode targetNode = bindingProperty.parentModelNode();
+    // The order might have changed!
+    model->setCurrent(m_internalNodeId.value_or(-1), name);
+}
 
-    if (bindingProperty.isBindingProperty()) {
-        model->view()->executeInTransaction(__FUNCTION__, [bindingProperty, newName, &targetNode]() {
-            const QString expression = bindingProperty.expression();
-            const PropertyName dynamicPropertyType = bindingProperty.dynamicTypeName();
+// TODO: Maybe replace with utils typeConvertVariant?
+QVariant valueFromText(const QString &value, const QString &type)
+{
+    if (isBindingExpression(value))
+        return value;
 
-            targetNode.removeProperty(bindingProperty.name());
+    if (type == "real" || type == "int")
+        return value.toFloat();
 
-            targetNode.bindingProperty(newName).setDynamicTypeNameAndExpression(dynamicPropertyType,
-                                                                                expression);
-        });
+    if (type == "bool")
+        return value == "true";
 
-        return;
-    }
-
-    VariantProperty variantProperty = model->variantPropertyForRow(currentRow());
-
-    if (variantProperty.isVariantProperty()) {
-        const QVariant value = variantProperty.value();
-        const PropertyName dynamicPropertyType = variantProperty.dynamicTypeName();
-        ModelNode targetNode = variantProperty.parentModelNode();
-
-        model->view()->executeInTransaction(__FUNCTION__, [=]() {
-            targetNode.removeProperty(variantProperty.name());
-
-            targetNode.variantProperty(newName).setDynamicTypeNameAndValue(dynamicPropertyType,
-                                                                           value);
-        });
-    }
-
-    AbstractProperty property = targetNode.property(newName);
-
-    //order might have changed because of name change we have to select the correct row
-    int newRow = model->findRowForProperty(property);
-    model->setCurrentIndex(newRow);
-    setCurrentRow(newRow);
+    return value;
 }
 
 void DynamicPropertiesModelBackendDelegate::handleValueChanged()
 {
-    //see void DynamicPropertiesModel::updateValue(int row)
-
     DynamicPropertiesModel *model = qobject_cast<DynamicPropertiesModel *>(parent());
+    QTC_ASSERT(model, return);
 
-    QTC_ASSERT(model, return );
-    QTC_ASSERT(model->view(), return );
-
-    BindingProperty bindingProperty = model->bindingPropertyForRow(currentRow());
-
-    if (bindingProperty.isBindingProperty()) {
-        const QString expression = m_value.text();
-
-        RewriterTransaction transaction = model->view()->beginRewriterTransaction(__FUNCTION__);
-        try {
-            bindingProperty.setDynamicTypeNameAndExpression(bindingProperty.dynamicTypeName(),
-                                                            expression);
-            transaction.commit(); // committing in the try block
-        } catch (Exception &e) {
-            m_exceptionError = e.description();
-            QTimer::singleShot(200, this, &DynamicPropertiesModelBackendDelegate::handleException);
-        }
-        return;
-    }
-
-    VariantProperty variantProperty = model->variantPropertyForRow(currentRow());
-
-    if (variantProperty.isVariantProperty()) {
-        RewriterTransaction transaction = model->view()->beginRewriterTransaction(__FUNCTION__);
-        try {
-            variantProperty.setDynamicTypeNameAndValue(variantProperty.dynamicTypeName(),
-                                                       variantValue());
-            transaction.commit(); // committing in the try block
-        } catch (Exception &e) {
-            m_exceptionError = e.description();
-            QTimer::singleShot(200, this, &DynamicPropertiesModelBackendDelegate::handleException);
-        }
-    }
-}
-
-void DynamicPropertiesModelBackendDelegate::handleException()
-{
-    QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
-    //reset
-}
-
-QVariant DynamicPropertiesModelBackendDelegate::variantValue() const
-{
-    //improve
-    const QString type = m_type.currentText();
-    if (type == "real" || type == "int")
-        return m_value.text().toFloat();
-
-    if (type == "bool")
-        return m_value.text() == "true";
-
-    return m_value.text();
+    int current = model->currentIndex();
+    QVariant value = valueFromText(m_value.text(), m_type.currentText());
+    model->commitPropertyValue(current, value);
 }
 
 QString DynamicPropertiesModelBackendDelegate::targetNode() const

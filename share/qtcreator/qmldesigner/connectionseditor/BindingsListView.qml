@@ -33,7 +33,6 @@ ListView {
 
     onCurrentIndexChanged: {
         root.currentIndex = root.model.currentIndex
-        dialog.backend.currentRow = root.currentIndex
     }
 
     // Number of columns
@@ -79,7 +78,6 @@ ListView {
             onClicked: {
                 root.model.currentIndex = itemDelegate.index
                 root.currentIndex = itemDelegate.index
-                dialog.backend.currentRow = itemDelegate.index
                 dialog.popup(mouseArea)
             }
         }

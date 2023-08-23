@@ -834,7 +834,7 @@ void MaterialEditorView::variantPropertiesChanged(const QList<VariantProperty> &
         ModelNode node(property.parentModelNode());
         if (node == m_selectedMaterial || QmlObjectNode(m_selectedMaterial).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
-                m_dynamicPropertiesModel->variantPropertyChanged(property);
+                m_dynamicPropertiesModel->updateItem(property);
             if (m_selectedMaterial.property(property.name()).isBindingProperty())
                 setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
             else
@@ -869,7 +869,7 @@ void MaterialEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
 
         if (node == m_selectedMaterial || QmlObjectNode(m_selectedMaterial).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
-                m_dynamicPropertiesModel->bindingPropertyChanged(property);
+                m_dynamicPropertiesModel->updateItem(property);
             if (QmlObjectNode(m_selectedMaterial).modelNode().property(property.name()).isBindingProperty())
                 setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
             else
@@ -897,12 +897,8 @@ void MaterialEditorView::auxiliaryDataChanged(const ModelNode &node,
 
 void MaterialEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
-    for (const auto &property : propertyList) {
-        if (property.isBindingProperty())
-            m_dynamicPropertiesModel->bindingRemoved(property.toBindingProperty());
-        else if (property.isVariantProperty())
-            m_dynamicPropertiesModel->variantRemoved(property.toVariantProperty());
-    }
+    for (const auto &property : propertyList)
+        m_dynamicPropertiesModel->removeItem(property);
 }
 
 // request render image for the selected material node
