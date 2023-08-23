@@ -38,12 +38,8 @@ public:
     void setSignPackage(bool b);
 
     Utils::BoolAspect buildAAB{this};
-
-    bool openPackageLocation() const;
-    void setOpenPackageLocation(bool open);
-
-    bool verboseOutput() const;
-    void setVerboseOutput(bool verbose);
+    Utils::BoolAspect openPackageLocation{this};
+    Utils::BoolAspect verboseOutput{this};
 
     bool addDebugger() const;
     void setAddDebugger(bool debug);
@@ -72,8 +68,6 @@ private:
     void updateBuildToolsVersionInJsonFile();
 
     bool m_signPackage = false;
-    bool m_verbose = false;
-    bool m_openPackageLocation = false;
     bool m_openPackageLocationForRun = false;
     bool m_addDebugger = true;
     QString m_buildTargetSdk;

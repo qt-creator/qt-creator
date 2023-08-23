@@ -72,7 +72,6 @@ static Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkste
 const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
 const char BuildToolsVersionKey[] = "BuildToolsVersion";
-const char VerboseOutputKey[] = "VerboseOutput";
 
 class PasswordInputDialog : public QDialog
 {
@@ -286,11 +285,6 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
 {
     auto group = new QGroupBox(Tr::tr("Advanced Actions"), this);
 
-    auto openPackageLocationCheckBox = new QCheckBox(Tr::tr("Open package location after build"), group);
-    openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());
-    connect(openPackageLocationCheckBox, &QAbstractButton::toggled,
-            this, [this](bool checked) { m_step->setOpenPackageLocation(checked); });
-
     m_addDebuggerCheckBox = new QCheckBox(Tr::tr("Add debug server"), group);
     m_addDebuggerCheckBox->setEnabled(false);
     m_addDebuggerCheckBox->setToolTip(Tr::tr("Packages debug server with "
@@ -299,18 +293,12 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
     connect(m_addDebuggerCheckBox, &QAbstractButton::toggled,
             m_step, &AndroidBuildApkStep::setAddDebugger);
 
-    auto verboseOutputCheckBox = new QCheckBox(Tr::tr("Verbose output"), group);
-    verboseOutputCheckBox->setChecked(m_step->verboseOutput());
-
     Layouting::Column {
         m_step->buildAAB,
-        openPackageLocationCheckBox,
-        verboseOutputCheckBox,
+        m_step->openPackageLocation,
+        m_step->verboseOutput,
         m_addDebuggerCheckBox
     }.attachTo(group);
-
-    connect(verboseOutputCheckBox, &QAbstractButton::toggled,
-            this, [this](bool checked) { m_step->setVerboseOutput(checked); });
 
     return group;
 }
@@ -476,8 +464,15 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
 
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
 
+    // FIXME: This is not saved due to missing setSettingsKey(). Intentional?
     buildAAB.setLabelText(Tr::tr("Build Android App Bundle (*.aab)"));
     buildAAB.setVisible(version && version->qtVersion() >= QVersionNumber(5, 14));
+
+    // FIXME: This is not saved due to missing setSettingsKey(). Intentional?
+    openPackageLocation.setLabelText(Tr::tr("Open package location after build"));
+
+    verboseOutput.setSettingsKey("VerboseOutput");
+    verboseOutput.setLabelText(Tr::tr("Verbose output"));
 
     connect(this, &BuildStep::addOutput, this, [this](const QString &string, OutputFormat format) {
         if (format == OutputFormat::Stderr)
@@ -531,7 +526,7 @@ bool AndroidBuildApkStep::init()
         return false;
     }
 
-    m_openPackageLocationForRun = m_openPackageLocation;
+    m_openPackageLocationForRun = openPackageLocation();
     const FilePath outputDir = AndroidManager::androidBuildDirectory(target());
     m_packagePath = AndroidManager::packagePath(target());
 
@@ -561,7 +556,7 @@ bool AndroidBuildApkStep::init()
                              "--android-platform", m_buildTargetSdk,
                              "--jdk", AndroidConfigurations::currentConfig().openJDKLocation().path()};
 
-    if (m_verbose)
+    if (verboseOutput())
         arguments << "--verbose";
 
     arguments << "--gradle";
@@ -889,7 +884,6 @@ void AndroidBuildApkStep::fromMap(const Store &map)
         m_buildTargetSdk = AndroidConfig::apiLevelNameFor(AndroidConfigurations::
                                                           sdkManager()->latestAndroidSdkPlatform());
     }
-    m_verbose = map.value(VerboseOutputKey).toBool();
     ProjectExplorer::BuildStep::fromMap(map);
 }
 
@@ -899,7 +893,6 @@ void AndroidBuildApkStep::toMap(Store &map) const
     map.insert(KeystoreLocationKey, m_keystorePath.toSettings());
     map.insert(BuildTargetSdkKey, m_buildTargetSdk);
     map.insert(BuildToolsVersionKey, m_buildToolsVersion.toString());
-    map.insert(VerboseOutputKey, m_verbose);
 }
 
 Utils::FilePath AndroidBuildApkStep::keystorePath() const
@@ -997,21 +990,6 @@ void AndroidBuildApkStep::setSignPackage(bool b)
     m_signPackage = b;
 }
 
-bool AndroidBuildApkStep::openPackageLocation() const
-{
-    return m_openPackageLocation;
-}
-
-void AndroidBuildApkStep::setOpenPackageLocation(bool open)
-{
-    m_openPackageLocation = open;
-}
-
-void AndroidBuildApkStep::setVerboseOutput(bool verbose)
-{
-    m_verbose = verbose;
-}
-
 bool AndroidBuildApkStep::addDebugger() const
 {
     return m_addDebugger;
@@ -1020,11 +998,6 @@ bool AndroidBuildApkStep::addDebugger() const
 void AndroidBuildApkStep::setAddDebugger(bool debug)
 {
     m_addDebugger = debug;
-}
-
-bool AndroidBuildApkStep::verboseOutput() const
-{
-    return m_verbose;
 }
 
 QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
