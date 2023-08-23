@@ -90,6 +90,8 @@ Project {
             "icodestylepreferencesfactory.h",
             "indenter.h",
             "ioutlinewidget.h",
+            "jsoneditor.cpp",
+            "jsoneditor.h",
             "linenumberfilter.cpp",
             "linenumberfilter.h",
             "marginsettings.cpp",

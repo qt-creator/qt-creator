@@ -68,6 +68,7 @@ add_qtc_plugin(TextEditor
     icodestylepreferencesfactory.cpp icodestylepreferencesfactory.h
     indenter.h
     ioutlinewidget.h
+    jsoneditor.cpp jsoneditor.h
     linenumberfilter.cpp linenumberfilter.h
     marginsettings.cpp marginsettings.h
     markdowneditor.cpp markdowneditor.h

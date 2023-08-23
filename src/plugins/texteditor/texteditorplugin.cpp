@@ -10,6 +10,7 @@
 #include "fontsettings.h"
 #include "highlighter.h"
 #include "icodestylepreferences.h"
+#include "jsoneditor.h"
 #include "linenumberfilter.h"
 #include "markdowneditor.h"
 #include "outlinefactory.h"
@@ -76,6 +77,7 @@ public:
 
     PlainTextEditorFactory plainTextEditorFactory;
     MarkdownEditorFactory markdownEditorFactory;
+    JsonEditorFactory jsonEditorFactory;
 };
 
 static TextEditorPlugin *m_instance = nullptr;
