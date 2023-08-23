@@ -43,8 +43,8 @@ public:
     };
 
 private:
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     void calculateUseTerminal();
 
@@ -73,8 +73,8 @@ public:
     void setEnvironment(EnvironmentAspect *envAspect);
 
 private:
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     void resetPath();
 
@@ -111,8 +111,8 @@ public:
     };
 
 private:
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     QWidget *setupChooser();
 
@@ -183,8 +183,8 @@ public:
     };
 
 protected:
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
 private:
     QString executableText() const;
@@ -238,8 +238,8 @@ public:
     void setCurrentInterpreter(const Interpreter &interpreter);
     void setSettingsDialogId(Utils::Id id) { m_settingsDialogId = id; }
 
-    void fromMap(const QVariantMap &) override;
-    void toMap(QVariantMap &) const override;
+    void fromMap(const Utils::Storage &) override;
+    void toMap(Utils::Storage &) const override;
     void addToLayout(Layouting::LayoutItem &parent) override;
 
     struct Data : Utils::BaseAspect::Data { Interpreter interpreter; };

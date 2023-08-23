@@ -129,7 +129,7 @@ FilePath DesktopDevice::rootPath() const
     return IDevice::rootPath();
 }
 
-void DesktopDevice::fromMap(const QVariantMap &map)
+void DesktopDevice::fromMap(const Storage &map)
 {
     IDevice::fromMap(map);
 

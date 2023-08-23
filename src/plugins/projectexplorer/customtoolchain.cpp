@@ -77,8 +77,8 @@ public:
     QStringList headerPathsList() const;
     void setHeaderPaths(const QStringList &list);
 
-    void toMap(QVariantMap &data) const override;
-    void fromMap(const QVariantMap &data) override;
+    void toMap(Storage &data) const override;
+    void fromMap(const Storage &data) override;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 
@@ -271,7 +271,7 @@ QString CustomToolChain::mkspecs() const
     return m_mkspecs.join(',');
 }
 
-void CustomToolChain::toMap(QVariantMap &data) const
+void CustomToolChain::toMap(Storage &data) const
 {
     ToolChain::toMap(data);
     data.insert(QLatin1String(makeCommandKeyC), m_makeCommand.toString());
@@ -283,7 +283,7 @@ void CustomToolChain::toMap(QVariantMap &data) const
     data.insert(QLatin1String(outputParserKeyC), m_outputParserId.toSetting());
 }
 
-void CustomToolChain::fromMap(const QVariantMap &data)
+void CustomToolChain::fromMap(const Storage &data)
 {
     ToolChain::fromMap(data);
     if (hasError())

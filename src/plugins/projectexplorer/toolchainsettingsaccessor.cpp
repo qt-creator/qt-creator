@@ -320,13 +320,13 @@ public:
         return static_cast<const TTC *>(&other)->token == token;
     }
 
-    void fromMap(const QVariantMap &data) final
+    void fromMap(const Storage &data) final
     {
         ToolChain::fromMap(data);
         token = data.value(TestTokenKey).toByteArray();
     }
 
-    void toMap(QVariantMap &data) const final
+    void toMap(Storage &data) const final
     {
         ToolChain::toMap(data);
         data[TestTokenKey] = token;

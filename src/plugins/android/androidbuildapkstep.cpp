@@ -879,7 +879,7 @@ void AndroidBuildApkStep::updateBuildToolsVersionInJsonFile()
     }
 }
 
-void AndroidBuildApkStep::fromMap(const QVariantMap &map)
+void AndroidBuildApkStep::fromMap(const Storage &map)
 {
     m_keystorePath = FilePath::fromSettings(map.value(KeystoreLocationKey));
     m_signPackage = false; // don't restore this
@@ -893,7 +893,7 @@ void AndroidBuildApkStep::fromMap(const QVariantMap &map)
     ProjectExplorer::BuildStep::fromMap(map);
 }
 
-void AndroidBuildApkStep::toMap(QVariantMap &map) const
+void AndroidBuildApkStep::toMap(Storage &map) const
 {
     ProjectExplorer::AbstractProcessStep::toMap(map);
     map.insert(KeystoreLocationKey, m_keystorePath.toSettings());

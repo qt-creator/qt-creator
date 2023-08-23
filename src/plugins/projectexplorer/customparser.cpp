@@ -103,7 +103,7 @@ QVariantMap CustomParserExpression::toMap() const
     return map;
 }
 
-void CustomParserExpression::fromMap(const QVariantMap &map)
+void CustomParserExpression::fromMap(const Storage &map)
 {
     setPattern(map.value(patternKey).toString());
     setMessageCap(map.value(messageCapKey).toInt());
@@ -149,7 +149,7 @@ QVariantMap CustomParserSettings::toMap() const
     return map;
 }
 
-void CustomParserSettings::fromMap(const QVariantMap &map)
+void CustomParserSettings::fromMap(const Storage &map)
 {
     id = Utils::Id::fromSetting(map.value(idKey));
     displayName = map.value(nameKey).toString();
@@ -173,12 +173,12 @@ CustomParsersAspect::CustomParsersAspect(Target *target)
     });
 }
 
-void CustomParsersAspect::fromMap(const QVariantMap &map)
+void CustomParsersAspect::fromMap(const Storage &map)
 {
     m_parsers = transform(map.value(settingsKey()).toList(), &Utils::Id::fromSetting);
 }
 
-void CustomParsersAspect::toMap(QVariantMap &map) const
+void CustomParsersAspect::toMap(Storage &map) const
 {
     map.insert(settingsKey(), transform(m_parsers, &Utils::Id::toSetting));
 }

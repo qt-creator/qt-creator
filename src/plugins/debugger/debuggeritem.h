@@ -10,10 +10,9 @@
 
 #include <utils/filepath.h>
 #include <utils/environment.h>
+#include <utils/storage.h>
 
 #include <QDateTime>
-#include <QList>
-#include <QVariant>
 
 namespace Debugger {
 
@@ -38,7 +37,7 @@ public:
     bool isValid() const;
     QString engineTypeName() const;
 
-    QVariantMap toMap() const;
+    Utils::Storage toMap() const;
 
     QVariant id() const { return m_id; }
 

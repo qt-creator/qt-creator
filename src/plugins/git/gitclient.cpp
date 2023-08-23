@@ -248,7 +248,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
     };
 
     const Group root {
-        Storage(diffInputStorage),
+        Tasking::Storage(diffInputStorage),
         ProcessTask(setupDiff, onDiffDone),
         postProcessTask(diffInputStorage)
     };
@@ -333,8 +333,8 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
     };
 
     const Group root {
-        Storage(storage),
-        Storage(diffInputStorage),
+        Tasking::Storage(storage),
+        Tasking::Storage(diffInputStorage),
         Group {
             parallel,
             continueOnDone,
@@ -529,8 +529,8 @@ ShowController::ShowController(IDocument *document, const QString &id)
     };
 
     const Group root {
-        Storage(storage),
-        Storage(diffInputStorage),
+        Tasking::Storage(storage),
+        Tasking::Storage(diffInputStorage),
         parallel,
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {

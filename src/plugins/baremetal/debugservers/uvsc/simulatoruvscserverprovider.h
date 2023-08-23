@@ -16,8 +16,8 @@ namespace BareMetal::Internal {
 class SimulatorUvscServerProvider final : public UvscServerProvider
 {
 public:
-    void toMap(QVariantMap &data) const final;
-    void fromMap(const QVariantMap &data) final;
+    void toMap(Utils::Storage &data) const final;
+    void fromMap(const Utils::Storage &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;
     bool isSimulator() const final { return true; }

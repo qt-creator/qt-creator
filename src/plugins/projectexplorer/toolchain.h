@@ -147,7 +147,7 @@ public:
 
     // Used by the toolchainmanager to save user-generated tool chains.
     // Make sure to call this function when deriving!
-    virtual void toMap(QVariantMap &map) const;
+    virtual void toMap(Utils::Storage &map) const;
     virtual Tasks validateKit(const Kit *k) const;
 
     virtual bool isJobCountSupported() const { return true; }
@@ -184,7 +184,7 @@ protected:
     void toolChainUpdated();
 
     // Make sure to call this function when deriving!
-    virtual void fromMap(const QVariantMap &data);
+    virtual void fromMap(const Utils::Storage &data);
 
     void reportError();
     bool hasError() const;
@@ -214,8 +214,8 @@ public:
     BadToolchain(const Utils::FilePath &filePath, const Utils::FilePath &symlinkTarget,
                  const QDateTime &timestamp);
 
-    QVariantMap toMap() const;
-    static BadToolchain fromMap(const QVariantMap &map);
+    Utils::Storage toMap() const;
+    static BadToolchain fromMap(const Utils::Storage &map);
 
     Utils::FilePath filePath;
     Utils::FilePath symlinkTarget;

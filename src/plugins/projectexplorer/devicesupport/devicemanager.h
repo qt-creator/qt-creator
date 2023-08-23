@@ -65,8 +65,8 @@ private:
     DeviceManager(bool isInstance = true);
 
     void load();
-    QList<IDevice::Ptr> fromMap(const QVariantMap &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
-    QVariantMap toMap() const;
+    QList<IDevice::Ptr> fromMap(const Utils::Storage &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
+    Utils::Storage toMap() const;
 
     // For SettingsWidget.
     IDevice::Ptr mutableDevice(Utils::Id id) const;

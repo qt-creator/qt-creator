@@ -21,7 +21,7 @@ public:
     bool needsConfiguration() const final { return false; }
 
 private:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    RestoreResult fromMap(const Utils::Storage &map, QString *errorMessage) override;
 };
 
 } // Python::Internal

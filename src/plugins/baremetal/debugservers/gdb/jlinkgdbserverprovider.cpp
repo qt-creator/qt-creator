@@ -81,8 +81,8 @@ private:
 class JLinkGdbServerProvider final : public GdbServerProvider
 {
 public:
-    void toMap(QVariantMap &data) const final;
-    void fromMap(const QVariantMap &data) final;
+    void toMap(Storage &data) const final;
+    void fromMap(const Storage &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;
 
@@ -194,7 +194,7 @@ bool JLinkGdbServerProvider::isValid() const
     return true;
 }
 
-void JLinkGdbServerProvider::toMap(QVariantMap &data) const
+void JLinkGdbServerProvider::toMap(Storage &data) const
 {
     GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
@@ -206,7 +206,7 @@ void JLinkGdbServerProvider::toMap(QVariantMap &data) const
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
 }
 
-void JLinkGdbServerProvider::fromMap(const QVariantMap &data)
+void JLinkGdbServerProvider::fromMap(const Storage &data)
 {
     GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));

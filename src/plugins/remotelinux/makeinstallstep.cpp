@@ -38,7 +38,7 @@ public:
     MakeInstallStep(BuildStepList *parent, Id id);
 
 private:
-    void fromMap(const QVariantMap &map) override;
+    void fromMap(const Storage &map) override;
     QWidget *createConfigWidget() override;
     bool init() override;
     Tasking::GroupItem runRecipe() final;
@@ -257,7 +257,7 @@ void MakeInstallStep::updateFromCustomCommandLineAspect()
     setUserArguments(ProcessArgs::joinArgs(tokens.mid(1)));
 }
 
-void MakeInstallStep::fromMap(const QVariantMap &map)
+void MakeInstallStep::fromMap(const Storage &map)
 {
     MakeStep::fromMap(map);
     if (hasError())

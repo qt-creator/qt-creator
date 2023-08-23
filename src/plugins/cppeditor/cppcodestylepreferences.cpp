@@ -3,6 +3,8 @@
 
 #include "cppcodestylepreferences.h"
 
+using namespace Utils;
+
 namespace CppEditor {
 
 CppCodeStylePreferences::CppCodeStylePreferences(QObject *parent) :
@@ -78,7 +80,7 @@ QVariantMap CppCodeStylePreferences::toMap() const
     return map;
 }
 
-void CppCodeStylePreferences::fromMap(const QVariantMap &map)
+void CppCodeStylePreferences::fromMap(const Storage &map)
 {
     ICodeStylePreferences::fromMap(map);
     if (!currentDelegate())

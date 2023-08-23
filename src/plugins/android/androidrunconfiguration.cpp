@@ -32,13 +32,13 @@ public:
         : StringAspect(container)
     {}
 
-    void fromMap(const QVariantMap &map) final
+    void fromMap(const Storage &map) final
     {
         // Pre Qt Creator 5.0 hack: Reads QStringList as QString
         setValue(map.value(settingsKey()).toStringList().join('\n'));
     }
 
-    void toMap(QVariantMap &map) const final
+    void toMap(Storage &map) const final
     {
         // Pre Qt Creator 5.0 hack: Writes QString as QStringList
         map.insert(settingsKey(), value().split('\n'));

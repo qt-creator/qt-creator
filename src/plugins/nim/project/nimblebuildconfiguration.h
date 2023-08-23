@@ -18,8 +18,8 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
     BuildType buildType() const override;
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
 private:
     void setBuildType(BuildType buildType);

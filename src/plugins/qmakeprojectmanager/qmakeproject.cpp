@@ -171,7 +171,7 @@ QmakeProject::~QmakeProject()
     setRootProjectNode(nullptr);
 }
 
-Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult QmakeProject::fromMap(const Storage &map, QString *errorMessage)
 {
     RestoreResult result = Project::fromMap(map, errorMessage);
     if (result != RestoreResult::Ok)

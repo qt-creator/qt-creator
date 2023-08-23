@@ -583,7 +583,7 @@ void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
 /*!
     Retrieves the internal value of this BaseAspect from the QVariantMap \a map.
 */
-void BaseAspect::fromMap(const QVariantMap &map)
+void BaseAspect::fromMap(const Storage &map)
 {
     if (settingsKey().isEmpty())
         return;
@@ -594,7 +594,7 @@ void BaseAspect::fromMap(const QVariantMap &map)
 /*!
     Stores the internal value of this BaseAspect into the QVariantMap \a map.
 */
-void BaseAspect::toMap(QVariantMap &map) const
+void BaseAspect::toMap(Storage &map) const
 {
     if (settingsKey().isEmpty())
         return;
@@ -692,13 +692,13 @@ public:
 class CheckableAspectImplementation
 {
 public:
-    void fromMap(const QVariantMap &map)
+    void fromMap(const Storage &map)
     {
         if (m_checked)
             m_checked->fromMap(map);
     }
 
-    void toMap(QVariantMap &map)
+    void toMap(Storage &map)
     {
         if (m_checked)
             m_checked->toMap(map);
@@ -921,7 +921,7 @@ void StringAspect::setValueAcceptor(StringAspect::ValueAcceptor &&acceptor)
 /*!
     \reimp
 */
-void StringAspect::fromMap(const QVariantMap &map)
+void StringAspect::fromMap(const Storage &map)
 {
     if (!settingsKey().isEmpty())
         setValue(map.value(settingsKey(), defaultValue()).toString(), BeQuiet);
@@ -931,7 +931,7 @@ void StringAspect::fromMap(const QVariantMap &map)
 /*!
     \reimp
 */
-void StringAspect::toMap(QVariantMap &map) const
+void StringAspect::toMap(Storage &map) const
 {
     saveToMap(map, value(), defaultValue(), settingsKey());
     d->m_checkerImpl.toMap(map);
@@ -1440,7 +1440,7 @@ void FilePathAspect::addToLayout(Layouting::LayoutItem &parent)
 /*!
     \reimp
 */
-void FilePathAspect::fromMap(const QVariantMap &map)
+void FilePathAspect::fromMap(const Storage &map)
 {
     if (!settingsKey().isEmpty())
         setValue(map.value(settingsKey(), defaultValue()).toString(), BeQuiet);
@@ -1450,7 +1450,7 @@ void FilePathAspect::fromMap(const QVariantMap &map)
 /*!
     \reimp
 */
-void FilePathAspect::toMap(QVariantMap &map) const
+void FilePathAspect::toMap(Storage &map) const
 {
     saveToMap(map, value(), defaultValue(), settingsKey());
     d->m_checkerImpl.toMap(map);
@@ -2514,7 +2514,7 @@ const QList<BaseAspect *> &AspectContainer::aspects() const
     return d->m_items;
 }
 
-void AspectContainer::fromMap(const QVariantMap &map)
+void AspectContainer::fromMap(const Storage &map)
 {
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->fromMap(map);
@@ -2523,7 +2523,7 @@ void AspectContainer::fromMap(const QVariantMap &map)
 
 }
 
-void AspectContainer::toMap(QVariantMap &map) const
+void AspectContainer::toMap(Storage &map) const
 {
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->toMap(map);

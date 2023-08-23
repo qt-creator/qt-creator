@@ -7,8 +7,9 @@
 #include "cppeditor_global.h"
 
 #include <utils/clangutils.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
+#include <utils/storage.h>
 
 #include <QObject>
 #include <QStringList>
@@ -93,8 +94,8 @@ public:
     class CPPEDITOR_EXPORT Data
     {
     public:
-        QVariantMap toMap() const;
-        void fromMap(const QVariantMap &map);
+        Utils::Storage toMap() const;
+        void fromMap(const Utils::Storage &map);
 
         friend bool operator==(const Data &s1, const Data &s2)
         {

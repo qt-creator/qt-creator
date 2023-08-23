@@ -6,9 +6,9 @@
 #include "projectexplorer_export.h"
 
 #include <utils/id.h>
+#include <utils/storage.h>
 
 #include <QObject>
-#include <QVariantMap>
 
 namespace ProjectExplorer {
 
@@ -60,8 +60,8 @@ public:
     ProjectConfiguration *projectConfiguration() const { return m_projectConfiguration; }
     Target *target() const;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &map);
+    Utils::Storage toMap() const;
+    bool fromMap(const Utils::Storage &map);
 
     Utils::Id id() const { return m_id; }
     QString displayName() const;

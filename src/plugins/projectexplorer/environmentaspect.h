@@ -9,9 +9,7 @@
 
 #include <utils/aspects.h>
 #include <utils/environment.h>
-
-#include <QList>
-#include <QVariantMap>
+#include <utils/storage.h>
 
 namespace ProjectExplorer {
 
@@ -73,8 +71,8 @@ signals:
     void environmentChanged();
 
 protected:
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     void setIsLocal(bool local) { m_isLocal = local; }
     void setAllowPrintOnRun(bool allow) { m_allowPrintOnRun = allow; }

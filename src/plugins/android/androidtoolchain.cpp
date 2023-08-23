@@ -101,7 +101,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     env.set(QLatin1String("ANDROID_SDK_ROOT"), config.sdkLocation().toUserOutput());
 }
 
-void AndroidToolChain::fromMap(const QVariantMap &data)
+void AndroidToolChain::fromMap(const Storage &data)
 {
     ClangToolChain::fromMap(data);
     if (hasError())

@@ -20,8 +20,6 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QMessageBox>
-#include <QVariant>
-#include <QVariantMap>
 
 #ifdef Q_OS_MAC
 #include <IOKit/IOKitLib.h>
@@ -42,6 +40,7 @@
 #include <exception>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace {
 static Q_LOGGING_CATEGORY(detectLog, "qtc.ios.deviceDetect", QtWarningMsg)
@@ -127,7 +126,7 @@ IDeviceWidget *IosDevice::createWidget()
     return new IosDeviceInfoWidget(sharedFromThis());
 }
 
-void IosDevice::fromMap(const QVariantMap &map)
+void IosDevice::fromMap(const Storage &map)
 {
     IDevice::fromMap(map);
 

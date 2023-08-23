@@ -26,8 +26,8 @@ public:
     Q_SIGNAL void targetListChanged();
     Q_SIGNAL void commandChanged();
 
-    void toMap(QVariantMap &map) const override;
-    void fromMap(const QVariantMap &map) override;
+    void toMap(Utils::Storage &map) const override;
+    void fromMap(const Utils::Storage &map) override;
 
 private:
     void update(bool parsingSuccessful);

@@ -419,7 +419,7 @@ QList<PythonBuildSystem::FileEntry> PythonBuildSystem::processEntries(
     return processed;
 }
 
-Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult PythonProject::fromMap(const Storage &map, QString *errorMessage)
 {
     Project::RestoreResult res = Project::fromMap(map, errorMessage);
     if (res == RestoreResult::Ok) {

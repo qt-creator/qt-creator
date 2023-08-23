@@ -26,7 +26,7 @@ public:
     QList<Utils::OutputLineParser *> createOutputParsers() const final;
     std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() final;
 
-    void fromMap(const QVariantMap &data) final;
+    void fromMap(const Utils::Storage &data) final;
 
     static bool parseVersion(const Utils::FilePath &path, std::tuple<int, int, int> &version);
 

@@ -18,6 +18,7 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace BareMetal::Internal {
 
@@ -137,7 +138,7 @@ IDebugServerProviderConfigWidget *IDebugServerProvider::configurationWidget() co
     return m_configurationWidgetCreator();
 }
 
-void IDebugServerProvider::toMap(QVariantMap &data) const
+void IDebugServerProvider::toMap(Storage &data) const
 {
     data.insert(idKeyC, m_id);
     data.insert(displayNameKeyC, m_displayName);
@@ -166,7 +167,7 @@ void IDebugServerProvider::resetId()
     m_id = createId(m_id);
 }
 
-void IDebugServerProvider::fromMap(const QVariantMap &data)
+void IDebugServerProvider::fromMap(const Storage &data)
 {
     m_id = data.value(idKeyC).toString();
     m_displayName = data.value(displayNameKeyC).toString();

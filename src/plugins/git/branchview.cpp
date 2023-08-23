@@ -560,7 +560,7 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
         });
 
     const Group root {
-        Storage(storage),
+        Tasking::Storage(storage),
         parallel,
         ProcessTask(setupMergeBase, onMergeBaseDone),
         topRevisionProc,

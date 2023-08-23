@@ -63,13 +63,13 @@ SimulatorUvscServerProvider::SimulatorUvscServerProvider()
     setDriverSelection(defaultSimulatorDriverSelection());
 }
 
-void SimulatorUvscServerProvider::toMap(QVariantMap &data) const
+void SimulatorUvscServerProvider::toMap(Storage &data) const
 {
     UvscServerProvider::toMap(data);
     data.insert(limitSpeedKeyC, m_limitSpeed);
 }
 
-void SimulatorUvscServerProvider::fromMap(const QVariantMap &data)
+void SimulatorUvscServerProvider::fromMap(const Storage &data)
 {
     UvscServerProvider::fromMap(data);
     m_limitSpeed = data.value(limitSpeedKeyC).toBool();

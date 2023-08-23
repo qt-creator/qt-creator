@@ -5,15 +5,15 @@
 
 #include "qtsupport_global.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/macroexpander.h>
+#include <utils/storage.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/task.h>
 
 #include <QSet>
 #include <QStringList>
-#include <QVariantMap>
 #include <QVersionNumber>
 
 QT_BEGIN_NAMESPACE
@@ -49,7 +49,7 @@ public:
 
     virtual ~QtVersion();
 
-    virtual void fromMap(const QVariantMap &map, const Utils::FilePath &filePath = {});
+    virtual void fromMap(const Utils::Storage &map, const Utils::FilePath &filePath = {});
     virtual bool equals(QtVersion *other);
 
     bool isAutodetected() const;
@@ -64,7 +64,7 @@ public:
 
     QString type() const;
 
-    virtual QVariantMap toMap() const;
+    virtual Utils::Storage toMap() const;
     virtual bool isValid() const;
     static Predicate isValidPredicate(const Predicate &predicate = {});
     virtual QString invalidReason() const;

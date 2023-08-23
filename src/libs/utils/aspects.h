@@ -8,6 +8,7 @@
 #include "infolabel.h"
 #include "macroexpander.h"
 #include "pathchooser.h"
+#include "storage.h"
 
 #include <functional>
 #include <memory>
@@ -100,9 +101,9 @@ public:
 
     AspectContainer *container() const;
 
-    virtual void fromMap(const QVariantMap &map);
-    virtual void toMap(QVariantMap &map) const;
-    virtual void toActiveMap(QVariantMap &map) const { toMap(map); }
+    virtual void fromMap(const Utils::Storage &map);
+    virtual void toMap(Utils::Storage &map) const;
+    virtual void toActiveMap(Utils::Storage &map) const { toMap(map); }
 
     virtual void addToLayout(Layouting::LayoutItem &parent);
 
@@ -557,8 +558,8 @@ public:
     };
     void setDisplayStyle(DisplayStyle style);
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
 signals:
     void validChanged(bool validState);
@@ -626,8 +627,8 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
 signals:
     void validChanged(bool validState);
@@ -831,8 +832,8 @@ public:
     void registerAspect(BaseAspect *aspect, bool takeOwnership = false);
     void registerAspects(const AspectContainer &aspects);
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     void readSettings() override;
     void writeSettings() const override;

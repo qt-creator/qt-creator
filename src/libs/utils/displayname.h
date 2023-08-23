@@ -3,10 +3,7 @@
 
 #pragma once
 
-#include "utils_global.h"
-
-#include <QString>
-#include <QVariantMap>
+#include "storage.h"
 
 namespace Utils {
 
@@ -24,8 +21,8 @@ public:
     bool usesDefaultValue() const;
     void forceSerialization() { m_forceSerialization = true; }
 
-    void toMap(QVariantMap &map, const QString &key) const;
-    void fromMap(const QVariantMap &map, const QString &key);
+    void toMap(Utils::Storage &map, const Key &key) const;
+    void fromMap(const Utils::Storage &map, const Key &key);
 
 private:
     QString m_value;

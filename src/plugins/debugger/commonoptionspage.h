@@ -22,8 +22,8 @@ public:
     explicit SourcePathMapAspect(Utils::AspectContainer *container);
     ~SourcePathMapAspect() override;
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     void addToLayout(Layouting::LayoutItem &parent) override;
 

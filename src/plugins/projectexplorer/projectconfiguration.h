@@ -8,11 +8,9 @@
 #include <utils/aspects.h>
 #include <utils/displayname.h>
 #include <utils/id.h>
+#include <utils/storage.h>
 
-#include <QObject>
 #include <QPointer>
-#include <QString>
-#include <QVariantMap>
 #include <QWidget>
 
 namespace ProjectExplorer {
@@ -47,9 +45,9 @@ public:
     bool hasError() const { return m_hasError; }
 
     // Note: Make sure subclasses call the superclasses' fromMap() function!
-    virtual void fromMap(const QVariantMap &map) override;
+    virtual void fromMap(const Utils::Storage &map) override;
     // Note: Make sure subclasses call the superclasses' toMap() function!
-    virtual void toMap(QVariantMap &map) const override;
+    virtual void toMap(Utils::Storage &map) const override;
 
     Target *target() const;
     Project *project() const;
@@ -70,6 +68,6 @@ private:
 };
 
 // helper function:
-PROJECTEXPLORER_EXPORT Utils::Id idFromMap(const QVariantMap &map);
+PROJECTEXPLORER_EXPORT Utils::Id idFromMap(const Utils::Storage &map);
 
 } // namespace ProjectExplorer

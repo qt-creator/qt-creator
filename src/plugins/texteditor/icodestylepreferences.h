@@ -5,6 +5,8 @@
 
 #include "texteditor_global.h"
 
+#include <utils/storage.h>
+
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -67,8 +69,8 @@ public:
     void fromSettings(const QString &category);
 
     // make below 2 protected?
-    virtual QVariantMap toMap() const;
-    virtual void fromMap(const QVariantMap &map);
+    virtual Utils::Storage toMap() const;
+    virtual void fromMap(const Utils::Storage &map);
 
 signals:
     void tabSettingsChanged(const TextEditor::TabSettings &settings);

@@ -147,7 +147,7 @@ FilePath UvscServerProvider::buildOptionsFilePath(DebuggerRunTool *runTool) cons
     return path;
 }
 
-void UvscServerProvider::toMap(QVariantMap &data) const
+void UvscServerProvider::toMap(Storage &data) const
 {
     IDebugServerProvider::toMap(data);
     data.insert(toolsIniKeyC, m_toolsIniFile.toSettings());
@@ -219,7 +219,7 @@ ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runCont
     return new UvscServerProviderRunner(runControl, r);
 }
 
-void UvscServerProvider::fromMap(const QVariantMap &data)
+void UvscServerProvider::fromMap(const Storage &data)
 {
     IDebugServerProvider::fromMap(data);
     m_toolsIniFile = FilePath::fromSettings(data.value(toolsIniKeyC));

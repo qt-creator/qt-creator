@@ -87,7 +87,7 @@ void BuildDirectoryAspect::setProblem(const QString &description)
     updateProblemLabel();
 }
 
-void BuildDirectoryAspect::toMap(QVariantMap &map) const
+void BuildDirectoryAspect::toMap(Storage &map) const
 {
     FilePathAspect::toMap(map);
     if (!d->sourceDir.isEmpty()) {
@@ -96,7 +96,7 @@ void BuildDirectoryAspect::toMap(QVariantMap &map) const
     }
 }
 
-void BuildDirectoryAspect::fromMap(const QVariantMap &map)
+void BuildDirectoryAspect::fromMap(const Storage &map)
 {
     FilePathAspect::fromMap(map);
     if (!d->sourceDir.isEmpty()) {

@@ -813,7 +813,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
                                   NormalMessageFormat);
     };
 
-    topTasks.append(Group { Storage(storage), TaskTreeTask(onTreeSetup, onTreeDone) });
+    topTasks.append(Group { Tasking::Storage(storage), TaskTreeTask(onTreeSetup, onTreeDone) });
     return {topTasks};
 }
 

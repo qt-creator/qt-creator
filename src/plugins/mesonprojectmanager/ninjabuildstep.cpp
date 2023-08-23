@@ -199,14 +199,14 @@ void NinjaBuildStep::setCommandArgs(const QString &args)
     m_commandArgs = args.trimmed();
 }
 
-void NinjaBuildStep::toMap(QVariantMap &map) const
+void NinjaBuildStep::toMap(Storage &map) const
 {
     AbstractProcessStep::toMap(map);
     map.insert(TARGETS_KEY, m_targetName);
     map.insert(TOOL_ARGUMENTS_KEY, m_commandArgs);
 }
 
-void NinjaBuildStep::fromMap(const QVariantMap &map)
+void NinjaBuildStep::fromMap(const Storage &map)
 {
     m_targetName = map.value(TARGETS_KEY).toString();
     m_commandArgs = map.value(TOOL_ARGUMENTS_KEY).toString();

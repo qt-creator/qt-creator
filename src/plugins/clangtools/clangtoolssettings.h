@@ -26,8 +26,8 @@ class RunSettings
 public:
     RunSettings();
 
-    void fromMap(const QVariantMap &map, const QString &prefix = QString());
-    void toMap(QVariantMap &map, const QString &prefix = QString()) const;
+    void fromMap(const Utils::Storage &map, const QString &prefix = QString());
+    void toMap(Utils::Storage &map, const QString &prefix = QString()) const;
 
     Utils::Id diagnosticConfigId() const;
     void setDiagnosticConfigId(const Utils::Id &id) { m_diagnosticConfigId = id; }

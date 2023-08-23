@@ -12,6 +12,7 @@
 
 #include <utils/environmentfwd.h>
 #include <utils/filepath.h>
+#include <utils/storage.h>
 
 #include <QFileSystemModel>
 
@@ -111,7 +112,7 @@ public:
                                 const NodeMatcher &extraMatcher = {}) const;
     Utils::FilePaths binariesForSourceFile(const Utils::FilePath &sourceFile) const;
 
-    virtual void toMap(QVariantMap &map) const;
+    virtual void toMap(Utils::Storage &map) const;
 
     Core::Context projectContext() const;
     Core::Context projectLanguages() const;
@@ -204,7 +205,7 @@ signals:
 #endif
 
 protected:
-    virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
+    virtual RestoreResult fromMap(const Utils::Storage &map, QString *errorMessage);
     void createTargetFromMap(const QVariantMap &map, int index);
     virtual bool setupTarget(Target *t);
 

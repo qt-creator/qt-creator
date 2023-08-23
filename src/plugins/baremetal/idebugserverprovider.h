@@ -4,12 +4,14 @@
 #pragma once
 
 #include <debugger/debuggerconstants.h>
-#include <projectexplorer/abi.h>
-#include <utils/fileutils.h>
 
-#include <QObject>
+#include <projectexplorer/abi.h>
+
+#include <utils/filepath.h>
+#include <utils/storage.h>
+
 #include <QSet>
-#include <QVariantMap>
+#include <QUrl>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -65,8 +67,8 @@ public:
     void setConfigurationWidgetCreator
         (const std::function<IDebugServerProviderConfigWidget *()> &configurationWidgetCreator);
 
-    virtual void toMap(QVariantMap &data) const;
-    virtual void fromMap(const QVariantMap &data);
+    virtual void toMap(Utils::Storage &data) const;
+    virtual void fromMap(const Utils::Storage &data);
 
     virtual bool aboutToRun(Debugger::DebuggerRunTool *runTool,
                             QString &errorMessage) const = 0;

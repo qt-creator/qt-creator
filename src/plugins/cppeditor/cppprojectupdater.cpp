@@ -90,7 +90,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     };
 
     const Group root {
-        Storage(storage),
+        Tasking::Storage(storage),
         Group(tasks),
         onGroupDone(onDone),
         onGroupError(onError)

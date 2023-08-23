@@ -70,8 +70,8 @@ private:
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     Tasking::GroupItem runRecipe() final;
     QWidget *createConfigWidget() override;
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     QbsBuildConfiguration *qbsBuildConfiguration() const;
     QbsBuildSystem *qbsBuildSystem() const;

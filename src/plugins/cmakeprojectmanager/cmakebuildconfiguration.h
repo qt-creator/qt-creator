@@ -31,8 +31,8 @@ public:
     void setAllValues(const QString &values, QStringList &additionalArguments);
     void setCMakeConfiguration(const CMakeConfig &config);
 
-    void fromMap(const QVariantMap &map) final;
-    void toMap(QVariantMap &map) const final;
+    void fromMap(const Utils::Storage &map) final;
+    void toMap(Utils::Storage &map) const final;
 
 private:
     CMakeConfig m_cmakeConfiguration;
@@ -44,8 +44,8 @@ public:
     ConfigureEnvironmentAspect(Utils::AspectContainer *container,
                                ProjectExplorer::BuildConfiguration *buildConfig);
 
-    void fromMap(const QVariantMap &map);
-    void toMap(QVariantMap &map) const;
+    void fromMap(const Utils::Storage &map);
+    void toMap(Utils::Storage &map) const;
 };
 
 } // namespace Internal

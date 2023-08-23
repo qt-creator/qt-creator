@@ -8,8 +8,9 @@
 
 #include <coreplugin/featureprovider.h>
 
+#include <utils/storage.h>
+
 #include <QSet>
-#include <QVariant>
 
 #include <memory>
 
@@ -138,7 +139,7 @@ private:
 
     void kitUpdated();
 
-    QVariantMap toMap() const;
+    Utils::Storage toMap() const;
 
     const std::unique_ptr<Internal::KitPrivate> d;
 

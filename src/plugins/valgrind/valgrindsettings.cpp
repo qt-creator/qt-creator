@@ -146,12 +146,12 @@ void SuppressionAspect::addToLayout(Layouting::LayoutItem &parent)
     parent.addItem(Span { 2, group });
 }
 
-void SuppressionAspect::fromMap(const QVariantMap &map)
+void SuppressionAspect::fromMap(const Storage &map)
 {
     BaseAspect::fromMap(map); // FIXME Looks wrong, as it skips the intermediate level
 }
 
-void SuppressionAspect::toMap(QVariantMap &map) const
+void SuppressionAspect::toMap(Storage &map) const
 {
     BaseAspect::toMap(map);
 }

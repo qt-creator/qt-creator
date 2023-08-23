@@ -102,7 +102,7 @@ QVariantMap DeviceSelection::toMap() const
     return map;
 }
 
-void DeviceSelection::fromMap(const QVariantMap &map)
+void DeviceSelection::fromMap(const Storage &map)
 {
     // Software package.
     package.desc = map.value(packageDescrKeyC).toString();

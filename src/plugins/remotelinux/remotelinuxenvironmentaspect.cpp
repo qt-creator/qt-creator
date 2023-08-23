@@ -99,7 +99,7 @@ QString RemoteLinuxEnvironmentAspect::userEnvironmentChangesAsString() const
     return env.mid(0, env.size() - 1);
 }
 
-void RemoteLinuxEnvironmentAspect::fromMap(const QVariantMap &map)
+void RemoteLinuxEnvironmentAspect::fromMap(const Storage &map)
 {
     ProjectExplorer::EnvironmentAspect::fromMap(map);
 
@@ -117,7 +117,7 @@ void RemoteLinuxEnvironmentAspect::fromMap(const QVariantMap &map)
     }
 }
 
-void RemoteLinuxEnvironmentAspect::toMap(QVariantMap &map) const
+void RemoteLinuxEnvironmentAspect::toMap(Storage &map) const
 {
     ProjectExplorer::EnvironmentAspect::toMap(map);
     map.insert(QLatin1String(VERSION_KEY), ENVIRONMENTASPECT_VERSION);

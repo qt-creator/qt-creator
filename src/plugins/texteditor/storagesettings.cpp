@@ -11,6 +11,8 @@
 #include <QRegularExpression>
 #include <QString>
 
+using namespace Utils;
+
 namespace TextEditor {
 
 static const char cleanWhitespaceKey[] = "cleanWhitespace";
@@ -43,7 +45,7 @@ void StorageSettings::fromSettings(const QString &category)
     Utils::fromSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
 }
 
-QVariantMap StorageSettings::toMap() const
+Storage StorageSettings::toMap() const
 {
     return {
         {cleanWhitespaceKey, m_cleanWhitespace},
@@ -55,7 +57,7 @@ QVariantMap StorageSettings::toMap() const
     };
 }
 
-void StorageSettings::fromMap(const QVariantMap &map)
+void StorageSettings::fromMap(const Storage &map)
 {
     m_cleanWhitespace = map.value(cleanWhitespaceKey, m_cleanWhitespace).toBool();
     m_inEntireDocument = map.value(inEntireDocumentKey, m_inEntireDocument).toBool();

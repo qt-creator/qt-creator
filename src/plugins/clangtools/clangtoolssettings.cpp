@@ -41,7 +41,7 @@ RunSettings::RunSettings()
 {
 }
 
-void RunSettings::fromMap(const QVariantMap &map, const QString &prefix)
+void RunSettings::fromMap(const Storage &map, const QString &prefix)
 {
     m_diagnosticConfigId = Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
     m_parallelJobs = map.value(prefix + parallelJobsKey).toInt();
@@ -50,7 +50,7 @@ void RunSettings::fromMap(const QVariantMap &map, const QString &prefix)
     m_analyzeOpenFiles = map.value(prefix + analyzeOpenFilesKey).toBool();
 }
 
-void RunSettings::toMap(QVariantMap &map, const QString &prefix) const
+void RunSettings::toMap(Storage &map, const QString &prefix) const
 {
     map.insert(prefix + diagnosticConfigIdKey, m_diagnosticConfigId.toSetting());
     map.insert(prefix + parallelJobsKey, m_parallelJobs);

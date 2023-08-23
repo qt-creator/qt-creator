@@ -17,7 +17,7 @@ QString CommandBuilder::displayName() const
     return Tr::tr("Custom Command");
 }
 
-void CommandBuilder::fromMap(const QVariantMap &map)
+void CommandBuilder::fromMap(const Storage &map)
 {
     m_command = FilePath::fromSettings(map.value(QString(CUSTOMCOMMANDBUILDER_COMMAND).arg(id())));
     m_args = map.value(QString(CUSTOMCOMMANDBUILDER_ARGS).arg(id())).toString();

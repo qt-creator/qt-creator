@@ -5,9 +5,7 @@
 
 #include "cppeditor_global.h"
 
-#include <QVariantMap>
-
-#include <optional>
+#include <utils/storage.h>
 
 namespace CPlusPlus { class Overview; }
 namespace TextEditor { class TabSettings; }
@@ -66,8 +64,8 @@ public:
     bool forceFormatting = false;
 #endif
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Storage toMap() const;
+    void fromMap(const Utils::Storage &map);
 
     bool equals(const CppCodeStyleSettings &rhs) const;
     bool operator==(const CppCodeStyleSettings &s) const { return equals(s); }

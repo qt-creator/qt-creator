@@ -204,7 +204,7 @@ static const IDeviceFactory *restoreFactory(const QVariantMap &map)
     return factory;
 }
 
-QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map, QHash<Id, Id> *defaultDevices)
+QList<IDevice::Ptr> DeviceManager::fromMap(const Storage &map, QHash<Id, Id> *defaultDevices)
 {
     QList<IDevice::Ptr> devices;
 

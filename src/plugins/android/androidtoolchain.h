@@ -22,7 +22,7 @@ public:
 
     QStringList suggestedMkspecList() const override;
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
-    void fromMap(const QVariantMap &data) override;
+    void fromMap(const Utils::Storage &data) override;
 
     void setNdkLocation(const Utils::FilePath &ndkLocation);
     Utils::FilePath ndkLocation() const;

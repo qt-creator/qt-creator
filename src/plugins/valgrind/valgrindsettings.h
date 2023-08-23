@@ -22,8 +22,8 @@ public:
 
     void addToLayout(Layouting::LayoutItem &parent) final;
 
-    void fromMap(const QVariantMap &map) final;
-    void toMap(QVariantMap &map) const final;
+    void fromMap(const Utils::Storage &map) final;
+    void toMap(Utils::Storage &map) const final;
 
     void addSuppressionFile(const Utils::FilePath &suppressionFile);
 

@@ -60,9 +60,9 @@ public:
 
 protected:
     friend class RunConfiguration;
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &data) const override;
-    void toActiveMap(QVariantMap &data) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &data) const override;
+    void toActiveMap(Utils::Storage &data) const override;
 
 private:
     bool m_useGlobalSettings = false;
@@ -122,7 +122,7 @@ public:
         addAspectFactory([](Target *target) { return new T(target); });
     }
 
-    QMap<Utils::Id, QVariantMap> settingsData() const; // FIXME: Merge into aspectData?
+    QMap<Utils::Id, Utils::Storage> settingsData() const; // FIXME: Merge into aspectData?
     Utils::AspectContainerData aspectData() const;
 
     void update();
@@ -145,9 +145,9 @@ protected:
 
 private:
     // Any additional data should be handled by aspects.
-    void fromMap(const QVariantMap &map) final;
-    void toMap(QVariantMap &map) const final;
-    void toMapSimple(QVariantMap &map) const;
+    void fromMap(const Utils::Storage &map) final;
+    void toMap(Utils::Storage &map) const final;
+    void toMapSimple(Utils::Storage &map) const;
 
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
@@ -160,7 +160,7 @@ private:
     RunnableModifier m_runnableModifier;
     Updater m_updater;
     Utils::MacroExpander m_expander;
-    QVariantMap m_pristineState;
+    Utils::Storage m_pristineState;
     bool m_customized = false;
 };
 
@@ -187,7 +187,7 @@ public:
     RunConfigurationFactory operator=(const RunConfigurationFactory &) = delete;
     virtual ~RunConfigurationFactory();
 
-    static RunConfiguration *restore(Target *parent, const QVariantMap &map);
+    static RunConfiguration *restore(Target *parent, const Utils::Storage &map);
     static RunConfiguration *clone(Target *parent, RunConfiguration *source);
     static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
 

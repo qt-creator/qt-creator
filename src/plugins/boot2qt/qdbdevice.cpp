@@ -137,7 +137,7 @@ QString QdbDevice::serialNumber() const
     return m_serialNumber;
 }
 
-void QdbDevice::fromMap(const QVariantMap &map)
+void QdbDevice::fromMap(const Storage &map)
 {
     ProjectExplorer::IDevice::fromMap(map);
     setSerialNumber(map.value("Qdb.SerialNumber").toString());

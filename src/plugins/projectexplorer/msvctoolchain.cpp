@@ -978,7 +978,7 @@ Abis MsvcToolChain::supportedAbis() const
     return abis;
 }
 
-void MsvcToolChain::toMap(QVariantMap &data) const
+void MsvcToolChain::toMap(Storage &data) const
 {
     ToolChain::toMap(data);
     data.insert(QLatin1String(varsBatKeyC), m_vcvarsBat);
@@ -989,7 +989,7 @@ void MsvcToolChain::toMap(QVariantMap &data) const
                 Utils::EnvironmentItem::toVariantList(m_environmentModifications));
 }
 
-void MsvcToolChain::fromMap(const QVariantMap &data)
+void MsvcToolChain::fromMap(const Storage &data)
 {
     ToolChain::fromMap(data);
     if (hasError()) {
@@ -1727,13 +1727,13 @@ static inline QString llvmDirKey()
     return QStringLiteral("ProjectExplorer.ClangClToolChain.LlvmDir");
 }
 
-void ClangClToolChain::toMap(QVariantMap &data) const
+void ClangClToolChain::toMap(Storage &data) const
 {
     MsvcToolChain::toMap(data);
     data.insert(llvmDirKey(), m_clangPath.toString());
 }
 
-void ClangClToolChain::fromMap(const QVariantMap &data)
+void ClangClToolChain::fromMap(const Storage &data)
 {
     MsvcToolChain::fromMap(data);
     if (hasError())

@@ -26,8 +26,8 @@ protected:
     void handleStdOutData(const QString &data);
     void handleStdErrData(const QString &data);
 
-    void fromMap(const QVariantMap &map) final;
-    void toMap(QVariantMap &map) const final;
+    void fromMap(const Utils::Storage &map) final;
+    void toMap(Utils::Storage &map) const final;
     bool init() final;
 
     void setInternalInitializer(const std::function<Utils::expected_str<void>()> &init);

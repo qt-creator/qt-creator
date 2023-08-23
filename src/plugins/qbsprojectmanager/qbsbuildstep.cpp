@@ -45,7 +45,6 @@ const char QBS_CLEAN_INSTALL_ROOT[] = "Qbs.CleanInstallRoot";
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
-using namespace Tasking;
 using namespace Utils;
 
 namespace QbsProjectManager::Internal {
@@ -352,7 +351,7 @@ int QbsBuildStep::maxJobs() const
     return QThread::idealThreadCount();
 }
 
-void QbsBuildStep::fromMap(const QVariantMap &map)
+void QbsBuildStep::fromMap(const Storage &map)
 {
     BuildStep::fromMap(map);
     if (hasError())
@@ -360,7 +359,7 @@ void QbsBuildStep::fromMap(const QVariantMap &map)
     setQbsConfiguration(map.value(QBS_CONFIG).toMap());
 }
 
-void QbsBuildStep::toMap(QVariantMap &map) const
+void QbsBuildStep::toMap(Storage &map) const
 {
     ProjectExplorer::BuildStep::toMap(map);
     map.insert(QBS_CONFIG, m_qbsConfiguration);
@@ -381,8 +380,9 @@ QbsBuildSystem *QbsBuildStep::qbsBuildSystem() const
     return static_cast<QbsBuildSystem *>(buildSystem());
 }
 
-GroupItem QbsBuildStep::runRecipe()
+Tasking::GroupItem QbsBuildStep::runRecipe()
 {
+    using namespace Tasking;
     const auto onPreParserSetup = [this](QbsRequest &request) {
         request.setParseData(qbsBuildSystem());
     };

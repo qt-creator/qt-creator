@@ -33,7 +33,7 @@ QVariantMap DriverSelection::toMap() const
     return map;
 }
 
-void DriverSelection::fromMap(const QVariantMap &map)
+void DriverSelection::fromMap(const Storage &map)
 {
     index = map.value(driverIndexKeyC).toInt();
     cpuDllIndex = map.value(driverCpuDllIndexKeyC).toInt();

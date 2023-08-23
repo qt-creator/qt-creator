@@ -9,7 +9,7 @@
 
 #include <utils/settingsutils.h>
 
-using namespace TextEditor;
+using namespace Utils;
 
 static const char currentPreferencesKey[] = "CurrentPreferences";
 
@@ -222,14 +222,14 @@ void ICodeStylePreferences::fromSettings(const QString &category)
     Utils::fromSettings(d->m_settingsSuffix, category, Core::ICore::settings(), this);
 }
 
-QVariantMap ICodeStylePreferences::toMap() const
+Storage ICodeStylePreferences::toMap() const
 {
     if (!currentDelegate())
         return d->m_tabSettings.toMap();
     return {{currentPreferencesKey, currentDelegateId()}};
 }
 
-void ICodeStylePreferences::fromMap(const QVariantMap &map)
+void ICodeStylePreferences::fromMap(const Storage &map)
 {
     d->m_tabSettings.fromMap(map);
     const QByteArray delegateId = map.value(currentPreferencesKey).toByteArray();

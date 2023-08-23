@@ -3,6 +3,8 @@
 
 #include "qmljscodestylepreferences.h"
 
+using namespace Utils;
+
 namespace QmlJSTools {
 
 QmlJSCodeStylePreferences::QmlJSCodeStylePreferences(QObject *parent) :
@@ -78,7 +80,7 @@ QVariantMap QmlJSCodeStylePreferences::toMap() const
     return map;
 }
 
-void QmlJSCodeStylePreferences::fromMap(const QVariantMap &map)
+void QmlJSCodeStylePreferences::fromMap(const Storage &map)
 {
     ICodeStylePreferences::fromMap(map);
     if (!currentDelegate())

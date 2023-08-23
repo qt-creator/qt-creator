@@ -619,7 +619,7 @@ void GenericBuildSystem::removeFiles(const FilePaths &filesToRemove)
     }
 }
 
-Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult GenericProject::fromMap(const Storage &map, QString *errorMessage)
 {
     const RestoreResult result = Project::fromMap(map, errorMessage);
     if (result != RestoreResult::Ok)

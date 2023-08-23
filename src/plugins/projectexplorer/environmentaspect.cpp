@@ -133,14 +133,14 @@ void EnvironmentAspect::setSupportForBuildEnvironment(Target *target)
             this, &EnvironmentAspect::environmentChanged);
 }
 
-void EnvironmentAspect::fromMap(const QVariantMap &map)
+void EnvironmentAspect::fromMap(const Storage &map)
 {
     m_base = map.value(QLatin1String(BASE_KEY), -1).toInt();
     m_userChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(CHANGES_KEY)).toStringList());
     m_printOnRun = map.value(PRINT_ON_RUN_KEY).toBool();
 }
 
-void EnvironmentAspect::toMap(QVariantMap &data) const
+void EnvironmentAspect::toMap(Storage &data) const
 {
     data.insert(QLatin1String(BASE_KEY), m_base);
     data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userChanges));

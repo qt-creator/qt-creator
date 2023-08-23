@@ -4,8 +4,6 @@
 #include "marginsettings.h"
 
 #include <QSettings>
-#include <QString>
-#include <QVariantMap>
 
 static const char showWrapColumnKey[] = "ShowMargin";
 static const char wrapColumnKey[] = "MarginColumn";
@@ -13,7 +11,9 @@ static const char groupPostfix[] = "textMarginSettings";
 static const char useIndenterColumnKey[] = "UseIndenter";
 static const char tintMarginAreaColumnKey[] = "tintMarginArea";
 
-using namespace TextEditor;
+using namespace Utils;
+
+namespace TextEditor {
 
 MarginSettings::MarginSettings()
     : m_showMargin(false)
@@ -45,7 +45,7 @@ void MarginSettings::fromSettings(QSettings *s)
     s->endGroup();
 }
 
-QVariantMap MarginSettings::toMap() const
+Storage MarginSettings::toMap() const
 {
     return {
         {tintMarginAreaColumnKey, m_tintMarginArea},
@@ -55,7 +55,7 @@ QVariantMap MarginSettings::toMap() const
     };
 }
 
-void MarginSettings::fromMap(const QVariantMap &map)
+void MarginSettings::fromMap(const Storage &map)
 {
     m_showMargin = map.value(showWrapColumnKey, m_showMargin).toBool();
     m_tintMarginArea = map.value(tintMarginAreaColumnKey, m_tintMarginArea).toBool();
@@ -71,3 +71,5 @@ bool MarginSettings::equals(const MarginSettings &other) const
         && m_marginColumn == other.m_marginColumn
         ;
 }
+
+} // TextEditor

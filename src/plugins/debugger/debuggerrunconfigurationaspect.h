@@ -17,8 +17,8 @@ public:
     DebuggerRunConfigurationAspect(ProjectExplorer::Target *target);
     ~DebuggerRunConfigurationAspect();
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     bool useCppDebugger() const;
     bool useQmlDebugger() const;

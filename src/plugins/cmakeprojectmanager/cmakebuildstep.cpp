@@ -273,7 +273,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
             this, &CMakeBuildStep::updateBuildTargetsModel);
 }
 
-void CMakeBuildStep::toMap(QVariantMap &map) const
+void CMakeBuildStep::toMap(Utils::Storage &map) const
 {
     CMakeAbstractProcessStep::toMap(map);
     map.insert(BUILD_TARGETS_KEY, m_buildTargets);
@@ -282,7 +282,7 @@ void CMakeBuildStep::toMap(QVariantMap &map) const
     map.insert(QLatin1String(BUILD_PRESET_KEY), m_buildPreset);
 }
 
-void CMakeBuildStep::fromMap(const QVariantMap &map)
+void CMakeBuildStep::fromMap(const Utils::Storage &map)
 {
     setBuildTargets(map.value(BUILD_TARGETS_KEY).toStringList());
 

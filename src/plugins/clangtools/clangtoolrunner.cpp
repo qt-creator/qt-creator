@@ -219,7 +219,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
 
     const Group group {
         finishAllAndDone,
-        Storage(storage),
+        Tasking::Storage(storage),
         onGroupSetup(onSetup),
         Group {
             sequential,

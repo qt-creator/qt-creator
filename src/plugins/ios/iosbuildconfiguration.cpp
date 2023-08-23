@@ -376,7 +376,7 @@ public:
 
 private:
     QList<NamedWidget *> createSubConfigWidgets() override;
-    void fromMap(const QVariantMap &map) override;
+    void fromMap(const Storage &map) override;
 
     void updateQmakeCommand();
 
@@ -414,7 +414,7 @@ QList<NamedWidget *> IosQmakeBuildConfiguration::createSubConfigWidgets()
     return subConfigWidgets;
 }
 
-void IosQmakeBuildConfiguration::fromMap(const QVariantMap &map)
+void IosQmakeBuildConfiguration::fromMap(const Storage &map)
 {
     QmakeBuildConfiguration::fromMap(map);
     if (!hasError())

@@ -120,7 +120,7 @@ bool GdbServerProvider::operator==(const IDebugServerProvider &other) const
             && m_useExtendedRemote == p->m_useExtendedRemote;
 }
 
-void GdbServerProvider::toMap(QVariantMap &data) const
+void GdbServerProvider::toMap(Storage &data) const
 {
     IDebugServerProvider::toMap(data);
     data.insert(startupModeKeyC, m_startupMode);
@@ -179,7 +179,7 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
     return new GdbServerProviderRunner(runControl, command());
 }
 
-void GdbServerProvider::fromMap(const QVariantMap &data)
+void GdbServerProvider::fromMap(const Storage &data)
 {
     IDebugServerProvider::fromMap(data);
     m_startupMode = static_cast<StartupMode>(data.value(startupModeKeyC).toInt());

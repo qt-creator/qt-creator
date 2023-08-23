@@ -5,6 +5,7 @@
 
 #include <utils/basetreeview.h>
 #include <utils/treemodel.h>
+#include <utils/storage.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -71,8 +72,8 @@ public:
     Algorithms algorithms;
     int algorithmIndex = 0;
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Storage toMap() const;
+    void fromMap(const Utils::Storage &map);
     bool operator==(const DeviceSelection &other) const;
 };
 

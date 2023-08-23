@@ -40,8 +40,8 @@ public:
     static QString name();
 
 protected:
-    void fromMap(const QVariantMap &map) final;
-    QVariantMap toMap() const final;
+    void fromMap(const Utils::Storage &map) final;
+    Utils::Storage toMap() const final;
 
     friend class IosDeviceFactory;
     friend class Ios::Internal::IosDeviceManager;

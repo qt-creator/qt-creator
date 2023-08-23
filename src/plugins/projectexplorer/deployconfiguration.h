@@ -31,8 +31,8 @@ public:
 
     QWidget *createConfigWidget();
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     bool isActive() const;
 
@@ -66,7 +66,7 @@ public:
     DeployConfiguration *create(Target *parent);
 
     static const QList<DeployConfigurationFactory *> find(Target *parent);
-    static DeployConfiguration *restore(Target *parent, const QVariantMap &map);
+    static DeployConfiguration *restore(Target *parent, const Utils::Storage &map);
     static DeployConfiguration *clone(Target *parent, const DeployConfiguration *dc);
 
     void addSupportedTargetDeviceType(Utils::Id id);
@@ -81,7 +81,7 @@ public:
     void setConfigWidgetCreator(const DeployConfiguration::WidgetCreator &configWidgetCreator);
     void setUseDeploymentDataView();
 
-    using PostRestore = std::function<void(DeployConfiguration *dc, const QVariantMap &)>;
+    using PostRestore = std::function<void(DeployConfiguration *dc, const Utils::Storage &)>;
     void setPostRestore(const PostRestore &postRestore) {  m_postRestore = postRestore; }
     PostRestore postRestore() const { return m_postRestore; }
 

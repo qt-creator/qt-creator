@@ -183,7 +183,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     };
 
     const Group root {
-        Storage(storage),
+        Tasking::Storage(storage),
         NetworkQueryTask(onQuerySetup, onQueryDone, onQueryError),
         UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, onUnarchiverError)
     };

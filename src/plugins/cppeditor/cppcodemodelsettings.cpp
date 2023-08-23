@@ -558,7 +558,7 @@ QVariantMap ClangdSettings::Data::toMap() const
     return map;
 }
 
-void ClangdSettings::Data::fromMap(const QVariantMap &map)
+void ClangdSettings::Data::fromMap(const Storage &map)
 {
     useClangd = map.value(useClangdKey(), true).toBool();
     executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());

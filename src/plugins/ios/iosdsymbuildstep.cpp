@@ -59,8 +59,8 @@ public:
 
 private:
     void setupOutputFormatter(OutputFormatter *formatter) override;
-    void toMap(QVariantMap &map) const override;
-    void fromMap(const QVariantMap &map) override;
+    void toMap(Storage &map) const override;
+    void fromMap(const Storage &map) override;
 
     QStringList defaultCleanCmdList() const;
     QStringList defaultCmdList() const;
@@ -83,7 +83,7 @@ IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent, Id id) :
     setIgnoreReturnValue(m_clean);
 }
 
-void IosDsymBuildStep::toMap(QVariantMap &map) const
+void IosDsymBuildStep::toMap(Storage &map) const
 {
     AbstractProcessStep::toMap(map);
 
@@ -95,7 +95,7 @@ void IosDsymBuildStep::toMap(QVariantMap &map) const
     map.insert(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), command().toSettings());
 }
 
-void IosDsymBuildStep::fromMap(const QVariantMap &map)
+void IosDsymBuildStep::fromMap(const Storage &map)
 {
     QVariant bArgs = map.value(id().withSuffix(ARGUMENTS_PARTIAL_KEY).toString());
     m_arguments = bArgs.toStringList();

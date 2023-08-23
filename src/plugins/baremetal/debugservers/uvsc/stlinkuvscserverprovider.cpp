@@ -51,7 +51,7 @@ public:
     Speed speed = Speed::Speed_4MHz;
 
     QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    bool fromMap(const Storage &data);
     bool operator==(const StLinkUvscAdapterOptions &other) const;
 };
 
@@ -86,8 +86,8 @@ static QString buildDllRegistryName(const DeviceSelection &device,
 class StLinkUvscServerProvider final : public UvscServerProvider
 {
 public:
-    void toMap(QVariantMap &data) const final;
-    void fromMap(const QVariantMap &data) final;
+    void toMap(Storage &data) const final;
+    void fromMap(const Storage &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;
     Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,
@@ -134,7 +134,7 @@ QVariantMap StLinkUvscAdapterOptions::toMap() const
     return map;
 }
 
-bool StLinkUvscAdapterOptions::fromMap(const QVariantMap &data)
+bool StLinkUvscAdapterOptions::fromMap(const Storage &data)
 {
     port = static_cast<Port>(data.value(adapterPortKeyC, SWD).toInt());
     speed = static_cast<Speed>(data.value(adapterSpeedKeyC, Speed_4MHz).toInt());
@@ -200,13 +200,13 @@ StLinkUvscServerProvider::StLinkUvscServerProvider()
     setSupportedDrivers({"STLink\\ST-LINKIII-KEIL_SWO.dll"});
 }
 
-void StLinkUvscServerProvider::toMap(QVariantMap &data) const
+void StLinkUvscServerProvider::toMap(Storage &data) const
 {
     UvscServerProvider::toMap(data);
     data.insert(adapterOptionsKeyC, m_adapterOpts.toMap());
 }
 
-void StLinkUvscServerProvider::fromMap(const QVariantMap &data)
+void StLinkUvscServerProvider::fromMap(const Storage &data)
 {
     UvscServerProvider::fromMap(data);
     m_adapterOpts.fromMap(data.value(adapterOptionsKeyC).toMap());

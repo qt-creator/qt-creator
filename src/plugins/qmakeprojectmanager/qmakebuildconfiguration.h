@@ -67,7 +67,7 @@ public:
             QString *arguments, const Utils::FilePath &directory, const QtSupport::QtVersion *version,
             QStringList *outArgs = nullptr);
 
-    void toMap(QVariantMap &map) const override;
+    void toMap(Utils::Storage &map) const override;
 
     BuildType buildType() const override;
 
@@ -99,7 +99,7 @@ signals:
     void useQtQuickCompilerChanged();
 
 protected:
-    void fromMap(const QVariantMap &map) override;
+    void fromMap(const Utils::Storage &map) override;
     bool regenerateBuildFiles(ProjectExplorer::Node *node = nullptr) override;
 
 private:

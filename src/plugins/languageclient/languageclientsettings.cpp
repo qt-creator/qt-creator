@@ -66,6 +66,8 @@ constexpr char typedClientsKey[] = "typedClients";
 constexpr char outlineSortedKey[] = "outlineSorted";
 constexpr char mimeType[] = "application/language.client.setting";
 
+using namespace Utils;
+
 namespace LanguageClient {
 
 class LanguageClientSettingsModel : public QAbstractListModel
@@ -576,7 +578,7 @@ QVariantMap BaseSettings::toMap() const
     return map;
 }
 
-void BaseSettings::fromMap(const QVariantMap &map)
+void BaseSettings::fromMap(const Storage &map)
 {
     m_name = map[nameKey].toString();
     m_id = map.value(idKey, QUuid::createUuid().toString()).toString();
@@ -720,7 +722,7 @@ QVariantMap StdIOSettings::toMap() const
     return map;
 }
 
-void StdIOSettings::fromMap(const QVariantMap &map)
+void StdIOSettings::fromMap(const Storage &map)
 {
     BaseSettings::fromMap(map);
     m_executable = Utils::FilePath::fromSettings(map[executableKey]);

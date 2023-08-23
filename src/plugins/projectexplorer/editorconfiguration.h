@@ -6,9 +6,9 @@
 #include "projectexplorer_export.h"
 
 #include <utils/id.h>
+#include <utils/storage.h>
 
 #include <QObject>
-#include <QVariantMap>
 
 #include <memory>
 
@@ -64,8 +64,8 @@ public:
     void configureEditor(TextEditor::BaseTextEditor *textEditor) const;
     void deconfigureEditor(TextEditor::BaseTextEditor *textEditor) const;
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Storage toMap() const;
+    void fromMap(const Utils::Storage &map);
 
     void setTypingSettings(const TextEditor::TypingSettings &settings);
     void setStorageSettings(const TextEditor::StorageSettings &settings);

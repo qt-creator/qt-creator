@@ -25,7 +25,6 @@
 #include <cstring>
 
 using namespace ProjectExplorer;
-using namespace Tasking;
 using namespace Utils;
 
 namespace RemoteLinux::Internal {
@@ -61,9 +60,9 @@ public:
 
 private:
     bool init() final;
-    GroupItem runRecipe() final;
-    void fromMap(const QVariantMap &map) final;
-    void toMap(QVariantMap &map) const final;
+    Tasking::GroupItem runRecipe() final;
+    void fromMap(const Storage &map) final;
+    void toMap(Storage &map) const final;
     QVariant data(Id id) const final;
 
     void raiseError(const QString &errorMessage);
@@ -129,8 +128,9 @@ bool TarPackageCreationStep::init()
     return true;
 }
 
-GroupItem TarPackageCreationStep::runRecipe()
+Tasking::GroupItem TarPackageCreationStep::runRecipe()
 {
+    using namespace Tasking;
     const auto onSetup = [this](Async<void> &async) {
         const QList<DeployableFile> &files = target()->deploymentData().allFiles();
         if (m_incrementalDeployment()) {
@@ -166,7 +166,7 @@ GroupItem TarPackageCreationStep::runRecipe()
     return AsyncTask<void>(onSetup, onDone, onError);
 }
 
-void TarPackageCreationStep::fromMap(const QVariantMap &map)
+void TarPackageCreationStep::fromMap(const Storage &map)
 {
     BuildStep::fromMap(map);
     if (hasError())
@@ -174,7 +174,7 @@ void TarPackageCreationStep::fromMap(const QVariantMap &map)
     m_deployTimes.importDeployTimes(map);
 }
 
-void TarPackageCreationStep::toMap(QVariantMap &map) const
+void TarPackageCreationStep::toMap(Storage &map) const
 {
     BuildStep::toMap(map);
     map.insert(m_deployTimes.exportDeployTimes());

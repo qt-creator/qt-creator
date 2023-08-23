@@ -206,7 +206,7 @@ FilePath IosRunConfiguration::localExecutable() const
     return bundleDirectory().pathAppended(applicationName());
 }
 
-void IosDeviceTypeAspect::fromMap(const QVariantMap &map)
+void IosDeviceTypeAspect::fromMap(const Storage &map)
 {
     bool deviceTypeIsInt;
     map.value(deviceTypeKey).toInt(&deviceTypeIsInt);
@@ -216,7 +216,7 @@ void IosDeviceTypeAspect::fromMap(const QVariantMap &map)
     m_runConfiguration->update();
 }
 
-void IosDeviceTypeAspect::toMap(QVariantMap &map) const
+void IosDeviceTypeAspect::toMap(Storage &map) const
 {
     map.insert(deviceTypeKey, deviceType().toMap());
 }

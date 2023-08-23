@@ -187,13 +187,13 @@ QmakeBuildConfiguration::~QmakeBuildConfiguration()
     delete m_buildSystem;
 }
 
-void QmakeBuildConfiguration::toMap(QVariantMap &map) const
+void QmakeBuildConfiguration::toMap(Storage &map) const
 {
     BuildConfiguration::toMap(map);
     map.insert(QLatin1String(BUILD_CONFIGURATION_KEY), int(m_qmakeBuildConfiguration));
 }
 
-void QmakeBuildConfiguration::fromMap(const QVariantMap &map)
+void QmakeBuildConfiguration::fromMap(const Storage &map)
 {
     BuildConfiguration::fromMap(map);
     if (hasError())

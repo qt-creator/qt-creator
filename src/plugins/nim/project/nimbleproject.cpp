@@ -13,6 +13,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Nim {
 
@@ -26,13 +27,13 @@ NimbleProject::NimbleProject(const Utils::FilePath &fileName)
     setBuildSystemCreator([] (Target *t) { return new NimbleBuildSystem(t); });
 }
 
-void NimbleProject::toMap(QVariantMap &map) const
+void NimbleProject::toMap(Storage &map) const
 {
     Project::toMap(map);
     map[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
 }
 
-Project::RestoreResult NimbleProject::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult NimbleProject::fromMap(const Storage &map, QString *errorMessage)
 {
     auto result = Project::fromMap(map, errorMessage);
     m_excludedFiles = map.value(Constants::C_NIMPROJECT_EXCLUDEDFILES).toStringList();

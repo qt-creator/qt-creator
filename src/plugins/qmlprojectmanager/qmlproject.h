@@ -24,7 +24,7 @@ public:
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    RestoreResult fromMap(const Utils::Storage &map, QString *errorMessage) override;
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;

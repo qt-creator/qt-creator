@@ -46,7 +46,7 @@ public:
     Speed speed = Speed::Speed_1MHz;
 
     QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    bool fromMap(const Storage &data);
     bool operator==(const JLinkUvscAdapterOptions &other) const;
 };
 
@@ -130,7 +130,7 @@ QVariantMap JLinkUvscAdapterOptions::toMap() const
     return map;
 }
 
-bool JLinkUvscAdapterOptions::fromMap(const QVariantMap &data)
+bool JLinkUvscAdapterOptions::fromMap(const Storage &data)
 {
     port = static_cast<Port>(data.value(adapterPortKeyC, SWD).toInt());
     speed = static_cast<Speed>(data.value(adapterSpeedKeyC, Speed_1MHz).toInt());
@@ -147,8 +147,8 @@ bool JLinkUvscAdapterOptions::operator==(const JLinkUvscAdapterOptions &other) c
 class JLinkUvscServerProvider final : public UvscServerProvider
 {
 public:
-    void toMap(QVariantMap &data) const final;
-    void fromMap(const QVariantMap &data) final;
+    void toMap(Storage &data) const final;
+    void fromMap(const Storage &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;
     Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,
@@ -240,13 +240,13 @@ JLinkUvscServerProvider::JLinkUvscServerProvider()
     setSupportedDrivers({"Segger\\JL2CM3.dll"});
 }
 
-void JLinkUvscServerProvider::toMap(QVariantMap &data) const
+void JLinkUvscServerProvider::toMap(Storage &data) const
 {
     UvscServerProvider::toMap(data);
     data.insert(adapterOptionsKeyC, m_adapterOpts.toMap());
 }
 
-void JLinkUvscServerProvider::fromMap(const QVariantMap &data)
+void JLinkUvscServerProvider::fromMap(const Storage &data)
 {
     UvscServerProvider::fromMap(data);
     m_adapterOpts.fromMap(data.value(adapterOptionsKeyC).toMap());

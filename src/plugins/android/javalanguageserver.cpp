@@ -143,7 +143,7 @@ QVariantMap JLSSettings::toMap() const
     return map;
 }
 
-void JLSSettings::fromMap(const QVariantMap &map)
+void JLSSettings::fromMap(const Storage &map)
 {
     StdIOSettings::fromMap(map);
     m_languageServer = FilePath::fromSettings(map[languageServerKey]);

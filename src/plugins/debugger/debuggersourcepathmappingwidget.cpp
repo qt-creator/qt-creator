@@ -452,12 +452,12 @@ SourcePathMapAspect::~SourcePathMapAspect()
     delete d;
 }
 
-void SourcePathMapAspect::fromMap(const QVariantMap &)
+void SourcePathMapAspect::fromMap(const Storage &)
 {
     QTC_CHECK(false); // This is only used via read/writeSettings
 }
 
-void SourcePathMapAspect::toMap(QVariantMap &) const
+void SourcePathMapAspect::toMap(Storage &) const
 {
     QTC_CHECK(false);
 }

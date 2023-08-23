@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "tabsettings.h"
-#include "texteditorplugin.h"
 
 #include <utils/settingsutils.h>
 
@@ -18,6 +17,8 @@ static const char tabSizeKey[] = "TabSize";
 static const char indentSizeKey[] = "IndentSize";
 static const char groupPostfix[] = "TabSettings";
 static const char paddingModeKey[] = "PaddingMode";
+
+using namespace Utils;
 
 namespace TextEditor {
 
@@ -55,7 +56,7 @@ QVariantMap TabSettings::toMap() const
     };
 }
 
-void TabSettings::fromMap(const QVariantMap &map)
+void TabSettings::fromMap(const Storage &map)
 {
     const bool spacesForTabs = map.value(spacesForTabsKey, true).toBool();
     const bool autoSpacesForTabs = map.value(autoSpacesForTabsKey, false).toBool();

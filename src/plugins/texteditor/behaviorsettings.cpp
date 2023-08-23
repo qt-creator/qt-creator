@@ -18,6 +18,8 @@ static const char keyboardTooltips[] = "KeyboardTooltips";
 static const char groupPostfix[] = "BehaviorSettings";
 static const char smartSelectionChanging[] = "SmartSelectionChanging";
 
+using namespace Utils;
+
 namespace TextEditor {
 
 BehaviorSettings::BehaviorSettings() :
@@ -55,7 +57,7 @@ QVariantMap BehaviorSettings::toMap() const
     };
 }
 
-void BehaviorSettings::fromMap(const QVariantMap &map)
+void BehaviorSettings::fromMap(const Storage &map)
 {
     m_mouseHiding = map.value(mouseHidingKey, m_mouseHiding).toBool();
     m_mouseNavigation = map.value(mouseNavigationKey, m_mouseNavigation).toBool();

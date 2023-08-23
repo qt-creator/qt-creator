@@ -34,6 +34,7 @@ static const QLatin1String kCodeStylePrefix("EditorConfiguration.CodeStyle.");
 static const QLatin1String kCodeStyleCount("EditorConfiguration.CodeStyle.Count");
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ProjectExplorer {
 
@@ -194,7 +195,7 @@ QVariantMap EditorConfiguration::toMap() const
     return map;
 }
 
-void EditorConfiguration::fromMap(const QVariantMap &map)
+void EditorConfiguration::fromMap(const Storage &map)
 {
     const QByteArray &codecName = map.value(kCodec, d->m_textCodec->name()).toByteArray();
     d->m_textCodec = QTextCodec::codecForName(codecName);

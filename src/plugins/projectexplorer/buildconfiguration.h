@@ -68,8 +68,8 @@ public:
     void appendInitialBuildStep(Utils::Id id);
     void appendInitialCleanStep(Utils::Id id);
 
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Storage &map) const override;
 
     bool isEnabled() const;
     QString disabledReason() const;
@@ -149,7 +149,7 @@ public:
 
     BuildConfiguration *create(Target *parent, const BuildInfo &info) const;
 
-    static BuildConfiguration *restore(Target *parent, const QVariantMap &map);
+    static BuildConfiguration *restore(Target *parent, const Utils::Storage &map);
     static BuildConfiguration *clone(Target *parent, const BuildConfiguration *source);
 
     static BuildConfigurationFactory *find(const Kit *k, const Utils::FilePath &projectPath);

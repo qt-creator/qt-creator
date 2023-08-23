@@ -5,7 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <QVariantMap>
+#include <utils/storage.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -21,8 +21,8 @@ public:
     void toSettings(QSettings *s) const;
     void fromSettings(QSettings *s);
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Storage toMap() const;
+    void fromMap(const Utils::Storage &map);
 
     bool equals(const MarginSettings &other) const;
 

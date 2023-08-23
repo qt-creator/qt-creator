@@ -80,7 +80,7 @@ void TerminalAspect::addToLayout(LayoutItem &parent)
 /*!
     \reimp
 */
-void TerminalAspect::fromMap(const QVariantMap &map)
+void TerminalAspect::fromMap(const Storage &map)
 {
     if (map.contains(settingsKey())) {
         m_useTerminal = map.value(settingsKey()).toBool();
@@ -96,7 +96,7 @@ void TerminalAspect::fromMap(const QVariantMap &map)
 /*!
     \reimp
 */
-void TerminalAspect::toMap(QVariantMap &data) const
+void TerminalAspect::toMap(Storage &data) const
 {
     if (m_userSet)
         data.insert(settingsKey(), m_useTerminal);
@@ -214,7 +214,7 @@ void WorkingDirectoryAspect::resetPath()
 /*!
     \reimp
 */
-void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
+void WorkingDirectoryAspect::fromMap(const Storage &map)
 {
     m_workingDirectory = FilePath::fromString(map.value(settingsKey()).toString());
     m_defaultWorkingDirectory = FilePath::fromString(map.value(settingsKey() + ".default").toString());
@@ -229,7 +229,7 @@ void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 /*!
     \reimp
 */
-void WorkingDirectoryAspect::toMap(QVariantMap &data) const
+void WorkingDirectoryAspect::toMap(Storage &data) const
 {
     const QString wd = m_workingDirectory == m_defaultWorkingDirectory
         ? QString() : m_workingDirectory.toString();
@@ -397,7 +397,7 @@ void ArgumentsAspect::resetArguments()
 /*!
     \reimp
 */
-void ArgumentsAspect::fromMap(const QVariantMap &map)
+void ArgumentsAspect::fromMap(const Storage &map)
 {
     QVariant args = map.value(settingsKey());
     // Until 3.7 a QStringList was stored for Remote Linux
@@ -419,7 +419,7 @@ void ArgumentsAspect::fromMap(const QVariantMap &map)
 /*!
     \reimp
 */
-void ArgumentsAspect::toMap(QVariantMap &map) const
+void ArgumentsAspect::toMap(Storage &map) const
 {
     saveToMap(map, m_arguments, QString(), settingsKey());
     saveToMap(map, m_multiLine, false, settingsKey() + ".multi");
@@ -693,7 +693,7 @@ void ExecutableAspect::setSettingsKey(const QString &key)
 /*!
   \reimp
 */
-void ExecutableAspect::fromMap(const QVariantMap &map)
+void ExecutableAspect::fromMap(const Storage &map)
 {
     m_executable.fromMap(map);
     if (m_alternativeExecutable)
@@ -703,7 +703,7 @@ void ExecutableAspect::fromMap(const QVariantMap &map)
 /*!
    \reimp
 */
-void ExecutableAspect::toMap(QVariantMap &map) const
+void ExecutableAspect::toMap(Storage &map) const
 {
     m_executable.toMap(map);
     if (m_alternativeExecutable)
@@ -837,12 +837,12 @@ void InterpreterAspect::setCurrentInterpreter(const Interpreter &interpreter)
     }
 }
 
-void InterpreterAspect::fromMap(const QVariantMap &map)
+void InterpreterAspect::fromMap(const Storage &map)
 {
     setCurrentInterpreterId(map.value(settingsKey(), m_defaultId).toString());
 }
 
-void InterpreterAspect::toMap(QVariantMap &map) const
+void InterpreterAspect::toMap(Storage &map) const
 {
     if (m_currentId != m_defaultId)
         saveToMap(map, m_currentId, QString(), settingsKey());

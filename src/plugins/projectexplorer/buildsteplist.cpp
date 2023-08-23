@@ -14,6 +14,8 @@
 
 #include <QDebug>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 const char STEPS_COUNT_KEY[] = "ProjectExplorer.BuildStepList.StepsCount";
@@ -41,9 +43,9 @@ Target *BuildStepList::target() const
     return m_projectConfiguration->target();
 }
 
-QVariantMap BuildStepList::toMap() const
+Storage BuildStepList::toMap() const
 {
-    QVariantMap map;
+    Storage map;
 
     {
         // Only written for compatibility reasons within the 4.11 cycle
@@ -58,7 +60,7 @@ QVariantMap BuildStepList::toMap() const
     // Save build steps
     map.insert(QString::fromLatin1(STEPS_COUNT_KEY), m_steps.count());
     for (int i = 0; i < m_steps.count(); ++i) {
-        QVariantMap data;
+        Storage data;
         m_steps.at(i)->toMap(data);
         map.insert(QString::fromLatin1(STEPS_PREFIX) + QString::number(i), data);
     }
@@ -101,7 +103,7 @@ QString BuildStepList::displayName() const
     return {};
 }
 
-bool BuildStepList::fromMap(const QVariantMap &map)
+bool BuildStepList::fromMap(const Storage &map)
 {
     clear();
 
@@ -109,7 +111,7 @@ bool BuildStepList::fromMap(const QVariantMap &map)
 
     int maxSteps = map.value(QString::fromLatin1(STEPS_COUNT_KEY), 0).toInt();
     for (int i = 0; i < maxSteps; ++i) {
-        QVariantMap bsData(map.value(QString::fromLatin1(STEPS_PREFIX) + QString::number(i)).toMap());
+        Storage bsData(map.value(QString::fromLatin1(STEPS_PREFIX) + QString::number(i)).toMap());
         if (bsData.isEmpty()) {
             qWarning() << "No step data found for" << i << "(continuing).";
             continue;

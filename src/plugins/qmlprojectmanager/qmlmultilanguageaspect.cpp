@@ -105,14 +105,14 @@ Utils::FilePath QmlMultiLanguageAspect::databaseFilePath() const
     return m_databaseFilePath;
 }
 
-void QmlMultiLanguageAspect::toMap(QVariantMap &map) const
+void QmlMultiLanguageAspect::toMap(Storage &map) const
 {
     BoolAspect::toMap(map);
     if (!m_currentLocale.isEmpty())
         map.insert(Constants::LAST_USED_LANGUAGE, m_currentLocale);
 }
 
-void QmlMultiLanguageAspect::fromMap(const QVariantMap &map)
+void QmlMultiLanguageAspect::fromMap(const Storage &map)
 {
     BoolAspect::fromMap(map);
     setCurrentLocale(map.value(Constants::LAST_USED_LANGUAGE, "en").toString());

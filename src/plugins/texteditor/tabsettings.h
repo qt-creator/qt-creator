@@ -5,6 +5,8 @@
 
 #include "texteditor_global.h"
 
+#include <utils/storage.h>
+
 #include <QTextBlock>
 
 QT_BEGIN_NAMESPACE
@@ -39,8 +41,8 @@ public:
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, QSettings *s);
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Storage toMap() const;
+    void fromMap(const Utils::Storage &map);
 
     int lineIndentPosition(const QString &text) const;
     int columnAt(const QString &text, int position) const;

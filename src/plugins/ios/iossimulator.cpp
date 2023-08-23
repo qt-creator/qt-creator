@@ -13,6 +13,7 @@
 #include <QMapIterator>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Ios::Internal {
 
@@ -72,7 +73,7 @@ IosDeviceType::IosDeviceType(IosDeviceType::Type type, const QString &identifier
     type(type), identifier(identifier), displayName(displayName)
 { }
 
-bool IosDeviceType::fromMap(const QVariantMap &map)
+bool IosDeviceType::fromMap(const Storage &map)
 {
     bool validType;
     displayName = map.value(iosDeviceTypeDisplayNameKey, QVariant()).toString();
