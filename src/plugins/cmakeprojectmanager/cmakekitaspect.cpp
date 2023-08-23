@@ -1283,23 +1283,44 @@ KitAspect *CMakeConfigurationKitAspectFactory::createKitAspect(Kit *k) const
 
 // Factory instances;
 
-const CMakeKitAspectFactory theCMakeKitAspectFactory;
-const CMakeGeneratorKitAspectFactory theCMakeGeneratorKitAspectFactory;
-const CMakeConfigurationKitAspectFactory theCMakeConfigurationKitAspectFactory;
+CMakeKitAspectFactory &cmakeKitAspectFactory()
+{
+    static CMakeKitAspectFactory theCMakeKitAspectFactory;
+    return theCMakeKitAspectFactory;
+}
+
+CMakeGeneratorKitAspectFactory &cmakeGeneratorKitAspectFactory()
+{
+    static CMakeGeneratorKitAspectFactory theCMakeGeneratorKitAspectFactory;
+    return theCMakeGeneratorKitAspectFactory;
+}
+
+static CMakeConfigurationKitAspectFactory &cmakeConfigurationKitAspectFactory()
+{
+    static CMakeConfigurationKitAspectFactory theCMakeConfigurationKitAspectFactory;
+    return theCMakeConfigurationKitAspectFactory;
+}
 
 KitAspect *CMakeKitAspect::createKitAspect(Kit *k)
 {
-    return theCMakeKitAspectFactory.createKitAspect(k);
+    return cmakeKitAspectFactory().createKitAspect(k);
 }
 
 KitAspect *CMakeGeneratorKitAspect::createKitAspect(Kit *k)
 {
-    return theCMakeGeneratorKitAspectFactory.createKitAspect(k);
+    return cmakeGeneratorKitAspectFactory().createKitAspect(k);
 }
 
 KitAspect *CMakeConfigurationKitAspect::createKitAspect(Kit *k)
 {
-    return theCMakeConfigurationKitAspectFactory.createKitAspect(k);
+    return cmakeConfigurationKitAspectFactory().createKitAspect(k);
+}
+
+void CMakeKitAspect::createFactories()
+{
+    cmakeKitAspectFactory();
+    cmakeGeneratorKitAspectFactory();
+    cmakeConfigurationKitAspectFactory();
 }
 
 } // namespace CMakeProjectManager

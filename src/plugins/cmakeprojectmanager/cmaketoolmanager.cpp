@@ -3,6 +3,7 @@
 
 #include "cmaketoolmanager.h"
 
+#include "cmakekitaspect.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
 #include "cmaketoolsettingsaccessor.h"
@@ -49,6 +50,8 @@ CMakeToolManager::CMakeToolManager()
 
     setObjectName("CMakeToolManager");
     ExtensionSystem::PluginManager::addObject(this);
+
+    CMakeKitAspect::createFactories();
 }
 
 CMakeToolManager::~CMakeToolManager()

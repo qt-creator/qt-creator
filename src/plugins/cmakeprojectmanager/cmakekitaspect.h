@@ -24,6 +24,10 @@ public:
     static QString msgUnsupportedVersion(const QByteArray &versionString);
 
     static ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k);
+
+private:
+    friend class CMakeToolManager;
+    static void createFactories();
 };
 
 class CMAKE_EXPORT CMakeGeneratorKitAspect
