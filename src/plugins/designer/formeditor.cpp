@@ -519,7 +519,7 @@ void FormEditorData::setupActions()
 
     m_actionPrint = new QAction(this);
     bindShortcut(ActionManager::registerAction(m_actionPrint, Core::Constants::PRINT, m_contexts), m_actionPrint);
-    QObject::connect(m_actionPrint, &QAction::triggered, this, [this] { print(); });
+    connect(m_actionPrint, &QAction::triggered, this, &FormEditorData::print);
 
     //'delete' action. Do not set a shortcut as Designer handles
     // the 'Delete' key by event filter. Setting a shortcut triggers
@@ -771,7 +771,8 @@ IEditor *FormEditorData::createEditor()
     QDesignerFormWindowInterface *form = m_fwm->createFormWindow(nullptr);
     QTC_ASSERT(form, return nullptr);
     form->setPalette(Theme::initialPalette());
-    QObject::connect(form, &QDesignerFormWindowInterface::toolChanged, this, [this](int i) { toolChanged(i); });
+    connect(form, &QDesignerFormWindowInterface::toolChanged,
+            this, &FormEditorData::toolChanged);
 
     auto widgetHost = new SharedTools::WidgetHost( /* parent */ nullptr, form);
     FormWindowEditor *formWindowEditor = m_xmlEditorFactory->create(form);
