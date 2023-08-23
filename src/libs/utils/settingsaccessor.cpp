@@ -388,7 +388,7 @@ Store VersionUpgrader::renameKeys(const QList<Change> &changes, Store map) const
     while (i != map.end()) {
         QVariant v = i.value();
         if (v.type() == QVariant::Map)
-            i.value() = renameKeys(changes, v.value<Store>());
+            i.value() = QVariant::fromValue(renameKeys(changes, v.value<Store>()));
 
         ++i;
     }
@@ -648,7 +648,7 @@ MergingSettingsAccessor::mergeSettings(const SettingsAccessor::RestoreData &main
 /*!
  * Returns true for housekeeping related keys.
  */
-bool MergingSettingsAccessor::isHouseKeepingKey(const QString &key)
+bool MergingSettingsAccessor::isHouseKeepingKey(const Key &key)
 {
     return key == VERSION_KEY || key == ORIGINAL_VERSION_KEY || key == SETTINGS_ID_KEY;
 }
@@ -697,7 +697,7 @@ void setSettingsIdInMap(Store &data, const QByteArray &id)
 }
 
 static QVariant mergeQVariantMapsRecursion(const Store &mainTree, const Store &secondaryTree,
-                                           const QString &keyPrefix,
+                                           const Key &keyPrefix,
                                            const Store &mainSubtree, const Store &secondarySubtree,
                                            const SettingsMergeFunction &merge)
 {
@@ -718,10 +718,11 @@ static QVariant mergeQVariantMapsRecursion(const Store &mainTree, const Store &s
         QPair<Key, QVariant> kv = mergeResult.value();
 
         if (kv.second.type() == QVariant::Map) {
-            const QString newKeyPrefix = keyPrefix + kv.first + '/';
+            const Key newKeyPrefix = keyPrefix + kv.first + '/';
             kv.second = mergeQVariantMapsRecursion(mainTree, secondaryTree, newKeyPrefix,
-                                                   kv.second.toMap(), secondarySubtree.value(kv.first)
-                                                   .toMap(), merge);
+                                                   kv.second.value<Store>(),
+                                                   secondarySubtree.value(kv.first).value<Store>(),
+                                                   merge);
         }
         if (!kv.second.isNull())
             result.insert(kv.first, kv.second);
@@ -733,7 +734,7 @@ static QVariant mergeQVariantMapsRecursion(const Store &mainTree, const Store &s
 QVariant mergeQVariantMaps(const Store &mainTree, const Store &secondaryTree,
                            const SettingsMergeFunction &merge)
 {
-    return mergeQVariantMapsRecursion(mainTree, secondaryTree, QString(),
+    return mergeQVariantMapsRecursion(mainTree, secondaryTree, Key(),
                                       mainTree, secondaryTree, merge);
 }
 

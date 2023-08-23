@@ -3,13 +3,15 @@
 
 #pragma once
 
-#ifndef FAKEVIM_STANDALONE
+#ifdef FAKEVIM_STANDALONE
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/store.h>
+
+namespace Utils { class FilePath {}; }
 
 #else
 
-namespace Utils { class FilePath {}; }
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #endif
 
@@ -32,8 +34,11 @@ public:
     virtual void setDefaultVariantValue(const QVariant &) {}
     virtual QVariant variantValue() const { return {}; }
     virtual QVariant defaultVariantValue() const { return {}; }
-
+#ifdef QTC_USE_STORE
+    void setSettingsKey(const QString &group, const QByteArray &key);
+#else
     void setSettingsKey(const QString &group, const QString &key);
+#endif
     QString settingsKey() const;
     void setCheckable(bool) {}
     void setDisplayName(const QString &) {}
@@ -155,12 +160,12 @@ public:
 
 private:
     void setup(FvBaseAspect *aspect, const QVariant &value,
-                      const QString &settingsKey,
-                      const QString &shortName,
-                      const QString &label);
+               const Utils::Key &settingsKey,
+               const QString &shortName,
+               const QString &label);
 
-    QHash<QString, FvBaseAspect *> m_nameToAspect;
-    QHash<FvBaseAspect *, QString> m_aspectToName;
+    QHash<Utils::Key, FvBaseAspect *> m_nameToAspect;
+    QHash<FvBaseAspect *, Utils::Key> m_aspectToName;
 };
 
 FakeVimSettings &settings();

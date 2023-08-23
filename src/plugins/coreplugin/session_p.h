@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <utils/persistentsettings.h>
+#include <utils/store.h>
 
 #include <QFutureInterface>
 
@@ -43,8 +44,8 @@ public:
     mutable QHash<QString, QDateTime> m_sessionDateTimes;
     QHash<QString, QDateTime> m_lastActiveTimes;
 
-    QMap<QString, QVariant> m_values;
-    QMap<QString, QVariant> m_sessionValues;
+    QMap<Utils::Key, QVariant> m_values;
+    QMap<Utils::Key, QVariant> m_sessionValues;
     QFutureInterface<void> m_future;
     PersistentSettingsWriter *m_writer = nullptr;
 

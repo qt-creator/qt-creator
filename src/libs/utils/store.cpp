@@ -3,7 +3,17 @@
 
 #include "store.h"
 
+#include "algorithm.h"
 
 namespace Utils {
+
+KeyList keyListFromStringList(const QStringList &list)
+{
+#ifdef QTC_USE_STORE
+    return transform(list, [](const QString &str) { return str.toUtf8(); });
+#else
+    return list;
+#endif
+}
 
 } // Utils

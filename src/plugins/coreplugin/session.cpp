@@ -156,7 +156,7 @@ bool SessionManager::isDefaultSession(const QString &session)
 void SessionManager::saveActiveMode(Id mode)
 {
     if (mode != Core::Constants::MODE_WELCOME)
-        setValue(QLatin1String("ActiveMode"), mode.toString());
+        setValue("ActiveMode", mode.toString());
 }
 
 bool SessionManager::isLoadingSession()
@@ -169,25 +169,25 @@ bool SessionManager::isLoadingSession()
     within the session file.
 */
 
-void SessionManager::setValue(const QString &name, const QVariant &value)
+void SessionManager::setValue(const Key &name, const QVariant &value)
 {
     if (sb_d->m_values.value(name) == value)
         return;
     sb_d->m_values.insert(name, value);
 }
 
-QVariant SessionManager::value(const QString &name)
+QVariant SessionManager::value(const Key &name)
 {
     auto it = sb_d->m_values.constFind(name);
     return (it == sb_d->m_values.constEnd()) ? QVariant() : *it;
 }
 
-void SessionManager::setSessionValue(const QString &name, const QVariant &value)
+void SessionManager::setSessionValue(const Key &name, const QVariant &value)
 {
     sb_d->m_sessionValues.insert(name, value);
 }
 
-QVariant SessionManager::sessionValue(const QString &name, const QVariant &defaultValue)
+QVariant SessionManager::sessionValue(const Key &name, const QVariant &defaultValue)
 {
     auto it = sb_d->m_sessionValues.constFind(name);
     return (it == sb_d->m_sessionValues.constEnd()) ? defaultValue : *it;
@@ -488,16 +488,16 @@ void SessionManagerPrivate::updateSessionMenu()
 
 void SessionManagerPrivate::restoreValues(const PersistentSettingsReader &reader)
 {
-    const QStringList keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
-    for (const QString &key : keys) {
-        QVariant value = reader.restoreValue(QLatin1String("value-") + key);
+    const KeyList keys = keyListFromStringList(reader.restoreValue("valueKeys").toStringList());
+    for (const Key &key : keys) {
+        QVariant value = reader.restoreValue("value-" + key);
         m_values.insert(key, value);
     }
 }
 
 void SessionManagerPrivate::restoreSessionValues(const PersistentSettingsReader &reader)
 {
-    const QVariantMap values = reader.restoreValues();
+    const Store values = reader.restoreValues();
     // restore toplevel items that are not restored by restoreValues
     const auto end = values.constEnd();
     for (auto it = values.constBegin(); it != end; ++it) {
@@ -680,7 +680,7 @@ bool SessionManager::saveSession()
     emit SessionManager::instance()->aboutToSaveSession();
 
     const FilePath filePath = SessionManager::sessionNameToFileName(sb_d->m_sessionName);
-    QVariantMap data;
+    Store data;
 
     // See the explanation at loadSession() for how we handle the implicit default session.
     if (SessionManager::isDefaultVirgin()) {
@@ -712,12 +712,12 @@ bool SessionManager::saveSession()
     }
 
     const auto end = sb_d->m_values.constEnd();
-    QStringList keys;
+    KeyList keys;
     for (auto it = sb_d->m_values.constBegin(); it != end; ++it) {
         data.insert("value-" + it.key(), it.value());
         keys << it.key();
     }
-    data.insert("valueKeys", keys);
+    data.insert("valueKeys", QVariant::fromValue(keys));
 
     if (!sb_d->m_writer || sb_d->m_writer->fileName() != filePath) {
         delete sb_d->m_writer;

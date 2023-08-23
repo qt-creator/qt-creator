@@ -41,7 +41,7 @@ QTCREATOR_UTILS_EXPORT void setOriginalVersionInMap(Store &data, int version);
 QTCREATOR_UTILS_EXPORT void setSettingsIdInMap(Store &data, const QByteArray &id);
 
 class PersistentSettingsWriter;
-using SettingsMergeResult = std::optional<QPair<QString, QVariant>>;
+using SettingsMergeResult = std::optional<QPair<Utils::Key, QVariant>>;
 
 // --------------------------------------------------------------------
 // SettingsAccessor:
@@ -206,7 +206,7 @@ public:
     virtual Store upgrade(const Store &data) = 0;
 
 protected:
-    using Change = QPair<QLatin1String, QLatin1String>;
+    using Change = QPair<Key, Key>;
     Store renameKeys(const QList<Change> &changes, Store map) const;
 
 private:
@@ -271,7 +271,7 @@ protected:
 
     virtual SettingsMergeResult merge(const SettingsMergeData &global,
                                       const SettingsMergeData &local) const = 0;
-    static bool isHouseKeepingKey(const QString &key);
+    static bool isHouseKeepingKey(const Key &key);
 
     virtual Store postprocessMerge(const Store &main, const Store &secondary,
                                    const Store &result) const;

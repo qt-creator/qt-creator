@@ -265,7 +265,7 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
 
 void FakeVimSettings::setup(FvBaseAspect *aspect,
                             const QVariant &value,
-                            const QString &settingsKey,
+                            const Key &settingsKey,
                             const QString &shortName,
                             const QString &labelText)
 {
@@ -282,7 +282,7 @@ void FakeVimSettings::setup(FvBaseAspect *aspect,
     Q_UNUSED(labelText)
 #endif
 
-    const QString longName = settingsKey.toLower();
+    const Key longName = settingsKey.toLower();
     if (!longName.isEmpty()) {
         m_nameToAspect[longName] = aspect;
         m_aspectToName[aspect] = longName;

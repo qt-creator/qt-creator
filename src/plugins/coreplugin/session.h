@@ -50,13 +50,13 @@ public:
     // Let other plugins store persistent values within the session file
     // These are settings that are also saved and loaded at startup, and are taken over
     // to the default session when switching from implicit to explicit default session
-    static void setValue(const QString &name, const QVariant &value);
-    static QVariant value(const QString &name);
+    static void setValue(const Utils::Key &name, const QVariant &value);
+    static QVariant value(const Utils::Key &name);
 
     // These are settings that are specific to a session and are not loaded
     // at startup and also not taken over to the default session when switching from implicit
-    static void setSessionValue(const QString &name, const QVariant &value);
-    static QVariant sessionValue(const QString &name, const QVariant &defaultValue = {});
+    static void setSessionValue(const Utils::Key &name, const QVariant &value);
+    static QVariant sessionValue(const Utils::Key &name, const QVariant &defaultValue = {});
 
     static bool isLoadingSession();
     static void markSessionFileDirty();

@@ -72,7 +72,7 @@ BuildDirectoryAspect::~BuildDirectoryAspect()
 void BuildDirectoryAspect::allowInSourceBuilds(const FilePath &sourceDir)
 {
     d->sourceDir = sourceDir;
-    makeCheckable(CheckBoxPlacement::Top, Tr::tr("Shadow build:"), QString());
+    makeCheckable(CheckBoxPlacement::Top, Tr::tr("Shadow build:"), Key());
     setChecked(d->sourceDir != expandedValue());
 }
 

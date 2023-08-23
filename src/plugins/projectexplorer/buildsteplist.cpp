@@ -52,17 +52,17 @@ Store BuildStepList::toMap() const
         const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
         const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
         const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
-        map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
-        map.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
-        map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), displayName());
+        map.insert(CONFIGURATION_ID_KEY, m_id.toSetting());
+        map.insert(DISPLAY_NAME_KEY, displayName());
+        map.insert(DEFAULT_DISPLAY_NAME_KEY, displayName());
     }
 
     // Save build steps
-    map.insert(QString::fromLatin1(STEPS_COUNT_KEY), m_steps.count());
+    map.insert(STEPS_COUNT_KEY, m_steps.count());
     for (int i = 0; i < m_steps.count(); ++i) {
         Store data;
         m_steps.at(i)->toMap(data);
-        map.insert(QString::fromLatin1(STEPS_PREFIX) + QString::number(i), data);
+        map.insert(STEPS_PREFIX + Key::number(i), data);
     }
 
     return map;
@@ -109,9 +109,9 @@ bool BuildStepList::fromMap(const Store &map)
 
     const QList<BuildStepFactory *> factories = BuildStepFactory::allBuildStepFactories();
 
-    int maxSteps = map.value(QString::fromLatin1(STEPS_COUNT_KEY), 0).toInt();
+    int maxSteps = map.value(STEPS_COUNT_KEY, 0).toInt();
     for (int i = 0; i < maxSteps; ++i) {
-        Store bsData(map.value(QString::fromLatin1(STEPS_PREFIX) + QString::number(i)).toMap());
+        Store bsData(map.value(STEPS_PREFIX + Key::number(i)).toMap());
         if (bsData.isEmpty()) {
             qWarning() << "No step data found for" << i << "(continuing).";
             continue;

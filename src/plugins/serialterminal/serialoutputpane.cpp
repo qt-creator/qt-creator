@@ -33,6 +33,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace SerialTerminal {
 namespace Internal {
 
@@ -277,7 +279,7 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     static int counter = 0;
     Utils::Id contextId = Utils::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
-    auto ow = new Core::OutputWindow(context, QString(), m_tabWidget);
+    auto ow = new Core::OutputWindow(context, Key(), m_tabWidget);
     using TextEditor::TextEditorSettings;
     auto fontSettingsChanged = [ow] {
         ow->setBaseFont(TextEditorSettings::fontSettings().font());

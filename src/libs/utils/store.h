@@ -11,6 +11,13 @@
 namespace Utils {
 
 using KeyList = QList<Key>;
+
+#ifdef QTC_USE_STORE
 using Store = QMap<Key, QVariant>;
+#else
+using Store = QVariantMap;
+#endif
+
+QTCREATOR_UTILS_EXPORT KeyList keyListFromStringList(const QStringList &list);
 
 } // Utils

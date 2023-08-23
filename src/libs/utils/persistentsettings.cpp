@@ -217,7 +217,7 @@ bool ParseContext::handleStartElement(QXmlStreamReader &r)
     const QStringView name = r.name();
     const Element e = element(name);
     if (e == VariableElement) {
-        m_currentVariableName = r.readElementText();
+        m_currentVariableName = keyFromString(r.readElementText());
         return false;
     }
     if (!ParseContext::isValueElement(e))
@@ -225,7 +225,7 @@ bool ParseContext::handleStartElement(QXmlStreamReader &r)
 
     const QXmlStreamAttributes attributes = r.attributes();
     const Key key = attributes.hasAttribute(keyAttribute) ?
-                attributes.value(keyAttribute).toString() : Key();
+                keyFromString(attributes.value(keyAttribute).toString()) : Key();
     switch (e) {
     case SimpleValueElement: {
         // This reads away the end element, so, handle end element right here.

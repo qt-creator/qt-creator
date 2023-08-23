@@ -204,10 +204,10 @@ ICodeStylePreferences *CodeStylePool::loadCodeStyle(const FilePath &fileName)
     ICodeStylePreferences *codeStyle = nullptr;
     PersistentSettingsReader reader;
     reader.load(fileName);
-    QVariantMap m = reader.restoreValues();
-    if (m.contains(QLatin1String(codeStyleDataKey))) {
+    Store m = reader.restoreValues();
+    if (m.contains(codeStyleDataKey)) {
         const QByteArray id = fileName.completeBaseName().toUtf8();
-        const QString displayName = reader.restoreValue(QLatin1String(displayNameKey)).toString();
+        const QString displayName = reader.restoreValue(displayNameKey).toString();
         const Store map = reader.restoreValue(codeStyleDataKey).value<Store>();
         if (d->m_factory) {
             codeStyle = d->m_factory->createCodeStyle();
