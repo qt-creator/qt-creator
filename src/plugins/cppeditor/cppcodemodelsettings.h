@@ -9,7 +9,7 @@
 #include <utils/clangutils.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <QObject>
 #include <QStringList>
@@ -94,8 +94,8 @@ public:
     class CPPEDITOR_EXPORT Data
     {
     public:
-        Utils::Storage toMap() const;
-        void fromMap(const Utils::Storage &map);
+        Utils::Store toMap() const;
+        void fromMap(const Utils::Store &map);
 
         friend bool operator==(const Data &s1, const Data &s2)
         {

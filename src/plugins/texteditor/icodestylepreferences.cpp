@@ -222,14 +222,14 @@ void ICodeStylePreferences::fromSettings(const QString &category)
     Utils::fromSettings(d->m_settingsSuffix, category, Core::ICore::settings(), this);
 }
 
-Storage ICodeStylePreferences::toMap() const
+Store ICodeStylePreferences::toMap() const
 {
     if (!currentDelegate())
         return d->m_tabSettings.toMap();
     return {{currentPreferencesKey, currentDelegateId()}};
 }
 
-void ICodeStylePreferences::fromMap(const Storage &map)
+void ICodeStylePreferences::fromMap(const Store &map)
 {
     d->m_tabSettings.fromMap(map);
     const QByteArray delegateId = map.value(currentPreferencesKey).toByteArray();

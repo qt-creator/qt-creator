@@ -578,7 +578,7 @@ QVariantMap BaseSettings::toMap() const
     return map;
 }
 
-void BaseSettings::fromMap(const Storage &map)
+void BaseSettings::fromMap(const Store &map)
 {
     m_name = map[nameKey].toString();
     m_id = map.value(idKey, QUuid::createUuid().toString()).toString();
@@ -722,7 +722,7 @@ QVariantMap StdIOSettings::toMap() const
     return map;
 }
 
-void StdIOSettings::fromMap(const Storage &map)
+void StdIOSettings::fromMap(const Store &map)
 {
     BaseSettings::fromMap(map);
     m_executable = Utils::FilePath::fromSettings(map[executableKey]);

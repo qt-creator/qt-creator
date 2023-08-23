@@ -85,21 +85,21 @@ AspectContainer *GlobalOrProjectAspect::currentSettings() const
    return m_useGlobalSettings ? m_globalSettings : m_projectSettings;
 }
 
-void GlobalOrProjectAspect::fromMap(const Storage &map)
+void GlobalOrProjectAspect::fromMap(const Store &map)
 {
     if (m_projectSettings)
         m_projectSettings->fromMap(map);
     m_useGlobalSettings = map.value(id().toString() + ".UseGlobalSettings", true).toBool();
 }
 
-void GlobalOrProjectAspect::toMap(Storage &map) const
+void GlobalOrProjectAspect::toMap(Store &map) const
 {
     if (m_projectSettings)
         m_projectSettings->toMap(map);
     map.insert(id().toString() + ".UseGlobalSettings", m_useGlobalSettings);
 }
 
-void GlobalOrProjectAspect::toActiveMap(Storage &data) const
+void GlobalOrProjectAspect::toActiveMap(Store &data) const
 {
     if (m_useGlobalSettings)
         m_globalSettings->toMap(data);
@@ -113,7 +113,7 @@ void GlobalOrProjectAspect::toActiveMap(Storage &data) const
 void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 {
     QTC_ASSERT(m_globalSettings, return);
-    Storage map;
+    Store map;
     m_globalSettings->toMap(map);
     if (m_projectSettings)
         m_projectSettings->fromMap(map);
@@ -226,7 +226,7 @@ bool RunConfiguration::isCustomized() const
 {
     if (m_customized)
         return true;
-    Storage state;
+    Store state;
     toMapSimple(state);
 
     // TODO: Why do we save this at all? It's a computed value.
@@ -257,9 +257,9 @@ void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
     theAspectFactories.push_back(aspectFactory);
 }
 
-QMap<Id, Storage> RunConfiguration::settingsData() const
+QMap<Id, Store> RunConfiguration::settingsData() const
 {
-    QMap<Id, Storage> data;
+    QMap<Id, Store> data;
     for (BaseAspect *aspect : *this)
         aspect->toActiveMap(data[aspect->id()]);
     return data;
@@ -288,13 +288,13 @@ Task RunConfiguration::createConfigurationIssue(const QString &description) cons
     return BuildSystemTask(Task::Error, description);
 }
 
-void RunConfiguration::toMap(Storage &map) const
+void RunConfiguration::toMap(Store &map) const
 {
     toMapSimple(map);
     map.insert(CUSTOMIZED_KEY, isCustomized());
 }
 
-void RunConfiguration::toMapSimple(Storage &map) const
+void RunConfiguration::toMapSimple(Store &map) const
 {
     ProjectConfiguration::toMap(map);
     map.insert(BUILD_KEY, m_buildKey);
@@ -355,7 +355,7 @@ ProjectNode *RunConfiguration::productNode() const
     });
 }
 
-void RunConfiguration::fromMap(const Storage &map)
+void RunConfiguration::fromMap(const Store &map)
 {
     ProjectConfiguration::fromMap(map);
     if (hasError())
@@ -611,7 +611,7 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
     return rc;
 }
 
-RunConfiguration *RunConfigurationFactory::restore(Target *parent, const Storage &map)
+RunConfiguration *RunConfigurationFactory::restore(Target *parent, const Store &map)
 {
     for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
         if (factory->canHandle(parent)) {
@@ -634,7 +634,7 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const Storage
 
 RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
-    Storage map;
+    Store map;
     source->toMap(map);
     return restore(parent, map);
 }

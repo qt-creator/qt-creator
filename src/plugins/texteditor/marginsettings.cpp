@@ -45,7 +45,7 @@ void MarginSettings::fromSettings(QSettings *s)
     s->endGroup();
 }
 
-Storage MarginSettings::toMap() const
+Store MarginSettings::toMap() const
 {
     return {
         {tintMarginAreaColumnKey, m_tintMarginArea},
@@ -55,7 +55,7 @@ Storage MarginSettings::toMap() const
     };
 }
 
-void MarginSettings::fromMap(const Storage &map)
+void MarginSettings::fromMap(const Store &map)
 {
     m_showMargin = map.value(showWrapColumnKey, m_showMargin).toBool();
     m_tintMarginArea = map.value(tintMarginAreaColumnKey, m_tintMarginArea).toBool();

@@ -34,7 +34,7 @@ QVariantMap QmlJSCodeStyleSettings::toMap() const
     };
 }
 
-void QmlJSCodeStyleSettings::fromMap(const Storage &map)
+void QmlJSCodeStyleSettings::fromMap(const Store &map)
 {
     lineLength = map.value(lineLengthKey, lineLength).toInt();
 }

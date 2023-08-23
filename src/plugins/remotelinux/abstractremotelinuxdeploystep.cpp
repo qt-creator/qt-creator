@@ -81,7 +81,7 @@ void AbstractRemoteLinuxDeployStep::setInternalInitializer(
     d->internalInit = init;
 }
 
-void AbstractRemoteLinuxDeployStep::fromMap(const Utils::Storage &map)
+void AbstractRemoteLinuxDeployStep::fromMap(const Utils::Store &map)
 {
     BuildStep::fromMap(map);
     if (hasError())
@@ -89,7 +89,7 @@ void AbstractRemoteLinuxDeployStep::fromMap(const Utils::Storage &map)
     d->deployTimes.importDeployTimes(map);
 }
 
-void AbstractRemoteLinuxDeployStep::toMap(Utils::Storage &map) const
+void AbstractRemoteLinuxDeployStep::toMap(Utils::Store &map) const
 {
     BuildStep::toMap(map);
     map.insert(d->deployTimes.exportDeployTimes());

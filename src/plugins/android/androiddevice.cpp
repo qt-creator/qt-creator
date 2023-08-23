@@ -214,7 +214,7 @@ void AndroidDevice::addActionsIfNotFound()
     }
 }
 
-void AndroidDevice::fromMap(const Storage &map)
+void AndroidDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
     initAvdSettings();

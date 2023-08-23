@@ -372,7 +372,7 @@ void BuildConfiguration::appendInitialCleanStep(Utils::Id id)
     d->m_initialCleanSteps.append(id);
 }
 
-void BuildConfiguration::toMap(Storage &map) const
+void BuildConfiguration::toMap(Store &map) const
 {
     ProjectConfiguration::toMap(map);
 
@@ -388,7 +388,7 @@ void BuildConfiguration::toMap(Storage &map) const
     map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers,&Utils::Id::toSetting));
 }
 
-void BuildConfiguration::fromMap(const Storage &map)
+void BuildConfiguration::fromMap(const Store &map)
 {
     d->m_clearSystemEnvironment = map.value(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY))
                                       .toBool();

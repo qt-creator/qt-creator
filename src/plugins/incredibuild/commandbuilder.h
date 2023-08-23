@@ -20,7 +20,7 @@ public:
     virtual QString id() const { return "CustomCommandBuilder"; }
     virtual QString displayName() const;
 
-    virtual void fromMap(const Utils::Storage &map);
+    virtual void fromMap(const Utils::Store &map);
     virtual void toMap(QVariantMap *map) const;
 
     virtual Utils::FilePath defaultCommand() const { return {}; }

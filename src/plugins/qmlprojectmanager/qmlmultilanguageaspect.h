@@ -23,8 +23,8 @@ public:
     QString currentLocale() const;
     void setCurrentLocale(const QString &locale);
     Utils::FilePath databaseFilePath() const;
-    void toMap(Utils::Storage &map) const final;
-    void fromMap(const Utils::Storage &map) final;
+    void toMap(Utils::Store &map) const final;
+    void fromMap(const Utils::Store &map) final;
 
     static QmlMultiLanguageAspect *current();
     static QmlMultiLanguageAspect *current(ProjectExplorer::Project *project);

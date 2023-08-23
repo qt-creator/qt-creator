@@ -61,8 +61,8 @@ public:
 private:
     bool init() final;
     Tasking::GroupItem runRecipe() final;
-    void fromMap(const Storage &map) final;
-    void toMap(Storage &map) const final;
+    void fromMap(const Store &map) final;
+    void toMap(Store &map) const final;
     QVariant data(Id id) const final;
 
     void raiseError(const QString &errorMessage);
@@ -166,7 +166,7 @@ Tasking::GroupItem TarPackageCreationStep::runRecipe()
     return AsyncTask<void>(onSetup, onDone, onError);
 }
 
-void TarPackageCreationStep::fromMap(const Storage &map)
+void TarPackageCreationStep::fromMap(const Store &map)
 {
     BuildStep::fromMap(map);
     if (hasError())
@@ -174,7 +174,7 @@ void TarPackageCreationStep::fromMap(const Storage &map)
     m_deployTimes.importDeployTimes(map);
 }
 
-void TarPackageCreationStep::toMap(Storage &map) const
+void TarPackageCreationStep::toMap(Store &map) const
 {
     BuildStep::toMap(map);
     map.insert(m_deployTimes.exportDeployTimes());

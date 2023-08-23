@@ -5,7 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <utils/storage.h>
+#include <utils/store.h>
 
 namespace TextEditor {
 
@@ -18,8 +18,8 @@ public:
     void toSettings(const QString &category) const;
     void fromSettings(const QString &category);
 
-    Utils::Storage toMap() const;
-    void fromMap(const Utils::Storage &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     bool equals(const ExtraEncodingSettings &s) const;
 

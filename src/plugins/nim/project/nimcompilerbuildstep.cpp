@@ -121,7 +121,7 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
     return widget;
 }
 
-void NimCompilerBuildStep::fromMap(const Storage &map)
+void NimCompilerBuildStep::fromMap(const Store &map)
 {
     AbstractProcessStep::fromMap(map);
     m_userCompilerOptions = map[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS].toString().split('|');
@@ -129,7 +129,7 @@ void NimCompilerBuildStep::fromMap(const Storage &map)
     m_targetNimFile = FilePath::fromString(map[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE].toString());
 }
 
-void NimCompilerBuildStep::toMap(Storage &map) const
+void NimCompilerBuildStep::toMap(Store &map) const
 {
     AbstractProcessStep::toMap(map);
     map[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS] = m_userCompilerOptions.join('|');

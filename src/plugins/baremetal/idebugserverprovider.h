@@ -8,7 +8,7 @@
 #include <projectexplorer/abi.h>
 
 #include <utils/filepath.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <QSet>
 #include <QUrl>
@@ -67,8 +67,8 @@ public:
     void setConfigurationWidgetCreator
         (const std::function<IDebugServerProviderConfigWidget *()> &configurationWidgetCreator);
 
-    virtual void toMap(Utils::Storage &data) const;
-    virtual void fromMap(const Utils::Storage &data);
+    virtual void toMap(Utils::Store &data) const;
+    virtual void fromMap(const Utils::Store &data);
 
     virtual bool aboutToRun(Debugger::DebuggerRunTool *runTool,
                             QString &errorMessage) const = 0;

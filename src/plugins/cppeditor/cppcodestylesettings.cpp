@@ -75,7 +75,7 @@ QVariantMap CppCodeStyleSettings::toMap() const
     };
 }
 
-void CppCodeStyleSettings::fromMap(const Storage &map)
+void CppCodeStyleSettings::fromMap(const Store &map)
 {
     indentBlockBraces = map.value(indentBlockBracesKey, indentBlockBraces).toBool();
     indentBlockBody = map.value(indentBlockBodyKey, indentBlockBody).toBool();

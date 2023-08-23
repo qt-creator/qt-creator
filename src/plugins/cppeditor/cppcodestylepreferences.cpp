@@ -80,7 +80,7 @@ QVariantMap CppCodeStylePreferences::toMap() const
     return map;
 }
 
-void CppCodeStylePreferences::fromMap(const Storage &map)
+void CppCodeStylePreferences::fromMap(const Store &map)
 {
     ICodeStylePreferences::fromMap(map);
     if (!currentDelegate())

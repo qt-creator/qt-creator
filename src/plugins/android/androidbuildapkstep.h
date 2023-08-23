@@ -23,8 +23,8 @@ class AndroidBuildApkStep : public ProjectExplorer::AbstractProcessStep
 public:
     AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
 
-    void fromMap(const Utils::Storage &map) override;
-    void toMap(Utils::Storage &map) const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     // signing
     Utils::FilePath keystorePath() const;

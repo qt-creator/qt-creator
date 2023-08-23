@@ -211,7 +211,7 @@ int DebuggerRunConfigurationAspect::portsUsedByDebugger() const
     return ports;
 }
 
-void DebuggerRunConfigurationAspect::toMap(Storage &map) const
+void DebuggerRunConfigurationAspect::toMap(Store &map) const
 {
     m_cppAspect->toMap(map);
     m_qmlAspect->toMap(map);
@@ -223,7 +223,7 @@ void DebuggerRunConfigurationAspect::toMap(Storage &map) const
     map.insert("RunConfiguration.UseQmlDebuggerAuto", m_qmlAspect->value() == TriState::Default);
 }
 
-void DebuggerRunConfigurationAspect::fromMap(const Storage &map)
+void DebuggerRunConfigurationAspect::fromMap(const Store &map)
 {
     m_cppAspect->fromMap(map);
     m_qmlAspect->fromMap(map);

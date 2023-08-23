@@ -6,7 +6,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/id.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <QObject>
 
@@ -60,8 +60,8 @@ public:
     ProjectConfiguration *projectConfiguration() const { return m_projectConfiguration; }
     Target *target() const;
 
-    Utils::Storage toMap() const;
-    bool fromMap(const Utils::Storage &map);
+    Utils::Store toMap() const;
+    bool fromMap(const Utils::Store &map);
 
     Utils::Id id() const { return m_id; }
     QString displayName() const;

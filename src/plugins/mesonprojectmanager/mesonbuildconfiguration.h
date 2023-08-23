@@ -30,8 +30,8 @@ signals:
     void parametersChanged();
 
 private:
-    void toMap(Utils::Storage &map) const override;
-    void fromMap(const Utils::Storage &map) override;
+    void toMap(Utils::Store &map) const override;
+    void fromMap(const Utils::Store &map) override;
 
     MesonBuildType m_buildType;
     ProjectExplorer::NamedWidget *createConfigWidget() final;

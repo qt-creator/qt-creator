@@ -691,7 +691,7 @@ FilePaths Project::files(const NodeMatcher &filter) const
     creating new build configurations.
 */
 
-void Project::toMap(Storage &map) const
+void Project::toMap(Store &map) const
 {
     const QList<Target *> ts = targets();
 
@@ -764,7 +764,7 @@ ContainerNode *Project::containerNode() const
     return d->m_containerNode.get();
 }
 
-Project::RestoreResult Project::fromMap(const Storage &map, QString *errorMessage)
+Project::RestoreResult Project::fromMap(const Store &map, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
     if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {

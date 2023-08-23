@@ -146,7 +146,7 @@ public:
 
     QList<Icon> deviceIcons;
     QList<IDevice::DeviceAction> deviceActions;
-    Storage extraData;
+    Store extraData;
     IDevice::OpenTerminal openTerminal;
 };
 } // namespace Internal
@@ -420,12 +420,12 @@ void IDevice::setDeviceState(const IDevice::DeviceState state)
     d->deviceState = state;
 }
 
-Id IDevice::typeFromMap(const Storage &map)
+Id IDevice::typeFromMap(const Store &map)
 {
     return Id::fromSetting(map.value(QLatin1String(TypeKey)));
 }
 
-Id IDevice::idFromMap(const Storage &map)
+Id IDevice::idFromMap(const Store &map)
 {
     return Id::fromSetting(map.value(QLatin1String(IdKey)));
 }
@@ -436,7 +436,7 @@ Id IDevice::idFromMap(const Storage &map)
     base class implementation.
 */
 
-void IDevice::fromMap(const Storage &map)
+void IDevice::fromMap(const Store &map)
 {
     d->type = typeFromMap(map);
     d->displayName.fromMap(map, DisplayNameKey);
@@ -485,7 +485,7 @@ void IDevice::fromMap(const Storage &map)
     call the base class implementation.
 */
 
-Storage IDevice::toMap() const
+Store IDevice::toMap() const
 {
     QVariantMap map;
     d->displayName.toMap(map, DisplayNameKey);

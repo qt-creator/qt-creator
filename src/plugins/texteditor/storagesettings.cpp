@@ -45,7 +45,7 @@ void StorageSettings::fromSettings(const QString &category)
     Utils::fromSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
 }
 
-Storage StorageSettings::toMap() const
+Store StorageSettings::toMap() const
 {
     return {
         {cleanWhitespaceKey, m_cleanWhitespace},
@@ -57,7 +57,7 @@ Storage StorageSettings::toMap() const
     };
 }
 
-void StorageSettings::fromMap(const Storage &map)
+void StorageSettings::fromMap(const Store &map)
 {
     m_cleanWhitespace = map.value(cleanWhitespaceKey, m_cleanWhitespace).toBool();
     m_inEntireDocument = map.value(inEntireDocumentKey, m_inEntireDocument).toBool();

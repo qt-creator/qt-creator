@@ -39,7 +39,7 @@ void TypingSettings::fromSettings(const QString &category)
     Utils::fromSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
 }
 
-Storage TypingSettings::toMap() const
+Store TypingSettings::toMap() const
 {
     return {
         {autoIndentKey, m_autoIndent},
@@ -49,7 +49,7 @@ Storage TypingSettings::toMap() const
     };
 }
 
-void TypingSettings::fromMap(const Storage &map)
+void TypingSettings::fromMap(const Store &map)
 {
     m_autoIndent = map.value(autoIndentKey, m_autoIndent).toBool();
     m_tabKeyBehavior = (TabKeyBehavior) map.value(tabKeyBehaviorKey, m_tabKeyBehavior).toInt();

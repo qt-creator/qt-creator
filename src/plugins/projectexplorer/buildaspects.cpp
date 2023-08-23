@@ -87,7 +87,7 @@ void BuildDirectoryAspect::setProblem(const QString &description)
     updateProblemLabel();
 }
 
-void BuildDirectoryAspect::toMap(Storage &map) const
+void BuildDirectoryAspect::toMap(Store &map) const
 {
     FilePathAspect::toMap(map);
     if (!d->sourceDir.isEmpty()) {
@@ -96,7 +96,7 @@ void BuildDirectoryAspect::toMap(Storage &map) const
     }
 }
 
-void BuildDirectoryAspect::fromMap(const Storage &map)
+void BuildDirectoryAspect::fromMap(const Store &map)
 {
     FilePathAspect::fromMap(map);
     if (!d->sourceDir.isEmpty()) {

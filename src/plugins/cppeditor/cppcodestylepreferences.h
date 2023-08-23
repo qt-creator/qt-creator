@@ -25,8 +25,8 @@ public:
     // tracks parent hierarchy until currentParentSettings is null
     CppCodeStyleSettings currentCodeStyleSettings() const;
 
-    Utils::Storage toMap() const override;
-    void fromMap(const Utils::Storage &map) override;
+    Utils::Store toMap() const override;
+    void fromMap(const Utils::Store &map) override;
 
 public slots:
     void setCodeStyleSettings(const CppCodeStyleSettings &data);

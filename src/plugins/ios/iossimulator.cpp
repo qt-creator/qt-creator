@@ -73,7 +73,7 @@ IosDeviceType::IosDeviceType(IosDeviceType::Type type, const QString &identifier
     type(type), identifier(identifier), displayName(displayName)
 { }
 
-bool IosDeviceType::fromMap(const Storage &map)
+bool IosDeviceType::fromMap(const Store &map)
 {
     bool validType;
     displayName = map.value(iosDeviceTypeDisplayNameKey, QVariant()).toString();

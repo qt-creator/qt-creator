@@ -778,7 +778,7 @@ const char DockerDeviceKeepEntryPoint[] = "DockerDeviceKeepEntryPoint";
 const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
 const char DockerDeviceClangDExecutable[] = "DockerDeviceClangDExecutable";
 
-void DockerDevice::fromMap(const Storage &map)
+void DockerDevice::fromMap(const Store &map)
 {
     ProjectExplorer::IDevice::fromMap(map);
     DockerDeviceData data;

@@ -43,8 +43,8 @@ public:
     };
 
     void addToLayout(Layouting::LayoutItem &parent) final;
-    void toMap(Utils::Storage &map) const final;
-    void fromMap(const Utils::Storage &map) final;
+    void toMap(Utils::Store &map) const final;
+    void fromMap(const Utils::Store &map) final;
 
     void updateFileComboBox();
     MainScriptSource mainScriptSource() const;

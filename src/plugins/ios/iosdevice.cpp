@@ -126,7 +126,7 @@ IDeviceWidget *IosDevice::createWidget()
     return new IosDeviceInfoWidget(sharedFromThis());
 }
 
-void IosDevice::fromMap(const Storage &map)
+void IosDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
 

@@ -5,7 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <QTextBlock>
 
@@ -41,8 +41,8 @@ public:
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, QSettings *s);
 
-    Utils::Storage toMap() const;
-    void fromMap(const Utils::Storage &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     int lineIndentPosition(const QString &text) const;
     int columnAt(const QString &text, int position) const;

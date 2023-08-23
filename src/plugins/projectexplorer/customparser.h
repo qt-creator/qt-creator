@@ -44,8 +44,8 @@ public:
     int messageCap() const;
     void setMessageCap(int messageCap);
 
-    Utils::Storage toMap() const;
-    void fromMap(const Utils::Storage &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
 private:
     QRegularExpression m_regExp;
@@ -62,8 +62,8 @@ public:
     bool operator ==(const CustomParserSettings &other) const;
     bool operator !=(const CustomParserSettings &other) const { return !operator==(other); }
 
-    Utils::Storage toMap() const;
-    void fromMap(const Utils::Storage &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     Utils::Id id;
     QString displayName;
@@ -86,8 +86,8 @@ public:
     };
 
 private:
-    void fromMap(const Utils::Storage &map) override;
-    void toMap(Utils::Storage &map) const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     QList<Utils::Id> m_parsers;
 };

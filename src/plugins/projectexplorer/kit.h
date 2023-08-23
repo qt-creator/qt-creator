@@ -8,7 +8,7 @@
 
 #include <coreplugin/featureprovider.h>
 
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <QSet>
 
@@ -139,7 +139,7 @@ private:
 
     void kitUpdated();
 
-    Utils::Storage toMap() const;
+    Utils::Store toMap() const;
 
     const std::unique_ptr<Internal::KitPrivate> d;
 

@@ -26,8 +26,8 @@ public:
     void setupDefaultNetworkSettings(const QString &host);
 
 protected:
-    void fromMap(const Utils::Storage &map) final;
-    Utils::Storage toMap() const final;
+    void fromMap(const Utils::Store &map) final;
+    Utils::Store toMap() const final;
 
 private:
     QdbDevice();

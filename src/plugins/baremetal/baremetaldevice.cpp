@@ -63,7 +63,7 @@ void BareMetalDevice::unregisterDebugServerProvider(IDebugServerProvider *provid
         m_debugServerProviderId.clear();
 }
 
-void BareMetalDevice::fromMap(const Storage &map)
+void BareMetalDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
     QString providerId = map.value(debugServerProviderIdKeyC).toString();

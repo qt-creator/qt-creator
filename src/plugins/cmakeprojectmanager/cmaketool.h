@@ -9,7 +9,7 @@
 
 #include <utils/filepath.h>
 #include <utils/id.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <optional>
 
@@ -60,7 +60,7 @@ public:
     bool isValid() const;
 
     Utils::Id id() const { return m_id; }
-    Utils::Storage toMap () const;
+    Utils::Store toMap () const;
 
     void setAutorun(bool autoRun) { m_isAutoRun = autoRun; }
 

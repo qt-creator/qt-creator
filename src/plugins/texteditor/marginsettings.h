@@ -5,7 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <utils/storage.h>
+#include <utils/store.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -21,8 +21,8 @@ public:
     void toSettings(QSettings *s) const;
     void fromSettings(QSettings *s);
 
-    Utils::Storage toMap() const;
-    void fromMap(const Utils::Storage &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     bool equals(const MarginSettings &other) const;
 

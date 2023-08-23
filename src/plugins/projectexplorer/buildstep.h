@@ -40,8 +40,8 @@ protected:
 public:
     virtual bool init() = 0;
 
-    void fromMap(const Utils::Storage &map) override;
-    void toMap(Utils::Storage &map) const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     bool enabled() const;
     void setEnabled(bool b);
@@ -137,7 +137,7 @@ public:
     BuildStep::Flags stepFlags() const;
     Utils::Id stepId() const;
     BuildStep *create(BuildStepList *parent);
-    BuildStep *restore(BuildStepList *parent, const Utils::Storage &map);
+    BuildStep *restore(BuildStepList *parent, const Utils::Store &map);
 
     bool canHandle(BuildStepList *bsl) const;
 

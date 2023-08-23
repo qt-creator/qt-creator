@@ -45,7 +45,7 @@ QVariantMap ExtraEncodingSettings::toMap() const
     };
 }
 
-void ExtraEncodingSettings::fromMap(const Storage &map)
+void ExtraEncodingSettings::fromMap(const Store &map)
 {
     m_utf8BomSetting = (Utf8BomSetting)map.value(kUtf8BomBehaviorKey, m_utf8BomSetting).toInt();
 }

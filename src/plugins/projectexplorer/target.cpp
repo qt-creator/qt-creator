@@ -885,7 +885,7 @@ void Target::updateDeviceState()
     setOverlayIcon(overlay);
 }
 
-bool Target::fromMap(const Storage &map)
+bool Target::fromMap(const Store &map)
 {
     QTC_ASSERT(d->m_kit == KitManager::kit(id()), return false);
 

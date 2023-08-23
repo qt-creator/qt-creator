@@ -72,7 +72,7 @@ QString ProjectConfiguration::toolTip() const
     return m_toolTip;
 }
 
-void ProjectConfiguration::toMap(Storage &map) const
+void ProjectConfiguration::toMap(Store &map) const
 {
     QTC_CHECK(m_id.isValid());
     map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
@@ -85,7 +85,7 @@ Target *ProjectConfiguration::target() const
     return m_target;
 }
 
-void ProjectConfiguration::fromMap(const Storage &map)
+void ProjectConfiguration::fromMap(const Store &map)
 {
     Utils::Id id = Utils::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
     // Note: This is only "startsWith", not ==, as RunConfigurations currently still

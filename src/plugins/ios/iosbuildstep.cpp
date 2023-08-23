@@ -56,8 +56,8 @@ private:
 
     bool init() final;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) final;
-    void fromMap(const Storage &map) final;
-    void toMap(Storage &map) const final;
+    void fromMap(const Store &map) final;
+    void toMap(Store &map) const final;
 
     QStringList m_baseBuildArguments;
     QStringList m_extraArguments;
@@ -166,7 +166,7 @@ void IosBuildStep::setupOutputFormatter(OutputFormatter *formatter)
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-void IosBuildStep::toMap(Storage &map) const
+void IosBuildStep::toMap(Store &map) const
 {
     AbstractProcessStep::toMap(map);
 
@@ -177,7 +177,7 @@ void IosBuildStep::toMap(Storage &map) const
     map.insert(CLEAN_KEY, stepList()->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 }
 
-void IosBuildStep::fromMap(const Storage &map)
+void IosBuildStep::fromMap(const Store &map)
 {
     QVariant bArgs = map.value(BUILD_ARGUMENTS_KEY);
     m_baseBuildArguments = bArgs.toStringList();

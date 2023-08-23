@@ -195,7 +195,7 @@ QVariantMap EditorConfiguration::toMap() const
     return map;
 }
 
-void EditorConfiguration::fromMap(const Storage &map)
+void EditorConfiguration::fromMap(const Store &map)
 {
     const QByteArray &codecName = map.value(kCodec, d->m_textCodec->name()).toByteArray();
     d->m_textCodec = QTextCodec::codecForName(codecName);

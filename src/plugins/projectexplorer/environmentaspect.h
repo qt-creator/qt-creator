@@ -9,7 +9,7 @@
 
 #include <utils/aspects.h>
 #include <utils/environment.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 namespace ProjectExplorer {
 
@@ -71,8 +71,8 @@ signals:
     void environmentChanged();
 
 protected:
-    void fromMap(const Utils::Storage &map) override;
-    void toMap(Utils::Storage &map) const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     void setIsLocal(bool local) { m_isLocal = local; }
     void setAllowPrintOnRun(bool allow) { m_allowPrintOnRun = allow; }

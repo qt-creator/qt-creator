@@ -144,13 +144,13 @@ public:
         parent.addItems({Tr::tr("Web browser:"), m_webBrowserComboBox});
     }
 
-    void fromMap(const Storage &map) override
+    void fromMap(const Store &map) override
     {
         if (!m_availableBrowsers.isEmpty())
             m_currentBrowser = map.value(BROWSER_KEY, m_availableBrowsers.first().first).toString();
     }
 
-    void toMap(Storage &map) const override
+    void toMap(Store &map) const override
     {
         map.insert(BROWSER_KEY, m_currentBrowser);
     }

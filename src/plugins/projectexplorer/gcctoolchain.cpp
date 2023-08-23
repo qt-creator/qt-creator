@@ -795,7 +795,7 @@ QStringList GccToolChain::platformLinkerFlags() const
     return m_platformLinkerFlags;
 }
 
-void GccToolChain::toMap(Storage &data) const
+void GccToolChain::toMap(Store &data) const
 {
     ToolChain::toMap(data);
     data.insert(compilerPlatformCodeGenFlagsKeyC, m_platformCodeGenFlags);
@@ -804,7 +804,7 @@ void GccToolChain::toMap(Storage &data) const
     data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
 }
 
-void GccToolChain::fromMap(const Storage &data)
+void GccToolChain::fromMap(const Store &data)
 {
     ToolChain::fromMap(data);
     if (hasError())
@@ -1711,14 +1711,14 @@ std::unique_ptr<ToolChainConfigWidget> ClangToolChain::createConfigurationWidget
     return std::make_unique<ClangToolChainConfigWidget>(this);
 }
 
-void ClangToolChain::toMap(Storage &data) const
+void ClangToolChain::toMap(Store &data) const
 {
     GccToolChain::toMap(data);
     data.insert(parentToolChainIdKeyC, m_parentToolChainId);
     data.insert(priorityKeyC, m_priority);
 }
 
-void ClangToolChain::fromMap(const Storage &data)
+void ClangToolChain::fromMap(const Store &data)
 {
     GccToolChain::fromMap(data);
     if (hasError())

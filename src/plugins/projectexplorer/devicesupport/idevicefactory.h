@@ -8,7 +8,7 @@
 #include <projectexplorer/projectexplorer_export.h>
 
 #include <utils/id.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <QIcon>
 
@@ -30,7 +30,7 @@ public:
     IDevicePtr create() const;
     bool quickCreationAllowed() const;
 
-    virtual bool canRestore(const Utils::Storage &) const { return true; }
+    virtual bool canRestore(const Utils::Store &) const { return true; }
 
     static IDeviceFactory *find(Utils::Id type);
 

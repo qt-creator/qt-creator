@@ -5,7 +5,7 @@
 
 #include "qmljstools_global.h"
 
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <optional>
 
@@ -20,8 +20,8 @@ public:
 
     int lineLength = 80;
 
-    Utils::Storage toMap() const;
-    void fromMap(const Utils::Storage &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     bool equals(const QmlJSCodeStyleSettings &rhs) const;
     bool operator==(const QmlJSCodeStyleSettings &s) const { return equals(s); }

@@ -17,8 +17,8 @@ public:
     DebuggerRunConfigurationAspect(ProjectExplorer::Target *target);
     ~DebuggerRunConfigurationAspect();
 
-    void fromMap(const Utils::Storage &map) override;
-    void toMap(Utils::Storage &map) const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     bool useCppDebugger() const;
     bool useQmlDebugger() const;

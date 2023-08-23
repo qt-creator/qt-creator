@@ -5,7 +5,7 @@
 
 #include "cppeditor_global.h"
 
-#include <utils/storage.h>
+#include <utils/store.h>
 
 namespace CPlusPlus { class Overview; }
 namespace TextEditor { class TabSettings; }
@@ -64,8 +64,8 @@ public:
     bool forceFormatting = false;
 #endif
 
-    Utils::Storage toMap() const;
-    void fromMap(const Utils::Storage &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     bool equals(const CppCodeStyleSettings &rhs) const;
     bool operator==(const CppCodeStyleSettings &s) const { return equals(s); }

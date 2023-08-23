@@ -9,6 +9,6 @@ namespace Utils {
 
 using Key = QString;
 using Data = QVariant;
-using Storage = QMap<Key, Data>;
+using Store = QMap<Key, Data>;
 
 } // Utils

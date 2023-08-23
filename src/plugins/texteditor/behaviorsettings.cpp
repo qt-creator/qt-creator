@@ -57,7 +57,7 @@ QVariantMap BehaviorSettings::toMap() const
     };
 }
 
-void BehaviorSettings::fromMap(const Storage &map)
+void BehaviorSettings::fromMap(const Store &map)
 {
     m_mouseHiding = map.value(mouseHidingKey, m_mouseHiding).toBool();
     m_mouseNavigation = map.value(mouseNavigationKey, m_mouseNavigation).toBool();

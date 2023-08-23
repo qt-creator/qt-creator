@@ -159,7 +159,7 @@ void CommandBuilderAspect::addToLayout(Layouting::LayoutItem &parent)
     updateGui();
 }
 
-void CommandBuilderAspect::fromMap(const Storage &map)
+void CommandBuilderAspect::fromMap(const Store &map)
 {
     d->m_loadedFromMap = true;
 
@@ -171,7 +171,7 @@ void CommandBuilderAspect::fromMap(const Storage &map)
     updateGui();
 }
 
-void CommandBuilderAspect::toMap(Storage &map) const
+void CommandBuilderAspect::toMap(Store &map) const
 {
     map[IncrediBuild::Constants::INCREDIBUILD_BUILDSTEP_TYPE]
             = QVariant(IncrediBuild::Constants::BUILDCONSOLE_BUILDSTEP_ID);

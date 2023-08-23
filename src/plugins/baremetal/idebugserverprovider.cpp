@@ -138,7 +138,7 @@ IDebugServerProviderConfigWidget *IDebugServerProvider::configurationWidget() co
     return m_configurationWidgetCreator();
 }
 
-void IDebugServerProvider::toMap(Storage &data) const
+void IDebugServerProvider::toMap(Store &data) const
 {
     data.insert(idKeyC, m_id);
     data.insert(displayNameKeyC, m_displayName);
@@ -167,7 +167,7 @@ void IDebugServerProvider::resetId()
     m_id = createId(m_id);
 }
 
-void IDebugServerProvider::fromMap(const Storage &data)
+void IDebugServerProvider::fromMap(const Store &data)
 {
     m_id = data.value(idKeyC).toString();
     m_displayName = data.value(displayNameKeyC).toString();

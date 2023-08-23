@@ -50,13 +50,13 @@ QWidget *DeployConfiguration::createConfigWidget()
     return m_configWidgetCreator(this);
 }
 
-void DeployConfiguration::toMap(Storage &map) const
+void DeployConfiguration::toMap(Store &map) const
 {
     ProjectConfiguration::toMap(map);
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 1);
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0'), m_stepList.toMap());
     map.insert(USES_DEPLOYMENT_DATA, usesCustomDeploymentData());
-    Storage deployData;
+    Store deployData;
     for (int i = 0; i < m_customDeploymentData.fileCount(); ++i) {
         const DeployableFile &f = m_customDeploymentData.fileAt(i);
         deployData.insert(f.localFilePath().toString(), f.remoteDirectory());
@@ -64,7 +64,7 @@ void DeployConfiguration::toMap(Storage &map) const
     map.insert(DEPLOYMENT_DATA, deployData);
 }
 
-void DeployConfiguration::fromMap(const Storage &map)
+void DeployConfiguration::fromMap(const Store &map)
 {
     ProjectConfiguration::fromMap(map);
     if (hasError())
@@ -75,7 +75,7 @@ void DeployConfiguration::fromMap(const Storage &map)
         reportError();
         return;
     }
-    Storage data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0')).toMap();
+    Store data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0')).toMap();
     if (!data.isEmpty()) {
         m_stepList.clear();
         if (!m_stepList.fromMap(data)) {
@@ -91,7 +91,7 @@ void DeployConfiguration::fromMap(const Storage &map)
     }
 
     m_usesCustomDeploymentData = map.value(USES_DEPLOYMENT_DATA, false).toBool();
-    const Storage deployData = map.value(DEPLOYMENT_DATA).toMap();
+    const Store deployData = map.value(DEPLOYMENT_DATA).toMap();
     for (auto it = deployData.begin(); it != deployData.end(); ++it)
         m_customDeploymentData.addFile(FilePath::fromString(it.key()), it.value().toString());
 }
@@ -188,12 +188,12 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent)
 DeployConfiguration *DeployConfigurationFactory::clone(Target *parent,
                                                        const DeployConfiguration *source)
 {
-    Storage map;
+    Store map;
     source->toMap(map);
     return restore(parent, map);
 }
 
-DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Storage &map)
+DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Store &map)
 {
     const Id id = idFromMap(map);
     DeployConfigurationFactory *factory = Utils::findOrDefault(g_deployConfigurationFactories,

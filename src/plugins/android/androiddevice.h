@@ -55,7 +55,7 @@ public:
     QString openGLStatus() const;
 
 protected:
-    void fromMap(const Utils::Storage &map) final;
+    void fromMap(const Utils::Store &map) final;
 
 private:
     void addActionsIfNotFound();

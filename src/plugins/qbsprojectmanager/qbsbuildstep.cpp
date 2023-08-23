@@ -351,7 +351,7 @@ int QbsBuildStep::maxJobs() const
     return QThread::idealThreadCount();
 }
 
-void QbsBuildStep::fromMap(const Storage &map)
+void QbsBuildStep::fromMap(const Store &map)
 {
     BuildStep::fromMap(map);
     if (hasError())
@@ -359,7 +359,7 @@ void QbsBuildStep::fromMap(const Storage &map)
     setQbsConfiguration(map.value(QBS_CONFIG).toMap());
 }
 
-void QbsBuildStep::toMap(Storage &map) const
+void QbsBuildStep::toMap(Store &map) const
 {
     ProjectExplorer::BuildStep::toMap(map);
     map.insert(QBS_CONFIG, m_qbsConfiguration);

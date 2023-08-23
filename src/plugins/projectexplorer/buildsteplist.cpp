@@ -43,9 +43,9 @@ Target *BuildStepList::target() const
     return m_projectConfiguration->target();
 }
 
-Storage BuildStepList::toMap() const
+Store BuildStepList::toMap() const
 {
-    Storage map;
+    Store map;
 
     {
         // Only written for compatibility reasons within the 4.11 cycle
@@ -60,7 +60,7 @@ Storage BuildStepList::toMap() const
     // Save build steps
     map.insert(QString::fromLatin1(STEPS_COUNT_KEY), m_steps.count());
     for (int i = 0; i < m_steps.count(); ++i) {
-        Storage data;
+        Store data;
         m_steps.at(i)->toMap(data);
         map.insert(QString::fromLatin1(STEPS_PREFIX) + QString::number(i), data);
     }
@@ -103,7 +103,7 @@ QString BuildStepList::displayName() const
     return {};
 }
 
-bool BuildStepList::fromMap(const Storage &map)
+bool BuildStepList::fromMap(const Store &map)
 {
     clear();
 
@@ -111,7 +111,7 @@ bool BuildStepList::fromMap(const Storage &map)
 
     int maxSteps = map.value(QString::fromLatin1(STEPS_COUNT_KEY), 0).toInt();
     for (int i = 0; i < maxSteps; ++i) {
-        Storage bsData(map.value(QString::fromLatin1(STEPS_PREFIX) + QString::number(i)).toMap());
+        Store bsData(map.value(QString::fromLatin1(STEPS_PREFIX) + QString::number(i)).toMap());
         if (bsData.isEmpty()) {
             qWarning() << "No step data found for" << i << "(continuing).";
             continue;

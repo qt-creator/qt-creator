@@ -10,7 +10,7 @@
 
 #include <utils/filepath.h>
 #include <utils/environment.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <QDateTime>
 
@@ -37,7 +37,7 @@ public:
     bool isValid() const;
     QString engineTypeName() const;
 
-    Utils::Storage toMap() const;
+    Utils::Store toMap() const;
 
     QVariant id() const { return m_id; }
 

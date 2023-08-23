@@ -74,7 +74,7 @@ public:
     QnxConfiguration() = default;
     explicit QnxConfiguration(const FilePath &envFile) { m_envFile = envFile; }
 
-    void fromMap(const Storage &data)
+    void fromMap(const Store &data)
     {
         QString envFilePath = data.value(QNXEnvFileKey).toString();
         if (envFilePath.isEmpty())

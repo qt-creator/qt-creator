@@ -241,7 +241,7 @@ ToolChain *ToolChain::clone() const
     Make sure to call this function when deriving.
 */
 
-void ToolChain::toMap(Storage &result) const
+void ToolChain::toMap(Store &result) const
 {
     AspectContainer::toMap(result);
 
@@ -350,7 +350,7 @@ void ToolChain::setTypeDisplayName(const QString &typeName)
     Make sure to call this function when deriving.
 */
 
-void ToolChain::fromMap(const Storage &data)
+void ToolChain::fromMap(const Store &data)
 {
     AspectContainer::fromMap(data);
 
@@ -711,7 +711,7 @@ QVariantMap BadToolchain::toMap() const
             {badToolchainTimestampKey(), timestamp.toMSecsSinceEpoch()}};
 }
 
-BadToolchain BadToolchain::fromMap(const Storage &map)
+BadToolchain BadToolchain::fromMap(const Store &map)
 {
     return {
         FilePath::fromSettings(map.value(badToolchainFilePathKey())),

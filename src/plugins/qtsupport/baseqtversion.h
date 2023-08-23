@@ -7,7 +7,7 @@
 
 #include <utils/filepath.h>
 #include <utils/macroexpander.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/task.h>
@@ -49,7 +49,7 @@ public:
 
     virtual ~QtVersion();
 
-    virtual void fromMap(const Utils::Storage &map, const Utils::FilePath &filePath = {});
+    virtual void fromMap(const Utils::Store &map, const Utils::FilePath &filePath = {});
     virtual bool equals(QtVersion *other);
 
     bool isAutodetected() const;
@@ -64,7 +64,7 @@ public:
 
     QString type() const;
 
-    virtual Utils::Storage toMap() const;
+    virtual Utils::Store toMap() const;
     virtual bool isValid() const;
     static Predicate isValidPredicate(const Predicate &predicate = {});
     virtual QString invalidReason() const;

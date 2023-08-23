@@ -70,12 +70,12 @@ void QmlMainFileAspect::addToLayout(Layouting::LayoutItem &parent)
     parent.addItems({Tr::tr("Main QML file:"), m_fileListCombo.data()});
 }
 
-void QmlMainFileAspect::toMap(Storage &map) const
+void QmlMainFileAspect::toMap(Store &map) const
 {
     map.insert(Constants::QML_MAINSCRIPT_KEY, m_scriptFile);
 }
 
-void QmlMainFileAspect::fromMap(const Storage &map)
+void QmlMainFileAspect::fromMap(const Store &map)
 {
     m_scriptFile = map.value(Constants::QML_MAINSCRIPT_KEY, M_CURRENT_FILE).toString();
 

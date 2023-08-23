@@ -6,7 +6,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/id.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <QObject>
 
@@ -88,7 +88,7 @@ public:
     void setOverlayIcon(const QIcon &icon);
     QString overlayIconToolTip();
 
-    Utils::Storage toMap() const;
+    Utils::Store toMap() const;
 
     void updateDefaultBuildConfigurations();
     void updateDefaultDeployConfigurations();
@@ -146,7 +146,7 @@ signals:
     void deploymentDataChanged();
 
 private:
-    bool fromMap(const Utils::Storage &map);
+    bool fromMap(const Utils::Store &map);
 
     void updateDeviceState();
 

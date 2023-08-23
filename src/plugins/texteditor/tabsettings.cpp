@@ -56,7 +56,7 @@ QVariantMap TabSettings::toMap() const
     };
 }
 
-void TabSettings::fromMap(const Storage &map)
+void TabSettings::fromMap(const Store &map)
 {
     const bool spacesForTabs = map.value(spacesForTabsKey, true).toBool();
     const bool autoSpacesForTabs = map.value(autoSpacesForTabsKey, false).toBool();

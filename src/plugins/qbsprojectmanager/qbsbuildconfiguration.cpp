@@ -152,7 +152,7 @@ void QbsBuildConfiguration::triggerReparseIfActive()
         m_buildSystem->delayParsing();
 }
 
-void QbsBuildConfiguration::fromMap(const Storage &map)
+void QbsBuildConfiguration::fromMap(const Store &map)
 {
     BuildConfiguration::fromMap(map);
     if (hasError())

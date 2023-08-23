@@ -89,7 +89,7 @@ void QmlProject::parsingFinished(const Target *target, bool success)
         openFile(fileToOpen);
 }
 
-Project::RestoreResult QmlProject::fromMap(const Storage &map, QString *errorMessage)
+Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessage)
 {
     RestoreResult result = Project::fromMap(map, errorMessage);
     if (result != RestoreResult::Ok)

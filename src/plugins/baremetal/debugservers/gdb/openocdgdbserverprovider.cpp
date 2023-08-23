@@ -57,8 +57,8 @@ private:
 class OpenOcdGdbServerProvider final : public GdbServerProvider
 {
 public:
-    void toMap(Storage &data) const final;
-    void fromMap(const Storage &data) final;
+    void toMap(Store &data) const final;
+    void fromMap(const Store &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;
 
@@ -180,7 +180,7 @@ bool OpenOcdGdbServerProvider::isValid() const
     return true;
 }
 
-void OpenOcdGdbServerProvider::toMap(Storage &data) const
+void OpenOcdGdbServerProvider::toMap(Store &data) const
 {
     GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
@@ -189,7 +189,7 @@ void OpenOcdGdbServerProvider::toMap(Storage &data) const
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
 }
 
-void OpenOcdGdbServerProvider::fromMap(const Storage &data)
+void OpenOcdGdbServerProvider::fromMap(const Store &data)
 {
     GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));

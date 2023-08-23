@@ -137,14 +137,14 @@ void MesonBuildConfiguration::setParameters(const QString &params)
     emit parametersChanged();
 }
 
-void MesonBuildConfiguration::toMap(Storage &map) const
+void MesonBuildConfiguration::toMap(Store &map) const
 {
     ProjectExplorer::BuildConfiguration::toMap(map);
     map[Constants::BuildConfiguration::BUILD_TYPE_KEY] = mesonBuildTypeName(m_buildType);
     map[Constants::BuildConfiguration::PARAMETERS_KEY] = m_parameters;
 }
 
-void MesonBuildConfiguration::fromMap(const Storage &map)
+void MesonBuildConfiguration::fromMap(const Store &map)
 {
     ProjectExplorer::BuildConfiguration::fromMap(map);
     m_buildSystem = new MesonBuildSystem{this};

@@ -2139,14 +2139,14 @@ void InitialCMakeArgumentsAspect::setCMakeConfiguration(const CMakeConfig &confi
         ci.isInitial = true;
 }
 
-void InitialCMakeArgumentsAspect::fromMap(const Storage &map)
+void InitialCMakeArgumentsAspect::fromMap(const Store &map)
 {
     const QString value = map.value(settingsKey(), defaultValue()).toString();
     QStringList additionalArguments;
     setAllValues(value, additionalArguments);
 }
 
-void InitialCMakeArgumentsAspect::toMap(Storage &map) const
+void InitialCMakeArgumentsAspect::toMap(Store &map) const
 {
     saveToMap(map, allValues().join('\n'), defaultValue(), settingsKey());
 }
@@ -2231,7 +2231,7 @@ ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(AspectContainer *containe
     });
 }
 
-void ConfigureEnvironmentAspect::fromMap(const Storage &map)
+void ConfigureEnvironmentAspect::fromMap(const Store &map)
 {
     // Match the key values from Qt Creator 9.0.0/1 to the ones from EnvironmentAspect
     const bool cleanSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY))
@@ -2249,7 +2249,7 @@ void ConfigureEnvironmentAspect::fromMap(const Storage &map)
     ProjectExplorer::EnvironmentAspect::fromMap(tmpMap);
 }
 
-void ConfigureEnvironmentAspect::toMap(Storage &map) const
+void ConfigureEnvironmentAspect::toMap(Store &map) const
 {
     QVariantMap tmpMap;
     ProjectExplorer::EnvironmentAspect::toMap(tmpMap);

@@ -67,8 +67,8 @@ private:
 class StLinkUtilGdbServerProvider final : public GdbServerProvider
 {
 public:
-    void toMap(Storage &data) const final;
-    void fromMap(const Storage &data) final;
+    void toMap(Store &data) const final;
+    void fromMap(const Store &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;
 
@@ -177,7 +177,7 @@ bool StLinkUtilGdbServerProvider::isValid() const
     return true;
 }
 
-void StLinkUtilGdbServerProvider::toMap(Storage &data) const
+void StLinkUtilGdbServerProvider::toMap(Store &data) const
 {
     GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
@@ -188,7 +188,7 @@ void StLinkUtilGdbServerProvider::toMap(Storage &data) const
     data.insert(connectUnderResetKeyC, m_connectUnderReset);
 }
 
-void StLinkUtilGdbServerProvider::fromMap(const Storage &data)
+void StLinkUtilGdbServerProvider::fromMap(const Store &data)
 {
     GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));

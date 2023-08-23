@@ -89,7 +89,7 @@ QString NimToolChain::compilerVersion() const
                                 std::get<2>(m_version));
 }
 
-void NimToolChain::fromMap(const Storage &data)
+void NimToolChain::fromMap(const Store &data)
 {
     ToolChain::fromMap(data);
     if (hasError())

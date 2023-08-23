@@ -12,7 +12,7 @@
 #include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
-#include <utils/storage.h>
+#include <utils/store.h>
 
 #include <QAbstractSocket>
 #include <QCoreApplication>
@@ -150,8 +150,8 @@ public:
     void setDeviceState(const DeviceState state);
     QString deviceStateToString() const;
 
-    static Utils::Id typeFromMap(const Utils::Storage &map);
-    static Utils::Id idFromMap(const Utils::Storage &map);
+    static Utils::Id typeFromMap(const Utils::Store &map);
+    static Utils::Id idFromMap(const Utils::Store &map);
 
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
@@ -218,8 +218,8 @@ public:
 protected:
     IDevice();
 
-    virtual void fromMap(const Utils::Storage &map);
-    virtual Utils::Storage toMap() const;
+    virtual void fromMap(const Utils::Store &map);
+    virtual Utils::Store toMap() const;
 
     using OpenTerminal = std::function<void(const Utils::Environment &, const Utils::FilePath &)>;
     void setOpenTerminal(const OpenTerminal &openTerminal);

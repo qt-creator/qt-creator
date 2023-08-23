@@ -80,7 +80,7 @@ QVariantMap QmlJSCodeStylePreferences::toMap() const
     return map;
 }
 
-void QmlJSCodeStylePreferences::fromMap(const Storage &map)
+void QmlJSCodeStylePreferences::fromMap(const Store &map)
 {
     ICodeStylePreferences::fromMap(map);
     if (!currentDelegate())
