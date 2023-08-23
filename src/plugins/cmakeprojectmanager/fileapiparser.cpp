@@ -841,7 +841,6 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
                                      QString &errorMessage)
 {
     QTC_CHECK(errorMessage.isEmpty());
-    QTC_CHECK(!replyFilePath.needsDevice());
     const FilePath replyDir = replyFilePath.parentDir();
 
     FileApiData result;

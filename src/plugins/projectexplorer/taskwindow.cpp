@@ -618,6 +618,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
     painter->save();
     m_doc.setHtml(options.text);
+    m_doc.setTextWidth(options.rect.width());
     options.text = "";
     options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter);
     painter->translate(options.rect.left(), options.rect.top());
@@ -645,9 +646,12 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
         return QStyledItemDelegate::sizeHint(option, index);
 
     QStyleOptionViewItem options = option;
+    options.initFrom(options.widget);
     initStyleOption(&options, index);
     m_doc.setHtml(options.text);
-    m_doc.setTextWidth(options.rect.width());
+    const auto view = qobject_cast<const QTreeView *>(options.widget);
+    QTC_ASSERT(view, return {});
+    m_doc.setTextWidth(view->width() * 0.85 - view->indentation());
     return QSize(m_doc.idealWidth(), m_doc.size().height());
 }
 

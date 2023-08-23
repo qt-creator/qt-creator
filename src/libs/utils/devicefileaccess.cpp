@@ -892,6 +892,9 @@ bool UnixDeviceFileAccess::isFile(const FilePath &filePath) const
 
 bool UnixDeviceFileAccess::isDirectory(const FilePath &filePath) const
 {
+    if (filePath.isRootPath())
+        return true;
+
     const QString path = filePath.path();
     return runInShellSuccess({"test", {"-d", path}, OsType::OsTypeLinux});
 }
