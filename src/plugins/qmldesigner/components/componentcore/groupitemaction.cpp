@@ -6,6 +6,7 @@
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 
+#include <model/modelutils.h>
 #include <utils/algorithm.h>
 
 using namespace QmlDesigner;
@@ -14,7 +15,7 @@ namespace {
 
 bool selectionsAreSiblings(const QList<ModelNode> &selectedItems)
 {
-    const QList<ModelNode> prunedSelectedItems = ModelNode::pruneChildren(selectedItems);
+    const QList<ModelNode> prunedSelectedItems = ModelUtils::pruneChildren(selectedItems);
     if (prunedSelectedItems.size() < 2)
         return false;
 
@@ -57,7 +58,7 @@ ModelNode availableGroupNode(const SelectionContext &selection)
 
     QList<ModelNode> allSiblingNodes = parentNode.directSubModelNodes();
 
-    QList<ModelNode> selectedNodes = ModelNode::pruneChildren(selection.selectedModelNodes());
+    QList<ModelNode> selectedNodes = ModelUtils::pruneChildren(selection.selectedModelNodes());
     if (selectedNodes.size() != allSiblingNodes.size())
         return {};
 

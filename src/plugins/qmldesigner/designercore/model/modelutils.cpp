@@ -8,6 +8,7 @@
 #include <projectstorage/sourcepathcache.h>
 
 #include <utils/expected.h>
+#include <utils/ranges.h>
 
 #include <algorithm>
 
@@ -127,6 +128,30 @@ QString componentFilePath(const ModelNode &node)
     }
 
     return {};
+}
+
+QList<ModelNode> pruneChildren(const QList<ModelNode> &nodes)
+{
+    QList<ModelNode> forwardNodes;
+    QList<ModelNode> backNodes;
+
+    auto pushIfIsNotChild = [](QList<ModelNode> &container, const ModelNode &node) {
+        bool hasAncestor = Utils::anyOf(container, [node](const ModelNode &testNode) -> bool {
+            return testNode.isAncestorOf(node);
+        });
+        if (!hasAncestor)
+            container.append(node);
+    };
+
+    for (const ModelNode &node : nodes | Utils::views::reverse) {
+        if (node)
+            pushIfIsNotChild(forwardNodes, node);
+    }
+
+    for (const ModelNode &node : forwardNodes | Utils::views::reverse)
+        pushIfIsNotChild(backNodes, node);
+
+    return backNodes;
 }
 
 } // namespace QmlDesigner::ModelUtils
