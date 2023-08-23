@@ -7,6 +7,7 @@
 
 #include "completinglineedit.h"
 #include "expected.h"
+#include "storekey.h"
 
 #include <QAbstractButton>
 #include <QFuture>
@@ -86,7 +87,7 @@ public:
     // Completion
 
     // Enable a history completer with a history of entries.
-    void setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory = false);
+    void setHistoryCompleter(const Utils::Key &historyKey, bool restoreLastItemFromHistory = false);
     // Sets a completer that is not a history completer.
     void setSpecialCompleter(QCompleter *completer);
 

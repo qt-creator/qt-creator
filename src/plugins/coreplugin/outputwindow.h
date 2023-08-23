@@ -6,6 +6,7 @@
 #include "core_global.h"
 #include "icontext.h"
 
+#include <utils/storekey.h>
 #include <utils/outputformat.h>
 
 #include <QPlainTextEdit>
@@ -32,7 +33,7 @@ public:
     };
     Q_DECLARE_FLAGS(FilterModeFlags, FilterModeFlag)
 
-    OutputWindow(Context context, const QString &settingsKey, QWidget *parent = nullptr);
+    OutputWindow(Context context, const Utils::Key &settingsKey, QWidget *parent = nullptr);
     ~OutputWindow() override;
 
     void setLineParsers(const QList<Utils::OutputLineParser *> &parsers);

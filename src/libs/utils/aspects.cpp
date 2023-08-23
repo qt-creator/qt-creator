@@ -63,7 +63,7 @@ public:
     std::function<QVariant(const QVariant &)> m_fromSettings;
 
     QString m_displayName;
-    QString m_settingsKey; // Name of data in settings.
+    Key m_settingsKey; // Name of data in settings.
     QString m_tooltip;
     QString m_labelText;
     QPixmap m_labelPixmap;
@@ -390,7 +390,7 @@ void BaseAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetC
 
     \sa setSettingsKey()
 */
-QString BaseAspect::settingsKey() const
+Key BaseAspect::settingsKey() const
 {
     return d->m_settingsKey;
 }
@@ -400,7 +400,7 @@ QString BaseAspect::settingsKey() const
 
     \sa settingsKey()
 */
-void BaseAspect::setSettingsKey(const QString &key)
+void BaseAspect::setSettingsKey(const Key &key)
 {
     d->m_settingsKey = key;
 }
@@ -410,7 +410,7 @@ void BaseAspect::setSettingsKey(const QString &key)
 
     \sa settingsKey()
 */
-void BaseAspect::setSettingsKey(const QString &group, const QString &key)
+void BaseAspect::setSettingsKey(const Key &group, const Key &key)
 {
     d->m_settingsKey = group + "/" + key;
 }
@@ -569,8 +569,8 @@ void BaseAspect::registerSubWidget(QWidget *widget)
         widget->setVisible(d->m_visible);
 }
 
-void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
-                           const QVariant &defaultValue, const QString &key)
+void BaseAspect::saveToMap(Store &data, const QVariant &value,
+                           const QVariant &defaultValue, const Key &key)
 {
     if (key.isEmpty())
         return;
@@ -581,7 +581,7 @@ void BaseAspect::saveToMap(QVariantMap &data, const QVariant &value,
 }
 
 /*!
-    Retrieves the internal value of this BaseAspect from the QVariantMap \a map.
+    Retrieves the internal value of this BaseAspect from the Store \a map.
 */
 void BaseAspect::fromMap(const Store &map)
 {
@@ -592,7 +592,7 @@ void BaseAspect::fromMap(const Store &map)
 }
 
 /*!
-    Stores the internal value of this BaseAspect into the QVariantMap \a map.
+    Stores the internal value of this BaseAspect into the Store \a map.
 */
 void BaseAspect::toMap(Store &map) const
 {
@@ -732,7 +732,7 @@ public:
     }
 
     void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &checkerLabel,
-                       const QString &checkerKey, BaseAspect *aspect)
+                       const Key &checkerKey, BaseAspect *aspect)
     {
         QTC_ASSERT(!m_checked, return);
         m_checkBoxPlacement = checkBoxPlacement;
@@ -788,7 +788,7 @@ public:
 
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
     QString m_placeHolderText;
-    QString m_historyCompleterKey;
+    Key m_historyCompleterKey;
     QPointer<ElidingLabel> m_labelDisplay;
     QPointer<FancyLineEdit> m_lineEditDisplay;
     QPointer<ShowPasswordButton> m_showPasswordButton;
@@ -996,7 +996,7 @@ void StringAspect::setElideMode(Qt::TextElideMode elideMode)
 
     \sa Utils::PathChooser::setExpectedKind()
 */
-void StringAspect::setHistoryCompleter(const QString &historyCompleterKey)
+void StringAspect::setHistoryCompleter(const Key &historyCompleterKey)
 {
     d->m_historyCompleterKey = historyCompleterKey;
     if (d->m_lineEditDisplay)
@@ -1202,7 +1202,7 @@ void StringAspect::bufferToGui()
     \a checkerKey.
 */
 void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
-                                 const QString &checkerLabel, const QString &checkerKey)
+                                 const QString &checkerLabel, const Key &checkerKey)
 {
     d->m_checkerImpl.makeCheckable(checkBoxPlacement, checkerLabel, checkerKey, this);
 }
@@ -1242,7 +1242,7 @@ public:
     QString m_prompDialogFilter;
     QString m_prompDialogTitle;
     QStringList m_commandVersionArguments;
-    QString m_historyCompleterKey;
+    Key m_historyCompleterKey;
     PathChooser::Kind m_expectedKind = PathChooser::File;
     Environment m_environment;
     QPointer<PathChooser> m_pathChooserDisplay;
@@ -1325,7 +1325,8 @@ void FilePathAspect::setDefaultValue(const QString &filePath)
     \a checkerKey.
 */
 void FilePathAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
-                                 const QString &checkerLabel, const QString &checkerKey)
+                                   const QString &checkerLabel,
+                                   const Key &checkerKey)
 {
     d->m_checkerImpl.makeCheckable(checkBoxPlacement, checkerLabel, checkerKey, this);
 }
@@ -1545,7 +1546,7 @@ void FilePathAspect::setDisplayFilter(const std::function<QString (const QString
     d->m_displayFilter = displayFilter;
 }
 
-void FilePathAspect::setHistoryCompleter(const QString &historyCompleterKey)
+void FilePathAspect::setHistoryCompleter(const Key &historyCompleterKey)
 {
     d->m_historyCompleterKey = historyCompleterKey;
     if (d->m_pathChooserDisplay)
@@ -2608,7 +2609,7 @@ bool AspectContainer::isDirty()
 bool AspectContainer::equals(const AspectContainer &other) const
 {
     // FIXME: Expensive, but should not really be needed in a fully aspectified world.
-    QVariantMap thisMap, thatMap;
+    Store thisMap, thatMap;
     toMap(thisMap);
     other.toMap(thatMap);
     return thisMap == thatMap;
@@ -2616,7 +2617,7 @@ bool AspectContainer::equals(const AspectContainer &other) const
 
 void AspectContainer::copyFrom(const AspectContainer &other)
 {
-    QVariantMap map;
+    Store map;
     other.toMap(map);
     fromMap(map);
 }

@@ -3,14 +3,10 @@
 
 #pragma once
 
-#include "storekey.h"
-
-#include <QMap>
-#include <QVariant>
+#include <QString>
 
 namespace Utils {
 
-using KeyList = QList<Key>;
-using Store = QMap<Key, QVariant>;
+using Key = QString;
 
 } // Utils

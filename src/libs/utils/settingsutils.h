@@ -3,38 +3,39 @@
 
 #pragma once
 
+#include "store.h"
+
 #include <QSettings>
-#include <QString>
 #include <QStringList>
 #include <QVariant>
 
 namespace Utils {
 
 template <class SettingsClassT>
-void fromSettings(const QString &postFix,
-                  const QString &category,
+void fromSettings(const Key &postFix,
+                  const Key &category,
                   QSettings *s,
                   SettingsClassT *obj)
 {
-    QVariantMap map;
+    Store map;
     s->beginGroup(category + postFix);
-    const QStringList keys = s->allKeys();
-    for (const QString &key : keys)
+    const KeyList keys = s->allKeys();
+    for (const Key &key : keys)
         map.insert(key, s->value(key));
     s->endGroup();
     obj->fromMap(map);
 }
 
 template <class SettingsClassT>
-void toSettings(const QString &postFix,
-                const QString &category,
+void toSettings(const Key &postFix,
+                const Key &category,
                 QSettings *s,
                 const SettingsClassT *obj)
 {
-    QString group = postFix;
+    Key group = postFix;
     if (!category.isEmpty())
         group.insert(0, category);
-    const QVariantMap map = obj->toMap();
+    const Store map = obj->toMap();
 
     s->beginGroup(group);
     for (auto it = map.constBegin(), end = map.constEnd(); it != end; ++it)

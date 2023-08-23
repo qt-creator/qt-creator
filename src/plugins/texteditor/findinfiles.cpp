@@ -142,8 +142,7 @@ QWidget *FindInFiles::createConfigWidget()
         connect(m_directory.data(), &PathChooser::textChanged, this,
                 [this] { setSearchDir(m_directory->filePath()); });
         connect(this, &BaseFileFind::searchDirChanged, m_directory, &PathChooser::setFilePath);
-        m_directory->setHistoryCompleter(QLatin1String(HistoryKey),
-                                         /*restoreLastItemFromHistory=*/ true);
+        m_directory->setHistoryCompleter(HistoryKey, /*restoreLastItemFromHistory=*/ true);
         if (!HistoryCompleter::historyExistsFor(QLatin1String(HistoryKey))) {
             auto completer = static_cast<HistoryCompleter *>(m_directory->lineEdit()->completer());
             const QStringList legacyHistory = ICore::settings()->value(

@@ -63,9 +63,9 @@ public:
     virtual void setDefaultVariantValue(const QVariant &value);
     virtual bool isDefaultValue() const;
 
-    QString settingsKey() const;
-    void setSettingsKey(const QString &settingsKey);
-    void setSettingsKey(const QString &group, const QString &key);
+    Key settingsKey() const;
+    void setSettingsKey(const Key &settingsKey);
+    void setSettingsKey(const Key &group, const Key &key);
 
     QString displayName() const;
     void setDisplayName(const QString &displayName);
@@ -230,8 +230,8 @@ protected:
     }
 
     void registerSubWidget(QWidget *widget);
-    static void saveToMap(QVariantMap &data, const QVariant &value,
-                          const QVariant &defaultValue, const QString &key);
+    static void saveToMap(Store &data, const QVariant &value,
+                          const QVariant &defaultValue, const Key &key);
 
 protected:
     template <class Value>
@@ -534,7 +534,7 @@ public:
     void setShowToolTipOnLabel(bool show);
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
-    void setHistoryCompleter(const QString &historyCompleterKey);
+    void setHistoryCompleter(const Key &historyCompleterKey);
     void setUndoRedoEnabled(bool readOnly);
     void setAcceptRichText(bool acceptRichText);
     void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
@@ -544,7 +544,7 @@ public:
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
 
-    void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &optionalLabel, const QString &optionalBaseKey);
+    void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &optionalLabel, const Key &optionalBaseKey);
     bool isChecked() const;
     void setChecked(bool checked);
 
@@ -608,14 +608,14 @@ public:
     void setPlaceHolderText(const QString &placeHolderText);
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
-    void setHistoryCompleter(const QString &historyCompleterKey);
+    void setHistoryCompleter(const Key &historyCompleterKey);
     void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
     void setShowToolTipOnLabel(bool show);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
 
     void validateInput();
 
-    void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &optionalLabel, const QString &optionalBaseKey);
+    void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &optionalLabel, const Key &optionalBaseKey);
     bool isChecked() const;
     void setChecked(bool checked);
 

@@ -269,7 +269,7 @@ void GeneralSettingsWidget::setLanguage(const QString &locale)
         dialog.exec();
     }
 
-    settings->setValueWithDefault(QLatin1String("General/OverrideLanguage"), locale, {});
+    settings->setValueWithDefault("General/OverrideLanguage", locale, {});
 }
 
 void GeneralSettingsWidget::fillCodecBox() const

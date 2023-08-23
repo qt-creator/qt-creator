@@ -9,7 +9,6 @@
 #include <utils/settingsutils.h>
 
 #include <QRegularExpression>
-#include <QString>
 
 using namespace Utils;
 
@@ -34,15 +33,15 @@ StorageSettings::StorageSettings()
 {
 }
 
-void StorageSettings::toSettings(const QString &category) const
+void StorageSettings::toSettings(const Key &category) const
 {
-    Utils::toSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
+    Utils::toSettings(groupPostfix, category, Core::ICore::settings(), this);
 }
 
-void StorageSettings::fromSettings(const QString &category)
+void StorageSettings::fromSettings(const Key &category)
 {
     *this = StorageSettings();
-    Utils::fromSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
+    Utils::fromSettings(groupPostfix, category, Core::ICore::settings(), this);
 }
 
 Store StorageSettings::toMap() const

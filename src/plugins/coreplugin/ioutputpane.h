@@ -81,7 +81,7 @@ signals:
     void fontChanged(const QFont &font);
 
 protected:
-    void setupFilterUi(const QString &historyKey);
+    void setupFilterUi(const Utils::Key &historyKey);
     QString filterText() const;
     bool filterUsesRegexp() const { return m_filterRegexp; }
     bool filterIsInverted() const { return m_invertFilter; }

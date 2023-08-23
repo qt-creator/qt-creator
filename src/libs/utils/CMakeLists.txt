@@ -162,6 +162,7 @@ add_qtc_library(Utils
     span.h
     statuslabel.cpp statuslabel.h
     store.cpp store.h
+    storekey.h
     stringtable.cpp stringtable.h
     stringutils.cpp stringutils.h
     styleanimator.cpp styleanimator.h

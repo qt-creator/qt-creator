@@ -52,12 +52,12 @@ public:
     void updateEditorGeometry(QWidget *editor,
         const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
-    void setHistoryCompleter(const QString &key);
+    void setHistoryCompleter(const Key &key);
 
 private:
     PathChooser::Kind m_kind = PathChooser::ExistingDirectory;
     QString m_filter;
-    QString m_historyKey;
+    Key m_historyKey;
 };
 
 class QTCREATOR_UTILS_EXPORT CompleterDelegate : public QStyledItemDelegate

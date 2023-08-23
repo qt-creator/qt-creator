@@ -33,6 +33,8 @@
 #include <QPointer>
 #include <QSpacerItem>
 
+using namespace Utils;
+
 namespace TextEditor {
 
 class BehaviorSettingsPagePrivate : public QObject
@@ -40,7 +42,7 @@ class BehaviorSettingsPagePrivate : public QObject
 public:
     BehaviorSettingsPagePrivate();
 
-    const QString m_settingsPrefix{"text"};
+    const Key m_settingsPrefix{"text"};
     TextEditor::BehaviorSettingsWidget *m_behaviorWidget = nullptr;
 
     CodeStylePool *m_defaultCodeStylePool = nullptr;

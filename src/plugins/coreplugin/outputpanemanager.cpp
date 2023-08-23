@@ -117,7 +117,7 @@ void IOutputPane::setWheelZoomEnabled(bool enabled)
     emit wheelZoomEnabledChanged(enabled);
 }
 
-void IOutputPane::setupFilterUi(const QString &historyKey)
+void IOutputPane::setupFilterUi(const Key &historyKey)
 {
     m_filterOutputLineEdit = new FancyLineEdit;
     m_filterActionRegexp = new QAction(this);

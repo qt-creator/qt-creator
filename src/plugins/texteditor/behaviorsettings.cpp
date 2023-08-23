@@ -33,18 +33,18 @@ BehaviorSettings::BehaviorSettings() :
 {
 }
 
-void BehaviorSettings::toSettings(const QString &category) const
+void BehaviorSettings::toSettings(const Key &category) const
 {
-    Utils::toSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
+    Utils::toSettings(groupPostfix, category, Core::ICore::settings(), this);
 }
 
-void BehaviorSettings::fromSettings(const QString &category)
+void BehaviorSettings::fromSettings(const Key &category)
 {
     *this = BehaviorSettings();
-    Utils::fromSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
+    Utils::fromSettings(groupPostfix, category, Core::ICore::settings(), this);
 }
 
-QVariantMap BehaviorSettings::toMap() const
+Store BehaviorSettings::toMap() const
 {
     return {
         {mouseHidingKey, m_mouseHiding},

@@ -841,7 +841,7 @@ void FolderNavigationWidgetFactory::saveSettings(Utils::QtcSettings *settings,
 {
     auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
-    const QString base = kSettingsBase + QString::number(position);
+    const Key base = kSettingsBase + Key::number(position);
     settings->setValueWithDefault(base + kHiddenFilesKey,
                                   fnw->hiddenFilesFilter(),
                                   kHiddenFilesDefault);

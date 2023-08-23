@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "storekey.h"
+
 #include <QCompleter>
 
 namespace Utils {
@@ -17,7 +19,7 @@ class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
 {
 public:
     static void setSettings(QtcSettings *settings);
-    HistoryCompleter(const QString &historyKey, QObject *parent = nullptr);
+    HistoryCompleter(const Key &historyKey, QObject *parent = nullptr);
     bool removeHistoryItem(int index);
     QString historyItem() const;
     bool hasHistory() const { return historySize() > 0; }

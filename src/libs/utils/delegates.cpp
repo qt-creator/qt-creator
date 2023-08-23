@@ -151,7 +151,7 @@ void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOpti
     editor->setGeometry(option.rect);
 }
 
-void PathChooserDelegate::setHistoryCompleter(const QString &key)
+void PathChooserDelegate::setHistoryCompleter(const Key &key)
 {
     m_historyKey = key;
 }

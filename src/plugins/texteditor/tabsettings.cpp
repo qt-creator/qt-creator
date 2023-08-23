@@ -7,7 +7,6 @@
 
 #include <QDebug>
 #include <QSettings>
-#include <QString>
 #include <QTextCursor>
 #include <QTextDocument>
 
@@ -34,18 +33,18 @@ TabSettings::TabSettings(TabSettings::TabPolicy tabPolicy,
 
 }
 
-void TabSettings::toSettings(const QString &category, QSettings *s) const
+void TabSettings::toSettings(const Key &category, QSettings *s) const
 {
-    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
+    Utils::toSettings(groupPostfix, category, s, this);
 }
 
-void TabSettings::fromSettings(const QString &category, QSettings *s)
+void TabSettings::fromSettings(const Key &category, QSettings *s)
 {
     *this = TabSettings(); // Assign defaults
-    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
+    Utils::fromSettings(groupPostfix, category, s, this);
 }
 
-QVariantMap TabSettings::toMap() const
+Store TabSettings::toMap() const
 {
     return {
         {spacesForTabsKey, m_tabPolicy != TabsOnlyTabPolicy},

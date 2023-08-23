@@ -249,11 +249,9 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
     updateToggleText();
 }
 
-QString NavigationWidget::settingsGroup() const
+Key NavigationWidget::settingsGroup() const
 {
-    const QString side(d->m_side == Side::Left ? QStringLiteral("Left")
-                                               : QStringLiteral("Right"));
-    return QStringLiteral("Navigation%1").arg(side);
+    return d->m_side == Side::Left ? Key("NavigationLeft") : Key("NavigationRight");
 }
 
 int NavigationWidget::storedWidth()
@@ -400,12 +398,12 @@ void NavigationWidget::saveSettings(QtcSettings *settings)
     settings->setValue(settingsKey("VerticalPosition"), saveState());
     settings->setValue(settingsKey("Width"), d->m_width);
 
-    const QString activationKey = QStringLiteral("ActivationPosition.");
+    const Key activationKey = "ActivationPosition.";
     const auto keys = NavigationWidgetPrivate::s_activationsMap.keys();
     for (const auto &factoryId : keys) {
         const auto &info = NavigationWidgetPrivate::s_activationsMap[factoryId];
         if (info.side == d->m_side)
-            settings->setValue(settingsKey(activationKey + factoryId.toString()), info.position);
+            settings->setValue(settingsKey(activationKey + factoryId.name()), info.position);
     }
 }
 
@@ -524,9 +522,9 @@ int NavigationWidget::factoryIndex(Id id)
     return -1;
 }
 
-QString NavigationWidget::settingsKey(const QString &key) const
+Key NavigationWidget::settingsKey(const Key &key) const
 {
-    return QStringLiteral("%1/%2").arg(settingsGroup(), key);
+    return settingsGroup() + '/' + key;
 }
 
 QHash<Id, Command *> NavigationWidget::commandMap() const

@@ -64,9 +64,9 @@ public:
     QByteArray currentDelegateId() const;
     void setCurrentDelegate(const QByteArray &id);
 
-    void setSettingsSuffix(const QString &suffix);
+    void setSettingsSuffix(const Utils::Key &suffix);
     void toSettings(const QString &category) const;
-    void fromSettings(const QString &category);
+    void fromSettings(const Utils::Key &category);
 
     // make below 2 protected?
     virtual Utils::Store toMap() const;

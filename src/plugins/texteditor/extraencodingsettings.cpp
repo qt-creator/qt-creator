@@ -23,19 +23,19 @@ ExtraEncodingSettings::ExtraEncodingSettings() : m_utf8BomSetting(OnlyKeep)
 
 ExtraEncodingSettings::~ExtraEncodingSettings() = default;
 
-void ExtraEncodingSettings::toSettings(const QString &category) const
+void ExtraEncodingSettings::toSettings(const Key &category) const
 {
     Q_UNUSED(category)
 
-    Utils::toSettings(QLatin1String(kGroupPostfix), QString(), Core::ICore::settings(), this);
+    Utils::toSettings(kGroupPostfix, Key(), Core::ICore::settings(), this);
 }
 
-void ExtraEncodingSettings::fromSettings(const QString &category)
+void ExtraEncodingSettings::fromSettings(const Key &category)
 {
     Q_UNUSED(category)
 
     *this = ExtraEncodingSettings();
-    Utils::fromSettings(QLatin1String(kGroupPostfix), QString(), Core::ICore::settings(), this);
+    Utils::fromSettings(kGroupPostfix, Key(), Core::ICore::settings(), this);
 }
 
 QVariantMap ExtraEncodingSettings::toMap() const

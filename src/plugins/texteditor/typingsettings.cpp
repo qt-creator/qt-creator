@@ -28,15 +28,15 @@ TypingSettings::TypingSettings():
 {
 }
 
-void TypingSettings::toSettings(const QString &category) const
+void TypingSettings::toSettings(const Key &category) const
 {
-    Utils::toSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
+    Utils::toSettings(groupPostfix, category, Core::ICore::settings(), this);
 }
 
-void TypingSettings::fromSettings(const QString &category)
+void TypingSettings::fromSettings(const Key &category)
 {
     *this = TypingSettings(); // Assign defaults
-    Utils::fromSettings(QLatin1String(groupPostfix), category, Core::ICore::settings(), this);
+    Utils::fromSettings(groupPostfix, category, Core::ICore::settings(), this);
 }
 
 Store TypingSettings::toMap() const

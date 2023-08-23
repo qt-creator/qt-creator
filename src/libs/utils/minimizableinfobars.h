@@ -7,6 +7,7 @@
 
 #include "id.h"
 #include "infobar.h"
+#include "store.h"
 
 #include <QHash>
 #include <QObject>
@@ -27,7 +28,7 @@ public:
 public:
     explicit MinimizableInfoBars(InfoBar &infoBar);
 
-    void setSettingsGroup(const QString &settingsGroup);
+    void setSettingsGroup(const Key &settingsGroup);
     void setPossibleInfoBarEntries(const QList<InfoBarEntry> &entries);
 
     void createShowInfoBarActions(const ActionCreator &actionCreator) const;
@@ -37,7 +38,7 @@ public:
 private:
     void createActions();
 
-    QString settingsKey(const Id &id) const;
+    Key settingsKey(const Id &id) const;
     bool showInInfoBar(const Id &id) const;
     void setShowInInfoBar(const Id &id, bool show);
 
@@ -46,7 +47,7 @@ private:
     void showInfoBar(const Id &id);
 
     InfoBar &m_infoBar;
-    QString m_settingsGroup;
+    Key m_settingsGroup;
     QHash<Id, QAction *> m_actions;
     QHash<Id, bool> m_isInfoVisible;
     QHash<Id, InfoBarEntry> m_infoEntries;

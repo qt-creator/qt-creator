@@ -295,6 +295,7 @@ Project {
             "statuslabel.h",
             "store.cpp",
             "store.h",
+            "storekey.h",
             "stringtable.cpp",
             "stringtable.h",
             "stringutils.cpp",

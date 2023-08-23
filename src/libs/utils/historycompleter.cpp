@@ -30,8 +30,8 @@ public:
     void addEntry(const QString &str);
 
     QStringList list;
-    QString historyKey;
-    QString historyKeyIsLastItemEmpty;
+    Key historyKey;
+    Key historyKeyIsLastItemEmpty;
     int maxLines = 6;
     bool isLastItemEmpty = isLastItemEmptyDefault;
 };
@@ -174,17 +174,16 @@ void HistoryCompleterPrivate::addEntry(const QString &str)
                                      isLastItemEmptyDefault);
 }
 
-HistoryCompleter::HistoryCompleter(const QString &historyKey, QObject *parent)
+HistoryCompleter::HistoryCompleter(const Key &historyKey, QObject *parent)
     : QCompleter(parent),
       d(new HistoryCompleterPrivate)
 {
     QTC_ASSERT(!historyKey.isEmpty(), return);
     QTC_ASSERT(theSettings, return);
 
-    d->historyKey = QLatin1String("CompleterHistory/") + historyKey;
+    d->historyKey = "CompleterHistory/" + historyKey;
     d->list = theSettings->value(d->historyKey).toStringList();
-    d->historyKeyIsLastItemEmpty = QLatin1String("CompleterHistory/")
-        + historyKey + QLatin1String(".IsLastItemEmpty");
+    d->historyKeyIsLastItemEmpty = "CompleterHistory/" + historyKey + ".IsLastItemEmpty";
     d->isLastItemEmpty = theSettings->value(d->historyKeyIsLastItemEmpty, isLastItemEmptyDefault)
                              .toBool();
 

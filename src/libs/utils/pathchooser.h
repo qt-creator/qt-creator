@@ -105,7 +105,7 @@ public:
     static void installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments);
 
     // Enable a history completer with a history of entries.
-    void setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory = false);
+    void setHistoryCompleter(const Key &historyKey, bool restoreLastItemFromHistory = false);
 
     // Sets a macro expander that is used when producing path and fileName.
     // By default, the global expander is used.

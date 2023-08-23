@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "store.h"
+
 #include <QSettings>
 
 namespace Utils {
@@ -15,34 +17,34 @@ public:
     using QSettings::QSettings;
 
     template<typename T>
-    void setValueWithDefault(const QString &key, const T &val, const T &defaultValue);
+    void setValueWithDefault(const Key &key, const T &val, const T &defaultValue);
     template<typename T>
-    void setValueWithDefault(const QString &key, const T &val);
+    void setValueWithDefault(const Key &key, const T &val);
 
     template<typename T>
     static void setValueWithDefault(QSettings *settings,
-                                    const QString &key,
+                                    const Key &key,
                                     const T &val,
                                     const T &defaultValue);
     template<typename T>
-    static void setValueWithDefault(QSettings *settings, const QString &key, const T &val);
+    static void setValueWithDefault(QSettings *settings, const Key &key, const T &val);
 };
 
 template<typename T>
-void QtcSettings::setValueWithDefault(const QString &key, const T &val, const T &defaultValue)
+void QtcSettings::setValueWithDefault(const Key &key, const T &val, const T &defaultValue)
 {
     setValueWithDefault(this, key, val, defaultValue);
 }
 
 template<typename T>
-void QtcSettings::setValueWithDefault(const QString &key, const T &val)
+void QtcSettings::setValueWithDefault(const Key &key, const T &val)
 {
     setValueWithDefault(this, key, val);
 }
 
 template<typename T>
 void QtcSettings::setValueWithDefault(QSettings *settings,
-                                      const QString &key,
+                                      const Key &key,
                                       const T &val,
                                       const T &defaultValue)
 {
@@ -53,7 +55,7 @@ void QtcSettings::setValueWithDefault(QSettings *settings,
 }
 
 template<typename T>
-void QtcSettings::setValueWithDefault(QSettings *settings, const QString &key, const T &val)
+void QtcSettings::setValueWithDefault(QSettings *settings, const Key &key, const T &val)
 {
     if (val == T())
         settings->remove(key);

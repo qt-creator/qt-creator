@@ -769,7 +769,7 @@ bool SettingsDialog::execDialog()
     if (!m_running) {
         m_running = true;
         m_finished = false;
-        static const QLatin1String kPreferenceDialogSize("Core/PreferenceDialogSize");
+        static const char kPreferenceDialogSize[] = "Core/PreferenceDialogSize";
         const QSize initialSize(kInitialWidth, kInitialHeight);
         resize(ICore::settings()->value(kPreferenceDialogSize, initialSize).toSize());
         exec();
