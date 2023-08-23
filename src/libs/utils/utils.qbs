@@ -293,6 +293,8 @@ Project {
             "../3rdparty/span/span.hpp",
             "statuslabel.cpp",
             "statuslabel.h",
+            "storage.cpp",
+            "storage.h",
             "stringtable.cpp",
             "stringtable.h",
             "stringutils.cpp",
