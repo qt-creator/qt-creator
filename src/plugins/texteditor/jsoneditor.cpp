@@ -28,7 +28,77 @@ static int startsWith(const QString &line, const QString &closingChars)
 
 class JsonAutoCompleter : public AutoCompleter
 {
-    bool contextAllowsElectricCharacters(const QTextCursor &cursor) const override { return true; }
+    bool contextAllowsElectricCharacters(const QTextCursor &cursor) const override
+    {
+        return !isInString(cursor);
+    }
+
+    bool contextAllowsAutoBrackets(const QTextCursor &cursor, const QString &) const override
+    {
+        return !isInString(cursor);
+    }
+    QString insertMatchingBrace(const QTextCursor &cursor,
+                                const QString &text,
+                                QChar lookAhead,
+                                bool skipChars,
+                                int *skippedChars) const override
+    {
+        Q_UNUSED(cursor)
+        if (text.isEmpty())
+            return QString();
+        const QChar current = text.at(0);
+        switch (current.unicode()) {
+        case '{':
+            return QStringLiteral("}");
+        case '[':
+            return QStringLiteral("]");
+        case ']':
+        case '}':
+            if (current == lookAhead && skipChars)
+                ++*skippedChars;
+            break;
+        default:
+            break;
+        }
+
+        return QString();
+    }
+
+    bool contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &) const override
+    {
+        return !isInString(cursor);
+    }
+    QString insertMatchingQuote(const QTextCursor &cursor,
+                                const QString &text,
+                                QChar lookAhead,
+                                bool skipChars,
+                                int *skippedChars) const override
+    {
+        Q_UNUSED(cursor)
+        static const QChar quote('"');
+        if (text.isEmpty() || text != quote)
+            return QString();
+        if (lookAhead == quote && skipChars) {
+            ++*skippedChars;
+            return QString();
+        }
+        return quote;
+    }
+
+    bool isInString(const QTextCursor &cursor) const override
+    {
+        bool result = false;
+        const QString text = cursor.block().text();
+        const int position = qMin(cursor.positionInBlock(), text.size());
+
+        for (int i = 0; i < position; ++i) {
+            if (text.at(i) == '"') {
+                if (!result || text[i - 1] != '\\')
+                    result = !result;
+            }
+        }
+        return result;
+    }
 };
 
 class JsonIndenter : public TextIndenter
