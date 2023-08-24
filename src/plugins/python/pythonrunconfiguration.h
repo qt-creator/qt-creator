@@ -14,8 +14,6 @@ class PythonRunConfiguration;
 
 class PythonInterpreterAspect final : public ProjectExplorer::InterpreterAspect
 {
-    Q_OBJECT
-
 public:
     PythonInterpreterAspect(Utils::AspectContainer *container, ProjectExplorer::RunConfiguration *rc);
     ~PythonInterpreterAspect() final;

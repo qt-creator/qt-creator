@@ -208,8 +208,11 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
         if (PythonProject *project = pythonProjectForFile(documentPath)) {
             if (Target *target = project->activeTarget()) {
                 if (RunConfiguration *rc = target->activeRunConfiguration())
-                    if (auto aspect = rc->aspect<PythonInterpreterAspect>())
-                        updateExtraCompilers(project, aspect->extraCompilers());
+                    if (auto aspect = rc->aspect<InterpreterAspect>()) {
+                        updateExtraCompilers(project,
+                                             static_cast<PythonInterpreterAspect *>(aspect)
+                                                 ->extraCompilers());
+                    }
             }
         } else if (isSupportedDocument(document)) {
             const FilePath workspacePath = documentPath.parentDir();
