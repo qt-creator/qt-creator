@@ -1030,9 +1030,16 @@ TextEditor::BaseTextEditor *jsonEditor()
 {
     using namespace TextEditor;
     using namespace Utils::Text;
-    BaseTextEditor *editor = PlainTextEditorFactory::createPlainTextEditor();
-    TextDocument *document = editor->textDocument();
-    TextEditorWidget *widget = editor->editorWidget();
+    BaseTextEditor *textEditor = nullptr;
+    for (Core::IEditorFactory *factory : Core::IEditorFactory::preferredEditorFactories("foo.json")) {
+        Core::IEditor *editor = factory->createEditor();
+        if (textEditor = qobject_cast<BaseTextEditor *>(editor); textEditor)
+            break;
+        delete editor;
+    }
+    QTC_ASSERT(textEditor, textEditor = PlainTextEditorFactory::createPlainTextEditor());
+    TextDocument *document = textEditor->textDocument();
+    TextEditorWidget *widget = textEditor->editorWidget();
     widget->configureGenericHighlighter(Utils::mimeTypeForName("application/json"));
     widget->setLineNumbersVisible(false);
     widget->setMarksVisible(false);
@@ -1063,7 +1070,7 @@ TextEditor::BaseTextEditor *jsonEditor()
         mark->setIcon(Utils::Icons::CODEMODEL_ERROR.icon());
         document->addMark(mark);
     });
-    return editor;
+    return textEditor;
 }
 
 } // namespace LanguageClient
