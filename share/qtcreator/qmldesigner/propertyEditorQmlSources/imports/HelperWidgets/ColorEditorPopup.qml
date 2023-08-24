@@ -280,7 +280,7 @@ T.Popup {
                     property ListModel items: ListModel {}
 
                     enabled: isBaseState
-                    implicitWidth: StudioTheme.Values.colorEditorPopupCmoboBoxWidth
+                    implicitWidth: StudioTheme.Values.colorEditorPopupComboBoxWidth
                     width: implicitWidth
                     actionIndicatorVisible: false
                     textRole: "text"

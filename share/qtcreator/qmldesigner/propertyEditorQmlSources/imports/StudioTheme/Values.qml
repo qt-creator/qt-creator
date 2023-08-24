@@ -215,7 +215,7 @@ QtObject {
     property real hueSliderHeight: 20
     property real hueSliderHandleWidth: 10
 
-    property real colorEditorPopupCmoboBoxWidth: 110
+    property real colorEditorPopupComboBoxWidth: 110
     property real colorEditorPopupSpinBoxWidth: 54
 
     // Popup Window
