@@ -13,7 +13,6 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 
-#include <QDir>
 #include <QString>
 #include <QVector>
 #include <QVersionNumber>
