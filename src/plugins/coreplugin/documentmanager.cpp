@@ -721,7 +721,7 @@ bool DocumentManager::saveDocument(IDocument *document,
     bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
     QString errorString;
-    if (!document->save(&errorString, filePath, false)) {
+    if (!document->save(&errorString, savePath, false)) {
         if (isReadOnly) {
             QFile ofi(savePath.toString());
             // Check whether the existing file is writable

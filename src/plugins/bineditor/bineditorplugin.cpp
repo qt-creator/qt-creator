@@ -313,9 +313,8 @@ protected:
     bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
-        const FilePath &fileNameToUse = filePath.isEmpty() ? this->filePath() : filePath;
-        if (m_widget->save(errorString, this->filePath(), fileNameToUse)) {
-            setFilePath(fileNameToUse);
+        if (m_widget->save(errorString, this->filePath(), filePath)) {
+            setFilePath(filePath);
             return true;
         }
         return false;

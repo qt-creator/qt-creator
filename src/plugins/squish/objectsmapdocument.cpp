@@ -41,23 +41,22 @@ Core::IDocument::OpenResult ObjectsMapDocument::open(QString *errorString,
 }
 
 bool ObjectsMapDocument::saveImpl(QString *errorString,
-                                  const Utils::FilePath &fileName,
+                                  const Utils::FilePath &filePath,
                                   bool autoSave)
 {
-    const Utils::FilePath actual = fileName.isEmpty() ? filePath() : fileName;
-    if (actual.isEmpty())
+    if (filePath.isEmpty())
         return false;
 
-    const bool writeOk = writeFile(actual);
+    const bool writeOk = writeFile(filePath);
     if (!writeOk) {
         if (errorString)
-            *errorString = Tr::tr("Failed to write \"%1\"").arg(actual.toUserOutput());
+            *errorString = Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput());
         return false;
     }
 
     if (!autoSave) {
         setModified(false);
-        setFilePath(actual);
+        setFilePath(filePath);
     }
     return true;
 }

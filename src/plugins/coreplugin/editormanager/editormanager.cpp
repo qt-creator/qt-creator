@@ -2326,9 +2326,7 @@ bool EditorManagerPrivate::saveDocument(IDocument *document)
 
     document->checkPermissions();
 
-    const QString fileName = document->filePath().toString();
-
-    if (fileName.isEmpty())
+    if (document->filePath().isEmpty())
         return saveDocumentAs(document);
 
     bool success = false;
