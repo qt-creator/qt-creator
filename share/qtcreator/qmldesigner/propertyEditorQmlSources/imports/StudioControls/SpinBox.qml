@@ -274,6 +274,7 @@ T.SpinBox {
         if (sliderPopup.opened && !control.activeFocus)
             sliderPopup.close()
     }
+    onDecimalsChanged: spinBoxInput.text = control.textFromValue(control.value, control.locale)
 
     Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Up || event.key === Qt.Key_Down) {

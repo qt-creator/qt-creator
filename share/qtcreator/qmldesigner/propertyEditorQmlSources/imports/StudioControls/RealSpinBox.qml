@@ -307,6 +307,7 @@ T.SpinBox {
                 spinBoxInput.handleEditingFinished()
         }
     }
+    onDecimalsChanged: spinBoxInput.text = control.textFromValue(control.realValue, control.locale)
 
     Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Up || event.key === Qt.Key_Down) {
