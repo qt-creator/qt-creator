@@ -24,10 +24,10 @@ Item {
             valueLoader.source = "ValueVec4.qml"
         else if (uniformType === "bool")
             valueLoader.source = "ValueBool.qml"
-//        else if (uniformType === "color") // TODO
-//            valueLoader.sourceComponent = colorValue
+        else if (uniformType === "color")
+            valueLoader.source = "ValueColor.qml"
 //        else if (uniformType === "image") // TODO
-//            valueLoader.sourceComponent = imageValue
+//            valueLoader.source = valueImage
         else
             valueLoader.source = "ValueFloat.qml"
     }

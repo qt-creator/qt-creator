@@ -12,6 +12,8 @@ QT_FORWARD_DECLARE_CLASS(QVector2D)
 
 namespace QmlDesigner {
 
+class PropertyEditorValue;
+
 class Uniform : public QObject
 {
     Q_OBJECT
@@ -19,6 +21,7 @@ class Uniform : public QObject
     Q_PROPERTY(QString uniformName MEMBER m_name CONSTANT)
     Q_PROPERTY(QString uniformType READ type CONSTANT)
     Q_PROPERTY(QVariant uniformValue READ value WRITE setValue NOTIFY uniformValueChanged)
+    Q_PROPERTY(QVariant uniformBackendValue READ backendValue NOTIFY uniformBackendValueChanged)
     Q_PROPERTY(QVariant uniformMinValue MEMBER m_minValue CONSTANT)
     Q_PROPERTY(QVariant uniformMaxValue MEMBER m_maxValue CONSTANT)
 
@@ -43,6 +46,8 @@ public:
     QVariant value() const;
     void setValue(const QVariant &newValue);
 
+    QVariant backendValue() const;
+
     QVariant defaultValue() const;
 
     QVariant minValue() const;
@@ -62,6 +67,7 @@ public:
 
 signals:
     void uniformValueChanged();
+    void uniformBackendValueChanged();
 
 private:
     QString mipmapPropertyName(const QString &name) const;
@@ -85,6 +91,7 @@ private:
     bool m_useCustomValue = false;
     bool m_enabled = true;
     bool m_enableMipmap = false;
+    PropertyEditorValue *m_backendValue = nullptr;
 
     bool operator==(const Uniform &rhs) const noexcept
     {

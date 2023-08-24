@@ -3,6 +3,8 @@
 
 #include "uniform.h"
 
+#include "propertyeditorvalue.h"
+
 #include <QColor>
 #include <QJsonObject>
 #include <QVector2D>
@@ -38,6 +40,9 @@ Uniform::Uniform(const QJsonObject &propObj)
     maxValue = propObj.value("maxValue").toString();
 
     setValueData(value, defaultValue, minValue, maxValue);
+
+    m_backendValue = new PropertyEditorValue(this);
+    m_backendValue->setValue(value);
 }
 
 QString Uniform::type() const
@@ -68,6 +73,11 @@ QString Uniform::type() const
 QVariant Uniform::value() const
 {
     return m_value;
+}
+
+QVariant Uniform::backendValue() const
+{
+    return QVariant::fromValue(m_backendValue);
 }
 
 void Uniform::setValue(const QVariant &newValue)

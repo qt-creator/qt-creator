@@ -3,11 +3,13 @@
 
 #include "effectmakerwidget.h"
 
+#include "coloreditorcontextobject.h"
 #include "effectmakermodel.h"
 #include "effectmakernodesmodel.h"
 #include "effectmakerview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
+#include "qqmlcontext.h"
 #include "theme.h"
 
 #include <coreplugin/icore.h>
@@ -64,6 +66,10 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     map->setProperties({{"effectMakerNodesModel", QVariant::fromValue(m_effectMakerNodesModel.data())},
                         {"effectMakerModel", QVariant::fromValue(m_effectMakerModel.data())},
                         {"rootView", QVariant::fromValue(this)}});
+
+    auto colorEditorCtx = new ColorEditorContextObject(m_quickWidget->rootContext());
+    m_quickWidget->rootContext()->setContextObject(colorEditorCtx);
+    m_quickWidget->rootContext()->setContextProperty("modelNodeBackend", {});
 
     // init the first load of the QML UI elements
     reloadQmlSource();

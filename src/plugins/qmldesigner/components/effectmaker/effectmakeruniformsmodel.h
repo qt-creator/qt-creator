@@ -30,6 +30,7 @@ private:
         NameRole = Qt::UserRole + 1,
         DescriptionRole,
         ValueRole,
+        BackendValueRole,
         DefaultValueRole,
         MaxValueRole,
         MinValueRole,

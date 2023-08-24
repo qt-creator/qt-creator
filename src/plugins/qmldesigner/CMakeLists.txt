@@ -720,6 +720,7 @@ extend_qtc_plugin(QmlDesigner
     compositionnode.cpp compositionnode.h
     uniform.cpp uniform.h
     effectutils.cpp effectutils.h
+    coloreditorcontextobject.cpp coloreditorcontextobject.h
 )
 
 extend_qtc_plugin(QmlDesigner
