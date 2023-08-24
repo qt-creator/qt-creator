@@ -65,7 +65,6 @@
 #include <QCheckBox>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QDir>
 #include <QGridLayout>
 #include <QHeaderView>
 #include <QLoggingCategory>
@@ -1352,7 +1351,10 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             if (oldDir.isEmpty())
                 return newDir;
 
-            if (QDir(oldDir).exists("CMakeCache.txt") && !QDir(newDir).exists("CMakeCache.txt")) {
+            const FilePath oldDirCMakeCache = FilePath::fromUserInput(oldDir).pathAppended("CMakeCache.txt");
+            const FilePath newDirCMakeCache = FilePath::fromUserInput(newDir).pathAppended("CMakeCache.txt");
+
+            if (oldDirCMakeCache.exists() && !newDirCMakeCache.exists()) {
                 if (QMessageBox::information(
                         Core::ICore::dialogParent(),
                         Tr::tr("Changing Build Directory"),
