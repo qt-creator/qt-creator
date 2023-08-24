@@ -1916,7 +1916,7 @@ void EditorManagerPrivate::setupSaveActions(IDocument *document, QAction *saveAc
                                             QAction *saveAsAction, QAction *revertToSavedAction)
 {
     const bool hasFile = document && !document->filePath().isEmpty();
-    saveAction->setEnabled(hasFile && document->isModified());
+    saveAction->setEnabled(document && (document->isModified() || !hasFile));
     saveAsAction->setEnabled(document && document->isSaveAsAllowed());
     revertToSavedAction->setEnabled(hasFile);
 
