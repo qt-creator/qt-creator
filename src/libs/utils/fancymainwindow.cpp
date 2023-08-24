@@ -467,8 +467,10 @@ QHash<QString, QVariant> FancyMainWindow::saveSettings() const
 void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
 {
     QByteArray ba = settings.value(QLatin1String(StateKey), QByteArray()).toByteArray();
-    if (!ba.isEmpty())
-        restoreState(ba, settingsVersion);
+    if (!ba.isEmpty()) {
+        if (!restoreState(ba, settingsVersion))
+            qWarning() << "Restoring the state of dock widgets failed.";
+    }
     bool on = settings.value(QLatin1String(AutoHideTitleBarsKey), true).toBool();
     d->m_autoHideTitleBars.setChecked(on);
     d->m_showCentralWidget.setChecked(settings.value(ShowCentralWidgetKey, true).toBool());
