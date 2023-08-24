@@ -170,9 +170,9 @@ protected:
     void setTypeDisplayName(const QString &typeName);
 
     void setTargetAbiNoSignal(const Abi &abi);
-    void setTargetAbiKey(const QString &abiKey);
+    void setTargetAbiKey(const Utils::Key &abiKey);
 
-    void setCompilerCommandKey(const QString &commandKey);
+    void setCompilerCommandKey(const Utils::Key &commandKey);
 
     const MacrosCache &predefinedMacrosCache() const;
     const HeaderPathsCache &headerPathsCache() const;
@@ -265,11 +265,11 @@ public:
     virtual bool canCreate() const;
     virtual ToolChain *create() const;
 
-    ToolChain *restore(const QVariantMap &data);
+    ToolChain *restore(const Utils::Store &data);
 
-    static QByteArray idFromMap(const QVariantMap &data);
-    static Utils::Id typeIdFromMap(const QVariantMap &data);
-    static void autoDetectionToMap(QVariantMap &data, bool detected);
+    static QByteArray idFromMap(const Utils::Store &data);
+    static Utils::Id typeIdFromMap(const Utils::Store &data);
+    static void autoDetectionToMap(Utils::Store &data, bool detected);
 
     static ToolChain *createToolChain(Utils::Id toolChainType);
 

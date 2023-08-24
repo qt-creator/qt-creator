@@ -5,7 +5,8 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
+#include <utils/storekey.h>
 
 #include <QAbstractItemModel>
 #include <QDialog>
@@ -178,7 +179,7 @@ public:
     void resetModel(const Utils::FilePath &path, const Utils::FilePaths &files);
     void cancelParsing();
 
-    void enableFilterHistoryCompletion(const QString &keyPrefix);
+    void enableFilterHistoryCompletion(const Utils::Key &keyPrefix);
 
 signals:
     void selectedFilesChanged();

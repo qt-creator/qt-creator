@@ -54,8 +54,8 @@ public:
 
     void setId(const QString &id);
 
-    void recordData(const QString &channel, const QVariant &data);
-    QVariant recordedData(const QString &channel) const;
+    void recordData(const Utils::Key &channel, const QVariant &data);
+    QVariant recordedData(const Utils::Key &channel) const;
 
     // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
@@ -191,7 +191,7 @@ public:
     Utils::FilePath buildDirectory() const;
     Utils::Environment buildEnvironment() const;
 
-    QVariantMap settingsData(Utils::Id id) const;
+    Utils::Store settingsData(Utils::Id id) const;
 
     Utils::FilePath targetFilePath() const;
     Utils::FilePath projectFilePath() const;

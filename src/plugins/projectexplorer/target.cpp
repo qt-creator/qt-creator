@@ -627,7 +627,7 @@ Store Target::toMap() const
     }
 
     if (!d->m_pluginSettings.isEmpty())
-        map.insert(PLUGIN_SETTINGS_KEY, d->m_pluginSettings);
+        map.insert(PLUGIN_SETTINGS_KEY, QVariant::fromValue(d->m_pluginSettings));
 
     return map;
 }
@@ -903,7 +903,7 @@ bool Target::fromMap(const Store &map)
         const Key key = BC_KEY_PREFIX + Key::number(i);
         if (!map.contains(key))
             return false;
-        const Store valueMap = map.value(key).toMap();
+        const Store valueMap = map.value(key).value<Store>();
         BuildConfiguration *bc = BuildConfigurationFactory::restore(this, valueMap);
         if (!bc) {
             qWarning("No factory found to restore build configuration!");
@@ -964,7 +964,7 @@ bool Target::fromMap(const Store &map)
         if (!rc)
             continue;
         const Utils::Id theIdFromMap = ProjectExplorer::idFromMap(valueMap);
-        if (!theIdFromMap.toString().contains("///::///")) { // Hack for cmake 4.10 -> 4.11
+        if (!theIdFromMap.name().contains("///::///")) { // Hack for cmake 4.10 -> 4.11
             QTC_CHECK(rc->id().withSuffix(rc->buildKey()) == theIdFromMap);
         }
         addRunConfiguration(rc);
@@ -973,7 +973,7 @@ bool Target::fromMap(const Store &map)
     }
 
     if (map.contains(PLUGIN_SETTINGS_KEY))
-        d->m_pluginSettings = map.value(PLUGIN_SETTINGS_KEY).toMap();
+        d->m_pluginSettings = map.value(PLUGIN_SETTINGS_KEY).value<Store>();
 
     return true;
 }

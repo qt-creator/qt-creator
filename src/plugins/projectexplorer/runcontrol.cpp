@@ -202,7 +202,7 @@ public:
     QList<RunWorker *> stopDependencies;
     QString id;
 
-    QVariantMap data;
+    Store data;
     bool supportsReRunning = true;
     bool essential = false;
 };
@@ -241,7 +241,7 @@ public:
     const MacroExpander *macroExpander = nullptr;
     AspectContainerData aspectData;
     QString buildKey;
-    QMap<Id, QVariantMap> settingsData;
+    QMap<Id, Store> settingsData;
     Id runConfigId;
     BuildTargetInfo buildTargetInfo;
     FilePath buildDirectory;
@@ -947,7 +947,7 @@ const BaseAspect::Data *RunControl::aspect(BaseAspect::Data::ClassId classId) co
     return d->aspectData.aspect(classId);
 }
 
-QVariantMap RunControl::settingsData(Id id) const
+Store RunControl::settingsData(Id id) const
 {
     return d->settingsData.value(id);
 }
@@ -1738,12 +1738,12 @@ void RunWorker::setId(const QString &id)
     d->id = id;
 }
 
-void RunWorker::recordData(const QString &channel, const QVariant &data)
+void RunWorker::recordData(const Key &channel, const QVariant &data)
 {
     d->data[channel] = data;
 }
 
-QVariant RunWorker::recordedData(const QString &channel) const
+QVariant RunWorker::recordedData(const Key &channel) const
 {
     return d->data[channel];
 }

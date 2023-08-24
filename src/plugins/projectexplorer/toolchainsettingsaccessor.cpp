@@ -34,7 +34,7 @@ public:
     ToolChainSettingsUpgraderV0() : Utils::VersionUpgrader(0, "4.6") { }
 
     // NOOP
-    QVariantMap upgrade(const QVariantMap &data) final { return data; }
+    Store upgrade(const Store &data) final { return data; }
 };
 
 // --------------------------------------------------------------------
@@ -214,17 +214,17 @@ Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
 
 void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWidget *parent)
 {
-    QVariantMap data;
+    Store data;
 
     int count = 0;
     for (const ToolChain *tc : toolchains) {
         if (!tc || (!tc->isValid() && tc->isAutoDetected()))
             continue;
-        QVariantMap tmp;
+        Store tmp;
         tc->toMap(tmp);
         if (tmp.isEmpty())
             continue;
-        data.insert(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
+        data.insert(TOOLCHAIN_DATA_KEY + Key::number(count), QVariant::fromValue(tmp));
         ++count;
     }
     data.insert(TOOLCHAIN_COUNT_KEY, count);
@@ -234,18 +234,18 @@ void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWi
     saveSettings(data, parent);
 }
 
-Toolchains ToolChainSettingsAccessor::toolChains(const QVariantMap &data) const
+Toolchains ToolChainSettingsAccessor::toolChains(const Store &data) const
 {
     Toolchains result;
     const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
     const int count = data.value(TOOLCHAIN_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const QString key = QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(i);
+        const Key key = TOOLCHAIN_DATA_KEY + Key::number(i);
         if (!data.contains(key))
             break;
 
-        const QVariantMap tcMap = data.value(key).toMap();
+        const Store tcMap = data.value(key).value<Store>();
 
         bool restored = false;
         const Utils::Id tcType = ToolChainFactory::typeIdFromMap(tcMap);

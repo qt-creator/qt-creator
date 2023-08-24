@@ -184,7 +184,7 @@ public:
     Target *m_activeTarget = nullptr;
     EditorConfiguration m_editorConfiguration;
     Context m_projectLanguages;
-    QVariantMap m_pluginSettings;
+    Store m_pluginSettings;
     std::unique_ptr<Internal::UserFileAccessor> m_accessor;
     QHash<Id, QPair<QString, std::function<void()>>> m_generators;
 
@@ -194,7 +194,7 @@ public:
     FilePath m_rootProjectDirectory;
     mutable QVector<const Node *> m_sortedNodeList;
 
-    QVariantMap m_extraData;
+    Store m_extraData;
 };
 
 ProjectPrivate::~ProjectPrivate()
@@ -635,7 +635,7 @@ void Project::saveSettings()
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
     if (!targets().isEmpty()) {
-        QVariantMap map;
+        Store map;
         toMap(map);
         d->m_accessor->saveSettings(map, ICore::dialogParent());
     }
@@ -645,7 +645,7 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 {
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
-    QVariantMap map(d->m_accessor->restoreSettings(ICore::dialogParent()));
+    Store map(d->m_accessor->restoreSettings(ICore::dialogParent()));
     RestoreResult result = fromMap(map, errorMessage);
     if (result == RestoreResult::Ok)
         emit settingsLoaded();
@@ -681,7 +681,7 @@ FilePaths Project::files(const NodeMatcher &filter) const
 }
 
 /*!
-    Serializes all data into a QVariantMap.
+    Serializes all data into a Store.
 
     This map is then saved in the .user file of the project.
     Just put all your data into the map.
@@ -695,14 +695,14 @@ void Project::toMap(Store &map) const
 {
     const QList<Target *> ts = targets();
 
-    map.insert(QLatin1String(ACTIVE_TARGET_KEY), ts.indexOf(d->m_activeTarget));
-    map.insert(QLatin1String(TARGET_COUNT_KEY), ts.size());
+    map.insert(ACTIVE_TARGET_KEY, ts.indexOf(d->m_activeTarget));
+    map.insert(TARGET_COUNT_KEY, ts.size());
     for (int i = 0; i < ts.size(); ++i)
-        map.insert(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i), ts.at(i)->toMap());
+        map.insert(TARGET_KEY_PREFIX + Key::number(i), QVariant::fromValue(ts.at(i)->toMap()));
 
-    map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration.toMap());
+    map.insert(EDITOR_SETTINGS_KEY, QVariant::fromValue(d->m_editorConfiguration.toMap()));
     if (!d->m_pluginSettings.isEmpty())
-        map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
+        map.insert(PLUGIN_SETTINGS_KEY, QVariant::fromValue(d->m_pluginSettings));
 }
 
 /*!
@@ -767,19 +767,19 @@ ContainerNode *Project::containerNode() const
 Project::RestoreResult Project::fromMap(const Store &map, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
-        QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
+    if (map.contains(EDITOR_SETTINGS_KEY)) {
+        Store values(map.value(EDITOR_SETTINGS_KEY).value<Store>());
         d->m_editorConfiguration.fromMap(values);
     }
 
-    if (map.contains(QLatin1String(PLUGIN_SETTINGS_KEY)))
-        d->m_pluginSettings = map.value(QLatin1String(PLUGIN_SETTINGS_KEY)).toMap();
+    if (map.contains(PLUGIN_SETTINGS_KEY))
+        d->m_pluginSettings = map.value(PLUGIN_SETTINGS_KEY).toMap();
 
     bool ok;
-    int maxI(map.value(QLatin1String(TARGET_COUNT_KEY), 0).toInt(&ok));
+    int maxI(map.value(TARGET_COUNT_KEY, 0).toInt(&ok));
     if (!ok || maxI < 0)
         maxI = 0;
-    int active(map.value(QLatin1String(ACTIVE_TARGET_KEY), 0).toInt(&ok));
+    int active(map.value(ACTIVE_TARGET_KEY, 0).toInt(&ok));
     if (!ok || active < 0 || active >= maxI)
         active = 0;
 
@@ -799,13 +799,13 @@ Project::RestoreResult Project::fromMap(const Store &map, QString *errorMessage)
     return RestoreResult::Ok;
 }
 
-void Project::createTargetFromMap(const QVariantMap &map, int index)
+void Project::createTargetFromMap(const Store &map, int index)
 {
-    const QString key = QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(index);
+    const Key key = TARGET_KEY_PREFIX + Key::number(index);
     if (!map.contains(key))
         return;
 
-    const QVariantMap targetMap = map.value(key).toMap();
+    const Store targetMap = map.value(key).toMap();
 
     Id id = idFromMap(targetMap);
     if (target(id)) {

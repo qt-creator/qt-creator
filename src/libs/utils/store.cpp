@@ -7,13 +7,14 @@
 
 namespace Utils {
 
-KeyList keyListFromStringList(const QStringList &list)
+KeyList keysFromStrings(const QStringList &list)
 {
-#ifdef QTC_USE_STORE
-    return transform(list, [](const QString &str) { return str.toUtf8(); });
-#else
-    return list;
-#endif
+    return transform(list, &keyFromString);
+}
+
+QStringList stringsFromKeys(const KeyList &list)
+{
+    return transform(list, &stringFromKey);
 }
 
 } // Utils

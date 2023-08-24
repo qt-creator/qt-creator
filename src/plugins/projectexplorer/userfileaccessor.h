@@ -6,7 +6,6 @@
 #include <utils/settingsaccessor.h>
 
 #include <QHash>
-#include <QMessageBox>
 
 namespace ProjectExplorer {
 
@@ -38,7 +37,7 @@ protected:
     Utils::SettingsMergeResult merge(const SettingsMergeData &global,
                                      const SettingsMergeData &local) const final;
 private:
-    Utils::SettingsMergeFunction userStickyTrackerFunction(QStringList &stickyKeys) const;
+    Utils::SettingsMergeFunction userStickyTrackerFunction(Utils::KeyList &stickyKeys) const;
 
     Project *m_project;
 };

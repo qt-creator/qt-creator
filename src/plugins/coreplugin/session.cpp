@@ -488,7 +488,7 @@ void SessionManagerPrivate::updateSessionMenu()
 
 void SessionManagerPrivate::restoreValues(const PersistentSettingsReader &reader)
 {
-    const KeyList keys = keyListFromStringList(reader.restoreValue("valueKeys").toStringList());
+    const KeyList keys = keysFromStrings(reader.restoreValue("valueKeys").toStringList());
     for (const Key &key : keys) {
         QVariant value = reader.restoreValue("value-" + key);
         m_values.insert(key, value);

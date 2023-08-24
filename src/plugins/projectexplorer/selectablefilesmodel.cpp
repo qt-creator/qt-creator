@@ -22,6 +22,8 @@
 #include <QPushButton>
 #include <QTreeView>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; *.files;"
@@ -534,7 +536,7 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     layout->setContentsMargins(0, 0, 0, 0);
 
     m_baseDirLabel->setText(Tr::tr("Source directory:"));
-    m_baseDirChooser->setHistoryCompleter(QLatin1String("PE.AddToProjectDir.History"));
+    m_baseDirChooser->setHistoryCompleter("PE.AddToProjectDir.History");
     m_startParsingButton->setText(Tr::tr("Start Parsing"));
     layout->addWidget(m_baseDirLabel, static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 0);
     layout->addWidget(m_baseDirChooser->lineEdit(), static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 1);
@@ -638,7 +640,7 @@ void SelectableFilesWidget::cancelParsing()
         m_model->cancel();
 }
 
-void SelectableFilesWidget::enableFilterHistoryCompletion(const QString &keyPrefix)
+void SelectableFilesWidget::enableFilterHistoryCompletion(const Key &keyPrefix)
 {
     m_selectFilesFilterEdit->setHistoryCompleter(keyPrefix + ".select", true);
     m_hideFilesFilterEdit->setHistoryCompleter(keyPrefix + ".hide", true);

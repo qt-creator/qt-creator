@@ -349,7 +349,7 @@ void ProjectManagerPrivate::saveSession()
         depMap.insert(key, values);
         ++i;
     }
-    SessionManager::setSessionValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
+    SessionManager::setSessionValue("ProjectDependencies", QVariant(depMap));
 }
 
 /*!
@@ -654,7 +654,7 @@ void ProjectManagerPrivate::loadSession()
     d->m_casadeSetActive = false;
 
     // not ideal that this is in ProjectManager
-    Id modeId = Id::fromSetting(SessionManager::value(QLatin1String("ActiveMode")));
+    Id modeId = Id::fromSetting(SessionManager::value("ActiveMode"));
     if (!modeId.isValid())
         modeId = Id(Core::Constants::MODE_EDIT);
 
@@ -705,8 +705,7 @@ FilePaths ProjectManager::projectsForSessionName(const QString &session)
             return {};
         }
     }
-    return transform(reader.restoreValue(QLatin1String("ProjectList")).toStringList(),
-                     &FilePath::fromUserInput);
+    return transform(reader.restoreValue("ProjectList").toStringList(), &FilePath::fromUserInput);
 }
 
 #ifdef WITH_TESTS

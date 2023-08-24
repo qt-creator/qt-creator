@@ -981,12 +981,11 @@ Abis MsvcToolChain::supportedAbis() const
 void MsvcToolChain::toMap(Store &data) const
 {
     ToolChain::toMap(data);
-    data.insert(QLatin1String(varsBatKeyC), m_vcvarsBat);
+    data.insert(varsBatKeyC, m_vcvarsBat);
     if (!m_varsBatArg.isEmpty())
-        data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
-    Utils::EnvironmentItem::sort(&m_environmentModifications);
-    data.insert(QLatin1String(environModsKeyC),
-                Utils::EnvironmentItem::toVariantList(m_environmentModifications));
+        data.insert(varsBatArgKeyC, m_varsBatArg);
+    EnvironmentItem::sort(&m_environmentModifications);
+    data.insert(environModsKeyC, EnvironmentItem::toVariantList(m_environmentModifications));
 }
 
 void MsvcToolChain::fromMap(const Store &data)
@@ -996,11 +995,11 @@ void MsvcToolChain::fromMap(const Store &data)
         g_availableMsvcToolchains.removeOne(this);
         return;
     }
-    m_vcvarsBat = QDir::fromNativeSeparators(data.value(QLatin1String(varsBatKeyC)).toString());
-    m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
+    m_vcvarsBat = QDir::fromNativeSeparators(data.value(varsBatKeyC).toString());
+    m_varsBatArg = data.value(varsBatArgKeyC).toString();
 
-    m_environmentModifications = Utils::EnvironmentItem::itemsFromVariantList(
-        data.value(QLatin1String(environModsKeyC)).toList());
+    m_environmentModifications = EnvironmentItem::itemsFromVariantList(
+        data.value(environModsKeyC).toList());
     rescanForCompiler();
 
     initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &MsvcToolChain::environmentModifications,

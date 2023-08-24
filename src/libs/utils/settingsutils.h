@@ -19,7 +19,7 @@ void fromSettings(const Key &postFix,
 {
     Store map;
     s->beginGroup(category + postFix);
-    const KeyList keys = keyListFromStringList(s->allKeys());
+    const KeyList keys = keysFromStrings(s->allKeys());
     for (const Key &key : keys)
         map.insert(key, s->value(key));
     s->endGroup();
