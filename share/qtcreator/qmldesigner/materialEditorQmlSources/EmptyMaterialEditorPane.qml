@@ -10,6 +10,9 @@ import StudioTheme 1.0 as StudioTheme
 PropertyEditorPane {
     id: root
 
+    width: 420
+    height: 420
+
     signal toolBarAction(int action)
     signal previewEnvChanged(string env)
     signal previewModelChanged(string model)

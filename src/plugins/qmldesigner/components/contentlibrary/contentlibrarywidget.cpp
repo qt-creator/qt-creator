@@ -596,6 +596,11 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
         m_environmentsModel->markTextureHasNoUpdates(subcategory, textureKey);
 }
 
+QSize ContentLibraryWidget::sizeHint() const
+{
+    return {420, 420};
+}
+
 QList<QToolButton *> ContentLibraryWidget::createToolBarWidgets()
 {
     return {};

@@ -71,6 +71,8 @@ public:
     Q_INVOKABLE void updateSceneEnvState();
     Q_INVOKABLE void markTextureUpdated(const QString &textureKey);
 
+    QSize sizeHint() const override;
+
 signals:
     void bundleEffectDragStarted(QmlDesigner::ContentLibraryEffect *bundleEff);
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);

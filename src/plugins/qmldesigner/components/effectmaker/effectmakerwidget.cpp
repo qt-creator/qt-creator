@@ -109,6 +109,11 @@ void EffectMakerWidget::focusSection(int section)
     Q_UNUSED(section)
 }
 
+QSize EffectMakerWidget::sizeHint() const
+{
+    return {420, 420};
+}
+
 QString EffectMakerWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH

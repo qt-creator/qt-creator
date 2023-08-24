@@ -8,6 +8,9 @@ import HelperWidgets 2.0
 PropertyEditorPane {
     id: itemPane
 
+    width: 420
+    height: 420
+
     signal toolBarAction(int action)
 
     // invoked from C++ to refresh material preview image

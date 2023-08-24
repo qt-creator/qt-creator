@@ -8,6 +8,9 @@ import HelperWidgets 2.0
 PropertyEditorPane {
     id: itemPane
 
+    width: 420
+    height: 420
+
     signal toolBarAction(int action)
     signal previewEnvChanged(string env)
     signal previewModelChanged(string model)

@@ -38,6 +38,8 @@ public:
     Q_INVOKABLE void addEffectNode(const QString &nodeQenPath);
     Q_INVOKABLE void focusSection(int section);
 
+    QSize sizeHint() const override;
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 

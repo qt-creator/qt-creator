@@ -405,6 +405,11 @@ void MaterialBrowserWidget::clearPreviewCache()
     m_previewImageProvider->clearPixmapCache();
 }
 
+QSize MaterialBrowserWidget::sizeHint() const
+{
+    return {420, 420};
+}
+
 QPointer<MaterialBrowserModel> MaterialBrowserWidget::materialBrowserModel() const
 {
     return m_materialBrowserModel;
