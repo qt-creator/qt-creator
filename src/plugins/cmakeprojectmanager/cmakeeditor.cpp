@@ -19,7 +19,6 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <utils/textutils.h>
 
-#include <QDir>
 #include <QTextDocument>
 
 #include <functional>
@@ -186,7 +185,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     if (buffer.isEmpty())
         return processLinkCallback(link);
 
-    QDir dir(textDocument()->filePath().toFileInfo().absolutePath());
+    const Utils::FilePath dir = textDocument()->filePath().absolutePath();
     buffer.replace("${CMAKE_CURRENT_SOURCE_DIR}", dir.path());
     buffer.replace("${CMAKE_CURRENT_LIST_DIR}", dir.path());
 
@@ -211,18 +210,18 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     }
     // TODO: Resolve more variables
 
-    QString fileName = dir.filePath(unescape(buffer));
-    QFileInfo fi(fileName);
-    if (fi.exists()) {
-        if (fi.isDir()) {
-            QDir subDir(fi.absoluteFilePath());
-            QString subProject = subDir.filePath(QLatin1String("CMakeLists.txt"));
-            if (QFileInfo::exists(subProject))
+    Utils::FilePath fileName = dir.withNewPath(unescape(buffer));
+    if (fileName.isRelativePath())
+        fileName = dir.pathAppended(fileName.path());
+    if (fileName.exists()) {
+        if (fileName.isDir()) {
+            Utils::FilePath subProject = fileName.pathAppended("CMakeLists.txt");
+            if (subProject.exists())
                 fileName = subProject;
             else
                 return processLinkCallback(link);
         }
-        link.targetFilePath = Utils::FilePath::fromString(fileName);
+        link.targetFilePath = fileName;
         link.linkTextStart = cursor.position() - column + beginPos + 1;
         link.linkTextEnd = cursor.position() - column + endPos;
     }
