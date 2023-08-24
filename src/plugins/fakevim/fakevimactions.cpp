@@ -29,13 +29,13 @@ namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
 
-void FvBaseAspect::setSettingsKey(const QString &group, const QString &key)
+void FvBaseAspect::setSettingsKey(const Key &group, const Key &key)
 {
     m_settingsGroup = group;
     m_settingsKey = key;
 }
 
-QString FvBaseAspect::settingsKey() const
+Key FvBaseAspect::settingsKey() const
 {
     return m_settingsKey;
 }
@@ -244,14 +244,14 @@ FakeVimSettings::FakeVimSettings()
 
 FakeVimSettings::~FakeVimSettings() = default;
 
-FvBaseAspect *FakeVimSettings::item(const QString &name)
+FvBaseAspect *FakeVimSettings::item(const Key &name)
 {
     return m_nameToAspect.value(name, nullptr);
 }
 
 QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
 {
-    FvBaseAspect *aspect = m_nameToAspect.value(name, nullptr);
+    FvBaseAspect *aspect = m_nameToAspect.value(keyFromString(name), nullptr);
     if (!aspect)
         return Tr::tr("Unknown option: %1").arg(name);
     if (aspect == &tabStop || aspect == &shiftWidth) {
@@ -266,7 +266,7 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
 void FakeVimSettings::setup(FvBaseAspect *aspect,
                             const QVariant &value,
                             const Key &settingsKey,
-                            const QString &shortName,
+                            const Key &shortName,
                             const QString &labelText)
 {
     aspect->setSettingsKey("FakeVim", settingsKey);

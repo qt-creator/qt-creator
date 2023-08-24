@@ -47,23 +47,24 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
 
     setCommandLineProvider([this] { return effectiveMakeCommand(Execution); });
 
-    m_makeCommandAspect.setSettingsKey(id.withSuffix(MAKE_COMMAND_SUFFIX).toString());
+    // FIXME: Replace with  id.name() + MAKE_COMMAND_SUFFIX  after the Key/Store transition
+    m_makeCommandAspect.setSettingsKey(keyFromString(id.withSuffix(MAKE_COMMAND_SUFFIX).toString()));
     m_makeCommandAspect.setExpectedKind(PathChooser::ExistingCommand);
     m_makeCommandAspect.setBaseFileName(PathChooser::homePath());
     m_makeCommandAspect.setHistoryCompleter("PE.MakeCommand.History");
 
-    m_userArgumentsAspect.setSettingsKey(id.withSuffix(MAKE_ARGUMENTS_SUFFIX).toString());
+    m_userArgumentsAspect.setSettingsKey(keyFromString(id.withSuffix(MAKE_ARGUMENTS_SUFFIX).toString()));
     m_userArgumentsAspect.setLabelText(Tr::tr("Make arguments:"));
     m_userArgumentsAspect.setDisplayStyle(StringAspect::LineEditDisplay);
 
-    m_jobCountAspect.setSettingsKey(id.withSuffix(JOBCOUNT_SUFFIX).toString());
+    m_jobCountAspect.setSettingsKey(keyFromString(id.withSuffix(JOBCOUNT_SUFFIX).toString()));
     m_jobCountAspect.setLabel(Tr::tr("Parallel jobs:"));
     m_jobCountAspect.setRange(1, 999);
     m_jobCountAspect.setValue(defaultJobCount());
     m_jobCountAspect.setDefaultValue(defaultJobCount());
 
     const QString text = Tr::tr("Override MAKEFLAGS");
-    m_overrideMakeflagsAspect.setSettingsKey(id.withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString());
+    m_overrideMakeflagsAspect.setSettingsKey(keyFromString(id.withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString()));
     m_overrideMakeflagsAspect.setLabel(text, BoolAspect::LabelPlacement::AtCheckBox);
 
     m_nonOverrideWarning.setText("<html><body><p>" +
@@ -71,11 +72,11 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
          .arg(text) + "</p></body></html>");
     m_nonOverrideWarning.setIconType(InfoLabel::Warning);
 
-    m_disabledForSubdirsAspect.setSettingsKey(id.withSuffix(".disabledForSubdirs").toString());
+    m_disabledForSubdirsAspect.setSettingsKey(keyFromString(id.withSuffix(".disabledForSubdirs").toString()));
     m_disabledForSubdirsAspect.setLabel(Tr::tr("Disable in subdirectories:"));
     m_disabledForSubdirsAspect.setToolTip(Tr::tr("Runs this step only for a top-level build."));
 
-    m_buildTargetsAspect.setSettingsKey(id.withSuffix(BUILD_TARGETS_SUFFIX).toString());
+    m_buildTargetsAspect.setSettingsKey(keyFromString(id.withSuffix(BUILD_TARGETS_SUFFIX).toString()));
     m_buildTargetsAspect.setLabelText(Tr::tr("Targets:"));
 
     const auto updateMakeLabel = [this] {

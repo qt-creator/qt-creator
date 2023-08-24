@@ -376,22 +376,21 @@ void BuildConfiguration::toMap(Store &map) const
 {
     ProjectConfiguration::toMap(map);
 
-    map.insert(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY), d->m_clearSystemEnvironment);
-    map.insert(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY),
+    map.insert(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY, d->m_clearSystemEnvironment);
+    map.insert(Constants::USER_ENVIRONMENT_CHANGES_KEY,
                EnvironmentItem::toStringList(d->m_userEnvironmentChanges));
 
-    map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 2);
-    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(0), d->m_buildSteps.toMap());
-    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(1), d->m_cleanSteps.toMap());
+    map.insert(BUILD_STEP_LIST_COUNT, 2);
+    map.insert(BUILD_STEP_LIST_PREFIX + Key::number(0), QVariant::fromValue(d->m_buildSteps.toMap()));
+    map.insert(BUILD_STEP_LIST_PREFIX + Key::number(1), QVariant::fromValue(d->m_cleanSteps.toMap()));
 
     map.insert(PARSE_STD_OUT_KEY, d->m_parseStdOut);
-    map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers,&Utils::Id::toSetting));
+    map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers, &Id::toSetting));
 }
 
 void BuildConfiguration::fromMap(const Store &map)
 {
-    d->m_clearSystemEnvironment = map.value(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY))
-                                      .toBool();
+    d->m_clearSystemEnvironment = map.value(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY).toBool();
     d->m_userEnvironmentChanges = EnvironmentItem::fromStringList(
         map.value(Constants::USER_ENVIRONMENT_CHANGES_KEY).toStringList());
 
@@ -400,14 +399,14 @@ void BuildConfiguration::fromMap(const Store &map)
     d->m_buildSteps.clear();
     d->m_cleanSteps.clear();
 
-    int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
+    int maxI = map.value(BUILD_STEP_LIST_COUNT, 0).toInt();
     for (int i = 0; i < maxI; ++i) {
-        QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i)).toMap();
+        Store data = map.value(BUILD_STEP_LIST_PREFIX + Key::number(i)).value<Store>();
         if (data.isEmpty()) {
             qWarning() << "No data for build step list" << i << "found!";
             continue;
         }
-        Utils::Id id = idFromMap(data);
+        Id id = idFromMap(data);
         if (id == Constants::BUILDSTEPS_BUILD) {
             if (!d->m_buildSteps.fromMap(data))
                 qWarning() << "Failed to restore build step list";
@@ -420,7 +419,7 @@ void BuildConfiguration::fromMap(const Store &map)
     }
 
     d->m_parseStdOut = map.value(PARSE_STD_OUT_KEY).toBool();
-    d->m_customParsers = transform(map.value(CUSTOM_PARSERS_KEY).toList(), &Utils::Id::fromSetting);
+    d->m_customParsers = transform(map.value(CUSTOM_PARSERS_KEY).toList(), &Id::fromSetting);
 
     ProjectConfiguration::fromMap(map);
     setToolTip(d->m_tooltipAspect());

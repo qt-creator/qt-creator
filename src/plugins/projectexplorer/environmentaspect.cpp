@@ -135,15 +135,15 @@ void EnvironmentAspect::setSupportForBuildEnvironment(Target *target)
 
 void EnvironmentAspect::fromMap(const Store &map)
 {
-    m_base = map.value(QLatin1String(BASE_KEY), -1).toInt();
-    m_userChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(CHANGES_KEY)).toStringList());
+    m_base = map.value(BASE_KEY, -1).toInt();
+    m_userChanges = EnvironmentItem::fromStringList(map.value(CHANGES_KEY).toStringList());
     m_printOnRun = map.value(PRINT_ON_RUN_KEY).toBool();
 }
 
 void EnvironmentAspect::toMap(Store &data) const
 {
-    data.insert(QLatin1String(BASE_KEY), m_base);
-    data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userChanges));
+    data.insert(BASE_KEY, m_base);
+    data.insert(CHANGES_KEY, EnvironmentItem::toStringList(m_userChanges));
     data.insert(PRINT_ON_RUN_KEY, m_printOnRun);
 }
 

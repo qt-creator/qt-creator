@@ -24,6 +24,13 @@ namespace Utils { class FilePath {}; }
 namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
+
+#ifdef QTC_USE_STORE
+using Key = QByteArray;
+#else
+using Key = QString;
+#endif
+
 class FvBaseAspect
 {
 public:
@@ -34,19 +41,15 @@ public:
     virtual void setDefaultVariantValue(const QVariant &) {}
     virtual QVariant variantValue() const { return {}; }
     virtual QVariant defaultVariantValue() const { return {}; }
-#ifdef QTC_USE_STORE
-    void setSettingsKey(const QString &group, const QByteArray &key);
-#else
-    void setSettingsKey(const QString &group, const QString &key);
-#endif
-    QString settingsKey() const;
+    void setSettingsKey(const Key &group, const Key &key);
+    Key settingsKey() const;
     void setCheckable(bool) {}
     void setDisplayName(const QString &) {}
     void setToolTip(const QString &) {}
 
 private:
-    QString m_settingsGroup;
-    QString m_settingsKey;
+    Key m_settingsGroup;
+    Key m_settingsKey;
 };
 
 template <class ValueType>
@@ -104,7 +107,7 @@ public:
     FakeVimSettings();
     ~FakeVimSettings();
 
-    FvBaseAspect *item(const QString &name);
+    FvBaseAspect *item(const Utils::Key &name);
     QString trySetValue(const QString &name, const QString &value);
 
     FvBoolAspect useFakeVim;
@@ -161,7 +164,7 @@ public:
 private:
     void setup(FvBaseAspect *aspect, const QVariant &value,
                const Utils::Key &settingsKey,
-               const QString &shortName,
+               const Utils::Key &shortName,
                const QString &label);
 
     QHash<Utils::Key, FvBaseAspect *> m_nameToAspect;

@@ -8,7 +8,8 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
+#include <utils/settingsaccessor.h>
 #include <utils/settingsaccessor.h>
 
 #include <QDebug>
@@ -28,7 +29,7 @@ class AbiFlavorUpgraderV0 : public VersionUpgrader
 public:
     AbiFlavorUpgraderV0() : VersionUpgrader(0, "") { }
 
-    QVariantMap upgrade(const QVariantMap &data) override { return data; }
+    Store upgrade(const Store &data) override { return data; }
 };
 
 class AbiFlavorAccessor : public UpgradingSettingsAccessor
@@ -51,9 +52,9 @@ public:
 void ExtraAbi::load()
 {
     AbiFlavorAccessor accessor;
-    const QVariantMap data = accessor.restoreSettings(Core::ICore::dialogParent()).value("Flavors").toMap();
+    const Store data = accessor.restoreSettings(Core::ICore::dialogParent()).value("Flavors").value<Store>();
     for (auto it = data.constBegin(); it != data.constEnd(); ++it) {
-        const QString flavor = it.key();
+        const Key flavor = it.key();
         if (flavor.isEmpty())
             continue;
 
@@ -67,7 +68,7 @@ void ExtraAbi::load()
                 oses.push_back(os);
         }
 
-        Abi::registerOsFlavor(oses, flavor);
+        Abi::registerOsFlavor(oses, stringFromKey(flavor));
     }
 }
 

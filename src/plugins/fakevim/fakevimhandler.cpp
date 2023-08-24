@@ -6125,7 +6125,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         if (!error.isEmpty())
             showMessage(MessageError, error);
     } else {
-        QString optionName = cmd.args;
+        Utils::Key optionName = Utils::keyFromString(cmd.args);
 
         bool toggleOption = optionName.endsWith('!');
         bool printOption = !toggleOption && optionName.endsWith('?');

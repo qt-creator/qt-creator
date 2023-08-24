@@ -53,15 +53,15 @@ QWidget *DeployConfiguration::createConfigWidget()
 void DeployConfiguration::toMap(Store &map) const
 {
     ProjectConfiguration::toMap(map);
-    map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 1);
-    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0'), m_stepList.toMap());
+    map.insert(BUILD_STEP_LIST_COUNT, 1);
+    map.insert(Key(BUILD_STEP_LIST_PREFIX) + '0', QVariant::fromValue(m_stepList.toMap()));
     map.insert(USES_DEPLOYMENT_DATA, usesCustomDeploymentData());
     Store deployData;
     for (int i = 0; i < m_customDeploymentData.fileCount(); ++i) {
         const DeployableFile &f = m_customDeploymentData.fileAt(i);
-        deployData.insert(f.localFilePath().toString(), f.remoteDirectory());
+        deployData.insert(keyFromString(f.localFilePath().toString()), f.remoteDirectory());
     }
-    map.insert(DEPLOYMENT_DATA, deployData);
+    map.insert(DEPLOYMENT_DATA, QVariant::fromValue(deployData));
 }
 
 void DeployConfiguration::fromMap(const Store &map)
@@ -70,12 +70,12 @@ void DeployConfiguration::fromMap(const Store &map)
     if (hasError())
         return;
 
-    int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
+    int maxI = map.value(BUILD_STEP_LIST_COUNT, 0).toInt();
     if (maxI != 1) {
         reportError();
         return;
     }
-    Store data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0')).toMap();
+    Store data = map.value(Key(BUILD_STEP_LIST_PREFIX) + '0').value<Store>();
     if (!data.isEmpty()) {
         m_stepList.clear();
         if (!m_stepList.fromMap(data)) {
@@ -91,9 +91,9 @@ void DeployConfiguration::fromMap(const Store &map)
     }
 
     m_usesCustomDeploymentData = map.value(USES_DEPLOYMENT_DATA, false).toBool();
-    const Store deployData = map.value(DEPLOYMENT_DATA).toMap();
+    const Store deployData = map.value(DEPLOYMENT_DATA).value<Store>();
     for (auto it = deployData.begin(); it != deployData.end(); ++it)
-        m_customDeploymentData.addFile(FilePath::fromString(it.key()), it.value().toString());
+        m_customDeploymentData.addFile(FilePath::fromString(stringFromKey(it.key())), it.value().toString());
 }
 
 bool DeployConfiguration::isActive() const
