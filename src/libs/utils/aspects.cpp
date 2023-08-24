@@ -136,6 +136,11 @@ void BaseAspect::setId(Id id)
     d->m_id = id;
 }
 
+QVariant BaseAspect::volatileVariantValue() const
+{
+    return {};
+}
+
 QVariant BaseAspect::variantValue() const
 {
     return {};
@@ -601,6 +606,16 @@ void BaseAspect::toMap(Store &map) const
     saveToMap(map, toSettingsValue(variantValue()), toSettingsValue(defaultVariantValue()), settingsKey());
 }
 
+void BaseAspect::volatileToMap(Store &map) const
+{
+    if (settingsKey().isEmpty())
+        return;
+    saveToMap(map,
+              toSettingsValue(volatileVariantValue()),
+              toSettingsValue(defaultVariantValue()),
+              settingsKey());
+}
+
 void BaseAspect::readSettings()
 {
     if (settingsKey().isEmpty())
@@ -702,6 +717,12 @@ public:
     {
         if (m_checked)
             m_checked->toMap(map);
+    }
+
+    void volatileToMap(Store &map)
+    {
+        if (m_checked)
+            m_checked->volatileToMap(map);
     }
 
     template<class Widget>
@@ -935,6 +956,12 @@ void StringAspect::toMap(Store &map) const
 {
     saveToMap(map, value(), defaultValue(), settingsKey());
     d->m_checkerImpl.toMap(map);
+}
+
+void StringAspect::volatileToMap(Store &map) const
+{
+    saveToMap(map, volatileValue(), defaultValue(), settingsKey());
+    d->m_checkerImpl.volatileToMap(map);
 }
 
 /*!
@@ -1455,6 +1482,12 @@ void FilePathAspect::toMap(Store &map) const
 {
     saveToMap(map, value(), defaultValue(), settingsKey());
     d->m_checkerImpl.toMap(map);
+}
+
+void FilePathAspect::volatileToMap(Store &map) const
+{
+    saveToMap(map, volatileValue(), defaultValue(), settingsKey());
+    d->m_checkerImpl.volatileToMap(map);
 }
 
 void FilePathAspect::setPromptDialogFilter(const QString &filter)
@@ -2528,6 +2561,12 @@ void AspectContainer::toMap(Store &map) const
 {
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->toMap(map);
+}
+
+void AspectContainer::volatileToMap(Store &map) const
+{
+    for (BaseAspect *aspect : std::as_const(d->m_items))
+        aspect->volatileToMap(map);
 }
 
 void AspectContainer::readSettings()

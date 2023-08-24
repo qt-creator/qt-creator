@@ -56,6 +56,7 @@ public:
 
     enum Announcement { DoEmit, BeQuiet };
 
+    virtual QVariant volatileVariantValue() const;
     virtual QVariant variantValue() const;
     virtual void setVariantValue(const QVariant &value, Announcement = DoEmit);
 
@@ -104,6 +105,7 @@ public:
     virtual void fromMap(const Store &map);
     virtual void toMap(Store &map) const;
     virtual void toActiveMap(Store &map) const { toMap(map); }
+    virtual void volatileToMap(Store &map) const;
 
     virtual void addToLayout(Layouting::LayoutItem &parent);
 
@@ -327,6 +329,11 @@ protected:
     QVariant variantValue() const override
     {
         return QVariant::fromValue<ValueType>(m_internal);
+    }
+
+    QVariant volatileVariantValue() const override
+    {
+        return QVariant::fromValue<ValueType>(m_buffer);
     }
 
     void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override
@@ -560,6 +567,7 @@ public:
 
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
+    void volatileToMap(Utils::Store &map) const override;
 
 signals:
     void validChanged(bool validState);
@@ -629,6 +637,7 @@ public:
 
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
+    void volatileToMap(Utils::Store &map) const override;
 
 signals:
     void validChanged(bool validState);
@@ -834,6 +843,7 @@ public:
 
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
+    void volatileToMap(Utils::Store &map) const override;
 
     void readSettings() override;
     void writeSettings() const override;
