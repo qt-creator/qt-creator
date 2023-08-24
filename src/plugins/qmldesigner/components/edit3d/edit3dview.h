@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include "edit3dactions.h"
 #include "itemlibraryinfo.h"
 #include <qmldesignercomponents_global.h>
 
@@ -23,8 +24,6 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class BakeLights;
-class Edit3DAction;
-class Edit3DBakeLightsAction;
 class Edit3DWidget;
 class SnapConfiguration;
 
@@ -103,11 +102,11 @@ private:
     void showMaterialPropertiesView();
     void updateAlignActionStates();
 
-    Edit3DAction *createSelectBackgroundColorAction(QAction *syncBackgroundColorAction);
-    Edit3DAction *createGridColorSelectionAction();
-    Edit3DAction *createResetColorAction(QAction *syncBackgroundColorAction);
-    Edit3DAction *createSyncBackgroundColorAction();
-    Edit3DAction *createSeekerSliderAction();
+    void createSelectBackgroundColorAction(QAction *syncBackgroundColorAction);
+    void createGridColorSelectionAction();
+    void createResetColorAction(QAction *syncBackgroundColorAction);
+    void createSyncBackgroundColorAction();
+    void createSeekerSliderAction();
 
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;
@@ -116,34 +115,41 @@ private:
     QVector<Edit3DAction *> m_backgroundColorActions;
     QVector<Edit3DAction *> m_snapActions;
 
-    QMap<View3DActionType, QSharedPointer<Edit3DAction>> m_edit3DActions;
-    Edit3DAction *m_selectionModeAction = nullptr;
-    Edit3DAction *m_moveToolAction = nullptr;
-    Edit3DAction *m_rotateToolAction = nullptr;
-    Edit3DAction *m_scaleToolAction = nullptr;
-    Edit3DAction *m_fitAction = nullptr;
-    Edit3DAction *m_alignCamerasAction = nullptr;
-    Edit3DAction *m_alignViewAction = nullptr;
-    Edit3DAction *m_cameraModeAction = nullptr;
-    Edit3DAction *m_orientationModeAction = nullptr;
-    Edit3DAction *m_editLightAction = nullptr;
-    Edit3DAction *m_showGridAction = nullptr;
-    Edit3DAction *m_showSelectionBoxAction = nullptr;
-    Edit3DAction *m_showIconGizmoAction = nullptr;
-    Edit3DAction *m_showCameraFrustumAction = nullptr;
-    Edit3DAction *m_showParticleEmitterAction = nullptr;
-    Edit3DAction *m_resetAction = nullptr;
-    Edit3DAction *m_particleViewModeAction = nullptr;
-    Edit3DAction *m_particlesPlayAction = nullptr;
-    Edit3DAction *m_particlesRestartAction = nullptr;
-    Edit3DAction *m_visibilityTogglesAction = nullptr;
-    Edit3DAction *m_backgrondColorMenuAction = nullptr;
-    Edit3DAction *m_snapMenuAction = nullptr;
-    Edit3DAction *m_snapConfigAction = nullptr;
-    Edit3DAction *m_snapPositionAction = nullptr;
-    Edit3DAction *m_snapAbsoluteAction = nullptr;
-    Edit3DAction *m_seekerAction = nullptr;
-    Edit3DBakeLightsAction *m_bakeLightsAction = nullptr;
+    QMap<View3DActionType, Edit3DAction *> m_edit3DActions;
+    std::unique_ptr<Edit3DAction> m_selectionModeAction;
+    std::unique_ptr<Edit3DAction> m_moveToolAction;
+    std::unique_ptr<Edit3DAction> m_rotateToolAction;
+    std::unique_ptr<Edit3DAction> m_scaleToolAction;
+    std::unique_ptr<Edit3DAction> m_fitAction;
+    std::unique_ptr<Edit3DAction> m_alignCamerasAction;
+    std::unique_ptr<Edit3DAction> m_alignViewAction;
+    std::unique_ptr<Edit3DAction> m_cameraModeAction;
+    std::unique_ptr<Edit3DAction> m_orientationModeAction;
+    std::unique_ptr<Edit3DAction> m_editLightAction;
+    std::unique_ptr<Edit3DAction> m_showGridAction;
+    std::unique_ptr<Edit3DAction> m_showSelectionBoxAction;
+    std::unique_ptr<Edit3DAction> m_showIconGizmoAction;
+    std::unique_ptr<Edit3DAction> m_showCameraFrustumAction;
+    std::unique_ptr<Edit3DAction> m_showParticleEmitterAction;
+    std::unique_ptr<Edit3DAction> m_particleViewModeAction;
+    std::unique_ptr<Edit3DAction> m_particlesPlayAction;
+    std::unique_ptr<Edit3DAction> m_particlesRestartAction;
+    std::unique_ptr<Edit3DParticleSeekerAction> m_seekerAction;
+    std::unique_ptr<Edit3DAction> m_syncBackgroundColorAction;
+    std::unique_ptr<Edit3DAction> m_selectBackgroundColorAction;
+    std::unique_ptr<Edit3DAction> m_selectGridColorAction;
+    std::unique_ptr<Edit3DAction> m_resetColorAction;
+
+    // View3DActionType::Empty actions
+    std::unique_ptr<Edit3DAction> m_resetAction;
+    std::unique_ptr<Edit3DAction> m_visibilityTogglesAction;
+    std::unique_ptr<Edit3DAction> m_backgrondColorMenuAction;
+    std::unique_ptr<Edit3DAction> m_snapMenuAction;
+    std::unique_ptr<Edit3DAction> m_snapConfigAction;
+    std::unique_ptr<Edit3DAction> m_snapPositionAction;
+    std::unique_ptr<Edit3DAction> m_snapAbsoluteAction;
+    std::unique_ptr<Edit3DBakeLightsAction> m_bakeLightsAction;
+
     int particlemode;
     ModelCache<QImage> m_canvasCache;
     ModelNode m_droppedModelNode;
