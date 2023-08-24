@@ -91,6 +91,8 @@ Project {
 
     quickVersion: "6.2"
 
+    qtForMCUs: true
+
     /* If any modules the project imports require widgets (e.g. QtCharts), widgetApp must be true */
     widgetApp: true
 

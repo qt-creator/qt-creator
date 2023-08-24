@@ -13,7 +13,7 @@ Project {
     qdsVersion: ""
     quickVersion: ""
     qt6Project: false
-    qtForMCUs: true
+    qtForMCUs: false
 
     multilanguageSupport: false
     primaryLanguage: ""

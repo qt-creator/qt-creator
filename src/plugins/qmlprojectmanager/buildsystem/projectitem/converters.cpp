@@ -137,7 +137,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
             appendString("qdsVersion", versionConfig["designStudio"].toString());
             appendString("quickVersion", versionConfig["qtQuick"].toString());
             appendBool("qt6Project", versionConfig["qt"].toString() == "6");
-            appendBool("qtForMCUs", rootObject["mcuConfig"].toObject().isEmpty());
+            appendBool("qtForMCUs", !(rootObject["mcuConfig"].toObject().isEmpty()));
             appendBreak();
             appendBool("multilanguageSupport", languageConfig["multiLanguageSupport"].toBool());
             appendString("primaryLanguage", languageConfig["primaryLanguage"].toString());
