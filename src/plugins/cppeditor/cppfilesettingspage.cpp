@@ -336,7 +336,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
             m_headerSuffixComboBox->addItem(suffix);
     }
     m_licenseTemplatePathChooser->setExpectedKind(PathChooser::File);
-    m_licenseTemplatePathChooser->setHistoryCompleter(QLatin1String("Cpp.LicenseTemplate.History"));
+    m_licenseTemplatePathChooser->setHistoryCompleter("Cpp.LicenseTemplate.History");
     m_licenseTemplatePathChooser->addButton(Tr::tr("Edit..."), this, [this] { slotEdit(); });
 
     setSettings(*m_settings);

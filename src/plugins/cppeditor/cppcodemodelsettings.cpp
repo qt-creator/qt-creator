@@ -498,7 +498,7 @@ void ClangdProjectSettings::loadSettings()
 {
     if (!m_project)
         return;
-    const QVariantMap data = m_project->namedSettings(clangdSettingsKey()).toMap();
+    const Store data = m_project->namedSettings(clangdSettingsKey()).value<Store>();
     m_useGlobalSettings = data.value(clangdUseGlobalSettingsKey(), true).toBool();
     m_blockIndexing = data.value(clangdblockIndexingSettingsKey(), false).toBool();
     if (!m_useGlobalSettings)
@@ -509,17 +509,17 @@ void ClangdProjectSettings::saveSettings()
 {
     if (!m_project)
         return;
-    QVariantMap data;
+    Store data;
     if (!m_useGlobalSettings)
         data = m_customSettings.toMap();
     data.insert(clangdUseGlobalSettingsKey(), m_useGlobalSettings);
     data.insert(clangdblockIndexingSettingsKey(), m_blockIndexing);
-    m_project->setNamedSettings(clangdSettingsKey(), data);
+    m_project->setNamedSettings(clangdSettingsKey(), QVariant::fromValue(data));
 }
 
-QVariantMap ClangdSettings::Data::toMap() const
+Store ClangdSettings::Data::toMap() const
 {
-    QVariantMap map;
+    Store map;
     map.insert(useClangdKey(), useClangd);
     map.insert(clangdPathKey(),
                executableFilePath != fallbackClangdFilePath() ? executableFilePath.toString()

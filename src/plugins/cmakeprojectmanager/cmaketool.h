@@ -52,7 +52,7 @@ public:
     using PathMapper = std::function<Utils::FilePath (const Utils::FilePath &)>;
 
     explicit CMakeTool(Detection d, const Utils::Id &id);
-    explicit CMakeTool(const QVariantMap &map, bool fromSdk);
+    explicit CMakeTool(const Utils::Store &map, bool fromSdk);
     ~CMakeTool();
 
     static Utils::Id createId();

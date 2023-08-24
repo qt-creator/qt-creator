@@ -1433,7 +1433,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     setInitializer([this, target](const BuildInfo &info) {
         const Kit *k = target->kit();
         const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
-        const QVariantMap extraInfoMap = info.extraInfo.value<QVariantMap>();
+        const Store extraInfoMap = info.extraInfo.value<Store>();
         const QString buildType = extraInfoMap.contains(CMAKE_BUILD_TYPE)
                                       ? extraInfoMap.value(CMAKE_BUILD_TYPE).toString()
                                       : info.typeName;
@@ -1939,7 +1939,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
         info.typeName = "Debug";
         info.displayName = ::ProjectExplorer::Tr::tr("Debug");
         info.buildType = BuildConfiguration::Debug;
-        QVariantMap extraInfo;
+        Store extraInfo;
         // enable QML debugging by default
         extraInfo.insert(Constants::QML_DEBUG_SETTING, TriState::Enabled.toVariant());
         info.extraInfo = extraInfo;
@@ -1964,7 +1964,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
         info.typeName = "Profile";
         info.displayName = Tr::tr("Profile");
         info.buildType = BuildConfiguration::Profile;
-        QVariantMap extraInfo;
+        Store extraInfo;
         // override CMake build type, which defaults to info.typeName
         extraInfo.insert(CMAKE_BUILD_TYPE, "RelWithDebInfo");
         // enable QML debugging by default
@@ -2234,32 +2234,29 @@ ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(AspectContainer *containe
 void ConfigureEnvironmentAspect::fromMap(const Store &map)
 {
     // Match the key values from Qt Creator 9.0.0/1 to the ones from EnvironmentAspect
-    const bool cleanSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY))
-                                            .toBool();
+    const bool cleanSystemEnvironment = map.value(CLEAR_SYSTEM_ENVIRONMENT_KEY).toBool();
     const QStringList userEnvironmentChanges
-        = map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList();
+        = map.value(USER_ENVIRONMENT_CHANGES_KEY).toStringList();
 
-    const int baseEnvironmentIndex
-        = map.value(QLatin1String(BASE_ENVIRONMENT_KEY), baseEnvironmentBase()).toInt();
+    const int baseEnvironmentIndex = map.value(BASE_ENVIRONMENT_KEY, baseEnvironmentBase()).toInt();
 
-    QVariantMap tmpMap;
-    tmpMap.insert(QLatin1String(BASE_KEY), cleanSystemEnvironment ? 0 : baseEnvironmentIndex);
-    tmpMap.insert(QLatin1String(CHANGES_KEY), userEnvironmentChanges);
+    Store tmpMap;
+    tmpMap.insert(BASE_KEY, cleanSystemEnvironment ? 0 : baseEnvironmentIndex);
+    tmpMap.insert(CHANGES_KEY, userEnvironmentChanges);
 
     ProjectExplorer::EnvironmentAspect::fromMap(tmpMap);
 }
 
 void ConfigureEnvironmentAspect::toMap(Store &map) const
 {
-    QVariantMap tmpMap;
+    Store tmpMap;
     ProjectExplorer::EnvironmentAspect::toMap(tmpMap);
 
     const int baseKey = tmpMap.value(BASE_KEY).toInt();
 
-    map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), baseKey == 0);
-    map.insert(QLatin1String(BASE_ENVIRONMENT_KEY), baseKey);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY),
-               tmpMap.value(CHANGES_KEY).toStringList());
+    map.insert(CLEAR_SYSTEM_ENVIRONMENT_KEY, baseKey == 0);
+    map.insert(BASE_ENVIRONMENT_KEY, baseKey);
+    map.insert(USER_ENVIRONMENT_CHANGES_KEY, tmpMap.value(CHANGES_KEY).toStringList());
 }
 
 } // namespace Internal

@@ -795,9 +795,9 @@ void DockerDevice::fromMap(const Store &map)
     d->setData(data);
 }
 
-QVariantMap DockerDevice::toMap() const
+Store DockerDevice::toMap() const
 {
-    QVariantMap map = ProjectExplorer::IDevice::toMap();
+    Store map = ProjectExplorer::IDevice::toMap();
     DockerDeviceData data = d->data();
 
     map.insert(DockerDeviceDataRepoKey, data.repo);

@@ -89,51 +89,49 @@ const char LinuxOsKey[] = "linux";
 const char WindowsOsKey[] = "windows";
 const char macOsKey[] = "mac";
 
+const char SettingsGroup[] = "AndroidConfigurations";
+const char SDKLocationKey[] = "SDKLocation";
+const char CustomNdkLocationsKey[] = "CustomNdkLocations";
+const char DefaultNdkLocationKey[] = "DefaultNdkLocation";
+const char SdkFullyConfiguredKey[] = "AllEssentialsInstalled";
+const char SDKManagerToolArgsKey[] = "SDKManagerToolArgs";
+const char OpenJDKLocationKey[] = "OpenJDKLocation";
+const char OpenSslPriLocationKey[] = "OpenSSLPriLocation";
+const char AutomaticKitCreationKey[] = "AutomatiKitCreation";
+const char EmulatorArgsKey[] = "EmulatorArgs";
 
-namespace {
-    const QLatin1String SettingsGroup("AndroidConfigurations");
-    const QLatin1String SDKLocationKey("SDKLocation");
-    const QLatin1String CustomNdkLocationsKey("CustomNdkLocations");
-    const QLatin1String DefaultNdkLocationKey("DefaultNdkLocation");
-    const QLatin1String SdkFullyConfiguredKey("AllEssentialsInstalled");
-    const QLatin1String SDKManagerToolArgsKey("SDKManagerToolArgs");
-    const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
-    const QLatin1String OpenSslPriLocationKey("OpenSSLPriLocation");
-    const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
-    const QLatin1String EmulatorArgsKey("EmulatorArgs");
+const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
+const QLatin1String X86ToolchainPrefix("x86");
+const QLatin1String AArch64ToolchainPrefix("aarch64-linux-android");
+const QLatin1String X86_64ToolchainPrefix("x86_64");
 
-    const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
-    const QLatin1String X86ToolchainPrefix("x86");
-    const QLatin1String AArch64ToolchainPrefix("aarch64-linux-android");
-    const QLatin1String X86_64ToolchainPrefix("x86_64");
+const QLatin1String ArmToolsPrefix ("arm-linux-androideabi");
+const QLatin1String X86ToolsPrefix("i686-linux-android");
+const QLatin1String AArch64ToolsPrefix("aarch64-linux-android");
+const QLatin1String X86_64ToolsPrefix("x86_64-linux-android");
 
-    const QLatin1String ArmToolsPrefix("arm-linux-androideabi");
-    const QLatin1String X86ToolsPrefix("i686-linux-android");
-    const QLatin1String AArch64ToolsPrefix("aarch64-linux-android");
-    const QLatin1String X86_64ToolsPrefix("x86_64-linux-android");
+const QLatin1String ArmToolsDisplayName("arm");
+const QLatin1String X86ToolsDisplayName("i686");
+const QLatin1String AArch64ToolsDisplayName("aarch64");
+const QLatin1String X86_64ToolsDisplayName("x86_64");
 
-    const QLatin1String ArmToolsDisplayName("arm");
-    const QLatin1String X86ToolsDisplayName("i686");
-    const QLatin1String AArch64ToolsDisplayName("aarch64");
-    const QLatin1String X86_64ToolsDisplayName("x86_64");
+const QLatin1String Unknown("unknown");
+const QLatin1String keytoolName("keytool");
+const QLatin1String changeTimeStamp("ChangeTimeStamp");
 
-    const QLatin1String Unknown("unknown");
-    const QLatin1String keytoolName("keytool");
-    const QLatin1String changeTimeStamp("ChangeTimeStamp");
+const char sdkToolsVersionKey[] = "Pkg.Revision";
+const char ndkRevisionKey[] = "Pkg.Revision";
 
-    const QLatin1String sdkToolsVersionKey("Pkg.Revision");
-    const QLatin1String ndkRevisionKey("Pkg.Revision");
-
-    static QString sdkSettingsFileName()
-    {
-        return Core::ICore::installerResourcePath("android.xml").toString();
-    }
-
-    static QString ndkPackageMarker()
-    {
-        return QLatin1String(Constants::ndkPackageName) + ";";
-    }
+static QString sdkSettingsFileName()
+{
+    return Core::ICore::installerResourcePath("android.xml").toString();
 }
+
+static QString ndkPackageMarker()
+{
+    return QLatin1String(Constants::ndkPackageName) + ";";
+}
+
 
 //////////////////////////////////
 // AndroidConfig

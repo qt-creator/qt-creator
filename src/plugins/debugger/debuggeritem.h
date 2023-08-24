@@ -30,7 +30,7 @@ class DEBUGGER_EXPORT DebuggerItem
 {
 public:
     DebuggerItem();
-    DebuggerItem(const QVariantMap &data);
+    DebuggerItem(const Utils::Store &data);
 
     void createId();
     bool canClone() const { return true; }

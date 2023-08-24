@@ -27,7 +27,7 @@ using namespace QmlPreview::Internal;
 
 namespace QmlPreview {
 
-static const QString QmlServerUrl = "QmlServerUrl";
+static const Key QmlServerUrl = "QmlServerUrl";
 
 class QmlPreviewRunner : public ProjectExplorer::RunWorker
 {

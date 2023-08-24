@@ -27,7 +27,7 @@ namespace QmlJSTools {
 
 QmlJSCodeStyleSettings::QmlJSCodeStyleSettings() = default;
 
-QVariantMap QmlJSCodeStyleSettings::toMap() const
+Store QmlJSCodeStyleSettings::toMap() const
 {
     return {
         {lineLengthKey, lineLength}

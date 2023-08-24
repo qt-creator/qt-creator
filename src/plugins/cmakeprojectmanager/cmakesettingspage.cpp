@@ -409,14 +409,14 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     m_binaryChooser = new PathChooser(this);
     m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_binaryChooser->setMinimumWidth(400);
-    m_binaryChooser->setHistoryCompleter(QLatin1String("Cmake.Command.History"));
+    m_binaryChooser->setHistoryCompleter("Cmake.Command.History");
     m_binaryChooser->setCommandVersionArguments({"--version"});
     m_binaryChooser->setAllowPathFromDevice(true);
 
     m_qchFileChooser = new PathChooser(this);
     m_qchFileChooser->setExpectedKind(PathChooser::File);
     m_qchFileChooser->setMinimumWidth(400);
-    m_qchFileChooser->setHistoryCompleter(QLatin1String("Cmake.qchFile.History"));
+    m_qchFileChooser->setHistoryCompleter("Cmake.qchFile.History");
     m_qchFileChooser->setPromptDialogFilter("*.qch");
     m_qchFileChooser->setPromptDialogTitle(Tr::tr("CMake .qch File"));
 

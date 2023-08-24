@@ -105,7 +105,7 @@ CMakeTool::CMakeTool(Detection d, const Id &id)
     QTC_ASSERT(m_id.isValid(), m_id = Id::fromString(QUuid::createUuid().toString()));
 }
 
-CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
+CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
     CMakeTool(fromSdk ? CMakeTool::AutoDetection : CMakeTool::ManualDetection,
               Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
 {
@@ -175,9 +175,9 @@ void CMakeTool::runCMake(Process &cmake, const QStringList &args, int timeoutS) 
     cmake.runBlocking();
 }
 
-QVariantMap CMakeTool::toMap() const
+Store CMakeTool::toMap() const
 {
-    QVariantMap data;
+    Store data;
     data.insert(CMAKE_INFORMATION_DISPLAYNAME, m_displayName);
     data.insert(CMAKE_INFORMATION_ID, m_id.toSetting());
     data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toString());

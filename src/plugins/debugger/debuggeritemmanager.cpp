@@ -755,7 +755,7 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
     PersistentSettingsReader reader;
     if (!reader.load(fileName))
         return;
-    QVariantMap data = reader.restoreValues();
+    Store data = reader.restoreValues();
 
     // Check version
     int version = data.value(DEBUGGER_FILE_VERSION_KEY, 0).toInt();
@@ -764,10 +764,10 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
 
     int count = data.value(DEBUGGER_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const QString key = DEBUGGER_DATA_KEY + QString::number(i);
+        const Key key = DEBUGGER_DATA_KEY + Key::number(i);
         if (!data.contains(key))
             continue;
-        const QVariantMap dbMap = data.value(key).toMap();
+        const Store dbMap = data.value(key).value<Store>();
         DebuggerItem item(dbMap);
         if (isSystem) {
             item.setAutoDetected(true);
@@ -811,7 +811,7 @@ void DebuggerItemModel::restoreDebuggers()
 
 void DebuggerItemModel::saveDebuggers()
 {
-    QVariantMap data;
+    Store data;
     data.insert(DEBUGGER_FILE_VERSION_KEY, 1);
 
     int count = 0;
@@ -819,9 +819,9 @@ void DebuggerItemModel::saveDebuggers()
         if (item.isGeneric()) // do not store generic debuggers, these get added automatically
             return;
         if (item.isValid() && item.engineType() != NoEngineType) {
-            QVariantMap tmp = item.toMap();
+            Store tmp = item.toMap();
             if (!tmp.isEmpty()) {
-                data.insert(DEBUGGER_DATA_KEY + QString::number(count), tmp);
+                data.insert(DEBUGGER_DATA_KEY + Key::number(count), QVariant::fromValue(tmp));
                 ++count;
             }
         }

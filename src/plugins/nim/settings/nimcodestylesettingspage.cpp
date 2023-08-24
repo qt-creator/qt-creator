@@ -67,7 +67,7 @@ static void createGlobalCodeStyle()
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    m_globalCodeStyle->fromSettings(QLatin1String(Nim::Constants::C_NIMLANGUAGE_ID));
+    m_globalCodeStyle->fromSettings(Nim::Constants::C_NIMLANGUAGE_ID);
 
     TextEditorSettings::registerMimeTypeForLanguageId(Nim::Constants::C_NIM_MIMETYPE,
                                                       Nim::Constants::C_NIMLANGUAGE_ID);
@@ -111,7 +111,7 @@ public:
     void apply() final
     {
         QTC_ASSERT(m_globalCodeStyle, return);
-        m_globalCodeStyle->toSettings(QLatin1String(Nim::Constants::C_NIMLANGUAGE_ID));
+        m_globalCodeStyle->toSettings(Nim::Constants::C_NIMLANGUAGE_ID);
     }
 
 private:

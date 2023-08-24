@@ -21,7 +21,7 @@ public:
     virtual QString displayName() const;
 
     virtual void fromMap(const Utils::Store &map);
-    virtual void toMap(QVariantMap *map) const;
+    virtual void toMap(Utils::Store *map) const;
 
     virtual Utils::FilePath defaultCommand() const { return {}; }
     virtual QString defaultArguments() const { return QString(); }

@@ -432,13 +432,13 @@ const bool kSyncDefault = false;
 
 void CppIncludeHierarchyWidget::saveSettings(QSettings *settings, int position)
 {
-    const QString key = QString("IncludeHierarchy.%1.SyncWithEditor").arg(position);
+    const Key key = keyFromString(QString("IncludeHierarchy.%1.SyncWithEditor").arg(position));
     QtcSettings::setValueWithDefault(settings, key, m_toggleSync->isChecked(), kSyncDefault);
 }
 
 void CppIncludeHierarchyWidget::restoreSettings(QSettings *settings, int position)
 {
-    const QString key = QString("IncludeHierarchy.%1.SyncWithEditor").arg(position);
+    const Key key = keyFromString(QString("IncludeHierarchy.%1.SyncWithEditor").arg(position));
     m_toggleSync->setChecked(settings->value(key, kSyncDefault).toBool());
 }
 

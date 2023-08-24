@@ -190,7 +190,7 @@ QmakeBuildConfiguration::~QmakeBuildConfiguration()
 void QmakeBuildConfiguration::toMap(Store &map) const
 {
     BuildConfiguration::toMap(map);
-    map.insert(QLatin1String(BUILD_CONFIGURATION_KEY), int(m_qmakeBuildConfiguration));
+    map.insert(BUILD_CONFIGURATION_KEY, int(m_qmakeBuildConfiguration));
 }
 
 void QmakeBuildConfiguration::fromMap(const Store &map)
@@ -199,7 +199,7 @@ void QmakeBuildConfiguration::fromMap(const Store &map)
     if (hasError())
         return;
 
-    m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
+    m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(BUILD_CONFIGURATION_KEY).toInt());
 
     m_lastKitState = LastKitState(kit());
 }

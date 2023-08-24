@@ -43,7 +43,7 @@ ClassDefinition::ClassDefinition(QWidget *parent) :
     m_pluginSourceEdit = new QLineEdit;
     m_iconPathChooser = new Utils::PathChooser;
     m_iconPathChooser->setExpectedKind(Utils::PathChooser::File);
-    m_iconPathChooser->setHistoryCompleter(QLatin1String("Qmake.Icon.History"));
+    m_iconPathChooser->setHistoryCompleter("Qmake.Icon.History");
     m_iconPathChooser->setPromptDialogTitle(Tr::tr("Select Icon"));
     m_iconPathChooser->setPromptDialogFilter(Tr::tr("Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)"));
     Form {

@@ -14,17 +14,17 @@ class NinjaWrapper final : public ToolWrapper
 public:
     using ToolWrapper::ToolWrapper;
 
-    static inline std::optional<Utils::FilePath> find()
+    static std::optional<Utils::FilePath> find()
     {
         return ToolWrapper::findTool({"ninja", "ninja-build"});
     }
-    static inline QString toolName() { return {"Ninja"}; };
+    static QString toolName() { return {"Ninja"}; }
 };
 
 template<>
-inline QVariantMap toVariantMap<NinjaWrapper>(const NinjaWrapper &meson)
+inline Utils::Store toVariantMap<NinjaWrapper>(const NinjaWrapper &meson)
 {
-    QVariantMap data;
+    Utils::Store data;
     data.insert(Constants::ToolsSettings::NAME_KEY, meson.m_name);
     data.insert(Constants::ToolsSettings::EXE_KEY, meson.m_exe.toSettings());
     data.insert(Constants::ToolsSettings::AUTO_DETECTED_KEY, meson.m_autoDetected);
@@ -33,7 +33,7 @@ inline QVariantMap toVariantMap<NinjaWrapper>(const NinjaWrapper &meson)
     return data;
 }
 template<>
-inline NinjaWrapper *fromVariantMap<NinjaWrapper *>(const QVariantMap &data)
+inline NinjaWrapper *fromVariantMap<NinjaWrapper *>(const Utils::Store &data)
 {
     return new NinjaWrapper(data[Constants::ToolsSettings::NAME_KEY].toString(),
                             Utils::FilePath::fromSettings(data[Constants::ToolsSettings::EXE_KEY]),

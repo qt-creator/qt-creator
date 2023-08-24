@@ -563,9 +563,9 @@ Client *BaseSettings::createClient(BaseClientInterface *interface) const
     return new Client(interface);
 }
 
-QVariantMap BaseSettings::toMap() const
+Store BaseSettings::toMap() const
 {
-    QVariantMap map;
+    Store map;
     map.insert(typeIdKey, m_settingsTypeId.toSetting());
     map.insert(nameKey, m_name);
     map.insert(idKey, m_id);
@@ -612,8 +612,8 @@ QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn
     for (auto varList :
          {settingsIn->value(clientsKey).toList(), settingsIn->value(typedClientsKey).toList()}) {
         for (const QVariant &var : varList) {
-            const QMap<QString, QVariant> &map = var.toMap();
-            Utils::Id typeId = Utils::Id::fromSetting(map.value(typeIdKey));
+            const Store map = var.value<Store>();
+            Id typeId = Id::fromSetting(map.value(typeIdKey));
             if (!typeId.isValid())
                 typeId = Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID;
             if (BaseSettings *settings = generateSettings(typeId)) {
@@ -659,7 +659,7 @@ void LanguageClientSettings::toSettings(QSettings *settings,
     settings->beginGroup(settingsGroupKey);
     auto transform = [](const QList<BaseSettings *> &settings) {
         return Utils::transform(settings, [](const BaseSettings *setting) {
-            return QVariant(setting->toMap());
+            return QVariant::fromValue(setting->toMap());
         });
     };
     auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,
@@ -714,9 +714,9 @@ bool StdIOSettings::isValid() const
     return BaseSettings::isValid() && !m_executable.isEmpty();
 }
 
-QVariantMap StdIOSettings::toMap() const
+Store StdIOSettings::toMap() const
 {
-    QVariantMap map = BaseSettings::toMap();
+    Store map = BaseSettings::toMap();
     map.insert(executableKey, m_executable.toSettings());
     map.insert(argumentsKey, m_arguments);
     return map;

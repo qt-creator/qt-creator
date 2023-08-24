@@ -96,7 +96,7 @@ FilePath ExamplesWelcomePage::copyToAlternativeLocation(const FilePath &proFile,
     auto chooser = new PathChooser;
     txt->setBuddy(chooser);
     chooser->setExpectedKind(PathChooser::ExistingDirectory);
-    chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
+    chooser->setHistoryCompleter("Qt.WritableExamplesDir.History");
     const FilePath defaultRootDirectory = DocumentManager::projectsDirectory();
     QtcSettings *settings = ICore::settings();
     chooser->setFilePath(

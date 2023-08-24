@@ -233,7 +233,7 @@ CopilotProjectSettings::CopilotProjectSettings(ProjectExplorer::Project *project
 
     initEnableAspect(enableCopilot);
 
-    QVariantMap map = project->namedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID).toMap();
+    Store map = project->namedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID).value<Store>();
     fromMap(map);
 
     connect(&enableCopilot, &BaseAspect::changed, this, [this, project] { save(project); });
@@ -254,9 +254,9 @@ bool CopilotProjectSettings::isEnabled() const
 
 void CopilotProjectSettings::save(ProjectExplorer::Project *project)
 {
-    QVariantMap map;
+    Store map;
     toMap(map);
-    project->setNamedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID, map);
+    project->setNamedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID, QVariant::fromValue(map));
 
     // This triggers a restart of the Copilot language server.
     settings().apply();

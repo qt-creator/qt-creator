@@ -277,23 +277,22 @@ void CMakeBuildStep::toMap(Utils::Store &map) const
 {
     CMakeAbstractProcessStep::toMap(map);
     map.insert(BUILD_TARGETS_KEY, m_buildTargets);
-    map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    map.insert(QLatin1String(BUILD_PRESET_KEY), m_buildPreset);
+    map.insert(CLEAR_SYSTEM_ENVIRONMENT_KEY, m_clearSystemEnvironment);
+    map.insert(USER_ENVIRONMENT_CHANGES_KEY, EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(BUILD_PRESET_KEY, m_buildPreset);
 }
 
 void CMakeBuildStep::fromMap(const Utils::Store &map)
 {
     setBuildTargets(map.value(BUILD_TARGETS_KEY).toStringList());
 
-    m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY))
-                                   .toBool();
+    m_clearSystemEnvironment = map.value(CLEAR_SYSTEM_ENVIRONMENT_KEY).toBool();
     m_userEnvironmentChanges = EnvironmentItem::fromStringList(
-        map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+        map.value(USER_ENVIRONMENT_CHANGES_KEY).toStringList());
 
     updateAndEmitEnvironmentChanged();
 
-    m_buildPreset = map.value(QLatin1String(BUILD_PRESET_KEY)).toString();
+    m_buildPreset = map.value(BUILD_PRESET_KEY).toString();
 
     BuildStep::fromMap(map);
 }

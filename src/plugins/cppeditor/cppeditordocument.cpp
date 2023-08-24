@@ -210,7 +210,7 @@ void CppEditorDocument::reparseWithPreferredParseContext(const QString &parseCon
     setPreferredParseContext(parseContextId);
 
     // Remember the setting
-    const QString key = Constants::PREFERRED_PARSE_CONTEXT + filePath().toString();
+    const Key key = Constants::PREFERRED_PARSE_CONTEXT + keyFromString(filePath().toString());
     Core::SessionManager::setValue(key, parseContextId);
 
     // Reprocess
@@ -277,7 +277,7 @@ void CppEditorDocument::applyPreferredParseContextFromSettings()
     if (filePath().isEmpty())
         return;
 
-    const QString key = Constants::PREFERRED_PARSE_CONTEXT + filePath().toString();
+    const Key key = Constants::PREFERRED_PARSE_CONTEXT + keyFromString(filePath().toString());
     const QString parseContextId = Core::SessionManager::value(key).toString();
 
     setPreferredParseContext(parseContextId);
@@ -288,7 +288,7 @@ void CppEditorDocument::applyExtraPreprocessorDirectivesFromSettings()
     if (filePath().isEmpty())
         return;
 
-    const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + filePath().toString();
+    const Key key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + keyFromString(filePath().toString());
     const QByteArray directives = Core::SessionManager::value(key).toString().toUtf8();
 
     setExtraPreprocessorDirectives(directives);

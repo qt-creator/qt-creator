@@ -13,6 +13,8 @@
 #include <QSettings>
 #include <QtDebug>
 
+using namespace Utils;
+
 namespace CppEditor {
 namespace Internal {
 
@@ -64,7 +66,7 @@ const Utils::FilePath &CppQuickFixProjectsSettings::filePathOfSettingsFile() con
 CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr CppQuickFixProjectsSettings::getSettings(
     ProjectExplorer::Project *project)
 {
-    const QString key = "CppQuickFixProjectsSettings";
+    const Key key = "CppQuickFixProjectsSettings";
     QVariant v = project->extraData(key);
     if (v.isNull()) {
         v = QVariant::fromValue(

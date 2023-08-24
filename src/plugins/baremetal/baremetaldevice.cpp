@@ -79,9 +79,9 @@ void BareMetalDevice::fromMap(const Store &map)
     }
 }
 
-QVariantMap BareMetalDevice::toMap() const
+Store BareMetalDevice::toMap() const
 {
-    QVariantMap map = IDevice::toMap();
+    Store map = IDevice::toMap();
     map.insert(debugServerProviderIdKeyC, debugServerProviderId());
     return map;
 }

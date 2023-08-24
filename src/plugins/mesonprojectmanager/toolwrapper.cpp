@@ -5,6 +5,8 @@
 
 #include <utils/process.h>
 
+#include <QUuid>
+
 namespace MesonProjectManager {
 namespace Internal {
 

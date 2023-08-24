@@ -169,17 +169,17 @@ static bool restoreQtVersions()
 
     if (!reader.load(filename))
         return false;
-    QVariantMap data = reader.restoreValues();
+    Store data = reader.restoreValues();
 
     // Check version:
     const int version = data.value(QTVERSION_FILE_VERSION_KEY, 0).toInt();
     if (version < 1)
         return false;
 
-    const QString keyPrefix(QTVERSION_DATA_KEY);
-    const QVariantMap::ConstIterator dcend = data.constEnd();
-    for (QVariantMap::ConstIterator it = data.constBegin(); it != dcend; ++it) {
-        const QString &key = it.key();
+    const Key keyPrefix(QTVERSION_DATA_KEY);
+    const Store::ConstIterator dcend = data.constEnd();
+    for (Store::ConstIterator it = data.constBegin(); it != dcend; ++it) {
+        const Key &key = it.key();
         if (!key.startsWith(keyPrefix))
             continue;
         bool ok;
@@ -187,7 +187,7 @@ static bool restoreQtVersions()
         if (!ok || count < 0)
             continue;
 
-        const QVariantMap qtversionMap = it.value().toMap();
+        const Store qtversionMap = it.value().value<Store>();
         const QString type = qtversionMap.value(QTVERSION_TYPE_KEY).toString();
 
         bool restored = false;
@@ -234,7 +234,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 
     const QList<QtVersionFactory *> factories = QtVersionFactory::allQtVersionFactories();
     PersistentSettingsReader reader;
-    QVariantMap data;
+    Store data;
     if (reader.load(path))
         data = reader.restoreValues();
 
@@ -250,10 +250,10 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 
     QStringList sdkVersions;
 
-    const QString keyPrefix(QTVERSION_DATA_KEY);
-    const QVariantMap::ConstIterator dcend = data.constEnd();
-    for (QVariantMap::ConstIterator it = data.constBegin(); it != dcend; ++it) {
-        const QString &key = it.key();
+    const Key keyPrefix(QTVERSION_DATA_KEY);
+    const Store::ConstIterator dcend = data.constEnd();
+    for (Store::ConstIterator it = data.constBegin(); it != dcend; ++it) {
+        const Key &key = it.key();
         if (!key.startsWith(keyPrefix))
             continue;
         bool ok;
@@ -261,7 +261,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         if (!ok || count < 0)
             continue;
 
-        QVariantMap qtversionMap = it.value().toMap();
+        Store qtversionMap = it.value().value<Store>();
         const QString type = qtversionMap.value(QTVERSION_TYPE_KEY).toString();
         const QString autoDetectionSource = qtversionMap.value("autodetectionSource").toString();
         sdkVersions << autoDetectionSource;
@@ -350,16 +350,16 @@ static void saveQtVersions()
     if (!m_writer)
         return;
 
-    QVariantMap data;
+    Store data;
     data.insert(QTVERSION_FILE_VERSION_KEY, 1);
 
     int count = 0;
     for (QtVersion *qtv : std::as_const(m_versions)) {
-        QVariantMap tmp = qtv->toMap();
+        Store tmp = qtv->toMap();
         if (tmp.isEmpty())
             continue;
         tmp.insert(QTVERSION_TYPE_KEY, qtv->type());
-        data.insert(QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(count), tmp);
+        data.insert(QTVERSION_DATA_KEY + Key::number(count), QVariant::fromValue(tmp));
         ++count;
     }
     m_writer->save(data, Core::ICore::dialogParent());

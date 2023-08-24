@@ -682,9 +682,9 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath)
     d->m_qmlRuntimePath.clear();
 }
 
-QVariantMap QtVersion::toMap() const
+Store QtVersion::toMap() const
 {
-    QVariantMap result;
+    Store result;
     result.insert(Constants::QTVERSIONID, uniqueId());
     d->m_data.unexpandedDisplayName.toMap(result, Constants::QTVERSIONNAME);
 
@@ -2323,7 +2323,7 @@ bool QtVersionFactory::canRestore(const QString &type)
     return type == m_supportedType;
 }
 
-QtVersion *QtVersionFactory::restore(const QString &type, const QVariantMap &data, const FilePath &filePath)
+QtVersion *QtVersionFactory::restore(const QString &type, const Store &data, const FilePath &filePath)
 {
     QTC_ASSERT(canRestore(type), return nullptr);
     QTC_ASSERT(m_creator, return nullptr);

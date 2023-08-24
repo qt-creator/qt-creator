@@ -67,7 +67,7 @@ void setupColor(TerminalSettings *settings,
                 const QString &label,
                 const QColor &defaultColor)
 {
-    color.setSettingsKey(label);
+    color.setSettingsKey(keyFromString(label));
     color.setDefaultValue(defaultColor);
     color.setToolTip(Tr::tr("The color used for %1.").arg(label));
     settings->registerAspect(&color);

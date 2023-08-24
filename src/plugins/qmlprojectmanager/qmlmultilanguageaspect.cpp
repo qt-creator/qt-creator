@@ -62,7 +62,7 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(AspectContainer *container)
     setToolTip(Tr::tr("Reads translations from MultiLanguage plugin."));
 
     setDefaultValue(!databaseFilePath().isEmpty());
-    QVariantMap getDefaultValues;
+    Store getDefaultValues;
     fromMap(getDefaultValues);
 
     addDataExtractor(this, &QmlMultiLanguageAspect::origin, &Data::origin);

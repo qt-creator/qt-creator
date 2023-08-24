@@ -34,7 +34,7 @@ CommonSettings &commonSettings()
 CommonSettings::CommonSettings()
 {
     setAutoApply(false);
-    const QString debugModeGroup("DebugMode");
+    const Key debugModeGroup("DebugMode");
 
     useAlternatingRowColors.setSettingsKey(debugModeGroup, "UseAlternatingRowColours");
     useAlternatingRowColors.setLabelText(Tr::tr("Use alternating row colors in debug views"));
@@ -220,7 +220,7 @@ LocalsAndExpressionsSettings::LocalsAndExpressionsSettings()
 {
     setAutoApply(false);
 
-    const QString debugModeGroup("DebugMode");
+    const Key debugModeGroup("DebugMode");
 
     useDebuggingHelpers.setSettingsKey(debugModeGroup, "UseDebuggingHelper");
     useDebuggingHelpers.setDefaultValue(true);

@@ -86,8 +86,8 @@ DebuggerSettings::DebuggerSettings() :
     displayStringLimit{localsAndExpressionSettings().displayStringLimit},
     defaultArraySize{localsAndExpressionSettings().defaultArraySize}
 {
-    const QString debugModeGroup("DebugMode");
-    const QString cdbSettingsGroup("CDB2");
+    const Key debugModeGroup("DebugMode");
+    const Key cdbSettingsGroup("CDB2");
 
     settingsDialog.setLabelText(Tr::tr("Configure Debugger..."));
 
@@ -238,7 +238,7 @@ DebuggerSettings::DebuggerSettings() :
     //
     // QML Tools
     //
-    const QString qmlInspectorGroup = "QML.Inspector";
+    const Key qmlInspectorGroup = "QML.Inspector";
     showAppOnTop.setSettingsKey(qmlInspectorGroup, "QmlInspector.ShowAppOnTop");
 
 
@@ -288,7 +288,7 @@ QString DebuggerSettings::dump()
 {
     QStringList msg;
     settings().all.forEachAspect([&msg](BaseAspect *aspect) {
-        QString key = aspect->settingsKey();
+        Key key = aspect->settingsKey();
         if (!key.isEmpty()) {
             const int pos = key.indexOf('/');
             if (pos >= 0)

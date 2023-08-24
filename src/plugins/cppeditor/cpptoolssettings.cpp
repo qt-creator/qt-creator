@@ -25,6 +25,7 @@ const bool kSortEditorDocumentOutlineDefault = true;
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {
@@ -128,7 +129,7 @@ CppToolsSettings::CppToolsSettings()
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    d->m_globalCodeStyle->fromSettings(QLatin1String(Constants::CPP_SETTINGS_ID));
+    d->m_globalCodeStyle->fromSettings(Constants::CPP_SETTINGS_ID);
 
     // mimetypes to be handled
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::C_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
@@ -158,11 +159,10 @@ CppCodeStylePreferences *CppToolsSettings::cppCodeStyle()
     return d->m_globalCodeStyle;
 }
 
-static QString sortEditorDocumentOutlineKey()
+static Key sortEditorDocumentOutlineKey()
 {
-    return QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP)
-         + QLatin1Char('/')
-         + QLatin1String(Constants::CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE);
+    return Key(Constants::CPPEDITOR_SETTINGSGROUP)
+         + '/' + Constants::CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE;
 }
 
 bool CppToolsSettings::sortedEditorDocumentOutline()
