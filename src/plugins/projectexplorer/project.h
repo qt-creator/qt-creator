@@ -117,8 +117,8 @@ public:
     Core::Context projectContext() const;
     Core::Context projectLanguages() const;
 
-    QVariant namedSettings(const QString &name) const;
-    void setNamedSettings(const QString &name, const QVariant &value);
+    QVariant namedSettings(const Utils::Key &name) const;
+    void setNamedSettings(const Utils::Key &name, const QVariant &value);
 
     void setAdditionalEnvironment(const Utils::EnvironmentItems &envItems);
     Utils::EnvironmentItems additionalEnvironment() const;
@@ -156,8 +156,8 @@ public:
     void setDisplayName(const QString &name);
     void setProjectLanguage(Utils::Id id, bool enabled);
 
-    void setExtraData(const QString &key, const QVariant &data);
-    QVariant extraData(const QString &key) const;
+    void setExtraData(const Utils::Key &key, const QVariant &data);
+    QVariant extraData(const Utils::Key &key) const;
 
     QStringList availableQmlPreviewTranslations(QString *errorMessage);
 
@@ -206,7 +206,7 @@ signals:
 
 protected:
     virtual RestoreResult fromMap(const Utils::Store &map, QString *errorMessage);
-    void createTargetFromMap(const QVariantMap &map, int index);
+    void createTargetFromMap(const Utils::Store &map, int index);
     virtual bool setupTarget(Target *t);
 
     void setCanBuildProducts();

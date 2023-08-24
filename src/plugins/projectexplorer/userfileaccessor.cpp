@@ -29,7 +29,7 @@ using namespace Utils;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-using StringVariantPair = std::pair<const QString, QVariant>;
+using KeyVariantPair = std::pair<const Key, QVariant>;
 
 static QString userFileExtension()
 {
@@ -121,7 +121,7 @@ public:
     UserFileVersion19Upgrader() : VersionUpgrader(19, "4.8-pre2") { }
     Store upgrade(const Store &map) final;
 
-    static QVariant process(const QVariant &entry, const QStringList &path);
+    static QVariant process(const QVariant &entry, const KeyList &path);
 };
 
 // Version 20 renames "Qbs.Deploy" to "ProjectExplorer.DefaultDeployConfiguration"
@@ -323,7 +323,7 @@ SettingsMergeResult
 UserFileAccessor::merge(const MergingSettingsAccessor::SettingsMergeData &global,
                         const MergingSettingsAccessor::SettingsMergeData &local) const
 {
-    const KeyList stickyKeys = keyFromString(global.main.value(USER_STICKY_KEYS_KEY).toStringList());
+    const KeyList stickyKeys = keysFromStrings(global.main.value(USER_STICKY_KEYS_KEY).toStringList());
 
     const Key key = local.key;
     const QVariant mainValue = local.main.value(key);
@@ -435,7 +435,7 @@ Store UserFileAccessor::prepareToWriteSettings(const Store &data) const
         KeyList stickyKeys;
         SettingsMergeFunction merge = userStickyTrackerFunction(stickyKeys);
         result = mergeQVariantMaps(tmp, shared, merge).value<Store>();
-        result.insert(USER_STICKY_KEYS_KEY, stringFromKey(stickyKeys));
+        result.insert(USER_STICKY_KEYS_KEY, stringsFromKeys(stickyKeys));
     } else {
         result = tmp;
     }
@@ -454,7 +454,7 @@ Store UserFileVersion14Upgrader::upgrade(const Store &map)
     Store result;
     for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
         if (it.value().typeId() == QVariant::Map)
-            result.insert(it.key(), upgrade(it.value().value<Store>()));
+            result.insert(it.key(), QVariant::fromValue(upgrade(it.value().value<Store>())));
         else if (it.key() == "AutotoolsProjectManager.AutotoolsBuildConfiguration.BuildDirectory"
                  || it.key() == "CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory"
                  || it.key() == "GenericProjectManager.GenericBuildConfiguration.BuildDirectory"
@@ -511,15 +511,15 @@ Store UserFileVersion16Upgrader::removeAndroidPackageStep(Store deployMap)
 {
     const Key stepListKey = "ProjectExplorer.BuildConfiguration.BuildStepList.0";
     Store stepListMap = deployMap.value(stepListKey).value<Store>();
-    const QString stepCountKey = "ProjectExplorer.BuildStepList.StepsCount";
+    const Key stepCountKey = "ProjectExplorer.BuildStepList.StepsCount";
     int stepCount = stepListMap.value(stepCountKey, 0).toInt();
-    QString stepKey = "ProjectExplorer.BuildStepList.Step.";
+    Key stepKey = "ProjectExplorer.BuildStepList.Step.";
     int targetPosition = 0;
     for (int sourcePosition = 0; sourcePosition < stepCount; ++sourcePosition) {
-        Store stepMap = stepListMap.value(stepKey + QString::number(sourcePosition)).value<Store>();
+        Store stepMap = stepListMap.value(stepKey + Key::number(sourcePosition)).value<Store>();
         if (stepMap.value("ProjectExplorer.ProjectConfiguration.Id").toString()
                 != "Qt4ProjectManager.AndroidPackageInstallationStep") {
-            stepListMap.insert(stepKey + QString::number(targetPosition), stepMap);
+            stepListMap.insert(stepKey + Key::number(targetPosition), QVariant::fromValue(stepMap));
             ++targetPosition;
         }
     }
@@ -527,9 +527,9 @@ Store UserFileVersion16Upgrader::removeAndroidPackageStep(Store deployMap)
     stepListMap.insert(stepCountKey, targetPosition);
 
     for (int i = targetPosition; i < stepCount; ++i)
-        stepListMap.remove(stepKey + QString::number(i));
+        stepListMap.remove(stepKey + Key::number(i));
 
-    deployMap.insert(stepListKey, stepListMap);
+    deployMap.insert(stepListKey, QVariant::fromValue(stepListMap));
     return deployMap;
 }
 
@@ -537,17 +537,17 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
                                                    const OldStepMaps &oldStepMap,
                                                    NamePolicy policy)
 {
-    const QString bslCountKey = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
+    const Key bslCountKey = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
     int stepListCount = buildConfigurationMap.value(bslCountKey).toInt();
 
-    const QString bslKey = "ProjectExplorer.BuildConfiguration.BuildStepList.";
-    const QString bslTypeKey = "ProjectExplorer.ProjectConfiguration.Id";
+    const Key bslKey = "ProjectExplorer.BuildConfiguration.BuildStepList.";
+    const Key bslTypeKey = "ProjectExplorer.ProjectConfiguration.Id";
     for (int bslNumber = 0; bslNumber < stepListCount; ++bslNumber) {
-        Store buildStepListMap = buildConfigurationMap.value(bslKey + QString::number(bslNumber)).value<Store>();
+        Store buildStepListMap = buildConfigurationMap.value(bslKey + Key::number(bslNumber)).value<Store>();
         if (buildStepListMap.value(bslTypeKey) != "ProjectExplorer.BuildSteps.Build")
             continue;
 
-        const QString bslStepCountKey = "ProjectExplorer.BuildStepList.StepsCount";
+        const Key bslStepCountKey = "ProjectExplorer.BuildStepList.StepsCount";
 
         int stepCount = buildStepListMap.value(bslStepCountKey).toInt();
         buildStepListMap.insert(bslStepCountKey, stepCount + 2);
@@ -556,10 +556,10 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
         Store androidBuildApkStep;
 
         // common settings of all buildsteps
-        const QString enabledKey = "ProjectExplorer.BuildStep.Enabled";
-        const QString idKey = "ProjectExplorer.ProjectConfiguration.Id";
-        const QString displayNameKey = "ProjectExplorer.ProjectConfiguration.DisplayName";
-        const QString defaultDisplayNameKey = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
+        const Key enabledKey = "ProjectExplorer.BuildStep.Enabled";
+        const Key idKey = "ProjectExplorer.ProjectConfiguration.Id";
+        const Key displayNameKey = "ProjectExplorer.ProjectConfiguration.DisplayName";
+        const Key defaultDisplayNameKey = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
         QString displayName = oldStepMap.androidPackageInstall.value(displayNameKey).toString();
         QString defaultDisplayName = oldStepMap.androidPackageInstall.value(defaultDisplayNameKey).toString();
@@ -570,7 +570,7 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
         androidPackageInstallStep.insert(defaultDisplayNameKey, defaultDisplayName);
         androidPackageInstallStep.insert(enabledKey, enabled);
 
-        displayName = oldStepMap.androidDeployQt.value(displayName).toString();
+        displayName = oldStepMap.androidDeployQt.value(keyFromString(displayName)).toString();
         defaultDisplayName = oldStepMap.androidDeployQt.value(defaultDisplayNameKey).toString();
         enabled = oldStepMap.androidDeployQt.value(enabledKey).toBool();
 
@@ -580,11 +580,11 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
         androidBuildApkStep.insert(enabledKey, enabled);
 
         // settings transferred from AndroidDeployQtStep to QmakeBuildApkStep
-        const QString ProFilePathForInputFile = "ProFilePathForInputFile";
-        const QString DeployActionKey = "Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction";
-        const QString KeystoreLocationKey = "KeystoreLocation";
-        const QString BuildTargetSdkKey = "BuildTargetSdk";
-        const QString VerboseOutputKey = "VerboseOutput";
+        const Key ProFilePathForInputFile = "ProFilePathForInputFile";
+        const Key DeployActionKey = "Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction";
+        const Key KeystoreLocationKey = "KeystoreLocation";
+        const Key BuildTargetSdkKey = "BuildTargetSdk";
+        const Key VerboseOutputKey = "VerboseOutput";
 
         QString inputFile = oldStepMap.androidDeployQt.value(ProFilePathForInputFile).toString();
         int oldDeployAction = oldStepMap.androidDeployQt.value(DeployActionKey).toInt();
@@ -597,16 +597,16 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
         androidBuildApkStep.insert(BuildTargetSdkKey, buildTargetSdk);
         androidBuildApkStep.insert(VerboseOutputKey, verbose);
 
-        const QString buildStepKey = "ProjectExplorer.BuildStepList.Step.";
-        buildStepListMap.insert(buildStepKey + QString::number(stepCount), androidPackageInstallStep);
-        buildStepListMap.insert(buildStepKey + QString::number(stepCount + 1), androidBuildApkStep);
+        const Key buildStepKey = "ProjectExplorer.BuildStepList.Step.";
+        buildStepListMap.insert(buildStepKey + Key::number(stepCount), QVariant::fromValue(androidPackageInstallStep));
+        buildStepListMap.insert(buildStepKey + Key::number(stepCount + 1), QVariant::fromValue(androidBuildApkStep));
 
-        buildConfigurationMap.insert(bslKey + QString::number(bslNumber), buildStepListMap);
+        buildConfigurationMap.insert(bslKey + Key::number(bslNumber), QVariant::fromValue(buildStepListMap));
     }
 
     if (policy == RenameBuildConfiguration) {
-        const QString displayNameKey = "ProjectExplorer.ProjectConfiguration.DisplayName";
-        const QString defaultDisplayNameKey = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
+        const Key displayNameKey = "ProjectExplorer.ProjectConfiguration.DisplayName";
+        const Key defaultDisplayNameKey = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
         QString defaultDisplayName = buildConfigurationMap.value(defaultDisplayNameKey).toString();
         QString displayName = buildConfigurationMap.value(displayNameKey).toString();
@@ -637,10 +637,10 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
     Store result = data;
 
     for (int i = 0; i < targetCount; ++i) {
-        QString targetKey = QLatin1String("ProjectExplorer.Project.Target.") + QString::number(i);
+        Key targetKey = "ProjectExplorer.Project.Target." + Key::number(i);
         Store targetMap = data.value(targetKey).value<Store>();
 
-        const QString dcCountKey = "ProjectExplorer.Target.DeployConfigurationCount";
+        const Key dcCountKey = "ProjectExplorer.Target.DeployConfigurationCount";
         int deployconfigurationCount = targetMap.value(dcCountKey).toInt();
         if (!deployconfigurationCount) // should never happen
             continue;
@@ -648,31 +648,31 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
         QList<OldStepMaps> oldSteps;
         QList<Store> oldBuildConfigurations;
 
-        QString deployKey = "ProjectExplorer.Target.DeployConfiguration.";
+        Key deployKey = "ProjectExplorer.Target.DeployConfiguration.";
         for (int j = 0; j < deployconfigurationCount; ++j) {
             Store deployConfigurationMap
-                    = targetMap.value(deployKey + QString::number(j)).value<Store>();
+                    = targetMap.value(deployKey + Key::number(j)).value<Store>();
             OldStepMaps oldStep = extractStepMaps(deployConfigurationMap);
             if (!oldStep.isEmpty()) {
                 oldSteps.append(oldStep);
                 deployConfigurationMap = removeAndroidPackageStep(deployConfigurationMap);
-                targetMap.insert(deployKey + QString::number(j), deployConfigurationMap);
+                targetMap.insert(deployKey + Key::number(j), QVariant::fromValue(deployConfigurationMap));
             }
         }
 
         if (oldSteps.isEmpty()) // no android target?
             continue;
 
-        const QString bcCountKey = "ProjectExplorer.Target.BuildConfigurationCount";
+        const Key bcCountKey = "ProjectExplorer.Target.BuildConfigurationCount";
         int buildConfigurationCount
                 = targetMap.value(bcCountKey).toInt();
 
         if (!buildConfigurationCount) // should never happen
             continue;
 
-        QString bcKey = "ProjectExplorer.Target.BuildConfiguration.";
+        Key bcKey = "ProjectExplorer.Target.BuildConfiguration.";
         for (int j = 0; j < buildConfigurationCount; ++j) {
-            Store oldBuildConfigurationMap = targetMap.value(bcKey + QString::number(j)).value<Store>();
+            Store oldBuildConfigurationMap = targetMap.value(bcKey + Key::number(j)).value<Store>();
             oldBuildConfigurations.append(oldBuildConfigurationMap);
         }
 
@@ -691,8 +691,8 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
         targetMap.insert(bcCountKey, newBuildConfigurations.size());
 
         for (int j = 0; j < newBuildConfigurations.size(); ++j)
-            targetMap.insert(bcKey + QString::number(j), newBuildConfigurations.at(j));
-        result.insert(targetKey, targetMap);
+            targetMap.insert(bcKey + Key::number(j), QVariant::fromValue(newBuildConfigurations.at(j)));
+        result.insert(targetKey, QVariant::fromValue(targetMap));
     }
 
     return result;
@@ -703,7 +703,7 @@ Store UserFileVersion17Upgrader::upgrade(const Store &map)
     m_sticky = map.value(USER_STICKY_KEYS_KEY).toList();
     if (m_sticky.isEmpty())
         return map;
-    return process(map).value<Store>();
+    return process(QVariant::fromValue(map)).value<Store>();
 }
 
 QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
@@ -722,7 +722,7 @@ QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
             v = process(v);
         }
         result.insert(USER_STICKY_KEYS_KEY, m_sticky);
-        return result;
+        return QVariant::fromValue(result);
     }
     default:
         return entry;
@@ -731,7 +731,7 @@ QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
 
 Store UserFileVersion18Upgrader::upgrade(const Store &map)
 {
-    return process(map).value<Store>();
+    return process(QVariant::fromValue(map)).value<Store>();
 }
 
 QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
@@ -739,15 +739,17 @@ QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
     switch (entry.typeId()) {
     case QVariant::List:
         return Utils::transform(entry.toList(), &UserFileVersion18Upgrader::process);
-    case QVariant::Map:
-        return Utils::transform<QMap<QString, QVariant>>(
-            entry.value<Store>().toStdMap(), [](const StringVariantPair &item) -> StringVariantPair {
-                const QString key = (item.first
-                                             == "AutotoolsProjectManager.MakeStep.AdditionalArguments"
-                                         ? QString("AutotoolsProjectManager.MakeStep.MakeArguments")
-                                         : item.first);
-                return {key, UserFileVersion18Upgrader::process(item.second)};
-            });
+    case QVariant::Map: {
+        Store map = entry.value<Store>();
+        Store result;
+        for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
+            Key key = it.key() == "AutotoolsProjectManager.MakeStep.AdditionalArguments"
+                          ? Key("AutotoolsProjectManager.MakeStep.MakeArguments")
+                          : it.key();
+            result.insert(key, UserFileVersion18Upgrader::process(it.value()));
+        }
+        return QVariant::fromValue(result);
+    }
     default:
         return entry;
     }
@@ -755,64 +757,71 @@ QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
 
 Store UserFileVersion19Upgrader::upgrade(const Store &map)
 {
-    return process(map, QStringList()).value<Store>();
+    return process(QVariant::fromValue(map), KeyList()).value<Store>();
 }
 
-QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const QStringList &path)
+QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const KeyList &path)
 {
-    static const QStringList argsKeys = {"Qt4ProjectManager.MaemoRunConfiguration.Arguments",
-                                         "CMakeProjectManager.CMakeRunConfiguration.Arguments",
-                                         "Ios.run_arguments",
-                                         "Nim.NimRunConfiguration.ArgumentAspect",
-                                         "ProjectExplorer.CustomExecutableRunConfiguration.Arguments",
-                                         "PythonEditor.RunConfiguration.Arguments",
-                                         "Qbs.RunConfiguration.CommandLineArguments",
-                                         "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments",
-                                         "RemoteLinux.CustomRunConfig.Arguments",
-                                         "WinRtRunConfigurationArgumentsId",
-                                         "CommandLineArgs"};
-    static const QStringList wdKeys = {"BareMetal.RunConfig.WorkingDirectory",
-                                       "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory",
-                                       "Nim.NimRunConfiguration.WorkingDirectoryAspect",
-                                       "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory",
-                                       "Qbs.RunConfiguration.WorkingDirectory",
-                                       "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory",
-                                       "RemoteLinux.CustomRunConfig.WorkingDirectory",
-                                       "RemoteLinux.RunConfig.WorkingDirectory",
-                                       "WorkingDir"};
-    static const QStringList termKeys = {"CMakeProjectManager.CMakeRunConfiguration.UseTerminal",
-                                         "Nim.NimRunConfiguration.TerminalAspect",
-                                         "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal",
-                                         "PythonEditor.RunConfiguration.UseTerminal",
-                                         "Qbs.RunConfiguration.UseTerminal",
-                                         "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"};
-    static const QStringList libsKeys = {"Qbs.RunConfiguration.UsingLibraryPaths",
-                                         "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath"};
-    static const QStringList dyldKeys = {"Qbs.RunConfiguration.UseDyldImageSuffix",
-                                         "QmakeProjectManager.QmakeRunConfiguration.UseDyldImageSuffix"};
+    static const KeyList argsKeys = {"Qt4ProjectManager.MaemoRunConfiguration.Arguments",
+                                     "CMakeProjectManager.CMakeRunConfiguration.Arguments",
+                                     "Ios.run_arguments",
+                                     "Nim.NimRunConfiguration.ArgumentAspect",
+                                     "ProjectExplorer.CustomExecutableRunConfiguration.Arguments",
+                                     "PythonEditor.RunConfiguration.Arguments",
+                                     "Qbs.RunConfiguration.CommandLineArguments",
+                                     "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments",
+                                     "RemoteLinux.CustomRunConfig.Arguments",
+                                     "WinRtRunConfigurationArgumentsId",
+                                     "CommandLineArgs"};
+    static const KeyList wdKeys = {"BareMetal.RunConfig.WorkingDirectory",
+                                   "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory",
+                                   "Nim.NimRunConfiguration.WorkingDirectoryAspect",
+                                   "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory",
+                                   "Qbs.RunConfiguration.WorkingDirectory",
+                                   "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory",
+                                   "RemoteLinux.CustomRunConfig.WorkingDirectory",
+                                   "RemoteLinux.RunConfig.WorkingDirectory",
+                                   "WorkingDir"};
+    static const KeyList termKeys = {"CMakeProjectManager.CMakeRunConfiguration.UseTerminal",
+                                     "Nim.NimRunConfiguration.TerminalAspect",
+                                     "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal",
+                                     "PythonEditor.RunConfiguration.UseTerminal",
+                                     "Qbs.RunConfiguration.UseTerminal",
+                                     "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"};
+    static const KeyList libsKeys = {"Qbs.RunConfiguration.UsingLibraryPaths",
+                                     "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath"};
+    static const KeyList dyldKeys = {"Qbs.RunConfiguration.UseDyldImageSuffix",
+                                     "QmakeProjectManager.QmakeRunConfiguration.UseDyldImageSuffix"};
     switch (entry.typeId()) {
     case QVariant::List:
         return Utils::transform(entry.toList(),
                                 std::bind(&UserFileVersion19Upgrader::process, std::placeholders::_1, path));
-    case QVariant::Map:
-        return Utils::transform<Store>(entry.value<Store>().toStdMap(),
-                                             [&](const StringVariantPair &item) -> StringVariantPair {
+    case QVariant::Map: {
+        Store map = entry.value<Store>();
+        Store result;
+        for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
+            Key key = it.key();
+            QVariant value = it.value();
             if (path.size() == 2 && path.at(1).startsWith("ProjectExplorer.Target.RunConfiguration.")) {
-                if (argsKeys.contains(item.first))
-                    return {"RunConfiguration.Arguments", item.second};
-                if (wdKeys.contains(item.first))
-                    return {"RunConfiguration.WorkingDirectory", item.second};
-                if (termKeys.contains(item.first))
-                    return {"RunConfiguration.UseTerminal", item.second};
-                if (libsKeys.contains(item.first))
-                    return {"RunConfiguration.UseLibrarySearchPath", item.second};
-                if (dyldKeys.contains(item.first))
-                    return {"RunConfiguration.UseDyldImageSuffix", item.second};
+                if (argsKeys.contains(key))
+                    key = "RunConfiguration.Arguments";
+                else if (wdKeys.contains(key))
+                    key = "RunConfiguration.WorkingDirectory";
+                else if (termKeys.contains(key))
+                    key = "RunConfiguration.UseTerminal";
+                else if (libsKeys.contains(key))
+                    key = "RunConfiguration.UseLibrarySearchPath";
+                else if (dyldKeys.contains(key))
+                    key = "RunConfiguration.UseDyldImageSuffix";
+                else
+                    value = UserFileVersion19Upgrader::process(value, path + KeyList{key});
+            } else {
+                value = UserFileVersion19Upgrader::process(value, path + KeyList{key});
             }
-            QStringList newPath = path;
-            newPath.append(item.first);
-            return {item.first, UserFileVersion19Upgrader::process(item.second, newPath)};
-        });
+            result.insert(key, value);
+        };
+        return QVariant::fromValue(result);
+    }
     default:
         return entry;
     }
@@ -820,7 +829,7 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const QString
 
 Store UserFileVersion20Upgrader::upgrade(const Store &map)
 {
-    return process(map).value<Store>();
+    return process(QVariant::fromValue(map)).value<Store>();
 }
 
 QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
@@ -828,17 +837,20 @@ QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
     switch (entry.typeId()) {
     case QVariant::List:
         return Utils::transform(entry.toList(), &UserFileVersion20Upgrader::process);
-    case QVariant::Map:
-        return Utils::transform<QMap<QString, QVariant>>(
-            entry.value<Store>().toStdMap(), [](const StringVariantPair &item) {
-                StringVariantPair res = {item.first, item.second};
-                if (item.first == "ProjectExplorer.ProjectConfiguration.Id"
-                        && item.second == "Qbs.Deploy")
-                    res.second = QVariant("ProjectExplorer.DefaultDeployConfiguration");
-                else
-                    res.second = UserFileVersion20Upgrader::process(item.second);
-                return res;
-            });
+    case QVariant::Map: {
+        Store map = entry.value<Store>();
+        Store result;
+        for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
+            Key key = it.key();
+            QVariant value = it.value();
+            if (key == "ProjectExplorer.ProjectConfiguration.Id" && value == "Qbs.Deploy")
+                value = "ProjectExplorer.DefaultDeployConfiguration";
+            else
+                value = UserFileVersion20Upgrader::process(value);
+            result.insert(key, value);
+        }
+        return QVariant::fromValue(result);
+    }
     default:
         return entry;
     }
@@ -846,7 +858,7 @@ QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
 
 Store UserFileVersion21Upgrader::upgrade(const Store &map)
 {
-    return process(map).value<Store>();
+    return process(QVariant::fromValue(map)).value<Store>();
 }
 
 QVariant UserFileVersion21Upgrader::process(const QVariant &entry)
@@ -859,12 +871,13 @@ QVariant UserFileVersion21Upgrader::process(const QVariant &entry)
         if (entryMap.value("ProjectExplorer.ProjectConfiguration.Id").toString()
                 == "DeployToGenericLinux") {
             entryMap.insert("_checkMakeInstall", true);
-            return entryMap;
+            return QVariant::fromValue(entryMap);
         }
-        return Utils::transform<Store>(
-            entryMap.toStdMap(), [](const StringVariantPair &item) -> StringVariantPair{
-                return {item.first, UserFileVersion21Upgrader::process(item.second)};
-            });
+        Store map = entry.value<Store>();
+        Store result;
+        for (auto it = map.cbegin(), end = map.cend(); it != end; ++it)
+            result.insert(it.key(), UserFileVersion21Upgrader::process(it.value()));
+        return QVariant::fromValue(result);
     }
     default:
         return entry;
@@ -885,7 +898,7 @@ public:
     TestUserFileAccessor(Project *project) : UserFileAccessor(project) { }
 
     void storeSharedSettings(const Store &data) const { m_storedSettings = data; }
-    QVariant retrieveSharedSettings() const override { return m_storedSettings; }
+    QVariant retrieveSharedSettings() const override { return QVariant::fromValue(m_storedSettings); }
 
     using UserFileAccessor::preprocessReadSettings;
     using UserFileAccessor::prepareToWriteSettings;

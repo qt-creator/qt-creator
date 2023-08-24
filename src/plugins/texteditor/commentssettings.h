@@ -26,11 +26,11 @@ public:
     static Data data() { return instance().m_data; }
     static void setData(const Data &data);
 
-    static QString mainSettingsKey();
-    static QString enableDoxygenSettingsKey();
-    static QString generateBriefSettingsKey();
-    static QString leadingAsterisksSettingsKey();
-    static QString commandPrefixKey();
+    static Utils::Key mainSettingsKey();
+    static Utils::Key enableDoxygenSettingsKey();
+    static Utils::Key generateBriefSettingsKey();
+    static Utils::Key leadingAsterisksSettingsKey();
+    static Utils::Key commandPrefixKey();
 
 private:
     CommentsSettings();

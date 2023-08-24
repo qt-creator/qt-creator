@@ -750,14 +750,14 @@ void BookmarkManager::saveBookmarks()
     for (const Bookmark *bookmark : std::as_const(m_bookmarksList))
         list << bookmarkToString(bookmark);
 
-    SessionManager::setValue(QLatin1String("Bookmarks"), list);
+    SessionManager::setValue("Bookmarks", list);
 }
 
 /* Loads the bookmarks from the session settings. */
 void BookmarkManager::loadBookmarks()
 {
     removeAllBookmarks();
-    const QStringList &list = SessionManager::value(QLatin1String("Bookmarks")).toStringList();
+    const QStringList &list = SessionManager::value("Bookmarks").toStringList();
     for (const QString &bookmarkString : list)
         addBookmark(bookmarkString);
 

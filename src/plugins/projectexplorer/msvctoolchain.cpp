@@ -1721,9 +1721,9 @@ QList<OutputLineParser *> ClangClToolChain::createOutputParsers() const
     return {new ClangClParser};
 }
 
-static inline QString llvmDirKey()
+static Key llvmDirKey()
 {
-    return QStringLiteral("ProjectExplorer.ClangClToolChain.LlvmDir");
+    return "ProjectExplorer.ClangClToolChain.LlvmDir";
 }
 
 void ClangClToolChain::toMap(Store &data) const

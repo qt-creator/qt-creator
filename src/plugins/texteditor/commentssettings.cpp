@@ -16,6 +16,7 @@
 #include <QSettings>
 
 using namespace Layouting;
+using namespace Utils;
 
 namespace TextEditor {
 
@@ -35,11 +36,11 @@ void CommentsSettings::setData(const Data &data)
     instance().save();
 }
 
-QString CommentsSettings::mainSettingsKey() { return kDocumentationCommentsGroup; }
-QString CommentsSettings::enableDoxygenSettingsKey() { return kEnableDoxygenBlocks; }
-QString CommentsSettings::generateBriefSettingsKey() { return kGenerateBrief; }
-QString CommentsSettings::leadingAsterisksSettingsKey() { return kAddLeadingAsterisks; }
-QString CommentsSettings::commandPrefixKey() { return kCommandPrefix; }
+Key CommentsSettings::mainSettingsKey() { return kDocumentationCommentsGroup; }
+Key CommentsSettings::enableDoxygenSettingsKey() { return kEnableDoxygenBlocks; }
+Key CommentsSettings::generateBriefSettingsKey() { return kGenerateBrief; }
+Key CommentsSettings::leadingAsterisksSettingsKey() { return kAddLeadingAsterisks; }
+Key CommentsSettings::commandPrefixKey() { return kCommandPrefix; }
 
 CommentsSettings::CommentsSettings()
 {

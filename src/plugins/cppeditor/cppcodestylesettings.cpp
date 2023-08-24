@@ -48,7 +48,7 @@ namespace CppEditor {
 
 CppCodeStyleSettings::CppCodeStyleSettings() = default;
 
-QVariantMap CppCodeStyleSettings::toMap() const
+Store CppCodeStyleSettings::toMap() const
 {
     return {
         {indentBlockBracesKey, indentBlockBraces},

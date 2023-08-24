@@ -773,13 +773,13 @@ Project::RestoreResult Project::fromMap(const Store &map, QString *errorMessage)
     }
 
     if (map.contains(PLUGIN_SETTINGS_KEY))
-        d->m_pluginSettings = map.value(PLUGIN_SETTINGS_KEY).toMap();
+        d->m_pluginSettings = map.value(PLUGIN_SETTINGS_KEY).value<Store>();
 
     bool ok;
     int maxI(map.value(TARGET_COUNT_KEY, 0).toInt(&ok));
     if (!ok || maxI < 0)
         maxI = 0;
-    int active(map.value(ACTIVE_TARGET_KEY, 0).toInt(&ok));
+    int active = map.value(ACTIVE_TARGET_KEY, 0).toInt(&ok);
     if (!ok || active < 0 || active >= maxI)
         active = 0;
 
@@ -805,7 +805,7 @@ void Project::createTargetFromMap(const Store &map, int index)
     if (!map.contains(key))
         return;
 
-    const Store targetMap = map.value(key).toMap();
+    const Store targetMap = map.value(key).value<Store>();
 
     Id id = idFromMap(targetMap);
     if (target(id)) {
@@ -978,12 +978,12 @@ Context Project::projectLanguages() const
     return d->m_projectLanguages;
 }
 
-QVariant Project::namedSettings(const QString &name) const
+QVariant Project::namedSettings(const Key &name) const
 {
     return d->m_pluginSettings.value(name);
 }
 
-void Project::setNamedSettings(const QString &name, const QVariant &value)
+void Project::setNamedSettings(const Key &name, const QVariant &value)
 {
     if (value.isNull())
         d->m_pluginSettings.remove(name);
@@ -1075,12 +1075,12 @@ void Project::setCanBuildProducts()
     d->m_canBuildProducts = true;
 }
 
-void Project::setExtraData(const QString &key, const QVariant &data)
+void Project::setExtraData(const Key &key, const QVariant &data)
 {
     d->m_extraData.insert(key, data);
 }
 
-QVariant Project::extraData(const QString &key) const
+QVariant Project::extraData(const Key &key) const
 {
     return d->m_extraData.value(key);
 }

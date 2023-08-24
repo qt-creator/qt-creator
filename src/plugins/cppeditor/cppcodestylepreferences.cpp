@@ -69,11 +69,11 @@ void CppCodeStylePreferences::slotCurrentValueChanged(const QVariant &value)
     emit currentCodeStyleSettingsChanged(value.value<CppCodeStyleSettings>());
 }
 
-QVariantMap CppCodeStylePreferences::toMap() const
+Store CppCodeStylePreferences::toMap() const
 {
-    QVariantMap map = ICodeStylePreferences::toMap();
+    Store map = ICodeStylePreferences::toMap();
     if (!currentDelegate()) {
-        const QVariantMap dataMap = m_data.toMap();
+        const Store dataMap = m_data.toMap();
         for (auto it = dataMap.begin(), end = dataMap.end(); it != end; ++it)
             map.insert(it.key(), it.value());
     }

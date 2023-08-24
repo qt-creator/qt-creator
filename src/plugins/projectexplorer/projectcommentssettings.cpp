@@ -12,9 +12,11 @@
 #include <QVBoxLayout>
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
+
 const char kUseGlobalKey[] = "UseGlobalKey";
 
 ProjectCommentsSettings::ProjectCommentsSettings(ProjectExplorer::Project *project)
@@ -55,7 +57,7 @@ void ProjectCommentsSettings::loadSettings()
     if (!entry.isValid())
         return;
 
-    const QVariantMap data = entry.toMap();
+    const Store data = entry.value<Store>();
     m_useGlobalSettings = data.value(kUseGlobalKey, true).toBool();
     m_customSettings.enableDoxygen = data.value(CommentsSettings::enableDoxygenSettingsKey(),
                                                 m_customSettings.enableDoxygen).toBool();
@@ -79,13 +81,13 @@ void ProjectCommentsSettings::saveSettings()
         return;
     }
 
-    QVariantMap data;
+    Store data;
     data.insert(kUseGlobalKey, m_useGlobalSettings);
     data.insert(CommentsSettings::enableDoxygenSettingsKey(), m_customSettings.enableDoxygen);
     data.insert(CommentsSettings::generateBriefSettingsKey(), m_customSettings.generateBrief);
     data.insert(CommentsSettings::leadingAsterisksSettingsKey(), m_customSettings.leadingAsterisks);
     data.insert(CommentsSettings::commandPrefixKey(), int(m_customSettings.commandPrefix));
-    m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), data);
+    m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), QVariant::fromValue(data));
 }
 
 class ProjectCommentsSettingsWidget::Private
