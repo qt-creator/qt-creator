@@ -17,12 +17,14 @@ namespace Utils {
 using Key = QByteArray;
 
 inline Key keyFromString(const QString &str) { return str.toUtf8(); }
+inline QString stringFromKey(const Key &key) { return QString::fromUtf8(key); }
 
 #else
 
 using Key = QString;
 
 inline Key keyFromString(const QString &str) { return str; }
+inline QString stringFromKey(const Key &key) { return key; }
 
 #endif
 
