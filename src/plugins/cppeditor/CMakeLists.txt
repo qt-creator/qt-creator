@@ -129,6 +129,7 @@ extend_qtc_plugin(CppEditor
     cppmodelmanager_test.cpp cppmodelmanager_test.h
     cpppointerdeclarationformatter_test.cpp cpppointerdeclarationformatter_test.h
     cppquickfix_test.cpp cppquickfix_test.h
+    cpprenaming_test.cpp cpprenaming_test.h
     cppsourceprocessertesthelper.cpp cppsourceprocessertesthelper.h
     cppsourceprocessor_test.cpp cppsourceprocessor_test.h
     cpptoolstestcase.cpp cpptoolstestcase.h

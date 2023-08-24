@@ -265,6 +265,8 @@ QtcPlugin {
             "cpppointerdeclarationformatter_test.h",
             "cppquickfix_test.cpp",
             "cppquickfix_test.h",
+            "cpprenaming_test.cpp",
+            "cpprenaming_test.h",
             "cppsourceprocessor_test.cpp",
             "cppsourceprocessor_test.h",
             "cppsourceprocessertesthelper.cpp",

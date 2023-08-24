@@ -576,8 +576,10 @@ static void displayResults(SearchResult *search,
         item.setContainingFunctionName(result.containingFunction);
         item.setStyle(colorStyleForUsageType(result.tags));
         item.setUseTextEditorFont(true);
-        if (search->supportsReplace())
-            item.setSelectForReplacement(ProjectManager::projectForFile(result.path));
+        if (search->supportsReplace()) {
+            item.setSelectForReplacement(!ProjectManager::hasProjects()
+                                         || ProjectManager::projectForFile(result.path));
+        }
         search->addResult(item);
 
         if (parameters.prettySymbolName.isEmpty())

@@ -42,6 +42,7 @@
 #include "cppmodelmanager_test.h"
 #include "cpppointerdeclarationformatter_test.h"
 #include "cppquickfix_test.h"
+#include "cpprenaming_test.h"
 #include "cppsourceprocessor_test.h"
 #include "cppuseselections_test.h"
 #include "fileandtokenactions_test.h"
@@ -509,6 +510,7 @@ void CppEditorPlugin::initialize()
     addTest<Tests::IncludeHierarchyTest>();
     addTest<Tests::InsertVirtualMethodsTest>();
     addTest<Tests::QuickfixTest>();
+    addTest<Tests::GlobalRenamingTest>();
     addTest<Tests::SelectionsTest>();
 #endif
 }
