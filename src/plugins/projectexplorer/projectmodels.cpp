@@ -496,7 +496,7 @@ void FlatModel::saveExpandData()
 {
     // TODO if there are multiple ProjectTreeWidgets, the last one saves the data
     QList<QVariant> data = Utils::transform<QList>(m_toExpand, &ExpandData::toSettings);
-    SessionManager::setValue(QLatin1String("ProjectTree.ExpandData"), data);
+    SessionManager::setValue("ProjectTree.ExpandData", data);
 }
 
 void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen)

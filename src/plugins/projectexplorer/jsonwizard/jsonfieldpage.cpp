@@ -525,7 +525,7 @@ QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *
     w->setFixupExpando(m_fixupExpando);
 
     if (!m_historyId.isEmpty())
-        w->setHistoryCompleter(m_historyId, m_restoreLastHistoryItem);
+        w->setHistoryCompleter(keyFromString(m_historyId), m_restoreLastHistoryItem);
 
     w->setEchoMode(m_isPassword ? QLineEdit::Password : QLineEdit::Normal);
     QObject::connect(w, &FancyLineEdit::textEdited, [this] { setHasUserChanges(); });
@@ -800,7 +800,7 @@ QWidget *PathChooserField::createWidget(const QString &displayName, JsonFieldPag
     Q_UNUSED(page)
     auto w = new PathChooser;
     if (!m_historyId.isEmpty())
-        w->setHistoryCompleter(m_historyId);
+        w->setHistoryCompleter(keyFromString(m_historyId));
     QObject::connect(w, &PathChooser::textChanged, [this, w] {
         if (w->filePath() != m_path)
             setHasUserChanges();

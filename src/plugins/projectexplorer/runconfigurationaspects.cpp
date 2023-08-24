@@ -564,7 +564,7 @@ void ExecutableAspect::setDeviceSelector(Target *target, ExecutionDeviceSelector
 
    \sa Utils::PathChooser::setHistoryCompleter()
 */
-void ExecutableAspect::setHistoryCompleter(const QString &historyCompleterKey)
+void ExecutableAspect::setHistoryCompleter(const Key &historyCompleterKey)
 {
     m_executable.setHistoryCompleter(historyCompleterKey);
     if (m_alternativeExecutable)
@@ -609,7 +609,7 @@ void ExecutableAspect::setReadOnly(bool readOnly)
 
    \sa Utils::StringAspect::makeCheckable()
 */
-void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)
+void ExecutableAspect::makeOverridable(const Key &overridingKey, const Key &useOverridableKey)
 {
     QTC_ASSERT(!m_alternativeExecutable, return);
     m_alternativeExecutable = new FilePathAspect;
@@ -684,7 +684,7 @@ void ExecutableAspect::setExecutable(const FilePath &executable)
 /*!
     Sets the settings key to \a key.
 */
-void ExecutableAspect::setSettingsKey(const QString &key)
+void ExecutableAspect::setSettingsKey(const Key &key)
 {
     BaseAspect::setSettingsKey(key);
     m_executable.setSettingsKey(key);

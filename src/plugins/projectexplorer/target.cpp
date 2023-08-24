@@ -91,7 +91,7 @@ public:
     DeployConfiguration *m_activeDeployConfiguration = nullptr;
     QList<RunConfiguration *> m_runConfigurations;
     RunConfiguration* m_activeRunConfiguration = nullptr;
-    QVariantMap m_pluginSettings;
+    Store m_pluginSettings;
 
     Kit *const m_kit;
     MacroExpander m_macroExpander;
@@ -321,14 +321,14 @@ QString Target::toolTip() const
     return d->m_kit->toHtml();
 }
 
-QString Target::displayNameKey()
+Key Target::displayNameKey()
 {
-    return QString("ProjectExplorer.ProjectConfiguration.DisplayName");
+    return "ProjectExplorer.ProjectConfiguration.DisplayName";
 }
 
-QString Target::deviceTypeKey()
+Key Target::deviceTypeKey()
 {
-    return QString("DeviceType");
+    return "DeviceType";
 }
 
 void Target::addBuildConfiguration(BuildConfiguration *bc)
@@ -581,12 +581,12 @@ QString Target::overlayIconToolTip()
     return current.isNull() ? QString() : formatDeviceInfo(current->deviceInformation());
 }
 
-QVariantMap Target::toMap() const
+Store Target::toMap() const
 {
     if (!d->m_kit) // Kit was deleted, target is only around to be copied.
         return {};
 
-    QVariantMap map;
+    Store map;
     map.insert(displayNameKey(), displayName());
     map.insert(deviceTypeKey(), DeviceTypeKitAspect::deviceTypeId(kit()).toSetting());
 
@@ -595,39 +595,39 @@ QVariantMap Target::toMap() const
         // This is only read by older versions of Creator, but even there not actively used.
         const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
         const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
-        map.insert(QLatin1String(CONFIGURATION_ID_KEY), id().toSetting());
-        map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), displayName());
+        map.insert(CONFIGURATION_ID_KEY, id().toSetting());
+        map.insert(DEFAULT_DISPLAY_NAME_KEY, displayName());
     }
 
     const QList<BuildConfiguration *> bcs = buildConfigurations();
-    map.insert(QLatin1String(ACTIVE_BC_KEY), bcs.indexOf(d->m_activeBuildConfiguration));
-    map.insert(QLatin1String(BC_COUNT_KEY), bcs.size());
+    map.insert(ACTIVE_BC_KEY, bcs.indexOf(d->m_activeBuildConfiguration));
+    map.insert(BC_COUNT_KEY, bcs.size());
     for (int i = 0; i < bcs.size(); ++i) {
-        QVariantMap data;
+        Store data;
         bcs.at(i)->toMap(data);
-        map.insert(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i), data);
+        map.insert(BC_KEY_PREFIX + Key::number(i), QVariant::fromValue(data));
     }
 
     const QList<DeployConfiguration *> dcs = deployConfigurations();
-    map.insert(QLatin1String(ACTIVE_DC_KEY), dcs.indexOf(d->m_activeDeployConfiguration));
-    map.insert(QLatin1String(DC_COUNT_KEY), dcs.size());
+    map.insert(ACTIVE_DC_KEY, dcs.indexOf(d->m_activeDeployConfiguration));
+    map.insert(DC_COUNT_KEY, dcs.size());
     for (int i = 0; i < dcs.size(); ++i) {
-        QVariantMap data;
+        Store data;
         dcs.at(i)->toMap(data);
-        map.insert(QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i), data);
+        map.insert(DC_KEY_PREFIX + Key::number(i), QVariant::fromValue(data));
     }
 
     const QList<RunConfiguration *> rcs = runConfigurations();
-    map.insert(QLatin1String(ACTIVE_RC_KEY), rcs.indexOf(d->m_activeRunConfiguration));
-    map.insert(QLatin1String(RC_COUNT_KEY), rcs.size());
+    map.insert(ACTIVE_RC_KEY, rcs.indexOf(d->m_activeRunConfiguration));
+    map.insert(RC_COUNT_KEY, rcs.size());
     for (int i = 0; i < rcs.size(); ++i) {
-        QVariantMap data;
+        Store data;
         rcs.at(i)->toMap(data);
-        map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), data);
+        map.insert(RC_KEY_PREFIX + Key::number(i), QVariant::fromValue(data));
     }
 
     if (!d->m_pluginSettings.isEmpty())
-        map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
+        map.insert(PLUGIN_SETTINGS_KEY, d->m_pluginSettings);
 
     return map;
 }
@@ -810,12 +810,12 @@ void Target::updateDefaultRunConfigurations()
     emit runConfigurationsUpdated();
 }
 
-QVariant Target::namedSettings(const QString &name) const
+QVariant Target::namedSettings(const Key &name) const
 {
     return d->m_pluginSettings.value(name);
 }
 
-void Target::setNamedSettings(const QString &name, const QVariant &value)
+void Target::setNamedSettings(const Key &name, const QVariant &value)
 {
     if (value.isNull())
         d->m_pluginSettings.remove(name);
@@ -890,20 +890,20 @@ bool Target::fromMap(const Store &map)
     QTC_ASSERT(d->m_kit == KitManager::kit(id()), return false);
 
     bool ok;
-    int bcCount = map.value(QLatin1String(BC_COUNT_KEY), 0).toInt(&ok);
+    int bcCount = map.value(BC_COUNT_KEY, 0).toInt(&ok);
     if (!ok || bcCount < 0)
         bcCount = 0;
-    int activeConfiguration = map.value(QLatin1String(ACTIVE_BC_KEY), 0).toInt(&ok);
+    int activeConfiguration = map.value(ACTIVE_BC_KEY, 0).toInt(&ok);
     if (!ok || activeConfiguration < 0)
         activeConfiguration = 0;
     if (0 > activeConfiguration || bcCount < activeConfiguration)
         activeConfiguration = 0;
 
     for (int i = 0; i < bcCount; ++i) {
-        const QString key = QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i);
+        const Key key = BC_KEY_PREFIX + Key::number(i);
         if (!map.contains(key))
             return false;
-        const QVariantMap valueMap = map.value(key).toMap();
+        const Store valueMap = map.value(key).toMap();
         BuildConfiguration *bc = BuildConfigurationFactory::restore(this, valueMap);
         if (!bc) {
             qWarning("No factory found to restore build configuration!");
@@ -917,20 +917,20 @@ bool Target::fromMap(const Store &map)
     if (buildConfigurations().isEmpty() && BuildConfigurationFactory::find(this))
         return false;
 
-    int dcCount = map.value(QLatin1String(DC_COUNT_KEY), 0).toInt(&ok);
+    int dcCount = map.value(DC_COUNT_KEY, 0).toInt(&ok);
     if (!ok || dcCount < 0)
         dcCount = 0;
-    activeConfiguration = map.value(QLatin1String(ACTIVE_DC_KEY), 0).toInt(&ok);
+    activeConfiguration = map.value(ACTIVE_DC_KEY, 0).toInt(&ok);
     if (!ok || activeConfiguration < 0)
         activeConfiguration = 0;
     if (0 > activeConfiguration || dcCount < activeConfiguration)
         activeConfiguration = 0;
 
     for (int i = 0; i < dcCount; ++i) {
-        const QString key = QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i);
+        const Key key = DC_KEY_PREFIX + Key::number(i);
         if (!map.contains(key))
             return false;
-        QVariantMap valueMap = map.value(key).toMap();
+        Store valueMap = map.value(key).value<Store>();
         DeployConfiguration *dc = DeployConfigurationFactory::restore(this, valueMap);
         if (!dc) {
             Utils::Id id = idFromMap(valueMap);
@@ -944,22 +944,22 @@ bool Target::fromMap(const Store &map)
             setActiveDeployConfiguration(dc);
     }
 
-    int rcCount = map.value(QLatin1String(RC_COUNT_KEY), 0).toInt(&ok);
+    int rcCount = map.value(RC_COUNT_KEY, 0).toInt(&ok);
     if (!ok || rcCount < 0)
         rcCount = 0;
-    activeConfiguration = map.value(QLatin1String(ACTIVE_RC_KEY), 0).toInt(&ok);
+    activeConfiguration = map.value(ACTIVE_RC_KEY, 0).toInt(&ok);
     if (!ok || activeConfiguration < 0)
         activeConfiguration = 0;
     if (0 > activeConfiguration || rcCount < activeConfiguration)
         activeConfiguration = 0;
 
     for (int i = 0; i < rcCount; ++i) {
-        const QString key = QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i);
+        const Key key = RC_KEY_PREFIX + Key::number(i);
         if (!map.contains(key))
             return false;
 
         // Ignore missing RCs: We will just populate them using the default ones.
-        QVariantMap valueMap = map.value(key).toMap();
+        Store valueMap = map.value(key).value<Store>();
         RunConfiguration *rc = RunConfigurationFactory::restore(this, valueMap);
         if (!rc)
             continue;
@@ -972,8 +972,8 @@ bool Target::fromMap(const Store &map)
             setActiveRunConfiguration(rc);
     }
 
-    if (map.contains(QLatin1String(PLUGIN_SETTINGS_KEY)))
-        d->m_pluginSettings = map.value(QLatin1String(PLUGIN_SETTINGS_KEY)).toMap();
+    if (map.contains(PLUGIN_SETTINGS_KEY))
+        d->m_pluginSettings = map.value(PLUGIN_SETTINGS_KEY).toMap();
 
     return true;
 }

@@ -57,8 +57,8 @@ public:
     QString displayName() const;
     QString toolTip() const;
 
-    static QString displayNameKey();
-    static QString deviceTypeKey();
+    static Utils::Key displayNameKey();
+    static Utils::Key deviceTypeKey();
 
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *bc);
@@ -94,8 +94,8 @@ public:
     void updateDefaultDeployConfigurations();
     void updateDefaultRunConfigurations();
 
-    QVariant namedSettings(const QString &name) const;
-    void setNamedSettings(const QString &name, const QVariant &value);
+    QVariant namedSettings(const Utils::Key &name) const;
+    void setNamedSettings(const Utils::Key &name, const QVariant &value);
 
     QVariant additionalData(Utils::Id id) const;
 

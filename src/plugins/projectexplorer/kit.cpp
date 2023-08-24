@@ -123,41 +123,40 @@ Kit::Kit(Id id)
 {
 }
 
-Kit::Kit(const QVariantMap &data) :
-    d(std::make_unique<Internal::KitPrivate>(Id(), this))
+Kit::Kit(const Store &data)
+    : d(std::make_unique<Internal::KitPrivate>(Id(), this))
 {
-    d->m_id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
+    d->m_id = Id::fromSetting(data.value(ID_KEY));
 
-    d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
-    d->m_autoDetectionSource = data.value(QLatin1String(AUTODETECTIONSOURCE_KEY)).toString();
+    d->m_autodetected = data.value(AUTODETECTED_KEY).toBool();
+    d->m_autoDetectionSource = data.value(AUTODETECTIONSOURCE_KEY).toString();
 
     // if we don't have that setting assume that autodetected implies sdk
-    QVariant value = data.value(QLatin1String(SDK_PROVIDED_KEY));
+    QVariant value = data.value(SDK_PROVIDED_KEY);
     if (value.isValid())
         d->m_sdkProvided = value.toBool();
     else
         d->m_sdkProvided = d->m_autodetected;
 
     d->m_unexpandedDisplayName.fromMap(data, DISPLAYNAME_KEY);
-    d->m_fileSystemFriendlyName = data.value(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY)).toString();
-    d->m_iconPath = FilePath::fromString(data.value(QLatin1String(ICON_KEY),
-                                                    d->m_iconPath.toString()).toString());
+    d->m_fileSystemFriendlyName = data.value(FILESYSTEMFRIENDLYNAME_KEY).toString();
+    d->m_iconPath = FilePath::fromString(data.value(ICON_KEY, d->m_iconPath.toString()).toString());
     d->m_deviceTypeForIcon = Id::fromSetting(data.value(DEVICE_TYPE_FOR_ICON_KEY));
     const auto it = data.constFind(IRRELEVANT_ASPECTS_KEY);
     if (it != data.constEnd())
         d->m_irrelevantAspects = transform<QSet<Id>>(it.value().toList(), &Id::fromSetting);
 
-    QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
+    Store extra = data.value(DATA_KEY).value<Store>();
     d->m_data.clear(); // remove default values
-    const QVariantMap::ConstIterator cend = extra.constEnd();
-    for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
-        d->m_data.insert(Id::fromString(it.key()), it.value());
+    const Store::ConstIterator cend = extra.constEnd();
+    for (Store::ConstIterator it = extra.constBegin(); it != cend; ++it)
+        d->m_data.insert(Id::fromString(stringFromKey(it.key())), it.value());
 
-    const QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
+    const QStringList mutableInfoList = data.value(MUTABLE_INFO_KEY).toStringList();
     for (const QString &mutableInfo : mutableInfoList)
         d->m_mutable.insert(Id::fromString(mutableInfo));
 
-    const QStringList stickyInfoList = data.value(QLatin1String(STICKY_INFO_KEY)).toStringList();
+    const QStringList stickyInfoList = data.value(STICKY_INFO_KEY).toStringList();
     for (const QString &stickyInfo : stickyInfoList)
         d->m_sticky.insert(Id::fromString(stickyInfo));
 }
@@ -484,42 +483,42 @@ bool Kit::isEqual(const Kit *other) const
             && d->m_mutable == other->d->m_mutable;
 }
 
-QVariantMap Kit::toMap() const
+Store Kit::toMap() const
 {
     using IdVariantConstIt = QHash<Id, QVariant>::ConstIterator;
 
-    QVariantMap data;
+    Store data;
     d->m_unexpandedDisplayName.toMap(data, DISPLAYNAME_KEY);
-    data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));
-    data.insert(QLatin1String(AUTODETECTED_KEY), d->m_autodetected);
+    data.insert(ID_KEY, QString::fromLatin1(d->m_id.name()));
+    data.insert(AUTODETECTED_KEY, d->m_autodetected);
     if (!d->m_fileSystemFriendlyName.isEmpty())
-        data.insert(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY), d->m_fileSystemFriendlyName);
-    data.insert(QLatin1String(AUTODETECTIONSOURCE_KEY), d->m_autoDetectionSource);
-    data.insert(QLatin1String(SDK_PROVIDED_KEY), d->m_sdkProvided);
-    data.insert(QLatin1String(ICON_KEY), d->m_iconPath.toString());
+        data.insert(FILESYSTEMFRIENDLYNAME_KEY, d->m_fileSystemFriendlyName);
+    data.insert(AUTODETECTIONSOURCE_KEY, d->m_autoDetectionSource);
+    data.insert(SDK_PROVIDED_KEY, d->m_sdkProvided);
+    data.insert(ICON_KEY, d->m_iconPath.toString());
     data.insert(DEVICE_TYPE_FOR_ICON_KEY, d->m_deviceTypeForIcon.toSetting());
 
     QStringList mutableInfo;
     for (const Id id : std::as_const(d->m_mutable))
         mutableInfo << id.toString();
-    data.insert(QLatin1String(MUTABLE_INFO_KEY), mutableInfo);
+    data.insert(MUTABLE_INFO_KEY, mutableInfo);
 
     QStringList stickyInfo;
     for (const Id id : std::as_const(d->m_sticky))
         stickyInfo << id.toString();
-    data.insert(QLatin1String(STICKY_INFO_KEY), stickyInfo);
+    data.insert(STICKY_INFO_KEY, stickyInfo);
 
     if (d->m_irrelevantAspects) {
         data.insert(IRRELEVANT_ASPECTS_KEY, transform<QVariantList>(d->m_irrelevantAspects.value(),
                                                                     &Id::toSetting));
     }
 
-    QVariantMap extra;
+    Store extra;
 
     const IdVariantConstIt cend = d->m_data.constEnd();
     for (IdVariantConstIt it = d->m_data.constBegin(); it != cend; ++it)
-        extra.insert(QString::fromLatin1(it.key().name().constData()), it.value());
-    data.insert(QLatin1String(DATA_KEY), extra);
+        extra.insert(keyFromString(QString::fromLatin1(it.key().name().constData())), it.value());
+    data.insert(DATA_KEY, QVariant::fromValue(extra));
 
     return data;
 }

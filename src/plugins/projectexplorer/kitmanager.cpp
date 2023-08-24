@@ -439,20 +439,20 @@ void KitManager::saveKits()
     if (!d->m_writer) // ignore save requests while we are not initialized.
         return;
 
-    QVariantMap data;
-    data.insert(QLatin1String(KIT_FILE_VERSION_KEY), 1);
+    Store data;
+    data.insert(KIT_FILE_VERSION_KEY, 1);
 
     int count = 0;
     const QList<Kit *> kits = KitManager::kits();
     for (Kit *k : kits) {
-        QVariantMap tmp = k->toMap();
+        Store tmp = k->toMap();
         if (tmp.isEmpty())
             continue;
-        data.insert(QString::fromLatin1(KIT_DATA_KEY) + QString::number(count), tmp);
+        data.insert(KIT_DATA_KEY + Key::number(count), QVariant::fromValue(tmp));
         ++count;
     }
-    data.insert(QLatin1String(KIT_COUNT_KEY), count);
-    data.insert(QLatin1String(KIT_DEFAULT_KEY),
+    data.insert(KIT_COUNT_KEY, count);
+    data.insert(KIT_DEFAULT_KEY,
                 d->m_defaultKit ? QString::fromLatin1(d->m_defaultKit->id().name()) : QString());
     data.insert(KIT_IRRELEVANT_ASPECTS_KEY,
                 transform<QVariantList>(d->m_irrelevantAspects, &Id::toSetting));
@@ -503,22 +503,22 @@ static KitList restoreKitsHelper(const FilePath &fileName)
                  qPrintable(fileName.toUserOutput()));
         return result;
     }
-    QVariantMap data = reader.restoreValues();
+    Store data = reader.restoreValues();
 
     // Check version:
-    int version = data.value(QLatin1String(KIT_FILE_VERSION_KEY), 0).toInt();
+    int version = data.value(KIT_FILE_VERSION_KEY, 0).toInt();
     if (version < 1) {
         qWarning("Warning: Kit file version %d not supported, cannot restore kits!", version);
         return result;
     }
 
-    const int count = data.value(QLatin1String(KIT_COUNT_KEY), 0).toInt();
+    const int count = data.value(KIT_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const QString key = QString::fromLatin1(KIT_DATA_KEY) + QString::number(i);
+        const Key key = KIT_DATA_KEY + Key::number(i);
         if (!data.contains(key))
             break;
 
-        const QVariantMap stMap = data.value(key).toMap();
+        const Store stMap = data.value(key).value<Store>();
 
         auto k = std::make_unique<Kit>(stMap);
         if (k->id().isValid()) {
@@ -529,7 +529,7 @@ static KitList restoreKitsHelper(const FilePath &fileName)
                      i);
         }
     }
-    const Id id = Id::fromSetting(data.value(QLatin1String(KIT_DEFAULT_KEY)));
+    const Id id = Id::fromSetting(data.value(KIT_DEFAULT_KEY));
     if (!id.isValid())
         return result;
 

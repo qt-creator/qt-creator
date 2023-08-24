@@ -130,8 +130,8 @@ void DeviceManager::save()
 {
     if (d->clonedInstance == this || !d->writer)
         return;
-    QVariantMap data;
-    data.insert(QLatin1String(DeviceManagerKey), toMap());
+    Store data;
+    data.insert(DeviceManagerKey, QVariant::fromValue(toMap()));
     d->writer->save(data, Core::ICore::dialogParent());
 }
 
@@ -157,11 +157,11 @@ void DeviceManager::load()
     QHash<Id, Id> defaultDevices;
     QList<IDevice::Ptr> sdkDevices;
     if (reader.load(systemSettingsFilePath("devices.xml")))
-        sdkDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
+        sdkDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).value<Store>(), &defaultDevices);
     // read devices file from user settings path
     QList<IDevice::Ptr> userDevices;
     if (reader.load(settingsFilePath("devices.xml")))
-        userDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
+        userDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).value<Store>(), &defaultDevices);
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
     for (IDevice::ConstPtr device : std::as_const(userDevices)) {
@@ -189,7 +189,7 @@ void DeviceManager::load()
     emit devicesLoaded();
 }
 
-static const IDeviceFactory *restoreFactory(const QVariantMap &map)
+static const IDeviceFactory *restoreFactory(const Store &map)
 {
     const Id deviceType = IDevice::typeFromMap(map);
     IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
@@ -209,13 +209,13 @@ QList<IDevice::Ptr> DeviceManager::fromMap(const Store &map, QHash<Id, Id> *defa
     QList<IDevice::Ptr> devices;
 
     if (defaultDevices) {
-        const QVariantMap defaultDevsMap = map.value(DefaultDevicesKey).toMap();
+        const Store defaultDevsMap = map.value(DefaultDevicesKey).value<Store>();
         for (auto it = defaultDevsMap.constBegin(); it != defaultDevsMap.constEnd(); ++it)
-            defaultDevices->insert(Id::fromString(it.key()), Id::fromSetting(it.value()));
+            defaultDevices->insert(Id::fromString(stringFromKey(it.key())), Id::fromSetting(it.value()));
     }
-    const QVariantList deviceList = map.value(QLatin1String(DeviceListKey)).toList();
+    const QVariantList deviceList = map.value(DeviceListKey).toList();
     for (const QVariant &v : deviceList) {
-        const QVariantMap map = v.toMap();
+        const Store map = v.value<Store>();
         const IDeviceFactory * const factory = restoreFactory(map);
         if (!factory)
             continue;
@@ -227,18 +227,18 @@ QList<IDevice::Ptr> DeviceManager::fromMap(const Store &map, QHash<Id, Id> *defa
     return devices;
 }
 
-QVariantMap DeviceManager::toMap() const
+Store DeviceManager::toMap() const
 {
-    QVariantMap map;
-    QVariantMap defaultDeviceMap;
+    Store map;
+    Store defaultDeviceMap;
     for (auto it = d->defaultDevices.constBegin(); it != d->defaultDevices.constEnd(); ++it)
-        defaultDeviceMap.insert(it.key().toString(), it.value().toSetting());
+        defaultDeviceMap.insert(keyFromString(it.key().toString()), it.value().toSetting());
 
-    map.insert(QLatin1String(DefaultDevicesKey), defaultDeviceMap);
+    map.insert(DefaultDevicesKey, QVariant::fromValue(defaultDeviceMap));
     QVariantList deviceList;
     for (const IDevice::Ptr &device : std::as_const(d->devices))
-        deviceList << device->toMap();
-    map.insert(QLatin1String(DeviceListKey), deviceList);
+        deviceList << QVariant::fromValue(device->toMap());
+    map.insert(DeviceListKey, deviceList);
     return map;
 }
 

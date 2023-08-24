@@ -422,12 +422,12 @@ void IDevice::setDeviceState(const IDevice::DeviceState state)
 
 Id IDevice::typeFromMap(const Store &map)
 {
-    return Id::fromSetting(map.value(QLatin1String(TypeKey)));
+    return Id::fromSetting(map.value(TypeKey));
 }
 
 Id IDevice::idFromMap(const Store &map)
 {
-    return Id::fromSetting(map.value(QLatin1String(IdKey)));
+    return Id::fromSetting(map.value(IdKey));
 }
 
 /*!
@@ -440,20 +440,19 @@ void IDevice::fromMap(const Store &map)
 {
     d->type = typeFromMap(map);
     d->displayName.fromMap(map, DisplayNameKey);
-    d->id = Id::fromSetting(map.value(QLatin1String(IdKey)));
-    d->osType = osTypeFromString(
-        map.value(QLatin1String(ClientOsTypeKey), osTypeToString(OsTypeLinux)).toString());
+    d->id = Id::fromSetting(map.value(IdKey));
+    d->osType = osTypeFromString(map.value(ClientOsTypeKey, osTypeToString(OsTypeLinux)).toString());
     if (!d->id.isValid())
         d->id = newId();
-    d->origin = static_cast<Origin>(map.value(QLatin1String(OriginKey), ManuallyAdded).toInt());
+    d->origin = static_cast<Origin>(map.value(OriginKey, ManuallyAdded).toInt());
 
     QWriteLocker locker(&d->lock);
-    d->sshParameters.setHost(map.value(QLatin1String(HostKey)).toString());
-    d->sshParameters.setPort(map.value(QLatin1String(SshPortKey), 22).toInt());
-    d->sshParameters.setUserName(map.value(QLatin1String(UserNameKey)).toString());
+    d->sshParameters.setHost(map.value(HostKey).toString());
+    d->sshParameters.setPort(map.value(SshPortKey, 22).toInt());
+    d->sshParameters.setUserName(map.value(UserNameKey).toString());
 
     // Pre-4.9, the authentication enum used to have more values
-    const int storedAuthType = map.value(QLatin1String(AuthKey), DefaultAuthType).toInt();
+    const int storedAuthType = map.value(AuthKey, DefaultAuthType).toInt();
     const bool outdatedAuthType = storedAuthType
             > SshParameters::AuthenticationTypeSpecificKey;
     d->sshParameters.authenticationType = outdatedAuthType
@@ -461,22 +460,22 @@ void IDevice::fromMap(const Store &map)
             : static_cast<AuthType>(storedAuthType);
 
     d->sshParameters.privateKeyFile =
-        FilePath::fromSettings(map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()));
-    d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
+        FilePath::fromSettings(map.value(KeyFileKey, defaultPrivateKeyFilePath()));
+    d->sshParameters.timeout = map.value(TimeoutKey, DefaultTimeout).toInt();
     d->sshParameters.hostKeyCheckingMode = static_cast<SshHostKeyCheckingMode>
-            (map.value(QLatin1String(HostKeyCheckingKey), SshHostKeyCheckingNone).toInt());
+            (map.value(HostKeyCheckingKey, SshHostKeyCheckingNone).toInt());
 
     QString portsSpec = map.value(PortsSpecKey).toString();
     if (portsSpec.isEmpty())
         portsSpec = "10000-10100";
     d->freePorts = PortList::fromString(portsSpec);
-    d->machineType = static_cast<MachineType>(map.value(QLatin1String(MachineTypeKey), DefaultMachineType).toInt());
-    d->version = map.value(QLatin1String(VersionKey), 0).toInt();
+    d->machineType = static_cast<MachineType>(map.value(MachineTypeKey, DefaultMachineType).toInt());
+    d->version = map.value(VersionKey, 0).toInt();
 
-    d->debugServerPath = FilePath::fromSettings(map.value(QLatin1String(DebugServerKey)));
-    const FilePath qmlRunCmd = FilePath::fromSettings(map.value(QLatin1String(QmlRuntimeKey)));
+    d->debugServerPath = FilePath::fromSettings(map.value(DebugServerKey));
+    const FilePath qmlRunCmd = FilePath::fromSettings(map.value(QmlRuntimeKey));
     d->qmlRunCommand = qmlRunCmd;
-    d->extraData = map.value(ExtraDataKey).toMap();
+    d->extraData = map.value(ExtraDataKey).value<Store>();
 }
 
 /*!
@@ -487,30 +486,30 @@ void IDevice::fromMap(const Store &map)
 
 Store IDevice::toMap() const
 {
-    QVariantMap map;
+    Store map;
     d->displayName.toMap(map, DisplayNameKey);
-    map.insert(QLatin1String(TypeKey), d->type.toString());
-    map.insert(QLatin1String(ClientOsTypeKey), osTypeToString(d->osType));
-    map.insert(QLatin1String(IdKey), d->id.toSetting());
-    map.insert(QLatin1String(OriginKey), d->origin);
+    map.insert(TypeKey, d->type.toString());
+    map.insert(ClientOsTypeKey, osTypeToString(d->osType));
+    map.insert(IdKey, d->id.toSetting());
+    map.insert(OriginKey, d->origin);
 
     QReadLocker locker(&d->lock);
-    map.insert(QLatin1String(MachineTypeKey), d->machineType);
-    map.insert(QLatin1String(HostKey), d->sshParameters.host());
-    map.insert(QLatin1String(SshPortKey), d->sshParameters.port());
-    map.insert(QLatin1String(UserNameKey), d->sshParameters.userName());
-    map.insert(QLatin1String(AuthKey), d->sshParameters.authenticationType);
-    map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile.toSettings());
-    map.insert(QLatin1String(TimeoutKey), d->sshParameters.timeout);
-    map.insert(QLatin1String(HostKeyCheckingKey), d->sshParameters.hostKeyCheckingMode);
+    map.insert(MachineTypeKey, d->machineType);
+    map.insert(HostKey, d->sshParameters.host());
+    map.insert(SshPortKey, d->sshParameters.port());
+    map.insert(UserNameKey, d->sshParameters.userName());
+    map.insert(AuthKey, d->sshParameters.authenticationType);
+    map.insert(KeyFileKey, d->sshParameters.privateKeyFile.toSettings());
+    map.insert(TimeoutKey, d->sshParameters.timeout);
+    map.insert(HostKeyCheckingKey, d->sshParameters.hostKeyCheckingMode);
 
-    map.insert(QLatin1String(PortsSpecKey), d->freePorts.toString());
-    map.insert(QLatin1String(VersionKey), d->version);
+    map.insert(PortsSpecKey, d->freePorts.toString());
+    map.insert(VersionKey, d->version);
 
-    map.insert(QLatin1String(DebugServerKey), d->debugServerPath.toSettings());
-    map.insert(QLatin1String(QmlRuntimeKey), d->qmlRunCommand.toSettings());
+    map.insert(DebugServerKey, d->debugServerPath.toSettings());
+    map.insert(QmlRuntimeKey, d->qmlRunCommand.toSettings());
 
-    map.insert(ExtraDataKey, d->extraData);
+    map.insert(ExtraDataKey, QVariant::fromValue(d->extraData));
 
     return map;
 }
@@ -608,12 +607,12 @@ void IDevice::setQmlRunCommand(const FilePath &path)
 
 void IDevice::setExtraData(Id kind, const QVariant &data)
 {
-    d->extraData.insert(kind.toString(), data);
+    d->extraData.insert(keyFromString(kind.toString()), data);
 }
 
 QVariant IDevice::extraData(Id kind) const
 {
-    return d->extraData.value(kind.toString());
+    return d->extraData.value(keyFromString(kind.toString()));
 }
 
 int IDevice::version() const

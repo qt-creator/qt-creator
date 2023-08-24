@@ -53,7 +53,7 @@ public:
     {
         m_chooser = createSubWidget<PathChooser>();
         m_chooser->setExpectedKind(PathChooser::ExistingDirectory);
-        m_chooser->setHistoryCompleter(QLatin1String("PE.SysRoot.History"));
+        m_chooser->setHistoryCompleter("PE.SysRoot.History");
         m_chooser->setFilePath(SysRootKitAspect::sysRoot(k));
         connect(m_chooser, &PathChooser::textChanged,
                 this, &SysRootKitAspectImpl::pathWasChanged);

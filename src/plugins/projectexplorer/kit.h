@@ -40,8 +40,8 @@ public:
     using Predicate = std::function<bool(const Kit *)>;
     static Predicate defaultPredicate();
 
-    explicit Kit(Utils::Id id = Utils::Id());
-    explicit Kit(const QVariantMap &data);
+    explicit Kit(Utils::Id id = {});
+    explicit Kit(const Utils::Store &data);
     ~Kit();
 
     // Do not trigger evaluations

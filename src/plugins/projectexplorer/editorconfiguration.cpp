@@ -27,16 +27,16 @@
 #include <QTextCodec>
 #include <QDebug>
 
-static const QLatin1String kPrefix("EditorConfiguration.");
-static const QLatin1String kUseGlobal("EditorConfiguration.UseGlobal");
-static const QLatin1String kCodec("EditorConfiguration.Codec");
-static const QLatin1String kCodeStylePrefix("EditorConfiguration.CodeStyle.");
-static const QLatin1String kCodeStyleCount("EditorConfiguration.CodeStyle.Count");
-
 using namespace TextEditor;
 using namespace Utils;
 
 namespace ProjectExplorer {
+
+const Key kPrefix("EditorConfiguration.");
+const Key kUseGlobal("EditorConfiguration.UseGlobal");
+const Key kCodec("EditorConfiguration.Codec");
+const Key kCodeStylePrefix("EditorConfiguration.CodeStyle.");
+const Key kCodeStyleCount("EditorConfiguration.CodeStyle.Count");
 
 struct EditorConfigurationPrivate
 {
@@ -159,15 +159,15 @@ QMap<Utils::Id, ICodeStylePreferences *> EditorConfiguration::codeStyles() const
     return d->m_languageCodeStylePreferences;
 }
 
-static void toMapWithPrefix(QVariantMap *map, const QVariantMap &source)
+static void toMapWithPrefix(Store *map, const Store &source)
 {
     for (auto it = source.constBegin(), end = source.constEnd(); it != end; ++it)
         map->insert(kPrefix + it.key(), it.value());
 }
 
-QVariantMap EditorConfiguration::toMap() const
+Store EditorConfiguration::toMap() const
 {
-    QVariantMap map = {
+    Store map = {
         {kUseGlobal, d->m_useGlobal},
         {kCodec, d->m_textCodec->name()},
         {kCodeStyleCount, d->m_languageCodeStylePreferences.count()}
@@ -177,11 +177,11 @@ QVariantMap EditorConfiguration::toMap() const
     for (auto itCodeStyle = d->m_languageCodeStylePreferences.cbegin(),
                end = d->m_languageCodeStylePreferences.cend();
             itCodeStyle != end; ++itCodeStyle) {
-        const QVariantMap settingsIdMap = {
-            {"language", itCodeStyle.key().toSetting()},
-            {"value", itCodeStyle.value()->toMap()}
+        const Store settingsIdMap = {
+            {"language", QVariant::fromValue(itCodeStyle.key().toSetting())},
+            {"value", QVariant::fromValue(itCodeStyle.value()->toMap())}
         };
-        map.insert(kCodeStylePrefix + QString::number(i), settingsIdMap);
+        map.insert(kCodeStylePrefix + Key::number(i), QVariant::fromValue(settingsIdMap));
         i++;
     }
 
@@ -204,19 +204,19 @@ void EditorConfiguration::fromMap(const Store &map)
 
     const int codeStyleCount = map.value(kCodeStyleCount, 0).toInt();
     for (int i = 0; i < codeStyleCount; ++i) {
-        QVariantMap settingsIdMap = map.value(kCodeStylePrefix + QString::number(i)).toMap();
+        Store settingsIdMap = map.value(kCodeStylePrefix + Key::number(i)).value<Store>();
         if (settingsIdMap.isEmpty()) {
             qWarning() << "No data for code style settings list" << i << "found!";
             continue;
         }
-        Utils::Id languageId = Utils::Id::fromSetting(settingsIdMap.value(QLatin1String("language")));
-        QVariantMap value = settingsIdMap.value(QLatin1String("value")).toMap();
+        Id languageId = Id::fromSetting(settingsIdMap.value("language"));
+        Store value = settingsIdMap.value("value").value<Store>();
         ICodeStylePreferences *preferences = d->m_languageCodeStylePreferences.value(languageId);
         if (preferences)
              preferences->fromMap(value);
     }
 
-    QVariantMap submap;
+    Store submap;
     for (auto it = map.constBegin(), end = map.constEnd(); it != end; ++it) {
         if (it.key().startsWith(kPrefix))
             submap.insert(it.key().mid(kPrefix.size()), it.value());

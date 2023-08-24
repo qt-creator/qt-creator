@@ -50,14 +50,14 @@ public:
         m_headerPathsCache(new ToolChain::HeaderPathsCache::element_type())
     {
         QTC_ASSERT(m_typeId.isValid(), return);
-        QTC_ASSERT(!m_typeId.toString().contains(QLatin1Char(':')), return);
+        QTC_ASSERT(!m_typeId.name().contains(':'), return);
     }
 
     QByteArray m_id;
     FilePath m_compilerCommand;
-    QString m_compilerCommandKey;
+    Key m_compilerCommandKey;
     Abi m_targetAbi;
-    QString m_targetAbiKey;
+    Key m_targetAbiKey;
     QSet<Id> m_supportedLanguages;
     mutable QString m_displayName;
     QString m_typeDisplayName;
@@ -223,7 +223,7 @@ ToolChain *ToolChain::clone() const
         if (f->supportedToolChainType() == d->m_typeId) {
             ToolChain *tc = f->create();
             QTC_ASSERT(tc, return nullptr);
-            QVariantMap data;
+            Store data;
             toMap(data);
             tc->fromMap(data);
             // New ID for the clone. It's different.
@@ -246,10 +246,10 @@ void ToolChain::toMap(Store &result) const
     AspectContainer::toMap(result);
 
     QString idToSave = d->m_typeId.toString() + QLatin1Char(':') + QString::fromUtf8(id());
-    result.insert(QLatin1String(ID_KEY), idToSave);
-    result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
-    result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
-    result.insert(QLatin1String(DETECTION_SOURCE_KEY), d->m_detectionSource);
+    result.insert(ID_KEY, idToSave);
+    result.insert(DISPLAY_NAME_KEY, displayName());
+    result.insert(AUTODETECT_KEY, isAutoDetected());
+    result.insert(DETECTION_SOURCE_KEY, d->m_detectionSource);
     result.insert(CODE_MODEL_TRIPLE_KEY, d->m_explicitCodeModelTargetTriple);
     // <Compatibility with QtC 4.2>
     int oldLanguageId = -1;
@@ -260,7 +260,7 @@ void ToolChain::toMap(Store &result) const
     if (oldLanguageId >= 0)
         result.insert(LANGUAGE_KEY_V1, oldLanguageId);
     // </Compatibility>
-    result.insert(QLatin1String(LANGUAGE_KEY_V2), language().toSetting());
+    result.insert(LANGUAGE_KEY_V2, language().toSetting());
     if (!d->m_targetAbiKey.isEmpty())
         result.insert(d->m_targetAbiKey, d->m_targetAbi.toString());
     if (!d->m_compilerCommandKey.isEmpty())
@@ -553,7 +553,7 @@ void ToolChain::setExplicitCodeModelTargetTriple(const QString &triple)
 */
 
 /*!
-    \fn bool ProjectExplorer::ToolChainFactory::canRestore(const QVariantMap &data)
+    \fn bool ProjectExplorer::ToolChainFactory::canRestore(const Store &data)
     Used by the tool chain manager to restore user-generated tool chains.
 */
 
@@ -594,7 +594,7 @@ ToolChain *ToolChainFactory::create() const
     return m_toolchainConstructor ? m_toolchainConstructor() : nullptr;
 }
 
-ToolChain *ToolChainFactory::restore(const QVariantMap &data)
+ToolChain *ToolChainFactory::restore(const Store &data)
 {
     if (!m_toolchainConstructor)
         return nullptr;
@@ -610,7 +610,7 @@ ToolChain *ToolChainFactory::restore(const QVariantMap &data)
     return nullptr;
 }
 
-static QPair<QString, QString> rawIdData(const QVariantMap &data)
+static QPair<QString, QString> rawIdData(const Store &data)
 {
     const QString raw = data.value(QLatin1String(ID_KEY)).toString();
     const int pos = raw.indexOf(QLatin1Char(':'));
@@ -618,17 +618,17 @@ static QPair<QString, QString> rawIdData(const QVariantMap &data)
     return {raw.mid(0, pos), raw.mid(pos + 1)};
 }
 
-QByteArray ToolChainFactory::idFromMap(const QVariantMap &data)
+QByteArray ToolChainFactory::idFromMap(const Store &data)
 {
     return rawIdData(data).second.toUtf8();
 }
 
-Id ToolChainFactory::typeIdFromMap(const QVariantMap &data)
+Id ToolChainFactory::typeIdFromMap(const Store &data)
 {
     return Id::fromString(rawIdData(data).first);
 }
 
-void ToolChainFactory::autoDetectionToMap(QVariantMap &data, bool detected)
+void ToolChainFactory::autoDetectionToMap(Store &data, bool detected)
 {
     data.insert(QLatin1String(AUTODETECT_KEY), detected);
 }
@@ -704,7 +704,7 @@ static QString badToolchainFilePathKey() { return {"FilePath"}; }
 static QString badToolchainSymlinkTargetKey() { return {"TargetFilePath"}; }
 static QString badToolchainTimestampKey() { return {"Timestamp"}; }
 
-QVariantMap BadToolchain::toMap() const
+Store BadToolchain::toMap() const
 {
     return {{badToolchainFilePathKey(), filePath.toSettings()},
             {badToolchainSymlinkTargetKey(), symlinkTarget.toSettings()},

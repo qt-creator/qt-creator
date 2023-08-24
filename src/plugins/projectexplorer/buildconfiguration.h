@@ -102,9 +102,9 @@ public:
 
     ProjectExplorer::BuildDirectoryAspect *buildDirectoryAspect() const;
     void setConfigWidgetDisplayName(const QString &display);
-    void setBuildDirectoryHistoryCompleter(const QString &history);
+    void setBuildDirectoryHistoryCompleter(const Utils::Key &history);
     void setConfigWidgetHasFrame(bool configWidgetHasFrame);
-    void setBuildDirectorySettingsKey(const QString &key);
+    void setBuildDirectorySettingsKey(const Utils::Key &key);
 
     void addConfigWidgets(const std::function<void (NamedWidget *)> &adder);
 

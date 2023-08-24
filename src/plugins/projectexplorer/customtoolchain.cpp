@@ -274,13 +274,13 @@ QString CustomToolChain::mkspecs() const
 void CustomToolChain::toMap(Store &data) const
 {
     ToolChain::toMap(data);
-    data.insert(QLatin1String(makeCommandKeyC), m_makeCommand.toString());
+    data.insert(makeCommandKeyC, m_makeCommand.toString());
     QStringList macros = Utils::transform<QList>(m_predefinedMacros, [](const Macro &m) { return QString::fromUtf8(m.toByteArray()); });
-    data.insert(QLatin1String(predefinedMacrosKeyC), macros);
-    data.insert(QLatin1String(headerPathsKeyC), headerPathsList());
-    data.insert(QLatin1String(cxx11FlagsKeyC), m_cxx11Flags);
-    data.insert(QLatin1String(mkspecsKeyC), mkspecs());
-    data.insert(QLatin1String(outputParserKeyC), m_outputParserId.toSetting());
+    data.insert(predefinedMacrosKeyC, macros);
+    data.insert(headerPathsKeyC, headerPathsList());
+    data.insert(cxx11FlagsKeyC, m_cxx11Flags);
+    data.insert(mkspecsKeyC, mkspecs());
+    data.insert(outputParserKeyC, m_outputParserId.toSetting());
 }
 
 void CustomToolChain::fromMap(const Store &data)
@@ -289,13 +289,13 @@ void CustomToolChain::fromMap(const Store &data)
     if (hasError())
         return;
 
-    m_makeCommand = FilePath::fromString(data.value(QLatin1String(makeCommandKeyC)).toString());
-    const QStringList macros = data.value(QLatin1String(predefinedMacrosKeyC)).toStringList();
+    m_makeCommand = FilePath::fromString(data.value(makeCommandKeyC).toString());
+    const QStringList macros = data.value(predefinedMacrosKeyC).toStringList();
     m_predefinedMacros = Macro::toMacros(macros.join('\n').toUtf8());
-    setHeaderPaths(data.value(QLatin1String(headerPathsKeyC)).toStringList());
-    m_cxx11Flags = data.value(QLatin1String(cxx11FlagsKeyC)).toStringList();
-    setMkspecs(data.value(QLatin1String(mkspecsKeyC)).toString());
-    setOutputParserId(Id::fromSetting(data.value(QLatin1String(outputParserKeyC))));
+    setHeaderPaths(data.value(headerPathsKeyC).toStringList());
+    m_cxx11Flags = data.value(cxx11FlagsKeyC).toStringList();
+    setMkspecs(data.value(mkspecsKeyC).toString());
+    setOutputParserId(Id::fromSetting(data.value(outputParserKeyC)));
 }
 
 bool CustomToolChain::operator ==(const ToolChain &other) const
@@ -441,9 +441,9 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_cxx11Flags->setToolTip(Tr::tr("Comma-separated list of flags that turn on C++11 support."));
     m_mkspecs->setToolTip(Tr::tr("Comma-separated list of mkspecs."));
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
-    m_compilerCommand->setHistoryCompleter(QLatin1String("PE.ToolChainCommand.History"));
+    m_compilerCommand->setHistoryCompleter("PE.ToolChainCommand.History");
     m_makeCommand->setExpectedKind(PathChooser::ExistingCommand);
-    m_makeCommand->setHistoryCompleter(QLatin1String("PE.MakeCommand.History"));
+    m_makeCommand->setHistoryCompleter("PE.MakeCommand.History");
     m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
     m_mainLayout->addRow(Tr::tr("&Make path:"), m_makeCommand);
     m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);

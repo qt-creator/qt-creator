@@ -638,7 +638,7 @@ void ProjectTreeWidgetFactory::saveSettings(QtcSettings *settings, int position,
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    const QString baseKey = kBaseKey + QString::number(position);
+    const Key baseKey = kBaseKey + Key::number(position);
     settings->setValueWithDefault(baseKey + kProjectFilterKey,
                                   ptw->projectFilter(),
                                   kProjectFilterDefault);

@@ -167,12 +167,12 @@ public:
     void setExecutable(const Utils::FilePath &executable);
 
     void setDeviceSelector(Target *target, ExecutionDeviceSelector selector);
-    void setSettingsKey(const QString &key);
-    void makeOverridable(const QString &overridingKey, const QString &useOverridableKey);
+    void setSettingsKey(const Utils::Key &key);
+    void makeOverridable(const Utils::Key &overridingKey, const Utils::Key &useOverridableKey);
     void addToLayout(Layouting::LayoutItem &parent) override;
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
-    void setHistoryCompleter(const QString &historyCompleterKey);
+    void setHistoryCompleter(const Utils::Key &historyCompleterKey);
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironment(const Utils::Environment &env);
     void setReadOnly(bool readOnly);

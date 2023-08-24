@@ -343,19 +343,19 @@ void TaskWindow::saveSettings()
 {
     const QStringList categories = Utils::toList(
         Utils::transform(d->m_filter->filteredCategories(), &Id::toString));
-    SessionManager::setValue(QLatin1String(SESSION_FILTER_CATEGORIES), categories);
-    SessionManager::setValue(QLatin1String(SESSION_FILTER_WARNINGS), d->m_filter->filterIncludesWarnings());
+    SessionManager::setValue(SESSION_FILTER_CATEGORIES, categories);
+    SessionManager::setValue(SESSION_FILTER_WARNINGS, d->m_filter->filterIncludesWarnings());
 }
 
 void TaskWindow::loadSettings()
 {
-    QVariant value = SessionManager::value(QLatin1String(SESSION_FILTER_CATEGORIES));
+    QVariant value = SessionManager::value(SESSION_FILTER_CATEGORIES);
     if (value.isValid()) {
         const QSet<Id> categories = Utils::toSet(
             Utils::transform(value.toStringList(), &Id::fromString));
         d->m_filter->setFilteredCategories(categories);
     }
-    value = SessionManager::value(QLatin1String(SESSION_FILTER_WARNINGS));
+    value = SessionManager::value(SESSION_FILTER_WARNINGS);
     if (value.isValid()) {
         bool includeWarnings = value.toBool();
         d->m_filter->setFilterIncludesWarnings(includeWarnings);

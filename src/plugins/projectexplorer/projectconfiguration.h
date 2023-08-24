@@ -53,7 +53,7 @@ public:
     Project *project() const;
     Kit *kit() const;
 
-    static QString settingsIdKey();
+    static Utils::Key settingsIdKey();
 
 signals:
     void displayNameChanged();

@@ -393,7 +393,7 @@ void BuildConfiguration::fromMap(const Store &map)
     d->m_clearSystemEnvironment = map.value(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY))
                                       .toBool();
     d->m_userEnvironmentChanges = EnvironmentItem::fromStringList(
-        map.value(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+        map.value(Constants::USER_ENVIRONMENT_CHANGES_KEY).toStringList());
 
     updateCacheAndEmitEnvironmentChanged();
 
@@ -454,7 +454,7 @@ void BuildConfiguration::setConfigWidgetDisplayName(const QString &display)
     d->m_configWidgetDisplayName = display;
 }
 
-void BuildConfiguration::setBuildDirectoryHistoryCompleter(const QString &history)
+void BuildConfiguration::setBuildDirectoryHistoryCompleter(const Key &history)
 {
     d->m_buildDirectoryAspect.setHistoryCompleter(history);
 }
@@ -464,7 +464,7 @@ void BuildConfiguration::setConfigWidgetHasFrame(bool configWidgetHasFrame)
     d->m_configWidgetHasFrame = configWidgetHasFrame;
 }
 
-void BuildConfiguration::setBuildDirectorySettingsKey(const QString &key)
+void BuildConfiguration::setBuildDirectorySettingsKey(const Key &key)
 {
     d->m_buildDirectoryAspect.setSettingsKey(key);
 }
@@ -770,7 +770,7 @@ BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const Buil
     return bc;
 }
 
-BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const Store &map)
 {
     const Utils::Id id = idFromMap(map);
     for (BuildConfigurationFactory *factory : std::as_const(g_buildConfigurationFactories)) {
@@ -794,7 +794,7 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVa
 BuildConfiguration *BuildConfigurationFactory::clone(Target *parent,
                                                      const BuildConfiguration *source)
 {
-    QVariantMap map;
+    Store map;
     source->toMap(map);
     return restore(parent, map);
 }
