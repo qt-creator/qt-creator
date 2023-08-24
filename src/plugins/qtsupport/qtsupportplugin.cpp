@@ -4,7 +4,6 @@
 #include "qtsupportplugin.h"
 
 #include "codegenerator.h"
-#include "codegensettingspage.h"
 #include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
 #include "profilereader.h"
@@ -52,7 +51,6 @@ public:
     DesktopQtVersionFactory desktopQtVersionFactory;
     EmbeddedLinuxQtVersionFactory embeddedLinuxQtVersionFactory;
 
-    CodeGenSettingsPage codeGenSettingsPage;
     QtOptionsPage qtOptionsPage;
 
     ExamplesWelcomePage examplesPage{true};

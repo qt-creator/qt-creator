@@ -6,7 +6,6 @@ add_qtc_plugin(QtSupport
     baseqtversion.cpp baseqtversion.h
     codegenerator.cpp codegenerator.h
     codegensettings.cpp codegensettings.h
-    codegensettingspage.cpp codegensettingspage.h
     exampleslistmodel.cpp exampleslistmodel.h
     examplesparser.cpp
     examplesparser.h

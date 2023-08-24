@@ -14,7 +14,6 @@
 #include <utils/codegeneration.h>
 
 #include <QTextStream>
-#include <QSettings>
 #include <QFileInfo>
 #include <QDebug>
 
@@ -30,7 +29,7 @@ namespace Designer {
 // Write out how to access the Ui class in the source code.
 static void writeUiMemberAccess(const QtSupport::CodeGenSettings &fp, QTextStream &str)
 {
-    switch (fp.embedding) {
+    switch (fp.embedding()) {
     case QtSupport::CodeGenSettings::PointerAggregatedUiClass:
         str << uiMemberC << "->";
         break;
@@ -45,8 +44,7 @@ static void writeUiMemberAccess(const QtSupport::CodeGenSettings &fp, QTextStrea
 bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParameters &parameters,
                                                    QString *header, QString *source, int indentation)
 {
-    QtSupport::CodeGenSettings generationParameters;
-    generationParameters.fromSettings(Core::ICore::settings());
+    const QtSupport::CodeGenSettings &generationParameters = QtSupport::codeGenSettings();
 
     const QString indent = QString(indentation, ' ');
     QString formBaseClass;
@@ -91,14 +89,14 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
         headerStr << "#ifndef " << guard << "\n#define " << guard << "\n\n";
 
     // Include 'ui_'
-    if (generationParameters.embedding != QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
+    if (generationParameters.embedding() != QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
         Utils::writeIncludeFileDirective(uiInclude, false, headerStr);
     } else {
         // Todo: Can we obtain the header from the code model for custom widgets?
         // Alternatively, from Designer.
         if (formBaseClass.startsWith('Q')) {
-            if (generationParameters.includeQtModule) {
-                if (generationParameters.addQtVersionCheck) {
+            if (generationParameters.includeQtModule()) {
+                if (generationParameters.addQtVersionCheck()) {
                     Utils::writeBeginQtVersionCheck(headerStr);
                     Utils::writeIncludeFileDirective("QtWidgets/" + formBaseClass, true, headerStr);
                     headerStr << "#else\n";
@@ -117,7 +115,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
                                                                   headerStr);
 
     // Forward-declare the UI class
-    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
+    if (generationParameters.embedding() == QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
           headerStr << '\n'
                   << namespaceIndent << "namespace " <<  uiNamespaceC << " {\n"
                   << namespaceIndent << indent << "class " << Internal::FormTemplateWizardPage::stripNamespaces(uiClassName) << ";\n"
@@ -127,22 +125,22 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     // Class declaration
     headerStr << '\n' << namespaceIndent << "class " << unqualifiedClassName
               << " : public " << formBaseClass;
-    if (generationParameters.embedding == QtSupport::CodeGenSettings::InheritedUiClass)
+    if (generationParameters.embedding() == QtSupport::CodeGenSettings::InheritedUiClass)
         headerStr << ", private " << uiClassName;
     headerStr << "\n{\n" << namespaceIndent << indent << "Q_OBJECT\n\n"
               << namespaceIndent << "public:\n"
               << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QWidget *parent = nullptr);\n";
-    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
+    if (generationParameters.embedding() == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
         headerStr << namespaceIndent << indent << "~" << unqualifiedClassName << "();\n";
     // retranslation
-    if (generationParameters.retranslationSupport)
+    if (generationParameters.retranslationSupport())
         headerStr << '\n' << namespaceIndent << "protected:\n"
                   << namespaceIndent << indent << "void changeEvent(QEvent *e);\n";
     // Member variable
-    if (generationParameters.embedding != QtSupport::CodeGenSettings::InheritedUiClass) {
+    if (generationParameters.embedding() != QtSupport::CodeGenSettings::InheritedUiClass) {
         headerStr << '\n' << namespaceIndent << "private:\n"
                   << namespaceIndent << indent << uiClassName << ' ';
-        if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
+        if (generationParameters.embedding() == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
             headerStr << '*';
         headerStr << uiMemberC << ";\n";
     }
@@ -156,27 +154,27 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     QTextStream sourceStr(source);
     sourceStr << sourceLicense;
     Utils::writeIncludeFileDirective(parameters.headerFile, false, sourceStr);
-    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
+    if (generationParameters.embedding() == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
         Utils::writeIncludeFileDirective(uiInclude, false, sourceStr);
     // NameSpaces(
     Utils::writeOpeningNameSpaces(namespaceList, QString(), sourceStr);
     // Constructor with setupUi
     sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "(QWidget *parent) :\n"
                << namespaceIndent << indent << formBaseClass << "(parent)";
-    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
+    if (generationParameters.embedding() == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
         sourceStr << ",\n"  << namespaceIndent << indent <<  uiMemberC << "(new " << uiClassName << ")";
     sourceStr <<  '\n' << namespaceIndent << "{\n" <<  namespaceIndent << indent;
     writeUiMemberAccess(generationParameters, sourceStr);
     sourceStr <<  "setupUi(this);\n" << namespaceIndent << "}\n";
     // Deleting destructor for ptr
-    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
+    if (generationParameters.embedding() == QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
         sourceStr << '\n' <<  namespaceIndent << unqualifiedClassName << "::~" << unqualifiedClassName
                   << "()\n" << namespaceIndent << "{\n"
                   << namespaceIndent << indent << "delete " << uiMemberC << ";\n"
                   << namespaceIndent << "}\n";
     }
     // retranslation
-    if (generationParameters.retranslationSupport) {
+    if (generationParameters.retranslationSupport()) {
         sourceStr  << '\n' << namespaceIndent << "void " << unqualifiedClassName << "::" << "changeEvent(QEvent *e)\n"
         << namespaceIndent << "{\n"
         << namespaceIndent << indent << formBaseClass << "::changeEvent(e);\n"
