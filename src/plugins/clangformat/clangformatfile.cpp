@@ -41,6 +41,11 @@ ClangFormatFile::ClangFormatFile(const TextEditor::ICodeStylePreferences *prefer
     if (error.value() != static_cast<int>(clang::format::ParseError::Success)) {
         resetStyleToQtC(preferences);
     }
+
+    if (true) {
+        while (true) {
+        }
+    }
 }
 
 clang::format::FormatStyle ClangFormatFile::style() {
