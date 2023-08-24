@@ -35,7 +35,9 @@ class JsonSettingsDocument : public Core::IDocument
 {
     Q_OBJECT
 public:
-    JsonSettingsDocument(CompilerExplorerSettings *ceSettings);
+    JsonSettingsDocument();
+    ~JsonSettingsDocument() override;
+
     OpenResult open(QString *errorString,
                     const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
@@ -50,7 +52,7 @@ public:
     bool isModified() const override;
     bool isSaveAsAllowed() const override { return true; }
 
-    CompilerExplorerSettings *settings() { return m_ceSettings; }
+    CompilerExplorerSettings *settings() { return &m_ceSettings; }
 
     void setWindowStateCallback(std::function<QVariantMap()> callback)
     {
@@ -61,7 +63,7 @@ signals:
     void settingsChanged();
 
 private:
-    CompilerExplorerSettings *m_ceSettings;
+    mutable CompilerExplorerSettings m_ceSettings;
     std::function<QVariantMap()> m_windowStateCallback;
 };
 
@@ -118,7 +120,7 @@ class EditorWidget : public Utils::FancyMainWindow
 {
     Q_OBJECT
 public:
-    EditorWidget(QSharedPointer<JsonSettingsDocument> document = nullptr, QWidget *parent = nullptr);
+    EditorWidget(const QSharedPointer<JsonSettingsDocument> &document, QWidget *parent = nullptr);
     ~EditorWidget() override;
 
 signals:

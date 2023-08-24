@@ -15,5 +15,15 @@
     ],
     "Description" : "Integrates https://godbolt.org into Qt Creator.",
     "Url" : "http://www.qt.io",
-    ${IDE_PLUGIN_DEPENDENCIES}
+    ${IDE_PLUGIN_DEPENDENCIES},
+    "Mimetypes" : [
+        "<?xml version='1.0'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='application/compiler-explorer'>",
+        "        <sub-class-of type='application/json'/>",
+        "        <comment>Compiler Explorer file</comment>",
+        "        <glob pattern='*.qtce'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ]
 }

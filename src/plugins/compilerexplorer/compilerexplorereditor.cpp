@@ -84,13 +84,14 @@ public:
     }
 };
 
-JsonSettingsDocument::JsonSettingsDocument(CompilerExplorerSettings *ceSettings)
-    : m_ceSettings(ceSettings)
+JsonSettingsDocument::JsonSettingsDocument()
 {
     setId(Constants::CE_EDITOR_ID);
-
-    connect(m_ceSettings, &CompilerExplorerSettings::changed, this, [this] { emit changed(); });
+    setMimeType("application/compiler-explorer");
+    connect(&m_ceSettings, &CompilerExplorerSettings::changed, this, [this] { emit changed(); });
 }
+
+JsonSettingsDocument::~JsonSettingsDocument() {}
 
 Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
                                                        const Utils::FilePath &filePath,
@@ -120,7 +121,7 @@ Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
         return OpenResult::CannotHandle;
     }
 
-    m_ceSettings->fromMap(doc.toVariant().toMap());
+    m_ceSettings.fromMap(doc.toVariant().toMap());
     emit settingsChanged();
     return OpenResult::Success;
 }
@@ -133,15 +134,15 @@ bool JsonSettingsDocument::saveImpl(QString *errorString,
 
     if (autoSave) {
         if (m_windowStateCallback)
-            m_ceSettings->windowState.setVolatileValue(m_windowStateCallback());
+            m_ceSettings.windowState.setVolatileValue(m_windowStateCallback());
 
-        m_ceSettings->volatileToMap(map);
+        m_ceSettings.volatileToMap(map);
     } else {
         if (m_windowStateCallback)
-            m_ceSettings->windowState.setValue(m_windowStateCallback());
+            m_ceSettings.windowState.setValue(m_windowStateCallback());
 
-        m_ceSettings->apply();
-        m_ceSettings->toMap(map);
+        m_ceSettings.apply();
+        m_ceSettings.toMap(map);
     }
 
     QJsonDocument doc = QJsonDocument::fromVariant(map);
@@ -162,8 +163,7 @@ bool JsonSettingsDocument::saveImpl(QString *errorString,
 
 bool JsonSettingsDocument::isModified() const
 {
-    bool isDirty = m_ceSettings->isDirty();
-    return isDirty;
+    return m_ceSettings.isDirty();
 }
 
 bool JsonSettingsDocument::setContents(const QByteArray &contents)
@@ -174,7 +174,7 @@ bool JsonSettingsDocument::setContents(const QByteArray &contents)
 
     QTC_ASSERT(doc.isObject(), return false);
 
-    m_ceSettings->fromMap(doc.toVariant().toMap());
+    m_ceSettings.fromMap(doc.toVariant().toMap());
 
     emit settingsChanged();
     return true;
@@ -455,7 +455,7 @@ void CompilerWidget::doCompile()
     m_compileWatcher->setFuture(f);
 }
 
-EditorWidget::EditorWidget(QSharedPointer<JsonSettingsDocument> document, QWidget *parent)
+EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document, QWidget *parent)
     : Utils::FancyMainWindow(parent)
     , m_document(document)
 {
@@ -494,7 +494,7 @@ EditorWidget::EditorWidget(QSharedPointer<JsonSettingsDocument> document, QWidge
         m_compilerWidgets.append(dockWidget);
     };
 
-    auto addSourceEditor = [this, document, addCompiler](
+    auto addSourceEditor = [this, document = document.get(), addCompiler](
                                const std::shared_ptr<SourceSettings> &sourceSettings) {
         auto sourceEditor = new SourceEditorWidget(sourceSettings);
         sourceEditor->setWindowTitle("Source Code #" + QString::number(m_sourceWidgets.size() + 1));
@@ -607,7 +607,7 @@ class Editor : public Core::IEditor
 {
 public:
     Editor()
-        : m_document(new JsonSettingsDocument(&m_settings))
+        : m_document(new JsonSettingsDocument())
     {
         setWidget(new EditorWidget(m_document));
     }
@@ -617,7 +617,6 @@ public:
     Core::IDocument *document() const override { return m_document.data(); }
     QWidget *toolBar() override { return nullptr; }
 
-    CompilerExplorerSettings m_settings;
     QSharedPointer<JsonSettingsDocument> m_document;
 };
 
@@ -631,6 +630,7 @@ EditorFactory::EditorFactory()
 {
     setId(Constants::CE_EDITOR_ID);
     setDisplayName(Tr::tr("Compiler Explorer Editor"));
+    setMimeTypes({"application/compiler-explorer"});
 
     setEditorCreator([]() { return new Editor(); });
 }
