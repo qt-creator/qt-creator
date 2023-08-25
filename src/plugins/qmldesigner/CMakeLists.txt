@@ -446,6 +446,7 @@ add_qtc_plugin(QmlDesigner
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/components
     ${CMAKE_CURRENT_LIST_DIR}/components/assetslibrary
+    ${CMAKE_CURRENT_LIST_DIR}/components/collectioneditor
     ${CMAKE_CURRENT_LIST_DIR}/components/debugview
     ${CMAKE_CURRENT_LIST_DIR}/components/edit3d
     ${CMAKE_CURRENT_LIST_DIR}/components/formeditor
@@ -799,6 +800,14 @@ extend_qtc_plugin(QmlDesigner
     materialeditortransaction.cpp materialeditortransaction.h
     materialeditorview.cpp materialeditorview.h
     materialeditor.qrc
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/collectioneditor
+  SOURCES
+    collectionmodel.cpp collectionmodel.h
+    collectionview.cpp collectionview.h
+    collectionwidget.cpp collectionwidget.h
 )
 
 extend_qtc_plugin(QmlDesigner

@@ -3,6 +3,7 @@
 
 #include "designmodecontext.h"
 #include "assetslibrarywidget.h"
+#include "collectionwidget.h"
 #include "designmodewidget.h"
 #include "edit3dwidget.h"
 #include "effectmakerwidget.h"
@@ -12,11 +13,10 @@
 #include "qmldesignerconstants.h"
 #include "texteditorwidget.h"
 
-namespace QmlDesigner {
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 DesignModeContext::DesignModeContext(QWidget *widget)
-  : IContext(widget)
+    : IContext(widget)
 {
     setWidget(widget);
     setContext(Core::Context(Constants::C_QMLDESIGNER, Constants::C_QT_QUICK_TOOLS_MENU));
@@ -111,6 +111,15 @@ void EffectMakerContext::contextHelp(const HelpCallback &callback) const
     qobject_cast<EffectMakerWidget *>(m_widget)->contextHelp(callback);
 }
 
-}
+CollectionEditorContext::CollectionEditorContext(QWidget *widget)
+    : IContext(widget)
+{
+    setWidget(widget);
+    setContext(Core::Context(Constants::C_QMLCOLLECTIONEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
 }
 
+void CollectionEditorContext::contextHelp(const HelpCallback &callback) const
+{
+    qobject_cast<CollectionWidget *>(m_widget)->contextHelp(callback);
+}
+} // namespace QmlDesigner::Internal

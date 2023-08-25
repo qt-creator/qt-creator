@@ -11,14 +11,15 @@ const char C_DELETE[]    = "QmlDesigner.Delete";
 const char C_DUPLICATE[] = "QmlDesigner.Duplicate";
 
 // Context
-const char C_QMLDESIGNER[]        = "QmlDesigner::QmlDesignerMain";
-const char C_QMLFORMEDITOR[]      = "QmlDesigner::FormEditor";
-const char C_QMLEDITOR3D[]        = "QmlDesigner::Editor3D";
-const char C_QMLEFFECTMAKER[]     = "QmlDesigner::EffectMaker";
-const char C_QMLNAVIGATOR[]       = "QmlDesigner::Navigator";
-const char C_QMLTEXTEDITOR[]      = "QmlDesigner::TextEditor";
-const char C_QMLMATERIALBROWSER[] = "QmlDesigner::MaterialBrowser";
-const char C_QMLASSETSLIBRARY[]   = "QmlDesigner::AssetsLibrary";
+const char C_QMLDESIGNER[]          = "QmlDesigner::QmlDesignerMain";
+const char C_QMLFORMEDITOR[]        = "QmlDesigner::FormEditor";
+const char C_QMLEDITOR3D[]          = "QmlDesigner::Editor3D";
+const char C_QMLEFFECTMAKER[]       = "QmlDesigner::EffectMaker";
+const char C_QMLNAVIGATOR[]         = "QmlDesigner::Navigator";
+const char C_QMLTEXTEDITOR[]        = "QmlDesigner::TextEditor";
+const char C_QMLMATERIALBROWSER[]   = "QmlDesigner::MaterialBrowser";
+const char C_QMLASSETSLIBRARY[]     = "QmlDesigner::AssetsLibrary";
+const char C_QMLCOLLECTIONEDITOR[]  = "QmlDesigner::CollectionEditor";
 
 // Special context for preview menu, shared b/w designer and text editor
 const char C_QT_QUICK_TOOLS_MENU[] = "QmlDesigner::ToolsMenu";
@@ -77,6 +78,7 @@ const char QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY[] = "import_options";
 const char QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY[] = "source_scene";
 const char DEFAULT_ASSET_IMPORT_FOLDER[] = "/asset_imports";
 const char MATERIAL_LIB_ID[] = "__materialLibrary__";
+const char COLLECTION_LIB_ID[] = "__collectionLibrary__";
 
 const char MIME_TYPE_ITEM_LIBRARY_INFO[] = "application/vnd.qtdesignstudio.itemlibraryinfo";
 const char MIME_TYPE_ASSETS[]            = "application/vnd.qtdesignstudio.assets";
@@ -159,6 +161,7 @@ const char OBJECT_NAME_EFFECT_MAKER[] = "QQuickWidgetEffectMaker";
 const char OBJECT_NAME_MATERIAL_BROWSER[] = "QQuickWidgetMaterialBrowser";
 const char OBJECT_NAME_MATERIAL_EDITOR[] = "QQuickWidgetMaterialEditor";
 const char OBJECT_NAME_PROPERTY_EDITOR[] = "QQuickWidgetPropertyEditor";
+const char OBJECT_NAME_COLLECTION_EDITOR[] = "QQuickWidgetQDSCollectionEditor";
 const char OBJECT_NAME_STATES_EDITOR[] = "QQuickWidgetStatesEditor";
 const char OBJECT_NAME_TEXTURE_EDITOR[] = "QQuickWidgetTextureEditor";
 const char OBJECT_NAME_TOP_TOOLBAR[] = "QQuickWidgetTopToolbar";

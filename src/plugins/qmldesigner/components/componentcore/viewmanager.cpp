@@ -7,6 +7,7 @@
 #include <abstractview.h>
 #include <assetslibraryview.h>
 #include <capturingconnectionmanager.h>
+#include <collectionview.h>
 #include <componentaction.h>
 #include <componentview.h>
 #include <contentlibraryview.h>
@@ -23,11 +24,11 @@
 #include <navigatorview.h>
 #include <nodeinstanceview.h>
 #include <propertyeditorview.h>
-#include <qmldesignerplugin.h>
 #include <rewriterview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
 #include <textureeditorview.h>
+#include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
 
@@ -51,6 +52,7 @@ public:
                                : connectionManager,
                            externalDependencies,
                            true)
+        , collectionView{externalDependencies}
         , contentLibraryView{externalDependencies}
         , componentView{externalDependencies}
         , edit3DView{externalDependencies}
@@ -73,6 +75,7 @@ public:
     Internal::DebugView debugView;
     DesignerActionManagerView designerActionManagerView;
     NodeInstanceView nodeInstanceView;
+    CollectionView collectionView;
     ContentLibraryView contentLibraryView;
     ComponentView componentView;
     Edit3DView edit3DView;
@@ -211,6 +214,9 @@ QList<AbstractView *> ViewManager::standardViews() const
 
     if (qEnvironmentVariableIsSet("ENABLE_QDS_EFFECTMAKER"))
         list.append(&d->effectMakerView);
+
+    if (qEnvironmentVariableIsSet("ENABLE_QDS_COLLECTIONVIEW"))
+        list.append(&d->collectionView);
 
 #ifdef CHECK_LICENSE
     if (checkLicense() == FoundLicense::enterprise)
@@ -389,6 +395,9 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
 
     if (qEnvironmentVariableIsSet("ENABLE_QDS_EFFECTMAKER"))
         widgetInfoList.append(d->effectMakerView.widgetInfo());
+
+    if (qEnvironmentVariableIsSet("ENABLE_QDS_COLLECTIONVIEW"))
+        widgetInfoList.append(d->collectionView.widgetInfo());
 
 #ifdef CHECK_LICENSE
     if (checkLicense() == FoundLicense::enterprise)
