@@ -64,6 +64,12 @@ void TestCodeParser::setState(State state)
     if (m_parserState == Shutdown)
         return;
     qCDebug(LOG) << "setState(" << state << "), currentState:" << m_parserState;
+    if (m_parserState == DisabledTemporarily && state == Idle) {
+        m_parserState = Idle;
+        qCDebug(LOG) << "Just re-enabling parser.";
+        return;
+    }
+
     // avoid triggering parse before code model parsing has finished, but mark as dirty
     if (isProjectParsing() || m_codeModelParsing) {
         m_dirty = true;
@@ -202,12 +208,15 @@ void TestCodeParser::onProjectPartsUpdated(Project *project)
         emitUpdateTestTree();
 }
 
-void TestCodeParser::aboutToShutdown()
+void TestCodeParser::aboutToShutdown(bool isFinal)
 {
-    qCDebug(LOG) << "Disabling (immediately) - shutting down";
-    m_parserState = Shutdown;
+    qCDebug(LOG) << "Disabling (immediately) -"
+                 << (isFinal ? "shutting down" : "disabled temporarily");
+    m_parserState = isFinal ? Shutdown : DisabledTemporarily;
     m_taskTree.reset();
     m_futureSynchronizer.waitForFinished();
+    if (!isFinal)
+        onFinished(false);
 }
 
 bool TestCodeParser::postponed(const QSet<FilePath> &filePaths)
@@ -258,6 +267,7 @@ bool TestCodeParser::postponed(const QSet<FilePath> &filePaths)
         }
         return true;
     case Shutdown:
+    case DisabledTemporarily:
         break;
     }
     QTC_ASSERT(false, return false); // should not happen at all
@@ -277,7 +287,7 @@ static void parseFileForTests(QPromise<TestParseResultPtr> &promise,
 void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
                                   const QList<ITestParser *> &parsers)
 {
-    if (m_parserState == Shutdown || m_testCodeParsers.isEmpty())
+    if (m_parserState == Shutdown || m_parserState == DisabledTemporarily || m_testCodeParsers.isEmpty())
         return;
 
     if (postponed(filePaths))
@@ -419,7 +429,8 @@ void TestCodeParser::onAllTasksFinished(Id type)
     m_codeModelParsing = false;
 
     // avoid illegal parser state if respective widgets became hidden while parsing
-    setState(Idle);
+    if (m_parserState != DisabledTemporarily)
+        setState(Idle);
 }
 
 void TestCodeParser::onFinished(bool success)
@@ -450,6 +461,10 @@ void TestCodeParser::onFinished(bool success)
         break;
     case Shutdown:
         qCDebug(LOG) << "Shutdown complete - not emitting parsingFinished (onFinished)";
+        break;
+    case DisabledTemporarily:
+        qCDebug(LOG) << "Disabling complete - emitting parsingFinished";
+        emit parsingFinished(); // ensure hidden progress indicator
         break;
     default:
         qWarning("I should not be here... State: %d", m_parserState);

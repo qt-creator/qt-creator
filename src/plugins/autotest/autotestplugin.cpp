@@ -30,6 +30,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
@@ -93,6 +94,7 @@ public:
     void onRunFailedTriggered();
     void onRunFileTriggered();
     void onRunUnderCursorTriggered(TestRunMode mode);
+    void onDisableTemporarily(bool disable);
 
     TestSettingsPage m_testSettingPage;
 
@@ -254,12 +256,25 @@ void AutotestPluginPrivate::initializeMenuEntries()
     action->setEnabled(false);
     menu->addAction(command);
 
+    action = new QAction(Tr::tr("Disable Temporarily"), this);
+    action->setToolTip(Tr::tr("Disable scanning and other actions until explicitly rescanning, "
+                              "re-enabling, or restarting Qt Creator."));
+    action->setCheckable(true);
+    command = ActionManager::registerAction(action, Constants::ACTION_DISABLE_TMP);
+    connect(action, &QAction::triggered, this, &AutotestPluginPrivate::onDisableTemporarily);
+    menu->addAction(command);
+
     action = new QAction(Tr::tr("Re&scan Tests"), this);
     command = ActionManager::registerAction(action, Constants::ACTION_SCAN_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+S") : Tr::tr("Alt+Shift+T,Alt+S")));
 
-    connect(action, &QAction::triggered, this, [] { dd->m_testCodeParser.updateTestTree(); });
+    connect(action, &QAction::triggered, this, [] {
+        if (dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily)
+            dd->onDisableTemporarily(false);  // Rescan Test should explicitly re-enable
+        else
+            dd->m_testCodeParser.updateTestTree();
+    });
     menu->addAction(command);
 
     ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);
@@ -333,7 +348,7 @@ void AutotestPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
 {
-    dd->m_testCodeParser.aboutToShutdown();
+    dd->m_testCodeParser.aboutToShutdown(true);
     dd->m_testTreeModel.disconnect();
     return SynchronousShutdown;
 }
@@ -467,6 +482,23 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
     m_testRunner.runTests(mode, testsToRun);
 }
 
+void AutotestPluginPrivate::onDisableTemporarily(bool disable)
+{
+    if (disable) {
+        // cancel running parse
+        m_testCodeParser.aboutToShutdown(false);
+        // clear model
+        m_testTreeModel.removeAllTestItems();
+        m_testTreeModel.removeAllTestToolItems();
+        AutotestPlugin::updateMenuItemsEnabledState();
+    } else {
+        // re-enable
+        m_testCodeParser.setState(TestCodeParser::Idle);
+        // trigger scan
+        m_testCodeParser.updateTestTree();
+    }
+}
+
 TestFrameworks AutotestPlugin::activeTestFrameworks()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
@@ -489,11 +521,12 @@ void AutotestPlugin::updateMenuItemsEnabledState()
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     const ProjectExplorer::Target *target = project ? project->activeTarget() : nullptr;
-    const bool canScan = !dd->m_testRunner.isTestRunning()
-            && dd->m_testCodeParser.state() == TestCodeParser::Idle;
+    const bool disabled = dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily;
+    const bool canScan = disabled || (!dd->m_testRunner.isTestRunning()
+                                      && dd->m_testCodeParser.state() == TestCodeParser::Idle);
     const bool hasTests = dd->m_testTreeModel.hasTests();
     // avoid expensive call to PE::canRunStartupProject() - limit to minimum necessary checks
-    const bool canRun = hasTests && canScan
+    const bool canRun = !disabled && hasTests && canScan
             && project && !project->needsConfiguration()
             && target && target->activeRunConfiguration()
             && !ProjectExplorer::BuildManager::isBuilding();

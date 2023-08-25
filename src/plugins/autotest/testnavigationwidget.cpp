@@ -190,8 +190,8 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     QAction *runSelectedNoDeploy = ActionManager::command(Constants::ACTION_RUN_SELECTED_NODEPLOY_ID)->action();
     QAction *selectAll = new QAction(Tr::tr("Select All"), &menu);
     QAction *deselectAll = new QAction(Tr::tr("Deselect All"), &menu);
-    // TODO remove?
     QAction *rescan = ActionManager::command(Constants::ACTION_SCAN_ID)->action();
+    QAction *disable = ActionManager::command(Constants::ACTION_DISABLE_TMP)->action();
 
     connect(selectAll, &QAction::triggered, m_view, &TestTreeView::selectAll);
     connect(deselectAll, &QAction::triggered, m_view, &TestTreeView::deselectAll);
@@ -216,6 +216,8 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction(deselectAll);
     menu.addSeparator();
     menu.addAction(rescan);
+    menu.addSeparator();
+    menu.addAction(disable);
 
     menu.exec(mapToGlobal(event->pos()));
 }

@@ -31,7 +31,8 @@ public:
         Idle,
         PartialParse,
         FullParse,
-        Shutdown
+        Shutdown,
+        DisabledTemporarily
     };
 
     TestCodeParser();
@@ -63,7 +64,7 @@ public:
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
     void onStartupProjectChanged(ProjectExplorer::Project *project);
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
-    void aboutToShutdown();
+    void aboutToShutdown(bool isFinal);
 
 private:
     bool postponed(const QSet<Utils::FilePath> &fileList);
