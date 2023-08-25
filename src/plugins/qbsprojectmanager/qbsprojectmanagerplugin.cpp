@@ -66,7 +66,6 @@ static QbsProject *currentEditorProject()
 class QbsProjectManagerPluginPrivate
 {
 public:
-    QbsProfileManager manager;
     QbsBuildConfigurationFactory buildConfigFactory;
     QbsBuildStepFactory buildStepFactory;
     QbsCleanStepFactory cleanStepFactory;

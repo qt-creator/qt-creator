@@ -12,7 +12,6 @@ namespace ProjectExplorer { class Kit; }
 
 namespace QbsProjectManager {
 namespace Internal {
-class DefaultPropertyProvider;
 
 QString toJSLiteral(const QVariant &val);
 QVariant fromJSLiteral(const QString &str);
@@ -43,7 +42,6 @@ private:
     void handleKitUpdate(ProjectExplorer::Kit *kit);
     void handleKitRemoval(ProjectExplorer::Kit *kit);
 
-    DefaultPropertyProvider *m_defaultPropertyProvider;
     QList<ProjectExplorer::Kit *> m_kitsToBeSetupForQbs;
 };
 
