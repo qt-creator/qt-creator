@@ -15,6 +15,11 @@ TreeView {
     boundsBehavior: Flickable.StopAtBounds
     rowSpacing: 5
 
+    property bool adsFocus: false
+    // objectName is used by the dock widget to find this particular ScrollView
+    // and set the ads focus on it.
+    objectName: "__mainSrollView"
+
     property var assetsModel: AssetsLibraryBackend.assetsModel
     property var rootView: AssetsLibraryBackend.rootView
     property var tooltipBackend: AssetsLibraryBackend.tooltipBackend
@@ -46,9 +51,18 @@ TreeView {
         return -1
     }
 
-    ScrollBar.vertical: HelperWidgets.VerticalScrollBar {
+    HoverHandler { id: hoverHandler }
+
+    ScrollBar.vertical: HelperWidgets.ScrollBar {
         id: verticalScrollBar
-        scrollBarVisible: root.contentHeight > root.height
+        parent: root
+        x: root.width - verticalScrollBar.width
+        y: 0
+        height: root.availableHeight
+        orientation: Qt.Vertical
+
+        show: (hoverHandler.hovered || root.adsFocus || verticalScrollBar.inUse)
+              && verticalScrollBar.isNeeded
     }
 
     model: assetsModel

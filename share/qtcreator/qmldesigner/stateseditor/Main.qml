@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls.Basic as Basic
 import StatesEditor
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
@@ -567,28 +567,42 @@ Rectangle {
             height: root.isLandscape ? root.height - toolBar.height - (2 * root.padding) : root.scrollViewHeight
             clip: true
 
-            ScrollView {
+            Basic.ScrollView {
                 id: scrollView
+
+                property bool adsFocus: false
+                // objectName is used by the dock widget to find this particular ScrollView
+                // and set the ads focus on it.
+                objectName: "__mainSrollView"
+
                 anchors.fill: parent
                 anchors.topMargin: root.topMargin
                 anchors.leftMargin: root.leftMargin
 
-                ScrollBar.horizontal: StateScrollBar {
+                ScrollBar.horizontal: HelperWidgets.ScrollBar {
                     id: horizontalBar
                     parent: scrollView
                     x: scrollView.leftPadding
                     y: scrollView.height - height
                     width: scrollView.availableWidth
                     orientation: Qt.Horizontal
+
+                    show: (scrollView.hovered || scrollView.focus || scrollView.adsFocus)
+                          && horizontalBar.isNeeded
+                    otherInUse: verticalBar.inUse
                 }
 
-                ScrollBar.vertical: StateScrollBar {
+                ScrollBar.vertical: HelperWidgets.ScrollBar {
                     id: verticalBar
                     parent: scrollView
                     x: scrollView.mirrored ? 0 : scrollView.width - width
                     y: scrollView.topPadding
                     height: scrollView.availableHeight
                     orientation: Qt.Vertical
+
+                    show: (scrollView.hovered || scrollView.focus || scrollView.adsFocus)
+                          && verticalBar.isNeeded
+                    otherInUse: horizontalBar.inUse
                 }
 
                 Flickable {

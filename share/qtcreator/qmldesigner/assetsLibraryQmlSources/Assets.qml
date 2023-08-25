@@ -260,10 +260,12 @@ Item {
 
         AssetsView {
             id: assetsView
-            assetsRoot: root
-            contextMenu: contextMenu
+
             width: parent.width
             height: parent.height - assetsView.y
+
+            assetsRoot: root
+            contextMenu: contextMenu
             focus: true
         }
     }

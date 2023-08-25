@@ -13,10 +13,11 @@
 
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
-#include <variantproperty.h>
 #include <signalhandlerproperty.h>
-#include <qmldesignerplugin.h>
+#include <variantproperty.h>
 #include <viewmanager.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 #include <studioquickwidget.h>
 
@@ -59,7 +60,7 @@ public:
                 this,
                 &ConnectionViewQuickWidget::reloadQmlSource);
 
-        //setObjectName(Constants::OBJECT_NAME_STATES_EDITOR);
+        quickWidget()->setObjectName(Constants::OBJECT_NAME_CONNECTION_EDITOR);
         setResizeMode(QQuickWidget::SizeRootObjectToView);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 

@@ -168,6 +168,7 @@ const char OBJECT_NAME_TOP_FEEDBACK[] = "QQuickWidgetQDSFeedback";
 const char OBJECT_NAME_NEW_DIALOG[] = "QQuickWidgetQDSNewDialog";
 const char OBJECT_NAME_SPLASH_SCREEN[] = "QQuickWidgetSplashScreen";
 const char OBJECT_NAME_WELCOME_PAGE[] = "QQuickWidgetQDSWelcomePage";
+const char OBJECT_NAME_CONNECTION_EDITOR[] = "QQuickWidgetConnectionEditor";
 
 const char ENVIRONMENT_SHOW_QML_ERRORS[] = "QMLDESIGNER_SHOW_QML_ERRORS";
 

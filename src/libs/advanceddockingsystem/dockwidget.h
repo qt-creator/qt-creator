@@ -32,7 +32,7 @@ class AutoHideSideBar;
 class ADS_EXPORT DockWidget : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY(bool focused READ isFocused WRITE setFocused)
+    Q_PROPERTY(bool focused READ isFocused WRITE setFocused NOTIFY focusedChanged)
 
 private:
     DockWidgetPrivate *d; ///< private data (pimpl)
@@ -639,6 +639,8 @@ signals:
      * The features parameter gives the new value of the property.
      */
     void featuresChanged(DockWidgetFeatures features);
+
+    void focusedChanged();
 }; // class DockWidget
 
 } // namespace ADS

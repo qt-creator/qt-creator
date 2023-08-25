@@ -6,7 +6,6 @@
 #include "ads_globals.h"
 #include "ads_globals_p.h"
 #include "autohidedockcontainer.h"
-#include "autohidesidebar.h"
 #include "autohidetab.h"
 #include "dockareawidget.h"
 #include "dockcomponentsfactory.h"
@@ -20,6 +19,7 @@
 #include <QEvent>
 #include <QLoggingCategory>
 #include <QPointer>
+#include <QQuickItem>
 #include <QScrollArea>
 #include <QSplitter>
 #include <QStack>
@@ -27,6 +27,7 @@
 #include <QToolBar>
 #include <QWindow>
 #include <QXmlStreamWriter>
+#include <QtQuickWidgets/QQuickWidget>
 
 namespace ADS {
 /**
@@ -452,8 +453,25 @@ void DockWidget::setFocused(bool focused)
         return;
 
     d->m_focused = focused;
+
     if (d->m_scrollArea)
         d->m_scrollArea->setProperty("focused", focused);
+
+    QList<QQuickWidget *> quickWidgets = d->m_widget->findChildren<QQuickWidget *>();
+
+    for (const auto &quickWidget : std::as_const(quickWidgets)) {
+        QQuickItem *rootItem = quickWidget->rootObject();
+        if (!rootItem)
+            continue;
+
+        QQuickItem *scrollView = rootItem->findChild<QQuickItem *>("__mainSrollView");
+        if (!scrollView)
+            continue;
+
+        scrollView->setProperty("adsFocus", focused);
+    }
+
+    emit focusedChanged();
 }
 
 bool DockWidget::isFocused() const
