@@ -16,6 +16,8 @@ Row {
     HelperWidgets.ColorEditor {
         backendValue: uniformBackendValue
 
+        showExtendedFunctionButton: false
+
         onValueChanged: uniformValue = convertColorToString(color)
     }
 }
