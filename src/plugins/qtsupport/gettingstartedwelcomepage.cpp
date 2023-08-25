@@ -304,7 +304,7 @@ public:
         grid->addWidget(WelcomePageHelpers::panelBar(this), 0, 2);
 
         auto gridView = new SectionedGridView(this);
-        new ExamplesViewController(s_exampleSetModel, gridView, isExamples, this);
+        m_viewController = new ExamplesViewController(s_exampleSetModel, gridView, isExamples, this);
 
         gridView->setItemDelegate(&m_exampleDelegate);
         grid->addWidget(gridView, 1, 1, 1, 2);
@@ -321,9 +321,22 @@ public:
                             + QString("tag:\"%1\" ").arg(tag));
     }
 
+    void showEvent(QShowEvent *event) override
+    {
+        m_viewController->setVisible(true);
+        QWidget::showEvent(event);
+    }
+
+    void hideEvent(QHideEvent *event) override
+    {
+        m_viewController->setVisible(false);
+        QWidget::hideEvent(event);
+    }
+
     const bool m_isExamples;
     ExampleDelegate m_exampleDelegate;
     QLineEdit *m_searcher;
+    ExamplesViewController *m_viewController = nullptr;
 };
 
 QWidget *ExamplesWelcomePage::createWidget() const

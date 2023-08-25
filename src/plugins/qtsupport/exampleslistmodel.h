@@ -92,11 +92,15 @@ public:
                                     QObject *parent);
 
     void updateExamples();
+    void setVisible(bool isVisible);
+    bool isVisible() const;
 
 private:
     ExampleSetModel *m_exampleSetModel;
     Core::SectionedGridView *m_view;
     bool m_isExamples;
+    bool m_isVisible = false;
+    bool m_needsUpdateExamples = false;
 };
 
 } // namespace Internal

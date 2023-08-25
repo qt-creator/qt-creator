@@ -342,6 +342,12 @@ Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
 
 void ExamplesViewController::updateExamples()
 {
+    if (!isVisible()) {
+        m_needsUpdateExamples = true;
+        return;
+    }
+    m_needsUpdateExamples = false;
+
     QString examplesInstallPath;
     QString demosInstallPath;
     QVersionNumber qtVersion;
@@ -393,6 +399,20 @@ void ExamplesViewController::updateExamples()
         m_view->addSection(sections.at(i).first,
                            static_container_cast<ListItem *>(sections.at(i).second));
     }
+}
+
+void ExamplesViewController::setVisible(bool visible)
+{
+    if (m_isVisible == visible)
+        return;
+    m_isVisible = visible;
+    if (m_isVisible && m_needsUpdateExamples)
+        updateExamples();
+}
+
+bool ExamplesViewController::isVisible() const
+{
+    return m_isVisible;
 }
 
 void ExampleSetModel::updateQtVersionList()
