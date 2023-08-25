@@ -6,7 +6,9 @@
 #include "mcuabstractpackage.h"
 
 #include <gmock/gmock.h>
+
 #include <utils/filepath.h>
+#include <utils/storekey.h>
 
 namespace McuSupport::Internal {
 
@@ -21,7 +23,7 @@ public:
     MOCK_METHOD(Utils::FilePath, detectionPath, (), (const));
     MOCK_METHOD(QString, statusText, (), (const));
     MOCK_METHOD(void, updateStatus, ());
-    MOCK_METHOD(QString, settingsKey, (), (const));
+    MOCK_METHOD(Utils::Key, settingsKey, (), (const));
 
     MOCK_METHOD(Status, status, (), (const));
     MOCK_METHOD(bool, isValidStatus, (), (const));
@@ -34,5 +36,6 @@ public:
 
     MOCK_METHOD(QWidget *, widget, ());
     MOCK_METHOD(const McuPackageVersionDetector *, getVersionDetector, (), (const));
-}; // class PackageMock
+};
+
 } // namespace McuSupport::Internal

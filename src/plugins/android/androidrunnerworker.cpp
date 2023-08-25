@@ -247,14 +247,14 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release)
         m_extraAppParams = runControl->commandLine().arguments();
 
-    if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_AM_START_ARGS);
+    if (const Store sd = runControl->settingsData(Constants::ANDROID_AM_START_ARGS);
         !sd.values().isEmpty()) {
         QTC_CHECK(sd.first().type() == QVariant::String);
         const QString startArgs = sd.first().toString();
         m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
     }
 
-    if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
+    if (const Store sd = runControl->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
         !sd.values().isEmpty()) {
         QTC_CHECK(sd.first().type() == QVariant::String);
         const QStringList commands = sd.first().toString().split('\n', Qt::SkipEmptyParts);
@@ -262,7 +262,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
 
-    if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
+    if (const Store sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
         !sd.values().isEmpty()) {
         QTC_CHECK(sd.first().type() == QVariant::String);
         const QStringList commands = sd.first().toString().split('\n', Qt::SkipEmptyParts);

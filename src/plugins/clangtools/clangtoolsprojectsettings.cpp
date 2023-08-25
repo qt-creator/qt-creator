@@ -115,7 +115,7 @@ static Store convertToMapFromVersionBefore410(ProjectExplorer::Project *p)
     for (const Key &key : keys)
         map.insert(key, p->namedSettings(key));
 
-    map.insert(SETTINGS_PREFIX + QString(diagnosticConfigIdKey),
+    map.insert(SETTINGS_PREFIX + Key(diagnosticConfigIdKey),
                p->namedSettings("ClangTools.DiagnosticConfig"));
 
     return map;
@@ -124,7 +124,7 @@ static Store convertToMapFromVersionBefore410(ProjectExplorer::Project *p)
 void ClangToolsProjectSettings::load()
 {
     // Load map
-    Store map = m_project->namedSettings(SETTINGS_KEY_MAIN).toMap();
+    Store map = m_project->namedSettings(SETTINGS_KEY_MAIN).value<Store>();
 
     bool write = false;
     if (map.isEmpty()) {
@@ -148,7 +148,7 @@ void ClangToolsProjectSettings::load()
 
     const QVariantList list = map.value(SETTINGS_KEY_SUPPRESSED_DIAGS).toList();
     for (const QVariant &v : list) {
-        const Store diag = v.toMap();
+        const Store diag = v.value<Store>();
         const QString fp = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH).toString();
         if (fp.isEmpty())
             continue;
@@ -190,19 +190,19 @@ void ClangToolsProjectSettings::store()
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH, diag.filePath.toString());
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_MESSAGE, diag.description);
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER, diag.uniquifier);
-        list << diagMap;
+        list << QVariant::fromValue(diagMap);
     }
     map.insert(SETTINGS_KEY_SUPPRESSED_DIAGS, list);
 
     m_runSettings.toMap(map, SETTINGS_PREFIX);
 
-    m_project->setNamedSettings(SETTINGS_KEY_MAIN, map);
+    m_project->setNamedSettings(SETTINGS_KEY_MAIN, QVariant::fromValue(map));
 }
 
 ClangToolsProjectSettings::ClangToolsProjectSettingsPtr
     ClangToolsProjectSettings::getSettings(ProjectExplorer::Project *project)
 {
-    const QString key = "ClangToolsProjectSettings";
+    const Key key = "ClangToolsProjectSettings";
     QVariant v = project->extraData(key);
     if (v.isNull()) {
         v = QVariant::fromValue(

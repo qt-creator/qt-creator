@@ -120,7 +120,7 @@ McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &settingsHandler,
                                         sdkName,
                                         defaultPath,
                                         {},                             // detection path
-                                        desc.boardSdk.envVar,           // settings key
+                                        keyFromString(desc.boardSdk.envVar), // settings key
                                         Constants::BOARD_SDK_CMAKE_VAR, // cmake var
                                         desc.boardSdk.envVar,           // env var
                                         desc.boardSdk.versions,
@@ -145,7 +145,7 @@ McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsH
                        QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
                        defaultPath,
                        "tasks.c", // detection path
-                       QString{Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(envVarPrefix),
+                       Constants::SETTINGS_KEY_FREERTOS_PREFIX + keyFromString(envVarPrefix),
                        "FREERTOS_DIR",           // cmake var
                        envVar,                   // env var
                        {},                       // versions
@@ -687,7 +687,7 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             cmakeEntry["envVar"].toString(),
             cmakeEntry["cmakeVar"].toString(),
             cmakeEntry["description"].toString(),
-            cmakeEntry["setting"].toString(),
+            keyFromString(cmakeEntry["setting"].toString()),
             FilePath::fromUserInput(defaultPathString),
             FilePath::fromUserInput(detectionPathString),
             versions,

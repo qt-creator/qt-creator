@@ -40,7 +40,7 @@ using namespace Utils;
 
 namespace Ios::Internal {
 
-const QLatin1String deviceTypeKey("Ios.device_type");
+const char deviceTypeKey[] = "Ios.device_type";
 
 static QString displayName(const SimulatorInfo &device)
 {
@@ -210,7 +210,7 @@ void IosDeviceTypeAspect::fromMap(const Store &map)
 {
     bool deviceTypeIsInt;
     map.value(deviceTypeKey).toInt(&deviceTypeIsInt);
-    if (deviceTypeIsInt || !m_deviceType.fromMap(map.value(deviceTypeKey).toMap()))
+    if (deviceTypeIsInt || !m_deviceType.fromMap(map.value(deviceTypeKey).value<Store>()))
         updateDeviceType();
 
     m_runConfiguration->update();
@@ -218,7 +218,7 @@ void IosDeviceTypeAspect::fromMap(const Store &map)
 
 void IosDeviceTypeAspect::toMap(Store &map) const
 {
-    map.insert(deviceTypeKey, deviceType().toMap());
+    map.insert(deviceTypeKey, QVariant::fromValue(deviceType().toMap()));
 }
 
 QString IosRunConfiguration::disabledReason() const

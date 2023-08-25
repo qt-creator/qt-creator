@@ -33,7 +33,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const QString &label,
                        const FilePath &defaultPath,
                        const FilePath &detectionPath,
-                       const QString &settingsKey,
+                       const Key &settingsKey,
                        const QString &cmakeVarName,
                        const QString &envVarName,
                        const QStringList &versions,
@@ -65,7 +65,7 @@ QString McuPackage::label() const
     return m_label;
 }
 
-QString McuPackage::settingsKey() const
+Key McuPackage::settingsKey() const
 {
     return m_settingsKey;
 }
@@ -334,7 +334,7 @@ McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHan
                                          const QString &label,
                                          const FilePath &defaultPath,
                                          const FilePath &detectionPath,
-                                         const QString &settingsKey,
+                                         const Key &settingsKey,
                                          McuToolChainPackage::ToolChainType type,
                                          const QStringList &versions,
                                          const QString &cmakeVarName,

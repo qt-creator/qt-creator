@@ -197,12 +197,12 @@ QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
     , m_abiWidget(new AbiWidget)
 {
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
-    m_compilerCommand->setHistoryCompleter(QLatin1String("Qnx.ToolChain.History"));
+    m_compilerCommand->setHistoryCompleter("Qnx.ToolChain.History");
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_compilerCommand->setEnabled(!tc->isAutoDetected());
 
     m_sdpPath->setExpectedKind(PathChooser::ExistingDirectory);
-    m_sdpPath->setHistoryCompleter(QLatin1String("Qnx.Sdp.History"));
+    m_sdpPath->setHistoryCompleter("Qnx.Sdp.History");
     m_sdpPath->setFilePath(tc->sdpPath());
     m_sdpPath->setEnabled(!tc->isAutoDetected());
 

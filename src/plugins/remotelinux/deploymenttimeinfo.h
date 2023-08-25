@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QVariantMap>
+#include <utils/store.h>
 
 QT_BEGIN_NAMESPACE
 class QDateTime;
@@ -24,8 +24,8 @@ public:
     DeploymentTimeInfo();
     ~DeploymentTimeInfo();
 
-    void importDeployTimes(const QVariantMap &map);
-    QVariantMap exportDeployTimes() const;
+    void importDeployTimes(const Utils::Store &map);
+    Utils::Store exportDeployTimes() const;
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
                                  const ProjectExplorer::Kit *kit,

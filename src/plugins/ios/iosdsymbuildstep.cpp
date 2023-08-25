@@ -87,22 +87,24 @@ void IosDsymBuildStep::toMap(Store &map) const
 {
     AbstractProcessStep::toMap(map);
 
-    map.insert(id().withSuffix(ARGUMENTS_PARTIAL_KEY).toString(),
+    // FIXME: Clean up after QVariantMap -> Utils::Store transition
+    // This is  map.insert(id().name() + ARGUMENTS_PARTIAL_KEY), arguments())
+    map.insert(keyFromString(id().withSuffix(ARGUMENTS_PARTIAL_KEY).toString()),
                arguments());
-    map.insert(id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString(),
+    map.insert(keyFromString(id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString()),
                isDefault());
-    map.insert(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean);
-    map.insert(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), command().toSettings());
+    map.insert(keyFromString(id().withSuffix(CLEAN_PARTIAL_KEY).toString()), m_clean);
+    map.insert(keyFromString(id().withSuffix(COMMAND_PARTIAL_KEY).toString()), command().toSettings());
 }
 
 void IosDsymBuildStep::fromMap(const Store &map)
 {
-    QVariant bArgs = map.value(id().withSuffix(ARGUMENTS_PARTIAL_KEY).toString());
+    QVariant bArgs = map.value(keyFromString(id().withSuffix(ARGUMENTS_PARTIAL_KEY).toString()));
     m_arguments = bArgs.toStringList();
     bool useDefaultArguments = map.value(
-                id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString()).toBool();
-    m_clean = map.value(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean).toBool();
-    m_command = FilePath::fromSettings(map.value(id().withSuffix(COMMAND_PARTIAL_KEY).toString()));
+                keyFromString(id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString())).toBool();
+    m_clean = map.value(keyFromString(id().withSuffix(CLEAN_PARTIAL_KEY).toString()), m_clean).toBool();
+    m_command = FilePath::fromSettings(map.value(keyFromString(id().withSuffix(COMMAND_PARTIAL_KEY).toString())));
     if (useDefaultArguments) {
         m_command = defaultCommand();
         m_arguments = defaultArguments();

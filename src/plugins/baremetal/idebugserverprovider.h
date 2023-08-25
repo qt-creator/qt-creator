@@ -110,12 +110,12 @@ public:
     QString displayName() const;
 
     IDebugServerProvider *create() const;
-    IDebugServerProvider *restore(const QVariantMap &data) const;
+    IDebugServerProvider *restore(const Utils::Store &data) const;
 
-    bool canRestore(const QVariantMap &data) const;
+    bool canRestore(const Utils::Store &data) const;
 
-    static QString idFromMap(const QVariantMap &data);
-    static void idToMap(QVariantMap &data, const QString &id);
+    static QString idFromMap(const Utils::Store &data);
+    static void idToMap(Utils::Store &data, const QString &id);
 
 protected:
     IDebugServerProviderFactory();

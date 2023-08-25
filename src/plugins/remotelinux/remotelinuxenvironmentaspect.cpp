@@ -103,7 +103,7 @@ void RemoteLinuxEnvironmentAspect::fromMap(const Store &map)
 {
     ProjectExplorer::EnvironmentAspect::fromMap(map);
 
-    const auto version = map.value(QLatin1String(VERSION_KEY), 0).toInt();
+    const auto version = map.value(VERSION_KEY, 0).toInt();
     if (version == 0) {
         // In Qt Creator versions prior to 4.3 RemoteLinux included DISPLAY=:0.0 in the base
         // environment, if DISPLAY was not set. In order to keep existing projects expecting
@@ -120,7 +120,7 @@ void RemoteLinuxEnvironmentAspect::fromMap(const Store &map)
 void RemoteLinuxEnvironmentAspect::toMap(Store &map) const
 {
     ProjectExplorer::EnvironmentAspect::toMap(map);
-    map.insert(QLatin1String(VERSION_KEY), ENVIRONMENTASPECT_VERSION);
+    map.insert(VERSION_KEY, ENVIRONMENTASPECT_VERSION);
 }
 
 } // namespace RemoteLinux

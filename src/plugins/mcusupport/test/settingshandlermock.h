@@ -5,7 +5,9 @@
 #include "settingshandler.h"
 
 #include <gmock/gmock.h>
+
 #include <utils/filepath.h>
+#include <utils/storekey.h>
 
 namespace McuSupport::Internal {
 
@@ -14,13 +16,15 @@ class SettingsHandlerMock : public SettingsHandler
 public:
     SettingsHandlerMock() = default;
     ~SettingsHandlerMock() override = default;
+
     MOCK_METHOD(Utils::FilePath,
                 getPath,
-                (const QString &, QSettings::Scope, const Utils::FilePath &),
+                (const Utils::Key &, QSettings::Scope, const Utils::FilePath &),
                 (const, override));
     MOCK_METHOD(bool,
                 write,
-                (const QString &, const Utils::FilePath &, const Utils::FilePath &),
+                (const Utils::Key &, const Utils::FilePath &, const Utils::FilePath &),
                 (const, override));
-}; //class SettingsHandler
+};
+
 } // namespace McuSupport::Internal

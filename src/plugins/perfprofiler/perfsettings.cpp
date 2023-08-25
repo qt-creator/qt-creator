@@ -425,13 +425,13 @@ PerfSettings::~PerfSettings()
 
 void PerfSettings::readGlobalSettings()
 {
-    QVariantMap defaults;
+    Store defaults;
 
     // Read stored values
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(Constants::AnalyzerSettingsGroupId));
-    QVariantMap map = defaults;
-    for (QVariantMap::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
+    Store map = defaults;
+    for (Store::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
         map.insert(it.key(), settings->value(it.key(), it.value()));
     settings->endGroup();
 
@@ -442,9 +442,9 @@ void PerfSettings::writeGlobalSettings() const
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(Constants::AnalyzerSettingsGroupId));
-    QVariantMap map;
+    Store map;
     toMap(map);
-    for (QVariantMap::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
+    for (Store::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
         settings->setValue(it.key(), it.value());
     settings->endGroup();
 }
@@ -474,7 +474,7 @@ void PerfSettings::addPerfRecordArguments(CommandLine *cmd) const
 void PerfSettings::resetToDefault()
 {
     PerfSettings defaults;
-    QVariantMap map;
+    Store map;
     defaults.toMap(map);
     fromMap(map);
 }

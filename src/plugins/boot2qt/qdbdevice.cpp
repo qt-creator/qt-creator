@@ -143,16 +143,16 @@ void QdbDevice::fromMap(const Store &map)
     setSerialNumber(map.value("Qdb.SerialNumber").toString());
 }
 
-QVariantMap QdbDevice::toMap() const
+Store QdbDevice::toMap() const
 {
-    QVariantMap map = ProjectExplorer::IDevice::toMap();
+    Store map = ProjectExplorer::IDevice::toMap();
     map.insert("Qdb.SerialNumber", serialNumber());
     return map;
 }
 
 void QdbDevice::setupDefaultNetworkSettings(const QString &host)
 {
-    setFreePorts(Utils::PortList::fromString("10000-10100"));
+    setFreePorts(PortList::fromString("10000-10100"));
 
     SshParameters parameters = sshParameters();
     parameters.setHost(host);

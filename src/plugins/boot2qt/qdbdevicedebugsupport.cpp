@@ -85,7 +85,7 @@ public:
             upperPort = qmlServerPort;
         }
         if (m_usePerf) {
-            QVariantMap settingsData = runControl()->settingsData("Analyzer.Perf.Settings");
+            Store settingsData = runControl()->settingsData("Analyzer.Perf.Settings");
             QVariant perfRecordArgs = settingsData.value("Analyzer.Perf.RecordArguments");
             QString args =  Utils::transform(perfRecordArgs.toStringList(), [](QString arg) {
                                     return arg.replace(',', ",,");

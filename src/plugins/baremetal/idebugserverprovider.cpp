@@ -206,14 +206,14 @@ IDebugServerProvider *IDebugServerProviderFactory::create() const
     return m_creator();
 }
 
-IDebugServerProvider *IDebugServerProviderFactory::restore(const QVariantMap &data) const
+IDebugServerProvider *IDebugServerProviderFactory::restore(const Store &data) const
 {
     IDebugServerProvider *p = m_creator();
     p->fromMap(data);
     return p;
 }
 
-bool IDebugServerProviderFactory::canRestore(const QVariantMap &data) const
+bool IDebugServerProviderFactory::canRestore(const Store &data) const
 {
     const QString id = idFromMap(data);
     return id.startsWith(m_id + ':');
@@ -229,12 +229,12 @@ void IDebugServerProviderFactory::setCreator(const std::function<IDebugServerPro
     m_creator = creator;
 }
 
-QString IDebugServerProviderFactory::idFromMap(const QVariantMap &data)
+QString IDebugServerProviderFactory::idFromMap(const Store &data)
 {
     return data.value(idKeyC).toString();
 }
 
-void IDebugServerProviderFactory::idToMap(QVariantMap &data, const QString &id)
+void IDebugServerProviderFactory::idToMap(Store &data, const QString &id)
 {
     data.insert(idKeyC, id);
 }

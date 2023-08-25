@@ -1942,7 +1942,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
         Store extraInfo;
         // enable QML debugging by default
         extraInfo.insert(Constants::QML_DEBUG_SETTING, TriState::Enabled.toVariant());
-        info.extraInfo = extraInfo;
+        info.extraInfo = QVariant::fromValue(extraInfo);
         break;
     }
     case BuildTypeRelease:
@@ -1969,7 +1969,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
         extraInfo.insert(CMAKE_BUILD_TYPE, "RelWithDebInfo");
         // enable QML debugging by default
         extraInfo.insert(Constants::QML_DEBUG_SETTING, TriState::Enabled.toVariant());
-        info.extraInfo = extraInfo;
+        info.extraInfo = QVariant::fromValue(extraInfo);
         break;
     }
     default:

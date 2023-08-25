@@ -52,9 +52,9 @@ constexpr char deviceAlgorithmIndexKeyC[] = "DeviceAlgorithmIndex";
 
 // DeviceSelection
 
-QVariantMap DeviceSelection::toMap() const
+Store DeviceSelection::toMap() const
 {
-    QVariantMap map;
+    Store map;
     // Software package.
     map.insert(packageDescrKeyC, package.desc);
     map.insert(packageFileKeyC, package.file);
@@ -79,23 +79,23 @@ QVariantMap DeviceSelection::toMap() const
     // Device MEMORY.
     QVariantList memoryList;
     for (const DeviceSelection::Memory &memory : std::as_const(memories)) {
-        QVariantMap m;
+        Store m;
         m.insert(deviceMemoryIdKeyC, memory.id);
         m.insert(deviceMemoryStartKeyC, memory.start);
         m.insert(deviceMemorySizeKeyC, memory.size);
-        memoryList.push_back(m);
+        memoryList.push_back(QVariant::fromValue(m));
     }
     map.insert(deviceMemoryKeyC, memoryList);
     // Device ALGORITHM.
     QVariantList algorithmList;
     for (const DeviceSelection::Algorithm &algorithm : std::as_const(algorithms)) {
-        QVariantMap m;
+        Store m;
         m.insert(deviceAlgorithmPathKeyC, algorithm.path);
         m.insert(deviceAlgorithmFlashStartKeyC, algorithm.flashStart);
         m.insert(deviceAlgorithmFlashSizeKeyC, algorithm.flashSize);
         m.insert(deviceAlgorithmRamStartKeyC, algorithm.ramStart);
         m.insert(deviceAlgorithmRamSizeKeyC, algorithm.ramSize);
-        algorithmList.push_back(m);
+        algorithmList.push_back(QVariant::fromValue(m));
     }
     map.insert(deviceAlgorithmKeyC, algorithmList);
     map.insert(deviceAlgorithmIndexKeyC, algorithmIndex);

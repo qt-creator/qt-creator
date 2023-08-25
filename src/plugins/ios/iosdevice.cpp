@@ -131,18 +131,18 @@ void IosDevice::fromMap(const Store &map)
     IDevice::fromMap(map);
 
     m_extraInfo.clear();
-    const QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
+    const Store vMap = map.value(Constants::EXTRA_INFO_KEY).value<Store>();
     for (auto i = vMap.cbegin(), end = vMap.cend(); i != end; ++i)
-        m_extraInfo.insert(i.key(), i.value().toString());
+        m_extraInfo.insert(stringFromKey(i.key()), i.value().toString());
 }
 
-QVariantMap IosDevice::toMap() const
+Store IosDevice::toMap() const
 {
-    QVariantMap res = IDevice::toMap();
-    QVariantMap vMap;
+    Store res = IDevice::toMap();
+    Store vMap;
     for (auto i = m_extraInfo.cbegin(), end = m_extraInfo.cend(); i != end; ++i)
-        vMap.insert(i.key(), i.value());
-    res.insert(QLatin1String(Constants::EXTRA_INFO_KEY), vMap);
+        vMap.insert(keyFromString(i.key()), i.value());
+    res.insert(Constants::EXTRA_INFO_KEY, QVariant::fromValue(vMap));
     return res;
 }
 
@@ -153,7 +153,7 @@ QString IosDevice::deviceName() const
 
 QString IosDevice::uniqueDeviceID() const
 {
-    return id().suffixAfter(Utils::Id(Constants::IOS_DEVICE_ID));
+    return id().suffixAfter(Id(Constants::IOS_DEVICE_ID));
 }
 
 QString IosDevice::uniqueInternalDeviceId() const
@@ -543,9 +543,9 @@ IosDeviceFactory::IosDeviceFactory()
     setConstructionFunction([] { return IDevice::Ptr(new IosDevice); });
 }
 
-bool IosDeviceFactory::canRestore(const QVariantMap &map) const
+bool IosDeviceFactory::canRestore(const Store &map) const
 {
-    QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
+    Store vMap = map.value(Constants::EXTRA_INFO_KEY).value<Store>();
     if (vMap.isEmpty() || vMap.value(kDeviceName).toString() == QLatin1String("*unknown*"))
         return false; // transient device (probably generated during an activation)
     return true;

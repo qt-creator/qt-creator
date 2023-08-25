@@ -62,7 +62,7 @@ public:
             return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
                    && prj->hasMakeInstallEquivalent();
         };
-        setPostRestore([needsMakeInstall](DeployConfiguration *dc, const QVariantMap &map) {
+        setPostRestore([needsMakeInstall](DeployConfiguration *dc, const Store &map) {
             // 4.9 -> 4.10. See QTCREATORBUG-22689.
             if (map.value("_checkMakeInstall").toBool() && needsMakeInstall(dc->target())) {
                 dc->stepList()->insertStep(0, Constants::MakeInstallStepId);

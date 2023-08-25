@@ -136,9 +136,9 @@ bool JLSSettings::isValid() const
     return StdIOSettings::isValid() && !m_languageServer.isEmpty();
 }
 
-QVariantMap JLSSettings::toMap() const
+Store JLSSettings::toMap() const
 {
-    QVariantMap map = StdIOSettings::toMap();
+    Store map = StdIOSettings::toMap();
     map.insert(languageServerKey, m_languageServer.toSettings());
     return map;
 }

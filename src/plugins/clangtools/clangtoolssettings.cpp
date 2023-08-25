@@ -41,7 +41,7 @@ RunSettings::RunSettings()
 {
 }
 
-void RunSettings::fromMap(const Store &map, const QString &prefix)
+void RunSettings::fromMap(const Store &map, const Key &prefix)
 {
     m_diagnosticConfigId = Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
     m_parallelJobs = map.value(prefix + parallelJobsKey).toInt();
@@ -50,7 +50,7 @@ void RunSettings::fromMap(const Store &map, const QString &prefix)
     m_analyzeOpenFiles = map.value(prefix + analyzeOpenFilesKey).toBool();
 }
 
-void RunSettings::toMap(Store &map, const QString &prefix) const
+void RunSettings::toMap(Store &map, const Key &prefix) const
 {
     map.insert(prefix + diagnosticConfigIdKey, m_diagnosticConfigId.toSetting());
     map.insert(prefix + parallelJobsKey, m_parallelJobs);
@@ -104,12 +104,12 @@ ClangToolsSettings::ClangToolsSettings()
     readSettings();
 }
 
-static QVariantMap convertToMapFromVersionBefore410(QSettings *s)
+static Store convertToMapFromVersionBefore410(QSettings *s)
 {
     const char oldParallelJobsKey[] = "simultaneousProcesses";
     const char oldBuildBeforeAnalysisKey[] = "buildBeforeAnalysis";
 
-    QVariantMap map;
+    Store map;
     map.insert(diagnosticConfigIdKey, s->value(oldDiagnosticConfigIdKey));
     map.insert(parallelJobsKey, s->value(oldParallelJobsKey));
     map.insert(buildBeforeAnalysisKey, s->value(oldBuildBeforeAnalysisKey));
@@ -151,19 +151,19 @@ void ClangToolsSettings::readSettings()
     s->beginGroup(Constants::SETTINGS_ID);
     m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
 
-    QVariantMap map;
+    Store map;
     if (!s->value(oldDiagnosticConfigIdKey).isNull()) {
         map = convertToMapFromVersionBefore410(s);
         write = true;
     } else {
-        QVariantMap defaults;
+        Store defaults;
         defaults.insert(diagnosticConfigIdKey, defaultDiagnosticId().toSetting());
         defaults.insert(parallelJobsKey, m_runSettings.parallelJobs());
         defaults.insert(preferConfigFileKey, m_runSettings.preferConfigFile());
         defaults.insert(buildBeforeAnalysisKey, m_runSettings.buildBeforeAnalysis());
         defaults.insert(analyzeOpenFilesKey, m_runSettings.analyzeOpenFiles());
         map = defaults;
-        for (QVariantMap::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
+        for (Store::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
             map.insert(it.key(), s->value(it.key(), it.value()));
     }
 
@@ -185,9 +185,9 @@ void ClangToolsSettings::writeSettings() const
 
     diagnosticConfigsToSettings(s, m_diagnosticConfigs);
 
-    QVariantMap map;
+    Store map;
     m_runSettings.toMap(map);
-    for (QVariantMap::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
+    for (Store::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
         s->setValue(it.key(), it.value());
 
     s->endGroup();

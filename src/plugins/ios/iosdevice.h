@@ -8,10 +8,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <QVariantMap>
-#include <QMap>
-#include <QString>
-#include <QStringList>
 #include <QTimer>
 
 namespace Ios {
@@ -61,7 +57,7 @@ class IosDeviceFactory final : public ProjectExplorer::IDeviceFactory
 public:
     IosDeviceFactory();
 
-    bool canRestore(const QVariantMap &map) const override;
+    bool canRestore(const Utils::Store &map) const override;
 };
 
 class IosDeviceManager : public QObject

@@ -28,7 +28,7 @@ struct PackageDescription
     QString envVar;
     QString cmakeVar;
     QString description;
-    QString setting;
+    Utils::Key setting;
     Utils::FilePath defaultPath;
     Utils::FilePath detectionPath;
     QStringList versions;

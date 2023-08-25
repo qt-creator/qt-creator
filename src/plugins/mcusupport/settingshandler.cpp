@@ -6,29 +6,28 @@
 #include "mcusupportconstants.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/filepath.h>
+#include <utils/store.h>
+
+using namespace Utils;
 
 namespace McuSupport::Internal {
 
-using Utils::FilePath;
+const Key automaticKitCreationSettingsKey = Key(Constants::SETTINGS_GROUP) + '/'
+            + Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION;
 
-namespace {
-const QString automaticKitCreationSettingsKey = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                                                + QLatin1String(
-                                                    Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
-}
-
-static FilePath packagePathFromSettings(const QString &settingsKey,
+static FilePath packagePathFromSettings(const Key &settingsKey,
                                         QSettings &settings,
                                         const FilePath &defaultPath)
 {
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                        + QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + settingsKey;
+    const Key key = Key(Constants::SETTINGS_GROUP) + '/'
+        + Constants::SETTINGS_KEY_PACKAGE_PREFIX + settingsKey;
     const QString path = settings.value(key, defaultPath.toUserOutput()).toString();
     return FilePath::fromUserInput(path);
 }
 
-FilePath SettingsHandler::getPath(const QString &settingsKey,
+FilePath SettingsHandler::getPath(const Key &settingsKey,
                                   QSettings::Scope scope,
                                   const FilePath &defaultPath) const
 {
@@ -39,15 +38,14 @@ FilePath SettingsHandler::getPath(const QString &settingsKey,
     return packagePathFromSettings(settingsKey, *Core::ICore::settings(scope), defaultPath);
 }
 
-bool SettingsHandler::write(const QString &settingsKey,
+bool SettingsHandler::write(const Key &settingsKey,
                             const FilePath &path,
                             const FilePath &defaultPath) const
 {
     const FilePath savedPath = packagePathFromSettings(settingsKey,
                                                        *Core::ICore::settings(QSettings::UserScope),
                                                        defaultPath);
-    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                        + QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + settingsKey;
+    const Key key = Key(Constants::SETTINGS_GROUP) + '/' + Constants::SETTINGS_KEY_PACKAGE_PREFIX + settingsKey;
     Core::ICore::settings()->setValueWithDefault(key,
                                                  path.toUserOutput(),
                                                  defaultPath.toUserOutput());

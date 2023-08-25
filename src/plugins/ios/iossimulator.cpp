@@ -17,11 +17,11 @@ using namespace Utils;
 
 namespace Ios::Internal {
 
-const QLatin1String iosDeviceTypeDisplayNameKey("displayName");
-const QLatin1String iosDeviceTypeTypeKey("type");
-const QLatin1String iosDeviceTypeIdentifierKey("identifier");
+const char iosDeviceTypeDisplayNameKey[] = "displayName";
+const char iosDeviceTypeTypeKey[] = "type";
+const char iosDeviceTypeIdentifierKey[] = "identifier";
 
-IosSimulator::IosSimulator(Utils::Id id)
+IosSimulator::IosSimulator(Id id)
     : m_lastPort(Constants::IOS_SIMULATOR_PORT_START)
 {
     setupId(IDevice::AutoDetected, id);
@@ -83,9 +83,9 @@ bool IosDeviceType::fromMap(const Store &map)
             && (type != IosDeviceType::SimulatedDevice || !identifier.isEmpty());
 }
 
-QVariantMap IosDeviceType::toMap() const
+Store IosDeviceType::toMap() const
 {
-    QVariantMap res;
+    Store res;
     res[iosDeviceTypeDisplayNameKey] = displayName;
     res[iosDeviceTypeTypeKey]        = type;
     res[iosDeviceTypeIdentifierKey]  = identifier;

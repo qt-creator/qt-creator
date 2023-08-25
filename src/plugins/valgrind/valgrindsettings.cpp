@@ -187,7 +187,7 @@ ValgrindSettings::ValgrindSettings(bool global)
     // Note that this is used twice, once for project settings in the .user files
     // and once for global settings in QtCreator.ini. This uses intentionally
     // the same key to facilitate copying using fromMap/toMap.
-    QString base = "Analyzer.Valgrind.";
+    Key base = "Analyzer.Valgrind.";
 
     valgrindExecutable.setSettingsKey(base + "ValgrindExecutable");
     valgrindExecutable.setDefaultValue("valgrind");
