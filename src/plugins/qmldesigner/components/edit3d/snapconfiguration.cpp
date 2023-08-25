@@ -54,14 +54,26 @@ void SnapConfiguration::apply()
 {
     Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL,
                            m_positionInterval);
+    Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL,
+                           m_rotationInterval);
+    Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL,
+                           m_scaleInterval);
     m_view->rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty, m_positionInterval);
+    m_view->rootModelNode().setAuxiliaryData(edit3dSnapRotIntProperty, m_rotationInterval);
+    m_view->rootModelNode().setAuxiliaryData(edit3dSnapScaleIntProperty, m_scaleInterval);
 }
 
 void SnapConfiguration::showConfigDialog(const QPoint &pos)
 {
     double posInt = Edit3DViewConfig::load(
                         DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL, 10.).toDouble();
+    double rotInt = Edit3DViewConfig::load(
+                        DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL, 15.).toDouble();
+    double scaleInt = Edit3DViewConfig::load(
+                        DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL, 10.).toDouble();
     setPosInt(posInt);
+    setRotInt(rotInt);
+    setScaleInt(scaleInt);
 
     if (!m_configDialog) {
         // Show non-modal progress dialog with cancel button
@@ -73,7 +85,7 @@ void SnapConfiguration::showConfigDialog(const QPoint &pos)
         m_configDialog->setFlags(Qt::Dialog);
         m_configDialog->setModality(Qt::ApplicationModal);
         m_configDialog->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
-        m_configDialog->setMinimumSize({250, 100});
+        m_configDialog->setMinimumSize({280, 170});
 
         m_configDialog->rootContext()->setContextProperties({
             {"rootView", QVariant::fromValue(this)}
@@ -95,6 +107,22 @@ void SnapConfiguration::setPosInt(double value)
     if (value != m_positionInterval) {
         m_positionInterval = value;
         emit posIntChanged();
+    }
+}
+
+void SnapConfiguration::setRotInt(double value)
+{
+    if (value != m_rotationInterval) {
+        m_rotationInterval = value;
+        emit rotIntChanged();
+    }
+}
+
+void SnapConfiguration::setScaleInt(double value)
+{
+    if (value != m_scaleInterval) {
+        m_scaleInterval = value;
+        emit scaleIntChanged();
     }
 }
 

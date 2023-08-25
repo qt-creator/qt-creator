@@ -376,10 +376,18 @@ void Qt5InformationNodeInstanceServer::updateSnapSettings(const QVector<Property
         for (const auto &container : valueChanges) {
             if (container.name() == "snapPos3d")
                 helper->setSnapPosition(container.value().toBool());
-            else if (container.name() == "snapAbs3d")
-                helper->setSnapAbsolute(container.value().toBool());
             else if (container.name() == "snapPosInt3d")
                 helper->setSnapPositionInterval(container.value().toDouble());
+            else if (container.name() == "snapRot3d")
+                helper->setSnapRotation(container.value().toBool());
+            else if (container.name() == "snapRotInt3d")
+                helper->setSnapRotationInterval(container.value().toDouble());
+            else if (container.name() == "snapScale3d")
+                helper->setSnapScale(container.value().toBool());
+            else if (container.name() == "snapScaleInt3d")
+                helper->setSnapScaleInterval(container.value().toDouble());
+            else if (container.name() == "snapAbs3d")
+                helper->setSnapAbsolute(container.value().toBool());
         }
     }
 #endif
@@ -482,6 +490,7 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     engine()->addImageProvider(QLatin1String("IconGizmoImageProvider"),
                                new QmlDesigner::Internal::IconGizmoImageProvider);
     m_3dHelper = helper;
+    Internal::MouseArea3D::setGeneralHelper(helper);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/qt6/EditView3D.qml"), m_editView3DData);

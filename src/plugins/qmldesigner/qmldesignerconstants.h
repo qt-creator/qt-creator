@@ -66,6 +66,8 @@ const char EDIT3D_BACKGROUND_COLOR_ACTIONS[] = "QmlDesigner.Editor3D.BackgroundC
 const char EDIT3D_BAKE_LIGHTS[] = "QmlDesigner.Editor3D.BakeLights";
 const char EDIT3D_SNAP_MENU[] = "QmlDesigner.Editor3D.SnapMenu";
 const char EDIT3D_SNAP_POSITION[] = "QmlDesigner.Editor3D.SnapPosition";
+const char EDIT3D_SNAP_ROTATION[] = "QmlDesigner.Editor3D.SnapRotation";
+const char EDIT3D_SNAP_SCALE[] = "QmlDesigner.Editor3D.SnapScale";
 const char EDIT3D_SNAP_CONFIG[] = "QmlDesigner.Editor3D.SnapConfig";
 const char EDIT3D_SNAP_ABSOLUTE[] = "QmlDesigner.Editor3D.SnapToGrid";
 

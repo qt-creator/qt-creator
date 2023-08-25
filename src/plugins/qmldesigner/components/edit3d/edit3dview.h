@@ -147,6 +147,8 @@ private:
     std::unique_ptr<Edit3DAction> m_snapMenuAction;
     std::unique_ptr<Edit3DAction> m_snapConfigAction;
     std::unique_ptr<Edit3DAction> m_snapPositionAction;
+    std::unique_ptr<Edit3DAction> m_snapRotationAction;
+    std::unique_ptr<Edit3DAction> m_snapScaleAction;
     std::unique_ptr<Edit3DAction> m_snapAbsoluteAction;
     std::unique_ptr<Edit3DBakeLightsAction> m_bakeLightsAction;
 

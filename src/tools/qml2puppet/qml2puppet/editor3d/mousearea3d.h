@@ -19,6 +19,8 @@
 namespace QmlDesigner {
 namespace Internal {
 
+class GeneralHelper;
+
 class MouseArea3D : public QQuick3DNode
 {
     Q_OBJECT
@@ -62,6 +64,7 @@ public:
     QVector3D getMousePosInPlane(const MouseArea3D *helper, const QPointF &mousePosInView) const;
 
     static qreal mouseDragMultiplier() { return .02; }
+    static void setGeneralHelper(GeneralHelper *helper);
 
     Q_INVOKABLE QVector3D rayIntersectsPlane(const QVector3D &rayPos0,
                                              const QVector3D &rayPos1,

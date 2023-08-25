@@ -5,6 +5,8 @@
 
 #include "mousearea3d.h"
 
+#include "generalhelper.h"
+
 #include <QtGui/qguiapplication.h>
 #include <QtQml/qqmlinfo.h>
 #include <QtQuick3D/private/qquick3dcamera_p.h>
@@ -15,6 +17,8 @@
 
 namespace QmlDesigner {
 namespace Internal {
+
+static GeneralHelper *s_generalHelper = nullptr;
 
 // Double precision vector for cases where float calculations can suffer from rounding errors
 class DoubleVec3D {
@@ -632,6 +636,10 @@ QVector3D MouseArea3D::getNewScale(const QVector3D &startScale, const QVector2D 
     yScaler += axisY * relativeDistance.y() * distanceFactor;
     scaleVec *= xScaler;
     scaleVec *= yScaler;
+
+    if (s_generalHelper)
+        scaleVec = s_generalHelper->adjustScaleForSnap(scaleVec);
+
     return startScale * scaleVec;
 }
 
@@ -713,12 +721,14 @@ void MouseArea3D::applyFreeRotation(QQuick3DNode *node, const QVector3D &startRo
     QVector3D yAxis = QVector3D(dataPtr[4], dataPtr[5], dataPtr[6]).normalized();
     QVector3D finalAxis = (dragVector.x() * yAxis + dragVector.y() * xAxis);
 
-    qreal degrees = qRadiansToDegrees(qreal(finalAxis.length()) * mouseDragMultiplier());
+    qreal radians = qreal(finalAxis.length()) * mouseDragMultiplier();
+    if (s_generalHelper)
+        radians = s_generalHelper->adjustRotationForSnap(radians);
 
     finalAxis.normalize();
 
     node->setEulerRotation(startRotation);
-    node->rotate(degrees, finalAxis, QQuick3DNode::SceneSpace);
+    node->rotate(qRadiansToDegrees(radians), finalAxis, QQuick3DNode::SceneSpace);
 }
 
 // Calculate scene position of the node's pivot point, which in practice is just the position
@@ -816,6 +826,11 @@ QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
         return intersectGlobalPos.toVec3();
 
     return sceneTrans.inverted().transform(intersectGlobalPos).toVec3();
+}
+
+void QmlDesigner::Internal::MouseArea3D::setGeneralHelper(GeneralHelper *helper)
+{
+    s_generalHelper = helper;
 }
 
 static QPoint getPosFromMoveEvent(QEvent *event)

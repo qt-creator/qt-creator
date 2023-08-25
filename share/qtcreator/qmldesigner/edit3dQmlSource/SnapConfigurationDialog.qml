@@ -23,49 +23,132 @@ Rectangle {
         Rectangle {
             id: ctrlRect
             width: root.width - 16
-            height: posIntValue.height + 16
+            height: posIntValue.height + rotIntValue.height + scaleIntValue.height + 32
 
             color: StudioTheme.Values.themePanelBackground
             border.color: StudioTheme.Values.themeControlOutline
             border.width: StudioTheme.Values.border
 
-            Row {
-                x: 8
-                y: 8
-                width: posIntLabel.width + posIntValue.width + StudioTheme.Values.sectionRowSpacing
-                spacing: StudioTheme.Values.sectionRowSpacing
-
-                Text {
-                    id: posIntLabel
-                    text: qsTr("Position Snap Interval:")
-                    color: enabled ? StudioTheme.Values.themeTextColor
-                                   : StudioTheme.Values.themeTextColorDisabled
-                    verticalAlignment: Qt.AlignVCenter
-                    horizontalAlignment: Qt.AlignRight
+            Column {
+                padding: 8
+                spacing: 8
+                Row {
                     height: posIntValue.height
+                    width: parent.width - 16
+                    spacing: StudioTheme.Values.sectionRowSpacing
+
+                    Text {
+                        id: posIntLabel
+                        text: qsTr("Position Snap Interval:")
+                        color: enabled ? StudioTheme.Values.themeTextColor
+                                       : StudioTheme.Values.themeTextColorDisabled
+                        verticalAlignment: Qt.AlignVCenter
+                        horizontalAlignment: Qt.AlignRight
+                        height: posIntValue.height
+                    }
+
+                    Item { // Spacer
+                        width: Math.max(ctrlRect.width - posIntLabel.width - posIntValue.width - 32, 1)
+                        height: 1
+                    }
+
+                    StudioControls.RealSpinBox {
+                        id: posIntValue
+                        realFrom: 1
+                        realTo: 100000
+                        realValue: rootView.posInt
+                        realStepSize: 1
+                        width: 80
+                        actionIndicatorVisible: false
+
+                        hoverEnabled: true
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Snap interval for move gizmo.")
+                        ToolTip.delay: root.toolTipDelay
+
+                        onRealValueChanged: rootView.posInt = realValue
+                    }
                 }
 
-                StudioControls.RealSpinBox {
-                    id: posIntValue
-                    realFrom: 1
-                    realTo: 100000
-                    realValue: rootView.posInt
-                    realStepSize: 1
-                    width: ctrlRect.width - 24 - posIntLabel.width
-                    actionIndicatorVisible: false
+                Row {
+                    height: rotIntValue.height
+                    width: parent.width - 16
+                    spacing: StudioTheme.Values.sectionRowSpacing
 
-                    hoverEnabled: true
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Snap interval for move gizmo.")
-                    ToolTip.delay: root.toolTipDelay
+                    Text {
+                        id: rotIntLabel
+                        text: qsTr("Rotation Snap Interval:")
+                        color: enabled ? StudioTheme.Values.themeTextColor
+                                       : StudioTheme.Values.themeTextColorDisabled
+                        verticalAlignment: Qt.AlignVCenter
+                        horizontalAlignment: Qt.AlignRight
+                        height: rotIntValue.height
+                    }
 
-                    onRealValueChanged: rootView.posInt = realValue
+                    Item { // Spacer
+                        width: Math.max(ctrlRect.width - rotIntLabel.width - rotIntValue.width - 32, 1)
+                        height: 1
+                    }
+
+                    StudioControls.RealSpinBox {
+                        id: rotIntValue
+                        realFrom: 1
+                        realTo: 360
+                        realValue: rootView.rotInt
+                        realStepSize: 1
+                        width: 80
+                        actionIndicatorVisible: false
+
+                        hoverEnabled: true
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Snap interval in degrees for rotation gizmo.")
+                        ToolTip.delay: root.toolTipDelay
+
+                        onRealValueChanged: rootView.rotInt = realValue
+                    }
+                }
+
+                Row {
+                    height: scaleIntValue.height
+                    width: parent.width - 16
+                    spacing: StudioTheme.Values.sectionRowSpacing
+
+                    Text {
+                        id: scaleIntLabel
+                        text: qsTr("Scale Snap Interval (%):")
+                        color: enabled ? StudioTheme.Values.themeTextColor
+                                       : StudioTheme.Values.themeTextColorDisabled
+                        verticalAlignment: Qt.AlignVCenter
+                        horizontalAlignment: Qt.AlignRight
+                        height: scaleIntValue.height
+                    }
+
+                    Item { // Spacer
+                        width: Math.max(ctrlRect.width - scaleIntLabel.width - scaleIntValue.width - 32, 1)
+                        height: 1
+                    }
+
+                    StudioControls.RealSpinBox {
+                        id: scaleIntValue
+                        realFrom: 1
+                        realTo: 100000
+                        realValue: rootView.scaleInt
+                        realStepSize: 1
+                        width: 80
+                        actionIndicatorVisible: false
+
+                        hoverEnabled: true
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Snap interval for scale gizmo in percentage of original scale.")
+                        ToolTip.delay: root.toolTipDelay
+
+                        onRealValueChanged: rootView.scaleInt = realValue
+                    }
                 }
             }
         }
 
-        Item {
-            id: spacer
+        Item { // Spacer
             width: 1
             height: Math.max(root.height - buttons.height - ctrlRect.height - 16, 2)
         }

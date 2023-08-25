@@ -49,6 +49,7 @@ Model {
         currentAngle = mouseAreaMain.dragHelper.getNewRotationAngle(
                     targetNode, _pointerPosPressed, Qt.vector3d(screenPos.x, screenPos.y, 0),
                     _targetPosOnScreen, currentAngle, _trackBall);
+        currentAngle = _generalHelper.adjustRotationForSnap(currentAngle);
         mouseAreaMain.dragHelper.applyRotationAngleToNode(targetNode, _startRotation, currentAngle);
     }
 

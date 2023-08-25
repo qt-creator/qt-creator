@@ -106,9 +106,17 @@ public:
                                                    const QVector3D &snapAxes,
                                                    bool globalOrientation,
                                                    QQuick3DNode *node);
-    void setSnapPosition(bool enable) { m_snapPosition = enable; }
+    Q_INVOKABLE double adjustRotationForSnap(double newAngle);
+    Q_INVOKABLE double adjustScalerForSnap(double newScale);
+    QVector3D adjustScaleForSnap(const QVector3D &newScale);
+
     void setSnapAbsolute(bool enable) { m_snapAbsolute = enable; }
+    void setSnapPosition(bool enable) { m_snapPosition = enable; }
+    void setSnapRotation(bool enable) { m_snapRotation = enable; }
+    void setSnapScale(bool enable) { m_snapScale = enable; }
     void setSnapPositionInterval(double interval) { m_snapPositionInterval = interval; }
+    void setSnapRotationInterval(double interval) { m_snapRotationInterval = interval; }
+    void setSnapScaleInterval(double interval) { m_snapScaleInterval = interval / 100.; }
 
 signals:
     void overlayUpdateNeeded();
@@ -146,7 +154,11 @@ private:
 
     bool m_snapAbsolute = true;
     bool m_snapPosition = false;
+    bool m_snapRotation = false;
+    bool m_snapScale = false;
     double m_snapPositionInterval = 10.;
+    double m_snapRotationInterval = 15.;
+    double m_snapScaleInterval = .1;
 };
 
 }

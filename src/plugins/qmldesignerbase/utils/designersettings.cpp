@@ -86,6 +86,10 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE, true);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION, false);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL, 10.);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION, false);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL, 15.);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE, false);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL, 10.);
     restoreValue(settings, DesignerSettingsKey::SMOOTH_RENDERING, false);
     restoreValue(settings, DesignerSettingsKey::SHOW_DEBUG_SETTINGS, false);
     restoreValue(settings, DesignerSettingsKey::EDITOR_ZOOM_FACTOR, 1.0);

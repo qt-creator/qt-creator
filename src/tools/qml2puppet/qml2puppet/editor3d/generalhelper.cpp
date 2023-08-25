@@ -771,6 +771,27 @@ bool GeneralHelper::isRotationBlocked(QQuick3DNode *node) const
     return m_rotationBlockedNodes.contains(node);
 }
 
+// false is returned when keyboard modifiers result in no snapping.
+// increment is adjusted according to keyboard modifiers
+static bool queryKeyboardForSnapping(bool enabled, double &increment)
+{
+    if (increment <= 0.)
+        return false;
+
+    // Need to do a hard query for key mods as puppet is not handling real events
+    Qt::KeyboardModifiers mods = QGuiApplication::queryKeyboardModifiers();
+    const bool shiftMod = mods & Qt::ShiftModifier;
+    const bool ctrlMod = mods & Qt::ControlModifier;
+
+    if ((!ctrlMod && !enabled) || (ctrlMod && enabled))
+        return false;
+
+    if (shiftMod)
+        increment *= 0.1;
+
+    return true;
+}
+
 QVector3D GeneralHelper::adjustTranslationForSnap(const QVector3D &newPos,
                                                   const QVector3D &startPos,
                                                   const QVector3D &snapAxes,
@@ -781,19 +802,10 @@ QVector3D GeneralHelper::adjustTranslationForSnap(const QVector3D &newPos,
     bool snapAbs = m_snapAbsolute;
     double increment = m_snapPositionInterval;
 
-    if (!node || increment == 0. || snapAxes.isNull() || qFuzzyIsNull((newPos - startPos).length()))
+    if (!node || snapAxes.isNull() || qFuzzyIsNull((newPos - startPos).length())
+        || !queryKeyboardForSnapping(snapPos, increment)) {
         return newPos;
-
-    // Need to do a hard query for key mods as puppet is not handling real events
-    Qt::KeyboardModifiers mods = QGuiApplication::queryKeyboardModifiers();
-    const bool shiftMod = mods & Qt::ShiftModifier;
-    const bool ctrlMod = mods & Qt::ControlModifier;
-
-    if ((!ctrlMod && !snapPos) || (ctrlMod && snapPos))
-        return newPos;
-
-    if (shiftMod)
-        increment *= 0.1;
+    }
 
     // The node is aligned if there is only 0/90/180/270 degree sceneRotation on the node
     // on the drag axis, or the drag plane normal for plane drags
@@ -882,6 +894,63 @@ QVector3D GeneralHelper::adjustTranslationForSnap(const QVector3D &newPos,
         return startPos + dragVector;
     }
     return newPos;
+}
+
+// newAngle and return are radians
+double GeneralHelper::adjustRotationForSnap(double newAngle)
+{
+    bool snapRot = m_snapRotation;
+    double increment = m_snapRotationInterval;
+
+    if (qFuzzyIsNull(newAngle) || !queryKeyboardForSnapping(snapRot, increment))
+        return newAngle;
+
+    double angleDeg = qRadiansToDegrees(newAngle);
+
+    double comp1 = double(int(angleDeg / increment)) * increment;
+    double comp2 = angleDeg > 0 ? comp1 + increment : comp1 - increment;
+
+    return qAbs(angleDeg - comp1) > qAbs(angleDeg - comp2) ?
+               qDegreesToRadians(comp2) : qDegreesToRadians(comp1);
+}
+
+static double adjustScaler(double newScale, double increment)
+{
+    double absScale = qAbs(newScale);
+    double comp1 = 1. + double(int((absScale / increment) - (1. / increment))) * increment;
+    double comp2 = comp1 + increment;
+    double retVal = absScale - comp1 > comp2 - absScale ? comp2 : comp1;
+    if (newScale < 0)
+        retVal *= -1.;
+    return retVal;
+}
+
+double GeneralHelper::adjustScalerForSnap(double newScale)
+{
+    bool snapScale = m_snapScale;
+    double increment = m_snapScaleInterval;
+
+    if (qFuzzyIsNull(newScale) || !queryKeyboardForSnapping(snapScale, increment))
+        return newScale;
+
+    return adjustScaler(newScale, increment);
+}
+
+QVector3D GeneralHelper::adjustScaleForSnap(const QVector3D &newScale)
+{
+    bool snapScale = m_snapScale;
+    double increment = m_snapScaleInterval;
+
+    if (qFuzzyIsNull(newScale.length()) || !queryKeyboardForSnapping(snapScale, increment))
+        return newScale;
+
+    QVector3D adjScale = newScale;
+    for (int i = 0; i < 3; ++i) {
+        if (!qFuzzyCompare(newScale[i], 1.f))
+            adjScale[i] = adjustScaler(newScale[i], increment);
+    }
+
+    return adjScale;
 }
 
 void GeneralHelper::handlePendingToolStateUpdate()
