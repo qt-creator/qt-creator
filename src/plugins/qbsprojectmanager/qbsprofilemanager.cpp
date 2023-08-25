@@ -174,8 +174,8 @@ void QbsProfileManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 
 void QbsProfileManager::handleKitUpdate(ProjectExplorer::Kit *kit)
 {
-    m_kitsToBeSetupForQbs.removeOne(kit);
-    addProfileFromKit(kit);
+    if (!m_kitsToBeSetupForQbs.contains(kit))
+        addProfileFromKit(kit);
 }
 
 void QbsProfileManager::handleKitRemoval(ProjectExplorer::Kit *kit)
