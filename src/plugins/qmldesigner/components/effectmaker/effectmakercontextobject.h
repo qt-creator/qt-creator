@@ -16,7 +16,7 @@
 
 namespace QmlDesigner {
 
-class ColorEditorContextObject : public QObject
+class EffectMakerContextObject : public QObject
 {
     Q_OBJECT
 
@@ -32,7 +32,7 @@ class ColorEditorContextObject : public QObject
     Q_PROPERTY(QQmlPropertyMap *backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
 public:
-    ColorEditorContextObject(QQmlContext *context, QObject *parent = nullptr);
+    EffectMakerContextObject(QQmlContext *context, QObject *parent = nullptr);
 
     QString stateName() const { return m_stateName; }
     QStringList allStateNames() const { return m_allStateNames; }

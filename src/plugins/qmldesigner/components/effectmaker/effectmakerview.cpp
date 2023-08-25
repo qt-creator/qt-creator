@@ -58,6 +58,7 @@ void EffectMakerView::modelAttached(Model *model)
     // Add some dummy effects data
     //m_widget->effectMakerModel()->setEffects({"Drop Shadow", "Colorize", "Fast Blue"}); // TODO
     m_widget->effectMakerNodesModel()->loadModel();
+    m_widget->initView();
 }
 
 void EffectMakerView::modelAboutToBeDetached(Model *model)

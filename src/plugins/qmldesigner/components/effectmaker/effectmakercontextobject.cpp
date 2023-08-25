@@ -1,7 +1,7 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "coloreditorcontextobject.h"
+#include "effectmakercontextobject.h"
 
 #include <abstractview.h>
 #include <bindingproperty.h>
@@ -29,13 +29,13 @@
 
 namespace QmlDesigner {
 
-ColorEditorContextObject::ColorEditorContextObject(QQmlContext *context, QObject *parent)
+EffectMakerContextObject::EffectMakerContextObject(QQmlContext *context, QObject *parent)
     : QObject(parent)
     , m_qmlContext(context)
 {
 }
 
-QString ColorEditorContextObject::convertColorToString(const QVariant &color)
+QString EffectMakerContextObject::convertColorToString(const QVariant &color)
 {
     QString colorString;
     QColor theColor;
@@ -52,17 +52,17 @@ QString ColorEditorContextObject::convertColorToString(const QVariant &color)
 }
 
 // TODO: this method is used by the ColorEditor helper widget, check if at all needed?
-QColor ColorEditorContextObject::colorFromString(const QString &colorString)
+QColor EffectMakerContextObject::colorFromString(const QString &colorString)
 {
     return colorString;
 }
 
-int ColorEditorContextObject::majorVersion() const
+int EffectMakerContextObject::majorVersion() const
 {
     return m_majorVersion;
 }
 
-void ColorEditorContextObject::setMajorVersion(int majorVersion)
+void EffectMakerContextObject::setMajorVersion(int majorVersion)
 {
     if (m_majorVersion == majorVersion)
         return;
@@ -72,7 +72,7 @@ void ColorEditorContextObject::setMajorVersion(int majorVersion)
     emit majorVersionChanged();
 }
 
-void ColorEditorContextObject::setStateName(const QString &newStateName)
+void EffectMakerContextObject::setStateName(const QString &newStateName)
 {
     if (newStateName == m_stateName)
         return;
@@ -81,7 +81,7 @@ void ColorEditorContextObject::setStateName(const QString &newStateName)
     emit stateNameChanged();
 }
 
-void ColorEditorContextObject::setAllStateNames(const QStringList &allStates)
+void EffectMakerContextObject::setAllStateNames(const QStringList &allStates)
 {
     if (allStates == m_allStateNames)
         return;
@@ -90,7 +90,7 @@ void ColorEditorContextObject::setAllStateNames(const QStringList &allStates)
     emit allStateNamesChanged();
 }
 
-void ColorEditorContextObject::setIsBaseState(bool newIsBaseState)
+void EffectMakerContextObject::setIsBaseState(bool newIsBaseState)
 {
     if (newIsBaseState == m_isBaseState)
         return;
@@ -99,7 +99,7 @@ void ColorEditorContextObject::setIsBaseState(bool newIsBaseState)
     emit isBaseStateChanged();
 }
 
-void ColorEditorContextObject::setSelectionChanged(bool newSelectionChanged)
+void EffectMakerContextObject::setSelectionChanged(bool newSelectionChanged)
 {
     if (newSelectionChanged == m_selectionChanged)
         return;
@@ -108,7 +108,7 @@ void ColorEditorContextObject::setSelectionChanged(bool newSelectionChanged)
     emit selectionChangedChanged();
 }
 
-void ColorEditorContextObject::setBackendValues(QQmlPropertyMap *newBackendValues)
+void EffectMakerContextObject::setBackendValues(QQmlPropertyMap *newBackendValues)
 {
     if (newBackendValues == m_backendValues)
         return;
@@ -117,17 +117,17 @@ void ColorEditorContextObject::setBackendValues(QQmlPropertyMap *newBackendValue
     emit backendValuesChanged();
 }
 
-void ColorEditorContextObject::setModel(Model *model)
+void EffectMakerContextObject::setModel(Model *model)
 {
     m_model = model;
 }
 
-void ColorEditorContextObject::triggerSelectionChanged()
+void EffectMakerContextObject::triggerSelectionChanged()
 {
     setSelectionChanged(!m_selectionChanged);
 }
 
-void ColorEditorContextObject::hideCursor()
+void EffectMakerContextObject::hideCursor()
 {
     if (QApplication::overrideCursor())
         return;
@@ -138,7 +138,7 @@ void ColorEditorContextObject::hideCursor()
         m_lastPos = QCursor::pos(w->screen());
 }
 
-void ColorEditorContextObject::restoreCursor()
+void EffectMakerContextObject::restoreCursor()
 {
     if (!QApplication::overrideCursor())
         return;
@@ -149,7 +149,7 @@ void ColorEditorContextObject::restoreCursor()
         QCursor::setPos(w->screen(), m_lastPos);
 }
 
-void ColorEditorContextObject::holdCursorInPlace()
+void EffectMakerContextObject::holdCursorInPlace()
 {
     if (!QApplication::overrideCursor())
         return;
@@ -158,7 +158,7 @@ void ColorEditorContextObject::holdCursorInPlace()
         QCursor::setPos(w->screen(), m_lastPos);
 }
 
-int ColorEditorContextObject::devicePixelRatio()
+int EffectMakerContextObject::devicePixelRatio()
 {
     if (QWidget *w = QApplication::activeWindow())
         return w->devicePixelRatio();
@@ -166,7 +166,7 @@ int ColorEditorContextObject::devicePixelRatio()
     return 1;
 }
 
-QStringList ColorEditorContextObject::allStatesForId(const QString &id)
+QStringList EffectMakerContextObject::allStatesForId(const QString &id)
 {
       if (m_model && m_model->rewriterView()) {
           const QmlObjectNode node = m_model->rewriterView()->modelNodeForId(id);
@@ -177,7 +177,7 @@ QStringList ColorEditorContextObject::allStatesForId(const QString &id)
       return {};
 }
 
-bool ColorEditorContextObject::isBlocked(const QString &) const
+bool EffectMakerContextObject::isBlocked(const QString &) const
 {
       return false;
 }

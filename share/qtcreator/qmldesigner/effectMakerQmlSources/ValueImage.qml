@@ -4,13 +4,18 @@
 import QtQuick
 import QtQuickDesignerTheme
 import HelperWidgets as HelperWidgets
-import StudioControls as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import EffectMakerBackend
 
 Row {
+    id: itemPane
+
     width: parent.width
     spacing: 5
 
-    // TODO
+    HelperWidgets.UrlChooser {
+        backendValue: uniformBackendValue
+
+        onAbsoluteFilePathChanged: uniformValue = absoluteFilePath
+    }
 }

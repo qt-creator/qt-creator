@@ -26,8 +26,8 @@ Item {
             valueLoader.source = "ValueBool.qml"
         else if (uniformType === "color")
             valueLoader.source = "ValueColor.qml"
-//        else if (uniformType === "image") // TODO
-//            valueLoader.source = valueImage
+        else if (uniformType === "image")
+            valueLoader.source = "ValueImage.qml"
         else
             valueLoader.source = "ValueFloat.qml"
     }

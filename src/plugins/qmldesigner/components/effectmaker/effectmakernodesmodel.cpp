@@ -77,7 +77,7 @@ void EffectMakerNodesModel::loadModel()
     while (itCategories.hasNext()) {
         itCategories.next();
 
-        if (itCategories.fileName() == "images")
+        if (itCategories.fileName() == "images" || itCategories.fileName() == "common")
             continue;
 
         QString catName = itCategories.fileName();

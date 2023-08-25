@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "qmlmodelnodeproxy.h"
+
 #include <coreplugin/icontext.h>
 
 #include <QFrame>
@@ -30,6 +32,7 @@ public:
 
     void delayedUpdateModel();
     void updateModel();
+    void initView();
 
     StudioQuickWidget *quickWidget() const;
     QPointer<EffectMakerModel> effectMakerModel() const;
@@ -50,6 +53,7 @@ private:
     QPointer<EffectMakerNodesModel> m_effectMakerNodesModel;
     QPointer<EffectMakerView> m_effectMakerView;
     QPointer<StudioQuickWidget> m_quickWidget;
+    QmlModelNodeProxy m_backendModelNode;
 };
 
 } // namespace QmlDesigner

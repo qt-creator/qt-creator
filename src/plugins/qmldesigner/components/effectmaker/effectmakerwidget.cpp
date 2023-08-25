@@ -3,7 +3,7 @@
 
 #include "effectmakerwidget.h"
 
-#include "coloreditorcontextobject.h"
+#include "effectmakercontextobject.h"
 #include "effectmakermodel.h"
 #include "effectmakernodesmodel.h"
 #include "effectmakerview.h"
@@ -66,14 +66,8 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     map->setProperties({{"effectMakerNodesModel", QVariant::fromValue(m_effectMakerNodesModel.data())},
                         {"effectMakerModel", QVariant::fromValue(m_effectMakerModel.data())},
                         {"rootView", QVariant::fromValue(this)}});
-
-    auto colorEditorCtx = new ColorEditorContextObject(m_quickWidget->rootContext());
-    m_quickWidget->rootContext()->setContextObject(colorEditorCtx);
-    m_quickWidget->rootContext()->setContextProperty("modelNodeBackend", {});
-
-    // init the first load of the QML UI elements
-    reloadQmlSource();
 }
+
 
 bool EffectMakerWidget::eventFilter(QObject *obj, QEvent *event)
 {
@@ -127,6 +121,18 @@ QString EffectMakerWidget::qmlSourcesPath()
         return QLatin1String(SHARE_QML_PATH) + "/effectMakerQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/effectMakerQmlSources").toString();
+}
+
+void EffectMakerWidget::initView()
+{
+    auto ctxObj = new EffectMakerContextObject(m_quickWidget->rootContext());
+    m_quickWidget->rootContext()->setContextObject(ctxObj);
+
+    m_backendModelNode.setup(m_effectMakerView->rootModelNode());
+    m_quickWidget->rootContext()->setContextProperty("modelNodeBackend", &m_backendModelNode);
+
+    // init the first load of the QML UI elements
+    reloadQmlSource();
 }
 
 void EffectMakerWidget::reloadQmlSource()
