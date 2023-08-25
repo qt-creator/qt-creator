@@ -16,7 +16,8 @@ struct QmlPreviewRunnerSetting
     QmlPreviewFpsHandler fpsHandler;
     float zoomFactor = -1.0;
     QString language;
-    QmlDebugTranslationClientCreator createDebugTranslationClientMethod;
+    QmlDebugTranslationClientFactoryFunction createDebugTranslationClientMethod;
+    QmlPreviewRefreshTranslationFunction refreshTranslationsFunction;
 };
 
 class QmlPreviewRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory

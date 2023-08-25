@@ -12,7 +12,6 @@ class Target;
 }
 
 namespace QmlPreview {
-namespace Internal {
 
 class QmlPreviewFileOnTargetFinder
 {
@@ -27,5 +26,4 @@ private:
     QPointer<ProjectExplorer::Target> m_target;
 };
 
-} // namespace Internal
 } // namespace QmlPreview

@@ -17,7 +17,6 @@ class Target;
 }
 
 namespace QmlPreview {
-namespace Internal {
 
 class QmlPreviewConnectionManager : public QmlDebug::QmlDebugConnectionManager
 {
@@ -30,7 +29,7 @@ public:
     void setFileLoader(QmlPreviewFileLoader fileLoader);
     void setFileClassifier(QmlPreviewFileClassifier fileClassifier);
     void setFpsHandler(QmlPreviewFpsHandler fpsHandler);
-    void setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator);
+    void setQmlDebugTranslationClientCreator(QmlDebugTranslationClientFactoryFunction creator);
 
 signals:
     void loadFile(const QString &filename, const QString &changedFile, const QByteArray &contents);
@@ -58,8 +57,7 @@ private:
     QmlPreviewFileLoader m_fileLoader = nullptr;
     QmlPreviewFileClassifier m_fileClassifier = nullptr;
     QmlPreviewFpsHandler m_fpsHandler = nullptr;
-    QmlDebugTranslationClientCreator m_createDebugTranslationClientMethod;
+    QmlDebugTranslationClientFactoryFunction m_createDebugTranslationClientMethod;
 };
 
-} // namespace Internal
 } // namespace QmlPreview

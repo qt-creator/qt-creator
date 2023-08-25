@@ -16,18 +16,49 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/port.h>
 #include <utils/process.h>
 #include <utils/url.h>
 
+#include <QFutureWatcher>
+
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace QmlPreview::Internal;
 
 namespace QmlPreview {
 
 static const QString QmlServerUrl = "QmlServerUrl";
+
+class RefreshTranslationWorker final : public ProjectExplorer::RunWorker
+{
+public:
+    explicit RefreshTranslationWorker(ProjectExplorer::RunControl *runControl,
+                                      const QmlPreviewRunnerSetting &runnerSettings)
+        : ProjectExplorer::RunWorker(runControl), m_runnerSettings(runnerSettings)
+    {
+        setId("RefreshTranslationWorker");
+        connect(this, &RunWorker::started, this, &RefreshTranslationWorker::startRefreshTranslationsAsync);
+        connect(this, &RunWorker::stopped, &m_futureWatcher, &QFutureWatcher<void>::cancel);
+    }
+    ~RefreshTranslationWorker()
+    {
+        m_futureWatcher.cancel();
+        m_futureWatcher.waitForFinished();
+    }
+
+private:
+    void startRefreshTranslationsAsync()
+    {
+        m_futureWatcher.setFuture(Utils::asyncRun([this] {
+            m_runnerSettings.refreshTranslationsFunction();
+            stop();
+        }));
+    }
+    QmlPreviewRunnerSetting m_runnerSettings;
+    QFutureWatcher<void> m_futureWatcher;
+};
 
 class QmlPreviewRunner : public ProjectExplorer::RunWorker
 {
@@ -51,11 +82,12 @@ private:
     void start() override;
     void stop() override;
 
-    Internal::QmlPreviewConnectionManager m_connectionManager;
+    QmlPreviewConnectionManager m_connectionManager;
+    RefreshTranslationWorker m_refreshTranslationWorker;
 };
 
 QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunnerSetting &settings)
-    : RunWorker(runControl)
+    : RunWorker(runControl), m_refreshTranslationWorker(runControl, settings)
 {
     setId("QmlPreviewRunner");
     m_connectionManager.setFileLoader(settings.fileLoader);
@@ -99,6 +131,8 @@ QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunne
 
         runControl->initiateStop();
     });
+
+    addStartDependency(&m_refreshTranslationWorker);
 }
 
 void QmlPreviewRunner::start()

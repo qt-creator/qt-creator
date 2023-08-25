@@ -14,7 +14,6 @@
 #include <utils/qtcassert.h>
 
 namespace QmlPreview {
-namespace Internal {
 
 void QmlPreviewFileOnTargetFinder::setTarget(ProjectExplorer::Target *target)
 {
@@ -96,5 +95,4 @@ QUrl QmlPreviewFileOnTargetFinder::findUrl(const QString &filePath, bool *succes
     }
 }
 
-} // namespace Internal
 } // namespace QmlPreview
