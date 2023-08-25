@@ -10,7 +10,7 @@
 namespace Utils {
 
 // Opt-in to new classes during the transition phase.
-// #define QTC_USE_STORE
+#define QTC_USE_STORE
 
 #ifdef QTC_USE_STORE
 
