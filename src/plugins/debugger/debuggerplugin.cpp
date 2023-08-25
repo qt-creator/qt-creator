@@ -1242,11 +1242,15 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
 {
     EngineManager::registerDefaultPerspective(Tr::tr("CMake Preset"),
                                               "DAP",
-                                              ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE);
+                                              Constants::DAP_PERSPECTIVE_ID);
 
     EngineManager::registerDefaultPerspective(Tr::tr("GDB Preset"),
                                               "DAP",
-                                              ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
+                                              Constants::DAP_PERSPECTIVE_ID);
+
+    EngineManager::registerDefaultPerspective(Tr::tr("Python Preset"),
+                                              "DAP",
+                                              Constants::DAP_PERSPECTIVE_ID);
 
     auto breakpointManagerView = createBreakpointManagerView("DAPDebugger.BreakWindow");
     auto breakpointManagerWindow
@@ -1265,11 +1269,14 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
     connect(&m_startDapAction, &QAction::triggered, this, [] {
         QComboBox *combo = qobject_cast<QComboBox *>(EngineManager::dapEngineChooser());
         if (combo->currentText() == "CMake Preset") {
-            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE,
-                                                     true);
+            ProjectExplorerPlugin::runStartupProject(
+                ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE, false);
+        } else if (combo->currentText() == "GDB Preset") {
+            ProjectExplorerPlugin::runStartupProject(
+                ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE, false);
         } else {
             ProjectExplorerPlugin::runStartupProject(
-                ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE, true);
+                ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE, false);
         }
     });
 

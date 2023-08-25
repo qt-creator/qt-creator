@@ -67,6 +67,12 @@ void DapClient::sendLaunch(const Utils::FilePath &executable)
                 QJsonObject{{"noDebug", false}, {"program", executable.path()}, {"__restart", ""}});
 }
 
+void DapClient::sendAttach()
+{
+    postRequest("attach",
+                QJsonObject{{"__restart", ""}});
+}
+
 void DapClient::sendConfigurationDone()
 {
     postRequest("configurationDone");
@@ -92,7 +98,6 @@ void DapClient::sendPause()
 {
     postRequest("pause");
 }
-
 
 void DapClient::sendStepIn(int threadId)
 {
@@ -190,7 +195,9 @@ void DapClient::emitSignals(const QJsonDocument &doc)
     if (type == "response") {
         DapResponseType type = DapResponseType::Unknown;
         const QString command = ob.value("command").toString();
-        if (command == "configurationDone") {
+        if (command == "initialize") {
+            type = DapResponseType::Initialize;
+        } else if (command == "configurationDone") {
             type = DapResponseType::ConfigurationDone;
         } else if (command == "continue") {
             type = DapResponseType::Continue;
@@ -208,6 +215,8 @@ void DapClient::emitSignals(const QJsonDocument &doc)
             type = DapResponseType::StepOver;
         } else if (command == "threads") {
             type = DapResponseType::DapThreads;
+        } else if (command == "pause") {
+            type = DapResponseType::Pause;
         }
         emit responseReady(type, ob);
         return;

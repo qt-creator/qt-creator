@@ -130,8 +130,6 @@ void CMakeDapEngine::setupEngine()
             return;
         }
     });
-
-    notifyEngineSetupOk();
 }
 
 bool CMakeDapEngine::hasCapability(unsigned cap) const

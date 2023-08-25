@@ -6,6 +6,7 @@
 #include "cmakedapengine.h"
 #include "dapclient.h"
 #include "gdbdapengine.h"
+#include "pydapengine.h"
 
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
@@ -111,6 +112,7 @@ void DapEngine::shutdownEngine()
 
 void DapEngine::handleDapStarted()
 {
+    notifyEngineSetupOk();
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
 
     m_dapClient->sendInitialize();
@@ -128,7 +130,7 @@ void DapEngine::handleDapConfigurationDone()
 }
 
 
-void DapEngine::handleDapLaunch()
+void DapEngine::handleDapInitialize()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
 
@@ -479,6 +481,10 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
     const QString command = response.value("command").toString();
 
     switch (type) {
+    case DapResponseType::Initialize:
+        qCDebug(dapEngineLog) << "initialize success";
+        handleDapInitialize();
+        break;
     case DapResponseType::ConfigurationDone:
         showMessage("configurationDone", LogDebug);
         qCDebug(dapEngineLog) << "configurationDone success";
@@ -513,7 +519,6 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
     case DapResponseType::DapThreads:
         handleThreadsResponse(response);
         break;
-
     default:
         showMessage("UNKNOWN RESPONSE:" + command);
     };
@@ -585,7 +590,7 @@ void DapEngine::handleEvent(DapEventType type, const QJsonObject &event)
     switch (type) {
     case DapEventType::Initialized:
         qCDebug(dapEngineLog) << "initialize success";
-        handleDapLaunch();
+        claimInitialBreakpoints();
         handleDapConfigurationDone();
         break;
     case DapEventType::Stopped:
@@ -801,10 +806,14 @@ void DapEngine::connectDataGeneratorSignals()
 
 DebuggerEngine *createDapEngine(Utils::Id runMode)
 {
-    if (runMode == ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE)
+    if (runMode == ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE)
         return new CMakeDapEngine;
+    if (runMode == ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE)
+        return new GdbDapEngine;
+    if (runMode == ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE)
+        return new PyDapEngine;
 
-    return new GdbDapEngine;
+    return nullptr;
 }
 
 } // Debugger::Internal

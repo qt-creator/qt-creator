@@ -2954,7 +2954,7 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
                 ? BuildForRunConfigStatus::Building : BuildForRunConfigStatus::NotBuilding
             : BuildManager::potentiallyBuildForRunConfig(rc);
 
-    if (dd->m_runMode == Constants::CMAKE_DEBUG_RUN_MODE)
+    if (dd->m_runMode == Constants::DAP_CMAKE_DEBUG_RUN_MODE)
         buildStatus = BuildForRunConfigStatus::NotBuilding;
 
     switch (buildStatus) {

@@ -38,6 +38,7 @@ signals:
 
 enum class DapResponseType
 {
+    Initialize,
     ConfigurationDone,
     Continue,
     StackTrace,
@@ -47,6 +48,7 @@ enum class DapResponseType
     StepIn,
     StepOut,
     StepOver,
+    Pause,
     Unknown
 };
 
@@ -76,6 +78,7 @@ public:
     virtual void sendInitialize();
 
     void sendLaunch(const Utils::FilePath &executable);
+    void sendAttach();
     void sendConfigurationDone();
 
     void sendDisconnect();

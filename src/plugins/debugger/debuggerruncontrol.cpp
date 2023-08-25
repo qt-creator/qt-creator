@@ -482,10 +482,12 @@ void DebuggerRunTool::start()
     runControl()->setDisplayName(m_runParameters.displayName);
 
     if (!m_engine) {
-        if (runControl()->runMode() == ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE)
+        if (runControl()->runMode() == ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE)
             m_engine = createDapEngine(runControl()->runMode());
         else if (runControl()->runMode() == ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE)
-            m_engine = createDapEngine();
+            m_engine = createDapEngine(runControl()->runMode());
+        else if (runControl()->runMode() == ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE)
+            m_engine = createDapEngine(runControl()->runMode());
         else if (m_runParameters.isCppDebugging()) {
             switch (m_runParameters.cppEngineType) {
             case GdbEngineType:
@@ -918,7 +920,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
                 m_runParameters.interpreter = interpreter;
                 if (auto args = runControl->aspect<ArgumentsAspect>())
                     m_runParameters.inferior.command.addArgs(args->arguments, CommandLine::Raw);
-                m_engine = createPdbEngine();
+                if (runControl->runMode() == ProjectExplorer::Constants::DEBUG_RUN_MODE)
+                    m_engine = createPdbEngine();
             }
         }
     }
@@ -1120,8 +1123,9 @@ DebuggerRunWorkerFactory::DebuggerRunWorkerFactory()
 {
     setProduct<DebuggerRunTool>();
     addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    addSupportedRunMode(ProjectExplorer::Constants::CMAKE_DEBUG_RUN_MODE);
+    addSupportedRunMode(ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE);
     addSupportedRunMode(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
+    addSupportedRunMode(ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedDeviceType("DockerDeviceType");
 }

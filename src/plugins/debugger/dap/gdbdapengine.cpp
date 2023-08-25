@@ -111,8 +111,6 @@ void GdbDapEngine::setupEngine()
 
     connectDataGeneratorSignals();
     m_dapClient->dataProvider()->start();
-
-    notifyEngineSetupOk();
 }
 
 } // namespace Debugger::Internal
