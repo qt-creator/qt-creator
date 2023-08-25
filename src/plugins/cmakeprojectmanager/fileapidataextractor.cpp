@@ -180,10 +180,10 @@ QVector<FolderNode::LocationInfo> extractBacktraceInformation(const BacktraceInf
     return info;
 }
 
-static bool isChildOf(const FilePath &path, const QStringList &prefixes)
+static bool isChildOf(const FilePath &path, const FilePaths &prefixes)
 {
-    for (const QString &prefix : prefixes)
-        if (path.isChildOf(FilePath::fromString(prefix)))
+    for (const FilePath &prefix : prefixes)
+        if (path == prefix || path.isChildOf(prefix))
             return true;
     return false;
 }

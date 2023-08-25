@@ -321,6 +321,8 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_timeoutSpinBox->setValue(sshParams.timeout);
     m_userLineEdit->setText(sshParams.userName());
     m_keyFileLineEdit->setFilePath(sshParams.privateKeyFile);
+    m_keyFileLineEdit->setEnabled(
+        sshParams.authenticationType == SshParameters::AuthenticationTypeSpecificKey);
     m_gdbServerLineEdit->setFilePath(device()->debugServerPath());
     m_qmlRuntimeLineEdit->setFilePath(device()->qmlRunCommand());
 

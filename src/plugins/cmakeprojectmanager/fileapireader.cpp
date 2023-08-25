@@ -60,7 +60,7 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
     // Reset watcher:
     m_watcher.clear();
 
-    FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory, m_watcher);
+    FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory);
 
     resetData();
 }
@@ -378,7 +378,10 @@ void FileApiReader::cmakeFinishedState(int exitCode)
     if (m_lastCMakeExitCode != 0)
         makeBackupConfiguration(false);
 
-    FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory, m_watcher);
+    FileApiParser::setupCMakeFileApi(m_parameters.buildDirectory);
+
+    m_watcher.addDirectory(FileApiParser::cmakeReplyDirectory(m_parameters.buildDirectory).path(),
+                           FileSystemWatcher::WatchAllChanges);
 
     endState(FileApiParser::scanForCMakeReplyFile(m_parameters.buildDirectory),
              m_lastCMakeExitCode != 0);
