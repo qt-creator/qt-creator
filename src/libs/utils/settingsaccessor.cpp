@@ -387,7 +387,7 @@ Store VersionUpgrader::renameKeys(const QList<Change> &changes, Store map) const
     Store::iterator i = map.begin();
     while (i != map.end()) {
         QVariant v = i.value();
-        if (v.type() == QVariant::Map)
+        if (Utils::isStore(v))
             i.value() = variantFromStore(renameKeys(changes, storeFromVariant(v)));
 
         ++i;
@@ -717,7 +717,7 @@ static QVariant mergeQVariantMapsRecursion(const Store &mainTree, const Store &s
 
         QPair<Key, QVariant> kv = mergeResult.value();
 
-        if (kv.second.type() == QVariant::Map) {
+        if (Utils::isStore(kv.second)) {
             const Key newKeyPrefix = keyPrefix + kv.first + '/';
             kv.second = mergeQVariantMapsRecursion(mainTree, secondaryTree, newKeyPrefix,
                                                    storeFromVariant(kv.second),

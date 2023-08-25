@@ -360,22 +360,21 @@ FilePath PersistentSettingsReader::filePath()
 static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
                               const QVariant &variant, const Key &key = {})
 {
-    switch (static_cast<int>(variant.type())) {
-    case static_cast<int>(QVariant::StringList):
-    case static_cast<int>(QVariant::List): {
+    static const int storeId = qMetaTypeId<Store>();
+
+    const int variantType = variant.typeId();
+    if (variantType == QMetaType::QStringList || variantType == QMetaType::QVariantList) {
         w.writeStartElement(ctx.valueListElement);
-        w.writeAttribute(ctx.typeAttribute, QLatin1String(QVariant::typeToName(QVariant::List)));
+        w.writeAttribute(ctx.typeAttribute, "QVariantList");
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
         const QList<QVariant> list = variant.toList();
         for (const QVariant &var : list)
             writeVariantValue(w, ctx, var);
         w.writeEndElement();
-        break;
-    }
-    case static_cast<int>(QVariant::Map): {
+    } else if (variantType == storeId || variantType == QMetaType::QVariantMap) {
         w.writeStartElement(ctx.valueMapElement);
-        w.writeAttribute(ctx.typeAttribute, QLatin1String(QVariant::typeToName(QVariant::Map)));
+        w.writeAttribute(ctx.typeAttribute, "QVariantMap");
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
         const Store varMap = storeFromVariant(variant);
@@ -383,12 +382,11 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
         for (Store::const_iterator i = varMap.constBegin(); i != cend; ++i)
             writeVariantValue(w, ctx, i.value(), i.key());
         w.writeEndElement();
-    }
-    break;
-    case static_cast<int>(QMetaType::QObjectStar): // ignore QObjects!
-    case static_cast<int>(QMetaType::VoidStar): // ignore void pointers!
-        break;
-    default:
+    } else if (variantType == QMetaType::QObjectStar) {
+        // ignore QObjects
+    } else if (variantType == QMetaType::VoidStar) {
+        // ignore void pointers
+    } else {
         w.writeStartElement(ctx.valueElement);
         w.writeAttribute(ctx.typeAttribute, QLatin1String(variant.typeName()));
         if (!key.isEmpty())
@@ -402,7 +400,6 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
             break;
         }
         w.writeEndElement();
-        break;
     }
 }
 

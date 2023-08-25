@@ -4,6 +4,7 @@
 #include "store.h"
 
 #include "algorithm.h"
+#include "qtcassert.h"
 
 namespace Utils {
 
@@ -24,7 +25,14 @@ QVariant variantFromStore(const Store &store)
 
 Store storeFromVariant(const QVariant &value)
 {
-    return value.value<Store>();
+    if (value.typeId() == qMetaTypeId<Store>())
+        return value.value<Store>();
+
+    if (value.typeId() == QMetaType::QVariantMap)
+        return storeFromMap(value.toMap());
+
+    QTC_CHECK(false);
+    return Store();
 }
 
 #ifdef QTC_USE_STORE
@@ -97,6 +105,12 @@ QVariantMap mapFromStore(const Store &store)
 #else
     return store;
 #endif
+}
+
+bool isStore(const QVariant &value)
+{
+    const int typeId = value.typeId();
+    return typeId == QMetaType::QVariantMap || typeId == qMetaTypeId<Store>();
 }
 
 } // Utils
