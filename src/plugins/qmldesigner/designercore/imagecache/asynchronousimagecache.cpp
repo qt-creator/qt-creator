@@ -18,23 +18,6 @@ AsynchronousImageCache::AsynchronousImageCache(ImageCacheStorageInterface &stora
     , m_generator(generator)
     , m_timeStampProvider(timeStampProvider)
 {
-    m_backgroundThread = std::thread{[this] {
-        while (isRunning()) {
-            if (auto entry = getEntry(); entry) {
-                request(entry->name,
-                        entry->extraId,
-                        entry->requestType,
-                        std::move(entry->captureCallback),
-                        std::move(entry->abortCallback),
-                        std::move(entry->auxiliaryData),
-                        m_storage,
-                        m_generator,
-                        m_timeStampProvider);
-            }
-
-            waitForEntries();
-        }
-    }};
 }
 
 AsynchronousImageCache::~AsynchronousImageCache()
@@ -169,10 +152,10 @@ void AsynchronousImageCache::clean()
     m_generator.clean();
 }
 
-std::optional<AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry()
+std::optional<AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry(
+    std::unique_lock<std::mutex> lock)
 {
-    std::unique_lock lock{m_mutex};
-
+    auto l = std::move(lock);
     if (m_entries.empty())
         return {};
 
@@ -191,6 +174,8 @@ void AsynchronousImageCache::addEntry(Utils::PathString &&name,
 {
     std::unique_lock lock{m_mutex};
 
+    ensureThreadIsRunning();
+
     m_entries.emplace_back(std::move(name),
                            std::move(extraId),
                            std::move(captureCallback),
@@ -207,11 +192,23 @@ void AsynchronousImageCache::clearEntries()
     m_entries.clear();
 }
 
-void AsynchronousImageCache::waitForEntries()
+std::tuple<std::unique_lock<std::mutex>, bool> AsynchronousImageCache::waitForEntries()
 {
+    using namespace std::literals::chrono_literals;
     std::unique_lock lock{m_mutex};
-    if (m_entries.empty())
-        m_condition.wait(lock, [&] { return m_entries.size() || m_finishing; });
+    if (m_finishing)
+        return {std::move(lock), true};
+    if (m_entries.empty()) {
+        auto timedOutWithoutEntriesOrFinishing = !m_condition.wait_for(lock, 10min, [&] {
+            return m_entries.size() || m_finishing;
+        });
+
+        if (timedOutWithoutEntriesOrFinishing || m_finishing) {
+            m_sleeping = true;
+            return {std::move(lock), true};
+        }
+    }
+    return {std::move(lock), false};
 }
 
 void AsynchronousImageCache::stopThread()
@@ -220,10 +217,37 @@ void AsynchronousImageCache::stopThread()
     m_finishing = true;
 }
 
-bool AsynchronousImageCache::isRunning()
+void AsynchronousImageCache::ensureThreadIsRunning()
 {
-    std::unique_lock lock{m_mutex};
-    return !m_finishing || m_entries.size();
+    if (m_finishing)
+        return;
+
+    if (!m_sleeping)
+        return;
+
+    if (m_backgroundThread.joinable())
+        m_backgroundThread.join();
+
+    m_sleeping = false;
+
+    m_backgroundThread = std::thread{[this] {
+        while (true) {
+            auto [lock, abort] = waitForEntries();
+            if (abort)
+                return;
+            if (auto entry = getEntry(std::move(lock)); entry) {
+                request(entry->name,
+                        entry->extraId,
+                        entry->requestType,
+                        std::move(entry->captureCallback),
+                        std::move(entry->abortCallback),
+                        std::move(entry->auxiliaryData),
+                        m_storage,
+                        m_generator,
+                        m_timeStampProvider);
+            }
+        }
+    }};
 }
 
 } // namespace QmlDesigner

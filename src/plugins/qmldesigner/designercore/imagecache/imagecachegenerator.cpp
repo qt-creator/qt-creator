@@ -14,15 +14,28 @@ ImageCacheGenerator::ImageCacheGenerator(ImageCacheCollectorInterface &collector
                                          ImageCacheStorageInterface &storage)
     : m_collector{collector}
     , m_storage(storage)
-{
-    m_backgroundThread.reset(QThread::create([this]() { startGeneration(); }));
-    m_backgroundThread->start();
-}
+{}
 
 ImageCacheGenerator::~ImageCacheGenerator()
 {
     clean();
     waitForFinished();
+}
+
+void ImageCacheGenerator::ensureThreadIsRunning()
+{
+    if (m_finishing)
+        return;
+
+    if (m_sleeping) {
+        if (m_backgroundThread)
+            m_backgroundThread->wait();
+
+        m_sleeping = false;
+
+        m_backgroundThread.reset(QThread::create([this]() { startGeneration(); }));
+        m_backgroundThread->start();
+    }
 }
 
 void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
@@ -34,6 +47,8 @@ void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
 {
     {
         std::lock_guard lock{m_mutex};
+
+        ensureThreadIsRunning();
 
         auto found = std::find_if(m_tasks.begin(), m_tasks.end(), [&](const Task &task) {
             return task.filePath == name && task.extraId == extraId;
@@ -91,18 +106,14 @@ void ImageCacheGenerator::waitForFinished()
 
 void ImageCacheGenerator::startGeneration()
 {
-    while (isRunning()) {
-        waitForEntries();
-
+    while (true) {
         Task task;
 
         {
-            std::lock_guard lock{m_mutex};
+            auto [lock, abort] = waitForEntries();
 
-            if (m_finishing && m_tasks.empty()) {
-                m_storage.walCheckpointFull();
+            if (abort)
                 return;
-            }
 
             task = std::move(m_tasks.front());
 
@@ -141,23 +152,29 @@ void ImageCacheGenerator::startGeneration()
     }
 }
 
-void ImageCacheGenerator::waitForEntries()
+std::tuple<std::unique_lock<std::mutex>, bool> ImageCacheGenerator::waitForEntries()
 {
+    using namespace std::literals::chrono_literals;
     std::unique_lock lock{m_mutex};
-    if (m_tasks.empty())
-        m_condition.wait(lock, [&] { return m_tasks.size() || m_finishing; });
+    if (m_finishing)
+        return {std::move(lock), true};
+    if (m_tasks.empty()) {
+        auto timedOutWithoutEntriesOrFinishing = !m_condition.wait_for(lock, 10min, [&] {
+            return m_tasks.size() || m_finishing;
+        });
+
+        if (timedOutWithoutEntriesOrFinishing || m_finishing) {
+            m_sleeping = true;
+            return {std::move(lock), true};
+        }
+    }
+    return {std::move(lock), false};
 }
 
 void ImageCacheGenerator::stopThread()
 {
     std::unique_lock lock{m_mutex};
     m_finishing = true;
-}
-
-bool ImageCacheGenerator::isRunning()
-{
-    std::unique_lock lock{m_mutex};
-    return !m_finishing || m_tasks.size();
 }
 
 } // namespace QmlDesigner

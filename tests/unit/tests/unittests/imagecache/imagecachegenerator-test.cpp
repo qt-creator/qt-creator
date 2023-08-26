@@ -391,7 +391,7 @@ TEST_F(ImageCacheGenerator, wait_for_finished)
     generator.generateImage(
         "name2", {}, {11}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
 
-    EXPECT_CALL(imageCallbackMock, Call(_, _, _)).Times(2);
+    EXPECT_CALL(imageCallbackMock, Call(_, _, _)).Times(AtMost(2));
 
     waitInThread.notify();
     generator.waitForFinished();

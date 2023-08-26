@@ -12,20 +12,7 @@ namespace QmlDesigner {
 AsynchronousExplicitImageCache::AsynchronousExplicitImageCache(ImageCacheStorageInterface &storage)
     : m_storage(storage)
 {
-    m_backgroundThread = std::thread{[this] {
-        while (isRunning()) {
-            if (auto entry = getEntry(); entry) {
-                request(entry->name,
-                        entry->extraId,
-                        entry->requestType,
-                        std::move(entry->captureCallback),
-                        std::move(entry->abortCallback),
-                        m_storage);
-            }
 
-            waitForEntries();
-        }
-    }};
 }
 
 AsynchronousExplicitImageCache::~AsynchronousExplicitImageCache()
@@ -110,9 +97,10 @@ void AsynchronousExplicitImageCache::clean()
     clearEntries();
 }
 
-std::optional<AsynchronousExplicitImageCache::RequestEntry> AsynchronousExplicitImageCache::getEntry()
+std::optional<AsynchronousExplicitImageCache::RequestEntry> AsynchronousExplicitImageCache::getEntry(
+    std::unique_lock<std::mutex> lock)
 {
-    std::unique_lock lock{m_mutex};
+    auto l = std::move(lock);
 
     if (m_requestEntries.empty())
         return {};
@@ -131,6 +119,8 @@ void AsynchronousExplicitImageCache::addEntry(Utils::PathString &&name,
 {
     std::unique_lock lock{m_mutex};
 
+    ensureThreadIsRunning();
+
     m_requestEntries.emplace_back(std::move(name),
                                   std::move(extraId),
                                   std::move(captureCallback),
@@ -146,11 +136,23 @@ void AsynchronousExplicitImageCache::clearEntries()
     m_requestEntries.clear();
 }
 
-void AsynchronousExplicitImageCache::waitForEntries()
+std::tuple<std::unique_lock<std::mutex>, bool> AsynchronousExplicitImageCache::waitForEntries()
 {
+    using namespace std::literals::chrono_literals;
     std::unique_lock lock{m_mutex};
-    if (m_requestEntries.empty())
-        m_condition.wait(lock, [&] { return m_requestEntries.size() || m_finishing; });
+    if (m_finishing)
+        return {std::move(lock), true};
+    if (m_requestEntries.empty()) {
+        auto timedOutWithoutEntriesOrFinishing = !m_condition.wait_for(lock, 10min, [&] {
+            return m_requestEntries.size() || m_finishing;
+        });
+
+        if (timedOutWithoutEntriesOrFinishing || m_finishing) {
+            m_sleeping = true;
+            return {std::move(lock), true};
+        }
+    }
+    return {std::move(lock), false};
 }
 
 void AsynchronousExplicitImageCache::stopThread()
@@ -159,10 +161,35 @@ void AsynchronousExplicitImageCache::stopThread()
     m_finishing = true;
 }
 
-bool AsynchronousExplicitImageCache::isRunning()
+void AsynchronousExplicitImageCache::ensureThreadIsRunning()
 {
-    std::unique_lock lock{m_mutex};
-    return !m_finishing || m_requestEntries.size();
+    if (m_finishing)
+        return;
+
+    if (!m_sleeping)
+        return;
+
+    if (m_backgroundThread.joinable())
+        m_backgroundThread.join();
+
+    m_sleeping = false;
+
+    m_backgroundThread = std::thread{[this] {
+        while (true) {
+            auto [lock, abort] = waitForEntries();
+            if (abort)
+                return;
+
+            if (auto entry = getEntry(std::move(lock)); entry) {
+                request(entry->name,
+                        entry->extraId,
+                        entry->requestType,
+                        std::move(entry->captureCallback),
+                        std::move(entry->abortCallback),
+                        m_storage);
+            }
+        }
+    }};
 }
 
 } // namespace QmlDesigner

@@ -73,7 +73,7 @@ private:
         RequestType requestType = RequestType::Image;
     };
 
-    std::optional<Entry> getEntry();
+    [[nodiscard]] std::optional<Entry> getEntry(std::unique_lock<std::mutex> lock);
     void addEntry(Utils::PathString &&name,
                   Utils::SmallString &&extraId,
                   ImageCache::CaptureImageCallback &&captureCallback,
@@ -81,9 +81,9 @@ private:
                   ImageCache::AuxiliaryData &&auxiliaryData,
                   RequestType requestType);
     void clearEntries();
-    void waitForEntries();
+    [[nodiscard]] std::tuple<std::unique_lock<std::mutex>, bool> waitForEntries();
     void stopThread();
-    bool isRunning();
+    void ensureThreadIsRunning();
     static void request(Utils::SmallStringView name,
                         Utils::SmallStringView extraId,
                         AsynchronousImageCache::RequestType requestType,
@@ -106,6 +106,7 @@ private:
     ImageCacheGeneratorInterface &m_generator;
     TimeStampProviderInterface &m_timeStampProvider;
     bool m_finishing{false};
+    bool m_sleeping{true};
 };
 
 } // namespace QmlDesigner

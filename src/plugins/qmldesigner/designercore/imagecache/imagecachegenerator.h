@@ -67,10 +67,9 @@ private:
     };
 
     void startGeneration();
-
-    void waitForEntries();
+    void ensureThreadIsRunning();
+    [[nodiscard]] std::tuple<std::unique_lock<std::mutex>, bool> waitForEntries();
     void stopThread();
-    bool isRunning();
 
 private:
 private:
@@ -81,6 +80,7 @@ private:
     ImageCacheCollectorInterface &m_collector;
     ImageCacheStorageInterface &m_storage;
     bool m_finishing{false};
+    bool m_sleeping{true};
 };
 
 } // namespace QmlDesigner

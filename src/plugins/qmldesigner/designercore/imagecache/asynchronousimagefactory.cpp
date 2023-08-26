@@ -17,20 +17,7 @@ AsynchronousImageFactory::AsynchronousImageFactory(ImageCacheStorageInterface &s
     , m_timeStampProvider(timeStampProvider)
     , m_collector(collector)
 {
-    m_backgroundThread = std::thread{[this] {
-        while (isRunning()) {
-            if (auto entry = getEntry(); entry) {
-                request(entry->name,
-                        entry->extraId,
-                        std::move(entry->auxiliaryData),
-                        m_storage,
-                        m_timeStampProvider,
-                        m_collector);
-            }
 
-            waitForEntries();
-        }
-    }};
 }
 
 AsynchronousImageFactory::~AsynchronousImageFactory()
@@ -53,25 +40,64 @@ void AsynchronousImageFactory::addEntry(Utils::SmallStringView name,
 {
     std::unique_lock lock{m_mutex};
 
+    ensureThreadIsRunning();
+
     m_entries.emplace_back(std::move(name), std::move(extraId), std::move(auxiliaryData));
 }
 
-bool AsynchronousImageFactory::isRunning()
+void AsynchronousImageFactory::ensureThreadIsRunning()
 {
-    std::unique_lock lock{m_mutex};
-    return !m_finishing || m_entries.size();
+    if (m_finishing)
+        return;
+
+    if (!m_sleeping)
+        return;
+
+    if (m_backgroundThread.joinable())
+        m_backgroundThread.join();
+
+    m_sleeping = false;
+
+    m_backgroundThread = std::thread{[this] {
+        while (true) {
+            auto [lock, abort] = waitForEntries();
+            if (abort)
+                return;
+            if (auto entry = getEntry(std::move(lock)); entry) {
+                request(entry->name,
+                        entry->extraId,
+                        std::move(entry->auxiliaryData),
+                        m_storage,
+                        m_timeStampProvider,
+                        m_collector);
+            }
+        }
+    }};
 }
 
-void AsynchronousImageFactory::waitForEntries()
+std::tuple<std::unique_lock<std::mutex>, bool> AsynchronousImageFactory::waitForEntries()
 {
+    using namespace std::literals::chrono_literals;
     std::unique_lock lock{m_mutex};
-    if (m_entries.empty())
-        m_condition.wait(lock, [&] { return m_entries.size() || m_finishing; });
+    if (m_finishing)
+        return {std::move(lock), true};
+    if (m_entries.empty()) {
+        auto timedOutWithoutEntriesOrFinishing = !m_condition.wait_for(lock, 10min, [&] {
+            return m_entries.size() || m_finishing;
+        });
+
+        if (timedOutWithoutEntriesOrFinishing || m_finishing) {
+            m_sleeping = true;
+            return {std::move(lock), true};
+        }
+    }
+    return {std::move(lock), false};
 }
 
-std::optional<AsynchronousImageFactory::Entry> AsynchronousImageFactory::getEntry()
+std::optional<AsynchronousImageFactory::Entry> AsynchronousImageFactory::getEntry(
+    std::unique_lock<std::mutex> lock)
 {
-    std::unique_lock lock{m_mutex};
+    auto l = std::move(lock);
 
     if (m_entries.empty())
         return {};

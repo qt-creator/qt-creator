@@ -53,9 +53,9 @@ private:
     void addEntry(Utils::SmallStringView name,
                   Utils::SmallStringView extraId,
                   ImageCache::AuxiliaryData &&auxiliaryData);
-    bool isRunning();
-    void waitForEntries();
-    std::optional<Entry> getEntry();
+    void ensureThreadIsRunning();
+    [[nodiscard]] std::tuple<std::unique_lock<std::mutex>, bool> waitForEntries();
+    [[nodiscard]] std::optional<Entry> getEntry(std::unique_lock<std::mutex> lock);
     void request(Utils::SmallStringView name,
                  Utils::SmallStringView extraId,
                  ImageCache::AuxiliaryData auxiliaryData,
@@ -75,6 +75,7 @@ private:
     TimeStampProviderInterface &m_timeStampProvider;
     ImageCacheCollectorInterface &m_collector;
     bool m_finishing{false};
+    bool m_sleeping{true};
 };
 
 } // namespace QmlDesigner
