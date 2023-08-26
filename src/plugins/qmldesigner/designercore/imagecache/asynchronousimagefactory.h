@@ -5,6 +5,8 @@
 
 #include "imagecacheauxiliarydata.h"
 
+#include <imagecache/taskqueue.h>
+
 #include <utils/smallstring.h>
 
 #include <condition_variable>
@@ -50,32 +52,41 @@ private:
         ImageCache::AuxiliaryData auxiliaryData;
     };
 
-    void addEntry(Utils::SmallStringView name,
-                  Utils::SmallStringView extraId,
-                  ImageCache::AuxiliaryData &&auxiliaryData);
-    void ensureThreadIsRunning();
-    [[nodiscard]] std::tuple<std::unique_lock<std::mutex>, bool> waitForEntries();
-    [[nodiscard]] std::optional<Entry> getEntry(std::unique_lock<std::mutex> lock);
-    void request(Utils::SmallStringView name,
-                 Utils::SmallStringView extraId,
-                 ImageCache::AuxiliaryData auxiliaryData,
-                 ImageCacheStorageInterface &storage,
-                 TimeStampProviderInterface &timeStampProvider,
-                 ImageCacheCollectorInterface &collector);
-    void wait();
-    void clearEntries();
-    void stopThread();
+    static void request(Utils::SmallStringView name,
+                        Utils::SmallStringView extraId,
+                        ImageCache::AuxiliaryData auxiliaryData,
+                        ImageCacheStorageInterface &storage,
+                        TimeStampProviderInterface &timeStampProvider,
+                        ImageCacheCollectorInterface &collector);
+
+    struct Dispatch
+    {
+        void operator()(Entry &entry)
+        {
+            request(entry.name,
+                    entry.extraId,
+                    std::move(entry.auxiliaryData),
+                    storage,
+                    timeStampProvider,
+                    collector);
+        }
+
+        ImageCacheStorageInterface &storage;
+        TimeStampProviderInterface &timeStampProvider;
+        ImageCacheCollectorInterface &collector;
+    };
+
+    struct Clean
+    {
+        void operator()(Entry &) {}
+    };
 
 private:
-    std::deque<Entry> m_entries;
-    std::mutex m_mutex;
-    std::condition_variable m_condition;
-    std::thread m_backgroundThread;
     ImageCacheStorageInterface &m_storage;
     TimeStampProviderInterface &m_timeStampProvider;
     ImageCacheCollectorInterface &m_collector;
-    bool m_finishing{false};
-    bool m_sleeping{true};
+    TaskQueue<Entry, Dispatch, Clean> m_taskQueue{Dispatch{m_storage, m_timeStampProvider, m_collector},
+                                                  Clean{}};
 };
 
 } // namespace QmlDesigner

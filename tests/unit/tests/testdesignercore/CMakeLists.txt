@@ -52,6 +52,7 @@ add_qtc_library(TestDesignerCore OBJECT
     imagecache/imagecachedispatchcollector.h
     imagecache/imagecachestorageinterface.h
     imagecache/synchronousimagecache.cpp
+    imagecache/taskqueue.h
     imagecache/timestampproviderinterface.h
     include/abstractproperty.h
     include/asynchronousexplicitimagecache.h

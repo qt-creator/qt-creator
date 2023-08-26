@@ -176,6 +176,7 @@ extend_qtc_library(QmlDesignerCore
     meshimagecachecollector.cpp
     meshimagecachecollector.h
     synchronousimagecache.cpp
+    taskqueue.h
     textureimagecachecollector.cpp
     textureimagecachecollector.h
     timestampprovider.cpp

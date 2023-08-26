@@ -20,93 +20,14 @@ AsynchronousImageFactory::AsynchronousImageFactory(ImageCacheStorageInterface &s
 
 }
 
-AsynchronousImageFactory::~AsynchronousImageFactory()
-{
-    clean();
-    wait();
-}
-
 void AsynchronousImageFactory::generate(Utils::SmallStringView name,
                                         Utils::SmallStringView extraId,
                                         ImageCache::AuxiliaryData auxiliaryData)
 {
-    addEntry(name, extraId, std::move(auxiliaryData));
-    m_condition.notify_all();
+    m_taskQueue.addTask(name, extraId, std::move(auxiliaryData));
 }
 
-void AsynchronousImageFactory::addEntry(Utils::SmallStringView name,
-                                        Utils::SmallStringView extraId,
-                                        ImageCache::AuxiliaryData &&auxiliaryData)
-{
-    std::unique_lock lock{m_mutex};
-
-    ensureThreadIsRunning();
-
-    m_entries.emplace_back(std::move(name), std::move(extraId), std::move(auxiliaryData));
-}
-
-void AsynchronousImageFactory::ensureThreadIsRunning()
-{
-    if (m_finishing)
-        return;
-
-    if (!m_sleeping)
-        return;
-
-    if (m_backgroundThread.joinable())
-        m_backgroundThread.join();
-
-    m_sleeping = false;
-
-    m_backgroundThread = std::thread{[this] {
-        while (true) {
-            auto [lock, abort] = waitForEntries();
-            if (abort)
-                return;
-            if (auto entry = getEntry(std::move(lock)); entry) {
-                request(entry->name,
-                        entry->extraId,
-                        std::move(entry->auxiliaryData),
-                        m_storage,
-                        m_timeStampProvider,
-                        m_collector);
-            }
-        }
-    }};
-}
-
-std::tuple<std::unique_lock<std::mutex>, bool> AsynchronousImageFactory::waitForEntries()
-{
-    using namespace std::literals::chrono_literals;
-    std::unique_lock lock{m_mutex};
-    if (m_finishing)
-        return {std::move(lock), true};
-    if (m_entries.empty()) {
-        auto timedOutWithoutEntriesOrFinishing = !m_condition.wait_for(lock, 10min, [&] {
-            return m_entries.size() || m_finishing;
-        });
-
-        if (timedOutWithoutEntriesOrFinishing || m_finishing) {
-            m_sleeping = true;
-            return {std::move(lock), true};
-        }
-    }
-    return {std::move(lock), false};
-}
-
-std::optional<AsynchronousImageFactory::Entry> AsynchronousImageFactory::getEntry(
-    std::unique_lock<std::mutex> lock)
-{
-    auto l = std::move(lock);
-
-    if (m_entries.empty())
-        return {};
-
-    Entry entry = m_entries.front();
-    m_entries.pop_front();
-
-    return {entry};
-}
+AsynchronousImageFactory::~AsynchronousImageFactory() {}
 
 void AsynchronousImageFactory::request(Utils::SmallStringView name,
                                        Utils::SmallStringView extraId,
@@ -125,8 +46,8 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
     if (currentModifiedTime < (storageModifiedTime + pause))
         return;
 
-    auto capture = [=](const QImage &image, const QImage &midSizeImage, const QImage &smallImage) {
-        m_storage.storeImage(id, currentModifiedTime, image, midSizeImage, smallImage);
+    auto capture = [&](const QImage &image, const QImage &midSizeImage, const QImage &smallImage) {
+        storage.storeImage(id, currentModifiedTime, image, midSizeImage, smallImage);
     };
 
     collector.start(name,
@@ -138,27 +59,6 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
 
 void AsynchronousImageFactory::clean()
 {
-    clearEntries();
+    m_taskQueue.clean();
 }
-
-void AsynchronousImageFactory::wait()
-{
-    stopThread();
-    m_condition.notify_all();
-    if (m_backgroundThread.joinable())
-        m_backgroundThread.join();
-}
-
-void AsynchronousImageFactory::clearEntries()
-{
-    std::unique_lock lock{m_mutex};
-    m_entries.clear();
-}
-
-void AsynchronousImageFactory::stopThread()
-{
-    std::unique_lock lock{m_mutex};
-    m_finishing = true;
-}
-
 } // namespace QmlDesigner

@@ -8,4 +8,5 @@ extend_qtc_test(unittest
     imagecachegenerator-test.cpp
     imagecachestorage-test.cpp
     synchronousimagecache-test.cpp
+    taskqueue-test.cpp
 )
