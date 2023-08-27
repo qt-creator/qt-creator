@@ -325,11 +325,6 @@ QString BaseStatement::columnName(int column) const
     return QString::fromUtf8(sqlite3_column_name(m_compiledStatement.get(), column));
 }
 
-Database &BaseStatement::database() const
-{
-    return m_database;
-}
-
 namespace {
 template<typename StringType>
 StringType textForColumn(sqlite3_stmt *sqlStatment, int column)

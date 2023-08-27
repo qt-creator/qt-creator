@@ -123,7 +123,7 @@ public:
 
     QString columnName(int column) const;
 
-    Database &database() const;
+    Database &database() const { return m_database; }
 
 protected:
     ~BaseStatement() = default;
