@@ -444,7 +444,7 @@ private:
             : statement{std::exchange(other.statement, nullptr)}
         {}
 
-        void reset()
+        void reset() noexcept
         {
             if (statement)
                 statement->reset();
