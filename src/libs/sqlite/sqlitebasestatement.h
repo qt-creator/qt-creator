@@ -431,8 +431,10 @@ private:
         Resetter(StatementImplementation *statement)
             : statement(statement)
         {
+#ifndef QT_NO_DEBUG
             if (statement && !statement->database().isLocked())
                 throw DatabaseIsNotLocked{};
+#endif
         }
 
         Resetter(Resetter &) = delete;
