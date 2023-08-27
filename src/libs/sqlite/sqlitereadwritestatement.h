@@ -32,7 +32,7 @@ public:
     using Base::write;
 
     template<typename ResultType, typename... QueryTypes>
-    auto valueWithTransaction(const QueryTypes &...queryValues)
+    FLATTEN auto valueWithTransaction(const QueryTypes &...queryValues)
     {
         return withImmediateTransaction(Base::database(), [&] {
             return Base::template value<ResultType>(queryValues...);
@@ -40,17 +40,15 @@ public:
     }
 
     template<typename ResultType, typename... QueryTypes>
-    auto optionalValueWithTransaction(const QueryTypes &...queryValues)
+    FLATTEN auto optionalValueWithTransaction(const QueryTypes &...queryValues)
     {
         return withImmediateTransaction(Base::database(), [&] {
             return Base::template optionalValue<ResultType>(queryValues...);
         });
     }
 
-    template<typename ResultType,
-             std::size_t capacity = 32,
-             typename... QueryTypes>
-    auto valuesWithTransaction(const QueryTypes &...queryValues)
+    template<typename ResultType, std::size_t capacity = 32, typename... QueryTypes>
+    FLATTEN auto valuesWithTransaction(const QueryTypes &...queryValues)
     {
         return withImmediateTransaction(Base::database(), [&] {
             return Base::template values<ResultType, capacity>(queryValues...);
@@ -58,7 +56,7 @@ public:
     }
 
     template<typename Callable, typename... QueryTypes>
-    void readCallbackWithTransaction(Callable &&callable, const QueryTypes &...queryValues)
+    FLATTEN void readCallbackWithTransaction(Callable &&callable, const QueryTypes &...queryValues)
     {
         withImmediateTransaction(Base::database(), [&] {
             Base::readCallback(std::forward<Callable>(callable), queryValues...);
@@ -66,14 +64,14 @@ public:
     }
 
     template<typename Container, typename... QueryTypes>
-    void readToWithTransaction(Container &container, const QueryTypes &...queryValues)
+    FLATTEN void readToWithTransaction(Container &container, const QueryTypes &...queryValues)
     {
         withImmediateTransaction(Base::database(), [&] {
             Base::readTo(container, queryValues...);
         });
     }
 
-    void executeWithTransaction()
+    FLATTEN void executeWithTransaction()
     {
         withImmediateTransaction(Base::database(), [&] {
             Base::execute();
