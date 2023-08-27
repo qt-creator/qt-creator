@@ -47,7 +47,7 @@ protected:
 
     std::vector<Utils::SmallString> names() const
     {
-        return Sqlite::ReadStatement<1>("SELECT name FROM test", database).values<Utils::SmallString>(8);
+        return Sqlite::ReadStatement<1>("SELECT name FROM test", database).values<Utils::SmallString>();
     }
 
     static void updateHookCallback(

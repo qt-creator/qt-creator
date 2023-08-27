@@ -234,11 +234,15 @@ private:
 
 MATCHER(IsSorted, std::string(negation ? "isn't sorted" : "is sorted"))
 {
+    using std::begin;
+    using std::end;
     return std::is_sorted(begin(arg), end(arg));
 }
 
 MATCHER(StringsAreSorted, std::string(negation ? "isn't sorted" : "is sorted"))
 {
+    using std::begin;
+    using std::end;
     return std::is_sorted(begin(arg), end(arg), [](const auto &first, const auto &second) {
         return Sqlite::compare(first, second) < 0;
     });

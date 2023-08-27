@@ -10,6 +10,8 @@
 
 #include <utils/smallstringview.h>
 
+#include <QVarLengthArray>
+
 namespace QmlDesigner {
 
 class ProjectStorageInterface
@@ -42,8 +44,8 @@ public:
         = 0;
     virtual ImportedTypeNameId importedTypeNameId(SourceId sourceId, Utils::SmallStringView typeName)
         = 0;
-    virtual PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const = 0;
-    virtual PropertyDeclarationIds localPropertyDeclarationIds(TypeId typeId) const = 0;
+    virtual QVarLengthArray<PropertyDeclarationId, 128> propertyDeclarationIds(TypeId typeId) const = 0;
+    virtual QVarLengthArray<PropertyDeclarationId, 128> localPropertyDeclarationIds(TypeId typeId) const = 0;
     virtual PropertyDeclarationId propertyDeclarationId(TypeId typeId,
                                                         ::Utils::SmallStringView propertyName) const
         = 0;

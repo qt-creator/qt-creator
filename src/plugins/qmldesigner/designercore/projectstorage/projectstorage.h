@@ -160,14 +160,14 @@ public:
     Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId) const override
     {
         return selectExportedTypesByTypeIdStatement
-            .template valuesWithTransaction<Storage::Info::ExportedTypeName>(4, typeId);
+            .template valuesWithTransaction<Storage::Info::ExportedTypeName, 4>(typeId);
     }
 
     Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId,
                                                        SourceId sourceId) const override
     {
         return selectExportedTypesByTypeIdAndSourceIdStatement
-            .template valuesWithTransaction<Storage::Info::ExportedTypeName>(4, typeId, sourceId);
+            .template valuesWithTransaction<Storage::Info::ExportedTypeName, 4>(typeId, sourceId);
     }
 
     ImportId importId(const Storage::Import &import) const override
@@ -197,16 +197,16 @@ public:
         });
     }
 
-    PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const override
+    QVarLengthArray<PropertyDeclarationId, 128> propertyDeclarationIds(TypeId typeId) const override
     {
         return selectPropertyDeclarationIdsForTypeStatement
-            .template valuesWithTransaction<PropertyDeclarationId>(32, typeId);
+            .template valuesWithTransaction<QVarLengthArray<PropertyDeclarationId, 128>>(typeId);
     }
 
-    PropertyDeclarationIds localPropertyDeclarationIds(TypeId typeId) const override
+    QVarLengthArray<PropertyDeclarationId, 128> localPropertyDeclarationIds(TypeId typeId) const override
     {
         return selectLocalPropertyDeclarationIdsForTypeStatement
-            .template valuesWithTransaction<PropertyDeclarationId>(16, typeId);
+            .template valuesWithTransaction<QVarLengthArray<PropertyDeclarationId, 128>>(typeId);
     }
 
     PropertyDeclarationId propertyDeclarationId(TypeId typeId,
@@ -240,13 +240,13 @@ public:
     std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const override
     {
         return selectSignalDeclarationNamesForTypeStatement
-            .template valuesWithTransaction<Utils::SmallString>(32, typeId);
+            .template valuesWithTransaction<Utils::SmallString, 32>(typeId);
     }
 
     std::vector<Utils::SmallString> functionDeclarationNames(TypeId typeId) const override
     {
         return selectFuncionDeclarationNamesForTypeStatement
-            .template valuesWithTransaction<Utils::SmallString>(32, typeId);
+            .template valuesWithTransaction<Utils::SmallString, 32>(typeId);
     }
 
     std::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const override
@@ -280,14 +280,14 @@ public:
 
     TypeIds prototypeIds(TypeId type) const override
     {
-        return selectPrototypeIdsForTypeIdInOrderStatement.template valuesWithTransaction<TypeId>(16,
-                                                                                                  type);
+        return selectPrototypeIdsForTypeIdInOrderStatement.template valuesWithTransaction<TypeId, 16>(
+            type);
     }
 
     TypeIds prototypeAndSelfIds(TypeId type) const override
     {
         return selectPrototypeAndSelfIdsForTypeIdInOrderStatement
-            .template valuesWithTransaction<TypeId>(16, type);
+            .template valuesWithTransaction<TypeId, 16>(type);
     }
 
     template<typename... TypeIds>
@@ -383,7 +383,7 @@ public:
     Storage::Synchronization::Types fetchTypes()
     {
         return Sqlite::withDeferredTransaction(database, [&] {
-            auto types = selectTypesStatement.template values<Storage::Synchronization::Type>(64);
+            auto types = selectTypesStatement.template values<Storage::Synchronization::Type, 64>();
 
             for (Storage::Synchronization::Type &type : types) {
                 type.exportedTypes = fetchExportedTypes(type.typeId);
@@ -441,8 +441,8 @@ public:
 
     auto fetchAllSourceContexts() const
     {
-        return selectAllSourceContextsStatement.template valuesWithTransaction<Cache::SourceContext>(
-            128);
+        return selectAllSourceContextsStatement
+            .template valuesWithTransaction<Cache::SourceContext, 128>();
     }
 
     SourceId fetchSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
@@ -484,7 +484,7 @@ public:
 
     auto fetchAllSources() const
     {
-        return selectAllSourcesStatement.template valuesWithTransaction<Cache::Source>(1024);
+        return selectAllSourcesStatement.template valuesWithTransaction<Cache::Source, 1024>();
     }
 
     SourceId fetchSourceIdUnguarded(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
@@ -517,14 +517,15 @@ public:
     Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override
     {
         return selectProjectDatasForSourceIdStatement
-            .template valuesWithTransaction<Storage::Synchronization::ProjectData>(64,
-                                                                                   projectSourceId);
+            .template valuesWithTransaction<Storage::Synchronization::ProjectData, 1024>(
+                projectSourceId);
     }
 
     Storage::Synchronization::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
     {
-        return selectProjectDatasForSourceIdsStatement.template valuesWithTransaction<
-            Storage::Synchronization::ProjectData>(64, toIntegers(projectSourceIds));
+        return selectProjectDatasForSourceIdsStatement
+            .template valuesWithTransaction<Storage::Synchronization::ProjectData, 64>(
+                toIntegers(projectSourceIds));
     }
 
     void setPropertyEditorPathId(TypeId typeId, SourceId pathId)
@@ -595,7 +596,7 @@ private:
 
     auto fetchAllModules() const
     {
-        return selectAllModulesStatement.template valuesWithTransaction<Module>(128);
+        return selectAllModulesStatement.template valuesWithTransaction<Module, 128>();
     }
 
     class AliasPropertyDeclaration
@@ -728,7 +729,7 @@ private:
 
     TypeIds fetchTypeIds(const SourceIds &sourceIds)
     {
-        return selectTypeIdsForSourceIdsStatement.template values<TypeId>(128, toIntegers(sourceIds));
+        return selectTypeIdsForSourceIdsStatement.template values<TypeId, 128>(toIntegers(sourceIds));
     }
 
     void unique(SourceIds &sourceIds)
@@ -2324,13 +2325,13 @@ private:
     auto fetchExportedTypes(TypeId typeId)
     {
         return selectExportedTypesByTypeIdStatement
-            .template values<Storage::Synchronization::ExportedType>(12, typeId);
+            .template values<Storage::Synchronization::ExportedType, 12>(typeId);
     }
 
     auto fetchPropertyDeclarations(TypeId typeId)
     {
         return selectPropertyDeclarationsByTypeIdStatement
-            .template values<Storage::Synchronization::PropertyDeclaration>(24, typeId);
+            .template values<Storage::Synchronization::PropertyDeclaration, 24>(typeId);
     }
 
     auto fetchFunctionDeclarations(TypeId typeId)
@@ -2341,8 +2342,9 @@ private:
                             Utils::SmallStringView returnType,
                             FunctionDeclarationId functionDeclarationId) {
             auto &functionDeclaration = functionDeclarations.emplace_back(name, returnType);
-            functionDeclaration.parameters = selectFunctionParameterDeclarationsStatement.template values<
-                Storage::Synchronization::ParameterDeclaration>(8, functionDeclarationId);
+            functionDeclaration.parameters = selectFunctionParameterDeclarationsStatement
+                                                 .template values<Storage::Synchronization::ParameterDeclaration,
+                                                                  8>(functionDeclarationId);
         };
 
         selectFunctionDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
@@ -2356,8 +2358,9 @@ private:
 
         auto callback = [&](Utils::SmallStringView name, SignalDeclarationId signalDeclarationId) {
             auto &signalDeclaration = signalDeclarations.emplace_back(name);
-            signalDeclaration.parameters = selectSignalParameterDeclarationsStatement.template values<
-                Storage::Synchronization::ParameterDeclaration>(8, signalDeclarationId);
+            signalDeclaration.parameters = selectSignalParameterDeclarationsStatement
+                                               .template values<Storage::Synchronization::ParameterDeclaration,
+                                                                8>(signalDeclarationId);
         };
 
         selectSignalDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
@@ -2373,8 +2376,9 @@ private:
                             EnumerationDeclarationId enumerationDeclarationId) {
             enumerationDeclarations.emplace_back(
                 name,
-                selectEnumeratorDeclarationStatement.template values<
-                    Storage::Synchronization::EnumeratorDeclaration>(8, enumerationDeclarationId));
+                selectEnumeratorDeclarationStatement
+                    .template values<Storage::Synchronization::EnumeratorDeclaration, 8>(
+                        enumerationDeclarationId));
         };
 
         selectEnumerationDeclarationsForTypeIdWithoutEnumeratorDeclarationsStatement

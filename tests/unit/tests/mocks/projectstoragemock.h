@@ -140,11 +140,11 @@ public:
                 (QmlDesigner::SourceId sourceId, ::Utils::SmallStringView typeName),
                 (override));
 
-    MOCK_METHOD(QmlDesigner::PropertyDeclarationIds,
+    MOCK_METHOD((QVarLengthArray<QmlDesigner::PropertyDeclarationId, 128>),
                 propertyDeclarationIds,
                 (QmlDesigner::TypeId typeId),
                 (const, override));
-    MOCK_METHOD(QmlDesigner::PropertyDeclarationIds,
+    MOCK_METHOD((QVarLengthArray<QmlDesigner::PropertyDeclarationId, 128>),
                 localPropertyDeclarationIds,
                 (QmlDesigner::TypeId typeId),
                 (const, override));
