@@ -183,7 +183,7 @@
                 },
                 {
                     "source": "MCUDefaultStyle",
-                    "target": "%{ProjectDirectory}/MCUDefaultStyle"
+                    "target": "%{ProjectDirectory}/imports/MCUDefaultStyle"
                 },
                 {
                     "isBinary": true,
