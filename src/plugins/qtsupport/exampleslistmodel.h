@@ -38,7 +38,7 @@ public:
     ExampleSetModel();
 
     int selectedExampleSet() const { return m_selectedExampleSetIndex; }
-    void selectExampleSet(int index);
+    bool selectExampleSet(int index);
     QStringList exampleSources(QString *examplesInstallPath,
                                QString *demosInstallPath,
                                QVersionNumber *qtVersion);

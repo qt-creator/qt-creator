@@ -450,8 +450,8 @@ void ExampleSetModel::updateQtVersionList()
     // Make sure to select something even if the above failed
     if (currentIndex < 0 && rowCount() > 0)
         currentIndex = 0; // simply select first
-    selectExampleSet(currentIndex);
-    emit selectedExampleSetChanged(currentIndex);
+    if (!selectExampleSet(currentIndex))
+        emit selectedExampleSetChanged(currentIndex); // ensure running updateExamples in any case
 }
 
 QtVersion *ExampleSetModel::findHighestQtVersion(const QtVersions &versions) const
@@ -534,7 +534,7 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath,
     return sources;
 }
 
-void ExampleSetModel::selectExampleSet(int index)
+bool ExampleSetModel::selectExampleSet(int index)
 {
     if (index != m_selectedExampleSetIndex) {
         m_selectedExampleSetIndex = index;
@@ -546,7 +546,9 @@ void ExampleSetModel::selectExampleSet(int index)
             m_selectedQtTypes.clear();
         }
         emit selectedExampleSetChanged(m_selectedExampleSetIndex);
+        return true;
     }
+    return false;
 }
 
 void ExampleSetModel::qtVersionManagerLoaded()
