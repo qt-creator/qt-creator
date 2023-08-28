@@ -158,6 +158,16 @@ QString Id::toString() const
     return QString::fromUtf8(stringFromId.value(m_id).str);
 }
 
+/*! \internal */
+Key Id::toKey() const
+{
+#ifdef QTC_USE_STORE
+    return name();
+#else
+    return toString();
+#endif
+}
+
 /*!
   Creates an id from a string representation.
 

@@ -78,15 +78,15 @@ void TestProjectSettings::load()
     m_activeTestFrameworks.clear();
     m_activeTestTools.clear();
     if (activeFrameworks.isValid()) {
-        const QMap<QString, QVariant> frameworksMap = activeFrameworks.toMap();
+        const Store frameworksMap = storeFromVariant(activeFrameworks);
         for (ITestFramework *framework : registeredFrameworks) {
             const Id id = framework->id();
-            bool active = frameworksMap.value(id.toString(), framework->active()).toBool();
+            bool active = frameworksMap.value(id.toKey(), framework->active()).toBool();
             m_activeTestFrameworks.insert(framework, active);
         }
         for (ITestTool *testTool : registeredTestTools) {
             const Id id = testTool->id();
-            bool active = frameworksMap.value(id.toString(), testTool->active()).toBool();
+            bool active = frameworksMap.value(id.toKey(), testTool->active()).toBool();
             m_activeTestTools.insert(testTool, active);
         }
     } else {

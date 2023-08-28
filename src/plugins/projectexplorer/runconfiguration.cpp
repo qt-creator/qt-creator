@@ -89,14 +89,14 @@ void GlobalOrProjectAspect::fromMap(const Store &map)
 {
     if (m_projectSettings)
         m_projectSettings->fromMap(map);
-    m_useGlobalSettings = map.value(keyFromString(id().toString() + ".UseGlobalSettings"), true).toBool();
+    m_useGlobalSettings = map.value(id().toKey() + ".UseGlobalSettings", true).toBool();
 }
 
 void GlobalOrProjectAspect::toMap(Store &map) const
 {
     if (m_projectSettings)
         m_projectSettings->toMap(map);
-    map.insert(keyFromString(id().toString() + ".UseGlobalSettings"), m_useGlobalSettings);
+    map.insert(id().toKey() + ".UseGlobalSettings", m_useGlobalSettings);
 }
 
 void GlobalOrProjectAspect::toActiveMap(Store &data) const

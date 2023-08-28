@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "storekey.h"
+
 #include <QList>
 #include <QMetaType>
 #include <QString>
@@ -30,6 +32,7 @@ public:
 
     QByteArray name() const;
     QString toString() const; // Avoid.
+    Key toKey() const; // FIXME: Replace uses with .name() after Store/key transition.
     QVariant toSetting() const; // Good to use.
     QString suffixAfter(Id baseId) const;
     bool isValid() const { return m_id; }
