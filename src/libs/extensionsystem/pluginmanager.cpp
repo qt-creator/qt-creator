@@ -945,6 +945,8 @@ void PluginManagerPrivate::nextDelayedInitialize()
         m_isInitializationDone = true;
         delete delayedInitializeTimer;
         delayedInitializeTimer = nullptr;
+        if (m_profileTimer)
+            m_totalStartupMS = m_profileTimer->elapsed();
         profilingSummary();
         emit q->initializationDone();
 #ifdef WITH_TESTS
@@ -1802,7 +1804,8 @@ void PluginManagerPrivate::profilingSummary() const
             const qint64 t = s->performanceData().total();
             qDebug("%-22s %8lldms   ( %5.2f%% )", qPrintable(s->name()), t, 100.0 * t / total);
         }
-        qDebug("Total: %8lldms", total);
+        qDebug("Total plugins: %8lldms", total);
+        qDebug("Total startup: %8lldms", m_totalStartupMS);
         Utils::Benchmarker::report("loadPlugins", "Total", total);
     }
 }
