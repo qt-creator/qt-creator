@@ -144,7 +144,7 @@
             "data":
                 [
                 {
-                    "source": "../app_mcu.qmlproject",
+                    "source": "app_mcu.qmlproject.tpl",
                     "target": "%{QmlProjectFileName}",
                     "openAsProject": true
                 },
