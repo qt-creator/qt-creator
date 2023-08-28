@@ -166,19 +166,6 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 
     handleActions(view->backgroundColorActions(), m_backgroundColorMenu, false);
 
-    m_snapMenu = new Edit3DToolbarMenu(this);
-    handleActions(view->snapActions(), m_snapMenu, false);
-    connect(m_snapMenu, &QMenu::aboutToHide, this, [view]() {
-        // Persist the checkable settings of the menu
-        const auto actions = view->snapActions();
-        for (auto &action : actions) {
-            if (action->action()->isCheckable()) {
-                Edit3DViewConfig::save(view->settingKeyForAction(action->menuId()),
-                                       action->action()->isChecked());
-            }
-        }
-    });
-
     createContextMenu();
 
     m_mcuLabel = new QLabel(this);
@@ -465,21 +452,6 @@ void Edit3DWidget::showVisibilityTogglesMenu(bool show, const QPoint &pos)
         m_visibilityTogglesMenu->popup(pos);
     else
         m_visibilityTogglesMenu->close();
-}
-
-QMenu *Edit3DWidget::snapMenu() const
-{
-    return m_snapMenu.data();
-}
-
-void Edit3DWidget::showSnapMenu(bool show, const QPoint &pos)
-{
-    if (m_snapMenu.isNull())
-        return;
-    if (show)
-        m_snapMenu->popup(pos);
-    else
-        m_snapMenu->close();
 }
 
 QMenu *Edit3DWidget::backgroundColorMenu() const

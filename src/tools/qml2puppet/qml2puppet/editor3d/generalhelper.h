@@ -156,8 +156,8 @@ private:
     bool m_snapPosition = false;
     bool m_snapRotation = false;
     bool m_snapScale = false;
-    double m_snapPositionInterval = 10.;
-    double m_snapRotationInterval = 15.;
+    double m_snapPositionInterval = 50.;
+    double m_snapRotationInterval = 5.;
     double m_snapScaleInterval = .1;
 };
 

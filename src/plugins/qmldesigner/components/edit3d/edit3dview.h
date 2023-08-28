@@ -62,7 +62,6 @@ public:
     QVector<Edit3DAction *> rightActions() const;
     QVector<Edit3DAction *> visibilityToggleActions() const;
     QVector<Edit3DAction *> backgroundColorActions() const;
-    QVector<Edit3DAction *> snapActions() const;
     Edit3DAction *edit3DAction(View3DActionType type) const;
     Edit3DBakeLightsAction *bakeLightsAction() const;
 
@@ -77,7 +76,7 @@ public:
 
     bool isBakingLightsSupported() const;
 
-    const char *settingKeyForAction(const QByteArray &actionId);
+    void syncSnapAuxPropsToSettings();
 
 private slots:
     void onEntriesChanged();
@@ -113,7 +112,6 @@ private:
     QVector<Edit3DAction *> m_rightActions;
     QVector<Edit3DAction *> m_visibilityToggleActions;
     QVector<Edit3DAction *> m_backgroundColorActions;
-    QVector<Edit3DAction *> m_snapActions;
 
     QMap<View3DActionType, Edit3DAction *> m_edit3DActions;
     std::unique_ptr<Edit3DAction> m_selectionModeAction;
@@ -144,12 +142,8 @@ private:
     std::unique_ptr<Edit3DAction> m_resetAction;
     std::unique_ptr<Edit3DAction> m_visibilityTogglesAction;
     std::unique_ptr<Edit3DAction> m_backgrondColorMenuAction;
-    std::unique_ptr<Edit3DAction> m_snapMenuAction;
+    std::unique_ptr<Edit3DAction> m_snapToggleAction;
     std::unique_ptr<Edit3DAction> m_snapConfigAction;
-    std::unique_ptr<Edit3DAction> m_snapPositionAction;
-    std::unique_ptr<Edit3DAction> m_snapRotationAction;
-    std::unique_ptr<Edit3DAction> m_snapScaleAction;
-    std::unique_ptr<Edit3DAction> m_snapAbsoluteAction;
     std::unique_ptr<Edit3DBakeLightsAction> m_bakeLightsAction;
 
     int particlemode;

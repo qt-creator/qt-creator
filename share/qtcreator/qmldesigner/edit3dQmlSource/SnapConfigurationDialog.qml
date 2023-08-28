@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import QtQuickDesignerTheme
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
@@ -13,175 +14,229 @@ Rectangle {
 
     property int toolTipDelay: 1000
 
+    width: 230
+    height: 270
     color: StudioTheme.Values.themePanelBackground
+    border.color: StudioTheme.Values.themeControlOutline
+    border.width: StudioTheme.Values.border
 
-    Column {
-        id: col
-        padding: 8
-        spacing: 4
+    Connections {
+        target: rootView
 
-        Rectangle {
-            id: ctrlRect
-            width: root.width - 16
-            height: posIntValue.height + rotIntValue.height + scaleIntValue.height + 32
+        // Spinboxes lose the initial binding if the value changes so we need these connections
+        onPosIntChanged: posIntSpin.realValue = rootView.posInt
+        onRotIntChanged: rotIntSpin.realValue = rootView.rotInt
+        onScaleIntChanged: scaleIntSpin.realValue = rootView.scaleInt
+    }
 
-            color: StudioTheme.Values.themePanelBackground
-            border.color: StudioTheme.Values.themeControlOutline
-            border.width: StudioTheme.Values.border
+    ColumnLayout {
+        anchors.fill: parent
+        spacing: 0
 
-            Column {
-                padding: 8
-                spacing: 8
-                Row {
-                    height: posIntValue.height
-                    width: parent.width - 16
-                    spacing: StudioTheme.Values.sectionRowSpacing
+        RowLayout {
+            height: 32
+            Layout.topMargin: 8
+            Layout.rightMargin: 8
+            Layout.leftMargin: 8
+            Layout.fillWidth: true
+            spacing: 16
 
-                    Text {
-                        id: posIntLabel
-                        text: qsTr("Position Snap Interval:")
-                        color: enabled ? StudioTheme.Values.themeTextColor
-                                       : StudioTheme.Values.themeTextColorDisabled
-                        verticalAlignment: Qt.AlignVCenter
-                        horizontalAlignment: Qt.AlignRight
-                        height: posIntValue.height
-                    }
+            Rectangle {
+                width: 40
+                height: 40
+                radius: 5
+                Layout.fillHeight: false
+                color: StudioTheme.Values.themePanelBackground
+                border.color: StudioTheme.Values.themeControlOutline
+                border.width: StudioTheme.Values.border
 
-                    Item { // Spacer
-                        width: Math.max(ctrlRect.width - posIntLabel.width - posIntValue.width - 32, 1)
-                        height: 1
-                    }
-
-                    StudioControls.RealSpinBox {
-                        id: posIntValue
-                        realFrom: 1
-                        realTo: 100000
-                        realValue: rootView.posInt
-                        realStepSize: 1
-                        width: 80
-                        actionIndicatorVisible: false
-
-                        hoverEnabled: true
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Snap interval for move gizmo.")
-                        ToolTip.delay: root.toolTipDelay
-
-                        onRealValueChanged: rootView.posInt = realValue
-                    }
+                HelperWidgets.IconIndicator {
+                    anchors.fill: parent
+                    icon: StudioTheme.Constants.snapping_conf_medium
+                    pixelSize: StudioTheme.Values.myIconFontSize * 1.4
+                    iconColor: StudioTheme.Values.themeLinkIndicatorColorHover
+                    enabled: false
+                    states: [] // Disable normal state based coloring
                 }
-
-                Row {
-                    height: rotIntValue.height
-                    width: parent.width - 16
-                    spacing: StudioTheme.Values.sectionRowSpacing
-
-                    Text {
-                        id: rotIntLabel
-                        text: qsTr("Rotation Snap Interval:")
-                        color: enabled ? StudioTheme.Values.themeTextColor
-                                       : StudioTheme.Values.themeTextColorDisabled
-                        verticalAlignment: Qt.AlignVCenter
-                        horizontalAlignment: Qt.AlignRight
-                        height: rotIntValue.height
-                    }
-
-                    Item { // Spacer
-                        width: Math.max(ctrlRect.width - rotIntLabel.width - rotIntValue.width - 32, 1)
-                        height: 1
-                    }
-
-                    StudioControls.RealSpinBox {
-                        id: rotIntValue
-                        realFrom: 1
-                        realTo: 360
-                        realValue: rootView.rotInt
-                        realStepSize: 1
-                        width: 80
-                        actionIndicatorVisible: false
-
-                        hoverEnabled: true
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Snap interval in degrees for rotation gizmo.")
-                        ToolTip.delay: root.toolTipDelay
-
-                        onRealValueChanged: rootView.rotInt = realValue
-                    }
-                }
-
-                Row {
-                    height: scaleIntValue.height
-                    width: parent.width - 16
-                    spacing: StudioTheme.Values.sectionRowSpacing
-
-                    Text {
-                        id: scaleIntLabel
-                        text: qsTr("Scale Snap Interval (%):")
-                        color: enabled ? StudioTheme.Values.themeTextColor
-                                       : StudioTheme.Values.themeTextColorDisabled
-                        verticalAlignment: Qt.AlignVCenter
-                        horizontalAlignment: Qt.AlignRight
-                        height: scaleIntValue.height
-                    }
-
-                    Item { // Spacer
-                        width: Math.max(ctrlRect.width - scaleIntLabel.width - scaleIntValue.width - 32, 1)
-                        height: 1
-                    }
-
-                    StudioControls.RealSpinBox {
-                        id: scaleIntValue
-                        realFrom: 1
-                        realTo: 100000
-                        realValue: rootView.scaleInt
-                        realStepSize: 1
-                        width: 80
-                        actionIndicatorVisible: false
-
-                        hoverEnabled: true
-                        ToolTip.visible: hovered
-                        ToolTip.text: qsTr("Snap interval for scale gizmo in percentage of original scale.")
-                        ToolTip.delay: root.toolTipDelay
-
-                        onRealValueChanged: rootView.scaleInt = realValue
-                    }
-                }
+            }
+            Text {
+                text: qsTr("Snap Configuration")
+                font.pixelSize: 12
+                horizontalAlignment: Text.AlignLeft
+                Layout.fillWidth: true
+                font.bold: true
+                color: StudioTheme.Values.themeTextColor
             }
         }
 
-        Item { // Spacer
-            width: 1
-            height: Math.max(root.height - buttons.height - ctrlRect.height - 16, 2)
+        GridLayout {
+            Layout.margins:10
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            rowSpacing: 5
+            columnSpacing: 5
+            rows: 5
+            columns: 3
+
+            Text {
+                text: qsTr("Interval")
+                Layout.column: 1
+                Layout.row: 0
+                Layout.leftMargin: 10
+                font.pixelSize: 12
+                font.bold: true
+                color: StudioTheme.Values.themeTextColor
+            }
+
+            StudioControls.CheckBox {
+                text: qsTr("Position")
+                Layout.column: 0
+                Layout.row: 1
+                Layout.minimumWidth: 100
+                checked: rootView.posEnabled
+                actionIndicatorVisible: false
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Snap position.")
+                ToolTip.delay: root.toolTipDelay
+
+                onToggled: rootView.posEnabled = checked
+            }
+
+            StudioControls.RealSpinBox {
+                id: posIntSpin
+                Layout.fillWidth: true
+                Layout.column: 1
+                Layout.row: 1
+                Layout.leftMargin: 10
+                realFrom: 1
+                realTo: 10000
+                realValue: rootView.posInt
+                realStepSize: 1
+                actionIndicatorVisible: false
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Snap interval for move gizmo.")
+                ToolTip.delay: root.toolTipDelay
+
+                onRealValueChanged: rootView.posInt = realValue
+            }
+
+            StudioControls.CheckBox {
+                text: qsTr("Rotation")
+                Layout.column: 0
+                Layout.row: 2
+                Layout.minimumWidth: 100
+                checked: rootView.rotEnabled
+                actionIndicatorVisible: false
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Snap rotation.")
+                ToolTip.delay: root.toolTipDelay
+
+                onToggled: rootView.rotEnabled = checked
+            }
+
+            StudioControls.RealSpinBox {
+                id: rotIntSpin
+                Layout.fillWidth: true
+                Layout.column: 1
+                Layout.row: 2
+                Layout.leftMargin: 10
+                realFrom: 1
+                realTo: 90
+                realValue: rootView.rotInt
+                realStepSize: 1
+                actionIndicatorVisible: false
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Snap interval in degrees for rotation gizmo.")
+                ToolTip.delay: root.toolTipDelay
+
+                onRealValueChanged: rootView.rotInt = realValue
+            }
+
+            StudioControls.CheckBox {
+                text: qsTr("Scale")
+                Layout.column: 0
+                Layout.row: 3
+                Layout.minimumWidth: 100
+                checked: rootView.scaleEnabled
+                actionIndicatorVisible: false
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Snap scale.")
+                ToolTip.delay: root.toolTipDelay
+
+                onToggled: rootView.scaleEnabled = checked
+            }
+
+            StudioControls.RealSpinBox {
+                id: scaleIntSpin
+                Layout.fillWidth: true
+                Layout.column: 1
+                Layout.row: 3
+                Layout.leftMargin: 10
+                realFrom: 1
+                realTo: 100
+                realValue: rootView.scaleInt
+                realStepSize: 1
+                actionIndicatorVisible: false
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Snap interval for scale gizmo in percentage of original scale.")
+                ToolTip.delay: root.toolTipDelay
+
+                onRealValueChanged: rootView.scaleInt = realValue
+            }
+
+            StudioControls.CheckBox {
+                text: qsTr("Absolute Position")
+                Layout.fillWidth: false
+                Layout.leftMargin: 0
+                Layout.column: 0
+                Layout.row: 4
+                Layout.columnSpan: 3
+                checked: rootView.absolute
+                actionIndicatorVisible: false
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Toggles if the position snaps to absolute values or relative to object position.")
+                ToolTip.delay: root.toolTipDelay
+
+                onToggled: rootView.absolute = checked
+            }
+
+            Text {
+                text: qsTr("deg")
+                font.pixelSize: 12
+                Layout.column: 2
+                Layout.row: 2
+                color: StudioTheme.Values.themeTextColor
+            }
+
+            Text {
+                text: qsTr("%")
+                font.pixelSize: 12
+                Layout.column: 2
+                Layout.row: 3
+                color: StudioTheme.Values.themeTextColor
+            }
         }
 
-        Item {
-            id: buttons
-            height: cancelButton.height + 8
-            width: ctrlRect.width
-
-            Row {
-                spacing: StudioTheme.Values.dialogButtonSpacing
-                height: cancelButton.height
-                anchors.right: parent.right
-
-                HelperWidgets.Button {
-                    id: cancelButton
-                    text: qsTr("Cancel")
-                    leftPadding: StudioTheme.Values.dialogButtonPadding
-                    rightPadding: StudioTheme.Values.dialogButtonPadding
-                    onClicked: rootView.cancel()
-                }
-
-                HelperWidgets.Button {
-                    id: applyButton
-                    text: qsTr("Ok")
-                    leftPadding: StudioTheme.Values.dialogButtonPadding
-                    rightPadding: StudioTheme.Values.dialogButtonPadding
-                    onClicked: {
-                        rootView.apply()
-                        rootView.cancel()
-                    }
-                }
-            }
+        HelperWidgets.Button {
+            text: qsTr("Reset All")
+            Layout.bottomMargin: 8
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            onClicked: rootView.resetDefaults()
         }
     }
 }

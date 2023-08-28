@@ -33,6 +33,7 @@ inline constexpr char ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
 inline constexpr char EDIT3DVIEW_BACKGROUND_COLOR[] = "Edit3DViewBackgroundColor";
 inline constexpr char EDIT3DVIEW_GRID_COLOR[] = "Edit3DViewGridLineColor";
 inline constexpr char EDIT3DVIEW_SNAP_ABSOLUTE[] = "Edit3DViewSnapAbsolute";
+inline constexpr char EDIT3DVIEW_SNAP_ENABLED[] = "Edit3DViewSnapEnabled";
 inline constexpr char EDIT3DVIEW_SNAP_POSITION[] = "Edit3DViewSnapPosition";
 inline constexpr char EDIT3DVIEW_SNAP_POSITION_INTERVAL[] = "Edit3DViewSnapPositionInterval";
 inline constexpr char EDIT3DVIEW_SNAP_ROTATION[] = "Edit3DViewSnapRotation";

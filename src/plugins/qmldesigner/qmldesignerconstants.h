@@ -64,12 +64,8 @@ const char EDIT3D_PARTICLES_RESTART[] = "QmlDesigner.Editor3D.ParticlesRestart";
 const char EDIT3D_VISIBILITY_TOGGLES[] = "QmlDesigner.Editor3D.VisibilityToggles";
 const char EDIT3D_BACKGROUND_COLOR_ACTIONS[] = "QmlDesigner.Editor3D.BackgroundColorActions";
 const char EDIT3D_BAKE_LIGHTS[] = "QmlDesigner.Editor3D.BakeLights";
-const char EDIT3D_SNAP_MENU[] = "QmlDesigner.Editor3D.SnapMenu";
-const char EDIT3D_SNAP_POSITION[] = "QmlDesigner.Editor3D.SnapPosition";
-const char EDIT3D_SNAP_ROTATION[] = "QmlDesigner.Editor3D.SnapRotation";
-const char EDIT3D_SNAP_SCALE[] = "QmlDesigner.Editor3D.SnapScale";
+const char EDIT3D_SNAP_TOGGLE[] = "QmlDesigner.Editor3D.SnapToggle";
 const char EDIT3D_SNAP_CONFIG[] = "QmlDesigner.Editor3D.SnapConfig";
-const char EDIT3D_SNAP_ABSOLUTE[] = "QmlDesigner.Editor3D.SnapToGrid";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 const char COMPONENT_BUNDLES_FOLDER[] = "/ComponentBundles";

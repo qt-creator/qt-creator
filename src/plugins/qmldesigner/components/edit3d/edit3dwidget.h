@@ -45,8 +45,6 @@ public:
     void showCanvas(bool show);
     QMenu *visibilityTogglesMenu() const;
     void showVisibilityTogglesMenu(bool show, const QPoint &pos);
-    QMenu *snapMenu() const;
-    void showSnapMenu(bool show, const QPoint &pos);
 
     QMenu *backgroundColorMenu() const;
     void showBackgroundColorMenu(bool show, const QPoint &pos);
@@ -78,7 +76,6 @@ private:
     QPointer<QMenu> m_visibilityTogglesMenu;
     QPointer<QMenu> m_backgroundColorMenu;
     QPointer<QMenu> m_contextMenu;
-    QPointer<QMenu> m_snapMenu;
     QPointer<QAction> m_bakeLightsAction;
     QPointer<QAction> m_editComponentAction;
     QPointer<QAction> m_editMaterialAction;

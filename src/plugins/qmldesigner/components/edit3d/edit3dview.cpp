@@ -200,16 +200,7 @@ void Edit3DView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    rootModelNode().setAuxiliaryData(edit3dSnapPosProperty, m_snapPositionAction->action()->isChecked());
-    rootModelNode().setAuxiliaryData(edit3dSnapRotProperty, m_snapRotationAction->action()->isChecked());
-    rootModelNode().setAuxiliaryData(edit3dSnapScaleProperty, m_snapScaleAction->action()->isChecked());
-    rootModelNode().setAuxiliaryData(edit3dSnapAbsProperty, m_snapAbsoluteAction->action()->isChecked());
-    rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty,
-                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL));
-    rootModelNode().setAuxiliaryData(edit3dSnapRotIntProperty,
-                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL));
-    rootModelNode().setAuxiliaryData(edit3dSnapScaleIntProperty,
-                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL));
+    syncSnapAuxPropsToSettings();
 
     checkImports();
     auto cachedImage = m_canvasCache.take(model);
@@ -551,7 +542,32 @@ void Edit3DView::createSeekerSliderAction()
             &SeekerSliderAction::valueChanged,
             this, [=] (int value) {
         this->emitView3DAction(View3DActionType::ParticlesSeek, value);
-    });
+            });
+}
+
+void Edit3DView::syncSnapAuxPropsToSettings()
+{
+    if (!model())
+        return;
+
+    bool snapToggle = m_snapToggleAction->action()->isChecked();
+    rootModelNode().setAuxiliaryData(edit3dSnapPosProperty,
+                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION)
+                                                : false);
+    rootModelNode().setAuxiliaryData(edit3dSnapRotProperty,
+                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION)
+                                                : false);
+    rootModelNode().setAuxiliaryData(edit3dSnapScaleProperty,
+                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE)
+                                                : false);
+    rootModelNode().setAuxiliaryData(edit3dSnapAbsProperty,
+                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE));
+    rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty,
+                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL));
+    rootModelNode().setAuxiliaryData(edit3dSnapRotIntProperty,
+                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL));
+    rootModelNode().setAuxiliaryData(edit3dSnapScaleIntProperty,
+                                     Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL));
 }
 
 void Edit3DView::createEdit3DActions()
@@ -887,37 +903,32 @@ void Edit3DView::createEdit3DActions()
         this,
         bakeLightsTrigger);
 
-    SelectionContextOperation snapMenuTrigger = [this](const SelectionContext &) {
-        if (!edit3DWidget()->snapMenu())
-            return;
+    SelectionContextOperation snapToggleTrigger = [this](const SelectionContext &) {
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_ENABLED,
+                               m_snapToggleAction->action()->isChecked());
+        syncSnapAuxPropsToSettings();
+    };
 
+    m_snapToggleAction = std::make_unique<Edit3DAction>(
+        QmlDesigner::Constants::EDIT3D_SNAP_TOGGLE,
+        View3DActionType::Empty,
+        QCoreApplication::translate("SnapToggleAction", "Toggle snapping during node drag"),
+        QKeySequence(Qt::SHIFT | Qt::Key_Tab),
+        true,
+        Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ENABLED, false).toBool(),
+        toolbarIcon(DesignerIcons::SnappingIcon),
+        this,
+        snapToggleTrigger);
+
+    SelectionContextOperation snapConfigTrigger = [this](const SelectionContext &) {
         QPoint pos;
-        const auto &actionWidgets = m_snapMenuAction->action()->associatedWidgets();
+        const auto &actionWidgets = m_snapConfigAction->action()->associatedWidgets();
         for (auto actionWidget : actionWidgets) {
             if (auto button = qobject_cast<QToolButton *>(actionWidget)) {
                 pos = button->mapToGlobal(QPoint(0, 0));
                 break;
             }
         }
-
-        edit3DWidget()->showSnapMenu(!edit3DWidget()->snapMenu()->isVisible(), pos);
-    };
-
-    m_snapMenuAction = std::make_unique<Edit3DAction>(
-        QmlDesigner::Constants::EDIT3D_SNAP_MENU,
-        View3DActionType::Empty,
-        QCoreApplication::translate("Snapping", "Snapping"),
-        QKeySequence(),
-        false,
-        false,
-        toolbarIcon(DesignerIcons::SnappingIcon),
-        this,
-        snapMenuTrigger);
-
-    SelectionContextOperation snapConfigTrigger = [this](const SelectionContext &) {
-        QPoint pos;
-        pos = m_edit3DWidget->mapToGlobal(QPoint(m_edit3DWidget->width() / 2,
-                                                 m_edit3DWidget->height() / 2));
         if (!m_snapConfiguration)
             m_snapConfiguration = new SnapConfiguration(this);
         m_snapConfiguration->showConfigDialog(pos);
@@ -926,82 +937,13 @@ void Edit3DView::createEdit3DActions()
     m_snapConfigAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_SNAP_CONFIG,
         View3DActionType::Empty,
-        QCoreApplication::translate("SnapConfigAction", "Snap Configuration"),
+        QCoreApplication::translate("SnapConfigAction", "Open snap configuration dialog"),
         QKeySequence(),
         false,
         false,
-        toolbarIcon(DesignerIcons::SnappingIcon),
+        toolbarIcon(DesignerIcons::SnappingConfIcon),
         this,
-        snapConfigTrigger,
-        QCoreApplication::translate("SnapConfigAction", "Open snap configuration dialog."));
-
-    SelectionContextOperation snapPositionTrigger = [this](const SelectionContext &) {
-        if (model())
-            rootModelNode().setAuxiliaryData(edit3dSnapPosProperty, m_snapPositionAction->action()->isChecked());
-    };
-
-    m_snapPositionAction = std::make_unique<Edit3DAction>(
-        QmlDesigner::Constants::EDIT3D_SNAP_POSITION,
-        View3DActionType::Empty,
-        QCoreApplication::translate("SnapPositionAction", "Snap Position"),
-        QKeySequence(Qt::SHIFT | Qt::Key_W),
-        true,
-        Edit3DViewConfig::load(settingKeyForAction(QmlDesigner::Constants::EDIT3D_SNAP_POSITION), false).toBool(),
-        QIcon(),
-        this,
-        snapPositionTrigger,
-        QCoreApplication::translate("SnapPositionAction", "Toggle position snapping during node drag."));
-
-    SelectionContextOperation snapRotationTrigger = [this](const SelectionContext &) {
-        if (model())
-            rootModelNode().setAuxiliaryData(edit3dSnapRotProperty, m_snapRotationAction->action()->isChecked());
-    };
-
-    m_snapRotationAction = std::make_unique<Edit3DAction>(
-        QmlDesigner::Constants::EDIT3D_SNAP_ROTATION,
-        View3DActionType::Empty,
-        QCoreApplication::translate("SnapRotationAction", "Snap Rotation"),
-        QKeySequence(Qt::SHIFT | Qt::Key_E),
-        true,
-        Edit3DViewConfig::load(settingKeyForAction(QmlDesigner::Constants::EDIT3D_SNAP_ROTATION), false).toBool(),
-        QIcon(),
-        this,
-        snapRotationTrigger,
-        QCoreApplication::translate("SnapRotationAction", "Toggle rotation snapping during node drag."));
-
-    SelectionContextOperation snapScaleTrigger = [this](const SelectionContext &) {
-        if (model())
-            rootModelNode().setAuxiliaryData(edit3dSnapScaleProperty, m_snapScaleAction->action()->isChecked());
-    };
-
-    m_snapScaleAction = std::make_unique<Edit3DAction>(
-        QmlDesigner::Constants::EDIT3D_SNAP_SCALE,
-        View3DActionType::Empty,
-        QCoreApplication::translate("SnapScaleAction", "Snap Scale"),
-        QKeySequence(Qt::SHIFT | Qt::Key_R),
-        true,
-        Edit3DViewConfig::load(settingKeyForAction(QmlDesigner::Constants::EDIT3D_SNAP_SCALE), false).toBool(),
-        QIcon(),
-        this,
-        snapScaleTrigger,
-        QCoreApplication::translate("SnapScaleAction", "Toggle scale snapping during node drag."));
-
-    SelectionContextOperation snapAbsoluteTrigger = [this](const SelectionContext &) {
-        if (model())
-            rootModelNode().setAuxiliaryData(edit3dSnapAbsProperty, m_snapAbsoluteAction->action()->isChecked());
-    };
-
-    m_snapAbsoluteAction = std::make_unique<Edit3DAction>(
-        QmlDesigner::Constants::EDIT3D_SNAP_ABSOLUTE,
-        View3DActionType::Empty,
-        QCoreApplication::translate("SnapAbsoluteAction", "Absolute Position Snap"),
-        QKeySequence(Qt::SHIFT | Qt::Key_A),
-        true,
-        Edit3DViewConfig::load(settingKeyForAction(QmlDesigner::Constants::EDIT3D_SNAP_ABSOLUTE), true).toBool(),
-        QIcon(),
-        this,
-        snapAbsoluteTrigger,
-        QCoreApplication::translate("SnapAbsoluteAction", "If enabled, position snapping uses scene origin as origin point.\nOtherwise snapping uses drag start point as origin point."));
+        snapConfigTrigger);
 
     m_leftActions << m_selectionModeAction.get();
     m_leftActions << nullptr; // Null indicates separator
@@ -1016,12 +958,14 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << m_orientationModeAction.get();
     m_leftActions << m_editLightAction.get();
     m_leftActions << nullptr;
+    m_leftActions << m_snapToggleAction.get();
+    m_leftActions << m_snapConfigAction.get();
+    m_leftActions << nullptr;
     m_leftActions << m_alignCamerasAction.get();
     m_leftActions << m_alignViewAction.get();
     m_leftActions << nullptr;
     m_leftActions << m_visibilityTogglesAction.get();
     m_leftActions << m_backgrondColorMenuAction.get();
-    m_leftActions << m_snapMenuAction.get();
 
     m_rightActions << m_particleViewModeAction.get();
     m_rightActions << m_particlesPlayAction.get();
@@ -1047,12 +991,6 @@ void Edit3DView::createEdit3DActions()
     m_backgroundColorActions << m_selectGridColorAction.get();
     m_backgroundColorActions << m_syncBackgroundColorAction.get();
     m_backgroundColorActions << m_resetColorAction.get();
-
-    m_snapActions << m_snapConfigAction.get();
-    m_snapActions << m_snapPositionAction.get();
-    m_snapActions << m_snapRotationAction.get();
-    m_snapActions << m_snapScaleAction.get();
-    m_snapActions << m_snapAbsoluteAction.get();
 }
 
 QVector<Edit3DAction *> Edit3DView::leftActions() const
@@ -1075,10 +1013,6 @@ QVector<Edit3DAction *> Edit3DView::backgroundColorActions() const
     return m_backgroundColorActions;
 }
 
-QVector<Edit3DAction *> Edit3DView::snapActions() const
-{
-    return m_snapActions;
-}
 
 Edit3DAction *Edit3DView::edit3DAction(View3DActionType type) const
 {
@@ -1159,19 +1093,6 @@ void Edit3DView::dropAsset(const QString &file, const QPointF &pos)
 bool Edit3DView::isBakingLightsSupported() const
 {
     return m_isBakingLightsSupported;
-}
-
-const char *Edit3DView::settingKeyForAction(const QByteArray &actionId)
-{
-    if (actionId == Constants::EDIT3D_SNAP_POSITION)
-        return DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION;
-    if (actionId == Constants::EDIT3D_SNAP_ROTATION)
-        return DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION;
-    if (actionId == Constants::EDIT3D_SNAP_SCALE)
-        return DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE;
-    if (actionId == Constants::EDIT3D_SNAP_ABSOLUTE)
-        return DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE;
-    return "";
 }
 
 } // namespace QmlDesigner

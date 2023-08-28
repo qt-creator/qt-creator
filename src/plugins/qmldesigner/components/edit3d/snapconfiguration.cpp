@@ -3,10 +3,9 @@
 
 #include "snapconfiguration.h"
 
-#include "abstractview.h"
 #include "designersettings.h"
+#include "edit3dview.h"
 #include "edit3dviewconfig.h"
-#include "modelnode.h"
 
 #include <coreplugin/icore.h>
 
@@ -39,7 +38,7 @@ static QString qmlSourcesPath()
     return Core::ICore::resourcePath("qmldesigner/edit3dQmlSource").toString();
 }
 
-SnapConfiguration::SnapConfiguration(AbstractView *view)
+SnapConfiguration::SnapConfiguration(Edit3DView *view)
     : QObject(view)
     , m_view(view)
 {
@@ -52,40 +51,70 @@ SnapConfiguration::~SnapConfiguration()
 
 void SnapConfiguration::apply()
 {
-    Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL,
-                           m_positionInterval);
-    Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL,
-                           m_rotationInterval);
-    Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL,
-                           m_scaleInterval);
-    m_view->rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty, m_positionInterval);
-    m_view->rootModelNode().setAuxiliaryData(edit3dSnapRotIntProperty, m_rotationInterval);
-    m_view->rootModelNode().setAuxiliaryData(edit3dSnapScaleIntProperty, m_scaleInterval);
+    if (m_changes) {
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION,
+                               m_positionEnabled);
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION,
+                               m_rotationEnabled);
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE,
+                               m_scaleEnabled);
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE,
+                               m_absolute);
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL,
+                               m_positionInterval);
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL,
+                               m_rotationInterval);
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL,
+                               m_scaleInterval);
+        m_view->syncSnapAuxPropsToSettings();
+    }
+
+    cancel();
+}
+
+void SnapConfiguration::resetDefaults()
+{
+    setPosEnabled(true);
+    setRotEnabled(true);
+    setScaleEnabled(true);
+    setAbsolute(true);
+    setPosInt(defaultPosInt);
+    setRotInt(defaultRotInt);
+    setScaleInt(defaultScaleInt);
 }
 
 void SnapConfiguration::showConfigDialog(const QPoint &pos)
 {
+    bool posEnabled = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION, true).toBool();
+    bool rotEnabled = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION, true).toBool();
+    bool scaleEnabled = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE, true).toBool();
+    bool absolute = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE, true).toBool();
     double posInt = Edit3DViewConfig::load(
-                        DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL, 10.).toDouble();
+                        DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL, defaultPosInt).toDouble();
     double rotInt = Edit3DViewConfig::load(
-                        DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL, 15.).toDouble();
+                        DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL, defaultRotInt).toDouble();
     double scaleInt = Edit3DViewConfig::load(
-                        DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL, 10.).toDouble();
+                        DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL, defaultScaleInt).toDouble();
+
+    setPosEnabled(posEnabled);
+    setRotEnabled(rotEnabled);
+    setScaleEnabled(scaleEnabled);
+    setAbsolute(absolute);
     setPosInt(posInt);
     setRotInt(rotInt);
     setScaleInt(scaleInt);
+
+    m_changes = false;
 
     if (!m_configDialog) {
         // Show non-modal progress dialog with cancel button
         QString path = qmlSourcesPath() + "/SnapConfigurationDialog.qml";
 
         m_configDialog = new QQuickView;
-        m_configDialog->setTitle(tr("3D Snap Configuration"));
-        m_configDialog->setResizeMode(QQuickView::SizeRootObjectToView);
-        m_configDialog->setFlags(Qt::Dialog);
-        m_configDialog->setModality(Qt::ApplicationModal);
+        m_configDialog->setResizeMode(QQuickView::SizeViewToRootObject);
+        m_configDialog->setFlags(Qt::Dialog | Qt::FramelessWindowHint);
+        m_configDialog->setModality(Qt::NonModal);
         m_configDialog->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
-        m_configDialog->setMinimumSize({280, 170});
 
         m_configDialog->rootContext()->setContextProperties({
             {"rootView", QVariant::fromValue(this)}
@@ -95,17 +124,54 @@ void SnapConfiguration::showConfigDialog(const QPoint &pos)
 
         QPoint finalPos = pos;
         finalPos.setX(pos.x() - m_configDialog->size().width() / 2);
-        finalPos.setY(pos.y() - m_configDialog->size().height() / 2);
+        finalPos.setY(pos.y());
         m_configDialog->setPosition(finalPos);
     }
 
     m_configDialog->show();
 }
 
+void SnapConfiguration::setPosEnabled(bool enabled)
+{
+    if (enabled != m_positionEnabled) {
+        m_positionEnabled = enabled;
+        m_changes = true;
+        emit posEnabledChanged();
+    }
+}
+
+void SnapConfiguration::setRotEnabled(bool enabled)
+{
+    if (enabled != m_rotationEnabled) {
+        m_rotationEnabled = enabled;
+        m_changes = true;
+        emit rotEnabledChanged();
+    }
+}
+
+void SnapConfiguration::setScaleEnabled(bool enabled)
+{
+    if (enabled != m_scaleEnabled) {
+        m_scaleEnabled = enabled;
+        m_changes = true;
+        emit scaleEnabledChanged();
+    }
+}
+
+void SnapConfiguration::setAbsolute(bool enabled)
+{
+    if (enabled != m_absolute) {
+        m_absolute = enabled;
+        m_changes = true;
+        emit absoluteChanged();
+    }
+}
+
 void SnapConfiguration::setPosInt(double value)
 {
     if (value != m_positionInterval) {
         m_positionInterval = value;
+        m_changes = true;
         emit posIntChanged();
     }
 }
@@ -114,6 +180,7 @@ void SnapConfiguration::setRotInt(double value)
 {
     if (value != m_rotationInterval) {
         m_rotationInterval = value;
+        m_changes = true;
         emit rotIntChanged();
     }
 }
@@ -122,6 +189,7 @@ void SnapConfiguration::setScaleInt(double value)
 {
     if (value != m_scaleInterval) {
         m_scaleInterval = value;
+        m_changes = true;
         emit scaleIntChanged();
     }
 }
@@ -141,20 +209,17 @@ void SnapConfiguration::cancel()
 
 bool SnapConfiguration::eventFilter(QObject *obj, QEvent *event)
 {
+    // Closing dialog always applies the changes
+
     if (obj == m_configDialog) {
-        if (event->type() == QEvent::KeyPress) {
+        if (event->type() == QEvent::FocusOut) {
+            apply();
+        } else if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Escape)
-                cancel();
-            if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
-                // Apply asynchronously to allow the final value to be set by dialog before apply
-                QTimer::singleShot(0, this, [this]() {
-                    apply();
-                    cancel();
-                });
-            }
+                apply();
         } else if (event->type() == QEvent::Close) {
-            cancel();
+            apply();
         }
     }
 
