@@ -949,7 +949,7 @@ void PluginManagerPrivate::nextDelayedInitialize()
         delayedInitializeQueue.pop();
         profilingReport(">delayedInitialize", spec);
         bool delay = spec->d->delayedInitialize();
-        profilingReport("<delayedInitialize", spec);
+        profilingReport("<delayedInitialize", spec, &spec->d->performanceData.delayedInitialize);
         if (delay)
             break; // do next delayedInitialize after a delay
     }
@@ -1305,7 +1305,7 @@ void PluginManagerPrivate::addObject(QObject *obj)
         if (debugLeaks)
             qDebug() << "PluginManagerPrivate::addObject" << obj << obj->objectName();
 
-        if (m_profilingVerbosity && !m_profileTimer.isNull()) {
+        if (m_profilingVerbosity > 1 && m_profileTimer) {
             // Report a timestamp when adding an object. Useful for profiling
             // its initialization time.
             const int absoluteElapsedMS = int(m_profileTimer->elapsed());
@@ -1345,6 +1345,9 @@ void PluginManagerPrivate::removeObject(QObject *obj)
 */
 void PluginManagerPrivate::loadPlugins()
 {
+    if (m_profilingVerbosity > 0)
+        qDebug("Profiling started");
+
     const QVector<PluginSpec *> queue = loadQueue();
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsLoading);
     for (PluginSpec *spec : queue)
@@ -1593,7 +1596,9 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     case PluginSpec::Running:
         profilingReport(">initializeExtensions", spec);
         spec->d->initializeExtensions();
-        profilingReport("<initializeExtensions", spec);
+        profilingReport("<initializeExtensions",
+                        spec,
+                        &spec->d->performanceData.extensionsInitialized);
         return;
     case PluginSpec::Deleted:
         profilingReport(">delete", spec);
@@ -1621,12 +1626,12 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     case PluginSpec::Loaded:
         profilingReport(">loadLibrary", spec);
         spec->d->loadLibrary();
-        profilingReport("<loadLibrary", spec);
+        profilingReport("<loadLibrary", spec, &spec->d->performanceData.load);
         break;
     case PluginSpec::Initialized:
         profilingReport(">initializePlugin", spec);
         spec->d->initializePlugin();
-        profilingReport("<initializePlugin", spec);
+        profilingReport("<initializePlugin", spec, &spec->d->performanceData.initialize);
         break;
     case PluginSpec::Stopped:
         profilingReport(">stop", spec);
@@ -1762,34 +1767,30 @@ PluginSpec *PluginManagerPrivate::pluginByName(const QString &name) const
     return Utils::findOrDefault(pluginSpecs, [name](PluginSpec *spec) { return spec->name() == name; });
 }
 
-void PluginManagerPrivate::initProfiling()
+void PluginManagerPrivate::increaseProfilingVerbosity()
 {
-    if (m_profileTimer.isNull()) {
-        m_profileTimer.reset(new QElapsedTimer);
-        m_profileTimer->start();
-        m_profileElapsedMS = 0;
-        qDebug("Profiling started");
-    } else {
-        m_profilingVerbosity++;
-    }
+    m_profilingVerbosity++;
+    if (!m_profileTimer)
+        PluginManager::startProfiling();
 }
 
-void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *spec /* = 0 */)
+void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *spec, qint64 *target)
 {
-    if (!m_profileTimer.isNull()) {
-        const int absoluteElapsedMS = int(m_profileTimer->elapsed());
-        const int elapsedMS = absoluteElapsedMS - m_profileElapsedMS;
+    if (m_profileTimer) {
+        const qint64 absoluteElapsedMS = m_profileTimer->elapsed();
+        const qint64 elapsedMS = absoluteElapsedMS - m_profileElapsedMS;
         m_profileElapsedMS = absoluteElapsedMS;
-        if (spec)
-            qDebug("%-22s %-22s %8dms (%8dms)", what, qPrintable(spec->name()), absoluteElapsedMS, elapsedMS);
-        else
-            qDebug("%-45s %8dms (%8dms)", what, absoluteElapsedMS, elapsedMS);
-        if (what && *what == '<') {
+        if (m_profilingVerbosity > 0) {
+            qDebug("%-22s %-22s %8lldms (%8lldms)",
+                   what,
+                   qPrintable(spec->name()),
+                   absoluteElapsedMS,
+                   elapsedMS);
+        }
+        if (target) {
             QString tc;
-            if (spec) {
-                m_profileTotal[spec] += elapsedMS;
-                tc = spec->name() + '_';
-            }
+            *target = elapsedMS;
+            tc = spec->name() + '_';
             tc += QString::fromUtf8(QByteArray(what + 1));
             Utils::Benchmarker::report("loadPlugins", tc, elapsedMS);
         }
@@ -1798,22 +1799,23 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
 
 void PluginManagerPrivate::profilingSummary() const
 {
-    if (!m_profileTimer.isNull()) {
-        QMultiMap<int, const PluginSpec *> sorter;
-        int total = 0;
-
-        auto totalEnd = m_profileTotal.constEnd();
-        for (auto it = m_profileTotal.constBegin(); it != totalEnd; ++it) {
-            sorter.insert(it.value(), it.key());
-            total += it.value();
+    if (m_profilingVerbosity > 0) {
+        const QVector<PluginSpec *> specs
+            = Utils::sorted(pluginSpecs, [](PluginSpec *s1, PluginSpec *s2) {
+                  return s1->performanceData().total() < s2->performanceData().total();
+              });
+        const qint64 total
+            = std::accumulate(specs.constBegin(), specs.constEnd(), 0, [](qint64 t, PluginSpec *s) {
+                  return t + s->performanceData().total();
+              });
+        for (PluginSpec *s : specs) {
+            if (!s->isEffectivelyEnabled())
+                continue;
+            const qint64 t = s->performanceData().total();
+            qDebug("%-22s %8lldms   ( %5.2f%% )", qPrintable(s->name()), t, 100.0 * t / total);
         }
-
-        auto sorterEnd = sorter.constEnd();
-        for (auto it = sorter.constBegin(); it != sorterEnd; ++it)
-            qDebug("%-22s %8dms   ( %5.2f%% )", qPrintable(it.value()->name()),
-                it.key(), 100.0 * it.key() / total);
-         qDebug("Total: %8dms", total);
-         Utils::Benchmarker::report("loadPlugins", "Total", total);
+        qDebug("Total: %8lldms", total);
+        Utils::Benchmarker::report("loadPlugins", "Total", total);
     }
 }
 
@@ -1855,6 +1857,13 @@ QObject *PluginManager::getObjectByName(const QString &name)
     return Utils::findOrDefault(allObjects(), [&name](const QObject *obj) {
         return obj->objectName() == name;
     });
+}
+
+void PluginManager::startProfiling()
+{
+    d->m_profileTimer.reset(new QElapsedTimer);
+    d->m_profileTimer->start();
+    d->m_profileElapsedMS = 0;
 }
 
 } // ExtensionSystem

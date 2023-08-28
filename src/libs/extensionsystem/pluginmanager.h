@@ -64,6 +64,7 @@ public:
 
     static QObject *getObjectByName(const QString &name);
 
+    static void startProfiling();
     // Plugin operations
     static QVector<PluginSpec *> loadQueue();
     static void loadPlugins();

@@ -84,6 +84,8 @@ public:
     bool hasError = false;
     QString errorString;
 
+    PerformanceData performanceData;
+
     static bool isValidVersion(const QString &version);
     static int versionCompare(const QString &version1, const QString &version2);
 

@@ -642,6 +642,7 @@ int main(int argc, char **argv)
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
     PluginManager::setGlobalSettings(globalSettings);
     PluginManager::setSettings(settings);
+    PluginManager::startProfiling();
 
     QTranslator translator;
     QTranslator qtTranslator;

@@ -402,6 +402,11 @@ QJsonObject PluginSpec::metaData() const
     return d->metaData;
 }
 
+const PerformanceData &PluginSpec::performanceData() const
+{
+    return d->performanceData;
+}
+
 /*!
     Returns a list of descriptions of command line arguments the plugin processes.
 */

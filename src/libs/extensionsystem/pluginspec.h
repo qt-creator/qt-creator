@@ -53,6 +53,16 @@ struct EXTENSIONSYSTEM_EXPORT PluginArgumentDescription
     QString description;
 };
 
+struct EXTENSIONSYSTEM_EXPORT PerformanceData
+{
+    qint64 load = 0;
+    qint64 initialize = 0;
+    qint64 extensionsInitialized = 0;
+    qint64 delayedInitialize = 0;
+
+    qint64 total() const { return load + initialize + extensionsInitialized + delayedInitialize; }
+};
+
 class EXTENSIONSYSTEM_EXPORT PluginSpec
 {
 public:
@@ -84,6 +94,7 @@ public:
     bool isForceDisabled() const;
     QVector<PluginDependency> dependencies() const;
     QJsonObject metaData() const;
+    const PerformanceData &performanceData() const;
 
     using PluginArgumentDescriptions = QVector<PluginArgumentDescription>;
     PluginArgumentDescriptions argumentDescriptions() const;
