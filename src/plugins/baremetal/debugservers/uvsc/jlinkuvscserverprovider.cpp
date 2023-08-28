@@ -45,7 +45,7 @@ public:
     Port port = Port::SWD;
     Speed speed = Speed::Speed_1MHz;
 
-    QVariantMap toMap() const;
+    Store toMap() const;
     bool fromMap(const Store &data);
     bool operator==(const JLinkUvscAdapterOptions &other) const;
 };
@@ -122,9 +122,9 @@ static QString buildDllRegistryName(const DeviceSelection &device,
 
 // JLinkUvscAdapterOptions
 
-QVariantMap JLinkUvscAdapterOptions::toMap() const
+Store JLinkUvscAdapterOptions::toMap() const
 {
-    QVariantMap map;
+    Store map;
     map.insert(adapterPortKeyC, port);
     map.insert(adapterSpeedKeyC, speed);
     return map;
