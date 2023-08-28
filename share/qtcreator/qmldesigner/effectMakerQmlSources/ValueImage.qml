@@ -16,6 +16,8 @@ Row {
     HelperWidgets.UrlChooser {
         backendValue: uniformBackendValue
 
+        actionIndicatorVisible: false
+
         onAbsoluteFilePathChanged: uniformValue = absoluteFilePath
     }
 }

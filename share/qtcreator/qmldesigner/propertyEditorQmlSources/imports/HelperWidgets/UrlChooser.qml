@@ -27,6 +27,7 @@ Row {
 
     property alias comboBox: comboBox
     property alias spacer: spacer
+    property alias actionIndicatorVisible: comboBox.actionIndicatorVisible
 
     FileResourcesModel {
         id: fileModel
