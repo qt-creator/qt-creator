@@ -30,6 +30,8 @@ Item {
             valueLoader.source = "ValueColor.qml"
         else if (uniformType === "image")
             valueLoader.source = "ValueImage.qml"
+        else if (uniformType === "define")
+            valueLoader.source = "ValueDefine.qml"
         else
             valueLoader.source = "ValueFloat.qml"
     }
