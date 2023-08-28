@@ -104,7 +104,10 @@ DebuggerItem::DebuggerItem(const Store &data)
             && m_abis[0].osFlavor() == Abi::UnknownFlavor
             && m_abis[0].binaryFormat() == Abi::UnknownFormat;
 
-    if (m_version.isEmpty() || mightBeAPreQnxSeparateOSQnxDebugger)
+    bool needsReinitialization = m_version.isEmpty() && m_abis.isEmpty()
+                                 && m_engineType == NoEngineType;
+
+    if (needsReinitialization || mightBeAPreQnxSeparateOSQnxDebugger)
         reinitializeFromFile();
 }
 
