@@ -52,7 +52,7 @@ public:
 void ExtraAbi::load()
 {
     AbiFlavorAccessor accessor;
-    const Store data = accessor.restoreSettings(Core::ICore::dialogParent()).value("Flavors").value<Store>();
+    const Store data = storeFromVariant(accessor.restoreSettings(Core::ICore::dialogParent()).value("Flavors"));
     for (auto it = data.constBegin(); it != data.constEnd(); ++it) {
         const Key flavor = it.key();
         if (flavor.isEmpty())

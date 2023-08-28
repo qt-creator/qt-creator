@@ -151,8 +151,8 @@ void UvscServerProvider::toMap(Store &data) const
 {
     IDebugServerProvider::toMap(data);
     data.insert(toolsIniKeyC, m_toolsIniFile.toSettings());
-    data.insert(deviceSelectionKeyC, QVariant::fromValue(m_deviceSelection.toMap()));
-    data.insert(driverSelectionKeyC, QVariant::fromValue(m_driverSelection.toMap()));
+    data.insert(deviceSelectionKeyC, variantFromStore(m_deviceSelection.toMap()));
+    data.insert(driverSelectionKeyC, variantFromStore(m_driverSelection.toMap()));
 }
 
 bool UvscServerProvider::isValid() const
@@ -223,8 +223,8 @@ void UvscServerProvider::fromMap(const Store &data)
 {
     IDebugServerProvider::fromMap(data);
     m_toolsIniFile = FilePath::fromSettings(data.value(toolsIniKeyC));
-    m_deviceSelection.fromMap(data.value(deviceSelectionKeyC).value<Store>());
-    m_driverSelection.fromMap(data.value(driverSelectionKeyC).value<Store>());
+    m_deviceSelection.fromMap(storeFromVariant(data.value(deviceSelectionKeyC)));
+    m_driverSelection.fromMap(storeFromVariant(data.value(driverSelectionKeyC)));
 }
 
 FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool, QString &errorMessage) const

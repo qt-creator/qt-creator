@@ -388,7 +388,7 @@ Store VersionUpgrader::renameKeys(const QList<Change> &changes, Store map) const
     while (i != map.end()) {
         QVariant v = i.value();
         if (v.type() == QVariant::Map)
-            i.value() = QVariant::fromValue(renameKeys(changes, v.value<Store>()));
+            i.value() = variantFromStore(renameKeys(changes, storeFromVariant(v)));
 
         ++i;
     }
@@ -639,7 +639,7 @@ MergingSettingsAccessor::mergeSettings(const SettingsAccessor::RestoreData &main
             = [this](const SettingsMergeData &global, const SettingsMergeData &local) {
         return merge(global, local);
     };
-    const Store result = mergeQVariantMaps(main.data, secondary.data, mergeFunction).value<Store>();
+    const Store result = storeFromVariant(mergeQVariantMaps(main.data, secondary.data, mergeFunction));
 
     // Update from the base version to Creator's version.
     return RestoreData(main.path, postprocessMerge(main.data, secondary.data, result));
@@ -720,15 +720,15 @@ static QVariant mergeQVariantMapsRecursion(const Store &mainTree, const Store &s
         if (kv.second.type() == QVariant::Map) {
             const Key newKeyPrefix = keyPrefix + kv.first + '/';
             kv.second = mergeQVariantMapsRecursion(mainTree, secondaryTree, newKeyPrefix,
-                                                   kv.second.value<Store>(),
-                                                   secondarySubtree.value(kv.first).value<Store>(),
+                                                   storeFromVariant(kv.second),
+                                                   storeFromVariant(secondarySubtree.value(kv.first)),
                                                    merge);
         }
         if (!kv.second.isNull())
             result.insert(kv.first, kv.second);
     }
 
-    return QVariant::fromValue(result);
+    return variantFromStore(result);
 }
 
 QVariant mergeQVariantMaps(const Store &mainTree, const Store &secondaryTree,

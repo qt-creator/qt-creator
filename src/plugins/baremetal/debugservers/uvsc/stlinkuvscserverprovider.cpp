@@ -209,7 +209,7 @@ void StLinkUvscServerProvider::toMap(Store &data) const
 void StLinkUvscServerProvider::fromMap(const Store &data)
 {
     UvscServerProvider::fromMap(data);
-    m_adapterOpts.fromMap(data.value(adapterOptionsKeyC).value<Store>());
+    m_adapterOpts.fromMap(storeFromVariant(data.value(adapterOptionsKeyC)));
 }
 
 bool StLinkUvscServerProvider::operator==(const IDebugServerProvider &other) const

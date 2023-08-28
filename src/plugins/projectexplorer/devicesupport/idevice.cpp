@@ -475,7 +475,7 @@ void IDevice::fromMap(const Store &map)
     d->debugServerPath = FilePath::fromSettings(map.value(DebugServerKey));
     const FilePath qmlRunCmd = FilePath::fromSettings(map.value(QmlRuntimeKey));
     d->qmlRunCommand = qmlRunCmd;
-    d->extraData = map.value(ExtraDataKey).value<Store>();
+    d->extraData = storeFromVariant(map.value(ExtraDataKey));
 }
 
 /*!
@@ -509,7 +509,7 @@ Store IDevice::toMap() const
     map.insert(DebugServerKey, d->debugServerPath.toSettings());
     map.insert(QmlRuntimeKey, d->qmlRunCommand.toSettings());
 
-    map.insert(ExtraDataKey, QVariant::fromValue(d->extraData));
+    map.insert(ExtraDataKey, variantFromStore(d->extraData));
 
     return map;
 }

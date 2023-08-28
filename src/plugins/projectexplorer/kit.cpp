@@ -146,7 +146,7 @@ Kit::Kit(const Store &data)
     if (it != data.constEnd())
         d->m_irrelevantAspects = transform<QSet<Id>>(it.value().toList(), &Id::fromSetting);
 
-    Store extra = data.value(DATA_KEY).value<Store>();
+    Store extra = storeFromVariant(data.value(DATA_KEY));
     d->m_data.clear(); // remove default values
     const Store::ConstIterator cend = extra.constEnd();
     for (Store::ConstIterator it = extra.constBegin(); it != cend; ++it)
@@ -518,7 +518,7 @@ Store Kit::toMap() const
     const IdVariantConstIt cend = d->m_data.constEnd();
     for (IdVariantConstIt it = d->m_data.constBegin(); it != cend; ++it)
         extra.insert(keyFromString(QString::fromLatin1(it.key().name().constData())), it.value());
-    data.insert(DATA_KEY, QVariant::fromValue(extra));
+    data.insert(DATA_KEY, variantFromStore(extra));
 
     return data;
 }

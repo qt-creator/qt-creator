@@ -131,7 +131,7 @@ void IosDevice::fromMap(const Store &map)
     IDevice::fromMap(map);
 
     m_extraInfo.clear();
-    const Store vMap = map.value(Constants::EXTRA_INFO_KEY).value<Store>();
+    const Store vMap = storeFromVariant(map.value(Constants::EXTRA_INFO_KEY));
     for (auto i = vMap.cbegin(), end = vMap.cend(); i != end; ++i)
         m_extraInfo.insert(stringFromKey(i.key()), i.value().toString());
 }
@@ -142,7 +142,7 @@ Store IosDevice::toMap() const
     Store vMap;
     for (auto i = m_extraInfo.cbegin(), end = m_extraInfo.cend(); i != end; ++i)
         vMap.insert(keyFromString(i.key()), i.value());
-    res.insert(Constants::EXTRA_INFO_KEY, QVariant::fromValue(vMap));
+    res.insert(Constants::EXTRA_INFO_KEY, variantFromStore(vMap));
     return res;
 }
 

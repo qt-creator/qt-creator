@@ -144,8 +144,8 @@ Store CustomParserSettings::toMap() const
     Store map;
     map.insert(idKey, id.toSetting());
     map.insert(nameKey, displayName);
-    map.insert(errorKey, QVariant::fromValue(error.toMap()));
-    map.insert(warningKey, QVariant::fromValue(warning.toMap()));
+    map.insert(errorKey, variantFromStore(error.toMap()));
+    map.insert(warningKey, variantFromStore(warning.toMap()));
     return map;
 }
 
@@ -153,8 +153,8 @@ void CustomParserSettings::fromMap(const Store &map)
 {
     id = Id::fromSetting(map.value(idKey));
     displayName = map.value(nameKey).toString();
-    error.fromMap(map.value(errorKey).value<Store>());
-    warning.fromMap(map.value(warningKey).value<Store>());
+    error.fromMap(storeFromVariant(map.value(errorKey)));
+    warning.fromMap(storeFromVariant(map.value(warningKey)));
 }
 
 CustomParsersAspect::CustomParsersAspect(Target *target)

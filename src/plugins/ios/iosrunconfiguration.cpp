@@ -210,7 +210,7 @@ void IosDeviceTypeAspect::fromMap(const Store &map)
 {
     bool deviceTypeIsInt;
     map.value(deviceTypeKey).toInt(&deviceTypeIsInt);
-    if (deviceTypeIsInt || !m_deviceType.fromMap(map.value(deviceTypeKey).value<Store>()))
+    if (deviceTypeIsInt || !m_deviceType.fromMap(storeFromVariant(map.value(deviceTypeKey))))
         updateDeviceType();
 
     m_runConfiguration->update();

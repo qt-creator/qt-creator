@@ -21,4 +21,7 @@ using Store = QVariantMap;
 QTCREATOR_UTILS_EXPORT KeyList keysFromStrings(const QStringList &list);
 QTCREATOR_UTILS_EXPORT QStringList stringsFromKeys(const KeyList &list);
 
+QTCREATOR_UTILS_EXPORT QVariant variantFromStore(const Store &store);
+QTCREATOR_UTILS_EXPORT Store storeFromVariant(const QVariant &value);
+
 } // Utils

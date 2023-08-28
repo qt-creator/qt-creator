@@ -224,7 +224,7 @@ void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWi
         tc->toMap(tmp);
         if (tmp.isEmpty())
             continue;
-        data.insert(TOOLCHAIN_DATA_KEY + Key::number(count), QVariant::fromValue(tmp));
+        data.insert(TOOLCHAIN_DATA_KEY + Key::number(count), variantFromStore(tmp));
         ++count;
     }
     data.insert(TOOLCHAIN_COUNT_KEY, count);
@@ -245,7 +245,7 @@ Toolchains ToolChainSettingsAccessor::toolChains(const Store &data) const
         if (!data.contains(key))
             break;
 
-        const Store tcMap = data.value(key).value<Store>();
+        const Store tcMap = storeFromVariant(data.value(key));
 
         bool restored = false;
         const Utils::Id tcType = ToolChainFactory::typeIdFromMap(tcMap);

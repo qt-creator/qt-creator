@@ -42,11 +42,11 @@ void ToolsSettingsAccessor::saveMesonTools(const std::vector<MesonTools::Tool_t>
     for (const MesonTools::Tool_t &tool : tools) {
         auto asMeson = std::dynamic_pointer_cast<MesonWrapper>(tool);
         if (asMeson)
-            data.insert(entryName(entry_count), QVariant::fromValue(toVariantMap<MesonWrapper>(*asMeson)));
+            data.insert(entryName(entry_count), variantFromStore(toVariantMap<MesonWrapper>(*asMeson)));
         else {
             auto asNinja = std::dynamic_pointer_cast<NinjaWrapper>(tool);
             if (asNinja)
-                data.insert(entryName(entry_count), QVariant::fromValue(toVariantMap<NinjaWrapper>(*asNinja)));
+                data.insert(entryName(entry_count), variantFromStore(toVariantMap<NinjaWrapper>(*asNinja)));
         }
         entry_count++;
     }
@@ -66,9 +66,9 @@ std::vector<MesonTools::Tool_t> ToolsSettingsAccessor::loadMesonTools(QWidget *p
             const auto map = data[name].toMap();
             auto type = map.value(ToolsSettings::TOOL_TYPE_KEY, ToolsSettings::TOOL_TYPE_MESON);
             if (type == ToolsSettings::TOOL_TYPE_NINJA)
-                result.emplace_back(fromVariantMap<NinjaWrapper *>(data[name].value<Store>()));
+                result.emplace_back(fromVariantMap<NinjaWrapper *>(storeFromVariant(data[name])));
             else
-                result.emplace_back(fromVariantMap<MesonWrapper *>(data[name].value<Store>()));
+                result.emplace_back(fromVariantMap<MesonWrapper *>(storeFromVariant(data[name])));
         }
     }
     return result;

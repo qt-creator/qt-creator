@@ -57,7 +57,7 @@ void ProjectCommentsSettings::loadSettings()
     if (!entry.isValid())
         return;
 
-    const Store data = entry.value<Store>();
+    const Store data = storeFromVariant(entry);
     m_useGlobalSettings = data.value(kUseGlobalKey, true).toBool();
     m_customSettings.enableDoxygen = data.value(CommentsSettings::enableDoxygenSettingsKey(),
                                                 m_customSettings.enableDoxygen).toBool();
@@ -87,7 +87,7 @@ void ProjectCommentsSettings::saveSettings()
     data.insert(CommentsSettings::generateBriefSettingsKey(), m_customSettings.generateBrief);
     data.insert(CommentsSettings::leadingAsterisksSettingsKey(), m_customSettings.leadingAsterisks);
     data.insert(CommentsSettings::commandPrefixKey(), int(m_customSettings.commandPrefix));
-    m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), QVariant::fromValue(data));
+    m_project->setNamedSettings(CommentsSettings::mainSettingsKey(), variantFromStore(data));
 }
 
 class ProjectCommentsSettingsWidget::Private

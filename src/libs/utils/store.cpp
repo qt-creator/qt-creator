@@ -17,4 +17,14 @@ QStringList stringsFromKeys(const KeyList &list)
     return transform(list, &stringFromKey);
 }
 
+QVariant variantFromStore(const Store &store)
+{
+    return QVariant::fromValue(store);
+}
+
+Store storeFromVariant(const QVariant &value)
+{
+    return value.value<Store>();
+}
+
 } // Utils

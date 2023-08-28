@@ -83,7 +83,7 @@ Store DeviceSelection::toMap() const
         m.insert(deviceMemoryIdKeyC, memory.id);
         m.insert(deviceMemoryStartKeyC, memory.start);
         m.insert(deviceMemorySizeKeyC, memory.size);
-        memoryList.push_back(QVariant::fromValue(m));
+        memoryList.push_back(variantFromStore(m));
     }
     map.insert(deviceMemoryKeyC, memoryList);
     // Device ALGORITHM.
@@ -95,7 +95,7 @@ Store DeviceSelection::toMap() const
         m.insert(deviceAlgorithmFlashSizeKeyC, algorithm.flashSize);
         m.insert(deviceAlgorithmRamStartKeyC, algorithm.ramStart);
         m.insert(deviceAlgorithmRamSizeKeyC, algorithm.ramSize);
-        algorithmList.push_back(QVariant::fromValue(m));
+        algorithmList.push_back(variantFromStore(m));
     }
     map.insert(deviceAlgorithmKeyC, algorithmList);
     map.insert(deviceAlgorithmIndexKeyC, algorithmIndex);

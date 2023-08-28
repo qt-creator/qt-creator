@@ -94,7 +94,7 @@ void DebugServerProviderManager::restoreProviders()
         if (!data.contains(key))
             break;
 
-        Store map = data.value(key).value<Store>();
+        Store map = storeFromVariant(data.value(key));
         const KeyList keys = map.keys();
         for (const Key &key : keys) {
             const int lastDot = key.lastIndexOf('.');

@@ -698,11 +698,11 @@ void Project::toMap(Store &map) const
     map.insert(ACTIVE_TARGET_KEY, ts.indexOf(d->m_activeTarget));
     map.insert(TARGET_COUNT_KEY, ts.size());
     for (int i = 0; i < ts.size(); ++i)
-        map.insert(TARGET_KEY_PREFIX + Key::number(i), QVariant::fromValue(ts.at(i)->toMap()));
+        map.insert(TARGET_KEY_PREFIX + Key::number(i), variantFromStore(ts.at(i)->toMap()));
 
-    map.insert(EDITOR_SETTINGS_KEY, QVariant::fromValue(d->m_editorConfiguration.toMap()));
+    map.insert(EDITOR_SETTINGS_KEY, variantFromStore(d->m_editorConfiguration.toMap()));
     if (!d->m_pluginSettings.isEmpty())
-        map.insert(PLUGIN_SETTINGS_KEY, QVariant::fromValue(d->m_pluginSettings));
+        map.insert(PLUGIN_SETTINGS_KEY, variantFromStore(d->m_pluginSettings));
 }
 
 /*!
@@ -768,12 +768,12 @@ Project::RestoreResult Project::fromMap(const Store &map, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
     if (map.contains(EDITOR_SETTINGS_KEY)) {
-        Store values(map.value(EDITOR_SETTINGS_KEY).value<Store>());
+        Store values = storeFromVariant(map.value(EDITOR_SETTINGS_KEY));
         d->m_editorConfiguration.fromMap(values);
     }
 
     if (map.contains(PLUGIN_SETTINGS_KEY))
-        d->m_pluginSettings = map.value(PLUGIN_SETTINGS_KEY).value<Store>();
+        d->m_pluginSettings = storeFromVariant(map.value(PLUGIN_SETTINGS_KEY));
 
     bool ok;
     int maxI(map.value(TARGET_COUNT_KEY, 0).toInt(&ok));
@@ -805,7 +805,7 @@ void Project::createTargetFromMap(const Store &map, int index)
     if (!map.contains(key))
         return;
 
-    const Store targetMap = map.value(key).value<Store>();
+    const Store targetMap = storeFromVariant(map.value(key));
 
     Id id = idFromMap(targetMap);
     if (target(id)) {

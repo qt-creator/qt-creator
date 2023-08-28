@@ -1433,7 +1433,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     setInitializer([this, target](const BuildInfo &info) {
         const Kit *k = target->kit();
         const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
-        const Store extraInfoMap = info.extraInfo.value<Store>();
+        const Store extraInfoMap = storeFromVariant(info.extraInfo);
         const QString buildType = extraInfoMap.contains(CMAKE_BUILD_TYPE)
                                       ? extraInfoMap.value(CMAKE_BUILD_TYPE).toString()
                                       : info.typeName;
@@ -1942,7 +1942,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
         Store extraInfo;
         // enable QML debugging by default
         extraInfo.insert(Constants::QML_DEBUG_SETTING, TriState::Enabled.toVariant());
-        info.extraInfo = QVariant::fromValue(extraInfo);
+        info.extraInfo = variantFromStore(extraInfo);
         break;
     }
     case BuildTypeRelease:
@@ -1969,7 +1969,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
         extraInfo.insert(CMAKE_BUILD_TYPE, "RelWithDebInfo");
         // enable QML debugging by default
         extraInfo.insert(Constants::QML_DEBUG_SETTING, TriState::Enabled.toVariant());
-        info.extraInfo = QVariant::fromValue(extraInfo);
+        info.extraInfo = variantFromStore(extraInfo);
         break;
     }
     default:

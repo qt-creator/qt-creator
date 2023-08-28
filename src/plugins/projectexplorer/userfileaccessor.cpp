@@ -405,7 +405,7 @@ Store UserFileAccessor::postprocessMerge(const Store &main,
                                          const Store &secondary,
                                          const Store &result) const
 {
-    project()->setProperty(SHARED_SETTINGS, QVariant::fromValue(secondary));
+    project()->setProperty(SHARED_SETTINGS, variantFromStore(secondary));
     return MergingSettingsAccessor::postprocessMerge(main, secondary, result);
 }
 
@@ -429,12 +429,12 @@ Store UserFileAccessor::preprocessReadSettings(const Store &data) const
 Store UserFileAccessor::prepareToWriteSettings(const Store &data) const
 {
     const Store tmp = MergingSettingsAccessor::prepareToWriteSettings(data);
-    const Store shared = retrieveSharedSettings().value<Store>();
+    const Store shared = storeFromVariant(retrieveSharedSettings());
     Store result;
     if (!shared.isEmpty()) {
         KeyList stickyKeys;
         SettingsMergeFunction merge = userStickyTrackerFunction(stickyKeys);
-        result = mergeQVariantMaps(tmp, shared, merge).value<Store>();
+        result = storeFromVariant(mergeQVariantMaps(tmp, shared, merge));
         result.insert(USER_STICKY_KEYS_KEY, stringsFromKeys(stickyKeys));
     } else {
         result = tmp;
@@ -454,7 +454,7 @@ Store UserFileVersion14Upgrader::upgrade(const Store &map)
     Store result;
     for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
         if (it.value().typeId() == QVariant::Map)
-            result.insert(it.key(), QVariant::fromValue(upgrade(it.value().value<Store>())));
+            result.insert(it.key(), variantFromStore(upgrade(storeFromVariant(it.value()))));
         else if (it.key() == "AutotoolsProjectManager.AutotoolsBuildConfiguration.BuildDirectory"
                  || it.key() == "CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory"
                  || it.key() == "GenericProjectManager.GenericBuildConfiguration.BuildDirectory"
@@ -490,11 +490,11 @@ UserFileVersion16Upgrader::OldStepMaps UserFileVersion16Upgrader::extractStepMap
     result.defaultDisplayName = deployMap.value("ProjectExplorer.ProjectConfiguration.DefaultDisplayName").toString();
     result.displayName = deployMap.value("ProjectExplorer.ProjectConfiguration.DisplayName").toString();
     const Key stepListKey = "ProjectExplorer.BuildConfiguration.BuildStepList.0";
-    Store stepListMap = deployMap.value(stepListKey).value<Store>();
+    Store stepListMap = storeFromVariant(deployMap.value(stepListKey));
     int stepCount = stepListMap.value("ProjectExplorer.BuildStepList.StepsCount", 0).toInt();
     Key stepKey = "ProjectExplorer.BuildStepList.Step.";
     for (int i = 0; i < stepCount; ++i) {
-        Store stepMap = stepListMap.value(stepKey + Key::number(i)).value<Store>();
+        Store stepMap = storeFromVariant(stepListMap.value(stepKey + Key::number(i)));
         const QString id = stepMap.value("ProjectExplorer.ProjectConfiguration.Id").toString();
         if (id == "Qt4ProjectManager.AndroidDeployQtStep")
             result.androidDeployQt = stepMap;
@@ -510,16 +510,16 @@ UserFileVersion16Upgrader::OldStepMaps UserFileVersion16Upgrader::extractStepMap
 Store UserFileVersion16Upgrader::removeAndroidPackageStep(Store deployMap)
 {
     const Key stepListKey = "ProjectExplorer.BuildConfiguration.BuildStepList.0";
-    Store stepListMap = deployMap.value(stepListKey).value<Store>();
+    Store stepListMap = storeFromVariant(deployMap.value(stepListKey));
     const Key stepCountKey = "ProjectExplorer.BuildStepList.StepsCount";
     int stepCount = stepListMap.value(stepCountKey, 0).toInt();
     Key stepKey = "ProjectExplorer.BuildStepList.Step.";
     int targetPosition = 0;
     for (int sourcePosition = 0; sourcePosition < stepCount; ++sourcePosition) {
-        Store stepMap = stepListMap.value(stepKey + Key::number(sourcePosition)).value<Store>();
+        Store stepMap = storeFromVariant(stepListMap.value(stepKey + Key::number(sourcePosition)));
         if (stepMap.value("ProjectExplorer.ProjectConfiguration.Id").toString()
                 != "Qt4ProjectManager.AndroidPackageInstallationStep") {
-            stepListMap.insert(stepKey + Key::number(targetPosition), QVariant::fromValue(stepMap));
+            stepListMap.insert(stepKey + Key::number(targetPosition), variantFromStore(stepMap));
             ++targetPosition;
         }
     }
@@ -529,7 +529,7 @@ Store UserFileVersion16Upgrader::removeAndroidPackageStep(Store deployMap)
     for (int i = targetPosition; i < stepCount; ++i)
         stepListMap.remove(stepKey + Key::number(i));
 
-    deployMap.insert(stepListKey, QVariant::fromValue(stepListMap));
+    deployMap.insert(stepListKey, variantFromStore(stepListMap));
     return deployMap;
 }
 
@@ -598,10 +598,10 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
         androidBuildApkStep.insert(VerboseOutputKey, verbose);
 
         const Key buildStepKey = "ProjectExplorer.BuildStepList.Step.";
-        buildStepListMap.insert(buildStepKey + Key::number(stepCount), QVariant::fromValue(androidPackageInstallStep));
-        buildStepListMap.insert(buildStepKey + Key::number(stepCount + 1), QVariant::fromValue(androidBuildApkStep));
+        buildStepListMap.insert(buildStepKey + Key::number(stepCount), variantFromStore(androidPackageInstallStep));
+        buildStepListMap.insert(buildStepKey + Key::number(stepCount + 1), variantFromStore(androidBuildApkStep));
 
-        buildConfigurationMap.insert(bslKey + Key::number(bslNumber), QVariant::fromValue(buildStepListMap));
+        buildConfigurationMap.insert(bslKey + Key::number(bslNumber), variantFromStore(buildStepListMap));
     }
 
     if (policy == RenameBuildConfiguration) {
@@ -638,7 +638,7 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
 
     for (int i = 0; i < targetCount; ++i) {
         Key targetKey = "ProjectExplorer.Project.Target." + Key::number(i);
-        Store targetMap = data.value(targetKey).value<Store>();
+        Store targetMap = storeFromVariant(data.value(targetKey));
 
         const Key dcCountKey = "ProjectExplorer.Target.DeployConfigurationCount";
         int deployconfigurationCount = targetMap.value(dcCountKey).toInt();
@@ -651,7 +651,7 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
         Key deployKey = "ProjectExplorer.Target.DeployConfiguration.";
         for (int j = 0; j < deployconfigurationCount; ++j) {
             Store deployConfigurationMap
-                    = targetMap.value(deployKey + Key::number(j)).value<Store>();
+                    = storeFromVariant(targetMap.value(deployKey + Key::number(j)));
             OldStepMaps oldStep = extractStepMaps(deployConfigurationMap);
             if (!oldStep.isEmpty()) {
                 oldSteps.append(oldStep);
@@ -672,7 +672,7 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
 
         Key bcKey = "ProjectExplorer.Target.BuildConfiguration.";
         for (int j = 0; j < buildConfigurationCount; ++j) {
-            Store oldBuildConfigurationMap = targetMap.value(bcKey + Key::number(j)).value<Store>();
+            Store oldBuildConfigurationMap = storeFromVariant(targetMap.value(bcKey + Key::number(j)));
             oldBuildConfigurations.append(oldBuildConfigurationMap);
         }
 
@@ -691,8 +691,8 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
         targetMap.insert(bcCountKey, newBuildConfigurations.size());
 
         for (int j = 0; j < newBuildConfigurations.size(); ++j)
-            targetMap.insert(bcKey + Key::number(j), QVariant::fromValue(newBuildConfigurations.at(j)));
-        result.insert(targetKey, QVariant::fromValue(targetMap));
+            targetMap.insert(bcKey + Key::number(j), variantFromStore(newBuildConfigurations.at(j)));
+        result.insert(targetKey, variantFromStore(targetMap));
     }
 
     return result;
@@ -703,7 +703,7 @@ Store UserFileVersion17Upgrader::upgrade(const Store &map)
     m_sticky = map.value(USER_STICKY_KEYS_KEY).toList();
     if (m_sticky.isEmpty())
         return map;
-    return process(QVariant::fromValue(map)).value<Store>();
+    return storeFromVariant(process(variantFromStore(map)));
 }
 
 QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
@@ -716,13 +716,13 @@ QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
         return result;
     }
     case QVariant::Map: {
-        Store result = entry.value<Store>();
+        Store result = storeFromVariant(entry);
         for (Store::iterator i = result.begin(), end = result.end(); i != end; ++i) {
             QVariant &v = i.value();
             v = process(v);
         }
         result.insert(USER_STICKY_KEYS_KEY, m_sticky);
-        return QVariant::fromValue(result);
+        return variantFromStore(result);
     }
     default:
         return entry;
@@ -731,7 +731,7 @@ QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
 
 Store UserFileVersion18Upgrader::upgrade(const Store &map)
 {
-    return process(QVariant::fromValue(map)).value<Store>();
+    return storeFromVariant(process(variantFromStore(map)));
 }
 
 QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
@@ -740,7 +740,7 @@ QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
     case QVariant::List:
         return Utils::transform(entry.toList(), &UserFileVersion18Upgrader::process);
     case QVariant::Map: {
-        Store map = entry.value<Store>();
+        Store map = storeFromVariant(entry);
         Store result;
         for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
             Key key = it.key() == "AutotoolsProjectManager.MakeStep.AdditionalArguments"
@@ -748,7 +748,7 @@ QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
                           : it.key();
             result.insert(key, UserFileVersion18Upgrader::process(it.value()));
         }
-        return QVariant::fromValue(result);
+        return variantFromStore(result);
     }
     default:
         return entry;
@@ -757,7 +757,7 @@ QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
 
 Store UserFileVersion19Upgrader::upgrade(const Store &map)
 {
-    return process(QVariant::fromValue(map), KeyList()).value<Store>();
+    return storeFromVariant(process(variantFromStore(map), KeyList()));
 }
 
 QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const KeyList &path)
@@ -797,7 +797,7 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const KeyList
         return Utils::transform(entry.toList(),
                                 std::bind(&UserFileVersion19Upgrader::process, std::placeholders::_1, path));
     case QVariant::Map: {
-        Store map = entry.value<Store>();
+        Store map = storeFromVariant(entry);
         Store result;
         for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
             Key key = it.key();
@@ -820,7 +820,7 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const KeyList
             }
             result.insert(key, value);
         };
-        return QVariant::fromValue(result);
+        return variantFromStore(result);
     }
     default:
         return entry;
@@ -829,7 +829,7 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const KeyList
 
 Store UserFileVersion20Upgrader::upgrade(const Store &map)
 {
-    return process(QVariant::fromValue(map)).value<Store>();
+    return storeFromVariant(process(variantFromStore(map)));
 }
 
 QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
@@ -838,7 +838,7 @@ QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
     case QVariant::List:
         return Utils::transform(entry.toList(), &UserFileVersion20Upgrader::process);
     case QVariant::Map: {
-        Store map = entry.value<Store>();
+        Store map = storeFromVariant(entry);
         Store result;
         for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
             Key key = it.key();
@@ -849,7 +849,7 @@ QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
                 value = UserFileVersion20Upgrader::process(value);
             result.insert(key, value);
         }
-        return QVariant::fromValue(result);
+        return variantFromStore(result);
     }
     default:
         return entry;
@@ -858,7 +858,7 @@ QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
 
 Store UserFileVersion21Upgrader::upgrade(const Store &map)
 {
-    return process(QVariant::fromValue(map)).value<Store>();
+    return storeFromVariant(process(variantFromStore(map)));
 }
 
 QVariant UserFileVersion21Upgrader::process(const QVariant &entry)
@@ -867,17 +867,17 @@ QVariant UserFileVersion21Upgrader::process(const QVariant &entry)
     case QVariant::List:
         return Utils::transform(entry.toList(), &UserFileVersion21Upgrader::process);
     case QVariant::Map: {
-        Store entryMap = entry.value<Store>();
+        Store entryMap = storeFromVariant(entry);
         if (entryMap.value("ProjectExplorer.ProjectConfiguration.Id").toString()
                 == "DeployToGenericLinux") {
             entryMap.insert("_checkMakeInstall", true);
-            return QVariant::fromValue(entryMap);
+            return variantFromStore(entryMap);
         }
-        Store map = entry.value<Store>();
+        Store map = storeFromVariant(entry);
         Store result;
         for (auto it = map.cbegin(), end = map.cend(); it != end; ++it)
             result.insert(it.key(), UserFileVersion21Upgrader::process(it.value()));
-        return QVariant::fromValue(result);
+        return variantFromStore(result);
     }
     default:
         return entry;
@@ -898,7 +898,7 @@ public:
     TestUserFileAccessor(Project *project) : UserFileAccessor(project) { }
 
     void storeSharedSettings(const Store &data) const { m_storedSettings = data; }
-    QVariant retrieveSharedSettings() const override { return QVariant::fromValue(m_storedSettings); }
+    QVariant retrieveSharedSettings() const override { return variantFromStore(m_storedSettings); }
 
     using UserFileAccessor::preprocessReadSettings;
     using UserFileAccessor::prepareToWriteSettings;

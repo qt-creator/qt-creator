@@ -448,7 +448,7 @@ void KitManager::saveKits()
         Store tmp = k->toMap();
         if (tmp.isEmpty())
             continue;
-        data.insert(KIT_DATA_KEY + Key::number(count), QVariant::fromValue(tmp));
+        data.insert(KIT_DATA_KEY + Key::number(count), variantFromStore(tmp));
         ++count;
     }
     data.insert(KIT_COUNT_KEY, count);
@@ -518,7 +518,7 @@ static KitList restoreKitsHelper(const FilePath &fileName)
         if (!data.contains(key))
             break;
 
-        const Store stMap = data.value(key).value<Store>();
+        const Store stMap = storeFromVariant(data.value(key));
 
         auto k = std::make_unique<Kit>(stMap);
         if (k->id().isValid()) {

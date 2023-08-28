@@ -738,14 +738,14 @@ bool BadToolchains::isBadToolchain(const FilePath &toolchain) const
 QVariant BadToolchains::toVariant() const
 {
     return Utils::transform<QVariantList>(toolchains, [](const BadToolchain &bdc) {
-        return QVariant::fromValue(bdc.toMap());
+        return variantFromStore(bdc.toMap());
     });
 }
 
 BadToolchains BadToolchains::fromVariant(const QVariant &v)
 {
     return Utils::transform<QList<BadToolchain>>(v.toList(),
-            [](const QVariant &e) { return BadToolchain::fromMap(e.value<Store>()); });
+            [](const QVariant &e) { return BadToolchain::fromMap(storeFromVariant(e)); });
 }
 
 } // namespace ProjectExplorer

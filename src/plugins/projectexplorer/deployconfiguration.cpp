@@ -54,14 +54,14 @@ void DeployConfiguration::toMap(Store &map) const
 {
     ProjectConfiguration::toMap(map);
     map.insert(BUILD_STEP_LIST_COUNT, 1);
-    map.insert(Key(BUILD_STEP_LIST_PREFIX) + '0', QVariant::fromValue(m_stepList.toMap()));
+    map.insert(Key(BUILD_STEP_LIST_PREFIX) + '0', variantFromStore(m_stepList.toMap()));
     map.insert(USES_DEPLOYMENT_DATA, usesCustomDeploymentData());
     Store deployData;
     for (int i = 0; i < m_customDeploymentData.fileCount(); ++i) {
         const DeployableFile &f = m_customDeploymentData.fileAt(i);
         deployData.insert(keyFromString(f.localFilePath().toString()), f.remoteDirectory());
     }
-    map.insert(DEPLOYMENT_DATA, QVariant::fromValue(deployData));
+    map.insert(DEPLOYMENT_DATA, variantFromStore(deployData));
 }
 
 void DeployConfiguration::fromMap(const Store &map)
@@ -75,7 +75,7 @@ void DeployConfiguration::fromMap(const Store &map)
         reportError();
         return;
     }
-    Store data = map.value(Key(BUILD_STEP_LIST_PREFIX) + '0').value<Store>();
+    Store data = storeFromVariant(map.value(Key(BUILD_STEP_LIST_PREFIX) + '0'));
     if (!data.isEmpty()) {
         m_stepList.clear();
         if (!m_stepList.fromMap(data)) {
@@ -91,7 +91,7 @@ void DeployConfiguration::fromMap(const Store &map)
     }
 
     m_usesCustomDeploymentData = map.value(USES_DEPLOYMENT_DATA, false).toBool();
-    const Store deployData = map.value(DEPLOYMENT_DATA).value<Store>();
+    const Store deployData = storeFromVariant(map.value(DEPLOYMENT_DATA));
     for (auto it = deployData.begin(); it != deployData.end(); ++it)
         m_customDeploymentData.addFile(FilePath::fromString(stringFromKey(it.key())), it.value().toString());
 }

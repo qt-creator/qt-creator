@@ -442,7 +442,7 @@ public:
             if (tmp.isEmpty())
                 continue;
 
-            data.insert(QNXConfigDataKey + Key::number(count), QVariant::fromValue(tmp));
+            data.insert(QNXConfigDataKey + Key::number(count), variantFromStore(tmp));
             ++count;
         }
 
@@ -464,7 +464,7 @@ public:
                 continue;
 
             QnxConfiguration config;
-            config.fromMap(data.value(key).value<Store>());
+            config.fromMap(storeFromVariant(data.value(key)));
             m_configurations[config.m_envFile] = config;
         }
     }

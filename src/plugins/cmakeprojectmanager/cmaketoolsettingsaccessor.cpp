@@ -186,7 +186,7 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
             Store tmp = item->toMap();
             if (tmp.isEmpty())
                 continue;
-            data.insert(CMAKE_TOOL_DATA_KEY + Key::number(count), QVariant::fromValue(tmp));
+            data.insert(CMAKE_TOOL_DATA_KEY + Key::number(count), variantFromStore(tmp));
             ++count;
         }
     }
@@ -206,7 +206,7 @@ CMakeToolSettingsAccessor::cmakeTools(const Store &data, bool fromSdk) const
         if (!data.contains(key))
             continue;
 
-        const Store dbMap = data.value(key).value<Store>();
+        const Store dbMap = storeFromVariant(data.value(key));
         auto item = std::make_unique<CMakeTool>(dbMap, fromSdk);
         const FilePath cmakeExecutable = item->cmakeExecutable();
         if (item->isAutoDetected() && !cmakeExecutable.needsDevice() && !cmakeExecutable.isExecutableFile()) {

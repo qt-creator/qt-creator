@@ -135,7 +135,7 @@ QVariant ParseValueStackEntry::value() const
     case QVariant::Invalid:
         return QVariant();
     case QVariant::Map:
-        return QVariant::fromValue(mapValue);
+        return variantFromStore(mapValue);
     case QVariant::List:
         return QVariant(listValue);
     default:
@@ -378,7 +378,7 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
         w.writeAttribute(ctx.typeAttribute, QLatin1String(QVariant::typeToName(QVariant::Map)));
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
-        const Store varMap = variant.value<Store>();
+        const Store varMap = storeFromVariant(variant);
         const Store::const_iterator cend = varMap.constEnd();
         for (Store::const_iterator i = varMap.constBegin(); i != cend; ++i)
             writeVariantValue(w, ctx, i.value(), i.key());

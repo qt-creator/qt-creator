@@ -243,13 +243,13 @@ JLinkUvscServerProvider::JLinkUvscServerProvider()
 void JLinkUvscServerProvider::toMap(Store &data) const
 {
     UvscServerProvider::toMap(data);
-    data.insert(adapterOptionsKeyC, QVariant::fromValue(m_adapterOpts.toMap()));
+    data.insert(adapterOptionsKeyC, variantFromStore(m_adapterOpts.toMap()));
 }
 
 void JLinkUvscServerProvider::fromMap(const Store &data)
 {
     UvscServerProvider::fromMap(data);
-    m_adapterOpts.fromMap(data.value(adapterOptionsKeyC).value<Store>());
+    m_adapterOpts.fromMap(storeFromVariant(data.value(adapterOptionsKeyC)));
 }
 
 bool JLinkUvscServerProvider::operator==(const IDebugServerProvider &other) const

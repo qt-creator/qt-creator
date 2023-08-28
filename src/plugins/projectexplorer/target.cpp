@@ -605,7 +605,7 @@ Store Target::toMap() const
     for (int i = 0; i < bcs.size(); ++i) {
         Store data;
         bcs.at(i)->toMap(data);
-        map.insert(BC_KEY_PREFIX + Key::number(i), QVariant::fromValue(data));
+        map.insert(BC_KEY_PREFIX + Key::number(i), variantFromStore(data));
     }
 
     const QList<DeployConfiguration *> dcs = deployConfigurations();
@@ -614,7 +614,7 @@ Store Target::toMap() const
     for (int i = 0; i < dcs.size(); ++i) {
         Store data;
         dcs.at(i)->toMap(data);
-        map.insert(DC_KEY_PREFIX + Key::number(i), QVariant::fromValue(data));
+        map.insert(DC_KEY_PREFIX + Key::number(i), variantFromStore(data));
     }
 
     const QList<RunConfiguration *> rcs = runConfigurations();
@@ -623,11 +623,11 @@ Store Target::toMap() const
     for (int i = 0; i < rcs.size(); ++i) {
         Store data;
         rcs.at(i)->toMap(data);
-        map.insert(RC_KEY_PREFIX + Key::number(i), QVariant::fromValue(data));
+        map.insert(RC_KEY_PREFIX + Key::number(i), variantFromStore(data));
     }
 
     if (!d->m_pluginSettings.isEmpty())
-        map.insert(PLUGIN_SETTINGS_KEY, QVariant::fromValue(d->m_pluginSettings));
+        map.insert(PLUGIN_SETTINGS_KEY, variantFromStore(d->m_pluginSettings));
 
     return map;
 }
@@ -903,7 +903,7 @@ bool Target::fromMap(const Store &map)
         const Key key = BC_KEY_PREFIX + Key::number(i);
         if (!map.contains(key))
             return false;
-        const Store valueMap = map.value(key).value<Store>();
+        const Store valueMap = storeFromVariant(map.value(key));
         BuildConfiguration *bc = BuildConfigurationFactory::restore(this, valueMap);
         if (!bc) {
             qWarning("No factory found to restore build configuration!");
@@ -930,7 +930,7 @@ bool Target::fromMap(const Store &map)
         const Key key = DC_KEY_PREFIX + Key::number(i);
         if (!map.contains(key))
             return false;
-        Store valueMap = map.value(key).value<Store>();
+        Store valueMap = storeFromVariant(map.value(key));
         DeployConfiguration *dc = DeployConfigurationFactory::restore(this, valueMap);
         if (!dc) {
             Utils::Id id = idFromMap(valueMap);
@@ -959,7 +959,7 @@ bool Target::fromMap(const Store &map)
             return false;
 
         // Ignore missing RCs: We will just populate them using the default ones.
-        Store valueMap = map.value(key).value<Store>();
+        Store valueMap = storeFromVariant(map.value(key));
         RunConfiguration *rc = RunConfigurationFactory::restore(this, valueMap);
         if (!rc)
             continue;
@@ -973,7 +973,7 @@ bool Target::fromMap(const Store &map)
     }
 
     if (map.contains(PLUGIN_SETTINGS_KEY))
-        d->m_pluginSettings = map.value(PLUGIN_SETTINGS_KEY).value<Store>();
+        d->m_pluginSettings = storeFromVariant(map.value(PLUGIN_SETTINGS_KEY));
 
     return true;
 }

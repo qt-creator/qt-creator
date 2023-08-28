@@ -767,7 +767,7 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
         const Key key = DEBUGGER_DATA_KEY + Key::number(i);
         if (!data.contains(key))
             continue;
-        const Store dbMap = data.value(key).value<Store>();
+        const Store dbMap = storeFromVariant(data.value(key));
         DebuggerItem item(dbMap);
         if (isSystem) {
             item.setAutoDetected(true);
@@ -821,7 +821,7 @@ void DebuggerItemModel::saveDebuggers()
         if (item.isValid() && item.engineType() != NoEngineType) {
             Store tmp = item.toMap();
             if (!tmp.isEmpty()) {
-                data.insert(DEBUGGER_DATA_KEY + Key::number(count), QVariant::fromValue(tmp));
+                data.insert(DEBUGGER_DATA_KEY + Key::number(count), variantFromStore(tmp));
                 ++count;
             }
         }

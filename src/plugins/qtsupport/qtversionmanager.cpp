@@ -187,7 +187,7 @@ static bool restoreQtVersions()
         if (!ok || count < 0)
             continue;
 
-        const Store qtversionMap = it.value().value<Store>();
+        const Store qtversionMap = storeFromVariant(it.value());
         const QString type = qtversionMap.value(QTVERSION_TYPE_KEY).toString();
 
         bool restored = false;
@@ -261,7 +261,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         if (!ok || count < 0)
             continue;
 
-        Store qtversionMap = it.value().value<Store>();
+        Store qtversionMap = storeFromVariant(it.value());
         const QString type = qtversionMap.value(QTVERSION_TYPE_KEY).toString();
         const QString autoDetectionSource = qtversionMap.value("autodetectionSource").toString();
         sdkVersions << autoDetectionSource;

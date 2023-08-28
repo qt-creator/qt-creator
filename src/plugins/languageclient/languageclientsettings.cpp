@@ -612,7 +612,7 @@ QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn
     for (auto varList :
          {settingsIn->value(clientsKey).toList(), settingsIn->value(typedClientsKey).toList()}) {
         for (const QVariant &var : varList) {
-            const Store map = var.value<Store>();
+            const Store map = storeFromVariant(var);
             Id typeId = Id::fromSetting(map.value(typeIdKey));
             if (!typeId.isValid())
                 typeId = Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID;
@@ -659,7 +659,7 @@ void LanguageClientSettings::toSettings(QSettings *settings,
     settings->beginGroup(settingsGroupKey);
     auto transform = [](const QList<BaseSettings *> &settings) {
         return Utils::transform(settings, [](const BaseSettings *setting) {
-            return QVariant::fromValue(setting->toMap());
+            return variantFromStore(setting->toMap());
         });
     };
     auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,

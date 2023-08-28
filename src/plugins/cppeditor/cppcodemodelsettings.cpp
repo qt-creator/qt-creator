@@ -498,7 +498,7 @@ void ClangdProjectSettings::loadSettings()
 {
     if (!m_project)
         return;
-    const Store data = m_project->namedSettings(clangdSettingsKey()).value<Store>();
+    const Store data = storeFromVariant(m_project->namedSettings(clangdSettingsKey()));
     m_useGlobalSettings = data.value(clangdUseGlobalSettingsKey(), true).toBool();
     m_blockIndexing = data.value(clangdblockIndexingSettingsKey(), false).toBool();
     if (!m_useGlobalSettings)
@@ -514,7 +514,7 @@ void ClangdProjectSettings::saveSettings()
         data = m_customSettings.toMap();
     data.insert(clangdUseGlobalSettingsKey(), m_useGlobalSettings);
     data.insert(clangdblockIndexingSettingsKey(), m_blockIndexing);
-    m_project->setNamedSettings(clangdSettingsKey(), QVariant::fromValue(data));
+    m_project->setNamedSettings(clangdSettingsKey(), variantFromStore(data));
 }
 
 Store ClangdSettings::Data::toMap() const

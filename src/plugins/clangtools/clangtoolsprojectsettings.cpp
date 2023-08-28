@@ -124,7 +124,7 @@ static Store convertToMapFromVersionBefore410(ProjectExplorer::Project *p)
 void ClangToolsProjectSettings::load()
 {
     // Load map
-    Store map = m_project->namedSettings(SETTINGS_KEY_MAIN).value<Store>();
+    Store map = storeFromVariant(m_project->namedSettings(SETTINGS_KEY_MAIN));
 
     bool write = false;
     if (map.isEmpty()) {
@@ -148,7 +148,7 @@ void ClangToolsProjectSettings::load()
 
     const QVariantList list = map.value(SETTINGS_KEY_SUPPRESSED_DIAGS).toList();
     for (const QVariant &v : list) {
-        const Store diag = v.value<Store>();
+        const Store diag = storeFromVariant(v);
         const QString fp = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH).toString();
         if (fp.isEmpty())
             continue;
@@ -190,13 +190,13 @@ void ClangToolsProjectSettings::store()
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH, diag.filePath.toString());
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_MESSAGE, diag.description);
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER, diag.uniquifier);
-        list << QVariant::fromValue(diagMap);
+        list << variantFromStore(diagMap);
     }
     map.insert(SETTINGS_KEY_SUPPRESSED_DIAGS, list);
 
     m_runSettings.toMap(map, SETTINGS_PREFIX);
 
-    m_project->setNamedSettings(SETTINGS_KEY_MAIN, QVariant::fromValue(map));
+    m_project->setNamedSettings(SETTINGS_KEY_MAIN, variantFromStore(map));
 }
 
 ClangToolsProjectSettings::ClangToolsProjectSettingsPtr

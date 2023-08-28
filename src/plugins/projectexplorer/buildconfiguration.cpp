@@ -381,8 +381,8 @@ void BuildConfiguration::toMap(Store &map) const
                EnvironmentItem::toStringList(d->m_userEnvironmentChanges));
 
     map.insert(BUILD_STEP_LIST_COUNT, 2);
-    map.insert(BUILD_STEP_LIST_PREFIX + Key::number(0), QVariant::fromValue(d->m_buildSteps.toMap()));
-    map.insert(BUILD_STEP_LIST_PREFIX + Key::number(1), QVariant::fromValue(d->m_cleanSteps.toMap()));
+    map.insert(BUILD_STEP_LIST_PREFIX + Key::number(0), variantFromStore(d->m_buildSteps.toMap()));
+    map.insert(BUILD_STEP_LIST_PREFIX + Key::number(1), variantFromStore(d->m_cleanSteps.toMap()));
 
     map.insert(PARSE_STD_OUT_KEY, d->m_parseStdOut);
     map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers, &Id::toSetting));
@@ -401,7 +401,7 @@ void BuildConfiguration::fromMap(const Store &map)
 
     int maxI = map.value(BUILD_STEP_LIST_COUNT, 0).toInt();
     for (int i = 0; i < maxI; ++i) {
-        Store data = map.value(BUILD_STEP_LIST_PREFIX + Key::number(i)).value<Store>();
+        Store data = storeFromVariant(map.value(BUILD_STEP_LIST_PREFIX + Key::number(i)));
         if (data.isEmpty()) {
             qWarning() << "No data for build step list" << i << "found!";
             continue;
