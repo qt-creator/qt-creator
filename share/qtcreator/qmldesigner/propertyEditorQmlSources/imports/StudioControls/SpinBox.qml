@@ -43,6 +43,7 @@ T.SpinBox {
 
     property alias __devicePixelRatio: spinBoxInput.devicePixelRatio
     property alias pixelsPerUnit: spinBoxInput.pixelsPerUnit
+    property alias inputHAlignment: spinBoxInput.horizontalAlignment
 
     property alias compressedValueTimer: myTimer
 

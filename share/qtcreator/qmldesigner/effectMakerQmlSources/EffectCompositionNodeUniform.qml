@@ -16,7 +16,9 @@ Item {
     height: layout.implicitHeight
 
     Component.onCompleted: {
-        if (uniformType === "vec2")
+        if (uniformType === "int")
+            valueLoader.source = "ValueInt.qml"
+        else if (uniformType === "vec2")
             valueLoader.source = "ValueVec2.qml"
         else if (uniformType === "vec3")
             valueLoader.source = "ValueVec3.qml"

@@ -11,19 +11,17 @@ Row {
     width: parent.width
     spacing: 5
 
-    StudioControls.RealSpinBox {
+    StudioControls.SpinBox {
         id: spinBox
 
         width: 40
         actionIndicatorVisible: false
         spinBoxIndicatorVisible: false
         inputHAlignment: Qt.AlignHCenter
-        realFrom: uniformMinValue
-        realTo: uniformMaxValue
-        realValue: uniformValue
-        realStepSize: .01
-        decimals: 2
-        onRealValueModified: uniformValue = realValue
+        from: uniformMinValue
+        to: uniformMaxValue
+        value: uniformValue
+        onValueModified: uniformValue = value
     }
 
     StudioControls.Slider {
@@ -31,14 +29,13 @@ Row {
 
         width: parent.width - 80
         labels: false
-        decimals: 2
         actionIndicatorVisible: false
         from: uniformMinValue
         to: uniformMaxValue
         value: uniformValue
         onMoved: {
             uniformValue = value
-            spinBox.realValue = value // binding isn't working for this property so update it
+            spinBox.value = value
         }
     }
 }
