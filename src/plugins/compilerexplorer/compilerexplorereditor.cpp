@@ -44,6 +44,7 @@
 using namespace std::chrono_literals;
 using namespace Aggregation;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CompilerExplorer {
 
@@ -51,7 +52,8 @@ class CodeEditorWidget : public TextEditorWidget
 {
 public:
     CodeEditorWidget(const std::shared_ptr<SourceSettings> &settings)
-        : m_settings(settings){};
+        : m_settings(settings)
+    {}
 
     void updateHighlighter()
     {
@@ -94,8 +96,8 @@ JsonSettingsDocument::JsonSettingsDocument()
 JsonSettingsDocument::~JsonSettingsDocument() {}
 
 Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
-                                                       const Utils::FilePath &filePath,
-                                                       const Utils::FilePath &realFilePath)
+                                                       const FilePath &filePath,
+                                                       const FilePath &realFilePath)
 {
     if (!filePath.isReadableFile())
         return OpenResult::ReadError;
@@ -121,16 +123,16 @@ Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
         return OpenResult::CannotHandle;
     }
 
-    m_ceSettings.fromMap(doc.toVariant().toMap());
+    m_ceSettings.fromMap(storeFromVariant(doc.toVariant().toMap()));
     emit settingsChanged();
     return OpenResult::Success;
 }
 
 bool JsonSettingsDocument::saveImpl(QString *errorString,
-                                    const Utils::FilePath &newFilePath,
+                                    const FilePath &newFilePath,
                                     bool autoSave)
 {
-    QVariantMap map;
+    Store map;
 
     if (autoSave) {
         if (m_windowStateCallback)
@@ -145,7 +147,7 @@ bool JsonSettingsDocument::saveImpl(QString *errorString,
         m_ceSettings.toMap(map);
     }
 
-    QJsonDocument doc = QJsonDocument::fromVariant(map);
+    QJsonDocument doc = QJsonDocument::fromVariant(variantFromStore(map));
 
     Utils::FilePath path = newFilePath.isEmpty() ? filePath() : newFilePath;
 
@@ -174,7 +176,7 @@ bool JsonSettingsDocument::setContents(const QByteArray &contents)
 
     QTC_ASSERT(doc.isObject(), return false);
 
-    m_ceSettings.fromMap(doc.toVariant().toMap());
+    m_ceSettings.fromMap(storeFromVariant(doc.toVariant()));
 
     emit settingsChanged();
     return true;
@@ -241,7 +243,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     , m_compilerSettings(compilerSettings)
 {
     using namespace Layouting;
-    QVariantMap map;
+    Store map;
 
     m_delayTimer = new QTimer(this);
     m_delayTimer->setSingleShot(true);

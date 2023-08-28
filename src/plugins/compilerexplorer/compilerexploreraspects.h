@@ -84,14 +84,14 @@ public:
         : Utils::BaseAspect(container)
     {}
 
-    void fromMap(const QVariantMap &map) override
+    void fromMap(const Utils::Store &map) override
     {
         QTC_ASSERT(!settingsKey().isEmpty(), return);
 
         QVariantList list = map[settingsKey()].toList();
-        for (const auto &entry : list) {
+        for (const QVariant &entry : list) {
             T item = m_createItem();
-            m_toBaseAspect(item)->fromMap(entry.toMap());
+            m_toBaseAspect(item)->fromMap(Utils::storeFromVariant(entry));
             m_volatileItems.append(item);
         }
         m_items = m_volatileItems;
@@ -103,13 +103,13 @@ public:
         const auto &items = v ? m_volatileItems : m_items;
 
         for (const auto &item : items) {
-            QVariantMap childMap;
+            Utils::Store childMap;
             if (v)
                 m_toBaseAspect(item)->volatileToMap(childMap);
             else
                 m_toBaseAspect(item)->toMap(childMap);
 
-            list.append(childMap);
+            list.append(Utils::variantFromStore(childMap));
         }
 
         return list;
@@ -118,14 +118,14 @@ public:
     void toMap(Utils::Store &map) const override
     {
         QTC_ASSERT(!settingsKey().isEmpty(), return);
-        const QString key = settingsKey();
+        const Utils::Key key = settingsKey();
         map[key] = toList(false);
     }
 
     void volatileToMap(Utils::Store &map) const override
     {
         QTC_ASSERT(!settingsKey().isEmpty(), return);
-        const QString key = settingsKey();
+        const Utils::Key key = settingsKey();
         map[key] = toList(true);
     }
 
@@ -191,7 +191,7 @@ public:
         return false;
     }
 
-    QVariant volatileVariantValue() const override { return {}; };
+    QVariant volatileVariantValue() const override { return {}; }
 
 private:
     QList<T> m_items;
