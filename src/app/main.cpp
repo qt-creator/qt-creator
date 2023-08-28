@@ -644,6 +644,7 @@ int main(int argc, char **argv)
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
     PluginManager::setInstallSettings(installSettings);
     PluginManager::setSettings(settings);
+    PluginManager::startProfiling();
 
     Utils::BaseAspect::setQtcSettings(settings);
 

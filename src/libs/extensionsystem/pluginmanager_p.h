@@ -58,9 +58,9 @@ public:
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
     void enableDependenciesIndirectly();
-    void initProfiling();
+    void increaseProfilingVerbosity();
     void profilingSummary() const;
-    void profilingReport(const char *what, const PluginSpec *spec = nullptr);
+    void profilingReport(const char *what, const PluginSpec *spec, qint64 *target = nullptr);
     void setSettings(Utils::QtcSettings *settings);
     void setGlobalSettings(Utils::QtcSettings *settings);
     void readSettings();
@@ -106,8 +106,7 @@ public:
     QStringList arguments;
     QStringList argumentsForRestart;
     QScopedPointer<QElapsedTimer> m_profileTimer;
-    QHash<const PluginSpec *, int> m_profileTotal;
-    int m_profileElapsedMS = 0;
+    qint64 m_profileElapsedMS = 0;
     unsigned m_profilingVerbosity = 0;
     Utils::QtcSettings *settings = nullptr;
     Utils::QtcSettings *globalSettings = nullptr;

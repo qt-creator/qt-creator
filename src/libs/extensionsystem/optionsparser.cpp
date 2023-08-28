@@ -239,7 +239,7 @@ bool OptionsParser::checkForProfilingOption()
 {
     if (m_currentArg != QLatin1String(PROFILE_OPTION))
         return false;
-    m_pmPrivate->initProfiling();
+    m_pmPrivate->increaseProfilingVerbosity();
     return true;
 }
 
