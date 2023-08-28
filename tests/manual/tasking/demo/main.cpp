@@ -170,13 +170,8 @@ int main(int argc, char *argv[])
                 widget->setState(State::Running);
             };
         };
-        if (widget->isSuccess()) {
-            return TimeoutTask(setupTask(widget),
-                [widget](const milliseconds &) { widget->setState(State::Done); },
-                [widget](const milliseconds &) { widget->setState(State::Error); });
-        }
         const Group root {
-            finishAllAndError,
+            widget->isSuccess() ? finishAllAndDone : finishAllAndError,
             TimeoutTask(setupTask(widget)),
             onGroupDone([widget] { widget->setState(State::Done); }),
             onGroupError([widget] { widget->setState(State::Error); })
