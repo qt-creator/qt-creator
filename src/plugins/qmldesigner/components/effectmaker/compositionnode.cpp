@@ -39,6 +39,11 @@ QObject *CompositionNode::uniformsModel()
     return &m_unifomrsModel;
 }
 
+QStringList CompositionNode::requiredNodes() const
+{
+    return m_requiredNodes;
+}
+
 void CompositionNode::parse(const QString &qenPath)
 {
 
@@ -77,8 +82,8 @@ void CompositionNode::parse(const QString &qenPath)
     m_vertexCode = EffectUtils::codeFromJsonArray(json.value("vertexCode").toArray());
 
     // parse properties
-    QJsonArray properties = json.value("properties").toArray();
-    for (const auto /*QJsonValueRef*/ &prop : properties)
+    QJsonArray jsonProps = json.value("properties").toArray();
+    for (const auto /*QJsonValueRef*/ &prop : jsonProps)
         m_unifomrsModel.addUniform(new Uniform(prop.toObject()));
 }
 

@@ -6,6 +6,7 @@
 #include "effectmakeruniformsmodel.h"
 
 #include <QObject>
+#include <QVariant>
 
 namespace QmlDesigner {
 
@@ -27,6 +28,8 @@ public:
 
     QObject *uniformsModel();
 
+    QStringList requiredNodes() const;
+
 signals:
     void uniformsModelChanged();
 
@@ -37,6 +40,7 @@ private:
     QString m_fragmentCode;
     QString m_vertexCode;
     QString m_description;
+    QStringList m_requiredNodes;
 
     EffectMakerUniformsModel m_unifomrsModel;
 };

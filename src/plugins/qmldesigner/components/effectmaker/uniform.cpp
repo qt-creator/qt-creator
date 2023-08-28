@@ -17,7 +17,7 @@ Uniform::Uniform(const QJsonObject &propObj)
 
     m_name = propObj.value("name").toString();
     m_description = propObj.value("description").toString();
-    m_type = typeFromString(propObj.value("type").toString());
+    m_type = Uniform::typeFromString(propObj.value("type").toString());
     defaultValue = propObj.value("defaultValue").toString();
 
     if (m_type == Type::Sampler) {
@@ -45,29 +45,15 @@ Uniform::Uniform(const QJsonObject &propObj)
     m_backendValue->setValue(value);
 }
 
-QString Uniform::type() const
+Uniform::Type Uniform::type() const
 {
-    if (m_type == Type::Bool)
-        return "bool";
-    if (m_type == Type::Int)
-        return "int";
-    if (m_type == Type::Float)
-        return "float";
-    if (m_type == Type::Vec2)
-        return "vec2";
-    if (m_type == Type::Vec3)
-        return "vec3";
-    if (m_type == Type::Vec4)
-        return "vec4";
-    if (m_type == Type::Color)
-        return "color";
-    if (m_type == Type::Sampler)
-        return "image";
-    if (m_type == Type::Define)
-        return "define";
+    return m_type;
+}
 
-    qWarning() << "Unknown type";
-    return "float";
+// String representation of the type for qml
+QString Uniform::typeName() const
+{
+    return Uniform::stringFromType(m_type);
 }
 
 QVariant Uniform::value() const
@@ -153,31 +139,6 @@ QString Uniform::mipmapPropertyName(const QString &name) const
     return simplifiedName;
 }
 
-Uniform::Type Uniform::typeFromString(const QString &typeString) const
-{
-    if (typeString == "bool")
-        return Type::Bool;
-    if (typeString == "int")
-        return Type::Int;
-    if (typeString == "float")
-        return Type::Float;
-    if (typeString == "vec2")
-        return Type::Vec2;
-    if (typeString == "vec3")
-        return Type::Vec3;
-    if (typeString == "vec4")
-        return Type::Vec4;
-    if (typeString == "color")
-        return Type::Color;
-    if (typeString == "image")
-        return Type::Sampler;
-    if (typeString == "define")
-        return Type::Define;
-
-    qWarning() << QString("Unknown type: %1").arg(typeString).toLatin1();
-    return Type::Float;
-}
-
 // Returns the boolean value of QJsonValue. It can be either boolean
 // (true, false) or string ("true", "false"). Returns the defaultValue
 // if QJsonValue is undefined, empty, or some other type.
@@ -205,17 +166,17 @@ QString Uniform::getResourcePath(const QString &value) const
 void Uniform::setValueData(const QString &value, const QString &defaultValue,
                            const QString &minValue, const QString &maxValue)
 {
-    m_value = value.isEmpty() ? getInitializedVariant(m_type, false) : valueStringToVariant(m_type, value);
-    m_defaultValue = defaultValue.isEmpty() ? getInitializedVariant(m_type, false)
-                                            : valueStringToVariant(m_type, defaultValue);
-    m_minValue = minValue.isEmpty() ? getInitializedVariant(m_type, false) : valueStringToVariant(m_type, minValue);
-    m_maxValue = maxValue.isEmpty() ? getInitializedVariant(m_type, true) : valueStringToVariant(m_type, maxValue);
+    m_value = value.isEmpty() ? getInitializedVariant(false) : valueStringToVariant(value);
+    m_defaultValue = defaultValue.isEmpty() ? getInitializedVariant(false)
+                                            : valueStringToVariant(defaultValue);
+    m_minValue = minValue.isEmpty() ? getInitializedVariant(false) : valueStringToVariant(minValue);
+    m_maxValue = maxValue.isEmpty() ? getInitializedVariant(true) : valueStringToVariant(maxValue);
 }
 
 // Initialize the value variant with correct type
-QVariant Uniform::getInitializedVariant(Uniform::Type type, bool maxValue)
+QVariant Uniform::getInitializedVariant(bool maxValue)
 {
-    switch (type) {
+    switch (m_type) {
     case Uniform::Type::Bool:
         return maxValue ? true : false;
     case Uniform::Type::Int:
@@ -235,10 +196,10 @@ QVariant Uniform::getInitializedVariant(Uniform::Type type, bool maxValue)
     }
 }
 
-QVariant Uniform::valueStringToVariant(const Uniform::Type type, const QString &value)
+QVariant Uniform::valueStringToVariant(const QString &value)
 {
     QVariant variant;
-    switch (type) {
+    switch (m_type) {
     case Type::Bool:
         variant = (value == "true");
         break;
@@ -281,6 +242,56 @@ QVariant Uniform::valueStringToVariant(const Uniform::Type type, const QString &
     }
 
     return variant;
+}
+
+QString Uniform::stringFromType(Uniform::Type type)
+{
+    if (type == Type::Bool)
+        return "bool";
+    else if (type == Type::Int)
+        return "int";
+    else if (type == Type::Float)
+        return "float";
+    else if (type == Type::Vec2)
+        return "vec2";
+    else if (type == Type::Vec3)
+        return "vec3";
+    else if (type == Type::Vec4)
+        return "vec4";
+    else if (type == Type::Color)
+        return "color";
+    else if (type == Type::Sampler)
+        return "image";
+    else if (type == Type::Define)
+        return "define";
+
+    qWarning() << QString("Unknown type");
+    return "float";
+}
+
+Uniform::Type Uniform::typeFromString(const QString &typeString)
+{
+    if (typeString == "bool")
+        return Uniform::Type::Bool;
+    else if (typeString == "int")
+        return Uniform::Type::Int;
+    else if (typeString == "float")
+        return Uniform::Type::Float;
+    else if (typeString == "vec2")
+        return Uniform::Type::Vec2;
+    else if (typeString == "vec3")
+        return Uniform::Type::Vec3;
+    else if (typeString == "vec4")
+        return Uniform::Type::Vec4;
+    else if (typeString == "color")
+        return Uniform::Type::Color;
+    else if (typeString == "image")
+        return Uniform::Type::Sampler;
+    else if (typeString == "define")
+        return Uniform::Type::Define;
+
+    qWarning() << QString("Unknown type: %1").arg(typeString).toLatin1();
+    return Uniform::Type::Float;
 }
 
 } // namespace QmlDesigner

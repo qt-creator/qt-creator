@@ -19,7 +19,7 @@ class Uniform : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString uniformName MEMBER m_name CONSTANT)
-    Q_PROPERTY(QString uniformType READ type CONSTANT)
+    Q_PROPERTY(QString uniformType READ typeName CONSTANT)
     Q_PROPERTY(QVariant uniformValue READ value WRITE setValue NOTIFY uniformValueChanged)
     Q_PROPERTY(QVariant uniformBackendValue READ backendValue NOTIFY uniformBackendValueChanged)
     Q_PROPERTY(QVariant uniformMinValue MEMBER m_minValue CONSTANT)
@@ -41,7 +41,8 @@ public:
 
     Uniform(const QJsonObject &props);
 
-    QString type() const;
+    Type type() const;
+    QString typeName() const;
 
     QVariant value() const;
     void setValue(const QVariant &newValue);
@@ -65,20 +66,22 @@ public:
 
     bool enableMipmap() const;
 
+    static QString stringFromType(Uniform::Type type);
+    static Uniform::Type typeFromString(const QString &typeString);
+
 signals:
     void uniformValueChanged();
     void uniformBackendValueChanged();
 
 private:
     QString mipmapPropertyName(const QString &name) const;
-
-    Uniform::Type typeFromString(const QString &typeString) const;
     bool getBoolValue(const QJsonValue &jsonValue, bool defaultValue);
     QString getResourcePath(const QString &value) const;
     void setValueData(const QString &value, const QString &defaultValue,
                       const QString &minValue, const QString &maxValue);
-    QVariant getInitializedVariant(Uniform::Type type, bool maxValue);
-    QVariant valueStringToVariant(const Uniform::Type type, const QString &value);
+
+    QVariant getInitializedVariant(bool maxValue);
+    QVariant valueStringToVariant(const QString &value);
 
     Type m_type;
     QVariant m_value;
