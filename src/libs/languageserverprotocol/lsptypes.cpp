@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "lsptypes.h"
+
+#include "languageserverprotocoltr.h"
 #include "lsputils.h"
 
 #include <utils/textutils.h>
@@ -411,6 +413,78 @@ LanguageServerProtocol::MarkupKind::operator QJsonValue() const
         return "plaintext";
     }
     return {};
+}
+
+DocumentChange::DocumentChange(const QJsonValue &value)
+{
+    const QString kind = value["kind"].toString();
+    if (kind == "create")
+        emplace<CreateFile>(value);
+    else if (kind == "rename")
+        emplace<RenameFile>(value);
+    else if (kind == "delete")
+        emplace<DeleteFile>(value);
+    else
+        emplace<TextDocumentEdit>(value);
+}
+
+using DocumentChangeBase = std::variant<TextDocumentEdit, CreateFile, RenameFile, DeleteFile>;
+
+bool DocumentChange::isValid() const
+{
+    return std::visit([](const auto &v) { return v.isValid(); }, DocumentChangeBase(*this));
+}
+
+DocumentChange::operator const QJsonValue () const
+{
+    return std::visit([](const auto &v) { return QJsonValue(v); }, DocumentChangeBase(*this));
+}
+
+CreateFile::CreateFile()
+{
+    insert(kindKey, "create");
+}
+
+QString CreateFile::message(const DocumentUri::PathMapper &mapToHostPath) const
+{
+    return Tr::tr("Create %1").arg(uri().toFilePath(mapToHostPath).toUserOutput());
+}
+
+bool LanguageServerProtocol::CreateFile::isValid() const
+{
+    return contains(uriKey) && value(kindKey) == "create";
+}
+
+RenameFile::RenameFile()
+{
+    insert(kindKey, "rename");
+}
+
+QString RenameFile::message(const DocumentUri::PathMapper &mapToHostPath) const
+{
+    return Tr::tr("Rename %1 to %2")
+        .arg(oldUri().toFilePath(mapToHostPath).toUserOutput(),
+             newUri().toFilePath(mapToHostPath).toUserOutput());
+}
+
+bool RenameFile::isValid() const
+{
+    return contains(oldUriKey) && contains(newUriKey) && value(kindKey) == "rename";
+}
+
+DeleteFile::DeleteFile()
+{
+    insert(kindKey, "delete");
+}
+
+QString DeleteFile::message(const DocumentUri::PathMapper &mapToHostPath) const
+{
+    return Tr::tr("Delete %1").arg(uri().toFilePath(mapToHostPath).toUserOutput());
+}
+
+bool DeleteFile::isValid() const
+{
+    return contains(uriKey) && value(kindKey) == "delete";
 }
 
 } // namespace LanguageServerProtocol
