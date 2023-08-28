@@ -28,11 +28,22 @@ Window {
         Text {
             id: innerText
         }
-        states: State {
-            name: "widerText"
-            PropertyChanges { myText.width: undefined }
-            AnchorChanges { innerRect.width: undefined } // 16 29 37
-        }
+        states: [
+            State {
+                name: "widerText"
+                PropertyChanges { myText.width: undefined }
+                AnchorChanges { innerRect.width: undefined } // 16 29 37
+            },
+            State {
+                when: root.visible
+                PropertyChanges {
+                    // change an object property that is not an ancestor
+                    innerRect {
+                        color: "blue"
+                    }
+                }
+            }
+        ]
     }
 
     Binding {rect.width: innerText.width}
