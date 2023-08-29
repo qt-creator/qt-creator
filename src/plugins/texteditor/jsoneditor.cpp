@@ -73,6 +73,7 @@ public:
                      const TabSettings &tabSettings,
                      int cursorPositionInEditor) override
     {
+        Q_UNUSED(typedChar)
         tabSettings.indentLine(block, indentFor(block, tabSettings, cursorPositionInEditor));
     }
 };
