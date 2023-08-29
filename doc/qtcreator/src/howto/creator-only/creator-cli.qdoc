@@ -223,7 +223,7 @@
             \li -customwizard-verbose
             \li ProjectExplorer plugin: display additional information when
                 loading custom wizards. For more information about custom
-                wizards, see \l{Adding New Custom Wizards}
+                wizards, see \l{Custom Wizards}
 
         \row
             \li -ensure-kit-for-binary <path to binary>

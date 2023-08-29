@@ -110,7 +110,7 @@
     \l{Using Variables in Wizards}{predefined wizard variables} to specify the
     path and filename of the license to use in the source and header files.
 
-    \sa {Create files}, {Use project wizards}, {Adding New Custom Wizards}
+    \sa {Create files}, {Use project wizards}, {Custom Wizards}
 */
 
 /*!

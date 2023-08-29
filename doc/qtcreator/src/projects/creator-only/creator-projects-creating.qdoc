@@ -69,7 +69,7 @@
     install and configure some additional software on the devices to be able to
     \l{Connecting Devices}{connect} to them from the development PC.
 
-    \sa {Manage Projects}{How-to: Manage Projects}, {Adding New Custom Wizards}
+    \sa {Manage Projects}{How-to: Manage Projects}, {Custom Wizards}
 */
 
 /*!

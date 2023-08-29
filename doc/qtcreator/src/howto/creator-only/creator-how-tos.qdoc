@@ -63,6 +63,7 @@
         \li \l {Add a license header template for C++ code}
         \li \l {Add libraries to projects}
         \li \l {Add subprojects to projects}
+        \li \l {Add wizards}
         \li \l {Create C++ classes}
         \li \l {Create files}
         \li \l {Create OpenGL fragment and vertex shaders}

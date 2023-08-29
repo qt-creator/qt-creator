@@ -89,7 +89,7 @@
 
         \li Make a copy of \c {share/qtcreator/templates/wizards/classes/cpp}
             and rename it. For example,
-            \c {share/qtcreator/templates/wizards/classes/mycpp}
+            \c {$HOME/.config/QtProject/qtcreator/templates/wizards/classes/mycpp}.
 
         \li Use the \uicontrol {Factory.Reset} action to make the wizard appear
             in \uicontrol File > \uicontrol {New File} without

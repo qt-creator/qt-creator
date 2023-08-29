@@ -24,9 +24,6 @@
         \li \l{Managing Projects}
         \list
             \li \l{Creating Projects}
-            \list
-                \li \l{Adding New Custom Wizards}
-            \endlist
             \li \l{Using Version Control Systems}
             \list
                 \li \l{Using Bazaar}
@@ -276,6 +273,7 @@
                             \li \l {Add a license header template for C++ code}
                             \li \l {Add libraries to projects}
                             \li \l {Add subprojects to projects}
+                            \li \l {Add wizards}
                             \li \l {Create C++ classes}
                             \li \l {Create files}
                             \li \l {Create OpenGL fragment and vertex shaders}
@@ -296,6 +294,7 @@
                 \endlist
             \li \l{Reference}
                 \list
+                    \li \l {Custom Wizards}
                     \li Sidebar Views
                         \list
                             \li \l {Call Hierarchy}
