@@ -34,39 +34,22 @@ QVariant EffectMakerModel::data(const QModelIndex &index, int role) const
     QTC_ASSERT(index.isValid() && index.row() < m_nodes.size(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
-    return m_nodes.values().at(index.row())->property(roleNames().value(role));
-}
-
-void EffectMakerModel::resetModel()
-{
-    beginResetModel();
-    endResetModel();
+    return m_nodes.at(index.row())->property(roleNames().value(role));
 }
 
 void EffectMakerModel::addNode(const QString &nodeQenPath)
 {
-    static int id = 0;
-
     beginInsertRows({}, m_nodes.size(), m_nodes.size());
     auto *node = new CompositionNode(nodeQenPath);
-    m_nodes.insert(id++, node);
+    m_nodes.append(node);
     endInsertRows();
 }
 
-void EffectMakerModel::selectEffect(int idx, bool force)
+void EffectMakerModel::removeNode(int idx)
 {
-    Q_UNUSED(idx)
-    Q_UNUSED(force)
-
-    // TODO
-}
-
-void EffectMakerModel::applyToSelected(qint64 internalId, bool add)
-{
-    Q_UNUSED(internalId)
-    Q_UNUSED(add)
-
-    // TODO: remove?
+    beginRemoveRows({}, idx, idx);
+    m_nodes.removeAt(idx);
+    endRemoveRows();
 }
 
 } // namespace QmlDesigner

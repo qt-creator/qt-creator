@@ -7,7 +7,7 @@
 #include "effectmakeruniformsmodel.h"
 #include "uniform.h"
 
-#include <QFileInfo>
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -46,7 +46,6 @@ QStringList CompositionNode::requiredNodes() const
 
 void CompositionNode::parse(const QString &qenPath)
 {
-
     QFile qenFile(qenPath);
 
     if (!qenFile.open(QIODevice::ReadOnly)) {

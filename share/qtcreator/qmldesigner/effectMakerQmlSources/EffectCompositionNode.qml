@@ -15,6 +15,12 @@ HelperWidgets.Section {
     caption: nodeName
     category: "EffectMaker"
 
+    showCloseButton: true
+    closeButtonToolTip: qsTr("Remove")
+    onCloseButtonClicked: {
+        EffectMakerBackend.effectMakerModel.removeNode(index)
+    }
+
     Column {
         spacing: 10
 

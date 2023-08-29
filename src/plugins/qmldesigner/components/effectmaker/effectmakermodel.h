@@ -26,17 +26,13 @@ public:
 
     bool isEmpty() const { return m_isEmpty; }
 
-    void resetModel();
-
     void addNode(const QString &nodeQenPath);
 
-    Q_INVOKABLE void selectEffect(int idx, bool force = false);
-    Q_INVOKABLE void applyToSelected(qint64 internalId, bool add = false);
+    Q_INVOKABLE void removeNode(int idx);
 
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
-    void hasModelSelectionChanged();
 
 private:
     enum Roles {
@@ -46,7 +42,7 @@ private:
 
     bool isValidIndex(int idx) const;
 
-    QMap<int, CompositionNode *> m_nodes;
+    QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
     bool m_isEmpty = true;

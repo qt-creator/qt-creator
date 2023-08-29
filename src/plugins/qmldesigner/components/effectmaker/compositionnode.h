@@ -6,11 +6,8 @@
 #include "effectmakeruniformsmodel.h"
 
 #include <QObject>
-#include <QVariant>
 
 namespace QmlDesigner {
-
-class Uniform;
 
 class CompositionNode : public QObject
 {
