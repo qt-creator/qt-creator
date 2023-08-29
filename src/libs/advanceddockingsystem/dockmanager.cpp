@@ -713,7 +713,8 @@ bool DockManager::eventFilter(QObject *obj, QEvent *event)
         QWindowStateChangeEvent *ev = static_cast<QWindowStateChangeEvent *>(event);
         if (ev->oldState().testFlag(Qt::WindowMinimized)) {
             d->m_isLeavingMinimized = true;
-            QMetaObject::invokeMethod(this, "endLeavingMinimizedState", Qt::QueuedConnection);
+            QMetaObject::invokeMethod(
+                this, [this] { endLeavingMinimizedState(); }, Qt::QueuedConnection);
         }
     }
     return Super::eventFilter(obj, event);
