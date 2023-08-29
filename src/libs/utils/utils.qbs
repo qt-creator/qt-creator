@@ -296,7 +296,6 @@ Project {
             "store.cpp",
             "store.h",
             "storekey.h",
-            "storefrommap.h",
             "stringtable.cpp",
             "stringtable.h",
             "stringutils.cpp",

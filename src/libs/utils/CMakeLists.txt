@@ -163,7 +163,6 @@ add_qtc_library(Utils
     statuslabel.cpp statuslabel.h
     store.cpp store.h
     storekey.h
-    storefrommap.h
     stringtable.cpp stringtable.h
     stringutils.cpp stringutils.h
     styleanimator.cpp styleanimator.h
