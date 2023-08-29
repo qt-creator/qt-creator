@@ -49,6 +49,8 @@ public:
     uint optionalActions() const;
     ~TextEditorActionHandler();
 
+    void updateCurrentEditor();
+
 private:
     Internal::TextEditorActionHandlerPrivate *d;
 };

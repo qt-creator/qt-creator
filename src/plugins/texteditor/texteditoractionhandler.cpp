@@ -565,4 +565,9 @@ TextEditorActionHandler::~TextEditorActionHandler()
     delete d;
 }
 
+void TextEditorActionHandler::updateCurrentEditor()
+{
+    d->updateCurrentEditor(Core::EditorManager::currentEditor());
+}
+
 } // namespace TextEditor
