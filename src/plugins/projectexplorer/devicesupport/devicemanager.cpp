@@ -427,8 +427,9 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
 
     deviceHooks.deviceDisplayName = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return filePath.toUserOutput());
-        return device->displayName();
+        if (device)
+            return device->displayName();
+        return filePath.host().toString();
     };
 
     deviceHooks.ensureReachable = [](const FilePath &filePath, const FilePath &other) {
