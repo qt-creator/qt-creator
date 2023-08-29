@@ -26,6 +26,7 @@
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
+
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
@@ -34,6 +35,7 @@
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
 #include <utils/savefile.h>
+#include <utils/store.h>
 #include <utils/stringutils.h>
 #include <utils/textutils.h>
 #include <utils/theme/theme.h>
@@ -76,6 +78,9 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::CommandLine>();
     qRegisterMetaType<Utils::FilePath>();
     qRegisterMetaType<Utils::Environment>();
+    qRegisterMetaType<Utils::Store>();
+    qRegisterMetaType<Utils::Key>();
+    qRegisterMetaType<Utils::KeyList>();
     m_instance = this;
     setupSystemEnvironment();
 }

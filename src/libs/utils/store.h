@@ -28,3 +28,7 @@ QTCREATOR_UTILS_EXPORT Store storeFromMap(const QVariantMap &map);
 QTCREATOR_UTILS_EXPORT QVariantMap mapFromStore(const Store &store);
 
 } // Utils
+
+#ifdef QTC_USE_STORE
+Q_DECLARE_METATYPE(Utils::Store)
+#endif
