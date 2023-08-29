@@ -277,6 +277,8 @@ public:
         selection_small,
         settings_medium,
         signal_small,
+        snapping_conf_medium,
+        snapping_medium,
         snapping_small,
         sphere_medium,
         sphere_small,
