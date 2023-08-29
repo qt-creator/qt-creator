@@ -161,11 +161,7 @@ QString Id::toString() const
 /*! \internal */
 Key Id::toKey() const
 {
-#ifdef QTC_USE_STORE
     return name();
-#else
-    return toString();
-#endif
 }
 
 /*!

@@ -25,11 +25,7 @@ namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
 
-#ifdef QTC_USE_STORE
 using Key = QByteArray;
-#else
-using Key = QString;
-#endif
 
 class FvBaseAspect
 {

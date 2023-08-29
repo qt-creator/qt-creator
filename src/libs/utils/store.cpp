@@ -38,7 +38,6 @@ Store storeFromVariant(const QVariant &value)
     return Store();
 }
 
-#ifdef QTC_USE_STORE
 static QVariantList storeListFromMapList(const QVariantList &mapList)
 {
     QVariantList storeList;
@@ -70,11 +69,9 @@ static QVariantList mapListFromStoreList(const QVariantList &storeList)
 
     return mapList;
 }
-#endif
 
 Store storeFromMap(const QVariantMap &map)
 {
-#ifdef QTC_USE_STORE
     Store store;
     for (auto it = map.begin(); it != map.end(); ++it) {
         if (it.value().type() == QVariant::Map) {
@@ -87,14 +84,10 @@ Store storeFromMap(const QVariantMap &map)
         }
     }
     return store;
-#else
-    return map;
-#endif
 }
 
 QVariantMap mapFromStore(const Store &store)
 {
-#ifdef QTC_USE_STORE
     QVariantMap map;
     for (auto it = store.begin(); it != store.end(); ++it) {
         if (it.value().metaType() == QMetaType::fromType<Store>())
@@ -105,9 +98,6 @@ QVariantMap mapFromStore(const Store &store)
             map.insert(stringFromKey(it.key()), it.value());
     }
     return map;
-#else
-    return store;
-#endif
 }
 
 bool isStore(const QVariant &value)
