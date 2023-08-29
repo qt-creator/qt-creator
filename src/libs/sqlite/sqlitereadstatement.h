@@ -32,7 +32,7 @@ public:
     using Base::values;
 
     template<typename ResultType, typename... QueryTypes>
-    FLATTEN auto valueWithTransaction(const QueryTypes &...queryValues)
+    auto valueWithTransaction(const QueryTypes &...queryValues)
     {
         return withDeferredTransaction(Base::database(), [&] {
             return Base::template value<ResultType>(queryValues...);
@@ -40,7 +40,7 @@ public:
     }
 
     template<typename ResultType, typename... QueryTypes>
-    FLATTEN auto optionalValueWithTransaction(const QueryTypes &...queryValues)
+    auto optionalValueWithTransaction(const QueryTypes &...queryValues)
     {
         return withDeferredTransaction(Base::database(), [&] {
             return Base::template optionalValue<ResultType>(queryValues...);
@@ -48,7 +48,7 @@ public:
     }
 
     template<typename ResultType, std::size_t capacity = 32, typename... QueryTypes>
-    FLATTEN auto valuesWithTransaction(const QueryTypes &...queryValues)
+    auto valuesWithTransaction(const QueryTypes &...queryValues)
     {
         return withDeferredTransaction(Base::database(), [&] {
             return Base::template values<ResultType, capacity>(queryValues...);
@@ -56,7 +56,7 @@ public:
     }
 
     template<typename Callable, typename... QueryTypes>
-    FLATTEN void readCallbackWithTransaction(Callable &&callable, const QueryTypes &...queryValues)
+    void readCallbackWithTransaction(Callable &&callable, const QueryTypes &...queryValues)
     {
         withDeferredTransaction(Base::database(), [&] {
             Base::readCallback(std::forward<Callable>(callable), queryValues...);
@@ -64,7 +64,7 @@ public:
     }
 
     template<typename Container, typename... QueryTypes>
-    FLATTEN void readToWithTransaction(Container &container, const QueryTypes &...queryValues)
+    void readToWithTransaction(Container &container, const QueryTypes &...queryValues)
     {
         withDeferredTransaction(Base::database(), [&] { Base::readTo(container, queryValues...); });
     }

@@ -27,12 +27,6 @@
 
 using std::int64_t;
 
-#ifdef Q_CC_MSVC
-#define FLATTEN [[msvc::flatten]]
-#else
-#define FLATTEN [[gnu::flatten]]
-#endif
-
 namespace Sqlite {
 
 class Database;
@@ -156,7 +150,7 @@ public:
     using BaseStatement::BaseStatement;
     StatementImplementation(StatementImplementation &&) = default;
 
-    FLATTEN void execute()
+    void execute()
     {
         Resetter resetter{this};
         BaseStatement::next();
@@ -172,7 +166,7 @@ public:
     }
 
     template<typename... ValueType>
-    FLATTEN void write(const ValueType &...values)
+    void write(const ValueType&... values)
     {
         Resetter resetter{this};
         bindValues(values...);
@@ -196,7 +190,7 @@ public:
              std::size_t capacity = 32,
              typename = std::enable_if_t<is_container<Container>::value>,
              typename... QueryTypes>
-    FLATTEN auto values(const QueryTypes &...queryValues)
+    auto values(const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
         Container resultValues;
@@ -217,7 +211,7 @@ public:
              template<typename...> typename Container = std::vector,
              typename = std::enable_if_t<!is_container<ResultType>::value>,
              typename... QueryTypes>
-    FLATTEN auto values(const QueryTypes &...queryValues)
+    auto values(const QueryTypes &...queryValues)
     {
         return values<Container<ResultType>, capacity>(queryValues...);
     }
@@ -237,7 +231,7 @@ public:
     }
 
     template<typename ResultType, typename... QueryTypes>
-    FLATTEN auto optionalValue(const QueryTypes &...queryValues)
+    auto optionalValue(const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
         std::optional<ResultType> resultValue;
@@ -251,7 +245,7 @@ public:
     }
 
     template<typename Type>
-    FLATTEN static auto toValue(Utils::SmallStringView sqlStatement, Database &database)
+    static auto toValue(Utils::SmallStringView sqlStatement, Database &database)
     {
         StatementImplementation statement(sqlStatement, database);
 
@@ -263,7 +257,7 @@ public:
     }
 
     template<typename Callable, typename... QueryTypes>
-    FLATTEN void readCallback(Callable &&callable, const QueryTypes &...queryValues)
+    void readCallback(Callable &&callable, const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
 
@@ -278,7 +272,7 @@ public:
     }
 
     template<typename Container, typename... QueryTypes>
-    FLATTEN void readTo(Container &container, const QueryTypes &...queryValues)
+    void readTo(Container &container, const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
 
@@ -289,13 +283,13 @@ public:
     }
 
     template<typename ResultType, typename... QueryTypes>
-    FLATTEN auto range(const QueryTypes &...queryValues)
+    auto range(const QueryTypes &...queryValues)
     {
         return SqliteResultRange<ResultType>{*this, queryValues...};
     }
 
     template<typename ResultType, typename... QueryTypes>
-    FLATTEN auto rangeWithTransaction(const QueryTypes &...queryValues)
+    auto rangeWithTransaction(const QueryTypes &...queryValues)
     {
         return SqliteResultRangeWithTransaction<ResultType>{*this, queryValues...};
     }
