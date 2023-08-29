@@ -68,6 +68,24 @@ protected:
 };
 
 template<typename TransactionInterface>
+class ImplicitTransaction
+{
+public:
+    using Transaction = TransactionInterface;
+
+    ~ImplicitTransaction() = default;
+    ImplicitTransaction(TransactionInterface &transactionInterface)
+        : m_locker(transactionInterface)
+    {}
+
+    ImplicitTransaction(const ImplicitTransaction &) = delete;
+    ImplicitTransaction &operator=(const ImplicitTransaction &) = delete;
+
+protected:
+    std::unique_lock<TransactionInterface> m_locker;
+};
+
+template<typename TransactionInterface>
 class AbstractThrowingSessionTransaction
 {
 public:
@@ -198,6 +216,18 @@ auto withTransaction(TransactionInterface &transactionInterface, Callable &&call
         transaction.commit();
 
         return results;
+    }
+}
+
+template<typename TransactionInterface, typename Callable>
+auto withImplicitTransaction(TransactionInterface &transactionInterface, Callable &&callable)
+{
+    ImplicitTransaction transaction{transactionInterface};
+
+    if constexpr (std::is_void_v<std::invoke_result_t<Callable>>) {
+        callable();
+    } else {
+        return callable();
     }
 }
 

@@ -323,6 +323,59 @@ TEST_F(SqliteTransaction, immediate_session_transaction_begin_throws_and_not_rol
     ASSERT_ANY_THROW(ImmediateSessionTransaction{mockTransactionBackend});
 }
 
+TEST_F(SqliteTransaction, with_implicit_transaction_no_return_does_not_commit)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
+    EXPECT_CALL(mockTransactionBackend, deferredBegin()).Times(0);
+    EXPECT_CALL(callableMock, Call());
+    EXPECT_CALL(mockTransactionBackend, commit()).Times(0);
+    EXPECT_CALL(mockTransactionBackend, unlock());
+
+    Sqlite::withImplicitTransaction(mockTransactionBackend, callableMock.AsStdFunction());
+}
+
+TEST_F(SqliteTransaction, with_implicit_transaction_with_return_does_not_commit)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
+    EXPECT_CALL(mockTransactionBackend, deferredBegin()).Times(0);
+    EXPECT_CALL(callableWithReturnMock, Call());
+    EXPECT_CALL(mockTransactionBackend, commit()).Times(0);
+    EXPECT_CALL(mockTransactionBackend, unlock());
+
+    Sqlite::withImplicitTransaction(mockTransactionBackend, callableWithReturnMock.AsStdFunction());
+}
+
+TEST_F(SqliteTransaction, with_implicit_transaction_returns_value)
+{
+    auto callable = callableWithReturnMock.AsStdFunction();
+
+    auto value = Sqlite::withImplicitTransaction(mockTransactionBackend,
+                                                 callableWithReturnMock.AsStdFunction());
+
+    ASSERT_THAT(value, Eq(212));
+}
+
+TEST_F(SqliteTransaction, with_implicit_transaction_do_calls_rollsback_for_exception)
+{
+    InSequence s;
+    ON_CALL(callableMock, Call()).WillByDefault(Throw(std::exception{}));
+
+    EXPECT_CALL(mockTransactionBackend, lock());
+    EXPECT_CALL(mockTransactionBackend, deferredBegin()).Times(0);
+    EXPECT_CALL(callableMock, Call());
+    EXPECT_CALL(mockTransactionBackend, rollback()).Times(0);
+    EXPECT_CALL(mockTransactionBackend, unlock());
+
+    try {
+        Sqlite::withImplicitTransaction(mockTransactionBackend, callableMock.AsStdFunction());
+    } catch (...) {
+    }
+}
+
 TEST_F(SqliteTransaction, with_deferred_transaction_no_return_commit)
 {
     InSequence s;
