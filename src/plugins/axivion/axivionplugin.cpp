@@ -8,6 +8,7 @@
 #include "axivionquery.h"
 #include "axivionresultparser.h"
 #include "axiviontr.h"
+#include "dashboard/dashboardclient.h"
 #include "dashboard/dto.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
@@ -26,10 +27,12 @@
 #include <texteditor/textmark.h>
 
 #include <utils/expected.h>
+#include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QFutureWatcher>
 #include <QTimer>
 
 #include <exception>
@@ -44,7 +47,7 @@ class AxivionPluginPrivate : public QObject
 public:
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
-    void handleProjectInfo(const QByteArray &result);
+    void handleProjectInfo(Utils::expected_str<Dto::ProjectInfoDto> rawInfo);
     void handleOpenedDocs(ProjectExplorer::Project *project);
     void onDocumentOpened(Core::IDocument *doc);
     void onDocumentClosed(Core::IDocument * doc);
@@ -52,6 +55,7 @@ public:
     void handleIssuesForFile(const IssuesList &issues);
     void fetchRuleInfo(const QString &id);
 
+    Utils::NetworkAccessManager *m_networkAccessManager = Utils::NetworkAccessManager::instance();
     AxivionOutputPane m_axivionOutputPane;
     std::shared_ptr<const Dto::ProjectInfoDto> m_currentProjectInfo;
     bool m_runningQuery = false;
@@ -151,14 +155,16 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
         return;
     }
     m_runningQuery = true;
-
-    AxivionQuery query(AxivionQuery::ProjectInfo, {projectName});
-    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
-    connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
-        handleProjectInfo(result);
-    });
-    connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
-    runner->start();
+    DashboardClient client { *this->m_networkAccessManager };
+    QFuture<DashboardClient::RawProjectInfo> response = client.fetchProjectInfo(projectName);
+    auto responseWatcher = std::make_shared<QFutureWatcher<DashboardClient::RawProjectInfo>>();
+    connect(responseWatcher.get(),
+            &QFutureWatcher<DashboardClient::RawProjectInfo>::finished,
+            this,
+            [this, responseWatcher]() {
+                handleProjectInfo(responseWatcher->result());
+            });
+    responseWatcher->setFuture(response);
 }
 
 void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
@@ -201,15 +207,14 @@ void AxivionPluginPrivate::clearAllMarks()
         onDocumentClosed(doc);
 }
 
-void AxivionPluginPrivate::handleProjectInfo(const QByteArray &result)
+void AxivionPluginPrivate::handleProjectInfo(Utils::expected_str<Dto::ProjectInfoDto> rawInfo)
 {
-    Utils::expected_str<Dto::ProjectInfoDto> raw_info = ResultParser::parseProjectInfo(result);
     m_runningQuery = false;
-    if (!raw_info) {
-        Core::MessageManager::writeFlashing(QStringLiteral(u"Axivion: ") + raw_info.error());
+    if (!rawInfo) {
+        Core::MessageManager::writeFlashing(QStringLiteral(u"Axivion: ") + rawInfo.error());
         return;
     }
-    m_currentProjectInfo = std::make_shared<const Dto::ProjectInfoDto>(std::move(raw_info.value()));
+    m_currentProjectInfo = std::make_shared<const Dto::ProjectInfoDto>(std::move(rawInfo.value()));
     m_axivionOutputPane.updateDashboard();
     // handle already opened documents
     if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();

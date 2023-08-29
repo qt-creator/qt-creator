@@ -26,6 +26,8 @@ QtcPlugin {
         "axivionsettings.cpp",
         "axivionsettings.h",
         "axiviontr.h",
+        "dashboard/dashboardclient.cpp",
+        "dashboard/dashboardclient.h",
     ]
 
     cpp.includePaths: base.concat(["."]) // needed for the generated stuff below

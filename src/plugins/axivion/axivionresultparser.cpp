@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "axivionresultparser.h"
-#include "dashboard/dto.h"
 
 #include <utils/qtcassert.h>
 
@@ -118,20 +117,6 @@ DashboardInfo parseDashboardInfo(const QByteArray &input)
         result.projects.append(project);
     }
     return result;
-}
-
-Utils::expected_str<Dto::ProjectInfoDto> parseProjectInfo(const QByteArray &input)
-{
-    auto [header, body] = splitHeaderAndBody(input);
-    auto [error, doc] = prehandleHeaderAndBody(header, body);
-    if (!error.error.isEmpty())
-        return tl::make_unexpected(std::move(error.error));
-    try
-    {
-        return { Dto::ProjectInfoDto::deserialize(body) };
-    } catch (const Dto::invalid_dto_exception &e) {
-        return tl::make_unexpected(QString::fromUtf8(e.what()));
-    }
 }
 
 static QRegularExpression issueCsvLineRegex(const QByteArray &firstCsvLine)
