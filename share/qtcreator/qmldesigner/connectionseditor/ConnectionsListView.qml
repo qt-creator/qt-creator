@@ -38,12 +38,14 @@ ListView {
 
     onCurrentIndexChanged: {
         root.currentIndex = root.model.currentIndex
+        dialog.backend.currentRow = root.currentIndex
     }
 
     data: [
         ConnectionsDialog {
             id: dialog
             visible: false
+            backend: root.model.delegate
         }
     ]
 
@@ -79,6 +81,8 @@ ListView {
             onClicked: {
                 root.model.currentIndex = index
                 root.currentIndex = index
+                dialog.backend.currentRow = index
+
                 dialog.popup(mouseArea)
             }
         }

@@ -21,6 +21,8 @@ class ConnectionModel;
 class DynamicPropertiesModel;
 class BackendModel;
 class ConnectionViewQuickWidget;
+class PropertyTreeModel;
+class PropertyListProxyModel;
 
 class ConnectionView : public AbstractView
 {
@@ -88,6 +90,8 @@ private: //variables
     BindingModel *m_bindingModel;
     DynamicPropertiesModel *m_dynamicPropertiesModel;
     BackendModel *m_backendModel;
+    PropertyTreeModel *m_propertyTreeModel;
+    PropertyListProxyModel *m_propertyListProxyModel;
     int m_currentIndex = 0;
 
     QPointer<ConnectionViewQuickWidget> m_connectionViewQuickWidget;

@@ -3,19 +3,20 @@
 
 #include "connectionmodel.h"
 #include "connectionview.h"
+#include "utils/algorithm.h"
 
 #include <bindingproperty.h>
-#include <variantproperty.h>
-#include <signalhandlerproperty.h>
-#include <rewritertransaction.h>
-#include <nodeabstractproperty.h>
+#include <connectioneditorevaluator.h>
 #include <exception.h>
-#include <nodemetainfo.h>
+#include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
-#include <rewriterview.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <rewritertransaction.h>
+#include <rewriterview.h>
+#include <signalhandlerproperty.h>
+#include <variantproperty.h>
 
 #include <utils/qtcassert.h>
 
@@ -46,8 +47,8 @@ bool isConnection(const QmlDesigner::ModelNode &modelNode)
 namespace QmlDesigner {
 
 ConnectionModel::ConnectionModel(ConnectionView *parent)
-    : QStandardItemModel(parent)
-    , m_connectionView(parent)
+    : QStandardItemModel(parent), m_connectionView(parent),
+      m_delegate(new ConnectionModelBackendDelegate(this))
 {
     connect(this, &QStandardItemModel::dataChanged, this, &ConnectionModel::handleDataChanged);
 }
@@ -264,7 +265,10 @@ void ConnectionModel::updateCustomData(QStandardItem *item, const SignalHandlerP
     //anything else is assignment
     // e.g. foo.bal = foo2.bula ; foo.bal = "literal" ; goo.gal = true
 
-    item->setData("Assignment", UserRoles::ActionTypeRole);
+    item->setData(tr(ConnectionEditorEvaluator::getDisplayStringForType(
+                         signalHandlerProperty.source())
+                         .toLatin1()),
+                  UserRoles::ActionTypeRole);
 }
 
 ModelNode ConnectionModel::getTargetNodeForConnection(const ModelNode &connection) const
@@ -397,6 +401,11 @@ void ConnectionModel::handleException()
 {
     QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
     resetModel();
+}
+
+ConnectionModelBackendDelegate *ConnectionModel::delegate() const
+{
+    return m_delegate;
 }
 
 void ConnectionModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
@@ -551,6 +560,1255 @@ QHash<int, QByteArray> ConnectionModel::roleNames() const
                                             {TargetNameRole, "target"},
                                             {ActionTypeRole, "action"}};
     return roleNames;
+}
+
+ConnectionModelBackendDelegate::ConnectionModelBackendDelegate(ConnectionModel *parent)
+    : QObject(parent), m_signalDelegate(parent->connectionView()), m_okStatementDelegate(parent),
+      m_koStatementDelegate(parent), m_conditionListModel(parent)
+{
+    connect(&m_signalDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
+        handleTargetChanged();
+    });
+
+    connect(&m_okStatementDelegate,
+            &ConnectionModelStatementDelegate::statementChanged,
+            this,
+            [this]() { handleOkStatementChanged(); });
+
+    connect(&m_conditionListModel, &ConditionListModel::conditionChanged, this, [this]() {
+        handleConditionChanged();
+    });
+
+    m_signalDelegate.setPropertyType(PropertyTreeModel::SignalType);
+}
+
+QString generateDefaultStatement(ConnectionModelBackendDelegate::ActionType actionType,
+                                 const QString &rootId)
+{
+    switch (actionType) {
+    case ConnectionModelStatementDelegate::CallFunction:
+        return "Qt.quit()";
+    case ConnectionModelStatementDelegate::Assign:
+        return QString("%1.visible = %1.visible").arg(rootId);
+    case ConnectionModelStatementDelegate::ChangeState:
+        return QString("%1.state = \"\"").arg(rootId);
+    case ConnectionModelStatementDelegate::SetProperty:
+        return QString("%1.visible = true").arg(rootId);
+    case ConnectionModelStatementDelegate::PrintMessage:
+        return QString("console.log(\"test\")").arg(rootId);
+    case ConnectionModelStatementDelegate::Custom:
+        return {};
+    };
+
+    //Qt.quit()
+    //console.log("test")
+    //root.state = ""
+    //root.visible = root.visible
+    //root.visible = true
+
+    return {};
+}
+
+void ConnectionModelBackendDelegate::changeActionType(ActionType actionType)
+{
+    qDebug() << Q_FUNC_INFO << actionType;
+    QTC_ASSERT(actionType != ConnectionModelStatementDelegate::Custom, return );
+
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+
+    QTC_ASSERT(model, return );
+    QTC_ASSERT(model->connectionView()->isAttached(), return );
+
+    const QString validId = model->connectionView()->rootModelNode().validId();
+
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    // Do not take ko into account for now
+
+    model->connectionView()
+        ->executeInTransaction("ConnectionModelBackendDelegate::removeCondition", [&]() {
+            ConnectionEditorStatements::MatchedStatement &okStatement
+                = ConnectionEditorStatements::okStatement(m_handler);
+
+            //We expect a valid id on the root node
+            const QString validId = model->connectionView()->rootModelNode().validId();
+            QString statementSource = generateDefaultStatement(actionType, validId);
+
+            auto tempHandler = ConnectionEditorEvaluator::parseStatement(statementSource);
+            qDebug() << ConnectionEditorStatements::toString(tempHandler);
+            auto newOkStatement = ConnectionEditorStatements::okStatement(tempHandler);
+            qDebug() << "newOk" << statementSource;
+            QTC_ASSERT(!ConnectionEditorStatements::isEmptyStatement(newOkStatement), return );
+
+            okStatement = newOkStatement;
+
+            QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
+
+            signalHandlerProperty.setSource(newSource);
+        });
+
+    setSource(signalHandlerProperty.source());
+
+    setupHandlerAndStatements();
+    setupCondition();
+}
+
+void ConnectionModelBackendDelegate::addCondition()
+{
+    ConnectionEditorStatements::MatchedStatement okStatement
+        = ConnectionEditorStatements::okStatement(m_handler);
+
+    ConnectionEditorStatements::MatchedCondition newCondition;
+
+    ConnectionEditorStatements::Variable variable;
+    variable.nodeId = "condition";
+    newCondition.statements.append(variable);
+
+    ConnectionEditorStatements::ConditionalStatement conditionalStatement;
+
+    conditionalStatement.ok = okStatement;
+    conditionalStatement.condition = newCondition;
+
+    m_handler = conditionalStatement;
+
+    QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
+
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+
+    QTC_ASSERT(model, return );
+    QTC_ASSERT(model->connectionView()->isAttached(), return );
+
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    model->connectionView()->executeInTransaction("ConnectionModelBackendDelegate::removeCondition",
+                                                  [&]() {
+                                                      signalHandlerProperty.setSource(newSource);
+                                                  });
+
+    setSource(signalHandlerProperty.source());
+
+    setupHandlerAndStatements();
+    setupCondition();
+}
+
+void ConnectionModelBackendDelegate::removeCondition()
+{
+    qDebug() << Q_FUNC_INFO;
+
+    ConnectionEditorStatements::MatchedStatement okStatement
+        = ConnectionEditorStatements::okStatement(m_handler);
+
+    m_handler = okStatement;
+
+    QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
+
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+
+    QTC_ASSERT(model, return );
+    QTC_ASSERT(model->connectionView()->isAttached(), return );
+
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    model->connectionView()->executeInTransaction("ConnectionModelBackendDelegate::removeCondition",
+                                                  [&]() {
+                                                      signalHandlerProperty.setSource(newSource);
+                                                  });
+
+    setSource(signalHandlerProperty.source());
+
+    setupHandlerAndStatements();
+    setupCondition();
+}
+
+int ConnectionModelBackendDelegate::currentRow() const
+{
+    return m_currentRow;
+}
+
+QString removeOnFromSignalName(const QString &signal)
+{
+    QString ret = signal;
+    ret.remove(0, 2);
+    ret[0] = ret.at(0).toLower();
+    return ret;
+}
+
+QString addOnToSignalName(const QString &signal)
+{
+    QString ret = signal;
+    ret[0] = ret.at(0).toUpper();
+    ret.prepend("on");
+    return ret;
+}
+
+void ConnectionModelBackendDelegate::setCurrentRow(int i)
+{
+    if (m_currentRow == i)
+        return;
+
+    m_currentRow = i;
+
+    //setup
+
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+
+    qDebug() << Q_FUNC_INFO << i << model;
+
+    QTC_ASSERT(model, return );
+
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    QStringList targetNodes;
+
+    for (const ModelNode &modelNode : model->connectionView()->allModelNodes()) {
+        if (!modelNode.id().isEmpty())
+            targetNodes.append(modelNode.id());
+    }
+
+    std::sort(targetNodes.begin(), targetNodes.end());
+
+    const QString targetNodeName = signalHandlerProperty.parentModelNode()
+                                       .bindingProperty("target")
+                                       .resolveToModelNode()
+                                       .id();
+
+    if (!targetNodes.contains(targetNodeName))
+        targetNodes.append(targetNodeName);
+
+    setSource(signalHandlerProperty.source());
+
+    qDebug() << Q_FUNC_INFO
+             << removeOnFromSignalName(QString::fromUtf8(signalHandlerProperty.name()));
+
+    m_signalDelegate.setup(targetNodeName,
+                           removeOnFromSignalName(QString::fromUtf8(signalHandlerProperty.name())));
+
+    setupHandlerAndStatements();
+
+    qDebug() << Q_FUNC_INFO << ConnectionEditorStatements::toString(m_handler)
+             << ConnectionEditorStatements::toJavascript(m_handler);
+
+    setupCondition();
+
+    QTC_ASSERT(model, return );
+}
+
+void ConnectionModelBackendDelegate::handleException()
+{
+    QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
+}
+
+bool ConnectionModelBackendDelegate::hasCondition() const
+{
+    return m_hasCondition;
+}
+
+void ConnectionModelBackendDelegate::setHasCondition(bool b)
+{
+    if (b == m_hasCondition)
+        return;
+
+    m_hasCondition = b;
+    emit hasConditionChanged();
+}
+
+ConnectionModelBackendDelegate::ActionType ConnectionModelBackendDelegate::actionType() const
+{
+    return m_actionType;
+}
+
+PropertyTreeModelDelegate *ConnectionModelBackendDelegate::signal()
+{
+    return &m_signalDelegate;
+}
+
+ConnectionModelStatementDelegate *ConnectionModelBackendDelegate::okStatement()
+{
+    return &m_okStatementDelegate;
+}
+
+ConnectionModelStatementDelegate *ConnectionModelBackendDelegate::koStatement()
+{
+    return &m_koStatementDelegate;
+}
+
+ConditionListModel *ConnectionModelBackendDelegate::conditionListModel()
+{
+    return &m_conditionListModel;
+}
+
+QString ConnectionModelBackendDelegate::source() const
+{
+    return m_source;
+}
+
+void ConnectionModelBackendDelegate::setSource(const QString &source)
+{
+    if (source == m_source)
+        return;
+
+    m_source = source;
+    emit sourceChanged();
+}
+
+void ConnectionModelBackendDelegate::setupCondition()
+{
+    auto &condition = ConnectionEditorStatements::matchedCondition(m_handler);
+    m_conditionListModel.setCondition(ConnectionEditorStatements::matchedCondition(m_handler));
+    setHasCondition(!condition.statements.isEmpty());
+}
+
+void ConnectionModelBackendDelegate::setupHandlerAndStatements()
+{
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    QTC_ASSERT(model, return );
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    m_handler = ConnectionEditorEvaluator::parseStatement(signalHandlerProperty.source());
+
+    const QString statementType = QmlDesigner::ConnectionEditorStatements::toDisplayName(m_handler);
+
+    if (statementType == ConnectionEditorStatements::EMPTY_DISPLAY_NAME) {
+        m_actionType = ConnectionModelStatementDelegate::Custom;
+    } else if (statementType == ConnectionEditorStatements::ASSIGNMENT_DISPLAY_NAME) {
+        m_actionType = ConnectionModelStatementDelegate::Assign;
+        //setupAssignment();
+    } else if (statementType == ConnectionEditorStatements::SETPROPERTY_DISPLAY_NAME) {
+        m_actionType = ConnectionModelStatementDelegate::SetProperty;
+        //setupSetProperty();
+    } else if (statementType == ConnectionEditorStatements::FUNCTION_DISPLAY_NAME) {
+        m_actionType = ConnectionModelStatementDelegate::CallFunction;
+        //setupCallFunction();
+    } else if (statementType == ConnectionEditorStatements::SETSTATE_DISPLAY_NAME) {
+        m_actionType = ConnectionModelStatementDelegate::ChangeState;
+        //setupChangeState();
+    } else if (statementType == ConnectionEditorStatements::LOG_DISPLAY_NAME) {
+        m_actionType = ConnectionModelStatementDelegate::PrintMessage;
+        //setupPrintMessage();
+    } else {
+        m_actionType = ConnectionModelStatementDelegate::Custom;
+    }
+
+    ConnectionEditorStatements::MatchedStatement &okStatement
+        = ConnectionEditorStatements::okStatement(m_handler);
+    m_okStatementDelegate.setStatement(okStatement);
+    m_okStatementDelegate.setActionType(m_actionType);
+
+    ConnectionEditorStatements::MatchedStatement &koStatement
+        = ConnectionEditorStatements::koStatement(m_handler);
+
+    if (!ConnectionEditorStatements::isEmptyStatement(koStatement)) {
+        m_koStatementDelegate.setStatement(koStatement);
+        m_koStatementDelegate.setActionType(m_actionType);
+    }
+
+    emit actionTypeChanged();
+}
+
+void ConnectionModelBackendDelegate::handleTargetChanged()
+{
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+
+    QTC_ASSERT(model, return );
+
+    QTC_ASSERT(model->connectionView()->isAttached(), return );
+
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    const PropertyName handlerName = addOnToSignalName(m_signalDelegate.name()).toUtf8();
+
+    qDebug() << Q_FUNC_INFO << m_signalDelegate.id() << handlerName;
+
+    const auto parentModelNode = signalHandlerProperty.parentModelNode();
+
+    QTC_ASSERT(parentModelNode.isValid(), return );
+
+    const auto newId = m_signalDelegate.id();
+
+    model->connectionView()
+        ->executeInTransaction("ConnectionModelBackendDelegate::handleTargetChanged", [&]() {
+            const auto oldTargetNodeName
+                = parentModelNode.bindingProperty("target").resolveToModelNode().id();
+
+            if (signalHandlerProperty.name() != handlerName) {
+                const auto expression = signalHandlerProperty.source();
+                parentModelNode.removeProperty(signalHandlerProperty.name());
+                parentModelNode.signalHandlerProperty(handlerName).setSource(expression);
+            }
+
+            if (oldTargetNodeName != newId)
+                parentModelNode.bindingProperty("target").setExpression(newId);
+        });
+}
+
+void ConnectionModelBackendDelegate::handleOkStatementChanged()
+{
+    ConnectionEditorStatements::MatchedStatement &okStatement
+        = ConnectionEditorStatements::okStatement(m_handler);
+
+    okStatement = m_okStatementDelegate.statement(); //TODO why?
+
+    QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
+
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+
+    QTC_ASSERT(model, return );
+
+    QTC_ASSERT(model->connectionView()->isAttached(), return );
+
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    model->connectionView()
+        ->executeInTransaction("ConnectionModelBackendDelegate::handleOkStatementChanged",
+                               [&]() { signalHandlerProperty.setSource(newSource); });
+
+    setSource(signalHandlerProperty.source());
+}
+
+void ConnectionModelBackendDelegate::handleConditionChanged()
+{
+    qDebug() << Q_FUNC_INFO;
+
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    QTC_ASSERT(model, return );
+    QTC_ASSERT(model->connectionView()->isAttached(), return );
+
+    auto view = model->connectionView();
+
+    ConnectionEditorStatements::MatchedCondition &condition
+        = ConnectionEditorStatements::matchedCondition(m_handler);
+    condition = m_conditionListModel.condition(); //why?
+    QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
+
+    qDebug() << Q_FUNC_INFO << "new source" << newSource;
+
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    try {
+        RewriterTransaction transaction = view->beginRewriterTransaction(
+            "ConnectionModelBackendDelegate::handleConditionChanged");
+        signalHandlerProperty.setSource(newSource);
+        transaction.commit();
+    } catch (const Exception &e) {
+        m_conditionListModel.setInvalid(e.description());
+    }
+
+    setSource(signalHandlerProperty.source());
+}
+
+static ConnectionEditorStatements::MatchedStatement emptyStatement;
+
+ConnectionModelStatementDelegate::ConnectionModelStatementDelegate(ConnectionModel *parent)
+    : QObject(parent), m_functionDelegate(parent->connectionView()),
+      m_lhsDelegate(parent->connectionView()), m_rhsAssignmentDelegate(parent->connectionView()),
+      m_statement(emptyStatement), m_model(parent)
+{
+    m_functionDelegate.setPropertyType(PropertyTreeModel::SlotType);
+
+    connect(&m_functionDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
+        handleFunctionChanged();
+    });
+
+    connect(&m_rhsAssignmentDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
+        handleRhsAssignmentChanged();
+    });
+
+    connect(&m_lhsDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
+        handleLhsChanged();
+    });
+
+    connect(&m_stringArgument, &StudioQmlTextBackend::activated, this, [this]() {
+        handleStringArgumentChanged();
+    });
+
+    connect(&m_states, &StudioQmlComboBoxBackend::activated, this, [this]() {
+        handleStateChanged();
+    });
+
+    connect(&m_stateTargets, &StudioQmlComboBoxBackend::activated, this, [this]() {
+        handleStateTargetsChanged();
+    });
+}
+
+void ConnectionModelStatementDelegate::setActionType(ActionType type)
+{
+    if (m_actionType == type)
+        return;
+
+    m_actionType = type;
+    emit actionTypeChanged();
+    setup();
+}
+
+void ConnectionModelStatementDelegate::setup()
+{
+    switch (m_actionType) {
+    case CallFunction:
+        setupCallFunction();
+        break;
+    case Assign:
+        setupAssignment();
+        break;
+    case ChangeState:
+        setupChangeState();
+        break;
+    case SetProperty:
+        setupSetProperty();
+        break;
+    case PrintMessage:
+        setupPrintMessage();
+        break;
+    case Custom:
+        break;
+    };
+}
+
+void ConnectionModelStatementDelegate::setStatement(
+    ConnectionEditorStatements::MatchedStatement &statement)
+{
+    m_statement = statement;
+    setup();
+}
+
+ConnectionEditorStatements::MatchedStatement &ConnectionModelStatementDelegate::statement()
+{
+    return m_statement;
+}
+
+ConnectionModelStatementDelegate::ActionType ConnectionModelStatementDelegate::actionType() const
+{
+    return m_actionType;
+}
+
+PropertyTreeModelDelegate *ConnectionModelStatementDelegate::function()
+{
+    return &m_functionDelegate;
+}
+
+PropertyTreeModelDelegate *ConnectionModelStatementDelegate::lhs()
+{
+    return &m_lhsDelegate;
+}
+
+PropertyTreeModelDelegate *ConnectionModelStatementDelegate::rhsAssignment()
+{
+    return &m_rhsAssignmentDelegate;
+}
+
+StudioQmlTextBackend *ConnectionModelStatementDelegate::stringArgument()
+{
+    return &m_stringArgument;
+}
+
+StudioQmlComboBoxBackend *ConnectionModelStatementDelegate::stateTargets()
+{
+    return &m_stateTargets;
+}
+
+StudioQmlComboBoxBackend *ConnectionModelStatementDelegate::states()
+{
+    return &m_states;
+}
+
+void ConnectionModelStatementDelegate::handleFunctionChanged()
+{
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::MatchedFunction>(m_statement),
+               return );
+
+    ConnectionEditorStatements::MatchedFunction &functionStatement
+        = std::get<ConnectionEditorStatements::MatchedFunction>(m_statement);
+
+    functionStatement.functionName = m_functionDelegate.name();
+    functionStatement.nodeId = m_functionDelegate.id();
+
+    emit statementChanged();
+}
+
+void ConnectionModelStatementDelegate::handleLhsChanged()
+{
+    if (m_actionType == Assign) {
+        QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::Assignment>(m_statement),
+                   return );
+
+        ConnectionEditorStatements::Assignment &assignmentStatement
+            = std::get<ConnectionEditorStatements::Assignment>(m_statement);
+
+        assignmentStatement.lhs.nodeId = m_lhsDelegate.id();
+        assignmentStatement.lhs.propertyName = m_lhsDelegate.name();
+
+    } else if (m_actionType == SetProperty) {
+        QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::PropertySet>(m_statement),
+                   return );
+
+        ConnectionEditorStatements::PropertySet &setPropertyStatement
+            = std::get<ConnectionEditorStatements::PropertySet>(m_statement);
+
+        setPropertyStatement.lhs.nodeId = m_lhsDelegate.id();
+        setPropertyStatement.lhs.propertyName = m_lhsDelegate.name();
+    } else {
+        QTC_ASSERT(false, return );
+    }
+
+    emit statementChanged();
+}
+
+void ConnectionModelStatementDelegate::handleRhsAssignmentChanged()
+{
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::Assignment>(m_statement), return );
+
+    ConnectionEditorStatements::Assignment &assignmentStatement
+        = std::get<ConnectionEditorStatements::Assignment>(m_statement);
+
+    assignmentStatement.rhs.nodeId = m_rhsAssignmentDelegate.id();
+    assignmentStatement.rhs.propertyName = m_rhsAssignmentDelegate.name();
+
+    emit statementChanged();
+}
+
+static ConnectionEditorStatements::Literal parseTextArgument(const QString &text)
+{
+    if (text.startsWith("\"") && text.endsWith("\"")) {
+        QString ret = text;
+        ret.remove(0, 1);
+        ret.chop(1);
+        return ret;
+    }
+
+    if (text == "true")
+        return true;
+
+    if (text == "false")
+        return false;
+
+    bool ok = true;
+    double d = text.toDouble(&ok);
+    if (ok)
+        return d;
+
+    return text;
+}
+
+static ConnectionEditorStatements::ComparativeStatement parseTextArgumentComparativeStatement(
+    const QString &text)
+{
+    if (text.startsWith("\"") && text.endsWith("\"")) {
+        QString ret = text;
+        ret.remove(0, 1);
+        ret.chop(1);
+        return ret;
+    }
+
+    if (text == "true")
+        return true;
+
+    if (text == "false")
+        return false;
+
+    bool ok = true;
+    double d = text.toDouble(&ok);
+    if (ok)
+        return d;
+
+    return text;
+}
+
+static ConnectionEditorStatements::RightHandSide parseLogTextArgument(const QString &text)
+{
+    if (text.startsWith("\"") && text.endsWith("\"")) {
+        QString ret = text;
+        ret.remove(0, 1);
+        ret.chop(1);
+        return ret;
+    }
+
+    if (text == "true")
+        return true;
+
+    if (text == "false")
+        return true;
+
+    bool ok = true;
+    double d = text.toDouble(&ok);
+    if (ok)
+        return d;
+
+    //TODO variables and function calls
+    return text;
+}
+
+void ConnectionModelStatementDelegate::handleStringArgumentChanged()
+{
+    if (m_actionType == SetProperty) {
+        QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::PropertySet>(m_statement),
+                   return );
+
+        ConnectionEditorStatements::PropertySet &propertySet
+            = std::get<ConnectionEditorStatements::PropertySet>(m_statement);
+
+        propertySet.rhs = parseTextArgument(m_stringArgument.text());
+
+    } else if (m_actionType == PrintMessage) {
+        QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::ConsoleLog>(m_statement),
+                   return );
+
+        ConnectionEditorStatements::ConsoleLog &consoleLog
+            = std::get<ConnectionEditorStatements::ConsoleLog>(m_statement);
+
+        consoleLog.argument = parseLogTextArgument(m_stringArgument.text());
+    } else {
+        QTC_ASSERT(false, return );
+    }
+
+    emit statementChanged();
+}
+
+void ConnectionModelStatementDelegate::handleStateChanged()
+{
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::StateSet>(m_statement), return );
+
+    ConnectionEditorStatements::StateSet &stateSet = std::get<ConnectionEditorStatements::StateSet>(
+        m_statement);
+
+    QString stateName = m_states.currentText();
+    if (stateName == baseStateName())
+        stateName = "";
+    stateSet.stateName = "\"" + stateName + "\"";
+
+    emit statementChanged();
+}
+
+void ConnectionModelStatementDelegate::handleStateTargetsChanged()
+{
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::StateSet>(m_statement), return );
+
+    ConnectionEditorStatements::StateSet &stateSet = std::get<ConnectionEditorStatements::StateSet>(
+        m_statement);
+
+    stateSet.nodeId = m_stateTargets.currentText();
+    stateSet.stateName = "\"\"";
+
+    setupStates();
+
+    emit statementChanged();
+}
+
+void ConnectionModelStatementDelegate::setupAssignment()
+{
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::Assignment>(m_statement), return );
+
+    const auto assignment = std::get<ConnectionEditorStatements::Assignment>(m_statement);
+    m_lhsDelegate.setup(assignment.lhs.nodeId, assignment.lhs.propertyName);
+    m_rhsAssignmentDelegate.setup(assignment.rhs.nodeId, assignment.rhs.propertyName);
+}
+
+void ConnectionModelStatementDelegate::setupSetProperty()
+{
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::PropertySet>(m_statement),
+               return );
+
+    const auto propertySet = std::get<ConnectionEditorStatements::PropertySet>(m_statement);
+    m_lhsDelegate.setup(propertySet.lhs.nodeId, propertySet.lhs.propertyName);
+    m_stringArgument.setText(ConnectionEditorStatements::toString(propertySet.rhs));
+}
+
+void ConnectionModelStatementDelegate::setupCallFunction()
+{
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::MatchedFunction>(m_statement),
+               return );
+
+    const auto functionStatement = std::get<ConnectionEditorStatements::MatchedFunction>(
+        m_statement);
+    m_functionDelegate.setup(functionStatement.nodeId, functionStatement.functionName);
+}
+
+void ConnectionModelStatementDelegate::setupChangeState()
+{
+    qDebug() << Q_FUNC_INFO;
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::StateSet>(m_statement), return );
+
+    QTC_ASSERT(m_model->connectionView()->isAttached(), return );
+
+    auto model = m_model->connectionView()->model();
+    const auto items = Utils::filtered(m_model->connectionView()->allModelNodesOfType(
+                                           model->qtQuickItemMetaInfo()),
+                                       [](const ModelNode &node) {
+                                           QmlItemNode item(node);
+                                           return node.hasId() && item.isValid()
+                                                  && !item.allStateNames().isEmpty();
+                                       });
+
+    QStringList itemIds = Utils::transform(items, [](const ModelNode &node) { return node.id(); });
+    const auto groups = m_model->connectionView()->allModelNodesOfType(
+        model->qtQuickStateGroupMetaInfo());
+
+    const auto rootId = m_model->connectionView()->rootModelNode().id();
+    itemIds.removeAll(rootId);
+
+    QStringList groupIds = Utils::transform(groups, [](const ModelNode &node) { return node.id(); });
+
+    Utils::sort(itemIds);
+    Utils::sort(groupIds);
+
+    if (!rootId.isEmpty())
+        groupIds.prepend(rootId);
+
+    const QStringList stateGroupModel = groupIds + itemIds;
+    m_stateTargets.setModel(stateGroupModel);
+
+    const auto stateSet = std::get<ConnectionEditorStatements::StateSet>(m_statement);
+
+    m_stateTargets.setCurrentText(stateSet.nodeId);
+    setupStates();
+}
+QString stripQuotesFromState(const QString &input)
+{
+    if (input.startsWith("\"") && input.endsWith("\"")) {
+        QString ret = input;
+        ret.remove(0, 1);
+        ret.chop(1);
+        return ret;
+    }
+    return input;
+}
+void ConnectionModelStatementDelegate::setupStates()
+{
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::StateSet>(m_statement), return );
+    QTC_ASSERT(m_model->connectionView()->isAttached(), return );
+
+    const auto stateSet = std::get<ConnectionEditorStatements::StateSet>(m_statement);
+
+    qDebug() << Q_FUNC_INFO << stateSet.stateName;
+
+    const QString nodeId = m_stateTargets.currentText();
+
+    const ModelNode node = m_model->connectionView()->modelNodeForId(nodeId);
+
+    QStringList states;
+    if (node.metaInfo().isQtQuickItem()) {
+        QmlItemNode item(node);
+        QTC_ASSERT(item.isValid(), return );
+        if (item.isRootNode())
+            states = item.states().names(); //model
+        else
+            states = item.allStateNames(); //instances
+    } else {
+        QmlModelStateGroup group(node);
+        states = group.names(); //model
+    }
+
+    const QString stateName = stripQuotesFromState(stateSet.stateName);
+
+    states.prepend(baseStateName());
+    m_states.setModel(states);
+    if (stateName.isEmpty())
+        m_states.setCurrentText(baseStateName());
+    else
+        m_states.setCurrentText(stateName);
+}
+
+void ConnectionModelStatementDelegate::setupPrintMessage()
+{
+    QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::ConsoleLog>(m_statement), return );
+
+    const auto consoleLog = std::get<ConnectionEditorStatements::ConsoleLog>(m_statement);
+    m_stringArgument.setText(ConnectionEditorStatements::toString(consoleLog.argument));
+}
+
+QString ConnectionModelStatementDelegate::baseStateName() const
+{
+    return tr("Base State");
+}
+
+static ConnectionEditorStatements::MatchedCondition emptyCondition;
+
+ConditionListModel::ConditionListModel(ConnectionModel *parent)
+    : m_connectionModel(parent), m_condition(emptyCondition)
+{}
+
+int ConditionListModel::rowCount(const QModelIndex &parent) const
+{
+    return m_tokens.size();
+}
+
+QHash<int, QByteArray> ConditionListModel::roleNames() const
+{
+    static QHash<int, QByteArray> roleNames{{Qt::UserRole + 1, "type"}, {Qt::UserRole + 2, "value"}};
+    return roleNames;
+}
+
+QVariant ConditionListModel::data(const QModelIndex &index, int role) const
+{
+    if (index.isValid() && index.row() < rowCount()) {
+        if (role == Qt::UserRole + 1) {
+            return m_tokens.at(index.row()).type;
+        } else if (role == Qt::UserRole + 2) {
+            return m_tokens.at(index.row()).value;
+        }
+
+        qWarning() << Q_FUNC_INFO << "invalid role";
+    } else {
+        qWarning() << Q_FUNC_INFO << "invalid index";
+    }
+
+    return QVariant();
+}
+
+void ConditionListModel::setup()
+{
+    m_tokens.clear();
+
+    internalSetup();
+
+    emit validChanged();
+    emit emptyChanged();
+
+    beginResetModel();
+    endResetModel();
+}
+
+void ConditionListModel::setCondition(ConnectionEditorStatements::MatchedCondition &condition)
+{
+    m_condition = condition;
+    setup();
+}
+
+ConnectionEditorStatements::MatchedCondition &ConditionListModel::condition()
+{
+    return m_condition;
+}
+
+ConditionListModel::ConditionToken ConditionListModel::tokenFromConditionToken(
+    const ConnectionEditorStatements::ConditionToken &token)
+{
+    ConditionToken ret;
+    ret.type = Operator;
+    ret.value = ConnectionEditorStatements::toJavascript(token);
+
+    return ret;
+}
+
+ConditionListModel::ConditionToken ConditionListModel::tokenFromComparativeStatement(
+    const ConnectionEditorStatements::ComparativeStatement &token)
+{
+    ConditionToken ret;
+
+    if (auto *variable = std::get_if<ConnectionEditorStatements::Variable>(&token)) {
+        ret.type = Variable;
+        ret.value = variable->expression();
+        return ret;
+    } else if (auto *literal = std::get_if<QString>(&token)) {
+        ret.type = Literal;
+        ret.value = "\"" + *literal + "\"";
+        return ret;
+    } else if (auto *literal = std::get_if<bool>(&token)) {
+        ret.type = Literal;
+        if (*literal)
+            ret.value = "true";
+        else
+            ret.value = "false";
+        return ret;
+    } else if (auto *literal = std::get_if<double>(&token)) {
+        ret.type = Literal;
+        ret.value = QString::number(*literal);
+        return ret;
+    }
+
+    ret.type = Invalid;
+    ret.value = "invalid";
+    return {};
+}
+
+void ConditionListModel::insertToken(int index, const QString &value)
+{
+    m_tokens.insert(index, valueToToken(value));
+    validateAndRebuildTokens();
+    resetModel();
+}
+
+void ConditionListModel::updateToken(int index, const QString &value)
+{
+    m_tokens[index] = valueToToken(value);
+    validateAndRebuildTokens();
+    resetModel();
+}
+
+void ConditionListModel::appendToken(const QString &value)
+{
+    insertToken(rowCount(), value);
+    validateAndRebuildTokens();
+    resetModel();
+}
+
+void ConditionListModel::removeToken(int index)
+{
+    m_tokens.remove(index, 1);
+    validateAndRebuildTokens();
+    resetModel();
+}
+
+bool ConditionListModel::valid() const
+{
+    return m_valid;
+}
+
+bool ConditionListModel::empty() const
+{
+    return m_tokens.isEmpty();
+}
+
+void ConditionListModel::command(const QString &string)
+{
+    //TODO remove from prodcution code
+    QStringList list = string.split("%", Qt::SkipEmptyParts);
+
+    qDebug() << Q_FUNC_INFO << string << list.size();
+
+    if (list.size() < 2)
+        return;
+
+    if (list.size() == 2) {
+        if (list.first() == "A") {
+            qDebug() << "Append" << list.last();
+            appendToken(list.last());
+        } else if (list.first() == "R") {
+            bool ok = true;
+            int index = list.last().toInt(&ok);
+
+            qDebug() << "Remove" << index;
+            if (ok)
+                removeToken(index);
+        }
+    }
+
+    if (list.size() == 3) {
+        if (list.first() == "U") {
+            bool ok = true;
+            int index = list.at(1).toInt(&ok);
+
+            if (ok)
+                updateToken(index, list.last());
+            qDebug() << "Update" << index << list.last();
+        } else if (list.first() == "I") {
+            bool ok = true;
+            int index = list.at(1).toInt(&ok);
+
+            if (ok)
+                insertToken(index, list.last());
+
+            qDebug() << "Insert" << index << list.last();
+        }
+    }
+}
+
+void ConditionListModel::setInvalid(const QString &errorMessage)
+{
+    m_valid = false;
+    m_errorMessage = errorMessage;
+    emit errorChanged();
+    emit validChanged();
+}
+
+void ConditionListModel::setValid()
+{
+    m_valid = true;
+    m_errorMessage.clear();
+    emit errorChanged();
+    emit validChanged();
+}
+
+QString ConditionListModel::error() const
+{
+    return m_errorMessage;
+}
+
+void ConditionListModel::internalSetup()
+{
+    setInvalid(tr("No Valid Condition"));
+    if (!m_condition.statements.size() && !m_condition.tokens.size())
+        return;
+
+    if (m_condition.statements.size() != m_condition.tokens.size() + 1)
+        return;
+
+    auto s_it = m_condition.statements.begin();
+    auto o_it = m_condition.tokens.begin();
+
+    while (o_it != m_condition.tokens.end()) {
+        m_tokens.append(tokenFromComparativeStatement(*s_it));
+        m_tokens.append(tokenFromConditionToken(*o_it));
+
+        s_it++;
+        o_it++;
+    }
+    m_tokens.append(tokenFromComparativeStatement(*s_it));
+
+    for (const auto &token : m_tokens)
+        qDebug() << token.value;
+
+    setValid();
+}
+
+ConditionListModel::ConditionToken ConditionListModel::valueToToken(const QString &value)
+{
+    const QStringList operators = {"&&", "||", "===", "!==", ">", ">=", "<", "<="};
+
+    if (operators.contains(value)) {
+        ConditionToken token;
+        token.type = Operator;
+        token.value = value;
+        return token;
+    }
+
+    bool ok = false;
+    value.toDouble(&ok);
+
+    if (value == "true" || value == "false" || ok
+        || (value.startsWith("\"") && value.endsWith("\""))) {
+        ConditionToken token;
+        token.type = Literal;
+        token.value = value;
+        return token;
+    }
+
+    static QRegularExpression regexp("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
+    QRegularExpressionMatch match = regexp.match(value);
+
+    if (match.hasMatch()) { //variable
+        ConditionToken token;
+        token.type = Variable;
+        token.value = value;
+        return token;
+    }
+
+    ConditionToken token;
+    token.type = Invalid;
+    token.value = value;
+
+    return token;
+}
+
+void ConditionListModel::resetModel()
+{
+    beginResetModel();
+    endResetModel();
+}
+
+int ConditionListModel::checkOrder() const
+{
+    auto it = m_tokens.begin();
+
+    bool wasOperator = true;
+
+    int ret = 0;
+    while (it != m_tokens.end()) {
+        if (wasOperator && it->type == Operator)
+            return ret;
+        if (!wasOperator && it->type == Literal)
+            return ret;
+        if (!wasOperator && it->type == Variable)
+            return ret;
+        wasOperator = it->type == Operator;
+        it++;
+        ret++;
+    }
+    return -1;
+}
+
+void ConditionListModel::validateAndRebuildTokens()
+{
+    QString invalidValue;
+    const bool invalidToken = Utils::contains(m_tokens,
+                                              [&invalidValue](const ConditionToken &token) {
+                                                  if (token.type == Invalid)
+                                                      invalidValue = token.value;
+                                                  return token.type == Invalid;
+                                              });
+
+    if (invalidToken) {
+        setInvalid(tr("Invalid token %").arg(invalidToken));
+        return;
+    }
+
+    if (int firstError = checkOrder() != -1) {
+        setInvalid(tr("Invalid order at %1").arg(firstError));
+        return;
+    }
+
+    setValid();
+
+    rebuildTokens();
+}
+
+void ConditionListModel::rebuildTokens()
+{
+    QTC_ASSERT(m_valid, return );
+
+    m_condition.statements.clear();
+    m_condition.tokens.clear();
+
+    auto it = m_tokens.begin();
+
+    while (it != m_tokens.end()) {
+        QTC_ASSERT(it->type != Invalid, return );
+        if (it->type == Operator)
+            m_condition.tokens.append(toOperatorStatement(*it));
+        else if (it->type == Literal || it->type == Variable)
+            m_condition.statements.append(toStatement(*it));
+
+        it++;
+    }
+
+    emit conditionChanged();
+}
+
+ConnectionEditorStatements::ConditionToken ConditionListModel::toOperatorStatement(
+    const ConditionToken &token)
+{
+    if (token.value == "&&")
+        return ConnectionEditorStatements::ConditionToken::And;
+
+    if (token.value == "||")
+        return ConnectionEditorStatements::ConditionToken::Or;
+
+    if (token.value == "===")
+        return ConnectionEditorStatements::ConditionToken::Equals;
+
+    if (token.value == "!==")
+        return ConnectionEditorStatements::ConditionToken::Not;
+
+    if (token.value == "!==")
+        return ConnectionEditorStatements::ConditionToken::Not;
+
+    if (token.value == ">")
+        return ConnectionEditorStatements::ConditionToken::LargerThan;
+
+    if (token.value == ">=")
+        return ConnectionEditorStatements::ConditionToken::LargerEqualsThan;
+
+    if (token.value == "<")
+        return ConnectionEditorStatements::ConditionToken::SmallerThan;
+
+    if (token.value == "<=")
+        return ConnectionEditorStatements::ConditionToken::SmallerEqualsThan;
+
+    return ConnectionEditorStatements::ConditionToken::Unknown;
+}
+
+ConnectionEditorStatements::ComparativeStatement ConditionListModel::toStatement(
+    const ConditionToken &token)
+{
+    if (token.type == Variable) {
+        QStringList list = token.value.split(".");
+        ConnectionEditorStatements::Variable variable;
+
+        variable.nodeId = list.first();
+        variable.propertyName = list.last();
+        return variable;
+    } else if (token.type == Literal) {
+        return parseTextArgumentComparativeStatement(token.value);
+    }
+
+    return {};
 }
 
 } // namespace QmlDesigner

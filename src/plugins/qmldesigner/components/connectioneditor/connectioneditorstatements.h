@@ -115,9 +115,12 @@ QMLDESIGNER_EXPORT QString toString(const Handler &handler);
 QMLDESIGNER_EXPORT QString toJavascript(const Handler &handler);
 QMLDESIGNER_EXPORT QString toDisplayName(const MatchedStatement &statement);
 QMLDESIGNER_EXPORT QString toDisplayName(const Handler &handler);
+QMLDESIGNER_EXPORT QString toJavascript(const ConditionToken &token);
 
-QMLDESIGNER_EXPORT MatchedStatement okStatement(const ConnectionEditorStatements::Handler &handler);
-QMLDESIGNER_EXPORT MatchedStatement koStatement(const ConnectionEditorStatements::Handler &handler);
+QMLDESIGNER_EXPORT MatchedStatement &okStatement(ConnectionEditorStatements::Handler &handler);
+QMLDESIGNER_EXPORT MatchedStatement &koStatement(ConnectionEditorStatements::Handler &handler);
+
+QMLDESIGNER_EXPORT MatchedCondition &matchedCondition(ConnectionEditorStatements::Handler &handler);
 
 } // namespace ConnectionEditorStatements
 

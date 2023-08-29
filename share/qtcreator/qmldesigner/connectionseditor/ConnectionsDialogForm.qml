@@ -14,12 +14,15 @@ Column {
     readonly property real verticalSpacing: 16
     readonly property real columnWidth: (root.width - root.horizontalSpacing) / 2
 
+    property var backend
+
     component PopupLabel : Text {
         width: root.columnWidth
         color: StudioTheme.Values.themeTextColor
         font.pixelSize: StudioTheme.Values.myFontSize
     }
 
+    /* replaced by ConnectionModelStatementDelegate defined in C++
     enum ActionType {
         CallFunction,
         Assign,
@@ -27,7 +30,7 @@ Column {
         SetProperty,
         PrintMessage,
         Custom
-    }
+    } */
 
     y: StudioTheme.Values.popupMargin
     width: parent.width
@@ -47,7 +50,12 @@ Column {
             id: signal
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
-            model: ["Clicked", "Pressed", "Released"]
+
+            model: backend.signal.name.model ?? 0
+
+            onActivated: backend.signal.name.activateIndex(signal.currentIndex)
+            property int currentTypeIndex: backend.signal.name.currentIndex ?? 0
+            onCurrentTypeIndexChanged: signal.currentIndex = signal.currentTypeIndex
         }
 
         StudioControls.TopLevelComboBox {
@@ -56,21 +64,25 @@ Column {
             width: root.columnWidth
             textRole: "text"
             valueRole: "value"
+            ///model.getData(currentIndex, "role")
+            property int indexFromBackend: indexOfValue(backend.actionType)
+            onIndexFromBackendChanged: action.currentIndex = action.indexFromBackend
+            onActivated: backend.changeActionType(action.currentValue)
 
             model: [
-                { value: ConnectionsDialogForm.CallFunction, text: qsTr("Call Function") },
-                { value: ConnectionsDialogForm.Assign, text: qsTr("Assign") },
-                { value: ConnectionsDialogForm.ChangeState, text: qsTr("Change State") },
-                { value: ConnectionsDialogForm.SetProperty, text: qsTr("Set Property") },
-                { value: ConnectionsDialogForm.PrintMessage, text: qsTr("Print Message") },
-                { value: ConnectionsDialogForm.Custom, text: qsTr("Custom") }
+                { value: ConnectionModelStatementDelegate.CallFunction, text: qsTr("Call Function") },
+                { value: ConnectionModelStatementDelegate.Assign, text: qsTr("Assign") },
+                { value: ConnectionModelStatementDelegate.ChangeState, text: qsTr("Change State") },
+                { value: ConnectionModelStatementDelegate.SetProperty, text: qsTr("Set Property") },
+                { value: ConnectionModelStatementDelegate.PrintMessage, text: qsTr("Print Message") },
+                { value: ConnectionModelStatementDelegate.Custom, text: qsTr("Custom") }
             ]
         }
     }
 
     // Call Function
     Row {
-        visible: action.currentValue === ConnectionsDialogForm.CallFunction
+        visible: action.currentValue === ConnectionModelStatementDelegate.CallFunction
         spacing: root.horizontalSpacing
 
         PopupLabel { text: qsTr("Item") }
@@ -78,25 +90,36 @@ Column {
     }
 
     Row {
-        visible: action.currentValue === ConnectionsDialogForm.CallFunction
+        visible: action.currentValue === ConnectionModelStatementDelegate.CallFunction
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
+            id: functionId
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
-            model: ["mySpinBox", "myAnimation", "myCustomComponent"]
+
+            model: backend.okStatement.function.id.model ?? 0
+
+            onActivated: backend.okStatement.function.id.activateIndex(functionId.currentIndex)
+            property int currentTypeIndex: backend.okStatement.function.id.currentIndex ?? 0
+            onCurrentTypeIndexChanged: functionId.currentIndex = functionId.currentTypeIndex
         }
 
         StudioControls.TopLevelComboBox {
+            id: functionName
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
-            model: ["start", "stop", "reset"]
+            model: backend.okStatement.function.name.model ?? 0
+
+            onActivated: backend.okStatement.function.name.activateIndex(functionName.currentIndex)
+            property int currentTypeIndex: backend.okStatement.function.name.currentIndex ?? 0
+            onCurrentTypeIndexChanged: functionName.currentIndex = functionName.currentTypeIndex
         }
     }
 
     // Assign
     Row {
-        visible: action.currentValue === ConnectionsDialogForm.Assign
+        visible: action.currentValue === ConnectionModelStatementDelegate.Assign
         spacing: root.horizontalSpacing
 
         PopupLabel { text: qsTr("From") }
@@ -104,25 +127,68 @@ Column {
     }
 
     Row {
-        visible: action.currentValue === ConnectionsDialogForm.Assign
+        visible: action.currentValue === ConnectionModelStatementDelegate.Assign
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
+            id: rhsAssignmentId
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
-            model: ["value", "foo", "bar"]
+            //from - rhs - id
+
+            model: backend.okStatement.rhsAssignment.id.model ?? 0
+
+            onActivated: backend.okStatement.rhsAssignment.id.activateIndex(rhsAssignmentId.currentIndex)
+            property int currentTypeIndex: backend.okStatement.rhsAssignment.id.currentIndex ?? 0
+            onCurrentTypeIndexChanged: rhsAssignmentId.currentIndex = rhsAssignmentId.currentTypeIndex
         }
 
         StudioControls.TopLevelComboBox {
+            id: lhsAssignmentId
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
-            model: ["myValue", "yourValue", "ourValue"]
+            //to lhs - id
+            model: backend.okStatement.lhs.id.model ?? 0
+
+            onActivated: backend.okStatement.lhs.id.activateIndex(lhsAssignmentId.currentIndex)
+            property int currentTypeIndex: backend.okStatement.lhs.id.currentIndex ?? 0
+            onCurrentTypeIndexChanged: lhsAssignmentId.currentIndex = lhsAssignmentId.currentTypeIndex
+        }
+    }
+
+    Row {
+        visible: action.currentValue === ConnectionModelStatementDelegate.Assign
+        spacing: root.horizontalSpacing
+
+        StudioControls.TopLevelComboBox {
+            id: rhsAssignmentName
+            style: StudioTheme.Values.connectionPopupControlStyle
+            width: root.columnWidth
+            //from - rhs - name
+
+            model: backend.okStatement.rhsAssignment.name.model ?? 0
+
+            onActivated: backend.okStatement.rhsAssignment.name.activateIndex(rhsAssignmentName.currentIndex)
+            property int currentTypeIndex: backend.okStatement.rhsAssignment.name.currentIndex ?? 0
+            onCurrentTypeIndexChanged: rhsAssignmentName.currentIndex = rhsAssignmentName.currentTypeIndex
+        }
+
+        StudioControls.TopLevelComboBox {
+            id: lhsAssignmentName
+            style: StudioTheme.Values.connectionPopupControlStyle
+            width: root.columnWidth
+            //to lhs - name
+            model: backend.okStatement.lhs.name.model ?? 0
+
+            onActivated: backend.okStatement.lhs.name.activateIndex(lhsAssignmentName.currentIndex)
+            property int currentTypeIndex: backend.okStatement.lhs.name.currentIndex ?? 0
+            onCurrentTypeIndexChanged: lhsAssignmentName.currentIndex = lhsAssignmentName.currentTypeIndex
         }
     }
 
     // Change State
     Row {
-        visible: action.currentValue === ConnectionsDialogForm.ChangeState
+        visible: action.currentValue === ConnectionModelStatementDelegate.ChangeState
         spacing: root.horizontalSpacing
 
         PopupLabel { text: qsTr("State Group") }
@@ -130,25 +196,36 @@ Column {
     }
 
     Row {
-        visible: action.currentValue === ConnectionsDialogForm.ChangeState
+        visible: action.currentValue === ConnectionModelStatementDelegate.ChangeState
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
+            id: stateGroups
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
-            model: ["main", "group1", "group2"]
+            model: backend.okStatement.stateTargets.model ?? 0
+
+            onActivated: backend.okStatement.stateTargets.activateIndex(stateGroups.currentIndex)
+            property int currentTypeIndex: backend.okStatement.stateTargets.currentIndex ?? 0
+            onCurrentTypeIndexChanged: stateGroups.currentIndex = stateGroups.currentTypeIndex
         }
 
         StudioControls.TopLevelComboBox {
+            id: states
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
-            model: ["state1", "state2", "state3", "state4"]
+
+            model: backend.okStatement.states.model ?? 0
+
+            onActivated: backend.okStatement.states.activateIndex(states.currentIndex)
+            property int currentTypeIndex: backend.okStatement.states.currentIndex ?? 0
+            onCurrentTypeIndexChanged: states.currentIndex = states.currentTypeIndex
         }
     }
 
     // Set Property
     Row {
-        visible: action.currentValue === ConnectionsDialogForm.SetProperty
+        visible: action.currentValue === ConnectionModelStatementDelegate.SetProperty
         spacing: root.horizontalSpacing
 
         PopupLabel { text: qsTr("Item") }
@@ -156,52 +233,73 @@ Column {
     }
 
     Row {
-        visible: action.currentValue === ConnectionsDialogForm.SetProperty
+        visible: action.currentValue === ConnectionModelStatementDelegate.SetProperty
         spacing: root.horizontalSpacing
 
         StudioControls.TopLevelComboBox {
+            id: lhsPropertyId
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
-            model: ["value", "foo", "bar"]
+
+            model: backend.okStatement.lhs.id.model ?? 0
+
+            onActivated: backend.okStatement.lhs.id.activateIndex(lhsPropertyId.currentIndex)
+            property int currentTypeIndex: backend.okStatement.lhs.id.currentIndex ?? 0
+            onCurrentTypeIndexChanged: lhsPropertyId.currentIndex = lhsPropertyId.currentTypeIndex
+
         }
 
         StudioControls.TopLevelComboBox {
+            id: lhsPropertyName
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
-            model: ["myValue", "yourValue", "ourValue"]
+            model: backend.okStatement.lhs.name.model ?? 0
+
+            onActivated: backend.okStatement.lhs.name.activateIndex(lhsPropertyName.currentIndex)
+            property int currentTypeIndex: backend.okStatement.lhs.name.currentIndex ?? 0
+            onCurrentTypeIndexChanged: lhsPropertyName.currentIndex = lhsPropertyName.currentTypeIndex
         }
     }
 
     PopupLabel {
-        visible: action.currentValue === ConnectionsDialogForm.SetProperty
+        visible: action.currentValue === ConnectionModelStatementDelegate.SetProperty
         text: qsTr("Value")
     }
 
     StudioControls.TextField {
-        visible: action.currentValue === ConnectionsDialogForm.SetProperty
+        id: setPropertyArgument
+        visible: action.currentValue === ConnectionModelStatementDelegate.SetProperty
         width: root.width
-        text: "This is a test"
         actionIndicatorVisible: false
         translationIndicatorVisible: false
+
+        text: backend.okStatement.stringArgument.text ?? ""
+        onEditingFinished: {
+            backend.okStatement.stringArgument.activateText(setPropertyArgument.text)
+        }
     }
 
     // Print Message
     PopupLabel {
-        visible: action.currentValue === ConnectionsDialogForm.PrintMessage
+        visible: action.currentValue === ConnectionModelStatementDelegate.PrintMessage
         text: qsTr("Message")
     }
 
     StudioControls.TextField {
-        visible: action.currentValue === ConnectionsDialogForm.PrintMessage
+        id: messageString
+        visible: action.currentValue === ConnectionModelStatementDelegate.PrintMessage
         width: root.width
-        text: "my value is"
         actionIndicatorVisible: false
         translationIndicatorVisible: false
+        text: backend.okStatement.stringArgument.text ?? ""
+        onEditingFinished: {
+            backend.okStatement.stringArgument.activateText(messageString.text)
+        }
     }
 
     // Custom
     PopupLabel {
-        visible: action.currentValue === ConnectionsDialogForm.Custom
+        visible: action.currentValue === ConnectionModelStatementDelegate.Custom
         text: qsTr("Custom Connections can only be edited with the binding editor")
         anchors.left: parent.left
         anchors.right: parent.right
@@ -217,9 +315,60 @@ Column {
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionsDialogForm.Custom
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && !backend.hasCondition
 
-        onClicked: console.log("ADD CONDITION")
+        onClicked: backend.addCondition()
+    }
+
+        HelperWidgets.AbstractButton {
+        style: StudioTheme.Values.connectionPopupButtonStyle
+        width: 160
+        buttonIcon: qsTr("Remove Condition")
+        iconSize: StudioTheme.Values.baseFontSize
+        iconFont: StudioTheme.Constants.font
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition
+
+        onClicked: backend.removeCondition()
+    }
+
+    Flow {
+        spacing: root.horizontalSpacing
+        width: root.width
+        Repeater {
+
+            model: backend.conditionListModel
+            Text {
+                text: value
+                color: "white"
+                Rectangle {
+                    z: -1
+                    opacity: 0.2
+                    color: {
+                        if (type === ConditionListModel.Invalid)
+                           return "red"
+                        if (type === ConditionListModel.Operator)
+                           return "blue"
+                        if (type === ConditionListModel.Literal)
+                            return "green"
+                        if (type === ConditionListModel.Variable)
+                            return "yellow"
+                    }
+                    anchors.fill: parent
+                }
+            }
+        }
+    }
+
+    TextInput {
+        id: commandInput
+        width: root.width
+        onAccepted:  backend.conditionListModel.command(commandInput.text)
+    }
+
+    Text {
+        text: "invalid " + backend.conditionListModel.error
+        visible: !backend.conditionListModel.valid
     }
 
     // Editor
@@ -231,7 +380,7 @@ Column {
 
         Text {
             anchors.centerIn: parent
-            text: "backend.myValue = mySpinbox.value"
+            text: backend.source
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.myFontSize
         }

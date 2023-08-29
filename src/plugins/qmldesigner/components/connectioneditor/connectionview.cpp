@@ -8,6 +8,7 @@
 #include "bindingmodel.h"
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"
+#include "propertytreemodel.h"
 #include "theme.h"
 
 #include <bindingproperty.h>
@@ -72,6 +73,21 @@ public:
              {"bindingModel", QVariant::fromValue(m_connectionEditorView->bindingModel())},
              {"dynamicPropertiesModel",
               QVariant::fromValue(m_connectionEditorView->dynamicPropertiesModel())}});
+
+        qmlRegisterType<ConnectionModelBackendDelegate>("ConnectionsEditorEditorBackend",
+                                                        1,
+                                                        0,
+                                                        "DynamicPropertiesModelBackendDelegate");
+
+        qmlRegisterType<ConnectionModelStatementDelegate>("ConnectionsEditorEditorBackend",
+                                                          1,
+                                                          0,
+                                                          "ConnectionModelStatementDelegate");
+
+        qmlRegisterType<ConditionListModel>("ConnectionsEditorEditorBackend",
+                                            1,
+                                            0,
+                                            "ConditionListModel");
 
         Theme::setupTheme(engine());
 

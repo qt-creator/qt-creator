@@ -187,29 +187,7 @@ struct JSOverload
         return "console.log(" + std::visit(JSOverload{}, consoleLog.argument) + ")";
     }
 
-    QString operator()(const ConditionToken &token)
-    {
-        switch (token) {
-        case ConditionToken::Not:
-            return "!==";
-        case ConditionToken::And:
-            return "&&";
-        case ConditionToken::Or:
-            return "||";
-        case ConditionToken::LargerThan:
-            return ">";
-        case ConditionToken::LargerEqualsThan:
-            return ">=";
-        case ConditionToken::SmallerThan:
-            return "<";
-        case ConditionToken::SmallerEqualsThan:
-            return "<=";
-        case ConditionToken::Equals:
-            return "===";
-        default:
-            return {};
-        };
-    }
+    QString operator()(const ConditionToken &token) { return toJavascript(token); }
 
     QString operator()(const ConnectionEditorStatements::MatchedCondition &matched)
     {
@@ -236,7 +214,7 @@ struct JSOverload
         if (isEmptyStatement(statement))
             return {};
 
-        return std::visit(JSOverload{}, statement) + ";\n";
+        return std::visit(JSOverload{}, statement);
     }
 
     QString operator()(const ConnectionEditorStatements::ConditionalStatement &conditional)
@@ -334,20 +312,60 @@ QString ConnectionEditorStatements::toDisplayName(const Handler &handler)
     return toDisplayName(statement);
 }
 
-MatchedStatement ConnectionEditorStatements::okStatement(const ConnectionEditorStatements::Handler &handler)
+MatchedStatement &ConnectionEditorStatements::okStatement(
+    ConnectionEditorStatements::Handler &handler)
 {
-    return std::visit(Overload{[](const ConnectionEditorStatements::MatchedStatement &var) { return var; },
-                               [](const ConnectionEditorStatements::ConditionalStatement &statement) {
-                                   return statement.ok;
-                               }},
+    MatchedStatement statement;
+    std::visit([statement](auto &test) { return statement; }, handler);
+
+    return std::visit(Overload{[](ConnectionEditorStatements::MatchedStatement &var)
+                                   -> MatchedStatement & { return var; },
+                               [](ConnectionEditorStatements::ConditionalStatement &statement)
+                                   -> MatchedStatement & { return statement.ok; }},
                       handler);
 }
 
-MatchedStatement ConnectionEditorStatements::koStatement(const ConnectionEditorStatements::Handler &handler)
+MatchedStatement &ConnectionEditorStatements::koStatement(
+    ConnectionEditorStatements::Handler &handler)
 {
-    return std::visit(Overload{[](const ConnectionEditorStatements::ConditionalStatement &statement) {
-                                   return statement.ko;
-                               },
-                               [](const auto &) -> ConnectionEditorStatements::MatchedStatement { return {}; }},
-                      handler);
+    static MatchedStatement block;
+
+    if (auto *statement = std::get_if<ConnectionEditorStatements::ConditionalStatement>(&handler))
+        return statement->ko;
+
+    return block;
+}
+
+MatchedCondition &ConnectionEditorStatements::matchedCondition(Handler &handler)
+{
+    static MatchedCondition block;
+
+    if (auto *statement = std::get_if<ConnectionEditorStatements::ConditionalStatement>(&handler))
+        return statement->condition;
+
+    return block;
+}
+
+QString ConnectionEditorStatements::toJavascript(const ConditionToken &token)
+{
+    switch (token) {
+    case ConditionToken::Not:
+        return "!==";
+    case ConditionToken::And:
+        return "&&";
+    case ConditionToken::Or:
+        return "||";
+    case ConditionToken::LargerThan:
+        return ">";
+    case ConditionToken::LargerEqualsThan:
+        return ">=";
+    case ConditionToken::SmallerThan:
+        return "<";
+    case ConditionToken::SmallerEqualsThan:
+        return "<=";
+    case ConditionToken::Equals:
+        return "===";
+    default:
+        return {};
+    };
 }

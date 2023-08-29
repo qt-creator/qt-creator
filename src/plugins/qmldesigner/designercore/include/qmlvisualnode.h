@@ -106,10 +106,10 @@ private:
 class QMLDESIGNERCORE_EXPORT QmlModelStateGroup
 {
     friend class QmlObjectNode;
-    friend class StatesEditorView;
 
 public:
     QmlModelStateGroup() = default;
+    QmlModelStateGroup(const ModelNode &modelNode) : m_modelNode(modelNode) {}
 
     explicit operator bool() const { return m_modelNode.isValid(); }
 
@@ -119,9 +119,6 @@ public:
     QmlModelState state(const QString &name) const;
     QmlModelState addState(const QString &name);
     void removeState(const QString &name);
-
-protected:
-    QmlModelStateGroup(const ModelNode &modelNode) : m_modelNode(modelNode) {}
 
 private:
     ModelNode m_modelNode;

@@ -6,6 +6,9 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 PopupDialog {
+
+   property alias backend: form.backend
+
     titleBar: Row {
         spacing: 30 // TODO
         anchors.fill: parent
@@ -22,9 +25,16 @@ PopupDialog {
             style: StudioTheme.Values.connectionPopupControlStyle
             width: 180
             anchors.verticalCenter: parent.verticalCenter
-            model: ["mySpinbox", "foo", "backendObject"]
+            model: backend.signal.id.model ?? 0
+
+            onActivated: backend.signal.id.activateIndex(target.currentIndex)
+            property int currentTypeIndex: backend.signal.id.currentIndex ?? 0
+            onCurrentTypeIndexChanged: target.currentIndex = target.currentTypeIndex
         }
+
     }
 
-    ConnectionsDialogForm {}
+    ConnectionsDialogForm {
+          id: form
+    }
 }
