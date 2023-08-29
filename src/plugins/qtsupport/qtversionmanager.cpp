@@ -119,7 +119,6 @@ void QtVersionManager::triggerQtVersionRestore()
 
     emit m_instance->qtVersionsLoaded();
     emit m_instance->qtVersionsChanged(m_versions.keys(), QList<int>(), QList<int>());
-    saveQtVersions();
 
     const FilePath configFileName = globalSettingsFileName();
     if (configFileName.exists()) {
