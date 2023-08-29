@@ -947,7 +947,7 @@ void PluginManagerPrivate::nextDelayedInitialize()
         delayedInitializeTimer = nullptr;
         if (m_profileTimer)
             m_totalStartupMS = m_profileTimer->elapsed();
-        profilingSummary();
+        printProfilingSummary();
         emit q->initializationDone();
 #ifdef WITH_TESTS
         if (PluginManager::testRunRequested())
@@ -1787,25 +1787,40 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
     }
 }
 
-void PluginManagerPrivate::profilingSummary() const
+QString PluginManagerPrivate::profilingSummary(qint64 *totalOut) const
+{
+    QString summary;
+    const QVector<PluginSpec *> specs = Utils::sorted(pluginSpecs,
+                                                      [](PluginSpec *s1, PluginSpec *s2) {
+                                                          return s1->performanceData().total()
+                                                                 < s2->performanceData().total();
+                                                      });
+    const qint64 total
+        = std::accumulate(specs.constBegin(), specs.constEnd(), 0, [](qint64 t, PluginSpec *s) {
+              return t + s->performanceData().total();
+          });
+    for (PluginSpec *s : specs) {
+        if (!s->isEffectivelyEnabled())
+            continue;
+        const qint64 t = s->performanceData().total();
+        summary += QString("%1 %2ms   ( %3% )\n")
+                       .arg(s->name(), -22)
+                       .arg(t, 8)
+                       .arg(100.0 * t / total, 5, 'f', 2);
+    }
+    summary += QString("Total plugins: %1ms\n").arg(total, 8);
+    summary += QString("Total startup: %1ms\n").arg(m_totalStartupMS, 8);
+    if (totalOut)
+        *totalOut = total;
+    return summary;
+}
+
+void PluginManagerPrivate::printProfilingSummary() const
 {
     if (m_profilingVerbosity > 0) {
-        const QVector<PluginSpec *> specs
-            = Utils::sorted(pluginSpecs, [](PluginSpec *s1, PluginSpec *s2) {
-                  return s1->performanceData().total() < s2->performanceData().total();
-              });
-        const qint64 total
-            = std::accumulate(specs.constBegin(), specs.constEnd(), 0, [](qint64 t, PluginSpec *s) {
-                  return t + s->performanceData().total();
-              });
-        for (PluginSpec *s : specs) {
-            if (!s->isEffectivelyEnabled())
-                continue;
-            const qint64 t = s->performanceData().total();
-            qDebug("%-22s %8lldms   ( %5.2f%% )", qPrintable(s->name()), t, 100.0 * t / total);
-        }
-        qDebug("Total plugins: %8lldms", total);
-        qDebug("Total startup: %8lldms", m_totalStartupMS);
+        qint64 total;
+        const QString summary = profilingSummary(&total);
+        qDebug() << qPrintable(summary);
         Utils::Benchmarker::report("loadPlugins", "Total", total);
     }
 }

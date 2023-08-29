@@ -59,7 +59,8 @@ public:
     void resolveDependencies();
     void enableDependenciesIndirectly();
     void increaseProfilingVerbosity();
-    void profilingSummary() const;
+    QString profilingSummary(qint64 *totalOut = nullptr) const;
+    void printProfilingSummary() const;
     void profilingReport(const char *what, const PluginSpec *spec, qint64 *target = nullptr);
     void setSettings(Utils::QtcSettings *settings);
     void setGlobalSettings(Utils::QtcSettings *settings);
