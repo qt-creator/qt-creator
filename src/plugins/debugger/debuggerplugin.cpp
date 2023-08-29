@@ -1273,6 +1273,7 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
         }
     });
 
+    m_perspectiveDap.addToolBarAction(&m_startDapAction);
     m_startDapAction.setToolTip(Tr::tr("Start DAP Debugging"));
     m_startDapAction.setText(Tr::tr("Start DAP Debugging"));
     m_startDapAction.setEnabled(true);
@@ -1281,7 +1282,6 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
     m_startDapAction.setVisible(true);
 
     m_perspectiveDap.useSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
-    m_perspectiveDap.addToolBarAction(&m_startDapAction);
 
     m_perspectiveDap.addWindow(engineManagerWindow, Perspective::SplitVertical, nullptr);
     m_perspectiveDap.addWindow(breakpointManagerWindow,
