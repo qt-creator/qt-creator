@@ -13,7 +13,7 @@ add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-error=maybe-uninitial
 
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
-    Qt::Gui Utils Qt::QmlPrivate
+    Qt::Gui Utils Qt::QmlPrivate Core
   DEFINES QMLDESIGNERUTILS_LIBRARY
   PUBLIC_DEFINES $<$<BOOL:${QTC_STATIC_BUILD}>:QMLDESIGNER_STATIC_LIBRARY>
 
@@ -486,6 +486,7 @@ add_qtc_plugin(QmlDesigner
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
     components/connectioneditor/connectionviewwidget.h
+    qmldesignerplugin.h
   EXTRA_TRANSLATIONS
     "${PROJECT_SOURCE_DIR}/share/qtcreator/qmldesigner"
   PROPERTIES
@@ -946,6 +947,7 @@ extend_qtc_plugin(QmlDesigner
     delegates.cpp delegates.h
     dynamicpropertiesmodel.cpp dynamicpropertiesmodel.h
     selectiondynamicpropertiesproxymodel.cpp selectiondynamicpropertiesproxymodel.h
+    propertytreemodel.cpp propertytreemodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

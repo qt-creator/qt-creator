@@ -36,4 +36,6 @@ QMLDESIGNERCORE_EXPORT QString componentFilePath(const ModelNode &node);
 
 QMLDESIGNERCORE_EXPORT QList<ModelNode> pruneChildren(const QList<ModelNode> &nodes);
 
+QMLDESIGNERCORE_EXPORT QList<ModelNode> allModelNodesWithId(AbstractView *view);
+
 } // namespace QmlDesigner::ModelUtils

@@ -3,6 +3,7 @@
 
 #include "modelutils.h"
 
+#include <abstractview.h>
 #include <nodemetainfo.h>
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/sourcepathcache.h>
@@ -152,6 +153,13 @@ QList<ModelNode> pruneChildren(const QList<ModelNode> &nodes)
         pushIfIsNotChild(backNodes, node);
 
     return backNodes;
+}
+
+QList<ModelNode> allModelNodesWithId(AbstractView *view)
+{
+    QTC_ASSERT(view->isAttached(), return {});
+    return Utils::filtered(view->allModelNodes(),
+                           [&](const ModelNode &node) { return node.hasId(); });
 }
 
 } // namespace QmlDesigner::ModelUtils
