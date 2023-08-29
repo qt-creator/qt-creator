@@ -85,7 +85,7 @@
             {generic projects}.
         \li Add existing files and directories.
         \li Add libraries. For more information, see
-            \l{Adding Libraries to Projects}.
+            \l{Add libraries to projects}.
         \li Add and remove subprojects.
         \li Find unused functions.
         \endif
