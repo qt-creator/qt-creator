@@ -1803,10 +1803,11 @@ QString PluginManagerPrivate::profilingSummary(qint64 *totalOut) const
         if (!s->isEffectivelyEnabled())
             continue;
         const qint64 t = s->performanceData().total();
-        summary += QString("%1 %2ms   ( %3% )\n")
+        summary += QString("%1 %2ms   ( %3% ) (%4)\n")
                        .arg(s->name(), -22)
                        .arg(t, 8)
-                       .arg(100.0 * t / total, 5, 'f', 2);
+                       .arg(100.0 * t / total, 5, 'f', 2)
+                       .arg(s->performanceData().summary());
     }
     summary += QString("Total plugins: %1ms\n").arg(total, 8);
     summary += QString("Total startup: %1ms\n").arg(m_totalStartupMS, 8);
