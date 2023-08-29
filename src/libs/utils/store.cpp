@@ -31,6 +31,9 @@ Store storeFromVariant(const QVariant &value)
     if (value.typeId() == QMetaType::QVariantMap)
         return storeFromMap(value.toMap());
 
+    if (!value.isValid())
+        return {};
+
     QTC_CHECK(false);
     return Store();
 }
