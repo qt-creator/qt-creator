@@ -48,7 +48,9 @@ void EffectMakerModel::addNode(const QString &nodeQenPath)
 void EffectMakerModel::removeNode(int idx)
 {
     beginRemoveRows({}, idx, idx);
+    CompositionNode *node = m_nodes.at(idx);
     m_nodes.removeAt(idx);
+    delete node;
     endRemoveRows();
 }
 

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Layouts
 import QtQuickDesignerTheme
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
@@ -18,18 +19,25 @@ Column {
         height: StudioTheme.Values.toolbarHeight
         color: StudioTheme.Values.themeToolbarBackground
 
-        Row {
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.rightMargin: 5
+        RowLayout {
+            anchors.fill: parent
             spacing: 5
+            anchors.rightMargin: 5
+            anchors.leftMargin: 5
+
+            Item {
+                Layout.fillWidth: true
+            }
 
             HelperWidgets.AbstractButton {
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomOut_medium
                 tooltip: qsTr("Zoom out")
 
-                onClicked: {} // TODO
+                onClicked: {
+                    if (previewImage.scale > .4)
+                        previewImage.scale -= .2
+                }
             }
 
             HelperWidgets.AbstractButton {
@@ -37,7 +45,10 @@ Column {
                 buttonIcon: StudioTheme.Constants.zoomIn_medium
                 tooltip: qsTr("Zoom In")
 
-                onClicked: {} // TODO
+                onClicked: {
+                    if (previewImage.scale < 2)
+                        previewImage.scale += .2
+                }
             }
 
             HelperWidgets.AbstractButton {
@@ -45,7 +56,13 @@ Column {
                 buttonIcon: StudioTheme.Constants.cornersAll
                 tooltip: qsTr("Zoom Fit")
 
-                onClicked: {} // TODO
+                onClicked: {
+                    previewImage.scale = 1
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
             }
 
             Column {
@@ -81,18 +98,29 @@ Column {
     }
 
     Rectangle { // preview image
-        id: previewImage
+        id: previewImageBg
 
         color: "#dddddd"
         width: parent.width
         height: 200
+        clip: true
 
         Image {
+            id: previewImage
+
             anchors.margins: 5
             anchors.fill: parent
             fillMode: Image.PreserveAspectFit
+            smooth: true
 
             source: "images/qt_logo.png" // TODO: update image
+
+            Behavior on scale {
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.OutQuad
+                }
+            }
         }
     }
 }
