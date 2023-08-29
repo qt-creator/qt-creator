@@ -33,6 +33,7 @@
 #include <QTextStream>
 #include <QTimer>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QtSupport {
@@ -49,13 +50,8 @@ static VersionMap m_versions;
 
 const char DOCUMENTATION_SETTING_KEY[] = "QtSupport/DocumentationSetting";
 
-static int m_idcount = 0;
-// managed by QtProjectManagerPlugin
-static QtVersionManager *m_instance = nullptr;
-static FileSystemWatcher *m_configFileWatcher = nullptr;
-static QTimer *m_fileWatcherTimer = nullptr;
-static PersistentSettingsWriter *m_writer = nullptr;
-static QVector<ExampleSetModel::ExtraExampleSet> m_pluginRegisteredExampleSets;
+QVector<ExampleSetModel::ExtraExampleSet> m_pluginRegisteredExampleSets;
+
 
 static Q_LOGGING_CATEGORY(log, "qtc.qt.versions", QtWarningMsg);
 
@@ -69,47 +65,77 @@ static FilePath settingsFileName(const QString &path)
     return Core::ICore::userResourcePath(path);
 }
 
-
 // prefer newer qts otherwise compare on id
 bool qtVersionNumberCompare(QtVersion *a, QtVersion *b)
 {
     return a->qtVersion() > b->qtVersion() || (a->qtVersion() == b->qtVersion() && a->uniqueId() < b->uniqueId());
 }
-static bool restoreQtVersions();
-static void findSystemQt();
-static void saveQtVersions();
-
 QVector<ExampleSetModel::ExtraExampleSet> ExampleSetModel::pluginRegisteredExampleSets()
 {
     return m_pluginRegisteredExampleSets;
 }
 
-// --------------------------------------------------------------------------
 // QtVersionManager
-// --------------------------------------------------------------------------
 
-QtVersionManager::QtVersionManager()
+class QtVersionManagerImpl : public QtVersionManager
 {
-    m_instance = this;
-    m_configFileWatcher = nullptr;
-    m_fileWatcherTimer = new QTimer(this);
-    m_writer = nullptr;
-    m_idcount = 1;
+public:
+    QtVersionManagerImpl()
+    {
+        qRegisterMetaType<FilePath>();
 
-    qRegisterMetaType<FilePath>();
+        // Give the file a bit of time to settle before reading it...
+        m_fileWatcherTimer.setInterval(2000);
+        connect(&m_fileWatcherTimer, &QTimer::timeout, this, [this] { updateFromInstaller(); });
 
-    // Give the file a bit of time to settle before reading it...
-    m_fileWatcherTimer->setInterval(2000);
-    connect(m_fileWatcherTimer, &QTimer::timeout, this, [this] { updateFromInstaller(); });
+        connect(ToolChainManager::instance(), &ToolChainManager::toolChainsLoaded,
+                this, &QtVersionManagerImpl::triggerQtVersionRestore);
+    }
+
+    ~QtVersionManagerImpl()
+    {
+        delete m_writer;
+        qDeleteAll(m_versions);
+        m_versions.clear();
+    }
+
+    void updateFromInstaller(bool emitSignal = true);
+    void triggerQtVersionRestore();
+
+    bool restoreQtVersions();
+    void findSystemQt();
+    void saveQtVersions();
+
+    void updateDocumentation(const QtVersions &added,
+                             const QtVersions &removed,
+                             const QtVersions &allNew);
+
+    void setNewQtVersions(const QtVersions &newVersions);
+    QString qmakePath(const QString &qtchooser, const QString &version);
+
+    QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringList &arguments);
+    FilePaths gatherQmakePathsFromQtChooser();
+
+    int m_idcount = 1;
+    // managed by QtProjectManagerPlugin
+    FileSystemWatcher *m_configFileWatcher = nullptr;
+    QTimer m_fileWatcherTimer;
+    PersistentSettingsWriter *m_writer = nullptr;
+};
+
+QtVersionManagerImpl &qtVersionManagerImpl()
+{
+    static QtVersionManagerImpl theQtVersionManager;
+    return theQtVersionManager;
 }
 
-void QtVersionManager::triggerQtVersionRestore()
+void QtVersionManagerImpl::triggerQtVersionRestore()
 {
-    disconnect(ProjectExplorer::ToolChainManager::instance(), &ProjectExplorer::ToolChainManager::toolChainsLoaded,
-               this, &QtVersionManager::triggerQtVersionRestore);
+    disconnect(ToolChainManager::instance(), &ToolChainManager::toolChainsLoaded,
+               this, &QtVersionManagerImpl::triggerQtVersionRestore);
 
     bool success = restoreQtVersions();
-    m_instance->updateFromInstaller(false);
+    updateFromInstaller(false);
     if (!success) {
         // We did neither restore our settings or upgraded
         // in that case figure out if there's a qt in path
@@ -117,45 +143,38 @@ void QtVersionManager::triggerQtVersionRestore()
         findSystemQt();
     }
 
-    emit m_instance->qtVersionsLoaded();
-    emit m_instance->qtVersionsChanged(m_versions.keys(), QList<int>(), QList<int>());
+    emit qtVersionsLoaded();
+    emit qtVersionsChanged(m_versions.keys(), QList<int>(), QList<int>());
 
     const FilePath configFileName = globalSettingsFileName();
     if (configFileName.exists()) {
-        m_configFileWatcher = new FileSystemWatcher(m_instance);
+        m_configFileWatcher = new FileSystemWatcher(this);
         connect(m_configFileWatcher, &FileSystemWatcher::fileChanged,
-                m_fileWatcherTimer, QOverload<>::of(&QTimer::start));
+                &m_fileWatcherTimer, QOverload<>::of(&QTimer::start));
         m_configFileWatcher->addFile(configFileName, FileSystemWatcher::WatchModifiedDate);
     } // exists
 
     const QtVersions vs = versions();
-    updateDocumentation(vs, {}, vs);
+    qtVersionManagerImpl().updateDocumentation(vs, {}, vs);
 }
 
 bool QtVersionManager::isLoaded()
 {
-    return m_writer;
-}
-
-QtVersionManager::~QtVersionManager()
-{
-    delete m_writer;
-    qDeleteAll(m_versions);
-    m_versions.clear();
-}
-
-void QtVersionManager::initialized()
-{
-    connect(ProjectExplorer::ToolChainManager::instance(), &ProjectExplorer::ToolChainManager::toolChainsLoaded,
-            QtVersionManager::instance(), &QtVersionManager::triggerQtVersionRestore);
+    return qtVersionManagerImpl().m_writer;
 }
 
 QtVersionManager *QtVersionManager::instance()
 {
-    return m_instance;
+    return &qtVersionManagerImpl();
 }
 
-static bool restoreQtVersions()
+void QtVersionManager::initialized()
+{
+    // Force creation. FIXME: Remove.
+    qtVersionManagerImpl();
+}
+
+bool QtVersionManagerImpl::restoreQtVersions()
 {
     QTC_ASSERT(!m_writer, return false);
     m_writer = new PersistentSettingsWriter(settingsFileName(QTVERSION_FILENAME),
@@ -216,9 +235,9 @@ static bool restoreQtVersions()
     return true;
 }
 
-void QtVersionManager::updateFromInstaller(bool emitSignal)
+void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
 {
-    m_fileWatcherTimer->stop();
+    m_fileWatcherTimer.stop();
 
     const FilePath path = globalSettingsFileName();
     // Handle overwritting of data:
@@ -344,7 +363,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         emit qtVersionsChanged(added, removed, changed);
 }
 
-static void saveQtVersions()
+void QtVersionManagerImpl::saveQtVersions()
 {
     if (!m_writer)
         return;
@@ -365,7 +384,7 @@ static void saveQtVersions()
 }
 
 // Executes qtchooser with arguments in a process and returns its output
-static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringList &arguments)
+QList<QByteArray> QtVersionManagerImpl::runQtChooser(const QString &qtchooser, const QStringList &arguments)
 {
     Process p;
     p.setCommand({FilePath::fromString(qtchooser), arguments});
@@ -376,7 +395,7 @@ static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringLis
 }
 
 // Asks qtchooser for the qmake path of a given version
-static QString qmakePath(const QString &qtchooser, const QString &version)
+QString QtVersionManagerImpl::qmakePath(const QString &qtchooser, const QString &version)
 {
     const QList<QByteArray> outputs = runQtChooser(qtchooser,
                                                    {QStringLiteral("-qt=%1").arg(version),
@@ -392,7 +411,7 @@ static QString qmakePath(const QString &qtchooser, const QString &version)
     return QString();
 }
 
-static FilePaths gatherQmakePathsFromQtChooser()
+FilePaths QtVersionManagerImpl::gatherQmakePathsFromQtChooser()
 {
     const QString qtchooser = QStandardPaths::findExecutable(QStringLiteral("qtchooser"));
     if (qtchooser.isEmpty())
@@ -409,7 +428,7 @@ static FilePaths gatherQmakePathsFromQtChooser()
     return Utils::toList(foundQMakes);
 }
 
-static void findSystemQt()
+void QtVersionManagerImpl::findSystemQt()
 {
     FilePaths systemQMakes
             = BuildableHelperLibrary::findQtsInEnvironment(Environment::systemEnvironment());
@@ -432,7 +451,6 @@ static void findSystemQt()
 
 void QtVersionManager::addVersion(QtVersion *version)
 {
-    QTC_ASSERT(m_writer, return);
     QTC_ASSERT(version, return);
     if (m_versions.contains(version->uniqueId()))
         return;
@@ -440,16 +458,16 @@ void QtVersionManager::addVersion(QtVersion *version)
     int uniqueId = version->uniqueId();
     m_versions.insert(uniqueId, version);
 
-    emit m_instance->qtVersionsChanged(QList<int>() << uniqueId, QList<int>(), QList<int>());
-    saveQtVersions();
+    emit qtVersionManagerImpl().qtVersionsChanged(QList<int>() << uniqueId, QList<int>(), QList<int>());
+    qtVersionManagerImpl().saveQtVersions();
 }
 
 void QtVersionManager::removeVersion(QtVersion *version)
 {
     QTC_ASSERT(version, return);
     m_versions.remove(version->uniqueId());
-    emit m_instance->qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
-    saveQtVersions();
+    emit qtVersionManagerImpl().qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
+    qtVersionManagerImpl().saveQtVersions();
     delete version;
 }
 
@@ -495,9 +513,9 @@ static QStringList documentationFiles(const QtVersions &vs, bool highestOnly = f
     return filePaths.values();
 }
 
-void QtVersionManager::updateDocumentation(const QtVersions &added,
-                                           const QtVersions &removed,
-                                           const QtVersions &allNew)
+void QtVersionManagerImpl::updateDocumentation(const QtVersions &added,
+                                               const QtVersions &removed,
+                                               const QtVersions &allNew)
 {
     const DocumentationSetting setting = documentationSetting();
     const QStringList docsOfAll = setting == DocumentationSetting::None
@@ -519,7 +537,7 @@ void QtVersionManager::updateDocumentation(const QtVersions &added,
 
 int QtVersionManager::getUniqueId()
 {
-    return m_idcount++;
+    return qtVersionManagerImpl().m_idcount++;
 }
 
 QtVersions QtVersionManager::versions(const QtVersion::Predicate &predicate)
@@ -557,6 +575,11 @@ static bool equals(QtVersion *a, QtVersion *b)
 }
 
 void QtVersionManager::setNewQtVersions(const QtVersions &newVersions)
+{
+    qtVersionManagerImpl().setNewQtVersions(newVersions);
+}
+
+void QtVersionManagerImpl::setNewQtVersions(const QtVersions &newVersions)
 {
     // We want to preserve the same order as in the settings dialog
     // so we sort a copy
@@ -627,7 +650,7 @@ void QtVersionManager::setNewQtVersions(const QtVersions &newVersions)
     saveQtVersions();
 
     if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
-        emit m_instance->qtVersionsChanged(addedIds, removedIds, changedIds);
+        emit qtVersionManagerImpl().qtVersionsChanged(addedIds, removedIds, changedIds);
 }
 
 void QtVersionManager::setDocumentationSetting(const QtVersionManager::DocumentationSetting &setting)
@@ -638,7 +661,7 @@ void QtVersionManager::setDocumentationSetting(const QtVersionManager::Documenta
     // force re-evaluating which documentation should be registered
     // by claiming that all are removed and re-added
     const QtVersions vs = versions();
-    updateDocumentation(vs, vs, vs);
+    qtVersionManagerImpl().updateDocumentation(vs, vs, vs);
 }
 
 QtVersionManager::DocumentationSetting QtVersionManager::documentationSetting()

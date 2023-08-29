@@ -14,12 +14,11 @@ class QTSUPPORT_EXPORT QtVersionManager : public QObject
     // for getUniqueId();
     friend class QtVersion;
     friend class QtVersionFactory;
+    friend class QtVersionManagerImpl;
     friend class Internal::QtOptionsPageWidget;
 
 public:
     static QtVersionManager *instance();
-    QtVersionManager();
-    ~QtVersionManager() override;
     static void initialized();
 
     static bool isLoaded();
@@ -51,14 +50,11 @@ signals:
     void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds, const QList<int> &changedIds);
     void qtVersionsLoaded();
 
+protected:
+    QtVersionManager() = default;
+
 private:
     enum class DocumentationSetting { HighestOnly, All, None };
-
-    static void updateDocumentation(const QtVersions &added,
-                                    const QtVersions &removed,
-                                    const QtVersions &allNew);
-    void updateFromInstaller(bool emitSignal = true);
-    void triggerQtVersionRestore();
 
     // Used by QtOptionsPage
     static void setNewQtVersions(const QtVersions &newVersions);

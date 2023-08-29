@@ -46,8 +46,6 @@ namespace Internal {
 class QtSupportPluginPrivate
 {
 public:
-    QtVersionManager qtVersionManager;
-
     DesktopQtVersionFactory desktopQtVersionFactory;
     EmbeddedLinuxQtVersionFactory embeddedLinuxQtVersionFactory;
 
