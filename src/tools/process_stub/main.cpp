@@ -211,6 +211,38 @@ void onInferiorErrorOccurered(QProcess::ProcessError error)
     qCWarning(log) << "Inferior error: " << error << inferiorProcess.errorString();
 }
 
+#ifdef Q_OS_LINUX
+QString statusToString(int status)
+{
+    if (WIFEXITED(status))
+        return QString("exit, status=%1").arg(WEXITSTATUS(status));
+    else if (WIFSIGNALED(status))
+        return QString("Killed by: %1").arg(WTERMSIG(status));
+    else if (WIFSTOPPED(status)) {
+        return QString("Stopped by: %1").arg(WSTOPSIG(status));
+    } else if (WIFCONTINUED(status))
+        return QString("Continued");
+
+    return QString("Unknown status");
+}
+
+bool waitFor(int signalToWaitFor)
+{
+    int status = 0;
+
+    waitpid(inferiorId, &status, WUNTRACED);
+
+    if (!WIFSTOPPED(status) || WSTOPSIG(status) != signalToWaitFor) {
+        qCCritical(log) << "Unexpected status during startup:" << statusToString(status)
+                        << ", aborting";
+        sendCrash(0xFF);
+        return false;
+    }
+
+    return true;
+}
+#endif
+
 void onInferiorStarted()
 {
     inferiorId = inferiorProcess.processId();
@@ -223,25 +255,21 @@ void onInferiorStarted()
     if (!debugMode)
         sendPid(inferiorId);
 #else
+
     if (debugMode) {
+        qCInfo(log) << "Waiting for SIGTRAP from inferiors execve ...";
+        if (!waitFor(SIGTRAP))
+            return;
+
         qCInfo(log) << "Detaching ...";
         ptrace(PTRACE_DETACH, inferiorId, 0, SIGSTOP);
 
         // Wait until the process actually finished detaching
-        int status = 0;
-        waitpid(inferiorId, &status, WUNTRACED);
-        if (log().isInfoEnabled()) {
-            if (WIFEXITED(status))
-                qCInfo(log) << "inferior exited, status=" << WEXITSTATUS(status);
-            else if (WIFSIGNALED(status))
-                qCInfo(log) << "inferior killed by signal" << WTERMSIG(status);
-            else if (WIFSTOPPED(status))
-                qCInfo(log) << "inferior stopped by signal" << WSTOPSIG(status);
-            else if (WIFCONTINUED(status))
-                qCInfo(log) << "inferior continued";
-        }
+        if (!waitFor(SIGSTOP))
+            return;
     }
 
+    qCInfo(log) << "Sending pid:" << inferiorId;
     sendPid(inferiorId);
 #endif
 }
