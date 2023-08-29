@@ -583,6 +583,8 @@ public:
 
     void setKit(Kit *k)
     {
+        qDeleteAll(m_labels);
+        m_labels.clear();
         qDeleteAll(m_kitAspects);
         m_kitAspects.clear();
 
@@ -596,7 +598,9 @@ public:
             if (k && k->isMutable(factory->id())) {
                 KitAspect *aspect = factory->createKitAspect(k);
                 m_kitAspects << aspect;
-                grid.addItems({factory->displayName(), aspect, Layouting::br});
+                auto label = new QLabel(aspect->displayName());
+                m_labels << label;
+                grid.addItems({label, aspect, Layouting::br});
             }
         }
         grid.attachTo(this);
@@ -637,6 +641,7 @@ private:
     }
 
     Kit *m_kit = nullptr;
+    QList<QWidget *> m_labels;
     QList<KitAspect *> m_kitAspects;
 };
 
