@@ -378,14 +378,13 @@ static QMap<Id, QByteArray> defaultToolChainIds()
     return toolChains;
 }
 
-static QVariant defaultToolChainValue()
+static Store defaultToolChainValue()
 {
     const QMap<Id, QByteArray> toolChains = defaultToolChainIds();
-    QVariantMap result;
+    Store result;
     auto end = toolChains.end();
-    for (auto it = toolChains.begin(); it != end; ++it) {
-        result.insert(it.key().toString(), it.value());
-    }
+    for (auto it = toolChains.begin(); it != end; ++it)
+        result.insert(it.key().toKey(), it.value());
     return result;
 }
 
@@ -502,13 +501,13 @@ void ToolChainKitAspectFactory::setup(Kit *k)
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
     QTC_ASSERT(k, return);
 
-    QVariantMap value = k->value(id()).toMap();
+    Store value = storeFromVariant(k->value(id()));
     bool lockToolchains = k->isSdkProvided() && !value.isEmpty();
     if (value.empty())
-        value = defaultToolChainValue().toMap();
+        value = defaultToolChainValue();
 
     for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
-        Id l = findLanguage(i.key());
+        Id l = findLanguage(stringFromKey(i.key()));
 
         if (!l.isValid()) {
             lockToolchains = false;
@@ -622,8 +621,8 @@ QByteArray ToolChainKitAspect::toolChainId(const Kit *k, Id language)
     QTC_ASSERT(ToolChainManager::isLoaded(), return nullptr);
     if (!k)
         return {};
-    QVariantMap value = k->value(ToolChainKitAspect::id()).toMap();
-    return value.value(language.toString(), QByteArray()).toByteArray();
+    Store value = storeFromVariant(k->value(ToolChainKitAspect::id()));
+    return value.value(language.toKey(), QByteArray()).toByteArray();
 }
 
 ToolChain *ToolChainKitAspect::toolChain(const Kit *k, Id language)
@@ -646,10 +645,10 @@ QList<ToolChain *> ToolChainKitAspect::toolChains(const Kit *k)
 {
     QTC_ASSERT(k, return {});
 
-    const QVariantMap value = k->value(ToolChainKitAspect::id()).toMap();
+    const Store value = storeFromVariant(k->value(ToolChainKitAspect::id()));
     const QList<ToolChain *> tcList
             = transform<QList>(ToolChainManager::allLanguages(), [&value](Id l) {
-                return ToolChainManager::findToolChain(value.value(l.toString()).toByteArray());
+                return ToolChainManager::findToolChain(value.value(l.toKey()).toByteArray());
             });
     return filtered(tcList, [](ToolChain *tc) { return tc; });
 }
@@ -658,10 +657,10 @@ void ToolChainKitAspect::setToolChain(Kit *k, ToolChain *tc)
 {
     QTC_ASSERT(tc, return);
     QTC_ASSERT(k, return);
-    QVariantMap result = k->value(ToolChainKitAspect::id()).toMap();
-    result.insert(tc->language().toString(), tc->id());
+    Store result = storeFromVariant(k->value(ToolChainKitAspect::id()));
+    result.insert(tc->language().toKey(), tc->id());
 
-    k->setValue(id(), result);
+    k->setValue(id(), variantFromStore(result));
 }
 
 /**
@@ -682,8 +681,8 @@ void ToolChainKitAspect::setAllToolChainsToMatch(Kit *k, ToolChain *tc)
     const Toolchains allTcList = ToolChainManager::toolchains();
     QTC_ASSERT(allTcList.contains(tc), return);
 
-    QVariantMap result = k->value(ToolChainKitAspect::id()).toMap();
-    result.insert(tc->language().toString(), tc->id());
+    Store result = storeFromVariant(k->value(ToolChainKitAspect::id()));
+    result.insert(tc->language().toKey(), tc->id());
 
     for (const Id l : ToolChainManager::allLanguages()) {
         if (l == tc->language())
@@ -703,14 +702,14 @@ void ToolChainKitAspect::setAllToolChainsToMatch(Kit *k, ToolChain *tc)
             }
         }
         if (bestMatch)
-            result.insert(l.toString(), bestMatch->id());
+            result.insert(l.toKey(), bestMatch->id());
         else if (match)
-            result.insert(l.toString(), match->id());
+            result.insert(l.toKey(), match->id());
         else
-            result.insert(l.toString(), QByteArray());
+            result.insert(l.toKey(), QByteArray());
     }
 
-    k->setValue(id(), result);
+    k->setValue(id(), variantFromStore(result));
 }
 
 void ToolChainKitAspect::clearToolChain(Kit *k, Id language)
@@ -718,9 +717,9 @@ void ToolChainKitAspect::clearToolChain(Kit *k, Id language)
     QTC_ASSERT(language.isValid(), return);
     QTC_ASSERT(k, return);
 
-    QVariantMap result = k->value(ToolChainKitAspect::id()).toMap();
-    result.insert(language.toString(), QByteArray());
-    k->setValue(id(), result);
+    Store result = storeFromVariant(k->value(ToolChainKitAspect::id()));
+    result.insert(language.toKey(), QByteArray());
+    k->setValue(id(), variantFromStore(result));
 }
 
 Abi ToolChainKitAspect::targetAbi(const Kit *k)
