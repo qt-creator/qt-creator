@@ -1,0 +1,66 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "F.Scxml",
+    "category": "O.Model",
+    "trDescription": "Creates a new empty state chart.",
+    "trDisplayName": "State Chart",
+    "trDisplayCategory": "Modeling",
+    "iconText": "scxml",
+    "platformIndependent": true,
+    "enabled": "%{JS: value('Plugins').indexOf('ScxmlEditor') >= 0}",
+
+    "options":
+    [
+        { "key": "TargetPath", "value": "%{JS: Util.fileName(value('Location') + '/' + value('FileName'), Util.preferredSuffix('application/scxml+xml'))}" },
+        { "key": "FileName", "value": "%{Name}" }
+    ],
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "State Chart Name and Location",
+            "trShortTitle": "Location",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "Name",
+                    "trDisplayName": "State chart name:",
+                    "mandatory": true,
+                    "type": "LineEdit"
+                },
+                {
+                    "name": "Location",
+                    "trDisplayName": "Location:",
+                    "type": "PathChooser",
+                    "isComplete": "%{JS: value('Location') === '' || !Util.exists(value('TargetPath'))}",
+                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators(value('TargetPath'))}\" exists in the filesystem.",
+                    "data":
+                    {
+                        "kind": "directory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.scxml",
+                "target": "%{TargetPath}",
+                "openInEditor": true
+            }
+        }
+    ]
+}
