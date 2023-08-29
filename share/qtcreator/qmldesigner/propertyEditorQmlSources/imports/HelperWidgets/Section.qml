@@ -18,6 +18,8 @@ Item {
     property alias showTopSeparator: topSeparator.visible
     property alias showArrow: arrow.visible
     property alias showLeftBorder: leftBorder.visible
+    property alias showCloseButton: closeButton.visible
+    property alias closeButtonToolTip: closeButton.tooltip
     property alias spacing: column.spacing
 
     property int leftPadding: StudioTheme.Values.sectionLeftPadding
@@ -79,6 +81,7 @@ Item {
     signal toggleExpand()
     signal expand()
     signal collapse()
+    signal closeButtonClicked()
 
     DropArea {
         id: dropArea
@@ -156,6 +159,20 @@ Item {
                     section.showContextMenu()
                 }
             }
+        }
+
+        IconButton {
+            id: closeButton
+
+            icon: StudioTheme.Constants.close_small
+            buttonSize: 22
+            iconScale: containsMouse ? 1.2 : 1
+            transparentBg: true
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            visible: false
+
+            onClicked: root.closeButtonClicked()
         }
     }
 
