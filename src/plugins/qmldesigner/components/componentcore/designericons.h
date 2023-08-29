@@ -102,6 +102,7 @@ public:
         ShowBoundsIcon,
         SimpleCheckIcon,
         SnappingIcon,
+        SnappingConfIcon,
         TimelineIcon,
         ToggleGroupIcon,
         VisibilityIcon

@@ -259,7 +259,10 @@
             "iconName": "scale_medium"
         },
         "SnappingIcon": {
-            "iconName": "snapping_small"
+            "iconName": "snapping_medium"
+        },
+        "SnappingConfIcon": {
+            "iconName": "snapping_conf_medium"
         },
         "ToggleGroupIcon": {
             "Off": {
