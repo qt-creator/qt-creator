@@ -54,41 +54,47 @@ void tst_ConnectionEditor::test01_data()
     QTest::addColumn<QString>("statement");
     QTest::addColumn<bool>("expectedValue");
 
-    QTest::newRow(countOne())
-        << "if (object.atr == 3 && kmt == 43) {kMtr.lptr = 3;} else {kMtr.ptr = 4;}" << true;
+    QTest::newRow("if then else property set")
+        << "if (object.atr === 3 && kmt === 43) {kMtr.lptr = 3;} else {kMtr.ptr = 4;}" << true;
 
-    QTest::newRow(countOne()) << "{}" << true;
-    QTest::newRow(countOne()) << "{console.log(\"test\")}" << true;
-    QTest::newRow(countOne()) << "{someItem.functionCall()}" << true;
-    QTest::newRow(countOne()) << "{someItem.width.kkk = 10}" << true;
-    QTest::newRow(countOne()) << "{someItem.color = \"red\"}" << true;
-    QTest::newRow(countOne()) << "{someItem.state = \"state\"}" << true;
-    QTest::newRow(countOne()) << "{someItem.text = \"some string\"}" << true;
-    QTest::newRow(countOne()) << "{someItem.speed = 1.0}" << true;
-    QTest::newRow(countOne()) << "{someItem.speed = someOtherItem.speed}" << true;
-    QTest::newRow(countOne()) << "{if (someItem.bool) { someItem.speed = someOtherItem.speed }}"
-                              << true;
-    QTest::newRow(countOne()) << "{if (someItem.bool) { someItem.functionCall() }}" << true;
-    QTest::newRow(countOne()) << "{if (someItem.bool) { console.log(\"ok\")  }}" << true;
-    QTest::newRow(countOne())
+    QTest::newRow("empty") << "{}" << true;
+    QTest::newRow("console.log") << "{console.log(\"test\")}" << true;
+    QTest::newRow("function call") << "{someItem.functionCall()}" << true;
+    QTest::newRow("property set number - extra .") << "{someItem.width.kkk = 10}" << true;
+    QTest::newRow("property set color") << "{someItem.color = \"red\"}" << true;
+    QTest::newRow("set state") << "{someItem.state = \"state\"}" << true;
+    QTest::newRow("property set string") << "{someItem.text = \"some string\"}" << true;
+    QTest::newRow("property set") << "{someItem.speed = 1.0}" << true;
+    QTest::newRow("assignment") << "{someItem.speed = someOtherItem.speed}" << true;
+    QTest::newRow("if assignemnt")
+        << "{if (someItem.bool) { someItem.speed = someOtherItem.speed }}" << true;
+    QTest::newRow("if function call") << "{if (someItem.bool) { someItem.functionCall() }}" << true;
+    QTest::newRow("if console log") << "{if (someItem.bool) { console.log(\"ok\")  }}" << true;
+    QTest::newRow("if else console log")
         << "{if (someItem.bool) { console.log(\"ok\")  } else {console.log(\"ko\")}}" << true;
-    QTest::newRow(countOne()) << "{if (someItem.bool && someItem.someBool2) {  } else { } }"
-                              << true;
-    QTest::newRow(countOne()) << "{if (someItem.width > 10) { }}" << true;
-    QTest::newRow(countOne()) << "{if (someItem.width > 10 && someItem.someBool) { }}" << true;
-    QTest::newRow(countOne()) << "{if (someItem.width > 10 || someItem.someBool) { }}" << true;
-    QTest::newRow(countOne()) << "{if (someItem.width === someItem.height) { }}" << true;
-    QTest::newRow(countOne()) << "{if (someItem.width === someItem.height) {} }" << true;
+    QTest::newRow("if else empty")
+        << "{if (someItem.bool && someItem.someBool2) {  } else { } }" << true;
+    QTest::newRow("if > number") << "{if (someItem.width > 10) { }}" << true;
+    QTest::newRow("if > && bool ") << "{if (someItem.width > 10 && someItem.someBool) { }}" << true;
+    QTest::newRow("if ||") << "{if (someItem.width > 10 || someItem.someBool) { }}" << true;
+    QTest::newRow("if ===") << "{if (someItem.width === someItem.height) { }}" << true;
+    QTest::newRow("if === 2") << "{if (someItem.width === someItem.height) {} }" << true;
 
     // False Conditions
-    QTest::newRow(countOne()) << "{someItem.complexCall(blah)}" << false;
-    QTest::newRow(countOne()) << "{someItem.width = someItem.Height + 10}" << false;
-    QTest::newRow(countOne())
+    QTest::newRow("call with argument") << "{someItem.complexCall(blah)}" << false;
+    QTest::newRow("+ in condition") << "{someItem.width = someItem.Height + 10}" << false;
+    QTest::newRow("type not matching")
         << "if (someItem.bool) {console.log(\"ok\") } else { someItem.functionCall() }" << false;
-    QTest::newRow(countOne()) << "{if (someItem.width == someItem.height) {} }" << false;
-    QTest::newRow(countOne()) << "{if (someItem.width = someItem.height) {} }" << false;
-    QTest::newRow(countOne()) << "{if (someItem.width > someItem.height + 10) {} }" << false;
-    QTest::newRow(countOne()) << "{if (someItem.width > someItem.height) ak = 2; }" << false;
+    QTest::newRow("type not matching 2") << "{if (someItem.width == someItem.height) {} }" << false;
+    QTest::newRow("if = in condition") << "{if (someItem.width = someItem.height) {} }" << false;
+    QTest::newRow("if + in condition with >")
+        << "{if (someItem.width > someItem.height + 10) {} }" << false;
+    QTest::newRow("if {} missing") << "{if (someItem.width > someItem.height) ak = 2; }" << false;
+    QTest::newRow("two statements")
+        << "{if (someItem.bool) { console.log(\"ok\");console.log(\"ok\")  }}" << false;
+    QTest::newRow("if with string")
+        << "{if (someItem.string === \"test\") { console.log(\"ok\")  }}" << true;
+    QTest::newRow("if just with true") << "{if (true) { console.log(\"ok\")  }}" << true;
 }
 
 void tst_ConnectionEditor::invalidSyntax()
@@ -159,6 +165,17 @@ void tst_ConnectionEditor::displayStrings_data()
 
     QTest::newRow("Pure Set Property Color")
         << "{someItem.color = \"red\"}" << ConnectionEditorStatements::SETPROPERTY_DISPLAY_NAME;
+
+    QTest::newRow("Custom function call assignment")
+        << "{someItem.color = item.functionCall()}"
+        << ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
+
+    QTest::newRow("Custom function call with argument")
+        << "{someItem.color = item.functionCall(\"test\")}"
+        << ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
+
+    QTest::newRow("Custom function call with argument 2")
+        << "{item.functionCall(\"test\")}" << ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
 }
 
 void tst_ConnectionEditor::parseAssignment()
@@ -262,7 +279,7 @@ void tst_ConnectionEditor::parseSetState()
     QVERIFY(std::holds_alternative<ConnectionEditorStatements::StateSet>(parsedStatement));
     auto stateSet = std::get<ConnectionEditorStatements::StateSet>(parsedStatement);
 
-    QCOMPARE(stateSet.nodeId, "someItem.state"); // TODO should be just someItem
+    QCOMPARE(stateSet.nodeId, "someItem");       // TODO should be just someItem
     QCOMPARE(stateSet.stateName, "\"myState\""); // TODO quotes should be removed.
 
     //skipping if/else case, since this test requires adjustments
