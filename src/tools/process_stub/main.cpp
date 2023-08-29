@@ -25,6 +25,7 @@
 #ifdef Q_OS_LINUX
 #include <sys/ptrace.h>
 #include <sys/wait.h>
+#include <sys/prctl.h>
 #endif
 
 #include <iostream>
@@ -260,7 +261,11 @@ void setupUnixInferior()
         });
 #else
         // PTRACE_TRACEME will stop execution of the child process as soon as execve is called.
-        inferiorProcess.setChildProcessModifier([] { ptrace(PTRACE_TRACEME, 0, 0, 0); });
+        inferiorProcess.setChildProcessModifier([] {
+            ptrace(PTRACE_TRACEME, 0, 0, 0);
+            // Disable attachment restrictions so we are not bound by yama/ptrace_scope mode 1
+            prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY);
+        });
 #endif
     }
 #endif
