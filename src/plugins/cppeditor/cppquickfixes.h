@@ -593,5 +593,13 @@ private:
                TextEditor::QuickFixOperations &result) override;
 };
 
+//! Moves function documentation between declaration and implementation.
+class MoveFunctionComments : public CppQuickFixFactory
+{
+private:
+    void match(const CppQuickFixInterface &interface,
+               TextEditor::QuickFixOperations &result) override;
+};
+
 } // namespace Internal
 } // namespace CppEditor

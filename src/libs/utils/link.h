@@ -38,13 +38,18 @@ public:
 
     bool operator==(const Link &other) const
     {
-        return targetFilePath == other.targetFilePath
-                && targetLine == other.targetLine
-                && targetColumn == other.targetColumn
-                && linkTextStart == other.linkTextStart
-                && linkTextEnd == other.linkTextEnd;
+        return hasSameLocation(other)
+               && linkTextStart == other.linkTextStart
+               && linkTextEnd == other.linkTextEnd;
     }
     bool operator!=(const Link &other) const { return !(*this == other); }
+
+    bool hasSameLocation(const Link &other) const
+    {
+        return targetFilePath == other.targetFilePath
+               && targetLine == other.targetLine
+               && targetColumn == other.targetColumn;
+    }
 
     friend size_t qHash(const Link &l, uint seed = 0)
     { return qHashMulti(seed, l.targetFilePath, l.targetLine, l.targetColumn); }

@@ -224,6 +224,9 @@ private slots:
 
     void testChangeCommentType_data();
     void testChangeCommentType();
+
+    void testMoveComments_data();
+    void testMoveComments();
 };
 
 } // namespace Tests

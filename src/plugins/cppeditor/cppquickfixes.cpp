@@ -9542,6 +9542,166 @@ void ConvertCommentStyle::match(const CppQuickFixInterface &interface,
     result << new ConvertCommentStyleOp(interface, cursorTokens, kind);
 }
 
+namespace {
+class MoveFunctionCommentsOp : public CppQuickFixOperation
+{
+public:
+    enum class Direction { ToDecl, ToDef };
+    MoveFunctionCommentsOp(const CppQuickFixInterface &interface, const Symbol *symbol,
+                           const QList<Token> &commentTokens, Direction direction)
+        : CppQuickFixOperation(interface), m_symbol(symbol), m_commentTokens(commentTokens)
+    {
+        setDescription(direction == Direction::ToDecl
+                           ? Tr::tr("Move function documentation to declaration")
+                           : Tr::tr("Move function documentation to definition"));
+    }
+
+private:
+    void perform() override
+    {
+        const auto textDoc = const_cast<QTextDocument *>(currentFile()->document());
+        const int pos = currentFile()->cppDocument()->translationUnit()->getTokenPositionInDocument(
+            m_symbol->sourceLocation(), textDoc);
+        QTextCursor cursor(textDoc);
+        cursor.setPosition(pos);
+        const CursorInEditor cursorInEditor(cursor, currentFile()->filePath(), editor(),
+                                            editor()->textDocument());
+        const auto callback = [symbolLoc = m_symbol->toLink(), comments = m_commentTokens]
+            (const Link &link) {
+            moveComments(link, symbolLoc, comments);
+        };
+        CppModelManager::followSymbol(cursorInEditor, callback, true, false);
+    }
+
+    static void moveComments(const Link &targetLoc, const Link &symbolLoc,
+                             const QList<Token> &comments)
+    {
+        if (!targetLoc.hasValidTarget() || targetLoc.hasSameLocation(symbolLoc))
+            return;
+
+        CppRefactoringChanges changes(CppModelManager::snapshot());
+        const CppRefactoringFilePtr sourceFile = changes.file(symbolLoc.targetFilePath);
+        const CppRefactoringFilePtr targetFile
+            = targetLoc.targetFilePath == symbolLoc.targetFilePath
+                  ? sourceFile
+                  : changes.file(targetLoc.targetFilePath);
+        const Document::Ptr &targetCppDoc = targetFile->cppDocument();
+        const QList<AST *> targetAstPath = ASTPath(targetCppDoc)(
+            targetLoc.targetLine, targetLoc.targetColumn + 1);
+        if (targetAstPath.isEmpty())
+            return;
+        const AST *targetDeclAst = nullptr;
+        for (auto it = std::next(std::rbegin(targetAstPath));
+             it != std::rend(targetAstPath); ++it) {
+            AST * const node = *it;
+            if (node->asDeclaration()) {
+                targetDeclAst = node;
+                continue;
+            }
+            if (targetDeclAst)
+                break;
+        }
+        if (!targetDeclAst)
+            return;
+        const int insertionPos = targetCppDoc->translationUnit()->getTokenPositionInDocument(
+            targetDeclAst->firstToken(), targetFile->document());
+        const TranslationUnit * const sourceTu = sourceFile->cppDocument()->translationUnit();
+        const int sourceCommentStartPos = sourceTu->getTokenPositionInDocument(
+            comments.first(), sourceFile->document());
+        const int sourceCommentEndPos = sourceTu->getTokenEndPositionInDocument(
+            comments.last(), sourceFile->document());
+        const QString functionDoc = sourceFile->textOf(sourceCommentStartPos, sourceCommentEndPos);
+
+        // Remove comment plus leading and trailing whitespace, including trailing newline.
+        const auto removeAtSource = [&](ChangeSet &changeSet) {
+            int removalPos = sourceCommentStartPos;
+            const QChar newline(QChar::ParagraphSeparator);
+            while (true) {
+                const int prev = removalPos - 1;
+                if (prev < 0)
+                    break;
+                const QChar prevChar = sourceFile->charAt(prev);
+                if (!prevChar.isSpace() || prevChar == newline)
+                    break;
+                removalPos = prev;
+            }
+            int removalEndPos = sourceCommentEndPos;
+            while (true) {
+                if (removalEndPos == sourceFile->document()->characterCount())
+                    break;
+                const QChar nextChar = sourceFile->charAt(removalEndPos);
+                if (!nextChar.isSpace())
+                    break;
+                ++removalEndPos;
+                if (nextChar == newline)
+                    break;
+            }
+            changeSet.remove(removalPos, removalEndPos);
+        };
+
+        ChangeSet targetChangeSet;
+        targetChangeSet.insert(insertionPos, functionDoc);
+        targetChangeSet.insert(insertionPos, "\n");
+        if (targetFile == sourceFile)
+            removeAtSource(targetChangeSet);
+        targetFile->setChangeSet(targetChangeSet);
+        targetFile->appendIndentRange({insertionPos, insertionPos + int(functionDoc.length())});
+        const bool targetFileSuccess = targetFile->apply();
+        if (targetFile == sourceFile || !targetFileSuccess)
+            return;
+        ChangeSet sourceChangeSet;
+        removeAtSource(sourceChangeSet);
+        sourceFile->setChangeSet(sourceChangeSet);
+        sourceFile->apply();
+    }
+
+    const Symbol * const m_symbol;
+    const QList<Token> m_commentTokens;
+};
+} // namespace
+
+void MoveFunctionComments::match(const CppQuickFixInterface &interface,
+                                 TextEditor::QuickFixOperations &result)
+{
+    const QList<AST *> &astPath = interface.path();
+    if (astPath.isEmpty())
+        return;
+    const Symbol *symbol = nullptr;
+    MoveFunctionCommentsOp::Direction direction = MoveFunctionCommentsOp::Direction::ToDecl;
+    for (auto it = std::next(std::rbegin(astPath)); it != std::rend(astPath); ++it) {
+        if (const auto func = (*it)->asFunctionDefinition()) {
+            symbol = func->symbol;
+            direction = MoveFunctionCommentsOp::Direction::ToDecl;
+            break;
+        }
+        const auto decl = (*it)->asSimpleDeclaration();
+        if (!decl || !decl->declarator_list)
+            continue;
+        for (auto it = decl->declarator_list->begin();
+             !symbol && it != decl->declarator_list->end(); ++it) {
+            PostfixDeclaratorListAST * const funcDecls = (*it)->postfix_declarator_list;
+            if (!funcDecls)
+                continue;
+            for (auto it = funcDecls->begin(); it != funcDecls->end(); ++it) {
+                if (const auto func = (*it)->asFunctionDeclarator()) {
+                    symbol = func->symbol;
+                    direction = MoveFunctionCommentsOp::Direction::ToDef;
+                    break;
+                }
+            }
+        }
+
+    }
+    if (!symbol)
+        return;
+
+    if (const QList<Token> commentTokens = commentsForDeclaration(
+            symbol, *interface.textDocument(), interface.currentFile()->cppDocument());
+        !commentTokens.isEmpty()) {
+        result << new MoveFunctionCommentsOp(interface, symbol, commentTokens, direction);
+    }
+}
+
 void createCppQuickFixes()
 {
     new AddIncludeForUndefinedIdentifier;
@@ -9599,6 +9759,7 @@ void createCppQuickFixes()
     new RemoveUsingNamespace;
     new GenerateConstructor;
     new ConvertCommentStyle;
+    new MoveFunctionComments;
 }
 
 void destroyCppQuickFixes()
