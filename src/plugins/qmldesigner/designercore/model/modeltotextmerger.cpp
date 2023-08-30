@@ -112,16 +112,20 @@ void ModelToTextMerger::nodeTypeChanged(const ModelNode &node,const QString &/*t
     schedule(new ChangeTypeRewriteAction(node));
 }
 
-void ModelToTextMerger::addImport(const Import &import)
+void ModelToTextMerger::addImports(const Imports &imports)
 {
-    if (!import.isEmpty())
-        schedule(new AddImportRewriteAction(import));
+    for (const Import &import : imports) {
+        if (!import.isEmpty())
+            schedule(new AddImportRewriteAction(import));
+    }
 }
 
-void ModelToTextMerger::removeImport(const Import &import)
+void ModelToTextMerger::removeImports(const Imports &imports)
 {
-    if (!import.isEmpty())
-        schedule(new RemoveImportRewriteAction(import));
+    for (const Import &import : imports) {
+        if (!import.isEmpty())
+            schedule(new RemoveImportRewriteAction(import));
+    }
 }
 
 void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)

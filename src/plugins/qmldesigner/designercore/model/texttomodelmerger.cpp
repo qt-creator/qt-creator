@@ -1803,7 +1803,7 @@ void ModelValidator::modelMissesImport([[maybe_unused]] const QmlDesigner::Impor
 
 void ModelValidator::importAbsentInQMl([[maybe_unused]] const QmlDesigner::Import &import)
 {
-    Q_ASSERT(! m_merger->view()->model()->imports().contains(import));
+    QTC_ASSERT(!m_merger->view()->model()->imports().contains(import), return);
 }
 
 void ModelValidator::bindingExpressionsDiffer([[maybe_unused]] BindingProperty &modelProperty,

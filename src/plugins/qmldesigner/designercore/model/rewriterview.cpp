@@ -261,40 +261,29 @@ void RewriterView::nodeReparented(const ModelNode &node, const NodeAbstractPrope
 
 void RewriterView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
-    for (const Import &import : addedImports)
-        importAdded(import);
-
-    for (const Import &import : removedImports)
-        importRemoved(import);
-
+    importsAdded(addedImports);
+    importsRemoved(removedImports);
 }
 
-void RewriterView::importAdded(const Import &import)
+void RewriterView::importsAdded(const Imports &imports)
 {
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
 
-    if (import.url() == QLatin1String("Qt")) {
-        for (const Import &import : model()->imports()) {
-            if (import.url() == QLatin1String("QtQuick"))
-                return; //QtQuick magic we do not have to add an import for Qt
-        }
-    }
-
-    modelToTextMerger()->addImport(import);
+    modelToTextMerger()->addImports(imports);
 
     if (!isModificationGroupActive())
         applyChanges();
 }
 
-void RewriterView::importRemoved(const Import &import)
+void RewriterView::importsRemoved(const Imports &imports)
 {
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
 
-    modelToTextMerger()->removeImport(import);
+    modelToTextMerger()->removeImports(imports);
 
     if (!isModificationGroupActive())
         applyChanges();
