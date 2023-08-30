@@ -32,10 +32,8 @@ protected:
     void postVisit(QmlJS::AST::Node *node) override;
 
     bool visit(QmlJS::AST::Program *program) override;
-    bool visit(QmlJS::AST::StatementList *statementList) override;
     bool visit(QmlJS::AST::IfStatement *ifStatement) override;
     bool visit(QmlJS::AST::IdentifierExpression *identifier) override;
-    bool visit(QmlJS::AST::ExpressionStatement *expressionStatement) override;
     bool visit(QmlJS::AST::BinaryExpression *binaryExpression) override;
     bool visit(QmlJS::AST::FieldMemberExpression *fieldExpression) override;
     bool visit(QmlJS::AST::CallExpression *callExpression) override;
@@ -45,6 +43,8 @@ protected:
     void endVisit(QmlJS::AST::Program *program) override;
     void endVisit(QmlJS::AST::FieldMemberExpression *fieldExpression) override;
     void endVisit(QmlJS::AST::CallExpression *callExpression) override;
+    void endVisit(QmlJS::AST::IfStatement *ifStatement) override;
+    void endVisit(QmlJS::AST::StatementList *statementList) override;
 
     void throwRecursionDepthError() override;
 

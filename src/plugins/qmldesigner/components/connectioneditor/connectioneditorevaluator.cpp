@@ -84,6 +84,15 @@ inline bool isAcceptedIfBinaryOperator(const int &operation)
     }
 }
 
+inline bool areOfTheSameTypeMatch(const MatchedStatement &m1, const MatchedStatement &m2)
+{
+    return std::visit(Overload{[](auto m1, auto m2) -> bool {
+                          return std::is_same<decltype(m1), decltype(m2)>();
+                      }},
+                      m1,
+                      m2);
+}
+
 class NodeStatus
 {
 public:
@@ -737,10 +746,7 @@ ConnectionEditorEvaluator::ConnectionEditorEvaluator()
     : d(std::make_unique<ConnectionEditorEvaluatorPrivate>())
 {}
 
-ConnectionEditorEvaluator::~ConnectionEditorEvaluator()
-{
-    delete d.release();
-}
+ConnectionEditorEvaluator::~ConnectionEditorEvaluator() {}
 
 ConnectionEditorEvaluator::Status ConnectionEditorEvaluator::status() const
 {
@@ -872,11 +878,6 @@ bool ConnectionEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::Program *prog
     return true;
 }
 
-bool ConnectionEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::StatementList *statementList)
-{
-    return d->checkValidityAndReturn(true);
-}
-
 bool ConnectionEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::IfStatement *ifStatement)
 {
     if (d->m_ifStatement++)
@@ -900,11 +901,6 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::IdentifierExpression *identifi
 
     d->addVariableCondition(identifier);
 
-    return d->checkValidityAndReturn(true);
-}
-
-bool ConnectionEditorEvaluator::visit([[maybe_unused]] QmlJS::AST::ExpressionStatement *expressionStatement)
-{
     return d->checkValidityAndReturn(true);
 }
 
@@ -1068,6 +1064,35 @@ void ConnectionEditorEvaluator::endVisit(QmlJS::AST::FieldMemberExpression *fiel
 void ConnectionEditorEvaluator::endVisit([[maybe_unused]] QmlJS::AST::CallExpression *callExpression)
 {
     d->m_acceptLogArgument = false;
+}
+
+void ConnectionEditorEvaluator::endVisit(QmlJS::AST::IfStatement *ifStatement)
+{
+    if (status() != UnFinished)
+        return;
+
+    std::visit(Overload{[this](const ConnectionEditorStatements::ConditionalStatement &statement) {
+                            if (!ConnectionEditorStatements::isEmptyStatement(statement.ok)
+                                && !ConnectionEditorStatements::isEmptyStatement(statement.ko)) {
+                                qDebug() << Q_FUNC_INFO
+                                         << areOfTheSameTypeMatch(statement.ok, statement.ko);
+                                if (!areOfTheSameTypeMatch(statement.ok, statement.ko)) {
+                                    d->checkValidityAndReturn(
+                                        false, "Matched statements types are mismatched");
+                                }
+                            }
+                        },
+                        [](auto) {}},
+               d->m_handler);
+}
+
+void ConnectionEditorEvaluator::endVisit(QmlJS::AST::StatementList *statementList)
+{
+    if (status() != UnFinished)
+        return;
+
+    if (d->nodeStatus().children() > 1)
+        d->checkValidityAndReturn(false, "More than one statements are available.");
 }
 
 void ConnectionEditorEvaluator::throwRecursionDepthError()
