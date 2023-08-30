@@ -17,6 +17,11 @@
 
     \image qtcreator-new-file.webp {New File wizard}
 
+    \note You can also use the \c f locator filter to create a new
+    file and open it in the editor. For more information, see
+    \l {Creating Files and Directories from Locator}. However, you must
+    manually add the created file to a project.
+
     \section1 Select file type
 
     The following table lists the types of wizard templates that you can use
