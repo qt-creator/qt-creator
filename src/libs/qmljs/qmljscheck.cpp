@@ -675,7 +675,7 @@ QList<StaticAnalysis::Type> Check::defaultDisabledMessagesForNonQuickUi()
         ErrBehavioursNotSupportedInQmlUi,
         ErrStatesOnlyInRootItemInQmlUi,
         ErrReferenceToParentItemNotSupportedInQmlUi,
-        ErrDoNotMixTranslationFunctionsInQmlUi,
+        WarnDoNotMixTranslationFunctionsInQmlUi,
     });
     return disabled;
 }
@@ -774,7 +774,7 @@ void Check::enableQmlDesignerUiFileChecks()
     enableMessage(ErrBehavioursNotSupportedInQmlUi);
     enableMessage(ErrStatesOnlyInRootItemInQmlUi);
     enableMessage(ErrReferenceToParentItemNotSupportedInQmlUi);
-    enableMessage(ErrDoNotMixTranslationFunctionsInQmlUi);
+    enableMessage(WarnDoNotMixTranslationFunctionsInQmlUi);
 }
 
 void Check::disableQmlDesignerUiFileChecks()
@@ -786,7 +786,7 @@ void Check::disableQmlDesignerUiFileChecks()
     disableMessage(ErrBehavioursNotSupportedInQmlUi);
     disableMessage(ErrStatesOnlyInRootItemInQmlUi);
     disableMessage(ErrReferenceToParentItemNotSupportedInQmlUi);
-    disableMessage(ErrDoNotMixTranslationFunctionsInQmlUi);
+    disableMessage(WarnDoNotMixTranslationFunctionsInQmlUi);
 }
 
 bool Check::preVisit(Node *ast)
@@ -1937,7 +1937,7 @@ bool Check::visit(CallExpression *ast)
 
         if (lastTransLationfunction != noTranslationfunction
             && lastTransLationfunction != translationFunction)
-            addMessage(ErrDoNotMixTranslationFunctionsInQmlUi, location);
+            addMessage(WarnDoNotMixTranslationFunctionsInQmlUi, location);
 
         lastTransLationfunction = translationFunction;
     }
