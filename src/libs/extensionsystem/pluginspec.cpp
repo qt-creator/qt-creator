@@ -1124,7 +1124,6 @@ bool PluginSpecPrivate::initializePlugin()
         hasError = true;
         return false;
     }
-    plugin->tryCreateObjects();
     state = PluginSpec::Initialized;
     return true;
 }
@@ -1151,7 +1150,6 @@ bool PluginSpecPrivate::initializeExtensions()
         return false;
     }
     plugin->extensionsInitialized();
-    plugin->tryCreateObjects();
     state = PluginSpec::Running;
     return true;
 }
@@ -1172,7 +1170,6 @@ bool PluginSpecPrivate::delayedInitialize()
         return false;
     }
     const bool res =  plugin->delayedInitialize();
-    plugin->tryCreateObjects();
     return res;
 }
 

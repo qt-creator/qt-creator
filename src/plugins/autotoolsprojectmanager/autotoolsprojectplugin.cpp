@@ -74,6 +74,16 @@ public:
  *   be executed in the build process)
  */
 
+class AutotoolsProjectPluginPrivate
+{
+public:
+    AutotoolsBuildConfigurationFactory buildConfigFactory;
+    MakeStepFactory makeStepFactory;
+    AutogenStepFactory autogenStepFactory;
+    ConfigureStepFactory configureStepFactory;
+    AutoreconfStepFactory autoreconfStepFactory;
+};
+
 class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -81,14 +91,10 @@ class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-        ProjectManager::registerProjectType<AutotoolsProject>(Constants::MAKEFILE_MIMETYPE);
-
-        addManaged<AutotoolsBuildConfigurationFactory>();
-        addManaged<MakeStepFactory>();
-        addManaged<AutogenStepFactory>();
-        addManaged<ConfigureStepFactory>();
-        addManaged<AutoreconfStepFactory>();
+        d = std::make_unique<AutotoolsProjectPluginPrivate>();
     }
+
+    std::unique_ptr<AutotoolsProjectPluginPrivate> d;
 };
 
 } // AutotoolsProjectManager::Internal

@@ -7,16 +7,23 @@
 
 namespace Conan::Internal {
 
+class ConanPluginPrivate
+{
+public:
+    ConanInstallStepFactory conanInstallStepFactory;
+};
+
 class ConanPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Conan.json")
 
-public:
-    ConanPlugin()
+    void initialize()
     {
-        addManaged<ConanInstallStepFactory>();
+        d = std::make_unique<ConanPluginPrivate>();
     }
+
+    std::unique_ptr<ConanPluginPrivate> d;
 };
 
 } // Conan::Internal
