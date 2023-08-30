@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include "expected.h"
 #include "utils_global.h"
 
 #include <QStringList>
+#include <utility>
 
 QT_BEGIN_NAMESPACE
 class QTextCodec;
@@ -53,6 +55,8 @@ public:
                                QByteArray *decodingErrorSample = nullptr);
     static ReadResult readFileUTF8(const FilePath &filePath, const QTextCodec *defaultCodec,
                                    QByteArray *plainText, QString *errorString);
+    static tl::expected<QString, std::pair<ReadResult, QString>>
+    readFile(const FilePath &filePath, const QTextCodec *defaultCodec);
 
     bool writeFile(const FilePath &filePath, QString plainText, QString *errorString) const;
 

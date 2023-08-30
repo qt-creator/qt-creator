@@ -288,6 +288,19 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const FilePath &filePath
     return TextFileFormat::ReadSuccess;
 }
 
+tl::expected<QString, std::pair<TextFileFormat::ReadResult, QString>>
+TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec)
+{
+    QString plainText;
+    TextFileFormat format;
+    QString errorString;
+    const TextFileFormat::ReadResult result =
+        readTextFile(filePath, defaultCodec, &plainText, &format, &errorString, nullptr);
+    if (result != TextFileFormat::ReadSuccess)
+        return tl::unexpected(std::make_pair(result, errorString));
+    return plainText;
+}
+
 /*!
     Writes out a text file to \a filePath into a string, \a plainText.
 
