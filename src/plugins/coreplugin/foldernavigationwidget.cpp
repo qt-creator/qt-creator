@@ -861,7 +861,7 @@ void FolderNavigationWidgetFactory::restoreSettings(QtcSettings *settings, int p
 {
     auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
-    const QString base = kSettingsBase + QString::number(position);
+    const Key base = kSettingsBase + Key::number(position);
     fnw->setHiddenFilesFilter(settings->value(base + kHiddenFilesKey, kHiddenFilesDefault).toBool());
     fnw->setAutoSynchronization(settings->value(base + kSyncKey, kAutoSyncDefault).toBool());
     fnw->setShowBreadCrumbs(

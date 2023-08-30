@@ -29,6 +29,7 @@
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
+using namespace Utils;
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -88,9 +89,9 @@ QString QtWizard::templateDir()
 
 bool QtWizard::lowerCaseFiles()
 {
-    QString lowerCaseSettingsKey = QLatin1String(CppEditor::Constants::CPPEDITOR_SETTINGSGROUP);
-    lowerCaseSettingsKey += QLatin1Char('/');
-    lowerCaseSettingsKey += QLatin1String(CppEditor::Constants::LOWERCASE_CPPFILES_KEY);
+    Key lowerCaseSettingsKey = CppEditor::Constants::CPPEDITOR_SETTINGSGROUP;
+    lowerCaseSettingsKey += '/';
+    lowerCaseSettingsKey += CppEditor::Constants::LOWERCASE_CPPFILES_KEY;
     const bool lowerCaseDefault = CppEditor::Constants::LOWERCASE_CPPFILES_DEFAULT;
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }

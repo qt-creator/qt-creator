@@ -661,7 +661,7 @@ void ProjectTreeWidgetFactory::restoreSettings(QtcSettings *settings, int positi
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    const QString baseKey = kBaseKey + QString::number(position);
+    const Key baseKey = kBaseKey + Key::number(position);
     ptw->setProjectFilter(
         settings->value(baseKey + kProjectFilterKey, kProjectFilterDefault).toBool());
     ptw->setGeneratedFilesFilter(

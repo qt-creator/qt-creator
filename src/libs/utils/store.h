@@ -29,6 +29,8 @@ QTCREATOR_UTILS_EXPORT QVariantMap mapFromStore(const Store &store);
 
 QTCREATOR_UTILS_EXPORT bool isStore(const QVariant &value);
 
+QTCREATOR_UTILS_EXPORT Key numberedKey(const Key &key, int number);
+
 } // Utils
 
 #ifdef QTC_USE_STORE

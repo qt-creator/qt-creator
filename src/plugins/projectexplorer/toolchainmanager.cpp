@@ -62,7 +62,7 @@ using namespace Internal;
 
 const char DETECT_X64_AS_X32_KEY[] = "ProjectExplorer/Toolchains/DetectX64AsX32";
 
-static QString badToolchainsKey() { return {"BadToolChains"}; }
+static Key badToolchainsKey() { return "BadToolChains"; }
 
 // --------------------------------------------------------------------------
 // ToolChainManager

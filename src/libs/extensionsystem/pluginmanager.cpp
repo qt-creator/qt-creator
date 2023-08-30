@@ -1018,12 +1018,12 @@ void PluginManagerPrivate::writeSettings()
 void PluginManagerPrivate::readSettings()
 {
     if (globalSettings) {
-        defaultDisabledPlugins = globalSettings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
-        defaultEnabledPlugins = globalSettings->value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
+        defaultDisabledPlugins = globalSettings->value(C_IGNORED_PLUGINS).toStringList();
+        defaultEnabledPlugins = globalSettings->value(C_FORCEENABLED_PLUGINS).toStringList();
     }
     if (settings) {
-        disabledPlugins = settings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
-        forceEnabledPlugins = settings->value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
+        disabledPlugins = settings->value(C_IGNORED_PLUGINS).toStringList();
+        forceEnabledPlugins = settings->value(C_FORCEENABLED_PLUGINS).toStringList();
     }
 }
 

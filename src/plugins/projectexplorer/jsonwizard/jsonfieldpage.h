@@ -126,7 +126,6 @@ private:
     static QHash<QString, FieldFactory> m_factories;
 
     static Field *createFieldData(const QString &type);
-    static QString fullSettingsKey(const QString &fieldKey);
 
     QFormLayout *m_formLayout;
     QLabel *m_errorLabel;

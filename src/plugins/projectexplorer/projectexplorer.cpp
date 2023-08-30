@@ -2216,7 +2216,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     }
 
     QtcSettings *s = ICore::settings();
-    s->remove(QLatin1String("ProjectExplorer/RecentProjects/Files"));
+    s->remove("ProjectExplorer/RecentProjects/Files");
 
     QStringList fileNames;
     QStringList displayNames;

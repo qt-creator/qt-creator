@@ -600,7 +600,7 @@ void BookmarkManager::saveBookmarks()
     QDataStream stream(&bookmarks, QIODevice::WriteOnly);
 
     readBookmarksRecursive(treeModel->invisibleRootItem(), stream, 0);
-    Core::ICore::settings()->setValue(QLatin1String(kBookmarksKey), bookmarks);
+    Core::ICore::settings()->setValue(kBookmarksKey, bookmarks);
 }
 
 QStringList BookmarkManager::bookmarkFolders() const

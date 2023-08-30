@@ -249,7 +249,7 @@ HelpPluginPrivate::HelpPluginPrivate()
                     Core::HelpManager::HelpModeAlways);
     });
 
-    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from designer settings
+    const Key qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from designer settings
     const bool isDesigner = Core::ICore::settings()->value(qdsStandaloneEntry, false).toBool();
 
     action = new QAction(Tr::tr("Report Bug..."), this);

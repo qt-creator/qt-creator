@@ -1477,12 +1477,12 @@ void DebuggerPluginPrivate::parseCommandLineArguments()
         QTimer::singleShot(0, this, &DebuggerPluginPrivate::runScheduled);
 }
 
-static void setConfigValue(const QString &name, const QVariant &value)
+static void setConfigValue(const Key &name, const QVariant &value)
 {
     ICore::settings()->setValue("DebugMode/" + name, value);
 }
 
-static QVariant configValue(const QString &name)
+static QVariant configValue(const Key &name)
 {
     return ICore::settings()->value("DebugMode/" + name);
 }
@@ -1658,7 +1658,7 @@ void DebuggerPluginPrivate::reloadDebuggingHelpers()
 
 void DebuggerPluginPrivate::startRemoteCdbSession()
 {
-    const QString connectionKey = "CdbRemoteConnection";
+    const Key connectionKey = "CdbRemoteConnection";
     Kit *kit = findUniversalCdbKit();
     QTC_ASSERT(kit, return);
 

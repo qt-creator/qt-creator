@@ -178,15 +178,15 @@ void StudioSettingsPage::apply()
     QSettings *s = Core::ICore::settings();
     const QString value = m_pathChooserExamples->filePath().toString();
 
-    if (s->value(Paths::exampleDownloadPath.toString(), false).toString() != value) {
-        s->setValue(Paths::exampleDownloadPath.toString(), value);
+    if (s->value(Paths::exampleDownloadPath, false).toString() != value) {
+        s->setValue(Paths::exampleDownloadPath, value);
         emit examplesDownloadPathChanged(value);
     }
 
     const QString bundlesPath = m_pathChooserBundles->filePath().toString();
 
-    if (s->value(Paths::bundlesDownloadPath.toString()).toString() != bundlesPath) {
-        s->setValue(Paths::bundlesDownloadPath.toString(), bundlesPath);
+    if (s->value(Paths::bundlesDownloadPath).toString() != bundlesPath) {
+        s->setValue(Paths::bundlesDownloadPath, bundlesPath);
         emit bundlesDownloadPathChanged(bundlesPath);
 
         const QString restartText = tr("Changing bundle path will take effect after restart.");

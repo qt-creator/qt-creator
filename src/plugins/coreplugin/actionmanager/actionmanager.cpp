@@ -490,8 +490,8 @@ void ActionManagerPrivate::readUserSettings(Id id, Command *cmd)
 
 void ActionManagerPrivate::saveSettings(Command *cmd)
 {
-    const QString id = cmd->id().toString();
-    const QString settingsKey = QLatin1String(kKeyboardSettingsKeyV2) + '/' + id;
+    const Key id = cmd->id().toKey();
+    const Key settingsKey = kKeyboardSettingsKeyV2 + '/' + id;
     const QList<QKeySequence> keys = cmd->keySequences();
     const QList<QKeySequence> defaultKeys = cmd->defaultKeySequences();
     if (keys != defaultKeys) {

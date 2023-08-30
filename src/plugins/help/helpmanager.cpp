@@ -29,12 +29,13 @@
 #include <QtHelp/QHelpLink>
 
 using namespace Core;
-
-static const char kUserDocumentationKey[] = "Help/UserDocumentation";
-static const char kUpdateDocumentationTask[] = "UpdateDocumentationTask";
+using namespace Utils;
 
 namespace Help {
 namespace Internal {
+
+const char kUserDocumentationKey[] = "Help/UserDocumentation";
+const char kUpdateDocumentationTask[] = "UpdateDocumentationTask";
 
 struct HelpManagerPrivate
 {
@@ -357,8 +358,8 @@ HelpManagerPrivate::~HelpManagerPrivate()
 
 const QStringList HelpManagerPrivate::documentationFromInstaller()
 {
-    QSettings *installSettings = ICore::settings();
-    const QStringList documentationPaths = installSettings->value(QLatin1String("Help/InstalledDocumentation"))
+    QtcSettings *installSettings = ICore::settings();
+    const QStringList documentationPaths = installSettings->value("Help/InstalledDocumentation")
             .toStringList();
     QStringList documentationFiles;
     for (const QString &path : documentationPaths) {
@@ -377,8 +378,7 @@ const QStringList HelpManagerPrivate::documentationFromInstaller()
 
 void HelpManagerPrivate::readSettings()
 {
-    m_userRegisteredFiles = Utils::toSet(ICore::settings()->value(QLatin1String(kUserDocumentationKey))
-            .toStringList());
+    m_userRegisteredFiles = Utils::toSet(ICore::settings()->value(kUserDocumentationKey).toStringList());
 }
 
 void HelpManagerPrivate::writeSettings()

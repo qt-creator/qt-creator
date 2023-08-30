@@ -207,10 +207,10 @@ QString HistoryCompleter::historyItem() const
     return d->list.at(0);
 }
 
-bool HistoryCompleter::historyExistsFor(const QString &historyKey)
+bool HistoryCompleter::historyExistsFor(const Key &historyKey)
 {
     QTC_ASSERT(theSettings, return false);
-    const QString fullKey = QLatin1String("CompleterHistory/") + historyKey;
+    const Key fullKey = "CompleterHistory/" + historyKey;
     return theSettings->value(fullKey).isValid();
 }
 

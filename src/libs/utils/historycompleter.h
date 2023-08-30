@@ -23,7 +23,7 @@ public:
     bool removeHistoryItem(int index);
     QString historyItem() const;
     bool hasHistory() const { return historySize() > 0; }
-    static bool historyExistsFor(const QString &historyKey);
+    static bool historyExistsFor(const Key &historyKey);
     void clearHistory();
     void addEntry(const QString &str);
 

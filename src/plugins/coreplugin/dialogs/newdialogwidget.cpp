@@ -327,8 +327,8 @@ void NewDialogWidget::showDialog()
 {
     QModelIndex idx;
 
-    QString lastPlatform = ICore::settings()->value(QLatin1String(LAST_PLATFORM_KEY)).toString();
-    QString lastCategory = ICore::settings()->value(QLatin1String(LAST_CATEGORY_KEY)).toString();
+    QString lastPlatform = ICore::settings()->value(LAST_PLATFORM_KEY).toString();
+    QString lastCategory = ICore::settings()->value(LAST_CATEGORY_KEY).toString();
 
     if (!lastPlatform.isEmpty()) {
         int index = m_comboBox->findData(lastPlatform);

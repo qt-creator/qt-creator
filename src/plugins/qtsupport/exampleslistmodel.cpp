@@ -49,13 +49,13 @@ Q_GLOBAL_STATIC_WITH_ARGS(QVersionNumber, minQtVersionForCategories, (6, 5, 1));
 
 void ExampleSetModel::writeCurrentIdToSettings(int currentIndex) const
 {
-    QSettings *settings = Core::ICore::settings();
-    settings->setValue(QLatin1String(kSelectedExampleSetKey), getId(currentIndex));
+    QtcSettings *settings = Core::ICore::settings();
+    settings->setValue(kSelectedExampleSetKey, getId(currentIndex));
 }
 
 int ExampleSetModel::readCurrentIndexFromSettings() const
 {
-    QVariant id = Core::ICore::settings()->value(QLatin1String(kSelectedExampleSetKey));
+    QVariant id = Core::ICore::settings()->value(kSelectedExampleSetKey);
     for (int i=0; i < rowCount(); i++) {
         if (id == getId(i))
             return i;

@@ -116,4 +116,9 @@ bool isStore(const QVariant &value)
     return typeId == QMetaType::QVariantMap || typeId == qMetaTypeId<Store>();
 }
 
+Key numberedKey(const Key &key, int number)
+{
+    return key + Key::number(number);
+}
+
 } // Utils

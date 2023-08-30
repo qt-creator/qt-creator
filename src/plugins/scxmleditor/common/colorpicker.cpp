@@ -12,7 +12,9 @@
 #include <QHBoxLayout>
 #include <QToolButton>
 
-using namespace ScxmlEditor::Common;
+using namespace Utils;
+
+namespace ScxmlEditor::Common {
 
 const char C_SETTINGS_COLORPICKER_LASTUSEDCOLORS[] = "ScxmlEditor/ColorPickerLastUsedColors_%1";
 constexpr int C_BUTTON_COLUMNS_COUNT = 5;
@@ -55,15 +57,15 @@ ColorPicker::ColorPicker(const QString &key, QWidget *parent)
     }.attachTo(this);
 
     const QStringList lastColors = Core::ICore::settings()->value(
-                QString::fromLatin1(C_SETTINGS_COLORPICKER_LASTUSEDCOLORS).arg(m_key), QStringList()).toStringList();
+        C_SETTINGS_COLORPICKER_LASTUSEDCOLORS + keyFromString(m_key), QStringList()).toStringList();
     for (int i = lastColors.count(); i--;)
         setLastUsedColor(lastColors[i]);
 }
 
 ColorPicker::~ColorPicker()
 {
-    Core::ICore::settings()->setValue(QString::fromLatin1(C_SETTINGS_COLORPICKER_LASTUSEDCOLORS).arg(m_key),
-                                      m_lastUsedColorNames);
+    Core::ICore::settings()->setValue(
+        C_SETTINGS_COLORPICKER_LASTUSEDCOLORS + keyFromString(m_key), m_lastUsedColorNames);
 }
 
 void ColorPicker::setLastUsedColor(const QString &colorName)
@@ -99,3 +101,5 @@ QToolButton *ColorPicker::createButton(const QColor &color)
 
     return button;
 }
+
+} // ScxmlEditor::Common

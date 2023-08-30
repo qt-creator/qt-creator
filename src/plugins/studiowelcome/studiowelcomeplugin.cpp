@@ -516,7 +516,7 @@ void StudioWelcomePlugin::initialize()
 
 static bool forceDownLoad()
 {
-    const QString lastQDSVersionEntry = "QML/Designer/ForceWelcomePageDownload";
+    const Key lastQDSVersionEntry = "QML/Designer/ForceWelcomePageDownload";
     return Core::ICore::settings()->value(lastQDSVersionEntry, false).toBool();
 }
 

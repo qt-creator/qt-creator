@@ -661,7 +661,7 @@ int main(int argc, char **argv)
     QTranslator translator;
     QTranslator qtTranslator;
     QStringList uiLanguages = QLocale::system().uiLanguages();
-    QString overrideLanguage = settings->value(QLatin1String("General/OverrideLanguage")).toString();
+    QString overrideLanguage = settings->value("General/OverrideLanguage").toString();
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
     if (!options.uiLanguage.isEmpty())

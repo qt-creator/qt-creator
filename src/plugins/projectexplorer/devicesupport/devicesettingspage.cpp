@@ -221,8 +221,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
 
     addButton->setEnabled(hasDeviceFactories);
 
-    int lastIndex = ICore::settings()
-        ->value(QLatin1String(LastDeviceIndexKey), 0).toInt();
+    int lastIndex = ICore::settings()->value(LastDeviceIndexKey, 0).toInt();
     if (lastIndex == -1)
         lastIndex = 0;
     if (lastIndex < m_configurationComboBox->count())

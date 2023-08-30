@@ -263,7 +263,7 @@ QString GeneralSettingsWidget::language()
 void GeneralSettingsWidget::setLanguage(const QString &locale)
 {
     QtcSettings *settings = ICore::settings();
-    if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale) {
+    if (settings->value("General/OverrideLanguage").toString() != locale) {
         RestartDialog dialog(ICore::dialogParent(),
                              Tr::tr("The language change will take effect after restart."));
         dialog.exec();

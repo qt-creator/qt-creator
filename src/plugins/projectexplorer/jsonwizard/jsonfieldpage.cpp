@@ -76,6 +76,11 @@ static void warnAboutUnsupportedKeys(const QVariantMap &map, const QString &name
     }
 }
 
+static Key fullSettingsKey(const QString &fieldKey)
+{
+    return "Wizards/" + keyFromString(fieldKey);
+}
+
 
 // --------------------------------------------------------------------
 // Helper:
@@ -1411,11 +1416,6 @@ JsonFieldPage::Field *JsonFieldPage::createFieldData(const QString &type)
         return field;
     }
     return nullptr;
-}
-
-QString JsonFieldPage::fullSettingsKey(const QString &fieldKey)
-{
-    return "Wizards/" + fieldKey;
 }
 
 } // namespace ProjectExplorer
