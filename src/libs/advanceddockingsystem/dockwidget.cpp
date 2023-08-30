@@ -162,6 +162,11 @@ void DockWidgetPrivate::hideDockWidget()
     closeAutoHideDockWidgetsIfNeeded();
 
     if (m_features.testFlag(DockWidget::DeleteContentOnClose)) {
+        if (m_scrollArea) {
+            m_scrollArea->takeWidget();
+            delete m_scrollArea;
+            m_scrollArea = nullptr;
+        }
         m_widget->deleteLater();
         m_widget = nullptr;
     }
