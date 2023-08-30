@@ -63,7 +63,11 @@ public:
     }
 
     bool isRunning() const override { return m_proc.isRunning(); }
-    void writeRaw(const QByteArray &data) override { m_proc.writeRaw(data); }
+    void writeRaw(const QByteArray &data) override
+    {
+        if (m_proc.state() == QProcess::Running)
+            m_proc.writeRaw(data);
+    }
     void kill() override { m_proc.kill(); }
     QByteArray readAllStandardOutput() override { return m_proc.readAllStandardOutput().toUtf8(); }
     QString readAllStandardError() override { return m_proc.readAllStandardError(); }

@@ -413,8 +413,9 @@ void DapEngine::assignValueInDebugger(WatchItem *, const QString &/*expression*/
 
 void DapEngine::updateItem(const QString &iname)
 {
-    Q_UNUSED(iname)
-    updateAll();
+    WatchItem *item = watchHandler()->findItem(iname);
+    m_currentWatchItem = item;
+    m_dapClient->variables(item->variablesReference);
 }
 
 QString DapEngine::errorMessage(QProcess::ProcessError error) const
@@ -554,6 +555,9 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
         if (name == "Locals") { // Fix for several scopes
             watchHandler()->removeAllData();
             watchHandler()->notifyUpdateStarted();
+
+            m_watchItems.clear();
+            watchHandler()->cleanup();
             m_dapClient->variables(variablesReference);
         }
     }
@@ -707,31 +711,25 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
         item->address = variable.toObject().value("address").toInt();
         item->type = variable.toObject().value("type").toString();
 
+        const int variablesReference = variable.toObject().value("variablesReference").toInt();
+        item->variablesReference = variablesReference;
+        if (variablesReference > 0)
+            item->wantsChildren = true;
+
         qCDebug(dapEngineLog) << "variable" << name << item->hexAddress();
         if (isFirstLayer)
             m_watchItems.append(item);
         else
             m_currentWatchItem->appendChild(item);
-
-        const int variablesReference = variable.toObject().value("variablesReference").toInt();
-        if (variablesReference > 0)
-            m_variablesReferenceQueue.push({variablesReference, item});
     }
 
-    if (m_variablesReferenceQueue.empty()) {
+    if (isFirstLayer) {
         for (auto item : m_watchItems)
             watchHandler()->insertItem(item);
-        m_watchItems.clear();
+    } else
+        watchHandler()->updateWatchExpression(m_currentWatchItem, "");
 
-        watchHandler()->notifyUpdateFinished();
-        return;
-    }
-
-    const auto front = m_variablesReferenceQueue.front();
-    m_variablesReferenceQueue.pop();
-
-    m_dapClient->variables(front.first);
-    m_currentWatchItem = front.second;
+    watchHandler()->notifyUpdateFinished();
 }
 
 void DapEngine::refreshStack(const QJsonArray &stackFrames)

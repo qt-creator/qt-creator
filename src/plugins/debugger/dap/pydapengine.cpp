@@ -78,7 +78,11 @@ public:
     }
 
     bool isRunning() const override { return m_socket.isOpen(); }
-    void writeRaw(const QByteArray &data) override { m_socket.write(data); }
+    void writeRaw(const QByteArray &data) override
+    {
+        if (m_socket.isOpen())
+            m_socket.write(data);
+    }
     void kill() override
     {
         m_timer->stop();
@@ -100,7 +104,7 @@ public:
     QProcess::ExitStatus exitStatus() const override { return QProcess::NormalExit; }
     QProcess::ProcessError error() const override { return QProcess::UnknownError; }
     Utils::ProcessResult result() const override { return ProcessResult::FinishedWithSuccess; }
-    QString exitMessage() const override { return QString(); };
+    QString exitMessage() const override { return QString(); }
 
 private:
     Utils::Process m_proc;

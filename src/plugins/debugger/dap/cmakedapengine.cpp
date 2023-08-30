@@ -47,7 +47,11 @@ public:
     void start() override { m_socket.connectToServer(m_socketName, QIODevice::ReadWrite); }
 
     bool isRunning() const override { return m_socket.isOpen(); }
-    void writeRaw(const QByteArray &data) override { m_socket.write(data); }
+    void writeRaw(const QByteArray &data) override
+    {
+        if (m_socket.isOpen())
+            m_socket.write(data);
+    }
     void kill() override
     {
         if (m_socket.isOpen())

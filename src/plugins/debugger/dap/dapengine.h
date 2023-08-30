@@ -113,7 +113,6 @@ protected:
     int m_nextBreakpointId = 1;
     int m_currentThreadId = -1;
 
-    std::queue<std::pair<int, WatchItem *>> m_variablesReferenceQueue;
     WatchItem *m_currentWatchItem = nullptr;
     QList<WatchItem *> m_watchItems;
 };

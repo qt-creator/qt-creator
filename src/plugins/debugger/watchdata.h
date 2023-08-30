@@ -71,6 +71,7 @@ public:
     uint            bitpos = 0;            // Position within bit fields
     uint            bitsize = 0;           // Size in case of bit fields
     uint            autoDerefCount = 0;    // number of levels of automatic dereferencing that has taken place (for pointer types)
+    uint            variablesReference = 0;// reference to the variable in the variables request DAP related
     int             elided = 0;            // Full size if value was cut off, -1 if cut on unknown size, 0 otherwise
     int             arrayIndex = -1;       // -1 if not an array member
     uchar           sortGroup = 0;         // 0 - ordinary member, 1 - vptr, 2 - base class
