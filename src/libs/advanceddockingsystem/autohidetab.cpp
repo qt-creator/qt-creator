@@ -408,7 +408,8 @@ void AutoHideTab::mouseReleaseEvent(QMouseEvent *event)
         case DraggingFloatingWidget:
             event->accept();
             d->m_floatingWidget->finishDragging();
-            if (d->m_dockWidget->isAutoHide() && d->m_dragStartOrientation != orientation())
+            if (d->m_dockWidget->autoHideDockContainer()
+                && d->m_dragStartOrientation != orientation())
                 d->m_dockWidget->autoHideDockContainer()->resetToInitialDockWidgetSize();
 
             break;
