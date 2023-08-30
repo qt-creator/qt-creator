@@ -23,7 +23,7 @@ namespace Internal {
 
 static Key entryName(int index)
 {
-    return Constants::ToolsSettings::ENTRY_KEY + Key::number(index);
+    return numberedKey(Constants::ToolsSettings::ENTRY_KEY, index);
 }
 
 ToolsSettingsAccessor::ToolsSettingsAccessor()

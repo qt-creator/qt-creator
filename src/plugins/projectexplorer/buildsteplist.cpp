@@ -62,7 +62,7 @@ Store BuildStepList::toMap() const
     for (int i = 0; i < m_steps.count(); ++i) {
         Store data;
         m_steps.at(i)->toMap(data);
-        map.insert(STEPS_PREFIX + Key::number(i), variantFromStore(data));
+        map.insert(numberedKey(STEPS_PREFIX, i), variantFromStore(data));
     }
 
     return map;
@@ -111,7 +111,7 @@ bool BuildStepList::fromMap(const Store &map)
 
     int maxSteps = map.value(STEPS_COUNT_KEY, 0).toInt();
     for (int i = 0; i < maxSteps; ++i) {
-        Store bsData = storeFromVariant(map.value(STEPS_PREFIX + Key::number(i)));
+        Store bsData = storeFromVariant(map.value(numberedKey(STEPS_PREFIX, i)));
         if (bsData.isEmpty()) {
             qWarning() << "No step data found for" << i << "(continuing).";
             continue;

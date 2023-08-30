@@ -756,7 +756,7 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
 
     int count = data.value(DEBUGGER_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const Key key = DEBUGGER_DATA_KEY + Key::number(i);
+        const Key key = numberedKey(DEBUGGER_DATA_KEY, i);
         if (!data.contains(key))
             continue;
         const Store dbMap = storeFromVariant(data.value(key));
@@ -813,7 +813,7 @@ void DebuggerItemModel::saveDebuggers()
         if (item.isValid() && item.engineType() != NoEngineType) {
             Store tmp = item.toMap();
             if (!tmp.isEmpty()) {
-                data.insert(DEBUGGER_DATA_KEY + Key::number(count), variantFromStore(tmp));
+                data.insert(numberedKey(DEBUGGER_DATA_KEY, count), variantFromStore(tmp));
                 ++count;
             }
         }

@@ -442,7 +442,7 @@ public:
             if (tmp.isEmpty())
                 continue;
 
-            data.insert(QNXConfigDataKey + Key::number(count), variantFromStore(tmp));
+            data.insert(numberedKey(QNXConfigDataKey, count), variantFromStore(tmp));
             ++count;
         }
 
@@ -459,7 +459,7 @@ public:
         Store data = reader.restoreValues();
         int count = data.value(QNXConfigCountKey, 0).toInt();
         for (int i = 0; i < count; ++i) {
-            const Key key = QNXConfigDataKey + Key::number(i);
+            const Key key = numberedKey(QNXConfigDataKey, i);
             if (!data.contains(key))
                 continue;
 

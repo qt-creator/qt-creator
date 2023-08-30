@@ -448,7 +448,7 @@ void KitManager::saveKits()
         Store tmp = k->toMap();
         if (tmp.isEmpty())
             continue;
-        data.insert(KIT_DATA_KEY + Key::number(count), variantFromStore(tmp));
+        data.insert(numberedKey(KIT_DATA_KEY, count), variantFromStore(tmp));
         ++count;
     }
     data.insert(KIT_COUNT_KEY, count);
@@ -514,7 +514,7 @@ static KitList restoreKitsHelper(const FilePath &fileName)
 
     const int count = data.value(KIT_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const Key key = KIT_DATA_KEY + Key::number(i);
+        const Key key = numberedKey(KIT_DATA_KEY, i);
         if (!data.contains(key))
             break;
 

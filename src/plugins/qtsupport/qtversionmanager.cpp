@@ -358,7 +358,7 @@ static void saveQtVersions()
         if (tmp.isEmpty())
             continue;
         tmp.insert(QTVERSION_TYPE_KEY, qtv->type());
-        data.insert(QTVERSION_DATA_KEY + Key::number(count), QVariant::fromValue(tmp));
+        data.insert(numberedKey(QTVERSION_DATA_KEY, count), variantFromStore(tmp));
         ++count;
     }
     m_writer->save(data, Core::ICore::dialogParent());

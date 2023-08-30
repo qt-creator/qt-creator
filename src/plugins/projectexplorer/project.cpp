@@ -698,7 +698,7 @@ void Project::toMap(Store &map) const
     map.insert(ACTIVE_TARGET_KEY, ts.indexOf(d->m_activeTarget));
     map.insert(TARGET_COUNT_KEY, ts.size());
     for (int i = 0; i < ts.size(); ++i)
-        map.insert(TARGET_KEY_PREFIX + Key::number(i), variantFromStore(ts.at(i)->toMap()));
+        map.insert(numberedKey(TARGET_KEY_PREFIX, i), variantFromStore(ts.at(i)->toMap()));
 
     map.insert(EDITOR_SETTINGS_KEY, variantFromStore(d->m_editorConfiguration.toMap()));
     if (!d->m_pluginSettings.isEmpty())
@@ -801,7 +801,7 @@ Project::RestoreResult Project::fromMap(const Store &map, QString *errorMessage)
 
 void Project::createTargetFromMap(const Store &map, int index)
 {
-    const Key key = TARGET_KEY_PREFIX + Key::number(index);
+    const Key key = numberedKey(TARGET_KEY_PREFIX, index);
     if (!map.contains(key))
         return;
 

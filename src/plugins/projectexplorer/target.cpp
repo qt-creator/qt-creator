@@ -605,7 +605,7 @@ Store Target::toMap() const
     for (int i = 0; i < bcs.size(); ++i) {
         Store data;
         bcs.at(i)->toMap(data);
-        map.insert(BC_KEY_PREFIX + Key::number(i), variantFromStore(data));
+        map.insert(numberedKey(BC_KEY_PREFIX, i), variantFromStore(data));
     }
 
     const QList<DeployConfiguration *> dcs = deployConfigurations();
@@ -614,7 +614,7 @@ Store Target::toMap() const
     for (int i = 0; i < dcs.size(); ++i) {
         Store data;
         dcs.at(i)->toMap(data);
-        map.insert(DC_KEY_PREFIX + Key::number(i), variantFromStore(data));
+        map.insert(numberedKey(DC_KEY_PREFIX, i), variantFromStore(data));
     }
 
     const QList<RunConfiguration *> rcs = runConfigurations();
@@ -623,7 +623,7 @@ Store Target::toMap() const
     for (int i = 0; i < rcs.size(); ++i) {
         Store data;
         rcs.at(i)->toMap(data);
-        map.insert(RC_KEY_PREFIX + Key::number(i), variantFromStore(data));
+        map.insert(numberedKey(RC_KEY_PREFIX, i), variantFromStore(data));
     }
 
     if (!d->m_pluginSettings.isEmpty())
@@ -900,7 +900,7 @@ bool Target::fromMap(const Store &map)
         activeConfiguration = 0;
 
     for (int i = 0; i < bcCount; ++i) {
-        const Key key = BC_KEY_PREFIX + Key::number(i);
+        const Key key = numberedKey(BC_KEY_PREFIX, i);
         if (!map.contains(key))
             return false;
         const Store valueMap = storeFromVariant(map.value(key));
@@ -927,7 +927,7 @@ bool Target::fromMap(const Store &map)
         activeConfiguration = 0;
 
     for (int i = 0; i < dcCount; ++i) {
-        const Key key = DC_KEY_PREFIX + Key::number(i);
+        const Key key = numberedKey(DC_KEY_PREFIX, i);
         if (!map.contains(key))
             return false;
         Store valueMap = storeFromVariant(map.value(key));
@@ -954,7 +954,7 @@ bool Target::fromMap(const Store &map)
         activeConfiguration = 0;
 
     for (int i = 0; i < rcCount; ++i) {
-        const Key key = RC_KEY_PREFIX + Key::number(i);
+        const Key key = numberedKey(RC_KEY_PREFIX, i);
         if (!map.contains(key))
             return false;
 

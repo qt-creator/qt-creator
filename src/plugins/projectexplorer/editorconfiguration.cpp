@@ -181,7 +181,7 @@ Store EditorConfiguration::toMap() const
             {"language", QVariant::fromValue(itCodeStyle.key().toSetting())},
             {"value", QVariant::fromValue(itCodeStyle.value()->toMap())}
         };
-        map.insert(kCodeStylePrefix + Key::number(i), variantFromStore(settingsIdMap));
+        map.insert(numberedKey(kCodeStylePrefix, i), variantFromStore(settingsIdMap));
         i++;
     }
 
@@ -204,7 +204,7 @@ void EditorConfiguration::fromMap(const Store &map)
 
     const int codeStyleCount = map.value(kCodeStyleCount, 0).toInt();
     for (int i = 0; i < codeStyleCount; ++i) {
-        Store settingsIdMap = storeFromVariant(map.value(kCodeStylePrefix + Key::number(i)));
+        Store settingsIdMap = storeFromVariant(map.value(numberedKey(kCodeStylePrefix, i)));
         if (settingsIdMap.isEmpty()) {
             qWarning() << "No data for code style settings list" << i << "found!";
             continue;

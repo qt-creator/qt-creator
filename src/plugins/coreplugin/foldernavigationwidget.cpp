@@ -835,13 +835,13 @@ const bool kShowBreadCrumbsDefault = true;
 const bool kRootAutoSyncDefault = true;
 const bool kShowFoldersOnTopDefault = true;
 
-void FolderNavigationWidgetFactory::saveSettings(Utils::QtcSettings *settings,
+void FolderNavigationWidgetFactory::saveSettings(QtcSettings *settings,
                                                  int position,
                                                  QWidget *widget)
 {
     auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
-    const Key base = kSettingsBase + Key::number(position);
+    const Key base = numberedKey(kSettingsBase, position);
     settings->setValueWithDefault(base + kHiddenFilesKey,
                                   fnw->hiddenFilesFilter(),
                                   kHiddenFilesDefault);
@@ -861,7 +861,7 @@ void FolderNavigationWidgetFactory::restoreSettings(QtcSettings *settings, int p
 {
     auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
-    const Key base = kSettingsBase + Key::number(position);
+    const Key base = numberedKey(kSettingsBase, position);
     fnw->setHiddenFilesFilter(settings->value(base + kHiddenFilesKey, kHiddenFilesDefault).toBool());
     fnw->setAutoSynchronization(settings->value(base + kSyncKey, kAutoSyncDefault).toBool());
     fnw->setShowBreadCrumbs(

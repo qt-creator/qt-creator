@@ -186,7 +186,7 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
             Store tmp = item->toMap();
             if (tmp.isEmpty())
                 continue;
-            data.insert(CMAKE_TOOL_DATA_KEY + Key::number(count), variantFromStore(tmp));
+            data.insert(numberedKey(CMAKE_TOOL_DATA_KEY, count), variantFromStore(tmp));
             ++count;
         }
     }
@@ -202,7 +202,7 @@ CMakeToolSettingsAccessor::cmakeTools(const Store &data, bool fromSdk) const
 
     int count = data.value(CMAKE_TOOL_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const Key key = CMAKE_TOOL_DATA_KEY + Key::number(i);
+        const Key key = numberedKey(CMAKE_TOOL_DATA_KEY, i);
         if (!data.contains(key))
             continue;
 

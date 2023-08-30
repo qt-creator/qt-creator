@@ -90,7 +90,7 @@ void DebugServerProviderManager::restoreProviders()
 
     const int count = data.value(countKeyC, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const Key key = dataKeyC + Key::number(i);
+        const Key key = numberedKey(dataKeyC, i);
         if (!data.contains(key))
             break;
 
@@ -132,8 +132,8 @@ void DebugServerProviderManager::saveProviders()
             p->toMap(tmp);
             if (tmp.isEmpty())
                 continue;
-            const Key key = dataKeyC + Key::number(count);
-            data.insert(key, QVariant::fromValue(tmp));
+            const Key key = numberedKey(dataKeyC, count);
+            data.insert(key, variantFromStore(tmp));
             ++count;
         }
     }

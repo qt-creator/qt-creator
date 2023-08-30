@@ -1703,7 +1703,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     for (int i = 0; i < customParserCount; ++i) {
         CustomParserSettings settings;
         settings.fromMap(storeFromVariant(
-            s->value(Constants::CUSTOM_PARSER_PREFIX_KEY + Key::number(i))));
+            s->value(numberedKey(Constants::CUSTOM_PARSER_PREFIX_KEY, i))));
         dd->m_customParsers << settings;
     }
 
@@ -2278,7 +2278,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
 
     s->setValueWithDefault(Constants::CUSTOM_PARSER_COUNT_KEY, int(dd->m_customParsers.count()), 0);
     for (int i = 0; i < dd->m_customParsers.count(); ++i) {
-        s->setValue(Constants::CUSTOM_PARSER_PREFIX_KEY + Key::number(i),
+        s->setValue(numberedKey(Constants::CUSTOM_PARSER_PREFIX_KEY, i),
                     variantFromStore(dd->m_customParsers.at(i).toMap()));
     }
 }

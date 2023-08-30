@@ -494,7 +494,7 @@ UserFileVersion16Upgrader::OldStepMaps UserFileVersion16Upgrader::extractStepMap
     int stepCount = stepListMap.value("ProjectExplorer.BuildStepList.StepsCount", 0).toInt();
     Key stepKey = "ProjectExplorer.BuildStepList.Step.";
     for (int i = 0; i < stepCount; ++i) {
-        Store stepMap = storeFromVariant(stepListMap.value(stepKey + Key::number(i)));
+        Store stepMap = storeFromVariant(stepListMap.value(numberedKey(stepKey, i)));
         const QString id = stepMap.value("ProjectExplorer.ProjectConfiguration.Id").toString();
         if (id == "Qt4ProjectManager.AndroidDeployQtStep")
             result.androidDeployQt = stepMap;
@@ -516,10 +516,10 @@ Store UserFileVersion16Upgrader::removeAndroidPackageStep(Store deployMap)
     Key stepKey = "ProjectExplorer.BuildStepList.Step.";
     int targetPosition = 0;
     for (int sourcePosition = 0; sourcePosition < stepCount; ++sourcePosition) {
-        Store stepMap = storeFromVariant(stepListMap.value(stepKey + Key::number(sourcePosition)));
+        Store stepMap = storeFromVariant(stepListMap.value(numberedKey(stepKey, sourcePosition)));
         if (stepMap.value("ProjectExplorer.ProjectConfiguration.Id").toString()
                 != "Qt4ProjectManager.AndroidPackageInstallationStep") {
-            stepListMap.insert(stepKey + Key::number(targetPosition), variantFromStore(stepMap));
+            stepListMap.insert(numberedKey(stepKey, targetPosition), variantFromStore(stepMap));
             ++targetPosition;
         }
     }
@@ -527,7 +527,7 @@ Store UserFileVersion16Upgrader::removeAndroidPackageStep(Store deployMap)
     stepListMap.insert(stepCountKey, targetPosition);
 
     for (int i = targetPosition; i < stepCount; ++i)
-        stepListMap.remove(stepKey + Key::number(i));
+        stepListMap.remove(numberedKey(stepKey, i));
 
     deployMap.insert(stepListKey, variantFromStore(stepListMap));
     return deployMap;
@@ -543,7 +543,7 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
     const Key bslKey = "ProjectExplorer.BuildConfiguration.BuildStepList.";
     const Key bslTypeKey = "ProjectExplorer.ProjectConfiguration.Id";
     for (int bslNumber = 0; bslNumber < stepListCount; ++bslNumber) {
-        Store buildStepListMap = buildConfigurationMap.value(bslKey + Key::number(bslNumber)).value<Store>();
+        Store buildStepListMap = buildConfigurationMap.value(numberedKey(bslKey, bslNumber)).value<Store>();
         if (buildStepListMap.value(bslTypeKey) != "ProjectExplorer.BuildSteps.Build")
             continue;
 
@@ -565,7 +565,7 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
         QString defaultDisplayName = oldStepMap.androidPackageInstall.value(defaultDisplayNameKey).toString();
         bool enabled = oldStepMap.androidPackageInstall.value(enabledKey).toBool();
 
-        androidPackageInstallStep.insert(idKey, Utils::Id("Qt4ProjectManager.AndroidPackageInstallationStep").toSetting());
+        androidPackageInstallStep.insert(idKey, Id("Qt4ProjectManager.AndroidPackageInstallationStep").toSetting());
         androidPackageInstallStep.insert(displayNameKey, displayName);
         androidPackageInstallStep.insert(defaultDisplayNameKey, defaultDisplayName);
         androidPackageInstallStep.insert(enabledKey, enabled);
@@ -574,7 +574,7 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
         defaultDisplayName = oldStepMap.androidDeployQt.value(defaultDisplayNameKey).toString();
         enabled = oldStepMap.androidDeployQt.value(enabledKey).toBool();
 
-        androidBuildApkStep.insert(idKey, Utils::Id("QmakeProjectManager.AndroidBuildApkStep").toSetting());
+        androidBuildApkStep.insert(idKey, Id("QmakeProjectManager.AndroidBuildApkStep").toSetting());
         androidBuildApkStep.insert(displayNameKey, displayName);
         androidBuildApkStep.insert(defaultDisplayNameKey, defaultDisplayName);
         androidBuildApkStep.insert(enabledKey, enabled);
@@ -598,10 +598,10 @@ Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
         androidBuildApkStep.insert(VerboseOutputKey, verbose);
 
         const Key buildStepKey = "ProjectExplorer.BuildStepList.Step.";
-        buildStepListMap.insert(buildStepKey + Key::number(stepCount), variantFromStore(androidPackageInstallStep));
-        buildStepListMap.insert(buildStepKey + Key::number(stepCount + 1), variantFromStore(androidBuildApkStep));
+        buildStepListMap.insert(numberedKey(buildStepKey, stepCount), variantFromStore(androidPackageInstallStep));
+        buildStepListMap.insert(numberedKey(buildStepKey, stepCount + 1), variantFromStore(androidBuildApkStep));
 
-        buildConfigurationMap.insert(bslKey + Key::number(bslNumber), variantFromStore(buildStepListMap));
+        buildConfigurationMap.insert(numberedKey(bslKey, bslNumber), variantFromStore(buildStepListMap));
     }
 
     if (policy == RenameBuildConfiguration) {
@@ -637,7 +637,7 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
     Store result = data;
 
     for (int i = 0; i < targetCount; ++i) {
-        Key targetKey = "ProjectExplorer.Project.Target." + Key::number(i);
+        Key targetKey = numberedKey("ProjectExplorer.Project.Target.", i);
         Store targetMap = storeFromVariant(data.value(targetKey));
 
         const Key dcCountKey = "ProjectExplorer.Target.DeployConfigurationCount";
@@ -651,12 +651,12 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
         Key deployKey = "ProjectExplorer.Target.DeployConfiguration.";
         for (int j = 0; j < deployconfigurationCount; ++j) {
             Store deployConfigurationMap
-                    = storeFromVariant(targetMap.value(deployKey + Key::number(j)));
+                    = storeFromVariant(targetMap.value(numberedKey(deployKey, j)));
             OldStepMaps oldStep = extractStepMaps(deployConfigurationMap);
             if (!oldStep.isEmpty()) {
                 oldSteps.append(oldStep);
                 deployConfigurationMap = removeAndroidPackageStep(deployConfigurationMap);
-                targetMap.insert(deployKey + Key::number(j), QVariant::fromValue(deployConfigurationMap));
+                targetMap.insert(numberedKey(deployKey, j), QVariant::fromValue(deployConfigurationMap));
             }
         }
 
@@ -672,7 +672,7 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
 
         Key bcKey = "ProjectExplorer.Target.BuildConfiguration.";
         for (int j = 0; j < buildConfigurationCount; ++j) {
-            Store oldBuildConfigurationMap = storeFromVariant(targetMap.value(bcKey + Key::number(j)));
+            Store oldBuildConfigurationMap = storeFromVariant(targetMap.value(numberedKey(bcKey, j)));
             oldBuildConfigurations.append(oldBuildConfigurationMap);
         }
 
@@ -691,7 +691,7 @@ Store UserFileVersion16Upgrader::upgrade(const Store &data)
         targetMap.insert(bcCountKey, newBuildConfigurations.size());
 
         for (int j = 0; j < newBuildConfigurations.size(); ++j)
-            targetMap.insert(bcKey + Key::number(j), variantFromStore(newBuildConfigurations.at(j)));
+            targetMap.insert(numberedKey(bcKey, j), variantFromStore(newBuildConfigurations.at(j)));
         result.insert(targetKey, variantFromStore(targetMap));
     }
 

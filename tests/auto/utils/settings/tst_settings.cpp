@@ -35,7 +35,7 @@ public:
     Store upgrade(const Store &data) final
     {
         Store result = data;
-        result.insert("VERSION_" + Key::number(version()), version());
+        result.insert(numberedKey("VERSION_", version()), version());
         return result;
     }
 };
