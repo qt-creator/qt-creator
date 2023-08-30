@@ -657,7 +657,7 @@ void ProjectTreeWidgetFactory::saveSettings(QtcSettings *settings, int position,
     settings->setValueWithDefault(baseKey + kSyncKey, ptw->autoSynchronization(), kSyncDefault);
 }
 
-void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
+void ProjectTreeWidgetFactory::restoreSettings(QtcSettings *settings, int position, QWidget *widget)
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);

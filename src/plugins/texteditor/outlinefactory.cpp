@@ -224,7 +224,7 @@ void OutlineFactory::saveSettings(Utils::QtcSettings *settings, int position, QW
     widgetStack->saveSettings(settings, position);
 }
 
-void OutlineFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
+void OutlineFactory::restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget)
 {
     auto widgetStack = qobject_cast<OutlineWidgetStack *>(widget);
     Q_ASSERT(widgetStack);

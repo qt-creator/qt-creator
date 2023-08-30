@@ -857,7 +857,7 @@ void FolderNavigationWidgetFactory::saveSettings(Utils::QtcSettings *settings,
                                   kShowFoldersOnTopDefault);
 }
 
-void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
+void FolderNavigationWidgetFactory::restoreSettings(QtcSettings *settings, int position, QWidget *widget)
 {
     auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);

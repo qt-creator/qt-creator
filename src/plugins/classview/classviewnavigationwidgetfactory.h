@@ -22,7 +22,7 @@ public:
     void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
 
     //! \implements Core::INavigationWidgetFactory::restoreSettings
-    void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
+    void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
 };
 
 } // namespace Internal

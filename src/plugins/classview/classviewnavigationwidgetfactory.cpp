@@ -61,7 +61,7 @@ void NavigationWidgetFactory::saveSettings(Utils::QtcSettings *settings,
     settings->setValue(settingsGroup, pw->flatMode());
 }
 
-void NavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
+void NavigationWidgetFactory::restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget)
 {
     auto pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);

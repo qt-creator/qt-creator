@@ -532,7 +532,7 @@ void CppIncludeHierarchyFactory::saveSettings(QtcSettings *settings, int positio
     hierarchyWidget(widget)->saveSettings(settings, position);
 }
 
-void CppIncludeHierarchyFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
+void CppIncludeHierarchyFactory::restoreSettings(QtcSettings *settings, int position, QWidget *widget)
 {
     hierarchyWidget(widget)->restoreSettings(settings, position);
 }

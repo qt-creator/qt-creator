@@ -56,7 +56,7 @@ public:
 
     Core::NavigationView createWidget() override;
     void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
-    void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
+    void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
 
     void addRootPath(Utils::Id id, const QString &displayName, const QIcon &icon, const Utils::FilePath &path) override;
     void removeRootPath(Utils::Id path) override;
