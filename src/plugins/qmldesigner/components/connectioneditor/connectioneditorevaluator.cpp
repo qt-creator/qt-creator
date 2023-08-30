@@ -84,15 +84,6 @@ inline bool isAcceptedIfBinaryOperator(const int &operation)
     }
 }
 
-inline bool areOfTheSameTypeMatch(const MatchedStatement &m1, const MatchedStatement &m2)
-{
-    return std::visit(Overload{[](auto m1, auto m2) -> bool {
-                          return std::is_same<decltype(m1), decltype(m2)>();
-                      }},
-                      m1,
-                      m2);
-}
-
 class NodeStatus
 {
 public:
@@ -1071,19 +1062,12 @@ void ConnectionEditorEvaluator::endVisit(QmlJS::AST::IfStatement *ifStatement)
     if (status() != UnFinished)
         return;
 
-    std::visit(Overload{[this](const ConnectionEditorStatements::ConditionalStatement &statement) {
-                            if (!ConnectionEditorStatements::isEmptyStatement(statement.ok)
-                                && !ConnectionEditorStatements::isEmptyStatement(statement.ko)) {
-                                qDebug() << Q_FUNC_INFO
-                                         << areOfTheSameTypeMatch(statement.ok, statement.ko);
-                                if (!areOfTheSameTypeMatch(statement.ok, statement.ko)) {
-                                    d->checkValidityAndReturn(
-                                        false, "Matched statements types are mismatched");
-                                }
-                            }
-                        },
-                        [](auto) {}},
-               d->m_handler);
+    if (auto statement = std::get_if<ConditionalStatement>(&d->m_handler)) {
+        if (!isEmptyStatement(statement->ok) && !isEmptyStatement(statement->ko)) {
+            if (statement->ok.index() != statement->ko.index())
+                d->checkValidityAndReturn(false, "Matched statements types are mismatched");
+        }
+    }
 }
 
 void ConnectionEditorEvaluator::endVisit(QmlJS::AST::StatementList *statementList)
