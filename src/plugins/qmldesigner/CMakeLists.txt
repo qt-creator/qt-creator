@@ -723,6 +723,7 @@ extend_qtc_plugin(QmlDesigner
     uniform.cpp uniform.h
     effectutils.cpp effectutils.h
     effectmakercontextobject.cpp effectmakercontextobject.h
+    shaderfeatures.cpp shaderfeatures.h
 )
 
 extend_qtc_plugin(QmlDesigner

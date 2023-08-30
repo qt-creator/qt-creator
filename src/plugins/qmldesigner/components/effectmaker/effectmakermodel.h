@@ -3,12 +3,15 @@
 
 #pragma once
 
+#include "shaderfeatures.h"
+
 #include <QMap>
 #include <QStandardItemModel>
 
 namespace QmlDesigner {
 
 class CompositionNode;
+class Uniform;
 
 class EffectMakerModel : public QAbstractListModel
 {
@@ -42,10 +45,18 @@ private:
 
     bool isValidIndex(int idx) const;
 
+    const QList<Uniform *> allUniforms();
+
+    const QString getBufUniform();
+    const QString getVSUniforms();
+    const QString getFSUniforms();
+
     QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
     bool m_isEmpty = true;
+
+    ShaderFeatures m_shaderFeatures;
 };
 
 } // namespace QmlDesigner

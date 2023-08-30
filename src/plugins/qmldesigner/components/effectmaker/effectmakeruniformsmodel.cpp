@@ -67,4 +67,9 @@ void EffectMakerUniformsModel::addUniform(Uniform *uniform)
     endInsertRows();
 }
 
+QList<Uniform *> EffectMakerUniformsModel::uniforms() const
+{
+    return m_uniforms;
+}
+
 } // namespace QmlDesigner

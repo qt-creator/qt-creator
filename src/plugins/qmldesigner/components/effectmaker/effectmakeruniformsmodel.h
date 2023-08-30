@@ -25,6 +25,8 @@ public:
 
     void addUniform(Uniform *uniform);
 
+    QList<Uniform *> uniforms() const;
+
 private:
     enum Roles {
         NameRole = Qt::UserRole + 1,

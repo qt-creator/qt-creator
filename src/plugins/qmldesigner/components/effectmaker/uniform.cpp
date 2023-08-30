@@ -261,7 +261,7 @@ QString Uniform::stringFromType(Uniform::Type type)
     else if (type == Type::Color)
         return "color";
     else if (type == Type::Sampler)
-        return "image";
+        return "sampler2D";
     else if (type == Type::Define)
         return "define";
 
@@ -285,7 +285,7 @@ Uniform::Type Uniform::typeFromString(const QString &typeString)
         return Uniform::Type::Vec4;
     else if (typeString == "color")
         return Uniform::Type::Color;
-    else if (typeString == "image")
+    else if (typeString == "sampler2D")
         return Uniform::Type::Sampler;
     else if (typeString == "define")
         return Uniform::Type::Define;

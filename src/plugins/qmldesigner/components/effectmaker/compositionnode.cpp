@@ -84,6 +84,21 @@ void CompositionNode::parse(const QString &qenPath)
     QJsonArray jsonProps = json.value("properties").toArray();
     for (const auto /*QJsonValueRef*/ &prop : jsonProps)
         m_unifomrsModel.addUniform(new Uniform(prop.toObject()));
+
+    // Seek through code to get tags
+    QStringList shaderCodeLines;
+    shaderCodeLines += m_vertexCode.split('\n');
+    shaderCodeLines += m_fragmentCode.split('\n');
+    for (const QString &codeLine : std::as_const(shaderCodeLines)) {
+        QString trimmedLine = codeLine.trimmed();
+        if (trimmedLine.startsWith("@requires")) {
+            // Get the required node, remove "@requires"
+            QString l = trimmedLine.sliced(9).trimmed();
+            QString nodeName = trimmedLine.sliced(10);
+            if (!nodeName.isEmpty() && !m_requiredNodes.contains(nodeName))
+                m_requiredNodes << nodeName;
+        }
+    }
 }
 
 } // namespace QmlDesigner
