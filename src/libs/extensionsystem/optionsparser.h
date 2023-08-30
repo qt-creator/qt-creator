@@ -28,6 +28,7 @@ public:
     static const char *NOTEST_OPTION;
     static const char *SCENARIO_OPTION;
     static const char *PROFILE_OPTION;
+    static const char *TRACE_OPTION;
     static const char *NO_CRASHCHECK_OPTION;
 
 private:
@@ -41,6 +42,7 @@ private:
     bool checkForAppOption();
     bool checkForPluginOption();
     bool checkForProfilingOption();
+    bool checkForTraceOption();
     bool checkForNoCrashcheckOption();
     bool checkForUnknownOption();
     void forceDisableAllPluginsExceptTestedAndForceEnabled();

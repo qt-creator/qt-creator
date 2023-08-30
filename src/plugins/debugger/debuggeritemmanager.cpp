@@ -27,6 +27,8 @@
 #include <utils/treemodel.h>
 #include <utils/winutils.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -832,6 +834,7 @@ void DebuggerItemModel::saveDebuggers()
 
 void DebuggerItemManager::restoreDebuggers()
 {
+    NANOTRACE_SCOPE("Debugger", "DebuggerItemManager::restoreDebuggers");
     itemModel().restoreDebuggers();
 }
 

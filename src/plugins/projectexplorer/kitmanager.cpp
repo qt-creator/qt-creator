@@ -26,6 +26,8 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QAction>
 #include <QHash>
 #include <QLabel>
@@ -153,6 +155,7 @@ void KitManager::destroy()
 
 void KitManager::restoreKits()
 {
+    NANOTRACE_SCOPE("ProjectExplorer", "KitManager::restoreKits");
     QTC_ASSERT(!d->m_initialized, return );
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, &KitManager::saveKits);

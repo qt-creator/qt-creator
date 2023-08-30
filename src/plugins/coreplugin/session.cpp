@@ -28,6 +28,8 @@
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QAction>
 #include <QActionGroup>
 #include <QFutureInterface>
@@ -400,6 +402,7 @@ static QString determineSessionToRestoreAtStartup()
 
 void SessionManagerPrivate::restoreStartupSession()
 {
+    NANOTRACE_SCOPE("Core", "SessionManagerPrivate::restoreStartupSession");
     m_isStartupSessionRestored = true;
     QString sessionToRestoreAtStartup = determineSessionToRestoreAtStartup();
     if (!sessionToRestoreAtStartup.isEmpty())

@@ -134,6 +134,8 @@
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
@@ -2126,6 +2128,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
 void ProjectExplorerPlugin::restoreKits()
 {
+    NANOTRACE_SCOPE("ProjectExplorer", "ProjectExplorerPlugin::restoreKits");
     ExtraAbi::load(); // Load this before Toolchains!
     ToolChainManager::restoreToolChains();
     KitManager::restoreKits();

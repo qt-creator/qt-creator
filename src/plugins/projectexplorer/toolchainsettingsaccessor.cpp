@@ -12,6 +12,8 @@
 
 #include <utils/algorithm.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QLoggingCategory>
@@ -56,6 +58,9 @@ static Toolchains autoDetectToolChains(const ToolchainDetector &detector)
 {
     Toolchains result;
     for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories()) {
+        NANOTRACE_SCOPE_ARGS("ProjectExplorer",
+                             "ToolChainSettingsAccessor::autoDetectToolChains",
+                             {"factory", f->displayName().toStdString()});
         QElapsedTimer et;
         et.start();
         result.append(f->autoDetect(detector));
@@ -179,6 +184,7 @@ ToolChainSettingsAccessor::ToolChainSettingsAccessor()
 
 Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
 {
+    NANOTRACE_SCOPE("ProjectExplorer", "ToolChainSettingsAccessor::restoreToolChains");
     // read all tool chains from SDK
     const Toolchains systemFileTcs = toolChains(
         restoreSettings(Core::ICore::installerResourcePath(TOOLCHAIN_FILENAME), parent));

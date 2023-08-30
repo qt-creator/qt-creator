@@ -17,6 +17,8 @@
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 
+#include <nanotrace/nanotrace.h>
+
 using namespace Core;
 using namespace Utils;
 
@@ -134,6 +136,7 @@ CMakeTool *CMakeToolManager::findById(const Id &id)
 
 void CMakeToolManager::restoreCMakeTools()
 {
+    NANOTRACE_SCOPE("CMakeProjectManager", "CMakeToolManager::restoreCMakeTools");
     Internal::CMakeToolSettingsAccessor::CMakeTools tools
             = d->m_accessor.restoreCMakeTools(ICore::dialogParent());
     d->m_cmakeTools = std::move(tools.cmakeTools);

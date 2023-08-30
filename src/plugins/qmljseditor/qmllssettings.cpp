@@ -10,6 +10,8 @@
 #include <QLoggingCategory>
 #include <qtsupport/qtversionmanager.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <limits>
 
 using namespace QtSupport;

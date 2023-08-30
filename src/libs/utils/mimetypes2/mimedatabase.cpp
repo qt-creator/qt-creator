@@ -13,6 +13,8 @@
 
 #include "algorithm.h"
 
+#include <nanotrace/nanotrace.h>
+
 #include <QFile>
 #include <QFileInfo>
 #include <QStandardPaths>
@@ -90,6 +92,7 @@ static void updateOverriddenMimeTypes(std::vector<std::unique_ptr<MimeProviderBa
 
 void MimeDatabasePrivate::loadProviders()
 {
+    NANOTRACE_SCOPE("Utils", "MimeDatabasePrivate::loadProviders");
 #if 0
     // We use QStandardPaths every time to check if new files appeared
     const QStringList mimeDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime"), QStandardPaths::LocateDirectory);

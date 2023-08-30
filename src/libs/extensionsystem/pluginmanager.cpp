@@ -10,6 +10,8 @@
 #include "pluginspec.h"
 #include "pluginspec_p.h"
 
+#include <nanotrace/nanotrace.h>
+
 #include <utils/algorithm.h>
 #include <utils/benchmarker.h>
 #include <utils/fileutils.h>
@@ -722,6 +724,12 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
                  QString(), QLatin1String("Profile plugin loading"),
                  optionIndentation, descriptionIndentation);
     formatOption(str,
+                 QLatin1String(OptionsParser::TRACE_OPTION),
+                 QLatin1String("file"),
+                 QLatin1String("Write trace file (CTF) for plugin loading"),
+                 optionIndentation,
+                 descriptionIndentation);
+    formatOption(str,
                  QLatin1String(OptionsParser::NO_CRASHCHECK_OPTION),
                  QString(),
                  QLatin1String("Disable startup check for previously crashed instance"),
@@ -932,9 +940,16 @@ PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
 
 void PluginManagerPrivate::nextDelayedInitialize()
 {
+    static bool first = true;
+    if (first) {
+        first = false;
+        NANOTRACE_BEGIN("ExtensionSystem", "DelayedInitialize");
+    }
     while (!delayedInitializeQueue.empty()) {
         PluginSpec *spec = delayedInitializeQueue.front();
+        const std::string specName = spec->name().toStdString();
         delayedInitializeQueue.pop();
+        NANOTRACE_SCOPE(specName, specName + "::delayedInitialized");
         profilingReport(">delayedInitialize", spec);
         bool delay = spec->d->delayedInitialize();
         profilingReport("<delayedInitialize", spec, &spec->d->performanceData.delayedInitialize);
@@ -948,6 +963,8 @@ void PluginManagerPrivate::nextDelayedInitialize()
         if (m_profileTimer)
             m_totalStartupMS = m_profileTimer->elapsed();
         printProfilingSummary();
+        NANOTRACE_END("ExtensionSystem", "DelayedInitialize");
+        NANOTRACE_SHUTDOWN();
         emit q->initializationDone();
 #ifdef WITH_TESTS
         if (PluginManager::testRunRequested())
@@ -1340,23 +1357,32 @@ void PluginManagerPrivate::loadPlugins()
 
     const QVector<PluginSpec *> queue = loadQueue();
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsLoading);
-    for (PluginSpec *spec : queue)
-        loadPlugin(spec, PluginSpec::Loaded);
+    {
+        NANOTRACE_SCOPE("ExtensionSystem", "Load");
+        for (PluginSpec *spec : queue)
+            loadPlugin(spec, PluginSpec::Loaded);
+    }
 
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsInitializing);
-    for (PluginSpec *spec : queue)
-        loadPlugin(spec, PluginSpec::Initialized);
+    {
+        NANOTRACE_SCOPE("ExtensionSystem", "Initialize");
+        for (PluginSpec *spec : queue)
+            loadPlugin(spec, PluginSpec::Initialized);
+    }
 
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
-    Utils::reverseForeach(queue, [this](PluginSpec *spec) {
-        loadPlugin(spec, PluginSpec::Running);
-        if (spec->state() == PluginSpec::Running) {
-            delayedInitializeQueue.push(spec);
-        } else {
-            // Plugin initialization failed, so cleanup after it
-            spec->d->kill();
-        }
-    });
+    {
+        NANOTRACE_SCOPE("ExtensionSystem", "ExtensionsInitialized");
+        Utils::reverseForeach(queue, [this](PluginSpec *spec) {
+            loadPlugin(spec, PluginSpec::Running);
+            if (spec->state() == PluginSpec::Running) {
+                delayedInitializeQueue.push(spec);
+            } else {
+                // Plugin initialization failed, so cleanup after it
+                spec->d->kill();
+            }
+        });
+    }
     emit q->pluginsChanged();
     Utils::setMimeStartupPhase(MimeStartupPhase::UpAndRunning);
 
@@ -1582,14 +1608,18 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     if (enableCrashCheck && destState < PluginSpec::Stopped)
         lockFile.reset(new LockFile(this, spec));
 
+    const std::string specName = spec->name().toStdString();
+
     switch (destState) {
-    case PluginSpec::Running:
+    case PluginSpec::Running: {
+        NANOTRACE_SCOPE(specName, specName + "::extensionsInitialized");
         profilingReport(">initializeExtensions", spec);
         spec->d->initializeExtensions();
         profilingReport("<initializeExtensions",
                         spec,
                         &spec->d->performanceData.extensionsInitialized);
         return;
+    }
     case PluginSpec::Deleted:
         profilingReport(">delete", spec);
         spec->d->kill();
@@ -1613,16 +1643,20 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         }
     }
     switch (destState) {
-    case PluginSpec::Loaded:
+    case PluginSpec::Loaded: {
+        NANOTRACE_SCOPE(specName, specName + "::load");
         profilingReport(">loadLibrary", spec);
         spec->d->loadLibrary();
         profilingReport("<loadLibrary", spec, &spec->d->performanceData.load);
         break;
-    case PluginSpec::Initialized:
+    }
+    case PluginSpec::Initialized: {
+        NANOTRACE_SCOPE(specName, specName + "::initialize");
         profilingReport(">initializePlugin", spec);
         spec->d->initializePlugin();
         profilingReport("<initializePlugin", spec, &spec->d->performanceData.initialize);
         break;
+    }
     case PluginSpec::Stopped:
         profilingReport(">stop", spec);
         if (spec->d->stop() == IPlugin::AsynchronousShutdown) {
@@ -1762,6 +1796,17 @@ void PluginManagerPrivate::increaseProfilingVerbosity()
     m_profilingVerbosity++;
     if (!m_profileTimer)
         PluginManager::startProfiling();
+}
+
+void PluginManagerPrivate::enableTracing(const QString &filePath)
+{
+    const QString jsonFilePath = filePath.endsWith(".json") ? filePath : filePath + ".json";
+#ifdef NANOTRACE_ENABLED
+    qDebug() << "Trace event file (CTF) will be saved at" << qPrintable(jsonFilePath);
+#endif
+    NANOTRACE_INIT(QCoreApplication::applicationName().toStdString(),
+                   "Main",
+                   jsonFilePath.toStdString());
 }
 
 void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *spec, qint64 *target)

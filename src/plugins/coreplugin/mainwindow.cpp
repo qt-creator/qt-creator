@@ -64,6 +64,8 @@
 #include <utils/terminalcommand.h>
 #include <utils/utilsicons.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QAbstractProxyModel>
 #include <QActionGroup>
 #include <QApplication>
@@ -1549,6 +1551,7 @@ QPrinter *MainWindow::printer() const
 
 void MainWindow::restoreWindowState()
 {
+    NANOTRACE_SCOPE("Core", "MainWindow::restoreWindowState");
     QSettings *settings = PluginManager::settings();
     settings->beginGroup(QLatin1String(settingsGroup));
     if (!restoreGeometry(settings->value(QLatin1String(windowGeometryKey)).toByteArray()))

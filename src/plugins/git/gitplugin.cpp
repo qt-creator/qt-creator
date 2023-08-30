@@ -61,6 +61,8 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
@@ -680,6 +682,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     auto cmdContext = new QObject(this);
     connect(ICore::instance(), &ICore::coreOpened, cmdContext, [this, cmdContext, arguments] {
+        NANOTRACE_SCOPE("Git", "GitPlugin::initialize::coreOpened");
         remoteCommand(arguments, QDir::currentPath(), {});
         cmdContext->deleteLater();
     });

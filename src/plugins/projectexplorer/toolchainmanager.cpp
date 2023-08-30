@@ -16,6 +16,8 @@
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QSettings>
 
 using namespace Utils;
@@ -102,6 +104,7 @@ ToolChainManager *ToolChainManager::instance()
 
 void ToolChainManager::restoreToolChains()
 {
+    NANOTRACE_SCOPE("ProjectExplorer", "ToolChainManager::restoreToolChains");
     QTC_ASSERT(!d->m_accessor, return);
     d->m_accessor = std::make_unique<Internal::ToolChainSettingsAccessor>();
 

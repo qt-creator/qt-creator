@@ -49,6 +49,8 @@
 
 #include <qtsupport/qtversionmanager.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QTimer>
 
 using namespace ProjectExplorer;
@@ -141,6 +143,7 @@ void AndroidPlugin::kitsRestored()
 
 void AndroidPlugin::askUserAboutAndroidSetup()
 {
+    NANOTRACE_SCOPE("Android", "AndroidPlugin::askUserAboutAndroidSetup");
     if (!Core::ICore::infoBar()->canInfoBeAdded(kSetupAndroidSetting))
         return;
 

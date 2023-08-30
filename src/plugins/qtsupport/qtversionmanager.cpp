@@ -24,6 +24,8 @@
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QDir>
 #include <QFile>
 #include <QLoggingCategory>
@@ -141,8 +143,11 @@ QtVersionManagerImpl &qtVersionManagerImpl()
 
 void QtVersionManagerImpl::triggerQtVersionRestore()
 {
-    disconnect(ToolChainManager::instance(), &ToolChainManager::toolChainsLoaded,
-               this, &QtVersionManagerImpl::triggerQtVersionRestore);
+    NANOTRACE_SCOPE("QtSupport", "QtVersionManagerImpl::triggerQtVersionRestore");
+    disconnect(ToolChainManager::instance(),
+               &ToolChainManager::toolChainsLoaded,
+               this,
+               &QtVersionManagerImpl::triggerQtVersionRestore);
 
     bool success = restoreQtVersions();
     updateFromInstaller(false);
@@ -153,8 +158,10 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
         findSystemQt();
     }
 
-    emit QtVersionManager::instance()->qtVersionsLoaded();
-
+    {
+        NANOTRACE_SCOPE("QtSupport", "QtVersionManagerImpl::qtVersionsLoaded");
+        emit QtVersionManager::instance()->qtVersionsLoaded();
+    }
     emit QtVersionManager::instance()->qtVersionsChanged(
         m_versions.keys(), QList<int>(), QList<int>());
 

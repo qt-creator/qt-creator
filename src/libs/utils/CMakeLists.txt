@@ -276,6 +276,11 @@ extend_qtc_library(Utils
           fsengine/filepathinfocache.h
 )
 
+extend_qtc_library(Utils
+  CONDITION TARGET Nanotrace
+  DEPENDS Nanotrace
+)
+
 if (WIN32)
   add_qtc_executable(qtcreator_ctrlc_stub
     DEPENDS user32 shell32

@@ -45,6 +45,8 @@
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QAbstractListModel>
 #include <QApplication>
 #include <QDesktopServices>
@@ -559,6 +561,8 @@ void StudioWelcomePlugin::extensionsInitialized()
 
     if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
+            NANOTRACE_SCOPE("StudioWelcome",
+                            "StudioWelcomePlugin::extensionsInitialized::coreOpened");
             Core::ModeManager::setModeStyle(Core::ModeManager::Style::Hidden);
             if (Utils::HostOsInfo::isMacHost()) {
                 s_viewWindow = new QQuickView(Core::ICore::mainWindow()->windowHandle());
