@@ -459,7 +459,8 @@ bool PersistentSettingsWriter::write(const Store &data, QString *errorString) co
         const Store::const_iterator cend = data.constEnd();
         for (Store::const_iterator it =  data.constBegin(); it != cend; ++it) {
             w.writeStartElement(ctx.dataElement);
-            w.writeTextElement(ctx.variableElement, it.key());
+            // FIXME: stringFromKey() not needed from Qt 6.5 onward.
+            w.writeTextElement(ctx.variableElement, stringFromKey(it.key()));
             writeVariantValue(w, ctx, it.value());
             w.writeEndElement();
         }
