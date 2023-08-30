@@ -427,7 +427,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             Utils::FilePath targetFile = qmlFilePath.pathAppended(sourceFile.fileName());
             // We don't want to overwrite existing default files
             if (!targetFile.exists() && !sourceFile.copyFile(targetFile))
-                qWarning() << QStringLiteral("Copying extra file '%1' failed.").arg(copyFileStr);
+                qWarning() << QStringView(u"Copying extra file '%1' failed.").arg(copyFileStr);
         }
     }
 

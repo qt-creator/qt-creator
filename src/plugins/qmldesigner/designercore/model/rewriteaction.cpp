@@ -11,6 +11,7 @@
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 using namespace QmlDesigner;
+using namespace Qt::StringLiterals;
 
 namespace { // anonymous
 
@@ -21,35 +22,37 @@ QString toInfo(const Import &import)
     if (import.isEmpty()) {
         return QStringLiteral("empty import");
     } else if (import.isFileImport()) {
-        txt = QStringLiteral("import file \"%1\"");
-        txt = txt.arg(import.url());
+        txt = QStringView(u"import file \"%1\"").arg(import.url());
     } else if (import.isLibraryImport()) {
-        txt = QStringLiteral("import library \"%1\"");
-        txt = txt.arg(import.file());
+        txt = QStringView(u"import library \"%1\"").arg(import.file());
     } else {
         return QStringLiteral("unknown type of import");
     }
 
     if (import.hasVersion())
-        txt += QStringLiteral("with version \"%1\"").arg(import.version());
+        txt += QStringView(u"with version \"%1\"").arg(import.version());
     else
-        txt += QStringLiteral("without version");
+        txt += QStringView(u"without version");
 
     if (import.hasAlias())
-        txt += QStringLiteral("aliassed as \"%1\"").arg(import.alias());
+        txt += QStringView(u"aliassed as \"%1\"").arg(import.alias());
     else
-        txt += QStringLiteral("unaliassed");
+        txt += QStringView(u"unaliassed");
 
     return txt;
 }
 
-QString toString(QmlRefactoring::PropertyType type)
+QStringView toString(QmlRefactoring::PropertyType type)
 {
     switch (type) {
-        case QmlRefactoring::ArrayBinding:  return QStringLiteral("array binding");
-        case QmlRefactoring::ObjectBinding: return QStringLiteral("object binding");
-        case QmlRefactoring::ScriptBinding: return QStringLiteral("script binding");
-        default:                            return QStringLiteral("UNKNOWN");
+    case QmlRefactoring::ArrayBinding:
+        return QStringView(u"array binding");
+    case QmlRefactoring::ObjectBinding:
+        return QStringView(u"object binding");
+    case QmlRefactoring::ScriptBinding:
+        return QStringView(u"script binding");
+    default:
+        return QStringView(u"UNKNOWN");
     }
 }
 
@@ -85,11 +88,8 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
 
             if (!result) {
                 qDebug() << "*** AddPropertyRewriteAction::execute failed in addProperty("
-                         << nodeLocation << ','
-                         << m_property.name() << ','
-                         << m_valueText << ","
-                         << qPrintable(toString(m_propertyType)) << ") **"
-                         << info();
+                         << nodeLocation << ',' << m_property.name() << ',' << m_valueText << ","
+                         << toString(m_propertyType) << ") **" << info();
             }
         }
 
@@ -101,12 +101,15 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
 
 QString AddPropertyRewriteAction::info() const
 {
-    return QString(QStringLiteral("AddPropertyRewriteAction for property \"%1\" (type: %2) of node \"%3\" with value >>%4<< and contained object \"%5\""))
-             .arg(QString::fromUtf8(m_property.name()),
-                  toString(m_propertyType),
-                  (m_property.parentModelNode().isValid() ? m_property.parentModelNode().id() : QLatin1String("(invalid)")),
-                  QString(m_valueText).replace(QLatin1Char('\n'), QLatin1String("\\n")),
-                  (m_containedModelNode.isValid() ? m_containedModelNode.id() : QString(QStringLiteral("(none)"))));
+    return QStringView(u"AddPropertyRewriteAction for property \"%1\" (type: %2) of node \"%3\" "
+                       u"with value >>%4<< and contained object \"%5\"")
+        .arg(QString::fromUtf8(m_property.name()),
+             toString(m_propertyType),
+             (m_property.parentModelNode().isValid() ? m_property.parentModelNode().id()
+                                                     : QLatin1String("(invalid)")),
+             QString(m_valueText).replace(QLatin1Char('\n'), QLatin1String("\\n")),
+             (m_containedModelNode.isValid() ? m_containedModelNode.id()
+                                             : QString(QStringLiteral("(none)"))));
 }
 
 bool ChangeIdRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -152,7 +155,7 @@ bool ChangeIdRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositi
 
 QString ChangeIdRewriteAction::info() const
 {
-    return QString(QStringLiteral("ChangeIdRewriteAction from \"%1\" to \"%2\"")).arg(m_oldId, m_newId);
+    return QStringView(u"ChangeIdRewriteAction from \"%1\" to \"%2\"").arg(m_oldId, m_newId);
 }
 
 bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -189,11 +192,8 @@ bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNode
 
             if (!result) {
                 qDebug() << "*** ChangePropertyRewriteAction::execute failed in changeProperty("
-                         << nodeLocation << ','
-                         << m_property.name() << ','
-                         << m_valueText << ','
-                         << qPrintable(toString(m_propertyType)) << ") **"
-                         << info();
+                         << nodeLocation << ',' << m_property.name() << ',' << m_valueText << ','
+                         << toString(m_propertyType) << ") **" << info();
             }
         }
 
@@ -205,12 +205,15 @@ bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNode
 
 QString ChangePropertyRewriteAction::info() const
 {
-    return QString(QStringLiteral("ChangePropertyRewriteAction for property \"%1\" (type: %2) of node \"%3\" with value >>%4<< and contained object \"%5\""))
-             .arg(QString::fromUtf8(m_property.name()),
-                  toString(m_propertyType),
-                  (m_property.parentModelNode().isValid() ? m_property.parentModelNode().id() : QLatin1String("(invalid)")),
-                  QString(m_valueText).replace(QLatin1Char('\n'), QLatin1String("\\n")),
-                  (m_containedModelNode.isValid() ? m_containedModelNode.id() : QString(QStringLiteral("(none)"))));
+    return QStringView(u"ChangePropertyRewriteAction for property \"%1\" (type: %2) of node \"%3\" "
+                       u"with value >>%4<< and contained object \"%5\"")
+        .arg(QString::fromUtf8(m_property.name()),
+             toString(m_propertyType),
+             (m_property.parentModelNode().isValid() ? m_property.parentModelNode().id()
+                                                     : QLatin1String("(invalid)")),
+             QString(m_valueText).replace(QLatin1Char('\n'), QLatin1String("\\n")),
+             (m_containedModelNode.isValid() ? m_containedModelNode.id()
+                                             : QString(QStringLiteral("(none)"))));
 }
 
 bool ChangeTypeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -219,7 +222,7 @@ bool ChangeTypeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePosi
     bool result = false;
 
     QString newNodeType = m_node.convertTypeToImportAlias();
-    const int slashIdx = newNodeType.lastIndexOf('.');
+    const int slashIdx = newNodeType.lastIndexOf(u'.');
     if (slashIdx != -1)
         newNodeType = newNodeType.mid(slashIdx + 1);
 
@@ -273,7 +276,8 @@ bool RemovePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNode
 
 QString RemovePropertyRewriteAction::info() const
 {
-    return QStringLiteral("RemovePropertyRewriteAction for property \"%1\"").arg(QString::fromUtf8(m_property.name()));
+    return QStringView(u"RemovePropertyRewriteAction for property \"%1\"")
+        .arg(QString::fromUtf8(m_property.name()));
 }
 
 bool ReparentNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -303,12 +307,13 @@ bool ReparentNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePo
 QString ReparentNodeRewriteAction::info() const
 {
     if (m_node.isValid())
-        return QString(QStringLiteral("ReparentNodeRewriteAction for node \"%1\" into property \"%2\" of node \"%3\""))
-                .arg(m_node.id(),
-                     QString::fromUtf8(m_targetProperty.name()),
-                     m_targetProperty.parentModelNode().id());
+        return QStringView(
+                   u"ReparentNodeRewriteAction for node \"%1\" into property \"%2\" of node \"%3\"")
+            .arg(m_node.id(),
+                 QString::fromUtf8(m_targetProperty.name()),
+                 m_targetProperty.parentModelNode().id());
     else
-        return QLatin1String("ReparentNodeRewriteAction for an invalid node");
+        return "ReparentNodeRewriteAction for an invalid node"_L1;
 }
 
 bool MoveNodeRewriteAction::execute(QmlRefactoring &refactoring,
@@ -335,11 +340,14 @@ QString MoveNodeRewriteAction::info() const
 {
     if (m_movingNode.isValid()) {
         if (m_newTrailingNode.isValid())
-            return QString(QStringLiteral("MoveNodeRewriteAction for node \"%1\" before node \"%2\"")).arg(m_movingNode.id(), m_newTrailingNode.id());
+            return QStringView(u"MoveNodeRewriteAction for node \"%1\" before node \"%2\"")
+                .arg(m_movingNode.id(), m_newTrailingNode.id());
         else
-            return QString(QStringLiteral("MoveNodeRewriteAction for node \"%1\" to the end of its containing property")).arg(m_movingNode.id());
+            return QStringView(u"MoveNodeRewriteAction for node \"%1\" to the end of its "
+                               u"containing property")
+                .arg(m_movingNode.id());
     } else {
-        return QString(QStringLiteral("MoveNodeRewriteAction for an invalid node"));
+        return "MoveNodeRewriteAction for an invalid node"_L1;
     }
 }
 

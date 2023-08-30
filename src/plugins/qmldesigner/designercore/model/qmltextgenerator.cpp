@@ -20,8 +20,9 @@
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
+using namespace Qt::StringLiterals;
 
-inline static QString properColorName(const QColor &color)
+static QString properColorName(const QColor &color)
 {
     if (color.alpha() == 255)
         return QString::asprintf("#%02x%02x%02x", color.red(), color.green(), color.blue());
@@ -29,20 +30,26 @@ inline static QString properColorName(const QColor &color)
         return QString::asprintf("#%02x%02x%02x%02x", color.alpha(), color.red(), color.green(), color.blue());
 }
 
-inline static QString doubleToString(const PropertyName &propertyName, double d)
+static bool isLowPrecisionProperties(PropertyNameView property)
 {
-    static QVector<PropertyName> lowPrecisionProperties
-        = {"width", "height", "x", "y", "rotation", "scale", "opacity"};
+    static constexpr PropertyNameView properties[] = {
+        "width", "height", "x", "y", "rotation", "scale", "opacity"};
+
+    return std::find(std::begin(properties), std::end(properties), property) != std::end(properties);
+}
+
+static QString doubleToString(const PropertyName &propertyName, double d)
+{
     int precision = 5;
     if (propertyName.contains("anchors") || propertyName.contains("font")
-        || lowPrecisionProperties.contains(propertyName))
+        || isLowPrecisionProperties(propertyName))
         precision = 3;
 
     QString string = QString::number(d, 'f', precision);
-    if (string.contains(QLatin1Char('.'))) {
-        while (string.at(string.length()- 1) == QLatin1Char('0'))
+    if (string.contains('.'_L1)) {
+        while (string.at(string.length() - 1) == '0'_L1)
             string.chop(1);
-        if (string.at(string.length()- 1) == QLatin1Char('.'))
+        if (string.at(string.length() - 1) == '.'_L1)
             string.chop(1);
     }
     return string;
@@ -90,23 +97,23 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
             QString result;
             for (int i = 0; i < nodes.length(); ++i) {
                 if (i > 0)
-                    result += QStringLiteral("\n\n");
+                    result += "\n\n"_L1;
                 result += m_tabSettings.indentationString(0, indentDepth, 0);
                 result += toQml(nodes.at(i), indentDepth);
             }
             return result;
         } else {
-            QString result = QStringLiteral("[");
+            QString result = "["_L1;
             const int arrayContentDepth = indentDepth + m_tabSettings.m_indentSize;
-            const QString arrayContentIndentation(arrayContentDepth, QLatin1Char(' '));
+            const QString arrayContentIndentation(arrayContentDepth, ' '_L1);
             for (int i = 0; i < nodes.length(); ++i) {
                 if (i > 0)
-                    result += QLatin1Char(',');
-                result += QLatin1Char('\n');
+                    result += ','_L1;
+                result += '\n'_L1;
                 result += arrayContentIndentation;
                 result += toQml(nodes.at(i), arrayContentDepth);
             }
-            return result + QLatin1Char(']');
+            return result + ']'_L1;
         }
     } else if (property.isVariantProperty()) {
         const VariantProperty variantProperty = property.toVariantProperty();
@@ -126,7 +133,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                     return QStringLiteral("false");
 
             case QMetaType::QColor:
-                return QStringLiteral("\"%1\"").arg(properColorName(value.value<QColor>()));
+                return QStringView(u"\"%1\"").arg(properColorName(value.value<QColor>()));
 
             case QMetaType::Float:
             case QMetaType::Double:
@@ -138,25 +145,22 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                 return stringValue;
             case QMetaType::QString:
             case QMetaType::QChar:
-                return QStringLiteral("\"%1\"").arg(escape(unicodeEscape(stringValue)));
+                return QStringView(u"\"%1\"").arg(escape(unicodeEscape(stringValue)));
             case QMetaType::QVector2D: {
                 auto vec = value.value<QVector2D>();
-                return QStringLiteral("Qt.vector2d(%1, %2)").arg(vec.x()).arg(vec.y());
+                return QStringLiteral("Qt.vector2d(%1, %2)").arg(vec.x(), vec.y());
             }
             case QMetaType::QVector3D: {
                 auto vec = value.value<QVector3D>();
-                return QStringLiteral("Qt.vector3d(%1, %2, %3)").arg(vec.x()).arg(vec.y()).arg(vec.z());
+                return QStringLiteral("Qt.vector3d(%1, %2, %3)").arg(vec.x(), vec.y(), vec.z());
             }
             case QMetaType::QVector4D: {
                 auto vec = value.value<QVector4D>();
                 return QStringLiteral("Qt.vector4d(%1, %2, %3, %4)")
-                    .arg(vec.x())
-                    .arg(vec.y())
-                    .arg(vec.z())
-                    .arg(vec.w());
+                    .arg(vec.x(), vec.y(), vec.z(), vec.w());
             }
             default:
-                return QStringLiteral("\"%1\"").arg(escape(stringValue));
+                return QStringView(u"\"%1\"").arg(escape(stringValue));
             }
         }
     } else {
@@ -205,8 +209,7 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
 
     const QString properties = propertiesToQml(node, propertyIndentDepth);
 
-    return result + properties + m_tabSettings.indentationString(0, indentDepth, 0)
-           + QLatin1Char('}');
+    return result + properties + m_tabSettings.indentationString(0, indentDepth, 0) + '}'_L1;
 }
 
 QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth) const
@@ -224,7 +227,7 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
                 QString idLine = m_tabSettings.indentationString(0, indentDepth, 0);
                 idLine += QStringLiteral("id: ");
                 idLine += node.id();
-                idLine += QLatin1Char('\n');
+                idLine += '\n'_L1;
 
                 if (addToTop)
                     topPart.append(idLine);
@@ -258,25 +261,19 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
         result = toQml(property, indentDepth);
     } else {
         if (property.isDynamic()) {
-            result = m_tabSettings.indentationString(0, indentDepth, 0)
-                    + QStringLiteral("property ")
-                    + QString::fromUtf8(property.dynamicTypeName())
-                    + QStringLiteral(" ")
-                    + QString::fromUtf8(property.name())
-                    + QStringLiteral(": ")
-                    + toQml(property, indentDepth);
+            result = m_tabSettings.indentationString(0, indentDepth, 0) + "property "_L1
+                     + QString::fromUtf8(property.dynamicTypeName()) + " "_L1
+                     + QString::fromUtf8(property.name()) + ": "_L1 + toQml(property, indentDepth);
         } else if (property.isSignalDeclarationProperty()) {
             result = m_tabSettings.indentationString(0, indentDepth, 0) + "signal" + " "
-                     + QString::fromUtf8(property.name()) + " " + toQml(property, indentDepth);
+                     + QString::fromUtf8(property.name()) + " "_L1 + toQml(property, indentDepth);
         } else {
             result = m_tabSettings.indentationString(0, indentDepth, 0)
-                    + QString::fromUtf8(property.name())
-                    + QStringLiteral(": ")
-                    + toQml(property, indentDepth);
+                     + QString::fromUtf8(property.name()) + ": "_L1 + toQml(property, indentDepth);
         }
     }
 
-    result += QLatin1Char('\n');
+    result += '\n'_L1;
 
     return result;
 }

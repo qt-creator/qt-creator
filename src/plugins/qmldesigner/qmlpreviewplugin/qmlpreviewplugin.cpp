@@ -65,8 +65,8 @@ QmlPreviewWidgetPlugin::QmlPreviewWidgetPlugin()
     m_previewToggleAction = previewAction->action();
 
     Core::Context globalContext;
-    auto registerCommand = [&globalContext](ActionInterface *action){
-        const QString id = QStringLiteral("QmlPreview.%1").arg(QString::fromLatin1(action->menuId()));
+    auto registerCommand = [&globalContext](ActionInterface *action) {
+        const QString id = QStringView(u"QmlPreview.%1").arg(QString::fromLatin1(action->menuId()));
         Core::Command *cmd = Core::ActionManager::registerAction(action->action(),
                                                                  id.toLatin1().constData(),
                                                                  globalContext);

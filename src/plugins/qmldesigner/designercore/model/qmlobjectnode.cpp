@@ -541,13 +541,16 @@ QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &
 
     if (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
         switch (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
-        case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(escapedText);
-        case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(escapedText);
-        case 2: return QString(QStringLiteral("qsTranslate(\"%1\", \"context\")")).arg(escapedText);
+        case 0:
+             return QStringView(u"qsTr(\"%1\")").arg(escapedText);
+        case 1:
+             return QStringView(u"qsTrId(\"%1\")").arg(escapedText);
+        case 2:
+             return QStringView(u"qsTranslate(\"%1\", \"context\")").arg(escapedText);
         default:
             break;
         }
-    return QString(QStringLiteral("qsTr(\"%1\")")).arg(escapedText);
+    return QStringView(u"qsTr(\"%1\")").arg(escapedText);
 }
 
 QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)

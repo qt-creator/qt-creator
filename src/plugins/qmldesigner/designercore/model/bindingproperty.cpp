@@ -8,6 +8,8 @@
 #include "model.h"
 #include "model_p.h"
 
+using namespace Qt::StringLiterals;
+
 namespace QmlDesigner {
 
 bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingProperty01, const QmlDesigner::BindingProperty &bindingProperty02)
@@ -120,7 +122,7 @@ ModelNode BindingProperty::resolveToModelNode() const
 
 inline static QStringList commaSeparatedSimplifiedStringList(const QString &string)
 {
-    const QStringList stringList = string.split(QStringLiteral(","));
+    const QStringList stringList = string.split(","_L1);
     QStringList simpleList;
     for (const QString &simpleString : stringList)
         simpleList.append(simpleString.simplified());

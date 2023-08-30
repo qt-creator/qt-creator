@@ -56,7 +56,7 @@ protected:
 
     static bool isInHierarchy(const AbstractProperty &property);
 
-    void dumpRewriteActions(const QString &msg);
+    void dumpRewriteActions(QStringView msg);
 
 private:
     RewriterView *m_rewriterView;

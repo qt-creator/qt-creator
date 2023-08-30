@@ -1779,7 +1779,7 @@ QString Model::generateNewId(const QString &prefixName,
 
     int counter = 0;
 
-    QString newBaseId = QString(QStringLiteral("%1")).arg(firstCharToLower(prefixName));
+    QString newBaseId = QStringView(u"%1").arg(firstCharToLower(prefixName));
     newBaseId.remove(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_]")));
 
     if (!newBaseId.isEmpty()) {
@@ -1798,7 +1798,7 @@ QString Model::generateNewId(const QString &prefixName,
     while (!ModelNode::isValidId(newId) || isDuplicate.value()(newId)
            || d->rootNode()->property(newId.toUtf8())) {
         ++counter;
-        newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(newBaseId)).arg(counter);
+        newId = QStringView(u"%1%2").arg(firstCharToLower(newBaseId)).arg(counter);
     }
 
     return newId;
