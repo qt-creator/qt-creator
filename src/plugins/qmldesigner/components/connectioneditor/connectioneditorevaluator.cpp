@@ -1057,7 +1057,7 @@ void ConnectionEditorEvaluator::endVisit([[maybe_unused]] QmlJS::AST::CallExpres
     d->m_acceptLogArgument = false;
 }
 
-void ConnectionEditorEvaluator::endVisit(QmlJS::AST::IfStatement *ifStatement)
+void ConnectionEditorEvaluator::endVisit(QmlJS::AST::IfStatement * /*ifStatement*/)
 {
     if (status() != UnFinished)
         return;
@@ -1070,7 +1070,7 @@ void ConnectionEditorEvaluator::endVisit(QmlJS::AST::IfStatement *ifStatement)
     }
 }
 
-void ConnectionEditorEvaluator::endVisit(QmlJS::AST::StatementList *statementList)
+void ConnectionEditorEvaluator::endVisit(QmlJS::AST::StatementList * /*statementList*/)
 {
     if (status() != UnFinished)
         return;

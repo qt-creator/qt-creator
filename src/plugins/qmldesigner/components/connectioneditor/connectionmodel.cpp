@@ -1425,7 +1425,7 @@ ConditionListModel::ConditionListModel(ConnectionModel *parent)
     : m_connectionModel(parent), m_condition(emptyCondition)
 {}
 
-int ConditionListModel::rowCount(const QModelIndex &parent) const
+int ConditionListModel::rowCount(const QModelIndex & /*parent*/) const
 {
     return m_tokens.size();
 }

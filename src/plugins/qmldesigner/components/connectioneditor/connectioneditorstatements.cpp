@@ -316,7 +316,6 @@ MatchedStatement &ConnectionEditorStatements::okStatement(
     ConnectionEditorStatements::Handler &handler)
 {
     MatchedStatement statement;
-    std::visit([statement](auto &test) { return statement; }, handler);
 
     return std::visit(Overload{[](ConnectionEditorStatements::MatchedStatement &var)
                                    -> MatchedStatement & { return var; },
