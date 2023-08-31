@@ -155,7 +155,7 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
     } // exists
 
     const QtVersions vs = versions();
-    qtVersionManagerImpl().updateDocumentation(vs, {}, vs);
+    updateDocumentation(vs, {}, vs);
 }
 
 bool QtVersionManager::isLoaded()
@@ -650,7 +650,7 @@ void QtVersionManagerImpl::setNewQtVersions(const QtVersions &newVersions)
     saveQtVersions();
 
     if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
-        emit qtVersionManagerImpl().qtVersionsChanged(addedIds, removedIds, changedIds);
+        emit qtVersionsChanged(addedIds, removedIds, changedIds);
 }
 
 void QtVersionManager::setDocumentationSetting(const QtVersionManager::DocumentationSetting &setting)
