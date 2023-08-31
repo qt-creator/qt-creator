@@ -146,7 +146,7 @@
     /global/genericfilewizard.png" not found.
     \endcode
 
-    See \l{Using Command Line Options} for more information about command line
+    See \l{Command Line Options} for more information about command line
     arguments.
 
     \include creator-projects-custom-wizards-json.qdocinc json wizards

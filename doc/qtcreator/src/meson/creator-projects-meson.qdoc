@@ -1,21 +1,23 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-project-nimble.html
     \page creator-project-meson.html
-    \nextpage creator-project-incredibuild.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Setting Up Meson
+
+    \brief Use Meson to build native desktop applications.
 
     \l{https://mesonbuild.com/}{Meson} is an open source and multi-platform build
     system generator using Ninja as main backend. Build definitions are located
     in \c {meson.build} files while build options are located in
     \c {meson_options.txt}.
 
-    Meson build support in \QC is not mature yet, you can only use it to build
-    native desktop applications. Many features available with Meson build or
-    usually available from \QC are missing.
+    \note Many features available with Meson build or usually available from \QC
+    are missing.
 
     \QC automatically detects the Meson and Ninja executables specified in the
     \c PATH. You can add paths to other Meson or Ninja executables and use them
@@ -84,11 +86,5 @@
         \li Adding files to Meson projects from \QC.
     \endlist
 
-    \section1 Related Topics
-
-    \list
-        \li \l {Open projects}
-        \li \l {Meson Build Configuration}
-        \li \l {Specifying Run Settings}
-    \endlist
+    \sa {Open projects}, {Meson Build Configuration}, {Specifying Run Settings}
 */

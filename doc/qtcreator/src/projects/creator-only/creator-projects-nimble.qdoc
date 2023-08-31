@@ -2,11 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-project-generic.html
     \page creator-project-nimble.html
-    \nextpage creator-project-meson.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Setting Up Nimble
+
+    \brief The Nimble package manager generates Nim application
+    executables that are supported on Windows, Linux, and \macos.
 
     \l {https://github.com/nim-lang/nimble#readme}{Nimble} is a package
     manager for the Nim programming language. It is delivered with

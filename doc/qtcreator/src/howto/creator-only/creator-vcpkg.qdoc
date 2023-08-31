@@ -3,13 +3,16 @@
 
 /*!
     \page creator-vcpkg.html
-    \previouspage creator-project-conan.html
-    \nextpage creator-cli.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Managing Packages with vcpkg
 
-    The experimental vcpkg plugin integrates the \l {https://vcpkg.io/en/}{vcpkg}
-    C/C++ package manager into \QC. It's available on all the
+    \brief The experimental vcpkg plugin integrates the vcpkg C/C++ package
+    manager into \QC.
+
+    \l {https://vcpkg.io/en/}{vcpkg} is available on all the
     \l{Supported Platforms}{supported development platforms}.
 
     You can use \QC to create and edit vcpkg.json files to specify packages to

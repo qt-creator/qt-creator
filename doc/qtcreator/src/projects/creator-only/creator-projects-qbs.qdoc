@@ -1,12 +1,17 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-project-cmake.html
     \page creator-project-qbs.html
-    \nextpage creator-projects-autotools.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Setting Up Qbs
+
+    \brief \l{Qbs Manual}{Qbs} is an all-in-one build tool that generates a build
+    graph from a high-level project description (like qmake or CMake do) and
+    executes the commands in the low-level build graph (like make does).
 
     To use Qbs to build a project, you must create a .qbs file for the project.
     You can use \QC to create a C or C++ project that is built with Qbs.

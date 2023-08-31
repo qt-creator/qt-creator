@@ -10,6 +10,15 @@
 
     \annotatedlist creator-reference
 
+    \section1 Build Systems
+
+    Most \QC project wizards enable you to choose the build system to use for
+    building the project: qmake, CMake, Meson, or Qbs. qmake is installed and
+    configured when you install Qt. To use one of the other supported build
+    systems, you need to set it up.
+
+    \annotatedlist creator-reference-build-systems
+
     \section1 Sidebar Views
 
     \annotatedlist creator-reference-sidebar-views

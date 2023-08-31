@@ -8,11 +8,15 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-project-other.html
     \page creator-project-cmake.html
-    \nextpage creator-project-qbs.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Setting Up CMake
+
+    \brief CMake is an alternative to qmake for automating the generation of
+    build systems.
 
     CMake automates the configuration of build systems. It controls the software
     compilation process by using simple
@@ -212,12 +216,6 @@
     Syntax completion and highlighting work once your project successfully
     builds and links against the external library.
 
-    \section1 Related Topics
-
-    \list
-        \li \l {Open projects}
-        \li \l {CMake Build Configuration}
-        \li \l {Specifying Run Settings}
-        \li \l {Deploying to Remote Linux}
-    \endlist
+    \sa {Open projects}, {CMake Build Configuration}, {Specifying Run Settings},
+     {Deploying to Remote Linux}
 */

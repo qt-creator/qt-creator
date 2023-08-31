@@ -3,10 +3,13 @@
 
 /*!
     \page creator-project-conan.html
-    \previouspage creator-project-incredibuild.html
-    \nextpage creator-vcpkg.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Setting Up Conan
+
+    \brief The experimental Conan plugin integrates the Conan package manager.
 
     \l {https://conan.io}{Conan} is a C/C++ package manager that speeds up the
     integration of C or C++ libraries into your own project. It's available on

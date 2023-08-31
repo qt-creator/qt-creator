@@ -13,13 +13,14 @@
     \previouspage creator-project-managing-sessions.html
     \nextpage studio-projects.html
     \else
-    \previouspage creator-cli.html
-    \nextpage creator-editor-external.html
+    \previouspage creator-reference.html
     \endif
 
     \ingroup creator-reference
 
     \title Keyboard Shortcuts
+
+    \brief Default keyboard shortcuts.
 
     \QC has various keyboard shortcuts that speed up your development process.
     To view all \QC functions in and their keyboard shortcuts, select

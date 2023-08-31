@@ -3,10 +3,14 @@
 
 /*!
     \page creator-desktop-platforms.html
-    \previouspage creator-os-supported-platforms.html
-    \nextpage creator-embedded-platforms.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
 
     \title Desktop Platforms
+
+    \brief Requirements for operating systems that you can install and run \QC
+    on.
 
     \QC is available in binary packages for the following operating systems:
 
@@ -66,4 +70,6 @@
 
     To build \QC from the source, see the requirements and instructions in the
     readme file that is located in the source repository.
+
+    \sa {Supported Platforms}
 */
