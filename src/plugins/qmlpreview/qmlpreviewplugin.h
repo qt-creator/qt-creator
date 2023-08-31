@@ -54,6 +54,7 @@ public:
     QString previewedFile() const;
     void setPreviewedFile(const QString &previewedFile);
     QmlPreviewRunControlList runningPreviews() const;
+    void stopAllPreviews();
 
     void setFileLoader(QmlPreviewFileLoader fileLoader);
     QmlPreviewFileLoader fileLoader() const;

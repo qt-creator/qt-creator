@@ -237,6 +237,12 @@ QmlPreviewRunControlList QmlPreviewPlugin::runningPreviews() const
     return d->m_runningPreviews;
 }
 
+void QmlPreviewPlugin::stopAllPreviews()
+{
+    for (auto &runningPreview : d->m_runningPreviews)
+        runningPreview->initiateStop();
+}
+
 QmlPreviewFileLoader QmlPreviewPlugin::fileLoader() const
 {
     return d->m_settings.fileLoader;
