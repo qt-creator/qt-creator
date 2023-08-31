@@ -456,6 +456,13 @@ void TestCodeParser::onFinished(bool success)
             emit parsingFinished();
             qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "ParsingFin";
             qCDebug(LOG) << "Parsing took:" << m_parsingTimer.elapsed() << "ms";
+            if (LOG().isInfoEnabled()) {
+                qCInfo(LOG).noquote().nospace()
+                        << "Current test tree:" << TestTreeModel::instance()->report(true);
+            } else {
+                qCDebug(LOG).noquote().nospace()
+                        << "Current test tree:" << TestTreeModel::instance()->report(false);
+            }
         }
         m_dirty = false;
         break;
@@ -497,6 +504,12 @@ void TestCodeParser::onPartialParsingFinished()
             m_updateParsers.clear();
             emit parsingFinished();
             qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "ParsingFin";
+            if (LOG().isDebugEnabled()) {
+                QMetaObject::invokeMethod(this, [] { // sweep() needs to be processed before logging
+                    qCDebug(LOG).noquote().nospace()
+                            << "Current test tree:" << TestTreeModel::instance()->report(false);
+                }, Qt::QueuedConnection);
+            }
         } else {
             qCDebug(LOG) << "not emitting parsingFinished"
                          << "(on PartialParsingFinished, singleshot scheduled)";

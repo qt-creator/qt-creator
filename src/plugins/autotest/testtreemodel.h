@@ -68,6 +68,7 @@ public:
     void markAllFrameworkItemsForRemoval();
     void markForRemoval(const QSet<Utils::FilePath> &filePaths);
     void sweep();
+    QString report(bool full) const;
 
 signals:
     void testTreeModelChanged();
@@ -117,6 +118,7 @@ public:
     void toggleFilter(FilterMode filterMode);
     static FilterMode toFilterMode(int f);
 
+    QString report() const;
 protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const final;
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const final;
