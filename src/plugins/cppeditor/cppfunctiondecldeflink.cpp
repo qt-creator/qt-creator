@@ -9,6 +9,7 @@
 #include "cppeditorwidget.h"
 #include "cpplocalsymbols.h"
 #include "cppquickfixassistant.h"
+#include "cpptoolsreuse.h"
 #include "symbolfinder.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -18,12 +19,14 @@
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>
+#include <cplusplus/declarationcomments.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <utils/async.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QRegularExpression>
@@ -846,6 +849,41 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
                             targetFile->startOf(targetFunctionDeclarator->rparen_token),
                             newTargetParameters);
         }
+
+        // Change parameter names in function documentation.
+        [&] {
+            if (renamedTargetParameters.isEmpty())
+                return;
+            const QList<Token> functionComments = commentsForDeclaration(
+                    targetFunction, targetDeclaration, *targetFile->document(),
+                targetFile->cppDocument());
+            if (functionComments.isEmpty())
+                return;
+            const QString &content = targetFile->document()->toPlainText();
+            const QStringView docView = QStringView(content);
+            for (auto it = renamedTargetParameters.cbegin();
+                 it != renamedTargetParameters.cend(); ++it) {
+                const QString paramName = Overview().prettyName(it.key()->name());
+                for (const Token &tok : functionComments) {
+                    const TranslationUnit * const tu = targetFile->cppDocument()->translationUnit();
+                    const int tokenStartPos = tu->getTokenPositionInDocument(
+                        tok, targetFile->document());
+                    const int tokenEndPos = tu->getTokenEndPositionInDocument(
+                        tok, targetFile->document());
+                    const QStringView tokenView = docView.mid(tokenStartPos,
+                                                              tokenEndPos - tokenStartPos);
+                    const QList<Text::Range> ranges = symbolOccurrencesInText(
+                        *targetFile->document(), tokenView, tokenStartPos, paramName);
+                    for (const Text::Range &r : ranges) {
+                        const int startPos = Text::positionInText(
+                            targetFile->document(), r.begin.line, r.begin.column + 1);
+                        const int endPos = Text::positionInText(
+                            targetFile->document(), r.end.line, r.end.column + 1);
+                        changes.replace(startPos, endPos, it.value());
+                    }
+                }
+            }
+        }();
 
         // for function definitions, rename the local usages
         FunctionDefinitionAST *targetDefinition = targetDeclaration->asFunctionDefinition();
