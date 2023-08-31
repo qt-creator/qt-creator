@@ -283,6 +283,8 @@ void TerminalView::copyToClipboard()
     qCDebug(selectionLog) << "Copied to clipboard: " << text;
 
     setClipboard(text);
+
+    clearSelection();
 }
 
 void TerminalView::pasteFromClipboard()
@@ -310,7 +312,7 @@ std::optional<TerminalView::Selection> TerminalView::selection() const
 void TerminalView::clearSelection()
 {
     setSelection(std::nullopt);
-    d->m_surface->sendKey(Qt::Key_Escape);
+    //d->m_surface->sendKey(Qt::Key_Escape);
 }
 
 void TerminalView::zoomIn()
