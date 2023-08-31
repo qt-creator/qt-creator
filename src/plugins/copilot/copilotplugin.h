@@ -19,6 +19,7 @@ class CopilotPlugin : public ExtensionSystem::IPlugin
 
 public:
     void initialize() override;
+    bool delayedInitialize() override;
     void restartClient();
     ShutdownFlag aboutToShutdown() override;
 

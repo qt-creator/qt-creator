@@ -57,10 +57,6 @@ void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
 
 void CopilotPlugin::initialize()
 {
-    restartClient();
-
-    connect(&settings(), &AspectContainer::applied, this, &CopilotPlugin::restartClient);
-
     QAction *requestAction = new QAction(this);
     requestAction->setText(Tr::tr("Request Copilot Suggestion"));
     requestAction->setToolTip(
@@ -149,6 +145,15 @@ void CopilotPlugin::initialize()
     panelFactory->setDisplayName(Tr::tr("Copilot"));
     panelFactory->setCreateWidgetFunction(&Internal::createCopilotProjectPanel);
     ProjectPanelFactory::registerFactory(panelFactory);
+}
+
+bool CopilotPlugin::delayedInitialize()
+{
+    restartClient();
+
+    connect(&settings(), &AspectContainer::applied, this, &CopilotPlugin::restartClient);
+
+    return true;
 }
 
 void CopilotPlugin::restartClient()
