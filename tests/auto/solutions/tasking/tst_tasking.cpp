@@ -67,6 +67,8 @@ private slots:
     void validConstructs(); // compile test
     void testTree_data();
     void testTree();
+    void storageIO_data();
+    void storageIO();
     void storageOperators();
     void storageDestructor();
 };
@@ -2255,6 +2257,52 @@ void tst_Tasking::testTree()
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
     QCOMPARE(result, testData.onDone);
+}
+
+struct StorageIO
+{
+    int value = 0;
+};
+
+static Group inputOutputRecipe(const TreeStorage<StorageIO> &storage)
+{
+    return Group {
+        Storage(storage),
+        onGroupSetup([storage] { ++storage->value; }),
+        onGroupDone([storage] { storage->value *= 2; })
+    };
+}
+
+void tst_Tasking::storageIO_data()
+{
+    QTest::addColumn<int>("input");
+    QTest::addColumn<int>("output");
+
+    QTest::newRow("-1 -> 0") << -1 << 0;
+    QTest::newRow("0 -> 2") <<  0 << 2;
+    QTest::newRow("1 -> 4") <<  1 << 4;
+    QTest::newRow("2 -> 6") <<  2 << 6;
+}
+
+void tst_Tasking::storageIO()
+{
+    QFETCH(int, input);
+    QFETCH(int, output);
+
+    int actualOutput = 0;
+
+    const TreeStorage<StorageIO> storage;
+    TaskTree taskTree(inputOutputRecipe(storage));
+
+    const auto setInput = [input](StorageIO &storage) { storage.value = input; };
+    const auto getOutput = [&actualOutput](const StorageIO &storage) { actualOutput = storage.value; };
+
+    taskTree.onStorageSetup(storage, setInput);
+    taskTree.onStorageDone(storage, getOutput);
+    taskTree.runBlocking();
+
+    QCOMPARE(taskTree.isRunning(), false);
+    QCOMPARE(actualOutput, output);
 }
 
 void tst_Tasking::storageOperators()
