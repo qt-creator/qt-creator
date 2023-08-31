@@ -40,7 +40,12 @@ public:
 
     static void setColors(AbstractView *view, View3DActionType type, const QList<QColor> &colorConfig)
     {
-        setVariant(view, type, QVariant::fromValue(colorConfig));
+        QVariant param;
+        if (type == View3DActionType::SelectGridColor)
+            param = colorConfig.isEmpty() ? QColor() : colorConfig[0];
+        else
+            param = QVariant::fromValue(colorConfig);
+        setVariant(view, type, param);
     }
 
     template <typename T>

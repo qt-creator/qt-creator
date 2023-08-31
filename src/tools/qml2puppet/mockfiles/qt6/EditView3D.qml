@@ -204,8 +204,8 @@ Item {
             }
         }
 
-        if ("selectGridColor" in viewStates && viewStates.selectGridColor.length === 1)
-            viewRoot.gridColor = viewStates.selectGridColor[0]
+        if ("selectGridColor" in viewStates)
+            viewRoot.gridColor = viewStates.selectGridColor
     }
 
     // If resetToDefault is true, tool states not specifically set to anything will be reset to
