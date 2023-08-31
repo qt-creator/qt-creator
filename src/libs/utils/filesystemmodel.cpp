@@ -1053,10 +1053,8 @@ FileSystemNode *FileSystemModelPrivate::node(const QString &path, bool fetch) co
             elementPath = host;
             elementPath.append(separator);
         } else {
-            if (!pathElements.at(0).contains(QLatin1Char(':'))) {
-                QString rootPath = QDir(longPath).rootPath();
-                pathElements.prepend(rootPath);
-            }
+            if (!pathElements.at(0).contains(QLatin1Char(':')))
+                pathElements.prepend(HostOsInfo::root().path());
             if (pathElements.at(0).endsWith(QLatin1Char('/')))
                 pathElements[0].chop(1);
         }

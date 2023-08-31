@@ -3,7 +3,10 @@
 
 #include "hostosinfo.h"
 
+#include "filepath.h"
 #include "utilstr.h"
+
+#include <QDir>
 
 #if !defined(QT_NO_OPENGL) && defined(QT_GUI_LIB)
 #include <QOpenGLContext>
@@ -21,7 +24,7 @@
 #include <sys/sysctl.h>
 #endif
 
-using namespace Utils;
+namespace Utils {
 
 Qt::CaseSensitivity HostOsInfo::m_overrideFileNameCaseSensitivity = Qt::CaseSensitive;
 bool HostOsInfo::m_useOverrideFileNameCaseSensitivity = false;
@@ -116,3 +119,11 @@ std::optional<quint64> HostOsInfo::totalMemoryInstalledInBytes()
 #endif
     return {};
 }
+
+const FilePath &HostOsInfo::root()
+{
+    static const FilePath rootDir = FilePath::fromUserInput(QDir::rootPath());
+    return rootDir;
+}
+
+} // namespace Utils

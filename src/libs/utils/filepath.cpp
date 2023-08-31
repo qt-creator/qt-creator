@@ -225,7 +225,7 @@ bool FilePath::isRootPath() const
         return true;
     }
 
-    return *this == FilePath::fromString(QDir::rootPath());
+    return *this == HostOsInfo::root();
 }
 
 QString FilePath::encodedHost() const
@@ -986,7 +986,7 @@ const QString &FilePath::specialRootName()
 
 const QString &FilePath::specialRootPath()
 {
-    static const QString rootPath = QDir::rootPath() + u"__qtc_devices__";
+    static const QString rootPath = HostOsInfo::root().path() + u"__qtc_devices__";
     return rootPath;
 }
 
@@ -998,7 +998,7 @@ const QString &FilePath::specialDeviceRootName()
 
 const QString &FilePath::specialDeviceRootPath()
 {
-    static const QString deviceRootPath =  QDir::rootPath() + u"__qtc_devices__/device";
+    static const QString deviceRootPath = HostOsInfo::root().path() + u"__qtc_devices__/device";
     return deviceRootPath;
 }
 

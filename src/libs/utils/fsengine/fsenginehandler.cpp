@@ -71,7 +71,7 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
             return new FSEngineImpl(removeDoubleSlash(fileName));
     }
 
-    if (fixedFileName.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
+    if (fixedFileName.compare(HostOsInfo::root().path(), Qt::CaseInsensitive) == 0)
         return new RootInjectFSEngine(fileName);
 
     return nullptr;

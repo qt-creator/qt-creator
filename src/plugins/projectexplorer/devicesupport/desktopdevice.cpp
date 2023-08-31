@@ -125,7 +125,7 @@ Environment DesktopDevice::systemEnvironment() const
 FilePath DesktopDevice::rootPath() const
 {
     if (id() == DESKTOP_DEVICE_ID)
-        return FilePath::fromParts({}, {}, QDir::rootPath());
+        return HostOsInfo::root();
     return IDevice::rootPath();
 }
 
