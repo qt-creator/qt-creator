@@ -90,7 +90,7 @@ ListView {
                 height: itemDelegate.height
                 color: row.textColor
                 text: target ?? ""
-                anchors.verticalCenter: parent.verticalCenter
+                verticalAlignment: Text.AlignVCenter
                 font.bold: false
                 elide: Text.ElideMiddle
                 leftPadding: listView.rowSpacing
@@ -101,7 +101,7 @@ ListView {
                 height: itemDelegate.height
                 color: row.textColor
                 text: name ?? ""
-                anchors.verticalCenter: parent.verticalCenter
+                verticalAlignment: Text.AlignVCenter
                 font.bold: false
                 elide: Text.ElideMiddle
             }
@@ -111,7 +111,7 @@ ListView {
                 height: itemDelegate.height
                 color: row.textColor
                 text: type ?? ""
-                anchors.verticalCenter: parent.verticalCenter
+                verticalAlignment: Text.AlignVCenter
                 font.bold: false
                 elide: Text.ElideMiddle
             }
@@ -121,7 +121,7 @@ ListView {
                 height: itemDelegate.height
                 color: row.textColor
                 text: value ?? ""
-                anchors.verticalCenter: parent.verticalCenter
+                verticalAlignment: Text.AlignVCenter
                 font.bold: false
                 elide: Text.ElideMiddle
             }
