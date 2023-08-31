@@ -18,6 +18,10 @@ PopupDialog {
             text: qsTr("Target")
             font.pixelSize: StudioTheme.Values.myFontSize
             anchors.verticalCenter: parent.verticalCenter
+            ToolTipArea {
+                anchors.fill: parent
+                tooltip: qsTr("Choose the target for the signal.")
+            }
         }
 
         StudioControls.TopLevelComboBox {

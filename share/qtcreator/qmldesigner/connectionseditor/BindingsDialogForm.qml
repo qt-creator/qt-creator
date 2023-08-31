@@ -5,27 +5,22 @@ import QtQuick
 import QtQuick.Controls
 import StudioControls
 
-Rectangle {
+Item {
     width: 400
     height: 800
-    color: "#1b1b1b"
 
     property var backend
 
-    Text {
-        id: text1
+    PopupLabel {
         x: 10
         y: 25
-        color: "#ffffff"
         text: qsTr("Target")
-        font.pixelSize: 15
     }
 
-    Text {
+    PopupLabel {
         id: text111
         x: 80
         y: 25
-        color: "red"
         text: backend.targetNode
         font.pixelSize: 15
     }
@@ -44,13 +39,10 @@ Rectangle {
         onCurrentTypeIndexChanged: target.currentIndex = target.currentTypeIndex
     }
 
-    Text {
-        id: text2
+    PopupLabel {
         x: 13
         y: 111
-        color: "#ffffff"
         text: qsTr("Source Propety")
-        font.pixelSize: 15
     }
 
     TopLevelComboBox {
@@ -68,12 +60,10 @@ Rectangle {
         onCurrentTypeIndexChanged: sourceNode.currentIndex = sourceNode.currentTypeIndex
     }
 
-    Text {
+    PopupLabel {
         x: 13
         y: 88
-        color: "#ffffff"
         text: qsTr("Source Node")
-        font.pixelSize: 15
     }
 
     TopLevelComboBox {
@@ -90,12 +80,9 @@ Rectangle {
         onCurrentTypeIndexChanged: sourceProperty.currentIndex = sourceProperty.currentTypeIndex
     }
 
-    Text {
-        id: text3
+    PopupLabel {
         x: 10
         y: 55
-        color: "#ffffff"
         text: qsTr("Property")
-        font.pixelSize: 15
     }
 }

@@ -104,6 +104,7 @@ ListView {
                 verticalAlignment: Text.AlignVCenter
                 font.bold: false
                 leftPadding: root.rowSpacing
+                elide: Text.ElideMiddle
             }
 
             Text {
@@ -113,6 +114,7 @@ ListView {
                 color: row.textColor
                 verticalAlignment: Text.AlignVCenter
                 font.bold: false
+                elide: Text.ElideMiddle
             }
 
             Text {
@@ -122,6 +124,7 @@ ListView {
                 verticalAlignment: Text.AlignVCenter
                 color: row.textColor
                 font.bold: false
+                elide: Text.ElideMiddle
             }
 
             Rectangle {

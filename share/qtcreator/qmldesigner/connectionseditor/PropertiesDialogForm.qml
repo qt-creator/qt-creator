@@ -6,19 +6,18 @@ import QtQuick.Controls 2.15
 
 import StudioControls
 
-Rectangle {
+Item {
     width: 400
     height: 800
-    color: "#1b1b1b"
+
     property var backend
 
-    Text {
-        id: text1
+    PopupLabel {
         x: 10
         y: 25
-        color: "#ffffff"
+
         text: qsTr("Type:")
-        font.pixelSize: 15
+
     }
 
     TopLevelComboBox {
@@ -33,20 +32,16 @@ Rectangle {
         onCurrentTypeIndexChanged: target.currentIndex = target.currentTypeIndex
     }
 
-    Text {
-        id: text2
+    PopupLabel {
         x: 10
         y: 131
-        color: "#ffffff"
         text: qsTr("Name")
-        font.pixelSize: 15
     }
 
     TextInput {
         id: name
         x: 70
         y: 131
-        color: "white"
         width: 156
         text: backend.name.text ?? ""
         onEditingFinished: {
@@ -54,17 +49,14 @@ Rectangle {
         }
     }
 
-    Text {
+    PopupLabel {
         x: 10
         y: 81
-        color: "#ffffff"
         text: qsTr("Value")
-        font.pixelSize: 15
     }
 
     TextInput {
         id: value
-        color: "red"
         x: 70
         y: 81
         width: 156

@@ -12,12 +12,23 @@ Window {
 
     property alias titleBar: titleBarContent.children
     default property alias content: mainContent.children
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
     width: 320
     height: column.implicitHeight
     visible: true
     flags: Qt.FramelessWindowHint | Qt.Dialog
     color: StudioTheme.Values.themePopoutBackground
+
+    function ensureVerticalPosition()
+    {
+        if ((window.y + window.height) > (Screen.height - window.style.dialogScreenMargin)) {
+            window.y = (Screen.height - window.height - window.style.dialogScreenMargin)
+        }
+    }
+
+    onHeightChanged: window.ensureVerticalPosition()
+
 
     function popup(item) {
         print("popup " + item)
@@ -27,6 +38,9 @@ Window {
         if (window.x < 0)
             window.x = p.x + item.width + padding
         window.y = p.y
+
+        window.ensureVerticalPosition()
+
         window.show()
         window.raise()
     }

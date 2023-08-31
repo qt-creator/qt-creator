@@ -12,12 +12,16 @@ ListView {
     id: listView
     width: 606
     height: 160
-    interactive: false
+    clip: true
+    interactive: true
     highlightMoveDuration: 0
+    highlightResizeDuration: 0
 
     onVisibleChanged: {
         dialog.hide()
     }
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
 
     property int modelCurrentIndex: listView.model.currentIndex ?? 0
 
@@ -33,6 +37,12 @@ ListView {
         dialog.backend.currentRow = listView.currentIndex
     }
 
+    readonly property int rowSpacing: StudioTheme.Values.toolbarHorizontalMargin
+    readonly property int rowSpace: listView.width - (listView.rowSpacing * 4)
+                                    - listView.style.squareControlSize.width
+    property int rowWidth: listView.rowSpace / 4
+    property int rowRest: listView.rowSpace % 4
+
     data: [
         BindingsDialog {
             id: dialog
@@ -40,10 +50,16 @@ ListView {
             backend: listView.model.delegate
         }
     ]
-    delegate: Item {
+    delegate: Rectangle {
 
-        width: 600
-        height: 18
+        id: itemDelegate
+
+        width: ListView.view.width
+        height: listView.style.squareControlSize.height
+        color: mouseArea.containsMouse ?
+                   itemDelegate.ListView.isCurrentItem ? listView.style.interactionHover
+                                                       : listView.style.background.hover
+                                       : "transparent"
 
         MouseArea {
             id: mouseArea
@@ -59,64 +75,91 @@ ListView {
         }
 
         Row {
-            id: row1
-            x: 0
-            y: 0
-            width: 600
-            height: 16
-            spacing: 10
+            id: row
+
+            height: itemDelegate.height
+            spacing: listView.rowSpacing
+
+            property color textColor: itemDelegate.ListView.isCurrentItem ? listView.style.text.selectedText
+                                                                          : listView.style.icon.idle
 
             Text {
-                width: 120
-                color: "#ffffff"
+                width: listView.rowWidth + listView.rowRest
+                height: itemDelegate.height
+                color: row.textColor
                 text: target ?? ""
                 anchors.verticalCenter: parent.verticalCenter
                 font.bold: false
+                elide: Text.ElideMiddle
+                leftPadding: listView.rowSpacing
             }
 
             Text {
-                width: 120
+                width: listView.rowWidth
+                height: itemDelegate.height
                 text: targetProperty ?? ""
-                color: "#ffffff"
+                color: row.textColor
                 anchors.verticalCenter: parent.verticalCenter
                 font.bold: false
+                elide: Text.ElideMiddle
             }
 
             Text {
-                width: 120
+                width: listView.rowWidth
+                height: itemDelegate.height
                 text: source ?? ""
                 anchors.verticalCenter: parent.verticalCenter
-                color: "#ffffff"
+                color: row.textColor
                 font.bold: false
+                elide: Text.ElideMiddle
             }
 
             Text {
-                width: 120
+                width: listView.rowWidth
+                height: itemDelegate.height
                 text: sourceProperty ?? ""
                 anchors.verticalCenter: parent.verticalCenter
-                color: "#ffffff"
+                color: row.textColor
                 font.bold: false
+                elide: Text.ElideMiddle
             }
 
-            Text {
-                width: 120
+            Rectangle {
+                width: listView.style.squareControlSize.width
+                height: listView.style.squareControlSize.height
 
-                text: "-"
-                anchors.verticalCenter: parent.verticalCenter
-                horizontalAlignment: Text.AlignRight
-                font.pointSize: 14
-                color: "#ffffff"
-                font.bold: true
-                MouseArea {
+                color: toolTipArea.containsMouse ?
+                           itemDelegate.ListView.isCurrentItem ? listView.style.interactionHover
+                                                               : listView.style.background.hover
+                                               : "transparent"
+
+                Text {
+                    anchors.fill: parent
+
+                    text: StudioTheme.Constants.remove_medium
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: listView.style.baseIconFontSize
+
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+
+                    color: row.textColor
+                    renderType: Text.QtRendering
+                }
+
+                HelperWidgets.ToolTipArea {
+                    id: toolTipArea
+                    tooltip: qsTr("This is a test.")
                     anchors.fill: parent
                     onClicked: listView.model.remove(index)
                 }
             }
+
         }
     }
 
     highlight: Rectangle {
-        color: "#2a5593"
+        color: listView.style.interaction
         width: 600
     }
 }
