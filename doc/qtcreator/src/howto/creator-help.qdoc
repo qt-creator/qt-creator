@@ -7,11 +7,12 @@
     \previouspage studio-help.html
     \nextpage studio-faq.html
     \else
-    \previouspage creator-help-overview.html
-    \nextpage creator-faq.html
+    \previouspage creator-how-tos.html
     \endif
 
-    \title Using the Help Mode
+    \ingroup creator-how-to-use
+
+    \title Get help
 
     \QC comes fully integrated with Qt documentation and examples using the Qt
     Help plugin.
@@ -172,11 +173,18 @@
     Punctuation is not included in indexed terms. To find terms that have
     punctuation, such as domain names, use the asterisk as a wild card. For
     example, to find \c {Pastebin.Com}, enter the search term \c {Pastebin*}.
+*/
 
-    \section1 Adding External Documentation
+/*!
+    \page creator-how-to-add-external-documentation.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Adding External Documentation
 
     You can display external documentation in the \uicontrol Help mode.
-    To augment or replace the documentation that ships with \QC and Qt:
+    To add documentation or replace the documentation that ships with \QC and Qt:
 
     \list 1
 
@@ -189,6 +197,8 @@
             \uicontrol Help > \uicontrol Documentation > \uicontrol Add.
 
     \endlist
+
+    \sa
 
     \section1 Detaching the Help Window
 

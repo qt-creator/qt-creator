@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,11 +8,12 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-editor-external.html
     \page creator-task-lists.html
-    \nextpage creator-logging-viewer.html
+    \previouspage creator-how-tos.html
 
-    \title Showing Task List Files in Issues
+    \ingroup creator-how-to-ui
+
+    \title Show task list files in issues
 
     You can use code scanning and analysis tools to examine source code. These
     tools report issues for you to fix. \QC enables you to load lists of
@@ -25,7 +26,7 @@
     lines of code and matches them against regular expressions to generate a
     task list, see \c{scripts\mytasks.pl} in the \QC repository.
 
-    \section1 Managing Task List Entries
+    \section1 Manage task list entries
 
     To open task list files in \uicontrol Issues, choose \uicontrol File  >
     \uicontrol Open. Right-click a task list entry to open a context menu that
@@ -36,7 +37,7 @@
     To keep the current entries in a task list, but stop checking for
     changes, select \uicontrol {Stop Monitoring}.
 
-    \section1 Task List File Format
+    \section1 Task list file format
 
     The filename extension must be .tasks for \QC to recognize a file as a
     task list file.
@@ -79,4 +80,6 @@
 
     If the file path is given as a relative path, it is based on the parent
     directory of the task list file.
+
+    \sa {Issues}, {View output}
 */

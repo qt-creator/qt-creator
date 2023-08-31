@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-help.html
     \page creator-faq.html
-    \nextpage creator-how-tos.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
 
     \title FAQ
 
-    This section has answers to some frequently asked questions about \QC.
+    \brief Answers to some frequently asked questions about \QC.
+
     You might also find answers to your questions in the
     \l{Known Issues} and \l{How-to} sections, or the Troubleshooting
     sections for a special area, such as

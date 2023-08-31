@@ -156,7 +156,7 @@
 
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-editor-external.html}
-            {Using External Tools}
+            {Use external tools}
         \li \l{External Tool Specification Files}
     \endlist
 
@@ -180,7 +180,7 @@
     configure the tool in \QC, you can add an options page for it.
 
     \list
-        \li \l{https://doc.qt.io/qtcreator/creator-editor-external.html}{Using External Tools}
+        \li \l{https://doc.qt.io/qtcreator/creator-editor-external.html}{Use external tools}
         \li \l{External Tool Specification Files}
         \li \l{Creating Plugins}
         \li \l{Qt Creator Coding Rules}
@@ -206,7 +206,7 @@
 
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-task-lists.html}
-            {Showing Task List Files in Issues}
+            {Show task list files in Issues}
         \li \l{Creating Plugins}
         \li \l{Qt Creator Coding Rules}
         \omit

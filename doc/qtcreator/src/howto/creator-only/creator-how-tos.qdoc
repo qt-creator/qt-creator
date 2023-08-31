@@ -27,6 +27,7 @@
         \li \l {Set high DPI scaling}
         \li \l {Set the number of recent files shown}
         \li \l {Show and hide sidebars}
+        \li \l {Show task list files in Issues}
         \li \l {Switch between modes}
         \li \l {Switch UI themes}
         \li \l {View output}
@@ -54,6 +55,7 @@
 
      \list
         \li \l {Export SVG images}
+        \li \l {Run QML files}
         \li \l {View images}
     \endlist
 
@@ -78,10 +80,16 @@
     \section1 Use \QC
 
     \list
+        \li \l {Collect usage statistics}
         \li \l {Enable and disable plugins}
         \li \l {Find settings files}
+        \li \l {Inspect internal logs}
         \li \l {Install plugins}
+        \li \l {Manage data collection}
         \li \l {Run \QC from the command line}
+        \li \l {Use external text editors}
+        \li \l {Use external tools}
+        \li \l {Use Qt Linguist}
     \endlist
 */
 
@@ -149,14 +157,55 @@
 
     \title Run \QC from the command line
 
-    You can launch \QC from the command line using the name of an
-    existing \l{Managing Sessions}{session} or project file by entering
-    the name as the command argument.
+    You can start \QC and specify some options from the command line. For
+    example, you can open a file to any line and column.
 
-    For example, running \c {qtcreator somesession}, launches \QC and
-    loads the session called \e somesession.
+    To use command line options, enter the following command in the
+    directory that contains the \QC executable or specify the path to
+    \QC as a part of the command:
 
-    For more information, see \l{Using Command Line Options}.
+    \badcode
+    qtcreator [option] [filename[:line_number[:column_number]]]
+    \endcode
+
+    \note You can use either a colon (:) or a plus sign (+) as a separator
+    between the filename and line number and the line number and the column
+    number. You can also use a space between the separator and the line number.
+
+    \section1 Examples of CLI commands
+
+    On Windows:
+
+    \list
+
+        \li \c {C:\qtcreator\bin>qtcreator -help}
+
+        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100:2}
+
+        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100+2}
+
+    \endlist
+
+    On \macos:
+
+    \list
+
+        \li \c {Qt\ Creator.app/Contents/MacOS/Qt\ Creator -help}
+
+    \endlist
+
+    \section1 Open a project from a directory
+
+    To open a project that is located in a particular directory, you can
+    pass on the directory name as a command line argument. \QC looks for
+    a \l{Managing Sessions}{session} that matches the directory name and
+    loads it. Or it looks for a project file in the directory and opens it.
+
+    For example, on Windows:
+
+    \c {C:\qtcreator\bin>qtcreator.exe C:\Examples\alarms}
+
+    \sa {Command Line Options}
 */
 
 /*!

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,11 +8,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-known-issues.html
     \page creator-glossary.html
-    \nextpage technical-support.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
 
     \title Glossary
+
+    \brief \QC terms and concepts.
 
     \table
         \header

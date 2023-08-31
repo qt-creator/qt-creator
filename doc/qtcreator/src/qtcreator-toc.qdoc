@@ -197,84 +197,86 @@
             \li \l{Running Autotests}
             \li \l{Using Squish}
         \endlist
-        \li  \l{Getting Help}
+        \li \l{How-to}
         \list
-            \li \l{Using the Help Mode}
-            \li \l{FAQ}
-            \li \l{How-to}
+            \li Use the UI
                 \list
-                    \li Use the UI
-                        \list
-                            \li \l {Assign keyboard shortcuts}
-                            \li \l {Find a particular preference}
-                            \li \l {Find keyboard shortcuts}
-                            \li \l {Find menu items on \macos}
-                            \li \l {Import and export keyboard shortcuts}
-                            \li \l {Set high DPI scaling}
-                            \li \l {Set the number of recent files shown}
-                            \li \l {Show and hide sidebars}
-                            \li \l {Switch between modes}
-                            \li \l {Switch UI themes}
-                            \li \l {View output}
-                        \endlist
-                    \li Edit Code
-                        \list
-                            \li \l {Add code snippets to the auto-complete menu}
-                            \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
-                            \li \l {Jump to a function in QML code}
-                            \li \l {Locate files using the keyboard}
-                            \li \l {Move between open files}
-                            \li \l {Move to symbols}
-                            \li \l {Paste text from clipboard history}
-                            \li \l {Perform calculations}
-                            \li \l {Search and replace across files using a regular expression}
-                            \li \l {Select the enclosing block in C++}
-                            \li \l {Sort lines alphabetically}
-                            \li \l {Switch to Edit mode}
-                            \li \l {Write down notes}
-                        \endlist
-                    \li Design UIs
-                         \list
-                            \li \l {Export SVG images}
-                            \li \l {View images}
-                        \endlist
-                    \li Manage Projects
-                        \list
-                            \li \l {Add a license header template for C++ code}
-                            \li \l {Add libraries to projects}
-                            \li \l {Add subprojects to projects}
-                            \li \l {Add wizards}
-                            \li \l {Create C++ classes}
-                            \li \l {Create files}
-                            \li \l {Create OpenGL fragment and vertex shaders}
-                            \li \l {Create resource files}
-                            \li \l {Develop Qt for Python applications}
-                            \li \l {Open projects}
-                            \li \l {Select the build system}
-                            \li \l {Specify project contents}
-                            \li \l {Use project wizards}
-                        \endlist
-                    \li Use \QC
-                        \list
-                            \li \l {Collect usage statistics}
-                            \li \l {Enable and disable plugins}
-                            \li \l {Find settings files}
-                            \li \l {Inspect internal logs}
-                            \li \l {Install plugins}
-                            \li \l {Manage data collection}
-                            \li \l {Run \QC from the command line}
-                            \li \l {Use external text editors}
-                            \li \l {Use external tools}
-                            \li \l {Use Qt Linguist}
-                        \endlist
+                    \li \l {Assign keyboard shortcuts}
+                    \li \l {Find a particular preference}
+                    \li \l {Find keyboard shortcuts}
+                    \li \l {Find menu items on \macos}
+                    \li \l {Import and export keyboard shortcuts}
+                    \li \l {Set high DPI scaling}
+                    \li \l {Set the number of recent files shown}
+                    \li \l {Show and hide sidebars}
+                    \li \l {Show task list files in Issues}
+                    \li \l {Switch between modes}
+                    \li \l {Switch UI themes}
+                    \li \l {View output}
                 \endlist
-            \li \l{Known Issues}
-            \li \l{Glossary}
-            \li \l{Technical Support}
-            \li \l{Acknowledgements}
+            \li Edit Code
+                \list
+                    \li \l {Add code snippets to the auto-complete menu}
+                    \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
+                    \li \l {Get help}
+                    \li \l {Jump to a function in QML code}
+                    \li \l {Locate files using the keyboard}
+                    \li \l {Move between open files}
+                    \li \l {Move to symbols}
+                    \li \l {Paste text from clipboard history}
+                    \li \l {Perform calculations}
+                    \li \l {Search and replace across files using a regular expression}
+                    \li \l {Select the enclosing block in C++}
+                    \li \l {Sort lines alphabetically}
+                    \li \l {Switch to Edit mode}
+                    \li \l {Write down notes}
+                \endlist
+            \li Design UIs
+                 \list
+                    \li \l {Export SVG images}
+                    \li \l {Run QML files}
+                    \li \l {View images}
+                \endlist
+            \li Manage Projects
+                \list
+                    \li \l {Add a license header template for C++ code}
+                    \li \l {Add libraries to projects}
+                    \li \l {Add subprojects to projects}
+                    \li \l {Add wizards}
+                    \li \l {Create C++ classes}
+                    \li \l {Create files}
+                    \li \l {Create OpenGL fragment and vertex shaders}
+                    \li \l {Create resource files}
+                    \li \l {Develop Qt for Python applications}
+                    \li \l {Open projects}
+                    \li \l {Select the build system}
+                    \li \l {Specify project contents}
+                    \li \l {Use project wizards}
+                \endlist
+            \li Use \QC
+                \list
+                    \li \l {Collect usage statistics}
+                    \li \l {Enable and disable plugins}
+                    \li \l {Find settings files}
+                    \li \l {Inspect internal logs}
+                    \li \l {Install plugins}
+                    \li \l {Manage data collection}
+                    \li \l {Run \QC from the command line}
+                    \li \l {Use external text editors}
+                    \li \l {Use external tools}
+                    \li \l {Use Qt Linguist}
+                \endlist
             \endlist
             \li \l{Reference}
                 \list
+                    \li \l {Acknowledgements}
+                    \li \l {Command Line Options}
+                    \li \l {Custom Wizards}
+                    \li \l {FAQ}
+                    \li \l {Glossary}
+                    \li \l {Keyboard Shortcuts}
+                    \li \l {Known Issues}
+                    \li \l {Technical Support}
                     \li \l {Build Systems}
                         \list
                             \li \l{Managing Packages with vcpkg}
@@ -287,15 +289,14 @@
                             \li \l{Setting Up a Generic Project}
                             \li \l{Setting Up an Autotools Project}
                         \endlist
-                    \li \l {Command Line Options}
-                    \li \l {Custom Wizards}
-                    \li \l {Keyboard Shortcuts}
-                    \li \l {Supported Platforms}
+                    \li Output Views
                         \list
-                            \li \l {Desktop Platforms}
-                            \li \l {Embedded Platforms}
-                            \li \l {Mobile Platforms}
-                    \endlist
+                            \li \l {Application Output}
+                            \li \l {Compile Output}
+                            \li \l {Issues}
+                            \li \l {Search Results}
+                            \li \l {To-Do Entries}
+                        \endlist
                     \li Sidebar Views
                         \list
                             \li \l {Call Hierarchy}
@@ -307,13 +308,11 @@
                             \li \l {Projects}
                             \li \l {Type Hierarchy}
                         \endlist
-                    \li Output Views
+                    \li \l {Supported Platforms}
                         \list
-                            \li \l {Application Output}
-                            \li \l {Compile Output}
-                            \li \l {Issues}
-                            \li \l {Search Results}
-                            \li \l {To-Do Entries}
+                            \li \l {Desktop Platforms}
+                            \li \l {Embedded Platforms}
+                            \li \l {Mobile Platforms}
                         \endlist
                 \endlist
     \endlist

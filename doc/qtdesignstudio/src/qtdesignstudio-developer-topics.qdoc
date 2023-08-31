@@ -29,7 +29,7 @@
             application development in Qt Creator, you have to convert
             them to Qt Quick Application projects that contain .pro,
             .cpp, and .qrc files.
-        \li \l{Using External Tools}
+        \li \l{Use external tools}
 
             You can use external tools directly from \QDS. Qt Linguist,
             QML utilities, the default text editor for your system, and the

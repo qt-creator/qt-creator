@@ -238,9 +238,9 @@
                 \li Extending Component Functionality
                 \endomit
                 \li \l{UI Files}
-                \li \l{Managing Data Collection}
+                \li \l{Manage Data Collection}
                     \list
-                        \li \l {Collecting Usage Statistics}
+                        \li \l {Collect Usage Statistics}
                         \li \l {Collecting User Feedback}
                         \li \l {Reporting Crashes}
                     \endlist
@@ -251,7 +251,7 @@
                 \li \l{Using Git}
                 \li \l{Converting Qt 5 Projects into Qt 6 Projects}
                 \li \l{Converting UI Projects to Applications}
-                \li \l{Using External Tools}
+                \li \l{Use external tools}
                 \li \l{\QDS on MCUs}
                     \list
                         \li \l {\QDS Version Compatibility with \QMCU SDKs}

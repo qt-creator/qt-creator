@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -11,12 +11,17 @@
     \page technical-support.html
     \if defined(qtdesignstudio)
     \previouspage studio-platforms.html
-    \else
-    \previouspage creator-glossary.html
-    \endif
     \nextpage creator-acknowledgements.html
+    \else
+    \previouspage creator-reference.html
+
+    \endif
+
+    \ingroup creator-reference
 
     \title Technical Support
+
+    \brief Qt support sites and other useful sites.
 
     The following table lists Qt support sites and other useful links.
 

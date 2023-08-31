@@ -17,8 +17,9 @@
 
     \brief Options for starting \QC from the command line.
 
-    To specify command line options, enter the following command in the \QC
-    installation or build directory:
+    To specify command line options, enter the following command in the
+    directory that contains the \QC executable or specify the path to
+    \QC as a part of the command:
 
     \badcode
     qtcreator [option] [filename[:line_number[:column_number]]]

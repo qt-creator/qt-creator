@@ -60,6 +60,11 @@
     the issues from the previous build rounds, deselect \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General >
     \uicontrol {Clear issues list on new build}.
+
+    \sa {View output}
+    \if defined(qtcreator)
+    \sa {Show task list files in Issues}
+    \endif
 */
 
 /*!
@@ -90,6 +95,8 @@
 
     For more information about the different search options, see
     \l {Finding and Replacing}.
+
+    \sa {View output}
 */
 
 /*!
@@ -137,6 +144,8 @@
     You can select whether to open \uicontrol{Application Output} on output when
     running or debugging applications, to clear old output on a new run,
     to word-wrap output, and to limit output to the specified number of lines.
+
+    \sa {View output}
 */
 
 /*!
@@ -215,4 +224,6 @@
             the new output to the old output.
         \li Select \uicontrol OK to start parsing.
     \endlist
+
+    \sa {View output}
 */
