@@ -434,8 +434,8 @@ public:
     void indent();
     void unindent();
 
-    void undo();
-    void redo();
+    virtual void undo();
+    virtual void redo();
 
     void openLinkUnderCursor();
     void openLinkUnderCursorInNextSplit();

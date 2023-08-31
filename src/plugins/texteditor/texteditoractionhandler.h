@@ -50,6 +50,12 @@ public:
     ~TextEditorActionHandler();
 
     void updateCurrentEditor();
+    void updateActions();
+
+    using Predicate = std::function<bool(Core::IEditor *editor)>;
+
+    void setCanUndoCallback(const Predicate &callback);
+    void setCanRedoCallback(const Predicate &callback);
 
 private:
     Internal::TextEditorActionHandlerPrivate *d;

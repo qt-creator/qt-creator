@@ -100,6 +100,9 @@ public:
 
     void updateCurrentEditor(Core::IEditor *editor);
 
+    void setCanUndoCallback(const TextEditorActionHandler::Predicate &callback);
+    void setCanRedoCallback(const TextEditorActionHandler::Predicate &callback);
+
 public:
     TextEditorActionHandler::TextEditorWidgetResolver m_findTextWidget;
     QAction *m_undoAction = nullptr;
@@ -124,8 +127,12 @@ public:
 
     uint m_optionalActions = TextEditorActionHandler::None;
     QPointer<TextEditorWidget> m_currentEditorWidget;
+    QPointer<Core::IEditor> m_currentEditor;
     Utils::Id m_editorId;
     Utils::Id m_contextId;
+
+    TextEditorActionHandler::Predicate m_canUndoCallback;
+    TextEditorActionHandler::Predicate m_canRedoCallback;
 };
 
 TextEditorActionHandlerPrivate::TextEditorActionHandlerPrivate
@@ -463,9 +470,17 @@ void TextEditorActionHandlerPrivate::updateActions()
         m_textWrappingAction->setChecked(m_currentEditorWidget->displaySettings().m_textWrapping);
     }
 
-    updateRedoAction(m_currentEditorWidget && m_currentEditorWidget->document()->isRedoAvailable());
-    updateUndoAction(m_currentEditorWidget && m_currentEditorWidget->document()->isUndoAvailable());
-    updateCopyAction(m_currentEditorWidget && m_currentEditorWidget->textCursor().hasSelection());
+    if (m_currentEditorWidget) {
+        updateRedoAction(m_canRedoCallback ? m_canRedoCallback(m_currentEditor)
+                                           : m_currentEditorWidget->document()->isRedoAvailable());
+        updateUndoAction(m_canUndoCallback ? m_canUndoCallback(m_currentEditor)
+                                           : m_currentEditorWidget->document()->isUndoAvailable());
+        updateCopyAction(m_currentEditorWidget->textCursor().hasSelection());
+    } else {
+        updateRedoAction(false);
+        updateUndoAction(false);
+        updateCopyAction(false);
+    }
     updateOptionalActions();
 }
 
@@ -523,6 +538,8 @@ void TextEditorActionHandlerPrivate::updateCurrentEditor(Core::IEditor *editor)
         m_currentEditorWidget->disconnect(this);
     m_currentEditorWidget = nullptr;
 
+    m_currentEditor = editor;
+
     if (editor && editor->document()->id() == m_editorId) {
         TextEditorWidget *editorWidget = m_findTextWidget(editor);
         QTC_ASSERT(editorWidget, return); // editor has our id, so shouldn't happen
@@ -568,6 +585,21 @@ TextEditorActionHandler::~TextEditorActionHandler()
 void TextEditorActionHandler::updateCurrentEditor()
 {
     d->updateCurrentEditor(Core::EditorManager::currentEditor());
+}
+
+void TextEditorActionHandler::updateActions()
+{
+    d->updateActions();
+}
+
+void TextEditorActionHandler::setCanUndoCallback(const Predicate &callback)
+{
+    d->m_canUndoCallback = callback;
+}
+
+void TextEditorActionHandler::setCanRedoCallback(const Predicate &callback)
+{
+    d->m_canRedoCallback = callback;
 }
 
 } // namespace TextEditor
