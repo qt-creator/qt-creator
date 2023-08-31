@@ -936,8 +936,14 @@ void ConnectionModelBackendDelegate::handleTargetChanged()
                 parentModelNode.signalHandlerProperty(handlerName).setSource(expression);
             }
 
-            if (oldTargetNodeName != newId)
+            if (oldTargetNodeName != newId) {
                 parentModelNode.bindingProperty("target").setExpression(newId);
+
+                const ModelNode parent = parentModelNode.view()->modelNodeForId(newId);
+
+                if (parent.isValid() && QmlItemNode::isValidQmlVisualNode(parent))
+                    parent.nodeListProperty("data").reparentHere(parentModelNode);
+            }
         });
 }
 
