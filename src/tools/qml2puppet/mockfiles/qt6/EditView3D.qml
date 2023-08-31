@@ -225,8 +225,9 @@ Item {
         if ("syncBackgroundColor" in toolStates) {
             syncBackgroundColor = toolStates.syncBackgroundColor;
             if (syncBackgroundColor) {
-                var color = _generalHelper.sceneEnvironmentColor(sceneId);
-                updateViewStates({"selectBackgroundColor": color})
+                var color = [];
+                color[0] = _generalHelper.sceneEnvironmentColor(sceneId);
+                updateViewStates({"selectBackgroundColor": color});
             }
         } else if (resetToDefault) {
             syncBackgroundColor = false;
