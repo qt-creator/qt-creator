@@ -143,6 +143,11 @@ public:
         connect(m_engineChooser, &QComboBox::activated, this, [this](int index) {
             QModelIndex sourceIndex = m_proxyModel->mapToSource(m_proxyModel->index(index, 0));
             emit activated(sourceIndex.row());
+            m_lastActivatedIndex = sourceIndex.row();
+        });
+
+        connect(m_proxyModel, &QAbstractItemModel::rowsRemoved, this, [this] {
+            setCurrentIndex(m_lastActivatedIndex);
         });
     }
 
@@ -188,6 +193,7 @@ private:
     QPointer<EngineTypeFilterProxyModel> m_proxyModel;
     QAbstractItemModel *m_sourceModel;
     QString m_enginType;
+    int m_lastActivatedIndex = -1;
 };
 
 struct PerspectiveItem
