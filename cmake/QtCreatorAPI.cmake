@@ -850,7 +850,7 @@ function(add_qtc_test name)
     endif()
   endforeach()
 
-  set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
   # relax cast requirements for tests
   get_default_defines(default_defines_copy YES)
