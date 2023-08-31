@@ -413,11 +413,21 @@ public:
 
     template <typename StorageStruct, typename StorageHandler>
     void onStorageSetup(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
+        constexpr bool isInvokable = std::is_invocable_v<std::decay_t<StorageHandler>,
+                                                         StorageStruct &>;
+        static_assert(isInvokable,
+                      "Storage setup handler needs to take (Storage &) as an argument. "
+                      "The passed handler doesn't fulfill these requirements.");
         setupStorageHandler(storage,
                             wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)), {});
     }
     template <typename StorageStruct, typename StorageHandler>
     void onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
+        constexpr bool isInvokable = std::is_invocable_v<std::decay_t<StorageHandler>,
+                                                         const StorageStruct &>;
+        static_assert(isInvokable,
+                      "Storage done handler needs to take (const Storage &) as an argument. "
+                      "The passed handler doesn't fulfill these requirements.");
         setupStorageHandler(storage,
                             {}, wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)));
     }

@@ -550,7 +550,7 @@ void tst_Tasking::testTree_data()
             };
             taskTree.setRecipe(nestedRoot);
             CustomStorage *activeStorage = storage.activeStorage();
-            const auto collectSubLog = [activeStorage](CustomStorage &subTreeStorage){
+            const auto collectSubLog = [activeStorage](const CustomStorage &subTreeStorage){
                 activeStorage->m_log += subTreeStorage.m_log;
             };
             taskTree.onStorageDone(storage, collectSubLog);
@@ -2244,7 +2244,9 @@ void tst_Tasking::testTree()
     TaskTree taskTree({testData.root.withTimeout(1000ms)});
     QCOMPARE(taskTree.taskCount() - 1, testData.taskCount); // -1 for the timeout task above
     Log actualLog;
-    const auto collectLog = [&actualLog](CustomStorage &storage) { actualLog = storage.m_log; };
+    const auto collectLog = [&actualLog](const CustomStorage &storage) {
+        actualLog = storage.m_log;
+    };
     taskTree.onStorageDone(testData.storage, collectLog);
     const OnDone result = taskTree.runBlocking() ? OnDone::Success : OnDone::Failure;
     QCOMPARE(taskTree.isRunning(), false);
@@ -2278,7 +2280,7 @@ void tst_Tasking::storageDestructor()
         setupCalled = true;
     };
     bool doneCalled = false;
-    const auto doneHandler = [&doneCalled](CustomStorage &) {
+    const auto doneHandler = [&doneCalled](const CustomStorage &) {
         doneCalled = true;
     };
     QCOMPARE(CustomStorage::instanceCount(), 0);
