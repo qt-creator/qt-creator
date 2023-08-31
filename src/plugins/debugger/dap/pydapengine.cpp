@@ -6,9 +6,13 @@
 #include "dapclient.h"
 
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/icore.h>
 
 #include <debugger/debuggermainwindow.h>
+#include <debugger/debuggertr.h>
 
+#include <utils/async.h>
+#include <utils/infobar.h>
 #include <utils/temporarydirectory.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -27,6 +31,25 @@ using namespace Utils;
 static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg)
 
 namespace Debugger::Internal {
+
+
+const char installDebugPyInfoBarId[] = "Python::InstallDebugPy";
+
+static bool missingPySideInstallation(const FilePath &pythonPath, const QString &packageName)
+{
+    QTC_ASSERT(!packageName.isEmpty(), return false);
+    static QMap<FilePath, QSet<QString>> pythonWithPyside;
+    if (pythonWithPyside[pythonPath].contains(packageName))
+        return false;
+
+    Process pythonProcess;
+    pythonProcess.setCommand({pythonPath, {"-c", "import " + packageName}});
+    pythonProcess.runBlocking();
+    const bool missing = pythonProcess.result() != ProcessResult::FinishedWithSuccess;
+    if (!missing)
+        pythonWithPyside[pythonPath].insert(packageName);
+    return missing;
+}
 
 class TcpSocketDataProvider : public IDataProvider
 {
@@ -154,6 +177,24 @@ void PyDapEngine::handleDapInitialize()
     qCDebug(dapEngineLog) << "handleDapAttach";
 }
 
+void installDebugpyPackage(const FilePath &pythonPath)
+{
+    CommandLine cmd{pythonPath, {"-m", "pip", "install", "debugpy"}};
+    Process process;
+    process.setCommand(cmd);
+
+    QObject::connect(&process, &Process::textOnStandardError, [](const QString &text) {
+        MessageManager::writeSilently("Python debugger: debugpy package installation failed" + text);
+    });
+
+    QObject::connect(&process, &Process::done, []() {
+        MessageManager::writeSilently("Python debugger: debugpy package installed.");
+    });
+
+    process.start();
+    process.waitForFinished();
+}
+
 void PyDapEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -165,6 +206,26 @@ void PyDapEngine::setupEngine()
         MessageManager::writeDisrupting(
             "Python Error" + QString("Cannot open script file %1").arg(scriptFile.toUserOutput()));
         notifyEngineSetupFailed();
+        return;
+    }
+
+    if (missingPySideInstallation(interpreter, "debugpy")) {
+        Utils::InfoBarEntry
+            info(installDebugPyInfoBarId,
+                 Tr::tr(
+                     "Python Debugging Support is not available. Please install debugpy package."),
+                 Utils::InfoBarEntry::GlobalSuppression::Enabled);
+        info.addCustomButton(Tr::tr("Install debugpy"), [this] {
+            Core::ICore::infoBar()->removeInfo(installDebugPyInfoBarId);
+            Core::ICore::infoBar()->globallySuppressInfo(installDebugPyInfoBarId);
+            QTimer::singleShot(0, this, [interpreter = runParameters().interpreter] {
+                Utils::asyncRun(&installDebugpyPackage, interpreter);
+            });
+        });
+        Core::ICore::infoBar()->addInfo(info);
+
+        notifyEngineSetupFailed();
+        return;
     }
 
     CommandLine cmd{interpreter,
