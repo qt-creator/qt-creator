@@ -13,6 +13,7 @@
 #include <projectexplorer/target.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
+#include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
@@ -110,9 +111,10 @@ QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunne
             this, [this, settings]() {
         if (settings.zoomFactor > 0)
             emit zoom(settings.zoomFactor);
-        if (!settings.language.isEmpty())
-            emit language(settings.language);
-
+        if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current()) {
+            if (!multiLanguageAspect->currentLocale().isEmpty())
+                emit language(multiLanguageAspect->currentLocale());
+        }
         emit ready();
     });
 
