@@ -129,6 +129,7 @@ Project {
                 "dapclient.cpp", "dapclient.h",
                 "dapengine.cpp", "dapengine.h",
                 "gdbdapengine.cpp", "gdbdapengine.h",
+                "pydapengine.cpp", "pydapengine.h",
             ]
         }
 
