@@ -833,6 +833,7 @@ PropertyTreeModelDelegate::PropertyTreeModelDelegate(ConnectionView *parent) : m
 void PropertyTreeModelDelegate::setPropertyType(PropertyTreeModel::PropertyTypes type)
 {
     m_model.setPropertyType(type);
+    setupNameComboBox(m_idCombboBox.currentText(), m_nameCombboBox.currentText(), 0);
 }
 
 void PropertyTreeModelDelegate::setup(const QString &id, const QString &name, bool *nameExists)
@@ -846,7 +847,13 @@ void PropertyTreeModelDelegate::setup(const QString &id, const QString &name, bo
 
     m_idCombboBox.setModel(idLists);
     m_idCombboBox.setCurrentText(id);
+    setupNameComboBox(id, name, nameExists);
+}
 
+void PropertyTreeModelDelegate::setupNameComboBox(const QString &id,
+                                                  const QString &name,
+                                                  bool *nameExists)
+{
     const auto modelNode = m_model.getModelNodeForId(id);
     //m_nameCombboBox
     std::vector<QString> nameVector = Utils::transform(m_model.getProperties(modelNode),
@@ -887,6 +894,14 @@ void PropertyTreeModelDelegate::handleNameChanged()
     emit commitData();
 
     // commit data
+}
+
+NodeMetaInfo PropertyTreeModelDelegate::propertyMetaInfo() const
+{
+    const auto modelNode = m_model.getModelNodeForId(m_idCombboBox.currentText());
+    if (modelNode.isValid())
+        return modelNode.metaInfo().property(m_nameCombboBox.currentText().toUtf8()).propertyType();
+    return {};
 }
 
 void PropertyTreeModelDelegate::handleIdChanged()

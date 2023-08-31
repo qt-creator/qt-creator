@@ -164,8 +164,10 @@ public:
     explicit PropertyTreeModelDelegate(ConnectionView *parent = nullptr);
     void setPropertyType(PropertyTreeModel::PropertyTypes type);
     void setup(const QString &id, const QString &name, bool *nameExists = nullptr);
+    void setupNameComboBox(const QString &id, const QString &name, bool *nameExists);
     QString id() const;
     QString name() const;
+    NodeMetaInfo propertyMetaInfo() const;
 
 signals:
     void commitData();

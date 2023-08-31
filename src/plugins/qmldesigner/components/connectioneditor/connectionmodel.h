@@ -216,6 +216,7 @@ private:
     void setupChangeState();
     void setupStates();
     void setupPrintMessage();
+    void setupPropertyType();
     QString baseStateName() const;
 
     ActionType m_actionType;
