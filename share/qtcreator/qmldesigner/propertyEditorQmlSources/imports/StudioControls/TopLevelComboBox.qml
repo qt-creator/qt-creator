@@ -128,14 +128,20 @@ T.ComboBox {
     }
 
     property ListView listView: ListView {
+        id: listView
         x: 0
         y: control.style.borderWidth
         width: control.width
-        height: control.listView.contentHeight
-        interactive: false
+        height: Math.min(control.style.maxComboBoxPopupHeight, control.listView.contentHeight)
         model: control.model
         Keys.onEscapePressed: comboBoxPopup.close()
         currentIndex: control.highlightedIndex
+        boundsBehavior: Flickable.StopAtBounds
+
+        ScrollBar.vertical: ScrollBar {
+            id: comboBoxPopupScrollBar
+            visible: listView.height < listView.contentHeight
+        }
 
         delegate: ItemDelegate {
             id: itemDelegate

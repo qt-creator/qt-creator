@@ -185,6 +185,8 @@ QtObject {
     property real columnFactor: values.propertyLabelWidthMin
                                 / (values.propertyLabelWidthMin + values.controlColumnWidthMin)
 
+    property real dialogScreenMargin: Math.round(160 * values.scaleFactor)
+
     function responsiveResize(width) {
         var tmpWidth = width - values.sectionColumnSpacing
                        - values.sectionLeftPadding - values.sectionLayoutRightPadding
