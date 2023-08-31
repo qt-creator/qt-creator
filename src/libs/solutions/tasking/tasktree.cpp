@@ -2110,8 +2110,8 @@ void TaskNode::invokeEndHandler(bool success)
         TreeStorage<CopyStorage> storage;
         const Group root = ...; // storage placed inside root's group and inside handlers
         TaskTree taskTree(root);
-        auto initStorage = [](CopyStorage *storage){
-            storage->content = "initial content";
+        auto initStorage = [](CopyStorage &storage){
+            storage.content = "initial content";
         };
         taskTree.onStorageSetup(storage, initStorage);
         taskTree.start();
@@ -2130,8 +2130,8 @@ void TaskNode::invokeEndHandler(bool success)
         TreeStorage<CopyStorage> storage;
         const Group root = ...; // storage placed inside root's group and inside handlers
         TaskTree taskTree(root);
-        auto collectStorage = [](CopyStorage *storage){
-            qDebug() << "final content" << storage->content;
+        auto collectStorage = [](const CopyStorage &storage){
+            qDebug() << "final content" << storage.content;
         };
         taskTree.onStorageDone(storage, collectStorage);
         taskTree.start();
@@ -2529,7 +2529,7 @@ int TaskTree::progressValue() const
     Installs a storage setup \a handler for the \a storage to pass the initial data
     dynamically to the running task tree.
 
-    The \c StorageHandler takes the pointer to the \c StorageStruct instance:
+    The \c StorageHandler takes a reference to the \c StorageStruct instance:
 
     \code
         static void save(const QString &fileName, const QByteArray &array) { ... }
@@ -2546,8 +2546,8 @@ int TaskTree::progressValue() const
         };
 
         TaskTree taskTree(root);
-        auto initStorage = [](QByteArray *storage){
-            *storage = "initial content";
+        auto initStorage = [](QByteArray &storage){
+            storage = "initial content";
         };
         taskTree.onStorageSetup(storage, initStorage);
         taskTree.start();
@@ -2567,10 +2567,10 @@ int TaskTree::progressValue() const
 /*!
     \fn template <typename StorageStruct, typename StorageHandler> void TaskTree::onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler)
 
-    Installs a storage done \a handler for the \a storage to retrie the final data
+    Installs a storage done \a handler for the \a storage to retrieve the final data
     dynamically from the running task tree.
 
-    The \c StorageHandler takes the pointer to the \c StorageStruct instance:
+    The \c StorageHandler takes a const reference to the \c StorageStruct instance:
 
     \code
         static QByteArray load(const QString &fileName) { ... }
@@ -2590,8 +2590,8 @@ int TaskTree::progressValue() const
         };
 
         TaskTree taskTree(root);
-        auto collectStorage = [](QByteArray *storage){
-            qDebug() << "final content" << *storage;
+        auto collectStorage = [](const QByteArray &storage){
+            qDebug() << "final content" << storage;
         };
         taskTree.onStorageDone(storage, collectStorage);
         taskTree.start();
