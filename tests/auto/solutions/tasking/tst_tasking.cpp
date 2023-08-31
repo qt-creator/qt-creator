@@ -50,7 +50,6 @@ private:
 };
 
 int CustomStorage::s_count = 0;
-static const char s_taskIdProperty[] = "__taskId";
 
 struct TestData {
     TreeStorage<CustomStorage> storage;
