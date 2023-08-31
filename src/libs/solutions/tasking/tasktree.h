@@ -437,7 +437,7 @@ private:
     StorageVoidHandler wrapHandler(StorageHandler &&handler) {
         return [=](void *voidStruct) {
             StorageStruct *storageStruct = static_cast<StorageStruct *>(voidStruct);
-            std::invoke(handler, storageStruct);
+            std::invoke(handler, *storageStruct);
         };
     }
 
