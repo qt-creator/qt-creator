@@ -7843,7 +7843,8 @@ void QuickfixTest::testExtractFunction_data()
     QTest::addColumn<QByteArray>("expected");
 
     QTest::newRow("basic")
-        << _("void f()\n"
+        << _("// Documentation for f\n"
+             "void f()\n"
              "{\n"
              "    @{start}g();@{end}\n"
              "}\n")
@@ -7852,6 +7853,7 @@ void QuickfixTest::testExtractFunction_data()
              "    g();\n"
              "}\n"
              "\n"
+             "// Documentation for f\n"
              "void f()\n"
              "{\n"
              "    extracted();\n"

@@ -27,6 +27,7 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/CppRewriter.h>
+#include <cplusplus/declarationcomments.h>
 #include <cplusplus/NamePrettyPrinter.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/TypePrettyPrinter.h>
@@ -5150,6 +5151,16 @@ public:
         // formatting) it's simpler to have two different change sets.
         ChangeSet change;
         int position = currentFile->startOf(m_refFuncDef);
+
+        // Do not insert right between the function and an associated comment.
+        const QList<Token> functionDoc = commentsForDeclaration(
+            m_refFuncDef->symbol, m_refFuncDef, *currentFile->document(),
+            currentFile->cppDocument());
+        if (!functionDoc.isEmpty()) {
+            position = currentFile->cppDocument()->translationUnit()->getTokenPositionInDocument(
+                functionDoc.first(), currentFile->document());
+        }
+
         change.insert(position, funcDef);
         change.replace(m_extractionStart, m_extractionEnd, funcCall);
         currentFile->setChangeSet(change);
