@@ -1104,58 +1104,40 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
     });
 
     FilePaths compilerPaths;
-
+    FilePaths searchPaths = detector.searchPaths;
     if (device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        // FIXME: Merge with block below
-        FilePaths searchPaths = detector.searchPaths;
         if (searchPaths.isEmpty())
             searchPaths = device->systemEnvironment().path();
-        for (const FilePath &deviceDir : std::as_const(searchPaths)) {
-            static const QRegularExpression regexp(binaryRegexp);
-            const auto callBack = [&compilerPaths, compilerName](const FilePath &candidate) {
-                if (candidate.fileName() == compilerName)
-                    compilerPaths << candidate;
-                else if (regexp.match(candidate.path()).hasMatch())
-                    compilerPaths << candidate;
-                return IterationPolicy::Continue;
-            };
-            const FilePath globalDir = device->filePath(deviceDir.path());
-            globalDir.iterateDirectory(callBack, {nameFilters, QDir::Files | QDir::Executable});
+        searchPaths = Utils::transform(searchPaths, [&](const FilePath &onDevice) {
+            return device->filePath(onDevice.path());
+        });
+    } else if (searchPaths.isEmpty()) {
+        searchPaths = Environment::systemEnvironment().path();
+        searchPaths << gnuSearchPathsFromRegistry();
+        searchPaths << atmelSearchPathsFromRegistry();
+        searchPaths << renesasRl78SearchPathsFromRegistry();
+        if (HostOsInfo::isMacHost()) {
+            searchPaths << "/opt/homebrew/opt/ccache/libexec" // homebrew arm
+                        << "/usr/local/opt/ccache/libexec"    // homebrew intel
+                        << "/opt/local/libexec/ccache"; // macports, no links are created automatically though
         }
-    } else {
-        // The normal, local host case.
-        FilePaths searchPaths = detector.searchPaths;
-        if (searchPaths.isEmpty()) {
-            searchPaths = Environment::systemEnvironment().path();
-            searchPaths << gnuSearchPathsFromRegistry();
-            searchPaths << atmelSearchPathsFromRegistry();
-            searchPaths << renesasRl78SearchPathsFromRegistry();
-            if (HostOsInfo::isMacHost()) {
-                searchPaths << "/opt/homebrew/opt/ccache/libexec" // homebrew arm
-                            << "/usr/local/opt/ccache/libexec"    // homebrew intel
-                            << "/opt/local/libexec/ccache"; // macports, no links are created automatically though
-            }
-            if (HostOsInfo::isAnyUnixHost()) {
-                FilePath ccachePath = "/usr/lib/ccache/bin";
-                if (!ccachePath.exists())
-                    ccachePath = "/usr/lib/ccache";
-                if (ccachePath.exists() && !searchPaths.contains(ccachePath))
-                    searchPaths << ccachePath;
-            }
+        if (HostOsInfo::isAnyUnixHost()) {
+            FilePath ccachePath = "/usr/lib/ccache/bin";
+            if (!ccachePath.exists())
+                ccachePath = "/usr/lib/ccache";
+            if (ccachePath.exists() && !searchPaths.contains(ccachePath))
+                searchPaths << ccachePath;
         }
-        for (const FilePath &dir : std::as_const(searchPaths)) {
-            static const QRegularExpression regexp(binaryRegexp);
-            QDir binDir(dir.toString());
-            const QStringList fileNames = binDir.entryList(nameFilters,
-                                                           QDir::Files | QDir::Executable);
-            for (const QString &fileName : fileNames) {
-                if (fileName != compilerName &&
-                        !regexp.match(QFileInfo(fileName).completeBaseName()).hasMatch()) {
-                    continue;
-                }
-                compilerPaths << FilePath::fromString(binDir.filePath(fileName));
-            }
-        }
+    }
+
+    for (const FilePath &searchPath : std::as_const(searchPaths)) {
+        static const QRegularExpression regexp(binaryRegexp);
+        const auto callBack = [&compilerPaths, compilerName](const FilePath &candidate) {
+            if (candidate.fileName() == compilerName || regexp.match(candidate.path()).hasMatch())
+                compilerPaths << candidate;
+            return IterationPolicy::Continue;
+        };
+        searchPath.iterateDirectory(callBack, {nameFilters, QDir::Files | QDir::Executable});
     }
 
     return compilerPaths;
