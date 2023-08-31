@@ -101,9 +101,9 @@ const std::vector<PropertyName> priorityListSignals = {"clicked",
                                                        "rotationChanged"};
 
 const std::vector<PropertyName> priorityListProperties
-    = {"opacity",  "visible",       "value",   "x",       "y",       "width", "height",
-       "rotation", "color",         "scale",   "state",   "enabled", "z",     "text",
-       "pressed",  "containsMouse", "checked", "hovered", "down",    "clip",  "parent"};
+    = {"opacity", "visible", "value", "x",       "y",      "width", "height",  "rotation",
+       "color",   "scale",   "state", "enabled", "z",      "text",  "pressed", "containsMouse",
+       "checked", "hovered", "down",  "clip",    "parent", "from",  "true",    "focus"};
 
 const std::vector<PropertyName> priorityListSlots = {"toggle",
                                                      "increase",
