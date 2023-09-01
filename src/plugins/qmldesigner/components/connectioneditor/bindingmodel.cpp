@@ -553,11 +553,15 @@ void BindingModelBackendDelegate::setCurrentRow(int i)
     }
 
     std::sort(sourceNodes.begin(), sourceNodes.end());
-    m_sourceNode.setModel(sourceNodes);
 
     QString sourceNodeName;
     QString sourcePropertyName;
     model->getExpressionStrings(bindingProperty, &sourceNodeName, &sourcePropertyName);
+
+    if (!sourceNodes.contains(sourceNodeName))
+        sourceNodes.append(sourceNodeName);
+
+    m_sourceNode.setModel(sourceNodes);
 
     m_sourceNode.setCurrentText(sourceNodeName);
 

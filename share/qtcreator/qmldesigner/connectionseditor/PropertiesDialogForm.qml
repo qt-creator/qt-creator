@@ -1,68 +1,73 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick
+import QtQuick.Controls
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 
-import StudioControls
+Column {
+    id: root
 
-Item {
-    width: 400
-    height: 800
+    readonly property real horizontalSpacing: 10
+    readonly property real verticalSpacing: 16
+    readonly property real columnWidth: (root.width - root.horizontalSpacing) / 2
 
     property var backend
 
+    y: StudioTheme.Values.popupMargin
+    width: parent.width
+    spacing: root.verticalSpacing
+
     PopupLabel {
-        x: 10
-        y: 25
-
-        text: qsTr("Type:")
-
+        text: qsTr("Type")
+        tooltip: qsTr("The type of the property")
     }
+    StudioControls.TopLevelComboBox {
+        id: type
+        style: StudioTheme.Values.connectionPopupControlStyle
+        width: root.columnWidth
+        //width: root.width
 
-    TopLevelComboBox {
-        id: target
-        x: 95
-        width: 210
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -367
         model: backend.type.model ?? []
-        onActivated: backend.type.activateIndex(target.currentIndex)
+        onActivated: backend.type.activateIndex(type.currentIndex)
         property int currentTypeIndex: backend.type.currentIndex ?? 0
-        onCurrentTypeIndexChanged: target.currentIndex = target.currentTypeIndex
+        onCurrentTypeIndexChanged: type.currentIndex = type.currentTypeIndex
     }
 
-    PopupLabel {
-        x: 10
-        y: 131
-        text: qsTr("Name")
+    Row {
+        spacing: root.horizontalSpacing
+
+        PopupLabel { text: qsTr("Name") ; tooltip: qsTr("The name of the property.")}
+        PopupLabel { text: qsTr("Value"); tooltip: qsTr("The value of the property.") }
     }
 
-    TextInput {
-        id: name
-        x: 70
-        y: 131
-        width: 156
-        text: backend.name.text ?? ""
-        onEditingFinished: {
-            backend.name.activateText(name.text)
+    Row {
+        spacing: root.horizontalSpacing
+        StudioControls.TextField {
+            id: name
+
+            width: root.columnWidth
+            actionIndicatorVisible: false
+            translationIndicatorVisible: false
+
+            text: backend.name.text ?? ""
+            onEditingFinished: {
+                backend.name.activateText(name.text)
+            }
         }
-    }
+        StudioControls.TextField {
+            id: value
 
-    PopupLabel {
-        x: 10
-        y: 81
-        text: qsTr("Value")
-    }
+            width: root.columnWidth
+            actionIndicatorVisible: false
+            translationIndicatorVisible: false
 
-    TextInput {
-        id: value
-        x: 70
-        y: 81
-        width: 156
-        text: backend.value.text ?? ""
-        onEditingFinished: {
-            backend.value.activateText(value.text)
+
+            text: backend.value.text ?? ""
+            onEditingFinished: {
+                backend.value.activateText(value.text)
+            }
         }
     }
 }

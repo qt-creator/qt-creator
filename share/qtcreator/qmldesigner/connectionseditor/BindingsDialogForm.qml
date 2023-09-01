@@ -3,86 +3,71 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 import QtQuick
 import QtQuick.Controls
-import StudioControls
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 
-Item {
-    width: 400
-    height: 800
+Column {
+    id: root
+
+    readonly property real horizontalSpacing: 10
+    readonly property real verticalSpacing: 16
+    readonly property real columnWidth: (root.width - root.horizontalSpacing) / 2
 
     property var backend
 
-    PopupLabel {
-        x: 10
-        y: 25
-        text: qsTr("Target")
+    y: StudioTheme.Values.popupMargin
+    width: parent.width
+    spacing: root.verticalSpacing
+
+    Row {
+        spacing: root.horizontalSpacing
+
+        PopupLabel { text: qsTr("From") ; tooltip: qsTr("The Property to assign from.")}
+        PopupLabel { text: qsTr("To"); tooltip: qsTr("The Property to assign to.") }
     }
 
-    PopupLabel {
-        id: text111
-        x: 80
-        y: 25
-        text: backend.targetNode
-        font.pixelSize: 15
+    Row {
+        spacing: root.horizontalSpacing
+
+        StudioControls.TopLevelComboBox {
+            id: sourceNode
+            style: StudioTheme.Values.connectionPopupControlStyle
+            width: root.columnWidth
+
+            model: backend.sourceNode.model ?? []
+            onModelChanged: sourceNode.currentIndex = sourceNode.currentTypeIndex
+            onActivated: backend.sourceNode.activateIndex(sourceNode.currentIndex)
+            property int currentTypeIndex: backend.sourceNode.currentIndex ?? 0
+            onCurrentTypeIndexChanged: sourceNode.currentIndex = sourceNode.currentTypeIndex
+        }
+
+        PopupLabel {
+             width: root.columnWidth
+             text: backend.targetNode
+        }
+
     }
 
-    TopLevelComboBox {
-        id: target
-        x: 101
-        width: 210
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -335
-        model: backend.property.model ?? []
-        enabled: false
-        //I see no use case to actually change the property name
-        //onActivated: backend.targetNode.activateIndex(target.currentIndex)
-        property int currentTypeIndex: backend.property.currentIndex ?? 0
-        onCurrentTypeIndexChanged: target.currentIndex = target.currentTypeIndex
-    }
+    Row {
+        spacing: root.horizontalSpacing
 
-    PopupLabel {
-        x: 13
-        y: 111
-        text: qsTr("Source Propety")
-    }
+        StudioControls.TopLevelComboBox {
+            id: sourceProperty
+            style: StudioTheme.Values.connectionPopupControlStyle
+            width: root.columnWidth
 
-    TopLevelComboBox {
-        id: sourceNode
-        x: 135
-        y: 98
-        width: 156
+            model: backend.sourceProperty.model ?? []
+            onModelChanged: sourceProperty.currentIndex = sourceProperty.currentTypeIndex
+            onActivated: backend.sourceProperty.activateIndex(
+                             sourceProperty.currentIndex)
+            property int currentTypeIndex: backend.sourceProperty.currentIndex ?? 0
+            onCurrentTypeIndexChanged: sourceProperty.currentIndex = sourceProperty.currentTypeIndex
+        }
 
-        model: backend.sourceNode.model ?? []
+        PopupLabel {
+             width: root.columnWidth
+             text: backend.property.currentText
+        }
 
-        onModelChanged: sourceNode.currentIndex = sourceNode.currentTypeIndex
-
-        onActivated: backend.sourceNode.activateIndex(sourceNode.currentIndex)
-        property int currentTypeIndex: backend.sourceNode.currentIndex ?? 0
-        onCurrentTypeIndexChanged: sourceNode.currentIndex = sourceNode.currentTypeIndex
-    }
-
-    PopupLabel {
-        x: 13
-        y: 88
-        text: qsTr("Source Node")
-    }
-
-    TopLevelComboBox {
-        id: sourceProperty
-        x: 140
-        y: 121
-        width: 156
-
-        model: backend.sourceProperty.model ?? []
-        onModelChanged: sourceProperty.currentIndex = sourceProperty.currentTypeIndex
-        onActivated: backend.sourceProperty.activateIndex(
-                         sourceProperty.currentIndex)
-        property int currentTypeIndex: backend.sourceProperty.currentIndex ?? 0
-        onCurrentTypeIndexChanged: sourceProperty.currentIndex = sourceProperty.currentTypeIndex
-    }
-
-    PopupLabel {
-        x: 10
-        y: 55
-        text: qsTr("Property")
     }
 }

@@ -135,6 +135,7 @@ class DynamicPropertiesModelBackendDelegate : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString targetNode READ targetNode NOTIFY targetNodeChanged)
     Q_PROPERTY(StudioQmlComboBoxBackend *type READ type CONSTANT)
     Q_PROPERTY(int currentRow READ currentRow WRITE setCurrentRow NOTIFY currentRowChanged)
     Q_PROPERTY(StudioQmlTextBackend *name READ name CONSTANT)
@@ -148,6 +149,7 @@ signals:
     void currentRowChanged();
     void nameChanged();
     void valueChanged();
+    void targetNodeChanged();
 
 private:
     int currentRow() const;
@@ -157,6 +159,7 @@ private:
     void handleValueChanged();
     void handleException();
     QVariant variantValue() const;
+    QString targetNode() const;
 
     StudioQmlComboBoxBackend *type();
 
@@ -168,6 +171,7 @@ private:
     StudioQmlTextBackend m_value;
     int m_currentRow = -1;
     QString m_exceptionError;
+    QString m_targetNode;
 };
 
 } // namespace QmlDesigner

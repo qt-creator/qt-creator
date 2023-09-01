@@ -1022,6 +1022,10 @@ void DynamicPropertiesModelBackendDelegate::setCurrentRow(int i)
         m_value.setText(property.toVariantProperty().value().toString());
     else if (property.isBindingProperty())
         m_value.setText(property.toBindingProperty().expression());
+
+    m_targetNode = property.parentModelNode().id();
+
+    emit targetNodeChanged();
 }
 
 void DynamicPropertiesModelBackendDelegate::handleTypeChanged()
@@ -1077,9 +1081,10 @@ void DynamicPropertiesModelBackendDelegate::handleNameChanged()
             const QString expression = bindingProperty.expression();
             const PropertyName dynamicPropertyType = bindingProperty.dynamicTypeName();
 
+            targetNode.removeProperty(bindingProperty.name());
+
             targetNode.bindingProperty(newName).setDynamicTypeNameAndExpression(dynamicPropertyType,
                                                                                 expression);
-            targetNode.removeProperty(bindingProperty.name());
         });
 
         return;
@@ -1093,9 +1098,10 @@ void DynamicPropertiesModelBackendDelegate::handleNameChanged()
         ModelNode targetNode = variantProperty.parentModelNode();
 
         model->view()->executeInTransaction(__FUNCTION__, [=]() {
+            targetNode.removeProperty(variantProperty.name());
+
             targetNode.variantProperty(newName).setDynamicTypeNameAndValue(dynamicPropertyType,
                                                                            value);
-            targetNode.removeProperty(variantProperty.name());
         });
     }
 
@@ -1165,6 +1171,11 @@ QVariant DynamicPropertiesModelBackendDelegate::variantValue() const
         return m_value.text() == "true";
 
     return m_value.text();
+}
+
+QString DynamicPropertiesModelBackendDelegate::targetNode() const
+{
+    return m_targetNode;
 }
 
 StudioQmlComboBoxBackend *DynamicPropertiesModelBackendDelegate::type()
