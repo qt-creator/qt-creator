@@ -311,7 +311,7 @@ Item {
                                                      "geometryName": geometryName});
                     selectionBoxes[selectionBoxes.length] = box;
                     box.view3D = Qt.binding(function() {return editView;});
-                    box.visible = Qt.binding(function() {return showSelectionBox;});
+                    box.showBox = Qt.binding(function() {return showSelectionBox;});
                 }
             }
         }

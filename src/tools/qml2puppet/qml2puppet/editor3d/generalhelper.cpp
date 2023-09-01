@@ -353,8 +353,32 @@ void GeneralHelper::alignCameras(QQuick3DCamera *camera, const QVariant &nodes)
     }
 
     for (QQuick3DCamera *node : std::as_const(nodeList)) {
-        node->setPosition(camera->position());
-        node->setRotation(camera->rotation());
+        QMatrix4x4 parentTransform;
+        QMatrix4x4 parentRotationTransform;
+        if (node->parentNode()) {
+            QMatrix4x4 rotMat;
+            rotMat.rotate(node->parentNode()->sceneRotation());
+            parentRotationTransform = rotMat.inverted();
+            parentTransform = node->parentNode()->sceneTransform().inverted();
+        }
+
+        QMatrix4x4 localTransform;
+        localTransform.translate(camera->position());
+        localTransform.rotate(camera->rotation());
+
+        QMatrix4x4 finalTransform = parentTransform * localTransform;
+        QVector3D newPos = QVector3D(finalTransform.column(3).x(),
+                                     finalTransform.column(3).y(),
+                                     finalTransform.column(3).z());
+
+        // Rotation must be calculated with sanitized transform that only contains rotation so
+        // that the scaling of ancestor nodes won't distort it
+        QMatrix4x4 finalRotTransform = parentRotationTransform * localTransform;
+        QMatrix3x3 rotationMatrix = finalRotTransform.toGenericMatrix<3, 3>();
+        QQuaternion newRot = QQuaternion::fromRotationMatrix(rotationMatrix).normalized();
+
+        node->setPosition(newPos);
+        node->setRotation(newRot);
     }
 }
 
@@ -376,8 +400,8 @@ QVector3D GeneralHelper::alignView(QQuick3DCamera *camera, const QVariant &nodes
     }
 
     if (cameraNode) {
-        camera->setPosition(cameraNode->position());
-        QVector3D newRotation = cameraNode->eulerRotation();
+        camera->setPosition(cameraNode->scenePosition());
+        QVector3D newRotation = cameraNode->sceneRotation().toEulerAngles();
         newRotation.setZ(0.f);
         camera->setEulerRotation(newRotation);
     }
