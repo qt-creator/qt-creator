@@ -15,24 +15,27 @@ class QuickToolBar : public QmlJS::IContextPane
 {
     Q_OBJECT
 
+    QuickToolBar();
 public:
-   QuickToolBar();
-   ~QuickToolBar() override;
-   void apply(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, const QmlJS::ScopeChain *scopeChain, QmlJS::AST::Node *node, bool update, bool force = false) override;
-   bool isAvailable(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, QmlJS::AST::Node *node) override;
-   void setProperty(const QString &propertyName, const QVariant &value);
-   void removeProperty(const QString &propertyName);
-   void setEnabled(bool) override;
-   QWidget* widget() override;
+    ~QuickToolBar() override;
 
-   void onPropertyChanged(const QString &, const QVariant &);
-   void onPropertyRemoved(const QString &);
-   void onPropertyRemovedAndChange(const QString &, const QString &, const QVariant &, bool removeFirst = true);
-   void onPinnedChanged(bool);
-   void onEnabledChanged(bool);
+    static QuickToolBar *instance();
+
+    void apply(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, const QmlJS::ScopeChain *scopeChain, QmlJS::AST::Node *node, bool update, bool force = false) override;
+    bool isAvailable(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, QmlJS::AST::Node *node) override;
+    void setProperty(const QString &propertyName, const QVariant &value);
+    void removeProperty(const QString &propertyName);
+    void setEnabled(bool) override;
+    QWidget* widget() override;
+
+    void onPropertyChanged(const QString &, const QVariant &);
+    void onPropertyRemoved(const QString &);
+    void onPropertyRemovedAndChange(const QString &, const QString &, const QVariant &, bool removeFirst = true);
+    void onPinnedChanged(bool);
+    void onEnabledChanged(bool);
 
 private:
-   void indentLines(int startLine, int endLine);
+    void indentLines(int startLine, int endLine);
 
     QmlEditorWidgets::ContextPaneWidget* contextWidget();
     QPointer<QmlEditorWidgets::ContextPaneWidget> m_widget;

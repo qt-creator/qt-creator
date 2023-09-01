@@ -86,6 +86,12 @@ QuickToolBar::~QuickToolBar()
     m_widget = nullptr;
 }
 
+QuickToolBar *QuickToolBar::instance()
+{
+    static QuickToolBar theQuickToolBar;
+    return &theQuickToolBar;
+}
+
 void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::Ptr document, const ScopeChain *scopeChain, Node *node, bool update, bool force)
 {
     if (!QmlJsEditingSettings::get().enableContextPane() && !force && !update) {

@@ -116,7 +116,7 @@ void QmlJSEditorWidget::finalizeInitialization()
             this, &QmlJSEditorWidget::updateOutlineIndexNow);
 
     m_modelManager = ModelManagerInterface::instance();
-    m_contextPane = Internal::QmlJSEditorPlugin::quickToolBar();
+    m_contextPane = QuickToolBar::instance();
 
     m_modelManager->activateScan();
 

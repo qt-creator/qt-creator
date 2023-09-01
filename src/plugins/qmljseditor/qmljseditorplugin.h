@@ -24,7 +24,6 @@ public:
 
     static QmlJSQuickFixAssistProvider *quickFixAssistProvider();
     static QmlJS::JsonSchemaManager *jsonManager();
-    static QuickToolBar *quickToolBar();
 
 private:
     void initialize() final;

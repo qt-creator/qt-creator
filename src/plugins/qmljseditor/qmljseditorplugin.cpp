@@ -85,7 +85,6 @@ public:
          ICore::resourcePath("json/").toString()}};
     QmlJSEditorFactory m_qmlJSEditorFactory;
     QmlJSOutlineWidgetFactory m_qmlJSOutlineWidgetFactory;
-    QuickToolBar m_quickToolBar;
     QmlJsEditingSettingsPage m_qmJSEditingSettingsPage;
 };
 
@@ -221,12 +220,6 @@ void QmlJSEditorPlugin::extensionsInitialized()
 QmlJS::JsonSchemaManager *QmlJSEditorPlugin::jsonManager()
 {
     return &m_instance->d->m_jsonManager;
-}
-
-QuickToolBar *QmlJSEditorPlugin::quickToolBar()
-{
-    QTC_ASSERT(m_instance && m_instance->d, return new QuickToolBar());
-    return &m_instance->d->m_quickToolBar;
 }
 
 void QmlJSEditorPluginPrivate::renameUsages()
