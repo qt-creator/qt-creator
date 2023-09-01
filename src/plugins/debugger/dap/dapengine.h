@@ -113,6 +113,8 @@ protected:
     int m_nextBreakpointId = 1;
     int m_currentThreadId = -1;
 
+    bool m_isFirstLayer = true;
+    std::queue<int> m_variablesReferenceQueue;
     WatchItem *m_currentWatchItem = nullptr;
     QList<WatchItem *> m_watchItems;
 };

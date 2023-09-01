@@ -409,8 +409,12 @@ void DapEngine::assignValueInDebugger(WatchItem *, const QString &/*expression*/
 void DapEngine::updateItem(const QString &iname)
 {
     WatchItem *item = watchHandler()->findItem(iname);
-    m_currentWatchItem = item;
-    m_dapClient->variables(item->variablesReference);
+
+    if (m_currentWatchItem != item) {
+        m_currentWatchItem = item;
+        m_isFirstLayer = false;
+        m_dapClient->variables(item->variablesReference);
+    }
 }
 
 QString DapEngine::errorMessage(QProcess::ProcessError error) const
@@ -542,20 +546,23 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
     if (!response.value("success").toBool())
         return;
 
+    watchHandler()->cleanup();
+    watchHandler()->removeAllData();
+    watchHandler()->notifyUpdateStarted();
+
+    m_watchItems.clear();
+
     QJsonArray scopes = response.value("body").toObject().value("scopes").toArray();
     for (const QJsonValueRef &scope : scopes) {
         const QString name = scope.toObject().value("name").toString();
-        const int variablesReference = scope.toObject().value("variablesReference").toInt();
-        qCDebug(dapEngineLog) << "scoped success" << name << variablesReference;
-        if (name == "Locals") { // Fix for several scopes
-            watchHandler()->removeAllData();
-            watchHandler()->notifyUpdateStarted();
-
-            m_watchItems.clear();
-            watchHandler()->cleanup();
-            m_dapClient->variables(variablesReference);
-        }
+        if (name == "Registers")
+            continue;
+        m_variablesReferenceQueue.push(scope.toObject().value("variablesReference").toInt());
     }
+
+    m_isFirstLayer = true;
+    m_dapClient->variables(m_variablesReferenceQueue.front());
+    m_variablesReferenceQueue.pop();
 }
 
 void DapEngine::handleThreadsResponse(const QJsonObject &response)
@@ -695,7 +702,6 @@ void DapEngine::handleBreakpointEvent(const QJsonObject &event)
 
 void DapEngine::refreshLocals(const QJsonArray &variables)
 {
-    bool isFirstLayer = m_watchItems.isEmpty();
     for (auto variable : variables) {
         WatchItem *item = new WatchItem;
         const QString name = variable.toObject().value("name").toString();
@@ -711,18 +717,24 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
         if (variablesReference > 0)
             item->wantsChildren = true;
 
-        qCDebug(dapEngineLog) << "variable" << name << item->hexAddress();
-        if (isFirstLayer)
+        qCDebug(dapEngineLog) << "variable" << name << variablesReference;
+        if (m_isFirstLayer)
             m_watchItems.append(item);
         else
             m_currentWatchItem->appendChild(item);
     }
 
-    if (isFirstLayer) {
-        for (auto item : m_watchItems)
-            watchHandler()->insertItem(item);
-    } else
+    if (m_isFirstLayer) {
+        if (m_variablesReferenceQueue.empty()) {
+            for (auto item : m_watchItems)
+                watchHandler()->insertItem(item);
+        } else {
+            m_dapClient->variables(m_variablesReferenceQueue.front());
+            m_variablesReferenceQueue.pop();
+        }
+    } else {
         watchHandler()->updateWatchExpression(m_currentWatchItem, "");
+    }
 
     watchHandler()->notifyUpdateFinished();
 }
