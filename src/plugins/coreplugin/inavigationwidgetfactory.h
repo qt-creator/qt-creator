@@ -13,7 +13,6 @@
 #include <QKeySequence>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QToolButton;
 class QWidget;
 QT_END_NAMESPACE
