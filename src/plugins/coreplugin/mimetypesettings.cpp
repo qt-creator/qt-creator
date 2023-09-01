@@ -633,7 +633,7 @@ void MimeTypeSettingsPrivate::writeUserModifiedMimeTypes()
 {
     static Utils::FilePath modifiedMimeTypesFile = ICore::userResourcePath(kModifiedMimeTypesFile);
 
-    if (QFile::exists(modifiedMimeTypesFile.toString())
+    if (QFileInfo::exists(modifiedMimeTypesFile.toString())
             || QDir().mkpath(modifiedMimeTypesFile.parentDir().toString())) {
         QFile file(modifiedMimeTypesFile.toString());
         if (file.open(QFile::WriteOnly | QFile::Truncate)) {

@@ -48,10 +48,10 @@ static FilePath sdkFromUrl(const QUrl &url)
     if (basename.isEmpty())
         basename = "sdk-tools.zip";
 
-    if (QFile::exists(basename)) {
+    if (QFileInfo::exists(basename)) {
         int i = 0;
         basename += '.';
-        while (QFile::exists(basename + QString::number(i)))
+        while (QFileInfo::exists(basename + QString::number(i)))
             ++i;
         basename += QString::number(i);
     }

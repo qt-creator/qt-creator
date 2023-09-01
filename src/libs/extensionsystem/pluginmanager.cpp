@@ -1475,7 +1475,7 @@ public:
     static std::optional<QString> lockedPluginName(PluginManagerPrivate *pm)
     {
         const QString lockFilePath = LockFile::filePath(pm);
-        if (QFile::exists(lockFilePath)) {
+        if (QFileInfo::exists(lockFilePath)) {
             QFile f(lockFilePath);
             if (f.open(QIODevice::ReadOnly)) {
                 const auto pluginName = QString::fromUtf8(f.readLine()).trimmed();

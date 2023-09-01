@@ -957,7 +957,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
             stream >> historyData;
         view()->m_editorHistory = loadHistory(historyData);
 
-        if (!QFile::exists(fileName))
+        if (!QFileInfo::exists(fileName))
             return;
         IEditor *e = EditorManagerPrivate::openEditor(view(), FilePath::fromString(fileName), Id::fromString(id),
                                                       EditorManager::IgnoreNavigationHistory

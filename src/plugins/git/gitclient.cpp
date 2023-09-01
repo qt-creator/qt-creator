@@ -2529,7 +2529,7 @@ FilePath GitClient::gitBinDirectory() const
             // Git for Windows uses Git/usr/bin. Prefer that if it exists.
             QString usrBinPath = path;
             usrBinPath.replace(usrBinPath.size() - 3, 3, "usr/bin");
-            if (QFile::exists(usrBinPath))
+            if (QFileInfo::exists(usrBinPath))
                 path = usrBinPath;
         }
     }

@@ -165,7 +165,7 @@ void LocalQmlProfilerRunnerTest::testFindFreeSocket()
     QUrl serverUrl = Utils::urlFromLocalSocket();
     QString socket = serverUrl.path();
     QVERIFY(!socket.isEmpty());
-    QVERIFY(!QFile::exists(socket));
+    QVERIFY(!QFileInfo::exists(socket));
     QFile file(socket);
     QVERIFY(file.open(QIODevice::WriteOnly));
     file.close();

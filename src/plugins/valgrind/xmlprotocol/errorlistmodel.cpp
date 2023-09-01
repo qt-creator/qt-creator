@@ -91,7 +91,7 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
     else
         path = frame.object();
 
-    if (QFile::exists(path))
+    if (QFileInfo::exists(path))
         path = QFileInfo(path).canonicalFilePath();
 
     if (frame.line() != -1)

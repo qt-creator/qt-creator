@@ -115,7 +115,7 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskA
         QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
 
     for (const QString &filePath : filePaths) {
-        if (QFile::exists(filePath) && !QFile::remove(filePath)) {
+        if (QFileInfo::exists(filePath) && !QFile::remove(filePath)) {
             QMessageBox::warning(Core::ICore::dialogParent(),
                                  tr("Failed to Delete File"),
                                  tr("Could not delete \"%1\".").arg(filePath));

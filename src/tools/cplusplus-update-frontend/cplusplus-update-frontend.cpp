@@ -1606,7 +1606,7 @@ int main(int argc, char *argv[])
     }
 
     QDir cplusplusDir(pathCppFrontend);
-    if (!QFile::exists(pathCppFrontend)) {
+    if (!QFileInfo::exists(pathCppFrontend)) {
         std::cerr << "Error: Directory \"" << qPrintable(cplusplusDir.absolutePath())
                   << "\" does not exist." << std::endl;
         return EXIT_FAILURE;
@@ -1616,7 +1616,7 @@ int main(int argc, char *argv[])
                   << "\"." << std::endl;
         return EXIT_FAILURE;
     }
-    if (!QFile::exists(pathDumpersFile)) {
+    if (!QFileInfo::exists(pathDumpersFile)) {
         std::cerr << "Error: File \"" << qPrintable(pathDumpersFile)
                   << "\" does not exist." << std::endl;
         return EXIT_FAILURE;

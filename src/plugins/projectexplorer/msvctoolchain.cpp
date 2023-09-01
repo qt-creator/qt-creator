@@ -1210,8 +1210,8 @@ void MsvcToolChain::rescanForCompiler()
           env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FilePath &name) {
               QDir dir(QDir::cleanPath(name.toFileInfo().absolutePath() + QStringLiteral("/..")));
               do {
-                  if (QFile::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
-                      || QFile::exists(dir.absolutePath() + "/Auxiliary/Build/vcvarsall.bat"))
+                  if (QFileInfo::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
+                      || QFileInfo::exists(dir.absolutePath() + "/Auxiliary/Build/vcvarsall.bat"))
                       return true;
               } while (dir.cdUp() && !dir.isRoot());
               return false;

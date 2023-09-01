@@ -120,7 +120,7 @@ GDB 32bit | Api             | Api             | NA              | Win32         
             const QString executable = breakApi == UseWin32Interrupt
                     ? QCoreApplication::applicationDirPath() + "/win32interrupt.exe"
                     : QCoreApplication::applicationDirPath() + "/win64interrupt.exe";
-            if (!QFile::exists(executable)) {
+            if (!QFileInfo::exists(executable)) {
                 *errorMessage = QString::fromLatin1(
                                     "%1 does not exist. If you have built %2 "
                                     "on your own, checkout "

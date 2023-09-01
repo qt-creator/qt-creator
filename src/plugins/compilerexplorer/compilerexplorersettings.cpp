@@ -228,7 +228,7 @@ void SourceSettings::fillLanguageIdModel(StringSelectionAspect::ResultCallback c
             auto *newItem = new QStandardItem(language.name);
             newItem->setData(language.id);
 
-            if (QFile::exists(":/compilerexplorer/logos/" + language.logoUrl)) {
+            if (QFileInfo::exists(":/compilerexplorer/logos/" + language.logoUrl)) {
                 QIcon icon(":/compilerexplorer/logos/" + language.logoUrl);
                 newItem->setIcon(icon);
             }

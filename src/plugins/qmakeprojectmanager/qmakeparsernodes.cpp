@@ -1917,7 +1917,7 @@ FilePaths QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
         else
             realFile = realDir;
 
-        if (QFile::exists(realFile)) {
+        if (QFileInfo::exists(realFile)) {
             realFile = QDir::cleanPath(realFile);
             subProjectPaths << FilePath::fromString(realFile);
             if (subProjectsNotToDeploy && !subProjectsNotToDeploy->contains(realFile)

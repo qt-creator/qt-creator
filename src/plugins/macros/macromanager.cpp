@@ -372,7 +372,7 @@ void MacroManager::saveLastMacro()
 QString MacroManager::macrosDirectory()
 {
     const QString path = Core::ICore::userResourcePath("macros").toString();
-    if (QFile::exists(path) || QDir().mkpath(path))
+    if (QFileInfo::exists(path) || QDir().mkpath(path))
         return path;
     return QString();
 }

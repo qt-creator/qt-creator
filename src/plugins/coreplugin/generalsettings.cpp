@@ -174,7 +174,7 @@ static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrP
     static const QString qtTrPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
 
     const QString trFile = QLatin1String("/qt_") + locale + QLatin1String(".qm");
-    return QFile::exists(qtTrPath + trFile) || QFile::exists(creatorTrPath + trFile);
+    return QFileInfo::exists(qtTrPath + trFile) || QFileInfo::exists(creatorTrPath + trFile);
 }
 
 void GeneralSettingsWidget::fillLanguageBox() const

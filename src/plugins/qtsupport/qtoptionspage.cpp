@@ -822,7 +822,7 @@ static QString qtVersionsFile(const QString &baseDir)
 static std::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
 {
     const QString installSettingsFilePath = settingsFile(Core::ICore::resourcePath().toString());
-    const bool installSettingsExist = QFile::exists(installSettingsFilePath);
+    const bool installSettingsExist = QFileInfo::exists(installSettingsFilePath);
     if (hasInstallSettings)
         *hasInstallSettings = installSettingsExist;
     if (installSettingsExist) {
@@ -934,8 +934,8 @@ static std::optional<FilePath> settingsDirForQtDir(const FilePath &baseDirectory
         return qtDir / dir;
     });
     const FilePath validDir = Utils::findOrDefault(dirsToCheck, [baseDirectory](const FilePath &dir) {
-        return QFile::exists(settingsFile(baseDirectory.resolvePath(dir).toString()))
-               || QFile::exists(qtVersionsFile(baseDirectory.resolvePath(dir).toString()));
+        return QFileInfo::exists(settingsFile(baseDirectory.resolvePath(dir).toString()))
+               || QFileInfo::exists(qtVersionsFile(baseDirectory.resolvePath(dir).toString()));
     });
     if (!validDir.isEmpty())
         return validDir;

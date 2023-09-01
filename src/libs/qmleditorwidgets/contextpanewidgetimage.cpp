@@ -259,7 +259,7 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
     if (propertyReader->hasProperty(QLatin1String("source"))) {
         QString source = propertyReader->readProperty(QLatin1String("source")).toString();
         m_fileWidget->setFileName(source);
-        if (QFile::exists(m_path + QLatin1Char('/') + source))
+        if (QFileInfo::exists(m_path + QLatin1Char('/') + source))
             setPixmap(m_path + QLatin1Char('/') + source);
         else
             setPixmap(source);

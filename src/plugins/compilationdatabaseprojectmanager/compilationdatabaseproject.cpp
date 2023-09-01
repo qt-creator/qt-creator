@@ -391,7 +391,7 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
 
     root->addNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
-    if (QFile::exists(dbContents.extraFileName))
+    if (QFileInfo::exists(dbContents.extraFileName))
         root->addNode(std::make_unique<FileNode>(Utils::FilePath::fromString(dbContents.extraFileName),
                                                  FileType::Project));
 

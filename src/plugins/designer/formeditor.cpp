@@ -916,7 +916,7 @@ void setQtPluginPath(const QString &qtPluginPath)
     *sQtPluginPath = Utils::trimBack(*sQtPluginPath, '/');
     if (sQtPluginPath->endsWith(postfix))
         sQtPluginPath->chop(postfix.size());
-    if (!QFile::exists(*sQtPluginPath + postfix)) {
+    if (!QFileInfo::exists(*sQtPluginPath + postfix)) {
         qWarning() << qPrintable(
             QLatin1String(
                 "Warning: The path \"%1\" passed to -designer-qt-pluginpath does not exist. "

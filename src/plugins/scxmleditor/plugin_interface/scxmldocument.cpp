@@ -349,7 +349,7 @@ bool ScxmlDocument::pasteData(const QByteArray &data, const QPointF &minPos, con
 
 void ScxmlDocument::load(const QString &fileName)
 {
-    if (QFile::exists(fileName)) {
+    if (QFileInfo::exists(fileName)) {
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             if (load(&file)) {

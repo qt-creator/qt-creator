@@ -76,7 +76,7 @@ SystemPreprocessor::SystemPreprocessor(bool verbose)
 void SystemPreprocessor::check() const
 {
     QTextStream out(stderr);
-    if (!QFile::exists(QLatin1String(PATH_PREPROCESSOR_CONFIG))) {
+    if (!QFileInfo::exists(QLatin1String(PATH_PREPROCESSOR_CONFIG))) {
         out << QString::fromLatin1("Error: File \"%1\" does not exist.")
                    .arg(QLatin1String(PATH_PREPROCESSOR_CONFIG))
             << Qt::endl;
@@ -94,7 +94,7 @@ void SystemPreprocessor::check() const
 void SystemPreprocessor::preprocessFile(const QString &inputFile, const QString &outputFile) const
 {
     check();
-    if (!QFile::exists(inputFile)) {
+    if (!QFileInfo::exists(inputFile)) {
         QTextStream out(stderr);
         out << QString::fromLatin1("Error: File \"%1\" does not exist.").arg(inputFile) << Qt::endl;
         exit(EXIT_FAILURE);

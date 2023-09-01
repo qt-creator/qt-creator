@@ -24,7 +24,7 @@ namespace Internal {
 template<typename File_t>
 bool containsFiles(const QString &path, const File_t &file)
 {
-    return QFile::exists(QString("%1/%2").arg(path).arg(file));
+    return QFileInfo::exists(QString("%1/%2").arg(path).arg(file));
 }
 
 template<typename File_t, typename... T>

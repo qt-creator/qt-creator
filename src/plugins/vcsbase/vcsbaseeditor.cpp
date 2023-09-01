@@ -1156,7 +1156,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
         return;
     const QString fileName = findDiffFile(fileNameFromDiffSpecification(block));
 
-    const bool exists = fileName.isEmpty() ? false : QFile::exists(fileName);
+    const bool exists = fileName.isEmpty() ? false : QFileInfo::exists(fileName);
 
     if (!exists)
         return;

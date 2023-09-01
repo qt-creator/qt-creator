@@ -778,7 +778,7 @@ void MemcheckToolPrivate::heobAction()
     // heob executable
     const QString heob = QString("heob%1.exe").arg(abi.wordWidth());
     const QString heobPath = dialog.path() + '/' + heob;
-    if (!QFile::exists(heobPath)) {
+    if (!QFileInfo::exists(heobPath)) {
         QMessageBox::critical(
             Core::ICore::dialogParent(),
             Tr::tr("Heob"),
@@ -791,7 +791,7 @@ void MemcheckToolPrivate::heobAction()
     if (abi.osFlavor() == Abi::WindowsMSysFlavor) {
         const QString dwarfstack = QString("dwarfstack%1.dll").arg(abi.wordWidth());
         const QString dwarfstackPath = dialog.path() + '/' + dwarfstack;
-        if (!QFile::exists(dwarfstackPath)
+        if (!QFileInfo::exists(dwarfstackPath)
             && CheckableMessageBox::information(
                    Core::ICore::dialogParent(),
                    Tr::tr("Heob"),
