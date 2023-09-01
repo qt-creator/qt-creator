@@ -13,18 +13,15 @@ namespace QmlDesigner {
 template<typename Task, typename DispatchCallback, typename ClearCallback>
 class TaskQueue
 {
+    using Tasks = std::deque<Task>;
+
 public:
     TaskQueue(DispatchCallback dispatchCallback, ClearCallback clearCallback)
         : m_dispatchCallback(std::move(dispatchCallback))
         , m_clearCallback(std::move(clearCallback))
     {}
 
-    ~TaskQueue()
-    {
-        auto lock = clearTasks();
-        stopThread(std::move(lock));
-        joinThread();
-    }
+    ~TaskQueue() { destroy(); }
 
     template<typename... Arguments>
     void addTask(Arguments &&...arguments)
@@ -39,9 +36,24 @@ public:
         m_condition.notify_all();
     }
 
-    void clean() { clearTasks(); }
+    void clean()
+    {
+        Tasks oldTasks;
+        {
+            std::unique_lock lock{m_mutex};
+            std::swap(m_tasks, oldTasks);
+        }
+        clearTasks(oldTasks);
+    }
 
 private:
+    void destroy()
+    {
+        stopThread();
+        joinThread();
+        clearTasks(m_tasks);
+    }
+
     [[nodiscard]] std::tuple<std::unique_lock<std::mutex>, bool> waitForTasks()
     {
         using namespace std::literals::chrono_literals;
@@ -80,7 +92,7 @@ private:
             return;
 
         if (m_backgroundThread.joinable())
-            m_backgroundThread.join();
+            return;
 
         m_sleeping = false;
 
@@ -95,20 +107,16 @@ private:
         }};
     }
 
-    std::unique_lock<std::mutex> clearTasks()
+    void clearTasks(Tasks &tasks)
     {
-        std::unique_lock lock{m_mutex};
-        for (Task &task : m_tasks)
+        for (Task &task : tasks)
             m_clearCallback(task);
-        m_tasks.clear();
-
-        return lock;
     }
 
-    void stopThread(std::unique_lock<std::mutex> lock)
+    void stopThread()
     {
         {
-            auto l = std::move(lock);
+            std::unique_lock lock{m_mutex};
             m_finishing = true;
         }
         m_condition.notify_all();
@@ -121,7 +129,7 @@ private:
     }
 
 private:
-    std::deque<Task> m_tasks;
+    Tasks m_tasks;
     std::mutex m_mutex;
     std::condition_variable m_condition;
     std::thread m_backgroundThread;
