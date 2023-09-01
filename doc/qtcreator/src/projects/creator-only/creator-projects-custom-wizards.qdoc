@@ -27,9 +27,10 @@
     has sections that specify information about the wizard, variables
     that you can use, wizard pages, and generators for creating files.
 
-    To create a customized wizard, copy a template directory to the shared
-    directory or the local user's settings directory under a new name. Then
-    change the wizard id in the \c {wizard.json} file.
+    To create a customized wizard, copy a template directory to the
+    \c {templates/wizards/} directory in the local user's settings
+    directory under a new name. Then change the wizard id in the
+    \c {wizard.json} file.
 
     You can create a subdirectory for the templates in the settings directory.
     \QC organizes the standard wizards into subdirectories by type, but you can
