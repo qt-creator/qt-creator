@@ -24,10 +24,34 @@
 #include <QMenu>
 #include <QVBoxLayout>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 const int defaultSectionSize = 17;
+
+class SquishNavigationWidget : public QWidget
+{
+public:
+    explicit SquishNavigationWidget(QWidget *parent = nullptr);
+    ~SquishNavigationWidget() override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+    static QList<QToolButton *> createToolButtons();
+
+private:
+    void onItemActivated(const QModelIndex &idx);
+    void onExpanded(const QModelIndex &idx);
+    void onCollapsed(const QModelIndex &idx);
+    void onRowsInserted(const QModelIndex &parent, int, int);
+    void onRowsRemoved(const QModelIndex &parent, int, int);
+    void onRemoveSharedFolderTriggered(int row, const QModelIndex &parent);
+    void onRemoveAllSharedFolderTriggered();
+    void onRecordTestCase(const QString &suiteName, const QString &testCase);
+    void onNewTestCaseTriggered(const QModelIndex &index);
+
+    SquishTestTreeView *m_view;
+    SquishTestTreeModel *m_model; // not owned
+    SquishTestTreeSortModel *m_sortModel;
+};
+
 
 SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
     : QWidget(parent)
@@ -346,5 +370,4 @@ Core::NavigationView SquishNavigationWidgetFactory::createWidget()
     return view;
 }
 
-} // namespace Internal
-} // namespace Squish
+} // Squish::Internal
