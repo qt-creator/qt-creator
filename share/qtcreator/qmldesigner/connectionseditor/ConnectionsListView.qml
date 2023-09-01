@@ -41,6 +41,15 @@ ListView {
         dialog.backend.currentRow = root.currentIndex
     }
 
+    // Number of columns
+    readonly property int numColumns: 3
+    // Proper row width calculation
+    readonly property int rowSpacing: StudioTheme.Values.toolbarHorizontalMargin
+    readonly property int rowSpace: root.width - (root.rowSpacing * (root.numColumns + 1))
+                                    - root.style.squareControlSize.width
+    property int rowWidth: root.rowSpace / root.numColumns
+    property int rowRest: root.rowSpace % root.numColumns
+
     data: [
         ConnectionsDialog {
             id: dialog
@@ -48,13 +57,6 @@ ListView {
             backend: root.model.delegate
         }
     ]
-
-    // Proper row width calculation
-    readonly property int rowSpacing: StudioTheme.Values.toolbarHorizontalMargin
-    readonly property int rowSpace: root.width - (root.rowSpacing * 4)
-                                    - root.style.squareControlSize.width
-    property int rowWidth: root.rowSpace / 3
-    property int rowRest: root.rowSpace % 3
 
     delegate: Rectangle {
         id: itemDelegate
@@ -79,10 +81,9 @@ ListView {
             hoverEnabled: true
 
             onClicked: {
-                root.model.currentIndex = index
-                root.currentIndex = index
-                dialog.backend.currentRow = index
-
+                root.model.currentIndex = itemDelegate.index
+                root.currentIndex = itemDelegate.index
+                dialog.backend.currentRow = itemDelegate.index
                 dialog.popup(mouseArea)
             }
         }
@@ -154,7 +155,7 @@ ListView {
                     id: toolTipArea
                     tooltip: qsTr("This is a test.")
                     anchors.fill: parent
-                    onClicked: root.model.remove(index)
+                    onClicked: root.model.remove(itemDelegate.index)
                 }
             }
         }

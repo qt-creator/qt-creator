@@ -9,9 +9,10 @@ import StudioTheme as StudioTheme
 import ConnectionsEditorEditorBackend
 
 ListView {
-    id: listView
-    width: 606
-    height: 160
+    id: root
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
+
     clip: true
     interactive: true
     highlightMoveDuration: 0
@@ -21,57 +22,66 @@ ListView {
         dialog.hide()
     }
 
-    property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
-
-    property int modelCurrentIndex: listView.model.currentIndex ?? 0
+    property int modelCurrentIndex: root.model.currentIndex ?? 0
 
     // Something weird with currentIndex happens when items are removed added.
     // listView.model.currentIndex contains the persistent index.
 
     onModelCurrentIndexChanged: {
-        listView.currentIndex = listView.model.currentIndex
+        root.currentIndex = root.model.currentIndex
     }
 
     onCurrentIndexChanged: {
-        listView.currentIndex = listView.model.currentIndex
-        dialog.backend.currentRow = listView.currentIndex
+        root.currentIndex = root.model.currentIndex
+        dialog.backend.currentRow = root.currentIndex
     }
 
+    // Number of columns
+    readonly property int numColumns: 4
+    // Proper row width calculation
     readonly property int rowSpacing: StudioTheme.Values.toolbarHorizontalMargin
-    readonly property int rowSpace: listView.width - (listView.rowSpacing * 4)
-                                    - listView.style.squareControlSize.width
-    property int rowWidth: listView.rowSpace / 4
-    property int rowRest: listView.rowSpace % 4
+    readonly property int rowSpace: root.width - (root.rowSpacing * (root.numColumns + 1))
+                                    - root.style.squareControlSize.width
+    property int rowWidth: root.rowSpace / root.numColumns
+    property int rowRest: root.rowSpace % root.numColumns
 
     data: [
         PropertiesDialog {
             id: dialog
             visible: false
-            backend: listView.model.delegate
+            backend: root.model.delegate
         }
     ]
 
     delegate: Rectangle {
         id: itemDelegate
+
+        required property int index
+
+        required property string target
+        required property string name
+        required property string type
+        required property string value
+
         width: ListView.view.width
-        height: listView.style.squareControlSize.height
+        height: root.style.squareControlSize.height
         color: mouseArea.containsMouse ?
-                   itemDelegate.ListView.isCurrentItem ? listView.style.interactionHover
-                                                       : listView.style.background.hover
+                   itemDelegate.ListView.isCurrentItem ? root.style.interactionHover
+                                                       : root.style.background.hover
                                        : "transparent"
 
         MouseArea {
             id: mouseArea
             anchors.fill: parent
 
-            property int currentIndex: listView.currentIndex
+            property int currentIndex: root.currentIndex
 
             Connections {
                 target: mouseArea
                 function onClicked() {
-                    listView.model.currentIndex = index
-                    listView.currentIndex = index
-                    dialog.backend.currentRow = index
+                    root.model.currentIndex = itemDelegate.index
+                    root.currentIndex = itemDelegate.index
+                    dialog.backend.currentRow = itemDelegate.index
                     dialog.popup(mouseArea)
                 }
             }
@@ -81,58 +91,58 @@ ListView {
             id: row
 
             height: itemDelegate.height
-            spacing: listView.rowSpacing
+            spacing: root.rowSpacing
 
-            property color textColor: itemDelegate.ListView.isCurrentItem ? listView.style.text.selectedText
-                                                                          : listView.style.icon.idle
+            property color textColor: itemDelegate.ListView.isCurrentItem ? root.style.text.selectedText
+                                                                          : root.style.icon.idle
             Text {
-                width: listView.rowWidth + listView.rowRest
+                width: root.rowWidth + root.rowRest
                 height: itemDelegate.height
                 color: row.textColor
-                text: target ?? ""
+                text: itemDelegate.target ?? ""
                 verticalAlignment: Text.AlignVCenter
                 font.bold: false
                 elide: Text.ElideMiddle
-                leftPadding: listView.rowSpacing
+                leftPadding: root.rowSpacing
             }
 
             Text {
-                width: listView.rowWidth
+                width: root.rowWidth
                 height: itemDelegate.height
                 color: row.textColor
-                text: name ?? ""
-                verticalAlignment: Text.AlignVCenter
-                font.bold: false
-                elide: Text.ElideMiddle
-            }
-
-            Text {
-                width: listView.rowWidth + listView.rowRest
-                height: itemDelegate.height
-                color: row.textColor
-                text: type ?? ""
+                text: itemDelegate.name ?? ""
                 verticalAlignment: Text.AlignVCenter
                 font.bold: false
                 elide: Text.ElideMiddle
             }
 
             Text {
-                width: listView.rowWidth + listView.rowRest
+                width: root.rowWidth + root.rowRest
                 height: itemDelegate.height
                 color: row.textColor
-                text: value ?? ""
+                text: itemDelegate.type ?? ""
+                verticalAlignment: Text.AlignVCenter
+                font.bold: false
+                elide: Text.ElideMiddle
+            }
+
+            Text {
+                width: root.rowWidth + root.rowRest
+                height: itemDelegate.height
+                color: row.textColor
+                text: itemDelegate.value ?? ""
                 verticalAlignment: Text.AlignVCenter
                 font.bold: false
                 elide: Text.ElideMiddle
             }
 
             Rectangle {
-                width: listView.style.squareControlSize.width
-                height: listView.style.squareControlSize.height
+                width: root.style.squareControlSize.width
+                height: root.style.squareControlSize.height
 
                 color: toolTipArea.containsMouse ?
-                           itemDelegate.ListView.isCurrentItem ? listView.style.interactionHover
-                                                               : listView.style.background.hover
+                           itemDelegate.ListView.isCurrentItem ? root.style.interactionHover
+                                                               : root.style.background.hover
                                                : "transparent"
 
                 Text {
@@ -140,7 +150,7 @@ ListView {
 
                     text: StudioTheme.Constants.remove_medium
                     font.family: StudioTheme.Constants.iconFont.family
-                    font.pixelSize: listView.style.baseIconFontSize
+                    font.pixelSize: root.style.baseIconFontSize
 
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
@@ -153,7 +163,7 @@ ListView {
                     id: toolTipArea
                     tooltip: qsTr("This is a test.")
                     anchors.fill: parent
-                    onClicked: listView.model.remove(index)
+                    onClicked: root.model.remove(itemDelegate.index)
                 }
             }
 
@@ -161,7 +171,7 @@ ListView {
     }
 
     highlight: Rectangle {
-        color: listView.style.interaction
+        color: root.style.interaction
         width: 600
     }
 }

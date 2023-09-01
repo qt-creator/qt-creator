@@ -76,7 +76,7 @@ Column {
     }
 
     StatementEditor {
-        actionType: action.currentValue
+        actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
         id: container
         horizontalSpacing: root.horizontalSpacing
         columnWidth: root.columnWidth
