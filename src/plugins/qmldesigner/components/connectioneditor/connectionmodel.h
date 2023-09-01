@@ -242,6 +242,7 @@ class ConnectionModelBackendDelegate : public QObject
     Q_PROPERTY(ConnectionModelStatementDelegate *koStatement READ koStatement CONSTANT)
     Q_PROPERTY(ConditionListModel *conditionListModel READ conditionListModel CONSTANT)
     Q_PROPERTY(bool hasCondition READ hasCondition NOTIFY hasConditionChanged)
+    Q_PROPERTY(bool hasElse READ hasElse NOTIFY hasElseChanged)
     Q_PROPERTY(QString source READ source NOTIFY sourceChanged)
 
 public:
@@ -255,10 +256,14 @@ public:
     Q_INVOKABLE void addCondition();
     Q_INVOKABLE void removeCondition();
 
+    Q_INVOKABLE void addElse();
+    Q_INVOKABLE void removeElse();
+
 signals:
     void currentRowChanged();
     void actionTypeChanged();
     void hasConditionChanged();
+    void hasElseChanged();
     void sourceChanged();
 
 private:
@@ -267,7 +272,9 @@ private:
 
     void handleException();
     bool hasCondition() const;
+    bool hasElse() const;
     void setHasCondition(bool b);
+    void setHasElse(bool b);
     ActionType actionType() const;
     PropertyTreeModelDelegate *signal();
     ConnectionModelStatementDelegate *okStatement();
@@ -280,7 +287,10 @@ private:
 
     void handleTargetChanged();
     void handleOkStatementChanged();
+    void handleKOStatementChanged();
     void handleConditionChanged();
+
+    void commitNewSource(const QString &source);
 
     ActionType m_actionType;
     QString m_exceptionError;
@@ -291,6 +301,7 @@ private:
     ConnectionModelStatementDelegate m_koStatementDelegate;
     ConditionListModel m_conditionListModel;
     bool m_hasCondition = false;
+    bool m_hasElse = false;
     QString m_source;
 };
 

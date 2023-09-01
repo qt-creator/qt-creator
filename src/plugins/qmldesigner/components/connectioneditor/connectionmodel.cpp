@@ -575,6 +575,11 @@ ConnectionModelBackendDelegate::ConnectionModelBackendDelegate(ConnectionModel *
             this,
             [this]() { handleOkStatementChanged(); });
 
+    connect(&m_koStatementDelegate,
+            &ConnectionModelStatementDelegate::statementChanged,
+            this,
+            [this]() { handleKOStatementChanged(); });
+
     connect(&m_conditionListModel, &ConditionListModel::conditionChanged, this, [this]() {
         handleConditionChanged();
     });
@@ -673,19 +678,7 @@ void ConnectionModelBackendDelegate::addCondition()
 
     QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
 
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
-
-    QTC_ASSERT(model, return );
-    QTC_ASSERT(model->connectionView()->isAttached(), return );
-
-    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
-
-    model->connectionView()->executeInTransaction("ConnectionModelBackendDelegate::removeCondition",
-                                                  [&]() {
-                                                      signalHandlerProperty.setSource(newSource);
-                                                  });
-
-    setSource(signalHandlerProperty.source());
+    commitNewSource(newSource);
 
     setupHandlerAndStatements();
     setupCondition();
@@ -693,8 +686,6 @@ void ConnectionModelBackendDelegate::addCondition()
 
 void ConnectionModelBackendDelegate::removeCondition()
 {
-    qDebug() << Q_FUNC_INFO;
-
     ConnectionEditorStatements::MatchedStatement okStatement
         = ConnectionEditorStatements::okStatement(m_handler);
 
@@ -702,22 +693,40 @@ void ConnectionModelBackendDelegate::removeCondition()
 
     QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
 
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
-
-    QTC_ASSERT(model, return );
-    QTC_ASSERT(model->connectionView()->isAttached(), return );
-
-    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
-
-    model->connectionView()->executeInTransaction("ConnectionModelBackendDelegate::removeCondition",
-                                                  [&]() {
-                                                      signalHandlerProperty.setSource(newSource);
-                                                  });
-
-    setSource(signalHandlerProperty.source());
+    commitNewSource(newSource);
 
     setupHandlerAndStatements();
     setupCondition();
+}
+
+void ConnectionModelBackendDelegate::addElse()
+{
+    ConnectionEditorStatements::MatchedStatement okStatement
+        = ConnectionEditorStatements::okStatement(m_handler);
+
+    auto &condition = ConnectionEditorStatements::conditionalStatement(m_handler);
+    condition.ko = condition.ok;
+
+    QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
+
+
+    commitNewSource(newSource);
+    setupHandlerAndStatements();
+}
+
+void ConnectionModelBackendDelegate::removeElse()
+{
+    ConnectionEditorStatements::MatchedStatement okStatement
+        = ConnectionEditorStatements::okStatement(m_handler);
+
+    auto &condition = ConnectionEditorStatements::conditionalStatement(m_handler);
+    condition.ko = ConnectionEditorStatements::EmptyBlock();
+
+    QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
+
+
+    commitNewSource(newSource);
+    setupHandlerAndStatements();
 }
 
 int ConnectionModelBackendDelegate::currentRow() const
@@ -803,6 +812,11 @@ bool ConnectionModelBackendDelegate::hasCondition() const
     return m_hasCondition;
 }
 
+bool ConnectionModelBackendDelegate::hasElse() const
+{
+    return m_hasElse;
+}
+
 void ConnectionModelBackendDelegate::setHasCondition(bool b)
 {
     if (b == m_hasCondition)
@@ -810,6 +824,15 @@ void ConnectionModelBackendDelegate::setHasCondition(bool b)
 
     m_hasCondition = b;
     emit hasConditionChanged();
+}
+
+void ConnectionModelBackendDelegate::setHasElse(bool b)
+{
+    if (b == m_hasElse)
+        return;
+
+    m_hasElse = b;
+    emit hasElseChanged();
 }
 
 ConnectionModelBackendDelegate::ActionType ConnectionModelBackendDelegate::actionType() const
@@ -902,6 +925,9 @@ void ConnectionModelBackendDelegate::setupHandlerAndStatements()
         m_koStatementDelegate.setActionType(m_actionType);
     }
 
+    ConnectionEditorStatements::isEmptyStatement(koStatement);
+    setHasElse(!ConnectionEditorStatements::isEmptyStatement(koStatement));
+
     emit actionTypeChanged();
 }
 
@@ -956,30 +982,27 @@ void ConnectionModelBackendDelegate::handleOkStatementChanged()
 
     QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
 
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    commitNewSource(newSource);
+}
 
-    QTC_ASSERT(model, return );
+void ConnectionModelBackendDelegate::handleKOStatementChanged()
+{
+    ConnectionEditorStatements::MatchedStatement &koStatement
+        = ConnectionEditorStatements::koStatement(m_handler);
 
-    QTC_ASSERT(model->connectionView()->isAttached(), return );
+    koStatement = m_koStatementDelegate.statement(); //TODO why?
 
-    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+    QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
 
-    model->connectionView()
-        ->executeInTransaction("ConnectionModelBackendDelegate::handleOkStatementChanged",
-                               [&]() { signalHandlerProperty.setSource(newSource); });
-
-    setSource(signalHandlerProperty.source());
+    commitNewSource(newSource);
 }
 
 void ConnectionModelBackendDelegate::handleConditionChanged()
 {
-    qDebug() << Q_FUNC_INFO;
 
     ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
     QTC_ASSERT(model, return );
     QTC_ASSERT(model->connectionView()->isAttached(), return );
-
-    auto view = model->connectionView();
 
     ConnectionEditorStatements::MatchedCondition &condition
         = ConnectionEditorStatements::matchedCondition(m_handler);
@@ -988,16 +1011,23 @@ void ConnectionModelBackendDelegate::handleConditionChanged()
 
     qDebug() << Q_FUNC_INFO << "new source" << newSource;
 
+    commitNewSource(newSource);
+}
+
+void ConnectionModelBackendDelegate::commitNewSource(const QString &source)
+{
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+
+    QTC_ASSERT(model, return );
+
+    QTC_ASSERT(model->connectionView()->isAttached(), return );
+
     SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
 
-    try {
-        RewriterTransaction transaction = view->beginRewriterTransaction(
-            "ConnectionModelBackendDelegate::handleConditionChanged");
-        signalHandlerProperty.setSource(newSource);
-        transaction.commit();
-    } catch (const Exception &e) {
-        m_conditionListModel.setInvalid(e.description());
-    }
+    model->connectionView()->executeInTransaction("ConnectionModelBackendDelegate::commitNewSource",
+                                                  [&]() {
+                                                      signalHandlerProperty.setSource(source);
+                                                  });
 
     setSource(signalHandlerProperty.source());
 }

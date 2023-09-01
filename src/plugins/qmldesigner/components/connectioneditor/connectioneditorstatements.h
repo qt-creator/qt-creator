@@ -121,6 +121,8 @@ QMLDESIGNER_EXPORT MatchedStatement &okStatement(ConnectionEditorStatements::Han
 QMLDESIGNER_EXPORT MatchedStatement &koStatement(ConnectionEditorStatements::Handler &handler);
 
 QMLDESIGNER_EXPORT MatchedCondition &matchedCondition(ConnectionEditorStatements::Handler &handler);
+QMLDESIGNER_EXPORT ConditionalStatement &conditionalStatement(
+    ConnectionEditorStatements::Handler &handler);
 
 } // namespace ConnectionEditorStatements
 

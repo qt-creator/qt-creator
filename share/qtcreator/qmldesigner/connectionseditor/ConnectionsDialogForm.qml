@@ -77,7 +77,6 @@ Column {
 
     StatementEditor {
         actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
-        id: container
         horizontalSpacing: root.horizontalSpacing
         columnWidth: root.columnWidth
         statement: backend.okStatement
@@ -145,6 +144,40 @@ Column {
     Text {
         text: "invalid " + backend.conditionListModel.error
         visible: !backend.conditionListModel.valid
+    }
+
+    HelperWidgets.AbstractButton {
+        style: StudioTheme.Values.connectionPopupButtonStyle
+        width: 160
+        buttonIcon: qsTr("Add Else Statement")
+        iconSize: StudioTheme.Values.baseFontSize
+        iconFont: StudioTheme.Constants.font
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition && !backend.hasElse
+
+        onClicked: backend.addElse()
+    }
+
+    HelperWidgets.AbstractButton {
+        style: StudioTheme.Values.connectionPopupButtonStyle
+        width: 160
+        buttonIcon: qsTr("Remove Else Statement")
+        iconSize: StudioTheme.Values.baseFontSize
+        iconFont: StudioTheme.Constants.font
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition && backend.hasElse
+
+        onClicked: backend.removeElse()
+    }
+
+    //Else Statement
+    StatementEditor {
+        actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
+        horizontalSpacing: root.horizontalSpacing
+        columnWidth: root.columnWidth
+        statement: backend.koStatement
+        spacing: root.verticalSpacing
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition && backend.hasElse
     }
 
     // Editor

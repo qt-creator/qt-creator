@@ -345,6 +345,17 @@ MatchedCondition &ConnectionEditorStatements::matchedCondition(Handler &handler)
     return block;
 }
 
+ConditionalStatement &ConnectionEditorStatements::conditionalStatement(
+    ConnectionEditorStatements::Handler &handler)
+{
+    static ConditionalStatement block;
+
+    if (auto *statement = std::get_if<ConnectionEditorStatements::ConditionalStatement>(&handler))
+        return *statement;
+
+    return block;
+}
+
 QString ConnectionEditorStatements::toJavascript(const ConditionToken &token)
 {
     switch (token) {
