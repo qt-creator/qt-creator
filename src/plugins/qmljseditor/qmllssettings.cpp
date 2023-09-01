@@ -24,9 +24,9 @@ Q_LOGGING_CATEGORY(qmllsLog, "qtc.qmlls.settings", QtWarningMsg);
 static FilePath evaluateLatestQmlls()
 {
     // find latest qmlls, i.e. vals
-    if (!QtVersionManager::instance()->isLoaded())
+    if (!QtVersionManager::isLoaded())
         return {};
-    const QtVersions versions = QtVersionManager::instance()->versions();
+    const QtVersions versions = QtVersionManager::versions();
     FilePath latestQmlls;
     QVersionNumber latestVersion;
     FilePath latestQmakeFilePath;
@@ -78,7 +78,7 @@ void QmllsSettingsManager::setupAutoupdate()
                      &QtVersionManager::qtVersionsChanged,
                      this,
                      &QmllsSettingsManager::checkForChanges);
-    if (QtVersionManager::instance()->isLoaded())
+    if (QtVersionManager::isLoaded())
         checkForChanges();
     else
         QObject::connect(QtVersionManager::instance(),

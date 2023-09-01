@@ -8,18 +8,14 @@
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT QtVersionManager : public QObject
+namespace Internal { class QtSupportPlugin; }
+
+class QTSUPPORT_EXPORT QtVersionManager final : public QObject
 {
     Q_OBJECT
-    // for getUniqueId();
-    friend class QtVersion;
-    friend class QtVersionFactory;
-    friend class QtVersionManagerImpl;
-    friend class Internal::QtOptionsPageWidget;
 
 public:
     static QtVersionManager *instance();
-    static void initialized();
 
     static bool isLoaded();
 
@@ -45,17 +41,24 @@ public:
                                    const QString &manifestPath,
                                    const QString &examplesPath);
 
-    static void shutdown();
-
 signals:
     // content of QtVersion objects with qmake path might have changed
     void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds, const QList<int> &changedIds);
     void qtVersionsLoaded();
 
-protected:
+private:
     QtVersionManager() = default;
 
-private:
+    // for getUniqueId();
+    friend class QtVersion;
+    friend class QtVersionFactory;
+    friend class QtVersionManagerImpl;
+    friend class Internal::QtOptionsPageWidget;
+    friend class Internal::QtSupportPlugin;
+
+    static void initialized();
+    static void shutdown();
+
     enum class DocumentationSetting { HighestOnly, All, None };
 
     // Used by QtOptionsPage

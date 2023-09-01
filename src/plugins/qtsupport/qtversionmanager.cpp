@@ -55,6 +55,12 @@ QVector<ExampleSetModel::ExtraExampleSet> m_pluginRegisteredExampleSets;
 
 static Q_LOGGING_CATEGORY(log, "qtc.qt.versions", QtWarningMsg);
 
+QtVersionManager *QtVersionManager::instance()
+{
+    static QtVersionManager theSignals;
+    return &theSignals;
+}
+
 static FilePath globalSettingsFileName()
 {
     return Core::ICore::installerResourcePath(QTVERSION_FILENAME);
@@ -77,7 +83,9 @@ QVector<ExampleSetModel::ExtraExampleSet> ExampleSetModel::pluginRegisteredExamp
 
 // QtVersionManager
 
-class QtVersionManagerImpl : public QtVersionManager
+static PersistentSettingsWriter *m_writer = nullptr;
+
+class QtVersionManagerImpl : public QObject
 {
 public:
     QtVersionManagerImpl()
@@ -123,7 +131,6 @@ public:
     // managed by QtProjectManagerPlugin
     FileSystemWatcher *m_configFileWatcher = nullptr;
     QTimer m_fileWatcherTimer;
-    PersistentSettingsWriter *m_writer = nullptr;
 };
 
 QtVersionManagerImpl &qtVersionManagerImpl()
@@ -146,8 +153,10 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
         findSystemQt();
     }
 
-    emit qtVersionsLoaded();
-    emit qtVersionsChanged(m_versions.keys(), QList<int>(), QList<int>());
+    emit QtVersionManager::instance()->qtVersionsLoaded();
+
+    emit QtVersionManager::instance()->qtVersionsChanged(
+        m_versions.keys(), QList<int>(), QList<int>());
 
     const FilePath configFileName = globalSettingsFileName();
     if (configFileName.exists()) {
@@ -157,18 +166,13 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
         m_configFileWatcher->addFile(configFileName, FileSystemWatcher::WatchModifiedDate);
     } // exists
 
-    const QtVersions vs = versions();
+    const QtVersions vs = QtVersionManager::versions();
     updateDocumentation(vs, {}, vs);
 }
 
 bool QtVersionManager::isLoaded()
 {
-    return qtVersionManagerImpl().m_writer;
-}
-
-QtVersionManager *QtVersionManager::instance()
-{
-    return &qtVersionManagerImpl();
+    return m_writer != nullptr;
 }
 
 void QtVersionManager::initialized()
@@ -368,7 +372,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
         }
     }
     if (emitSignal)
-        emit qtVersionsChanged(added, removed, changed);
+        emit QtVersionManager::instance()->qtVersionsChanged(added, removed, changed);
 }
 
 void QtVersionManagerImpl::saveQtVersions()
@@ -466,7 +470,7 @@ void QtVersionManager::addVersion(QtVersion *version)
     int uniqueId = version->uniqueId();
     m_versions.insert(uniqueId, version);
 
-    emit qtVersionManagerImpl().qtVersionsChanged(QList<int>() << uniqueId, QList<int>(), QList<int>());
+    emit QtVersionManager::instance()->qtVersionsChanged(QList<int>() << uniqueId, QList<int>(), QList<int>());
     qtVersionManagerImpl().saveQtVersions();
 }
 
@@ -474,7 +478,7 @@ void QtVersionManager::removeVersion(QtVersion *version)
 {
     QTC_ASSERT(version, return);
     m_versions.remove(version->uniqueId());
-    emit qtVersionManagerImpl().qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
+    emit QtVersionManager::instance()->qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
     qtVersionManagerImpl().saveQtVersions();
     delete version;
 }
@@ -525,7 +529,8 @@ void QtVersionManagerImpl::updateDocumentation(const QtVersions &added,
                                                const QtVersions &removed,
                                                const QtVersions &allNew)
 {
-    const DocumentationSetting setting = documentationSetting();
+    using DocumentationSetting = QtVersionManager::DocumentationSetting;
+    const DocumentationSetting setting = QtVersionManager::documentationSetting();
     const QStringList docsOfAll = setting == DocumentationSetting::None
                                       ? QStringList()
                                       : documentationFiles(allNew,
@@ -658,7 +663,7 @@ void QtVersionManagerImpl::setNewQtVersions(const QtVersions &newVersions)
     saveQtVersions();
 
     if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
-        emit qtVersionsChanged(addedIds, removedIds, changedIds);
+        emit QtVersionManager::instance()->qtVersionsChanged(addedIds, removedIds, changedIds);
 }
 
 void QtVersionManager::setDocumentationSetting(const QtVersionManager::DocumentationSetting &setting)
