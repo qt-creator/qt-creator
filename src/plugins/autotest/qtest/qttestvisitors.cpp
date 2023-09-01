@@ -14,8 +14,7 @@
 using namespace CPlusPlus;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static QStringList specialFunctions({"initTestCase", "cleanupTestCase", "init", "cleanup"});
 
@@ -49,10 +48,13 @@ bool TestVisitor::visit(Class *symbol)
                 const QString name = o.prettyName(func->name());
                 QtTestCodeLocationAndType locationAndType;
 
-                Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
-                            func, m_snapshot, true);
-                if (functionDefinition && functionDefinition->fileId())
-                    member = functionDefinition;
+                if (name.endsWith("_data")) {
+                    // costly.. but we need at least the correct entry for finding data tags
+                    Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
+                                func, m_snapshot, true);
+                    if (functionDefinition && functionDefinition->fileId())
+                        member = functionDefinition;
+                }
                 locationAndType.m_filePath = FilePath::fromUtf8(member->fileName());
                 locationAndType.m_line = member->line();
                 locationAndType.m_column = member->column() - 1;
@@ -281,5 +283,4 @@ bool TestDataFunctionVisitor::newRowCallFound(CallAST *ast, unsigned *firstToken
     return found;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

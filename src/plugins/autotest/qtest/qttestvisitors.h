@@ -16,8 +16,7 @@
 #include <QMap>
 #include <QSet>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestVisitor : public CPlusPlus::SymbolVisitor
 {
@@ -84,5 +83,4 @@ private:
     bool m_insideUsingQTest = false;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

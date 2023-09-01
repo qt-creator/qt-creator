@@ -8,7 +8,9 @@
 #include "../autotesttr.h"
 #include "../itestframework.h"
 
+#include <cplusplus/Symbol.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/symbolfinder.h>
 
 #include <projectexplorer/projectmanager.h>
 
@@ -16,8 +18,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 QtTestTreeItem::QtTestTreeItem(ITestFramework *testFramework, const QString &name,
                                const FilePath &filePath, TestTreeItem::Type type)
@@ -49,9 +50,11 @@ QVariant QtTestTreeItem::data(int column, int role) const
             toolTip.append(Tr::tr("<p>Multiple testcases inside a single executable are not officially "
                                   "supported. Depending on the implementation they might get executed "
                                   "or not, but never will be explicitly selectable.</p>"));
+        } else  if (type() == TestFunction) {
+            // avoid confusion (displaying header file, but ending up inside source)
+            toolTip = parentItem()->name() + "::" + name();
         }
         return toolTip;
-        break;
     }
     case Qt::CheckStateRole:
         switch (type()) {
@@ -69,6 +72,13 @@ QVariant QtTestTreeItem::data(int column, int role) const
         default:
             return m_multiTest;
         }
+    case LinkRole:
+        if (type() == GroupNode)
+            return QVariant();
+        if (type() == TestDataFunction || type() == TestDataTag)
+            return TestTreeItem::data(column, role);
+        // other functions would end up inside declaration - so, find its definition
+        return linkForTreeItem();
     }
     return TestTreeItem::data(column, role);
 }
@@ -403,6 +413,26 @@ bool QtTestTreeItem::isGroupable() const
     return type() == TestCase;
 }
 
+QVariant QtTestTreeItem::linkForTreeItem() const
+{
+    QVariant itemLink;
+    using namespace CPlusPlus;
+    const Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    const Document::Ptr doc = snapshot.document(filePath());
+    Symbol *symbol = doc->lastVisibleSymbolAt(line(), this->column() + 1);
+    if (auto decl = symbol->asDeclaration()) {
+        static CppEditor::SymbolFinder symbolFinder;
+        if (Symbol *definition = symbolFinder.findMatchingDefinition(decl, snapshot, true);
+                definition && definition->fileId()) {
+            itemLink.setValue(Link(FilePath::fromUtf8(definition->fileName()),
+                                   definition->line(), definition->column() - 1));
+        }
+    }
+    if (!itemLink.isValid()) // fallback in case we failed to find the definition
+        itemLink.setValue(Link(filePath(), line(), this->column()));
+    return itemLink;
+}
+
 TestTreeItem *QtTestTreeItem::findChildByFileNameAndType(const FilePath &file,
                                                          const QString &name, Type type) const
 {
@@ -438,5 +468,4 @@ QString QtTestTreeItem::nameSuffix() const
     return suffix.isEmpty() ? suffix : QString{" [" + suffix + "]"};
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal
