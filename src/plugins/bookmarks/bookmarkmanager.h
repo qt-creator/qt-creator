@@ -99,29 +99,6 @@ private:
     QItemSelectionModel *m_selectionModel;
 };
 
-class BookmarkView final : public Utils::ListView
-{
-public:
-    explicit BookmarkView(BookmarkManager *manager);
-
-    QList<QToolButton *> createToolBarWidgets();
-
-    void gotoBookmark(const QModelIndex &index);
-
-    void removeFromContextMenu();
-    void removeAll();
-
-protected:
-    void contextMenuEvent(QContextMenuEvent *event) final;
-    void removeBookmark(const QModelIndex &index);
-    void keyPressEvent(QKeyEvent *event) final;
-
-private:
-    Core::IContext *m_bookmarkContext;
-    QModelIndex m_contextMenuIndex;
-    BookmarkManager *m_manager;
-};
-
 class BookmarkViewFactory : public Core::INavigationWidgetFactory
 {
 public:
@@ -131,20 +108,6 @@ private:
     Core::NavigationView createWidget() override;
 
     BookmarkManager *m_manager;
-};
-
-class BookmarkDelegate : public QStyledItemDelegate
-{
-public:
-    BookmarkDelegate(QObject *parent = nullptr);
-
-private:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const final;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const final;
-    void generateGradientPixmap(int width, int height, const QColor &color, bool selected) const;
-
-    mutable QPixmap m_normalPixmap;
-    mutable QPixmap m_selectedPixmap;
 };
 
 } // Bookmarks::Internal

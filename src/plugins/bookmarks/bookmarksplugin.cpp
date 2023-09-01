@@ -20,7 +20,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <utils/fileutils.h>
 #include <utils/utilsicons.h>
 
 #include <QMenu>
