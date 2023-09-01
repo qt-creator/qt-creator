@@ -30,7 +30,6 @@ Project {
                 "qmljsevaluate.cpp", "qmljsevaluate.h",
                 "qmljsfindexportedcpptypes.cpp", "qmljsfindexportedcpptypes.h",
                 "qmljsicons.cpp", "qmljsicons.h",
-                "qmljsicontextpane.h",
                 "qmljsimportdependencies.cpp", "qmljsimportdependencies.h",
                 "qmljsindenter.cpp", "qmljsindenter.h",
                 "qmljsinterpreter.cpp", "qmljsinterpreter.h",

@@ -337,12 +337,10 @@ void QuickToolBar::setEnabled(bool b)
         widget()->hide();
 }
 
-
-QWidget* QuickToolBar::widget()
+QWidget *QuickToolBar::widget()
 {
     return contextWidget();
 }
-
 
 void QuickToolBar::onPropertyChanged(const QString &name, const QVariant &value)
 {
@@ -411,7 +409,7 @@ void QuickToolBar::indentLines(int startLine, int endLine)
     }
 }
 
-ContextPaneWidget* QuickToolBar::contextWidget()
+ContextPaneWidget *QuickToolBar::contextWidget()
 {
     if (m_widget.isNull()) { //lazily recreate widget
         m_widget = new ContextPaneWidget;
@@ -425,7 +423,8 @@ ContextPaneWidget* QuickToolBar::contextWidget()
                 this, &QuickToolBar::onEnabledChanged);
         connect(m_widget.data(), &ContextPaneWidget::pinnedChanged,
                 this, &QuickToolBar::onPinnedChanged);
-        connect(m_widget.data(), &ContextPaneWidget::closed, this, &IContextPane::closed);
+        connect(m_widget.data(), &ContextPaneWidget::closed,
+                this, &QuickToolBar::closed);
     }
     return m_widget.data();
 }

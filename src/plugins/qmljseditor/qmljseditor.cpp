@@ -126,7 +126,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     if (m_contextPane) {
         connect(this, &QmlJSEditorWidget::cursorPositionChanged,
                 &m_contextPaneTimer, QOverload<>::of(&QTimer::start));
-        connect(m_contextPane, &IContextPane::closed, this, &QmlJSEditorWidget::showTextMarker);
+        connect(m_contextPane, &QuickToolBar::closed, this, &QmlJSEditorWidget::showTextMarker);
     }
 
     connect(this->document(), &QTextDocument::modificationChanged,

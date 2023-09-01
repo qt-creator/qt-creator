@@ -3,36 +3,44 @@
 
 #pragma once
 
-#include <qmljs/qmljsicontextpane.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/parser/qmljsastfwd_p.h>
 
 #include <QPointer>
+
+namespace TextEditor { class TextEditorWidget; }
+
+namespace QmlJS {  class ScopeChain; }
 
 namespace QmlEditorWidgets { class ContextPaneWidget; }
 
 namespace QmlJSEditor {
 
-class QuickToolBar : public QmlJS::IContextPane
+class QuickToolBar : public QObject
 {
     Q_OBJECT
 
     QuickToolBar();
 public:
-    ~QuickToolBar() override;
+    ~QuickToolBar();
 
     static QuickToolBar *instance();
 
-    void apply(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, const QmlJS::ScopeChain *scopeChain, QmlJS::AST::Node *node, bool update, bool force = false) override;
-    bool isAvailable(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, QmlJS::AST::Node *node) override;
+    void apply(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, const QmlJS::ScopeChain *scopeChain, QmlJS::AST::Node *node, bool update, bool force = false);
+    bool isAvailable(TextEditor::TextEditorWidget *widget, QmlJS::Document::Ptr document, QmlJS::AST::Node *node);
     void setProperty(const QString &propertyName, const QVariant &value);
     void removeProperty(const QString &propertyName);
-    void setEnabled(bool) override;
-    QWidget* widget() override;
+    void setEnabled(bool);
+    QWidget *widget();
 
     void onPropertyChanged(const QString &, const QVariant &);
     void onPropertyRemoved(const QString &);
     void onPropertyRemovedAndChange(const QString &, const QString &, const QVariant &, bool removeFirst = true);
     void onPinnedChanged(bool);
     void onEnabledChanged(bool);
+
+signals:
+    void closed();
 
 private:
     void indentLines(int startLine, int endLine);
@@ -48,4 +56,4 @@ private:
     QString m_oldType;
 };
 
-} //QmlDesigner
+} // QmlJSEditor
