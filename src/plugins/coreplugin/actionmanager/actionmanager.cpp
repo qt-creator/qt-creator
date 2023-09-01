@@ -188,7 +188,7 @@ ActionContainer *ActionManager::createMenu(Id id)
     if (it !=  d->m_idContainerMap.constEnd())
         return it.value();
 
-    auto mc = new MenuActionContainer(id);
+    auto mc = new MenuActionContainer(id, d);
 
     d->m_idContainerMap.insert(id, mc);
     connect(mc, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
@@ -213,7 +213,7 @@ ActionContainer *ActionManager::createMenuBar(Id id)
     auto mb = new QMenuBar; // No parent (System menu bar on macOS)
     mb->setObjectName(id.toString());
 
-    auto mbc = new MenuBarActionContainer(id);
+    auto mbc = new MenuBarActionContainer(id, d);
     mbc->setMenuBar(mb);
 
     d->m_idContainerMap.insert(id, mbc);
@@ -241,7 +241,7 @@ ActionContainer *ActionManager::createTouchBar(Id id, const QIcon &icon, const Q
     ActionContainer * const c = d->m_idContainerMap.value(id);
     if (c)
         return c;
-    auto ac = new TouchBarActionContainer(id, icon, text);
+    auto ac = new TouchBarActionContainer(id, d, icon, text);
     d->m_idContainerMap.insert(id, ac);
     connect(ac, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
     return ac;
@@ -449,6 +449,7 @@ void ActionManagerPrivate::containerDestroyed(QObject *sender)
 {
     auto container = static_cast<ActionContainerPrivate *>(sender);
     m_idContainerMap.remove(m_idContainerMap.key(container));
+    m_scheduledContainerUpdates.remove(container);
 }
 
 Command *ActionManagerPrivate::overridableAction(Id id)
@@ -486,6 +487,23 @@ void ActionManagerPrivate::readUserSettings(Id id, Command *cmd)
         }
     }
     settings->endGroup();
+}
+
+void ActionManagerPrivate::scheduleContainerUpdate(ActionContainerPrivate *actionContainer)
+{
+    const bool needsSchedule = m_scheduledContainerUpdates.isEmpty();
+    m_scheduledContainerUpdates.insert(actionContainer);
+    if (needsSchedule)
+        QMetaObject::invokeMethod(this,
+                                  &ActionManagerPrivate::updateContainer,
+                                  Qt::QueuedConnection);
+}
+
+void ActionManagerPrivate::updateContainer()
+{
+    for (ActionContainerPrivate *c : std::as_const(m_scheduledContainerUpdates))
+        c->update();
+    m_scheduledContainerUpdates.clear();
 }
 
 void ActionManagerPrivate::saveSettings(Command *cmd)
