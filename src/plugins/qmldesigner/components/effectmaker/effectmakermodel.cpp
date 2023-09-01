@@ -6,6 +6,8 @@
 #include "compositionnode.h"
 #include "uniform.h"
 
+#include <QRegularExpression>
+
 #include <utils/qtcassert.h>
 
 namespace QmlDesigner {
@@ -150,6 +152,79 @@ const QString EffectMakerModel::getFSUniforms()
         s += '\n';
     }
     return s;
+}
+
+
+// Detects common GLSL error messages and returns potential
+// additional error information related to them.
+QString EffectMakerModel::detectErrorMessage(const QString &errorMessage)
+{
+    static QHash<QString, QString> nodeErrors {
+        { "'BLUR_HELPER_MAX_LEVEL' : undeclared identifier", "BlurHelper"},
+        { "'iSourceBlur1' : undeclared identifier", "BlurHelper"},
+        { "'hash23' : no matching overloaded function found", "NoiseHelper" },
+        { "'HASH_BOX_SIZE' : undeclared identifier", "NoiseHelper" },
+        { "'pseudo3dNoise' : no matching overloaded function found", "NoiseHelper" }
+    };
+
+    QString missingNodeError = QStringLiteral("Are you missing a %1 node?\n");
+    QHash<QString, QString>::const_iterator i = nodeErrors.constBegin();
+    while (i != nodeErrors.constEnd()) {
+        if (errorMessage.contains(i.key()))
+            return missingNodeError.arg(i.value());
+        ++i;
+    }
+    return QString();
+}
+
+// Return first error message (if any)
+EffectError EffectMakerModel::effectError() const
+{
+    for (const EffectError &e : std::as_const(m_effectErrors)) {
+        if (!e.m_message.isEmpty())
+            return e;
+    }
+    return {};
+}
+
+// Set the effect error message with optional type and lineNumber.
+// Type comes from ErrorTypes, defaulting to common errors (-1).
+// Note that type must match with UI editor tab index.
+void EffectMakerModel::setEffectError(const QString &errorMessage, int type, int lineNumber)
+{
+    EffectError error;
+    error.m_type = type;
+    if (type == 1 || type == 2) {
+        // For shaders, get the line number from baker output.
+        // Which is something like "ERROR: :15: message"
+        int glslErrorLineNumber = -1;
+        static QRegularExpression spaceReg("\\s+");
+        QStringList errorStringList = errorMessage.split(spaceReg, Qt::SkipEmptyParts);
+        if (errorStringList.size() >= 2) {
+            QString lineString  = errorStringList.at(1).trimmed();
+            if (lineString.size() >= 3) {
+                // String is ":[linenumber]:", get only the number.
+                glslErrorLineNumber = lineString.sliced(1, lineString.size() - 2).toInt();
+            }
+        }
+        error.m_line = glslErrorLineNumber;
+    } else {
+        // For QML (and others) use given linenumber
+        error.m_line = lineNumber;
+    }
+
+    QString additionalErrorInfo = detectErrorMessage(errorMessage);
+    error.m_message = additionalErrorInfo + errorMessage;
+    m_effectErrors.insert(type, error);
+    Q_EMIT effectErrorChanged();
+}
+
+void EffectMakerModel::resetEffectError(int type)
+{
+    if (m_effectErrors.contains(type)) {
+        m_effectErrors.remove(type);
+        Q_EMIT effectErrorChanged();
+    }
 }
 
 } // namespace QmlDesigner

@@ -13,6 +13,17 @@ namespace QmlDesigner {
 class CompositionNode;
 class Uniform;
 
+struct EffectError {
+    Q_GADGET
+    Q_PROPERTY(QString message MEMBER m_message)
+    Q_PROPERTY(int line MEMBER m_line)
+    Q_PROPERTY(int type MEMBER m_type)
+public:
+    QString m_message;
+    int m_line = -1;
+    int m_type = -1;
+};
+
 class EffectMakerModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -36,6 +47,7 @@ public:
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
+    void effectErrorChanged();
 
 private:
     enum Roles {
@@ -51,10 +63,17 @@ private:
     const QString getVSUniforms();
     const QString getFSUniforms();
 
+    QString detectErrorMessage(const QString &errorMessage);
+    EffectError effectError() const;
+    void setEffectError(const QString &errorMessage, int type, int lineNumber);
+    void resetEffectError(int type);
+
     QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
     bool m_isEmpty = true;
+
+    QMap<int, EffectError> m_effectErrors;
 
     ShaderFeatures m_shaderFeatures;
 };
