@@ -150,7 +150,8 @@ QtObject {
 
     component ScrollBarColors: QtObject {
         property color track: Values.themeScrollBarTrack
-        property color handle: Values.themeScrollBarHandle
+        property color handle: Values.themeScrollBarHandle_idle
+        property color handleHover: Values.themeScrollBarHandle
     }
 
     property ScrollBarColors scrollBar: ScrollBarColors {}

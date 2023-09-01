@@ -135,8 +135,9 @@ DSnavigatorTextSelected=highlightBlue
 QmlDesigner_BackgroundColorDarkAlternate=dawnGrey
 
 ;TODO
-DSscrollBarTrack=dawnGrey
-DSscrollBarHandle=offBlack
+DSscrollBarTrack=smokeGrey
+DSscrollBarHandle=concreteGrey
+DSscrollBarHandle_idle=slateGrey
 
 DSdockWidgetTitleBar=dawnGrey
 DSdockWidgetSplitter=fullBlack

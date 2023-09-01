@@ -383,6 +383,7 @@ QtObject {
 
     property color themeScrollBarTrack: Theme.color(Theme.DSscrollBarTrack)
     property color themeScrollBarHandle: Theme.color(Theme.DSscrollBarHandle)
+    property color themeScrollBarHandle_idle: Theme.color(Theme.DSscrollBarHandle_idle)
 
     property color themeSectionHeadBackground: Theme.color(Theme.DSsectionHeadBackground)
 

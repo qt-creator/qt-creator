@@ -169,8 +169,9 @@ DSsliderHandleHover=ff606060
 DSsliderHandleFocus=ff0492c9
 DSsliderHandleInteraction=ff2aafd3
 
-DSscrollBarTrack=ffb5b4b4
-DSscrollBarHandle=ff9b9b9b
+DSscrollBarTrack=smokeGrey
+DSscrollBarHandle=shadowGrey
+DSscrollBarHandle_idle=slateGrey
 
 DSsectionHeadBackground=ffd8d8d8
 

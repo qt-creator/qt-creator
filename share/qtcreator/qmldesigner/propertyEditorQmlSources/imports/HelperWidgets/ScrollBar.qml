@@ -8,6 +8,8 @@ import StudioTheme 1.0 as StudioTheme
 T.ScrollBar {
     id: control
 
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
     property bool show: false
     property bool otherInUse: false
     property bool isNeeded: control.size < 1.0
@@ -31,12 +33,12 @@ T.ScrollBar {
         implicitWidth: control.thickness
         implicitHeight: control.thickness
         radius: width / 2
-        color: "#D9D9D9"
+        color: control.inUse ? control.style.scrollBar.handleHover : control.style.scrollBar.handle
     }
 
     background: Rectangle {
         id: controlTrack
-        color: "#D9D9D9"
+        color: control.style.scrollBar.track
         opacity: control.inUse || control.otherInUse ? 0.3 : 0.0
         radius: width / 2
 

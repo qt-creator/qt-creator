@@ -342,6 +342,9 @@ public:
         DSpopoutButtonBorder_hover,
         DSpopoutButtonBorder_interaction,
         DSpopoutButtonBorder_disabled,
+        DSscrollBarTrack,
+        DSscrollBarHandle,
+        DSscrollBarHandle_idle,
 
         /*Legacy QtDS*/
         DSiconColor,
@@ -365,8 +368,6 @@ public:
         DSsliderHandleHover,
         DSsliderHandleFocus,
         DSsliderHandleInteraction,
-        DSscrollBarTrack,
-        DSscrollBarHandle,
         DSsectionHeadBackground,
         DSstateDefaultHighlight,
         DSstateSeparatorColor,

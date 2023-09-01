@@ -736,7 +736,8 @@ void StudioStyle::drawComplexControl(
             bool enabled = scrollBar->state & QStyle::State_Enabled;
             bool hovered = enabled && scrollBar->state & QStyle::State_MouseOver;
 
-            QColor buttonColor = hovered ? "#D9D9D9" : "#9B9B9B";
+            QColor buttonColor = creatorTheme()->color(hovered ? Theme::DSscrollBarHandle
+                                                               : Theme::DSscrollBarHandle_idle);
             QColor gradientStartColor = buttonColor.lighter(118);
             QColor gradientStopColor = buttonColor;
             if (hasTransientStyle) {
@@ -755,12 +756,12 @@ void StudioStyle::drawComplexControl(
                 painter->save();
                 painter->setPen(Qt::NoPen);
                 if (hasTransientStyle) {
-                    QColor brushColor("#D9D9D9");
+                    QColor brushColor(creatorTheme()->color(Theme::DSscrollBarTrack));
                     brushColor.setAlpha(0.3 * 255);
                     painter->setBrush(QBrush(brushColor));
                     painter->drawRoundedRect(scrollBarGroove, 4, 4);
                 } else {
-                    painter->setBrush(QBrush("#773E3E"));
+                    painter->setBrush(QBrush(creatorTheme()->color(Theme::DSscrollBarTrack)));
                     painter->drawRect(rect);
                 }
                 painter->restore();
