@@ -43,6 +43,8 @@
 #include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
 
+#include <QMenu>
+
 using namespace Core;
 using namespace Utils;
 

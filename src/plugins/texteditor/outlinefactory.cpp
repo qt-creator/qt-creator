@@ -4,6 +4,7 @@
 #include "outlinefactory.h"
 
 #include "texteditortr.h"
+#include "ioutlinewidget.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -16,6 +17,7 @@
 
 #include <QDebug>
 #include <QLabel>
+#include <QMenu>
 #include <QStackedWidget>
 #include <QToolButton>
 
@@ -41,6 +43,37 @@ void IOutlineWidgetFactory::updateOutline()
 }
 
 namespace Internal {
+
+class OutlineWidgetStack : public QStackedWidget
+{
+    Q_OBJECT
+
+public:
+    OutlineWidgetStack(OutlineFactory *factory);
+    ~OutlineWidgetStack() override;
+
+    QList<QToolButton *> toolButtons();
+
+    void saveSettings(QSettings *settings, int position);
+    void restoreSettings(QSettings *settings, int position);
+
+private:
+    bool isCursorSynchronized() const;
+    QWidget *dummyWidget() const;
+    void updateFilterMenu();
+    void toggleCursorSynchronization();
+    void toggleSort();
+    void updateEditor(Core::IEditor *editor);
+    void updateCurrentEditor();
+
+    QToolButton *m_toggleSync;
+    QToolButton *m_filterButton;
+    QToolButton *m_toggleSort;
+    QMenu *m_filterMenu;
+    QVariantMap m_widgetSettings;
+    bool m_syncWithEditor;
+    bool m_sorted;
+};
 
 OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_syncWithEditor(true),
@@ -233,3 +266,5 @@ void OutlineFactory::restoreSettings(Utils::QtcSettings *settings, int position,
 
 } // namespace Internal
 } // namespace TextEditor
+
+#include "outlinefactory.moc"
