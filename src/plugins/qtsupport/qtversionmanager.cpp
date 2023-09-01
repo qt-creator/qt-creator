@@ -92,9 +92,12 @@ public:
                 this, &QtVersionManagerImpl::triggerQtVersionRestore);
     }
 
-    ~QtVersionManagerImpl()
+    void shutdown()
     {
         delete m_writer;
+        m_writer = nullptr;
+        delete m_configFileWatcher;
+        m_configFileWatcher = nullptr;
         qDeleteAll(m_versions);
         m_versions.clear();
     }
@@ -172,6 +175,11 @@ void QtVersionManager::initialized()
 {
     // Force creation. FIXME: Remove.
     qtVersionManagerImpl();
+}
+
+void QtVersionManager::shutdown()
+{
+    qtVersionManagerImpl().shutdown();
 }
 
 bool QtVersionManagerImpl::restoreQtVersions()

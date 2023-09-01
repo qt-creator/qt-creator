@@ -45,6 +45,8 @@ public:
                                    const QString &manifestPath,
                                    const QString &examplesPath);
 
+    static void shutdown();
+
 signals:
     // content of QtVersion objects with qmake path might have changed
     void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds, const QList<int> &changedIds);

@@ -135,6 +135,12 @@ void QtSupportPlugin::initialize()
     QtVersionManager::initialized();
 }
 
+ExtensionSystem::IPlugin::ShutdownFlag QtSupportPlugin::aboutToShutdown()
+{
+    QtVersionManager::shutdown();
+    return SynchronousShutdown;
+}
+
 const char kLinkWithQtInstallationSetting[] = "LinkWithQtInstallation";
 
 static void askAboutQtInstallation()
