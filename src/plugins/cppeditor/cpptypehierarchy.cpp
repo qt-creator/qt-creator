@@ -74,7 +74,6 @@ private:
     void onItemActivated(const QModelIndex &index);
     void onItemDoubleClicked(const QModelIndex &index);
 
-    CppEditorWidget *m_cppEditor = nullptr;
     NavigationTreeView *m_treeView = nullptr;
     QWidget *m_hierarchyWidget = nullptr;
     QStackedLayout *m_stackLayout = nullptr;
