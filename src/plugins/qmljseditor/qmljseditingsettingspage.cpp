@@ -33,6 +33,7 @@ const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 const char FOLD_AUX_DATA[] = "QmlJSEditor.FoldAuxData";
 const char USE_QMLLS[] = "QmlJSEditor.UseQmlls";
 const char USE_LATEST_QMLLS[] = "QmlJSEditor.UseLatestQmlls";
+const char DISABLE_BUILTIN_CODEMODEL[] = "QmlJSEditor.DisableBuiltinCodemodel";
 const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
 const char FORMAT_COMMAND[] = "QmlJSEditor.formatCommand";
 const char FORMAT_COMMAND_OPTIONS[] = "QmlJSEditor.formatCommandOptions";
@@ -101,6 +102,8 @@ void QmlJsEditingSettings::fromSettings(QSettings *settings)
     m_uiQmlOpenMode = settings->value(UIQML_OPEN_MODE, "").toString();
     m_qmllsSettings.useQmlls = settings->value(USE_QMLLS, QVariant(false)).toBool();
     m_qmllsSettings.useLatestQmlls = settings->value(USE_LATEST_QMLLS, QVariant(false)).toBool();
+    m_qmllsSettings.disableBuiltinCodemodel
+        = settings->value(DISABLE_BUILTIN_CODEMODEL, QVariant(false)).toBool();
     m_formatCommand = settings->value(FORMAT_COMMAND, {}).toString();
     m_formatCommandOptions = settings->value(FORMAT_COMMAND_OPTIONS, {}).toString();
     m_useCustomFormatCommand = settings->value(CUSTOM_COMMAND, QVariant(false)).toBool();
@@ -128,6 +131,7 @@ void QmlJsEditingSettings::toSettings(QSettings *settings) const
     settings->setValue(UIQML_OPEN_MODE, m_uiQmlOpenMode);
     settings->setValue(USE_QMLLS, m_qmllsSettings.useQmlls);
     settings->setValue(USE_LATEST_QMLLS, m_qmllsSettings.useLatestQmlls);
+    settings->setValue(DISABLE_BUILTIN_CODEMODEL, m_qmllsSettings.disableBuiltinCodemodel);
     Utils::QtcSettings::setValueWithDefault(settings, FORMAT_COMMAND, m_formatCommand, {});
     Utils::QtcSettings::setValueWithDefault(settings,
                                             FORMAT_COMMAND_OPTIONS,
@@ -396,13 +400,19 @@ public:
         uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
 
-        useQmlls = new QCheckBox(Tr::tr("Use qmlls (EXPERIMENTAL!)"));
+        useQmlls = new QCheckBox(Tr::tr("Enable QML Language Server (EXPERIMENTAL!)"));
         useQmlls->setChecked(s.qmllsSettings().useQmlls);
-        useLatestQmlls = new QCheckBox(Tr::tr("Always use latest qmlls"));
+        disableBuiltInCodemodel = new QCheckBox(
+            Tr::tr("Use QML Language Server advanced features (renaming, find usages and co.) "
+                   "(EXPERIMENTAL!)"));
+        disableBuiltInCodemodel->setChecked(s.qmllsSettings().disableBuiltinCodemodel);
+        disableBuiltInCodemodel->setEnabled(s.qmllsSettings().useQmlls);
+        useLatestQmlls = new QCheckBox(Tr::tr("Use QML Language Server from latest Qt version"));
         useLatestQmlls->setChecked(s.qmllsSettings().useLatestQmlls);
         useLatestQmlls->setEnabled(s.qmllsSettings().useQmlls);
         QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {
             useLatestQmlls->setEnabled(checked != Qt::Unchecked);
+            disableBuiltInCodemodel->setEnabled(checked != Qt::Unchecked);
         });
 
         useCustomAnalyzer = new QCheckBox(Tr::tr("Use customized static analyzer"));
@@ -454,8 +464,8 @@ public:
                 },
             },
             Group{
-                title(Tr::tr("Language Server")),
-                Column{useQmlls, useLatestQmlls},
+                title(Tr::tr("QML Language Server")),
+                Column{useQmlls, disableBuiltInCodemodel , useLatestQmlls},
             },
             Group {
                 title(Tr::tr("Static Analyzer")),
@@ -499,6 +509,7 @@ public:
         s.setFoldAuxData(foldAuxData->isChecked());
         s.setUiQmlOpenMode(uiQmlOpenComboBox->currentData().toString());
         s.qmllsSettings().useQmlls = useQmlls->isChecked();
+        s.qmllsSettings().disableBuiltinCodemodel = disableBuiltInCodemodel->isChecked();
         s.qmllsSettings().useLatestQmlls = useLatestQmlls->isChecked();
         s.setUseCustomAnalyzer(useCustomAnalyzer->isChecked());
         QSet<int> disabled;
@@ -557,6 +568,7 @@ private:
     QCheckBox *foldAuxData;
     QCheckBox *useQmlls;
     QCheckBox *useLatestQmlls;
+    QCheckBox *disableBuiltInCodemodel;
     QComboBox *uiQmlOpenComboBox;
     QCheckBox *useCustomAnalyzer;
     QTreeView *analyzerMessagesView;

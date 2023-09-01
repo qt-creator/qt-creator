@@ -60,6 +60,10 @@
 #include <utils/qtcassert.h>
 #include <utils/uncommentselection.h>
 
+#include <languageclient/languageclientmanager.h>
+#include <languageclient/locatorfilter.h>
+#include <languageclient/languageclientsymbolsupport.h>
+
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -855,14 +859,39 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     processLinkCallback(Utils::Link());
 }
 
+static LanguageClient::Client *getQmllsClient(const Utils::FilePath &fileName)
+{
+    // the value in disableBuiltinCodemodel is only valid when useQmlls is enabled
+    if (QmlJsEditingSettings::get().qmllsSettings().useQmlls
+        && !QmlJsEditingSettings::get().qmllsSettings().disableBuiltinCodemodel)
+        return nullptr;
+
+    auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName);
+    return client;
+}
+
 void QmlJSEditorWidget::findUsages()
 {
-    m_findReferences->findUsages(textDocument()->filePath(), textCursor().position());
+    const Utils::FilePath fileName = textDocument()->filePath();
+
+    if (auto client = getQmllsClient(fileName)) {
+        client->symbolSupport().findUsages(textDocument(), textCursor());
+    } else {
+        const int offset = textCursor().position();
+        m_findReferences->findUsages(fileName, offset);
+    }
 }
 
 void QmlJSEditorWidget::renameSymbolUnderCursor()
 {
-    m_findReferences->renameUsages(textDocument()->filePath(), textCursor().position());
+    const Utils::FilePath fileName = textDocument()->filePath();
+
+    if (auto client = getQmllsClient(fileName)) {
+        client->symbolSupport().renameSymbol(textDocument(), textCursor(), QString());
+    } else {
+        const int offset = textCursor().position();
+        m_findReferences->renameUsages(fileName, offset);
+    }
 }
 
 void QmlJSEditorWidget::showContextPane()
