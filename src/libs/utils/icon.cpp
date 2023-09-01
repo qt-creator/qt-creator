@@ -6,6 +6,7 @@
 #include "qtcassert.h"
 #include "theme/theme.h"
 #include "stylehelper.h"
+#include "utilsicons.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -232,6 +233,53 @@ QIcon Icon::combinedIcon(const QList<Icon> &icons)
 {
     const QList<QIcon> qIcons = transform(icons, &Icon::icon);
     return combinedIcon(qIcons);
+}
+
+QIcon Icon::fromTheme(const QString &name)
+{
+    static QHash<QString, QIcon> cache;
+
+    auto found = cache.find(name);
+    if (found != cache.end())
+        return *found;
+
+    QIcon icon = QIcon::fromTheme(name);
+    if (name == "go-next") {
+        cache.insert(name, !icon.isNull() ? icon : QIcon(":/utils/images/arrow.png"));
+    } else if (name == "document-open") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::OPENFILE.icon());
+    } else if (name == "edit-copy") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::COPY.icon());
+    } else if (name == "document-new") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::NEWFILE.icon());
+    } else if (name == "document-save") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::SAVEFILE.icon());
+    } else if (name == "edit-undo") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::UNDO.icon());
+    } else if (name == "edit-redo") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::REDO.icon());
+    } else if (name == "edit-cut") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::CUT.icon());
+    } else if (name == "edit-paste") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::PASTE.icon());
+    } else if (name == "zoom-in") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::ZOOMIN_TOOLBAR.icon());
+    } else if (name == "zoom-out") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::ZOOMOUT_TOOLBAR.icon());
+    } else if (name == "zoom-original") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::EYE_OPEN_TOOLBAR.icon());
+    } else if (name == "edit-clear-locationbar-rtl") {
+        // KDE has custom icons for this. Notice that icon namings are counter intuitive.
+        // If these icons are not available we use the freedesktop standard name before
+        // falling back to a bundled resource.
+        cache.insert(name, !icon.isNull() ? icon : Icons::EDIT_CLEAR.icon());
+    } else if (name == "edit-clear-locationbar-ltr") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::EDIT_CLEAR.icon());
+    } else {
+        cache.insert(name, icon);
+    }
+
+    return cache[name];
 }
 
 } // namespace Utils

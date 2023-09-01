@@ -288,6 +288,7 @@ const Icon MACOS_TOUCHBAR_BOOKMARK(
         ":/utils/images/macos_touchbar_bookmark.png");
 const Icon MACOS_TOUCHBAR_CLEAR(
         ":/utils/images/macos_touchbar_clear.png");
+
 } // namespace Icons
 
 QIcon CodeModelIcon::iconForType(CodeModelIcon::Type type)

@@ -39,7 +39,7 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic, TextDocument *docum
         // Copy to clipboard action
         QList<QAction *> actions;
         QAction *action = new QAction();
-        action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
+        action->setIcon(Icon::fromTheme("edit-copy"));
         action->setToolTip(Tr::tr("Copy to Clipboard"));
         QObject::connect(action, &QAction::triggered, [diagnostic] {
             const QString text = createFullLocationString(diagnostic.location)

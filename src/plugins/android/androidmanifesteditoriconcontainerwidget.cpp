@@ -10,10 +10,11 @@
 #include <QFrame>
 #include <QHBoxLayout>
 
+using namespace Utils;
+
 namespace Android {
 namespace Internal {
 
-namespace {
 const char extraExtraExtraHighDpiIconPath[] = "/res/drawable-xxxhdpi/";
 const char extraExtraHighDpiIconPath[] = "/res/drawable-xxhdpi/";
 const char extraHighDpiIconPath[] = "/res/drawable-xhdpi/";
@@ -27,7 +28,6 @@ const QSize highDpiIconSize{72, 72};
 const QSize extraHighDpiIconSize{96, 96};
 const QSize extraExtraHighDpiIconSize{144, 144};
 const QSize extraExtraExtraHighDpiIconSize{192, 192};
-}
 
 AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidget(
         QWidget *parent,
@@ -40,7 +40,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
                                                                 lowDpiIconSize,
                                                                 Tr::tr("Master icon"),
                                                                 Tr::tr("Select master icon."));
-    masterIconButton->setIcon(QIcon::fromTheme(QLatin1String("document-open"), Utils::Icons::OPENFILE.icon()));
+    masterIconButton->setIcon(Icon::fromTheme("document-open"));
     iconLayout->addWidget(masterIconButton);
     iconLayout->addStretch(1);
 

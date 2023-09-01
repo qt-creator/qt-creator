@@ -431,13 +431,9 @@ void FancyLineEdit::setFiltering(bool on)
         // KDE has custom icons for this. Notice that icon namings are counter intuitive.
         // If these icons are not available we use the freedesktop standard name before
         // falling back to a bundled resource.
-        QIcon icon = QIcon::fromTheme(layoutDirection() == Qt::LeftToRight ?
-                         QLatin1String("edit-clear-locationbar-rtl") :
-                         QLatin1String("edit-clear-locationbar-ltr"),
-                         QIcon::fromTheme(QLatin1String("edit-clear"),
-                                          Icons::EDIT_CLEAR.icon()));
-
-        setButtonIcon(Right, icon);
+        static const QIcon rtl = Icon::fromTheme("edit-clear-locationbar-rtl");
+        static const QIcon ltr = Icon::fromTheme("edit-clear-locationbar-ltr");
+        setButtonIcon(Right, layoutDirection() == Qt::LeftToRight ? ltr : rtl);
         setButtonVisible(Right, true);
         setPlaceholderText(Tr::tr("Filter"));
         setButtonToolTip(Right, Tr::tr("Clear text"));

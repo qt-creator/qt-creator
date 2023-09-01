@@ -548,7 +548,7 @@ void MainWindow::registerDefaultActions()
     connect(m_focusToEditor, &QAction::triggered, this, &MainWindow::setFocusToEditor);
 
     // New File Action
-    QIcon icon = QIcon::fromTheme(QLatin1String("document-new"), Utils::Icons::NEWFILE.icon());
+    QIcon icon = Icon::fromTheme("document-new");
 
     m_newAction = new QAction(icon, Tr::tr("&New Project..."), this);
     cmd = ActionManager::registerAction(m_newAction, Constants::NEW);
@@ -584,7 +584,7 @@ void MainWindow::registerDefaultActions()
     });
 
     // Open Action
-    icon = QIcon::fromTheme(QLatin1String("document-open"), Utils::Icons::OPENFILE.icon());
+    icon = Icon::fromTheme("document-open");
     m_openAction = new QAction(icon, Tr::tr("&Open File or Project..."), this);
     cmd = ActionManager::registerAction(m_openAction, Constants::OPEN);
     cmd->setDefaultKeySequence(QKeySequence::Open);
@@ -612,7 +612,7 @@ void MainWindow::registerDefaultActions()
     ac->setOnAllDisabledBehavior(ActionContainer::Show);
 
     // Save Action
-    icon = QIcon::fromTheme(QLatin1String("document-save"), Utils::Icons::SAVEFILE.icon());
+    icon = Icon::fromTheme("document-save");
     QAction *tmpaction = new QAction(icon, Tr::tr("&Save"), this);
     tmpaction->setEnabled(false);
     cmd = ActionManager::registerAction(tmpaction, Constants::SAVE);
@@ -622,7 +622,7 @@ void MainWindow::registerDefaultActions()
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     // Save As Action
-    icon = QIcon::fromTheme(QLatin1String("document-save-as"));
+    icon = Icon::fromTheme("document-save-as");
     tmpaction = new QAction(icon, Tr::tr("Save &As..."), this);
     tmpaction->setEnabled(false);
     cmd = ActionManager::registerAction(tmpaction, Constants::SAVEAS);
@@ -635,7 +635,7 @@ void MainWindow::registerDefaultActions()
     DocumentManager::registerSaveAllAction();
 
     // Print Action
-    icon = QIcon::fromTheme(QLatin1String("document-print"));
+    icon = Icon::fromTheme("document-print");
     tmpaction = new QAction(icon, Tr::tr("&Print..."), this);
     tmpaction->setEnabled(false);
     cmd = ActionManager::registerAction(tmpaction, Constants::PRINT);
@@ -643,7 +643,7 @@ void MainWindow::registerDefaultActions()
     mfile->addAction(cmd, Constants::G_FILE_PRINT);
 
     // Exit Action
-    icon = QIcon::fromTheme(QLatin1String("application-exit"));
+    icon = Icon::fromTheme("application-exit");
     m_exitAction = new QAction(icon, Tr::tr("E&xit"), this);
     m_exitAction->setMenuRole(QAction::QuitRole);
     cmd = ActionManager::registerAction(m_exitAction, Constants::EXIT);
@@ -652,7 +652,7 @@ void MainWindow::registerDefaultActions()
     connect(m_exitAction, &QAction::triggered, this, &MainWindow::exit);
 
     // Undo Action
-    icon = QIcon::fromTheme(QLatin1String("edit-undo"), Utils::Icons::UNDO.icon());
+    icon = Icon::fromTheme("edit-undo");
     tmpaction = new QAction(icon, Tr::tr("&Undo"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::UNDO);
     cmd->setDefaultKeySequence(QKeySequence::Undo);
@@ -662,7 +662,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Redo Action
-    icon = QIcon::fromTheme(QLatin1String("edit-redo"), Utils::Icons::REDO.icon());
+    icon = Icon::fromTheme("edit-redo");
     tmpaction = new QAction(icon, Tr::tr("&Redo"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::REDO);
     cmd->setDefaultKeySequence(QKeySequence::Redo);
@@ -672,7 +672,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Cut Action
-    icon = QIcon::fromTheme(QLatin1String("edit-cut"), Utils::Icons::CUT.icon());
+    icon = Icon::fromTheme("edit-cut");
     tmpaction = new QAction(icon, Tr::tr("Cu&t"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::CUT);
     cmd->setDefaultKeySequence(QKeySequence::Cut);
@@ -680,7 +680,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Copy Action
-    icon = QIcon::fromTheme(QLatin1String("edit-copy"), Utils::Icons::COPY.icon());
+    icon = Icon::fromTheme("edit-copy");
     tmpaction = new QAction(icon, Tr::tr("&Copy"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::COPY);
     cmd->setDefaultKeySequence(QKeySequence::Copy);
@@ -688,7 +688,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Paste Action
-    icon = QIcon::fromTheme(QLatin1String("edit-paste"), Utils::Icons::PASTE.icon());
+    icon = Icon::fromTheme("edit-paste");
     tmpaction = new QAction(icon, Tr::tr("&Paste"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::PASTE);
     cmd->setDefaultKeySequence(QKeySequence::Paste);
@@ -696,7 +696,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Select All
-    icon = QIcon::fromTheme(QLatin1String("edit-select-all"));
+    icon = Icon::fromTheme("edit-select-all");
     tmpaction = new QAction(icon, Tr::tr("Select &All"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::SELECTALL);
     cmd->setDefaultKeySequence(QKeySequence::SelectAll);
@@ -704,7 +704,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Goto Action
-    icon = QIcon::fromTheme(QLatin1String("go-jump"));
+    icon = Icon::fromTheme("go-jump");
     tmpaction = new QAction(icon, Tr::tr("&Go to Line..."), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::GOTO);
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+L")));
@@ -712,16 +712,14 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Zoom In Action
-    icon = QIcon::hasThemeIcon("zoom-in") ? QIcon::fromTheme("zoom-in")
-                                          : Utils::Icons::ZOOMIN_TOOLBAR.icon();
+    icon = Icon::fromTheme("zoom-in");
     tmpaction = new QAction(icon, Tr::tr("Zoom In"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_IN);
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl++")));
     tmpaction->setEnabled(false);
 
     // Zoom Out Action
-    icon = QIcon::hasThemeIcon("zoom-out") ? QIcon::fromTheme("zoom-out")
-                                           : Utils::Icons::ZOOMOUT_TOOLBAR.icon();
+    icon = Icon::fromTheme("zoom-out");
     tmpaction = new QAction(icon, Tr::tr("Zoom Out"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_OUT);
     if (useMacShortcuts)
@@ -731,8 +729,7 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Zoom Reset Action
-    icon = QIcon::hasThemeIcon("zoom-original") ? QIcon::fromTheme("zoom-original")
-                                                : Utils::Icons::EYE_OPEN_TOOLBAR.icon();
+    icon = Icon::fromTheme("zoom-original");
     tmpaction = new QAction(icon, Tr::tr("Original Size"), this);
     cmd = ActionManager::registerAction(tmpaction, Constants::ZOOM_RESET);
     cmd->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+0") : Tr::tr("Ctrl+0")));
@@ -844,7 +841,7 @@ void MainWindow::registerDefaultActions()
         mhelp->addSeparator(Constants::G_HELP_ABOUT);
 
     // About IDE Action
-    icon = QIcon::fromTheme(QLatin1String("help-about"));
+    icon = Icon::fromTheme("help-about");
     if (HostOsInfo::isMacHost())
         tmpaction = new QAction(icon,
                                 Tr::tr("About &%1").arg(QGuiApplication::applicationDisplayName()),

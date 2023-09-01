@@ -148,6 +148,7 @@ QTCREATOR_UTILS_EXPORT extern const Icon CODEMODEL_FIXIT;
 
 QTCREATOR_UTILS_EXPORT extern const Icon MACOS_TOUCHBAR_BOOKMARK;
 QTCREATOR_UTILS_EXPORT extern const Icon MACOS_TOUCHBAR_CLEAR;
+
 } // namespace Icons
 
 namespace CodeModelIcon {

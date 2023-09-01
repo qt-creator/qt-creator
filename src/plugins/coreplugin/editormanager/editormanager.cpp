@@ -431,7 +431,7 @@ void EditorManagerPrivate::init()
     ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
 
     // Revert to saved
-    m_revertToSavedAction->setIcon(QIcon::fromTheme("document-revert"));
+    m_revertToSavedAction->setIcon(Icon::fromTheme("document-revert"));
     Command *cmd = ActionManager::registerAction(m_revertToSavedAction,
                                        Constants::REVERTTOSAVED, editManagerContext);
     cmd->setAttribute(Command::CA_UpdateText);

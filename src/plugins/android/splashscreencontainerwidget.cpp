@@ -185,17 +185,17 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
 
     m_masterImage = new QToolButton(this);
     m_masterImage->setToolTip(Tr::tr("Select master image to use."));
-    m_masterImage->setIcon(QIcon::fromTheme(QLatin1String("document-open"), Utils::Icons::OPENFILE.icon()));
+    m_masterImage->setIcon(Icon::fromTheme("document-open"));
     formLayout->addRow(Tr::tr("Master image:"), m_masterImage);
 
     m_portraitMasterImage = new QToolButton(this);
     m_portraitMasterImage->setToolTip(Tr::tr("Select portrait master image to use."));
-    m_portraitMasterImage->setIcon(QIcon::fromTheme(QLatin1String("document-open"), Utils::Icons::OPENFILE.icon()));
+    m_portraitMasterImage->setIcon(Icon::fromTheme("document-open"));
     formLayout->addRow(Tr::tr("Portrait master image:"), m_portraitMasterImage);
 
     m_landscapeMasterImage = new QToolButton(this);
     m_landscapeMasterImage->setToolTip(Tr::tr("Select landscape master image to use."));
-    m_landscapeMasterImage->setIcon(QIcon::fromTheme(QLatin1String("document-open"), Utils::Icons::OPENFILE.icon()));
+    m_landscapeMasterImage->setIcon(Icon::fromTheme("document-open"));
     formLayout->addRow(Tr::tr("Landscape master image:"), m_landscapeMasterImage);
 
     auto clearAllButton = new QToolButton(this);

@@ -61,6 +61,8 @@ public:
     static QIcon combinedIcon(const QList<QIcon> &icons);
     static QIcon combinedIcon(const QList<Icon> &icons);
 
+    static QIcon fromTheme(const QString &name);
+
 private:
     QList<IconMaskAndColor> m_iconSourceList;
     IconStyleOptions m_style = None;

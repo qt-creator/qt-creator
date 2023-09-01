@@ -15,7 +15,7 @@
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
+#include <utils/icon.h>
 
 #include <projectexplorer/projecttree.h>
 
@@ -516,8 +516,7 @@ FolderNode *createSourceGroupNode(const QString &sourceGroupName,
             if (!existingNode) {
                 auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p);
                 node->setListInProject(false);
-                node->setIcon(
-                    [] { return QIcon::fromTheme("edit-copy", ::Utils::Icons::COPY.icon()); });
+                node->setIcon([] { return Icon::fromTheme("edit-copy"); });
 
                 existingNode = node.get();
 

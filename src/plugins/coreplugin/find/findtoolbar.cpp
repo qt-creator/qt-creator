@@ -256,7 +256,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     connect(m_goToCurrentFindAction, &QAction::triggered,
             this, &FindToolBar::setFocusToCurrentFindSupport);
 
-    QIcon icon = QIcon::fromTheme(QLatin1String("edit-find-replace"));
+    QIcon icon = Icon::fromTheme("edit-find-replace");
     m_findInDocumentAction = new QAction(icon, Tr::tr("Find/Replace"), this);
     cmd = ActionManager::registerAction(m_findInDocumentAction, Constants::FIND_IN_DOCUMENT);
     cmd->setDefaultKeySequence(QKeySequence::Find);

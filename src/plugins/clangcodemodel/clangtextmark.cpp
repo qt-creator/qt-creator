@@ -265,7 +265,7 @@ ClangdTextMark::ClangdTextMark(TextEditor::TextDocument *doc,
         // Copy to clipboard action
         QList<QAction *> actions;
         QAction *action = new QAction();
-        action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
+        action->setIcon(Icon::fromTheme("edit-copy"));
         action->setToolTip(Tr::tr("Copy to Clipboard", "Clang Code Model Marks"));
         QObject::connect(action, &QAction::triggered, [diag] {
             const QString text = ClangDiagnosticWidget::createText({diag},
