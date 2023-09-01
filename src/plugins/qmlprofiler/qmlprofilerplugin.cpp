@@ -6,7 +6,6 @@
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilersettings.h"
 #include "qmlprofilertool.h"
-#include "qmlprofileractions.h"
 
 #ifdef WITH_TESTS
 
@@ -57,7 +56,6 @@ class QmlProfilerPluginPrivate
 {
 public:
     QmlProfilerTool m_profilerTool;
-    QmlProfilerActions m_actions;
 
     // The full local profiler.
     LocalQmlProfilerRunWorkerFactory localQmlProfilerRunWorkerFactory;
@@ -99,8 +97,6 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 void QmlProfilerPlugin::extensionsInitialized()
 {
     d = new QmlProfilerPluginPrivate;
-    d->m_actions.attachToTool(&d->m_profilerTool);
-    d->m_actions.registerActions();
 
     RunConfiguration::registerAspect<QmlProfilerRunConfigurationAspect>();
 }
