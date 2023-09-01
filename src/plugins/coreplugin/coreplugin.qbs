@@ -149,7 +149,6 @@ Project {
                 "rightpane.h",
                 "session.cpp",
                 "session.h",
-                "session_p.h",
                 "sessiondialog.cpp",
                 "sessiondialog.h",
                 "sessionmodel.cpp",

@@ -266,7 +266,6 @@ add_qtc_plugin(Core
     rightpane.h
     session.cpp
     session.h
-    session_p.h
     sessiondialog.cpp
     sessiondialog.h
     sessionmodel.cpp
