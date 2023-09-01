@@ -52,7 +52,8 @@ CppUseSelectionsUpdater::RunnerInfo CppUseSelectionsUpdater::update(CallType cal
     auto *cppEditorDocument = qobject_cast<CppEditorDocument *>(cppEditorWidget->textDocument());
     QTC_ASSERT(cppEditorDocument, return RunnerInfo::FailedToStart);
 
-    m_updateSelections = !CppModelManager::usesClangd(cppEditorDocument);
+    m_updateSelections = !CppModelManager::usesClangd(cppEditorDocument)
+                         && !m_editorWidget->isRenaming();
 
     CursorInfoParams params;
     params.semanticInfo = cppEditorWidget->semanticInfo();
@@ -136,10 +137,6 @@ void CppUseSelectionsUpdater::onFindUsesFinished()
     if (m_runnerWordStartPosition
             != Utils::Text::wordStartCursor(m_editorWidget->textCursor()).position()) {
         emit finished(SemanticInfo::LocalUseMap(), false);
-        return;
-    }
-    if (m_editorWidget->isRenaming()) {
-        emit finished({}, false);
         return;
     }
 

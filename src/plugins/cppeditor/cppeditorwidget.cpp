@@ -478,8 +478,7 @@ void CppEditorWidget::finalizeInitialization()
 
     // set up the use highlighitng
     connect(this, &CppEditorWidget::cursorPositionChanged, this, [this] {
-        if (!d->m_localRenaming.isActive())
-            d->m_useSelectionsUpdater.scheduleUpdate();
+        d->m_useSelectionsUpdater.scheduleUpdate();
 
         // Notify selection expander about the changed cursor.
         d->m_cppSelectionChanger.onCursorPositionChanged(textCursor());
@@ -1223,12 +1222,10 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
 
     d->m_lastSemanticInfo = semanticInfo;
 
-    if (!d->m_localRenaming.isActive()) {
-        const CppUseSelectionsUpdater::CallType type = updateUseSelectionSynchronously
-            ? CppUseSelectionsUpdater::CallType::Synchronous
-            : CppUseSelectionsUpdater::CallType::Asynchronous;
-        d->m_useSelectionsUpdater.update(type);
-    }
+    const CppUseSelectionsUpdater::CallType type
+        = updateUseSelectionSynchronously ? CppUseSelectionsUpdater::CallType::Synchronous
+                                          : CppUseSelectionsUpdater::CallType::Asynchronous;
+    d->m_useSelectionsUpdater.update(type);
 
     // schedule a check for a decl/def link
     updateFunctionDeclDefLink();
