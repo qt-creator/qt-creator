@@ -18,6 +18,7 @@ struct EffectError {
     Q_PROPERTY(QString message MEMBER m_message)
     Q_PROPERTY(int line MEMBER m_line)
     Q_PROPERTY(int type MEMBER m_type)
+
 public:
     QString m_message;
     int m_line = -1;
@@ -30,6 +31,7 @@ class EffectMakerModel : public QAbstractListModel
 
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
+    Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
 
 public:
     EffectMakerModel(QObject *parent = nullptr);
@@ -44,15 +46,28 @@ public:
 
     Q_INVOKABLE void removeNode(int idx);
 
+    bool shadersUpToDate() const;
+    void setShadersUpToDate(bool newShadersUpToDate);
+
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
     void effectErrorChanged();
+    void shadersUpToDateChanged();
 
 private:
     enum Roles {
         NameRole = Qt::UserRole + 1,
         UniformsRole
+    };
+
+    enum ErrorTypes {
+        ErrorCommon = -1,
+        ErrorQMLParsing,
+        ErrorVert,
+        ErrorFrag,
+        ErrorQMLRuntime,
+        ErrorPreprocessor
     };
 
     bool isValidIndex(int idx) const;
@@ -68,14 +83,31 @@ private:
     void setEffectError(const QString &errorMessage, int type, int lineNumber);
     void resetEffectError(int type);
 
+    const QString getDefineProperties();
+    const QString getConstVariables();
+    int getTagIndex(const QStringList &code, const QString &tag);
+    QString processVertexRootLine(const QString &line);
+    QString processFragmentRootLine(const QString &line);
+    QStringList getDefaultRootVertexShader();
+    QStringList getDefaultRootFragmentShader();
+    QStringList removeTagsFromCode(const QStringList &codeLines);
+    QString removeTagsFromCode(const QString &code);
+    QString getCustomShaderVaryings(bool outState);
+    QString generateVertexShader(bool includeUniforms = true);
+    QString generateFragmentShader(bool includeUniforms = true);
+    void bakeShaders();
+
     QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
     bool m_isEmpty = true;
-
+    // True when shaders haven't changed since last baking
+    bool m_shadersUpToDate = true;
     QMap<int, EffectError> m_effectErrors;
-
     ShaderFeatures m_shaderFeatures;
+    QStringList m_shaderVaryingVariables;
+    QString m_fragmentShader;
+    QString m_vertexShader;
 };
 
 } // namespace QmlDesigner

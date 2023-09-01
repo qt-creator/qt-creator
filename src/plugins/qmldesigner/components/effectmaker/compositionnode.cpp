@@ -44,6 +44,21 @@ QStringList CompositionNode::requiredNodes() const
     return m_requiredNodes;
 }
 
+bool CompositionNode::isEnabled() const
+{
+    return m_isEnabled;
+}
+
+void CompositionNode::setIsEnabled(bool newIsEnabled)
+{
+    m_isEnabled = newIsEnabled;
+}
+
+CompositionNode::NodeType CompositionNode::type() const
+{
+    return m_type;
+}
+
 void CompositionNode::parse(const QString &qenPath)
 {
     QFile qenFile(qenPath);

@@ -17,6 +17,12 @@ class CompositionNode : public QObject
     Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel NOTIFY uniformsModelChanged)
 
 public:
+    enum NodeType {
+        SourceNode = 0,
+        DestinationNode,
+        CustomNode
+    };
+
     CompositionNode(const QString &qenPath);
 
     QString fragmentCode() const;
@@ -27,6 +33,11 @@ public:
 
     QStringList requiredNodes() const;
 
+    NodeType type() const;
+
+    bool isEnabled() const;
+    void setIsEnabled(bool newIsEnabled);
+
 signals:
     void uniformsModelChanged();
 
@@ -34,10 +45,12 @@ private:
     void parse(const QString &qenPath);
 
     QString m_name;
+    NodeType m_type = CustomNode;
     QString m_fragmentCode;
     QString m_vertexCode;
     QString m_description;
     QStringList m_requiredNodes;
+    bool m_isEnabled;
 
     EffectMakerUniformsModel m_unifomrsModel;
 };

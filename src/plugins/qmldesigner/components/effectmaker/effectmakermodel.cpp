@@ -112,7 +112,7 @@ const QString EffectMakerModel::getVSUniforms()
 
 const QString EffectMakerModel::getFSUniforms()
 {
-    QList<Uniform *> uniforms = allUniforms();
+    const QList<Uniform *> uniforms = allUniforms();
     QString s;
     s += "#version 440\n";
     s += '\n';
@@ -225,6 +225,226 @@ void EffectMakerModel::resetEffectError(int type)
         m_effectErrors.remove(type);
         Q_EMIT effectErrorChanged();
     }
+}
+
+const QString EffectMakerModel::getDefineProperties()
+{
+    // TODO
+
+    return QString();
+}
+
+const QString EffectMakerModel::getConstVariables()
+{
+    // TODO
+
+    return QString();
+}
+
+int EffectMakerModel::getTagIndex(const QStringList &code, const QString &tag)
+{
+    Q_UNUSED(code)
+    Q_UNUSED(tag)
+
+    // TODO
+    return 0;
+}
+
+QString EffectMakerModel::processVertexRootLine(const QString &line)
+{
+    Q_UNUSED(line)
+
+    // TODO
+    return QString();
+}
+
+QString EffectMakerModel:: processFragmentRootLine(const QString &line)
+{
+    Q_UNUSED(line)
+
+    // TODO
+    return QString();
+}
+
+QStringList EffectMakerModel::getDefaultRootVertexShader()
+{
+    // TODO
+    return {};
+}
+
+QStringList EffectMakerModel::getDefaultRootFragmentShader()
+{
+    // TODO
+    return {};
+}
+
+QStringList EffectMakerModel::removeTagsFromCode(const QStringList &codeLines)
+{
+    Q_UNUSED(codeLines)
+
+    // TODO
+    return {};
+}
+
+QString EffectMakerModel::removeTagsFromCode(const QString &code)
+{
+    Q_UNUSED(code)
+
+    // TODO
+    return QString();
+}
+
+QString EffectMakerModel::getCustomShaderVaryings(bool outState)
+{
+    Q_UNUSED(outState)
+
+    // TODO
+    return QString();
+}
+
+QString EffectMakerModel::generateVertexShader(bool includeUniforms)
+{
+    QString s;
+
+    if (includeUniforms)
+        s += getVSUniforms();
+
+    // Remove tags when not generating for features check
+    const bool removeTags = includeUniforms;
+
+    s += getDefineProperties();
+    s += getConstVariables();
+
+    // When the node is complete, add shader code in correct nodes order
+    // split to root and main parts
+    QString s_root;
+    QString s_main;
+    QStringList s_sourceCode;
+    m_shaderVaryingVariables.clear();
+    for (const CompositionNode *n : std::as_const(m_nodes)) {
+        if (!n->vertexCode().isEmpty() && n->isEnabled()) {
+            if (n->type() == CompositionNode::NodeType::SourceNode) {
+                s_sourceCode = n->vertexCode().split('\n');
+            } else if (n->type() == CompositionNode::NodeType::CustomNode) {
+                const QStringList vertexCode = n->vertexCode().split('\n');
+                int mainIndex = getTagIndex(vertexCode, QStringLiteral("main"));
+                int line = 0;
+                for (const QString &ss : vertexCode) {
+                    if (mainIndex == -1 || line > mainIndex)
+                        s_main += QStringLiteral("    ") + ss + '\n';
+                    else if (line < mainIndex)
+                        s_root += processVertexRootLine(ss);
+                    line++;
+                }
+            }
+        }
+    }
+
+    if (s_sourceCode.isEmpty()) {
+        // If source nodes doesn't contain any code, use default one
+        s_sourceCode << getDefaultRootVertexShader();
+    }
+
+    if (removeTags) {
+        s_sourceCode = removeTagsFromCode(s_sourceCode);
+        s_root = removeTagsFromCode(s_root);
+        s_main = removeTagsFromCode(s_main);
+    }
+
+    s += getCustomShaderVaryings(true);
+    s += s_root + '\n';
+
+    int nodesIndex = getTagIndex(s_sourceCode, QStringLiteral("nodes"));
+    int line = 0;
+    for (const QString &ss : std::as_const(s_sourceCode))
+        s += (line++ == nodesIndex) ? s_main : ss + '\n';
+
+    return s;
+}
+
+QString EffectMakerModel::generateFragmentShader(bool includeUniforms)
+{
+    QString s;
+
+    if (includeUniforms)
+        s += getFSUniforms();
+
+    // Remove tags when not generating for features check
+    const bool removeTags = includeUniforms;
+
+    s += getDefineProperties();
+    s += getConstVariables();
+
+    // When the node is complete, add shader code in correct nodes order
+    // split to root and main parts
+    QString s_root;
+    QString s_main;
+    QStringList s_sourceCode;
+    for (const CompositionNode *n : std::as_const(m_nodes)) {
+        if (!n->fragmentCode().isEmpty() && n->isEnabled()) {
+            if (n->type() == CompositionNode::NodeType::SourceNode) {
+                s_sourceCode = n->fragmentCode().split('\n');
+            } else if (n->type() == CompositionNode::NodeType::CustomNode) {
+                const QStringList fragmentCode = n->fragmentCode().split('\n');
+                int mainIndex = getTagIndex(fragmentCode, QStringLiteral("main"));
+                int line = 0;
+                for (const QString &ss : fragmentCode) {
+                    if (mainIndex == -1 || line > mainIndex)
+                        s_main += QStringLiteral("    ") + ss + '\n';
+                    else if (line < mainIndex)
+                        s_root += processFragmentRootLine(ss);
+                    line++;
+                }
+            }
+        }
+    }
+
+    if (s_sourceCode.isEmpty()) {
+        // If source nodes doesn't contain any code, use default one
+        s_sourceCode << getDefaultRootFragmentShader();
+    }
+
+    if (removeTags) {
+        s_sourceCode = removeTagsFromCode(s_sourceCode);
+        s_root = removeTagsFromCode(s_root);
+        s_main = removeTagsFromCode(s_main);
+    }
+
+    s += getCustomShaderVaryings(false);
+    s += s_root + '\n';
+
+    int nodesIndex = getTagIndex(s_sourceCode, QStringLiteral("nodes"));
+    int line = 0;
+    for (const QString &ss : std::as_const(s_sourceCode))
+        s += (line++ == nodesIndex) ? s_main : ss + '\n';
+
+    return s;
+}
+
+void EffectMakerModel::bakeShaders()
+{
+    resetEffectError(ErrorPreprocessor);
+    if (m_vertexShader == generateVertexShader() && m_fragmentShader == generateFragmentShader()) {
+        setShadersUpToDate(true);
+        return;
+    }
+
+    setShadersUpToDate(false);
+
+    // TODO: Compilation starts here
+}
+
+bool EffectMakerModel::shadersUpToDate() const
+{
+    return m_shadersUpToDate;
+}
+
+void EffectMakerModel::setShadersUpToDate(bool UpToDate)
+{
+    if (m_shadersUpToDate == UpToDate)
+        return;
+    m_shadersUpToDate = UpToDate;
+    emit shadersUpToDateChanged();
 }
 
 } // namespace QmlDesigner
