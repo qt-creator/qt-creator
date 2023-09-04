@@ -94,6 +94,18 @@ using namespace Utils;
 
 namespace QmlJSEditor {
 
+static LanguageClient::Client *getQmllsClient(const Utils::FilePath &fileName)
+{
+    // the value in disableBuiltinCodemodel is only valid when useQmlls is enabled
+    if (QmlJsEditingSettings::get().qmllsSettings().useQmlls
+        && !QmlJsEditingSettings::get().qmllsSettings().disableBuiltinCodemodel)
+        return nullptr;
+
+    auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName);
+    return client;
+}
+
+
 //
 // QmlJSEditorWidget
 //
@@ -741,9 +753,14 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
 
 void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
                                    const Utils::LinkHandler &processLinkCallback,
-                                   bool /*resolveTarget*/,
+                                   bool resolveTarget,
                                    bool /*inNextSplit*/)
 {
+    if (auto client = getQmllsClient(textDocument()->filePath())) {
+        client->findLinkAt(textDocument(), cursor, processLinkCallback, resolveTarget);
+        return;
+    }
+
     const SemanticInfo semanticInfo = m_qmlJsEditorDocument->semanticInfo();
     if (! semanticInfo.isValid())
         return processLinkCallback(Utils::Link());
@@ -857,17 +874,6 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     }
 
     processLinkCallback(Utils::Link());
-}
-
-static LanguageClient::Client *getQmllsClient(const Utils::FilePath &fileName)
-{
-    // the value in disableBuiltinCodemodel is only valid when useQmlls is enabled
-    if (QmlJsEditingSettings::get().qmllsSettings().useQmlls
-        && !QmlJsEditingSettings::get().qmllsSettings().disableBuiltinCodemodel)
-        return nullptr;
-
-    auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName);
-    return client;
 }
 
 void QmlJSEditorWidget::findUsages()
