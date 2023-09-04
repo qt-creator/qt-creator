@@ -15,8 +15,11 @@ HelperWidgets.Section {
     caption: nodeName
     category: "EffectMaker"
 
+    draggable: true
+    fillBackground: true
     showCloseButton: true
     closeButtonToolTip: qsTr("Remove")
+
     onCloseButtonClicked: {
         EffectMakerBackend.effectMakerModel.removeNode(index)
     }

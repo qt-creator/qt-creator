@@ -13,7 +13,7 @@ Rectangle {
     id: root
 
     width: 140
-    height: 22
+    height: 32
 
     color: mouseArea.containsMouse ? StudioTheme.Values.themeControlBackgroundInteraction
                                    : "transparent"
@@ -38,8 +38,8 @@ Rectangle {
         IconImage {
             id: nodeIcon
 
-            width: 22
-            height: 22
+            width: 32
+            height: 32
 
             color: StudioTheme.Values.themeTextColor
             source: modelData.nodeIcon

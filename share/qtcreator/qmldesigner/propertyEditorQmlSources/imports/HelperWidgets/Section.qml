@@ -21,6 +21,9 @@ Item {
     property alias showCloseButton: closeButton.visible
     property alias closeButtonToolTip: closeButton.tooltip
     property alias spacing: column.spacing
+    property alias draggable: dragButton.visible
+    property alias fillBackground: sectionBackground.visible
+    property alias highlightBorder: sectionBorder.visible
 
     property int leftPadding: StudioTheme.Values.sectionLeftPadding
     property int rightPadding: 0
@@ -82,6 +85,8 @@ Item {
     signal expand()
     signal collapse()
     signal closeButtonClicked()
+    signal startDrag(var section)
+    signal stopDrag()
 
     DropArea {
         id: dropArea
@@ -128,7 +133,7 @@ Item {
             height: 4
             source: "image://icons/down-arrow"
             anchors.left: parent.left
-            anchors.leftMargin: 4 + (section.level * section.levelShift)
+            anchors.leftMargin: 4 + (section.level * section.levelShift) + (section.draggable ? 20 : 0)
             anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -136,7 +141,7 @@ Item {
             id: label
             anchors.verticalCenter: parent.verticalCenter
             color: StudioTheme.Values.themeTextColor
-            x: 22 + (section.level * section.levelShift)
+            x: arrow.x + 18
             font.pixelSize: StudioTheme.Values.myFontSize
             font.capitalization: Font.AllUppercase
         }
@@ -174,7 +179,33 @@ Item {
 
             onClicked: root.closeButtonClicked()
         }
+
+        IconButton {
+            id: dragButton
+
+            icon: StudioTheme.Constants.dragmarks
+            buttonSize: 22
+            iconScale: containsMouse ? 1.2 : 1
+            transparentBg: true
+
+            visible: false
+            drag.target: section
+            drag.axis: Drag.YAxis
+
+            onPressed: {
+                section.startDrag(section)
+
+                section.z = ++section.parent.z // put the dragged section on top
+            }
+
+            onReleased: {
+                section.stopDrag()
+            }
+        }
     }
+
+    Drag.active: dragButton.drag.active
+    Drag.source: dragButton
 
     Rectangle {
         id: topSeparator
@@ -193,6 +224,23 @@ Item {
 
     implicitHeight: Math.round(column.height + header.height + topSpacer.height + bottomSpacer.height)
 
+    Rectangle {
+        id: sectionBackground
+        anchors.top: header.bottom
+        width: section.width
+        height: topSpacer.height + column.height + bottomSpacer.height
+        color: StudioTheme.Values.themePanelBackground
+        visible: false
+    }
+
+    Rectangle {
+        id: sectionBorder
+        anchors.fill: parent
+        color: "transparent"
+        border.color: StudioTheme.Values.themeInteraction
+        border.width: 1
+        visible: false
+    }
     Item {
         id: topSpacer
         height: section.addTopPadding && column.height > 0 ? section.topPadding : 0

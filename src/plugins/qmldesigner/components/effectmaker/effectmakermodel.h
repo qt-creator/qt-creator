@@ -44,6 +44,7 @@ public:
 
     void addNode(const QString &nodeQenPath);
 
+    Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
 
     bool shadersUpToDate() const;

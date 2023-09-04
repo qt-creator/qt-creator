@@ -49,6 +49,17 @@ void EffectMakerModel::addNode(const QString &nodeQenPath)
     endInsertRows();
 }
 
+void EffectMakerModel::moveNode(int fromIdx, int toIdx)
+{
+    if (fromIdx == toIdx)
+        return;
+
+    int toIdxAdjusted = fromIdx < toIdx ? toIdx + 1 : toIdx; // otherwise beginMoveRows() crashes
+    beginMoveRows({}, fromIdx, fromIdx, {}, toIdxAdjusted);
+    m_nodes.move(fromIdx, toIdx);
+    endMoveRows();
+}
+
 void EffectMakerModel::removeNode(int idx)
 {
     beginRemoveRows({}, idx, idx);
