@@ -400,6 +400,7 @@ Rectangle {
                         currentIndex: workspacesFlyout.indexOfValue(backend.currentWorkspace)
 
                         onCompressedActivated: backend.setCurrentWorkspace(workspacesFlyout.currentValue)
+                        onCountChanged: workspacesFlyout.currentIndex = workspacesFlyout.indexOfValue(backend.currentWorkspace)
                     }
                 }
             }
