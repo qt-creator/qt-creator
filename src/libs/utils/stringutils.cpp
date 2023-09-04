@@ -14,6 +14,7 @@
 #include <QClipboard>
 #endif
 
+#include <QCollator>
 #include <QDir>
 #include <QFontMetrics>
 #include <QJsonArray>
@@ -325,10 +326,18 @@ QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line
 
 int caseFriendlyCompare(const QString &a, const QString &b)
 {
-    int result = a.compare(b, Qt::CaseInsensitive);
+    static const auto makeCollator = [](Qt::CaseSensitivity caseSensitivity) {
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(caseSensitivity);
+        return collator;
+    };
+    static const QCollator insensitiveCollator = makeCollator(Qt::CaseInsensitive);
+    const int result = insensitiveCollator.compare(a, b);
     if (result != 0)
         return result;
-    return a.compare(b, Qt::CaseSensitive);
+    static const QCollator sensitiveCollator = makeCollator(Qt::CaseSensitive);
+    return sensitiveCollator.compare(a, b);
 }
 
 QString quoteAmpersands(const QString &text)
