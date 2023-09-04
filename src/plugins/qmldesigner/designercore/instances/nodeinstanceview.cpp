@@ -1182,9 +1182,6 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isQtQuickState())
         stateInstanceId = stateNode.internalId();
 
-    QColor gridColor = m_externalDependencies.designerSettingsEdit3DViewGridColor();
-    QList<QColor> backgroundColor = m_externalDependencies.designerSettingsEdit3DViewBackgroundColor();
-
     return CreateSceneCommand(instanceContainerList,
                               reparentContainerList,
                               idContainerList,
@@ -1199,9 +1196,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                               lastUsedLanguage,
                               m_captureImageMinimumSize,
                               m_captureImageMaximumSize,
-                              stateInstanceId,
-                              backgroundColor,
-                              gridColor);
+                              stateInstanceId);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const

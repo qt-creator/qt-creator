@@ -393,6 +393,25 @@ void Qt5InformationNodeInstanceServer::updateSnapSettings(const QVector<Property
 #endif
 }
 
+void Qt5InformationNodeInstanceServer::updateColorSettings(const QVector<PropertyValueContainer> &valueChanges)
+{
+#ifdef QUICK3D_MODULE
+    if (m_editView3DData.rootItem) {
+        for (const auto &container : valueChanges) {
+            if (container.name() == "edit3dGridColor") {
+                QQmlProperty gridProp(m_editView3DData.rootItem, "gridColor", context());
+                gridProp.write(container.value());
+            } else if (container.name() == "edit3dBgColor") {
+                QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateBackgroundColors",
+                                          Q_ARG(QVariant, container.value()));
+                if (auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper))
+                    helper->setBgColor(container.value());
+            }
+        }
+    }
+#endif
+}
+
 void Qt5InformationNodeInstanceServer::removeRotationBlocks(
     [[maybe_unused]] const QVector<qint32> &instanceIds)
 {
@@ -943,20 +962,8 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D([[maybe_unu
 
     updateView3DRect(m_active3DView);
 
-    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
-    if (helper) {
+    if (auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper))
         helper->storeToolState(helper->globalStateId(), helper->lastSceneIdKey(), QVariant(sceneId), 0);
-        QVariantMap toolStates = helper->getToolStates(sceneId);
-        if (toolStates.contains("syncBackgroundColor")) {
-            bool sync = toolStates["syncBackgroundColor"].toBool();
-            if (sync) {
-                QList<QColor> colors{helper->sceneEnvironmentColor(sceneId)};
-                View3DActionCommand cmd(View3DActionType::SelectBackgroundColor,
-                                        QVariant::fromValue(colors));
-                view3DAction(cmd);
-            }
-        }
-    }
 #endif
 }
 
@@ -1036,6 +1043,9 @@ void Qt5InformationNodeInstanceServer::resolveSceneRoots()
         }
         ++it;
     }
+
+    updateSceneEnvColorsToHelper();
+
     if (updateActiveScene) {
         m_active3DView = findView3DForSceneRoot(m_active3DScene);
         updateActiveSceneToEditView3D();
@@ -1975,18 +1985,7 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
 
     m_editView3DSetupDone = true;
 
-    auto activeView = qobject_cast<QQuick3DViewport *>(m_active3DView);
-    if (activeView) {
-        QQuick3DSceneEnvironment *activeEnv = activeView->environment();
-        QColor clearColor = activeEnv->clearColor();
-
-        if (clearColor.isValid() && helper) {
-            ServerNodeInstance activeSceneInstance = active3DSceneInstance();
-            const QString sceneId = activeSceneInstance.id();
-
-            helper->setSceneEnvironmentColor(sceneId, clearColor);
-        }
-    }
+    updateSceneEnvColorsToHelper();
 
     if (toolStates.contains({})) {
         // Update tool state to an existing no-scene state before updating the active scene to
@@ -1999,19 +1998,6 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
     updateActiveSceneToEditView3D();
 
     createCameraAndLightGizmos(instanceList);
-
-    if (!command.edit3dBackgroundColor.isEmpty()) {
-        View3DActionCommand backgroundColorCommand(View3DActionType::SelectBackgroundColor,
-                                                   QVariant::fromValue(
-                                                       command.edit3dBackgroundColor));
-        view3DAction(backgroundColorCommand);
-    }
-
-    if (command.edit3dGridColor.isValid()) {
-        View3DActionCommand backgroundColorCommand(View3DActionType::SelectGridColor,
-                                                   QVariant::fromValue(command.edit3dGridColor));
-        view3DAction(backgroundColorCommand);
-    }
 
     // Queue two renders to make sure icon gizmos update properly
     render3DEditView(2);
@@ -2140,6 +2126,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
         updateRotationBlocks(command.auxiliaryChanges);
         updateMaterialPreviewData(command.auxiliaryChanges);
         updateSnapSettings(command.auxiliaryChanges);
+        updateColorSettings(command.auxiliaryChanges);
     }
 
     QObject::connect(&m_renderModelNodeImageViewTimer, &QTimer::timeout,
@@ -2346,11 +2333,10 @@ void Qt5InformationNodeInstanceServer::setSceneEnvironmentColor(const PropertyVa
 
     if (toolStates.contains("syncBackgroundColor")) {
         bool sync = toolStates["syncBackgroundColor"].toBool();
-        QList<QColor> colors{color};
         if (sync) {
-            View3DActionCommand cmd(View3DActionType::SelectBackgroundColor,
-                                    QVariant::fromValue(colors));
-            view3DAction(cmd);
+            QList<QColor> colors{color};
+            QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateBackgroundColors",
+                                      Q_ARG(QVariant, QVariant::fromValue(colors)));
         }
     }
 #else
@@ -2394,6 +2380,42 @@ QVariantList Qt5InformationNodeInstanceServer::alignCameraList() const
     }
 #endif
     return cameras;
+}
+
+void Qt5InformationNodeInstanceServer::updateSceneEnvColorsToHelper()
+{
+#ifdef QUICK3D_MODULE
+    // Update stored scene environment colors for all scenes
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    if (!helper)
+        return;
+
+    helper->clearSceneEnvironmentColors();
+
+    const auto sceneRoots = m_3DSceneMap.uniqueKeys();
+    for (QObject *sceneRoot : sceneRoots) {
+        auto view3D = qobject_cast<QQuick3DViewport *>(findView3DForSceneRoot(sceneRoot));
+        if (!view3D)
+            continue;
+
+        QQuick3DSceneEnvironment *env = view3D->environment();
+        if (!env)
+            continue;
+
+        QColor clearColor = env->clearColor();
+        if (clearColor.isValid() && helper) {
+            ServerNodeInstance sceneInstance;
+            if (hasInstanceForObject(sceneRoot))
+                sceneInstance = instanceForObject(sceneRoot);
+            else if (hasInstanceForObject(view3D))
+                sceneInstance = instanceForObject(view3D);
+
+            const QString sceneId = sceneInstance.id();
+
+            helper->setSceneEnvironmentColor(sceneId, clearColor);
+        }
+    }
+#endif
 }
 
 void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
@@ -2510,13 +2532,6 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     case View3DActionType::SyncBackgroundColor:
         updatedToolState.insert("syncBackgroundColor", command.isEnabled());
         break;
-    case View3DActionType::SelectBackgroundColor:
-        updatedViewState.insert("selectBackgroundColor", command.value());
-        break;
-    case View3DActionType::SelectGridColor: {
-        updatedViewState.insert("selectGridColor", command.value());
-        break;
-    }
 #ifdef QUICK3D_PARTICLES_MODULE
     case View3DActionType::ShowParticleEmitter:
         updatedToolState.insert("showParticleEmitter", command.isEnabled());
@@ -2581,6 +2596,7 @@ void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxilia
     updateRotationBlocks(command.auxiliaryChanges);
     updateMaterialPreviewData(command.auxiliaryChanges);
     updateSnapSettings(command.auxiliaryChanges);
+    updateColorSettings(command.auxiliaryChanges);
     Qt5NodeInstanceServer::changeAuxiliaryValues(command);
     render3DEditView();
 }

@@ -568,6 +568,11 @@ QColor GeneralHelper::sceneEnvironmentColor(const QString &sceneId) const
     return m_sceneEnvironmentColor[sceneId];
 }
 
+void GeneralHelper::clearSceneEnvironmentColors()
+{
+    m_sceneEnvironmentColor.clear();
+}
+
 void GeneralHelper::initToolStates(const QString &sceneId, const QVariantMap &toolStates)
 {
     m_toolStates[sceneId] = toolStates;
@@ -975,6 +980,14 @@ QVector3D GeneralHelper::adjustScaleForSnap(const QVector3D &newScale)
     }
 
     return adjScale;
+}
+
+void GeneralHelper::setBgColor(const QVariant &colors)
+{
+    if (m_bgColor != colors) {
+        m_bgColor = colors;
+        emit bgColorChanged();
+    }
 }
 
 void GeneralHelper::handlePendingToolStateUpdate()

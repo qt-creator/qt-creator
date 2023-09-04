@@ -22,8 +22,6 @@ public:
     QString defaultPuppetToplevelBuildDirectory() const override;
     QUrl projectUrl() const override;
     QString currentProjectDirPath() const override;
-    QList<QColor> designerSettingsEdit3DViewBackgroundColor() const override;
-    QColor designerSettingsEdit3DViewGridColor() const override;
     QUrl currentResourcePath() const override;
     void parseItemLibraryDescriptions() override;
     const DesignerSettings &designerSettings() const override;

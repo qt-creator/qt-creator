@@ -62,20 +62,6 @@ QString ExternalDependencies::currentProjectDirPath() const
     return QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
 }
 
-QList<QColor> ExternalDependencies::designerSettingsEdit3DViewBackgroundColor() const
-{
-    return Edit3DViewConfig::loadColor(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
-}
-
-QColor ExternalDependencies::designerSettingsEdit3DViewGridColor() const
-{
-    QList<QColor> gridColorList = Edit3DViewConfig::loadColor(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR);
-    if (!gridColorList.isEmpty())
-        return gridColorList.front();
-
-    return {};
-}
-
 QUrl ExternalDependencies::currentResourcePath() const
 {
     return QUrl::fromLocalFile(

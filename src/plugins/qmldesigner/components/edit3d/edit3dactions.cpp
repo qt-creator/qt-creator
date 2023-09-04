@@ -25,10 +25,8 @@ Edit3DActionTemplate::Edit3DActionTemplate(const QString &description,
 
 void Edit3DActionTemplate::actionTriggered(bool b)
 {
-    if (m_type != View3DActionType::Empty && m_type != View3DActionType::SelectBackgroundColor
-        && m_type != View3DActionType::SelectGridColor) {
+    if (m_type != View3DActionType::Empty)
         m_view->emitView3DAction(m_type, b);
-    }
 
     if (m_action)
         m_action(m_selectionContext);

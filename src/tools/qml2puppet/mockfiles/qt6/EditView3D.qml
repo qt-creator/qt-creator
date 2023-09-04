@@ -136,6 +136,11 @@ Item {
                 }
             }
 
+            if (syncBackgroundColor)
+                updateBackgroundColors([_generalHelper.sceneEnvironmentColor(sceneId)]);
+            else
+                updateBackgroundColors(_generalHelper.bgColor);
+
             notifyActiveSceneChange();
         }
     }
@@ -191,21 +196,14 @@ Item {
             cameraControl.alignView(cameraNodes);
     }
 
-    function updateViewStates(viewStates)
-    {
-        if ("selectBackgroundColor" in viewStates) {
-            var colors = viewStates.selectBackgroundColor
-            if (colors.length === 1) {
-                backgroundGradientColorStart = colors[0];
-                backgroundGradientColorEnd = colors[0];
-            } else {
-                backgroundGradientColorStart = colors[0];
-                backgroundGradientColorEnd = colors[1];
-            }
+    function updateBackgroundColors(colors) {
+        if (colors.length === 1) {
+            backgroundGradientColorStart = colors[0];
+            backgroundGradientColorEnd = colors[0];
+        } else {
+            backgroundGradientColorStart = colors[0];
+            backgroundGradientColorEnd = colors[1];
         }
-
-        if ("selectGridColor" in viewStates)
-            viewRoot.gridColor = viewStates.selectGridColor
     }
 
     // If resetToDefault is true, tool states not specifically set to anything will be reset to
@@ -224,13 +222,13 @@ Item {
 
         if ("syncBackgroundColor" in toolStates) {
             syncBackgroundColor = toolStates.syncBackgroundColor;
-            if (syncBackgroundColor) {
-                var color = [];
-                color[0] = _generalHelper.sceneEnvironmentColor(sceneId);
-                updateViewStates({"selectBackgroundColor": color});
-            }
+            if (syncBackgroundColor)
+                updateBackgroundColors([_generalHelper.sceneEnvironmentColor(sceneId)]);
+            else
+                updateBackgroundColors(_generalHelper.bgColor);
         } else if (resetToDefault) {
             syncBackgroundColor = false;
+            updateBackgroundColors(_generalHelper.bgColor);
         }
 
         if ("showSelectionBox" in toolStates)

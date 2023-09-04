@@ -32,6 +32,7 @@ class GeneralHelper : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isMacOS READ isMacOS CONSTANT)
+    Q_PROPERTY(QVariant bgColor READ bgColor NOTIFY bgColorChanged FINAL)
 
 public:
     GeneralHelper();
@@ -94,6 +95,7 @@ public:
 
     void setSceneEnvironmentColor(const QString &sceneId, const QColor &color);
     Q_INVOKABLE QColor sceneEnvironmentColor(const QString &sceneId) const;
+    void clearSceneEnvironmentColors();
 
     bool isMacOS() const;
 
@@ -118,13 +120,16 @@ public:
     void setSnapRotationInterval(double interval) { m_snapRotationInterval = interval; }
     void setSnapScaleInterval(double interval) { m_snapScaleInterval = interval / 100.; }
 
+    void setBgColor(const QVariant &colors);
+    QVariant bgColor() const { return m_bgColor; }
+
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
     void hiddenStateChanged(QQuick3DNode *node);
     void lockedStateChanged(QQuick3DNode *node);
     void rotationBlocksChanged();
-
+    void bgColorChanged();
 private:
     void handlePendingToolStateUpdate();
     QVector3D pivotScenePosition(QQuick3DNode *node) const;
@@ -159,6 +164,8 @@ private:
     double m_snapPositionInterval = 50.;
     double m_snapRotationInterval = 5.;
     double m_snapScaleInterval = .1;
+
+    QVariant m_bgColor;
 };
 
 }

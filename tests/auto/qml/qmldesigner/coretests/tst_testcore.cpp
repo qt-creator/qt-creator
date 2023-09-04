@@ -146,8 +146,6 @@ public:
     QString defaultPuppetToplevelBuildDirectory() const override { return {}; }
     QString qmlPuppetFallbackDirectory() const override { return {}; }
     QUrl projectUrl() const override { return {}; }
-    QList<QColor> designerSettingsEdit3DViewBackgroundColor() const override { return {}; }
-    QColor designerSettingsEdit3DViewGridColor() const override { return {}; }
     void parseItemLibraryDescriptions() override {}
     const QmlDesigner::DesignerSettings &designerSettings() const override { return settings; }
     void undoOnCurrentDesignDocument() override {}
