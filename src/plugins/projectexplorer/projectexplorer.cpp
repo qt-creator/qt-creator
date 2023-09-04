@@ -516,6 +516,8 @@ public:
 
     void extendFolderNavigationWidgetFactory();
 
+    QString projectFilterString() const;
+
 public:
     QMenu *m_openWithMenu;
     QMenu *m_openTerminalMenu;
@@ -601,7 +603,6 @@ public:
     FilePath m_lastOpenDirectory;
     QPointer<RunConfiguration> m_defaultRunConfiguration;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
-    QString m_projectFilterString;
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
     QList<CustomParserSettings> m_customParsers;
@@ -1968,8 +1969,9 @@ void ProjectExplorerPluginPrivate::loadAction()
     }
 
     FilePath filePath = Utils::FileUtils::getOpenFilePath(ICore::dialogParent(),
-                                                          Tr::tr("Load Project"), dir,
-                                                          dd->m_projectFilterString);
+                                                          Tr::tr("Load Project"),
+                                                          dir,
+                                                          dd->projectFilterString());
     if (filePath.isEmpty())
         return;
 
@@ -2050,10 +2052,6 @@ void ProjectExplorerPlugin::extensionsInitialized()
     JsonWizardFactory::createWizardFactories();
 
     // Register factories for all project managers
-    QStringList allGlobPatterns;
-
-    const QString filterSeparator = QLatin1String(";;");
-    QStringList filterStrings;
 
     dd->m_documentFactory.setOpener([](FilePath filePath) {
         if (filePath.isDir()) {
@@ -2072,9 +2070,6 @@ void ProjectExplorerPlugin::extensionsInitialized()
     for (auto it = dd->m_projectCreators.cbegin(); it != dd->m_projectCreators.cend(); ++it) {
         const QString &mimeType = it.key();
         dd->m_documentFactory.addMimeType(mimeType);
-        MimeType mime = Utils::mimeTypeForName(mimeType);
-        allGlobPatterns.append(mime.globPatterns());
-        filterStrings.append(mime.filterString());
         dd->m_profileMimeTypes += mimeType;
     }
 
@@ -2082,12 +2077,6 @@ void ProjectExplorerPlugin::extensionsInitialized()
     dd->m_taskFileFactory.setOpener([](const FilePath &filePath) {
         return TaskFile::openTasks(filePath);
     });
-
-    QString allProjectsFilter = Tr::tr("All Projects");
-    allProjectsFilter += QLatin1String(" (") + allGlobPatterns.join(QLatin1Char(' '))
-            + QLatin1Char(')');
-    filterStrings.prepend(allProjectsFilter);
-    dd->m_projectFilterString = filterStrings.join(filterSeparator);
 
     BuildManager::extensionsInitialized();
     TaskHub::addCategory({Constants::TASK_CATEGORY_SANITIZER,
@@ -2788,6 +2777,24 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
                     });
                 }
             });
+}
+
+QString ProjectExplorerPluginPrivate::projectFilterString() const
+{
+    const QString filterSeparator = QLatin1String(";;");
+    QStringList filterStrings;
+    QStringList allGlobPatterns;
+    for (auto it = m_projectCreators.cbegin(); it != m_projectCreators.cend(); ++it) {
+        const QString &mimeType = it.key();
+        MimeType mime = Utils::mimeTypeForName(mimeType);
+        allGlobPatterns.append(mime.globPatterns());
+        filterStrings.append(mime.filterString());
+    }
+    QString allProjectsFilter = Tr::tr("All Projects");
+    allProjectsFilter += QLatin1String(" (") + allGlobPatterns.join(QLatin1Char(' '))
+                         + QLatin1Char(')');
+    filterStrings.prepend(allProjectsFilter);
+    return filterStrings.join(filterSeparator);
 }
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu(RunConfiguration *rc)
@@ -3991,7 +3998,7 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
     const FilePath path = DocumentManager::useProjectsDirectory()
                              ? DocumentManager::projectsDirectory()
                              : FilePath();
-    const FilePaths files = DocumentManager::getOpenFileNames(dd->m_projectFilterString, path);
+    const FilePaths files = DocumentManager::getOpenFileNames(dd->projectFilterString(), path);
     if (!files.isEmpty())
         ICore::openFiles(files, ICore::SwitchMode);
 }
