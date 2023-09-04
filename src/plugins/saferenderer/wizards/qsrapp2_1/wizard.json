@@ -1,10 +1,10 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
-    "id": "E.QSRApp",
+    "id": "E.QSRApp2_1",
     "category": "D.QtSafeRendererApplication",
-    "trDescription": "Creates a Qt Safe Renderer 2.0 project with a simple UI and project setup.\n\nThis project template does not work with QSR 2.1 or newer, and does not support CMake.",
-    "trDisplayName": "Qt Safe Renderer 2.0 Application",
+    "trDescription": "Creates a Qt Safe Renderer 2.1 (and newer) project with a simple UI and project setup.\n\nSupports both qmake and CMake.",
+    "trDisplayName": "Qt Safe Renderer Application 2.1",
     "trDisplayCategory": "Application (Qt Safe Renderer)",
     "icon": "../icon.png",
     "iconKind": "Themed",
@@ -14,7 +14,9 @@
     "options":
     [
         { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') == 'qmake' ? value('ProFile') : value('CMakeFile')}" },
+        { "key": "CMakeProjectName", "value": "%{JS: value('ProjectName').replace(/-/g, '_')}" },
         { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
+        { "key": "CMakeFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/CMakeLists.txt')}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "CppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" }
     ],
@@ -41,13 +43,18 @@
                     "persistenceKey": "BuildSystemType",
                     "data":
                     {
-                        "index": 0,
+                        "index": 1,
                         "items":
                         [
                             {
                                 "trKey": "qmake",
                                 "value": "qmake",
                                 "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "cmake",
+                                "value": "cmake",
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
                             }
                         ]
                     }
@@ -78,6 +85,12 @@
                     "target": "%{ProFile}",
                     "openAsProject": true,
                     "condition": "%{JS: value('BuildSystem') === 'qmake'}"
+                },
+                {
+                    "source": "CMakeLists.txt",
+                    "target": "%{CMakeFile}",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'cmake'}"
                 },
                 {
                     "source": "main.cpp.tpl",

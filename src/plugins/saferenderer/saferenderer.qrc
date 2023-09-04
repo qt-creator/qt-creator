@@ -8,5 +8,12 @@
         <file>wizards/qsrapp/qml.qrc.tpl</file>
         <file>wizards/qsrapp/safeasset.qrc.tpl</file>
         <file>wizards/qsrapp/wizard.json</file>
+        <file>wizards/qsrapp2_1/file.pro</file>
+        <file>wizards/qsrapp2_1/CMakeLists.txt</file>
+        <file>wizards/qsrapp2_1/main.cpp.tpl</file>
+        <file>wizards/qsrapp2_1/main.qml.tpl</file>
+        <file>wizards/qsrapp2_1/qml.qrc.tpl</file>
+        <file>wizards/qsrapp2_1/safeasset.qrc.tpl</file>
+        <file>wizards/qsrapp2_1/wizard.json</file>
     </qresource>
 </RCC>
