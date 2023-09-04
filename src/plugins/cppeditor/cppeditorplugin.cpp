@@ -183,8 +183,6 @@ public:
 
     QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
 
-    QPointer<TextEditor::BaseTextEditor> m_currentEditor;
-
     CppOutlineWidgetFactory m_cppOutlineWidgetFactory;
     CppTypeHierarchyFactory m_cppTypeHierarchyFactory;
     CppIncludeHierarchyFactory m_cppIncludeHierarchyFactory;
