@@ -7,6 +7,7 @@
 #include "uniform.h"
 
 #include <QRegularExpression>
+#include <QVector2D>
 
 #include <utils/qtcassert.h>
 
@@ -227,6 +228,33 @@ void EffectMakerModel::resetEffectError(int type)
     }
 }
 
+// Get value in GLSL format that is used for non-exported const properties
+QString EffectMakerModel::valueAsVariable(const Uniform &uniform)
+{
+    if (uniform.type() == Uniform::Type::Bool) {
+        return uniform.value().toBool() ? QString("true") : QString("false");
+    } else if (uniform.type() == Uniform::Type::Int) {
+        return QString::number(uniform.value().toInt());
+    } else if (uniform.type() == Uniform::Type::Float) {
+        return QString::number(uniform.value().toDouble());
+    } else if (uniform.type() == Uniform::Type::Vec2) {
+        QVector2D v2 = uniform.value().value<QVector2D>();
+        return QString("vec2(%1, %2)").arg(v2.x(), v2.y());
+    } else if (uniform.type() == Uniform::Type::Vec3) {
+        QVector3D v3 = uniform.value().value<QVector3D>();
+        return QString("vec3(%1, %2, %3)").arg(v3.x(), v3.y(), v3.z());
+    } else if (uniform.type() == Uniform::Type::Vec4) {
+        QVector4D v4 = uniform.value().value<QVector4D>();
+        return QString("vec4(%1, %2, %3, %4)").arg(v4.x(), v4.y(), v4.z(), v4.w());
+    } else if (uniform.type() == Uniform::Type::Color) {
+        QColor c = uniform.value().value<QColor>();
+        return QString("vec4(%1, %2, %3, %4)").arg(c.redF(), c.greenF(), c.blueF(), c.alphaF());
+    } else {
+        qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
+        return QString();
+    }
+}
+
 const QString EffectMakerModel::getDefineProperties()
 {
     // TODO
@@ -236,9 +264,18 @@ const QString EffectMakerModel::getDefineProperties()
 
 const QString EffectMakerModel::getConstVariables()
 {
-    // TODO
+    const QList<Uniform *> uniforms = allUniforms();
+    QString s;
+    for (Uniform *uniform : uniforms) {
+        // TODO: Check if uniform is already added.
+        QString constValue = valueAsVariable(*uniform);
+        QString type = Uniform::stringFromType(uniform->type());
+        s += QString("const %1 %2 = %3;\n").arg(type, uniform->name(), constValue);
+    }
+    if (!s.isEmpty())
+        s += '\n';
 
-    return QString();
+    return s;
 }
 
 int EffectMakerModel::getTagIndex(const QStringList &code, const QString &tag)

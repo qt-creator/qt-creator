@@ -83,6 +83,7 @@ private:
     void setEffectError(const QString &errorMessage, int type, int lineNumber);
     void resetEffectError(int type);
 
+    QString valueAsVariable(const Uniform &uniform);
     const QString getDefineProperties();
     const QString getConstVariables();
     int getTagIndex(const QStringList &code, const QString &tag);
