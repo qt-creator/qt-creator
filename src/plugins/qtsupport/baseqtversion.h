@@ -49,7 +49,9 @@ public:
 
     virtual ~QtVersion();
 
-    virtual void fromMap(const Utils::Store &map, const Utils::FilePath &filePath = {});
+    virtual void fromMap(const Utils::Store &map,
+                         const Utils::FilePath &filePath = {},
+                         bool forceRefreshCache = false);
     virtual bool equals(QtVersion *other);
 
     bool isAutodetected() const;
@@ -221,7 +223,7 @@ private:
     friend class Internal::QtOptionsPageWidget;
 
     void setId(int id);
-    QtVersion *clone() const;
+    QtVersion *clone(bool forceRefreshCache = false) const;
 
     Internal::QtVersionPrivate *d = nullptr;
 };

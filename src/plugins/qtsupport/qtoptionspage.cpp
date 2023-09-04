@@ -599,7 +599,7 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
 
     // Add changed/added items:
     for (int a : std::as_const(toAdd)) {
-        QtVersion *version = QtVersionManager::version(a)->clone();
+        QtVersion *version = QtVersionManager::version(a)->clone(true);
         auto *item = new QtVersionItem(version);
 
         // Insert in the right place:
