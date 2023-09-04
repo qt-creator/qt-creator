@@ -83,7 +83,7 @@ class ClangToolChainConfigWidget : public GccToolChainConfigWidget
 {
     Q_OBJECT
 public:
-    explicit ClangToolChainConfigWidget(ClangToolChain *tc);
+    explicit ClangToolChainConfigWidget(GccToolChain *tc);
 
 private:
     void applyImpl() override;
@@ -303,12 +303,24 @@ static FilePath gccInstallDir(const FilePath &compiler,
 // GccToolChain
 // --------------------------------------------------------------------------
 
-GccToolChain::GccToolChain(Utils::Id typeId) :
-    ToolChain(typeId)
+GccToolChain::GccToolChain(Utils::Id typeId, SubType subType)
+    : ToolChain(typeId), m_subType(subType)
 {
     setTypeDisplayName(Tr::tr("GCC"));
     setTargetAbiKey(targetAbiKeyC);
     setCompilerCommandKey("ProjectExplorer.GccToolChain.Path");
+    if (m_subType == Clang) {
+        setTypeDisplayName(Tr::tr("Clang"));
+        syncAutodetectedWithParentToolchains();
+    }
+}
+
+GccToolChain::~GccToolChain()
+{
+    if (m_subType == Clang) {
+        QObject::disconnect(m_thisToolchainRemovedConnection);
+        QObject::disconnect(m_mingwToolchainAddedConnection);
+    }
 }
 
 void GccToolChain::setSupportedAbis(const Abis &abis)
@@ -360,8 +372,33 @@ LanguageExtensions GccToolChain::defaultLanguageExtensions() const
     return LanguageExtension::Gnu;
 }
 
+static const Toolchains mingwToolChains()
+{
+    return ToolChainManager::toolchains([](const ToolChain *tc) -> bool {
+        return tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID;
+    });
+}
+
+static const MingwToolChain *mingwToolChainFromId(const QByteArray &id)
+{
+    if (id.isEmpty())
+        return nullptr;
+
+    for (const ToolChain *tc : mingwToolChains()) {
+        if (tc->id() == id)
+            return static_cast<const MingwToolChain *>(tc);
+    }
+
+    return nullptr;
+}
+
 QString GccToolChain::originalTargetTriple() const
 {
+    if (m_subType == Clang) {
+        if (const MingwToolChain *parentTC = mingwToolChainFromId(m_parentToolChainId))
+            return parentTC->originalTargetTriple();
+    }
+
     if (m_originalTargetTriple.isEmpty())
         m_originalTargetTriple = detectSupportedAbis().originalTargetTriple;
     return m_originalTargetTriple;
@@ -502,7 +539,7 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
  * @brief Parses gcc flags -std=*, -fopenmp, -fms-extensions.
  * @see http://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html
  */
-Utils::LanguageExtensions GccToolChain::languageExtensions(const QStringList &cxxflags) const
+LanguageExtensions GccToolChain::languageExtensions(const QStringList &cxxflags) const
 {
     LanguageExtensions extensions = defaultLanguageExtensions();
 
@@ -520,6 +557,10 @@ Utils::LanguageExtensions GccToolChain::languageExtensions(const QStringList &cx
             extensions |= LanguageExtension::Microsoft;
         }
     }
+
+    // Clang knows -fborland-extensions".
+    if (m_subType == Clang && cxxflags.contains("-fborland-extensions"))
+        extensions |= LanguageExtension::Borland;
 
     return extensions;
 }
@@ -566,6 +607,17 @@ WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
         add("unused-value", WarningFlags::UnusedValue);
         add("uninitialized", WarningFlags::UninitializedVars);
     }
+
+    if (m_subType == Clang) {
+        for (int end = cflags.size(), i = 0; i != end; ++i) {
+            const QString &flag = cflags[i];
+            if (flag == "-Wdocumentation")
+                flags |= WarningFlags::Documentation;
+            if (flag == "-Wno-documentation")
+                flags &= ~WarningFlags::Documentation;
+        }
+    }
+
     return flags;
 }
 
@@ -648,6 +700,30 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
     Environment fullEnv = env;
     addToEnvironment(fullEnv);
 
+    if (m_subType == Clang) {
+        // This runner must be thread-safe!
+        return [fullEnv,
+                compilerCommand = compilerCommand(),
+                platformCodeGenFlags = m_platformCodeGenFlags,
+                reinterpretOptions = m_optionsReinterpreter,
+                headerCache = headerPathsCache(),
+                languageId = language(),
+                extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
+                                                                       const FilePath &sysRoot,
+                                                                       const QString &target) {
+            return builtInHeaderPaths(fullEnv,
+                                      compilerCommand,
+                                      platformCodeGenFlags,
+                                      reinterpretOptions,
+                                      headerCache,
+                                      languageId,
+                                      extraHeaderPathsFunction,
+                                      flags,
+                                      sysRoot,
+                                      target);
+        };
+    }
+
     // This runner must be thread-safe!
     return [fullEnv,
             compilerCommand = compilerCommand(),
@@ -682,10 +758,37 @@ void GccToolChain::addToEnvironment(Environment &env) const
     // cc1plus depends on libwinpthread-1.dll which is in bin, so bin must be in the PATH.
     if (compilerCommand().osType() == OsTypeWindows)
         addCommandPathToEnvironment(compilerCommand(), env);
+
+    if (m_subType == Clang) {
+        const QString sysroot = sysRoot();
+        if (!sysroot.isEmpty())
+            env.prependOrSetPath(FilePath::fromString(sysroot) / "bin");
+
+        // Clang takes PWD as basis for debug info, if set.
+        // When running Qt Creator from a shell, PWD is initially set to an "arbitrary" value.
+        // Since the tools are not called through a shell, PWD is never changed to the actual cwd,
+        // so we better make sure PWD is empty to begin with
+        env.unset("PWD");
+    }
 }
 
 QStringList GccToolChain::suggestedMkspecList() const
 {
+    if (m_subType == Clang) {
+        if (const ToolChain * const parentTc = ToolChainManager::findToolChain(m_parentToolChainId))
+            return parentTc->suggestedMkspecList();
+        const Abi abi = targetAbi();
+        if (abi.os() == Abi::DarwinOS)
+            return {"macx-clang", "macx-clang-32", "unsupported/macx-clang", "macx-ios-clang"};
+        if (abi.os() == Abi::LinuxOS)
+            return {"linux-clang", "unsupported/linux-clang"};
+        if (abi.os() == Abi::WindowsOS)
+            return {"win32-clang-g++"};
+        if (abi.architecture() == Abi::AsmJsArchitecture && abi.binaryFormat() == Abi::EmscriptenFormat)
+            return {"wasm-emscripten"};
+        return {}; // Note: Not supported by Qt yet, so default to the mkspec the Qt was build with
+    }
+
     const Abi abi = targetAbi();
     const Abi host = Abi::hostAbi();
 
@@ -722,14 +825,34 @@ QStringList GccToolChain::suggestedMkspecList() const
     return {};
 }
 
+static FilePath mingwAwareMakeCommand(const Environment &environment)
+{
+    const QStringList makes
+            = HostOsInfo::isWindowsHost() ? QStringList({"mingw32-make.exe", "make.exe"}) : QStringList({"make"});
+
+    FilePath tmp;
+    for (const QString &make : makes) {
+        tmp = environment.searchInPath(make);
+        if (!tmp.isEmpty())
+            return tmp;
+    }
+    return FilePath::fromString(makes.first());
+}
+
 FilePath GccToolChain::makeCommand(const Environment &environment) const
 {
+    if (m_subType == Clang)
+        return mingwAwareMakeCommand(environment);
+
     const FilePath tmp = environment.searchInPath("make");
     return tmp.isEmpty() ? "make" : tmp;
 }
 
 QList<OutputLineParser *> GccToolChain::createOutputParsers() const
 {
+    if (m_subType == Clang)
+        return ClangParser::clangParserSuite();
+
     return GccParser::gccParserSuite();
 }
 
@@ -802,6 +925,11 @@ void GccToolChain::toMap(Store &data) const
     data.insert(compilerPlatformLinkerFlagsKeyC, m_platformLinkerFlags);
     data.insert(originalTargetTripleKeyC, m_originalTargetTriple);
     data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
+
+    if (m_subType == Clang) {
+        data.insert(parentToolChainIdKeyC, m_parentToolChainId);
+        data.insert(priorityKeyC, m_priority);
+    }
 }
 
 void GccToolChain::fromMap(const Store &data)
@@ -821,6 +949,12 @@ void GccToolChain::fromMap(const Store &data)
     const QString targetAbiString = data.value(targetAbiKeyC).toString();
     if (targetAbiString.isEmpty())
         resetToolChain(compilerCommand());
+
+    if (m_subType == Clang) {
+        m_parentToolChainId = data.value(parentToolChainIdKeyC).toByteArray();
+        m_priority = data.value(priorityKeyC, PriorityNormal).toInt();
+        syncAutodetectedWithParentToolchains();
+    }
 }
 
 bool GccToolChain::operator ==(const ToolChain &other) const
@@ -836,6 +970,9 @@ bool GccToolChain::operator ==(const ToolChain &other) const
 
 std::unique_ptr<ToolChainConfigWidget> GccToolChain::createConfigurationWidget()
 {
+    if (m_subType == Clang)
+        return std::make_unique<ClangToolChainConfigWidget>(this);
+
     return std::make_unique<GccToolChainConfigWidget>(this);
 }
 
@@ -1459,27 +1596,7 @@ void GccToolChainConfigWidget::handlePlatformLinkerFlagsChange()
 // ClangToolChain
 // --------------------------------------------------------------------------
 
-static const Toolchains mingwToolChains()
-{
-    return ToolChainManager::toolchains([](const ToolChain *tc) -> bool {
-        return tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID;
-    });
-}
-
-static const MingwToolChain *mingwToolChainFromId(const QByteArray &id)
-{
-    if (id.isEmpty())
-        return nullptr;
-
-    for (const ToolChain *tc : mingwToolChains()) {
-        if (tc->id() == id)
-            return static_cast<const MingwToolChain *>(tc);
-    }
-
-    return nullptr;
-}
-
-void ClangToolChain::syncAutodetectedWithParentToolchains()
+void GccToolChain::syncAutodetectedWithParentToolchains()
 {
     if (!HostOsInfo::isWindowsHost() || typeId() != Constants::CLANG_TOOLCHAIN_TYPEID
         || !isAutoDetected()) {
@@ -1494,7 +1611,7 @@ void ClangToolChain::syncAutodetectedWithParentToolchains()
                 [id = id()] {
             if (ToolChain * const tc = ToolChainManager::findToolChain(id)) {
                 if (tc->typeId() == Constants::CLANG_TOOLCHAIN_TYPEID)
-                    static_cast<ClangToolChain *>(tc)->syncAutodetectedWithParentToolchains();
+                    static_cast<GccToolChain *>(tc)->syncAutodetectedWithParentToolchains();
             }
         });
         return;
@@ -1528,197 +1645,44 @@ void ClangToolChain::syncAutodetectedWithParentToolchains()
 
 ClangToolChain::ClangToolChain() :
     ClangToolChain(Constants::CLANG_TOOLCHAIN_TYPEID)
-{
-}
+{}
 
 ClangToolChain::ClangToolChain(Utils::Id typeId) :
-    GccToolChain(typeId)
+    GccToolChain(typeId, GccToolChain::Clang)
 {
-    setTypeDisplayName(Tr::tr("Clang"));
-    syncAutodetectedWithParentToolchains();
 }
 
-ClangToolChain::~ClangToolChain()
+bool GccToolChain::matchesCompilerCommand(const FilePath &command) const
 {
-    QObject::disconnect(m_thisToolchainRemovedConnection);
-    QObject::disconnect(m_mingwToolchainAddedConnection);
+    if (m_subType == Clang) {
+        if (!m_resolvedCompilerCommand) {
+            m_resolvedCompilerCommand = FilePath();
+            if (HostOsInfo::isMacHost()
+                && compilerCommand().parentDir() == FilePath::fromString("/usr/bin")) {
+                Process xcrun;
+                xcrun.setCommand({"/usr/bin/xcrun", {"-f", compilerCommand().fileName()}});
+                xcrun.runBlocking();
+                const FilePath output = FilePath::fromString(xcrun.cleanedStdOut().trimmed());
+                if (output.isExecutableFile() && output != compilerCommand())
+                    m_resolvedCompilerCommand = output;
+            }
+        }
+        if (!m_resolvedCompilerCommand->isEmpty()
+            && m_resolvedCompilerCommand->isSameExecutable(command))
+            return true;
+    }
+    return ToolChain::matchesCompilerCommand(command);
 }
 
-bool ClangToolChain::matchesCompilerCommand(const FilePath &command) const
+QString GccToolChain::sysRoot() const
 {
-    if (!m_resolvedCompilerCommand) {
-        m_resolvedCompilerCommand = FilePath();
-        if (HostOsInfo::isMacHost()
-            && compilerCommand().parentDir() == FilePath::fromString("/usr/bin")) {
-            Process xcrun;
-            xcrun.setCommand({"/usr/bin/xcrun", {"-f", compilerCommand().fileName()}});
-            xcrun.runBlocking();
-            const FilePath output = FilePath::fromString(xcrun.cleanedStdOut().trimmed());
-            if (output.isExecutableFile() && output != compilerCommand())
-                m_resolvedCompilerCommand = output;
+    if (m_subType == Clang) {
+        if (const MingwToolChain *parentTC = mingwToolChainFromId(m_parentToolChainId)) {
+            const FilePath mingwCompiler = parentTC->compilerCommand();
+            return mingwCompiler.parentDir().parentDir().toString();
         }
     }
-    if (!m_resolvedCompilerCommand->isEmpty()
-        && m_resolvedCompilerCommand->isSameExecutable(command))
-        return true;
-    return GccToolChain::matchesCompilerCommand(command);
-}
-
-static FilePath mingwAwareMakeCommand(const Environment &environment)
-{
-    const QStringList makes
-            = HostOsInfo::isWindowsHost() ? QStringList({"mingw32-make.exe", "make.exe"}) : QStringList({"make"});
-
-    FilePath tmp;
-    for (const QString &make : makes) {
-        tmp = environment.searchInPath(make);
-        if (!tmp.isEmpty())
-            return tmp;
-    }
-    return FilePath::fromString(makes.first());
-}
-
-FilePath ClangToolChain::makeCommand(const Environment &environment) const
-{
-    return mingwAwareMakeCommand(environment);
-}
-
-/**
- * @brief Similar to \a GccToolchain::languageExtensions, but recognizes
- * "-fborland-extensions".
- */
-LanguageExtensions ClangToolChain::languageExtensions(const QStringList &cxxflags) const
-{
-    LanguageExtensions extensions = GccToolChain::languageExtensions(cxxflags);
-    if (cxxflags.contains("-fborland-extensions"))
-        extensions |= LanguageExtension::Borland;
-    return extensions;
-}
-
-WarningFlags ClangToolChain::warningFlags(const QStringList &cflags) const
-{
-    WarningFlags flags = GccToolChain::warningFlags(cflags);
-    for (int end = cflags.size(), i = 0; i != end; ++i) {
-        const QString &flag = cflags[i];
-        if (flag == "-Wdocumentation")
-            flags |= WarningFlags::Documentation;
-        if (flag == "-Wno-documentation")
-            flags &= ~WarningFlags::Documentation;
-    }
-    return flags;
-}
-
-QStringList ClangToolChain::suggestedMkspecList() const
-{
-    if (const ToolChain * const parentTc = ToolChainManager::findToolChain(m_parentToolChainId))
-        return parentTc->suggestedMkspecList();
-    const Abi abi = targetAbi();
-    if (abi.os() == Abi::DarwinOS)
-        return {"macx-clang", "macx-clang-32", "unsupported/macx-clang", "macx-ios-clang"};
-    if (abi.os() == Abi::LinuxOS)
-        return {"linux-clang", "unsupported/linux-clang"};
-    if (abi.os() == Abi::WindowsOS)
-        return {"win32-clang-g++"};
-    if (abi.architecture() == Abi::AsmJsArchitecture && abi.binaryFormat() == Abi::EmscriptenFormat)
-        return {"wasm-emscripten"};
-    return {}; // Note: Not supported by Qt yet, so default to the mkspec the Qt was build with
-}
-
-void ClangToolChain::addToEnvironment(Environment &env) const
-{
-    GccToolChain::addToEnvironment(env);
-
-    const QString sysroot = sysRoot();
-    if (!sysroot.isEmpty())
-        env.prependOrSetPath(FilePath::fromString(sysroot) / "bin");
-
-    // Clang takes PWD as basis for debug info, if set.
-    // When running Qt Creator from a shell, PWD is initially set to an "arbitrary" value.
-    // Since the tools are not called through a shell, PWD is never changed to the actual cwd,
-    // so we better make sure PWD is empty to begin with
-    env.unset("PWD");
-}
-
-QString ClangToolChain::originalTargetTriple() const
-{
-    const MingwToolChain *parentTC = mingwToolChainFromId(m_parentToolChainId);
-    if (parentTC)
-        return parentTC->originalTargetTriple();
-
-    return GccToolChain::originalTargetTriple();
-}
-
-QString ClangToolChain::sysRoot() const
-{
-    const MingwToolChain *parentTC = mingwToolChainFromId(m_parentToolChainId);
-    if (!parentTC)
-        return {};
-
-    const FilePath mingwCompiler = parentTC->compilerCommand();
-    return mingwCompiler.parentDir().parentDir().toString();
-}
-
-ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunner(
-        const Environment &env) const
-{
-    // Using a clean environment breaks ccache/distcc/etc.
-    Environment fullEnv = env;
-    addToEnvironment(fullEnv);
-
-    // This runner must be thread-safe!
-    return [fullEnv,
-            compilerCommand = compilerCommand(),
-            platformCodeGenFlags = m_platformCodeGenFlags,
-            reinterpretOptions = m_optionsReinterpreter,
-            headerCache = headerPathsCache(),
-            languageId = language(),
-            extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
-                                                                   const FilePath &sysRoot,
-                                                                   const QString &target) {
-        return builtInHeaderPaths(fullEnv,
-                                  compilerCommand,
-                                  platformCodeGenFlags,
-                                  reinterpretOptions,
-                                  headerCache,
-                                  languageId,
-                                  extraHeaderPathsFunction,
-                                  flags,
-                                  sysRoot,
-                                  target);
-    };
-}
-
-std::unique_ptr<ToolChainConfigWidget> ClangToolChain::createConfigurationWidget()
-{
-    return std::make_unique<ClangToolChainConfigWidget>(this);
-}
-
-void ClangToolChain::toMap(Store &data) const
-{
-    GccToolChain::toMap(data);
-    data.insert(parentToolChainIdKeyC, m_parentToolChainId);
-    data.insert(priorityKeyC, m_priority);
-}
-
-void ClangToolChain::fromMap(const Store &data)
-{
-    GccToolChain::fromMap(data);
-    if (hasError())
-        return;
-
-    m_parentToolChainId = data.value(parentToolChainIdKeyC).toByteArray();
-    m_priority = data.value(priorityKeyC, PriorityNormal).toInt();
-    syncAutodetectedWithParentToolchains();
-}
-
-LanguageExtensions ClangToolChain::defaultLanguageExtensions() const
-{
-    return LanguageExtension::Gnu;
-}
-
-QList<OutputLineParser *> ClangToolChain::createOutputParsers() const
-{
-    return ClangParser::clangParserSuite();
+    return {};
 }
 
 // --------------------------------------------------------------------------
@@ -1774,7 +1738,7 @@ Toolchains ClangToolChainFactory::detectForImport(const ToolChainDescription &tc
     return {};
 }
 
-ClangToolChainConfigWidget::ClangToolChainConfigWidget(ClangToolChain *tc) :
+ClangToolChainConfigWidget::ClangToolChainConfigWidget(GccToolChain *tc) :
     GccToolChainConfigWidget(tc)
 {
     if (!HostOsInfo::isWindowsHost() || tc->typeId() != Constants::CLANG_TOOLCHAIN_TYPEID)
