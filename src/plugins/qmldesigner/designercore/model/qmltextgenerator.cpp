@@ -265,8 +265,7 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
                     + QString::fromUtf8(property.name())
                     + QStringLiteral(": ")
                     + toQml(property, indentDepth);
-        }
-        if (property.isSignalDeclarationProperty()) {
+        } else if (property.isSignalDeclarationProperty()) {
             result = m_tabSettings.indentationString(0, indentDepth, 0) + "signal" + " "
                      + QString::fromUtf8(property.name()) + " " + toQml(property, indentDepth);
         } else {
