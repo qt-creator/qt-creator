@@ -4,6 +4,7 @@
 #include "treemodel.h"
 
 #include "qtcassert.h"
+#include "stringutils.h"
 
 #include <QStack>
 #include <QSize>
@@ -1197,6 +1198,14 @@ Qt::ItemFlags StaticTreeItem::flags(int column) const
 {
     Q_UNUSED(column)
     return Qt::ItemIsEnabled;
+}
+
+bool SortModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+{
+    if (m_lessThan)
+        return lessThan(source_left, source_right);
+    return caseFriendlyCompare(sourceModel()->data(source_left).toString(),
+                               sourceModel()->data(source_right).toString()) < 0;
 }
 
 } // namespace Utils

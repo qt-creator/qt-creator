@@ -41,7 +41,6 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSortFilterProxyModel>
 #include <QTextBrowser>
 #include <QTreeView>
 
@@ -197,7 +196,7 @@ private:
     void updateVersionItem(QtVersionItem *item);
 
     TreeModel<TreeItem, TreeItem, QtVersionItem> *m_model;
-    QSortFilterProxyModel *m_filterModel;
+    SortModel *m_filterModel;
     TreeItem *m_autoItem;
     TreeItem *m_manualItem;
 
@@ -314,9 +313,8 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_model->rootItem()->appendChild(m_autoItem);
     m_model->rootItem()->appendChild(m_manualItem);
 
-    m_filterModel = new QSortFilterProxyModel(this);
+    m_filterModel = new SortModel(this);
     m_filterModel->setSourceModel(m_model);
-    m_filterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
 
     m_qtdirList->setModel(m_filterModel);
     m_qtdirList->setSortingEnabled(true);
