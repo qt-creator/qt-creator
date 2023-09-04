@@ -483,9 +483,10 @@ const QList<Kit *> KitManager::sortedKits()
     });
     Utils::sort(sortList,
                 [](const QPair<QString, Kit *> &a, const QPair<QString, Kit *> &b) -> bool {
-                    if (a.first == b.first)
-                        return a.second < b.second;
-                    return a.first < b.first;
+                    const int nameResult = Utils::caseFriendlyCompare(a.first, b.first);
+                    if (nameResult != 0)
+                        return nameResult < 0;
+                    return a.second < b.second;
                 });
     return Utils::transform<QList>(sortList, &QPair<QString, Kit *>::second);
 }
