@@ -774,6 +774,9 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
                     // TODO: postMessage() instead
                     m_runControl->postMessage(message, StdErrFormat);
                     m_runControl->postMessage(output.errorDetails, StdErrFormat);
+                } else if (!output.errorMessage.isEmpty()) {
+                    m_runControl->postMessage(output.errorMessage, ErrorMessageFormat);
+                    m_runControl->postMessage(output.errorDetails, StdErrFormat);
                 } else {
                     qCDebug(LOG) << "Clang tool task finished with success:"
                                  << output.outputFilePath;
