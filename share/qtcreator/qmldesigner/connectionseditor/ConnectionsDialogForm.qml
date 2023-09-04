@@ -107,19 +107,64 @@ Column {
         onClicked: backend.removeCondition()
     }
 
+    ExpressionBuilder {
+        style: StudioTheme.Values.connectionPopupControlStyle
+        width: root.width
+
+        visible: backend.hasCondition
+        model: backend.conditionListModel
+
+        onRemove: function(index) {
+            console.log("remove", index)
+            backend.conditionListModel.removeToken(index)
+        }
+
+        onUpdate: function(index, value) {
+            console.log("update", index, value)
+            backend.conditionListModel.updateToken(index, value)
+        }
+
+        onAdd: function(value) {
+            console.log("add", value)
+            backend.conditionListModel.appendToken(value)
+        }
+
+        onInsert: function(index, value, type) {
+            console.log("insert", index, value, type)
+
+            if (type === ConditionListModel.Intermediate)
+                backend.conditionListModel.insertIntermediateToken(index, value)
+            else if (type === ConditionListModel.Shadow)
+                backend.conditionListModel.insertShadowToken(index, value)
+            else
+                backend.conditionListModel.insertToken(index, value)
+        }
+
+        onSetValue: function(index, value) {
+            console.log("setValue", index, value)
+
+            backend.conditionListModel.setShadowToken(index, value)
+        }
+    }
+
     Flow {
         spacing: root.horizontalSpacing
         width: root.width
-        Repeater {
 
+        Repeater {
             model: backend.conditionListModel
+
             Text {
                 text: value
                 color: "white"
+
                 Rectangle {
                     z: -1
                     opacity: 0.2
+                    anchors.fill: parent
                     color: {
+                        if (type === ConditionListModel.Intermediate)
+                            return "darkorange"
                         if (type === ConditionListModel.Invalid)
                             return "red"
                         if (type === ConditionListModel.Operator)
@@ -128,8 +173,9 @@ Column {
                             return "green"
                         if (type === ConditionListModel.Variable)
                             return "yellow"
+                        if (type === ConditionListModel.Shadow)
+                            return "hotpink"
                     }
-                    anchors.fill: parent
                 }
             }
         }
@@ -138,7 +184,7 @@ Column {
     TextInput {
         id: commandInput
         width: root.width
-        onAccepted:  backend.conditionListModel.command(commandInput.text)
+        onAccepted: backend.conditionListModel.command(commandInput.text)
     }
 
     Text {
@@ -153,7 +199,8 @@ Column {
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition && !backend.hasElse
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
+                 && backend.hasCondition && !backend.hasElse
 
         onClicked: backend.addElse()
     }
@@ -165,7 +212,8 @@ Column {
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition && backend.hasElse
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
+                 && backend.hasCondition && backend.hasElse
 
         onClicked: backend.removeElse()
     }
@@ -177,7 +225,8 @@ Column {
         columnWidth: root.columnWidth
         statement: backend.koStatement
         spacing: root.verticalSpacing
-        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition && backend.hasElse
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
+                 && backend.hasCondition && backend.hasElse
     }
 
     // Editor

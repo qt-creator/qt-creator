@@ -88,10 +88,13 @@ public:
                                                           0,
                                                           "ConnectionModelStatementDelegate");
 
-        qmlRegisterType<ConditionListModel>("ConnectionsEditorEditorBackend",
-                                            1,
-                                            0,
-                                            "ConditionListModel");
+        qmlRegisterType<ConditionListModel>("ConnectionsEditorEditorBackend", 1, 0, "ConditionListModel");
+
+        qmlRegisterType<PropertyTreeModel>("ConnectionsEditorEditorBackend", 1, 0, "PropertyTreeModel");
+        qmlRegisterType<PropertyListProxyModel>("ConnectionsEditorEditorBackend",
+                                                1,
+                                                0,
+                                                "PropertyListProxyModel");
 
         Theme::setupTheme(engine());
 

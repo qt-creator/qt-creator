@@ -238,6 +238,12 @@ QtObject {
     property real dialogButtonSpacing: 10
     property real dialogButtonPadding: 4
 
+    // NEW NEW NEW
+    readonly property int flowMargin: 7
+    readonly property int flowSpacing: 7 // Odd so cursor has a center location
+    readonly property int flowPillMargin: 4
+    readonly property int flowPillHeight: 20
+
     // Theme Colors
 
     property bool isLightTheme: values.themeControlBackground.hsvValue > values.themeTextColor.hsvValue
@@ -433,6 +439,10 @@ QtObject {
     // Dialog
     property color themeDialogBackground: values.themeThumbnailBackground
     property color themeDialogOutline: values.themeInteraction
+
+    // Expression Builder
+    property color themePillBackground: Theme.color(Theme.DSdockWidgetSplitter)
+
 
     // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}

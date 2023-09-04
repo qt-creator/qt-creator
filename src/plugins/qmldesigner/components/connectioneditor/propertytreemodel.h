@@ -31,6 +31,7 @@ public:
         PropertyNameRole = Qt::UserRole + 1,
         PropertyPriorityRole,
         ExpressionRole,
+        ChildCountRole,
         RowRole,
         InternalIdRole
     };
@@ -57,7 +58,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
 
-    QPersistentModelIndex indexForInernalIdAndRow(int internalId, int row);
+    QPersistentModelIndex indexForInternalIdAndRow(int internalId, int row);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -70,14 +71,13 @@ public:
     };
 
     void setPropertyType(PropertyTypes type);
-    void setFilter(const QString &filter);
+    Q_INVOKABLE void setFilter(const QString &filter);
 
     QList<ModelNode> nodeList() const;
 
     const std::vector<PropertyName> getProperties(const ModelNode &modelNode) const;
     ModelNode getModelNodeForId(const QString &id) const;
 
-protected:
     QHash<int, QByteArray> roleNames() const override;
 
 private:
@@ -127,11 +127,28 @@ private:
 class PropertyListProxyModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    Q_PROPERTY(QString parentName READ parentName NOTIFY parentNameChanged)
+
 public:
     PropertyListProxyModel(PropertyTreeModel *parent);
-    void setRowandInternalId(int row, int internalId);
+
+    void resetModel();
+
+    void setRowAndInternalId(int row, int internalId);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
+
+    QHash<int, QByteArray> roleNames() const override;
+
+    Q_INVOKABLE void goInto(int row);
+    Q_INVOKABLE void goUp();
+    Q_INVOKABLE void reset();
+
+    QString parentName() const;
+
+signals:
+    void parentNameChanged();
 
 private:
     ModelNode m_modelNode;

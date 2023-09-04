@@ -13,6 +13,8 @@ T.TextField {
 
     signal searchChanged(string searchText)
 
+    property bool empty: control.text === ""
+
     function isEmpty() {
         return control.text === ""
     }
@@ -81,7 +83,7 @@ T.TextField {
         */
     }
 
-    onTextChanged: control.searchChanged(text)
+    onTextChanged: control.searchChanged(control.text)
 
     T.Label {
         id: searchIcon

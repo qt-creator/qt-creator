@@ -559,8 +559,13 @@ QHash<int, QByteArray> ConnectionModel::roleNames() const
 }
 
 ConnectionModelBackendDelegate::ConnectionModelBackendDelegate(ConnectionModel *parent)
-    : QObject(parent), m_signalDelegate(parent->connectionView()), m_okStatementDelegate(parent),
-      m_koStatementDelegate(parent), m_conditionListModel(parent)
+    : QObject(parent)
+    , m_signalDelegate(parent->connectionView())
+    , m_okStatementDelegate(parent)
+    , m_koStatementDelegate(parent)
+    , m_conditionListModel(parent)
+    , m_propertyTreeModel(parent->connectionView())
+    , m_propertyListProxyModel(&m_propertyTreeModel)
 {
     connect(&m_signalDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
         handleTargetChanged();
@@ -753,6 +758,9 @@ void ConnectionModelBackendDelegate::setCurrentRow(int i)
 
     m_currentRow = i;
 
+    m_propertyTreeModel.resetModel();
+    m_propertyListProxyModel.setRowAndInternalId(0, -1);
+
     //setup
 
     ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
@@ -868,6 +876,16 @@ void ConnectionModelBackendDelegate::setSource(const QString &source)
 
     m_source = source;
     emit sourceChanged();
+}
+
+PropertyTreeModel *ConnectionModelBackendDelegate::propertyTreeModel()
+{
+    return &m_propertyTreeModel;
+}
+
+PropertyListProxyModel *ConnectionModelBackendDelegate::propertyListProxyModel()
+{
+    return &m_propertyListProxyModel;
 }
 
 void ConnectionModelBackendDelegate::setupCondition()
@@ -1575,30 +1593,83 @@ ConditionListModel::ConditionToken ConditionListModel::tokenFromComparativeState
 
 void ConditionListModel::insertToken(int index, const QString &value)
 {
+    beginInsertRows({}, index, index);
+
     m_tokens.insert(index, valueToToken(value));
     validateAndRebuildTokens();
-    resetModel();
+
+    endInsertRows();
+    //resetModel();
 }
 
 void ConditionListModel::updateToken(int index, const QString &value)
 {
     m_tokens[index] = valueToToken(value);
     validateAndRebuildTokens();
-    resetModel();
+
+    dataChanged(createIndex(index, 0), createIndex(index, 0));
+    //resetModel();
 }
 
 void ConditionListModel::appendToken(const QString &value)
 {
+    beginInsertRows({}, rowCount() - 1, rowCount() - 1);
+
     insertToken(rowCount(), value);
     validateAndRebuildTokens();
-    resetModel();
+
+    endInsertRows();
+    //resetModel();
 }
 
 void ConditionListModel::removeToken(int index)
 {
+    beginRemoveRows({}, index, index);
+
     m_tokens.remove(index, 1);
     validateAndRebuildTokens();
-    resetModel();
+
+    endRemoveRows();
+
+    //resetModel();
+}
+
+void ConditionListModel::insertIntermediateToken(int index, const QString &value)
+{
+    beginInsertRows({}, index, index);
+
+    ConditionToken token;
+    token.type = Intermediate;
+    token.value = value;
+
+    m_tokens.insert(index, token);
+
+    endInsertRows();
+    //resetModel();
+}
+
+void ConditionListModel::insertShadowToken(int index, const QString &value)
+{
+    beginInsertRows({}, index, index);
+
+    ConditionToken token;
+    token.type = Shadow;
+    token.value = value;
+
+    m_tokens.insert(index, token);
+
+    endInsertRows();
+
+    //resetModel();
+}
+
+void ConditionListModel::setShadowToken(int index, const QString &value)
+{
+    m_tokens[index].type = Shadow;
+    m_tokens[index].value = value;
+
+    dataChanged(createIndex(index, 0), createIndex(index, 0));
+    //resetModel();
 }
 
 bool ConditionListModel::valid() const
@@ -1655,25 +1726,39 @@ void ConditionListModel::command(const QString &string)
     }
 }
 
-void ConditionListModel::setInvalid(const QString &errorMessage)
+void ConditionListModel::setInvalid(const QString &errorMessage, int index)
 {
     m_valid = false;
     m_errorMessage = errorMessage;
+
     emit errorChanged();
     emit validChanged();
+
+    if (index != -1) {
+        m_errorIndex = index;
+        emit errorIndexChanged();
+    }
 }
 
 void ConditionListModel::setValid()
 {
     m_valid = true;
     m_errorMessage.clear();
+    m_errorIndex = -1;
+
     emit errorChanged();
     emit validChanged();
+    emit errorIndexChanged();
 }
 
 QString ConditionListModel::error() const
 {
     return m_errorMessage;
+}
+
+int ConditionListModel::errorIndex() const
+{
+    return m_errorIndex;
 }
 
 void ConditionListModel::internalSetup()
@@ -1766,11 +1851,26 @@ int ConditionListModel::checkOrder() const
         it++;
         ret++;
     }
+
+    if (wasOperator)
+        return ret;
+
     return -1;
 }
 
 void ConditionListModel::validateAndRebuildTokens()
 {
+    /// NEW
+    auto it = m_tokens.begin();
+
+    while (it != m_tokens.end()) {
+        if (it->type == Intermediate)
+            *it = valueToToken(it->value);
+
+        it++;
+    }
+    // NEW
+
     QString invalidValue;
     const bool invalidToken = Utils::contains(m_tokens,
                                               [&invalidValue](const ConditionToken &token) {
@@ -1780,12 +1880,12 @@ void ConditionListModel::validateAndRebuildTokens()
                                               });
 
     if (invalidToken) {
-        setInvalid(tr("Invalid token %").arg(invalidToken));
+        setInvalid(tr("Invalid token %1").arg(invalidValue));
         return;
     }
 
     if (int firstError = checkOrder() != -1) {
-        setInvalid(tr("Invalid order at %1").arg(firstError));
+        setInvalid(tr("Invalid order at %1").arg(firstError), firstError);
         return;
     }
 
@@ -1827,9 +1927,6 @@ ConnectionEditorStatements::ConditionToken ConditionListModel::toOperatorStateme
 
     if (token.value == "===")
         return ConnectionEditorStatements::ConditionToken::Equals;
-
-    if (token.value == "!==")
-        return ConnectionEditorStatements::ConditionToken::Not;
 
     if (token.value == "!==")
         return ConnectionEditorStatements::ConditionToken::Not;

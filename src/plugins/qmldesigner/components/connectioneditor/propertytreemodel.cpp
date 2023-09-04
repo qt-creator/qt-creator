@@ -155,7 +155,8 @@ QVariant PropertyTreeModel::data(const QModelIndex &index, int role) const
     if (role == RowRole)
         return index.row();
 
-    if (role == PropertyNameRole || role == PropertyPriorityRole || role == ExpressionRole) {
+    if (role == PropertyNameRole || role == PropertyPriorityRole || role == ExpressionRole
+        || role == ChildCountRole) {
         if (!index.isValid())
             return {};
 
@@ -166,26 +167,33 @@ QVariant PropertyTreeModel::data(const QModelIndex &index, int role) const
 
         DataCacheItem item = m_indexHash[index.internalId()];
 
-        if (item.propertyName.isEmpty()) { //node
-            if (role == PropertyNameRole)
-                return item.modelNode.displayName();
-
-            return true; //nodes are always shown
-        }
+        if (role == ChildCountRole)
+            return rowCount(index);
 
         if (role == ExpressionRole)
-            return QString(item.modelNode.id() + item.propertyName);
+            return QString(item.modelNode.id() + "." + item.propertyName);
 
-        if (role == PropertyNameRole)
-            return item.propertyName;
+        if (role == PropertyNameRole) {
+            if (!item.propertyName.isEmpty())
+                return QString::fromUtf8(item.propertyName);
+            else
+                return item.modelNode.displayName();
+        }
 
         static const auto priority = properityLists();
         if (std::find(priority.begin(), priority.end(), item.propertyName) != priority.end())
-            return true; //listed priority properties
+            return true; // listed priority properties
 
         auto dynamic = getDynamicProperties(item.modelNode);
         if (std::find(dynamic.begin(), dynamic.end(), item.propertyName) != dynamic.end())
-            return true; //dynamic properties have priority
+            return true; // dynamic properties have priority
+
+        if (item.propertyName.isEmpty()) { //node
+            //if (role == PropertyNameRole)
+            //    return item.modelNode.displayName();
+
+            return true; // nodes are always shown
+        }
 
         return false;
     }
@@ -216,7 +224,7 @@ QVariant PropertyTreeModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == Qt::DisplayRole)
-        return item.propertyName;
+        return QString::fromUtf8(item.propertyName);
 
     QFont f;
     auto priority = properityLists();
@@ -241,7 +249,7 @@ QModelIndex PropertyTreeModel::index(int row, int column, const QModelIndex &par
         return {};
 
     if (!hasIndex(row, column, parent))
-        return QModelIndex();
+        return {};
 
     const int rootId = -1;
 
@@ -312,7 +320,7 @@ QModelIndex PropertyTreeModel::parent(const QModelIndex &index) const
     return ensureModelIndex(item.modelNode, row);
 }
 
-QPersistentModelIndex PropertyTreeModel::indexForInernalIdAndRow(int internalId, int row)
+QPersistentModelIndex PropertyTreeModel::indexForInternalIdAndRow(int internalId, int row)
 {
     return createIndex(row, 0, internalId);
 }
@@ -323,7 +331,7 @@ int PropertyTreeModel::rowCount(const QModelIndex &parent) const
         return 0;
 
     if (!parent.isValid())
-        return 1;
+        return 1; //m_nodeList.size();
 
     int internalId = parent.internalId();
 
@@ -783,7 +791,8 @@ QHash<int, QByteArray> PropertyTreeModel::roleNames() const
 {
     static QHash<int, QByteArray> roleNames{{PropertyNameRole, "propertyName"},
                                             {PropertyPriorityRole, "hasPriority"},
-                                            {ExpressionRole, "expression"}};
+                                            {ExpressionRole, "expression"},
+                                            {ChildCountRole, "childCount"}};
 
     return roleNames;
 }
@@ -792,17 +801,24 @@ PropertyListProxyModel::PropertyListProxyModel(PropertyTreeModel *parent)
     : QAbstractListModel(), m_treeModel(parent)
 {}
 
-void PropertyListProxyModel::setRowandInternalId(int row, int internalId)
+void PropertyListProxyModel::resetModel()
 {
+    beginResetModel();
+    endResetModel();
+}
+
+void PropertyListProxyModel::setRowAndInternalId(int row, int internalId)
+{
+    qDebug() << Q_FUNC_INFO << row << internalId;
     QTC_ASSERT(m_treeModel, return );
 
     if (internalId == -1)
         m_parentIndex = m_treeModel->index(0, 0);
     else
-        m_parentIndex = m_treeModel->indexForInernalIdAndRow(internalId, row);
+        m_parentIndex = m_treeModel->index(row, 0, m_parentIndex);
+    //m_parentIndex = m_treeModel->indexForInternalIdAndRow(internalId, row);
 
-    beginResetModel();
-    endResetModel();
+    resetModel();
 }
 
 int PropertyListProxyModel::rowCount(const QModelIndex &) const
@@ -818,6 +834,40 @@ QVariant PropertyListProxyModel::data(const QModelIndex &index, int role) const
     auto treeIndex = m_treeModel->index(index.row(), 0, m_parentIndex);
 
     return m_treeModel->data(treeIndex, role);
+}
+
+QHash<int, QByteArray> PropertyListProxyModel::roleNames() const
+{
+    return m_treeModel->roleNames();
+}
+
+void PropertyListProxyModel::goInto(int row)
+{
+    qDebug() << Q_FUNC_INFO << row << m_parentIndex.internalId();
+    setRowAndInternalId(row, 0); //m_parentIndex.internalId());
+
+    emit parentNameChanged();
+}
+
+void PropertyListProxyModel::goUp()
+{
+    qDebug() << Q_FUNC_INFO;
+    m_parentIndex = m_treeModel->parent(m_parentIndex);
+    resetModel();
+
+    emit parentNameChanged();
+}
+
+void PropertyListProxyModel::reset()
+{
+    setRowAndInternalId(0, -1); // TODO ???
+
+    emit parentNameChanged();
+}
+
+QString PropertyListProxyModel::parentName() const
+{
+    return m_treeModel->data(m_parentIndex, PropertyTreeModel::UserRoles::PropertyNameRole).toString();
 }
 
 PropertyTreeModelDelegate::PropertyTreeModelDelegate(ConnectionView *parent) : m_model(parent)

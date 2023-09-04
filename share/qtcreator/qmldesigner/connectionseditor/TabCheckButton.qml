@@ -131,6 +131,7 @@ T.TabButton {
         State {
             name: "check"
             when: control.enabled && !control.pressed && control.checked
+            extend: "hoverCheck"
             PropertyChanges {
                 target: controlBackground
                 color: control.style.interaction
