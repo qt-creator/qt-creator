@@ -12,7 +12,7 @@ namespace Internal {
 
 using ToolChainList = QList<ProjectExplorer::ToolChain *>;
 
-class AndroidToolChain : public ProjectExplorer::ClangToolChain
+class AndroidToolChain : public ProjectExplorer::GccToolChain
 {
 public:
     ~AndroidToolChain() override;

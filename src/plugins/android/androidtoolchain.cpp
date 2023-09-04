@@ -47,7 +47,7 @@ static ToolChain *findToolChain(FilePath &compilerPath, Id lang, const QString &
 }
 
 AndroidToolChain::AndroidToolChain()
-    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID)
+    : GccToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID, Clang)
 {
     setTypeDisplayName(Tr::tr("Android Clang"));
 }
@@ -80,7 +80,7 @@ bool AndroidToolChain::isValid() const
     const bool isChildofSdk = compilerCommand().isChildOf(
         AndroidConfigurations::currentConfig().sdkLocation());
 
-    return ClangToolChain::isValid() && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
+    return GccToolChain::isValid() && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
            && targetAbi().isValid() && (isChildofNdk || isChildofSdk)
            && !originalTargetTriple().isEmpty();
 }
@@ -103,7 +103,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
 
 void AndroidToolChain::fromMap(const Store &data)
 {
-    ClangToolChain::fromMap(data);
+    GccToolChain::fromMap(data);
     if (hasError())
         return;
     if (!isValid())
