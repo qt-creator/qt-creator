@@ -724,6 +724,7 @@ extend_qtc_plugin(QmlDesigner
     effectutils.cpp effectutils.h
     effectmakercontextobject.cpp effectmakercontextobject.h
     shaderfeatures.cpp shaderfeatures.h
+    syntaxhighlighterdata.cpp syntaxhighlighterdata.h
 )
 
 extend_qtc_plugin(QmlDesigner

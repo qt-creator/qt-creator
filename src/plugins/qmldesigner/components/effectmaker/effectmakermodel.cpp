@@ -255,13 +255,6 @@ QString EffectMakerModel::valueAsVariable(const Uniform &uniform)
     }
 }
 
-const QString EffectMakerModel::getDefineProperties()
-{
-    // TODO
-
-    return QString();
-}
-
 const QString EffectMakerModel::getConstVariables()
 {
     const QList<Uniform *> uniforms = allUniforms();
@@ -276,6 +269,12 @@ const QString EffectMakerModel::getConstVariables()
         s += '\n';
 
     return s;
+}
+
+const QString EffectMakerModel::getDefineProperties()
+{
+    // TODO
+    return QString();
 }
 
 int EffectMakerModel::getTagIndex(const QStringList &code, const QString &tag)

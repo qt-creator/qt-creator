@@ -80,12 +80,12 @@ private:
 
     QString detectErrorMessage(const QString &errorMessage);
     EffectError effectError() const;
-    void setEffectError(const QString &errorMessage, int type, int lineNumber);
+    void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
     void resetEffectError(int type);
 
     QString valueAsVariable(const Uniform &uniform);
-    const QString getDefineProperties();
     const QString getConstVariables();
+    const QString getDefineProperties();
     int getTagIndex(const QStringList &code, const QString &tag);
     QString processVertexRootLine(const QString &line);
     QString processFragmentRootLine(const QString &line);
