@@ -436,12 +436,12 @@ static Utils::FilePath findLocalCompiler(const Utils::FilePath &compilerPath,
 
     // Get the path to the compiler, ignoring direct calls to icecc and distcc as we cannot
     // do anything about those.
-    if (!isNetworkCompiler(compilerPath.parentDir().toString()))
+    if (!isNetworkCompiler(compilerPath.parentDir().path()))
         return compilerPath;
 
     // Filter out network compilers
     const FilePaths pathComponents = Utils::filtered(env.path(), [] (const FilePath &dirPath) {
-        return !isNetworkCompiler(dirPath.toString());
+        return !isNetworkCompiler(dirPath.path());
     });
 
     // This effectively searches the PATH twice, once via pathComponents and once via PATH itself:
