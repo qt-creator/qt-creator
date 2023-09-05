@@ -4,6 +4,7 @@
 #pragma once
 
 #include "store.h"
+#include "qtcsettings.h"
 
 #include <QSettings>
 #include <QStringList>
@@ -14,7 +15,7 @@ namespace Utils {
 template <class SettingsClassT>
 void fromSettings(const Key &postFix,
                   const Key &category,
-                  QSettings *s,
+                  QtcSettings *s,
                   SettingsClassT *obj)
 {
     Store map;
@@ -29,7 +30,7 @@ void fromSettings(const Key &postFix,
 template <class SettingsClassT>
 void toSettings(const Key &postFix,
                 const Key &category,
-                QSettings *s,
+                QtcSettings *s,
                 const SettingsClassT *obj)
 {
     Key group = postFix;

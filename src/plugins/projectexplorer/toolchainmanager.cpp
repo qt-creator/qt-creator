@@ -82,7 +82,7 @@ ToolChainManager::ToolChainManager(QObject *parent) :
     connect(this, &ToolChainManager::toolChainRemoved, this, &ToolChainManager::toolChainsChanged);
     connect(this, &ToolChainManager::toolChainUpdated, this, &ToolChainManager::toolChainsChanged);
 
-    QSettings * const s = Core::ICore::settings();
+    QtcSettings * const s = Core::ICore::settings();
     d->m_detectionSettings.detectX64AsX32
         = s->value(DETECT_X64_AS_X32_KEY, ToolchainDetectionSettings().detectX64AsX32).toBool();
     d->m_badToolchains = BadToolchains::fromVariant(s->value(badToolchainsKey()));

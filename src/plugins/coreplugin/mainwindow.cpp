@@ -1152,7 +1152,7 @@ void MainWindow::aboutToShutdown()
 
 void MainWindow::readSettings()
 {
-    QSettings *settings = PluginManager::settings();
+    QtcSettings *settings = PluginManager::settings();
     settings->beginGroup(QLatin1String(settingsGroup));
 
     if (m_overrideColor.isValid()) {
@@ -1160,7 +1160,7 @@ void MainWindow::readSettings()
         // Get adapted base color.
         m_overrideColor = StyleHelper::baseColor();
     } else {
-        StyleHelper::setBaseColor(settings->value(QLatin1String(colorKey),
+        StyleHelper::setBaseColor(settings->value(colorKey,
                                   QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
 

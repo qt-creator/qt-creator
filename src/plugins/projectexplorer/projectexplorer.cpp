@@ -1628,7 +1628,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd->updateWelcomePage();
     });
 
-    QSettings *s = ICore::settings();
+    QtcSettings *s = ICore::settings();
     const QStringList fileNames = s->value(Constants::RECENTPROJECTS_FILE_NAMES_KEY).toStringList();
     const QStringList displayNames = s->value(Constants::RECENTPROJECTS_DISPLAY_NAMES_KEY)
                                          .toStringList();

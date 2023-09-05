@@ -286,7 +286,7 @@ class VirtualMethodsSettings
 public:
     void read()
     {
-        QSettings *s = Core::ICore::settings();
+        QtcSettings *s = Core::ICore::settings();
         s->beginGroup(group());
         insertVirtualKeyword = s->value(insertVirtualKeywordKey(), kInsertVirtualKeywordDefault)
                                    .toBool();
@@ -304,7 +304,7 @@ public:
 
     void write() const
     {
-        Utils::QtcSettings *s = Core::ICore::settings();
+        QtcSettings *s = Core::ICore::settings();
         s->beginGroup(group());
         s->setValueWithDefault(insertVirtualKeywordKey(),
                                insertVirtualKeyword,

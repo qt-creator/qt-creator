@@ -68,7 +68,7 @@ static FilePath fallbackClangdFilePath()
     return Environment::systemEnvironment().searchInPath("clangd");
 }
 
-void CppCodeModelSettings::fromSettings(QSettings *s)
+void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
 
@@ -100,7 +100,7 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     emit changed();
 }
 
-void CppCodeModelSettings::toSettings(QSettings *s)
+void CppCodeModelSettings::toSettings(QtcSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
 

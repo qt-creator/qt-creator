@@ -33,12 +33,12 @@ TabSettings::TabSettings(TabSettings::TabPolicy tabPolicy,
 
 }
 
-void TabSettings::toSettings(const Key &category, QSettings *s) const
+void TabSettings::toSettings(const Key &category, QtcSettings *s) const
 {
     Utils::toSettings(groupPostfix, category, s, this);
 }
 
-void TabSettings::fromSettings(const Key &category, QSettings *s)
+void TabSettings::fromSettings(const Key &category, QtcSettings *s)
 {
     *this = TabSettings(); // Assign defaults
     Utils::fromSettings(groupPostfix, category, s, this);

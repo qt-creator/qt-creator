@@ -72,7 +72,7 @@ public:
 
     Utils::Key settingsGroup() const;
     void saveSettings(Utils::QtcSettings *settings);
-    void restoreSettings(QSettings *settings);
+    void restoreSettings(Utils::QtcSettings *settings);
 
     QWidget *activateSubWidget(Utils::Id factoryId, int preferredPosition);
     void closeSubWidgets();

@@ -333,8 +333,8 @@ public:
 
     void perform();
 
-    void saveSettings(QSettings *settings, int position);
-    void restoreSettings(QSettings *settings, int position);
+    void saveSettings(QtcSettings *settings, int position);
+    void restoreSettings(QtcSettings *settings, int position);
 
 private:
     void onItemActivated(const QModelIndex &index);
@@ -430,13 +430,13 @@ void CppIncludeHierarchyWidget::perform()
 
 const bool kSyncDefault = false;
 
-void CppIncludeHierarchyWidget::saveSettings(QSettings *settings, int position)
+void CppIncludeHierarchyWidget::saveSettings(QtcSettings *settings, int position)
 {
     const Key key = keyFromString(QString("IncludeHierarchy.%1.SyncWithEditor").arg(position));
     QtcSettings::setValueWithDefault(settings, key, m_toggleSync->isChecked(), kSyncDefault);
 }
 
-void CppIncludeHierarchyWidget::restoreSettings(QSettings *settings, int position)
+void CppIncludeHierarchyWidget::restoreSettings(QtcSettings *settings, int position)
 {
     const Key key = keyFromString(QString("IncludeHierarchy.%1.SyncWithEditor").arg(position));
     m_toggleSync->setChecked(settings->value(key, kSyncDefault).toBool());

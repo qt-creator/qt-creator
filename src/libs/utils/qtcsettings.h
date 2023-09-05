@@ -16,6 +16,10 @@ class QTCREATOR_UTILS_EXPORT QtcSettings : public QSettings
 public:
     using QSettings::QSettings;
 
+    void beginGroup(const Key &prefix) { QSettings::beginGroup(stringFromKey(prefix)); }
+    void beginGroup(const QString &prefix) { QSettings::beginGroup(prefix); }
+    void beginGroup(const char *prefix) { QSettings::beginGroup(stringFromKey(prefix)); }
+
     QVariant value(const Key &key) const { return QSettings::value(stringFromKey(key)); }
     QVariant value(const Key &key, const QVariant &def) const { return QSettings::value(stringFromKey(key), def); }
     void setValue(const Key &key, const QVariant &value) { QSettings::setValue(stringFromKey(key), value); }

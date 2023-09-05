@@ -147,7 +147,7 @@ void ClangToolsSettings::readSettings()
 
     AspectContainer::readSettings();
 
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
     m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
 
@@ -180,7 +180,7 @@ void ClangToolsSettings::writeSettings() const
 {
     AspectContainer::writeSettings();
 
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
 
     diagnosticConfigsToSettings(s, m_diagnosticConfigs);

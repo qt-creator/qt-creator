@@ -10,14 +10,11 @@
 #include <utils/filepath.h>
 #include <utils/id.h>
 #include <utils/store.h>
+#include <utils/qtcsettings.h>
 
 #include <QObject>
 #include <QStringList>
 #include <QVersionNumber>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
@@ -34,8 +31,8 @@ public:
     };
 
 public:
-    void fromSettings(QSettings *s);
-    void toSettings(QSettings *s);
+    void fromSettings(Utils::QtcSettings *s);
+    void toSettings(Utils::QtcSettings *s);
 
 public:
     bool enableLowerClazyLevels() const;

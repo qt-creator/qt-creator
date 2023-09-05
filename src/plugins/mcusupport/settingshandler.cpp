@@ -18,7 +18,7 @@ const Key automaticKitCreationSettingsKey = Key(Constants::SETTINGS_GROUP) + '/'
             + Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION;
 
 static FilePath packagePathFromSettings(const Key &settingsKey,
-                                        QSettings &settings,
+                                        QtcSettings &settings,
                                         const FilePath &defaultPath)
 {
     const Key key = Key(Constants::SETTINGS_GROUP) + '/'
@@ -55,14 +55,14 @@ bool SettingsHandler::write(const Key &settingsKey,
 
 bool SettingsHandler::isAutomaticKitCreationEnabled() const
 {
-    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    QtcSettings *settings = Core::ICore::settings(QSettings::UserScope);
     const bool automaticKitCreation = settings->value(automaticKitCreationSettingsKey, true).toBool();
     return automaticKitCreation;
 }
 
 void SettingsHandler::setAutomaticKitCreation(bool isEnabled)
 {
-    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    QtcSettings *settings = Core::ICore::settings(QSettings::UserScope);
     settings->setValue(automaticKitCreationSettingsKey, isEnabled);
 }
 
