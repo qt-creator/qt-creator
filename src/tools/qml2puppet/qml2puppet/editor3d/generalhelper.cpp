@@ -218,11 +218,7 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
                 if (window) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 1)
                     QSSGRef<QSSGRenderContextInterface> context;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                    context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
-#else
                     context = targetPriv->sceneManager->rci;
-#endif
                     if (!context.isNull()) {
 #else
                     const auto &sm = targetPriv->sceneManager;
@@ -235,11 +231,7 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
                             bounds = geometry->bounds();
                         } else {
                             const auto &bufferManager(context->bufferManager());
-#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
-                            bounds = renderModel->getModelBounds(bufferManager);
-#else
                             bounds = bufferManager->getModelBounds(renderModel);
-#endif
                         }
 
                         center = renderModel->globalTransform.map(bounds.center());
@@ -430,7 +422,6 @@ QQuick3DPickResult GeneralHelper::pickViewAt(QQuick3DViewport *view, float posX,
     if (!view)
         return QQuick3DPickResult();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 1)
     // Make sure global picking is on
     view->setGlobalPickingEnabled(true);
 
@@ -440,12 +431,6 @@ QQuick3DPickResult GeneralHelper::pickViewAt(QQuick3DViewport *view, float posX,
         if (isPickable(pickResult.objectHit()))
             return pickResult;
     }
-#else
-    // With older Qt version we'll just pick the single object
-    auto pickResult = view->pick(posX, posY);
-    if (isPickable(pickResult.objectHit()))
-        return pickResult;
-#endif
     return QQuick3DPickResult();
 }
 
@@ -486,13 +471,11 @@ bool GeneralHelper::isPickable(QQuick3DNode *node) const
     if (!node)
         return false;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
     // Instancing doesn't hide child nodes, so only check for instancing on the requested node
     if (auto model = qobject_cast<QQuick3DModel *>(node)) {
         if (model->instancing())
             return false;
     }
-#endif
 
     QQuick3DNode *n = node;
     while (n) {
@@ -605,16 +588,6 @@ QString GeneralHelper::lastSceneIdKey() const
 QString GeneralHelper::rootSizeKey() const
 {
     return _rootSizeKey;
-}
-
-double GeneralHelper::brightnessScaler() const
-{
-    // Light brightness was rescaled in Qt6 from 100 -> 1.
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    return 100.;
-#else
-    return 1.;
-#endif
 }
 
 void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
@@ -1042,15 +1015,10 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
     auto renderNode = static_cast<QSSGRenderNode *>(nodePriv->spatialNode);
 
     if (renderNode) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
-        if (renderNode->flags.testFlag(QSSGRenderNode::Flag::TransformDirty))
-            renderNode->calculateLocalTransform();
-#else
         if (renderNode->isDirty(QSSGRenderNode::DirtyFlag::TransformDirty)) {
             renderNode->localTransform = QSSGRenderNode::calculateTransformMatrix(
                         node->position(), node->scale(), node->pivot(), node->rotation());
         }
-#endif
         localTransform = renderNode->localTransform;
     }
 
@@ -1117,11 +1085,7 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
             if (window) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 1)
                 QSSGRef<QSSGRenderContextInterface> context;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
-#else
                 context = QQuick3DObjectPrivate::get(node)->sceneManager->rci;
-#endif
                 if (!context.isNull()) {
 #else
                 const auto &sm = QQuick3DObjectPrivate::get(node)->sceneManager;
@@ -1129,11 +1093,7 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
                 if (context) {
 #endif
                     const auto &bufferManager(context->bufferManager());
-#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
-                    QSSGBounds3 bounds = renderModel->getModelBounds(bufferManager);
-#else
                     QSSGBounds3 bounds = bufferManager->getModelBounds(renderModel);
-#endif
                     QVector3D center = bounds.center();
                     QVector3D extents = bounds.extents();
                     QVector3D localMin = center - extents;

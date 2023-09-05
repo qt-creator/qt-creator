@@ -9,7 +9,6 @@
 #endif
 
 #include <app/app_version.h>
-#include <qml2puppet/iconrenderer/iconrenderer.h>
 #include <qml2puppet/import3d/import3d.h>
 
 #include <qt5nodeinstanceclientproxy.h>
@@ -73,7 +72,6 @@ void QmlPuppet::populateParser()
     // we're not using the commandline parser but just populating the help text
     m_argParser.addOptions(
         {{"readcapturedstream", "Read captured stream.", "inputStream, [outputStream]"},
-         {"rendericon", "Renders icon.", "size, fileName, sourceQml"},
          {"import3dAsset", "Import 3d asset.", "sourceAsset, outDir, importOptJson"}});
 }
 
@@ -99,7 +97,6 @@ void QmlPuppet::initQmlRunner()
 {
     if (m_coreApp->arguments().count() < 2
         || (m_argParser.isSet("readcapturedstream") && m_coreApp->arguments().count() < 3)
-        || (m_argParser.isSet("rendericon") && m_coreApp->arguments().count() < 5)
         || (m_argParser.isSet("import3dAsset") && m_coreApp->arguments().count() < 6)
         || (!m_argParser.isSet("readcapturedstream") && m_coreApp->arguments().count() < 4)) {
         qDebug() << "Wrong argument count: " << m_coreApp->arguments().count();
@@ -122,14 +119,7 @@ void QmlPuppet::initQmlRunner()
         }
     }
 
-    if (m_argParser.isSet("rendericon")) {
-        int size = m_coreApp->arguments().at(2).toInt();
-        QString iconFileName = m_coreApp->arguments().at(3);
-        QString iconSource = m_coreApp->arguments().at(4);
-
-        m_iconRenderer.reset(new IconRenderer(size, iconFileName, iconSource));
-        m_iconRenderer->setupRender();
-    } else if (m_argParser.isSet("import3dAsset")) {
+    if (m_argParser.isSet("import3dAsset")) {
         QString sourceAsset = m_coreApp->arguments().at(2);
         QString outDir = m_coreApp->arguments().at(3);
         QString options = m_coreApp->arguments().at(4);

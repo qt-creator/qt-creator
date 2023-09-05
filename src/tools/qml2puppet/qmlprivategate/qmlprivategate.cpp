@@ -41,10 +41,6 @@
 #include <private/qquick3drepeater_p.h>
 #endif
 
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-    #include <private/qqmlvaluetype_p.h>
-#endif
-
 namespace QmlDesigner {
 
 namespace Internal {
@@ -56,93 +52,9 @@ bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
     return QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName);
 }
 
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-
-static void addToPropertyNameListIfNotBlackListed(
-    PropertyNameList *propertyNameList, const QQuickDesignerSupport::PropertyName &propertyName)
-{
-    if (!QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName))
-        propertyNameList->append(propertyName);
-}
-
-PropertyNameList allPropertyNamesInline(QObject *object,
-                                        const PropertyName &baseName = {},
-                                        QObjectList *inspectedObjects = nullptr,
-                                        int depth = 0)
-{
-    QQuickDesignerSupport::PropertyNameList propertyNameList;
-
-    QObjectList localObjectList;
-
-    if (inspectedObjects == nullptr)
-        inspectedObjects = &localObjectList;
-
-    if (depth > 2)
-        return propertyNameList;
-
-    if (!inspectedObjects->contains(object))
-        inspectedObjects->append(object);
-
-    const QMetaObject *metaObject = object->metaObject();
-
-    QStringList deferredPropertyNames;
-    const int namesIndex = metaObject->indexOfClassInfo("DeferredPropertyNames");
-    if (namesIndex != -1) {
-        QMetaClassInfo classInfo = metaObject->classInfo(namesIndex);
-        deferredPropertyNames = QString::fromUtf8(classInfo.value()).split(QLatin1Char(','));
-    }
-
-    for (int index = 0; index < metaObject->propertyCount(); ++index) {
-        QMetaProperty metaProperty = metaObject->property(index);
-        QQmlProperty declarativeProperty(object, QString::fromUtf8(metaProperty.name()));
-        if (declarativeProperty.isValid()
-            && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
-            if (declarativeProperty.name() != QLatin1String("parent")
-                && !deferredPropertyNames.contains(declarativeProperty.name())) {
-                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
-                if (childObject)
-                    propertyNameList.append(
-                        allPropertyNamesInline(childObject,
-                                               baseName
-                                                   + QQuickDesignerSupport::PropertyName(
-                                                       metaProperty.name())
-                                                   + '.',
-                                               inspectedObjects,
-                                               depth + 1));
-            }
-        } else if (QQmlGadgetPtrWrapper *valueType = QQmlGadgetPtrWrapper::instance(
-                       qmlEngine(object), metaProperty.typeId())) {
-            valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(baseName
-                                    + QQuickDesignerSupport::PropertyName(metaProperty.name()));
-            propertyNameList.append(
-                allPropertyNamesInline(valueType,
-                                       baseName
-                                           + QQuickDesignerSupport::PropertyName(metaProperty.name())
-                                           + '.',
-                                       inspectedObjects,
-                                       depth + 1));
-        } else {
-            addToPropertyNameListIfNotBlackListed(&propertyNameList,
-                                                  baseName
-                                                      + QQuickDesignerSupport::PropertyName(
-                                                          metaProperty.name()));
-        }
-    }
-
-    return propertyNameList;
-}
-#endif
-
 PropertyNameList allPropertyNames(QObject *object)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     return QQuickDesignerSupportProperties::allPropertyNames(object);
-#elif QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    return allPropertyNamesInline(object);
-#else
-    return QQuickDesignerSupportProperties::allPropertyNames(object);
-#endif
 }
 
 PropertyNameList propertyNameListForWritableProperties(QObject *object)
@@ -204,15 +116,10 @@ static bool isConnections(QObject *object)
 // This is used in share/qtcreator/qml/qmlpuppet/qml2puppet/instances/objectnodeinstance.cpp
 QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-
     QTypeRevision revision = QTypeRevision::zero();
     if (majorNumber > 0)
         revision = QTypeRevision::fromVersion(majorNumber, minorNumber);
     return QQuickDesignerSupportItems::createPrimitive(typeName, revision, context);
-#else
-    return QQuickDesignerSupportItems::createPrimitive(typeName, majorNumber, minorNumber, context);
-#endif
 }
 
 static QString qmlDesignerRCPath()
@@ -347,21 +254,13 @@ void emitComponentComplete(QObject *item)
 
     QQmlData *data = QQmlData::get(item);
     if (data && data->context) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        QQmlComponentAttached *componentAttached = data->context->componentAttached;
-#else
         QQmlComponentAttached *componentAttached = data->context->componentAttacheds();
-#endif
         while (componentAttached) {
-            if (componentAttached->parent())
+            if (componentAttached->parent()) {
                 if (componentAttached->parent() == item)
                     emit componentAttached->completed();
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-            componentAttached = componentAttached->next;
-#else
+            }
             componentAttached = componentAttached->next();
-#endif
         }
     }
 }
@@ -552,12 +451,8 @@ bool isSubclassOf(QObject *object, const QByteArray &superTypeName)
 
 void getPropertyCache(QObject *object, QQmlEngine *engine)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
-    QQuickDesignerSupportProperties::getPropertyCache(object, engine);
-#else
     Q_UNUSED(engine);
     QQuickDesignerSupportProperties::getPropertyCache(object);
-#endif
 }
 
 void registerNotifyPropertyChangeCallBack(void (*callback)(QObject *, const PropertyName &))

@@ -17,9 +17,6 @@ if (NOT QT_CREATOR_API_DEFINED)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
 
-  find_package(QT 5.15.0 NAMES Qt6 Qt5
-    COMPONENTS Core REQUIRED
-  )
   find_package(Qt${QT_VERSION_MAJOR}
     COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml
     REQUIRED
@@ -79,12 +76,6 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
-  CONDITION Qt5_VERSION VERSION_LESS 6.0.0
-  SOURCES
-    editor3d_qt5.qrc
-)
-
-extend_qtc_executable(qml2puppet
   CONDITION UNIX AND (NOT APPLE)
   DEPENDS rt
 )
@@ -138,19 +129,6 @@ extend_qtc_executable(qml2puppet
   FEATURE_INFO "Qt Quick 3D asset utils"
   DEPENDS Qt::Quick3DAssetUtilsPrivate
   DEFINES QUICK3D_ASSET_UTILS_MODULE
-)
-
-extend_qtc_executable(qml2puppet
-  CONDITION Qt6_VERSION
-  SOURCES_PREFIX qml2puppet/editor3d/qt5compat
-  SOURCES
-    qquick3darealight.cpp qquick3darealight_p.h
-)
-
-extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX qml2puppet/iconrenderer
-  SOURCES
-    iconrenderer.cpp iconrenderer.h
 )
 
 extend_qtc_executable(qml2puppet

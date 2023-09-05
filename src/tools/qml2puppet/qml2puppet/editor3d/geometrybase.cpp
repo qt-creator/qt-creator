@@ -35,7 +35,6 @@ void GeometryBase::doUpdateGeometry()
     update();
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 QString GeometryBase::name() const
 {
     return objectName();
@@ -46,7 +45,6 @@ void GeometryBase::setName(const QString &name)
     setObjectName(name);
     emit nameChanged();
 }
-#endif
 
 void GeometryBase::updateGeometry()
 {

@@ -72,7 +72,6 @@ const char COMPONENT_BUNDLES_FOLDER[] = "/ComponentBundles";
 const char COMPONENT_BUNDLES_ASSET_REF_FILE[] = "_asset_ref.json";
 const char QUICK_3D_ASSETS_FOLDER[] = "/Quick3DAssets";
 const char QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX[] = "_libicon";
-const char QUICK_3D_ASSET_ICON_DIR[] = "_icons";
 const char QUICK_3D_ASSET_IMPORT_DATA_NAME[] = "_importdata.json";
 const char QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY[] = "import_options";
 const char QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY[] = "source_scene";

@@ -434,11 +434,6 @@ void SubComponentManager::parseQuick3DAssetsItem(const QString &importUrl, const
         itemLibraryEntry.setCategory(::QmlDesigner::SubComponentManager::tr("My 3D Components"));
         itemLibraryEntry.setCustomComponentSource(qmlIt.fileInfo().absoluteFilePath());
         itemLibraryEntry.setRequiredImport(importUrl);
-        QString iconPath = qmlIt.fileInfo().absolutePath() + '/'
-                + Constants::QUICK_3D_ASSET_ICON_DIR + '/' + name
-                + Constants::QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX;
-        if (QFileInfo::exists(iconPath))
-            itemLibraryEntry.setLibraryEntryIconPath(iconPath);
         itemLibraryEntry.setTypeIcon(QIcon(defaultIconPath));
 
         // load hints file if exists

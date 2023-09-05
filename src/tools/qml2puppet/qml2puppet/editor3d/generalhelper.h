@@ -82,8 +82,6 @@ public:
     QString lastSceneIdKey() const;
     QString rootSizeKey() const;
 
-    Q_INVOKABLE double brightnessScaler() const;
-
     Q_INVOKABLE void setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
                                               const QVariantList &selectedList);
     Q_INVOKABLE void resetMultiSelectionNode();

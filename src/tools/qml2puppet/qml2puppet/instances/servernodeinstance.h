@@ -16,10 +16,8 @@ class QStyleOptionGraphicsItem;
 class QQmlContext;
 class QGraphicsItem;
 class QGraphicsTransform;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 class QQuickItem;
 class QQuickItemGrabResult;
-#endif
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -46,11 +44,7 @@ namespace Internal {
 class ServerNodeInstance
 {
 public:
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-using QHashValueType = uint;
-#else
-using QHashValueType = size_t;
-#endif
+    using QHashValueType = size_t;
 
     friend class NodeInstanceServer;
     friend class Qt4NodeInstanceServer;

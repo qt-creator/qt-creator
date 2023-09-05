@@ -34,14 +34,12 @@ QmlStateNodeInstance::Pointer
 
 void setAllNodesDirtyRecursive([[maybe_unused]] QQuickItem *parentItem)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!parentItem)
         return;
     const QList<QQuickItem *> children = parentItem->childItems();
     for (QQuickItem *childItem : children)
         setAllNodesDirtyRecursive(childItem);
     QQuickDesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
-#endif
 }
 
 void QmlStateNodeInstance::activateState()

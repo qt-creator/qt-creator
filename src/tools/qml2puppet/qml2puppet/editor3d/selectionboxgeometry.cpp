@@ -195,11 +195,7 @@ void SelectionBoxGeometry::doUpdateGeometry()
                 m = targetRN->parent->globalTransform;
             }
             rootRN->localTransform = m;
-#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
-            rootRN->markDirty(QSSGRenderNode::TransformDirtyFlag::TransformNotDirty);
-#else
             rootRN->markDirty(QSSGRenderNode::DirtyFlag::TransformDirty);
-#endif
             rootRN->calculateGlobalVariables();
         } else if (!m_spatialNodeUpdatePending) {
             // Necessary spatial nodes do not yet exist. Defer selection box creation one frame.
@@ -243,15 +239,10 @@ void SelectionBoxGeometry::getBounds(
 
     if (node != m_targetNode) {
         if (renderNode) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
-            if (renderNode->flags.testFlag(QSSGRenderNode::Flag::TransformDirty))
-                renderNode->calculateLocalTransform();
-#else
             if (renderNode->isDirty(QSSGRenderNode::DirtyFlag::TransformDirty)) {
                 renderNode->localTransform = QSSGRenderNode::calculateTransformMatrix(
                             node->position(), node->scale(), node->pivot(), node->rotation());
             }
-#endif
             localTransform = renderNode->localTransform;
         }
         trackNodeChanges(node);
@@ -314,11 +305,7 @@ void SelectionBoxGeometry::getBounds(
             if (window) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 1)
                 QSSGRef<QSSGRenderContextInterface> context;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
-#elif QT_VERSION < QT_VERSION_CHECK(6, 5, 1)
                 context = QQuick3DObjectPrivate::get(this)->sceneManager->rci;
-#endif
                 if (!context.isNull()) {
 #else
                 const auto &sm = QQuick3DObjectPrivate::get(this)->sceneManager;
@@ -326,11 +313,7 @@ void SelectionBoxGeometry::getBounds(
                 if (context) {
 #endif
                     const auto &bufferManager(context->bufferManager());
-#if QT_VERSION < QT_VERSION_CHECK(6, 3, 0)
-                    QSSGBounds3 bounds = renderModel->getModelBounds(bufferManager);
-#else
                     QSSGBounds3 bounds = bufferManager->getModelBounds(renderModel);
-#endif
                     QVector3D center = bounds.center();
                     QVector3D extents = bounds.extents();
                     QVector3D localMin = center - extents;

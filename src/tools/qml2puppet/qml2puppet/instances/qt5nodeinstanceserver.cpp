@@ -28,7 +28,6 @@
 #include <QDebug>
 #include <QOpenGLContext>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtGui/private/qrhi_p.h>
 #include <QtQuick/private/qquickitem_p.h>
 #include <QtQuick/private/qquickrendercontrol_p.h>
@@ -37,9 +36,6 @@
 #include <QtQuick/private/qsgcontext_p.h>
 #include <QtQuick/private/qsgrenderer_p.h>
 #include <QtQuick/private/qsgrhilayer_p.h>
-#else
-#include <QtQuick/private/qquickitem_p.h>
-#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
 #include <QDir>
@@ -74,11 +70,7 @@ Qt5NodeInstanceServer::~Qt5NodeInstanceServer()
 
 QQuickView *Qt5NodeInstanceServer::quickView() const
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    return static_cast<QQuickView *>(m_viewData.window.data());
-#else
     return nullptr;
-#endif
 }
 
 QQuickWindow *Qt5NodeInstanceServer::quickWindow() const
@@ -90,25 +82,11 @@ void Qt5NodeInstanceServer::initializeView()
 {
     Q_ASSERT(!quickWindow());
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    auto view = new QQuickView;
-    m_viewData.window = view;
-    /* enables grab window without show */
-    QSurfaceFormat surfaceFormat = view->requestedFormat();
-    surfaceFormat.setVersion(4, 1);
-    surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(surfaceFormat);
-    view->setFormat(surfaceFormat);
-
-    QQuickDesignerSupport::createOpenGLContext(view);
-    m_qmlEngine = view->engine();
-#else
     m_viewData.renderControl = new QQuickRenderControl;
     m_viewData.window = new QQuickWindow(m_viewData.renderControl);
     setPipelineCacheConfig(m_viewData.window);
     m_viewData.renderControl->initialize();
     m_qmlEngine = new QQmlEngine;
-#endif
 
     if (qEnvironmentVariableIsSet("QML_FILE_SELECTORS")) {
         QQmlFileSelector *fileSelector = new QQmlFileSelector(engine(), engine());
@@ -132,9 +110,6 @@ QQuickItem *Qt5NodeInstanceServer::rootItem() const
 void Qt5NodeInstanceServer::setRootItem(QQuickItem *item)
 {
     m_viewData.rootItem = item;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QQuickDesignerSupport::setRootItem(quickView(), item);
-#else
     quickWindow()->setGeometry(0, 0, item->width(), item->height());
     // Insert an extra item above the root to adjust root item position to 0,0 to make entire
     // item to be always rendered.
@@ -142,7 +117,6 @@ void Qt5NodeInstanceServer::setRootItem(QQuickItem *item)
         m_viewData.contentItem = new QQuickItem(quickWindow()->contentItem());
     m_viewData.contentItem->setPosition(-item->position());
     item->setParentItem(m_viewData.contentItem);
-#endif
 }
 
 QQmlEngine *Qt5NodeInstanceServer::engine() const
@@ -152,11 +126,9 @@ QQmlEngine *Qt5NodeInstanceServer::engine() const
 
 void Qt5NodeInstanceServer::resizeCanvasToRootItem()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     m_viewData.bufferDirty = true;
     if (m_viewData.contentItem)
         m_viewData.contentItem->setPosition(-m_viewData.rootItem->position());
-#endif
     quickWindow()->resize(rootNodeInstance().boundingRect().size().toSize());
     QQuickDesignerSupport::addDirty(rootNodeInstance().rootQuickItem(), QQuickDesignerSupport::Size);
 }
@@ -309,7 +281,6 @@ void Qt5NodeInstanceServer::handleRciSet()
 
 bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!viewData.renderControl) {
         qWarning() << __FUNCTION__ << "Render control not created";
         return false;
@@ -389,7 +360,7 @@ bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
     viewData.window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(viewData.texTarget));
 
     viewData.bufferDirty = false;
-#endif
+
     return true;
 }
 
@@ -398,7 +369,6 @@ QImage Qt5NodeInstanceServer::grabRenderControl([[maybe_unused]] RenderViewData 
     NANOTRACE_SCOPE("Update", "GrabRenderControl");
 
     QImage renderImage;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (viewData.bufferDirty && !initRhi(viewData))
         return renderImage;
 
@@ -426,14 +396,13 @@ QImage Qt5NodeInstanceServer::grabRenderControl([[maybe_unused]] RenderViewData 
     rd->cb->resourceUpdate(readbackBatch);
 
     viewData.renderControl->endFrame();
-#endif
+
     return renderImage;
 }
 
 // This method simply renders the window without grabbing it
 bool Qt5NodeInstanceServer::renderWindow()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!m_viewData.rootItem || (m_viewData.bufferDirty && !initRhi(m_viewData)))
         return false;
 
@@ -443,8 +412,6 @@ bool Qt5NodeInstanceServer::renderWindow()
     m_viewData.renderControl->render();
     m_viewData.renderControl->endFrame();
     return true;
-#endif
-    return false;
 }
 
 QImage Qt5NodeInstanceServer::grabWindow()
@@ -471,7 +438,6 @@ QQuickItem *Qt5NodeInstanceServer::parentEffectItem(QQuickItem *item)
     return nullptr;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 static bool isEffectItem(QQuickItem *item, QQuickShaderEffectSource *sourceItem)
 {
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(sourceItem);
@@ -492,12 +458,10 @@ static bool isLayerEnabled(QQuickItemPrivate *item)
 {
     return item && item->layer() && item->layer()->enabled();
 }
-#endif // QT_VERSION check
 
 QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
 {
     QImage renderImage;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!m_viewData.rootItem || (m_viewData.bufferDirty && !initRhi(m_viewData)))
         return {};
 
@@ -623,7 +587,7 @@ QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
 
     if (!isLayerEnabled(pItem))
         pItem->derefFromEffectItem(false);
-#endif
+
     return renderImage;
 }
 

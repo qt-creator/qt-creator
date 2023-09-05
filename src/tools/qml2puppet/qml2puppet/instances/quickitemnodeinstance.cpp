@@ -44,15 +44,6 @@ QuickItemNodeInstance::~QuickItemNodeInstance()
 {
 }
 
-void QuickItemNodeInstance::handleObjectDeletion(QObject *object)
-{
-    auto item = qobject_cast<QQuickItem *>(object);
-    if (item && checkIfRefFromEffect(instanceId()))
-        designerSupport()->derefFromEffectItem(item);
-
-    ObjectNodeInstance::handleObjectDeletion(object);
-}
-
 static bool isContentItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
 {
 
@@ -153,18 +144,6 @@ void QuickItemNodeInstance::enableUnifiedRenderPath(bool unifiedRenderPath)
     s_unifiedRenderPath = unifiedRenderPath;
 }
 
-bool QuickItemNodeInstance::checkIfRefFromEffect([[maybe_unused]] qint32 id)
-{
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    if (s_unifiedRenderPath)
-        return false;
-
-    return (s_createEffectItem || id == 0);
-#else
-    return false;
-#endif
-}
-
 void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
                                        InstanceContainer::NodeFlags flags)
 {
@@ -173,12 +152,6 @@ void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &object
         nodeInstanceServer()->setRootItem(quickItem());
     else
         quickItem()->setParentItem(nodeInstanceServer()->rootItem());
-
-    if (quickItem()->window() && checkIfRefFromEffect(instanceId())) {
-        designerSupport()->refFromEffectItem(quickItem(),
-                                             !flags.testFlag(
-                                                 InstanceContainer::ParentTakesOverRendering));
-    }
 
     ObjectNodeInstance::initialize(objectNodeInstance, flags);
 }
@@ -256,25 +229,11 @@ QStringList QuickItemNodeInstance::allStates() const
 
 void QuickItemNodeInstance::updateDirtyNode([[maybe_unused]] QQuickItem *item)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    if (s_unifiedRenderPath)
-        return;
-    QQuickDesignerSupport::updateDirtyNode(item);
-#endif
 }
 
 bool QuickItemNodeInstance::unifiedRenderPath()
 {
     return s_unifiedRenderPath;
-}
-
-bool QuickItemNodeInstance::unifiedRenderPathOrQt6()
-{
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    return true;
-#else
-    return s_unifiedRenderPath;
-#endif
 }
 
 void QuickItemNodeInstance::setHiddenInEditor(bool hide)
@@ -462,24 +421,6 @@ QImage QuickItemNodeInstance::renderImage() const
     QRectF renderBoundingRect = boundingRect();
     QImage renderImage;
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QSize size = renderBoundingRect.size().toSize();
-    static double devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
-    size *= devicePixelRatio;
-
-    if (s_unifiedRenderPath) {
-        renderImage = nodeInstanceServer()->quickWindow()->grabWindow();
-    } else {
-        // Fake render loop signaling to update things like QML items as 3D textures
-        nodeInstanceServer()->quickWindow()->beforeSynchronizing();
-        nodeInstanceServer()->quickWindow()->beforeRendering();
-
-        renderImage = designerSupport()->renderImageForItem(quickItem(), renderBoundingRect, size);
-
-        nodeInstanceServer()->quickWindow()->afterRendering();
-    }
-    renderImage.setDevicePixelRatio(devicePixelRatio);
-#else
     if (s_unifiedRenderPath) {
         renderImage = nodeInstanceServer()->grabWindow();
         renderImage = renderImage.copy(renderBoundingRect.toRect());
@@ -488,8 +429,6 @@ QImage QuickItemNodeInstance::renderImage() const
     } else {
         renderImage = nodeInstanceServer()->grabItem(quickItem());
     }
-
-#endif
 
     return renderImage;
 }
@@ -503,27 +442,9 @@ QImage QuickItemNodeInstance::renderPreviewImage(const QSize &previewImageSize) 
         const QSize size = previewImageSize * devicePixelRatio;
         if (quickItem()->isVisible()) {
             QImage image;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-            if (s_unifiedRenderPath) {
-                image = nodeInstanceServer()->quickWindow()->grabWindow();
-            } else {
-                // Fake render loop signaling to update things like QML items as 3D textures
-                nodeInstanceServer()->quickWindow()->beforeSynchronizing();
-                nodeInstanceServer()->quickWindow()->beforeRendering();
-
-                image = designerSupport()->renderImageForItem(quickItem(),
-                                                              previewItemBoundingRect,
-                                                              size);
-
-                nodeInstanceServer()->quickWindow()->afterRendering();
-            }
-#else
             image = nodeInstanceServer()->grabWindow();
             image = image.copy(previewItemBoundingRect.toRect());
-#endif
-
             image = image.scaledToWidth(size.width());
-
             return image;
         } else {
             QImage transparentImage(size, QImage::Format_ARGB32_Premultiplied);
@@ -605,9 +526,6 @@ void QuickItemNodeInstance::updateDirtyNodesRecursive(QQuickItem *parentItem) co
     }
 
     QmlPrivateGate::disableNativeTextRendering(parentItem);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QQuickDesignerSupport::updateDirtyNode(parentItem);
-#endif
 }
 
 void QuickItemNodeInstance::updateAllDirtyNodesRecursive(QQuickItem *parentItem) const
@@ -621,12 +539,10 @@ void QuickItemNodeInstance::updateAllDirtyNodesRecursive(QQuickItem *parentItem)
 
 void QuickItemNodeInstance::setAllNodesDirtyRecursive([[maybe_unused]] QQuickItem *parentItem) const
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QList<QQuickItem *> children = parentItem->childItems();
     for (QQuickItem *childItem : children)
         setAllNodesDirtyRecursive(childItem);
     QQuickDesignerSupport::addDirty(parentItem, QQuickDesignerSupport::Content);
-#endif
 }
 
 static inline bool isRectangleSane(const QRectF &rect)
@@ -636,9 +552,6 @@ static inline bool isRectangleSane(const QRectF &rect)
 
 static bool isEffectItem([[maybe_unused]] QQuickItem *item)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    return false;
-#else
     if (qobject_cast<QQuickShaderEffectSource *>(item))
         return true;
 
@@ -658,7 +571,6 @@ static bool isEffectItem([[maybe_unused]] QQuickItem *item)
     }
 
     return false;
-#endif
 }
 
 QRectF QuickItemNodeInstance::boundingRectWithStepChilds(QQuickItem *parentItem) const
