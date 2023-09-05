@@ -18,7 +18,7 @@ class Uniform : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString uniformName MEMBER m_name CONSTANT)
+    Q_PROPERTY(QString uniformName MEMBER m_displayName CONSTANT)
     Q_PROPERTY(QString uniformType READ typeName CONSTANT)
     Q_PROPERTY(QVariant uniformValue READ value WRITE setValue NOTIFY uniformValueChanged)
     Q_PROPERTY(QVariant uniformBackendValue READ backendValue NOTIFY uniformBackendValueChanged)
@@ -89,6 +89,7 @@ private:
     QVariant m_minValue;
     QVariant m_maxValue;
     QString m_name;
+    QString m_displayName;
     QString m_description;
     QString m_customValue;
     bool m_useCustomValue = false;

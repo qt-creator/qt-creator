@@ -45,7 +45,7 @@ Item {
         Text {
             text: uniformName
             color: StudioTheme.Values.themeTextColor
-            font.pointSize: StudioTheme.Values.smallFontSize
+            font.pixelSize: StudioTheme.Values.baseFontSize
             horizontalAlignment: Text.AlignRight
             Layout.maximumWidth: 140
             Layout.minimumWidth: 140

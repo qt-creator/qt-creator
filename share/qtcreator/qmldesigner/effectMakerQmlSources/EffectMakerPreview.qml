@@ -30,30 +30,31 @@ Column {
             }
 
             HelperWidgets.AbstractButton {
+                enabled: previewImage.scale > .4
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomOut_medium
                 tooltip: qsTr("Zoom out")
 
                 onClicked: {
-                    if (previewImage.scale > .4)
-                        previewImage.scale -= .2
+                    previewImage.scale -= .2
                 }
             }
 
             HelperWidgets.AbstractButton {
+                enabled: previewImage.scale < 2
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomIn_medium
                 tooltip: qsTr("Zoom In")
 
                 onClicked: {
-                    if (previewImage.scale < 2)
-                        previewImage.scale += .2
+                    previewImage.scale += .2
                 }
             }
 
             HelperWidgets.AbstractButton {
+                enabled: previewImage.scale !== 1
                 style: StudioTheme.Values.viewBarButtonStyle
-                buttonIcon: StudioTheme.Constants.cornersAll
+                buttonIcon: StudioTheme.Constants.fitAll_medium
                 tooltip: qsTr("Zoom Fit")
 
                 onClicked: {

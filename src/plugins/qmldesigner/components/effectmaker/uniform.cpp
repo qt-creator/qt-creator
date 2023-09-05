@@ -20,6 +20,10 @@ Uniform::Uniform(const QJsonObject &propObj)
     m_type = Uniform::typeFromString(propObj.value("type").toString());
     defaultValue = propObj.value("defaultValue").toString();
 
+    m_displayName = propObj.value("displayName").toString();
+    if (m_displayName.isEmpty())
+        m_displayName = m_name;
+
     if (m_type == Type::Sampler) {
         if (!defaultValue.isEmpty())
             defaultValue = getResourcePath(defaultValue);

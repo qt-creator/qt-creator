@@ -14,7 +14,7 @@ Row {
     StudioControls.RealSpinBox {
         id: spinBox
 
-        width: 40
+        width: 60
         actionIndicatorVisible: false
         spinBoxIndicatorVisible: false
         inputHAlignment: Qt.AlignHCenter
@@ -29,7 +29,8 @@ Row {
     StudioControls.Slider {
         id: slider
 
-        width: parent.width - 80
+        width: parent.width - 100
+        visible: width > 20
         labels: false
         decimals: 2
         actionIndicatorVisible: false
