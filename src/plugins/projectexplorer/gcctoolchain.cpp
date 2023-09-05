@@ -48,6 +48,49 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
+class WarningFlagAdder
+{
+public:
+    WarningFlagAdder(const QString &flag, WarningFlags &flags) :
+        m_flags(flags)
+    {
+        if (!flag.startsWith("-W")) {
+            m_triggered = true;
+            return;
+        }
+
+        m_doesEnable = !flag.startsWith("-Wno-");
+        if (m_doesEnable)
+            m_flagUtf8 = flag.mid(2).toUtf8();
+        else
+            m_flagUtf8 = flag.mid(5).toUtf8();
+    }
+
+    void operator()(const char name[], WarningFlags flagsSet)
+    {
+        if (m_triggered)
+            return;
+        if (0 == strcmp(m_flagUtf8.data(), name)) {
+            m_triggered = true;
+            if (m_doesEnable)
+                m_flags |= flagsSet;
+            else
+                m_flags &= ~flagsSet;
+        }
+    }
+
+    bool triggered() const
+    {
+        return m_triggered;
+    }
+
+private:
+    QByteArray m_flagUtf8;
+    WarningFlags &m_flags;
+    bool m_doesEnable = false;
+    bool m_triggered = false;
+};
+
 static const QStringList languageOption(Id languageId)
 {
     if (languageId == Constants::C_LANGUAGE_ID)
@@ -1973,40 +2016,6 @@ void GccToolChainConfigWidget::updateParentToolChainComboBox()
             continue;
         m_parentToolchainCombo->addItem(mingwTC->displayName(), mingwTC->id());
     }
-}
-
-GccToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags) :
-    m_flags(flags)
-{
-    if (!flag.startsWith("-W")) {
-        m_triggered = true;
-        return;
-    }
-
-    m_doesEnable = !flag.startsWith("-Wno-");
-    if (m_doesEnable)
-        m_flagUtf8 = flag.mid(2).toUtf8();
-    else
-        m_flagUtf8 = flag.mid(5).toUtf8();
-}
-
-void GccToolChain::WarningFlagAdder::operator ()(const char name[], WarningFlags flagsSet)
-{
-    if (m_triggered)
-        return;
-    if (0 == strcmp(m_flagUtf8.data(), name))
-    {
-        m_triggered = true;
-        if (m_doesEnable)
-            m_flags |= flagsSet;
-        else
-            m_flags &= ~flagsSet;
-    }
-}
-
-bool GccToolChain::WarningFlagAdder::triggered() const
-{
-    return m_triggered;
 }
 
 } // namespace ProjectExplorer

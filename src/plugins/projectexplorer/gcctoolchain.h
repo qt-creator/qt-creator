@@ -127,20 +127,6 @@ protected:
 
     int priority() const override { return m_priority; }
 
-    class WarningFlagAdder
-    {
-    public:
-        WarningFlagAdder(const QString &flag, Utils::WarningFlags &flags);
-        void operator ()(const char name[], Utils::WarningFlags flagsSet);
-
-        bool triggered() const;
-    private:
-        QByteArray m_flagUtf8;
-        Utils::WarningFlags &m_flags;
-        bool m_doesEnable = false;
-        bool m_triggered = false;
-    };
-
     QString sysRoot() const override;
 
 private:
