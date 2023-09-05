@@ -757,7 +757,11 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
                                    bool /*inNextSplit*/)
 {
     if (auto client = getQmllsClient(textDocument()->filePath())) {
-        client->findLinkAt(textDocument(), cursor, processLinkCallback, resolveTarget);
+        client->findLinkAt(textDocument(),
+                           cursor,
+                           processLinkCallback,
+                           resolveTarget,
+                           LanguageClient::LinkTarget::SymbolDef);
         return;
     }
 

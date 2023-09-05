@@ -48,8 +48,7 @@ PlainTextEditorFactory::PlainTextEditorFactory()
 
     setEditorActionHandlers(TextEditorActionHandler::Format |
                             TextEditorActionHandler::UnCommentSelection |
-                            TextEditorActionHandler::UnCollapseAll |
-                            TextEditorActionHandler::FollowSymbolUnderCursor);
+                            TextEditorActionHandler::UnCollapseAll);
 }
 
 PlainTextEditorFactory *PlainTextEditorFactory::instance()

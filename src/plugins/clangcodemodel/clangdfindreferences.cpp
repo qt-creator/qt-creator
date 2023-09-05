@@ -714,7 +714,11 @@ void ClangdFindLocalReferences::Private::findDefinition()
         if (sentinel)
             getDefinitionAst(l);
     };
-    client()->symbolSupport().findLinkAt(document, cursor, linkHandler, true);
+    client()->symbolSupport().findLinkAt(document,
+                                         cursor,
+                                         linkHandler,
+                                         true,
+                                         LanguageClient::LinkTarget::SymbolDef);
 }
 
 void ClangdFindLocalReferences::Private::getDefinitionAst(const Link &link)
