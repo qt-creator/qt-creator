@@ -25,8 +25,6 @@ namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
 
-using Key = QByteArray;
-
 class FvBaseAspect
 {
 public:
@@ -37,15 +35,15 @@ public:
     virtual void setDefaultVariantValue(const QVariant &) {}
     virtual QVariant variantValue() const { return {}; }
     virtual QVariant defaultVariantValue() const { return {}; }
-    void setSettingsKey(const Key &group, const Key &key);
-    Key settingsKey() const;
+    void setSettingsKey(const Utils::Key &group, const Utils::Key &key);
+    Utils::Key settingsKey() const;
     void setCheckable(bool) {}
     void setDisplayName(const QString &) {}
     void setToolTip(const QString &) {}
 
 private:
-    Key m_settingsGroup;
-    Key m_settingsKey;
+    Utils::Key m_settingsGroup;
+    Utils::Key m_settingsKey;
 };
 
 template <class ValueType>

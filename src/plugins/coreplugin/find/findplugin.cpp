@@ -371,7 +371,7 @@ bool Find::hasFindFlag(FindFlag flag)
 void FindPrivate::writeSettings()
 {
     QtcSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("Find"));
+    settings->beginGroup("Find");
     settings->setValueWithDefault("Backward", bool(m_findFlags & FindBackward), false);
     settings->setValueWithDefault("CaseSensitively", bool(m_findFlags & FindCaseSensitively), false);
     settings->setValueWithDefault("WholeWords", bool(m_findFlags & FindWholeWords), false);
@@ -389,18 +389,18 @@ void FindPrivate::writeSettings()
 
 void FindPrivate::readSettings()
 {
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("Find"));
+    QtcSettings *settings = ICore::settings();
+    settings->beginGroup("Find");
     {
         QSignalBlocker blocker(m_instance);
-        Find::setBackward(settings->value(QLatin1String("Backward"), false).toBool());
-        Find::setCaseSensitive(settings->value(QLatin1String("CaseSensitively"), false).toBool());
-        Find::setWholeWord(settings->value(QLatin1String("WholeWords"), false).toBool());
-        Find::setRegularExpression(settings->value(QLatin1String("RegularExpression"), false).toBool());
-        Find::setPreserveCase(settings->value(QLatin1String("PreserveCase"), false).toBool());
+        Find::setBackward(settings->value("Backward", false).toBool());
+        Find::setCaseSensitive(settings->value("CaseSensitively", false).toBool());
+        Find::setWholeWord(settings->value("WholeWords", false).toBool());
+        Find::setRegularExpression(settings->value("RegularExpression", false).toBool());
+        Find::setPreserveCase(settings->value("PreserveCase", false).toBool());
     }
     m_findCompletionModel.readSettings(settings);
-    m_replaceCompletions = settings->value(QLatin1String("ReplaceStrings")).toStringList();
+    m_replaceCompletions = settings->value("ReplaceStrings").toStringList();
     m_replaceCompletionModel.setStringList(m_replaceCompletions);
     settings->endGroup();
     m_findToolBar->readSettings();

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtcsettings.h"
+#include "store.h"
 
 namespace Utils {
 
@@ -28,5 +29,15 @@ namespace Utils {
 
     \sa QSettings::setValue()
 */
+
+QVariant QtcSettings::value(const Key &key, const QVariant &def) const
+{
+    return QSettings::value(stringFromKey(key), def);
+}
+
+void QtcSettings::setValue(const Key &key, const QVariant &value)
+{
+    QSettings::setValue(stringFromKey(key), mapEntryFromStoreEntry(value));
+}
 
 } // namespace Utils

@@ -69,7 +69,7 @@ static FilePath fallbackClangdFilePath()
 
 void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
-    s->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
+    s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
 
     setEnableLowerClazyLevels(s->value(enableLowerClazyLevelsKey(), true).toBool());
 
@@ -101,7 +101,7 @@ void CppCodeModelSettings::fromSettings(QtcSettings *s)
 
 void CppCodeModelSettings::toSettings(QtcSettings *s)
 {
-    s->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
+    s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
 
     s->setValue(enableLowerClazyLevelsKey(), enableLowerClazyLevels());
     s->setValue(pchUsageKey(), pchUsage());
@@ -402,7 +402,7 @@ void ClangdSettings::loadSettings()
 
     m_data.fromMap(Utils::storeFromSettings(clangdSettingsKey(), settings));
 
-    settings->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
+    settings->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
     m_data.customDiagnosticConfigs = diagnosticConfigsFromSettings(settings);
 
     // Pre-8.0 compat
@@ -420,7 +420,7 @@ void ClangdSettings::saveSettings()
 {
     const auto settings = Core::ICore::settings();
     Utils::storeToSettings(clangdSettingsKey(), settings, m_data.toMap());
-    settings->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
+    settings->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
     diagnosticConfigsToSettings(settings, m_data.customDiagnosticConfigs);
     settings->endGroup();
 }

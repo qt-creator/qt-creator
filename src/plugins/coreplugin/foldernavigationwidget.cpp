@@ -27,6 +27,7 @@
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/removefiledialog.h>
+#include <utils/store.h>
 #include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>

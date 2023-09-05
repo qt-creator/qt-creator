@@ -605,7 +605,7 @@ void LanguageClientSettings::init()
     LanguageClientManager::applySettings();
 }
 
-QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn)
+QList<BaseSettings *> LanguageClientSettings::fromSettings(QtcSettings *settingsIn)
 {
     settingsIn->beginGroup(settingsGroupKey);
     QList<BaseSettings *> result;
@@ -654,7 +654,7 @@ void LanguageClientSettings::enableSettings(const QString &id, bool enable)
     settingsPage().enableSettings(id, enable);
 }
 
-void LanguageClientSettings::toSettings(QSettings *settings,
+void LanguageClientSettings::toSettings(QtcSettings *settings,
                                         const QList<BaseSettings *> &languageClientSettings)
 {
     settings->beginGroup(settingsGroupKey);

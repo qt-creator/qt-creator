@@ -694,20 +694,19 @@ void McuSupportTest::test_legacy_createPackagesWithCorrespondingSettings_data()
 
     QTest::newRow("iar_mimxrt1064_evk_freertos_json")
         << iar_mimxrt1064_evk_freertos_json
-        << QSet<Key>{{"EVK_MIMXRT1064_SDK_PATH"},
-                         {Key{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(
-                             "IMXRT1064")},
-                         "IARToolchain"}
+        << QSet<Key>{"EVK_MIMXRT1064_SDK_PATH",
+                     Key{QByteArray(Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX).append("IMXRT1064")},
+                     "IARToolchain"}
                .unite(commonSettings);
     QTest::newRow("stm32f469i") << iar_stm32f469i_discovery_baremetal_json
                                 << QSet<Key>{{"STM32Cube_FW_F4_SDK_PATH"}, "IARToolchain"}.unite(
                                        commonSettings);
-    QTest::newRow("nxp1050") << armgcc_mimxrt1050_evk_freertos_json
-                             << QSet<Key>{{"EVKB_IMXRT1050_SDK_PATH"},
-                                              {Key{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}
-                                                   .append("IMXRT1050")},
-                                              "GNUArmEmbeddedToolchain"}
-                                    .unite(commonSettings);
+    QTest::newRow("nxp1050")
+        << armgcc_mimxrt1050_evk_freertos_json
+        << QSet<Key>{"EVKB_IMXRT1050_SDK_PATH",
+                     Key{QByteArray(Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX).append("IMXRT1050")},
+                     "GNUArmEmbeddedToolchain"}
+                .unite(commonSettings);
     QTest::newRow("armgcc_stm32h750b_discovery_baremetal_json")
         << armgcc_stm32h750b_discovery_baremetal_json
         << QSet<Key>{{"STM32Cube_FW_H7_SDK_PATH"}, "GNUArmEmbeddedToolchain"}.unite(

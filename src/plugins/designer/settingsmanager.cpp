@@ -13,10 +13,10 @@ namespace Designer::Internal {
 
 static Key addPrefix(const QString &name)
 {
-    Key result = keyFromString(name);
+    Key result;
     if (Core::ICore::settings()->group().isEmpty())
-        result.prepend("Designer");
-    return result;
+        result = "Designer";
+    return Key(result + name.toUtf8());
 }
 
 void SettingsManager::beginGroup(const QString &prefix)

@@ -81,6 +81,7 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::Store>();
     qRegisterMetaType<Utils::Key>();
     qRegisterMetaType<Utils::KeyList>();
+    qRegisterMetaType<Utils::OldStore>();
     m_instance = this;
     setupSystemEnvironment();
 }

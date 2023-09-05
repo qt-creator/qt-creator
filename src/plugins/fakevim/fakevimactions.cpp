@@ -244,7 +244,7 @@ FakeVimSettings::FakeVimSettings()
 
 FakeVimSettings::~FakeVimSettings() = default;
 
-FvBaseAspect *FakeVimSettings::item(const Key &name)
+FvBaseAspect *FakeVimSettings::item(const Utils::Key &name)
 {
     return m_nameToAspect.value(name, nullptr);
 }
@@ -265,8 +265,8 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
 
 void FakeVimSettings::setup(FvBaseAspect *aspect,
                             const QVariant &value,
-                            const Key &settingsKey,
-                            const Key &shortName,
+                            const Utils::Key &settingsKey,
+                            const Utils::Key &shortName,
                             const QString &labelText)
 {
     aspect->setSettingsKey("FakeVim", settingsKey);
@@ -282,7 +282,7 @@ void FakeVimSettings::setup(FvBaseAspect *aspect,
     Q_UNUSED(labelText)
 #endif
 
-    const Key longName = settingsKey.toLower();
+    const Key longName = settingsKey.toByteArray().toLower();
     if (!longName.isEmpty()) {
         m_nameToAspect[longName] = aspect;
         m_aspectToName[aspect] = longName;

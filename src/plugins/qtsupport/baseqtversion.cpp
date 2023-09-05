@@ -765,7 +765,7 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath, bool forceRe
     d->m_qmakeCommand = filePath.resolvePath(d->m_qmakeCommand);
 
     const expected_str<Utils::Store> persistentStore = PersistentCacheStore::byKey(
-        "QtVersionData" + d->m_qmakeCommand.toString().toUtf8());
+        Key("QtVersionData" + d->m_qmakeCommand.toString().toUtf8()));
 
     if (persistentStore && !forceRefreshCache) {
         d->m_data.fromMap(*persistentStore);
@@ -799,7 +799,7 @@ Store QtVersion::toMap() const
     result.insert(QTVERSIONQMAKEPATH, qmakeFilePath().toSettings());
 
     if (d->m_data.versionInfoUpToDate)
-        PersistentCacheStore::write("QtVersionData" + d->m_qmakeCommand.toString().toUtf8(),
+        PersistentCacheStore::write(Key("QtVersionData" + d->m_qmakeCommand.toString().toUtf8()),
                                     d->m_data.toMap());
 
     return result;
@@ -1407,7 +1407,7 @@ void QtVersionPrivate::updateVersionInfo()
     m_isUpdating = false;
     m_data.versionInfoUpToDate = true;
 
-    PersistentCacheStore::write("QtVersionData" + m_qmakeCommand.toString().toUtf8(),
+    PersistentCacheStore::write(Key("QtVersionData" + m_qmakeCommand.toString().toUtf8()),
                                 m_data.toMap());
 }
 

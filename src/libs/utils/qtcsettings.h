@@ -5,7 +5,7 @@
 
 #include "utils_global.h"
 
-#include "store.h"
+#include "storekey.h"
 
 #include <QSettings>
 
@@ -17,12 +17,10 @@ public:
     using QSettings::QSettings;
 
     void beginGroup(const Key &prefix) { QSettings::beginGroup(stringFromKey(prefix)); }
-    void beginGroup(const QString &prefix) { QSettings::beginGroup(prefix); }
-    void beginGroup(const char *prefix) { QSettings::beginGroup(stringFromKey(prefix)); }
 
     QVariant value(const Key &key) const { return QSettings::value(stringFromKey(key)); }
-    QVariant value(const Key &key, const QVariant &def) const { return QSettings::value(stringFromKey(key), def); }
-    void setValue(const Key &key, const QVariant &value) { QSettings::setValue(stringFromKey(key), value); }
+    QVariant value(const Key &key, const QVariant &def) const;
+    void setValue(const Key &key, const QVariant &value);
     void remove(const Key &key) { QSettings::remove(stringFromKey(key)); }
     bool contains(const Key &key) const { return QSettings::contains(stringFromKey(key)); }
 

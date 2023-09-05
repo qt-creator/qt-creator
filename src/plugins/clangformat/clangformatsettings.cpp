@@ -21,7 +21,7 @@ ClangFormatSettings &ClangFormatSettings::instance()
 ClangFormatSettings::ClangFormatSettings()
 {
     QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
+    settings->beginGroup(Constants::SETTINGS_ID);
     m_overrideDefaultFile = settings->value(Constants::OVERRIDE_FILE_ID, false).toBool();
     m_formatWhileTyping = settings->value(Constants::FORMAT_WHILE_TYPING_ID, false).toBool();
     m_formatOnSave = settings->value(Constants::FORMAT_CODE_ON_SAVE_ID, false).toBool();
@@ -45,7 +45,7 @@ ClangFormatSettings::ClangFormatSettings()
 void ClangFormatSettings::write() const
 {
     QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
+    settings->beginGroup(Constants::SETTINGS_ID);
     settings->setValue(Constants::OVERRIDE_FILE_ID, m_overrideDefaultFile);
     settings->setValue(Constants::FORMAT_WHILE_TYPING_ID, m_formatWhileTyping);
     settings->setValue(Constants::FORMAT_CODE_ON_SAVE_ID, m_formatOnSave);

@@ -213,14 +213,14 @@ bool QtVersionManagerImpl::restoreQtVersions()
     if (version < 1)
         return false;
 
-    const Key keyPrefix(QTVERSION_DATA_KEY);
+    const QByteArray keyPrefix(QTVERSION_DATA_KEY);
     const Store::ConstIterator dcend = data.constEnd();
     for (Store::ConstIterator it = data.constBegin(); it != dcend; ++it) {
         const Key &key = it.key();
-        if (!key.startsWith(keyPrefix))
+        if (!key.view().startsWith(keyPrefix))
             continue;
         bool ok;
-        int count = key.mid(keyPrefix.count()).toInt(&ok);
+        int count = key.view().mid(keyPrefix.count()).toInt(&ok);
         if (!ok || count < 0)
             continue;
 
@@ -287,14 +287,14 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
 
     QStringList sdkVersions;
 
-    const Key keyPrefix(QTVERSION_DATA_KEY);
+    const QByteArray keyPrefix(QTVERSION_DATA_KEY);
     const Store::ConstIterator dcend = data.constEnd();
     for (Store::ConstIterator it = data.constBegin(); it != dcend; ++it) {
         const Key &key = it.key();
-        if (!key.startsWith(keyPrefix))
+        if (!key.view().startsWith(keyPrefix))
             continue;
         bool ok;
-        int count = key.mid(keyPrefix.count()).toInt(&ok);
+        int count = key.view().mid(keyPrefix.count()).toInt(&ok);
         if (!ok || count < 0)
             continue;
 

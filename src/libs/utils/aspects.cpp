@@ -2996,7 +2996,7 @@ SettingsGroupNester::SettingsGroupNester(const QStringList &groups)
 {
     QTC_ASSERT(theSettings, return);
     for (const QString &group : groups)
-        theSettings->beginGroup(group);
+        theSettings->beginGroup(keyFromString(group));
 }
 
 SettingsGroupNester::~SettingsGroupNester()
