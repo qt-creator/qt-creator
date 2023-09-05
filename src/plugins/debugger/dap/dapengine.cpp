@@ -232,20 +232,15 @@ bool DapEngine::acceptsBreakpoint(const BreakpointParameters &) const
     return true; // FIXME: Too bold.
 }
 
-static QJsonObject createBreakpoint(const Breakpoint &breakpoint)
+static QJsonObject createBreakpoint(const BreakpointParameters &params)
 {
-    const BreakpointParameters &params = breakpoint->requestedParameters();
-
     if (params.fileName.isEmpty())
         return QJsonObject();
 
     QJsonObject bp;
     bp["line"] = params.textPosition.line;
-    bp["source"] = QJsonObject{{"name", params.fileName.fileName()},
-                               {"path", params.fileName.path()}};
     return bp;
 }
-
 
 void DapEngine::insertBreakpoint(const Breakpoint &bp)
 {
@@ -263,9 +258,9 @@ void DapEngine::dapInsertBreakpoint(const Breakpoint &bp)
 
     QJsonArray breakpoints;
     for (const auto &breakpoint : breakHandler()->breakpoints()) {
-        QJsonObject jsonBp = createBreakpoint(breakpoint);
-        if (!jsonBp.isEmpty()
-            && params.fileName.path() == jsonBp["source"].toObject()["path"].toString()) {
+        const BreakpointParameters &bpParams = breakpoint->requestedParameters();
+        QJsonObject jsonBp = createBreakpoint(bpParams);
+        if (!jsonBp.isEmpty() && params.fileName.path() == bpParams.fileName.path()) {
             breakpoints.append(jsonBp);
         }
     }
@@ -304,9 +299,9 @@ void DapEngine::dapRemoveBreakpoint(const Breakpoint &bp)
 
     QJsonArray breakpoints;
     for (const auto &breakpoint : breakHandler()->breakpoints()) {
-        if (breakpoint->responseId() != bp->responseId()
-            && params.fileName == breakpoint->requestedParameters().fileName) {
-            QJsonObject jsonBp = createBreakpoint(breakpoint);
+        const BreakpointParameters &bpParams = breakpoint->requestedParameters();
+        if (breakpoint->responseId() != bp->responseId() && params.fileName == bpParams.fileName) {
+            QJsonObject jsonBp = createBreakpoint(bpParams);
             breakpoints.append(jsonBp);
         }
     }
