@@ -9,6 +9,7 @@
 #include "macroexpander.h"
 #include "pathchooser.h"
 #include "store.h"
+#include "qtcsettings.h"
 
 #include <functional>
 #include <memory>
@@ -180,8 +181,8 @@ public:
 
     Data::Ptr extractData() const;
 
-    static void setQtcSettings(QSettings *settings);
-    static QSettings *qtcSettings();
+    static void setQtcSettings(QtcSettings *settings);
+    static QtcSettings *qtcSettings();
 
     // This is expensive. Do not use without good reason
     void writeToSettingsImmediatly() const;

@@ -36,14 +36,14 @@ using namespace Layouting;
 
 namespace Utils {
 
-static QSettings *theSettings = nullptr;
+static QtcSettings *theSettings = nullptr;
 
-void BaseAspect::setQtcSettings(QSettings *settings)
+void BaseAspect::setQtcSettings(QtcSettings *settings)
 {
     theSettings = settings;
 }
 
-QSettings *BaseAspect::qtcSettings()
+QtcSettings *BaseAspect::qtcSettings()
 {
     return theSettings;
 }

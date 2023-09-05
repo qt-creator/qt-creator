@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include "id.h"
+#include "qtcsettings.h"
 
 #include <QObject>
 #include <QSet>
@@ -102,8 +103,8 @@ public:
     static void clearGloballySuppressed();
     static bool anyGloballySuppressed();
 
-    static void initialize(QSettings *settings);
-    static QSettings *settings();
+    static void initialize(QtcSettings *settings);
+    static QtcSettings *settings();
 
 signals:
     void changed();
@@ -116,7 +117,7 @@ private:
     QSet<Id> m_suppressed;
 
     static QSet<Id> globallySuppressed;
-    static QSettings *m_settings;
+    static QtcSettings *m_settings;
 
     friend class InfoBarDisplay;
 };
