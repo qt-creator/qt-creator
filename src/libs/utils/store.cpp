@@ -6,6 +6,9 @@
 #include "algorithm.h"
 #include "qtcassert.h"
 
+#include <QJsonDocument>
+#include <QJsonParseError>
+
 namespace Utils {
 
 KeyList keysFromStrings(const QStringList &list)
@@ -109,6 +112,25 @@ bool isStore(const QVariant &value)
 Key numberedKey(const Key &key, int number)
 {
     return key + Key::number(number);
+}
+
+expected_str<Store> storeFromJson(const QByteArray &json)
+{
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(json, &error);
+    if (error.error != QJsonParseError::NoError)
+        return make_unexpected(error.errorString());
+
+    if (!doc.isObject())
+        return make_unexpected(QString("Not a valid JSON object."));
+
+    return storeFromMap(doc.toVariant().toMap());
+}
+
+QByteArray jsonFromStore(const Store &store)
+{
+    QJsonDocument doc = QJsonDocument::fromVariant(mapFromStore(store));
+    return doc.toJson();
 }
 
 } // Utils

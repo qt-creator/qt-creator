@@ -160,6 +160,7 @@ public:
     [[nodiscard]] FilePath symLinkTarget() const;
     [[nodiscard]] FilePath resolveSymlinks() const;
     [[nodiscard]] FilePath withExecutableSuffix() const;
+    [[nodiscard]] FilePath withSuffix(const QString &suffix) const;
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
     [[nodiscard]] Environment deviceEnvironment() const;

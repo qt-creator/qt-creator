@@ -226,6 +226,8 @@ Project {
             "pathchooser.h",
             "pathlisteditor.cpp",
             "pathlisteditor.h",
+            "persistentcachestore.cpp",
+            "persistentcachestore.h",
             "persistentsettings.cpp",
             "persistentsettings.h",
             "pointeralgorithm.h",

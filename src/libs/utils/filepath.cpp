@@ -749,6 +749,11 @@ FilePath FilePath::withExecutableSuffix() const
     return withNewPath(OsSpecificAspects::withExecutableSuffix(osType(), path()));
 }
 
+FilePath FilePath::withSuffix(const QString &suffix) const
+{
+    return withNewPath(path() + suffix);
+}
+
 static bool startsWithWindowsDriveLetterAndSlash(QStringView path)
 {
     return path.size() > 2 && path[1] == ':' && path[2] == '/' && isWindowsDriveLetter(path[0]);
