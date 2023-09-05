@@ -1343,9 +1343,8 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     // register new kits
     const Toolchains toolchains = ToolChainManager::toolchains([](const ToolChain *tc) {
-        return tc->isAutoDetected()
-            && tc->isValid()
-            && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
+        return tc->isAutoDetected() && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
+               && tc->isValid();
     });
     QList<Kit *> unhandledKits = existingKits;
     for (ToolChain *tc : toolchains) {
