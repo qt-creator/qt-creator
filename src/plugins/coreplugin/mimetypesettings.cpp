@@ -746,17 +746,23 @@ MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::readUserModif
     return userMimeTypes;
 }
 
-void MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTypes)
+static void registerUserModifiedMimeTypes(const MimeTypeSettingsPrivate::UserMimeTypeHash &mimeTypes)
 {
-    // register in mime data base, and remember for later
     for (auto it = mimeTypes.constBegin(); it != mimeTypes.constEnd(); ++it) {
         Utils::MimeType mt = Utils::mimeTypeForName(it.key());
-        if (!mt.isValid()) // loaded from settings
+        if (!mt.isValid())
             continue;
-        m_userModifiedMimeTypes.insert(it.key(), it.value());
         Utils::setGlobPatternsForMimeType(mt, it.value().globPatterns);
         Utils::setMagicRulesForMimeType(mt, it.value().rules);
     }
+}
+
+void MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTypes)
+{
+    // register in mime data base, and remember for later
+    for (auto it = mimeTypes.constBegin(); it != mimeTypes.constEnd(); ++it)
+        m_userModifiedMimeTypes.insert(it.key(), it.value());
+    registerUserModifiedMimeTypes(mimeTypes);
 }
 
 // MimeTypeSettingsPage
@@ -792,8 +798,9 @@ QStringList MimeTypeSettings::keywords() const
 void MimeTypeSettings::restoreSettings()
 {
     MimeTypeSettingsPrivate::UserMimeTypeHash mimetypes
-            = MimeTypeSettingsPrivate::readUserModifiedMimeTypes();
-    MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(mimetypes);
+        = MimeTypeSettingsPrivate::readUserModifiedMimeTypes();
+    MimeTypeSettingsPrivate::m_userModifiedMimeTypes = mimetypes;
+    Utils::addMimeInitializer([mimetypes] { registerUserModifiedMimeTypes(mimetypes); });
 }
 
 QWidget *MimeEditorDelegate::createEditor(QWidget *parent,

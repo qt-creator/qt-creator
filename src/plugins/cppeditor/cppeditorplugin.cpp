@@ -516,9 +516,7 @@ void CppEditorPlugin::initialize()
 void CppEditorPlugin::extensionsInitialized()
 {
     d->m_fileSettings.fromSettings(ICore::settings());
-    if (!d->m_fileSettings.applySuffixesToMimeDB())
-        qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
-
+    d->m_fileSettings.addMimeInitializer();
     const auto fileNamesPanelFactory = new ProjectPanelFactory;
     fileNamesPanelFactory->setPriority(99);
     fileNamesPanelFactory->setDisplayName(Tr::tr("C++ File Naming"));

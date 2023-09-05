@@ -957,6 +957,7 @@ void PluginManagerPrivate::nextDelayedInitialize()
             break; // do next delayedInitialize after a delay
     }
     if (delayedInitializeQueue.empty()) {
+        Utils::setMimeStartupPhase(MimeStartupPhase::UpAndRunning);
         m_isInitializationDone = true;
         delete delayedInitializeTimer;
         delayedInitializeTimer = nullptr;
@@ -1370,7 +1371,6 @@ void PluginManagerPrivate::loadPlugins()
             loadPlugin(spec, PluginSpec::Initialized);
     }
 
-    Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
     {
         NANOTRACE_SCOPE("ExtensionSystem", "ExtensionsInitialized");
         Utils::reverseForeach(queue, [this](PluginSpec *spec) {
@@ -1384,8 +1384,8 @@ void PluginManagerPrivate::loadPlugins()
         });
     }
     emit q->pluginsChanged();
-    Utils::setMimeStartupPhase(MimeStartupPhase::UpAndRunning);
 
+    Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
     delayedInitializeTimer = new QTimer;
     delayedInitializeTimer->setInterval(DELAYED_INITIALIZE_INTERVAL);
     delayedInitializeTimer->setSingleShot(true);

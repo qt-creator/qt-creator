@@ -43,6 +43,7 @@ enum class MimeStartupPhase {
 };
 
 QTCREATOR_UTILS_EXPORT void setMimeStartupPhase(MimeStartupPhase);
+QTCREATOR_UTILS_EXPORT void addMimeInitializer(const std::function<void()> &init);
 QTCREATOR_UTILS_EXPORT void addMimeTypes(const QString &id, const QByteArray &data);
 QTCREATOR_UTILS_EXPORT QMap<int, QList<MimeMagicRule>> magicRulesForMimeType(
     const MimeType &mimeType); // priority -> rules

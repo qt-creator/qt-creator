@@ -38,6 +38,7 @@ public:
 
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);
+    void addMimeInitializer() const;
     bool applySuffixesToMimeDB();
 
     // Convenience to return a license template completely formatted.

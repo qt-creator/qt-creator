@@ -25,8 +25,11 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qmutex.h>
 
-#include <vector>
+#include <QReadWriteLock>
+
+#include <atomic>
 #include <memory>
+#include <vector>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
@@ -75,6 +78,8 @@ public:
     void setMagicRulesForMimeType(const MimeType &mimeType,
                                   const QMap<int, QList<MimeMagicRule>> &rules);
     void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
+    void checkInitPhase(const QString &info);
+    void addInitializer(const std::function<void()> &init);
 
 private:
     using Providers = std::vector<std::unique_ptr<MimeProviderBase>>;
@@ -86,6 +91,7 @@ private:
     QElapsedTimer m_lastCheck;
 
     // added for Qt Creator
+    QList<std::function<void()>> m_initializers;
     QHash<QString, QByteArray> m_additionalData; // id -> data
     bool m_forceLoad = true;
 
@@ -94,6 +100,8 @@ public:
     QMutex mutex;
 
     // added for Qt Creator
+    QReadWriteLock m_initMutex;
+    std::atomic_bool m_initialized = false;
     int m_startupPhase = 0;
 };
 

@@ -93,7 +93,7 @@ void CppFileSettings::fromSettings(QSettings *s)
     s->endGroup();
 }
 
-bool CppFileSettings::applySuffixesToMimeDB()
+static bool applySuffixes(const QString &sourceSuffix, const QString &headerSuffix)
 {
     Utils::MimeType mt;
     mt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
@@ -105,6 +105,19 @@ bool CppFileSettings::applySuffixesToMimeDB()
         return false;
     mt.setPreferredSuffix(headerSuffix);
     return true;
+}
+
+void CppFileSettings::addMimeInitializer() const
+{
+    Utils::addMimeInitializer([sourceSuffix = sourceSuffix, headerSuffix = headerSuffix] {
+        if (!applySuffixes(sourceSuffix, headerSuffix))
+            qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
+    });
+}
+
+bool CppFileSettings::applySuffixesToMimeDB()
+{
+    return applySuffixes(sourceSuffix, headerSuffix);
 }
 
 bool CppFileSettings::equals(const CppFileSettings &rhs) const
