@@ -10,6 +10,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/persistentcachestore.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
@@ -151,13 +152,13 @@ FilePath CMakeTool::filePath() const
     return m_executable;
 }
 
-bool CMakeTool::isValid() const
+bool CMakeTool::isValid(bool ignoreCache) const
 {
     if (!m_id.isValid() || !m_introspection)
         return false;
 
     if (!m_introspection->m_didAttemptToRun)
-        readInformation();
+        readInformation(ignoreCache);
 
     return m_introspection->m_didRun && !m_introspection->m_fileApis.isEmpty();
 }
@@ -274,9 +275,9 @@ TextEditor::Keywords CMakeTool::keywords()
                                 m_introspection->m_functionArgs);
 }
 
-bool CMakeTool::hasFileApi() const
+bool CMakeTool::hasFileApi(bool ignoreCache) const
 {
-    return isValid() ? !m_introspection->m_fileApis.isEmpty() : false;
+    return isValid(ignoreCache) ? !m_introspection->m_fileApis.isEmpty() : false;
 }
 
 CMakeTool::Version CMakeTool::version() const
@@ -388,7 +389,7 @@ void CMakeTool::openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl)
     Core::HelpManager::showHelpUrl(linkUrl.arg(documentationUrl(version, online)));
 }
 
-void CMakeTool::readInformation() const
+void CMakeTool::readInformation(bool ignoreCache) const
 {
     QTC_ASSERT(m_introspection, return );
     if (!m_introspection->m_didRun && m_introspection->m_didAttemptToRun)
@@ -396,7 +397,7 @@ void CMakeTool::readInformation() const
 
     m_introspection->m_didAttemptToRun = true;
 
-    fetchFromCapabilities();
+    fetchFromCapabilities(ignoreCache);
 }
 
 static QStringList parseDefinition(const QString &definition)
@@ -490,8 +491,17 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
     return result;
 }
 
-void CMakeTool::fetchFromCapabilities() const
+void CMakeTool::fetchFromCapabilities(bool ignoreCache) const
 {
+    expected_str<Utils::Store> cache = PersistentCacheStore::byKey(
+        keyFromString("CMake_" + cmakeExecutable().toUserOutput()));
+
+    if (cache && !ignoreCache) {
+        m_introspection->m_didRun = true;
+        parseFromCapabilities(cache->value("CleanedStdOut").toString());
+        return;
+    }
+
     Process cmake;
     runCMake(cmake, {"-E", "capabilities"});
 
@@ -502,6 +512,12 @@ void CMakeTool::fetchFromCapabilities() const
         qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.allOutput() << cmake.error();
         m_introspection->m_didRun = false;
     }
+
+    Store newData{{"CleanedStdOut", cmake.cleanedStdOut()}};
+    const auto result
+        = PersistentCacheStore::write(keyFromString("CMake_" + cmakeExecutable().toUserOutput()),
+                                      newData);
+    QTC_ASSERT_EXPECTED(result, return);
 }
 
 static int getVersion(const QVariantMap &obj, const QString value)
@@ -529,26 +545,23 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
                                                        gen.value("toolsetSupport").toBool()));
     }
 
-    {
-        const QVariantMap fileApis = data.value("fileApi").toMap();
-        const QVariantList requests = fileApis.value("requests").toList();
-        for (const QVariant &r : requests) {
-            const QVariantMap object = r.toMap();
-            const QString kind = object.value("kind").toString();
-            const QVariantList versionList = object.value("version").toList();
-            std::pair<int, int> highestVersion{-1, -1};
-            for (const QVariant &v : versionList) {
-                const QVariantMap versionObject = v.toMap();
-                const std::pair<int, int> version{getVersion(versionObject, "major"),
-                                                  getVersion(versionObject, "minor")};
-                if (version.first > highestVersion.first
-                    || (version.first == highestVersion.first
-                        && version.second > highestVersion.second))
-                    highestVersion = version;
-            }
-            if (!kind.isNull() && highestVersion.first != -1 && highestVersion.second != -1)
-                m_introspection->m_fileApis.append({kind, highestVersion});
+    const QVariantMap fileApis = data.value("fileApi").toMap();
+    const QVariantList requests = fileApis.value("requests").toList();
+    for (const QVariant &r : requests) {
+        const QVariantMap object = r.toMap();
+        const QString kind = object.value("kind").toString();
+        const QVariantList versionList = object.value("version").toList();
+        std::pair<int, int> highestVersion{-1, -1};
+        for (const QVariant &v : versionList) {
+            const QVariantMap versionObject = v.toMap();
+            const std::pair<int, int> version{getVersion(versionObject, "major"),
+                                              getVersion(versionObject, "minor")};
+            if (version.first > highestVersion.first
+                || (version.first == highestVersion.first && version.second > highestVersion.second))
+                highestVersion = version;
         }
+        if (!kind.isNull() && highestVersion.first != -1 && highestVersion.second != -1)
+            m_introspection->m_fileApis.append({kind, highestVersion});
     }
 
     const QVariantMap versionInfo = data.value("version").toMap();

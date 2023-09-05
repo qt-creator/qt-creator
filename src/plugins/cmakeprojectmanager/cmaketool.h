@@ -57,7 +57,7 @@ public:
 
     static Utils::Id createId();
 
-    bool isValid() const;
+    bool isValid(bool ignoreCache = false) const;
 
     Utils::Id id() const { return m_id; }
     Utils::Store toMap () const;
@@ -74,7 +74,7 @@ public:
     bool autoCreateBuildDirectory() const;
     QList<Generator> supportedGenerators() const;
     TextEditor::Keywords keywords();
-    bool hasFileApi() const;
+    bool hasFileApi(bool ignoreCache = false) const;
     Version version() const;
     QString versionDisplay() const;
 
@@ -96,13 +96,13 @@ public:
     static void openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl);
 
 private:
-    void readInformation() const;
+    void readInformation(bool ignoreCache = false) const;
 
     void runCMake(Utils::Process &proc, const QStringList &args, int timeoutS = 1) const;
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
 
-    void fetchFromCapabilities() const;
+    void fetchFromCapabilities(bool ignoreCache = false) const;
     void parseFromCapabilities(const QString &input) const;
 
     // Note: New items here need also be handled in CMakeToolItemModel::apply()

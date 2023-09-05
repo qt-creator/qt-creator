@@ -113,7 +113,7 @@ public:
         CMakeTool cmake(m_autodetected ? CMakeTool::AutoDetection
                                        : CMakeTool::ManualDetection, m_id);
         cmake.setFilePath(m_executable);
-        m_isSupported = cmake.hasFileApi();
+        m_isSupported = cmake.hasFileApi(true);
 
         m_tooltip = Tr::tr("Version: %1").arg(cmake.versionDisplay());
         m_tooltip += "<br>" + Tr::tr("Supports fileApi: %1").arg(m_isSupported ? Tr::tr("yes") : Tr::tr("no"));
