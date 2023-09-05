@@ -47,6 +47,18 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
+static const QStringList languageOption(Id languageId)
+{
+    if (languageId == Constants::C_LANGUAGE_ID)
+        return {"-x", "c"};
+    return {"-x", "c++"};
+}
+
+const QStringList gccPredefinedMacrosOptions(Id languageId)
+{
+    return languageOption(languageId) + QStringList({"-E", "-dM"});
+}
+
 class TargetTripleWidget;
 class GccToolChainConfigWidget : public ToolChainConfigWidget
 {
@@ -296,7 +308,9 @@ GccToolChain::GccToolChain(Utils::Id typeId, SubType subType)
     setTypeDisplayName(Tr::tr("GCC"));
     setTargetAbiKey(targetAbiKeyC);
     setCompilerCommandKey("ProjectExplorer.GccToolChain.Path");
-    if (m_subType == MinGW) {
+    if (m_subType == LinuxIcc)  {
+        setTypeDisplayName(Tr::tr("ICC"));
+    } else if (m_subType == MinGW) {
         setTypeDisplayName(Tr::tr("MinGW"));
     } else if (m_subType == Clang) {
         setTypeDisplayName(Tr::tr("Clang"));
@@ -551,6 +565,23 @@ LanguageExtensions GccToolChain::languageExtensions(const QStringList &cxxflags)
     if (m_subType == Clang && cxxflags.contains("-fborland-extensions"))
         extensions |= LanguageExtension::Borland;
 
+    if (m_subType == LinuxIcc) {
+        // and "-fms-dialect[=ver]" instead of "-fms-extensions".
+        // see UNIX manual for "icc"
+        // FIXME: This copy seems unneeded.
+        QStringList copy = cxxflags;
+        copy.removeAll("-fopenmp");
+        copy.removeAll("-fms-extensions");
+
+        if (cxxflags.contains("-openmp"))
+            extensions |= LanguageExtension::OpenMP;
+        if (cxxflags.contains("-fms-dialect")
+                || cxxflags.contains("-fms-dialect=8")
+                || cxxflags.contains("-fms-dialect=9")
+                || cxxflags.contains("-fms-dialect=10"))
+            extensions |= LanguageExtension::Microsoft;
+    }
+
     return extensions;
 }
 
@@ -763,6 +794,9 @@ void GccToolChain::addToEnvironment(Environment &env) const
 
 QStringList GccToolChain::suggestedMkspecList() const
 {
+    if (m_subType == LinuxIcc)
+        return {QString("linux-icc-%1").arg(targetAbi().wordWidth())};
+
     if (m_subType == MinGW) {
         if (HostOsInfo::isWindowsHost())
             return {"win32-g++"};
@@ -850,6 +884,9 @@ FilePath GccToolChain::makeCommand(const Environment &environment) const
 
 QList<OutputLineParser *> GccToolChain::createOutputParsers() const
 {
+    if (m_subType == LinuxIcc)
+        return LinuxIccParser::iccParserSuite();
+
     if (m_subType == Clang)
         return ClangParser::clangParserSuite();
 
@@ -1907,48 +1944,6 @@ Toolchains MingwToolChainFactory::detectForImport(const ToolChainDescription &tc
 }
 
 // --------------------------------------------------------------------------
-// LinuxIccToolChain
-// --------------------------------------------------------------------------
-
-LinuxIccToolChain::LinuxIccToolChain() :
-    GccToolChain(Constants::LINUXICC_TOOLCHAIN_TYPEID)
-{
-    setTypeDisplayName(Tr::tr("ICC"));
-}
-
-/**
- * Similar to \a GccToolchain::languageExtensions, but uses "-openmp" instead of
- * "-fopenmp" and "-fms-dialect[=ver]" instead of "-fms-extensions".
- * @see UNIX manual for "icc"
- */
-LanguageExtensions LinuxIccToolChain::languageExtensions(const QStringList &cxxflags) const
-{
-    QStringList copy = cxxflags;
-    copy.removeAll("-fopenmp");
-    copy.removeAll("-fms-extensions");
-
-    LanguageExtensions extensions = GccToolChain::languageExtensions(cxxflags);
-    if (cxxflags.contains("-openmp"))
-        extensions |= LanguageExtension::OpenMP;
-    if (cxxflags.contains("-fms-dialect")
-            || cxxflags.contains("-fms-dialect=8")
-            || cxxflags.contains("-fms-dialect=9")
-            || cxxflags.contains("-fms-dialect=10"))
-        extensions |= LanguageExtension::Microsoft;
-    return extensions;
-}
-
-QList<OutputLineParser *> LinuxIccToolChain::createOutputParsers() const
-{
-    return LinuxIccParser::iccParserSuite();
-}
-
-QStringList LinuxIccToolChain::suggestedMkspecList() const
-{
-    return {QString("linux-icc-%1").arg(targetAbi().wordWidth())};
-}
-
-// --------------------------------------------------------------------------
 // LinuxIccToolChainFactory
 // --------------------------------------------------------------------------
 
@@ -1957,7 +1952,9 @@ LinuxIccToolChainFactory::LinuxIccToolChainFactory()
     setDisplayName(Tr::tr("ICC"));
     setSupportedToolChainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
-    setToolchainConstructor([] { return new LinuxIccToolChain; });
+    setToolchainConstructor([] {
+        return new GccToolChain(Constants::LINUXICC_TOOLCHAIN_TYPEID, GccToolChain::LinuxIcc);
+    });
 }
 
 Toolchains LinuxIccToolChainFactory::autoDetect(const ToolchainDetector &detector) const

@@ -10,8 +10,6 @@
 #include "abi.h"
 #include "headerpath.h"
 
-#include <utils/fileutils.h>
-
 #include <functional>
 #include <memory>
 #include <optional>
@@ -24,28 +22,19 @@ class GccToolChainConfigWidget;
 class GccToolChainFactory;
 class MingwToolChainFactory;
 class LinuxIccToolChainFactory;
+
+const QStringList gccPredefinedMacrosOptions(Utils::Id languageId);
 }
 
 // --------------------------------------------------------------------------
 // GccToolChain
 // --------------------------------------------------------------------------
 
-inline const QStringList languageOption(Utils::Id languageId)
-{
-    if (languageId == Constants::C_LANGUAGE_ID)
-        return {"-x", "c"};
-    return {"-x", "c++"};
-}
-
-inline const QStringList gccPredefinedMacrosOptions(Utils::Id languageId)
-{
-    return languageOption(languageId) + QStringList({"-E", "-dM"});
-}
 
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
-    enum SubType { RealGcc, Clang, MinGW };
+    enum SubType { RealGcc, Clang, MinGW, LinuxIcc };
 
     GccToolChain(Utils::Id typeId, SubType subType = RealGcc);
     ~GccToolChain() override;
@@ -185,6 +174,7 @@ private:
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;
+    friend class Internal::LinuxIccToolChainFactory;
     friend class Internal::MingwToolChainFactory;
     friend class Internal::ClangToolChainFactory;
     friend class ToolChainFactory;
@@ -196,25 +186,6 @@ private:
     int m_priority = PriorityNormal;
     QMetaObject::Connection m_mingwToolchainAddedConnection;
     QMetaObject::Connection m_thisToolchainRemovedConnection;
-};
-
-// --------------------------------------------------------------------------
-// LinuxIccToolChain
-// --------------------------------------------------------------------------
-
-class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
-{
-public:
-    Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
-    QList<Utils::OutputLineParser *> createOutputParsers() const override;
-
-    QStringList suggestedMkspecList() const override;
-
-private:
-    LinuxIccToolChain();
-
-    friend class Internal::LinuxIccToolChainFactory;
-    friend class ToolChainFactory;
 };
 
 // --------------------------------------------------------------------------
