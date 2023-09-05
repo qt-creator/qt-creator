@@ -17,12 +17,12 @@ JsonObject &JsonObject::operator=(JsonObject &&other)
 
 QJsonObject::iterator JsonObject::insert(const std::string_view key, const JsonObject &object)
 {
-    return m_jsonObject.insert(QLatin1String(key), object.m_jsonObject);
+    return m_jsonObject.insert(QLatin1String(key.data()), object.m_jsonObject);
 }
 
 QJsonObject::iterator JsonObject::insert(const std::string_view key, const QJsonValue &value)
 {
-    return m_jsonObject.insert(QLatin1String(key), value);
+    return m_jsonObject.insert(QLatin1String(key.data()), value);
 }
 
 } // namespace LanguageServerProtocol

@@ -52,11 +52,11 @@ protected:
     iterator insertVariant(const std::string_view key, const V &variant);
 
     // QJSonObject redirections
-    QJsonValue value(const std::string_view key) const { return m_jsonObject.value(QLatin1String(key)); }
-    bool contains(const std::string_view key) const { return m_jsonObject.contains(QLatin1String(key)); }
-    iterator find(const std::string_view key) { return m_jsonObject.find(QLatin1String(key)); }
-    const_iterator find(const std::string_view key) const { return m_jsonObject.find(QLatin1String(key)); }
-    void remove(const std::string_view key) { m_jsonObject.remove(QLatin1String(key)); }
+    QJsonValue value(const std::string_view key) const { return m_jsonObject.value(QLatin1String(key.data())); }
+    bool contains(const std::string_view key) const { return m_jsonObject.contains(QLatin1String(key.data())); }
+    iterator find(const std::string_view key) { return m_jsonObject.find(QLatin1String(key.data())); }
+    const_iterator find(const std::string_view key) const { return m_jsonObject.find(QLatin1String(key.data())); }
+    void remove(const std::string_view key) { m_jsonObject.remove(QLatin1String(key.data())); }
     QStringList keys() const { return m_jsonObject.keys(); }
 
     // convenience value access
@@ -129,7 +129,7 @@ QList<T> JsonObject::array(const std::string_view key) const
     if (const std::optional<QList<T>> &array = optionalArray<T>(key))
         return *array;
     qCDebug(conversionLog) << QString("Expected array under %1 in:")
-        .arg(QLatin1String(key)) << *this;
+        .arg(QLatin1String(key.data())) << *this;
     return {};
 }
 
