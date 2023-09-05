@@ -79,7 +79,7 @@ private:
         void setCache(clang::format::FormatStyle newStyle, std::chrono::milliseconds timeout)
         {
             style = newStyle;
-            expirationTime = QDateTime::currentDateTime() + timeout;
+            expirationTime = QDateTime::currentDateTime().addMSecs(timeout.count());
         }
     };
 
