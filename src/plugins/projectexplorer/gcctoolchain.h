@@ -45,7 +45,7 @@ inline const QStringList gccPredefinedMacrosOptions(Utils::Id languageId)
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
-    enum SubType { RealGcc, Clang };
+    enum SubType { RealGcc, Clang, MinGW };
 
     GccToolChain(Utils::Id typeId, SubType subType = RealGcc);
     ~GccToolChain() override;
@@ -185,6 +185,7 @@ private:
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;
+    friend class Internal::MingwToolChainFactory;
     friend class Internal::ClangToolChainFactory;
     friend class ToolChainFactory;
 
@@ -195,24 +196,6 @@ private:
     int m_priority = PriorityNormal;
     QMetaObject::Connection m_mingwToolchainAddedConnection;
     QMetaObject::Connection m_thisToolchainRemovedConnection;
-};
-
-// --------------------------------------------------------------------------
-// MingwToolChain
-// --------------------------------------------------------------------------
-
-class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
-{
-public:
-    Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
-
-    QStringList suggestedMkspecList() const override;
-
-private:
-    MingwToolChain();
-
-    friend class Internal::MingwToolChainFactory;
-    friend class ToolChainFactory;
 };
 
 // --------------------------------------------------------------------------

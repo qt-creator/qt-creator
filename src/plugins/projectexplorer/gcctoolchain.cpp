@@ -296,7 +296,9 @@ GccToolChain::GccToolChain(Utils::Id typeId, SubType subType)
     setTypeDisplayName(Tr::tr("GCC"));
     setTargetAbiKey(targetAbiKeyC);
     setCompilerCommandKey("ProjectExplorer.GccToolChain.Path");
-    if (m_subType == Clang) {
+    if (m_subType == MinGW) {
+        setTypeDisplayName(Tr::tr("MinGW"));
+    } else if (m_subType == Clang) {
         setTypeDisplayName(Tr::tr("Clang"));
         syncAutodetectedWithParentToolchains();
     }
@@ -366,14 +368,14 @@ static const Toolchains mingwToolChains()
     });
 }
 
-static const MingwToolChain *mingwToolChainFromId(const QByteArray &id)
+static const GccToolChain *mingwToolChainFromId(const QByteArray &id)
 {
     if (id.isEmpty())
         return nullptr;
 
     for (const ToolChain *tc : mingwToolChains()) {
         if (tc->id() == id)
-            return static_cast<const MingwToolChain *>(tc);
+            return static_cast<const GccToolChain *>(tc);
     }
 
     return nullptr;
@@ -382,7 +384,7 @@ static const MingwToolChain *mingwToolChainFromId(const QByteArray &id)
 QString GccToolChain::originalTargetTriple() const
 {
     if (m_subType == Clang) {
-        if (const MingwToolChain *parentTC = mingwToolChainFromId(m_parentToolChainId))
+        if (const GccToolChain *parentTC = mingwToolChainFromId(m_parentToolChainId))
             return parentTC->originalTargetTriple();
     }
 
@@ -761,6 +763,17 @@ void GccToolChain::addToEnvironment(Environment &env) const
 
 QStringList GccToolChain::suggestedMkspecList() const
 {
+    if (m_subType == MinGW) {
+        if (HostOsInfo::isWindowsHost())
+            return {"win32-g++"};
+        if (HostOsInfo::isLinuxHost()) {
+            if (version().startsWith("4.6."))
+                return {"win32-g++-4.6-cross", "unsupported/win32-g++-4.6-cross"};
+            return {"win32-g++-cross", "unsupported/win32-g++-cross"};
+        }
+        return {};
+    }
+
     if (m_subType == Clang) {
         if (const ToolChain * const parentTc = ToolChainManager::findToolChain(m_parentToolChainId))
             return parentTc->suggestedMkspecList();
@@ -828,7 +841,7 @@ static FilePath mingwAwareMakeCommand(const Environment &environment)
 
 FilePath GccToolChain::makeCommand(const Environment &environment) const
 {
-    if (m_subType == Clang)
+    if (m_subType == Clang || m_subType == MinGW)
         return mingwAwareMakeCommand(environment);
 
     const FilePath tmp = environment.searchInPath("make");
@@ -1584,7 +1597,7 @@ bool GccToolChainConfigWidget::isDirtyImpl() const
     if (!m_parentToolchainCombo)
         return false;
 
-    const MingwToolChain *parentTC = mingwToolChainFromId(tc->m_parentToolChainId);
+    const GccToolChain *parentTC = mingwToolChainFromId(tc->m_parentToolChainId);
     const QByteArray parentId = parentTC ? parentTC->id() : QByteArray();
     return parentId != m_parentToolchainCombo->currentData();
 }
@@ -1734,7 +1747,7 @@ bool GccToolChain::matchesCompilerCommand(const FilePath &command) const
 QString GccToolChain::sysRoot() const
 {
     if (m_subType == Clang) {
-        if (const MingwToolChain *parentTC = mingwToolChainFromId(m_parentToolChainId)) {
+        if (const GccToolChain *parentTC = mingwToolChainFromId(m_parentToolChainId)) {
             const FilePath mingwCompiler = parentTC->compilerCommand();
             return mingwCompiler.parentDir().parentDir().toString();
         }
@@ -1818,7 +1831,7 @@ void GccToolChainConfigWidget::updateParentToolChainComboBox()
     if (tc->isAutoDetected() || m_parentToolchainCombo->count() == 0)
         parentId = tc->m_parentToolChainId;
 
-    const MingwToolChain *parentTC = mingwToolChainFromId(parentId);
+    const GccToolChain *parentTC = mingwToolChainFromId(parentId);
 
     m_parentToolchainCombo->clear();
     m_parentToolchainCombo->addItem(parentTC ? parentTC->displayName() : QString(),
@@ -1837,33 +1850,6 @@ void GccToolChainConfigWidget::updateParentToolChainComboBox()
 }
 
 // --------------------------------------------------------------------------
-// MingwToolChain
-// --------------------------------------------------------------------------
-
-MingwToolChain::MingwToolChain() :
-    GccToolChain(Constants::MINGW_TOOLCHAIN_TYPEID)
-{
-    setTypeDisplayName(Tr::tr("MinGW"));
-}
-
-QStringList MingwToolChain::suggestedMkspecList() const
-{
-    if (HostOsInfo::isWindowsHost())
-        return {"win32-g++"};
-    if (HostOsInfo::isLinuxHost()) {
-        if (version().startsWith("4.6."))
-            return {"win32-g++-4.6-cross", "unsupported/win32-g++-4.6-cross"};
-        return {"win32-g++-cross", "unsupported/win32-g++-cross"};
-    }
-    return {};
-}
-
-FilePath MingwToolChain::makeCommand(const Environment &environment) const
-{
-    return mingwAwareMakeCommand(environment);
-}
-
-// --------------------------------------------------------------------------
 // MingwToolChainFactory
 // --------------------------------------------------------------------------
 
@@ -1872,7 +1858,9 @@ MingwToolChainFactory::MingwToolChainFactory()
     setDisplayName(Tr::tr("MinGW"));
     setSupportedToolChainType(Constants::MINGW_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
-    setToolchainConstructor([] { return new MingwToolChain; });
+    setToolchainConstructor([] {
+        return new GccToolChain(Constants::MINGW_TOOLCHAIN_TYPEID, GccToolChain::MinGW);
+    });
 }
 
 Toolchains MingwToolChainFactory::autoDetect(const ToolchainDetector &detector) const
