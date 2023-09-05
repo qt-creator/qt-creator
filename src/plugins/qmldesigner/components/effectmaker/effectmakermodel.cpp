@@ -4,8 +4,10 @@
 #include "effectmakermodel.h"
 
 #include "compositionnode.h"
+#include "syntaxhighlighterdata.h"
 #include "uniform.h"
 
+#include <QByteArrayView>
 #include <QRegularExpression>
 #include <QVector2D>
 
@@ -166,7 +168,6 @@ const QString EffectMakerModel::getFSUniforms()
     return s;
 }
 
-
 // Detects common GLSL error messages and returns potential
 // additional error information related to them.
 QString EffectMakerModel::detectErrorMessage(const QString &errorMessage)
@@ -210,8 +211,7 @@ void EffectMakerModel::setEffectError(const QString &errorMessage, int type, int
         // For shaders, get the line number from baker output.
         // Which is something like "ERROR: :15: message"
         int glslErrorLineNumber = -1;
-        static QRegularExpression spaceReg("\\s+");
-        QStringList errorStringList = errorMessage.split(spaceReg, Qt::SkipEmptyParts);
+        QStringList errorStringList = errorMessage.split(m_spaceReg, Qt::SkipEmptyParts);
         if (errorStringList.size() >= 2) {
             QString lineString  = errorStringList.at(1).trimmed();
             if (lineString.size() >= 3) {
@@ -284,69 +284,137 @@ const QString EffectMakerModel::getConstVariables()
 
 const QString EffectMakerModel::getDefineProperties()
 {
-    // TODO
-    return QString();
+    const QList<Uniform *> uniforms = allUniforms();
+    QString s;
+    for (Uniform *uniform : uniforms) {
+        // TODO: Check if uniform is already added.
+        if (uniform->type() == Uniform::Type::Define) {
+            QString defineValue = uniform->value().toString();
+            s += QString("#define %1 %2\n").arg(uniform->name(), defineValue);
+        }
+    }
+    if (!s.isEmpty())
+        s += '\n';
+
+    return s;
 }
 
 int EffectMakerModel::getTagIndex(const QStringList &code, const QString &tag)
 {
-    Q_UNUSED(code)
-    Q_UNUSED(tag)
-
-    // TODO
-    return 0;
+    int index = -1;
+    int line = 0;
+    const QString tagString = QString("@%1").arg(tag);
+    for (const QString &s : code) {
+        auto st = s.trimmed();
+        // Check if line or first non-space content of the line matches to tag
+        static auto spaceReg = QRegularExpression("\\s");
+        auto firstSpace = st.indexOf(spaceReg);
+        QString firstWord = st;
+        if (firstSpace > 0)
+            firstWord = st.sliced(0, firstSpace);
+        if (firstWord == tagString) {
+            index = line;
+            break;
+        }
+        line++;
+    }
+    return index;
 }
 
 QString EffectMakerModel::processVertexRootLine(const QString &line)
 {
-    Q_UNUSED(line)
-
-    // TODO
-    return QString();
+    QString output;
+    QStringList lineList = line.split(m_spaceReg, Qt::SkipEmptyParts);
+    if (lineList.length() > 1 && lineList.at(0) == QStringLiteral("out")) {
+        lineList.removeFirst();
+        QString outLine = lineList.join(' ');
+        m_shaderVaryingVariables << outLine;
+    } else {
+        output = line + '\n';
+    }
+    return output;
 }
 
-QString EffectMakerModel:: processFragmentRootLine(const QString &line)
+QString EffectMakerModel::processFragmentRootLine(const QString &line)
 {
-    Q_UNUSED(line)
-
-    // TODO
-    return QString();
+    QString output;
+    QStringList lineList = line.split(m_spaceReg, Qt::SkipEmptyParts);
+    // Just skip all "in" variables. It is enough to have "out" variable in vertex.
+    if (lineList.length() > 1 && lineList.at(0) == QStringLiteral("in"))
+        return QString();
+    output = line + '\n';
+    return output;
 }
 
 QStringList EffectMakerModel::getDefaultRootVertexShader()
 {
-    // TODO
-    return {};
+    if (m_defaultRootVertexShader.isEmpty()) {
+        m_defaultRootVertexShader << "void main() {";
+        m_defaultRootVertexShader << "    texCoord = qt_MultiTexCoord0;";
+        m_defaultRootVertexShader << "    fragCoord = qt_Vertex.xy;";
+        m_defaultRootVertexShader << "    vec2 vertCoord = qt_Vertex.xy;";
+        m_defaultRootVertexShader << "    @nodes";
+        m_defaultRootVertexShader << "    gl_Position = qt_Matrix * vec4(vertCoord, 0.0, 1.0);";
+        m_defaultRootVertexShader << "}";
+    }
+    return m_defaultRootVertexShader;
 }
 
 QStringList EffectMakerModel::getDefaultRootFragmentShader()
 {
-    // TODO
-    return {};
+    if (m_defaultRootFragmentShader.isEmpty()) {
+        m_defaultRootFragmentShader << "void main() {";
+        m_defaultRootFragmentShader << "    fragColor = texture(iSource, texCoord);";
+        m_defaultRootFragmentShader << "    @nodes";
+        m_defaultRootFragmentShader << "    fragColor = fragColor * qt_Opacity;";
+        m_defaultRootFragmentShader << "}";
+    }
+    return m_defaultRootFragmentShader;
 }
 
+// Remove all post-processing tags ("@tag") from the code.
+// Except "@nodes" tag as that is handled later.
 QStringList EffectMakerModel::removeTagsFromCode(const QStringList &codeLines)
 {
-    Q_UNUSED(codeLines)
-
-    // TODO
-    return {};
+    QStringList s;
+    for (const QString &line : codeLines) {
+        const auto trimmedLine = line.trimmed();
+        if (!trimmedLine.startsWith('@') || trimmedLine.startsWith("@nodes")) {
+            s << line;
+        } else {
+            // Check if the tag is known
+            bool validTag = false;
+            const QList<QByteArrayView> tags = SyntaxHighlighterData::reservedTagNames();
+            QString firstWord = trimmedLine.split(m_spaceReg, Qt::SkipEmptyParts).first();
+            for (const QByteArrayView &tag : tags) {
+                if (firstWord == QString::fromUtf8(tag)) {
+                    validTag = true;
+                    break;
+                }
+            }
+            if (!validTag)
+                setEffectError(QString("Unknown tag: %1").arg(trimmedLine), ErrorPreprocessor);
+        }
+    }
+    return s;
 }
 
 QString EffectMakerModel::removeTagsFromCode(const QString &code)
 {
-    Q_UNUSED(code)
-
-    // TODO
-    return QString();
+    QStringList codeLines = removeTagsFromCode(code.split('\n'));
+    return codeLines.join('\n');
 }
 
 QString EffectMakerModel::getCustomShaderVaryings(bool outState)
 {
-    Q_UNUSED(outState)
-
-    // TODO
-    return QString();
+    QString output;
+    QString direction = outState ? QStringLiteral("out") : QStringLiteral("in");
+    int varLocation = m_shaderFeatures.enabled(ShaderFeatures::FragCoord) ? 2 : 1;
+    for (const QString &var : std::as_const(m_shaderVaryingVariables)) {
+        output += QString("layout(location = %1) %2 %3\n").arg(QString::number(varLocation), direction, var);
+        varLocation++;
+    }
+    return output;
 }
 
 QString EffectMakerModel::generateVertexShader(bool includeUniforms)

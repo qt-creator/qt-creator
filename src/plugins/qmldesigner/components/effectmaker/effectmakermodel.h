@@ -110,6 +110,10 @@ private:
     QStringList m_shaderVaryingVariables;
     QString m_fragmentShader;
     QString m_vertexShader;
+    QStringList m_defaultRootVertexShader;
+    QStringList m_defaultRootFragmentShader;
+
+    const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };
 
 } // namespace QmlDesigner
