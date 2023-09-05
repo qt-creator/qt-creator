@@ -21,7 +21,7 @@
             \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor}
             > \uicontrol Behavior
         \li Highlighting the symbol under cursor
-        \li \l{Viewing Function Tooltips}{Viewing function tooltips}
+        \li \l{View function tooltips}
         \li \l{Semantic Highlighting}{Semantic highlighting}, as defined in
             \l{https://github.com/microsoft/vscode-languageserver-node/pull/367}
             {Proposal of the semantic highlighting protocol extension}

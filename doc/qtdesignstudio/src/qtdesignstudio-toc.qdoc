@@ -260,7 +260,17 @@
             \endlist
         \li \l Help
             \list
-                \li \l{Using the Help Mode}
+                \li \l{Get help}
+                    \list
+                        \li \l {Add bookmarks to help pages}
+                        \li \l {Add external documentation}
+                        \li \l {Detach the help window}
+                        \li \l {Filter documentation}
+                        \li \l {Find information in Qt documentation}
+                        \li \l {Get help}
+                        \li \l {Search from documentation}
+                        \li \l {Select the help start page}
+                    \endlist
                 \li \l{Frequently Asked Questions}
                 \li \l{Supported Platforms}
             \endlist

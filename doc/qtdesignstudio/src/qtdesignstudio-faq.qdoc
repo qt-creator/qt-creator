@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-help.html
+    \previouspage creator-how-to-get-help.html
     \page studio-faq.html
     \nextpage studio-platforms.html
 
@@ -11,7 +11,7 @@
     This section contains answers to some frequently asked questions about \QDS
     grouped by categories. You might also find answers to your questions in the
     product documentation by searching or browsing the index in the
-    \l{Using the Help Mode}{Help mode}. Many questions are also answered by the
+    \l{Get help}{Help mode}. Many questions are also answered by the
     \l{Examples}{examples} and \l{Tutorials}{video tutorials}.
 
     \list

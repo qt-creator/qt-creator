@@ -12,25 +12,16 @@
     \page creator-how-tos.html
     \nextpage creator-reference.html
 
-    \title How-to
+    \title How To
 
     The following topics describe how to use \QC to perform a particular task.
 
-    \section1 Use the UI
+    \section1 Design UIs
 
-    \list
-        \li \l {Assign keyboard shortcuts}
-        \li \l {Find a particular preference}
-        \li \l {Find keyboard shortcuts}
-        \li \l {Find menu items on \macos}
-        \li \l {Import and export keyboard shortcuts}
-        \li \l {Set high DPI scaling}
-        \li \l {Set the number of recent files shown}
-        \li \l {Show and hide sidebars}
-        \li \l {Show task list files in Issues}
-        \li \l {Switch between modes}
-        \li \l {Switch UI themes}
-        \li \l {View output}
+     \list
+        \li \l {Export SVG images}
+        \li \l {Run QML files}
+        \li \l {View images}
     \endlist
 
     \section1 Edit Code
@@ -51,14 +42,6 @@
         \li \l {Write down notes}
     \endlist
 
-    \section1 Design UIs
-
-     \list
-        \li \l {Export SVG images}
-        \li \l {Run QML files}
-        \li \l {View images}
-    \endlist
-
     \section1 Manage Projects
 
     \list
@@ -77,6 +60,19 @@
         \li \l {Use project wizards}
     \endlist
 
+    \section1 Read Qt Documentation
+
+    \list
+        \li \l {Add bookmarks to help pages}
+        \li \l {Add external documentation}
+        \li \l {Detach the help window}
+        \li \l {Filter documentation}
+        \li \l {Find information in Qt documentation}
+        \li \l {Get help}
+        \li \l {Search from documentation}
+        \li \l {Select the help start page}
+    \endlist
+
     \section1 Use \QC
 
     \list
@@ -90,6 +86,23 @@
         \li \l {Use external text editors}
         \li \l {Use external tools}
         \li \l {Use Qt Linguist}
+    \endlist
+
+    \section1 Use the UI
+
+    \list
+        \li \l {Assign keyboard shortcuts}
+        \li \l {Find a particular preference}
+        \li \l {Find keyboard shortcuts}
+        \li \l {Find menu items on \macos}
+        \li \l {Import and export keyboard shortcuts}
+        \li \l {Set high DPI scaling}
+        \li \l {Set the number of recent files shown}
+        \li \l {Show and hide sidebars}
+        \li \l {Show task list files in Issues}
+        \li \l {Switch between modes}
+        \li \l {Switch UI themes}
+        \li \l {View output}
     \endlist
 */
 

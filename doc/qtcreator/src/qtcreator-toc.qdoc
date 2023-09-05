@@ -10,7 +10,7 @@
     in the \QC Manual. Use your browser's page search to find a link to a
     particular topic in the list. For a more extensive search, use the
     \uicontrol Search function in the \l{https://doc.qt.io/qtcreator/}
-    {Qt documentation} portal or in the \l {Using the Help Mode}{Help} mode.
+    {Qt documentation} portal or in the \l {Get help}{Help} mode.
 
     \list
         \li \l{Getting Started}
@@ -197,28 +197,18 @@
             \li \l{Running Autotests}
             \li \l{Using Squish}
         \endlist
-        \li \l{How-to}
+        \li \l{How To}
         \list
-            \li Use the UI
+            \li Design UIs
                 \list
-                    \li \l {Assign keyboard shortcuts}
-                    \li \l {Find a particular preference}
-                    \li \l {Find keyboard shortcuts}
-                    \li \l {Find menu items on \macos}
-                    \li \l {Import and export keyboard shortcuts}
-                    \li \l {Set high DPI scaling}
-                    \li \l {Set the number of recent files shown}
-                    \li \l {Show and hide sidebars}
-                    \li \l {Show task list files in Issues}
-                    \li \l {Switch between modes}
-                    \li \l {Switch UI themes}
-                    \li \l {View output}
+                    \li \l {Export SVG images}
+                    \li \l {Run QML files}
+                    \li \l {View images}
                 \endlist
             \li Edit Code
                 \list
                     \li \l {Add code snippets to the auto-complete menu}
                     \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
-                    \li \l {Get help}
                     \li \l {Jump to a function in QML code}
                     \li \l {Locate files using the keyboard}
                     \li \l {Move between open files}
@@ -230,12 +220,6 @@
                     \li \l {Sort lines alphabetically}
                     \li \l {Switch to Edit mode}
                     \li \l {Write down notes}
-                \endlist
-            \li Design UIs
-                 \list
-                    \li \l {Export SVG images}
-                    \li \l {Run QML files}
-                    \li \l {View images}
                 \endlist
             \li Manage Projects
                 \list
@@ -253,6 +237,17 @@
                     \li \l {Specify project contents}
                     \li \l {Use project wizards}
                 \endlist
+            \li {Read Qt Documentation}
+                \list
+                    \li \l {Add bookmarks to help pages}
+                    \li \l {Add external documentation}
+                    \li \l {Detach the help window}
+                    \li \l {Filter documentation}
+                    \li \l {Find information in Qt documentation}
+                    \li \l {Get help}
+                    \li \l {Search from documentation}
+                    \li \l {Select the help start page}
+                \endlist
             \li Use \QC
                 \list
                     \li \l {Collect usage statistics}
@@ -265,6 +260,21 @@
                     \li \l {Use external text editors}
                     \li \l {Use external tools}
                     \li \l {Use Qt Linguist}
+                \endlist
+            \li Use the UI
+                \list
+                    \li \l {Assign keyboard shortcuts}
+                    \li \l {Find a particular preference}
+                    \li \l {Find keyboard shortcuts}
+                    \li \l {Find menu items on \macos}
+                    \li \l {Import and export keyboard shortcuts}
+                    \li \l {Set high DPI scaling}
+                    \li \l {Set the number of recent files shown}
+                    \li \l {Show and hide sidebars}
+                    \li \l {Show task list files in Issues}
+                    \li \l {Switch between modes}
+                    \li \l {Switch UI themes}
+                    \li \l {View output}
                 \endlist
             \endlist
             \li \l{Reference}

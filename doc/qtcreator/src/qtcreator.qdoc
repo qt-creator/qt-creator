@@ -91,13 +91,14 @@
                     \li \l{Running Autotests}
                     \li \l{Using Squish}
                 \endlist
-            \li \b {\l{Getting Help}}
+            \li \b {\l{How To}}
                 \list
-                    \li \l{Using the Help Mode}
-                    \li \l{FAQ}
-                    \li \l{How-to}
-                    \li \l{Known Issues}
-                    \li \l{Glossary}
+                    \li \l{Design UIs}
+                    \li \l{Edit Code}
+                    \li \l{Manage Projects}
+                    \li \l{Read Qt Documentation}
+                    \li \l{Use \QC}
+                    \li \l{Use the UI}
                 \endlist
             \li \b {\l{Reference}}
                 \list

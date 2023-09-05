@@ -622,7 +622,7 @@
     the \QC \uicontrol Help mode. For more information about adding
     the help files to \QC, see
     \l{http://doc.qt.io/qtcreator/creator-help.html#adding-external-documentation}
-    {Adding External Documentation}.
+    {Add external documentation}.
 
     \section2 Additional Build Commands
 

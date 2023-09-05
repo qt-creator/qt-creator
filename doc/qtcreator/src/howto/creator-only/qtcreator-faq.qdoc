@@ -12,7 +12,7 @@
     \brief Answers to some frequently asked questions about \QC.
 
     You might also find answers to your questions in the
-    \l{Known Issues} and \l{How-to} sections, or the Troubleshooting
+    \l{Known Issues} and \l{How To} sections, or the Troubleshooting
     sections for a special area, such as
     \l{Troubleshooting Debugger}{debugging}.
 
@@ -155,7 +155,7 @@
     To view the documentation that is available and to add documentation,
     select \uicontrol Edit > \uicontrol Preferences > \uicontrol Help >
     \uicontrol Documentation. For more information, see
-    \l{Adding External Documentation}.
+    \l{Add external documentation}.
 
     \section1 Debugger Questions
 
