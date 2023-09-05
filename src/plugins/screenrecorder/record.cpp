@@ -8,6 +8,7 @@
 #include "screenrecordersettings.h"
 #include "screenrecordertr.h"
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/process.h>
@@ -292,32 +293,39 @@ QString RecordWidget::recordFileExtension()
     return recordPreset().fileExtension;
 }
 
+static QString sizeStr(const QSize &size)
+{
+    return QString("%1x%2").arg(size.width()).arg(size.height());
+}
+
 QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
 {
     const Internal::ScreenRecorderSettings::RecordSettings rS =
         Internal::settings().recordSettings();
     const QString frameRateStr = QString::number(rS.frameRate);
     const QString screenIdStr = QString::number(rS.screenId);
-    const QString videoSizeStr = QString("%1x%2").arg(rS.cropRect.width())
-                                     .arg(rS.cropRect.height());
     QStringList videoGrabParams;
     // see http://trac.ffmpeg.org/wiki/Capture/Desktop
     switch (HostOsInfo::hostOs()) {
-    case OsTypeLinux:
+    case OsTypeLinux: {
+        const QScreen *screen = QGuiApplication::screens()[rS.screenId];
+        const QPoint screenTopLeft = screen->geometry().topLeft();
+        const QRect cropRect = rS.cropRect.translated(screenTopLeft);
+        const QString x11display = qtcEnvironmentVariable("DISPLAY", ":0.0");
+        const QString videoSize = sizeStr(rS.cropRect.isNull()
+                                              ? screen->size() * screen->devicePixelRatio()
+                                              : rS.cropRect.size());
         videoGrabParams.append({"-f", "x11grab"});
         videoGrabParams.append({"-framerate", frameRateStr});
-        if (!rS.cropRect.isNull()) {
-            videoGrabParams.append({"-video_size", videoSizeStr});
-            videoGrabParams.append({"-i", QString(":%1.0+%2,%3").arg(screenIdStr)
-                                              .arg(rS.cropRect.x()).arg(rS.cropRect.y())});
-        } else {
-            videoGrabParams.append({"-i", QString(":%1.0").arg(screenIdStr)});
-        }
+        videoGrabParams.append({"-video_size", videoSize});
+        videoGrabParams.append({"-i", QString("%1+%2,%3").arg(x11display)
+                                          .arg(cropRect.x()).arg(cropRect.y())});
         break;
+    }
     case OsTypeWindows: {
         QString filter = "ddagrab=output_idx=" + screenIdStr;
         if (!rS.cropRect.isNull()) {
-            filter.append(":video_size=" + videoSizeStr);
+            filter.append(":video_size=" + sizeStr(rS.cropRect.size()));
             filter.append(QString(":offset_x=%1:offset_y=%2").arg(rS.cropRect.x())
                               .arg(rS.cropRect.y()));
         }
@@ -334,7 +342,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
         videoGrabParams = {
             "-f", "avfoundation",
             "-framerate", frameRateStr,
-            "-video_size", videoSizeStr,
+            "-video_size", sizeStr(rS.cropRect.size()),
             "-i", QString("%1:none").arg(screenIdStr),
         };
         break;
