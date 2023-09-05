@@ -368,7 +368,7 @@
             the C++20 committee draft. It is compatible with C++11, but will use
             newer language features if they are available.
 
-            Copyright Tristan Brindle, 2018
+            Copyright 2018-2021 Martin Moene
 
             Distributed under the \l {http://boost.org/LICENSE_1_0.txt}
             {Boost Software License, Version 1.0}.
@@ -376,7 +376,7 @@
 
             The source code can be found here:
             \list
-            \li \l{https://github.com/tcbrindle/span}
+            \li \l{https://github.com/martinmoene/span-lite}
             \li QtCreator/src/libs/3rdparty/span
             \li \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/span}
             \endlist
