@@ -20,6 +20,7 @@ QtcLibrary {
         "scrollback.cpp",
         "scrollback.h",
         "surfaceintegration.h",
+        "terminal.qrc",
         "terminal_global.h",
         "terminalsurface.cpp",
         "terminalsurface.h",
