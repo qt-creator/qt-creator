@@ -50,12 +50,10 @@ namespace Internal {
 class TargetTripleWidget;
 class GccToolChainConfigWidget : public ToolChainConfigWidget
 {
-    Q_OBJECT
-
 public:
     explicit GccToolChainConfigWidget(GccToolChain *tc);
 
-protected:
+private:
     void handleCompilerCommandChange();
     void handlePlatformCodeGenFlagsChange();
     void handlePlatformLinkerFlagsChange();
@@ -67,32 +65,21 @@ protected:
 
     void setFromToolchain();
 
+    void updateParentToolChainComboBox(); // Clang
+
     AbiWidget *m_abiWidget;
 
-private:
-    Utils::PathChooser *m_compilerCommand;
+    GccToolChain::SubType m_subType = GccToolChain::RealGcc;
+
+    PathChooser *m_compilerCommand;
     QLineEdit *m_platformCodeGenFlagsLineEdit;
     QLineEdit *m_platformLinkerFlagsLineEdit;
     TargetTripleWidget * const m_targetTripleWidget;
 
     bool m_isReadOnly = false;
     ProjectExplorer::Macros m_macros;
-};
 
-class ClangToolChainConfigWidget : public GccToolChainConfigWidget
-{
-    Q_OBJECT
-public:
-    explicit ClangToolChainConfigWidget(GccToolChain *tc);
-
-private:
-    void applyImpl() override;
-    void discardImpl() override { setFromClangToolchain(); }
-    bool isDirtyImpl() const override;
-    void makeReadOnlyImpl() override;
-
-    void setFromClangToolchain();
-    void updateParentToolChainComboBox();
+    // Clang only
     QList<QMetaObject::Connection> m_parentToolChainConnections;
     QComboBox *m_parentToolchainCombo = nullptr;
 };
@@ -970,9 +957,6 @@ bool GccToolChain::operator ==(const ToolChain &other) const
 
 std::unique_ptr<ToolChainConfigWidget> GccToolChain::createConfigurationWidget()
 {
-    if (m_subType == Clang)
-        return std::make_unique<ClangToolChainConfigWidget>(this);
-
     return std::make_unique<GccToolChainConfigWidget>(this);
 }
 
@@ -1442,11 +1426,10 @@ private:
 GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     ToolChainConfigWidget(tc),
     m_abiWidget(new AbiWidget),
+    m_subType(tc->m_subType),
     m_compilerCommand(new PathChooser),
     m_targetTripleWidget(new TargetTripleWidget(tc))
 {
-    Q_ASSERT(tc);
-
     const QStringList gnuVersionArgs = QStringList("--version");
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setCommandVersionArguments(gnuVersionArgs);
@@ -1476,6 +1459,44 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
     connect(m_targetTripleWidget, &TargetTripleWidget::valueChanged,
             this, &ToolChainConfigWidget::dirty);
+
+    if (m_subType == GccToolChain::Clang) {
+        if (!HostOsInfo::isWindowsHost() || tc->typeId() != Constants::CLANG_TOOLCHAIN_TYPEID)
+            return;
+
+        // Remove m_abiWidget row because the parent toolchain abi is going to be used.
+        m_mainLayout->removeRow(m_mainLayout->rowCount() - 3); // FIXME: Do something sane instead.
+        m_abiWidget = nullptr;
+
+        m_parentToolchainCombo = new QComboBox(this);
+        m_mainLayout->insertRow(m_mainLayout->rowCount() - 1,
+                                Tr::tr("Parent toolchain:"),
+                                m_parentToolchainCombo);
+
+        ToolChainManager *tcManager = ToolChainManager::instance();
+        m_parentToolChainConnections.append(
+            connect(tcManager, &ToolChainManager::toolChainUpdated, this, [this](ToolChain *tc) {
+                if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
+                    updateParentToolChainComboBox();
+            }));
+        m_parentToolChainConnections.append(
+            connect(tcManager, &ToolChainManager::toolChainAdded, this, [this](ToolChain *tc) {
+                if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
+                    updateParentToolChainComboBox();
+            }));
+        m_parentToolChainConnections.append(
+            connect(tcManager, &ToolChainManager::toolChainRemoved, this, [this](ToolChain *tc) {
+                if (tc->id() == toolChain()->id()) {
+                    for (QMetaObject::Connection &connection : m_parentToolChainConnections)
+                        QObject::disconnect(connection);
+                    return;
+                }
+                if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
+                    updateParentToolChainComboBox();
+            }));
+
+        updateParentToolChainComboBox();
+    }
 }
 
 void GccToolChainConfigWidget::applyImpl()
@@ -1506,6 +1527,23 @@ void GccToolChainConfigWidget::applyImpl()
                  ToolChain::MacroInspectionReport{m_macros,
                                                   ToolChain::languageVersion(tc->language(),
                                                                              m_macros)});
+
+    if (m_subType == GccToolChain::Clang && m_parentToolchainCombo) {
+
+        tc->m_parentToolChainId.clear();
+
+        const QByteArray parentId = m_parentToolchainCombo->currentData().toByteArray();
+        if (!parentId.isEmpty()) {
+            for (const ToolChain *mingwTC : mingwToolChains()) {
+                if (parentId == mingwTC->id()) {
+                    tc->m_parentToolChainId = mingwTC->id();
+                    tc->setTargetAbi(mingwTC->targetAbi());
+                    tc->setSupportedAbis(mingwTC->supportedAbis());
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void GccToolChainConfigWidget::setFromToolchain()
@@ -1523,20 +1561,32 @@ void GccToolChainConfigWidget::setFromToolchain()
         if (!m_isReadOnly && !m_compilerCommand->filePath().toString().isEmpty())
             m_abiWidget->setEnabled(true);
     }
+
+    if (m_parentToolchainCombo)
+        updateParentToolChainComboBox();
 }
 
 bool GccToolChainConfigWidget::isDirtyImpl() const
 {
     auto tc = static_cast<GccToolChain *>(toolChain());
-    Q_ASSERT(tc);
-    return m_compilerCommand->filePath() != tc->compilerCommand()
+
+    if (m_compilerCommand->filePath() != tc->compilerCommand()
            || m_platformCodeGenFlagsLineEdit->text()
                   != ProcessArgs::joinArgs(tc->platformCodeGenFlags())
            || m_platformLinkerFlagsLineEdit->text()
                   != ProcessArgs::joinArgs(tc->platformLinkerFlags())
            || m_targetTripleWidget->explicitCodeModelTargetTriple()
                   != tc->explicitCodeModelTargetTriple()
-           || (m_abiWidget && m_abiWidget->currentAbi() != tc->targetAbi());
+           || (m_abiWidget && m_abiWidget->currentAbi() != tc->targetAbi())) {
+        return true;
+    }
+
+    if (!m_parentToolchainCombo)
+        return false;
+
+    const MingwToolChain *parentTC = mingwToolChainFromId(tc->m_parentToolChainId);
+    const QByteArray parentId = parentTC ? parentTC->id() : QByteArray();
+    return parentId != m_parentToolchainCombo->currentData();
 }
 
 void GccToolChainConfigWidget::makeReadOnlyImpl()
@@ -1548,6 +1598,9 @@ void GccToolChainConfigWidget::makeReadOnlyImpl()
     m_platformLinkerFlagsLineEdit->setEnabled(false);
     m_targetTripleWidget->setEnabled(false);
     m_isReadOnly = true;
+
+    if (m_parentToolchainCombo)
+        m_parentToolchainCombo->setEnabled(false);
 }
 
 void GccToolChainConfigWidget::handleCompilerCommandChange()
@@ -1756,48 +1809,10 @@ Toolchains ClangToolChainFactory::detectForImport(const ToolChainDescription &tc
     return {};
 }
 
-ClangToolChainConfigWidget::ClangToolChainConfigWidget(GccToolChain *tc) :
-    GccToolChainConfigWidget(tc)
+void GccToolChainConfigWidget::updateParentToolChainComboBox()
 {
-    if (!HostOsInfo::isWindowsHost() || tc->typeId() != Constants::CLANG_TOOLCHAIN_TYPEID)
-        return;
+    QTC_ASSERT(m_parentToolchainCombo, return);
 
-    // Remove m_abiWidget row because the parent toolchain abi is going to be used.
-    m_mainLayout->removeRow(m_mainLayout->rowCount() - 3); // FIXME: Do something sane instead.
-    m_abiWidget = nullptr;
-
-    m_parentToolchainCombo = new QComboBox(this);
-    m_mainLayout->insertRow(m_mainLayout->rowCount() - 1,
-                            Tr::tr("Parent toolchain:"),
-                            m_parentToolchainCombo);
-
-    ToolChainManager *tcManager = ToolChainManager::instance();
-    m_parentToolChainConnections.append(
-        connect(tcManager, &ToolChainManager::toolChainUpdated, this, [this](ToolChain *tc) {
-            if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
-                updateParentToolChainComboBox();
-        }));
-    m_parentToolChainConnections.append(
-        connect(tcManager, &ToolChainManager::toolChainAdded, this, [this](ToolChain *tc) {
-            if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
-                updateParentToolChainComboBox();
-        }));
-    m_parentToolChainConnections.append(
-        connect(tcManager, &ToolChainManager::toolChainRemoved, this, [this](ToolChain *tc) {
-            if (tc->id() == toolChain()->id()) {
-                for (QMetaObject::Connection &connection : m_parentToolChainConnections)
-                    QObject::disconnect(connection);
-                return;
-            }
-            if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
-                updateParentToolChainComboBox();
-        }));
-
-    setFromClangToolchain();
-}
-
-void ClangToolChainConfigWidget::updateParentToolChainComboBox()
-{
     auto *tc = static_cast<GccToolChain *>(toolChain());
     QByteArray parentId = m_parentToolchainCombo->currentData().toByteArray();
     if (tc->isAutoDetected() || m_parentToolchainCombo->count() == 0)
@@ -1819,58 +1834,6 @@ void ClangToolChainConfigWidget::updateParentToolChainComboBox()
             continue;
         m_parentToolchainCombo->addItem(mingwTC->displayName(), mingwTC->id());
     }
-}
-
-void ClangToolChainConfigWidget::setFromClangToolchain()
-{
-    GccToolChainConfigWidget::setFromToolchain();
-
-    if (m_parentToolchainCombo)
-        updateParentToolChainComboBox();
-}
-
-void ClangToolChainConfigWidget::applyImpl()
-{
-    GccToolChainConfigWidget::applyImpl();
-    if (!m_parentToolchainCombo)
-        return;
-
-    auto *tc = static_cast<GccToolChain *>(toolChain());
-    tc->m_parentToolChainId.clear();
-
-    const QByteArray parentId = m_parentToolchainCombo->currentData().toByteArray();
-    if (!parentId.isEmpty()) {
-        for (const ToolChain *mingwTC : mingwToolChains()) {
-            if (parentId == mingwTC->id()) {
-                tc->m_parentToolChainId = mingwTC->id();
-                tc->setTargetAbi(mingwTC->targetAbi());
-                tc->setSupportedAbis(mingwTC->supportedAbis());
-                break;
-            }
-        }
-    }
-}
-
-bool ClangToolChainConfigWidget::isDirtyImpl() const
-{
-    if (GccToolChainConfigWidget::isDirtyImpl())
-        return true;
-
-    if (!m_parentToolchainCombo)
-        return false;
-
-    auto tc = static_cast<GccToolChain *>(toolChain());
-    Q_ASSERT(tc);
-    const MingwToolChain *parentTC = mingwToolChainFromId(tc->m_parentToolChainId);
-    const QByteArray parentId = parentTC ? parentTC->id() : QByteArray();
-    return parentId != m_parentToolchainCombo->currentData();
-}
-
-void ClangToolChainConfigWidget::makeReadOnlyImpl()
-{
-    GccToolChainConfigWidget::makeReadOnlyImpl();
-    if (m_parentToolchainCombo)
-        m_parentToolchainCombo->setEnabled(false);
 }
 
 // --------------------------------------------------------------------------

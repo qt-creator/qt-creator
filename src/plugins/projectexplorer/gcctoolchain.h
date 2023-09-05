@@ -20,7 +20,6 @@ namespace ProjectExplorer {
 
 namespace Internal {
 class ClangToolChainFactory;
-class ClangToolChainConfigWidget;
 class GccToolChainConfigWidget;
 class GccToolChainFactory;
 class MingwToolChainFactory;
@@ -186,9 +185,8 @@ private:
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;
-    friend class ToolChainFactory;
     friend class Internal::ClangToolChainFactory;
-    friend class Internal::ClangToolChainConfigWidget;
+    friend class ToolChainFactory;
 
     // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
     // which is used for comparison with matchesCompilerCommand
