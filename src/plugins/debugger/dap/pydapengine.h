@@ -14,6 +14,8 @@ public:
 
 private:
     void handleDapInitialize() override;
+    void quitDebugger() override;
+
     void setupEngine() override;
     Utils::Process m_proc;
 };

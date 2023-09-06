@@ -177,6 +177,22 @@ void PyDapEngine::handleDapInitialize()
     qCDebug(dapEngineLog) << "handleDapAttach";
 }
 
+void PyDapEngine::quitDebugger()
+{
+    showMessage(QString("QUIT DEBUGGER REQUESTED IN STATE %1").arg(state()));
+    startDying();
+
+    // Temporary workaround for Python debugging instability, particularly
+    // in conjunction with PySide6, due to unreliable pause functionality.
+    if (state() == InferiorRunOk) {
+        setState(InferiorStopRequested);
+        notifyInferiorStopOk();
+        return;
+    }
+
+    DebuggerEngine::quitDebugger();
+}
+
 void installDebugpyPackage(const FilePath &pythonPath)
 {
     CommandLine cmd{pythonPath, {"-m", "pip", "install", "debugpy"}};
