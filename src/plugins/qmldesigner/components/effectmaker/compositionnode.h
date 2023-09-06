@@ -14,6 +14,7 @@ class CompositionNode : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
+    Q_PROPERTY(bool nodeEnabled  READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel NOTIFY uniformsModelChanged)
 
 public:
@@ -40,6 +41,7 @@ public:
 
 signals:
     void uniformsModelChanged();
+    void isEnabledChanged();
 
 private:
     void parse(const QString &qenPath);
@@ -50,7 +52,7 @@ private:
     QString m_vertexCode;
     QString m_description;
     QStringList m_requiredNodes;
-    bool m_isEnabled;
+    bool m_isEnabled = true;
 
     EffectMakerUniformsModel m_unifomrsModel;
 };

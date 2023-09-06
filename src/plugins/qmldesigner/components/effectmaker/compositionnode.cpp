@@ -51,7 +51,10 @@ bool CompositionNode::isEnabled() const
 
 void CompositionNode::setIsEnabled(bool newIsEnabled)
 {
-    m_isEnabled = newIsEnabled;
+    if (newIsEnabled != m_isEnabled) {
+        m_isEnabled = newIsEnabled;
+        emit isEnabledChanged();
+    }
 }
 
 CompositionNode::NodeType CompositionNode::type() const

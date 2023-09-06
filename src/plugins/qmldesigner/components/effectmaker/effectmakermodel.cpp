@@ -23,6 +23,7 @@ QHash<int, QByteArray> EffectMakerModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[NameRole] = "nodeName";
+    roles[EnabledRole] = "nodeEnabled";
     roles[UniformsRole] = "nodeUniformsModel";
     return roles;
 }
@@ -40,6 +41,19 @@ QVariant EffectMakerModel::data(const QModelIndex &index, int role) const
     QTC_ASSERT(roleNames().contains(role), return {});
 
     return m_nodes.at(index.row())->property(roleNames().value(role));
+}
+
+bool EffectMakerModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid() || !roleNames().contains(role))
+        return false;
+
+    if (role == EnabledRole) {
+        m_nodes.at(index.row())->setIsEnabled(value.toBool());
+        emit dataChanged(index, index, {role});
+    }
+
+    return true;
 }
 
 void EffectMakerModel::addNode(const QString &nodeQenPath)

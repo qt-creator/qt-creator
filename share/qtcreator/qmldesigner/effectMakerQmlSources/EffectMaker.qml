@@ -69,6 +69,10 @@ Item {
                     width: root.width
                     model: EffectMakerBackend.effectMakerModel
 
+                    onCountChanged: {
+                        HelperWidgets.Controller.setCount("EffectMaker", repeater.count)
+                    }
+
                     delegate: EffectCompositionNode {
                         width: root.width
 

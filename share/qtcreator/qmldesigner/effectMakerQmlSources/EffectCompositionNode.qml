@@ -12,7 +12,14 @@ import EffectMakerBackend
 HelperWidgets.Section {
     id: root
 
-    caption: nodeName
+    // model properties
+    required property string nodeName
+    required property bool nodeEnabled
+    required property var nodeUniformsModel
+
+    required property int index
+
+    caption: root.nodeName
     category: "EffectMaker"
 
     draggable: true
@@ -21,14 +28,22 @@ HelperWidgets.Section {
     closeButtonToolTip: qsTr("Remove")
 
     onCloseButtonClicked: {
-        EffectMakerBackend.effectMakerModel.removeNode(index)
+        EffectMakerBackend.effectMakerModel.removeNode(root.index)
+    }
+
+    showEyeButton: true
+    eyeEnabled: root.nodeEnabled
+    eyeButtonToolTip: qsTr("Enable/Disable Node")
+
+    onEyeButtonClicked: {
+        root.nodeEnabled = root.eyeEnabled
     }
 
     Column {
         spacing: 10
 
         Repeater {
-            model: nodeUniformsModel
+            model: root.nodeUniformsModel
 
             EffectCompositionNodeUniform {
                 width: root.width

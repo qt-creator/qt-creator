@@ -20,6 +20,8 @@ Item {
     property alias showLeftBorder: leftBorder.visible
     property alias showCloseButton: closeButton.visible
     property alias closeButtonToolTip: closeButton.tooltip
+    property alias showEyeButton: eyeButton.visible
+    property alias eyeButtonToolTip: eyeButton.tooltip
     property alias spacing: column.spacing
     property alias draggable: dragButton.visible
     property alias fillBackground: sectionBackground.visible
@@ -40,6 +42,7 @@ Item {
     property bool addBottomPadding: true
     property bool dropEnabled: false
     property bool highlight: false
+    property bool eyeEnabled: true // eye button enabled (on)
 
     property bool useDefaulContextMenu: true
 
@@ -75,6 +78,10 @@ Item {
         function onCloseContextMenu() {
             contextMenu.close()
         }
+        function onCountChanged(cat, count) {
+            if (section.showEyeButton && cat === section.category)
+                dragButton.enabled = count > 1
+        }
     }
 
     signal drop(var drag)
@@ -85,6 +92,7 @@ Item {
     signal expand()
     signal collapse()
     signal closeButtonClicked()
+    signal eyeButtonClicked()
     signal startDrag(var section)
     signal stopDrag()
 
@@ -133,7 +141,7 @@ Item {
             height: 4
             source: "image://icons/down-arrow"
             anchors.left: parent.left
-            anchors.leftMargin: 4 + (section.level * section.levelShift) + (section.draggable ? 20 : 0)
+            anchors.leftMargin: 4 + (section.level * section.levelShift) + (section.draggable ? 20 : 0) + (section.showEyeButton ? 25 : 0)
             anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -185,11 +193,11 @@ Item {
 
             icon: StudioTheme.Constants.dragmarks
             buttonSize: 22
-            iconScale: containsMouse ? 1.2 : 1
+            iconScale: dragButton.enabled && dragButton.containsMouse ? 1.2 : 1
             transparentBg: true
 
             visible: false
-            drag.target: section
+            drag.target: dragButton.enabled ? section : null
             drag.axis: Drag.YAxis
 
             onPressed: {
@@ -200,6 +208,24 @@ Item {
 
             onReleased: {
                 section.stopDrag()
+            }
+        }
+
+        IconButton {
+            id: eyeButton
+
+            anchors.left: dragButton.right
+
+            icon: section.eyeEnabled ? StudioTheme.Constants.visible_small : StudioTheme.Constants.invisible_small
+            buttonSize: 22
+            iconScale: eyeButton.containsMouse ? 1.2 : 1
+            transparentBg: true
+
+            visible: false
+
+            onClicked: {
+                section.eyeEnabled = !section.eyeEnabled
+                root.eyeButtonClicked()
             }
         }
     }
