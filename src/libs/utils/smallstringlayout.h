@@ -86,6 +86,8 @@ struct alignas(16) StringDataLayout
         , reference{{string}, size, 0}
     {}
 
+    QT_WARNING_PUSH
+    QT_WARNING_DISABLE_CLANG("-Wunsafe-buffer-usage")
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
@@ -110,6 +112,7 @@ struct alignas(16) StringDataLayout
             reference = {{string}, Size - 1, 0};
         }
     }
+    QT_WARNING_POP
 
     constexpr static size_type shortStringCapacity() noexcept
     {
@@ -159,6 +162,8 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
         , reference{{string}, size, 0}
     {}
 
+    QT_WARNING_PUSH
+    QT_WARNING_DISABLE_CLANG("-Wunsafe-buffer-usage")
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
@@ -183,6 +188,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
             reference = {{string}, Size - 1, 0};
         }
     }
+    QT_WARNING_POP
 
     void copyHere(const StringDataLayout &other) noexcept
     {
