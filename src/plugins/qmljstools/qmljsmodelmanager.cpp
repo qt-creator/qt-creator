@@ -261,7 +261,7 @@ QHash<QString,Dialect> ModelManager::languageForSuffix() const
 ModelManager::ModelManager()
 {
     qRegisterMetaType<QmlJSTools::SemanticInfo>("QmlJSTools::SemanticInfo");
-    loadDefaultQmlTypeDescriptions();
+    CppQmlTypesLoader::defaultObjectsInitializer = [this] { loadDefaultQmlTypeDescriptions(); };
 }
 
 ModelManager::~ModelManager() = default;

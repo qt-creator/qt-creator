@@ -64,7 +64,8 @@ void tst_Check::initTestCase()
     // the resource path is wrong, have to load things manually
     QFileInfo builtins(resourcePath() + "/qml-type-descriptions/builtins.qmltypes");
     QStringList errors, warnings;
-    CppQmlTypesLoader::defaultQtObjects = CppQmlTypesLoader::loadQmlTypes(QFileInfoList() << builtins, &errors, &warnings);
+    CppQmlTypesLoader::defaultQtObjects()
+        = CppQmlTypesLoader::loadQmlTypes(QFileInfoList() << builtins, &errors, &warnings);
 
     if (!ModelManagerInterface::instance())
         new ModelManagerInterface;

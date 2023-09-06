@@ -263,7 +263,8 @@ void tst_TestCore::initTestCase()
 
     QFileInfo builtins(IDE_DATA_PATH "/qml-type-descriptions/builtins.qmltypes");
     QStringList errors, warnings;
-    QmlJS::CppQmlTypesLoader::defaultQtObjects = QmlJS::CppQmlTypesLoader::loadQmlTypes(QFileInfoList{builtins}, &errors, &warnings);
+    QmlJS::CppQmlTypesLoader::defaultQtObjects()
+        = QmlJS::CppQmlTypesLoader::loadQmlTypes(QFileInfoList{builtins}, &errors, &warnings);
 }
 
 void tst_TestCore::cleanupTestCase()

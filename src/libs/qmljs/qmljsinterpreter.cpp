@@ -1321,10 +1321,32 @@ const Function *Function::asFunction() const
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
 
-CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::defaultLibraryObjects;
-CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::defaultQtObjects;
+CppQmlTypesLoader::BuiltinObjects sDefaultLibraryObjects;
+CppQmlTypesLoader::BuiltinObjects sDefaultQtObjects;
+std::function<void()> CppQmlTypesLoader::defaultObjectsInitializer;
 
-CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles, QStringList *errors, QStringList *warnings)
+CppQmlTypesLoader::BuiltinObjects &CppQmlTypesLoader::defaultQtObjects()
+{
+    if (defaultObjectsInitializer) {
+        const std::function<void()> init = defaultObjectsInitializer;
+        defaultObjectsInitializer = {};
+        init();
+    }
+    return sDefaultLibraryObjects;
+}
+CppQmlTypesLoader::BuiltinObjects &CppQmlTypesLoader::defaultLibraryObjects()
+{
+    if (defaultObjectsInitializer) {
+        const std::function<void()> init = defaultObjectsInitializer;
+        defaultObjectsInitializer = {};
+        init();
+    }
+    return sDefaultQtObjects;
+}
+
+CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles,
+                                                                  QStringList *errors,
+                                                                  QStringList *warnings)
 {
     QHash<QString, FakeMetaObject::ConstPtr> newObjects;
     QStringList newDependencies;

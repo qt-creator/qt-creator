@@ -196,12 +196,12 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
         m_valueOwner->cppQmlTypes().load(QLatin1String("<builtins>"), m_builtins.metaObjects());
     } else {
         m_valueOwner->cppQmlTypes().load(QLatin1String("<defaults>"),
-                                         CppQmlTypesLoader::defaultQtObjects);
+                                         CppQmlTypesLoader::defaultQtObjects());
     }
 
     // load library objects shipped with Creator
     m_valueOwner->cppQmlTypes().load(QLatin1String("<defaultQt4>"),
-                                     CppQmlTypesLoader::defaultLibraryObjects);
+                                     CppQmlTypesLoader::defaultLibraryObjects());
 
     if (document) {
         // do it on document first, to make sure import errors are shown
