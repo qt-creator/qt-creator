@@ -7,6 +7,7 @@
 #include "cpptoolsreuse.h"
 #include "semantichighlighter.h"
 
+#include <coreplugin/documentmanager.h>
 #include <cplusplus/declarationcomments.h>
 #include <cplusplus/Overview.h>
 #include <texteditor/textdocument.h>
@@ -46,6 +47,10 @@ public:
         }
 
         if (localUses.isEmpty())
+            return;
+
+        // For tst_checkSymbols
+        if (!Core::DocumentManager::instance())
             return;
 
         // Look for parameter occurrences in function comments.
