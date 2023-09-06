@@ -8,7 +8,6 @@
 #include "uniform.h"
 
 #include <QByteArrayView>
-#include <QRegularExpression>
 #include <QVector2D>
 
 #include <utils/qtcassert.h>

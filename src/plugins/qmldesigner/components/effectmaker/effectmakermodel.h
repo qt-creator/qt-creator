@@ -6,6 +6,7 @@
 #include "shaderfeatures.h"
 
 #include <QMap>
+#include <QRegularExpression>
 #include <QStandardItemModel>
 
 namespace QmlDesigner {
