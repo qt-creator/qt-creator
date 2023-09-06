@@ -203,6 +203,15 @@ public:
     SmallStringView toStringView() const noexcept { return SmallStringView(data(), size()); }
 
     operator SmallStringView() const noexcept { return SmallStringView(data(), size()); }
+    explicit operator QLatin1StringView() const noexcept
+    {
+        return QLatin1StringView(data(), Utils::ssize(*this));
+    }
+
+    operator QUtf8StringView() const noexcept
+    {
+        return QUtf8StringView(data(), Utils::ssize(*this));
+    }
 
     explicit operator QString() const noexcept { return toQString(); }
 

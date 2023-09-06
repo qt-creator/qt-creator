@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "algorithm.h"
 #include "smallstringfwd.h"
 #include "smallstringiterator.h"
 
@@ -76,11 +77,17 @@ public:
         return QString::fromUtf8(data(), int(size()));
     }
 
-    explicit operator QByteArray() const
+    explicit operator QByteArray() const { return QByteArray(data(), int(size())); }
+
+    explicit operator QLatin1StringView() const noexcept
     {
-        return QByteArray(data(), int(size()));
+        return QLatin1StringView(data(), Utils::ssize(*this));
     }
 
+    operator QUtf8StringView() const noexcept
+    {
+        return QUtf8StringView(data(), Utils::ssize(*this));
+    }
     constexpr bool startsWith(SmallStringView subStringToSearch) const noexcept
     {
         if (size() >= subStringToSearch.size())
