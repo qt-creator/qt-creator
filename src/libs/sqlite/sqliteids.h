@@ -85,7 +85,7 @@ struct hash<Sqlite::BasicId<Type, InternalIntegerType>>
 {
     auto operator()(const Sqlite::BasicId<Type, InternalIntegerType> &id) const
     {
-        return std::hash<InternalIntegerType>(id.internalId());
+        return std::hash<InternalIntegerType>{}(id.internalId());
     }
 };
 } // namespace std

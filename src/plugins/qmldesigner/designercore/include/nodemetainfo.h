@@ -217,6 +217,14 @@ public:
 
     const ProjectStorageType &projectStorage() const { return *m_projectStorage; }
 
+    void *key() const
+    {
+        if constexpr (!useProjectStorage())
+            return m_privateData.get();
+
+        return nullptr;
+    }
+
 private:
     const Storage::Info::Type &typeData() const;
     bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;
@@ -231,3 +239,17 @@ private:
 using NodeMetaInfos = std::vector<NodeMetaInfo>;
 
 } //QmlDesigner
+
+namespace std {
+template<>
+struct hash<QmlDesigner::NodeMetaInfo>
+{
+    auto operator()(const QmlDesigner::NodeMetaInfo &metaInfo) const
+    {
+        if constexpr (QmlDesigner::useProjectStorage())
+            return std::hash<QmlDesigner::TypeId>{}(metaInfo.id());
+        else
+            return std::hash<void *>{}(metaInfo.key());
+    }
+};
+} // namespace std
