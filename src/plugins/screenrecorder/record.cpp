@@ -338,14 +338,22 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
         };
         break;
     }
-    case OsTypeMac:
+    case OsTypeMac: {
         videoGrabParams = {
             "-f", "avfoundation",
             "-framerate", frameRateStr,
-            "-video_size", sizeStr(rS.cropRect.size()),
-            "-i", QString("%1:none").arg(screenIdStr),
+            "-pixel_format", "bgr0",
+            "-i", QString("Capture screen %1:none").arg(rS.screenId),
         };
+        if (!rS.cropRect.isNull()) {
+            videoGrabParams.append({
+                "-filter_complex", QString("crop=x=%1:y=%2:w=%3:h=%4")
+                    .arg(rS.cropRect.x()).arg(rS.cropRect.y())
+                    .arg(rS.cropRect.width()).arg(rS.cropRect.height())
+            });
+        }
         break;
+    }
     default:
         break;
     }
