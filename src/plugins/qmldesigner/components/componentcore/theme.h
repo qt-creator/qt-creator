@@ -173,6 +173,7 @@ public:
         importedModels_small,
         infinity,
         invisible_medium,
+        invisible_small,
         keyframe,
         languageList_medium,
         layouts_small,
