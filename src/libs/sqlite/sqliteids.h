@@ -78,3 +78,14 @@ auto toIntegers(const Container &container)
 }
 
 } // namespace Sqlite
+
+namespace std {
+template<auto Type, typename InternalIntegerType>
+struct hash<Sqlite::BasicId<Type, InternalIntegerType>>
+{
+    auto operator()(const Sqlite::BasicId<Type, InternalIntegerType> &id) const
+    {
+        return std::hash<InternalIntegerType>(id.internalId());
+    }
+};
+} // namespace std
