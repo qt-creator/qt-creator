@@ -19,7 +19,6 @@
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
 #include <QtQuick3DUtils/private/qssgbounds3_p.h>
-#include <QtQuick3DUtils/private/qssgutils_p.h>
 #include <QtQml/qqml.h>
 #include <QtQuick/qquickwindow.h>
 #include <QtQuick/qquickitem.h>
@@ -800,9 +799,8 @@ QVector3D GeneralHelper::pivotScenePosition(QQuick3DNode *node) const
     QMatrix4x4 localTransform;
     localTransform.translate(node->position());
 
-    const QMatrix4x4 sceneTransform = parent->sceneTransform() * localTransform;
-
-    return mat44::getPosition(sceneTransform);
+    const QMatrix4x4 m = parent->sceneTransform() * localTransform;
+    return QVector3D(m(0, 3), m(1, 3), m(2, 3));
 }
 
 // Calculate bounds for given node, including all child nodes.
