@@ -48,7 +48,8 @@ public:
     void setTrimRange(FrameRange range);
 
 signals:
-    void clipReady(const ClipInfo &clip);
+    void started();
+    void finished(const Utils::FilePath &clip);
 
 private:
     void startExport();

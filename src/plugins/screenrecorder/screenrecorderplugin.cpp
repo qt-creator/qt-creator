@@ -21,6 +21,8 @@
 #include <utils/stylehelper.h>
 #include <utils/temporaryfile.h>
 
+#include <solutions/spinner/spinner.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -76,6 +78,17 @@ public:
                 m_exportWidget, &ExportWidget::setCropRect);
         connect(m_cropAndTrimStatusWidget, &CropAndTrimWidget::trimRangeChanged,
                 m_exportWidget, &ExportWidget::setTrimRange);
+        connect(m_exportWidget, &ExportWidget::started, this, [this] {
+            setEnabled(false);
+            m_spinner->show();
+        });
+        connect(m_exportWidget, &ExportWidget::finished, this, [this] {
+            setEnabled(true);
+            m_spinner->hide();
+        });
+
+        m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Medium, this);
+        m_spinner->hide();
     }
 
 private:
@@ -83,6 +96,7 @@ private:
     TemporaryFile m_recordFile;
     CropAndTrimWidget *m_cropAndTrimStatusWidget;
     ExportWidget *m_exportWidget;
+    SpinnerSolution::Spinner *m_spinner;
 };
 
 class ScreenRecorderPlugin final : public ExtensionSystem::IPlugin

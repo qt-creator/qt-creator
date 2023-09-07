@@ -3,10 +3,8 @@ import qbs 1.0
 QtcPlugin {
     name: "ScreenRecorder"
 
-    Depends { name: "Qt.widgets" }
-    Depends { name: "Utils" }
-
     Depends { name: "Core" }
+    Depends { name: "Spinner" }
 
     files: [
         "cropandtrim.cpp",

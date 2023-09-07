@@ -164,16 +164,17 @@ ExportWidget::ExportWidget(QWidget *parent)
             startExport();
         }
     });
-    connect(m_process, &Process::started, this, [exportButton] {
-        exportButton->setEnabled(false);
+    connect(m_process, &Process::started, this, [this] {
+        emit started();
     });
-    connect(m_process, &Process::done, this, [this, exportButton] {
-        exportButton->setEnabled(true);
+    connect(m_process, &Process::done, this, [this] {
         m_futureInterface->reportFinished();
-        if (m_process->exitCode() == 0)
-            emit clipReady(m_outputClipInfo);
-        else
+        if (m_process->exitCode() == 0) {
+            emit finished(m_outputClipInfo.file);
+        } else {
             FFmpegUtils::reportError(m_process->commandLine(), m_lastOutputChunk);
+            emit finished({});
+        }
     });
     connect(m_process, &Process::readyReadStandardError, this, [this] {
         m_lastOutputChunk = m_process->readAllRawStandardError();
