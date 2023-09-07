@@ -5,6 +5,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/set_algorithm.h>
 
 #include <model.h>
 
@@ -205,10 +206,10 @@ std::optional<PropertyComponentGenerator::Entry> createEntry(QmlJS::SimpleReader
                                              needsTypeArg};
 }
 
-PropertyComponentGenerator::Entries createEntries(QmlJS::SimpleReaderNode::Ptr templateConfiguration,
-                                                  Model *model,
-                                                  const QString &templatesPath)
+std::tuple<PropertyComponentGenerator::Entries, bool> createEntries(
+    QmlJS::SimpleReaderNode::Ptr templateConfiguration, Model *model, const QString &templatesPath)
 {
+    bool hasInvalidTemplates = false;
     PropertyComponentGenerator::Entries entries;
     entries.reserve(32);
 
@@ -216,12 +217,14 @@ PropertyComponentGenerator::Entries createEntries(QmlJS::SimpleReaderNode::Ptr t
     for (const QmlJS::SimpleReaderNode::Ptr &node : nodes) {
         if (auto entry = createEntry(node.get(), model, templatesPath))
             entries.push_back(*entry);
+        else
+            hasInvalidTemplates = true;
     }
 
-    return entries;
+    return {entries, hasInvalidTemplates};
 }
 
-QStringList createImports(QmlJS::SimpleReaderNode::Ptr templateConfiguration)
+QStringList createImports(QmlJS::SimpleReaderNode *templateConfiguration)
 {
     auto property = templateConfiguration->property("imports");
     return Utils::transform<QStringList>(property.value.toList(),
@@ -232,17 +235,11 @@ QStringList createImports(QmlJS::SimpleReaderNode::Ptr templateConfiguration)
 
 PropertyComponentGenerator::PropertyComponentGenerator(const QString &propertyEditorResourcesPath,
                                                        Model *model)
-    : m_entries(createEntries(createTemplateConfiguration(propertyEditorResourcesPath),
-                              model,
-                              propertyEditorResourcesPath + "/PropertyTemplates/"))
+    : m_templateConfiguration{createTemplateConfiguration(propertyEditorResourcesPath)}
+    , m_propertyTemplatesPath{propertyEditorResourcesPath + "/PropertyTemplates/"}
 {
-    auto templateConfiguration = createTemplateConfiguration(propertyEditorResourcesPath);
-
-    m_entries = createEntries(templateConfiguration,
-                              model,
-                              propertyEditorResourcesPath + "/PropertyTemplates/");
-
-    m_imports = createImports(templateConfiguration);
+    setModel(model);
+    m_imports = createImports(m_templateConfiguration.get());
 }
 
 PropertyComponentGenerator::Property PropertyComponentGenerator::create(const PropertyMetaInfo &property) const
@@ -255,6 +252,61 @@ PropertyComponentGenerator::Property PropertyComponentGenerator::create(const Pr
         return {};
 
     return generateComplexComponent(property, propertyType);
+}
+
+void PropertyComponentGenerator::setModel(Model *model)
+{
+    if (model && m_model && m_model->projectStorage() == model->projectStorage()) {
+        m_model = model;
+        return;
+    }
+
+    if (model) {
+        setEntries(m_templateConfiguration, model, m_propertyTemplatesPath);
+    } else {
+        m_entries.clear();
+        m_entryTypeIds.clear();
+    }
+    m_model = model;
+}
+
+namespace {
+
+bool insect(const TypeIds &first, const TypeIds &second)
+{
+    bool intersecting = false;
+
+    std::set_intersection(first.begin(),
+                          first.end(),
+                          second.begin(),
+                          second.end(),
+                          Utils::make_iterator([&](const auto &) { intersecting = true; }));
+
+    return intersecting;
+}
+
+} // namespace
+
+void PropertyComponentGenerator::setEntries(QmlJS::SimpleReaderNode::Ptr templateConfiguration,
+                                            Model *model,
+                                            const QString &propertyTemplatesPath)
+{
+    auto [entries, hasInvalidTemplates] = createEntries(templateConfiguration,
+                                                        model,
+                                                        propertyTemplatesPath);
+    m_entries = std::move(entries);
+    m_hasInvalidTemplates = hasInvalidTemplates;
+    m_entryTypeIds = Utils::transform<TypeIds>(m_entries,
+                                               [](const auto &entry) { return entry.type.id(); });
+    std::sort(m_entryTypeIds.begin(), m_entryTypeIds.end());
+}
+
+void PropertyComponentGenerator::refreshMetaInfos(const TypeIds &deletedTypeIds)
+{
+    if (!insect(deletedTypeIds, m_entryTypeIds) && !m_hasInvalidTemplates)
+        return;
+
+    setEntries(m_templateConfiguration, m_model, m_propertyTemplatesPath);
 }
 
 const PropertyComponentGenerator::Entry *PropertyComponentGenerator::findEntry(const NodeMetaInfo &type) const

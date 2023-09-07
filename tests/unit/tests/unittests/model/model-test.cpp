@@ -928,14 +928,16 @@ TEST_F(Model, remove_refresh_callback_from_project_storage)
 
 TEST_F(Model, refresh_callback_is_calling_abstract_view)
 {
-    std::function<void()> *callback = nullptr;
+    const QmlDesigner::TypeIds typeIds = {QmlDesigner::TypeId::create(3),
+                                          QmlDesigner::TypeId::create(1)};
+    std::function<void(const QmlDesigner::TypeIds &)> *callback = nullptr;
     ON_CALL(projectStorageMock, addRefreshCallback(_)).WillByDefault([&](auto *c) { callback = c; });
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
     model.attachView(&viewMock);
 
-    EXPECT_CALL(viewMock, refreshMetaInfos());
+    EXPECT_CALL(viewMock, refreshMetaInfos(typeIds));
 
-    (*callback)();
+    (*callback)(typeIds);
 }
 
 } // namespace

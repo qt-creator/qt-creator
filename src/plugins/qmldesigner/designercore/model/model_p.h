@@ -317,7 +317,7 @@ private:
     EnabledViewRange enabledViews() const;
     ImportedTypeNameId importedTypeNameId(Utils::SmallStringView typeName);
     void setTypeId(InternalNode *node, Utils::SmallStringView typeName);
-    void emitRefreshMetaInfos();
+    void emitRefreshMetaInfos(const TypeIds &deletedTypeIds);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
@@ -326,7 +326,8 @@ public:
 private:
     Model *m_model = nullptr;
     MetaInfo m_metaInfo;
-    std::function<void()> m_metaInfoRefreshCallback{[&] { emitRefreshMetaInfos(); }};
+    std::function<void(const TypeIds &deletedTypeIds)> m_metaInfoRefreshCallback{
+        [&](const TypeIds &deletedTypeIds) { emitRefreshMetaInfos(deletedTypeIds); }};
     Imports m_imports;
     Imports m_possibleImportList;
     Imports m_usedImportList;

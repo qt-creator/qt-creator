@@ -16,6 +16,7 @@
 class ProjectStorageMock : public QmlDesigner::ProjectStorageInterface
 {
 public:
+    ProjectStorageMock();
     virtual ~ProjectStorageMock() = default;
 
     void setupQtQuick();
@@ -45,6 +46,10 @@ public:
                              QmlDesigner::ModuleId moduleId,
                              Utils::SmallStringView typeName);
 
+    void removeExportedTypeName(QmlDesigner::TypeId typeId,
+                                QmlDesigner::ModuleId moduleId,
+                                Utils::SmallStringView typeName);
+
     QmlDesigner::TypeId createType(QmlDesigner::ModuleId moduleId,
                                    Utils::SmallStringView typeName,
                                    Utils::SmallStringView defaultPropertyName,
@@ -53,6 +58,8 @@ public:
                                    QmlDesigner::Storage::TypeTraits typeTraits,
                                    QmlDesigner::TypeIds baseTypeIds = {},
                                    QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
+
+    void removeType(QmlDesigner::ModuleId moduleId, Utils::SmallStringView typeName);
 
     QmlDesigner::TypeId createType(QmlDesigner::ModuleId moduleId,
                                    Utils::SmallStringView typeName,
@@ -87,6 +94,8 @@ public:
                                                       Utils::SmallString name,
                                                       QmlDesigner::TypeId propertyTypeId);
 
+    void removeProperty(QmlDesigner::TypeId typeId, Utils::SmallString name);
+
     void createSignal(QmlDesigner::TypeId typeId, Utils::SmallString name);
     void createFunction(QmlDesigner::TypeId typeId, Utils::SmallString name);
     void setPropertyEditorPathId(QmlDesigner::TypeId typeId, QmlDesigner::SourceId sourceId);
@@ -100,8 +109,14 @@ public:
                 (const QmlDesigner::Storage::Imports imports, QmlDesigner::SourceId sourceId),
                 (override));
 
-    MOCK_METHOD(void, addRefreshCallback, (std::function<void()> * callback), (override));
-    MOCK_METHOD(void, removeRefreshCallback, (std::function<void()> * callback), (override));
+    MOCK_METHOD(void,
+                addRefreshCallback,
+                (std::function<void(const QmlDesigner::TypeIds &)> * callback),
+                (override));
+    MOCK_METHOD(void,
+                removeRefreshCallback,
+                (std::function<void(const QmlDesigner::TypeIds &)> * callback),
+                (override));
 
     MOCK_METHOD(QmlDesigner::ModuleId, moduleId, (::Utils::SmallStringView), (const, override));
 

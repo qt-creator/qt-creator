@@ -575,6 +575,9 @@ extend_qtc_plugin(QmlDesigner
     modelnodeoperations.cpp modelnodeoperations.h
     formatoperation.cpp formatoperation.h
     navigation2d.cpp navigation2d.h
+    propertyeditorcomponentgenerator.cpp propertyeditorcomponentgenerator.h
+    propertycomponentgenerator.cpp propertycomponentgenerator.h
+    propertycomponentgeneratorinterface.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
     qmleditormenu.cpp qmleditormenu.h
     selectioncontext.cpp selectioncontext.h

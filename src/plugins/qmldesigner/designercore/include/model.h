@@ -136,6 +136,7 @@ public:
     void setMetaInfo(const MetaInfo &metaInfo);
 
     NodeMetaInfo boolMetaInfo() const;
+    NodeMetaInfo doubleMetaInfo() const;
     NodeMetaInfo flowViewFlowActionAreaMetaInfo() const;
     NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
     NodeMetaInfo flowViewFlowItemMetaInfo() const;

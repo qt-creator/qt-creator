@@ -53,6 +53,7 @@ public:
 
     void synchronize(Storage::Synchronization::SynchronizationPackage package) override
     {
+        TypeIds deletedTypeIds;
         Sqlite::withImmediateTransaction(database, [&] {
             AliasPropertyDeclarations insertedAliasPropertyDeclarations;
             AliasPropertyDeclarations updatedAliasPropertyDeclarations;
@@ -61,7 +62,6 @@ public:
             PropertyDeclarations relinkablePropertyDeclarations;
             Prototypes relinkablePrototypes;
             Prototypes relinkableExtensions;
-            TypeIds deletedTypeIds;
 
             TypeIds updatedTypeIds;
             updatedTypeIds.reserve(package.types.size());
@@ -111,7 +111,7 @@ public:
             commonTypeCache_.resetTypeIds();
         });
 
-        callRefreshMetaInfoCallback();
+        callRefreshMetaInfoCallback(deletedTypeIds);
     }
 
     void synchronizeDocumentImports(Storage::Imports imports, SourceId sourceId) override
@@ -123,12 +123,12 @@ public:
         });
     }
 
-    void addRefreshCallback(std::function<void()> *callback) override
+    void addRefreshCallback(std::function<void(const TypeIds &deletedTypeIds)> *callback) override
     {
         m_refreshCallbacks.push_back(callback);
     }
 
-    void removeRefreshCallback(std::function<void()> *callback) override
+    void removeRefreshCallback(std::function<void(const TypeIds &deletedTypeIds)> *callback) override
     {
         m_refreshCallbacks.erase(
             std::find(m_refreshCallbacks.begin(), m_refreshCallbacks.end(), callback));
@@ -616,10 +616,10 @@ private:
         return selectAllModulesStatement.template valuesWithTransaction<Module, 128>();
     }
 
-    void callRefreshMetaInfoCallback()
+    void callRefreshMetaInfoCallback(const TypeIds &deletedTypeIds)
     {
         for (auto *callback : m_refreshCallbacks)
-            (*callback)();
+            (*callback)(deletedTypeIds);
     }
 
     class AliasPropertyDeclaration
@@ -2787,7 +2787,7 @@ public:
     Initializer initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
     Storage::Info::CommonTypeCache<ProjectStorageInterface> commonTypeCache_{*this};
-    std::vector<std::function<void()> *> m_refreshCallbacks;
+    std::vector<std::function<void(const TypeIds &deletedTypeIds)> *> m_refreshCallbacks;
     ReadWriteStatement<1, 3> upsertTypeStatement{
         "INSERT INTO types(sourceId, name,  traits) VALUES(?1, ?2, ?3) ON CONFLICT DO "
         "UPDATE SET traits=excluded.traits WHERE traits IS NOT "

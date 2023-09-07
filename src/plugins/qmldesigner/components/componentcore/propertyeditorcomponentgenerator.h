@@ -14,13 +14,13 @@ using PropertyComponentGeneratorType = PropertyComponentGeneratorInterface;
 #else
 using PropertyComponentGeneratorType = PropertyComponentGenerator;
 #endif
-class PropertyEditorTemplateGenerator
+class PropertyEditorComponentGenerator
 {
 
 public:
-    PropertyEditorTemplateGenerator(const PropertyComponentGeneratorType &propertyGenerator);
+    PropertyEditorComponentGenerator(const PropertyComponentGeneratorType &propertyGenerator);
 
-    QString create(const NodeMetaInfo &nodeInfo, bool isComponent);
+    [[nodiscard]] QString create(const NodeMetaInfos &prototypeChain, bool isComponent);
 
 private:
     const PropertyComponentGeneratorType &m_propertyGenerator;

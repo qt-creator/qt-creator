@@ -122,6 +122,16 @@ void ProjectStorageMock::addExportedTypeName(QmlDesigner::TypeId typeId,
     exportedTypeName[typeId].emplace_back(moduleId, typeName);
 }
 
+void ProjectStorageMock::removeExportedTypeName(QmlDesigner::TypeId typeId,
+                                                QmlDesigner::ModuleId moduleId,
+                                                Utils::SmallStringView typeName)
+{
+    ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(TypeId{}));
+    ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
+        .WillByDefault(Return(TypeId{}));
+    exportedTypeName.erase(typeId);
+}
+
 PropertyDeclarationId ProjectStorageMock::createProperty(TypeId typeId,
                                                          Utils::SmallString name,
                                                          PropertyDeclarationTraits traits,
@@ -147,6 +157,24 @@ PropertyDeclarationId ProjectStorageMock::createProperty(TypeId typeId,
     ON_CALL(*this, localPropertyDeclarationIds(Eq(typeId))).WillByDefault(Return(ids));
 
     return propertyId;
+}
+
+void ProjectStorageMock::removeProperty(QmlDesigner::TypeId typeId, Utils::SmallString name)
+{
+    auto propertyId = propertyDeclarationId(typeId, name);
+
+    ON_CALL(*this, propertyDeclarationId(Eq(typeId), Eq(name)))
+        .WillByDefault(Return(PropertyDeclarationId{}));
+    ON_CALL(*this, propertyName(Eq(propertyId)))
+        .WillByDefault(Return(std::optional<Utils::SmallString>{}));
+
+    ON_CALL(*this, propertyDeclaration(Eq(propertyId)))
+        .WillByDefault(Return(std::optional<QmlDesigner::Storage::Info::PropertyDeclaration>{}));
+
+    ON_CALL(*this, propertyDeclarationIds(Eq(typeId)))
+        .WillByDefault(Return(QVarLengthArray<PropertyDeclarationId, 128>{}));
+    ON_CALL(*this, localPropertyDeclarationIds(Eq(typeId)))
+        .WillByDefault(Return(QVarLengthArray<PropertyDeclarationId, 128>{}));
 }
 
 QmlDesigner::PropertyDeclarationId ProjectStorageMock::createProperty(
@@ -187,6 +215,14 @@ void addBaseProperties(TypeId typeId, TypeIds baseTypeIds, ProjectStorageMock &s
         }
     }
 }
+
+void setType(TypeId typeId, ModuleId moduleId, Utils::SmallStringView typeName, ProjectStorageMock &storage)
+{
+    ON_CALL(storage, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
+    ON_CALL(storage, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
+        .WillByDefault(Return(typeId));
+}
+
 } // namespace
 
 TypeId ProjectStorageMock::createType(ModuleId moduleId,
@@ -205,13 +241,12 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
     static TypeId typeId;
     incrementBasicId(typeId);
 
-    ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
-    ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
-        .WillByDefault(Return(typeId));
+    setType(typeId, moduleId, typeName, *this);
+
+    addBaseProperties(typeId, baseTypeIds, *this);
+
     addExportedTypeName(typeId, moduleId, typeName);
-    ON_CALL(*this, exportedTypeNames(Eq(typeId))).WillByDefault([&](TypeId id) {
-        return exportedTypeName[id];
-    });
+
     PropertyDeclarationId defaultPropertyDeclarationId;
     if (defaultPropertyName.size()) {
         if (!defaultPropertyTypeId) {
@@ -225,8 +260,7 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
     }
 
     ON_CALL(*this, type(Eq(typeId)))
-        .WillByDefault(
-            Return(Storage::Info::Type{defaultPropertyDeclarationId, sourceId, typeTraits}));
+        .WillByDefault(Return(Storage::Info::Type{defaultPropertyDeclarationId, sourceId, typeTraits}));
 
     ON_CALL(*this, isBasedOn(Eq(typeId), Eq(typeId))).WillByDefault(Return(true));
 
@@ -240,9 +274,18 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
     ON_CALL(*this, prototypeAndSelfIds(Eq(typeId))).WillByDefault(Return(selfAndPrototypes));
     ON_CALL(*this, prototypeIds(Eq(typeId))).WillByDefault(Return(baseTypeIds));
 
-    addBaseProperties(typeId, baseTypeIds, *this);
-
     return typeId;
+}
+
+void ProjectStorageMock::removeType(QmlDesigner::ModuleId moduleId, Utils::SmallStringView typeName)
+{
+    auto oldTypeId = typeId(moduleId, typeName);
+
+    setType(TypeId{}, moduleId, typeName, *this);
+
+    removeExportedTypeName(oldTypeId, moduleId, typeName);
+
+    ON_CALL(*this, type(Eq(oldTypeId))).WillByDefault(Return(std::optional<Storage::Info::Type>{}));
 }
 
 QmlDesigner::TypeId ProjectStorageMock::createType(QmlDesigner::ModuleId moduleId,
@@ -284,6 +327,13 @@ QmlDesigner::TypeId ProjectStorageMock::createValue(QmlDesigner::ModuleId module
                                                     QmlDesigner::TypeIds baseTypeIds)
 {
     return createType(moduleId, typeName, Storage::TypeTraits::Value, baseTypeIds);
+}
+
+ProjectStorageMock::ProjectStorageMock()
+{
+    ON_CALL(*this, exportedTypeNames(_)).WillByDefault([&](TypeId id) {
+        return exportedTypeName[id];
+    });
 }
 
 void ProjectStorageMock::setupQtQuick()

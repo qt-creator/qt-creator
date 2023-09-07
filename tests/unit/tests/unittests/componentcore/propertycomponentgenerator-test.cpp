@@ -319,4 +319,56 @@ TEST_F(PropertyComponentGenerator, get_imports)
                             Eq("import StudioTheme 1.0 as StudioTheme")));
 }
 
+TEST_F(PropertyComponentGenerator, set_model_to_null_removes_creates_only_monostates)
+{
+    QString expected = getExpectedContent("real", "x", "x");
+    auto xProperty = itemMetaInfo.property("x");
+
+    generator.setModel(nullptr);
+
+    ASSERT_THAT(generator.create(xProperty), VariantWith<std::monostate>(std::monostate{}));
+}
+
+TEST_F(PropertyComponentGenerator, set_model_fromn_null_updates_internal_state)
+{
+    generator.setModel(nullptr);
+    QString expected = getExpectedContent("real", "x", "x");
+    auto xProperty = itemMetaInfo.property("x");
+
+    generator.setModel(&model);
+
+    ASSERT_THAT(generator.create(xProperty), IsBasicProperty(StrippedStringEq(expected)));
+}
+
+TEST_F(PropertyComponentGenerator, after_refresh_meta_infos_type_was_deleted)
+{
+    auto xProperty = itemMetaInfo.property("x");
+    auto doubleMetaInfo = model.doubleMetaInfo();
+    projectStorageMock.removeExportedTypeName(doubleMetaInfo.id(),
+                                              projectStorageMock.createModule("QML"),
+                                              "real");
+
+    generator.refreshMetaInfos({doubleMetaInfo.id()});
+
+    ASSERT_THAT(generator.create(xProperty), VariantWith<std::monostate>(std::monostate{}));
+}
+
+TEST_F(PropertyComponentGenerator, after_refresh_meta_infos_type_was_added)
+{
+    QString expected = getExpectedContent("real", "x", "x");
+    auto xProperty = itemMetaInfo.property("x");
+    auto doubleMetaInfo = model.doubleMetaInfo();
+    projectStorageMock.removeExportedTypeName(doubleMetaInfo.id(),
+                                              projectStorageMock.createModule("QML"),
+                                              "real");
+    generator.refreshMetaInfos({doubleMetaInfo.id()});
+    projectStorageMock.addExportedTypeName(doubleMetaInfo.id(),
+                                           projectStorageMock.createModule("QML"),
+                                           "real");
+
+    generator.refreshMetaInfos({});
+
+    ASSERT_THAT(generator.create(xProperty), IsBasicProperty(StrippedStringEq(expected)));
+}
+
 } // namespace

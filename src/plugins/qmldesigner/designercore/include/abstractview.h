@@ -148,7 +148,7 @@ public:
     virtual void modelAttached(Model *model);
     virtual void modelAboutToBeDetached(Model *model);
 
-    virtual void refreshMetaInfos();
+    virtual void refreshMetaInfos(const TypeIds &deletedTypeIds);
 
     virtual void nodeCreated(const ModelNode &createdNode);
     virtual void nodeAboutToBeRemoved(const ModelNode &removedNode);

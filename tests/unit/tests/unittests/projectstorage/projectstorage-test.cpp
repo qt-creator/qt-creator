@@ -7195,11 +7195,11 @@ TEST_F(ProjectStorage, synchronize_property_editor_with_non_existing_type_name)
 TEST_F(ProjectStorage, call_refresh_callback_after_synchronization)
 {
     auto package{createSimpleSynchronizationPackage()};
-    MockFunction<void()> callbackMock;
+    MockFunction<void(const QmlDesigner::TypeIds &)> callbackMock;
     auto callback = callbackMock.AsStdFunction();
     storage.addRefreshCallback(&callback);
 
-    EXPECT_CALL(callbackMock, Call());
+    EXPECT_CALL(callbackMock, Call(_));
 
     storage.synchronize(package);
 }

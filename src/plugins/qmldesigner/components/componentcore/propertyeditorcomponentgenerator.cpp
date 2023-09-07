@@ -75,12 +75,10 @@ Utils::SmallStringView propertyName(const GeneratorProperty &property)
         property);
 }
 
-PropertyMetaInfos getUnmangedProperties(const NodeMetaInfo &nodeInfo)
+PropertyMetaInfos getUnmangedProperties(const NodeMetaInfos &prototypes)
 {
     PropertyMetaInfos properties;
     properties.reserve(128);
-
-    auto prototypes = nodeInfo.selfAndPrototypes();
 
     for (const auto &prototype : prototypes) {
         if (prototype.propertyEditorPathId())
@@ -117,12 +115,12 @@ GeneratorProperties createSortedGeneratorProperties(
 }
 
 QString createPropertySections(const PropertyComponentGeneratorType &propertyGenerator,
-                               const NodeMetaInfo &nodeInfo)
+                               const NodeMetaInfos &prototypeChain)
 {
     QString propertyComponents;
     propertyComponents.reserve(100000);
 
-    auto generatorProperties = createSortedGeneratorProperties(getUnmangedProperties(nodeInfo),
+    auto generatorProperties = createSortedGeneratorProperties(getUnmangedProperties(prototypeChain),
                                                                propertyGenerator);
 
     const auto begin = generatorProperties.begin();
@@ -143,12 +141,12 @@ QString createPropertySections(const PropertyComponentGeneratorType &propertyGen
 
 } // namespace
 
-PropertyEditorTemplateGenerator::PropertyEditorTemplateGenerator(
+PropertyEditorComponentGenerator::PropertyEditorComponentGenerator(
     const PropertyComponentGeneratorType &propertyGenerator)
     : m_propertyGenerator{propertyGenerator}
 {}
 
-QString PropertyEditorTemplateGenerator::create(const NodeMetaInfo &nodeInfo, bool isComponent)
+QString PropertyEditorComponentGenerator::create(const NodeMetaInfos &prototypeChain, bool isComponent)
 {
     return QString{R"xy(
       %1
@@ -171,7 +169,7 @@ QString PropertyEditorTemplateGenerator::create(const NodeMetaInfo &nodeInfo, bo
         .arg(createImports(m_propertyGenerator.imports()),
              componentButton(isComponent),
              QObject::tr("Exposed Custom Properties"),
-             createPropertySections(m_propertyGenerator, nodeInfo));
+             createPropertySections(m_propertyGenerator, prototypeChain));
 }
 
 } // namespace QmlDesigner

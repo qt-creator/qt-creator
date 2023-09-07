@@ -10,6 +10,8 @@
 
 #include <qmljs/qmljssimplereader.h>
 
+#include <QPointer>
+
 #include <optional>
 #include <variant>
 #include <vector>
@@ -36,6 +38,10 @@ public:
 
     QStringList imports() const override { return m_imports; }
 
+    void setModel(Model *model);
+
+    void refreshMetaInfos(const TypeIds &deletedTypeIds);
+
 private:
     const Entry *findEntry(const NodeMetaInfo &type) const;
     QString generateSubComponentText(Utils::SmallStringView propertyBaseName,
@@ -45,9 +51,18 @@ private:
     Property generateComplexComponent(const PropertyMetaInfo &property,
                                       const NodeMetaInfo &propertyType) const;
 
+    void setEntries(QmlJS::SimpleReaderNode::Ptr templateConfiguration,
+                    Model *model,
+                    const QString &propertyTemplatesPath);
+
 private:
     Entries m_entries;
+    TypeIds m_entryTypeIds;
     QStringList m_imports;
+    QPointer<Model> m_model;
+    QmlJS::SimpleReaderNode::Ptr m_templateConfiguration;
+    QString m_propertyTemplatesPath;
+    bool m_hasInvalidTemplates = false;
 };
 
 } // namespace QmlDesigner

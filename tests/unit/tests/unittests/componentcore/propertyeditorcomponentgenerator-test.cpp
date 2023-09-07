@@ -14,7 +14,7 @@ using BasicProperty = QmlDesigner::PropertyComponentGenerator::BasicProperty;
 using ComplexProperty = QmlDesigner::PropertyComponentGenerator::ComplexProperty;
 using QmlDesigner::PropertyMetaInfo;
 
-class PropertyEditorTemplateGenerator : public ::testing::Test
+class PropertyEditorComponentGenerator : public ::testing::Test
 {
 protected:
     QmlDesigner::NodeMetaInfo createType(Utils::SmallStringView name,
@@ -85,13 +85,13 @@ protected:
     QmlDesigner::SourceId sourceId = QmlDesigner::SourceId::create(10);
     NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{sourceId};
     NiceMock<PropertyComponentGeneratorMock> propertyGeneratorMock;
-    QmlDesigner::PropertyEditorTemplateGenerator generator{propertyGeneratorMock};
+    QmlDesigner::PropertyEditorComponentGenerator generator{propertyGeneratorMock};
     QmlDesigner::ModuleId qtQuickModuleId = projectStorageMock.createModule("QtQuick");
     QmlDesigner::NodeMetaInfo fooTypeInfo = createType("Foo");
     QmlDesigner::TypeId dummyTypeId = projectStorageMock.commonTypeCache().builtinTypeId<double>();
 };
 
-TEST_F(PropertyEditorTemplateGenerator, no_properties_and_no_imports)
+TEST_F(PropertyEditorComponentGenerator, no_properties_and_no_imports)
 {
     QString expectedText{
         R"xy(
@@ -110,12 +110,12 @@ TEST_F(PropertyEditorTemplateGenerator, no_properties_and_no_imports)
         }
       })xy"};
 
-    auto text = generator.create(fooTypeInfo, false);
+    auto text = generator.create(fooTypeInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, properties_without_component_are_not_shows)
+TEST_F(PropertyEditorComponentGenerator, properties_without_component_are_not_shows)
 {
     QString expectedText{
         R"xy(
@@ -135,12 +135,12 @@ TEST_F(PropertyEditorTemplateGenerator, properties_without_component_are_not_sho
       })xy"};
     createProperty(fooTypeInfo.id(), "x", {}, dummyTypeId);
 
-    auto text = generator.create(fooTypeInfo, false);
+    auto text = generator.create(fooTypeInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, show_component_button_for_a_component_node)
+TEST_F(PropertyEditorComponentGenerator, show_component_button_for_a_component_node)
 {
     QString expectedText{
         R"xy(
@@ -160,12 +160,12 @@ TEST_F(PropertyEditorTemplateGenerator, show_component_button_for_a_component_no
         }
       })xy"};
 
-    auto text = generator.create(fooTypeInfo, true);
+    auto text = generator.create(fooTypeInfo.selfAndPrototypes(), true);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, imports)
+TEST_F(PropertyEditorComponentGenerator, imports)
 {
     QString expectedText{
         R"xy(
@@ -187,12 +187,12 @@ TEST_F(PropertyEditorTemplateGenerator, imports)
       })xy"};
     setImports({"import QtQtuick", "import Studio 2.1"});
 
-    auto text = generator.create(fooTypeInfo, false);
+    auto text = generator.create(fooTypeInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, basic_property)
+TEST_F(PropertyEditorComponentGenerator, basic_property)
 {
     QString expectedText{
         R"xy(
@@ -220,12 +220,12 @@ TEST_F(PropertyEditorTemplateGenerator, basic_property)
       })xy"};
     createBasicProperty(fooTypeInfo.id(), "value", {}, dummyTypeId, "Double{}");
 
-    auto text = generator.create(fooTypeInfo, false);
+    auto text = generator.create(fooTypeInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, basic_properties_with_base_type)
+TEST_F(PropertyEditorComponentGenerator, basic_properties_with_base_type)
 {
     QString expectedText{
         R"xy(
@@ -256,12 +256,12 @@ TEST_F(PropertyEditorTemplateGenerator, basic_properties_with_base_type)
     auto superFooInfo = createType("SuperFoo", {fooTypeInfo.id()});
     createBasicProperty(superFooInfo.id(), "value", {}, dummyTypeId, "SuperDouble{}");
 
-    auto text = generator.create(superFooInfo, false);
+    auto text = generator.create(superFooInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator,
+TEST_F(PropertyEditorComponentGenerator,
        only_handle_basic_properties_for_types_without_specifics_or_panes)
 {
     QString expectedText{
@@ -293,12 +293,12 @@ TEST_F(PropertyEditorTemplateGenerator,
     createBasicProperty(superFooInfo.id(), "value", {}, dummyTypeId, "SuperDouble{}");
     projectStorageMock.setPropertyEditorPathId(fooTypeInfo.id(), sourceId);
 
-    auto text = generator.create(superFooInfo, false);
+    auto text = generator.create(superFooInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, order_basic_property)
+TEST_F(PropertyEditorComponentGenerator, order_basic_property)
 {
     QString expectedText{
         R"xy(
@@ -330,12 +330,12 @@ TEST_F(PropertyEditorTemplateGenerator, order_basic_property)
     createBasicProperty(fooTypeInfo.id(), "x", {}, dummyTypeId, "AnotherX{}");
     createBasicProperty(fooTypeInfo.id(), "y", {}, dummyTypeId, "AndY{}");
 
-    auto text = generator.create(fooTypeInfo, false);
+    auto text = generator.create(fooTypeInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, complex_property)
+TEST_F(PropertyEditorComponentGenerator, complex_property)
 {
     QString expectedText{
         R"xy(
@@ -356,12 +356,12 @@ TEST_F(PropertyEditorTemplateGenerator, complex_property)
       })xy"};
     createComplexProperty(fooTypeInfo.id(), "value", {}, dummyTypeId, "Complex{}");
 
-    auto text = generator.create(fooTypeInfo, false);
+    auto text = generator.create(fooTypeInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, complex_properties_with_base_type)
+TEST_F(PropertyEditorComponentGenerator, complex_properties_with_base_type)
 {
     QString expectedText{
         R"xy(
@@ -385,12 +385,12 @@ TEST_F(PropertyEditorTemplateGenerator, complex_properties_with_base_type)
     auto superFooInfo = createType("SuperFoo", {fooTypeInfo.id()});
     createComplexProperty(superFooInfo.id(), "value", {}, dummyTypeId, "SuperComplex{}");
 
-    auto text = generator.create(superFooInfo, false);
+    auto text = generator.create(superFooInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator,
+TEST_F(PropertyEditorComponentGenerator,
        only_handle_complex_properties_for_types_without_specifics_or_panes)
 {
     QString expectedText{
@@ -415,12 +415,12 @@ TEST_F(PropertyEditorTemplateGenerator,
     createComplexProperty(superFooInfo.id(), "value", {}, dummyTypeId, "SuperComplex{}");
     projectStorageMock.setPropertyEditorPathId(fooTypeInfo.id(), sourceId);
 
-    auto text = generator.create(superFooInfo, false);
+    auto text = generator.create(superFooInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, ordered_complex_property)
+TEST_F(PropertyEditorComponentGenerator, ordered_complex_property)
 {
     QString expectedText{
         R"xy(
@@ -445,12 +445,12 @@ TEST_F(PropertyEditorTemplateGenerator, ordered_complex_property)
     createComplexProperty(fooTypeInfo.id(), "font", {}, dummyTypeId, "ComplexFont{}");
     createComplexProperty(fooTypeInfo.id(), "anchors", {}, dummyTypeId, "Anchors{}");
 
-    auto text = generator.create(fooTypeInfo, false);
+    auto text = generator.create(fooTypeInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }
 
-TEST_F(PropertyEditorTemplateGenerator, basic_is_placed_before_complex_components)
+TEST_F(PropertyEditorComponentGenerator, basic_is_placed_before_complex_components)
 {
     QString expectedText{
         R"xy(
@@ -480,7 +480,7 @@ TEST_F(PropertyEditorTemplateGenerator, basic_is_placed_before_complex_component
     createBasicProperty(fooTypeInfo.id(), "x", {}, dummyTypeId, "Double{}");
     createComplexProperty(fooTypeInfo.id(), "font", {}, dummyTypeId, "Font{}");
 
-    auto text = generator.create(fooTypeInfo, false);
+    auto text = generator.create(fooTypeInfo.selfAndPrototypes(), false);
 
     ASSERT_THAT(text, StrippedStringEq(expectedText));
 }

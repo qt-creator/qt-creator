@@ -164,7 +164,7 @@ void AbstractView::modelAboutToBeDetached(Model *)
     removeModel();
 }
 
-void AbstractView::refreshMetaInfos() {}
+void AbstractView::refreshMetaInfos(const TypeIds &) {}
 
 /*!
     \enum QmlDesigner::AbstractView::PropertyChangeFlag
