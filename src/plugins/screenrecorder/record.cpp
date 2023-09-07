@@ -174,6 +174,8 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
     : StyledBar(parent)
     , m_recordFile(recordFile)
 {
+    setMinimumWidth(220);
+
     m_process = new Process(this);
     m_process->setUseCtrlCStub(true);
     m_process->setProcessMode(ProcessMode::Writer);

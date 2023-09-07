@@ -44,7 +44,6 @@ public:
         , m_recordFile("XXXXXX" + RecordWidget::recordFileExtension())
     {
         setWindowTitle(Tr::tr("Record Screen"));
-        setMinimumWidth(320);
         StyleHelper::setPanelWidget(this);
 
         m_recordFile.open();
@@ -89,6 +88,8 @@ public:
 
         m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Medium, this);
         m_spinner->hide();
+
+        layout()->setSizeConstraint(QLayout::SetFixedSize);
     }
 
 private:

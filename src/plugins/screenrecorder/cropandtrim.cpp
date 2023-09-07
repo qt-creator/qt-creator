@@ -688,6 +688,7 @@ CropAndTrimWidget::CropAndTrimWidget(QWidget *parent)
     : StyledBar(parent)
 {
     m_button = new QToolButton;
+    m_button->setText(Tr::tr("Crop and Trim..."));
 
     m_cropSizeWarningIcon = new CropSizeWarningIcon(CropSizeWarningIcon::ToolBarVariant);
 
@@ -727,17 +728,20 @@ void CropAndTrimWidget::setClip(const ClipInfo &clip)
 
 void CropAndTrimWidget::updateWidgets()
 {
-    const QString cropText =
-        !m_clipInfo.isCompleteArea(m_cropRect)
-            ? Tr::tr("Crop to %1x%2px.").arg(m_cropRect.width()).arg(m_cropRect.height())
-            : Tr::tr("Complete area.");
+    if (!m_clipInfo.isNull()) {
+        const QString cropText =
+            !m_clipInfo.isCompleteArea(m_cropRect)
+                ? Tr::tr("Crop to %1x%2px.").arg(m_cropRect.width()).arg(m_cropRect.height())
+                : Tr::tr("Complete area.");
 
-    const QString trimText =
-        !m_clipInfo.isCompleteRange(m_trimRange)
-            ? Tr::tr("Frames %1 to %2.").arg(m_trimRange.first).arg(m_trimRange.second)
-            : Tr::tr("Complete clip.");
+        const QString trimText =
+            !m_clipInfo.isCompleteRange(m_trimRange)
+                ? Tr::tr("Frames %1 to %2.").arg(m_trimRange.first).arg(m_trimRange.second)
+                : Tr::tr("Complete clip.");
 
-    m_button->setText(cropText + " " + trimText + "..");
+        m_button->setToolTip(cropText + " " + trimText);
+    }
+
     m_cropSizeWarningIcon->setCropSize(m_cropRect.size());
 }
 
