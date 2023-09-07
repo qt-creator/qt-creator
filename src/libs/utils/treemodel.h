@@ -352,9 +352,10 @@ public:
     using LessThan = std::function<bool(const QModelIndex &, const QModelIndex &)>;
     void setLessThan(const LessThan &lessThan) { m_lessThan = lessThan; }
 
-private:
+protected:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
+private:
     LessThan m_lessThan;
 };
 

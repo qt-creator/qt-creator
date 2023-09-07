@@ -3,10 +3,26 @@
 
 #pragma once
 
+#include "projectexplorer_export.h"
+
+#include <utils/treemodel.h>
+
 namespace Utils { class Id; }
 
-namespace ProjectExplorer::Internal {
+namespace ProjectExplorer {
+
+class PROJECTEXPLORER_EXPORT KitSettingsSortModel : public Utils::SortModel
+{
+public:
+    using SortModel::SortModel;
+
+private:
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
+};
+
+namespace Internal {
 
 void setSelectectKitId(const Utils::Id &kitId);
 
-} // ProjectExplorer::Internal
+} // Internal
+} // ProjectExplorer

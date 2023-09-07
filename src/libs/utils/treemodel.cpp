@@ -1203,7 +1203,7 @@ Qt::ItemFlags StaticTreeItem::flags(int column) const
 bool SortModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     if (m_lessThan)
-        return lessThan(source_left, source_right);
+        return m_lessThan(source_left, source_right);
     return caseFriendlyCompare(sourceModel()->data(source_left).toString(),
                                sourceModel()->data(source_right).toString()) < 0;
 }

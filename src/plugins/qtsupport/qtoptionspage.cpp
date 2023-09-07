@@ -14,6 +14,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/toolchain.h>
@@ -196,7 +197,7 @@ private:
     void updateVersionItem(QtVersionItem *item);
 
     TreeModel<TreeItem, TreeItem, QtVersionItem> *m_model;
-    SortModel *m_filterModel;
+    KitSettingsSortModel *m_filterModel;
     TreeItem *m_autoItem;
     TreeItem *m_manualItem;
 
@@ -313,7 +314,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_model->rootItem()->appendChild(m_autoItem);
     m_model->rootItem()->appendChild(m_manualItem);
 
-    m_filterModel = new SortModel(this);
+    m_filterModel = new KitSettingsSortModel(this);
     m_filterModel->setSourceModel(m_model);
 
     m_qtdirList->setModel(m_filterModel);

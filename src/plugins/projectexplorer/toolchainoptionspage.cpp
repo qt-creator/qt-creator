@@ -5,6 +5,7 @@
 
 #include "abi.h"
 #include "devicesupport/devicemanager.h"
+#include "kitoptionspage.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "toolchain.h"
@@ -317,7 +318,7 @@ public:
 
  private:
     TreeModel<TreeItem, ToolChainTreeItem> m_model;
-    SortModel m_sortModel;
+    KitSettingsSortModel m_sortModel;
     QList<ToolChainFactory *> m_factories;
     QTreeView *m_toolChainView;
     DetailsWidget *m_container;
