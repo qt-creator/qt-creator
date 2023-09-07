@@ -31,20 +31,11 @@ public:
     void updateDaemonStateTexts();
 
 private:
-    QLineEdit *m_repoLineEdit;
-    QLineEdit *m_tagLineEdit;
-    QLineEdit *m_idLineEdit;
-    QToolButton *m_daemonReset;
-    QLabel *m_daemonState;
-    QCheckBox *m_runAsOutsideUser;
-    QCheckBox *m_keepEntryPoint;
-    QCheckBox *m_enableLldbFlags;
-    Utils::PathChooser *m_clangdExecutable;
-
     Utils::PathListEditor *m_pathsListEdit;
-    KitDetector m_kitItemDetector;
+    QLabel *m_daemonState;
+    QToolButton *m_daemonReset;
 
-    DockerDeviceData m_data;
+    KitDetector m_kitItemDetector;
 };
 
 } // Docker::Internal
