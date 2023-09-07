@@ -612,11 +612,14 @@ public:
                                && astValue.trimmed().right(1) == u"\"";
         const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
         if (!propertyMetaInfo.isValid()) {
-            qCInfo(texttomodelMergerDebug)
-                << Q_FUNC_INFO << "Unknown property"
-                << propertyPrefix + QLatin1Char('.') + toString(propertyId) << "on line"
-                << propertyId->identifierToken.startLine << "column"
-                << propertyId->identifierToken.startColumn;
+            // Only list elements might have unknown properties.
+            if (!node.metaInfo().isQtQuickListElement()) {
+                qCInfo(texttomodelMergerDebug)
+                    << Q_FUNC_INFO << "Unknown property"
+                    << propertyPrefix + QLatin1Char('.') + toString(propertyId) << "on line"
+                    << propertyId->identifierToken.startLine << "column"
+                    << propertyId->identifierToken.startColumn;
+            }
             return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
         }
 

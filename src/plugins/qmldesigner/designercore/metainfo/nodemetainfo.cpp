@@ -2516,6 +2516,26 @@ bool NodeMetaInfo::isQtQuick3DLight() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickListElement() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQml_Models, ListElement>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick3D.ListElement");
+    }
+}
+
+bool NodeMetaInfo::isQtQuickListModel() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQml_Models, ListModel>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick3D.ListModel");
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DInstanceList() const
 {
     if constexpr (useProjectStorage()) {
