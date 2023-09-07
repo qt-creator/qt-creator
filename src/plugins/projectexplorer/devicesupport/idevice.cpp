@@ -123,9 +123,13 @@ namespace Internal {
 class IDevicePrivate
 {
 public:
-    IDevicePrivate() = default;
+    IDevicePrivate(std::unique_ptr<DeviceSettings> s)
+        : settings(std::move(s))
+    {
+        if (!settings)
+            settings = std::make_unique<DeviceSettings>();
+    }
 
-    DisplayName displayName;
     QString displayType;
     Id type;
     IDevice::Origin origin = IDevice::AutoDetected;
@@ -148,12 +152,22 @@ public:
     QList<IDevice::DeviceAction> deviceActions;
     Store extraData;
     IDevice::OpenTerminal openTerminal;
+
+    std::unique_ptr<DeviceSettings> settings;
 };
 } // namespace Internal
 
+DeviceSettings::DeviceSettings()
+{
+    displayName.setSettingsKey(DisplayNameKey);
+    displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+    displayName.setLabelText(Tr::tr("Name:"));
+}
+
 DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
 
-IDevice::IDevice() : d(new Internal::IDevicePrivate)
+IDevice::IDevice(std::unique_ptr<DeviceSettings> settings)
+    : d(new Internal::IDevicePrivate(std::move(settings)))
 {
 }
 
@@ -264,17 +278,17 @@ Environment IDevice::systemEnvironment() const
 
 QString IDevice::displayName() const
 {
-    return d->displayName.value();
+    return d->settings->displayName();
 }
 
 void IDevice::setDisplayName(const QString &name)
 {
-    d->displayName.setValue(name);
+    settings()->displayName.setValue(name);
 }
 
 void IDevice::setDefaultDisplayName(const QString &name)
 {
-    d->displayName.setDefaultValue(name);
+    settings()->displayName.setDefaultValue(name);
 }
 
 QString IDevice::displayType() const
@@ -439,7 +453,8 @@ Id IDevice::idFromMap(const Store &map)
 void IDevice::fromMap(const Store &map)
 {
     d->type = typeFromMap(map);
-    d->displayName.fromMap(map, DisplayNameKey);
+    settings()->fromMap(map);
+
     d->id = Id::fromSetting(map.value(IdKey));
     d->osType = osTypeFromString(map.value(ClientOsTypeKey, osTypeToString(OsTypeLinux)).toString());
     if (!d->id.isValid())
@@ -487,7 +502,8 @@ void IDevice::fromMap(const Store &map)
 Store IDevice::toMap() const
 {
     Store map;
-    d->displayName.toMap(map, DisplayNameKey);
+    d->settings->toMap(map);
+
     map.insert(TypeKey, d->type.toString());
     map.insert(ClientOsTypeKey, osTypeToString(d->osType));
     map.insert(IdKey, d->id.toSetting());
@@ -526,6 +542,11 @@ IDevice::Ptr IDevice::clone() const
     device->d->osType = d->osType;
     device->fromMap(toMap());
     return device;
+}
+
+DeviceSettings *IDevice::settings() const
+{
+    return d->settings.get();
 }
 
 QString IDevice::deviceStateToString() const

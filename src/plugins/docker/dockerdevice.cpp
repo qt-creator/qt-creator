@@ -128,6 +128,12 @@ public:
     DockerDevicePrivate *m_dev = nullptr;
 };
 
+class DockerDeviceSettings : public DeviceSettings
+{
+public:
+    DockerDeviceSettings() { displayName.setDefaultValue(Tr::tr("Docker Image")); }
+};
+
 class DockerDevicePrivate : public QObject
 {
 public:
@@ -410,12 +416,12 @@ QString DockerDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
 }
 
 DockerDevice::DockerDevice(const DockerDeviceData &data)
-    : d(new DockerDevicePrivate(this, data))
+    : ProjectExplorer::IDevice(std::make_unique<DockerDeviceSettings>())
+    , d(new DockerDevicePrivate(this, data))
 {
     setFileAccess(&d->m_fileAccess);
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeLinux);
-    setDefaultDisplayName(Tr::tr("Docker Image"));
     setupId(IDevice::ManuallyAdded);
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);

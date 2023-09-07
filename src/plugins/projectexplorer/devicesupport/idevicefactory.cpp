@@ -69,7 +69,6 @@ IDevice::Ptr IDeviceFactory::create() const
     IDevice::Ptr device = m_creator();
     if (!device) // e.g. Cancel used on the dialog to create a device
         return {};
-    device->setDefaultDisplayName(displayName());
     return device;
 }
 
@@ -80,7 +79,7 @@ IDevice::Ptr IDeviceFactory::construct() const
 
     IDevice::Ptr device = m_constructor();
     QTC_ASSERT(device, return {});
-    device->setDefaultDisplayName(displayName());
+    device->settings()->displayName.setDefaultValue(displayName());
     return device;
 }
 

@@ -8,10 +8,11 @@
 
 #include <solutions/tasking/tasktree.h>
 
-#include <utils/id.h>
+#include <utils/aspects.h>
 #include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/id.h>
 #include <utils/store.h>
 
 #include <QAbstractSocket>
@@ -83,6 +84,14 @@ public:
     std::function<QList<Utils::Port>(const QByteArray &commandOutput)> parsePorts;
 };
 
+class PROJECTEXPLORER_EXPORT DeviceSettings : public Utils::AspectContainer
+{
+public:
+    DeviceSettings();
+
+    Utils::StringAspect displayName{this};
+};
+
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice : public QEnableSharedFromThis<IDevice>
 {
@@ -98,6 +107,8 @@ public:
     virtual ~IDevice();
 
     Ptr clone() const;
+
+    DeviceSettings *settings() const;
 
     QString displayName() const;
     void setDisplayName(const QString &name);
@@ -216,7 +227,7 @@ public:
     virtual void checkOsType() {}
 
 protected:
-    IDevice();
+    IDevice(std::unique_ptr<DeviceSettings> settings = nullptr);
 
     virtual void fromMap(const Utils::Store &map);
     virtual Utils::Store toMap() const;
