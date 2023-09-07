@@ -30,7 +30,7 @@
             language to implement the application logic: C++, JavaScript, or
             Python.
 
-        \li \l{Using Version Control Systems}
+        \li \l{Version Control Systems}
 
             The recommended way to set up a project is to use a version control
             system. Store and edit only project source files and configuration

@@ -135,7 +135,7 @@
                 {Nim or Nimble} applications (experimental)
         \row
             \li Imported project
-            \li Import projects from a supported \l{Using Version Control Systems}
+            \li Import projects from a supported \l{Version Control Systems}
                 {version control system}, such as Bazaar, CVS, Git, Mercurial, or
                 Subversion.
 

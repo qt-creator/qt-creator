@@ -24,18 +24,6 @@
         \li \l{Managing Projects}
         \list
             \li \l{Creating Projects}
-            \li \l{Using Version Control Systems}
-            \list
-                \li \l{Using Bazaar}
-                \li \l{Using ClearCase}
-                \li \l{Using CVS}
-                \li \l{Using Fossil}
-                \li \l{Using Git}
-                \li \l{Using GitLab}
-                \li \l{Using Mercurial}
-                \li \l{Using Perforce}
-                \li \l{Using Subversion}
-            \endlist
             \li \l{Configuring Projects}
             \list
                 \li \l{Adding Kits}
@@ -231,6 +219,7 @@
                     \li \l {Create files}
                     \li \l {Create OpenGL fragment and vertex shaders}
                     \li \l {Create resource files}
+                    \li \l {Create VCS repositories for new projects}
                     \li \l {Develop Qt for Python applications}
                     \li \l {Open projects}
                     \li \l {Select the build system}
@@ -257,6 +246,8 @@
                     \li \l {Install plugins}
                     \li \l {Manage data collection}
                     \li \l {Run \QC from the command line}
+                    \li \l {Set up version control systems}
+                    \li \l {Use common VCS functions}
                     \li \l {Use external text editors}
                     \li \l {Use external tools}
                     \li \l {Use Qt Linguist}
@@ -323,6 +314,18 @@
                             \li \l {Desktop Platforms}
                             \li \l {Embedded Platforms}
                             \li \l {Mobile Platforms}
+                        \endlist
+                    \li \l{Version Control Systems}
+                        \list
+                            \li \l {Bazaar}
+                            \li \l {ClearCase}
+                            \li \l {CVS}
+                            \li \l {Fossil}
+                            \li \l {Git}
+                            \li \l {GitLab}
+                            \li \l {Mercurial}
+                            \li \l {Perforce}
+                            \li \l {Subversion}
                         \endlist
                 \endlist
     \endlist

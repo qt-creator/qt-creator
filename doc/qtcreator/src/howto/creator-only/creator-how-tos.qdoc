@@ -53,6 +53,7 @@
         \li \l {Create files}
         \li \l {Create OpenGL fragment and vertex shaders}
         \li \l {Create resource files}
+        \li \l {Create VCS repositories for new projects}
         \li \l {Develop Qt for Python applications}
         \li \l {Open projects}
         \li \l {Specify project contents}
@@ -83,6 +84,8 @@
         \li \l {Install plugins}
         \li \l {Manage data collection}
         \li \l {Run \QC from the command line}
+        \li \l {Set up version control systems}
+        \li \l {Use common VCS functions}
         \li \l {Use external text editors}
         \li \l {Use external tools}
         \li \l {Use Qt Linguist}

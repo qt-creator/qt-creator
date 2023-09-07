@@ -1,15 +1,18 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-vcs-git.html
     \page creator-vcs-gitlab.html
-    \nextpage creator-vcs-mercurial.html
+    \previouspage creator-reference.html
 
-    \title Using GitLab
+    \ingroup creator-reference-vcs
+
+    \title GitLab
+
+    \brief Additional GitLab functions.
 
     GitLab is a DevOps tool developed by GitLab. You can clone projects from
-    GitLab servers and use \l{Using Git}{Git} to manage your local and remote
+    GitLab servers and use \l{Git} to manage your local and remote
     repositories.
 
     To enable the experimental GitLab plugin, select \uicontrol Help >
@@ -121,4 +124,7 @@
 
     To stop the reception of event notifications, select
     \uicontrol {Unlink from GitLab}.
+
+    \sa {Set up version control systems}, {Use common VCS functions},
+    {Version Control Systems}, {Git}
 */

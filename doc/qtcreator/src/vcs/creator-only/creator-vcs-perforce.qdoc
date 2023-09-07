@@ -8,11 +8,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-vcs-mercurial.html
     \page creator-vcs-perforce.html
-    \nextpage creator-vcs-subversion.html
+    \previouspage creator-reference.html
 
-    \title Using Perforce
+    \ingroup creator-reference-vcs
+
+    \title Perforce
+
+    \brief Additional Perforce functions.
 
     Perforce is a fast software configuration management system developed by
     Perforce Software.
@@ -49,7 +52,7 @@
     \section1 Editing Files
 
     In addition to the standard version control system functions described in
-    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \l {Use common VCS Functions}, you can select \uicontrol Tools >
     \uicontrol Perforce > \uicontrol {Edit File} to open a file for editing
     within the client workspace. By default, files are automatically opened for
     editing. To disable this feature, select \uicontrol Edit >
@@ -65,4 +68,7 @@
 
     To view information about change lists and the files in them, select
     \uicontrol Tools > \uicontrol Perforce > \uicontrol Describe.
+
+    \sa {Set up version control systems}, {Use common VCS functions},
+    {Version Control Systems}
 */

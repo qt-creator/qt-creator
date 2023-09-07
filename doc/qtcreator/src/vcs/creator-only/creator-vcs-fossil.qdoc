@@ -3,10 +3,13 @@
 
 /*!
     \page creator-vcs-fossil.html
-    \previouspage creator-vcs-cvs.html
-    \nextpage creator-vcs-git.html
+    \previouspage creator-reference.html
 
-    \title Using Fossil
+    \ingroup creator-reference-vcs
+
+    \title Fossil
+
+    \brief Additional Fossil functions.
 
     Fossil is an open source distributed version control system, designed
     and developed by the creator of SQLite. A stand-alone Fossil executable
@@ -44,7 +47,7 @@
     \section1 Additional Fossil Functions
 
     In addition to the standard version control system functions described in
-    \l {Using Version Control Systems}, the \uicontrol Fossil submenu has
+    \l {Version Control Systems}, the \uicontrol Fossil submenu has
     the following items:
 
     \table
@@ -89,4 +92,7 @@
             a commit or update and automatic push after a commit or tag or branch
             creation.
     \endlist
+
+    \sa {Set up version control systems}, {Use common VCS functions},
+    {Version Control Systems}
 */

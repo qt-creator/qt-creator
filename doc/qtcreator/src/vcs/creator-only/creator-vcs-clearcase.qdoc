@@ -8,11 +8,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-vcs-bazaar.html
     \page creator-vcs-clearcase.html
-    \nextpage creator-vcs-cvs.html
+    \previouspage creator-reference.html
 
-    \title Using ClearCase
+    \ingroup creator-reference-vcs
+
+    \title ClearCase
+
+    \brief Additional ClearCase functions.
 
     IBM Rational ClearCase is a version control, workspace management, parallel
     development support, and build automation solution developed by IBM. Use the
@@ -44,7 +47,7 @@
     \section1 Checking out and Checking in
 
     In addition to the standard version control system functions described in
-    \l {Using Common Functions}, you can check out and check in files.
+    \l {Use common VCS Functions}, you can check out and check in files.
 
     To create a writable copy of a file, select \uicontrol Tools >
     \uicontrol ClearCase > \uicontrol {Check Out}. If you check out files in a
@@ -92,4 +95,7 @@
     Specify the number of event records to show in \uicontrol {History count}.
 
     Set a timeout for version control operations in \uicontrol Timeout.
+
+    \sa {Set up version control systems}, {Use common VCS functions},
+    {Version Control Systems}
 */

@@ -12,22 +12,23 @@
     \if defined(qtdesignstudio)
     \previouspage studio-developer-topics.html
     \nextpage studio-porting-projects.html
-    \else
-    \previouspage creator-vcs-fossil.html
-    \nextpage creator-vcs-gitlab.html
-    \endif
 
     \title Using Git
+    \else
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-vcs
+
+    \title Git
+
+    \brief Additional Git functions.
+    \endif
 
     \l{http://git-scm.com/}{Git} is a fast decentralized version control system.
     Git is available for Windows, Linux, and \macos.
 
     You can use the \l{http://code.google.com/p/gerrit/}{Gerrit} code review
     tool for projects that use Git.
-
-    \if defined(qtdesignstudio)
-    \include creator-vcs-options.qdocinc vcs options
-    \endif
 
     \section1 Using Git for Windows
 
@@ -613,4 +614,8 @@
     To resolve merge conflicts, select \uicontrol Tools > \uicontrol Git >
     \uicontrol {Git Tools} > \uicontrol {Merge Tool}. This menu item is
     visible only when you have merge conflicts to resolve.
+
+    \if defined(qtcreator)
+    \sa {Set up version control systems}, {Version Control Systems}
+    \endif
 */
