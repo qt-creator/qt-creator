@@ -295,7 +295,10 @@ public:
     {
         static_assert(((std::is_same_v<TypeId, TypeIds>) &&...), "Parameter must be a TypeId!");
 
-        auto range = selectPrototypeAndSelfIdsStatement.template rangeWithTransaction<TypeId>(typeId);
+        if (((typeId == baseTypeIds) || ...))
+            return true;
+
+        auto range = selectPrototypeIdsStatement.template rangeWithTransaction<TypeId>(typeId);
 
         for ([[maybe_unused]] TypeId currentTypeId : range) {
             if (((currentTypeId == baseTypeIds) || ...))
@@ -404,7 +407,7 @@ public:
 
     auto fetchPrototypes(TypeId type)
     {
-        return selectPrototypeIdsStatement.template rangeWithTransaction<TypeId>(type);
+        return selectPrototypeIdsInOrderStatement.template rangeWithTransaction<TypeId>(type);
     }
 
     SourceContextId fetchSourceContextIdUnguarded(Utils::SmallStringView sourceContextPath)
@@ -2836,7 +2839,7 @@ public:
         "  FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
-    mutable ReadStatement<1, 1> selectPrototypeIdsStatement{
+    mutable ReadStatement<1, 1> selectPrototypeIdsInOrderStatement{
         "WITH RECURSIVE "
         "  all_prototype_and_extension(typeId, prototypeId) AS ("
         "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
@@ -3428,14 +3431,14 @@ public:
         "        typeChain AS tc USING(typeId)) "
         "SELECT typeId FROM typeChain ORDER BY level",
         database};
-    mutable ReadStatement<1, 1> selectPrototypeAndSelfIdsStatement{
+    mutable ReadStatement<1, 1> selectPrototypeIdsStatement{
         "WITH RECURSIVE "
         "  all_prototype_and_extension(typeId, prototypeId) AS ("
         "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
         "    UNION ALL "
         "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeSelection(typeId) AS ("
-        "      VALUES(?1) "
+        "      SELECT prototypeId FROM all_prototype_and_extension WHERE typeId=?1 "
         "    UNION ALL "
         "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeSelection "
         "        USING(typeId))"
