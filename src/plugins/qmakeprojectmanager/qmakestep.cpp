@@ -471,7 +471,7 @@ QWidget *QMakeStep::createConfigWidget()
     connect(abisListWidget, &QListWidget::itemChanged, this, [this] {
         if (m_ignoreChanges.isLocked())
             return;
-        updateAbiWidgets();
+        abisChanged();
         if (QmakeBuildConfiguration *bc = qmakeBuildConfiguration())
             BuildManager::buildLists({bc->cleanSteps()});
     });

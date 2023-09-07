@@ -2048,14 +2048,14 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         return nullptr;
 
     if (!value) {
-        // We omit M16 messages if the type using ImmediateProperties
-        // Ideally, we should obtain them through metaobject information
-        const bool omitMessage = !m_typeStack.isEmpty()
-                                 && ((m_typeStack.last() == "PropertyChanges")
-                                     || m_typeStack.last() == "Binding")
-                                 && !m_idStack.isEmpty() && m_idStack.last().contains(propertyName);
-        if (!omitMessage)
+        // We omit M16 messages if the enclosing type have ImmediateProperties classinfo.
+        // Ideally, we should get this information from metaobject by checking the index
+        // metaObject->indexOfClassInfo("ImmediatePropertyNames"), for now it's hard coded.
+        if ( !m_typeStack.isEmpty()
+                                 && ((m_typeStack.last() != "PropertyChanges")
+                                     && m_typeStack.last() != "Binding")) {
             addMessage(ErrInvalidPropertyName, id->identifierToken, propertyName);
+        }
         return nullptr;
     }
 
