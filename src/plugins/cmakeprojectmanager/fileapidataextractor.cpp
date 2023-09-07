@@ -332,6 +332,12 @@ bool isPchFile(const FilePath &buildDirectory, const FilePath &path)
     return path.isChildOf(buildDirectory) && path.fileName().startsWith("cmake_pch");
 }
 
+bool isUnityFile(const FilePath &buildDirectory, const FilePath &path)
+{
+    return path.isChildOf(buildDirectory) && path.parentDir().fileName() == "Unity"
+           && path.fileName().startsWith("unity_");
+}
+
 RawProjectParts generateRawProjectParts(const PreprocessedData &input,
                                         const FilePath &sourceDirectory,
                                         const FilePath &buildDirectory)
@@ -381,11 +387,20 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
 
             // Get all sources from the compiler group, except generated sources
             QStringList sources;
+            auto addToSources = [sourceDirectory, &sources](const QString &source) {
+                const FilePath sourcePath = FilePath::fromString(source);
+                if (sourcePath.isAbsolutePath())
+                    sources.push_back(source);
+                else
+                    sources.push_back(
+                        sourceDirectory.pathAppended(source).absoluteFilePath().path());
+            };
+
             for (auto idx: ci.sources) {
                 SourceInfo si = t.sources.at(idx);
                 if (si.isGenerated)
                     continue;
-                sources.push_back(sourceDirectory.pathAppended(si.path).absoluteFilePath().path());
+                addToSources(si.path);
             }
 
             // If we are not in a pch compiler group, add all the headers that are not generated
@@ -393,27 +408,45 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
                 return isPchFile(buildDirectory, FilePath::fromString(path));
             });
 
+            const bool hasUnitySources = allOf(sources, [buildDirectory](const QString &path) {
+                return isUnityFile(buildDirectory, FilePath::fromString(path));
+            });
+
             QString headerMimeType;
-            if (ci.language == "C")
+            QString sourceMimeType;
+            if (ci.language == "C") {
                 headerMimeType = CppEditor::Constants::C_HEADER_MIMETYPE;
-            else if (ci.language == "CXX")
+                sourceMimeType = CppEditor::Constants::C_SOURCE_MIMETYPE;
+            } else if (ci.language == "CXX") {
                 headerMimeType = CppEditor::Constants::CPP_HEADER_MIMETYPE;
+                sourceMimeType = CppEditor::Constants::CPP_SOURCE_MIMETYPE;
+            }
             if (!hasPchSource) {
                 for (const SourceInfo &si : t.sources) {
                     if (si.isGenerated)
                         continue;
                     const auto mimeTypes = Utils::mimeTypesForFileName(si.path);
-                    for (const auto &mime : mimeTypes)
-                        if (mime.inherits(headerMimeType))
-                            sources.push_back(
-                                sourceDirectory.pathAppended(si.path).absoluteFilePath().path());
+                    for (const auto &mime : mimeTypes) {
+                        const bool headerType = mime.inherits(headerMimeType);
+                        const bool sourceUnityType = hasUnitySources ? mime.inherits(sourceMimeType)
+                                                                     : false;
+                        if (headerType || sourceUnityType)
+                            addToSources(si.path);
+                    }
                 }
             }
+            sources.removeDuplicates();
 
-            // Set project files except pch files
-            rpp.setFiles(Utils::filtered(sources, [buildDirectory](const QString &path) {
-                             return !isPchFile(buildDirectory, FilePath::fromString(path));
-                         }), {}, [headerMimeType](const QString &path) {
+            // Set project files except pch / unity files
+            rpp.setFiles(Utils::filtered(sources,
+                                         [buildDirectory](const QString &path) {
+                                             return !isPchFile(buildDirectory,
+                                                               FilePath::fromString(path))
+                                                    && !isUnityFile(buildDirectory,
+                                                                    FilePath::fromString(path));
+                                         }),
+                         {},
+                         [headerMimeType](const QString &path) {
                              // Similar to ProjectFile::classify but classify headers with language
                              // of compile group instead of ambiguous header
                              if (path.endsWith(".h"))
@@ -561,9 +594,9 @@ void addCompileGroups(ProjectNode *targetRoot,
         auto node = std::make_unique<FileNode>(sourcePath, Node::fileTypeForFileName(sourcePath));
         node->setIsGenerated(si.isGenerated);
 
-        // CMake pch files are generated at configured time, but not marked as generated
+        // CMake pch / unity files are generated at configured time, but not marked as generated
         // so that a "clean" step won't remove them and at a subsequent build they won't exist.
-        if (isPchFile(buildDirectory, sourcePath))
+        if (isPchFile(buildDirectory, sourcePath) || isUnityFile(buildDirectory, sourcePath))
             node->setIsGenerated(true);
 
         // Where does the file node need to go?
