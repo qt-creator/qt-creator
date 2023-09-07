@@ -202,15 +202,7 @@ void installDebugpyPackage(const FilePath &pythonPath)
     CommandLine cmd{pythonPath, {"-m", "pip", "install", "debugpy"}};
     Process process;
     process.setCommand(cmd);
-
-    QObject::connect(&process, &Process::textOnStandardError, [](const QString &text) {
-        MessageManager::writeSilently("Python debugger: debugpy package installation failed" + text);
-    });
-
-    QObject::connect(&process, &Process::done, []() {
-        MessageManager::writeSilently("Python debugger: debugpy package installed.");
-    });
-
+    process.setTerminalMode(TerminalMode::Run);
     process.start();
     process.waitForFinished();
 }
