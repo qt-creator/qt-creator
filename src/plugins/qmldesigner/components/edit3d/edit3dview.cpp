@@ -14,6 +14,7 @@
 #include "edit3dwidget.h"
 #include "materialutils.h"
 #include "metainfo.h"
+#include "nodeabstractproperty.h"
 #include "nodehints.h"
 #include "nodeinstanceview.h"
 #include "qmldesignerconstants.h"
@@ -190,10 +191,34 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     else
         m_particlesPlayAction->action()->setChecked(true);
 
+    // Syncing background color only makes sense for children of View3D instances
+    bool syncValue = false;
+    bool syncEnabled = false;
+    bool desiredSyncValue = false;
     if (sceneState.contains(syncBgColorKey))
-        m_syncBackgroundColorAction->action()->setChecked(sceneState[syncBgColorKey].toBool());
-    else
-        m_syncBackgroundColorAction->action()->setChecked(true);
+        desiredSyncValue = sceneState[syncBgColorKey].toBool();
+    ModelNode checkNode = active3DSceneNode();
+    while (checkNode.isValid()) {
+        if (checkNode.metaInfo().isQtQuick3DView3D()) {
+            syncValue = desiredSyncValue;
+            syncEnabled = true;
+            break;
+        }
+        if (checkNode.hasParentProperty())
+            checkNode = checkNode.parentProperty().parentModelNode();
+        else
+            break;
+    }
+
+    if (syncValue != desiredSyncValue) {
+        // Update actual toolstate as well if we overrode it.
+        QTimer::singleShot(0, this, [this, syncValue]() {
+            emitView3DAction(View3DActionType::SyncBackgroundColor, syncValue);
+        });
+    }
+
+    m_syncBackgroundColorAction->action()->setChecked(syncValue);
+    m_syncBackgroundColorAction->action()->setEnabled(syncEnabled);
 
     // Selection context change updates visible and enabled states
     SelectionContext selectionContext(this);
