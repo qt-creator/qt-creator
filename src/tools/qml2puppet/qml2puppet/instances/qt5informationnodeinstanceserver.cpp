@@ -2501,6 +2501,14 @@ void Qt5InformationNodeInstanceServer::changeState(const ChangeStateCommand &com
 
 void Qt5InformationNodeInstanceServer::removeProperties(const RemovePropertiesCommand &command)
 {
+    const QVector<PropertyAbstractContainer> props = command.properties();
+    for (const PropertyAbstractContainer &container : props) {
+        if (container.name() == "clearColor") {
+            setSceneEnvironmentColor(PropertyValueContainer(container.instanceId(),
+                                                            container.name(), {}, {}));
+        }
+    }
+
     Qt5NodeInstanceServer::removeProperties(command);
 
     render3DEditView();
