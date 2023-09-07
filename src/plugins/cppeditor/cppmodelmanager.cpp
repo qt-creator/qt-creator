@@ -1465,8 +1465,11 @@ void CppModelManager::recalculateProjectPartMappings()
     for (const ProjectData &projectData : std::as_const(d->m_projectData)) {
         for (const ProjectPart::ConstPtr &projectPart : projectData.projectInfo->projectParts()) {
             d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
-            for (const ProjectFile &cxxFile : projectPart->files)
-                d->m_fileToProjectParts[cxxFile.path.canonicalPath()].append(projectPart);
+            for (const ProjectFile &cxxFile : projectPart->files) {
+                d->m_fileToProjectParts[cxxFile.path].append(projectPart);
+                if (FilePath canonical = cxxFile.path.canonicalPath(); canonical != cxxFile.path)
+                    d->m_fileToProjectParts[canonical].append(projectPart);
+            }
         }
     }
 
@@ -1639,8 +1642,16 @@ ProjectPart::ConstPtr CppModelManager::projectPartForId(const QString &projectPa
 
 QList<ProjectPart::ConstPtr> CppModelManager::projectPart(const FilePath &fileName)
 {
-    QReadLocker locker(&d->m_projectLock);
-    return d->m_fileToProjectParts.value(fileName.canonicalPath());
+    {
+        QReadLocker locker(&d->m_projectLock);
+        auto it = d->m_fileToProjectParts.find(fileName);
+        if (it != d->m_fileToProjectParts.end())
+            return it.value();
+    }
+    const FilePath canonicalPath = fileName.canonicalPath();
+    QWriteLocker locker(&d->m_projectLock);
+    auto it = d->m_fileToProjectParts.insert(fileName, d->m_fileToProjectParts.value(canonicalPath));
+    return it.value();
 }
 
 QList<ProjectPart::ConstPtr> CppModelManager::projectPartFromDependencies(
@@ -1651,7 +1662,7 @@ QList<ProjectPart::ConstPtr> CppModelManager::projectPartFromDependencies(
 
     QReadLocker locker(&d->m_projectLock);
     for (const FilePath &dep : deps)
-        parts.unite(Utils::toSet(d->m_fileToProjectParts.value(dep.canonicalPath())));
+        parts.unite(Utils::toSet(projectPart(dep)));
 
     return parts.values();
 }
