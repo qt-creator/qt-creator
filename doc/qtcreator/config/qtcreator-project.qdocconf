@@ -27,6 +27,7 @@ depends +=    qtwidgets \
               qtcore \
               qtqml \
               qtquick \
+              qtquickcontrols \
               qmake \
               qtdesigner \
               qtdoc \
