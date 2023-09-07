@@ -2,11 +2,6 @@
    file Copyright.txt or https://cmake.org/licensing for details.  */
 #pragma once
 
-#if defined(__linux)
-/* Needed for glibc < 2.12 */
-// NOLINTNEXTLINE(bugprone-reserved-identifier)
-#  define _XOPEN_SOURCE 600
-#endif
 #if !defined(_POSIX_C_SOURCE) && !defined(_WIN32) && !defined(__sun) &&       \
   !defined(__OpenBSD__)
 /* POSIX APIs are needed */
