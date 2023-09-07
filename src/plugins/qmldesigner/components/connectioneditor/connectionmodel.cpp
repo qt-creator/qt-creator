@@ -758,6 +758,14 @@ void ConnectionModelBackendDelegate::removeElse()
     setupHandlerAndStatements();
 }
 
+void ConnectionModelBackendDelegate::setNewSource(const QString &newSource)
+{
+    setSource(newSource);
+    commitNewSource(newSource);
+    setupHandlerAndStatements();
+    setupCondition();
+}
+
 int ConnectionModelBackendDelegate::currentRow() const
 {
     return m_currentRow;

@@ -71,7 +71,7 @@ QString AbstractEditorDialog::editorValue() const
 void AbstractEditorDialog::setEditorValue(const QString &text)
 {
     if (m_editorWidget)
-        m_editorWidget->document()->setPlainText(text);
+        m_editorWidget->setEditorTextWithIndentation(text);
 }
 
 void AbstractEditorDialog::unregisterAutoCompletion()

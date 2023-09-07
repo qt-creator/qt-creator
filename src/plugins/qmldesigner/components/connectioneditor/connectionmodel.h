@@ -284,6 +284,8 @@ public:
     Q_INVOKABLE void addElse();
     Q_INVOKABLE void removeElse();
 
+    Q_INVOKABLE void setNewSource(const QString &newSource);
+
     void setCurrentRow(int i);
     void update();
 

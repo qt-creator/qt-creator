@@ -204,7 +204,48 @@ Column {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.edit_medium
             tooltip: qsTr("Add something.")
-            onClicked: console.log("OPEN EDITOR")
+            onClicked: {
+                expressionDialogLoader.show()
+            }
+        }
+
+        Loader {
+            id: expressionDialogLoader
+            parent: editor
+            anchors.fill: parent
+            visible: false
+            active: visible
+
+            function show() {
+                expressionDialogLoader.visible = true
+            }
+
+            sourceComponent: Item {
+                id: bindingEditorParent
+
+                Component.onCompleted: {
+                    bindingEditor.showWidget()
+                    bindingEditor.text = backend.source
+                    bindingEditor.showControls(false)
+                    bindingEditor.setMultilne(true)
+                    bindingEditor.updateWindowName()
+                }
+
+                ActionEditor {
+                    id: bindingEditor
+
+                    onRejected: {
+                        hideWidget()
+                        expressionDialogLoader.visible = false
+                    }
+
+                    onAccepted: {
+                        backend.setNewSource(bindingEditor.text)
+                        hideWidget()
+                        expressionDialogLoader.visible = false
+                    }
+                }
+            }
         }
     }
 }

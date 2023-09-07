@@ -83,6 +83,18 @@ void ActionEditor::hideWidget()
     }
 }
 
+void ActionEditor::showControls(bool show)
+{
+    if (m_dialog)
+        m_dialog->showControls(show);
+}
+
+void QmlDesigner::ActionEditor::setMultilne(bool multiline)
+{
+    if (m_dialog)
+        m_dialog->setMultiline(multiline);
+}
+
 QString ActionEditor::connectionValue() const
 {
     if (!m_dialog)
