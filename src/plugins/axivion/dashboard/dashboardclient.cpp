@@ -81,6 +81,7 @@ QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const
     request.setRawHeader(QByteArrayLiteral(u8"X-Axivion-User-Agent"), ua);
     std::shared_ptr<QNetworkReply> reply{ this->m_networkAccessManager.get(request), deleteLater };
     return QtFuture::connect(reply.get(), &QNetworkReply::finished)
+        .onCanceled(reply.get(), [reply] { reply->abort(); })
         .then(RawBodyReader(reply))
         .then(QtFuture::Launch::Async, &RawBodyParser<Dto::ProjectInfoDto>);
 }
