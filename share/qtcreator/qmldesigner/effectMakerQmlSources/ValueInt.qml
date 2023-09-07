@@ -31,6 +31,7 @@ Row {
         visible: width > 20
         labels: false
         actionIndicatorVisible: false
+        handleLabelVisible: false
         from: uniformMinValue
         to: uniformMaxValue
         value: uniformValue

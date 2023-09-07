@@ -28,6 +28,7 @@ T.Slider {
 
     property bool hover: false // This property is used to indicate the global hover state
     property bool edit: control.activeFocus
+    property bool handleLabelVisible: true
 
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: control.style.actionIndicatorSize.width
@@ -83,6 +84,8 @@ T.Slider {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: sliderHandleLabelBackground.bottom
 
+            visible: control.handleLabelVisible
+
             ShapePath {
                 id: sliderHandleLabelPointerPath
                 strokeColor: "transparent"
@@ -112,6 +115,7 @@ T.Slider {
             anchors.bottom: parent.top
             anchors.bottomMargin: control.style.sliderMargin
             color: control.style.interaction
+            visible: control.handleLabelVisible
 
             Text {
                 id: sliderHandleLabel

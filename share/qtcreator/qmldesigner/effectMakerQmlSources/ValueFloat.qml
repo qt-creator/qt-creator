@@ -34,6 +34,7 @@ Row {
         labels: false
         decimals: 2
         actionIndicatorVisible: false
+        handleLabelVisible: false
         from: uniformMinValue
         to: uniformMaxValue
         value: uniformValue
