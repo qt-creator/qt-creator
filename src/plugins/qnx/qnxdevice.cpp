@@ -62,7 +62,7 @@ public:
     QnxDevice()
     {
         setDisplayType(Tr::tr("QNX"));
-        setDefaultDisplayName(Tr::tr("QNX Device"));
+        settings()->displayName.setDefaultValue(Tr::tr("QNX Device"));
         setOsType(OsTypeOtherUnix);
         setupId(IDevice::ManuallyAdded);
         setType(Constants::QNX_QNX_OS_TYPE);

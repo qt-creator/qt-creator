@@ -111,8 +111,6 @@ public:
     DeviceSettings *settings() const;
 
     QString displayName() const;
-    void setDisplayName(const QString &name);
-    void setDefaultDisplayName(const QString &name);
 
     // Provide some information on the device suitable for formated
     // output, e.g. in tool tips. Get a list of name value pairs.

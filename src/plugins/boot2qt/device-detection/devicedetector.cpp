@@ -82,7 +82,7 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
         const QString name = Tr::tr("Qt Debug Bridge device %1").arg(serial);
         QdbDevice::Ptr device = QdbDevice::create();
         device->setupId(IDevice::AutoDetected, deviceId);
-        device->setDisplayName(name);
+        device->settings()->displayName.setValue(name);
         device->setType(Qdb::Constants::QdbLinuxOsType);
         device->setMachineType(IDevice::Hardware);
 

@@ -425,7 +425,8 @@ DockerDevice::DockerDevice(const DockerDeviceData &data)
     setupId(IDevice::ManuallyAdded);
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
-    setDisplayName(Tr::tr("Docker Image \"%1\" (%2)").arg(data.repoAndTag()).arg(data.imageId));
+    settings()->displayName.setDefaultValue(
+        Tr::tr("Docker Image \"%1\" (%2)").arg(data.repoAndTag()).arg(data.imageId));
     setAllowEmptyCommand(true);
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {

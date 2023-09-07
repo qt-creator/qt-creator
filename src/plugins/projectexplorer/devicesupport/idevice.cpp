@@ -308,23 +308,9 @@ Environment IDevice::systemEnvironment() const
     return access->deviceEnvironment();
 }
 
-/*!
-    Specifies a free-text name for the device to be displayed in GUI elements.
-*/
-
 QString IDevice::displayName() const
 {
     return d->settings->displayName();
-}
-
-void IDevice::setDisplayName(const QString &name)
-{
-    settings()->displayName.setValue(name);
-}
-
-void IDevice::setDefaultDisplayName(const QString &name)
-{
-    settings()->displayName.setDefaultValue(name);
 }
 
 QString IDevice::displayType() const

@@ -151,7 +151,7 @@ AndroidDevice::AndroidDevice()
 {
     setupId(IDevice::AutoDetected, Constants::ANDROID_DEVICE_ID);
     setType(Constants::ANDROID_DEVICE_TYPE);
-    setDefaultDisplayName(Tr::tr("Run on Android"));
+    settings()->displayName.setDefaultValue(Tr::tr("Run on Android"));
     setDisplayType(Tr::tr("Android"));
     setMachineType(IDevice::Hardware);
     setOsType(OsType::OsTypeOtherUnix);
@@ -711,7 +711,7 @@ void AndroidDeviceManager::HandleAvdsListChange()
 
         AndroidDevice *newDev = new AndroidDevice();
         newDev->setupId(IDevice::AutoDetected, deviceId);
-        newDev->setDisplayName(displayName);
+        newDev->settings()->displayName.setValue(displayName);
         newDev->setMachineType(item.type);
         newDev->setDeviceState(item.state);
 
@@ -792,7 +792,7 @@ void AndroidDeviceManager::HandleDevicesListChange(const QString &serialNumber)
         } else {
             AndroidDevice *newDev = new AndroidDevice();
             newDev->setupId(IDevice::AutoDetected, id);
-            newDev->setDisplayName(displayName);
+            newDev->settings()->displayName.setValue(displayName);
             newDev->setMachineType(IDevice::Hardware);
             newDev->setDeviceState(state);
 

@@ -1319,7 +1319,7 @@ void BuildDeviceKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *ex
     });
     expander->registerVariable("BuildDevice:Name", Tr::tr("Build device name"), [kit] {
         const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
-        return device ? device->displayName() : QString();
+        return device ? device->settings()->displayName() : QString();
     });
     expander
         ->registerFileVariables("BuildDevice::Root", Tr::tr("Build device root directory"), [kit] {
