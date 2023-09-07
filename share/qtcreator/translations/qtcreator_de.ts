@@ -12437,7 +12437,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
-        <translation>Die entfernte ausführbare Datei muss eingestellt sein um eine benutzerdefinierte enternte Ausführungskonfiguration zu verwenden.</translation>
+        <translation>Die entfernte ausführbare Datei muss gesetzt sein, um eine benutzerdefinierte entfernte Ausführungskonfiguration zu verwenden.</translation>
     </message>
     <message>
         <source>Custom Executable</source>
@@ -14425,7 +14425,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Set as the default CMake Tool to use when creating a new kit or when no value is set.</source>
-        <translation>Als vorgegebenes CMake-Werkzeug einstellen, das verwendet wird, wenn eine neues Kit erstellt wird oder kein Wert eingestellt ist.</translation>
+        <translation>Als vorgegebenes CMake-Werkzeug einstellen, das verwendet wird, wenn ein neues Kit erstellt wird oder kein Wert gesetzt ist.</translation>
     </message>
     <message>
         <source>Clone of %1</source>
@@ -14481,7 +14481,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>A CMake tool must be set up for building. Configure a CMake tool in the kit options.</source>
-        <translation>Zum Erstellen muss ein CMake-Werkzeug eingestellt sein. Die Konfiguration erfolgt in den Kit Einstellungen.</translation>
+        <translation>Zum Erstellen muss ein CMake-Werkzeug gesetzt sein. Die Konfiguration erfolgt in den Kit Einstellungen.</translation>
     </message>
     <message>
         <source>There is a CMakeCache.txt file in &quot;%1&quot;, which suggest an in-source build was done before. You are now building in &quot;%2&quot;, and the CMakeCache.txt file might confuse CMake.</source>
@@ -32854,11 +32854,11 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>No device chosen. Select %1.</source>
-        <translation>Kein Gerät eingestellt. Wählen Sie %1 aus.</translation>
+        <translation>Kein Gerät ausgewählt. Wählen Sie %1 aus.</translation>
     </message>
     <message>
         <source>No device chosen. Enable developer mode on a device.</source>
-        <translation>Kein Gerät eingestellt. Aktivieren Sie den Entwicklungsmodus auf einem Gerät.</translation>
+        <translation>Kein Gerät ausgewählt. Aktivieren Sie den Entwicklungsmodus auf einem Gerät.</translation>
     </message>
     <message>
         <source>No device available.</source>
@@ -34785,7 +34785,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Set as the default Meson executable to use when creating a new kit or when no value is set.</source>
-        <translation>Als vorgegebenes Meson-Werkzeug einstellen, das verwendet wird, wenn eine neues Kit erstellt wird oder kein Wert eingestellt ist.</translation>
+        <translation>Als vorgegebenes Meson-Werkzeug einstellen, das verwendet wird, wenn ein neues Kit erstellt wird oder kein Wert gesetzt ist.</translation>
     </message>
 </context>
 <context>
@@ -41386,7 +41386,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>No device set.</source>
-        <translation>Es ist kein Gerät eingestellt.</translation>
+        <translation>Es ist kein Gerät gesetzt.</translation>
     </message>
     <message>
         <source>Device is incompatible with this kit.</source>
@@ -43230,7 +43230,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
-        <translation>&lt;b&gt;qmake:&lt;/b&gt; Es ist keine Qt-Version eingestellt. qmake kann nicht ausgeführt werden.</translation>
+        <translation>&lt;b&gt;qmake:&lt;/b&gt; Es ist keine Qt-Version gesetzt. qmake kann nicht ausgeführt werden.</translation>
     </message>
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
@@ -46061,7 +46061,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Remote path not set</source>
-        <translation>Der entfernte Pfad ist nicht eingestellt</translation>
+        <translation>Der entfernte Pfad ist nicht gesetzt</translation>
     </message>
     <message>
         <source>Executable on host:</source>
@@ -46983,7 +46983,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>No device configuration set.</source>
-        <translation>Es ist keine Gerätekonfiguration eingestellt.</translation>
+        <translation>Es ist keine Gerätekonfiguration gesetzt.</translation>
     </message>
     <message>
         <source>Cannot deploy: %1</source>
@@ -47504,7 +47504,7 @@ Der Kontrollprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
-        <translation>Die entfernte ausführbare Datei muss eingestellt sein um eine benutzerdefinierte enternte Ausführungskonfiguration zu verwenden.</translation>
+        <translation>Die entfernte ausführbare Datei muss gesetzt sein um eine benutzerdefinierte entfernte Ausführungskonfiguration zu verwenden.</translation>
     </message>
     <message>
         <source>Custom Executable</source>

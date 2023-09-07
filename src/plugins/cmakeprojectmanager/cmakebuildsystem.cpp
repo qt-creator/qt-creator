@@ -285,6 +285,8 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
         const int targetDefinitionLine = target.backtrace.last().line;
 
         // Have a fresh look at the CMake file, not relying on a cached value
+        Core::DocumentManager::saveModifiedDocumentSilently(
+            Core::DocumentModel::documentForFilePath(targetCMakeFile));
         expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
         cmListFile cmakeListFile;
         std::string errorString;
@@ -410,6 +412,8 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
     const FilePath targetCMakeFile = target.backtrace.last().path;
 
     // Have a fresh look at the CMake file, not relying on a cached value
+    Core::DocumentManager::saveModifiedDocumentSilently(
+        Core::DocumentModel::documentForFilePath(targetCMakeFile));
     expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
     cmListFile cmakeListFile;
     std::string errorString;

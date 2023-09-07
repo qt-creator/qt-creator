@@ -198,15 +198,16 @@ static QString initialStagingDir(Kit *kit)
 static bool supportsStageForInstallation(const Kit *kit)
 {
     IDeviceConstPtr runDevice = DeviceKitAspect::device(kit);
+    Id runDeviceType = DeviceTypeKitAspect::deviceTypeId(kit);
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit);
-    QTC_ASSERT(runDevice, return false);
+    QTC_ASSERT(runDeviceType.isValid(), return false);
     QTC_ASSERT(buildDevice, return false);
-    return runDevice->id() != buildDevice->id()
-           && runDevice->type() != Android::Constants::ANDROID_DEVICE_TYPE
-           && runDevice->type() != Ios::Constants::IOS_DEVICE_TYPE
-           && runDevice->type() != Ios::Constants::IOS_SIMULATOR_TYPE
-           && runDevice->type() != BareMetal::Constants::BareMetalOsType
-           && runDevice->type() != WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
+    return (!runDevice || runDevice->id() != buildDevice->id())
+           && runDeviceType != Android::Constants::ANDROID_DEVICE_TYPE
+           && runDeviceType != Ios::Constants::IOS_DEVICE_TYPE
+           && runDeviceType != Ios::Constants::IOS_SIMULATOR_TYPE
+           && runDeviceType != BareMetal::Constants::BareMetalOsType
+           && runDeviceType != WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
 }
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
