@@ -31,6 +31,7 @@ public:
     ~DeviceManager() override;
 
     static DeviceManager *instance();
+    static DeviceManager *clonedInstance();
 
     int deviceCount() const;
     IDevice::ConstPtr deviceAt(int index) const;

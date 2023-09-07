@@ -115,6 +115,11 @@ DeviceManager *DeviceManager::cloneInstance()
     return DeviceManagerPrivate::clonedInstance;
 }
 
+DeviceManager *DeviceManager::clonedInstance()
+{
+    return DeviceManagerPrivate::clonedInstance;
+}
+
 void DeviceManager::copy(const DeviceManager *source, DeviceManager *target, bool deep)
 {
     if (deep) {

@@ -43,36 +43,6 @@ namespace ProjectExplorer::Internal {
 
 const char LastDeviceIndexKey[] = "LastDisplayedMaemoDeviceConfig";
 
-class NameValidator : public QValidator
-{
-public:
-    NameValidator(const DeviceManager *deviceManager, QWidget *parent = nullptr)
-        : QValidator(parent), m_deviceManager(deviceManager)
-    {
-    }
-
-    void setDisplayName(const QString &name) { m_oldName = name; }
-
-    State validate(QString &input, int & /* pos */) const override
-    {
-        if (input.trimmed().isEmpty()
-                || (input != m_oldName && m_deviceManager->hasDevice(input)))
-            return Intermediate;
-        return Acceptable;
-    }
-
-    void fixup(QString &input) const override
-    {
-        int dummy = 0;
-        if (validate(input, dummy) != Acceptable)
-            input = m_oldName;
-    }
-
-private:
-    QString m_oldName;
-    const DeviceManager * const m_deviceManager;
-};
-
 class DeviceSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -92,7 +62,6 @@ private:
     void currentDeviceChanged(int index);
     void addDevice();
     void removeDevice();
-    void deviceNameEditingFinished();
     void setDefaultDevice();
     void testDevice();
     void handleProcessListRequested();
@@ -104,19 +73,16 @@ private:
     int currentIndex() const;
     void clearDetails();
     QString parseTestOutput();
-    void fillInValues();
     void updateDeviceFromUi();
 
     DeviceManager * const m_deviceManager;
     DeviceManagerModel * const m_deviceManagerModel;
-    NameValidator * const m_nameValidator;
     QList<QPushButton *> m_additionalActionButtons;
     IDeviceWidget *m_configWidget;
 
     QLabel *m_configurationLabel;
     QComboBox *m_configurationComboBox;
     QGroupBox *m_generalGroupBox;
-    QLineEdit *m_nameLineEdit;
     QLabel *m_osTypeValueLabel;
     QLabel *m_autoDetectionLabel;
     QLabel *m_deviceStateIconLabel;
@@ -125,20 +91,19 @@ private:
     QPushButton *m_removeConfigButton;
     QPushButton *m_defaultDeviceButton;
     QVBoxLayout *m_buttonsLayout;
+    QWidget *m_deviceNameEditWidget;
+    QFormLayout *m_generalFormLayout;
 };
 
 DeviceSettingsWidget::DeviceSettingsWidget()
-    : m_deviceManager(DeviceManager::cloneInstance()),
-      m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this)),
-      m_nameValidator(new NameValidator(m_deviceManager, this)),
-      m_configWidget(nullptr)
+    : m_deviceManager(DeviceManager::cloneInstance())
+    , m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this))
+    , m_configWidget(nullptr)
 {
     m_configurationLabel = new QLabel(Tr::tr("&Device:"));
     m_configurationComboBox = new QComboBox;
     m_configurationComboBox->setModel(m_deviceManagerModel);
     m_generalGroupBox = new QGroupBox(Tr::tr("General"));
-    m_nameLineEdit = new QLineEdit;
-    m_nameLineEdit->setValidator(m_nameValidator);
     m_osTypeValueLabel = new QLabel;
     m_autoDetectionLabel = new QLabel;
     m_deviceStateIconLabel = new QLabel;
@@ -192,14 +157,18 @@ DeviceSettingsWidget::DeviceSettingsWidget()
         m_osSpecificGroupBox,
     }.attachTo(scrollAreaWidget);
 
+    // Just a placeholder for the device name edit widget.
+    m_deviceNameEditWidget = new QWidget();
+
+    // clang-format off
     Form {
-        Tr::tr("&Name:"), m_nameLineEdit, br,
+        bindTo(&m_generalFormLayout),
+        Tr::tr("&Name:"), m_deviceNameEditWidget, br,
         Tr::tr("Type:"), m_osTypeValueLabel, br,
         Tr::tr("Auto-detected:"), m_autoDetectionLabel, br,
         Tr::tr("Current state:"), Row { m_deviceStateIconLabel, m_deviceStateTextLabel, st, }, br,
     }.attachTo(m_generalGroupBox);
 
-    // clang-format off
     Row {
         Column {
             Form { m_configurationLabel, m_configurationComboBox, br, },
@@ -234,8 +203,6 @@ DeviceSettingsWidget::DeviceSettingsWidget()
             this, &DeviceSettingsWidget::setDefaultDevice);
     connect(m_removeConfigButton, &QAbstractButton::clicked,
             this, &DeviceSettingsWidget::removeDevice);
-    connect(m_nameLineEdit, &QLineEdit::editingFinished,
-            this, &DeviceSettingsWidget::deviceNameEditingFinished);
     connect(m_deviceManager, &DeviceManager::deviceUpdated,
             this, &DeviceSettingsWidget::handleDeviceUpdated);
 }
@@ -281,7 +248,6 @@ void DeviceSettingsWidget::displayCurrent()
     m_osTypeValueLabel->setText(current->displayType());
     m_autoDetectionLabel->setText(current->isAutoDetected()
             ? Tr::tr("Yes (id is \"%1\")").arg(current->id().toString()) : Tr::tr("No"));
-    m_nameValidator->setDisplayName(current->displayName());
     m_deviceStateIconLabel->show();
     switch (current->deviceState()) {
     case IDevice::DeviceReadyToUse:
@@ -301,7 +267,6 @@ void DeviceSettingsWidget::displayCurrent()
 
     m_removeConfigButton->setEnabled(!current->isAutoDetected()
             || current->deviceState() == IDevice::DeviceDisconnected);
-    fillInValues();
 }
 
 void DeviceSettingsWidget::setDeviceInfoWidgetsEnabled(bool enable)
@@ -312,15 +277,9 @@ void DeviceSettingsWidget::setDeviceInfoWidgetsEnabled(bool enable)
     m_osSpecificGroupBox->setEnabled(enable);
 }
 
-void DeviceSettingsWidget::fillInValues()
-{
-    const IDevice::ConstPtr &current = currentDevice();
-    m_nameLineEdit->setText(current->displayName());
-}
-
 void DeviceSettingsWidget::updateDeviceFromUi()
 {
-    deviceNameEditingFinished();
+    currentDevice()->settings()->apply();
     if (m_configWidget)
         m_configWidget->updateDeviceFromUi();
 }
@@ -343,16 +302,6 @@ IDevice::ConstPtr DeviceSettingsWidget::currentDevice() const
     return m_deviceManagerModel->device(currentIndex());
 }
 
-void DeviceSettingsWidget::deviceNameEditingFinished()
-{
-    if (m_configurationComboBox->count() == 0)
-        return;
-
-    const QString &newName = m_nameLineEdit->text();
-    m_deviceManager->mutableDevice(currentDevice()->id())->setDisplayName(newName);
-    m_nameValidator->setDisplayName(newName);
-    m_deviceManagerModel->updateDevice(currentDevice()->id());
-}
 
 void DeviceSettingsWidget::setDefaultDevice()
 {
@@ -391,6 +340,15 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         m_defaultDeviceButton->setEnabled(false);
         return;
     }
+
+    Layouting::Column item{Layouting::noMargin()};
+    device->settings()->displayName.addToLayout(item);
+    QWidget *newEdit = item.emerge();
+    m_generalFormLayout->replaceWidget(m_deviceNameEditWidget, newEdit);
+
+    delete m_deviceNameEditWidget;
+    m_deviceNameEditWidget = newEdit;
+
     setDeviceInfoWidgetsEnabled(true);
     m_removeConfigButton->setEnabled(true);
 
@@ -435,7 +393,6 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
 
 void DeviceSettingsWidget::clearDetails()
 {
-    m_nameLineEdit->clear();
     m_osTypeValueLabel->clear();
     m_autoDetectionLabel->clear();
 }

@@ -159,9 +159,45 @@ public:
 
 DeviceSettings::DeviceSettings()
 {
+    setAutoApply(false);
+
     displayName.setSettingsKey(DisplayNameKey);
     displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
-    displayName.setLabelText(Tr::tr("Name:"));
+
+    auto validateDisplayName = [](const QString &old,
+                                  const QString &newValue) -> expected_str<void> {
+        if (old == newValue)
+            return {};
+
+        if (newValue.trimmed().isEmpty())
+            return make_unexpected(Tr::tr("The device name cannot be empty."));
+
+        if (DeviceManager::clonedInstance()->hasDevice(newValue))
+            return make_unexpected(Tr::tr("A device with this name already exists."));
+
+        return {};
+    };
+
+    displayName.setValidationFunction(
+        [this, validateDisplayName](FancyLineEdit *edit, QString *errorMsg) -> bool {
+            auto result = validateDisplayName(displayName.value(), edit->text());
+            if (result)
+                return true;
+
+            if (errorMsg)
+                *errorMsg = result.error();
+
+            return false;
+        });
+
+    displayName.setValueAcceptor(
+        [validateDisplayName](const QString &old,
+                              const QString &newValue) -> std::optional<QString> {
+            if (validateDisplayName(old, newValue))
+                return std::nullopt;
+
+            return old;
+        });
 }
 
 DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
