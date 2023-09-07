@@ -240,6 +240,11 @@ QStringList MainWindow::additionalAboutInformation() const
     return m_aboutInformation;
 }
 
+void MainWindow::clearAboutInformation()
+{
+    m_aboutInformation.clear();
+}
+
 void MainWindow::appendAboutInformation(const QString &line)
 {
     m_aboutInformation.append(line);

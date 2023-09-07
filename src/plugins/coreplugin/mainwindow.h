@@ -83,6 +83,7 @@ public:
     void setOverrideColor(const QColor &color);
 
     QStringList additionalAboutInformation() const;
+    void clearAboutInformation();
     void appendAboutInformation(const QString &line);
 
     void addPreCloseListener(const std::function<bool()> &listener);

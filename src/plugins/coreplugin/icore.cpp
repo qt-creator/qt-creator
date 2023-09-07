@@ -941,6 +941,14 @@ QStringList ICore::additionalAboutInformation()
 /*!
     \internal
 */
+void ICore::clearAboutInformation()
+{
+    m_mainwindow->clearAboutInformation();
+}
+
+/*!
+    \internal
+*/
 void ICore::appendAboutInformation(const QString &line)
 {
     m_mainwindow->appendAboutInformation(line);

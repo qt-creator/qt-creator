@@ -135,6 +135,7 @@ signals:
 public:
     /* internal use */
     static QStringList additionalAboutInformation();
+    static void clearAboutInformation();
     static void appendAboutInformation(const QString &line);
     static QString systemInformation();
     static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
