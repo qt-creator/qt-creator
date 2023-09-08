@@ -14,7 +14,17 @@ namespace QmlDesigner {
 class Edit3DViewConfig
 {
 public:
-    static QList<QColor> loadColor(const char key[])
+    static QColor loadColor(const char key[])
+    {
+        QVariant var = QmlDesignerPlugin::settings().value(key);
+
+        if (!var.isValid())
+            return {};
+
+        return QColor{var.value<QString>()};
+    }
+
+    static QList<QColor> loadColors(const char key[])
     {
         QVariant var = QmlDesignerPlugin::settings().value(key);
 

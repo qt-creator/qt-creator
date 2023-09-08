@@ -38,7 +38,7 @@ QColorDialog *BackgroundColorSelection::createColorDialog(QWidget *parent,
     dialog->setModal(true);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-    QList<QColor> oldColorConfig = Edit3DViewConfig::loadColor(key);
+    QList<QColor> oldColorConfig = Edit3DViewConfig::loadColors(key);
 
     dialog->show();
 

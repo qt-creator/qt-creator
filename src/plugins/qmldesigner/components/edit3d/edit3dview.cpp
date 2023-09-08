@@ -237,7 +237,7 @@ void Edit3DView::modelAttached(Model *model)
                                      QVariant::fromValue(Edit3DViewConfig::loadColor(
                                          DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR)));
     rootModelNode().setAuxiliaryData(edit3dBgColorProperty,
-                                     QVariant::fromValue(Edit3DViewConfig::loadColor(
+                                     QVariant::fromValue(Edit3DViewConfig::loadColors(
                                          DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR)));
 
     checkImports();
