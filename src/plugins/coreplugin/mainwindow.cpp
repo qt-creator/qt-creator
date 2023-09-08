@@ -526,6 +526,11 @@ void MainWindow::registerDefaultContainers()
     ac->touchBar()->setApplicationTouchBar();
 }
 
+static QMenuBar *globalMenuBar()
+{
+    return ActionManager::actionContainer(Constants::MENU_BAR)->menuBar();
+}
+
 void MainWindow::registerDefaultActions()
 {
     ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
@@ -836,12 +841,12 @@ void MainWindow::registerDefaultActions()
     m_toggleRightSideBarButton->setEnabled(false);
 
     // Show Menubar Action
-    if (menuBar() && !menuBar()->isNativeMenuBar()) {
+    if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
         m_toggleMenubarAction = new QAction(Tr::tr("Show Menubar"), this);
         m_toggleMenubarAction->setCheckable(true);
         cmd = ActionManager::registerAction(m_toggleMenubarAction, Constants::TOGGLE_MENUBAR);
         cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+M")));
-        connect(m_toggleMenubarAction, &QAction::toggled, this, [this, cmd](bool visible) {
+        connect(m_toggleMenubarAction, &QAction::toggled, this, [cmd](bool visible) {
             if (!visible) {
                 CheckableMessageBox::information(
                     Core::ICore::dialogParent(),
@@ -851,7 +856,7 @@ void MainWindow::registerDefaultActions()
                         + cmd->keySequence().toString(QKeySequence::NativeText),
                     QString("ToogleMenuBarHint"));
             }
-            menuBar()->setVisible(visible);
+            globalMenuBar()->setVisible(visible);
         });
         mview->addAction(cmd, Constants::G_VIEW_VIEWS);
     }
@@ -1207,10 +1212,10 @@ void MainWindow::readSettings()
         updateModeSelectorStyleMenu();
     }
 
-    if (menuBar() && !menuBar()->isNativeMenuBar()) {
+    if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
         const bool isVisible = settings->value(menubarVisibleKey, true).toBool();
 
-        menuBar()->setVisible(isVisible);
+        globalMenuBar()->setVisible(isVisible);
         if (m_toggleMenubarAction)
             m_toggleMenubarAction->setChecked(isVisible);
     }
@@ -1233,8 +1238,8 @@ void MainWindow::saveSettings()
                                       StyleHelper::requestedBaseColor(),
                                       QColor(StyleHelper::DEFAULT_BASE_COLOR));
 
-    if (menuBar() && !menuBar()->isNativeMenuBar())
-        settings->setValue(menubarVisibleKey, menuBar()->isVisible());
+    if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar())
+        settings->setValue(menubarVisibleKey, globalMenuBar()->isVisible());
 
     settings->endGroup();
 
