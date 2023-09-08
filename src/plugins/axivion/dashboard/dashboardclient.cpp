@@ -70,7 +70,12 @@ static Utils::expected_str<T> RawBodyParser(RawBody rawBody)
 QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const QString &projectName)
 {
     const AxivionServer &server = settings().server;
-    QUrl url { server.dashboard + QStringLiteral(u"/api/projects/") + QUrl::toPercentEncoding(projectName) };
+    QString dashboard = server.dashboard;
+    if (!dashboard.endsWith(QLatin1Char('/')))
+        dashboard += QLatin1Char('/');
+    QUrl url = QUrl(dashboard)
+        .resolved(QUrl(QStringLiteral(u"api/projects/")))
+        .resolved(QUrl(projectName));
     QNetworkRequest request{ url };
     request.setRawHeader(QByteArrayLiteral(u8"Authorization"),
                          QByteArrayLiteral(u8"AxToken ") + server.token.toUtf8());
