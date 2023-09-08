@@ -69,6 +69,7 @@ public:
 
     static QString stringFromType(Uniform::Type type);
     static Uniform::Type typeFromString(const QString &typeString);
+    static QString typeToProperty(Uniform::Type type);
 
 signals:
     void uniformValueChanged();

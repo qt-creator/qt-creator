@@ -298,4 +298,27 @@ Uniform::Type Uniform::typeFromString(const QString &typeString)
     return Uniform::Type::Float;
 }
 
+QString Uniform::typeToProperty(Uniform::Type type)
+{
+    if (type == Uniform::Type::Bool)
+        return "bool";
+    else if (type == Uniform::Type::Int)
+        return "int";
+    else if (type == Uniform::Type::Float)
+        return "real";
+    else if (type == Uniform::Type::Vec2)
+        return "point";
+    else if (type == Uniform::Type::Vec3)
+        return "vector3d";
+    else if (type == Uniform::Type::Vec4)
+        return "vector4d";
+    else if (type == Uniform::Type::Color)
+        return "color";
+    else if (type == Uniform::Type::Sampler || type == Uniform::Type::Define)
+        return "var";
+
+    qWarning() << QString("Unhandled const variable type: %1").arg(int(type)).toLatin1();
+    return QString();
+}
+
 } // namespace QmlDesigner

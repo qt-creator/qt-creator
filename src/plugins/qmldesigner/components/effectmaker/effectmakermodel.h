@@ -53,6 +53,11 @@ public:
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);
 
+    QString fragmentShader() const;
+    void setFragmentShader(const QString &newFragmentShader);
+    QString vertexShader() const;
+    void setVertexShader(const QString &newVertexShader);
+
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
@@ -88,7 +93,10 @@ private:
     void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
     void resetEffectError(int type);
 
+    QString valueAsString(const Uniform &uniform);
+    QString valueAsBinding(const Uniform &uniform);
     QString valueAsVariable(const Uniform &uniform);
+    QString getImageElementName(const Uniform &uniform);
     const QString getConstVariables();
     const QString getDefineProperties();
     int getTagIndex(const QStringList &code, const QString &tag);
@@ -101,6 +109,7 @@ private:
     QString getCustomShaderVaryings(bool outState);
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
+    void updateCustomUniforms();
     void bakeShaders();
 
     QList<CompositionNode *> m_nodes;
@@ -116,6 +125,12 @@ private:
     QString m_vertexShader;
     QStringList m_defaultRootVertexShader;
     QStringList m_defaultRootFragmentShader;
+    // Used in exported QML, at root of the file
+    QString m_exportedRootPropertiesString;
+    // Used in exported QML, at ShaderEffect component of the file
+    QString m_exportedEffectPropertiesString;
+    // Used in preview QML, at ShaderEffect component of the file
+    QString m_previewEffectPropertiesString;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

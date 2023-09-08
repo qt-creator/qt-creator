@@ -97,6 +97,32 @@ void EffectMakerModel::removeNode(int idx)
         setIsEmpty(true);
 }
 
+QString EffectMakerModel::fragmentShader() const
+{
+    return m_fragmentShader;
+}
+
+void EffectMakerModel::setFragmentShader(const QString &newFragmentShader)
+{
+    if (m_fragmentShader == newFragmentShader)
+        return;
+
+    m_fragmentShader = newFragmentShader;
+}
+
+QString EffectMakerModel::vertexShader() const
+{
+    return m_vertexShader;
+}
+
+void EffectMakerModel::setVertexShader(const QString &newVertexShader)
+{
+    if (m_vertexShader == newVertexShader)
+        return;
+
+    m_vertexShader = newVertexShader;
+}
+
 const QList<Uniform *> EffectMakerModel::allUniforms()
 {
     QList<Uniform *> uniforms = {};
@@ -265,6 +291,72 @@ void EffectMakerModel::resetEffectError(int type)
     }
 }
 
+// Get value in QML format that used for exports
+QString EffectMakerModel::valueAsString(const Uniform &uniform)
+{
+    if (uniform.type() == Uniform::Type::Bool) {
+        return uniform.value().toBool() ? QString("true") : QString("false");
+    } else if (uniform.type() == Uniform::Type::Int) {
+        return QString::number(uniform.value().toInt());
+    } else if (uniform.type() == Uniform::Type::Float) {
+        return QString::number(uniform.value().toDouble());
+    } else if (uniform.type() == Uniform::Type::Vec2) {
+        QVector2D v2 = uniform.value().value<QVector2D>();
+        return QString("Qt.point(%1, %2)").arg(v2.x(), v2.y());
+    } else if (uniform.type() == Uniform::Type::Vec3) {
+        QVector3D v3 = uniform.value().value<QVector3D>();
+        return QString("Qt.vector3d(%1, %2, %3)").arg(v3.x(), v3.y(), v3.z());
+    } else if (uniform.type() == Uniform::Type::Vec4) {
+        QVector4D v4 = uniform.value().value<QVector4D>();
+        return QString("Qt.vector4d(%1, %2, %3, %4)").arg(v4.x(), v4.y(), v4.z(), v4.w());
+    } else if (uniform.type() == Uniform::Type::Color) {
+        QColor c = uniform.value().value<QColor>();
+        return QString("Qt.rgba(%1, %2, %3, %4)").arg(c.redF(), c.greenF(), c.blueF(), c.alphaF());
+    } else if (uniform.type() == Uniform::Type::Sampler) {
+        return getImageElementName(uniform);
+    } else if (uniform.type() == Uniform::Type::Define) {
+        return uniform.value().toString();
+    } else {
+        qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
+        return QString();
+    }
+}
+
+// Get value in QML binding that used for previews
+QString EffectMakerModel::valueAsBinding(const Uniform &uniform)
+{
+    if (uniform.type() == Uniform::Type::Bool || uniform.type() == Uniform::Type::Int
+        || uniform.type() == Uniform::Type::Float || uniform.type() == Uniform::Type::Define) {
+        return "g_propertyData." + uniform.name();
+    } else if (uniform.type() == Uniform::Type::Vec2) {
+        QString sx = QString("g_propertyData.%1.x").arg(uniform.name());
+        QString sy = QString("g_propertyData.%1.y").arg(uniform.name());
+        return QString("Qt.point(%1, %2)").arg(sx, sy);
+    } else if (uniform.type() == Uniform::Type::Vec3) {
+        QString sx = QString("g_propertyData.%1.x").arg(uniform.name());
+        QString sy = QString("g_propertyData.%1.y").arg(uniform.name());
+        QString sz = QString("g_propertyData.%1.z").arg(uniform.name());
+        return QString("Qt.vector3d(%1, %2, %3)").arg(sx, sy, sz);
+    } else if (uniform.type() == Uniform::Type::Vec4) {
+        QString sx = QString("g_propertyData.%1.x").arg(uniform.name());
+        QString sy = QString("g_propertyData.%1.y").arg(uniform.name());
+        QString sz = QString("g_propertyData.%1.z").arg(uniform.name());
+        QString sw = QString("g_propertyData.%1.w").arg(uniform.name());
+        return QString("Qt.vector4d(%1, %2, %3, %4)").arg(sx, sy, sz, sw);
+    } else if (uniform.type() == Uniform::Type::Color) {
+        QString sr = QString("g_propertyData.%1.r").arg(uniform.name());
+        QString sg = QString("g_propertyData.%1.g").arg(uniform.name());
+        QString sb = QString("g_propertyData.%1.b").arg(uniform.name());
+        QString sa = QString("g_propertyData.%1.a").arg(uniform.name());
+        return QString("Qt.rgba(%1, %2, %3, %4)").arg(sr, sg, sb, sa);
+    } else if (uniform.type() == Uniform::Type::Sampler) {
+        return getImageElementName(uniform);
+    } else {
+        qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
+        return QString();
+    }
+}
+
 // Get value in GLSL format that is used for non-exported const properties
 QString EffectMakerModel::valueAsVariable(const Uniform &uniform)
 {
@@ -290,6 +382,14 @@ QString EffectMakerModel::valueAsVariable(const Uniform &uniform)
         qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
         return QString();
     }
+}
+
+// Return name for the image property Image element
+QString EffectMakerModel::getImageElementName(const Uniform &uniform)
+{
+    // TODO
+    Q_UNUSED(uniform)
+    return {};
 }
 
 const QString EffectMakerModel::getConstVariables()
@@ -562,6 +662,72 @@ QString EffectMakerModel::generateFragmentShader(bool includeUniforms)
     return s;
 }
 
+// Generates string of the custom properties (uniforms) into ShaderEffect component
+// Also generates QML images elements for samplers.
+void EffectMakerModel::updateCustomUniforms()
+{
+    QString exportedRootPropertiesString;
+    QString previewEffectPropertiesString;
+    QString exportedEffectPropertiesString;
+
+    const QList<Uniform *> uniforms = allUniforms();
+    for (Uniform *uniform : uniforms) {
+        // TODO: Check if uniform is already added.
+        const bool isDefine = uniform->type() == Uniform::Type::Define;
+        QString type = Uniform::typeToProperty(uniform->type());
+        QString value = valueAsString(*uniform);
+        QString bindedValue = valueAsBinding(*uniform);
+        // When user has set custom uniform value, use it as-is
+        if (uniform->useCustomValue()) {
+            value = uniform->customValue();
+            bindedValue = value;
+        }
+        // Note: Define type properties appear also as QML properties (in preview) in case QML side
+        // needs to use them. This is used at least by BlurHelper BLUR_HELPER_MAX_LEVEL.
+        QString propertyName = isDefine ? uniform->name().toLower() : uniform->name();
+        if (!uniform->useCustomValue() && !isDefine && !uniform->description().isEmpty()) {
+            // When exporting, add API documentation for properties
+            const QStringList descriptionLines = uniform->description().split('\n');
+            for (const QString &line : descriptionLines) {
+                if (line.trimmed().isEmpty())
+                    exportedRootPropertiesString += QStringLiteral("    //\n");
+                else
+                    exportedRootPropertiesString += QStringLiteral("    // ") + line + '\n';
+            }
+        }
+        QString valueString = value.isEmpty() ? QString() : QString(": %1").arg(value);
+        QString bindedValueString = bindedValue.isEmpty() ? QString() : QString(": %1").arg(bindedValue);
+        // Custom values are not readonly, others inside the effect can be
+        QString readOnly = uniform->useCustomValue() ? QString() : QStringLiteral("readonly ");
+        previewEffectPropertiesString += "    " + readOnly + "property " + type + " "
+                                         + propertyName + bindedValueString + '\n';
+        // Define type properties are not added into exports
+        if (!isDefine) {
+            if (uniform->useCustomValue()) {
+                // Custom values are only inside the effect, with description comments
+                if (!uniform->description().isEmpty()) {
+                    const QStringList descriptionLines = uniform->description().split('\n');
+                    for (const QString &line : descriptionLines)
+                        exportedEffectPropertiesString += QStringLiteral("        // ") + line + '\n';
+                }
+                exportedEffectPropertiesString += QStringLiteral("        ") + readOnly
+                                                  + "property " + type + " " + propertyName
+                                                  + bindedValueString + '\n';
+            } else {
+                // Custom values are not added into root
+                exportedRootPropertiesString += "    property " + type + " " + propertyName
+                                                + valueString + '\n';
+                exportedEffectPropertiesString += QStringLiteral("        ")
+                                                  + readOnly + "property alias " + propertyName
+                                                  + ": rootItem." + uniform->name() + '\n';
+            }
+        }
+    }
+
+    // See if any of the properties changed
+    // TODO
+}
+
 void EffectMakerModel::bakeShaders()
 {
     resetEffectError(ErrorPreprocessor);
@@ -572,7 +738,13 @@ void EffectMakerModel::bakeShaders()
 
     setShadersUpToDate(false);
 
-    // TODO: Compilation starts here
+    // First update the features based on shader content
+    // This will make sure that next calls to "generate" will produce correct uniforms.
+    m_shaderFeatures.update(generateVertexShader(false), generateFragmentShader(false), m_previewEffectPropertiesString);
+
+    updateCustomUniforms();
+
+    // TODO: Shaders baking
 }
 
 bool EffectMakerModel::shadersUpToDate() const
