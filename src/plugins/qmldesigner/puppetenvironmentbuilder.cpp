@@ -52,6 +52,7 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
     addImportPaths();
     addCustomFileSelectors();
     addDisableDeferredProperties();
+    addResolveUrlsOnAssignment();
 
     qCInfo(puppetEnvirmentBuild) << "Puppet environment:" << m_environment.toStringList();
 
@@ -248,6 +249,11 @@ void PuppetEnvironmentBuilder::addCustomFileSelectors() const
 void PuppetEnvironmentBuilder::addDisableDeferredProperties() const
 {
     m_environment.set("QML_DISABLE_INTERNAL_DEFERRED_PROPERTIES", "true");
+}
+
+void PuppetEnvironmentBuilder::addResolveUrlsOnAssignment() const
+{
+    m_environment.set("QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT", "true");
 }
 
 PuppetType PuppetEnvironmentBuilder::determinePuppetType() const

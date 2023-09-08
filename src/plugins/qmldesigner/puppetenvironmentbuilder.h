@@ -50,6 +50,7 @@ private:
     void addImportPaths() const;
     void addCustomFileSelectors() const;
     void addDisableDeferredProperties() const;
+    void addResolveUrlsOnAssignment() const;
 
 private:
     ProjectExplorer::Target *m_target = nullptr;
