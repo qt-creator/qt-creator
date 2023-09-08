@@ -296,6 +296,8 @@ void KitModel::validateKitNames()
 
 void KitModel::apply()
 {
+    emit layoutAboutToBeChanged();
+
     // Add/update dirty nodes before removing kits. This ensures the right kit ends up as default.
     forItemsAtLevel<2>([](KitNode *n) {
         if (n->isDirty()) {
