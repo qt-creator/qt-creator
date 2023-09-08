@@ -583,6 +583,21 @@ void Edit3DView::createSeekerSliderAction()
             });
 }
 
+QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
+{
+    QPoint pos;
+    const QList<QObject *> &objects = action->action()->associatedObjects();
+    for (QObject *obj : objects) {
+        if (auto button = qobject_cast<QToolButton *>(obj)) {
+            // Add small negative modifier to Y coordinate, so highlighted toolbar buttons don't
+            // peek from under the popup
+            pos = button->mapToGlobal(QPoint(0, -2));
+            break;
+        }
+    }
+    return pos;
+}
+
 void Edit3DView::syncSnapAuxPropsToSettings()
 {
     if (!model())
@@ -880,17 +895,9 @@ void Edit3DView::createEdit3DActions()
         if (!edit3DWidget()->visibilityTogglesMenu())
             return;
 
-        QPoint pos;
-        const auto &actionWidgets = m_visibilityTogglesAction->action()->associatedWidgets();
-        for (auto actionWidget : actionWidgets) {
-            if (auto button = qobject_cast<QToolButton *>(actionWidget)) {
-                pos = button->mapToGlobal(QPoint(0, 0));
-                break;
-            }
-        }
-
-        edit3DWidget()->showVisibilityTogglesMenu(!edit3DWidget()->visibilityTogglesMenu()->isVisible(),
-                                                  pos);
+        edit3DWidget()->showVisibilityTogglesMenu(
+            !edit3DWidget()->visibilityTogglesMenu()->isVisible(),
+            resolveToolbarPopupPos(m_visibilityTogglesAction.get()));
     };
 
     m_visibilityTogglesAction = std::make_unique<Edit3DAction>(
@@ -909,20 +916,12 @@ void Edit3DView::createEdit3DActions()
         if (!edit3DWidget()->backgroundColorMenu())
             return;
 
-        QPoint pos;
-        const auto &actionWidgets = m_backgrondColorMenuAction->action()->associatedWidgets();
-        for (auto actionWidget : actionWidgets) {
-            if (auto button = qobject_cast<QToolButton *>(actionWidget)) {
-                pos = button->mapToGlobal(QPoint(0, 0));
-                break;
-            }
-        }
-
-        edit3DWidget()->showBackgroundColorMenu(!edit3DWidget()->backgroundColorMenu()->isVisible(),
-                                                pos);
+        edit3DWidget()->showBackgroundColorMenu(
+            !edit3DWidget()->backgroundColorMenu()->isVisible(),
+            resolveToolbarPopupPos(m_backgroundColorMenuAction.get()));
     };
 
-    m_backgrondColorMenuAction = std::make_unique<Edit3DAction>(
+    m_backgroundColorMenuAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_BACKGROUND_COLOR_ACTIONS,
         View3DActionType::Empty,
         QCoreApplication::translate("BackgroundColorMenuActions",
@@ -959,17 +958,9 @@ void Edit3DView::createEdit3DActions()
         snapToggleTrigger);
 
     SelectionContextOperation snapConfigTrigger = [this](const SelectionContext &) {
-        QPoint pos;
-        const auto &actionWidgets = m_snapConfigAction->action()->associatedWidgets();
-        for (auto actionWidget : actionWidgets) {
-            if (auto button = qobject_cast<QToolButton *>(actionWidget)) {
-                pos = button->mapToGlobal(QPoint(0, 0));
-                break;
-            }
-        }
         if (!m_snapConfiguration)
             m_snapConfiguration = new SnapConfiguration(this);
-        m_snapConfiguration->showConfigDialog(pos);
+        m_snapConfiguration->showConfigDialog(resolveToolbarPopupPos(m_snapConfigAction.get()));
     };
 
     m_snapConfigAction = std::make_unique<Edit3DAction>(
@@ -1003,7 +994,7 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << m_alignViewAction.get();
     m_leftActions << nullptr;
     m_leftActions << m_visibilityTogglesAction.get();
-    m_leftActions << m_backgrondColorMenuAction.get();
+    m_leftActions << m_backgroundColorMenuAction.get();
 
     m_rightActions << m_particleViewModeAction.get();
     m_rightActions << m_particlesPlayAction.get();

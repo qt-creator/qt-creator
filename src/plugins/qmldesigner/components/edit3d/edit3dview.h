@@ -107,6 +107,8 @@ private:
     void createSyncBackgroundColorAction();
     void createSeekerSliderAction();
 
+    QPoint resolveToolbarPopupPos(Edit3DAction *action) const;
+
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;
     QVector<Edit3DAction *> m_rightActions;
@@ -141,7 +143,7 @@ private:
     // View3DActionType::Empty actions
     std::unique_ptr<Edit3DAction> m_resetAction;
     std::unique_ptr<Edit3DAction> m_visibilityTogglesAction;
-    std::unique_ptr<Edit3DAction> m_backgrondColorMenuAction;
+    std::unique_ptr<Edit3DAction> m_backgroundColorMenuAction;
     std::unique_ptr<Edit3DAction> m_snapToggleAction;
     std::unique_ptr<Edit3DAction> m_snapConfigAction;
     std::unique_ptr<Edit3DBakeLightsAction> m_bakeLightsAction;
