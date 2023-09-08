@@ -104,7 +104,7 @@ public:
 
     QList<Utils::MimeType> m_mimeTypes;
     mutable QHash<Utils::MimeType, QList<IEditorFactory *>> m_handlersByMimeType;
-    QHash<Utils::MimeType, IEditorFactory *> m_userDefault;
+    QHash<QString, IEditorFactory *> m_userDefault;
 };
 
 int MimeTypeSettingsModel::rowCount(const QModelIndex &) const
@@ -149,7 +149,7 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
     } else if (role == Qt::FontRole) {
         if (column == 1) {
             const Utils::MimeType &type = m_mimeTypes.at(modelIndex.row());
-            if (m_userDefault.contains(type)) {
+            if (m_userDefault.contains(type.name())) {
                 QFont font = QGuiApplication::font();
                 font.setItalic(true);
                 return font;
@@ -174,9 +174,9 @@ bool MimeTypeSettingsModel::setData(const QModelIndex &index, const QVariant &va
     const QList<IEditorFactory *> handlers = handlersForMimeType(mimeType);
     QTC_ASSERT(handlers.contains(factory), return false);
     if (handlers.first() == factory) // selection is the default anyhow
-        m_userDefault.remove(mimeType);
+        m_userDefault.remove(mimeType.name());
     else
-        m_userDefault.insert(mimeType, factory);
+        m_userDefault.insert(mimeType.name(), factory);
     emit dataChanged(index, index);
     return true;
 }
@@ -209,8 +209,8 @@ QList<IEditorFactory *> MimeTypeSettingsModel::handlersForMimeType(const Utils::
 
 IEditorFactory *MimeTypeSettingsModel::defaultHandlerForMimeType(const Utils::MimeType &mimeType) const
 {
-    if (m_userDefault.contains(mimeType))
-        return m_userDefault.value(mimeType);
+    if (m_userDefault.contains(mimeType.name()))
+        return m_userDefault.value(mimeType.name());
     const QList<IEditorFactory *> handlers = handlersForMimeType(mimeType);
     return handlers.isEmpty() ? nullptr : handlers.first();
 }

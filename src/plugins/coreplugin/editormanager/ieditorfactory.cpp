@@ -131,7 +131,7 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
 */
 
 static QList<IEditorFactory *> g_editorFactories;
-static QHash<Utils::MimeType, IEditorFactory *> g_userPreferredEditorTypes;
+static QHash<QString, IEditorFactory *> g_userPreferredEditorTypes;
 
 /*!
     Creates an IEditorFactory.
@@ -190,7 +190,7 @@ const EditorFactories IEditorFactory::preferredEditorTypes(const FilePath &fileP
                                                             MimeMatchMode::MatchDefaultAndRemote);
     EditorFactories factories = defaultEditorFactories(mimeType);
     // user preferred factory to front
-    IEditorFactory *userPreferred = Internal::userPreferredEditorTypes().value(mimeType);
+    IEditorFactory *userPreferred = Internal::userPreferredEditorTypes().value(mimeType.name());
     if (userPreferred) {
         factories.removeAll(userPreferred);
         factories.prepend(userPreferred);
@@ -238,7 +238,7 @@ const EditorFactories IEditorFactory::preferredEditorFactories(const FilePath &f
         factories.prepend(f);
     };
     // user preferred factory to front
-    IEditorFactory *userPreferred = Internal::userPreferredEditorTypes().value(mimeType);
+    IEditorFactory *userPreferred = Internal::userPreferredEditorTypes().value(mimeType.name());
     if (userPreferred && userPreferred->isInternalEditor())
         factories_moveToFront(userPreferred);
     // open text files > 48 MB in binary editor
@@ -328,7 +328,7 @@ void IEditorFactory::setEditorStarter(const std::function<bool(const FilePath &,
 /*!
     \internal
 */
-QHash<Utils::MimeType, IEditorFactory *> Internal::userPreferredEditorTypes()
+QHash<QString, IEditorFactory *> Internal::userPreferredEditorTypes()
 {
     return g_userPreferredEditorTypes;
 }
@@ -336,7 +336,7 @@ QHash<Utils::MimeType, IEditorFactory *> Internal::userPreferredEditorTypes()
 /*!
     \internal
 */
-void Internal::setUserPreferredEditorTypes(const QHash<Utils::MimeType, IEditorFactory *> &factories)
+void Internal::setUserPreferredEditorTypes(const QHash<QString, IEditorFactory *> &factories)
 {
     g_userPreferredEditorTypes = factories;
 }

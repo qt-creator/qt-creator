@@ -1170,33 +1170,30 @@ Id EditorManagerPrivate::getOpenWithEditorId(const Utils::FilePath &fileName, bo
     return selectedId;
 }
 
-static QMap<QString, QVariant> toMap(const QHash<Utils::MimeType, IEditorFactory *> &hash)
+static QMap<QString, QVariant> toMap(const QHash<QString, IEditorFactory *> &hash)
 {
     QMap<QString, QVariant> map;
     auto it = hash.begin();
     const auto end = hash.end();
     while (it != end) {
-        map.insert(it.key().name(), it.value()->id().toSetting());
+        map.insert(it.key(), it.value()->id().toSetting());
         ++it;
     }
     return map;
 }
 
-static QHash<Utils::MimeType, IEditorFactory *> fromMap(const QMap<QString, QVariant> &map)
+static QHash<QString, IEditorFactory *> fromMap(const QMap<QString, QVariant> &map)
 {
     const EditorFactories factories = IEditorFactory::allEditorFactories();
-    QHash<Utils::MimeType, IEditorFactory *> hash;
+    QHash<QString, IEditorFactory *> hash;
     auto it = map.begin();
     const auto end = map.end();
     while (it != end) {
-        const Utils::MimeType mimeType = Utils::mimeTypeForName(it.key());
-        if (mimeType.isValid()) {
-            const Id factoryId = Id::fromSetting(it.value());
-            IEditorFactory *factory = Utils::findOrDefault(factories,
+        const Id factoryId = Id::fromSetting(it.value());
+        IEditorFactory *factory = Utils::findOrDefault(factories,
                                                        Utils::equal(&IEditorFactory::id, factoryId));
-            if (factory)
-                hash.insert(mimeType, factory);
-        }
+        if (factory)
+            hash.insert(it.key(), factory);
         ++it;
     }
     return hash;
@@ -1223,7 +1220,7 @@ void EditorManagerPrivate::readSettings()
     else
         HostOsInfo::setOverrideFileNameCaseSensitivity(sensitivity);
 
-    const QHash<Utils::MimeType, IEditorFactory *> preferredEditorFactories = fromMap(
+    const QHash<QString, IEditorFactory *> preferredEditorFactories = fromMap(
         qs->value(preferredEditorFactoriesKey).toMap());
     setUserPreferredEditorTypes(preferredEditorFactories);
 

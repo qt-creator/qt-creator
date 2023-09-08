@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <utils/mimeutils.h>
-
 #include <QHash>
 
 namespace Core {
@@ -13,8 +11,8 @@ class IEditorFactory;
 
 namespace Internal {
 
-QHash<Utils::MimeType, IEditorFactory *> userPreferredEditorTypes();
-void setUserPreferredEditorTypes(const QHash<Utils::MimeType, IEditorFactory *> &factories);
+QHash<QString, IEditorFactory *> userPreferredEditorTypes();
+void setUserPreferredEditorTypes(const QHash<QString, IEditorFactory *> &factories);
 
 } // Internal
 } // Core
