@@ -123,7 +123,7 @@ void CtfVisualizerTool::setAvailableThreads(const QList<CtfTimelineModel *> &thr
 
 void CtfVisualizerTool::toggleThreadRestriction(QAction *action)
 {
-    const int tid = action->data().toInt();
+    const QString tid = action->data().toString();
     m_traceManager->setThreadRestriction(tid, action->isChecked());
 }
 

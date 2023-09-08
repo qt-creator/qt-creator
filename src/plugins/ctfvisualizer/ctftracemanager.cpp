@@ -105,8 +105,19 @@ void CtfTraceManager::addEvent(const json &event)
         m_timeOffset = timestamp;
     }
 
-    const int processId = event.value(CtfProcessIdKey, 0);
-    const int threadId = event.contains(CtfThreadIdKey) ? int(event[CtfThreadIdKey]) : processId;
+    static const auto getStringValue = [](const json &event, const char *key, const QString &def) {
+        if (!event.contains(key))
+            return def;
+        const json val = event[key];
+        if (val.is_string())
+            return QString::fromStdString(val);
+        if (val.is_number()) {
+            return QString::number(int(val));
+        }
+        return def;
+    };
+    const QString processId = getStringValue(event, CtfProcessIdKey, "0");
+    const QString threadId = getStringValue(event, CtfThreadIdKey, processId);
     if (!m_threadModels.contains(threadId)) {
         addModelForThread(threadId, processId);
     }
@@ -202,14 +213,16 @@ int CtfTraceManager::getSelectionId(const std::string &name)
 QList<CtfTimelineModel *> CtfTraceManager::getSortedThreads() const
 {
     QList<CtfTimelineModel *> models = m_threadModels.values();
-    std::sort(models.begin(), models.end(), [](const CtfTimelineModel *a, const CtfTimelineModel *b) -> bool {
-        return (a->m_processId != b->m_processId) ? (a->m_processId < b->m_processId)
-                                                  : (std::abs(a->m_threadId) < std::abs(b->m_threadId));
-    });
+    std::sort(models.begin(),
+              models.end(),
+              [](const CtfTimelineModel *a, const CtfTimelineModel *b) -> bool {
+                  return (a->m_processId != b->m_processId) ? (a->m_processId < b->m_processId)
+                                                            : (a->m_threadId < b->m_threadId);
+              });
     return models;
 }
 
-void CtfTraceManager::setThreadRestriction(int tid, bool restrictToThisThread)
+void CtfTraceManager::setThreadRestriction(const QString &tid, bool restrictToThisThread)
 {
     if (m_threadRestrictions.value(tid) == restrictToThisThread)
         return;
@@ -218,12 +231,12 @@ void CtfTraceManager::setThreadRestriction(int tid, bool restrictToThisThread)
     addModelsToAggregator();
 }
 
-bool CtfTraceManager::isRestrictedTo(int tid) const
+bool CtfTraceManager::isRestrictedTo(const QString &tid) const
 {
     return m_threadRestrictions.value(tid);
 }
 
-void CtfTraceManager::addModelForThread(int threadId, int processId)
+void CtfTraceManager::addModelForThread(const QString &threadId, const QString &processId)
 {
     CtfTimelineModel *model = new CtfTimelineModel(m_modelAggregator, this, threadId, processId);
     m_threadModels.insert(threadId, model);

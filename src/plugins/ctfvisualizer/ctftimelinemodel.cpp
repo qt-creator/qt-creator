@@ -23,15 +23,17 @@ using json = nlohmann::json;
 using namespace Constants;
 
 CtfTimelineModel::CtfTimelineModel(Timeline::TimelineModelAggregator *parent,
-                                   CtfTraceManager *traceManager, int tid, int pid)
-    : Timeline::TimelineModel (parent)
+                                   CtfTraceManager *traceManager,
+                                   const QString &tid,
+                                   const QString &pid)
+    : Timeline::TimelineModel(parent)
     , m_traceManager(traceManager)
     , m_threadId(tid)
     , m_processId(pid)
 {
     updateName();
     setCollapsedRowCount(1);
-    setCategoryColor(colorByHue(pid * 25));
+    setCategoryColor(colorByHue(qHash(pid)));
     setHasMixedTypesInExpandedState(true);
 }
 
@@ -199,7 +201,7 @@ void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QStrin
     emit contentChanged();
 }
 
-int CtfTimelineModel::tid() const
+QString CtfTimelineModel::tid() const
 {
     return m_threadId;
 }
@@ -218,13 +220,13 @@ void CtfTimelineModel::updateName()
     if (m_threadName.isEmpty()) {
         setDisplayName(Tr::tr("Thread %1").arg(m_threadId));
     } else {
-        setDisplayName(QString("%1 (%2)").arg(m_threadName).arg(m_threadId));
+        setDisplayName(QString("%1 (%2)").arg(m_threadName, m_threadId));
     }
-    QString process = m_processName.isEmpty() ? QString::number(m_processId) :
-                                                QString("%1 (%2)").arg(m_processName).arg(m_processId);
-    QString thread = m_threadName.isEmpty() ? QString::number(m_threadId) :
-                                                QString("%1 (%2)").arg(m_threadName).arg(m_threadId);
-    setTooltip(QString("Process: %1\nThread: %2").arg(process).arg(thread));
+    QString process = m_processName.isEmpty() ? m_processId
+                                              : QString("%1 (%2)").arg(m_processName, m_processId);
+    QString thread = m_threadName.isEmpty() ? m_threadId
+                                            : QString("%1 (%2)").arg(m_threadName, m_threadId);
+    setTooltip(QString("Process: %1\nThread: %2").arg(process, thread));
 }
 
 qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
