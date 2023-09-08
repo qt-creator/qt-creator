@@ -44,7 +44,7 @@ void TimelineZoomControl::clear()
 
 void TimelineZoomControl::setTrace(qint64 start, qint64 end)
 {
-    Q_ASSERT(start <= end);
+    QTC_ASSERT(start <= end, { std::swap(start, end); });
     if (start != m_traceStart || end != m_traceEnd) {
         m_traceStart = start;
         m_traceEnd = end;
@@ -55,7 +55,7 @@ void TimelineZoomControl::setTrace(qint64 start, qint64 end)
 
 void TimelineZoomControl::setRange(qint64 start, qint64 end)
 {
-    Q_ASSERT(start <= end);
+    QTC_ASSERT(start <= end, { std::swap(start, end); });
     if (m_rangeStart != start || m_rangeEnd != end) {
         if (m_timer.isActive()) {
             m_timer.stop();
