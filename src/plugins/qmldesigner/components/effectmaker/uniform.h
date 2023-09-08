@@ -20,6 +20,7 @@ class Uniform : public QObject
 
     Q_PROPERTY(QString uniformName MEMBER m_displayName CONSTANT)
     Q_PROPERTY(QString uniformType READ typeName CONSTANT)
+    Q_PROPERTY(QString uniformDescription READ description CONSTANT)
     Q_PROPERTY(QVariant uniformValue READ value WRITE setValue NOTIFY uniformValueChanged)
     Q_PROPERTY(QVariant uniformBackendValue READ backendValue NOTIFY uniformBackendValueChanged)
     Q_PROPERTY(QVariant uniformMinValue MEMBER m_minValue CONSTANT)

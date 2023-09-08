@@ -50,6 +50,11 @@ Item {
             Layout.maximumWidth: 140
             Layout.minimumWidth: 140
             Layout.preferredWidth: 140
+
+            HelperWidgets.ToolTipArea {
+                anchors.fill: parent
+                tooltip: uniformDescription
+            }
         }
 
         Loader {
