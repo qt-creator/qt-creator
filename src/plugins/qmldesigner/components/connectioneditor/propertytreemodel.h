@@ -28,8 +28,8 @@ class PropertyTreeModel : public QAbstractItemModel
     Q_OBJECT
 public:
     enum UserRoles {
-        PropertyNameRole = Qt::UserRole + 1,
-        PropertyPriorityRole,
+        PropertyNameRole = Qt::DisplayRole,
+        PropertyPriorityRole = Qt::UserRole + 1,
         ExpressionRole,
         ChildCountRole,
         RowRole,
@@ -122,6 +122,8 @@ private:
     QList<ModelNode> m_nodeList;
     PropertyTypes m_type = AllTypes;
     QString m_filter;
+    mutable QHash<ModelNode, std::vector<PropertyName>> m_sortedAndFilteredPropertyNamesSignalsSlots;
+    int m_internalRootIndex = -1;
 };
 
 class PropertyListProxyModel : public QAbstractListModel
@@ -157,6 +159,7 @@ private:
 
     PropertyTreeModel *m_treeModel = nullptr;
 };
+
 
 inline bool operator==(const PropertyTreeModel::DataCacheItem &lhs,
                        const PropertyTreeModel::DataCacheItem &rhs)
