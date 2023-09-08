@@ -86,8 +86,11 @@ void PySideInstaller::installPyside(const FilePath &python,
 {
     QMap<QVersionNumber, Utils::FilePath> availablePySides;
 
+    const QString hostQtTail = HostOsInfo::isMacHost() ? QString("Tools/sdktool")
+                                                       : QString("Tools/sdktool/share/qtcreator");
+
     const std::optional<FilePath> qtInstallDir
-        = QtSupport::LinkWithQtSupport::linkedQt().tailRemoved("Tools/sdktool/share/qtcreator");
+        = QtSupport::LinkWithQtSupport::linkedQt().tailRemoved(hostQtTail);
     if (qtInstallDir) {
         const FilePath qtForPythonDir = qtInstallDir->pathAppended("QtForPython");
         for (const FilePath &versionDir : qtForPythonDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
