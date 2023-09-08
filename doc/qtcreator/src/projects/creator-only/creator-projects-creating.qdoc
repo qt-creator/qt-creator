@@ -169,7 +169,7 @@
     \uicontrol Preferences > \uicontrol Environment > \uicontrol Keyboard >
     \uicontrol Wizard. All wizard actions start with \uicontrol Impl there.
 
-    \sa {Assign keyboard shortcuts}, {Activating Kits for a Project},
+    \sa {Assign keyboard shortcuts}, {Activate kits for a project},
     {Create files}, {Creating Projects}
 */
 

@@ -44,22 +44,33 @@
 
     \section1 Manage Projects
 
-    \list
-        \li \l {Add a license header template for C++ code}
-        \li \l {Add libraries to projects}
-        \li \l {Add subprojects to projects}
-        \li \l {Add wizards}
-        \li \l {Create C++ classes}
-        \li \l {Create files}
-        \li \l {Create OpenGL fragment and vertex shaders}
-        \li \l {Create resource files}
-        \li \l {Create VCS repositories for new projects}
-        \li \l {Develop Qt for Python applications}
-        \li \l {Open projects}
-        \li \l {Specify project contents}
-        \li \l {Select the build system}
-        \li \l {Use project wizards}
-    \endlist
+    \table
+    \header
+        \li Create Projects
+        \li Configure Projects
+    \row
+        \li
+        \list
+            \li \l {Add a license header template for C++ code}
+            \li \l {Add libraries to projects}
+            \li \l {Add subprojects to projects}
+            \li \l {Add wizards}
+            \li \l {Create C++ classes}
+            \li \l {Create files}
+            \li \l {Create OpenGL fragment and vertex shaders}
+            \li \l {Create resource files}
+            \li \l {Create VCS repositories for new projects}
+            \li \l {Select the build system}
+            \li \l {Use project wizards}
+        \endlist
+        \li
+        \list
+            \li \l {Activate kits for a project}
+            \li \l {Develop Qt for Python applications}
+            \li \l {Open projects}
+            \li \l {Specify project contents}
+        \endlist
+    \endtable
 
     \section1 Read Qt Documentation
 

@@ -35,7 +35,7 @@
         \li Kit selector
         \li Select the appropriate \l{glossary-buildandrun-kit}{kit} for building
             the project and running it on particular hardware.
-        \li \l{Activating Kits for a Project}
+        \li \l{Activate kits for a project}
     \row
         \li \inlineimage numbers/03.png
         \li Run button

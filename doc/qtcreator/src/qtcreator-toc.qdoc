@@ -211,6 +211,7 @@
                 \endlist
             \li Manage Projects
                 \list
+                    \li \l {Activate kits for a project}
                     \li \l {Add a license header template for C++ code}
                     \li \l {Add libraries to projects}
                     \li \l {Add subprojects to projects}
