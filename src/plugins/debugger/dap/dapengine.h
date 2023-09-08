@@ -85,7 +85,8 @@ protected:
 
     void handleDapStarted();
     virtual void handleDapInitialize();
-    void handleDapConfigurationDone();
+    void handleDapEventInitialized();
+    virtual void handleDapConfigurationDone();
 
     void dapRemoveBreakpoint(const Breakpoint &bp);
     void dapInsertBreakpoint(const Breakpoint &bp);

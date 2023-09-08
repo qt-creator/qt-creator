@@ -93,12 +93,43 @@ GdbDapEngine::GdbDapEngine()
     setDebuggerType("DAP");
 }
 
+void GdbDapEngine::handleDapInitialize()
+{
+    if (!isLocalAttachEngine()) {
+        DapEngine::handleDapInitialize();
+        return;
+    }
+
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
+    m_dapClient->postRequest("attach", QJsonObject{{"__restart", ""}});
+    qCDebug(dapEngineLog) << "handleDapAttach";
+}
+
+
+bool GdbDapEngine::isLocalAttachEngine() const
+{
+    return runParameters().startMode == AttachToLocalProcess;
+}
+
+void GdbDapEngine::handleDapConfigurationDone()
+{
+    if (!isLocalAttachEngine()) {
+        DapEngine::handleDapConfigurationDone();
+        return;
+    }
+
+    notifyEngineRunAndInferiorStopOk();
+}
+
 void GdbDapEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qCDebug(dapEngineLog) << state());
 
     const DebuggerRunParameters &rp = runParameters();
-    const CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
+    CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
+
+    if (isLocalAttachEngine())
+        cmd.addArgs({"-p", QString::number(rp.attachPID.pid())});
 
     QVersionNumber oldestVersion(14, 0, 50);
     QVersionNumber version = QVersionNumber::fromString(rp.version);

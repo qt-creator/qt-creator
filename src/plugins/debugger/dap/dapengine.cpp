@@ -120,7 +120,16 @@ void DapEngine::handleDapStarted()
     qCDebug(dapEngineLog) << "handleDapStarted";
 }
 
-void DapEngine::handleDapConfigurationDone()
+void DapEngine::handleDapInitialize()
+{
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
+
+    m_dapClient->sendLaunch(runParameters().inferior.command.executable());
+
+    qCDebug(dapEngineLog) << "handleDapLaunch";
+}
+
+void DapEngine::handleDapEventInitialized()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
 
@@ -129,14 +138,9 @@ void DapEngine::handleDapConfigurationDone()
     qCDebug(dapEngineLog) << "handleDapConfigurationDone";
 }
 
-
-void DapEngine::handleDapInitialize()
+void DapEngine::handleDapConfigurationDone()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
-
-    m_dapClient->sendLaunch(runParameters().inferior.command.executable());
-
-    qCDebug(dapEngineLog) << "handleDapLaunch";
+    notifyEngineRunAndInferiorRunOk();
 }
 
 void DapEngine::interruptInferior()
@@ -480,6 +484,12 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
 {
     const QString command = response.value("command").toString();
 
+    if (response.contains("success") && !response.value("success").toBool()) {
+        showMessage(QString("DAP COMMAND FAILED: %1").arg(command));
+        qCDebug(dapEngineLog) << "DAP COMMAND FAILED:" << command;
+        return;
+    }
+
     switch (type) {
     case DapResponseType::Initialize:
         qCDebug(dapEngineLog) << "initialize success";
@@ -488,7 +498,7 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
     case DapResponseType::ConfigurationDone:
         showMessage("configurationDone", LogDebug);
         qCDebug(dapEngineLog) << "configurationDone success";
-        notifyEngineRunAndInferiorRunOk();
+        handleDapConfigurationDone();
         break;
     case DapResponseType::Continue:
         showMessage("continue", LogDebug);
@@ -597,7 +607,7 @@ void DapEngine::handleEvent(DapEventType type, const QJsonObject &event)
     case DapEventType::Initialized:
         qCDebug(dapEngineLog) << "initialize success";
         claimInitialBreakpoints();
-        handleDapConfigurationDone();
+        handleDapEventInitialized();
         break;
     case DapEventType::Stopped:
         handleStoppedEvent(event);

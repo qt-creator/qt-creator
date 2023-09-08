@@ -88,6 +88,8 @@ public:
         connect(m_timer, &QTimer::timeout, this, [this]() {
             m_socket.connectToHost(m_hostName, m_port);
             m_socket.waitForConnected();
+            qCDebug(dapEngineLog) << "proc id" << m_proc.processId();
+
             if (m_socket.state() == QTcpSocket::ConnectedState)
                 m_timer->stop();
 

@@ -14,6 +14,11 @@ public:
 
 private:
     void setupEngine() override;
+
+    void handleDapInitialize() override;
+    void handleDapConfigurationDone() override;
+
+    bool isLocalAttachEngine() const;
 };
 
 } // Debugger::Internal
