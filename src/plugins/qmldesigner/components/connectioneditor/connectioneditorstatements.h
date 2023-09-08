@@ -45,7 +45,12 @@ struct Variable
     QString nodeId;
     QString propertyName;
 
-    QString expression() const { return nodeId + "." + propertyName; }
+    QString expression() const
+    {
+        if (propertyName.isEmpty())
+            return nodeId;
+        return nodeId + "." + propertyName;
+    }
 };
 
 struct MatchedFunction
