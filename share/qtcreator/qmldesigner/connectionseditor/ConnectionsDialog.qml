@@ -4,6 +4,7 @@
 import QtQuick
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import HelperWidgets 2.0 as HelperWidgets
 
 PopupDialog {
 
@@ -18,7 +19,7 @@ PopupDialog {
             text: qsTr("Target")
             font.pixelSize: StudioTheme.Values.myFontSize
             anchors.verticalCenter: parent.verticalCenter
-            ToolTipArea {
+            HelperWidgets.ToolTipArea {
                 anchors.fill: parent
                 tooltip: qsTr("Choose the target for the signal.")
             }

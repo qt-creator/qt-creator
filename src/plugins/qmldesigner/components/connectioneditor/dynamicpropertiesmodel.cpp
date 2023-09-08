@@ -168,7 +168,6 @@ void DynamicPropertiesModel::removeItem(const AbstractProperty &property)
         static_cast<void>(removeRow(*index));
 
     setCurrentProperty(current);
-    emit currentIndexChanged();
 }
 
 QHash<int, QByteArray> DynamicPropertiesModel::roleNames() const

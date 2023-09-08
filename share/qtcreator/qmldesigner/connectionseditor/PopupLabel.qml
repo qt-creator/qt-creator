@@ -12,7 +12,7 @@ Text {
     color: StudioTheme.Values.themeTextColor
     font.pixelSize: StudioTheme.Values.myFontSize
     property alias tooltip: area.tooltip
-    ToolTipArea {
+    HelperWidgets.ToolTipArea {
         id: area
         anchors.fill: parent
         tooltip: qsTr("missing")

@@ -49,6 +49,7 @@ public:
     void removeItem(const AbstractProperty &property);
 
     void commitExpression(int row, const QString &expression);
+    void commitPropertyName(int row, const PropertyName &name);
 
 protected:
     QHash<int, QByteArray> roleNames() const override;
@@ -86,6 +87,7 @@ public:
 private:
     QString targetNode() const;
     void expressionChanged() const;
+    void propertyNameChanged() const;
 
     StudioQmlComboBoxBackend *property();
     StudioQmlComboBoxBackend *sourceNode();

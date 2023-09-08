@@ -3,6 +3,7 @@
 
 import QtQuick
 import StudioTheme 1.0 as StudioTheme
+import HelperWidgets as HelperWidgets
 
 PopupDialog {
     property alias backend: form.backend
@@ -16,7 +17,7 @@ PopupDialog {
             text: qsTr("Owner")
             font.pixelSize: StudioTheme.Values.myFontSize
             anchors.verticalCenter: parent.verticalCenter
-            ToolTipArea {
+            HelperWidgets.ToolTipArea {
                 anchors.fill: parent
                 tooltip: qsTr("The owner of the property")
             }

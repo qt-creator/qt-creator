@@ -34,7 +34,7 @@ bool isDynamicVariantPropertyType(const TypeName &type);
 QVariant defaultValueForType(const TypeName &type);
 QString defaultExpressionForType(const TypeName &type);
 
-QStringList availableModelNodes(AbstractView *view);
+QStringList availableSources(AbstractView *view);
 QStringList availableTargetProperties(const BindingProperty &bindingProperty);
 QStringList availableSourceProperties(const BindingProperty &bindingProperty, AbstractView *view);
 QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node);
