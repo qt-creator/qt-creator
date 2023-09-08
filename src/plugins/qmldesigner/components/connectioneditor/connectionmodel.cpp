@@ -768,6 +768,8 @@ void ConnectionModelBackendDelegate::setCurrentRow(int i)
     qDebug() << Q_FUNC_INFO << i << model;
 
     QTC_ASSERT(model, return );
+    if (!model->connectionView()->isAttached())
+        return;
 
     SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
 
