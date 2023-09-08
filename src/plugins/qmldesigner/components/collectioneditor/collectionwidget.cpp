@@ -6,6 +6,7 @@
 #include "collectionview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
+#include "singlecollectionmodel.h"
 #include "theme.h"
 
 #include <studioquickwidget.h>
@@ -36,6 +37,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     : QFrame()
     , m_view(view)
     , m_model(new CollectionModel)
+    , m_singleCollectionModel(new SingleCollectionModel)
     , m_quickWidget(new StudioQuickWidget(this))
 {
     setWindowTitle(tr("Collection View", "Title of collection view widget"));
@@ -62,7 +64,9 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     qmlRegisterAnonymousType<CollectionWidget>("CollectionEditorBackend", 1);
     auto map = m_quickWidget->registerPropertyMap("CollectionEditorBackend");
     map->setProperties(
-        {{"rootView", QVariant::fromValue(this)}, {"model", QVariant::fromValue(m_model.data())}});
+        {{"rootView", QVariant::fromValue(this)},
+         {"model", QVariant::fromValue(m_model.data())},
+         {"singleCollectionModel", QVariant::fromValue(m_singleCollectionModel.data())}});
 
     auto hotReloadShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
     connect(hotReloadShortcut, &QShortcut::activated, this, &CollectionWidget::reloadQmlSource);
@@ -81,6 +85,11 @@ void CollectionWidget::contextHelp(const Core::IContext::HelpCallback &callback)
 QPointer<CollectionModel> CollectionWidget::collectionModel() const
 {
     return m_model;
+}
+
+QPointer<SingleCollectionModel> CollectionWidget::singleCollectionModel() const
+{
+    return m_singleCollectionModel;
 }
 
 void CollectionWidget::reloadQmlSource()

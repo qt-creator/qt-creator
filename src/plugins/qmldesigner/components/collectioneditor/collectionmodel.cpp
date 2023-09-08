@@ -171,6 +171,15 @@ void CollectionModel::selectCollection(const ModelNode &node)
     selectCollectionIndex(nodePlace, true);
 }
 
+QmlDesigner::ModelNode CollectionModel::collectionNodeAt(int idx)
+{
+    QModelIndex data = index(idx);
+    if (!data.isValid())
+        return {};
+
+    return m_collections.at(idx);
+}
+
 bool CollectionModel::isEmpty() const
 {
     return m_collections.isEmpty();

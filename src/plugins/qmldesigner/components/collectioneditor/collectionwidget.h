@@ -12,6 +12,7 @@ namespace QmlDesigner {
 
 class CollectionModel;
 class CollectionView;
+class SingleCollectionModel;
 
 class CollectionWidget : public QFrame
 {
@@ -22,6 +23,7 @@ public:
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     QPointer<CollectionModel> collectionModel() const;
+    QPointer<SingleCollectionModel> singleCollectionModel() const;
 
     void reloadQmlSource();
 
@@ -36,6 +38,7 @@ public:
 private:
     QPointer<CollectionView> m_view;
     QPointer<CollectionModel> m_model;
+    QPointer<SingleCollectionModel> m_singleCollectionModel;
     QScopedPointer<StudioQuickWidget> m_quickWidget;
 };
 

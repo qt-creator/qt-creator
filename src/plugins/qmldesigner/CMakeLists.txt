@@ -808,6 +808,7 @@ extend_qtc_plugin(QmlDesigner
     collectionmodel.cpp collectionmodel.h
     collectionview.cpp collectionview.h
     collectionwidget.cpp collectionwidget.h
+    singlecollectionmodel.cpp singlecollectionmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

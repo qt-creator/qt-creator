@@ -9,6 +9,7 @@
 #include "nodemetainfo.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
+#include "singlecollectionmodel.h"
 #include "variantproperty.h"
 
 #include <QJsonArray>
@@ -352,6 +353,12 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
 
         auto collectionEditorContext = new Internal::CollectionEditorContext(m_widget.data());
         Core::ICore::addContextObject(collectionEditorContext);
+        CollectionModel *collectionModel = m_widget->collectionModel().data();
+
+        connect(collectionModel, &CollectionModel::selectedIndexChanged, this, [&](int selectedIndex) {
+            m_widget->singleCollectionModel()->setCollection(
+                m_widget->collectionModel()->collectionNodeAt(selectedIndex));
+        });
     }
 
     return createWidgetInfo(m_widget.data(),

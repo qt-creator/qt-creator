@@ -14,6 +14,7 @@ Item {
 
     property var rootView: CollectionEditorBackend.rootView
     property var model: CollectionEditorBackend.model
+    property var singleCollectionModel: CollectionEditorBackend.singleCollectionModel
 
     function showWarning(title, message) {
         warningDialog.title = title
@@ -60,9 +61,9 @@ Item {
             width: parent.width
 
             Rectangle {
+                width: parent.width
                 height: StudioTheme.Values.height + 5
                 color: StudioTheme.Values.themeToolbarBackground
-                width: parent.width
 
                 Text {
                     id: collectionText
@@ -141,11 +142,8 @@ Item {
         }
     }
 
-    Rectangle {
-        id: collectionRect
-
-        color: StudioTheme.Values.themeBackgroundColorAlternate
-
+    SingleCollectionView {
+        model: root.singleCollectionModel
         anchors {
             left: collectionsRect.right
             right: parent.right

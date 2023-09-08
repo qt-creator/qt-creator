@@ -41,6 +41,8 @@ public:
     int collectionIndex(const ModelNode &node) const;
     void selectCollection(const ModelNode &node);
 
+    ModelNode collectionNodeAt(int idx);
+
     Q_INVOKABLE bool isEmpty() const;
     Q_INVOKABLE void selectCollectionIndex(int idx, bool selectAtLeastOne = false);
     Q_INVOKABLE void deselect();
