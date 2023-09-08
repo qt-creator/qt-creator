@@ -56,12 +56,22 @@ bool EffectMakerModel::setData(const QModelIndex &index, const QVariant &value, 
     return true;
 }
 
+void EffectMakerModel::setIsEmpty(bool val)
+{
+    if (m_isEmpty != val) {
+        m_isEmpty = val;
+        emit isEmptyChanged();
+    }
+}
+
 void EffectMakerModel::addNode(const QString &nodeQenPath)
 {
     beginInsertRows({}, m_nodes.size(), m_nodes.size());
     auto *node = new CompositionNode(nodeQenPath);
     m_nodes.append(node);
     endInsertRows();
+
+    setIsEmpty(false);
 }
 
 void EffectMakerModel::moveNode(int fromIdx, int toIdx)
@@ -82,6 +92,9 @@ void EffectMakerModel::removeNode(int idx)
     m_nodes.removeAt(idx);
     delete node;
     endRemoveRows();
+
+    if (m_nodes.isEmpty())
+        setIsEmpty(true);
 }
 
 const QList<Uniform *> EffectMakerModel::allUniforms()

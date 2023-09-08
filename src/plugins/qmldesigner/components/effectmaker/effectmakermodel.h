@@ -43,6 +43,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
     bool isEmpty() const { return m_isEmpty; }
+    void setIsEmpty(bool val);
 
     void addNode(const QString &nodeQenPath);
 

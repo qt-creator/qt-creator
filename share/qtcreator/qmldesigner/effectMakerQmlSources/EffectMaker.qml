@@ -136,4 +136,17 @@ Item {
             } // Column
         } // ScrollView
     }
+
+    Text {
+        id: emptyText
+
+        text: qsTr("Add an effect node to start")
+        color: StudioTheme.Values.themeTextColor
+        font.pixelSize: StudioTheme.Values.baseFontSize
+
+        x: scrollView.x + (scrollView.width - emptyText.width) * .5
+        y: scrollView.y + scrollView.height * .5
+
+        visible: EffectMakerBackend.effectMakerModel.isEmpty
+    }
 }

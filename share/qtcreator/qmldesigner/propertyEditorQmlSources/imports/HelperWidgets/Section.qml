@@ -177,7 +177,7 @@ Item {
         IconButton {
             id: closeButton
 
-            icon: StudioTheme.Constants.close_small
+            icon: StudioTheme.Constants.closeCross
             buttonSize: 22
             iconScale: containsMouse ? 1.2 : 1
             transparentBg: true
