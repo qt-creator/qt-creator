@@ -93,7 +93,7 @@ T.ComboBox {
             control.listView.focus = true
         }
 
-        onAboutToHide: window.hide()
+        onAboutToHide: window.close()
     }
 
     // Close popup when application goes to background
