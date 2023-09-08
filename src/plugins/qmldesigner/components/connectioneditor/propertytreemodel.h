@@ -15,6 +15,8 @@
 
 namespace QmlDesigner {
 
+inline constexpr quintptr internalRootIndex = std::numeric_limits<quintptr>::max();
+
 class AbstractProperty;
 class ModelNode;
 class BindingProperty;
@@ -58,7 +60,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
 
-    QPersistentModelIndex indexForInternalIdAndRow(int internalId, int row);
+    QPersistentModelIndex indexForInternalIdAndRow(quintptr internalId, int row);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -67,7 +69,7 @@ public:
     {
         ModelNode modelNode;
         PropertyName propertyName;
-        int internalIndex = -1;
+        std::size_t internalIndex = internalRootIndex;
     };
 
     void setPropertyType(PropertyTypes type);
@@ -118,12 +120,11 @@ private:
 
     mutable std::set<DataCacheItem> m_indexCache;
     mutable std::vector<DataCacheItem> m_indexHash;
-    mutable int m_indexCount = 0;
+    mutable std::size_t m_indexCount = 0;
     QList<ModelNode> m_nodeList;
     PropertyTypes m_type = AllTypes;
     QString m_filter;
     mutable QHash<ModelNode, std::vector<PropertyName>> m_sortedAndFilteredPropertyNamesSignalsSlots;
-    int m_internalRootIndex = -1;
 };
 
 class PropertyListProxyModel : public QAbstractListModel
@@ -137,7 +138,7 @@ public:
 
     void resetModel();
 
-    void setRowAndInternalId(int row, int internalId);
+    void setRowAndInternalId(int row, quintptr internalId);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
 

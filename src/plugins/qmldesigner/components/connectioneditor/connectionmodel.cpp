@@ -759,7 +759,7 @@ void ConnectionModelBackendDelegate::setCurrentRow(int i)
     m_currentRow = i;
 
     m_propertyTreeModel.resetModel();
-    m_propertyListProxyModel.setRowAndInternalId(0, -1);
+    m_propertyListProxyModel.setRowAndInternalId(0, internalRootIndex);
 
     //setup
 

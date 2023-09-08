@@ -160,7 +160,7 @@ QString stripQualification(const QString &string)
 }
 QVariant PropertyTreeModel::data(const QModelIndex &index, int role) const
 {
-    int internalId = index.internalId();
+    auto internalId = index.internalId();
 
     if (role == InternalIdRole)
         return internalId;
@@ -173,7 +173,7 @@ QVariant PropertyTreeModel::data(const QModelIndex &index, int role) const
         if (!index.isValid())
             return {};
 
-        if (internalId < 0)
+        if (internalId == internalRootIndex)
             return "--root item--";
 
         QTC_ASSERT(internalId < m_indexCount, return {"assert"});
@@ -218,26 +218,24 @@ Qt::ItemFlags PropertyTreeModel::flags(const QModelIndex &) const
 
 QModelIndex PropertyTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-    int internalId = parent.internalId();
+    auto internalId = parent.internalId();
     if (!m_connectionView->isAttached())
         return {};
 
-    const int rootId = -1;
-
     if (!parent.isValid())
-        return createIndex(0, 0, rootId);
+        return createIndex(0, 0, internalRootIndex);
 
     if (!hasIndex(row, column, parent))
         return {};
 
-    if (internalId == rootId) { //root level model node
+    if (internalId == internalRootIndex) { //root level model node
         const ModelNode modelNode = m_nodeList[row];
         return ensureModelIndex(modelNode, row);
     }
 
     //property
 
-    QTC_ASSERT(internalId >= 0, return {});
+    QTC_ASSERT(internalId != internalRootIndex, return {});
 
     DataCacheItem item = m_indexHash[internalId];
     QTC_ASSERT(item.modelNode.isValid(), return {});
@@ -262,9 +260,9 @@ QModelIndex PropertyTreeModel::parent(const QModelIndex &index) const
     if (!index.isValid())
         return {};
 
-    int internalId = index.internalId();
+    auto internalId = index.internalId();
 
-    if (internalId == m_internalRootIndex)
+    if (internalId == internalRootIndex)
         return {};
 
     QTC_ASSERT(internalId < m_indexCount, return {});
@@ -273,7 +271,7 @@ QModelIndex PropertyTreeModel::parent(const QModelIndex &index) const
 
     // no property means the parent is the root item
     if (item.propertyName.isEmpty())
-        return createIndex(0, 0, -1);
+        return createIndex(0, 0, internalRootIndex);
 
     if (item.propertyName.contains(".")) {
         auto list = item.propertyName.split('.');
@@ -294,7 +292,7 @@ QModelIndex PropertyTreeModel::parent(const QModelIndex &index) const
     return ensureModelIndex(item.modelNode, row);
 }
 
-QPersistentModelIndex PropertyTreeModel::indexForInternalIdAndRow(int internalId, int row)
+QPersistentModelIndex PropertyTreeModel::indexForInternalIdAndRow(quintptr internalId, int row)
 {
     return createIndex(row, 0, internalId);
 }
@@ -307,9 +305,9 @@ int PropertyTreeModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return 1; //m_nodeList.size();
 
-    int internalId = parent.internalId();
+    auto internalId = parent.internalId();
 
-    if (internalId == -1)
+    if (internalId == internalRootIndex)
         return m_nodeList.size();
 
     QTC_ASSERT(internalId < m_indexCount, return 0);
@@ -791,12 +789,12 @@ void PropertyListProxyModel::resetModel()
     endResetModel();
 }
 
-void PropertyListProxyModel::setRowAndInternalId(int row, int internalId)
+void PropertyListProxyModel::setRowAndInternalId(int row, quintptr internalId)
 {
     qDebug() << Q_FUNC_INFO << row << internalId;
     QTC_ASSERT(m_treeModel, return );
 
-    if (internalId == -1)
+    if (internalId == internalRootIndex)
         m_parentIndex = m_treeModel->index(0, 0);
     else
         m_parentIndex = m_treeModel->index(row, 0, m_parentIndex);
@@ -837,7 +835,7 @@ void PropertyListProxyModel::goUp()
 {
     qDebug() << Q_FUNC_INFO;
 
-    if (m_parentIndex.internalId() == -1)
+    if (m_parentIndex.internalId() == internalRootIndex)
         return;
 
     m_parentIndex = m_treeModel->parent(m_parentIndex);
@@ -848,7 +846,7 @@ void PropertyListProxyModel::goUp()
 
 void PropertyListProxyModel::reset()
 {
-    setRowAndInternalId(0, -1); // TODO ???
+    setRowAndInternalId(0, internalRootIndex); // TODO ???
 
     emit parentNameChanged();
 }
@@ -871,7 +869,7 @@ PropertyTreeModelDelegate::PropertyTreeModelDelegate(ConnectionView *parent) : m
 void PropertyTreeModelDelegate::setPropertyType(PropertyTreeModel::PropertyTypes type)
 {
     m_model.setPropertyType(type);
-    setupNameComboBox(m_idCombboBox.currentText(), m_nameCombboBox.currentText(), 0);
+    setupNameComboBox(m_idCombboBox.currentText(), m_nameCombboBox.currentText(), nullptr);
 }
 
 void PropertyTreeModelDelegate::setup(const QString &id, const QString &name, bool *nameExists)
@@ -899,7 +897,7 @@ void PropertyTreeModelDelegate::setupNameComboBox(const QString &id,
                                                            return QString::fromUtf8(name);
                                                        });
     QStringList nameList;
-    nameList.reserve(nameVector.size());
+    nameList.reserve(Utils::ssize(nameVector));
     std::copy(nameVector.begin(), nameVector.end(), std::back_inserter(nameList));
 
     if (!nameList.contains(name)) {
