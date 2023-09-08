@@ -35,6 +35,7 @@ private slots:
     void parseConsoleLog();
     void parseCallFunction();
     void parseEmpty();
+    void parseComplexCondition();
     QByteArray countOne();
 
 private:
@@ -335,6 +336,42 @@ void tst_ConnectionEditor::parseEmpty()
     auto parsedStatement = ConnectionEditorStatements::okStatement(result);
 
     QVERIFY(std::holds_alternative<ConnectionEditorStatements::EmptyBlock>(parsedStatement));
+}
+
+void tst_ConnectionEditor::parseComplexCondition()
+{
+    auto result = ConnectionEditorEvaluator::parseStatement(
+        "{if (someItem.deeper.gothis && thistest.is.getit){someItem.trigger()}}");
+    auto &matchedCondition = ConnectionEditorStatements::matchedCondition(result);
+    QCOMPARE(matchedCondition.statements.count(), 2);
+
+    auto firstStatement = matchedCondition.statements.first();
+    QVERIFY(std::holds_alternative<ConnectionEditorStatements::Variable>(firstStatement));
+
+    auto variable = std::get<ConnectionEditorStatements::Variable>(firstStatement);
+
+    QCOMPARE(variable.nodeId, "someItem");
+    QCOMPARE(variable.propertyName, "deeper.gothis");
+
+    auto lastStatement = matchedCondition.statements.last();
+    QVERIFY(std::holds_alternative<ConnectionEditorStatements::Variable>(lastStatement));
+
+    variable = std::get<ConnectionEditorStatements::Variable>(lastStatement);
+
+    QCOMPARE(variable.nodeId, "thistest");
+    QCOMPARE(variable.propertyName, "is.getit");
+
+    matchedCondition.statements.clear();
+    matchedCondition.tokens.clear();
+
+    variable.nodeId = "justId";
+    variable.propertyName = {};
+
+    matchedCondition.statements.append(variable);
+
+    const QString source = ConnectionEditorStatements::toJavascript(result);
+
+    QVERIFY(source.startsWith("if (justId)"));
 }
 
 void tst_ConnectionEditor::test01()
