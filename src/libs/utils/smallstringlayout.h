@@ -11,6 +11,10 @@
 #include <memory>
 #include <type_traits>
 
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_CLANG("-Wgnu-anonymous-struct")
+QT_WARNING_DISABLE_CLANG("-Wnested-anon-types")
+
 namespace Utils {
 
 namespace Internal {
@@ -82,7 +86,7 @@ struct alignas(16) StringDataLayout
     constexpr StringDataLayout() noexcept { reset(); }
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
-        : control{0, true, true}
+        : controlReference{0, true, true}
         , reference{{string}, size, 0}
     {}
 
@@ -130,18 +134,18 @@ struct alignas(16) StringDataLayout
 #endif
     }
 
-#pragma pack(push)
-#pragma pack(1)
-    ControlBlock<MaximumShortStringDataAreaSize> control;
     union {
-        char shortString[MaximumShortStringDataAreaSize];
         struct
         {
-            char dummy[sizeof(void *) - sizeof(ControlBlock<MaximumShortStringDataAreaSize>)];
+            ControlBlock<MaximumShortStringDataAreaSize> control;
+            char shortString[MaximumShortStringDataAreaSize];
+        };
+        struct
+        {
+            ControlBlock<MaximumShortStringDataAreaSize> controlReference;
             ReferenceLayout reference;
         };
     };
-#pragma pack(pop)
 };
 
 template<uint MaximumShortStringDataAreaSize>
@@ -158,7 +162,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
     constexpr StringDataLayout() noexcept { reset(); }
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
-        : control{0, true, true}
+        : controlReference{0, true, true}
         , reference{{string}, size, 0}
     {}
 
@@ -223,19 +227,21 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
 #endif
     }
 
-#pragma pack(push)
-#pragma pack(1)
-    ControlBlock<MaximumShortStringDataAreaSize> control;
     union {
-        char shortString[MaximumShortStringDataAreaSize];
         struct
         {
-            char dummy[sizeof(void *) - sizeof(ControlBlock<MaximumShortStringDataAreaSize>)];
+            ControlBlock<MaximumShortStringDataAreaSize> control;
+            char shortString[MaximumShortStringDataAreaSize];
+        };
+        struct
+        {
+            ControlBlock<MaximumShortStringDataAreaSize> controlReference;
             ReferenceLayout reference;
         };
     };
-#pragma pack(pop)
 };
 
 } // namespace Internal
 }  // namespace Utils
+
+QT_WARNING_POP
