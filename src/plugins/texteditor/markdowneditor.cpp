@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 
 #include <QHBoxLayout>
 #include <QScrollBar>
@@ -99,6 +100,58 @@ public:
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
 
+        auto button = new QToolButton;
+        button->setText("i");
+        button->setFont([button]{ auto f = button->font(); f.setItalic(true); return f; }());
+        button->setToolTip(Tr::tr("Emphasis"));
+        connect(button, &QToolButton::clicked, this, [this] {
+            triggerFormatingAction([](QString *selectedText) {
+               *selectedText = QStringLiteral("*%1*").arg(*selectedText);
+            });
+        });
+        m_markDownButtons.append(button);
+        button = new QToolButton;
+        button->setText("b");
+        button->setFont([button]{ auto f = button->font(); f.setBold(true); return f; }());
+        button->setToolTip(Tr::tr("Strong"));
+        connect(button, &QToolButton::clicked, this, [this] {
+            triggerFormatingAction([](QString *selectedText) {
+                *selectedText = QStringLiteral("**%1**").arg(*selectedText);
+            });
+        });
+        m_markDownButtons.append(button);
+        button = new QToolButton;
+        button->setText("`");
+        button->setToolTip(Tr::tr("Inline Code"));
+        connect(button, &QToolButton::clicked, this, [this] {
+            triggerFormatingAction([](QString *selectedText) {
+                *selectedText = QStringLiteral("`%1`").arg(*selectedText);
+            });
+        });
+        m_markDownButtons.append(button);
+        button = new QToolButton;
+        button->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
+        button->setToolTip(Tr::tr("Hyper Link"));
+        connect(button, &QToolButton::clicked, this, [this] {
+            triggerFormatingAction([](QString *selectedText, int *cursorOffset, int *selectionLength) {
+                *selectedText = QStringLiteral("[%1](https://)").arg(*selectedText);
+                *cursorOffset = -1;
+                *selectionLength = -8;
+            });
+        });
+        m_markDownButtons.append(button);
+        for (auto button : m_markDownButtons) {
+            button->setEnabled(!m_textEditorWidget->selectedText().isEmpty());
+            // do not call setVisible(true) at this point, this destroys the hover effect on macOS
+            if (!showEditor)
+                button->setVisible(false);
+        }
+        connect(m_textEditorWidget, &QPlainTextEdit::copyAvailable, [this](bool yes) {
+            for (auto button : m_markDownButtons) {
+                button->setEnabled(yes);
+            }
+        });
+
         auto swapViews = new QToolButton;
         swapViews->setText(Tr::tr("Swap Views"));
         swapViews->setEnabled(showEditor && showPreview);
@@ -106,6 +159,8 @@ public:
         m_toolbarLayout = new QHBoxLayout(&m_toolbar);
         m_toolbarLayout->setSpacing(0);
         m_toolbarLayout->setContentsMargins(0, 0, 0, 0);
+        for (auto button : m_markDownButtons)
+            m_toolbarLayout->addWidget(button);
         m_toolbarLayout->addStretch();
         m_toolbarLayout->addWidget(m_togglePreviewVisible);
         m_toolbarLayout->addWidget(m_toggleEditorVisible);
@@ -165,6 +220,8 @@ public:
                                 visible,
                                 m_previewWidget,
                                 m_togglePreviewVisible);
+                    for (auto button : m_markDownButtons)
+                        button->setVisible(visible);
                     saveViewSettings();
                 });
         connect(m_togglePreviewVisible,
@@ -300,6 +357,43 @@ public:
     }
 
 private:
+    void triggerFormatingAction(std::function<void(QString *selectedText)> action)
+    {
+        auto formattedText = m_textEditorWidget->selectedText();
+        action(&formattedText);
+        format(formattedText);
+    }
+    void triggerFormatingAction(std::function<void(QString *selectedText, int *cursorOffset, int *selectionLength)> action)
+    {
+        auto formattedText = m_textEditorWidget->selectedText();
+        int cursorOffset = 0;
+        int selectionLength = 0;
+        action(&formattedText, &cursorOffset, &selectionLength);
+        format(formattedText, cursorOffset, selectionLength);
+    }
+    void format(const QString &formattedText, int cursorOffset = 0, int selectionLength = 0)
+    {
+        auto cursor = m_textEditorWidget->textCursor();
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd();
+        cursor.setPosition(start, QTextCursor::MoveAnchor);
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+
+        cursor.insertText(formattedText);
+        if (cursorOffset != 0) {
+            auto pos = cursor.position();
+            cursor.setPosition(pos + cursorOffset);
+            m_textEditorWidget->setTextCursor(cursor);
+        }
+
+        if (selectionLength != 0) {
+            cursor.setPosition(cursor.position(), QTextCursor::MoveAnchor);
+            cursor.setPosition(cursor.position() + selectionLength, QTextCursor::KeepAnchor);
+            m_textEditorWidget->setTextCursor(cursor);
+        }
+    }
+
+private:
     QTimer m_previewTimer;
     bool m_performDelayedUpdate = false;
     Core::MiniSplitter *m_splitter;
@@ -308,6 +402,7 @@ private:
     TextDocumentPtr m_document;
     QWidget m_toolbar;
     QHBoxLayout *m_toolbarLayout;
+    QList<QToolButton *> m_markDownButtons;
     QToolButton *m_toggleEditorVisible;
     QToolButton *m_togglePreviewVisible;
     std::optional<QPoint> m_previewRestoreScrollPosition;
