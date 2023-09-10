@@ -108,6 +108,11 @@ void FindInFiles::searchEnginesSelectionChanged(int index)
     m_searchEngineWidget->setCurrentIndex(index);
 }
 
+void FindInFiles::currentEditorChanged(Core::IEditor *editor)
+{
+    m_currentDirectory->setEnabled(editor && editor->document() && !editor->document()->filePath().isEmpty());
+}
+
 QWidget *FindInFiles::createConfigWidget()
 {
     if (!m_configWidget) {
@@ -149,6 +154,18 @@ QWidget *FindInFiles::createConfigWidget()
             for (const QString &dir: legacyHistory)
                 completer->addEntry(dir);
         }
+        m_directory->addButton("Current", this, [this]() {
+            const IDocument *document = EditorManager::instance()->currentDocument();
+            if (!document)
+                return;
+            m_directory->setFilePath(document->filePath().parentDir());
+        });
+        m_currentDirectory = m_directory->buttonAtIndex(1);
+        auto editorManager = EditorManager::instance();
+        connect(editorManager, &EditorManager::currentEditorChanged,
+                this, &FindInFiles::currentEditorChanged);
+        currentEditorChanged(editorManager->currentEditor());
+
         dirLabel->setBuddy(m_directory);
         gridLayout->addWidget(m_directory, row++, 1, 1, 2);
 
