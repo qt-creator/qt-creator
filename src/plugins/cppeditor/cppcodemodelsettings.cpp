@@ -17,7 +17,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/settingsutils.h>
 
 #include <QDateTime>
 #include <QHash>
@@ -400,7 +399,8 @@ FilePath ClangdSettings::clangdUserConfigFilePath()
 void ClangdSettings::loadSettings()
 {
     const auto settings = Core::ICore::settings();
-    Utils::fromSettings(clangdSettingsKey(), {}, settings, &m_data);
+
+    m_data.fromMap(Utils::storeFromSettings(clangdSettingsKey(), settings));
 
     settings->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
     m_data.customDiagnosticConfigs = diagnosticConfigsFromSettings(settings);
@@ -419,7 +419,7 @@ void ClangdSettings::loadSettings()
 void ClangdSettings::saveSettings()
 {
     const auto settings = Core::ICore::settings();
-    Utils::toSettings(clangdSettingsKey(), {}, settings, &m_data);
+    Utils::storeToSettings(clangdSettingsKey(), settings, m_data.toMap());
     settings->beginGroup(QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP));
     diagnosticConfigsToSettings(settings, m_data.customDiagnosticConfigs);
     settings->endGroup();

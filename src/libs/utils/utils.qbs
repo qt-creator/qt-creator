@@ -279,7 +279,6 @@ Project {
             "settingsaccessor.h",
             "settingsselector.cpp",
             "settingsselector.h",
-            "settingsutils.h",
             "singleton.cpp",
             "singleton.h",
             "sizedarray.h",

@@ -5,8 +5,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/settingsutils.h>
-
 #include <QTextCursor>
 #include <QTextDocument>
 
@@ -30,13 +28,13 @@ TypingSettings::TypingSettings():
 
 void TypingSettings::toSettings(const Key &category) const
 {
-    Utils::toSettings(groupPostfix, category, Core::ICore::settings(), this);
+    Utils::storeToSettings(category + groupPostfix, Core::ICore::settings(), toMap());
 }
 
 void TypingSettings::fromSettings(const Key &category)
 {
     *this = TypingSettings(); // Assign defaults
-    Utils::fromSettings(groupPostfix, category, Core::ICore::settings(), this);
+    fromMap(Utils::storeFromSettings(category + groupPostfix, Core::ICore::settings()));
 }
 
 Store TypingSettings::toMap() const

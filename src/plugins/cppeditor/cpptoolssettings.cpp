@@ -9,16 +9,15 @@
 #include "cppcodestylepreferencesfactory.h"
 
 #include <coreplugin/icore.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/completionsettingspage.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
-#include <utils/settingsutils.h>
-
-#include <QSettings>
 
 static const char idKey[] = "CppGlobal";
 const bool kSortEditorDocumentOutlineDefault = true;

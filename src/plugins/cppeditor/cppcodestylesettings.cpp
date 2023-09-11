@@ -16,7 +16,6 @@
 #include <cplusplus/Overview.h>
 
 #include <utils/qtcassert.h>
-#include <utils/settingsutils.h>
 
 static const char indentBlockBracesKey[] = "IndentBlockBraces";
 static const char indentBlockBodyKey[] = "IndentBlockBody";

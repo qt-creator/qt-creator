@@ -5,8 +5,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/settingsutils.h>
-
 #include <QString>
 
 static const char mouseHidingKey[] = "MouseHiding";
@@ -35,13 +33,13 @@ BehaviorSettings::BehaviorSettings() :
 
 void BehaviorSettings::toSettings(const Key &category) const
 {
-    Utils::toSettings(groupPostfix, category, Core::ICore::settings(), this);
+    Utils::storeToSettings(category + groupPostfix, Core::ICore::settings(), toMap());
 }
 
 void BehaviorSettings::fromSettings(const Key &category)
 {
     *this = BehaviorSettings();
-    Utils::fromSettings(groupPostfix, category, Core::ICore::settings(), this);
+    fromMap(Utils::storeFromSettings(category + groupPostfix, Core::ICore::settings()));
 }
 
 Store BehaviorSettings::toMap() const

@@ -3,12 +3,9 @@
 
 #include "extraencodingsettings.h"
 
-#include "behaviorsettingswidget.h"
 #include "texteditortr.h"
 
 #include <coreplugin/icore.h>
-
-#include <utils/settingsutils.h>
 
 // Keep this for compatibility reasons.
 static const char kGroupPostfix[] = "EditorManager";
@@ -27,7 +24,7 @@ void ExtraEncodingSettings::toSettings(const Key &category) const
 {
     Q_UNUSED(category)
 
-    Utils::toSettings(kGroupPostfix, Key(), Core::ICore::settings(), this);
+    Utils::storeToSettings(kGroupPostfix, Core::ICore::settings(), toMap());
 }
 
 void ExtraEncodingSettings::fromSettings(const Key &category)
@@ -35,7 +32,7 @@ void ExtraEncodingSettings::fromSettings(const Key &category)
     Q_UNUSED(category)
 
     *this = ExtraEncodingSettings();
-    Utils::fromSettings(kGroupPostfix, Key(), Core::ICore::settings(), this);
+    fromMap(Utils::storeFromSettings(kGroupPostfix, Core::ICore::settings()));
 }
 
 Store ExtraEncodingSettings::toMap() const

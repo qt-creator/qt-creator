@@ -7,8 +7,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/settingsutils.h>
-
 using namespace Utils;
 
 static const char currentPreferencesKey[] = "CurrentPreferences";
@@ -214,12 +212,12 @@ void ICodeStylePreferences::setSettingsSuffix(const Key &suffix)
 
 void ICodeStylePreferences::toSettings(const Key &category) const
 {
-    Utils::toSettings(d->m_settingsSuffix, category, Core::ICore::settings(), this);
+    Utils::storeToSettings(category + d->m_settingsSuffix, Core::ICore::settings(), toMap());
 }
 
 void ICodeStylePreferences::fromSettings(const Key &category)
 {
-    Utils::fromSettings(d->m_settingsSuffix, category, Core::ICore::settings(), this);
+    fromMap(Utils::storeFromSettings(category + d->m_settingsSuffix, Core::ICore::settings()));
 }
 
 Store ICodeStylePreferences::toMap() const

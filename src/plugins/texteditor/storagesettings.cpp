@@ -6,7 +6,6 @@
 #include <coreplugin/icore.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/settingsutils.h>
 
 #include <QRegularExpression>
 
@@ -35,13 +34,13 @@ StorageSettings::StorageSettings()
 
 void StorageSettings::toSettings(const Key &category) const
 {
-    Utils::toSettings(groupPostfix, category, Core::ICore::settings(), this);
+    Utils::storeToSettings(category + groupPostfix, Core::ICore::settings(), toMap());
 }
 
 void StorageSettings::fromSettings(const Key &category)
 {
     *this = StorageSettings();
-    Utils::fromSettings(groupPostfix, category, Core::ICore::settings(), this);
+    fromMap(Utils::storeFromSettings(category + groupPostfix, Core::ICore::settings()));
 }
 
 Store StorageSettings::toMap() const

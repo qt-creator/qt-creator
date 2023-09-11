@@ -3,8 +3,6 @@
 
 #include "tabsettings.h"
 
-#include <utils/settingsutils.h>
-
 #include <QDebug>
 #include <QSettings>
 #include <QTextCursor>
@@ -35,13 +33,13 @@ TabSettings::TabSettings(TabSettings::TabPolicy tabPolicy,
 
 void TabSettings::toSettings(const Key &category, QtcSettings *s) const
 {
-    Utils::toSettings(groupPostfix, category, s, this);
+    Utils::storeToSettings(category + groupPostfix, s, toMap());
 }
 
 void TabSettings::fromSettings(const Key &category, QtcSettings *s)
 {
     *this = TabSettings(); // Assign defaults
-    Utils::fromSettings(groupPostfix, category, s, this);
+    fromMap(Utils::storeFromSettings(category + groupPostfix, s));
 }
 
 Store TabSettings::toMap() const

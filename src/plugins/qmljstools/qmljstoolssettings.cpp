@@ -7,15 +7,13 @@
 #include "qmljstoolssettings.h"
 #include "qmljstoolstr.h"
 
+#include <coreplugin/icore.h>
+
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/codestylepool.h>
 
-#include <utils/settingsutils.h>
 #include <utils/qtcassert.h>
-#include <coreplugin/icore.h>
-
-#include <QSettings>
 
 using namespace TextEditor;
 

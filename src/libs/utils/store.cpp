@@ -5,6 +5,7 @@
 
 #include "algorithm.h"
 #include "qtcassert.h"
+#include "qtcsettings.h"
 
 #include <QJsonDocument>
 #include <QJsonParseError>
@@ -131,6 +132,25 @@ QByteArray jsonFromStore(const Store &store)
 {
     QJsonDocument doc = QJsonDocument::fromVariant(mapFromStore(store));
     return doc.toJson();
+}
+
+Store storeFromSettings(const Key &groupKey, QtcSettings *s)
+{
+    Store store;
+    s->beginGroup(groupKey);
+    const KeyList keys = keysFromStrings(s->allKeys());
+    for (const Key &key : keys)
+        store.insert(key, s->value(key));
+    s->endGroup();
+    return store;
+}
+
+void storeToSettings(const Key &groupKey, QtcSettings *s, const Store &store)
+{
+    s->beginGroup(groupKey);
+    for (auto it = store.constBegin(), end = store.constEnd(); it != end; ++it)
+        s->setValue(it.key(), it.value());
+    s->endGroup();
 }
 
 } // Utils
