@@ -149,7 +149,8 @@ public:
 
     void notifyNodeCreated(const InternalNodePointer &newNode);
     void notifyNodeAboutToBeReparent(const InternalNodePointer &node,
-                                     const InternalNodeAbstractProperty *newPropertyParent,
+                                     const InternalNodePointer &newParent,
+                                     const PropertyName &newPropertyName,
                                      const InternalNodePointer &oldParent,
                                      const PropertyName &oldPropertyName,
                                      AbstractView::PropertyChangeFlags propertyChange);

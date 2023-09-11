@@ -989,7 +989,8 @@ void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &nod
 }
 
 void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
-                                               const InternalNodeAbstractProperty *newPropertyParent,
+                                               const InternalNodePointer &newParent,
+                                               const PropertyName &newPropertyName,
                                                const InternalNodePointer &oldParent,
                                                const PropertyName &oldPropertyName,
                                                AbstractView::PropertyChangeFlags propertyChange)
@@ -998,12 +999,12 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
         NodeAbstractProperty newProperty;
         NodeAbstractProperty oldProperty;
 
-        if (!oldPropertyName.isEmpty() && oldParent->isValid)
+        if (!oldPropertyName.isEmpty() && oldParent && oldParent->isValid)
             oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, m_model, view);
 
-        if (newPropertyParent) {
-            newProperty = NodeAbstractProperty(newPropertyParent->name(),
-                                               newPropertyParent->propertyOwner(),
+        if (!newPropertyName.isEmpty() && newParent && newParent->isValid) {
+            newProperty = NodeAbstractProperty(newPropertyName,
+                                               newParent,
                                                m_model,
                                                view);
         }
@@ -1394,6 +1395,22 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
                                 const TypeName &dynamicTypeName)
 {
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
+
+    InternalNodeAbstractPropertyPointer oldParentProperty(childNode->parentProperty());
+    InternalNodePointer oldParentNode;
+    PropertyName oldParentPropertyName;
+    if (oldParentProperty && oldParentProperty->isValid()) {
+        oldParentNode = childNode->parentProperty()->propertyOwner();
+        oldParentPropertyName = childNode->parentProperty()->name();
+    }
+
+    notifyNodeAboutToBeReparent(childNode,
+                                parentNode,
+                                name,
+                                oldParentNode,
+                                oldParentPropertyName,
+                                propertyChange);
+
     InternalNodeAbstractProperty *newParentProperty = nullptr;
     if (auto property = parentNode->property(name)) {
         newParentProperty = property->to<PropertyType::Node, PropertyType::NodeList>();
@@ -1406,21 +1423,7 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
         propertyChange |= AbstractView::PropertiesAdded;
     }
 
-    InternalNodeAbstractPropertyPointer oldParentProperty(childNode->parentProperty());
-    InternalNodePointer oldParentNode;
-    PropertyName oldParentPropertyName;
-    if (oldParentProperty && oldParentProperty->isValid()) {
-        oldParentNode = childNode->parentProperty()->propertyOwner();
-        oldParentPropertyName = childNode->parentProperty()->name();
-    }
-
     Q_ASSERT(newParentProperty);
-
-    notifyNodeAboutToBeReparent(childNode,
-                                newParentProperty,
-                                oldParentNode,
-                                oldParentPropertyName,
-                                propertyChange);
 
     if (newParentProperty) {
         childNode->setParentProperty(
