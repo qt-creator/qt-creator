@@ -105,19 +105,35 @@ BOOL CALLBACK sendInterruptMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARA
 
 ProcessHelper::ProcessHelper(QObject *parent)
     : QProcess(parent), m_processStartHandler(this)
+{}
+
+void ProcessHelper::setLowPriority()
+{
+    m_lowPriority = true;
+    enableChildProcessModifier();
+}
+
+void ProcessHelper::setUnixTerminalDisabled()
 {
 #if defined(Q_OS_UNIX)
-    bool needSetsid = m_unixTerminalDisabled;
-#  if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
-    if (needSetsid) {
-        setUnixProcessParameters(QProcess::UnixProcessFlag::CreateNewSession);
-        needSetsid = false;
-    }
+#  if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
+    m_unixTerminalDisabled = true;
+    enableChildProcessModifier();
+#  else
+    setUnixProcessParameters(QProcess::UnixProcessFlag::CreateNewSession);
 #  endif
+#endif
+}
 
-    if (!m_lowPriority && !needSetsid)
-        return;
-    setChildProcessModifier([=, this] {
+void ProcessHelper::setUseCtrlCStub(bool enabled)
+{
+    m_useCtrlCStub = enabled;
+}
+
+void ProcessHelper::enableChildProcessModifier()
+{
+#if defined(Q_OS_UNIX)
+    setChildProcessModifier([this] {
         // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
         if (m_lowPriority) {
             errno = 0;
@@ -125,16 +141,13 @@ ProcessHelper::ProcessHelper(QObject *parent)
                 perror("Failed to set nice value");
         }
 
+#  if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
         // Disable terminal by becoming a session leader.
-        if (needSetsid)
+        if (m_unixTerminalDisabled)
             setsid();
+#  endif
     });
 #endif
-}
-
-void ProcessHelper::setUseCtrlCStub(bool enabled)
-{
-    m_useCtrlCStub = enabled;
 }
 
 void ProcessHelper::terminateProcess()
