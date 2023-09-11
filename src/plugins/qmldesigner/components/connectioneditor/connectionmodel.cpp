@@ -1956,7 +1956,8 @@ ConnectionEditorStatements::ComparativeStatement ConditionListModel::toStatement
         ConnectionEditorStatements::Variable variable;
 
         variable.nodeId = list.first();
-        variable.propertyName = list.last();
+        if (list.count() > 1)
+            variable.propertyName = list.last();
         return variable;
     } else if (token.type == Literal) {
         return parseTextArgumentComparativeStatement(token.value);
