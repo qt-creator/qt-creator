@@ -24,15 +24,13 @@ FocusScope {
     function isOperator() { return root.type === ConditionListModel.Operator }
     function isProperty() { return root.type === ConditionListModel.Variable }
     function isShadow() { return root.type === ConditionListModel.Shadow }
-    function isInvalid() { return root.type === ConditionListModel.Invalid || root.invalid }
+    function isInvalid() { return root.type === ConditionListModel.Invalid }
 
     signal remove()
     signal update(var value)
-    signal submit()
+    signal submit(int cursorPosition)
 
     readonly property int margin: StudioTheme.Values.flowPillMargin
-
-    property bool invalid: false
 
     width: {
         if (root.isEditable()) {
@@ -133,8 +131,6 @@ FocusScope {
         TextInput {
             id: textInput
 
-            property bool dirty: false
-
             x: root.isInvalid() ? root.margin : 0
             height: StudioTheme.Values.flowPillHeight
             topPadding: 1
@@ -145,14 +141,12 @@ FocusScope {
             visible: root.isEditable()
             enabled: root.isEditable()
 
-            validator: RegularExpressionValidator { regularExpression: /^\S+/ }
+            //validator: RegularExpressionValidator { regularExpression: /^\S+/ }
 
             onEditingFinished: {
                 root.update(textInput.text) // emit
-                root.submit() // emit
+                root.submit(textInput.cursorPosition) // emit
             }
-
-            onTextEdited: textInput.dirty = true
 
             Keys.onPressed: function (event) {
                 if (event.key === Qt.Key_Backspace) {

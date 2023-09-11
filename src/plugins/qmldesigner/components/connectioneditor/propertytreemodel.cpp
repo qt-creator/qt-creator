@@ -160,6 +160,9 @@ QString stripQualification(const QString &string)
 }
 QVariant PropertyTreeModel::data(const QModelIndex &index, int role) const
 {
+    if (!index.isValid())
+        return {};
+
     auto internalId = index.internalId();
 
     if (role == InternalIdRole)
@@ -170,13 +173,14 @@ QVariant PropertyTreeModel::data(const QModelIndex &index, int role) const
 
     if (role == PropertyNameRole || role == PropertyPriorityRole || role == ExpressionRole
         || role == ChildCountRole) {
-        if (!index.isValid())
+        if (internalId == internalRootIndex) {
+            if (role == PropertyNameRole)
+                return "--root item--";
+            if (role == ChildCountRole)
+                return rowCount(index);
+
             return {};
-
-        if (internalId == internalRootIndex)
-            return "--root item--";
-
-        QTC_ASSERT(internalId < m_indexCount, return {"assert"});
+        }
 
         DataCacheItem item = m_indexHash[index.internalId()];
 
@@ -853,6 +857,9 @@ void PropertyListProxyModel::reset()
 
 QString PropertyListProxyModel::parentName() const
 {
+    if (!m_treeModel->parent(m_parentIndex).isValid())
+        return {};
+
     return m_treeModel->data(m_parentIndex, PropertyTreeModel::UserRoles::PropertyNameRole).toString();
 }
 

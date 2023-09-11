@@ -192,9 +192,6 @@ Rectangle {
 
                 if (index >= newTextInput.index)
                     newTextInput.index = newTextInput.index + 1
-
-                if (!root.conditionListModel.valid && index === root.conditionListModel.errorIndex)
-                    item.invalid = true
             }
 
             Pill {
@@ -220,12 +217,14 @@ Rectangle {
                         flow.focusIndex = pill.index
                 }
 
-                onSubmit: {
-                    console.log("SUBMIT")
+                onSubmit: function (cursorPosition) {
+                    let index = pill.index
+                    // If cursor position is 0 the user moved the cursor out to left side, so place
+                    // the cursor before the pill
+                    if (cursorPosition !== 0)
+                        index++
 
-                    //newTextInput.index = pill.index + 1
-                    newTextInput.visible = true
-                    newTextInput.forceActiveFocus()
+                    root.placeCursor(index)
                 }
             }
         }
