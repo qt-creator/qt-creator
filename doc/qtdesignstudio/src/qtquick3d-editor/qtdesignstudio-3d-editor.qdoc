@@ -183,7 +183,7 @@
             and drag the component along the axis.
         \li To move components on a plane, click the plane handle and drag the
             component on the plane.
-        \li To move an component freely in the 3D view, click and drag the gray
+        \li To move components freely in the 3D view, click and drag the gray
             handle at the center of the move gizmo.
      \endlist
 
@@ -219,6 +219,35 @@
             the component on the plane.
         \li To uniformly scale a component across all axes, click and drag the
             gray handle at the center of the component.
+    \endlist
+
+    \section1 Snapping
+
+    With snapping turned on, the objects in the \uicontrol 3D view snap to certain
+    intervals during transformation (move, rotate, scale).
+
+    You can toggle snapping in the following ways:
+
+    \list
+      \li Select \inlineimage icons/snapping-3d.png
+      in the \uicontrol 3D view toolbar.
+      \li Hold down the \key Ctrl key.
+    \endlist
+
+    With snapping turned on, you can press and hold \key Shift to snap objects to one tenth of
+    the specified snap interval.
+
+    \section2 Configuring Snapping
+
+    To edit snapping settings, select \inlineimage icons/snapping-3d-conf.png
+    in the \uicontrol 3D view toolbar.
+
+    In the configure dialog, you can do the following:
+    \list
+      \li Turn on and off snapping separately for the different transformations
+      (move, rotate, scale).
+      \li Set snap intervals.
+      \li Toggle if the position snaps to absolute or relative values.
     \endlist
 
     \section1 Aligning Views and Cameras
@@ -375,6 +404,16 @@
         \li Toggle Edit Light On/Off
         \li \key U
         \li \l{Using Edit Light}
+    \row
+        \li \inlineimage icons/snapping-3d.png
+        \li Toggle Snapping During Node Drag
+        \li \key Shift + \key Tab
+        \li \l{Snapping}
+    \row
+        \li \inlineimage icons/snapping-3d-conf.png
+        \li Open Snap Configuration Dialog
+        \li
+        \li \l{Configuring Snapping}
     \row
         \li \inlineimage icons/align-camera-on.png
         \li Align Selected Cameras to View
