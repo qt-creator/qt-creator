@@ -155,6 +155,8 @@ public:
     static void saveKits();
 
     static bool isLoaded();
+    static bool waitForLoaded(const int timeout = 60 * 1000); // timeout in ms
+    static void showLoadingProgress();
 
 signals:
     void kitAdded(ProjectExplorer::Kit *);

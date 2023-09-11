@@ -129,6 +129,7 @@ void ToolChainManager::saveToolChains()
 
 const Toolchains &ToolChainManager::toolchains()
 {
+    QTC_CHECK(d->m_loaded);
     return d->m_toolChains;
 }
 
@@ -140,11 +141,13 @@ Toolchains ToolChainManager::toolchains(const ToolChain::Predicate &predicate)
 
 ToolChain *ToolChainManager::toolChain(const ToolChain::Predicate &predicate)
 {
+    QTC_CHECK(d->m_loaded);
     return Utils::findOrDefault(d->m_toolChains, predicate);
 }
 
 Toolchains ToolChainManager::findToolChains(const Abi &abi)
 {
+    QTC_CHECK(d->m_loaded);
     Toolchains result;
     for (ToolChain *tc : std::as_const(d->m_toolChains)) {
         bool isCompatible = Utils::anyOf(tc->supportedAbis(), [abi](const Abi &supportedAbi) {
@@ -159,6 +162,7 @@ Toolchains ToolChainManager::findToolChains(const Abi &abi)
 
 ToolChain *ToolChainManager::findToolChain(const QByteArray &id)
 {
+    QTC_CHECK(d->m_loaded);
     if (id.isEmpty())
         return nullptr;
 
@@ -214,6 +218,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
 
 void ToolChainManager::deregisterToolChain(ToolChain *tc)
 {
+    QTC_CHECK(d->m_loaded);
     if (!tc || !d->m_toolChains.contains(tc))
         return;
     d->m_toolChains.removeOne(tc);

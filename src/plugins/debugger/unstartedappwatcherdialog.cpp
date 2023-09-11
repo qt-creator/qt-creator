@@ -84,7 +84,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
 
     if (kit)
         m_kitChooser->setCurrentKitId(kit->id());
-    else if (KitManager::defaultKit())
+    else if (KitManager::waitForLoaded() && KitManager::defaultKit())
         m_kitChooser->setCurrentKitId(KitManager::defaultKit()->id());
 
     auto pathLayout = new QHBoxLayout;

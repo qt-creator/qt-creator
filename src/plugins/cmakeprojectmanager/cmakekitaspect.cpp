@@ -224,13 +224,19 @@ CMakeKitAspectFactory::CMakeKitAspectFactory()
                       "This setting is ignored when using other build systems."));
     setPriority(20000);
 
+    auto updateKits = [this] {
+        if (KitManager::isLoaded()) {
+            for (Kit *k : KitManager::kits())
+                fix(k);
+        }
+    };
+
     //make sure the default value is set if a selected CMake is removed
-    connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeRemoved,
-            this, [this] { for (Kit *k : KitManager::kits()) fix(k); });
+    connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeRemoved, this, updateKits);
 
     //make sure the default value is set if a new default CMake is set
     connect(CMakeToolManager::instance(), &CMakeToolManager::defaultCMakeChanged,
-            this, [this] { for (Kit *k : KitManager::kits()) fix(k); });
+            this, updateKits);
 }
 
 Id CMakeKitAspect::id()

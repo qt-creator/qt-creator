@@ -2121,20 +2121,15 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     // Load devices immediately, as other plugins might want to use them
     DeviceManager::instance()->load();
-
-    // delay restoring kits until UI is shown for improved perceived startup performance
-    QTimer::singleShot(0, this, &ProjectExplorerPlugin::restoreKits);
 }
 
-void ProjectExplorerPlugin::restoreKits()
+bool ProjectExplorerPlugin::delayedInitialize()
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ProjectExplorerPlugin::restoreKits");
     ExtraAbi::load(); // Load this before Toolchains!
     ToolChainManager::restoreToolChains();
     KitManager::restoreKits();
-    // restoring startup session is supposed to be done as a result of ICore::coreOpened,
-    // and that is supposed to happen after restoring kits:
-    QTC_CHECK(!SessionManager::isStartupSessionRestored());
+    return true;
 }
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
@@ -2379,8 +2374,7 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
     dd->updateActions();
 
     const bool switchToProjectsMode = Utils::anyOf(openedPro, &Project::needsConfiguration);
-    const bool switchToEditMode = Utils::allOf(openedPro,
-                                               [](Project *p) { return p->isEditModePreferred(); });
+    const bool switchToEditMode = Utils::allOf(openedPro, &Project::isEditModePreferred);
     if (!openedPro.isEmpty()) {
         if (switchToProjectsMode)
             ModeManager::activateMode(Constants::MODE_SESSION);

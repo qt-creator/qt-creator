@@ -13,6 +13,7 @@
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <android/androidconstants.h>
 #include <baremetal/baremetalconstants.h>
@@ -421,10 +422,10 @@ void KitManager::restoreKits()
     if (!k)
         k = Utils::findOrDefault(resultList, &Kit::isValid);
     std::swap(resultList, d->m_kitList);
+    d->m_initialized = true;
     setDefaultKit(k);
 
     d->m_writer = std::make_unique<PersistentSettingsWriter>(settingsFileName(), "QtCreatorProfiles");
-    d->m_initialized = true;
 
     kitAspectFactoriesStorage().onKitsLoaded();
 
@@ -467,6 +468,33 @@ bool KitManager::isLoaded()
     return d->m_initialized;
 }
 
+bool KitManager::waitForLoaded(const int timeout)
+{
+    if (isLoaded())
+        return true;
+    showLoadingProgress();
+    QElapsedTimer timer;
+    timer.start();
+    while (!isLoaded() && !timer.hasExpired(timeout))
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    return KitManager::isLoaded();
+}
+
+void KitManager::showLoadingProgress()
+{
+    if (isLoaded())
+        return;
+    static QFutureInterface<void> futureInterface;
+    if (futureInterface.isRunning())
+        return;
+    futureInterface.reportStarted();
+    Core::ProgressManager::addTimedTask(futureInterface.future(),
+                                        Tr::tr("Loading Kits"),
+                                        "LoadingKitsProgress",
+                                        5);
+    connect(instance(), &KitManager::kitsLoaded, []() { futureInterface.reportFinished(); });
+}
+
 void KitManager::setBinaryForKit(const FilePath &binary)
 {
     QTC_ASSERT(d, return);
@@ -475,6 +503,7 @@ void KitManager::setBinaryForKit(const FilePath &binary)
 
 const QList<Kit *> KitManager::sortedKits()
 {
+    QTC_ASSERT(KitManager::isLoaded(), return {});
     // This method was added to delay the sorting of kits as long as possible.
     // Since the displayName can contain variables it can be costly (e.g. involve
     // calling executables to find version information, etc.) to call that
@@ -548,6 +577,7 @@ static KitList restoreKitsHelper(const FilePath &fileName)
 
 const QList<Kit *> KitManager::kits()
 {
+    QTC_ASSERT(KitManager::isLoaded(), return {});
     return Utils::toRawPointer<QList>(d->m_kitList);
 }
 
@@ -556,6 +586,7 @@ Kit *KitManager::kit(Id id)
     if (!id.isValid())
         return nullptr;
 
+    QTC_ASSERT(KitManager::isLoaded(), return {});
     return Utils::findOrDefault(d->m_kitList, Utils::equal(&Kit::id, id));
 }
 
@@ -566,6 +597,7 @@ Kit *KitManager::kit(const Kit::Predicate &predicate)
 
 Kit *KitManager::defaultKit()
 {
+    QTC_ASSERT(KitManager::isLoaded(), return {});
     return d->m_defaultKit;
 }
 
@@ -597,7 +629,7 @@ void KitManager::notifyAboutUpdate(Kit *k)
 
 Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id id)
 {
-    QTC_ASSERT(isLoaded(), return nullptr);
+    QTC_ASSERT(isLoaded(), return {});
 
     auto k = std::make_unique<Kit>(id);
     QTC_ASSERT(k->id().isValid(), return nullptr);
@@ -620,6 +652,8 @@ Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id 
 
 void KitManager::deregisterKit(Kit *k)
 {
+    QTC_ASSERT(KitManager::isLoaded(), return);
+
     if (!k || !Utils::contains(d->m_kitList, k))
         return;
     auto taken = Utils::take(d->m_kitList, k);
@@ -632,6 +666,8 @@ void KitManager::deregisterKit(Kit *k)
 
 void KitManager::setDefaultKit(Kit *k)
 {
+    QTC_ASSERT(KitManager::isLoaded(), return);
+
     if (defaultKit() == k)
         return;
     if (k && !Utils::contains(d->m_kitList, k))

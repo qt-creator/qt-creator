@@ -179,6 +179,10 @@ static bool getEditorLaunchData(const CommandForQtVersion &commandForQtVersion,
     // - default kit
     // - any other kit
     // As fallback check PATH
+    if (!KitManager::waitForLoaded()) {
+        *errorMessage = Tr::tr("Could not load kits in a reasonable amount of time.");
+        return false;
+    }
     data->workingDirectory.clear();
     QVector<QtSupport::QtVersion *> qtVersionsToCheck; // deduplicated after being filled
     if (const Project *project = ProjectManager::projectForFile(filePath)) {

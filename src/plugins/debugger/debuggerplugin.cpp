@@ -1316,6 +1316,9 @@ static Kit *guessKitFromAbis(const Abis &abis)
 {
     Kit *kit = nullptr;
 
+    if (!KitManager::waitForLoaded())
+        return kit;
+
     // Try to find a kit via ABI.
     if (!abis.isEmpty()) {
         // Try exact abis.
@@ -1376,9 +1379,11 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                         return false;
                     }
                 } else if (key == "kit") {
-                    kit = KitManager::kit(Id::fromString(val));
-                    if (!kit)
-                        kit = KitManager::kit(Utils::equal(&Kit::displayName, val));
+                    if (KitManager::waitForLoaded()) {
+                        kit = KitManager::kit(Id::fromString(val));
+                        if (!kit)
+                            kit = KitManager::kit(Utils::equal(&Kit::displayName, val));
+                    }
                 } else if (key == "server") {
                     startMode = AttachToRemoteServer;
                     remoteChannel = val;

@@ -37,6 +37,8 @@
 #include <QStyle>
 #include <QStyledItemDelegate>
 
+#include <extensionsystem/pluginmanager.h>
+
 const int kInitialWidth = 750;
 const int kInitialHeight = 450;
 const int kMaxMinimumWidth = 250;
@@ -800,6 +802,14 @@ bool SettingsDialog::execDialog()
 
 bool executeSettingsDialog(QWidget *parent, Id initialPage)
 {
+    if (!ExtensionSystem::PluginManager::isInitializationDone()) {
+        QObject::connect(ExtensionSystem::PluginManager::instance(),
+                         &ExtensionSystem::PluginManager::initializationDone,
+                         parent,
+                         [parent, initialPage]() { executeSettingsDialog(parent, initialPage); });
+        return false;
+    }
+
     // Make sure all wizards are there when the user might access the keyboard shortcuts:
     (void) IWizardFactory::allWizardFactories();
 

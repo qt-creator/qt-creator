@@ -38,6 +38,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/kitmanager.h>
+
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
@@ -283,7 +285,12 @@ void HelpPlugin::extensionsInitialized()
 
 bool HelpPlugin::delayedInitialize()
 {
-    HelpManager::setupHelpManager();
+    if (ProjectExplorer::KitManager::isLoaded()) {
+        HelpManager::setupHelpManager();
+    } else {
+        connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded,
+                this, &HelpManager::setupHelpManager);
+    }
     return true;
 }
 

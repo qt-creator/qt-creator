@@ -197,6 +197,7 @@ signals:
     void kitStateChanged();
 
 private:
+    void initializeFromKitManager();
     void addKit(Kit *k);
     void updateKit(Kit *k);
     void removeKit(Kit *k);
@@ -227,10 +228,11 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
     rootItem()->appendChild(m_autoRoot);
     rootItem()->appendChild(m_manualRoot);
 
-    for (Kit *k : KitManager::sortedKits())
-        addKit(k);
-
-    changeDefaultKit();
+    if (KitManager::isLoaded()) {
+        for (Kit *k : KitManager::sortedKits())
+            addKit(k);
+        changeDefaultKit();
+    }
 
     connect(KitManager::instance(), &KitManager::kitAdded,
             this, &KitModel::addKit);

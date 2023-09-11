@@ -106,7 +106,7 @@ public:
     //PluginInterface
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
     void extensionsInitialized() override;
-    void restoreKits();
+    bool delayedInitialize() override;
     ShutdownFlag aboutToShutdown() override;
 
     static void setProjectExplorerSettings(const ProjectExplorerSettings &pes);

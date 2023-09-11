@@ -24,13 +24,13 @@
 #include "toolchainmanager.h"
 #include "userfileaccessor.h"
 
-#include <coreplugin/idocument.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-#include <coreplugin/editormanager/documentmodel.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -643,6 +643,12 @@ void Project::saveSettings()
 
 Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 {
+    if (!KitManager::waitForLoaded()) {
+        if (errorMessage)
+            *errorMessage = Tr::tr("Could not load kits in a reasonable amount of time.");
+        return RestoreResult::Error;
+    }
+
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
     Store map(d->m_accessor->restoreSettings(ICore::dialogParent()));
