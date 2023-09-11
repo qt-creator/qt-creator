@@ -229,10 +229,10 @@ struct JSOverload
             value += JSOverload()(conditional.ok);
 
         if (!isEmptyStatement(conditional.ko)) {
-            value += "} else {\n";
+            value += "\n} else {\n";
             value += JSOverload()(conditional.ko);
         }
-        value += "}";
+        value += "\n}";
 
         return value;
     }
