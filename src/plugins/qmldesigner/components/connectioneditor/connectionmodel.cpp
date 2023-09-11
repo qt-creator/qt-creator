@@ -737,6 +737,8 @@ int ConnectionModelBackendDelegate::currentRow() const
 
 QString removeOnFromSignalName(const QString &signal)
 {
+    if (signal.isEmpty())
+        return {};
     QString ret = signal;
     ret.remove(0, 2);
     ret[0] = ret.at(0).toLower();
@@ -903,29 +905,35 @@ void ConnectionModelBackendDelegate::setupHandlerAndStatements()
     QTC_ASSERT(model, return );
     SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
 
-    m_handler = ConnectionEditorEvaluator::parseStatement(signalHandlerProperty.source());
-
-    const QString statementType = QmlDesigner::ConnectionEditorStatements::toDisplayName(m_handler);
-
-    if (statementType == ConnectionEditorStatements::EMPTY_DISPLAY_NAME) {
+    if (signalHandlerProperty.source().isEmpty()) {
         m_actionType = ConnectionModelStatementDelegate::Custom;
-    } else if (statementType == ConnectionEditorStatements::ASSIGNMENT_DISPLAY_NAME) {
-        m_actionType = ConnectionModelStatementDelegate::Assign;
-        //setupAssignment();
-    } else if (statementType == ConnectionEditorStatements::SETPROPERTY_DISPLAY_NAME) {
-        m_actionType = ConnectionModelStatementDelegate::SetProperty;
-        //setupSetProperty();
-    } else if (statementType == ConnectionEditorStatements::FUNCTION_DISPLAY_NAME) {
-        m_actionType = ConnectionModelStatementDelegate::CallFunction;
-        //setupCallFunction();
-    } else if (statementType == ConnectionEditorStatements::SETSTATE_DISPLAY_NAME) {
-        m_actionType = ConnectionModelStatementDelegate::ChangeState;
-        //setupChangeState();
-    } else if (statementType == ConnectionEditorStatements::LOG_DISPLAY_NAME) {
-        m_actionType = ConnectionModelStatementDelegate::PrintMessage;
-        //setupPrintMessage();
+        m_handler = ConnectionEditorStatements::EmptyBlock();
     } else {
-        m_actionType = ConnectionModelStatementDelegate::Custom;
+        m_handler = ConnectionEditorEvaluator::parseStatement(signalHandlerProperty.source());
+
+        const QString statementType = QmlDesigner::ConnectionEditorStatements::toDisplayName(
+            m_handler);
+
+        if (statementType == ConnectionEditorStatements::EMPTY_DISPLAY_NAME) {
+            m_actionType = ConnectionModelStatementDelegate::Custom;
+        } else if (statementType == ConnectionEditorStatements::ASSIGNMENT_DISPLAY_NAME) {
+            m_actionType = ConnectionModelStatementDelegate::Assign;
+            //setupAssignment();
+        } else if (statementType == ConnectionEditorStatements::SETPROPERTY_DISPLAY_NAME) {
+            m_actionType = ConnectionModelStatementDelegate::SetProperty;
+            //setupSetProperty();
+        } else if (statementType == ConnectionEditorStatements::FUNCTION_DISPLAY_NAME) {
+            m_actionType = ConnectionModelStatementDelegate::CallFunction;
+            //setupCallFunction();
+        } else if (statementType == ConnectionEditorStatements::SETSTATE_DISPLAY_NAME) {
+            m_actionType = ConnectionModelStatementDelegate::ChangeState;
+            //setupChangeState();
+        } else if (statementType == ConnectionEditorStatements::LOG_DISPLAY_NAME) {
+            m_actionType = ConnectionModelStatementDelegate::PrintMessage;
+            //setupPrintMessage();
+        } else {
+            m_actionType = ConnectionModelStatementDelegate::Custom;
+        }
     }
 
     ConnectionEditorStatements::MatchedStatement &okStatement
