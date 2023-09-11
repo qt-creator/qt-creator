@@ -35,9 +35,6 @@ public:
 
     bool tabShouldIndent(const QTextDocument *document, const QTextCursor &cursor, int *suggestedPosition) const;
 
-    void toSettings(const Utils::Key &category) const;
-    void fromSettings(const Utils::Key &category);
-
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &map);
 

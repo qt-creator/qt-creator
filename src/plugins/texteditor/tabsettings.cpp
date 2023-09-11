@@ -12,7 +12,6 @@ static const char spacesForTabsKey[] = "SpacesForTabs";
 static const char autoSpacesForTabsKey[] = "AutoSpacesForTabs";
 static const char tabSizeKey[] = "TabSize";
 static const char indentSizeKey[] = "IndentSize";
-static const char groupPostfix[] = "TabSettings";
 static const char paddingModeKey[] = "PaddingMode";
 
 using namespace Utils;
@@ -28,18 +27,6 @@ TabSettings::TabSettings(TabSettings::TabPolicy tabPolicy,
     , m_indentSize(indentSize)
     , m_continuationAlignBehavior(continuationAlignBehavior)
 {
-
-}
-
-void TabSettings::toSettings(const Key &category, QtcSettings *s) const
-{
-    Utils::storeToSettings(category + groupPostfix, s, toMap());
-}
-
-void TabSettings::fromSettings(const Key &category, QtcSettings *s)
-{
-    *this = TabSettings(); // Assign defaults
-    fromMap(Utils::storeFromSettings(category + groupPostfix, s));
 }
 
 Store TabSettings::toMap() const

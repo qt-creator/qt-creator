@@ -19,7 +19,6 @@ static const char addFinalNewLineKey[] = "addFinalNewLine";
 static const char cleanIndentationKey[] = "cleanIndentation";
 static const char skipTrailingWhitespaceKey[] = "skipTrailingWhitespace";
 static const char ignoreFileTypesKey[] = "ignoreFileTypes";
-static const char groupPostfix[] = "StorageSettings";
 static const char defaultTrailingWhitespaceBlacklist[] = "*.md, *.MD, Makefile";
 
 StorageSettings::StorageSettings()
@@ -30,17 +29,6 @@ StorageSettings::StorageSettings()
       m_cleanIndentation(true),
       m_skipTrailingWhitespace(true)
 {
-}
-
-void StorageSettings::toSettings(const Key &category) const
-{
-    Utils::storeToSettings(category + groupPostfix, Core::ICore::settings(), toMap());
-}
-
-void StorageSettings::fromSettings(const Key &category)
-{
-    *this = StorageSettings();
-    fromMap(Utils::storeFromSettings(category + groupPostfix, Core::ICore::settings()));
 }
 
 Store StorageSettings::toMap() const

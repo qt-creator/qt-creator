@@ -5,15 +5,12 @@
 
 #include <coreplugin/icore.h>
 
-#include <QString>
-
 static const char mouseHidingKey[] = "MouseHiding";
 static const char mouseNavigationKey[] = "MouseNavigation";
 static const char scrollWheelZoomingKey[] = "ScrollWheelZooming";
 static const char constrainTooltips[] = "ConstrainTooltips";
 static const char camelCaseNavigationKey[] = "CamelCaseNavigation";
 static const char keyboardTooltips[] = "KeyboardTooltips";
-static const char groupPostfix[] = "BehaviorSettings";
 static const char smartSelectionChanging[] = "SmartSelectionChanging";
 
 using namespace Utils;
@@ -29,17 +26,6 @@ BehaviorSettings::BehaviorSettings() :
     m_keyboardTooltips(false),
     m_smartSelectionChanging(true)
 {
-}
-
-void BehaviorSettings::toSettings(const Key &category) const
-{
-    Utils::storeToSettings(category + groupPostfix, Core::ICore::settings(), toMap());
-}
-
-void BehaviorSettings::fromSettings(const Key &category)
-{
-    *this = BehaviorSettings();
-    fromMap(Utils::storeFromSettings(category + groupPostfix, Core::ICore::settings()));
 }
 
 Store BehaviorSettings::toMap() const

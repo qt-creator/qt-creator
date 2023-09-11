@@ -12,7 +12,6 @@ static const char autoIndentKey[] = "AutoIndent";
 static const char tabKeyBehaviorKey[] = "TabKeyBehavior";
 static const char smartBackspaceBehaviorKey[] = "SmartBackspaceBehavior";
 static const char preferSingleLineCommentsKey[] = "PreferSingleLineComments";
-static const char groupPostfix[] = "TypingSettings";
 
 using namespace Utils;
 
@@ -24,17 +23,6 @@ TypingSettings::TypingSettings():
     m_smartBackspaceBehavior(BackspaceNeverIndents),
     m_preferSingleLineComments(false)
 {
-}
-
-void TypingSettings::toSettings(const Key &category) const
-{
-    Utils::storeToSettings(category + groupPostfix, Core::ICore::settings(), toMap());
-}
-
-void TypingSettings::fromSettings(const Key &category)
-{
-    *this = TypingSettings(); // Assign defaults
-    fromMap(Utils::storeFromSettings(category + groupPostfix, Core::ICore::settings()));
 }
 
 Store TypingSettings::toMap() const

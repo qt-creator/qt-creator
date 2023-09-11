@@ -5,10 +5,7 @@
 
 #include "texteditortr.h"
 
-#include <coreplugin/icore.h>
-
 // Keep this for compatibility reasons.
-static const char kGroupPostfix[] = "EditorManager";
 static const char kUtf8BomBehaviorKey[] = "Utf8BomBehavior";
 
 using namespace Utils;
@@ -19,21 +16,6 @@ ExtraEncodingSettings::ExtraEncodingSettings() : m_utf8BomSetting(OnlyKeep)
 {}
 
 ExtraEncodingSettings::~ExtraEncodingSettings() = default;
-
-void ExtraEncodingSettings::toSettings(const Key &category) const
-{
-    Q_UNUSED(category)
-
-    Utils::storeToSettings(kGroupPostfix, Core::ICore::settings(), toMap());
-}
-
-void ExtraEncodingSettings::fromSettings(const Key &category)
-{
-    Q_UNUSED(category)
-
-    *this = ExtraEncodingSettings();
-    fromMap(Utils::storeFromSettings(kGroupPostfix, Core::ICore::settings()));
-}
 
 Store ExtraEncodingSettings::toMap() const
 {

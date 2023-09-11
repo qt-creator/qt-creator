@@ -35,9 +35,6 @@ public:
     TabSettings(TabPolicy tabPolicy, int tabSize,
                 int indentSize, ContinuationAlignBehavior continuationAlignBehavior);
 
-    void toSettings(const Utils::Key &category, Utils::QtcSettings *s) const;
-    void fromSettings(const Utils::Key &category, Utils::QtcSettings *s);
-
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &map);
 
