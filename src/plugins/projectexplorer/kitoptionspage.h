@@ -16,8 +16,12 @@ class PROJECTEXPLORER_EXPORT KitSettingsSortModel : public Utils::SortModel
 public:
     using SortModel::SortModel;
 
+    void setSortedCategories(const QStringList &categories) { m_sortedCategories = categories; }
+
 private:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
+
+    QStringList m_sortedCategories;
 };
 
 namespace Internal {

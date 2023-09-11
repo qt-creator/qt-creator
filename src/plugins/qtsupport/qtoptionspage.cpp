@@ -315,6 +315,8 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_model->rootItem()->appendChild(m_manualItem);
 
     m_filterModel = new KitSettingsSortModel(this);
+    m_filterModel->setSortedCategories({ProjectExplorer::Constants::msgAutoDetected(),
+                                        ProjectExplorer::Constants::msgManual()});
     m_filterModel->setSourceModel(m_model);
 
     m_qtdirList->setModel(m_filterModel);

@@ -33,11 +33,19 @@ namespace ProjectExplorer {
 bool KitSettingsSortModel::lessThan(const QModelIndex &source_left,
                                     const QModelIndex &source_right) const
 {
-    if (!source_left.parent().isValid()) {
-        QTC_CHECK(!source_right.parent().isValid());
-        return sourceModel()->data(source_left) == Constants::msgAutoDetected();
-    }
-    return SortModel::lessThan(source_left, source_right);
+    const auto defaultCmp = [&] { return SortModel::lessThan(source_left, source_right); };
+
+    if (m_sortedCategories.isEmpty() || source_left.parent().isValid())
+        return defaultCmp();
+
+    QTC_ASSERT(!source_right.parent().isValid(), return defaultCmp());
+    const int leftIndex = m_sortedCategories.indexOf(sourceModel()->data(source_left));
+    QTC_ASSERT(leftIndex != -1, return defaultCmp());
+    if (leftIndex == 0)
+        return true;
+    const int rightIndex = m_sortedCategories.indexOf(sourceModel()->data(source_right));
+    QTC_ASSERT(rightIndex != -1, return defaultCmp());
+    return leftIndex < rightIndex;
 }
 
 namespace Internal {
@@ -534,6 +542,7 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     verticalLayout->setStretch(0, 1);
     verticalLayout->setStretch(1, 0);
     m_sortModel = new KitSettingsSortModel(this);
+    m_sortModel->setSortedCategories({Constants::msgAutoDetected(), Constants::msgManual()});
     m_sortModel->setSourceModel(m_model);
 
     m_kitsView->setModel(m_sortModel);

@@ -183,6 +183,7 @@ public:
         m_toolChainView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_toolChainView->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_sortModel.setSourceModel(&m_model);
+        m_sortModel.setSortedCategories({Constants::msgAutoDetected(), Constants::msgManual()});
         m_toolChainView->setModel(&m_sortModel);
         m_toolChainView->setSortingEnabled(true);
         m_toolChainView->sortByColumn(0, Qt::AscendingOrder);

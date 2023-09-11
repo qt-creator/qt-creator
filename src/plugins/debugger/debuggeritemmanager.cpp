@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 
@@ -203,11 +204,13 @@ const DebuggerItem *findDebugger(const Predicate &pred)
     return titem ? &titem->m_item : nullptr;
 }
 
+static QString genericCategoryDisplayName() { return Tr::tr("Generic"); }
+
 DebuggerItemModel::DebuggerItemModel()
 {
     setHeader({Tr::tr("Name"), Tr::tr("Path"), Tr::tr("Type")});
 
-    auto generic = new StaticTreeItem(Tr::tr("Generic"));
+    auto generic = new StaticTreeItem(genericCategoryDisplayName());
     auto autoDetected = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
     rootItem()->appendChild(generic);
@@ -942,12 +945,19 @@ public:
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
 
+        m_sortModel = new KitSettingsSortModel(this);
+        m_sortModel->setSourceModel(&itemModel());
+        m_sortModel->setSortedCategories({genericCategoryDisplayName(),
+                                          ProjectExplorer::Constants::msgAutoDetected(),
+                                          ProjectExplorer::Constants::msgManual()});
         m_debuggerView = new QTreeView(this);
-        m_debuggerView->setModel(&itemModel());
+        m_debuggerView->setModel(m_sortModel);
         m_debuggerView->setUniformRowHeights(true);
         m_debuggerView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_debuggerView->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_debuggerView->expandAll();
+        m_debuggerView->setSortingEnabled(true);
+        m_debuggerView->sortByColumn(0, Qt::AscendingOrder);
 
         auto header = m_debuggerView->header();
         header->setStretchLastSection(false);
@@ -1003,6 +1013,7 @@ public:
     void currentDebuggerChanged(const QModelIndex &newCurrent);
     void updateButtons();
 
+    KitSettingsSortModel *m_sortModel;
     QTreeView *m_debuggerView;
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
@@ -1027,7 +1038,7 @@ void DebuggerSettingsPageWidget::cloneDebugger()
     newItem.setGeneric(item->isGeneric());
     newItem.setEngineType(item->engineType());
     auto addedItem = itemModel().addDebuggerItem(newItem, true);
-    m_debuggerView->setCurrentIndex(itemModel().indexForItem(addedItem));
+    m_debuggerView->setCurrentIndex(m_sortModel->mapFromSource(itemModel().indexForItem(addedItem)));
 }
 
 void DebuggerSettingsPageWidget::addDebugger()
@@ -1038,7 +1049,7 @@ void DebuggerSettingsPageWidget::addDebugger()
     item.setUnexpandedDisplayName(itemModel().uniqueDisplayName(Tr::tr("New Debugger")));
     item.setAutoDetected(false);
     auto addedItem = itemModel().addDebuggerItem(item, true);
-    m_debuggerView->setCurrentIndex(itemModel().indexForItem(addedItem));
+    m_debuggerView->setCurrentIndex(m_sortModel->mapFromSource(itemModel().indexForItem(addedItem)));
 }
 
 void DebuggerSettingsPageWidget::removeDebugger()
@@ -1052,7 +1063,7 @@ void DebuggerSettingsPageWidget::removeDebugger()
 
 void DebuggerSettingsPageWidget::currentDebuggerChanged(const QModelIndex &newCurrent)
 {
-    itemModel().setCurrentIndex(newCurrent);
+    itemModel().setCurrentIndex(m_sortModel->mapToSource(newCurrent));
     updateButtons();
 }
 
