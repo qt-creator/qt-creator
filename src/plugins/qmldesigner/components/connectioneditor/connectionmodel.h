@@ -270,6 +270,8 @@ public:
     Q_INVOKABLE void addElse();
     Q_INVOKABLE void removeElse();
 
+    void update();
+
 signals:
     void currentRowChanged();
     void actionTypeChanged();

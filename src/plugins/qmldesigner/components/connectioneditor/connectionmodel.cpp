@@ -765,9 +765,12 @@ void ConnectionModelBackendDelegate::setCurrentRow(int i)
 
     //setup
 
-    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+    update();
+}
 
-    qDebug() << Q_FUNC_INFO << i << model;
+void ConnectionModelBackendDelegate::update()
+{
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
 
     QTC_ASSERT(model, return );
     if (!model->connectionView()->isAttached())
