@@ -1,0 +1,28 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-qt-insight.html
+    \previouspage studio-texture-editor.html
+    \nextpage creator-project-managing-workspaces.html
+
+    \title Qt Insight
+
+    In the \uicontrol {Qt Insight} view, you manage your Qt Insight.
+
+    Qt Insight is an analytics solution that provides real user insights on the usage of Qt
+    applications. It shows, for example, an application’s performance, usage, and user data.
+
+    For more information, see the
+    \l{https://www.qt.io/product/insight/onboarding-instructions}{Getting Started with Qt Insight}
+    documentation.
+
+    \image qt-insight-view.png
+
+    In \QDS, you can do the following with Qt Insight:
+    \list
+      \li Turn on and off tracking
+      \li Set send cadence
+      \li Manage categories
+    \endlist
+*/
