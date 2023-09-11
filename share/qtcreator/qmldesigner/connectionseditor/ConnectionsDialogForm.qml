@@ -147,51 +147,6 @@ Column {
         }
     }
 
-    Flow {
-        spacing: root.horizontalSpacing
-        width: root.width
-
-        Repeater {
-            model: backend.conditionListModel
-
-            Text {
-                text: value
-                color: "white"
-
-                Rectangle {
-                    z: -1
-                    opacity: 0.2
-                    anchors.fill: parent
-                    color: {
-                        if (type === ConditionListModel.Intermediate)
-                            return "darkorange"
-                        if (type === ConditionListModel.Invalid)
-                            return "red"
-                        if (type === ConditionListModel.Operator)
-                            return "blue"
-                        if (type === ConditionListModel.Literal)
-                            return "green"
-                        if (type === ConditionListModel.Variable)
-                            return "yellow"
-                        if (type === ConditionListModel.Shadow)
-                            return "hotpink"
-                    }
-                }
-            }
-        }
-    }
-
-    TextInput {
-        id: commandInput
-        width: root.width
-        onAccepted: backend.conditionListModel.command(commandInput.text)
-    }
-
-    Text {
-        text: "invalid " + backend.conditionListModel.error
-        visible: !backend.conditionListModel.valid
-    }
-
     HelperWidgets.AbstractButton {
         style: StudioTheme.Values.connectionPopupButtonStyle
         width: 160
