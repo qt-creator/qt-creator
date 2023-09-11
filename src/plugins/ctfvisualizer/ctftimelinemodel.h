@@ -73,7 +73,7 @@ protected:
     QString m_processName;
 
     int m_maxStackSize = 0;
-    QVector<int> m_nestingLevels;
+    QVector<int> m_rows;
     QVector<QMap<int, QPair<QString, QString>>> m_details;
     QSet<int> m_handledTypeIds;
     QStack<int> m_openEventIds;

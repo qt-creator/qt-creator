@@ -105,7 +105,7 @@ int CtfTimelineModel::expandedRow(int index) const
     if (counterIdx > 0) {
         return m_counterIndexToRow[counterIdx - 1] + 1;
     }
-    return m_nestingLevels.value(index) + m_counterData.size() + 1;
+    return m_rows.value(index) + m_counterData.size() + 1;
 }
 
 int CtfTimelineModel::collapsedRow(int index) const
@@ -187,6 +187,8 @@ void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QStrin
         m_details[index].insert(6, {reuse(Tr::tr("Unfinished")), reuse(Tr::tr("true"))});
     }
     computeNesting();
+    m_rows = computeRows(&m_maxStackSize);
+    ++m_maxStackSize; // index -> count
 
     QVector<std::string> sortedCounterNames = m_counterNames;
     std::sort(sortedCounterNames.begin(), sortedCounterNames.end());
@@ -233,8 +235,6 @@ qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
                                        const std::string &eventPhase, const std::string &name,
                                        int selectionId)
 {
-    int nestingLevel = m_openEventIds.size();
-    m_maxStackSize = std::max(qsizetype(m_maxStackSize), qsizetype(m_openEventIds.size() + 1));
     int index = 0;
     qint64 duration = -1;
     if (eventPhase == CtfEventTypeBegin) {
@@ -250,29 +250,21 @@ qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
         duration = qint64(event[CtfDurationKey]) * 1000;
         index = insert(normalizedTime, duration, selectionId);
         for (int i = m_openEventIds.size() - 1; i >= 0; --i) {
-            if (m_openEventIds[i] >= index) {
+            if (m_openEventIds[i] >= index)
                 ++m_openEventIds[i];
-                // if the event is before an open event, the nesting level decreases:
-                --nestingLevel;
-            }
         }
     } else {
         index = insert(normalizedTime, 0, selectionId);
         for (int i = m_openEventIds.size() - 1; i >= 0; --i) {
-            if (m_openEventIds[i] >= index) {
+            if (m_openEventIds[i] >= index)
                 ++m_openEventIds[i];
-                --nestingLevel;
-            }
         }
     }
     if (index >= m_details.size()) {
         m_details.resize(index + 1);
         m_details[index] = QMap<int, QPair<QString, QString>>();
-        m_nestingLevels.resize(index + 1);
-        m_nestingLevels[index] = nestingLevel;
     } else {
         m_details.insert(index, QMap<int, QPair<QString, QString>>());
-        m_nestingLevels.insert(index, nestingLevel);
     }
     if (m_counterValues.size() > index) {
         // if the event was inserted before any counter, we need
