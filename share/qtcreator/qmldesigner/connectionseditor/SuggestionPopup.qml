@@ -168,12 +168,13 @@ Controls.Popup {
                     clip: true
                     model: root.treeModel
 
-                    // This is currently a workaround and should be cleaned up. Calling
-                    // expandRecursively every time the filter changes is performance wise not good.
-                    //Connections {
-                    //    target: proxyModel
-                    //    function onFilterChanged() { treeView.expandRecursively() }
-                    //}
+                    onLayoutChanged: function() {
+                        treeView.expand(0)
+                    }
+
+                    rowHeightProvider: function(row) {
+                        return (row <= 0) ? 0 : -1
+                    }
 
                     delegate: MyTreeViewDelegate {
                         id: treeViewDelegate

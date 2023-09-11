@@ -16,17 +16,6 @@ Column {
 
     property var backend
 
-
-    /* replaced by ConnectionModelStatementDelegate defined in C++
-    enum ActionType {
-        CallFunction,
-        Assign,
-        ChangeState,
-        SetProperty,
-        PrintMessage,
-        Custom
-    } */
-
     y: StudioTheme.Values.popupMargin
     width: parent.width
     spacing: root.verticalSpacing

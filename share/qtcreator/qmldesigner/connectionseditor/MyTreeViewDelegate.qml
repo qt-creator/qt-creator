@@ -9,36 +9,24 @@ import StudioTheme as StudioTheme
 T.TreeViewDelegate {
     id: control
     hoverEnabled: true
-
     implicitWidth: 200
     implicitHeight: 30
-
-    //implicitWidth: leftMargin + __contentIndent + implicitContentWidth + rightPadding + rightMargin
-    //implicitHeight: Math.max(indicator ? indicator.height : 0, implicitContentHeight) * 1.25
-
     indentation: 12
-    //leftMargin: 4
-    //rightMargin: 4
-    //spacing: 4
-
-    //topPadding: contentItem ? (height - contentItem.implicitHeight) / 2 : 0
     leftPadding: control.leftMargin + control.__contentIndent
 
-    //required property int row
-    //required property var model
+    readonly property int customDepth: control.depth - 1
+
     readonly property real __contentIndent: !control.isTreeNode ? 0
-                                                                : (control.depth * control.indentation)
+                                                                : (control.customDepth * control.indentation)
                                                                   + (control.indicator ? control.indicator.width + control.spacing : 0)
 
     indicator: Item {
-        readonly property real __indicatorIndent: control.leftMargin + (control.depth * control.indentation)
-
-        x: __indicatorIndent
+        x: control.leftMargin + (control.customDepth * control.indentation)
         width: 30
         height: 30
 
         Text {
-            id: caret
+            id: icon
             font.family: StudioTheme.Constants.iconFont.family
             font.pixelSize: StudioTheme.Values.smallIconFontSize
             color: control.hovered ? "#111111" : "white" // TODO colors
