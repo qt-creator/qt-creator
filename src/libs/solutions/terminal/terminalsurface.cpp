@@ -564,21 +564,9 @@ void TerminalSurface::sendKey(QKeyEvent *event)
 
         vterm_keyboard_key(d->m_vterm.get(), key, mod);
     } else if (event->text().length() == 1) {
-        // This maps to delete word and is way to easy to mistakenly type
-        //        if (event->key() == Qt::Key_Space && mod == VTERM_MOD_SHIFT)
-        //            mod = VTERM_MOD_NONE;
-
-        // Per https://github.com/justinmk/neovim/commit/317d5ca7b0f92ef42de989b3556ca9503f0a3bf6
-        // libvterm prefers we send the full keycode rather than sending the
-        // ctrl modifier.  This helps with ncurses applications which otherwise
-        // do not recognize ctrl+<key> and in the shell for getting common control characters
-        // like ctrl+i for tab or ctrl+j for newline.
-
-        // Workaround for "ALT+SHIFT+/" (\ on german mac keyboards)
-        if (mod == (VTERM_MOD_SHIFT | VTERM_MOD_ALT) && event->key() == Qt::Key_Slash)
-            mod = VTERM_MOD_NONE;
-
-        vterm_keyboard_unichar(d->m_vterm.get(), event->text().toUcs4()[0], mod);
+        // event->text() already contains the correct unicode character based on the modifiers
+        // used, so we can simply convert it to Ucs4 and send it to the terminal.
+        vterm_keyboard_unichar(d->m_vterm.get(), event->text().toUcs4()[0], VTERM_MOD_NONE);
     } else if (mod == VTERM_MOD_CTRL && event->key() >= Qt::Key_A && event->key() < Qt::Key_Z) {
         vterm_keyboard_unichar(d->m_vterm.get(), 'a' + (event->key() - Qt::Key_A), mod);
     }
