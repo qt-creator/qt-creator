@@ -90,33 +90,25 @@ struct alignas(16) StringDataLayout
         , reference{{string}, size, 0}
     {}
 
-    QT_WARNING_PUSH
-    QT_WARNING_DISABLE_CLANG("-Wunsafe-buffer-usage")
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
-        if constexpr (Size + 1 <= MaximumShortStringDataAreaSize) {
-            control = {Size - 1, false, false};
-            for (size_type i = 0; i < Size; ++i)
+        constexpr auto size = Size - 1;
+        if constexpr (size <= MaximumShortStringDataAreaSize) {
+            control = {size, false, false};
+            for (size_type i = 0; i < size; ++i)
                 shortString[i] = string[i];
 #if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
             if (std::is_constant_evaluated()) {
-                for (size_type i = Size; i < MaximumShortStringDataAreaSize; ++i)
+                for (size_type i = size; i < MaximumShortStringDataAreaSize; ++i)
                     shortString[i] = 0;
             }
 #endif
         } else {
             control = {0, true, true};
-#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
-            if (std::is_constant_evaluated()) {
-                for (size_type i = 0; i < sizeof(dummy); ++i)
-                    dummy[i] = 0;
-            }
-#endif
-            reference = {{string}, Size - 1, 0};
+            reference = {{string}, size, 0};
         }
     }
-    QT_WARNING_POP
 
     constexpr static size_type shortStringCapacity() noexcept
     {
@@ -166,33 +158,25 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
         , reference{{string}, size, 0}
     {}
 
-    QT_WARNING_PUSH
-    QT_WARNING_DISABLE_CLANG("-Wunsafe-buffer-usage")
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
-        if constexpr (Size + 1 <= MaximumShortStringDataAreaSize) {
-            control = {Size - 1, false, false};
-            for (size_type i = 0; i < Size; ++i)
+        constexpr auto size = Size - 1;
+        if constexpr (size <= MaximumShortStringDataAreaSize) {
+            control = {size, false, false};
+            for (size_type i = 0; i < size; ++i)
                 shortString[i] = string[i];
 #if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
             if (std::is_constant_evaluated()) {
-                for (size_type i = Size; i < MaximumShortStringDataAreaSize; ++i)
+                for (size_type i = size; i < MaximumShortStringDataAreaSize; ++i)
                     shortString[i] = 0;
             }
 #endif
         } else {
             control = {0, true, true};
-#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
-            if (std::is_constant_evaluated()) {
-                for (size_type i = 0; i < sizeof(dummy); ++i)
-                    dummy[i] = 0;
-            }
-#endif
-            reference = {{string}, Size - 1, 0};
+            reference = {{string}, size, 0};
         }
     }
-    QT_WARNING_POP
 
     void copyHere(const StringDataLayout &other) noexcept
     {
