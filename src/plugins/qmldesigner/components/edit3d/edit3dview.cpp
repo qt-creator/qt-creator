@@ -522,7 +522,7 @@ void Edit3DView::createResetColorAction(QAction *syncBackgroundColorAction)
         Edit3DViewConfig::setColors(this, edit3dBgColorProperty, bgColors);
         Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
 
-        QColor gridColor{0xaaaaaa};
+        QColor gridColor{0xcccccc};
         Edit3DViewConfig::setColors(this, edit3dGridColorProperty, {gridColor});
         Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, {gridColor});
 

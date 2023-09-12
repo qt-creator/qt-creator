@@ -54,5 +54,8 @@
         <file>mockfiles/qt6/SceneView3D.qml</file>
         <file>mockfiles/qt6/SelectionBox.qml</file>
         <file>mockfiles/qt6/SpotLightHandle.qml</file>
+        <file>mockfiles/qt6/GridMaterial.qml</file>
+        <file>mockfiles/shaders/gridmaterial.frag</file>
+        <file>mockfiles/shaders/gridmaterial.vert</file>
     </qresource>
 </RCC>

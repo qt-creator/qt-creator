@@ -17,19 +17,6 @@ View3D {
     property alias orthoCamera: sceneOrthoCamera
     property vector3d cameraLookAt
 
-    // This is step of the main line of the grid, between those is always one subdiv line
-    property int gridStep: 100
-
-    property int minGridStep: 50
-    readonly property int maxGridStep: 32 * minGridStep
-
-    readonly property int gridArea: minGridStep * 128
-
-    // Minimum grid spacing in radians when viewed perpendicularly and lookAt is on origin.
-    // If spacing would go smaller, gridStep is doubled and line count halved.
-    // Note that spacing can stay smaller than this after maxGridStep has been reached.
-    readonly property double minGridRad: 0.1
-
     // Measuring the distance from camera to lookAt plus the distance of lookAt from grid plane
     // gives a reasonable grid spacing in most cases while keeping spacing constant when
     // orbiting the camera.
@@ -45,34 +32,6 @@ View3D {
 
     camera: usePerspective ? scenePerspectiveCamera : sceneOrthoCamera
 
-    function calcRad()
-    {
-        return Math.atan(gridStep / cameraDistance)
-    }
-
-    onCameraDistanceChanged: {
-        if (cameraDistance === 0)
-            return
-
-        // Calculate new grid step
-        let gridRad = calcRad()
-        while (gridRad < minGridRad && gridStep < maxGridStep) {
-            gridStep *= 2
-            if (gridStep > maxGridStep)
-                gridStep = maxGridStep
-            gridRad = calcRad()
-        }
-        while (gridRad > minGridRad * 2 && gridStep > minGridStep) {
-            gridStep /= 2
-            if (gridStep < minGridStep)
-                gridStep = minGridStep
-            gridRad = calcRad()
-        }
-
-        // Calculate alpha for subgrid. Smaller the perceived spacing, more transparent subgrid is.
-        helperGrid.subdivAlpha = 2 * (1 - (minGridRad / gridRad))
-    }
-
     environment: sceneEnv
     SceneEnvironment {
         id: sceneEnv
@@ -85,14 +44,14 @@ View3D {
 
         HelperGrid {
             id: helperGrid
-            lines: gridArea / gridStep
-            step: gridStep
+            orthoMode: !sceneView.usePerspective
+            distance: sceneView.cameraDistance
         }
 
         PointLight {
             id: sceneLight
-            position: usePerspective ? scenePerspectiveCamera.position
-                                     : sceneOrthoCamera.position
+            position: sceneView.usePerspective ? scenePerspectiveCamera.position
+                                               : sceneOrthoCamera.position
             quadraticFade: 0
             linearFade: 0
         }
@@ -115,7 +74,7 @@ View3D {
             y: 600
             eulerRotation.x: -45
             clipFar: 100000
-            clipNear: -10000
+            clipNear: -100000
         }
     }
 }

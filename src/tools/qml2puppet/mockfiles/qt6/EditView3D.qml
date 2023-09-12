@@ -26,7 +26,7 @@ Item {
     property alias contentItem: contentItem
     property color backgroundGradientColorStart: "#222222"
     property color backgroundGradientColorEnd: "#999999"
-    property color gridColor: "#aaaaaa"
+    property color gridColor: "#cccccc"
     property bool syncBackgroundColor: false
 
     enum SelectionMode { Item, Group }

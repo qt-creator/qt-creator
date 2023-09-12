@@ -82,7 +82,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, true);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
                  QStringList{"#222222", "#999999"});
-    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, "#aaaaaa");
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, "#cccccc");
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE, true);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ENABLED, false);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION, true);
