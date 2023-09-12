@@ -698,6 +698,8 @@ public:
     QPointer<QAbstractButton> m_button; // Owned by configuration widget
     QPointer<QGroupBox> m_groupBox; // For BoolAspects handling GroupBox check boxes
     bool m_buttonIsAdopted = false;
+
+    UndoableValue<bool> m_undoable;
 };
 
 class ColorAspectPrivate
@@ -1708,6 +1710,8 @@ BoolAspect::BoolAspect(AspectContainer *container)
 {
     setDefaultValue(false);
     setSpan(2, 1);
+
+    d->m_undoable.setSilently(false);
 }
 
 /*!
@@ -1741,9 +1745,15 @@ void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
         break;
     }
 
+    connect(d->m_button.data(), &QAbstractButton::clicked, this, [this] {
+        pushUndo(d->m_undoable.set(d->m_button->isChecked()));
+    });
+
+    connect(&d->m_undoable.m_signal, &UndoSignaller::changed, d->m_button, [this]() {
+        d->m_button->setChecked(d->m_undoable.get());
+        handleGuiChanged();
+    });
     bufferToGui();
-    connect(d->m_button.data(), &QAbstractButton::clicked,
-            this, &BoolAspect::handleGuiChanged);
 }
 
 void BoolAspect::adoptButton(QAbstractButton *button)
@@ -1764,6 +1774,16 @@ std::function<void (QObject *)> BoolAspect::groupChecker()
         groupBox->setCheckable(true);
         groupBox->setChecked(value());
         d->m_groupBox = groupBox;
+
+        connect(d->m_groupBox.data(), &QGroupBox::clicked, this, [this] {
+            pushUndo(d->m_undoable.set(d->m_groupBox->isChecked()));
+        });
+
+        connect(&d->m_undoable.m_signal, &UndoSignaller::changed, d->m_groupBox, [this]() {
+            d->m_groupBox->setChecked(d->m_undoable.get());
+            handleGuiChanged();
+        });
+        bufferToGui();
     };
 }
 
@@ -1785,20 +1805,12 @@ QAction *BoolAspect::action()
 
 bool BoolAspect::guiToBuffer()
 {
-    const bool old = m_buffer;
-    if (d->m_button)
-        m_buffer = d->m_button->isChecked();
-    else if (d->m_groupBox)
-        m_buffer = d->m_groupBox->isChecked();
-    return m_buffer != old;
+    return updateStorage(m_buffer, d->m_undoable.get());
 }
 
 void BoolAspect::bufferToGui()
 {
-    if (d->m_button)
-        d->m_button->setChecked(m_buffer);
-    else if (d->m_groupBox)
-        d->m_groupBox->setChecked(m_buffer);
+    d->m_undoable.setWithoutUndo(m_buffer);
 }
 
 void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
