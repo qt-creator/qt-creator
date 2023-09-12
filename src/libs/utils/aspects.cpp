@@ -2479,7 +2479,6 @@ class Internal::AspectContainerPrivate
 public:
     QList<BaseAspect *> m_items; // Both owned and non-owned.
     QList<BaseAspect *> m_ownedItems; // Owned only.
-    bool m_autoApply = true;
     QStringList m_settingsGroup;
     std::function<Layouting::LayoutItem ()> m_layouter;
 };
@@ -2501,7 +2500,7 @@ AspectContainer::~AspectContainer()
 */
 void AspectContainer::registerAspect(BaseAspect *aspect, bool takeOwnership)
 {
-    aspect->setAutoApply(d->m_autoApply);
+    aspect->setAutoApply(isAutoApply());
     d->m_items.append(aspect);
     if (takeOwnership)
         d->m_ownedItems.append(aspect);
@@ -2631,7 +2630,8 @@ void AspectContainer::reset()
 
 void AspectContainer::setAutoApply(bool on)
 {
-    d->m_autoApply = on;
+    BaseAspect::setAutoApply(on);
+
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->setAutoApply(on);
 }

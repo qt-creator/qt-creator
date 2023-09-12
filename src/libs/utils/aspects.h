@@ -79,7 +79,7 @@ public:
     void setVisible(bool visible);
 
     bool isAutoApply() const;
-    void setAutoApply(bool on);
+    virtual void setAutoApply(bool on);
 
     bool isEnabled() const;
     void setEnabled(bool enabled);
@@ -860,7 +860,7 @@ public:
     void reset();
     bool equals(const AspectContainer &other) const;
     void copyFrom(const AspectContainer &other);
-    void setAutoApply(bool on);
+    void setAutoApply(bool on) override;
     bool isDirty() override;
 
     template <typename T> T *aspect() const
