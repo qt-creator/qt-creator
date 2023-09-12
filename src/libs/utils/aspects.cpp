@@ -1749,7 +1749,7 @@ void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
         pushUndo(d->m_undoable.set(d->m_button->isChecked()));
     });
 
-    connect(&d->m_undoable.m_signal, &UndoSignaller::changed, d->m_button, [this]() {
+    connect(&d->m_undoable.m_signal, &UndoSignaller::changed, d->m_button, [this] {
         d->m_button->setChecked(d->m_undoable.get());
         handleGuiChanged();
     });
@@ -1779,7 +1779,7 @@ std::function<void (QObject *)> BoolAspect::groupChecker()
             pushUndo(d->m_undoable.set(d->m_groupBox->isChecked()));
         });
 
-        connect(&d->m_undoable.m_signal, &UndoSignaller::changed, d->m_groupBox, [this]() {
+        connect(&d->m_undoable.m_signal, &UndoSignaller::changed, d->m_groupBox, [this] {
             d->m_groupBox->setChecked(d->m_undoable.get());
             handleGuiChanged();
         });
