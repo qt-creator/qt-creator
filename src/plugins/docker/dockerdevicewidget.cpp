@@ -57,28 +57,13 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto pathListLabel = new InfoLabel(Tr::tr("Paths to mount:"));
     pathListLabel->setAdditionalToolTip(Tr::tr("Source directory list should not be empty."));
 
-    m_pathsListEdit = new PathListEditor;
-    m_pathsListEdit->setPlaceholderText(Tr::tr("Host directories to mount into the container"));
-    m_pathsListEdit->setToolTip(Tr::tr("Maps paths in this list one-to-one to the "
-                                       "docker container."));
-    m_pathsListEdit->setPathList(deviceSettings->mounts());
-    m_pathsListEdit->setMaximumHeight(100);
-    m_pathsListEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-    auto markupMounts = [this, pathListLabel] {
-        const bool isEmpty = m_pathsListEdit->pathList().isEmpty();
+    auto markupMounts = [deviceSettings, pathListLabel] {
+        const bool isEmpty = deviceSettings->mounts.volatileValue().isEmpty();
         pathListLabel->setType(isEmpty ? InfoLabel::Warning : InfoLabel::None);
     };
     markupMounts();
 
-    connect(m_pathsListEdit,
-            &PathListEditor::changed,
-            this,
-            [this, dockerDevice, markupMounts, deviceSettings] {
-                deviceSettings->mounts.setVolatileValue(m_pathsListEdit->pathList());
-                //        dockerDevice->setData(m_data);
-                markupMounts();
-            });
+    connect(&deviceSettings->mounts, &FilePathListAspect::volatileValueChanged, this, markupMounts);
 
     auto logView = new QTextBrowser;
     connect(&m_kitItemDetector, &KitDetector::logOutput,
@@ -183,7 +168,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         deviceSettings->clangdExecutable, br,
         Column {
             pathListLabel,
-            m_pathsListEdit,
+            deviceSettings->mounts,
         }, br,
         If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
         noMargin,

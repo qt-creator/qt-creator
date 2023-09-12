@@ -31,7 +31,6 @@ public:
     void updateDaemonStateTexts();
 
 private:
-    Utils::PathListEditor *m_pathsListEdit;
     QLabel *m_daemonState;
     QToolButton *m_daemonReset;
 

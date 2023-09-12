@@ -26,7 +26,7 @@ public:
     Utils::StringAspect repo{this};
     Utils::StringAspect tag{this};
     Utils::BoolAspect useLocalUidGid{this};
-    Utils::StringListAspect mounts{this};
+    Utils::FilePathListAspect mounts{this};
     Utils::BoolAspect keepEntryPoint{this};
     Utils::BoolAspect enableLldbFlags{this};
     Utils::FilePathAspect clangdExecutable{this};

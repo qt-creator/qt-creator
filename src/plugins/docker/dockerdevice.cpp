@@ -173,6 +173,8 @@ DockerDeviceSettings::DockerDeviceSettings()
     mounts.setSettingsKey(DockerDeviceMappedPaths);
     mounts.setLabelText(Tr::tr("Paths to mount:"));
     mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toString()});
+    mounts.setToolTip(Tr::tr("Maps paths in this list one-to-one to the docker container."));
+    mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container"));
 
     clangdExecutable.setSettingsKey(DockerDeviceClangDExecutable);
     clangdExecutable.setLabelText(Tr::tr("Clangd Executable:"));
@@ -460,11 +462,10 @@ Tasks DockerDevicePrivate::validateMounts() const
 {
     Tasks result;
 
-    for (const QString &mount : deviceSettings->mounts()) {
-        const FilePath path = FilePath::fromUserInput(mount);
-        if (!path.isDir()) {
+    for (const FilePath &mount : deviceSettings->mounts()) {
+        if (!mount.isDir()) {
             const QString message = Tr::tr("Path \"%1\" is not a directory or does not exist.")
-                                        .arg(mount);
+                                        .arg(mount.toUserOutput());
 
             result.append(Task(Task::Error, message, {}, -1, {}));
         }
@@ -705,8 +706,8 @@ QStringList DockerDevicePrivate::createMountArgs() const
 {
     QStringList cmds;
     QList<TemporaryMountInfo> mounts = m_temporaryMounts;
-    for (const QString &m : deviceSettings->mounts())
-        mounts.append({FilePath::fromUserInput(m), FilePath::fromUserInput(m)});
+    for (const FilePath &m : deviceSettings->mounts())
+        mounts.append({m, m});
 
     for (const TemporaryMountInfo &mi : mounts) {
         if (isValidMountInfo(mi))
@@ -1189,8 +1190,8 @@ bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath
     if (alreadyAdded)
         return false;
 
-    const bool alreadyManuallyAdded = anyOf(deviceSettings->mounts(), [path](const QString &mount) {
-        return mount == path.path();
+    const bool alreadyManuallyAdded = anyOf(deviceSettings->mounts(), [path](const FilePath &mount) {
+        return mount == path;
     });
 
     if (alreadyManuallyAdded)
@@ -1225,8 +1226,8 @@ void DockerDevicePrivate::shutdown()
 void DockerDevicePrivate::changeMounts(QStringList newMounts)
 {
     newMounts.removeDuplicates();
-    if (deviceSettings->mounts() != newMounts) {
-        deviceSettings->mounts() = newMounts;
+    if (deviceSettings->mounts.value() != newMounts) {
+        deviceSettings->mounts.value() = newMounts;
         stopCurrentContainer(); // Force re-start with new mounts.
     }
 }
@@ -1241,8 +1242,8 @@ expected_str<FilePath> DockerDevicePrivate::localSource(const FilePath &other) c
         }
     }
 
-    for (const QString &mount : deviceSettings->mounts()) {
-        const FilePath mountPoint = FilePath::fromString(mount);
+    for (const FilePath &mount : deviceSettings->mounts()) {
+        const FilePath mountPoint = mount;
         if (devicePath.isChildOf(mountPoint)) {
             const FilePath relativePath = devicePath.relativeChildPath(mountPoint);
             return mountPoint.pathAppended(relativePath.path());
@@ -1257,12 +1258,11 @@ bool DockerDevicePrivate::ensureReachable(const FilePath &other)
     if (other.isSameDevice(q->rootPath()))
         return true;
 
-    for (const QString &mount : deviceSettings->mounts()) {
-        const FilePath fMount = FilePath::fromString(mount);
-        if (other.isChildOf(fMount))
+    for (const FilePath &mount : deviceSettings->mounts()) {
+        if (other.isChildOf(mount))
             return true;
 
-        if (fMount == other)
+        if (mount == other)
             return true;
     }
 
