@@ -10,6 +10,7 @@
 #include "layoutbuilder.h"
 #include "passworddialog.h"
 #include "pathchooser.h"
+#include "pathlisteditor.h"
 #include "qtcassert.h"
 #include "qtcolorbutton.h"
 #include "qtcsettings.h"
@@ -600,6 +601,12 @@ void BaseAspect::registerSubWidget(QWidget *widget)
         widget->setVisible(d->m_visible);
 }
 
+void BaseAspect::forEachSubWidget(const std::function<void(QWidget *)> &func)
+{
+    for (auto w : d->m_subWidgets)
+        func(w);
+}
+
 void BaseAspect::saveToMap(Store &data, const QVariant &value,
                            const QVariant &defaultValue, const Key &key)
 {
@@ -883,6 +890,13 @@ public:
 class StringListAspectPrivate
 {
 public:
+};
+
+class FilePathListAspectPrivate
+{
+public:
+    UndoableValue<QStringList> undoable;
+    QString placeHolderText;
 };
 
 class TextDisplayPrivate
@@ -2398,6 +2412,116 @@ void StringListAspect::removeValues(const QStringList &values)
     QStringList val = value();
     for (const QString &s : values)
         val.removeAll(s);
+    setValue(val);
+}
+
+/*!
+    \class Utils::FilePathListAspect
+    \inmodule QtCreator
+
+    \brief A filepath list aspect represents a property of some object
+    that is a list of filepathList.
+*/
+
+FilePathListAspect::FilePathListAspect(AspectContainer *container)
+    : TypedAspect(container)
+    , d(new Internal::FilePathListAspectPrivate)
+{
+    setDefaultValue(QStringList());
+}
+
+FilePathListAspect::~FilePathListAspect() = default;
+
+FilePaths FilePathListAspect::operator()() const
+{
+    return Utils::transform(m_internal, &FilePath::fromUserInput);
+}
+
+bool FilePathListAspect::guiToBuffer()
+{
+    const QStringList newValue = d->undoable.get();
+    if (newValue != m_buffer) {
+        m_buffer = newValue;
+        return true;
+    }
+    return false;
+}
+
+void FilePathListAspect::bufferToGui()
+{
+    d->undoable.setWithoutUndo(m_buffer);
+}
+
+void FilePathListAspect::addToLayout(LayoutItem &parent)
+{
+    d->undoable.setSilently(value());
+
+    PathListEditor *editor = new PathListEditor;
+    editor->setPathList(value());
+    connect(editor, &PathListEditor::changed, this, [this, editor] {
+        pushUndo(d->undoable.set(editor->pathList()));
+    });
+    connect(&d->undoable.m_signal, &UndoSignaller::changed, this, [this, editor] {
+        if (editor->pathList() != d->undoable.get())
+            editor->setPathList(d->undoable.get());
+
+        handleGuiChanged();
+    });
+
+    editor->setToolTip(toolTip());
+    editor->setMaximumHeight(100);
+    editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    editor->setPlaceholderText(d->placeHolderText);
+
+    registerSubWidget(editor);
+
+    parent.addItem(editor);
+}
+
+void FilePathListAspect::setPlaceHolderText(const QString &placeHolderText)
+{
+    d->placeHolderText = placeHolderText;
+
+    forEachSubWidget([placeHolderText](QWidget *widget) {
+        if (auto pathListEditor = qobject_cast<PathListEditor *>(widget)) {
+            pathListEditor->setPlaceholderText(placeHolderText);
+        }
+    });
+}
+
+void FilePathListAspect::appendValue(const FilePath &path, bool allowDuplicates)
+{
+    const QString asString = path.toUserOutput();
+    QStringList val = value();
+    if (allowDuplicates || !val.contains(asString))
+        val.append(asString);
+    setValue(val);
+}
+
+void FilePathListAspect::removeValue(const FilePath &s)
+{
+    QStringList val = value();
+    val.removeAll(s.toUserOutput());
+    setValue(val);
+}
+
+void FilePathListAspect::appendValues(const FilePaths &paths, bool allowDuplicates)
+{
+    QStringList val = value();
+
+    for (const FilePath &path : paths) {
+        const QString asString = path.toUserOutput();
+        if (allowDuplicates || !val.contains(asString))
+            val.append(asString);
+    }
+    setValue(val);
+}
+
+void FilePathListAspect::removeValues(const FilePaths &paths)
+{
+    QStringList val = value();
+    for (const FilePath &path : paths)
+        val.removeAll(path.toUserOutput());
     setValue(val);
 }
 

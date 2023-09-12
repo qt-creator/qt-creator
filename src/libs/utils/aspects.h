@@ -38,6 +38,7 @@ class BoolAspectPrivate;
 class ColorAspectPrivate;
 class DoubleAspectPrivate;
 class FilePathAspectPrivate;
+class FilePathListAspectPrivate;
 class IntegerAspectPrivate;
 class MultiSelectionAspectPrivate;
 class SelectionAspectPrivate;
@@ -242,6 +243,8 @@ protected:
     void registerSubWidget(QWidget *widget);
     static void saveToMap(Store &data, const QVariant &value,
                           const QVariant &defaultValue, const Key &key);
+
+    void forEachSubWidget(const std::function<void(QWidget *)> &func);
 
 protected:
     template <class Value>
@@ -774,6 +777,31 @@ private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
 };
 
+class QTCREATOR_UTILS_EXPORT FilePathListAspect : public TypedAspect<QStringList>
+{
+    Q_OBJECT
+
+public:
+    FilePathListAspect(AspectContainer *container = nullptr);
+    ~FilePathListAspect() override;
+
+    FilePaths operator()() const;
+
+    bool guiToBuffer() override;
+    void bufferToGui() override;
+
+    void addToLayout(Layouting::LayoutItem &parent) override;
+    void setPlaceHolderText(const QString &placeHolderText);
+
+    void appendValue(const FilePath &path, bool allowDuplicates = true);
+    void removeValue(const FilePath &path);
+    void appendValues(const FilePaths &values, bool allowDuplicates = true);
+    void removeValues(const FilePaths &values);
+
+private:
+    std::unique_ptr<Internal::FilePathListAspectPrivate> d;
+};
+
 class QTCREATOR_UTILS_EXPORT IntegersAspect : public TypedAspect<QList<int>>
 {
     Q_OBJECT
@@ -949,6 +977,7 @@ public:
     }
 
     void setSilently(const T &value) { m_value = value; }
+    void setWithoutUndo(const T &value) { setInternal(value); }
 
     T get() const { return m_value; }
 
