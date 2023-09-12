@@ -17,7 +17,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
 
-  find_package(Qt${QT_VERSION_MAJOR}
+  find_package(Qt6
     COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml
     REQUIRED
   )
