@@ -1816,7 +1816,7 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
         const qint64 elapsedMS = absoluteElapsedMS - m_profileElapsedMS;
         m_profileElapsedMS = absoluteElapsedMS;
         if (m_profilingVerbosity > 0) {
-            qDebug("%-22s %-22s %8lldms (%8lldms)",
+            qDebug("%-22s %-40s %8lldms (%8lldms)",
                    what,
                    qPrintable(spec->name()),
                    absoluteElapsedMS,
@@ -1849,7 +1849,7 @@ QString PluginManagerPrivate::profilingSummary(qint64 *totalOut) const
             continue;
         const qint64 t = s->performanceData().total();
         summary += QString("%1 %2ms   ( %3% ) (%4)\n")
-                       .arg(s->name(), -22)
+                       .arg(s->name(), -34)
                        .arg(t, 8)
                        .arg(100.0 * t / total, 5, 'f', 2)
                        .arg(s->performanceData().summary());
