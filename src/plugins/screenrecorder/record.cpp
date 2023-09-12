@@ -265,6 +265,8 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
                                                          "Mov/qtrle rgb24 (*.mov)");
         if (!file.isEmpty()) {
             Internal::settings().lastOpenDirectory.setValue(file.parentDir());
+            Internal::settings().lastOpenDirectory.apply();
+            Internal::settings().lastOpenDirectory.writeToSettingsImmediatly();
             const ClipInfo clip = FFmpegUtils::clipInfo(file);
             if (clip.isNull()) {
                 QMessageBox::critical(Core::ICore::dialogParent(),
