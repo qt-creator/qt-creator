@@ -91,10 +91,11 @@ const std::vector<PropertyName> priorityListSignals = {"clicked",
                                                        "exited",
                                                        "canceled",
                                                        "triggered",
-                                                       "stateChanged",
+                                                       "pressAndHold",
                                                        "started",
                                                        "stopped",
                                                        "finished"
+                                                       "stateChanged",
                                                        "enabledChanged",
                                                        "visibleChanged",
                                                        "opacityChanged",
@@ -136,6 +137,8 @@ void PropertyTreeModel::resetModel()
 {
     beginResetModel();
 
+    m_sortedAndFilteredPropertyNamesSignalsSlots.clear();
+
     m_indexCache.clear();
     m_indexHash.clear();
     m_indexCount = 0;
@@ -147,8 +150,6 @@ void PropertyTreeModel::resetModel()
                    || !sortedAndFilteredPropertyNamesSignalsSlots(node).empty();
         });
     }
-
-    m_sortedAndFilteredPropertyNamesSignalsSlots.clear();
 
     endResetModel();
     testModel();
