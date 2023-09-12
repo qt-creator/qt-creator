@@ -28,6 +28,9 @@ class ConnectionModel : public QStandardItemModel
     Q_PROPERTY(ConnectionModelBackendDelegate *delegate READ delegate CONSTANT)
 
 public:
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
+
+public:
     enum ColumnRoles {
         TargetModelNodeRow = 0,
         TargetPropertyNameRow = 1,
@@ -63,6 +66,14 @@ public:
     Q_INVOKABLE void add();
     Q_INVOKABLE void remove(int row);
 
+    void setCurrentIndex(int i);
+    int currentIndex() const;
+
+    void selectProperty(const SignalHandlerProperty &property);
+
+signals:
+    void currentIndexChanged();
+
 protected:
     void addModelNode(const ModelNode &modelNode);
     void addConnection(const ModelNode &modelNode);
@@ -87,6 +98,7 @@ private:
     bool m_lock = false;
     QString m_exceptionError;
     ConnectionModelBackendDelegate *m_delegate = nullptr;
+    int m_currentIndex = -1;
 };
 
 class ConditionListModel : public QAbstractListModel
@@ -272,6 +284,7 @@ public:
     Q_INVOKABLE void addElse();
     Q_INVOKABLE void removeElse();
 
+    void setCurrentRow(int i);
     void update();
 
 signals:
@@ -283,8 +296,6 @@ signals:
 
 private:
     int currentRow() const;
-    void setCurrentRow(int i);
-
     void handleException();
     bool hasCondition() const;
     bool hasElse() const;
@@ -324,6 +335,7 @@ private:
     QString m_source;
     PropertyTreeModel m_propertyTreeModel;
     PropertyListProxyModel m_propertyListProxyModel;
+    bool m_blockReflection = false;
 };
 
 } // namespace QmlDesigner

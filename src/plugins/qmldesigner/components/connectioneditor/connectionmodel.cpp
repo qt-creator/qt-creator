@@ -81,6 +81,7 @@ void ConnectionModel::resetModel()
             addModelNode(modelNode);
     }
     endResetModel();
+    m_delegate->update();
 }
 
 SignalHandlerProperty ConnectionModel::signalHandlerPropertyForRow(int rowNumber) const
@@ -332,6 +333,8 @@ void ConnectionModel::addConnection()
                 }
 
                 newNode.signalHandlerProperty("onClicked").setSource(source);
+
+                selectProperty(newNode.signalHandlerProperty("onClicked"));
             });
         }
     }
@@ -391,6 +394,32 @@ void ConnectionModel::add()
 void ConnectionModel::remove(int row)
 {
     deleteConnectionByRow(row);
+}
+
+void ConnectionModel::setCurrentIndex(int i)
+{
+    if (m_currentIndex != i) {
+        m_currentIndex = i;
+        emit currentIndexChanged();
+    }
+    m_delegate->setCurrentRow(i);
+}
+
+int ConnectionModel::currentIndex() const
+{
+    return m_currentIndex;
+}
+
+void ConnectionModel::selectProperty(const SignalHandlerProperty &property)
+{
+    for (int i = 0; i < rowCount(); i++) {
+        auto otherProperty = signalHandlerPropertyForRow(i);
+
+        if (property == otherProperty) {
+            setCurrentIndex(i);
+            return;
+        }
+    }
 }
 
 void ConnectionModel::handleException()
@@ -559,13 +588,10 @@ QHash<int, QByteArray> ConnectionModel::roleNames() const
 }
 
 ConnectionModelBackendDelegate::ConnectionModelBackendDelegate(ConnectionModel *parent)
-    : QObject(parent)
-    , m_signalDelegate(parent->connectionView())
-    , m_okStatementDelegate(parent)
-    , m_koStatementDelegate(parent)
-    , m_conditionListModel(parent)
-    , m_propertyTreeModel(parent->connectionView())
-    , m_propertyListProxyModel(&m_propertyTreeModel)
+    : QObject(parent), m_signalDelegate(parent->connectionView()), m_okStatementDelegate(parent),
+      m_koStatementDelegate(parent), m_conditionListModel(parent),
+      m_propertyTreeModel(parent->connectionView()), m_propertyListProxyModel(&m_propertyTreeModel)
+
 {
     connect(&m_signalDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
         handleTargetChanged();
@@ -760,16 +786,17 @@ void ConnectionModelBackendDelegate::setCurrentRow(int i)
 
     m_currentRow = i;
 
-    m_propertyTreeModel.resetModel();
-    m_propertyListProxyModel.setRowAndInternalId(0, internalRootIndex);
-
-    //setup
-
     update();
 }
 
 void ConnectionModelBackendDelegate::update()
 {
+    if (m_blockReflection)
+        return;
+
+    m_propertyTreeModel.resetModel();
+    m_propertyListProxyModel.setRowAndInternalId(0, internalRootIndex);
+
     ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
 
     QTC_ASSERT(model, return );
@@ -796,9 +823,6 @@ void ConnectionModelBackendDelegate::update()
         targetNodes.append(targetNodeName);
 
     setSource(signalHandlerProperty.source());
-
-    qDebug() << Q_FUNC_INFO
-             << removeOnFromSignalName(QString::fromUtf8(signalHandlerProperty.name()));
 
     m_signalDelegate.setup(targetNodeName,
                            removeOnFromSignalName(QString::fromUtf8(signalHandlerProperty.name())));
@@ -970,13 +994,13 @@ void ConnectionModelBackendDelegate::handleTargetChanged()
 
     const PropertyName handlerName = addOnToSignalName(m_signalDelegate.name()).toUtf8();
 
-    qDebug() << Q_FUNC_INFO << m_signalDelegate.id() << handlerName;
-
     const auto parentModelNode = signalHandlerProperty.parentModelNode();
 
     QTC_ASSERT(parentModelNode.isValid(), return );
 
     const auto newId = m_signalDelegate.id();
+
+    const int internalId = signalHandlerProperty.parentModelNode().internalId();
 
     model->connectionView()
         ->executeInTransaction("ConnectionModelBackendDelegate::handleTargetChanged", [&]() {
@@ -996,8 +1020,15 @@ void ConnectionModelBackendDelegate::handleTargetChanged()
 
                 if (parent.isValid() && QmlItemNode::isValidQmlVisualNode(parent))
                     parent.nodeListProperty("data").reparentHere(parentModelNode);
+                else
+                    model->connectionView()->rootModelNode().nodeListProperty("data").reparentHere(
+                        parentModelNode);
             }
         });
+
+    model->selectProperty(model->connectionView()
+                              ->modelNodeForInternalId(internalId)
+                              .signalHandlerProperty(handlerName));
 }
 
 void ConnectionModelBackendDelegate::handleOkStatementChanged()
@@ -1051,12 +1082,14 @@ void ConnectionModelBackendDelegate::commitNewSource(const QString &source)
 
     SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
 
+    m_blockReflection = true;
     model->connectionView()->executeInTransaction("ConnectionModelBackendDelegate::commitNewSource",
                                                   [&]() {
                                                       signalHandlerProperty.setSource(source);
                                                   });
 
     setSource(signalHandlerProperty.source());
+    m_blockReflection = false;
 }
 
 static ConnectionEditorStatements::MatchedStatement emptyStatement;
@@ -1637,6 +1670,7 @@ void ConditionListModel::appendToken(const QString &value)
 
 void ConditionListModel::removeToken(int index)
 {
+    QTC_ASSERT(index < m_tokens.count(), return );
     beginRemoveRows({}, index, index);
 
     m_tokens.remove(index, 1);
