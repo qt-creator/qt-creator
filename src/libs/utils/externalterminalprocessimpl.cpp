@@ -111,8 +111,6 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
     if (detached)
         QObject::connect(process, &Process::done, process, &Process::deleteLater);
 
-    QObject::connect(process, &Process::done, m_interface, &TerminalInterface::onStubExited);
-
     process->setWorkingDirectory(setupData.m_workingDirectory);
 
     if constexpr (HostOsInfo::isWindowsHost()) {
