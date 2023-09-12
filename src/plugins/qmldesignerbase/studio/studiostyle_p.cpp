@@ -10,6 +10,7 @@
 
 #include <QPainter>
 #include <QStyleOption>
+#include <QToolTip>
 
 using namespace Utils;
 using namespace QmlDesigner;
@@ -76,7 +77,12 @@ StudioStylePrivate::StudioStylePrivate(StudioStyle *q)
                                  color(Theme::DStoolbarBackground),            // base
                                  color(Theme::DStoolbarBackground)             // window
         );
+
+        stdPalette.setBrush(QPalette::ColorRole::ToolTipBase, color(Theme::DStoolbarBackground));
+        stdPalette.setColor(QPalette::ColorRole::ToolTipText, color(Theme::DStextColor));
     }
+
+    QToolTip::setPalette(stdPalette);
 }
 
 QList<const QObject *> StudioStylePrivate::animationTargets() const
