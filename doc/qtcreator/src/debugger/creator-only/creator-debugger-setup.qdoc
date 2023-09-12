@@ -169,7 +169,7 @@
     \section2 Debugging Tools for Windows
 
     To use the CDB debugger, install the \e {Debugging Tools for Windows} when
-    you install \QC either by using the Qt Online Installer (in \uicontrol Qt
+    you install \QC either by using \QOI (in \uicontrol Qt
     > \uicontrol Tools > \uicontrol {\QC}) or by using the stand-alone \QC
     installation packages.
 

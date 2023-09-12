@@ -77,7 +77,7 @@
 
     The data is transmitted to the backend storage using an encrypted
     connection. The storage is located in the same Heroku backend as the
-    Qt installer backend. Physically, data is stored in the Amazon cloud.
+    \QOI backend. Physically, data is stored in the Amazon cloud.
 
     \section1 Specifying Telemetry Settings
 

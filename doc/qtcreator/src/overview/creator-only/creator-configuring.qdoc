@@ -34,13 +34,13 @@
     \section1 Checking Build and Run Settings
 
     \QC is an integrated development environment (IDE) that you can use to
-    develop Qt applications. While you can use the Qt Installer to install \QC,
+    develop Qt applications. While you can use \QOI to install \QC,
     the stand-alone \QC installer never installs Qt or any Qt tools, such as
     qmake. To use \QC for Qt development, you also need to install a Qt version
     and a compiler. If you update the compiler version later, you
     can register it into \QC.
 
-    The Qt Installer attempts to auto-detect compilers and Qt versions. If it
+    \QOI attempts to auto-detect compilers and Qt versions. If it
     succeeds, the relevant kits will automatically become
     available in \QC. If it does not, you must add the kits yourself to tell
     \QC where everything is.

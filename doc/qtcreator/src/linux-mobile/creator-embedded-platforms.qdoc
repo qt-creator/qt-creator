@@ -19,10 +19,10 @@
     \endlist
 
     You must install the tool chain for building applications for the targeted
-    embedded platform on the development PC and use the Qt Maintenance Tool to
+    embedded platform on the development PC and use \QMT to
     install Qt libraries that are built for the platform. You can then add a
     \l{glossary-buildandrun-kit}{kit} with the tool chain and the Qt version
-    for the device's architecture. When possible, the Maintenance Tool creates
+    for the device's architecture. When possible, \QMT creates
     suitable kits for you.
 
     You can connect embedded devices to the development PC to run, debug, and
