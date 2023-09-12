@@ -168,6 +168,9 @@ void init(const std::string &process, const std::string &thread, const std::stri
 
 void shutdown()
 {
+    if (!initEvent.initialized)
+        return;
+
     flush();
 
     if (std::ofstream stream(initEvent.filePath, std::ios::app); stream.good())
