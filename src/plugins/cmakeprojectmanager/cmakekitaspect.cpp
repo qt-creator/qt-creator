@@ -388,14 +388,10 @@ private:
 
         m_changeButton->setEnabled(m_currentTool);
         const QString generator = CMakeGeneratorKitAspect::generator(kit());
-        const QString extraGenerator = CMakeGeneratorKitAspect::extraGenerator(kit());
         const QString platform = CMakeGeneratorKitAspect::platform(kit());
         const QString toolset = CMakeGeneratorKitAspect::toolset(kit());
 
         QStringList messageLabel;
-        if (!extraGenerator.isEmpty())
-            messageLabel << extraGenerator << " - ";
-
         messageLabel << generator;
 
         if (!platform.isEmpty())
@@ -424,7 +420,6 @@ private:
         cmakeLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
         auto generatorCombo = new QComboBox;
-        auto extraGeneratorCombo = new QComboBox;
         auto platformEdit = new QLineEdit;
         auto toolsetEdit = new QLineEdit;
 
@@ -435,10 +430,6 @@ private:
         ++row;
         layout->addWidget(new QLabel(Tr::tr("Generator:")), row, 0);
         layout->addWidget(generatorCombo, row, 1);
-
-        ++row;
-        layout->addWidget(new QLabel(Tr::tr("Extra generator:")), row, 0);
-        layout->addWidget(extraGeneratorCombo, row, 1);
 
         ++row;
         layout->addWidget(new QLabel(Tr::tr("Platform:")), row, 0);
@@ -463,18 +454,12 @@ private:
         for (auto it = generatorList.constBegin(); it != generatorList.constEnd(); ++it)
             generatorCombo->addItem(it->name);
 
-        auto updateDialog = [&generatorList, generatorCombo, extraGeneratorCombo,
+        auto updateDialog = [&generatorList, generatorCombo,
                 platformEdit, toolsetEdit](const QString &name) {
             const auto it = std::find_if(generatorList.constBegin(), generatorList.constEnd(),
                                    [name](const CMakeTool::Generator &g) { return g.name == name; });
             QTC_ASSERT(it != generatorList.constEnd(), return);
             generatorCombo->setCurrentText(name);
-
-            extraGeneratorCombo->clear();
-            extraGeneratorCombo->addItem(Tr::tr("<none>"), QString());
-            for (const QString &eg : std::as_const(it->extraGenerators))
-                extraGeneratorCombo->addItem(eg, eg);
-            extraGeneratorCombo->setEnabled(extraGeneratorCombo->count() > 1);
 
             platformEdit->setEnabled(it->supportsPlatform);
             toolsetEdit->setEnabled(it->supportsToolset);
@@ -483,7 +468,6 @@ private:
         updateDialog(CMakeGeneratorKitAspect::generator(kit()));
 
         generatorCombo->setCurrentText(CMakeGeneratorKitAspect::generator(kit()));
-        extraGeneratorCombo->setCurrentText(CMakeGeneratorKitAspect::extraGenerator(kit()));
         platformEdit->setText(platformEdit->isEnabled() ? CMakeGeneratorKitAspect::platform(kit()) : QString());
         toolsetEdit->setText(toolsetEdit->isEnabled() ? CMakeGeneratorKitAspect::toolset(kit()) : QString());
 
@@ -494,7 +478,6 @@ private:
                 return;
 
             CMakeGeneratorKitAspect::set(kit(), generatorCombo->currentText(),
-                                         extraGeneratorCombo->currentData().toString(),
                                          platformEdit->isEnabled() ? platformEdit->text() : QString(),
                                          toolsetEdit->isEnabled() ? toolsetEdit->text() : QString());
 
@@ -579,11 +562,6 @@ QString CMakeGeneratorKitAspect::generator(const Kit *k)
     return generatorInfo(k).generator;
 }
 
-QString CMakeGeneratorKitAspect::extraGenerator(const Kit *k)
-{
-    return generatorInfo(k).extraGenerator;
-}
-
 QString CMakeGeneratorKitAspect::platform(const Kit *k)
 {
     return generatorInfo(k).platform;
@@ -598,13 +576,6 @@ void CMakeGeneratorKitAspect::setGenerator(Kit *k, const QString &generator)
 {
     GeneratorInfo info = generatorInfo(k);
     info.generator = generator;
-    setGeneratorInfo(k, info);
-}
-
-void CMakeGeneratorKitAspect::setExtraGenerator(Kit *k, const QString &extraGenerator)
-{
-    GeneratorInfo info = generatorInfo(k);
-    info.extraGenerator = extraGenerator;
     setGeneratorInfo(k, info);
 }
 
@@ -624,11 +595,10 @@ void CMakeGeneratorKitAspect::setToolset(Kit *k, const QString &toolset)
 
 void CMakeGeneratorKitAspect::set(Kit *k,
                                   const QString &generator,
-                                  const QString &extraGenerator,
                                   const QString &platform,
                                   const QString &toolset)
 {
-    GeneratorInfo info(generator, extraGenerator, platform, toolset);
+    GeneratorInfo info(generator, platform, toolset);
     setGeneratorInfo(k, info);
 }
 
@@ -639,11 +609,7 @@ QStringList CMakeGeneratorKitAspect::generatorArguments(const Kit *k)
     if (info.generator.isEmpty())
         return result;
 
-    if (info.extraGenerator.isEmpty()) {
-        result.append("-G" + info.generator);
-    } else {
-        result.append("-G" + info.extraGenerator + " - " + info.generator);
-    }
+    result.append("-G" + info.generator);
 
     if (!info.platform.isEmpty())
         result.append("-A" + info.platform);
@@ -663,9 +629,6 @@ CMakeConfig CMakeGeneratorKitAspect::generatorCMakeConfig(const Kit *k)
         return config;
 
     config << CMakeConfigItem("CMAKE_GENERATOR", info.generator.toUtf8());
-
-    if (!info.extraGenerator.isEmpty())
-        config << CMakeConfigItem("CMAKE_EXTRA_GENERATOR", info.extraGenerator.toUtf8());
 
     if (!info.platform.isEmpty())
         config << CMakeConfigItem("CMAKE_GENERATOR_PLATFORM", info.platform.toUtf8());

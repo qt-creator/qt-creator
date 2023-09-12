@@ -34,15 +34,13 @@ class CMAKE_EXPORT CMakeGeneratorKitAspect
 {
 public:
     static QString generator(const ProjectExplorer::Kit *k);
-    static QString extraGenerator(const ProjectExplorer::Kit *k);
     static QString platform(const ProjectExplorer::Kit *k);
     static QString toolset(const ProjectExplorer::Kit *k);
     static void setGenerator(ProjectExplorer::Kit *k, const QString &generator);
-    static void setExtraGenerator(ProjectExplorer::Kit *k, const QString &extraGenerator);
     static void setPlatform(ProjectExplorer::Kit *k, const QString &platform);
     static void setToolset(ProjectExplorer::Kit *k, const QString &toolset);
     static void set(ProjectExplorer::Kit *k, const QString &generator,
-                    const QString &extraGenerator, const QString &platform, const QString &toolset);
+                    const QString &platform, const QString &toolset);
     static QStringList generatorArguments(const ProjectExplorer::Kit *k);
     static CMakeConfig generatorCMakeConfig(const ProjectExplorer::Kit *k);
     static bool isMultiConfigGenerator(const ProjectExplorer::Kit *k);

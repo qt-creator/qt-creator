@@ -52,7 +52,6 @@ struct DirectoryData
     // Kit Stuff
     FilePath cmakeBinary;
     QString generator;
-    QString extraGenerator;
     QString platform;
     QString toolset;
     FilePath sysroot;
@@ -835,7 +834,6 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         data->cmakeBinary = config.filePathValueOf("CMAKE_COMMAND");
         data->generator = config.stringValueOf("CMAKE_GENERATOR");
-        data->extraGenerator = config.stringValueOf("CMAKE_EXTRA_GENERATOR");
         data->platform = config.stringValueOf("CMAKE_GENERATOR_PLATFORM");
         if (data->platform.isEmpty())
             data->platform = extractVisualStudioPlatformFromConfig(config);
@@ -880,7 +878,6 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         return false;
 
     if (CMakeGeneratorKitAspect::generator(k) != data->generator
-            || CMakeGeneratorKitAspect::extraGenerator(k) != data->extraGenerator
             || CMakeGeneratorKitAspect::platform(k) != data->platform
             || CMakeGeneratorKitAspect::toolset(k) != data->toolset)
         return false;
@@ -950,7 +947,6 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         CMakeKitAspect::setCMakeTool(k, cmtd.cmakeTool->id());
 
         CMakeGeneratorKitAspect::setGenerator(k, data->generator);
-        CMakeGeneratorKitAspect::setExtraGenerator(k, data->extraGenerator);
         CMakeGeneratorKitAspect::setPlatform(k, data->platform);
         CMakeGeneratorKitAspect::setToolset(k, data->toolset);
 

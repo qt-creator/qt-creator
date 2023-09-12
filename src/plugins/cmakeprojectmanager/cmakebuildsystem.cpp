@@ -1732,11 +1732,6 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
     for (const CMakeTool::Generator &generator : generators) {
         result << qMakePair(Id::fromSetting(generator.name),
                             Tr::tr("%1 (via cmake)").arg(generator.name));
-        for (const QString &extraGenerator : generator.extraGenerators) {
-            const QString displayName = extraGenerator + " - " + generator.name;
-            result << qMakePair(Id::fromSetting(displayName),
-                                Tr::tr("%1 (via cmake)").arg(displayName));
-        }
     }
     return result;
 }
