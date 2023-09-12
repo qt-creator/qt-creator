@@ -7,6 +7,7 @@
 #include "screenrecordersettings.h"
 #include "screenrecordertr.h"
 
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/process.h>
 #include <utils/qtcsettings.h>
@@ -16,8 +17,10 @@
 
 #include <coreplugin/icore.h>
 
+#include <QClipboard>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
@@ -164,6 +167,14 @@ void CropScene::setImage(const QImage &image)
     resize(sceneSize);
 }
 
+QImage CropScene::croppedImage() const
+{
+    if (!m_image)
+        return {};
+
+    return m_image->copy(m_cropRect);
+}
+
 void CropScene::mouseMoveEvent(QMouseEvent *event)
 {
     const QPoint imagePos = toImagePos(event->pos());
@@ -267,6 +278,18 @@ CropWidget::CropWidget(QWidget *parent)
 
     m_warningIcon = new CropSizeWarningIcon(CropSizeWarningIcon::StandardVariant);
 
+    auto saveImageButton = new QToolButton;
+    saveImageButton->setToolTip(Tr::tr("Save current, cropped frame as image file..."));
+    saveImageButton->setIcon(Icons::SAVEFILE.icon());
+
+    auto copyImageToClipboardAction = new QAction(Tr::tr("Copy current, cropped frame as image "
+                                                         "into the Clipboard"), this);
+    copyImageToClipboardAction->setIcon(Icons::COPY.icon());
+    copyImageToClipboardAction->setShortcut(QKeySequence::Copy);
+
+    auto copyImageToClipboardButton = new QToolButton;
+    copyImageToClipboardButton->setDefaultAction(copyImageToClipboardAction);
+
     using namespace Layouting;
     Column {
         scrollArea,
@@ -278,6 +301,8 @@ CropWidget::CropWidget(QWidget *parent)
             m_resetButton,
             m_warningIcon,
             st,
+            saveImageButton,
+            copyImageToClipboardButton,
         },
         noMargin(),
     }.attachTo(this);
@@ -289,6 +314,25 @@ CropWidget::CropWidget(QWidget *parent)
     connect(m_cropScene, &CropScene::cropRectChanged, this, &CropWidget::onCropRectChanged);
     connect(m_resetButton, &QToolButton::pressed, this, [this] {
         m_cropScene->setFullySelected();
+    });
+    connect(saveImageButton, &QToolButton::clicked, this, [this] {
+        FilePathAspect &lastDir = Internal::settings().lastSaveImageDirectory;
+        const QString ext(".png");
+        FilePath file = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save Current Frame As"),
+                                                   lastDir(), "*" + ext);
+        if (!file.isEmpty()) {
+            if (!file.endsWith(ext))
+                file = file.stringAppended(ext);
+            lastDir.setValue(file.parentDir());
+            lastDir.writeToSettingsImmediatly();
+            const QImage image = m_cropScene->croppedImage();
+            image.save(file.toString());
+        }
+    });
+    connect(copyImageToClipboardAction, &QAction::triggered, this, [this] {
+        const QImage image = m_cropScene->croppedImage();
+        QClipboard *clipboard = QGuiApplication::clipboard();
+        clipboard->setImage(image);
     });
 
     updateWidgets();

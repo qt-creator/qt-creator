@@ -26,6 +26,7 @@ public:
     void setFullySelected();
     QRect fullRect() const;
     void setImage(const QImage &image);
+    QImage croppedImage() const;
 
     const static int lineWidth = 1;
 

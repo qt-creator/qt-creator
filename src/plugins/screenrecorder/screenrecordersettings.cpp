@@ -107,6 +107,10 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     exportLastDirectory.setExpectedKind(PathChooser::ExistingDirectory);
     exportLastDirectory.setDefaultValue(FileUtils::homePath().toString());
 
+    lastSaveImageDirectory.setSettingsKey("LastSaveImageDir");
+    lastSaveImageDirectory.setExpectedKind(PathChooser::ExistingDirectory);
+    lastSaveImageDirectory.setDefaultValue(FileUtils::homePath().toString());
+
     recordFrameRate.setSettingsKey("RecordFrameRate");
     recordFrameRate.setDefaultValue(24);
     recordFrameRate.setLabelText(Tr::tr("Recording frame rate:"));
