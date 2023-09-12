@@ -31,6 +31,7 @@
 #include <QSettings>
 #include <QSpinBox>
 #include <QTextEdit>
+#include <QUndoStack>
 
 using namespace Layouting;
 
@@ -84,6 +85,8 @@ public:
     BaseAspect::DataCreator m_dataCreator;
     BaseAspect::DataCloner m_dataCloner;
     QList<BaseAspect::DataExtractor> m_dataExtractors;
+
+    QUndoStack *m_undoStack = nullptr;
 };
 
 /*!
@@ -299,6 +302,29 @@ void BaseAspect::setToolTip(const QString &tooltip)
     for (QWidget *w : std::as_const(d->m_subWidgets)) {
         QTC_ASSERT(w, continue);
         w->setToolTip(tooltip);
+    }
+}
+
+void BaseAspect::setUndoStack(QUndoStack *undoStack)
+{
+    d->m_undoStack = undoStack;
+}
+
+QUndoStack *BaseAspect::undoStack() const
+{
+    return d->m_undoStack;
+}
+
+void BaseAspect::pushUndo(QUndoCommand *cmd)
+{
+    if (!cmd)
+        return;
+
+    if (d->m_undoStack)
+        d->m_undoStack->push(cmd);
+    else {
+        cmd->redo();
+        delete cmd;
     }
 }
 
@@ -2643,6 +2669,14 @@ bool AspectContainer::isDirty()
             return true;
     }
     return false;
+}
+
+void AspectContainer::setUndoStack(QUndoStack *undoStack)
+{
+    BaseAspect::setUndoStack(undoStack);
+
+    for (BaseAspect *aspect : std::as_const(d->m_items))
+        aspect->setUndoStack(undoStack);
 }
 
 bool AspectContainer::equals(const AspectContainer &other) const

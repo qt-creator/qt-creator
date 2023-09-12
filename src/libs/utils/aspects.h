@@ -15,9 +15,12 @@
 #include <memory>
 #include <optional>
 
+#include <QUndoCommand>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QSettings;
+class QUndoStack;
 QT_END_NAMESPACE
 
 namespace Layouting { class LayoutItem; }
@@ -80,6 +83,10 @@ public:
 
     bool isAutoApply() const;
     virtual void setAutoApply(bool on);
+
+    virtual void setUndoStack(QUndoStack *undoStack);
+    QUndoStack *undoStack() const;
+    void pushUndo(QUndoCommand *cmd);
 
     bool isEnabled() const;
     void setEnabled(bool enabled);
@@ -862,6 +869,7 @@ public:
     void copyFrom(const AspectContainer &other);
     void setAutoApply(bool on) override;
     bool isDirty() override;
+    void setUndoStack(QUndoStack *undoStack) override;
 
     template <typename T> T *aspect() const
     {
@@ -898,6 +906,63 @@ signals:
 
 private:
     std::unique_ptr<Internal::AspectContainerPrivate> d;
+};
+
+// Because QObject cannot be a template
+class QTCREATOR_UTILS_EXPORT UndoSignaller : public QObject
+{
+    Q_OBJECT
+public:
+    void emitChanged() { emit changed(); }
+signals:
+    void changed();
+};
+
+template<class T>
+class QTCREATOR_UTILS_EXPORT UndoableValue
+{
+public:
+    class UndoCmd : public QUndoCommand
+    {
+    public:
+        UndoCmd(UndoableValue<T> *value, const T &oldValue, const T &newValue)
+            : m_value(value)
+            , m_oldValue(oldValue)
+            , m_newValue(newValue)
+        {}
+
+        void undo() override { m_value->setInternal(m_oldValue); }
+        void redo() override { m_value->setInternal(m_newValue); }
+
+    private:
+        UndoableValue<T> *m_value;
+        T m_oldValue;
+        T m_newValue;
+    };
+
+    QUndoCommand *set(const T &value)
+    {
+        if (m_value == value)
+            return nullptr;
+
+        return new UndoCmd(this, m_value, value);
+    }
+
+    void setSilently(const T &value) { m_value = value; }
+
+    T get() const { return m_value; }
+
+    UndoSignaller m_signal;
+
+private:
+    void setInternal(const T &value)
+    {
+        m_value = value;
+        m_signal.emitChanged();
+    }
+
+private:
+    T m_value;
 };
 
 } // namespace Utils
