@@ -578,14 +578,6 @@
         \li  \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/sqlite}
         \endlist
 
-        \li \b{three.js}
-
-        Copyright (C) 2010-2015 three.js authors
-
-        MIT License.
-
-        share/qtcreator/templates/wizards/projects/qmake/qtcanvas3dapplication
-
         \li \b{OpenSSL}
 
         The OpenSSL toolkit stays under a double license, i.e. both the conditions of
