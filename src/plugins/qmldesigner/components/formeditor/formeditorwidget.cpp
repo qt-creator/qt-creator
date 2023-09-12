@@ -548,6 +548,9 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
 
 QImage FormEditorWidget::takeFormEditorScreenshot()
 {
+    if (!m_formEditorView->scene()->rootFormEditorItem())
+        return {};
+
     const QRectF boundingRect = m_formEditorView->scene()->rootFormEditorItem()->boundingRect();
 
     m_formEditorView->scene()->manipulatorLayerItem()->setVisible(false);
