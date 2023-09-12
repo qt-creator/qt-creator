@@ -181,10 +181,12 @@ Column {
         color: StudioTheme.Values.themeToolbarBackground
 
         Text {
+            width: parent.width - 8 // twice the editor button margins
             anchors.centerIn: parent
             text: backend.source
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.myFontSize
+            wrapMode: Text.WordWrap
         }
 
         HelperWidgets.AbstractButton {

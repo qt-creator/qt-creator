@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls as Controls
+import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 import StudioControls as StudioControls
 import ConnectionsEditorEditorBackend
@@ -20,6 +21,8 @@ Controls.Popup {
     signal exited(var value)
 
     property alias searchActive: search.activeFocus
+    property bool showOperators: false
+    property alias operatorModel: repeater.model
 
     function reset() {
         search.clear()
@@ -43,6 +46,7 @@ Controls.Popup {
         StudioControls.SearchBox {
             id: search
             width: parent.width
+            visible: !root.showOperators
 
             onSearchChanged: function(value) {
                 root.treeModel.setFilter(value)
@@ -51,12 +55,10 @@ Controls.Popup {
 
         Controls.StackView {
             id: stack
-
+            visible: !root.showOperators
             width: parent.width
             height: currentItem?.implicitHeight
-
             clip: true
-
             initialItem: mainView
         }
 
@@ -210,7 +212,7 @@ Controls.Popup {
         }
 
         Item {
-            visible: false
+            visible: root.showOperators
             width: stack.width
             height: flow.childrenRect.height + 2 * StudioTheme.Values.flowMargin
 
@@ -224,30 +226,38 @@ Controls.Popup {
                 Repeater {
                     id: repeater
 
-                    // TODO actual value + tooltip
-                    model: ["AND", "OR", "equal", "not equal", "greater", "less", "greater then", "less then"]
-
                     Rectangle {
-                        width: textItem.contentWidth + 14
-                        height: 26
+                        id: delegate
+
+                        required property int index
+
+                        required property string name
+                        required property string value
+                        required property string tooltip
+
+                        width: textItem.contentWidth + 2 * StudioTheme.Values.flowPillMargin
+                        height: StudioTheme.Values.flowPillHeight
                         color: "#161616"
-                        radius: 4
+                        radius: StudioTheme.Values.flowPillRadius
                         border {
                             color: "white"
                             width: mouseArea.containsMouse ? 1 : 0
                         }
 
-                        MouseArea {
+                        HelperWidgets.ToolTipArea {
                             id: mouseArea
                             hoverEnabled: true
                             anchors.fill: parent
+                            tooltip: delegate.tooltip
+
+                            onClicked: root.select(delegate.value)
                         }
 
                         Text {
                             id: textItem
-                            font.pixelSize: 12
-                            color: "white"
-                            text: modelData
+                            font.pixelSize: StudioTheme.Values.baseFontSize
+                            color: StudioTheme.Values.themeTextColor
+                            text: delegate.name
                             anchors.centerIn: parent
                         }
                     }

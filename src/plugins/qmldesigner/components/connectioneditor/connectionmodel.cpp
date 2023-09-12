@@ -1774,6 +1774,19 @@ int ConditionListModel::errorIndex() const
     return m_errorIndex;
 }
 
+bool ConditionListModel::operatorAllowed(int cursorPosition)
+{
+    if (m_tokens.empty())
+        return false;
+
+    int tokenIdx = cursorPosition - 1;
+
+    if (tokenIdx >= 0 && m_tokens[tokenIdx].type != Operator)
+        return true;
+
+    return false;
+}
+
 void ConditionListModel::internalSetup()
 {
     setInvalid(tr("No Valid Condition"));

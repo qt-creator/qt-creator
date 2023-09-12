@@ -31,6 +31,7 @@ FocusScope {
     signal submit(int cursorPosition)
 
     readonly property int margin: StudioTheme.Values.flowPillMargin
+    property var operatorModel
 
     width: {
         if (root.isEditable()) {
@@ -88,7 +89,7 @@ FocusScope {
 
             return 0
         }
-        radius: 4
+        radius: StudioTheme.Values.flowPillRadius
 
         Row {
             id: row
@@ -102,7 +103,8 @@ FocusScope {
                 font.pixelSize: StudioTheme.Values.baseFontSize
                 color: root.isShadow() ? StudioTheme.Values.themeTextSelectedTextColor
                                        : StudioTheme.Values.themeTextColor
-                text: root.value
+                text: root.isOperator() ? root.operatorModel.convertValueToName(root.value)
+                                        : root.value
                 anchors.verticalCenter: parent.verticalCenter
             }
 

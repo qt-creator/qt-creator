@@ -146,6 +146,8 @@ public:
     QString error() const;
     int errorIndex() const;
 
+    Q_INVOKABLE bool operatorAllowed(int cursorPosition);
+
 signals:
     void validChanged();
     void emptyChanged();

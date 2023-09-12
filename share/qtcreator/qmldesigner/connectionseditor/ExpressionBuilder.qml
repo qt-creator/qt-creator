@@ -87,8 +87,66 @@ Rectangle {
         newTextInput.index = index
         newTextInput.visible = true
         newTextInput.forceActiveFocus()
+
+        if (!root.shadowPillVisible)
+            popup.showOperators = root.conditionListModel.operatorAllowed(index)
+
         // Open suggestion popup
         popup.open()
+    }
+
+    ListModel {
+        id: __operatorModel
+        function convertValueToName(value) {
+            for (var i = 0; i < __operatorModel.count; ++i) {
+                let element = __operatorModel.get(i)
+                if (element.value === value )
+                    return element.name
+            }
+
+            return value
+        }
+
+        ListElement {
+            name: "AND"
+            value: "&&"
+            tooltip: QT_TR_NOOP("This is AND (&&)")
+        }
+        ListElement {
+            name: "OR"
+            value: "||"
+            tooltip: QT_TR_NOOP("This is OR (||)")
+        }
+        ListElement {
+            name: "EQUAL"
+            value: "==="
+            tooltip: QT_TR_NOOP("This is EQUAL (===)")
+        }
+        ListElement {
+            name: "NOT EQUAL"
+            value: "!=="
+            tooltip: QT_TR_NOOP("This is NOT EQUAL (!==)")
+        }
+        ListElement {
+            name: "GREATER"
+            value: ">"
+            tooltip: QT_TR_NOOP("This is GREATER (>)")
+        }
+        ListElement {
+            name: "LESS"
+            value: "<"
+            tooltip: QT_TR_NOOP("This is LESS (<)")
+        }
+        ListElement {
+            name: "GREATER OR EQUAL"
+            value: ">="
+            tooltip: QT_TR_NOOP("This is GREATER OR EQUAL (>=)")
+        }
+        ListElement {
+            name: "LESS OR EQUAL"
+            value: "<="
+            tooltip: QT_TR_NOOP("This is LESS OR EQUAL (<=)")
+        }
     }
 
     StudioControls.ToolTip {
@@ -197,6 +255,8 @@ Rectangle {
             Pill {
                 id: pill
 
+                operatorModel: __operatorModel
+
                 onRemove: function() {
                     // If pill has focus due to selection or keyboard navigation
                     if (pill.focus)
@@ -288,6 +348,8 @@ Rectangle {
         x: 0
         y: root.height
         width: root.width
+
+        operatorModel: __operatorModel
 
         //onOpened: console.log("POPUP opened")
         //onClosed: console.log("POPUP closed")

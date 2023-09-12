@@ -243,6 +243,7 @@ QtObject {
     readonly property int flowSpacing: 7 // Odd so cursor has a center location
     readonly property int flowPillMargin: 4
     readonly property int flowPillHeight: 20
+    readonly property int flowPillRadius: 4
 
     // Theme Colors
 
