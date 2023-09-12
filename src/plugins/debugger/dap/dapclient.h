@@ -7,6 +7,8 @@
 
 #include <utils/process.h>
 
+#include <QLoggingCategory>
+
 namespace Debugger::Internal {
 
 class IDataProvider : public QObject
@@ -109,9 +111,14 @@ signals:
 private:
     void readOutput();
 
-private:
-    IDataProvider *m_dataProvider = nullptr;
+    virtual const QLoggingCategory &logCategory()
+    {
+        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine",
+                                                                     QtWarningMsg);
+        return logCategory;
+    }
 
+    IDataProvider *m_dataProvider = nullptr;
     QByteArray m_inbuffer;
 };
 

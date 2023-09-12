@@ -13,8 +13,6 @@
 using namespace Core;
 using namespace Utils;
 
-static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg);
-
 namespace Debugger::Internal {
 
 DapClient::DapClient(IDataProvider *dataProvider, QObject *parent)
@@ -51,7 +49,7 @@ void DapClient::postRequest(const QString &command, const QJsonObject &arguments
 
     const QByteArray data = QJsonDocument(obseq).toJson(QJsonDocument::Compact);
     const QByteArray msg = "Content-Length: " + QByteArray::number(data.size()) + "\r\n\r\n" + data;
-    qCDebug(dapEngineLog) << msg;
+    qCDebug(logCategory()) << msg;
 
     m_dataProvider->writeRaw(msg);
 }
@@ -150,7 +148,7 @@ void DapClient::readOutput()
 {
     m_inbuffer.append(m_dataProvider->readAllStandardOutput());
 
-    qCDebug(dapEngineLog) << m_inbuffer;
+    qCDebug(logCategory()) << m_inbuffer;
 
     while (true) {
         // Something like
@@ -190,7 +188,7 @@ void DapClient::emitSignals(const QJsonDocument &doc)
     const QJsonValue t = ob.value("type");
     const QString type = t.toString();
 
-    qCDebug(dapEngineLog) << "dap response" << ob;
+    qCDebug(logCategory()) << "dap response" << ob;
 
     if (type == "response") {
         DapResponseType type = DapResponseType::Unknown;

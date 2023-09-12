@@ -17,12 +17,10 @@
 
 #include <QDebug>
 #include <QLocalSocket>
-#include <QLoggingCategory>
 #include <QVersionNumber>
 
 using namespace Core;
 using namespace Utils;
-static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg)
 
 namespace Debugger::Internal {
 
@@ -85,6 +83,22 @@ private:
     const CommandLine m_cmd;
 };
 
+class GdbDapClient : public DapClient
+{
+public:
+    GdbDapClient(IDataProvider *provider, QObject *parent = nullptr)
+        : DapClient(provider, parent)
+    {}
+
+private:
+    const QLoggingCategory &logCategory() override
+    {
+        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.gdb",
+                                                                     QtWarningMsg);
+        return logCategory;
+    }
+};
+
 GdbDapEngine::GdbDapEngine()
     : DapEngine()
 {
@@ -100,11 +114,10 @@ void GdbDapEngine::handleDapInitialize()
         return;
     }
 
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
     m_dapClient->postRequest("attach", QJsonObject{{"__restart", ""}});
-    qCDebug(dapEngineLog) << "handleDapAttach";
+    qCDebug(logCategory()) << "handleDapAttach";
 }
-
 
 bool GdbDapEngine::isLocalAttachEngine() const
 {
@@ -123,7 +136,7 @@ void GdbDapEngine::handleDapConfigurationDone()
 
 void GdbDapEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineSetupRequested, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qCDebug(logCategory()) << state());
 
     const DebuggerRunParameters &rp = runParameters();
     CommandLine cmd{rp.debugger.command.executable(), {"-i", "dap"}};
@@ -142,7 +155,7 @@ void GdbDapEngine::setupEngine()
     }
 
     IDataProvider *dataProvider =  new ProcessDataProvider(rp, cmd, this);
-    m_dapClient = new DapClient(dataProvider, this);
+    m_dapClient = new GdbDapClient(dataProvider, this);
 
     connectDataGeneratorSignals();
     m_dapClient->dataProvider()->start();

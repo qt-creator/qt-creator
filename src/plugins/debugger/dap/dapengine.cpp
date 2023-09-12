@@ -61,13 +61,11 @@
 using namespace Core;
 using namespace Utils;
 
-static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg)
-
 namespace Debugger::Internal {
 
 void DapEngine::executeDebuggerCommand(const QString &/*command*/)
 {
-    QTC_ASSERT(state() == InferiorStopOk, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == InferiorStopOk, qCDebug(logCategory()) << state());
 //    if (state() == DebuggerNotReady) {
 //        showMessage("DAP PROCESS NOT RUNNING, PLAIN CMD IGNORED: " + command);
 //        return;
@@ -92,50 +90,50 @@ void DapEngine::runCommand(const DebuggerCommand &cmd)
 
 void DapEngine::shutdownInferior()
 {
-    QTC_ASSERT(state() == InferiorShutdownRequested, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == InferiorShutdownRequested, qCDebug(logCategory()) << state());
 
     m_dapClient->sendDisconnect();
 
-    qCDebug(dapEngineLog) << "DapEngine::shutdownInferior()";
+    qCDebug(logCategory()) << "DapEngine::shutdownInferior()";
     notifyInferiorShutdownFinished();
 }
 
 void DapEngine::shutdownEngine()
 {
-    QTC_ASSERT(state() == EngineShutdownRequested, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == EngineShutdownRequested, qCDebug(logCategory()) << state());
 
     m_dapClient->sendTerminate();
 
-    qCDebug(dapEngineLog) << "DapEngine::shutdownEngine()";
+    qCDebug(logCategory()) << "DapEngine::shutdownEngine()";
     m_dapClient->dataProvider()->kill();
 }
 
 void DapEngine::handleDapStarted()
 {
     notifyEngineSetupOk();
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
     m_dapClient->sendInitialize();
 
-    qCDebug(dapEngineLog) << "handleDapStarted";
+    qCDebug(logCategory()) << "handleDapStarted";
 }
 
 void DapEngine::handleDapInitialize()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
     m_dapClient->sendLaunch(runParameters().inferior.command.executable());
 
-    qCDebug(dapEngineLog) << "handleDapLaunch";
+    qCDebug(logCategory()) << "handleDapLaunch";
 }
 
 void DapEngine::handleDapEventInitialized()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
     m_dapClient->sendConfigurationDone();
 
-    qCDebug(dapEngineLog) << "handleDapConfigurationDone";
+    qCDebug(logCategory()) << "handleDapConfigurationDone";
 }
 
 void DapEngine::handleDapConfigurationDone()
@@ -271,7 +269,7 @@ void DapEngine::dapInsertBreakpoint(const Breakpoint &bp)
 
     m_dapClient->setBreakpoints(breakpoints, params.fileName);
 
-    qCDebug(dapEngineLog) << "insertBreakpoint" << bp->modelId() << bp->responseId();
+    qCDebug(logCategory()) << "insertBreakpoint" << bp->modelId() << bp->responseId();
 }
 
 void DapEngine::updateBreakpoint(const Breakpoint &bp)
@@ -312,7 +310,7 @@ void DapEngine::dapRemoveBreakpoint(const Breakpoint &bp)
 
     m_dapClient->setBreakpoints(breakpoints, params.fileName);
 
-    qCDebug(dapEngineLog) << "removeBreakpoint" << bp->modelId() << bp->responseId();
+    qCDebug(logCategory()) << "removeBreakpoint" << bp->modelId() << bp->responseId();
 }
 
 void DapEngine::loadSymbols(const Utils::FilePath  &/*moduleName*/)
@@ -474,7 +472,7 @@ void DapEngine::handleDapDone()
 void DapEngine::readDapStandardError()
 {
     QString err = m_dapClient->dataProvider()->readAllStandardError();
-    qCDebug(dapEngineLog) << "DAP STDERR:" << err;
+    qCDebug(logCategory()) << "DAP STDERR:" << err;
     //qWarning() << "Unexpected DAP stderr:" << err;
     showMessage("Unexpected DAP stderr: " + err);
     //handleOutput(err);
@@ -486,23 +484,23 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
 
     if (response.contains("success") && !response.value("success").toBool()) {
         showMessage(QString("DAP COMMAND FAILED: %1").arg(command));
-        qCDebug(dapEngineLog) << "DAP COMMAND FAILED:" << command;
+        qCDebug(logCategory()) << "DAP COMMAND FAILED:" << command;
         return;
     }
 
     switch (type) {
     case DapResponseType::Initialize:
-        qCDebug(dapEngineLog) << "initialize success";
+        qCDebug(logCategory()) << "initialize success";
         handleDapInitialize();
         break;
     case DapResponseType::ConfigurationDone:
         showMessage("configurationDone", LogDebug);
-        qCDebug(dapEngineLog) << "configurationDone success";
+        qCDebug(logCategory()) << "configurationDone success";
         handleDapConfigurationDone();
         break;
     case DapResponseType::Continue:
         showMessage("continue", LogDebug);
-        qCDebug(dapEngineLog) << "continue success";
+        qCDebug(logCategory()) << "continue success";
         notifyInferiorRunOk();
         break;
     case DapResponseType::StackTrace:
@@ -544,7 +542,7 @@ void DapEngine::handleStackTraceResponse(const QJsonObject &response)
     const FilePath file = FilePath::fromString(
         stackFrame.value("source").toObject().value("path").toString());
     const int line = stackFrame.value("line").toInt();
-    qCDebug(dapEngineLog) << "stackTrace success" << file << line;
+    qCDebug(logCategory()) << "stackTrace success" << file << line;
     gotoLocation(Location(file, line));
 
     refreshStack(stackFrames);
@@ -605,7 +603,7 @@ void DapEngine::handleEvent(DapEventType type, const QJsonObject &event)
 
     switch (type) {
     case DapEventType::Initialized:
-        qCDebug(dapEngineLog) << "initialize success";
+        qCDebug(logCategory()) << "initialize success";
         claimInitialBreakpoints();
         handleDapEventInitialized();
         break;
@@ -672,7 +670,7 @@ void DapEngine::handleBreakpointEvent(const QJsonObject &event)
 
     Breakpoint bp = breakHandler()->findBreakpointByResponseId(
         QString::number(breakpoint.value("id").toInt()));
-    qCDebug(dapEngineLog) << "breakpoint id :" << breakpoint.value("id").toInt();
+    qCDebug(logCategory()) << "breakpoint id :" << breakpoint.value("id").toInt();
 
     if (bp) {
         BreakpointParameters parameters = bp->requestedParameters();
@@ -690,10 +688,10 @@ void DapEngine::handleBreakpointEvent(const QJsonObject &event)
             const BreakpointParameters &params = bp->requestedParameters();
             if (params.oneShot)
                 continueInferior();
-            qCDebug(dapEngineLog) << "breakpoint inserted";
+            qCDebug(logCategory()) << "breakpoint inserted";
         } else {
             notifyBreakpointInsertFailed(bp);
-            qCDebug(dapEngineLog) << "breakpoint insertion failed";
+            qCDebug(logCategory()) << "breakpoint insertion failed";
         }
         return;
     }
@@ -701,10 +699,10 @@ void DapEngine::handleBreakpointEvent(const QJsonObject &event)
     if (body.value("reason").toString() == "removed") {
         if (breakpoint.value("verified").toBool()) {
             notifyBreakpointRemoveOk(bp);
-            qCDebug(dapEngineLog) << "breakpoint removed";
+            qCDebug(logCategory()) << "breakpoint removed";
         } else {
             notifyBreakpointRemoveFailed(bp);
-            qCDebug(dapEngineLog) << "breakpoint remove failed";
+            qCDebug(logCategory()) << "breakpoint remove failed";
         }
         return;
     }
@@ -727,7 +725,7 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
         if (variablesReference > 0)
             item->wantsChildren = true;
 
-        qCDebug(dapEngineLog) << "variable" << name << variablesReference;
+        qCDebug(logCategory()) << "variable" << name << variablesReference;
         if (m_isFirstLayer)
             m_watchItems.append(item);
         else
@@ -800,7 +798,7 @@ bool DapEngine::hasCapability(unsigned cap) const
 void DapEngine::claimInitialBreakpoints()
 {
     BreakpointManager::claimBreakpointsForEngine(this);
-    qCDebug(dapEngineLog) << "claimInitialBreakpoints";
+    qCDebug(logCategory()) << "claimInitialBreakpoints";
 }
 
 void DapEngine::connectDataGeneratorSignals()

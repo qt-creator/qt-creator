@@ -18,6 +18,13 @@ private:
 
     void setupEngine() override;
     Utils::Process m_proc;
+
+    const QLoggingCategory &logCategory() override
+    {
+        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.python",
+                                                                     QtWarningMsg);
+        return logCategory;
+    }
 };
 
 } // Debugger::Internal

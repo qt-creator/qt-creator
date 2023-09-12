@@ -7,6 +7,7 @@
 
 #include <utils/process.h>
 
+#include <QLoggingCategory>
 #include <QVariant>
 
 #include <queue>
@@ -118,6 +119,13 @@ protected:
     std::queue<int> m_variablesReferenceQueue;
     WatchItem *m_currentWatchItem = nullptr;
     QList<WatchItem *> m_watchItems;
+
+    virtual const QLoggingCategory &logCategory()
+    {
+        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine",
+                                                                     QtWarningMsg);
+        return logCategory;
+    }
 };
 
 } // Debugger::Internal

@@ -22,7 +22,6 @@
 
 using namespace Core;
 using namespace Utils;
-static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg)
 
 namespace Debugger::Internal {
 
@@ -83,13 +82,20 @@ public:
         : DapClient(provider, parent)
     {}
 
-    void sendInitialize()
+    void sendInitialize() override
     {
         postRequest("initialize",
                     QJsonObject{{"clientID", "QtCreator"},
                                 {"clientName", "QtCreator"},
                                 {"adapterID", "cmake"},
                                 {"pathFormat", "path"}});
+    }
+
+private:
+    const QLoggingCategory &logCategory() override {
+        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.cmake",
+                                                                     QtWarningMsg);
+        return logCategory;
     }
 };
 
@@ -103,10 +109,10 @@ CMakeDapEngine::CMakeDapEngine()
 
 void CMakeDapEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineSetupRequested, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qCDebug(logCategory()) << state());
 
-    qCDebug(dapEngineLog) << "build system name"
-                          << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
+    qCDebug(logCategory()) << "build system name"
+                           << ProjectExplorer::ProjectTree::currentBuildSystem()->name();
 
     IDataProvider *dataProvider;
     if (TemporaryDirectory::masterDirectoryFilePath().osType() == Utils::OsType::OsTypeWindows) {

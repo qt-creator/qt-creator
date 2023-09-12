@@ -19,6 +19,13 @@ private:
     void handleDapConfigurationDone() override;
 
     bool isLocalAttachEngine() const;
+
+    const QLoggingCategory &logCategory() override
+    {
+        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.gdb",
+                                                                     QtWarningMsg);
+        return logCategory;
+    }
 };
 
 } // Debugger::Internal

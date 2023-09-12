@@ -20,7 +20,6 @@
 #include <projectexplorer/projecttree.h>
 
 #include <QDebug>
-#include <QLoggingCategory>
 #include <QTcpSocket>
 #include <QTimer>
 #include <QVersionNumber>
@@ -28,10 +27,7 @@
 using namespace Core;
 using namespace Utils;
 
-static Q_LOGGING_CATEGORY(dapEngineLog, "qtc.dbg.dapengine", QtWarningMsg)
-
 namespace Debugger::Internal {
-
 
 const char installDebugPyInfoBarId[] = "Python::InstallDebugPy";
 
@@ -88,7 +84,6 @@ public:
         connect(m_timer, &QTimer::timeout, this, [this]() {
             m_socket.connectToHost(m_hostName, m_port);
             m_socket.waitForConnected();
-            qCDebug(dapEngineLog) << "proc id" << m_proc.processId();
 
             if (m_socket.state() == QTcpSocket::ConnectedState)
                 m_timer->stop();
@@ -152,13 +147,20 @@ public:
         : DapClient(provider, parent)
     {}
 
-    void sendInitialize()
+    void sendInitialize() override
     {
         postRequest("initialize",
                     QJsonObject{{"clientID", "QtCreator"},
                                 {"clientName", "QtCreator"},
                                 {"adapterID", "python"},
                                 {"pathFormat", "path"}});
+    }
+private:
+    const QLoggingCategory &logCategory() override
+    {
+        static const QLoggingCategory dapEngineLog = QLoggingCategory("qtc.dbg.dapengine.python",
+                                                                      QtWarningMsg);
+        return dapEngineLog;
     }
 };
 
@@ -172,11 +174,11 @@ PyDapEngine::PyDapEngine()
 
 void PyDapEngine::handleDapInitialize()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(dapEngineLog) << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
     m_dapClient->sendAttach();
 
-    qCDebug(dapEngineLog) << "handleDapAttach";
+    qCDebug(logCategory()) << "handleDapAttach";
 }
 
 void PyDapEngine::quitDebugger()
