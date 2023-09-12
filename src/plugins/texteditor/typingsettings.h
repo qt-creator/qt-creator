@@ -48,6 +48,7 @@ public:
     SmartBackspaceBehavior m_smartBackspaceBehavior;
 
     bool m_preferSingleLineComments;
+    bool m_preferAfterWhitespaceComments = false;
 };
 
 } // namespace TextEditor

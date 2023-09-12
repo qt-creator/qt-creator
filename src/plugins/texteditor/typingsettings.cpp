@@ -12,6 +12,7 @@ static const char autoIndentKey[] = "AutoIndent";
 static const char tabKeyBehaviorKey[] = "TabKeyBehavior";
 static const char smartBackspaceBehaviorKey[] = "SmartBackspaceBehavior";
 static const char preferSingleLineCommentsKey[] = "PreferSingleLineComments";
+static const char preferAfterWhitespaceCommentsKey[] = "PreferAfterWhitespaceComments";
 
 using namespace Utils;
 
@@ -31,7 +32,8 @@ Store TypingSettings::toMap() const
         {autoIndentKey, m_autoIndent},
         {tabKeyBehaviorKey, m_tabKeyBehavior},
         {smartBackspaceBehaviorKey, m_smartBackspaceBehavior},
-        {preferSingleLineCommentsKey, m_preferSingleLineComments}
+        {preferSingleLineCommentsKey, m_preferSingleLineComments},
+        {preferAfterWhitespaceCommentsKey, m_preferAfterWhitespaceComments}
     };
 }
 
@@ -43,6 +45,8 @@ void TypingSettings::fromMap(const Store &map)
                 smartBackspaceBehaviorKey, m_smartBackspaceBehavior).toInt();
     m_preferSingleLineComments =
         map.value(preferSingleLineCommentsKey, m_preferSingleLineComments).toBool();
+    m_preferAfterWhitespaceComments =
+        map.value(preferAfterWhitespaceCommentsKey, m_preferAfterWhitespaceComments).toBool();
 }
 
 bool TypingSettings::equals(const TypingSettings &ts) const
@@ -50,7 +54,8 @@ bool TypingSettings::equals(const TypingSettings &ts) const
     return m_autoIndent == ts.m_autoIndent
         && m_tabKeyBehavior == ts.m_tabKeyBehavior
         && m_smartBackspaceBehavior == ts.m_smartBackspaceBehavior
-        && m_preferSingleLineComments == ts.m_preferSingleLineComments;
+        && m_preferSingleLineComments == ts.m_preferSingleLineComments
+           && m_preferAfterWhitespaceComments == ts.m_preferAfterWhitespaceComments;
 }
 
 bool TypingSettings::tabShouldIndent(const QTextDocument *document,

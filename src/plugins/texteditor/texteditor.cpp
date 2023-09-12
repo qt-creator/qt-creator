@@ -7698,8 +7698,10 @@ void TextEditorWidget::rewrapParagraph()
 void TextEditorWidget::unCommentSelection()
 {
     const bool singleLine = d->m_document->typingSettings().m_preferSingleLineComments;
+    CommentDefinition commentDefinition = d->m_commentDefinition;
+    commentDefinition.isAfterWhitespace = d->m_document->typingSettings().m_preferAfterWhitespaceComments;
     const MultiTextCursor cursor = Utils::unCommentSelection(multiTextCursor(),
-                                                             d->m_commentDefinition,
+                                                             commentDefinition,
                                                              singleLine);
     setMultiTextCursor(cursor);
 }

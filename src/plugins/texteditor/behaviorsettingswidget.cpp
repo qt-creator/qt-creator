@@ -38,6 +38,7 @@ struct BehaviorSettingsWidgetPrivate
     QComboBox *smartBackspaceBehavior;
     QCheckBox *autoIndent;
     QCheckBox *preferSingleLineComments;
+    QCheckBox *preferAfterWhitespaceComments;
     QGroupBox *groupBoxStorageSettings;
     QGroupBox *groupBoxTyping;
     QCheckBox *skipTrailingWhitespace;
@@ -95,6 +96,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     d->autoIndent = new QCheckBox(Tr::tr("Enable automatic &indentation"));
 
     d->preferSingleLineComments = new QCheckBox(Tr::tr("Prefer single line comments"));
+    d->preferAfterWhitespaceComments = new QCheckBox(Tr::tr("Prefer comments after whitespace"));
 
     d->skipTrailingWhitespace = new QCheckBox(Tr::tr("Skip clean whitespace for file types:"));
     d->skipTrailingWhitespace->setToolTip(Tr::tr("For the file patterns listed, do not trim trailing whitespace."));
@@ -173,7 +175,8 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
             indent(d->smartBackspaceBehavior),
         Tr::tr("Tab key performs auto-indent:"),
             indent(d->tabKeyBehavior),
-        d->preferSingleLineComments
+        d->preferSingleLineComments,
+        d->preferAfterWhitespaceComments
     }.attachTo(d->groupBoxTyping);
 
     Column {
@@ -293,6 +296,7 @@ void BehaviorSettingsWidget::setAssignedTypingSettings(const TypingSettings &typ
     d->tabKeyBehavior->setCurrentIndex(typingSettings.m_tabKeyBehavior);
 
     d->preferSingleLineComments->setChecked(typingSettings.m_preferSingleLineComments);
+    d->preferAfterWhitespaceComments->setChecked(typingSettings.m_preferAfterWhitespaceComments);
 }
 
 void BehaviorSettingsWidget::assignedTypingSettings(TypingSettings *typingSettings) const
@@ -304,6 +308,7 @@ void BehaviorSettingsWidget::assignedTypingSettings(TypingSettings *typingSettin
         (TypingSettings::TabKeyBehavior)(d->tabKeyBehavior->currentIndex());
 
     typingSettings->m_preferSingleLineComments = d->preferSingleLineComments->isChecked();
+    typingSettings->m_preferAfterWhitespaceComments = d->preferAfterWhitespaceComments->isChecked();
 }
 
 void BehaviorSettingsWidget::setAssignedStorageSettings(const StorageSettings &storageSettings)
