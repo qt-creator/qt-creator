@@ -28,6 +28,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 
+#include <QAction>
 #include <QDialog>
 #include <QPushButton>
 

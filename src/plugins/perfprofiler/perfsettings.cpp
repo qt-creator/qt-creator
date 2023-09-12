@@ -432,7 +432,7 @@ void PerfSettings::readGlobalSettings()
     settings->beginGroup(QLatin1String(Constants::AnalyzerSettingsGroupId));
     Store map = defaults;
     for (Store::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
-        map.insert(it.key(), settings->value(it.key(), it.value()));
+        map.insert(it.key(), settings->value(stringFromKey(it.key()), it.value()));
     settings->endGroup();
 
     fromMap(map);
@@ -445,7 +445,7 @@ void PerfSettings::writeGlobalSettings() const
     Store map;
     toMap(map);
     for (Store::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
-        settings->setValue(it.key(), it.value());
+        settings->setValue(stringFromKey(it.key()), it.value());
     settings->endGroup();
 }
 
