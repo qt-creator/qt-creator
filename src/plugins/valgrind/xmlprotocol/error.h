@@ -37,7 +37,8 @@ enum MemcheckError
     Leak_DefinitelyLost,
     Leak_PossiblyLost,
     Leak_StillReachable,
-    Leak_IndirectlyLost
+    Leak_IndirectlyLost,
+    ReallocSizeZero
 };
 Q_ENUM_NS(MemcheckError);
 
