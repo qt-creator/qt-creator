@@ -95,18 +95,14 @@ static QRect stringToRectangle(const QString &v)
 
 namespace Utils {
 
-struct Context // Basic context containing element name string constants.
-{
-    Context() {}
-    const QString qtCreatorElement = QString("qtcreator");
-    const QString dataElement = QString("data");
-    const QString variableElement = QString("variable");
-    const QString typeAttribute = QString("type");
-    const QString valueElement = QString("value");
-    const QString valueListElement = QString("valuelist");
-    const QString valueMapElement = QString("valuemap");
-    const QString keyAttribute = QString("key");
-};
+const QString qtCreatorElement("qtcreator");
+const QString dataElement("data");
+const QString variableElement("variable");
+const QString typeAttribute("type");
+const QString valueElement("value");
+const QString valueListElement("valuelist");
+const QString valueMapElement("valuemap");
+const QString keyAttribute("key");
 
 struct ParseValueStackEntry
 {
@@ -160,22 +156,16 @@ void ParseValueStackEntry::addChild(const Key &key, const QVariant &v)
     }
 }
 
-class ParseContext : public Context
+class ParseContext
 {
 public:
     Store parse(const FilePath &file);
 
 private:
-    enum Element { QtCreatorElement, DataElement, VariableElement,
-                   SimpleValueElement, ListValueElement, MapValueElement, UnknownElement };
-
-    Element element(const QStringView &r) const;
-    static inline bool isValueElement(Element e)
-        { return e == SimpleValueElement || e == ListValueElement || e == MapValueElement; }
     QVariant readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const;
 
     bool handleStartElement(QXmlStreamReader &r);
-    bool handleEndElement(const QStringView &name);
+    bool handleEndElement(const QStringView name);
 
     static QString formatWarning(const QXmlStreamReader &r, const QString &message);
 
@@ -215,19 +205,14 @@ Store ParseContext::parse(const FilePath &file)
 bool ParseContext::handleStartElement(QXmlStreamReader &r)
 {
     const QStringView name = r.name();
-    const Element e = element(name);
-    if (e == VariableElement) {
+    if (name == variableElement) {
         m_currentVariableName = keyFromString(r.readElementText());
         return false;
     }
-    if (!ParseContext::isValueElement(e))
-        return false;
-
-    const QXmlStreamAttributes attributes = r.attributes();
-    const Key key = attributes.hasAttribute(keyAttribute) ?
-                keyFromString(attributes.value(keyAttribute).toString()) : Key();
-    switch (e) {
-    case SimpleValueElement: {
+    if (name == valueElement) {
+        const QXmlStreamAttributes attributes = r.attributes();
+        const Key key = attributes.hasAttribute(keyAttribute) ?
+                    keyFromString(attributes.value(keyAttribute).toString()) : Key();
         // This reads away the end element, so, handle end element right here.
         const QVariant v = readSimpleValue(r, attributes);
         if (!v.isValid()) {
@@ -237,22 +222,26 @@ bool ParseContext::handleStartElement(QXmlStreamReader &r)
         m_valueStack.push_back(ParseValueStackEntry(v, key));
         return handleEndElement(name);
     }
-    case ListValueElement:
+    if (name == valueListElement) {
+        const QXmlStreamAttributes attributes = r.attributes();
+        const Key key = attributes.hasAttribute(keyAttribute) ?
+                    keyFromString(attributes.value(keyAttribute).toString()) : Key();
         m_valueStack.push_back(ParseValueStackEntry(QVariant::List, key));
-        break;
-    case MapValueElement:
+        return false;
+    }
+    if (name == valueMapElement) {
+        const QXmlStreamAttributes attributes = r.attributes();
+        const Key key = attributes.hasAttribute(keyAttribute) ?
+                    keyFromString(attributes.value(keyAttribute).toString()) : Key();
         m_valueStack.push_back(ParseValueStackEntry(QVariant::Map, key));
-        break;
-    default:
-        break;
+        return false;
     }
     return false;
 }
 
-bool ParseContext::handleEndElement(const QStringView &name)
+bool ParseContext::handleEndElement(const QStringView name)
 {
-    const Element e = element(name);
-    if (ParseContext::isValueElement(e)) {
+    if (name == valueElement || name == valueListElement || name == valueMapElement) {
         QTC_ASSERT(!m_valueStack.isEmpty(), return true);
         const ParseValueStackEntry top = m_valueStack.pop();
         if (m_valueStack.isEmpty()) { // Last element? -> Done with that variable.
@@ -262,8 +251,9 @@ bool ParseContext::handleEndElement(const QStringView &name)
             return false;
         }
         m_valueStack.top().addChild(top.key, top.value());
+        return false;
     }
-    return e == QtCreatorElement;
+    return name == qtCreatorElement;
 }
 
 QString ParseContext::formatWarning(const QXmlStreamReader &r, const QString &message)
@@ -276,23 +266,6 @@ QString ParseContext::formatWarning(const QXmlStreamReader &r, const QString &me
     result += QLatin1String(": ");
     result += message;
     return result;
-}
-
-ParseContext::Element ParseContext::element(const QStringView &r) const
-{
-    if (r == valueElement)
-        return SimpleValueElement;
-    if (r == valueListElement)
-        return ListValueElement;
-    if (r == valueMapElement)
-        return MapValueElement;
-    if (r == qtCreatorElement)
-        return QtCreatorElement;
-    if (r == dataElement)
-        return DataElement;
-    if (r == variableElement)
-        return VariableElement;
-    return UnknownElement;
 }
 
 QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const
@@ -363,40 +336,39 @@ static QString xmlAttrFromKey(const Key &key) { return stringFromKey(key); }
 static Key xmlAttrFromKey(const Key &key) { return key; }
 #endif
 
-static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
-                              const QVariant &variant, const Key &key = {})
+static void writeVariantValue(QXmlStreamWriter &w, const QVariant &variant, const Key &key = {})
 {
     static const int storeId = qMetaTypeId<Store>();
 
     const int variantType = variant.typeId();
     if (variantType == QMetaType::QStringList || variantType == QMetaType::QVariantList) {
-        w.writeStartElement(ctx.valueListElement);
-        w.writeAttribute(ctx.typeAttribute, "QVariantList");
+        w.writeStartElement(valueListElement);
+        w.writeAttribute(typeAttribute, "QVariantList");
         if (!key.isEmpty())
-            w.writeAttribute(ctx.keyAttribute, xmlAttrFromKey(key));
+            w.writeAttribute(keyAttribute, xmlAttrFromKey(key));
         const QList<QVariant> list = variant.toList();
         for (const QVariant &var : list)
-            writeVariantValue(w, ctx, var);
+            writeVariantValue(w, var);
         w.writeEndElement();
     } else if (variantType == storeId || variantType == QMetaType::QVariantMap) {
-        w.writeStartElement(ctx.valueMapElement);
-        w.writeAttribute(ctx.typeAttribute, "QVariantMap");
+        w.writeStartElement(valueMapElement);
+        w.writeAttribute(typeAttribute, "QVariantMap");
         if (!key.isEmpty())
-            w.writeAttribute(ctx.keyAttribute, xmlAttrFromKey(key));
+            w.writeAttribute(keyAttribute, xmlAttrFromKey(key));
         const Store varMap = storeFromVariant(variant);
         const Store::const_iterator cend = varMap.constEnd();
         for (Store::const_iterator i = varMap.constBegin(); i != cend; ++i)
-            writeVariantValue(w, ctx, i.value(), i.key());
+            writeVariantValue(w, i.value(), i.key());
         w.writeEndElement();
     } else if (variantType == QMetaType::QObjectStar) {
         // ignore QObjects
     } else if (variantType == QMetaType::VoidStar) {
         // ignore void pointers
     } else {
-        w.writeStartElement(ctx.valueElement);
-        w.writeAttribute(ctx.typeAttribute, QLatin1String(variant.typeName()));
+        w.writeStartElement(valueElement);
+        w.writeAttribute(typeAttribute, QLatin1String(variant.typeName()));
         if (!key.isEmpty())
-            w.writeAttribute(ctx.keyAttribute, xmlAttrFromKey(key));
+            w.writeAttribute(keyAttribute, xmlAttrFromKey(key));
         switch (variant.type()) {
         case QVariant::Rect:
             w.writeCharacters(rectangleToString(variant.toRect()));
@@ -445,7 +417,6 @@ bool PersistentSettingsWriter::write(const Store &data, QString *errorString) co
     m_fileName.parentDir().ensureWritableDir();
     FileSaver saver(m_fileName, QIODevice::Text);
     if (!saver.hasError()) {
-        const Context ctx;
         QXmlStreamWriter w(saver.file());
         w.setAutoFormatting(true);
         w.setAutoFormattingIndent(1); // Historical, used to be QDom.
@@ -455,13 +426,13 @@ bool PersistentSettingsWriter::write(const Store &data, QString *errorString) co
                        arg(QCoreApplication::applicationName(),
                            QCoreApplication::applicationVersion(),
                            QDateTime::currentDateTime().toString(Qt::ISODate)));
-        w.writeStartElement(ctx.qtCreatorElement);
+        w.writeStartElement(qtCreatorElement);
         const Store::const_iterator cend = data.constEnd();
         for (Store::const_iterator it =  data.constBegin(); it != cend; ++it) {
-            w.writeStartElement(ctx.dataElement);
+            w.writeStartElement(dataElement);
             // FIXME: stringFromKey() not needed from Qt 6.5 onward.
-            w.writeTextElement(ctx.variableElement, stringFromKey(it.key()));
-            writeVariantValue(w, ctx, it.value());
+            w.writeTextElement(variableElement, stringFromKey(it.key()));
+            writeVariantValue(w, it.value());
             w.writeEndElement();
         }
         w.writeEndDocument();
