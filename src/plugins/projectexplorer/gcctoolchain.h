@@ -98,7 +98,7 @@ public:
     };
     GccToolChain *asGccToolChain() final { return this; }
 
-    bool matchesCompilerCommand(const Utils::FilePath &command) const;
+    bool matchesCompilerCommand(const Utils::FilePath &command) const override;
 
     void setPriority(int priority) { m_priority = priority; }
 
