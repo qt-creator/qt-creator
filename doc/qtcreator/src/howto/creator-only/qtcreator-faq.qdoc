@@ -100,21 +100,13 @@
 
     \e{Windows}
 
-    Check whether \QC has been compiled with OpenGL/Desktop, or ANGLE as
-    a backend. The official binaries are always built with ANGLE (a library that
-    maps OpenGL ES API to DirectX).
+    By default Qt Quick uses Direct3D 11. If you have problems, try updating
+    your graphics drivers or update your DirectX version. Run \c dxdiag.exe to
+    check whether \e{Direct3D Acceleration} is indeed enabled.
 
-    \list
-
-      \li ANGLE backend: This requires a Windows version newer than Windows XP.
-          If you have problems, try updating your graphics drivers or update
-          your DirectX version. Run \c dxdiag.exe to check whether
-          \e{Direct3D Acceleration} is indeed enabled.
-
-      \li OpenGL backend: Make sure your graphics driver supports OpenGL 2.1 or
-          newer. Try to update your graphics driver.
-
-    \endlist
+    You can also try setting the \c QSG_RHI_BACKEND environment variable to
+    \c vulkan or \c opengl. See \l {Qt for Windows - Graphics Acceleration}
+    for details.
 
     \e{Unix}
 
