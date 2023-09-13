@@ -180,6 +180,16 @@ const ShapeGradientPropertyData *getDefaultGradientData(const QmlDesigner::Prope
     return nullptr;
 }
 
+template<typename T>
+void prepareGradient(const T &array,
+                     const QmlDesigner::ModelNode &gradient,
+                     const QmlDesigner::QmlItemNode &node)
+{
+    std::for_each(std::begin(array), std::end(array), [&](auto &a) {
+        gradient.variantProperty(a.name.toByteArray()).setValue(a.getDefaultValue(node));
+    });
+}
+
 GradientModel::GradientModel(QObject *parent) :
     QAbstractListModel(parent)
 {
@@ -583,26 +593,11 @@ void GradientModel::setupGradientProperties(const QmlDesigner::ModelNode &gradie
     if (m_gradientTypeName == u"Gradient") {
         gradient.variantProperty("orientation").setEnumeration("Gradient.Vertical");
     } else if (m_gradientTypeName == u"LinearGradient") {
-        std::for_each(std::begin(defaultLinearShapeGradients),
-                      std::end(defaultLinearShapeGradients),
-                      [&](auto &a) {
-                          gradient.variantProperty(a.name.toByteArray())
-                              .setValue(a.getDefaultValue(m_itemNode));
-                      });
+        prepareGradient(defaultLinearShapeGradients, gradient, m_itemNode);
     } else if (m_gradientTypeName == u"RadialGradient") {
-        std::for_each(std::begin(defaultRadialShapeGradients),
-                      std::end(defaultRadialShapeGradients),
-                      [&](auto &a) {
-                          gradient.variantProperty(a.name.toByteArray())
-                              .setValue(a.getDefaultValue(m_itemNode));
-                      });
+        prepareGradient(defaultRadialShapeGradients, gradient, m_itemNode);
     } else if (m_gradientTypeName == u"ConicalGradient") {
-        std::for_each(std::begin(defaultConicalShapeGradients),
-                      std::end(defaultConicalShapeGradients),
-                      [&](auto &a) {
-                          gradient.variantProperty(a.name.toByteArray())
-                              .setValue(a.getDefaultValue(m_itemNode));
-                      });
+        prepareGradient(defaultConicalShapeGradients, gradient, m_itemNode);
     }
 }
 
