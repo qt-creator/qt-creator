@@ -111,8 +111,6 @@ static const char windowStateKey[] = "WindowState";
 static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
 static const char menubarVisibleKey[] = "MenubarVisible";
 
-static const bool askBeforeExitDefault = false;
-
 static bool hideToolsMenu()
 {
     return Core::ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_TOOLS, false).toBool();
