@@ -1660,7 +1660,6 @@ QList<ProjectPart::ConstPtr> CppModelManager::projectPartFromDependencies(
     QSet<ProjectPart::ConstPtr> parts;
     const FilePaths deps = snapshot().filesDependingOn(fileName);
 
-    QReadLocker locker(&d->m_projectLock);
     for (const FilePath &dep : deps)
         parts.unite(Utils::toSet(projectPart(dep)));
 
