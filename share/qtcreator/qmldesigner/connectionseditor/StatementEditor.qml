@@ -21,12 +21,6 @@ Column {
     //implicitWidth: Math.max(16, container.childrenRect.width + container.childrenRect.x)
     //implicitHeight: Math.max(16, container.childrenRect.height + container.childrenRect.y)
 
-    onActionTypeChanged: {
-        print("changed")
-        print(root.actionType)
-        print(ConnectionModelStatementDelegate.ChangeState)
-    }
-
     // Call Function
     Row {
         visible: root.actionType === ConnectionModelStatementDelegate.CallFunction
