@@ -34,13 +34,13 @@ const Icon CONTINUE_FLAT({
         {":/debugger/images/debugger_continue_2_mask.png", Theme::IconsRunToolBarColor},
         {":/projectexplorer/images/debugger_beetle_mask.png", Theme::IconsDebugColor}});
 const Icon DEBUG_CONTINUE_SMALL({
-        {":/projectexplorer/images/continue_1_small.png", Theme::IconsInterruptColor},
-        {":/projectexplorer/images/continue_2_small.png", Theme::IconsRunColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+        {":/utils/images/continue_1_small.png", Theme::IconsInterruptColor},
+        {":/utils/images/continue_2_small.png", Theme::IconsRunColor},
+        {":/utils/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon DEBUG_CONTINUE_SMALL_TOOLBAR({
-        {":/projectexplorer/images/continue_1_small.png", Theme::IconsInterruptToolBarColor},
-        {":/projectexplorer/images/continue_2_small.png", Theme::IconsRunToolBarColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
+        {":/utils/images/continue_1_small.png", Theme::IconsInterruptToolBarColor},
+        {":/utils/images/continue_2_small.png", Theme::IconsRunToolBarColor},
+        {":/utils/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
 const Icon INTERRUPT(
         ":/debugger/images/debugger_interrupt.png");
 const Icon INTERRUPT_FLAT({
@@ -53,16 +53,16 @@ const Icon STOP_FLAT({
         {":/projectexplorer/images/debugger_beetle_mask.png", Theme::IconsDebugColor}});
 const Icon DEBUG_INTERRUPT_SMALL({
         {":/utils/images/interrupt_small.png", Theme::IconsInterruptColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+        {":/utils/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon DEBUG_INTERRUPT_SMALL_TOOLBAR({
         {":/utils/images/interrupt_small.png", Theme::IconsInterruptToolBarColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
+        {":/utils/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
 const Icon DEBUG_EXIT_SMALL({
         {":/utils/images/stop_small.png", Theme::IconsStopColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+        {":/utils/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon DEBUG_EXIT_SMALL_TOOLBAR({
         {":/utils/images/stop_small.png", Theme::IconsStopToolBarColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
+        {":/utils/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
 const Icon LOCATION({
         {":/debugger/images/location_background.png", Theme::IconsCodeModelOverlayForegroundColor},
         {":/debugger/images/location.png", Theme::IconsWarningToolBarColor}}, Icon::Tint);

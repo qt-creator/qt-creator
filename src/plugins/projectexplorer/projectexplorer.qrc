@@ -20,8 +20,6 @@
         <file>images/run@2x.png</file>
         <file>images/run_mask.png</file>
         <file>images/run_mask@2x.png</file>
-        <file>images/debugger_overlay_small.png</file>
-        <file>images/debugger_overlay_small@2x.png</file>
         <file>images/analyzer_overlay_small.png</file>
         <file>images/analyzer_overlay_small@2x.png</file>
         <file>images/devicestatusindicator.png</file>
@@ -34,10 +32,6 @@
         <file>images/build_hammerhead_mask@2x.png</file>
         <file>images/targetpanel_bottom.png</file>
         <file>images/window.png</file>
-        <file>images/continue_1_small.png</file>
-        <file>images/continue_1_small@2x.png</file>
-        <file>images/continue_2_small.png</file>
-        <file>images/continue_2_small@2x.png</file>
         <file>images/buildstepdisable.png</file>
         <file>images/buildstepdisable@2x.png</file>
         <file>images/buildstepmovedown.png</file>

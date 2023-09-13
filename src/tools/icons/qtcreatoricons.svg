@@ -4626,7 +4626,7 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       id="src/plugins/projectexplorer/images/debugger_overlay_small"
+       id="src/libs/utils/images/debugger_overlay_small"
        transform="translate(16)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -5363,7 +5363,7 @@
     <g
        style="display:inline"
        transform="translate(144)"
-       id="src/plugins/projectexplorer/images/continue_1_small">
+       id="src/libs/utils/images/continue_1_small">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="265"
@@ -5383,7 +5383,7 @@
     <g
        style="display:inline"
        transform="translate(160)"
-       id="src/plugins/projectexplorer/images/continue_2_small">
+       id="src/libs/utils/images/continue_2_small">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="265"

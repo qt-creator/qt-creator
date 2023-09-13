@@ -225,6 +225,12 @@ const Icon INTERRUPT_SMALL({
         {":/utils/images/interrupt_small.png", Theme::IconsInterruptColor}}, Icon::MenuTintedStyle);
 const Icon INTERRUPT_SMALL_TOOLBAR({
         {":/utils/images/interrupt_small.png", Theme::IconsInterruptToolBarColor}});
+const Icon CONTINUE_SMALL({
+        {":/utils/images/continue_1_small.png", Theme::IconsInterruptColor},
+        {":/utils/images/continue_2_small.png", Theme::IconsRunColor}}, Icon::MenuTintedStyle);
+const Icon CONTINUE_SMALL_TOOLBAR({
+        {":/utils/images/continue_1_small.png", Theme::IconsInterruptToolBarColor},
+        {":/utils/images/continue_2_small.png", Theme::IconsRunToolBarColor}});
 const Icon BOUNDING_RECT({
         {":/utils/images/boundingrect.png", Theme::IconsBaseColor}});
 const Icon EYE_OPEN({

@@ -48,6 +48,12 @@
         <file>images/clean_pane_small@2x.png</file>
         <file>images/compile_error_taskbar.png</file>
         <file>images/compile_error_taskbar@2x.png</file>
+        <file>images/continue_1_small.png</file>
+        <file>images/continue_1_small@2x.png</file>
+        <file>images/continue_2_small.png</file>
+        <file>images/continue_2_small@2x.png</file>
+        <file>images/debugger_overlay_small.png</file>
+        <file>images/debugger_overlay_small@2x.png</file>
         <file>images/editcopy.png</file>
         <file>images/editcopy@2x.png</file>
         <file>images/editcut.png</file>

@@ -50,10 +50,10 @@ const Icon DEBUG_START_FLAT({
         {":/projectexplorer/images/debugger_beetle_mask.png", Theme::IconsDebugColor}});
 const Icon DEBUG_START_SMALL({
         {":/utils/images/run_small.png", Theme::IconsRunColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+        {":/utils/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon DEBUG_START_SMALL_TOOLBAR({
         {":/utils/images/run_small.png", Theme::IconsRunToolBarColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
+        {":/utils/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
 const Icon ANALYZER_START_SMALL({
         {":/utils/images/run_small.png", Theme::IconsRunColor},
         {":/projectexplorer/images/analyzer_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
