@@ -3585,11 +3585,19 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
 
 void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Definition &definition)
 {
+    const TypingSettings::CommentPosition commentPosition
+        = m_document->typingSettings().m_commentPosition;
+    m_commentDefinition.isAfterWhitespace = commentPosition != TypingSettings::StartOfLine;
     if (!definition.isValid())
         return;
     m_commentDefinition.singleLine = definition.singleLineCommentMarker();
     m_commentDefinition.multiLineStart = definition.multiLineCommentMarker().first;
     m_commentDefinition.multiLineEnd = definition.multiLineCommentMarker().second;
+    if (commentPosition == TypingSettings::Automatic) {
+        m_commentDefinition.isAfterWhitespace
+            = definition.singleLineCommentPosition()
+              == KSyntaxHighlighting::CommentPosition::AfterWhitespace;
+    }
     q->setCodeFoldingSupported(true);
 }
 
@@ -7698,10 +7706,8 @@ void TextEditorWidget::rewrapParagraph()
 void TextEditorWidget::unCommentSelection()
 {
     const bool singleLine = d->m_document->typingSettings().m_preferSingleLineComments;
-    CommentDefinition commentDefinition = d->m_commentDefinition;
-    commentDefinition.isAfterWhitespace = d->m_document->typingSettings().m_preferAfterWhitespaceComments;
     const MultiTextCursor cursor = Utils::unCommentSelection(multiTextCursor(),
-                                                             commentDefinition,
+                                                             d->m_commentDefinition,
                                                              singleLine);
     setMultiTextCursor(cursor);
 }
@@ -7862,6 +7868,7 @@ void TextEditorWidget::setBehaviorSettings(const BehaviorSettings &bs)
 void TextEditorWidget::setTypingSettings(const TypingSettings &typingSettings)
 {
     d->m_document->setTypingSettings(typingSettings);
+    d->setupFromDefinition(d->currentDefinition());
 }
 
 void TextEditorWidget::setStorageSettings(const StorageSettings &storageSettings)
@@ -9263,6 +9270,8 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     textEditorWidget->d->m_hoverHandlers = m_hoverHandlers;
 
     textEditorWidget->d->m_commentDefinition = m_commentDefinition;
+    textEditorWidget->d->m_commentDefinition.isAfterWhitespace
+        = document->typingSettings().m_commentPosition != TypingSettings::StartOfLine;
 
     QObject::connect(textEditorWidget,
                      &TextEditorWidget::activateEditor,
