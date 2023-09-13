@@ -13,11 +13,11 @@
 
     \ingroup creator-reference
 
-    \title Command Line Options
+    \title Command-Line Options
 
     \brief Options for starting \QC from the command line.
 
-    To specify command line options, enter the following command in the
+    To specify command-line options, enter the following command in the
     directory that contains the \QC executable or specify the path to
     \QC as a part of the command:
 
@@ -34,7 +34,7 @@
 
         \row
             \li -help
-            \li Display help on command line options.
+            \li Display help on command-line options.
 
         \row
             \li -version
@@ -212,7 +212,7 @@
     \section1 Using Custom Styles
 
     \QC is a \l{QApplication}{Qt application}, and therefore, it accepts the
-    command line options that all Qt applications accept. For example, you can
+    command-line options that all Qt applications accept. For example, you can
     use the \c {-style} and \c {-stylesheet} options to apply custom styles and
     \l{Qt Style Sheets}{stylesheets}. The styling is only applied during the
     current session.

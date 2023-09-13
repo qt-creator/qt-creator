@@ -9,9 +9,9 @@
 
     \title Set up version control systems
 
-    \QC uses the version control system's command line clients to access your
-    repositories. Make sure that the command line clients are in the \c{PATH}
-    environment variable, or specify the path to the command line client
+    \QC uses the version control system's command-line clients to access your
+    repositories. Make sure that the command-line clients are in the \c{PATH}
+    environment variable, or specify the path to the command-line client
     executable in the version control system specific tab in \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Version Control}.
 

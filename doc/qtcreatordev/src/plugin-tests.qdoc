@@ -31,7 +31,7 @@
     test.
 
     Plugin tests are executed by starting \QC with the \c{-test <pluginname>}
-    command line argument. \QC then fully loads your plugin and all the plugins
+    command-line argument. \QC then fully loads your plugin and all the plugins
     that it depends on, going through the normal \l{Plugin Life Cycle}. After
     your plugin and all dependencies are fully initialized, your tests are
     executed. Afterwards, \QC automatically closes. Therefore, your plugin

@@ -119,7 +119,7 @@
     \image qtcreator-application-output.webp {Application Output}
 
     \if defined(qtcreator)
-    If you specify command line arguments in the run settings that are passed
+    If you specify command-line arguments in the run settings that are passed
     to the application when running it, they are displayed as a part of the
     application output. For more information, see
     \l{Specifying Run Settings for Desktop Device Types}.

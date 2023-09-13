@@ -52,7 +52,7 @@
     \image qtcreator-preferences-vcs-bazaar.webp {Bazaar preferences}
 
     \list
-        \li \uicontrol Command specifies the path to the command line client
+        \li \uicontrol Command specifies the path to the command-line client
             executable.
         \li \uicontrol {Default username} and \uicontrol {Default email}
             specify the username and email address to use by default when

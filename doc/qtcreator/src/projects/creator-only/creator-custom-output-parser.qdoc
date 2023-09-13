@@ -8,7 +8,7 @@
 
     \title Using Custom Output Parsers
 
-    Custom output parsers scan command line output for error
+    Custom output parsers scan command-line output for error
     and warning patterns that you specify and create entries
     for found patterns in \l Issues.
 

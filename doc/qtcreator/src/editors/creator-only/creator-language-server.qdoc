@@ -100,7 +100,7 @@
             request.
         \li In the \uicontrol Executable field, enter the path to the language
             server executable.
-        \li In the \uicontrol Arguments field, enter any required command line
+        \li In the \uicontrol Arguments field, enter any required command-line
             arguments. Select \uicontrol Variables to use variables as
             arguments.
     \endlist

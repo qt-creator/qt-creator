@@ -157,7 +157,7 @@
     {Qt6::LinguistTools}.
 
     By default, the project .pro file is passed to the tools as an argument. To
-    specify other command line arguments for the tools, select \uicontrol Tools >
+    specify other command-line arguments for the tools, select \uicontrol Tools >
     \uicontrol External > \uicontrol Configure.
 
     \section2 Synchronize TS files

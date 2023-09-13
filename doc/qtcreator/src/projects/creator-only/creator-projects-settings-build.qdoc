@@ -90,7 +90,7 @@
     \QC executes external processes to accomplish tasks such as building
     and running applications. To execute the processes, \QC uses shell
     commands that are native to the system. It constructs the commands from
-    an executable name and optional command line arguments.
+    an executable name and optional command-line arguments.
 
     The executable name is specified in the executable fields: \uicontrol qmake,
     \uicontrol Make, \uicontrol Command, or \uicontrol Executable. It is either

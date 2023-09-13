@@ -121,7 +121,7 @@
     setup with \QC.
 
     \list 1
-        \li qmake is an executable that understands the \c -query command line
+        \li qmake is an executable that understands the \c -query command-line
             argument.
         \li The \c bin and \c include directories have to exist. \QC fetches
             these directories by running \c{qmake -query}.

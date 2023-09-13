@@ -34,7 +34,7 @@
         \li In the \uicontrol Script field, you can see the path to the
             main file of the project that will be run.
         \li In the \uicontrol {Command line arguments} field, specify
-            command line arguments to be passed to the executable.
+            command-line arguments to be passed to the executable.
     \endlist
 
     If you want to run some other Python file than \c main.py, create a custom

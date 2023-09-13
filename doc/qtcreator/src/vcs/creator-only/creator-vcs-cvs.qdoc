@@ -40,7 +40,7 @@
     \image qtcreator-preferences-vcs-cvs.webp {CVS preferences}
 
     \list
-        \li \uicontrol {CVS Command} specifies the path to the command line
+        \li \uicontrol {CVS Command} specifies the path to the command-line
             client executable.
         \li \uicontrol {CVS root} specifies the CVS root.
         \li \uicontrol Timeout sets a timeout for version control operations.

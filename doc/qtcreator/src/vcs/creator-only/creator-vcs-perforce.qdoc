@@ -37,7 +37,7 @@
 
     \image qtcreator-preferences-vcs-perforce.webp {Perforce preferences}
 
-    In \uicontrol {P4 command}, set the path to the command line client
+    In \uicontrol {P4 command}, set the path to the command-line client
     executable.
 
     Set workspace details in \uicontrol {P4 user}, \uicontrol {P4 client}, and

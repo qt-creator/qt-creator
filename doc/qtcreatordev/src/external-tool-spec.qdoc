@@ -139,7 +139,7 @@
             finds. Required.
     \row
         \li arguments
-        \li Command line arguments for the executable. Specify the string in the
+        \li Command-line arguments for the executable. Specify the string in the
             same format (with respect to quoting and argument splitting, for
             example) as you would specify it on the command line of the platform
             the tool runs on. Optional.

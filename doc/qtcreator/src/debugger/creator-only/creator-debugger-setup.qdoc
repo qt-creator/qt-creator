@@ -178,7 +178,7 @@
     32-bit executable with a 64-bit debugger can result in a stack trace of the
     WOW64 emulator 32-bit emulation layer being displayed.
 
-    \QC extends the command line debugger by loading the
+    \QC extends the command-line debugger by loading the
     \c qtcreatorcdbext.dll extension library into it. The
     library must be available in the \c {libs\qtcreatorcdbext64}
     and \c {libs\qtcreatorcdbext32} folder. To install it there,

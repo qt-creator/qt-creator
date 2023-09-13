@@ -66,7 +66,7 @@
         \li Wrap line movement, such as \c gj, \c gk, \c g0, \c g^, \c g$
     \endlist
 
-    \section2 Command Line Mode
+    \section2 Command-Line Mode
 
     \list
         \li \c :map, \c :unmap, \c :inoremap, and so on

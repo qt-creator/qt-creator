@@ -11,7 +11,7 @@
 
     You can connect QNX devices to the development PC to deploy, run and debug
     applications on them from within \QC. The QNX Neutrino RTOS has additional
-    command line tools and services, as described in \l {Qt for QNX}.
+    command-line tools and services, as described in \l {Qt for QNX}.
 
     \note In Qt 6, \QC support for QNX is considered experimental.
 

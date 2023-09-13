@@ -75,7 +75,7 @@
     \uicontrol {Version Control} > \uicontrol Fossil:
 
     \list
-        \li \uicontrol Command specifies the path to the command line client
+        \li \uicontrol Command specifies the path to the command-line client
             executable.
         \li \uicontrol {Default path} sets the path to the directory to store
             local repositories by default.

@@ -98,7 +98,7 @@
 
     \section1 QNX
 
-    The QNX Neutrino RTOS has more command line tools
+    The QNX Neutrino RTOS has more command-line tools
     and services, as described in \l {Qt for QNX}.
 
     \note In Qt 6, \QC support for QNX is considered experimental.

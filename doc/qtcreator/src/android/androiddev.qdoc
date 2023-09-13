@@ -21,7 +21,7 @@
     highlighting, function tooltips, and navigating in code, add a
     \l{Java Language Server}{Java language server}.
 
-    \QC integrates the Android Debug Bridge (\c adb) command line tool for
+    \QC integrates the Android Debug Bridge (\c adb) command-line tool for
     deploying applications to Android devices, running them, and reading their
     logs. The \c adb tool includes a client and server that run on
     the development host and a daemon that runs on the emulator or device.

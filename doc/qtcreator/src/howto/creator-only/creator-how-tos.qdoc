@@ -68,6 +68,7 @@
             \li \l {Activate kits for a project}
             \li \l {Develop Qt for Python applications}
             \li \l {Open projects}
+            \li \l {Specify editor settings}
             \li \l {Specify project contents}
         \endlist
     \endtable
@@ -187,7 +188,7 @@
     You can start \QC and specify some options from the command line. For
     example, you can open a file to any line and column.
 
-    To use command line options, enter the following command in the
+    To use command-line options, enter the following command in the
     directory that contains the \QC executable or specify the path to
     \QC as a part of the command:
 
@@ -224,7 +225,7 @@
     \section1 Open a project from a directory
 
     To open a project that is located in a particular directory, you can
-    pass on the directory name as a command line argument. \QC looks for
+    pass on the directory name as a command-line argument. \QC looks for
     a \l{Managing Sessions}{session} that matches the directory name and
     loads it. Or it looks for a project file in the directory and opens it.
 
@@ -232,7 +233,7 @@
 
     \c {C:\qtcreator\bin>qtcreator.exe C:\Examples\alarms}
 
-    \sa {Command Line Options}
+    \sa {Command-Line Options}
 */
 
 /*!

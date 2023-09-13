@@ -390,7 +390,7 @@
 
     \endlist
 
-    For more information, see \l{Command Line Options}.
+    For more information, see \l{Command-Line Options}.
 */
 
 /*!
@@ -497,14 +497,14 @@
     \section1 Using CDB
 
     In remote mode, the local CDB process talks to a CDB process that runs on
-    the remote machine. The process is started with special command line options
+    the remote machine. The process is started with special command-line options
     that switch it into server mode. The remote CDB process must load the \QC
     CDB extension library that is shipped with \QC:
 
     \list 1
 
         \li Install the \e{Debugging Tools for Windows} on the remote machine.
-            The installation folder has the CDB command line executable
+            The installation folder has the CDB command-line executable
             (\c cdb.exe).
 
         \li Copy the \QC CDB extension library and the dependencies from the Qt installation

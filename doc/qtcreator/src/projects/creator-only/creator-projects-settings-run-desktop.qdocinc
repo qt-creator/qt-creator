@@ -6,7 +6,7 @@
 
     \section1 Specifying Run Settings for Desktop Device Types
 
-    You can specify command line arguments to be passed to the executable
+    You can specify command-line arguments to be passed to the executable
     and the working directory to use. The working directory defaults to
     the directory of the build result.
 
