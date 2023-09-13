@@ -147,9 +147,9 @@ T.ComboBox {
             id: itemDelegate
 
             onClicked: {
+                comboBoxPopup.close()
                 control.currentIndex = index
                 control.activated(index)
-                comboBoxPopup.close()
             }
 
             width: control.width
