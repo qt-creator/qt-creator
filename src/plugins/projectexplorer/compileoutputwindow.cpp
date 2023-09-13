@@ -50,6 +50,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_cancelBuildButton(new QToolButton),
     m_settingsButton(new QToolButton)
 {
+    setDisplayName(QCoreApplication::translate("QtC::ProjectExplorer", "Compile Output"));
     Core::Context context(C_COMPILE_OUTPUT);
     m_outputWindow = new Core::OutputWindow(context, SETTINGS_KEY);
     m_outputWindow->setWindowTitle(displayName());

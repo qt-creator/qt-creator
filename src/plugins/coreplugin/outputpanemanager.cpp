@@ -103,6 +103,22 @@ QList<QWidget *> IOutputPane::toolBarWidgets() const
     return widgets << m_zoomInButton << m_zoomOutButton;
 }
 
+/*!
+    Returns the translated display name of the output pane.
+*/
+QString IOutputPane::displayName() const
+{
+    return m_displayName;
+}
+
+/*!
+    Sets the translated display name of the output pane to \a name.
+*/
+void IOutputPane::setDisplayName(const QString &name)
+{
+    m_displayName = name;
+}
+
 void IOutputPane::visibilityChanged(bool /*visible*/)
 {
 }

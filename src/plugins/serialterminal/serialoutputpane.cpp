@@ -120,6 +120,7 @@ SerialOutputPane::SerialOutputPane(Settings &settings) :
     m_closeAllTabsAction(new QAction(Tr::tr("Close All Tabs"), this)),
     m_closeOtherTabsAction(new QAction(Tr::tr("Close Other Tabs"), this))
 {
+    setDisplayName(Tr::tr(Constants::OUTPUT_PANE_TITLE));
     createToolButtons();
 
     auto layout = new QVBoxLayout;
@@ -172,11 +173,6 @@ QList<QWidget *> SerialOutputPane::toolBarWidgets() const
                 m_portsSelection, m_baudRateSelection,
                 m_connectButton, m_disconnectButton,
                 m_resetButton };
-}
-
-QString SerialOutputPane::displayName() const
-{
-    return Tr::tr(Constants::OUTPUT_PANE_TITLE);
 }
 
 int SerialOutputPane::priorityInStatusBar() const

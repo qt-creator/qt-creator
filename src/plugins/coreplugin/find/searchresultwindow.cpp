@@ -363,6 +363,7 @@ SearchResultWindow *SearchResultWindow::m_instance = nullptr;
 SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     : d(new SearchResultWindowPrivate(this, newSearchPanel))
 {
+    setDisplayName(Tr::tr("Search Results"));
     m_instance = this;
     readSettings();
 }
@@ -707,14 +708,6 @@ void SearchResultWindow::goToPrev()
 bool SearchResultWindow::canNavigate() const
 {
     return true;
-}
-
-/*!
-    \internal
-*/
-QString SearchResultWindow::displayName() const
-{
-    return Tr::tr("Search Results");
 }
 
 /*!

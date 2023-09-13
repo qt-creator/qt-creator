@@ -152,6 +152,7 @@ AppOutputPane::AppOutputPane() :
         Tr::tr("Show the output that generated this issue in Application Output."),
         Tr::tr("A")))
 {
+    setDisplayName(Tr::tr("Application Output"));
     ExtensionSystem::PluginManager::addObject(m_handler);
 
     setObjectName("AppOutputPane"); // Used in valgrind engine
@@ -303,11 +304,6 @@ QList<QWidget *> AppOutputPane::toolBarWidgets() const
 {
     return QList<QWidget *>{m_reRunButton, m_stopButton, m_attachButton, m_settingsButton,
                 m_formatterWidget} + IOutputPane::toolBarWidgets();
-}
-
-QString AppOutputPane::displayName() const
-{
-    return Tr::tr("Application Output");
 }
 
 int AppOutputPane::priorityInStatusBar() const

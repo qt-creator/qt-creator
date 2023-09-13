@@ -20,6 +20,7 @@ const char zoomSettingsKey[] = "Core/MessageOutput/Zoom";
 
 MessageOutputWindow::MessageOutputWindow()
 {
+    setDisplayName(Tr::tr("General Messages"));
     m_widget = new OutputWindow(Context(Constants::C_GENERAL_OUTPUT_PANE), zoomSettingsKey);
     m_widget->setReadOnly(true);
 
@@ -63,11 +64,6 @@ QWidget *MessageOutputWindow::outputWidget(QWidget *parent)
 {
     m_widget->setParent(parent);
     return m_widget;
-}
-
-QString MessageOutputWindow::displayName() const
-{
-    return Tr::tr("General Messages");
 }
 
 void MessageOutputWindow::append(const QString &text)

@@ -37,6 +37,7 @@ namespace Debugger::Internal {
 
 Console::Console()
 {
+    setDisplayName(Tr::tr("QML Debugger Console"));
     m_consoleItemModel = new ConsoleItemModel(this);
 
     m_consoleWidget = new QWidget;
@@ -140,11 +141,6 @@ QList<QWidget *> Console::toolBarWidgets() const
 {
      return {m_showDebugButton, m_showWarningButton, m_showErrorButton,
              m_spacer, m_statusLabel};
-}
-
-QString Console::displayName() const
-{
-    return Tr::tr("QML Debugger Console");
 }
 
 int Console::priorityInStatusBar() const

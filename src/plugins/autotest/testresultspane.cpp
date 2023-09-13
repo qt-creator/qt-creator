@@ -74,6 +74,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     IOutputPane(parent),
     m_context(new IContext(this))
 {
+    setDisplayName(Tr::tr("Test Results"));
     m_outputWidget = new QStackedWidget;
     QWidget *visualOutputWidget = new QWidget;
     m_outputWidget->addWidget(visualOutputWidget);
@@ -272,11 +273,6 @@ QList<QWidget *> TestResultsPane::toolBarWidgets() const
     for (QWidget *widget : IOutputPane::toolBarWidgets())
         result.append(widget);
     return result;
-}
-
-QString TestResultsPane::displayName() const
-{
-    return Tr::tr("Test Results");
 }
 
 int TestResultsPane::priorityInStatusBar() const

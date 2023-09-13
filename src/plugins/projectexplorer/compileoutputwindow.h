@@ -48,8 +48,6 @@ public:
 
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget *> toolBarWidgets() const override;
-    QString displayName() const override {
-        return QCoreApplication::translate("QtC::ProjectExplorer","Compile Output"); }
     int priorityInStatusBar() const override;
     void clearContents() override;
     bool canFocus() const override;

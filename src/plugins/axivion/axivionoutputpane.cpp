@@ -170,6 +170,8 @@ void DashboardWidget::updateUi()
 AxivionOutputPane::AxivionOutputPane(QObject *parent)
     : Core::IOutputPane(parent)
 {
+    setDisplayName(Tr::tr("Axivion"));
+
     m_outputWidget = new QStackedWidget;
     DashboardWidget *dashboardWidget = new DashboardWidget(m_outputWidget);
     m_outputWidget->addWidget(dashboardWidget);
@@ -204,11 +206,6 @@ QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
     });
     buttons.append(showDashboard);
     return buttons;
-}
-
-QString AxivionOutputPane::displayName() const
-{
-    return Tr::tr("Axivion");
 }
 
 int AxivionOutputPane::priorityInStatusBar() const
