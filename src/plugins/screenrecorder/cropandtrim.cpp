@@ -17,6 +17,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QAction>
 #include <QClipboard>
 #include <QDialog>
 #include <QDialogButtonBox>
