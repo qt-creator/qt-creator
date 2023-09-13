@@ -27,6 +27,8 @@
 
 namespace {
 
+const char defaultCondition[] = "condition";
+
 QStringList propertyNameListToStringList(const QmlDesigner::PropertyNameList &propertyNameList)
 {
     QStringList stringList;
@@ -693,7 +695,7 @@ void ConnectionModelBackendDelegate::addCondition()
     ConnectionEditorStatements::MatchedCondition newCondition;
 
     ConnectionEditorStatements::Variable variable;
-    variable.nodeId = "condition";
+    variable.nodeId = defaultCondition;
     newCondition.statements.append(variable);
 
     ConnectionEditorStatements::ConditionalStatement conditionalStatement;
@@ -1066,8 +1068,6 @@ void ConnectionModelBackendDelegate::handleConditionChanged()
         = ConnectionEditorStatements::matchedCondition(m_handler);
     condition = m_conditionListModel.condition(); //why?
     QString newSource = ConnectionEditorStatements::toJavascript(m_handler);
-
-    qDebug() << Q_FUNC_INFO << "new source" << newSource;
 
     commitNewSource(newSource);
 }
@@ -1830,6 +1830,12 @@ void ConditionListModel::internalSetup()
     if (m_condition.statements.size() != m_condition.tokens.size() + 1)
         return;
 
+    if (m_condition.statements.size() == 1 && m_condition.tokens.isEmpty()) {
+        auto token = tokenFromComparativeStatement(m_condition.statements.first());
+        if (token.value == defaultCondition)
+            return;
+    }
+
     auto s_it = m_condition.statements.begin();
     auto o_it = m_condition.tokens.begin();
 
@@ -1841,9 +1847,6 @@ void ConditionListModel::internalSetup()
         o_it++;
     }
     m_tokens.append(tokenFromComparativeStatement(*s_it));
-
-    for (const auto &token : m_tokens)
-        qDebug() << token.value;
 
     setValid();
 }
