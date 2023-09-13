@@ -31,7 +31,7 @@
     \image qtcreator-editor-settings.png "Editor settings"
 
     \if defined(qtcreator)
-    For more information, see \l{Specifying Editor Settings}.
+    For more information, see \l{Specify editor settings}.
     \endif
 
     You can also specify indentation settings separately for C++ and QML files

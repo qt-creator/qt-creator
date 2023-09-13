@@ -33,18 +33,19 @@
 
     \section1 Overriding Global Preferences
 
-    You can override the following global preferences for each project:
+    In \uicontrol {Project Settings}, you can override global preferences for
+    the project:
 
             \list
-                \li \l{Specifying Editor Settings}{Editor}
-                \li \l{Specifying Code Style}{Code Style}
-                \li \l{Specifying Dependencies}{Dependencies}
-                \li \l{Specifying Environment Settings}{Environment}
-                \li \l{Using Custom Output Parsers}{Custom Output Parsers}
-                \li \l{Applying Refactoring Actions}{Quick Fixes}
-                \li \l{Using Clang Tools}{Clang Tools}
-                \li \l{To-Do Entries}{To-Do} (experimental)
                 \li \l{Parsing C++ Files with the Clang Code Model}{Clangd}
+                \li \l{Using Clang Tools}{Clang Tools}
+                \li \l{Specifying Code Style}{Code Style}
+                \li \l{Using Custom Output Parsers}{Custom Output Parsers}
+                \li \l{Specifying Dependencies}{Dependencies}
+                \li \l{Specify editor settings}{Editor}
+                \li \l{Specifying Environment Settings}{Environment}
+                \li \l{Applying Refactoring Actions}{Quick Fixes}
+                \li \l{To-Do Entries}{To-Do} (experimental)
             \endlist
 
     If you have multiple projects open in \QC, select the project to configure
