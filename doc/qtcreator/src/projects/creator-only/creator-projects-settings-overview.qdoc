@@ -39,7 +39,7 @@
             \list
                 \li \l{Parsing C++ Files with the Clang Code Model}{Clangd}
                 \li \l{Using Clang Tools}{Clang Tools}
-                \li \l{Specifying Code Style}{Code Style}
+                \li \l{Specify code style}{C++ Code Style}
                 \li \l{Using Custom Output Parsers}{Custom Output Parsers}
                 \li \l{Specifying Dependencies}{Dependencies}
                 \li \l{Specify editor settings}{Editor}

@@ -43,7 +43,6 @@
                         \li \l{Conan Build Configuration}
                     \endlist
                 \li \l{Specifying Run Settings}
-                \li \l{Specifying Code Style}
                 \li \l{Specifying Dependencies}
                 \li \l{Specifying Environment Settings}
                 \li \l{Using Custom Output Parsers}
@@ -75,7 +74,6 @@
                 \li \l{Semantic Highlighting}
                 \li \l{Checking Code Syntax}
                 \li \l{Completing Code}
-                \li \l{Indenting Text or Code}
                 \li \l{Using Qt Quick Toolbars}
                 \li \l{Pasting and Fetching Code Snippets}
                 \li \l{Using Text Editing Macros}
@@ -196,6 +194,7 @@
                 \list
                     \li \l {Add code snippets to the auto-complete menu}
                     \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
+                    \li \l {Indent text or code}
                     \li \l {Jump to a function in QML code}
                     \li \l {Locate files using the keyboard}
                     \li \l {Move between open files}
@@ -205,6 +204,7 @@
                     \li \l {Search and replace across files using a regular expression}
                     \li \l {Select the enclosing block in C++}
                     \li \l {Sort lines alphabetically}
+                    \li \l {Specify code style}
                     \li \l {Switch to Edit mode}
                     \li \l {Write down notes}
                 \endlist
@@ -298,6 +298,13 @@
                             \li \l {Issues}
                             \li \l {Search Results}
                             \li \l {To-Do Entries}
+                        \endlist
+                    \li Preferences
+                        \list
+                            \li \l {Behavior}
+                            \li \l {C++ Code Style}
+                            \li \l {Nim}
+                            \li \l {Qt Quick Code Style}
                         \endlist
                     \li Sidebar Views
                         \list

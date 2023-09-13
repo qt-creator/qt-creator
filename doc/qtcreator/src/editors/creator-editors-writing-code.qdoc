@@ -51,7 +51,7 @@
             \QC anticipates what you are going to write and completes code
             and code snippets for elements, properties, and IDs.
 
-        \li \l{Indenting Text or Code}
+        \li \l{Indent text or code}
 
             \QC indents text and code according to rules that you
             specify separately for files that have C++, QML, or

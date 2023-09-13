@@ -23,6 +23,18 @@
 
     \annotatedlist creator-reference-output-views
 
+    \section1 Preferences
+
+    \annotatedlist creator-reference-preferences
+
+    \section2 C++
+
+    \annotatedlist creator-reference-preferences-cpp
+
+    \section2 Text Editor
+
+    \annotatedlist creator-reference-preferences-text-editor
+
     \section1 Sidebar Views
 
     \annotatedlist creator-reference-sidebar-views

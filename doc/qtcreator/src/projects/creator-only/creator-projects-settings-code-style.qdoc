@@ -8,51 +8,43 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-editor-settings.html
     \page creator-code-style-settings.html
-    \nextpage creator-build-dependencies.html
+    \previouspage creator-how-tos.html
 
-    \title Specifying Code Style
+    \ingroup creator-how-to-edit
 
-    \QC uses the \l{Editing MIME Types}{MIME type} of the file to
-    determine which mode and editor to use for opening the file.
-    \QC opens C++ files in \uicontrol Edit mode in the C++ code editor and
-    QML files in the Qt Quick editor.
+    \title Specify code style
 
-    \QC uses ClangFormat to enforce the C++ code style specified in a
-    \c {.clang-format} file. It uses the
-    \l{https://clang.llvm.org/docs/LibFormat.html}{LibFormat} library for
-    automatic code formatting and indentation. For more information, see
-    \l {Indenting C++ Files}.
+    The \l{Editing MIME Types}{MIME type} of the file determines which mode
+    and editor the file opens in. \QC opens C++ files in \uicontrol Edit mode
+    in the C++ code editor and QML files in the Qt Quick editor.
 
-    \image qtcreator-code-style-clang-format-project.webp {Code Style settings in Projects mode}
+    You can specify indentation for:
 
-    In rare cases, ClangFormat can trip over a code construct and
-    trigger a \QC crash. If that happens for your project, select
-    \uicontrol {Formatting mode} > \uicontrol Disable to switch
-    ClangFormat off for the project. If you can reproduce the crash,
-    please select \uicontrol Help > \uicontrol {Report Bug} to report
-    the bug and and attach the code that triggers the crash.
+    \list
+        \li C++ files
+        \li QML files
+        \li Nim files
+        \li Other text files
+    \endlist
 
-    To specify a global code style for C++ files, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol C++.
+    You can specify code style either globally or separately for each project.
+    You can specify several sets of code style settings and easily switch between
+    them. In addition, you can import and export code style settings.
 
-    \image qtcreator-code-style-clang-format-global.webp {Code Style preferences}
-
-    To specify a global code style for QML files, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick}.
-
-    \image qtcreator-code-style-settings-edit-qtquick.png {Code Style view}
-
-    To configure the editor behavior for the current project:
+    To override the global code style for the current project:
 
     \list 1
 
         \li Select \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {Code Style}.
 
+            \image qtcreator-code-style-clang-format-project.webp {Code Style settings in Projects mode}
+
         \li In the \uicontrol Language field, select \uicontrol C++,
             \uicontrol {Qt Quick}, or \uicontrol Nim.
+
+        \li Deselect the \uicontrol {Use global settings} check box.
 
         \li In the \uicontrol {Current settings} field, select the settings to modify
             and click \uicontrol Copy.
@@ -63,6 +55,12 @@
 
     \endlist
 
-    For more information about the settings, see \l{Indenting Text or Code}.
+    In rare cases, ClangFormat can trip over a code construct and
+    trigger a \QC crash. If that happens for your project, select
+    \uicontrol Disable as the formatting mode to switch
+    ClangFormat off for the project. If you can reproduce the crash,
+    please select \uicontrol Help > \uicontrol {Report Bug} to report
+    the bug and and attach the code that triggers the crash.
 
+    \sa {Indent text or code}, {C++ Code Style}, {Qt Quick Code Style}, {Nim}
 */

@@ -37,7 +37,7 @@
     Click \uicontrol {Restore Global} to revert to the global settings.
 
     \sa {Configuring Fonts}, {File Encoding},
-    {Moving to Symbol Definition or Declaration}, {Indenting Text or Code},
+    {Moving to Symbol Definition or Declaration}, {Indent text or code},
     {Highlighting and Folding Blocks}, {Selecting Line Ending Style},
     {View function tooltips}
 */
