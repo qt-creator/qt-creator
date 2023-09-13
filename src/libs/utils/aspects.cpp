@@ -2969,4 +2969,191 @@ SettingsGroupNester::~SettingsGroupNester()
         theSettings->endGroup();
 }
 
+class AddItemCommand : public QUndoCommand
+{
+public:
+    AddItemCommand(AspectList *aspect, const std::shared_ptr<BaseAspect> &item)
+        : m_aspect(aspect)
+        , m_item(item)
+    {}
+
+    void undo() override { m_aspect->actualRemoveItem(m_item); }
+    void redo() override { m_aspect->actualAddItem(m_item); }
+
+private:
+    AspectList *m_aspect;
+    std::shared_ptr<BaseAspect> m_item;
+};
+
+class RemoveItemCommand : public QUndoCommand
+{
+public:
+    RemoveItemCommand(AspectList *aspect, const std::shared_ptr<BaseAspect> &item)
+        : m_aspect(aspect)
+        , m_item(item)
+    {}
+
+    void undo() override { m_aspect->actualAddItem(m_item); }
+    void redo() override { m_aspect->actualRemoveItem(m_item); }
+
+private:
+    AspectList *m_aspect;
+    std::shared_ptr<BaseAspect> m_item;
+};
+
+class Internal::AspectListPrivate
+{
+public:
+    QList<std::shared_ptr<BaseAspect>> items;
+    QList<std::shared_ptr<BaseAspect>> volatileItems;
+    AspectList::CreateItem createItem;
+    AspectList::ItemCallback itemAdded;
+    AspectList::ItemCallback itemRemoved;
+};
+
+AspectList::AspectList(Utils::AspectContainer *container)
+    : Utils::BaseAspect(container)
+    , d(std::make_unique<Internal::AspectListPrivate>())
+{}
+
+AspectList::~AspectList() = default;
+
+void AspectList::fromMap(const Utils::Store &map)
+{
+    QTC_ASSERT(!settingsKey().isEmpty(), return);
+
+    QVariantList list = map[settingsKey()].toList();
+    d->volatileItems.clear();
+    for (const QVariant &entry : list) {
+        auto item = d->createItem();
+        item->setAutoApply(isAutoApply());
+        item->setUndoStack(undoStack());
+        item->fromMap(Utils::storeFromVariant(entry));
+        d->volatileItems.append(item);
+    }
+    d->items = d->volatileItems;
+}
+
+QVariantList AspectList::toList(bool v) const
+{
+    QVariantList list;
+    const auto &items = v ? d->volatileItems : d->items;
+
+    for (const auto &item : items) {
+        Utils::Store childStore;
+        if (v)
+            item->volatileToMap(childStore);
+        else
+            item->toMap(childStore);
+
+        list.append(Utils::variantFromStore(childStore));
+    }
+
+    return list;
+}
+
+void AspectList::toMap(Utils::Store &map) const
+{
+    QTC_ASSERT(!settingsKey().isEmpty(), return);
+    const Utils::Key key = settingsKey();
+    map[key] = toList(false);
+}
+
+void AspectList::volatileToMap(Utils::Store &map) const
+{
+    QTC_ASSERT(!settingsKey().isEmpty(), return);
+    const Utils::Key key = settingsKey();
+    map[key] = toList(true);
+}
+
+std::shared_ptr<BaseAspect> AspectList::actualAddItem(const std::shared_ptr<BaseAspect> &item)
+{
+    item->setAutoApply(isAutoApply());
+    item->setUndoStack(undoStack());
+
+    d->volatileItems.append(item);
+    if (d->itemAdded)
+        d->itemAdded(item);
+    emit volatileValueChanged();
+    if (isAutoApply())
+        d->items = d->volatileItems;
+    return item;
+}
+
+QList<std::shared_ptr<BaseAspect>> AspectList::items() const
+{
+    return d->items;
+}
+QList<std::shared_ptr<BaseAspect>> AspectList::volatileItems() const
+{
+    return d->volatileItems;
+}
+
+std::shared_ptr<BaseAspect> AspectList::addItem(std::shared_ptr<BaseAspect> item)
+{
+    if (undoStack())
+        pushUndo(new AddItemCommand(this, item));
+    else
+        return actualAddItem(item);
+
+    return item;
+}
+
+void AspectList::actualRemoveItem(std::shared_ptr<BaseAspect> item)
+{
+    d->volatileItems.removeOne(item);
+    if (d->itemRemoved)
+        d->itemRemoved(item);
+    emit volatileValueChanged();
+    if (isAutoApply())
+        d->items = d->volatileItems;
+}
+
+void AspectList::removeItem(std::shared_ptr<BaseAspect> item)
+{
+    if (undoStack())
+        pushUndo(new RemoveItemCommand(this, item));
+    else
+        actualRemoveItem(item);
+}
+
+void AspectList::apply()
+{
+    d->items = d->volatileItems;
+    forEachItem<BaseAspect>([](const std::shared_ptr<BaseAspect> &aspect) { aspect->apply(); });
+    emit changed();
+}
+
+void AspectList::setCreateItemFunction(CreateItem createItem)
+{
+    d->createItem = createItem;
+}
+
+void AspectList::setItemAddedCallback(const ItemCallback &callback)
+{
+    d->itemAdded = callback;
+}
+void AspectList::setItemRemovedCallback(const ItemCallback &callback)
+{
+    d->itemRemoved = callback;
+}
+
+qsizetype AspectList::size() const
+{
+    return d->volatileItems.size();
+}
+
+bool AspectList::isDirty()
+{
+    if (d->items != d->volatileItems)
+        return true;
+
+    for (const auto &item : d->volatileItems) {
+        if (item->isDirty())
+            return true;
+    }
+    return false;
+}
+
+
 } // namespace Utils

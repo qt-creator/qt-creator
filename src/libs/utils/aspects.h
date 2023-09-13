@@ -8,8 +8,8 @@
 #include "infolabel.h"
 #include "macroexpander.h"
 #include "pathchooser.h"
-#include "store.h"
 #include "qtcsettings.h"
+#include "store.h"
 
 #include <functional>
 #include <memory>
@@ -46,6 +46,7 @@ class StringAspectPrivate;
 class StringListAspectPrivate;
 class TextDisplayPrivate;
 class CheckableAspectImplementation;
+class AspectListPrivate;
 } // Internal
 
 class QTCREATOR_UTILS_EXPORT BaseAspect : public QObject
@@ -992,6 +993,78 @@ private:
 
 private:
     T m_value;
+};
+
+class QTCREATOR_UTILS_EXPORT AspectList : public Utils::BaseAspect
+{
+public:
+    using CreateItem = std::function<std::shared_ptr<BaseAspect>()>;
+    using ItemCallback = std::function<void(std::shared_ptr<BaseAspect>)>;
+
+    AspectList(Utils::AspectContainer *container = nullptr);
+    ~AspectList() override;
+
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
+
+    void volatileToMap(Utils::Store &map) const override;
+    QVariantList toList(bool v) const;
+
+    QList<std::shared_ptr<BaseAspect>> items() const;
+    QList<std::shared_ptr<BaseAspect>> volatileItems() const;
+
+    std::shared_ptr<BaseAspect> addItem(std::shared_ptr<BaseAspect> item);
+    std::shared_ptr<BaseAspect> actualAddItem(const std::shared_ptr<BaseAspect> &item);
+
+    void removeItem(std::shared_ptr<BaseAspect> item);
+    void actualRemoveItem(std::shared_ptr<BaseAspect> item);
+
+    void apply() override;
+
+    void setCreateItemFunction(CreateItem createItem);
+
+    template<class T>
+    void forEachItem(std::function<void(const std::shared_ptr<T> &)> callback)
+    {
+        for (const auto &item : volatileItems())
+            callback(std::static_pointer_cast<T>(item));
+    }
+
+    template<class T>
+    void forEachItem(std::function<void(const std::shared_ptr<T> &, int)> callback)
+    {
+        int idx = 0;
+        for (const auto &item : volatileItems())
+            callback(std::static_pointer_cast<T>(item), idx++);
+    }
+
+    void setItemAddedCallback(const ItemCallback &callback);
+    void setItemRemovedCallback(const ItemCallback &callback);
+
+    template<class T>
+    void setItemAddedCallback(const std::function<void(const std::shared_ptr<T>)> &callback)
+    {
+        setItemAddedCallback([callback](const std::shared_ptr<BaseAspect> &item) {
+            callback(std::static_pointer_cast<T>(item));
+        });
+    }
+
+    template<class T>
+    void setItemRemovedCallback(const std::function<void(const std::shared_ptr<T>)> &callback)
+    {
+        setItemRemovedCallback([callback](const std::shared_ptr<BaseAspect> &item) {
+            callback(std::static_pointer_cast<T>(item));
+        });
+    }
+
+    qsizetype size() const;
+    bool isDirty() override;
+
+    QVariant volatileVariantValue() const override { return {}; }
+
+
+private:
+    std::unique_ptr<Internal::AspectListPrivate> d;
 };
 
 } // namespace Utils

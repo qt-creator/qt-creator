@@ -34,7 +34,7 @@ public:
     Utils::StringAspect compilerExplorerUrl{this};
     Utils::TypedAspect<QVariantMap> windowState{this};
 
-    AspectListAspect<std::shared_ptr<SourceSettings>> m_sources{this};
+    Utils::AspectList m_sources{this};
 
     Api::Config apiConfig() const
     {
@@ -61,7 +61,7 @@ public:
 public:
     StringSelectionAspect languageId{this};
     Utils::StringAspect source{this};
-    AspectListAspect<std::shared_ptr<CompilerSettings>> compilers{this};
+    Utils::AspectList compilers{this};
 
 public:
     QString languageExtension() const;

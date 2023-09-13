@@ -87,14 +87,6 @@ SourceSettings::SourceSettings(const ApiConfigFunction &apiConfigFunction)
         return result;
     });
 
-    compilers.setToBaseAspectFunction([](const std::shared_ptr<CompilerSettings> &item) {
-        return static_cast<Utils::BaseAspect *>(item.get());
-    });
-    compilers.setIsDirtyFunction(
-        [](const std::shared_ptr<CompilerSettings> &settings) { return settings->isDirty(); });
-    compilers.setApplyFunction(
-        [](const std::shared_ptr<CompilerSettings> &settings) { settings->apply(); });
-
     for (const auto &aspect : this->aspects())
         connect(aspect,
                 &Utils::BaseAspect::volatileValueChanged,
@@ -108,7 +100,7 @@ void SourceSettings::refresh()
     cachedLanguages().clear();
     languageId.refill();
 
-    compilers.forEachItem(&CompilerSettings::refresh);
+    compilers.forEachItem<CompilerSettings>(&CompilerSettings::refresh);
 }
 
 QString SourceSettings::languageExtension() const
@@ -328,16 +320,9 @@ CompilerExplorerSettings::CompilerExplorerSettings()
                 &CompilerExplorerSettings::changed);
         return newSourceSettings;
     });
-    m_sources.setIsDirtyFunction(
-        [](const std::shared_ptr<SourceSettings> &settings) { return settings->isDirty(); });
-    m_sources.setApplyFunction(
-        [](const std::shared_ptr<SourceSettings> &settings) { settings->apply(); });
-    m_sources.setToBaseAspectFunction([](const std::shared_ptr<SourceSettings> &item) {
-        return static_cast<Utils::BaseAspect *>(item.get());
-    });
 
     connect(&compilerExplorerUrl, &Utils::StringAspect::volatileValueChanged, this, [this] {
-        m_sources.forEachItem(&SourceSettings::refresh);
+        m_sources.forEachItem<SourceSettings>(&SourceSettings::refresh);
     });
 
     for (const auto &aspect : this->aspects())

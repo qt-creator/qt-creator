@@ -515,13 +515,13 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
-        sourceSettings->compilers.forEachItem(
+        sourceSettings->compilers.forEachItem<CompilerSettings>(
             [addCompiler, sourceSettings](const std::shared_ptr<CompilerSettings> &compilerSettings,
                                           int idx) {
                 addCompiler(sourceSettings, compilerSettings, idx + 1);
             });
 
-        sourceSettings->compilers.setItemAddedCallback(
+        sourceSettings->compilers.setItemAddedCallback<CompilerSettings>(
             [addCompiler, sourceSettings = sourceSettings.get()](
                 const std::shared_ptr<CompilerSettings> &compilerSettings) {
                 addCompiler(sourceSettings->shared_from_this(),
@@ -529,7 +529,7 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
                             sourceSettings->compilers.size());
             });
 
-        sourceSettings->compilers.setItemRemovedCallback(
+        sourceSettings->compilers.setItemRemovedCallback<CompilerSettings>(
             [this](const std::shared_ptr<CompilerSettings> &compilerSettings) {
                 m_compilerWidgets.removeIf([compilerSettings](const QDockWidget *c) {
                     return static_cast<CompilerWidget *>(c->widget())->m_compilerSettings
@@ -563,7 +563,7 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
         m_sourceWidgets.clear();
         m_compilerWidgets.clear();
 
-        m_document->settings()->m_sources.forEachItem(addSourceEditor);
+        m_document->settings()->m_sources.forEachItem<SourceSettings>(addSourceEditor);
         QVariantMap windowState = m_document->settings()->windowState.value();
 
         if (!windowState.isEmpty()) {
@@ -589,8 +589,8 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
         }
     };
 
-    document->settings()->m_sources.setItemAddedCallback(addSourceEditor);
-    document->settings()->m_sources.setItemRemovedCallback(removeSourceEditor);
+    document->settings()->m_sources.setItemAddedCallback<SourceSettings>(addSourceEditor);
+    document->settings()->m_sources.setItemRemovedCallback<SourceSettings>(removeSourceEditor);
     connect(document.get(), &JsonSettingsDocument::settingsChanged, this, recreateEditors);
 
     m_context = new Core::IContext(this);
