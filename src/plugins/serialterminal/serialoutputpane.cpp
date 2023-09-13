@@ -120,6 +120,7 @@ SerialOutputPane::SerialOutputPane(Settings &settings) :
     m_closeAllTabsAction(new QAction(Tr::tr("Close All Tabs"), this)),
     m_closeOtherTabsAction(new QAction(Tr::tr("Close Other Tabs"), this))
 {
+    setId("Serial Terminal");
     setDisplayName(Tr::tr(Constants::OUTPUT_PANE_TITLE));
     createToolButtons();
 

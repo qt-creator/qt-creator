@@ -37,6 +37,7 @@ namespace Debugger::Internal {
 
 Console::Console()
 {
+    setId("QMLDebuggerConsole");
     setDisplayName(Tr::tr("QML Debugger Console"));
     m_consoleItemModel = new ConsoleItemModel(this);
 

@@ -363,6 +363,7 @@ SearchResultWindow *SearchResultWindow::m_instance = nullptr;
 SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     : d(new SearchResultWindowPrivate(this, newSearchPanel))
 {
+    setId("SearchResults");
     setDisplayName(Tr::tr("Search Results"));
     m_instance = this;
     readSettings();

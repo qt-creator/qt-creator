@@ -168,6 +168,7 @@ static QToolButton *createFilterButton(const QIcon &icon, const QString &toolTip
 
 TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 {
+    setId("Issues");
     setDisplayName(Tr::tr("Issues"));
     d->m_model = new Internal::TaskModel(this);
     d->m_filter = new Internal::TaskFilterModel(d->m_model);

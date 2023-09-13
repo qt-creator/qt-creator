@@ -20,6 +20,7 @@ const char zoomSettingsKey[] = "Core/MessageOutput/Zoom";
 
 MessageOutputWindow::MessageOutputWindow()
 {
+    setId("GeneralMessages");
     setDisplayName(Tr::tr("General Messages"));
     m_widget = new OutputWindow(Context(Constants::C_GENERAL_OUTPUT_PANE), zoomSettingsKey);
     m_widget->setReadOnly(true);

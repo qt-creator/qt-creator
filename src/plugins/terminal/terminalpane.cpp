@@ -40,6 +40,7 @@ TerminalPane::TerminalPane(QObject *parent)
     : IOutputPane(parent)
     , m_selfContext("Terminal.Pane")
 {
+    setId("Terminal");
     setDisplayName(Tr::tr("Terminal"));
     setupContext(m_selfContext, &m_tabWidget);
     setZoomButtonsEnabled(true);

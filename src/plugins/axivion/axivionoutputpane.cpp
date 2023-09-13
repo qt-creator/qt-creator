@@ -170,6 +170,7 @@ void DashboardWidget::updateUi()
 AxivionOutputPane::AxivionOutputPane(QObject *parent)
     : Core::IOutputPane(parent)
 {
+    setId("Axivion");
     setDisplayName(Tr::tr("Axivion"));
 
     m_outputWidget = new QStackedWidget;

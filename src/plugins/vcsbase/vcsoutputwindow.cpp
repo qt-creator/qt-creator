@@ -283,6 +283,7 @@ static VcsOutputWindowPrivate *d = nullptr;
 
 VcsOutputWindow::VcsOutputWindow()
 {
+    setId("VersionControl");
     setDisplayName(Tr::tr("Version Control"));
     d = new VcsOutputWindowPrivate;
     Q_ASSERT(d->passwordRegExp.isValid());

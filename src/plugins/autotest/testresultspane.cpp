@@ -74,6 +74,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     IOutputPane(parent),
     m_context(new IContext(this))
 {
+    setId("TestResults");
     setDisplayName(Tr::tr("Test Results"));
     m_outputWidget = new QStackedWidget;
     QWidget *visualOutputWidget = new QWidget;

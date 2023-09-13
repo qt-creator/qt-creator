@@ -26,6 +26,7 @@ TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *s
     m_todoItemsModel(todoItemsModel),
     m_settings(settings)
 {
+    setId("To-DoEntries");
     setDisplayName(Tr::tr("To-Do Entries"));
     createTreeView();
     createScopeButtons();

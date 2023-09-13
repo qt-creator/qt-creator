@@ -152,6 +152,7 @@ AppOutputPane::AppOutputPane() :
         Tr::tr("Show the output that generated this issue in Application Output."),
         Tr::tr("A")))
 {
+    setId("ApplicationOutput");
     setDisplayName(Tr::tr("Application Output"));
     ExtensionSystem::PluginManager::addObject(m_handler);
 

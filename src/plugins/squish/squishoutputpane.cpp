@@ -28,6 +28,7 @@ static SquishOutputPane *m_instance = nullptr;
 
 SquishOutputPane::SquishOutputPane()
 {
+    setId("Squish");
     setDisplayName(Tr::tr("Squish"));
     m_instance = this;
 

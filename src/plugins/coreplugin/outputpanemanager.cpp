@@ -104,6 +104,23 @@ QList<QWidget *> IOutputPane::toolBarWidgets() const
 }
 
 /*!
+    Returns the ID of the output pane.
+*/
+Id IOutputPane::id() const
+{
+    return m_id;
+}
+
+/*!
+    Sets the ID of the output pane to \a id.
+    This is used for persisting the visibility state.
+*/
+void IOutputPane::setId(const Utils::Id &id)
+{
+    m_id = id;
+}
+
+/*!
     Returns the translated display name of the output pane.
 */
 QString IOutputPane::displayName() const
@@ -481,9 +498,7 @@ void OutputPaneManager::initialize()
 
         minTitleWidth = qMax(minTitleWidth, titleFm.horizontalAdvance(outPane->displayName()));
 
-        QString suffix = outPane->displayName().simplified();
-        suffix.remove(QLatin1Char(' '));
-        data.id = baseId.withSuffix(suffix);
+        data.id = baseId.withSuffix(outPane->id().toString());
         data.action = new QAction(outPane->displayName(), m_instance);
         Command *cmd = ActionManager::registerAction(data.action, data.id);
 
