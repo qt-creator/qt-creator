@@ -13,10 +13,28 @@ ListView {
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
 
+    property bool adsFocus: false
+
     clip: true
     interactive: true
     highlightMoveDuration: 0
     highlightResizeDuration: 0
+    boundsMovement: Flickable.StopAtBounds
+    boundsBehavior: Flickable.StopAtBounds
+
+    HoverHandler { id: hoverHandler }
+
+    ScrollBar.vertical: HelperWidgets.ScrollBar {
+        id: verticalScrollBar
+        parent: root
+        x: root.width - verticalScrollBar.width
+        y: 0
+        height: root.availableHeight
+        orientation: Qt.Vertical
+
+        show: (hoverHandler.hovered || root.focus || verticalScrollBar.inUse || root.adsFocus)
+              && verticalScrollBar.isNeeded
+    }
 
     onVisibleChanged: {
         dialog.hide()

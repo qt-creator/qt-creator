@@ -14,6 +14,11 @@ Rectangle {
 
     color: StudioTheme.Values.themePanelBackground
 
+    property bool adsFocus: false
+    // objectName is used by the dock widget to find this particular ScrollView
+    // and set the ads focus on it.
+    objectName: "__mainSrollView"
+
     Column {
         id: column
         anchors.fill: parent
@@ -109,6 +114,7 @@ Rectangle {
             width: parent.width
             height: parent.height - toolbar.height - column.spacing
             model: ConnectionsEditorEditorBackend.connectionModel
+            adsFocus: root.adsFocus
         }
 
         BindingsListView {
@@ -116,6 +122,7 @@ Rectangle {
             width: parent.width
             height: parent.height - toolbar.height - column.spacing
             model: ConnectionsEditorEditorBackend.bindingModel
+            adsFocus: root.adsFocus
         }
 
         PropertiesListView {
@@ -123,6 +130,7 @@ Rectangle {
             width: parent.width
             height: parent.height - toolbar.height - column.spacing
             model: ConnectionsEditorEditorBackend.dynamicPropertiesModel
+            adsFocus: root.adsFocus
         }
     }
 }

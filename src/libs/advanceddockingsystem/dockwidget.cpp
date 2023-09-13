@@ -457,6 +457,8 @@ void DockWidget::setFocused(bool focused)
     if (d->m_scrollArea)
         d->m_scrollArea->setProperty("focused", focused);
 
+    const QString customObjectName = QString("__mainSrollView");
+
     QList<QQuickWidget *> quickWidgets = d->m_widget->findChildren<QQuickWidget *>();
 
     for (const auto &quickWidget : std::as_const(quickWidgets)) {
@@ -464,7 +466,12 @@ void DockWidget::setFocused(bool focused)
         if (!rootItem)
             continue;
 
-        QQuickItem *scrollView = rootItem->findChild<QQuickItem *>("__mainSrollView");
+        if (rootItem->objectName() == customObjectName) {
+            rootItem->setProperty("adsFocus", focused);
+            continue;
+        }
+
+        QQuickItem *scrollView = rootItem->findChild<QQuickItem *>(customObjectName);
         if (!scrollView)
             continue;
 
