@@ -152,7 +152,6 @@ void PropertyTreeModel::resetModel()
     }
 
     endResetModel();
-    testModel();
 }
 
 QString stripQualification(const QString &string)
@@ -563,41 +562,16 @@ const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSignalNames(
 {
     Q_UNUSED(recursive);
 
-    const std::vector<PropertyName> priorityListSignals = {"clicked",
-                                                           "doubleClicked",
-                                                           "pressed",
-                                                           "released",
-                                                           "toggled",
-                                                           "valueModified",
-                                                           "valueChanged",
-                                                           "checkedChanged",
-                                                           "moved",
-                                                           "accepted",
-                                                           "editingFinished",
-                                                           "entered",
-                                                           "exited",
-                                                           "canceled",
-                                                           "triggered",
-                                                           "stateChanged",
-                                                           "started",
-                                                           "stopped",
-                                                           "finished"
-                                                           "enabledChanged",
-                                                           "visibleChanged",
-                                                           "opacityChanged",
-                                                           "rotationChanged"};
+    auto filtered = Utils::filtered(metaInfo.signalNames(), [](const PropertyName &name) {
+        if (std::find(priorityListSignals.cbegin(), priorityListSignals.cend(), name)
+            != priorityListSignals.cend())
+            return true;
 
-    auto filtered
-        = Utils::filtered(metaInfo.signalNames(), [&priorityListSignals](const PropertyName &name) {
-              if (std::find(priorityListSignals.cbegin(), priorityListSignals.cend(), name)
-                  != priorityListSignals.cend())
-                  return true;
+        if (name.endsWith("Changed")) //option?
+            return false;
 
-              if (name.endsWith("Changed")) //option?
-                  return false;
-
-              return true;
-          });
+        return true;
+    });
 
     auto sorted = Utils::sorted(filtered);
 
@@ -796,7 +770,6 @@ void PropertyListProxyModel::resetModel()
 
 void PropertyListProxyModel::setRowAndInternalId(int row, quintptr internalId)
 {
-    qDebug() << Q_FUNC_INFO << row << internalId;
     QTC_ASSERT(m_treeModel, return );
 
     if (internalId == internalRootIndex)
@@ -830,7 +803,6 @@ QHash<int, QByteArray> PropertyListProxyModel::roleNames() const
 
 void PropertyListProxyModel::goInto(int row)
 {
-    qDebug() << Q_FUNC_INFO << row << m_parentIndex.internalId();
     setRowAndInternalId(row, 0); //m_parentIndex.internalId());
 
     emit parentNameChanged();
@@ -838,8 +810,6 @@ void PropertyListProxyModel::goInto(int row)
 
 void PropertyListProxyModel::goUp()
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (m_parentIndex.internalId() == internalRootIndex)
         return;
 
