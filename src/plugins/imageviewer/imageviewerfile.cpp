@@ -6,6 +6,7 @@
 
 #include "imageviewerconstants.h"
 #include "imageviewertr.h"
+#include "utils/algorithm.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -115,20 +116,8 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
             return OpenResult::CannotHandle;
         }
         m_type = TypeMovie;
-        m_movie->setCacheMode(QMovie::CacheAll);
-        connect(
-            m_movie,
-            &QMovie::finished,
-            m_movie,
-            [this] {
-                if (m_movie->isValid())
-                    m_movie->start();
-            },
-            Qt::QueuedConnection);
         connect(m_movie, &QMovie::resized, this, &ImageViewerFile::imageSizeChanged);
-        m_movie->start();
-        m_isPaused = false; // force update
-        setPaused(true);
+        connect(m_movie, &QMovie::stateChanged, this, &ImageViewerFile::movieStateChanged);
     } else {
         m_pixmap = new QPixmap(fileName);
         if (m_pixmap->isNull()) {
@@ -169,18 +158,9 @@ bool ImageViewerFile::reload(QString *errorString,
     return success;
 }
 
-bool ImageViewerFile::isPaused() const
+QMovie *ImageViewerFile::movie() const
 {
-    return m_isPaused;
-}
-
-void ImageViewerFile::setPaused(bool paused)
-{
-    if (!m_movie || m_isPaused == paused)
-        return;
-    m_isPaused = paused;
-    m_movie->setPaused(paused);
-    emit isPausedChanged(m_isPaused);
+    return m_movie;
 }
 
 QGraphicsItem *ImageViewerFile::createGraphicsItem() const
@@ -221,16 +201,13 @@ ImageViewerFile::ImageType ImageViewerFile::type() const
 
 void ImageViewerFile::updateVisibility()
 {
-    if (!m_movie || m_isPaused)
+    if (!m_movie || m_movie->state() != QMovie::Running)
         return;
-    bool visible = false;
-    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(this)) {
-        if (editor->widget()->isVisible()) {
-            visible = true;
-            break;
-        }
-    }
-    m_movie->setPaused(!visible);
+    const bool anyVisible = Utils::anyOf(Core::DocumentModel::editorsForDocument(this),
+                                           [] (Core::IEditor *editor)
+                                           { return editor->widget()->isVisible(); });
+    if (!anyVisible)
+        m_movie->setPaused(true);
 }
 
 void ImageViewerFile::cleanUp()
