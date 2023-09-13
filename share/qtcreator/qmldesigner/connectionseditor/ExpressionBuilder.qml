@@ -34,7 +34,8 @@ Rectangle {
 
     width: 400
     height: root.expressionHeight + 2 * StudioTheme.Values.flowMargin
-    color: root.style.background.idle
+    color: (focusScope.activeFocus || popup.searchActive) ? root.style.background.interaction
+                                                          : root.style.background.idle
     border {
         color: root.conditionListModel.valid ? root.style.border.idle
                                              : StudioTheme.Values.themeError
@@ -215,129 +216,133 @@ Rectangle {
         }
     }
 
-    Flow {
-        id: flow
-
-        property int focusIndex: -1
-
+    FocusScope {
+        id: focusScope
         anchors.fill: parent
-        anchors.margins: StudioTheme.Values.flowMargin
-        spacing: StudioTheme.Values.flowSpacing
 
-        onPositioningComplete: {
-            if (root.textInputActive())
-                root.placeCursor(newTextInput.index)
-
-            if (!root.shadowPillVisible)
-                root.heightBeforeShadowPill = flow.childrenRect.height
+        onActiveFocusChanged: {
+            if (!focusScope.activeFocus && !popup.searchActive)
+                popup.close()
         }
 
-        Repeater {
-            id: repeater
+        Flow {
+            id: flow
 
-            onItemRemoved: function(index, item) {
-                if (!root.textInputActive())
-                    return
+            property int focusIndex: -1
 
-                // Udpate the cursor position
-                if (index < newTextInput.index)
-                    newTextInput.index = newTextInput.index - 1
+            anchors.fill: parent
+            anchors.margins: StudioTheme.Values.flowMargin
+            spacing: StudioTheme.Values.flowSpacing
+
+            onPositioningComplete: {
+                if (root.textInputActive())
+                    root.placeCursor(newTextInput.index)
+
+                if (!root.shadowPillVisible)
+                    root.heightBeforeShadowPill = flow.childrenRect.height
             }
 
-            onItemAdded: function(index, item) {
-                if (!root.textInputActive())
-                    return
+            Repeater {
+                id: repeater
 
-                if (index >= newTextInput.index)
-                    newTextInput.index = newTextInput.index + 1
-            }
-
-            Pill {
-                id: pill
-
-                operatorModel: __operatorModel
-
-                onRemove: function() {
-                    // If pill has focus due to selection or keyboard navigation
-                    if (pill.focus)
-                        root.placeCursor(pill.index)
-
-                    Qt.callLater(root.remove, pill.index)
-                }
-
-                onUpdate: function(value) {
-                    if (value === "")
-                        Qt.callLater(root.remove, pill.index) // Otherwise crash
-                    else
-                        Qt.callLater(root.update, pill.index, value)
-                }
-
-                onFocusChanged: function() {
-                    if (pill.focus)
-                        flow.focusIndex = pill.index
-                }
-
-                onSubmit: function (cursorPosition) {
-                    let index = pill.index
-                    // If cursor position is 0 the user moved the cursor out to left side, so place
-                    // the cursor before the pill
-                    if (cursorPosition !== 0)
-                        index++
-
-                    root.placeCursor(index)
-                }
-            }
-        }
-    }
-
-    TextInput {
-        id: newTextInput
-
-        property int index
-
-        height: 20
-        topPadding: 1
-        font.pixelSize: root.style.baseFontSize
-        color: root.style.text.idle
-        visible: false
-        validator: RegularExpressionValidator { regularExpression: /^\S.+/ }
-
-        //onActiveFocusChanged: {
-        //    if (!newTextInput.activeFocus && !root.shadowPillVisible) {
-        //        console.log("CLOSE POPUP")
-        //        popup.close()
-        //    }
-        //}
-
-        onTextEdited: {
-            if (newTextInput.text === "")
-                return
-
-            newTextInput.visible = false
-
-            root.insert(newTextInput.index, newTextInput.text, ConditionListModel.Intermediate)
-
-            newTextInput.clear()
-
-            // Set focus on the newly created item
-            let newItem = repeater.itemAt(newTextInput.index)
-            newItem.forceActiveFocus()
-        }
-
-        Keys.onPressed: function (event) {
-            if (event.key === Qt.Key_Backspace) {
-                if (root.textInputActive()) {
-                    let previousIndex = newTextInput.index - 1
-                    if (previousIndex < 0)
+                onItemRemoved: function(index, item) {
+                    if (!root.textInputActive())
                         return
 
-                    let item = repeater.itemAt(previousIndex)
-                    item.setCursorEnd()
-                    item.forceActiveFocus()
-                    popup.close()
+                    // Udpate the cursor position
+                    if (index < newTextInput.index)
+                        newTextInput.index = newTextInput.index - 1
+                }
+
+                onItemAdded: function(index, item) {
+                    if (!root.textInputActive())
+                        return
+
+                    if (index >= newTextInput.index)
+                        newTextInput.index = newTextInput.index + 1
+                }
+
+                Pill {
+                    id: pill
+
+                    operatorModel: __operatorModel
+
+                    onRemove: function() {
+                        // If pill has focus due to selection or keyboard navigation
+                        if (pill.focus)
+                            root.placeCursor(pill.index)
+
+                        Qt.callLater(root.remove, pill.index)
+                    }
+
+                    onUpdate: function(value) {
+                        if (value === "")
+                            Qt.callLater(root.remove, pill.index) // Otherwise crash
+                        else
+                            Qt.callLater(root.update, pill.index, value)
+                    }
+
+                    onFocusChanged: function() {
+                        if (pill.focus)
+                            flow.focusIndex = pill.index
+                    }
+
+                    onSubmit: function (cursorPosition) {
+                        let index = pill.index
+                        // If cursor position is 0 the user moved the cursor out to left side,
+                        // so place the cursor before the pill
+                        if (cursorPosition !== 0)
+                            index++
+
+                        root.placeCursor(index)
+                    }
                 }
             }
         }
+
+        TextInput {
+            id: newTextInput
+
+            property int index
+
+            height: 20
+            topPadding: 1
+            font.pixelSize: root.style.baseFontSize
+            color: root.style.text.idle
+            visible: false
+            validator: RegularExpressionValidator { regularExpression: /^\S.+/ }
+
+            onTextEdited: {
+                if (newTextInput.text === "")
+                    return
+
+                newTextInput.visible = false
+
+                root.insert(newTextInput.index, newTextInput.text, ConditionListModel.Intermediate)
+
+                newTextInput.clear()
+
+                // Set focus on the newly created item
+                let newItem = repeater.itemAt(newTextInput.index)
+                newItem.forceActiveFocus()
+            }
+
+            Keys.onPressed: function (event) {
+                if (event.key === Qt.Key_Backspace) {
+                    if (root.textInputActive()) {
+                        let previousIndex = newTextInput.index - 1
+                        if (previousIndex < 0)
+                            return
+
+                        let item = repeater.itemAt(previousIndex)
+                        item.setCursorEnd()
+                        item.forceActiveFocus()
+                        popup.close()
+                    }
+                }
+            }
+        }
+
     }
 
     SuggestionPopup {
@@ -348,11 +353,14 @@ Rectangle {
         x: 0
         y: root.height
         width: root.width
-
         operatorModel: __operatorModel
 
         //onOpened: console.log("POPUP opened")
         //onClosed: console.log("POPUP closed")
+
+        onAboutToHide: {
+            newTextInput.visible = false
+        }
 
         onSelect: function(value) {
             newTextInput.visible = true

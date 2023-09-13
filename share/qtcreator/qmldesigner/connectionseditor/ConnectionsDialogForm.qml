@@ -20,6 +20,10 @@ Column {
     width: parent.width
     spacing: root.verticalSpacing
 
+    TapHandler {
+        onTapped: root.forceActiveFocus()
+    }
+
     Row {
         spacing: root.horizontalSpacing
 

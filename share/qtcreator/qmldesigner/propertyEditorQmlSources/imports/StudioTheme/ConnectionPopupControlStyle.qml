@@ -15,7 +15,7 @@ ControlStyle {
         idle: Values.themePopoutControlBackground_idle
         hover: Values.themePopoutControlBackground_hover
         globalHover: Values.themePopoutControlBackground_globalHover
-        interaction: Values.themeInteraction
+        interaction: Values.themeControlBackgroundInteraction
         disabled: Values.themePopoutControlBackground_disabled
     }
 

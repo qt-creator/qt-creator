@@ -30,8 +30,9 @@ Controls.Popup {
         root.listModel.reset()
     }
 
-    closePolicy: Controls.Popup.NoAutoClose
+    closePolicy: Controls.Popup.CloseOnEscape | Controls.Popup.CloseOnPressOutsideParent
     padding: 0
+    focus: search.activeFocus
 
     background: Rectangle {
         implicitWidth: root.width
