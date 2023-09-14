@@ -124,9 +124,26 @@ Controls.Popup {
                     id: listView
                     visible: search.empty
                     width: stack.width
-                    implicitHeight: Math.min(380, childrenRect.height)
+                    implicitHeight: Math.min(180, childrenRect.height)
                     clip: true
                     model: root.listModel
+
+                    HoverHandler { id: listViewHoverHandler }
+
+                    boundsMovement: Flickable.StopAtBounds
+                    boundsBehavior: Flickable.StopAtBounds
+
+                    ScrollBar.vertical: HelperWidgets.ScrollBar {
+                        id: listScrollBar
+                        parent: listView
+                        x: listView.width - listScrollBar.width
+                        y: 0
+                        height: listView.availableHeight
+                        orientation: Qt.Vertical
+
+                        show: (listViewHoverHandler.hovered || listView.focus || listScrollBar.inUse)
+                              && listScrollBar.isNeeded
+                    }
 
                     delegate: MyListViewDelegate {
                         id: listViewDelegate
@@ -167,9 +184,26 @@ Controls.Popup {
                     id: treeView
                     visible: !search.empty
                     width: stack.width
-                    implicitHeight: Math.min(380, childrenRect.height)
+                    implicitHeight: Math.min(180, childrenRect.height)
                     clip: true
                     model: root.treeModel
+
+                    HoverHandler { id: treeViewHoverHandler }
+
+                    boundsMovement: Flickable.StopAtBounds
+                    boundsBehavior: Flickable.StopAtBounds
+
+                    ScrollBar.vertical: HelperWidgets.ScrollBar {
+                        id: treeScrollBar
+                        parent: treeView
+                        x: treeView.width - treeScrollBar.width
+                        y: 0
+                        height: treeView.availableHeight
+                        orientation: Qt.Vertical
+
+                        show: (treeViewHoverHandler.hovered || treeView.focus || treeScrollBar.inUse)
+                              && treeScrollBar.isNeeded
+                    }
 
                     onLayoutChanged: function() {
                         treeView.expand(0)

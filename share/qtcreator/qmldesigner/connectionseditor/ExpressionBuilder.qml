@@ -54,7 +54,7 @@ Rectangle {
             if (!root.conditionListModel.valid)
                 return StudioTheme.Values.themeError
 
-            if (focusScope.activeFocus || popup.searchActive)
+            if (focusScope.activeFocus)
                 return root.style.border.interaction
 
             if (mouseArea.containsMouse)
