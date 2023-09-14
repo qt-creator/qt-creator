@@ -66,33 +66,23 @@
 
 #include <nanotrace/nanotrace.h>
 
-#include <QAbstractProxyModel>
 #include <QActionGroup>
 #include <QApplication>
-#include <QBrush>
 #include <QCloseEvent>
 #include <QColorDialog>
 #include <QComboBox>
 #include <QDebug>
 #include <QDialogButtonBox>
-#include <QDir>
 #include <QFileInfo>
-#include <QFileSystemModel>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QPrinter>
-#include <QSettings>
-#include <QSortFilterProxyModel>
 #include <QStatusBar>
 #include <QStyleFactory>
-#include <QSyntaxHighlighter>
 #include <QTextBrowser>
-#include <QTextList>
 #include <QToolButton>
-#include <QUrl>
 #include <QVersionNumber>
-#include <QWindow>
 
 #ifdef Q_OS_LINUX
 #include <malloc.h>
@@ -104,12 +94,12 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
-static const char settingsGroup[] = "MainWindow";
-static const char colorKey[] = "Color";
-static const char windowGeometryKey[] = "WindowGeometry";
-static const char windowStateKey[] = "WindowState";
-static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
-static const char menubarVisibleKey[] = "MenubarVisible";
+const char settingsGroup[] = "MainWindow";
+const char colorKey[] = "Color";
+const char windowGeometryKey[] = "WindowGeometry";
+const char windowStateKey[] = "WindowState";
+const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
+const char menubarVisibleKey[] = "MenubarVisible";
 
 static bool hideToolsMenu()
 {
@@ -1262,8 +1252,8 @@ void MainWindow::saveSettings()
 
 void MainWindow::saveWindowSettings()
 {
-    QSettings *settings = PluginManager::settings();
-    settings->beginGroup(QLatin1String(settingsGroup));
+    QtcSettings *settings = PluginManager::settings();
+    settings->beginGroup(settingsGroup);
 
     // On OS X applications usually do not restore their full screen state.
     // To be able to restore the correct non-full screen geometry, we have to put
@@ -1271,8 +1261,8 @@ void MainWindow::saveWindowSettings()
     // Works around QTBUG-45241
     if (Utils::HostOsInfo::isMacHost() && isFullScreen())
         setWindowState(windowState() & ~Qt::WindowFullScreen);
-    settings->setValue(QLatin1String(windowGeometryKey), saveGeometry());
-    settings->setValue(QLatin1String(windowStateKey), saveState());
+    settings->setValue(windowGeometryKey, saveGeometry());
+    settings->setValue(windowStateKey, saveState());
     settings->setValue(modeSelectorLayoutKey, int(ModeManager::modeStyle()));
 
     settings->endGroup();
@@ -1552,11 +1542,11 @@ QPrinter *MainWindow::printer() const
 void MainWindow::restoreWindowState()
 {
     NANOTRACE_SCOPE("Core", "MainWindow::restoreWindowState");
-    QSettings *settings = PluginManager::settings();
-    settings->beginGroup(QLatin1String(settingsGroup));
-    if (!restoreGeometry(settings->value(QLatin1String(windowGeometryKey)).toByteArray()))
+    QtcSettings *settings = PluginManager::settings();
+    settings->beginGroup(settingsGroup);
+    if (!restoreGeometry(settings->value(windowGeometryKey).toByteArray()))
         resize(1260, 700); // size without window decoration
-    restoreState(settings->value(QLatin1String(windowStateKey)).toByteArray());
+    restoreState(settings->value(windowStateKey).toByteArray());
     settings->endGroup();
     show();
     StatusBarManager::restoreSettings();
