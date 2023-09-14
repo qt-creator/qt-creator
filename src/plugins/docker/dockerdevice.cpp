@@ -190,6 +190,8 @@ DockerDeviceSettings::DockerDeviceSettings()
                 return newValue;
             });
         });
+
+    containerStatus.setText(Tr::tr("stopped"));
 }
 
 // Used for "docker run"
@@ -251,8 +253,8 @@ public:
     bool prepareForBuild(const Target *target);
     Tasks validateMounts() const;
 
-    bool createContainer();
-    bool startContainer();
+    expected_str<QString> createContainer();
+    expected_str<void> startContainer();
     void stopCurrentContainer();
     void fetchSystemEnviroment();
 
@@ -733,10 +735,10 @@ bool DockerDevicePrivate::isImageAvailable() const
     return false;
 }
 
-bool DockerDevicePrivate::createContainer()
+expected_str<QString> DockerDevicePrivate::createContainer()
 {
     if (!isImageAvailable())
-        return false;
+        return make_unexpected(Tr::tr("Image \"%1\" is not available.").arg(repoAndTag()));
 
     const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
                                                       : QString("host.docker.internal:0");
@@ -773,24 +775,25 @@ bool DockerDevicePrivate::createContainer()
     createProcess.runBlocking();
 
     if (createProcess.result() != ProcessResult::FinishedWithSuccess) {
-        qCWarning(dockerDeviceLog) << "Failed creating docker container:";
-        qCWarning(dockerDeviceLog) << "Exit Code:" << createProcess.exitCode();
-        qCWarning(dockerDeviceLog) << createProcess.allOutput();
-        return false;
+        return make_unexpected(Tr::tr("Failed creating Docker container. Exit code: %1, output: %2")
+                                   .arg(createProcess.exitCode())
+                                   .arg(createProcess.allOutput()));
     }
 
     m_container = createProcess.cleanedStdOut().trimmed();
     if (m_container.isEmpty())
-        return false;
+        return make_unexpected(
+            Tr::tr("Failed creating Docker container. No container ID received."));
 
     qCDebug(dockerDeviceLog) << "ContainerId:" << m_container;
-    return true;
+    return m_container;
 }
 
-bool DockerDevicePrivate::startContainer()
+expected_str<void> DockerDevicePrivate::startContainer()
 {
-    if (!createContainer())
-        return false;
+    auto createResult = createContainer();
+    if (!createResult)
+        return make_unexpected(createResult.error());
 
     m_shell = std::make_unique<ContainerShell>(m_container, q->rootPath());
 
@@ -811,13 +814,10 @@ bool DockerDevicePrivate::startContainer()
                                              "or restart Qt Creator."));
     });
 
-    QTC_ASSERT(m_shell, return false);
+    QTC_ASSERT(m_shell,
+               return make_unexpected(Tr::tr("Failed to create container shell (Out of memory).")));
 
-    if (m_shell->start())
-        return true;
-
-    qCWarning(dockerDeviceLog) << "Container shell failed to start";
-    return false;
+    return m_shell->start();
 }
 
 bool DockerDevicePrivate::updateContainerAccess()
@@ -831,7 +831,15 @@ bool DockerDevicePrivate::updateContainerAccess()
     if (m_shell)
         return true;
 
-    return startContainer();
+    auto result = startContainer();
+    if (result) {
+        deviceSettings->containerStatus.setText(Tr::tr("Running"));
+        return true;
+    }
+
+    qCWarning(dockerDeviceLog) << "Failed to start container:" << result.error();
+    deviceSettings->containerStatus.setText(result.error());
+    return false;
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const

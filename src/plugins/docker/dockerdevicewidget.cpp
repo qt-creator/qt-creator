@@ -162,6 +162,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         deviceSettings->tag, br,
         deviceSettings->imageId, br,
         daemonStateLabel, m_daemonReset, m_daemonState, br,
+        Tr::tr("Container State:"), deviceSettings->containerStatus, br,
         deviceSettings->useLocalUidGid, br,
         deviceSettings->keepEntryPoint, br,
         deviceSettings->enableLldbFlags, br,

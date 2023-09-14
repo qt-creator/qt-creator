@@ -30,6 +30,8 @@ public:
     Utils::BoolAspect keepEntryPoint{this};
     Utils::BoolAspect enableLldbFlags{this};
     Utils::FilePathAspect clangdExecutable{this};
+
+    Utils::TextDisplay containerStatus{this};
 };
 
 class DockerDevice : public ProjectExplorer::IDevice

@@ -2611,6 +2611,10 @@ void TextDisplay::addToLayout(LayoutItem &parent)
         // have a QWidget parent yet when used in a LayoutBuilder.
         if (!isVisible())
             d->m_label->setVisible(false);
+
+        connect(this, &TextDisplay::changed, d->m_label, [this] {
+            d->m_label->setText(d->m_message);
+        });
     }
     parent.addItem(d->m_label.data());
 }
@@ -2629,6 +2633,7 @@ void TextDisplay::setIconType(InfoLabel::InfoType t)
 void TextDisplay::setText(const QString &message)
 {
     d->m_message = message;
+    emit changed();
 }
 
 /*!

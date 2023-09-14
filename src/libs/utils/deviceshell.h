@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "utils_global.h"
-
+#include "expected.h"
 #include "fileutils.h"
+#include "utils_global.h"
 
 #include <QHash>
 #include <QMutex>
@@ -39,7 +39,7 @@ public:
     DeviceShell(bool forceFailScriptInstallation = false);
     virtual ~DeviceShell();
 
-    bool start();
+    expected_str<void> start();
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
@@ -51,7 +51,6 @@ signals:
     void done(const ProcessResultData &resultData);
 
 protected:
-    virtual void startupFailed(const CommandLine &cmdLine);
     RunResult run(const CommandLine &cmd, const QByteArray &stdInData = {});
 
     void close();
@@ -60,12 +59,12 @@ private:
     virtual void setupShellProcess(Process *shellProcess);
     virtual CommandLine createFallbackCommand(const CommandLine &cmdLine);
 
-    bool installShellScript();
+    expected_str<void> installShellScript();
     void closeShellProcess();
 
     void onReadyRead();
 
-    bool checkCommand(const QByteArray &command);
+    expected_str<QByteArray> checkCommand(const QByteArray &command);
 
 private:
     struct CommandRun : public RunResult
