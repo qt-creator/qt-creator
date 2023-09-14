@@ -68,18 +68,31 @@ private:
     static const int m_factor = 4;
     CropScene *m_cropScene;
     QImage m_thumbnail;
-    IntegerAspect m_screenId;
+    SelectionAspect m_screenId;
     IntegerAspect m_recordFrameRate;
     QLabel *m_cropRectLabel;
     QToolButton *m_resetButton;
 };
+
+static QString optionNameForScreen(const QScreen *screen)
+{
+    const QSize pixelSize = screen->size() * screen->devicePixelRatio();
+    QStringList nameElements = { screen->name(), screen->manufacturer(), screen->model() };
+    nameElements.removeDuplicates(); // Model and name might be the same on some system
+    const QString displayName = QLatin1String("%1 - %2x%3").arg(nameElements.join(" "))
+                                    .arg(pixelSize.width()).arg(pixelSize.height());
+    return displayName;
+}
 
 RecordOptionsDialog::RecordOptionsDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle(Tr::tr("Screen Recording Options"));
 
-    m_screenId.setRange(0, QGuiApplication::screens().count() - 1);
+    m_screenId.setLabelText(Tr::tr("Display:"));
+    m_screenId.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    for (const QScreen *screen : QGuiApplication::screens())
+        m_screenId.addOption(optionNameForScreen(screen));
 
     m_cropScene = new CropScene;
 
