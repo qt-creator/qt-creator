@@ -24,21 +24,27 @@ void showErrorMessage(const QString &text);
 QString idOrTypeName(const ModelNode &modelNode);
 PropertyName uniquePropertyName(const PropertyName &suggestion, const ModelNode &modelNode);
 
-NodeMetaInfo dynamicTypeMetaInfo(const AbstractProperty& property);
+NodeMetaInfo dynamicTypeMetaInfo(const AbstractProperty &property);
+NodeMetaInfo dynamicTypeNameToNodeMetaInfo(const TypeName &typeName, Model *model);
+
 QVariant typeConvertVariant(const QVariant &variant, const QmlDesigner::TypeName &typeName);
 void convertVariantToBindingProperty(const VariantProperty &property, const QVariant &value);
 void convertBindingToVariantProperty(const BindingProperty &property, const QVariant &value);
 
-bool isBindingExpression(const QVariant& value);
+bool isBindingExpression(const QVariant &value);
 bool isDynamicVariantPropertyType(const TypeName &type);
 QVariant defaultValueForType(const TypeName &type);
 QString defaultExpressionForType(const TypeName &type);
+std::pair<QString, QString> splitExpression(const QString &expression);
 
+QStringList singletonsFromView(AbstractView *view);
+std::vector<PropertyMetaInfo> propertiesFromSingleton(const QString &name, AbstractView *view);
+
+QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node);
 QStringList availableSources(AbstractView *view);
 QStringList availableTargetProperties(const BindingProperty &bindingProperty);
-QStringList availableSourceProperties(const BindingProperty &bindingProperty, AbstractView *view);
-QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node);
-
-std::pair<QString, QString> splitExpression(const QString &expression);
+QStringList availableSourceProperties(const QString &id,
+                                      const BindingProperty &targetProp,
+                                      AbstractView *view);
 
 } // namespace QmlDesigner

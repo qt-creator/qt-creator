@@ -86,8 +86,9 @@ public:
 
 private:
     QString targetNode() const;
-    void expressionChanged() const;
-    void propertyNameChanged() const;
+    void sourceNodeChanged();
+    void sourcePropertyNameChanged() const;
+    void targetPropertyNameChanged() const;
 
     StudioQmlComboBoxBackend *property();
     StudioQmlComboBoxBackend *sourceNode();
