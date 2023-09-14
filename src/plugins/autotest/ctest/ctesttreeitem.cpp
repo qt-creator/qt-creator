@@ -83,7 +83,7 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
     if (!project)
         return {};
 
-    const ProjectExplorer::Target *target = project->targets().value(0);
+    const ProjectExplorer::Target *target = ProjectExplorer::ProjectManager::startupTarget();
     if (!target)
         return {};
 

@@ -35,7 +35,7 @@ const QStringList CMAKE_QUERY_FILENAMES = {"cache-v2", "codemodel-v2", "cmakeFil
 // Helper:
 // --------------------------------------------------------------------
 
-static FilePath cmakeReplyDirectory(const FilePath &buildDirectory)
+FilePath FileApiParser::cmakeReplyDirectory(const FilePath &buildDirectory)
 {
     return buildDirectory.pathAppended(CMAKE_RELATIVE_REPLY_PATH);
 }
@@ -795,7 +795,7 @@ FilePath FileApiDetails::ReplyFileContents::jsonFile(const QString &kind, const 
 // FileApi:
 // --------------------------------------------------------------------
 
-bool FileApiParser::setupCMakeFileApi(const FilePath &buildDirectory, Utils::FileSystemWatcher &watcher)
+bool FileApiParser::setupCMakeFileApi(const FilePath &buildDirectory)
 {
     // So that we have a directory to watch.
     buildDirectory.pathAppended(CMAKE_RELATIVE_REPLY_PATH).ensureWritableDir();
@@ -818,7 +818,6 @@ bool FileApiParser::setupCMakeFileApi(const FilePath &buildDirectory, Utils::Fil
         }
     }
 
-    watcher.addDirectory(cmakeReplyDirectory(buildDirectory).path(), FileSystemWatcher::WatchAllChanges);
     return true;
 }
 
@@ -842,7 +841,6 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
                                      QString &errorMessage)
 {
     QTC_CHECK(errorMessage.isEmpty());
-    QTC_CHECK(!replyFilePath.needsDevice());
     const FilePath replyDir = replyFilePath.parentDir();
 
     FileApiData result;

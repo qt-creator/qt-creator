@@ -281,6 +281,8 @@ void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderLinux()
         t.builtIn("/usr/local/include"),
         t.builtIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
         t.builtIn("/usr/include/x86_64-linux-gnu"),
+        t.builtIn("/usr/lib64/clang/16/include"),
+        t.builtIn("/usr/lib/clang/15.0.7/include"),
         t.builtIn("/usr/include")};
     CompilerOptionsBuilder compilerOptionsBuilder(t.finalize(), UseSystemHeader::No,
                 UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,

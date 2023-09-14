@@ -162,8 +162,11 @@ void CtfVisualizerTool::loadJson()
     auto *task = new QFuture<void>(futureInterface);
 
     QThread *thread = QThread::create([this, filename, futureInterface]() {
-        m_traceManager->load(filename);
-
+        try {
+            m_traceManager->load(filename);
+        } catch (...) {
+            // nlohmann::json can throw exceptions when requesting type that is wrong
+        }
         m_modelAggregator->moveToThread(QApplication::instance()->thread());
         m_modelAggregator->setParent(this);
         futureInterface->reportFinished();

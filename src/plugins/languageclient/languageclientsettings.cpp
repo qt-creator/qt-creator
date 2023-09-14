@@ -120,16 +120,15 @@ public:
         applyCurrentSettings();
         LanguageClientManager::applySettings();
 
-        for (BaseSettings *setting : m_model.removed()) {
+        for (BaseSettings *setting : m_settings.removed()) {
             for (Client *client : LanguageClientManager::clientsForSetting(setting))
                 LanguageClientManager::shutdownClient(client);
         }
 
         int row = currentRow();
-        m_model.reset(LanguageClientManager::currentSettings());
+        m_settings.reset(LanguageClientManager::currentSettings());
         resetCurrentSettings(row);
     }
-
     void finish()
     {
         m_settings.reset(LanguageClientManager::currentSettings());
@@ -148,7 +147,6 @@ private:
 
     LanguageClientSettingsModel &m_settings;
     QSet<QString> &m_changedSettings;
-    LanguageClientSettingsModel m_model;
 };
 
 QMap<Utils::Id, ClientType> &clientTypes()
@@ -302,8 +300,6 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
 void LanguageClientSettingsPage::init()
 {
     m_model.reset(LanguageClientSettings::fromSettings(Core::ICore::settings()));
-    apply();
-    finish();
 }
 
 QList<BaseSettings *> LanguageClientSettingsPage::settings() const
@@ -603,6 +599,7 @@ static LanguageClientSettingsPage &settingsPage()
 void LanguageClientSettings::init()
 {
     settingsPage().init();
+    LanguageClientManager::applySettings();
 }
 
 QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn)

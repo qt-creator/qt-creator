@@ -152,7 +152,7 @@ FilePath SysRootKitAspect::sysRoot(const Kit *k)
         return FilePath();
 
     if (!k->value(SysRootKitAspect::id()).toString().isEmpty())
-        return FilePath::fromString(k->value(SysRootKitAspect::id()).toString());
+        return FilePath::fromSettings(k->value(SysRootKitAspect::id()));
 
     for (ToolChain *tc : ToolChainKitAspect::toolChains(k)) {
         if (!tc->sysRoot().isEmpty())
