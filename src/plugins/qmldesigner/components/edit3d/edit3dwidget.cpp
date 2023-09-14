@@ -9,6 +9,7 @@
 #include "edit3dtoolbarmenu.h"
 #include "edit3dview.h"
 #include "edit3dviewconfig.h"
+#include "externaldependenciesinterface.h"
 #include "materialutils.h"
 #include "metainfo.h"
 #include "modelnodeoperations.h"
@@ -168,28 +169,8 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 
     createContextMenu();
 
-    m_mcuLabel = new QLabel(this);
-    m_mcuLabel->setText(tr("MCU project does not support Qt Quick 3D."));
-    m_mcuLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    fillLayout->addWidget(m_mcuLabel.data());
-
     // Onboarding label contains instructions for new users how to get 3D content into the project
     m_onboardingLabel = new QLabel(this);
-    QString labelText =
-            tr("Your file does not import Qt Quick 3D.<br><br>"
-               "To create a 3D view, add the"
-               " <b>QtQuick3D</b>"
-               " module in the"
-               " <b>Components</b>"
-               " view or click"
-               " <a href=\"#add_import\"><span style=\"text-decoration:none;color:%1\">here</span></a>"
-               ".<br><br>"
-               "To import 3D assets, select"
-               " <b>+</b>"
-               " in the"
-               " <b>Assets</b>"
-               " view.");
-    m_onboardingLabel->setText(labelText.arg(Utils::creatorTheme()->color(Utils::Theme::TextColorLink).name()));
     m_onboardingLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     connect(m_onboardingLabel, &QLabel::linkActivated, this, &Edit3DWidget::linkActivated);
     fillLayout->addWidget(m_onboardingLabel.data());
@@ -316,6 +297,42 @@ bool Edit3DWidget::isSceneLocked() const
     return false;
 }
 
+void Edit3DWidget::showOnboardingLabel()
+{
+    QString text;
+    const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
+    if (mcuManager.isMCUProject()) {
+        const QStringList mcuAllowedList = mcuManager.allowedImports();
+        if (!mcuAllowedList.contains("QtQuick3d"))
+            text = tr("3D view is not supported in MCU projects.");
+    }
+
+    if (text.isEmpty()) {
+        if (m_view->externalDependencies().isQt6Project()) {
+            QString labelText =
+                tr("Your file does not import Qt Quick 3D.<br><br>"
+                   "To create a 3D view, add the"
+                   " <b>QtQuick3D</b>"
+                   " module in the"
+                   " <b>Components</b>"
+                   " view or click"
+                   " <a href=\"#add_import\"><span style=\"text-decoration:none;color:%1\">here</span></a>"
+                   ".<br><br>"
+                   "To import 3D assets, select"
+                   " <b>+</b>"
+                   " in the"
+                   " <b>Assets</b>"
+                   " view.");
+            text = labelText.arg(Utils::creatorTheme()->color(Utils::Theme::TextColorLink).name());
+        } else {
+            text = tr("3D view is not supported in Qt5 projects.");
+        }
+    }
+
+    m_onboardingLabel->setText(text);
+    m_onboardingLabel->setVisible(true);
+}
+
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
 void Edit3DWidget::updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesList)
 {
@@ -420,23 +437,10 @@ void Edit3DWidget::showCanvas(bool show)
     }
     m_canvas->setVisible(show);
 
-    if (show) {
+    if (show)
         m_onboardingLabel->setVisible(false);
-        m_mcuLabel->setVisible(false);
-    } else {
-        bool quick3dAllowed = true;
-        const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
-        if (mcuManager.isMCUProject()) {
-            const QStringList mcuAllowedList = mcuManager.allowedImports();
-            if (!mcuAllowedList.contains("QtQuick3d"))
-                quick3dAllowed = false;
-        }
-
-        m_onboardingLabel->setVisible(quick3dAllowed);
-        m_mcuLabel->setVisible(!quick3dAllowed);
-    }
-
-
+    else
+        showOnboardingLabel();
 }
 
 QMenu *Edit3DWidget::visibilityTogglesMenu() const

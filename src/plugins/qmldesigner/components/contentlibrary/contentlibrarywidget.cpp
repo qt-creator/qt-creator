@@ -681,6 +681,20 @@ void ContentLibraryWidget::setHasActive3DScene(bool b)
     emit hasActive3DSceneChanged();
 }
 
+bool ContentLibraryWidget::isQt6Project() const
+{
+    return m_isQt6Project;
+}
+
+void ContentLibraryWidget::setIsQt6Project(bool b)
+{
+    if (m_isQt6Project == b)
+        return;
+
+    m_isQt6Project = b;
+    emit isQt6ProjectChanged();
+}
+
 void ContentLibraryWidget::reloadQmlSource()
 {
     const QString materialBrowserQmlPath = qmlSourcesPath() + "/ContentLibrary.qml";

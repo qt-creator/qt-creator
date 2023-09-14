@@ -66,6 +66,8 @@ private:
     bool isPasteAvailable() const;
     bool isSceneLocked() const;
 
+    void showOnboardingLabel();
+
     QPointer<Edit3DView> m_edit3DView;
     QPointer<Edit3DView> m_view;
     QPointer<Edit3DCanvas> m_canvas;

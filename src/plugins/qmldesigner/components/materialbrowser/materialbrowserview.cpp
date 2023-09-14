@@ -6,6 +6,7 @@
 #include "bindingproperty.h"
 #include "createtexture.h"
 #include "designmodecontext.h"
+#include "externaldependenciesinterface.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserwidget.h"
@@ -230,6 +231,7 @@ void MaterialBrowserView::modelAttached(Model *model)
     m_widget->clearSearchFilter();
     m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
+    m_widget->materialBrowserModel()->setIsQt6Project(externalDependencies().isQt6Project());
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
     // before refreshing the model

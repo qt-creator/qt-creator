@@ -592,7 +592,9 @@ Item {
                 anchors.centerIn: parent
 
                 text: {
-                    if (!materialBrowserModel.hasQuick3DImport)
+                    if (!materialBrowserModel.isQt6Project)
+                        qsTr("<b>Material Browser</b> is not supported in Qt5 projects.")
+                    else if (!materialBrowserModel.hasQuick3DImport)
                         qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.")
                     else if (!materialBrowserModel.hasMaterialLibrary)
                         qsTr("<b>Material Browser</b> is disabled inside a non-visual component.")

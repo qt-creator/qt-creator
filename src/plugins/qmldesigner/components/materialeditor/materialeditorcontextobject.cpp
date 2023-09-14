@@ -331,6 +331,20 @@ void MaterialEditorContextObject::setHasMaterialLibrary(bool b)
     emit hasMaterialLibraryChanged();
 }
 
+bool MaterialEditorContextObject::isQt6Project() const
+{
+    return m_isQt6Project;
+}
+
+void MaterialEditorContextObject::setIsQt6Project(bool b)
+{
+    if (m_isQt6Project == b)
+        return;
+
+    m_isQt6Project = b;
+    emit isQt6ProjectChanged();
+}
+
 bool MaterialEditorContextObject::hasModelSelection() const
 {
     return m_hasModelSelection;

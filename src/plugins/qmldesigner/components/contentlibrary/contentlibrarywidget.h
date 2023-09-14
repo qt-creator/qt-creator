@@ -32,6 +32,7 @@ class ContentLibraryWidget : public QFrame
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
     Q_PROPERTY(bool hasActive3DScene READ hasActive3DScene WRITE setHasActive3DScene NOTIFY hasActive3DSceneChanged)
+    Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
 
     // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
     Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
@@ -52,6 +53,9 @@ public:
 
     bool hasActive3DScene() const;
     void setHasActive3DScene(bool b);
+
+    bool isQt6Project() const;
+    void setIsQt6Project(bool b);
 
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
 
@@ -83,6 +87,7 @@ signals:
     void hasMaterialLibraryChanged();
     void hasActive3DSceneChanged();
     void isDraggingChanged();
+    void isQt6ProjectChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -121,6 +126,7 @@ private:
     bool m_hasActive3DScene = false;
     bool m_hasQuick3DImport = false;
     bool m_isDragging = false;
+    bool m_isQt6Project = false;
     QString m_baseUrl;
     QString m_texturesUrl;
     QString m_textureIconsUrl;
