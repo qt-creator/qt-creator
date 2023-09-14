@@ -109,21 +109,14 @@ Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
         return OpenResult::ReadError;
     }
 
-    QJsonParseError error;
-    QJsonDocument doc = QJsonDocument::fromJson(*contents, &error);
-    if (error.error != QJsonParseError::NoError) {
+    auto result = storeFromJson(*contents);
+    if (!result) {
         if (errorString)
-            *errorString = error.errorString();
-        return OpenResult::CannotHandle;
+            *errorString = result.error();
+        return OpenResult::ReadError;
     }
 
-    if (!doc.isObject()) {
-        if (errorString)
-            *errorString = Tr::tr("Not a valid JSON object.");
-        return OpenResult::CannotHandle;
-    }
-
-    m_ceSettings.fromMap(storeFromVariant(doc.toVariant().toMap()));
+    m_ceSettings.fromMap(*result);
     emit settingsChanged();
     return OpenResult::Success;
 }
@@ -147,14 +140,12 @@ bool JsonSettingsDocument::saveImpl(QString *errorString,
         m_ceSettings.toMap(map);
     }
 
-    QJsonDocument doc = QJsonDocument::fromVariant(variantFromStore(map));
-
     Utils::FilePath path = newFilePath.isEmpty() ? filePath() : newFilePath;
 
     if (!newFilePath.isEmpty() && !autoSave)
         setFilePath(newFilePath);
 
-    auto result = path.writeFileContents(doc.toJson(QJsonDocument::Indented));
+    auto result = path.writeFileContents(jsonFromStore(map));
     if (!result && errorString) {
         *errorString = result.error();
         return false;
@@ -170,13 +161,10 @@ bool JsonSettingsDocument::isModified() const
 
 bool JsonSettingsDocument::setContents(const QByteArray &contents)
 {
-    QJsonParseError error;
-    QJsonDocument doc = QJsonDocument::fromJson(contents, &error);
-    QTC_ASSERT(error.error == QJsonParseError::NoError, return false);
+    auto result = storeFromJson(contents);
+    QTC_ASSERT_EXPECTED(result, return false);
 
-    QTC_ASSERT(doc.isObject(), return false);
-
-    m_ceSettings.fromMap(storeFromVariant(doc.toVariant()));
+    m_ceSettings.fromMap(*result);
 
     emit settingsChanged();
     return true;
