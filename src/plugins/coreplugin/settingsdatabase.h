@@ -14,11 +14,11 @@ namespace Core {
 
 namespace Internal { class SettingsDatabasePrivate; }
 
-class CORE_EXPORT SettingsDatabase : public QObject
+class CORE_EXPORT SettingsDatabase final
 {
 public:
-    SettingsDatabase(const QString &path, const QString &application, QObject *parent = nullptr);
-    ~SettingsDatabase() override;
+    SettingsDatabase(const QString &path, const QString &application);
+    ~SettingsDatabase();
 
     void setValue(const QString &key, const QVariant &value);
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;

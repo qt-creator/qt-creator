@@ -68,11 +68,8 @@ public:
 } // namespace Internal
 } // namespace Core
 
-SettingsDatabase::SettingsDatabase(const QString &path,
-                                   const QString &application,
-                                   QObject *parent)
-    : QObject(parent)
-    , d(new SettingsDatabasePrivate)
+SettingsDatabase::SettingsDatabase(const QString &path, const QString &application)
+    : d(new SettingsDatabasePrivate)
 {
     const QLatin1Char slash('/');
 
