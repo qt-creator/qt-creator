@@ -12,18 +12,15 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QCheckBox>
-#include <QDebug>
 #include <QDialogButtonBox>
-#include <QDir>
-#include <QFileInfo>
 #include <QLabel>
 #include <QPushButton>
 #include <QTreeWidget>
 
 Q_DECLARE_METATYPE(Core::IDocument*)
+
+using namespace Utils;
 
 namespace Core::Internal {
 
@@ -46,7 +43,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
     m_treeWidget->setColumnCount(2);
 
     // QDialogButtonBox's behavior for "destructive" is wrong, the "do not save" should be left-aligned
-    const QDialogButtonBox::ButtonRole discardButtonRole = Utils::HostOsInfo::isMacHost()
+    const QDialogButtonBox::ButtonRole discardButtonRole = HostOsInfo::isMacHost()
                                                                ? QDialogButtonBox::ResetRole
                                                                : QDialogButtonBox::DestructiveRole;
     if (DiffService::instance()) {
@@ -71,26 +68,24 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
 
     for (IDocument *document : items) {
         QString visibleName;
-        QString directory;
-        Utils::FilePath filePath = document->filePath();
+        FilePath directory;
+        FilePath filePath = document->filePath();
         if (filePath.isEmpty()) {
             visibleName = document->fallbackSaveAsFileName();
         } else {
-            directory = filePath.absolutePath().toUserOutput();
+            directory = filePath.absolutePath();
             visibleName = filePath.fileName();
         }
         QTreeWidgetItem *item = new QTreeWidgetItem(m_treeWidget,
-                                                    QStringList()
-                                                        << visibleName
-                                                        << QDir::toNativeSeparators(directory));
+                QStringList{visibleName, directory.toUserOutput()});
         if (!filePath.isEmpty())
-            item->setIcon(0, Utils::FileIconProvider::icon(filePath));
+            item->setIcon(0, FileIconProvider::icon(filePath));
         item->setData(0, Qt::UserRole, QVariant::fromValue(document));
     }
 
     m_treeWidget->resizeColumnToContents(0);
     m_treeWidget->selectAll();
-    if (Utils::HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost())
         m_treeWidget->setAlternatingRowColors(true);
     adjustButtonWidths();
     updateButtons();
@@ -151,7 +146,7 @@ void SaveItemsDialog::adjustButtonWidths()
         if (hint > maxTextWidth)
             maxTextWidth = hint;
     }
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         QPushButton *cancelButton = m_buttonBox->button(QDialogButtonBox::Cancel);
         int cancelButtonWidth = cancelButton->sizeHint().width();
         if (cancelButtonWidth > maxTextWidth)
