@@ -93,10 +93,6 @@ Rectangle {
                         buttonIcon: StudioTheme.Constants.add_medium
                         tooltip: qsTr("Add something.")
                         onClicked: {
-                            print(ConnectionsEditorEditorBackend.dynamicPropertiesModel.delegate)
-                            print(ConnectionsEditorEditorBackend.dynamicPropertiesModel.delegate.type)
-                            print(ConnectionsEditorEditorBackend.dynamicPropertiesModel.delegate.type.model)
-
                             if (connections.checked)
                                 ConnectionsEditorEditorBackend.connectionModel.add()
                             else if (bindings.checked)

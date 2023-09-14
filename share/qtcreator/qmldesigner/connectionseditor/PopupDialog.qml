@@ -20,8 +20,7 @@ Window {
     flags: Qt.FramelessWindowHint | Qt.Dialog
     color: StudioTheme.Values.themePopoutBackground
 
-    function ensureVerticalPosition()
-    {
+    function ensureVerticalPosition() {
         if ((window.y + window.height) > (Screen.height - window.style.dialogScreenMargin)) {
             window.y = (Screen.height - window.height - window.style.dialogScreenMargin)
         }
@@ -29,9 +28,7 @@ Window {
 
     onHeightChanged: window.ensureVerticalPosition()
 
-
     function popup(item) {
-        print("popup " + item)
         var padding = 12
         var p = item.mapToGlobal(0, 0)
         window.x = p.x - window.width - padding
