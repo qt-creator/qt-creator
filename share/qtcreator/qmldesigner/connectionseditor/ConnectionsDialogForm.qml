@@ -108,23 +108,22 @@ Column {
         model: backend.conditionListModel
 
         onRemove: function(index) {
-            console.log("remove", index)
+            //console.log("remove", index)
             backend.conditionListModel.removeToken(index)
         }
 
         onUpdate: function(index, value) {
-            console.log("update", index, value)
+            //console.log("update", index, value)
             backend.conditionListModel.updateToken(index, value)
         }
 
         onAdd: function(value) {
-            console.log("add", value)
+            //console.log("add", value)
             backend.conditionListModel.appendToken(value)
         }
 
         onInsert: function(index, value, type) {
-            console.log("insert", index, value, type)
-
+            //console.log("insert", index, value, type)
             if (type === ConditionListModel.Intermediate)
                 backend.conditionListModel.insertIntermediateToken(index, value)
             else if (type === ConditionListModel.Shadow)
@@ -134,8 +133,7 @@ Column {
         }
 
         onSetValue: function(index, value) {
-            console.log("setValue", index, value)
-
+            //console.log("setValue", index, value)
             backend.conditionListModel.setShadowToken(index, value)
         }
     }
