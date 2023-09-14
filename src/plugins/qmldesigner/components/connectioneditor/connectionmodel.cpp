@@ -363,7 +363,11 @@ void ConnectionModel::abstractPropertyChanged(const AbstractProperty &abstractPr
 void ConnectionModel::deleteConnectionByRow(int currentRow)
 {
     SignalHandlerProperty targetSignal = signalHandlerPropertyForRow(currentRow);
-    QTC_ASSERT(targetSignal.isValid(), return );
+    SignalHandlerProperty selectedSignal = signalHandlerPropertyForRow(currentIndex());
+
+    const bool targetEqualsSelected = targetSignal == selectedSignal;
+
+    QTC_ASSERT(targetSignal.isValid(), return);
     ModelNode node = targetSignal.parentModelNode();
     QTC_ASSERT(node.isValid(), return );
 
@@ -374,6 +378,9 @@ void ConnectionModel::deleteConnectionByRow(int currentRow)
     } else {
         node.destroy();
     }
+
+    if (!targetEqualsSelected)
+        selectProperty(selectedSignal);
 }
 
 void ConnectionModel::removeRowFromTable(const SignalHandlerProperty &property)
@@ -802,6 +809,9 @@ void ConnectionModelBackendDelegate::setCurrentRow(int i)
 void ConnectionModelBackendDelegate::update()
 {
     if (m_blockReflection)
+        return;
+
+    if (m_currentRow == -1)
         return;
 
     m_propertyTreeModel.resetModel();

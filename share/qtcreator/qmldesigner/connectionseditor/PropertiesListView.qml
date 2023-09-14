@@ -62,11 +62,26 @@ ListView {
     property int rowWidth: root.rowSpace / root.numColumns
     property int rowRest: root.rowSpace % root.numColumns
 
+    function addProperty() {
+        ConnectionsEditorEditorBackend.dynamicPropertiesModel.add()
+        if (root.currentItem)
+            dialog.popup(root.currentItem.delegateMouseArea)
+    }
+
+    function resetIndex() {
+        root.model.currentIndex = -1
+        root.currentIndex = -1
+    }
+
     data: [
         PropertiesDialog {
             id: dialog
             visible: false
             backend: root.model.delegate
+
+            onClosing: function(event) {
+                root.resetIndex()
+            }
         }
     ]
 
@@ -80,6 +95,8 @@ ListView {
         required property string type
         required property string value
 
+        property alias delegateMouseArea: mouseArea
+
         width: ListView.view.width
         height: root.style.squareControlSize.height
         color: mouseArea.containsMouse ?
@@ -89,7 +106,9 @@ ListView {
 
         MouseArea {
             id: mouseArea
+
             anchors.fill: parent
+            hoverEnabled: true
 
             property int currentIndex: root.currentIndex
 
@@ -179,7 +198,11 @@ ListView {
                     id: toolTipArea
                     tooltip: qsTr("This is a test.")
                     anchors.fill: parent
-                    onClicked: root.model.remove(itemDelegate.index)
+                    onClicked: {
+                        if (itemDelegate.ListView.isCurrentItem)
+                            dialog.close()
+                        root.model.remove(itemDelegate.index)
+                    }
                 }
             }
 
@@ -188,6 +211,5 @@ ListView {
 
     highlight: Rectangle {
         color: root.style.interaction
-        width: 600
     }
 }

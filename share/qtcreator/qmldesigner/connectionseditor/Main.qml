@@ -94,11 +94,11 @@ Rectangle {
                         tooltip: qsTr("Add something.")
                         onClicked: {
                             if (connections.checked)
-                                ConnectionsEditorEditorBackend.connectionModel.add()
+                                connectionsListView.addConnection()
                             else if (bindings.checked)
-                                ConnectionsEditorEditorBackend.bindingModel.add()
+                                bindingsListView.addBinding()
                             else if (properties.checked)
-                                ConnectionsEditorEditorBackend.dynamicPropertiesModel.add()
+                                propertiesListView.addProperty()
                         }
                     }
                 }
@@ -106,6 +106,7 @@ Rectangle {
         }
 
         ConnectionsListView {
+            id: connectionsListView
             visible: connections.checked
             width: parent.width
             height: parent.height - toolbar.height - column.spacing
@@ -114,6 +115,7 @@ Rectangle {
         }
 
         BindingsListView {
+            id: bindingsListView
             visible: bindings.checked
             width: parent.width
             height: parent.height - toolbar.height - column.spacing
@@ -122,6 +124,7 @@ Rectangle {
         }
 
         PropertiesListView {
+            id: propertiesListView
             visible: properties.checked
             width: parent.width
             height: parent.height - toolbar.height - column.spacing
