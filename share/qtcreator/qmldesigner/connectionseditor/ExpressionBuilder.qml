@@ -16,8 +16,14 @@ Rectangle {
     property int shadowPillIndex: -1
     property bool shadowPillVisible: root.shadowPillIndex !== -1
 
-    property int heightBeforeShadowPill: Math.min(20, flow.childrenRect.height) // TODO Proper size value
+    // Make expression editor at least 20 px high, especially when empty
+    property int baseHeight: Math.max(20, flow.childrenRect.height)
+    property int heightBeforeShadowPill: root.baseHeight
     property int expressionHeight: {
+        // If expression is empty or the only item is a shadow pill
+        if (repeater.count === 0 || (repeater.count === 1 && root.shadowPillVisible))
+            return root.heightBeforeShadowPill
+
         if (popup.visible)
             return root.heightBeforeShadowPill + flow.spacing + 20
 
@@ -34,11 +40,28 @@ Rectangle {
 
     width: 400
     height: root.expressionHeight + 2 * StudioTheme.Values.flowMargin
-    color: (focusScope.activeFocus || popup.searchActive) ? root.style.background.interaction
-                                                          : root.style.background.idle
+    color: {
+        if (focusScope.activeFocus || popup.searchActive)
+            return root.style.background.interaction
+
+        if (mouseArea.containsMouse)
+            return root.style.background.hover
+
+        return root.style.background.idle
+    }
     border {
-        color: root.conditionListModel.valid ? root.style.border.idle
-                                             : StudioTheme.Values.themeError
+        color: {
+            if (!root.conditionListModel.valid)
+                return StudioTheme.Values.themeError
+
+            if (focusScope.activeFocus || popup.searchActive)
+                return root.style.border.interaction
+
+            if (mouseArea.containsMouse)
+                return root.style.border.hover
+
+            return root.style.border.idle
+        }
         width: root.style.borderWidth
     }
 
@@ -216,6 +239,23 @@ Rectangle {
         }
     }
 
+    Item {
+        anchors.fill: parent
+        anchors.margins: StudioTheme.Values.flowMargin
+
+        Text {
+            id: placeholder
+            height: 20
+            topPadding: 1
+            font.pixelSize: root.style.baseFontSize
+            color: (focusScope.activeFocus || popup.searchActive)
+                       ? root.style.text.placeholderInteraction
+                       : root.style.text.placeholder
+            visible: !repeater.count
+            text: qsTr("Condition")
+        }
+    }
+
     FocusScope {
         id: focusScope
         anchors.fill: parent
@@ -239,7 +279,7 @@ Rectangle {
                     root.placeCursor(newTextInput.index)
 
                 if (!root.shadowPillVisible)
-                    root.heightBeforeShadowPill = flow.childrenRect.height
+                    root.heightBeforeShadowPill = root.baseHeight
             }
 
             Repeater {
@@ -342,7 +382,6 @@ Rectangle {
                 }
             }
         }
-
     }
 
     SuggestionPopup {
@@ -379,7 +418,7 @@ Rectangle {
 
         onSearchActiveChanged: {
             if (popup.searchActive) {
-                root.heightBeforeShadowPill = flow.childrenRect.height
+                root.heightBeforeShadowPill = root.baseHeight
                 root.insert(newTextInput.index, "...", ConditionListModel.Shadow)
                 root.shadowPillIndex = newTextInput.index
             } else {
@@ -394,7 +433,7 @@ Rectangle {
         onEntered: function(value) {
             if (!popup.searchActive) {
                 if (!root.shadowPillVisible) {
-                    root.heightBeforeShadowPill = flow.childrenRect.height
+                    root.heightBeforeShadowPill = root.baseHeight
                     root.shadowPillIndex = newTextInput.index
                     root.insert(newTextInput.index, value, ConditionListModel.Shadow)
                 } else {
