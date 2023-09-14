@@ -365,13 +365,23 @@ ScrollBar::~ScrollBar()
 
 void ScrollBar::flash()
 {
-    if (!d->flashed && style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, this)) {
+    if (!style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, this))
+        return;
+
+    if (!isEnabled()) {
+        d->flashed = false;
+        hide();
+        return;
+    }
+
+    if (!d->flashed) {
         d->flashed = true;
         if (!isVisible())
             show();
         else
             update();
     }
+
     if (!d->flashTimer)
         d->flashTimer = startTimer(0);
 }

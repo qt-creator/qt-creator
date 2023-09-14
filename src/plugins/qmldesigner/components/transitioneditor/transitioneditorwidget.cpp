@@ -231,6 +231,7 @@ void TransitionEditorWidget::setTransitionActive(bool b)
         m_toolbar->setVisible(true);
         m_graphicsView->setVisible(true);
         m_rulerView->setVisible(true);
+        m_scrollbar->setEnabled(true); // Set the transient scrollbar enabled to be able to flash it.
         m_scrollbar->setVisible(true);
         m_addButton->setVisible(false);
         m_onboardingContainer->setVisible(false);
@@ -240,6 +241,8 @@ void TransitionEditorWidget::setTransitionActive(bool b)
         m_toolbar->setVisible(false);
         m_graphicsView->setVisible(false);
         m_rulerView->setVisible(false);
+        m_scrollbar->setEnabled(
+            false); // Set the transient scrollbar disabled to prevent it from being flashed.
         m_scrollbar->setVisible(false);
         m_addButton->setVisible(true);
         m_onboardingContainer->setVisible(true);
@@ -378,12 +381,17 @@ TransitionEditorToolBar *TransitionEditorWidget::toolBar() const
 
 void TransitionEditorWidget::setupScrollbar(int min, int max, int current)
 {
-    bool b = m_scrollbar->blockSignals(true);
-    m_scrollbar->setMinimum(min);
-    m_scrollbar->setMaximum(max);
-    m_scrollbar->setValue(current);
-    m_scrollbar->setSingleStep((max - min) / 10);
-    m_scrollbar->blockSignals(b);
+    int singleStep = (max - min) / 10;
+
+    if (m_scrollbar->minimum() != min || m_scrollbar->maximum() != max
+        || m_scrollbar->value() != current || m_scrollbar->singleStep() != singleStep) {
+        bool b = m_scrollbar->blockSignals(true);
+        m_scrollbar->setRange(min, max);
+        m_scrollbar->setValue(current);
+        m_scrollbar->setSingleStep(singleStep);
+        m_scrollbar->blockSignals(b);
+        m_scrollbar->flash();
+    }
 }
 
 void TransitionEditorWidget::showEvent([[maybe_unused]] QShowEvent *event)
