@@ -7638,7 +7638,7 @@ void TextEditorWidget::rewrapParagraph()
     }
 
     // Find end of paragraph.
-    const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\].*");
+    const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
     QTC_CHECK(immovableDoxygenCommand.isValid());
     while (cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)) {
         QString text = cursor.block().text();
