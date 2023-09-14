@@ -7,13 +7,13 @@
 #include "compilationdatabaseprojectmanagertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <projectexplorer/treescanner.h>
+
 #include <utils/async.h>
 #include <utils/mimeutils.h>
 
 #include <QCryptographicHash>
-#include <QDir>
-#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
