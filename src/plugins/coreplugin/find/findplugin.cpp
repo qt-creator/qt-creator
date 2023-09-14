@@ -8,6 +8,7 @@
 #include "findtoolwindow.h"
 #include "ifindfilter.h"
 #include "searchresultwindow.h"
+#include "textfindconstants.h"
 #include "../actionmanager/actioncontainer.h"
 #include "../actionmanager/actionmanager.h"
 #include "../actionmanager/command.h"

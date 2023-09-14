@@ -1,14 +1,10 @@
-import qbs 1.0
-
 QtcLibrary {
     name: "TerminalLib"
 
     Depends { name: "vterm" }
-    Depends { name: "Qt"; submodules: "widgets" }
+    Depends { name: "Qt.widgets" }
 
-    cpp.defines: base.concat([
-        "TERMINALLIB_LIBRARY"
-    ])
+    cpp.defines: base.concat("TERMINALLIB_LIBRARY")
 
     files: [
         "celliterator.cpp",

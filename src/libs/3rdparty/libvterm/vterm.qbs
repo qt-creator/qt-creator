@@ -2,7 +2,10 @@ QtcLibrary {
     name: "vterm"
     type: "staticlibrary"
 
+    useQt: false
+
     Depends { name: "cpp" }
+
     cpp.includePaths: base.concat("include")
     cpp.warningLevel: "none"
 
@@ -27,6 +30,6 @@ QtcLibrary {
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: base.concat("include")
+        cpp.includePaths: "include"
     }
 }

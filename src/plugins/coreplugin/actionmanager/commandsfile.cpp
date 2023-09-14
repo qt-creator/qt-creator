@@ -3,8 +3,8 @@
 
 #include "commandsfile.h"
 #include "command.h"
-#include <coreplugin/dialogs/shortcutsettings.h>
-#include <coreplugin/icore.h>
+#include "../dialogs/shortcutsettings.h"
+#include "../icore.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>

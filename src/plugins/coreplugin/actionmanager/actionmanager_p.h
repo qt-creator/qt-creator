@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/icontext.h>
+#include "../icontext.h"
 
 #include <QMap>
 #include <QHash>

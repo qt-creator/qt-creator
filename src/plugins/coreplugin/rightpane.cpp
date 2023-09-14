@@ -3,8 +3,7 @@
 
 #include "rightpane.h"
 
-#include <coreplugin/imode.h>
-#include <coreplugin/modemanager.h>
+#include "modemanager.h"
 
 #include <utils/qtcsettings.h>
 

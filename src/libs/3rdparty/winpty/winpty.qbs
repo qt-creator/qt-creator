@@ -5,7 +5,6 @@ Project {
     name: "Winpty"
     condition: qbs.targetOS.contains("windows")
 
-
     Product {
         name: "winpty_genversion_header"
         type: "hpp"
@@ -199,8 +198,8 @@ Project {
 
         Export {
             Depends { name: "cpp" }
-            cpp.defines: base.concat("COMPILING_WINPTY_DLL")
-            cpp.includePaths: base.concat(exportingProduct.sourceDirectory + "/src/include")
+            cpp.defines: "COMPILING_WINPTY_DLL"
+            cpp.includePaths: exportingProduct.sourceDirectory + "/src/include"
         }
     }
 }

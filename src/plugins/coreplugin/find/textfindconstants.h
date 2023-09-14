@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
-
 #include <QMetaType>
 #include <QFlags>
 #include <QTextDocument>

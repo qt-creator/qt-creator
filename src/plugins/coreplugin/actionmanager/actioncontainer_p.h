@@ -5,8 +5,8 @@
 
 #include "actionmanager_p.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
+#include "actioncontainer.h"
+#include "command.h"
 
 #include <utils/touchbar/touchbar.h>
 

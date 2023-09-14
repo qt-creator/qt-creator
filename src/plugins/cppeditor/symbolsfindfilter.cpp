@@ -7,11 +7,12 @@
 #include "cppeditortr.h"
 #include "cppmodelmanager.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/searchresultwindow.h>
+#include <coreplugin/find/textfindconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/searchresultwindow.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>

@@ -6,9 +6,9 @@
 #include "ilocatorfilter.h"
 #include "locator.h"
 #include "locatorwidget.h"
+#include "../icore.h"
 
 #include <aggregation/aggregate.h>
-#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 

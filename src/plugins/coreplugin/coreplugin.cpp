@@ -14,14 +14,13 @@
 #include "session.h"
 #include "themechooser.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/findplugin.h>
-#include <coreplugin/find/searchresultwindow.h>
-#include <coreplugin/locator/locator.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/fileutils.h>
+#include "actionmanager/actionmanager.h"
+#include "documentmanager.h"
+#include "editormanager/editormanager.h"
+#include "find/findplugin.h"
+#include "locator/locator.h"
+#include "coreconstants.h"
+#include "fileutils.h"
 
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>

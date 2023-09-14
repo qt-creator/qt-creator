@@ -6,10 +6,11 @@
 #include "editormanager.h"
 #include "ieditor.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/icore.h>
+#include "../coreconstants.h"
+#include "../icontext.h"
+#include "../icore.h"
+#include "../idocument.h"
+
 #include <utils/qtcassert.h>
 
 #include <QApplication>

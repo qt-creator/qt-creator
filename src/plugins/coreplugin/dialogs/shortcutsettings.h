@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/actionmanager/commandmappings.h>
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "../actionmanager/commandmappings.h"
+#include "ioptionspage.h"
 
 #include <QGridLayout>
 #include <QKeySequence>

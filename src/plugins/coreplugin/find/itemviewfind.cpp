@@ -3,8 +3,9 @@
 
 #include "itemviewfind.h"
 
+#include "../findplaceholder.h"
+
 #include <aggregation/aggregate.h>
-#include <coreplugin/findplaceholder.h>
 
 #include <QModelIndex>
 #include <QTextCursor>

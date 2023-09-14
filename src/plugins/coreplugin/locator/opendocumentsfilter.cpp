@@ -4,8 +4,7 @@
 #include "opendocumentsfilter.h"
 
 #include "../coreplugintr.h"
-
-#include <coreplugin/editormanager/documentmodel.h>
+#include "../editormanager/documentmodel.h"
 
 #include <extensionsystem/pluginmanager.h>
 

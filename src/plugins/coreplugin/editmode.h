@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/imode.h>
+#include "imode.h"
 
 QT_BEGIN_NAMESPACE
 class QSplitter;

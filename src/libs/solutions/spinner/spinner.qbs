@@ -1,6 +1,8 @@
 QtcLibrary {
     name: "Spinner"
-    Depends { name: "Qt"; submodules: ["core", "widgets"] }
+
+    Depends { name: "Qt.widgets" }
+
     cpp.defines: base.concat("SPINNER_LIBRARY")
 
     files: [
@@ -9,5 +11,10 @@ QtcLibrary {
         "spinner.qrc",
         "spinner_global.h",
     ]
+
+    Export {
+        Depends { name: "cpp" }
+        cpp.includePaths: ".."
+    }
 }
 

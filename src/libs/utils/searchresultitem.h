@@ -5,9 +5,9 @@
 
 #include "utils_global.h"
 
-#include <utils/filepath.h>
-#include <utils/hostosinfo.h>
-#include <utils/textutils.h>
+#include "filepath.h"
+#include "hostosinfo.h"
+#include "textutils.h"
 
 #include <QColor>
 #include <QHash>

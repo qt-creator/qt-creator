@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <utils/utils_global.h>
+#include "../utils_global.h"
 
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qshareddata.h>

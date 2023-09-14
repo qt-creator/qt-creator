@@ -3,9 +3,8 @@
 
 #pragma once
 
+#include "../core_global.h"
 #include "ilocatorfilter.h"
-
-#include <coreplugin/core_global.h>
 
 namespace Core {
 

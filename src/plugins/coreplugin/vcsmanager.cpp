@@ -18,8 +18,6 @@
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 
-#include <vcsbase/vcsbaseconstants.h>
-
 #include <QList>
 #include <QMap>
 #include <QMessageBox>

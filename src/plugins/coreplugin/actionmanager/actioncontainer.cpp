@@ -4,8 +4,8 @@
 #include "actioncontainer_p.h"
 #include "actionmanager.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
+#include "../coreconstants.h"
+#include "../icontext.h"
 
 #include <utils/qtcassert.h>
 

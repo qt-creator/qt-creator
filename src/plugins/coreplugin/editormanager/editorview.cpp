@@ -7,14 +7,13 @@
 #include "editormanager_p.h"
 #include "documentmodel.h"
 #include "documentmodel_p.h"
+#include "../actionmanager/actionmanager.h"
+#include "../editormanager/ieditor.h"
+#include "../editortoolbar.h"
+#include "../findplaceholder.h"
+#include "../icore.h"
+#include "../minisplitter.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editortoolbar.h>
-#include <coreplugin/findplaceholder.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/locator/locatorconstants.h>
-#include <coreplugin/minisplitter.h>
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>

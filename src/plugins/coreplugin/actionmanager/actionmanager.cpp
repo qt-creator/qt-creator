@@ -5,8 +5,7 @@
 #include "actionmanager_p.h"
 #include "actioncontainer_p.h"
 #include "command_p.h"
-
-#include <coreplugin/icore.h>
+#include "../icore.h"
 
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>

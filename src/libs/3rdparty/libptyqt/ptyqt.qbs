@@ -1,11 +1,10 @@
 QtcLibrary {
     name: "ptyqt"
+    type: "staticlibrary"
 
     Depends { name: "Qt.core" }
     Depends { name: "Qt.network"; condition: qbs.targetOS.contains("windows") }
     Depends { name: "winpty"; condition: qbs.targetOS.contains("windows") }
-
-    type: "staticlibrary"
 
     files: [
         "iptyprocess.h",
@@ -36,6 +35,6 @@ QtcLibrary {
     Export {
         Depends { name: "cpp" }
         Depends { name: "winpty"; condition: qbs.targetOS.contains("windows") }
-        cpp.includePaths: base.concat(exportingProduct.sourceDirectory)
+        cpp.includePaths: exportingProduct.sourceDirectory
     }
 }

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/minisplitter.h>
+#include "minisplitter.h"
 
 #include <utils/id.h>
 #include <utils/store.h>

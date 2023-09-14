@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/ioutputpane.h>
+#include "../ioutputpane.h"
 
 #include <utils/searchresultitem.h>
 

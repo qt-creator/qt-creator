@@ -3,7 +3,7 @@
 
 #include "commandlocator.h"
 
-#include <coreplugin/actionmanager/command.h>
+#include "../actionmanager/command.h"
 
 #include <utils/stringutils.h>
 

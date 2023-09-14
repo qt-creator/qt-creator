@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "textfindconstants.h"
+#include "../core_global.h"
 
 #include <utils/filesearch.h>
 

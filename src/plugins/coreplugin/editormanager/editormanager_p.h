@@ -10,7 +10,7 @@
 #include "ieditor.h"
 #include "ieditorfactory.h"
 
-#include <coreplugin/idocument.h>
+#include "../idocument.h"
 
 #include <QList>
 #include <QObject>

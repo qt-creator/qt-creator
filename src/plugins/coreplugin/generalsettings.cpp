@@ -1,14 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "dialogs/restartdialog.h"
+#include "dialogs/ioptionspage.h"
 #include "generalsettings.h"
 #include "coreconstants.h"
 #include "coreplugintr.h"
 #include "icore.h"
 #include "themechooser.h"
-
-#include <coreplugin/dialogs/restartdialog.h>
-#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <extensionsystem/pluginmanager.h>
 

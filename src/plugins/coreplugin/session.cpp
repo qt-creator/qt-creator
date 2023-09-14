@@ -17,8 +17,6 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <texteditor/texteditor.h>
-
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/macroexpander.h>

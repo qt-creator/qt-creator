@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
+#include "../core_global.h"
 
 #include <utils/aspects.h>
 #include <utils/id.h>

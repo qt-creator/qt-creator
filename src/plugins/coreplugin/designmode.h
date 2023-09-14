@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/imode.h>
+#include "imode.h"
 
 namespace Core {
 class IEditor;

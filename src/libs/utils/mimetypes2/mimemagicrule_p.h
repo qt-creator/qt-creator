@@ -14,7 +14,7 @@
 // We mean it.
 //
 
-#include <utils/utils_global.h>
+#include "../utils_global.h"
 
 #include <QtCore/qbytearray.h>
 #include <QtCore/qlist.h>

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/inavigationwidgetfactory.h>
+#include "../inavigationwidgetfactory.h"
 
 namespace Core::Internal {
 

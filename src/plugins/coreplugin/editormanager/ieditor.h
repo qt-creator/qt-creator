@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
-#include <coreplugin/icontext.h>
+#include "../core_global.h"
+#include "../icontext.h"
 
 #include <QMetaType>
 

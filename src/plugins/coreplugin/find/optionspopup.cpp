@@ -3,7 +3,7 @@
 
 #include "optionspopup.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
+#include "../actionmanager/actionmanager.h"
 
 #include <utils/qtcassert.h>
 

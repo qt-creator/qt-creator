@@ -5,7 +5,6 @@
 
 #include "texteditor_global.h"
 
-#include "blockrange.h"
 #include "codeassist/assistenums.h"
 #include "indenter.h"
 #include "refactoroverlay.h"

@@ -5,8 +5,7 @@
 
 #include "core_global.h"
 #include "generatedfile.h"
-
-#include <coreplugin/iwizardfactory.h>
+#include "iwizardfactory.h"
 
 #include <utils/filepath.h>
 

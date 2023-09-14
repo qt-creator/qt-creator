@@ -5,13 +5,13 @@
 
 #include "editorarea.h"
 #include "editormanager_p.h"
+#include "../coreconstants.h"
+#include "../icontext.h"
+#include "../icore.h"
+#include "../locator/locatormanager.h"
+#include "../minisplitter.h"
 
 #include <aggregation/aggregate.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/locator/locatormanager.h>
-#include <coreplugin/minisplitter.h>
 #include <utils/qtcassert.h>
 
 #include <QStatusBar>

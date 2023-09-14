@@ -7,7 +7,6 @@
 #include "actionmanager/command.h"
 #include "coreicons.h"
 #include "coreplugintr.h"
-#include "diffservice.h"
 #include "documentmanager.h"
 #include "editormanager/editormanager.h"
 #include "editormanager/ieditor.h"
@@ -18,8 +17,6 @@
 #include "iwizardfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
-
-#include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
 #include <utils/filecrumblabel.h>
