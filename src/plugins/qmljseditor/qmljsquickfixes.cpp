@@ -50,7 +50,8 @@ public:
     }
 
     void performChanges(QmlJSRefactoringFilePtr currentFile,
-                        const QmlJSRefactoringChanges &) override
+                        const QmlJSRefactoringChanges &,
+                        const QString &) override
     {
         Q_ASSERT(_objectInitializer);
 
@@ -115,7 +116,8 @@ public:
     }
 
     void performChanges(QmlJSRefactoringFilePtr currentFile,
-                        const QmlJSRefactoringChanges &) override
+                        const QmlJSRefactoringChanges &,
+                        const QString &) override
     {
         Utils::ChangeSet changes;
         const int insertLoc = _message.location.begin() - _message.location.startColumn + 1;

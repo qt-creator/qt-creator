@@ -35,6 +35,7 @@ public:
     void setTargetQtVersionIndex(int index);
     bool haveTargetQtVersion() const;
     QString targetQtVersionName(int index) const;
+    QStringList targetQtVersionNames() const;
 
     void setStyleIndex(int index);
     int styleIndex() const;

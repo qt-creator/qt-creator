@@ -44,13 +44,17 @@ public:
         return *found;
     }
 
-    QList<InternalNodePointer> allSubNodes() const override;
-    QList<InternalNodePointer> directSubNodes() const override;
+    QList<InternalNodePointer> allSubNodes() const;
     const QList<InternalNodePointer> &nodeList() const;
     void slide(int from, int to);
 
+    void addSubNodes(QList<InternalNodePointer> &container) const;
+
     QList<InternalNodePointer>::iterator begin() { return m_nodeList.begin(); }
+
     QList<InternalNodePointer>::iterator end() { return m_nodeList.end(); }
+
+    const QList<InternalNodePointer> &nodes() const { return m_nodeList; }
 
 protected:
     void add(const InternalNodePointer &node) override;

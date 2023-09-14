@@ -60,20 +60,22 @@ void InternalNodeListProperty::slide(int from, int to)
     m_nodeList.insert(to, internalNode);
 }
 
-QList<InternalNode::Pointer> InternalNodeListProperty::allSubNodes() const
+void InternalNodeListProperty::addSubNodes(QList<InternalNodePointer> &container) const
 {
-    QList<InternalNode::Pointer> nodeList;
-    for (const InternalNode::Pointer &childNode : std::as_const(m_nodeList)) {
-        nodeList.append(childNode->allSubNodes());
-        nodeList.append(childNode);
+    for (const auto &node : std::as_const(m_nodeList)) {
+        container.push_back(node);
+        node->addSubNodes(container);
     }
-
-    return nodeList;
 }
 
-QList<InternalNodePointer> InternalNodeListProperty::directSubNodes() const
+QList<InternalNode::Pointer> InternalNodeListProperty::allSubNodes() const
 {
-    return nodeList();
+    QList<InternalNode::Pointer> nodes;
+    nodes.reserve(1024);
+
+    addSubNodes(nodes);
+
+    return nodes;
 }
 
 } // namespace Internal

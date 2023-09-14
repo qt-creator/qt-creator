@@ -218,7 +218,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            Tr::tr("States are only supported in the root item in a UI file (.ui.qml)."));
     newMsg(ErrReferenceToParentItemNotSupportedInQmlUi, Error,
            Tr::tr("Referencing the parent of the root item is not supported in a UI file (.ui.qml)."));
-    newMsg(ErrDoNotMixTranslationFunctionsInQmlUi, Error,
+    newMsg(WarnDoNotMixTranslationFunctionsInQmlUi,
+           Warning,
            Tr::tr("Do not mix translation functions in a UI file (.ui.qml)."));
     newMsg(StateCannotHaveChildItem, Error,
            Tr::tr("A State cannot have a child item (%1)."), 1);

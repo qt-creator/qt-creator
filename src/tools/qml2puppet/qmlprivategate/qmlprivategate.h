@@ -27,16 +27,9 @@ namespace QmlPrivateGate {
 class ComponentCompleteDisabler
 {
 public:
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     ComponentCompleteDisabler();
 
     ~ComponentCompleteDisabler();
-#else
-    ComponentCompleteDisabler()
-    {
-    //nothing not available yet
-    }
-#endif
 };
 
     void createNewDynamicProperty(QObject *object, QQmlEngine *engine, const QString &name);

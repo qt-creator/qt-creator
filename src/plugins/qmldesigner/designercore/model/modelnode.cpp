@@ -19,7 +19,6 @@
 #include <rewriterview.h>
 
 #include <utils/algorithm.h>
-#include <utils/ranges.h>
 
 #include <QHash>
 #include <QRegularExpression>
@@ -509,46 +508,22 @@ The list of all properties containing just an atomic value.
 */
 QList<VariantProperty> ModelNode::variantProperties() const
 {
-    QList<VariantProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &abstractProperty : abstractProperties)
-        if (abstractProperty.isVariantProperty())
-            propertyList.append(abstractProperty.toVariantProperty());
-    return propertyList;
+    return properties<VariantProperty>(PropertyType::Variant);
 }
 
 QList<NodeAbstractProperty> ModelNode::nodeAbstractProperties() const
 {
-    QList<NodeAbstractProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &nodeAbstractProperty : abstractProperties)
-        if (nodeAbstractProperty.isNodeAbstractProperty())
-            propertyList.append(nodeAbstractProperty.toNodeAbstractProperty());
-    return propertyList;
+    return properties<NodeAbstractProperty>(PropertyType::Node, PropertyType::NodeList);
 }
 
 QList<NodeProperty> ModelNode::nodeProperties() const
 {
-    QList<NodeProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &nodeProperty : abstractProperties)
-        if (nodeProperty.isNodeProperty())
-            propertyList.append(nodeProperty.toNodeProperty());
-    return propertyList;
+    return properties<NodeProperty>(PropertyType::Node);
 }
 
 QList<NodeListProperty> ModelNode::nodeListProperties() const
 {
-    QList<NodeListProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &nodeListProperty : abstractProperties)
-        if (nodeListProperty.isNodeListProperty())
-            propertyList.append(nodeListProperty.toNodeListProperty());
-    return propertyList;
+    return properties<NodeListProperty>(PropertyType::NodeList);
 }
 
 /*! \brief returns a list of all BindingProperties
@@ -559,36 +534,29 @@ The list of all properties containing an expression.
 */
 QList<BindingProperty> ModelNode::bindingProperties() const
 {
-    QList<BindingProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &bindingProperty : abstractProperties)
-        if (bindingProperty.isBindingProperty())
-            propertyList.append(bindingProperty.toBindingProperty());
-    return propertyList;
+    return properties<BindingProperty>(PropertyType::Binding);
 }
 
 QList<SignalHandlerProperty> ModelNode::signalProperties() const
 {
-    QList<SignalHandlerProperty> propertyList;
-
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &property : abstractProperties)
-        if (property.isSignalHandlerProperty())
-            propertyList.append(property.toSignalHandlerProperty());
-    return propertyList;
+    return properties<SignalHandlerProperty>(PropertyType::SignalHandler);
 }
 
 QList<AbstractProperty> ModelNode::dynamicProperties() const
 {
-    QList<AbstractProperty> propertyList;
+    if (!isValid())
+        return {};
 
-    const QList<AbstractProperty> abstractProperties = properties();
-    for (const AbstractProperty &abstractProperty : abstractProperties) {
-        if (abstractProperty.isDynamic())
-            propertyList.append(abstractProperty);
+    QList<AbstractProperty> properties;
+
+    for (const auto &propertyEntry : *m_internalNode.get()) {
+        auto propertyName = propertyEntry.first;
+        auto property = propertyEntry.second;
+        if (property->dynamicTypeName().size())
+            properties.emplace_back(propertyName, m_internalNode, model(), view());
     }
-    return propertyList;
+
+    return properties;
 }
 
 /*!
@@ -599,7 +567,7 @@ Does nothing if the node state does not set this property.
 
 \see addProperty property  properties hasProperties
 */
-void ModelNode::removeProperty(const PropertyName &name) const
+void ModelNode::removeProperty(PropertyNameView name) const
 {
     if (!isValid())
         return;
@@ -607,8 +575,8 @@ void ModelNode::removeProperty(const PropertyName &name) const
     if (!model()->d->propertyNameIsValid(name))
         return;
 
-    if (m_internalNode->hasProperty(name))
-        model()->d->removePropertyAndRelatedResources(m_internalNode->property(name));
+    if (auto property = m_internalNode->property(name))
+        model()->d->removePropertyAndRelatedResources(property);
 }
 
 /*! \brief removes this node from the node tree
@@ -795,63 +763,99 @@ PropertyNameList ModelNode::propertyNames() const
     return m_internalNode->propertyNameList();
 }
 
+template<typename Type, typename... PropertyType>
+QList<Type> ModelNode::properties(PropertyType... type) const
+{
+    if (!isValid())
+        return {};
+
+    QList<Type> properties;
+
+    for (const auto &propertyEntry : *m_internalNode.get()) {
+        auto propertyName = propertyEntry.first;
+        auto property = propertyEntry.second;
+        auto propertyType = property->type();
+        QT_WARNING_PUSH
+        QT_WARNING_DISABLE_CLANG("-Wparentheses-equality")
+        if (((propertyType == type) || ...))
+            properties.emplace_back(propertyName, m_internalNode, model(), view());
+        QT_WARNING_POP
+    }
+
+    return properties;
+}
+
 /*! \brief test a if a property is set for this node
 \return true if property a property ins this or a ancestor state exists
 */
-bool ModelNode::hasProperty(const PropertyName &name) const
+bool ModelNode::hasProperty(PropertyNameView name) const
 {
-    return isValid() && m_internalNode->hasProperty(name);
+    return isValid() && m_internalNode->property(name);
 }
 
-bool ModelNode::hasVariantProperty(const PropertyName &name) const
+bool ModelNode::hasVariantProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isVariantProperty();
+    return hasProperty(name, PropertyType::Variant);
 }
 
-bool ModelNode::hasBindingProperty(const PropertyName &name) const
+bool ModelNode::hasBindingProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isBindingProperty();
+    return hasProperty(name, PropertyType::Binding);
 }
 
-bool ModelNode::hasSignalHandlerProperty(const PropertyName &name) const
+bool ModelNode::hasSignalHandlerProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isSignalHandlerProperty();
+    return hasProperty(name, PropertyType::SignalHandler);
 }
 
-bool ModelNode::hasNodeAbstractProperty(const PropertyName &name) const
+bool ModelNode::hasNodeAbstractProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isNodeAbstractProperty();
+    if (!isValid())
+        return false;
+
+    if (auto property = m_internalNode->property(name))
+        return property->isNodeAbstractProperty();
+
+    return false;
 }
 
 bool ModelNode::hasDefaultNodeAbstractProperty() const
 {
     auto defaultPropertyName = metaInfo().defaultPropertyName();
-    return hasProperty(defaultPropertyName)
-           && m_internalNode->property(defaultPropertyName)->isNodeAbstractProperty();
+    return hasNodeAbstractProperty(defaultPropertyName);
 }
 
 bool ModelNode::hasDefaultNodeListProperty() const
 {
     auto defaultPropertyName = metaInfo().defaultPropertyName();
-    return hasProperty(defaultPropertyName)
-           && m_internalNode->property(defaultPropertyName)->isNodeListProperty();
+    return hasNodeListProperty(defaultPropertyName);
 }
 
 bool ModelNode::hasDefaultNodeProperty() const
 {
     auto defaultPropertyName = metaInfo().defaultPropertyName();
-    return hasProperty(defaultPropertyName)
-           && m_internalNode->property(defaultPropertyName)->isNodeProperty();
+    return hasNodeProperty(defaultPropertyName);
 }
 
-bool ModelNode::hasNodeProperty(const PropertyName &name) const
+bool ModelNode::hasNodeProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isNodeProperty();
+    return hasProperty(name, PropertyType::Node);
 }
 
-bool ModelNode::hasNodeListProperty(const PropertyName &name) const
+bool ModelNode::hasNodeListProperty(PropertyNameView name) const
 {
-    return hasProperty(name) && m_internalNode->property(name)->isNodeListProperty();
+    return hasProperty(name, PropertyType::NodeList);
+}
+
+bool ModelNode::hasProperty(PropertyNameView name, PropertyType propertyType) const
+{
+    if (!isValid())
+        return false;
+
+    if (auto property = m_internalNode->property(name))
+        return property->type() == propertyType;
+
+    return false;
 }
 
 static bool recursiveAncestor(const ModelNode &possibleAncestor, const ModelNode &node)
@@ -1326,30 +1330,6 @@ ModelNode ModelNode::lowestCommonAncestor(const QList<ModelNode> &nodes)
     }
 
     return accumulatedNode;
-}
-
-QList<ModelNode> ModelNode::pruneChildren(const QList<ModelNode> &nodes)
-{
-    QList<ModelNode> forwardNodes;
-    QList<ModelNode> backNodes;
-
-    auto pushIfIsNotChild = [](QList<ModelNode> &container, const ModelNode &node) {
-        bool hasAncestor = Utils::anyOf(container, [node](const ModelNode &testNode) -> bool {
-            return testNode.isAncestorOf(node);
-        });
-        if (!hasAncestor)
-            container.append(node);
-    };
-
-    for (const ModelNode &node : nodes | Utils::views::reverse) {
-        if (node)
-            pushIfIsNotChild(forwardNodes, node);
-    }
-
-    for (const ModelNode &node : forwardNodes | Utils::views::reverse)
-        pushIfIsNotChild(backNodes, node);
-
-    return backNodes;
 }
 
 void ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)

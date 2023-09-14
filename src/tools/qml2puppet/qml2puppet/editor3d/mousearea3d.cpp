@@ -5,16 +5,19 @@
 
 #include "mousearea3d.h"
 
+#include "generalhelper.h"
+
 #include <QtGui/qguiapplication.h>
 #include <QtQml/qqmlinfo.h>
 #include <QtQuick3D/private/qquick3dcamera_p.h>
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendercamera_p.h>
-#include <QtQuick3DUtils/private/qssgutils_p.h>
 #include <QtCore/qmath.h>
 
 namespace QmlDesigner {
 namespace Internal {
+
+static GeneralHelper *s_generalHelper = nullptr;
 
 // Double precision vector for cases where float calculations can suffer from rounding errors
 class DoubleVec3D {
@@ -632,6 +635,10 @@ QVector3D MouseArea3D::getNewScale(const QVector3D &startScale, const QVector2D 
     yScaler += axisY * relativeDistance.y() * distanceFactor;
     scaleVec *= xScaler;
     scaleVec *= yScaler;
+
+    if (s_generalHelper)
+        scaleVec = s_generalHelper->adjustScaleForSnap(scaleVec);
+
     return startScale * scaleVec;
 }
 
@@ -692,8 +699,8 @@ qreal QmlDesigner::Internal::MouseArea3D::getNewRotationAngle(
 void QmlDesigner::Internal::MouseArea3D::applyRotationAngleToNode(
         QQuick3DNode *node, const QVector3D &startRotation, qreal angle)
 {
+    node->setEulerRotation(startRotation);
     if (!qFuzzyIsNull(angle)) {
-        node->setEulerRotation(startRotation);
         QVector3D normal = getNormal();
         node->rotate(qRadiansToDegrees(angle), normal, QQuick3DNode::SceneSpace);
     }
@@ -713,12 +720,14 @@ void MouseArea3D::applyFreeRotation(QQuick3DNode *node, const QVector3D &startRo
     QVector3D yAxis = QVector3D(dataPtr[4], dataPtr[5], dataPtr[6]).normalized();
     QVector3D finalAxis = (dragVector.x() * yAxis + dragVector.y() * xAxis);
 
-    qreal degrees = qRadiansToDegrees(qreal(finalAxis.length()) * mouseDragMultiplier());
+    qreal radians = qreal(finalAxis.length()) * mouseDragMultiplier();
+    if (s_generalHelper)
+        radians = s_generalHelper->adjustRotationForSnap(radians);
 
     finalAxis.normalize();
 
     node->setEulerRotation(startRotation);
-    node->rotate(degrees, finalAxis, QQuick3DNode::SceneSpace);
+    node->rotate(qRadiansToDegrees(radians), finalAxis, QQuick3DNode::SceneSpace);
 }
 
 // Calculate scene position of the node's pivot point, which in practice is just the position
@@ -735,9 +744,8 @@ QVector3D MouseArea3D::pivotScenePosition(QQuick3DNode *node) const
     QMatrix4x4 localTransform;
     localTransform.translate(node->position());
 
-    const QMatrix4x4 sceneTransform = parent->sceneTransform() * localTransform;
-
-    return mat44::getPosition(sceneTransform);
+    const QMatrix4x4 m = parent->sceneTransform() * localTransform;
+    return QVector3D(m(0, 3), m(1, 3), m(2, 3));
 }
 
 double MouseArea3D::getRelativeScale(QQuick3DNode *node) const
@@ -818,6 +826,11 @@ QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
     return sceneTrans.inverted().transform(intersectGlobalPos).toVec3();
 }
 
+void QmlDesigner::Internal::MouseArea3D::setGeneralHelper(GeneralHelper *helper)
+{
+    s_generalHelper = helper;
+}
+
 static QPoint getPosFromMoveEvent(QEvent *event)
 {
     switch (event->type()) {
@@ -877,10 +890,6 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
                 // a problem
                 onCircle = false;
                 if (m_pickNode) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
-                    QQuick3DPickResult pr = m_view3D->pick(float(mousePos.x()), float(mousePos.y()));
-                    pickSuccess = pr.objectHit() == m_pickNode;
-#else
                     // With the introduction of global picking API,
                     // we need to pick all as various other geometries can often be the first
                     // pick result, such as camera frustum or light geometry
@@ -892,7 +901,6 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
                             break;
                         }
                     }
-#endif
                 }
             }
         }

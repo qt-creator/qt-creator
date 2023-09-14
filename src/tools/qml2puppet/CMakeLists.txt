@@ -17,16 +17,10 @@ if (NOT QT_CREATOR_API_DEFINED)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
 
-  find_package(QT 5.15.0 NAMES Qt6 Qt5
-    COMPONENTS Core REQUIRED
-  )
-  find_package(Qt${QT_VERSION_MAJOR}
+  find_package(Qt6
     COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml
     REQUIRED
   )
-else()
-  # Qt Creator only supports Qt 6
-  set(QT_VERSION_MAJOR ${Qt6_VERSION_MAJOR})
 endif()
 
 if (NOT TARGET QmlPuppetCommunication)
@@ -79,12 +73,6 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
-  CONDITION Qt5_VERSION VERSION_LESS 6.0.0
-  SOURCES
-    editor3d_qt5.qrc
-)
-
-extend_qtc_executable(qml2puppet
   CONDITION UNIX AND (NOT APPLE)
   DEPENDS rt
 )
@@ -95,7 +83,7 @@ extend_qtc_executable(qml2puppet
     nodeinstanceclientproxy.cpp nodeinstanceclientproxy.h
 )
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3D QUIET)
+find_package(Qt6 COMPONENTS Quick3D QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3D
   FEATURE_INFO "Qt Quick 3D support"
@@ -115,7 +103,7 @@ extend_qtc_executable(qml2puppet
     icongizmoimageprovider.cpp icongizmoimageprovider.h
 )
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DAssetImport QUIET)
+find_package(Qt6 COMPONENTS Quick3DAssetImport QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3DAssetImport
   FEATURE_INFO "Qt Quick 3D asset import"
@@ -123,7 +111,7 @@ extend_qtc_executable(qml2puppet
   DEFINES IMPORT_QUICK3D_ASSETS
 )
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DParticles QUIET)
+find_package(Qt6 COMPONENTS Quick3DParticles QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3DParticles
   FEATURE_INFO "Qt Quick 3D particles"
@@ -132,25 +120,12 @@ extend_qtc_executable(qml2puppet
 )
 
 # Quick3DAssetUtils optionally depends on QuickTimeline, so find also it to make the CI build work
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
+find_package(Qt6 COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3DAssetUtils
   FEATURE_INFO "Qt Quick 3D asset utils"
   DEPENDS Qt::Quick3DAssetUtilsPrivate
   DEFINES QUICK3D_ASSET_UTILS_MODULE
-)
-
-extend_qtc_executable(qml2puppet
-  CONDITION Qt6_VERSION
-  SOURCES_PREFIX qml2puppet/editor3d/qt5compat
-  SOURCES
-    qquick3darealight.cpp qquick3darealight_p.h
-)
-
-extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX qml2puppet/iconrenderer
-  SOURCES
-    iconrenderer.cpp iconrenderer.h
 )
 
 extend_qtc_executable(qml2puppet

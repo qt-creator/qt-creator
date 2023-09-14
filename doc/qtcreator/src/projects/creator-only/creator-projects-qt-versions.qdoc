@@ -28,7 +28,7 @@
 
     To remove invalid Qt versions, select \uicontrol {Clean Up}.
 
-    You can link to a Qt that the Qt Installer installed to
+    You can link to a Qt that \QOI installed to
     automatically detect the installed Qt versions. However, you cannot link
     to a Qt that the system installed with some other package
     manager, such as your Linux distribution, brew on \macos, or Chocolatey on
@@ -112,7 +112,7 @@
     output exist. When \QC complains about the installation of a self-built Qt
     version, try running \c {make install} in the build directory to actually
     install Qt into the configured location. If you installed Qt using the Qt
-    Installer, run the Qt maintenance tool to check for updates or to reinstall
+    Installer, run \QMT to check for updates or to reinstall
     the Qt version.
 
     \section1 Minimum Requirements

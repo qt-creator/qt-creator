@@ -39,7 +39,6 @@ public:
 
     static QVariant convertToLiteral(const TypeName &typeName, const QString &expression);
 
-protected:
     BindingProperty(const PropertyName &propertyName,
                     const Internal::InternalNodePointer &internalNode,
                     Model *model,

@@ -20,7 +20,7 @@
     specifies the compiler and other necessary tools for building an application
     for and running it on a particular platform.
 
-    \QC automatically detects the compilers that your system or the Qt Installer
+    \QC automatically detects the compilers that your system or \QOI
     registers and lists them in \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Kits > \uicontrol Compilers.
 

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <nodeinstanceview.h>
+#include <auxiliarydata.h>
 #include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
@@ -14,7 +14,17 @@ namespace QmlDesigner {
 class Edit3DViewConfig
 {
 public:
-    static QList<QColor> loadColor(const char key[])
+    static QColor loadColor(const char key[])
+    {
+        QVariant var = QmlDesignerPlugin::settings().value(key);
+
+        if (!var.isValid())
+            return {};
+
+        return QColor{var.value<QString>()};
+    }
+
+    static QList<QColor> loadColors(const char key[])
     {
         QVariant var = QmlDesignerPlugin::settings().value(key);
 
@@ -28,15 +38,30 @@ public:
         });
     }
 
-    static void setColors(AbstractView *view, View3DActionType type, const QList<QColor> &colorConfig)
+    static QVariant load(const QByteArray &key, const QVariant &defaultValue = {})
     {
-        setVariant(view, type, QVariant::fromValue(colorConfig));
+        return QmlDesignerPlugin::settings().value(key, defaultValue);
+    }
+
+    static void save(const QByteArray &key, const QVariant &value)
+    {
+        QmlDesignerPlugin::settings().insert(key, value);
+    }
+
+    static void setColors(AbstractView *view, const AuxiliaryDataKeyView &auxProp, const QList<QColor> &colorConfig)
+    {
+        QVariant param;
+        if (auxProp.name == "edit3dGridColor")
+            param = colorConfig.isEmpty() ? QColor() : colorConfig[0];
+        else
+            param = QVariant::fromValue(colorConfig);
+        setVariant(view, auxProp, param);
     }
 
     template <typename T>
-    static void set(AbstractView *view, View3DActionType type, const T &value)
+    static void set(AbstractView *view, const AuxiliaryDataKeyView &auxProp, const T &value)
     {
-        setVariant(view, type, QVariant::fromValue(value));
+        setVariant(view, auxProp, QVariant::fromValue(value));
     }
 
     static void saveColors(const QByteArray &key, const QList<QColor> &colorConfig)
@@ -45,20 +70,15 @@ public:
             return color.name();
         });
 
-        saveVariant(key, QVariant::fromValue(colorNames));
+        save(key, QVariant::fromValue(colorNames));
     }
 
     static bool colorsValid(const QList<QColor> &colorConfig) { return !colorConfig.isEmpty(); }
 
 private:
-    static void setVariant(AbstractView *view, View3DActionType type, const QVariant &colorConfig)
+    static void setVariant(AbstractView *view, const AuxiliaryDataKeyView &auxProp, const QVariant &value)
     {
-        view->emitView3DAction(type, colorConfig);
-    }
-
-    static void saveVariant(const QByteArray &key, const QVariant &colorConfig)
-    {
-        QmlDesignerPlugin::settings().insert(key, colorConfig);
+        view->rootModelNode().setAuxiliaryData(auxProp, value);
     }
 };
 

@@ -13,10 +13,8 @@ IconGizmo {
     iconSource: targetNode
                 ? targetNode instanceof DirectionalLight
                   ? "image://IconGizmoImageProvider/directional.png:" + overlayColor
-                  : targetNode instanceof AreaLight
-                    ? "image://IconGizmoImageProvider/area.png:" + overlayColor
-                    : targetNode instanceof PointLight
-                      ? "image://IconGizmoImageProvider/point.png:" + overlayColor
-                      : "image://IconGizmoImageProvider/spot.png:" + overlayColor
+                  : targetNode instanceof PointLight
+                    ? "image://IconGizmoImageProvider/point.png:" + overlayColor
+                    : "image://IconGizmoImageProvider/spot.png:" + overlayColor
                 : "image://IconGizmoImageProvider/point.png:" + overlayColor
 }

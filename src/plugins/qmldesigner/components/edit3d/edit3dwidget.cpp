@@ -6,8 +6,9 @@
 #include "designericons.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
+#include "edit3dtoolbarmenu.h"
 #include "edit3dview.h"
-#include "edit3dvisibilitytogglesmenu.h"
+#include "edit3dviewconfig.h"
 #include "materialutils.h"
 #include "metainfo.h"
 #include "modelnodeoperations.h"
@@ -74,7 +75,6 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     setAcceptDrops(true);
 
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-    sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
     Core::Context context(Constants::C_QMLEDITOR3D);
@@ -158,7 +158,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     handleActions(view->leftActions(), nullptr, true);
     handleActions(view->rightActions(), nullptr, false);
 
-    m_visibilityTogglesMenu = new Edit3DVisibilityTogglesMenu(this);
+    m_visibilityTogglesMenu = new Edit3DToolbarMenu(this);
     handleActions(view->visibilityToggleActions(), m_visibilityTogglesMenu, false);
 
     m_backgroundColorMenu = new QMenu(this);
@@ -541,7 +541,8 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_EFFECT)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
-        dragEnterEvent->acceptProposedAction();
+        if (m_view->active3DSceneNode().isValid())
+            dragEnterEvent->acceptProposedAction();
     } else if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
         QByteArray data = dragEnterEvent->mimeData()->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
         if (!data.isEmpty()) {

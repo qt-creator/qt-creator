@@ -39,7 +39,7 @@
     \section1 Setting Up the Development Environment
 
     You need to install and configure Qt for WebAssembly and the tool chain for
-    compiling to WebAssembly. The Qt Installer automatically adds a build and
+    compiling to WebAssembly. \QOI automatically adds a build and
     run kit to \QC.
 
     \section2 Setting Up Qt for WebAssembly
@@ -47,7 +47,7 @@
     To set up Qt for WebAssembly:
 
         \list 1
-        \li Use the Qt maintenance tool to install Qt for WebAssembly and, on
+        \li Use \QMT to install Qt for WebAssembly and, on
             Windows, \MinGW (found in \uicontrol {Developer and Designer Tools}).
         \li Check out a known-good Emscripten version supported by the Qt for
             WebAssembly version that you installed, and install and activate

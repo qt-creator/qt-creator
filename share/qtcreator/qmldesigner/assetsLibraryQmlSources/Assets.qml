@@ -145,11 +145,11 @@ Item {
             Column {
                 id: toolbarColumn
                 anchors.fill: parent
-                anchors.topMargin: 6
-                anchors.bottomMargin: 6
-                anchors.leftMargin: 10
-                anchors.rightMargin: 10
-                spacing: 12
+                anchors.topMargin: StudioTheme.Values.toolbarVerticalMargin
+                anchors.bottomMargin: StudioTheme.Values.toolbarVerticalMargin
+                anchors.leftMargin: StudioTheme.Values.toolbarHorizontalMargin
+                anchors.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
+                spacing: StudioTheme.Values.toolbarColumnSpacing
 
                 StudioControls.SearchBox {
                     id: searchBox
@@ -260,10 +260,13 @@ Item {
 
         AssetsView {
             id: assetsView
-            assetsRoot: root
-            contextMenu: contextMenu
+
             width: parent.width
             height: parent.height - assetsView.y
+
+            assetsRoot: root
+            contextMenu: contextMenu
+            focus: true
         }
     }
 }

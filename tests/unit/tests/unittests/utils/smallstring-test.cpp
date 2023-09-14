@@ -618,21 +618,21 @@ TEST(SmallString, to_q_string)
 class FromQString : public testing::TestWithParam<qsizetype>
 {
 protected:
-    QString randomString(qsizetype size)
+    QString exampleString(qsizetype size)
     {
         static constexpr char16_t characters[] = u"0123456789"
                                                  "abcdefghijklmnopqrstuvwxyz"
                                                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        static std::mt19937 generator{std::random_device{}()};
-        static std::uniform_int_distribution<std::size_t> pick(0, std::size(characters) - 1);
-
         QString string;
 
         string.reserve(size);
 
+        std::size_t index = 0;
         std::generate_n(std::back_inserter(string), size, [&]() {
-            return characters[pick(generator)];
+            if (index >= std::size(characters))
+                index = 0;
+
+            return characters[index++];
         });
 
         return string;
@@ -646,7 +646,7 @@ INSTANTIATE_TEST_SUITE_P(SmallString, FromQString, testing::Range<qsizetype>(0, 
 
 TEST_P(FromQString, from_qstring)
 {
-    const QString qStringText = randomString(size);
+    const QString qStringText = exampleString(size);
 
     auto text = SmallString(qStringText);
 

@@ -34,7 +34,7 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
     auto endSqliteIterator = sqliteRange.end();
     auto currentValueIterator = values.begin();
     auto endValueIterator = values.end();
-    std::optional<std::decay_t<decltype(*currentValueIterator)>> lastValue;
+    auto lastValueIterator = endValueIterator;
 
     while (true) {
         bool hasMoreValues = currentValueIterator != endValueIterator;
@@ -47,10 +47,10 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
                 UpdateChange updateChange = updateCallback(sqliteValue, value);
                 switch (updateChange) {
                 case UpdateChange::Update:
-                    lastValue = value;
+                    lastValueIterator = currentValueIterator;
                     break;
                 case UpdateChange::No:
-                    lastValue.reset();
+                    lastValueIterator = endValueIterator;
                     break;
                 }
                 ++currentSqliteIterator;
@@ -59,10 +59,10 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
                 insertCallback(value);
                 ++currentValueIterator;
             } else if (compare < 0) {
-                if (lastValue) {
-                    if (compareKey(sqliteValue, *lastValue) != 0)
+                if (lastValueIterator != endValueIterator) {
+                    if (compareKey(sqliteValue, *lastValueIterator) != 0)
                         deleteCallback(sqliteValue);
-                    lastValue.reset();
+                    lastValueIterator = endValueIterator;
                 } else {
                     deleteCallback(sqliteValue);
                 }
@@ -73,10 +73,10 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
             ++currentValueIterator;
         } else if (hasMoreSqliteValues) {
             auto &&sqliteValue = *currentSqliteIterator;
-            if (lastValue) {
-                if (compareKey(sqliteValue, *lastValue) != 0)
+            if (lastValueIterator != endValueIterator) {
+                if (compareKey(sqliteValue, *lastValueIterator) != 0)
                     deleteCallback(sqliteValue);
-                lastValue.reset();
+                lastValueIterator = endValueIterator;
             } else {
                 deleteCallback(sqliteValue);
             }

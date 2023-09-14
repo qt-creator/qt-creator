@@ -309,12 +309,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
 
     instance.internalInstance()->initialize(instance.m_nodeInstance, instanceContainer.metaFlags());
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 1)
-    // Handle hidden state to initialize pickable state
-    nodeInstanceServer->handleInstanceHidden(instance, false, false);
-#else
     nodeInstanceServer->handlePickTarget(instance);
-#endif
 
     return instance;
 }

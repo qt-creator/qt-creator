@@ -136,6 +136,18 @@ Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
     return m_qmljsDocument;
 }
 
+QString QmlJSRefactoringFile::qmlImports() const
+{
+    QString imports;
+    QmlJS::AST::UiProgram *prog = qmljsDocument()->qmlProgram();
+    if (prog && prog->headers) {
+        const unsigned int start = startOf(prog->headers->firstSourceLocation());
+        const unsigned int end = startOf(prog->members->member->firstSourceLocation());
+        imports = textOf(start, end);
+    }
+    return imports;
+}
+
 unsigned QmlJSRefactoringFile::startOf(const SourceLocation &loc) const
 {
     return position(loc.startLine, loc.startColumn);

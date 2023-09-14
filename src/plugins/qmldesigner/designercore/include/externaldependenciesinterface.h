@@ -29,8 +29,6 @@ public:
     virtual QString defaultPuppetToplevelBuildDirectory() const = 0;
     virtual QUrl projectUrl() const = 0;
     virtual QString currentProjectDirPath() const = 0;
-    virtual QList<QColor> designerSettingsEdit3DViewBackgroundColor() const = 0;
-    virtual QColor designerSettingsEdit3DViewGridColor() const = 0;
     virtual QUrl currentResourcePath() const = 0;
     virtual void parseItemLibraryDescriptions() = 0;
     virtual const DesignerSettings &designerSettings() const = 0;

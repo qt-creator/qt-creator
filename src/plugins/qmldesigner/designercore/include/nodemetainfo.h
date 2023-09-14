@@ -29,6 +29,8 @@ class Model;
 class AbstractProperty;
 class NodeMetaInfoPrivate;
 
+enum class MetaInfoType { None, Reference, Value, Sequence };
+
 class QMLDESIGNERCORE_EXPORT NodeMetaInfo
 {
 public:
@@ -52,6 +54,8 @@ public:
     explicit operator bool() const { return isValid(); }
 
     TypeId id() const { return m_typeId; }
+
+    MetaInfoType type() const;
     bool isFileComponent() const;
     bool isProjectComponent() const;
     bool isInProjectModule() const;
@@ -139,6 +143,8 @@ public:
     bool isQtQuick3DInstanceList() const;
     bool isQtQuick3DInstanceListEntry() const;
     bool isQtQuick3DLight() const;
+    bool isQtQuickListElement() const;
+    bool isQtQuickListModel() const;
     bool isQtQuick3DMaterial() const;
     bool isQtQuick3DModel() const;
     bool isQtQuick3DNode() const;
@@ -194,6 +200,7 @@ public:
 
     bool isEnumeration() const;
     QString importDirectoryPath() const;
+    QString requiredImportString() const;
 
     friend bool operator==(const NodeMetaInfo &first, const NodeMetaInfo &second)
     {
@@ -201,6 +208,23 @@ public:
             return first.m_typeId == second.m_typeId;
         else
             return first.m_privateData == second.m_privateData;
+    }
+
+    friend bool operator!=(const NodeMetaInfo &first, const NodeMetaInfo &second)
+    {
+        return !(first == second);
+    }
+
+    SourceId propertyEditorPathId() const;
+
+    const ProjectStorageType &projectStorage() const { return *m_projectStorage; }
+
+    void *key() const
+    {
+        if constexpr (!useProjectStorage())
+            return m_privateData.get();
+
+        return nullptr;
     }
 
 private:
@@ -217,3 +241,17 @@ private:
 using NodeMetaInfos = std::vector<NodeMetaInfo>;
 
 } //QmlDesigner
+
+namespace std {
+template<>
+struct hash<QmlDesigner::NodeMetaInfo>
+{
+    auto operator()(const QmlDesigner::NodeMetaInfo &metaInfo) const
+    {
+        if constexpr (QmlDesigner::useProjectStorage())
+            return std::hash<QmlDesigner::TypeId>{}(metaInfo.id());
+        else
+            return std::hash<void *>{}(metaInfo.key());
+    }
+};
+} // namespace std

@@ -51,6 +51,7 @@ ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName)
     incrementBasicId(moduleId);
 
     ON_CALL(*this, moduleId(Eq(moduleName))).WillByDefault(Return(moduleId));
+    ON_CALL(*this, fetchModuleIdUnguarded(Eq(moduleName))).WillByDefault(Return(moduleId));
 
     return moduleId;
 }
@@ -158,6 +159,20 @@ void ProjectStorageMock::createFunction(QmlDesigner::TypeId typeId, Utils::Small
     ON_CALL(*this, functionDeclarationNames(Eq(typeId))).WillByDefault(Return(functionNames));
 }
 
+namespace {
+void addBaseProperties(TypeId typeId, TypeIds baseTypeIds, ProjectStorageMock &storage)
+{
+    for (TypeId baseTypeId : baseTypeIds) {
+        for (const auto &propertyId : storage.localPropertyDeclarationIds(baseTypeId)) {
+            auto data = storage.propertyDeclaration(propertyId);
+            if (data) {
+                storage.createProperty(typeId, data->name, data->traits, data->propertyTypeId);
+            }
+        }
+    }
+}
+} // namespace
+
 TypeId ProjectStorageMock::createType(ModuleId moduleId,
                                       Utils::SmallStringView typeName,
                                       Utils::SmallStringView defaultPropertyName,
@@ -175,6 +190,8 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
     incrementBasicId(typeId);
 
     ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
+    ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
+        .WillByDefault(Return(typeId));
     PropertyDeclarationId defaultPropertyDeclarationId;
     if (defaultPropertyName.size()) {
         if (!defaultPropertyTypeId) {
@@ -202,6 +219,8 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
     selfAndPrototypes.insert(selfAndPrototypes.end(), baseTypeIds.begin(), baseTypeIds.end());
     ON_CALL(*this, prototypeAndSelfIds(Eq(typeId))).WillByDefault(Return(selfAndPrototypes));
     ON_CALL(*this, prototypeIds(Eq(typeId))).WillByDefault(Return(baseTypeIds));
+
+    addBaseProperties(typeId, baseTypeIds, *this);
 
     return typeId;
 }
@@ -240,6 +259,13 @@ TypeId ProjectStorageMock::createObject(ModuleId moduleId,
     return createType(moduleId, typeName, Storage::TypeTraits::Reference, baseTypeIds);
 }
 
+QmlDesigner::TypeId ProjectStorageMock::createValue(QmlDesigner::ModuleId moduleId,
+                                                    Utils::SmallStringView typeName,
+                                                    QmlDesigner::TypeIds baseTypeIds)
+{
+    return createType(moduleId, typeName, Storage::TypeTraits::Value, baseTypeIds);
+}
+
 void ProjectStorageMock::setupQtQuick()
 {
     setupIsBasedOn(*this);
@@ -250,8 +276,14 @@ void ProjectStorageMock::setupQtQuick()
     auto qtQuickModuleId = createModule("QtQuick");
     auto qtQuickNativeModuleId = createModule("QtQuick-cppnative");
 
-    createType(qmlModuleId, "int", Storage::TypeTraits::Value);
-    createType(qmlNativeModuleId, "float", Storage::TypeTraits::Value);
+    auto boolId = createValue(qmlModuleId, "bool");
+    auto intId = createValue(qmlModuleId, "int");
+    createValue(qmlNativeModuleId, "uint");
+    auto doubleId = createValue(qmlModuleId, "double");
+    createValue(qmlNativeModuleId, "float");
+    createValue(qmlModuleId, "date");
+    auto stringId = createValue(qmlModuleId, "string");
+    createValue(qmlModuleId, "url");
 
     auto qtObjectId = createObject(qmlModuleId,
                                    "QtObject",
@@ -260,6 +292,7 @@ void ProjectStorageMock::setupQtQuick()
                                    TypeId{});
 
     auto listElementId = createObject(qtQmlModelsModuleId, "ListElement", {qtObjectId});
+
     createObject(qtQmlModelsModuleId,
                  "ListModel",
                  "children",
@@ -267,12 +300,25 @@ void ProjectStorageMock::setupQtQuick()
                  listElementId,
                  {qtObjectId});
 
+    auto fontValueTypeId = createValue(qtQuickModuleId, "QQuickFontValueType");
+    createProperty(fontValueTypeId, "family", stringId);
+    createProperty(fontValueTypeId, "styleName", stringId);
+    createProperty(fontValueTypeId, "underline", boolId);
+    createProperty(fontValueTypeId, "overline", boolId);
+    createProperty(fontValueTypeId, "pointSize", doubleId);
+    createProperty(fontValueTypeId, "pixelSize", intId);
+    createValue(qtQuickModuleId, "font", {fontValueTypeId});
+
     auto itemId = createObject(qtQuickModuleId,
                                "Item",
                                "data",
                                PropertyDeclarationTraits::IsList,
                                qtObjectId,
                                {qtObjectId});
+
+    auto inputDeviceId = createObject(qtQuickModuleId, "InputDevice", {qtObjectId});
+    createProperty(inputDeviceId, "seatName", stringId);
+
     createObject(qtQuickModuleId,
                  "ListView",
                  "data",

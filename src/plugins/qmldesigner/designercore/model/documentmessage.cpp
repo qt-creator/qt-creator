@@ -73,7 +73,7 @@ QString DocumentMessage::toString() const
     }
 
     if (!str.isEmpty())
-        QStringLiteral(": ");
+        str += QStringLiteral(": ");
     str += description();
 
     return str;

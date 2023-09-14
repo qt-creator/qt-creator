@@ -20,7 +20,6 @@ using testing::ByRef;
 using testing::ContainerEq;
 using testing::Contains;
 using testing::ElementsAre;
-using testing::EndsWith;
 using testing::Eq;
 using testing::Exactly;
 using testing::Field;

@@ -7,6 +7,8 @@
 #include <QJsonArray>
 #include <QString>
 
+using namespace Qt::StringLiterals;
+
 namespace QmlDesigner {
 
 static const QString s_sep = " //;;// "; //separator
@@ -59,13 +61,13 @@ QString Comment::deescapedText() const
 {
     QString result = m_text;
 
-    result.replace(QStringLiteral("*\\/"), QStringLiteral("*/"));
-    result.replace(QStringLiteral("\\n"), QStringLiteral("\n"));
-    result.replace(QStringLiteral("\\r"), QStringLiteral("\r"));
-    result.replace(QStringLiteral("\\t"), QStringLiteral("\t"));
-    result.replace(QStringLiteral("\\\""), QStringLiteral("\""));
-    result.replace(QStringLiteral("\\\'"), QStringLiteral("\'"));
-    result.replace(QStringLiteral("\\\\"), QStringLiteral("\\"));
+    result.replace("*\\/"_L1, "*/"_L1);
+    result.replace("\\n"_L1, "\n"_L1);
+    result.replace("\\r"_L1, "\r"_L1);
+    result.replace("\\t"_L1, "\t"_L1);
+    result.replace("\\\""_L1, "\""_L1);
+    result.replace("\\\'"_L1, "\'"_L1);
+    result.replace("\\\\"_L1, "\\"_L1);
 
     return result;
 }
@@ -135,7 +137,7 @@ QJsonValue Comment::toJsonValue() const
         {{"title", m_title}, {"author", m_author}, {"text", m_text}, {"timestamp", m_timestamp}}};
 };
 
-bool Comment::fromJsonValue(QJsonValue const &v)
+bool Comment::fromJsonValue(const QJsonValue &v)
 {
     if (!v.isObject())
         return false;

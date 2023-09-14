@@ -14,7 +14,7 @@ namespace QmlDesigner {
 VariantProperty::VariantProperty() = default;
 
 VariantProperty::VariantProperty(const VariantProperty &property, AbstractView *view)
-    : AbstractProperty(property.name(), property.internalNode(), property.model(), view)
+    : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
 {
 
 }
@@ -49,7 +49,7 @@ void VariantProperty::setValue(const QVariant &value)
             privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    privateModel()->setVariantProperty(internalNode(), name(), value);
+    privateModel()->setVariantProperty(internalNodeSharedPointer(), name(), value);
 }
 
 QVariant VariantProperty::value() const
@@ -99,7 +99,7 @@ void VariantProperty::setDynamicTypeNameAndValue(const TypeName &type, const QVa
             privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    privateModel()->setDynamicVariantProperty(internalNode(), name(), type, value);
+    privateModel()->setDynamicVariantProperty(internalNodeSharedPointer(), name(), type, value);
 }
 
 void VariantProperty::setDynamicTypeNameAndEnumeration(const TypeName &type, const EnumerationName &enumerationName)

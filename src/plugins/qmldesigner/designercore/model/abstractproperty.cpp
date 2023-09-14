@@ -71,7 +71,7 @@ AbstractView *AbstractProperty::view() const
 
  The QVariant is null if the property does not exist.
 */
-PropertyName AbstractProperty::name() const
+const PropertyName &AbstractProperty::name() const
 {
     return m_propertyName;
 }
@@ -126,7 +126,7 @@ VariantProperty AbstractProperty::toVariantProperty() const
     if (!isValid())
         return {};
 
-    VariantProperty propertyVariant(name(), internalNode(), model(), view());
+    VariantProperty propertyVariant(name(), internalNodeSharedPointer(), model(), view());
 
     if (propertyVariant.isVariantProperty())
         return propertyVariant;
@@ -139,7 +139,7 @@ NodeProperty AbstractProperty::toNodeProperty() const
     if (!isValid())
         return {};
 
-    NodeProperty propertyNode(name(), internalNode(), model(), view());
+    NodeProperty propertyNode(name(), internalNodeSharedPointer(), model(), view());
 
     if (propertyNode.isNodeProperty())
         return propertyNode;
@@ -152,7 +152,7 @@ SignalHandlerProperty AbstractProperty::toSignalHandlerProperty() const
     if (!isValid())
         return {};
 
-    SignalHandlerProperty propertyNode(name(), internalNode(), model(), view());
+    SignalHandlerProperty propertyNode(name(), internalNodeSharedPointer(), model(), view());
 
     if (propertyNode.isSignalHandlerProperty())
         return propertyNode;
@@ -165,7 +165,7 @@ SignalDeclarationProperty AbstractProperty::toSignalDeclarationProperty() const
     if (!isValid())
         return {};
 
-    SignalDeclarationProperty propertyNode(name(), internalNode(), model(), view());
+    SignalDeclarationProperty propertyNode(name(), internalNodeSharedPointer(), model(), view());
 
     if (propertyNode.isSignalDeclarationProperty())
         return propertyNode;
@@ -178,7 +178,7 @@ NodeListProperty AbstractProperty::toNodeListProperty() const
     if (!isValid())
         return {};
 
-    NodeListProperty propertyNodeList(name(), internalNode(), model(), view());
+    NodeListProperty propertyNodeList(name(), internalNodeSharedPointer(), model(), view());
 
     if (propertyNodeList.isNodeListProperty())
         return propertyNodeList;
@@ -191,7 +191,7 @@ NodeAbstractProperty AbstractProperty::toNodeAbstractProperty() const
     if (!isValid())
         return {};
 
-    NodeAbstractProperty propertyNodeAbstract(name(), internalNode(), model(), view());
+    NodeAbstractProperty propertyNodeAbstract(name(), internalNodeSharedPointer(), model(), view());
 
     if (propertyNodeAbstract.isNodeAbstractProperty())
         return propertyNodeAbstract;
@@ -204,7 +204,7 @@ BindingProperty AbstractProperty::toBindingProperty() const
     if (!isValid())
         return {};
 
-    BindingProperty propertyBinding(name(), internalNode(), model(), view());
+    BindingProperty propertyBinding(name(), internalNodeSharedPointer(), model(), view());
 
     if (propertyBinding.isBindingProperty())
         return propertyBinding;
@@ -217,10 +217,8 @@ bool AbstractProperty::isVariantProperty() const
     if (!isValid())
         return false;
 
-    if (internalNode()->hasProperty(name())) {
-        Q_ASSERT(internalNode()->property(name()));
-        return internalNode()->property(name())->isVariantProperty();
-    }
+    if (auto property = internalNode()->property(name()))
+        return property->isVariantProperty();
 
     return false;
 }
@@ -230,10 +228,8 @@ bool AbstractProperty::isNodeAbstractProperty() const
     if (!isValid())
         return false;
 
-    if (internalNode()->hasProperty(name())) {
-        Q_ASSERT(internalNode()->property(name()));
-        return internalNode()->property(name())->isNodeAbstractProperty();
-    }
+    if (auto property = internalNode()->property(name()))
+        return property->isNodeAbstractProperty();
 
     return false;
 }
@@ -243,10 +239,8 @@ bool AbstractProperty::isNodeListProperty() const
     if (!isValid())
         return false;
 
-    if (internalNode()->hasProperty(name())) {
-        Q_ASSERT(internalNode()->property(name()));
-        return internalNode()->property(name())->isNodeListProperty();
-    }
+    if (auto property = internalNode()->property(name()))
+        return property->isNodeListProperty();
 
     return false;
 }
@@ -256,10 +250,8 @@ bool AbstractProperty::isNodeProperty() const
     if (!isValid())
         return false;
 
-    if (internalNode()->hasProperty(name())) {
-        Q_ASSERT(internalNode()->property(name()));
-        return internalNode()->property(name())->isNodeProperty();
-    }
+    if (auto property = internalNode()->property(name()))
+        return property->isNodeProperty();
 
     return false;
 }
@@ -269,10 +261,8 @@ bool AbstractProperty::isSignalHandlerProperty() const
     if (!isValid())
         return false;
 
-    if (internalNode()->hasProperty(name())) {
-        Q_ASSERT(internalNode()->property(name()));
-        return internalNode()->property(name())->isSignalHandlerProperty();
-    }
+    if (auto property = internalNode()->property(name()))
+        return property->isSignalHandlerProperty();
 
     return false;
 }
@@ -282,10 +272,8 @@ bool AbstractProperty::isSignalDeclarationProperty() const
     if (!isValid())
         return false;
 
-    if (internalNode()->hasProperty(name())) {
-        Q_ASSERT(internalNode()->property(name()));
-        return internalNode()->property(name())->isSignalDeclarationProperty();
-    }
+    if (auto property = internalNode()->property(name()))
+        return property->isSignalDeclarationProperty();
 
     return false;
 }
@@ -295,8 +283,8 @@ PropertyType AbstractProperty::type() const
     if (!isValid())
         return PropertyType::None;
 
-    if (internalNode()->hasProperty(name()))
-        return internalNode()->property(name())->propertyType();
+    if (auto property = internalNode()->property(name()))
+        return property->propertyType();
 
     return PropertyType::None;
 }
@@ -306,10 +294,8 @@ bool AbstractProperty::isBindingProperty() const
     if (!isValid())
         return false;
 
-    if (internalNode()->hasProperty(name())) {
-        Q_ASSERT(internalNode()->property(name()));
-        return internalNode()->property(name())->isBindingProperty();
-    }
+    if (auto property = internalNode()->property(name()))
+        return property->isBindingProperty();
 
     return false;
 }
@@ -324,8 +310,8 @@ TypeName AbstractProperty::dynamicTypeName() const
     if (!isValid())
         return {};
 
-    if (internalNode()->hasProperty(name()))
-        return internalNode()->property(name())->dynamicTypeName();
+    if (auto property = internalNode()->property(name()))
+        return property->dynamicTypeName();
 
     return TypeName();
 }

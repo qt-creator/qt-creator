@@ -171,6 +171,36 @@
             the available modules in \QDS later. You can also import a module as
             an \e alias.
     \row
+        \li \uicontrol {Properties}
+        \li Specify new properties or assign values to the existing properties of
+            the component. You can also add and modify properties in \QDS.
+            The following are a few examples of the properties:
+            \code
+            property int counter: 5
+            property string label: "ok"
+            antialiasing : true
+            width: parent.width / 2
+            \endcode
+            To remove a property, write a "dash" (-) followed by the "property name".
+            For example:
+            \code
+            - width
+            \endcode
+            will remove the property \e width from the generated code.
+    \row
+        \li \uicontrol {Snippet}
+        \li Specify component to be added as child under this component.
+            Following example adds a Connection component:
+            \code
+            Connections {
+                target: myItem
+                onVisibleChanged: console.log(original_Text.visible)
+            }
+            \endcode
+            \note The code must have a scope of a component(e.g. Item, MouseArea,
+            Connections etc.) with a valid syntax for \l {UI Files}.
+            \note Add respective imports for your snippet in \uicontrol {Imports}.
+    \row
         \li \uicontrol Alias
         \li Exports the component generated from this layer as an alias in the
             parent component.

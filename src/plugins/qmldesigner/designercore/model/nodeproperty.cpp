@@ -24,16 +24,19 @@ void NodeProperty::setModelNode(const ModelNode &modelNode)
     if (!modelNode.isValid())
         return;
 
-    auto internalProperty = internalNode()->nodeProperty(name());
-    if (internalProperty
-        && internalProperty->node() == modelNode.internalNode()) { //check if oldValue != value
-        return;
+    if (auto property = internalNode()->property(name()); property) {
+        auto nodeProperty = property->to<PropertyType::Node>();
+        if (nodeProperty && nodeProperty->node() == modelNode.internalNode())
+            return;
+
+        if (!nodeProperty)
+            privateModel()->removePropertyAndRelatedResources(property);
     }
 
-    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeProperty())
-        privateModel()->removePropertyAndRelatedResources(internalNode()->property(name()));
-
-    privateModel()->reparentNode(internalNode(), name(), modelNode.internalNode(), false); //### we have to add a flag that this is not a list
+    privateModel()->reparentNode(internalNodeSharedPointer(),
+                                 name(),
+                                 modelNode.internalNode(),
+                                 false); //### we have to add a flag that this is not a list
 }
 
 ModelNode NodeProperty::modelNode() const

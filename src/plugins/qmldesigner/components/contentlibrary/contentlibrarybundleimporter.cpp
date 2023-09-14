@@ -209,7 +209,11 @@ void ContentLibraryBundleImporter::handleImportTimer()
         if (isImport == typeComplete) {
             m_pendingTypes.remove(pendingType);
             if (isImport)
+#ifdef QDS_USE_PROJECTSTORAGE
+                emit importFinished(pendingType.toUtf8());
+#else
                 emit importFinished(metaInfo);
+#endif
             else
                 emit unimportFinished(metaInfo);
         }

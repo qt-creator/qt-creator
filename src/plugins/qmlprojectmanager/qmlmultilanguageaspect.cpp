@@ -69,8 +69,10 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(AspectContainer *container)
 
     connect(this, &BoolAspect::changed, this, [this] {
         for (RunControl *runControl : ProjectExplorerPlugin::allRunControls()) {
-            if (runControl->aspect<QmlMultiLanguageAspect>()->origin == this)
-                runControl->initiateStop();
+            if (auto aspect = runControl->aspect<QmlMultiLanguageAspect>()) {
+                if (auto origin = aspect->origin; origin == this)
+                    runControl->initiateStop();
+            }
         }
     });
 }

@@ -44,9 +44,9 @@
     When developing your plugin, point the \c {CMAKE_PREFIX_PATH} to the
     installation location of \QC, or the \QC app on macOS.
 
-    Get prebuilt packages either from the
+    Get prebuilt packages either from
     \l{https://download.qt.io/official_releases/online_installers/}
-    {Qt online installer}, or a standalone \QC installer either for a
+    {\QOI}, or a standalone \QC installer either for a
     \l{https://download.qt.io/official_releases/qtcreator/}
     {released \QC version} or a \l{https://download.qt.io/snapshots/qtcreator/}
     {development snapshot}.

@@ -8,38 +8,76 @@ import GridGeometry 1.0
 Node {
     id: grid
 
-    property alias lines: gridGeometry.lines
-    property alias step: gridGeometry.step
-    property alias subdivAlpha: subGridMaterial.opacity
-    property alias gridColor: mainGridMaterial.diffuseColor
+    property alias gridColor: mainGridMaterial.color
+    property double density: 2500 / (gridGeometry.step + gridGeometry.step * (1.0 - subGridMaterial.generalAlpha))
+    property bool orthoMode: false
+    property double distance: 500
+
+    readonly property int minGridStep: 50
+    readonly property int maxGridStep: 32 * minGridStep
+    readonly property int gridArea: minGridStep * 512
+
+    // Step of the main lines of the grid, between those is always one subdiv line
+    property int gridStep: 100
+
+    // Minimum grid spacing in radians when viewed perpendicularly and lookAt is on origin.
+    // If spacing would go smaller, gridStep is doubled and line count halved.
+    // Note that spacing can stay smaller than this after maxGridStep has been reached.
+    readonly property double minGridRad: 0.1
 
     eulerRotation.x: 90
+
+    function calcRad(step)
+    {
+        return Math.atan(step / distance)
+    }
+
+    onDistanceChanged: {
+        if (distance === 0)
+            return
+
+        // Calculate new grid step
+        let newStep = gridStep
+        let gridRad = calcRad(newStep)
+        while (gridRad < minGridRad && newStep < maxGridStep) {
+            newStep *= 2
+            if (newStep > maxGridStep)
+                newStep = maxGridStep
+            gridRad = calcRad(newStep)
+        }
+        while (gridRad > minGridRad * 2 && newStep > minGridStep) {
+            newStep /= 2
+            if (newStep < minGridStep)
+                newStep = minGridStep
+            gridRad = calcRad(newStep)
+        }
+        gridStep = newStep
+        subGridMaterial.generalAlpha = Math.min(1, 2 * (1 - (minGridRad / gridRad)))
+    }
 
     // Note: Only one instance of HelperGrid is supported, as the geometry names are fixed
 
     Model { // Main grid lines
         readonly property bool _edit3dLocked: true // Make this non-pickable
-        castsShadows: false
-        receivesShadows: false
         geometry: GridGeometry {
             id: gridGeometry
+            lines: grid.gridArea / grid.gridStep
+            step: grid.gridStep
             name: "3D Edit View Helper Grid"
         }
 
         materials: [
-            DefaultMaterial {
+            GridMaterial {
                 id: mainGridMaterial
-                diffuseColor: "#aaaaaa"
-                lighting: DefaultMaterial.NoLighting
-                cullMode: Material.NoCulling
+                color: "#cccccc"
+                density: grid.density
+                orthoMode: grid.orthoMode
             }
         ]
     }
 
     Model { // Subdivision lines
         readonly property bool _edit3dLocked: true // Make this non-pickable
-        castsShadows: false
-        receivesShadows: false
         geometry: GridGeometry {
             lines: gridGeometry.lines
             step: gridGeometry.step
@@ -48,19 +86,17 @@ Node {
         }
 
         materials: [
-            DefaultMaterial {
+            GridMaterial {
                 id: subGridMaterial
-                diffuseColor: mainGridMaterial.diffuseColor
-                lighting: DefaultMaterial.NoLighting
-                cullMode: Material.NoCulling
+                color: mainGridMaterial.color
+                density: grid.density
+                orthoMode: grid.orthoMode
             }
         ]
     }
 
     Model { // Z Axis
         readonly property bool _edit3dLocked: true // Make this non-pickable
-        castsShadows: false
-        receivesShadows: false
         geometry: GridGeometry {
             lines: gridGeometry.lines
             step: gridGeometry.step
@@ -68,18 +104,16 @@ Node {
             name: "3D Edit View Helper Grid Z Axis"
         }
         materials: [
-            DefaultMaterial {
+            GridMaterial {
                 id: vCenterLineMaterial
-                diffuseColor: "#00a1d2"
-                lighting: DefaultMaterial.NoLighting
-                cullMode: Material.NoCulling
+                color: "#00a1d2"
+                density: grid.density
+                orthoMode: grid.orthoMode
             }
         ]
     }
     Model { // X Axis
         readonly property bool _edit3dLocked: true // Make this non-pickable
-        castsShadows: false
-        receivesShadows: false
         eulerRotation.z: 90
         geometry: GridGeometry {
             lines: gridGeometry.lines
@@ -88,11 +122,11 @@ Node {
             name: "3D Edit View Helper Grid X Axis"
         }
         materials: [
-            DefaultMaterial {
+            GridMaterial {
                 id: hCenterLineMaterial
-                diffuseColor: "#cb211a"
-                lighting: DefaultMaterial.NoLighting
-                cullMode: Material.NoCulling
+                color: "#cb211a"
+                density: grid.density
+                orthoMode: grid.orthoMode
             }
         ]
     }

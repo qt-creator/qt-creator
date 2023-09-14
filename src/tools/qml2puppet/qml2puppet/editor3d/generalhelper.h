@@ -32,6 +32,7 @@ class GeneralHelper : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isMacOS READ isMacOS CONSTANT)
+    Q_PROPERTY(QVariant bgColor READ bgColor NOTIFY bgColorChanged FINAL)
 
 public:
     GeneralHelper();
@@ -81,8 +82,6 @@ public:
     QString lastSceneIdKey() const;
     QString rootSizeKey() const;
 
-    Q_INVOKABLE double brightnessScaler() const;
-
     Q_INVOKABLE void setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
                                               const QVariantList &selectedList);
     Q_INVOKABLE void resetMultiSelectionNode();
@@ -94,6 +93,7 @@ public:
 
     void setSceneEnvironmentColor(const QString &sceneId, const QColor &color);
     Q_INVOKABLE QColor sceneEnvironmentColor(const QString &sceneId) const;
+    void clearSceneEnvironmentColors();
 
     bool isMacOS() const;
 
@@ -101,13 +101,33 @@ public:
     void removeRotationBlocks(const QSet<QQuick3DNode *> &nodes);
     Q_INVOKABLE bool isRotationBlocked(QQuick3DNode *node) const;
 
+    Q_INVOKABLE QVector3D adjustTranslationForSnap(const QVector3D &newPos,
+                                                   const QVector3D &startPos,
+                                                   const QVector3D &snapAxes,
+                                                   bool globalOrientation,
+                                                   QQuick3DNode *node);
+    Q_INVOKABLE double adjustRotationForSnap(double newAngle);
+    Q_INVOKABLE double adjustScalerForSnap(double newScale);
+    QVector3D adjustScaleForSnap(const QVector3D &newScale);
+
+    void setSnapAbsolute(bool enable) { m_snapAbsolute = enable; }
+    void setSnapPosition(bool enable) { m_snapPosition = enable; }
+    void setSnapRotation(bool enable) { m_snapRotation = enable; }
+    void setSnapScale(bool enable) { m_snapScale = enable; }
+    void setSnapPositionInterval(double interval) { m_snapPositionInterval = interval; }
+    void setSnapRotationInterval(double interval) { m_snapRotationInterval = interval; }
+    void setSnapScaleInterval(double interval) { m_snapScaleInterval = interval / 100.; }
+
+    void setBgColor(const QVariant &colors);
+    QVariant bgColor() const { return m_bgColor; }
+
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
     void hiddenStateChanged(QQuick3DNode *node);
     void lockedStateChanged(QQuick3DNode *node);
     void rotationBlocksChanged();
-
+    void bgColorChanged();
 private:
     void handlePendingToolStateUpdate();
     QVector3D pivotScenePosition(QQuick3DNode *node) const;
@@ -134,6 +154,16 @@ private:
     QQuick3DNode *m_multiSelectRootNode = nullptr;
     QList<QMetaObject::Connection> m_multiSelectConnections;
     bool m_blockMultiSelectionNodePositioning = false;
+
+    bool m_snapAbsolute = true;
+    bool m_snapPosition = false;
+    bool m_snapRotation = false;
+    bool m_snapScale = false;
+    double m_snapPositionInterval = 50.;
+    double m_snapRotationInterval = 5.;
+    double m_snapScaleInterval = .1;
+
+    QVariant m_bgColor;
 };
 
 }

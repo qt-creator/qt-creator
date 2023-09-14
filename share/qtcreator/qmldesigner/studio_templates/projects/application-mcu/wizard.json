@@ -144,7 +144,7 @@
             "data":
                 [
                 {
-                    "source": "../app_mcu.qmlproject",
+                    "source": "app_mcu.qmlproject.tpl",
                     "target": "%{QmlProjectFileName}",
                     "openAsProject": true
                 },
@@ -183,7 +183,7 @@
                 },
                 {
                     "source": "MCUDefaultStyle",
-                    "target": "%{ProjectDirectory}/MCUDefaultStyle"
+                    "target": "%{ProjectDirectory}/imports/MCUDefaultStyle"
                 },
                 {
                     "isBinary": true,

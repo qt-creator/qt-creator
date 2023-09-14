@@ -9,6 +9,8 @@ import StudioTheme 1.0 as StudioTheme
 T.MenuItem {
     id: control
 
+    property alias shortcut: itemAction.shortcut
+
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
     property int labelSpacing: control.style.contextMenuLabelSpacing
@@ -22,7 +24,9 @@ T.MenuItem {
     padding: 0
     spacing: 0
     horizontalPadding: control.style.contextMenuHorizontalPadding
-    action: Action {}
+    action: Action {
+        id: itemAction
+    }
 
     contentItem: Item {
         Text {
@@ -39,14 +43,14 @@ T.MenuItem {
             id: shortcutLabel
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            text: shortcut.nativeText
+            text: shortcutObserver.nativeText
             font: control.font
             color: textLabel.color
 
             Shortcut {
-                id: shortcut
-                property int shortcutWorkaround: control.action.shortcut ?? 0
-                sequence: shortcut.shortcutWorkaround
+                id: shortcutObserver
+                property int shortcutWorkaround: control.shortcut ?? 0
+                sequence: shortcutObserver.shortcutWorkaround
             }
         }
     }

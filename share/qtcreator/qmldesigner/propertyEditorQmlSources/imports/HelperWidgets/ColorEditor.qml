@@ -34,6 +34,8 @@ SecondColumnLayout {
     property alias gradientThumbnail: gradientThumbnail
     property alias shapeGradientThumbnail: shapeGradientThumbnail
 
+    property alias showExtendedFunctionButton: hexTextField.showExtendedFunctionButton
+
     property bool shapeGradients: false
     property color originalColor
     property bool isVector3D: false

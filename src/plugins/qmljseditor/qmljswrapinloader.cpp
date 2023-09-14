@@ -90,7 +90,8 @@ public:
     }
 
     void performChanges(QmlJSRefactoringFilePtr currentFile,
-                        const QmlJSRefactoringChanges &) override
+                        const QmlJSRefactoringChanges &,
+                        const QString &) override
     {
         UiScriptBinding *idBinding;
         const QString id = idOfObject(m_objDef, &idBinding);

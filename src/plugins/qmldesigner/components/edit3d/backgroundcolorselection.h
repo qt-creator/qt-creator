@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <nodeinstanceglobal.h>
+#include <auxiliarydata.h>
 
 #include <QByteArray>
 #include <QObject>
@@ -12,6 +12,11 @@ QT_FORWARD_DECLARE_CLASS(QColorDialog)
 
 namespace QmlDesigner {
 class AbstractView;
+
+inline constexpr AuxiliaryDataKeyView edit3dGridColorProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
+                                                              "edit3dGridColor"};
+inline constexpr AuxiliaryDataKeyView edit3dBgColorProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
+                                                            "edit3dBgColor"};
 
 class BackgroundColorSelection : public QObject
 {
@@ -25,14 +30,14 @@ public:
     static void showBackgroundColorSelectionWidget(QWidget *parent,
                                                    const QByteArray &key,
                                                    AbstractView *view,
-                                                   View3DActionType actionType,
+                                                   const AuxiliaryDataKeyView &auxProp,
                                                    const std::function<void()> &colorSelected = {});
 
 private:
     static QColorDialog *createColorDialog(QWidget *parent,
                                            const QByteArray &key,
                                            AbstractView *view,
-                                           View3DActionType actionType,
+                                           const AuxiliaryDataKeyView &auxProp,
                                            const std::function<void ()> &colorSelected);
 
     inline static QColorDialog *m_dialog = nullptr;

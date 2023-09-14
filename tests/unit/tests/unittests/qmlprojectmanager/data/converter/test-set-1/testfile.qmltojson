@@ -147,6 +147,7 @@
         ]
     },
     "mcuConfig": {
+        "mcuEnabled": true
     },
     "runConfig": {
         "fileSelectors": [

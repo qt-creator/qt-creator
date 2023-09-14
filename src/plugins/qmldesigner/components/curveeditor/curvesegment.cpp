@@ -165,6 +165,13 @@ bool CurveSegment::isLegal() const
     return ex.size() == 0;
 }
 
+bool CurveSegment::isLegalMcu() const
+{
+    if (interpolation() == Keyframe::Interpolation::Linear)
+        return isValid();
+    return false;
+}
+
 bool CurveSegment::containsX(double x) const
 {
     return m_left.position().x() <= x && m_right.position().x() >= x;
@@ -243,7 +250,7 @@ void CurveSegment::extendWithEasingCurve(QPainterPath &path, const QEasingCurve 
         return QPointF(start.x() + slope.x() * pos.x(), start.y() + slope.y() * pos.y());
     };
 
-    QVector<QPointF> points = curve.toCubicSpline();
+    QList<QPointF> points = curve.toCubicSpline();
     int numSegments = points.size() / 3;
     for (int i = 0; i < numSegments; i++) {
         QPointF p1 = mapEasing(m_left.position(), m_right.position(), points.at(i * 3));

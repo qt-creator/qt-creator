@@ -10,6 +10,8 @@
 #include <QtQml>
 #include <enumeration.h>
 
+class ShapeGradientPropertyData;
+
 class GradientModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -45,11 +47,21 @@ public:
 
     static void registerDeclarativeType();
 
-    Q_INVOKABLE qreal readGradientProperty(const QString &property) const;
+    enum GradientPropertyUnits { Pixels = 0, Percentage = 1 };
+    Q_ENUM(GradientPropertyUnits)
+
+    Q_INVOKABLE qreal readGradientProperty(const QString &propertyName) const;
+    Q_INVOKABLE qreal readGradientPropertyPercentage(const QString &propertyName) const;
     Q_INVOKABLE QString readGradientOrientation() const;
+    Q_INVOKABLE GradientPropertyUnits readGradientPropertyUnits(const QString &propertyName) const;
+    Q_INVOKABLE bool isPercentageSupportedByProperty(const QString &propertyName,
+                                                     const QString &gradientTypeName) const;
 
     Q_INVOKABLE void setGradientProperty(const QString &propertyName, qreal value);
+    Q_INVOKABLE void setGradientPropertyPercentage(const QString &propertyName, qreal value);
     Q_INVOKABLE void setGradientOrientation(Qt::Orientation value);
+    Q_INVOKABLE void setGradientPropertyUnits(const QString &propertyName,
+                                              GradientModel::GradientPropertyUnits value);
 
     Q_INVOKABLE void setPresetByID(int presetID);
     Q_INVOKABLE void setPresetByStops(const QList<qreal> &stopsPositions,
@@ -80,6 +92,15 @@ private:
     QmlDesigner::ModelNode createGradientNode();
     QmlDesigner::ModelNode createGradientStopNode();
     void deleteGradientNode(bool saveTransaction);
+
+    bool hasPercentageGradientProperty(const QString &propertyName) const;
+    qreal getPercentageGradientProperty(const QmlDesigner::PropertyNameView propertyName,
+                                        bool *ok = nullptr) const;
+
+    QVariant getGradientPropertyVariant(const QString &propertyName) const;
+
+    ShapeGradientPropertyData getDefaultGradientPropertyData(
+        const QmlDesigner::PropertyNameView propertyName, const QStringView &gradientType) const;
 
 private:
     QmlDesigner::QmlItemNode m_itemNode;

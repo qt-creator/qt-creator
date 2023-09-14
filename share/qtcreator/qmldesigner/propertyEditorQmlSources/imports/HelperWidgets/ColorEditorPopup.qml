@@ -280,7 +280,7 @@ T.Popup {
                     property ListModel items: ListModel {}
 
                     enabled: isBaseState
-                    implicitWidth: StudioTheme.Values.colorEditorPopupCmoboBoxWidth
+                    implicitWidth: StudioTheme.Values.colorEditorPopupComboBoxWidth
                     width: implicitWidth
                     actionIndicatorVisible: false
                     textRole: "text"
@@ -959,6 +959,7 @@ T.Popup {
 
                 component ControlsRow: RowLayout {
                     property alias propertyName: spinBox.propertyName
+                    property alias gradientTypeName: spinBox.gradientTypeName
                     property alias labelText: label.text
                     property alias labelTooltip: label.tooltip
                     property alias value: spinBox.value
@@ -980,20 +981,20 @@ T.Popup {
                         }
                     }
 
+                    ControlLabel {
+                        id: label
+                        horizontalAlignment: Text.AlignLeft
+                        width: StudioTheme.Values.controlGap
+                               + StudioTheme.Values.colorEditorPopupSpinBoxWidth
+                    }
+
+                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
                     GradientPropertySpinBox {
                         id: spinBox
                         implicitWidth: StudioTheme.Values.controlGap
                                        + 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
                         width: implicitWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        id: label
-                        horizontalAlignment: Text.AlignLeft
-                        width: StudioTheme.Values.controlGap
-                               + 2 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
                     }
                 }
 
@@ -1051,31 +1052,32 @@ T.Popup {
                     id: linearGradientControls
                     spacing: 10
                     visible: cePopup.hasLinearGradient() && colorEditor.shapeGradients
+                    readonly property string gradientTypeName: "LinearGradient"
 
                     ControlsRow {
-                        id: linearGradientX1
                         propertyName: "x1"
+                        gradientTypeName: linearGradientControls.gradientTypeName
                         labelText: "X1"
                         labelTooltip: qsTr("Defines the start point for color interpolation.")
                     }
 
                     ControlsRow {
-                        id: linearGradientX2
                         propertyName: "x2"
+                        gradientTypeName: linearGradientControls.gradientTypeName
                         labelText: "X2"
                         labelTooltip: qsTr("Defines the end point for color interpolation.")
                     }
 
                     ControlsRow {
-                        id: linearGradientY1
                         propertyName: "y1"
+                        gradientTypeName: linearGradientControls.gradientTypeName
                         labelText: "Y1"
                         labelTooltip: qsTr("Defines the start point for color interpolation.")
                     }
 
                     ControlsRow {
-                        id: linearGradientY2
                         propertyName: "y2"
+                        gradientTypeName: linearGradientControls.gradientTypeName
                         labelText: "Y2"
                         labelTooltip: qsTr("Defines the end point for color interpolation.")
                     }
@@ -1086,39 +1088,46 @@ T.Popup {
                     id: radialGradientControls
                     spacing: 10
                     visible: cePopup.hasRadialGradient()
+                    readonly property string gradientTypeName: "RadialGradient"
 
                     ControlsRow {
                         propertyName: "centerX"
+                        gradientTypeName: radialGradientControls.gradientTypeName
                         labelText: "CenterX"
                         labelTooltip: qsTr("Defines the center point.")
                     }
 
                     ControlsRow {
                         propertyName: "centerY"
+                        gradientTypeName: radialGradientControls.gradientTypeName
                         labelText: "CenterY"
                         labelTooltip: qsTr("Defines the center point.")
                     }
 
                     ControlsRow {
                         propertyName: "focalX"
+                        gradientTypeName: radialGradientControls.gradientTypeName
                         labelText: "FocalX"
                         labelTooltip: qsTr("Defines the focal point.")
                     }
 
                     ControlsRow {
                         propertyName: "focalY"
+                        gradientTypeName: radialGradientControls.gradientTypeName
                         labelText: "FocalY"
                         labelTooltip: qsTr("Defines the focal point.")
                     }
 
                     ControlsRow {
                         propertyName: "centerRadius"
+                        gradientTypeName: radialGradientControls.gradientTypeName
                         labelText: "Center Radius"
                         labelTooltip: qsTr("Defines the center radius.")
                     }
 
                     ControlsRow {
                         propertyName: "focalRadius"
+                        gradientTypeName: radialGradientControls.gradientTypeName
                         labelText: "Focal Radius"
                         labelTooltip: qsTr("Defines the focal radius. Set to 0 for simple radial gradients.")
                     }
@@ -1126,24 +1135,28 @@ T.Popup {
 
                 // Conical Gradient Controls
                 Column {
-                    id: concialGradientControls
+                    id: conicalGradientControls
                     spacing: 10
                     visible: cePopup.hasConicalGradient()
+                    readonly property string gradientTypeName: "ConicalGradient"
 
                     ControlsRow {
                         propertyName: "centerX"
+                        gradientTypeName: conicalGradientControls.gradientTypeName
                         labelText: "CenterX"
                         labelTooltip: qsTr("Defines the center point.")
                     }
 
                     ControlsRow {
                         propertyName: "centerY"
+                        gradientTypeName: conicalGradientControls.gradientTypeName
                         labelText: "CenterY"
                         labelTooltip: qsTr("Defines the center point.")
                     }
 
                     ControlsRow {
                         propertyName: "angle"
+                        gradientTypeName: conicalGradientControls.gradientTypeName
                         labelText: "Angle"
                         labelTooltip: qsTr("Defines the start angle for the conical gradient. The value is in degrees (0-360).")
                     }

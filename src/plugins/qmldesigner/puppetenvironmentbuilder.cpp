@@ -50,6 +50,7 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
     addImportPaths();
     addCustomFileSelectors();
     addDisableDeferredProperties();
+    addResolveUrlsOnAssignment();
 
     qCInfo(puppetEnvirmentBuild) << "Puppet environment:" << m_environment.toStringList();
 
@@ -81,10 +82,26 @@ bool PuppetEnvironmentBuilder::usesVirtualKeyboard() const
 QString PuppetEnvironmentBuilder::getStyleConfigFileName() const
 {
     if (m_target) {
-        for (const Utils::FilePath &fileName :
-             m_target->project()->files(ProjectExplorer::Project::SourceFiles)) {
-            if (fileName.fileName() == "qtquickcontrols2.conf")
-                return fileName.toString();
+        const auto *qmlBuild = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+            m_target->buildSystem());
+        if (qmlBuild) {
+            const auto &environment = qmlBuild->environment();
+            const auto &envVar = std::find_if(
+                std::begin(environment), std::end(environment), [](const auto &envVar) {
+                    return (envVar.name == u"QT_QUICK_CONTROLS_CONF"
+                            && envVar.operation != Utils::EnvironmentItem::SetDisabled);
+                });
+            if (envVar != std::end(environment)) {
+                const auto &sourceFiles = m_target->project()->files(
+                    ProjectExplorer::Project::SourceFiles);
+                const auto &foundFile = std::find_if(std::begin(sourceFiles),
+                                                     std::end(sourceFiles),
+                                                     [&](const auto &fileName) {
+                                                         return fileName.fileName() == envVar->value;
+                                                     });
+                if (foundFile != std::end(sourceFiles))
+                    return foundFile->toString();
+            }
         }
     }
 
@@ -230,6 +247,11 @@ void PuppetEnvironmentBuilder::addCustomFileSelectors() const
 void PuppetEnvironmentBuilder::addDisableDeferredProperties() const
 {
     m_environment.set("QML_DISABLE_INTERNAL_DEFERRED_PROPERTIES", "true");
+}
+
+void PuppetEnvironmentBuilder::addResolveUrlsOnAssignment() const
+{
+    m_environment.set("QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT", "true");
 }
 
 PuppetType PuppetEnvironmentBuilder::determinePuppetType() const

@@ -2,111 +2,28 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "bindingmodel.h"
-
+#include "bindingmodelitem.h"
 #include "connectionview.h"
+#include "connectioneditorutils.h"
+#include "modelfwd.h"
 
+#include <bindingproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <bindingproperty.h>
-#include <variantproperty.h>
-#include <rewritingexception.h>
 #include <rewritertransaction.h>
-#include <rewriterview.h>
+#include <rewritingexception.h>
+#include <variantproperty.h>
 
 #include <utils/qtcassert.h>
-
-#include <QMessageBox>
-#include <QTimer>
 
 namespace QmlDesigner {
 
 BindingModel::BindingModel(ConnectionView *parent)
-    : QStandardItemModel(parent), m_connectionView(parent),
-      m_delegate(new BindingModelBackendDelegate(this))
+    : QStandardItemModel(parent)
+    , m_connectionView(parent)
+    , m_delegate(new BindingModelBackendDelegate(this))
 {
-    connect(this, &QStandardItemModel::dataChanged, this, &BindingModel::handleDataChanged);
-}
-
-void BindingModel::resetModel()
-{
-    beginResetModel();
-    clear();
-    setHorizontalHeaderLabels(
-        QStringList({tr("Item"), tr("Property"), tr("Source Item"), tr("Source Property")}));
-
-    if (connectionView()->isAttached()) {
-        for (const ModelNode &modelNode : connectionView()->selectedModelNodes())
-            addModelNode(modelNode);
-    }
-
-    endResetModel();
-}
-
-void BindingModel::add()
-{
-    addBindingForCurrentNode();
-}
-
-void BindingModel::remove(int row)
-{
-    deleteBindindByRow(row);
-}
-
-int BindingModel::currentIndex() const
-{
-    return m_currentIndex;
-}
-
-void BindingModel::setCurrentIndex(int i)
-{
-    if (m_currentIndex == i)
-        return;
-
-    m_currentIndex = i;
-
-    emit currentIndexChanged();
-}
-
-void BindingModel::bindingChanged(const BindingProperty &bindingProperty)
-{
-    m_handleDataChanged = false;
-
-    QList<ModelNode> selectedNodes = connectionView()->selectedModelNodes();
-    if (!selectedNodes.contains(bindingProperty.parentModelNode()))
-        return;
-    if (!m_lock) {
-        int rowNumber = findRowForBinding(bindingProperty);
-
-        if (rowNumber == -1) {
-            addBindingProperty(bindingProperty);
-        } else {
-            updateBindingProperty(rowNumber);
-        }
-    }
-
-    m_handleDataChanged = true;
-}
-
-void BindingModel::bindingRemoved(const BindingProperty &bindingProperty)
-{
-    m_handleDataChanged = false;
-
-    QList<ModelNode> selectedNodes = connectionView()->selectedModelNodes();
-    if (!selectedNodes.contains(bindingProperty.parentModelNode()))
-        return;
-    if (!m_lock) {
-        int rowNumber = findRowForBinding(bindingProperty);
-        removeRow(rowNumber);
-    }
-
-    m_handleDataChanged = true;
-}
-
-void BindingModel::selectionChanged([[maybe_unused]] const QList<ModelNode> &selectedNodes)
-{
-    m_handleDataChanged = false;
-    resetModel();
-    m_handleDataChanged = true;
+    setHorizontalHeaderLabels(BindingModelItem::headerLabels());
 }
 
 ConnectionView *BindingModel::connectionView() const
@@ -114,461 +31,269 @@ ConnectionView *BindingModel::connectionView() const
     return m_connectionView;
 }
 
-BindingProperty BindingModel::bindingPropertyForRow(int rowNumber) const
-{
-
-    const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
-    const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
-
-    ModelNode  modelNode = connectionView()->modelNodeForInternalId(internalId);
-
-    if (modelNode.isValid())
-        return modelNode.bindingProperty(targetPropertyName.toLatin1());
-
-    return BindingProperty();
-}
-
-QStringList BindingModel::possibleTargetProperties(const BindingProperty &bindingProperty) const
-{
-    const ModelNode modelNode = bindingProperty.parentModelNode();
-
-    if (!modelNode.isValid()) {
-        qWarning() << " BindingModel::possibleTargetPropertiesForRow invalid model node";
-        return {};
-    }
-
-    NodeMetaInfo metaInfo = modelNode.metaInfo();
-
-    if (metaInfo.isValid()) {
-        const auto properties = metaInfo.properties();
-        QStringList writableProperties;
-        writableProperties.reserve(static_cast<int>(properties.size()));
-        for (const auto &property : properties) {
-            if (property.isWritable())
-                writableProperties.push_back(QString::fromUtf8(property.name()));
-        }
-
-        return writableProperties;
-    }
-
-    return {};
-}
-
-QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindingProperty) const
-{
-    const QString expression = bindingProperty.expression();
-    const QStringList stringlist = expression.split(QLatin1String("."));
-    QStringList possibleProperties;
-
-    NodeMetaInfo type;
-
-    if (auto metaInfo = bindingProperty.parentModelNode().metaInfo(); metaInfo.isValid())
-        type = metaInfo.property(bindingProperty.name()).propertyType();
-    else
-        qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for target node";
-
-    const QString &id = stringlist.constFirst();
-
-    ModelNode modelNode = getNodeByIdOrParent(id, bindingProperty.parentModelNode());
-
-    if (!modelNode.isValid()) {
-        //if it's not a valid model node, maybe it's a singleton
-        if (RewriterView* rv = connectionView()->rewriterView()) {
-            for (const QmlTypeData &data : rv->getQMLTypes()) {
-                if (!data.typeName.isEmpty() && data.typeName == id) {
-                    NodeMetaInfo metaInfo = connectionView()->model()->metaInfo(data.typeName.toUtf8());
-
-                    if (metaInfo.isValid()) {
-                        for (const auto &property : metaInfo.properties()) {
-                            //without check for now
-                            possibleProperties.push_back(QString::fromUtf8(property.name()));
-                        }
-
-                        return possibleProperties;
-                    }
-                }
-            }
-        }
-
-        qWarning() << " BindingModel::possibleSourcePropertiesForRow invalid model node";
-        return {};
-    }
-
-    NodeMetaInfo metaInfo = modelNode.metaInfo();
-
-    for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
-        if (variantProperty.isDynamic())
-            possibleProperties << QString::fromUtf8(variantProperty.name());
-    }
-
-    for (const BindingProperty &bindingProperty : modelNode.bindingProperties()) {
-        if (bindingProperty.isDynamic())
-            possibleProperties << QString::fromUtf8((bindingProperty.name()));
-    }
-
-    if (metaInfo.isValid())  {
-        for (const auto &property : metaInfo.properties()) {
-            if (property.propertyType() == type) //### todo proper check
-                possibleProperties.push_back(QString::fromUtf8(property.name()));
-        }
-    } else {
-        qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for source node";
-    }
-
-    return possibleProperties;
-}
-
-void BindingModel::deleteBindindByRow(int rowNumber)
-{
-      BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-
-      if (bindingProperty.isValid()) {
-        bindingProperty.parentModelNode().removeProperty(bindingProperty.name());
-      }
-
-      resetModel();
-}
-
-static PropertyName unusedProperty(const ModelNode &modelNode)
-{
-    PropertyName propertyName = "none";
-    if (modelNode.metaInfo().isValid()) {
-        for (const auto &property : modelNode.metaInfo().properties()) {
-            if (property.isWritable() && !modelNode.hasProperty(propertyName))
-                return property.name();
-        }
-    }
-
-    return propertyName;
-}
-
-void BindingModel::addBindingForCurrentNode()
-{
-    if (connectionView()->selectedModelNodes().size() == 1) {
-        const ModelNode modelNode = connectionView()->selectedModelNodes().constFirst();
-        if (modelNode.isValid()) {
-            try {
-                modelNode.bindingProperty(unusedProperty(modelNode)).setExpression(QLatin1String("none.none"));
-            } catch (RewritingException &e) {
-                m_exceptionError = e.description();
-                QTimer::singleShot(200, this, &BindingModel::handleException);
-            }
-        }
-    } else {
-        qWarning() << " BindingModel::addBindingForCurrentNode not one node selected";
-    }
-}
-
-static void updateDisplayRoles(QStandardItem *item, const BindingProperty &property)
-{
-    item->setData(property.parentModelNode().id(), BindingModel::TargetNameRole);
-    item->setData(property.name(), BindingModel::TargetPropertyNameRole);
-
-    const AbstractProperty source = property.resolveToProperty();
-
-    if (source.isValid()) {
-        item->setData(source.parentModelNode().id(), BindingModel::SourceNameRole);
-        item->setData(source.name(), BindingModel::SourcePropertyNameRole);
-    }
-}
-
-void BindingModel::addBindingProperty(const BindingProperty &property)
-{
-    QStandardItem *idItem;
-    QStandardItem *targetPropertyNameItem;
-    QStandardItem *sourceIdItem;
-    QStandardItem *sourcePropertyNameItem;
-
-    QString idLabel = property.parentModelNode().id();
-    if (idLabel.isEmpty())
-        idLabel = property.parentModelNode().simplifiedTypeName();
-    idItem = new QStandardItem(idLabel);
-    updateCustomData(idItem, property);
-    targetPropertyNameItem = new QStandardItem(QString::fromUtf8(property.name()));
-    QList<QStandardItem*> items;
-
-    items.append(idItem);
-    updateDisplayRoles(idItem, property);
-    items.append(targetPropertyNameItem);
-
-    QString sourceNodeName;
-    QString sourcePropertyName;
-    getExpressionStrings(property, &sourceNodeName, &sourcePropertyName);
-
-    sourceIdItem = new QStandardItem(sourceNodeName);
-    sourcePropertyNameItem = new QStandardItem(sourcePropertyName);
-
-    items.append(sourceIdItem);
-    items.append(sourcePropertyNameItem);
-    appendRow(items);
-}
-
-void BindingModel::updateBindingProperty(int rowNumber)
-{
-    BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-
-    if (bindingProperty.isValid()) {
-        QStandardItem *idItem = item(rowNumber, 0);
-        if (idItem)
-            updateDisplayRoles(idItem, bindingProperty);
-
-        QString targetPropertyName = QString::fromUtf8(bindingProperty.name());
-        updateDisplayRole(rowNumber, TargetPropertyNameRow, targetPropertyName);
-        QString sourceNodeName;
-        QString sourcePropertyName;
-        getExpressionStrings(bindingProperty, &sourceNodeName, &sourcePropertyName);
-        updateDisplayRole(rowNumber, SourceModelNodeRow, sourceNodeName);
-        updateDisplayRole(rowNumber, SourcePropertyNameRow, sourcePropertyName);
-    }
-}
-
-void BindingModel::addModelNode(const ModelNode &modelNode)
-{
-    const QList<BindingProperty> bindingProperties = modelNode.bindingProperties();
-    for (const BindingProperty &bindingProperty : bindingProperties) {
-        addBindingProperty(bindingProperty);
-    }
-}
-
-void BindingModel::updateExpression(int row)
-{
-    const QString sourceNode = data(index(row, SourceModelNodeRow)).toString().trimmed();
-    const QString sourceProperty = data(index(row, SourcePropertyNameRow)).toString().trimmed();
-
-    QString expression;
-    if (sourceProperty.isEmpty()) {
-        expression = sourceNode;
-    } else {
-        expression = sourceNode + QLatin1String(".") + sourceProperty;
-    }
-
-    connectionView()->executeInTransaction("BindingModel::updateExpression", [this, row, expression](){
-        BindingProperty bindingProperty = bindingPropertyForRow(row);
-        bindingProperty.setExpression(expression.trimmed());
-    });
-}
-
-void BindingModel::updatePropertyName(int rowNumber)
-{
-    BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-
-    const PropertyName newName = data(index(rowNumber, TargetPropertyNameRow)).toString().toUtf8();
-    const QString expression = bindingProperty.expression();
-    const PropertyName dynamicPropertyType = bindingProperty.dynamicTypeName();
-    ModelNode targetNode = bindingProperty.parentModelNode();
-
-    if (!newName.isEmpty()) {
-        RewriterTransaction transaction =
-            connectionView()->beginRewriterTransaction(QByteArrayLiteral("BindingModel::updatePropertyName"));
-        try {
-            if (bindingProperty.isDynamic()) {
-                targetNode.bindingProperty(newName).setDynamicTypeNameAndExpression(dynamicPropertyType, expression);
-            } else {
-                targetNode.bindingProperty(newName).setExpression(expression);
-            }
-            targetNode.removeProperty(bindingProperty.name());
-            transaction.commit(); //committing in the try block
-        } catch (Exception &e) { //better save then sorry
-            m_exceptionError = e.description();
-            QTimer::singleShot(200, this, &BindingModel::handleException);
-        }
-
-        QStandardItem* idItem = item(rowNumber, 0);
-        BindingProperty newBindingProperty = targetNode.bindingProperty(newName);
-        updateCustomData(idItem, newBindingProperty);
-
-    } else {
-        qWarning() << "BindingModel::updatePropertyName invalid property name";
-    }
-}
-
-ModelNode BindingModel::getNodeByIdOrParent(const QString &id, const ModelNode &targetNode) const
-{
-    ModelNode modelNode;
-
-    if (id != QLatin1String("parent")) {
-        modelNode = connectionView()->modelNodeForId(id);
-    } else {
-        if (targetNode.hasParentProperty()) {
-            modelNode = targetNode.parentProperty().parentModelNode();
-        }
-    }
-    return modelNode;
-}
-
-void BindingModel::updateCustomData(QStandardItem *item, const BindingProperty &bindingProperty)
-{
-    item->setData(bindingProperty.parentModelNode().internalId(), Qt::UserRole + 1);
-    item->setData(bindingProperty.name(), Qt::UserRole + 2);
-    updateDisplayRoles(item, bindingProperty);
-}
-
-int BindingModel::findRowForBinding(const BindingProperty &bindingProperty)
-{
-    for (int i=0; i < rowCount(); i++) {
-        if (compareBindingProperties(bindingPropertyForRow(i), bindingProperty))
-            return i;
-    }
-    //not found
-    return -1;
-}
-
-bool BindingModel::getExpressionStrings(const BindingProperty &bindingProperty, QString *sourceNode, QString *sourceProperty)
-{
-    //TODO reimplement using existing helper functions
-
-    //### todo we assume no expressions yet
-
-    const QString expression = bindingProperty.expression();
-
-    if (true) {
-        const QStringList stringList = expression.split(QLatin1String("."));
-
-        *sourceNode = stringList.constFirst();
-
-        QString propertyName;
-
-        for (int i = 1; i < stringList.size(); i++) {
-            propertyName += stringList.at(i);
-            if (i != stringList.size() - 1)
-                propertyName += QLatin1String(".");
-        }
-        *sourceProperty = propertyName;
-    }
-    return true;
-}
-
-void BindingModel::updateDisplayRole(int row, int columns, const QString &string)
-{
-    QModelIndex modelIndex = index(row, columns);
-    if (data(modelIndex).toString() != string)
-        setData(modelIndex, string);
-}
-
-void BindingModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    if (!m_handleDataChanged)
-        return;
-
-    if (topLeft != bottomRight) {
-        qWarning() << "BindingModel::handleDataChanged multi edit?";
-        return;
-    }
-
-    m_lock = true;
-
-    int currentColumn = topLeft.column();
-    int currentRow = topLeft.row();
-
-    switch (currentColumn) {
-    case TargetModelNodeRow: {
-        //updating user data
-    } break;
-    case TargetPropertyNameRow: {
-        updatePropertyName(currentRow);
-    } break;
-    case SourceModelNodeRow: {
-        updateExpression(currentRow);
-    } break;
-    case SourcePropertyNameRow: {
-        updateExpression(currentRow);
-    } break;
-
-    default: qWarning() << "BindingModel::handleDataChanged column" << currentColumn;
-    }
-
-    m_lock = false;
-}
-
-void BindingModel::handleException()
-{
-    QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
-    resetModel();
-}
-
-QHash<int, QByteArray> BindingModel::roleNames() const
-{
-    static QHash<int, QByteArray> roleNames{{TargetNameRole, "target"},
-                                            {TargetPropertyNameRole, "targetProperty"},
-                                            {SourceNameRole, "source"},
-                                            {SourcePropertyNameRole, "sourceProperty"}};
-
-    return roleNames;
-}
-
 BindingModelBackendDelegate *BindingModel::delegate() const
 {
     return m_delegate;
 }
 
-BindingModelBackendDelegate::BindingModelBackendDelegate(BindingModel *parent) : QObject(parent)
+int BindingModel::currentIndex() const
+{
+    return m_currentIndex;
+}
+
+BindingProperty BindingModel::currentProperty() const
+{
+    return propertyForRow(m_currentIndex);
+}
+
+BindingProperty BindingModel::propertyForRow(int row) const
+{
+    if (!m_connectionView)
+        return {};
+
+    if (!m_connectionView->isAttached())
+        return {};
+
+    if (auto *item = itemForRow(row)) {
+        int internalId = item->internalId();
+        if (ModelNode node = m_connectionView->modelNodeForInternalId(internalId); node.isValid())
+            return node.bindingProperty(item->targetPropertyName());
+    }
+
+    return {};
+}
+
+static PropertyName unusedProperty(const ModelNode &modelNode)
+{
+    if (modelNode.metaInfo().isValid()) {
+        for (const auto &property : modelNode.metaInfo().properties()) {
+            if (property.isWritable() && !modelNode.hasProperty(property.name()))
+                return property.name();
+        }
+    }
+    return "none";
+}
+
+void BindingModel::add()
+{
+    if (const QList<ModelNode> nodes = connectionView()->selectedModelNodes(); nodes.size() == 1) {
+        const ModelNode modelNode = nodes.constFirst();
+        if (modelNode.isValid()) {
+            try {
+                PropertyName name = unusedProperty(modelNode);
+                modelNode.bindingProperty(name).setExpression(QLatin1String("none.none"));
+            } catch (RewritingException &e) {
+                showErrorMessage(e.description());
+                reset();
+            }
+        }
+    } else {
+        qWarning() << __FUNCTION__ << " Requires exactly one selected node";
+    }
+}
+
+void BindingModel::remove(int row)
+{
+    if (BindingProperty property = propertyForRow(row); property.isValid()) {
+        ModelNode node = property.parentModelNode();
+        node.removeProperty(property.name());
+    }
+
+    reset();
+}
+
+void BindingModel::reset(const QList<ModelNode> &nodes)
+{
+    if (!connectionView())
+        return;
+
+    if (!connectionView()->isAttached())
+        return;
+
+    AbstractProperty current = currentProperty();
+
+    clear();
+
+    if (!nodes.isEmpty()) {
+        for (const ModelNode &modelNode : nodes)
+            addModelNode(modelNode);
+    } else {
+        for (const ModelNode &modelNode : connectionView()->selectedModelNodes())
+            addModelNode(modelNode);
+    }
+
+    setCurrentProperty(current);
+}
+
+void BindingModel::setCurrentIndex(int i)
+{
+    if (m_currentIndex != i) {
+        m_currentIndex = i;
+        emit currentIndexChanged();
+    }
+    m_delegate->update(currentProperty(), m_connectionView);
+}
+
+void BindingModel::setCurrentProperty(const AbstractProperty &property)
+{
+    if (auto index = rowForProperty(property))
+        setCurrentIndex(*index);
+}
+
+void BindingModel::updateItem(const BindingProperty &property)
+{
+    if (auto *item = itemForProperty(property))
+        item->updateProperty(property);
+    else
+        appendRow(new BindingModelItem(property));
+
+    m_delegate->update(currentProperty(), m_connectionView);
+}
+
+void BindingModel::removeItem(const AbstractProperty &property)
+{
+    AbstractProperty current = currentProperty();
+    if (auto index = rowForProperty(property))
+        static_cast<void>(removeRow(*index));
+
+    setCurrentProperty(current);
+    emit currentIndexChanged();
+}
+
+void BindingModel::commitExpression(int row, const QString &expression)
+{
+    QTC_ASSERT(connectionView(), return);
+
+    BindingProperty bindingProperty = propertyForRow(row);
+    if (!bindingProperty.isValid())
+        return;
+
+    connectionView()->executeInTransaction(__FUNCTION__, [&bindingProperty, expression]() {
+        if (bindingProperty.isDynamic()) {
+            TypeName type = bindingProperty.dynamicTypeName();
+            bindingProperty.setDynamicTypeNameAndExpression(type, expression);
+        } else {
+            bindingProperty.setExpression(expression.trimmed());
+        }
+    });
+}
+
+void BindingModel::commitPropertyName(int row, const PropertyName &name)
+{
+    QTC_ASSERT(connectionView(), return);
+
+    BindingProperty bindingProperty = propertyForRow(row);
+    if (!bindingProperty.isValid())
+        return;
+
+    connectionView()->executeInTransaction(__FUNCTION__, [&]() {
+        const TypeName type = bindingProperty.dynamicTypeName();
+        const QString expression = bindingProperty.expression();
+
+        ModelNode node = bindingProperty.parentModelNode();
+        node.removeProperty(bindingProperty.name());
+        if (bindingProperty.isDynamic())
+            node.bindingProperty(name).setDynamicTypeNameAndExpression(type, expression);
+        else
+            node.bindingProperty(name).setExpression(expression);
+    });
+}
+
+QHash<int, QByteArray> BindingModel::roleNames() const
+{
+    return BindingModelItem::roleNames();
+}
+
+std::optional<int> BindingModel::rowForProperty(const AbstractProperty &property) const
+{
+    PropertyName name = property.name();
+    int internalId = property.parentModelNode().internalId();
+
+    for (int i = 0; i < rowCount(); ++i) {
+        if (auto *item = itemForRow(i)) {
+            if (item->targetPropertyName() == name && item->internalId() == internalId)
+                return i;
+        }
+    }
+    return std::nullopt;
+}
+
+BindingModelItem *BindingModel::itemForRow(int row) const
+{
+    if (QModelIndex idx = index(row, 0); idx.isValid())
+        return dynamic_cast<BindingModelItem *>(itemFromIndex(idx));
+    return nullptr;
+}
+
+BindingModelItem *BindingModel::itemForProperty(const AbstractProperty &property) const
+{
+    if (auto row = rowForProperty(property))
+        return itemForRow(*row);
+    return nullptr;
+}
+
+void BindingModel::addModelNode(const ModelNode &node)
+{
+    if (!node.isValid())
+        return;
+
+    const QList<BindingProperty> bindingProperties = node.bindingProperties();
+    for (const BindingProperty &property : bindingProperties)
+        appendRow(new BindingModelItem(property));
+}
+
+BindingModelBackendDelegate::BindingModelBackendDelegate(BindingModel *parent)
+    : QObject(parent)
+    , m_targetNode()
+    , m_property()
+    , m_sourceNode()
+    , m_sourceNodeProperty()
 {
     connect(&m_sourceNode, &StudioQmlComboBoxBackend::activated, this, [this]() {
-        handleSourceNodeChanged();
+        expressionChanged();
     });
 
     connect(&m_sourceNodeProperty, &StudioQmlComboBoxBackend::activated, this, [this]() {
-        handleSourcePropertyChanged();
+        expressionChanged();
+    });
+
+    connect(&m_property, &StudioQmlComboBoxBackend::activated, this, [this]() {
+        propertyNameChanged();
     });
 }
 
-int BindingModelBackendDelegate::currentRow() const
+void BindingModelBackendDelegate::update(const BindingProperty &property, AbstractView *view)
 {
-    return m_currentRow;
-}
-
-void BindingModelBackendDelegate::setCurrentRow(int i)
-{
-    // See BindingDelegate::createEditor
-
-    if (m_currentRow == i)
+    if (!property.isValid())
         return;
 
-    m_currentRow = i;
+    auto addName = [](QStringList&& list, const QString& name) {
+        if (!list.contains(name))
+            list.prepend(name);
+        return std::move(list);
+    };
 
-    //setup
+    auto [sourceNodeName, sourcePropertyName] = splitExpression(property.expression());
 
-    BindingModel *model = qobject_cast<BindingModel *>(parent());
+    QStringList sourceNodes = {};
+    if (!sourceNodeName.isEmpty())
+        sourceNodes = addName(availableSources(view), sourceNodeName);
 
-    QTC_ASSERT(model, return );
-
-    BindingProperty bindingProperty = model->bindingPropertyForRow(currentRow());
-
-    QString idLabel = bindingProperty.parentModelNode().id();
-    if (idLabel.isEmpty())
-        idLabel = bindingProperty.parentModelNode().simplifiedTypeName();
-
-    m_targetNode = idLabel;
-
-    emit targetNodeChanged();
-
-    m_property.setModel(model->possibleTargetProperties(bindingProperty));
-    m_property.setCurrentText(QString::fromUtf8(bindingProperty.name()));
-
-    QStringList sourceNodes;
-
-    for (const ModelNode &modelNode : model->connectionView()->allModelNodes()) {
-        if (!modelNode.id().isEmpty())
-            sourceNodes.append(modelNode.id());
-    }
-
-    std::sort(sourceNodes.begin(), sourceNodes.end());
     m_sourceNode.setModel(sourceNodes);
-
-    QString sourceNodeName;
-    QString sourcePropertyName;
-    model->getExpressionStrings(bindingProperty, &sourceNodeName, &sourcePropertyName);
-
     m_sourceNode.setCurrentText(sourceNodeName);
 
-    m_sourceNodeProperty.setModel(model->possibleSourceProperties(bindingProperty));
+    auto sourceproperties = addName(availableSourceProperties(property, view), sourcePropertyName);
+    m_sourceNodeProperty.setModel(sourceproperties);
     m_sourceNodeProperty.setCurrentText(sourcePropertyName);
-}
 
-void BindingModelBackendDelegate::handleException()
-{
-    QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
-    //reset
+    QString targetName = QString::fromUtf8(property.name());
+    m_targetNode = idOrTypeName(property.parentModelNode());
+
+    auto targetProperties = addName(availableTargetProperties(property), targetName);
+    m_property.setModel(targetProperties);
+    m_property.setCurrentText(targetName);
+
+    emit targetNodeChanged();
 }
 
 QString BindingModelBackendDelegate::targetNode() const
@@ -591,54 +316,38 @@ StudioQmlComboBoxBackend *BindingModelBackendDelegate::sourceProperty()
     return &m_sourceNodeProperty;
 }
 
-void BindingModelBackendDelegate::handleSourceNodeChanged()
+void BindingModelBackendDelegate::expressionChanged() const
 {
-    BindingModel *model = qobject_cast<BindingModel *>(parent());
+    auto commit = [this]() {
+        BindingModel *model = qobject_cast<BindingModel *>(parent());
+        QTC_ASSERT(model, return);
 
-    QTC_ASSERT(model, return );
-    QTC_ASSERT(model->connectionView(), return );
+        const QString sourceNode = m_sourceNode.currentText();
+        const QString sourceProperty = m_sourceNodeProperty.currentText();
+        QString expression;
+        if (sourceProperty.isEmpty())
+            expression = sourceNode;
+        else
+            expression = sourceNode + QLatin1String(".") + sourceProperty;
 
-    const QString sourceNode = m_sourceNode.currentText();
-    const QString sourceProperty = m_sourceNodeProperty.currentText();
+        int row = model->currentIndex();
+        model->commitExpression(row, expression);
+    };
 
-    QString expression;
-    if (sourceProperty.isEmpty()) {
-        expression = sourceNode;
-    } else {
-        expression = sourceNode + QLatin1String(".") + sourceProperty;
-    }
-
-    BindingProperty bindingProperty = model->bindingPropertyForRow(currentRow());
-    model->connectionView()->executeInTransaction("BindingModel::updateExpression",
-                                                  [&bindingProperty, expression]() {
-                                                      bindingProperty.setExpression(
-                                                          expression.trimmed());
-                                                  });
+    callLater(commit);
 }
 
-void BindingModelBackendDelegate::handleSourcePropertyChanged()
+void BindingModelBackendDelegate::propertyNameChanged() const
 {
-    BindingModel *model = qobject_cast<BindingModel *>(parent());
+    auto commit = [this]() {
+        BindingModel *model = qobject_cast<BindingModel *>(parent());
+        QTC_ASSERT(model, return);
+        const PropertyName propertyName = m_property.currentText().toUtf8();
+        int row = model->currentIndex();
+        model->commitPropertyName(row, propertyName);
+    };
 
-    QTC_ASSERT(model, return );
-    QTC_ASSERT(model->connectionView(), return );
-
-    const QString sourceNode = m_sourceNode.currentText();
-    const QString sourceProperty = m_sourceNodeProperty.currentText();
-
-    QString expression;
-    if (sourceProperty.isEmpty()) {
-        expression = sourceNode;
-    } else {
-        expression = sourceNode + QLatin1String(".") + sourceProperty;
-    }
-
-    BindingProperty bindingProperty = model->bindingPropertyForRow(currentRow());
-    model->connectionView()->executeInTransaction("BindingModel::updateExpression",
-                                                  [&bindingProperty, expression]() {
-                                                      bindingProperty.setExpression(
-                                                          expression.trimmed());
-                                                  });
+    callLater(commit);
 }
 
 } // namespace QmlDesigner

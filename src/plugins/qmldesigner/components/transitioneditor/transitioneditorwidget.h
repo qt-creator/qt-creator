@@ -7,6 +7,8 @@
 
 #include <coreplugin/icontext.h>
 
+#include <utils/transientscroll.h>
+
 #include <QWidget>
 
 #include <functional>
@@ -75,7 +77,7 @@ private:
 
     QGraphicsView *m_graphicsView = nullptr;
 
-    QScrollBar *m_scrollbar = nullptr;
+    Utils::ScrollBar *m_scrollbar = nullptr;
 
     QLabel *m_statusBar = nullptr;
 

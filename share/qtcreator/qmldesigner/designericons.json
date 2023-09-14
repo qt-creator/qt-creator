@@ -1,186 +1,284 @@
-{
-    "ContextMenuArea": {
-        "size": "28x28",
-        "Off": {
-            "Disabled": { "color": "DStextColorDisabled" },
-            "Hovered": { "color": "DSpanelBackground"  },
-            "Normal": { "color": "DStextColor" },
-            "Selected": { "color": "DStextSelectedTextColor" }
+[
+    {
+        "ContextMenuArea": {
+            "size": "28x28",
+            "Off": {
+                "Disabled": { "color": "DStextColorDisabled" },
+                "Hovered": { "color": "DSpanelBackground" },
+                "Normal": { "color": "DStextColor" },
+                "Selected": { "color": "DStextSelectedTextColor" }
+            },
+            "On": {
+                "Disabled": { "color": "DStextColorDisabled" },
+                "Hovered": { "color": "DSsubPanelBackground" },
+                "Normal": { "color": "DStextColor" },
+                "Selected": { "color": "DStextSelectedTextColor" }
+            }
         },
-        "On": {
-            "Disabled": { "color": "DStextColorDisabled" },
-            "Hovered": { "color": "DSsubPanelBackground"  },
-            "Normal": { "color": "DStextColor" },
-            "Selected": { "color": "DStextSelectedTextColor" }
+        "AddMouseAreaIcon": {
+            "iconName": "mouseArea_small"
+        },
+        "AlignCameraToViewIcon": {
+            "iconName": "alignToCamera_small"
+        },
+        "AlignViewToCameraIcon": {
+            "iconName": "alignToObject_small"
+        },
+        "AnchorsIcon": {
+            "iconName": "anchors_small"
+        },
+        "AnnotationIcon": {
+            "iconName": "annotations_small"
+        },
+        "ArrangeIcon": {
+            "iconName": "arrange_small"
+        },
+        "BackspaceIcon": {
+            "iconName": "backspace_small"
+        },
+        "CameraIcon": {
+            "iconName": "camera_small"
+        },
+        "CameraOrthographicIcon": {
+            "iconName": "orthCam_small"
+        },
+        "CameraPerspectiveIcon": {
+            "iconName": "perspectiveCam_small"
+        },
+        "ConnectionsIcon": {
+            "iconName": "connection_small"
+        },
+        "CopyIcon": {
+            "iconName": "copy_small"
+        },
+        "CreateIcon": {
+            "iconName": "create_small"
+        },
+        "DeleteIcon": {
+            "iconName": "delete_small"
+        },
+        "DuplicateIcon": {
+            "iconName": "duplicate_small"
+        },
+        "EditComponentIcon": {
+            "iconName": "editComponent_small"
+        },
+        "EditIcon": {
+            "iconName": "edit_small"
+        },
+        "EnterComponentIcon": {
+            "iconName": "editComponent_small"
+        },
+        "EventListIcon": {
+            "iconName": "events_small"
+        },
+        "FitSelectedIcon": {
+            "iconName": "fitSelected_small"
+        },
+        "GroupSelectionIcon": {
+            "iconName": "group_small"
+        },
+        "ImportedModelsIcon": {
+            "iconName": "importedModels_small"
+        },
+        "LayoutsIcon": {
+            "iconName": "layouts_small"
+        },
+        "LightIcon": {
+            "Off": {
+                "iconName": "editLightOff_medium"
+            },
+            "On": {
+                "iconName": "editLightOn_medium"
+            }
+        },
+        "LightDirectionalIcon": {
+            "iconName": "directionalLight_small"
+        },
+        "LightPointIcon": {
+            "iconName": "pointLight_small"
+        },
+        "LightSpotIcon": {
+            "iconName": "spotLight_small"
+        },
+        "MakeComponentIcon": {
+            "iconName": "createComponent_small"
+        },
+        "MaterialIcon": {
+            "iconName": "material_medium"
+        },
+        "MergeWithTemplateIcon": {
+            "iconName": "merge_small"
+        },
+        "MinimalDownArrowIcon" : {
+            "iconName": "upDownSquare2"
+        },
+        "ModelConeIcon": {
+            "iconName": "cone_small"
+        },
+        "ModelCubeIcon": {
+            "iconName": "cube_small"
+        },
+        "ModelCylinderIcon": {
+            "iconName": "cylinder_small"
+        },
+        "ModelPlaneIcon": {
+            "iconName": "plane_small"
+        },
+        "ModelSphereIcon": {
+            "iconName": "sphere_small"
+        },
+        "ParentIcon": {
+            "iconName": "selectParent_small"
+        },
+        "PasteIcon": {
+            "iconName": "paste_small"
+        },
+        "PositionsersIcon": {
+            "iconName": "positioners_small"
+        },
+        "PrimitivesIcon": {
+            "iconName": "cube_small"
+        },
+        "ResetViewIcon": {
+            "iconName": "reload_medium"
+        },
+        "SelecionIcon": {
+            "iconName": "selection_small"
+        },
+        "ShowBoundsIcon": {
+            "Off": {
+                "iconName": "visibilityOff"
+            },
+            "On": {
+                "iconName": "visibilityOn"
+            }
+        },
+        "SnappingIcon": {
+            "iconName": "snapping_small"
+        },
+        "SimpleCheckIcon": {
+            "Off": {
+                "iconName": "transparent"
+            },
+            "On": {
+                "iconName": "tickMark_small"
+            }
+        },
+        "TimelineIcon": {
+            "iconName": "timeline_small"
+        },
+        "ToggleGroupIcon": {
+            "Off": {
+                "iconName": "selectOutline_medium"
+            },
+            "On": {
+                "iconName": "selectFill_medium"
+            }
+        },
+        "VisibilityIcon": {
+            "Off": {
+                "iconName": "visibilityOff"
+            },
+            "On": {
+                "iconName": "visibilityOn"
+            }
         }
     },
-    "AddMouseAreaIcon": {
-        "iconName": "mouseArea_small"
-    },
-    "AlignCameraToViewIcon": {
-        "iconName": "alignToCamera_small"
-    },
-    "AlignViewToCameraIcon": {
-        "iconName": "alignToObject_small"
-    },
-    "AnchorsIcon": {
-        "iconName": "anchors_small"
-    },
-    "AnnotationIcon": {
-        "iconName": "annotations_small"
-    },
-    "ArrangeIcon": {
-        "iconName": "arrange_small"
-    },
-    "BackspaceIcon": {
-        "iconName": "backspace_small"
-    },
-    "CameraIcon": {
-        "iconName": "camera_small"
-    },
-    "CameraOrthographicIcon": {
-        "iconName": "orthCam_small"
-    },
-    "CameraPerspectiveIcon": {
-        "iconName": "perspectiveCam_small"
-    },
-    "ConnectionsIcon": {
-        "iconName": "connection_small"
-    },
-    "CopyIcon": {
-        "iconName": "copy_small"
-    },
-    "CreateIcon": {
-        "iconName": "create_small"
-    },
-    "DeleteIcon": {
-        "iconName": "delete_small"
-    },
-    "DuplicateIcon": {
-        "iconName": "duplicate_small"
-    },
-    "EditComponentIcon": {
-        "iconName": "editComponent_small"
-    },
-    "EditIcon": {
-        "iconName": "edit_small"
-    },
-    "EnterComponentIcon": {
-        "iconName": "editComponent_small"
-    },
-    "EventListIcon": {
-        "iconName": "events_small"
-    },
-    "FitSelectedIcon": {
-        "iconName": "fitSelected_small"
-    },
-    "GroupSelectionIcon": {
-        "iconName": "group_small"
-    },
-    "ImportedModelsIcon": {
-        "iconName": "importedModels_small"
-    },
-    "LayoutsIcon": {
-        "iconName": "layouts_small"
-    },
-    "LightIcon": {
-        "Off": {
-            "iconName": "editLightOff_medium"
+    {
+        "ToolbarArea": {
+            "size": "32x32",
+            "Off": {
+                "Disabled": { "color": "DStoolbarIcon_blocked" },
+                "Hovered": { "color": "DSiconColor" },
+                "Normal": { "color": "DSiconColor" },
+                "Selected": { "color": "DStextSelectedTextColor" }
+            },
+            "On": {
+                "Disabled": { "color": "DStoolbarIcon_blocked" },
+                "Hovered": { "color": "DStextSelectedTextColor" },
+                "Normal": { "color": "DStextSelectedTextColor" },
+                "Selected": { "color": "DStextSelectedTextColor" }
+            }
         },
-        "On": {
-            "iconName": "editLightOn_medium"
-        }
-    },
-    "LightDirectionalIcon": {
-        "iconName": "directionalLight_small"
-    },
-    "LightPointIcon": {
-        "iconName": "pointLight_small"
-    },
-    "LightSpotIcon": {
-        "iconName": "spotLight_small"
-    },
-    "MakeComponentIcon": {
-        "iconName": "createComponent_small"
-    },
-    "MaterialIcon": {
-        "iconName": "material_medium"
-    },
-    "MergeWithTemplateIcon": {
-        "iconName": "merge_small"
-    },
-    "MinimalDownArrowIcon" : {
-        "iconName": "upDownSquare2"
-    },
-    "ModelConeIcon": {
-        "iconName": "cone_small"
-    },
-    "ModelCubeIcon": {
-        "iconName": "cube_small"
-    },
-    "ModelCylinderIcon": {
-        "iconName": "cylinder_small"
-    },
-    "ModelPlaneIcon": {
-        "iconName": "plane_small"
-    },
-    "ModelSphereIcon": {
-        "iconName": "sphere_small"
-    },
-    "ParentIcon": {
-        "iconName": "selectParent_small"
-    },
-    "PasteIcon": {
-        "iconName": "paste_small"
-    },
-    "PositionsersIcon": {
-        "iconName": "positioners_small"
-    },
-    "PrimitivesIcon": {
-        "iconName": "cube_small"
-    },
-    "ResetViewIcon": {
-        "iconName": "reload_medium"
-    },
-    "SelecionIcon": {
-        "iconName": "selection_small"
-    },
-    "ShowBoundsIcon": {
-        "Off": {
-            "iconName": "visibilityOff"
+        "AlignCameraToViewIcon": {
+            "iconName": "alignToCam_medium"
         },
-        "On": {
-            "iconName": "visibilityOn"
-        }
-    },
-    "SnappingIcon": {
-        "iconName": "snapping_small"
-    },
-    "SimpleCheckIcon": {
-        "Off": {
-            "iconName": "transparent"
+        "AlignViewToCameraIcon": {
+            "iconName": "alignToView_medium"
         },
-        "On": {
-            "iconName": "tickMark_small"
-        }
-    },
-    "TimelineIcon": {
-        "iconName": "timeline_small"
-    },
-    "ToggleGroupIcon": {
-        "Off": {
-            "iconName": "selectOutline_medium"
+        "CameraIcon": {
+            "Off": {
+                "iconName": "orthCam_small"
+            },
+            "On": {
+                "iconName": "perspectiveCam_small"
+            }
         },
-        "On": {
-            "iconName": "selectFill_medium"
-        }
-    },
-    "VisibilityIcon": {
-        "Off": {
-            "iconName": "visibilityOff"
+        "EditColorIcon": {
+            "iconName": "colorSelection_medium"
         },
-        "On": {
-            "iconName": "visibilityOn"
+        "EditLightIcon": {
+            "Off": {
+                "iconName": "editLightOff_medium"
+            },
+            "On": {
+                "iconName": "editLightOn_medium"
+            }
+        },
+        "FitToViewIcon": {
+            "iconName": "fitToView_medium"
+        },
+        "LocalOrientIcon": {
+            "iconName": "localOrient_medium"
+        },
+        "MoveToolIcon": {
+            "iconName": "move_medium"
+        },
+        "ParticlesAnimationIcon": {
+            "iconName": "particleAnimation_medium"
+        },
+        "ParticlesPlayIcon": {
+            "Off": {
+                "iconName": "playOutline_medium"
+            },
+            "On": {
+                "iconName": "pause"
+            }
+        },
+        "ParticlesRestartIcon": {
+            "iconName": "restartParticles_medium"
+        },
+        "ResetViewIcon": {
+            "iconName": "reload_medium"
+        },
+        "RotateToolIcon": {
+            "iconName": "roatate_medium"
+        },
+        "ScaleToolIcon": {
+            "iconName": "scale_medium"
+        },
+        "SnappingIcon": {
+            "iconName": "snapping_medium"
+        },
+        "SnappingConfIcon": {
+            "iconName": "snapping_conf_medium"
+        },
+        "ToggleGroupIcon": {
+            "Off": {
+                "iconName": "selectOutline_medium"
+            },
+            "On": {
+                "iconName": "selectFill_medium"
+            }
+        },
+        "VisibilityIcon": {
+            "Off": {
+                "iconName": "invisible_medium"
+            },
+            "On": {
+                "iconName": "visible_medium"
+            }
         }
     }
-}
+]

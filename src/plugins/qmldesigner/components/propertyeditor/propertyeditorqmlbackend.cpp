@@ -104,7 +104,7 @@ PropertyEditorQmlBackend::~PropertyEditorQmlBackend() = default;
 
 void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name,
                                                         PropertyEditorView *propertyEditor,
-                                                        const QString &type)
+                                                        const NodeMetaInfo &type)
 {
     QmlDesigner::PropertyName propertyName(name);
     propertyName.replace('.', '_');
@@ -116,7 +116,7 @@ void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name
         backendValuesPropertyMap().insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
     }
     valueObject->setName(propertyName);
-    if (type == QLatin1String("QColor"))
+    if (type.isColor())
         valueObject->setValue(QVariant(QLatin1String("#000000")));
     else
         valueObject->setValue(QVariant(1));
@@ -538,9 +538,7 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo(typeName);
 
     for (const auto &property : metaInfo.properties()) {
-        setupPropertyEditorValue(property.name(),
-                                 propertyEditor,
-                                 QString::fromUtf8(property.propertyType().typeName()));
+        setupPropertyEditorValue(property.name(), propertyEditor, property.propertyType());
     }
 
     auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
@@ -955,19 +953,22 @@ void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNod
     setValue(qmlObjectNode, propertyName, qmlObjectNode.modelNode().auxiliaryDataWithDefault(key));
 }
 
-QUrl PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo, TypeName &className)
+std::tuple<QUrl, NodeMetaInfo> PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo)
 {
+    QString className;
     if (metaInfo.isValid()) {
         const NodeMetaInfos hierarchy = metaInfo.selfAndPrototypes();
         for (const NodeMetaInfo &info : hierarchy) {
             QUrl fileUrl = fileToUrl(locateQmlFile(info, QString::fromUtf8(qmlFileName(info))));
             if (fileUrl.isValid()) {
-                className = info.typeName();
-                return fileUrl;
+                return {fileUrl, info};
             }
         }
     }
-    return fileToUrl(QDir(propertyEditorResourcesPath()).filePath(QLatin1String("QtQuick/emptyPane.qml")));
+
+    return {fileToUrl(
+                QDir(propertyEditorResourcesPath()).filePath(QLatin1String("QtQuick/emptyPane.qml"))),
+            {}};
 }
 
 QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const QString &relativePath)

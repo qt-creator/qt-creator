@@ -220,6 +220,21 @@ QString WizardHandler::targetQtVersionName(int index) const
     return text;
 }
 
+QStringList WizardHandler::targetQtVersionNames() const
+{
+    auto *field = m_detailsPage->jsonField("TargetQtVersion");
+    auto *cbfield = dynamic_cast<ProjectExplorer::ComboBoxField *>(field);
+    QTC_ASSERT(cbfield, return {});
+
+    QStandardItemModel *model = cbfield->model();
+    QStringList targetVersions;
+
+    for (int i = 0; i < model->rowCount(); ++i)
+        targetVersions.append(model->item(i)->text());
+
+    return targetVersions;
+}
+
 int WizardHandler::targetQtVersionIndex(const QString &qtVersionName) const
 {
     auto *field = m_detailsPage->jsonField("TargetQtVersion");

@@ -11,7 +11,6 @@ add_qtc_library(TestMocks OBJECT
     imagecachecollectormock.h
     mockimagecachegenerator.h
     mockimagecachestorage.h
-    mocklistmodeleditorview.h
     mockmutex.h
     mockqfilesystemwatcher.h
     mocksqlitestatement.h

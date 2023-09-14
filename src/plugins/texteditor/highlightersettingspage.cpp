@@ -16,7 +16,6 @@
 #include <QDir>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
 

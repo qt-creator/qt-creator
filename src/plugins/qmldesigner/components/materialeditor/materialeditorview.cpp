@@ -197,13 +197,13 @@ void MaterialEditorView::changeExpression(const QString &propertyName)
         }
 
         if (auto property = m_selectedMaterial.metaInfo().property(name)) {
-            auto propertyTypeName = property.propertyType().typeName();
-            if (propertyTypeName == "QColor") {
+            auto propertyType = property.propertyType();
+            if (propertyType.isColor()) {
                 if (QColor(value->expression().remove('"')).isValid()) {
                     qmlObjectNode.setVariantProperty(name, QColor(value->expression().remove('"')));
                     return;
                 }
-            } else if (propertyTypeName == "bool") {
+            } else if (propertyType.isBool()) {
                 if (isTrueFalseLiteral(value->expression())) {
                     if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
                         qmlObjectNode.setVariantProperty(name, true);
@@ -211,21 +211,21 @@ void MaterialEditorView::changeExpression(const QString &propertyName)
                         qmlObjectNode.setVariantProperty(name, false);
                     return;
                 }
-            } else if (propertyTypeName == "int") {
+            } else if (propertyType.isInteger()) {
                 bool ok;
                 int intValue = value->expression().toInt(&ok);
                 if (ok) {
                     qmlObjectNode.setVariantProperty(name, intValue);
                     return;
                 }
-            } else if (propertyTypeName == "qreal") {
+            } else if (propertyType.isFloat()) {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
                     qmlObjectNode.setVariantProperty(name, realValue);
                     return;
                 }
-            } else if (propertyTypeName == "QVariant") {
+            } else if (propertyType.isVariant()) {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
@@ -834,7 +834,7 @@ void MaterialEditorView::variantPropertiesChanged(const QList<VariantProperty> &
         ModelNode node(property.parentModelNode());
         if (node == m_selectedMaterial || QmlObjectNode(m_selectedMaterial).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
-                m_dynamicPropertiesModel->variantPropertyChanged(property);
+                m_dynamicPropertiesModel->updateItem(property);
             if (m_selectedMaterial.property(property.name()).isBindingProperty())
                 setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
             else
@@ -869,7 +869,7 @@ void MaterialEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
 
         if (node == m_selectedMaterial || QmlObjectNode(m_selectedMaterial).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
-                m_dynamicPropertiesModel->bindingPropertyChanged(property);
+                m_dynamicPropertiesModel->updateItem(property);
             if (QmlObjectNode(m_selectedMaterial).modelNode().property(property.name()).isBindingProperty())
                 setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
             else
@@ -897,12 +897,8 @@ void MaterialEditorView::auxiliaryDataChanged(const ModelNode &node,
 
 void MaterialEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
-    for (const auto &property : propertyList) {
-        if (property.isBindingProperty())
-            m_dynamicPropertiesModel->bindingRemoved(property.toBindingProperty());
-        else if (property.isVariantProperty())
-            m_dynamicPropertiesModel->variantRemoved(property.toVariantProperty());
-    }
+    for (const auto &property : propertyList)
+        m_dynamicPropertiesModel->removeItem(property);
 }
 
 // request render image for the selected material node

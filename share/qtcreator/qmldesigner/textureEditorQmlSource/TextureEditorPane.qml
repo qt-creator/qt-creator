@@ -1,12 +1,15 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
+import QtQuick
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 
 PropertyEditorPane {
     id: itemPane
+
+    width: 420
+    height: 420
 
     signal toolBarAction(int action)
 
@@ -41,12 +44,12 @@ PropertyEditorPane {
 
         anchors.left: parent.left
         anchors.right: parent.right
-        visible: theSource !== ""
+        visible: specificsTwo.theSource !== ""
         sourceComponent: specificQmlComponent
 
         onTheSourceChanged: {
-            active = false
-            active = true
+            specificsTwo.active = false
+            specificsTwo.active = true
         }
     }
 

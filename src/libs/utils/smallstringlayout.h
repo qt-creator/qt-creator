@@ -11,6 +11,10 @@
 #include <memory>
 #include <type_traits>
 
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_CLANG("-Wgnu-anonymous-struct")
+QT_WARNING_DISABLE_CLANG("-Wnested-anon-types")
+
 namespace Utils {
 
 namespace Internal {
@@ -31,45 +35,29 @@ struct ControlBlock
         , m_isReference(isReference)
     {}
 
-    constexpr void setShortStringSize(size_type size)
+    constexpr void setShortStringSize(size_type size) noexcept
     {
        m_shortStringSize = static_cast<SizeType>(size);
     }
 
-    constexpr size_type shortStringSize() const { return m_shortStringSize; }
+    constexpr size_type shortStringSize() const noexcept { return m_shortStringSize; }
 
-    constexpr void setIsReadOnlyReference(bool isReadOnlyReference)
+    constexpr void setIsReadOnlyReference(bool isReadOnlyReference) noexcept
     {
         m_isReadOnlyReference = isReadOnlyReference;
     }
 
-    constexpr void setIsReference(bool isReference) { m_isReference = isReference; }
+    constexpr void setIsReference(bool isReference) noexcept { m_isReference = isReference; }
 
-    constexpr void setIsShortString(bool isShortString) { m_isReference = !isShortString; }
+    constexpr void setIsShortString(bool isShortString) noexcept { m_isReference = !isShortString; }
 
-    constexpr
-    SizeType stringSize() const
-    {
-        return m_shortStringSize;
-    }
+    constexpr SizeType stringSize() const noexcept { return m_shortStringSize; }
 
-    constexpr
-    bool isReadOnlyReference() const
-    {
-        return m_isReadOnlyReference;
-    }
+    constexpr bool isReadOnlyReference() const noexcept { return m_isReadOnlyReference; }
 
-    constexpr
-    bool isReference() const
-    {
-        return m_isReference;
-    }
+    constexpr bool isReference() const noexcept { return m_isReference; }
 
-    constexpr
-    bool isShortString() const
-    {
-        return !m_isReference;
-    }
+    constexpr bool isShortString() const noexcept { return !m_isReference; }
 
 private:
     ControlType m_shortStringSize : (sizeof(ControlType) * 8) - 2;
@@ -95,23 +83,30 @@ struct alignas(16) StringDataLayout
                   "Size + 1 must be dividable by 16 if under 64 and Size + 2 must be dividable by "
                   "16 if over 64!");
 
-    StringDataLayout() noexcept { reset(); }
+    constexpr StringDataLayout() noexcept { reset(); }
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
-        : control{0, true, true}
+        : controlReference{0, true, true}
         , reference{{string}, size, 0}
     {}
 
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
-        if constexpr (Size + 1 <= MaximumShortStringDataAreaSize) {
-            control = {Size - 1, false, false};
-            for (size_type i = 0; i < Size; ++i)
+        constexpr auto size = Size - 1;
+        if constexpr (size <= MaximumShortStringDataAreaSize) {
+            control = {size, false, false};
+            for (size_type i = 0; i < size; ++i)
                 shortString[i] = string[i];
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+            if (std::is_constant_evaluated()) {
+                for (size_type i = size; i < MaximumShortStringDataAreaSize; ++i)
+                    shortString[i] = 0;
+            }
+#endif
         } else {
             control = {0, true, true};
-            reference = {{string}, Size - 1, 0};
+            reference = {{string}, size, 0};
         }
     }
 
@@ -120,20 +115,29 @@ struct alignas(16) StringDataLayout
         return MaximumShortStringDataAreaSize;
     }
 
-    constexpr void reset() { control = ControlBlock<MaximumShortStringDataAreaSize>(); }
+    constexpr void reset() noexcept
+    {
+        control = ControlBlock<MaximumShortStringDataAreaSize>();
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+        if (std::is_constant_evaluated()) {
+            for (size_type i = 0; i < MaximumShortStringDataAreaSize; ++i)
+                shortString[i] = 0;
+        }
+#endif
+    }
 
-#pragma pack(push)
-#pragma pack(1)
-    ControlBlock<MaximumShortStringDataAreaSize> control;
     union {
-        char shortString[MaximumShortStringDataAreaSize];
         struct
         {
-            char dummy[sizeof(void *) - sizeof(ControlBlock<MaximumShortStringDataAreaSize>)];
+            ControlBlock<MaximumShortStringDataAreaSize> control;
+            char shortString[MaximumShortStringDataAreaSize];
+        };
+        struct
+        {
+            ControlBlock<MaximumShortStringDataAreaSize> controlReference;
             ReferenceLayout reference;
         };
     };
-#pragma pack(pop)
 };
 
 template<uint MaximumShortStringDataAreaSize>
@@ -147,34 +151,46 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
                   "Size + 1 must be dividable by 16 if under 64 and Size + 2 must be dividable by "
                   "16 if over 64!");
 
-    StringDataLayout() noexcept { reset(); }
+    constexpr StringDataLayout() noexcept { reset(); }
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
-        : control{0, true, true}
+        : controlReference{0, true, true}
         , reference{{string}, size, 0}
     {}
 
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
-        if constexpr (Size + 1 <= MaximumShortStringDataAreaSize) {
-            control = {Size - 1, false, false};
-            for (size_type i = 0; i < Size; ++i)
+        constexpr auto size = Size - 1;
+        if constexpr (size <= MaximumShortStringDataAreaSize) {
+            control = {size, false, false};
+            for (size_type i = 0; i < size; ++i)
                 shortString[i] = string[i];
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+            if (std::is_constant_evaluated()) {
+                for (size_type i = size; i < MaximumShortStringDataAreaSize; ++i)
+                    shortString[i] = 0;
+            }
+#endif
         } else {
             control = {0, true, true};
-            reference = {{string}, Size - 1, 0};
+            reference = {{string}, size, 0};
         }
     }
 
-    StringDataLayout(const StringDataLayout &other) noexcept { *this = other; }
-
-    StringDataLayout &operator=(const StringDataLayout &other) noexcept
+    void copyHere(const StringDataLayout &other) noexcept
     {
         constexpr auto controlBlockSize = sizeof(ControlBlock<MaximumShortStringDataAreaSize>);
         auto shortStringLayoutSize = other.control.stringSize() + controlBlockSize;
         constexpr auto referenceLayoutSize = sizeof(ReferenceLayout);
         std::memcpy(this, &other, std::max(shortStringLayoutSize, referenceLayoutSize));
+    }
+
+    StringDataLayout(const StringDataLayout &other) noexcept { copyHere(other); }
+
+    StringDataLayout &operator=(const StringDataLayout &other) noexcept
+    {
+        copyHere(other);
 
         return *this;
     }
@@ -184,21 +200,32 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
         return MaximumShortStringDataAreaSize;
     }
 
-    constexpr void reset() { control = ControlBlock<MaximumShortStringDataAreaSize>(); }
+    constexpr void reset() noexcept
+    {
+        control = ControlBlock<MaximumShortStringDataAreaSize>();
+#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
+        if (std::is_constant_evaluated()) {
+            for (size_type i = 0; i < MaximumShortStringDataAreaSize; ++i)
+                shortString[i] = 0;
+        }
+#endif
+    }
 
-#pragma pack(push)
-#pragma pack(1)
-    ControlBlock<MaximumShortStringDataAreaSize> control;
     union {
-        char shortString[MaximumShortStringDataAreaSize];
         struct
         {
-            char dummy[sizeof(void *) - sizeof(ControlBlock<MaximumShortStringDataAreaSize>)];
+            ControlBlock<MaximumShortStringDataAreaSize> control;
+            char shortString[MaximumShortStringDataAreaSize];
+        };
+        struct
+        {
+            ControlBlock<MaximumShortStringDataAreaSize> controlReference;
             ReferenceLayout reference;
         };
     };
-#pragma pack(pop)
 };
 
 } // namespace Internal
 }  // namespace Utils
+
+QT_WARNING_POP

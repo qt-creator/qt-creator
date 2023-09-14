@@ -6,6 +6,8 @@
 #include <utils/settingsaccessor.h>
 
 #include <QHash>
+#include <QVariantMap>
+#include <QMessageBox>
 
 namespace ProjectExplorer {
 

@@ -674,7 +674,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
         const QString generatedFileName = "ui_" + sourceFile.completeBaseName() + ".h";
 
         auto targetNode = this->project()->nodeForFilePath(sourceFile);
-        while (!dynamic_cast<const CMakeTargetNode *>(targetNode))
+        while (targetNode && !dynamic_cast<const CMakeTargetNode *>(targetNode))
             targetNode = targetNode->parentFolderNode();
 
         FilePaths generatedFilePaths;

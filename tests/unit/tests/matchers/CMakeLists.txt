@@ -4,7 +4,7 @@ add_qtc_library(TestMatchers OBJECT
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
   CONDITION QmlDesigner
   DEPENDS
-    Googletest Utils QmlDesigner
+    Googletest Utils TestDesignerCore
   SOURCES
     info_exportedtypenames-matcher.h
     import-matcher.h

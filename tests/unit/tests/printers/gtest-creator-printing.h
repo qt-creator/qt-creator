@@ -122,6 +122,8 @@ enum class SourceType : int;
 class FileStatus;
 class Import;
 class NodeMetaInfo;
+class PropertyMetaInfo;
+struct CompoundPropertyMetaInfo;
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
@@ -135,6 +137,8 @@ std::ostream &operator<<(std::ostream &out, const Import &import);
 std::ostream &operator<<(std::ostream &out, const ModelResourceSet::SetExpression &setExpression);
 std::ostream &operator<<(std::ostream &out, const ModelResourceSet &modelResourceSet);
 std::ostream &operator<<(std::ostream &out, const NodeMetaInfo &metaInfo);
+std::ostream &operator<<(std::ostream &out, const PropertyMetaInfo &metaInfo);
+std::ostream &operator<<(std::ostream &out, const CompoundPropertyMetaInfo &metaInfo);
 
 namespace Cache {
 class SourceContext;
@@ -197,6 +201,7 @@ class SynchronizationPackage;
 enum class FileType : char;
 enum class ChangeLevel : char;
 class ModuleExportedImport;
+class PropertyEditorQmlPath;
 
 std::ostream &operator<<(std::ostream &out, const Type &type);
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType);
@@ -215,6 +220,7 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
 std::ostream &operator<<(std::ostream &out, FileType fileType);
 std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel);
 std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import);
+std::ostream &operator<<(std::ostream &out, const PropertyEditorQmlPath &path);
 
 } // namespace Storage::Synchronization
 

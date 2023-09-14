@@ -25,6 +25,7 @@ namespace {
 using namespace QmlJS;
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
+using namespace Qt::StringLiterals;
 
 ModelToTextMerger::ModelToTextMerger(RewriterView *reWriterView):
         m_rewriterView(reWriterView)
@@ -112,16 +113,20 @@ void ModelToTextMerger::nodeTypeChanged(const ModelNode &node,const QString &/*t
     schedule(new ChangeTypeRewriteAction(node));
 }
 
-void ModelToTextMerger::addImport(const Import &import)
+void ModelToTextMerger::addImports(const Imports &imports)
 {
-    if (!import.isEmpty())
-        schedule(new AddImportRewriteAction(import));
+    for (const Import &import : imports) {
+        if (!import.isEmpty())
+            schedule(new AddImportRewriteAction(import));
+    }
 }
 
-void ModelToTextMerger::removeImport(const Import &import)
+void ModelToTextMerger::removeImports(const Imports &imports)
 {
-    if (!import.isEmpty())
-        schedule(new RemoveImportRewriteAction(import));
+    for (const Import &import : imports) {
+        if (!import.isEmpty())
+            schedule(new RemoveImportRewriteAction(import));
+    }
 }
 
 void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
@@ -199,10 +204,10 @@ void ModelToTextMerger::applyChanges()
     if (m_rewriteActions.isEmpty())
         return;
 
-    dumpRewriteActions(QStringLiteral("Before compression"));
+    dumpRewriteActions(u"Before compression");
     RewriteActionCompressor compress(propertyOrder(), m_rewriterView->positionStorage());
     compress(m_rewriteActions, m_rewriterView->textModifier()->tabSettings());
-    dumpRewriteActions(QStringLiteral("After compression"));
+    dumpRewriteActions(u"After compression");
 
     if (m_rewriteActions.isEmpty())
         return;
@@ -216,7 +221,7 @@ void ModelToTextMerger::applyChanges()
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";
         qDebug() << "*** QML text:" << m_rewriterView->textModifier()->text();
 
-        QString errorMessage = QStringLiteral("Error while rewriting");
+        QString errorMessage = "Error while rewriting"_L1;
         if (!tmpDocument->diagnosticMessages().isEmpty())
             errorMessage = tmpDocument->diagnosticMessages().constFirst().message;
 
@@ -391,15 +396,15 @@ bool ModelToTextMerger::isInHierarchy(const AbstractProperty &property) {
     return property.isValid() && property.parentModelNode().isInHierarchy();
 }
 
-void ModelToTextMerger::dumpRewriteActions(const QString &msg)
+void ModelToTextMerger::dumpRewriteActions(QStringView msg)
 {
     if (DebugRewriteActions) {
-        qDebug() << "---->" << qPrintable(msg);
+        qDebug() << "---->" << msg;
 
         for (RewriteAction *action : std::as_const(m_rewriteActions)) {
             qDebug() << "-----" << qPrintable(action->info());
         }
 
-        qDebug() << "<----" << qPrintable(msg);
+        qDebug() << "<----" << msg;
     }
 }

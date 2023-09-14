@@ -26,7 +26,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Add an instance")
-        enabled: root.targetAvailable
+        enabled: root.targetAvailable && ContentLibraryBackend.rootView.hasActive3DScene
         onTriggered: ContentLibraryBackend.effectsModel.addInstance(root.targetItem)
     }
 

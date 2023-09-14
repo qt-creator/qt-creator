@@ -8,6 +8,7 @@
 #include "detail/graphicsview.h"
 #include "detail/treeview.h"
 
+#include <designermcumanager.h>
 #include <utils/fileutils.h>
 
 #include <QDoubleSpinBox>
@@ -106,6 +107,7 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     auto updateTimeline = [this, model](bool validTimeline) {
         if (validTimeline) {
             updateStatusLine();
+            updateMcuState();
             m_view->setCurrentFrame(m_view->model()->currentFrame(), false);
             m_toolbar->updateBoundsSilent(model->minimumTime(), model->maximumTime());
             m_toolbar->show();
@@ -161,6 +163,13 @@ void CurveEditor::updateStatusLine()
     int currentFrame = m_view->model()->currentFrame();
     QString currentText = QString("Playhead frame %1").arg(currentFrame);
     m_statusLine->setText(currentText);
+}
+
+void CurveEditor::updateMcuState()
+{
+    bool isMcu = DesignerMcuManager::instance().isMCUProject();
+    m_toolbar->setIsMcuProject(isMcu);
+    m_view->setIsMcu(isMcu);
 }
 
 } // End namespace QmlDesigner.

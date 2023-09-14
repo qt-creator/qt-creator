@@ -166,7 +166,10 @@ public:
     using reference = ModelNode;
 
     NodeListProperty();
-    NodeListProperty(const NodeListProperty &nodeListProperty, AbstractView *view);
+    NodeListProperty(const PropertyName &propertyName,
+                     const Internal::InternalNodePointer &internalNode,
+                     Model *model,
+                     AbstractView *view);
     QList<ModelNode> toModelNodeList() const;
     QList<QmlObjectNode> toQmlObjectNodeList() const;
     void slide(int, int) const;
@@ -196,7 +199,6 @@ public:
     const_iterator end() const;
 
 protected:
-    NodeListProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
     NodeListProperty(const Internal::InternalNodeListPropertyPointer &internalNodeListProperty,
                      Model *model,
                      AbstractView *view);

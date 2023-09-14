@@ -15,6 +15,11 @@ TreeView {
     boundsBehavior: Flickable.StopAtBounds
     rowSpacing: 5
 
+    property bool adsFocus: false
+    // objectName is used by the dock widget to find this particular ScrollView
+    // and set the ads focus on it.
+    objectName: "__mainSrollView"
+
     property var assetsModel: AssetsLibraryBackend.assetsModel
     property var rootView: AssetsLibraryBackend.rootView
     property var tooltipBackend: AssetsLibraryBackend.tooltipBackend
@@ -46,9 +51,18 @@ TreeView {
         return -1
     }
 
-    ScrollBar.vertical: HelperWidgets.VerticalScrollBar {
+    HoverHandler { id: hoverHandler }
+
+    ScrollBar.vertical: HelperWidgets.ScrollBar {
         id: verticalScrollBar
-        scrollBarVisible: root.contentHeight > root.height
+        parent: root
+        x: root.width - verticalScrollBar.width
+        y: 0
+        height: root.availableHeight
+        orientation: Qt.Vertical
+
+        show: (hoverHandler.hovered || root.adsFocus || verticalScrollBar.inUse)
+              && verticalScrollBar.isNeeded
     }
 
     model: assetsModel
@@ -348,22 +362,21 @@ TreeView {
         root.currentFilePath = filePath
     }
 
-    Keys.enabled: true
-
-    Keys.onUpPressed: {
-        if (!root.currentFilePath)
+    function moveSelection(amount)
+    {
+        if (!assetsModel.haveFiles || !amount)
             return
 
-        let index = assetsModel.indexForPath(root.currentFilePath)
+        let index = root.currentFilePath ? assetsModel.indexForPath(root.currentFilePath)
+                                         : root.__modelIndex(root.firstRow)
         let row = root.rowAtIndex(index)
         let nextRow = row
         let nextIndex = index
 
         do {
-            if (nextRow <= root.firstRow)
-                return // don't select hidden rows
-
-            nextRow--
+            nextRow = nextRow + amount
+            if ((amount < 0 && nextRow < root.firstRow) || (amount > 0 && nextRow > root.lastRow))
+                return
             nextIndex = root.__modelIndex(nextRow)
         } while (assetsModel.isDirectory(nextIndex))
 
@@ -371,26 +384,14 @@ TreeView {
         root.positionViewAtRow(nextRow, TableView.Contain)
     }
 
+    Keys.enabled: true
+
+    Keys.onUpPressed: {
+        moveSelection(-1)
+    }
+
     Keys.onDownPressed: {
-        if (!root.currentFilePath)
-            return
-
-        let index = assetsModel.indexForPath(root.currentFilePath)
-        let row = root.rowAtIndex(index)
-
-        let nextRow = row
-        let nextIndex = index
-
-        do {
-            if (nextRow >= root.lastRow)
-                return // don't select hidden rows
-
-            nextRow++
-            nextIndex = root.__modelIndex(nextRow)
-        } while (assetsModel.isDirectory(nextIndex))
-
-        root.__selectRow(nextRow)
-        root.positionViewAtRow(nextRow, TableView.Contain)
+        moveSelection(1)
     }
 
     ConfirmDeleteFilesDialog {

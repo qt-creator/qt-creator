@@ -72,6 +72,8 @@ public:
 
     QRectF defaultRasterRect() const;
 
+    void setIsMcu(bool isMcu);
+
     void setLocked(TreeItem *item);
 
     void setPinned(TreeItem *item);

@@ -20,6 +20,7 @@ class QTCREATOR_UTILS_EXPORT TransientScrollAreaSupport : public QObject
 {
 public:
     static void support(QAbstractScrollArea *scrollArea);
+    static void supportWidget(QWidget *widget);
     virtual ~TransientScrollAreaSupport();
 
 protected:
@@ -33,20 +34,38 @@ private:
 
 class QTCREATOR_UTILS_EXPORT ScrollBar : public QScrollBar
 {
+
+    friend class ScrollAreaPrivate;
+
 public:
     explicit ScrollBar(QWidget *parent = nullptr);
     virtual ~ScrollBar();
 
-    QSize sizeHint() const override;
-
     virtual void flash();
 
+    bool setFocused(const bool &focused);
+
 protected:
-    virtual void initStyleOption(QStyleOptionSlider *option) const override;
+    void initStyleOption(QStyleOptionSlider *option) const override;
     bool event(QEvent *event) override;
 
 private:
+    bool setAdjacentVisible(const bool &visible);
+    bool setAdjacentHovered(const bool &hovered);
+    bool setViewPortInteraction(const bool &hovered);
+
     ScrollBarPrivate *d = nullptr;
 };
 
+class QTCREATOR_UTILS_EXPORT GlobalTransientSupport : public QObject
+{
+    Q_OBJECT
+public:
+    static void support(QWidget *widget);
+
+private:
+    GlobalTransientSupport();
+    static GlobalTransientSupport *instance();
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+};
 }

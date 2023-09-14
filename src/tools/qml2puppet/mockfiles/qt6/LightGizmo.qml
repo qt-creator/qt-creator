@@ -36,20 +36,15 @@ Node {
                                      || spotLightHandle.dragging
                                      || spotLightInnerHandle.dragging
                                      || spotLightFadeHandle.dragging
-                                     || areaHeightHandle.dragging
-                                     || areaWidthHandle.dragging
                                      || pointLightFadeHandle.dragging
     property point currentMousePos
     property string currentLabel
-    property int brightnessDecimals: _generalHelper.brightnessScaler() > 10. ? 0 : 2;
-    property real brightnessMultiplier: Math.pow(10, brightnessDecimals);
 
     signal propertyValueCommit(string propName)
     signal propertyValueChange(string propName)
 
     position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
     visible: lightGizmo.targetNode instanceof SpotLight
-             || lightGizmo.targetNode instanceof AreaLight
              || lightGizmo.targetNode instanceof DirectionalLight
              || lightGizmo.targetNode instanceof PointLight
 
@@ -213,65 +208,6 @@ Node {
                 }
             }
         }
-        Node {
-            id: areaParts
-            visible: lightGizmo.targetNode instanceof AreaLight
-
-            LightModel {
-                id: areaModel
-                geometryName: "Edit 3D AreaLight"
-                geometryType: LightGeometry.Area
-                material: lightMaterial
-                scale: areaParts.visible ? Qt.vector3d(lightGizmo.targetNode.width / 2,
-                                                       lightGizmo.targetNode.height / 2, 1)
-                                           .times(lightGizmo.targetNode.scale)
-                                         : Qt.vector3d(1, 1, 1)
-            }
-
-            AreaLightHandle {
-                id: areaWidthHandle
-                view3D: lightGizmo.view3D
-                color: (hovering || dragging) ? Qt.rgba(1, 1, 1, 1) : lightGizmo.color
-                position: lightGizmo.targetNode instanceof AreaLight ? Qt.vector3d(-areaModel.scale.x, 0, 0)
-                                                                     : Qt.vector3d(0, 0, 0)
-                eulerRotation: Qt.vector3d(0, 0, 90)
-                targetNode: lightGizmo.targetNode instanceof AreaLight ? lightGizmo.targetNode : null
-                active: lightGizmo.targetNode instanceof AreaLight
-                dragHelper: lightGizmo.dragHelper
-                propName: "width"
-                propValue: lightGizmo.targetNode instanceof AreaLight ? targetNode.width : 0
-
-                onNewValueChanged: targetNode.width = newValue
-                onCurrentMousePosChanged: {
-                    lightGizmo.currentMousePos = currentMousePos;
-                    lightGizmo.currentLabel = currentLabel;
-                }
-                onValueChange: lightGizmo.propertyValueChange(propName)
-                onValueCommit: lightGizmo.propertyValueCommit(propName)
-            }
-
-            AreaLightHandle {
-                id: areaHeightHandle
-                view3D: lightGizmo.view3D
-                color: (hovering || dragging) ? Qt.rgba(1, 1, 1, 1) : lightGizmo.color
-                position: lightGizmo.targetNode instanceof AreaLight ? Qt.vector3d(0, -areaModel.scale.y, 0)
-                                                                     : Qt.vector3d(0, 0, 0)
-                eulerRotation: Qt.vector3d(0, 0, 180)
-                targetNode: lightGizmo.targetNode instanceof AreaLight ? lightGizmo.targetNode : null
-                active: lightGizmo.targetNode instanceof AreaLight
-                dragHelper: lightGizmo.dragHelper
-                propName: "height"
-                propValue: lightGizmo.targetNode instanceof AreaLight ? targetNode.height : 0
-
-                onNewValueChanged: targetNode.height = newValue
-                onCurrentMousePosChanged: {
-                    lightGizmo.currentMousePos = currentMousePos;
-                    lightGizmo.currentLabel = currentLabel;
-                }
-                onValueChange: lightGizmo.propertyValueChange(propName)
-                onValueCommit: lightGizmo.propertyValueCommit(propName)
-            }
-        }
 
         LightModel {
             id: directionalModel
@@ -291,19 +227,19 @@ Node {
             active: lightGizmo.visible
             dragHelper: lightGizmo.dragHelper
             scale: autoScaler.getScale(Qt.vector3d(5, 5, 5))
-            length: targetNode ? Math.max(1.0, 1.0 + targetNode.brightness / _generalHelper.brightnessScaler() * 10.0) + 3 : 10
+            length: targetNode ? Math.max(1.0, 1.0 + targetNode.brightness * 10.0) + 3 : 10
 
             property real _startBrightness
 
             function updateBrightness(relativeDistance, screenPos)
             {
-                var currentValue = Math.max(0, (_startBrightness + relativeDistance * _generalHelper.brightnessScaler() / 10.0));
-                currentValue *= brightnessMultiplier;
+                var currentValue = Math.max(0, (_startBrightness + relativeDistance / 10.0));
+                currentValue *= 100;
                 currentValue = Math.round(currentValue);
-                currentValue /= brightnessMultiplier;
+                currentValue /= 100;
 
                 var l = Qt.locale();
-                lightGizmo.currentLabel = "brightness" + qsTr(": ") + Number(currentValue).toLocaleString(l, 'f', brightnessDecimals);
+                lightGizmo.currentLabel = "brightness" + qsTr(": ") + Number(currentValue).toLocaleString(l, 'f', 2);
                 lightGizmo.currentMousePos = screenPos;
                 targetNode.brightness = currentValue;
             }

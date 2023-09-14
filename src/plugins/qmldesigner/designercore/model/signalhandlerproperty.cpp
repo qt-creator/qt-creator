@@ -11,7 +11,7 @@ namespace QmlDesigner {
 SignalHandlerProperty::SignalHandlerProperty() = default;
 
 SignalHandlerProperty::SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view)
-    : AbstractProperty(property.name(), property.internalNode(), property.model(), view)
+    : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
 {
 }
 
@@ -42,7 +42,7 @@ void SignalHandlerProperty::setSource(const QString &source)
             privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    privateModel()->setSignalHandlerProperty(internalNode(), name(), source);
+    privateModel()->setSignalHandlerProperty(internalNodeSharedPointer(), name(), source);
 }
 
 QString SignalHandlerProperty::source() const
@@ -50,9 +50,8 @@ QString SignalHandlerProperty::source() const
     if (!isValid())
         return {};
 
-    if (internalNode()->hasProperty(name())
-        && internalNode()->property(name())->isSignalHandlerProperty())
-        return internalNode()->signalHandlerProperty(name())->source();
+    if (auto property = internalNode()->signalHandlerProperty(name()))
+        return property->source();
 
     return QString();
 }
@@ -87,7 +86,7 @@ SignalDeclarationProperty::SignalDeclarationProperty() = default;
 
 SignalDeclarationProperty::SignalDeclarationProperty(const SignalDeclarationProperty &property,
                                                      AbstractView *view)
-    : AbstractProperty(property.name(), property.internalNode(), property.model(), view)
+    : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
 {}
 
 SignalDeclarationProperty::SignalDeclarationProperty(
@@ -121,7 +120,7 @@ void SignalDeclarationProperty::setSignature(const QString &signature)
             privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    privateModel()->setSignalDeclarationProperty(internalNode(), name(), signature);
+    privateModel()->setSignalDeclarationProperty(internalNodeSharedPointer(), name(), signature);
 }
 
 QString SignalDeclarationProperty::signature() const
@@ -129,9 +128,8 @@ QString SignalDeclarationProperty::signature() const
     if (!isValid())
         return {};
 
-    if (internalNode()->hasProperty(name())
-        && internalNode()->property(name())->isSignalDeclarationProperty())
-        return internalNode()->signalDeclarationProperty(name())->signature();
+    if (auto property = internalNode()->signalDeclarationProperty(name()))
+        return property->signature();
 
     return QString();
 }

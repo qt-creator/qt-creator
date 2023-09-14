@@ -26,7 +26,7 @@ Item {
     property alias contentItem: contentItem
     property color backgroundGradientColorStart: "#222222"
     property color backgroundGradientColorEnd: "#999999"
-    property color gridColor: "#aaaaaa"
+    property color gridColor: "#cccccc"
     property bool syncBackgroundColor: false
 
     enum SelectionMode { Item, Group }
@@ -83,13 +83,13 @@ Item {
                                                "showGrid": showGrid,
                                                "gridColor": gridColor,
                                                "importScene": activeScene,
-                                               "cameraZoomFactor": cameraControl._zoomFactor,
+                                               "cameraLookAt": cameraControl._lookAtPoint,
                                                "z": 1});
             editView.usePerspective = Qt.binding(function() {return usePerspective;});
             editView.showSceneLight = Qt.binding(function() {return showEditLight;});
             editView.showGrid = Qt.binding(function() {return showGrid;});
             editView.gridColor = Qt.binding(function() {return gridColor;});
-            editView.cameraZoomFactor = Qt.binding(function() {return cameraControl._zoomFactor;});
+            editView.cameraLookAt = Qt.binding(function() {return cameraControl._lookAtPoint;});
 
             selectionBoxes.length = 0;
             cameraControl.forceActiveFocus();
@@ -135,6 +135,11 @@ Item {
                     storeCurrentToolStates();
                 }
             }
+
+            if (syncBackgroundColor)
+                updateBackgroundColors([_generalHelper.sceneEnvironmentColor(sceneId)]);
+            else
+                updateBackgroundColors(_generalHelper.bgColor);
 
             notifyActiveSceneChange();
         }
@@ -191,21 +196,14 @@ Item {
             cameraControl.alignView(cameraNodes);
     }
 
-    function updateViewStates(viewStates)
-    {
-        if ("selectBackgroundColor" in viewStates) {
-            var colors = viewStates.selectBackgroundColor
-            if (colors.length === 1) {
-                backgroundGradientColorStart = colors[0];
-                backgroundGradientColorEnd = colors[0];
-            } else {
-                backgroundGradientColorStart = colors[0];
-                backgroundGradientColorEnd = colors[1];
-            }
+    function updateBackgroundColors(colors) {
+        if (colors.length === 1) {
+            backgroundGradientColorStart = colors[0];
+            backgroundGradientColorEnd = colors[0];
+        } else {
+            backgroundGradientColorStart = colors[0];
+            backgroundGradientColorEnd = colors[1];
         }
-
-        if ("selectGridColor" in viewStates && viewStates.selectGridColor.length === 1)
-            viewRoot.gridColor = viewStates.selectGridColor[0]
     }
 
     // If resetToDefault is true, tool states not specifically set to anything will be reset to
@@ -224,12 +222,13 @@ Item {
 
         if ("syncBackgroundColor" in toolStates) {
             syncBackgroundColor = toolStates.syncBackgroundColor;
-            if (syncBackgroundColor) {
-                var color = _generalHelper.sceneEnvironmentColor(sceneId);
-                updateViewStates({"selectBackgroundColor": color})
-            }
+            if (syncBackgroundColor)
+                updateBackgroundColors([_generalHelper.sceneEnvironmentColor(sceneId)]);
+            else
+                updateBackgroundColors(_generalHelper.bgColor);
         } else if (resetToDefault) {
             syncBackgroundColor = false;
+            updateBackgroundColors(_generalHelper.bgColor);
         }
 
         if ("showSelectionBox" in toolStates)
@@ -310,7 +309,7 @@ Item {
                                                      "geometryName": geometryName});
                     selectionBoxes[selectionBoxes.length] = box;
                     box.view3D = Qt.binding(function() {return editView;});
-                    box.visible = Qt.binding(function() {return showSelectionBox;});
+                    box.showBox = Qt.binding(function() {return showSelectionBox;});
                 }
             }
         }
@@ -747,7 +746,8 @@ Item {
             clipNear: viewRoot.editView ? viewRoot.editView.orthoCamera.clipNear : 1
             position: viewRoot.editView ? viewRoot.editView.orthoCamera.position : Qt.vector3d(0, 0, 0)
             rotation: viewRoot.editView ? viewRoot.editView.orthoCamera.rotation : Qt.quaternion(1, 0, 0, 0)
-            scale: viewRoot.editView ? viewRoot.editView.orthoCamera.scale : Qt.vector3d(0, 0, 0)
+            horizontalMagnification: viewRoot.editView ? viewRoot.editView.orthoCamera.horizontalMagnification : 1
+            verticalMagnification: viewRoot.editView ? viewRoot.editView.orthoCamera.verticalMagnification : 1
         }
 
         MouseArea3D {

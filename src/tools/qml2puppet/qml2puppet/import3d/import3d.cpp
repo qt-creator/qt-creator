@@ -32,11 +32,7 @@ void import3D([[maybe_unused]] const QString &sourceAsset,
 
     if (!optDoc.isNull() && optDoc.isObject()) {
         QJsonObject optObj = optDoc.object();
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
         const auto &optionsMap = optObj;
-#else
-        const auto optionsMap = optObj.toVariantMap();
-#endif // QT_VERSION >= 6.4.0
         if (importer->importFile(sourceAsset, outDir, optionsMap, &errorStr)
                 != QSSGAssetImportManager::ImportState::Success) {
         }

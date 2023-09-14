@@ -69,11 +69,7 @@
 namespace QmlDesigner {
 
 void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    = &QLocalSocket::error;
-#else
     = &QLocalSocket::errorOccurred;
-#endif
 
 NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent)

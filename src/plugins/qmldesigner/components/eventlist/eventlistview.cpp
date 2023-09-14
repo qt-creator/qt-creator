@@ -85,6 +85,9 @@ void EventListView::addEvent(const Event &event)
     executeInTransaction("EventListView::addEvent", [=]() {
 
         QByteArray unqualifiedTypeName = "ListElement";
+#ifdef QDS_USE_PROJECTSTORAGE
+        ModelNode eventNode = createModelNode(unqualifiedTypeName, -1, -1);
+#else
         auto metaInfo = model()->metaInfo(unqualifiedTypeName);
 
         QByteArray fullTypeName = metaInfo.typeName();
@@ -92,6 +95,7 @@ void EventListView::addEvent(const Event &event)
         int majorVersion = metaInfo.majorVersion();
 
         ModelNode eventNode = createModelNode(fullTypeName, majorVersion, minorVersion);
+#endif
         eventNode.variantProperty("eventId").setValue(event.eventId);
 
         if (!event.shortcut.isEmpty())

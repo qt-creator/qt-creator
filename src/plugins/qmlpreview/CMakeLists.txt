@@ -1,7 +1,7 @@
 add_qtc_plugin(QmlPreview
   CONDITION TARGET QmlProjectManager
   PUBLIC_DEPENDS QmlDebug
-  DEPENDS QmlJS
+  DEPENDS QmlJS Qt::QmlPrivate
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlJSTools QtSupport
     ResourceEditor QmlProjectManager
@@ -22,19 +22,3 @@ extend_qtc_plugin(QmlPreview
     tests/qmlpreviewclient_test.cpp tests/qmlpreviewclient_test.h
     tests/qmlpreviewplugin_test.cpp tests/qmlpreviewplugin_test.h
 )
-
-if(TARGET Qt6::QmlPrivate)
-  get_target_property(qmldebugprivate_include_directories
-                      Qt6::QmlPrivate
-                      INTERFACE_INCLUDE_DIRECTORIES
-  )
-  find_file(have_qml_debug_translation_protocol
-    NAMES private/qqmldebugtranslationprotocol_p.h
-    PATHS ${qmldebugprivate_include_directories}
-  )
-  extend_qtc_plugin(QmlPreview
-    CONDITION have_qml_debug_translation_protocol
-    PUBLIC_DEPENDS Qt::QmlPrivate
-    PUBLIC_DEFINES "FOUND_QML_DEBUG_TRANSLATION_PROTOCOL"
-  )
-endif()

@@ -102,8 +102,9 @@ class SqliteSessions : public testing::Test
 protected:
     SqliteSessions() { sessions.setAttachedTables({"data", "tags"}); }
 
-    std::vector<Data> fetchData() { return selectData.values<Data>(8); }
-    std::vector<Tag> fetchTags() { return selectTags.values<Tag>(8); }
+    std::vector<Data> fetchData() { return selectData.values<Data>(); }
+
+    std::vector<Tag> fetchTags() { return selectTags.values<Tag>(); }
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};

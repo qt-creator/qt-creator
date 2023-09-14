@@ -43,6 +43,7 @@ T.SpinBox {
 
     property alias __devicePixelRatio: spinBoxInput.devicePixelRatio
     property alias pixelsPerUnit: spinBoxInput.pixelsPerUnit
+    property alias inputHAlignment: spinBoxInput.horizontalAlignment
 
     property alias compressedValueTimer: myTimer
 
@@ -274,6 +275,7 @@ T.SpinBox {
         if (sliderPopup.opened && !control.activeFocus)
             sliderPopup.close()
     }
+    onDecimalsChanged: spinBoxInput.text = control.textFromValue(control.value, control.locale)
 
     Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Up || event.key === Qt.Key_Down) {

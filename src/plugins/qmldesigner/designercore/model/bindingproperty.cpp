@@ -8,6 +8,8 @@
 #include "model.h"
 #include "model_p.h"
 
+using namespace Qt::StringLiterals;
+
 namespace QmlDesigner {
 
 bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingProperty01, const QmlDesigner::BindingProperty &bindingProperty02)
@@ -22,7 +24,7 @@ bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingPropert
 BindingProperty::BindingProperty() = default;
 
 BindingProperty::BindingProperty(const BindingProperty &property, AbstractView *view)
-    : AbstractProperty(property.name(), property.internalNode(), property.model(), view)
+    : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
 {
 }
 
@@ -58,14 +60,15 @@ void BindingProperty::setExpression(const QString &expression)
             privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    privateModel()->setBindingProperty(internalNode(), name(), expression);
+    privateModel()->setBindingProperty(internalNodeSharedPointer(), name(), expression);
 }
 
 QString BindingProperty::expression() const
 {
-    if (isValid() && internalNode()->hasProperty(name())
-        && internalNode()->property(name())->isBindingProperty())
-        return internalNode()->bindingProperty(name())->expression();
+    if (isValid()) {
+        if (auto property = internalNode()->bindingProperty(name()))
+            return property->expression();
+    }
 
     return QString();
 }
@@ -119,7 +122,7 @@ ModelNode BindingProperty::resolveToModelNode() const
 
 inline static QStringList commaSeparatedSimplifiedStringList(const QString &string)
 {
-    const QStringList stringList = string.split(QStringLiteral(","));
+    const QStringList stringList = string.split(","_L1);
     QStringList simpleList;
     for (const QString &simpleString : stringList)
         simpleList.append(simpleString.simplified());
@@ -351,7 +354,7 @@ void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, 
             privateModel()->removePropertyAndRelatedResources(internalProperty);
     }
 
-    privateModel()->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
+    privateModel()->setDynamicBindingProperty(internalNodeSharedPointer(), name(), typeName, expression);
 }
 
 QDebug operator<<(QDebug debug, const BindingProperty &property)

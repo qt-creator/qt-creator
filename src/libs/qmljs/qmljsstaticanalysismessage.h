@@ -83,7 +83,7 @@ enum Type {
     ErrBehavioursNotSupportedInQmlUi = 224,
     ErrStatesOnlyInRootItemInQmlUi = 225,
     ErrReferenceToParentItemNotSupportedInQmlUi = 226,
-    ErrDoNotMixTranslationFunctionsInQmlUi = 227,
+    WarnDoNotMixTranslationFunctionsInQmlUi = 227,
     ErrUnknownComponent = 300,
     ErrCouldNotResolvePrototypeOf = 301,
     ErrCouldNotResolvePrototype = 302,

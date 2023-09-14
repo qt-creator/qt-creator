@@ -6,9 +6,7 @@
 
 #include <QUrl>
 
-#ifdef FOUND_QML_DEBUG_TRANSLATION_PROTOCOL
 #include <private/qqmldebugtranslationprotocol_p.h>
-#endif
 
 namespace QmlPreview {
 
@@ -20,14 +18,9 @@ QmlDebugTranslationClient::QmlDebugTranslationClient(QmlDebug::QmlDebugConnectio
 void QmlDebugTranslationClient::changeLanguage(const QUrl &url, const QString &localeIsoCode)
 {
     QmlDebug::QPacket packet(dataStreamVersion());
-#ifdef FOUND_QML_DEBUG_TRANSLATION_PROTOCOL
-    sendMessage(QQmlDebugTranslation::createChangeLanguageRequest(packet, url, localeIsoCode));
-#else
     const int request_change_language = 1;
     packet << request_change_language << url << localeIsoCode;
     sendMessage(packet.data());
-#endif
-
 }
 
 void QmlDebugTranslationClient::stateChanged(QmlDebug::QmlDebugClient::State state)

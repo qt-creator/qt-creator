@@ -32,7 +32,7 @@ SourceIds FileSystem::directoryEntries(const QString &directoryPath) const
 
 QStringList FileSystem::qmlFileNames(const QString &directoryPath) const
 {
-    return QDir{directoryPath}.entryList({".qml"});
+    return QDir{directoryPath}.entryList({"*.qml"}, QDir::Files);
 }
 
 long long FileSystem::lastModified(SourceId sourceId) const

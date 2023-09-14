@@ -69,6 +69,10 @@ public:
                                      Utils::SmallStringView typeName,
                                      QmlDesigner::TypeIds baseTypeIds = {});
 
+    QmlDesigner::TypeId createValue(QmlDesigner::ModuleId moduleId,
+                                    Utils::SmallStringView typeName,
+                                    QmlDesigner::TypeIds baseTypeIds = {});
+
     QmlDesigner::PropertyDeclarationId createProperty(
         QmlDesigner::TypeId typeId,
         Utils::SmallString name,
@@ -136,11 +140,11 @@ public:
                 (QmlDesigner::SourceId sourceId, ::Utils::SmallStringView typeName),
                 (override));
 
-    MOCK_METHOD(QmlDesigner::PropertyDeclarationIds,
+    MOCK_METHOD((QVarLengthArray<QmlDesigner::PropertyDeclarationId, 128>),
                 propertyDeclarationIds,
                 (QmlDesigner::TypeId typeId),
                 (const, override));
-    MOCK_METHOD(QmlDesigner::PropertyDeclarationIds,
+    MOCK_METHOD((QVarLengthArray<QmlDesigner::PropertyDeclarationId, 128>),
                 localPropertyDeclarationIds,
                 (QmlDesigner::TypeId typeId),
                 (const, override));
@@ -258,6 +262,19 @@ public:
                 (QmlDesigner::SourceId sourceId));
     MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceContext>, fetchAllSourceContexts, (), ());
     MOCK_METHOD(std::vector<QmlDesigner::Cache::Source>, fetchAllSources, (), ());
+
+    MOCK_METHOD(QmlDesigner::SourceId,
+                propertyEditorPathId,
+                (QmlDesigner::TypeId typeId),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::ModuleId,
+                fetchModuleIdUnguarded,
+                (Utils::SmallStringView name),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::TypeId,
+                fetchTypeIdByModuleIdAndExportedName,
+                (QmlDesigner::ModuleId moduleId, Utils::SmallStringView name),
+                (const, override));
 
     QmlDesigner::Storage::Info::CommonTypeCache<QmlDesigner::ProjectStorageInterface> typeCache{*this};
 };

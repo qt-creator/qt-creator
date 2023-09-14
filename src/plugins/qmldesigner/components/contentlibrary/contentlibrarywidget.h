@@ -29,8 +29,9 @@ class ContentLibraryWidget : public QFrame
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport  NOTIFY hasQuick3DImportChanged)
+    Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
+    Q_PROPERTY(bool hasActive3DScene READ hasActive3DScene WRITE setHasActive3DScene NOTIFY hasActive3DSceneChanged)
 
     // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
     Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
@@ -48,6 +49,9 @@ public:
 
     bool hasMaterialLibrary() const;
     void setHasMaterialLibrary(bool b);
+
+    bool hasActive3DScene() const;
+    void setHasActive3DScene(bool b);
 
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
 
@@ -67,6 +71,8 @@ public:
     Q_INVOKABLE void updateSceneEnvState();
     Q_INVOKABLE void markTextureUpdated(const QString &textureKey);
 
+    QSize sizeHint() const override;
+
 signals:
     void bundleEffectDragStarted(QmlDesigner::ContentLibraryEffect *bundleEff);
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
@@ -75,6 +81,7 @@ signals:
     void updateSceneEnvStateRequested();
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();
+    void hasActive3DSceneChanged();
     void isDraggingChanged();
 
 protected:
@@ -111,6 +118,7 @@ private:
     QPoint m_dragStartPoint;
 
     bool m_hasMaterialLibrary = false;
+    bool m_hasActive3DScene = false;
     bool m_hasQuick3DImport = false;
     bool m_isDragging = false;
     QString m_baseUrl;

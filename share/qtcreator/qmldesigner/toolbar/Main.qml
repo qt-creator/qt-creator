@@ -238,9 +238,7 @@ Rectangle {
             anchors.right: annotations.left
             anchors.rightMargin: 10
             visible: !root.flyoutEnabled
-            model: WorkspaceModel {
-                id: workspaceModel
-            }
+            model: WorkspaceModel { id: workspaceModel }
             textRole: "displayName"
             valueRole: "fileName"
             suffix: qsTr(" Workspace")
@@ -249,6 +247,7 @@ Rectangle {
 
             onCurrentWorkspaceIndexChanged: workspaces.currentIndex = workspaces.currentWorkspaceIndex
             onActivated: backend.setCurrentWorkspace(workspaces.currentValue)
+            onCountChanged: workspaces.currentIndex = workspaces.indexOfValue(backend.currentWorkspace)
         }
 
         ToolbarButton {
@@ -401,6 +400,7 @@ Rectangle {
                         currentIndex: workspacesFlyout.indexOfValue(backend.currentWorkspace)
 
                         onCompressedActivated: backend.setCurrentWorkspace(workspacesFlyout.currentValue)
+                        onCountChanged: workspacesFlyout.currentIndex = workspacesFlyout.indexOfValue(backend.currentWorkspace)
                     }
                 }
             }

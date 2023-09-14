@@ -473,6 +473,17 @@ std::ostream &operator<<(std::ostream &out, const NodeMetaInfo &metaInfo)
     return out << "(" << metaInfo.id() << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const PropertyMetaInfo &metaInfo)
+{
+    return out << "(" << metaInfo.type() << ", " << metaInfo.name() << ", "
+               << metaInfo.propertyType() << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const CompoundPropertyMetaInfo &metaInfo)
+{
+    return out << "(" << metaInfo.property << ", " << metaInfo.parent << ")";
+}
+
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
 {
     if (!property.isValid())
@@ -698,7 +709,10 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
                << ", fileStatuses: " << package.fileStatuses
                << ", updatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
                << ", updatedProjectSourceIds: " << package.updatedProjectSourceIds
-               << ", projectDatas: " << package.projectDatas << ")";
+               << ", projectDatas: " << package.projectDatas
+               << ", propertyEditorQmlPaths: " << package.propertyEditorQmlPaths
+               << ", updatedPropertyEditorQmlPathSourceIds: "
+               << package.updatedPropertyEditorQmlPathSourceIds << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ProjectData &data)
@@ -795,6 +809,11 @@ std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import)
 {
     return out << "(" << import.moduleId << ", " << import.exportedModuleId << ", "
                << import.version << ", " << import.isAutoVersion << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const PropertyEditorQmlPath &path)
+{
+    return out << "(" << path.moduleId << ", " << path.typeName << ", " << path.pathId << ")";
 }
 
 } // namespace Storage::Synchronization

@@ -54,21 +54,23 @@ public:
 
     QRectF rect() const;
 
-    QVector<CurveItem *> curves() const;
+    QList<CurveItem *> curves() const;
 
-    QVector<CurveItem *> selectedCurves() const;
+    QList<CurveItem *> selectedCurves() const;
 
-    QVector<KeyframeItem *> keyframes() const;
+    QList<KeyframeItem *> keyframes() const;
 
-    QVector<KeyframeItem *> selectedKeyframes() const;
+    QList<KeyframeItem *> selectedKeyframes() const;
 
-    QVector<HandleItem *> handles() const;
+    QList<HandleItem *> handles() const;
 
     CurveItem *findCurve(unsigned int id) const;
 
     SelectableItem *intersect(const QPointF &pos) const;
 
     void setDirty(bool dirty);
+
+    void setIsMcu(bool isMcu);
 
     void reset();
 
@@ -120,7 +122,7 @@ private:
 
     void resetZValues();
 
-    QVector<CurveItem *> m_curves;
+    QList<CurveItem *> m_curves;
 
     mutable bool m_dirty;
 
@@ -129,6 +131,8 @@ private:
     bool m_doNotMoveItems;
 
     QElapsedTimer m_usageTimer;
+
+    bool m_isMcu;
 };
 
 } // End namespace QmlDesigner.

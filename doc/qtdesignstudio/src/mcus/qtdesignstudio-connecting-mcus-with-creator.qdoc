@@ -1,0 +1,30 @@
+/ Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-connecting-mcus-with-creator.html
+    \previouspage studio-developing-apps-for-mcus.html
+    \nextpage studio-help.html
+
+    \title Connecting MCUs with Qt Creator
+
+    \l {Connecting MCUs} {Connect MCU boards} to a development host to
+    build applications for them using the GNU Arm Embedded GCC compiler, libraries,
+    and other GNU tools necessary for BareMetal software development on devices
+    based on the Arm Cortex-M processors. Deploy the applications on MCUs to run
+    and debug them using Qt Creator.
+
+    The toolchains are available for cross-compilation on Microsoft Windows,
+    Linux, and macOS. However, the \QMCU SDK is currently only available for
+    Windows and Linux.
+
+    For more information on how to manage the complete cycle of developing \QMCU
+    applications using Qt tools, see:
+
+    \list
+        \li \l {Infineon Traveo II quick start guide}
+        \li \l {NXP i.MX RT1170 quick start guide}
+        \li \l {Renesas EK-RA6M3G quick start guide}
+        \li \l {Renesas RH850-D1M1A quick start guide}
+    \endlist
+*/

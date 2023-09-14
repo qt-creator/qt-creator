@@ -24,3 +24,5 @@
 #include <gtest/gtest-printers.h>
 #include <gtest/gtest-typed-test.h>
 #include <gtest/gtest.h>
+
+QT_WARNING_DISABLE_CLANG("-Wpadded")

@@ -70,11 +70,6 @@ void TextEditorWidget::setTextEditor(Utils::UniqueObjectLatePtr<TextEditor::Base
         });
 
         m_textEditor->editorWidget()->installEventFilter(this);
-
-        static QString styleSheet = Theme::replaceCssColors(
-            QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
-        m_textEditor->editorWidget()->verticalScrollBar()->setStyleSheet(styleSheet);
-        m_textEditor->editorWidget()->horizontalScrollBar()->setStyleSheet(styleSheet);
     }
 }
 

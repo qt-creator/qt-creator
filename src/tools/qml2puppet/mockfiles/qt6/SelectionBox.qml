@@ -12,6 +12,7 @@ Node {
     property Node targetNode: null
     property alias model: selectionBoxModel
     property alias geometryName: selectionBoxGeometry.name
+    property bool showBox: true
 
     SelectionBoxGeometry {
         id: selectionBoxGeometry
@@ -31,17 +32,21 @@ Node {
         position: selectionBox.targetNode ? selectionBox.targetNode.position : Qt.vector3d(0, 0, 0)
         pivot: selectionBox.targetNode ? selectionBox.targetNode.pivot : Qt.vector3d(0, 0, 0)
 
-        visible: selectionBox.targetNode && !selectionBoxGeometry.isEmpty
+        visible: selectionBox.targetNode
 
         castsShadows: false
         receivesShadows: false
 
-        materials: [
-            DefaultMaterial {
-                diffuseColor: "#fff600"
-                lighting: DefaultMaterial.NoLighting
-                cullMode: Material.NoCulling
-            }
-        ]
+        DefaultMaterial {
+            id: boxMaterial
+            diffuseColor: "#fff600"
+            lighting: DefaultMaterial.NoLighting
+            cullMode: Material.NoCulling
+        }
+        // We custom set the render node transform for the selectionBox node to correspond
+        // targetNode's parent transform when we calculate the box geometry.
+        // This transform gets reset if visibility of the box changes, so instead we hide the box
+        // by setting null material to it.
+        materials: selectionBox.showBox && !selectionBoxGeometry.isEmpty ? boxMaterial : null
     }
 }

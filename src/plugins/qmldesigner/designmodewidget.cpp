@@ -38,6 +38,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/transientscroll.h>
 
 #include <QActionGroup>
 #include <QApplication>
@@ -125,7 +126,6 @@ QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
 
     if (navigationView.widget) {
         QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-        sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
         sheet += "QLabel { background-color: #4f4f4f; }";
         navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
         navigationView.widget->setParent(parent);
@@ -190,7 +190,6 @@ void DesignModeWidget::setup()
         Core::ICore::resourcePath("qmldesigner/workspacePresets/").toString());
 
     QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
-    sheet += QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css"));
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     // Setup icons
@@ -300,7 +299,6 @@ void DesignModeWidget::setup()
 
         // Apply stylesheet to QWidget
         QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-        sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
         sheet += "QLabel { background-color: creatorTheme.DSsectionHeadBackground; }";
         navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
@@ -428,6 +426,8 @@ void DesignModeWidget::setup()
         setupNavigatorHistory(currentDesignDocument()->textEditor());
 
     m_dockManager->initialize();
+    if (style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, this))
+        Utils::GlobalTransientSupport::support(m_dockManager);
 
     // Hide all floating widgets if the initial mode isn't design mode
     if (Core::ModeManager::instance()->currentModeId() != Core::Constants::MODE_DESIGN) {

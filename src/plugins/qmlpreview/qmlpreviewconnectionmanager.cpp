@@ -12,7 +12,6 @@
 #include <QMessageBox>
 
 namespace QmlPreview {
-namespace Internal {
 
 QmlPreviewConnectionManager::QmlPreviewConnectionManager(QObject *parent) :
     QmlDebug::QmlDebugConnectionManager(parent)
@@ -44,7 +43,7 @@ void QmlPreviewConnectionManager::setFpsHandler(QmlPreviewFpsHandler fpsHandler)
     m_fpsHandler = fpsHandler;
 }
 
-void QmlPreviewConnectionManager::setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator)
+void QmlPreviewConnectionManager::setQmlDebugTranslationClientCreator(QmlDebugTranslationClientFactoryFunction creator)
 {
     m_createDebugTranslationClientMethod = creator;
 }
@@ -249,5 +248,4 @@ void QmlPreviewConnectionManager::destroyClients()
     m_fileSystemWatcher.clear();
 }
 
-} // namespace Internal
 } // namespace QmlPreview

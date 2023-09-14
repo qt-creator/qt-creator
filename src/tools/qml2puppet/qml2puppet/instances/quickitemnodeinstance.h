@@ -23,7 +23,6 @@ public:
     using WeakPointer = QWeakPointer<QuickItemNodeInstance>;
 
     ~QuickItemNodeInstance() override;
-    void handleObjectDeletion(QObject *object) override;
 
     static Pointer create(QObject *objectToBeWrapped);
     static void createEffectItem(bool createEffectItem);
@@ -86,7 +85,6 @@ public:
 
     static void updateDirtyNode(QQuickItem *item);
     static bool unifiedRenderPath();
-    static bool unifiedRenderPathOrQt6();
 
     void setHiddenInEditor(bool b) override;
 
@@ -111,7 +109,6 @@ protected:
 
     double x() const;
     double y() const;
-    bool checkIfRefFromEffect(qint32 id);
     void markRepeaterParentDirty() const;
 
 private: //variables

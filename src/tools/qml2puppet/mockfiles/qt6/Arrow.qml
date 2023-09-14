@@ -8,6 +8,9 @@ DirectionalDraggable {
     id: arrow
     source: "../meshes/arrow.mesh"
 
+    property vector3d dragAxis
+    property bool globalOrientation
+
     signal positionCommit()
     signal positionMove()
 
@@ -17,6 +20,9 @@ DirectionalDraggable {
                     _targetStartPos.x + sceneRelativeDistance.x,
                     _targetStartPos.y + sceneRelativeDistance.y,
                     _targetStartPos.z + sceneRelativeDistance.z);
+        newScenePos = _generalHelper.adjustTranslationForSnap(newScenePos, _targetStartPos,
+                                                              dragAxis, globalOrientation,
+                                                              targetNode);
         return targetNode.parent ? targetNode.parent.mapPositionFromScene(newScenePos) : newScenePos;
     }
 

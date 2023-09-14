@@ -11,7 +11,7 @@
 #include <private/qquick3dnode_p_p.h>
 #include <private/qquick3drepeater_p.h>
 #include <private/qquick3dloader_p.h>
-#if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
+#if defined(QUICK3D_ASSET_UTILS_MODULE)
 #include <private/qquick3druntimeloader_p.h>
 #endif
 #endif
@@ -42,7 +42,7 @@ void Quick3DNodeInstance::initialize(
     QObject *obj = object();
     auto repObj = qobject_cast<QQuick3DRepeater *>(obj);
     auto loadObj = qobject_cast<QQuick3DLoader *>(obj);
-#if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
+#if defined(QUICK3D_ASSET_UTILS_MODULE)
     auto runLoadObj = qobject_cast<QQuick3DRuntimeLoader *>(obj);
     if (repObj || loadObj || runLoadObj) {
 #else
@@ -52,7 +52,7 @@ void Quick3DNodeInstance::initialize(
             if (repObj) {
                 QObject::connect(repObj, &QQuick3DRepeater::objectAdded,
                                  infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
-#if defined(QUICK3D_ASSET_UTILS_MODULE) && QT_VERSION > QT_VERSION_CHECK(6, 2, 0)
+#if defined(QUICK3D_ASSET_UTILS_MODULE)
             } else if (runLoadObj) {
                 QObject::connect(runLoadObj, &QQuick3DRuntimeLoader::statusChanged,
                                  infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);

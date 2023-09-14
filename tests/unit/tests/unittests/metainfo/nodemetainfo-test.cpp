@@ -22,6 +22,26 @@ auto PropertyId(const Matcher &matcher)
     return Property(&QmlDesigner::PropertyMetaInfo::id, matcher);
 }
 
+template<typename PropertyMatcher, typename ParentPropertyMatcher, typename NameMatcher>
+auto CompoundProperty(const PropertyMatcher &propertyMatcher,
+                      const ParentPropertyMatcher &parentPropertyMatcher,
+                      const NameMatcher &nameMatcher)
+{
+    return AllOf(Field(&QmlDesigner::CompoundPropertyMetaInfo::property, propertyMatcher),
+                 Field(&QmlDesigner::CompoundPropertyMetaInfo::parent, parentPropertyMatcher),
+                 Property(&QmlDesigner::CompoundPropertyMetaInfo::name, nameMatcher));
+}
+
+template<typename PropertyIdMatcher, typename ParentPropertyIdMatcher, typename NameMatcher>
+auto CompoundPropertyIds(const PropertyIdMatcher &propertyIdMatcher,
+                         const ParentPropertyIdMatcher &parentPropertyIdMatcher,
+                         const NameMatcher &nameMatcher)
+{
+    return CompoundProperty(PropertyId(propertyIdMatcher),
+                            PropertyId(parentPropertyIdMatcher),
+                            nameMatcher);
+}
+
 class NodeMetaInfo : public testing::Test
 {
 protected:
@@ -307,6 +327,74 @@ TEST_F(NodeMetaInfo, invalid_has_not_property)
     ASSERT_FALSE(hasProperty);
 }
 
+TEST_F(NodeMetaInfo, has_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", itemMetaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.data");
+
+    ASSERT_TRUE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+
+    bool hasProperty = metaInfo.hasProperty("foo.data");
+
+    ASSERT_FALSE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_property_for_last_entry)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.foo");
+
+    ASSERT_FALSE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_dot_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.parent.data");
+
+    ASSERT_TRUE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+
+    bool hasProperty = metaInfo.hasProperty("parent.foo.data");
+
+    ASSERT_FALSE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_dot_property_for_last_entry)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.parent.foo");
+
+    ASSERT_FALSE(hasProperty);
+}
+
+TEST_F(NodeMetaInfo, has_no_dot_dot_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    bool hasProperty = metaInfo.hasProperty("parent.parent.parent.data");
+
+    ASSERT_FALSE(hasProperty);
+}
+
 TEST_F(NodeMetaInfo, get_property)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();
@@ -345,6 +433,46 @@ TEST_F(NodeMetaInfo, get_invalid_property_if_meta_info_is_invalid)
     ASSERT_THAT(property, PropertyId(IsFalse()));
 }
 
+TEST_F(NodeMetaInfo, get_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    auto propertyId = metaInfo.property("data").id();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    auto property = metaInfo.property("parent.data");
+
+    ASSERT_THAT(property, PropertyId(propertyId));
+}
+
+TEST_F(NodeMetaInfo, get_no_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+
+    auto property = metaInfo.property("foo.data");
+
+    ASSERT_THAT(property, PropertyId(IsFalse()));
+}
+
+TEST_F(NodeMetaInfo, get_no_dot_property_for_last_entry)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    auto property = metaInfo.property("parent.foo");
+
+    ASSERT_THAT(property, PropertyId(IsFalse()));
+}
+
+TEST_F(NodeMetaInfo, get_no_dot_dot_dot_property)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    projectStorageMock.createProperty(metaInfo.id(), "parent", metaInfo.id());
+
+    auto property = metaInfo.property("parent.parent.parent.data");
+
+    ASSERT_THAT(property, PropertyId(IsFalse()));
+}
+
 TEST_F(NodeMetaInfo, get_properties)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();
@@ -373,6 +501,72 @@ TEST_F(NodeMetaInfo, get_no_properties_if_is_invalid)
     auto properties = metaInfo.properties();
 
     ASSERT_THAT(properties, IsEmpty());
+}
+
+TEST_F(NodeMetaInfo, inflate_value_properties)
+{
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    auto fontTypeId = projectStorageMock.typeId(qtQuickModuleId, "font");
+    auto xPropertyId = projectStorageMock.createProperty(metaInfo.id(), "x", intTypeId);
+    auto fontPropertyId = projectStorageMock.createProperty(metaInfo.id(), "font", fontTypeId);
+    auto familyPropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "family");
+    auto pixelSizePropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "pixelSize");
+
+    auto properties = QmlDesigner::MetaInfoUtils::inflateValueProperties(metaInfo.properties());
+
+    ASSERT_THAT(properties,
+                AllOf(Contains(CompoundPropertyIds(xPropertyId, IsFalse(), "x")),
+                      Not(Contains(CompoundPropertyIds(fontPropertyId, IsFalse(), _))),
+                      Contains(CompoundPropertyIds(familyPropertyId, fontPropertyId, "font.family")),
+                      Contains(
+                          CompoundPropertyIds(pixelSizePropertyId, fontPropertyId, "font.pixelSize"))));
+}
+
+TEST_F(NodeMetaInfo, inflate_value_properties_handles_invalid)
+{
+    QmlDesigner::PropertyMetaInfos propertiesWithInvalid = {QmlDesigner::PropertyMetaInfo{}};
+
+    auto properties = QmlDesigner::MetaInfoUtils::inflateValueProperties(propertiesWithInvalid);
+
+    ASSERT_THAT(properties, ElementsAre(CompoundProperty(IsFalse(), IsFalse(), IsEmpty())));
+}
+
+TEST_F(NodeMetaInfo, inflate_value_and_readonly_properties)
+{
+    using QmlDesigner::Storage::PropertyDeclarationTraits;
+    auto metaInfo = model.qtQuickItemMetaInfo();
+    auto fontTypeId = projectStorageMock.typeId(qtQuickModuleId, "font");
+    auto inputDeviceId = projectStorageMock.typeId(qtQuickModuleId, "InputDevice");
+    auto xPropertyId = projectStorageMock.createProperty(metaInfo.id(), "x", intTypeId);
+    auto fontPropertyId = projectStorageMock.createProperty(metaInfo.id(), "font", fontTypeId);
+    auto familyPropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "family");
+    auto pixelSizePropertyId = projectStorageMock.propertyDeclarationId(fontTypeId, "pixelSize");
+    auto devicePropertyId = projectStorageMock.createProperty(metaInfo.id(),
+                                                              "device",
+                                                              PropertyDeclarationTraits::IsReadOnly,
+                                                              inputDeviceId);
+    auto seatNamePropertyId = projectStorageMock.propertyDeclarationId(inputDeviceId, "seatName");
+
+    auto properties = QmlDesigner::MetaInfoUtils::inflateValueAndReadOnlyProperties(
+        metaInfo.properties());
+
+    ASSERT_THAT(
+        properties,
+        AllOf(Contains(CompoundPropertyIds(xPropertyId, IsFalse(), "x")),
+              Not(Contains(CompoundPropertyIds(fontPropertyId, IsFalse(), _))),
+              Contains(CompoundPropertyIds(familyPropertyId, fontPropertyId, "font.family")),
+              Contains(CompoundPropertyIds(pixelSizePropertyId, fontPropertyId, "font.pixelSize")),
+              Contains(CompoundPropertyIds(seatNamePropertyId, devicePropertyId, "device.seatName"))));
+}
+
+TEST_F(NodeMetaInfo, inflate_value_and_readonly_properties_handles_invalid)
+{
+    QmlDesigner::PropertyMetaInfos propertiesWithInvalid = {QmlDesigner::PropertyMetaInfo{}};
+
+    auto properties = QmlDesigner::MetaInfoUtils::inflateValueAndReadOnlyProperties(
+        propertiesWithInvalid);
+
+    ASSERT_THAT(properties, ElementsAre(CompoundProperty(IsFalse(), IsFalse(), IsEmpty())));
 }
 
 TEST_F(NodeMetaInfo, get_local_properties)
@@ -2345,4 +2539,70 @@ TEST_F(NodeMetaInfo, default_is_not_number)
 
     ASSERT_THAT(isType, IsFalse());
 }
+
+TEST_F(NodeMetaInfo, property_editor_specifics_path)
+{
+    auto metaInfo = createMetaInfo("QtQuick", "Item");
+    auto pathId = QmlDesigner::SourceId::create(45);
+    ON_CALL(projectStorageMock, propertyEditorPathId(metaInfo.id())).WillByDefault(Return(pathId));
+
+    auto id = metaInfo.propertyEditorPathId();
+
+    ASSERT_THAT(id, pathId);
+}
+
+TEST_F(NodeMetaInfo, default_property_editor_specifics_path_is_empty)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    auto id = metaInfo.propertyEditorPathId();
+
+    ASSERT_THAT(id, IsFalse());
+}
+
+TEST_F(NodeMetaInfo, is_reference)
+{
+    auto metaInfo = createMetaInfo("QtQuick", "Item", QmlDesigner::Storage::TypeTraits::Reference);
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::Reference);
+}
+
+TEST_F(NodeMetaInfo, is_value)
+{
+    auto metaInfo = createMetaInfo("QML", "bool", QmlDesigner::Storage::TypeTraits::Value);
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::Value);
+}
+
+TEST_F(NodeMetaInfo, is_sequence)
+{
+    auto metaInfo = createMetaInfo("QML", "QObjectList", QmlDesigner::Storage::TypeTraits::Sequence);
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::Sequence);
+}
+
+TEST_F(NodeMetaInfo, is_none)
+{
+    auto metaInfo = createMetaInfo("QML", "void", QmlDesigner::Storage::TypeTraits::None);
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::None);
+}
+
+TEST_F(NodeMetaInfo, default_is_none)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    auto type = metaInfo.type();
+
+    ASSERT_THAT(type, QmlDesigner::MetaInfoType::None);
+}
+
 } // namespace

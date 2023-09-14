@@ -50,6 +50,8 @@ signals:
 public:
     CurveEditorToolBar(CurveEditorModel *model, QWidget* parent = nullptr);
 
+    void setIsMcuProject(bool isMcu);
+
     void setZoom(double zoom);
 
     void setCurrentFrame(int current, bool notify);
@@ -65,6 +67,13 @@ private:
     ValidatableSpinBox *m_endSpin;
     QSpinBox *m_currentSpin;
     QSlider *m_zoomSlider;
+    QAction *m_stepAction;
+    QAction *m_splineAction;
+    QAction *m_unifyAction;
+
+    static constexpr const char* m_stepLabel = QT_TR_NOOP("Step");
+    static constexpr const char* m_splineLabel = QT_TR_NOOP("Spline");
+    static constexpr const char* m_unifyLabel = QT_TR_NOOP("Unify");
 };
 
 } // End namespace QmlDesigner.

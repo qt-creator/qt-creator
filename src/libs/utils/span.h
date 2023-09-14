@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <qcompilerdetection.h>
+
 #if __cplusplus >= 202002L
 #include <span>
 
@@ -13,6 +15,17 @@ using std::get;
 using std::span;
 } // namespace Utils
 #else
-#define TCB_SPAN_NAMESPACE_NAME Utils
+QT_WARNING_PUSH
+
+#if defined(Q_CC_MSVC)
+#pragma system_header
+#elif defined(Q_CC_GNU) || defined(Q_CC_CLANG)
+#pragma GCC system_header
+#endif
 #include <3rdparty/span/span.hpp>
+namespace Utils {
+using namespace nonstd;
+}
+
+QT_WARNING_POP
 #endif

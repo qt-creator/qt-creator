@@ -275,7 +275,7 @@ void DatabaseBackend::checkCanOpenDatabase(Utils::SmallStringView databaseFilePa
     if (databaseFilePath.isEmpty())
         throw DatabaseFilePathIsEmpty("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened because the file path is empty!");
 
-    if (!QFileInfo::exists(QFileInfo(QString(databaseFilePath)).path()))
+    if (!QFileInfo::exists(QFileInfo(QString{databaseFilePath}).path()))
         throw WrongFilePath(Utils::SmallString(databaseFilePath));
 
     if (databaseIsOpen())

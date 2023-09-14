@@ -191,21 +191,16 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
     auto userPreset = m_currentPreset->asUserPreset();
 
     if (m_qmlDetailsLoaded) {
-        if (m_currentPreset->isUserPreset()) {
-            if (m_wizard.haveVirtualKeyboard())
-                setUseVirtualKeyboard(userPreset->useQtVirtualKeyboard);
-
-            if (m_wizard.haveTargetQtVersion()) {
-                int index = m_wizard.targetQtVersionIndex(userPreset->qtVersion);
-                if (index != -1)
-                    setTargetQtVersionIndex(index);
-            }
-        } else {
-            if (m_wizard.haveTargetQtVersion()) {
-                int index = m_wizard.targetQtVersionIndex();
-                if (index != -1)
-                    setTargetQtVersionIndex(index);
-            }
+        m_targetQtVersions.clear();
+        if (m_currentPreset->isUserPreset() && m_wizard.haveVirtualKeyboard())
+            setUseVirtualKeyboard(userPreset->useQtVirtualKeyboard);
+        if (m_wizard.haveTargetQtVersion()) {
+            m_targetQtVersions = m_wizard.targetQtVersionNames();
+            int index = m_currentPreset->isUserPreset() ? m_wizard.targetQtVersionIndex(userPreset->qtVersion)
+                                                        : m_wizard.targetQtVersionIndex();
+            emit targetQtVersionsChanged();
+            if (index != -1)
+                setTargetQtVersionIndex(index);
         }
 
         emit haveVirtualKeyboardChanged();

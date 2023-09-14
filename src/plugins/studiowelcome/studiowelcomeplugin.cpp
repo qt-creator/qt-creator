@@ -266,7 +266,7 @@ public:
 
     Q_INVOKABLE void showHelp()
     {
-        QDesktopServices::openUrl(QUrl("qthelp://org.qt-project.qtcreator/doc/index.html"));
+        QDesktopServices::openUrl(QUrl("qthelp://org.qt-project.qtdesignstudio/doc/index.html"));
     }
 
     Q_INVOKABLE void openExample(const QString &examplePath,
@@ -423,8 +423,11 @@ static QString tags(const FilePath &projectFilePath)
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= ProjectExplorer::ProjectExplorerPlugin::recentProjects().count())
+    if (!index.isValid() ||
+        index.row() >= ProjectExplorer::ProjectExplorerPlugin::recentProjects().count()) {
+
         return {};
+    }
 
     const ProjectExplorer::RecentProjectsEntry data =
             ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(index.row());
