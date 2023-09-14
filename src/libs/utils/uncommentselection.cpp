@@ -10,6 +10,8 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
+#include <limits>
+
 namespace Utils {
 
 CommentDefinition CommentDefinition::CppStyle = CommentDefinition("//", "/*", "*/");
@@ -176,7 +178,7 @@ QTextCursor unCommentSelection(const QTextCursor &cursorIn,
         }
 
         const int singleLineLength = definition.singleLine.length();
-        unsigned int minTab = -1;
+        int minTab = INT_MAX;
         if (definition.isAfterWhitespace && !doSingleLineStyleUncomment) {
             for (QTextBlock block = startBlock; block != endBlock && minTab != 0; block = block.next()) {
                 QTextCursor c(block);
