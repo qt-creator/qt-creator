@@ -17,6 +17,7 @@
         "qbs.Environment",
         "qbs.File",
         "qbs.FileInfo",
+        "qbs.Host",
         "qbs.ModUtils",
         "qbs.PathTools",
         "qbs.PkgConfig",
