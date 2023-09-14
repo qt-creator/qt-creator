@@ -559,6 +559,12 @@ public:
         return selectPropertyEditorPathIdStatement.template valueWithTransaction<SourceId>(typeId);
     }
 
+    Storage::Imports fetchDocumentImports() const
+    {
+        return selectAllDocumentImportForSourceIdStatement
+            .template valuesWithTransaction<Storage::Imports>();
+    }
+
 private:
     class ModuleStorageAdapter
     {
@@ -1577,32 +1583,31 @@ private:
                                 PropertyCompare<AliasPropertyDeclaration>{});
     }
 
-    void insertDocumentImport(const Storage::Import &import,
-                              Storage::Synchronization::ImportKind importKind,
-                              ModuleId sourceModuleId,
-                              ModuleExportedImportId moduleExportedImportId)
+    ImportId insertDocumentImport(const Storage::Import &import,
+                                  Storage::Synchronization::ImportKind importKind,
+                                  ModuleId sourceModuleId,
+                                  ImportId parentImportId)
     {
         if (import.version.minor) {
-            insertDocumentImportWithVersionStatement.write(import.sourceId,
-                                                           import.moduleId,
-                                                           sourceModuleId,
-                                                           importKind,
-                                                           import.version.major.value,
-                                                           import.version.minor.value,
-                                                           moduleExportedImportId);
+            return insertDocumentImportWithVersionStatement
+                .template value<ImportId>(import.sourceId,
+                                          import.moduleId,
+                                          sourceModuleId,
+                                          importKind,
+                                          import.version.major.value,
+                                          import.version.minor.value,
+                                          parentImportId);
         } else if (import.version.major) {
-            insertDocumentImportWithMajorVersionStatement.write(import.sourceId,
-                                                                import.moduleId,
-                                                                sourceModuleId,
-                                                                importKind,
-                                                                import.version.major.value,
-                                                                moduleExportedImportId);
+            return insertDocumentImportWithMajorVersionStatement
+                .template value<ImportId>(import.sourceId,
+                                          import.moduleId,
+                                          sourceModuleId,
+                                          importKind,
+                                          import.version.major.value,
+                                          parentImportId);
         } else {
-            insertDocumentImportWithoutVersionStatement.write(import.sourceId,
-                                                              import.moduleId,
-                                                              sourceModuleId,
-                                                              importKind,
-                                                              moduleExportedImportId);
+            return insertDocumentImportWithoutVersionStatement.template value<ImportId>(
+                import.sourceId, import.moduleId, sourceModuleId, importKind, parentImportId);
         }
     }
 
@@ -1638,11 +1643,8 @@ private:
         };
 
         auto insert = [&](const Storage::Import &import) {
-            insertDocumentImport(import, importKind, import.moduleId, ModuleExportedImportId{});
-            auto callback = [&](ModuleId exportedModuleId,
-                                int majorVersion,
-                                int minorVersion,
-                                ModuleExportedImportId moduleExportedImportId) {
+            auto importId = insertDocumentImport(import, importKind, import.moduleId, ImportId{});
+            auto callback = [&](ModuleId exportedModuleId, int majorVersion, int minorVersion) {
                 Storage::Import additionImport{exportedModuleId,
                                                Storage::Version{majorVersion, minorVersion},
                                                import.sourceId};
@@ -1651,10 +1653,7 @@ private:
                                               ? Storage::Synchronization::ImportKind::ModuleExportedImport
                                               : Storage::Synchronization::ImportKind::ModuleExportedModuleDependency;
 
-                insertDocumentImport(additionImport,
-                                     exportedImportKind,
-                                     import.moduleId,
-                                     moduleExportedImportId);
+                insertDocumentImport(additionImport, exportedImportKind, import.moduleId, importId);
             };
 
             selectModuleExportedImportsForModuleIdStatement.readCallback(callback,
@@ -1669,6 +1668,7 @@ private:
 
         auto remove = [&](const Storage::Synchronization::ImportView &view) {
             deleteDocumentImportStatement.write(view.importId);
+            deleteDocumentImportsWithParentImportIdStatement.write(view.sourceId, view.importId);
         };
 
         Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
@@ -2700,21 +2700,21 @@ private:
                                                        Sqlite::StrictColumnType::Integer);
             auto &minorVersionColumn = table.addColumn("minorVersion",
                                                        Sqlite::StrictColumnType::Integer);
-            auto &moduleExportedModuleIdColumn = table.addColumn("moduleExportedModuleId",
-                                                                 Sqlite::StrictColumnType::Integer);
+            auto &parentImportIdColumn = table.addColumn("parentImportId",
+                                                         Sqlite::StrictColumnType::Integer);
 
             table.addUniqueIndex({sourceIdColumn,
                                   moduleIdColumn,
                                   kindColumn,
                                   sourceModuleIdColumn,
-                                  moduleExportedModuleIdColumn},
+                                  parentImportIdColumn},
                                  "majorVersion IS NULL AND minorVersion IS NULL");
             table.addUniqueIndex({sourceIdColumn,
                                   moduleIdColumn,
                                   kindColumn,
                                   sourceModuleIdColumn,
                                   majorVersionColumn,
-                                  moduleExportedModuleIdColumn},
+                                  parentImportIdColumn},
                                  "majorVersion IS NOT NULL AND minorVersion IS NULL");
             table.addUniqueIndex({sourceIdColumn,
                                   moduleIdColumn,
@@ -2722,7 +2722,7 @@ private:
                                   sourceModuleIdColumn,
                                   majorVersionColumn,
                                   minorVersionColumn,
-                                  moduleExportedModuleIdColumn},
+                                  parentImportIdColumn},
                                  "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
 
             table.initialize(database);
@@ -3064,25 +3064,32 @@ public:
         "SELECT typeId FROM exportedTypeNames WHERE moduleId IN carray(?1, ?2, 'int32') AND "
         "name=?3",
         database};
+    mutable ReadStatement<4> selectAllDocumentImportForSourceIdStatement{
+        "SELECT moduleId, majorVersion, minorVersion, sourceId "
+        "FROM documentImports ",
+        database};
     mutable ReadStatement<5, 2> selectDocumentImportForSourceIdStatement{
         "SELECT importId, sourceId, moduleId, majorVersion, minorVersion "
         "FROM documentImports WHERE sourceId IN carray(?1) AND kind=?2 ORDER BY sourceId, "
         "moduleId, majorVersion, minorVersion",
         database};
-    WriteStatement<5> insertDocumentImportWithoutVersionStatement{
+    ReadWriteStatement<1, 5> insertDocumentImportWithoutVersionStatement{
         "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, "
-        "moduleExportedModuleId) VALUES (?1, ?2, ?3, ?4, ?5)",
+        "parentImportId) VALUES (?1, ?2, ?3, ?4, ?5) RETURNING importId",
         database};
-    WriteStatement<6> insertDocumentImportWithMajorVersionStatement{
+    ReadWriteStatement<1, 6> insertDocumentImportWithMajorVersionStatement{
         "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion, "
-        "moduleExportedModuleId) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        "parentImportId) VALUES (?1, ?2, ?3, ?4, ?5, ?6) RETURNING importId",
         database};
-    WriteStatement<7> insertDocumentImportWithVersionStatement{
+    ReadWriteStatement<1, 7> insertDocumentImportWithVersionStatement{
         "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion, "
-        "minorVersion, moduleExportedModuleId) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+        "minorVersion, parentImportId) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) RETURNING "
+        "importId",
         database};
     WriteStatement<1> deleteDocumentImportStatement{"DELETE FROM documentImports WHERE importId=?1",
                                                     database};
+    WriteStatement<2> deleteDocumentImportsWithParentImportIdStatement{
+        "DELETE FROM documentImports WHERE sourceId=?1 AND parentImportId=?2", database};
     WriteStatement<1> deleteDocumentImportsWithSourceIdsStatement{
         "DELETE FROM documentImports WHERE sourceId IN carray(?1)", database};
     ReadStatement<1, 2> selectPropertyDeclarationIdPrototypeChainDownStatement{
@@ -3328,7 +3335,7 @@ public:
         database};
     WriteStatement<1> deleteModuleExportedImportStatement{
         "DELETE FROM moduleExportedImports WHERE moduleExportedImportId=?1", database};
-    mutable ReadStatement<4, 3> selectModuleExportedImportsForModuleIdStatement{
+    mutable ReadStatement<3, 3> selectModuleExportedImportsForModuleIdStatement{
         "WITH RECURSIVE "
         "  imports(moduleId, majorVersion, minorVersion, moduleExportedImportId) AS ( "
         "      SELECT exportedModuleId, "
@@ -3342,8 +3349,7 @@ public:
         "             iif(mei.isAutoVersion=1, i.minorVersion, mei.minorVersion), "
         "             mei.moduleExportedImportId "
         "        FROM moduleExportedImports AS mei JOIN imports AS i USING(moduleId)) "
-        "SELECT DISTINCT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1), "
-        "       moduleExportedImportId "
+        "SELECT DISTINCT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) "
         "FROM imports",
         database};
     mutable ReadStatement<1, 1> selectPropertyDeclarationIdsForTypeStatement{

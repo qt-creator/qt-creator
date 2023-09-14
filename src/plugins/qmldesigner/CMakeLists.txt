@@ -11,6 +11,10 @@ endif()
 add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-error=maybe-uninitialized>")
 add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-error=maybe-uninitialized>")
 
+env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
+option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
+add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
+
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
     Qt::Gui Utils Qt::QmlPrivate Core
@@ -64,7 +68,10 @@ add_qtc_library(QmlDesignerCore STATIC
     QmlDesignerUtils
     TextEditor
     Sqlite
-  DEFINES QMLDESIGNERCORE_LIBRARY QMLDESIGNERUTILS_LIBRARY
+  DEFINES
+     QMLDESIGNERCORE_LIBRARY
+     QMLDESIGNERUTILS_LIBRARY
+     $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
   PUBLIC_INCLUDES
@@ -75,13 +82,6 @@ add_qtc_library(QmlDesignerCore STATIC
     rewritertransaction.cpp
     rewritertransaction.h
 )
-
-
-if(TARGET QmlDesignerCore)
-  env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
-  option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
-  add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
-endif()
 
 extend_qtc_library(QmlDesignerCore
     CONDITION ENABLE_COMPILE_WARNING_AS_ERROR

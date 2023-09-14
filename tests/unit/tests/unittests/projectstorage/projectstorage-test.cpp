@@ -5332,6 +5332,19 @@ TEST_F(ProjectStorage, module_exported_import)
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
+TEST_F(ProjectStorage, module_exported_import_deletes_indirect_imports_too)
+{
+    auto package{createModuleExportedImportSynchronizationPackage()};
+    storage.synchronize(package);
+    SynchronizationPackage packageWhichDeletesImports;
+    packageWhichDeletesImports.updatedSourceIds = package.updatedSourceIds;
+    storage.synchronize(packageWhichDeletesImports);
+
+    auto imports = storage.fetchDocumentImports();
+
+    ASSERT_THAT(imports, IsEmpty());
+}
+
 TEST_F(ProjectStorage, module_exported_import_with_different_versions)
 {
     auto package{createModuleExportedImportSynchronizationPackage()};
