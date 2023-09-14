@@ -183,12 +183,15 @@ Column {
         color: StudioTheme.Values.themeToolbarBackground
 
         Text {
-            width: parent.width - 8 // twice the editor button margins
-            anchors.centerIn: parent
+            id: code
+            anchors.fill: parent
+            anchors.margins: 4
             text: backend.source
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.myFontSize
             wrapMode: Text.WordWrap
+            horizontalAlignment: code.lineCount === 1 ? Text.AlignHCenter : Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
         }
 
         HelperWidgets.AbstractButton {
