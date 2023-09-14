@@ -20,7 +20,6 @@ public:
 
     QWidget *outputWidget(QWidget *parent) override;
 
-    int priorityInStatusBar() const override;
     void clearContents() override;
 
     void append(const QString &text);

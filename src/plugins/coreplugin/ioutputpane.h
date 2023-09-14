@@ -38,7 +38,7 @@ public:
     virtual const QList<OutputWindow *> outputWindows() const { return {}; }
     virtual void ensureWindowVisible(OutputWindow *) { }
 
-    virtual int priorityInStatusBar() const = 0;
+    int priorityInStatusBar() const;
 
     virtual void clearContents() = 0;
     virtual void visibilityChanged(bool visible);
@@ -84,6 +84,7 @@ signals:
 protected:
     void setId(const Utils::Id &id);
     void setDisplayName(const QString &name);
+    void setPriorityInStatusBar(int priority);
 
     void setupFilterUi(const Utils::Key &historyKey);
     QString filterText() const;
@@ -110,6 +111,7 @@ private:
 
     Utils::Id m_id;
     QString m_displayName;
+    int m_priority = -1;
     Core::CommandButton * const m_zoomInButton;
     Core::CommandButton * const m_zoomOutButton;
     QAction *m_filterActionRegexp = nullptr;

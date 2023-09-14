@@ -28,6 +28,8 @@ TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, const Settings *s
 {
     setId("To-DoEntries");
     setDisplayName(Tr::tr("To-Do Entries"));
+    setPriorityInStatusBar(10);
+
     createTreeView();
     createScopeButtons();
     setScanningScope(ScanningScopeCurrentFile); // default
@@ -59,11 +61,6 @@ QList<QWidget*> TodoOutputPane::toolBarWidgets() const
     widgets << m_spacer << m_currentFileButton << m_wholeProjectButton << m_subProjectButton;
 
     return widgets;
-}
-
-int TodoOutputPane::priorityInStatusBar() const
-{
-    return 1;
 }
 
 void TodoOutputPane::clearContents()

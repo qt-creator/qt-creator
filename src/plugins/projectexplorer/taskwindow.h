@@ -40,7 +40,6 @@ public:
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget *> toolBarWidgets() const override;
 
-    int priorityInStatusBar() const override;
     void clearContents() override;
     void visibilityChanged(bool visible) override;
 

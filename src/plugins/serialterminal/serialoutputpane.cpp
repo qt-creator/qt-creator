@@ -122,6 +122,8 @@ SerialOutputPane::SerialOutputPane(Settings &settings) :
 {
     setId("Serial Terminal");
     setDisplayName(Tr::tr(Constants::OUTPUT_PANE_TITLE));
+    setPriorityInStatusBar(-70);
+
     createToolButtons();
 
     auto layout = new QVBoxLayout;
@@ -174,11 +176,6 @@ QList<QWidget *> SerialOutputPane::toolBarWidgets() const
                 m_portsSelection, m_baudRateSelection,
                 m_connectButton, m_disconnectButton,
                 m_resetButton };
-}
-
-int SerialOutputPane::priorityInStatusBar() const
-{
-    return 30;
 }
 
 void SerialOutputPane::clearContents()

@@ -365,6 +365,7 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
 {
     setId("SearchResults");
     setDisplayName(Tr::tr("Search Results"));
+    setPriorityInStatusBar(80);
     m_instance = this;
     readSettings();
 }
@@ -655,14 +656,6 @@ void SearchResultWindow::writeSettings()
                            d->m_expandCollapseAction->isChecked(),
                            SearchResultWindowPrivate::m_initiallyExpand);
     s->endGroup();
-}
-
-/*!
-    \internal
-*/
-int SearchResultWindow::priorityInStatusBar() const
-{
-    return 80;
 }
 
 /*!

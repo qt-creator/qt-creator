@@ -76,6 +76,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 {
     setId("TestResults");
     setDisplayName(Tr::tr("Test Results"));
+    setPriorityInStatusBar(-30);
     m_outputWidget = new QStackedWidget;
     QWidget *visualOutputWidget = new QWidget;
     m_outputWidget->addWidget(visualOutputWidget);
@@ -274,11 +275,6 @@ QList<QWidget *> TestResultsPane::toolBarWidgets() const
     for (QWidget *widget : IOutputPane::toolBarWidgets())
         result.append(widget);
     return result;
-}
-
-int TestResultsPane::priorityInStatusBar() const
-{
-    return -666;
 }
 
 void TestResultsPane::clearContents()

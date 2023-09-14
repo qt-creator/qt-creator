@@ -52,6 +52,8 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 {
     setId("CompileOutput");
     setDisplayName(QCoreApplication::translate("QtC::ProjectExplorer", "Compile Output"));
+    setPriorityInStatusBar(40);
+
     Core::Context context(C_COMPILE_OUTPUT);
     m_outputWindow = new Core::OutputWindow(context, SETTINGS_KEY);
     m_outputWindow->setWindowTitle(displayName());
@@ -176,11 +178,6 @@ void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputForma
 void CompileOutputWindow::clearContents()
 {
     m_outputWindow->clear();
-}
-
-int CompileOutputWindow::priorityInStatusBar() const
-{
-    return 50;
 }
 
 bool CompileOutputWindow::canNext() const

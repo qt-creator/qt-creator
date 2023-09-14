@@ -51,7 +51,6 @@ public:
     QWidget *outputWidget(QWidget *parent) final;
     QList<QWidget *> toolBarWidgets() const final;
 
-    int priorityInStatusBar() const final;
     void clearContents() final;
     bool canFocus() const final;
     bool hasFocus() const final;

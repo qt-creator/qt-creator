@@ -30,6 +30,8 @@ SquishOutputPane::SquishOutputPane()
 {
     setId("Squish");
     setDisplayName(Tr::tr("Squish"));
+    setPriorityInStatusBar(-60);
+
     m_instance = this;
 
     m_outputPane = new QTabWidget;
@@ -114,11 +116,6 @@ QWidget *SquishOutputPane::outputWidget(QWidget *parent)
 QList<QWidget *> SquishOutputPane::toolBarWidgets() const
 {
     return {m_filterButton, m_expandAll, m_collapseAll};
-}
-
-int SquishOutputPane::priorityInStatusBar() const
-{
-    return -777;
 }
 
 void SquishOutputPane::clearContents()

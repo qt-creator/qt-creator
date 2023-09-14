@@ -42,6 +42,8 @@ TerminalPane::TerminalPane(QObject *parent)
 {
     setId("Terminal");
     setDisplayName(Tr::tr("Terminal"));
+    setPriorityInStatusBar(20);
+
     setupContext(m_selfContext, &m_tabWidget);
     setZoomButtonsEnabled(true);
 
@@ -348,11 +350,6 @@ QList<QWidget *> TerminalPane::toolBarWidgets() const
     widgets.prepend(m_closeTerminalButton);
 
     return widgets << m_openSettingsButton << m_lockKeyboardButton << m_escSettingButton;
-}
-
-int TerminalPane::priorityInStatusBar() const
-{
-    return 50;
 }
 
 void TerminalPane::clearContents()

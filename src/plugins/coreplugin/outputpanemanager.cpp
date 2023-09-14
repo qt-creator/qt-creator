@@ -129,6 +129,30 @@ QString IOutputPane::displayName() const
 }
 
 /*!
+    Determines the position of the output pane on the status bar and the
+    default visibility.
+    \sa setPriorityInStatusBar()
+*/
+int IOutputPane::priorityInStatusBar() const
+{
+    return m_priority;
+}
+
+/*!
+    Sets the position of the output pane on the status bar and the default
+    visibility to \a priority.
+    \list
+        \li higher numbers are further to the front
+        \li >= 0 are shown in status bar by default
+        \li < 0 are not shown in status bar by default
+    \endlist
+*/
+void IOutputPane::setPriorityInStatusBar(int priority)
+{
+    m_priority = priority;
+}
+
+/*!
     Sets the translated display name of the output pane to \a name.
 */
 void IOutputPane::setDisplayName(const QString &name)
@@ -522,7 +546,7 @@ void OutputPaneManager::initialize()
             m_instance->buttonTriggered(i);
         });
 
-        bool visible = outPane->priorityInStatusBar() != -1;
+        const bool visible = outPane->priorityInStatusBar() >= 0;
         data.button->setVisible(visible);
 
         connect(data.action, &QAction::triggered, m_instance, [i] {

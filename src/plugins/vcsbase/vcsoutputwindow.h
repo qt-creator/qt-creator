@@ -23,8 +23,6 @@ class VCSBASE_EXPORT VcsOutputWindow : public Core::IOutputPane
 public:
     QWidget *outputWidget(QWidget *parent) override;
 
-    int priorityInStatusBar() const override;
-
     void clearContents() override;
 
     void setFocus() override;

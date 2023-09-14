@@ -170,6 +170,8 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 {
     setId("Issues");
     setDisplayName(Tr::tr("Issues"));
+    setPriorityInStatusBar(100);
+
     d->m_model = new Internal::TaskModel(this);
     d->m_filter = new Internal::TaskFilterModel(d->m_model);
     d->m_filter->setAutoAcceptChildRows(true);
@@ -498,11 +500,6 @@ int TaskWindow::errorTaskCount(Id category) const
 int TaskWindow::warningTaskCount(Id category) const
 {
     return d->m_model->warningTaskCount(category);
-}
-
-int TaskWindow::priorityInStatusBar() const
-{
-    return 90;
 }
 
 void TaskWindow::clearContents()

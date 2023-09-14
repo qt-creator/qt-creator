@@ -114,7 +114,6 @@ public:
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget*> toolBarWidgets() const override;
 
-    int priorityInStatusBar() const override;
     void visibilityChanged(bool visible) override;
     bool hasFocus() const override;
     bool canFocus() const override;

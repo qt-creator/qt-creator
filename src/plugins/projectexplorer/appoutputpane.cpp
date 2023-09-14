@@ -154,6 +154,8 @@ AppOutputPane::AppOutputPane() :
 {
     setId("ApplicationOutput");
     setDisplayName(Tr::tr("Application Output"));
+    setPriorityInStatusBar(60);
+
     ExtensionSystem::PluginManager::addObject(m_handler);
 
     setObjectName("AppOutputPane"); // Used in valgrind engine
@@ -305,11 +307,6 @@ QList<QWidget *> AppOutputPane::toolBarWidgets() const
 {
     return QList<QWidget *>{m_reRunButton, m_stopButton, m_attachButton, m_settingsButton,
                 m_formatterWidget} + IOutputPane::toolBarWidgets();
-}
-
-int AppOutputPane::priorityInStatusBar() const
-{
-    return 60;
 }
 
 void AppOutputPane::clearContents()
