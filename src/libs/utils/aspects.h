@@ -1013,11 +1013,11 @@ public:
     QList<std::shared_ptr<BaseAspect>> items() const;
     QList<std::shared_ptr<BaseAspect>> volatileItems() const;
 
-    std::shared_ptr<BaseAspect> addItem(std::shared_ptr<BaseAspect> item);
+    std::shared_ptr<BaseAspect> addItem(const std::shared_ptr<BaseAspect> &item);
     std::shared_ptr<BaseAspect> actualAddItem(const std::shared_ptr<BaseAspect> &item);
 
-    void removeItem(std::shared_ptr<BaseAspect> item);
-    void actualRemoveItem(std::shared_ptr<BaseAspect> item);
+    void removeItem(const std::shared_ptr<BaseAspect> &item);
+    void actualRemoveItem(const std::shared_ptr<BaseAspect> &item);
 
     void apply() override;
 

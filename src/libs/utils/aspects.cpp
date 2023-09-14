@@ -3089,7 +3089,7 @@ QList<std::shared_ptr<BaseAspect>> AspectList::volatileItems() const
     return d->volatileItems;
 }
 
-std::shared_ptr<BaseAspect> AspectList::addItem(std::shared_ptr<BaseAspect> item)
+std::shared_ptr<BaseAspect> AspectList::addItem(const std::shared_ptr<BaseAspect> &item)
 {
     if (undoStack())
         pushUndo(new AddItemCommand(this, item));
@@ -3099,7 +3099,7 @@ std::shared_ptr<BaseAspect> AspectList::addItem(std::shared_ptr<BaseAspect> item
     return item;
 }
 
-void AspectList::actualRemoveItem(std::shared_ptr<BaseAspect> item)
+void AspectList::actualRemoveItem(const std::shared_ptr<BaseAspect> &item)
 {
     d->volatileItems.removeOne(item);
     if (d->itemRemoved)
@@ -3109,7 +3109,7 @@ void AspectList::actualRemoveItem(std::shared_ptr<BaseAspect> item)
         d->items = d->volatileItems;
 }
 
-void AspectList::removeItem(std::shared_ptr<BaseAspect> item)
+void AspectList::removeItem(const std::shared_ptr<BaseAspect> &item)
 {
     if (undoStack())
         pushUndo(new RemoveItemCommand(this, item));
