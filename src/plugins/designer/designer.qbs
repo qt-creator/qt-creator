@@ -27,7 +27,7 @@ QtcPlugin {
         sharedSources.prefix
     ])
 
-    pluginJsonReplacements: ({"DESIGNER_PLUGIN_ARGUMENTS":
+    pluginjson.replacements: ({"DESIGNER_PLUGIN_ARGUMENTS":
     "\"Arguments\" : [\n\
         {\n\
             \"Name\" : \"-designer-qt-pluginpath\",\n\

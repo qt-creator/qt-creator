@@ -8,7 +8,6 @@ QtcProduct {
     installTags: ["dynamiclibrary", "debuginfo_dll"]
     useGuiPchFile: true
 
-    property var pluginJsonReplacements
     property var pluginRecommends: []
     property var pluginTestDepends: []
 

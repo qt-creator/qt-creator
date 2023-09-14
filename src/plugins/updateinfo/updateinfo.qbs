@@ -9,7 +9,7 @@ QtcPlugin {
     Depends { name: "Core" }
 
     property bool enable: false
-    pluginJsonReplacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})
+    pluginjson.replacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     files: [
         "settingspage.cpp",
