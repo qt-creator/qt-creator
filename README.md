@@ -423,11 +423,11 @@ we thank the authors who made this possible:
   committee draft. It is compatible with C++11, but will use newer language
   features if they are available.
 
-  https://github.com/tcbrindle/span
+  https://github.com/martinmoene/span-lite
 
   QtCreator/src/libs/3rdparty/span
 
-  Copyright Tristan Brindle, 2018
+  Copyright 2018-2021 Martin Moene
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)

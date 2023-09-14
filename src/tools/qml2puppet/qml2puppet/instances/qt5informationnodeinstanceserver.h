@@ -125,6 +125,8 @@ private:
     void resolveImportSupport();
     void updateMaterialPreviewData(const QVector<PropertyValueContainer> &valueChanges);
     void updateRotationBlocks(const QVector<PropertyValueContainer> &valueChanges);
+    void updateSnapSettings(const QVector<PropertyValueContainer> &valueChanges);
+    void updateColorSettings(const QVector<PropertyValueContainer> &valueChanges);
     void removeRotationBlocks(const QVector<qint32> &instanceIds);
     void getNodeAtPos(const QPointF &pos);
 
@@ -136,6 +138,7 @@ private:
 #endif
     void setSceneEnvironmentColor(const PropertyValueContainer &container);
     QVariantList alignCameraList() const;
+    void updateSceneEnvColorsToHelper();
 
     RenderViewData m_editView3DData;
     RenderViewData m_modelNode3DImageViewData;

@@ -1182,9 +1182,6 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isQtQuickState())
         stateInstanceId = stateNode.internalId();
 
-    QColor gridColor = m_externalDependencies.designerSettingsEdit3DViewGridColor();
-    QList<QColor> backgroundColor = m_externalDependencies.designerSettingsEdit3DViewBackgroundColor();
-
     return CreateSceneCommand(instanceContainerList,
                               reparentContainerList,
                               idContainerList,
@@ -1199,9 +1196,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                               lastUsedLanguage,
                               m_captureImageMinimumSize,
                               m_captureImageMaximumSize,
-                              stateInstanceId,
-                              backgroundColor,
-                              gridColor);
+                              stateInstanceId);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
@@ -1740,7 +1735,9 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
             }
         }
     } else if (command.type() == PuppetToCreatorCommand::Import3DSupport) {
-        const QVariantMap supportMap = qvariant_cast<QVariantMap>(command.data());
+        QVariantMap supportMap;
+        if (externalDependencies().isQt6Project())
+            supportMap = qvariant_cast<QVariantMap>(command.data());
         emitImport3DSupportChanged(supportMap);
     } else if (command.type() == PuppetToCreatorCommand::NodeAtPos) {
         auto data = qvariant_cast<QVariantList>(command.data());
@@ -2175,6 +2172,7 @@ void NodeInstanceView::handleShaderChanges()
         }
 
         QStringList args = baseArgs;
+        args.append("-o");
         args.append(outPath.toString());
         args.append(shader);
         auto qsbProcess = new Utils::Process(this);

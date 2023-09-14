@@ -114,15 +114,21 @@
             you need the import statement \c {QtQuick.Studio.Components 1.0}.
             You can also import a module as an alias.
         \li In the \uicontrol {Properties} field, specify new properties or assign
-            value to the existing properties of the component. You can also add and modify
+            values to the existing properties of the component. You can also add and modify
             properties in \QDS.
-            Following are few examples of properties:
+            The following are a few examples of the properties:
             \code
             property int counter: 5
             property string label: "ok"
             antialiasing : true
             width: parent.width / 2
             \endcode
+            To remove a property, write a "dash" (-) followed by the "property name".
+            For example:
+            \code
+            - width
+            \endcode
+            will remove the property \e width from the generated code.
         \li In the \uicontrol {Snippet} field, specify component to be added as child under this
             component.
             Following example adds a Connection component:
@@ -134,6 +140,7 @@
             \endcode
             \note The code must have a scope of a component(e.g. Item, MouseArea, Connections etc.)
             with a valid syntax for \l {UI Files}.
+            \note Add respective imports for your snippet in \uicontrol Imports.
         \li Select the \uicontrol Clip check box to enable clipping in the
             component generated from the layer. The generated component will clip
             its own painting, as well as the painting of its children, to its

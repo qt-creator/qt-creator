@@ -13,7 +13,7 @@ add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-error=maybe-uninitial
 
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
-    Qt::Gui Utils Qt::QmlPrivate
+    Qt::Gui Utils Qt::QmlPrivate Core
   DEFINES QMLDESIGNERUTILS_LIBRARY
   PUBLIC_DEFINES $<$<BOOL:${QTC_STATIC_BUILD}>:QMLDESIGNER_STATIC_LIBRARY>
 
@@ -21,6 +21,7 @@ add_qtc_library(QmlDesignerUtils STATIC
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES
     asset.cpp asset.h
+    designeralgorithm.h
     filedownloader.cpp filedownloader.h
     multifiledownloader.cpp multifiledownloader.h
     fileextractor.cpp fileextractor.h
@@ -36,7 +37,7 @@ extend_qtc_library(QmlDesignerUtils
 )
 
 add_qtc_library(QmlDesignerCore STATIC
-  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3 AND TARGET QmlDesignerBase AND TARGET Qt6::QmlPrivate AND TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate
+  CONDITION TARGET QmlDesignerBase AND TARGET Qt6::QmlPrivate AND TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate
   EXCLUDE_FROM_INSTALL
   PROPERTIES SKIP_AUTOUIC ON
   DEPENDS
@@ -175,6 +176,7 @@ extend_qtc_library(QmlDesignerCore
     meshimagecachecollector.cpp
     meshimagecachecollector.h
     synchronousimagecache.cpp
+    taskqueue.h
     textureimagecachecollector.cpp
     textureimagecachecollector.h
     timestampprovider.cpp
@@ -427,7 +429,7 @@ extend_qtc_library(QmlDesignerCore
 
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
-  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.4.3 AND TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
+  CONDITION TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlDesignerBase QmlJSEditor QmakeProjectManager QmlProjectManager
     QtSupport
@@ -444,6 +446,7 @@ add_qtc_plugin(QmlDesigner
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/components
     ${CMAKE_CURRENT_LIST_DIR}/components/assetslibrary
+    ${CMAKE_CURRENT_LIST_DIR}/components/collectioneditor
     ${CMAKE_CURRENT_LIST_DIR}/components/debugview
     ${CMAKE_CURRENT_LIST_DIR}/components/edit3d
     ${CMAKE_CURRENT_LIST_DIR}/components/formeditor
@@ -456,6 +459,7 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/propertyeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/stateseditor
     ${CMAKE_CURRENT_LIST_DIR}/components/texteditor
+    ${CMAKE_CURRENT_LIST_DIR}/components/effectmaker
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/designercore #can not be a public dependency -> EXCLUDE_FROM_INSTALL in QmlDesignerCore
@@ -482,7 +486,7 @@ add_qtc_plugin(QmlDesigner
     editorproxy.cpp editorproxy.h
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
-    components/connectioneditor/connectionviewwidget.h
+    qmldesignerplugin.h
   EXTRA_TRANSLATIONS
     "${PROJECT_SOURCE_DIR}/share/qtcreator/qmldesigner"
   PROPERTIES
@@ -595,9 +599,10 @@ extend_qtc_plugin(QmlDesigner
   edit3dwidget.cpp edit3dwidget.h
   edit3dcanvas.cpp edit3dcanvas.h
   edit3dactions.cpp edit3dactions.h
-  edit3dvisibilitytogglesmenu.cpp edit3dvisibilitytogglesmenu.h
+  edit3dtoolbarmenu.cpp edit3dtoolbarmenu.h
   backgroundcolorselection.cpp backgroundcolorselection.h
   bakelights.cpp bakelights.h
+  snapconfiguration.cpp snapconfiguration.h
   bakelightsdatamodel.cpp bakelightsdatamodel.h
   bakelightsconnectionmanager.cpp bakelightsconnectionmanager.h
   edit3d.qrc
@@ -705,6 +710,24 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/effectmaker
+  SOURCES
+    effectmakerwidget.cpp effectmakerwidget.h
+    effectmakerview.cpp effectmakerview.h
+    effectmakermodel.cpp effectmakermodel.h
+    effectmakernodesmodel.cpp effectmakernodesmodel.h
+    effectmakeruniformsmodel.cpp effectmakeruniformsmodel.h
+    effectnode.cpp effectnode.h
+    effectnodescategory.cpp effectnodescategory.h
+    compositionnode.cpp compositionnode.h
+    uniform.cpp uniform.h
+    effectutils.cpp effectutils.h
+    effectmakercontextobject.cpp effectmakercontextobject.h
+    shaderfeatures.cpp shaderfeatures.h
+    syntaxhighlighterdata.cpp syntaxhighlighterdata.h
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/navigator
   SOURCES
     iconcheckboxitemdelegate.cpp iconcheckboxitemdelegate.h
@@ -777,6 +800,15 @@ extend_qtc_plugin(QmlDesigner
     materialeditortransaction.cpp materialeditortransaction.h
     materialeditorview.cpp materialeditorview.h
     materialeditor.qrc
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/collectioneditor
+  SOURCES
+    collectionmodel.cpp collectionmodel.h
+    collectionview.cpp collectionview.h
+    collectionwidget.cpp collectionwidget.h
+    singlecollectionmodel.cpp singlecollectionmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -917,13 +949,17 @@ extend_qtc_plugin(QmlDesigner
     addnewbackenddialog.cpp addnewbackenddialog.h addnewbackenddialog.ui
     backendmodel.cpp backendmodel.h
     bindingmodel.cpp bindingmodel.h
+    bindingmodelitem.cpp bindingmodelitem.h
     connectioneditor.qrc
+    connectioneditorevaluator.cpp connectioneditorevaluator.h
+    connectioneditorstatements.cpp connectioneditorstatements.h
     connectionmodel.cpp connectionmodel.h
     connectionview.cpp connectionview.h
-    connectionviewwidget.cpp connectionviewwidget.h connectionviewwidget.ui
-    delegates.cpp delegates.h
     dynamicpropertiesmodel.cpp dynamicpropertiesmodel.h
+    dynamicpropertiesitem.cpp dynamicpropertiesitem.h
+    connectioneditorutils.cpp connectioneditorutils.h
     selectiondynamicpropertiesproxymodel.cpp selectiondynamicpropertiesproxymodel.h
+    propertytreemodel.cpp propertytreemodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

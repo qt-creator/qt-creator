@@ -5,6 +5,8 @@
 
 #include "asynchronousimagecacheinterface.h"
 
+#include <imagecache/taskqueue.h>
+
 #include <condition_variable>
 #include <deque>
 #include <functional>
@@ -62,16 +64,6 @@ private:
         RequestType requestType = RequestType::Image;
     };
 
-    std::optional<RequestEntry> getEntry();
-    void addEntry(Utils::PathString &&name,
-                  Utils::SmallString &&extraId,
-                  ImageCache::CaptureImageCallback &&captureCallback,
-                  ImageCache::AbortCallback &&abortCallback,
-                  RequestType requestType);
-    void clearEntries();
-    void waitForEntries();
-    void stopThread();
-    bool isRunning();
     static void request(Utils::SmallStringView name,
                         Utils::SmallStringView extraId,
                         AsynchronousExplicitImageCache::RequestType requestType,
@@ -79,8 +71,28 @@ private:
                         ImageCache::AbortCallback abortCallback,
                         ImageCacheStorageInterface &storage);
 
-private:
-    void wait();
+    struct Dispatch
+    {
+        void operator()(RequestEntry &entry)
+        {
+            request(entry.name,
+                    entry.extraId,
+                    entry.requestType,
+                    std::move(entry.captureCallback),
+                    std::move(entry.abortCallback),
+                    storage);
+        }
+
+        ImageCacheStorageInterface &storage;
+    };
+
+    struct Clean
+    {
+        void operator()(RequestEntry &entry)
+        {
+            entry.abortCallback(ImageCache::AbortReason::Abort);
+        }
+    };
 
 private:
     std::deque<RequestEntry> m_requestEntries;
@@ -88,7 +100,7 @@ private:
     std::condition_variable m_condition;
     std::thread m_backgroundThread;
     ImageCacheStorageInterface &m_storage;
-    bool m_finishing{false};
+    TaskQueue<RequestEntry, Dispatch, Clean> m_taskQueue{Dispatch{m_storage}, Clean{}};
 };
 
 } // namespace QmlDesigner

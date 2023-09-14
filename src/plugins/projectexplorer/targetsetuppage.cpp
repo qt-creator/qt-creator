@@ -28,7 +28,6 @@
 #include <QCheckBox>
 #include <QFileInfo>
 #include <QLabel>
-#include <QMessageBox>
 #include <QScrollArea>
 #include <QVBoxLayout>
 

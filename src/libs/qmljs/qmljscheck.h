@@ -39,6 +39,7 @@ public:
 
     static QList<StaticAnalysis::Type> defaultDisabledMessages();
     static QList<StaticAnalysis::Type> defaultDisabledMessagesForNonQuickUi();
+    static bool incompatibleDesignerQmlId(const QString &id);
 
 protected:
     bool preVisit(AST::Node *ast) override;

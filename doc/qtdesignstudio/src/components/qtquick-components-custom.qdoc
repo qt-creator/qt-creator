@@ -107,8 +107,6 @@
     > \uicontrol {My Components}, and you can use instances of them to build
     more components.
 
-    \include qtquick-mcu-support.qdocinc mcu qtquick components
-
     \section1 Merging Files with Templates
 
     You can merge the current component file against an existing second

@@ -3,7 +3,7 @@
 
 #include "../utils/googletest.h"
 
-#include <mocks/mocklistmodeleditorview.h>
+#include <mocks/abstractviewmock.h>
 #include <mocks/projectstoragemock.h>
 #include <mocks/sourcepathcachemock.h>
 
@@ -193,7 +193,7 @@ protected:
                                    {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
                                     QmlDesigner::Import::createLibraryImport("QtQuick")},
                                    pathCacheMock.path.toQString())};
-    NiceMock<MockListModelEditorView> mockView;
+    NiceMock<AbstractViewMock> mockView;
     QmlDesigner::ListModelEditorModel model{[&] { return mockView.createModelNode("ListModel"); },
                                             [&] { return mockView.createModelNode("ListElement"); },
                                             goIntoComponentMock.AsStdFunction()};
@@ -209,7 +209,7 @@ protected:
                                    {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
                                     QmlDesigner::Import::createLibraryImport("QtQuick")},
                                    pathCacheMock.path.toQString())};
-    NiceMock<MockListModelEditorView> mockComponentView;
+    NiceMock<AbstractViewMock> mockComponentView;
     ModelNode componentElement;
 };
 

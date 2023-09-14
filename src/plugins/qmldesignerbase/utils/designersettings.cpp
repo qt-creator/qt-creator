@@ -82,7 +82,15 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, true);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
                  QStringList{"#222222", "#999999"});
-    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, "#aaaaaa");
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, "#cccccc");
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE, true);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ENABLED, false);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION, true);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL, 50.);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION, true);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL, 5.);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE, true);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL, 10.);
     restoreValue(settings, DesignerSettingsKey::SMOOTH_RENDERING, false);
     restoreValue(settings, DesignerSettingsKey::SHOW_DEBUG_SETTINGS, false);
     restoreValue(settings, DesignerSettingsKey::EDITOR_ZOOM_FACTOR, 1.0);

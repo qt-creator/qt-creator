@@ -460,7 +460,6 @@ void DockContainerWidgetPrivate::dropIntoCenterOfSection(FloatingDockContainer *
     for (int i = 0; i < newDockWidgets.count(); ++i) {
         DockWidget *dockWidget = newDockWidgets[i];
         targetArea->insertDockWidget(tabIndex + i, dockWidget, false);
-        targetArea->insertDockWidget(i, dockWidget, false);
         // If the floating widget contains multiple visible dock areas, then we simply pick the
         // first visible open dock widget and make it the current one.
         if (newCurrentIndex < 0 && !dockWidget->isClosed())

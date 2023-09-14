@@ -28,6 +28,7 @@
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlproject.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -548,6 +549,7 @@ void ToolBarBackend::updateDocumentModel()
         m_openDocuments.append(entry->displayName());
 
     emit openDocumentsChanged();
+    emit documentIndexChanged();
 }
 
 int ToolBarBackend::documentIndex() const
@@ -617,8 +619,13 @@ int ToolBarBackend::currentStyle() const
 
 QStringList ToolBarBackend::kits() const
 {
-    return Utils::transform(ProjectExplorer::KitManager::kits(),
-                            [](ProjectExplorer::Kit *kit) { return kit->displayName(); });
+    auto kits = Utils::filtered(ProjectExplorer::KitManager::kits(), [](ProjectExplorer::Kit *kit) {
+        const auto qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
+        return kit->isValid() && !kit->isReplacementKit() && qtVersion && qtVersion->isValid()
+            /*&& kit->isAutoDetected() */;
+    });
+
+    return Utils::transform(kits, [](ProjectExplorer::Kit *kit) { return kit->displayName(); });
 }
 
 int ToolBarBackend::currentKit() const

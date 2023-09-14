@@ -151,6 +151,8 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
 
     // init the first load of the QML UI elements
     reloadQmlSource();
+
+    setFocusProxy(m_assetsWidget->quickWidget());
 }
 
 void AssetsLibraryWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

@@ -14,8 +14,8 @@
 
     \title Configuring Projects
 
-    When you install Qt for a target platform, such as Android or QNX, the
-    \l{https://www.qt.io/download-qt-installer}{Qt Online Installer}
+    When you install Qt for a target platform, such as Android or QNX,
+    \l{https://www.qt.io/download-qt-installer}{\QOI}
     creates \l{glossary-buildandrun-kit}{kits} for the development
     targets.
 

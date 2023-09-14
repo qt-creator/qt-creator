@@ -55,7 +55,9 @@ public:
         , m_projectPartId{projectPartId}
     {}
 
-    void update(QStringList directories, QStringList qmlTypesPaths);
+    void update(QStringList directories,
+                QStringList qmlTypesPaths,
+                const QString &propertyEditorResourcesPath);
     void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) override;
     void pathsChanged(const SourceIds &filePathIds) override;
 
@@ -140,6 +142,15 @@ private:
                          NotUpdatedSourceIds &notUpdatedSourceIds,
                          WatchedSourceIdsIds &watchedSourceIdsIds);
 
+    void updatePropertyEditorPaths(const QString &propertyEditorResourcesPath,
+                                   Storage::Synchronization::SynchronizationPackage &package,
+                                   NotUpdatedSourceIds &notUpdatedSourceIds);
+    void updatePropertyEditorPath(const QString &path,
+                                  Storage::Synchronization::SynchronizationPackage &package,
+                                  SourceId directorySourceId);
+    void updatePropertyEditorFilePath(const QString &filePath,
+                                      Storage::Synchronization::SynchronizationPackage &package,
+                                      SourceId directorySourceId);
     void parseTypeInfos(const QStringList &typeInfos,
                         const QList<QmlDirParser::Import> &qmldirDependencies,
                         const QList<QmlDirParser::Import> &qmldirImports,

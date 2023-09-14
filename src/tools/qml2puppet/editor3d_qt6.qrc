@@ -9,8 +9,6 @@
         <file>mockfiles/images/editor_camera@2x.png</file>
         <file>mockfiles/images/editor_particlesystem.png</file>
         <file>mockfiles/images/editor_particlesystem@2x.png</file>
-        <file>mockfiles/images/area.png</file>
-        <file>mockfiles/images/area@2x.png</file>
         <file>mockfiles/images/directional.png</file>
         <file>mockfiles/images/directional@2x.png</file>
         <file>mockfiles/images/point.png</file>
@@ -21,7 +19,6 @@
         <file>mockfiles/images/preview_landscape.hdr</file>
         <file>mockfiles/images/preview_studio.hdr</file>
         <file>mockfiles/qt6/AdjustableArrow.qml</file>
-        <file>mockfiles/qt6/AreaLightHandle.qml</file>
         <file>mockfiles/qt6/Arrow.qml</file>
         <file>mockfiles/qt6/AutoScaleHelper.qml</file>
         <file>mockfiles/qt6/AxisHelper.qml</file>
@@ -57,5 +54,8 @@
         <file>mockfiles/qt6/SceneView3D.qml</file>
         <file>mockfiles/qt6/SelectionBox.qml</file>
         <file>mockfiles/qt6/SpotLightHandle.qml</file>
+        <file>mockfiles/qt6/GridMaterial.qml</file>
+        <file>mockfiles/shaders/gridmaterial.frag</file>
+        <file>mockfiles/shaders/gridmaterial.vert</file>
     </qresource>
 </RCC>

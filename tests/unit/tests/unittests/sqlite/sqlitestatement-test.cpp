@@ -519,7 +519,7 @@ TEST_F(SqliteStatement, write_pointer_values)
     SqliteTestStatement<1, 2> statement("SELECT value FROM carray(?, ?, 'int64')", database);
     std::vector<long long> values{1, 1, 2, 3, 5};
 
-    auto results = statement.values<int>(5, values.data(), int(values.size()));
+    auto results = statement.values<int, 5>(values.data(), int(values.size()));
 
     ASSERT_THAT(results, ElementsAre(1, 1, 2, 3, 5));
 }
@@ -529,7 +529,7 @@ TEST_F(SqliteStatement, write_int_carray_values)
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<int> values{3, 10, 20, 33, 55};
 
-    auto results = statement.values<int>(5, Utils::span(values));
+    auto results = statement.values<int, 5>(Utils::span(values));
 
     ASSERT_THAT(results, ElementsAre(3, 10, 20, 33, 55));
 }
@@ -539,7 +539,7 @@ TEST_F(SqliteStatement, write_long_long_carray_values)
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<long long> values{3, 10, 20, 33, 55};
 
-    auto results = statement.values<long long>(5, Utils::span(values));
+    auto results = statement.values<long long, 5>(Utils::span(values));
 
     ASSERT_THAT(results, ElementsAre(3, 10, 20, 33, 55));
 }
@@ -549,7 +549,7 @@ TEST_F(SqliteStatement, write_double_carray_values)
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<double> values{3.3, 10.2, 20.54, 33.21, 55};
 
-    auto results = statement.values<double>(5, Utils::span(values));
+    auto results = statement.values<double, 5>(Utils::span(values));
 
     ASSERT_THAT(results, ElementsAre(3.3, 10.2, 20.54, 33.21, 55));
 }
@@ -559,7 +559,7 @@ TEST_F(SqliteStatement, write_text_carray_values)
     SqliteTestStatement<1, 1> statement("SELECT value FROM carray(?)", database);
     std::vector<const char *> values{"yi", "er", "san", "se", "wu"};
 
-    auto results = statement.values<Utils::SmallString>(5, Utils::span(values));
+    auto results = statement.values<Utils::SmallString, 5>(Utils::span(values));
 
     ASSERT_THAT(results, ElementsAre("yi", "er", "san", "se", "wu"));
 }
@@ -725,7 +725,7 @@ TEST_F(SqliteStatement, get_tuple_values_without_arguments)
     using Tuple = std::tuple<Utils::SmallString, double, int>;
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
 
-    auto values = statement.values<Tuple>(3);
+    auto values = statement.values<Tuple>();
 
     ASSERT_THAT(values,
                 UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}, Tuple{"poo", 40.0, 3}));
@@ -851,7 +851,7 @@ TEST_F(SqliteStatement, get_single_values_without_arguments)
 {
     ReadStatement<1> statement("SELECT name FROM test", database);
 
-    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3);
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>();
 
     ASSERT_THAT(values, UnorderedElementsAre("bar", "foo", "poo"));
 }
@@ -901,7 +901,7 @@ TEST_F(SqliteStatement, get_single_sqlite_values_without_arguments)
     ReadStatement<1> statement("SELECT number FROM test", database);
     database.execute("INSERT INTO  test VALUES (NULL, NULL, NULL)");
 
-    std::vector<FooValue> values = statement.values<FooValue>(3);
+    std::vector<FooValue> values = statement.values<FooValue>();
 
     ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40), IsNull()));
 }
@@ -933,7 +933,7 @@ TEST_F(SqliteStatement, get_struct_values_without_arguments)
 {
     ReadStatement<3> statement("SELECT name, number, value FROM test", database);
 
-    auto values = statement.values<Output>(3);
+    auto values = statement.values<Output>();
 
     ASSERT_THAT(values,
                 UnorderedElementsAre(Output{"bar", "blah", 1},
@@ -971,9 +971,9 @@ TEST_F(SqliteStatement, get_struct_range_with_transaction_without_arguments)
 TEST_F(SqliteStatement, get_values_for_single_output_with_binding_multiple_times)
 {
     ReadStatement<1, 1> statement("SELECT name FROM test WHERE number=?", database);
-    statement.values<Utils::SmallString>(3, 40);
+    statement.values<Utils::SmallString, 3>(40);
 
-    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, 40);
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString, 3>(40);
 
     ASSERT_THAT(values, ElementsAre("poo"));
 }
@@ -981,7 +981,7 @@ TEST_F(SqliteStatement, get_values_for_single_output_with_binding_multiple_times
 TEST_F(SqliteStatement, get_range_for_single_output_with_binding_multiple_times)
 {
     ReadStatement<1, 1> statement("SELECT name FROM test WHERE number=?", database);
-    statement.values<Utils::SmallString>(3, 40);
+    statement.values<Utils::SmallString, 3>(40);
 
     auto range = statement.range<Utils::SmallStringView>(40);
     std::vector<Utils::SmallString> values{range.begin(), range.end()};
@@ -992,7 +992,7 @@ TEST_F(SqliteStatement, get_range_for_single_output_with_binding_multiple_times)
 TEST_F(SqliteStatement, get_range_with_transaction_for_single_output_with_binding_multiple_times)
 {
     ReadStatement<1, 1> statement("SELECT name FROM test WHERE number=?", database);
-    statement.values<Utils::SmallString>(3, 40);
+    statement.values<Utils::SmallString, 3>(40);
     database.unlock();
 
     std::vector<Utils::SmallString> values = toValues(
@@ -1008,7 +1008,7 @@ TEST_F(SqliteStatement, get_values_for_multiple_output_values_and_multiple_query
     ReadStatement<3, 3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
 
-    auto values = statement.values<Tuple>(3, "bar", "blah", 1);
+    auto values = statement.values<Tuple, 3>("bar", "blah", 1);
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
 }
@@ -1043,9 +1043,9 @@ TEST_F(SqliteStatement, call_get_values_for_multiple_output_values_and_multiple_
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
     ReadStatement<3, 2> statement("SELECT name, number, value FROM test WHERE name=? AND number=?",
                                   database);
-    statement.values<Tuple>(3, "bar", "blah");
+    statement.values<Tuple, 3>("bar", "blah");
 
-    auto values = statement.values<Tuple>(3, "bar", "blah");
+    auto values = statement.values<Tuple, 3>("bar", "blah");
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
 }
@@ -1086,7 +1086,7 @@ TEST_F(SqliteStatement, get_struct_output_values_and_multiple_query_value)
     ReadStatement<3, 3> statement(
         "SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
 
-    auto values = statement.values<Output>(3, "bar", "blah", 1);
+    auto values = statement.values<Output, 3>("bar", "blah", 1);
 
     ASSERT_THAT(values, ElementsAre(Output{"bar", "blah", 1}));
 }
@@ -1099,7 +1099,7 @@ TEST_F(SqliteStatement, get_blob_values)
     auto bytePointer = reinterpret_cast<const std::byte *>(&value);
     Sqlite::BlobView bytes{bytePointer, 4};
 
-    auto values = statement.values<Sqlite::Blob>(1);
+    auto values = statement.values<Sqlite::Blob>();
 
     ASSERT_THAT(values, ElementsAre(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
@@ -1299,7 +1299,7 @@ TEST_F(SqliteStatement, get_values_without_arguments_calls_reset)
 
     EXPECT_CALL(mockStatement, reset());
 
-    mockStatement.values<int>(3);
+    mockStatement.values<int>();
 }
 
 TEST_F(SqliteStatement, get_range_without_arguments_calls_reset)
@@ -1332,7 +1332,7 @@ TEST_F(SqliteStatement, get_values_without_arguments_calls_reset_if_exception_is
 
     EXPECT_CALL(mockStatement, reset());
 
-    EXPECT_THROW(mockStatement.values<int>(3), Sqlite::StatementHasError);
+    EXPECT_THROW(mockStatement.values<int>(), Sqlite::StatementHasError);
 }
 
 TEST_F(SqliteStatement, get_range_without_arguments_calls_reset_if_exception_is_thrown)
@@ -1372,7 +1372,7 @@ TEST_F(SqliteStatement, get_values_with_simple_arguments_calls_reset)
 
     EXPECT_CALL(mockStatement, reset());
 
-    mockStatement.values<int>(3, "foo", "bar");
+    mockStatement.values<int, 3>("foo", "bar");
 }
 
 TEST_F(SqliteStatement, get_values_with_simple_arguments_calls_reset_if_exception_is_thrown)
@@ -1382,7 +1382,7 @@ TEST_F(SqliteStatement, get_values_with_simple_arguments_calls_reset_if_exceptio
 
     EXPECT_CALL(mockStatement, reset());
 
-    EXPECT_THROW(mockStatement.values<int>(3, "foo", "bar"), Sqlite::StatementHasError);
+    EXPECT_THROW((mockStatement.values<int, 3>("foo", "bar")), Sqlite::StatementHasError);
 }
 
 TEST_F(SqliteStatement, reset_if_write_is_throwing_exception)
@@ -1580,7 +1580,7 @@ TEST_F(SqliteStatement, read_statement_values_with_transactions)
                                   database);
     database.unlock();
 
-    std::vector<Tuple> values = statement.valuesWithTransaction<Tuple>(1024, "bar", "blah");
+    std::vector<Tuple> values = statement.valuesWithTransaction<Tuple, 1024>("bar", "blah");
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
     database.lock();
@@ -1646,7 +1646,7 @@ TEST_F(SqliteStatement, read_write_statement_values_with_transactions)
         "SELECT name, number, value FROM test WHERE name=? AND number=?", database);
     database.unlock();
 
-    std::vector<Tuple> values = statement.valuesWithTransaction<Tuple>(1024, "bar", "blah");
+    std::vector<Tuple> values = statement.valuesWithTransaction<Tuple, 1024>("bar", "blah");
 
     ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
     database.lock();

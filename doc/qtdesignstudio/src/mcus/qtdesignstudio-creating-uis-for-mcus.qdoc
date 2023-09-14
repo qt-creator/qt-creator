@@ -1,0 +1,52 @@
+/ Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-creating-uis-for-mcus.html
+    \previouspage studio-projects-for-mcus.html
+    \nextpage studio-developing-apps-for-mcus.html
+
+    \title Creating UIs for MCUs
+
+    As a technical artist or a designer, you can use specialized UI design tools,
+    such as Adobe Photoshop, Sketch, Figma, Blender, or Maya, to create the
+    original UI design files for your MCU application. After the initial design
+    work, export your design from the design tools, and import your 2D and 3D UI
+    design assets into \QDS, which can convert them into code for developers.
+    For more information on managing the original assets created with
+    specialized UI design tools, see \l {Asset Creation with Other Tools}.
+
+    Once your UI design assets are in \QDS, use it to \l {Wireframing} {wireframe}
+    your MCU application, to visualize its structure. To modify the look and feel
+    of your UI further, utilize the preset UI components available in \QDS.
+
+    \section1 Using MCU Components
+
+    With \QDS, you can use subsets of components to create UIs for
+    devices that are powered by microcontroller units (MCU). The subset of
+    supported components depends on the \QMCU version that you use for
+    development.
+
+    To develop for MCUs, \l{Creating Projects for MCUs}{create an MCU project}.
+    Only the components available on MCUs are displayed in \l Components. Also,
+    only a subset of properties is supported for the supported components. The
+    properties that are not available on MCUs are marked in the \l Properties
+    view with strikethrough text.
+
+    \image studio-mcu-components-and-properties.webp "Components and Text properties supported for MCUs"
+
+    For more information on the supported views and features, see \l{\QDS Features on MCU Projects}.
+
+    For an example on how to create a UI that runs both on the desktop and
+    on MCUs, see \l {Washing Machine UI}. For step-by-step instructions on how
+    to use \QDS to design a UI for a specific MCU target device, see:
+
+    \list
+        \li \l {Designing a UI for Infineon Traveo II}
+        \li \l {Designing a UI for NXP i.MX RT1170}
+        \li \l {Designing a UI for Renesas RA6M3G}
+        \li \l {Designing a UI for Renesas RH850-D1M1A}
+    \endlist
+
+    \sa {Specifying Component Properties}
+*/

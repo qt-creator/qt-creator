@@ -18,29 +18,11 @@ AsynchronousImageCache::AsynchronousImageCache(ImageCacheStorageInterface &stora
     , m_generator(generator)
     , m_timeStampProvider(timeStampProvider)
 {
-    m_backgroundThread = std::thread{[this] {
-        while (isRunning()) {
-            if (auto entry = getEntry(); entry) {
-                request(entry->name,
-                        entry->extraId,
-                        entry->requestType,
-                        std::move(entry->captureCallback),
-                        std::move(entry->abortCallback),
-                        std::move(entry->auxiliaryData),
-                        m_storage,
-                        m_generator,
-                        m_timeStampProvider);
-            }
-
-            waitForEntries();
-        }
-    }};
 }
 
 AsynchronousImageCache::~AsynchronousImageCache()
 {
-    clean();
-    wait();
+    m_generator.clean();
 }
 
 void AsynchronousImageCache::request(Utils::SmallStringView name,
@@ -110,27 +92,18 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
     }
 }
 
-void AsynchronousImageCache::wait()
-{
-    stopThread();
-    m_condition.notify_all();
-    if (m_backgroundThread.joinable())
-        m_backgroundThread.join();
-}
-
 void AsynchronousImageCache::requestImage(Utils::SmallStringView name,
                                           ImageCache::CaptureImageCallback captureCallback,
                                           ImageCache::AbortCallback abortCallback,
                                           Utils::SmallStringView extraId,
                                           ImageCache::AuxiliaryData auxiliaryData)
 {
-    addEntry(std::move(name),
-             std::move(extraId),
-             std::move(captureCallback),
-             std::move(abortCallback),
-             std::move(auxiliaryData),
-             RequestType::Image);
-    m_condition.notify_all();
+    m_taskQueue.addTask(std::move(name),
+                        std::move(extraId),
+                        std::move(captureCallback),
+                        std::move(abortCallback),
+                        std::move(auxiliaryData),
+                        RequestType::Image);
 }
 
 void AsynchronousImageCache::requestMidSizeImage(Utils::SmallStringView name,
@@ -139,13 +112,12 @@ void AsynchronousImageCache::requestMidSizeImage(Utils::SmallStringView name,
                                                  Utils::SmallStringView extraId,
                                                  ImageCache::AuxiliaryData auxiliaryData)
 {
-    addEntry(std::move(name),
-             std::move(extraId),
-             std::move(captureCallback),
-             std::move(abortCallback),
-             std::move(auxiliaryData),
-             RequestType::MidSizeImage);
-    m_condition.notify_all();
+    m_taskQueue.addTask(std::move(name),
+                        std::move(extraId),
+                        std::move(captureCallback),
+                        std::move(abortCallback),
+                        std::move(auxiliaryData),
+                        RequestType::MidSizeImage);
 }
 
 void AsynchronousImageCache::requestSmallImage(Utils::SmallStringView name,
@@ -154,76 +126,18 @@ void AsynchronousImageCache::requestSmallImage(Utils::SmallStringView name,
                                                Utils::SmallStringView extraId,
                                                ImageCache::AuxiliaryData auxiliaryData)
 {
-    addEntry(std::move(name),
-             std::move(extraId),
-             std::move(captureCallback),
-             std::move(abortCallback),
-             std::move(auxiliaryData),
-             RequestType::SmallImage);
-    m_condition.notify_all();
+    m_taskQueue.addTask(std::move(name),
+                        std::move(extraId),
+                        std::move(captureCallback),
+                        std::move(abortCallback),
+                        std::move(auxiliaryData),
+                        RequestType::SmallImage);
 }
 
 void AsynchronousImageCache::clean()
 {
-    clearEntries();
     m_generator.clean();
-}
-
-std::optional<AsynchronousImageCache::Entry> AsynchronousImageCache::getEntry()
-{
-    std::unique_lock lock{m_mutex};
-
-    if (m_entries.empty())
-        return {};
-
-    Entry entry = m_entries.front();
-    m_entries.pop_front();
-
-    return {entry};
-}
-
-void AsynchronousImageCache::addEntry(Utils::PathString &&name,
-                                      Utils::SmallString &&extraId,
-                                      ImageCache::CaptureImageCallback &&captureCallback,
-                                      ImageCache::AbortCallback &&abortCallback,
-                                      ImageCache::AuxiliaryData &&auxiliaryData,
-                                      RequestType requestType)
-{
-    std::unique_lock lock{m_mutex};
-
-    m_entries.emplace_back(std::move(name),
-                           std::move(extraId),
-                           std::move(captureCallback),
-                           std::move(abortCallback),
-                           std::move(auxiliaryData),
-                           requestType);
-}
-
-void AsynchronousImageCache::clearEntries()
-{
-    std::unique_lock lock{m_mutex};
-    for (Entry &entry : m_entries)
-        entry.abortCallback(ImageCache::AbortReason::Abort);
-    m_entries.clear();
-}
-
-void AsynchronousImageCache::waitForEntries()
-{
-    std::unique_lock lock{m_mutex};
-    if (m_entries.empty())
-        m_condition.wait(lock, [&] { return m_entries.size() || m_finishing; });
-}
-
-void AsynchronousImageCache::stopThread()
-{
-    std::unique_lock lock{m_mutex};
-    m_finishing = true;
-}
-
-bool AsynchronousImageCache::isRunning()
-{
-    std::unique_lock lock{m_mutex};
-    return !m_finishing || m_entries.size();
+    m_taskQueue.clean();
 }
 
 } // namespace QmlDesigner

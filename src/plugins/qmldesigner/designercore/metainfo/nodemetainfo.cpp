@@ -623,6 +623,7 @@ public:
 
     QString componentFileName() const;
     QString importDirectoryPath() const;
+    Import requiredImport() const;
 
     static std::shared_ptr<NodeMetaInfoPrivate> create(Model *model,
                                                        const TypeName &type,
@@ -1228,6 +1229,43 @@ QString NodeMetaInfoPrivate::importDirectoryPath() const
     return QString();
 }
 
+Import NodeMetaInfoPrivate::requiredImport() const
+{
+    if (!isValid())
+        return {};
+
+    const auto *imports = context()->imports(document());
+    ImportInfo importInfo = imports->info(lookupNameComponent().constLast(), context().data());
+
+    if (importInfo.type() == ImportType::Directory) {
+        return Import::createFileImport(importInfo.name(),
+                                        importInfo.version().toString(),
+                                        importInfo.as());
+    } else if (importInfo.type() == ImportType::Library) {
+        const QStringList importPaths = model()->importPaths();
+        for (const QString &importPath : importPaths) {
+            const QDir importDir(importPath);
+            const QString targetPathVersion = importDir.filePath(
+                importInfo.path() + '.' + QString::number(importInfo.version().majorVersion()));
+            if (QDir(targetPathVersion).exists()) {
+                return Import::createLibraryImport(importInfo.name(),
+                                                   importInfo.version().toString(),
+                                                   importInfo.as(),
+                                                   {targetPathVersion});
+            }
+
+            const QString targetPath = importDir.filePath(importInfo.path());
+            if (QDir(targetPath).exists()) {
+                return Import::createLibraryImport(importInfo.name(),
+                                                   importInfo.version().toString(),
+                                                   importInfo.as(),
+                                                   {targetPath});
+            }
+        }
+    }
+    return {};
+}
+
 QString NodeMetaInfoPrivate::lookupName() const
 {
     QString className = QString::fromUtf8(m_qualfiedTypeName);
@@ -1418,6 +1456,26 @@ bool NodeMetaInfo::isValid() const
         return m_privateData && m_privateData->isValid();
 }
 
+MetaInfoType NodeMetaInfo::type() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid()) {
+            switch (typeData().traits) {
+            case Storage::TypeTraits::Reference:
+                return MetaInfoType::Reference;
+            case Storage::TypeTraits::Value:
+                return MetaInfoType::Value;
+            case Storage::TypeTraits::Sequence:
+                return MetaInfoType::Sequence;
+            default:
+                break;
+            }
+        }
+    }
+
+    return MetaInfoType::None;
+}
+
 bool NodeMetaInfo::isFileComponent() const
 {
     if constexpr (useProjectStorage())
@@ -1444,10 +1502,41 @@ bool NodeMetaInfo::isInProjectModule() const
     return false;
 }
 
+namespace {
+
+[[maybe_unused]] auto propertyId(const ProjectStorageType &projectStorage,
+                                 TypeId typeId,
+                                 Utils::SmallStringView propertyName)
+{
+    auto begin = propertyName.begin();
+    const auto end = propertyName.end();
+
+    auto found = std::find(begin, end, '.');
+    auto propertyId = projectStorage.propertyDeclarationId(typeId, {begin, found});
+
+    if (propertyId && found != end) {
+        auto propertyData = projectStorage.propertyDeclaration(propertyId);
+        if (auto propertyTypeId = propertyData->propertyTypeId) {
+            begin = std::next(found);
+            found = std::find(begin, end, '.');
+            propertyId = projectStorage.propertyDeclarationId(propertyTypeId, {begin, found});
+
+            if (propertyId && found != end) {
+                begin = std::next(found);
+                return projectStorage.propertyDeclarationId(propertyTypeId, {begin, end});
+            }
+        }
+    }
+
+    return propertyId;
+}
+
+} // namespace
+
 bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName) const
 {
     if constexpr (useProjectStorage())
-        return isValid() && bool(m_projectStorage->propertyDeclarationId(m_typeId, propertyName));
+        return isValid() && bool(propertyId(*m_projectStorage, m_typeId, propertyName));
     else
         return isValid() && m_privateData->properties().contains(propertyName);
 }
@@ -1506,10 +1595,8 @@ PropertyMetaInfos NodeMetaInfo::localProperties() const
 PropertyMetaInfo NodeMetaInfo::property(const PropertyName &propertyName) const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return {m_projectStorage->propertyDeclarationId(m_typeId, propertyName),
-                    m_projectStorage};
-        }
+        if (isValid())
+            return {propertyId(*m_projectStorage, m_typeId, propertyName), m_projectStorage};
     } else {
         if (hasProperty(propertyName)) {
             return PropertyMetaInfo{m_privateData, propertyName};
@@ -1745,6 +1832,28 @@ QString NodeMetaInfo::importDirectoryPath() const
     }
 
     return {};
+}
+
+QString NodeMetaInfo::requiredImportString() const
+{
+    if (!isValid())
+        return {};
+
+    Import imp = m_privateData->requiredImport();
+    if (!imp.isEmpty())
+        return imp.toImportString();
+
+    return {};
+}
+
+SourceId NodeMetaInfo::propertyEditorPathId() const
+{
+    if (useProjectStorage()) {
+        if (isValid())
+            return m_projectStorage->propertyEditorPathId(m_typeId);
+    }
+
+    return SourceId{};
 }
 
 const Storage::Info::Type &NodeMetaInfo::typeData() const
@@ -2407,6 +2516,26 @@ bool NodeMetaInfo::isQtQuick3DLight() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickListElement() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQml_Models, ListElement>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick3D.ListElement");
+    }
+}
+
+bool NodeMetaInfo::isQtQuickListModel() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQml_Models, ListModel>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick3D.ListModel");
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DInstanceList() const
 {
     if constexpr (useProjectStorage()) {
@@ -2985,13 +3114,24 @@ PropertyMetaInfo::~PropertyMetaInfo() = default;
 NodeMetaInfo PropertyMetaInfo::propertyType() const
 {
     if constexpr (useProjectStorage()) {
-        return {propertyData().typeId, m_projectStorage};
+        if (isValid())
+            return {propertyData().propertyTypeId, m_projectStorage};
     } else {
         if (isValid())
             return NodeMetaInfo{nodeMetaInfoPrivateData()->model(),
                                 nodeMetaInfoPrivateData()->propertyType(propertyName()),
                                 -1,
                                 -1};
+    }
+
+    return {};
+}
+
+NodeMetaInfo PropertyMetaInfo::type() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return NodeMetaInfo(propertyData().typeId, m_projectStorage);
     }
 
     return {};
@@ -3012,15 +3152,20 @@ PropertyName PropertyMetaInfo::name() const
 bool PropertyMetaInfo::isWritable() const
 {
     if constexpr (useProjectStorage())
-        return !(propertyData().traits & Storage::PropertyDeclarationTraits::IsReadOnly);
+        return isValid() && !(propertyData().traits & Storage::PropertyDeclarationTraits::IsReadOnly);
     else
         return isValid() && nodeMetaInfoPrivateData()->isPropertyWritable(propertyName());
+}
+
+bool PropertyMetaInfo::isReadOnly() const
+{
+    return !isWritable();
 }
 
 bool PropertyMetaInfo::isListProperty() const
 {
     if constexpr (useProjectStorage())
-        return propertyData().traits & Storage::PropertyDeclarationTraits::IsList;
+        return isValid() && propertyData().traits & Storage::PropertyDeclarationTraits::IsList;
     else
         return isValid() && nodeMetaInfoPrivateData()->isPropertyList(propertyName());
 }
@@ -3036,7 +3181,7 @@ bool PropertyMetaInfo::isEnumType() const
 bool PropertyMetaInfo::isPrivate() const
 {
     if constexpr (useProjectStorage())
-        return propertyData().name.startsWith("__");
+        return isValid() && propertyData().name.startsWith("__");
     else
         return isValid() && propertyName().startsWith("__");
 }
@@ -3044,15 +3189,23 @@ bool PropertyMetaInfo::isPrivate() const
 bool PropertyMetaInfo::isPointer() const
 {
     if constexpr (useProjectStorage())
-        return propertyData().traits & Storage::PropertyDeclarationTraits::IsPointer;
+        return isValid() && (propertyData().traits & Storage::PropertyDeclarationTraits::IsPointer);
     else
         return isValid() && nodeMetaInfoPrivateData()->isPropertyPointer(propertyName());
 }
 
+namespace {
+template<typename... QMetaTypes>
+bool isType(const QMetaType &type, const QMetaTypes &...types)
+{
+    return ((type == types) || ...);
+}
+} // namespace
+
 QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
 {
     if (!isValid())
-        return value;
+        return {};
 
     if constexpr (!useProjectStorage()) {
         const QVariant variant = value;
@@ -3064,7 +3217,7 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
 
         QVariant::Type typeId = nodeMetaInfoPrivateData()->variantTypeId(propertyName());
 
-        if (variant.typeId() == QVariant::UserType && variant.typeId() == ModelNode::variantTypeId()) {
+        if (variant.typeId() == ModelNode::variantTypeId()) {
             return variant;
         } else if (typeId == QVariant::UserType && typeName == "QVariant") {
             return variant;
@@ -3093,17 +3246,24 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         }
 
     } else {
-        if (isEnumType() || value.canConvert<Enumeration>())
+        if (isEnumType() && value.canConvert<Enumeration>())
             return value;
 
-        const TypeId &typeId = propertyData().typeId;
+        const TypeId &typeId = propertyData().propertyTypeId;
+
+        static constexpr auto boolType = QMetaType::fromType<bool>();
+        static constexpr auto intType = QMetaType::fromType<int>();
+        static constexpr auto longType = QMetaType::fromType<long>();
+        static constexpr auto longLongType = QMetaType::fromType<long long>();
+        static constexpr auto floatType = QMetaType::fromType<float>();
+        static constexpr auto doubleType = QMetaType::fromType<double>();
+        static constexpr auto qStringType = QMetaType::fromType<QString>();
+        static constexpr auto qUrlType = QMetaType::fromType<QUrl>();
+        static constexpr auto qColorType = QMetaType::fromType<QColor>();
 
         if (value.typeId() == QVariant::UserType && value.typeId() == ModelNode::variantTypeId()) {
             return value;
         } else if (typeId == m_projectStorage->builtinTypeId<QVariant>()) {
-            return value;
-        } else if (value.typeId() == QVariant::List) {
-            // TODO: check the contents of the list
             return value;
         } else if (typeId == m_projectStorage->builtinTypeId<double>()) {
             return value.toDouble();
@@ -3112,32 +3272,35 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         } else if (typeId == m_projectStorage->builtinTypeId<int>()) {
             return value.toInt();
         } else if (typeId == m_projectStorage->builtinTypeId<bool>()) {
-            return value.toBool();
+            return isType(value.metaType(), boolType, intType, longType, longLongType, floatType, doubleType)
+                   && value.toBool();
         } else if (typeId == m_projectStorage->builtinTypeId<QString>()) {
-            return value.toString();
+            if (isType(value.metaType(), qStringType))
+                return value;
+            else
+                return QString{};
         } else if (typeId == m_projectStorage->builtinTypeId<QDateTime>()) {
             return value.toDateTime();
         } else if (typeId == m_projectStorage->builtinTypeId<QUrl>()) {
-            return value.toUrl();
+            if (isType(value.metaType(), qUrlType))
+                return value;
+            else
+                return QUrl{};
         } else if (typeId == m_projectStorage->builtinTypeId<QColor>()) {
-            return value.value<QColor>();
+            if (isType(value.metaType(), qColorType))
+                return value;
+            else
+                return QColor{};
         } else if (typeId == m_projectStorage->builtinTypeId<QVector2D>()) {
             return value.value<QVector2D>();
         } else if (typeId == m_projectStorage->builtinTypeId<QVector3D>()) {
             return value.value<QVector3D>();
         } else if (typeId == m_projectStorage->builtinTypeId<QVector4D>()) {
             return value.value<QVector4D>();
-        } else {
-            const auto typeName = propertyTypeName();
-            const auto metaType = QMetaType::fromName(typeName);
-            auto copy = value;
-            bool converted = copy.convert(metaType);
-            if (converted)
-                return copy;
         }
     }
 
-    return Internal::PropertyParser::variantFromString(value.toString());
+    return {};
 }
 
 const Storage::Info::PropertyDeclaration &PropertyMetaInfo::propertyData() const
@@ -3197,6 +3360,80 @@ NodeMetaInfo NodeMetaInfo::commonBase(const NodeMetaInfo &metaInfo) const
     }
 
     return {};
+}
+
+namespace {
+
+void addCompoundProperties(CompoundPropertyMetaInfos &inflatedProperties,
+                           const PropertyMetaInfo &parentProperty,
+                           PropertyMetaInfos properties)
+{
+    for (PropertyMetaInfo &property : properties)
+        inflatedProperties.emplace_back(std::move(property), parentProperty);
+}
+
+bool maybeCanHaveProperties(const NodeMetaInfo &type)
+{
+    if (!type)
+        return false;
+
+    using namespace Storage::Info;
+    const auto &cache = type.projectStorage().commonTypeCache();
+    auto typeId = type.id();
+    const auto &typeIdsWithoutProperties = cache.typeIdsWithoutProperties();
+    const auto begin = typeIdsWithoutProperties.begin();
+    const auto end = typeIdsWithoutProperties.end();
+
+    return std::find(begin, end, typeId) == end;
+}
+
+void addSubProperties(CompoundPropertyMetaInfos &inflatedProperties,
+                      PropertyMetaInfo &propertyMetaInfo,
+                      const NodeMetaInfo &propertyType)
+{
+    if (maybeCanHaveProperties(propertyType)) {
+        auto subProperties = propertyType.properties();
+        if (!subProperties.empty()) {
+            addCompoundProperties(inflatedProperties, propertyMetaInfo, subProperties);
+            return;
+        }
+    }
+
+    inflatedProperties.emplace_back(std::move(propertyMetaInfo));
+}
+
+} // namespace
+
+CompoundPropertyMetaInfos MetaInfoUtils::inflateValueProperties(PropertyMetaInfos properties)
+{
+    CompoundPropertyMetaInfos inflatedProperties;
+    inflatedProperties.reserve(properties.size() * 2);
+
+    for (auto &property : properties) {
+        if (auto propertyType = property.propertyType(); propertyType.type() == MetaInfoType::Value)
+            addSubProperties(inflatedProperties, property, propertyType);
+        else
+            inflatedProperties.emplace_back(std::move(property));
+    }
+
+    return inflatedProperties;
+}
+
+CompoundPropertyMetaInfos MetaInfoUtils::inflateValueAndReadOnlyProperties(PropertyMetaInfos properties)
+{
+    CompoundPropertyMetaInfos inflatedProperties;
+    inflatedProperties.reserve(properties.size() * 2);
+
+    for (auto &property : properties) {
+        if (auto propertyType = property.propertyType();
+            propertyType.type() == MetaInfoType::Value || property.isReadOnly()) {
+            addSubProperties(inflatedProperties, property, propertyType);
+        } else {
+            inflatedProperties.emplace_back(std::move(property));
+        }
+    }
+
+    return inflatedProperties;
 }
 
 } // namespace QmlDesigner

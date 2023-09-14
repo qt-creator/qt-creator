@@ -12,26 +12,11 @@ namespace QmlDesigner {
 AsynchronousExplicitImageCache::AsynchronousExplicitImageCache(ImageCacheStorageInterface &storage)
     : m_storage(storage)
 {
-    m_backgroundThread = std::thread{[this] {
-        while (isRunning()) {
-            if (auto entry = getEntry(); entry) {
-                request(entry->name,
-                        entry->extraId,
-                        entry->requestType,
-                        std::move(entry->captureCallback),
-                        std::move(entry->abortCallback),
-                        m_storage);
-            }
 
-            waitForEntries();
-        }
-    }};
 }
 
 AsynchronousExplicitImageCache::~AsynchronousExplicitImageCache()
 {
-    clean();
-    wait();
 }
 
 void AsynchronousExplicitImageCache::request(Utils::SmallStringView name,
@@ -70,21 +55,16 @@ void AsynchronousExplicitImageCache::request(Utils::SmallStringView name,
     }
 }
 
-void AsynchronousExplicitImageCache::wait()
-{
-    stopThread();
-    m_condition.notify_all();
-    if (m_backgroundThread.joinable())
-        m_backgroundThread.join();
-}
-
 void AsynchronousExplicitImageCache::requestImage(Utils::SmallStringView name,
                                                   ImageCache::CaptureImageCallback captureCallback,
                                                   ImageCache::AbortCallback abortCallback,
                                                   Utils::SmallStringView extraId)
 {
-    addEntry(name, extraId, std::move(captureCallback), std::move(abortCallback), RequestType::Image);
-    m_condition.notify_all();
+    m_taskQueue.addTask(name,
+                        extraId,
+                        std::move(captureCallback),
+                        std::move(abortCallback),
+                        RequestType::Image);
 }
 
 void AsynchronousExplicitImageCache::requestMidSizeImage(Utils::SmallStringView name,
@@ -92,8 +72,11 @@ void AsynchronousExplicitImageCache::requestMidSizeImage(Utils::SmallStringView 
                                                          ImageCache::AbortCallback abortCallback,
                                                          Utils::SmallStringView extraId)
 {
-    addEntry(name, extraId, std::move(captureCallback), std::move(abortCallback), RequestType::MidSizeImage);
-    m_condition.notify_all();
+    m_taskQueue.addTask(name,
+                        extraId,
+                        std::move(captureCallback),
+                        std::move(abortCallback),
+                        RequestType::MidSizeImage);
 }
 
 void AsynchronousExplicitImageCache::requestSmallImage(Utils::SmallStringView name,
@@ -101,68 +84,16 @@ void AsynchronousExplicitImageCache::requestSmallImage(Utils::SmallStringView na
                                                        ImageCache::AbortCallback abortCallback,
                                                        Utils::SmallStringView extraId)
 {
-    addEntry(name, extraId, std::move(captureCallback), std::move(abortCallback), RequestType::SmallImage);
-    m_condition.notify_all();
+    m_taskQueue.addTask(name,
+                        extraId,
+                        std::move(captureCallback),
+                        std::move(abortCallback),
+                        RequestType::SmallImage);
 }
 
 void AsynchronousExplicitImageCache::clean()
 {
-    clearEntries();
-}
-
-std::optional<AsynchronousExplicitImageCache::RequestEntry> AsynchronousExplicitImageCache::getEntry()
-{
-    std::unique_lock lock{m_mutex};
-
-    if (m_requestEntries.empty())
-        return {};
-
-    RequestEntry entry = m_requestEntries.front();
-    m_requestEntries.pop_front();
-
-    return {entry};
-}
-
-void AsynchronousExplicitImageCache::addEntry(Utils::PathString &&name,
-                                              Utils::SmallString &&extraId,
-                                              ImageCache::CaptureImageCallback &&captureCallback,
-                                              ImageCache::AbortCallback &&abortCallback,
-                                              RequestType requestType)
-{
-    std::unique_lock lock{m_mutex};
-
-    m_requestEntries.emplace_back(std::move(name),
-                                  std::move(extraId),
-                                  std::move(captureCallback),
-                                  std::move(abortCallback),
-                                  requestType);
-}
-
-void AsynchronousExplicitImageCache::clearEntries()
-{
-    std::unique_lock lock{m_mutex};
-    for (RequestEntry &entry : m_requestEntries)
-        entry.abortCallback(ImageCache::AbortReason::Abort);
-    m_requestEntries.clear();
-}
-
-void AsynchronousExplicitImageCache::waitForEntries()
-{
-    std::unique_lock lock{m_mutex};
-    if (m_requestEntries.empty())
-        m_condition.wait(lock, [&] { return m_requestEntries.size() || m_finishing; });
-}
-
-void AsynchronousExplicitImageCache::stopThread()
-{
-    std::unique_lock lock{m_mutex};
-    m_finishing = true;
-}
-
-bool AsynchronousExplicitImageCache::isRunning()
-{
-    std::unique_lock lock{m_mutex};
-    return !m_finishing || m_requestEntries.size();
+    m_taskQueue.clean();
 }
 
 } // namespace QmlDesigner

@@ -190,7 +190,7 @@ bool compareTypes(const NodeMetaInfo &sourceType, const NodeMetaInfo &targetType
 
         static constexpr auto variantTypes = std::make_tuple("alias", "unknown", "variant", "var");
 
-        return isType(variantTypes, target) || isType(variantTypes, source)
+        return isType(variantTypes, target) || isType(variantTypes, source) || target == source
                || targetType == sourceType || isType(target, source, "double", "real", "int")
                || isType(target, source, "QColor", "color")
                || isType(target, source, "QString", "string");

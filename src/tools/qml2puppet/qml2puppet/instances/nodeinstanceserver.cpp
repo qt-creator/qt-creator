@@ -19,9 +19,7 @@
 
 #include <qmlprivategate.h>
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
 #include <private/qquickdesignersupportmetainfo_p.h>
-#endif
 
 #include <createinstancescommand.h>
 #include <changefileurlcommand.h>
@@ -728,7 +726,6 @@ void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &co
 {
     for (const MockupTypeContainer &mockupType : container) {
         if (!isTypeAvailable(mockupType, engine())) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
             if (mockupType.majorVersion() == -1 && mockupType.minorVersion() == -1) {
                 QQuickDesignerSupportMetaInfo::registerMockupObject(mockupType.importUri().toUtf8(),
                                                                 1,
@@ -740,13 +737,6 @@ void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &co
                                                                 mockupType.minorVersion(),
                                                                 mockupType.typeName());
             }
-#else
-            qmlRegisterType(QUrl("qrc:/qtquickplugin/mockfiles/GenericBackend.qml"),
-                        mockupType.importUri().toUtf8(),
-                        mockupType.majorVersion(),
-                        mockupType.minorVersion(),
-                        mockupType.typeName());
-#endif
         }
     }
 }
@@ -1412,10 +1402,8 @@ void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo &qmlFileInfo
 
 void NodeInstanceServer::setTranslationLanguage(const QString &language)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
     // if there exists an /i18n directory it sets default translators
     engine()->setUiLanguage(language);
-#endif
     static QPointer<MultiLanguage::Translator> multilanguageTranslator;
     if (!MultiLanguage::databaseFilePath().isEmpty()
         && QFileInfo::exists(QString::fromUtf8(MultiLanguage::databaseFilePath()))) {

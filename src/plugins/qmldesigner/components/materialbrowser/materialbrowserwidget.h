@@ -65,6 +65,8 @@ public:
 
     void clearPreviewCache();
 
+    QSize sizeHint() const override;
+
 signals:
     void materialSectionFocusedChanged();
     void isDraggingChanged();

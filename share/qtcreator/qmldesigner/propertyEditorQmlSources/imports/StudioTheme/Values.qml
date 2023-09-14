@@ -185,6 +185,8 @@ QtObject {
     property real columnFactor: values.propertyLabelWidthMin
                                 / (values.propertyLabelWidthMin + values.controlColumnWidthMin)
 
+    property real dialogScreenMargin: Math.round(160 * values.scaleFactor)
+
     function responsiveResize(width) {
         var tmpWidth = width - values.sectionColumnSpacing
                        - values.sectionLeftPadding - values.sectionLayoutRightPadding
@@ -215,19 +217,33 @@ QtObject {
     property real hueSliderHeight: 20
     property real hueSliderHandleWidth: 10
 
-    property real colorEditorPopupCmoboBoxWidth: 110
+    property real colorEditorPopupComboBoxWidth: 110
     property real colorEditorPopupSpinBoxWidth: 54
+
+    // Popup Window
+    property real titleBarHeight: values.height + 10
+    property real popupMargin: 10
 
     // Toolbar
     property real toolbarHeight: 41
     property real doubleToolbarHeight: values.toolbarHeight * 2
     property real toolbarSpacing: 10
 
+    property real toolbarColumnSpacing: 12
+    property real toolbarHorizontalMargin: 10
+    property real toolbarVerticalMargin: 6
 
     // Dialog
     property real dialogPadding: 12
     property real dialogButtonSpacing: 10
     property real dialogButtonPadding: 4
+
+    // NEW NEW NEW
+    readonly property int flowMargin: 7
+    readonly property int flowSpacing: 7 // Odd so cursor has a center location
+    readonly property int flowPillMargin: 4
+    readonly property int flowPillHeight: 20
+    readonly property int flowPillRadius: 4
 
     // Theme Colors
 
@@ -267,6 +283,30 @@ QtObject {
     //run project button
     property color themeIdleGreen: Theme.color(Theme.DSidleGreen)
     property color themeRunningGreen: Theme.color(Theme.DSrunningGreen)
+
+    //popoutWindow (connections)
+    property color themePopoutBackground: Theme.color(Theme.DSpopoutBackground)
+    property color themePopoutControlBackground_idle: Theme.color(Theme.DSpopoutControlBackground_idle)
+    property color themePopoutControlBackground_hover: Theme.color(Theme.DSpopoutControlBackground_hover)
+    property color themePopoutControlBackground_globalHover: Theme.color(Theme.DSpopoutControlBackground_globalHover)
+    property color themePopoutControlBackground_interaction: Theme.color(Theme.DSpopoutControlBackground_interaction)
+    property color themePopoutControlBackground_disabled: Theme.color(Theme.DSpopoutControlBackground_disabled)
+
+    property color themePopoutPopupBackground: Theme.color(Theme.DSpopoutPopupBackground)
+
+    property color themePopoutControlBorder_idle: Theme.color(Theme.DSpopoutControlBorder_idle)
+    property color themePopoutControlBorder_hover: Theme.color(Theme.DSpopoutControlBorder_hover)
+    property color themePopoutControlBorder_interaction: Theme.color(Theme.DSpopoutControlBorder_interaction)
+    property color themePopoutControlBorder_disabled: Theme.color(Theme.DSpopoutControlBorder_disabled)
+
+    property color themePopoutButtonBackground_idle: Theme.color(Theme.DSpopoutButtonBackground_idle)
+    property color themePopoutButtonBackground_hover: Theme.color(Theme.DSpopoutButtonBackground_hover)
+    property color themePopoutButtonBackground_interaction: Theme.color(Theme.DSpopoutButtonBackground_interaction)
+    property color themePopoutButtonBackground_disabled: Theme.color(Theme.DSpopoutButtonBackground_disabled)
+
+    property color themePopoutButtonBorder_idle: Theme.color(Theme.DSpopoutButtonBorder_idle)
+    property color themePopoutButtonBorder_hover: Theme.color(Theme.DSpopoutButtonBorder_hover)
+    property color themePopoutButtonBorder_interaction: Theme.color(Theme.DSpopoutButtonBorder_interaction)
 
     //END NEW COLORS QtDS 4.0
 
@@ -350,6 +390,7 @@ QtObject {
 
     property color themeScrollBarTrack: Theme.color(Theme.DSscrollBarTrack)
     property color themeScrollBarHandle: Theme.color(Theme.DSscrollBarHandle)
+    property color themeScrollBarHandle_idle: Theme.color(Theme.DSscrollBarHandle_idle)
 
     property color themeSectionHeadBackground: Theme.color(Theme.DSsectionHeadBackground)
 
@@ -400,8 +441,14 @@ QtObject {
     property color themeDialogBackground: values.themeThumbnailBackground
     property color themeDialogOutline: values.themeInteraction
 
+    // Expression Builder
+    property color themePillBackground: Theme.color(Theme.DSdockWidgetSplitter)
+
+
     // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}
+    property ControlStyle connectionPopupControlStyle: ConnectionPopupControlStyle {}
+    property ControlStyle connectionPopupButtonStyle: ConnectionPopupButtonStyle {}
     property ControlStyle toolbarStyle: ToolbarStyle {}
     property ControlStyle primaryToolbarStyle: PrimaryButtonStyle {}
     property ControlStyle toolbarButtonStyle: TopToolbarButtonStyle {}

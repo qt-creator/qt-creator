@@ -47,10 +47,18 @@ private:
     void updateBundleMaterialsImportedState();
     void updateBundleEffectsImportedState();
     void updateBundlesQuick3DVersion();
-    void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const NodeMetaInfo &metaInfo = {});
+#ifdef QDS_USE_PROJECTSTORAGE
+    void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const TypeName &typeName = {});
+#else
+    void applyBundleMaterialToDropTarget(const ModelNode &bundleMat,
+                                         const NodeMetaInfo &metaInfo = {});
+#endif
     ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
+#ifdef QDS_USE_PROJECTSTORAGE
+    ModelNode createMaterial(const TypeName &typeName);
+#else
     ModelNode createMaterial(const NodeMetaInfo &metaInfo);
-
+#endif
     QPointer<ContentLibraryWidget> m_widget;
     QList<ModelNode> m_bundleMaterialTargets;
     ModelNode m_bundleEffectTarget; // target of the dropped bundle effect

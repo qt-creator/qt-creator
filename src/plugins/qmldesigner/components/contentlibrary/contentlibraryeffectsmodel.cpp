@@ -11,6 +11,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
 #include <QJsonArray>
@@ -91,13 +92,27 @@ void ContentLibraryEffectsModel::createImporter(const QString &bundlePath, const
                                                 const QStringList &sharedFiles)
 {
     m_importer = new Internal::ContentLibraryBundleImporter(bundlePath, bundleId, sharedFiles);
-    connect(m_importer, &Internal::ContentLibraryBundleImporter::importFinished, this,
+#ifdef QDS_USE_PROJECTSTORAGE
+    connect(m_importer,
+            &Internal::ContentLibraryBundleImporter::importFinished,
+            this,
+            [&](const QmlDesigner::TypeName &typeName) {
+                m_importerRunning = false;
+                emit importerRunningChanged();
+                if (typeName.size())
+                    emit bundleItemImported(typeName);
+            });
+#else
+    connect(m_importer,
+            &Internal::ContentLibraryBundleImporter::importFinished,
+            this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 m_importerRunning = false;
                 emit importerRunningChanged();
                 if (metaInfo.isValid())
                     emit bundleItemImported(metaInfo);
             });
+#endif
 
     connect(m_importer, &Internal::ContentLibraryBundleImporter::unimportFinished, this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
@@ -116,7 +131,12 @@ void ContentLibraryEffectsModel::loadBundle()
     if (m_bundleExists || m_probeBundleDir)
         return;
 
-    QDir bundleDir = qEnvironmentVariable("EFFECT_BUNDLE_PATH");
+    QDir bundleDir;
+
+    if (!qEnvironmentVariable("EFFECT_BUNDLE_PATH").isEmpty())
+        bundleDir.setPath(qEnvironmentVariable("EFFECT_BUNDLE_PATH"));
+    else if (Utils::HostOsInfo::isMacHost())
+        bundleDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/effect_bundle");
 
     // search for bundleDir from exec dir and up
     if (bundleDir.dirName() == ".") {

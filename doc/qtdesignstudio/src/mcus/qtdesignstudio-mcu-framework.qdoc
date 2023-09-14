@@ -1,0 +1,27 @@
+/ Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-mcu-framework.html
+    \previouspage studio-on-mcus.html
+    \nextpage studio-compatibility-with-mcu-sdks.html
+
+    \title \QMCU Framework
+
+    \QMCU is a comprehensive framework that supports various hardware ecosystems
+    and platforms. One of the most important libraries provided by the \QMCU
+    framework is \QUL (QUL), a lightweight implementation of the Qt Quick
+    framework. \QUL provides a QML API and an efficient graphics rendering engine
+    that has a low memory footprint and is optimized for MCUs and other
+    resource-constrained devices.
+
+    In addition to a lightweight graphics framework, \QMCU offers a toolkit that
+    enables you to design, develop, and deploy graphical user interfaces (GUI)
+    on microcontrollers (MCU). Also, it lets you run the applications either
+    on BareMetal or a real-time operating system (RTOS).
+
+    \note In addition to BareMetal and RTOS, you can use the desktop kit to run
+    and test the application on desktop without flashing it each time.
+
+    For more information on \QMCU, see \l {\QMCU documentation}.
+*/

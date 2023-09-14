@@ -296,6 +296,11 @@ QIcon DesignerActionManager::contextIcon(int contextId) const
     return m_designerIcons->icon(DesignerIcons::IconId(contextId), DesignerIcons::ContextMenuArea);
 }
 
+QIcon DesignerActionManager::toolbarIcon(int contextId) const
+{
+    return m_designerIcons->icon(DesignerIcons::IconId(contextId), DesignerIcons::ToolbarArea);
+}
+
 void DesignerActionManager::addAddActionCallback(ActionAddedInterface callback)
 {
     m_callBacks.append(callback);
@@ -587,9 +592,9 @@ QList<SlotList> getSlotsLists(const ModelNode &node)
 ModelNode createNewConnection(ModelNode targetNode)
 {
     NodeMetaInfo connectionsMetaInfo = targetNode.view()->model()->qtQuickConnectionsMetaInfo();
-    ModelNode newConnectionNode = targetNode.view()->createModelNode(connectionsMetaInfo.typeName(),
-                                                                     connectionsMetaInfo.majorVersion(),
-                                                                     connectionsMetaInfo.minorVersion());
+    const auto typeName = useProjectStorage() ? "Connections" : "QtQuick.Connections";
+    ModelNode newConnectionNode = targetNode.view()->createModelNode(
+        typeName, connectionsMetaInfo.majorVersion(), connectionsMetaInfo.minorVersion());
     if (QmlItemNode::isValidQmlItemNode(targetNode)) {
         targetNode.nodeAbstractProperty("data").reparentHere(newConnectionNode);
     } else {
@@ -886,14 +891,18 @@ public:
         NodeMetaInfo elementMetaInfo = view->model()->metaInfo("ListElement");
 
         ListModelEditorModel model{[&] {
-                                       return view->createModelNode(modelMetaInfo.typeName(),
+                                       return view->createModelNode(useProjectStorage()
+                                                                        ? "ListModel"
+                                                                        : "QtQml.Models.ListModel",
                                                                     modelMetaInfo.majorVersion(),
                                                                     modelMetaInfo.minorVersion());
                                    },
                                    [&] {
-                                       return view->createModelNode(elementMetaInfo.typeName(),
-                                                                    elementMetaInfo.majorVersion(),
-                                                                    elementMetaInfo.minorVersion());
+                                       return view->createModelNode(
+                                           useProjectStorage() ? "ListElement"
+                                                               : "QtQml.Models.ListElement",
+                                           elementMetaInfo.majorVersion(),
+                                           elementMetaInfo.minorVersion());
                                    },
                                    [&](const ModelNode &node) {
                                        bool isNowInComponent = ModelNodeOperations::goIntoComponent(

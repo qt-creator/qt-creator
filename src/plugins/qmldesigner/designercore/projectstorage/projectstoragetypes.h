@@ -722,6 +722,26 @@ public:
 
 using Types = std::vector<Type>;
 
+class PropertyEditorQmlPath
+{
+public:
+    PropertyEditorQmlPath(ModuleId moduleId, TypeNameString typeName, SourceId pathId, SourceId directoryId)
+        : typeName{typeName}
+        , pathId{pathId}
+        , directoryId{directoryId}
+        , moduleId{moduleId}
+    {}
+
+public:
+    TypeNameString typeName;
+    TypeId typeId;
+    SourceId pathId;
+    SourceId directoryId;
+    ModuleId moduleId;
+};
+
+using PropertyEditorQmlPaths = std::vector<class PropertyEditorQmlPath>;
+
 class ProjectData
 {
 public:
@@ -735,7 +755,8 @@ public:
     friend bool operator==(const ProjectData &first, const ProjectData &second)
     {
         return first.projectSourceId == second.projectSourceId && first.sourceId == second.sourceId
-               && first.moduleId == second.moduleId && first.fileType == second.fileType;
+               && first.moduleId.internalId() == second.moduleId.internalId()
+               && first.fileType == second.fileType;
     }
 
 public:
@@ -799,6 +820,8 @@ public:
     SourceIds updatedModuleDependencySourceIds;
     ModuleExportedImports moduleExportedImports;
     ModuleIds updatedModuleIds;
+    PropertyEditorQmlPaths propertyEditorQmlPaths;
+    SourceIds updatedPropertyEditorQmlPathSourceIds;
 };
 
 } // namespace Synchronization

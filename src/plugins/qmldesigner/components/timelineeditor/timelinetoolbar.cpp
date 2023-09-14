@@ -187,6 +187,15 @@ void TimelineToolBar::setPlayState(bool state)
     m_playing->setChecked(state);
 }
 
+void TimelineToolBar::setIsMcu(bool isMcu)
+{
+    m_curvePicker->setDisabled(isMcu);
+    if (isMcu)
+        m_curvePicker->setText(tr("Not Supported for MCUs"));
+    else
+        m_curvePicker->setText(tr(m_curveEditorName));
+}
+
 void TimelineToolBar::setActionEnabled(const QString &name, bool enabled)
 {
     for (auto *action : actions())
@@ -378,14 +387,14 @@ void TimelineToolBar::createCenterControls()
 
     addSpacing(10);
 
-    auto *curvePicker = createAction(TimelineConstants::C_CURVE_PICKER,
+    m_curvePicker = createAction(TimelineConstants::C_CURVE_PICKER,
                                      Theme::iconFromName(Theme::Icon::curveDesigner_medium),
-                                     tr("Easing Curve Editor"),
+                                     tr(m_curveEditorName),
                                      QKeySequence(Qt::Key_C));
 
-    curvePicker->setObjectName("Easing Curve Editor");
-    connect(curvePicker, &QAction::triggered, this, &TimelineToolBar::openEasingCurveEditor);
-    addAction(curvePicker);
+    m_curvePicker->setObjectName("Easing Curve Editor");
+    connect(m_curvePicker, &QAction::triggered, this, &TimelineToolBar::openEasingCurveEditor);
+    addAction(m_curvePicker);
 
     addSpacing(10);
 
@@ -394,7 +403,7 @@ void TimelineToolBar::createCenterControls()
 
     addSpacing(10);
 
-    auto *curveEditor = new QAction(TimelineIcons::CURVE_PICKER.icon(), tr("Curve Editor"));
+    auto *curveEditor = new QAction(TimelineIcons::CURVE_PICKER.icon(), tr(m_curveEditorName));
     addAction(curveEditor);
 #endif
 }

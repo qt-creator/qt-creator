@@ -3,11 +3,13 @@
 
 #include "modelutils.h"
 
+#include <abstractview.h>
 #include <nodemetainfo.h>
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/sourcepathcache.h>
 
 #include <utils/expected.h>
+#include <utils/ranges.h>
 
 #include <algorithm>
 
@@ -127,6 +129,37 @@ QString componentFilePath(const ModelNode &node)
     }
 
     return {};
+}
+
+QList<ModelNode> pruneChildren(const QList<ModelNode> &nodes)
+{
+    QList<ModelNode> forwardNodes;
+    QList<ModelNode> backNodes;
+
+    auto pushIfIsNotChild = [](QList<ModelNode> &container, const ModelNode &node) {
+        bool hasAncestor = Utils::anyOf(container, [node](const ModelNode &testNode) -> bool {
+            return testNode.isAncestorOf(node);
+        });
+        if (!hasAncestor)
+            container.append(node);
+    };
+
+    for (const ModelNode &node : nodes | Utils::views::reverse) {
+        if (node)
+            pushIfIsNotChild(forwardNodes, node);
+    }
+
+    for (const ModelNode &node : forwardNodes | Utils::views::reverse)
+        pushIfIsNotChild(backNodes, node);
+
+    return backNodes;
+}
+
+QList<ModelNode> allModelNodesWithId(AbstractView *view)
+{
+    QTC_ASSERT(view->isAttached(), return {});
+    return Utils::filtered(view->allModelNodes(),
+                           [&](const ModelNode &node) { return node.hasId(); });
 }
 
 } // namespace QmlDesigner::ModelUtils

@@ -40,11 +40,7 @@ namespace QtHelpers {
 template <class T>
 QList<T>toList(const QSet<T> &set)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
-    return set.toList();
-#else
     return QList<T>(set.begin(), set.end());
-#endif
 }
 } // QtHelpers
 

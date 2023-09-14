@@ -19,7 +19,7 @@ ImageCacheFontCollector::~ImageCacheFontCollector() = default;
 
 namespace {
 
-QByteArray fileToByteArray(QString const &filename)
+QByteArray fileToByteArray(const QString &filename)
 {
     QFile file(filename);
     QFileInfo fileInfo(file);
@@ -98,16 +98,18 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
 {
     QFont font;
     if (resolveFont(QString(name), font) >= 0) {
-        auto &&auxiliaryData = std::get<ImageCache::FontCollectorSizeAuxiliaryData>(auxiliaryDataValue);
-        QColor textColor = auxiliaryData.colorName;
-        QSize size = auxiliaryData.size;
-        QString text = font.family() + "\n" + auxiliaryData.text;
+        if (auto auxiliaryData = std::get_if<ImageCache::FontCollectorSizeAuxiliaryData>(
+                &auxiliaryDataValue)) {
+            QColor textColor = auxiliaryData->colorName;
+            QSize size = auxiliaryData->size;
+            QString text = font.family() + "\n" + auxiliaryData->text;
 
-        QImage image = createFontImage(text, textColor, font, size);
+            QImage image = createFontImage(text, textColor, font, size);
 
-        if (!image.isNull()) {
-            captureCallback(std::move(image), {}, {});
-            return;
+            if (!image.isNull()) {
+                captureCallback(std::move(image), {}, {});
+                return;
+            }
         }
     }
     abortCallback(ImageCache::AbortReason::Failed);
@@ -120,15 +122,17 @@ ImageCacheCollectorInterface::ImageTuple ImageCacheFontCollector::createImage(
 {
     QFont font;
     if (resolveFont(QString(name), font) >= 0) {
-        auto &&auxiliaryData = std::get<ImageCache::FontCollectorSizeAuxiliaryData>(auxiliaryDataValue);
-        QColor textColor = auxiliaryData.colorName;
-        QSize size = auxiliaryData.size;
-        QString text = font.family() + "\n\n" + auxiliaryData.text;
+        if (auto auxiliaryData = std::get_if<ImageCache::FontCollectorSizeAuxiliaryData>(
+                &auxiliaryDataValue)) {
+            QColor textColor = auxiliaryData->colorName;
+            QSize size = auxiliaryData->size;
+            QString text = font.family() + "\n\n" + auxiliaryData->text;
 
-        QImage image = createFontImage(text, textColor, font, size);
+            QImage image = createFontImage(text, textColor, font, size);
 
-        if (!image.isNull())
-            return {image, {}, {}};
+            if (!image.isNull())
+                return {image, {}, {}};
+        }
     }
 
     return {};
@@ -142,15 +146,17 @@ QIcon ImageCacheFontCollector::createIcon(Utils::SmallStringView name,
 
     QFont font;
     if (resolveFont(QString(name), font) >= 0) {
-        auto &&auxiliaryData = std::get<ImageCache::FontCollectorSizesAuxiliaryData>(auxiliaryDataValue);
-        QColor textColor = auxiliaryData.colorName;
-        const auto sizes = auxiliaryData.sizes;
-        QString text = auxiliaryData.text;
+        if (auto auxiliaryData = std::get_if<ImageCache::FontCollectorSizesAuxiliaryData>(
+                &auxiliaryDataValue)) {
+            QColor textColor = auxiliaryData->colorName;
+            const auto sizes = auxiliaryData->sizes;
+            QString text = auxiliaryData->text;
 
-        for (QSize size : sizes) {
-            QImage image = createFontImage(text, textColor, font, size);
-            if (!image.isNull())
-                icon.addPixmap(QPixmap::fromImage(image));
+            for (QSize size : sizes) {
+                QImage image = createFontImage(text, textColor, font, size);
+                if (!image.isNull())
+                    icon.addPixmap(QPixmap::fromImage(image));
+            }
         }
     }
 

@@ -34,7 +34,7 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto valueWithTransaction(const QueryTypes &...queryValues)
     {
-        return withDeferredTransaction(Base::database(), [&] {
+        return withImplicitTransaction(Base::database(), [&] {
             return Base::template value<ResultType>(queryValues...);
         });
     }
@@ -42,23 +42,23 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto optionalValueWithTransaction(const QueryTypes &...queryValues)
     {
-        return withDeferredTransaction(Base::database(), [&] {
+        return withImplicitTransaction(Base::database(), [&] {
             return Base::template optionalValue<ResultType>(queryValues...);
         });
     }
 
-    template<typename ResultType, typename... QueryTypes>
-    auto valuesWithTransaction(std::size_t reserveSize, const QueryTypes &...queryValues)
+    template<typename ResultType, std::size_t capacity = 32, typename... QueryTypes>
+    auto valuesWithTransaction(const QueryTypes &...queryValues)
     {
-        return withDeferredTransaction(Base::database(), [&] {
-            return Base::template values<ResultType>(reserveSize, queryValues...);
+        return withImplicitTransaction(Base::database(), [&] {
+            return Base::template values<ResultType, capacity>(queryValues...);
         });
     }
 
     template<typename Callable, typename... QueryTypes>
     void readCallbackWithTransaction(Callable &&callable, const QueryTypes &...queryValues)
     {
-        withDeferredTransaction(Base::database(), [&] {
+        withImplicitTransaction(Base::database(), [&] {
             Base::readCallback(std::forward<Callable>(callable), queryValues...);
         });
     }
@@ -66,7 +66,7 @@ public:
     template<typename Container, typename... QueryTypes>
     void readToWithTransaction(Container &container, const QueryTypes &...queryValues)
     {
-        withDeferredTransaction(Base::database(), [&] { Base::readTo(container, queryValues...); });
+        withImplicitTransaction(Base::database(), [&] { Base::readTo(container, queryValues...); });
     }
 
 protected:

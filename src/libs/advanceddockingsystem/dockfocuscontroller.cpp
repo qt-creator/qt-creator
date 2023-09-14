@@ -231,6 +231,9 @@ void DockFocusController::onApplicationFocusChanged(QWidget *focusedOld, QWidget
         return;
 
     DockWidget *dockWidget = qobject_cast<DockWidget *>(focusedNow);
+
+    bool focusActual = dockWidget && dockWidget->widget();
+
     if (!dockWidget)
         dockWidget = internal::findParent<DockWidget *>(focusedNow);
 
@@ -243,6 +246,12 @@ void DockFocusController::onApplicationFocusChanged(QWidget *focusedOld, QWidget
 #endif
 
     d->updateDockWidgetFocus(dockWidget);
+
+    if (focusActual) {
+        // QDS: Focus the actual content widget when dockWidget gets focus
+        QMetaObject::invokeMethod(dockWidget->widget(), QOverload<>::of(&QWidget::setFocus),
+                                  Qt::QueuedConnection);
+    }
 }
 
 void DockFocusController::setDockWidgetTabFocused(DockWidgetTab *tab)

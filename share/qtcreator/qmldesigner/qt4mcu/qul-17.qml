@@ -55,7 +55,10 @@ VersionData {
         "QtQuickUltralite.Layers"
     ]
 
-    bannedImports: ["FlowView"]
+    bannedImports: [
+        "FlowView",
+        "SimulinkConnector"
+    ]
 
     //ComplexProperty is not a type, it's just a way to handle bigger props
     ComplexProperty {

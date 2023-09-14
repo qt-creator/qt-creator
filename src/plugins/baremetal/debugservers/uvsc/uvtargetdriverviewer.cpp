@@ -10,7 +10,6 @@
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QVBoxLayout>

@@ -1,9 +1,9 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 pragma Singleton
 
-import QtQuick 2.15
+import QtQuick
 
 QtObject {
     readonly property int inset: 5

@@ -27,6 +27,8 @@ public:
 
     bool isLegal() const;
 
+    bool isLegalMcu() const;
+
     bool containsX(double x) const;
 
     Keyframe left() const;

@@ -5,6 +5,8 @@
 
 #include <QString>
 
+using namespace Qt::StringLiterals;
+
 namespace QmlDesigner {
 
 inline QString escape(const QString &value)
@@ -14,11 +16,11 @@ inline QString escape(const QString &value)
     if (value.length() == 6 && value.startsWith("\\u")) //Do not double escape unicode chars
         return value;
 
-    result.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
-    result.replace(QStringLiteral("\""), QStringLiteral("\\\""));
-    result.replace(QStringLiteral("\t"), QStringLiteral("\\t"));
-    result.replace(QStringLiteral("\r"), QStringLiteral("\\r"));
-    result.replace(QStringLiteral("\n"), QStringLiteral("\\n"));
+    result.replace("\\"_L1, "\\\\"_L1);
+    result.replace("\""_L1, "\\\""_L1);
+    result.replace("\t"_L1, "\\t"_L1);
+    result.replace("\r"_L1, "\\r"_L1);
+    result.replace("\n"_L1, "\\n"_L1);
 
     return result;
 }
@@ -30,11 +32,11 @@ inline QString deescape(const QString &value)
     if (value.length() == 6 && value.startsWith("\\u")) //Ignore unicode chars
         return value;
 
-    result.replace(QStringLiteral("\\\\"), QStringLiteral("\\"));
-    result.replace(QStringLiteral("\\\""), QStringLiteral("\""));
-    result.replace(QStringLiteral("\\t"), QStringLiteral("\t"));
-    result.replace(QStringLiteral("\\r"), QStringLiteral("\r"));
-    result.replace(QStringLiteral("\\n"), QStringLiteral("\n"));
+    result.replace("\\\\"_L1, "\\"_L1);
+    result.replace("\\\""_L1, "\""_L1);
+    result.replace("\\t"_L1, "\t"_L1);
+    result.replace("\\r"_L1, "\r"_L1);
+    result.replace("\\n"_L1, "\n"_L1);
 
     return result;
 }

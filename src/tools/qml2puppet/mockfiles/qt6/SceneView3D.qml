@@ -1,6 +1,7 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+import QtQuick 6.0
 import QtQuick3D 6.0
 
 View3D {
@@ -14,20 +15,22 @@ View3D {
     property alias sceneHelpers: sceneHelpers
     property alias perspectiveCamera: scenePerspectiveCamera
     property alias orthoCamera: sceneOrthoCamera
-    property double cameraZoomFactor: .55;
+    property vector3d cameraLookAt
 
-    // Empirical cameraZoomFactor values at which the grid zoom level is doubled. The values are
-    // approximately uniformally distributed over the non-linear range of cameraZoomFactor.
-    readonly property var grid_thresholds: [0.55, 1.10, 2.35, 4.9, 10.0, 20.5, 42.0, 85.0, 999999.0]
-    property var thresIdx: 1
-    property var thresPerc: 1.0 // percentage of cameraZoomFactor to the current grid zoom threshold (0.0 - 1.0)
+    // Measuring the distance from camera to lookAt plus the distance of lookAt from grid plane
+    // gives a reasonable grid spacing in most cases while keeping spacing constant when
+    // orbiting the camera.
+    readonly property double cameraDistance: {
+        if (usePerspective)
+            return cameraLookAt.minus(camera.position).length() + Math.abs(cameraLookAt.y)
+
+        // Orthocamera should only care about camera magnification,
+        // as grid will be same size regardless of distance, so setting steps based on distance
+        // makes no sense.
+        return 500 / orthoCamera.horizontalMagnification
+    }
 
     camera: usePerspective ? scenePerspectiveCamera : sceneOrthoCamera
-
-    onCameraZoomFactorChanged: {
-        thresIdx = Math.max(1, grid_thresholds.findIndex(v => v > cameraZoomFactor));
-        thresPerc = (grid_thresholds[thresIdx] - cameraZoomFactor) / (grid_thresholds[thresIdx] - grid_thresholds[thresIdx - 1]);
-    }
 
     environment: sceneEnv
     SceneEnvironment {
@@ -41,15 +44,14 @@ View3D {
 
         HelperGrid {
             id: helperGrid
-            lines: Math.pow(2, grid_thresholds.length - thresIdx - 1);
-            step: 100 * grid_thresholds[0] * Math.pow(2, thresIdx - 1);
-            subdivAlpha: thresPerc;
+            orthoMode: !sceneView.usePerspective
+            distance: sceneView.cameraDistance
         }
 
         PointLight {
             id: sceneLight
-            position: usePerspective ? scenePerspectiveCamera.position
-                                     : sceneOrthoCamera.position
+            position: sceneView.usePerspective ? scenePerspectiveCamera.position
+                                               : sceneOrthoCamera.position
             quadraticFade: 0
             linearFade: 0
         }
@@ -72,7 +74,7 @@ View3D {
             y: 600
             eulerRotation.x: -45
             clipFar: 100000
-            clipNear: -10000
+            clipNear: -100000
         }
     }
 }

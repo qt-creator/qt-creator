@@ -232,7 +232,11 @@ void BackendModel::addNewBackend()
                 int majorVersion = metaInfo.majorVersion();
 
                 if (dialog.localDefinition()) {
-                    ModelNode newNode = m_connectionView->createModelNode(metaInfo.typeName(), majorVersion, minorVersion);
+                    ModelNode newNode = m_connectionView->createModelNode(useProjectStorage()
+                                                                              ? typeName.toUtf8()
+                                                                              : metaInfo.typeName(),
+                                                                          majorVersion,
+                                                                          minorVersion);
 
                     m_connectionView->rootModelNode().nodeProperty(propertyName.toUtf8()).setDynamicTypeNameAndsetModelNode(
                                 typeName.toUtf8(), newNode);

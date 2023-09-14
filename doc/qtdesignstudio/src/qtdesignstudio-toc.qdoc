@@ -33,6 +33,7 @@
                                 \li \l{Open Documents}
                                 \li \l{Content Library}
                                 \li \l{Texture Editor}
+                                \li \l{Qt Insight}
                            \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Managing Sessions}
@@ -254,8 +255,13 @@
                 \li \l{Use external tools}
                 \li \l{\QDS on MCUs}
                     \list
+                        \li \l {\QMCU Framework}
                         \li \l {\QDS Version Compatibility with \QMCU SDKs}
                         \li \l {\QDS Features on MCU Projects}
+                        \li \l {Creating Projects for MCUs}
+                        \li \l {Creating UIs for MCUs}
+                        \li \l {Developing Applications for MCUs}
+                        \li \l {Connecting MCUs with Qt Creator}
                     \endlist
             \endlist
         \li \l Help

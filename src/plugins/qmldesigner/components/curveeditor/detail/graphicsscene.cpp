@@ -120,14 +120,14 @@ QRectF GraphicsScene::rect() const
     return rect;
 }
 
-QVector<CurveItem *> GraphicsScene::curves() const
+QList<CurveItem *> GraphicsScene::curves() const
 {
     return m_curves;
 }
 
-QVector<CurveItem *> GraphicsScene::selectedCurves() const
+QList<CurveItem *> GraphicsScene::selectedCurves() const
 {
-    QVector<CurveItem *> out;
+    QList<CurveItem *> out;
     for (auto *curve : m_curves) {
         if (curve->hasSelectedKeyframe())
             out.push_back(curve);
@@ -135,18 +135,18 @@ QVector<CurveItem *> GraphicsScene::selectedCurves() const
     return out;
 }
 
-QVector<KeyframeItem *> GraphicsScene::keyframes() const
+QList<KeyframeItem *> GraphicsScene::keyframes() const
 {
-    QVector<KeyframeItem *> out;
+    QList<KeyframeItem *> out;
     for (auto *curve : m_curves)
         out.append(curve->keyframes());
 
     return out;
 }
 
-QVector<KeyframeItem *> GraphicsScene::selectedKeyframes() const
+QList<KeyframeItem *> GraphicsScene::selectedKeyframes() const
 {
-    QVector<KeyframeItem *> out;
+    QList<KeyframeItem *> out;
     for (auto *curve : m_curves)
         out.append(curve->selectedKeyframes());
 
@@ -189,6 +189,13 @@ SelectableItem *GraphicsScene::intersect(const QPointF &pos) const
 void GraphicsScene::setDirty(bool dirty)
 {
     m_dirty = dirty;
+}
+
+void GraphicsScene::setIsMcu(bool isMcu)
+{
+    m_isMcu = isMcu;
+    for (auto* curve : curves())
+        curve->setIsMcu(isMcu);
 }
 
 void GraphicsScene::reset()
@@ -244,6 +251,9 @@ void GraphicsScene::removeCurveItem(unsigned int id)
 
 void GraphicsScene::addCurveItem(CurveItem *item)
 {
+    if (!item)
+        return;
+
     for (auto *curve : std::as_const(m_curves)) {
         if (curve->id() == item->id()) {
             delete item;
@@ -251,6 +261,7 @@ void GraphicsScene::addCurveItem(CurveItem *item)
         }
     }
 
+    item->setIsMcu(m_isMcu);
     item->setDirty(false);
     item->connect(this);
     addItem(item);
@@ -267,6 +278,9 @@ void GraphicsScene::addCurveItem(CurveItem *item)
 
 void GraphicsScene::moveToBottom(CurveItem *item)
 {
+    if (!item)
+        return;
+
     if (m_curves.removeAll(item) > 0) {
         m_curves.push_front(item);
         resetZValues();
@@ -275,6 +289,9 @@ void GraphicsScene::moveToBottom(CurveItem *item)
 
 void GraphicsScene::moveToTop(CurveItem *item)
 {
+    if (!item)
+        return;
+
     if (m_curves.removeAll(item) > 0) {
         m_curves.push_back(item);
         resetZValues();

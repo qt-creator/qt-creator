@@ -21,6 +21,8 @@ class ConnectionModel;
 class DynamicPropertiesModel;
 class BackendModel;
 class ConnectionViewQuickWidget;
+class PropertyTreeModel;
+class PropertyListProxyModel;
 
 class ConnectionView : public AbstractView
 {
@@ -49,9 +51,6 @@ public:
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
-    void auxiliaryDataChanged(const ModelNode &node,
-                              AuxiliaryDataKeyView key,
-                              const QVariant &data) override;
 
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
 
@@ -61,14 +60,8 @@ public:
     bool hasWidget() const override;
     bool isWidgetEnabled();
 
-    QTableView *connectionTableView() const;
-    QTableView *bindingTableView() const;
-    QTableView *dynamicPropertiesTableView() const;
-    QTableView *backendView() const;
-
     DynamicPropertiesModel *dynamicPropertiesModel() const;
 
-    ConnectionViewWidget *connectionViewWidget() const;
     ConnectionModel *connectionModel() const;
     BindingModel *bindingModel() const;
     BackendModel *backendModel() const;
@@ -81,13 +74,13 @@ public:
 signals:
     void currentIndexChanged();
 
-private: //variables
-    QPointer<ConnectionViewWidget> m_connectionViewWidget;
-
+private:
     ConnectionModel *m_connectionModel;
     BindingModel *m_bindingModel;
     DynamicPropertiesModel *m_dynamicPropertiesModel;
     BackendModel *m_backendModel;
+    PropertyTreeModel *m_propertyTreeModel;
+    PropertyListProxyModel *m_propertyListProxyModel;
     int m_currentIndex = 0;
 
     QPointer<ConnectionViewQuickWidget> m_connectionViewQuickWidget;

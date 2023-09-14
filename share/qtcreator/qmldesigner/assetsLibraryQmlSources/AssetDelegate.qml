@@ -156,7 +156,7 @@ TreeViewDelegate {
             mouseArea.allowTooltip = true
         }
 
-        onPositionChanged: tooltipBackend.reposition()
+        onPositionChanged: AssetsLibraryBackend.tooltipBackend.reposition()
 
         onPressed: (mouse) => {
             mouseArea.forceActiveFocus()

@@ -28,7 +28,6 @@
 #include <QDebug>
 #include <QOpenGLContext>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QtGui/private/qrhi_p.h>
 #include <QtQuick/private/qquickitem_p.h>
 #include <QtQuick/private/qquickrendercontrol_p.h>
@@ -37,9 +36,6 @@
 #include <QtQuick/private/qsgcontext_p.h>
 #include <QtQuick/private/qsgrenderer_p.h>
 #include <QtQuick/private/qsgrhilayer_p.h>
-#else
-#include <QtQuick/private/qquickitem_p.h>
-#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
 #include <QDir>
@@ -47,6 +43,13 @@
 #include <QQuickGraphicsConfiguration>
 #include <QStandardPaths>
 #include <QTimer>
+#define USE_PIPELINE_CACHE 1
+
+#if defined(QUICK3D_MODULE) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 2)
+#include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
+#include <QtQuick3D/private/qquick3dscenemanager_p.h>
+#define USE_SHADER_CACHE 1
+#endif
 #endif
 
 namespace QmlDesigner {
@@ -67,11 +70,7 @@ Qt5NodeInstanceServer::~Qt5NodeInstanceServer()
 
 QQuickView *Qt5NodeInstanceServer::quickView() const
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    return static_cast<QQuickView *>(m_viewData.window.data());
-#else
     return nullptr;
-#endif
 }
 
 QQuickWindow *Qt5NodeInstanceServer::quickWindow() const
@@ -83,25 +82,11 @@ void Qt5NodeInstanceServer::initializeView()
 {
     Q_ASSERT(!quickWindow());
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    auto view = new QQuickView;
-    m_viewData.window = view;
-    /* enables grab window without show */
-    QSurfaceFormat surfaceFormat = view->requestedFormat();
-    surfaceFormat.setVersion(4, 1);
-    surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(surfaceFormat);
-    view->setFormat(surfaceFormat);
-
-    QQuickDesignerSupport::createOpenGLContext(view);
-    m_qmlEngine = view->engine();
-#else
     m_viewData.renderControl = new QQuickRenderControl;
     m_viewData.window = new QQuickWindow(m_viewData.renderControl);
     setPipelineCacheConfig(m_viewData.window);
     m_viewData.renderControl->initialize();
     m_qmlEngine = new QQmlEngine;
-#endif
 
     if (qEnvironmentVariableIsSet("QML_FILE_SELECTORS")) {
         QQmlFileSelector *fileSelector = new QQmlFileSelector(engine(), engine());
@@ -125,9 +110,6 @@ QQuickItem *Qt5NodeInstanceServer::rootItem() const
 void Qt5NodeInstanceServer::setRootItem(QQuickItem *item)
 {
     m_viewData.rootItem = item;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QQuickDesignerSupport::setRootItem(quickView(), item);
-#else
     quickWindow()->setGeometry(0, 0, item->width(), item->height());
     // Insert an extra item above the root to adjust root item position to 0,0 to make entire
     // item to be always rendered.
@@ -135,7 +117,6 @@ void Qt5NodeInstanceServer::setRootItem(QQuickItem *item)
         m_viewData.contentItem = new QQuickItem(quickWindow()->contentItem());
     m_viewData.contentItem->setPosition(-item->position());
     item->setParentItem(m_viewData.contentItem);
-#endif
 }
 
 QQmlEngine *Qt5NodeInstanceServer::engine() const
@@ -145,11 +126,9 @@ QQmlEngine *Qt5NodeInstanceServer::engine() const
 
 void Qt5NodeInstanceServer::resizeCanvasToRootItem()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     m_viewData.bufferDirty = true;
     if (m_viewData.contentItem)
         m_viewData.contentItem->setPosition(-m_viewData.rootItem->position());
-#endif
     quickWindow()->resize(rootNodeInstance().boundingRect().size().toSize());
     QQuickDesignerSupport::addDirty(rootNodeInstance().rootQuickItem(), QQuickDesignerSupport::Size);
 }
@@ -170,7 +149,7 @@ void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
     setupInstances(command);
     resizeCanvasToRootItem();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+#ifdef USE_PIPELINE_CACHE
     if (!m_pipelineCacheLocation.isEmpty()) {
         QString fileId = command.fileUrl.toLocalFile();
         fileId.remove(':');
@@ -181,6 +160,10 @@ void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
         QFile cacheFile(m_pipelineCacheFile);
         if (cacheFile.open(QIODevice::ReadOnly))
             m_pipelineCacheData = cacheFile.readAll();
+
+#ifdef USE_SHADER_CACHE
+        m_shaderCacheFile = m_pipelineCacheFile + ".qsbc";
+#endif
     }
 #endif
 }
@@ -213,7 +196,7 @@ bool Qt5NodeInstanceServer::rootIsRenderable3DObject() const
 
 void Qt5NodeInstanceServer::savePipelineCacheData()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+#ifdef USE_PIPELINE_CACHE
     if (!m_viewData.rhi)
         return;
 
@@ -239,10 +222,24 @@ void Qt5NodeInstanceServer::savePipelineCacheData()
             // Cache file can grow indefinitely, so let's just purge it every so often.
             // The count is stored as the last char in the data.
             char count = m_pipelineCacheData[m_pipelineCacheData.size() - 1];
-            if (count > 25)
+            const char maxCount = 25;
+            if (count > maxCount)
                 cacheFile.remove();
             else if (cacheFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
                 cacheFile.write(m_pipelineCacheData);
+
+#ifdef USE_SHADER_CACHE
+            auto wa = QQuick3DSceneManager::getOrSetWindowAttachment(*m_viewData.window);
+            auto context = wa ? wa->rci().get() : nullptr;
+            if (context && context->shaderCache()) {
+                if (count > maxCount) {
+                    QFile shaderCacheFile(m_shaderCacheFile);
+                    shaderCacheFile.remove();
+                } else {
+                    context->shaderCache()->persistentShaderBakingCache().save(m_shaderCacheFile);
+                }
+            }
+#endif
         });
     }
 #endif
@@ -250,7 +247,7 @@ void Qt5NodeInstanceServer::savePipelineCacheData()
 
 void Qt5NodeInstanceServer::setPipelineCacheConfig([[maybe_unused]] QQuickWindow *w)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+#ifdef USE_PIPELINE_CACHE
     // This dummy file is not actually used for cache as we manage cache save/load ourselves,
     // but some file needs to be set to enable pipeline caching
     const QString cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
@@ -262,12 +259,28 @@ void Qt5NodeInstanceServer::setPipelineCacheConfig([[maybe_unused]] QQuickWindow
     config.setPipelineCacheSaveFile(dummyCache);
     config.setAutomaticPipelineCache(false);
     w->setGraphicsConfiguration(config);
+
+#ifdef USE_SHADER_CACHE
+    QtQuick3DEditorHelpers::ShaderCache::setAutomaticDiskCache(false);
+    auto wa = QQuick3DSceneManager::getOrSetWindowAttachment(*w);
+    connect(wa, &QQuick3DWindowAttachment::renderContextInterfaceChanged,
+            this, &Qt5NodeInstanceServer::handleRciSet);
+#endif
+#endif
+}
+
+void Qt5NodeInstanceServer::handleRciSet()
+{
+#ifdef USE_SHADER_CACHE
+    auto wa = qobject_cast<QQuick3DWindowAttachment *>(sender());
+    auto context = wa ? wa->rci().get() : nullptr;
+    if (context && context->shaderCache())
+        context->shaderCache()->persistentShaderBakingCache().load(m_shaderCacheFile);
 #endif
 }
 
 bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!viewData.renderControl) {
         qWarning() << __FUNCTION__ << "Render control not created";
         return false;
@@ -281,7 +294,7 @@ bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
             qWarning() << __FUNCTION__ << "Rhi is null";
             return false;
         }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 1)
+#ifdef USE_PIPELINE_CACHE
         if (!m_pipelineCacheData.isEmpty())
             viewData.rhi->setPipelineCacheData(m_pipelineCacheData.left(m_pipelineCacheData.size() - 1));
 #endif
@@ -347,7 +360,7 @@ bool Qt5NodeInstanceServer::initRhi([[maybe_unused]] RenderViewData &viewData)
     viewData.window->setRenderTarget(QQuickRenderTarget::fromRhiRenderTarget(viewData.texTarget));
 
     viewData.bufferDirty = false;
-#endif
+
     return true;
 }
 
@@ -356,7 +369,6 @@ QImage Qt5NodeInstanceServer::grabRenderControl([[maybe_unused]] RenderViewData 
     NANOTRACE_SCOPE("Update", "GrabRenderControl");
 
     QImage renderImage;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (viewData.bufferDirty && !initRhi(viewData))
         return renderImage;
 
@@ -384,14 +396,13 @@ QImage Qt5NodeInstanceServer::grabRenderControl([[maybe_unused]] RenderViewData 
     rd->cb->resourceUpdate(readbackBatch);
 
     viewData.renderControl->endFrame();
-#endif
+
     return renderImage;
 }
 
 // This method simply renders the window without grabbing it
 bool Qt5NodeInstanceServer::renderWindow()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!m_viewData.rootItem || (m_viewData.bufferDirty && !initRhi(m_viewData)))
         return false;
 
@@ -401,8 +412,6 @@ bool Qt5NodeInstanceServer::renderWindow()
     m_viewData.renderControl->render();
     m_viewData.renderControl->endFrame();
     return true;
-#endif
-    return false;
 }
 
 QImage Qt5NodeInstanceServer::grabWindow()
@@ -429,7 +438,6 @@ QQuickItem *Qt5NodeInstanceServer::parentEffectItem(QQuickItem *item)
     return nullptr;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 static bool isEffectItem(QQuickItem *item, QQuickShaderEffectSource *sourceItem)
 {
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(sourceItem);
@@ -450,12 +458,10 @@ static bool isLayerEnabled(QQuickItemPrivate *item)
 {
     return item && item->layer() && item->layer()->enabled();
 }
-#endif // QT_VERSION check
 
 QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
 {
     QImage renderImage;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!m_viewData.rootItem || (m_viewData.bufferDirty && !initRhi(m_viewData)))
         return {};
 
@@ -581,7 +587,7 @@ QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
 
     if (!isLayerEnabled(pItem))
         pItem->derefFromEffectItem(false);
-#endif
+
     return renderImage;
 }
 

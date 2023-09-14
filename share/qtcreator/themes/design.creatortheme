@@ -59,7 +59,8 @@ highlightHover=ff74CBFC
 [Colors]
 ;DS controls theme
 
-;NEW FOR QtDS 4.0
+;NEW FOR QtDS 4
+;4.0
 DScontrolBackground_toolbarIdle=midnightGrey
 DScontrolBackground_toolbarHover=midnightGrey
 DScontrolBackground_topToolbarHover=ashGrey
@@ -79,7 +80,32 @@ DSstateBackgroundColor_hover=ashGrey
 DSstateControlBackgroundColor_globalHover=ashGrey
 DSstateControlBackgroundColor_hover=raincloudGrey
 DSpanelBackground=dawnGrey
-;END NEW FOR QtDS 4.0
+
+;4.3
+DSpopoutBackground=offBlack
+DSpopoutControlBackground_idle=offBlack
+DSpopoutControlBackground_hover=dawnGrey
+DSpopoutControlBackground_globalHover=dawnGrey
+DSpopoutControlBackground_interaction=highlightBlue
+DSpopoutControlBackground_disabled=offBlack
+DSpopoutPopupBackground=nearBlack
+
+DSpopoutControlBorder_idle=nearBlack
+DSpopoutControlBorder_hover=midnightGrey
+DSpopoutControlBorder_interaction=highlightBlue
+DSpopoutControlBorder_disabled=offBlack
+
+DSpopoutButtonBackground_idle=offBlack
+DSpopoutButtonBackground_hover=dawnGrey
+DSpopoutButtonBackground_interaction=highlightBlue
+DSpopoutButtonBackground_disabled=offBlack
+
+DSpopoutButtonBorder_idle=slateGrey
+DSpopoutButtonBorder_hover=lightWhite
+DSpopoutButtonBorder_interaction=highlightBlue
+DSpopoutButtonBorder_disabled=offBlack
+
+;END NEW FOR QtDS 4
 
 ;REMAPPED
 DSinteraction=highlightBlue
@@ -109,8 +135,9 @@ DSnavigatorTextSelected=highlightBlue
 QmlDesigner_BackgroundColorDarkAlternate=dawnGrey
 
 ;TODO
-DSscrollBarTrack=dawnGrey
-DSscrollBarHandle=offBlack
+DSscrollBarTrack=smokeGrey
+DSscrollBarHandle=concreteGrey
+DSscrollBarHandle_idle=slateGrey
 
 DSdockWidgetTitleBar=dawnGrey
 DSdockWidgetSplitter=fullBlack

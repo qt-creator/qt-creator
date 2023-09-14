@@ -54,7 +54,7 @@
     \section2 MCU Plugin
 
     To be able to develop applications for MCUs, you need the MCU plugin.
-    This plugin is enabled automatically by the Qt Installer when you
+    This plugin is enabled automatically by \QOI when you
     install \QMCU.
 
     \section2 Specifying MCU Settings

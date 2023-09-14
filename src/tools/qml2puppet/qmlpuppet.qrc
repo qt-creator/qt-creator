@@ -7,7 +7,6 @@
         <file>images/non-visual-component@2x.png</file>
         <file>mockfiles/Window.qml</file>
         <file>mockfiles/SwipeView.qml</file>
-        <file>mockfiles/GenericBackend.qml</file>
         <file>mockfiles/Dialog.qml</file>
         <file>mockfiles/ToolBarButton.qml</file>
         <file>mockfiles/ToggleButton.qml</file>

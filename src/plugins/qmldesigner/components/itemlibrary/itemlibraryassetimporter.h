@@ -53,7 +53,6 @@ signals:
 
 private slots:
     void importProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void iconProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
     struct ParseData {
@@ -65,8 +64,6 @@ private:
         QString assetName;
         QString originalAssetName;
         int importId;
-        QString iconFile;
-        QString iconSource;
     };
 
     void notifyFinished();
@@ -91,7 +88,6 @@ private:
 
     OverwriteResult confirmAssetOverwrite(const QString &assetName);
     void startNextImportProcess();
-    void startNextIconProcess();
     void postImport();
     void finalizeQuick3DImport();
     QString sourceSceneTargetFilePath(const ParseData &pd);

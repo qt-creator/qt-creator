@@ -122,7 +122,7 @@ public:
     NodeListProperty defaultNodeListProperty() const;
     NodeProperty defaultNodeProperty() const;
 
-    void removeProperty(const PropertyName &name) const; //### also implement in AbstractProperty
+    void removeProperty(PropertyNameView name) const; //### also implement in AbstractProperty
     QList<AbstractProperty> properties() const;
     QList<VariantProperty> variantProperties() const;
     QList<NodeAbstractProperty> nodeAbstractProperties() const;
@@ -133,17 +133,17 @@ public:
     QList<AbstractProperty> dynamicProperties() const;
     PropertyNameList propertyNames() const;
 
-    bool hasProperties() const;
-    bool hasProperty(const PropertyName &name) const;
-    bool hasVariantProperty(const PropertyName &name) const;
-    bool hasBindingProperty(const PropertyName &name) const;
-    bool hasSignalHandlerProperty(const PropertyName &name) const;
-    bool hasNodeAbstractProperty(const PropertyName &name) const;
+    bool hasProperty(PropertyNameView name) const;
+    bool hasVariantProperty(PropertyNameView name) const;
+    bool hasBindingProperty(PropertyNameView name) const;
+    bool hasSignalHandlerProperty(PropertyNameView name) const;
+    bool hasNodeAbstractProperty(PropertyNameView name) const;
     bool hasDefaultNodeAbstractProperty() const;
     bool hasDefaultNodeListProperty() const;
     bool hasDefaultNodeProperty() const;
-    bool hasNodeProperty(const PropertyName &name) const;
-    bool hasNodeListProperty(const PropertyName &name) const;
+    bool hasNodeProperty(PropertyNameView name) const;
+    bool hasNodeListProperty(PropertyNameView name) const;
+    bool hasProperty(PropertyNameView name, PropertyType propertyType) const;
 
     void setScriptFunctions(const QStringList &scriptFunctionList);
     QStringList scriptFunctions() const;
@@ -225,7 +225,6 @@ public:
 
     static bool isThisOrAncestorLocked(const ModelNode &node);
     static ModelNode lowestCommonAncestor(const QList<ModelNode> &nodes);
-    static QList<ModelNode> pruneChildren(const QList<ModelNode> &nodes);
 
     qint32 internalId() const;
 
@@ -270,6 +269,8 @@ public:
 private: // functions
     Internal::InternalNodePointer internalNode() const { return m_internalNode; }
 
+    template<typename Type, typename... PropertyType>
+    QList<Type> properties(PropertyType... type) const;
     bool hasLocked() const;
 
 private: // variables

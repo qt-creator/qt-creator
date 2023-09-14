@@ -60,6 +60,7 @@ public:
     void setEndFrame(qreal frame);
     void setScaleFactor(int factor);
     void setPlayState(bool state);
+    void setIsMcu(bool isMcu);
 
     void setActionEnabled(const QString &name, bool enabled);
     void removeTimeline(const QmlTimeline &timeline);
@@ -86,7 +87,10 @@ private:
 
     QAction *m_playing = nullptr;
     QAction *m_recording = nullptr;
+    QAction *m_curvePicker = nullptr;
     bool m_blockReflection = false;
+
+    static constexpr const char* m_curveEditorName = QT_TR_NOOP("Easing Curve Editor");
 };
 
 } // namespace QmlDesigner

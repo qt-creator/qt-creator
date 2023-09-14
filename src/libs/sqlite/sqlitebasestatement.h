@@ -23,6 +23,7 @@
 #include <optional>
 #include <tuple>
 #include <type_traits>
+#include <vector>
 
 using std::int64_t;
 
@@ -116,7 +117,7 @@ public:
 
     QString columnName(int column) const;
 
-    Database &database() const;
+    Database &database() const { return m_database; }
 
 protected:
     ~BaseStatement() = default;
@@ -172,12 +173,28 @@ public:
         BaseStatement::next();
     }
 
-    template<typename ResultType, typename... QueryTypes>
-    auto values(std::size_t reserveSize, const QueryTypes &...queryValues)
+    template<typename T>
+    struct is_container : std::false_type
+    {};
+    template<typename... Args>
+    struct is_container<std::vector<Args...>> : std::true_type
+    {};
+    template<typename... Args>
+    struct is_container<QList<Args...>> : std::true_type
+    {};
+    template<typename T, qsizetype Prealloc>
+    struct is_container<QVarLengthArray<T, Prealloc>> : std::true_type
+    {};
+
+    template<typename Container,
+             std::size_t capacity = 32,
+             typename = std::enable_if_t<is_container<Container>::value>,
+             typename... QueryTypes>
+    auto values(const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
-        std::vector<ResultType> resultValues;
-        resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
+        Container resultValues;
+        resultValues.reserve(std::max(capacity, m_maximumResultCount));
 
         bindValues(queryValues...);
 
@@ -187,6 +204,16 @@ public:
         setMaximumResultCount(resultValues.size());
 
         return resultValues;
+    }
+
+    template<typename ResultType,
+             std::size_t capacity = 32,
+             template<typename...> typename Container = std::vector,
+             typename = std::enable_if_t<!is_container<ResultType>::value>,
+             typename... QueryTypes>
+    auto values(const QueryTypes &...queryValues)
+    {
+        return values<Container<ResultType>, capacity>(queryValues...);
     }
 
     template<typename ResultType, typename... QueryTypes>
@@ -398,8 +425,10 @@ private:
         Resetter(StatementImplementation *statement)
             : statement(statement)
         {
+#ifndef QT_NO_DEBUG
             if (statement && !statement->database().isLocked())
                 throw DatabaseIsNotLocked{};
+#endif
         }
 
         Resetter(Resetter &) = delete;
@@ -409,7 +438,7 @@ private:
             : statement{std::exchange(other.statement, nullptr)}
         {}
 
-        void reset()
+        void reset() noexcept
         {
             if (statement)
                 statement->reset();

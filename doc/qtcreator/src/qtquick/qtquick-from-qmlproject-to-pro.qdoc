@@ -119,6 +119,9 @@
             name of the main QML file in the Qt Quick UI project.
         \li Select \uicontrol Build > \uicontrol Run to build and run your
             project.
+
+            \note If you get error messages related to modules, perfom the steps
+            described in \l{Adding Qt Quick Designer Components to Qt Installations}.
     \endlist
 
     For example, if you copy the source files of the \e ProgressBar

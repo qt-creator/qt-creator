@@ -40,15 +40,9 @@ const char *ModuleAlreadyExists::what() const noexcept
     return "The module does already exist!";
 }
 
-const char *ExportedTypeCannotBeInserted::what() const noexcept
-{
-    return "The exported type cannot be inserted!";
-}
-
-const char *TypeNameDoesNotExists::what() const noexcept
-{
-    return "The type name does not exist!";
-}
+TypeNameDoesNotExists::TypeNameDoesNotExists(std::string_view errorMessage)
+    : ProjectStorageErrorWithMessage{"TypeNameDoesNotExists"sv, errorMessage}
+{}
 
 const char *PropertyNameDoesNotExists::what() const noexcept
 {
@@ -99,5 +93,23 @@ const char *ProjectStorageError::what() const noexcept
 {
     return "Project storage error!";
 }
+
+ProjectStorageErrorWithMessage::ProjectStorageErrorWithMessage(std::string_view error,
+                                                               std::string_view message)
+{
+    errorMessage += error;
+    errorMessage += "{"sv;
+    errorMessage += message;
+    errorMessage += "}"sv;
+}
+
+const char *ProjectStorageErrorWithMessage::what() const noexcept
+{
+    return errorMessage.c_str();
+}
+
+ExportedTypeCannotBeInserted::ExportedTypeCannotBeInserted(std::string_view errorMessage)
+    : ProjectStorageErrorWithMessage{"ExportedTypeCannotBeInserted"sv, errorMessage}
+{}
 
 } // namespace QmlDesigner

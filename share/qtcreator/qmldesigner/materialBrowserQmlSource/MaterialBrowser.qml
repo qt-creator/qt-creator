@@ -241,9 +241,9 @@ Item {
     MouseArea {
         id: rootMouseArea
 
-        y: topContent.height
+        y: toolbar.height
         width: parent.width
-        height: parent.height - topContent.height
+        height: parent.height - toolbar.height
 
         acceptedButtons: Qt.RightButton
 
@@ -515,18 +515,18 @@ Item {
         spacing: 5
 
         Rectangle {
-            id: topContent
+            id: toolbar
             width: parent.width
             height: StudioTheme.Values.doubleToolbarHeight
             color: StudioTheme.Values.themeToolbarBackground
 
             Column {
                 anchors.fill: parent
-                anchors.topMargin: 6
-                anchors.bottomMargin: 6
-                anchors.leftMargin: 10
-                anchors.rightMargin: 10
-                spacing: 12
+                anchors.topMargin: StudioTheme.Values.toolbarVerticalMargin
+                anchors.bottomMargin: StudioTheme.Values.toolbarVerticalMargin
+                anchors.leftMargin: StudioTheme.Values.toolbarHorizontalMargin
+                anchors.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
+                spacing: StudioTheme.Values.toolbarColumnSpacing
 
                 StudioControls.SearchBox {
                     id: searchBox
@@ -581,31 +581,38 @@ Item {
             }
         }
 
-        Text {
-            text: {
-                if (!materialBrowserModel.hasQuick3DImport)
-                    qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.")
-                else if (!materialBrowserModel.hasMaterialLibrary)
-                    qsTr("<b>Material Browser</b> is disabled inside a non-visual component.")
-                else
-                    ""
-            }
-
-            textFormat: Text.RichText
-            color: StudioTheme.Values.themeTextColor
-            font.pixelSize: StudioTheme.Values.mediumFontSize
-            topPadding: 30
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
+        Item {
             width: root.width
-            visible: text !== ""
+            height: root.height - toolbar.height
+            visible: hint.text !== ""
+
+            Text {
+                id: hint
+                width: parent.width - 40
+                anchors.centerIn: parent
+
+                text: {
+                    if (!materialBrowserModel.hasQuick3DImport)
+                        qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.")
+                    else if (!materialBrowserModel.hasMaterialLibrary)
+                        qsTr("<b>Material Browser</b> is disabled inside a non-visual component.")
+                    else
+                        ""
+                }
+
+                textFormat: Text.RichText
+                color: StudioTheme.Values.themeTextColor
+                font.pixelSize: StudioTheme.Values.mediumFontSize
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+            }
         }
 
         HelperWidgets.ScrollView {
             id: scrollView
 
             width: root.width
-            height: root.height - topContent.height
+            height: root.height - toolbar.height
             clip: true
             visible: root.enableUiElements
             interactive: !ctxMenu.opened && !ctxMenuTextures.opened && !rootView.isDragging

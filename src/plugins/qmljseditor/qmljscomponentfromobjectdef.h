@@ -15,6 +15,7 @@ QMLJSEDITOR_EXPORT void matchComponentFromObjectDefQuickFix(
 
 QMLJSEDITOR_EXPORT void performComponentFromObjectDef(QmlJSEditorWidget *editor,
                                                       const QString &fileName,
-                                                      QmlJS::AST::UiObjectDefinition *objDef);
+                                                      QmlJS::AST::UiObjectDefinition *objDef,
+                                                      const QString &importData);
 
 } // namespace QmlJSEditor

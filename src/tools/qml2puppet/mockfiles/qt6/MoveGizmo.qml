@@ -46,6 +46,9 @@ Node {
             active: moveGizmo.visible
             dragHelper: moveGizmo.dragHelper
 
+            dragAxis: Qt.vector3d(1, 0, 0)
+            globalOrientation: moveGizmo.globalOrientation
+
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
         }
@@ -60,6 +63,9 @@ Node {
             active: moveGizmo.visible
             dragHelper: moveGizmo.dragHelper
 
+            dragAxis: Qt.vector3d(0, 1, 0)
+            globalOrientation: moveGizmo.globalOrientation
+
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
         }
@@ -73,6 +79,9 @@ Node {
             view3D: moveGizmo.view3D
             active: moveGizmo.visible
             dragHelper: moveGizmo.dragHelper
+
+            dragAxis: Qt.vector3d(0, 0, 1)
+            globalOrientation: moveGizmo.globalOrientation
 
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
@@ -92,6 +101,9 @@ Node {
             active: moveGizmo.visible
             dragHelper: moveGizmo.dragHelper
 
+            dragAxes: Qt.vector3d(0, 1, 1)
+            globalOrientation: moveGizmo.globalOrientation
+
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
         }
@@ -109,6 +121,9 @@ Node {
             view3D: moveGizmo.view3D
             active: moveGizmo.visible
             dragHelper: moveGizmo.dragHelper
+
+            dragAxes: Qt.vector3d(1, 0, 1)
+            globalOrientation: moveGizmo.globalOrientation
 
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
@@ -128,6 +143,9 @@ Node {
             active: moveGizmo.visible
             dragHelper: moveGizmo.dragHelper
 
+            dragAxes: Qt.vector3d(1, 1, 0)
+            globalOrientation: moveGizmo.globalOrientation
+
             onPositionCommit: moveGizmo.positionCommit()
             onPositionMove: moveGizmo.positionMove()
         }
@@ -146,6 +164,9 @@ Node {
         view3D: moveGizmo.view3D
         active: moveGizmo.visible
         dragHelper: moveGizmo.dragHelper
+
+        dragAxes: Qt.vector3d(1, 1, 1)
+        globalOrientation: moveGizmo.globalOrientation
 
         onPositionCommit: moveGizmo.positionCommit()
         onPositionMove: moveGizmo.positionMove()

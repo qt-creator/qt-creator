@@ -60,7 +60,6 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QLoggingCategory>
-#include <QMessageBox>
 #include <QTextStream>
 #include <QTimer>
 #include <QUuid>

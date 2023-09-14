@@ -4,89 +4,49 @@
 /*!
     \previouspage creator-editor-external.html
     \page studio-on-mcus.html
-    \nextpage studio-compatibility-with-mcu-sdks.html
+    \nextpage studio-mcu-framework.html
 
     \title \QDS on MCUs
 
-    \QMCU is a comprehensive framework that supports various hardware ecosystems
-    and platforms. One of the most important libraries provided by the \QMCU
-    framework is \QUL (QUL), a lightweight implementation of the Qt Quick
-    framework. \QUL provides a QML API and an efficient graphics rendering engine
-    that has a low memory footprint and is optimized for MCUs and other
-    resource-constrained devices.
-
-    In addition to a lightweight graphics framework, \QMCU offers a toolkit that
-    enables you to design, develop, and deploy graphical user interfaces (GUI)
-    on microcontrollers (MCU). Also, it lets you run the applications either
-    on BareMetal or a real-time operating system (RTOS).
-
-    For more information on \QMCU, see \l {\QMCU documentation}.
-
-    \section1 Designing application UIs for MCU devices with \QDS
-
-    As a technical artist or a designer you can use specialized UI design tools,
-    such as Adobe Photoshop, Sketch, Figma, Blender, or Maya to create the
-    original UI design files for your MCU application. After the initial design
-    work, export your design from the design tools, and import your 2D and 3D UI
-    design assets into \QDS, which can convert them into code for developers.
-    For more information on managing the original assets created with
-    specialized UI design tools, see \l {Asset Creation with Other Tools}.
-
-    Once your UI design assets are in \QDS, use it to \l {Wireframing} {wireframe}
-    your MCU application, to visualize its structure. To modify the look and feel
-    of your UI further, utilize the preset UI components available in \QDS.
-
-    For an example on how to create a UI that runs both on the desktop and
-    on MCUs, see \l {Washing Machine UI}. For step-by-step instructions on how
-    to use \QDS to design a UI for a specific MCU target device, see:
+    \table
+        \row
+            \li \image qds-front-gs.png
+            \li With \QDS, you can use subsets of components to create UIs
+                for devices that are powered by microcontroller units (MCU). Use
+                the \uicontrol {\QMCU} preset in the \QDS wizard to set up a new
+                \QMCU project. Using the \uicontrol {\QMCU} preset creates an
+                application that utilizes a subset of the default components that
+                you can deploy, run, and debug on MCU boards.
+    \endtable
 
     \list
-        \li \l {Designing a UI for Infineon Traveo II}
-        \li \l {Designing a UI for NXP i.MX RT1170}
-        \li \l {Designing a UI for Renesas RA6M3G}
-        \li \l {Designing a UI for Renesas RH850-D1M1A}
-    \endlist
+        \li \l {\QMCU Framework}
 
-    \section1 Developing applications for MCU devices with \QDS
+            Provides an overview of the \QMCU framework.
+        \li \l {\QDS Version Compatibility with \QMCU SDKs}
 
-    As a GUI/application developer, use \QDS to bring your designs to life. Add
-    further functionality to your applications and utilize the \l {Prototyping}
-    {prototyping} features of \QDS to simulate and validate interactions and
-    their dynamic behavior.
+            Lists how the \QDS versions match with particular \QMCU SDKs.
+        \li \l {\QDS Features on MCU Projects}
 
-    You can also test, preview, and fine-tune your designs to pixel-perfection
-    live on the desktop or on an actual MCU target device. For more information,
-    see \l {Validating with Target Hardware}.
+            Specifies how the \QDS features are supported for developing MCU projects.
+        \li \l {Creating Projects for MCUs}
 
-    \image qds-mcu-target-deployment.png
+            Describes how to use the \QDS wizard and \uicontrol {\QMCU} preset
+            to set up a new \QMCU project.
+        \li \l {Creating UIs for MCUs}
 
-    \QDS enables designers and developers to work together on common projects to
-    develop applications. Designers can use the views in the Design mode to modify
-    UI files (.ui.qml), whereas developers can use Qt Creator to work on the Qt
-    Quick (.qml) and other files that are needed to implement the application
-    logic and to prepare the application for production. For more information,
-    see \l {Implementing Applications}.
+            Provides an overview of how to create UIs for MCUs from a technical
+            artist/designer perspective. Also, offers links to detailed instructions
+            for designing UIs for specific MCU target devices.
+        \li \l {Developing applications for MCUs}
 
-    \section1 Connecting MCUs with Qt Creator
+            Provides an overview of how to develop, prototype, validate, and
+            implement applications for MCUs from a GUI/application developer
+            perspective.
+        \li \l {Connecting MCUs with Qt Creator}
 
-    \l {Connecting MCUs} {Connect MCU boards} to a development host to
-    build applications for them using the GNU Arm Embedded GCC compiler, libraries,
-    and other GNU tools necessary for BareMetal software development on devices
-    based on the Arm Cortex-M processors. Deploy the applications on MCUs to run
-    and debug them using Qt Creator.
-
-    The toolchains are available for cross-compilation on Microsoft Windows,
-    Linux, and macOS. However, the \QMCU SDK is currently only available for
-    Windows and Linux.
-
-    For more information on how to manage the complete cycle of developing \QMCU
-    applications using Qt tools, see:
-
-    \list
-        \li \l {Infineon Traveo II quick start guide}
-        \li \l {NXP i.MX RT1170 quick start guide}
-        \li \l {Renesas EK-RA6M3G quick start guide}
-        \li \l {Renesas RH850-D1M1A quick start guide}
-    \endlist
-
+            Describes how to connect MCUs with Qt Creator. Also, offers links to
+            detailed instructions on how to manage the complete cycle of developing
+            \QMCU applications using Qt tools.
+     \endlist
 */

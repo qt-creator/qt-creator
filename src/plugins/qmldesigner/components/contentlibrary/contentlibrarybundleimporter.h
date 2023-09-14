@@ -35,7 +35,11 @@ signals:
     // The metaInfo parameter will be invalid if an error was encountered during
     // asynchronous part of the import. In this case all remaining pending imports have been
     // terminated, and will not receive separate importFinished notifications.
+#ifdef QDS_USE_PROJECTSTORAGE
+    void importFinished(const QmlDesigner::TypeName &typeName);
+#else
     void importFinished(const QmlDesigner::NodeMetaInfo &metaInfo);
+#endif
     void unimportFinished(const QmlDesigner::NodeMetaInfo &metaInfo);
 
 private:

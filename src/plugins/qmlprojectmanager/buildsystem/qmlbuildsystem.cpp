@@ -81,7 +81,7 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
     refresh(RefreshOptions::Project);
 
     updateDeploymentData();
-    registerMenuButtons();
+//    registerMenuButtons(); //is wip
 
     connect(target->project(), &Project::activeTargetChanged, this, [this](Target *target) {
         refresh(RefreshOptions::NoFileRefresh);
@@ -117,24 +117,29 @@ void QmlBuildSystem::updateDeploymentData()
     setDeploymentData(deploymentData);
 }
 
+//probably this method needs to be moved into QmlProjectPlugin::initialize to be called only once
 void QmlBuildSystem::registerMenuButtons()
 {
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
 
     // QML Project file update button
     // This button saves the current configuration into the .qmlproject file
-    auto action = new QAction("Update QmlProject File", this);
+    auto action = new QAction(Tr::tr("Update QmlProject File"), this);
+    //this registerAction registers a new action for each opened project,
+    //causes the "action is already registered" warning if you have multiple opened projects,
+    //is not a big thing for qds, but is annoying for qtc and should be fixed.
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.ProjectManager");
     menu->addAction(cmd, Core::Constants::G_FILE_SAVE);
     QObject::connect(action, &QAction::triggered, this, &QmlBuildSystem::updateProjectFile);
 }
 
+//wip:
 bool QmlBuildSystem::updateProjectFile()
 {
     qDebug() << "debug#1-mainfilepath" << mainFilePath();
 
     QFile file(mainFilePath().fileName().append("project-test"));
-    if (file.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
+    if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         qCritical() << "Cannot open Qml Project file for editing!";
         return false;
     }
@@ -195,8 +200,8 @@ void QmlBuildSystem::refresh(RefreshOptions options)
             = modelManager->defaultProjectInfoForProject(project(),
                                                          project()->files(Project::HiddenRccFolders));
 
-    for (const QString &searchPath : customImportPaths()) {
-        projectInfo.importPaths.maybeInsert(projectDirectory().pathAppended(searchPath),
+    for (const QString &importPath : absoluteImportPaths()) {
+        projectInfo.importPaths.maybeInsert(Utils::FilePath::fromString(importPath),
                                             QmlJS::Dialect::Qml);
     }
 
@@ -642,6 +647,16 @@ QStringList QmlBuildSystem::shaderToolFiles() const
 QStringList QmlBuildSystem::importPaths() const
 {
     return m_projectItem->importPaths();
+}
+
+QStringList QmlBuildSystem::absoluteImportPaths()
+{
+    return Utils::transform<QStringList>(m_projectItem->importPaths(), [&](const QString &importPath) {
+        Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
+        if (!filePath.isAbsolutePath())
+            return (projectDirectory() / importPath).toString();
+        return projectDirectory().resolvePath(importPath).toString();
+    });
 }
 
 Utils::FilePaths QmlBuildSystem::files() const

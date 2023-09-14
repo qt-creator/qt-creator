@@ -62,11 +62,14 @@ public:
         CreateIcon,
         DeleteIcon,
         DuplicateIcon,
+        EditColorIcon,
         EditComponentIcon,
         EditIcon,
+        EditLightIcon,
         EnterComponentIcon,
         EventListIcon,
         FitSelectedIcon,
+        FitToViewIcon,
         GroupSelectionIcon,
         ImportedModelsIcon,
         LayoutsIcon,
@@ -74,6 +77,7 @@ public:
         LightDirectionalIcon,
         LightPointIcon,
         LightSpotIcon,
+        LocalOrientIcon,
         MakeComponentIcon,
         MaterialIcon,
         MergeWithTemplateIcon,
@@ -83,25 +87,29 @@ public:
         ModelCylinderIcon,
         ModelPlaneIcon,
         ModelSphereIcon,
+        MoveToolIcon,
         ParentIcon,
+        ParticlesAnimationIcon,
+        ParticlesPlayIcon,
+        ParticlesRestartIcon,
         PasteIcon,
         PositionsersIcon,
         PrimitivesIcon,
         ResetViewIcon,
+        RotateToolIcon,
+        ScaleToolIcon,
         SelecionIcon,
         ShowBoundsIcon,
         SimpleCheckIcon,
         SnappingIcon,
+        SnappingConfIcon,
         TimelineIcon,
         ToggleGroupIcon,
         VisibilityIcon
     };
     Q_ENUM(IconId)
 
-    enum Area {
-        TopToolbarArea,
-        ContextMenuArea
-    };
+    enum Area { ContextMenuArea, ToolbarArea, TopToolbarArea };
     Q_ENUM(Area)
 
     enum Mode {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<QtAdvancedDockingSystem version="1" userVersion="0" containers="1" displayName="All Views">
+<QtAdvancedDockingSystem version="1" userVersion="0" containers="2" displayName="All Views">
   <container floating="false">
     <splitter orientation="Horizontal" count="3">
       <splitter orientation="Vertical" count="3">
@@ -7,15 +7,17 @@
           <widget name="Navigator" closed="false"/>
           <widget name="Projects" closed="false"/>
         </area>
-        <area tabs="2" current="FileSystem">
+        <area tabs="3" current="FileSystem">
           <widget name="FileSystem" closed="false"/>
           <widget name="OpenDocuments" closed="false"/>
+          <widget name="MaterialBrowser" closed="false"/>
         </area>
-        <area tabs="2" current="Components">
+        <area tabs="3" current="Components">
           <widget name="Components" closed="false"/>
           <widget name="Assets" closed="false"/>
+          <widget name="ContentLibrary" closed="false"/>
         </area>
-        <sizes>343 353 270</sizes>
+        <sizes>437 450 344</sizes>
       </splitter>
       <splitter orientation="Vertical" count="2">
         <splitter orientation="Horizontal" count="2">
@@ -23,10 +25,12 @@
             <area tabs="1" current="FormEditor">
               <widget name="FormEditor" closed="false"/>
             </area>
-            <area tabs="1" current="Editor3D">
+            <area tabs="3" current="Editor3D">
               <widget name="Editor3D" closed="false"/>
+              <widget name="MaterialEditor" closed="false"/>
+              <widget name="TextureEditor" closed="false"/>
             </area>
-            <sizes>353 353</sizes>
+            <sizes>450 450</sizes>
           </splitter>
           <splitter orientation="Vertical" count="2">
             <area tabs="1" current="TextEditor">
@@ -35,9 +39,9 @@
             <area tabs="1" current="OutputPane">
               <widget name="OutputPane" closed="false"/>
             </area>
-            <sizes>353 353</sizes>
+            <sizes>450 450</sizes>
           </splitter>
-          <sizes>448 465</sizes>
+          <sizes>704 730</sizes>
         </splitter>
         <splitter orientation="Horizontal" count="2">
           <area tabs="2" current="StatesEditor">
@@ -48,9 +52,9 @@
             <widget name="CurveEditorId" closed="false"/>
             <widget name="TransitionEditor" closed="false"/>
           </area>
-          <sizes>457 456</sizes>
+          <sizes>718 716</sizes>
         </splitter>
-        <sizes>707 260</sizes>
+        <sizes>901 331</sizes>
       </splitter>
       <splitter orientation="Vertical" count="3">
         <area tabs="1" current="Properties">
@@ -62,9 +66,18 @@
         <area tabs="1" current="ConnectionView">
           <widget name="ConnectionView" closed="false"/>
         </area>
-        <sizes>343 353 270</sizes>
+        <sizes>437 450 344</sizes>
       </splitter>
-      <sizes>310 914 406</sizes>
+      <sizes>486 1435 637</sizes>
+    </splitter>
+  </container>
+  <container floating="true">
+    <geometry>AdnQywADAAAAAAQuAAAB5gAABdEAAAOcAAAELgAAAfkAAAXRAAADnAAAAAAAAAAACgAAAAQuAAAB+QAABdEAAAOc</geometry>
+    <splitter orientation="Vertical" count="1">
+      <area tabs="1" current="Effect Maker">
+        <widget name="Effect Maker" closed="true"/>
+      </area>
+      <sizes>420</sizes>
     </splitter>
   </container>
 </QtAdvancedDockingSystem>

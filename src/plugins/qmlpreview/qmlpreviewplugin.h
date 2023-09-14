@@ -25,8 +25,9 @@ using QmlPreviewFileClassifier = bool (*)(const QString &);
 using QmlPreviewFileLoader = QByteArray (*)(const QString &, bool *);
 using QmlPreviewFpsHandler = void (*)(quint16[8]);
 using QmlPreviewRunControlList = QList<ProjectExplorer::RunControl *>;
-using QmlDebugTranslationClientCreator =
+using QmlDebugTranslationClientFactoryFunction =
     std::function<std::unique_ptr<QmlDebugTranslationClient>(QmlDebug::QmlDebugConnection *)>;
+using QmlPreviewRefreshTranslationFunction = std::function<void ()>;
 
 class QMLPREVIEW_EXPORT QmlPreviewPlugin : public ExtensionSystem::IPlugin
 {
@@ -54,6 +55,7 @@ public:
     QString previewedFile() const;
     void setPreviewedFile(const QString &previewedFile);
     QmlPreviewRunControlList runningPreviews() const;
+    void stopAllPreviews();
 
     void setFileLoader(QmlPreviewFileLoader fileLoader);
     QmlPreviewFileLoader fileLoader() const;
@@ -70,7 +72,8 @@ public:
     QString localeIsoCode() const;
     void setLocaleIsoCode(const QString &localeIsoCode);
 
-    void setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator);
+    void setQmlDebugTranslationClientCreator(QmlDebugTranslationClientFactoryFunction creator);
+    void setRefreshTranslationsFunction(QmlPreviewRefreshTranslationFunction refreshTranslationsFunction);
 
     void previewCurrentFile();
     void addPreview(ProjectExplorer::RunControl *preview);

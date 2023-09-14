@@ -61,20 +61,6 @@ QString ExternalDependencies::currentProjectDirPath() const
     return QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
 }
 
-QList<QColor> ExternalDependencies::designerSettingsEdit3DViewBackgroundColor() const
-{
-    return Edit3DViewConfig::loadColor(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
-}
-
-QColor ExternalDependencies::designerSettingsEdit3DViewGridColor() const
-{
-    QList<QColor> gridColorList = Edit3DViewConfig::loadColor(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR);
-    if (!gridColorList.isEmpty())
-        return gridColorList.front();
-
-    return {};
-}
-
 QUrl ExternalDependencies::currentResourcePath() const
 {
     return QUrl::fromLocalFile(
@@ -235,9 +221,7 @@ QStringList ExternalDependencies::modulePaths() const
         if (auto path = qmlPath(target); !path.isEmpty())
             modulePaths.push_back(path);
 
-        for (const QString &modulePath : qmlBuildSystem->customImportPaths())
-            modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
-
+        modulePaths.append(qmlBuildSystem->absoluteImportPaths());
         return modulePaths;
     }
 
@@ -249,10 +233,7 @@ QStringList ExternalDependencies::projectModulePaths() const
     auto [project, target, qmlBuildSystem] = activeProjectEntries();
 
     if (project && target && qmlBuildSystem) {
-        QStringList modulePaths;
-
-        for (const QString &modulePath : qmlBuildSystem->customImportPaths())
-            modulePaths.append(project->projectDirectory().pathAppended(modulePath).toString());
+        return qmlBuildSystem->absoluteImportPaths();
     }
 
     return {};

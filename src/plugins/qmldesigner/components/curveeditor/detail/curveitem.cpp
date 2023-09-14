@@ -23,6 +23,7 @@ CurveItem::CurveItem(unsigned int id, const AnimationCurve &curve, QGraphicsItem
     , m_component(PropertyTreeItem::Component::Generic)
     , m_transform()
     , m_keyframes()
+    , m_mcu(false)
     , m_itemDirty(false)
 {
     setFlag(QGraphicsItem::ItemIsMovable, false);
@@ -96,7 +97,7 @@ void CurveItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
             } else {
                 if (locked())
                     pen.setColor(m_style.lockedColor);
-                else if (!segment.isLegal())
+                else if (!segment.isLegal() || (m_mcu && !segment.isLegalMcu()))
                     pen.setColor(m_style.errorColor);
                 else if (isUnderMouse())
                     pen.setColor(m_style.hoverColor);
@@ -269,14 +270,14 @@ std::vector<AnimationCurve> CurveItem::curves() const
     return out;
 }
 
-QVector<KeyframeItem *> CurveItem::keyframes() const
+QList<KeyframeItem *> CurveItem::keyframes() const
 {
     return m_keyframes;
 }
 
-QVector<KeyframeItem *> CurveItem::selectedKeyframes() const
+QList<KeyframeItem *> CurveItem::selectedKeyframes() const
 {
-    QVector<KeyframeItem *> out;
+    QList<KeyframeItem *> out;
     for (auto *frame : m_keyframes) {
         if (frame->selected())
             out.push_back(frame);
@@ -284,9 +285,9 @@ QVector<KeyframeItem *> CurveItem::selectedKeyframes() const
     return out;
 }
 
-QVector<HandleItem *> CurveItem::handles() const
+QList<HandleItem *> CurveItem::handles() const
 {
-    QVector<HandleItem *> out;
+    QList<HandleItem *> out;
     for (auto *frame : m_keyframes) {
         if (auto *left = frame->leftHandle())
             out.push_back(left);
@@ -351,6 +352,12 @@ void CurveItem::restore()
 void CurveItem::setDirty(bool dirty)
 {
     m_itemDirty = dirty;
+}
+
+void CurveItem::setIsMcu(bool isMcu)
+{
+    m_mcu = isMcu;
+    setHandleVisibility(!m_mcu);
 }
 
 void CurveItem::setHandleVisibility(bool visible)

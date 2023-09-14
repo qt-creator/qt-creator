@@ -3,113 +3,178 @@
 
 import QtQuick
 import QtQuick.Controls
-import ConnectionsEditor
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
 import ConnectionsEditorEditorBackend
 
 ListView {
-    id: listView
-    width: 606
-    height: 160
-    interactive: false
+    id: root
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
+
+    property bool adsFocus: false
+
+    clip: true
+    interactive: true
     highlightMoveDuration: 0
+    highlightResizeDuration: 0
+    boundsMovement: Flickable.StopAtBounds
+    boundsBehavior: Flickable.StopAtBounds
+
+    HoverHandler { id: hoverHandler }
+
+    ScrollBar.vertical: HelperWidgets.ScrollBar {
+        id: verticalScrollBar
+        parent: root
+        x: root.width - verticalScrollBar.width
+        y: 0
+        height: root.availableHeight
+        orientation: Qt.Vertical
+
+        show: (hoverHandler.hovered || root.focus || verticalScrollBar.inUse || root.adsFocus)
+              && verticalScrollBar.isNeeded
+    }
 
     onVisibleChanged: {
         dialog.hide()
     }
 
-    property int modelCurrentIndex: listView.model.currentIndex ?? 0
+    property int modelCurrentIndex: root.model.currentIndex ?? 0
 
-    /*
-  Something weird with currentIndex happens when items are removed added.
-  listView.model.currentIndex contains the persistent index.
-  */
+    // Something weird with currentIndex happens when items are removed added.
+    // listView.model.currentIndex contains the persistent index.
+
     onModelCurrentIndexChanged: {
-        listView.currentIndex = listView.model.currentIndex
+        root.currentIndex = root.model.currentIndex
     }
 
     onCurrentIndexChanged: {
-        listView.currentIndex = listView.model.currentIndex
+        root.currentIndex = root.model.currentIndex
+        dialog.backend.currentRow = root.currentIndex
     }
+
+    // Number of columns
+    readonly property int numColumns: 3
+    // Proper row width calculation
+    readonly property int rowSpacing: StudioTheme.Values.toolbarHorizontalMargin
+    readonly property int rowSpace: root.width - (root.rowSpacing * (root.numColumns + 1))
+                                    - root.style.squareControlSize.width
+    property int rowWidth: root.rowSpace / root.numColumns
+    property int rowRest: root.rowSpace % root.numColumns
 
     data: [
         ConnectionsDialog {
             id: dialog
             visible: false
+            backend: root.model.delegate
         }
     ]
 
-    delegate: Item {
+    delegate: Rectangle {
+        id: itemDelegate
 
-        width: 600
-        height: 18
+        required property int index
+
+        required property string signal
+        required property string target
+        required property string action
+
+        width: ListView.view.width
+        height: root.style.squareControlSize.height
+        color: mouseArea.containsMouse ?
+                   itemDelegate.ListView.isCurrentItem ? root.style.interactionHover
+                                                       : root.style.background.hover
+                                       : "transparent"
 
         MouseArea {
             id: mouseArea
+
             anchors.fill: parent
+            hoverEnabled: true
+
             onClicked: {
-                listView.model.currentIndex = index
-                listView.currentIndex = index
+                root.model.currentIndex = itemDelegate.index
+                root.currentIndex = itemDelegate.index
+                dialog.backend.currentRow = itemDelegate.index
                 dialog.popup(mouseArea)
             }
-
-            property int currentIndex: listView.currentIndex
         }
 
         Row {
-            id: row1
-            x: 0
-            y: 0
-            width: 600
-            height: 16
-            spacing: 10
+            id: row
+
+            property color textColor: itemDelegate.ListView.isCurrentItem ? root.style.text.selectedText
+                                                                          : root.style.icon.idle
+
+            height: itemDelegate.height
+            spacing: root.rowSpacing
 
             Text {
-                width: 120
-                color: "#ffffff"
-                text: target
-                anchors.verticalCenter: parent.verticalCenter
+                width: root.rowWidth + root.rowRest
+                height: itemDelegate.height
+                color: row.textColor
+                text: itemDelegate.target
+                verticalAlignment: Text.AlignVCenter
                 font.bold: false
+                leftPadding: root.rowSpacing
+                elide: Text.ElideMiddle
             }
 
             Text {
-                width: 120
-                text: signal
-                color: "#ffffff"
-                anchors.verticalCenter: parent.verticalCenter
+                width: root.rowWidth
+                height: itemDelegate.height
+                text: itemDelegate.signal
+                color: row.textColor
+                verticalAlignment: Text.AlignVCenter
                 font.bold: false
+                elide: Text.ElideMiddle
             }
 
             Text {
-                width: 120
-
-                text: action
-                anchors.verticalCenter: parent.verticalCenter
-                color: "#ffffff"
+                width: root.rowWidth
+                height: itemDelegate.height
+                text: itemDelegate.action
+                verticalAlignment: Text.AlignVCenter
+                color: row.textColor
                 font.bold: false
+                elide: Text.ElideMiddle
             }
 
-            Text {
-                width: 120
+            Rectangle {
+                width: root.style.squareControlSize.width
+                height: root.style.squareControlSize.height
 
-                text: "-"
-                anchors.verticalCenter: parent.verticalCenter
-                horizontalAlignment: Text.AlignRight
-                font.pointSize: 14
-                color: "#ffffff"
-                font.bold: true
-                MouseArea {
+                color: toolTipArea.containsMouse ?
+                           itemDelegate.ListView.isCurrentItem ? root.style.interactionHover
+                                                               : root.style.background.hover
+                                               : "transparent"
+
+                Text {
                     anchors.fill: parent
-                    onClicked: listView.model.remove(index)
+
+                    text: StudioTheme.Constants.remove_medium
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: root.style.baseIconFontSize
+
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+
+                    color: row.textColor
+                    renderType: Text.QtRendering
+                }
+
+                HelperWidgets.ToolTipArea {
+                    id: toolTipArea
+                    tooltip: qsTr("This is a test.")
+                    anchors.fill: parent
+                    onClicked: root.model.remove(itemDelegate.index)
                 }
             }
         }
     }
 
     highlight: Rectangle {
-        color: "#2a5593"
-        width: 600
+        color: root.style.interaction
     }
 }

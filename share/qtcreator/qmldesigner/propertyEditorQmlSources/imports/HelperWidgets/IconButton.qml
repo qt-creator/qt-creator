@@ -10,6 +10,8 @@ Rectangle {
     id: root
 
     signal clicked()
+    signal pressed()
+    signal released()
 
     property alias icon: icon.text
     property alias tooltip: toolTip.text
@@ -20,6 +22,7 @@ Rectangle {
     property alias iconStyleColor: icon.styleColor
 
     property alias containsMouse: mouseArea.containsMouse
+    property alias drag: mouseArea.drag
 
     property bool enabled: true
     property bool transparentBg: false
@@ -55,12 +58,22 @@ Rectangle {
             if (root.enabled)
                 root.clicked()
         }
+
+        onPressed: {
+            if (root.enabled)
+                root.pressed()
+        }
+
+        onReleased: {
+            if (root.enabled)
+                root.released()
+        }
     }
 
     ToolTip {
         id: toolTip
 
-        visible: mouseArea.containsMouse
+        visible: mouseArea.containsMouse && text !== ""
         delay: 1000
     }
 }

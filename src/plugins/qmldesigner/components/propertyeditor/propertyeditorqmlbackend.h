@@ -51,7 +51,7 @@ public:
     static QString templateGeneration(const NodeMetaInfo &type, const NodeMetaInfo &superType, const QmlObjectNode &node);
 
     static QUrl getQmlFileUrl(const TypeName &relativeTypeName, const NodeMetaInfo &info);
-    static QUrl getQmlUrlForMetaInfo(const NodeMetaInfo &modelNode, TypeName &className);
+    static std::tuple<QUrl, NodeMetaInfo> getQmlUrlForMetaInfo(const NodeMetaInfo &modelNode);
 
     static bool checkIfUrlExists(const QUrl &url);
 
@@ -76,7 +76,9 @@ private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    const PropertyName &name, const QVariant &value,
                                    PropertyEditorView *propertyEditor);
-    void setupPropertyEditorValue(const PropertyName &name, PropertyEditorView *propertyEditor, const QString &type);
+    void setupPropertyEditorValue(const PropertyName &name,
+                                  PropertyEditorView *propertyEditor,
+                                  const NodeMetaInfo &type);
 
     static TypeName qmlFileName(const NodeMetaInfo &nodeInfo);
     static QUrl fileToUrl(const QString &filePath);

@@ -397,13 +397,7 @@ Item {
                                 currentIndex: BackendApi.targetQtVersionIndex
                                 font.pixelSize: DialogValues.defaultPixelSize
 
-                                model: ListModel {
-                                    ListElement { name: "Qt 5.15" }
-                                    ListElement { name: "Qt 6.2" }
-                                    ListElement { name: "Qt 6.3" }
-                                    ListElement { name: "Qt 6.4" }
-                                    ListElement { name: "Qt 6.5" }
-                                }
+                                model: BackendApi.targetQtVersions
 
                                 onActivated: (index) => {
                                     BackendApi.targetQtVersionIndex = index

@@ -282,11 +282,7 @@ static void removeObjectFromList(const QQmlProperty &property,
                                  QObject *objectToBeRemoved,
                                  [[maybe_unused]] QQmlEngine *engine)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
     QQmlListReference listReference(property.object(), property.name().toUtf8());
-#else
-    QQmlListReference listReference(property.object(), property.name().toUtf8(), engine);
-#endif
 
     if (!QmlPrivateGate::hasFullImplementedListInterface(listReference)) {
         qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";

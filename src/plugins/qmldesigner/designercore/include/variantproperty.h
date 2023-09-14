@@ -37,7 +37,6 @@ public:
 
     VariantProperty();
     VariantProperty(const VariantProperty &property, AbstractView *view);
-protected:
     VariantProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };
 

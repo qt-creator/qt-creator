@@ -437,80 +437,130 @@ void PropertyEditorView::resetView()
     updateSize();
 }
 
+namespace {
 
-void PropertyEditorView::setupQmlBackend()
+std::tuple<NodeMetaInfo, QUrl> diffType(const NodeMetaInfo &commonAncestor,
+                                        const NodeMetaInfo &specificsClassMetaInfo)
 {
-    TypeName specificsClassName;
-
-    const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(m_selectedNode);
-
-    const QUrl qmlFile(PropertyEditorQmlBackend::getQmlUrlForMetaInfo(commonAncestor, specificsClassName));
+    NodeMetaInfo diffClassMetaInfo;
     QUrl qmlSpecificsFile;
 
-    TypeName diffClassName;
     if (commonAncestor.isValid()) {
-        diffClassName = commonAncestor.typeName();
+        diffClassMetaInfo = commonAncestor;
         const NodeMetaInfos hierarchy = commonAncestor.selfAndPrototypes();
         for (const NodeMetaInfo &metaInfo : hierarchy) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
-            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + "Specifics", metaInfo);
-            diffClassName = metaInfo.typeName();
+            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + "Specifics",
+                                                                       metaInfo);
+            diffClassMetaInfo = metaInfo;
         }
     }
 
     if (!PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
-        diffClassName = specificsClassName;
+        diffClassMetaInfo = specificsClassMetaInfo;
 
-    QString specificQmlData;
+    return {diffClassMetaInfo, qmlSpecificsFile};
+}
 
-    if (commonAncestor.isValid() && m_selectedNode.metaInfo().isValid() && diffClassName != m_selectedNode.type())
-        specificQmlData = PropertyEditorQmlBackend::templateGeneration(commonAncestor, model()->metaInfo(diffClassName), m_selectedNode);
+QString getSpecificQmlData(const NodeMetaInfo &commonAncestor,
+                           const ModelNode &selectedNode,
+                           const NodeMetaInfo &diffClassMetaInfo)
+{
+    if (commonAncestor.isValid() && diffClassMetaInfo != selectedNode.metaInfo())
+        return PropertyEditorQmlBackend::templateGeneration(commonAncestor,
+                                                            diffClassMetaInfo,
+                                                            selectedNode);
 
-    PropertyEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlFile.toString());
+    return {};
+}
 
-    QString currentStateName = currentState().isBaseState() ? currentState().name() : QStringLiteral("invalid state");
+PropertyEditorQmlBackend *getQmlBackend(QHash<QString, PropertyEditorQmlBackend *> &qmlBackendHash,
+                                        const QUrl &qmlFileUrl,
+                                        AsynchronousImageCache &imageCache,
+                                        PropertyEditorWidget *stackedWidget,
+                                        PropertyEditorView *propertyEditorView)
+{
+    auto qmlFileName = qmlFileUrl.toString();
+    PropertyEditorQmlBackend *currentQmlBackend = qmlBackendHash.value(qmlFileName);
 
     if (!currentQmlBackend) {
-        currentQmlBackend = new PropertyEditorQmlBackend(this, m_imageCache);
+        currentQmlBackend = new PropertyEditorQmlBackend(propertyEditorView, imageCache);
 
-        m_stackedWidget->addWidget(currentQmlBackend->widget());
-        m_qmlBackendHash.insert(qmlFile.toString(), currentQmlBackend);
+        stackedWidget->addWidget(currentQmlBackend->widget());
+        qmlBackendHash.insert(qmlFileName, currentQmlBackend);
 
-        if (m_selectedNode.isValid()) {
-            QmlObjectNode qmlObjectNode{m_selectedNode};
-            Q_ASSERT(qmlObjectNode.isValid());
-            currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
-        }
-
-        if (specificQmlData.isEmpty())
-            currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
-
-        currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
-        currentQmlBackend->setSource(qmlFile);
-    } else {
-        QmlObjectNode qmlObjectNode{m_selectedNode};
-
-        if (specificQmlData.isEmpty())
-            currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
-        currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
-        currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
+        currentQmlBackend->setSource(qmlFileUrl);
     }
 
-    currentQmlBackend->widget()->installEventFilter(this);
-    m_stackedWidget->setCurrentWidget(currentQmlBackend->widget());
+    return currentQmlBackend;
+}
 
+void setupCurrentQmlBackend(PropertyEditorQmlBackend *currentQmlBackend,
+                            const ModelNode &selectedNode,
+                            const QUrl &qmlSpecificsFile,
+                            const QmlModelState &currentState,
+                            PropertyEditorView *propertyEditorView,
+                            const QString &specificQmlData)
+{
+    QString currentStateName = currentState.isBaseState() ? currentState.name()
+                                                          : QStringLiteral("invalid state");
+
+    QmlObjectNode qmlObjectNode{selectedNode};
+    if (specificQmlData.isEmpty())
+        currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
+    currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, propertyEditorView);
+    currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
+}
+
+void setupInsight(const ModelNode &rootModelNode, PropertyEditorQmlBackend *currentQmlBackend)
+{
+    if (rootModelNode.hasAuxiliaryData(insightEnabledProperty)) {
+        currentQmlBackend->contextObject()->setInsightEnabled(
+            rootModelNode.auxiliaryData(insightEnabledProperty)->toBool());
+    }
+
+    if (rootModelNode.hasAuxiliaryData(insightCategoriesProperty)) {
+        currentQmlBackend->contextObject()->setInsightCategories(
+            rootModelNode.auxiliaryData(insightCategoriesProperty)->toStringList());
+    }
+}
+
+void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
+                 PropertyEditorView *propertyEditorView,
+                 QStackedWidget *stackedWidget)
+{
+    currentQmlBackend->widget()->installEventFilter(propertyEditorView);
+    stackedWidget->setCurrentWidget(currentQmlBackend->widget());
     currentQmlBackend->contextObject()->triggerSelectionChanged();
+}
+} // namespace
+
+void PropertyEditorView::setupQmlBackend()
+{
+    const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(m_selectedNode);
+
+    const auto [qmlFileUrl, specificsClassMetaInfo] = PropertyEditorQmlBackend::getQmlUrlForMetaInfo(
+        commonAncestor);
+
+    auto [diffClassMetaInfo, qmlSpecificsFile] = diffType(commonAncestor, specificsClassMetaInfo);
+
+    QString specificQmlData = getSpecificQmlData(commonAncestor, m_selectedNode, diffClassMetaInfo);
+
+    PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
+                                                                qmlFileUrl,
+                                                                m_imageCache,
+                                                                m_stackedWidget,
+                                                                this);
+
+    setupCurrentQmlBackend(
+        currentQmlBackend, m_selectedNode, qmlSpecificsFile, currentState(), this, specificQmlData);
+
+    setupWidget(currentQmlBackend, this, m_stackedWidget);
 
     m_qmlBackEndForCurrentType = currentQmlBackend;
 
-    if (rootModelNode().hasAuxiliaryData(insightEnabledProperty))
-        m_qmlBackEndForCurrentType->contextObject()->setInsightEnabled(
-            rootModelNode().auxiliaryData(insightEnabledProperty)->toBool());
-
-    if (rootModelNode().hasAuxiliaryData(insightCategoriesProperty))
-        m_qmlBackEndForCurrentType->contextObject()->setInsightCategories(
-            rootModelNode().auxiliaryData(insightCategoriesProperty)->toStringList());
+    setupInsight(rootModelNode(), currentQmlBackend);
 }
 
 void PropertyEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)

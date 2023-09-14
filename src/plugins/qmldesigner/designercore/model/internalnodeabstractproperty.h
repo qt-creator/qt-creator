@@ -17,16 +17,11 @@ public:
     using Pointer = std::shared_ptr<InternalNodeAbstractProperty>;
     using WeakPointer = std::weak_ptr<InternalNodeAbstractProperty>;
 
-    virtual QList<InternalNodePointer> allSubNodes() const = 0;
-    virtual QList<InternalNodePointer> directSubNodes() const = 0;
-
     virtual bool isEmpty() const = 0;
     virtual int count() const = 0;
     virtual int indexOf(const InternalNodePointer &node) const = 0;
 
     bool isValid() const override;
-
-    using InternalProperty::remove; // keep the virtual remove(...) function around
 
 protected:
     InternalNodeAbstractProperty(const PropertyName &name,

@@ -2,20 +2,21 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "connectionview.h"
-#include "connectionviewwidget.h"
 
 #include "backendmodel.h"
 #include "bindingmodel.h"
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"
+#include "propertytreemodel.h"
 #include "theme.h"
 
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
-#include <variantproperty.h>
 #include <signalhandlerproperty.h>
-#include <qmldesignerplugin.h>
+#include <variantproperty.h>
 #include <viewmanager.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 #include <studioquickwidget.h>
 
@@ -58,7 +59,7 @@ public:
                 this,
                 &ConnectionViewQuickWidget::reloadQmlSource);
 
-        //setObjectName(Constants::OBJECT_NAME_STATES_EDITOR);
+        quickWidget()->setObjectName(Constants::OBJECT_NAME_CONNECTION_EDITOR);
         setResizeMode(QQuickWidget::SizeRootObjectToView);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -76,6 +77,24 @@ public:
         map->setProperties(
             {{"dynamicPropertiesModel",
               QVariant::fromValue(m_connectionEditorView->dynamicPropertiesModel())}});
+
+        qmlRegisterType<ConnectionModelBackendDelegate>("ConnectionsEditorEditorBackend",
+                                                        1,
+                                                        0,
+                                                        "DynamicPropertiesModelBackendDelegate");
+
+        qmlRegisterType<ConnectionModelStatementDelegate>("ConnectionsEditorEditorBackend",
+                                                          1,
+                                                          0,
+                                                          "ConnectionModelStatementDelegate");
+
+        qmlRegisterType<ConditionListModel>("ConnectionsEditorEditorBackend", 1, 0, "ConditionListModel");
+
+        qmlRegisterType<PropertyTreeModel>("ConnectionsEditorEditorBackend", 1, 0, "PropertyTreeModel");
+        qmlRegisterType<PropertyListProxyModel>("ConnectionsEditorEditorBackend",
+                                                1,
+                                                0,
+                                                "PropertyListProxyModel");
 
         Theme::setupTheme(engine());
 
@@ -122,17 +141,13 @@ private:
 };
 
 ConnectionView::ConnectionView(ExternalDependenciesInterface &externalDependencies)
-    : AbstractView{externalDependencies}, m_connectionViewWidget(new ConnectionViewWidget()),
-      m_connectionModel(new ConnectionModel(this)), m_bindingModel(new BindingModel(this)),
-      m_dynamicPropertiesModel(new DynamicPropertiesModel(false, this)),
-      m_backendModel(new BackendModel(this)),
-      m_connectionViewQuickWidget(new ConnectionViewQuickWidget(this))
-{
-    connectionViewWidget()->setBindingModel(m_bindingModel);
-    connectionViewWidget()->setConnectionModel(m_connectionModel);
-    connectionViewWidget()->setDynamicPropertiesModel(m_dynamicPropertiesModel);
-    connectionViewWidget()->setBackendModel(m_backendModel);
-}
+    : AbstractView{externalDependencies}
+    , m_connectionModel(new ConnectionModel(this))
+    , m_bindingModel(new BindingModel(this))
+    , m_dynamicPropertiesModel(new DynamicPropertiesModel(false, this))
+    , m_backendModel(new BackendModel(this))
+    , m_connectionViewQuickWidget(new ConnectionViewQuickWidget(this))
+{}
 
 ConnectionView::~ConnectionView()
 {
@@ -142,25 +157,22 @@ ConnectionView::~ConnectionView()
 void ConnectionView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    bindingModel()->selectionChanged(QList<ModelNode>());
+    bindingModel()->reset();
     dynamicPropertiesModel()->reset();
     connectionModel()->resetModel();
-    connectionViewWidget()->resetItemViews();
     backendModel()->resetModel();
 }
 
 void ConnectionView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
-    bindingModel()->selectionChanged(QList<ModelNode>());
+    bindingModel()->reset();
     dynamicPropertiesModel()->reset();
     connectionModel()->resetModel();
-    connectionViewWidget()->resetItemViews();
 }
 
 void ConnectionView::nodeCreated(const ModelNode & /*createdNode*/)
 {
-//bindings
     connectionModel()->resetModel();
 }
 
@@ -180,8 +192,8 @@ void ConnectionView::nodeReparented(const ModelNode & /*node*/, const NodeAbstra
 void ConnectionView::nodeIdChanged(const ModelNode & /*node*/, const QString & /*newId*/, const QString & /*oldId*/)
 {
     connectionModel()->resetModel();
-    bindingModel()->resetModel();
-    dynamicPropertiesModel()->resetModel();
+    bindingModel()->reset();
+    dynamicPropertiesModel()->reset();
 }
 
 void ConnectionView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
@@ -198,10 +210,10 @@ void ConnectionView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &p
 {
     for (const AbstractProperty &property : propertyList) {
         if (property.isBindingProperty()) {
-            bindingModel()->bindingRemoved(property.toBindingProperty());
-            dynamicPropertiesModel()->bindingRemoved(property.toBindingProperty());
+            bindingModel()->removeItem(property);
+            dynamicPropertiesModel()->removeItem(property);
         } else if (property.isVariantProperty()) {
-            dynamicPropertiesModel()->variantRemoved(property.toVariantProperty());
+            dynamicPropertiesModel()->removeItem(property);
         } else if (property.isSignalHandlerProperty()) {
             connectionModel()->removeRowFromTable(property.toSignalHandlerProperty());
         }
@@ -213,7 +225,7 @@ void ConnectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
 {
     for (const VariantProperty &variantProperty : propertyList) {
         if (variantProperty.isDynamic())
-            dynamicPropertiesModel()->variantPropertyChanged(variantProperty);
+            dynamicPropertiesModel()->updateItem(variantProperty);
         if (variantProperty.isDynamic() && variantProperty.parentModelNode().isRootNode())
             backendModel()->resetModel();
 
@@ -227,9 +239,9 @@ void ConnectionView::bindingPropertiesChanged(const QList<BindingProperty> &prop
                                          AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     for (const BindingProperty &bindingProperty : propertyList) {
-        bindingModel()->bindingChanged(bindingProperty);
+        bindingModel()->updateItem(bindingProperty);
         if (bindingProperty.isDynamic())
-            dynamicPropertiesModel()->bindingPropertyChanged(bindingProperty);
+            dynamicPropertiesModel()->updateItem(bindingProperty);
         if (bindingProperty.isDynamic() && bindingProperty.parentModelNode().isRootNode())
             backendModel()->resetModel();
 
@@ -249,39 +261,8 @@ void ConnectionView::signalHandlerPropertiesChanged(const QVector<SignalHandlerP
 void ConnectionView::selectedNodesChanged(const QList<ModelNode> & selectedNodeList,
                                      const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
-    bindingModel()->selectionChanged(selectedNodeList);
+    bindingModel()->reset(selectedNodeList);
     dynamicPropertiesModel()->reset();
-    connectionViewWidget()->bindingTableViewSelectionChanged(QModelIndex(), QModelIndex());
-    connectionViewWidget()->dynamicPropertiesTableViewSelectionChanged(QModelIndex(), QModelIndex());
-
-    if (connectionViewWidget()->currentTab() == ConnectionViewWidget::BindingTab
-            || connectionViewWidget()->currentTab() == ConnectionViewWidget::DynamicPropertiesTab)
-        emit connectionViewWidget()->setEnabledAddButton(selectedNodeList.size() == 1);
-}
-
-void ConnectionView::auxiliaryDataChanged([[maybe_unused]] const ModelNode &node,
-                                          AuxiliaryDataKeyView key,
-                                          const QVariant &data)
-{
-    // Check if the auxiliary data is actually the locked property or if it is unlocked
-    if (key != lockedProperty || !data.toBool())
-        return;
-
-    QItemSelectionModel *selectionModel = connectionTableView()->selectionModel();
-    if (!selectionModel->hasSelection())
-        return;
-
-    QModelIndex modelIndex = selectionModel->currentIndex();
-    if (!modelIndex.isValid() || !model())
-        return;
-
-    const int internalId = connectionModel()->data(connectionModel()->index(modelIndex.row(),
-                                                                            ConnectionModel::TargetModelNodeRow),
-                                                   ConnectionModel::UserRoles::InternalIdRole).toInt();
-    ModelNode modelNode = modelNodeForInternalId(internalId);
-
-    if (modelNode.isValid() && ModelNode::isThisOrAncestorLocked(modelNode))
-        selectionModel->clearSelection();
 }
 
 void ConnectionView::importsChanged(const Imports & /*addedImports*/, const Imports & /*removedImports*/)
@@ -296,14 +277,7 @@ void ConnectionView::currentStateChanged(const ModelNode &)
 
 WidgetInfo ConnectionView::widgetInfo()
 {
-    /* Enable new connection editor here */
-    const bool newEditor = false;
-
-    QWidget *widget = m_connectionViewWidget.data();
-    if (newEditor)
-        widget = m_connectionViewQuickWidget.data();
-
-    return createWidgetInfo(widget,
+    return createWidgetInfo(m_connectionViewQuickWidget.data(),
                             QLatin1String("ConnectionView"),
                             WidgetInfo::LeftPane,
                             0,
@@ -318,31 +292,6 @@ bool ConnectionView::hasWidget() const
 bool ConnectionView::isWidgetEnabled()
 {
     return widgetInfo().widget->isEnabled();
-}
-
-QTableView *ConnectionView::connectionTableView() const
-{
-    return connectionViewWidget()->connectionTableView();
-}
-
-QTableView *ConnectionView::bindingTableView() const
-{
-    return connectionViewWidget()->bindingTableView();
-}
-
-QTableView *ConnectionView::dynamicPropertiesTableView() const
-{
-    return connectionViewWidget()->dynamicPropertiesTableView();
-}
-
-QTableView *ConnectionView::backendView() const
-{
-    return connectionViewWidget()->backendView();
-}
-
-ConnectionViewWidget *ConnectionView::connectionViewWidget() const
-{
-    return m_connectionViewWidget.data();
 }
 
 ConnectionModel *ConnectionView::connectionModel() const
@@ -381,7 +330,6 @@ void ConnectionView::setCurrentIndex(int i)
 
 ConnectionView *ConnectionView::instance()
 {
-
     static ConnectionView *s_instance = nullptr;
 
     if (s_instance)

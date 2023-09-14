@@ -32,12 +32,14 @@
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
+#include <QSet>
 
 #include <utility>
 #include <vector>
 #include <algorithm>
 
 using namespace QmlDesigner::Internal;
+using namespace Qt::StringLiterals;
 
 namespace QmlDesigner {
 
@@ -260,40 +262,29 @@ void RewriterView::nodeReparented(const ModelNode &node, const NodeAbstractPrope
 
 void RewriterView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
-    for (const Import &import : addedImports)
-        importAdded(import);
-
-    for (const Import &import : removedImports)
-        importRemoved(import);
-
+    importsAdded(addedImports);
+    importsRemoved(removedImports);
 }
 
-void RewriterView::importAdded(const Import &import)
+void RewriterView::importsAdded(const Imports &imports)
 {
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
 
-    if (import.url() == QLatin1String("Qt")) {
-        for (const Import &import : model()->imports()) {
-            if (import.url() == QLatin1String("QtQuick"))
-                return; //QtQuick magic we do not have to add an import for Qt
-        }
-    }
-
-    modelToTextMerger()->addImport(import);
+    modelToTextMerger()->addImports(imports);
 
     if (!isModificationGroupActive())
         applyChanges();
 }
 
-void RewriterView::importRemoved(const Import &import)
+void RewriterView::importsRemoved(const Imports &imports)
 {
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
 
-    modelToTextMerger()->removeImport(import);
+    modelToTextMerger()->removeImports(imports);
 
     if (!isModificationGroupActive())
         applyChanges();
@@ -606,13 +597,12 @@ QString RewriterView::auxiliaryDataAsQML() const
 
                 if (metaType == QMetaType::QString
                         || metaType == QMetaType::QColor) {
-
-                    strValue.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
-                    strValue.replace(QStringLiteral("\""), QStringLiteral("\\\""));
-                    strValue.replace(QStringLiteral("\t"), QStringLiteral("\\t"));
-                    strValue.replace(QStringLiteral("\r"), QStringLiteral("\\r"));
-                    strValue.replace(QStringLiteral("\n"), QStringLiteral("\\n"));
-                    strValue.replace(QStringLiteral("*/"), QStringLiteral("*\\/"));
+                    strValue.replace("\\"_L1, "\\\\"_L1);
+                    strValue.replace("\""_L1, "\\\""_L1);
+                    strValue.replace("\t"_L1, "\\t"_L1);
+                    strValue.replace("\r"_L1, "\\r"_L1);
+                    strValue.replace("\n"_L1, "\\n"_L1);
+                    strValue.replace("*/"_L1, "*\\/"_L1);
 
                     strValue = "\"" + strValue + "\"";
                 }
@@ -1031,11 +1021,25 @@ QSet<QPair<QString, QString> > RewriterView::qrcMapping() const
 
 void RewriterView::moveToComponent(const ModelNode &modelNode)
 {
+    if (!modelNode.isValid())
+        return;
+
     int offset = nodeOffset(modelNode);
 
+    const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
+    QSet<QString> directPaths;
 
-    textModifier()->moveToComponent(offset);
+    for (const ModelNode &partialNode : nodes) {
+        QString importStr = partialNode.metaInfo().requiredImportString();
+        if (importStr.size())
+            directPaths << importStr;
+    }
 
+    QString importData = Utils::sorted(directPaths.values()).join(QChar::LineFeed);
+    if (importData.size())
+        importData.append(QString(2, QChar::LineFeed));
+
+    textModifier()->moveToComponent(offset, importData);
 }
 
 QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)

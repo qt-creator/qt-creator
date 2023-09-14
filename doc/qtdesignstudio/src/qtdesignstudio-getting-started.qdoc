@@ -24,7 +24,7 @@
         \li \l {Installation}
 
             \QDS is available either as a standalone installation package or
-            as an option in the Qt online installer.
+            as an option in \QOI.
         \li \l {Tutorials}
 
             Follow a set of hands-on tutorials that illustrate how to use the

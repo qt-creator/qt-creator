@@ -233,11 +233,19 @@ void MaterialEditorContextObject::changeTypeName(const QString &typeName)
             }
         }
 
+#ifdef QDS_USE_PROJECTSTORAGE
+        if (m_selectedMaterial.isRootNode())
+            rewriterView->changeRootNodeType(typeName.toUtf8(), -1, -1);
+        else
+            m_selectedMaterial.changeType(typeName.toUtf8(), -1, -1);
+#else
         if (m_selectedMaterial.isRootNode())
             rewriterView->changeRootNodeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
         else
-            m_selectedMaterial.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
-
+            m_selectedMaterial.changeType(metaInfo.typeName(),
+                                          metaInfo.majorVersion(),
+                                          metaInfo.minorVersion());
+#endif
         for (const auto &key : copyKeys) {
             const CopyData &copyData = copyMap[key];
             if (copyData.isBinding)

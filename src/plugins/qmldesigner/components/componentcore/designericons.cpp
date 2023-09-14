@@ -238,6 +238,36 @@ struct JsonMap<QMap<Key, Value>>
     }
 };
 
+void jsonParseErrorOffset(int &line,
+                          int &offset,
+                          const QJsonParseError &jpe,
+                          const QString &filePath)
+{
+    line = -1;
+    offset = -1;
+    if (!jpe.error || jpe.offset < 0)
+        return;
+
+    QFile errorFile(filePath);
+    if (!errorFile.open(QFile::ReadOnly)) {
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Cannot open file" << filePath
+                   << "to get error line";
+        return;
+    }
+    line = 0;
+    QByteArray data;
+    do {
+        int linePos = errorFile.pos();
+        data = errorFile.readLine();
+        line++;
+        if (jpe.offset < errorFile.pos()) {
+            offset = jpe.offset - linePos;
+            break;
+        }
+    } while (!errorFile.atEnd());
+    errorFile.close();
+}
+
 } // End of blank namespace
 
 class QmlDesigner::DesignerIconsPrivate
@@ -253,11 +283,12 @@ public:
 
 QCache<QString, DesignerIcons::IconsMap> DesignerIconsPrivate::cache(100);
 
-IconFontHelper::IconFontHelper(Theme::Icon themeIcon, Theme::Color color, const QSize &size, QIcon::Mode mode, QIcon::State state)
-    : Super(Theme::getIconUnicode(themeIcon),
-            Theme::getColor(color),
-            size,
-            mode, state)
+IconFontHelper::IconFontHelper(Theme::Icon themeIcon,
+                               Theme::Color color,
+                               const QSize &size,
+                               QIcon::Mode mode,
+                               QIcon::State state)
+    : Super(Theme::getIconUnicode(themeIcon), Theme::getColor(color), size, mode, state)
     , mThemeIcon(themeIcon)
     , mThemeColor(color)
 {}
@@ -341,17 +372,55 @@ void DesignerIcons::loadIconSettings(const QString &fileName)
     QJsonDocument jsonDoc = QJsonDocument::fromJson(designerIconFile.readAll(), &parseError);
 
     if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << Q_FUNC_INFO << __LINE__ << "Json Parse Error - " << parseError.errorString() << "---\t File: " << fileName;
+        int line = 0;
+        int offset = 0;
+        jsonParseErrorOffset(line, offset, parseError, fileName);
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Json Parse Error - " << parseError.errorString()
+                   << "---\t File: " << fileName << "---\t Line:" << line
+                   << "---\t File Offset:" << offset;
         return;
     }
 
-    if (!jsonDoc.isObject()) {
+    if (!jsonDoc.isObject() && !jsonDoc.isArray()) {
         qWarning() << Q_FUNC_INFO << __LINE__ << "Invalid Json Array in file: " << fileName;
         return;
     }
 
     clearAll();
-    d->icons = JsonMap<IconsMap>::value(jsonDoc.object(), {});
+    if (jsonDoc.isObject()) {
+        d->icons = JsonMap<IconsMap>::value(jsonDoc.object(), {});
+    } else if (jsonDoc.isArray()) {
+        DesignerIcons::IconsMap singleAreaMap;
+        const QJsonArray jArray = jsonDoc.array();
+        for (const QJsonValue &areaPack : jArray) {
+            if (areaPack.isObject()) {
+                QJsonObject areaPackObject = areaPack.toObject();
+                singleAreaMap = JsonMap<IconsMap>::value(areaPackObject, {});
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
+                for (const auto &mapItem : singleAreaMap.asKeyValueRange()) {
+                    const IconId &id = mapItem.first;
+                    const AreaMap &areaMap = mapItem.second;
+#else
+                const auto mapKeys = singleAreaMap.keys();
+                for (const IconId &id : mapKeys) {
+                    const AreaMap &areaMap = singleAreaMap.value(id);
+#endif
+                    if (d->icons.contains(id)) {
+                        AreaMap &oldAreaMap = d->icons[id];
+                        for (const auto &areaMapItem : areaMap.asKeyValueRange())
+                            oldAreaMap.insert(areaMapItem.first, areaMapItem.second);
+                    } else {
+                        d->icons.insert(id, areaMap);
+                    }
+                }
+            } else {
+                qWarning() << Q_FUNC_INFO << __LINE__ << "Invalid Json Array in file: " << fileName;
+                return;
+            }
+        }
+    }
+
     d->cache.insert(fileName, new IconsMap(d->icons), 1);
 }
 

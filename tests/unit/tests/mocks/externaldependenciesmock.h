@@ -16,8 +16,6 @@ public:
     MOCK_METHOD(QString, defaultPuppetToplevelBuildDirectory, (), (const, override));
     MOCK_METHOD(QUrl, projectUrl, (), (const, override));
     MOCK_METHOD(QString, currentProjectDirPath, (), (const, override));
-    MOCK_METHOD(QList<QColor>, designerSettingsEdit3DViewBackgroundColor, (), (const, override));
-    MOCK_METHOD(QColor, designerSettingsEdit3DViewGridColor, (), (const, override));
     MOCK_METHOD(QUrl, currentResourcePath, (), (const, override));
     MOCK_METHOD(void, parseItemLibraryDescriptions, (), (override));
     MOCK_METHOD(const QmlDesigner::DesignerSettings &, designerSettings, (), (const, override));

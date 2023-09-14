@@ -38,8 +38,8 @@ public:
     void nodeSlidAround(const ModelNode &movingNode, const ModelNode &inFrontOfNode);
     void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
 
-    void addImport(const Import &import);
-    void removeImport(const Import &import);
+    void addImports(const Imports &import);
+    void removeImports(const Imports &imports);
 
 protected:
     RewriterView *view();
@@ -56,7 +56,7 @@ protected:
 
     static bool isInHierarchy(const AbstractProperty &property);
 
-    void dumpRewriteActions(const QString &msg);
+    void dumpRewriteActions(QStringView msg);
 
 private:
     RewriterView *m_rewriterView;

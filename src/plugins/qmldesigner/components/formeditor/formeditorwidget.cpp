@@ -291,7 +291,6 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     fillLayout->addWidget(m_graphicsView.data());
 
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-    sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 }
 
@@ -549,6 +548,9 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
 
 QImage FormEditorWidget::takeFormEditorScreenshot()
 {
+    if (!m_formEditorView->scene()->rootFormEditorItem())
+        return {};
+
     const QRectF boundingRect = m_formEditorView->scene()->rootFormEditorItem()->boundingRect();
 
     m_formEditorView->scene()->manipulatorLayerItem()->setVisible(false);

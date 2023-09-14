@@ -31,7 +31,6 @@ void Quick3DRenderableNodeInstance::initialize(const ObjectNodeInstance::Pointer
                                                InstanceContainer::NodeFlags flags)
 {
 #ifdef QUICK3D_MODULE
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     // In case this is the scene root, we need to create a dummy View3D for the scene
     // in preview puppets
     if (instanceId() == 0 && (!nodeInstanceServer()->isInformationServer())) {
@@ -49,14 +48,12 @@ void Quick3DRenderableNodeInstance::initialize(const ObjectNodeInstance::Pointer
 
         nodeInstanceServer()->setRootItem(m_dummyRootView);
     }
-#endif // QT_VERSION
 #endif // QUICK3D_MODULE
     ObjectNodeInstance::initialize(objectNodeInstance, flags);
 }
 
 QImage Quick3DRenderableNodeInstance::renderImage() const
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!isRootNodeInstance() || !m_dummyRootView)
         return {};
 
@@ -83,14 +80,11 @@ QImage Quick3DRenderableNodeInstance::renderImage() const
     renderImage.setDevicePixelRatio(1);
 
     return renderImage;
-#endif
-    return {};
 }
 
 QImage Quick3DRenderableNodeInstance::renderPreviewImage(
     [[maybe_unused]] const QSize &previewImageSize) const
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     if (!isRootNodeInstance() || !m_dummyRootView)
         return {};
 
@@ -118,7 +112,6 @@ QImage Quick3DRenderableNodeInstance::renderPreviewImage(
             return transparentImage;
         }
     }
-#endif
     return {};
 }
 

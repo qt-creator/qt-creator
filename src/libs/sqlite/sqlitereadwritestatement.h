@@ -47,11 +47,13 @@ public:
         });
     }
 
-    template<typename ResultType, typename... QueryTypes>
-    auto valuesWithTransaction(std::size_t reserveSize, const QueryTypes &...queryValues)
+    template<typename ResultType,
+             std::size_t capacity = 32,
+             typename... QueryTypes>
+    auto valuesWithTransaction(const QueryTypes &...queryValues)
     {
         return withImmediateTransaction(Base::database(), [&] {
-            return Base::template values<ResultType>(reserveSize, queryValues...);
+            return Base::template values<ResultType, capacity>(queryValues...);
         });
     }
 

@@ -25,7 +25,6 @@
 #include <QListView>
 #include <QPlainTextEdit>
 #include <QDialogButtonBox>
-#include <QMessageBox>
 #include <QScrollBar>
 #include <QGridLayout>
 #include <QProgressBar>

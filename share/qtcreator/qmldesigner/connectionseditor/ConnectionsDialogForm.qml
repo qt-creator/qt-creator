@@ -1,242 +1,207 @@
-
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 import QtQuick
 import QtQuick.Controls
-import StudioControls
+import HelperWidgets as HelperWidgets
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 
-Rectangle {
-    width: 400
-    height: 800
-    color: "#1b1b1b"
+Column {
+    id: root
 
-    Text {
-        id: text1
-        x: 10
-        y: 25
-        color: "#ffffff"
-        text: qsTr("Target:")
-        font.pixelSize: 15
+    readonly property real horizontalSpacing: 10
+    readonly property real verticalSpacing: 16
+    readonly property real columnWidth: (root.width - root.horizontalSpacing) / 2
+
+    property var backend
+
+    y: StudioTheme.Values.popupMargin
+    width: parent.width
+    spacing: root.verticalSpacing
+
+    TapHandler {
+        onTapped: root.forceActiveFocus()
     }
 
-    TopLevelComboBox {
-        id: target
-        x: 95
-        width: 210
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -367
-        model: ["mySpinbox", "foo", "backendObject"]
+    Row {
+        spacing: root.horizontalSpacing
+
+        PopupLabel { text: qsTr("Signal"); tooltip: qsTr("The name of the signal.") }
+        PopupLabel { text: qsTr("Action"); tooltip: qsTr("The type of the action.") }
     }
 
-    Text {
-        id: text2
-        x: 10
-        y: 131
-        color: "#ffffff"
-        text: qsTr("Signal")
-        font.pixelSize: 15
-    }
+    Row {
+        spacing: root.horizontalSpacing
 
-    TopLevelComboBox {
-        id: signal
-        x: 10
-        y: 7
-        width: 156
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -207
-        model: ["onClicked", "onPressed", "onReleased"]
-    }
+        StudioControls.TopLevelComboBox {
+            id: signal
+            style: StudioTheme.Values.connectionPopupControlStyle
+            width: root.columnWidth
 
-    TopLevelComboBox {
-        id: action
-        x: 207
-        y: 7
-        width: 156
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -207
-        model: ["Call Function", "Assign", "ChnageState"]
-    }
+            model: backend.signal.name.model ?? 0
 
-    Text {
-        id: text3
-        x: 207
-        y: 131
-        color: "#ffffff"
-        text: qsTr("Action")
-        font.pixelSize: 15
-    }
-
-    Item {
-        id: functionGroup
-        x: 0
-        y: 276
-        width: 400
-        height: 176
-
-        Text {
-            id: text4
-            x: 17
-            y: -11
-            color: "#ffffff"
-            text: qsTr("Target")
-            font.pixelSize: 15
+            onActivated: backend.signal.name.activateIndex(signal.currentIndex)
+            property int currentTypeIndex: backend.signal.name.currentIndex ?? 0
+            onCurrentTypeIndexChanged: signal.currentIndex = signal.currentTypeIndex
         }
 
-        TopLevelComboBox {
-            id: functionTarget
-            x: 10
-            y: 7
-            width: 156
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -48
-            model: ["mySpinBox", "backendObject", "someButton"]
-        }
+        StudioControls.TopLevelComboBox {
+            id: action
+            style: StudioTheme.Values.connectionPopupControlStyle
+            width: root.columnWidth
+            textRole: "text"
+            valueRole: "value"
+            ///model.getData(currentIndex, "role")
+            property int indexFromBackend: indexOfValue(backend.actionType)
+            onIndexFromBackendChanged: action.currentIndex = action.indexFromBackend
+            onActivated: backend.changeActionType(action.currentValue)
 
-        TopLevelComboBox {
-            id: functionName
-            x: 203
-            y: 7
-            width: 156
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -48
-            model: ["start", "trigger", "stop"]
-        }
-
-        Text {
-            id: text5
-            x: 203
-            y: -11
-            color: "#ffffff"
-            text: qsTr("Function")
-            font.pixelSize: 15
+            model: [
+                { value: ConnectionModelStatementDelegate.CallFunction, text: qsTr("Call Function") },
+                { value: ConnectionModelStatementDelegate.Assign, text: qsTr("Assign") },
+                { value: ConnectionModelStatementDelegate.ChangeState, text: qsTr("Change State") },
+                { value: ConnectionModelStatementDelegate.SetProperty, text: qsTr("Set Property") },
+                { value: ConnectionModelStatementDelegate.PrintMessage, text: qsTr("Print Message") },
+                { value: ConnectionModelStatementDelegate.Custom, text: qsTr("Unknown") }
+            ]
         }
     }
 
-    Item {
-        id: statesGroup
-        x: 0
-        y: 383
-        width: 400
-        height: 106
-        Text {
-            id: text6
-            x: 17
-            y: -11
-            color: "#ffffff"
-            text: qsTr("State Group")
-            font.pixelSize: 15
+    StatementEditor {
+        actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
+        horizontalSpacing: root.horizontalSpacing
+        columnWidth: root.columnWidth
+        statement: backend.okStatement
+        spacing: root.verticalSpacing
+    }
+
+    HelperWidgets.AbstractButton {
+        style: StudioTheme.Values.connectionPopupButtonStyle
+        width: 160
+        buttonIcon: qsTr("Add Condition")
+        iconSize: StudioTheme.Values.baseFontSize
+        iconFont: StudioTheme.Constants.font
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && !backend.hasCondition
+
+        onClicked: backend.addCondition()
+    }
+
+    HelperWidgets.AbstractButton {
+        style: StudioTheme.Values.connectionPopupButtonStyle
+        width: 160
+        buttonIcon: qsTr("Remove Condition")
+        iconSize: StudioTheme.Values.baseFontSize
+        iconFont: StudioTheme.Constants.font
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition
+
+        onClicked: backend.removeCondition()
+    }
+
+    ExpressionBuilder {
+        style: StudioTheme.Values.connectionPopupControlStyle
+        width: root.width
+
+        visible: backend.hasCondition
+        model: backend.conditionListModel
+
+        onRemove: function(index) {
+            //console.log("remove", index)
+            backend.conditionListModel.removeToken(index)
         }
 
-        TopLevelComboBox {
-            id: stateGroup
-            x: 10
-            y: 7
-            width: 156
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -12
-            model: ["default", "State Group 01", "State Group 02"]
+        onUpdate: function(index, value) {
+            //console.log("update", index, value)
+            backend.conditionListModel.updateToken(index, value)
         }
 
-        TopLevelComboBox {
-            id: stateName
-            x: 209
-            y: 7
-            width: 156
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -12
-            model: ["State 01", "State 02", "State 03"]
+        onAdd: function(value) {
+            //console.log("add", value)
+            backend.conditionListModel.appendToken(value)
         }
 
-        Text {
-            id: text7
-            x: 209
-            y: -11
-            color: "#ffffff"
-            text: qsTr("State")
-            font.pixelSize: 15
+        onInsert: function(index, value, type) {
+            //console.log("insert", index, value, type)
+            if (type === ConditionListModel.Intermediate)
+                backend.conditionListModel.insertIntermediateToken(index, value)
+            else if (type === ConditionListModel.Shadow)
+                backend.conditionListModel.insertShadowToken(index, value)
+            else
+                backend.conditionListModel.insertToken(index, value)
+        }
+
+        onSetValue: function(index, value) {
+            //console.log("setValue", index, value)
+            backend.conditionListModel.setShadowToken(index, value)
         }
     }
 
-    Item {
-        id: assignment
-        x: 10
-        y: 505
-        width: 400
-        height: 106
-        Text {
-            id: text8
-            x: 17
-            y: -11
-            color: "#ffffff"
-            text: qsTr("target")
-            font.pixelSize: 15
-        }
+    HelperWidgets.AbstractButton {
+        style: StudioTheme.Values.connectionPopupButtonStyle
+        width: 160
+        buttonIcon: qsTr("Add Else Statement")
+        iconSize: StudioTheme.Values.baseFontSize
+        iconFont: StudioTheme.Constants.font
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
+                 && backend.hasCondition && !backend.hasElse
 
-        TopLevelComboBox {
-            id: valueTarget
-            x: 10
-            y: 7
-            width: 156
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -12
-            model: ["mySpinBox", "myButton", "backendObject"]
-        }
+        onClicked: backend.addElse()
+    }
 
-        TopLevelComboBox {
-            id: valueSource
-            x: 209
-            y: 7
-            width: 156
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -12
-            model: ["mySpinBox", "myButton", "backendObject"]
-        }
+    HelperWidgets.AbstractButton {
+        style: StudioTheme.Values.connectionPopupButtonStyle
+        width: 160
+        buttonIcon: qsTr("Remove Else Statement")
+        iconSize: StudioTheme.Values.baseFontSize
+        iconFont: StudioTheme.Constants.font
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
+                 && backend.hasCondition && backend.hasElse
 
-        Text {
-            id: text9
-            x: 209
-            y: -11
-            color: "#ffffff"
-            text: qsTr("source")
-            font.pixelSize: 15
-        }
+        onClicked: backend.removeElse()
+    }
 
-        Text {
-            id: text10
-            x: 17
-            y: 76
-            color: "#ffffff"
-            text: qsTr("value")
-            font.pixelSize: 15
-        }
+    //Else Statement
+    StatementEditor {
+        actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
+        horizontalSpacing: root.horizontalSpacing
+        columnWidth: root.columnWidth
+        statement: backend.koStatement
+        spacing: root.verticalSpacing
+        visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
+                 && backend.hasCondition && backend.hasElse
+    }
 
-        TopLevelComboBox {
-            id: valueOut
-            x: 10
-            y: -2
-            width: 156
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: 84
-            model: ["width", "height", "opacity"]
-        }
-
-        TopLevelComboBox {
-            id: valueIn
-            x: 209
-            y: -2
-            width: 156
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: 84
-            model: ["width", "height", "x", "y"]
-        }
+    // Editor
+    Rectangle {
+        id: editor
+        width: parent.width
+        height: 150
+        color: StudioTheme.Values.themeToolbarBackground
 
         Text {
-            id: text11
-            x: 209
-            y: 76
-            color: "#ffffff"
-            text: qsTr("value")
-            font.pixelSize: 15
+            width: parent.width - 8 // twice the editor button margins
+            anchors.centerIn: parent
+            text: backend.source
+            color: StudioTheme.Values.themeTextColor
+            font.pixelSize: StudioTheme.Values.myFontSize
+            wrapMode: Text.WordWrap
+        }
+
+        HelperWidgets.AbstractButton {
+            id: editorButton
+
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.margins: 4
+
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.edit_medium
+            tooltip: qsTr("Add something.")
+            onClicked: console.log("OPEN EDITOR")
         }
     }
 }

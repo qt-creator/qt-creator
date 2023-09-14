@@ -15,10 +15,6 @@
 #include "qt5testnodeinstanceserver.h"
 #include "quickitemnodeinstance.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    #include <private/qquickdesignersupport_p.h>
-#endif
-
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #elif defined(Q_OS_WIN)
@@ -44,10 +40,6 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
 
     if (unifiedRenderPath)
         Internal::QuickItemNodeInstance::enableUnifiedRenderPath(true);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    else
-        QQuickDesignerSupport::activateDesignerWindowManager();
-#endif
 
     if (QCoreApplication::arguments().at(1) == QLatin1String("--readcapturedstream")) {
         qputenv("DESIGNER_DONT_USE_SHARED_MEMORY", "1");

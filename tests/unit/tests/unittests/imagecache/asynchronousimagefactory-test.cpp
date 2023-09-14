@@ -124,8 +124,12 @@ TEST_F(AsynchronousImageFactory, request_image_request_image_from_collector_if_f
 TEST_F(AsynchronousImageFactory, clean_removes_entries)
 {
     EXPECT_CALL(collectorMock, start(Eq("/path/to/Component1.qml"), _, _, _, _))
-        .WillRepeatedly([&](auto, auto, auto, auto, auto) { waitInThread.wait(); });
+        .WillRepeatedly([&](auto, auto, auto, auto, auto) {
+            notification.notify();
+            waitInThread.wait();
+        });
     factory.generate("/path/to/Component1.qml");
+    notification.wait();
 
     EXPECT_CALL(collectorMock, start(Eq("/path/to/Component3.qml"), _, _, _, _)).Times(0);
 

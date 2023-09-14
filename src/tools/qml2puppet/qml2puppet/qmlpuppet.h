@@ -5,7 +5,6 @@
 
 #include "../qmlbase.h"
 
-class IconRenderer;
 class QmlPuppet : public QmlBase
 {
     using QmlBase::QmlBase;
@@ -15,7 +14,4 @@ private:
     void populateParser() override;
     int startTestMode() override;
     void initQmlRunner() override;
-
-private:
-    QSharedPointer<IconRenderer> m_iconRenderer;
 };

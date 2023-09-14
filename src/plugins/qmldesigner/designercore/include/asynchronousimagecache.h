@@ -5,6 +5,8 @@
 
 #include "asynchronousimagecacheinterface.h"
 
+#include <imagecache/taskqueue.h>
+
 #include <condition_variable>
 #include <deque>
 #include <functional>
@@ -73,17 +75,6 @@ private:
         RequestType requestType = RequestType::Image;
     };
 
-    std::optional<Entry> getEntry();
-    void addEntry(Utils::PathString &&name,
-                  Utils::SmallString &&extraId,
-                  ImageCache::CaptureImageCallback &&captureCallback,
-                  ImageCache::AbortCallback &&abortCallback,
-                  ImageCache::AuxiliaryData &&auxiliaryData,
-                  RequestType requestType);
-    void clearEntries();
-    void waitForEntries();
-    void stopThread();
-    bool isRunning();
     static void request(Utils::SmallStringView name,
                         Utils::SmallStringView extraId,
                         AsynchronousImageCache::RequestType requestType,
@@ -94,18 +85,37 @@ private:
                         ImageCacheGeneratorInterface &generator,
                         TimeStampProviderInterface &timeStampProvider);
 
-private:
-    void wait();
+    struct Dispatch
+    {
+        void operator()(Entry &entry)
+        {
+            request(entry.name,
+                    entry.extraId,
+                    entry.requestType,
+                    std::move(entry.captureCallback),
+                    std::move(entry.abortCallback),
+                    std::move(entry.auxiliaryData),
+                    storage,
+                    generator,
+                    timeStampProvider);
+        }
+
+        ImageCacheStorageInterface &storage;
+        ImageCacheGeneratorInterface &generator;
+        TimeStampProviderInterface &timeStampProvider;
+    };
+
+    struct Clean
+    {
+        void operator()(Entry &entry) { entry.abortCallback(ImageCache::AbortReason::Abort); }
+    };
 
 private:
-    std::deque<Entry> m_entries;
-    mutable std::mutex m_mutex;
-    std::condition_variable m_condition;
-    std::thread m_backgroundThread;
     ImageCacheStorageInterface &m_storage;
     ImageCacheGeneratorInterface &m_generator;
     TimeStampProviderInterface &m_timeStampProvider;
-    bool m_finishing{false};
+    TaskQueue<Entry, Dispatch, Clean> m_taskQueue{Dispatch{m_storage, m_generator, m_timeStampProvider},
+                                                  Clean{}};
 };
 
 } // namespace QmlDesigner

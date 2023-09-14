@@ -112,6 +112,14 @@ void DockAreaTabBar::onTabClicked(DockWidgetTab *sourceTab)
 
     setCurrentIndex(index);
     emit tabBarClicked(index);
+
+    // QDS: Focus the actual content widget on tab click
+    DockWidgetTab *tab = currentTab();
+    if (tab && tab->dockWidget() && tab->dockWidget()->widget()) {
+        QMetaObject::invokeMethod(tab->dockWidget()->widget(),
+                                  QOverload<>::of(&QWidget::setFocus),
+                                  Qt::QueuedConnection);
+    }
 }
 
 void DockAreaTabBar::onTabCloseRequested(DockWidgetTab *sourceTab)
@@ -272,7 +280,7 @@ int DockAreaTabBar::currentIndex() const
 
 DockWidgetTab *DockAreaTabBar::currentTab() const
 {
-    if (d->m_currentIndex < 0)
+    if (d->m_currentIndex < 0 || d->m_currentIndex >= d->m_tabsLayout->count())
         return nullptr;
     else
         return qobject_cast<DockWidgetTab *>(d->m_tabsLayout->itemAt(d->m_currentIndex)->widget());

@@ -21,7 +21,7 @@ QtObject {
                                                   pixelSize: Qt.application.font.pixelSize * 1.6
                                               })
 
-    readonly property color backgroundColor: "#c2c2c2"
+    readonly property color backgroundColor: "#EAEAEA"
 
 
 @if %{IsQt6Project}

@@ -1,7 +1,10 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #include "studiostyle.h"
+#include "studiostyle_p.h"
 
+#include <utils/hostosinfo.h>
+#include <utils/styleanimator.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
@@ -9,7 +12,9 @@
 #include <QPainter>
 #include <QStyleOption>
 
+#define ANIMATE_SCROLLBARS QT_CONFIG(animation)
 using namespace Utils;
+using namespace QmlDesigner;
 
 namespace {
 
@@ -65,6 +70,17 @@ inline QColor studioButtonOutlineColor(bool enabled,
     return creatorTheme()->color(themePenColorId);
 }
 
+inline bool anyParentsFocused(const QWidget *widget)
+{
+    const QWidget *p = widget;
+    while (p) {
+        if (p->property("focused").toBool())
+            return true;
+        p = p->parentWidget();
+    }
+    return false;
+}
+
 bool styleEnabled(const QWidget *widget)
 {
     const QWidget *p = widget;
@@ -93,221 +109,43 @@ bool isQmlEditorMenu(const QWidget *widget)
     return false;
 }
 
-QPixmap getPixmapFromIcon(const QIcon &icon, const QSize &size, bool enabled, bool active, bool checked)
+inline QPixmap getPixmapFromIcon(
+    const QIcon &icon, const QSize &size, bool enabled, bool active, bool checked)
 {
     QIcon::Mode mode = enabled ? ((active) ? QIcon::Active : QIcon::Normal) : QIcon::Disabled;
     QIcon::State state = (checked) ? QIcon::On : QIcon::Off;
     return icon.pixmap(size, mode, state);
 }
 
-struct StudioShortcut {
-    StudioShortcut(const QStyleOptionMenuItem *option,
-                      const QString &shortcutText)
-        : shortcutText(shortcutText)
-        , enabled(option->state & QStyle::State_Enabled)
-        , active(option->state & QStyle::State_Selected)
-        , font(option->font)
-        , fm(font)
-        , defaultHeight(fm.height())
-        , spaceConst(fm.boundingRect(".").width())
-    {
-        reset();
-
-        if (backspaceMatch(shortcutText).hasMatch())
-            backspaceIcon = option->styleObject->property("backspaceIcon").value<QIcon>();
-    }
-
-    QSize getSize()
-    {
-        if (isFirstParticle)
-            calcResult();
-        return _size;
-    }
-
-    QPixmap getPixmap()
-    {
-        if (!isFirstParticle && !_pixmap.isNull())
-            return _pixmap;
-
-        _pixmap = QPixmap(getSize());
-        _pixmap.fill(Qt::transparent);
-        QPainter painter(&_pixmap);
-        painter.setFont(font);
-        QPen pPen = painter.pen();
-        pPen.setColor(studioTextColor(enabled, active, false));
-        painter.setPen(pPen);
-        calcResult(&painter);
-        painter.end();
-
-        return _pixmap;
-    }
-
-private:
-    void applySize(const QSize &itemSize) {
-        width += itemSize.width();
-        height = std::max(height, itemSize.height());
-        if (isFirstParticle)
-            isFirstParticle = false;
-        else
-            width += spaceConst;
-    };
-
-    void addText(const QString &txt, QPainter *painter = nullptr)
-    {
-        if (txt.size()) {
-            int textWidth = fm.horizontalAdvance(txt);
-            QSize itemSize = {textWidth, defaultHeight};
-            if (painter) {
-                static const QTextOption textOption(Qt::AlignLeft | Qt::AlignVCenter);
-                QRect placeRect({width, 0}, itemSize);
-                painter->drawText(placeRect, txt, textOption);
-            }
-            applySize(itemSize);
-        }
-    };
-
-    void addPixmap(const QPixmap &pixmap, QPainter *painter = nullptr)
-    {
-        if (painter)
-            painter->drawPixmap(QRect({width, 0}, pixmap.size()), pixmap);
-
-        applySize(pixmap.size());
-    };
-
-    void calcResult(QPainter *painter = nullptr)
-    {
-        reset();
-#ifndef QT_NO_SHORTCUT
-        if (!shortcutText.isEmpty()) {
-            int fwdIndex = 0;
-
-            QRegularExpressionMatch mMatch = backspaceMatch(shortcutText);
-            int matchCount = mMatch.lastCapturedIndex();
-
-            for (int i = 0; i <= matchCount; ++i) {
-                QString mStr = mMatch.captured(i);
-                QSize iconSize(defaultHeight * 3, defaultHeight);
-                const QList<QSize> iconSizes = backspaceIcon.availableSizes();
-                if (iconSizes.size())
-                    iconSize = iconSizes.last();
-                double aspectRatio = (defaultHeight + .0) / iconSize.height();
-                int newWidth = iconSize.width() * aspectRatio;
-
-                QPixmap pixmap = getPixmapFromIcon(backspaceIcon,
-                                                   {newWidth, defaultHeight},
-                                                   enabled, active, false);
-
-                int lIndex = shortcutText.indexOf(mStr, fwdIndex);
-                int diffChars = lIndex - fwdIndex;
-                addText(shortcutText.mid(fwdIndex, diffChars), painter);
-                addPixmap(pixmap, painter);
-                fwdIndex = lIndex + mStr.size();
-            }
-            addText(shortcutText.mid(fwdIndex), painter);
-        }
-#endif
-        _size = {width, height};
-    }
-
-    void reset()
-    {
-        isFirstParticle = true;
-        width = 0;
-        height = 0;
-    }
-
-    inline QRegularExpressionMatch backspaceMatch(const QString &str) const
-    {
-        static const QRegularExpression backspaceDetect(
-                    "\\+*backspace\\+*",
-                    QRegularExpression::CaseInsensitiveOption);
-        return backspaceDetect.match(str);
-    }
-
-    const QString shortcutText;
-    const bool enabled;
-    const bool active;
-    const QFont font;
-    const QFontMetrics fm;
-    const int defaultHeight;
-    const int spaceConst;
-    QIcon backspaceIcon;
-    bool isFirstParticle = true;
-
-    int width = 0;
-    int height = 0;
-    QSize _size;
-    QPixmap _pixmap;
-};
-
-} // blank namespace
-
-class StudioStylePrivate
+inline QRect expandScrollRect(const QRect &ref,
+                              const qreal &factor,
+                              const Qt::Orientation &orientation)
 {
-public:
-    explicit StudioStylePrivate();
+    if (qFuzzyCompare(factor, 1))
+        return ref;
 
-public:
-    QPalette stdPalette;
-};
-
-StudioStylePrivate::StudioStylePrivate()
-{
-    auto color = [] (Theme::Color c) {
-        return creatorTheme()->color(c);
-    };
-
-    {
-        stdPalette.setColorGroup(
-                    QPalette::Disabled, // group
-                    color(Theme::DStextColorDisabled), // windowText
-                    color(Theme::DScontrolBackgroundDisabled), // button
-                    color(Theme::DScontrolOutlineDisabled), // light
-                    color(Theme::DStextSelectedTextColor), // dark
-                    color(Theme::DSstatusbarBackground), // mid
-                    color(Theme::DStextColorDisabled), // text
-                    color(Theme::DStextColorDisabled), // brightText
-                    color(Theme::DStoolbarIcon_blocked), // base
-                    color(Theme::DStoolbarIcon_blocked) // window
-                    );
-
-        stdPalette.setColorGroup(
-                    QPalette::Inactive, // group
-                    color(Theme::DStextColor), // windowText
-                    color(Theme::DScontrolBackground), // button
-                    color(Theme::DStoolbarBackground), // light
-                    color(Theme::DSstatusbarBackground), // dark
-                    color(Theme::DScontrolBackground), // mid
-                    color(Theme::DStextColor), // text
-                    color(Theme::DStextColor), // brightText
-                    color(Theme::DStoolbarBackground), // base
-                    color(Theme::DStoolbarBackground) // window
-                    );
-
-        stdPalette.setColorGroup(
-                    QPalette::Active, // group
-                    color(Theme::DStextSelectedTextColor), // windowText
-                    color(Theme::DSnavigatorItemBackgroundHover), // button
-                    color(Theme::DSstateBackgroundColor_hover), // light
-                    color(Theme::DSpanelBackground), // dark
-                    color(Theme::DSnavigatorItemBackgroundHover), // mid
-                    color(Theme::DStextSelectedTextColor), // text
-                    color(Theme::DStextSelectedTextColor), // brightText
-                    color(Theme::DStoolbarBackground), // base
-                    color(Theme::DStoolbarBackground) // window
-                    );
+    if (orientation == Qt::Horizontal) {
+        qreal newExp = ref.height() * factor;
+        qreal newDiff = ref.height() - newExp;
+        return ref.adjusted(0, newDiff, 0, 0);
+    } else {
+        qreal newExp = ref.width() * factor;
+        qreal newDiff = ref.width() - newExp;
+        return ref.adjusted(newDiff, 0, 0, 0);
     }
 }
 
+} // namespace
+
 StudioStyle::StudioStyle(QStyle *style)
     : QProxyStyle(style)
-    , d(new StudioStylePrivate)
+    , d(new StudioStylePrivate(this))
 {
 }
 
 StudioStyle::StudioStyle(const QString &key)
     : QProxyStyle(key)
-    , d(new StudioStylePrivate)
+    , d(new StudioStylePrivate(this))
 {
 }
 
@@ -358,8 +196,7 @@ void StudioStyle::drawPrimitive(
         if (!isQmlEditorMenu(widget))
             Super::drawPrimitive(element, option, painter, widget);
         break;
-    case PE_FrameDefaultButton:
-    {
+    case PE_FrameDefaultButton: {
         if (const auto button = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             bool enabled = button->state & QStyle::State_Enabled;
             bool hovered = enabled && button->state & QStyle::State_MouseOver;
@@ -385,30 +222,29 @@ void StudioStyle::drawPrimitive(
 
             painter->restore();
         }
-    }
-        break;
+    } break;
 
-    case PE_IndicatorToolBarSeparator:
-    {
+    case PE_IndicatorToolBarSeparator: {
         bool horizontal = option->state & State_Horizontal;
         int thickness = pixelMetric(PM_ToolBarSeparatorExtent, option, widget);
         QRect colorRect;
         if (horizontal) {
-            colorRect = {option->rect.center().x() - thickness / 2  , option->rect.top() + 2,
-                         thickness , option->rect.height() - 4};
+            colorRect = {option->rect.center().x() - thickness / 2,
+                         option->rect.top() + 2,
+                         thickness,
+                         option->rect.height() - 4};
         } else {
-            colorRect = {option->rect.left() + 2, option->rect.center().y() - thickness / 2,
-                         option->rect.width() - 4, thickness};
+            colorRect = {option->rect.left() + 2,
+                         option->rect.center().y() - thickness / 2,
+                         option->rect.width() - 4,
+                         thickness};
         }
 
         // The separator color is currently the same as toolbar bg
-        painter->fillRect(colorRect,
-                          creatorTheme()->color(Theme::DStoolbarBackground));
-    }
-        break;
+        painter->fillRect(colorRect, creatorTheme()->color(Theme::DStoolbarBackground));
+    } break;
 
-    default:
-    {
+    default: {
         Super::drawPrimitive(element, option, painter, widget);
         break;
     }
@@ -452,7 +288,7 @@ void StudioStyle::drawControl(
 
             if (item.menuItemType == QStyleOptionMenuItem::Separator) {
                 int commonHeight = item.rect.center().y();
-                int additionalMargin = forwardX /*hmargin*/;
+                int additionalMargin = forwardX;
                 QLineF separatorLine (item.rect.left() + additionalMargin,
                                       commonHeight,
                                       item.rect.right() - additionalMargin,
@@ -764,6 +600,296 @@ void StudioStyle::drawComplexControl(
         }
         Super::drawComplexControl(control, option, painter, widget);
     } break;
+
+#if QT_CONFIG(slider)
+    case CC_ScrollBar: {
+        painter->save();
+        if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(
+                option)) {
+            bool wasActive = false;
+            bool wasAdjacent = false;
+            bool isFocused = anyParentsFocused(widget);
+            bool isAdjacent = false;
+            qreal scaleCoFactor = 1.0;
+            QObject *styleObject = option->styleObject;
+            bool hasTransientStyle = proxy()->styleHint(SH_ScrollBar_Transient, option, widget);
+            if (styleObject && hasTransientStyle) {
+#if ANIMATE_SCROLLBARS
+                qreal opacity = 0.0;
+                bool shouldExpand = false;
+                const qreal minExpandScale = 0.7;
+                const qreal maxExpandScale = 1.0;
+#endif
+                isAdjacent = styleObject->property("adjacentScroll").toBool();
+                int oldPos = styleObject->property("_qdss_stylepos").toInt();
+                int oldMin = styleObject->property("_qdss_stylemin").toInt();
+                int oldMax = styleObject->property("_qdss_stylemax").toInt();
+                QRect oldRect = styleObject->property("_qdss_stylerect").toRect();
+                QStyle::State oldState = static_cast<QStyle::State>(
+                    qvariant_cast<QStyle::State::Int>(styleObject->property("_qdss_stylestate")));
+                uint oldActiveControls = styleObject->property("_qdss_stylecontrols").toUInt();
+                bool oldFocus = styleObject->property("_qdss_focused").toBool();
+                bool oldAdjacent = styleObject->property("_qdss_adjacentScroll").toBool();
+                // a scrollbar is transient when the scrollbar itself and
+                // its sibling are both inactive (ie. not pressed/hovered/moved)
+                bool transient = !option->activeSubControls && !(option->state & State_On);
+                if (!transient || oldPos != scrollBar->sliderPosition
+                    || oldMin != scrollBar->minimum || oldMax != scrollBar->maximum
+                    || oldRect != scrollBar->rect || oldState != scrollBar->state
+                    || oldActiveControls != scrollBar->activeSubControls || oldFocus != isFocused
+                    || oldAdjacent != isAdjacent) {
+                    styleObject->setProperty("_qdss_stylepos", scrollBar->sliderPosition);
+                    styleObject->setProperty("_qdss_stylemin", scrollBar->minimum);
+                    styleObject->setProperty("_qdss_stylemax", scrollBar->maximum);
+                    styleObject->setProperty("_qdss_stylerect", scrollBar->rect);
+                    styleObject->setProperty("_qdss_stylestate",
+                                             static_cast<QStyle::State::Int>(scrollBar->state));
+                    styleObject->setProperty("_qdss_stylecontrols",
+                                             static_cast<uint>(scrollBar->activeSubControls));
+                    styleObject->setProperty("_qdss_focused", isFocused);
+                    styleObject->setProperty("_qdss_adjacentScroll", isAdjacent);
+#if ANIMATE_SCROLLBARS
+                    // if the scrollbar is transient or its attributes, geometry or
+                    // state has changed, the opacity is reset back to 100% opaque
+                    opacity = 1.0;
+                    QScrollbarStyleAnimation *anim = qobject_cast<QScrollbarStyleAnimation *>(
+                        d->animation(styleObject));
+                    if (transient) {
+                        if (anim && anim->mode() != QScrollbarStyleAnimation::Deactivating) {
+                            d->stopAnimation(styleObject);
+                            anim = nullptr;
+                        }
+                        if (!anim) {
+                            anim = new QScrollbarStyleAnimation(QScrollbarStyleAnimation::Deactivating,
+                                                                styleObject);
+                            d->startAnimation(anim);
+                        } else if (anim->mode() == QScrollbarStyleAnimation::Deactivating) {
+                            // the scrollbar was already fading out while the
+                            // state changed -> restart the fade out animation
+                            anim->setCurrentTime(0);
+                        }
+                    } else if (anim && anim->mode() == QScrollbarStyleAnimation::Deactivating) {
+                        d->stopAnimation(styleObject);
+                    }
+#endif // animation
+                }
+#if ANIMATE_SCROLLBARS
+                QScrollbarStyleAnimation *anim = qobject_cast<QScrollbarStyleAnimation *>(
+                    d->animation(styleObject));
+                if (anim && anim->mode() == QScrollbarStyleAnimation::Deactivating) {
+                    // once a scrollbar was active (hovered/pressed), it retains
+                    // the active look even if it's no longer active while fading out
+                    if (oldActiveControls)
+                        anim->setActive(true);
+
+                    if (oldAdjacent)
+                        anim->setAdjacent(true);
+
+                    wasActive = anim->wasActive();
+                    wasAdjacent = anim->wasAdjacent();
+                    opacity = anim->currentValue();
+                }
+                shouldExpand = (option->activeSubControls || wasActive);
+                if (shouldExpand) {
+                    if (!anim && !oldActiveControls) {
+                        // Start expand animation only once and when entering
+                        anim = new QScrollbarStyleAnimation(QScrollbarStyleAnimation::Activating,
+                                                            styleObject);
+                        d->startAnimation(anim);
+                    }
+                    if (anim && anim->mode() == QScrollbarStyleAnimation::Activating) {
+                        scaleCoFactor = (1.0 - anim->currentValue()) * minExpandScale
+                                        + anim->currentValue() * maxExpandScale;
+                    } else {
+                        // Keep expanded state after the animation ends, and when fading out
+                        scaleCoFactor = maxExpandScale;
+                    }
+                }
+                painter->setOpacity(opacity);
+#endif // animation
+            }
+            bool horizontal = scrollBar->orientation == Qt::Horizontal;
+            bool sunken = scrollBar->state & State_Sunken;
+            QRect scrollBarSubLine = proxy()->subControlRect(control,
+                                                             scrollBar,
+                                                             SC_ScrollBarSubLine,
+                                                             widget);
+            QRect scrollBarAddLine = proxy()->subControlRect(control,
+                                                             scrollBar,
+                                                             SC_ScrollBarAddLine,
+                                                             widget);
+            QRect scrollBarSlider = proxy()->subControlRect(control,
+                                                            scrollBar,
+                                                            SC_ScrollBarSlider,
+                                                            widget);
+            QRect scrollBarGroove = proxy()->subControlRect(control,
+                                                            scrollBar,
+                                                            SC_ScrollBarGroove,
+                                                            widget);
+            QRect rect = option->rect;
+
+            QColor alphaOutline = StyleHelper::borderColor();
+            alphaOutline.setAlpha(180);
+            QColor arrowColor = option->palette.windowText().color();
+            arrowColor.setAlpha(160);
+
+            bool enabled = scrollBar->state & QStyle::State_Enabled;
+            bool hovered = enabled && scrollBar->state & QStyle::State_MouseOver;
+
+            QColor buttonColor = creatorTheme()->color(hovered ? Theme::DSscrollBarHandle
+                                                               : Theme::DSscrollBarHandle_idle);
+            QColor gradientStartColor = buttonColor.lighter(118);
+            QColor gradientStopColor = buttonColor;
+            if (hasTransientStyle) {
+                rect = expandScrollRect(rect, scaleCoFactor, scrollBar->orientation);
+                scrollBarSlider = expandScrollRect(scrollBarSlider,
+                                                   scaleCoFactor,
+                                                   scrollBar->orientation);
+                scrollBarGroove = expandScrollRect(scrollBarGroove,
+                                                   scaleCoFactor,
+                                                   scrollBar->orientation);
+            }
+            // Paint groove
+            if ((!hasTransientStyle || scrollBar->activeSubControls || wasActive || isAdjacent
+                 || wasAdjacent)
+                && scrollBar->subControls & SC_ScrollBarGroove) {
+                painter->save();
+                painter->setPen(Qt::NoPen);
+                if (hasTransientStyle) {
+                    QColor brushColor(creatorTheme()->color(Theme::DSscrollBarTrack));
+                    brushColor.setAlpha(0.3 * 255);
+                    painter->setBrush(QBrush(brushColor));
+                    painter->drawRoundedRect(scrollBarGroove, 4, 4);
+                } else {
+                    painter->setBrush(QBrush(creatorTheme()->color(Theme::DSscrollBarTrack)));
+                    painter->drawRect(rect);
+                }
+                painter->restore();
+            }
+            QRect pixmapRect = scrollBarSlider;
+            QLinearGradient gradient(pixmapRect.center().x(),
+                                     pixmapRect.top(),
+                                     pixmapRect.center().x(),
+                                     pixmapRect.bottom());
+            if (!horizontal)
+                gradient = QLinearGradient(pixmapRect.left(),
+                                           pixmapRect.center().y(),
+                                           pixmapRect.right(),
+                                           pixmapRect.center().y());
+            QLinearGradient highlightedGradient = gradient;
+            QColor midColor2 = StyleHelper::mergedColors(gradientStartColor, gradientStopColor, 40);
+            gradient.setColorAt(0, buttonColor.lighter(108));
+            gradient.setColorAt(1, buttonColor);
+            QColor innerContrastLine = StyleHelper::highlightColor();
+            highlightedGradient.setColorAt(0, gradientStartColor.darker(102));
+            highlightedGradient.setColorAt(1, gradientStopColor.lighter(102));
+            // Paint slider
+            if (scrollBar->subControls & SC_ScrollBarSlider) {
+                if (hasTransientStyle) {
+                    QRect rect = scrollBarSlider;
+                    painter->setPen(Qt::NoPen);
+                    painter->setBrush(highlightedGradient);
+                    int r = qMin(rect.width(), rect.height()) / 2;
+                    painter->save();
+                    painter->setRenderHint(QPainter::Antialiasing, true);
+                    painter->drawRoundedRect(rect, r, r);
+                    painter->restore();
+                } else {
+                    QRect pixmapRect = scrollBarSlider;
+                    painter->setPen(QPen(alphaOutline));
+                    if (option->state & State_Sunken
+                        && scrollBar->activeSubControls & SC_ScrollBarSlider)
+                        painter->setBrush(midColor2);
+                    else if (option->state & State_MouseOver
+                             && scrollBar->activeSubControls & SC_ScrollBarSlider)
+                        painter->setBrush(highlightedGradient);
+                    else
+                        painter->setBrush(gradient);
+                    painter->drawRect(pixmapRect.adjusted(horizontal ? -1 : 0,
+                                                          horizontal ? 0 : -1,
+                                                          horizontal ? 0 : 1,
+                                                          horizontal ? 1 : 0));
+                    painter->setPen(innerContrastLine);
+                    painter->drawRect(
+                        scrollBarSlider.adjusted(horizontal ? 0 : 1, horizontal ? 1 : 0, -1, -1));
+                }
+            }
+            // The SubLine (up/left) buttons
+            if (!hasTransientStyle && scrollBar->subControls & SC_ScrollBarSubLine) {
+                if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken)
+                    painter->setBrush(gradientStopColor);
+                else if ((scrollBar->activeSubControls & SC_ScrollBarSubLine))
+                    painter->setBrush(highlightedGradient);
+                else
+                    painter->setBrush(gradient);
+                painter->setPen(Qt::NoPen);
+                painter->drawRect(
+                    scrollBarSubLine.adjusted(horizontal ? 0 : 1, horizontal ? 1 : 0, 0, 0));
+                painter->setPen(QPen(alphaOutline));
+                if (option->state & State_Horizontal) {
+                    if (option->direction == Qt::RightToLeft) {
+                        pixmapRect.setLeft(scrollBarSubLine.left());
+                        painter->drawLine(pixmapRect.topLeft(), pixmapRect.bottomLeft());
+                    } else {
+                        pixmapRect.setRight(scrollBarSubLine.right());
+                        painter->drawLine(pixmapRect.topRight(), pixmapRect.bottomRight());
+                    }
+                } else {
+                    pixmapRect.setBottom(scrollBarSubLine.bottom());
+                    painter->drawLine(pixmapRect.bottomLeft(), pixmapRect.bottomRight());
+                }
+                QRect upRect = scrollBarSubLine.adjusted(horizontal ? 0 : 1,
+                                                         horizontal ? 1 : 0,
+                                                         horizontal ? -2 : -1,
+                                                         horizontal ? -1 : -2);
+                painter->setBrush(Qt::NoBrush);
+                painter->setPen(innerContrastLine);
+                painter->drawRect(upRect);
+                // Arrows
+                PrimitiveElement arrowType = PE_IndicatorArrowUp;
+                if (option->state & State_Horizontal)
+                    arrowType = option->direction == Qt::LeftToRight ? PE_IndicatorArrowLeft
+                                                                     : PE_IndicatorArrowRight;
+                StyleHelper::drawArrow(arrowType, painter, option);
+            }
+            // The AddLine (down/right) button
+            if (!hasTransientStyle && scrollBar->subControls & SC_ScrollBarAddLine) {
+                if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken)
+                    painter->setBrush(gradientStopColor);
+                else if ((scrollBar->activeSubControls & SC_ScrollBarAddLine))
+                    painter->setBrush(midColor2);
+                else
+                    painter->setBrush(gradient);
+                painter->setPen(Qt::NoPen);
+                painter->drawRect(
+                    scrollBarAddLine.adjusted(horizontal ? 0 : 1, horizontal ? 1 : 0, 0, 0));
+                painter->setPen(QPen(alphaOutline, 1));
+                if (option->state & State_Horizontal) {
+                    if (option->direction == Qt::LeftToRight) {
+                        pixmapRect.setLeft(scrollBarAddLine.left());
+                        painter->drawLine(pixmapRect.topLeft(), pixmapRect.bottomLeft());
+                    } else {
+                        pixmapRect.setRight(scrollBarAddLine.right());
+                        painter->drawLine(pixmapRect.topRight(), pixmapRect.bottomRight());
+                    }
+                } else {
+                    pixmapRect.setTop(scrollBarAddLine.top());
+                    painter->drawLine(pixmapRect.topLeft(), pixmapRect.topRight());
+                }
+                QRect downRect = scrollBarAddLine.adjusted(1, 1, -1, -1);
+                painter->setPen(innerContrastLine);
+                painter->setBrush(Qt::NoBrush);
+                painter->drawRect(downRect);
+                PrimitiveElement arrowType = PE_IndicatorArrowDown;
+                if (option->state & State_Horizontal)
+                    arrowType = option->direction == Qt::LeftToRight ? PE_IndicatorArrowRight
+                                                                     : PE_IndicatorArrowLeft;
+                StyleHelper::drawArrow(arrowType, painter, option);
+            }
+        }
+        painter->restore();
+    } break;
+#endif // QT_CONFIG(slider)
     default:
         Super::drawComplexControl(control, option, painter, widget);
         break;
@@ -779,7 +905,7 @@ QSize StudioStyle::sizeFromContents(
     QSize newSize;
 
     switch (type) {
-    case CT_MenuItem:
+    case CT_MenuItem: {
         if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             if (!isQmlEditorMenu(widget)) {
                 newSize = Super::sizeFromContents(type, option, size, widget);
@@ -835,8 +961,7 @@ QSize StudioStyle::sizeFromContents(
                 break;
             }
         }
-        break;
-
+    } break;
     default:
         newSize = Super::sizeFromContents(type, option, size, widget);
         break;
@@ -860,26 +985,56 @@ QRect StudioStyle::subControlRect(
     }
 #endif
 
-    switch (control)
-    {
-    case CC_Slider:
+    switch (control) {
+    case CC_Slider: {
         if (const auto slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             switch (subControl) {
             case SubControl::SC_SliderGroove:
                 return slider->rect;
-            case SubControl::SC_SliderHandle:
-            {
+            case SubControl::SC_SliderHandle: {
                 QRect retval = Super::subControlRect(control, option, subControl, widget);
-                return (slider->orientation == Qt::Horizontal)
-                    ? retval.adjusted(0, 1, 0, 0)
-                    : retval.adjusted(1, 0, 0, 0);
-            }
-                break;
+                return (slider->orientation == Qt::Horizontal) ? retval.adjusted(0, 1, 0, 0)
+                                                               : retval.adjusted(1, 0, 0, 0);
+            } break;
             default:
                 break;
             }
         }
-        break;
+    } break;
+    case CC_ScrollBar: {
+        if (!styleHint(SH_ScrollBar_Transient, option, widget))
+            break;
+
+        if (const auto scrollbar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+            QRect newRect = Super::subControlRect(control, option, subControl, widget);
+            if (Utils::HostOsInfo::isMacHost()) {
+                if (scrollbar->orientation == Qt::Horizontal) {
+                    const int halfThickness = newRect.height() / 2;
+                    newRect.adjust(0, halfThickness, 0, 0);
+                } else {
+                    const int halfThickness = newRect.width() / 2;
+                    newRect.adjust(halfThickness, 0, 0, 0);
+                }
+            }
+            if (subControl == SC_ScrollBarSlider) {
+                bool hasGroove
+                    = (scrollbar->activeSubControls.testFlag(SC_SliderGroove)
+                       || (scrollbar->styleObject
+                           && scrollbar->styleObject->property("adjacentScrollBar").toBool()))
+                      && scrollbar->subControls.testFlag(SC_ScrollBarGroove);
+                bool interacted = scrollbar->activeSubControls.testFlag(SC_ScrollBarSlider);
+
+                if (hasGroove || interacted)
+                    return newRect;
+
+                if (scrollbar->orientation == Qt::Horizontal)
+                    newRect.adjust(0, 1, 0, -1);
+                else
+                    newRect.adjust(1, 0, -1, 0);
+            }
+            return newRect;
+        }
+    } break;
     default:
         break;
     }
@@ -893,6 +1048,12 @@ int StudioStyle::styleHint(
         const QWidget *widget,
         QStyleHintReturn *returnData) const
 {
+    switch (hint) {
+    case SH_ScrollBar_Transient:
+        return true;
+    default:
+        break;
+    }
     return Super::styleHint(hint, option, widget, returnData);
 }
 
@@ -946,19 +1107,22 @@ int StudioStyle::pixelMetric(
         return 4;
     case PM_ToolBarExtensionExtent:
         return 29;
-    case PM_ScrollBarExtent:
-        return 20;
+    case PM_ScrollBarExtent: {
+        if (styleHint(SH_ScrollBar_Transient, option, widget))
+            return 10;
+        return 14;
+    } break;
     case PM_ScrollBarSliderMin:
         return 30;
     case PM_SliderLength:
         return 5;
-    case PM_SliderThickness:
+    case PM_SliderThickness: {
         if (const auto *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             return (slider->orientation == Qt::Horizontal
                         ? slider->rect.height()
                         : slider->rect.width()) - 1;
         }
-        break;
+    } break;
     case PM_SliderControlThickness:
         return 2;
     default:

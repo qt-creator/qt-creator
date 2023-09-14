@@ -3,132 +3,100 @@
 
 #pragma once
 
-#include <modelnode.h>
+#include <abstractproperty.h>
 #include <bindingproperty.h>
-#include <variantproperty.h>
-
+#include <modelnode.h>
 #include <studioquickwidget.h>
+#include <variantproperty.h>
 
 #include <QStandardItemModel>
 
 namespace QmlDesigner {
 
-class ConnectionView;
 class BindingModelBackendDelegate;
+class BindingModelItem;
+class ConnectionView;
 
 class BindingModel : public QStandardItemModel
 {
     Q_OBJECT
 
+signals:
+    void currentIndexChanged();
+
+public:
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
     Q_PROPERTY(BindingModelBackendDelegate *delegate READ delegate CONSTANT)
 
 public:
-    enum ColumnRoles {
-        TargetModelNodeRow = 0,
-        TargetPropertyNameRow = 1,
-        SourceModelNodeRow = 2,
-        SourcePropertyNameRow = 3
-    };
-
-    enum UserRoles {
-        InternalIdRole = Qt::UserRole + 2,
-        TargetNameRole,
-        TargetPropertyNameRole,
-        SourceNameRole,
-        SourcePropertyNameRole
-    };
-
     BindingModel(ConnectionView *parent = nullptr);
-    void bindingChanged(const BindingProperty &bindingProperty);
-    void bindingRemoved(const BindingProperty &bindingProperty);
-    void selectionChanged(const QList<ModelNode> &selectedNodes);
 
     ConnectionView *connectionView() const;
-    BindingProperty bindingPropertyForRow(int rowNumber) const;
-    QStringList possibleTargetProperties(const BindingProperty &bindingProperty) const;
-    QStringList possibleSourceProperties(const BindingProperty &bindingProperty) const;
-    void deleteBindindByRow(int rowNumber);
-    void addBindingForCurrentNode();
-    void resetModel();
+    BindingModelBackendDelegate *delegate() const;
+
+    int currentIndex() const;
+    BindingProperty currentProperty() const;
+    BindingProperty propertyForRow(int row) const;
 
     Q_INVOKABLE void add();
     Q_INVOKABLE void remove(int row);
 
-    int currentIndex() const;
+    void reset(const QList<ModelNode> &selectedNodes = {});
     void setCurrentIndex(int i);
-    bool getExpressionStrings(const BindingProperty &bindingProperty,
-                              QString *sourceNode,
-                              QString *sourceProperty);
+    void setCurrentProperty(const AbstractProperty &property);
 
-signals:
-    void currentIndexChanged();
+    void updateItem(const BindingProperty &property);
+    void removeItem(const AbstractProperty &property);
+
+    void commitExpression(int row, const QString &expression);
+    void commitPropertyName(int row, const PropertyName &name);
 
 protected:
-    void addBindingProperty(const BindingProperty &property);
-    void updateBindingProperty(int rowNumber);
-    void addModelNode(const ModelNode &modelNode);
-    void updateExpression(int row);
-    void updatePropertyName(int rowNumber);
-    ModelNode getNodeByIdOrParent(const QString &id, const ModelNode &targetNode) const;
-    void updateCustomData(QStandardItem *item, const BindingProperty &bindingProperty);
-    int findRowForBinding(const BindingProperty &bindingProperty);
-    void updateDisplayRole(int row, int columns, const QString &string);
-
     QHash<int, QByteArray> roleNames() const override;
-    BindingModelBackendDelegate *delegate() const;
 
 private:
-    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
-    void handleException();
+    std::optional<int> rowForProperty(const AbstractProperty &property) const;
+    BindingModelItem *itemForRow(int row) const;
+    BindingModelItem *itemForProperty(const AbstractProperty &property) const;
+
+    void addModelNode(const ModelNode &modelNode);
 
 private:
-    ConnectionView *m_connectionView;
-    bool m_lock = false;
-    bool m_handleDataChanged = false;
-    QString m_exceptionError;
-    int m_currentIndex = 0;
+    ConnectionView *m_connectionView = nullptr;
     BindingModelBackendDelegate *m_delegate = nullptr;
+    int m_currentIndex = -1;
 };
 
 class BindingModelBackendDelegate : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int currentRow READ currentRow WRITE setCurrentRow NOTIFY currentRowChanged)
-
     Q_PROPERTY(QString targetNode READ targetNode NOTIFY targetNodeChanged)
     Q_PROPERTY(StudioQmlComboBoxBackend *property READ property CONSTANT)
     Q_PROPERTY(StudioQmlComboBoxBackend *sourceNode READ sourceNode CONSTANT)
     Q_PROPERTY(StudioQmlComboBoxBackend *sourceProperty READ sourceProperty CONSTANT)
 
+signals:
+    void targetNodeChanged();
+
 public:
     BindingModelBackendDelegate(BindingModel *parent = nullptr);
 
-signals:
-    void currentRowChanged();
-    //void nameChanged();
-    void targetNodeChanged();
+    void update(const BindingProperty &property, AbstractView *view);
 
 private:
-    int currentRow() const;
-    void setCurrentRow(int i);
-    void handleException();
     QString targetNode() const;
+    void expressionChanged() const;
+    void propertyNameChanged() const;
 
     StudioQmlComboBoxBackend *property();
     StudioQmlComboBoxBackend *sourceNode();
     StudioQmlComboBoxBackend *sourceProperty();
 
-    void handleSourceNodeChanged();
-    void handleSourcePropertyChanged();
-
+    QString m_targetNode;
     StudioQmlComboBoxBackend m_property;
     StudioQmlComboBoxBackend m_sourceNode;
     StudioQmlComboBoxBackend m_sourceNodeProperty;
-    QString m_exceptionError;
-    int m_currentRow = -1;
-    QString m_targetNode;
 };
 
 } // namespace QmlDesigner

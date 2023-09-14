@@ -147,6 +147,7 @@ public:
 class QMLDESIGNERBASE_EXPORT StudioQuickWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit StudioQuickWidget(QWidget *parent = nullptr);
 
@@ -167,6 +168,9 @@ public:
 
     StudioPropertyMap *registerPropertyMap(const QByteArray &name);
     QQuickWidget *quickWidget() const;
+
+signals:
+    void adsFocusChanged();
 
 private:
     QQuickWidget *m_quickWidget = nullptr;

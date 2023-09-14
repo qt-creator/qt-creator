@@ -17,70 +17,17 @@ AsynchronousImageFactory::AsynchronousImageFactory(ImageCacheStorageInterface &s
     , m_timeStampProvider(timeStampProvider)
     , m_collector(collector)
 {
-    m_backgroundThread = std::thread{[this] {
-        while (isRunning()) {
-            if (auto entry = getEntry(); entry) {
-                request(entry->name,
-                        entry->extraId,
-                        std::move(entry->auxiliaryData),
-                        m_storage,
-                        m_timeStampProvider,
-                        m_collector);
-            }
 
-            waitForEntries();
-        }
-    }};
-}
-
-AsynchronousImageFactory::~AsynchronousImageFactory()
-{
-    clean();
-    wait();
 }
 
 void AsynchronousImageFactory::generate(Utils::SmallStringView name,
                                         Utils::SmallStringView extraId,
                                         ImageCache::AuxiliaryData auxiliaryData)
 {
-    addEntry(name, extraId, std::move(auxiliaryData));
-    m_condition.notify_all();
+    m_taskQueue.addTask(name, extraId, std::move(auxiliaryData));
 }
 
-void AsynchronousImageFactory::addEntry(Utils::SmallStringView name,
-                                        Utils::SmallStringView extraId,
-                                        ImageCache::AuxiliaryData &&auxiliaryData)
-{
-    std::unique_lock lock{m_mutex};
-
-    m_entries.emplace_back(std::move(name), std::move(extraId), std::move(auxiliaryData));
-}
-
-bool AsynchronousImageFactory::isRunning()
-{
-    std::unique_lock lock{m_mutex};
-    return !m_finishing || m_entries.size();
-}
-
-void AsynchronousImageFactory::waitForEntries()
-{
-    std::unique_lock lock{m_mutex};
-    if (m_entries.empty())
-        m_condition.wait(lock, [&] { return m_entries.size() || m_finishing; });
-}
-
-std::optional<AsynchronousImageFactory::Entry> AsynchronousImageFactory::getEntry()
-{
-    std::unique_lock lock{m_mutex};
-
-    if (m_entries.empty())
-        return {};
-
-    Entry entry = m_entries.front();
-    m_entries.pop_front();
-
-    return {entry};
-}
+AsynchronousImageFactory::~AsynchronousImageFactory() {}
 
 void AsynchronousImageFactory::request(Utils::SmallStringView name,
                                        Utils::SmallStringView extraId,
@@ -99,8 +46,8 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
     if (currentModifiedTime < (storageModifiedTime + pause))
         return;
 
-    auto capture = [=](const QImage &image, const QImage &midSizeImage, const QImage &smallImage) {
-        m_storage.storeImage(id, currentModifiedTime, image, midSizeImage, smallImage);
+    auto capture = [&](const QImage &image, const QImage &midSizeImage, const QImage &smallImage) {
+        storage.storeImage(id, currentModifiedTime, image, midSizeImage, smallImage);
     };
 
     collector.start(name,
@@ -112,27 +59,6 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
 
 void AsynchronousImageFactory::clean()
 {
-    clearEntries();
+    m_taskQueue.clean();
 }
-
-void AsynchronousImageFactory::wait()
-{
-    stopThread();
-    m_condition.notify_all();
-    if (m_backgroundThread.joinable())
-        m_backgroundThread.join();
-}
-
-void AsynchronousImageFactory::clearEntries()
-{
-    std::unique_lock lock{m_mutex};
-    m_entries.clear();
-}
-
-void AsynchronousImageFactory::stopThread()
-{
-    std::unique_lock lock{m_mutex};
-    m_finishing = true;
-}
-
 } // namespace QmlDesigner

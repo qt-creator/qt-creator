@@ -8,6 +8,7 @@
 #include <QVariant>
 
 #include <memory>
+#include <type_traits>
 
 namespace QmlDesigner {
 
@@ -24,7 +25,7 @@ class InternalNode;
 
 using InternalNodePointer = std::shared_ptr<InternalNode>;
 
-template<PropertyType propertyType>
+template<PropertyType... propertyType>
 struct TypeLookup
 {};
 
@@ -68,6 +69,21 @@ struct TypeLookup<PropertyType::Variant>
     using Type = InternalVariantProperty;
 };
 
+template<>
+struct TypeLookup<PropertyType::Node, PropertyType::NodeList>
+{
+    using Type = InternalNodeAbstractProperty;
+};
+
+template<>
+struct TypeLookup<PropertyType::NodeList, PropertyType::Node>
+{
+    using Type = InternalNodeAbstractProperty;
+};
+
+template<PropertyType... propertyType>
+using type_lookup_t = typename TypeLookup<propertyType...>::Type;
+
 class QMLDESIGNERCORE_EXPORT InternalProperty : public std::enable_shared_from_this<InternalProperty>
 {
 public:
@@ -103,23 +119,59 @@ public:
         return std::static_pointer_cast<Type>(shared_from_this());
     }
 
-    template<PropertyType propertyType>
-    auto to()
+    template<PropertyType... propertyType>
+    auto toShared()
     {
-        if (propertyType == m_propertyType)
-            return std::static_pointer_cast<typename TypeLookup<propertyType>::Type>(
-                shared_from_this());
+        using Type = type_lookup_t<propertyType...>;
 
-        return std::shared_ptr<typename TypeLookup<propertyType>::Type>{};
+        if (((propertyType == m_propertyType) || ...))
+            return std::static_pointer_cast<Type>(shared_from_this());
+
+        return std::shared_ptr<Type>{};
     }
 
-    InternalNodePointer propertyOwner() const;
+    template<PropertyType... propertyType>
+    auto toShared() const
+    {
+        using Type = const type_lookup_t<propertyType...>;
 
-    virtual void remove();
+        if (((propertyType == m_propertyType) || ...))
+            return std::static_pointer_cast<Type>(shared_from_this());
+
+        return std::shared_ptr<Type>{};
+    }
+
+    template<PropertyType... propertyType>
+    auto *to()
+    {
+        using Type = type_lookup_t<propertyType...>;
+
+        if (((propertyType == m_propertyType) || ...))
+            return static_cast<Type *>(this);
+
+        return static_cast<Type *>(nullptr);
+    }
+
+    template<PropertyType... propertyType>
+    const auto *to() const
+    {
+        using Type = const type_lookup_t<propertyType...>;
+
+        if (((propertyType == m_propertyType) || ...))
+            return static_cast<Type *>(this);
+
+        return static_cast<Type *>(nullptr);
+    }
+
+    const InternalNodePointer propertyOwner() const { return m_propertyOwner.lock(); }
+
+    InternalNodePointer propertyOwner() { return m_propertyOwner.lock(); }
 
     TypeName dynamicTypeName() const;
 
     void resetDynamicTypeName();
+
+    PropertyType type() const { return m_propertyType; }
 
 protected: // functions
     InternalProperty(const PropertyName &name,

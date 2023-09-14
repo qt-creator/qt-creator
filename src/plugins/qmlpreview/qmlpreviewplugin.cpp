@@ -44,6 +44,7 @@
 #include <android/androidconstants.h>
 
 #include <QAction>
+#include <QPointer>
 #include <QTimer>
 
 using namespace ProjectExplorer;
@@ -95,6 +96,9 @@ static std::unique_ptr<QmlDebugTranslationClient> defaultCreateDebugTranslationC
     return client;
 }
 
+static void defaultRefreshTranslationFunction()
+{}
+
 class QmlPreviewPluginPrivate : public QObject
 {
 public:
@@ -127,7 +131,7 @@ public:
     QmlPreviewPlugin *q = nullptr;
     QThread m_parseThread;
     QString m_previewedFile;
-    Core::IEditor *m_lastEditor = nullptr;
+    QPointer<Core::IEditor> m_lastEditor;
     QmlPreviewRunControlList m_runningPreviews;
     bool m_dirty = false;
     QString m_localeIsoCode;
@@ -145,6 +149,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     m_settings.fileClassifier = &defaultFileClassifier;
     m_settings.fpsHandler = &defaultFpsHandler;
     m_settings.createDebugTranslationClientMethod = &defaultCreateDebugTranslationClientMethod;
+    m_settings.refreshTranslationsFunction = &defaultRefreshTranslationFunction;
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);
@@ -236,6 +241,12 @@ QmlPreviewRunControlList QmlPreviewPlugin::runningPreviews() const
     return d->m_runningPreviews;
 }
 
+void QmlPreviewPlugin::stopAllPreviews()
+{
+    for (auto &runningPreview : d->m_runningPreviews)
+        runningPreview->initiateStop();
+}
+
 QmlPreviewFileLoader QmlPreviewPlugin::fileLoader() const
 {
     return d->m_settings.fileLoader;
@@ -299,9 +310,14 @@ void QmlPreviewPlugin::setLocaleIsoCode(const QString &localeIsoCode)
     emit localeIsoCodeChanged(d->m_localeIsoCode);
 }
 
-void QmlPreviewPlugin::setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator)
+void QmlPreviewPlugin::setQmlDebugTranslationClientCreator(QmlDebugTranslationClientFactoryFunction creator)
 {
     d->m_settings.createDebugTranslationClientMethod = creator;
+}
+
+void QmlPreviewPlugin::setRefreshTranslationsFunction(QmlPreviewRefreshTranslationFunction refreshTranslationsFunction)
+{
+    d->m_settings.refreshTranslationsFunction = refreshTranslationsFunction;
 }
 
 void QmlPreviewPlugin::setFileLoader(QmlPreviewFileLoader fileLoader)

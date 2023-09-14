@@ -79,7 +79,7 @@ public:
 
     auto select() { return selectViewsStatement.range<KeyValueView>(); }
 
-    auto fetchKeyValues() { return selectValuesStatement.values<KeyValue>(24); }
+    auto fetchKeyValues() { return selectValuesStatement.values<KeyValue>(); }
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};

@@ -51,6 +51,7 @@
 
 using namespace LanguageUtils;
 using namespace QmlJS;
+using namespace Qt::StringLiterals;
 
 static Q_LOGGING_CATEGORY(rewriterBenchmark, "qtc.rewriter.load", QtWarningMsg)
 static Q_LOGGING_CATEGORY(texttomodelMergerDebug, "qtc.texttomodelmerger.debug", QtDebugMsg)
@@ -74,41 +75,45 @@ bool isSupportedVersion(QmlDesigner::Version version)
     return false;
 }
 
-QStringList globalQtEnums()
+bool isGlobalQtEnums(QStringView value)
 {
-    static const QStringList list = {
-        "Horizontal", "Vertical", "AlignVCenter", "AlignLeft", "LeftToRight", "RightToLeft",
-        "AlignHCenter", "AlignRight", "AlignBottom", "AlignBaseline", "AlignTop", "BottomLeft",
-        "LeftEdge", "RightEdge", "BottomEdge", "TopEdge", "TabFocus", "ClickFocus", "StrongFocus",
-        "WheelFocus", "NoFocus", "ArrowCursor", "UpArrowCursor", "CrossCursor", "WaitCursor",
-        "IBeamCursor", "SizeVerCursor", "SizeHorCursor", "SizeBDiagCursor", "SizeFDiagCursor",
-        "SizeAllCursor", "BlankCursor", "SplitVCursor", "SplitHCursor", "PointingHandCursor",
-        "ForbiddenCursor", "WhatsThisCursor", "BusyCursor", "OpenHandCursor", "ClosedHandCursor",
-        "DragCopyCursor", "DragMoveCursor", "DragLinkCursor", "TopToBottom",
-        "LeftButton", "RightButton", "MiddleButton", "BackButton", "ForwardButton", "AllButtons"
-    };
+    static constexpr QLatin1StringView list[] = {
+        "Horizontal"_L1,      "Vertical"_L1,        "AlignVCenter"_L1,       "AlignLeft"_L1,
+        "LeftToRight"_L1,     "RightToLeft"_L1,     "AlignHCenter"_L1,       "AlignRight"_L1,
+        "AlignBottom"_L1,     "AlignBaseline"_L1,   "AlignTop"_L1,           "BottomLeft"_L1,
+        "LeftEdge"_L1,        "RightEdge"_L1,       "BottomEdge"_L1,         "TopEdge"_L1,
+        "TabFocus"_L1,        "ClickFocus"_L1,      "StrongFocus"_L1,        "WheelFocus"_L1,
+        "NoFocus"_L1,         "ArrowCursor"_L1,     "UpArrowCursor"_L1,      "CrossCursor"_L1,
+        "WaitCursor"_L1,      "IBeamCursor"_L1,     "SizeVerCursor"_L1,      "SizeHorCursor"_L1,
+        "SizeBDiagCursor"_L1, "SizeFDiagCursor"_L1, "SizeAllCursor"_L1,      "BlankCursor"_L1,
+        "SplitVCursor"_L1,    "SplitHCursor"_L1,    "PointingHandCursor"_L1, "ForbiddenCursor"_L1,
+        "WhatsThisCursor"_L1, "BusyCursor"_L1,      "OpenHandCursor"_L1,     "ClosedHandCursor"_L1,
+        "DragCopyCursor"_L1,  "DragMoveCursor"_L1,  "DragLinkCursor"_L1,     "TopToBottom"_L1,
+        "LeftButton"_L1,      "RightButton"_L1,     "MiddleButton"_L1,       "BackButton"_L1,
+        "ForwardButton"_L1,   "AllButtons"_L1};
 
-    return list;
+    return std::find(std::begin(list), std::end(list), value) != std::end(list);
 }
 
-QStringList knownEnumScopes()
+bool isKnownEnumScopes(QStringView value)
 {
-    static const QStringList list = {"TextInput",
-                                     "TextEdit",
-                                     "Material",
-                                     "Universal",
-                                     "Font",
-                                     "Shape",
-                                     "ShapePath",
-                                     "AbstractButton",
-                                     "Text",
-                                     "ShaderEffectSource",
-                                     "Grid",
-                                     "ItemLayer",
-                                     "ImageLayer",
-                                     "SpriteLayer",
-                                     "Light"};
-    return list;
+    static constexpr QLatin1StringView list[] = {"TextInput"_L1,
+                                                 "TextEdit"_L1,
+                                                 "Material"_L1,
+                                                 "Universal"_L1,
+                                                 "Font"_L1,
+                                                 "Shape"_L1,
+                                                 "ShapePath"_L1,
+                                                 "AbstractButton"_L1,
+                                                 "Text"_L1,
+                                                 "ShaderEffectSource"_L1,
+                                                 "Grid"_L1,
+                                                 "ItemLayer"_L1,
+                                                 "ImageLayer"_L1,
+                                                 "SpriteLayer"_L1,
+                                                 "Light"_L1};
+
+    return std::find(std::begin(list), std::end(list), value) != std::end(list);
 }
 
 bool supportedQtQuickVersion(const QmlDesigner::Import &import)
@@ -130,11 +135,11 @@ QString deEscape(const QString &value)
 {
     QString result = value;
 
-    result.replace(QStringLiteral("\\\\"), QStringLiteral("\\"));
-    result.replace(QStringLiteral("\\\""), QStringLiteral("\""));
-    result.replace(QStringLiteral("\\t"), QStringLiteral("\t"));
-    result.replace(QStringLiteral("\\r"), QStringLiteral("\r"));
-    result.replace(QStringLiteral("\\n"), QStringLiteral("\n"));
+    result.replace("\\\\"_L1, "\\"_L1);
+    result.replace("\\\""_L1, "\""_L1);
+    result.replace("\\t"_L1, "\t"_L1);
+    result.replace("\\r"_L1, "\r"_L1);
+    result.replace("\\n"_L1, "\n"_L1);
 
     return result;
 }
@@ -185,8 +190,8 @@ bool isSignalPropertyName(const QString &signalName)
     QStringList list = signalName.split(QLatin1String("."));
 
     const QString &pureSignalName = list.constLast();
-    return pureSignalName.length() >= 3 && pureSignalName.startsWith(QStringLiteral("on")) &&
-            pureSignalName.at(2).isLetter();
+    return pureSignalName.length() >= 3 && pureSignalName.startsWith(u"on")
+           && pureSignalName.at(2).isLetter();
 }
 
 QVariant cleverConvert(const QString &value)
@@ -242,23 +247,23 @@ bool isLiteralValue(AST::UiScriptBinding *script)
 
 int propertyType(const QString &typeName)
 {
-    if (typeName == QStringLiteral("bool"))
+    if (typeName == u"bool")
         return QMetaType::type("bool");
-    else if (typeName == QStringLiteral("color"))
+    else if (typeName == u"color")
         return QMetaType::type("QColor");
-    else if (typeName == QStringLiteral("date"))
+    else if (typeName == u"date")
         return QMetaType::type("QDate");
-    else if (typeName == QStringLiteral("int"))
+    else if (typeName == u"int")
         return QMetaType::type("int");
-    else if (typeName == QStringLiteral("real"))
+    else if (typeName == u"real")
         return QMetaType::type("double");
-    else if (typeName == QStringLiteral("double"))
+    else if (typeName == u"double")
         return QMetaType::type("double");
-    else if (typeName == QStringLiteral("string"))
+    else if (typeName == u"string")
         return QMetaType::type("QString");
-    else if (typeName == QStringLiteral("url"))
+    else if (typeName == u"url")
         return QMetaType::type("QUrl");
-    else if (typeName == QStringLiteral("var") || typeName == QStringLiteral("variant"))
+    else if (typeName == u"var" || typeName == u"variant")
         return QMetaType::type("QVariant");
     else
         return -1;
@@ -473,7 +478,7 @@ public:
         const QString propertyName = propertyPrefix.isEmpty() ? propertyId->name.toString()
                                                               : propertyPrefix;
 
-        if (propertyName == QStringLiteral("id") && !propertyId->next)
+        if (propertyName == u"id" && !propertyId->next)
             return false; // ### should probably be a special value
 
         //compare to lookupProperty(propertyPrefix, propertyId);
@@ -509,7 +514,7 @@ public:
         if (name)
             *name = propertyName;
 
-        if (propertyName == QStringLiteral("id") && ! id->next)
+        if (propertyName == u"id" && !id->next)
             return false; // ### should probably be a special value
 
         // attached properties
@@ -603,15 +608,18 @@ public:
 
 
         const PropertyMetaInfo propertyMetaInfo = node.metaInfo().property(propertyName.toUtf8());
-        const bool hasQuotes = astValue.trimmed().left(1) == QStringLiteral("\"")
-                               && astValue.trimmed().right(1) == QStringLiteral("\"");
+        const bool hasQuotes = astValue.trimmed().left(1) == u"\""
+                               && astValue.trimmed().right(1) == u"\"";
         const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
         if (!propertyMetaInfo.isValid()) {
-            qCInfo(texttomodelMergerDebug)
-                << Q_FUNC_INFO << "Unknown property"
-                << propertyPrefix + QLatin1Char('.') + toString(propertyId) << "on line"
-                << propertyId->identifierToken.startLine << "column"
-                << propertyId->identifierToken.startColumn;
+            // Only list elements might have unknown properties.
+            if (!node.metaInfo().isQtQuickListElement()) {
+                qCInfo(texttomodelMergerDebug)
+                    << Q_FUNC_INFO << "Unknown property"
+                    << propertyPrefix + QLatin1Char('.') + toString(propertyId) << "on line"
+                    << propertyId->identifierToken.startLine << "column"
+                    << propertyId->identifierToken.startColumn;
+            }
             return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
         }
 
@@ -649,7 +657,8 @@ public:
 
     QVariant convertToVariant(const QString &astValue, const QString &propertyPrefix, AST::UiQualifiedId *propertyId)
     {
-        const bool hasQuotes = astValue.trimmed().left(1) == QStringLiteral("\"") && astValue.trimmed().right(1) == QStringLiteral("\"");
+        const bool hasQuotes = astValue.trimmed().left(1) == u"\""
+                               && astValue.trimmed().right(1) == u"\"";
         const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
         const Value *property = nullptr;
         const ObjectValue *containingObject = nullptr;
@@ -706,16 +715,15 @@ public:
                            AST::UiQualifiedId *propertyId,
                            const QString &astValue)
     {
-        QStringList astValueList = astValue.split(QStringLiteral("."));
+        QStringList astValueList = astValue.split(u'.');
 
         if (astValueList.size() == 2) {
             //Check for global Qt enums
-            if (astValueList.constFirst() == QStringLiteral("Qt")
-                    && globalQtEnums().contains(astValueList.constLast()))
+            if (astValueList.constFirst() == u"Qt" && isGlobalQtEnums(astValueList.constLast()))
                 return QVariant::fromValue(Enumeration(astValue));
 
             //Check for known enum scopes used globally
-            if (knownEnumScopes().contains(astValueList.constFirst()))
+            if (isKnownEnumScopes(astValueList.constFirst()))
                 return QVariant::fromValue(Enumeration(astValue));
         }
 
@@ -1221,7 +1229,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     if (defaultPropertyName.isEmpty()) //fallback and use the meta system of the model
         defaultPropertyName = modelNode.metaInfo().defaultPropertyName();
 
-    if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && isComponentType(typeName)) {
+    if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && info.isQmlComponent()) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
             if (auto def = AST::cast<AST::UiObjectDefinition *>(iter->member)) {
                 syncNode(modelNode, def, context, differenceHandler);
@@ -1478,7 +1486,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         astValue = astValue.trimmed();
     }
 
-    if (astPropertyName == QStringLiteral("id")) {
+    if (astPropertyName == u"id") {
         syncNodeId(modelNode, astValue, differenceHandler);
         return astPropertyName.toUtf8();
     }
@@ -1803,7 +1811,7 @@ void ModelValidator::modelMissesImport([[maybe_unused]] const QmlDesigner::Impor
 
 void ModelValidator::importAbsentInQMl([[maybe_unused]] const QmlDesigner::Import &import)
 {
-    Q_ASSERT(! m_merger->view()->model()->imports().contains(import));
+    QTC_ASSERT(!m_merger->view()->model()->imports().contains(import), return);
 }
 
 void ModelValidator::bindingExpressionsDiffer([[maybe_unused]] BindingProperty &modelProperty,
@@ -2225,7 +2233,7 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
 
     bool hasQtQuick = false;
     for (const QmlDesigner::Import &import : m_rewriterView->model()->imports()) {
-        if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
+        if (import.isLibraryImport() && import.url() == u"QtQuick") {
             if (supportedQtQuickVersion(import)) {
                 hasQtQuick = true;
 
