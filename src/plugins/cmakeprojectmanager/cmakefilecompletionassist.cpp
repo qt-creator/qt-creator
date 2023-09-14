@@ -13,8 +13,6 @@
 
 #include <texteditor/codeassist/assistinterface.h>
 
-#include <QFileInfo>
-
 using namespace TextEditor;
 using namespace ProjectExplorer;
 
@@ -39,7 +37,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
 {
     Keywords kw;
     const Utils::FilePath &filePath = interface()->filePath();
-    if (!filePath.isEmpty() && filePath.toFileInfo().isFile()) {
+    if (!filePath.isEmpty() && filePath.isFile()) {
         Project *p = ProjectManager::projectForFile(filePath);
         if (p && p->activeTarget()) {
             CMakeTool *cmake = CMakeKitAspect::cmakeTool(p->activeTarget()->kit());
