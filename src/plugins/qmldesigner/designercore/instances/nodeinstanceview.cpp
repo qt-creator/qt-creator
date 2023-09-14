@@ -1735,7 +1735,9 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
             }
         }
     } else if (command.type() == PuppetToCreatorCommand::Import3DSupport) {
-        const QVariantMap supportMap = qvariant_cast<QVariantMap>(command.data());
+        QVariantMap supportMap;
+        if (externalDependencies().isQt6Project())
+            supportMap = qvariant_cast<QVariantMap>(command.data());
         emitImport3DSupportChanged(supportMap);
     } else if (command.type() == PuppetToCreatorCommand::NodeAtPos) {
         auto data = qvariant_cast<QVariantList>(command.data());
