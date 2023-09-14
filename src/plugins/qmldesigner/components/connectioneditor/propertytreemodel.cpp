@@ -102,9 +102,12 @@ const std::vector<PropertyName> priorityListSignals = {"clicked",
                                                        "rotationChanged"};
 
 const std::vector<PropertyName> priorityListProperties
-    = {"opacity", "visible", "value", "x",       "y",      "width", "height",  "rotation",
-       "color",   "scale",   "state", "enabled", "z",      "text",  "pressed", "containsMouse",
-       "checked", "hovered", "down",  "clip",    "parent", "from",  "true",    "focus"};
+    = {"opacity",       "visible",      "value",       "x",      "y",
+       "width",         "height",       "rotation",    "color",  "scale",
+       "state",         "enabled",      "z",           "text",   "pressed",
+       "containsMouse", "checked",      "hovered",     "down",   "clip",
+       "parent",        "from",         "radius",      "smooth", "true",
+       "focus",         "border.width", "border.color"};
 
 const std::vector<PropertyName> priorityListSlots = {"toggle",
                                                      "increase",
@@ -335,6 +338,11 @@ int PropertyTreeModel::columnCount(const QModelIndex &) const
     return 1;
 }
 
+void PropertyTreeModel::setIncludeDotPropertiesOnFirstLevel(bool b)
+{
+    m_includeDotPropertiesOnFirstLevel = b;
+}
+
 void PropertyTreeModel::setPropertyType(PropertyTypes type)
 {
     if (m_type == type)
@@ -498,7 +506,6 @@ const std::vector<PropertyName> PropertyTreeModel::getDynamicProperties(
                   return propertyType == "url";
               case ColorType:
                   return propertyType == "color";
-
               case BoolType:
                   return propertyType == "bool";
               default:
@@ -513,18 +520,15 @@ const std::vector<PropertyName> PropertyTreeModel::getDynamicProperties(
 const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyNames(
     const NodeMetaInfo &metaInfo, bool recursive) const
 {
+    qDebug() << Q_FUNC_INFO << metaInfo.typeName() << recursive;
     auto filtered = Utils::filtered(metaInfo.properties(),
                                     [this, recursive](const PropertyMetaInfo &metaInfo) {
                                         // if (!metaInfo.isWritable()) - lhs/rhs
 
                                         const PropertyName name = metaInfo.name();
 
-                                        if (name.contains("."))
-                                            return false;
-
-                                        if (name.startsWith("icon."))
-                                            return false;
-                                        if (name.startsWith("transformOriginPoint."))
+                                        if (!m_includeDotPropertiesOnFirstLevel
+                                            && name.contains("."))
                                             return false;
 
                                         return filterProperty(name, metaInfo, recursive);
@@ -721,6 +725,9 @@ bool PropertyTreeModel::filterProperty(const PropertyName &name,
 
     const NodeMetaInfo propertyType = metaInfo.propertyType();
 
+    if (m_includeDotPropertiesOnFirstLevel && metaInfo.isPointer())
+        return false;
+
     //We want to keep sub items with matching properties
     if (!recursive && metaInfo.isPointer()
         && sortedAndFilteredPropertyNames(propertyType, true).size() > 0)
@@ -842,6 +849,8 @@ PropertyTreeModelDelegate::PropertyTreeModelDelegate(ConnectionView *parent) : m
     connect(&m_idCombboBox, &StudioQmlComboBoxBackend::activated, this, [this]() {
         handleIdChanged();
     });
+
+    m_model.setIncludeDotPropertiesOnFirstLevel(true);
 }
 
 void PropertyTreeModelDelegate::setPropertyType(PropertyTreeModel::PropertyTypes type)
