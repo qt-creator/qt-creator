@@ -21,9 +21,6 @@ if (NOT QT_CREATOR_API_DEFINED)
     COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml
     REQUIRED
   )
-else()
-  # Qt Creator only supports Qt 6
-  set(QT_VERSION_MAJOR ${Qt6_VERSION_MAJOR})
 endif()
 
 if (NOT TARGET QmlPuppetCommunication)
@@ -86,7 +83,7 @@ extend_qtc_executable(qml2puppet
     nodeinstanceclientproxy.cpp nodeinstanceclientproxy.h
 )
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3D QUIET)
+find_package(Qt6 COMPONENTS Quick3D QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3D
   FEATURE_INFO "Qt Quick 3D support"
@@ -106,7 +103,7 @@ extend_qtc_executable(qml2puppet
     icongizmoimageprovider.cpp icongizmoimageprovider.h
 )
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DAssetImport QUIET)
+find_package(Qt6 COMPONENTS Quick3DAssetImport QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3DAssetImport
   FEATURE_INFO "Qt Quick 3D asset import"
@@ -114,7 +111,7 @@ extend_qtc_executable(qml2puppet
   DEFINES IMPORT_QUICK3D_ASSETS
 )
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DParticles QUIET)
+find_package(Qt6 COMPONENTS Quick3DParticles QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3DParticles
   FEATURE_INFO "Qt Quick 3D particles"
@@ -123,7 +120,7 @@ extend_qtc_executable(qml2puppet
 )
 
 # Quick3DAssetUtils optionally depends on QuickTimeline, so find also it to make the CI build work
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
+find_package(Qt6 COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3DAssetUtils
   FEATURE_INFO "Qt Quick 3D asset utils"
