@@ -36,10 +36,11 @@ public:
     {
         settings(nullptr).setVcpkgRootEnvironmentVariable();
 
-        connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
-                this, [this](Project *project) {
-                    settings(project).setVcpkgRootEnvironmentVariable();
-                });
+        connect(
+            ProjectManager::instance(),
+            &ProjectManager::startupProjectChanged,
+            this,
+            [](Project *project) { settings(project).setVcpkgRootEnvironmentVariable(); });
     }
 };
 
