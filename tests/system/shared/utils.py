@@ -190,8 +190,7 @@ def invokeMenuItem(menu, item, *subItems):
                           "Function arguments: '%s', '%s', %s" % (menu, item, str(subItems)))
                 break # we failed to trigger - no need to process subItems further
         else:
-            noAmpersandItem = item.replace('&', '')
-            waitForObject("{type='QMenu' title='%s'}" % noAmpersandItem, 2000)
+            waitForObject("{type='QMenu' title='%s'}" % str(itemObject.text), 2000)
             itemObject = waitForObjectItem(itemObject, subItem)
             waitFor("itemObject.enabled", 2000)
             activateItem(itemObject)
