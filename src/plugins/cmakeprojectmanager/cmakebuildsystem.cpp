@@ -272,6 +272,8 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
         const int targetDefinitionLine = target.backtrace.last().line;
 
         // Have a fresh look at the CMake file, not relying on a cached value
+        Core::DocumentManager::saveModifiedDocumentSilently(
+            Core::DocumentModel::documentForFilePath(targetCMakeFile));
         expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
         cmListFile cmakeListFile;
         std::string errorString;
@@ -397,6 +399,8 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
     const FilePath targetCMakeFile = target.backtrace.last().path;
 
     // Have a fresh look at the CMake file, not relying on a cached value
+    Core::DocumentManager::saveModifiedDocumentSilently(
+        Core::DocumentModel::documentForFilePath(targetCMakeFile));
     expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
     cmListFile cmakeListFile;
     std::string errorString;
@@ -657,7 +661,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
         const QString generatedFileName = "ui_" + sourceFile.completeBaseName() + ".h";
 
         auto targetNode = this->project()->nodeForFilePath(sourceFile);
-        while (!dynamic_cast<const CMakeTargetNode *>(targetNode))
+        while (targetNode && !dynamic_cast<const CMakeTargetNode *>(targetNode))
             targetNode = targetNode->parentFolderNode();
 
         FilePaths generatedFilePaths;

@@ -1450,9 +1450,11 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
 void GdbEngine::handleStop3()
 {
-    DebuggerCommand cmd("-thread-info", Discardable);
-    cmd.callback = CB(handleThreadInfo);
-    runCommand(cmd);
+    if (!terminal() || state() != InferiorRunOk) {
+        DebuggerCommand cmd("-thread-info", Discardable);
+        cmd.callback = CB(handleThreadInfo);
+        runCommand(cmd);
+    }
 }
 
 void GdbEngine::handleShowVersion(const DebuggerResponse &response)

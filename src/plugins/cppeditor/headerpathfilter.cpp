@@ -104,7 +104,7 @@ bool isClangSystemHeaderPath(const HeaderPath &headerPath)
     // For example GCC on macOS uses system clang include path which makes clang code model
     // include incorrect system headers.
     static const QRegularExpression clangIncludeDir(
-        R"(\A.*/lib\d*/clang/\d+\.\d+(\.\d+)?/include\z)");
+        R"(\A.*/lib\d*/clang/\d+(\.\d+){0,2}/include\z)");
     return clangIncludeDir.match(headerPath.path).hasMatch();
 }
 

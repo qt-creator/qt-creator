@@ -89,8 +89,13 @@ GroupItem RsyncDeployStep::mkdirTask()
 {
     const auto setupHandler = [this](Process &process) {
         QStringList remoteDirs;
-        for (const FileToTransfer &file : std::as_const(m_files))
-            remoteDirs << file.m_target.parentDir().path();
+        for (const FileToTransfer &file : std::as_const(m_files)) {
+            const QString parentDir = file.m_target.parentDir().path();
+            if (!parentDir.isEmpty())
+                remoteDirs << parentDir;
+        }
+        if (remoteDirs.isEmpty())
+            return SetupResult::StopWithDone;
         remoteDirs.sort();
         remoteDirs.removeDuplicates();
         process.setCommand({deviceConfiguration()->filePath("mkdir"),
@@ -98,6 +103,7 @@ GroupItem RsyncDeployStep::mkdirTask()
         connect(&process, &Process::readyReadStandardError, this, [this, proc = &process] {
             handleStdErrData(QString::fromLocal8Bit(proc->readAllRawStandardError()));
         });
+        return SetupResult::Continue;
     };
     const auto errorHandler = [this](const Process &process) {
         QString finalMessage = process.errorString();

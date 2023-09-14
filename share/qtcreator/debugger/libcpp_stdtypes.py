@@ -283,13 +283,12 @@ def std_1_string_dumper_v1(d, value):
     charType = value['__l']['__data_'].dereference().type
     D = None
 
-    try:  # LLDB
+    if d.isLldb:
         D = value[0][0][0][0]
-    except:  # GDB
-        try:  # std::string
-            D = value[0].members(True)[0][0][0]
-        except:  # std::u16string, std::u32string
-            D = value[2].members(True)[0][0][0]
+    elif d.isGdb:
+        D = value["__r_"].members(True)[0][0][0]
+    else:
+        raise Exception("Unknown debugger (neither gdb nor lldb)")
 
     layoutDecider = D[0][0]
     if not layoutDecider:
