@@ -12,6 +12,7 @@
 #include "mainwindow.h"
 #include "modemanager.h"
 #include "session.h"
+#include "settingsdatabase.h"
 #include "themechooser.h"
 
 #include "actionmanager/actionmanager.h"
@@ -96,6 +97,7 @@ CorePlugin::~CorePlugin()
     DesignMode::destroyModeIfRequired();
 
     delete m_mainWindow;
+    SettingsDatabase::destroy();
     setCreatorTheme(nullptr);
 }
 

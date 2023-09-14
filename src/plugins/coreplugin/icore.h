@@ -28,7 +28,6 @@ namespace Utils { class InfoBar; }
 namespace Core {
 class Context;
 class IWizardFactory;
-class SettingsDatabase;
 
 namespace Internal { class MainWindow; }
 
@@ -69,7 +68,6 @@ public:
                                        QWidget *parent = nullptr);
 
     static Utils::QtcSettings *settings(QSettings::Scope scope = QSettings::UserScope);
-    static SettingsDatabase *settingsDatabase();
     static QPrinter *printer();
     static QString userInterfaceLanguage();
 

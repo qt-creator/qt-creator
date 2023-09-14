@@ -36,11 +36,11 @@ static QString emSdkEnvOutput(const FilePath &sdkRoot)
         return {};
     const QDateTime ts = tsFile.lastModified();
 
-    Core::SettingsDatabase *db = Core::ICore::settingsDatabase();
-    if (db->value(emSdkEnvTSKey).toDateTime() == ts
-        && FilePath::fromVariant(db->value(emSdkEnvTSFileKey)) == tsFile
-        && db->contains(emSdkEnvOutputKey)) {
-        return db->value(emSdkEnvOutputKey).toString();
+    namespace DB = Core::SettingsDatabase;
+    if (DB::value(emSdkEnvTSKey).toDateTime() == ts
+        && FilePath::fromVariant(DB::value(emSdkEnvTSFileKey)) == tsFile
+        && DB::contains(emSdkEnvOutputKey)) {
+        return DB::value(emSdkEnvOutputKey).toString();
     }
 
     const bool isWindows = sdkRoot.osType() == OsTypeWindows;
@@ -55,9 +55,9 @@ static QString emSdkEnvOutput(const FilePath &sdkRoot)
     }
     emSdkEnv.runBlocking();
     const QString result = emSdkEnv.allOutput();
-    db->setValue(emSdkEnvTSFileKey, tsFile.toVariant());
-    db->setValue(emSdkEnvTSKey, ts);
-    db->setValue(emSdkEnvOutputKey, result);
+    DB::setValue(emSdkEnvTSFileKey, tsFile.toVariant());
+    DB::setValue(emSdkEnvTSKey, ts);
+    DB::setValue(emSdkEnvOutputKey, result);
 
     return result;
 }
@@ -103,11 +103,11 @@ QVersionNumber version(const FilePath &sdkRoot)
         return {};
     const QDateTime ts = tsFile.lastModified();
 
-    Core::SettingsDatabase *db = Core::ICore::settingsDatabase();
-    if (db->value(emSdkVersionTSKey).toDateTime() == ts
-        && FilePath::fromVariant(db->value(emSdkVersionTSFileKey)) == tsFile
-        && db->contains(emSdkVersionKey)) {
-        return QVersionNumber::fromString(db->value(emSdkVersionKey).toString());
+    namespace DB = Core::SettingsDatabase;
+    if (DB::value(emSdkVersionTSKey).toDateTime() == ts
+        && FilePath::fromVariant(DB::value(emSdkVersionTSFileKey)) == tsFile
+        && DB::contains(emSdkVersionKey)) {
+        return QVersionNumber::fromString(DB::value(emSdkVersionKey).toString());
     }
 
     Environment env = sdkRoot.deviceEnvironment();
@@ -121,21 +121,21 @@ QVersionNumber version(const FilePath &sdkRoot)
     emcc.runBlocking();
     const QString versionStr = emcc.cleanedStdOut();
     const QVersionNumber result = QVersionNumber::fromString(versionStr);
-    db->setValue(emSdkVersionTSFileKey, tsFile.toVariant());
-    db->setValue(emSdkVersionTSKey, ts);
-    db->setValue(emSdkVersionKey, result.toString());
+    DB::setValue(emSdkVersionTSFileKey, tsFile.toVariant());
+    DB::setValue(emSdkVersionTSKey, ts);
+    DB::setValue(emSdkVersionKey, result.toString());
     return result;
 }
 
 void clearCaches()
 {
-    Core::SettingsDatabase *db = Core::ICore::settingsDatabase();
-    db->remove(emSdkEnvTSFileKey);
-    db->remove(emSdkEnvTSKey);
-    db->remove(emSdkEnvOutputKey);
-    db->remove(emSdkVersionTSFileKey);
-    db->remove(emSdkVersionTSKey);
-    db->remove(emSdkVersionKey);
+    namespace DB = Core::SettingsDatabase;
+    DB::remove(emSdkEnvTSFileKey);
+    DB::remove(emSdkEnvTSKey);
+    DB::remove(emSdkEnvOutputKey);
+    DB::remove(emSdkVersionTSFileKey);
+    DB::remove(emSdkVersionTSKey);
+    DB::remove(emSdkVersionKey);
 }
 
 } // namespace WebAssembly::Internal::WebAssemblyEmSdk

@@ -1201,7 +1201,7 @@ static QHash<QString, IEditorFactory *> fromMap(const QMap<QString, QVariant> &m
 
 void EditorManagerPrivate::saveSettings()
 {
-    ICore::settingsDatabase()->setValue(documentStatesKey, d->m_editorStates);
+    SettingsDatabase::setValue(documentStatesKey, d->m_editorStates);
 
     QtcSettings *qsettings = ICore::settings();
     qsettings->setValueWithDefault(preferredEditorFactoriesKey,
@@ -1224,10 +1224,9 @@ void EditorManagerPrivate::readSettings()
         qs->value(preferredEditorFactoriesKey).toMap());
     setUserPreferredEditorTypes(preferredEditorFactories);
 
-    SettingsDatabase *settings = ICore::settingsDatabase();
-    if (settings->contains(documentStatesKey)) {
-        d->m_editorStates = settings->value(documentStatesKey)
-            .value<QMap<QString, QVariant> >();
+    if (SettingsDatabase::contains(documentStatesKey)) {
+        d->m_editorStates = SettingsDatabase::value(documentStatesKey)
+            .value<QMap<QString, QVariant>>();
     }
 
     updateAutoSave();

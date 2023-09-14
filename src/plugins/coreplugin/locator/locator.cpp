@@ -155,26 +155,26 @@ void Locator::aboutToShutdown()
 
 void Locator::loadSettings()
 {
-    SettingsDatabase *settings = ICore::settingsDatabase();
+    namespace DB = SettingsDatabase;
     // check if we have to read old settings
     // TOOD remove a few versions after 4.15
-    const QString settingsGroup = settings->contains("Locator") ? QString("Locator")
+    const QString settingsGroup = DB::contains("Locator") ? QString("Locator")
                                                                 : QString("QuickOpen");
     const Settings def;
-    settings->beginGroup(settingsGroup);
-    m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
-    m_settings.useCenteredPopup = settings->value(kUseCenteredPopup, def.useCenteredPopup).toBool();
+    DB::beginGroup(settingsGroup);
+    m_refreshTimer.setInterval(DB::value("RefreshInterval", 60).toInt() * 60000);
+    m_settings.useCenteredPopup = DB::value(kUseCenteredPopup, def.useCenteredPopup).toBool();
 
     for (ILocatorFilter *filter : std::as_const(m_filters)) {
-        if (settings->contains(filter->id().toString())) {
-            const QByteArray state = settings->value(filter->id().toString()).toByteArray();
+        if (DB::contains(filter->id().toString())) {
+            const QByteArray state = DB::value(filter->id().toString()).toByteArray();
             if (!state.isEmpty())
                 filter->restoreState(state);
         }
     }
-    settings->beginGroup("CustomFilters");
+    DB::beginGroup("CustomFilters");
     QList<ILocatorFilter *> customFilters;
-    const QStringList keys = settings->childKeys();
+    const QStringList keys = DB::childKeys();
     int count = 0;
     const Id directoryBaseId(Constants::CUSTOM_DIRECTORY_FILTER_BASEID);
     const Id urlBaseId(Constants::CUSTOM_URL_FILTER_BASEID);
@@ -188,12 +188,12 @@ void Locator::loadSettings()
             urlFilter->setIsCustomFilter(true);
             filter = urlFilter;
         }
-        filter->restoreState(settings->value(key).toByteArray());
+        filter->restoreState(DB::value(key).toByteArray());
         customFilters.append(filter);
     }
     setCustomFilters(customFilters);
-    settings->endGroup();
-    settings->endGroup();
+    DB::endGroup();
+    DB::endGroup();
 
     if (m_refreshTimer.interval() > 0)
         m_refreshTimer.start();
@@ -288,19 +288,19 @@ void Locator::saveSettings() const
         return;
 
     const Settings def;
-    SettingsDatabase *s = ICore::settingsDatabase();
-    s->beginTransaction();
-    s->beginGroup("Locator");
-    s->remove(QString());
-    s->setValue("RefreshInterval", refreshInterval());
-    s->setValueWithDefault(kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
+    namespace DB = SettingsDatabase;
+    DB::beginTransaction();
+    DB::beginGroup("Locator");
+    DB::remove(QString());
+    DB::setValue("RefreshInterval", refreshInterval());
+    DB::setValueWithDefault(kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
     for (ILocatorFilter *filter : m_filters) {
         if (!m_customFilters.contains(filter) && filter->id().isValid()) {
             const QByteArray state = filter->saveState();
-            s->setValueWithDefault(filter->id().toString(), state);
+            DB::setValueWithDefault(filter->id().toString(), state);
         }
     }
-    s->beginGroup("CustomFilters");
+    DB::beginGroup("CustomFilters");
     int i = 0;
     for (ILocatorFilter *filter : m_customFilters) {
         const char *prefix = filter->id().name().startsWith(
@@ -308,12 +308,12 @@ void Locator::saveSettings() const
                                  ? kDirectoryFilterPrefix
                                  : kUrlFilterPrefix;
         const QByteArray state = filter->saveState();
-        s->setValueWithDefault(prefix + QString::number(i), state);
+        DB::setValueWithDefault(prefix + QString::number(i), state);
         ++i;
     }
-    s->endGroup();
-    s->endGroup();
-    s->endTransaction();
+    DB::endGroup();
+    DB::endGroup();
+    DB::endTransaction();
 }
 
 /*!

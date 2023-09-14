@@ -39,7 +39,6 @@
 #include "progressmanager/progressmanager_p.h"
 #include "progressmanager/progressview.h"
 #include "rightpane.h"
-#include "settingsdatabase.h"
 #include "statusbarmanager.h"
 #include "systemsettings.h"
 #include "vcsmanager.h"
@@ -73,7 +72,6 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QDialogButtonBox>
-#include <QFileInfo>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -112,9 +110,6 @@ MainWindow::MainWindow()
     : AppMainWindow()
     , m_coreImpl(new ICore(this))
     , m_lowPrioAdditionalContexts(Constants::C_GLOBAL)
-    , m_settingsDatabase(
-          new SettingsDatabase(QFileInfo(PluginManager::settings()->fileName()).path(),
-                               QCoreApplication::applicationName()))
     , m_progressManager(new ProgressManagerPrivate)
     , m_jsExpander(JsExpander::createGlobalJsExpander())
     , m_vcsManager(new VcsManager)
@@ -296,9 +291,6 @@ MainWindow::~MainWindow()
 
     delete m_jsExpander;
     m_jsExpander = nullptr;
-
-    delete m_settingsDatabase;
-    m_settingsDatabase = nullptr;
 }
 
 void MainWindow::init()

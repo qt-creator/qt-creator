@@ -363,21 +363,6 @@ QtcSettings *ICore::settings(QSettings::Scope scope)
 }
 
 /*!
-    Returns the application's settings database.
-
-    The settings database is meant as an alternative to the regular settings
-    object. It is more suitable for storing large amounts of data. The settings
-    are application wide.
-
-    \sa SettingsDatabase
-    \sa settings()
-*/
-SettingsDatabase *ICore::settingsDatabase()
-{
-    return m_mainwindow->settingsDatabase();
-}
-
-/*!
     Returns the application's printer object.
 
     Always use this printer object for printing, so the different parts of the

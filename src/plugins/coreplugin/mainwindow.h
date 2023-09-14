@@ -36,7 +36,6 @@ class ProgressManager;
 class NavigationWidget;
 enum class Side;
 class RightPaneWidget;
-class SettingsDatabase;
 class VcsManager;
 
 namespace Internal {
@@ -71,7 +70,6 @@ public:
                                 ICore::OpenFilesFlags flags,
                                 const Utils::FilePath &workingDirectory = {});
 
-    inline SettingsDatabase *settingsDatabase() const { return m_settingsDatabase; }
     virtual QPrinter *printer() const;
     IContext * currentContextObject() const;
     QStatusBar *statusBar() const;
@@ -137,7 +135,6 @@ private:
     QStringList m_aboutInformation;
     Context m_highPrioAdditionalContexts;
     Context m_lowPrioAdditionalContexts;
-    SettingsDatabase *m_settingsDatabase = nullptr;
     mutable QPrinter *m_printer = nullptr;
     WindowSupport *m_windowSupport = nullptr;
     EditorManager *m_editorManager = nullptr;
