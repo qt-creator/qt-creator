@@ -214,7 +214,8 @@ bool DeviceShell::start()
                 m_shellProcess->kill();
                 m_shellProcess.reset();
                 return false;
-            }
+            } else
+                return false;
 
             connect(m_shellProcess.get(), &Process::done, m_shellProcess.get(), [this] {
                 if (m_shellProcess->resultData().m_exitCode != EXIT_SUCCESS
