@@ -1062,6 +1062,7 @@ public:
 
     QVariant volatileVariantValue() const override { return {}; }
 
+    void addToLayout(Layouting::LayoutItem &parent) override;
 
 private:
     std::unique_ptr<Internal::AspectListPrivate> d;

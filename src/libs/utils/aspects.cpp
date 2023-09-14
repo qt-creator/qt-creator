@@ -7,6 +7,7 @@
 #include "checkablemessagebox.h"
 #include "environment.h"
 #include "fancylineedit.h"
+#include "iconbutton.h"
 #include "layoutbuilder.h"
 #include "passworddialog.h"
 #include "pathchooser.h"
@@ -14,6 +15,7 @@
 #include "qtcassert.h"
 #include "qtcolorbutton.h"
 #include "qtcsettings.h"
+#include "utilsicons.h"
 #include "utilstr.h"
 #include "variablechooser.h"
 
@@ -26,9 +28,12 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QPaintEvent>
+#include <QPainter>
 #include <QPointer>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QScrollArea>
 #include <QSettings>
 #include <QSpinBox>
 #include <QTextEdit>
@@ -3155,5 +3160,81 @@ bool AspectList::isDirty()
     return false;
 }
 
+class ColoredRow : public QWidget
+{
+public:
+    ColoredRow(int idx, QWidget *parent = nullptr)
+        : QWidget(parent)
+        , m_index(idx)
+    {}
+    void paintEvent(QPaintEvent *event)
+    {
+        QPainter p(this);
+        QPalette pal = palette();
+        if (m_index % 2 == 0)
+            p.fillRect(event->rect(), pal.base());
+        else
+            p.fillRect(event->rect(), pal.alternateBase());
+    }
+
+private:
+    int m_index;
+};
+
+void AspectList::addToLayout(Layouting::LayoutItem &parent)
+{
+    using namespace Layouting;
+
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setMaximumHeight(100);
+    scrollArea->setMinimumHeight(100);
+    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    auto fill = [this, scrollArea]() mutable {
+        if (scrollArea->widget())
+            delete scrollArea->takeWidget();
+
+        auto add = new QPushButton(Tr::tr("Add"));
+        QObject::connect(add, &QPushButton::clicked, scrollArea, [this] {
+            addItem(d->createItem());
+        });
+
+        Column column{noMargin()};
+
+        forEachItem<BaseAspect>([&column, this](const std::shared_ptr<BaseAspect> &item, int idx) {
+            auto removeBtn = new IconButton;
+            removeBtn->setIcon(Utils::Icons::EDIT_CLEAR.icon());
+            removeBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            QObject::connect(removeBtn, &QPushButton::clicked, removeBtn, [this, item] {
+                removeItem(item);
+            });
+            ColoredRow *rowWdgt = new ColoredRow(idx);
+            // clang-format off
+            auto row = Row {
+                *item,
+                removeBtn,
+                spacing(5),
+            };
+            // clang-format on
+            row.attachTo(rowWdgt);
+            column.addItem(rowWdgt);
+        });
+
+        ColoredRow *rowWdgt = new ColoredRow(size());
+        Row{st, add}.attachTo(rowWdgt);
+        column.addItem(rowWdgt);
+
+        QWidget *contentWidget = column.emerge();
+        contentWidget->layout()->setSpacing(1);
+
+        scrollArea->setWidget(contentWidget);
+    };
+
+    fill();
+    QObject::connect(this, &AspectList::volatileValueChanged, scrollArea, fill);
+
+    parent.addItem(scrollArea);
+}
 
 } // namespace Utils

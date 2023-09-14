@@ -23,13 +23,13 @@ namespace Utils {
 
 class FancyLineEditPrivate;
 
-class QTCREATOR_UTILS_EXPORT IconButton: public QAbstractButton
+class QTCREATOR_UTILS_EXPORT FancyIconButton : public QAbstractButton
 {
     Q_OBJECT
     Q_PROPERTY(float iconOpacity READ iconOpacity WRITE setIconOpacity)
     Q_PROPERTY(bool autoHide READ hasAutoHide WRITE setAutoHide)
 public:
-    explicit IconButton(QWidget *parent = nullptr);
+    explicit FancyIconButton(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
     float iconOpacity() { return m_iconOpacity; }
     void setIconOpacity(float value) { m_iconOpacity = value; update(); }

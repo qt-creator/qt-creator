@@ -157,6 +157,8 @@ QtcLibrary {
         "htmldocextractor.h",
         "icon.cpp",
         "icon.h",
+        "iconbutton.cpp",
+        "iconbutton.h",
         "id.cpp",
         "id.h",
         "indexedcontainerproxyconstiterator.h",
