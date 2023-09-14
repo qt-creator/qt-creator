@@ -4,6 +4,7 @@
 #include "cmakeeditor.h"
 
 #include "cmakeautocompleter.h"
+#include "cmakebuildsystem.h"
 #include "cmakefilecompletionassist.h"
 #include "cmakeindenter.h"
 #include "cmakeprojectconstants.h"
@@ -206,6 +207,11 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
                                ->buildDirectory()
                                .pathAppended(relativePathSuffix)
                                .path());
+
+            // Check if the symbols is a user defined function or macro
+            const CMakeBuildSystem *cbs = static_cast<const CMakeBuildSystem *>(bs);
+            if (cbs->cmakeSymbolsHash().contains(buffer))
+                return processLinkCallback(cbs->cmakeSymbolsHash().value(buffer));
         }
     }
     // TODO: Resolve more variables
@@ -259,11 +265,11 @@ CMakeEditorFactory::CMakeEditorFactory()
     setAutoCompleterCreator([] { return new CMakeAutoCompleter; });
 
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
-            | TextEditorActionHandler::JumpToFileUnderCursor
-            | TextEditorActionHandler::Format);
+                            | TextEditorActionHandler::FollowSymbolUnderCursor
+                            | TextEditorActionHandler::Format);
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
-    contextMenu->addAction(ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR));
+    contextMenu->addAction(ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR));
     contextMenu->addSeparator(Context(Constants::CMAKE_EDITOR_ID));
     contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
 }

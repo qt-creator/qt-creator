@@ -18,7 +18,10 @@ namespace ProjectExplorer {
     class ExtraCompiler;
     class FolderNode;
 }
-namespace Utils { class Process; }
+namespace Utils {
+    class Process;
+    class Link;
+}
 
 namespace CMakeProjectManager {
 
@@ -115,6 +118,8 @@ public:
     QString error() const;
     QString warning() const;
 
+    const QHash<QString, Utils::Link> &cmakeSymbolsHash() const { return m_cmakeSymbolsHash; }
+
 signals:
     void configurationCleared();
     void configurationChanged(const CMakeConfig &config);
@@ -190,6 +195,8 @@ private:
 
     void runCTest();
 
+    void setupCMakeSymbolsHash();
+
     struct ProjectFileArgumentPosition
     {
         cmListFileArgument argumentPosition;
@@ -215,6 +222,7 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;
+    QHash<QString, Utils::Link> m_cmakeSymbolsHash;
 
     QHash<QString, ProjectFileArgumentPosition> m_filesToBeRenamed;
 

@@ -1141,6 +1141,7 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
         });
         m_buildTargets += m_reader.takeBuildTargets(errorMessage);
         m_cmakeFiles = m_reader.takeCMakeFileInfos(errorMessage);
+        setupCMakeSymbolsHash();
 
         checkAndReportError(errorMessage);
     }
@@ -1242,6 +1243,29 @@ void CMakeBuildSystem::wireUpConnections()
     if (buildConfiguration()->isActive()) {
         qCDebug(cmakeBuildSystemLog) << "Initial run:";
         reparse(CMakeBuildSystem::REPARSE_DEFAULT);
+    }
+}
+
+void CMakeBuildSystem::setupCMakeSymbolsHash()
+{
+    m_cmakeSymbolsHash.clear();
+
+    for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
+        for (const auto &func : cmakeFile.cmakeListFile.Functions) {
+            if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
+                && func.LowerCaseName() != "option")
+                continue;
+
+            if (func.Arguments().size() == 0)
+                continue;
+            auto arg = func.Arguments()[0];
+
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = arg.Line;
+            link.targetColumn = arg.Column - 1;
+            m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+        }
     }
 }
 
