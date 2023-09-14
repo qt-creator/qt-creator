@@ -699,8 +699,8 @@ qreal QmlDesigner::Internal::MouseArea3D::getNewRotationAngle(
 void QmlDesigner::Internal::MouseArea3D::applyRotationAngleToNode(
         QQuick3DNode *node, const QVector3D &startRotation, qreal angle)
 {
+    node->setEulerRotation(startRotation);
     if (!qFuzzyIsNull(angle)) {
-        node->setEulerRotation(startRotation);
         QVector3D normal = getNormal();
         node->rotate(qRadiansToDegrees(angle), normal, QQuick3DNode::SceneSpace);
     }
