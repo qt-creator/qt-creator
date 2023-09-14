@@ -110,8 +110,13 @@ public:
         button->setFont([button]{ auto f = button->font(); f.setItalic(true); return f; }());
         button->setToolTip(Tr::tr("Emphasis"));
         connect(button, &QToolButton::clicked, this, [this] {
-            triggerFormatingAction([](QString *selectedText) {
-               *selectedText = QStringLiteral("*%1*").arg(*selectedText);
+            triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
+                if (selectedText->isEmpty()) {
+                    *selectedText = QStringLiteral("**");
+                    *cursorOffset = -1;
+                } else {
+                    *selectedText = QStringLiteral("*%1*").arg(*selectedText);
+                }
             });
         });
         m_markDownButtons.append(button);
@@ -120,8 +125,13 @@ public:
         button->setFont([button]{ auto f = button->font(); f.setBold(true); return f; }());
         button->setToolTip(Tr::tr("Strong"));
         connect(button, &QToolButton::clicked, this, [this] {
-            triggerFormatingAction([](QString *selectedText) {
-                *selectedText = QStringLiteral("**%1**").arg(*selectedText);
+            triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
+                if (selectedText->isEmpty()) {
+                    *selectedText = QStringLiteral("****");
+                    *cursorOffset = -2;
+                } else {
+                    *selectedText = QStringLiteral("**%1**").arg(*selectedText);
+                }
             });
         });
         m_markDownButtons.append(button);
@@ -129,8 +139,13 @@ public:
         button->setText("`");
         button->setToolTip(Tr::tr("Inline Code"));
         connect(button, &QToolButton::clicked, this, [this] {
-            triggerFormatingAction([](QString *selectedText) {
-                *selectedText = QStringLiteral("`%1`").arg(*selectedText);
+            triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
+                if (selectedText->isEmpty()) {
+                    *selectedText = QStringLiteral("``");
+                    *cursorOffset = -1;
+                } else {
+                    *selectedText = QStringLiteral("`%1`").arg(*selectedText);
+                }
             });
         });
         m_markDownButtons.append(button);
@@ -139,23 +154,22 @@ public:
         button->setToolTip(Tr::tr("Hyper Link"));
         connect(button, &QToolButton::clicked, this, [this] {
             triggerFormatingAction([](QString *selectedText, int *cursorOffset, int *selectionLength) {
-                *selectedText = QStringLiteral("[%1](https://)").arg(*selectedText);
-                *cursorOffset = -1;
-                *selectionLength = -8;
+                if (selectedText->isEmpty()) {
+                    *selectedText = QStringLiteral("[](https://)");
+                    *cursorOffset = -11; // ](https://) is 11 chars
+                } else {
+                    *selectedText = QStringLiteral("[%1](https://)").arg(*selectedText);
+                    *cursorOffset = -1;
+                    *selectionLength = -8; // https:// is 8 chars
+                }
             });
         });
         m_markDownButtons.append(button);
         for (auto button : m_markDownButtons) {
-            button->setEnabled(!m_textEditorWidget->selectedText().isEmpty());
             // do not call setVisible(true) at this point, this destroys the hover effect on macOS
             if (!showEditor)
                 button->setVisible(false);
         }
-        connect(m_textEditorWidget, &QPlainTextEdit::copyAvailable, [this](bool yes) {
-            for (auto button : m_markDownButtons) {
-                button->setEnabled(yes);
-            }
-        });
 
         auto swapViews = new QToolButton;
         swapViews->setText(Tr::tr("Swap Views"));
@@ -362,11 +376,12 @@ public:
     }
 
 private:
-    void triggerFormatingAction(std::function<void(QString *selectedText)> action)
+    void triggerFormatingAction(std::function<void(QString *selectedText, int *cursorOffset)> action)
     {
         auto formattedText = m_textEditorWidget->selectedText();
-        action(&formattedText);
-        format(formattedText);
+        int cursorOffset = 0;
+        action(&formattedText, &cursorOffset);
+        format(formattedText, cursorOffset);
     }
     void triggerFormatingAction(std::function<void(QString *selectedText, int *cursorOffset, int *selectionLength)> action)
     {
