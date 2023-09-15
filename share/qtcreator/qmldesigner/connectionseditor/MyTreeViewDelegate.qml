@@ -8,6 +8,9 @@ import StudioTheme as StudioTheme
 
 T.TreeViewDelegate {
     id: control
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
+
     hoverEnabled: true
     implicitWidth: 200
     implicitHeight: 30
@@ -28,8 +31,8 @@ T.TreeViewDelegate {
         Text {
             id: icon
             font.family: StudioTheme.Constants.iconFont.family
-            font.pixelSize: StudioTheme.Values.smallIconFontSize
-            color: control.hovered ? "#111111" : "white" // TODO colors
+            font.pixelSize: control.style.smallIconFontSize
+            color: control.hovered ? control.style.text.selectedText : control.style.text.idle
             text: StudioTheme.Constants.sectionToggle
             rotation: control.expanded ? 0 : -90
             anchors.centerIn: parent
@@ -39,14 +42,14 @@ T.TreeViewDelegate {
     background: Rectangle {
         implicitWidth: 200
         implicitHeight: 30
-        color: control.hovered ? "#4DBFFF" : "transparent"
+        color: control.hovered ? control.style.interaction : "transparent"
     }
 
     contentItem: Text {
         text: control.text
         font: control.font
         opacity: enabled ? 1.0 : 0.3
-        color: control.hovered ? "#111111" : "white"
+        color: control.hovered ? control.style.text.selectedText : control.style.text.idle
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight

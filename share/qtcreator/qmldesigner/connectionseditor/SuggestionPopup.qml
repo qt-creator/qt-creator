@@ -80,7 +80,7 @@ Controls.Popup {
 
                         onClicked: {
                             stack.pop(Controls.StackView.Immediate)
-                            root.listModel.goUp() //treeModel.pop()
+                            root.listModel.goUp()
                         }
                     }
 
