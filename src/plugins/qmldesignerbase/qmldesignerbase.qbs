@@ -17,12 +17,14 @@ QtcPlugin {
     Group {
         prefix: "studio/"
         files: [
+            "studioquickwidget.cpp",
+            "studioquickwidget.h",
             "studiosettingspage.cpp",
             "studiosettingspage.h",
             "studiostyle.cpp",
             "studiostyle.h",
-            "studioquickwidget.cpp",
-            "studioquickwidget.h",
+            "studiostyle_p.cpp",
+            "studiostyle_p.h",
         ]
     }
     Group {

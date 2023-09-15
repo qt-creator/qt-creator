@@ -16,7 +16,7 @@ QtcPlugin {
 
     Depends {
         name: "Qt"
-        submodules: ["core"]
+        submodules: ["core", "qml-private"]
     }
 
     Group {
