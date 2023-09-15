@@ -157,15 +157,6 @@
                     }
                 },
                 {
-                    "name": "GTestCXX11",
-                    "trDisplayName": "Enable C++11",
-                    "visible": "%{JS: value('TestFrameWork') === 'GTest'}",
-                    "type": "CheckBox",
-                    "data": {
-                        "checked": false
-                    }
-                },
-                {
                     "name": "GTestRepository",
                     "trDisplayName": "Googletest source directory (optional):",
                     "visible": "%{JS: value('TestFrameWork') === 'GTest'}",

@@ -71,11 +71,8 @@ target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::QuickTest)
 @endif
 @if  "%{TestFrameWork}" == "GTest"
 
-@if "%{GTestCXX11}" == "true"
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-DGTEST_LANGUAGE_CXX11)
-@endif
 
 find_package(Threads REQUIRED)
 

@@ -19,11 +19,6 @@ isEmpty(GOOGLETEST_DIR) {
 
 requires(exists($$GTEST_SRCDIR):exists($$GMOCK_SRCDIR))
 
-@if "%{GTestCXX11}" == "true"
-DEFINES += \\
-    GTEST_LANG_CXX11
-@endif
-
 !isEmpty(GTEST_SRCDIR) {
     INCLUDEPATH *= \\
         $$GTEST_SRCDIR \\

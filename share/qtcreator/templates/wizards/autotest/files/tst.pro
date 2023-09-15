@@ -37,11 +37,7 @@ SOURCES += \\
 include(gtest_dependency.pri)
 
 TEMPLATE = app
-@if "%{GTestCXX11}" == "true"
-CONFIG += console c++11
-@else
-CONFIG += console
-@endif
+CONFIG += console c++14
 CONFIG -= app_bundle
 CONFIG += thread
 CONFIG -= qt
