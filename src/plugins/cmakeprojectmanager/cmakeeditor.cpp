@@ -210,8 +210,12 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
             // Check if the symbols is a user defined function or macro
             const CMakeBuildSystem *cbs = static_cast<const CMakeBuildSystem *>(bs);
-            if (cbs->cmakeSymbolsHash().contains(buffer))
-                return processLinkCallback(cbs->cmakeSymbolsHash().value(buffer));
+            if (cbs->cmakeSymbolsHash().contains(buffer)) {
+                link = cbs->cmakeSymbolsHash().value(buffer);
+                link.linkTextStart = cursor.position() - column + beginPos + 1;
+                link.linkTextEnd = cursor.position() - column + endPos;
+                return processLinkCallback(link);
+            }
         }
     }
     // TODO: Resolve more variables
