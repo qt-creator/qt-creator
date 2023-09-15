@@ -652,7 +652,6 @@ QString generateDefaultStatement(ConnectionModelBackendDelegate::ActionType acti
 
 void ConnectionModelBackendDelegate::changeActionType(ActionType actionType)
 {
-    qDebug() << Q_FUNC_INFO << actionType;
     QTC_ASSERT(actionType != ConnectionModelStatementDelegate::Custom, return );
 
     ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
@@ -676,9 +675,9 @@ void ConnectionModelBackendDelegate::changeActionType(ActionType actionType)
             QString statementSource = generateDefaultStatement(actionType, validId);
 
             auto tempHandler = ConnectionEditorEvaluator::parseStatement(statementSource);
-            qDebug() << ConnectionEditorStatements::toString(tempHandler);
+
             auto newOkStatement = ConnectionEditorStatements::okStatement(tempHandler);
-            qDebug() << "newOk" << statementSource;
+
             QTC_ASSERT(!ConnectionEditorStatements::isEmptyStatement(newOkStatement), return );
 
             okStatement = newOkStatement;
@@ -848,9 +847,6 @@ void ConnectionModelBackendDelegate::update()
                            removeOnFromSignalName(QString::fromUtf8(signalHandlerProperty.name())));
 
     setupHandlerAndStatements();
-
-    qDebug() << Q_FUNC_INFO << ConnectionEditorStatements::toString(m_handler)
-             << ConnectionEditorStatements::toJavascript(m_handler);
 
     setupCondition();
 
@@ -1440,7 +1436,6 @@ void ConnectionModelStatementDelegate::setupCallFunction()
 
 void ConnectionModelStatementDelegate::setupChangeState()
 {
-    qDebug() << Q_FUNC_INFO;
     QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::StateSet>(m_statement), return );
 
     QTC_ASSERT(m_model->connectionView()->isAttached(), return );
@@ -1493,8 +1488,6 @@ void ConnectionModelStatementDelegate::setupStates()
     QTC_ASSERT(m_model->connectionView()->isAttached(), return );
 
     const auto stateSet = std::get<ConnectionEditorStatements::StateSet>(m_statement);
-
-    qDebug() << Q_FUNC_INFO << stateSet.stateName;
 
     const QString nodeId = m_stateTargets.currentText();
 
@@ -1752,20 +1745,16 @@ void ConditionListModel::command(const QString &string)
     //TODO remove from prodcution code
     QStringList list = string.split("%", Qt::SkipEmptyParts);
 
-    qDebug() << Q_FUNC_INFO << string << list.size();
-
     if (list.size() < 2)
         return;
 
     if (list.size() == 2) {
         if (list.first() == "A") {
-            qDebug() << "Append" << list.last();
             appendToken(list.last());
         } else if (list.first() == "R") {
             bool ok = true;
             int index = list.last().toInt(&ok);
 
-            qDebug() << "Remove" << index;
             if (ok)
                 removeToken(index);
         }
@@ -1778,15 +1767,12 @@ void ConditionListModel::command(const QString &string)
 
             if (ok)
                 updateToken(index, list.last());
-            qDebug() << "Update" << index << list.last();
         } else if (list.first() == "I") {
             bool ok = true;
             int index = list.at(1).toInt(&ok);
 
             if (ok)
                 insertToken(index, list.last());
-
-            qDebug() << "Insert" << index << list.last();
         }
     }
 }

@@ -520,7 +520,6 @@ const std::vector<PropertyName> PropertyTreeModel::getDynamicProperties(
 const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyNames(
     const NodeMetaInfo &metaInfo, bool recursive) const
 {
-    qDebug() << Q_FUNC_INFO << metaInfo.typeName() << recursive;
     auto filtered = Utils::filtered(metaInfo.properties(),
                                     [this, recursive](const PropertyMetaInfo &metaInfo) {
                                         // if (!metaInfo.isWritable()) - lhs/rhs
