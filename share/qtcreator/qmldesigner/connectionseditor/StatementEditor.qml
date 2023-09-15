@@ -243,9 +243,7 @@ Column {
     PopupLabel {
         visible: root.actionType === ConnectionModelStatementDelegate.Custom
         text: qsTr("Custom Connections can only be edited with the binding editor")
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.margins: 30
+        width: root.width
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
     }
