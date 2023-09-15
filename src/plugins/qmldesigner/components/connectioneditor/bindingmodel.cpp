@@ -144,11 +144,15 @@ void BindingModel::setCurrentProperty(const AbstractProperty &property)
 
 void BindingModel::updateItem(const BindingProperty &property)
 {
-    if (auto *item = itemForProperty(property))
+    if (auto *item = itemForProperty(property)) {
         item->updateProperty(property);
-    else
-        appendRow(new BindingModelItem(property));
-
+    } else {
+        ModelNode node = property.parentModelNode();
+        if (connectionView()->isSelectedModelNode(node)) {
+            appendRow(new BindingModelItem(property));
+            setCurrentProperty(property);
+        }
+    }
     m_delegate->update(currentProperty(), m_connectionView);
 }
 
