@@ -21,6 +21,7 @@ namespace Core {
 class ActionContainer;
 class Command;
 class Context;
+class ICore;
 
 namespace Internal {
 class CorePlugin;
@@ -67,7 +68,7 @@ private:
     static void setContext(const Context &context);
 
     friend class Core::Internal::CorePlugin; // initialization
-    friend class Core::Internal::MainWindow; // saving settings and setting context
+    friend class Core::ICore; // saving settings and setting context
     friend class Core::Internal::MainWindowPrivate; // saving settings and setting context
 };
 

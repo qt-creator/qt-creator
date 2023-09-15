@@ -218,6 +218,29 @@ using namespace Utils;
 
 namespace Core {
 
+const char settingsGroup[] = "MainWindow";
+const char colorKey[] = "Color";
+const char windowGeometryKey[] = "WindowGeometry";
+const char windowStateKey[] = "WindowState";
+const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
+const char menubarVisibleKey[] = "MenubarVisible";
+
+namespace Internal {
+
+class MainWindow : public AppMainWindow
+{
+public:
+    MainWindow();
+    ~MainWindow() override;
+
+private:
+    void closeEvent(QCloseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+};
+
+} // Internal
+
 // The Core Singleton
 static ICore *m_core = nullptr;
 static MainWindow *m_mainwindow = nullptr;
@@ -241,8 +264,6 @@ public:
     void init();
 
     static void openFile();
-    static IDocument *openFiles(const FilePaths &filePaths, ICore::OpenFilesFlags flags,
-                                const FilePath &workingDirectory = {});
     void aboutToShowRecentFiles();
 
     static void setFocusToEditor();
@@ -324,6 +345,11 @@ public:
     QColor m_overrideColor;
     QList<std::function<bool()>> m_preCloseListeners;
 };
+
+static QMenuBar *globalMenuBar()
+{
+    return ActionManager::actionContainer(Constants::MENU_BAR)->menuBar();
+}
 
 } // Internal
 
@@ -546,7 +572,9 @@ QtcSettings *ICore::settings(QSettings::Scope scope)
 */
 QPrinter *ICore::printer()
 {
-    return m_mainwindow->printer();
+    if (!d->m_printer)
+        d->m_printer = new QPrinter(QPrinter::HighResolution);
+    return d->m_printer;
 }
 
 /*!
@@ -802,7 +830,7 @@ QString ICore::buildCompatibilityString()
 */
 IContext *ICore::currentContextObject()
 {
-    return m_mainwindow->currentContextObject();
+    return d->m_activeContext.isEmpty() ? nullptr : d->m_activeContext.first();
 }
 
 /*!
@@ -815,15 +843,6 @@ QWidget *ICore::currentContextWidget()
 {
     IContext *context = currentContextObject();
     return context ? context->widget() : nullptr;
-}
-
-/*!
-    Returns the registered IContext instance for the specified \a widget,
-    if any.
-*/
-IContext *ICore::contextObject(QWidget *widget)
-{
-    return m_mainwindow->contextObject(widget);
 }
 
 /*!
@@ -856,7 +875,7 @@ QWidget *ICore::dialogParent()
 */
 QStatusBar *ICore::statusBar()
 {
-    return m_mainwindow->statusBar();
+    return d->m_modeStack->statusBar();
 }
 
 /*!
@@ -866,7 +885,7 @@ QStatusBar *ICore::statusBar()
 */
 Utils::InfoBar *ICore::infoBar()
 {
-    return m_mainwindow->infoBar();
+    return d->m_modeStack->infoBar();
 }
 
 /*!
@@ -910,7 +929,27 @@ void ICore::raiseMainWindow()
 void ICore::updateAdditionalContexts(const Context &remove, const Context &add,
                                      ContextPriority priority)
 {
-    m_mainwindow->updateAdditionalContexts(remove, add, priority);
+    for (const Id id : remove) {
+        if (!id.isValid())
+            continue;
+        int index = d->m_lowPrioAdditionalContexts.indexOf(id);
+        if (index != -1)
+            d->m_lowPrioAdditionalContexts.removeAt(index);
+        index = d->m_highPrioAdditionalContexts.indexOf(id);
+        if (index != -1)
+            d->m_highPrioAdditionalContexts.removeAt(index);
+    }
+
+    for (const Id id : add) {
+        if (!id.isValid())
+            continue;
+        Context &cref = (priority == ICore::ContextPriority::High ? d->m_highPrioAdditionalContexts
+                                                                  : d->m_lowPrioAdditionalContexts);
+        if (!cref.contains(id))
+            cref.prepend(id);
+    }
+
+    d->updateContext();
 }
 
 /*!
@@ -920,7 +959,7 @@ void ICore::updateAdditionalContexts(const Context &remove, const Context &add,
 */
 void ICore::addAdditionalContext(const Context &context, ContextPriority priority)
 {
-    m_mainwindow->updateAdditionalContexts(Context(), context, priority);
+    updateAdditionalContexts(Context(), context, priority);
 }
 
 /*!
@@ -930,37 +969,7 @@ void ICore::addAdditionalContext(const Context &context, ContextPriority priorit
 */
 void ICore::removeAdditionalContext(const Context &context)
 {
-    m_mainwindow->updateAdditionalContexts(context, Context(), ContextPriority::Low);
-}
-
-/*!
-    Adds \a context to the list of registered IContext instances.
-    Whenever the IContext's \l{IContext::widget()}{widget} is in the application
-    focus widget's parent hierarchy, its \l{IContext::context()}{context} is
-    added to the list of active contexts.
-
-    \sa removeContextObject()
-    \sa updateAdditionalContexts()
-    \sa currentContextObject()
-    \sa {The Action Manager and Commands}
-*/
-void ICore::addContextObject(IContext *context)
-{
-    m_mainwindow->addContextObject(context);
-}
-
-/*!
-    Unregisters a \a context object from the list of registered IContext
-    instances. IContext instances are automatically removed when they are
-    deleted.
-
-    \sa addContextObject()
-    \sa updateAdditionalContexts()
-    \sa currentContextObject()
-*/
-void ICore::removeContextObject(IContext *context)
-{
-    m_mainwindow->removeContextObject(context);
+    updateAdditionalContexts(context, Context(), ContextPriority::Low);
 }
 
 /*!
@@ -977,22 +986,6 @@ void ICore::registerWindow(QWidget *window, const Context &context)
     new WindowSupport(window, context); // deletes itself when widget is destroyed
 }
 
-void ICore::restartTrimmer()
-{
-    m_mainwindow->restartTrimmer();
-}
-
-/*!
-    Opens files using \a filePaths and \a flags like it would be
-    done if they were given to \QC on the command line, or
-    they were opened via \uicontrol File > \uicontrol Open.
-*/
-
-void ICore::openFiles(const FilePaths &filePaths, ICore::OpenFilesFlags flags)
-{
-    MainWindow::openFiles(filePaths, flags);
-}
-
 /*!
     Provides a hook for plugins to veto on closing the application.
 
@@ -1003,7 +996,7 @@ void ICore::openFiles(const FilePaths &filePaths, ICore::OpenFilesFlags flags)
 */
 void ICore::addPreCloseListener(const std::function<bool ()> &listener)
 {
-    m_mainwindow->addPreCloseListener(listener);
+    d->m_preCloseListeners.append(listener);
 }
 
 /*!
@@ -1076,12 +1069,18 @@ void ICore::setupScreenShooter(const QString &name, QWidget *w, const QRect &rc)
         new ScreenShooter(w, name, rc);
 }
 
+static void setRestart(bool restart)
+{
+    qApp->setProperty("restart", restart);
+}
+
 /*!
     Restarts \QC and restores the last session.
 */
 void ICore::restart()
 {
-    m_mainwindow->restart();
+    setRestart(true);
+    exit();
 }
 
 /*!
@@ -1090,7 +1089,33 @@ void ICore::restart()
 void ICore::saveSettings(SaveSettingsReason reason)
 {
     emit m_core->saveSettingsRequested(reason);
-    m_mainwindow->saveSettings();
+
+    QtcSettings *settings = PluginManager::settings();
+    settings->beginGroup(settingsGroup);
+
+    if (!(d->m_overrideColor.isValid() && StyleHelper::baseColor() == d->m_overrideColor))
+        settings->setValueWithDefault(colorKey,
+                                      StyleHelper::requestedBaseColor(),
+                                      QColor(StyleHelper::DEFAULT_BASE_COLOR));
+
+    if (Internal::globalMenuBar() && !Internal::globalMenuBar()->isNativeMenuBar())
+        settings->setValue(menubarVisibleKey, Internal::globalMenuBar()->isVisible());
+
+    settings->endGroup();
+
+    DocumentManager::saveSettings();
+    ActionManager::saveSettings();
+    EditorManagerPrivate::saveSettings();
+    d->m_leftNavigationWidget->saveSettings(settings);
+    d->m_rightNavigationWidget->saveSettings(settings);
+
+    // TODO Remove some time after Qt Creator 11
+    // Work around Qt Creator <= 10 writing the default terminal to the settings.
+    // TerminalCommand writes the terminal to the settings when changing it, which usually is
+    // enough. But because of the bug in Qt Creator <= 10 we want to clean up the settings
+    // even if the user never touched the terminal setting.
+    if (HostOsInfo::isMacHost())
+        TerminalCommand::setTerminalEmulator(TerminalCommand::terminalEmulator());
 
     ICore::settings(QSettings::SystemScope)->sync();
     ICore::settings(QSettings::UserScope)->sync();
@@ -1101,7 +1126,7 @@ void ICore::saveSettings(SaveSettingsReason reason)
 */
 QStringList ICore::additionalAboutInformation()
 {
-    return m_mainwindow->additionalAboutInformation();
+    return d->m_aboutInformation;
 }
 
 /*!
@@ -1109,7 +1134,7 @@ QStringList ICore::additionalAboutInformation()
 */
 void ICore::clearAboutInformation()
 {
-    m_mainwindow->clearAboutInformation();
+    d->m_aboutInformation.clear();
 }
 
 /*!
@@ -1117,7 +1142,7 @@ void ICore::clearAboutInformation()
 */
 void ICore::appendAboutInformation(const QString &line)
 {
-    m_mainwindow->appendAboutInformation(line);
+    d->m_aboutInformation.append(line);
 }
 
 void ICore::updateNewItemDialogState()
@@ -1139,16 +1164,6 @@ void ICore::setNewDialogFactory(const std::function<NewDialog *(QWidget *)> &new
     m_newDialogFactory = newFactory;
 }
 
-
-namespace Internal {
-
-const char settingsGroup[] = "MainWindow";
-const char colorKey[] = "Color";
-const char windowGeometryKey[] = "WindowGeometry";
-const char windowStateKey[] = "WindowState";
-const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
-const char menubarVisibleKey[] = "MenubarVisible";
-
 static bool hideToolsMenu()
 {
     return Core::ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_TOOLS, false).toBool();
@@ -1156,13 +1171,14 @@ static bool hideToolsMenu()
 
 enum { debugMainWindow = 0 };
 
+namespace Internal {
 
 void MainWindowPrivate::init()
 {
     m_progressManager = new ProgressManagerPrivate;
     m_jsExpander = JsExpander::createGlobalJsExpander();
     m_vcsManager = new VcsManager;
-    m_modeStack = new FancyTabWidget(q);
+    m_modeStack = new FancyTabWidget(m_mainwindow);
     m_shortcutSettings = new ShortcutSettings;
     m_toolSettings = new ToolSettings;
     m_mimeTypeSettings = new MimeTypeSettings;
@@ -1170,7 +1186,7 @@ void MainWindowPrivate::init()
     m_toggleLeftSideBarButton = new QToolButton;
     m_toggleRightSideBarButton = new QToolButton;
 
-    (void) new DocumentManager(q);
+    (void) new DocumentManager(this);
 
     HistoryCompleter::setSettings(PluginManager::settings());
 
@@ -1272,26 +1288,6 @@ void MainWindowPrivate::setSidebarVisible(bool visible, Side side)
         navigationWidget(side)->setShown(visible);
 }
 
-QStringList MainWindow::additionalAboutInformation() const
-{
-    return d->m_aboutInformation;
-}
-
-void MainWindow::clearAboutInformation()
-{
-    d->m_aboutInformation.clear();
-}
-
-void MainWindow::appendAboutInformation(const QString &line)
-{
-    d->m_aboutInformation.append(line);
-}
-
-void MainWindow::addPreCloseListener(const std::function<bool ()> &listener)
-{
-    d->m_preCloseListeners.append(listener);
-}
-
 MainWindow::~MainWindow()
 {
     delete d;
@@ -1387,24 +1383,13 @@ void ICore::aboutToShutdown()
     m_mainwindow->hide();
 }
 
-namespace Internal {
-
-static void setRestart(bool restart)
-{
-    qApp->setProperty("restart", restart);
-}
-
-void MainWindow::restart()
-{
-    setRestart(true);
-    exit();
-}
-
-void MainWindow::restartTrimmer()
+void ICore::restartTrimmer()
 {
     if (HostOsInfo::isLinuxHost() && !d->m_trimTimer.isActive())
         d->m_trimTimer.start();
 }
+
+namespace Internal {
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
@@ -1460,13 +1445,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    restartTrimmer();
+    ICore::restartTrimmer();
     AppMainWindow::keyPressEvent(event);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
-    restartTrimmer();
+    ICore::restartTrimmer();
     AppMainWindow::mousePressEvent(event);
 }
 
@@ -1474,22 +1459,7 @@ void MainWindowPrivate::openDroppedFiles(const QList<DropSupport::FileSpec> &fil
 {
     q->raiseWindow();
     const FilePaths filePaths = Utils::transform(files, &DropSupport::FileSpec::filePath);
-    q->openFiles(filePaths, ICore::SwitchMode);
-}
-
-IContext *MainWindow::currentContextObject() const
-{
-    return d->m_activeContext.isEmpty() ? nullptr : d->m_activeContext.first();
-}
-
-QStatusBar *MainWindow::statusBar() const
-{
-    return d->m_modeStack->statusBar();
-}
-
-InfoBar *MainWindow::infoBar() const
-{
-    return d->m_modeStack->infoBar();
+    ICore::openFiles(filePaths, ICore::SwitchMode);
 }
 
 void MainWindowPrivate::registerDefaultContainers()
@@ -1577,11 +1547,6 @@ void MainWindowPrivate::registerDefaultContainers()
     ac->touchBar()->setApplicationTouchBar();
 }
 
-static QMenuBar *globalMenuBar()
-{
-    return ActionManager::actionContainer(Constants::MENU_BAR)->menuBar();
-}
-
 void MainWindowPrivate::registerDefaultActions()
 {
     ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
@@ -1658,7 +1623,7 @@ void MainWindowPrivate::registerDefaultActions()
     m_openWithAction = new QAction(Tr::tr("Open File &With..."), this);
     cmd = ActionManager::registerAction(m_openWithAction, Constants::OPEN_WITH);
     mfile->addAction(cmd, Constants::G_FILE_OPEN);
-    connect(m_openWithAction, &QAction::triggered, this, &MainWindow::openFileWith);
+    connect(m_openWithAction, &QAction::triggered, m_core, &ICore::openFileWith);
 
     if (FSEngine::isAvailable()) {
         // Open From Device Action
@@ -1712,7 +1677,7 @@ void MainWindowPrivate::registerDefaultActions()
     cmd = ActionManager::registerAction(m_exitAction, Constants::EXIT);
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Q")));
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
-    connect(m_exitAction, &QAction::triggered, q, &MainWindow::exit);
+    connect(m_exitAction, &QAction::triggered, m_core, &ICore::exit);
 
     // Undo Action
     icon = Icon::fromTheme("edit-undo");
@@ -2017,7 +1982,7 @@ void MainWindowPrivate::registerModeSelectorStyleActions()
 
 void MainWindowPrivate::openFile()
 {
-    openFiles(EditorManager::getOpenFilePaths(), ICore::SwitchMode);
+    ICore::openFiles(EditorManager::getOpenFilePaths(), ICore::SwitchMode);
 }
 
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
@@ -2029,6 +1994,8 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
         return f->mimeTypes().contains(typeName);
     });
 }
+
+} // Internal
 
 /*!
  * \internal
@@ -2045,16 +2012,10 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
  *
  *  \sa IPlugin::remoteArguments()
  */
-IDocument *MainWindow::openFiles(const FilePaths &filePaths,
-                                 ICore::OpenFilesFlags flags,
-                                 const FilePath &workingDirectory)
-{
-    return MainWindowPrivate::openFiles(filePaths, flags, workingDirectory);
-}
 
-IDocument *MainWindowPrivate::openFiles(const FilePaths &filePaths,
-                                        ICore::OpenFilesFlags flags,
-                                        const FilePath &workingDirectory)
+IDocument *ICore::openFiles(const FilePaths &filePaths,
+                            ICore::OpenFilesFlags flags,
+                            const FilePath &workingDirectory)
 {
     const QList<IDocumentFactory*> documentFactories = IDocumentFactory::allDocumentFactories();
     IDocument *res = nullptr;
@@ -2101,9 +2062,16 @@ IDocument *MainWindowPrivate::openFiles(const FilePaths &filePaths,
     return res;
 }
 
+namespace Internal {
+
 void MainWindowPrivate::setFocusToEditor()
 {
     EditorManagerPrivate::doEscapeKeyFocusMoveMagic();
+}
+
+void MainWindowPrivate::openFileFromDevice()
+{
+    ICore::openFiles(EditorManager::getOpenFilePaths(QFileDialog::DontUseNativeDialog), ICore::SwitchMode);
 }
 
 static void acceptModalDialogs()
@@ -2120,7 +2088,9 @@ static void acceptModalDialogs()
         dialog->accept();
 }
 
-void MainWindow::exit()
+} // Internal
+
+void ICore::exit()
 {
     // this function is most likely called from a user action
     // that is from an event handler of an object
@@ -2128,17 +2098,17 @@ void MainWindow::exit()
     // so to prevent the deleting of that object we
     // just append it
     QMetaObject::invokeMethod(
-        this,
-        [this] {
+        m_mainwindow,
+        [] {
             // Modal dialogs block the close event. So close them, in case this was triggered from
             // a RestartDialog in the settings dialog.
             acceptModalDialogs();
-            close();
+            m_mainwindow->close();
         },
         Qt::QueuedConnection);
 }
 
-void MainWindow::openFileWith()
+void ICore::openFileWith()
 {
     const FilePaths filePaths = EditorManager::getOpenFilePaths();
     for (const FilePath &filePath : filePaths) {
@@ -2153,18 +2123,29 @@ void MainWindow::openFileWith()
     }
 }
 
-void MainWindowPrivate::openFileFromDevice()
-{
-    openFiles(EditorManager::getOpenFilePaths(QFileDialog::DontUseNativeDialog), ICore::SwitchMode);
-}
-
-IContext *MainWindow::contextObject(QWidget *widget) const
+/*!
+    Returns the registered IContext instance for the specified \a widget,
+    if any.
+*/
+IContext *ICore::contextObject(QWidget *widget)
 {
     const auto it = d->m_contextWidgets.find(widget);
     return it == d->m_contextWidgets.end() ? nullptr : it->second;
 }
 
-void MainWindow::addContextObject(IContext *context)
+/*!
+    Adds \a context to the list of registered IContext instances.
+    Whenever the IContext's \l{IContext::widget()}{widget} is in the application
+    focus widget's parent hierarchy, its \l{IContext::context()}{context} is
+    added to the list of active contexts.
+
+    \sa removeContextObject()
+    \sa updateAdditionalContexts()
+    \sa currentContextObject()
+    \sa {The Action Manager and Commands}
+*/
+
+void ICore::addContextObject(IContext *context)
 {
     if (!context)
         return;
@@ -2173,15 +2154,25 @@ void MainWindow::addContextObject(IContext *context)
         return;
 
     d->m_contextWidgets.insert({widget, context});
-    connect(context, &QObject::destroyed, this, [this, context] { removeContextObject(context); });
+    connect(context, &QObject::destroyed, m_core, [context] { removeContextObject(context); });
 }
 
-void MainWindow::removeContextObject(IContext *context)
+/*!
+    Unregisters a \a context object from the list of registered IContext
+    instances. IContext instances are automatically removed when they are
+    deleted.
+
+    \sa addContextObject()
+    \sa updateAdditionalContexts()
+    \sa currentContextObject()
+*/
+
+void ICore::removeContextObject(IContext *context)
 {
     if (!context)
         return;
 
-    disconnect(context, &QObject::destroyed, this, nullptr);
+    disconnect(context, &QObject::destroyed, m_core, nullptr);
 
     const auto it = std::find_if(d->m_contextWidgets.cbegin(),
                                  d->m_contextWidgets.cend(),
@@ -2196,6 +2187,8 @@ void MainWindow::removeContextObject(IContext *context)
         d->updateContextObject(d->m_activeContext);
 }
 
+namespace Internal {
+
 void MainWindowPrivate::updateFocusWidget(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old)
@@ -2208,7 +2201,7 @@ void MainWindowPrivate::updateFocusWidget(QWidget *old, QWidget *now)
     if (QWidget *p = QApplication::focusWidget()) {
         IContext *context = nullptr;
         while (p) {
-            context = q->contextObject(p);
+            context = ICore::contextObject(p);
             if (context)
                 newContext.append(context);
             p = p->parentWidget();
@@ -2277,36 +2270,6 @@ void MainWindowPrivate::readSettings()
     m_rightPaneWidget->readSettings(settings);
 }
 
-void MainWindow::saveSettings()
-{
-    QtcSettings *settings = PluginManager::settings();
-    settings->beginGroup(settingsGroup);
-
-    if (!(d->m_overrideColor.isValid() && StyleHelper::baseColor() == d->m_overrideColor))
-        settings->setValueWithDefault(colorKey,
-                                      StyleHelper::requestedBaseColor(),
-                                      QColor(StyleHelper::DEFAULT_BASE_COLOR));
-
-    if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar())
-        settings->setValue(menubarVisibleKey, globalMenuBar()->isVisible());
-
-    settings->endGroup();
-
-    DocumentManager::saveSettings();
-    ActionManager::saveSettings();
-    EditorManagerPrivate::saveSettings();
-    d->m_leftNavigationWidget->saveSettings(settings);
-    d->m_rightNavigationWidget->saveSettings(settings);
-
-    // TODO Remove some time after Qt Creator 11
-    // Work around Qt Creator <= 10 writing the default terminal to the settings.
-    // TerminalCommand writes the terminal to the settings when changing it, which usually is
-    // enough. But because of the bug in Qt Creator <= 10 we want to clean up the settings
-    // even if the user never touched the terminal setting.
-    if (HostOsInfo::isMacHost())
-        TerminalCommand::setTerminalEmulator(TerminalCommand::terminalEmulator());
-}
-
 void MainWindowPrivate::saveWindowSettings()
 {
     QtcSettings *settings = PluginManager::settings();
@@ -2338,32 +2301,6 @@ void MainWindowPrivate::updateModeSelectorStyleMenu()
         m_setModeSelectorStyleHiddenAction->setChecked(true);
         break;
     }
-}
-
-void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add,
-                                          ICore::ContextPriority priority)
-{
-    for (const Id id : remove) {
-        if (!id.isValid())
-            continue;
-        int index = d->m_lowPrioAdditionalContexts.indexOf(id);
-        if (index != -1)
-            d->m_lowPrioAdditionalContexts.removeAt(index);
-        index = d->m_highPrioAdditionalContexts.indexOf(id);
-        if (index != -1)
-            d->m_highPrioAdditionalContexts.removeAt(index);
-    }
-
-    for (const Id id : add) {
-        if (!id.isValid())
-            continue;
-        Context &cref = (priority == ICore::ContextPriority::High ? d->m_highPrioAdditionalContexts
-                                                                  : d->m_lowPrioAdditionalContexts);
-        if (!cref.contains(id))
-            cref.prepend(id);
-    }
-
-    d->updateContext();
 }
 
 void MainWindowPrivate::updateContext()
@@ -2585,15 +2522,8 @@ void MainWindowPrivate::contact()
                     .arg("<a href=\"https://pastebin.com\">"
                             "https://pastebin.com"
                          "</a>"),
-           QMessageBox::Ok, q);
+           QMessageBox::Ok, m_mainwindow);
     dlg.exec();
-}
-
-QPrinter *MainWindow::printer() const
-{
-    if (!d->m_printer)
-        d->m_printer = new QPrinter(QPrinter::HighResolution);
-    return d->m_printer;
 }
 
 void MainWindowPrivate::restoreWindowState()
@@ -2609,7 +2539,7 @@ void MainWindowPrivate::restoreWindowState()
     StatusBarManager::restoreSettings();
 }
 
-} // namespace Internal
+} // Internal
 
 void ICore::setOverrideColor(const QColor &color)
 {
