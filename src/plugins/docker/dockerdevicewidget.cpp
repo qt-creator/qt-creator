@@ -167,6 +167,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         deviceSettings->keepEntryPoint, br,
         deviceSettings->enableLldbFlags, br,
         deviceSettings->clangdExecutable, br,
+        deviceSettings->network, br,
         Column {
             pathListLabel,
             deviceSettings->mounts,
