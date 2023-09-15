@@ -116,8 +116,8 @@ FocusScope {
                 height: StudioTheme.Values.flowPillHeight
                 verticalAlignment: Text.AlignVCenter
                 font.pixelSize: StudioTheme.Values.baseFontSize
-                color: root.isShadow() ? StudioTheme.Values.themeTextSelectedTextColor
-                                       : StudioTheme.Values.themeTextColor
+                color: root.isShadow() ? StudioTheme.Values.themePillTextSelected
+                                       : StudioTheme.Values.themePillText
                 text: root.isOperator() ? root.operatorModel.convertValueToName(root.value)
                                         : root.value
                 visible: root.isOperator() || root.isProperty() || root.isShadow()
@@ -130,8 +130,17 @@ FocusScope {
                 height: StudioTheme.Values.flowPillHeight
                 topPadding: 1
                 font.pixelSize: StudioTheme.Values.baseFontSize
-                color: root.isInvalid() && root.selected ? StudioTheme.Values.themeTextSelectedTextColor
-                                                         : StudioTheme.Values.themeTextColor
+                color: {
+                    if (root.isIntermediate())
+                        return StudioTheme.Values.themePillTextEdit
+                    if (root.isInvalid() && root.selected)
+                        return StudioTheme.Values.themePillTextSelected
+                    return StudioTheme.Values.themePillText
+                }
+
+                selectedTextColor:StudioTheme.Values.themePillTextSelected
+                selectionColor: StudioTheme.Values.themeInteraction
+
                 text: root.value
                 visible: !textItem.visible
                 enabled: root.isEditable()
@@ -160,8 +169,8 @@ FocusScope {
                 Text {
                     font.family: StudioTheme.Constants.iconFont.family
                     font.pixelSize: StudioTheme.Values.smallIconFontSize
-                    color: root.isInvalid() && root.selected ? StudioTheme.Values.themeTextSelectedTextColor
-                                                             : StudioTheme.Values.themeTextColor
+                    color: root.isInvalid() && root.selected ? StudioTheme.Values.themePillTextSelected
+                                                             : StudioTheme.Values.themePillText
                     text: StudioTheme.Constants.close_small
                     anchors.centerIn: parent
                 }

@@ -11,7 +11,7 @@ Column {
     id: root
 
     readonly property real horizontalSpacing: 10
-    readonly property real verticalSpacing: 16
+    readonly property real verticalSpacing: 12
     readonly property real columnWidth: (root.width - root.horizontalSpacing) / 2
 
     property var backend
@@ -217,7 +217,7 @@ Column {
         id: editor
         width: parent.width
         height: 150
-        color: StudioTheme.Values.themeToolbarBackground
+        color: StudioTheme.Values.themeConnectionCodeEditor
 
         Text {
             id: code

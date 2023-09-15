@@ -345,6 +345,17 @@ public:
         DSscrollBarTrack,
         DSscrollBarHandle,
         DSscrollBarHandle_idle,
+        DSconnectionCodeEditor,
+        DSpillText,
+        DSpillTextSelected,
+        DspillTextEdit,
+        DSpillDefaultBackgroundIdle,
+        DSpillDefaultBackgroundHover,
+        DSpillOperatorBackgroundIdle,
+        DSpillOperatorBackgroundHover,
+        DSpillLiteralBackgroundIdle,
+        DSpillLiteralBackgroundHover,
+
 
         /*Legacy QtDS*/
         DSiconColor,

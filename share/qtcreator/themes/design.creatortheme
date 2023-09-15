@@ -90,8 +90,8 @@ DSpopoutControlBackground_interaction=highlightBlue
 DSpopoutControlBackground_disabled=offBlack
 DSpopoutPopupBackground=nearBlack
 
-DSpopoutControlBorder_idle=nearBlack
-DSpopoutControlBorder_hover=midnightGrey
+DSpopoutControlBorder_idle=midnightGrey
+DSpopoutControlBorder_hover=raincloudGrey
 DSpopoutControlBorder_interaction=highlightBlue
 DSpopoutControlBorder_disabled=offBlack
 
@@ -104,6 +104,18 @@ DSpopoutButtonBorder_idle=slateGrey
 DSpopoutButtonBorder_hover=lightWhite
 DSpopoutButtonBorder_interaction=highlightBlue
 DSpopoutButtonBorder_disabled=offBlack
+
+;4.4
+DSconnectionCodeEditor=midnightGrey
+DSpillText=fullWhite
+DSpillTextSelected=fullBlack
+DspillTextEdit=fullWhite
+DSpillDefaultBackgroundIdle=graniteGrey
+DSpillDefaultBackgroundHover=raincloudGrey
+DSpillOperatorBackgroundIdle=ff6b2a7b
+DSpillOperatorBackgroundHover=ff7e478b
+DSpillLiteralBackgroundIdle=ff447953
+DSpillLiteralBackgroundHover=ff61866B
 
 ;END NEW FOR QtDS 4
 

@@ -68,7 +68,44 @@ DSstateBackgroundColor_hover=concreteGrey
 DSstateControlBackgroundColor_globalHover=concreteGrey
 DSstateControlBackgroundColor_hover=smokeGrey
 DSpanelBackground=dawnGrey
-;END NEW FOR QtDS 4.0
+
+;4.3
+DSpopoutBackground=offWhite
+DSpopoutControlBackground_idle=offWhite
+DSpopoutControlBackground_hover=lightWhite
+DSpopoutControlBackground_globalHover=lightWhite
+DSpopoutControlBackground_interaction=highlightBlue
+DSpopoutControlBackground_disabled=offWhite
+DSpopoutPopupBackground=lightWhite
+
+DSpopoutControlBorder_idle=slateGrey
+DSpopoutControlBorder_hover=concreteGrey
+DSpopoutControlBorder_interaction=highlightBlue
+DSpopoutControlBorder_disabled=offWhite
+
+DSpopoutButtonBackground_idle=offWhite
+DSpopoutButtonBackground_hover=lightWhite
+DSpopoutButtonBackground_interaction=highlightBlue
+DSpopoutButtonBackground_disabled=offWhite
+
+DSpopoutButtonBorder_idle=smokeGrey
+DSpopoutButtonBorder_hover=shadowGrey
+DSpopoutButtonBorder_interaction=highlightBlue
+DSpopoutButtonBorder_disabled=offWhite
+
+;4.4
+DSconnectionCodeEditor=lightWhite
+DSpillText=fullWhite
+DSpillTextSelected=fullBlack
+DspillTextEdit=fullBlack
+DSpillDefaultBackgroundIdle=shadowGrey
+DSpillDefaultBackgroundHover=smokeGrey
+DSpillOperatorBackgroundIdle=ff6b2a7b
+DSpillOperatorBackgroundHover=ff7e478b
+DSpillLiteralBackgroundIdle=ff447953
+DSpillLiteralBackgroundHover=ff61866B
+
+;END NEW FOR QtDS 4
 
 DSpanelBackground=ffeaeaea
 

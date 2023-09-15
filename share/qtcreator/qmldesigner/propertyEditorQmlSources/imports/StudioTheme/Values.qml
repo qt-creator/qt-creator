@@ -221,7 +221,7 @@ QtObject {
     property real colorEditorPopupSpinBoxWidth: 54
 
     // Popup Window
-    property real titleBarHeight: values.height + 10
+    property real titleBarHeight: values.height + 20
     property real popupMargin: 10
 
     // Toolbar
@@ -339,6 +339,7 @@ QtObject {
     // Panels & Panes
     property color themeBackgroundColorNormal: Theme.color(Theme.DSBackgroundColorNormal)
     property color themeBackgroundColorAlternate: Theme.color(Theme.DSBackgroundColorAlternate)
+    property color themeConnectionCodeEditor: Theme.color(Theme.DSconnectionCodeEditor)
 
     // Text colors
     property color themeTextColor: Theme.color(Theme.DStextColor)
@@ -442,16 +443,22 @@ QtObject {
     property color themeDialogOutline: values.themeInteraction
 
     // Expression Builder
-    property color themePillDefaultBackgroundIdle: "#ff000000"
-    property color themePillDefaultBackgroundHover: "#ff2c2c2c"
-    property color themePillOperatorBackgroundIdle: "#ff6b2a7b"
-    property color themePillOperatorBackgroundHover: "#ff7e478b"
-    property color themePillLiteralBackgroundIdle: "#ffb2005c"
-    property color themePillLiteralBackgroundHover: "#ffb24e81"
+    property color themePillDefaultBackgroundIdle: Theme.color(Theme.DSpillDefaultBackgroundIdle)
+    property color themePillDefaultBackgroundHover: Theme.color(Theme.DSpillDefaultBackgroundHover)
+    property color themePillOperatorBackgroundIdle: Theme.color(Theme.DSpillOperatorBackgroundIdle)
+    property color themePillOperatorBackgroundHover: Theme.color(Theme.DSpillOperatorBackgroundHover)
+    property color themePillLiteralBackgroundIdle: Theme.color(Theme.DSpillLiteralBackgroundIdle)
+    property color themePillLiteralBackgroundHover: Theme.color(Theme.DSpillLiteralBackgroundHover)
 
     property color themePillShadowBackground: values.themeInteraction
 
     property color themePillOutline: "#ffffffff"
+
+    property color themePillText: Theme.color(Theme.DSpillText)
+    property color themePillTextSelected: Theme.color(Theme.DSpillTextSelected)
+    property color themePillTextEdit: Theme.color(Theme.DspillTextEdit)
+
+
 
 
     // Control Style Mapping
