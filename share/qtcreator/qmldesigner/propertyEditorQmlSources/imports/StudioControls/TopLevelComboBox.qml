@@ -155,6 +155,7 @@ T.ComboBox {
             width: control.width
             height: control.style.controlSize.height
             padding: 0
+            enabled: model.enabled === undefined ? true : model.enabled
 
             contentItem: Text {
                 leftPadding: itemDelegateIconArea.width
@@ -182,8 +183,13 @@ T.ComboBox {
                 T.Label {
                     id: itemDelegateIcon
                     text: StudioTheme.Constants.tickIcon
-                    color: itemDelegate.hovered ? control.style.text.selectedText
-                                                : control.style.text.idle
+                    color: {
+                        if (!itemDelegate.enabled)
+                            return control.style.text.disabled
+
+                        return itemDelegate.hovered ? control.style.text.selectedText
+                                                    : control.style.text.idle
+                    }
                     font.family: StudioTheme.Constants.iconFont.family
                     font.pixelSize: control.style.smallIconFontSize
                     visible: control.currentIndex === index
@@ -200,7 +206,8 @@ T.ComboBox {
                 y: 0
                 width: itemDelegate.width - 2 * control.style.borderWidth
                 height: itemDelegate.height
-                color: itemDelegate.hovered ? control.style.interaction : "transparent"
+                color: itemDelegate.hovered && itemDelegate.enabled ? control.style.interaction
+                                                                    : "transparent"
             }
         }
     }

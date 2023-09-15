@@ -760,14 +760,14 @@ QString ConnectionEditorEvaluator::getDisplayStringForType(const QString &statem
     newDoc->parseJavaScript();
 
     if (!newDoc->isParsedCorrectly())
-        return ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
+        return ConnectionEditorStatements::CUSTOM_DISPLAY_NAME;
 
     newDoc->ast()->accept(&evaluator);
 
     const bool valid = evaluator.status() == ConnectionEditorEvaluator::Succeeded;
 
     if (!valid)
-        return ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
+        return ConnectionEditorStatements::CUSTOM_DISPLAY_NAME;
 
     auto result = evaluator.resultNode();
 

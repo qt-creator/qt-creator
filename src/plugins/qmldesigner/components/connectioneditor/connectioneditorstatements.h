@@ -21,8 +21,8 @@ inline constexpr char LOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
     "QmlDesigner::ConnectionEditorStatements", "Print");
 inline constexpr char EMPTY_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
     "QmlDesigner::ConnectionEditorStatements", "Empty");
-inline constexpr char UNKNOWN_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
-    "QmlDesigner::ConnectionEditorStatements", "Unknown");
+inline constexpr char CUSTOM_DISPLAY_NAME[] = QT_TRANSLATE_NOOP(
+    "QmlDesigner::ConnectionEditorStatements", "Custom");
 
 struct Variable;
 struct MatchedFunction;

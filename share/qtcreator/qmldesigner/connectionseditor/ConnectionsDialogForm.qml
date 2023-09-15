@@ -57,14 +57,38 @@ Column {
             onIndexFromBackendChanged: action.currentIndex = action.indexFromBackend
             onActivated: backend.changeActionType(action.currentValue)
 
-            model: [
-                { value: ConnectionModelStatementDelegate.CallFunction, text: qsTr("Call Function") },
-                { value: ConnectionModelStatementDelegate.Assign, text: qsTr("Assign") },
-                { value: ConnectionModelStatementDelegate.ChangeState, text: qsTr("Change State") },
-                { value: ConnectionModelStatementDelegate.SetProperty, text: qsTr("Set Property") },
-                { value: ConnectionModelStatementDelegate.PrintMessage, text: qsTr("Print Message") },
-                { value: ConnectionModelStatementDelegate.Custom, text: qsTr("Unknown") }
-            ]
+            model: ListModel {
+                ListElement {
+                    value: ConnectionModelStatementDelegate.CallFunction
+                    text: qsTr("Call Function")
+                    enabled: true
+                }
+                ListElement {
+                    value: ConnectionModelStatementDelegate.Assign
+                    text: qsTr("Assign")
+                    enabled: true
+                }
+                ListElement {
+                    value: ConnectionModelStatementDelegate.ChangeState
+                    text: qsTr("Change State")
+                    enabled: true
+                }
+                ListElement {
+                    value: ConnectionModelStatementDelegate.SetProperty
+                    text: qsTr("Set Property")
+                    enabled: true
+                }
+                ListElement {
+                    vvalue: ConnectionModelStatementDelegate.PrintMessage
+                    text: qsTr("Print Message")
+                    enabled: true
+                }
+                ListElement {
+                    value: ConnectionModelStatementDelegate.Custom
+                    text: qsTr("Custom")
+                    enabled: false
+                }
+            }
         }
     }
 
