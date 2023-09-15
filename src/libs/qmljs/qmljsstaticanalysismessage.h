@@ -109,7 +109,6 @@ enum Type {
     ErrShorterStringValueExpected = 322,
     ErrInvalidArrayValueLength = 323,
     ErrHitMaximumRecursion = 324,
-    WarnLogicalValueDoesNotDependOnValues = 325,
     ErrToManyComponentChildren = 326,
     WarnComponentRequiresChildren = 327,
     WarnDuplicateImport = 400,
