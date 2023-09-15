@@ -77,6 +77,8 @@ QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const
         .resolved(QUrl(QStringLiteral(u"api/projects/")))
         .resolved(QUrl(projectName));
     QNetworkRequest request{ url };
+    request.setRawHeader(QByteArrayLiteral(u8"Accept"),
+                         QByteArrayLiteral(u8"Application/Json"));
     request.setRawHeader(QByteArrayLiteral(u8"Authorization"),
                          QByteArrayLiteral(u8"AxToken ") + server.token.toUtf8());
     QByteArray ua = QByteArrayLiteral(u8"Axivion")
