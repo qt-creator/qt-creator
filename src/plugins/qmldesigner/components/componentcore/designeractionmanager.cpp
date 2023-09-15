@@ -741,19 +741,7 @@ public:
                         activeSignalHandlerGroup->addMenu(editSlotGroup);
                     }
 
-                    ActionTemplate *openEditorAction = new ActionTemplate(
-                        (propertyName + "OpenEditorId").toLatin1(),
-                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
-                        [=](const SelectionContext &) {
-                            signalHandler.parentModelNode().view()->executeInTransaction(
-                                "ConnectionsModelNodeActionGroup::"
-                                "openConnectionsEditor",
-                                [signalHandler]() {
-                                    ActionEditor::invokeEditor(signalHandler, removeSignal);
-                                });
-                        });
-
-                    activeSignalHandlerGroup->addAction(openEditorAction);
+                    //add an action to open Connection Form from here:
 
                     ActionTemplate *removeSignalHandlerAction = new ActionTemplate(
                         (propertyName + "RemoveSignalHandlerId").toLatin1(),
@@ -822,25 +810,7 @@ public:
                 }
             }
 
-            ActionTemplate *openEditorAction = new ActionTemplate(
-                (signalStr + "OpenEditorId").toLatin1(),
-                QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
-                [=](const SelectionContext &) {
-                    currentNode.view()->executeInTransaction(
-                        "ConnectionsModelNodeActionGroup::"
-                        "openConnectionsEditor",
-                        [=]() {
-                            ModelNode newConnectionNode = createNewConnection(currentNode);
-
-                            SignalHandlerProperty newHandler = newConnectionNode.signalHandlerProperty(
-                                prependSignal(signalStr).toLatin1());
-
-                            newHandler.setSource(
-                                QString("console.log(\"%1.%2\")").arg(currentNode.id(), signalStr));
-                            ActionEditor::invokeEditor(newHandler, removeSignal, true);
-                        });
-                });
-            newSignal->addAction(openEditorAction);
+            //add an action to open Connection Form from here
 
             addConnection->addMenu(newSignal);
         }
