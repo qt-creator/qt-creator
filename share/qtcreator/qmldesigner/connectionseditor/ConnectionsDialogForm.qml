@@ -79,7 +79,7 @@ Column {
                     enabled: true
                 }
                 ListElement {
-                    vvalue: ConnectionModelStatementDelegate.PrintMessage
+                    value: ConnectionModelStatementDelegate.PrintMessage
                     text: qsTr("Print Message")
                     enabled: true
                 }
