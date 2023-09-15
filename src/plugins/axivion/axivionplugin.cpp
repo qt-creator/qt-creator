@@ -7,12 +7,14 @@
 #include "axivionprojectsettings.h"
 #include "axivionquery.h"
 #include "axivionresultparser.h"
+#include "axivionsettings.h"
 #include "axiviontr.h"
 #include "dashboard/dashboardclient.h"
 #include "dashboard/dto.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -26,6 +28,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 
+#include <utils/algorithm.h>
 #include <utils/expected.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
@@ -33,6 +36,9 @@
 
 #include <QAction>
 #include <QFutureWatcher>
+#include <QMessageBox>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QTimer>
 
 #include <exception>
@@ -45,6 +51,8 @@ namespace Axivion::Internal {
 class AxivionPluginPrivate : public QObject
 {
 public:
+    AxivionPluginPrivate();
+    void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
     void handleProjectInfo(DashboardClient::RawProjectInfo rawInfo);
@@ -55,7 +63,7 @@ public:
     void handleIssuesForFile(const IssuesList &issues);
     void fetchRuleInfo(const QString &id);
 
-    Utils::NetworkAccessManager *m_networkAccessManager = Utils::NetworkAccessManager::instance();
+    Utils::NetworkAccessManager m_networkAccessManager;
     AxivionOutputPane m_axivionOutputPane;
     std::shared_ptr<const DashboardClient::ProjectInfo> m_currentProjectInfo;
     bool m_runningQuery = false;
@@ -128,6 +136,46 @@ std::shared_ptr<const DashboardClient::ProjectInfo> AxivionPlugin::projectInfo()
     return dd->m_currentProjectInfo;
 }
 
+// FIXME: extend to give some details?
+// FIXME: move when curl is no more in use?
+bool AxivionPlugin::handleCertificateIssue()
+{
+    QTC_ASSERT(dd, return false);
+    const QString serverHost = QUrl(settings().server.dashboard).host();
+    if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
+                              Tr::tr("Server certificate for %1 cannot be authenticated.\n"
+                                     "Do you want to disable SSL verification for this server?\n"
+                                     "Note: This can expose you to man-in-the-middle attack.")
+                              .arg(serverHost))
+            != QMessageBox::Yes) {
+        return false;
+    }
+    settings().server.validateCert = false;
+    settings().apply();
+
+    return true;
+}
+
+AxivionPluginPrivate::AxivionPluginPrivate()
+{
+    connect(&m_networkAccessManager, &QNetworkAccessManager::sslErrors,
+            this, &AxivionPluginPrivate::handleSslErrors);
+}
+
+void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
+{
+    const QList<QSslError::SslError> accepted{
+        QSslError::CertificateNotYetValid, QSslError::CertificateExpired,
+        QSslError::InvalidCaCertificate, QSslError::CertificateUntrusted,
+        QSslError::HostNameMismatch
+    };
+    if (Utils::allOf(errors,
+                     [&accepted](const QSslError &e) { return accepted.contains(e.error()); })) {
+        if (!settings().server.validateCert || AxivionPlugin::handleCertificateIssue())
+            reply->ignoreSslErrors(errors);
+    }
+}
+
 void AxivionPluginPrivate::onStartupProjectChanged()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
@@ -155,7 +203,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
         return;
     }
     m_runningQuery = true;
-    DashboardClient client { *this->m_networkAccessManager };
+    DashboardClient client { this->m_networkAccessManager };
     QFuture<DashboardClient::RawProjectInfo> response = client.fetchProjectInfo(projectName);
     auto responseWatcher = std::make_shared<QFutureWatcher<DashboardClient::RawProjectInfo>>();
     connect(responseWatcher.get(),

@@ -27,6 +27,7 @@ public:
 
     static void fetchProjectInfo(const QString &projectName);
     static std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo();
+    static bool handleCertificateIssue();
 
 private:
     void initialize() final;
