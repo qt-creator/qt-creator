@@ -46,10 +46,10 @@ class CORE_EXPORT ICore : public QObject
     friend class Internal::MainWindow;
     friend class Internal::MainWindowPrivate;
 
+public:
     ICore();
     ~ICore() override;
 
-public:
     enum class ContextPriority {
         High,
         Low
@@ -91,6 +91,7 @@ public:
     static Utils::InfoBar *infoBar();
 
     static void raiseWindow(QWidget *widget);
+    static void raiseMainWindow();
 
     static IContext *currentContextObject();
     static QWidget *currentContextWidget();
@@ -157,6 +158,12 @@ public:
     static void saveSettings(SaveSettingsReason reason);
     static void setNewDialogFactory(const std::function<NewDialog *(QWidget *)> &newFactory);
     static void updateNewItemDialogState();
+
+    static void setOverrideColor(const QColor &color);
+
+    static void init();
+    static void extensionsInitialized();
+    static void aboutToShutdown();
 };
 
 namespace Internal {
@@ -168,10 +175,6 @@ class MainWindow : public Utils::AppMainWindow
 public:
     MainWindow();
     ~MainWindow() override;
-
-    void init();
-    void extensionsInitialized();
-    void aboutToShutdown();
 
     IContext *contextObject(QWidget *widget) const;
     void addContextObject(IContext *context);
@@ -188,8 +191,6 @@ public:
 
     void updateAdditionalContexts(const Context &remove, const Context &add,
                                   ICore::ContextPriority priority);
-
-    void setOverrideColor(const QColor &color);
 
     QStringList additionalAboutInformation() const;
     void clearAboutInformation();

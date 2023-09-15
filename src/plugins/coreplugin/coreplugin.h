@@ -23,6 +23,7 @@ namespace Core {
 
 class FolderNavigationWidgetFactory;
 class SessionManager;
+class ICore;
 
 namespace Internal {
 
@@ -74,7 +75,7 @@ private:
     void checkSettings();
     void warnAboutCrashReporing();
 
-    MainWindow *m_mainWindow = nullptr;
+    ICore *m_core = nullptr;
     EditMode *m_editMode = nullptr;
     Locator *m_locator = nullptr;
     std::unique_ptr<SessionManager> m_sessionManager;

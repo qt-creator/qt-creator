@@ -15,6 +15,9 @@ class QTimeLine;
 QT_END_NAMESPACE
 
 namespace Core {
+
+class ICore;
+
 namespace Internal {
 
 class MainWindow;
@@ -34,6 +37,11 @@ public:
     static int outputPaneHeightSetting();
     static void setOutputPaneHeightSetting(int value);
 
+    // FIXME: Hide again
+    static void create();
+    static void initialize();
+    static void destroy();
+
 public slots:
     void slotHide();
     void slotNext();
@@ -45,13 +53,10 @@ protected:
 
 private:
     // the only class that is allowed to create and destroy
+    friend class ICore;
     friend class MainWindow;
     friend class MainWindowPrivate;
     friend class OutputPaneManageButton;
-
-    static void create();
-    static void initialize();
-    static void destroy();
 
     explicit OutputPaneManager(QWidget *parent = nullptr);
     ~OutputPaneManager() override;

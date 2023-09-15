@@ -366,6 +366,7 @@ QWidget *ICore::newItemDialog()
 ICore::ICore()
 {
     m_core = this;
+    m_mainwindow = new MainWindow;
 
     connect(PluginManager::instance(), &PluginManager::testsFinished,
             this, [this](int failedTests) {
@@ -388,6 +389,7 @@ ICore::ICore()
 */
 ICore::~ICore()
 {
+    delete m_mainwindow;
     m_core = nullptr;
     m_mainwindow = nullptr;
 }
@@ -886,6 +888,11 @@ void ICore::raiseWindow(QWidget *widget)
     }
 }
 
+void ICore::raiseMainWindow()
+{
+    m_mainwindow->raiseWindow();
+}
+
 /*!
     Removes the contexts specified by \a remove from the list of active
     additional contexts, and adds the contexts specified by \a add with \a
@@ -1152,7 +1159,6 @@ enum { debugMainWindow = 0 };
 
 void MainWindowPrivate::init()
 {
-    m_core = new ICore;
     m_progressManager = new ProgressManagerPrivate;
     m_jsExpander = JsExpander::createGlobalJsExpander();
     m_vcsManager = new VcsManager;
@@ -1266,11 +1272,6 @@ void MainWindowPrivate::setSidebarVisible(bool visible, Side side)
         navigationWidget(side)->setShown(visible);
 }
 
-void MainWindow::setOverrideColor(const QColor &color)
-{
-    d->m_overrideColor = color;
-}
-
 QStringList MainWindow::additionalAboutInformation() const
 {
     return d->m_aboutInformation;
@@ -1336,9 +1337,6 @@ MainWindowPrivate::~MainWindowPrivate()
     delete m_progressManager;
     m_progressManager = nullptr;
 
-    delete m_core;
-    m_core = nullptr;
-
     delete m_rightPaneWidget;
     m_rightPaneWidget = nullptr;
 
@@ -1349,18 +1347,20 @@ MainWindowPrivate::~MainWindowPrivate()
     m_jsExpander = nullptr;
 }
 
-void MainWindow::init()
+} // Internal
+
+void ICore::init()
 {
     d->m_progressManager->init(); // needs the status bar manager
     MessageManager::init();
     OutputPaneManager::create();
 }
 
-void MainWindow::extensionsInitialized()
+void ICore::extensionsInitialized()
 {
     EditorManagerPrivate::extensionsInitialized();
     MimeTypeSettings::restoreSettings();
-    d->m_windowSupport = new WindowSupport(this, Context("Core.MainWindow"));
+    d->m_windowSupport = new WindowSupport(m_mainwindow, Context("Core.MainWindow"));
     d->m_windowSupport->setCloseActionEnabled(false);
     OutputPaneManager::initialize();
     VcsManager::extensionsInitialized();
@@ -1377,6 +1377,17 @@ void MainWindow::extensionsInitialized()
     QMetaObject::invokeMethod(d, &MainWindowPrivate::restoreWindowState, Qt::QueuedConnection);
     QMetaObject::invokeMethod(m_core, &ICore::coreOpened, Qt::QueuedConnection);
 }
+
+void ICore::aboutToShutdown()
+{
+    disconnect(qApp, &QApplication::focusChanged, d, &MainWindowPrivate::updateFocusWidget);
+    for (auto contextPair : d->m_contextWidgets)
+        disconnect(contextPair.second, &QObject::destroyed, m_mainwindow, nullptr);
+    d->m_activeContext.clear();
+    m_mainwindow->hide();
+}
+
+namespace Internal {
 
 static void setRestart(bool restart)
 {
@@ -2221,15 +2232,6 @@ void MainWindowPrivate::updateContextObject(const QList<IContext *> &context)
     }
 }
 
-void MainWindow::aboutToShutdown()
-{
-    disconnect(qApp, &QApplication::focusChanged, d, &MainWindowPrivate::updateFocusWidget);
-    for (auto contextPair : d->m_contextWidgets)
-        disconnect(contextPair.second, &QObject::destroyed, this, nullptr);
-    d->m_activeContext.clear();
-    hide();
-}
-
 void MainWindowPrivate::readSettings()
 {
     QtcSettings *settings = PluginManager::settings();
@@ -2608,4 +2610,10 @@ void MainWindowPrivate::restoreWindowState()
 }
 
 } // namespace Internal
+
+void ICore::setOverrideColor(const QColor &color)
+{
+    d->m_overrideColor = color;
+}
+
 } // namespace Core
