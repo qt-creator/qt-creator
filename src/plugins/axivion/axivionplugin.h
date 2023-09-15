@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "dashboard/dto.h"
+#include "dashboard/dashboardclient.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -26,7 +26,7 @@ public:
     ~AxivionPlugin() final;
 
     static void fetchProjectInfo(const QString &projectName);
-    static std::shared_ptr<const Dto::ProjectInfoDto> projectInfo();
+    static std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo();
 
 private:
     void initialize() final;

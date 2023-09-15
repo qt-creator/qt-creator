@@ -30,7 +30,7 @@ static void deleteLater(QObject *obj)
     obj->deleteLater();
 }
 
-using RawBody = Utils::expected_str<QByteArray>;
+using RawBody = Utils::expected_str<DataWithOrigin<QByteArray>>;
 
 class RawBodyReader final
 {
@@ -48,7 +48,7 @@ public:
             return tl::make_unexpected(QString::number(error)
                                        + QLatin1String(": ")
                                        + m_reply->errorString());
-        return m_reply->readAll();
+        return DataWithOrigin(m_reply->url(), m_reply->readAll());
     }
 
 private:
@@ -56,12 +56,14 @@ private:
 };
 
 template<typename T>
-static Utils::expected_str<T> RawBodyParser(RawBody rawBody)
+static Utils::expected_str<DataWithOrigin<T>> RawBodyParser(RawBody rawBody)
 {
     if (!rawBody)
         return tl::make_unexpected(std::move(rawBody.error()));
     try {
-        return { T::deserialize(rawBody.value()) };
+        T data = T::deserialize(rawBody.value().data);
+        return DataWithOrigin(std::move(rawBody.value().origin),
+                              std::move(data));
     } catch (const Dto::invalid_dto_exception &e) {
         return tl::make_unexpected(QString::fromUtf8(e.what()));
     }

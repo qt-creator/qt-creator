@@ -94,21 +94,22 @@ void DashboardWidget::updateUi()
         delete child->widget();
         delete child;
     }
-    std::shared_ptr<const Dto::ProjectInfoDto> info = AxivionPlugin::projectInfo();
-    if (!info)
+    std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo = AxivionPlugin::projectInfo();
+    if (!projectInfo)
         return;
-    m_project->setText(info->name);
-    if (info->versions.empty())
+    const Dto::ProjectInfoDto &info = projectInfo->data;
+    m_project->setText(info.name);
+    if (info.versions.empty())
         return;
 
-    const Dto::AnalysisVersionDto &last = info->versions.back();
+    const Dto::AnalysisVersionDto &last = info.versions.back();
     if (last.linesOfCode.has_value())
         m_loc->setText(QString::number(last.linesOfCode.value()));
     const QDateTime timeStamp = QDateTime::fromString(last.date, Qt::ISODate);
     m_timestamp->setText(timeStamp.isValid() ? timeStamp.toString("yyyy-MM-dd HH:mm:ss t")
                                              : Tr::tr("unknown"));
 
-    const std::vector<Dto::IssueKindInfoDto> &issueKinds = info->issueKinds;
+    const std::vector<Dto::IssueKindInfoDto> &issueKinds = info.issueKinds;
     auto toolTip = [issueKinds](const QString &prefix){
         for (const Dto::IssueKindInfoDto &kind : issueKinds) {
             if (kind.prefix == prefix)

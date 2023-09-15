@@ -13,14 +13,26 @@
 #include <utils/networkaccessmanager.h>
 
 #include <QFuture>
+#include <QNetworkReply>
 
 namespace Axivion::Internal
 {
 
+template<typename T>
+class DataWithOrigin
+{
+public:
+    QUrl origin;
+    T data;
+
+    DataWithOrigin(QUrl origin, T data) : origin(std::move(origin)), data(std::move(data)) { }
+};
+
 class DashboardClient
 {
 public:
-    using RawProjectInfo = Utils::expected_str<Dto::ProjectInfoDto>;
+    using ProjectInfo = DataWithOrigin<Dto::ProjectInfoDto>;
+    using RawProjectInfo = Utils::expected_str<ProjectInfo>;
 
     DashboardClient(Utils::NetworkAccessManager &networkAccessManager);
 
