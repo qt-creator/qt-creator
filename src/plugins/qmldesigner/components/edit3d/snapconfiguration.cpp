@@ -11,7 +11,8 @@
 
 #include <utils/environment.h>
 
-#include <QPoint>
+#include <QCursor>
+#include <QGuiApplication>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickView>
@@ -69,6 +70,8 @@ void SnapConfiguration::apply()
         m_view->syncSnapAuxPropsToSettings();
     }
 
+    restoreCursor();
+
     cancel();
 }
 
@@ -81,6 +84,45 @@ void SnapConfiguration::resetDefaults()
     setPosInt(defaultPosInt);
     setRotInt(defaultRotInt);
     setScaleInt(defaultScaleInt);
+}
+
+void SnapConfiguration::hideCursor()
+{
+    if (QGuiApplication::overrideCursor())
+        return;
+
+    QGuiApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+
+    if (QWindow *w = QGuiApplication::focusWindow())
+        m_lastPos = QCursor::pos(w->screen());
+}
+
+void SnapConfiguration::restoreCursor()
+{
+    if (!QGuiApplication::overrideCursor())
+        return;
+
+    QGuiApplication::restoreOverrideCursor();
+
+    if (QWindow *w = QGuiApplication::focusWindow())
+        QCursor::setPos(w->screen(), m_lastPos);
+}
+
+void SnapConfiguration::holdCursorInPlace()
+{
+    if (!QGuiApplication::overrideCursor())
+        return;
+
+    if (QWindow *w = QGuiApplication::focusWindow())
+        QCursor::setPos(w->screen(), m_lastPos);
+}
+
+int SnapConfiguration::devicePixelRatio()
+{
+    if (QWindow *w = QGuiApplication::focusWindow())
+        return w->devicePixelRatio();
+
+    return 1;
 }
 
 void SnapConfiguration::showConfigDialog(const QPoint &pos)
@@ -116,9 +158,7 @@ void SnapConfiguration::showConfigDialog(const QPoint &pos)
         m_configDialog->setModality(Qt::NonModal);
         m_configDialog->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
 
-        m_configDialog->rootContext()->setContextProperties({
-            {"rootView", QVariant::fromValue(this)}
-        });
+        m_configDialog->rootContext()->setContextObject(this);
         m_configDialog->setSource(QUrl::fromLocalFile(path));
         m_configDialog->installEventFilter(this);
 
