@@ -71,7 +71,7 @@ public:
     };
     QString moduleName;
     Utils::FilePath modulePath;
-    QString hostPath;
+    Utils::FilePath hostPath;
     SymbolReadState symbolsRead = UnknownReadState;
     quint64 startAddress = 0;
     quint64 endAddress = 0;

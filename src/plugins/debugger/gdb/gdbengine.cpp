@@ -469,10 +469,10 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
         Module module;
         module.startAddress = 0;
         module.endAddress = 0;
-        module.hostPath = result["host-name"].data();
+        module.hostPath = Utils::FilePath::fromString(result["host-name"].data());
         const QString target = result["target-name"].data();
         module.modulePath = runParameters().inferior.command.executable().withNewPath(target);
-        module.moduleName = QFileInfo(module.hostPath).baseName();
+        module.moduleName = module.hostPath.baseName();
         modulesHandler()->updateModule(module);
     } else if (asyncClass == u"library-unloaded") {
         // Archer has 'id="/usr/lib/libdrm.so.2",
@@ -3926,6 +3926,7 @@ void GdbEngine::handleGdbStarted()
     module.startAddress = 0;
     module.endAddress = 0;
     module.modulePath = rp.inferior.command.executable();
+    module.hostPath = rp.symbolFile;
     module.moduleName = "<executable>";
     modulesHandler()->updateModule(module);
 
