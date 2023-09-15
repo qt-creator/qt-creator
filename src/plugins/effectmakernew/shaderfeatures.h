@@ -6,7 +6,7 @@
 #include <QFlags>
 #include <QString>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class ShaderFeatures
 {
@@ -36,4 +36,5 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ShaderFeatures::Features)
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

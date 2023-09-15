@@ -5,7 +5,7 @@
 #include <QStringList>
 #include <QDebug>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 ShaderFeatures::ShaderFeatures()
 {
@@ -77,4 +77,5 @@ void ShaderFeatures::checkLine(const QString &line, Features &features)
         features.setFlag(BlurSources, true);
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

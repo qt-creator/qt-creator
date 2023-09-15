@@ -12,7 +12,7 @@
 
 #include <utils/qtcassert.h>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 EffectMakerModel::EffectMakerModel(QObject *parent)
     : QAbstractListModel{parent}
@@ -760,4 +760,5 @@ void EffectMakerModel::setShadersUpToDate(bool UpToDate)
     emit shadersUpToDateChanged();
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

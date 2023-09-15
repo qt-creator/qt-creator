@@ -74,15 +74,6 @@ public:
     void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
-class EffectMakerContext : public Core::IContext
-{
-    Q_OBJECT
-
-public:
-    EffectMakerContext(QWidget *widget);
-    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
-};
-
 class CollectionEditorContext : public Core::IContext
 {
     Q_OBJECT

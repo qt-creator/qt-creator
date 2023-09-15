@@ -5,7 +5,7 @@
 
 #include <QJsonArray>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 QString EffectUtils::codeFromJsonArray(const QJsonArray &codeArray)
 {
@@ -20,4 +20,5 @@ QString EffectUtils::codeFromJsonArray(const QJsonArray &codeArray)
     return codeString;
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

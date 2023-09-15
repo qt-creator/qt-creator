@@ -710,24 +710,6 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/effectmaker
-  SOURCES
-    effectmakerwidget.cpp effectmakerwidget.h
-    effectmakerview.cpp effectmakerview.h
-    effectmakermodel.cpp effectmakermodel.h
-    effectmakernodesmodel.cpp effectmakernodesmodel.h
-    effectmakeruniformsmodel.cpp effectmakeruniformsmodel.h
-    effectnode.cpp effectnode.h
-    effectnodescategory.cpp effectnodescategory.h
-    compositionnode.cpp compositionnode.h
-    uniform.cpp uniform.h
-    effectutils.cpp effectutils.h
-    effectmakercontextobject.cpp effectmakercontextobject.h
-    shaderfeatures.cpp shaderfeatures.h
-    syntaxhighlighterdata.cpp syntaxhighlighterdata.h
-)
-
-extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/navigator
   SOURCES
     iconcheckboxitemdelegate.cpp iconcheckboxitemdelegate.h

@@ -112,3 +112,7 @@ add_subdirectory(mcusupport)
 add_subdirectory(saferenderer)
 add_subdirectory(copilot)
 add_subdirectory(terminal)
+
+if (WITH_QMLDESIGNER)
+  add_subdirectory(effectmakernew)
+endif()

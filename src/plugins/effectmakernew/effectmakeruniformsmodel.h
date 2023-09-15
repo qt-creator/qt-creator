@@ -5,7 +5,7 @@
 
 #include <QStandardItemModel>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class Uniform;
 
@@ -42,4 +42,5 @@ private:
     QList<Uniform *> m_uniforms;
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

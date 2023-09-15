@@ -23,7 +23,7 @@
 #include <QHBoxLayout>
 #include <QQmlEngine>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 static QString propertyEditorResourcesPath()
 {
@@ -46,21 +46,22 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     m_quickWidget->quickWidget()->installEventFilter(this);
 
     // create the inner widget
-    m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_EFFECT_MAKER);
+    m_quickWidget->quickWidget()->setObjectName(QmlDesigner::Constants::OBJECT_NAME_EFFECT_MAKER);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    Theme::setupTheme(m_quickWidget->engine());
+    QmlDesigner::Theme::setupTheme(m_quickWidget->engine());
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
-    m_quickWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+    m_quickWidget->setClearColor(QmlDesigner::Theme::getColor(
+        QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
 
     auto layout = new QHBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
     layout->addWidget(m_quickWidget.data());
 
-    setStyleSheet(Theme::replaceCssColors(
+    setStyleSheet(QmlDesigner::Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
 
-    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_EFFECTMAKER_TIME);
+    QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(this, QmlDesigner::Constants::EVENT_EFFECTMAKER_TIME);
 
     auto map = m_quickWidget->registerPropertyMap("EffectMakerBackend");
     map->setProperties({{"effectMakerNodesModel", QVariant::fromValue(m_effectMakerNodesModel.data())},
@@ -142,4 +143,5 @@ void EffectMakerWidget::reloadQmlSource()
     m_quickWidget->setSource(QUrl::fromLocalFile(effectMakerQmlPath));
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

@@ -7,7 +7,7 @@
 
 #include <QCoreApplication>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 EffectMakerNodesModel::EffectMakerNodesModel(QObject *parent)
     : QAbstractListModel{parent}
@@ -104,4 +104,5 @@ void EffectMakerNodesModel::resetModel()
     endResetModel();
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

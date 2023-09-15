@@ -9,7 +9,7 @@
 
 #include <QStandardItemModel>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class EffectMakerNodesModel : public QAbstractListModel
 {
@@ -40,4 +40,5 @@ private:
     bool m_probeNodesDir = false;
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

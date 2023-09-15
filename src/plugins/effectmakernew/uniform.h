@@ -6,13 +6,15 @@
 #include <QObject>
 #include <QVariant>
 
+#include <qmldesigner/components/propertyeditor/propertyeditorvalue.h>
+
 QT_FORWARD_DECLARE_CLASS(QColor)
 QT_FORWARD_DECLARE_CLASS(QJsonObject)
 QT_FORWARD_DECLARE_CLASS(QVector2D)
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
-class PropertyEditorValue;
+
 
 class Uniform : public QObject
 {
@@ -97,7 +99,7 @@ private:
     bool m_useCustomValue = false;
     bool m_enabled = true;
     bool m_enableMipmap = false;
-    PropertyEditorValue *m_backendValue = nullptr;
+    QmlDesigner::PropertyEditorValue *m_backendValue = nullptr;
 
     bool operator==(const Uniform &rhs) const noexcept
     {
@@ -105,4 +107,4 @@ private:
     }
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker

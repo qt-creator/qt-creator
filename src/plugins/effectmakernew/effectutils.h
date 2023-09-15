@@ -7,7 +7,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QJsonArray)
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class EffectUtils
 {
@@ -17,4 +17,5 @@ public:
     static QString codeFromJsonArray(const QJsonArray &codeArray);
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

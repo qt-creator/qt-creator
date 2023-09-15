@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QUrl>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class EffectNode : public QObject
 {
@@ -31,4 +31,5 @@ private:
     QUrl m_iconPath;
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmlmodelnodeproxy.h"
+#include "qmldesigner/components/propertyeditor/qmlmodelnodeproxy.h"
 
 #include <coreplugin/icontext.h>
 
@@ -11,7 +11,7 @@
 
 class StudioQuickWidget;
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class EffectMakerView;
 class EffectMakerModel;
@@ -53,7 +53,8 @@ private:
     QPointer<EffectMakerNodesModel> m_effectMakerNodesModel;
     QPointer<EffectMakerView> m_effectMakerView;
     QPointer<StudioQuickWidget> m_quickWidget;
-    QmlModelNodeProxy m_backendModelNode;
+    QmlDesigner::QmlModelNodeProxy m_backendModelNode;
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

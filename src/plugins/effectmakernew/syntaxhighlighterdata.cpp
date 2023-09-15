@@ -3,7 +3,7 @@
 
 #include "syntaxhighlighterdata.h"
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 static constexpr QByteArrayView shader_arg_names[] {
     { "gl_Position" },
@@ -186,5 +186,6 @@ QList<QByteArrayView> SyntaxHighlighterData::reservedFunctionNames()
     return { std::begin(shader_function_names), std::end(shader_function_names) };
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+
 

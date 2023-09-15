@@ -16,7 +16,6 @@
 #include <designeractionmanagerview.h>
 #include <designmodewidget.h>
 #include <edit3dview.h>
-#include <effectmakerview.h>
 #include <formeditorview.h>
 #include <itemlibraryview.h>
 #include <materialbrowserview.h>
@@ -56,7 +55,6 @@ public:
         , contentLibraryView{externalDependencies}
         , componentView{externalDependencies}
         , edit3DView{externalDependencies}
-        , effectMakerView{externalDependencies}
         , formEditorView{externalDependencies}
         , textEditorView{externalDependencies}
         , assetsLibraryView{externalDependencies}
@@ -79,7 +77,6 @@ public:
     ContentLibraryView contentLibraryView;
     ComponentView componentView;
     Edit3DView edit3DView;
-    EffectMakerView effectMakerView;
     FormEditorView formEditorView;
     TextEditorView textEditorView;
     AssetsLibraryView assetsLibraryView;
@@ -211,9 +208,6 @@ QList<AbstractView *> ViewManager::standardViews() const
             .value(DesignerSettingsKey::ENABLE_DEBUGVIEW)
             .toBool())
         list.append(&d->debugView);
-
-    if (qEnvironmentVariableIsSet("ENABLE_QDS_EFFECTMAKER"))
-        list.append(&d->effectMakerView);
 
     if (qEnvironmentVariableIsSet("ENABLE_QDS_COLLECTIONVIEW"))
         list.append(&d->collectionView);
@@ -392,9 +386,6 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
     widgetInfoList.append(d->textureEditorView.widgetInfo());
     widgetInfoList.append(d->statesEditorView.widgetInfo());
-
-    if (qEnvironmentVariableIsSet("ENABLE_QDS_EFFECTMAKER"))
-        widgetInfoList.append(d->effectMakerView.widgetInfo());
 
     if (qEnvironmentVariableIsSet("ENABLE_QDS_COLLECTIONVIEW"))
         widgetInfoList.append(d->collectionView.widgetInfo());

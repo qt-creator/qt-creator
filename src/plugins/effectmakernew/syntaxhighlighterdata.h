@@ -6,7 +6,7 @@
 #include <QByteArrayView>
 #include <QList>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class SyntaxHighlighterData
 {
@@ -18,5 +18,6 @@ public:
     static QList<QByteArrayView> reservedFunctionNames();
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+
 

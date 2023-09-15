@@ -1,0 +1,15 @@
+{
+    \"Name\" : \"EffectMakerNew\",
+    \"Version\" : \"$$QTCREATOR_VERSION\",
+    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Revision\" : \"$$QTC_PLUGIN_REVISION\",
+    \"Vendor\" : \"The Qt Company Ltd\",
+    \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
+    \"License\" : [ \"Commercial Usage\",
+                  \"\",
+                  \"Licensees holding valid Qt Enterprise licenses may use this plugin in accordance with the Qt Enterprise License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\"
+    ],
+    \"Description\" : \"Plugin for Effect Maker.\",
+    \"Url\" : \"http://www.qt.io\",
+    $$dependencyList
+}

@@ -7,7 +7,7 @@
 
 #include <QObject>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class CompositionNode : public QObject
 {
@@ -57,4 +57,5 @@ private:
     EffectMakerUniformsModel m_unifomrsModel;
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

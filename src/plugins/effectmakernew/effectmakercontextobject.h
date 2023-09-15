@@ -14,7 +14,7 @@
 #include <QPoint>
 #include <QMouseEvent>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class EffectMakerContextObject : public QObject
 {
@@ -90,7 +90,7 @@ private:
     int m_majorVersion = 1;
 
     QQmlPropertyMap *m_backendValues = nullptr;
-    Model *m_model = nullptr;
+    QmlDesigner::Model *m_model = nullptr;
 
     QPoint m_lastPos;
 
@@ -98,4 +98,5 @@ private:
     bool m_selectionChanged = false;
 };
 
-} // QmlDesigner
+} // namespace EffectMaker
+

@@ -6,7 +6,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 EffectNode::EffectNode(const QString &qenPath)
     : m_qenPath(qenPath)
@@ -39,4 +39,5 @@ QString EffectNode::qenPath() const
     return m_qenPath;
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

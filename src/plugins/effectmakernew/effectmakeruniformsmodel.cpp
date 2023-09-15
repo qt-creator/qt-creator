@@ -7,7 +7,7 @@
 
 #include <utils/qtcassert.h>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 EffectMakerUniformsModel::EffectMakerUniformsModel(QObject *parent)
     : QAbstractListModel{parent}
@@ -72,4 +72,5 @@ QList<Uniform *> EffectMakerUniformsModel::uniforms() const
     return m_uniforms;
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

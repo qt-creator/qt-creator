@@ -9,7 +9,7 @@
 #include <nodemetainfo.h>
 #include <rewritingexception.h>
 #include <qmldesignerplugin.h>
-#include <qmlmodelnodeproxy.h>
+#include <qmldesigner/components/propertyeditor/qmlmodelnodeproxy.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>
@@ -27,7 +27,7 @@
 
 #include <coreplugin/icore.h>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 EffectMakerContextObject::EffectMakerContextObject(QQmlContext *context, QObject *parent)
     : QObject(parent)
@@ -117,7 +117,7 @@ void EffectMakerContextObject::setBackendValues(QQmlPropertyMap *newBackendValue
     emit backendValuesChanged();
 }
 
-void EffectMakerContextObject::setModel(Model *model)
+void EffectMakerContextObject::setModel(QmlDesigner::Model *model)
 {
     m_model = model;
 }
@@ -169,7 +169,7 @@ int EffectMakerContextObject::devicePixelRatio()
 QStringList EffectMakerContextObject::allStatesForId(const QString &id)
 {
       if (m_model && m_model->rewriterView()) {
-          const QmlObjectNode node = m_model->rewriterView()->modelNodeForId(id);
+          const QmlDesigner::QmlObjectNode node = m_model->rewriterView()->modelNodeForId(id);
           if (node.isValid())
               return node.allStateNames();
       }
@@ -182,4 +182,5 @@ bool EffectMakerContextObject::isBlocked(const QString &) const
       return false;
 }
 
-} // QmlDesigner
+} // namespace EffectMaker
+

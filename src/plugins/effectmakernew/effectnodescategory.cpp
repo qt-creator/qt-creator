@@ -3,7 +3,7 @@
 
 #include "effectnodescategory.h"
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 EffectNodesCategory::EffectNodesCategory(const QString &name, const QList<EffectNode *> &nodes)
     : m_name(name),
@@ -19,4 +19,5 @@ QList<EffectNode *> EffectNodesCategory::nodes() const
     return m_categoryNodes;
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

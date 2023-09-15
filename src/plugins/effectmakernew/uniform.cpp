@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "uniform.h"
+#include <qmldesignerplugin.h>
 
-#include "propertyeditorvalue.h"
 
 #include <QColor>
 #include <QJsonObject>
 #include <QVector2D>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 Uniform::Uniform(const QJsonObject &propObj)
 {
@@ -45,7 +45,7 @@ Uniform::Uniform(const QJsonObject &propObj)
 
     setValueData(value, defaultValue, minValue, maxValue);
 
-    m_backendValue = new PropertyEditorValue(this);
+    m_backendValue = new QmlDesigner::PropertyEditorValue(this);
     m_backendValue->setValue(value);
 }
 
@@ -321,4 +321,4 @@ QString Uniform::typeToProperty(Uniform::Type type)
     return QString();
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker

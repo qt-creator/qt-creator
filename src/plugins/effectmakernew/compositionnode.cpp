@@ -12,7 +12,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 CompositionNode::CompositionNode(const QString &qenPath)
 {
@@ -119,4 +119,5 @@ void CompositionNode::parse(const QString &qenPath)
     }
 }
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

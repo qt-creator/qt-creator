@@ -9,7 +9,7 @@
 #include <QRegularExpression>
 #include <QStandardItemModel>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class CompositionNode;
 class Uniform;
@@ -135,4 +135,5 @@ private:
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+

@@ -7,7 +7,7 @@
 
 #include <QObject>
 
-namespace QmlDesigner {
+namespace EffectMaker {
 
 class EffectNodesCategory : public QObject
 {
@@ -27,4 +27,5 @@ private:
     QList<EffectNode *> m_categoryNodes;
 };
 
-} // namespace QmlDesigner
+} // namespace EffectMaker
+
