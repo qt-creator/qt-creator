@@ -1,4 +1,5 @@
 add_qtc_library(AdvancedDockingSystem
+  CONDITION TARGET Qt::QuickWidgets
   DEPENDS Qt::Widgets Qt::Core Qt::Gui Qt::Xml Qt::QuickWidgets Utils
   SOURCES
     ads_globals.cpp ads_globals.h
