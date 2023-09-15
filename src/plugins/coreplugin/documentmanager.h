@@ -20,7 +20,7 @@ class IDocument;
 
 namespace Internal {
 class DocumentManagerPrivate;
-class MainWindow;
+class MainWindowPrivate;
 }
 
 class CORE_EXPORT DocumentManager : public QObject
@@ -152,7 +152,7 @@ private:
     void updateSaveAll();
     static void registerSaveAllAction();
 
-    friend class Core::Internal::MainWindow;
+    friend class Core::Internal::MainWindowPrivate;
     friend class Core::Internal::DocumentManagerPrivate;
 };
 

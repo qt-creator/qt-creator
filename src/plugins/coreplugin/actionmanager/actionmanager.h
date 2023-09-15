@@ -25,6 +25,7 @@ class Context;
 namespace Internal {
 class CorePlugin;
 class MainWindow;
+class MainWindowPrivate;
 } // Internal
 
 class CORE_EXPORT ActionManager : public QObject
@@ -67,6 +68,7 @@ private:
 
     friend class Core::Internal::CorePlugin; // initialization
     friend class Core::Internal::MainWindow; // saving settings and setting context
+    friend class Core::Internal::MainWindowPrivate; // saving settings and setting context
 };
 
 } // namespace Core

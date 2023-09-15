@@ -20,7 +20,7 @@ class MacroExpander;
 namespace Core {
 
 namespace Internal {
-class MainWindow;
+class MainWindowPrivate;
 class JsExpanderPrivate;
 } // namespace Internal
 
@@ -50,7 +50,7 @@ private:
     static JsExpander *createGlobalJsExpander();
 
     Internal::JsExpanderPrivate *d;
-    friend class Core::Internal::MainWindow;
+    friend class Core::Internal::MainWindowPrivate;
 };
 
 } // namespace Core

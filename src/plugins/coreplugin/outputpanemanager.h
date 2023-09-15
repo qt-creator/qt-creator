@@ -18,6 +18,7 @@ namespace Core {
 namespace Internal {
 
 class MainWindow;
+class MainWindowPrivate;
 class OutputPaneToggleButton;
 class OutputPaneManageButton;
 
@@ -45,6 +46,7 @@ protected:
 private:
     // the only class that is allowed to create and destroy
     friend class MainWindow;
+    friend class MainWindowPrivate;
     friend class OutputPaneManageButton;
 
     static void create();

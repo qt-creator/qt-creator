@@ -4,7 +4,6 @@
 #pragma once
 
 #include "core_global.h"
-#include "ioutputpane.h"
 
 #include <QMetaType>
 #include <QObject>
@@ -15,7 +14,10 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-namespace Internal { class MainWindow; }
+namespace Internal {
+class MainWindow;
+class MainWindowPrivate;
+}
 
 class CORE_EXPORT MessageManager : public QObject
 {
@@ -41,6 +43,7 @@ private:
 
     static void init();
     friend class Core::Internal::MainWindow;
+    friend class Core::Internal::MainWindowPrivate;
 };
 
 } // namespace Core

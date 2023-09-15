@@ -29,7 +29,10 @@ namespace Core {
 class Context;
 class IWizardFactory;
 
-namespace Internal { class MainWindow; }
+namespace Internal {
+class MainWindow;
+class MainWindowPrivate;
+} // Internal
 
 class NewDialog;
 
@@ -38,6 +41,7 @@ class CORE_EXPORT ICore : public QObject
     Q_OBJECT
 
     friend class Internal::MainWindow;
+    friend class Internal::MainWindowPrivate;
     friend class IWizardFactory;
 
     explicit ICore(Internal::MainWindow *mw);

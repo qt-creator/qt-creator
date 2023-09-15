@@ -12,6 +12,7 @@
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
+#include <coreplugin/icontext.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildsteplist.h>
