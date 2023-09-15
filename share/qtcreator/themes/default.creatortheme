@@ -48,7 +48,8 @@ highlightHover=ff74CBFC
 [Colors]
 ;DS controls theme START
 
-;NEW FOR QtDS 4.0
+;NEW FOR QtDS 4
+;4.0
 DScontrolBackground_toolbarIdle=offWhite
 DScontrolBackground_toolbarHover=offWhite
 DScontrolBackground_topToolbarHover=concreteGrey
@@ -68,7 +69,32 @@ DSstateBackgroundColor_hover=concreteGrey
 DSstateControlBackgroundColor_globalHover=concreteGrey
 DSstateControlBackgroundColor_hover=smokeGrey
 DSpanelBackground=dawnGrey
-;END NEW FOR QtDS 4.0
+
+;4.3
+DSpopoutBackground=offWhite
+DSpopoutControlBackground_idle=offWhite
+DSpopoutControlBackground_hover=lightWhite
+DSpopoutControlBackground_globalHover=lightWhite
+DSpopoutControlBackground_interaction=highlightBlue
+DSpopoutControlBackground_disabled=offWhite
+DSpopoutPopupBackground=lightWhite
+
+DSpopoutControlBorder_idle=slateGrey
+DSpopoutControlBorder_hover=concreteGrey
+DSpopoutControlBorder_interaction=highlightBlue
+DSpopoutControlBorder_disabled=offWhite
+
+DSpopoutButtonBackground_idle=offWhite
+DSpopoutButtonBackground_hover=lightWhite
+DSpopoutButtonBackground_interaction=highlightBlue
+DSpopoutButtonBackground_disabled=offWhite
+
+DSpopoutButtonBorder_idle=smokeGrey
+DSpopoutButtonBorder_hover=shadowGrey
+DSpopoutButtonBorder_interaction=highlightBlue
+DSpopoutButtonBorder_disabled=offWhite
+
+;END NEW FOR QtDS 4
 
 DSpanelBackground=ffeaeaea
 
@@ -81,12 +107,12 @@ DSgreenLight=ff5cdc68
 DSamberLight=ffffbf00
 DSredLight=ffff0401
 
-DSinteraction=ff2aafd3
+DSinteraction=highlightBlue
 DSerrorColor=ffdf3a3a
 DSwarningColor=warning
 DSdisabledColor=ff8e8e8e
 
-DSinteractionHover=ff74cbfc
+DSinteractionHover=highlightHover
 
 DScontrolBackground=ffeaeaea
 DScontrolBackgroundInteraction=ffc9c9c9
@@ -98,7 +124,6 @@ DScontrolOutline=ffcecccc
 DScontrolOutlineInteraction=ff2aafd3
 DScontrolOutlineDisabled=ff707070
 
-DStextColor=ff262626
 DStextColorDisabled=ff707070
 DStextSelectionColor=ff2aafd3
 DStextSelectedTextColor=ff000000
@@ -131,8 +156,9 @@ DSsliderHandleHover=ff606060
 DSsliderHandleFocus=ff0492c9
 DSsliderHandleInteraction=ff2aafd3
 
-DSscrollBarTrack=ffb5b4b4
-DSscrollBarHandle=ff9b9b9b
+DSscrollBarTrack=smokeGrey
+DSscrollBarHandle=shadowGrey
+DSscrollBarHandle_idle=slateGrey
 
 DSsectionHeadBackground=ffd8d8d8
 
@@ -142,7 +168,7 @@ DSstateBackgroundColor=ffe0e0e0
 DSstatePreviewOutline=ff363636
 
 DSstatePanelBackground=ffdadada
-DSstateHighlight=offWhite
+DSstateHighlight=ff8d8d8d
 
 DSchangedStateText=ff99ccff
 
@@ -218,7 +244,6 @@ DSUnimportedModuleColor=ffe33c2e
 
 DSBackgroundColorAlternate=ffeaeaea
 DSBackgroundColorNormal=ffd8d8d8
-
 
 ;DS controls theme END
 
