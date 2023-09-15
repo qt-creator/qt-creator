@@ -941,6 +941,7 @@ PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
 void PluginManagerPrivate::startDelayedInitialize()
 {
     delayedInitializeTimer.reset();
+    Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
     {
         NANOTRACE_SCOPE("ExtensionSystem", "DelayedInitialize");
         while (!delayedInitializeQueue.empty()) {
@@ -1376,7 +1377,6 @@ void PluginManagerPrivate::loadPlugins()
     }
     emit q->pluginsChanged();
 
-    Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
     delayedInitializeTimer.reset(new QTimer);
     delayedInitializeTimer->setInterval(DELAYED_INITIALIZE_INTERVAL);
     delayedInitializeTimer->setSingleShot(true);
