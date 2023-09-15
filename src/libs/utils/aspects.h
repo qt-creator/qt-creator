@@ -21,9 +21,14 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QSettings;
 class QUndoStack;
+class QStandardItem;
+class QStandardItemModel;
+class QItemSelectionModel;
 QT_END_NAMESPACE
 
-namespace Layouting { class LayoutItem; }
+namespace Layouting {
+class LayoutItem;
+}
 
 namespace Utils {
 
@@ -1066,6 +1071,36 @@ public:
 
 private:
     std::unique_ptr<Internal::AspectListPrivate> d;
+};
+
+class QTCREATOR_UTILS_EXPORT StringSelectionAspect : public Utils::TypedAspect<QString>
+{
+    Q_OBJECT
+public:
+    StringSelectionAspect(Utils::AspectContainer *container = nullptr);
+
+    void addToLayout(Layouting::LayoutItem &parent) override;
+
+    using ResultCallback = std::function<void(QList<QStandardItem *> items)>;
+    using FillCallback = std::function<void(ResultCallback)>;
+    void setFillCallback(FillCallback callback) { m_fillCallback = callback; }
+
+    void refill() { emit refillRequested(); }
+
+    void bufferToGui() override;
+    bool guiToBuffer() override;
+
+signals:
+    void refillRequested();
+
+private:
+    QStandardItem *itemById(const QString &id);
+
+    FillCallback m_fillCallback;
+    QStandardItemModel *m_model{nullptr};
+    QItemSelectionModel *m_selectionModel{nullptr};
+
+    Utils::UndoableValue<QString> m_undoable;
 };
 
 } // namespace Utils

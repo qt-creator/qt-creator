@@ -77,7 +77,7 @@ SourceSettings::SourceSettings(const ApiConfigFunction &apiConfigFunction)
         auto result = std::make_shared<CompilerSettings>(apiConfigFunction);
         connect(this, &SourceSettings::languagesChanged, result.get(), &CompilerSettings::refresh);
         connect(&languageId,
-                &StringSelectionAspect::changed,
+                &Utils::StringSelectionAspect::changed,
                 result.get(),
                 [this, result = result.get()] { result->setLanguageId(languageId()); });
 
@@ -176,7 +176,7 @@ void CompilerSettings::setLanguageId(const QString &languageId)
         compilerOptions.setValue("");
 }
 
-void CompilerSettings::fillLibraries(LibrarySelectionAspect::ResultCallback cb)
+void CompilerSettings::fillLibraries(const LibrarySelectionAspect::ResultCallback &cb)
 {
     const QString lang = m_languageId;
     auto fillFromCache = [cb, lang] {
@@ -212,7 +212,7 @@ void CompilerSettings::fillLibraries(LibrarySelectionAspect::ResultCallback cb)
                      });
 }
 
-void SourceSettings::fillLanguageIdModel(StringSelectionAspect::ResultCallback cb)
+void SourceSettings::fillLanguageIdModel(const Utils::StringSelectionAspect::ResultCallback &cb)
 {
     auto fillFromCache = [cb, this] {
         QList<QStandardItem *> items;
@@ -254,7 +254,7 @@ void SourceSettings::fillLanguageIdModel(StringSelectionAspect::ResultCallback c
                      });
 }
 
-void CompilerSettings::fillCompilerModel(StringSelectionAspect::ResultCallback cb)
+void CompilerSettings::fillCompilerModel(const Utils::StringSelectionAspect::ResultCallback &cb)
 {
     auto fillFromCache = [cb](auto it) {
         QList<QStandardItem *> items;

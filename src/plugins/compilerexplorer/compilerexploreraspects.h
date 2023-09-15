@@ -14,32 +14,6 @@
 
 namespace CompilerExplorer {
 
-class StringSelectionAspect : public Utils::TypedAspect<QString>
-{
-    Q_OBJECT
-public:
-    StringSelectionAspect(Utils::AspectContainer *container = nullptr);
-
-    void addToLayout(Layouting::LayoutItem &parent) override;
-
-    using ResultCallback = std::function<void(QList<QStandardItem *> items)>;
-    using FillCallback = std::function<void(ResultCallback)>;
-    void setFillCallback(FillCallback callback) { m_fillCallback = callback; }
-
-    void refill() { emit refillRequested(); }
-
-    void bufferToGui() override;
-    bool guiToBuffer() override;
-
-signals:
-    void refillRequested();
-
-private:
-    FillCallback m_fillCallback;
-    QStandardItemModel *m_model{nullptr};
-    QItemSelectionModel *m_selectionModel{nullptr};
-};
-
 // QMap<Library.Id, Library.Version.Id>
 class LibrarySelectionAspect : public Utils::TypedAspect<QMap<QString, QString>>
 {

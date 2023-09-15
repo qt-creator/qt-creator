@@ -23,6 +23,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QCompleter>
 #include <QDebug>
 #include <QGroupBox>
 #include <QLabel>
@@ -36,6 +37,7 @@
 #include <QScrollArea>
 #include <QSettings>
 #include <QSpinBox>
+#include <QStandardItemModel>
 #include <QTextEdit>
 #include <QUndoStack>
 
@@ -3240,6 +3242,128 @@ void AspectList::addToLayout(Layouting::LayoutItem &parent)
     QObject::connect(this, &AspectList::volatileValueChanged, scrollArea, fill);
 
     parent.addItem(scrollArea);
+}
+
+StringSelectionAspect::StringSelectionAspect(AspectContainer *container)
+    : TypedAspect<QString>(container)
+{}
+
+QStandardItem *StringSelectionAspect::itemById(const QString &id)
+{
+    for (int i = 0; i < m_model->rowCount(); ++i) {
+        auto cur = m_model->item(i);
+        if (cur->data() == id)
+            return cur;
+    }
+
+    return nullptr;
+}
+
+void StringSelectionAspect::bufferToGui()
+{
+    if (!m_model)
+        return;
+
+    auto selected = itemById(m_buffer);
+    if (selected) {
+        m_undoable.setSilently(selected->data().toString());
+        m_selectionModel->setCurrentIndex(selected->index(),
+                                          QItemSelectionModel::SelectionFlag::ClearAndSelect);
+        return;
+    }
+
+    if (m_model->rowCount() > 0) {
+        m_undoable.setSilently(m_model->item(0)->data().toString());
+        m_selectionModel->setCurrentIndex(m_model->item(0)->index(),
+                                          QItemSelectionModel::SelectionFlag::ClearAndSelect);
+    } else {
+        m_selectionModel->setCurrentIndex(QModelIndex(), QItemSelectionModel::SelectionFlag::Clear);
+    }
+    handleGuiChanged();
+}
+
+bool StringSelectionAspect::guiToBuffer()
+{
+    if (!m_model)
+        return false;
+
+    auto oldBuffer = m_buffer;
+
+    m_buffer = m_undoable.get();
+
+    return oldBuffer != m_buffer;
+}
+
+void StringSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
+{
+    QTC_ASSERT(m_fillCallback, return);
+
+    auto cb = [this](const QList<QStandardItem *> &items) {
+        m_model->clear();
+        for (QStandardItem *item : items)
+            m_model->appendRow(item);
+
+        bufferToGui();
+    };
+
+    if (!m_model) {
+        m_model = new QStandardItemModel(this);
+        m_selectionModel = new QItemSelectionModel(m_model);
+
+        connect(this, &StringSelectionAspect::refillRequested, this, [this, cb] {
+            m_fillCallback(cb);
+        });
+
+        m_fillCallback(cb);
+    }
+
+    QComboBox *comboBox = new QComboBox();
+    comboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
+    comboBox->setEditable(true);
+    comboBox->completer()->setCompletionMode(QCompleter::PopupCompletion);
+    comboBox->completer()->setFilterMode(Qt::MatchContains);
+
+    comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    comboBox->setCurrentText(value());
+    comboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+
+    comboBox->setModel(m_model);
+
+    connect(m_selectionModel,
+            &QItemSelectionModel::currentChanged,
+            comboBox,
+            [comboBox](QModelIndex currentIdx) {
+                if (currentIdx.isValid() && comboBox->currentIndex() != currentIdx.row())
+                    comboBox->setCurrentIndex(currentIdx.row());
+            });
+
+    connect(comboBox, &QComboBox::activated, this, [this](int idx) {
+        QModelIndex modelIdx = m_model->index(idx, 0);
+        if (!modelIdx.isValid())
+            return;
+
+        QString newValue = m_model->index(idx, 0).data(Qt::UserRole + 1).toString();
+        if (newValue.isEmpty())
+            return;
+
+        pushUndo(m_undoable.set(newValue));
+        bufferToGui();
+    });
+
+    connect(&m_undoable.m_signal, &UndoSignaller::changed, comboBox, [this, comboBox]() {
+        auto item = itemById(m_undoable.get());
+        if (item)
+            m_selectionModel->setCurrentIndex(item->index(), QItemSelectionModel::ClearAndSelect);
+        else
+            comboBox->setCurrentText(m_undoable.get());
+
+        handleGuiChanged();
+    });
+
+    if (m_selectionModel->currentIndex().isValid())
+        comboBox->setCurrentIndex(m_selectionModel->currentIndex().row());
+
+    return addLabeledItem(parent, comboBox);
 }
 
 } // namespace Utils

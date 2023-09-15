@@ -59,7 +59,7 @@ public:
     ApiConfigFunction apiConfigFunction() const { return m_apiConfigFunction; }
 
 public:
-    StringSelectionAspect languageId{this};
+    Utils::StringSelectionAspect languageId{this};
     Utils::StringAspect source{this};
     Utils::AspectList compilers{this};
 
@@ -70,7 +70,7 @@ signals:
     void languagesChanged();
 
 private:
-    void fillLanguageIdModel(StringSelectionAspect::ResultCallback cb);
+    void fillLanguageIdModel(const Utils::StringSelectionAspect::ResultCallback &cb);
 
 private:
     CompilerExplorerSettings *m_parent;
@@ -82,7 +82,7 @@ class CompilerSettings : public Utils::AspectContainer
 public:
     CompilerSettings(const ApiConfigFunction &apiConfigFunction);
 
-    StringSelectionAspect compiler{this};
+    Utils::StringSelectionAspect compiler{this};
 
     Utils::StringAspect compilerOptions{this};
     LibrarySelectionAspect libraries{this};
@@ -97,8 +97,8 @@ public:
     void setLanguageId(const QString &languageId);
 
 private:
-    void fillCompilerModel(StringSelectionAspect::ResultCallback cb);
-    void fillLibraries(LibrarySelectionAspect::ResultCallback cb);
+    void fillCompilerModel(const Utils::StringSelectionAspect::ResultCallback &cb);
+    void fillLibraries(const LibrarySelectionAspect::ResultCallback &cb);
 
     QString m_languageId;
     ApiConfigFunction m_apiConfigFunction;
