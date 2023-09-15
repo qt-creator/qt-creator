@@ -117,7 +117,9 @@ SessionManager::SessionManager()
     m_instance = this;
     d = new SessionManagerPrivate;
 
-    connect(ICore::instance(), &ICore::coreOpened, this, [] { d->restoreStartupSession(); });
+    connect(PluginManager::instance(), &PluginManager::initializationDone, this, [] {
+        d->restoreStartupSession();
+    });
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &SessionManager::saveActiveMode);
@@ -449,13 +451,10 @@ void SessionManagerPrivate::restoreStartupSession()
                                                                      : QString(),
                                 true);
 
-    // delay opening projects from the command line even more
-    QTimer::singleShot(0, m_instance, [arguments] {
-        ICore::openFiles(Utils::transform(arguments, &FilePath::fromUserInput),
-                         ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers
-                                               | ICore::SwitchMode));
-        emit m_instance->startupSessionRestored();
-    });
+    ICore::openFiles(Utils::transform(arguments, &FilePath::fromUserInput),
+                     ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers
+                                           | ICore::SwitchMode));
+    emit m_instance->startupSessionRestored();
 }
 
 void SessionManagerPrivate::saveSettings()
