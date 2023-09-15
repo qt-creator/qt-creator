@@ -263,13 +263,16 @@ public:
 protected:
     enum class DetectVariants { Yes, No };
     using ToolchainChecker = std::function<bool(const ToolChain *)>;
-    Toolchains autoDetectToolchains(
-            const QString &compilerName, DetectVariants detectVariants, const Utils::Id language,
-            const Utils::Id requiredTypeId, const ToolchainDetector &detector,
-            const ToolchainChecker &checker = {}) const;
-    Toolchains autoDetectToolChain(
-            const ToolChainDescription &tcd,
-            const ToolchainChecker &checker = {}) const;
+    static Toolchains autoDetectToolchains(const QString &compilerName,
+                                           DetectVariants detectVariants,
+                                           const Utils::Id language,
+                                           const Utils::Id requiredTypeId,
+                                           const ToolchainDetector &detector,
+                                           const ToolChainConstructor &constructor,
+                                           const ToolchainChecker &checker = {});
+    static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,
+                                          const ToolChainConstructor &constructor,
+                                          const ToolchainChecker &checker = {});
 };
 
 class ClangToolChainFactory : public GccToolChainFactory

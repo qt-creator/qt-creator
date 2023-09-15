@@ -672,9 +672,14 @@ void ToolChainFactory::setSupportsAllLanguages(bool supportsAllLanguages)
 }
 
 void ToolChainFactory::setToolchainConstructor
-    (const std::function<ToolChain *()> &toolchainContructor)
+    (const ToolChainConstructor &toolchainContructor)
 {
     m_toolchainConstructor = toolchainContructor;
+}
+
+ToolChainFactory::ToolChainConstructor ToolChainFactory::toolchainConstructor() const
+{
+    return m_toolchainConstructor;
 }
 
 void ToolChainFactory::setUserCreatable(bool userCreatable)
