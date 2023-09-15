@@ -90,7 +90,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    void cleanup();
+    void asyncClose();
 
     QPointer<QQuickView> m_configDialog;
     QPointer<Edit3DView> m_view;

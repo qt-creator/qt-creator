@@ -132,7 +132,7 @@ Rectangle {
                 ToolTip.text: qsTr("Snap interval for move gizmo.")
                 ToolTip.delay: root.toolTipDelay
 
-                onValueModified: posInt = value
+                onValueChanged: posInt = value
             }
 
             StudioControls.CheckBox {
@@ -167,7 +167,7 @@ Rectangle {
                 ToolTip.text: qsTr("Snap interval in degrees for rotation gizmo.")
                 ToolTip.delay: root.toolTipDelay
 
-                onValueModified: rotInt = value
+                onValueChanged: rotInt = value
             }
 
             StudioControls.CheckBox {
@@ -202,7 +202,7 @@ Rectangle {
                 ToolTip.text: qsTr("Snap interval for scale gizmo in percentage of original scale.")
                 ToolTip.delay: root.toolTipDelay
 
-                onValueModified: scaleInt = value
+                onValueChanged: scaleInt = value
             }
 
             StudioControls.CheckBox {

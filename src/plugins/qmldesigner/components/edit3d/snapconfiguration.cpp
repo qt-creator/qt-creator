@@ -47,7 +47,8 @@ SnapConfiguration::SnapConfiguration(Edit3DView *view)
 
 SnapConfiguration::~SnapConfiguration()
 {
-    cleanup();
+    delete m_configDialog;
+    restoreCursor();
 }
 
 void SnapConfiguration::apply()
@@ -67,12 +68,10 @@ void SnapConfiguration::apply()
                                m_rotationInterval);
         Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL,
                                m_scaleInterval);
-        m_view->syncSnapAuxPropsToSettings();
+        if (!m_view.isNull())
+            m_view->syncSnapAuxPropsToSettings();
     }
-
-    restoreCursor();
-
-    cancel();
+    deleteLater();
 }
 
 void SnapConfiguration::resetDefaults()
@@ -234,9 +233,12 @@ void SnapConfiguration::setScaleInt(double value)
     }
 }
 
-void SnapConfiguration::cleanup()
+void SnapConfiguration::asyncClose()
 {
-    delete m_configDialog;
+    QTimer::singleShot(0, this, [this]() {
+        if (!m_configDialog.isNull() && m_configDialog->isVisible())
+            m_configDialog->close();
+    });
 }
 
 void SnapConfiguration::cancel()
@@ -249,15 +251,13 @@ void SnapConfiguration::cancel()
 
 bool SnapConfiguration::eventFilter(QObject *obj, QEvent *event)
 {
-    // Closing dialog always applies the changes
-
     if (obj == m_configDialog) {
         if (event->type() == QEvent::FocusOut) {
-            apply();
+            asyncClose();
         } else if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Escape)
-                apply();
+                asyncClose();
         } else if (event->type() == QEvent::Close) {
             apply();
         }
