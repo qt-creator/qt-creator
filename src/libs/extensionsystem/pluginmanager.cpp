@@ -938,35 +938,30 @@ PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
     return spec->d;
 }
 
-void PluginManagerPrivate::nextDelayedInitialize()
+void PluginManagerPrivate::startDelayedInitialize()
 {
-    static bool first = true;
-    if (first) {
-        first = false;
-        NANOTRACE_BEGIN("ExtensionSystem", "DelayedInitialize");
-    }
-    while (!delayedInitializeQueue.empty()) {
-        PluginSpec *spec = delayedInitializeQueue.front();
-        const std::string specName = spec->name().toStdString();
-        delayedInitializeQueue.pop();
-        NANOTRACE_SCOPE(specName, specName + "::delayedInitialized");
-        profilingReport(">delayedInitialize", spec);
-        bool delay = spec->d->delayedInitialize();
-        profilingReport("<delayedInitialize", spec, &spec->d->performanceData.delayedInitialize);
-        if (delay)
-            break; // do next delayedInitialize after a delay
-    }
-    if (delayedInitializeQueue.empty()) {
+    delayedInitializeTimer.reset();
+    {
+        NANOTRACE_SCOPE("ExtensionSystem", "DelayedInitialize");
+        while (!delayedInitializeQueue.empty()) {
+            PluginSpec *spec = delayedInitializeQueue.front();
+            const std::string specName = spec->name().toStdString();
+            delayedInitializeQueue.pop();
+            NANOTRACE_SCOPE(specName, specName + "::delayedInitialized");
+            profilingReport(">delayedInitialize", spec);
+            bool delay = spec->d->delayedInitialize();
+            profilingReport("<delayedInitialize", spec, &spec->d->performanceData.delayedInitialize);
+            if (delay) // give UI a bit of breathing space, but prevent user interaction
+                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        }
         Utils::setMimeStartupPhase(MimeStartupPhase::UpAndRunning);
         m_isInitializationDone = true;
-        delete delayedInitializeTimer;
-        delayedInitializeTimer = nullptr;
         if (m_profileTimer)
             m_totalStartupMS = m_profileTimer->elapsed();
         printProfilingSummary();
-        NANOTRACE_END("ExtensionSystem", "DelayedInitialize");
-        NANOTRACE_SHUTDOWN();
-        emit q->initializationDone();
+    }
+    NANOTRACE_SHUTDOWN();
+    emit q->initializationDone();
 #ifdef WITH_TESTS
         if (PluginManager::testRunRequested())
             startTests();
@@ -979,9 +974,6 @@ void PluginManagerPrivate::nextDelayedInitialize()
             }
         }
 #endif
-    } else {
-        delayedInitializeTimer->start();
-    }
 }
 
 /*!
@@ -1045,8 +1037,7 @@ void PluginManagerPrivate::stopAll()
     m_isShuttingDown = true;
     if (delayedInitializeTimer && delayedInitializeTimer->isActive()) {
         delayedInitializeTimer->stop();
-        delete delayedInitializeTimer;
-        delayedInitializeTimer = nullptr;
+        delayedInitializeTimer.reset();
     }
 
     const QVector<PluginSpec *> queue = loadQueue();
@@ -1386,11 +1377,13 @@ void PluginManagerPrivate::loadPlugins()
     emit q->pluginsChanged();
 
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
-    delayedInitializeTimer = new QTimer;
+    delayedInitializeTimer.reset(new QTimer);
     delayedInitializeTimer->setInterval(DELAYED_INITIALIZE_INTERVAL);
     delayedInitializeTimer->setSingleShot(true);
-    connect(delayedInitializeTimer, &QTimer::timeout,
-            this, &PluginManagerPrivate::nextDelayedInitialize);
+    connect(delayedInitializeTimer.get(),
+            &QTimer::timeout,
+            this,
+            &PluginManagerPrivate::startDelayedInitialize);
     delayedInitializeTimer->start();
 }
 
