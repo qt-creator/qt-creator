@@ -442,7 +442,16 @@ QtObject {
     property color themeDialogOutline: values.themeInteraction
 
     // Expression Builder
-    property color themePillBackground: Theme.color(Theme.DSdockWidgetSplitter)
+    property color themePillDefaultBackgroundIdle: "#ff000000"
+    property color themePillDefaultBackgroundHover: "#ff2c2c2c"
+    property color themePillOperatorBackgroundIdle: "#ff6b2a7b"
+    property color themePillOperatorBackgroundHover: "#ff7e478b"
+    property color themePillLiteralBackgroundIdle: "#ffb2005c"
+    property color themePillLiteralBackgroundHover: "#ffb24e81"
+
+    property color themePillShadowBackground: values.themeInteraction
+
+    property color themePillOutline: "#ffffffff"
 
 
     // Control Style Mapping
