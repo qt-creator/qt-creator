@@ -223,7 +223,7 @@ Column {
             id: code
             anchors.fill: parent
             anchors.margins: 4
-            text: backend.source
+            text: backend.indentedSource
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.myFontSize
             wrapMode: Text.WordWrap

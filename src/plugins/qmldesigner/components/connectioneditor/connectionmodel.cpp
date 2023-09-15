@@ -11,18 +11,21 @@
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
+#include <plaintexteditmodifier.h>
 #include <rewritertransaction.h>
 #include <rewriterview.h>
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 #include <utils/qtcassert.h>
 
-#include <QStandardItemModel>
 #include <QMessageBox>
+#include <QStandardItemModel>
 #include <QTableView>
+#include <QTextCursor>
+#include <QTextDocument>
 #include <QTimer>
 
 namespace {
@@ -909,6 +912,19 @@ ConnectionModelStatementDelegate *ConnectionModelBackendDelegate::koStatement()
 ConditionListModel *ConnectionModelBackendDelegate::conditionListModel()
 {
     return &m_conditionListModel;
+}
+
+QString ConnectionModelBackendDelegate::indentedSource() const
+{
+    if (m_source.isEmpty())
+        return {};
+
+    QTextDocument doc(m_source);
+    QTextCursor cursor(&doc);
+    IndentingTextEditModifier mod(&doc, cursor);
+
+    mod.indent(0, m_source.length() - 1);
+    return mod.text();
 }
 
 QString ConnectionModelBackendDelegate::source() const
