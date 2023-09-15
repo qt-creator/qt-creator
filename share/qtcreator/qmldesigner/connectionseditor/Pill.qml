@@ -141,7 +141,7 @@ FocusScope {
                     root.submit(textInput.cursorPosition) // emit
                 }
 
-                Keys.onPressed: function (event) {
+                Keys.onReleased: function (event) {
                     if (event.key === Qt.Key_Backspace) {
                         if (textInput.text !== "")
                             return
