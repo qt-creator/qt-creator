@@ -18,16 +18,24 @@ Column {
 
     property var statement
 
-    //implicitWidth: Math.max(16, container.childrenRect.width + container.childrenRect.x)
-    //implicitHeight: Math.max(16, container.childrenRect.height + container.childrenRect.y)
+    property var backend
 
     // Call Function
     Row {
         visible: root.actionType === ConnectionModelStatementDelegate.CallFunction
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("Item") ; tooltip: qsTr("The target item of the function.")}
-        PopupLabel { text: qsTr("Method") ; tooltip: qsTr("The name of the function.")}
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Item")
+            tooltip: qsTr("The target item of the function.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Method")
+            tooltip: qsTr("The name of the function.")
+        }
     }
 
     Row {
@@ -46,7 +54,7 @@ Column {
             onCurrentTypeIndexChanged: functionId.currentIndex = functionId.currentTypeIndex
         }
 
-            StudioControls.TopLevelComboBox {
+        StudioControls.TopLevelComboBox {
             id: functionName
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
@@ -63,8 +71,16 @@ Column {
         visible: root.actionType === ConnectionModelStatementDelegate.Assign
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("From") ; tooltip: qsTr("The Property to assign from.")}
-        PopupLabel { text: qsTr("To"); tooltip: qsTr("The Property to assign to.") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("From")
+            tooltip: qsTr("The Property to assign from.")
+        }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("To")
+            tooltip: qsTr("The Property to assign to.")
+        }
     }
 
     Row {
@@ -132,8 +148,17 @@ Column {
         visible: root.actionType === ConnectionModelStatementDelegate.ChangeState
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("State Group"); tooltip: qsTr("The State Group.") }
-        PopupLabel { text: qsTr("State"); tooltip: qsTr("The State .") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("State Group")
+            tooltip: qsTr("The State Group.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("State")
+            tooltip: qsTr("The State .")
+        }
     }
 
     Row {
@@ -169,8 +194,17 @@ Column {
         visible: root.actionType === ConnectionModelStatementDelegate.SetProperty
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("Item"); tooltip: qsTr("The Item.")}
-        PopupLabel { text: qsTr("Property"); tooltip: qsTr("The property of the item.")}
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Item")
+            tooltip: qsTr("The Item.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Property")
+            tooltip: qsTr("The property of the item.")
+        }
     }
 
     Row {
@@ -203,6 +237,7 @@ Column {
     }
 
     PopupLabel {
+        width: root.columnWidth
         visible: root.actionType === ConnectionModelStatementDelegate.SetProperty
         text: qsTr("Value")
     }
@@ -222,6 +257,7 @@ Column {
 
     // Print Message
     PopupLabel {
+        width: root.columnWidth
         visible: root.actionType === ConnectionModelStatementDelegate.PrintMessage
         text: qsTr("Message")
         tooltip: qsTr("The message that is printed.")

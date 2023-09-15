@@ -8,10 +8,10 @@ import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
 Text {
-    width: root.columnWidth
     color: StudioTheme.Values.themeTextColor
     font.pixelSize: StudioTheme.Values.myFontSize
     property alias tooltip: area.tooltip
+
     HelperWidgets.ToolTipArea {
         id: area
         anchors.fill: parent

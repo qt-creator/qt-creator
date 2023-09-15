@@ -22,8 +22,17 @@ Column {
     Row {
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("From") ; tooltip: qsTr("The Property to assign from.")}
-        PopupLabel { text: qsTr("To"); tooltip: qsTr("The Property to assign to.") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("From")
+            tooltip: qsTr("The Property to assign from.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("To")
+            tooltip: qsTr("The Property to assign to.")
+        }
     }
 
     Row {

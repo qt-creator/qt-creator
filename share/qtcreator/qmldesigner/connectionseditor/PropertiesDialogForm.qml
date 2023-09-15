@@ -38,8 +38,17 @@ Column {
     Row {
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("Name") ; tooltip: qsTr("The name of the property.")}
-        PopupLabel { text: qsTr("Value"); tooltip: qsTr("The value of the property.") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Name")
+            tooltip: qsTr("The name of the property.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Value")
+            tooltip: qsTr("The value of the property.")
+        }
     }
 
     Row {

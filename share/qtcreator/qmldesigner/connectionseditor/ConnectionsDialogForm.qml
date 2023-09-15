@@ -27,8 +27,17 @@ Column {
     Row {
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("Signal"); tooltip: qsTr("The name of the signal.") }
-        PopupLabel { text: qsTr("Action"); tooltip: qsTr("The type of the action.") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Signal")
+            tooltip: qsTr("The name of the signal.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Action")
+            tooltip: qsTr("The type of the action.")
+        }
     }
 
     Row {
@@ -93,10 +102,12 @@ Column {
     }
 
     StatementEditor {
+        width: root.width
         actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
         horizontalSpacing: root.horizontalSpacing
         columnWidth: root.columnWidth
         statement: backend.okStatement
+        backend: root.backend
         spacing: root.verticalSpacing
     }
 
@@ -190,10 +201,12 @@ Column {
 
     //Else Statement
     StatementEditor {
+        width: root.width
         actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
         horizontalSpacing: root.horizontalSpacing
         columnWidth: root.columnWidth
         statement: backend.koStatement
+        backend: root.backend
         spacing: root.verticalSpacing
         visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
                  && backend.hasCondition && backend.hasElse
