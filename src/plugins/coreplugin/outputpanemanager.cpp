@@ -771,22 +771,19 @@ void OutputPaneManager::popupMenu()
         QAction *act = menu.addAction(data.pane->displayName());
         act->setCheckable(true);
         act->setChecked(data.button->isPaneVisible());
-        act->setData(idx);
+        connect(act, &QAction::triggered, this, [this, data, idx] {
+            if (data.button->isPaneVisible()) {
+                data.pane->visibilityChanged(false);
+                data.button->setChecked(false);
+                data.button->hide();
+            } else {
+                showPage(idx, IOutputPane::ModeSwitch);
+            }
+        });
         ++idx;
     }
-    QAction *result = menu.exec(QCursor::pos());
-    if (!result)
-        return;
-    idx = result->data().toInt();
-    QTC_ASSERT(idx >= 0 && idx < g_outputPanes.size(), return);
-    OutputPaneData &data = g_outputPanes[idx];
-    if (data.button->isPaneVisible()) {
-        data.pane->visibilityChanged(false);
-        data.button->setChecked(false);
-        data.button->hide();
-    } else {
-        showPage(idx, IOutputPane::ModeSwitch);
-    }
+
+    menu.exec(QCursor::pos());
 }
 
 void OutputPaneManager::saveSettings() const
