@@ -114,6 +114,13 @@ McuSupportPlugin::~McuSupportPlugin()
     dd = nullptr;
 }
 
+static bool isQtDesignStudio()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode";
+    return settings->value(qdsStandaloneEntry, false).toBool();
+}
+
 void McuSupportPlugin::initialize()
 {
     setObjectName("McuSupportPlugin");
@@ -125,7 +132,10 @@ void McuSupportPlugin::initialize()
 
     // Temporary fix for CodeModel/Checker race condition
     // Remove after https://bugreports.qt.io/browse/QTCREATORBUG-29269 is closed
-    connect(QmlJS::ModelManagerInterface::instance(),
+
+    if (!isQtDesignStudio()) {
+        connect(
+            QmlJS::ModelManagerInterface::instance(),
             &QmlJS::ModelManagerInterface::documentUpdated,
             [lasttime = QTime::currentTime()](QmlJS::Document::Ptr doc) mutable {
                 // Prevent inifinite recall loop
@@ -157,6 +167,7 @@ void McuSupportPlugin::initialize()
                     ->action()
                     ->trigger();
             });
+    }
 
     dd->m_options.registerQchFiles();
     dd->m_options.registerExamples();
