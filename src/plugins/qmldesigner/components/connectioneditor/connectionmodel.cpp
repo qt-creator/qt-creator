@@ -303,6 +303,46 @@ ModelNode ConnectionModel::getTargetNodeForConnection(const ModelNode &connectio
     return result;
 }
 
+static QString addOnToSignalName(const QString &signal)
+{
+    QString ret = signal;
+    ret[0] = ret.at(0).toUpper();
+    ret.prepend("on");
+    return ret;
+}
+
+static PropertyName getFirstSignalForTarget(const NodeMetaInfo &target)
+{
+    PropertyName ret = "clicked";
+
+    if (!target.isValid())
+        return ret;
+
+    const auto signalNames = target.signalNames();
+    if (signalNames.isEmpty())
+        return ret;
+
+    const PropertyNameList priorityList = {"clicked",
+                                           "toggled",
+                                           "started",
+                                           "stopped",
+                                           "moved",
+                                           "valueChanged",
+                                           "visualPostionChanged",
+                                           "accepted",
+                                           "currentIndexChanged",
+                                           "activeFocusChanged"};
+
+    for (const auto &signal : priorityList) {
+        if (signalNames.contains(signal))
+            return signal;
+    }
+
+    ret = target.signalNames().first();
+
+    return ret;
+}
+
 void ConnectionModel::addConnection()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_CONNECTION_ADDED);
@@ -314,33 +354,46 @@ void ConnectionModel::addConnection()
         NodeMetaInfo nodeMetaInfo = connectionView()->model()->qtQuickConnectionsMetaInfo();
 
         if (nodeMetaInfo.isValid()) {
-            connectionView()->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode](){
-                ModelNode newNode = connectionView()->createModelNode("QtQuick.Connections",
-                                                                      nodeMetaInfo.majorVersion(),
-                                                                      nodeMetaInfo.minorVersion());
-                QString source = "console.log(\"clicked\")";
+            ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
+            const PropertyName signalHandlerName = addOnToSignalName(
+                                                       QString::fromUtf8(getFirstSignalForTarget(
+                                                           selectedNode.metaInfo())))
+                                                       .toUtf8();
 
-                if (connectionView()->selectedModelNodes().size() == 1) {
-                    ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
-                    if (QmlItemNode::isValidQmlItemNode(selectedNode))
-                        selectedNode.nodeAbstractProperty("data").reparentHere(newNode);
-                    else
-                        rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
+            connectionView()
+                ->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode]() {
+                    ModelNode newNode = connectionView()
+                                            ->createModelNode("QtQuick.Connections",
+                                                              nodeMetaInfo.majorVersion(),
+                                                              nodeMetaInfo.minorVersion());
+                    QString source = "console.log(\"clicked\")";
 
-                    if (QmlItemNode(selectedNode).isFlowActionArea() || QmlVisualNode(selectedNode).isFlowTransition())
-                        source = selectedNode.validId() + ".trigger()";
+                    if (connectionView()->selectedModelNodes().size() == 1) {
+                        ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
+                        if (QmlItemNode::isValidQmlItemNode(selectedNode))
+                            selectedNode.nodeAbstractProperty("data").reparentHere(newNode);
+                        else
+                            rootModelNode
+                                .nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName())
+                                .reparentHere(newNode);
 
-                    if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
-                        newNode.bindingProperty("target").setExpression(selectedNode.validId());
-                } else {
-                    rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
-                    newNode.bindingProperty("target").setExpression(rootModelNode.validId());
-                }
+                        if (QmlItemNode(selectedNode).isFlowActionArea()
+                            || QmlVisualNode(selectedNode).isFlowTransition())
+                            source = selectedNode.validId() + ".trigger()";
 
-                newNode.signalHandlerProperty("onClicked").setSource(source);
+                        if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
+                            newNode.bindingProperty("target").setExpression(selectedNode.validId());
+                    } else {
+                        rootModelNode
+                            .nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName())
+                            .reparentHere(newNode);
+                        newNode.bindingProperty("target").setExpression(rootModelNode.validId());
+                    }
 
-                selectProperty(newNode.signalHandlerProperty("onClicked"));
-            });
+                    newNode.signalHandlerProperty(signalHandlerName).setSource(source);
+
+                    selectProperty(newNode.signalHandlerProperty(signalHandlerName));
+                });
         }
     }
 }
@@ -787,14 +840,6 @@ QString removeOnFromSignalName(const QString &signal)
     QString ret = signal;
     ret.remove(0, 2);
     ret[0] = ret.at(0).toLower();
-    return ret;
-}
-
-QString addOnToSignalName(const QString &signal)
-{
-    QString ret = signal;
-    ret[0] = ret.at(0).toUpper();
-    ret.prepend("on");
     return ret;
 }
 
