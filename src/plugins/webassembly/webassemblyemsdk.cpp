@@ -3,9 +3,9 @@
 
 #include "webassemblyemsdk.h"
 
-#include "webassemblyconstants.h"
-
 #include <coreplugin/icore.h>
+#include <coreplugin/settingsdatabase.h>
+
 #include <utils/environment.h>
 #include <utils/process.h>
 #include <utils/hostosinfo.h>
@@ -16,38 +16,50 @@ using namespace Utils;
 
 namespace WebAssembly::Internal::WebAssemblyEmSdk {
 
-using EmSdkEnvCache = QCache<FilePath, QString>;
-static EmSdkEnvCache *emSdkEnvCache()
-{
-    static EmSdkEnvCache cache(10);
-    return &cache;
-}
+const char emSdkEnvTSFileKey[] = "WebAssembly/emSdkEnvTimeStampFile";
+const char emSdkEnvTSKey[] = "WebAssembly/emSdkEnvTimeStamp";
+const char emSdkEnvOutputKey[] = "WebAssembly/emSdkEnvOutput1";
 
-using EmSdkVersionCache = QCache<FilePath, QVersionNumber>;
-static EmSdkVersionCache *emSdkVersionCache()
+const char emSdkVersionTSFileKey[] = "WebAssembly/emSdkVersionTimeStampFile";
+const char emSdkVersionTSKey[] = "WebAssembly/emSdkVersionTimeStamp";
+const char emSdkVersionKey[] = "WebAssembly/emSdkVersion1";
+
+const FilePath timeStampFile(const FilePath &sdkRoot)
 {
-    static EmSdkVersionCache cache(10);
-    return &cache;
+    return sdkRoot / ".emscripten";
 }
 
 static QString emSdkEnvOutput(const FilePath &sdkRoot)
 {
-    const bool isWindows = sdkRoot.osType() == OsTypeWindows;
-    if (!emSdkEnvCache()->contains(sdkRoot)) {
-        const FilePath scriptFile = sdkRoot.pathAppended(QLatin1String("emsdk_env") +
-                                        (isWindows ? ".bat" : ".sh"));
-        Process emSdkEnv;
-        if (isWindows) {
-            emSdkEnv.setCommand(CommandLine(scriptFile));
-        } else {
-            // File needs to be source'd, not executed.
-            emSdkEnv.setCommand({sdkRoot.withNewPath("bash"), {"-c", ". " + scriptFile.path()}});
-        }
-        emSdkEnv.runBlocking();
-        const QString output = emSdkEnv.allOutput();
-        emSdkEnvCache()->insert(sdkRoot, new QString(output));
+    const FilePath tsFile = timeStampFile(sdkRoot); // ts == Timestamp
+    if (!tsFile.exists())
+        return {};
+    const QDateTime ts = tsFile.lastModified();
+
+    Core::SettingsDatabase *db = Core::ICore::settingsDatabase();
+    if (db->value(emSdkEnvTSKey).toDateTime() == ts
+        && FilePath::fromVariant(db->value(emSdkEnvTSFileKey)) == tsFile
+        && db->contains(emSdkEnvOutputKey)) {
+        return db->value(emSdkEnvOutputKey).toString();
     }
-    return *emSdkEnvCache()->object(sdkRoot);
+
+    const bool isWindows = sdkRoot.osType() == OsTypeWindows;
+    const FilePath scriptFile = sdkRoot.pathAppended(QLatin1String("emsdk_env") +
+                                                     (isWindows ? ".bat" : ".sh"));
+    Process emSdkEnv;
+    if (isWindows) {
+        emSdkEnv.setCommand(CommandLine(scriptFile));
+    } else {
+        // File needs to be source'd, not executed.
+        emSdkEnv.setCommand({sdkRoot.withNewPath("bash"), {"-c", ". " + scriptFile.path()}});
+    }
+    emSdkEnv.runBlocking();
+    const QString result = emSdkEnv.allOutput();
+    db->setValue(emSdkEnvTSFileKey, tsFile.toVariant());
+    db->setValue(emSdkEnvTSKey, ts);
+    db->setValue(emSdkEnvOutputKey, result);
+
+    return result;
 }
 
 void parseEmSdkEnvOutputAndAddToEnv(const QString &output, Environment &env)
@@ -86,29 +98,44 @@ void addToEnvironment(const FilePath &sdkRoot, Environment &env)
 
 QVersionNumber version(const FilePath &sdkRoot)
 {
-    if (!sdkRoot.exists())
+    const FilePath tsFile = timeStampFile(sdkRoot); // ts == Timestamp
+    if (!tsFile.exists())
         return {};
-    if (!emSdkVersionCache()->contains(sdkRoot)) {
-        Environment env = sdkRoot.deviceEnvironment();
-        addToEnvironment(sdkRoot, env);
-        QLatin1String scriptFile{sdkRoot.osType() == OsType::OsTypeWindows ? "emcc.bat" : "emcc"};
-        FilePath script = sdkRoot.withNewPath(scriptFile).searchInDirectories(env.path());
-        const CommandLine command(script, {"-dumpversion"});
-        Process emcc;
-        emcc.setCommand(command);
-        emcc.setEnvironment(env);
-        emcc.runBlocking();
-        const QString version = emcc.cleanedStdOut();
-        emSdkVersionCache()->insert(sdkRoot,
-                                    new QVersionNumber(QVersionNumber::fromString(version)));
+    const QDateTime ts = tsFile.lastModified();
+
+    Core::SettingsDatabase *db = Core::ICore::settingsDatabase();
+    if (db->value(emSdkVersionTSKey).toDateTime() == ts
+        && FilePath::fromVariant(db->value(emSdkVersionTSFileKey)) == tsFile
+        && db->contains(emSdkVersionKey)) {
+        return QVersionNumber::fromString(db->value(emSdkVersionKey).toString());
     }
-    return *emSdkVersionCache()->object(sdkRoot);
+
+    Environment env = sdkRoot.deviceEnvironment();
+    addToEnvironment(sdkRoot, env);
+    QLatin1String scriptFile{sdkRoot.osType() == OsType::OsTypeWindows ? "emcc.bat" : "emcc"};
+    FilePath script = sdkRoot.withNewPath(scriptFile).searchInDirectories(env.path());
+    const CommandLine command(script, {"-dumpversion"});
+    Process emcc;
+    emcc.setCommand(command);
+    emcc.setEnvironment(env);
+    emcc.runBlocking();
+    const QString versionStr = emcc.cleanedStdOut();
+    const QVersionNumber result = QVersionNumber::fromString(versionStr);
+    db->setValue(emSdkVersionTSFileKey, tsFile.toVariant());
+    db->setValue(emSdkVersionTSKey, ts);
+    db->setValue(emSdkVersionKey, result.toString());
+    return result;
 }
 
 void clearCaches()
 {
-    emSdkEnvCache()->clear();
-    emSdkVersionCache()->clear();
+    Core::SettingsDatabase *db = Core::ICore::settingsDatabase();
+    db->remove(emSdkEnvTSFileKey);
+    db->remove(emSdkEnvTSKey);
+    db->remove(emSdkEnvOutputKey);
+    db->remove(emSdkVersionTSFileKey);
+    db->remove(emSdkVersionTSKey);
+    db->remove(emSdkVersionKey);
 }
 
 } // namespace WebAssembly::Internal::WebAssemblyEmSdk
