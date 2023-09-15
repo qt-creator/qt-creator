@@ -19,6 +19,8 @@ class DockerDeviceSettings : public ProjectExplorer::DeviceSettings
 public:
     DockerDeviceSettings();
 
+    void fromMap(const Utils::Store &map) override;
+
     QString repoAndTag() const;
     QString repoAndTagEncoded() const;
 

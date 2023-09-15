@@ -139,10 +139,21 @@ public:
     DockerDevicePrivate *m_dev = nullptr;
 };
 
+void DockerDeviceSettings::fromMap(const Store &map)
+{
+    DeviceSettings::fromMap(map);
+
+    // This is the only place where we can correctly set the default name.
+    // Only here do we know the image id and the repo reliably, no matter
+    // where or how we were created.
+    if (displayName.value() == displayName.defaultValue()) {
+        displayName.setDefaultValue(
+            Tr::tr("Docker Image \"%1\" (%2)").arg(repoAndTag()).arg(imageId.value()));
+    }
+}
+
 DockerDeviceSettings::DockerDeviceSettings()
 {
-    displayName.setDefaultValue(Tr::tr("Docker Image"));
-
     imageId.setSettingsKey(DockerDeviceDataImageIdKey);
     imageId.setLabelText(Tr::tr("Image ID:"));
     imageId.setReadOnly(true);
@@ -505,9 +516,6 @@ DockerDevice::DockerDevice(std::unique_ptr<DockerDeviceSettings> deviceSettings)
     setupId(IDevice::ManuallyAdded);
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
-    d->deviceSettings->displayName.setDefaultValue(Tr::tr("Docker Image \"%1\" (%2)")
-                                                       .arg(d->deviceSettings->repoAndTag())
-                                                       .arg(d->deviceSettings->imageId()));
     setAllowEmptyCommand(true);
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
