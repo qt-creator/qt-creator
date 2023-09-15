@@ -668,25 +668,20 @@ void CppEditorPlugin::setGlobalFileSettings(const CppFileSettings &settings)
 }
 #endif
 
-static QStringList findFilesInProject(const QString &name, const Project *project)
+static FilePaths findFilesInProject(const QStringList &names, const Project *project,
+                                      FileType fileType)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << name << project;
+        qDebug() << Q_FUNC_INFO << names << project;
 
     if (!project)
         return {};
 
-    QString pattern = QString(1, QLatin1Char('/'));
-    pattern += name;
-    const QStringList projectFiles
-            = transform(project->files(Project::AllFiles), &FilePath::toString);
-    const QStringList::const_iterator pcend = projectFiles.constEnd();
-    QStringList candidateList;
-    for (QStringList::const_iterator it = projectFiles.constBegin(); it != pcend; ++it) {
-        if (it->endsWith(pattern, HostOsInfo::fileNameCaseSensitivity()))
-            candidateList.append(*it);
-    }
-    return candidateList;
+    const auto filter = [&](const Node *n) {
+        const auto fn = n->asFileNode();
+        return fn && fn->fileType() == fileType && names.contains(fn->filePath().fileName());
+    };
+    return project->files(filter);
 }
 
 // Return the suffixes that should be checked when trying to find a
@@ -778,30 +773,31 @@ static int commonFilePathLength(const QString &s1, const QString &s2)
 static FilePath correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
                                                      const QStringList &candidateFileNames,
                                                      const Project *project,
+                                                     FileType fileType,
                                                      CacheUsage cacheUsage)
 {
-    QString bestFileName;
-    int compareValue = 0;
     const QString filePath = fileInfo.filePath();
-    for (const QString &candidateFileName : candidateFileNames) {
-        const QStringList projectFiles = findFilesInProject(candidateFileName, project);
-        // Find the file having the most common path with fileName
-        for (const QString &projectFile : projectFiles) {
-            int value = commonFilePathLength(filePath, projectFile);
-            if (value > compareValue) {
-                compareValue = value;
-                bestFileName = projectFile;
-            }
+    const FilePaths projectFiles = findFilesInProject(candidateFileNames, project, fileType);
+
+    // Find the file having the most common path with fileName
+    FilePath bestFilePath;
+    int compareValue = 0;
+    for (const FilePath &projectFile : projectFiles) {
+        int value = commonFilePathLength(filePath, projectFile.toString());
+        if (value > compareValue) {
+            compareValue = value;
+            bestFilePath = projectFile;
         }
     }
-    if (!bestFileName.isEmpty()) {
-        const QFileInfo candidateFi(bestFileName);
-        QTC_ASSERT(candidateFi.isFile(), return {});
+    if (!bestFilePath.isEmpty()) {
+        QTC_ASSERT(bestFilePath.isFile(), return {});
         if (cacheUsage == CacheUsage::ReadWrite) {
-            m_headerSourceMapping[fileInfo.absoluteFilePath()] = candidateFi.absoluteFilePath();
-            m_headerSourceMapping[candidateFi.absoluteFilePath()] = fileInfo.absoluteFilePath();
+            m_headerSourceMapping[fileInfo.absoluteFilePath()]
+                = bestFilePath.absoluteFilePath().toString();
+            m_headerSourceMapping[bestFilePath.absoluteFilePath().toString()]
+                = fileInfo.absoluteFilePath();
         }
-        return FilePath::fromString(candidateFi.absoluteFilePath());
+        return bestFilePath;
     }
 
     return {};
@@ -878,9 +874,10 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
     Project *currentProject = projectForFile;
     if (!projectForFile)
         currentProject = ProjectTree::currentProject();
+    const FileType requestedFileType = isHeader ? FileType::Source : FileType::Header;
     if (currentProject) {
-        const FilePath path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
-                                                                  currentProject, cacheUsage);
+        const FilePath path = correspondingHeaderOrSourceInProject(
+            fi, candidateFileNames, currentProject, requestedFileType, cacheUsage);
         if (!path.isEmpty())
             return path;
 
@@ -892,8 +889,8 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
             if (project == currentProject)
                 continue; // We have already checked the current project.
 
-            const FilePath path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
-                                                                       project, cacheUsage);
+            const FilePath path = correspondingHeaderOrSourceInProject(
+                fi, candidateFileNames, project, requestedFileType, cacheUsage);
             if (!path.isEmpty())
                 return path;
         }
