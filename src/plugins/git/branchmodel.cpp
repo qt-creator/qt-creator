@@ -312,8 +312,11 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case ColumnBranch: {
             res = node->name;
+            if (!node->isLocal() || !node->isLeaf())
+                break;
+
+            res += ' ' + arrowUp + QString::number(node->status.ahead);
             if (!node->tracking.isEmpty()) {
-                res += ' ' + arrowUp + QString::number(node->status.ahead);
                 res += ' ' + arrowDown + QString::number(node->status.behind);
                 res += " [" + node->tracking + ']';
             }
@@ -908,13 +911,17 @@ void BranchModel::removeNode(const QModelIndex &idx)
 
 void BranchModel::updateUpstreamStatus(BranchNode *node)
 {
-    if (node->tracking.isEmpty())
+    if (!node->isLocal())
         return;
 
     Process *process = new Process(node);
     process->setEnvironment(gitClient().processEnvironment());
-    process->setCommand({gitClient().vcsBinary(), {"rev-list", "--no-color", "--left-right",
-                         "--count", node->fullRef() + "..." + node->tracking}});
+    QStringList parameters = {"rev-list", "--no-color", "--count"};
+    if (node->tracking.isEmpty())
+        parameters += {"HEAD", "--not", "--remotes"};
+    else
+        parameters += {"--left-right", node->fullRef() + "..." + node->tracking};
+    process->setCommand({gitClient().vcsBinary(), parameters});
     process->setWorkingDirectory(d->workingDirectory);
     connect(process, &Process::done, this, [this, process, node] {
         process->deleteLater();
@@ -924,9 +931,13 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
         if (text.isEmpty())
             return;
         const QStringList split = text.trimmed().split('\t');
-        QTC_ASSERT(split.size() == 2, return);
+        if (node->tracking.isEmpty()) {
+            node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), 0));
+        } else {
+            QTC_ASSERT(split.size() == 2, return);
 
-        node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
+            node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
+        }
         const QModelIndex idx = nodeToIndex(node, ColumnBranch);
         emit dataChanged(idx, idx);
     });
