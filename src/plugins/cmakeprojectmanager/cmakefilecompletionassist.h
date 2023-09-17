@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <texteditor/codeassist/keywordscompletionassist.h>
+#include <texteditor/codeassist/completionassistprovider.h>
 
 namespace CMakeProjectManager::Internal {
 
@@ -11,6 +11,8 @@ class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistPro
 {
 public:
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const final;
+    int activationCharSequenceLength() const final;
+    bool isActivationCharSequence(const QString &sequence) const final;
 };
 
 } // CMakeProjectManager::Internal

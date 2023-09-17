@@ -19,6 +19,21 @@ namespace CMakeProjectManager {
 
 namespace Internal {  class IntrospectionData;  }
 
+struct CMAKE_EXPORT CMakeKeywords
+{
+    QStringList variables;
+    QStringList functions;
+    QStringList properties;
+    QStringList generatorExpressions;
+    QStringList directoryProperties;
+    QStringList sourceProperties;
+    QStringList targetProperties;
+    QStringList testProperties;
+    QStringList includeStandardModules;
+    QStringList findModules;
+    QMap<QString, QStringList> functionArgs;
+};
+
 class CMAKE_EXPORT CMakeTool
 {
 public:
@@ -73,7 +88,7 @@ public:
     bool isAutoRun() const;
     bool autoCreateBuildDirectory() const;
     QList<Generator> supportedGenerators() const;
-    TextEditor::Keywords keywords();
+    CMakeKeywords keywords();
     bool hasFileApi(bool ignoreCache = false) const;
     Version version() const;
     QString versionDisplay() const;
@@ -101,6 +116,7 @@ private:
     void runCMake(Utils::Process &proc, const QStringList &args, int timeoutS = 1) const;
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
+    void parseSyntaxHighlightingXml();
 
     void fetchFromCapabilities(bool ignoreCache = false) const;
     void parseFromCapabilities(const QString &input) const;

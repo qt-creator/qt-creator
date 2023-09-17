@@ -6,6 +6,7 @@
 #include "cmakeprojectmanagertr.h"
 #include "cmaketoolmanager.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
 #include <utils/algorithm.h>
@@ -20,6 +21,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSet>
+#include <QXmlStreamReader>
 #include <QUuid>
 
 #include <memory>
@@ -90,6 +92,14 @@ public:
     QVector<FileApi> m_fileApis;
     QStringList m_variables;
     QStringList m_functions;
+    QStringList m_properties;
+    QStringList m_generatorExpressions;
+    QStringList m_directoryProperties;
+    QStringList m_sourceProperties;
+    QStringList m_targetProperties;
+    QStringList m_testProperties;
+    QStringList m_includeStandardModules;
+    QStringList m_findModules;
     CMakeTool::Version m_version;
 };
 
@@ -243,7 +253,7 @@ QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
     return isValid() ? m_introspection->m_generators : QList<CMakeTool::Generator>();
 }
 
-TextEditor::Keywords CMakeTool::keywords()
+CMakeKeywords CMakeTool::keywords()
 {
     if (!isValid())
         return {};
@@ -252,27 +262,37 @@ TextEditor::Keywords CMakeTool::keywords()
         Process proc;
         runCMake(proc, {"--help-command-list"}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess)
-            m_introspection->m_functions = proc.cleanedStdOut().split('\n');
-
-        runCMake(proc, {"--help-commands"}, 5);
-        if (proc.result() == ProcessResult::FinishedWithSuccess)
-            parseFunctionDetailsOutput(proc.cleanedStdOut());
+            m_introspection->m_functions = Utils::filtered(proc.cleanedStdOut().split('\n'),
+                                                           std::not_fn(&QString::isEmpty));
 
         runCMake(proc, {"--help-property-list"}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess)
-            m_introspection->m_variables = parseVariableOutput(proc.cleanedStdOut());
+            m_introspection->m_properties = parseVariableOutput(proc.cleanedStdOut());
 
         runCMake(proc, {"--help-variable-list"}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
-            m_introspection->m_variables.append(parseVariableOutput(proc.cleanedStdOut()));
-            m_introspection->m_variables = Utils::filteredUnique(m_introspection->m_variables);
+            m_introspection->m_variables = Utils::filteredUnique(
+                parseVariableOutput(proc.cleanedStdOut()));
             Utils::sort(m_introspection->m_variables);
         }
+
+        parseSyntaxHighlightingXml();
     }
 
-    return TextEditor::Keywords(m_introspection->m_variables,
-                                m_introspection->m_functions,
-                                m_introspection->m_functionArgs);
+    CMakeKeywords keywords;
+    keywords.functions = m_introspection->m_functions;
+    keywords.variables = m_introspection->m_variables;
+    keywords.functionArgs = m_introspection->m_functionArgs;
+    keywords.properties = m_introspection->m_properties;
+    keywords.generatorExpressions = m_introspection->m_generatorExpressions;
+    keywords.directoryProperties = m_introspection->m_directoryProperties;
+    keywords.sourceProperties = m_introspection->m_sourceProperties;
+    keywords.targetProperties = m_introspection->m_targetProperties;
+    keywords.testProperties = m_introspection->m_testProperties;
+    keywords.includeStandardModules = m_introspection->m_includeStandardModules;
+    keywords.findModules = m_introspection->m_findModules;
+
+    return keywords;
 }
 
 bool CMakeTool::hasFileApi(bool ignoreCache) const
@@ -400,6 +420,7 @@ void CMakeTool::readInformation(bool ignoreCache) const
     fetchFromCapabilities(ignoreCache);
 }
 
+
 static QStringList parseDefinition(const QString &definition)
 {
     QStringList result;
@@ -455,7 +476,7 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
                     const QString command = words.takeFirst();
                     if (functionSet.contains(command)) {
                         const QStringList tmp = Utils::sorted(
-                                    words + m_introspection->m_functionArgs[command]);
+                            words + m_introspection->m_functionArgs[command]);
                         m_introspection->m_functionArgs[command] = Utils::filteredUnique(tmp);
                     }
                 }
@@ -471,12 +492,19 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
 
 QStringList CMakeTool::parseVariableOutput(const QString &output)
 {
-    const QStringList variableList = output.split('\n');
+    const QStringList variableList = Utils::filtered(output.split('\n'),
+                                                     std::not_fn(&QString::isEmpty));
     QStringList result;
     for (const QString &v : variableList) {
         if (v.startsWith("CMAKE_COMPILER_IS_GNU<LANG>")) { // This key takes a compiler name :-/
             result << "CMAKE_COMPILER_IS_GNUCC"
                    << "CMAKE_COMPILER_IS_GNUCXX";
+        } else if (v.contains("<CONFIG>") && v.contains("<LANG>")) {
+            const QString tmp = QString(v).replace("<CONFIG>", "%1").replace("<LANG>", "%2");
+            result << tmp.arg("DEBUG").arg("C") << tmp.arg("DEBUG").arg("CXX")
+                   << tmp.arg("RELEASE").arg("C") << tmp.arg("RELEASE").arg("CXX")
+                   << tmp.arg("MINSIZEREL").arg("C") << tmp.arg("MINSIZEREL").arg("CXX")
+                   << tmp.arg("RELWITHDEBINFO").arg("C") << tmp.arg("RELWITHDEBINFO").arg("CXX");
         } else if (v.contains("<CONFIG>")) {
             const QString tmp = QString(v).replace("<CONFIG>", "%1");
             result << tmp.arg("DEBUG") << tmp.arg("RELEASE") << tmp.arg("MINSIZEREL")
@@ -489,6 +517,87 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
         }
     }
     return result;
+}
+
+void CMakeTool::parseSyntaxHighlightingXml()
+{
+    QSet<QString> functionSet = Utils::toSet(m_introspection->m_functions);
+
+    const FilePath cmakeXml = Core::ICore::resourcePath("generic-highlighter/syntax/cmake.xml");
+    QXmlStreamReader reader(cmakeXml.fileContents().value_or(QByteArray()));
+
+    auto readItemList = [](QXmlStreamReader &reader) -> QStringList {
+        QStringList arguments;
+        while (!reader.atEnd() && reader.readNextStartElement()) {
+            if (reader.name() == u"item")
+                arguments.append(reader.readElementText());
+            else
+                reader.skipCurrentElement();
+        }
+        return arguments;
+    };
+
+    while (!reader.atEnd() && reader.readNextStartElement()) {
+        if (reader.name() != u"highlighting")
+            continue;
+        while (!reader.atEnd() && reader.readNextStartElement()) {
+            if (reader.name() == u"list") {
+                const auto name = reader.attributes().value("name").toString();
+                if (name.endsWith(u"_sargs") || name.endsWith(u"_nargs")) {
+                    const auto functionName = name.left(name.length() - 6);
+                    QStringList arguments = readItemList(reader);
+
+                    if (m_introspection->m_functionArgs.contains(functionName))
+                        arguments.append(m_introspection->m_functionArgs.value(functionName));
+
+                    m_introspection->m_functionArgs[functionName] = arguments;
+
+                    // Functions that are part of CMake modules like ExternalProject_Add
+                    // which are not reported by cmake --help-list-commands
+                    if (!functionSet.contains(functionName)) {
+                        functionSet.insert(functionName);
+                        m_introspection->m_functions.append(functionName);
+                    }
+                } else if (name == u"generator-expressions") {
+                    m_introspection->m_generatorExpressions = readItemList(reader);
+                } else if (name == u"directory-properties") {
+                    m_introspection->m_directoryProperties = readItemList(reader);
+                } else if (name == u"source-properties") {
+                    m_introspection->m_sourceProperties = readItemList(reader);
+                } else if (name == u"target-properties") {
+                    m_introspection->m_targetProperties = readItemList(reader);
+                } else if (name == u"test-properties") {
+                    m_introspection->m_testProperties = readItemList(reader);
+                } else if (name == u"standard-modules") {
+                    m_introspection->m_includeStandardModules = readItemList(reader);
+                } else if (name == u"standard-finder-modules") {
+                    m_introspection->m_findModules = readItemList(reader);
+                } else {
+                    reader.skipCurrentElement();
+                }
+            } else {
+                reader.skipCurrentElement();
+            }
+        }
+    }
+
+    // Some commands have the same arguments as other commands and the `cmake.xml`
+    // but their relationship is weirdly defined in the `cmake.xml` file.
+    using ListStringPair = QList<QPair<QString, QString>>;
+    const ListStringPair functionPairs = {{"if", "elseif"},
+                                          {"while", "elseif"},
+                                          {"find_path", "find_file"},
+                                          {"find_program", "find_library"},
+                                          {"target_link_libraries", "target_compile_definitions"},
+                                          {"target_link_options", "target_compile_definitions"},
+                                          {"target_link_directories", "target_compile_options"},
+                                          {"set_target_properties", "set_directory_properties"},
+                                          {"set_tests_properties", "set_directory_properties"}};
+    for (const auto &pair : std::as_const(functionPairs)) {
+        if (!m_introspection->m_functionArgs.contains(pair.first))
+            m_introspection->m_functionArgs[pair.first] = m_introspection->m_functionArgs.value(
+                pair.second);
+    }
 }
 
 void CMakeTool::fetchFromCapabilities(bool ignoreCache) const

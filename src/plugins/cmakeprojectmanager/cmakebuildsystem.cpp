@@ -1250,6 +1250,9 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
 {
     m_cmakeSymbolsHash.clear();
 
+    m_projectKeywords.functions.clear();
+    m_projectKeywords.variables.clear();
+
     for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
         for (const auto &func : cmakeFile.cmakeListFile.Functions) {
             if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
@@ -1265,8 +1268,17 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
             link.targetLine = arg.Line;
             link.targetColumn = arg.Column - 1;
             m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+
+            if (func.LowerCaseName() == "option")
+                m_projectKeywords.variables << QString::fromUtf8(arg.Value);
+            else
+                m_projectKeywords.functions << QString::fromUtf8(arg.Value);
         }
     }
+
+    // Code completion setup
+    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit()))
+        tool->keywords();
 }
 
 void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters)

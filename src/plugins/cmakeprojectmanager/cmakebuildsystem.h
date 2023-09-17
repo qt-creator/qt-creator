@@ -119,6 +119,7 @@ public:
     QString warning() const;
 
     const QHash<QString, Utils::Link> &cmakeSymbolsHash() const { return m_cmakeSymbolsHash; }
+    CMakeKeywords projectKeywords() const { return m_projectKeywords; }
 
 signals:
     void configurationCleared();
@@ -223,6 +224,7 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;
     QHash<QString, Utils::Link> m_cmakeSymbolsHash;
+    CMakeKeywords m_projectKeywords;
 
     QHash<QString, ProjectFileArgumentPosition> m_filesToBeRenamed;
 
