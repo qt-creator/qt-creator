@@ -74,11 +74,6 @@ Module {
 
     property bool preferSystemSyntaxHighlighting: true
 
-    property bool make_dev_package: false
-
-    // Will be replaced when creating modules from products
-    property string export_data_base: project.ide_source_tree + "/share/qtcreator"
-
     property bool testsEnabled: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
     property stringList generalDefines: [
         "QT_CREATOR",

@@ -14,7 +14,6 @@ Project {
         "tools/tools.qbs",
         project.sharedSourcesDir + "/json",
         project.sharedSourcesDir + "/proparser",
-        project.sharedSourcesDir + "/pch_files.qbs",
     ]
 
     property bool qbsSubModuleExists: File.exists(qbsProject.qbsBaseDir + "/qbs.qbs")

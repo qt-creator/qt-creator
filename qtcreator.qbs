@@ -23,18 +23,6 @@ Project {
     ]
 
     Product {
-        name: "qbs_imports_modules"
-        Depends { name: "qtc" }
-        Group {
-            prefix: "qbs/"
-            files: ["**/*"]
-            qbs.install: qtc.make_dev_package
-            qbs.installDir: qtc.ide_qbs_resources_path
-            qbs.installSourceBase: "qbs"
-        }
-    }
-
-    Product {
         name: "qmake project files"
         files: {
             var list = ["**/*.pr[io]"];
