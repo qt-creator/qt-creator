@@ -788,7 +788,7 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
         addToOutputWindow(Tr::tr("When executing step \"%1\"")
                               .arg(buildStep->displayName()), BuildStep::OutputFormat::Stderr);
         for (BuildStep *buildStep : std::as_const(connectedSteps))
-            connect(buildStep, nullptr, m_instance, nullptr);
+            disconnect(buildStep, nullptr, m_instance, nullptr);
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         return false;
     }
