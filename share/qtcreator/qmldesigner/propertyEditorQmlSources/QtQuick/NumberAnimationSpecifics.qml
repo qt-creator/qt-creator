@@ -27,7 +27,7 @@ Column {
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
                     maximumValue: 9999999
-                    minimumValue: -1
+                    minimumValue: -9999999
                     backendValue: backendValues.from
                 }
 
@@ -44,7 +44,7 @@ Column {
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
                     maximumValue: 9999999
-                    minimumValue: -1
+                    minimumValue: -9999999
                     backendValue: backendValues.to
                 }
 
