@@ -4,8 +4,6 @@ import qbs.FileInfo
 import qbs.Utilities
 
 Module {
-    Depends { name: "cpp"; required: false }
-
     property string qtcreator_display_version: '12.0.0-beta1'
     property string ide_version_major: '11'
     property string ide_version_minor: '0'
@@ -92,14 +90,4 @@ Module {
         "QT_USE_QSTRINGBUILDER",
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
-     .concat((qbs.toolchain.contains("msvc") && Utilities.versionCompare(qbs.version, "1.23.2") < 0)
-        ? ["_ENABLE_EXTENDED_ALIGNED_STORAGE"] : [])
-
-    Properties {
-        condition: cpp.present && qbs.toolchain.contains("msvc") && product.Qt
-                   && Utilities.versionCompare(product.Qt.core.version, "6.3") >= 0
-                   && Utilities.versionCompare(cpp.compilerVersion, "19.10") >= 0
-                   && Utilities.versionCompare(qbs.version, "1.23") < 0
-        cpp.cxxFlags: "/permissive-"
-    }
 }

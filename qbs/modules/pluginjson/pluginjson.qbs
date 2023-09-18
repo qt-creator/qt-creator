@@ -11,8 +11,7 @@ Module {
     property var replacements
 
     // TODO: Wrap the VCS specific stuff in a dedicated module
-    property bool hasVcs: Utilities.versionCompare(qbs.version, "1.10") >= 0
-    property bool useVcsData: hasVcs
+    property bool useVcsData: true
     Depends { name: "vcs"; condition: useVcsData }
     Properties {
         condition: useVcsData
