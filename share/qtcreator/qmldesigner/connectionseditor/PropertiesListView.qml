@@ -15,10 +15,11 @@ ListView {
 
     property bool adsFocus: false
 
-    onAdsFocusChanged: {
-        if (!root.adsFocus)
-            dialog.close()
-    }
+    // Temporarily remove due to dockwidget focus issue
+    //onAdsFocusChanged: {
+    //    if (!root.adsFocus)
+    //        dialog.close()
+    //}
 
     clip: true
     interactive: true
