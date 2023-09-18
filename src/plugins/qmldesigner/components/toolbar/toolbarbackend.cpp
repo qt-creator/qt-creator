@@ -504,17 +504,33 @@ void ToolBarBackend::setCurrentStyle(int index)
     view->resetPuppet();
 }
 
+ProjectExplorer::Kit *kitForDisplayName(const QString &displayName)
+{
+    const auto kits = ProjectExplorer::KitManager::kits();
+
+    for (auto kit : kits) {
+        if (kit->displayName() == displayName)
+            return kit;
+    }
+
+    return {};
+}
+
 void ToolBarBackend::setCurrentKit(int index)
 {
     auto project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return );
 
-    const auto kits = ProjectExplorer::KitManager::kits();
+    const auto kits = ToolBarBackend::kits();
 
-    QTC_ASSERT(kits.size() > index, return);
+    QTC_ASSERT(kits.size() > index, return );
     QTC_ASSERT(index >= 0, return );
 
-    const auto kit = kits.at(index);
+    const auto kitDisplayName = kits.at(index);
+
+    const auto kit = kitForDisplayName(kitDisplayName);
+
+    QTC_ASSERT(kit, return );
 
     auto newTarget = project->target(kit);
     if (!newTarget)
