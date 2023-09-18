@@ -155,14 +155,21 @@ QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &i
 
 QString readFirstParagraphs(const QString &element, const FilePath &helpFile)
 {
+    static QMap<FilePath, QString> map;
+    if (map.contains(helpFile))
+        return map.value(helpFile);
+
     auto content = helpFile.fileContents(1024).value_or(QByteArray());
-    return QString("```\n%1\n```").arg(QString::fromUtf8(content.left(content.lastIndexOf("\n"))));
+    const QString firstParagraphs
+        = QString("```\n%1\n```").arg(QString::fromUtf8(content.left(content.lastIndexOf("\n"))));
+
+    map[helpFile] = firstParagraphs;
+    return firstParagraphs;
 }
 
 QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> &words,
                                                   const QIcon &icon)
 {
-    static QMap<FilePath, QString> map;
     struct MarkDownAssitProposalItem : public AssistProposalItem
     {
         Qt::TextFormat detailFormat() const { return Qt::MarkdownText; }
@@ -172,13 +179,8 @@ QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> 
     for (const auto &[text, helpFile] : words.asKeyValueRange()) {
         MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
         item->setText(text);
-
-        if (!helpFile.isEmpty()) {
-            if (!map.contains(helpFile))
-                map[helpFile] = readFirstParagraphs(text, helpFile);
-            item->setDetail(map.value(helpFile));
-        }
-
+        if (!helpFile.isEmpty())
+            item->setDetail(readFirstParagraphs(text, helpFile));
         item->setIcon(icon);
         list << item;
     };
