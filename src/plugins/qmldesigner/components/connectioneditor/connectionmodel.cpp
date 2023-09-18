@@ -487,6 +487,17 @@ void ConnectionModel::selectProperty(const SignalHandlerProperty &property)
     }
 }
 
+void ConnectionModel::nodeAboutToBeRemoved(const ModelNode &removedNode)
+{
+    SignalHandlerProperty selectedSignal = signalHandlerPropertyForRow(currentIndex());
+    if (selectedSignal.isValid()) {
+        ModelNode targetNode = getTargetNodeForConnection(selectedSignal.parentModelNode());
+        if (targetNode == removedNode) {
+            emit m_delegate->popupTargetRemoved();
+        }
+    }
+}
+
 void ConnectionModel::handleException()
 {
     QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);

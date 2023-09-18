@@ -7,7 +7,7 @@ import StudioTheme 1.0 as StudioTheme
 import HelperWidgets 2.0 as HelperWidgets
 
 PopupDialog {
-
+    id: root
    property alias backend: form.backend
 
     titleBar: Row {
@@ -41,5 +41,13 @@ PopupDialog {
 
     ConnectionsDialogForm {
           id: form
+
+          Connections {
+              target: root.backend
+              onPopupTargetRemoved: {
+                  root.close()
+              }
+          }
     }
+
 }

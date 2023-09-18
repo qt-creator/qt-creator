@@ -71,6 +71,8 @@ public:
 
     void selectProperty(const SignalHandlerProperty &property);
 
+    void nodeAboutToBeRemoved(const ModelNode &removedNode);
+
 signals:
     void currentIndexChanged();
 
@@ -296,6 +298,7 @@ signals:
     void hasConditionChanged();
     void hasElseChanged();
     void sourceChanged();
+    void popupTargetRemoved();
 
 private:
     int currentRow() const;
