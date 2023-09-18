@@ -232,7 +232,8 @@ void PythonBuildSystem::triggerParsing()
 
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(entry.filePath, displayName, fileType));
         const MimeType mt = mimeTypeForFile(entry.filePath, MimeMatchMode::MatchExtension);
-        if (mt.matchesName(Constants::C_PY_MIMETYPE) || mt.matchesName(Constants::C_PY3_MIMETYPE)) {
+        if (mt.matchesName(Constants::C_PY_MIMETYPE) || mt.matchesName(Constants::C_PY3_MIMETYPE)
+            || mt.matchesName(Constants::C_PY_GUI_MIMETYPE)) {
             BuildTargetInfo bti;
             bti.displayName = displayName;
             bti.buildKey = entry.filePath.toString();
