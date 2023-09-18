@@ -6,13 +6,13 @@ Product {
 
     Export {
         Depends { name: "cpp" }
-        cpp.defines: base.concat([
+        cpp.defines: [
             "QMAKE_AS_LIBRARY",
             "PROPARSER_THREAD_SAFE",
             "PROEVALUATOR_THREAD_SAFE",
             "PROEVALUATOR_CUMULATIVE",
             "PROEVALUATOR_SETENV",
-        ])
-        cpp.includePaths: base.concat([exportingProduct.sourceDirectory + "/.."])
+        ]
+        cpp.includePaths: exportingProduct.sourceDirectory + "/.."
     }
 }

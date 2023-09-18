@@ -97,6 +97,6 @@ QtcLibrary {
     Export {
         Depends { name: "cpp" }
         cpp.includePaths: [exportingProduct.sourceDirectory + "/include/"]
-        cpp.defines: base.concat(["YAML_CPP_DLL"])
+        cpp.defines: "YAML_CPP_DLL"
     }
 }
