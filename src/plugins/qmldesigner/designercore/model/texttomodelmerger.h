@@ -95,7 +95,8 @@ public:
                               const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
                               ReadingContext *context,
                               DifferenceHandler &differenceHandler);
-    ModelNode createModelNode(const TypeName &typeName,
+    ModelNode createModelNode(const QmlDesigner::NodeMetaInfo &nodeMetaInfo,
+                              const TypeName &typeName,
                               int majorVersion,
                               int minorVersion,
                               bool isImplicitComponent,
@@ -183,23 +184,27 @@ public:
     virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) = 0;
     virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) = 0;
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty,
+                                      const NodeMetaInfo &nodeMetaInfo,
                                       const TypeName &typeName,
                                       int majorVersion,
                                       int minorVersion,
                                       QmlJS::AST::UiObjectMember *astNode,
                                       const TypeName &dynamicPropertyType,
-                                      ReadingContext *context) = 0;
+                                      ReadingContext *context)
+        = 0;
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode) = 0;
     virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty,
                                                    ReadingContext *context,
                                                    QmlJS::AST::UiObjectMember *arrayMember) = 0;
     virtual void typeDiffers(bool isRootNode,
                              ModelNode &modelNode,
+                             const NodeMetaInfo &nodeMetaInfo,
                              const TypeName &typeName,
                              int majorVersion,
                              int minorVersion,
                              QmlJS::AST::UiObjectMember *astNode,
-                             ReadingContext *context) = 0;
+                             ReadingContext *context)
+        = 0;
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty) = 0;
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId) = 0;
     virtual bool isAmender() const = 0;
@@ -238,6 +243,7 @@ public:
     void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) override;
     void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) override;
     void shouldBeNodeProperty(AbstractProperty &modelProperty,
+                              const NodeMetaInfo &nodeMetaInfo,
                               const TypeName &typeName,
                               int majorVersion,
                               int minorVersion,
@@ -251,6 +257,7 @@ public:
                                            QmlJS::AST::UiObjectMember *arrayMember) override;
     void typeDiffers(bool isRootNode,
                      ModelNode &modelNode,
+                     const NodeMetaInfo &nodeMetaInfo,
                      const TypeName &typeName,
                      int majorVersion,
                      int minorVersion,
@@ -291,6 +298,7 @@ public:
     void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicType) override;
     void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) override;
     void shouldBeNodeProperty(AbstractProperty &modelProperty,
+                              const NodeMetaInfo &nodeMetaInfo,
                               const TypeName &typeName,
                               int majorVersion,
                               int minorVersion,
@@ -304,6 +312,7 @@ public:
                                            QmlJS::AST::UiObjectMember *arrayMember) override;
     void typeDiffers(bool isRootNode,
                      ModelNode &modelNode,
+                     const NodeMetaInfo &nodeMetaInfo,
                      const TypeName &typeName,
                      int majorVersion,
                      int minorVersion,

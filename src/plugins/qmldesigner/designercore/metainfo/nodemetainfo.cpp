@@ -2204,6 +2204,23 @@ bool NodeMetaInfo::isView() const
     }
 }
 
+bool NodeMetaInfo::usesCustomParser() const
+{
+    if constexpr (useProjectStorage()) {
+        return isValid() && bool(typeData().traits & Storage::TypeTraits::UsesCustomParser);
+    } else {
+        if (!isValid())
+            return false;
+
+        auto type = typeName();
+        return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel"
+               || type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel"
+               || type == "QtQuick.ListModel" || type == "Qt.ListModel"
+               || type == "QtQml.Models.ListModel" || type == "QtQuick.XmlListModel"
+               || type == "Qt.XmlListModel" || type == "QtQml.XmlListModel.XmlListModel";
+    }
+}
+
 namespace {
 
 template<typename... TypeIds>
@@ -2790,8 +2807,8 @@ bool NodeMetaInfo::isQmlComponent() const
         auto type = m_privateData->qualfiedTypeName();
 
         return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
-               || type == "QtQml.Component" || type == "<cpp>.QQmlComponent"
-               || type == "QQmlComponent";
+               || type == "QtQml.Component" || type == "<cpp>.QQmlComponent" || type == "QQmlComponent"
+               || type == "QML.Component" || type == "QtQml.Base.Component";
     }
 }
 

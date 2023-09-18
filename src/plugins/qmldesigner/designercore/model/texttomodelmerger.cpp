@@ -296,23 +296,6 @@ bool isListElementType(const QmlDesigner::TypeName &type)
     return type == "ListElement" || type == "QtQuick.ListElement" || type == "Qt.ListElement";
 }
 
-bool isComponentType(const QmlDesigner::TypeName &type)
-{
-    return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
-           || type == "QtQml.Component" || type == "<cpp>.QQmlComponent" || type == "QQmlComponent"
-           || type == "QML.Component" || type == "QtQml.Base.Component";
-}
-
-bool isCustomParserType(const QmlDesigner::TypeName &type)
-{
-    return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel"
-           || type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel"
-           || type == "QtQuick.ListModel" || type == "Qt.ListModel"
-           || type == "QtQml.Models.ListModel" || type == "QtQuick.XmlListModel"
-           || type == "Qt.XmlListModel";
-}
-
-
 bool isPropertyChangesType(const QmlDesigner::TypeName &type)
 {
     return type == "PropertyChanges" || type == "QtQuick.PropertyChanges" || type == "Qt.PropertyChanges";
@@ -324,9 +307,10 @@ bool isConnectionsType(const QmlDesigner::TypeName &type)
            || type == "QtQml.Connections" || type == "QtQml.Base.Connections";
 }
 
-bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QmlDesigner::TypeName &type, QmlDesigner::Model *model)
+bool propertyHasImplicitComponentType(const QmlDesigner::NodeAbstractProperty &property,
+                                      const QmlDesigner::NodeMetaInfo &type)
 {
-    if (model->metaInfo(type).isQmlComponent() && !isComponentType(type))
+    if (type.isQmlComponent())
         return false; //If the type is already a subclass of Component keep it
 
     return property.parentModelNode().isValid()
@@ -427,6 +411,11 @@ bool equals(const QVariant &a, const QVariant &b)
     return false;
 }
 
+bool usesCustomParserButIsNotPropertyChange(const QmlDesigner::NodeMetaInfo &nodeMetaInfo)
+{
+    return nodeMetaInfo.usesCustomParser() && !nodeMetaInfo.isQtQuickPropertyChanges();
+}
+
 } // anonymous namespace
 
 namespace QmlDesigner {
@@ -455,21 +444,20 @@ public:
     void enterScope(AST::Node *node)
     { m_scopeBuilder.push(node); }
 
-    void leaveScope()
-    { m_scopeBuilder.pop(); }
+    void leaveScope() { m_scopeBuilder.pop(); }
 
-    NodeMetaInfo lookup(AST::UiQualifiedId *astTypeNode)
+    std::tuple<NodeMetaInfo, TypeName> lookup(AST::UiQualifiedId *astTypeNode)
     {
         TypeName fullTypeName;
         for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
-            if (!iter->name.isEmpty())
-                fullTypeName += iter->name.toUtf8() + '.';
-
-        if (fullTypeName.endsWith('.'))
-            fullTypeName.chop(1);
+        if (!iter->name.isEmpty()) {
+            fullTypeName += iter->name.toUtf8();
+            if (iter->next)
+                fullTypeName += '.';
+        }
 
         NodeMetaInfo metaInfo = m_model->metaInfo(fullTypeName);
-        return metaInfo;
+        return {metaInfo, fullTypeName};
     }
 
     bool lookupProperty(const QString &propertyPrefix,
@@ -1241,20 +1229,14 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     m_rewriterView->positionStorage()->setNodeOffset(modelNode, astObjectType->identifierToken.offset);
 
-    NodeMetaInfo info = context->lookup(astObjectType);
+    auto [info, typeName] = context->lookup(astObjectType);
     if (!info.isValid()) {
-        qWarning() << "Skipping node with unknown type" << toString(astObjectType) << info.typeName();
+        qWarning() << "Skipping node with unknown type" << toString(astObjectType);
         return;
     }
 
     int majorVersion = info.majorVersion();
     int minorVersion = info.minorVersion();
-
-    TypeName typeName = info.typeName();
-    PropertyName defaultPropertyName = info.defaultPropertyName();
-
-    if (defaultPropertyName.isEmpty()) //fallback and use the meta system of the model
-        defaultPropertyName = modelNode.metaInfo().defaultPropertyName();
 
     if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && info.isQmlComponent()) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
@@ -1265,16 +1247,16 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         }
     }
 
-    bool isImplicitComponent = modelNode.hasParentProperty() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
+    bool isImplicitComponent = modelNode.hasParentProperty()
+                               && propertyHasImplicitComponentType(modelNode.parentProperty(), info);
 
-    if (modelNode.type()
-            != typeName //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
+    if (modelNode.metaInfo()
+            != info //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
         || modelNode.majorVersion() != majorVersion || modelNode.minorVersion() != minorVersion
         || modelNode.behaviorPropertyName() != onTokenProperty) {
         const bool isRootNode = m_rewriterView->rootModelNode() == modelNode;
-        differenceHandler.typeDiffers(isRootNode, modelNode, typeName,
-                                      majorVersion, minorVersion,
-                                      astNode, context);
+        differenceHandler.typeDiffers(
+            isRootNode, modelNode, info, typeName, majorVersion, minorVersion, astNode, context);
 
         if (!modelNode.isValid())
             return;
@@ -1286,9 +1268,9 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         }
     }
 
-    if (isComponentType(typeName) || isImplicitComponent)
+    if (info.isQmlComponent() || isImplicitComponent)
         setupComponentDelayed(modelNode, differenceHandler.isAmender());
-    else if (isCustomParserType(typeName))
+    else if (info.usesCustomParser())
         setupCustomParserNodeDelayed(modelNode, differenceHandler.isAmender());
     else if (!modelNode.nodeSource().isEmpty() || modelNode.nodeSourceType() != ModelNode::NodeWithoutSource)
         clearImplicitComponentDelayed(modelNode, differenceHandler.isAmender());
@@ -1415,8 +1397,13 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         }
     }
 
+    PropertyName defaultPropertyName = info.defaultPropertyName();
+
+    if (defaultPropertyName.isEmpty()) //fallback and use the meta system of the model
+        defaultPropertyName = modelNode.metaInfo().defaultPropertyName();
+
     if (!defaultPropertyItems.isEmpty()) {
-        if (isComponentType(modelNode.type()))
+        if (modelNode.metaInfo().isQmlComponent())
             setupComponentDelayed(modelNode, differenceHandler.isAmender());
         if (defaultPropertyName.isEmpty()) {
             qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
@@ -1602,22 +1589,28 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
                                          const TypeName &dynamicPropertyType,
                                          DifferenceHandler &differenceHandler)
 {
-    NodeMetaInfo info = context->lookup(binding->qualifiedTypeNameId);
+    auto [info, typeName] = context->lookup(binding->qualifiedTypeNameId);
 
     if (!info.isValid()) {
         qWarning() << "SNP"
                    << "Skipping node with unknown type" << toString(binding->qualifiedTypeNameId);
         return;
     }
-    TypeName typeName = info.typeName();
-    int majorVersion = info.majorVersion();
-    int minorVersion = info.minorVersion();
+
+    int majorVersion = -1;
+    int minorVersion = -1;
+    if constexpr (!useProjectStorage()) {
+        typeName = info.typeName();
+        majorVersion = info.majorVersion();
+        minorVersion = info.minorVersion();
+    }
 
     if (modelProperty.isNodeProperty() && dynamicPropertyType == modelProperty.dynamicTypeName()) {
         ModelNode nodePropertyNode = modelProperty.toNodeProperty().modelNode();
         syncNode(nodePropertyNode, binding, context, differenceHandler);
     } else {
         differenceHandler.shouldBeNodeProperty(modelProperty,
+                                               info,
                                                typeName,
                                                majorVersion,
                                                minorVersion,
@@ -1755,7 +1748,8 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
     }
 }
 
-ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
+ModelNode TextToModelMerger::createModelNode(const NodeMetaInfo &nodeMetaInfo,
+                                             const TypeName &typeName,
                                              int majorVersion,
                                              int minorVersion,
                                              bool isImplicitComponent,
@@ -1775,13 +1769,17 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
 
     AST::UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
 
-    if (isCustomParserType(typeName))
+    bool useCustomParser = usesCustomParserButIsNotPropertyChange(nodeMetaInfo);
+
+    if (useCustomParser) {
         nodeSource = textAt(context->doc(),
-                                    astObjectType->identifierToken,
-                                    astNode->lastSourceLocation());
+                            astObjectType->identifierToken,
+                            astNode->lastSourceLocation());
+    }
 
+    bool isQmlComponent = nodeMetaInfo.isQmlComponent();
 
-    if (isComponentType(typeName) || isImplicitComponent) {
+    if (isQmlComponent || isImplicitComponent) {
         QString componentSource = extractComponentFromQml(textAt(context->doc(),
                                   astObjectType->identifierToken,
                                   astNode->lastSourceLocation()));
@@ -1792,9 +1790,9 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
 
     ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource;
 
-    if (isComponentType(typeName) || isImplicitComponent)
+    if (isQmlComponent || isImplicitComponent)
         nodeSourceType = ModelNode::NodeWithComponentSource;
-    else if (isCustomParserType(typeName))
+    else if (useCustomParser)
         nodeSourceType = ModelNode::NodeWithCustomParserSource;
 
     ModelNode newNode = m_rewriterView->createModelNode(typeName,
@@ -1919,6 +1917,7 @@ void ModelValidator::shouldBeVariantProperty([[maybe_unused]] AbstractProperty &
 }
 
 void ModelValidator::shouldBeNodeProperty([[maybe_unused]] AbstractProperty &modelProperty,
+                                          const NodeMetaInfo &,
                                           const TypeName & /*typeName*/,
                                           int /*majorVersion*/,
                                           int /*minorVersion*/,
@@ -1945,10 +1944,11 @@ ModelNode ModelValidator::listPropertyMissingModelNode(NodeListProperty &/*model
 }
 
 void ModelValidator::typeDiffers(bool /*isRootNode*/,
-                                 [[maybe_unused]] ModelNode &modelNode,
-                                 [[maybe_unused]] const TypeName &typeName,
-                                 [[maybe_unused]] int majorVersion,
-                                 [[maybe_unused]] int minorVersion,
+                                 ModelNode &modelNode,
+                                 const NodeMetaInfo &,
+                                 const TypeName &typeName,
+                                 int majorVersion,
+                                 int minorVersion,
                                  QmlJS::AST::UiObjectMember * /*astNode*/,
                                  ReadingContext * /*context*/)
 {
@@ -2077,6 +2077,7 @@ void ModelAmender::shouldBeVariantProperty(AbstractProperty &modelProperty, cons
 }
 
 void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
+                                        const NodeMetaInfo &nodeMetaInfo,
                                         const TypeName &typeName,
                                         int majorVersion,
                                         int minorVersion,
@@ -2087,15 +2088,17 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
     ModelNode theNode = modelProperty.parentModelNode();
     NodeProperty newNodeProperty = theNode.nodeProperty(modelProperty.name());
 
-    const bool propertyTakesComponent = propertyIsComponentType(newNodeProperty, typeName, theNode.model());
+    const bool propertyTakesComponent = propertyHasImplicitComponentType(newNodeProperty,
+                                                                         nodeMetaInfo);
 
-    const ModelNode &newNode = m_merger->createModelNode(typeName,
-                                                          majorVersion,
-                                                          minorVersion,
-                                                          propertyTakesComponent,
-                                                          astNode,
-                                                          context,
-                                                          *this);
+    const ModelNode &newNode = m_merger->createModelNode(nodeMetaInfo,
+                                                         typeName,
+                                                         majorVersion,
+                                                         minorVersion,
+                                                         propertyTakesComponent,
+                                                         astNode,
+                                                         context,
+                                                         *this);
 
     if (dynamicPropertyType.isEmpty())
         newNodeProperty.setModelNode(newNode);
@@ -2129,31 +2132,30 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
     if (!astObjectType || !astInitializer)
         return ModelNode();
 
-    NodeMetaInfo info = context->lookup(astObjectType);
+    auto [info, typeName] = context->lookup(astObjectType);
     if (!info.isValid()) {
         qWarning() << "Skipping node with unknown type" << toString(astObjectType);
         return {};
     }
-    TypeName typeName = info.typeName();
-    int majorVersion = info.majorVersion();
-    int minorVersion = info.minorVersion();
 
-    const bool propertyTakesComponent = propertyIsComponentType(modelProperty, typeName, m_merger->view()->model());
+    int majorVersion = -1;
+    int minorVersion = -1;
+    if constexpr (!useProjectStorage()) {
+        typeName = info.typeName();
+        majorVersion = info.majorVersion();
+        minorVersion = info.minorVersion();
+    }
 
+    const bool propertyTakesComponent = propertyHasImplicitComponentType(modelProperty, info);
 
-    const ModelNode &newNode = m_merger->createModelNode(typeName,
-                                                         majorVersion,
-                                                         minorVersion,
-                                                         propertyTakesComponent,
-                                                         arrayMember,
-                                                         context,
-                                                         *this);
-
+    const ModelNode &newNode = m_merger->createModelNode(
+        info, typeName, majorVersion, minorVersion, propertyTakesComponent, arrayMember, context, *this);
 
     if (propertyTakesComponent)
         m_merger->setupComponentDelayed(newNode, true);
 
-    if (modelProperty.isDefaultProperty() || isComponentType(modelProperty.parentModelNode().type())) { //In the default property case we do some magic
+    if (modelProperty.isDefaultProperty()
+        || modelProperty.parentModelNode().metaInfo().isQmlComponent()) { //In the default property case we do some magic
         if (modelProperty.isNodeListProperty()) {
             modelProperty.reparentHere(newNode);
         } else { //The default property could a NodeProperty implicitly (delegate:)
@@ -2168,13 +2170,16 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
 
 void ModelAmender::typeDiffers(bool isRootNode,
                                ModelNode &modelNode,
+                               const NodeMetaInfo &nodeMetaInfo,
                                const TypeName &typeName,
                                int majorVersion,
                                int minorVersion,
                                AST::UiObjectMember *astNode,
                                ReadingContext *context)
 {
-    const bool propertyTakesComponent = modelNode.hasParentProperty() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
+    const bool propertyTakesComponent = modelNode.hasParentProperty()
+                                        && propertyHasImplicitComponentType(modelNode.parentProperty(),
+                                                                            nodeMetaInfo);
 
     if (isRootNode) {
         modelNode.view()->changeRootNodeType(typeName, majorVersion, minorVersion);
@@ -2182,13 +2187,14 @@ void ModelAmender::typeDiffers(bool isRootNode,
         NodeAbstractProperty parentProperty = modelNode.parentProperty();
         int nodeIndex = -1;
         if (parentProperty.isNodeListProperty()) {
-            nodeIndex = parentProperty.toNodeListProperty().toModelNodeList().indexOf(modelNode);
+            nodeIndex = parentProperty.toNodeListProperty().indexOf(modelNode);
             Q_ASSERT(nodeIndex >= 0);
         }
 
         removeModelNode(modelNode);
 
-        const ModelNode &newNode = m_merger->createModelNode(typeName,
+        const ModelNode &newNode = m_merger->createModelNode(nodeMetaInfo,
+                                                             typeName,
                                                              majorVersion,
                                                              minorVersion,
                                                              propertyTakesComponent,
@@ -2197,7 +2203,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
                                                              *this);
         parentProperty.reparentHere(newNode);
         if (parentProperty.isNodeListProperty()) {
-            int currentIndex = parentProperty.toNodeListProperty().toModelNodeList().indexOf(newNode);
+            int currentIndex = parentProperty.toNodeListProperty().indexOf(newNode);
             if (nodeIndex != currentIndex)
                 parentProperty.toNodeListProperty().slide(currentIndex, nodeIndex);
         }
@@ -2394,7 +2400,7 @@ void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
 
 void TextToModelMerger::setupCustomParserNodeDelayed(const ModelNode &node, bool synchronous)
 {
-    Q_ASSERT(isCustomParserType(node.type()));
+    Q_ASSERT(usesCustomParserButIsNotPropertyChange(node.metaInfo()));
 
     if (synchronous) {
         setupCustomParserNode(node);
@@ -2406,7 +2412,7 @@ void TextToModelMerger::setupCustomParserNodeDelayed(const ModelNode &node, bool
 
 void TextToModelMerger::clearImplicitComponentDelayed(const ModelNode &node, bool synchronous)
 {
-    Q_ASSERT(!isComponentType(node.type()));
+    Q_ASSERT(!usesCustomParserButIsNotPropertyChange(node.metaInfo()));
 
     if (synchronous) {
         clearImplicitComponent(node);
