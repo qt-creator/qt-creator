@@ -789,7 +789,8 @@ void OutputPaneManager::popupMenu()
         for (int i = 0; i < g_outputPanes.size(); ++i) {
             OutputPaneData &data = g_outputPanes[i];
             const bool buttonVisible = data.pane->priorityInStatusBar() >= 0;
-            const bool paneVisible = currentIndex() == i;
+            const bool paneVisible = currentIndex() == i
+                                     && OutputPanePlaceHolder::isCurrentVisible();
             if (buttonVisible) {
                 data.button->setChecked(paneVisible);
                 data.button->setVisible(true);
