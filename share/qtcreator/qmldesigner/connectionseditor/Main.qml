@@ -56,7 +56,7 @@ Rectangle {
                         id: connections
                         buttonIcon: StudioTheme.Constants.connections_medium
                         text: qsTr("Connections")
-                        tooltip: qsTr("This is a tooltip.")
+                        tooltip: qsTr("Sets logical connection between the components and the signals.")
                         checked: true
                         autoExclusive: true
                         checkable: true
@@ -66,7 +66,7 @@ Rectangle {
                         id: bindings
                         buttonIcon: StudioTheme.Constants.binding_medium
                         text: qsTr("Bindings")
-                        tooltip: qsTr("This is a tooltip.")
+                        tooltip: qsTr("Sets the relation between the properties of two components to bind them together.")
                         autoExclusive: true
                         checkable: true
                     }
@@ -75,7 +75,7 @@ Rectangle {
                         id: properties
                         buttonIcon: StudioTheme.Constants.properties_medium
                         text: qsTr("Properties")
-                        tooltip: qsTr("This is a tooltip.")
+                        tooltip: qsTr("Sets an additional property for the component.")
                         autoExclusive: true
                         checkable: true
                     }
@@ -91,7 +91,7 @@ Rectangle {
                         id: addButton
                         style: StudioTheme.Values.viewBarButtonStyle
                         buttonIcon: StudioTheme.Constants.add_medium
-                        tooltip: qsTr("Add something.")
+                        tooltip: qsTr("Adds a Connection, Binding, or Custom Property to the components.")
                         onClicked: {
                             if (connections.checked)
                                 connectionsListView.addConnection()
