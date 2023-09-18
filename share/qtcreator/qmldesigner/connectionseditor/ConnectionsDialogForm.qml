@@ -212,6 +212,13 @@ Column {
                  && backend.hasCondition && backend.hasElse
     }
 
+    HelperWidgets.AbstractButton {
+        id: editorButton
+        buttonIcon: StudioTheme.Constants.codeEditor_medium
+        tooltip: qsTr("Add something.")
+        onClicked: expressionDialogLoader.show()
+    }
+
     // Editor
     Rectangle {
         id: editor
@@ -226,24 +233,10 @@ Column {
             text: backend.indentedSource
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.myFontSize
-            wrapMode: Text.WordWrap
+            wrapMode: Text.Wrap
             horizontalAlignment: code.lineCount === 1 ? Text.AlignHCenter : Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
-        }
-
-        HelperWidgets.AbstractButton {
-            id: editorButton
-
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.margins: 4
-
-            style: StudioTheme.Values.viewBarButtonStyle
-            buttonIcon: StudioTheme.Constants.edit_medium
-            tooltip: qsTr("Add something.")
-            onClicked: {
-                expressionDialogLoader.show()
-            }
+            elide: Text.ElideRight
         }
 
         Loader {

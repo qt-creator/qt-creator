@@ -83,6 +83,7 @@ public:
         closeLink,
         close_small,
         code,
+        codeEditor_medium,
         colorPopupClose,
         colorSelection_medium,
         columnsAndRows,
