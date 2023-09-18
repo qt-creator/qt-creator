@@ -19,7 +19,13 @@ private:
     void setupEngine() override;
     bool isLocalAttachEngine() const;
 
-    Utils::Process m_proc;
+    bool acceptsBreakpoint(const BreakpointParameters &bp) const override;
+    /* Needed for Python support issue:1386 */
+    void insertBreakpoint(const Breakpoint &bp) override;
+    void updateBreakpoint(const Breakpoint &bp) override;
+    void removeBreakpoint(const Breakpoint &bp) override;
+    /* Needed for Python support issue:1386 */
+
     const QLoggingCategory &logCategory() override
     {
         static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.python",
