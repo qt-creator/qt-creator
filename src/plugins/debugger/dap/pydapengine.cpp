@@ -209,6 +209,11 @@ void installDebugpyPackage(const FilePath &pythonPath)
     process.waitForFinished();
 }
 
+bool PyDapEngine::isLocalAttachEngine() const
+{
+    return runParameters().startMode == AttachToLocalProcess;
+}
+
 void PyDapEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -245,10 +250,15 @@ void PyDapEngine::setupEngine()
     CommandLine cmd{interpreter,
                     {"-Xfrozen_modules=off",
                      "-m", "debugpy",
-                     "--listen", "127.0.0.1:5679",
-                     "--wait-for-client",
+                     "--listen", "127.0.0.1:5679"}};
+
+    if (isLocalAttachEngine()) {
+        cmd.addArgs({"--pid", QString::number(runParameters().attachPID.pid())});
+    } else {
+        cmd.addArgs({"--wait-for-client",
                      scriptFile.path(),
-                     runParameters().inferior.workingDirectory.path()}};
+                     runParameters().inferior.workingDirectory.path()});
+    }
 
     IDataProvider *dataProvider
         = new TcpSocketDataProvider(runParameters(), cmd, "127.0.0.1", 5679, this);

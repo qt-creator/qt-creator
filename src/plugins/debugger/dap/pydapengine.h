@@ -17,8 +17,9 @@ private:
     void quitDebugger() override;
 
     void setupEngine() override;
-    Utils::Process m_proc;
+    bool isLocalAttachEngine() const;
 
+    Utils::Process m_proc;
     const QLoggingCategory &logCategory() override
     {
         static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.python",
