@@ -65,6 +65,7 @@ Utils::UniqueObjectPtr<QToolBar> ToolBar::create()
 
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
+    toolBar->setProperty("_q_custom_style_disabled", true);
 
     auto quickWidget = std::make_unique<StudioQuickWidget>();
 
