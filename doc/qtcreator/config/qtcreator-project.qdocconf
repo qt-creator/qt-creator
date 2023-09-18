@@ -13,7 +13,8 @@ ignorewords += \
     MinGW
 
 headerdirs =
-sourcedirs = ../src
+sourcedirs = ../src \
+    $$DOC_BUILD_DIR
 
 imagedirs = ../images
 

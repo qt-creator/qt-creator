@@ -33,25 +33,27 @@ function(_find_all_includes _ret_includes _ret_framework_paths)
   endif()
 endfunction()
 
-if (WITH_DOCS)
-  add_qtc_documentation(${IDE_DOC_FILE})
+function(_add_doc _doc_file _dev_doc_file)
+  add_qtc_documentation(${_doc_file})
+  add_qtc_doc_attribution(doc_attributions
+    "${CMAKE_CURRENT_SOURCE_DIR}/../qt_attributions.json"
+    "${CMAKE_CURRENT_BINARY_DIR}/creator-attributions.qdoc"
+    ${_doc_file}
+  )
   if (BUILD_DEVELOPER_DOCS)
     _find_all_includes(_all_includes _framework_paths)
-    add_qtc_documentation("qtcreatordev/qtcreator-dev.qdocconf"
+    add_qtc_documentation(${_dev_doc_file}
       INCLUDE_DIRECTORIES ${_all_includes}
       FRAMEWORK_PATHS ${_framework_paths}
     )
   endif()
+endfunction()
+
+if (WITH_DOCS)
+  _add_doc(${IDE_DOC_FILE} "qtcreatordev/qtcreator-dev.qdocconf")
 endif()
 if(WITH_ONLINE_DOCS)
-  add_qtc_documentation(${IDE_DOC_FILE_ONLINE})
-  if (BUILD_DEVELOPER_DOCS)
-    _find_all_includes(_all_includes _framework_paths)
-    add_qtc_documentation("qtcreatordev/qtcreator-dev-online.qdocconf"
-      INCLUDE_DIRECTORIES ${_all_includes}
-      FRAMEWORK_PATHS ${_framework_paths}
-    )
-  endif()
+  _add_doc(${IDE_DOC_FILE_ONLINE} "qtcreatordev/qtcreator-dev-online.qdocconf")
 endif()
 
 install(DIRECTORY config

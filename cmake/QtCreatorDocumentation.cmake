@@ -77,6 +77,7 @@ function(_setup_qdoc_targets _qdocconf_file _retval)
     endif()
     list(APPEND _env "${_export}=${${_export}}")
   endforeach()
+  list(APPEND _env "DOC_BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}")
 
   get_target_property(_full_qdoc_command Qt::qdoc IMPORTED_LOCATION)
   if (_env)
@@ -268,4 +269,17 @@ function(add_qtc_documentation qdocconf_file)
     INCLUDE_DIRECTORIES ${_arg_INCLUDE_DIRECTORIES}
     FRAMEWORK_PATHS ${_arg_FRAMEWORK_PATHS}
   )
+endfunction()
+
+function(add_qtc_doc_attribution target attribution_file output_file qdocconf_file)
+  get_filename_component(doc_target "${qdocconf_file}" NAME_WE)
+  add_custom_target(${target}
+      Qt6::qtattributionsscanner -o "${output_file}" ${attribution_file}
+    COMMENT "Create attributions ${output_file} from ${attribution_file}"
+    DEPENDS "${attribution_file}"
+    SOURCES "${attribution_file}"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    VERBATIM
+  )
+  add_dependencies("html_docs_${doc_target}" ${target})
 endfunction()
