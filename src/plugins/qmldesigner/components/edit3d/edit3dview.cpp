@@ -589,9 +589,17 @@ QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
     const QList<QObject *> &objects = action->action()->associatedObjects();
     for (QObject *obj : objects) {
         if (auto button = qobject_cast<QToolButton *>(obj)) {
-            // Add small negative modifier to Y coordinate, so highlighted toolbar buttons don't
-            // peek from under the popup
-            pos = button->mapToGlobal(QPoint(0, -2));
+            if (auto toolBar = qobject_cast<QWidget *>(button->parent())) {
+                // If the button has not yet been shown (i.e. it starts under extension menu),
+                // the button x value will be zero.
+                if (button->x() >= toolBar->width() - button->width() || button->x() == 0) {
+                    pos = toolBar->mapToGlobal(QPoint(toolBar->width() - button->width(), 4));
+                } else {
+                    // Add small negative modifier to Y coordinate, so highlighted toolbar buttons don't
+                    // peek from under the popup
+                    pos = button->mapToGlobal(QPoint(0, -2));
+                }
+            }
             break;
         }
     }
