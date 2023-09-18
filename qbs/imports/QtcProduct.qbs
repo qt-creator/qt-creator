@@ -62,8 +62,6 @@ Product {
             return flags;
         }
     }
-    cpp.minimumMacosVersion: "10.15"
-    cpp.minimumWindowsVersion: "6.1"
     cpp.useCxxPrecompiledHeader: useQt && (useNonGuiPchFile || useGuiPchFile)
     cpp.visibility: "minimal"
 
