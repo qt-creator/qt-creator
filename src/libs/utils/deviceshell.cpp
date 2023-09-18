@@ -216,11 +216,13 @@ expected_str<void> DeviceShell::start()
                 return {};
             } else if (m_shellProcess->isRunning()) {
                 m_shellProcess->kill();
-                m_shellProcess.reset();
             }
+            const QString stdErr = m_shellProcess->readAllStandardError();
+            m_shellProcess.reset();
+
             return make_unexpected(Tr::tr("Failed to install shell script: %1\n%2")
                                        .arg(installResult.error())
-                                       .arg(m_shellProcess->readAllStandardError()));
+                                       .arg(stdErr));
         },
         Qt::BlockingQueuedConnection,
         &result);
