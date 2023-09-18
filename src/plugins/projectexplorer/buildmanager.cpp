@@ -770,7 +770,6 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
     }
 
     QList<BuildStep *> connectedSteps;
-    int enabledCount = 0;
     for (const BuildItem &item : items) {
         BuildStep *buildStep = item.buildStep;
         connect(buildStep, &BuildStep::addTask, m_instance, &BuildManager::addToTaskWindow);
@@ -778,7 +777,6 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
         connectedSteps.append(buildStep);
         if (!item.enabled)
             continue;
-        ++enabledCount;
         if (!isBuilding(buildStep) && buildStep->init())
             continue;
 
