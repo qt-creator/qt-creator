@@ -36,6 +36,8 @@ FocusScope {
     property bool hovered: rootMouseArea.containsMouse
     property bool selected: root.focus
 
+    property int maxTextWidth: 600
+
     width: row.width
     height: StudioTheme.Values.flowPillHeight
 
@@ -111,10 +113,23 @@ FocusScope {
             leftPadding: root.margin
             rightPadding: icon.visible ? 0 : root.margin
 
+            property int textWidth: Math.min(textMetrics.width,
+                                             root.maxTextWidth - row.leftPadding
+                                             - (icon.visible ? icon.width : root.margin))
+
+            TextMetrics {
+                id: textMetrics
+                text: textItem.visible ? textItem.text : textInput.text
+                font: textItem.font
+            }
+
             Text {
                 id: textItem
+                width: row.textWidth
                 height: StudioTheme.Values.flowPillHeight
                 verticalAlignment: Text.AlignVCenter
+                textFormat: Text.PlainText
+                elide: Text.ElideMiddle
                 font.pixelSize: StudioTheme.Values.baseFontSize
                 color: root.isShadow() ? StudioTheme.Values.themePillTextSelected
                                        : StudioTheme.Values.themePillText
@@ -125,10 +140,11 @@ FocusScope {
 
             TextInput {
                 id: textInput
-
                 x: root.isInvalid() ? root.margin : 0
+                width: row.textWidth
                 height: StudioTheme.Values.flowPillHeight
                 topPadding: 1
+                clip: true
                 font.pixelSize: StudioTheme.Values.baseFontSize
                 color: {
                     if (root.isIntermediate())
