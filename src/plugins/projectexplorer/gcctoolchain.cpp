@@ -1235,8 +1235,8 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                 << ("*-*-*-*-" + compilerName
                     + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
     }
-    nameFilters = transform(nameFilters,
-            [os = device ? device->osType() : HostOsInfo::hostOs()](const QString &baseName) {
+    const Utils::OsType os = device ? device->osType() : HostOsInfo::hostOs();
+    nameFilters = transform(nameFilters, [os](const QString &baseName) {
         return OsSpecificAspects::withExecutableSuffix(os, baseName);
     });
 
@@ -1269,9 +1269,11 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
 
     for (const FilePath &searchPath : std::as_const(searchPaths)) {
         static const QRegularExpression regexp(binaryRegexp);
-        const auto callBack = [&compilerPaths, compilerName](const FilePath &candidate) {
-            if (candidate.fileName() == compilerName || regexp.match(candidate.path()).hasMatch())
+        const auto callBack = [os, &compilerPaths, compilerName](const FilePath &candidate) {
+            if (candidate.fileName() == OsSpecificAspects::withExecutableSuffix(os, compilerName)
+                || regexp.match(candidate.path()).hasMatch()) {
                 compilerPaths << candidate;
+            }
             return IterationPolicy::Continue;
         };
         searchPath.iterateDirectory(callBack, {nameFilters, QDir::Files | QDir::Executable});
