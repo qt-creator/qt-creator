@@ -954,6 +954,20 @@ QVector3D GeneralHelper::adjustScaleForSnap(const QVector3D &newScale)
     return adjScale;
 }
 
+void GeneralHelper::setSnapPositionInterval(double interval)
+{
+    if (m_snapPositionInterval != interval) {
+        m_snapPositionInterval = interval;
+        emit minGridStepChanged();
+    }
+}
+
+double GeneralHelper::minGridStep() const
+{
+    // Minimum grid step is a multiple of snap interval, as the last step is divided to subgrid
+    return 2. * m_snapPositionInterval;
+}
+
 void GeneralHelper::setBgColor(const QVariant &colors)
 {
     if (m_bgColor != colors) {

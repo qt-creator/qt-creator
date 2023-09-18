@@ -33,6 +33,7 @@ class GeneralHelper : public QObject
     Q_OBJECT
     Q_PROPERTY(bool isMacOS READ isMacOS CONSTANT)
     Q_PROPERTY(QVariant bgColor READ bgColor NOTIFY bgColorChanged FINAL)
+    Q_PROPERTY(double minGridStep READ minGridStep NOTIFY minGridStepChanged FINAL)
 
 public:
     GeneralHelper();
@@ -114,9 +115,11 @@ public:
     void setSnapPosition(bool enable) { m_snapPosition = enable; }
     void setSnapRotation(bool enable) { m_snapRotation = enable; }
     void setSnapScale(bool enable) { m_snapScale = enable; }
-    void setSnapPositionInterval(double interval) { m_snapPositionInterval = interval; }
+    void setSnapPositionInterval(double interval);
     void setSnapRotationInterval(double interval) { m_snapRotationInterval = interval; }
     void setSnapScaleInterval(double interval) { m_snapScaleInterval = interval / 100.; }
+
+    double minGridStep() const;
 
     void setBgColor(const QVariant &colors);
     QVariant bgColor() const { return m_bgColor; }
@@ -128,6 +131,8 @@ signals:
     void lockedStateChanged(QQuick3DNode *node);
     void rotationBlocksChanged();
     void bgColorChanged();
+    void minGridStepChanged();
+
 private:
     void handlePendingToolStateUpdate();
     QVector3D pivotScenePosition(QQuick3DNode *node) const;
