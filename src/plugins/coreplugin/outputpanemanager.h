@@ -108,6 +108,11 @@ public:
     void setIconBadgeNumber(int number);
     bool isPaneVisible() const;
 
+    void contextMenuEvent(QContextMenuEvent *e) override;
+
+signals:
+    void contextMenuRequested();
+
 private:
     void updateToolTip();
     void checkStateSet() override;
@@ -124,7 +129,12 @@ class OutputPaneManageButton : public QToolButton
     Q_OBJECT
 public:
     OutputPaneManageButton();
-    void paintEvent(QPaintEvent*) override;
+    void paintEvent(QPaintEvent *) override;
+
+    void contextMenuEvent(QContextMenuEvent *e) override;
+
+signals:
+    void menuRequested();
 };
 
 } // namespace Internal

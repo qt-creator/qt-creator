@@ -533,6 +533,9 @@ void OutputPaneManager::initialize()
                                                  outPane->displayName(),
                                                  cmd->action());
         data.button = button;
+        connect(button, &OutputPaneToggleButton::contextMenuRequested, m_instance, [] {
+            m_instance->popupMenu();
+        });
 
         connect(outPane, &IOutputPane::flashButton, button, [button] { button->flash(); });
         connect(outPane,
@@ -562,7 +565,7 @@ void OutputPaneManager::initialize()
         m_instance->m_titleLabel->setText(g_outputPanes[currentIdx].pane->displayName());
     m_instance->m_buttonsWidget->layout()->addWidget(m_instance->m_manageButton);
     connect(m_instance->m_manageButton,
-            &QAbstractButton::clicked,
+            &OutputPaneManageButton::menuRequested,
             m_instance,
             &OutputPaneManager::popupMenu);
 
@@ -1004,6 +1007,10 @@ bool OutputPaneToggleButton::isPaneVisible() const
     return isVisibleTo(parentWidget());
 }
 
+void OutputPaneToggleButton::contextMenuEvent(QContextMenuEvent *)
+{
+    emit contextMenuRequested();
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1016,6 +1023,7 @@ OutputPaneManageButton::OutputPaneManageButton()
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
     setFixedWidth(StyleHelper::toolbarStyle() == Utils::StyleHelper::ToolbarStyleCompact ? 17 : 21);
+    connect(this, &QToolButton::clicked, this, &OutputPaneManageButton::menuRequested);
 }
 
 void OutputPaneManageButton::paintEvent(QPaintEvent*)
@@ -1035,6 +1043,11 @@ void OutputPaneManageButton::paintEvent(QPaintEvent*)
     s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
     arrowOpt.rect.translate(0, 6);
     s->drawPrimitive(QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
+}
+
+void OutputPaneManageButton::contextMenuEvent(QContextMenuEvent *)
+{
+    emit menuRequested();
 }
 
 BadgeLabel::BadgeLabel()
