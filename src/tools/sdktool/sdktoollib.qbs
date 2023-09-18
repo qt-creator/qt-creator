@@ -27,7 +27,7 @@ QtcLibrary {
         var libs = [];
         if (qbs.targetOS.contains("windows"))
             libs.push("user32", "shell32");
-        if (qbs.toolchainType === "msvc")
+        if (qbs.toolchain.contains("msvc"))
             libs.push("dbghelp");
         return libs;
     }

@@ -8,9 +8,9 @@ QtcLibrary {
         var libs = [];
         if (qbs.targetOS.contains("windows")) {
             libs.push("user32", "iphlpapi", "ws2_32", "shell32", "ole32");
-            if (qbs.toolchainType === "mingw")
+            if (qbs.toolchain.contains("mingw"))
                 libs.push("uuid");
-            else if (qbs.toolchainType === "msvc")
+            else if (qbs.toolchain.contains("msvc"))
                 libs.push("dbghelp");
         } else if (qbs.targetOS.contains("unix")) {
             if (!qbs.targetOS.contains("macos"))
