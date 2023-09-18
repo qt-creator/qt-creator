@@ -72,7 +72,10 @@ Module {
 
     property bool preferSystemSyntaxHighlighting: true
 
-    property bool testsEnabled: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
+    property bool withPluginTests: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
+    property bool testsEnabled: withPluginTests // TODO: compat, remove
+    property bool withAutotests: project.withAutotests // FIXME: withPluginTests
+
     property stringList generalDefines: [
         "QT_CREATOR",
         'IDE_LIBRARY_BASENAME="' + libDirName + '"',
@@ -88,6 +91,6 @@ Module {
         "QT_NO_FOREACH",
         "QT_DISABLE_DEPRECATED_BEFORE=0x050900",
         "QT_USE_QSTRINGBUILDER",
-    ].concat(testsEnabled ? ["WITH_TESTS"] : [])
+    ].concat(withPluginTests ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
 }

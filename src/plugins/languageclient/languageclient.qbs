@@ -5,10 +5,7 @@ QtcPlugin {
     name: "LanguageClient"
 
     Depends { name: "Qt.core" }
-    Depends {
-        name: "Qt.testlib"
-        condition: qtc.testsEnabled
-    }
+    Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
 
     Depends { name: "Utils" }
     Depends { name: "ProjectExplorer" }

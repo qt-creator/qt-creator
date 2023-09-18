@@ -1,6 +1,7 @@
 import qbs.FileInfo
 
 QtcProduct {
+    condition: qtc.withAutotests
     destinationDirectory: project.buildDirectory + '/'
                           + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
     targetName: "tst_" + name.split(' ').join("")

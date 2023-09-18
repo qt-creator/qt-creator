@@ -2,7 +2,6 @@ import qbs
 
 Project {
     name: "QtcAutotests"
-    condition: project.withAutotests
     references: [
         "aggregation/aggregation.qbs",
         "algorithm/algorithm.qbs",

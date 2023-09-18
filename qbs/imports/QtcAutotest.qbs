@@ -2,6 +2,8 @@ import qbs
 import qbs.FileInfo
 
 QtcProduct {
+    condition: qtc.withAutotests
+
     // This needs to be absolute, because it is passed to one of the source files.
     destinationDirectory: project.buildDirectory + '/'
                           + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)

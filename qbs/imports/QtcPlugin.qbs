@@ -14,7 +14,7 @@ QtcProduct {
     property stringList pluginRecommends: []
     property stringList pluginTestDepends: []
 
-    Depends { name: "Qt.testlib"; condition: qtc.testsEnabled }
+    Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
     Depends { name: "ExtensionSystem" }
     Depends { name: "pluginjson" }
 

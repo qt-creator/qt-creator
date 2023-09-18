@@ -4,7 +4,7 @@ QtcLibrary {
     cpp.defines: base.concat(["EXTENSIONSYSTEM_LIBRARY", "IDE_TEST_DIR=\".\""])
 
     Depends { name: "Qt"; submodules: ["core", "widgets"] }
-    Depends { name: "Qt.testlib"; condition: qtc.testsEnabled }
+    Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
 
     Depends { name: "Aggregation" }
     Depends { name: "Utils" }

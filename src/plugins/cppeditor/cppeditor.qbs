@@ -4,7 +4,7 @@ QtcPlugin {
     name: "CppEditor"
 
     Depends { name: "Qt.widgets" }
-    Depends { condition: project.withAutotests; name: "Qt.testlib" }
+    Depends { condition: project.withPluginTests; name: "Qt.testlib" }
 
     Depends { name: "CPlusPlus" }
     Depends { name: "Utils" }
@@ -233,7 +233,7 @@ QtcPlugin {
 
     Group {
         name: "TestCase"
-        condition: qtc.testsEnabled || project.withAutotests
+        condition: qtc.withPluginTests || qtc.withAutotests
         files: [
             "cpptoolstestcase.cpp",
             "cpptoolstestcase.h",

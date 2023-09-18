@@ -1,4 +1,4 @@
 Group {
     name: "Unit tests"
-    condition: qtc.testsEnabled
+    condition: qtc.withPluginTests
 }

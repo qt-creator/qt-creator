@@ -1,5 +1,3 @@
-import qbs
-
 QtcPlugin {
     name: "AutoTest"
 
@@ -18,16 +16,8 @@ QtcPlugin {
         "QmakeProjectManager"
     ]
 
-    Depends {
-        name: "QtSupport"
-        condition: qtc.testsEnabled
-    }
-
-    Depends {
-        name: "Qt.testlib"
-        condition: qtc.testsEnabled
-    }
-
+    Depends { name: "QtSupport"; condition: qtc.withPluginTests }
+    Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
     Depends { name: "Qt.widgets" }
 
     files: [

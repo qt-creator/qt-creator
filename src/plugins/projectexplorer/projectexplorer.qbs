@@ -231,7 +231,7 @@ QtcPlugin {
 
     Group {
         name: "WindowsToolChains"
-        condition: qbs.targetOS.contains("windows") || qtc.testsEnabled
+        condition: qbs.targetOS.contains("windows") || qtc.withPluginTests
         files: [
             "msvctoolchain.cpp",
             "msvctoolchain.h",
@@ -244,7 +244,7 @@ QtcPlugin {
 
     Group {
         name: "Test resources"
-        condition: qtc.testsEnabled
+        condition: qtc.withPluginTests
         files: ["testdata/**"]
         fileTags: ["qt.core.resource_data"]
         Qt.core.resourcePrefix: "/projectexplorer"

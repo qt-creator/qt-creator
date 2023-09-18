@@ -2,6 +2,7 @@ import qbs.File
 import qbs.FileInfo
 
 CppApplication {
+    condition: qtc.withAutotests
     name: "Manual Test Simple Application"
     targetName: "simple_test_app"
 

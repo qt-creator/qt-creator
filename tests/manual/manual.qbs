@@ -1,9 +1,7 @@
-import qbs
-
 Project {
     name: "QtcManualtests"
 
-    condition: project.withAutotests
+    condition: project.withAutotests // FIXME: Why are these not QtcManualTests?
 
     references: [
         "debugger/gui/gui.qbs",

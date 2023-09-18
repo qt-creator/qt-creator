@@ -2,7 +2,7 @@ QtcLibrary {
     name: "Tracing"
 
     Depends { name: "Qt"; submodules: ["qml", "quick", "gui"] }
-    Depends { name: "Qt.testlib"; condition: project.withAutotests }
+    Depends { name: "Qt.testlib"; condition: qtc.withAutotests }
     Depends { name: "Utils" }
 
     Group {

@@ -1,6 +1,7 @@
 import qbs.FileInfo
 
 DynamicLibrary {
+    condition: qtc.withAutotests
     name: "Manual Test Simple Plugin"
     targetName: "simple_test_plugin"
 
