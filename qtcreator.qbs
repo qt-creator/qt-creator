@@ -23,19 +23,6 @@ Project {
     ]
 
     Product {
-        name: "qmake project files"
-        files: {
-            var list = ["**/*.pr[io]"];
-            var props = [additionalPlugins, additionalLibs, additionalTools, additionalAutotests];
-            for (var i = 0; i < props.length; ++i) {
-                for (var j = 0; j < props[i].length; ++j)
-                    list.push(props[i][j] + "/**/*.pr[io]");
-            }
-            return list;
-        }
-    }
-
-    Product {
         name: "cmake project files"
         files: {
             var patterns = ["**/CMakeLists.txt", "**/*.cmake", "**/*.cmake.in"];
