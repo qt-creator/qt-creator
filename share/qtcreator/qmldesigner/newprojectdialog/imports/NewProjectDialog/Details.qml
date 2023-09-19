@@ -6,7 +6,7 @@ import QtQuick.Controls
 
 import QtQuick
 import QtQuick.Layouts
-import StudioControls as SC
+import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
 import BackendApi
@@ -22,8 +22,8 @@ Item {
         anchors.fill: parent
 
         Item {
-            x: DialogValues.detailsPanePadding                               // left padding
-            width: parent.width - DialogValues.detailsPanePadding * 2        // right padding
+            x: DialogValues.detailsPanePadding * 2 // left padding
+            width: parent.width - DialogValues.detailsPanePadding * 3 // right padding
             height: parent.height
 
             Column {
@@ -44,6 +44,7 @@ Item {
                 }
 
                 Flickable {
+                    id: flickable
                     width: parent.width
                     height: parent.height - detailsHeading.height - DialogValues.defaultPadding
                             - savePresetButton.height
@@ -52,14 +53,27 @@ Item {
                     boundsBehavior: Flickable.StopAtBounds
                     clip: true
 
-                    ScrollBar.vertical: SC.VerticalScrollBar {}
+                    HoverHandler { id: hoverHandler }
+
+                    ScrollBar.vertical: StudioControls.TransientScrollBar {
+                        id: verticalScrollBar
+                        style: StudioTheme.Values.viewStyle
+                        parent: flickable
+                        x: flickable.width - verticalScrollBar.width
+                        y: 0
+                        height: flickable.availableHeight
+                        orientation: Qt.Vertical
+
+                        show: (hoverHandler.hovered || flickable.focus || verticalScrollBar.inUse)
+                              && verticalScrollBar.isNeeded
+                    }
 
                     Column {
                         id: scrollContent
                         width: parent.width - DialogValues.detailsPanePadding
                         spacing: DialogValues.defaultPadding
 
-                        SC.TextField {
+                        StudioControls.TextField {
                             id: projectNameTextField
                             actionIndicatorVisible: false
                             translationIndicatorVisible: false
@@ -85,7 +99,7 @@ Item {
                         RowLayout { // Project location
                             width: parent.width
 
-                            SC.TextField {
+                            StudioControls.TextField {
                                 Layout.fillWidth: true
                                 id: projectLocationTextField
                                 actionIndicatorVisible: false
@@ -102,7 +116,7 @@ Item {
                                 value: projectLocationTextField.text
                             }
 
-                            SC.AbstractButton {
+                            StudioControls.AbstractButton {
                                 implicitWidth: 30
                                 iconSize: 20
                                 visible: true
@@ -114,7 +128,7 @@ Item {
                                     if (newLocation)
                                         projectLocationTextField.text = newLocation
                                 }
-                            } // SC.AbstractButton
+                            }
                         } // Project location RowLayout
 
                         Item { width: parent.width; height: DialogValues.narrowSpacing(7) }
@@ -171,7 +185,7 @@ Item {
                             } // Text
                         } // RowLayout
 
-                        SC.CheckBox {
+                        StudioControls.CheckBox {
                             id: defaultLocationCheckbox
                             actionIndicatorVisible: false
                             text: qsTr("Use as default project location")
@@ -187,7 +201,7 @@ Item {
 
                         Rectangle { width: parent.width; height: 1; color: DialogValues.dividerlineColor }
 
-                        SC.ComboBox {   // Screen Size ComboBox
+                        StudioControls.ComboBox {   // Screen Size ComboBox
                             id: screenSizeComboBox
                             actionIndicatorVisible: false
                             currentIndex: -1
@@ -253,7 +267,7 @@ Item {
                             }
 
                             // content items
-                            SC.RealSpinBox {
+                            StudioControls.RealSpinBox {
                                 id: widthField
                                 actionIndicatorVisible: false
                                 implicitWidth: 70
@@ -274,7 +288,7 @@ Item {
                                 value: widthField.realValue
                             }
 
-                            SC.RealSpinBox {
+                            StudioControls.RealSpinBox {
                                 id: heightField
                                 actionIndicatorVisible: false
                                 implicitWidth: 70
@@ -368,7 +382,7 @@ Item {
                             color: DialogValues.dividerlineColor
                         }
 
-                        SC.CheckBox {
+                        StudioControls.CheckBox {
                             id: useQtVirtualKeyboard
                             actionIndicatorVisible: false
                             text: qsTr("Use Qt Virtual Keyboard")
@@ -389,7 +403,7 @@ Item {
                                 color: DialogValues.textColor
                             }
 
-                            SC.ComboBox {   // Target Qt Version ComboBox
+                            StudioControls.ComboBox {   // Target Qt Version ComboBox
                                 id: qtVersionComboBox
                                 actionIndicatorVisible: false
                                 implicitWidth: 82
@@ -421,7 +435,7 @@ Item {
                 } // ScrollView
             } // Column
 
-            SC.AbstractButton {
+            StudioControls.AbstractButton {
                 id: savePresetButton
                 width: StudioTheme.Values.singleControlColumnWidth
                 buttonIcon: qsTr("Save Custom Preset")
@@ -459,7 +473,7 @@ Item {
                         color: DialogValues.textColor
                     }
 
-                    SC.TextField {
+                    StudioControls.TextField {
                         id: presetNameTextField
                         actionIndicatorVisible: false
                         translationIndicatorVisible: false

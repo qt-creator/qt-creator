@@ -135,7 +135,7 @@ Controls.Popup {
                     boundsMovement: Flickable.StopAtBounds
                     boundsBehavior: Flickable.StopAtBounds
 
-                    Controls.ScrollBar.vertical: HelperWidgets.ScrollBar {
+                    Controls.ScrollBar.vertical: StudioControls.TransientScrollBar {
                         id: listScrollBar
                         parent: listView
                         x: listView.width - listScrollBar.width
@@ -195,7 +195,7 @@ Controls.Popup {
                     boundsMovement: Flickable.StopAtBounds
                     boundsBehavior: Flickable.StopAtBounds
 
-                    Controls.ScrollBar.vertical: HelperWidgets.ScrollBar {
+                    Controls.ScrollBar.vertical: StudioControls.TransientScrollBar {
                         id: treeScrollBar
                         parent: treeView
                         x: treeView.width - treeScrollBar.width

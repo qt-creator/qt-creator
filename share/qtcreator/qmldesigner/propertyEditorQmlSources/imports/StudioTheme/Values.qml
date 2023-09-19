@@ -99,7 +99,8 @@ QtObject {
     property real inputHorizontalPadding: Math.round(6 * values.scaleFactor)
     property real typeLabelVerticalShift: Math.round(6 * values.scaleFactor)
 
-    property real scrollBarThickness: 10
+    property real scrollBarThickness: 8
+    property real scrollBarThicknessHover: 10
     property real scrollBarActivePadding: 1
     property real scrollBarInactivePadding: 2
 
@@ -458,9 +459,6 @@ QtObject {
     property color themePillTextSelected: Theme.color(Theme.DSpillTextSelected)
     property color themePillTextEdit: Theme.color(Theme.DspillTextEdit)
 
-
-
-
     // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}
     property ControlStyle connectionPopupControlStyle: ConnectionPopupControlStyle {}
@@ -474,4 +472,5 @@ QtObject {
     property ControlStyle statusbarControlStyle: StatusBarControlStyle {}
     property ControlStyle statesControlStyle: StatesControlStyle {}
     property ControlStyle searchControlStyle: SearchControlStyle {}
+    property ControlStyle viewStyle: ViewStyle {}
 }

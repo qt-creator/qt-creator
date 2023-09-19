@@ -579,8 +579,9 @@ Rectangle {
                 anchors.topMargin: root.topMargin
                 anchors.leftMargin: root.leftMargin
 
-                ScrollBar.horizontal: HelperWidgets.ScrollBar {
+                ScrollBar.horizontal: StudioControls.TransientScrollBar {
                     id: horizontalBar
+                    style: StudioTheme.Values.viewStyle
                     parent: scrollView
                     x: scrollView.leftPadding
                     y: scrollView.height - height
@@ -592,8 +593,9 @@ Rectangle {
                     otherInUse: verticalBar.inUse
                 }
 
-                ScrollBar.vertical: HelperWidgets.ScrollBar {
+                ScrollBar.vertical: StudioControls.TransientScrollBar {
                     id: verticalBar
+                    style: StudioTheme.Values.viewStyle
                     parent: scrollView
                     x: scrollView.mirrored ? 0 : scrollView.width - width
                     y: scrollView.topPadding
