@@ -169,6 +169,7 @@ void ConnectionView::modelAboutToBeDetached(Model *model)
     bindingModel()->reset();
     dynamicPropertiesModel()->reset();
     connectionModel()->resetModel();
+    connectionModel()->modelAboutToBeDetached();
 }
 
 void ConnectionView::nodeCreated(const ModelNode & /*createdNode*/)

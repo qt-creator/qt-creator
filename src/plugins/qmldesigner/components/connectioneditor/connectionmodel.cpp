@@ -493,7 +493,7 @@ void ConnectionModel::nodeAboutToBeRemoved(const ModelNode &removedNode)
     if (selectedSignal.isValid()) {
         ModelNode targetNode = getTargetNodeForConnection(selectedSignal.parentModelNode());
         if (targetNode == removedNode) {
-            emit m_delegate->popupTargetRemoved();
+            emit m_delegate->popupShouldClose();
         }
     }
 }
@@ -2101,6 +2101,11 @@ ConnectionEditorStatements::ComparativeStatement ConditionListModel::toStatement
     }
 
     return {};
+}
+
+void QmlDesigner::ConnectionModel::modelAboutToBeDetached()
+{
+    emit m_delegate->popupShouldClose();
 }
 
 } // namespace QmlDesigner

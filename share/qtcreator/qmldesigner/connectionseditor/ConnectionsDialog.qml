@@ -43,7 +43,7 @@ PopupDialog {
 
         Connections {
             target: root.backend
-            function onPopupTargetRemoved() {
+            function onPopupShouldClose() {
                 root.close()
             }
         }
