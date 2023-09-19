@@ -113,7 +113,7 @@ FocusScope {
             leftPadding: root.margin
             rightPadding: icon.visible ? 0 : root.margin
 
-            property int textWidth: Math.min(textMetrics.width,
+            property int textWidth: Math.min(textMetrics.advanceWidth + 2,
                                              root.maxTextWidth - row.leftPadding
                                              - (icon.visible ? icon.width : root.margin))
 
