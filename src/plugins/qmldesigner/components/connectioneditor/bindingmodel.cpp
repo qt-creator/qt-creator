@@ -330,6 +330,7 @@ void BindingModelBackendDelegate::sourceNodeChanged()
 
     ConnectionView *view = model->connectionView();
     QTC_ASSERT(view, return);
+    QTC_ASSERT(view->isAttached(), return );
 
     const QString sourceNode = m_sourceNode.currentText();
     const QString sourceProperty = m_sourceNodeProperty.currentText();
