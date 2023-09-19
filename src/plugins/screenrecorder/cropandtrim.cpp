@@ -59,6 +59,15 @@ void CropScene::initMouseInteraction(const QPoint &imagePos)
         return inRange;
     };
 
+    static const auto inMoveArea = [this, &imagePos] {
+        const qreal minRatio = 0.25;  // 25% width / height of selection
+        const int minAbsoluteSize = 40;
+        QRect result(0, 0, qMax(int(m_cropRect.width() * minRatio), minAbsoluteSize),
+                     qMax(int(m_cropRect.height() * minRatio), minAbsoluteSize));
+        result.moveCenter(m_cropRect.center());
+        return result.contains(imagePos);
+    };
+
     m_mouse.clickOffset = {};
     if (inGripRange(imagePos.x(), m_cropRect.left(), m_mouse.clickOffset.rx())) {
         m_mouse.margin = EdgeLeft;
@@ -72,7 +81,7 @@ void CropScene::initMouseInteraction(const QPoint &imagePos)
     } else if (inGripRange(imagePos.y(), m_cropRect.bottom(), m_mouse.clickOffset.ry())) {
         m_mouse.margin = EdgeBottom;
         m_mouse.cursorShape = Qt::SizeVerCursor;
-    } else if (const QRect hoverArea = moveHoverArea(); hoverArea.contains(imagePos)) {
+    } else if (!fullySelected() && inMoveArea()) {
         m_mouse.margin = Move;
         m_mouse.cursorShape = Qt::SizeAllCursor;
         m_mouse.clickOffset = imagePos - m_cropRect.topLeft();
@@ -127,16 +136,6 @@ QPoint CropScene::toImagePos(const QPoint &widgetPos) const
 {
     const int dpr = int(m_image->devicePixelRatio());
     return {(widgetPos.x() - lineWidth) * dpr, (widgetPos.y() - lineWidth) * dpr};
-}
-
-QRect CropScene::moveHoverArea() const
-{
-    const qreal minRatio = 0.3;  // 30% width / height of selection
-    const int minAbsoluteSize = 40;
-    QRect result(0, 0, qMax(int(m_cropRect.width() * minRatio), minAbsoluteSize),
-          qMax(int(m_cropRect.height() * minRatio), minAbsoluteSize));
-    result.moveCenter(m_cropRect.center());
-    return result;
 }
 
 QRect CropScene::cropRect() const
