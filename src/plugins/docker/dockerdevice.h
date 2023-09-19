@@ -33,6 +33,7 @@ public:
     Utils::BoolAspect enableLldbFlags{this};
     Utils::FilePathAspect clangdExecutable{this};
     Utils::StringSelectionAspect network{this};
+    Utils::StringAspect extraArgs{this};
 
     Utils::TextDisplay containerStatus{this};
 };

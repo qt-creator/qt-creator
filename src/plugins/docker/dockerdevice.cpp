@@ -98,6 +98,7 @@ const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
 const char DockerDeviceKeepEntryPoint[] = "DockerDeviceKeepEntryPoint";
 const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
 const char DockerDeviceClangDExecutable[] = "DockerDeviceClangDExecutable";
+const char DockerDeviceExtraArgs[] = "DockerDeviceExtraCreateArguments";
 
 class ContainerShell : public Utils::DeviceShell
 {
@@ -186,6 +187,11 @@ DockerDeviceSettings::DockerDeviceSettings()
     mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toString()});
     mounts.setToolTip(Tr::tr("Maps paths in this list one-to-one to the docker container."));
     mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container"));
+
+    extraArgs.setSettingsKey(DockerDeviceExtraArgs);
+    extraArgs.setLabelText(Tr::tr("Extra arguments:"));
+    extraArgs.setDefaultValue({});
+    extraArgs.setToolTip(Tr::tr("Extra arguments to pass to docker create."));
 
     clangdExecutable.setSettingsKey(DockerDeviceClangDExecutable);
     clangdExecutable.setLabelText(Tr::tr("Clangd Executable:"));
@@ -811,6 +817,8 @@ expected_str<QString> DockerDevicePrivate::createContainer()
 
     if (deviceSettings->enableLldbFlags())
         dockerCreate.addArgs({"--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"});
+
+    dockerCreate.addArgs(deviceSettings->extraArgs(), CommandLine::Raw);
 
     dockerCreate.addArg(deviceSettings->repoAndTag());
 
