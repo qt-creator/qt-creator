@@ -195,11 +195,13 @@ public:
 
 class BlameMark : public TextEditor::TextMark
 {
+    const CommitInfo m_info;
 public:
     BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo &info)
         : TextEditor::TextMark(fileName,
                                lineNumber,
                                {Tr::tr("Git Blame"), Constants::TEXT_MARK_CATEGORY_BLAME})
+        , m_info(info)
     {
         const QString text = info.shortAuthor + " " + info.authorTime.toString("yyyy-MM-dd");
 
@@ -214,21 +216,27 @@ public:
             QObject::connect(copyToClipboardAction, &QAction::triggered, [info] {
                 Utils::setClipboardAndSelection(info.sha1);
             });
-            QAction *showAction = new QAction;
-            showAction->setIcon(Utils::Icons::ZOOM.icon());
-            showAction->setToolTip(TextEditor::Tr::tr("Show Commit %1").arg(info.sha1.left(8)));
-            QObject::connect(showAction, &QAction::triggered, [info] {
-                gitClient().show(info.filePath, info.sha1);
-            });
-            return QList<QAction *>{copyToClipboardAction, showAction};
+            return QList<QAction *>{copyToClipboardAction};
         });
+    }
+
+    bool addToolTipContent(QLayout *target) const final
+    {
+        auto textLabel = new QLabel;
+        textLabel->setText(toolTip());
+        target->addWidget(textLabel);
+        QObject::connect(textLabel, &QLabel::linkActivated, textLabel, [this] {
+            gitClient().show(m_info.filePath, m_info.sha1);
+        });
+
+        return true;
     }
 
     QString toolTipText(const CommitInfo &info) const
     {
         QString result = QString(
                 "<table>"
-                "  <tr><td>commit</td><td>%1</td></tr>"
+                "  <tr><td>commit</td><td><a href>%1</a></td></tr>"
                 "  <tr><td>Author:</td><td>%2 &lt;%3&gt;</td></tr>"
                 "  <tr><td>Date:</td><td>%4</td></tr>"
                 "  <tr></tr>"
