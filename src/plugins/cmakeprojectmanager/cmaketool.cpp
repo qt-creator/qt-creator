@@ -598,6 +598,12 @@ void CMakeTool::parseSyntaxHighlightingXml()
             m_introspection->m_functionArgs[pair.first] = m_introspection->m_functionArgs.value(
                 pair.second);
     }
+
+    // Special case for cmake_print_variables, which will print the names and values for variables
+    // and needs to be as a known function
+    const QString cmakePrintVariables("cmake_print_variables");
+    m_introspection->m_functionArgs[cmakePrintVariables] = {};
+    m_introspection->m_functions.append(cmakePrintVariables);
 }
 
 void CMakeTool::fetchFromCapabilities(bool ignoreCache) const

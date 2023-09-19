@@ -62,7 +62,7 @@ CMakeFileCompletionAssist::CMakeFileCompletionAssist()
           ProjectExplorer::DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_MODULES).icon())
     , m_targetsIcon(ProjectExplorer::Icons::BUILD.icon())
     , m_snippetCollector(Constants::CMAKE_SNIPPETS_GROUP_ID,
-                         CodeModelIcon::iconForType(CodeModelIcon::Keyword))
+                         FileIconProvider::icon(FilePath::fromString("CMakeLists.txt")))
 
 {}
 
@@ -257,7 +257,8 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
     const auto onlyFileItems = [&] { return fileStartPos != startPos; };
 
     if (functionName == "if" || functionName == "elseif" || functionName == "while"
-        || functionName == "set" || functionName == "list") {
+        || functionName == "set" || functionName == "list"
+        || functionName == "cmake_print_variables") {
         items.append(generateList(keywords.variables, m_variableIcon));
         items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
     }
@@ -270,7 +271,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         fileStartPos = addFilePathItems(interface(), items, startPos);
     }
 
-    if (functionName == "set_property")
+    if (functionName == "set_property" || functionName == "cmake_print_properties")
         items.append(generateList(keywords.properties, m_propertyIcon));
 
     if (functionName == "set_directory_properties")
@@ -289,7 +290,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
 
     if ((functionName.contains("target") || functionName == "install"
          || functionName == "add_dependencies" || functionName == "set_property"
-         || functionName == "export")
+         || functionName == "export" || functionName == "cmake_print_properties")
         && !onlyFileItems())
         items.append(generateList(buildTargets, m_targetsIcon));
 
@@ -300,6 +301,9 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         // On a new line we just want functions
         items.append(generateList(keywords.functions, m_functionIcon));
         items.append(generateList(projectKeywords.functions, m_projectFunctionIcon));
+
+        // Snippets would make more sense only for the top level suggestions
+        items.append(m_snippetCollector.collect());
     } else {
         // Inside an unknown function we could have variables or properties
         fileStartPos = addFilePathItems(interface(), items, startPos);
@@ -310,9 +314,6 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
             items.append(generateList(buildTargets, m_targetsIcon));
         }
     }
-
-    if (!onlyFileItems())
-        items.append(m_snippetCollector.collect());
 
     return new GenericProposal(startPos, items);
 }
