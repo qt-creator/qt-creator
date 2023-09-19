@@ -244,8 +244,6 @@ public:
         QGroupBox *options = nullptr;
 
         auto predefinedStyleButton = new QRadioButton;
-        s.usePredefinedStyle.adoptButton(predefinedStyleButton);
-
         auto customizedStyleButton = new QRadioButton(Tr::tr("Use customized style:"));
 
         auto styleButtonGroup = new QButtonGroup;
@@ -261,7 +259,7 @@ public:
         auto fallbackBlob = Row { noMargin, Tr::tr("Fallback style:"), s.fallbackStyle }.emerge();
 
         auto predefinedBlob = Column { noMargin, s.predefinedStyle, fallbackBlob }.emerge();
-
+        // clang-format off
         Column {
             Group {
                 title(Tr::tr("Configuration")),
@@ -274,12 +272,13 @@ public:
                 title(Tr::tr("Options")),
                 bindTo(&options),
                 Form {
-                    s.usePredefinedStyle, predefinedBlob, br,
+                    s.usePredefinedStyle.adoptButton(predefinedStyleButton), predefinedBlob, br,
                     customizedStyleButton, configurations,
                 },
             },
             st
         }.attachTo(this);
+        // clang-format on
 
         if (s.usePredefinedStyle.value())
             predefinedStyleButton->click();

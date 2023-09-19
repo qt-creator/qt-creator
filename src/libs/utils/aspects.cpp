@@ -701,10 +701,6 @@ class BoolAspectPrivate
 {
 public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
-    QPointer<QAbstractButton> m_button; // Owned by configuration widget
-    QPointer<QGroupBox> m_groupBox; // For BoolAspects handling GroupBox check boxes
-    bool m_buttonIsAdopted = false;
-
     UndoableValue<bool> m_undoable;
 };
 
@@ -1725,6 +1721,43 @@ BoolAspect::BoolAspect(AspectContainer *container)
 */
 BoolAspect::~BoolAspect() = default;
 
+void BoolAspect::addToLayoutHelper(Layouting::LayoutItem &parent, QAbstractButton *button)
+{
+    switch (d->m_labelPlacement) {
+    case LabelPlacement::Compact:
+        button->setText(labelText());
+        parent.addItem(button);
+        break;
+    case LabelPlacement::AtCheckBox:
+        button->setText(labelText());
+        parent.addItem(empty());
+        parent.addItem(button);
+        break;
+    case LabelPlacement::InExtraLabel:
+        addLabeledItem(parent, button);
+        break;
+    }
+
+    connect(button, &QAbstractButton::clicked, this, [button, this] {
+        pushUndo(d->m_undoable.set(button->isChecked()));
+    });
+
+    connect(&d->m_undoable.m_signal, &UndoSignaller::changed, button, [button, this] {
+        button->setChecked(d->m_undoable.get());
+        handleGuiChanged();
+    });
+}
+
+LayoutItem BoolAspect::adoptButton(QAbstractButton *button)
+{
+    LayoutItem parent;
+
+    addToLayoutHelper(parent, button);
+
+    bufferToGui();
+    return parent;
+}
+
 /*!
     \reimp
 */
@@ -1732,43 +1765,9 @@ void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_ASSERT(m_buffer == m_internal, m_buffer = m_internal);
 
-    if (!d->m_buttonIsAdopted) {
-        QTC_CHECK(!d->m_button);
-        d->m_button = createSubWidget<QCheckBox>();
-    }
-    switch (d->m_labelPlacement) {
-    case LabelPlacement::Compact:
-        d->m_button->setText(labelText());
-        parent.addItem(d->m_button.data());
-        break;
-    case LabelPlacement::AtCheckBox:
-        d->m_button->setText(labelText());
-        parent.addItem(empty());
-        parent.addItem(d->m_button.data());
-        break;
-    case LabelPlacement::InExtraLabel:
-        addLabeledItem(parent, d->m_button);
-        break;
-    }
-
-    connect(d->m_button.data(), &QAbstractButton::clicked, this, [this] {
-        pushUndo(d->m_undoable.set(d->m_button->isChecked()));
-    });
-
-    connect(&d->m_undoable.m_signal, &UndoSignaller::changed, d->m_button, [this] {
-        d->m_button->setChecked(d->m_undoable.get());
-        handleGuiChanged();
-    });
+    QCheckBox *checkBox = createSubWidget<QCheckBox>();
+    addToLayoutHelper(parent, checkBox);
     bufferToGui();
-}
-
-void BoolAspect::adoptButton(QAbstractButton *button)
-{
-    QTC_ASSERT(button, return);
-    QTC_CHECK(!d->m_button);
-    d->m_button = button;
-    d->m_buttonIsAdopted = true;
-    registerSubWidget(button);
 }
 
 std::function<void (QObject *)> BoolAspect::groupChecker()
@@ -1779,14 +1778,13 @@ std::function<void (QObject *)> BoolAspect::groupChecker()
         registerSubWidget(groupBox);
         groupBox->setCheckable(true);
         groupBox->setChecked(value());
-        d->m_groupBox = groupBox;
 
-        connect(d->m_groupBox.data(), &QGroupBox::clicked, this, [this] {
-            pushUndo(d->m_undoable.set(d->m_groupBox->isChecked()));
+        connect(groupBox, &QGroupBox::clicked, this, [groupBox, this] {
+            pushUndo(d->m_undoable.set(groupBox->isChecked()));
         });
 
-        connect(&d->m_undoable.m_signal, &UndoSignaller::changed, d->m_groupBox, [this] {
-            d->m_groupBox->setChecked(d->m_undoable.get());
+        connect(&d->m_undoable.m_signal, &UndoSignaller::changed, groupBox, [groupBox, this] {
+            groupBox->setChecked(d->m_undoable.get());
             handleGuiChanged();
         });
         bufferToGui();

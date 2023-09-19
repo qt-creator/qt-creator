@@ -438,9 +438,11 @@ public:
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);
 
-    void adoptButton(QAbstractButton *button);
+    Layouting::LayoutItem adoptButton(QAbstractButton *button);
 
 private:
+    void addToLayoutHelper(Layouting::LayoutItem &parent, QAbstractButton *button);
+
     void bufferToGui() override;
     bool guiToBuffer() override;
 
