@@ -63,6 +63,8 @@ const Icon BOOKMARK_TOOLBAR({
         {":/utils/images/bookmark.png", Theme::IconsBaseColor}});
 const Icon BOOKMARK_TEXTEDITOR({
         {":/utils/images/bookmark.png", Theme::Bookmarks_TextMarkColor}}, Icon::Tint);
+const Icon SNAPSHOT({
+        {":/utils/images/snapshot.png", Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SNAPSHOT_TOOLBAR({
         {":/utils/images/snapshot.png", Theme::IconsBaseColor}});
 const Icon NEWSEARCH_TOOLBAR({
