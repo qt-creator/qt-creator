@@ -59,7 +59,6 @@ PropertyEditorPane 2.0 PropertyEditorPane.qml
 PropertyLabel 2.0 PropertyLabel.qml
 PaddingSection 2.0 PaddingSection.qml
 RoundedPanel 2.0 RoundedPanel.qml
-ScrollBar 2.0 ScrollBar.qml
 ScrollView 2.0 ScrollView.qml
 SecondColumnLayout 2.0 SecondColumnLayout.qml
 Section 2.0 Section.qml

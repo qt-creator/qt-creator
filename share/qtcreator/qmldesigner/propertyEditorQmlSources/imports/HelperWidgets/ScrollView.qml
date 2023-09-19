@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-//import QtQuick.Controls as C
+import StudioControls as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Flickable {
@@ -26,8 +26,9 @@ Flickable {
 
     HoverHandler { id: hoverHandler }
 
-    ScrollBar.horizontal: ScrollBar {
+    ScrollBar.horizontal: StudioControls.TransientScrollBar {
         id: horizontalScrollBar
+        style: StudioTheme.Values.viewStyle
         parent: flickable
         x: 0
         y: flickable.height - horizontalScrollBar.height
@@ -40,8 +41,9 @@ Flickable {
         otherInUse: verticalScrollBar.inUse
     }
 
-    ScrollBar.vertical: ScrollBar {
+    ScrollBar.vertical: StudioControls.TransientScrollBar {
         id: verticalScrollBar
+        style: StudioTheme.Values.viewStyle
         parent: flickable
         x: flickable.width - verticalScrollBar.width
         y: 0

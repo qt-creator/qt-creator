@@ -14,7 +14,8 @@ T.ScrollBar {
     property bool otherInUse: false
     property bool isNeeded: control.size < 1.0
     property bool inUse: control.hovered || control.pressed
-    property int thickness: control.inUse || control.otherInUse ? 10 : 8
+    property int thickness: control.inUse || control.otherInUse ? control.style.scrollBarThicknessHover
+                                                                : control.style.scrollBarThickness
 
     property bool scrollBarVisible: parent.childrenRect.height > parent.height
 

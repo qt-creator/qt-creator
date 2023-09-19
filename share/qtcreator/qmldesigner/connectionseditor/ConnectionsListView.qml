@@ -3,8 +3,8 @@
 
 import QtQuick
 import QtQuick.Controls
-import HelperWidgets 2.0 as HelperWidgets
-import StudioControls 1.0 as StudioControls
+import HelperWidgets as HelperWidgets
+import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import ConnectionsEditorEditorBackend
 
@@ -30,8 +30,9 @@ ListView {
 
     HoverHandler { id: hoverHandler }
 
-    ScrollBar.vertical: HelperWidgets.ScrollBar {
+    ScrollBar.vertical: StudioControls.TransientScrollBar {
         id: verticalScrollBar
+        style: StudioTheme.Values.viewStyle
         parent: root
         x: root.width - verticalScrollBar.width
         y: 0

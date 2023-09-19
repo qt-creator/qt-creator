@@ -6,7 +6,7 @@ import QtQuick.Controls
 
 import QtQuick
 import QtQuick.Layouts
-import StudioControls as SC
+import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
 import BackendApi
@@ -23,12 +23,17 @@ ScrollView {
     property bool selectLast: false
 
     ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-    ScrollBar.vertical: SC.VerticalScrollBar {
+    ScrollBar.vertical: StudioControls.TransientScrollBar {
+        id: verticalScrollBar
+        style: StudioTheme.Values.viewStyle
         parent: scrollView
-        x: scrollView.width + (DialogValues.gridMargins
-                               - StudioTheme.Values.scrollBarThickness) * 0.5
+        x: scrollView.width + (DialogValues.gridMargins - verticalScrollBar.width) * 0.5
         y: scrollView.topPadding
         height: scrollView.availableHeight
+        orientation: Qt.Vertical
+
+        show: (scrollView.hovered || scrollView.focus || verticalScrollBar.inUse)
+              && verticalScrollBar.isNeeded
     }
 
     contentWidth: gridView.contentItem.childrenRect.width

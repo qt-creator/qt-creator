@@ -14,3 +14,4 @@ StatusBarControlStyle 1.0 StatusBarControlStyle.qml
 TopToolbarButtonStyle 1.0 TopToolbarButtonStyle.qml
 ViewBarButtonStyle 1.0 ViewBarButtonStyle.qml
 ViewBarControlStyle 1.0 ViewBarControlStyle.qml
+ViewStyle 1.0 ViewStyle.qml
