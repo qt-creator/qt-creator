@@ -54,6 +54,8 @@ public:
         return Ptr(new DockerDevice(std::move(settings)));
     }
 
+    Utils::CommandLine createCommandLine() const;
+
     ProjectExplorer::IDeviceWidget *createWidget() override;
     QList<ProjectExplorer::Task> validate() const override;
 

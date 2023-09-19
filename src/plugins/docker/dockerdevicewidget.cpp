@@ -9,6 +9,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/clangutils.h>
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -137,6 +138,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         m_kitItemDetector.listAutoDetected(device->id().toString());
     });
 
+    auto createLineLabel = new QLabel(dockerDevice->createCommandLine().toUserOutput());
+    createLineLabel->setWordWrap(true);
+
     using namespace Layouting;
 
     // clang-format off
@@ -156,25 +160,28 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         Tr::tr("Detection log:"),
         logView
     };
-
-    Form {
-        deviceSettings->repo, br,
-        deviceSettings->tag, br,
-        deviceSettings->imageId, br,
-        daemonStateLabel, m_daemonReset, m_daemonState, br,
-        Tr::tr("Container State:"), deviceSettings->containerStatus, br,
-        deviceSettings->useLocalUidGid, br,
-        deviceSettings->keepEntryPoint, br,
-        deviceSettings->enableLldbFlags, br,
-        deviceSettings->clangdExecutable, br,
-        deviceSettings->network, br,
-        deviceSettings->extraArgs, br,
-        Column {
-            pathListLabel,
-            deviceSettings->mounts,
-        }, br,
-        If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
+    Column {
         noMargin,
+        Form {
+            deviceSettings->repo, br,
+            deviceSettings->tag, br,
+            deviceSettings->imageId, br,
+            daemonStateLabel, m_daemonReset, m_daemonState, br,
+            Tr::tr("Container State:"), deviceSettings->containerStatus, br,
+            deviceSettings->useLocalUidGid, br,
+            deviceSettings->keepEntryPoint, br,
+            deviceSettings->enableLldbFlags, br,
+            deviceSettings->clangdExecutable, br,
+            deviceSettings->network, br,
+            deviceSettings->extraArgs, br,
+            Column {
+                pathListLabel,
+                deviceSettings->mounts,
+            }, br,
+            If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
+            noMargin,
+        },br,
+        Tr::tr("Command Line:"), createLineLabel, br,
     }.attachTo(this);
     // clang-format on
 
@@ -185,6 +192,10 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             searchDirsLineEdit->setFocus();
     };
     QObject::connect(searchDirsComboBox, &QComboBox::activated, this, updateDirectoriesLineEdit);
+
+    connect(deviceSettings, &AspectContainer::applied, this, [createLineLabel, dockerDevice] {
+        createLineLabel->setText(dockerDevice->createCommandLine().toUserOutput());
+    });
 }
 
 void DockerDeviceWidget::updateDaemonStateTexts()
