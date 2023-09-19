@@ -32,6 +32,25 @@ private slots:
 
         QVERIFY(!result);
     }
+
+    void tryCompareVoid()
+    {
+        tl::expected<void, QString> e1;
+        QVERIFY(e1 == e1);
+
+        tl::expected<void, QString> e2 = make_unexpected("error");
+        QVERIFY(e1 != e2);
+
+        e1 = make_unexpected(QString("error"));
+        QVERIFY(e1 == e2);
+
+        e2 = {};
+        QVERIFY(e1 != e2);
+
+        e1 = {};
+        QVERIFY(e1 == e2);
+        QVERIFY(!(e1 != e2));
+    }
 };
 QTEST_GUILESS_MAIN(tst_expected)
 

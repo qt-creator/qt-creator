@@ -2278,6 +2278,14 @@ detail::decay_t<Exp> or_else_impl(Exp &&exp, F &&f) {
 #endif
 } // namespace detail
 
+template <class E, class F>
+constexpr bool operator==(const expected<void, E> &lhs,
+                          const expected<void, F> &rhs) {
+  return (lhs.has_value() != rhs.has_value())
+             ? false
+             : (!lhs.has_value() ? lhs.error() == rhs.error() : true);
+}
+
 template <class T, class E, class U, class F>
 constexpr bool operator==(const expected<T, E> &lhs,
                           const expected<U, F> &rhs) {
@@ -2291,6 +2299,13 @@ constexpr bool operator!=(const expected<T, E> &lhs,
   return (lhs.has_value() != rhs.has_value())
              ? true
              : (!lhs.has_value() ? lhs.error() != rhs.error() : *lhs != *rhs);
+}
+template<class E, class F>
+constexpr bool operator!=(const expected<void, E> &lhs, const expected<void, F> &rhs)
+{
+    return (lhs.has_value() != rhs.has_value())
+               ? true
+               : (!lhs.has_value() ? lhs.error() != rhs.error() : false);
 }
 
 template <class T, class E, class U>
