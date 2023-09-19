@@ -37,17 +37,16 @@ DapClient::~DapClient() = default;
 
 void DapClient::postRequest(const QString &command, const QJsonObject &arguments)
 {
+    static int seq = 1;
+
     QJsonObject ob = {
         {"command", command},
         {"type", "request"},
+        {"seq", seq++},
         {"arguments", arguments}
     };
 
-    static int seq = 1;
-    QJsonObject obseq = ob;
-    obseq.insert("seq", seq++);
-
-    const QByteArray data = QJsonDocument(obseq).toJson(QJsonDocument::Compact);
+    const QByteArray data = QJsonDocument(ob).toJson(QJsonDocument::Compact);
     const QByteArray msg = "Content-Length: " + QByteArray::number(data.size()) + "\r\n\r\n" + data;
     qCDebug(logCategory()) << msg;
 

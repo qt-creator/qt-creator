@@ -76,6 +76,8 @@ public:
     {
         m_proc.setEnvironment(m_runParameters.debugger.environment);
         m_proc.setCommand(m_cmd);
+        // Workaround to have output for Python
+        m_proc.setTerminalMode(TerminalMode::Run);
         m_proc.start();
 
         m_timer = new QTimer(this);
