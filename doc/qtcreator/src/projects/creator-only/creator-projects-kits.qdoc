@@ -8,77 +8,91 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-configuring-projects.html
     \page creator-targets.html
-    \nextpage creator-project-qmake.html
+    \previouspage creator-how-tos.html
 
-    \title Adding Kits
+    \ingroup creator-how-to-manage-kits
 
-    \QC groups settings used for building and running projects as kits
+    \title Add kits
+
+    \QC groups settings used for building and running projects as \e kits
     to make cross-platform and cross-configuration development easier. Each kit
     consists of a set of values that define one environment, such as a
     \l{glossary-device}{device}, compiler, Qt version, and debugger command
     to use, and some metadata, such as an icon and a name for the kit. Once
     you have defined kits, you can select them to build and run projects.
 
-    \QC supports development for the desktop and for the following types of
-    devices:
+    You can add kits for the desktop and for the following types of devices:
 
     \list
-        \li \l{Connecting Android Devices}{Android Device}
-        \li \l{Connecting Bare Metal Devices}{Bare Metal Device}
+        \li \l{Connecting Android Devices}{Android}
+        \li \l{Connecting Bare Metal Devices}{Bare Metal}
         \li \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
-            {Boot2Qt Device} (commercial only)
-        \li \l{Emulator}{Boot2Qt Emulator Device} (commercial only)
-        \li \l{Adding Docker Devices}{Docker Device} (experimental)
-        \li \l{Connecting iOS Devices}{iOS Device}
+            {Boot2Qt} (commercial only)
+        \li \l{Emulator}{Boot2Qt Emulator} (commercial only)
+        \li \l{Adding Docker Devices}{Docker} (experimental)
+        \li \l{Connecting iOS Devices}{iOS}
         \li iOS Simulator
-        \li \l{Connecting MCUs}{MCU Device} (commercial only)
-        \li \l{Connecting QNX Devices}{QNX Device}
-        \li \l{Connecting Remote Linux Devices}{Remote Linux Device}
+        \li \l{Connecting MCUs}{MCU} (commercial only)
+        \li \l{Connecting QNX Devices}{QNX}
+        \li \l{Connecting Remote Linux Devices}{Remote Linux}
         \li \l{Building Applications for the Web}{WebAssembly Runtime}
     \endlist
-
-    \section1 Filtering Kit Settings
-
-    Typically, only a subset of the kit settings is relevant for a particular
-    setup. Therefore, \QC plugins register sets of relevant settings that you
-    can view and modify in \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Kits. For example, if you use CMake to build all your projects,
-    you can hide Qbs and qmake settings by default.
-
-    \image qtcreator-kits.png
-
-    To hide and show settings in the \uicontrol Kits tab for the
-    current kit, select \uicontrol {Settings Filter}. To view and
-    modify the settings displayed when you add a new kit, select
-    \uicontrol {Default Settings Filter}.
-
-    \section1 Specifying Kit Settings
 
     To add kits:
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
-            \uicontrol Add.
-
-            To clone the selected kit, select \uicontrol Clone.
-
-        \li Specify kit settings. The settings to specify depend on the build
-            system and device type.
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
+        \li Select \uicontrol Add to start from an empty kit or \uicontrol Clone
+            to clone the selected kit and edit its preferences.
+            \image qtcreator-kits.png
+        \li Set \l{Kits}{kit preferences} according to the build system and
+            device type.
 
         \li Select \uicontrol OK to create the kit.
 
     \endlist
 
+    \section1 Set the default kit
+
     \QC uses the \e {default kit} if it does not have enough information to
     choose the kit to use. To set the selected kit as the default kit,
     select \uicontrol {Make Default}.
 
-    \section2 Kit Settings
+    \sa {Activate kits for a project}, {Add debuggers}, {Add Qt versions},
+    {Open projects}, {Compilers}, {Kits}
+*/
 
-    The following table summarizes the available kit settings.
+/*!
+    \page creator-preferences-kits.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences
+
+    \title Kits
+
+    \brief Kit preferences.
+
+    Typically, only a subset of the kit preferences is relevant for a particular
+    setup. Therefore, \QC plugins register sets of relevant preferences that you
+    can view and modify in \uicontrol Edit > \uicontrol Preferences >
+    \uicontrol Kits. For example, if you use CMake to build all your projects,
+    you can hide Qbs and qmake preferences by default.
+
+    \image qtcreator-kits.png
+
+    \section1 Filtering Kit Preferences
+
+    To hide and show preferences in the \uicontrol Kits tab for the
+    current kit, select \uicontrol {Settings Filter}.
+
+    To view and modify the preferences displayed when you add a new kit, select
+    \uicontrol {Default Settings Filter}.
+
+    \section1 Kit Preferences
+
+    The following table summarizes the available kit preferences.
 
     \table
     \header
@@ -125,7 +139,7 @@
         \li C or C++ compiler that you use to build the project. You can add
             compilers to the list if they are installed on the development PC,
             but were not detected automatically. For more information, see
-            \l{Adding Compilers}.
+            \l{Add compilers}.
 
             This setting is used to tell the code model which compiler is used.
             If your project type and build tool support it, \QC also tells the
@@ -146,7 +160,7 @@
         \li Debugger to debug the project on the target platform. \QC
             automatically detects available debuggers and displays a
             suitable debugger in the field. You can add debuggers to the list.
-            For more information, see \l{Adding Debuggers}.
+            For more information, see \l{Add debuggers}.
 
             For Android kits, the \uicontrol {Android GDB server} field will
             display the path to GDB server executable.
@@ -154,7 +168,7 @@
         \li \uicontrol {Qt version}
         \li Qt version to use for building the project. You can add Qt versions
             that \QC did not detect automatically. For more information, see
-            \l{Adding Qt Versions}.
+            \l{Add Qt versions}.
 
             \QC checks the directories listed in the \c{PATH} environment
             variable for the qmake executable. It refers to the qmake executable
@@ -167,7 +181,7 @@
     \row
         \li \uicontrol {Additional Qbs profile settings}
         \li Select \uicontrol Change to add settings to Qbs build profiles.
-            For more information, see \l {Editing Qbs Profiles}.
+            For more information, see \l {Edit Qbs profiles}.
     \row
         \li \uicontrol {CMake Tool}
         \li CMake executable to use for building the project. Select
@@ -196,43 +210,6 @@
             \uicontrol Manage to add installed Ninja tools to the list.
     \endtable
 
-    \section1 Editing Qbs Profiles
-
-    To view the Qbs profile associated with the kit, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Qbs > \uicontrol Profiles.
-
-    \image creator-qbs-profiles.png "Qbs Profiles tab"
-
-    You can add keys and values to the profile or remove them from it, as well
-    as modify existing values. For a list of available keys and values, see
-    \l{http://doc.qt.io/qbs/list-of-modules.html}{List of Modules} in the Qbs
-    Manual.
-
-    To edit the Qbs profile associated with the kit:
-
-    \list 1
-
-        \li In \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits, select
-            the kit, and then select \uicontrol Change next to the
-            \uicontrol {Additional Qbs Profile Settings} field to open the
-            \uicontrol {Custom Properties} dialog.
-
-            \image qtcreator-qbs-profile-settings.png "Custom Properties dialog"
-
-        \li Double-click an empty cell in the \uicontrol Key column to specify
-            the key to add or modify as: \c <module_name>.<property_name>.
-
-        \li Double-click the cell on the same row in the \uicontrol Value column
-            to specify a value as a JSON literal.
-
-        \li Select \uicontrol Add to add the key-value pair.
-
-        \li Click \uicontrol OK.
-
-    \endlist
-
-    To modify an existing value, double-click it in the \uicontrol Value field.
-
-    To remove the selected property, select \uicontrol Remove.
-
+    \sa {Activate kits for a project}, {Open projects}, {Add compilers},
+    {Add debuggers}, {Add kits}, {Add Qt versions}, {Edit Qbs profiles}
 */

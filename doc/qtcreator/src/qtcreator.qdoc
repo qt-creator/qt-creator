@@ -96,6 +96,7 @@
                     \li \l{Design UIs}
                     \li \l{Edit Code}
                     \li \l{Manage Projects}
+                    \li \l{Build and Run}
                     \li \l{Read Qt Documentation}
                     \li \l{Use \QC}
                     \li \l{Use the UI}
@@ -106,6 +107,7 @@
                     \li \l {Command-Line Options}
                     \li \l {Custom Wizards}
                     \li \l {Keyboard Shortcuts}
+                    \li \l {Preferences}
                     \li \l {Supported Platforms}
                     \li \l {Reference}{See More...}
                 \endlist

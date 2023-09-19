@@ -266,7 +266,7 @@
 
     To add a kit for building applications and running them on bare metal
     devices, select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits
-    > \uicontrol Add. For more information, see \l{Adding Kits}.
+    > \uicontrol Add. For more information, see \l{Add kits}.
 
     \image qtcreator-baremetal-kit.png "Kit preferences for Bare Metal"
 

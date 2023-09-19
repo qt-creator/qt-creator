@@ -125,7 +125,7 @@
 
     \image qtcreator-kits-cmake.png {Kits preferences}
 
-    For more information, see \l {Adding Kits}.
+    For more information, see \l {Add kits} and \l {Kits}.
 
     \section1 Editing CMake Configuration Files
 

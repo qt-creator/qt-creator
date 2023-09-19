@@ -162,7 +162,7 @@
     To add custom NDK paths manually to the global list of NDKs, select
     \uicontrol Add. This creates custom tool chains and debuggers associated
     to that NDK. However, you have to manually create a kit that uses the
-    custom NDK. For more information, see \l{Adding Kits}.
+    custom NDK. For more information, see \l{Add kits}.
 
     \section2 Managing Android SDK Packages
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,17 +8,19 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-project-qmake.html
     \page creator-tool-chains.html
-    \nextpage creator-debuggers.html
+    \previouspage creator-how-tos.html
 
-    \title Adding Compilers
+    \ingroup creator-how-to-manage-kits
 
-    Qt is supported on a variety of 32-bit and 64-bit platforms, and can
-    usually be built on each platform with GCC, a vendor-supplied compiler, or
-    a third party compiler. In \QC, a \l{glossary-buildandrun-kit}{kit}
-    specifies the compiler and other necessary tools for building an application
-    for and running it on a particular platform.
+    \title Add compilers
+
+    You can develop Qt applications on several 32-bit and 64-bit platforms.
+    Usually, you can build Qt applications on each platform with GCC, a
+    vendor-supplied compiler, or a third party compiler. In \QC, a
+    \l{glossary-buildandrun-kit}{kit} specifies the compiler and other
+    necessary tools for building an application for and running it on a
+    particular platform.
 
     \QC automatically detects the compilers that your system or \QOI
     registers and lists them in \uicontrol Edit > \uicontrol Preferences >
@@ -32,65 +34,7 @@
     \l{https://trac.macports.org/wiki/howto/ccache}{How to enable ccache}
     in the MacPorts wiki.
 
-    You can add the following compilers to build applications by using other
-    compilers or by using additional versions of the automatically detected
-    compilers:
-
-    \list
-
-        \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
-            LLVM compiler for Windows, Linux, and \macos.
-
-        \li \l{https://clang.llvm.org/docs/UsersManual.html#clang-cl}{clang-cl}
-            is an alternative command-line interface to Clang that is compatible
-            with the Visual C++ compiler, \c cl.exe.
-
-        \li GNU Compiler Collection (GCC) is a compiler for Linux and
-            \macos.
-
-        \li ICC (Intel C++ Compiler) is a group of C and C++ compilers.
-            Only the GCC-compatible variant, available for Linux and \macos,
-            is currently supported by \QC.
-
-        \li \MinGW (Minimalist GNU for Windows) is a native software port of GCC
-            and GNU Binutils for use in the development of native Microsoft
-            Windows applications on Windows. \MinGW is distributed together with
-            \QC and Qt for Windows.
-
-        \li MSVC (Microsoft Visual C++ Compiler) is a C++ compiler that is
-            installed with Microsoft Visual Studio.
-
-        \li Nim is the Nim Compiler for Windows, Linux, and \macos.
-
-        \li QCC is the interface for compiling C++ applications for QNX.
-
-    \endlist
-
-    In addition, the \QC Bare Metal Device plugin supports the
-    following compilers:
-
-    \list
-
-        \li \l{https://www.iar.com/iar-embedded-workbench/}{IAREW} is a group of
-            C and C++ bare-metal compilers from the various IAR Embedded Workbench
-            development environments.
-            Currently supported architectures are \c 8051, \c AVR, \c ARM,
-            \c STM8, and \c MSP430.
-
-        \li \l{https://www.keil.com}{KEIL} is a group of C and C++ bare-metal
-            compilers from the various KEIL development environments.
-            Currently supported architectures are \c 8051 and \c ARM.
-
-        \li \l{http://sdcc.sourceforge.net}{SDCC} is an optimizing
-            C bare-metal compiler for various architectures.
-            Currently supported architectures are \c 8051 and \c STM8.
-
-    \endlist
-
-    The emscripten compiler is tool chain for compiling to
-    \l{Building Applications for the Web}{WebAssembly}.
-
-    \section1 Re-detecting Compilers
+    \section1 Re-detect compilers
 
     When \QC finds an x86_64 GCC compiler, it sets up an instance for the native
     x86_64 target. If you plan to create also 32-bit x86 binaries without using
@@ -102,7 +46,140 @@
     To remove manually added compilers, select \uicontrol Remove or
     \uicontrol {Remove All}.
 
-    \section1 Specifying Compiler Settings
+    \section1 Add C or C++ compilers
+
+    To add a C or C++ compiler:
+
+    \list 1
+        \li Select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol Kits > \uicontrol Compilers.
+        \li Select \uicontrol Add to add a new compiler or \uicontrol Clone to
+            add another version of the selected compiler.
+        \li Select a compiler in the list.
+        \li Select \uicontrol C or \uicontrol C++.
+        \li Set \l{Compilers}{preferences} according to the selected compiler.
+    \endlist
+
+    \section1 Supported compilers
+
+    You can add the following compilers to build applications by using other
+    compilers or by using other versions of the automatically detected
+    compilers.
+
+    \table
+    \header
+        \li Compiler
+        \li Description
+    \row
+        \li Clang
+        \li A C, C++, Objective C, and Objective C++ front-end for the
+            LLVM compiler for Windows, Linux, and \macos.
+    \row
+        \li \l{https://clang.llvm.org/docs/UsersManual.html#clang-cl}{clang-cl}
+        \li An alternative command-line interface to Clang that is compatible
+            with the Visual C++ compiler, \c cl.exe.
+    \row
+        \li GCC (GNU Compiler Collection)
+        \li A compiler for Linux and \macos.
+    \row
+        \li ICC (Intel C++ Compiler)
+        \li A group of C and C++ compilers. Only the GCC-compatible variant,
+            available for Linux and \macos, is currently supported by \QC.
+    \row
+        \li MinGW (Minimalist GNU for Windows)
+        \li A native software port of GCC and GNU Binutils for use in the
+            development of native Microsoft Windows applications on Windows.
+            \MinGW is distributed together with \QC and Qt for Windows.
+    \row
+        \li MSVC (Microsoft Visual C++ Compiler)
+        \li A C++ compiler that is installed with Microsoft Visual Studio.
+    \row
+        \li Nim
+        \li The Nim Compiler for Windows, Linux, and \macos.
+    \row
+        \li QCC
+        \li The interface for compiling C++ applications for QNX.
+    \row
+        \li Custom
+        \li Other than the listed compilers and remote compilers.
+    \endtable
+
+    The emscripten compiler is tool chain for compiling to
+    \l{Building Applications for the Web}{WebAssembly}.
+
+    \section2 Bare-metal compilers
+
+    In addition, the \QC Bare Metal Device plugin supports the
+    following compilers.
+
+    \table
+    \header
+        \li Compiler
+        \li Description
+    \row
+        \li \l{https://www.iar.com/iar-embedded-workbench/}{IAREW}
+        \li A group of C and C++ bare-metal compilers from the various
+            IAR Embedded Workbench development environments.
+            Currently supported architectures are \c 8051, \c AVR, \c ARM,
+            \c STM8, and \c MSP430.
+    \row
+        \li \l{https://www.keil.com}{KEIL}
+        \li A group of C and C++ bare-metal compilers from the various KEIL
+            development environments.
+            Currently supported architectures are \c 8051 and \c ARM.
+    \row
+        \li \l{http://sdcc.sourceforge.net}{SDCC}
+        \li An optimizing C bare-metal compiler for various architectures.
+            Currently supported architectures are \c 8051 and \c STM8.
+    \endtable
+
+    \section1 Troubleshoot \MinGW compilation errors
+
+    If error messages displayed in \l {Compile Output} contain
+    paths where slashes are missing (for example, \c {C:QtSDK}),
+    check your PATH variable. At the command line, enter the following commands:
+
+    \code
+        where sh.exe
+        where make.exe
+        where mingw32-make.exe
+    \endcode
+
+    If these commands show paths, they have been added to the global PATH
+    variable during the installation of a tool chain based on Cygwin or \MinGW,
+    even though this is against Windows conventions.
+
+    To keep working with the third-party tool chain, create a new shell link
+    that adds the required paths (as Visual Studio and Qt do). The shell link
+    must point to cmd.exe:
+
+    \c {C:\Windows\System32\cmd.exe /K C:\path_to\myenv.bat}
+
+    where the /K parameter carries out the command specified in the bat file.
+
+    Create the myenv.bat file at \e path_to, which should be in a convenient
+    location. In the file, specify the paths to the tool chains. For example,
+
+    \c  {set PATH=C:\path1;C:\path2;%PATH%}
+
+    where \e path1 and \e path2 are paths to the tool chains.
+
+    Finally, remove the paths from the global PATH, reboot the computer, and
+    run the \c where commands again to verify that the global PATH is now clean.
+
+    You can use the shell link to run the tools in the third-party tool chains.
+
+    \sa {Compilers}, {Add Nim compilers}, {Add custom compilers},
+    {Connecting Bare Metal Devices}, {Supported Platforms}
+*/
+
+/*!
+    \page creator-preferences-kits-compilers.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences
+
+    \title Compilers
 
     To build an application using GCC, \MinGW, Clang, or QCC, specify the path
     to the directory where the compiler is located and select
@@ -120,20 +197,17 @@
     You specify the compiler to use for each kit in \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Kits.
 
-    To add a C or C++ compiler, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Kits > \uicontrol Compilers > \uicontrol Add. Select a compiler
-    in the list, and then select \uicontrol C or \uicontrol C++.
-
-    To clone the selected compiler, select \uicontrol Clone.
-
-    The settings to specify depend on the compiler:
+    To set compiler preferences according to the compiler type, select
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+    \uicontrol Compilers:
 
     \list
 
         \li In the \uicontrol Name field, enter a name for the compiler to
             identify it in \QC.
 
-            \image qtcreator-options-cpp-compilers.png "Adding a clang-cl compiler"
+            \image qtcreator-options-cpp-compilers.png {Adding a clang-cl compiler}
+            \caption Adding a clang-cl compiler.
 
         \li In the \uicontrol Initialization field, select the
             \c {vcvarsall.bat} file for setting up the command
@@ -146,11 +220,12 @@
             to the compiler that specify the architecture on the target
             platform.
 
-        \li In the \uicontrol {Platform linker flags} field, check the flags passed to
-            the linker that specify the architecture on the target platform.
-            The linker flags are used only when building with Qbs.
+            \image qtcreator-options-clang-compilers.png {Adding a Clang compiler}
+            \caption Adding a Clang compiler.
 
-            \image qtcreator-options-clang-compilers.png "Adding a Clang compiler"
+        \li \b {When building with Qbs}: In the \uicontrol {Platform linker flags}
+            field, check the flags passed to the linker that specify the
+            architecture on the target platform.
 
         \li In the \uicontrol {Parent toolchain} field, select a \MinGW
             compiler, which is needed because Clang does not have its own
@@ -159,7 +234,8 @@
         \li In the \uicontrol {SPD path} field, specify the path to the QNX
             Software Development Platform (SDP).
 
-            \image qtcreator-options-qcc-compilers.png "Adding a QCC compiler"
+            \image qtcreator-options-qcc-compilers.png {Adding a QCC compiler}
+            \caption Adding a QCC compiler.
 
         \li In the \uicontrol ABI field, enter an identifier for the
             target architecture. This is used to warn about ABI mismatches
@@ -170,22 +246,42 @@
             Clang does not understand the target architecture, select
             \uicontrol {Override for code model}.
 
-            \image qtcreator-compilers-target-triple.png "Target triple field"
-
+            \image qtcreator-compilers-target-triple.png {Target triple field}
+            \caption Target triple field.
     \endlist
 
-    \section1 Adding Nim Compilers
+    \sa {Add compilers}, {Add custom compilers}, {Add Nim compilers},
+    {Supported Platforms}
+*/
+
+/*!
+    \page creator-how-to-add-nim-compilers.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-manage-kits
+
+    \title Add Nim compilers
 
     To build an application using the Nim Compiler, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Kits > \uicontrol Compilers >
     \uicontrol Add > \uicontrol Nim, and specify the path to the directory where
     the compiler is located.
 
-    \section1 Adding Custom Compilers
+    \sa {Add compilers}, {Compilers}
+*/
 
-    To add a compiler that is not listed above or a remote compiler, use the
-    \uicontrol Custom option and specify the paths to the directories where the
-    compiler and make tool are located and options for the compiler.
+/*!
+    \page creator-how-to-add-custom-compilers.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-manage-kits
+
+    \title Add custom compilers
+
+    To add a compiler that is not listed \uicontrol Edit > \uicontrol Preferences
+    > \uicontrol Kits > \uicontrol Compilers or to add a remote compiler, use the
+    \uicontrol Custom option. Specify the paths to the directories where the
+    compiler and make tool are located and set preferences for the compiler.
 
     \image creator-compilers-custom.png
 
@@ -223,44 +319,9 @@
             to the Qt mkspecs directory.
 
         \li In the \uicontrol {Error parser} field, select the error parser to use.
-            You can add custom output parsers to the list. For more information,
-            see \l{Using Custom Output Parsers}.
+            You can add custom output parsers to the list.
     \endlist
 
-    \section1 Troubleshooting \MinGW Compilation Errors
-
-    If error messages displayed in \l {Compile Output} contain
-    paths where slashes are missing (for example, \c {C:QtSDK}),
-    check your PATH variable. At the command line, enter the following commands:
-
-    \code
-        where sh.exe
-        where make.exe
-        where mingw32-make.exe
-    \endcode
-
-    If these commands show paths, they have been added to the global PATH
-    variable during the installation of a tool chain based on Cygwin or \MinGW,
-    even though this is against Windows conventions.
-
-    To keep working with the third-party tool chain, create a new shell link
-    that adds the required paths (as Visual Studio and Qt do). The shell link
-    must point to cmd.exe:
-
-    \c {C:\Windows\System32\cmd.exe /K C:\path_to\myenv.bat}
-
-    where the /K parameter carries out the command specified in the bat file.
-
-    Create the myenv.bat file at \e path_to, which should be in a convenient
-    location. In the file, specify the paths to the tool chains. For example,
-
-    \c  {set PATH=C:\path1;C:\path2;%PATH%}
-
-    where \e path1 and \e path2 are paths to the tool chains.
-
-    Finally, remove the paths from the global PATH, reboot the computer, and
-    run the \c where commands again to verify that the global PATH is now clean.
-
-    You can use the shell link to run the tools in the third-party tool chains.
-
+    \sa {Add compilers}, {Add Nim compilers}, {Compilers},
+    {Using Custom Output Parsers}
 */

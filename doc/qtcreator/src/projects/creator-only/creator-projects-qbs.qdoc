@@ -65,7 +65,7 @@
         \li In the \uicontrol Kit field, select a build and run kit to view
             the properties of the associated profile. To modify the properties,
             select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
-            For more information, see \l{Editing Qbs Profiles}.
+            For more information, see \l{Edit Qbs profiles}.
     \endlist
 
     \section1 Related Topics

@@ -26,10 +26,6 @@
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
             \list
-                \li \l{Adding Kits}
-                \li \l{Adding Qt Versions}
-                \li \l{Adding Compilers}
-                \li \l{Adding Debuggers}
                 \li \l{Specifying Build Settings}
                     \list
                         \li \l{Cmake Build Configuration}
@@ -227,7 +223,17 @@
                     \li \l {Specify project contents}
                     \li \l {Use project wizards}
                 \endlist
-            \li {Read Qt Documentation}
+            \li Build and Run
+                \list
+                    \li \l {Add compilers}
+                    \li \l {Add custom compilers}
+                    \li \l {Add debuggers}
+                    \li \l {Add kits}
+                    \li \l {Add Nim compilers}
+                    \li \l {Add Qt versions}
+                    \li \l {Edit Qbs profiles}
+                \endlist
+            \li Read Qt Documentation
                 \list
                     \li \l {Add bookmarks to help pages}
                     \li \l {Add external documentation}
@@ -302,7 +308,9 @@
                     \li Preferences
                         \list
                             \li \l {Behavior}
+                            \li \l {Compilers}
                             \li \l {C++ Code Style}
+                            \li \l {Kits}
                             \li \l {Nim}
                             \li \l {Qt Quick Code Style}
                         \endlist

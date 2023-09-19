@@ -48,7 +48,7 @@
     To add kits, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Kits > \uicontrol Add.
 
-    For more information, see \l{Adding Kits}.
+    For more information, see \l{Add kits}.
 
     Each kit consists of a set of values that define one environment, such as a
     \l{glossary-device}{device}, compiler, and Qt version. If \uicontrol Edit >
@@ -58,12 +58,12 @@
     If \uicontrol Auto-detected still does not show the Qt version, select
     \uicontrol {Add} to add it manually.
 
-    For more information, see \l{Adding Qt Versions}.
+    For more information, see \l{Add Qt versions}.
 
     Also check that \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
     \uicontrol {Compilers} shows your compiler.
 
-    For more information, see \l{Adding Compilers}.
+    For more information, see \l{Add compilers}.
 
     You can connect devices to the development PC to run, debug, and
     analyze applications on them from \QC. You can connect the device to the

@@ -26,7 +26,7 @@
     You can activate custom output parsers in the
     \uicontrol {Custom Output Parsers} section of
     the \uicontrol Build and \uicontrol Run settings,
-    as well as in the \l{Adding Custom Compilers}
+    as well as in the \l{Add custom compilers}
     {custom compiler settings}.
 
     \section1 Specifying Settings for Custom Output Parsers

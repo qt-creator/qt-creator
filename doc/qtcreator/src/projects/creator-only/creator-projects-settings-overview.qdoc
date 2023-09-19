@@ -84,12 +84,12 @@
 
     \section1 Manage kits
 
-    To modify kit configuration or to \l{Adding Kits}{add kits} to the list or to
+    To modify kit configuration or to \l{Add kits}{add kits} to the list or to
     remove them from it, select \uicontrol {Manage Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
-    \l{glossary-device}{device}, \l{Adding Compilers}{compiler},
-    \l{Adding Debuggers}{debugger}, and \l{Adding Qt Versions}{Qt version}.
+    \l{glossary-device}{device}, \l{Add compilers}{compiler},
+    \l{Add debuggers}{debugger}, and \l{Add Qt versions}{Qt version}.
 
     To copy the build and run settings for a kit to another kit, select
     \uicontrol {Copy Steps from Other Kit} in the context menu.
@@ -103,5 +103,5 @@
     To import an existing build for the project, select
     \uicontrol {Import Existing Build}.
 
-    \sa {Adding Kits}, {Configuring Projects}
+    \sa {Add kits}, {Configuring Projects}, {Kits}
 */

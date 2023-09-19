@@ -75,6 +75,20 @@
         \endlist
     \endtable
 
+    \section1 Build and Run
+
+    \section2 Manage Kits
+
+        \list
+            \li \l {Add compilers}
+            \li \l {Add custom compilers}
+            \li \l {Add debuggers}
+            \li \l {Add kits}
+            \li \l {Add Nim compilers}
+            \li \l {Add Qt versions}
+            \li \l {Edit Qbs profiles}
+        \endlist
+
     \section1 Read Qt Documentation
 
     \list
