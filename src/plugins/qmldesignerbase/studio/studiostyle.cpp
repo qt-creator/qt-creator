@@ -594,10 +594,7 @@ void StudioStyle::drawComplexControl(
         }
     } break;
     case CC_ComboBox: {
-        if (QWidget *parentWidget = widget->parentWidget()) {
-            QBrush bgColor = parentWidget->palette().brush(parentWidget->backgroundRole());
-            painter->fillRect(option->rect, bgColor);
-        }
+        painter->fillRect(option->rect, standardPalette().brush(QPalette::ColorRole::Base));
         Super::drawComplexControl(control, option, painter, widget);
     } break;
 

@@ -126,6 +126,7 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
     if (!m_combo && parentIsToolBar(parent)) {
         m_combo = createZoomComboBox(parent);
         m_combo->setProperty(Utils::StyleHelper::C_HIDE_BORDER, true);
+        m_combo->setProperty(Utils::StyleHelper::C_TOOLBAR_ACTIONWIDGET, true);
         m_combo->setCurrentIndex(m_index);
         m_combo->setToolTip(m_combo->currentText());
 
