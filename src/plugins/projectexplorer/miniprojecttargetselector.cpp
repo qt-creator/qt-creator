@@ -920,13 +920,12 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         if (keepSize) {
             heightWithoutKitArea = height() - oldSummaryLabelY + 1;
         } else {
-            // Clamp the size of the listwidgets to be
-            // at least as high as the sidebar button
-            // and at most twice as high
+            // Clamp the size of the listwidgets to be at least as high as the sidebar button
+            // and at most half the height of the entire Qt Creator window.
             heightWithoutKitArea = summaryLabelHeight
                     + qBound(alignedWithActionHeight,
                              maxItemCount * 30 + bottomMargin + titleWidgetsHeight,
-                             alignedWithActionHeight * 2);
+                             Core::ICore::mainWindow()->height() / 2);
         }
 
         int titleY = summaryLabelY + summaryLabelHeight;
