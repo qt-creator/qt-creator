@@ -8,7 +8,7 @@ import HelperWidgets 2.0 as HelperWidgets
 
 PopupDialog {
     id: root
-   property alias backend: form.backend
+    property alias backend: form.backend
 
     titleBar: Row {
         spacing: 30 // TODO
@@ -36,18 +36,16 @@ PopupDialog {
             property int currentTypeIndex: backend.signal.id.currentIndex ?? 0
             onCurrentTypeIndexChanged: target.currentIndex = target.currentTypeIndex
         }
-
     }
 
     ConnectionsDialogForm {
-          id: form
+        id: form
 
-          Connections {
-              target: root.backend
-              onPopupTargetRemoved: {
-                  root.close()
-              }
-          }
+        Connections {
+            target: root.backend
+            function onPopupTargetRemoved() {
+                root.close()
+            }
+        }
     }
-
 }
