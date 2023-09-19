@@ -59,24 +59,26 @@ void CropScene::initMouseInteraction(const QPoint &imagePos)
         return inRange;
     };
 
-    if (inGripRange(imagePos.x(), m_cropRect.left(), m_mouse.clickOffset)) {
+    m_mouse.clickOffset = {};
+    if (inGripRange(imagePos.x(), m_cropRect.left(), m_mouse.clickOffset.rx())) {
         m_mouse.margin = EdgeLeft;
         m_mouse.cursorShape = Qt::SizeHorCursor;
-    } else if (inGripRange(imagePos.x(), m_cropRect.right(),
-                           m_mouse.clickOffset)) {
+    } else if (inGripRange(imagePos.x(), m_cropRect.right(), m_mouse.clickOffset.rx())) {
         m_mouse.margin = EdgeRight;
         m_mouse.cursorShape = Qt::SizeHorCursor;
-    } else if (inGripRange(imagePos.y(), m_cropRect.top(), m_mouse.clickOffset)) {
+    } else if (inGripRange(imagePos.y(), m_cropRect.top(), m_mouse.clickOffset.ry())) {
         m_mouse.margin = EdgeTop;
         m_mouse.cursorShape = Qt::SizeVerCursor;
-    } else if (inGripRange(imagePos.y(), m_cropRect.bottom(),
-                           m_mouse.clickOffset)) {
+    } else if (inGripRange(imagePos.y(), m_cropRect.bottom(), m_mouse.clickOffset.ry())) {
         m_mouse.margin = EdgeBottom;
         m_mouse.cursorShape = Qt::SizeVerCursor;
+    } else if (const QRect hoverArea = moveHoverArea(); hoverArea.contains(imagePos)) {
+        m_mouse.margin = Move;
+        m_mouse.cursorShape = Qt::SizeAllCursor;
+        m_mouse.clickOffset = imagePos - m_cropRect.topLeft();
     } else {
         m_mouse.margin = Free;
         m_mouse.cursorShape = Qt::ArrowCursor;
-        m_mouse.clickOffset = 0;
     }
 }
 
@@ -121,10 +123,20 @@ void CropScene::updateBuffer()
     update();
 }
 
-QPoint CropScene::toImagePos(const QPoint &widgetPos)
+QPoint CropScene::toImagePos(const QPoint &widgetPos) const
 {
     const int dpr = int(m_image->devicePixelRatio());
     return {(widgetPos.x() - lineWidth) * dpr, (widgetPos.y() - lineWidth) * dpr};
+}
+
+QRect CropScene::moveHoverArea() const
+{
+    const qreal minRatio = 0.3;  // 30% width / height of selection
+    const int minAbsoluteSize = 40;
+    QRect result(0, 0, qMax(int(m_cropRect.width() * minRatio), minAbsoluteSize),
+          qMax(int(m_cropRect.height() * minRatio), minAbsoluteSize));
+    result.moveCenter(m_cropRect.center());
+    return result;
 }
 
 QRect CropScene::cropRect() const
@@ -183,24 +195,31 @@ void CropScene::mouseMoveEvent(QMouseEvent *event)
     if (m_mouse.dragging) {
         switch (m_mouse.margin) {
         case EdgeLeft:
-            m_cropRect.setLeft(qBound(0, imagePos.x() - m_mouse.clickOffset,
+            m_cropRect.setLeft(qBound(0, imagePos.x() - m_mouse.clickOffset.x(),
                                       m_cropRect.right()));
             break;
         case EdgeTop:
-            m_cropRect.setTop(qBound(0, imagePos.y() - m_mouse.clickOffset,
+            m_cropRect.setTop(qBound(0, imagePos.y() - m_mouse.clickOffset.y(),
                                      m_cropRect.bottom()));
             break;
         case EdgeRight:
-            m_cropRect.setRight(qBound(m_cropRect.left(), imagePos.x() - m_mouse.clickOffset,
+            m_cropRect.setRight(qBound(m_cropRect.left(), imagePos.x() - m_mouse.clickOffset.x(),
                                        m_image->width() - 1));
             break;
         case EdgeBottom:
-            m_cropRect.setBottom(qBound(m_cropRect.top(), imagePos.y() - m_mouse.clickOffset,
+            m_cropRect.setBottom(qBound(m_cropRect.top(), imagePos.y() - m_mouse.clickOffset.y(),
                                         m_image->height() - 1));
             break;
-        case Free: {
+        case Free:
             m_cropRect = QRect(m_mouse.startImagePos, imagePos).normalized()
                              .intersected(m_image->rect());
+            break;
+        case Move: {
+            const QPoint topLeft(qBound(0, imagePos.x() - m_mouse.clickOffset.x(),
+                                        m_image->width() - m_cropRect.width()),
+                                 qBound(0, imagePos.y() - m_mouse.clickOffset.y(),
+                                        m_image->height() - m_cropRect.height()));
+            m_cropRect = QRect(topLeft, m_cropRect.size());
             break;
         }
         }

@@ -45,12 +45,14 @@ private:
         EdgeTop,
         EdgeRight,
         EdgeBottom,
-        Free
+        Free,
+        Move,
     };
 
     void initMouseInteraction(const QPoint &pos);
     void updateBuffer();
-    QPoint toImagePos(const QPoint &widgetCoordinate);
+    QPoint toImagePos(const QPoint &widgetCoordinate) const;
+    QRect moveHoverArea() const;
 
     const static int m_gripWidth = 8;
     QRect m_cropRect;
@@ -61,7 +63,7 @@ private:
         bool dragging = false;
         MarginEditing margin;
         QPoint startImagePos;
-        int clickOffset = 0; // Due to m_gripWidth, the mouse pointer is not precicely on the drag
+        QPoint clickOffset; // Due to m_gripWidth, the mouse pointer is not precicely on the drag
             // line. Maintain the offset while dragging, to avoid an initial jump.
         Qt::CursorShape cursorShape = Qt::ArrowCursor;
     } m_mouse;

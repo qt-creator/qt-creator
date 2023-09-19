@@ -100,6 +100,7 @@ RecordOptionsDialog::RecordOptionsDialog(QWidget *parent)
     m_resetButton->setIcon(Icons::RESET.icon());
 
     m_cropRectLabel = new QLabel;
+    m_cropRectLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
