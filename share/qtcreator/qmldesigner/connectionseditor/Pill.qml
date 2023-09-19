@@ -4,6 +4,7 @@
 import QtQuick
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import HelperWidgets as HelperWidgets
 
 FocusScope {
     id: root
@@ -54,12 +55,25 @@ FocusScope {
             root.remove()
     }
 
-    MouseArea {
+    HelperWidgets.ToolTipArea {
         id: rootMouseArea
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: root.isEditable() ? Qt.IBeamCursor : Qt.ArrowCursor
         onClicked: root.forceActiveFocus()
+        tooltip: {
+            if (textItem.visible) {
+                if (textItem.truncated)
+                    return textItem.text
+                else
+                    return ""
+            }
+
+            if (textMetrics.width > textInput.width)
+                return textInput.text
+
+            return ""
+        }
     }
 
     Rectangle {
