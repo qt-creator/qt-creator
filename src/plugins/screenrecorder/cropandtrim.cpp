@@ -304,7 +304,7 @@ CropWidget::CropWidget(QWidget *parent)
 
     auto copyImageToClipboardAction = new QAction(Tr::tr("Copy current, cropped frame as image "
                                                          "into the Clipboard"), this);
-    copyImageToClipboardAction->setIcon(Icons::COPY.icon());
+    copyImageToClipboardAction->setIcon(Icons::SNAPSHOT.icon());
     copyImageToClipboardAction->setShortcut(QKeySequence::Copy);
 
     auto copyImageToClipboardButton = new QToolButton;
