@@ -1,15 +1,13 @@
 import qbs.FileInfo
 
-QtcManualtest {
+QtcManualTest {
     name: "Manual SubDirFileContainer test"
     type: ["application"]
 
     Depends { name: "Utils" }
     Depends { name: "app_version_header" }
 
-    files: [
-        "tst_subdirfilecontainer.cpp",
-    ]
+    files: "tst_subdirfilecontainer.cpp"
 
     cpp.defines: {
         var defines = base;

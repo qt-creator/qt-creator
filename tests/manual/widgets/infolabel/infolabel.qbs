@@ -3,13 +3,10 @@ import "../common/common.qbs" as Common
 CppApplication {
     name: "Manual Test Utils InfoLabel"
 
-    Depends { name: "qtc" }
     Depends { name: "Core" }
     Depends { name: "Utils" }
 
-    files: [
-        "tst_manual_widgets_infolabel.cpp",
-    ]
+    files: "tst_manual_widgets_infolabel.cpp"
 
     Common {}
 }

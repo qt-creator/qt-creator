@@ -1,6 +1,4 @@
-import qbs.FileInfo
-
-QtcManualtest {
+QtcManualTest {
     name: "Tasking imagescaling"
     type: ["application"]
 

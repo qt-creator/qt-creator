@@ -2,11 +2,9 @@ import qbs.File
 import qbs.FileInfo
 
 CppApplication {
-    condition: qtc.withAutotests
     name: "Manual Test Simple Application"
     targetName: "simple_test_app"
 
-    Depends { name: "qtc" }
     Depends { name: "Qt.core" }
     Depends { name: "Qt.core-private"; required: false; condition: Qt.core.versionMajor > 4 }
     Depends { name: "Qt.core5compat"; condition: Qt.core.versionMajor > 5 }

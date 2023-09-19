@@ -1,7 +1,7 @@
 Project {
-    name: "QtcManualtests"
+    name: "QtcManualTests"
 
-    condition: project.withAutotests // FIXME: Why are these not QtcManualTests?
+    qbsSearchPaths: "qbs"
 
     references: [
         "debugger/gui/gui.qbs",

@@ -1,7 +1,7 @@
 Project {
     name: "Qt Creator"
     minimumQbsVersion: "2.0.0"
-    property bool withAutotests: qbs.buildVariant === "debug" // FIXME: Remove
+    property bool withAutotests: qbs.buildVariant === "debug" // TODO: compat, remove
     property path ide_source_tree: path
     property pathList additionalPlugins: []
     property pathList additionalLibs: []
