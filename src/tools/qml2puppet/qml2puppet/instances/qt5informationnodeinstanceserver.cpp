@@ -533,9 +533,66 @@ void Qt5InformationNodeInstanceServer::handleParticleSystemSelected(QQuick3DPart
         }
     });
 
-    const auto anim = animations();
-    for (auto a : anim)
-        a->restart();
+    if (m_targetParticleSystem) {
+        auto checkAncestor = [](QObject *checkObj, QObject *ancestor) -> bool {
+            QObject *parent = checkObj->parent();
+            while (parent) {
+                if (parent == ancestor)
+                    return true;
+                parent = parent->parent();
+            }
+            return false;
+        };
+        auto isAnimContainer = [](QObject *o) -> bool {
+            return ServerNodeInstance::isSubclassOf(o, "QQuickParallelAnimation")
+                   || ServerNodeInstance::isSubclassOf(o, "QQuickSequentialAnimation");
+        };
+
+        const QVector<QQuickAbstractAnimation *> anims = animations();
+        QSet<QQuickAbstractAnimation *> containers;
+        for (auto a : anims) {
+            // Stop all animations by default. We only want to run animations related to currently
+            // active particle system and nothing else.
+            a->stop();
+
+            // Timeline animations are controlled by timeline controls, so exclude those
+            if (ServerNodeInstance::isSubclassOf(a, "QQuickTimelineAnimation"))
+                continue;
+
+            if (ServerNodeInstance::isSubclassOf(a, "QQuickPropertyAnimation")
+                || ServerNodeInstance::isSubclassOf(a, "QQuickPropertyAction")) {
+                QObject *target = a->property("target").value<QObject *>();
+                if (target != m_targetParticleSystem
+                    && !checkAncestor(target, m_targetParticleSystem)
+                    && !checkAncestor(m_targetParticleSystem, target)) {
+                    continue;
+                }
+            } else {
+                continue;
+            }
+
+            QObject *animParent = a->parent();
+            bool isContained = isAnimContainer(animParent);
+            if (isContained) {
+                // We only want to start the toplevel container animations
+                while (isContained) {
+                    if (isAnimContainer(animParent->parent())) {
+                        animParent = animParent->parent();
+                        isContained = true;
+                    } else {
+                        containers.insert(qobject_cast<QQuickAbstractAnimation *>(animParent));
+                        isContained = false;
+                    }
+                }
+            } else {
+                a->restart();
+            }
+        }
+
+        // Activate necessary container animations
+        for (auto container : std::as_const(containers))
+            container->restart();
+    }
 }
 
 static QString baseProperty(const QString &property)
