@@ -326,6 +326,8 @@ QtcLibrary {
         "textutils.h",
         "threadutils.cpp",
         "threadutils.h",
+        "transientscroll.cpp",
+        "transientscroll.h",
         "treemodel.cpp",
         "treemodel.h",
         "treeviewcombobox.cpp",
