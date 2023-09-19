@@ -1136,6 +1136,13 @@ QPalette StudioStyle::standardPalette() const
     return d->stdPalette;
 }
 
+void StudioStyle::polish(QWidget *widget)
+{
+    if (widget && widget->property("_q_custom_style_skipolish").toBool())
+        return;
+    Super::polish(widget);
+}
+
 void StudioStyle::drawQmlEditorIcon(
         PrimitiveElement element,
         const QStyleOption *option,
