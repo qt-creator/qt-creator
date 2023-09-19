@@ -517,7 +517,7 @@ void GlobalTransientSupport::support(QWidget *widget)
     if (area)
         TransientScrollAreaSupport::support(area);
 
-    for (QWidget *childWidget : widget->findChildren<QWidget *>(Qt::FindChildOption::FindDirectChildrenOnly))
+    for (QWidget *childWidget : widget->findChildren<QWidget *>(QString(), Qt::FindChildOption::FindDirectChildrenOnly))
         support(childWidget);
 }
 
