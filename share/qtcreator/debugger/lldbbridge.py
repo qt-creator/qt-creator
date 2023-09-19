@@ -2437,6 +2437,12 @@ class SyntheticChildrenProvider(SummaryProvider):
 
 def __lldb_init_module(debugger, internal_dict):
     # Module is being imported in an LLDB session
+
+    if not __name__ == 'qt':
+        # Make available under global 'qt' name for consistency,
+        # and so we can refer to SyntheticChildrenProvider below.
+        internal_dict['qt'] = internal_dict[__name__]
+
     dumper = SummaryDumper.initialize()
 
     type_category = 'Qt'
@@ -2462,13 +2468,9 @@ def __lldb_init_module(debugger, internal_dict):
 
     # Synthetic children
     debugger.HandleCommand("type synthetic add -x '^Q.*$' -l %s -w %s"
-                           % ("lldbbridge.SyntheticChildrenProvider", type_category))
+                           % ("qt.SyntheticChildrenProvider", type_category))
 
     debugger.HandleCommand('type category enable %s' % type_category)
-
-    if not __name__ == 'qt':
-        # Make available under global 'qt' name for consistency
-        internal_dict['qt'] = internal_dict[__name__]
 
 
 if __name__ == "lldbbridge":
