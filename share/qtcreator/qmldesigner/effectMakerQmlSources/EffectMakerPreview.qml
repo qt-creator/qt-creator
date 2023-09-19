@@ -14,6 +14,8 @@ Column {
 
     width: parent.width
 
+    required property Item mainRoot
+
     Rectangle { // toolbar
         width: parent.width
         height: StudioTheme.Values.toolbarHeight
@@ -24,6 +26,12 @@ Column {
             spacing: 5
             anchors.rightMargin: 5
             anchors.leftMargin: 5
+
+            PreviewImagesComboBox {
+                id: imagesComboBox
+
+                mainRoot: root.mainRoot
+            }
 
             Item {
                 Layout.fillWidth: true
@@ -114,7 +122,7 @@ Column {
             fillMode: Image.PreserveAspectFit
             smooth: true
 
-            source: "images/qt_logo.png" // TODO: update image
+            source: imagesComboBox.selectedImage
 
             Behavior on scale {
                 NumberAnimation {
