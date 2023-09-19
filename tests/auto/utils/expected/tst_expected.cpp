@@ -26,7 +26,7 @@ private slots:
                               return expected_str<QByteArray>(
                                   make_unexpected(QString("Error: " + error)));
                           })
-                          .transform_or([](auto error) -> QString {
+                          .transform_error([](auto error) -> QString {
                               return QString(QString("More Info: ") + error);
                           });
 
