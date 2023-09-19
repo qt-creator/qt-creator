@@ -8,6 +8,7 @@
  */
 
 #include "dashboard/dto.h"
+#include "dashboard/error.h"
 
 #include <utils/expected.h>
 #include <utils/networkaccessmanager.h>
@@ -32,7 +33,7 @@ class DashboardClient
 {
 public:
     using ProjectInfo = DataWithOrigin<Dto::ProjectInfoDto>;
-    using RawProjectInfo = Utils::expected_str<ProjectInfo>;
+    using RawProjectInfo = Utils::expected<ProjectInfo, Error>;
 
     DashboardClient(Utils::NetworkAccessManager &networkAccessManager);
 

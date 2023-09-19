@@ -259,7 +259,8 @@ void AxivionPluginPrivate::handleProjectInfo(DashboardClient::RawProjectInfo raw
 {
     m_runningQuery = false;
     if (!rawInfo) {
-        Core::MessageManager::writeFlashing(QStringLiteral(u"Axivion: ") + rawInfo.error());
+        Core::MessageManager::writeFlashing(
+            QStringLiteral(u"Axivion: %1").arg(rawInfo.error().message()));
         return;
     }
     m_currentProjectInfo = std::make_shared<const DashboardClient::ProjectInfo>(std::move(rawInfo.value()));

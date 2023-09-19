@@ -30,13 +30,17 @@ static void deleteLater(QObject *obj)
     obj->deleteLater();
 }
 
-using RawBody = Utils::expected_str<DataWithOrigin<QByteArray>>;
+using RawBody = Utils::expected<DataWithOrigin<QByteArray>, Error>;
+
+static constexpr int httpStatusCodeOk = 200;
+static constexpr QLatin1String jsonContentType{ "application/json" };
 
 class RawBodyReader final
 {
 public:
-    RawBodyReader(std::shared_ptr<QNetworkReply> reply)
-        : m_reply(std::move(reply))
+    RawBodyReader(std::shared_ptr<QNetworkReply> reply, QAnyStringView expectedContentType)
+        : m_reply(std::move(reply)),
+          m_expectedContentType(expectedContentType)
     { }
 
     ~RawBodyReader() { }
@@ -44,19 +48,47 @@ public:
     RawBody operator()()
     {
         QNetworkReply::NetworkError error = m_reply->error();
-        if (error != QNetworkReply::NetworkError::NoError)
-            return tl::make_unexpected(QString::number(error)
-                                       + QLatin1String(": ")
-                                       + m_reply->errorString());
-        return DataWithOrigin(m_reply->url(), m_reply->readAll());
+        int statusCode = m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QString contentType = m_reply->header(QNetworkRequest::ContentTypeHeader)
+                                  .toString()
+                                  .split(';')
+                                  .constFirst()
+                                  .trimmed()
+                                  .toLower();
+        if (error == QNetworkReply::NetworkError::NoError
+                && statusCode == httpStatusCodeOk
+                && contentType == m_expectedContentType) {
+            return DataWithOrigin(m_reply->url(), m_reply->readAll());
+        }
+        if (contentType == jsonContentType) {
+            try {
+                return tl::make_unexpected(DashboardError(
+                    m_reply->url(),
+                    statusCode,
+                    m_reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+                    Dto::ErrorDto::deserialize(m_reply->readAll())));
+            } catch (const Dto::invalid_dto_exception &) {
+                // ignore
+            }
+        }
+        if (statusCode != 0) {
+            return tl::make_unexpected(HttpError(
+                m_reply->url(),
+                statusCode,
+                m_reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+                QString::fromUtf8(m_reply->readAll()))); // encoding?
+        }
+        return tl::make_unexpected(
+            NetworkError(m_reply->url(), error, m_reply->errorString()));
     }
 
 private:
     std::shared_ptr<QNetworkReply> m_reply;
+    QAnyStringView m_expectedContentType;
 };
 
 template<typename T>
-static Utils::expected_str<DataWithOrigin<T>> RawBodyParser(RawBody rawBody)
+static Utils::expected<DataWithOrigin<T>, Error> RawBodyParser(RawBody rawBody)
 {
     if (!rawBody)
         return tl::make_unexpected(std::move(rawBody.error()));
@@ -65,7 +97,8 @@ static Utils::expected_str<DataWithOrigin<T>> RawBodyParser(RawBody rawBody)
         return DataWithOrigin(std::move(rawBody.value().origin),
                               std::move(data));
     } catch (const Dto::invalid_dto_exception &e) {
-        return tl::make_unexpected(QString::fromUtf8(e.what()));
+        return tl::make_unexpected(GeneralError(std::move(rawBody.value().origin),
+                                                QString::fromUtf8(e.what())));
     }
 }
 
@@ -91,7 +124,7 @@ QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const
     std::shared_ptr<QNetworkReply> reply{ this->m_networkAccessManager.get(request), deleteLater };
     return QtFuture::connect(reply.get(), &QNetworkReply::finished)
         .onCanceled(reply.get(), [reply] { reply->abort(); })
-        .then(RawBodyReader(reply))
+        .then(RawBodyReader(reply, jsonContentType))
         .then(QtFuture::Launch::Async, &RawBodyParser<Dto::ProjectInfoDto>);
 }
 
