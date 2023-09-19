@@ -193,7 +193,7 @@ Controls.Popup {
                     boundsMovement: Flickable.StopAtBounds
                     boundsBehavior: Flickable.StopAtBounds
 
-                    ScrollBar.vertical: HelperWidgets.ScrollBar {
+                    Controls.ScrollBar.vertical: HelperWidgets.ScrollBar {
                         id: treeScrollBar
                         parent: treeView
                         x: treeView.width - treeScrollBar.width
