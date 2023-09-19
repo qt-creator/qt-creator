@@ -368,7 +368,7 @@ public:
     void unfoldCurrentBlock();
     void selectEncoding();
     void updateTextCodecLabel();
-    void selectLineEnding(int index);
+    void selectLineEnding(Utils::TextFileFormat::LineTerminationMode lineEnding);
     void updateTextLineEndingLabel();
     void addSelectionNextFindMatch();
     void addCursorsToLineEnds();

@@ -107,6 +107,7 @@
 #include <QTimeLine>
 #include <QTimer>
 #include <QToolBar>
+#include <QToolButton>
 
 /*!
     \namespace TextEditor
@@ -718,7 +719,7 @@ public:
     QAction *m_fileEncodingLabelAction = nullptr;
     BaseTextFind *m_find = nullptr;
 
-    QComboBox *m_fileLineEnding = nullptr;
+    QToolButton *m_fileLineEnding = nullptr;
     QAction *m_fileLineEndingAction = nullptr;
 
     uint m_optionalActionMask = TextEditorActionHandler::None;
@@ -1027,8 +1028,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
     m_toolBarWidget->layout()->addWidget(m_cursorPositionLabel);
 
-    m_fileLineEnding = new QComboBox();
-    m_fileLineEnding->addItems(ExtraEncodingSettings::lineTerminationModeNames());
+    m_fileLineEnding = new QToolButton(q);
     m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
     m_fileLineEndingAction = m_toolBar->addWidget(m_fileLineEnding);
     updateFileLineEndingVisible();
@@ -1081,8 +1081,16 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     connect(m_fileEncodingLabel, &FixedSizeClickLabel::clicked,
             q, &TextEditorWidget::selectEncoding);
 
-    connect(m_fileLineEnding, &QComboBox::currentIndexChanged,
-            q, &TextEditorWidget::selectLineEnding);
+    connect(m_fileLineEnding, &QToolButton::clicked, ActionManager::instance(), [this] {
+        QMenu *menu = new QMenu;
+        menu->addAction(tr("Unix Line Endings (LF)"), [this] {
+            q->selectLineEnding(TextFileFormat::LFLineTerminator);
+        });
+        menu->addAction(tr("Windows Line Endings (CRLF)"), [this] {
+            q->selectLineEnding(TextFileFormat::CRLFLineTerminator);
+        });
+        menu->popup(QCursor::pos());
+    });
 
     TextEditorSettings *settings = TextEditorSettings::instance();
 
@@ -1790,19 +1798,24 @@ void TextEditorWidget::selectEncoding()
     }
 }
 
-void TextEditorWidget::selectLineEnding(int index)
+void TextEditorWidget::selectLineEnding(TextFileFormat::LineTerminationMode lineEnding)
 {
-    QTC_CHECK(index >= 0);
-    const auto newMode = Utils::TextFileFormat::LineTerminationMode(index);
-    if (d->m_document->lineTerminationMode() != newMode) {
-        d->m_document->setLineTerminationMode(newMode);
+    if (d->m_document->lineTerminationMode() != lineEnding) {
+        d->m_document->setLineTerminationMode(lineEnding);
         d->q->document()->setModified(true);
+        updateTextLineEndingLabel();
     }
 }
 
 void TextEditorWidget::updateTextLineEndingLabel()
 {
-    d->m_fileLineEnding->setCurrentIndex(d->m_document->lineTerminationMode());
+    const TextFileFormat::LineTerminationMode lineEnding = d->m_document->lineTerminationMode();
+    if (lineEnding == TextFileFormat::LFLineTerminator)
+        d->m_fileLineEnding->setText(Tr::tr("LF"));
+    else if (lineEnding == TextFileFormat::CRLFLineTerminator)
+        d->m_fileLineEnding->setText(Tr::tr("CRLF"));
+    else
+        QTC_ASSERT_STRING("Unsupported line ending mode.");
 }
 
 void TextEditorWidget::updateTextCodecLabel()
