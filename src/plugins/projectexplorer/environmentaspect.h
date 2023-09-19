@@ -62,8 +62,7 @@ public:
         Utils::Environment environment;
     };
 
-    using Utils::BaseAspect::setupLabel;
-    using Utils::BaseAspect::label;
+    using Utils::BaseAspect::createLabel;
 
 signals:
     void baseEnvironmentChanged();

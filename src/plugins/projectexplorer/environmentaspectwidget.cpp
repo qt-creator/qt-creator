@@ -37,8 +37,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
     auto label = [aspect]() {
         if (aspect->labelText().isEmpty())
             aspect->setLabelText(Tr::tr("Base environment for this run configuration:"));
-        aspect->setupLabel();
-        return aspect->label();
+        return aspect->createLabel();
     };
     m_baseLayout->addWidget(label());
 

@@ -77,7 +77,6 @@ public:
     QString m_labelText;
     QPixmap m_labelPixmap;
     QIcon m_icon;
-    QPointer<QLabel> m_label; // Owned by configuration widget
     QPointer<QAction> m_action; // Owned by us.
     AspectContainer *m_container = nullptr; // Not owned by us.
 
@@ -225,26 +224,33 @@ void BaseAspect::setVisible(bool visible)
     }
 }
 
-void BaseAspect::setupLabel()
+QLabel *BaseAspect::createLabel()
 {
-    QTC_ASSERT(!d->m_label, delete d->m_label);
     if (d->m_labelText.isEmpty() && d->m_labelPixmap.isNull())
-        return;
-    d->m_label = new QLabel(d->m_labelText);
-    d->m_label->setTextInteractionFlags(d->m_label->textInteractionFlags()
-                                        | Qt::TextSelectableByMouse);
-    connect(d->m_label, &QLabel::linkActivated, this, [this](const QString &link) {
+        return nullptr;
+
+    auto label = new QLabel(d->m_labelText);
+    label->setTextInteractionFlags(label->textInteractionFlags() | Qt::TextSelectableByMouse);
+    connect(label, &QLabel::linkActivated, this, [this](const QString &link) {
         emit labelLinkActivated(link);
     });
     if (!d->m_labelPixmap.isNull())
-        d->m_label->setPixmap(d->m_labelPixmap);
-    registerSubWidget(d->m_label);
+        label->setPixmap(d->m_labelPixmap);
+    registerSubWidget(label);
+
+    connect(this, &BaseAspect::labelTextChanged, label, [label, this] {
+        label->setText(d->m_labelText);
+    });
+    connect(this, &BaseAspect::labelPixmapChanged, label, [label, this] {
+        label->setPixmap(d->m_labelPixmap);
+    });
+
+    return label;
 }
 
 void BaseAspect::addLabeledItem(LayoutItem &parent, QWidget *widget)
 {
-    setupLabel();
-    if (QLabel *l = label()) {
+    if (QLabel *l = createLabel()) {
         l->setBuddy(widget);
         parent.addItem(l);
         parent.addItem(Span(std::max(d->m_spanX - 1, 1), LayoutItem(widget)));
@@ -260,8 +266,7 @@ void BaseAspect::addLabeledItem(LayoutItem &parent, QWidget *widget)
 void BaseAspect::setLabelText(const QString &labelText)
 {
     d->m_labelText = labelText;
-    if (d->m_label)
-        d->m_label->setText(labelText);
+    emit labelTextChanged();
 }
 
 /*!
@@ -271,8 +276,7 @@ void BaseAspect::setLabelText(const QString &labelText)
 void BaseAspect::setLabelPixmap(const QPixmap &labelPixmap)
 {
     d->m_labelPixmap = labelPixmap;
-    if (d->m_label)
-        d->m_label->setPixmap(labelPixmap);
+    emit labelPixmapChanged();
 }
 
 void BaseAspect::setIcon(const QIcon &icon)
@@ -289,11 +293,6 @@ void BaseAspect::setIcon(const QIcon &icon)
 QString BaseAspect::labelText() const
 {
     return d->m_labelText;
-}
-
-QLabel *BaseAspect::label() const
-{
-    return d->m_label.data();
 }
 
 QString BaseAspect::toolTip() const

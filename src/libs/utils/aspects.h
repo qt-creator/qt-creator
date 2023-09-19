@@ -207,6 +207,8 @@ signals:
     void labelLinkActivated(const QString &link);
     void checkedChanged();
     void enabledChanged();
+    void labelTextChanged();
+    void labelPixmapChanged();
 
 protected:
     virtual bool internalToBuffer();
@@ -216,8 +218,7 @@ protected:
 
     virtual void handleGuiChanged();
 
-    QLabel *label() const;
-    void setupLabel();
+    QLabel *createLabel();
     void addLabeledItem(Layouting::LayoutItem &parent, QWidget *widget);
 
     void setDataCreatorHelper(const DataCreator &creator) const;
