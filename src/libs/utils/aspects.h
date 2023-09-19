@@ -780,6 +780,9 @@ public:
     void appendValues(const QStringList &values, bool allowDuplicates = true);
     void removeValues(const QStringList &values);
 
+    bool guiToBuffer() override;
+    void bufferToGui() override;
+
 private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
 };
