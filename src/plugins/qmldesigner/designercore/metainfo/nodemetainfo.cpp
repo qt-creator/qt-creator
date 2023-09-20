@@ -2816,7 +2816,7 @@ bool NodeMetaInfo::isColor() const
 
         auto type = m_privateData->qualfiedTypeName();
 
-        return type == "QColor" || type == "color";
+        return type == "QColor" || type == "color" || type == "QtQuick.color";
     }
 }
 
