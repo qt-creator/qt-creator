@@ -104,9 +104,11 @@ ListView {
 
         property alias delegateMouseArea: mouseArea
 
+        property bool hovered: mouseArea.containsMouse || toolTipArea.containsMouse
+
         width: ListView.view.width
         height: root.style.squareControlSize.height
-        color: mouseArea.containsMouse ?
+        color: itemDelegate.hovered ?
                    itemDelegate.ListView.isCurrentItem ? root.style.interactionHover
                                                        : root.style.background.hover
                                        : "transparent"
@@ -170,9 +172,11 @@ ListView {
                 height: root.style.squareControlSize.height
 
                 color: toolTipArea.containsMouse ?
-                           itemDelegate.ListView.isCurrentItem ? root.style.interactionHover
-                                                               : root.style.background.hover
+                           itemDelegate.ListView.isCurrentItem ? root.style.interactionGlobalHover
+                                                               : root.style.background.globalHover
                                                : "transparent"
+
+                visible: itemDelegate.hovered || itemDelegate.ListView.isCurrentItem
 
                 Text {
                     anchors.fill: parent
