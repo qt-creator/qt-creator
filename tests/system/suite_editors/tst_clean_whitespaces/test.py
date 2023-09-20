@@ -89,7 +89,7 @@ def prepareFileExternal(fileName, content):
                 test.log("Added trailing whitespace.")
         modifiedContent += currentLine
 
-    with open(fileName, "w") as f:
+    with open(fileName, "w", encoding="utf-8") as f: # used only with text files, so okay
         f.write(modifiedContent)
 
     if not emptyLine or not trailingWS:

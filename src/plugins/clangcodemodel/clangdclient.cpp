@@ -632,13 +632,14 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
     const int docVersion = documentVersion(uri);
     if (params.version().value_or(docVersion) != docVersion)
         return;
+    QList<CodeAction> allCodeActions;
     for (const Diagnostic &diagnostic : params.diagnostics()) {
         const ClangdDiagnostic clangdDiagnostic(diagnostic);
         auto codeActions = clangdDiagnostic.codeActions();
         if (codeActions && !codeActions->isEmpty()) {
             for (CodeAction &action : *codeActions)
                 action.setDiagnostics({diagnostic});
-            LanguageClient::updateCodeActionRefactoringMarker(this, *codeActions, uri);
+            allCodeActions << *codeActions;
         } else {
             // We know that there's only one kind of diagnostic for which clangd has
             // a quickfix tweak, so let's not be wasteful.
@@ -648,6 +649,8 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
                 requestCodeActions(uri, diagnostic);
         }
     }
+    if (!allCodeActions.isEmpty())
+        LanguageClient::updateCodeActionRefactoringMarker(this, allCodeActions, uri);
 }
 
 void ClangdClient::handleDocumentOpened(TextDocument *doc)
