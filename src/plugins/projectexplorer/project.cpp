@@ -1500,8 +1500,10 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     QVERIFY(tempDir->isValid());
     const FilePath projectDir = FilePath::fromString(tempDir->path() + "/generic-project");
     const auto copyResult = FilePath(":/projectexplorer/testdata/generic-project").copyRecursively(projectDir);
+    if (!copyResult)
+        qDebug() << copyResult.error();
+    QVERIFY(copyResult);
 
-    QVERIFY2(copyResult, qPrintable(copyResult.error()));
     const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files | QDir::Dirs);
     for (const QFileInfo &f : files)
         QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
@@ -1562,7 +1564,9 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
     if (!projectDir.exists()) {
         const auto result = FilePath(":/projectexplorer/testdata/multi-target-project")
                                 .copyRecursively(projectDir);
-        QVERIFY2(result, qPrintable(result.error()));
+        if (!result)
+            qDebug() << result.error();
+        QVERIFY(result);
         const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files);
         for (const QFileInfo &f : files)
             QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
