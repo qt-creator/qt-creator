@@ -264,6 +264,9 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
     }
 
+    if (functionName == "if" || functionName == "elseif" || functionName == "cmake_policy")
+        items.append(generateList(keywords.policies, m_variableIcon));
+
     if (functionName.contains("path") || functionName.contains("file")
         || functionName.contains("add_executable") || functionName.contains("add_library")
         || functionName == "include" || functionName == "add_subdirectory"

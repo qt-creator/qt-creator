@@ -78,6 +78,8 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
             return "prop_test/";
         if (m_keywords.properties.contains(word))
             return "prop_gbl/";
+        if (m_keywords.policies.contains(word))
+            return "policy/";
 
         return "unknown/";
     };

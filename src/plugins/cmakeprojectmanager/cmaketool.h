@@ -31,6 +31,7 @@ struct CMAKE_EXPORT CMakeKeywords
     QSet<QString> testProperties;
     QSet<QString> includeStandardModules;
     QSet<QString> findModules;
+    QSet<QString> policies;
     QMap<QString, QStringList> functionArgs;
 };
 

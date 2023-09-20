@@ -100,6 +100,7 @@ public:
     QStringList m_testProperties;
     QStringList m_includeStandardModules;
     QStringList m_findModules;
+    QStringList m_policies;
     CMakeTool::Version m_version;
 };
 
@@ -276,6 +277,11 @@ CMakeKeywords CMakeTool::keywords()
             Utils::sort(m_introspection->m_variables);
         }
 
+        runCMake(proc, {"--help-policy-list"}, 5);
+        if (proc.result() == ProcessResult::FinishedWithSuccess)
+            m_introspection->m_policies = Utils::filtered(proc.cleanedStdOut().split('\n'),
+                                                          std::not_fn(&QString::isEmpty));
+
         parseSyntaxHighlightingXml();
     }
 
@@ -291,6 +297,7 @@ CMakeKeywords CMakeTool::keywords()
     keywords.testProperties = Utils::toSet(m_introspection->m_testProperties);
     keywords.includeStandardModules = Utils::toSet(m_introspection->m_includeStandardModules);
     keywords.findModules = Utils::toSet(m_introspection->m_findModules);
+    keywords.policies = Utils::toSet(m_introspection->m_policies);
 
     return keywords;
 }
