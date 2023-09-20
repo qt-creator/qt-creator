@@ -77,6 +77,7 @@ QtObject {
     // Special colors
     property color interaction: Values.themeInteraction
     property color interactionHover: Values.themeInteractionHover
+    property color interactionGlobalHover: "#ffB0E1FC"
     // TODO needs to removed in the future
     property color thumbnailLabelBackground: Values.themeThumbnailLabelBackground
 
