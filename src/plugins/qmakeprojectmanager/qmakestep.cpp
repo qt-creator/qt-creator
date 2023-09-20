@@ -75,7 +75,6 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     effectiveCall.setDisplayStyle(StringAspect::TextEditDisplay);
     effectiveCall.setLabelText(Tr::tr("Effective qmake call:"));
     effectiveCall.setReadOnly(true);
-    effectiveCall.setUndoRedoEnabled(false);
     effectiveCall.setEnabled(true);
 
     auto updateSummary = [this] {

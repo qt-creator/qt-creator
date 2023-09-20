@@ -220,7 +220,6 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
 
     commandLine.setDisplayStyle(StringAspect::TextEditDisplay);
     commandLine.setLabelText(QbsProjectManager::Tr::tr("Equivalent command line:"));
-    commandLine.setUndoRedoEnabled(false);
     commandLine.setReadOnly(true);
 
     connect(&maxJobCount, &BaseAspect::changed, this, &QbsBuildStep::updateState);

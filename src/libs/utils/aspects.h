@@ -562,7 +562,6 @@ public:
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const Key &historyCompleterKey);
-    void setUndoRedoEnabled(bool readOnly);
     void setAcceptRichText(bool acceptRichText);
     void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
     void setUseGlobalMacroExpander();
@@ -574,8 +573,6 @@ public:
     void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &optionalLabel, const Key &optionalBaseKey);
     bool isChecked() const;
     void setChecked(bool checked);
-
-    void validateInput();
 
     enum DisplayStyle {
         LabelDisplay,
@@ -591,6 +588,11 @@ public:
 
 signals:
     void validChanged(bool validState);
+    void elideModeChanged(Qt::TextElideMode elideMode);
+    void historyCompleterKeyChanged(const Key &historyCompleterKey);
+    void acceptRichTextChanged(bool acceptRichText);
+    void validationFunctionChanged(const FancyLineEdit::ValidationFunction &validator);
+    void placeholderTextChanged(const QString &placeholderText);
 
 protected:
     void bufferToGui() override;

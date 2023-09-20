@@ -834,10 +834,6 @@ public:
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
     QString m_placeHolderText;
     Key m_historyCompleterKey;
-    QPointer<ElidingLabel> m_labelDisplay;
-    QPointer<FancyLineEdit> m_lineEditDisplay;
-    QPointer<ShowPasswordButton> m_showPasswordButton;
-    QPointer<QTextEdit> m_textEditDisplay;
     MacroExpanderProvider m_expanderProvider;
     StringAspect::ValueAcceptor m_valueAcceptor;
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
@@ -850,6 +846,8 @@ public:
     bool m_useResetButton = false;
     bool m_autoApplyOnEditingFinished = false;
     bool m_validatePlaceHolder = false;
+
+    UndoableValue<QString> undoable;
 };
 
 class IntegerAspectPrivate
@@ -1031,11 +1029,11 @@ void StringAspect::setDisplayStyle(DisplayStyle displayStyle)
 */
 void StringAspect::setPlaceHolderText(const QString &placeHolderText)
 {
+    if (d->m_placeHolderText == placeHolderText)
+        return;
+
     d->m_placeHolderText = placeHolderText;
-    if (d->m_lineEditDisplay)
-        d->m_lineEditDisplay->setPlaceholderText(placeHolderText);
-    if (d->m_textEditDisplay)
-        d->m_textEditDisplay->setPlaceholderText(placeHolderText);
+    emit placeholderTextChanged(placeHolderText);
 }
 
 /*!
@@ -1043,9 +1041,10 @@ void StringAspect::setPlaceHolderText(const QString &placeHolderText)
 */
 void StringAspect::setElideMode(Qt::TextElideMode elideMode)
 {
+    if (d->m_elideMode == elideMode)
+        return;
     d->m_elideMode = elideMode;
-    if (d->m_labelDisplay)
-        d->m_labelDisplay->setElideMode(elideMode);
+    emit elideModeChanged(elideMode);
 }
 
 /*!
@@ -1057,22 +1056,13 @@ void StringAspect::setElideMode(Qt::TextElideMode elideMode)
 void StringAspect::setHistoryCompleter(const Key &historyCompleterKey)
 {
     d->m_historyCompleterKey = historyCompleterKey;
-    if (d->m_lineEditDisplay)
-        d->m_lineEditDisplay->setHistoryCompleter(historyCompleterKey);
-}
-
-void StringAspect::setUndoRedoEnabled(bool undoRedoEnabled)
-{
-    d->m_undoRedoEnabled = undoRedoEnabled;
-    if (d->m_textEditDisplay)
-        d->m_textEditDisplay->setUndoRedoEnabled(undoRedoEnabled);
+    emit historyCompleterKeyChanged(historyCompleterKey);
 }
 
 void StringAspect::setAcceptRichText(bool acceptRichText)
 {
     d->m_acceptRichText = acceptRichText;
-    if (d->m_textEditDisplay)
-        d->m_textEditDisplay->setAcceptRichText(acceptRichText);
+    emit acceptRichTextChanged(acceptRichText);
 }
 
 void StringAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
@@ -1093,19 +1083,12 @@ void StringAspect::setUseResetButton()
 void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction &validator)
 {
     d->m_validator = validator;
-    if (d->m_lineEditDisplay)
-        d->m_lineEditDisplay->setValidationFunction(*d->m_validator);
+    emit validationFunctionChanged(validator);
 }
 
 void StringAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
 {
     d->m_autoApplyOnEditingFinished = applyOnEditingFinished;
-}
-
-void StringAspect::validateInput()
-{
-    if (d->m_lineEditDisplay)
-        d->m_lineEditDisplay->validate();
 }
 
 void StringAspect::addToLayout(LayoutItem &parent)
@@ -1124,77 +1107,149 @@ void StringAspect::addToLayout(LayoutItem &parent)
 
     switch (d->m_displayStyle) {
     case PasswordLineEditDisplay:
-    case LineEditDisplay:
-        d->m_lineEditDisplay = createSubWidget<FancyLineEdit>();
-        d->m_lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
+    case LineEditDisplay: {
+        auto lineEditDisplay = createSubWidget<FancyLineEdit>();
+        lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
         if (!d->m_historyCompleterKey.isEmpty())
-            d->m_lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+            lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+
+        connect(this,
+                &StringAspect::historyCompleterKeyChanged,
+                lineEditDisplay,
+                [lineEditDisplay](const Key &historyCompleterKey) {
+                    lineEditDisplay->setHistoryCompleter(historyCompleterKey);
+                });
+        connect(this,
+                &StringAspect::placeholderTextChanged,
+                lineEditDisplay,
+                &FancyLineEdit::setPlaceholderText);
 
         if (d->m_validator)
-            d->m_lineEditDisplay->setValidationFunction(*d->m_validator);
-        d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
-        d->m_lineEditDisplay->setReadOnly(isReadOnly());
-        d->m_lineEditDisplay->setValidatePlaceHolder(d->m_validatePlaceHolder);
-        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
-        addLabeledItem(parent, d->m_lineEditDisplay);
-        useMacroExpander(d->m_lineEditDisplay);
+            lineEditDisplay->setValidationFunction(*d->m_validator);
+        lineEditDisplay->setTextKeepingActiveCursor(displayedString);
+        lineEditDisplay->setReadOnly(isReadOnly());
+        lineEditDisplay->setValidatePlaceHolder(d->m_validatePlaceHolder);
+
+        d->m_checkerImpl.updateWidgetFromCheckStatus(this, lineEditDisplay);
+        connect(d->m_checkerImpl.m_checked.get(),
+                &BoolAspect::volatileValueChanged,
+                lineEditDisplay,
+                [this, lineEditDisplay]() {
+                    d->m_checkerImpl.updateWidgetFromCheckStatus(this, lineEditDisplay);
+                });
+
+        addLabeledItem(parent, lineEditDisplay);
+        useMacroExpander(lineEditDisplay);
         if (d->m_useResetButton) {
             auto resetButton = createSubWidget<QPushButton>(Tr::tr("Reset"));
-            resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
-            connect(resetButton, &QPushButton::clicked, this, [this] {
-                d->m_lineEditDisplay->setText(defaultValue());
+            resetButton->setEnabled(lineEditDisplay->text() != defaultValue());
+            connect(resetButton, &QPushButton::clicked, lineEditDisplay, [this, lineEditDisplay] {
+                lineEditDisplay->setText(defaultValue());
             });
-            connect(d->m_lineEditDisplay, &QLineEdit::textChanged, this, [this, resetButton] {
-                resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
-            });
+            connect(lineEditDisplay,
+                    &QLineEdit::textChanged,
+                    resetButton,
+                    [this, lineEditDisplay, resetButton] {
+                        resetButton->setEnabled(lineEditDisplay->text() != defaultValue());
+                    });
             parent.addItem(resetButton);
         }
-        connect(d->m_lineEditDisplay, &FancyLineEdit::validChanged, this, &StringAspect::validChanged);
+        connect(lineEditDisplay, &FancyLineEdit::validChanged, this, &StringAspect::validChanged);
         bufferToGui();
         if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
-            connect(d->m_lineEditDisplay, &FancyLineEdit::editingFinished,
-                    this, &StringAspect::handleGuiChanged);
+            connect(lineEditDisplay,
+                    &FancyLineEdit::editingFinished,
+                    this,
+                    [this, lineEditDisplay]() {
+                        d->undoable.set(undoStack(), lineEditDisplay->text());
+                        handleGuiChanged();
+                    });
         } else {
-            connect(d->m_lineEditDisplay, &QLineEdit::textEdited,
-                    this, &StringAspect::handleGuiChanged);
+            connect(lineEditDisplay, &QLineEdit::textEdited, this, [this, lineEditDisplay]() {
+                d->undoable.set(undoStack(), lineEditDisplay->text());
+                handleGuiChanged();
+            });
         }
         if (d->m_displayStyle == PasswordLineEditDisplay) {
-            d->m_showPasswordButton = createSubWidget<ShowPasswordButton>();
-            d->m_lineEditDisplay->setEchoMode(QLineEdit::PasswordEchoOnEdit);
-            parent.addItem(d->m_showPasswordButton);
-            connect(d->m_showPasswordButton,
+            auto showPasswordButton = createSubWidget<ShowPasswordButton>();
+            lineEditDisplay->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+            parent.addItem(showPasswordButton);
+            connect(showPasswordButton,
                     &ShowPasswordButton::toggled,
-                    d->m_lineEditDisplay,
-                    [this] {
-                        d->m_lineEditDisplay->setEchoMode(d->m_showPasswordButton->isChecked()
-                                                              ? QLineEdit::Normal
-                                                              : QLineEdit::PasswordEchoOnEdit);
+                    lineEditDisplay,
+                    [showPasswordButton, lineEditDisplay] {
+                        lineEditDisplay->setEchoMode(showPasswordButton->isChecked()
+                                                         ? QLineEdit::Normal
+                                                         : QLineEdit::PasswordEchoOnEdit);
                     });
         }
+
+        connect(&d->undoable.m_signal,
+                &UndoSignaller::changed,
+                lineEditDisplay,
+                [this, lineEditDisplay] {
+                    lineEditDisplay->setTextKeepingActiveCursor(d->undoable.get());
+                    lineEditDisplay->validate();
+                });
+
         break;
-    case TextEditDisplay:
-        d->m_textEditDisplay = createSubWidget<QTextEdit>();
-        d->m_textEditDisplay->setPlaceholderText(d->m_placeHolderText);
-        d->m_textEditDisplay->setUndoRedoEnabled(d->m_undoRedoEnabled);
-        d->m_textEditDisplay->setAcceptRichText(d->m_acceptRichText);
-        d->m_textEditDisplay->setTextInteractionFlags(Qt::TextEditorInteraction);
-        d->m_textEditDisplay->setText(displayedString);
-        d->m_textEditDisplay->setReadOnly(isReadOnly());
-        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
-        addLabeledItem(parent, d->m_textEditDisplay);
-        useMacroExpander(d->m_textEditDisplay);
+    }
+    case TextEditDisplay: {
+        auto textEditDisplay = createSubWidget<QTextEdit>();
+        textEditDisplay->setPlaceholderText(d->m_placeHolderText);
+        textEditDisplay->setUndoRedoEnabled(false);
+        textEditDisplay->setAcceptRichText(d->m_acceptRichText);
+        textEditDisplay->setTextInteractionFlags(Qt::TextEditorInteraction);
+        textEditDisplay->setText(displayedString);
+        textEditDisplay->setReadOnly(isReadOnly());
+        d->m_checkerImpl.updateWidgetFromCheckStatus(this, textEditDisplay);
+
+        connect(d->m_checkerImpl.m_checked.get(),
+                &BoolAspect::volatileValueChanged,
+                textEditDisplay,
+                [this, textEditDisplay]() {
+                    d->m_checkerImpl.updateWidgetFromCheckStatus(this, textEditDisplay);
+                });
+
+        addLabeledItem(parent, textEditDisplay);
+        useMacroExpander(textEditDisplay);
         bufferToGui();
-        connect(d->m_textEditDisplay, &QTextEdit::textChanged,
-                this, &StringAspect::handleGuiChanged);
+        connect(this,
+                &StringAspect::acceptRichTextChanged,
+                textEditDisplay,
+                &QTextEdit::setAcceptRichText);
+        connect(this,
+                &StringAspect::placeholderTextChanged,
+                textEditDisplay,
+                &QTextEdit::setPlaceholderText);
+
+        connect(textEditDisplay, &QTextEdit::textChanged, this, [this, textEditDisplay]() {
+            d->undoable.set(undoStack(), textEditDisplay->toPlainText());
+            handleGuiChanged();
+        });
+
+        connect(&d->undoable.m_signal,
+                &UndoSignaller::changed,
+                textEditDisplay,
+                [this, textEditDisplay] { textEditDisplay->setText(d->undoable.get()); });
         break;
-    case LabelDisplay:
-        d->m_labelDisplay = createSubWidget<ElidingLabel>();
-        d->m_labelDisplay->setElideMode(d->m_elideMode);
-        d->m_labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        d->m_labelDisplay->setText(displayedString);
-        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : toolTip());
-        addLabeledItem(parent, d->m_labelDisplay);
+    }
+    case LabelDisplay: {
+        auto labelDisplay = createSubWidget<ElidingLabel>();
+        labelDisplay->setElideMode(d->m_elideMode);
+        labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        labelDisplay->setText(displayedString);
+        labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : toolTip());
+        connect(this, &StringAspect::setElideMode, labelDisplay, &ElidingLabel::setElideMode);
+        addLabeledItem(parent, labelDisplay);
+
+        connect(&d->undoable.m_signal, &UndoSignaller::changed, labelDisplay, [this, labelDisplay] {
+            labelDisplay->setText(d->undoable.get());
+            labelDisplay->setToolTip(d->m_showToolTipOnLabel ? d->undoable.get() : toolTip());
+        });
+
         break;
+    }
     }
 
     d->m_checkerImpl.addToLayoutLast(parent);
@@ -1208,11 +1263,7 @@ QString StringAspect::expandedValue() const
 
 bool StringAspect::guiToBuffer()
 {
-    if (d->m_lineEditDisplay)
-        return updateStorage(m_buffer, d->m_lineEditDisplay->text());
-    if (d->m_textEditDisplay)
-        return updateStorage(m_buffer, d->m_textEditDisplay->document()->toPlainText());
-    return false;
+    return updateStorage(m_buffer, d->undoable.get());
 }
 
 bool StringAspect::bufferToInternal()
@@ -1232,24 +1283,7 @@ bool StringAspect::internalToBuffer()
 
 void StringAspect::bufferToGui()
 {
-    if (d->m_lineEditDisplay) {
-        d->m_lineEditDisplay->setTextKeepingActiveCursor(m_buffer);
-        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
-    }
-
-    if (d->m_textEditDisplay) {
-        const QString old = d->m_textEditDisplay->document()->toPlainText();
-        if (m_buffer != old)
-            d->m_textEditDisplay->setText(m_buffer);
-        d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
-    }
-
-    if (d->m_labelDisplay) {
-        d->m_labelDisplay->setText(m_buffer);
-        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? m_buffer : toolTip());
-    }
-
-    validateInput();
+    d->undoable.setWithoutUndo(m_buffer);
 }
 
 /*!
