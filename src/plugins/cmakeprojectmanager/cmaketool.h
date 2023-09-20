@@ -21,16 +21,16 @@ namespace Internal {  class IntrospectionData;  }
 
 struct CMAKE_EXPORT CMakeKeywords
 {
-    QStringList variables;
-    QStringList functions;
-    QStringList properties;
-    QStringList generatorExpressions;
-    QStringList directoryProperties;
-    QStringList sourceProperties;
-    QStringList targetProperties;
-    QStringList testProperties;
-    QStringList includeStandardModules;
-    QStringList findModules;
+    QSet<QString> variables;
+    QSet<QString> functions;
+    QSet<QString> properties;
+    QSet<QString> generatorExpressions;
+    QSet<QString> directoryProperties;
+    QSet<QString> sourceProperties;
+    QSet<QString> targetProperties;
+    QSet<QString> testProperties;
+    QSet<QString> includeStandardModules;
+    QSet<QString> findModules;
     QMap<QString, QStringList> functionArgs;
 };
 

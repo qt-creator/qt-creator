@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeeditor.h"
+#include "cmaketoolmanager.h"
 
 #include "cmakeautocompleter.h"
 #include "cmakebuildsystem.h"
 #include "cmakefilecompletionassist.h"
 #include "cmakeindenter.h"
+#include "cmakekitaspect.h"
 #include "cmakeprojectconstants.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -16,6 +18,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/target.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <utils/textutils.h>
@@ -36,52 +39,55 @@ namespace CMakeProjectManager::Internal {
 
 class CMakeEditor : public TextEditor::BaseTextEditor
 {
+    CMakeKeywords m_keywords;
 public:
+    CMakeEditor();
     void contextHelp(const HelpCallback &callback) const final;
 };
 
+CMakeEditor::CMakeEditor()
+{
+    CMakeTool *tool = nullptr;
+    if (auto project = ProjectTree::currentProject())
+        if (auto bs = ProjectTree::currentBuildSystem())
+            tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
+    if (!tool)
+        tool = CMakeToolManager::defaultCMakeTool();
+
+    if (tool)
+        m_keywords = tool->keywords();
+}
+
 void CMakeEditor::contextHelp(const HelpCallback &callback) const
 {
-    int pos = position();
+    const QString word = Utils::Text::wordUnderCursor(editorWidget()->textCursor());
+    auto helpPrefix = [this](const QString &word) {
+        if (m_keywords.includeStandardModules.contains(word))
+            return "module/";
+        if (m_keywords.functions.contains(word))
+            return "command/";
+        if (m_keywords.variables.contains(word))
+            return "variable/";
+        if (m_keywords.directoryProperties.contains(word))
+            return "prop_dir/";
+        if (m_keywords.targetProperties.contains(word))
+            return "prop_tgt/";
+        if (m_keywords.sourceProperties.contains(word))
+            return "prop_sf/";
+        if (m_keywords.testProperties.contains(word))
+            return "prop_test/";
+        if (m_keywords.properties.contains(word))
+            return "prop_gbl/";
 
-    QChar chr;
-    do {
-        --pos;
-        if (pos < 0)
-            break;
-        chr = characterAt(pos);
-        if (chr == QLatin1Char('(')) {
-            BaseTextEditor::contextHelp(callback);
-            return;
-        }
-    } while (chr.unicode() != QChar::ParagraphSeparator);
+        return "unknown/";
+    };
 
-    ++pos;
-    chr = characterAt(pos);
-    while (chr.isSpace()) {
-        ++pos;
-        chr = characterAt(pos);
-    }
-    int begin = pos;
-
-    do {
-        ++pos;
-        chr = characterAt(pos);
-    } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
-    int end = pos;
-
-    while (chr.isSpace()) {
-        ++pos;
-        chr = characterAt(pos);
-    }
-
-    // Not a command
-    if (chr != QLatin1Char('(')) {
+    const QString id = helpPrefix(word) + word;
+    if (id.startsWith("unknown/")) {
         BaseTextEditor::contextHelp(callback);
         return;
     }
 
-    const QString id = "command/" + textAt(begin, end - begin).toLower();
     callback({{id, Utils::Text::wordUnderCursor(editorWidget()->textCursor())},
               {},
               {},

@@ -280,17 +280,17 @@ CMakeKeywords CMakeTool::keywords()
     }
 
     CMakeKeywords keywords;
-    keywords.functions = m_introspection->m_functions;
-    keywords.variables = m_introspection->m_variables;
+    keywords.functions = Utils::toSet(m_introspection->m_functions);
+    keywords.variables = Utils::toSet(m_introspection->m_variables);
     keywords.functionArgs = m_introspection->m_functionArgs;
-    keywords.properties = m_introspection->m_properties;
-    keywords.generatorExpressions = m_introspection->m_generatorExpressions;
-    keywords.directoryProperties = m_introspection->m_directoryProperties;
-    keywords.sourceProperties = m_introspection->m_sourceProperties;
-    keywords.targetProperties = m_introspection->m_targetProperties;
-    keywords.testProperties = m_introspection->m_testProperties;
-    keywords.includeStandardModules = m_introspection->m_includeStandardModules;
-    keywords.findModules = m_introspection->m_findModules;
+    keywords.properties = Utils::toSet(m_introspection->m_properties);
+    keywords.generatorExpressions = Utils::toSet(m_introspection->m_generatorExpressions);
+    keywords.directoryProperties = Utils::toSet(m_introspection->m_directoryProperties);
+    keywords.sourceProperties = Utils::toSet(m_introspection->m_sourceProperties);
+    keywords.targetProperties = Utils::toSet(m_introspection->m_targetProperties);
+    keywords.testProperties = Utils::toSet(m_introspection->m_testProperties);
+    keywords.includeStandardModules = Utils::toSet(m_introspection->m_includeStandardModules);
+    keywords.findModules = Utils::toSet(m_introspection->m_findModules);
 
     return keywords;
 }

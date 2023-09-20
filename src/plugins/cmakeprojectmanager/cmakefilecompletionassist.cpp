@@ -139,9 +139,10 @@ static int findPathStart(const AssistInterface *interface)
     return ++pos;
 }
 
-QList<AssistProposalItemInterface *> generateList(const QStringList &words, const QIcon &icon)
+template<typename T>
+QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &icon)
 {
-    return transform(words, [&icon](const QString &word) -> AssistProposalItemInterface * {
+    return transform<QList>(words, [&icon](const QString &word) -> AssistProposalItemInterface * {
         AssistProposalItem *item = new AssistProposalItem();
         item->setText(word);
         item->setIcon(icon);
