@@ -26,8 +26,6 @@ public:
     GlobalAnnotationStatus();
     GlobalAnnotationStatus(Status status);
 
-    ~GlobalAnnotationStatus() = default;
-
     void setStatus(int statusId);
     void setStatus(Status status);
     Status status() const;
