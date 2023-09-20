@@ -52,6 +52,7 @@ private:
     void initMouseInteraction(const QPoint &pos);
     void updateBuffer();
     QPoint toImagePos(const QPoint &widgetCoordinate) const;
+    QRect activeMoveArea() const;
 
     const static int m_gripWidth = 8;
     QRect m_cropRect;
