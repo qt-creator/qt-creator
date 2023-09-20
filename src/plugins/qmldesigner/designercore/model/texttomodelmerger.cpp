@@ -19,6 +19,7 @@
 #include "rewriterview.h"
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
+
 #include <externaldependenciesinterface.h>
 #include <import.h>
 #include <projectstorage/modulescanner.h>
@@ -828,15 +829,6 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 
 namespace {
 
-bool skipByMetaInfo(QStringView moduleName, const QStringList &skipModuleNames)
-{
-    return std::any_of(skipModuleNames.begin(),
-                       skipModuleNames.end(),
-                       [&](const QString &skipModuleName) {
-                           return moduleName.contains(skipModuleName);
-                       });
-}
-
 class StartsWith : public QStringView
 {
 public:
@@ -876,7 +868,7 @@ constexpr auto skipModules = std::make_tuple(EndsWith(u".impl"),
                                              EndsWith(u".private"),
                                              EndsWith(u".Private"),
                                              Equals(u"QtQuick.Particles"),
-                                             Equals(u"QtQuick.Dialogs"),
+                                             StartsWith(u"QtQuick.Dialogs"),
                                              Equals(u"QtQuick.Controls.Styles"),
                                              Equals(u"QtNfc"),
                                              Equals(u"Qt.WebSockets"),
@@ -886,17 +878,56 @@ constexpr auto skipModules = std::make_tuple(EndsWith(u".impl"),
                                              Equals(u"QtWinExtras"),
                                              Equals(u"QtPurchasing"),
                                              Equals(u"QtBluetooth"),
-                                             Equals(u"Enginio"));
+                                             Equals(u"Enginio"),
+                                             StartsWith(u"Qt.labs."),
+                                             StartsWith(u"Qt.test.controls"),
+                                             StartsWith(u"QmlTime"),
+                                             StartsWith(u"Qt.labs."),
+                                             StartsWith(u"Qt.test.controls"),
+                                             StartsWith(u"Qt3D."),
+                                             StartsWith(u"Qt5Compat.GraphicalEffects"),
+                                             StartsWith(u"QtCanvas3D"),
+                                             StartsWith(u"QtCore"),
+                                             StartsWith(u"QtDataVisualization"),
+                                             StartsWith(u"QtGamepad"),
+                                             StartsWith(u"QtOpcUa"),
+                                             StartsWith(u"QtPositioning"),
+                                             Equals(u"QtQuick.Controls.Basic"),
+                                             Equals(u"QtQuick.Controls.Fusion"),
+                                             Equals(u"QtQuick.Controls.Imagine"),
+                                             Equals(u"QtQuick.Controls.Material"),
+                                             Equals(u"QtQuick.Controls.NativeStyle"),
+                                             Equals(u"QtQuick.Controls.Universal"),
+                                             Equals(u"QtQuick.Controls.Windows"),
+                                             StartsWith(u"QtQuick.LocalStorage"),
+                                             StartsWith(u"QtQuick.NativeStyle"),
+                                             StartsWith(u"QtQuick.Pdf"),
+                                             StartsWith(u"QtQuick.Scene2D"),
+                                             StartsWith(u"QtQuick.Scene3D"),
+                                             StartsWith(u"QtQuick.Shapes"),
+                                             StartsWith(u"QtQuick.Studio.EventSimulator"),
+                                             StartsWith(u"QtQuick.Studio.EventSystem"),
+                                             StartsWith(u"QtQuick.Templates"),
+                                             StartsWith(u"QtQuick.VirtualKeyboard"),
+                                             StartsWith(u"QtQuick.tooling"),
+                                             StartsWith(
+                                                 u"QtQuick3D MateriablacklistImportslEditor"),
+                                             StartsWith(u"QtQuick3D.ParticleEffects"),
+                                             StartsWith(u"QtRemoteObjects"),
+                                             StartsWith(u"QtRemoveObjects"),
+                                             StartsWith(u"QtScxml"),
+                                             StartsWith(u"QtSensors"),
+                                             StartsWith(u"QtTest"),
+                                             StartsWith(u"QtTextToSpeech"),
+                                             StartsWith(u"QtVncServer"),
+                                             StartsWith(u"QtWebEngine"),
+                                             StartsWith(u"QtWebSockets"),
+                                             StartsWith(u"QtWebView"));
 
 bool skipModule(QStringView moduleName)
 {
     return std::apply([=](const auto &...skipModule) { return (skipModule(moduleName) || ...); },
                       skipModules);
-}
-
-bool skipModule(QStringView moduleName, const QStringList &skipModuleNames)
-{
-    return skipModule(moduleName) || skipByMetaInfo(moduleName, skipModuleNames);
 }
 
 void collectPossibleFileImports(const QString &checkPath,
@@ -975,12 +1006,8 @@ void TextToModelMerger::setupPossibleImports()
 
         auto &externalDependencies = m_rewriterView->externalDependencies();
         if (externalDependencies.isQt6Project()) {
-            const auto skipModuleNames = m_rewriterView->model()
-                                             ->metaInfo()
-                                             .itemLibraryInfo()
-                                             ->blacklistImports();
             ModuleScanner moduleScanner{[&](QStringView moduleName) {
-                                            return skipModule(moduleName, skipModuleNames);
+                                            return skipModule(moduleName);
                                         },
                                         VersionScanning::No,
                                         m_rewriterView->externalDependencies()};

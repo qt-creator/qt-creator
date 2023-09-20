@@ -683,6 +683,7 @@ extend_qtc_plugin(QmlDesigner
     assetimportupdatetreemodel.cpp assetimportupdatetreemodel.h
     assetimportupdatetreeview.cpp assetimportupdatetreeview.h
     itemlibrary.qrc
+    itemlibraryconstants.h
     itemlibraryimageprovider.cpp itemlibraryimageprovider.h
     itemlibraryitem.cpp itemlibraryitem.h
     itemlibrarymodel.cpp itemlibrarymodel.h
@@ -1199,4 +1200,3 @@ extend_qtc_plugin(qtquickplugin
       qtquickplugin.cpp qtquickplugin.h
       qtquickplugin.qrc
 )
-add_subdirectory(studioplugin)

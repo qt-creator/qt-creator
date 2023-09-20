@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/studioplugin">
-        <file>studioplugin.metainfo</file>
-    </qresource>
-</RCC>
