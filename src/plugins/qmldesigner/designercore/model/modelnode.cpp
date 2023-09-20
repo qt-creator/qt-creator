@@ -745,7 +745,7 @@ bool ModelNode::isRootNode() const
     if (!isValid())
         return false;
 
-    return view()->rootModelNode() == *this;
+    return m_model->d->rootNode() == m_internalNode;
 }
 
 /*! \brief returns the list of all property names
@@ -1143,7 +1143,7 @@ void ModelNode::removeAnnotation()
 Annotation ModelNode::globalAnnotation() const
 {
     Annotation result;
-    ModelNode root = view()->rootModelNode();
+    ModelNode root = m_model->rootModelNode();
 
     auto data = root.auxiliaryData(globalAnnotationProperty);
 
@@ -1155,24 +1155,24 @@ Annotation ModelNode::globalAnnotation() const
 
 bool ModelNode::hasGlobalAnnotation() const
 {
-    return view()->rootModelNode().hasAuxiliaryData(globalAnnotationProperty);
+    return m_model->rootModelNode().hasAuxiliaryData(globalAnnotationProperty);
 }
 
 void ModelNode::setGlobalAnnotation(const Annotation &annotation)
 {
-    view()->rootModelNode().setAuxiliaryData(globalAnnotationProperty,
-                                             QVariant::fromValue(annotation.toQString()));
+    m_model->rootModelNode().setAuxiliaryData(globalAnnotationProperty,
+                                              QVariant::fromValue(annotation.toQString()));
 }
 
 void ModelNode::removeGlobalAnnotation()
 {
-    view()->rootModelNode().removeAuxiliaryData(globalAnnotationProperty);
+    m_model->rootModelNode().removeAuxiliaryData(globalAnnotationProperty);
 }
 
 GlobalAnnotationStatus ModelNode::globalStatus() const
 {
     GlobalAnnotationStatus result;
-    ModelNode root = view()->rootModelNode();
+    ModelNode root = m_model->rootModelNode();
 
     auto data = root.auxiliaryData(globalAnnotationStatus);
 
@@ -1184,19 +1184,19 @@ GlobalAnnotationStatus ModelNode::globalStatus() const
 
 bool ModelNode::hasGlobalStatus() const
 {
-    return view()->rootModelNode().hasAuxiliaryData(globalAnnotationStatus);
+    return m_model->rootModelNode().hasAuxiliaryData(globalAnnotationStatus);
 }
 
 void ModelNode::setGlobalStatus(const GlobalAnnotationStatus &status)
 {
-    view()->rootModelNode().setAuxiliaryData(globalAnnotationStatus,
-                                             QVariant::fromValue(status.toQString()));
+    m_model->rootModelNode().setAuxiliaryData(globalAnnotationStatus,
+                                              QVariant::fromValue(status.toQString()));
 }
 
 void ModelNode::removeGlobalStatus()
 {
     if (hasGlobalStatus()) {
-        view()->rootModelNode().removeAuxiliaryData(globalAnnotationStatus);
+        m_model->rootModelNode().removeAuxiliaryData(globalAnnotationStatus);
     }
 }
 
