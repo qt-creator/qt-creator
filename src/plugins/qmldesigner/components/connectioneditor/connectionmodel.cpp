@@ -8,6 +8,7 @@
 #include <bindingproperty.h>
 #include <connectioneditorevaluator.h>
 #include <exception.h>
+#include <model/modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
@@ -69,7 +70,7 @@ Qt::ItemFlags ConnectionModel::flags(const QModelIndex &modelIndex) const
     const int internalId = data(index(modelIndex.row(), TargetModelNodeRow), UserRoles::InternalIdRole).toInt();
     ModelNode modelNode = m_connectionView->modelNodeForInternalId(internalId);
 
-    if (modelNode.isValid() && ModelNode::isThisOrAncestorLocked(modelNode))
+    if (modelNode.isValid() && ModelUtils::isThisOrAncestorLocked(modelNode))
         return Qt::ItemIsEnabled;
 
     return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;

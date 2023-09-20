@@ -23,10 +23,11 @@
 
 #include <formeditortoolbutton.h>
 
-#include <documentmanager.h>
-#include <qmldesignerplugin.h>
-#include <viewmanager.h>
 #include <actioneditor.h>
+#include <documentmanager.h>
+#include <model/modelutils.h>
+#include <viewmanager.h>
+#include <qmldesignerplugin.h>
 
 #include <listmodeleditor/listmodeleditordialog.h>
 #include <listmodeleditor/listmodeleditormodel.h>
@@ -419,7 +420,7 @@ public:
 
                 parentNode = selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode();
 
-                if (!ModelNode::isThisOrAncestorLocked(parentNode)) {
+                if (!ModelUtils::isThisOrAncestorLocked(parentNode)) {
                     ActionTemplate *selectionAction = new ActionTemplate("SELECTION", {}, &ModelNodeOperations::select);
                     selectionAction->setParent(menu());
                     selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Parent")));
@@ -432,11 +433,9 @@ public:
                 }
             }
             for (const ModelNode &node : selectionContext().view()->allModelNodes()) {
-                if (node != selectionContext().currentSingleSelectedNode()
-                        && node != parentNode
-                        && contains(node, selectionContext().scenePosition())
-                        && !node.isRootNode()
-                        && !ModelNode::isThisOrAncestorLocked(node)) {
+                if (node != selectionContext().currentSingleSelectedNode() && node != parentNode
+                    && contains(node, selectionContext().scenePosition()) && !node.isRootNode()
+                    && !ModelUtils::isThisOrAncestorLocked(node)) {
                     selectionContext().setTargetNode(node);
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
                     ActionTemplate *selectionAction = new ActionTemplate("SELECT", what, &ModelNodeOperations::select);

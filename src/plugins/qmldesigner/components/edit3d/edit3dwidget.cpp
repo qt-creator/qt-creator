@@ -25,6 +25,7 @@
 #include <designeractionmanager.h>
 #include <designermcumanager.h>
 #include <import.h>
+#include <model/modelutils.h>
 #include <nodeinstanceview.h>
 #include <seekerslider.h>
 
@@ -44,7 +45,8 @@
 
 namespace QmlDesigner {
 
-static inline QIcon contextIcon(const DesignerIcons::IconId &iconId) {
+inline static QIcon contextIcon(const DesignerIcons::IconId &iconId)
+{
     return DesignerActionManager::instance().contextIcon(iconId);
 };
 
@@ -257,17 +259,16 @@ void Edit3DWidget::createContextMenu()
     m_contextMenu->addSeparator();
 
     m_selectParentAction = m_contextMenu->addAction(
-                contextIcon(DesignerIcons::ParentIcon),
-                tr("Select Parent"), [&] {
-        ModelNode parentNode = ModelNode::lowestCommonAncestor(view()->selectedModelNodes());
-        if (!parentNode.isValid())
-            return;
+        contextIcon(DesignerIcons::ParentIcon), tr("Select Parent"), [&] {
+            ModelNode parentNode = ModelUtils::lowestCommonAncestor(view()->selectedModelNodes());
+            if (!parentNode.isValid())
+                return;
 
-        if (!parentNode.isRootNode() && view()->isSelectedModelNode(parentNode))
-            parentNode = parentNode.parentProperty().parentModelNode();
+            if (!parentNode.isRootNode() && view()->isSelectedModelNode(parentNode))
+                parentNode = parentNode.parentProperty().parentModelNode();
 
-        view()->setSelectedModelNode(parentNode);
-    });
+            view()->setSelectedModelNode(parentNode);
+        });
 
     QAction *defaultToggleGroupAction = view()->edit3DAction(View3DActionType::SelectionModeToggle)->action();
     m_toggleGroupAction = m_contextMenu->addAction(
@@ -291,7 +292,7 @@ bool Edit3DWidget::isSceneLocked() const
 {
     if (m_view && m_view->hasModelNodeForInternalId(m_canvas->activeScene())) {
         ModelNode node = m_view->modelNodeForInternalId(m_canvas->activeScene());
-        if (ModelNode::isThisOrAncestorLocked(node))
+        if (ModelUtils::isThisOrAncestorLocked(node))
             return true;
     }
     return false;
@@ -525,7 +526,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
     // Block all drags if scene root node is locked
     if (m_view->hasModelNodeForInternalId(m_canvas->activeScene())) {
         ModelNode node = m_view->modelNodeForInternalId(m_canvas->activeScene());
-        if (ModelNode::isThisOrAncestorLocked(node))
+        if (ModelUtils::isThisOrAncestorLocked(node))
             return;
     }
 

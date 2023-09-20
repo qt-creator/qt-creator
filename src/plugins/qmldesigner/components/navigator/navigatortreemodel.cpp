@@ -200,7 +200,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
 
     if (role == ItemOrAncestorLocked)
-        return ModelNode::isThisOrAncestorLocked(modelNode);
+        return ModelUtils::isThisOrAncestorLocked(modelNode);
 
     if (role == ModelNodeRole)
         return QVariant::fromValue<ModelNode>(modelNode);
@@ -273,13 +273,13 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
     if (index.column() == ColumnType::Alias
         || index.column() == ColumnType::Visibility
         || index.column() == ColumnType::Lock) {
-        if (ModelNode::isThisOrAncestorLocked(modelNode))
+        if (ModelUtils::isThisOrAncestorLocked(modelNode))
             return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
         else
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
     }
 
-    if (ModelNode::isThisOrAncestorLocked(modelNode))
+    if (ModelUtils::isThisOrAncestorLocked(modelNode))
         return Qt::NoItemFlags;
 
     if (index.column() == ColumnType::Name)

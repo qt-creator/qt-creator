@@ -9,6 +9,8 @@
 #include "modelnodecontextmenu.h"
 #include "qmldesignerconstants.h"
 
+#include <model/modelutils.h>
+
 #include <QDebug>
 #include <QGraphicsSceneDragDropEvent>
 #include <QMimeData>
@@ -180,7 +182,7 @@ FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &poi
         if (formEditorItem->parentItem() && !formEditorItem->parentItem()->isContentVisible())
             continue;
 
-        if (formEditorItem && ModelNode::isThisOrAncestorLocked(formEditorItem->qmlItemNode().modelNode()))
+        if (formEditorItem && ModelUtils::isThisOrAncestorLocked(formEditorItem->qmlItemNode().modelNode()))
             continue;
 
         if (!nearestItem)

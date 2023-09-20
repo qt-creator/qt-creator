@@ -223,9 +223,6 @@ public:
     bool locked() const;
     void setLocked(bool value);
 
-    static bool isThisOrAncestorLocked(const ModelNode &node);
-    static ModelNode lowestCommonAncestor(const QList<ModelNode> &nodes);
-
     qint32 internalId() const;
 
     void setNodeSource(const QString&);
