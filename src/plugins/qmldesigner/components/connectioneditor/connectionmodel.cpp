@@ -737,6 +737,11 @@ void ConnectionModelBackendDelegate::changeActionType(ActionType actionType)
             ConnectionEditorStatements::MatchedStatement &okStatement
                 = ConnectionEditorStatements::okStatement(m_handler);
 
+            ConnectionEditorStatements::MatchedStatement &koStatement
+                = ConnectionEditorStatements::koStatement(m_handler);
+
+            koStatement = ConnectionEditorStatements::EmptyBlock();
+
             //We expect a valid id on the root node
             const QString validId = model->connectionView()->rootModelNode().validId();
             QString statementSource = generateDefaultStatement(actionType, validId);
