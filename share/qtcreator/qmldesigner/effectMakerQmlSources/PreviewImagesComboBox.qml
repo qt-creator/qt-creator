@@ -23,7 +23,11 @@ StudioControls.ComboBox {
 
     required property Item mainRoot
 
-    property var images: ["images/preview1.png", "images/preview2.png", "images/preview3.png", "images/preview4.png"]
+    property var images: ["images/preview0.png",
+                          "images/preview1.png",
+                          "images/preview2.png",
+                          "images/preview3.png",
+                          "images/preview4.png"]
     property string selectedImage: images[0]
 
     Connections {
@@ -56,16 +60,6 @@ StudioControls.ComboBox {
             anchors.fill: parent
             anchors.margins: 1
         }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                if (root.open)
-                    root.popup.close();
-                else
-                    root.popup.open();
-            }
-        }
     }
 
     Window {
@@ -75,8 +69,8 @@ StudioControls.ComboBox {
         height: Math.min(800, Math.min(col.height + 2, Screen.height - y - 40)) // 40: some bottom margin to cover OS bottom toolbar
         flags:  Qt.Popup | Qt.FramelessWindowHint
 
-        onActiveChanged: {
-            if (!active && !root.hover)
+        onActiveFocusItemChanged: {
+            if (!window.activeFocusItem && !root.indicator.hover && root.popup.opened)
                 root.popup.close()
         }
 
@@ -89,6 +83,7 @@ StudioControls.ComboBox {
             HelperWidgets.ScrollView {
                 anchors.fill: parent
                 anchors.margins: 1
+                clip: true
 
                 Column {
                     id: col
