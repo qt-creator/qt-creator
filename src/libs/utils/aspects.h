@@ -296,7 +296,8 @@ public:
     {
         m_default = value;
         m_internal = value;
-        internalToBuffer(); // Might be more than a plain copy.
+        if (internalToBuffer()) // Might be more than a plain copy.
+            bufferToGui();
     }
 
     bool isDefaultValue() const override
