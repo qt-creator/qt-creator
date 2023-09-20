@@ -749,10 +749,10 @@ namespace Axivion::Internal::Dto {
 
     // version
 
-    constexpr std::array<qint32, 4> ApiVersion::number{7,6,2,12725};
-    const QLatin1String ApiVersion::string{"7.6.2.12725"};
-    const QLatin1String ApiVersion::name{"7.6.2"};
-    const QLatin1String ApiVersion::timestamp{"2023-08-07 14:38:01 +00:00"};
+    constexpr std::array<qint32, 4> ApiVersion::number{7,6,3,12797};
+    const QLatin1String ApiVersion::string{"7.6.3.12797"};
+    const QLatin1String ApiVersion::name{"7.6.3"};
+    const QLatin1String ApiVersion::timestamp{"2023-08-30 15:49:00 +00:00"};
 
     // AnalyzedFileDto
 
@@ -1007,6 +1007,50 @@ namespace Axivion::Internal::Dto {
 
     // throws Axivion::Internal::Dto::invalid_dto_exception
     QByteArray CommentRequestDto::serialize() const
+    {
+        return serialize_bytes(*this);
+    }
+
+    // CsrfTokenDto
+
+    static const QLatin1String csrfTokenKeyCsrfToken{"csrfToken"};
+
+    template<>
+    class de_serializer<CsrfTokenDto> final
+    {
+    public:
+        // throws Axivion::Internal::Dto::invalid_dto_exception
+        static CsrfTokenDto deserialize(const QJsonValue &json) {
+            const QJsonObject jo = toJsonObject<CsrfTokenDto>(json);
+            return {
+                deserialize_field<QString>(jo, csrfTokenKeyCsrfToken)
+            };
+        }
+
+        static QJsonValue serialize(const CsrfTokenDto &value) {
+            QJsonObject jo;
+            serialize_field(jo, csrfTokenKeyCsrfToken, value.csrfToken);
+            return { jo };
+        }
+
+        de_serializer() = delete;
+        ~de_serializer() = delete;
+    };
+
+    // throws Axivion::Internal::Dto::invalid_dto_exception
+    CsrfTokenDto CsrfTokenDto::deserialize(const QByteArray &json)
+    {
+        return deserialize_bytes<CsrfTokenDto>(json);
+    }
+
+    CsrfTokenDto::CsrfTokenDto(
+        QString csrfToken
+    ) :
+        csrfToken(std::move(csrfToken))
+    { }
+
+    // throws Axivion::Internal::Dto::invalid_dto_exception
+    QByteArray CsrfTokenDto::serialize() const
     {
         return serialize_bytes(*this);
     }
@@ -2186,7 +2230,7 @@ namespace Axivion::Internal::Dto {
                 deserialize_field<QString>(jo, analysisVersionKeyDate),
                 deserialize_field<std::optional<QString>>(jo, analysisVersionKeyLabel),
                 deserialize_field<qint32>(jo, analysisVersionKeyIndex),
-                deserialize_field<std::optional<QString>>(jo, analysisVersionKeyName),
+                deserialize_field<QString>(jo, analysisVersionKeyName),
                 deserialize_field<qint64>(jo, analysisVersionKeyMillis),
                 deserialize_field<Any>(jo, analysisVersionKeyIssueCounts),
                 deserialize_field<std::optional<ToolsVersionDto>>(jo, analysisVersionKeyToolsVersion),
@@ -2223,7 +2267,7 @@ namespace Axivion::Internal::Dto {
         QString date,
         std::optional<QString> label,
         qint32 index,
-        std::optional<QString> name,
+        QString name,
         qint64 millis,
         Any issueCounts,
         std::optional<ToolsVersionDto> toolsVersion,
@@ -2614,6 +2658,7 @@ namespace Axivion::Internal::Dto {
     static const QLatin1String dashboardInfoKeyUserNamedFiltersUrl{"userNamedFiltersUrl"};
     static const QLatin1String dashboardInfoKeySupportAddress{"supportAddress"};
     static const QLatin1String dashboardInfoKeyIssueFilterHelp{"issueFilterHelp"};
+    static const QLatin1String dashboardInfoKeyCsrfTokenUrl{"csrfTokenUrl"};
 
     template<>
     class de_serializer<DashboardInfoDto> final
@@ -2628,7 +2673,7 @@ namespace Axivion::Internal::Dto {
                 deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyDashboardVersionNumber),
                 deserialize_field<QString>(jo, dashboardInfoKeyDashboardBuildDate),
                 deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyUsername),
-                deserialize_field<QString>(jo, dashboardInfoKeyCsrfTokenHeader),
+                deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyCsrfTokenHeader),
                 deserialize_field<QString>(jo, dashboardInfoKeyCsrfToken),
                 deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyCheckCredentialsUrl),
                 deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyNamedFiltersUrl),
@@ -2636,7 +2681,8 @@ namespace Axivion::Internal::Dto {
                 deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyUserApiTokenUrl),
                 deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyUserNamedFiltersUrl),
                 deserialize_field<std::optional<QString>>(jo, dashboardInfoKeySupportAddress),
-                deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyIssueFilterHelp)
+                deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyIssueFilterHelp),
+                deserialize_field<std::optional<QString>>(jo, dashboardInfoKeyCsrfTokenUrl)
             };
         }
 
@@ -2656,6 +2702,7 @@ namespace Axivion::Internal::Dto {
             serialize_field(jo, dashboardInfoKeyUserNamedFiltersUrl, value.userNamedFiltersUrl);
             serialize_field(jo, dashboardInfoKeySupportAddress, value.supportAddress);
             serialize_field(jo, dashboardInfoKeyIssueFilterHelp, value.issueFilterHelp);
+            serialize_field(jo, dashboardInfoKeyCsrfTokenUrl, value.csrfTokenUrl);
             return { jo };
         }
 
@@ -2675,7 +2722,7 @@ namespace Axivion::Internal::Dto {
         std::optional<QString> dashboardVersionNumber,
         QString dashboardBuildDate,
         std::optional<QString> username,
-        QString csrfTokenHeader,
+        std::optional<QString> csrfTokenHeader,
         QString csrfToken,
         std::optional<QString> checkCredentialsUrl,
         std::optional<QString> namedFiltersUrl,
@@ -2683,7 +2730,8 @@ namespace Axivion::Internal::Dto {
         std::optional<QString> userApiTokenUrl,
         std::optional<QString> userNamedFiltersUrl,
         std::optional<QString> supportAddress,
-        std::optional<QString> issueFilterHelp
+        std::optional<QString> issueFilterHelp,
+        std::optional<QString> csrfTokenUrl
     ) :
         mainUrl(std::move(mainUrl)),
         dashboardVersion(std::move(dashboardVersion)),
@@ -2698,7 +2746,8 @@ namespace Axivion::Internal::Dto {
         userApiTokenUrl(std::move(userApiTokenUrl)),
         userNamedFiltersUrl(std::move(userNamedFiltersUrl)),
         supportAddress(std::move(supportAddress)),
-        issueFilterHelp(std::move(issueFilterHelp))
+        issueFilterHelp(std::move(issueFilterHelp)),
+        csrfTokenUrl(std::move(csrfTokenUrl))
     { }
 
     // throws Axivion::Internal::Dto::invalid_dto_exception

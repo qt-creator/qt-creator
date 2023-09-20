@@ -318,6 +318,34 @@ namespace Axivion::Internal::Dto
     };
 
     /**
+     * CSRF token
+     * 
+     * @since 7.7.0
+     */
+    class CsrfTokenDto : public Serializable
+    {
+    public:
+
+        /**
+         * <p>The value expected to be sent along the ``csrfTokenHeader`` for all HTTP requests that are not GET, HEAD, OPTIONS or TRACE.
+         * 
+         * <p>Note, that this does not replace authentication of subsequent requests. Also the token is combined with the authentication
+         * data, so will not work when authenticating as another user. Its lifetime is limited, so when creating a very long-running
+         * application you should consider refreshing this token from time to time.
+         */
+        QString csrfToken;
+
+        // Throws Axivion::Internal::Dto::invalid_dto_exception
+        static CsrfTokenDto deserialize(const QByteArray &json);
+
+        CsrfTokenDto(
+            QString csrfToken
+        );
+
+        virtual QByteArray serialize() const override;
+    };
+
+    /**
      * A Project Entity such as a Class, a Method, a File or a Module
      * or the System Entity.
      */
@@ -1261,21 +1289,10 @@ namespace Axivion::Internal::Dto
         qint32 index;
 
         /**
-         * <p>The legacy display name of a version.
-         * 
-         * <p>It is not recommended to use this anymore. It contains the
-         * date of the analysis version creation in an arbitrary time zone which is not
-         * indicated in the timestamp. In recent versions most probably UTC is used but
-         * this can change at any time - which would be regarded as a non-breaking
-         * change.
-         * 
-         * <p>Instead, clients should craft their own display name from the other
-         * available properties (date, label) and maybe adjust displayed dates
-         * according to their system timezone.
-         * 
-         * @deprecated
+         * <p>The display name of the analysis version consisting of the date formatted with the
+         * preferred time zone of the user making the request and the label in parentheses.
          */
-        std::optional<QString> name;
+        QString name;
 
         /**
          * <p>Analysis version timestamp in milliseconds
@@ -1333,7 +1350,7 @@ namespace Axivion::Internal::Dto
             QString date,
             std::optional<QString> label,
             qint32 index,
-            std::optional<QString> name,
+            QString name,
             qint64 millis,
             Any issueCounts,
             std::optional<ToolsVersionDto> toolsVersion,
@@ -1708,8 +1725,12 @@ namespace Axivion::Internal::Dto
 
         /**
          * <p>The HTTP-Request Header expected present for all HTTP requests that are not GET, HEAD, OPTIONS or TRACE.
+         * 
+         * <p>Deprecated since 7.7.0: the header name is always ``AX-CSRF-Token``.
+         * 
+         * @deprecated
          */
-        QString csrfTokenHeader;
+        std::optional<QString> csrfTokenHeader;
 
         /**
          * <p>The value expected to be sent along the ``csrfTokenHeader`` for all HTTP requests that are not GET, HEAD, OPTIONS or TRACE.
@@ -1767,6 +1788,13 @@ namespace Axivion::Internal::Dto
          */
         std::optional<QString> issueFilterHelp;
 
+        /**
+         * <p>Endoint for creating new CSRF tokens.
+         * 
+         * @since 7.7.0
+         */
+        std::optional<QString> csrfTokenUrl;
+
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static DashboardInfoDto deserialize(const QByteArray &json);
 
@@ -1776,7 +1804,7 @@ namespace Axivion::Internal::Dto
             std::optional<QString> dashboardVersionNumber,
             QString dashboardBuildDate,
             std::optional<QString> username,
-            QString csrfTokenHeader,
+            std::optional<QString> csrfTokenHeader,
             QString csrfToken,
             std::optional<QString> checkCredentialsUrl,
             std::optional<QString> namedFiltersUrl,
@@ -1784,7 +1812,8 @@ namespace Axivion::Internal::Dto
             std::optional<QString> userApiTokenUrl,
             std::optional<QString> userNamedFiltersUrl,
             std::optional<QString> supportAddress,
-            std::optional<QString> issueFilterHelp
+            std::optional<QString> issueFilterHelp,
+            std::optional<QString> csrfTokenUrl
         );
 
         virtual QByteArray serialize() const override;

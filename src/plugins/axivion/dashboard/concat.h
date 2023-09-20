@@ -22,9 +22,12 @@
 #include <string>
 #include <string_view>
 
+namespace Axivion::Internal::Dto
+{
 std::string concat(const std::initializer_list<const std::string_view> &args);
 
 QString concat(const std::initializer_list<const QStringView> &args);
 
 QByteArray concat_bytes(const std::initializer_list<const QByteArrayView> &args);
 
+} // namespace Axivion::Internal::Dto

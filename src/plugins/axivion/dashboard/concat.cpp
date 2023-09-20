@@ -16,6 +16,9 @@
 
 #include <utility>
 
+namespace Axivion::Internal::Dto
+{
+
 template<typename Input, typename Output>
 static Output concat(const std::initializer_list<const Input> &args)
 {
@@ -43,3 +46,5 @@ QByteArray concat_bytes(const std::initializer_list<const QByteArrayView> &args)
 {
     return concat<QByteArrayView, QByteArray>(args);
 }
+
+} // namespace Axivion::Internal::Dto
