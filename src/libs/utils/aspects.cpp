@@ -322,19 +322,6 @@ QUndoStack *BaseAspect::undoStack() const
     return d->m_undoStack;
 }
 
-void BaseAspect::pushUndo(QUndoCommand *cmd)
-{
-    if (!cmd)
-        return;
-
-    if (d->m_undoStack)
-        d->m_undoStack->push(cmd);
-    else {
-        cmd->redo();
-        delete cmd;
-    }
-}
-
 bool BaseAspect::isEnabled() const
 {
     return d->m_enabled;
@@ -1739,7 +1726,7 @@ void BoolAspect::addToLayoutHelper(Layouting::LayoutItem &parent, QAbstractButto
     }
 
     connect(button, &QAbstractButton::clicked, this, [button, this] {
-        pushUndo(d->m_undoable.set(button->isChecked()));
+        d->m_undoable.set(undoStack(), button->isChecked());
     });
 
     connect(&d->m_undoable.m_signal, &UndoSignaller::changed, button, [button, this] {
@@ -1780,7 +1767,7 @@ std::function<void (QObject *)> BoolAspect::groupChecker()
         groupBox->setChecked(value());
 
         connect(groupBox, &QGroupBox::clicked, this, [groupBox, this] {
-            pushUndo(d->m_undoable.set(groupBox->isChecked()));
+            d->m_undoable.set(undoStack(), groupBox->isChecked());
         });
 
         connect(&d->m_undoable.m_signal, &UndoSignaller::changed, groupBox, [groupBox, this] {
@@ -2475,7 +2462,7 @@ void FilePathListAspect::addToLayout(LayoutItem &parent)
     PathListEditor *editor = new PathListEditor;
     editor->setPathList(value());
     connect(editor, &PathListEditor::changed, this, [this, editor] {
-        pushUndo(d->undoable.set(editor->pathList()));
+        d->undoable.set(undoStack(), editor->pathList());
     });
     connect(&d->undoable.m_signal, &UndoSignaller::changed, this, [this, editor] {
         if (editor->pathList() != d->undoable.get())
@@ -3101,7 +3088,7 @@ QList<std::shared_ptr<BaseAspect>> AspectList::volatileItems() const
 std::shared_ptr<BaseAspect> AspectList::addItem(const std::shared_ptr<BaseAspect> &item)
 {
     if (undoStack())
-        pushUndo(new AddItemCommand(this, item));
+        undoStack()->push(new AddItemCommand(this, item));
     else
         return actualAddItem(item);
 
@@ -3121,7 +3108,7 @@ void AspectList::actualRemoveItem(const std::shared_ptr<BaseAspect> &item)
 void AspectList::removeItem(const std::shared_ptr<BaseAspect> &item)
 {
     if (undoStack())
-        pushUndo(new RemoveItemCommand(this, item));
+        undoStack()->push(new RemoveItemCommand(this, item));
     else
         actualRemoveItem(item);
 }
@@ -3343,7 +3330,7 @@ void StringSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
         if (newValue.isEmpty())
             return;
 
-        pushUndo(m_undoable.set(newValue));
+        m_undoable.set(undoStack(), newValue);
         bufferToGui();
     });
 

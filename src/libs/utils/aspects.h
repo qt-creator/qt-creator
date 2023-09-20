@@ -93,7 +93,6 @@ public:
 
     virtual void setUndoStack(QUndoStack *undoStack);
     QUndoStack *undoStack() const;
-    void pushUndo(QUndoCommand *cmd);
 
     bool isEnabled() const;
     void setEnabled(bool enabled);
@@ -978,12 +977,15 @@ public:
         T m_newValue;
     };
 
-    QUndoCommand *set(const T &value)
+    void set(QUndoStack *stack, const T &value)
     {
         if (m_value == value)
-            return nullptr;
+            return;
 
-        return new UndoCmd(this, m_value, value);
+        if (stack)
+            stack->push(new UndoCmd(this, m_value, value));
+        else
+            setInternal(value);
     }
 
     void setSilently(const T &value) { m_value = value; }
