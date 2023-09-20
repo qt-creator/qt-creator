@@ -1089,11 +1089,15 @@ protected:
 QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
 {
     auto *menu = new QMenu(Tr::tr("&Refactor"), parent);
+    connect(menu, &QMenu::aboutToShow, this, [this, menu] {
+        menu->disconnect(this);
 
-    // ### enable
-    // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+        // ### enable
+        // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
-    if (isSemanticInfoValidExceptLocalUses()) {
+        if (!isSemanticInfoValidExceptLocalUses())
+            return;
+
         d->m_useSelectionsUpdater.abortSchedule();
 
         const CppUseSelectionsUpdater::RunnerInfo runnerInfo = d->m_useSelectionsUpdater.update();
@@ -1118,7 +1122,7 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
         case CppUseSelectionsUpdater::RunnerInfo::Invalid:
             QTC_CHECK(false && "Unexpected CppUseSelectionsUpdater runner result");
         }
-    }
+    });
 
     return menu;
 }
