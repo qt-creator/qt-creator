@@ -18,6 +18,7 @@
 #include <QFutureWatcher>
 #include <QMainWindow>
 #include <QSplitter>
+#include <QUndoStack>
 
 #include <memory>
 
@@ -29,14 +30,54 @@ namespace CompilerExplorer {
 
 class JsonSettingsDocument;
 class SourceEditorWidget;
-class CodeEditorWidget;
+
+class CodeEditorWidget : public TextEditor::TextEditorWidget
+{
+    Q_OBJECT
+public:
+    CodeEditorWidget(const std::shared_ptr<SourceSettings> &settings, QUndoStack *undoStack);
+
+    void updateHighlighter();
+
+    void undo() override { m_undoStack->undo(); }
+    void redo() override { m_undoStack->redo(); }
+
+    void focusInEvent(QFocusEvent *event) override
+    {
+        TextEditorWidget::focusInEvent(event);
+        emit gotFocus();
+    }
+
+signals:
+    void gotFocus();
+
+private:
+    std::shared_ptr<SourceSettings> m_settings;
+    QUndoStack *m_undoStack;
+};
+
+class AsmEditorWidget : public TextEditor::TextEditorWidget
+{
+    Q_OBJECT
+
+public:
+    using TextEditor::TextEditorWidget::TextEditorWidget;
+
+    void focusInEvent(QFocusEvent *event) override
+    {
+        TextEditorWidget::focusInEvent(event);
+        emit gotFocus();
+    }
+
+signals:
+    void gotFocus();
+};
 
 class JsonSettingsDocument : public Core::IDocument
 {
     Q_OBJECT
 public:
-    JsonSettingsDocument();
-    ~JsonSettingsDocument() override;
+    JsonSettingsDocument(QUndoStack *undoStack);
 
     OpenResult open(QString *errorString,
                     const Utils::FilePath &filePath,
@@ -65,22 +106,31 @@ signals:
 private:
     mutable CompilerExplorerSettings m_ceSettings;
     std::function<QVariantMap()> m_windowStateCallback;
+    QUndoStack *m_undoStack;
 };
 
 class SourceEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    SourceEditorWidget(const std::shared_ptr<SourceSettings> &settings);
+    SourceEditorWidget(const std::shared_ptr<SourceSettings> &settings, QUndoStack *undoStack);
 
     QString sourceCode();
+    SourceSettings *sourceSettings() { return m_sourceSettings.get(); }
 
-    std::shared_ptr<SourceSettings> m_sourceSettings;
+    void focusInEvent(QFocusEvent *) override { emit gotFocus(); }
+
+    TextEditor::TextEditorWidget *textEditor() { return m_codeEditor; }
+
 signals:
     void sourceCodeChanged();
+    void addCompiler();
+    void remove();
+    void gotFocus();
 
 private:
     CodeEditorWidget *m_codeEditor{nullptr};
+    std::shared_ptr<SourceSettings> m_sourceSettings;
 };
 
 class CompilerWidget : public QWidget
@@ -99,11 +149,19 @@ public:
     std::shared_ptr<SourceSettings> m_sourceSettings;
     std::shared_ptr<CompilerSettings> m_compilerSettings;
 
+    void focusInEvent(QFocusEvent *) override { emit gotFocus(); }
+
+    TextEditor::TextEditorWidget *textEditor() { return m_asmEditor; }
+
 private:
     void doCompile();
 
+signals:
+    void remove();
+    void gotFocus();
+
 private:
-    TextEditor::TextEditorWidget *m_asmEditor{nullptr};
+    AsmEditorWidget *m_asmEditor{nullptr};
     Core::SearchableTerminal *m_resultTerminal{nullptr};
 
     SpinnerSolution::Spinner *m_spinner{nullptr};
@@ -120,8 +178,13 @@ class EditorWidget : public Utils::FancyMainWindow
 {
     Q_OBJECT
 public:
-    EditorWidget(const QSharedPointer<JsonSettingsDocument> &document, QWidget *parent = nullptr);
+    EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
+                 QUndoStack *undoStack,
+                 TextEditor::TextEditorActionHandler &actionHandler,
+                 QWidget *parent = nullptr);
     ~EditorWidget() override;
+
+    TextEditor::TextEditorWidget *focusedEditorWidget() const;
 
 signals:
     void sourceCodeChanged();
@@ -144,6 +207,9 @@ public:
 
 private:
     TextEditor::TextEditorActionHandler m_actionHandler;
+
+    QAction m_undoAction;
+    QAction m_redoAction;
 };
 
 } // namespace CompilerExplorer

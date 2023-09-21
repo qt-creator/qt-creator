@@ -77,7 +77,8 @@ private:
     ApiConfigFunction m_apiConfigFunction;
 };
 
-class CompilerSettings : public Utils::AspectContainer
+class CompilerSettings : public Utils::AspectContainer,
+                         public std::enable_shared_from_this<CompilerSettings>
 {
 public:
     CompilerSettings(const ApiConfigFunction &apiConfigFunction);

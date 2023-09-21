@@ -6,6 +6,7 @@
 
 #include "api/library.h"
 
+#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 
 #include <QComboBox>
@@ -56,6 +57,35 @@ bool LibrarySelectionAspect::guiToBuffer()
         }
     }
     return oldBuffer != m_buffer;
+}
+
+QVariantMap toVariantMap(const QMap<QString, QString> &map)
+{
+    QVariantMap variant;
+    for (const auto &key : map.keys())
+        variant.insert(key, map[key]);
+
+    return variant;
+}
+
+QVariant LibrarySelectionAspect::variantValue() const
+{
+    return toVariantMap(m_internal);
+}
+
+QVariant LibrarySelectionAspect::volatileVariantValue() const
+{
+    return toVariantMap(m_buffer);
+}
+
+void LibrarySelectionAspect::setVariantValue(const QVariant &value, Announcement howToAnnounce)
+{
+    QMap<QString, QString> map;
+    QVariantMap variant = value.toMap();
+    for (const auto &key : variant.keys())
+        map[key] = variant[key].toString();
+
+    setValue(map, howToAnnounce);
 }
 
 void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
@@ -110,6 +140,18 @@ void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     connect(nameCombo, &QComboBox::currentIndexChanged, this, refreshVersionCombo);
 
     connect(versionCombo, &QComboBox::activated, this, [this, nameCombo, versionCombo] {
+        if (undoStack()) {
+            QVariant old = m_model->data(m_model->index(nameCombo->currentIndex(), 0),
+                                         SelectedVersion);
+            undoStack()->push(new SelectLibraryVersionCommand(this,
+                                                              nameCombo->currentIndex(),
+                                                              versionCombo->currentData(),
+                                                              old));
+
+            handleGuiChanged();
+            return;
+        }
+
         m_model->setData(m_model->index(nameCombo->currentIndex(), 0),
                          versionCombo->currentData(),
                          SelectedVersion);
@@ -118,6 +160,23 @@ void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
 
     QPushButton *clearBtn = new QPushButton("Clear All");
     connect(clearBtn, &QPushButton::clicked, clearBtn, [this, refreshVersionCombo] {
+        if (undoStack()) {
+            undoStack()->beginMacro(Tr::tr("Reset used libraries"));
+            for (int i = 0; i < m_model->rowCount(); i++) {
+                QModelIndex idx = m_model->index(i, 0);
+                if (idx.data(SelectedVersion).isValid())
+                    undoStack()->push(new SelectLibraryVersionCommand(this,
+                                                                      i,
+                                                                      QVariant(),
+                                                                      idx.data(SelectedVersion)));
+            }
+            undoStack()->endMacro();
+
+            handleGuiChanged();
+            refreshVersionCombo();
+            return;
+        }
+
         for (int i = 0; i < m_model->rowCount(); i++)
             m_model->setData(m_model->index(i, 0), QVariant(), SelectedVersion);
         handleGuiChanged();
@@ -130,10 +189,11 @@ void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
         QStringList libs;
         for (int i = 0; i < m_model->rowCount(); i++) {
             QModelIndex idx = m_model->index(i, 0);
-            if (idx.data(SelectedVersion).isValid())
+            if (idx.data(SelectedVersion).isValid()) {
                 libs.append(QString("%1 %2")
                                 .arg(idx.data().toString())
                                 .arg(idx.data(SelectedVersion).toString()));
+            }
         }
         if (libs.empty())
             displayLabel->setText(Tr::tr("No libraries selected"));
@@ -157,7 +217,10 @@ void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
         Row { noMargin, nameCombo, versionCombo, clearBtn }.emerge()
     }.emerge();
     // clang-format on
-    connect(editBtn, &QPushButton::clicked, this, [stack] { stack->setCurrentIndex(1); });
+    connect(editBtn, &QPushButton::clicked, stack, [stack] { stack->setCurrentIndex(1); });
+    connect(this, &LibrarySelectionAspect::returnToDisplay, stack, [stack] {
+        stack->setCurrentIndex(0);
+    });
 
     addLabeledItem(parent, s);
 }

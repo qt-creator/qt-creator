@@ -87,11 +87,12 @@ SourceSettings::SourceSettings(const ApiConfigFunction &apiConfigFunction)
         return result;
     });
 
-    for (const auto &aspect : this->aspects())
+    for (const auto &aspect : this->aspects()) {
         connect(aspect,
                 &Utils::BaseAspect::volatileValueChanged,
                 this,
-                &CompilerExplorerSettings::changed);
+                &Utils::AspectContainer::changed);
+    }
 }
 
 void SourceSettings::refresh()
@@ -146,11 +147,12 @@ CompilerSettings::CompilerSettings(const ApiConfigFunction &apiConfigFunction)
     demangleIdentifiers.setLabelText(Tr::tr("Demangle identifiers"));
     demangleIdentifiers.setDefaultValue(true);
 
-    for (const auto &aspect : this->aspects())
+    for (const auto &aspect : this->aspects()) {
         connect(aspect,
                 &Utils::BaseAspect::volatileValueChanged,
                 this,
-                &CompilerExplorerSettings::changed);
+                &Utils::AspectContainer::changed);
+    }
 }
 
 void CompilerSettings::refresh()
@@ -325,11 +327,12 @@ CompilerExplorerSettings::CompilerExplorerSettings()
         m_sources.forEachItem<SourceSettings>(&SourceSettings::refresh);
     });
 
-    for (const auto &aspect : this->aspects())
+    for (const auto &aspect : this->aspects()) {
         connect(aspect,
                 &Utils::BaseAspect::volatileValueChanged,
                 this,
                 &CompilerExplorerSettings::changed);
+    }
 }
 
 CompilerExplorerSettings::~CompilerExplorerSettings() = default;
