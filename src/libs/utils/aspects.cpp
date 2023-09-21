@@ -1165,7 +1165,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
                         handleGuiChanged();
                     });
         } else {
-            connect(lineEditDisplay, &QLineEdit::textEdited, this, [this, lineEditDisplay]() {
+            connect(lineEditDisplay, &QLineEdit::textChanged, this, [this, lineEditDisplay]() {
                 d->undoable.set(undoStack(), lineEditDisplay->text());
                 handleGuiChanged();
             });
@@ -1188,7 +1188,9 @@ void StringAspect::addToLayout(LayoutItem &parent)
                 &UndoSignaller::changed,
                 lineEditDisplay,
                 [this, lineEditDisplay] {
-                    lineEditDisplay->setTextKeepingActiveCursor(d->undoable.get());
+                    if (lineEditDisplay->text() != d->undoable.get())
+                        lineEditDisplay->setTextKeepingActiveCursor(d->undoable.get());
+
                     lineEditDisplay->validate();
                 });
 
