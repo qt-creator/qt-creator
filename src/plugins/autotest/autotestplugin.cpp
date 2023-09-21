@@ -307,43 +307,47 @@ void AutotestPlugin::extensionsInitialized()
     if (!contextMenu) // if QC is started without CppEditor plugin
         return;
 
-    QAction *action = new QAction(Tr::tr("&Run Test Under Cursor"), this);
+    ActionContainer * const runTestMenu = ActionManager::createMenu("Autotest.TestUnderCursor");
+    runTestMenu->menu()->setTitle(Tr::tr("Run Test Under Cursor"));
+    contextMenu->addSeparator();
+    contextMenu->addMenu(runTestMenu);
+    contextMenu->addSeparator();
+
+    QAction *action = new QAction(Tr::tr("&Run Test"), this);
     action->setEnabled(false);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
 
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_UCURSOR);
     connect(action, &QAction::triggered,
             std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::Run));
-    contextMenu->addSeparator();
-    contextMenu->addAction(command);
+    runTestMenu->addAction(command);
 
-    action = new QAction(Tr::tr("Run Test Under Cursor Without Deployment"), this);
+    action = new QAction(Tr::tr("Run Test Without Deployment"), this);
     action->setEnabled(false);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
 
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_UCURSOR_NODEPLOY);
     connect(action, &QAction::triggered,
             std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::RunWithoutDeploy));
-    contextMenu->addAction(command);
+    runTestMenu->addAction(command);
 
-    action = new QAction(Tr::tr("&Debug Test Under Cursor"), this);
+    action = new QAction(Tr::tr("&Debug Test"), this);
     action->setEnabled(false);
     action->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
 
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_DBG_UCURSOR);
     connect(action, &QAction::triggered,
             std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::Debug));
-    contextMenu->addAction(command);
+    runTestMenu->addAction(command);
 
-    action = new QAction(Tr::tr("Debug Test Under Cursor Without Deployment"), this);
+    action = new QAction(Tr::tr("Debug Test Without Deployment"), this);
     action->setEnabled(false);
     action->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
 
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY);
     connect(action, &QAction::triggered,
             std::bind(&AutotestPluginPrivate::onRunUnderCursorTriggered, dd, TestRunMode::DebugWithoutDeploy));
-    contextMenu->addAction(command);
-    contextMenu->addSeparator();
+    runTestMenu->addAction(command);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
