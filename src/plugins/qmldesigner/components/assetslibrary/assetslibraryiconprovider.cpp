@@ -56,8 +56,15 @@ Thumbnail AssetsLibraryIconProvider::createThumbnail(const QString &id, const QS
             originalSize = KtxImage(id).dimensions();
     }
 
-    if (requestedSize.isValid())
-        pixmap = pixmap.scaled(requestedSize, Qt::KeepAspectRatio);
+    if (requestedSize.isValid()) {
+        double ratio = requestedSize.width() / 48.;
+        if (ratio * pixmap.size().width() > requestedSize.width()
+            || ratio * pixmap.size().height() > requestedSize.height()) {
+            pixmap = pixmap.scaled(requestedSize, Qt::KeepAspectRatio);
+        } else if (!qFuzzyCompare(ratio, 1.)) {
+            pixmap = pixmap.scaled(pixmap.size() * ratio, Qt::KeepAspectRatio);
+        }
+    }
 
     return Thumbnail{pixmap, originalSize, assetType, fileSize};
 }
