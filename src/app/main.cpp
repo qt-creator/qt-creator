@@ -614,6 +614,15 @@ int main(int argc, char **argv)
                                  QSettings::SystemScope,
                                  QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
                                  QLatin1String(Core::Constants::IDE_CASED_ID));
+    // warn if -installsettings points to a place where no install settings are located
+    if (!options.installSettingsPath.isEmpty() && !QFileInfo::exists(installSettings->fileName())) {
+        displayError(QLatin1String("The install settings \"%1\" do not exist. The %2 option must "
+                                   "point to a path with existing settings, excluding the %3 part "
+                                   "of the path.")
+                         .arg(QDir::toNativeSeparators(installSettings->fileName()),
+                              INSTALL_SETTINGS_OPTION,
+                              Core::Constants::IDE_SETTINGSVARIANT_STR));
+    }
     Utils::TerminalCommand::setSettings(settings);
     setPixmapCacheLimit();
     loadFonts();
