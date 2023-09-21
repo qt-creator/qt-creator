@@ -720,7 +720,10 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
     for (auto variable : variables) {
         WatchItem *item = new WatchItem;
         const QString name = variable.toObject().value("name").toString();
-        item->iname = "local." + name;
+        if (m_isFirstLayer)
+            item->iname = "local." + name;
+        else
+            item->iname = m_currentWatchItem->iname + "." + name;
         item->name = name;
         item->type = variable.toObject().value("type").toString();
         item->value = variable.toObject().value("value").toString();
