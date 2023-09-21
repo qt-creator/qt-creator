@@ -5,13 +5,11 @@
 #include "auxiliarydataproperties.h"
 #include "bindingproperty.h"
 #include "invalidmodelnodeexception.h"
-#include "itemlibraryinfo.h"
 #include "nodehints.h"
 #include "nodelistproperty.h"
 #include "qmlanchors.h"
 #include "qmlchangeset.h"
 #include "variantproperty.h"
-#include <metainfo.h>
 
 #include "plaintexteditmodifier.h"
 #include "rewriterview.h"

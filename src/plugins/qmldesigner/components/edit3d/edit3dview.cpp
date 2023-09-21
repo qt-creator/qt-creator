@@ -257,9 +257,13 @@ void Edit3DView::modelAttached(Model *model)
         if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit()))
             m_isBakingLightsSupported = qtVer->qtVersion() >= QVersionNumber(6, 5, 0);
     }
-
-    connect(model->metaInfo().itemLibraryInfo(), &ItemLibraryInfo::entriesChanged, this,
-            &Edit3DView::onEntriesChanged, Qt::UniqueConnection);
+#ifndef QDS_USE_PROJECTSTORAGE
+    connect(model->metaInfo().itemLibraryInfo(),
+            &ItemLibraryInfo::entriesChanged,
+            this,
+            &Edit3DView::onEntriesChanged,
+            Qt::UniqueConnection);
+#endif
 }
 
 void Edit3DView::onEntriesChanged()
@@ -285,24 +289,43 @@ void Edit3DView::handleEntriesChanged()
         EK_importedModels
     };
 
-    QMap<ItemLibraryEntryKeys, ItemLibraryDetails> entriesMap {
+    QMap<ItemLibraryEntryKeys, ItemLibraryDetails> entriesMap{
         {EK_cameras, {tr("Cameras"), contextIcon(DesignerIcons::CameraIcon)}},
         {EK_lights, {tr("Lights"), contextIcon(DesignerIcons::LightIcon)}},
         {EK_primitives, {tr("Primitives"), contextIcon(DesignerIcons::PrimitivesIcon)}},
-        {EK_importedModels, {tr("Imported Models"), contextIcon(DesignerIcons::ImportedModelsIcon)}}
+        {EK_importedModels, {tr("Imported Models"), contextIcon(DesignerIcons::ImportedModelsIcon)}}};
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    const auto &projectStorage = *model()->projectStorage();
+    auto append = [&](const NodeMetaInfo &metaInfo, ItemLibraryEntryKeys key) {
+        auto entries = metaInfo.itemLibrariesEntries();
+        if (entries.size())
+            entriesMap[key].entryList.append(toItemLibraryEntries(entries, projectStorage));
     };
 
+    append(model()->qtQuick3DModelMetaInfo(), EK_primitives);
+    append(model()->qtQuick3DDirectionalLightMetaInfo(), EK_lights);
+    append(model()->qtQuick3DSpotLightMetaInfo(), EK_lights);
+    append(model()->qtQuick3DPointLightMetaInfo(), EK_lights);
+    append(model()->qtQuick3DOrthographicCameraMetaInfo(), EK_cameras);
+    append(model()->qtQuick3DPerspectiveCameraMetaInfo(), EK_cameras);
+
+    auto assetsModule = model()->module("Quick3DAssets");
+
+    for (const auto &metaInfo : model()->metaInfosForModule(assetsModule))
+        append(metaInfo, EK_importedModels);
+#else
     const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
         ItemLibraryEntryKeys entryKey;
         if (entry.typeName() == "QtQuick3D.Model" && entry.name() != "Empty") {
             entryKey = EK_primitives;
         } else if (entry.typeName() == "QtQuick3D.DirectionalLight"
-                || entry.typeName() == "QtQuick3D.PointLight"
-                || entry.typeName() == "QtQuick3D.SpotLight") {
+                   || entry.typeName() == "QtQuick3D.PointLight"
+                   || entry.typeName() == "QtQuick3D.SpotLight") {
             entryKey = EK_lights;
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
-                || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
+                   || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
             entryKey = EK_cameras;
         } else if (entry.typeName().startsWith("Quick3DAssets.")
                    && NodeHints::fromItemLibraryEntry(entry).canBeDroppedInView3D()) {
@@ -312,6 +335,7 @@ void Edit3DView::handleEntriesChanged()
         }
         entriesMap[entryKey].entryList.append(entry);
     }
+#endif
 
     m_edit3DWidget->updateCreateSubMenu(entriesMap.values());
 }

@@ -4,16 +4,15 @@
 #include "materialeditorview.h"
 
 #include "asset.h"
-#include "bindingproperty.h"
 #include "auxiliarydataproperties.h"
+#include "bindingproperty.h"
 #include "designdocument.h"
 #include "designmodewidget.h"
 #include "dynamicpropertiesmodel.h"
 #include "externaldependenciesinterface.h"
-#include "itemlibraryinfo.h"
-#include "materialeditorqmlbackend.h"
 #include "materialeditorcontextobject.h"
 #include "materialeditordynamicpropertiesproxymodel.h"
+#include "materialeditorqmlbackend.h"
 #include "materialeditortransaction.h"
 #include "metainfo.h"
 #include "nodeinstanceview.h"
@@ -25,6 +24,7 @@
 #include "qmldesignerplugin.h"
 #include "qmltimeline.h"
 #include "variantproperty.h"
+#include <itemlibraryentry.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -704,7 +704,7 @@ void MaterialEditorView::delayedTypeUpdate()
      m_typeUpdateTimer.start();
 }
 
-static Import entryToImport(const ItemLibraryEntry &entry)
+[[maybe_unused]] static Import entryToImport(const ItemLibraryEntry &entry)
 {
     if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
         return Import::createFileImport(entry.requiredImport());
@@ -721,7 +721,15 @@ void MaterialEditorView::updatePossibleTypes()
     if (!m_qmlBackEnd)
         return;
 
-    // Ensure basic types are always first
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto heirs = model()->qtQuick3DMaterialMetaInfo().heirs();
+    heirs.push_back(model()->qtQuick3DMaterialMetaInfo());
+    auto entries = Utils::transform<ItemLibraryEntries>(heirs, [&](const auto &heir) {
+        return toItemLibraryEntries(heir.itemLibrariesEntries(), *model()->projectStorage());
+    });
+
+    // I am unsure about the code intention here
+#else // Ensure basic types are always first
     QStringList nonQuick3dTypes;
     QStringList allTypes;
 
@@ -755,6 +763,7 @@ void MaterialEditorView::updatePossibleTypes()
     allTypes.append(nonQuick3dTypes);
 
     m_qmlBackEnd->contextObject()->setPossibleTypes(allTypes);
+#endif
 }
 
 void MaterialEditorView::modelAttached(Model *model)
@@ -774,6 +783,7 @@ void MaterialEditorView::modelAttached(Model *model)
         m_ensureMatLibTimer.start(500);
     }
 
+#ifndef QDS_USE_PROJECTSTORAGE
     if (m_itemLibraryInfo.data() != model->metaInfo().itemLibraryInfo()) {
         if (m_itemLibraryInfo) {
             disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
@@ -785,6 +795,7 @@ void MaterialEditorView::modelAttached(Model *model)
                     this, &MaterialEditorView::delayedTypeUpdate);
         }
     }
+#endif
 
     if (!m_setupCompleted) {
         reloadQml();

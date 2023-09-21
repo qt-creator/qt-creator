@@ -3,16 +3,16 @@
 
 #include "dragtool.h"
 
+#include "assetslibrarymodel.h"
+#include "assetslibrarywidget.h"
 #include "formeditorscene.h"
 #include "formeditorview.h"
-#include "assetslibrarywidget.h"
-#include "assetslibrarymodel.h"
 #include "materialutils.h"
-#include <metainfo.h>
+#include "qmldesignerconstants.h"
+#include <itemlibraryentry.h>
 #include <modelnodeoperations.h>
 #include <nodehints.h>
 #include <rewritingexception.h>
-#include "qmldesignerconstants.h"
 
 #include <utils/qtcassert.h>
 

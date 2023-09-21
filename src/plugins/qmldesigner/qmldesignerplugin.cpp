@@ -25,7 +25,9 @@
 #include <designeractionmanager.h>
 #include <eventlist/eventlistpluginview.h>
 #include <formeditor/transitiontool.h>
-#include <metainfo.h>
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include <metainfo.h>
+#endif
 #include <pathtool/pathtool.h>
 #include <sourcetool/sourcetool.h>
 #include <texttool/texttool.h>
@@ -545,7 +547,9 @@ void QmlDesignerPlugin::activateAutoSynchronization()
 
     d->mainWidget.setupNavigatorHistory(currentDesignDocument()->textEditor());
 
+#ifndef QDS_USE_PROJECTSTORAGE
     currentDesignDocument()->updateSubcomponentManager();
+#endif
 }
 
 void QmlDesignerPlugin::deactivateAutoSynchronization()
@@ -607,7 +611,9 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
                                                          return QString(p + postfix);
                                                      });
 
+#ifndef QDS_USE_PROJECTSTORAGE
     MetaInfo::initializeGlobal(pluginPaths, d->externalDependencies);
+#endif
 
     d->viewManager.registerView(std::make_unique<ConnectionView>(d->externalDependencies));
 

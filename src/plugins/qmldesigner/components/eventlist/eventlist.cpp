@@ -6,7 +6,6 @@
 #include "nodelistview.h"
 
 #include "bindingproperty.h"
-#include "metainfo.h"
 #include "projectexplorer/project.h"
 #include "projectexplorer/projectmanager.h"
 #include "qmldesignerplugin.h"
@@ -14,6 +13,7 @@
 #include "utils/fileutils.h"
 #include "utils/qtcassert.h"
 #include "variantproperty.h"
+#include <nodemetainfo.h>
 
 #include <QDirIterator>
 #include <QStandardItemModel>

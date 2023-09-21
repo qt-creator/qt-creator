@@ -234,9 +234,9 @@ public:
     {}
 
     template<typename Type>
-    static ValueView create(Type &&value)
+    static ValueView create(Type &&value_)
     {
-        return ValueView{ValueBase{value}};
+        return ValueView{ValueBase{value_}};
     }
 };
 
@@ -265,6 +265,21 @@ public:
 
     explicit Value(const Utils::SmallString &value)
         : ValueBase(Utils::SmallStringView(value))
+    {}
+
+    explicit Value(long long value)
+        : ValueBase(value)
+    {}
+    explicit Value(int value)
+        : ValueBase(static_cast<long long>(value))
+    {}
+
+    explicit Value(uint value)
+        : ValueBase(static_cast<long long>(value))
+    {}
+
+    explicit Value(double value)
+        : ValueBase(value)
     {}
 
     explicit Value(const QString &value)

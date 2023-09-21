@@ -58,8 +58,9 @@ public:
 
 private:
     explicit NodeHints(const ModelNode &modelNode);
+    explicit NodeHints(const NodeMetaInfo &metaInfo);
     explicit NodeHints(const ItemLibraryEntry &entry);
-    ModelNode modelNode() const;
+    const ModelNode &modelNode() const;
     bool isValid() const;
     Model *model() const;
     bool evaluateBooleanExpression(const QString &hintName, bool defaultValue, const ModelNode potentialParent = ModelNode()) const;

@@ -192,16 +192,24 @@ extend_qtc_library(QmlDesignerCore
     bytearraymodifier.h
     componenttextmodifier.h
     forwardview.h
-    itemlibraryinfo.h
-    metainforeader.h
+    itemlibraryentry.h
     model.h
     nodehints.h
     plaintexteditmodifier.h
     nodeinstanceview.h
     propertyparser.h
     rewriterview.h
-    subcomponentmanager.h
     textmodifier.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION NOT USE_PROJECTSTORAGE
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/include
+  SOURCES
+    itemlibraryinfo.h
+    metainforeader.h
+    subcomponentmanager.h
+    metainfo.h
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -233,7 +241,6 @@ extend_qtc_library(QmlDesignerCore
     invalidreparentingexception.h
     invalidslideindexexception.h
     mathutils.h
-    metainfo.h
     modelfwd.h
     modelmerger.h
     modelnode.h
@@ -274,13 +281,21 @@ extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/metainfo
   DEFINES SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
   SOURCES
+    itemlibraryentry.cpp
+    nodehints.cpp
+    nodemetainfo.cpp
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION NOT USE_PROJECTSTORAGE
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/metainfo
+  SOURCES
     itemlibraryinfo.cpp
     metainfo.cpp
     metainforeader.cpp
-    nodehints.cpp
-    nodemetainfo.cpp
     subcomponentmanager.cpp
 )
+
 
 extend_qtc_library(QmlDesignerCore
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/instances
@@ -405,6 +420,7 @@ extend_qtc_library(QmlDesignerCore
     projectstorageinterface.h
     projectstoragefwd.h
     projectstorageinfotypes.h
+    projectstorageobserver.h
     projectstoragepathwatcher.h
     projectstoragepathwatcherinterface.h
     projectstoragepathwatchernotifierinterface.h
@@ -422,6 +438,7 @@ extend_qtc_library(QmlDesignerCore
     storagecache.h
     storagecacheentry.h
     storagecachefwd.h
+    typeannotationreader.cpp typeannotationreader.h
     qmldocumentparserinterface.h
     qmltypesparserinterface.h
     qmltypesparser.cpp qmltypesparser.h

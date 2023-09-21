@@ -5,7 +5,6 @@
 
 #include <enumeration.h>
 #include <modelnode.h>
-#include <metainfo.h>
 
 #include <QUrl>
 #include <QVector3D>

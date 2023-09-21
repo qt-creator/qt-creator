@@ -39,6 +39,22 @@ using QmlDesigner::WatcherEntry;
 class ProjectStoragePathWatcher : public testing::Test
 {
 protected:
+    static void SetUpTestSuite()
+    {
+        static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
+
+        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage<Sqlite::Database>>(
+            *static_database, static_database->isInitialized());
+    }
+
+    static void TearDownTestSuite()
+    {
+        static_projectStorage.reset();
+        static_database.reset();
+    }
+
+    ~ProjectStoragePathWatcher() { static_projectStorage->resetForTestsOnly(); }
+
     ProjectStoragePathWatcher()
     {
         ON_CALL(mockFileSystem, fileStatus(_)).WillByDefault([](auto sourceId) {
@@ -52,6 +68,7 @@ protected:
         ON_CALL(mockFileSystem, directoryEntries(Eq(sourceContextPath3)))
             .WillByDefault(Return(SourceIds{sourceIds[4]}));
     }
+
     static WatcherEntries sorted(WatcherEntries &&entries)
     {
         std::stable_sort(entries.begin(), entries.end());
@@ -62,8 +79,10 @@ protected:
 protected:
     NiceMock<ProjectStoragePathWatcherNotifierMock> notifier;
     NiceMock<FileSystemMock> mockFileSystem;
-    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
+    inline static std::unique_ptr<Sqlite::Database> static_database;
+    Sqlite::Database &database = *static_database;
+    inline static std::unique_ptr<QmlDesigner::ProjectStorage<Sqlite::Database>> static_projectStorage;
+    QmlDesigner::ProjectStorage<Sqlite::Database> &storage = *static_projectStorage;
     SourcePathCache pathCache{storage};
     Watcher watcher{pathCache, mockFileSystem, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();

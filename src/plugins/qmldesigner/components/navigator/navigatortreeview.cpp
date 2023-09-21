@@ -12,7 +12,6 @@
 
 #include <qmldesignerbase/studio/studiostyle.h>
 
-#include <metainfo.h>
 #include <theme.h>
 
 #include <utils/icon.h>

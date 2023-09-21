@@ -618,20 +618,39 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
     QHash<QString, QStringList> addedAssets = actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
 
     view()->executeInTransaction("Edit3DWidget::dropEvent", [&] {
-        // add 3D assets to 3d editor (QtQuick3D import will be added if missing)
-        ItemLibraryInfo *itemLibInfo = m_view->model()->metaInfo().itemLibraryInfo();
-
+    // add 3D assets to 3d editor (QtQuick3D import will be added if missing)
+#ifdef QDS_USE_PROJECTSTORAGE
         const QStringList added3DAssets = addedAssets.value(ComponentCoreConstants::add3DAssetsDisplayString);
         for (const QString &assetPath : added3DAssets) {
             QString fileName = QFileInfo(assetPath).baseName();
             fileName = fileName.at(0).toUpper() + fileName.mid(1); // capitalize first letter
-            QString type = QString("Quick3DAssets.%1.%1").arg(fileName);
-            QList<ItemLibraryEntry> entriesForType = itemLibInfo->entriesForType(type.toLatin1());
-            if (!entriesForType.isEmpty()) { // should always be true, but just in case
-                QmlVisualNode::createQml3DNode(view(), entriesForType.at(0),
-                                               m_canvas->activeScene(), {}, false).modelNode();
+            auto model = m_view->model();
+            auto metaInfo = model->metaInfo(model->module("Quick3DAssets"), fileName.toUtf8());
+            if (auto entries = metaInfo.itemLibrariesEntries(); entries.size()) {
+                auto entry = ItemLibraryEntry{entries.front(), *model->projectStorage()};
+                QmlVisualNode::createQml3DNode(view(), entry, m_canvas->activeScene(), {}, false);
             }
         }
+#else
+        ItemLibraryInfo *itemLibInfo = m_view->model()->metaInfo().itemLibraryInfo();
+
+        const QStringList added3DAssets = addedAssets.value(
+            ComponentCoreConstants::add3DAssetsDisplayString);
+        for (const QString &assetPath : added3DAssets) {
+            QString fileName = QFileInfo(assetPath).baseName();
+            fileName = fileName.at(0).toUpper() + fileName.mid(1); // capitalize first letter
+            QString type = QString("Quick3DAssets.%1.%1").arg(fileName);
+            QList<ItemLibraryEntry> entriesForType = itemLibInfo->entriesForType(type.toUtf8());
+            if (!entriesForType.isEmpty()) { // should always be true, but just in case
+                QmlVisualNode::createQml3DNode(view(),
+                                               entriesForType.at(0),
+                                               m_canvas->activeScene(),
+                                               {},
+                                               false)
+                    .modelNode();
+            }
+        }
+#endif
     });
 
     m_view->model()->endDrag();

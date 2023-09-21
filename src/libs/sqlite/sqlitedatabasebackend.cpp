@@ -248,9 +248,28 @@ int busyHandlerCallback(void *userData, int counter)
 
 void DatabaseBackend::registerBusyHandler()
 {
-    int resultCode = sqlite3_busy_handler(sqliteDatabaseHandle(), &busyHandlerCallback, &m_busyHandler);
+    int resultCode = sqlite3_busy_handler(sqliteDatabaseHandle(),
+                                          &busyHandlerCallback,
+                                          &m_busyHandler);
 
     checkIfBusyTimeoutWasSet(resultCode);
+}
+
+void DatabaseBackend::resetDatabaseForTestsOnly()
+{
+    sqlite3_db_config(sqliteDatabaseHandle(), SQLITE_DBCONFIG_RESET_DATABASE, 1, 0);
+    sqlite3_exec(sqliteDatabaseHandle(), "VACUUM", nullptr, nullptr, nullptr);
+    sqlite3_db_config(sqliteDatabaseHandle(), SQLITE_DBCONFIG_RESET_DATABASE, 0, 0);
+}
+
+void DatabaseBackend::enableForeignKeys()
+{
+    sqlite3_exec(sqliteDatabaseHandle(), "PRAGMA foreign_keys=ON", nullptr, nullptr, nullptr);
+}
+
+void DatabaseBackend::disableForeignKeys()
+{
+    sqlite3_exec(sqliteDatabaseHandle(), "PRAGMA foreign_keys=OFF", nullptr, nullptr, nullptr);
 }
 
 void DatabaseBackend::checkForOpenDatabaseWhichCanBeClosed()

@@ -373,6 +373,14 @@ void ProjectStorageUpdater::updatePropertyEditorPaths(
     }
 }
 
+void ProjectStorageUpdater::updateTypeAnnotations(
+    const QString & /*propertyEditorResourcesPath*/,
+    Storage::Synchronization::SynchronizationPackage & /*package*/,
+    NotUpdatedSourceIds & /*notUpdatedSourceIds*/)
+{
+    //    const auto typeAnnotations = dir.entryInfoList({"*.metainfo"}, QDir::Files);
+}
+
 void ProjectStorageUpdater::updatePropertyEditorPath(
     const QString &directoryPath,
     Storage::Synchronization::SynchronizationPackage &package,
@@ -649,7 +657,7 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
     package.updatedSourceIds.push_back(sourceId);
 
     type.typeName = SourcePath{qmlFilePath}.name();
-    type.traits = Storage::TypeTraits::Reference;
+    type.traits = Storage::TypeTraitsKind::Reference;
     type.sourceId = sourceId;
     type.exportedTypes = std::move(exportedTypes);
 
@@ -675,7 +683,7 @@ void ProjectStorageUpdater::parseQmlComponent(SourceId sourceId,
     auto type = m_qmlDocumentParser.parse(content, package.imports, sourceId, sourcePath.directory());
 
     type.typeName = sourcePath.name();
-    type.traits = Storage::TypeTraits::Reference;
+    type.traits = Storage::TypeTraitsKind::Reference;
     type.sourceId = sourceId;
     type.changeLevel = Storage::Synchronization::ChangeLevel::ExcludeExportedTypes;
 

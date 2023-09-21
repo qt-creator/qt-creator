@@ -14,7 +14,6 @@
 #include <bindingproperty.h>
 #include <dynamicpropertiesmodel.h>
 #include <externaldependenciesinterface.h>
-#include <metainfo.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>

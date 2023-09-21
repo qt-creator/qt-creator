@@ -13,18 +13,18 @@
 #include <commontypecache.h>
 #include <designersettings.h>
 #include <designmodecontext.h>
-#include <itemlibraryinfo.h>
+#include <itemlibraryentry.h>
 #include <model/modelutils.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
+#include <rewritingexception.h>
+#include <theme.h>
+#include <variantproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
-#include <rewritingexception.h>
-#include <theme.h>
-#include <variantproperty.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>

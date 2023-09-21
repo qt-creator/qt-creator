@@ -1368,6 +1368,15 @@ bool ModelNode::isComponent() const
 
 QIcon ModelNode::typeIcon() const
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
+
+    if (auto iconPath = metaInfo().iconPath(); iconPath.size())
+        return QIcon(iconPath.toQString());
+    else
+        return QIcon(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
+#else
     if (isValid()) {
         // if node has no own icon, search for it in the itemlibrary
         const ItemLibraryInfo *libraryInfo = model()->metaInfo().itemLibraryInfo();
@@ -1381,6 +1390,7 @@ QIcon ModelNode::typeIcon() const
     }
 
     return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
+#endif
 }
 
 QString ModelNode::behaviorPropertyName() const

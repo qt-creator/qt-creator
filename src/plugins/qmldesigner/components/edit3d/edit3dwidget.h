@@ -9,7 +9,7 @@
 #include <QWidget>
 
 #include <coreplugin/icontext.h>
-#include "itemlibraryinfo.h"
+#include <itemlibraryentry.h>
 #include <modelnode.h>
 
 namespace QmlDesigner {

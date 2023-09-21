@@ -8,7 +8,9 @@
 #include "qmlvisualnode.h"
 
 #include <auxiliarydataproperties.h>
-#include <metainfo.h>
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include <metainfo.h>
+#endif
 #include <model/modelresourcemanagement.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
@@ -72,8 +74,8 @@ DesignDocument::DesignDocument(ProjectStorageDependencies projectStorageDependen
 #else
     : m_documentModel(
         Model::create("QtQuick.Item", 1, 0, nullptr, std::make_unique<ModelResourceManagement>()))
-#endif
     , m_subComponentManager(new SubComponentManager(m_documentModel.get(), externalDependencies))
+#endif
     , m_rewriterView(new RewriterView(externalDependencies, RewriterView::Amend))
     , m_documentLoaded(false)
     , m_currentTarget(nullptr)
@@ -165,7 +167,9 @@ ModelPointer DesignDocument::createInFileComponentModel()
                                nullptr,
                                std::make_unique<ModelResourceManagement>());
     model->setFileUrl(m_documentModel->fileUrl());
+#ifndef QDS_USE_PROJECTSTORAGE
     model->setMetaInfo(m_documentModel->metaInfo());
+#endif
 
     return model;
 }
@@ -523,6 +527,7 @@ void DesignDocument::close()
     emit designDocumentClosed();
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 void DesignDocument::updateSubcomponentManager()
 {
     Q_ASSERT(m_subComponentManager);
@@ -534,6 +539,7 @@ void DesignDocument::addSubcomponentManagerImport(const Import &import)
 {
     m_subComponentManager->addAndParseImport(import);
 }
+#endif
 
 void DesignDocument::deleteSelected()
 {

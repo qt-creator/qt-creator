@@ -161,6 +161,9 @@ public:
     void sessionCommit() override;
     void sessionRollback() override;
 
+    void resetDatabaseForTestsOnly();
+    void clearAllTablesForTestsOnly();
+
 private:
     void initializeTables();
     void registerTransactionStatements();

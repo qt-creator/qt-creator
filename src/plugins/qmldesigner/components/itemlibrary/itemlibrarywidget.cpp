@@ -14,15 +14,20 @@
 #include <designermcumanager.h>
 #include <documentmanager.h>
 #include <itemlibraryaddimportmodel.h>
+#include <itemlibraryentry.h>
 #include <itemlibraryimageprovider.h>
-#include <itemlibraryinfo.h>
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include <itemlibraryinfo.h>
+#endif
 #include <itemlibrarymodel.h>
-#include <metainfo.h>
 #include <model.h>
 #include <model/modelutils.h>
 #include <rewritingexception.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include <metainfo.h>
+#endif
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -176,6 +181,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
 
 ItemLibraryWidget::~ItemLibraryWidget() = default;
 
+#ifndef QDS_USE_PROJECTSTORAGE
 void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
 {
     if (m_itemLibraryInfo.data() == itemLibraryInfo)
@@ -192,6 +198,7 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
     }
     delayedUpdateModel();
 }
+#endif
 
 QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
 {
@@ -271,8 +278,9 @@ void ItemLibraryWidget::setModel(Model *model)
         m_itemToDrag = {};
         return;
     }
-
+#ifndef QDS_USE_PROJECTSTORAGE
     setItemLibraryInfo(model->metaInfo().itemLibraryInfo());
+#endif
 
     if (DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument()) {
         const bool subCompEditMode = document->inFileComponentModelActive();
@@ -321,7 +329,9 @@ void ItemLibraryWidget::updateModel()
         m_compressionTimer.stop();
     }
 
+#ifndef QDS_USE_PROJECTSTORAGE
     m_itemLibraryModel->update(m_itemLibraryInfo.data(), m_model.data());
+#endif
 
     if (m_itemLibraryModel->rowCount() == 0 && !m_updateRetry) {
         m_updateRetry = true; // Only retry once to avoid endless loops

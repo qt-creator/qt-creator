@@ -16,8 +16,8 @@
 #include <designersettings.h>
 #include <import.h>
 #include <invalididexception.h>
+#include <itemlibraryentry.h>
 #include <materialutils.h>
-#include <metainfo.h>
 #include <model/modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>

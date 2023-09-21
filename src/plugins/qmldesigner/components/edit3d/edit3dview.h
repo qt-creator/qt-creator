@@ -3,7 +3,7 @@
 #pragma once
 
 #include "edit3dactions.h"
-#include "itemlibraryinfo.h"
+#include <itemlibraryentry.h>
 #include <qmldesignercomponents_global.h>
 
 #include <abstractview.h>

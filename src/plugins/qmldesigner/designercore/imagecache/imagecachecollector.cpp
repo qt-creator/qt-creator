@@ -4,9 +4,9 @@
 #include "imagecachecollector.h"
 #include "imagecacheconnectionmanager.h"
 
-#include <metainfo.h>
 #include <model.h>
 #include <nodeinstanceview.h>
+#include <nodemetainfo.h>
 #include <plaintexteditmodifier.h>
 #include <rewriterview.h>
 
@@ -21,7 +21,7 @@ namespace QmlDesigner {
 
 namespace {
 
-QByteArray fileToByteArray(QString const &filename)
+QByteArray fileToByteArray(const QString &filename)
 {
     QFile file(filename);
     QFileInfo fleInfo(file);

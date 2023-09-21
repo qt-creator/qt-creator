@@ -136,4 +136,10 @@ public:
     const char *what() const noexcept override;
 };
 
+class QMLDESIGNERCORE_EXPORT TypeAnnotationHasInvalidSourceId : public ProjectStorageError
+{
+public:
+    const char *what() const noexcept override;
+};
+
 } // namespace QmlDesigner

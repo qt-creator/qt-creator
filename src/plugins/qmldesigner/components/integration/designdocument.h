@@ -9,7 +9,9 @@
 #include <model.h>
 #include <projectstorage/projectstoragefwd.h>
 #include <rewriterview.h>
-#include <subcomponentmanager.h>
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include <subcomponentmanager.h>
+#endif
 #include <qmldesignercomponents_global.h>
 
 #include <QObject>
@@ -49,9 +51,10 @@ public:
     void loadDocument(QPlainTextEdit *edit);
     void attachRewriterToModel();
     void close();
+#ifndef QDS_USE_PROJECTSTORAGE
     void updateSubcomponentManager();
     void addSubcomponentManagerImport(const Import &import);
-
+#endif
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
@@ -138,8 +141,9 @@ private: // variables
     QPointer<Core::IEditor> m_textEditor;
     QScopedPointer<BaseTextEditModifier> m_documentTextModifier;
     QScopedPointer<ComponentTextModifier> m_inFileComponentTextModifier;
+#ifndef QDS_USE_PROJECTSTORAGE
     QScopedPointer<SubComponentManager> m_subComponentManager;
-
+#endif
     QScopedPointer<RewriterView> m_rewriterView;
     bool m_documentLoaded;
     ProjectExplorer::Target *m_currentTarget;

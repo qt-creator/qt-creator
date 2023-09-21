@@ -84,16 +84,16 @@ Storage::TypeTraits createAccessTypeTraits(QQmlJSScope::AccessSemantics accessSe
 {
     switch (accessSematics) {
     case QQmlJSScope::AccessSemantics::Reference:
-        return Storage::TypeTraits::Reference;
+        return Storage::TypeTraitsKind::Reference;
     case QQmlJSScope::AccessSemantics::Value:
-        return Storage::TypeTraits::Value;
+        return Storage::TypeTraitsKind::Value;
     case QQmlJSScope::AccessSemantics::None:
-        return Storage::TypeTraits::None;
+        return Storage::TypeTraitsKind::None;
     case QQmlJSScope::AccessSemantics::Sequence:
-        return Storage::TypeTraits::Sequence;
+        return Storage::TypeTraitsKind::Sequence;
     }
 
-    return Storage::TypeTraits::None;
+    return Storage::TypeTraitsKind::None;
 }
 
 Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics, bool hasCustomParser)
@@ -101,7 +101,7 @@ Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics
     auto typeTrait = createAccessTypeTraits(accessSematics);
 
     if (hasCustomParser)
-        typeTrait = typeTrait | Storage::TypeTraits::UsesCustomParser;
+        typeTrait.usesCustomParser = true;
 
     return typeTrait;
 }
@@ -348,10 +348,12 @@ void addEnumerationType(EnumerationTypes &enumerationTypes,
                         Utils::SmallStringView enumerationAlias)
 {
     auto fullTypeName = addEnumerationType(enumerationTypes, typeName, enumerationName);
+    Storage::TypeTraits typeTraits{Storage::TypeTraitsKind::Value};
+    typeTraits.isEnum = true;
     types.emplace_back(fullTypeName,
                        Storage::Synchronization::ImportedType{TypeNameString{}},
                        Storage::Synchronization::ImportedType{},
-                       Storage::TypeTraits::Value | Storage::TypeTraits::IsEnum,
+                       typeTraits,
                        sourceId,
                        createCppEnumerationExports(typeName,
                                                    cppModuleId,

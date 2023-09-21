@@ -14,7 +14,6 @@
 #include <externaldependenciesinterface.h>
 #include <invalididexception.h>
 #include <invalidmodelnodeexception.h>
-#include <metainfo.h>
 #include <model.h>
 #include <modelmerger.h>
 #include <modelnode.h>
@@ -22,10 +21,14 @@
 #include <nodeinstanceview.h>
 #include <rewritingexception.h>
 #include <stylesheetmerger.h>
-#include <subcomponentmanager.h>
 #include <QDebug>
 #include <qmlanchors.h>
 #include <qmlmodelnodefacade.h>
+
+#ifndef QDS_USE_PROJECTSTORAGE
+#include <metainfo.h>
+#include <subcomponentmanager.h>
+#endif
 
 #include "../testconnectionmanager.h"
 #include "../testview.h"
@@ -230,7 +233,9 @@ tst_TestCore::~tst_TestCore() = default;
 void tst_TestCore::initTestCase()
 {
     QmlModelNodeFacade::enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests();
+#ifndef QDS_USE_PROJECTSTORAGE
     MetaInfo::disableParseItemLibraryDescriptionsUgly();
+#endif
     Exception::setShouldAssert(false);
 
     if (!QmlJS::ModelManagerInterface::instance())
@@ -257,7 +262,9 @@ void tst_TestCore::initTestCase()
     qDebug() << pluginPath;
     Q_ASSERT(QFileInfo::exists(pluginPath));
 
+#ifndef QDS_USE_PROJECTSTORAGE
     MetaInfo::initializeGlobal({pluginPath}, *externalDependencies);
+#endif
 
     QFileInfo builtins(IDE_DATA_PATH "/qml-type-descriptions/builtins.qmltypes");
     QStringList errors, warnings;
@@ -4497,6 +4504,7 @@ bool contains(const QmlDesigner::PropertyMetaInfos &properties, QUtf8StringView 
 }
 } // namespace
 
+#ifndef QDS_USE_PROJECTSTORAGE
 void tst_TestCore::testSubComponentManager()
 {
     const QString qmlString("import QtQuick 2.15\n"
@@ -4529,10 +4537,10 @@ void tst_TestCore::testSubComponentManager()
     auto model(createModel("QtQuick.Rectangle", 2, 15));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
     ExternalDependenciesFake externalDependenciesFake{model.get()};
+
     QScopedPointer<SubComponentManager> subComponentManager(
         new SubComponentManager(model.get(), externalDependenciesFake));
     subComponentManager->update(QUrl::fromLocalFile(fileName), model->imports());
-
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Rectangle", 2, 15));
     QVERIFY(contains(model->metaInfo("QtQuick.Rectangle").properties(), "border.width"));
 
@@ -4553,6 +4561,7 @@ void tst_TestCore::testSubComponentManager()
     QVERIFY(contains(myButtonMetaInfo.properties(), "border.width"));
     QVERIFY(myButtonMetaInfo.hasProperty("border.width"));
 }
+#endif
 
 void tst_TestCore::testAnchorsAndRewriting()
 {

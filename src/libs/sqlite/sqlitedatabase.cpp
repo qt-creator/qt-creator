@@ -215,6 +215,29 @@ void Database::sessionRollback()
     m_statements->rollbackBegin.execute();
 }
 
+void Database::resetDatabaseForTestsOnly()
+{
+    m_databaseBackend.resetDatabaseForTestsOnly();
+    setIsInitialized(false);
+}
+
+void Database::clearAllTablesForTestsOnly()
+{
+    m_databaseBackend.disableForeignKeys();
+    {
+        Sqlite::ImmediateTransaction transaction{*this};
+
+        ReadStatement<1> tablesStatement{"SELECT name FROM sqlite_schema WHERE type='table'", *this};
+        auto tables = tablesStatement.template values<Utils::SmallString>();
+        for (const auto &table : tables)
+            execute("DELETE FROM " + table);
+
+        transaction.commit();
+    }
+
+    m_databaseBackend.enableForeignKeys();
+}
+
 DatabaseBackend &Database::backend()
 {
     return m_databaseBackend;

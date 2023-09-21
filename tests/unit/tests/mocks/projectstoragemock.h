@@ -84,6 +84,8 @@ public:
                                     Utils::SmallStringView typeName,
                                     QmlDesigner::TypeIds baseTypeIds = {});
 
+    void setHeirs(QmlDesigner::TypeId typeId, QmlDesigner::TypeIds heirIds);
+
     QmlDesigner::PropertyDeclarationId createProperty(
         QmlDesigner::TypeId typeId,
         Utils::SmallString name,
@@ -100,6 +102,14 @@ public:
     void createFunction(QmlDesigner::TypeId typeId, Utils::SmallString name);
     void setPropertyEditorPathId(QmlDesigner::TypeId typeId, QmlDesigner::SourceId sourceId);
 
+    void setTypeHints(QmlDesigner::TypeId typeId,
+                      const QmlDesigner::Storage::Info::TypeHints &typeHints);
+    void setTypeIconPath(QmlDesigner::TypeId typeId, Utils::SmallStringView path);
+    void setItemLibraryEntries(QmlDesigner::TypeId typeId,
+                               const QmlDesigner::Storage::Info::ItemLibraryEntries &entries);
+    void setItemLibraryEntries(QmlDesigner::SourceId sourceId,
+                               const QmlDesigner::Storage::Info::ItemLibraryEntries &entries);
+
     MOCK_METHOD(void,
                 synchronize,
                 (QmlDesigner::Storage::Synchronization::SynchronizationPackage package),
@@ -109,14 +119,8 @@ public:
                 (const QmlDesigner::Storage::Imports imports, QmlDesigner::SourceId sourceId),
                 (override));
 
-    MOCK_METHOD(void,
-                addRefreshCallback,
-                (std::function<void(const QmlDesigner::TypeIds &)> * callback),
-                (override));
-    MOCK_METHOD(void,
-                removeRefreshCallback,
-                (std::function<void(const QmlDesigner::TypeIds &)> * callback),
-                (override));
+    MOCK_METHOD(void, addObserver, (QmlDesigner::ProjectStorageObserver *), (override));
+    MOCK_METHOD(void, removeObserver, (QmlDesigner::ProjectStorageObserver *), (override));
 
     MOCK_METHOD(QmlDesigner::ModuleId, moduleId, (::Utils::SmallStringView), (const, override));
 
@@ -140,7 +144,10 @@ public:
                  ::Utils::SmallStringView exportedTypeName,
                  QmlDesigner::Storage::Version version),
                 (const, override));
-
+    MOCK_METHOD((QVarLengthArray<QmlDesigner::TypeId, 256>),
+                typeIds,
+                (QmlDesigner::ModuleId moduleId),
+                (const, override));
     MOCK_METHOD(QmlDesigner::Storage::Info::ExportedTypeNames,
                 exportedTypeNames,
                 (QmlDesigner::TypeId),
@@ -179,6 +186,23 @@ public:
                 type,
                 (QmlDesigner::TypeId typeId),
                 (const, override));
+    MOCK_METHOD(Utils::PathString, typeIconPath, (QmlDesigner::TypeId typeId), (const, override));
+    MOCK_METHOD(QmlDesigner::Storage::Info::TypeHints,
+                typeHints,
+                (QmlDesigner::TypeId typeId),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::Storage::Info::ItemLibraryEntries,
+                itemLibraryEntries,
+                (QmlDesigner::TypeId typeId),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::Storage::Info::ItemLibraryEntries,
+                itemLibraryEntries,
+                (QmlDesigner::SourceId sourceId),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::Storage::Info::ItemLibraryEntries,
+                allItemLibraryEntries,
+                (),
+                (const, override));
     MOCK_METHOD(std::vector<::Utils::SmallString>,
                 signalDeclarationNames,
                 (QmlDesigner::TypeId typeId),
@@ -193,6 +217,7 @@ public:
                 (const, override));
     MOCK_METHOD(QmlDesigner::TypeIds, prototypeAndSelfIds, (QmlDesigner::TypeId type), (const, override));
     MOCK_METHOD(QmlDesigner::TypeIds, prototypeIds, (QmlDesigner::TypeId type), (const, override));
+    MOCK_METHOD(QmlDesigner::TypeIds, heirIds, (QmlDesigner::TypeId type), (const, override));
     MOCK_METHOD(bool, isBasedOn, (QmlDesigner::TypeId typeId, QmlDesigner::TypeId), (const, override));
     MOCK_METHOD(bool,
                 isBasedOn,

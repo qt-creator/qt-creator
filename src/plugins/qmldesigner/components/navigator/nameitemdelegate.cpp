@@ -11,7 +11,6 @@
 #include "choosefrompropertylistdialog.h"
 #include "qproxystyle.h"
 
-#include <metainfo.h>
 #include <model/modelutils.h>
 #include <modelnodecontextmenu.h>
 #include <theme.h>

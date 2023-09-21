@@ -62,17 +62,17 @@ class StorageCache
             return StorageCacheIndex{id + amount};
         }
 
-        constexpr friend bool operator==(StorageCacheIndex first, StorageCacheIndex second) noexcept
+        friend constexpr bool operator==(StorageCacheIndex first, StorageCacheIndex second) noexcept
         {
             return first.id == second.id && first.isValid() && second.isValid();
         }
 
-        constexpr friend bool operator<(StorageCacheIndex first, StorageCacheIndex second) noexcept
+        friend constexpr bool operator<(StorageCacheIndex first, StorageCacheIndex second) noexcept
         {
             return first.id < second.id;
         }
 
-        constexpr friend bool operator>=(StorageCacheIndex first, StorageCacheIndex second) noexcept
+        friend constexpr bool operator>=(StorageCacheIndex first, StorageCacheIndex second) noexcept
         {
             return first.id >= second.id;
         }
@@ -285,6 +285,12 @@ public:
     bool isEmpty() const { return m_entries.empty() && m_indices.empty(); }
 
     Mutex &mutex() const { return m_mutex; }
+
+    void clearForTestOnly()
+    {
+        m_entries.clear();
+        m_indices.clear();
+    }
 
 private:
     void updateIndices()

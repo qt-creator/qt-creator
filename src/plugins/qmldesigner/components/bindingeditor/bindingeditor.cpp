@@ -9,7 +9,6 @@
 #include <bindingeditor/bindingeditordialog.h>
 #include <qmldesignerconstants.h>
 
-#include <metainfo.h>
 #include <qmlmodelnodeproxy.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>

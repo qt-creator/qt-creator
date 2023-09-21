@@ -112,4 +112,9 @@ ExportedTypeCannotBeInserted::ExportedTypeCannotBeInserted(std::string_view erro
     : ProjectStorageErrorWithMessage{"ExportedTypeCannotBeInserted"sv, errorMessage}
 {}
 
+const char *TypeAnnotationHasInvalidSourceId::what() const noexcept
+{
+    return "The source id in a type annotation is invalid!";
+}
+
 } // namespace QmlDesigner

@@ -93,6 +93,7 @@ void PrintTo(const std::optional<Type> &optional, ::std::ostream *os)
 
 void PrintTo(Utils::SmallStringView text, ::std::ostream *os);
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
+void PrintTo(const Utils::BasicSmallString<94> &text, ::std::ostream *os);
 void PrintTo(const Utils::PathString &text, ::std::ostream *os);
 
 } // namespace Utils
@@ -124,6 +125,7 @@ class Import;
 class NodeMetaInfo;
 class PropertyMetaInfo;
 struct CompoundPropertyMetaInfo;
+enum class FlagIs : unsigned int;
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
@@ -139,6 +141,7 @@ std::ostream &operator<<(std::ostream &out, const ModelResourceSet &modelResourc
 std::ostream &operator<<(std::ostream &out, const NodeMetaInfo &metaInfo);
 std::ostream &operator<<(std::ostream &out, const PropertyMetaInfo &metaInfo);
 std::ostream &operator<<(std::ostream &out, const CompoundPropertyMetaInfo &metaInfo);
+std::ostream &operator<<(std::ostream &out, FlagIs flagIs);
 
 namespace Cache {
 class SourceContext;
@@ -158,12 +161,14 @@ std::ostream &operator<<(std::ostream &out, const FontCollectorSizesAuxiliaryDat
 
 namespace Storage {
 enum class PropertyDeclarationTraits : int;
-enum class TypeTraits : int;
+enum class TypeTraitsKind : unsigned int;
+struct TypeTraits;
 class Import;
 class Version;
 class VersionNumber;
 
 std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits);
+std::ostream &operator<<(std::ostream &out, TypeTraitsKind kind);
 std::ostream &operator<<(std::ostream &out, TypeTraits traits);
 std::ostream &operator<<(std::ostream &out, const Import &import);
 std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
@@ -175,10 +180,16 @@ namespace Storage::Info {
 class ProjectDeclaration;
 class Type;
 class ExportedTypeName;
+struct TypeHint;
+struct ItemLibraryProperty;
+struct ItemLibraryEntry;
 
 std::ostream &operator<<(std::ostream &out, const ProjectDeclaration &declaration);
 std::ostream &operator<<(std::ostream &out, const Type &type);
 std::ostream &operator<<(std::ostream &out, const ExportedTypeName &name);
+std::ostream &operator<<(std::ostream &out, const TypeHint &hint);
+std::ostream &operator<<(std::ostream &out, const ItemLibraryProperty &property);
+std::ostream &operator<<(std::ostream &out, const ItemLibraryEntry &entry);
 
 } // namespace Storage::Info
 
@@ -202,6 +213,7 @@ enum class FileType : char;
 enum class ChangeLevel : char;
 class ModuleExportedImport;
 class PropertyEditorQmlPath;
+class TypeAnnotation;
 
 std::ostream &operator<<(std::ostream &out, const Type &type);
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType);
@@ -221,6 +233,7 @@ std::ostream &operator<<(std::ostream &out, FileType fileType);
 std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel);
 std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import);
 std::ostream &operator<<(std::ostream &out, const PropertyEditorQmlPath &path);
+std::ostream &operator<<(std::ostream &out, const TypeAnnotation &annotation);
 
 } // namespace Storage::Synchronization
 

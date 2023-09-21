@@ -3,7 +3,9 @@
 
 #pragma once
 
-#include "itemlibraryinfo.h"
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include <itemlibraryinfo.h>
+#endif
 #include "import.h"
 
 #include <studioquickwidget.h>
@@ -51,7 +53,9 @@ public:
     ItemLibraryWidget(AsynchronousImageCache &imageCache);
     ~ItemLibraryWidget();
 
+#ifndef QDS_USE_PROJECTSTORAGE
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
+#endif
     QList<QToolButton *> createToolBarWidgets();
 
     static QString qmlSourcesPath();
@@ -97,8 +101,9 @@ private:
     QTimer m_compressionTimer;
     QSize m_itemIconSize;
 
+#ifndef QDS_USE_PROJECTSTORAGE
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
-
+#endif
     QPointer<ItemLibraryModel> m_itemLibraryModel;
     QPointer<ItemLibraryAddImportModel> m_addModuleModel;
 

@@ -145,6 +145,9 @@ private:
     void updatePropertyEditorPaths(const QString &propertyEditorResourcesPath,
                                    Storage::Synchronization::SynchronizationPackage &package,
                                    NotUpdatedSourceIds &notUpdatedSourceIds);
+    void updateTypeAnnotations(const QString &propertyEditorResourcesPath,
+                               Storage::Synchronization::SynchronizationPackage &package,
+                               NotUpdatedSourceIds &notUpdatedSourceIds);
     void updatePropertyEditorPath(const QString &path,
                                   Storage::Synchronization::SynchronizationPackage &package,
                                   SourceId directorySourceId);

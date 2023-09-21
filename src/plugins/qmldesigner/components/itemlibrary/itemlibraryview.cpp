@@ -76,9 +76,11 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
 
 void ItemLibraryView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     for (const auto &import : addedImports)
         document->addSubcomponentManagerImport(import);
+#endif
 
     updateImports();
     m_widget->updatePossibleImports(model()->possibleImports());
@@ -114,9 +116,11 @@ void ItemLibraryView::importsChanged(const Imports &addedImports, const Imports 
 
 void ItemLibraryView::possibleImportsChanged(const Imports &possibleImports)
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     for (const auto &import : possibleImports)
         document->addSubcomponentManagerImport(import);
+#endif
 
     m_widget->updatePossibleImports(possibleImports);
 }

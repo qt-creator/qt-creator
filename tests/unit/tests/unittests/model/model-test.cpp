@@ -7,9 +7,11 @@
 #include <mocks/abstractviewmock.h>
 #include <mocks/modelresourcemanagementmock.h>
 #include <mocks/projectstoragemock.h>
+#include <mocks/projectstorageobservermock.h>
 #include <mocks/sourcepathcachemock.h>
 
 #include <designercore/include/bindingproperty.h>
+#include <designercore/include/itemlibraryentry.h>
 #include <designercore/include/model.h>
 #include <designercore/include/modelnode.h>
 #include <designercore/include/nodeabstractproperty.h>
@@ -32,6 +34,40 @@ MATCHER(IsSorted, std::string(negation ? "isn't sorted" : "is sorted"))
     return std::is_sorted(begin(arg), end(arg));
 }
 
+template<typename PropertiesMatcher, typename ExtraFilePathsMatcher>
+auto IsItemLibraryEntry(const QmlDesigner::NodeMetaInfo &metaInfo,
+                        QStringView name,
+                        QStringView iconPath,
+                        QStringView category,
+                        QStringView import,
+                        QStringView toolTip,
+                        QStringView templatePath,
+                        PropertiesMatcher propertiesMatcher,
+                        ExtraFilePathsMatcher extraFilePathsMatcher)
+{
+    using QmlDesigner::ItemLibraryEntry;
+    return AllOf(Property("metaInfo", &ItemLibraryEntry::metaInfo, metaInfo),
+                 Property("name", &ItemLibraryEntry::name, name),
+                 Property("libraryEntryIconPath", &ItemLibraryEntry::libraryEntryIconPath, iconPath),
+                 Property("category", &ItemLibraryEntry::category, category),
+                 Property("requiredImport", &ItemLibraryEntry::requiredImport, import),
+                 Property("toolTip", &ItemLibraryEntry::toolTip, toolTip),
+                 Property("qmlSource", &ItemLibraryEntry::qmlSource, templatePath),
+                 Property("properties", &ItemLibraryEntry::properties, propertiesMatcher),
+                 Property("extraFilePath", &ItemLibraryEntry::extraFilePaths, extraFilePathsMatcher));
+}
+
+MATCHER_P3(IsItemLibraryProperty,
+           name,
+           type,
+           value,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(QmlDesigner::PropertyContainer(name, type, value)))
+{
+    const QmlDesigner::PropertyContainer &property = arg;
+
+    return property.name() == name && property.type() == type && property.value() == value;
+}
 class Model : public ::testing::Test
 {
 protected:
@@ -912,16 +948,16 @@ TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_module)
     ASSERT_THAT(metaInfo, IsFalse());
 }
 
-TEST_F(Model, add_refresh_callback_to_project_storage)
+TEST_F(Model, add_project_storage_observer_to_project_storage)
 {
-    EXPECT_CALL(projectStorageMock, addRefreshCallback(_));
+    EXPECT_CALL(projectStorageMock, addObserver(_));
 
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
 }
 
-TEST_F(Model, remove_refresh_callback_from_project_storage)
+TEST_F(Model, remove_project_storage_observer_from_project_storage)
 {
-    EXPECT_CALL(projectStorageMock, removeRefreshCallback(_)).Times(2); // there is a model in the fixture
+    EXPECT_CALL(projectStorageMock, removeObserver(_)).Times(2); // the fixture model is calling it too
 
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
 }
@@ -930,14 +966,54 @@ TEST_F(Model, refresh_callback_is_calling_abstract_view)
 {
     const QmlDesigner::TypeIds typeIds = {QmlDesigner::TypeId::create(3),
                                           QmlDesigner::TypeId::create(1)};
-    std::function<void(const QmlDesigner::TypeIds &)> *callback = nullptr;
-    ON_CALL(projectStorageMock, addRefreshCallback(_)).WillByDefault([&](auto *c) { callback = c; });
+    ProjectStorageObserverMock observerMock;
+    QmlDesigner::ProjectStorageObserver *observer = nullptr;
+    ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
+
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
     model.attachView(&viewMock);
 
     EXPECT_CALL(viewMock, refreshMetaInfos(typeIds));
 
-    (*callback)(typeIds);
+    observer->removedTypeIds(typeIds);
+}
+
+TEST_F(Model, meta_infos_for_mdoule)
+{
+    projectStorageMock.createModule("Foo");
+    auto module = model.module("Foo");
+    auto typeId = projectStorageMock.createObject(module.id(), "Bar");
+    ON_CALL(projectStorageMock, typeIds(module.id()))
+        .WillByDefault(Return(QVarLengthArray<QmlDesigner::TypeId, 256>{typeId}));
+
+    auto types = model.metaInfosForModule(module);
+
+    ASSERT_THAT(types, ElementsAre(Eq(QmlDesigner::NodeMetaInfo{typeId, &projectStorageMock})));
+}
+
+TEST_F(Model, item_library_entries)
+{
+    using namespace Qt::StringLiterals;
+    QmlDesigner::Storage::Info::ItemLibraryEntries storageEntries{
+        {itemTypeId, "Item", "/path/to/icon", "basic category", "QtQuick", "It's a item", "/path/to/template"}};
+    storageEntries.front().properties.emplace_back("x", "double", Sqlite::ValueView::create(1));
+    storageEntries.front().extraFilePaths.emplace_back("/extra/file/path");
+    projectStorageMock.setItemLibraryEntries(pathCacheMock.sourceId, storageEntries);
+    QmlDesigner::NodeMetaInfo metaInfo{itemTypeId, &projectStorageMock};
+
+    auto entries = model.itemLibraryEntries();
+
+    ASSERT_THAT(entries,
+                ElementsAre(
+                    IsItemLibraryEntry(metaInfo,
+                                       u"Item",
+                                       u"/path/to/icon",
+                                       u"basic category",
+                                       u"QtQuick",
+                                       u"It's a item",
+                                       u"/path/to/template",
+                                       ElementsAre(IsItemLibraryProperty("x", "double"_L1, QVariant{1})),
+                                       ElementsAre(u"/extra/file/path"))));
 }
 
 } // namespace

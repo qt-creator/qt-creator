@@ -5,7 +5,6 @@
 #include "abstractview.h"
 #include <nodelistproperty.h>
 #include <variantproperty.h>
-#include <metainfo.h>
 #include <invalidmodelnodeexception.h>
 #include "bindingproperty.h"
 #include "qmlchangeset.h"

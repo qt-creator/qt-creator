@@ -8,8 +8,6 @@
 #include <qmldesignerplugin.h>
 #include <coreplugin/icore.h>
 
-#include <metainfo.h>
-
 #include <variantproperty.h>
 #include <bindingproperty.h>
 #include <signalhandlerproperty.h>

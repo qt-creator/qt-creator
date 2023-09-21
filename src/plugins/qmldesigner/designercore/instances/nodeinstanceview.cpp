@@ -57,7 +57,6 @@
 #include <auxiliarydataproperties.h>
 #include <designersettings.h>
 #include <externaldependenciesinterface.h>
-#include <metainfo.h>
 #include <model.h>
 #include <model/modelutils.h>
 #include <modelnode.h>

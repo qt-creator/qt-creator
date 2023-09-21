@@ -203,6 +203,29 @@ void ProjectStorageMock::setPropertyEditorPathId(QmlDesigner::TypeId typeId,
     ON_CALL(*this, propertyEditorPathId(Eq(typeId))).WillByDefault(Return(sourceId));
 }
 
+void ProjectStorageMock::setTypeHints(QmlDesigner::TypeId typeId,
+                                      const Storage::Info::TypeHints &typeHints)
+{
+    ON_CALL(*this, typeHints(Eq(typeId))).WillByDefault(Return(typeHints));
+}
+
+void ProjectStorageMock::setTypeIconPath(QmlDesigner::TypeId typeId, Utils::SmallStringView path)
+{
+    ON_CALL(*this, typeIconPath(Eq(typeId))).WillByDefault(Return(path));
+}
+
+void ProjectStorageMock::setItemLibraryEntries(
+    QmlDesigner::TypeId typeId, const QmlDesigner::Storage::Info::ItemLibraryEntries &entries)
+{
+    ON_CALL(*this, itemLibraryEntries(TypedEq<TypeId>(typeId))).WillByDefault(Return(entries));
+}
+
+void ProjectStorageMock::setItemLibraryEntries(
+    QmlDesigner::SourceId sourceId, const QmlDesigner::Storage::Info::ItemLibraryEntries &entries)
+{
+    ON_CALL(*this, itemLibraryEntries(TypedEq<SourceId>(sourceId))).WillByDefault(Return(entries));
+}
+
 namespace {
 void addBaseProperties(TypeId typeId, TypeIds baseTypeIds, ProjectStorageMock &storage)
 {
@@ -310,7 +333,7 @@ TypeId ProjectStorageMock::createObject(ModuleId moduleId,
                       defaultPropertyName,
                       defaultPropertyTraits,
                       defaultPropertyTypeId,
-                      Storage::TypeTraits::Reference,
+                      Storage::TypeTraitsKind::Reference,
                       baseTypeIds,
                       sourceId);
 }
@@ -319,14 +342,19 @@ TypeId ProjectStorageMock::createObject(ModuleId moduleId,
                                         Utils::SmallStringView typeName,
                                         TypeIds baseTypeIds)
 {
-    return createType(moduleId, typeName, Storage::TypeTraits::Reference, baseTypeIds);
+    return createType(moduleId, typeName, Storage::TypeTraitsKind::Reference, baseTypeIds);
 }
 
 QmlDesigner::TypeId ProjectStorageMock::createValue(QmlDesigner::ModuleId moduleId,
                                                     Utils::SmallStringView typeName,
                                                     QmlDesigner::TypeIds baseTypeIds)
 {
-    return createType(moduleId, typeName, Storage::TypeTraits::Value, baseTypeIds);
+    return createType(moduleId, typeName, Storage::TypeTraitsKind::Value, baseTypeIds);
+}
+
+void ProjectStorageMock::setHeirs(QmlDesigner::TypeId typeId, QmlDesigner::TypeIds heirIds)
+{
+    ON_CALL(*this, heirIds(typeId)).WillByDefault(Return(heirIds));
 }
 
 ProjectStorageMock::ProjectStorageMock()

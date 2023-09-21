@@ -171,7 +171,9 @@ private slots:
     void testCopyModelRewriter2();
     void testMergeModelRewriter1_data();
     void testMergeModelRewriter1();
+#ifndef QDS_USE_PROJECTSTORAGE
     void testSubComponentManager();
+#endif
     void testAnchorsAndRewriting();
     void testAnchorsAndRewritingCenter();
 

@@ -3,7 +3,6 @@
 
 #include "qmlconnections.h"
 
-#include <metainfo.h>
 #include <abstractview.h>
 #include <bindingproperty.h>
 #include <utils/qtcassert.h>

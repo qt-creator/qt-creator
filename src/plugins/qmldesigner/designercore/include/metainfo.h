@@ -3,13 +3,15 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
+#ifndef QDS_USE_PROJECTSTORAGE
 
-#include <QStringList>
-#include <QSharedPointer>
+#  include "qmldesignercorelib_global.h"
 
-#include <nodemetainfo.h>
-#include "itemlibraryinfo.h"
+#  include <QStringList>
+#  include <QSharedPointer>
+
+#  include <nodemetainfo.h>
+#  include "itemlibraryinfo.h"
 
 namespace QmlDesigner {
 
@@ -63,3 +65,4 @@ private:
 };
 
 } //namespace QmlDesigner
+#endif
