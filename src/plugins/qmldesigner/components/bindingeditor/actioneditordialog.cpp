@@ -399,6 +399,16 @@ void ActionEditorDialog::showControls(bool show)
         m_assignmentSourceItem->setVisible(show);
     if (m_assignmentSourceProperty)
         m_assignmentSourceProperty->setVisible(show);
+
+    if (m_stackedLayout)
+        m_stackedLayout->setEnabled(show);
+    if (m_actionLayout)
+        m_actionLayout->setEnabled(show);
+    if (m_assignmentLayout)
+        m_assignmentLayout->setEnabled(show);
+
+    if (m_comboBoxLayout)
+        m_comboBoxLayout->setEnabled(show);
 }
 
 void ActionEditorDialog::setMultiline(bool multiline)
