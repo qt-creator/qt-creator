@@ -1132,10 +1132,11 @@ static void appendCustomContextMenuActionsAndMenus(QMenu *menu, QMenu *refactorM
     bool isRefactoringMenuAdded = false;
     const QMenu *contextMenu = ActionManager::actionContainer(Constants::M_CONTEXT)->menu();
     for (QAction *action : contextMenu->actions()) {
-        menu->addAction(action);
         if (action->objectName() == QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT)) {
             isRefactoringMenuAdded = true;
             menu->addMenu(refactorMenu);
+        } else {
+            menu->addAction(action);
         }
     }
 

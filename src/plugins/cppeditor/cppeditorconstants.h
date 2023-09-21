@@ -9,7 +9,10 @@ namespace CppEditor {
 namespace Constants {
 
 const char M_CONTEXT[] = "CppEditor.ContextMenu";
-const char G_CONTEXT_FIRST[] = "CppEditor.GFirst";
+const char G_SYMBOL[] = "CppEditor.GSymbol";
+const char G_SELECTION[] = "CppEditor.GSelection";
+const char G_FILE[] = "CppEditor.GFile";
+const char G_GLOBAL[] = "CppEditor.GGlobal";
 const char CPPEDITOR_ID[] = "CppEditor.C++Editor";
 const char SWITCH_DECLARATION_DEFINITION[] = "CppEditor.SwitchDeclarationDefinition";
 const char OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT[] = "CppEditor.OpenDeclarationDefinitionInNextSplit";
