@@ -379,6 +379,10 @@ void CppEditorPlugin::initialize()
     contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
 
+    cmd = ActionManager::command(TextEditor::Constants::RENAME_SYMBOL);
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
+    cppToolsMenu->addAction(cmd);
+
     QAction * const showPreprocessedAction = new QAction(Tr::tr("Show Preprocessed Source"), this);
     command = ActionManager::registerAction(showPreprocessedAction,
                                             Constants::SHOW_PREPROCESSED_FILE, context);
@@ -452,7 +456,6 @@ void CppEditorPlugin::initialize()
     Command *sep = contextMenu->addSeparator();
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
     contextMenu->addSeparator();
-    cppToolsMenu->addAction(ActionManager::command(TextEditor::Constants::RENAME_SYMBOL));
 
     // Update context in global context
     cppToolsMenu->addSeparator(Core::Constants::G_DEFAULT_THREE);
