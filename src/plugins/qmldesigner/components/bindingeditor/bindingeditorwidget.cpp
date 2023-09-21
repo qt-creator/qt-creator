@@ -19,6 +19,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/fancylineedit.h>
+#include <utils/transientscroll.h>
 
 #include <QAction>
 
@@ -33,6 +34,8 @@ BindingEditorWidget::BindingEditorWidget()
     m_context->setWidget(this);
     m_context->setContext(context);
     Core::ICore::addContextObject(m_context);
+
+    Utils::TransientScrollAreaSupport::support(this);
 
     /*
      * We have to register our own active auto completion shortcut, because the original short cut will
