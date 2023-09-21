@@ -9,6 +9,7 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmaketool.h"
+#include "cmaketoolmanager.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -197,12 +198,16 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
     Project *project = nullptr;
     const FilePath &filePath = interface()->filePath();
     if (!filePath.isEmpty() && filePath.isFile()) {
+        CMakeTool *cmake = nullptr;
         project = static_cast<CMakeProject *>(ProjectManager::projectForFile(filePath));
-        if (project && project->activeTarget()) {
-            CMakeTool *cmake = CMakeKitAspect::cmakeTool(project->activeTarget()->kit());
-            if (cmake && cmake->isValid())
-                keywords = cmake->keywords();
-        }
+        if (project && project->activeTarget())
+            cmake = CMakeKitAspect::cmakeTool(project->activeTarget()->kit());
+
+        if (!cmake)
+            cmake = CMakeToolManager::defaultCMakeTool();
+
+        if (cmake && cmake->isValid())
+            keywords = cmake->keywords();
     }
 
     QStringList buildTargets;
