@@ -201,7 +201,8 @@ void CMakeBuildSystem::triggerParsing()
     m_reader.parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,
                    reparseParameters & REPARSE_FORCE_INITIAL_CONFIGURATION,
                    reparseParameters & REPARSE_FORCE_EXTRA_CONFIGURATION,
-                   (reparseParameters & REPARSE_DEBUG) && isDebuggable);
+                   (reparseParameters & REPARSE_DEBUG) && isDebuggable,
+                   reparseParameters & REPARSE_PROFILING);
 }
 
 void CMakeBuildSystem::requestDebugging()
@@ -804,6 +805,13 @@ void CMakeBuildSystem::runCMakeWithExtraArguments()
 {
     qCDebug(cmakeBuildSystemLog) << "Requesting parse due to \"Rescan Project\" command";
     reparse(REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION | REPARSE_URGENT);
+}
+
+void CMakeBuildSystem::runCMakeWithProfiling()
+{
+    qCDebug(cmakeBuildSystemLog) << "Requesting parse due \"CMake Profiler\" command";
+    reparse(REPARSE_FORCE_CMAKE_RUN | REPARSE_URGENT | REPARSE_FORCE_EXTRA_CONFIGURATION
+            | REPARSE_PROFILING);
 }
 
 void CMakeBuildSystem::stopCMakeRun()

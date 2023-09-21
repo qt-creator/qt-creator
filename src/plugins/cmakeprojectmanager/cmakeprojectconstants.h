@@ -10,6 +10,7 @@ const char CMAKE_MIMETYPE[] = "text/x-cmake";
 const char CMAKE_PROJECT_MIMETYPE[] = "text/x-cmake-project";
 const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
 const char RUN_CMAKE[] = "CMakeProject.RunCMake";
+const char RUN_CMAKE_PROFILER[] = "CMakeProject.RunCMakeProfiler";
 const char CLEAR_CMAKE_CACHE[] = "CMakeProject.ClearCache";
 const char RESCAN_PROJECT[] = "CMakeProject.RescanProject";
 const char RUN_CMAKE_CONTEXT_MENU[] = "CMakeProject.RunCMakeContextMenu";

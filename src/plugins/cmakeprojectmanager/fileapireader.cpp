@@ -84,7 +84,8 @@ void FileApiReader::resetData()
 void FileApiReader::parse(bool forceCMakeRun,
                           bool forceInitialConfiguration,
                           bool forceExtraConfiguration,
-                          bool debugging)
+                          bool debugging,
+                          bool profiling)
 {
     qCDebug(cmakeFileApiMode) << "Parse called with arguments: ForceCMakeRun:" << forceCMakeRun
                               << " - forceConfiguration:" << forceInitialConfiguration
@@ -107,6 +108,12 @@ void FileApiReader::parse(bool forceCMakeRun,
             args << "--debugger"
                  << "--debugger-pipe=" + file.path();
         }
+    }
+
+    if (profiling) {
+        const FilePath file = TemporaryDirectory::masterDirectoryFilePath() / "cmake-profile.json";
+        args << "--profiling-format=google-trace"
+             << "--profiling-output=" + file.path();
     }
 
     qCDebug(cmakeFileApiMode) << "Parameters request these CMake arguments:" << args;

@@ -21,11 +21,15 @@
 
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/analyzer/analyzermanager.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <utils/checkablemessagebox.h>
@@ -48,6 +52,7 @@ CMakeManager::CMakeManager()
     , m_rescanProjectAction(new QAction(QIcon(), Tr::tr("Rescan Project"), this))
     , m_reloadCMakePresetsAction(
           new QAction(Utils::Icons::RELOAD.icon(), Tr::tr("Reload CMake Presets"), this))
+    , m_cmakeProfilerAction(new QAction(QIcon(), Tr::tr("CMake Profiler"), this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
@@ -57,6 +62,8 @@ CMakeManager::CMakeManager()
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
     Core::ActionContainer *mfile =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
+    Core::ActionContainer *manalyzer =
+        Core::ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
 
     const Core::Context projectContext(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
@@ -128,6 +135,16 @@ CMakeManager::CMakeManager()
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildFileAction, &QAction::triggered, this, [this] { buildFile(); });
 
+    // CMake Profiler
+    command = Core::ActionManager::registerAction(m_cmakeProfilerAction,
+                                                  Constants::RUN_CMAKE_PROFILER,
+                                                  globalContext);
+    command->setDescription(m_cmakeProfilerAction->text());
+    manalyzer->addAction(command, Debugger::Constants::G_ANALYZER_TOOLS);
+    connect(m_cmakeProfilerAction, &QAction::triggered, this, [this] {
+        runCMakeWithProfiling(ProjectManager::startupBuildSystem());
+    });
+
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
         updateCmakeActions(ProjectTree::currentNode());
     });
@@ -150,6 +167,7 @@ void CMakeManager::updateCmakeActions(Node *node)
     m_runCMakeActionContextMenu->setEnabled(visible);
     m_clearCMakeCacheAction->setVisible(visible);
     m_rescanProjectAction->setVisible(visible);
+    m_cmakeProfilerAction->setEnabled(visible);
 
     const bool reloadPresetsVisible = [project] {
         if (!project)
@@ -178,6 +196,38 @@ void CMakeManager::runCMake(BuildSystem *buildSystem)
 
     if (ProjectExplorerPlugin::saveModifiedFiles())
         cmakeBuildSystem->runCMake();
+}
+
+void CMakeManager::runCMakeWithProfiling(BuildSystem *buildSystem)
+{
+    auto cmakeBuildSystem = dynamic_cast<CMakeBuildSystem *>(buildSystem);
+    QTC_ASSERT(cmakeBuildSystem, return );
+
+    if (ProjectExplorerPlugin::saveModifiedFiles()) {
+        // cmakeBuildSystem->runCMakeWithProfiling() below will trigger Target::buildSystemUpdated
+        // which will ensure that the "cmake-profile.json" has been created and we can load the viewer
+        std::unique_ptr<QObject> context{new QObject};
+        QObject *pcontext = context.get();
+        QObject::connect(cmakeBuildSystem->target(),
+                         &Target::buildSystemUpdated,
+                         pcontext,
+                         [context = std::move(context)]() mutable {
+                             context.reset();
+                             Core::Command *ctfVisualiserLoadTrace = Core::ActionManager::command(
+                                 "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadTrace");
+
+                             if (ctfVisualiserLoadTrace) {
+                                 auto *action = ctfVisualiserLoadTrace->actionForContext(
+                                     Core::Constants::C_GLOBAL);
+                                 const FilePath file = TemporaryDirectory::masterDirectoryFilePath()
+                                                       / "cmake-profile.json";
+                                 action->setData(file.nativePath());
+                                 emit ctfVisualiserLoadTrace->action()->triggered();
+                             }
+                         });
+
+        cmakeBuildSystem->runCMakeWithProfiling();
+    }
 }
 
 void CMakeManager::rescanProject(BuildSystem *buildSystem)

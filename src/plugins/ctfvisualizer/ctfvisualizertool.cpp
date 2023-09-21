@@ -58,7 +58,15 @@ CtfVisualizerTool::CtfVisualizerTool()
     m_loadJson.reset(new QAction(Tr::tr("Load JSON File"), options));
     Core::Command *command = Core::ActionManager::registerAction(m_loadJson.get(), Constants::CtfVisualizerTaskLoadJson,
                                                   globalContext);
-    connect(m_loadJson.get(), &QAction::triggered, this, &CtfVisualizerTool::loadJson);
+    connect(m_loadJson.get(), &QAction::triggered, this, [this] {
+        QString filename = m_loadJson->data().toString();
+        if (filename.isEmpty())
+            filename = QFileDialog::getOpenFileName(ICore::dialogParent(),
+                                                    Tr::tr("Load Chrome Trace Format File"),
+                                                    "",
+                                                    Tr::tr("JSON File (*.json)"));
+        loadJson(filename);
+    });
     options->addAction(command);
 
     m_perspective.setAboutToActivateCallback([this]() { createViews(); });
@@ -142,20 +150,17 @@ Timeline::TimelineZoomControl *CtfVisualizerTool::zoomControl() const
     return m_zoomControl.get();
 }
 
-void CtfVisualizerTool::loadJson()
+void CtfVisualizerTool::loadJson(const QString &filename)
 {
     if (m_isLoading)
         return;
 
-    m_isLoading = true;
-
-    QString filename = QFileDialog::getOpenFileName(
-                ICore::dialogParent(), Tr::tr("Load Chrome Trace Format File"),
-                "", Tr::tr("JSON File (*.json)"));
     if (filename.isEmpty()) {
         m_isLoading = false;
         return;
     }
+
+    m_isLoading = true;
 
     auto *futureInterface = new QFutureInterface<void>();
     auto *task = new QFuture<void>(futureInterface);

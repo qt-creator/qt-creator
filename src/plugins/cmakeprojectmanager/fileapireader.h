@@ -41,7 +41,8 @@ public:
     void parse(bool forceCMakeRun,
                bool forceInitialConfiguration,
                bool forceExtraConfiguration,
-               bool debugging);
+               bool debugging,
+               bool profiling);
     void stop();
     void stopCMakeRun();
 

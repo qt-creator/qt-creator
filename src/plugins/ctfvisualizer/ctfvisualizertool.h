@@ -34,7 +34,7 @@ public:
     CtfTraceManager *traceManager() const;
     Timeline::TimelineZoomControl *zoomControl() const;
 
-    void loadJson();
+    void loadJson(const QString &filename);
 
 private:
     void createViews();
