@@ -2057,7 +2057,7 @@ Toolchains ClangClToolChainFactory::autoDetect(const ToolchainDetector &detector
     }
 
     const Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
-    const Utils::FilePath clangClPath = systemEnvironment.searchInPath("clang-cl");
+    const Utils::FilePath clangClPath = systemEnvironment.searchInPath("clang-cl.exe");
     if (!clangClPath.isEmpty())
         results.append(detectClangClToolChainInPath(clangClPath, known, ""));
 
