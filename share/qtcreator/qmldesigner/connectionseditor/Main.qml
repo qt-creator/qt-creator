@@ -27,7 +27,7 @@ Rectangle {
         Rectangle {
             id: toolbar
             width: parent.width
-            height: StudioTheme.Values.doubleToolbarHeight
+            height: StudioTheme.Values.toolbarHeight
             color: StudioTheme.Values.themeToolbarBackground
 
             Column {
@@ -38,13 +38,14 @@ Rectangle {
                 anchors.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
                 spacing: StudioTheme.Values.toolbarColumnSpacing
 
-                StudioControls.SearchBox {
-                    id: searchBox
-                    width: parent.width
-                    style: StudioTheme.Values.searchControlStyle
+                // Temporarily remove search until functionality is provided by backend
+                //StudioControls.SearchBox {
+                //    id: searchBox
+                //    width: parent.width
+                //    style: StudioTheme.Values.searchControlStyle
 
-                    onSearchChanged: function(searchText) {}
-                }
+                //    onSearchChanged: function(searchText) {}
+                //}
 
                 Row {
                     id: row
