@@ -46,6 +46,12 @@ itemLibraryModel [
 */
 Item {
     id: itemsView
+
+    property bool adsFocus: false
+    // objectName is used by the dock widget to find this particular ScrollView
+    // and set the ads focus on it.
+    objectName: "__mainSrollView"
+
     property string importToRemove
     property string importToAdd
     property string componentSource
@@ -217,6 +223,7 @@ Item {
         id: verticalView
         HelperWidgets.ScrollView {
             id: verticalScrollView
+            adsFocus: itemsView.adsFocus
             anchors.fill: parent
             clip: true
             interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !ItemLibraryBackend.rootView.isDragging
@@ -327,6 +334,7 @@ Item {
             leftPadding: 5
             HelperWidgets.ScrollView {
                 id: horizontalScrollView
+                adsFocus: itemsView.adsFocus
                 width: 270
                 height: parent.height
                 clip: true
@@ -427,6 +435,7 @@ Item {
             }
             HelperWidgets.ScrollView {
                 id: itemScrollView
+                adsFocus: itemsView.adsFocus
                 width: itemsView.width - 275
                 height: itemsView.height
                 interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !ItemLibraryBackend.rootView.isDragging
@@ -468,6 +477,7 @@ Item {
     Component {
         id: addModuleView
         AddModuleView {
+            adsFocus: itemsView.adsFocus
             onBack: isAddModuleView = false
         }
     }
