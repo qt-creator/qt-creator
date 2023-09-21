@@ -68,6 +68,7 @@ public:
                 &QTcpSocket::errorOccurred,
                 this,
                 &IDataProvider::readyReadStandardError);
+        connect(&m_proc, &Process::done, this, &TcpSocketDataProvider::kill);
     }
 
     ~TcpSocketDataProvider() { m_socket.disconnect(); }
