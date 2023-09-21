@@ -114,6 +114,7 @@ protected:
 
     int m_nextBreakpointId = 1;
     int m_currentThreadId = -1;
+    int m_currentStackFrameId = -1;
 
     bool m_isFirstLayer = true;
     std::queue<int> m_variablesReferenceQueue;

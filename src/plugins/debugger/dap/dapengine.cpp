@@ -218,7 +218,9 @@ void DapEngine::activateFrame(int frameIndex)
     QTC_ASSERT(frameIndex < handler->stackSize(), return);
     handler->setCurrentIndex(frameIndex);
     gotoLocation(handler->currentFrame());
-    updateLocals();
+
+    m_currentStackFrameId = handler->currentFrame().debuggerId;
+    m_dapClient->scopes(m_currentStackFrameId);
 }
 
 void DapEngine::selectThread(const Thread &thread)
@@ -546,7 +548,8 @@ void DapEngine::handleStackTraceResponse(const QJsonObject &response)
     gotoLocation(Location(file, line));
 
     refreshStack(stackFrames);
-    m_dapClient->scopes(stackFrame.value("id").toInt());
+    m_currentStackFrameId = stackFrame.value("id").toInt();
+    m_dapClient->scopes(m_currentStackFrameId);
 }
 
 void DapEngine::handleScopesResponse(const QJsonObject &response)
@@ -568,9 +571,13 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
         m_variablesReferenceQueue.push(scope.toObject().value("variablesReference").toInt());
     }
 
-    m_isFirstLayer = true;
-    m_dapClient->variables(m_variablesReferenceQueue.front());
-    m_variablesReferenceQueue.pop();
+    if (!m_variablesReferenceQueue.empty()) {
+        m_isFirstLayer = true;
+        m_dapClient->variables(m_variablesReferenceQueue.front());
+        m_variablesReferenceQueue.pop();
+    } else {
+        watchHandler()->notifyUpdateFinished();
+    }
 }
 
 void DapEngine::handleThreadsResponse(const QJsonObject &response)
@@ -761,6 +768,7 @@ void DapEngine::refreshStack(const QJsonArray &stackFrames)
         frame.file = FilePath::fromString(source.value("path").toString());
         frame.address = item.value("instructionPointerReference").toInt();
         frame.usable = frame.file.isReadableFile();
+        frame.debuggerId = item.value("id").toInt();
         frames.append(frame);
     }
     handler->setFrames(frames, false);
