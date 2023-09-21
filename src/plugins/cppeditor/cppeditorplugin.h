@@ -56,6 +56,11 @@ private:
     void initialize() override;
     void extensionsInitialized() override;
 
+    void setupMenus();
+    void setupProjectPanels();
+    void registerVariables();
+    void registerTests();
+
     CppEditorPluginPrivate *d = nullptr;
 };
 
