@@ -1131,12 +1131,15 @@ void StringAspect::addToLayout(LayoutItem &parent)
         lineEditDisplay->setValidatePlaceHolder(d->m_validatePlaceHolder);
 
         d->m_checkerImpl.updateWidgetFromCheckStatus(this, lineEditDisplay);
-        connect(d->m_checkerImpl.m_checked.get(),
-                &BoolAspect::volatileValueChanged,
-                lineEditDisplay,
-                [this, lineEditDisplay]() {
-                    d->m_checkerImpl.updateWidgetFromCheckStatus(this, lineEditDisplay);
-                });
+
+        if (d->m_checkerImpl.m_checked.get()) {
+            connect(d->m_checkerImpl.m_checked.get(),
+                    &BoolAspect::volatileValueChanged,
+                    lineEditDisplay,
+                    [this, lineEditDisplay]() {
+                        d->m_checkerImpl.updateWidgetFromCheckStatus(this, lineEditDisplay);
+                    });
+        }
 
         addLabeledItem(parent, lineEditDisplay);
         useMacroExpander(lineEditDisplay);
@@ -1206,12 +1209,14 @@ void StringAspect::addToLayout(LayoutItem &parent)
         textEditDisplay->setReadOnly(isReadOnly());
         d->m_checkerImpl.updateWidgetFromCheckStatus(this, textEditDisplay);
 
-        connect(d->m_checkerImpl.m_checked.get(),
-                &BoolAspect::volatileValueChanged,
-                textEditDisplay,
-                [this, textEditDisplay]() {
-                    d->m_checkerImpl.updateWidgetFromCheckStatus(this, textEditDisplay);
-                });
+        if (d->m_checkerImpl.m_checked) {
+            connect(d->m_checkerImpl.m_checked.get(),
+                    &BoolAspect::volatileValueChanged,
+                    textEditDisplay,
+                    [this, textEditDisplay]() {
+                        d->m_checkerImpl.updateWidgetFromCheckStatus(this, textEditDisplay);
+                    });
+        }
 
         addLabeledItem(parent, textEditDisplay);
         useMacroExpander(textEditDisplay);
