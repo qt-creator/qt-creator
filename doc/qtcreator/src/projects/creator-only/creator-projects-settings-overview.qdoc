@@ -41,7 +41,7 @@
                 \li \l{Using Clang Tools}{Clang Tools}
                 \li \l{Specify code style}{C++ Code Style}
                 \li \l{Using Custom Output Parsers}{Custom Output Parsers}
-                \li \l{Specifying Dependencies}{Dependencies}
+                \li \l{Specify dependencies}{Dependencies}
                 \li \l{Specify editor settings}{Editor}
                 \li \l{Specifying Environment Settings}{Environment}
                 \li \l{Applying Refactoring Actions}{Quick Fixes}

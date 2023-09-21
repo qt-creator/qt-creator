@@ -39,7 +39,6 @@
                         \li \l{Conan Build Configuration}
                     \endlist
                 \li \l{Specifying Run Settings}
-                \li \l{Specifying Dependencies}
                 \li \l{Specifying Environment Settings}
                 \li \l{Using Custom Output Parsers}
                 \li \l{Sharing Project Settings}
@@ -219,6 +218,7 @@
                     \li \l {Develop Qt for Python applications}
                     \li \l {Open projects}
                     \li \l {Select the build system}
+                    \li \l {Specify dependencies}
                     \li \l {Specify editor settings}
                     \li \l {Specify project contents}
                     \li \l {Use project wizards}
