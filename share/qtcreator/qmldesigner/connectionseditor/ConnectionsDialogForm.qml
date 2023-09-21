@@ -30,13 +30,13 @@ Column {
         PopupLabel {
             width: root.columnWidth
             text: qsTr("Signal")
-            tooltip: qsTr("The name of the signal.")
+            tooltip: qsTr("Sets an interaction method that connects to the <b>Target</b> component.")
         }
 
         PopupLabel {
             width: root.columnWidth
             text: qsTr("Action")
-            tooltip: qsTr("The type of the action.")
+            tooltip: qsTr("Sets an action that is associated with the selected <b>Target</b> component's <b>Signal</b>.")
         }
     }
 
@@ -115,6 +115,7 @@ Column {
         style: StudioTheme.Values.connectionPopupButtonStyle
         width: 160
         buttonIcon: qsTr("Add Condition")
+        tooltip: qsTr("Sets a logical condition for the selected <b>Signal</b>. It works with the properties of the <b>Target</b> component.")
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
@@ -127,6 +128,7 @@ Column {
         style: StudioTheme.Values.connectionPopupButtonStyle
         width: 160
         buttonIcon: qsTr("Remove Condition")
+        tooltip: qsTr("Removes the logical condition for the <b>Target</b> component.")
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
@@ -177,6 +179,7 @@ Column {
         style: StudioTheme.Values.connectionPopupButtonStyle
         width: 160
         buttonIcon: qsTr("Add Else Statement")
+        tooltip: qsTr("Sets an alternate condition for the previously defined logical condition.")
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
@@ -190,6 +193,7 @@ Column {
         style: StudioTheme.Values.connectionPopupButtonStyle
         width: 160
         buttonIcon: qsTr("Remove Else Statement")
+        tooltip: qsTr("Removes the alternate logical condition for the previously defined logical condition.")
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
@@ -237,6 +241,22 @@ Column {
             horizontalAlignment: code.lineCount === 1 ? Text.AlignHCenter : Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
+
+        }
+
+        HelperWidgets.AbstractButton {
+            id: editorButton
+
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.margins: 4
+
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.edit_medium
+            tooltip: qsTr("Write the conditions for the components and the signals manually.")
+            onClicked: {
+                expressionDialogLoader.show()
+            }
         }
 
         Loader {

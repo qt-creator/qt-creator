@@ -199,7 +199,7 @@ ListView {
 
                 HelperWidgets.ToolTipArea {
                     id: toolTipArea
-                    tooltip: qsTr("This is a test.")
+                    tooltip: qsTr("Removes the binding.")
                     anchors.fill: parent
                     onClicked: {
                         if (itemDelegate.ListView.isCurrentItem)

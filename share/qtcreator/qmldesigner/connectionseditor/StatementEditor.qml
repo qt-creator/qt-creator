@@ -28,13 +28,13 @@ Column {
         PopupLabel {
             width: root.columnWidth
             text: qsTr("Item")
-            tooltip: qsTr("The target item of the function.")
+            tooltip: qsTr("Sets the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
         }
 
         PopupLabel {
             width: root.columnWidth
             text: qsTr("Method")
-            tooltip: qsTr("The name of the function.")
+            tooltip: qsTr("Sets the item component's method that is affected by the <b>Target</b> component's <b>Signal</b>.")
         }
     }
 
@@ -74,12 +74,12 @@ Column {
         PopupLabel {
             width: root.columnWidth
             text: qsTr("From")
-            tooltip: qsTr("The Property to assign from.")
+            tooltip: qsTr("Sets the component and its property from which the value is copied when the <b>Target</b> component initiates the <b>Signal</b>.")
         }
         PopupLabel {
             width: root.columnWidth
             text: qsTr("To")
-            tooltip: qsTr("The Property to assign to.")
+            tooltip: qsTr("Sets the component and its property to which the copied value is assigned when the <b>Target</b> component initiates the <b>Signal</b>.")
         }
     }
 
@@ -151,13 +151,13 @@ Column {
         PopupLabel {
             width: root.columnWidth
             text: qsTr("State Group")
-            tooltip: qsTr("The State Group.")
+            tooltip: qsTr("Sets a <b>State Group</b> that is accessed when the <b>Target</b> component initiates the <b>Signal</b>.")
         }
 
         PopupLabel {
             width: root.columnWidth
             text: qsTr("State")
-            tooltip: qsTr("The State .")
+            tooltip: qsTr("Sets a <b>State</b> within the assigned <b>State Group</b> that is accessed when the <b>Target</b> component initiates the <b>Signal</b>.")
         }
     }
 
@@ -197,13 +197,13 @@ Column {
         PopupLabel {
             width: root.columnWidth
             text: qsTr("Item")
-            tooltip: qsTr("The Item.")
+            tooltip: qsTr("Sets the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
         }
 
         PopupLabel {
             width: root.columnWidth
             text: qsTr("Property")
-            tooltip: qsTr("The property of the item.")
+            tooltip: qsTr("Sets the property of the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
         }
     }
 
@@ -240,6 +240,7 @@ Column {
         width: root.columnWidth
         visible: root.actionType === ConnectionModelStatementDelegate.SetProperty
         text: qsTr("Value")
+        tooltip: qsTr("Sets the value of the property of the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
     }
 
     StudioControls.TextField {
@@ -260,7 +261,7 @@ Column {
         width: root.columnWidth
         visible: root.actionType === ConnectionModelStatementDelegate.PrintMessage
         text: qsTr("Message")
-        tooltip: qsTr("The message that is printed.")
+        tooltip: qsTr("Sets a text that is printed when the <b>Signal</b> of the <b>Target</b> component initiates.")
     }
 
     StudioControls.TextField {
