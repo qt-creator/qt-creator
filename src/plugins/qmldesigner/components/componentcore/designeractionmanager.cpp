@@ -1240,9 +1240,9 @@ bool isPositioner(const SelectionContext &context)
 
 bool layoutOptionVisible(const SelectionContext &context)
 {
-    return selectionCanBeLayoutedAndQtQuickLayoutPossible(context)
-            || singleSelectionAndInQtQuickLayout(context)
-            || isLayout(context);
+    return (selectionCanBeLayoutedAndQtQuickLayoutPossible(context)
+            || singleSelectionAndInQtQuickLayout(context) || isLayout(context))
+           && !DesignerMcuManager::instance().isMCUProject();
 }
 
 bool positionOptionVisible(const SelectionContext &context)
