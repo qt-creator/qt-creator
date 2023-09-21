@@ -48,9 +48,8 @@ public:
 CMakeEditor::CMakeEditor()
 {
     CMakeTool *tool = nullptr;
-    if (auto project = ProjectTree::currentProject())
-        if (auto bs = ProjectTree::currentBuildSystem())
-            tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
+    if (auto bs = ProjectTree::currentBuildSystem())
+        tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
     if (!tool)
         tool = CMakeToolManager::defaultCMakeTool();
 
