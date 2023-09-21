@@ -123,7 +123,8 @@ void AbstractEditorDialog::setupUIComponents()
     m_buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     m_verticalLayout->addLayout(m_comboBoxLayout);
-    m_verticalLayout->addWidget(m_editorWidget);
+    //editor widget has to stretch the most among the other siblings:
+    m_verticalLayout->addWidget(m_editorWidget, 10);
     m_verticalLayout->addWidget(m_buttonBox);
 
     this->resize(660, 240);
