@@ -3,18 +3,17 @@
 
 #include "abstracteditordialog.h"
 
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-
 #include <qmldesigner/qmldesignerplugin.h>
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditordocument.h>
-#include <texteditor/textdocument.h>
 
 #include <QDialogButtonBox>
-#include <QPushButton>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 namespace QmlDesigner {
 
@@ -102,8 +101,6 @@ void AbstractEditorDialog::setupJSEditor()
     m_editorWidget->setLineNumbersVisible(false);
     m_editorWidget->setMarksVisible(false);
     m_editorWidget->setCodeFoldingSupported(false);
-    m_editorWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_editorWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_editorWidget->setTabChangesFocus(true);
 }
 
