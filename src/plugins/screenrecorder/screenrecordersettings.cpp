@@ -76,7 +76,30 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     captureMouseClicks.setDefaultValue(false);
     captureMouseClicks.setLabel(Tr::tr("Capture the screen mouse clicks"));
     captureMouseClicks.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
-    captureMouseClicks.setVisible(HostOsInfo::isMacHost()); // only available with AVFoundation
+
+    captureType.setSettingsKey("CaptureType");
+    captureType.setLabelText(Tr::tr("Capture device/filter:"));
+    captureType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    captureType.setVisible(false);
+    switch (HostOsInfo::hostOs()) {
+    case OsTypeLinux:
+        captureType.addOption({"x11grab", {}, CaptureType::X11grab});
+        captureType.setDefaultValue(CaptureType::X11grab);
+        break;
+    case OsTypeWindows:
+        captureType.addOption({"ddagrab", {}, CaptureType::Ddagrab});
+        captureType.setDefaultValue(CaptureType::Ddagrab);
+        break;
+    case OsTypeMac:
+        captureType.addOption({"AVFoundation", {}, CaptureType::AVFoundation});
+        captureType.setDefaultValue(CaptureType::AVFoundation);
+        break;
+    }
+    auto setCaptureMouseClicksVisible = [this] {
+        const QVariant value = captureType.itemValueForIndex(captureType.volatileValue());
+        const bool visible = value.toInt() == CaptureType::AVFoundation;
+        captureMouseClicks.setVisible(visible);
+    };
 
     enableFileSizeLimit.setSettingsKey("EnableFileSizeLimit");
     enableFileSizeLimit.setDefaultValue(true);
@@ -161,6 +184,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
                 Column {
                     captureCursor,
                     captureMouseClicks,
+                    Row { captureType, st },
                     Row { enableFileSizeLimit, fileSizeLimit, st },
                     Row { enableRtBuffer, rtBufferSize, st },
                 },
@@ -178,6 +202,10 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     });
 
     readSettings();
+
+    setCaptureMouseClicksVisible();
+    connect(&captureType, &SelectionAspect::volatileValueChanged, this,
+            setCaptureMouseClicksVisible);
 }
 
 bool ScreenRecorderSettings::toolsRegistered() const

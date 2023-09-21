@@ -7,6 +7,12 @@
 
 namespace ScreenRecorder::Internal {
 
+enum CaptureType {
+    X11grab,
+    Ddagrab,
+    AVFoundation,
+};
+
 class ScreenRecorderSettings : public Utils::AspectContainer
 {
 public:
@@ -26,6 +32,7 @@ public:
     // Visible in Settings page
     Utils::FilePathAspect ffmpegTool{this};
     Utils::FilePathAspect ffprobeTool{this};
+    Utils::SelectionAspect captureType{this};
     Utils::BoolAspect captureCursor{this};
     Utils::BoolAspect captureMouseClicks{this};
     Utils::BoolAspect enableFileSizeLimit{this};

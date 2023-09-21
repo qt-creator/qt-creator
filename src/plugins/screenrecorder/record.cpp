@@ -324,9 +324,9 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
     const QString screenIdStr = QString::number(rS.screenId);
     const QString captureCursorStr = Internal::settings().captureCursor() ? "1" : "0";
     QStringList videoGrabParams;
-    // see http://trac.ffmpeg.org/wiki/Capture/Desktop
-    switch (HostOsInfo::hostOs()) {
-    case OsTypeLinux: {
+
+    switch (Internal::settings().captureType()) {
+    case Internal::CaptureType::X11grab: {
         const QScreen *screen = QGuiApplication::screens()[rS.screenId];
         const QPoint screenTopLeft = screen->geometry().topLeft();
         const QRect cropRect = rS.cropRect.translated(screenTopLeft);
@@ -342,7 +342,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
                                           .arg(cropRect.x()).arg(cropRect.y())});
         break;
     }
-    case OsTypeWindows: {
+    case Internal::CaptureType::Ddagrab: {
         QString filter = "ddagrab=output_idx=" + screenIdStr;
         if (!rS.cropRect.isNull()) {
             filter.append(":video_size=" + sizeStr(rS.cropRect.size()));
@@ -359,7 +359,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
         };
         break;
     }
-    case OsTypeMac: {
+    case Internal::CaptureType::AVFoundation: {
         videoGrabParams = {
             "-f", "avfoundation",
             "-capture_cursor", captureCursorStr,
