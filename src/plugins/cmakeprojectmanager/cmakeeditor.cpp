@@ -90,10 +90,7 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
         return;
     }
 
-    callback({{id, Utils::Text::wordUnderCursor(editorWidget()->textCursor())},
-              {},
-              {},
-              HelpItem::Unknown});
+    callback({{id, word}, {}, {}, HelpItem::Unknown});
 }
 
 //
