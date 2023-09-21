@@ -1810,29 +1810,31 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isStackedContainerAndIndexCanBeIncreased,
                           &isStackedContainer));
 
-    addDesignerAction(new ModelNodeAction(
-                          layoutRowLayoutCommandId,
-                          layoutRowLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/row.png",
-                                        Utils::Theme::IconsBaseColor}}).icon(),
-                          layoutRowLayoutToolTip,
-                          layoutCategory,
-                          QKeySequence("Ctrl+u"),
-                          2,
-                          &layoutRowLayout,
-                          &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+    addDesignerAction(
+        new ModelNodeAction(layoutRowLayoutCommandId,
+                            layoutRowLayoutDisplayName,
+                            Utils::Icon({{":/qmldesigner/icon/designeractions/images/row.png",
+                                          Utils::Theme::IconsBaseColor}})
+                                .icon(),
+                            layoutRowLayoutToolTip,
+                            layoutCategory,
+                            QKeySequence("Ctrl+u"),
+                            2,
+                            &layoutRowLayout,
+                            &selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU));
 
-    addDesignerAction(new ModelNodeAction(
-                          layoutColumnLayoutCommandId,
-                          layoutColumnLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png",
-                                        Utils::Theme::IconsBaseColor}}).icon(),
-                          layoutColumnLayoutToolTip,
-                          layoutCategory,
-                          QKeySequence("Ctrl+l"),
-                          3,
-                          &layoutColumnLayout,
-                          &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+    addDesignerAction(
+        new ModelNodeAction(layoutColumnLayoutCommandId,
+                            layoutColumnLayoutDisplayName,
+                            Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png",
+                                          Utils::Theme::IconsBaseColor}})
+                                .icon(),
+                            layoutColumnLayoutToolTip,
+                            layoutCategory,
+                            QKeySequence("Ctrl+l"),
+                            3,
+                            &layoutColumnLayout,
+                            &selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU));
 
     addDesignerAction(new ModelNodeAction(
                           layoutGridLayoutCommandId,
