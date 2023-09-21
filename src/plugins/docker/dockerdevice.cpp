@@ -100,7 +100,7 @@ const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
 const char DockerDeviceClangDExecutable[] = "DockerDeviceClangDExecutable";
 const char DockerDeviceExtraArgs[] = "DockerDeviceExtraCreateArguments";
 
-class ContainerShell : public Utils::DeviceShell
+class ContainerShell : public DeviceShell
 {
 public:
     ContainerShell(const QString &containerId, const FilePath &devicePath)
@@ -211,7 +211,7 @@ DockerDeviceSettings::DockerDeviceSettings()
                          [watcher, cb]() {
                              expected_str<QList<Network>> result = watcher->result();
                              if (result) {
-                                 auto items = Utils::transform(*result, [](const Network &network) {
+                                 auto items = transform(*result, [](const Network &network) {
                                      QStandardItem *item = new QStandardItem(network.name);
                                      item->setData(network.name);
                                      item->setToolTip(network.toString());
@@ -233,9 +233,9 @@ DockerDeviceSettings::DockerDeviceSettings()
 
     clangdExecutable.setValidationFunction(
         [](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
-            return Utils::asyncRun([newValue]() -> expected_str<QString> {
+            return asyncRun([newValue]() -> expected_str<QString> {
                 QString error;
-                bool result = Utils::checkClangdVersion(FilePath::fromUserInput(newValue), &error);
+                bool result = checkClangdVersion(FilePath::fromUserInput(newValue), &error);
                 if (!result)
                     return make_unexpected(error);
                 return newValue;
@@ -344,7 +344,7 @@ public:
     DockerDeviceFileAccess m_fileAccess{this};
 };
 
-class DockerProcessImpl : public Utils::ProcessInterface
+class DockerProcessImpl : public ProcessInterface
 {
 public:
     DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate);
@@ -417,7 +417,7 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
         qCDebug(dockerDeviceLog) << "Process exited:" << m_process.commandLine()
                                  << "with code:" << m_process.resultData().m_exitCode;
 
-        Utils::ProcessResultData resultData = m_process.resultData();
+        ProcessResultData resultData = m_process.resultData();
 
         if (m_remotePID == 0 && !m_hasReceivedFirstOutput) {
             resultData.m_error = QProcess::FailedToStart;
@@ -949,7 +949,7 @@ FilePath DockerDevice::filePath(const QString &pathOnDevice) const
                                pathOnDevice);
 }
 
-Utils::FilePath DockerDevice::rootPath() const
+FilePath DockerDevice::rootPath() const
 {
     return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, d->repoAndTagEncoded(), u"/");
 }
@@ -989,7 +989,7 @@ bool DockerDevice::ensureReachable(const FilePath &other) const
     return d->ensureReachable(other.parentDir());
 }
 
-expected_str<FilePath> DockerDevice::localSource(const Utils::FilePath &other) const
+expected_str<FilePath> DockerDevice::localSource(const FilePath &other) const
 {
     return d->localSource(other);
 }
@@ -1126,7 +1126,7 @@ public:
 
         const QString fail = QString{"Docker: "}
                              + ::ProjectExplorer::Tr::tr("The process failed to start.");
-        auto errorLabel = new Utils::InfoLabel(fail, Utils::InfoLabel::Error, this);
+        auto errorLabel = new InfoLabel(fail, InfoLabel::Error, this);
         errorLabel->setVisible(false);
 
         m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -1174,7 +1174,7 @@ public:
             m_log->append(Tr::tr("Done."));
         });
 
-        connect(m_process, &Utils::Process::readyReadStandardError, this, [this] {
+        connect(m_process, &Process::readyReadStandardError, this, [this] {
             const QString out = Tr::tr("Error: %1").arg(m_process->cleanedStdErr());
             m_log->append(Tr::tr("Error: %1").arg(out));
         });
