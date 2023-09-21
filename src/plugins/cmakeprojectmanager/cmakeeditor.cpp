@@ -60,7 +60,6 @@ CMakeEditor::CMakeEditor()
 
 void CMakeEditor::contextHelp(const HelpCallback &callback) const
 {
-    const QString word = Utils::Text::wordUnderCursor(editorWidget()->textCursor());
     auto helpPrefix = [this](const QString &word) {
         if (m_keywords.includeStandardModules.contains(word))
             return "module/";
@@ -84,6 +83,7 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
         return "unknown/";
     };
 
+    const QString word = Utils::Text::wordUnderCursor(editorWidget()->textCursor());
     const QString id = helpPrefix(word) + word;
     if (id.startsWith("unknown/")) {
         BaseTextEditor::contextHelp(callback);
