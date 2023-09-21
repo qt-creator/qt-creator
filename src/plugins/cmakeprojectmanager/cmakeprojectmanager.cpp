@@ -47,7 +47,7 @@ CMakeManager::CMakeManager()
     , m_runCMakeActionContextMenu(new QAction(QIcon(), Tr::tr("Run CMake"), this))
     , m_rescanProjectAction(new QAction(QIcon(), Tr::tr("Rescan Project"), this))
     , m_reloadCMakePresetsAction(
-          new QAction(Utils::Icons::RELOAD_TOOLBAR.icon(), Tr::tr("Reload CMake Presets"), this))
+          new QAction(Utils::Icons::RELOAD.icon(), Tr::tr("Reload CMake Presets"), this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
