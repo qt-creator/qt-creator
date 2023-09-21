@@ -27,6 +27,7 @@ public:
     Utils::FilePathAspect ffmpegTool{this};
     Utils::FilePathAspect ffprobeTool{this};
     Utils::BoolAspect captureCursor{this};
+    Utils::BoolAspect captureMouseClicks{this};
     Utils::BoolAspect enableFileSizeLimit{this};
     Utils::IntegerAspect fileSizeLimit{this}; // in MB
     Utils::BoolAspect enableRtBuffer{this};

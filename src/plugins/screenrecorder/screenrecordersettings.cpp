@@ -72,6 +72,12 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     captureCursor.setLabel(Tr::tr("Capture the mouse cursor"));
     captureCursor.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
+    captureMouseClicks.setSettingsKey("CaptureMouseClicks");
+    captureMouseClicks.setDefaultValue(false);
+    captureMouseClicks.setLabel(Tr::tr("Capture the screen mouse clicks"));
+    captureMouseClicks.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+    captureMouseClicks.setVisible(HostOsInfo::isMacHost()); // only available with AVFoundation
+
     enableFileSizeLimit.setSettingsKey("EnableFileSizeLimit");
     enableFileSizeLimit.setDefaultValue(true);
     enableFileSizeLimit.setLabel(Tr::tr("Size limit for intermediate output file"));
@@ -151,6 +157,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
                 title(Tr::tr("Record settings")),
                 Column {
                     captureCursor,
+                    captureMouseClicks,
                     Row { enableFileSizeLimit, fileSizeLimit, st },
                     Row { enableRtBuffer, rtBufferSize, st },
                 },

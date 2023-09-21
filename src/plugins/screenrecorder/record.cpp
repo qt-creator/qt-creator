@@ -363,6 +363,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
         videoGrabParams = {
             "-f", "avfoundation",
             "-capture_cursor", captureCursorStr,
+            "-capture_mouse_clicks", Internal::settings().captureMouseClicks() ? "1" : "0",
             "-framerate", frameRateStr,
             "-pixel_format", "bgr0",
             "-i", QString("Capture screen %1:none").arg(rS.screenId),
