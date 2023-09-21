@@ -38,6 +38,7 @@ public:
     // Used in other places
     Utils::FilePathAspect lastOpenDirectory{this};
     Utils::FilePathAspect exportLastDirectory{this};
+    Utils::StringAspect exportLastFormat{this};
     Utils::FilePathAspect lastSaveImageDirectory{this};
     Utils::IntegerAspect recordFrameRate{this};
     Utils::IntegerAspect recordScreenId{this};

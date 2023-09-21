@@ -51,7 +51,7 @@ static const QVector<ExportWidget::Format> &formats()
         {
             ExportWidget::Format::AnimatedImage,
             ExportWidget::Format::Lossy,
-            "WebP",
+            "WebP/VP8",
             ".webp",
             {
                 "-pix_fmt", "yuv420p",
@@ -148,11 +148,17 @@ ExportWidget::ExportWidget(QWidget *parent)
 
     connect(exportButton, &QToolButton::clicked, this, [this] {
         FilePathAspect &lastDir = Internal::settings().exportLastDirectory;
-        QString selectedFilter;
+        StringAspect &lastFormat = Internal::settings().exportLastFormat;
+        const Format &defaultFormat = formats().at(1);
+        QTC_CHECK(defaultFormat.displayName == lastFormat.defaultValue());
+        QString selectedFilter = findOr(formats(), defaultFormat,
+                                        [&lastFormat] (const Format &f) {
+                                            return f.displayName == lastFormat();
+                                        }).fileDialogFilter();
         FilePath file = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save as"), lastDir(),
                                                    fileDialogFilters(), &selectedFilter);
         if (!file.isEmpty()) {
-            m_currentFormat = findOr(formats(), formats().first(),
+            m_currentFormat = findOr(formats(), defaultFormat,
                                      [&selectedFilter] (const Format &fp) {
                                          return fp.fileDialogFilter() == selectedFilter;
                                      });
@@ -161,6 +167,8 @@ ExportWidget::ExportWidget(QWidget *parent)
             m_outputClipInfo.file = file;
             lastDir.setValue(file.parentDir());
             lastDir.writeToSettingsImmediatly();
+            lastFormat.setValue(m_currentFormat.displayName);
+            lastFormat.writeToSettingsImmediatly();
             startExport();
         }
     });

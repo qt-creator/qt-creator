@@ -118,6 +118,9 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     exportLastDirectory.setExpectedKind(PathChooser::ExistingDirectory);
     exportLastDirectory.setDefaultValue(FileUtils::homePath().toString());
 
+    exportLastFormat.setSettingsKey("ExportLastFormat");
+    exportLastFormat.setDefaultValue("WebP");
+
     lastSaveImageDirectory.setSettingsKey("LastSaveImageDir");
     lastSaveImageDirectory.setExpectedKind(PathChooser::ExistingDirectory);
     lastSaveImageDirectory.setDefaultValue(FileUtils::homePath().toString());
