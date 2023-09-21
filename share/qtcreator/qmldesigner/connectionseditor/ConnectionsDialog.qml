@@ -21,7 +21,7 @@ PopupDialog {
             anchors.verticalCenter: parent.verticalCenter
             HelperWidgets.ToolTipArea {
                 anchors.fill: parent
-                tooltip: qsTr("Choose the target for the signal.")
+                tooltip: qsTr("Sets the Component that is connected to a <b>Signal</b>.")
             }
         }
 
