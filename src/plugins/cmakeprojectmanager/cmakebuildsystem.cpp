@@ -1283,10 +1283,6 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
                 m_projectKeywords.functions << QString::fromUtf8(arg.Value);
         }
     }
-
-    // Code completion setup
-    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit()))
-        tool->keywords();
 }
 
 void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters)
