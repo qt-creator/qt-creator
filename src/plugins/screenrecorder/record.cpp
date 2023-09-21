@@ -322,6 +322,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
         Internal::settings().recordSettings();
     const QString frameRateStr = QString::number(rS.frameRate);
     const QString screenIdStr = QString::number(rS.screenId);
+    const QString captureCursorStr = Internal::settings().captureCursor() ? "1" : "0";
     QStringList videoGrabParams;
     // see http://trac.ffmpeg.org/wiki/Capture/Desktop
     switch (HostOsInfo::hostOs()) {
@@ -334,6 +335,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
                                               ? screen->size() * screen->devicePixelRatio()
                                               : rS.cropRect.size());
         videoGrabParams.append({"-f", "x11grab"});
+        videoGrabParams.append({"-draw_mouse", captureCursorStr});
         videoGrabParams.append({"-framerate", frameRateStr});
         videoGrabParams.append({"-video_size", videoSize});
         videoGrabParams.append({"-i", QString("%1+%2,%3").arg(x11display)
@@ -348,6 +350,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
                               .arg(rS.cropRect.y()));
         }
         filter.append(":framerate=" + frameRateStr);
+        filter.append(":draw_mouse=" + captureCursorStr);
         filter.append(",hwdownload");
         filter.append(",format=bgra");
         videoGrabParams = {
@@ -359,6 +362,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
     case OsTypeMac: {
         videoGrabParams = {
             "-f", "avfoundation",
+            "-capture_cursor", captureCursorStr,
             "-framerate", frameRateStr,
             "-pixel_format", "bgr0",
             "-i", QString("Capture screen %1:none").arg(rS.screenId),

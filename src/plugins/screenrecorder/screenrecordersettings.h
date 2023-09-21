@@ -5,10 +5,6 @@
 
 #include <utils/aspects.h>
 
-QT_BEGIN_NAMESPACE
-class QScreen;
-QT_END_NAMESPACE
-
 namespace ScreenRecorder::Internal {
 
 class ScreenRecorderSettings : public Utils::AspectContainer
@@ -30,6 +26,7 @@ public:
     // Visible in Settings page
     Utils::FilePathAspect ffmpegTool{this};
     Utils::FilePathAspect ffprobeTool{this};
+    Utils::BoolAspect captureCursor{this};
     Utils::BoolAspect enableFileSizeLimit{this};
     Utils::IntegerAspect fileSizeLimit{this}; // in MB
     Utils::BoolAspect enableRtBuffer{this};

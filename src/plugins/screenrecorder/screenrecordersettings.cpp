@@ -67,6 +67,11 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     ffprobeTool.setDefaultValue(ffprobeDefault.toUserOutput());
     ffprobeTool.setLabelText(Tr::tr("ffprobe tool:"));
 
+    captureCursor.setSettingsKey("CaptureCursor");
+    captureCursor.setDefaultValue(true);
+    captureCursor.setLabel(Tr::tr("Capture the mouse cursor"));
+    captureCursor.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+
     enableFileSizeLimit.setSettingsKey("EnableFileSizeLimit");
     enableFileSizeLimit.setDefaultValue(true);
     enableFileSizeLimit.setLabel(Tr::tr("Size limit for intermediate output file"));
@@ -145,6 +150,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
             Group {
                 title(Tr::tr("Record settings")),
                 Column {
+                    captureCursor,
                     Row { enableFileSizeLimit, fileSizeLimit, st },
                     Row { enableRtBuffer, rtBufferSize, st },
                 },
