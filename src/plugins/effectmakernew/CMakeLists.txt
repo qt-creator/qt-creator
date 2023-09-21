@@ -6,7 +6,7 @@ add_qtc_plugin(EffectMakerNew
     QtCreator::Core QtCreator::QmlDesigner
   DEPENDS
     Qt::Core
-    QtCreator::Utils Qt::CorePrivate Qt::Widgets Qt::Qml Qt::QmlPrivate Qt::Quick Qt::ShaderTools
+    QtCreator::Utils Qt::CorePrivate Qt::Widgets Qt::Qml Qt::QmlPrivate Qt::Quick Qt::ShaderTools Qt::ShaderToolsPrivate
   SOURCES
     effectmakerplugin.cpp effectmakerplugin.h
     effectmakerwidget.cpp effectmakerwidget.h
@@ -22,6 +22,5 @@ add_qtc_plugin(EffectMakerNew
     effectmakercontextobject.cpp effectmakercontextobject.h
     shaderfeatures.cpp shaderfeatures.h
     syntaxhighlighterdata.cpp syntaxhighlighterdata.h
-
   BUILD_DEFAULT OFF
 )

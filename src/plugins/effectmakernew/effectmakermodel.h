@@ -9,6 +9,8 @@
 #include <QRegularExpression>
 #include <QStandardItemModel>
 
+#include <QtShaderTools/private/qshaderbaker_p.h>
+
 namespace EffectMaker {
 
 class CompositionNode;
@@ -125,6 +127,7 @@ private:
     QString m_vertexShader;
     QStringList m_defaultRootVertexShader;
     QStringList m_defaultRootFragmentShader;
+    QShaderBaker m_baker;
     // Used in exported QML, at root of the file
     QString m_exportedRootPropertiesString;
     // Used in exported QML, at ShaderEffect component of the file
