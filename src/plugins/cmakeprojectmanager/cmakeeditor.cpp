@@ -133,7 +133,7 @@ static QString unescape(const QString &s)
 {
     QString result;
     int i = 0;
-    const int size = s.size();
+    const qsizetype size = s.size();
     while (i < size) {
         const QChar c = s.at(i);
         if (c == '\\' && i < size - 1) {
@@ -164,7 +164,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     const QString block = cursor.block().text();
 
     // check if the current position is commented out
-    const int hashPos = block.indexOf(QLatin1Char('#'));
+    const qsizetype hashPos = block.indexOf(QLatin1Char('#'));
     if (hashPos >= 0 && hashPos < column)
         return processLinkCallback(link);
 
