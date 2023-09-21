@@ -299,4 +299,11 @@ void PyDapEngine::setupEngine()
     m_dapClient->dataProvider()->start();
 }
 
+const QLoggingCategory &PyDapEngine::logCategory()
+{
+    static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.python",
+                                                                 QtWarningMsg);
+    return logCategory;
+}
+
 } // namespace Debugger::Internal

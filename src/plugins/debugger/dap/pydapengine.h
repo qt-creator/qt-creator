@@ -26,12 +26,7 @@ private:
     void removeBreakpoint(const Breakpoint &bp) override;
     /* Needed for Python support issue:1386 */
 
-    const QLoggingCategory &logCategory() override
-    {
-        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.python",
-                                                                     QtWarningMsg);
-        return logCategory;
-    }
+    const QLoggingCategory &logCategory() override;
 };
 
 } // Debugger::Internal

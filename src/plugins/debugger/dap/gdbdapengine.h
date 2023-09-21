@@ -20,12 +20,7 @@ private:
 
     bool isLocalAttachEngine() const;
 
-    const QLoggingCategory &logCategory() override
-    {
-        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.gdb",
-                                                                     QtWarningMsg);
-        return logCategory;
-    }
+    const QLoggingCategory &logCategory() override;
 };
 
 } // Debugger::Internal

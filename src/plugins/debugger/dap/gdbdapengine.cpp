@@ -161,4 +161,11 @@ void GdbDapEngine::setupEngine()
     m_dapClient->dataProvider()->start();
 }
 
+const QLoggingCategory &GdbDapEngine::logCategory()
+{
+    static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.gdb",
+                                                                 QtWarningMsg);
+    return logCategory;
+}
+
 } // namespace Debugger::Internal

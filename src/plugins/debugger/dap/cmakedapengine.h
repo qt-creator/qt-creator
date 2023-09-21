@@ -23,12 +23,7 @@ private:
 
     bool hasCapability(unsigned cap) const override;
 
-    const QLoggingCategory &logCategory() override
-    {
-        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.cmake",
-                                                                     QtWarningMsg);
-        return logCategory;
-    }
+    const QLoggingCategory &logCategory() override;
 };
 
 } // Debugger::Internal

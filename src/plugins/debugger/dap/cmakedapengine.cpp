@@ -176,4 +176,11 @@ void CMakeDapEngine::updateBreakpoint(const Breakpoint &bp)
     /* Needed for CMake support issue:25176 */
 }
 
+const QLoggingCategory &CMakeDapEngine::logCategory()
+{
+    static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.cmake",
+                                                                 QtWarningMsg);
+    return logCategory;
+}
+
 } // namespace Debugger::Internal
