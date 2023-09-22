@@ -496,7 +496,7 @@ void RunSettingsWidget::addRunControlWidgets()
 
 void RunSettingsWidget::addSubWidget(QWidget *widget, QLabel *label)
 {
-    widget->setContentsMargins(0, 2, 0, 0);
+    widget->setContentsMargins({});
 
     QFont f = label->font();
     f.setBold(true);
