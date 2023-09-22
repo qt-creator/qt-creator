@@ -273,6 +273,18 @@ void CppEditorPlugin::extensionsInitialized()
         Constants::CPP_HEADER_MIMETYPE);
 }
 
+static void insertIntoMenus(const QList<ActionContainer *> &menus,
+                            const std::function<void(ActionContainer *)> &func)
+{
+    for (ActionContainer * const menu : menus)
+        func(menu);
+}
+
+static void addActionToMenus(const QList<ActionContainer *> &menus, Command *cmd, Id id)
+{
+    insertIntoMenus(menus, [cmd, id](ActionContainer *menu) { menu->addAction(cmd, id); });
+}
+
 void CppEditorPlugin::setupMenus()
 {
     ActionContainer * const cppToolsMenu = ActionManager::createMenu(Constants::M_TOOLS_CPP);
@@ -281,7 +293,7 @@ void CppEditorPlugin::setupMenus()
     ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(cppToolsMenu);
     ActionContainer * const contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
 
-    for (ActionContainer * const menu : {cppToolsMenu, contextMenu}) {
+    insertIntoMenus({cppToolsMenu, contextMenu}, [](ActionContainer *menu) {
         menu->insertGroup(Core::Constants::G_DEFAULT_ONE, Constants::G_SYMBOL);
         menu->insertGroup(Core::Constants::G_DEFAULT_ONE, Constants::G_SELECTION);
         menu->insertGroup(Core::Constants::G_DEFAULT_ONE, Constants::G_FILE);
@@ -289,7 +301,7 @@ void CppEditorPlugin::setupMenus()
         menu->addSeparator(Constants::G_SELECTION);
         menu->addSeparator(Constants::G_FILE);
         menu->addSeparator(Constants::G_GLOBAL);
-    }
+    });
 
     addPerSymbolActions();
     addActionsForSelections();
@@ -310,16 +322,20 @@ void CppEditorPlugin::setupMenus()
 
 void CppEditorPlugin::addPerSymbolActions()
 {
-    ActionContainer * const cppToolsMenu = ActionManager::actionContainer(Constants::M_TOOLS_CPP);
-    ActionContainer * const contextMenu = ActionManager::actionContainer(Constants::M_CONTEXT);
+    const QList<ActionContainer *> menus{ActionManager::actionContainer(Constants::M_TOOLS_CPP),
+                                         ActionManager::actionContainer(Constants::M_CONTEXT)};
     ActionContainer * const touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
     const Context context(Constants::CPPEDITOR_ID);
+    const auto addSymbolActionToMenus = [&menus](Command *cmd) {
+        addActionToMenus(menus, cmd, Constants::G_SYMBOL);
+    };
 
     Command *cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     cmd->setTouchBarText(Tr::tr("Follow", "text on macOS touch bar"));
-    contextMenu->addAction(cmd, Constants::G_SYMBOL);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(cmd);
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
+    addSymbolActionToMenus(ActionManager::command(
+        TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT));
 
     QAction * const followSymbolToType = new QAction(Tr::tr("Follow Symbol Under Cursor to Type"),
                                                     this);
@@ -330,8 +346,7 @@ void CppEditorPlugin::addPerSymbolActions()
         if (CppEditorWidget *editorWidget = currentCppEditorWidget())
             editorWidget->followSymbolToType(false);
     });
-    contextMenu->addAction(cmd, Constants::G_SYMBOL);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(cmd);
 
     QAction * const followSymbolToTypeInNextSplit =
         new QAction(Tr::tr("Follow Symbol to Type in Next Split"), this);
@@ -345,7 +360,7 @@ void CppEditorPlugin::addPerSymbolActions()
         if (CppEditorWidget *editorWidget = currentCppEditorWidget())
             editorWidget->followSymbolToType(true);
     });
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(cmd);
 
     QAction * const switchDeclarationDefinition
         = new QAction(Tr::tr("Switch Between Function Declaration/Definition"), this);
@@ -355,12 +370,8 @@ void CppEditorPlugin::addPerSymbolActions()
     cmd->setTouchBarText(Tr::tr("Decl/Def", "text on macOS touch bar"));
     connect(switchDeclarationDefinition, &QAction::triggered,
             this, &CppEditorPlugin::switchDeclarationDefinition);
-    contextMenu->addAction(cmd, Constants::G_SYMBOL);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(cmd);
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
-
-    cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
 
     QAction * const openDeclarationDefinitionInNextSplit =
         new QAction(Tr::tr("Open Function Declaration/Definition in Next Split"), this);
@@ -372,11 +383,9 @@ void CppEditorPlugin::addPerSymbolActions()
                                                 : Tr::tr("Ctrl+E, Shift+F2")));
     connect(openDeclarationDefinitionInNextSplit, &QAction::triggered,
             this, &CppEditorPlugin::openDeclarationDefinitionInNextSplit);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(cmd);
 
-    cmd = ActionManager::command(TextEditor::Constants::FIND_USAGES);
-    contextMenu->addAction(cmd, Constants::G_SYMBOL);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(ActionManager::command(TextEditor::Constants::FIND_USAGES));
 
     d->m_findRefsCategorizedAction = new QAction(Tr::tr("Find References With Access Type"), this);
     cmd = ActionManager::registerAction(d->m_findRefsCategorizedAction,
@@ -388,12 +397,9 @@ void CppEditorPlugin::addPerSymbolActions()
             codeModelSettings()->setCategorizeFindReferences(false);
         }
     });
-    contextMenu->addAction(cmd, Constants::G_SYMBOL);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(cmd);
 
-    cmd = ActionManager::command(TextEditor::Constants::RENAME_SYMBOL);
-    contextMenu->addAction(cmd, Constants::G_SYMBOL);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(ActionManager::command(TextEditor::Constants::RENAME_SYMBOL));
 
     d->m_openTypeHierarchyAction = new QAction(Tr::tr("Open Type Hierarchy"), this);
     cmd = ActionManager::registerAction(d->m_openTypeHierarchyAction,
@@ -402,42 +408,43 @@ void CppEditorPlugin::addPerSymbolActions()
                                                 ? Tr::tr("Meta+Shift+T") : Tr::tr("Ctrl+Shift+T")));
     connect(d->m_openTypeHierarchyAction, &QAction::triggered,
             this, &CppEditorPlugin::openTypeHierarchy);
-    contextMenu->addAction(cmd, Constants::G_SYMBOL);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(cmd);
 
-    cmd = ActionManager::command(TextEditor::Constants::OPEN_CALL_HIERARCHY);
-    contextMenu->addAction(cmd, Constants::G_SYMBOL);
-    cppToolsMenu->addAction(cmd, Constants::G_SYMBOL);
+    addSymbolActionToMenus(ActionManager::command(TextEditor::Constants::OPEN_CALL_HIERARCHY));
 
     // Refactoring sub-menu
-    Command *sep = contextMenu->addSeparator(Constants::G_SYMBOL);
+    Command *sep = menus.last()->addSeparator(Constants::G_SYMBOL);
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
 }
 
 void CppEditorPlugin::addActionsForSelections()
 {
-    ActionContainer * const contextMenu = ActionManager::actionContainer(Constants::M_CONTEXT);
-    contextMenu->addAction(ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION),
-                           Constants::G_SELECTION);
-    contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION),
-                           Constants::G_SELECTION);
+    const QList<ActionContainer *> menus{ActionManager::actionContainer(Constants::M_TOOLS_CPP),
+                                         ActionManager::actionContainer(Constants::M_CONTEXT)};
+    const auto addSelectionActionToMenus = [&menus](Command *cmd) {
+        addActionToMenus(menus, cmd, Constants::G_SELECTION);
+    };
+    addSelectionActionToMenus(ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION));
+    addSelectionActionToMenus(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
 }
 
 void CppEditorPlugin::addPerFileActions()
 {
-    ActionContainer * const cppToolsMenu = ActionManager::actionContainer(Constants::M_TOOLS_CPP);
-    ActionContainer * const contextMenu = ActionManager::actionContainer(Constants::M_CONTEXT);
+    const QList<ActionContainer *> menus{ActionManager::actionContainer(Constants::M_TOOLS_CPP),
+                                         ActionManager::actionContainer(Constants::M_CONTEXT)};
     ActionContainer * const touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
+    const auto addFileActionToMenus = [&menus](Command *cmd) {
+        addActionToMenus(menus, cmd, Constants::G_FILE);
+    };
     const Context context(Constants::CPPEDITOR_ID);
 
     QAction * const switchAction = new QAction(Tr::tr("Switch Header/Source"), this);
     Command *cmd = ActionManager::registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE,
                                                  context, true);
     cmd->setTouchBarText(Tr::tr("Header/Source", "text on macOS touch bar"));
-    contextMenu->addAction(cmd, Constants::G_FILE);
+    addFileActionToMenus(cmd);
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
-    cppToolsMenu->addAction(cmd, Constants::G_FILE);
     connect(switchAction, &QAction::triggered,
             this, [] { CppModelManager::switchHeaderSource(false); });
 
@@ -448,7 +455,7 @@ void CppEditorPlugin::addPerFileActions()
     cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
                                                 ? Tr::tr("Meta+E, F4")
                                                 : Tr::tr("Ctrl+E, F4")));
-    cppToolsMenu->addAction(cmd, Constants::G_FILE);
+    addFileActionToMenus(cmd);
     connect(switchInNextSplitAction, &QAction::triggered,
             this, [] { CppModelManager::switchHeaderSource(true); });
 
@@ -459,13 +466,12 @@ void CppEditorPlugin::addPerFileActions()
     cmd->setDefaultKeySequence(QKeySequence());
     connect(openPreprocessorDialog, &QAction::triggered,
             this, &CppEditorPlugin::showPreProcessorDialog);
-    cppToolsMenu->addAction(cmd, Constants::G_FILE);
+    addFileActionToMenus(cmd);
 
     QAction * const showPreprocessedAction = new QAction(Tr::tr("Show Preprocessed Source"), this);
     cmd = ActionManager::registerAction(showPreprocessedAction,
                                         Constants::SHOW_PREPROCESSED_FILE, context);
-    cppToolsMenu->addAction(cmd, Constants::G_FILE);
-    contextMenu->addAction(cmd, Constants::G_FILE);
+    addFileActionToMenus(cmd);
     connect(showPreprocessedAction, &QAction::triggered,
             this, [] { CppModelManager::showPreprocessedFile(false); });
 
@@ -473,21 +479,19 @@ void CppEditorPlugin::addPerFileActions()
         (Tr::tr("Show Preprocessed Source in Next Split"), this);
     cmd = ActionManager::registerAction(showPreprocessedInSplitAction,
                                         Constants::SHOW_PREPROCESSED_FILE_SPLIT, context);
-    cppToolsMenu->addAction(cmd, Constants::G_FILE);
+    addFileActionToMenus(cmd);
     connect(showPreprocessedInSplitAction, &QAction::triggered,
             this, [] { CppModelManager::showPreprocessedFile(true); });
 
     QAction * const foldCommentsAction = new QAction(Tr::tr("Fold All Comment Blocks"), this);
     cmd = ActionManager::registerAction(foldCommentsAction,
                                         "CppTools.FoldCommentBlocks", context);
-    cppToolsMenu->addAction(cmd, Constants::G_FILE);
-    contextMenu->addAction(cmd, Constants::G_FILE);
+    addFileActionToMenus(cmd);
     connect(foldCommentsAction, &QAction::triggered, this, [] { CppModelManager::foldComments(); });
     QAction * const unfoldCommentsAction = new QAction(Tr::tr("Unfold All Comment Blocks"), this);
     cmd = ActionManager::registerAction(unfoldCommentsAction,
                                         "CppTools.UnfoldCommentBlocks", context);
-    cppToolsMenu->addAction(cmd, Constants::G_FILE);
-    contextMenu->addAction(cmd, Constants::G_FILE);
+    addFileActionToMenus(cmd);
     connect(unfoldCommentsAction, &QAction::triggered,
             this, [] { CppModelManager::unfoldComments(); });
 
@@ -498,18 +502,21 @@ void CppEditorPlugin::addPerFileActions()
                                                 ? Tr::tr("Meta+Shift+I") : Tr::tr("Ctrl+Shift+I")));
     connect(d->m_openIncludeHierarchyAction, &QAction::triggered,
             this, &CppEditorPlugin::openIncludeHierarchy);
-    contextMenu->addAction(cmd, Constants::G_FILE);
-    cppToolsMenu->addAction(cmd, Constants::G_FILE);
+    addFileActionToMenus(cmd);
 }
 
 void CppEditorPlugin::addGlobalActions()
 {
-    ActionContainer * const cppToolsMenu = ActionManager::actionContainer(Constants::M_TOOLS_CPP);
+    const QList<ActionContainer *> menus{ActionManager::actionContainer(Constants::M_TOOLS_CPP),
+                                         ActionManager::actionContainer(Constants::M_CONTEXT)};
+    const auto addGlobalActionToMenus = [&menus](Command *cmd) {
+        addActionToMenus(menus, cmd, Constants::G_GLOBAL);
+    };
 
     QAction * const findUnusedFunctionsAction = new QAction(Tr::tr("Find Unused Functions"), this);
     Command *cmd = ActionManager::registerAction(findUnusedFunctionsAction,
                                                  "CppTools.FindUnusedFunctions");
-    cppToolsMenu->addAction(cmd, Constants::G_GLOBAL);
+    addGlobalActionToMenus(cmd);
     connect(findUnusedFunctionsAction, &QAction::triggered, this, [] {
         CppModelManager::findUnusedFunctions({});
     });
@@ -535,7 +542,7 @@ void CppEditorPlugin::addGlobalActions()
                                         Constants::UPDATE_CODEMODEL);
     connect(d->m_reparseExternallyChangedFiles, &QAction::triggered,
             CppModelManager::instance(), &CppModelManager::updateModifiedSourceFiles);
-    cppToolsMenu->addAction(cmd, Constants::G_GLOBAL);
+    addGlobalActionToMenus(cmd);
 }
 
 void CppEditorPlugin::setupProjectPanels()
