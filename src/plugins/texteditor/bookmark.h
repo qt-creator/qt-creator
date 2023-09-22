@@ -5,11 +5,11 @@
 
 #include <texteditor/textmark.h>
 
-namespace Bookmarks::Internal {
+namespace TextEditor::Internal {
 
 class BookmarkManager;
 
-class Bookmark : public TextEditor::TextMark
+class Bookmark : public TextMark
 {
 public:
     Bookmark(int lineNumber, BookmarkManager *manager);
@@ -34,4 +34,4 @@ private:
     QString m_lineText;
 };
 
-} // Bookmarks::Internal
+} // TextEditor::Internal

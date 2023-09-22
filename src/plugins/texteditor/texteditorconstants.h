@@ -236,6 +236,9 @@ const char TEXT_SNIPPET_GROUP_ID[] = "Text";
 const char GLOBAL_SETTINGS_ID[]    = "Global";
 const char GENERIC_PROPOSAL_ID[] = "TextEditor.GenericProposalId";
 
+const char BOOKMARKS_PREV_ACTION[]        = "Bookmarks.Previous";
+const char BOOKMARKS_NEXT_ACTION[]        = "Bookmarks.Next";
+
 /**
  * Delay before tooltip will be shown near completion assistant proposal
  */

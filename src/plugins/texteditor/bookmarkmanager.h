@@ -16,7 +16,7 @@
 
 namespace Core { class IContext; }
 
-namespace Bookmarks::Internal {
+namespace TextEditor::Internal {
 
 class Bookmark;
 class BookmarksPlugin;

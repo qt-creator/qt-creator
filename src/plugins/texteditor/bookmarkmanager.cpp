@@ -4,8 +4,8 @@
 #include "bookmarkmanager.h"
 
 #include "bookmark.h"
-#include "bookmarks_global.h"
-#include "bookmarkstr.h"
+#include "texteditorconstants.h"
+#include "texteditortr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -13,8 +13,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/session.h>
-
-#include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
@@ -35,12 +33,14 @@
 #include <QSpinBox>
 #include <QToolButton>
 
-Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
+Q_DECLARE_METATYPE(TextEditor::Internal::Bookmark*)
 
 using namespace Core;
 using namespace Utils;
 
-namespace Bookmarks::Internal {
+namespace TextEditor::Internal {
+
+const char BOOKMARKS_CONTEXT[]            = "Bookmarks";
 
 class BookmarkDelegate : public QStyledItemDelegate
 {
@@ -201,7 +201,7 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
     setWindowTitle(Tr::tr("Bookmarks"));
 
     m_bookmarkContext->setWidget(this);
-    m_bookmarkContext->setContext(Context(Constants::BOOKMARKS_CONTEXT));
+    m_bookmarkContext->setContext(Context(BOOKMARKS_CONTEXT));
 
     ICore::addContextObject(m_bookmarkContext);
 
@@ -223,8 +223,8 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
 
 QList<QToolButton *> BookmarkView::createToolBarWidgets()
 {
-    Command *prevCmd = ActionManager::command(Constants::BOOKMARKS_PREV_ACTION);
-    Command *nextCmd = ActionManager::command(Constants::BOOKMARKS_NEXT_ACTION);
+    Command *prevCmd = ActionManager::command(TextEditor::Constants::BOOKMARKS_PREV_ACTION);
+    Command *nextCmd = ActionManager::command(TextEditor::Constants::BOOKMARKS_NEXT_ACTION);
     QTC_ASSERT(prevCmd && nextCmd, return {});
     auto prevButton = new QToolButton(this);
     prevButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -827,4 +827,4 @@ NavigationView BookmarkViewFactory::createWidget()
     return {view, view->createToolBarWidgets()};
 }
 
-} // Bookmarks::Internal
+} // TextEditor::Internal

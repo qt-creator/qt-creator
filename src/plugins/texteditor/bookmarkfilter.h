@@ -5,7 +5,7 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-namespace Bookmarks::Internal {
+namespace TextEditor::Internal {
 
 class BookmarkManager;
 
@@ -21,4 +21,4 @@ private:
     BookmarkManager *m_manager = nullptr; // not owned
 };
 
-} // Bookmarks::Internal
+} // TextEditor::Internal
