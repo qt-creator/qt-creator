@@ -94,6 +94,8 @@ ScreenRecorderSettings::ScreenRecorderSettings()
         captureType.addOption({"AVFoundation", {}, CaptureType::AVFoundation});
         captureType.setDefaultValue(CaptureType::AVFoundation);
         break;
+    default:
+        break;
     }
     auto setCaptureMouseClicksVisible = [this] {
         const QVariant value = captureType.itemValueForIndex(captureType.volatileValue());
