@@ -11,6 +11,8 @@
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
 
+#include "3rdparty/cmake/cmListFileCache.h"
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -191,6 +193,30 @@ static int addFilePathItems(const AssistInterface *interface,
     return startPos;
 }
 
+QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const QByteArray &content)
+{
+    cmListFile cmakeListFile;
+    std::string errorString;
+    if (!content.isEmpty()) {
+        const std::string fileName = "buffer";
+        if (!cmakeListFile.ParseString(content.toStdString(), fileName, errorString))
+            return {{}, {}};
+    }
+
+    QStringList variables;
+    QStringList functions;
+    for (const auto &func : cmakeListFile.Functions) {
+        if (func.Arguments().size() == 0)
+            continue;
+
+        if (func.LowerCaseName() == "macro" || func.LowerCaseName() == "function")
+            functions << QString::fromUtf8(func.Arguments()[0].Value);
+        if (func.LowerCaseName() == "set" || func.LowerCaseName() == "option")
+            variables << QString::fromUtf8(func.Arguments()[0].Value);
+    }
+    return {functions, variables};
+}
+
 IAssistProposal *CMakeFileCompletionAssist::performAsync()
 {
     CMakeKeywords keywords;
@@ -245,6 +271,9 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         }
     }
 
+    auto [localFunctions, localVariables] = getLocalFunctionsAndVariables(
+        interface()->textAt(0, prevFunctionEnd + 1).toUtf8());
+
     QList<AssistProposalItemInterface *> items;
 
     const QString varGenexToken = interface()->textAt(startPos - 2, 2);
@@ -267,6 +296,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         || functionName == "cmake_print_variables") {
         items.append(generateList(keywords.variables, m_variableIcon));
         items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
+        items.append(generateList(localVariables, m_variableIcon));
     }
 
     if (functionName == "if" || functionName == "elseif" || functionName == "cmake_policy")
@@ -310,6 +340,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         // On a new line we just want functions
         items.append(generateList(keywords.functions, m_functionIcon));
         items.append(generateList(projectKeywords.functions, m_projectFunctionIcon));
+        items.append(generateList(localFunctions, m_functionIcon));
 
         // Snippets would make more sense only for the top level suggestions
         items.append(m_snippetCollector.collect());
@@ -319,6 +350,8 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         if (!onlyFileItems()) {
             items.append(generateList(keywords.variables, m_variableIcon));
             items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
+            items.append(generateList(localVariables, m_variableIcon));
+
             items.append(generateList(keywords.properties, m_propertyIcon));
             items.append(generateList(buildTargets, m_targetsIcon));
         }

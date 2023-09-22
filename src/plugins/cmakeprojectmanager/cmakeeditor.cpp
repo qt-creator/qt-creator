@@ -11,6 +11,8 @@
 #include "cmakekitaspect.h"
 #include "cmakeprojectconstants.h"
 
+#include "3rdparty/cmake/cmListFileCache.h"
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreplugintr.h>
@@ -146,6 +148,35 @@ static QString unescape(const QString &s)
     return result;
 }
 
+QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const Utils::FilePath &filePath)
+{
+    cmListFile cmakeListFile;
+    if (!content.isEmpty()) {
+        std::string errorString;
+        const std::string fileName = "buffer";
+        if (!cmakeListFile.ParseString(content.toStdString(), fileName, errorString))
+            return {};
+    }
+
+    QHash<QString, Utils::Link> hash;
+    for (const auto &func : cmakeListFile.Functions) {
+        if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
+            && func.LowerCaseName() != "set" && func.LowerCaseName() != "option")
+            continue;
+
+        if (func.Arguments().size() == 0)
+            continue;
+        auto arg = func.Arguments()[0];
+
+        Utils::Link link;
+        link.targetFilePath = filePath;
+        link.targetLine = arg.Line;
+        link.targetColumn = arg.Column - 1;
+        hash.insert(QString::fromUtf8(arg.Value), link);
+    }
+    return hash;
+}
+
 void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
                                    const Utils::LinkHandler &processLinkCallback,
                                    bool/* resolveTarget*/,
@@ -194,6 +225,12 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     buffer.replace("${CMAKE_CURRENT_SOURCE_DIR}", dir.path());
     buffer.replace("${CMAKE_CURRENT_LIST_DIR}", dir.path());
 
+    auto addTextStartEndToLink = [&](Utils::Link &link) {
+        link.linkTextStart = cursor.position() - column + beginPos + 1;
+        link.linkTextEnd = cursor.position() - column + endPos;
+        return link;
+    };
+
     if (auto project = ProjectTree::currentProject()) {
         buffer.replace("${CMAKE_SOURCE_DIR}", project->projectDirectory().path());
         if (auto bs = ProjectTree::currentBuildSystem()) {
@@ -216,13 +253,34 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
             const CMakeBuildSystem *cbs = static_cast<const CMakeBuildSystem *>(bs);
             if (cbs->cmakeSymbolsHash().contains(buffer)) {
                 link = cbs->cmakeSymbolsHash().value(buffer);
-                link.linkTextStart = cursor.position() - column + beginPos + 1;
-                link.linkTextEnd = cursor.position() - column + endPos;
+                addTextStartEndToLink(link);
                 return processLinkCallback(link);
             }
         }
     }
     // TODO: Resolve more variables
+
+    // Resolve local variables and functions
+    auto findFunctionEnd = [cursor, this]() -> int {
+        int pos = cursor.position();
+        QChar chr;
+        do {
+            chr = textDocument()->characterAt(--pos);
+        } while (pos > 0 && chr != ')');
+        return pos;
+    };
+    auto hash = getLocalSymbolsHash(textDocument()->textAt(0, findFunctionEnd() + 1).toUtf8(),
+                                    textDocument()->filePath());
+
+    // Strip variable coating
+    if (buffer.startsWith("${") && buffer.endsWith("}"))
+        buffer = buffer.mid(2, buffer.size() - 3);
+
+    if (hash.contains(buffer)) {
+        link = hash.value(buffer);
+        addTextStartEndToLink(link);
+        return processLinkCallback(link);
+    }
 
     Utils::FilePath fileName = dir.withNewPath(unescape(buffer));
     if (fileName.isRelativePath())
@@ -236,9 +294,9 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
                 return processLinkCallback(link);
         }
         link.targetFilePath = fileName;
-        link.linkTextStart = cursor.position() - column + beginPos + 1;
-        link.linkTextEnd = cursor.position() - column + endPos;
+        addTextStartEndToLink(link);
     }
+
     processLinkCallback(link);
 }
 
