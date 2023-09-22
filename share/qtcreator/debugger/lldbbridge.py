@@ -2077,18 +2077,14 @@ if 'QT_CREATOR_LLDB_PROCESS' in os.environ:
 
 # ------------------------------ For use in LLDB ------------------------------
 
+debug = print if 'QT_LLDB_SUMMARY_PROVIDER_DEBUG' in os.environ \
+    else lambda *a, **k: None
 
-from pprint import pprint
-
-__module__ = sys.modules[__name__]
-DEBUG = False if not hasattr(__module__, 'DEBUG') else DEBUG
-
+debug(f"Loading lldbbridge.py from {__file__}")
 
 class LogMixin():
     @staticmethod
     def log(message='', log_caller=False, frame=1, args=''):
-        if not DEBUG:
-            return
         if log_caller:
             message = ": " + message if len(message) else ''
             # FIXME: Compute based on first frame not in this class?
@@ -2097,7 +2093,7 @@ class LogMixin():
             localz = frame.f_locals
             instance = str(localz["self"]) + "." if 'self' in localz else ''
             message = "%s%s(%s)%s" % (instance, fn, args, message)
-        print(message)
+        debug(message)
 
     @staticmethod
     def log_fn(arg_str=''):
@@ -2447,6 +2443,8 @@ def __lldb_init_module(debugger, internal_dict):
     if 'QT_CREATOR_LLDB_PROCESS' in os.environ:
         # Let Qt Creator take care of its own dumper
         return
+
+    debug("Initializing module with", debugger)
 
     if not __name__ == 'qt':
         # Make available under global 'qt' name for consistency,
