@@ -1,5 +1,6 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
 
 #include "abstractview.h"
@@ -9,7 +10,6 @@
 
 namespace QmlDesigner {
 
-struct Collection;
 class CollectionWidget;
 
 class CollectionView : public AbstractView
@@ -18,9 +18,6 @@ class CollectionView : public AbstractView
 
 public:
     explicit CollectionView(ExternalDependenciesInterface &externalDependencies);
-
-    bool loadJson(const QByteArray &data);
-    bool loadCsv(const QString &collectionName, const QByteArray &data);
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
@@ -44,15 +41,13 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
-    void addNewCollection(const QString &name);
+    void addResource(const QUrl &url, const QString &name, const QString &type);
 
 private:
     void refreshModel();
-    ModelNode getNewCollectionNode(const Collection &collection);
-    void addLoadedModel(const QList<Collection> &newCollection);
-    void renameCollection(ModelNode &material, const QString &newName);
-    void ensureCollectionLibraryNode();
-    ModelNode collectionLibraryNode();
+    NodeMetaInfo jsonCollectionMetaInfo() const;
+    NodeMetaInfo csvCollectionMetaInfo() const;
+    void ensureStudioModelImport();
 
     QPointer<CollectionWidget> m_widget;
 };

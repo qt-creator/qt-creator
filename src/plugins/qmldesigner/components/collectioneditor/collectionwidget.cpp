@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QMetaObject>
@@ -103,26 +104,23 @@ void CollectionWidget::reloadQmlSource()
 
 bool CollectionWidget::loadJsonFile(const QString &jsonFileAddress)
 {
-    QUrl jsonUrl(jsonFileAddress);
-    QString fileAddress = jsonUrl.isLocalFile() ? jsonUrl.toLocalFile() : jsonUrl.toString();
-    QFile file(fileAddress);
-    if (file.open(QFile::ReadOnly))
-        return m_view->loadJson(file.readAll());
+    if (!isJsonFile(jsonFileAddress))
+        return false;
 
-    warn("Unable to open the file", file.errorString());
-    return false;
+    QUrl jsonUrl(jsonFileAddress);
+    QFileInfo fileInfo(jsonUrl.isLocalFile() ? jsonUrl.toLocalFile() : jsonUrl.toString());
+
+    m_view->addResource(jsonUrl, fileInfo.completeBaseName(), "json");
+
+    return true;
 }
 
 bool CollectionWidget::loadCsvFile(const QString &collectionName, const QString &csvFileAddress)
 {
     QUrl csvUrl(csvFileAddress);
-    QString fileAddress = csvUrl.isLocalFile() ? csvUrl.toLocalFile() : csvUrl.toString();
-    QFile file(fileAddress);
-    if (file.open(QFile::ReadOnly))
-        return m_view->loadCsv(collectionName, file.readAll());
+    m_view->addResource(csvUrl, collectionName, "csv");
 
-    warn("Unable to open the file", file.errorString());
-    return false;
+    return true;
 }
 
 bool CollectionWidget::isJsonFile(const QString &jsonFileAddress) const
@@ -155,10 +153,10 @@ bool CollectionWidget::isCsvFile(const QString &csvFileAddress) const
     return true;
 }
 
-bool CollectionWidget::addCollection(const QString &collectionName) const
+bool CollectionWidget::addCollection([[maybe_unused]] const QString &collectionName) const
 {
-    m_view->addNewCollection(collectionName);
-    return true;
+    // TODO
+    return false;
 }
 
 void CollectionWidget::warn(const QString &title, const QString &body)

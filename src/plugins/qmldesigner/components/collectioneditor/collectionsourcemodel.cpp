@@ -1,33 +1,91 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #include "collectionsourcemodel.h"
 
 #include "abstractview.h"
+#include "collectioneditorconstants.h"
+#include "collectionlistmodel.h"
 #include "variantproperty.h"
 
 #include <utils/qtcassert.h>
 
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
+
+namespace {
+
+QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
+    const QmlDesigner::ModelNode &sourceNode,
+    QSharedPointer<QmlDesigner::CollectionListModel> initialCollection = {})
+{
+    using namespace QmlDesigner::CollectionEditor;
+    QString sourceFileAddress = sourceNode.variantProperty(SOURCEFILE_PROPERTY).value().toString();
+
+    QSharedPointer<QmlDesigner::CollectionListModel> collectionsList;
+    auto setupCollectionList = [&sourceNode, &initialCollection, &collectionsList]() {
+        if (initialCollection.isNull())
+            collectionsList.reset(new QmlDesigner::CollectionListModel(sourceNode));
+        else if (initialCollection->sourceNode() == sourceNode)
+            collectionsList = initialCollection;
+        else
+            collectionsList.reset(new QmlDesigner::CollectionListModel(sourceNode));
+    };
+
+    if (sourceNode.type() == JSONCOLLECTIONMODEL_TYPENAME) {
+        QFile sourceFile(sourceFileAddress);
+        if (!sourceFile.open(QFile::ReadOnly))
+            return {};
+
+        QJsonParseError parseError;
+        QJsonDocument document = QJsonDocument::fromJson(sourceFile.readAll(), &parseError);
+        if (parseError.error != QJsonParseError::NoError)
+            return {};
+
+        setupCollectionList();
+
+        if (document.isObject()) {
+            const QJsonObject sourceObject = document.object();
+            collectionsList->setStringList(sourceObject.toVariantMap().keys());
+        }
+    } else if (sourceNode.type() == CSVCOLLECTIONMODEL_TYPENAME) {
+        QmlDesigner::VariantProperty collectionNameProperty = sourceNode.variantProperty(
+            "objectName");
+        setupCollectionList();
+        collectionsList->setStringList({collectionNameProperty.value().toString()});
+    }
+    return collectionsList;
+}
+} // namespace
+
 namespace QmlDesigner {
+
 CollectionSourceModel::CollectionSourceModel() {}
 
 int CollectionSourceModel::rowCount(const QModelIndex &) const
 {
-    return m_collections.size();
+    return m_collectionSources.size();
 }
 
 QVariant CollectionSourceModel::data(const QModelIndex &index, int role) const
 {
     QTC_ASSERT(index.isValid(), return {});
 
-    const ModelNode *collection = &m_collections.at(index.row());
+    const ModelNode *collectionSource = &m_collectionSources.at(index.row());
 
     switch (role) {
     case IdRole:
-        return collection->id();
+        return collectionSource->id();
     case NameRole:
-        return collection->variantProperty("objectName").value();
+        return collectionSource->variantProperty("objectName").value();
+    case SourceRole:
+        return collectionSource->variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value();
     case SelectedRole:
         return index.row() == m_selectedIndex;
+    case CollectionsRole:
+        return QVariant::fromValue(m_collectionList.at(index.row()).data());
     }
 
     return {};
@@ -38,29 +96,36 @@ bool CollectionSourceModel::setData(const QModelIndex &index, const QVariant &va
     if (!index.isValid())
         return false;
 
-    ModelNode collection = m_collections.at(index.row());
+    ModelNode collectionSource = m_collectionSources.at(index.row());
     switch (role) {
     case IdRole: {
-        if (collection.id() == value)
+        if (collectionSource.id() == value)
             return false;
 
-        bool duplicatedId = Utils::anyOf(std::as_const(m_collections),
-                                         [&collection, &value](const ModelNode &otherCollection) {
+        bool duplicatedId = Utils::anyOf(std::as_const(m_collectionSources),
+                                         [&collectionSource, &value](const ModelNode &otherCollection) {
                                              return (otherCollection.id() == value
-                                                     && otherCollection != collection);
+                                                     && otherCollection != collectionSource);
                                          });
         if (duplicatedId)
             return false;
 
-        collection.setIdWithRefactoring(value.toString());
+        collectionSource.setIdWithRefactoring(value.toString());
     } break;
     case Qt::DisplayRole:
     case NameRole: {
-        auto collectionName = collection.variantProperty("objectName");
+        auto collectionName = collectionSource.variantProperty("objectName");
         if (collectionName.value() == value)
             return false;
 
         collectionName.setValue(value.toString());
+    } break;
+    case SourceRole: {
+        auto sourceAddress = collectionSource.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY);
+        if (sourceAddress.value() == value)
+            return false;
+
+        sourceAddress.setValue(value.toString());
     } break;
     case SelectedRole: {
         if (value.toBool() != index.data(SelectedRole).toBool())
@@ -82,7 +147,7 @@ bool CollectionSourceModel::removeRows(int row, int count, [[maybe_unused]] cons
     if (row >= rowMax || row < 0)
         return false;
 
-    AbstractView *view = m_collections.at(row).view();
+    AbstractView *view = m_collectionSources.at(row).view();
     if (!view)
         return false;
 
@@ -95,22 +160,22 @@ bool CollectionSourceModel::removeRows(int row, int count, [[maybe_unused]] cons
     beginRemoveRows({}, row, rowMax - 1);
 
     view->executeInTransaction(Q_FUNC_INFO, [row, count, this]() {
-        for (ModelNode node : Utils::span<const ModelNode>(m_collections).subspan(row, count)) {
-            m_collectionsIndexHash.remove(node.internalId());
+        for (ModelNode node : Utils::span<const ModelNode>(m_collectionSources).subspan(row, count)) {
+            m_sourceIndexHash.remove(node.internalId());
             node.destroy();
         }
+        m_collectionSources.remove(row, count);
+        m_collectionList.remove(row, count);
     });
 
-    m_collections.remove(row, count);
-
     int idx = row;
-    for (const ModelNode &node : Utils::span<const ModelNode>(m_collections).subspan(row))
-        m_collectionsIndexHash.insert(node.internalId(), ++idx);
+    for (const ModelNode &node : Utils::span<const ModelNode>(m_collectionSources).subspan(row))
+        m_sourceIndexHash.insert(node.internalId(), ++idx);
 
     endRemoveRows();
 
     if (selectionUpdateNeeded)
-        updateSelectedCollection();
+        updateSelectedSource();
 
     updateEmpty();
     return true;
@@ -121,82 +186,115 @@ QHash<int, QByteArray> CollectionSourceModel::roleNames() const
     static QHash<int, QByteArray> roles;
     if (roles.isEmpty()) {
         roles.insert(Super::roleNames());
-        roles.insert({
-            {IdRole, "collectionId"},
-            {NameRole, "collectionName"},
-            {SelectedRole, "collectionIsSelected"},
-        });
+        roles.insert({{IdRole, "sourceId"},
+                      {NameRole, "sourceName"},
+                      {SelectedRole, "sourceIsSelected"},
+                      {SourceRole, "sourceAddress"},
+                      {CollectionsRole, "collections"}});
     }
     return roles;
 }
 
-void CollectionSourceModel::setCollections(const ModelNodes &collections)
+void CollectionSourceModel::setSources(const ModelNodes &sources)
 {
     beginResetModel();
-    bool wasEmpty = isEmpty();
-    m_collections = collections;
-    m_collectionsIndexHash.clear();
-    int i = 0;
-    for (const ModelNode &collection : collections)
-        m_collectionsIndexHash.insert(collection.internalId(), i++);
+    m_collectionSources = sources;
+    m_sourceIndexHash.clear();
+    m_collectionList.clear();
+    int i = -1;
+    for (const ModelNode &collectionSource : sources) {
+        m_sourceIndexHash.insert(collectionSource.internalId(), ++i);
 
-    if (wasEmpty != isEmpty())
-        emit isEmptyChanged(isEmpty());
+        auto loadedCollection = loadCollection(collectionSource);
+        m_collectionList.append(loadedCollection);
 
+        connect(loadedCollection.data(),
+                &CollectionListModel::selectedIndexChanged,
+                this,
+                &CollectionSourceModel::onSelectedCollectionChanged,
+                Qt::UniqueConnection);
+    }
+
+    updateEmpty();
     endResetModel();
 
-    updateSelectedCollection(true);
+    updateSelectedSource(true);
 }
 
-void CollectionSourceModel::removeCollection(const ModelNode &node)
+void CollectionSourceModel::removeSource(const ModelNode &node)
 {
-    int nodePlace = m_collectionsIndexHash.value(node.internalId(), -1);
+    int nodePlace = m_sourceIndexHash.value(node.internalId(), -1);
     if (nodePlace < 0)
         return;
 
     removeRow(nodePlace);
 }
 
-int CollectionSourceModel::collectionIndex(const ModelNode &node) const
+int CollectionSourceModel::sourceIndex(const ModelNode &node) const
 {
-    return m_collectionsIndexHash.value(node.internalId(), -1);
+    return m_sourceIndexHash.value(node.internalId(), -1);
 }
 
-void CollectionSourceModel::selectCollection(const ModelNode &node)
+void CollectionSourceModel::addSource(const ModelNode &node)
 {
-    int nodePlace = m_collectionsIndexHash.value(node.internalId(), -1);
+    int newRowId = m_collectionSources.count();
+    beginInsertRows({}, newRowId, newRowId);
+    m_collectionSources.append(node);
+    m_sourceIndexHash.insert(node.internalId(), newRowId);
+
+    auto loadedCollection = loadCollection(node);
+    m_collectionList.append(loadedCollection);
+
+    connect(loadedCollection.data(),
+            &CollectionListModel::selectedIndexChanged,
+            this,
+            &CollectionSourceModel::onSelectedCollectionChanged,
+            Qt::UniqueConnection);
+
+    updateEmpty();
+    endInsertRows();
+    updateSelectedSource(true);
+}
+
+void CollectionSourceModel::selectSource(const ModelNode &node)
+{
+    int nodePlace = m_sourceIndexHash.value(node.internalId(), -1);
     if (nodePlace < 0)
         return;
 
-    selectCollectionIndex(nodePlace, true);
+    selectSourceIndex(nodePlace, true);
 }
 
-QmlDesigner::ModelNode CollectionSourceModel::collectionNodeAt(int idx)
+QmlDesigner::ModelNode CollectionSourceModel::sourceNodeAt(int idx)
 {
     QModelIndex data = index(idx);
     if (!data.isValid())
         return {};
 
-    return m_collections.at(idx);
+    return m_collectionSources.at(idx);
 }
 
-bool CollectionSourceModel::isEmpty() const
+CollectionListModel *CollectionSourceModel::selectedCollectionList()
 {
-    return m_collections.isEmpty();
+    QModelIndex idx = index(m_selectedIndex);
+    if (!idx.isValid())
+        return {};
+
+    return idx.data(CollectionsRole).value<CollectionListModel *>();
 }
 
-void CollectionSourceModel::selectCollectionIndex(int idx, bool selectAtLeastOne)
+void CollectionSourceModel::selectSourceIndex(int idx, bool selectAtLeastOne)
 {
-    int collectionCount = m_collections.size();
-    int prefferedIndex = -1;
+    int collectionCount = m_collectionSources.size();
+    int preferredIndex = -1;
     if (collectionCount) {
         if (selectAtLeastOne)
-            prefferedIndex = std::max(0, std::min(idx, collectionCount - 1));
+            preferredIndex = std::max(0, std::min(idx, collectionCount - 1));
         else if (idx > -1 && idx < collectionCount)
-            prefferedIndex = idx;
+            preferredIndex = idx;
     }
 
-    setSelectedIndex(prefferedIndex);
+    setSelectedIndex(preferredIndex);
 }
 
 void CollectionSourceModel::deselect()
@@ -204,17 +302,25 @@ void CollectionSourceModel::deselect()
     setSelectedIndex(-1);
 }
 
-void CollectionSourceModel::updateSelectedCollection(bool selectAtLeastOne)
+void CollectionSourceModel::updateSelectedSource(bool selectAtLeastOne)
 {
     int idx = m_selectedIndex;
     m_selectedIndex = -1;
-    selectCollectionIndex(idx, selectAtLeastOne);
+    selectSourceIndex(idx, selectAtLeastOne);
 }
 
 void CollectionSourceModel::updateNodeName(const ModelNode &node)
 {
     QModelIndex index = indexOfNode(node);
     emit dataChanged(index, index, {NameRole, Qt::DisplayRole});
+    updateCollectionList(index);
+}
+
+void CollectionSourceModel::updateNodeSource(const ModelNode &node)
+{
+    QModelIndex index = indexOfNode(node);
+    emit dataChanged(index, index, {SourceRole});
+    updateCollectionList(index);
 }
 
 void CollectionSourceModel::updateNodeId(const ModelNode &node)
@@ -223,9 +329,28 @@ void CollectionSourceModel::updateNodeId(const ModelNode &node)
     emit dataChanged(index, index, {IdRole});
 }
 
+QString CollectionSourceModel::selectedSourceAddress() const
+{
+    return index(m_selectedIndex).data(SourceRole).toString();
+}
+
+void CollectionSourceModel::onSelectedCollectionChanged(int collectionIndex)
+{
+    CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
+    if (collectionIndex > -1 && collectionList) {
+        if (_previousSelectedList && _previousSelectedList != collectionList)
+            _previousSelectedList->selectCollectionIndex(-1);
+
+        emit collectionSelected(collectionList->sourceNode(),
+                                collectionList->collectionNameAt(collectionIndex));
+
+        _previousSelectedList = collectionList;
+    }
+}
+
 void CollectionSourceModel::setSelectedIndex(int idx)
 {
-    idx = (idx > -1 && idx < m_collections.count()) ? idx : -1;
+    idx = (idx > -1 && idx < m_collectionSources.count()) ? idx : -1;
 
     if (m_selectedIndex != idx) {
         QModelIndex previousIndex = index(m_selectedIndex);
@@ -245,7 +370,7 @@ void CollectionSourceModel::setSelectedIndex(int idx)
 
 void CollectionSourceModel::updateEmpty()
 {
-    bool isEmptyNow = isEmpty();
+    bool isEmptyNow = m_collectionSources.isEmpty();
     if (m_isEmpty != isEmptyNow) {
         m_isEmpty = isEmptyNow;
         emit isEmptyChanged(m_isEmpty);
@@ -255,8 +380,22 @@ void CollectionSourceModel::updateEmpty()
     }
 }
 
+void CollectionSourceModel::updateCollectionList(QModelIndex index)
+{
+    if (!index.isValid())
+        return;
+
+    ModelNode sourceNode = sourceNodeAt(index.row());
+    QSharedPointer<CollectionListModel> currentList = m_collectionList.at(index.row());
+    QSharedPointer<CollectionListModel> newList = loadCollection(sourceNode, currentList);
+    if (currentList != newList) {
+        m_collectionList.replace(index.row(), newList);
+        emit this->dataChanged(index, index, {CollectionsRole});
+    }
+}
+
 QModelIndex CollectionSourceModel::indexOfNode(const ModelNode &node) const
 {
-    return index(m_collectionsIndexHash.value(node.internalId(), -1));
+    return index(m_sourceIndexHash.value(node.internalId(), -1));
 }
 } // namespace QmlDesigner
