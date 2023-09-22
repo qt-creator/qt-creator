@@ -21,17 +21,17 @@ namespace Internal {  class IntrospectionData;  }
 
 struct CMAKE_EXPORT CMakeKeywords
 {
-    QSet<QString> variables;
-    QSet<QString> functions;
-    QSet<QString> properties;
+    QMap<QString, Utils::FilePath> variables;
+    QMap<QString, Utils::FilePath> functions;
+    QMap<QString, Utils::FilePath> properties;
     QSet<QString> generatorExpressions;
-    QSet<QString> directoryProperties;
-    QSet<QString> sourceProperties;
-    QSet<QString> targetProperties;
-    QSet<QString> testProperties;
-    QSet<QString> includeStandardModules;
-    QSet<QString> findModules;
-    QSet<QString> policies;
+    QMap<QString, Utils::FilePath> directoryProperties;
+    QMap<QString, Utils::FilePath> sourceProperties;
+    QMap<QString, Utils::FilePath> targetProperties;
+    QMap<QString, Utils::FilePath> testProperties;
+    QMap<QString, Utils::FilePath> includeStandardModules;
+    QMap<QString, Utils::FilePath> findModules;
+    QMap<QString, Utils::FilePath> policies;
     QMap<QString, QStringList> functionArgs;
 };
 
@@ -117,7 +117,7 @@ private:
     void runCMake(Utils::Process &proc, const QStringList &args, int timeoutS = 1) const;
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
-    void parseSyntaxHighlightingXml();
+    QStringList parseSyntaxHighlightingXml();
 
     void fetchFromCapabilities(bool ignoreCache = false) const;
     void parseFromCapabilities(const QString &input) const;
