@@ -49,6 +49,7 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
+#include <optional>
 #include <vector>
 
 using namespace CPlusPlus;
@@ -687,8 +688,14 @@ SearchResultItems symbolOccurrencesInDeclarationComments(
         }
     };
 
+    struct ClassInfo {
+        FilePath filePath;
+        int startOffset = -1;
+        int endOffset = -1;
+    };
+    std::optional<ClassInfo> classInfo;
+
     // Collect comment blocks associated with replace locations.
-    Symbol *canonicalSymbol = nullptr;
     for (const SearchResultItem &item : symbolOccurrencesInCode) {
         const FilePath filePath = FilePath::fromUserInput(item.path().last());
         auto &[doc, content, cppDoc, allCommentTokens] = fileData(filePath);
@@ -705,10 +712,19 @@ SearchResultItems symbolOccurrencesInDeclarationComments(
         for (const Token &tok : commentTokens)
             addToken(allCommentTokens, tok);
 
-        if (!canonicalSymbol) {
+        if (!classInfo) {
             QTextCursor cursor(doc);
             cursor.setPosition(Text::positionInText(doc, range.begin.line, range.begin.column + 1));
-            canonicalSymbol = Internal::CanonicalSymbol(cppDoc, snapshot)(cursor);
+            Internal::CanonicalSymbol cs(cppDoc, snapshot);
+            Symbol * const canonicalSymbol = cs(cursor);
+            if (canonicalSymbol) {
+                classInfo.emplace();
+                if (Class * const klass = canonicalSymbol->asClass()) {
+                    classInfo->filePath = canonicalSymbol->filePath();
+                    classInfo->startOffset = klass->startOffset();
+                    classInfo->endOffset = klass->endOffset();
+                }
+            }
         }
 
         // We hook in between the end of the "regular" search and (possibly non-interactive)
@@ -722,14 +738,14 @@ SearchResultItems symbolOccurrencesInDeclarationComments(
     }
 
     // If the symbol is a class, collect all comment blocks in the class body.
-    if (Class * const klass = canonicalSymbol ? canonicalSymbol->asClass() : nullptr) {
-        auto &[_1, _2, symbolCppDoc, commentTokens] = fileData(canonicalSymbol->filePath());
+    if (classInfo && !classInfo->filePath.isEmpty()) {
+        auto &[_1, _2, symbolCppDoc, commentTokens] = fileData(classInfo->filePath);
         TranslationUnit * const tu = symbolCppDoc->translationUnit();
         for (int i = 0; i < tu->commentCount(); ++i) {
             const Token &tok = tu->commentAt(i);
-            if (tok.bytesBegin() < klass->startOffset())
+            if (tok.bytesBegin() < classInfo->startOffset)
                 continue;
-            if (tok.bytesBegin() >= klass->endOffset())
+            if (tok.bytesBegin() >= classInfo->endOffset)
                 break;
             addToken(commentTokens, tok);
         }
@@ -806,7 +822,8 @@ QList<Text::Range> symbolOccurrencesInDeclarationComments(CppEditorWidget *edito
     const Document::Ptr &cppDoc = semanticInfo.doc;
     if (!cppDoc)
         return {};
-    const Symbol * const symbol = Internal::CanonicalSymbol(cppDoc, semanticInfo.snapshot)(cursor);
+    Internal::CanonicalSymbol cs(cppDoc, semanticInfo.snapshot);
+    const Symbol * const symbol = cs(cursor);
     if (!symbol || !symbol->asArgument())
         return {};
     const QTextDocument * const textDoc = editorWidget->textDocument()->document();

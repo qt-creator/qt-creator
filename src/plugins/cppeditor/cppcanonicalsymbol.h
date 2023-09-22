@@ -21,7 +21,7 @@ public:
 
     CPlusPlus::Scope *getScopeAndExpression(const QTextCursor &cursor, QString *code);
 
-    CPlusPlus::Symbol *operator()(const QTextCursor &cursor);
+    CPlusPlus::Symbol *operator()(const QTextCursor &cursor) &;
     CPlusPlus::Symbol *operator()(CPlusPlus::Scope *scope, const QString &code);
 
 public:
