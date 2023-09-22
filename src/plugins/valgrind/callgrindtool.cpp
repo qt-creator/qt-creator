@@ -281,7 +281,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
         cmd->setAttribute(Command::CA_NonConfigurable);
     }
 
-    QSettings *coreSettings = ICore::settings();
+    QtcSettings *coreSettings = ICore::settings();
 
     //
     // DockWidgets

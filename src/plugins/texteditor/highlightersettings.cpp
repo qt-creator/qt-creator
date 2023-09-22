@@ -7,34 +7,34 @@
 
 #include <coreplugin/icore.h>
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
 
 using namespace Utils;
 
 namespace TextEditor {
 
-const QLatin1String kDefinitionFilesPath("UserDefinitionFilesPath");
-const QLatin1String kIgnoredFilesPatterns("IgnoredFilesPatterns");
+const char kDefinitionFilesPath[] = "UserDefinitionFilesPath";
+const char kIgnoredFilesPatterns[] = "IgnoredFilesPatterns";
 
-static QString groupSpecifier(const QString &postFix, const QString &category)
+static Key groupSpecifier(const Key &postFix, const Key &category)
 {
     if (category.isEmpty())
         return postFix;
-    return QString(category + postFix);
+    return Key(category + postFix);
 }
 
-void HighlighterSettings::toSettings(const QString &category, QSettings *s) const
+void HighlighterSettings::toSettings(const Key &category, QtcSettings *s) const
 {
-    const QString &group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
+    const Key group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
     s->beginGroup(group);
     s->setValue(kDefinitionFilesPath, m_definitionFilesPath.toSettings());
     s->setValue(kIgnoredFilesPatterns, ignoredFilesPatterns());
     s->endGroup();
 }
 
-void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
+void HighlighterSettings::fromSettings(const Key &category, QtcSettings *s)
 {
-    const QString &group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
+    const Key group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
     s->beginGroup(group);
     m_definitionFilesPath = FilePath::fromSettings(s->value(kDefinitionFilesPath));
     if (!s->contains(kDefinitionFilesPath))

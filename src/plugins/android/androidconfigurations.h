@@ -11,17 +11,13 @@
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <utils/filepath.h>
+
 #include <QStringList>
 #include <QVector>
 #include <QHash>
 #include <QMap>
 #include <QVersionNumber>
-
-#include <utils/filepath.h>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Abi; }
 
@@ -58,8 +54,8 @@ public:
 class AndroidConfig
 {
 public:
-    void load(const QSettings &settings);
-    void save(QSettings &settings) const;
+    void load(const Utils::QtcSettings &settings);
+    void save(Utils::QtcSettings &settings) const;
 
     static QStringList apiLevelNamesFor(const SdkPlatformList &platforms);
     static QString apiLevelNameFor(const SdkPlatform *platform);

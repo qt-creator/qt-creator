@@ -5,7 +5,9 @@
 
 #include "modeleditor_constants.h"
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
+
+using namespace Utils;
 
 namespace ModelEditor {
 namespace Internal {
@@ -19,17 +21,17 @@ void SettingsController::reset()
     emit resetSettings();
 }
 
-void SettingsController::save(QSettings *settings)
+void SettingsController::save(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
+    settings->beginGroup(Constants::SETTINGS_GROUP);
     emit saveSettings(settings);
     settings->endGroup();
     settings->sync();
 }
 
-void SettingsController::load(QSettings *settings)
+void SettingsController::load(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
+    settings->beginGroup(Constants::SETTINGS_GROUP);
     emit loadSettings(settings);
     settings->endGroup();
 }

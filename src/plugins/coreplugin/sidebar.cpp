@@ -5,13 +5,16 @@
 #include "sidebarwidget.h"
 
 #include "actionmanager/command.h"
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 #include <utils/utilsicons.h>
 
-#include <QSettings>
 #include <QPointer>
 #include <QToolButton>
+
+using namespace Utils;
 
 namespace Core {
 
@@ -228,9 +231,9 @@ void SideBar::updateWidgets()
         i->updateAvailableItems();
 }
 
-void SideBar::saveSettings(QSettings *settings, const QString &name)
+void SideBar::saveSettings(QtcSettings *settings, const QString &name)
 {
-    const QString prefix = name.isEmpty() ? name : (name + QLatin1Char('/'));
+    const Key prefix = keyFromString(name.isEmpty() ? name : (name + QLatin1Char('/')));
 
     QStringList views;
     for (int i = 0; i < d->m_widgets.count(); ++i) {
@@ -241,11 +244,10 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
     if (views.isEmpty() && !d->m_itemMap.isEmpty())
         views.append(d->m_itemMap.cbegin().key());
 
-    settings->setValue(prefix + QLatin1String("Views"), views);
-    settings->setValue(prefix + QLatin1String("Visible"),
-                       parentWidget() ? isVisibleTo(parentWidget()) : true);
-    settings->setValue(prefix + QLatin1String("VerticalPosition"), saveState());
-    settings->setValue(prefix + QLatin1String("Width"), width());
+    settings->setValue(prefix + "Views", views);
+    settings->setValue(prefix + "Visible", parentWidget() ? isVisibleTo(parentWidget()) : true);
+    settings->setValue(prefix + "VerticalPosition", saveState());
+    settings->setValue(prefix + "Width", width());
 }
 
 void SideBar::closeAllWidgets()
@@ -254,13 +256,13 @@ void SideBar::closeAllWidgets()
         removeSideBarWidget(widget);
 }
 
-void SideBar::readSettings(QSettings *settings, const QString &name)
+void SideBar::readSettings(QtcSettings *settings, const QString &name)
 {
-    const QString prefix = name.isEmpty() ? name : (name + QLatin1Char('/'));
+    const Key prefix = keyFromString(name.isEmpty() ? name : (name + QLatin1Char('/')));
 
     closeAllWidgets();
 
-    const QString viewsKey = prefix + QLatin1String("Views");
+    const Key viewsKey = prefix + "Views";
     if (settings->contains(viewsKey)) {
         const QStringList views = settings->value(viewsKey).toStringList();
         if (!views.isEmpty()) {
@@ -277,15 +279,15 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
             insertSideBarWidget(d->m_widgets.count(), id);
     }
 
-    const QString visibleKey = prefix + QLatin1String("Visible");
+    const Key visibleKey = prefix + "Visible";
     if (settings->contains(visibleKey))
         setVisible(settings->value(visibleKey).toBool());
 
-    const QString positionKey = prefix + QLatin1String("VerticalPosition");
+    const Key positionKey = prefix + "VerticalPosition";
     if (settings->contains(positionKey))
         restoreState(settings->value(positionKey).toByteArray());
 
-    const QString widthKey = prefix + QLatin1String("Width");
+    const Key widthKey = prefix + "Width";
     if (settings->contains(widthKey)) {
         QSize s = size();
         s.setWidth(settings->value(widthKey).toInt());
@@ -318,5 +320,5 @@ QMap<QString, Command*> SideBar::shortcutMap() const
 {
     return d->m_shortcutMap;
 }
-} // namespace Core
 
+} // namespace Core

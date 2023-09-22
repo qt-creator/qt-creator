@@ -86,8 +86,8 @@ class StartApplicationParameters
 public:
     QString displayName() const;
     bool equals(const StartApplicationParameters &rhs) const;
-    void toSettings(QSettings *) const;
-    void fromSettings(const QSettings *settings);
+    void toSettings(QtcSettings *) const;
+    void fromSettings(const QtcSettings *settings);
 
     bool operator==(const StartApplicationParameters &p) const { return equals(p); }
     bool operator!=(const StartApplicationParameters &p) const { return !equals(p); }
@@ -140,7 +140,7 @@ QString StartApplicationParameters::displayName() const
     return name;
 }
 
-void StartApplicationParameters::toSettings(QSettings *settings) const
+void StartApplicationParameters::toSettings(QtcSettings *settings) const
 {
     settings->setValue("LastKitId", kitId.toSetting());
     settings->setValue("LastServerPort", serverPort);
@@ -157,7 +157,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastSysRoot", sysRoot.toSettings());
 }
 
-void StartApplicationParameters::fromSettings(const QSettings *settings)
+void StartApplicationParameters::fromSettings(const QtcSettings *settings)
 {
     kitId = Id::fromSetting(settings->value("LastKitId"));
     serverPort = settings->value("LastServerPort").toUInt();
@@ -344,11 +344,11 @@ void StartApplicationDialog::updateState()
 
 void StartApplicationDialog::run(bool attachRemote)
 {
-    const QString settingsGroup = "DebugMode";
+    const Key settingsGroup = "DebugMode";
     const QString arrayName = "StartApplication";
 
     QList<StartApplicationParameters> history;
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(settingsGroup);
     if (const int arraySize = settings->beginReadArray(arrayName)) {
         for (int i = 0; i < arraySize; ++i) {

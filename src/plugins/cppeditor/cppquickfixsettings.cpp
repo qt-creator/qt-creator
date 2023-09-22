@@ -7,9 +7,12 @@
 #include "cppeditorconstants.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/qtcsettings.h>
 
 #include <QRegularExpression>
+
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -35,7 +38,7 @@ void CppQuickFixSettings::loadGlobalSettings()
     }
 }
 
-void CppQuickFixSettings::loadSettingsFrom(QSettings *s)
+void CppQuickFixSettings::loadSettingsFrom(QtcSettings *s)
 {
     CppQuickFixSettings def;
     s->beginGroup(Constants::QUICK_FIX_SETTINGS_ID);
@@ -110,9 +113,8 @@ void CppQuickFixSettings::loadSettingsFrom(QSettings *s)
     s->endGroup();
 }
 
-void CppQuickFixSettings::saveSettingsTo(QSettings *s)
+void CppQuickFixSettings::saveSettingsTo(QtcSettings *s)
 {
-    using Utils::QtcSettings;
     CppQuickFixSettings def;
     s->beginGroup(Constants::QUICK_FIX_SETTINGS_ID);
     QtcSettings::setValueWithDefault(s,

@@ -607,7 +607,7 @@ void DebuggerEnginePrivate::setupViews()
     connect(&m_locationTimer, &QTimer::timeout,
             this, &DebuggerEnginePrivate::resetLocation);
 
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
 
     m_modulesView = new BaseTreeView;
     m_modulesView->setModel(m_modulesHandler.model());
@@ -2730,7 +2730,7 @@ Context CppDebuggerEngine::languageContext() const
 
 void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
-    static const QString warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
+    static const Key warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
 
     const bool warnOnRelease = settings().warnOnReleaseBuilds()
                                && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;

@@ -5,6 +5,7 @@
 
 #include "algorithm.h"
 #include "qtcassert.h"
+#include "qtcsettings.h"
 #include "stringutils.h"
 #include "utilstr.h"
 
@@ -434,49 +435,48 @@ void FancyMainWindow::handleVisibilityChanged(bool visible)
         d->m_handleDockVisibilityChanges = true;
 }
 
-void FancyMainWindow::saveSettings(QSettings *settings) const
+void FancyMainWindow::saveSettings(QtcSettings *settings) const
 {
-    const QHash<QString, QVariant> hash = saveSettings();
+    const QHash<Key, QVariant> hash = saveSettings();
     for (auto it = hash.cbegin(), end = hash.cend(); it != end; ++it)
         settings->setValue(it.key(), it.value());
 }
 
-void FancyMainWindow::restoreSettings(const QSettings *settings)
+void FancyMainWindow::restoreSettings(const QtcSettings *settings)
 {
-    QHash<QString, QVariant> hash;
-    const QStringList childKeys = settings->childKeys();
-    for (const QString &key : childKeys)
+    QHash<Key, QVariant> hash;
+    const KeyList childKeys = settings->childKeys();
+    for (const Key &key : childKeys)
         hash.insert(key, settings->value(key));
     restoreSettings(hash);
 }
 
-QHash<QString, QVariant> FancyMainWindow::saveSettings() const
+QHash<Key, QVariant> FancyMainWindow::saveSettings() const
 {
-    QHash<QString, QVariant> settings;
-    settings.insert(QLatin1String(StateKey), saveState(settingsVersion));
-    settings.insert(QLatin1String(AutoHideTitleBarsKey),
-        d->m_autoHideTitleBars.isChecked());
+    QHash<Key, QVariant> settings;
+    settings.insert(StateKey, saveState(settingsVersion));
+    settings.insert(AutoHideTitleBarsKey, d->m_autoHideTitleBars.isChecked());
     settings.insert(ShowCentralWidgetKey, d->m_showCentralWidget.isChecked());
     for (QDockWidget *dockWidget : dockWidgets()) {
-        settings.insert(dockWidget->objectName(),
+        settings.insert(keyFromString(dockWidget->objectName()),
                 dockWidget->property(dockWidgetActiveState));
     }
     return settings;
 }
 
-void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
+void FancyMainWindow::restoreSettings(const QHash<Key, QVariant> &settings)
 {
-    QByteArray ba = settings.value(QLatin1String(StateKey), QByteArray()).toByteArray();
+    QByteArray ba = settings.value(StateKey, QByteArray()).toByteArray();
     if (!ba.isEmpty()) {
         if (!restoreState(ba, settingsVersion))
             qWarning() << "Restoring the state of dock widgets failed.";
     }
-    bool on = settings.value(QLatin1String(AutoHideTitleBarsKey), true).toBool();
+    bool on = settings.value(AutoHideTitleBarsKey, true).toBool();
     d->m_autoHideTitleBars.setChecked(on);
     d->m_showCentralWidget.setChecked(settings.value(ShowCentralWidgetKey, true).toBool());
     for (QDockWidget *widget : dockWidgets()) {
         widget->setProperty(dockWidgetActiveState,
-            settings.value(widget->objectName(), false));
+                            settings.value(keyFromString(widget->objectName()), false));
     }
 }
 

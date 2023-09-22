@@ -9,9 +9,7 @@
 #include <optional>
 #include <vector>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils { class QtcSettings; }
 
 namespace CppEditor {
 
@@ -65,8 +63,8 @@ public:
     explicit CppQuickFixSettings(bool loadGlobalSettings = false);
 
     void loadGlobalSettings();
-    void loadSettingsFrom(QSettings *);
-    void saveSettingsTo(QSettings *);
+    void loadSettingsFrom(Utils::QtcSettings *);
+    void saveSettingsTo(Utils::QtcSettings *);
     void saveAsGlobalSettings();
     void setDefaultSettings();
 

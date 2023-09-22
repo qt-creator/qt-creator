@@ -283,7 +283,7 @@ static void setHighDpiEnvironmentVariable()
     if (Utils::HostOsInfo::isMacHost() || qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
         return;
 
-    std::unique_ptr<QSettings> settings(createUserSettings());
+    std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
 
     const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
     const bool enableHighDpiScaling = settings->value("Core/EnableHighDpiScaling", defaultValue).toBool();
@@ -413,7 +413,7 @@ QStringList lastSessionArgument()
 // and src\tools\qml2puppet\qml2puppet\qmlpuppet.cpp -> QString crashReportsPath()
 QString crashReportsPath()
 {
-    std::unique_ptr<QSettings> settings(createUserSettings());
+    std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
     QFileInfo(settings->fileName()).path() + "/crashpad_reports";
     if (Utils::HostOsInfo::isMacHost())
         return QFileInfo(createUserSettings()->fileName()).path() + "/crashpad_reports";

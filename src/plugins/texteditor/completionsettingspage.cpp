@@ -313,7 +313,7 @@ CompletionSettingsPage::CompletionSettingsPage()
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this] { return new CompletionSettingsPageWidget(this); });
 
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     m_completionSettings.fromSettings(s);
 }
 

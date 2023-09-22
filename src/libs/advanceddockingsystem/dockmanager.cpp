@@ -21,6 +21,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
 #include <algorithm>
 #include <iostream>
@@ -90,7 +91,7 @@ public:
     QList<Workspace> m_workspaces;
     Workspace m_workspace;
 
-    QSettings *m_settings = nullptr;
+    QtcSettings *m_settings = nullptr;
     bool m_modeChangeState = false;
     bool m_workspaceOrderDirty = false;
 
@@ -439,7 +440,7 @@ int DockManager::startDragDistance()
     return static_cast<int>(QApplication::startDragDistance() * 1.5);
 }
 
-void DockManager::setSettings(QSettings *settings)
+void DockManager::setSettings(QtcSettings *settings)
 {
     d->m_settings = settings;
 }

@@ -246,12 +246,12 @@ GitGrepParameters GitGrep::gitParameters() const
     return {m_treeLineEdit->text(), m_recurseSubmodules && m_recurseSubmodules->isChecked()};
 }
 
-void GitGrep::readSettings(QSettings *settings)
+void GitGrep::readSettings(QtcSettings *settings)
 {
     m_treeLineEdit->setText(settings->value(GitGrepRef).toString());
 }
 
-void GitGrep::writeSettings(QSettings *settings) const
+void GitGrep::writeSettings(QtcSettings *settings) const
 {
     settings->setValue(GitGrepRef, m_treeLineEdit->text());
 }

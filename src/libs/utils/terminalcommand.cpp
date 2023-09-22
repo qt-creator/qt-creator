@@ -6,14 +6,11 @@
 #include "algorithm.h"
 #include "environment.h"
 #include "hostosinfo.h"
-
-#include <QCoreApplication>
-#include <QFileInfo>
-#include <QSettings>
+#include "qtcsettings.h"
 
 namespace Utils {
 
-static QSettings *s_settings = nullptr;
+static QtcSettings *s_settings = nullptr;
 
 TerminalCommand::TerminalCommand(const FilePath &command, const QString &openArgs,
                                  const QString &executeArgs, bool needsQuotes)
@@ -40,7 +37,7 @@ bool TerminalCommand::operator<(const TerminalCommand &other) const
     return command < other.command;
 }
 
-void TerminalCommand::setSettings(QSettings *settings)
+void TerminalCommand::setSettings(QtcSettings *settings)
 {
     s_settings = settings;
 }

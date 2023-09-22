@@ -41,6 +41,7 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/process.h>
+#include <utils/qtcsettings.h>
 
 #include <QAction>
 #include <QDesktopServices>
@@ -50,6 +51,7 @@
 #include <QTimer>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QmlProjectManager::Internal {
 
@@ -131,8 +133,8 @@ void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
 
 Utils::FilePath QmlProjectPlugin::qdsInstallationEntry()
 {
-    QSettings *settings = Core::ICore::settings();
-    const QString qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
+    QtcSettings *settings = Core::ICore::settings();
+    const Key qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
 
     return Utils::FilePath::fromUserInput(settings->value(qdsInstallationEntry).toString());
 }

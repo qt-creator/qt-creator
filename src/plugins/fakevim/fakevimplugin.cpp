@@ -636,7 +636,7 @@ void FakeVimExCommandsMappings::apply()
 
     if (newMapping != globalCommandMapping) {
         const ExCommandMap &defaultMap = dd->m_defaultExCommandMap;
-        QSettings *settings = ICore::settings();
+        QtcSettings *settings = ICore::settings();
         settings->beginWriteArray(exCommandMapGroup);
         int count = 0;
         using Iterator = ExCommandMap::const_iterator;
@@ -776,7 +776,7 @@ private:
         UserCommandMap &userMap = dd->m_userCommandMap;
 
         if (current != userMap) {
-            QSettings *settings = ICore::settings();
+            QtcSettings *settings = ICore::settings();
             settings->beginWriteArray(userCommandMapGroup);
             int count = 0;
             using Iterator = UserCommandMap::const_iterator;
@@ -1146,7 +1146,7 @@ void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
 
 void FakeVimPluginPrivate::readSettings()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
 
     m_exCommandMap = m_defaultExCommandMap;
     int size = settings->beginReadArray(exCommandMapGroup);

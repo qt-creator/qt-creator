@@ -569,10 +569,10 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
     Kit *kit = nullptr;
 
     {
-        QSettings *settings = ICore::settings();
+        QtcSettings *settings = ICore::settings();
 
-        kitId = Id::fromSetting(settings->value(QLatin1String("AnalyzerQmlAttachDialog/kitId")));
-        port = settings->value(QLatin1String("AnalyzerQmlAttachDialog/port"), 3768).toInt();
+        kitId = Id::fromSetting(settings->value("AnalyzerQmlAttachDialog/kitId"));
+        port = settings->value("AnalyzerQmlAttachDialog/port", 3768).toInt();
 
         QmlProfilerAttachDialog dialog;
 
@@ -587,8 +587,8 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
         QTC_ASSERT(port >= 0, return nullptr);
         QTC_ASSERT(port <= std::numeric_limits<quint16>::max(), return nullptr);
 
-        settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/kitId"), kit->id().toSetting());
-        settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/port"), port);
+        settings->setValue("AnalyzerQmlAttachDialog/kitId", kit->id().toSetting());
+        settings->setValue("AnalyzerQmlAttachDialog/port", port);
     }
 
     QUrl serverUrl;

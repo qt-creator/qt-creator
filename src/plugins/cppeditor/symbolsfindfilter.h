@@ -37,8 +37,8 @@ public:
     void findAll(const QString &txt, Utils::FindFlags findFlags) override;
 
     QWidget *createConfigWidget() override;
-    void writeSettings(QSettings *settings) override;
-    void readSettings(QSettings *settings) override;
+    void writeSettings(Utils::QtcSettings *settings) override;
+    void readSettings(Utils::QtcSettings *settings) override;
 
     void setSymbolsToSearch(const SearchSymbols::SymbolTypes &types) { m_symbolsToSearch = types; }
     SearchSymbols::SymbolTypes symbolsToSearch() const { return m_symbolsToSearch; }

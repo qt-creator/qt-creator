@@ -4,13 +4,11 @@
 #pragma once
 
 #include "qmllssettings.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
+
 #include <QPointer>
 #include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
 
 namespace QmlJSEditor {
 
@@ -22,8 +20,8 @@ public:
     static QmlJsEditingSettings get();
     void set();
 
-    void fromSettings(QSettings *);
-    void toSettings(QSettings *) const;
+    void fromSettings(Utils::QtcSettings *);
+    void toSettings(Utils::QtcSettings *) const;
 
     bool equals(const QmlJsEditingSettings &other) const;
 

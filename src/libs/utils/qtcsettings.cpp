@@ -40,4 +40,9 @@ void QtcSettings::setValue(const Key &key, const QVariant &value)
     QSettings::setValue(stringFromKey(key), mapEntryFromStoreEntry(value));
 }
 
+KeyList QtcSettings::childKeys() const
+{
+    return keysFromStrings(QSettings::childKeys());
+}
+
 } // namespace Utils

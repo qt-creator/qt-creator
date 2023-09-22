@@ -2,31 +2,27 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "snippetssettings.h"
-#include "reuse.h"
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
 
-namespace {
+using namespace Utils;
 
-static const QLatin1String kGroupPostfix("SnippetsSettings");
-static const QLatin1String kLastUsedSnippetGroup("LastUsedSnippetGroup");
+namespace TextEditor {
 
-} // Anonymous
+const char kGroupPostfix[] = "SnippetsSettings";
+const char kLastUsedSnippetGroup[] = "LastUsedSnippetGroup";
 
-using namespace TextEditor;
-using namespace Internal;
-
-void SnippetsSettings::toSettings(const QString &category, QSettings *s) const
+void SnippetsSettings::toSettings(const Key &category, QtcSettings *s) const
 {
-    const QString &group = category + kGroupPostfix;
+    const Key group = category + kGroupPostfix;
     s->beginGroup(group);
     s->setValue(kLastUsedSnippetGroup, m_lastUsedSnippetGroup);
     s->endGroup();
 }
 
-void SnippetsSettings::fromSettings(const QString &category, QSettings *s)
+void SnippetsSettings::fromSettings(const Key &category, QtcSettings *s)
 {
-    const QString &group = category + kGroupPostfix;
+    const Key group = category + kGroupPostfix;
     s->beginGroup(group);
     m_lastUsedSnippetGroup = s->value(kLastUsedSnippetGroup, QString()).toString();
     s->endGroup();
@@ -46,3 +42,5 @@ bool SnippetsSettings::equals(const SnippetsSettings &snippetsSettings) const
 {
     return m_lastUsedSnippetGroup == snippetsSettings.m_lastUsedSnippetGroup;
 }
+
+} // TextEditor

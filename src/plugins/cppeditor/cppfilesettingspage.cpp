@@ -9,11 +9,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
+
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcsettings.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -22,7 +24,6 @@
 #include <QGuiApplication>
 #include <QLineEdit>
 #include <QLocale>
-#include <QSettings>
 #include <QTextStream>
 #include <QVBoxLayout>
 
@@ -49,7 +50,7 @@ const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("QtC::CppEditor",
 "**   To protect a percent sign, use '%%'.\n"
 "**************************************************************************/\n");
 
-void CppFileSettings::toSettings(QSettings *s) const
+void CppFileSettings::toSettings(QtcSettings *s) const
 {
     const CppFileSettings def;
     s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
@@ -77,7 +78,7 @@ void CppFileSettings::toSettings(QSettings *s) const
     s->endGroup();
 }
 
-void CppFileSettings::fromSettings(QSettings *s)
+void CppFileSettings::fromSettings(QtcSettings *s)
 {
     const CppFileSettings def;
     s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);

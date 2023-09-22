@@ -1894,7 +1894,7 @@ void MainWindowPrivate::registerDefaultActions()
                     Tr::tr(
                         "This will hide the menu bar completely. You can show it again by typing ")
                         + cmd->keySequence().toString(QKeySequence::NativeText),
-                    QString("ToogleMenuBarHint"));
+                    Key("ToogleMenuBarHint"));
             }
             globalMenuBar()->setVisible(visible);
         });

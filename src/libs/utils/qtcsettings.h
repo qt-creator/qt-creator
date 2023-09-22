@@ -5,16 +5,30 @@
 
 #include "utils_global.h"
 
-#include "storekey.h"
+#include "store.h"
 
 #include <QSettings>
 
 namespace Utils {
 
+// FIXME: In theory, this could be private or aggregated.
 class QTCREATOR_UTILS_EXPORT QtcSettings : public QSettings
 {
 public:
     using QSettings::QSettings;
+    using QSettings::group;
+    using QSettings::endGroup;
+    using QSettings::allKeys;
+    using QSettings::fileName;
+    using QSettings::setParent;
+    using QSettings::sync;
+    using QSettings::beginReadArray;
+    using QSettings::beginWriteArray;
+    using QSettings::endArray;
+    using QSettings::setArrayIndex;
+    using QSettings::childGroups;
+    using QSettings::status;
+    using QSettings::clear;
 
     void beginGroup(const Key &prefix) { QSettings::beginGroup(stringFromKey(prefix)); }
 
@@ -24,6 +38,8 @@ public:
     void remove(const Key &key) { QSettings::remove(stringFromKey(key)); }
     bool contains(const Key &key) const { return QSettings::contains(stringFromKey(key)); }
 
+    KeyList childKeys() const;
+
     template<typename T>
     void setValueWithDefault(const Key &key, const T &val, const T &defaultValue)
     {
@@ -31,15 +47,15 @@ public:
     }
 
     template<typename T>
-    static void setValueWithDefault(QSettings *settings,
+    static void setValueWithDefault(QtcSettings *settings,
                                     const Key &key,
                                     const T &val,
                                     const T &defaultValue)
     {
         if (val == defaultValue)
-            settings->remove(stringFromKey(key));
+            settings->QSettings::remove(stringFromKey(key));
         else
-            settings->setValue(stringFromKey(key), QVariant::fromValue(val));
+            settings->QSettings::setValue(stringFromKey(key), QVariant::fromValue(val));
     }
 
 
@@ -50,12 +66,12 @@ public:
     }
 
     template<typename T>
-    static void setValueWithDefault(QSettings *settings, const Key &key, const T &val)
+    static void setValueWithDefault(QtcSettings *settings, const Key &key, const T &val)
     {
         if (val == T())
-            settings->remove(stringFromKey(key));
+            settings->QSettings::remove(stringFromKey(key));
         else
-            settings->setValue(stringFromKey(key), QVariant::fromValue(val));
+            settings->QSettings::setValue(stringFromKey(key), QVariant::fromValue(val));
     }
 };
 

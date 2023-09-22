@@ -10,13 +10,10 @@
 #include <QList>
 #include <QMetaType>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace Utils {
 
 class Environment;
+class QtcSettings;
 
 class QTCREATOR_UTILS_EXPORT TerminalCommand
 {
@@ -33,7 +30,7 @@ public:
     QString executeArgs;
     bool needsQuotes = false;
 
-    static void setSettings(QSettings *settings);
+    static void setSettings(QtcSettings *settings);
     static TerminalCommand defaultTerminalEmulator();
     static QList<TerminalCommand> availableTerminalEmulators();
     static TerminalCommand terminalEmulator();

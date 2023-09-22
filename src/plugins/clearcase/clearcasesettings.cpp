@@ -4,8 +4,9 @@
 #include "clearcasesettings.h"
 
 #include <utils/environment.h>
+#include <utils/qtcsettings.h>
 
-#include <QSettings>
+using namespace Utils;
 
 namespace ClearCase::Internal {
 
@@ -40,59 +41,59 @@ ClearCaseSettings::ClearCaseSettings() :
     timeOutS(defaultTimeOutS)
 { }
 
-void ClearCaseSettings::fromSettings(QSettings *settings)
+void ClearCaseSettings::fromSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String(groupC));
-    ccCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
+    settings->beginGroup(groupC);
+    ccCommand = settings->value(commandKeyC, defaultCommand()).toString();
     ccBinaryPath = Utils::Environment::systemEnvironment().searchInPath(ccCommand);
-    timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
-    autoCheckOut = settings->value(QLatin1String(autoCheckOutKeyC), false).toBool();
-    noComment = settings->value(QLatin1String(noCommentKeyC), false).toBool();
-    keepFileUndoCheckout = settings->value(QLatin1String(keepFileUndoCheckoutKeyC), true).toBool();
-    const QString sDiffType = settings->value(QLatin1String(diffTypeKeyC),
+    timeOutS = settings->value(timeOutKeyC, defaultTimeOutS).toInt();
+    autoCheckOut = settings->value(autoCheckOutKeyC, false).toBool();
+    noComment = settings->value(noCommentKeyC, false).toBool();
+    keepFileUndoCheckout = settings->value(keepFileUndoCheckoutKeyC, true).toBool();
+    const QString sDiffType = settings->value(diffTypeKeyC,
                                               QLatin1String("Graphical")).toString();
     switch (sDiffType[0].toUpper().toLatin1()) {
         case 'G': diffType = GraphicalDiff; break;
         case 'E': diffType = ExternalDiff; break;
     }
 
-    diffArgs = settings->value(QLatin1String(diffArgsKeyC), QLatin1String(defaultDiffArgs)).toString();
-    autoAssignActivityName = settings->value(QLatin1String(autoAssignActivityKeyC), true).toBool();
-    historyCount = settings->value(QLatin1String(historyCountKeyC), int(defaultHistoryCount)).toInt();
-    disableIndexer = settings->value(QLatin1String(disableIndexerKeyC), false).toBool();
-    indexOnlyVOBs = settings->value(QLatin1String(indexOnlyVOBsC), QString()).toString();
+    diffArgs = settings->value(diffArgsKeyC, QLatin1String(defaultDiffArgs)).toString();
+    autoAssignActivityName = settings->value(autoAssignActivityKeyC, true).toBool();
+    historyCount = settings->value(historyCountKeyC, int(defaultHistoryCount)).toInt();
+    disableIndexer = settings->value(disableIndexerKeyC, false).toBool();
+    indexOnlyVOBs = settings->value(indexOnlyVOBsC, QString()).toString();
     extDiffAvailable = !Utils::Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
-    settings->beginGroup(QLatin1String(totalFilesKeyC));
-    const QStringList views = settings->childKeys();
-    for (const QString &view : views)
+    settings->beginGroup(totalFilesKeyC);
+    const KeyList views = settings->childKeys();
+    for (const Key &view : views)
         totalFiles[view] = settings->value(view).toInt();
     settings->endGroup();
     settings->endGroup();
 }
 
-void ClearCaseSettings::toSettings(QSettings *settings) const
+void ClearCaseSettings::toSettings(QtcSettings *settings) const
 {
-    using FilesConstIt = QHash<QString, int>::ConstIterator;
+    using FilesConstIt = QHash<Key, int>::ConstIterator;
 
-    settings->beginGroup(QLatin1String(groupC));
-    settings->setValue(QLatin1String(commandKeyC), ccCommand);
-    settings->setValue(QLatin1String(autoCheckOutKeyC), autoCheckOut);
-    settings->setValue(QLatin1String(noCommentKeyC), noComment);
-    settings->setValue(QLatin1String(keepFileUndoCheckoutKeyC), keepFileUndoCheckout);
-    settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
+    settings->beginGroup(groupC);
+    settings->setValue(commandKeyC, ccCommand);
+    settings->setValue(autoCheckOutKeyC, autoCheckOut);
+    settings->setValue(noCommentKeyC, noComment);
+    settings->setValue(keepFileUndoCheckoutKeyC, keepFileUndoCheckout);
+    settings->setValue(timeOutKeyC, timeOutS);
     QString sDiffType;
     switch (diffType) {
         case ExternalDiff:  sDiffType = QLatin1String("External");  break;
         default:            sDiffType = QLatin1String("Graphical"); break;
     }
 
-    settings->setValue(QLatin1String(diffArgsKeyC), diffArgs);
-    settings->setValue(QLatin1String(diffTypeKeyC), sDiffType);
-    settings->setValue(QLatin1String(autoAssignActivityKeyC), autoAssignActivityName);
-    settings->setValue(QLatin1String(historyCountKeyC), historyCount);
-    settings->setValue(QLatin1String(disableIndexerKeyC), disableIndexer);
-    settings->setValue(QLatin1String(indexOnlyVOBsC), indexOnlyVOBs);
-    settings->beginGroup(QLatin1String(totalFilesKeyC));
+    settings->setValue(diffArgsKeyC, diffArgs);
+    settings->setValue(diffTypeKeyC, sDiffType);
+    settings->setValue(autoAssignActivityKeyC, autoAssignActivityName);
+    settings->setValue(historyCountKeyC, historyCount);
+    settings->setValue(disableIndexerKeyC, disableIndexer);
+    settings->setValue(indexOnlyVOBsC, indexOnlyVOBs);
+    settings->beginGroup(totalFilesKeyC);
     const FilesConstIt fcend = totalFiles.constEnd();
     for (FilesConstIt it = totalFiles.constBegin(); it != fcend; ++it)
         settings->setValue(it.key(), it.value());

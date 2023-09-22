@@ -57,8 +57,8 @@ public slots:
     void listDetectedPython(const QString &detectionSource, QString *logMessage);
 
 private:
-    void initFromSettings(QSettings *settings);
-    void writeToSettings(QSettings *settings);
+    void initFromSettings(Utils::QtcSettings *settings);
+    void writeToSettings(Utils::QtcSettings *settings);
 
     QList<Interpreter> m_interpreters;
     QString m_defaultInterpreterId;

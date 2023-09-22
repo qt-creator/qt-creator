@@ -75,8 +75,8 @@ namespace Internal {
 
 static bool useNewWelcomePage()
 {
-    QSettings *settings = Core::ICore::settings();
-    const QString newWelcomePageEntry = "QML/Designer/NewWelcomePage"; //entry from qml settings
+    QtcSettings *settings = Core::ICore::settings();
+    const Key newWelcomePageEntry = "QML/Designer/NewWelcomePage"; //entry from qml settings
 
     return settings->value(newWelcomePageEntry, false).toBool();
 }
@@ -527,9 +527,9 @@ static bool forceDownLoad()
 
 static bool showSplashScreen()
 {
-    const QString lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
+    const Key lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
 
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
 
     const QString lastQDSVersion = settings->value(lastQDSVersionEntry).toString();
 

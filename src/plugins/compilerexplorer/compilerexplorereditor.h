@@ -95,7 +95,7 @@ public:
 
     CompilerExplorerSettings *settings() { return &m_ceSettings; }
 
-    void setWindowStateCallback(std::function<QVariantMap()> callback)
+    void setWindowStateCallback(std::function<Utils::Store()> callback)
     {
         m_windowStateCallback = callback;
     }
@@ -105,7 +105,7 @@ signals:
 
 private:
     mutable CompilerExplorerSettings m_ceSettings;
-    std::function<QVariantMap()> m_windowStateCallback;
+    std::function<Utils::Store()> m_windowStateCallback;
     QUndoStack *m_undoStack;
 };
 

@@ -6,14 +6,15 @@
 #include "silversearchertr.h"
 
 #include <texteditor/findinfiles.h>
+
 #include <utils/async.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QSettings>
 
 using namespace Core;
 using namespace SilverSearcher;
@@ -21,11 +22,13 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace {
-const QLatin1String s_metaCharacters = QLatin1String("+()^$.{}[]|\\");
-const QLatin1String s_searchOptionsString = QLatin1String("SearchOptionsString");
+
+const char s_searchOptionsString[] = "SearchOptionsString";
 
 static QString convertWildcardToRegex(const QString &wildcard)
 {
+    static const QString s_metaCharacters("+()^$.{}[]|\\");
+
     QString regex;
     const int wildcardSize = wildcard.size();
     regex.append('^');
@@ -140,7 +143,7 @@ QWidget *FindInFilesSilverSearcher::widget() const
     return m_widget;
 }
 
-void FindInFilesSilverSearcher::writeSettings(QSettings *settings) const
+void FindInFilesSilverSearcher::writeSettings(QtcSettings *settings) const
 {
     settings->setValue(s_searchOptionsString, m_searchOptionsLineEdit->text());
 }
@@ -152,7 +155,7 @@ SearchExecutor FindInFilesSilverSearcher::searchExecutor() const
     };
 }
 
-void FindInFilesSilverSearcher::readSettings(QSettings *settings)
+void FindInFilesSilverSearcher::readSettings(QtcSettings *settings)
 {
     m_searchOptionsLineEdit->setText(settings->value(s_searchOptionsString).toString());
 }

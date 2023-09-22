@@ -5,7 +5,9 @@
 
 #include "modeleditor_constants.h"
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
+
+using namespace Utils;
 
 namespace ModelEditor {
 namespace Internal {
@@ -59,28 +61,21 @@ void UiController::onRightHorizSplitterChanged(const QByteArray &state)
     emit rightHorizSplitterChanged(state);
 }
 
-void UiController::saveSettings(QSettings *settings)
+void UiController::saveSettings(QtcSettings *settings)
 {
-    if (hasRightSplitterState()) {
-        settings->setValue(
-                    QLatin1String(Constants::SETTINGS_RIGHT_SPLITTER), d->rightSplitterState);
-    }
-    if (hasRightHorizSplitterState()) {
-        settings->setValue(
-                    QLatin1String(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER),
-                    d->rightHorizSplitterState);
-    }
+    if (hasRightSplitterState())
+        settings->setValue(Constants::SETTINGS_RIGHT_SPLITTER, d->rightSplitterState);
+    if (hasRightHorizSplitterState())
+        settings->setValue(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER, d->rightHorizSplitterState);
 }
 
-void UiController::loadSettings(QSettings *settings)
+void UiController::loadSettings(QtcSettings *settings)
 {
-    if (settings->contains(QLatin1String(Constants::SETTINGS_RIGHT_SPLITTER))) {
-        d->rightSplitterState = settings->value(
-                    QLatin1String(Constants::SETTINGS_RIGHT_SPLITTER)).toByteArray();
-    }
-    if (settings->contains(QLatin1String(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER))) {
-        d->rightHorizSplitterState = settings->value(
-                    QLatin1String(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER)).toByteArray();
+    if (settings->contains(Constants::SETTINGS_RIGHT_SPLITTER))
+        d->rightSplitterState = settings->value(Constants::SETTINGS_RIGHT_SPLITTER).toByteArray();
+    if (settings->contains(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER)) {
+        d->rightHorizSplitterState = settings->value(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER)
+                                            .toByteArray();
     }
 }
 

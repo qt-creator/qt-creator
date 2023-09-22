@@ -9,7 +9,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
 
 using namespace Utils;
 
@@ -73,17 +73,16 @@ void FindInCurrentFile::handleFileChange(Core::IEditor *editor)
     }
 }
 
-
-void FindInCurrentFile::writeSettings(QSettings *settings)
+void FindInCurrentFile::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInCurrentFile"));
+    settings->beginGroup("FindInCurrentFile");
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void FindInCurrentFile::readSettings(QSettings *settings)
+void FindInCurrentFile::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInCurrentFile"));
+    settings->beginGroup("FindInCurrentFile");
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

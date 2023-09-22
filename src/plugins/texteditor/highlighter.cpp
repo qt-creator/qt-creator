@@ -138,10 +138,10 @@ Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument 
     return definitions;
 }
 
-static Highlighter::Definition definitionForSetting(const QString &settingsKey,
+static Highlighter::Definition definitionForSetting(const Key &settingsKey,
                                                     const QString &mapKey)
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
     const QString &definitionName = settings->value(settingsKey).toMap().value(mapKey).toString();
     settings->endGroup();
@@ -188,23 +188,23 @@ void Highlighter::rememberDefinitionForDocument(const Highlighter::Definition &d
     const QString &mimeType = document->mimeType();
     const FilePath &path = document->filePath();
     const QString &fileExtension = path.completeSuffix();
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
     const Definitions &fileNameDefinitions = definitionsForFileName(path);
     if (fileNameDefinitions.contains(definition)) {
         if (!fileExtension.isEmpty()) {
-            const QString id(kDefinitionForExtension);
+            const Key id(kDefinitionForExtension);
             QMap<QString, QVariant> map = settings->value(id).toMap();
             map.insert(fileExtension, definition.name());
             settings->setValue(id, map);
         } else if (!path.isEmpty()) {
-            const QString id(kDefinitionForFilePath);
+            const Key id(kDefinitionForFilePath);
             QMap<QString, QVariant> map = settings->value(id).toMap();
             map.insert(path.absoluteFilePath().toString(), definition.name());
             settings->setValue(id, map);
         }
     } else if (!mimeType.isEmpty()) {
-        const QString id(kDefinitionForMimeType);
+        const Key id(kDefinitionForMimeType);
         QMap<QString, QVariant> map = settings->value(id).toMap();
         map.insert(mimeType, definition.name());
         settings->setValue(id, map);
@@ -214,7 +214,7 @@ void Highlighter::rememberDefinitionForDocument(const Highlighter::Definition &d
 
 void Highlighter::clearDefinitionForDocumentCache()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
     settings->remove(kDefinitionForMimeType);
     settings->remove(kDefinitionForExtension);
@@ -227,7 +227,8 @@ void Highlighter::addCustomHighlighterPath(const FilePath &path)
     highlightRepository()->addCustomSearchPath(path.toString());
 }
 
-void Highlighter::downloadDefinitions(std::function<void()> callback) {
+void Highlighter::downloadDefinitions(std::function<void()> callback)
+{
     auto downloader =
         new KSyntaxHighlighting::DefinitionDownloader(highlightRepository());
     connect(downloader, &KSyntaxHighlighting::DefinitionDownloader::done, [downloader, callback]() {

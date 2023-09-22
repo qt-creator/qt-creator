@@ -5,15 +5,12 @@
 
 #include <QObject>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils { class QtcSettings; }
 
 namespace ModelEditor {
 namespace Internal {
 
-class UiController :
-        public QObject
+class UiController : public QObject
 {
     Q_OBJECT
     class UiControllerPrivate;
@@ -34,8 +31,8 @@ public:
 
     void onRightSplitterChanged(const QByteArray &state);
     void onRightHorizSplitterChanged(const QByteArray &state);
-    void saveSettings(QSettings *settings);
-    void loadSettings(QSettings *settings);
+    void saveSettings(Utils::QtcSettings *settings);
+    void loadSettings(Utils::QtcSettings *settings);
 
 private:
     UiControllerPrivate *d;

@@ -9,8 +9,7 @@
 #include "projecttree.h"
 
 #include <utils/qtcassert.h>
-
-#include <QSettings>
+#include <utils/qtcsettings.h>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -93,16 +92,16 @@ void CurrentProjectFind::setupSearch(Core::SearchResult *search)
     });
 }
 
-void CurrentProjectFind::writeSettings(QSettings *settings)
+void CurrentProjectFind::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("CurrentProjectFind"));
+    settings->beginGroup("CurrentProjectFind");
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void CurrentProjectFind::readSettings(QSettings *settings)
+void CurrentProjectFind::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("CurrentProjectFind"));
+    settings->beginGroup("CurrentProjectFind");
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

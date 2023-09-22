@@ -24,8 +24,8 @@ public:
     QString title() const override;
     QString toolTip() const override;
     QWidget *widget() const override;
-    void readSettings(QSettings *settings) override;
-    void writeSettings(QSettings *settings) const override;
+    void readSettings(Utils::QtcSettings *settings) override;
+    void writeSettings(Utils::QtcSettings *settings) const override;
     TextEditor::SearchExecutor searchExecutor() const override;
     TextEditor::EditorOpener editorOpener() const override;
 

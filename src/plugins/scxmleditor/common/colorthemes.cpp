@@ -10,12 +10,16 @@
 #include "scxmltag.h"
 
 #include <coreplugin/icore.h>
+
+#include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 
 #include <QMenu>
 #include <QToolButton>
 
-using namespace ScxmlEditor::Common;
+using namespace Utils;
+
+namespace ScxmlEditor::Common {
 
 ColorThemes::ColorThemes(QObject *parent)
     : QObject(parent)
@@ -69,7 +73,7 @@ void ColorThemes::updateColorThemeMenu()
 {
     m_menu->clear();
 
-    const QSettings *s = Core::ICore::settings();
+    const QtcSettings *s = Core::ICore::settings();
     const QString currentTheme = s->value(Constants::C_SETTINGS_COLORSETTINGS_CURRENTCOLORTHEME,
                                           QString(Constants::C_COLOR_SCHEME_DEFAULT)).toString();
     const QVariantMap data = s->value(Constants::C_SETTINGS_COLORSETTINGS_COLORTHEMES).toMap();
@@ -100,7 +104,7 @@ void ColorThemes::selectColorTheme(const QString &name)
 {
     QVariantMap colorData;
     if (m_document && !name.isEmpty()) {
-        QSettings *s = Core::ICore::settings();
+        QtcSettings *s = Core::ICore::settings();
 
         if (name == Constants::C_COLOR_SCHEME_SCXMLDOCUMENT) {
             colorData = m_documentColors;
@@ -168,3 +172,5 @@ void ColorThemes::setCurrentColors(const QVariantMap &colorData)
     m_document->setLevelColors(colors);
     m_document->setEditorInfo(m_document->scxmlRootTag(), Constants::C_SCXML_EDITORINFO_COLORS, serializedColors.join(";;"));
 }
+
+} // ScxmlEditor::Common

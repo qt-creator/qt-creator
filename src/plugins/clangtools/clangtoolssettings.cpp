@@ -104,7 +104,7 @@ ClangToolsSettings::ClangToolsSettings()
     readSettings();
 }
 
-static Store convertToMapFromVersionBefore410(QSettings *s)
+static Store convertToMapFromVersionBefore410(QtcSettings *s)
 {
     const char oldParallelJobsKey[] = "simultaneousProcesses";
     const char oldBuildBeforeAnalysisKey[] = "buildBeforeAnalysis";

@@ -10,6 +10,7 @@
 
 #include <utils/checkablemessagebox.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 
 #include <QApplication>
@@ -205,10 +206,10 @@ CrashHandlerDialog::~CrashHandlerDialog()
 bool CrashHandlerDialog::runDebuggerWhileBacktraceNotFinished()
 {
     // Check settings.
-    QSettings settings(QSettings::IniFormat,
-                       QSettings::UserScope,
-                       QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
-                       QLatin1String(SettingsApplication));
+    Utils::QtcSettings settings(QSettings::IniFormat,
+                                QSettings::UserScope,
+                                QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+                                QLatin1String(SettingsApplication));
     Utils::CheckableMessageBox::initialize(&settings);
 
     // Ask user.
@@ -224,7 +225,7 @@ bool CrashHandlerDialog::runDebuggerWhileBacktraceNotFinished()
         = Utils::CheckableMessageBox::question(this,
                                                title,
                                                message,
-                                               QString(SettingsKeySkipWarningAbortingBacktrace),
+                                               Utils::Key(SettingsKeySkipWarningAbortingBacktrace),
                                                QMessageBox::Yes | QMessageBox::No,
                                                QMessageBox::No);
 

@@ -8,9 +8,9 @@
 #include "projectmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <utils/algorithm.h>
 
-#include <QSettings>
+#include <utils/algorithm.h>
+#include <utils/qtcsettings.h>
 
 using namespace TextEditor;
 using namespace Utils;
@@ -30,14 +30,14 @@ QString FilesInAllProjectsFind::displayName() const
 
 const char kSettingsKey[] = "FilesInAllProjectDirectories";
 
-void FilesInAllProjectsFind::writeSettings(QSettings *settings)
+void FilesInAllProjectsFind::writeSettings(QtcSettings *settings)
 {
     settings->beginGroup(kSettingsKey);
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void FilesInAllProjectsFind::readSettings(QSettings *settings)
+void FilesInAllProjectsFind::readSettings(QtcSettings *settings)
 {
     settings->beginGroup(kSettingsKey);
     readCommonSettings(

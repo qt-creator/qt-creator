@@ -3,8 +3,8 @@
 
 #include "statusbarmanager.h"
 
+#include "icore.h"
 #include "imode.h"
-#include "mainwindow.h"
 #include "minisplitter.h"
 #include "modemanager.h"
 
@@ -15,6 +15,8 @@
 #include <QResizeEvent>
 #include <QSplitter>
 #include <QStatusBar>
+
+using namespace Utils;
 
 namespace Core {
 
@@ -80,9 +82,9 @@ static void createStatusBarManager()
     ICore::addContextObject(statusContext);
 
     QObject::connect(ICore::instance(), &ICore::saveSettingsRequested, ICore::instance(), [] {
-        QSettings *s = ICore::settings();
-        s->beginGroup(QLatin1String(kSettingsGroup));
-        s->setValue(QLatin1String(kLeftSplitWidthKey), m_splitter->sizes().at(0));
+        QtcSettings *s = ICore::settings();
+        s->beginGroup(kSettingsGroup);
+        s->setValue(kLeftSplitWidthKey, m_splitter->sizes().at(0));
         s->endGroup();
     });
 
@@ -132,9 +134,9 @@ void StatusBarManager::destroyStatusBarWidget(QWidget *widget)
 
 void StatusBarManager::restoreSettings()
 {
-    QSettings *s = ICore::settings();
-    s->beginGroup(QLatin1String(kSettingsGroup));
-    int leftSplitWidth = s->value(QLatin1String(kLeftSplitWidthKey), -1).toInt();
+    QtcSettings *s = ICore::settings();
+    s->beginGroup(kSettingsGroup);
+    int leftSplitWidth = s->value(kLeftSplitWidthKey, -1).toInt();
     s->endGroup();
     if (leftSplitWidth < 0) {
         // size first split after its sizeHint + a bit of buffer

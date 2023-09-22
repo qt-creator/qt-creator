@@ -24,6 +24,8 @@
 #include <QMenu>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Squish::Internal {
 
 const int defaultSectionSize = 17;
@@ -319,13 +321,13 @@ void SquishNavigationWidget::onRemoveAllSharedFolderTriggered()
 
 void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QString &testCase)
 {
-    QMessageBox::StandardButton pressed = Utils::CheckableMessageBox::question(
+    QMessageBox::StandardButton pressed = CheckableMessageBox::question(
         Core::ICore::dialogParent(),
         Tr::tr("Record Test Case"),
         Tr::tr("Do you want to record over the test case \"%1\"? The existing content will "
                "be overwritten by the recorded script.")
             .arg(testCase),
-        QString("RecordWithoutApproval"));
+        Key("RecordWithoutApproval"));
     if (pressed != QMessageBox::Yes)
         return;
 

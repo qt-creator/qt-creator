@@ -2573,7 +2573,7 @@ void WatchModel::clearWatches()
         ICore::dialogParent(),
         Tr::tr("Remove All Expression Evaluators"),
         Tr::tr("Are you sure you want to remove all expression evaluators?"),
-        QString("RemoveAllWatchers"));
+        Key("RemoveAllWatchers"));
     if (ret != QMessageBox::Yes)
         return;
 

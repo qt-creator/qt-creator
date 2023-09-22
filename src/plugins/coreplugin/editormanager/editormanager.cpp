@@ -1210,7 +1210,7 @@ void EditorManagerPrivate::saveSettings()
 
 void EditorManagerPrivate::readSettings()
 {
-    QSettings *qs = ICore::settings();
+    QtcSettings *qs = ICore::settings();
 
     const Qt::CaseSensitivity defaultSensitivity = OsSpecificAspects::fileNameCaseSensitivity(
         HostOsInfo::hostOs());
@@ -1232,7 +1232,7 @@ void EditorManagerPrivate::readSettings()
     updateAutoSave();
 }
 
-Qt::CaseSensitivity EditorManagerPrivate::readFileSystemSensitivity(QSettings *settings)
+Qt::CaseSensitivity EditorManagerPrivate::readFileSystemSensitivity(QtcSettings *settings)
 {
     const Qt::CaseSensitivity defaultSensitivity = OsSpecificAspects::fileNameCaseSensitivity(
         HostOsInfo::hostOs());
@@ -3570,7 +3570,7 @@ void EditorManager::hideEditorStatusBar(const QString &id)
 */
 QTextCodec *EditorManager::defaultTextCodec()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     const QByteArray codecName =
             settings->value(Constants::SETTINGS_DEFAULTTEXTENCODING).toByteArray();
     if (QTextCodec *candidate = QTextCodec::codecForName(codecName))
@@ -3591,7 +3591,7 @@ QTextCodec *EditorManager::defaultTextCodec()
 */
 TextFileFormat::LineTerminationMode EditorManager::defaultLineEnding()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     const int defaultLineTerminator = settings->value(Constants::SETTINGS_DEFAULT_LINE_TERMINATOR,
             TextFileFormat::LineTerminationMode::NativeLineTerminator).toInt();
 

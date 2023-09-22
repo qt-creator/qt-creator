@@ -5,8 +5,11 @@
 #include "serialterminalconstants.h"
 #include "serialterminaltr.h"
 
+#include <utils/qtcsettings.h>
+
 #include <QLoggingCategory>
-#include <QSettings>
+
+using namespace Utils;
 
 namespace SerialTerminal {
 namespace Internal {
@@ -15,7 +18,7 @@ static Q_LOGGING_CATEGORY(log, Constants::LOGGING_CATEGORY, QtWarningMsg)
 
 // Set 'value' only if the key exists in the settings
 template <typename T>
-void readSetting(const QSettings &settings, T &value, const QString &key) {
+void readSetting(const QtcSettings &settings, T &value, const Key &key) {
     if (settings.contains(key))
         value = settings.value(key).value<T>();
 }
@@ -32,7 +35,7 @@ Settings::Settings()
 }
 
 // Save settings to a QSettings
-void Settings::save(QSettings *settings)
+void Settings::save(QtcSettings *settings)
 {
     if (!settings || !edited)
         return;
@@ -61,7 +64,7 @@ void Settings::save(QSettings *settings)
 }
 
 // Load available settings from a QSettings
-void Settings::load(QSettings *settings)
+void Settings::load(QtcSettings *settings)
 {
     if (!settings)
         return;
@@ -129,7 +132,7 @@ void Settings::setDefaultLineEndingIndex(unsigned int index)
 }
 
 
-void Settings::saveLineEndings(QSettings &settings)
+void Settings::saveLineEndings(QtcSettings &settings)
 {
     settings.beginWriteArray(Constants::SETTINGS_LINE_ENDINGS, lineEndings.size());
     int i = 0;
@@ -141,7 +144,7 @@ void Settings::saveLineEndings(QSettings &settings)
     settings.endArray();
 }
 
-void Settings::loadLineEndings(QSettings &settings)
+void Settings::loadLineEndings(QtcSettings &settings)
 {
     const int size = settings.beginReadArray(Constants::SETTINGS_LINE_ENDINGS);
     if (size > 0) // If null, keep default line endings

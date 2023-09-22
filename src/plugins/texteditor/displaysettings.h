@@ -8,9 +8,10 @@
 #include "QMetaType"
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QLabel;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcSettings; }
 
 namespace TextEditor {
 
@@ -27,8 +28,8 @@ class TEXTEDITOR_EXPORT DisplaySettings
 public:
     DisplaySettings() = default;
 
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
+    void toSettings(Utils::QtcSettings *s) const;
+    void fromSettings(Utils::QtcSettings *s);
 
     friend bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { return t1.equals(t2); }
     friend bool operator!=(const DisplaySettings &t1, const DisplaySettings &t2) { return !t1.equals(t2); }

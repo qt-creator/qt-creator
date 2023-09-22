@@ -491,11 +491,11 @@ const char sourcePathMappingTargetKeyC[] = "Target";
 void SourcePathMapAspect::writeSettings() const
 {
     const SourcePathMap sourcePathMap = value();
-    QSettings *s = qtcSettings();
+    QtcSettings *s = qtcSettings();
     s->beginWriteArray(sourcePathMappingArrayNameC);
     if (!sourcePathMap.isEmpty()) {
-        const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
-        const QString sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
+        const Key sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
+        const Key sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
         int i = 0;
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
              it != cend;
@@ -510,11 +510,11 @@ void SourcePathMapAspect::writeSettings() const
 
 void SourcePathMapAspect::readSettings()
 {
-    QSettings *s = qtcSettings();
+    QtcSettings *s = qtcSettings();
     SourcePathMap sourcePathMap;
     if (const int count = s->beginReadArray(sourcePathMappingArrayNameC)) {
-        const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
-        const QString sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
+        const Key sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
+        const Key sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
         for (int i = 0; i < count; ++i) {
              s->setArrayIndex(i);
              const QString key = s->value(sourcePathMappingSourceKey).toString();

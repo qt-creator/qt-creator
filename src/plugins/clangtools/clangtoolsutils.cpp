@@ -141,7 +141,7 @@ void showHintAboutBuildBeforeAnalysis()
     Utils::CheckableMessageBox::information(Core::ICore::dialogParent(),
                                             Tr::tr("Info About Build the Project Before Analysis"),
                                             hintAboutBuildBeforeAnalysis(),
-                                            QString("ClangToolsDisablingBuildBeforeAnalysisHint"));
+                                            Key("ClangToolsDisablingBuildBeforeAnalysisHint"));
 }
 
 FilePath fullPath(const FilePath &executable)

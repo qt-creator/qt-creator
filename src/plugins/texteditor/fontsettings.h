@@ -17,9 +17,10 @@
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QFont;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcSettings; }
 
 namespace TextEditor {
 
@@ -37,10 +38,10 @@ public:
     void clear();
     inline bool isEmpty() const { return m_scheme.isEmpty(); }
 
-    void toSettings(QSettings *s) const;
+    void toSettings(Utils::QtcSettings *s) const;
 
     bool fromSettings(const FormatDescriptions &descriptions,
-                      const QSettings *s);
+                      const Utils::QtcSettings *s);
 
     QVector<QTextCharFormat> toTextCharFormats(const QVector<TextStyle> &categories) const;
     QTextCharFormat toTextCharFormat(TextStyle category) const;

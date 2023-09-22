@@ -148,7 +148,7 @@ bool CppQuickFixProjectsSettings::saveOwnSettings()
     if (m_settingsFile.isEmpty())
         return false;
 
-    QSettings settings(m_settingsFile.toString(), QSettings::IniFormat);
+    QtcSettings settings(m_settingsFile.toString(), QSettings::IniFormat);
     if (settings.status() == QSettings::NoError) {
         m_ownSettings.saveSettingsTo(&settings);
         settings.sync();
@@ -160,7 +160,7 @@ bool CppQuickFixProjectsSettings::saveOwnSettings()
 
 void CppQuickFixProjectsSettings::loadOwnSettingsFromFile()
 {
-    QSettings settings(m_settingsFile.toString(), QSettings::IniFormat);
+    QtcSettings settings(m_settingsFile.toString(), QSettings::IniFormat);
     if (settings.status() == QSettings::NoError) {
         m_ownSettings.loadSettingsFrom(&settings);
         return;

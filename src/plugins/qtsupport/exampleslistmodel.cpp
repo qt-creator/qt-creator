@@ -68,7 +68,7 @@ ExampleSetModel::ExampleSetModel()
     if (debugExamples() && !log().isDebugEnabled())
         log().setEnabled(QtDebugMsg, true);
     // read extra example sets settings
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     const QStringList list = settings->value("Help/InstalledExamples", QStringList()).toStringList();
     qCDebug(log) << "Reading Help/InstalledExamples from settings:" << list;
     for (const QString &item : list) {

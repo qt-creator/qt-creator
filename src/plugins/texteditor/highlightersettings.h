@@ -10,9 +10,10 @@
 #include <QList>
 #include <QRegularExpression>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils {
+class Key;
+class QtcSettings;
+} // Utils
 
 namespace TextEditor {
 
@@ -21,8 +22,8 @@ class HighlighterSettings
 public:
     HighlighterSettings() = default;
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
+    void toSettings(const Utils::Key &category, Utils::QtcSettings *s) const;
+    void fromSettings(const Utils::Key &category, Utils::QtcSettings *s);
 
     void setDefinitionFilesPath(const Utils::FilePath &path) { m_definitionFilesPath = path; }
     const Utils::FilePath &definitionFilesPath() const { return m_definitionFilesPath; }

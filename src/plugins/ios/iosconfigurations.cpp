@@ -365,7 +365,7 @@ QVersionNumber IosConfigurations::xcodeVersion()
 
 void IosConfigurations::save()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     settings->setValue(ignoreAllDevicesKey, m_ignoreAllDevices);
     settings->setValue(screenshotDirPathKey, m_screenshotDir.toString());
@@ -382,7 +382,7 @@ IosConfigurations::IosConfigurations(QObject *parent)
 
 void IosConfigurations::load()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     m_ignoreAllDevices = settings->value(ignoreAllDevicesKey, false).toBool();
     m_screenshotDir = FilePath::fromString(settings->value(screenshotDirPathKey).toString());

@@ -5,8 +5,9 @@
 #include "cpptoolsreuse.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
-#include <QSettings>
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -215,7 +216,7 @@ static const char diagnosticConfigsTidyModeKey[] = "clangTidyMode";
 static const char diagnosticConfigsClazyModeKey[] = "clazyMode";
 static const char diagnosticConfigsClazyChecksKey[] = "clazyChecks";
 
-void diagnosticConfigsToSettings(QSettings *s, const ClangDiagnosticConfigs &configs)
+void diagnosticConfigsToSettings(QtcSettings *s, const ClangDiagnosticConfigs &configs)
 {
     s->beginWriteArray(diagnosticConfigsArrayKey);
     for (int i = 0, size = configs.size(); i < size; ++i) {
@@ -234,7 +235,7 @@ void diagnosticConfigsToSettings(QSettings *s, const ClangDiagnosticConfigs &con
     s->endArray();
 }
 
-ClangDiagnosticConfigs diagnosticConfigsFromSettings(QSettings *s)
+ClangDiagnosticConfigs diagnosticConfigsFromSettings(QtcSettings *s)
 {
     ClangDiagnosticConfigs configs;
 

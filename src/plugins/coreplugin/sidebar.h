@@ -10,9 +10,10 @@
 #include <QList>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QToolButton;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcSettings; }
 
 namespace Core {
 
@@ -78,8 +79,8 @@ public:
     bool closeWhenEmpty() const;
     void setCloseWhenEmpty(bool value);
 
-    void saveSettings(QSettings *settings, const QString &name);
-    void readSettings(QSettings *settings, const QString &name);
+    void saveSettings(Utils::QtcSettings *settings, const QString &name);
+    void readSettings(Utils::QtcSettings *settings, const QString &name);
     void closeAllWidgets();
     void activateItem(const QString &id);
 

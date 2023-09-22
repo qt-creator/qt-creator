@@ -5,15 +5,12 @@
 
 #include <QObject>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils { class QtcSettings; }
 
 namespace ModelEditor {
 namespace Internal {
 
-class SettingsController :
-        public QObject
+class SettingsController : public QObject
 {
     Q_OBJECT
 
@@ -22,13 +19,13 @@ public:
 
 signals:
     void resetSettings();
-    void saveSettings(QSettings *settings);
-    void loadSettings(QSettings *settings);
+    void saveSettings(Utils::QtcSettings *settings);
+    void loadSettings(Utils::QtcSettings *settings);
 
 public:
     void reset();
-    void save(QSettings *settings);
-    void load(QSettings *settings);
+    void save(Utils::QtcSettings *settings);
+    void load(Utils::QtcSettings *settings);
 };
 
 } // namespace Internal

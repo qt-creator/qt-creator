@@ -8,8 +8,11 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/qtcsettings.h>
 #include <utils/theme/theme.h>
 
 #include <QApplication>
@@ -22,6 +25,8 @@
 #include <QStyle>
 #include <QStyleFactory>
 #include <QVBoxLayout>
+
+using namespace Utils;
 
 namespace QmlDesigner {
 
@@ -53,9 +58,9 @@ bool hideToolsMenuSetting()
     return Core::ICore::settings()->value(Core::Constants::SETTINGS_MENU_HIDE_TOOLS, false).toBool();
 }
 
-void setSettingIfDifferent(const QString &key, bool value, bool &dirty)
+void setSettingIfDifferent(const Key &key, bool value, bool &dirty)
 {
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     if (s->value(key, false).toBool() != value) {
         dirty = true;
         s->setValue(key, value);
@@ -175,7 +180,7 @@ void StudioSettingsPage::apply()
         restartDialog.exec();
     }
 
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     const QString value = m_pathChooserExamples->filePath().toString();
 
     if (s->value(Paths::exampleDownloadPath, false).toString() != value) {

@@ -800,7 +800,7 @@ void MemcheckToolPrivate::heobAction()
                        .arg(
                            "<a "
                            "href=\"https://github.com/ssbssa/dwarfstack/releases\">Dwarfstack</a>"),
-                   QString("HeobDwarfstackInfo"),
+                   Key("HeobDwarfstackInfo"),
                    QMessageBox::Ok | QMessageBox::Cancel,
                    QMessageBox::Ok)
                    != QMessageBox::Ok)
@@ -1187,7 +1187,7 @@ const char heobPathC[] = "Path";
 HeobDialog::HeobDialog(QWidget *parent) :
     QDialog(parent)
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     bool hasSelProfile = settings->contains(heobProfileC);
     const QString selProfile = hasSelProfile ? settings->value(heobProfileC).toString() : "Heob";
     m_profiles = settings->childGroups().filter(QRegularExpression("^Heob\\.Profile\\."));
@@ -1199,7 +1199,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     auto profilesLayout = new QHBoxLayout;
     m_profilesCombo = new QComboBox;
     for (const auto &profile : std::as_const(m_profiles))
-        m_profilesCombo->addItem(settings->value(profile + "/" + heobProfileNameC).toString());
+        m_profilesCombo->addItem(settings->value(keyFromString(profile) + "/" + heobProfileNameC).toString());
     if (hasSelProfile) {
         int selIdx = m_profiles.indexOf(selProfile);
         if (selIdx >= 0)
@@ -1402,8 +1402,9 @@ void HeobDialog::keyPressEvent(QKeyEvent *e)
 
 void HeobDialog::updateProfile()
 {
-    QSettings *settings = Core::ICore::settings();
-    const QString selProfile = m_profiles.empty() ? "heob" : m_profiles[m_profilesCombo->currentIndex()];
+    QtcSettings *settings = Core::ICore::settings();
+    const Key selProfile =
+        keyFromString(m_profiles.empty() ? "heob" : m_profiles[m_profilesCombo->currentIndex()]);
 
     settings->beginGroup(selProfile);
     const QString xml = settings->value(heobXmlC, "leaks.xml").toString();
@@ -1456,12 +1457,12 @@ void HeobDialog::updateEnabled()
 
 void HeobDialog::saveOptions()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     const QString selProfile = m_profiles.at(m_profilesCombo->currentIndex());
 
     settings->setValue(heobProfileC, selProfile);
 
-    settings->beginGroup(selProfile);
+    settings->beginGroup(keyFromString(selProfile));
     settings->setValue(heobProfileNameC, m_profilesCombo->currentText());
     settings->setValue(heobXmlC, m_xmlEdit->text());
     settings->setValue(heobHandleExceptionC, m_handleExceptionCombo->currentIndex());
@@ -1528,11 +1529,11 @@ void HeobDialog::deleteProfileDialog()
 
 void HeobDialog::deleteProfile()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     int index = m_profilesCombo->currentIndex();
     const QString profile = m_profiles.at(index);
     bool isDefault = settings->value(heobProfileC).toString() == profile;
-    settings->remove(profile);
+    settings->remove(keyFromString(profile));
     m_profiles.removeAt(index);
     m_profilesCombo->removeItem(index);
     if (isDefault)

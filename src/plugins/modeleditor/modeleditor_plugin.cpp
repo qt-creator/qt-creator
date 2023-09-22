@@ -65,9 +65,9 @@ void ModelEditorPlugin::initialize()
     Core::JsExpander::registerGlobalObject<JsExtension>("Modeling");
 
     connect(&d->settingsController, &SettingsController::saveSettings,
-            &d->uiController, &UiController::saveSettings);
+            &d->uiController, [this](Utils::QtcSettings *s) { d->uiController.saveSettings(s); });
     connect(&d->settingsController, &SettingsController::loadSettings,
-            &d->uiController, &UiController::loadSettings);
+            &d->uiController, [this](Utils::QtcSettings *s) { d->uiController.loadSettings(s); });
 }
 
 void ModelEditorPlugin::extensionsInitialized()

@@ -76,8 +76,8 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    void writeSettings(QSettings *settings) const;
-    void readSettings(QSettings *settings);
+    void writeSettings(QtcSettings *settings) const;
+    void readSettings(QtcSettings *settings);
 
     void updateCompletion(const QString &text, FindFlags f);
 
@@ -102,17 +102,17 @@ QVariant CompletionModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-static inline QString completionSettingsArrayPrefix() { return QStringLiteral("FindCompletions"); }
-static inline QString completionSettingsTextKey() { return QStringLiteral("Text"); }
-static inline QString completionSettingsFlagsKey() { return QStringLiteral("Flags"); }
+static Utils::Key completionSettingsArrayPrefix() { return "FindCompletions"; }
+static Utils::Key completionSettingsTextKey() { return "Text"; }
+static Utils::Key completionSettingsFlagsKey() { return "Flags"; }
 
-void CompletionModel::writeSettings(QSettings *settings) const
+void CompletionModel::writeSettings(QtcSettings *settings) const
 {
     if (m_entries.isEmpty()) {
         settings->remove(completionSettingsArrayPrefix());
     } else {
         const int size = m_entries.size();
-        settings->beginWriteArray(completionSettingsArrayPrefix(), size);
+        settings->beginWriteArray(completionSettingsArrayPrefix().view(), size);
         for (int i = 0; i < size; ++i) {
             settings->setArrayIndex(i);
             settings->setValue(completionSettingsTextKey(), m_entries.at(i).text);
@@ -122,10 +122,10 @@ void CompletionModel::writeSettings(QSettings *settings) const
     }
 }
 
-void CompletionModel::readSettings(QSettings *settings)
+void CompletionModel::readSettings(QtcSettings *settings)
 {
     beginResetModel();
-    const int size = settings->beginReadArray(completionSettingsArrayPrefix());
+    const int size = settings->beginReadArray(completionSettingsArrayPrefix().view());
     m_entries.clear();
     m_entries.reserve(size);
     for (int i = 0; i < size; ++i) {

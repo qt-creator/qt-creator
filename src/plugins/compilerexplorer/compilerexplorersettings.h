@@ -32,7 +32,7 @@ public:
     ~CompilerExplorerSettings();
 
     Utils::StringAspect compilerExplorerUrl{this};
-    Utils::TypedAspect<QVariantMap> windowState{this};
+    Utils::TypedAspect<Utils::Store> windowState{this};
 
     Utils::AspectList m_sources{this};
 

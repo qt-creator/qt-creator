@@ -13,6 +13,7 @@
 
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
+#include <utils/store.h>
 #include <utils/stylehelper.h>
 
 #include <QDebug>
@@ -20,6 +21,8 @@
 #include <QMenu>
 #include <QStackedWidget>
 #include <QToolButton>
+
+using namespace Utils;
 
 namespace TextEditor {
 
@@ -54,8 +57,8 @@ public:
 
     QList<QToolButton *> toolButtons();
 
-    void saveSettings(QSettings *settings, int position);
-    void restoreSettings(QSettings *settings, int position);
+    void saveSettings(Utils::QtcSettings *settings, int position);
+    void restoreSettings(Utils::QtcSettings *settings, int position);
 
 private:
     bool isCursorSynchronized() const;
@@ -131,32 +134,33 @@ QList<QToolButton *> OutlineWidgetStack::toolButtons()
 
 OutlineWidgetStack::~OutlineWidgetStack() = default;
 
-void OutlineWidgetStack::saveSettings(QSettings *settings, int position)
+void OutlineWidgetStack::saveSettings(QtcSettings *settings, int position)
 {
-    const QString baseKey = QStringLiteral("Outline.%1.").arg(position);
-    settings->setValue(baseKey + QLatin1String("SyncWithEditor"), m_toggleSync->isChecked());
+    const Key baseKey = numberedKey("Outline.", position) + '.';
+    settings->setValue(baseKey + "SyncWithEditor", m_toggleSync->isChecked());
     for (auto iter = m_widgetSettings.constBegin(); iter != m_widgetSettings.constEnd(); ++iter)
-        settings->setValue(baseKey + iter.key(), iter.value());
+        settings->setValue(baseKey + keyFromString(iter.key()), iter.value());
 }
 
-void OutlineWidgetStack::restoreSettings(QSettings *settings, int position)
+void OutlineWidgetStack::restoreSettings(Utils::QtcSettings *settings, int position)
 {
-    const QString baseKey = QStringLiteral("Outline.%1.").arg(position);
+    const Key baseKey = numberedKey("Outline.", position) + '.';
+    const QString baseKeyString = stringFromKey(baseKey);
 
     bool syncWithEditor = true;
     m_widgetSettings.clear();
     const QStringList longKeys = settings->allKeys();
     for (const QString &longKey : longKeys) {
-        if (!longKey.startsWith(baseKey))
+        if (!longKey.startsWith(baseKeyString))
             continue;
 
-        const QString key = longKey.mid(baseKey.length());
+        const QString key = longKey.mid(baseKeyString.length());
 
         if (key == QLatin1String("SyncWithEditor")) {
-            syncWithEditor = settings->value(longKey).toBool();
+            syncWithEditor = settings->value(keyFromString(longKey)).toBool();
             continue;
         }
-        m_widgetSettings.insert(key, settings->value(longKey));
+        m_widgetSettings.insert(key, settings->value(keyFromString(longKey)));
     }
 
     m_toggleSync->setChecked(syncWithEditor);

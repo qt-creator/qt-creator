@@ -10,6 +10,7 @@
 #include <projectexplorer/devicesupport/sshsettings.h>
 
 #include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/process.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>

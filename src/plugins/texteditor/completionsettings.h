@@ -5,10 +5,7 @@
 
 #include "texteditor_global.h"
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
+namespace Utils { class QtcSettings; }
 namespace TextEditor {
 
 enum CaseSensitivity {
@@ -29,8 +26,8 @@ enum CompletionTrigger {
 class TEXTEDITOR_EXPORT CompletionSettings
 {
 public:
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
+    void toSettings(Utils::QtcSettings *s) const;
+    void fromSettings(Utils::QtcSettings *s);
 
     bool equals(const CompletionSettings &bs) const;
 

@@ -63,7 +63,7 @@ static bool askForCreating(const QString &title, const FilePath &filePath)
         = CheckableMessageBox::question(ICore::dialogParent(),
                                         title,
                                         Tr::tr("Create \"%1\"?").arg(filePath.shortNativePath()),
-                                        QString(kAlwaysCreate),
+                                        Key(kAlwaysCreate),
                                         QMessageBox::Yes | QMessageBox::Cancel,
                                         QMessageBox::Cancel,
                                         QMessageBox::Yes,

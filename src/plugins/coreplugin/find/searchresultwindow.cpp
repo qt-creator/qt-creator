@@ -638,9 +638,9 @@ QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()
 */
 void SearchResultWindow::readSettings()
 {
-    QSettings *s = ICore::settings();
-    s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
-    d->m_expandCollapseAction->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS),
+    Utils::QtcSettings *s = ICore::settings();
+    s->beginGroup(SETTINGSKEYSECTIONNAME);
+    d->m_expandCollapseAction->setChecked(s->value(SETTINGSKEYEXPANDRESULTS,
                                                    SearchResultWindowPrivate::m_initiallyExpand).toBool());
     s->endGroup();
 }

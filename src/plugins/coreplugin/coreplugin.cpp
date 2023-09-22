@@ -403,7 +403,7 @@ void CorePlugin::checkSettings()
             msgBox.exec();
         }, Qt::QueuedConnection);
     };
-    const QSettings * const userSettings = ICore::settings();
+    const QtcSettings * const userSettings = ICore::settings();
     QString errorDetails;
     switch (userSettings->status()) {
     case QSettings::NoError: {

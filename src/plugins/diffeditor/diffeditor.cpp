@@ -518,7 +518,7 @@ void DiffEditor::toggleSync()
 IDiffView *DiffEditor::loadSettings()
 {
     QTC_ASSERT(currentView(), return nullptr);
-    QSettings *s = ICore::settings();
+    QtcSettings *s = ICore::settings();
 
     // Read current settings:
     s->beginGroup(settingsGroupC);
@@ -537,9 +537,9 @@ IDiffView *DiffEditor::loadSettings()
     return view;
 }
 
-void DiffEditor::saveSetting(const QString &key, const QVariant &value) const
+void DiffEditor::saveSetting(const Key &key, const QVariant &value) const
 {
-    QSettings *s = ICore::settings();
+    QtcSettings *s = ICore::settings();
     s->beginGroup(settingsGroupC);
     s->setValue(key, value);
     s->endGroup();

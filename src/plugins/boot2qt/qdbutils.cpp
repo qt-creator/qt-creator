@@ -34,7 +34,7 @@ FilePath findTool(QdbTool tool)
     QString filePath = Utils::qtcEnvironmentVariable(overridingEnvironmentVariable(tool));
 
     if (filePath.isEmpty()) {
-        QSettings * const settings = Core::ICore::settings();
+        QtcSettings * const settings = Core::ICore::settings();
         settings->beginGroup(settingsGroupKey());
         filePath = settings->value(settingsKey(tool)).toString();
         settings->endGroup();
@@ -72,20 +72,21 @@ void showMessage(const QString &message, bool important)
         Core::MessageManager::writeSilently(fullMessage);
 }
 
-QString settingsGroupKey()
+Key settingsGroupKey()
 {
-    return QLatin1String("Boot2Qt");
+    return "Boot2Qt";
 }
 
-QString settingsKey(QdbTool tool)
+Key settingsKey(QdbTool tool)
 {
     switch (tool) {
     case QdbTool::FlashingWizard:
-        return QLatin1String("flashingWizardFilePath");
+        return "flashingWizardFilePath";
     case QdbTool::Qdb:
-        return QLatin1String("qdbFilePath");
+        return "qdbFilePath";
     }
-    QTC_ASSERT(false, return QString());
+    QTC_CHECK(false);
+    return {};
 }
 
 } // Qdb::Internal

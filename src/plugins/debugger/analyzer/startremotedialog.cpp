@@ -67,7 +67,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     verticalLayout->addLayout(formLayout);
     verticalLayout->addWidget(d->buttonBox);
 
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup("AnalyzerStartRemoteDialog");
     d->kitChooser->populate();
     d->kitChooser->setCurrentKitId(Id::fromSetting(settings->value("profile")));
@@ -93,7 +93,7 @@ StartRemoteDialog::~StartRemoteDialog()
 
 void StartRemoteDialog::accept()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup("AnalyzerStartRemoteDialog");
     settings->setValue("profile", d->kitChooser->currentKitId().toString());
     settings->setValue("executable", d->executable->text());
