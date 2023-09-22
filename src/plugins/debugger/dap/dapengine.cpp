@@ -278,7 +278,6 @@ void DapEngine::updateBreakpoint(const Breakpoint &bp)
 {
     BreakpointParameters parameters = bp->requestedParameters();
     notifyBreakpointChangeProceeding(bp);
-    qDebug() << "updateBreakpoint";
 
     if (parameters.enabled != bp->isEnabled()) {
         if (bp->isEnabled())
@@ -413,12 +412,37 @@ void DapEngine::assignValueInDebugger(WatchItem *, const QString &/*expression*/
 void DapEngine::updateItem(const QString &iname)
 {
     WatchItem *item = watchHandler()->findItem(iname);
-
-    if (m_currentWatchItem != item) {
+    if (item && m_currentWatchItem != item) {
         m_currentWatchItem = item;
-        m_isFirstLayer = false;
         m_dapClient->variables(item->variablesReference);
     }
+}
+
+void DapEngine::getVariableFromQueue()
+{
+    WatchItem *item = nullptr;
+    while (!item && !m_variablesReferenceInameQueue.empty()) {
+        item = watchHandler()->findItem(m_variablesReferenceInameQueue.front());
+        m_variablesReferenceInameQueue.pop();
+    }
+
+    if (item) {
+        m_currentWatchItem = item;
+        m_dapClient->variables(item->variablesReference);
+    }
+}
+
+void DapEngine::reexpandItems(const QSet<QString> &inames)
+{
+    QList<QString> inamesVector = inames.values().toVector();
+    inamesVector.sort();
+
+    for (const QString &iname : inamesVector) {
+        if (iname.startsWith("local."))
+            m_variablesReferenceInameQueue.push(iname);
+    }
+
+    getVariableFromQueue();
 }
 
 QString DapEngine::errorMessage(QProcess::ProcessError error) const
@@ -557,7 +581,6 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
     if (!response.value("success").toBool())
         return;
 
-    watchHandler()->cleanup();
     watchHandler()->removeAllData();
     watchHandler()->notifyUpdateStarted();
 
@@ -735,7 +758,7 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
         if (variablesReference > 0)
             item->wantsChildren = true;
 
-        qCDebug(logCategory()) << "variable" << name << variablesReference;
+        qCDebug(logCategory()) << "variable" << item->iname << variablesReference;
         if (m_isFirstLayer)
             m_watchItems.append(item);
         else
@@ -746,15 +769,22 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
         if (m_variablesReferenceQueue.empty()) {
             for (auto item : m_watchItems)
                 watchHandler()->insertItem(item);
+            m_isFirstLayer = false;
+            watchHandler()->notifyUpdateFinished();
         } else {
             m_dapClient->variables(m_variablesReferenceQueue.front());
             m_variablesReferenceQueue.pop();
         }
-    } else {
-        watchHandler()->updateWatchExpression(m_currentWatchItem, "");
+        return;
     }
 
-    watchHandler()->notifyUpdateFinished();
+    if (m_currentWatchItem) {
+        emit watchHandler()->model()->inameIsExpanded(m_currentWatchItem->iname);
+        emit watchHandler()->model()->itemIsExpanded(
+            watchHandler()->model()->indexForItem(m_currentWatchItem));
+    }
+
+    getVariableFromQueue();
 }
 
 void DapEngine::refreshStack(const QJsonArray &stackFrames)
@@ -803,7 +833,8 @@ bool DapEngine::hasCapability(unsigned cap) const
     return cap & (ReloadModuleCapability
                   | BreakConditionCapability
                   | ShowModuleSymbolsCapability
-                  | RunToLineCapability);
+                  | RunToLineCapability
+                  | AddWatcherCapability);
 }
 
 void DapEngine::claimInitialBreakpoints()

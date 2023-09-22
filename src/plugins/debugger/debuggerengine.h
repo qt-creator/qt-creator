@@ -290,6 +290,8 @@ public:
 
     virtual bool canHandleToolTip(const DebuggerToolTipContext &) const;
     virtual void expandItem(const QString &iname); // Called when item in tree gets expanded.
+    virtual void reexpandItems(
+        const QSet<QString> &inames); // Called when items in tree need to be reexpanded.
     virtual void updateItem(const QString &iname); // Called for fresh watch items.
     void updateWatchData(const QString &iname); // FIXME: Merge with above.
     virtual void selectWatchData(const QString &iname);

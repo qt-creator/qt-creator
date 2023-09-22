@@ -2401,6 +2401,10 @@ void DebuggerEngine::updateItem(const QString &iname)
     doUpdateLocals(params);
 }
 
+void DebuggerEngine::reexpandItems(const QSet<QString> &)
+{
+}
+
 void DebuggerEngine::updateWatchData(const QString &iname)
 {
     // This is used in cases where re-evaluation is ok for the same iname

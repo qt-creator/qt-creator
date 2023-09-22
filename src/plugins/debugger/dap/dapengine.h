@@ -69,6 +69,8 @@ protected:
 
     bool supportsThreads() const { return true; }
     void updateItem(const QString &iname) override;
+    void reexpandItems(const QSet<QString> &inames) override;
+    void getVariableFromQueue();
 
     void runCommand(const DebuggerCommand &cmd) override;
 
@@ -118,6 +120,7 @@ protected:
 
     bool m_isFirstLayer = true;
     std::queue<int> m_variablesReferenceQueue;
+    std::queue<QString> m_variablesReferenceInameQueue;
     WatchItem *m_currentWatchItem = nullptr;
     QList<WatchItem *> m_watchItems;
 
