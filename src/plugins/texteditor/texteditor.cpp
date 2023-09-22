@@ -54,7 +54,6 @@
 #include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
-#include <utils/fixedsizeclicklabel.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
 #include <utils/mimeutils.h>
@@ -727,8 +726,8 @@ public:
     QWidget *m_stretchWidget = nullptr;
     QAction *m_stretchAction = nullptr;
     QAction *m_toolbarOutlineAction = nullptr;
-    LineColumnButton *m_cursorPositionLabel = nullptr;
-    FixedSizeClickLabel *m_fileEncodingLabel = nullptr;
+    LineColumnButton *m_cursorPositionButton = nullptr;
+    QToolButton *m_fileEncodingButton = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
     BaseTextFind *m_find = nullptr;
 
@@ -1037,9 +1036,9 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_toolBarWidget->layout()->addWidget(m_toolBar);
 
     const int spacing = q->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
-    m_cursorPositionLabel = new LineColumnButton(q);
-    m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
-    m_toolBarWidget->layout()->addWidget(m_cursorPositionLabel);
+    m_cursorPositionButton = new LineColumnButton(q);
+    m_cursorPositionButton->setContentsMargins(spacing, 0, spacing, 0);
+    m_toolBarWidget->layout()->addWidget(m_cursorPositionButton);
 
     m_fileLineEnding = new QToolButton(q);
     m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
@@ -1048,9 +1047,9 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     connect(q, &TextEditorWidget::readOnlyChanged,
             this, &TextEditorWidgetPrivate::updateFileLineEndingVisible);
 
-    m_fileEncodingLabel = new FixedSizeClickLabel;
-    m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);
-    m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
+    m_fileEncodingButton = new QToolButton;
+    m_fileEncodingButton->setContentsMargins(spacing, 0, spacing, 0);
+    m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingButton);
 
     m_extraSelections.reserve(NExtraSelectionKinds);
 
@@ -1091,7 +1090,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     connect(&m_delayedUpdateTimer, &QTimer::timeout,
             q->viewport(), QOverload<>::of(&QWidget::update));
 
-    connect(m_fileEncodingLabel, &FixedSizeClickLabel::clicked,
+    connect(m_fileEncodingButton, &QToolButton::clicked,
             q, &TextEditorWidget::selectEncoding);
 
     connect(m_fileLineEnding, &QToolButton::clicked, ActionManager::instance(), [this] {
@@ -1834,7 +1833,7 @@ void TextEditorWidget::updateTextLineEndingLabel()
 void TextEditorWidget::updateTextCodecLabel()
 {
     QString text = QString::fromLatin1(d->m_document->codec()->name());
-    d->m_fileEncodingLabel->setText(text, text);
+    d->m_fileEncodingButton->setText(text);
 }
 
 QString TextEditorWidget::msgTextTooLarge(quint64 size)
