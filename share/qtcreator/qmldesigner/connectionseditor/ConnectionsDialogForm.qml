@@ -219,7 +219,7 @@ Column {
     HelperWidgets.AbstractButton {
         id: editorButton
         buttonIcon: StudioTheme.Constants.codeEditor_medium
-        tooltip: qsTr("Add something.")
+        tooltip: qsTr("Write the conditions for the components and the signals manually.")
         onClicked: expressionDialogLoader.show()
     }
 
@@ -242,21 +242,6 @@ Column {
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
 
-        }
-
-        HelperWidgets.AbstractButton {
-            id: editorButton
-
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.margins: 4
-
-            style: StudioTheme.Values.viewBarButtonStyle
-            buttonIcon: StudioTheme.Constants.edit_medium
-            tooltip: qsTr("Write the conditions for the components and the signals manually.")
-            onClicked: {
-                expressionDialogLoader.show()
-            }
         }
 
         Loader {
