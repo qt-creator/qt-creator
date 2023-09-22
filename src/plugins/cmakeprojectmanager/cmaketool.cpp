@@ -14,6 +14,7 @@
 #include <utils/persistentcachestore.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDir>
 #include <QJsonDocument>
@@ -261,26 +262,59 @@ CMakeKeywords CMakeTool::keywords()
 
     if (m_introspection->m_functions.isEmpty() && m_introspection->m_didRun) {
         Process proc;
-        runCMake(proc, {"--help-command-list"}, 5);
-        if (proc.result() == ProcessResult::FinishedWithSuccess)
-            m_introspection->m_functions = Utils::filtered(proc.cleanedStdOut().split('\n'),
-                                                           std::not_fn(&QString::isEmpty));
 
-        runCMake(proc, {"--help-property-list"}, 5);
-        if (proc.result() == ProcessResult::FinishedWithSuccess)
-            m_introspection->m_properties = parseVariableOutput(proc.cleanedStdOut());
+        const FilePath findCMakeRoot = TemporaryDirectory::masterDirectoryFilePath()
+                                       / "find-root.cmake";
+        findCMakeRoot.writeFileContents("message(${CMAKE_ROOT})");
 
-        runCMake(proc, {"--help-variable-list"}, 5);
+        FilePath cmakeRoot;
+        runCMake(proc, {"-P", findCMakeRoot.nativePath()}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
-            m_introspection->m_variables = Utils::filteredUnique(
-                parseVariableOutput(proc.cleanedStdOut()));
-            Utils::sort(m_introspection->m_variables);
+            QStringList output = filtered(proc.allOutput().split('\n'),
+                                          std::not_fn(&QString::isEmpty));
+            if (output.size() > 0)
+                cmakeRoot = FilePath::fromString(output[0]);
         }
 
-        runCMake(proc, {"--help-policy-list"}, 5);
-        if (proc.result() == ProcessResult::FinishedWithSuccess)
-            m_introspection->m_policies = Utils::filtered(proc.cleanedStdOut().split('\n'),
-                                                          std::not_fn(&QString::isEmpty));
+        const struct
+        {
+            const QString helpPath;
+            QStringList &targetList;
+        } introspections[] = {
+            // Functions
+            {"Help/command", m_introspection->m_functions},
+            // Properties
+            {"Help/prop_dir", m_introspection->m_directoryProperties},
+            {"Help/prop_sf", m_introspection->m_sourceProperties},
+            {"Help/prop_test", m_introspection->m_testProperties},
+            {"Help/prop_tgt", m_introspection->m_targetProperties},
+            {"Help/prop_gbl", m_introspection->m_properties},
+            // Variables
+            {"Help/variable", m_introspection->m_variables},
+            // Policies
+            {"Help/policy", m_introspection->m_policies},
+        };
+        for (auto &i : introspections) {
+            const FilePaths files = cmakeRoot.pathAppended(i.helpPath)
+                                        .dirEntries({{"*.rst"}, QDir::Files}, QDir::Name);
+            i.targetList = transform<QStringList>(files, &FilePath::completeBaseName);
+        }
+
+        m_introspection->m_properties << m_introspection->m_directoryProperties;
+        m_introspection->m_properties << m_introspection->m_sourceProperties;
+        m_introspection->m_properties << m_introspection->m_testProperties;
+        m_introspection->m_properties << m_introspection->m_targetProperties;
+
+        // Modules
+        const FilePaths files
+            = cmakeRoot.pathAppended("Help/module").dirEntries({{"*.rst"}, QDir::Files}, QDir::Name);
+        const QStringList fileNames = transform<QStringList>(files, &FilePath::completeBaseName);
+        for (const QString &fileName : fileNames) {
+            if (fileName.startsWith("Find"))
+                m_introspection->m_findModules << fileName.mid(4);
+            else
+                m_introspection->m_includeStandardModules << fileName;
+        }
 
         parseSyntaxHighlightingXml();
     }
@@ -567,18 +601,6 @@ void CMakeTool::parseSyntaxHighlightingXml()
                     }
                 } else if (name == u"generator-expressions") {
                     m_introspection->m_generatorExpressions = readItemList(reader);
-                } else if (name == u"directory-properties") {
-                    m_introspection->m_directoryProperties = readItemList(reader);
-                } else if (name == u"source-properties") {
-                    m_introspection->m_sourceProperties = readItemList(reader);
-                } else if (name == u"target-properties") {
-                    m_introspection->m_targetProperties = readItemList(reader);
-                } else if (name == u"test-properties") {
-                    m_introspection->m_testProperties = readItemList(reader);
-                } else if (name == u"standard-modules") {
-                    m_introspection->m_includeStandardModules = readItemList(reader);
-                } else if (name == u"standard-finder-modules") {
-                    m_introspection->m_findModules = readItemList(reader);
                 } else {
                     reader.skipCurrentElement();
                 }
