@@ -135,8 +135,6 @@ QtcLibrary {
         "fileutils.h",
         "filewizardpage.cpp",
         "filewizardpage.h",
-        "fixedsizeclicklabel.cpp",
-        "fixedsizeclicklabel.h",
         "flowlayout.cpp",
         "flowlayout.h",
         "futuresynchronizer.cpp",
