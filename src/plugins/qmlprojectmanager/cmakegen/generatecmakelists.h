@@ -45,6 +45,7 @@ public:
     const FileQueue fileQueue() const;
     void filterFileQueue(const Utils::FilePaths &keepFiles);
     bool execute();
+    Utils::FilePaths invalidFileNames() const;
 
 private:
     void generateMainCmake(const Utils::FilePath &rootDir);
@@ -63,12 +64,15 @@ private:
     bool isFileBlacklisted(const QString &fileName);
     bool isDirBlacklisted(const Utils::FilePath &dir);
     bool includeFile(const Utils::FilePath &filePath);
+    bool validFileName(const Utils::FilePath &filePath);
 
 private:
     FileQueue m_fileQueue;
     QStringList m_resourceFileLocations;
     QStringList m_moduleNames;
     bool m_checkFileIsInProject;
+
+    Utils::FilePaths m_invalidFileNames;
 };
 
 } //GenerateCmake
