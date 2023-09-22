@@ -73,6 +73,8 @@ void EffectMakerNodesModel::loadModel()
         return;
     }
 
+    m_categories = {};
+
     QDirIterator itCategories(m_nodesPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
     while (itCategories.hasNext()) {
         itCategories.next();
