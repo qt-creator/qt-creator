@@ -2068,6 +2068,13 @@ class Tester(Dumper):
 
         lldb.SBDebugger.Destroy(self.debugger)
 
+if 'QT_CREATOR_LLDB_PROCESS' in os.environ:
+    # Initialize Qt Creator dumper
+    try:
+        theDumper = Dumper()
+    except Exception as error:
+        print('@\nstate="enginesetupfailed",error="{}"@\n'.format(error))
+
 # ------------------------------ For use in LLDB ------------------------------
 
 
@@ -2437,6 +2444,9 @@ class SyntheticChildrenProvider(SummaryProvider):
 
 def __lldb_init_module(debugger, internal_dict):
     # Module is being imported in an LLDB session
+    if 'QT_CREATOR_LLDB_PROCESS' in os.environ:
+        # Let Qt Creator take care of its own dumper
+        return
 
     if not __name__ == 'qt':
         # Make available under global 'qt' name for consistency,
@@ -2471,10 +2481,3 @@ def __lldb_init_module(debugger, internal_dict):
                            % ("qt.SyntheticChildrenProvider", type_category))
 
     debugger.HandleCommand('type category enable %s' % type_category)
-
-
-if __name__ == "lldbbridge":
-    try:
-        theDumper = Dumper()
-    except Exception as error:
-        print('@\nstate="enginesetupfailed",error="{}"@\n'.format(error))

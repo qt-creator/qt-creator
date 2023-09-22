@@ -179,6 +179,7 @@ void LldbEngine::setupEngine()
 
     showMessage("STARTING LLDB: " + lldbCmd.toUserOutput());
     Environment environment = runParameters().debugger.environment;
+    environment.appendOrSet("QT_CREATOR_LLDB_PROCESS", "1");
     environment.appendOrSet("PYTHONUNBUFFERED", "1");  // avoid flushing problem on macOS
     DebuggerItem::addAndroidLldbPythonEnv(lldbCmd, environment);
 
