@@ -114,11 +114,19 @@ void DapClient::sendStepOver(int threadId)
     postRequest("next", QJsonObject{{"threadId", threadId}});
 }
 
+void DapClient::evaluateVariable(const QString &expression, int frameId)
+{
+    postRequest("evaluate",
+                QJsonObject{{"expression", expression},
+                            {"frameId", frameId},
+                            {"context", "variables"}});
+}
+
 void DapClient::stackTrace(int threadId)
 {
     QTC_ASSERT(threadId != -1, return);
     postRequest("stackTrace",
-                      QJsonObject{{"threadId", threadId}, {"startFrame", 0}, {"levels", 10}});
+                QJsonObject{{"threadId", threadId}, {"startFrame", 0}, {"levels", 10}});
 }
 
 void DapClient::scopes(int frameId)
@@ -139,8 +147,8 @@ void DapClient::variables(int variablesReference)
 void DapClient::setBreakpoints(const QJsonArray &breakpoints, const FilePath &fileName)
 {
     postRequest("setBreakpoints",
-                      QJsonObject{{"source", QJsonObject{{"path", fileName.path()}}},
-                                  {"breakpoints", breakpoints}});
+                QJsonObject{{"source", QJsonObject{{"path", fileName.path()}}},
+                            {"breakpoints", breakpoints}});
 }
 
 void DapClient::readOutput()
@@ -214,6 +222,8 @@ void DapClient::emitSignals(const QJsonDocument &doc)
             type = DapResponseType::DapThreads;
         } else if (command == "pause") {
             type = DapResponseType::Pause;
+        } else if (command == "evaluate") {
+            type = DapResponseType::Evaluate;
         }
         emit responseReady(type, ob);
         return;

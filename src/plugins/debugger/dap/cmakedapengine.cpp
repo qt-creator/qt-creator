@@ -147,6 +147,7 @@ bool CMakeDapEngine::hasCapability(unsigned cap) const
     return cap & (ReloadModuleCapability
                   | BreakConditionCapability
                   | ShowModuleSymbolsCapability
+                  /*| AddWatcherCapability*/ // disable while the #25282 bug is not fixed
                   /*| RunToLineCapability*/); // disable while the #25176 bug is not fixed
 }
 
