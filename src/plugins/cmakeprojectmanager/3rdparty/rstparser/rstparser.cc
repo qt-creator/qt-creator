@@ -27,6 +27,7 @@
 
 #include "rstparser.h"
 
+#include <algorithm>
 #include <cctype>
 #include <cstring>
 
@@ -55,15 +56,15 @@ void rst::Parser::SkipSpace() {
 
 std::string rst::Parser::ParseDirectiveType() {
   const char *s = ptr_;
-  if (!std::isalnum(*s))
+  if (!std::isalnum(*s) && *s != '|')
     return std::string();
   for (;;) {
     ++s;
     if (std::isalnum(*s))
       continue;
     switch (*s) {
-    case '-': case '_': case '+': case ':': case '.':
-      if (std::isalnum(s[1])) {
+    case '-': case '_': case '+': case ':': case '.': case '|':
+      if (std::isalnum(s[1]) || (*s == '|' && IsSpace(s[1]))) {
         ++s;
         continue;
       }
@@ -91,13 +92,28 @@ void rst::Parser::EnterBlock(rst::BlockType &prev_type, rst::BlockType type) {
 void rst::Parser::ParseBlock(
     rst::BlockType type, rst::BlockType &prev_type, int indent) {
   std::string text;
+
+  struct InlineTags {
+    rst::BlockType type;
+    std::size_t pos {};
+    std::string text;
+    std::string type_string;
+  };
+  std::vector<InlineTags> inline_tags;
+
+  bool have_h1 = false;
   for (bool first = true; ; first = false) {
     const char *line_start = ptr_;
     if (!first) {
       // Check indentation.
       SkipSpace();
-      if (ptr_ - line_start != indent)
+      const int new_indent = ptr_ - line_start;
+      if (new_indent < indent)
         break;
+      // Restore the indent
+      if (new_indent > indent)
+        std::advance(ptr_, indent - new_indent);
+
       if (*ptr_ == '\n') {
         ++ptr_;
         break;  // Empty line ends the block.
@@ -119,9 +135,17 @@ void rst::Parser::ParseBlock(
 
     // Copy text converting all whitespace characters to spaces.
     text.reserve(end - line_start + 1);
-    if (!first)
+    if (!first && !have_h1)
       text.push_back('\n');
     enum {TAB_WIDTH = 8};
+
+    // Used the sections mapping from https://docs.anaconda.com/restructuredtext/index.html
+    struct {
+      BlockType type;
+      int count = 0;
+      char c = 0;
+    } hx[] = { {H1, 0, '=' }, {H2, 0, '='}, {H3, 0, '-'}, {H4, 0, '^'}, {H5, 0, '\"'}};
+
     for (const char *s = line_start; s != end; ++s) {
       char c = *s;
       if (c == '\t') {
@@ -129,10 +153,60 @@ void rst::Parser::ParseBlock(
             TAB_WIDTH - ((indent + s - line_start) % TAB_WIDTH));
       } else if (IsSpace(c)) {
         text.push_back(' ');
+      } else if (c == hx[0].c) {
+        ++hx[0].count;
+        ++hx[1].count;
+      } else if (c == hx[2].c) {
+        ++hx[2].count;
+      } else if (c == hx[3].c) {
+        ++hx[3].count;
+      } else if (c == hx[4].c) {
+        ++hx[4].count;
+      } else if (c == '`') {
+        std::string code_tag_text;
+        if (ParseCode(s, end - s, code_tag_text)) {
+          InlineTags code;
+          code.type = rst::CODE;
+          code.pos = text.size();
+          code.text = code_tag_text;
+          inline_tags.push_back(code);
+          const int tag_size = 4;
+          s = s + code_tag_text.size() + tag_size - 1;
+        } else {
+          text.push_back(*s);
+        }
+      } else if (c == ':') {
+        std::string link_type;
+        std::string link_text;
+        if (ParseReferenceLink(s, end - s, link_type, link_text)) {
+          InlineTags link;
+          link.type = rst::REFERENCE_LINK;
+          link.pos = text.size();
+          link.text = link_text;
+          link.type_string = link_type;
+          inline_tags.push_back(link);
+          const int tag_size = 4;
+          s = s + link_type.size() + link_text.size() + tag_size - 1;
+        } else {
+          text.push_back(*s);
+        }
       } else {
         text.push_back(*s);
       }
     }
+
+    for (int i = 0; i < 5; ++i) {
+      if (hx[i].count > 0 && hx[i].count == end - line_start) {
+        // h1 and h2 have the same underline character
+        // only if there was one ontop then is h1 otherwise h2
+        if (i == 0 && first)
+          have_h1 = true;
+        if ((i == 0 && !have_h1) || (i == 1 && have_h1))
+          continue;
+        type = hx[i].type;
+      }
+    }
+
     if (*ptr_ == '\n')
       ++ptr_;
   }
@@ -144,11 +218,35 @@ void rst::Parser::ParseBlock(
   bool literal = type == PARAGRAPH && EndsWith(text, "::");
   if (!literal || text.size() != 2) {
     std::size_t size = text.size();
+    if (size == 0 && inline_tags.size() == 0)
+      return;
+
     if (literal)
       --size;
     EnterBlock(prev_type, type);
     handler_->StartBlock(type);
-    handler_->HandleText(text.c_str(), size);
+
+    if (inline_tags.size() == 0) {
+      handler_->HandleText(text.c_str(), size);
+    } else {
+      std::size_t start = 0;
+      for (const InlineTags &in : inline_tags) {
+        if (in.pos > start)
+          handler_->HandleText(text.c_str() + start, in.pos - start);
+        if (in.type == rst::REFERENCE_LINK) {
+          handler_->HandleReferenceLink(in.type_string, in.text);
+        } else {
+          handler_->StartBlock(in.type);
+          handler_->HandleText(in.text.c_str(), in.text.size());
+          handler_->EndBlock();
+        }
+        start = in.pos;
+      }
+
+      if (start < size)
+        handler_->HandleText(text.c_str() + start, size - start);
+    }
+
     handler_->EndBlock();
   }
   if (literal) {
@@ -191,6 +289,58 @@ void rst::Parser::ParseLineBlock(rst::BlockType &prev_type, int indent) {
   handler_->EndBlock();
 }
 
+bool rst::Parser::ParseCode(const char *s, std::size_t size, std::string &code)
+{
+  // It requires at least four ticks ``text``
+  if (s[0] != '`' || s[1] != '`')
+    return false;
+
+  if (size < 4)
+    return false;
+
+  std::size_t start_pos = 2;
+  std::size_t end_pos = 0;
+  for (std::size_t i = start_pos; i < size - 1; ++i) {
+    if (s[i] == '`' && s[i + 1] == '`') {
+      end_pos = i;
+      break;
+    }
+  }
+
+  if (end_pos == 0)
+    return false;
+
+  code.assign(s + start_pos, end_pos - start_pos);
+
+  return true;
+}
+
+bool rst::Parser::ParseReferenceLink(const char *s, std::size_t size, std::string &type, std::string &text)
+{
+  // :type:`text`
+  if (size < 4)
+    return false;
+
+  auto start_type_tag = s + 1;
+  auto end_type_tag = std::find(start_type_tag, s + size, ':');
+  if (end_type_tag == s + size)
+    return false;
+
+  type.assign(start_type_tag, end_type_tag - start_type_tag);
+
+  if (*(end_type_tag + 1) != '`')
+    return false;
+
+  auto start_text_tag = end_type_tag + 2;
+  auto end_text_tag = std::find(start_text_tag, s + size, '`');
+  if (end_text_tag == s + size)
+    return false;
+
+  text.assign(start_text_tag, end_text_tag - start_text_tag);
+
+  return true;
+}
+
 void rst::Parser::Parse(const char *s) {
   BlockType prev_type = PARAGRAPH;
   ptr_ = s;
@@ -214,7 +364,28 @@ void rst::Parser::Parse(const char *s) {
         std::string type = ParseDirectiveType();
         if (!type.empty() && ptr_[0] == ':' && ptr_[1] == ':') {
           ptr_ += 2;
-          handler_->HandleDirective(type.c_str());
+
+          const char* after_directive = ptr_;
+
+          // Get the name of the directive
+          std::string name;
+          while (*ptr_ && *ptr_ != '\n') {
+            c = *ptr_++;
+            if (!IsSpace(c))
+              name.push_back(c);
+          }
+
+          // Special case for ".. note::" which can start directly after the ::
+          if (type == "note" && name.size() > 0) {
+            ptr_ = after_directive;
+            SkipSpace();
+            handler_->HandleDirective(type, "");
+
+            ParseBlock(BLOCK_QUOTE, prev_type, 0);
+            break;
+          }
+
+          handler_->HandleDirective(type, name);
         }
         // Skip everything till the end of the line.
         while (*ptr_ && *ptr_ != '\n')
