@@ -190,7 +190,6 @@ DockerDeviceSettings::DockerDeviceSettings()
 
     extraArgs.setSettingsKey(DockerDeviceExtraArgs);
     extraArgs.setLabelText(Tr::tr("Extra arguments:"));
-    extraArgs.setDefaultValue({});
     extraArgs.setToolTip(Tr::tr("Extra arguments to pass to docker create."));
 
     clangdExecutable.setSettingsKey(DockerDeviceClangDExecutable);
