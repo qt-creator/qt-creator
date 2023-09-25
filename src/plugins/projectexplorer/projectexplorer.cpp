@@ -49,7 +49,6 @@
 #include "kitfeatureprovider.h"
 #include "kitaspects.h"
 #include "kitmanager.h"
-#include "kitoptionspage.h"
 #include "miniprojecttargetselector.h"
 #include "namedwidget.h"
 #include "parseissuesdialog.h"
