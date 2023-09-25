@@ -1,0 +1,178 @@
+{
+    "deployment": {
+        "targetDirectory": "/opt/UntitledProject13"
+    },
+    "environment": {
+        "QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT": "1",
+        "QT_AUTO_SCREEN_SCALE_FACTOR": "1",
+        "QT_ENABLE_HIGHDPI_SCALING": "0",
+        "QT_LOGGING_RULES": "qt.qml.connections=false",
+        "QT_QUICK_CONTROLS_CONF": "qtquickcontrols2.conf"
+    },
+    "fileGroups": {
+        "config": {
+            "directories": [
+                "."
+            ],
+            "files": [
+                {
+                    "name": "qtquickcontrols2.conf"
+                }
+            ],
+            "filters": [
+                "*.conf"
+            ]
+        },
+        "font": {
+            "directories": [
+                "."
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.ttf",
+                "*.otf",
+                "*.ctf"
+            ]
+        },
+        "image": {
+            "directories": [
+                "content",
+                "asset_imports"
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.jpeg",
+                "*.jpg",
+                "*.png",
+                "*.svg",
+                "*.hdr",
+                ".ktx"
+            ]
+        },
+        "javaScript": {
+            "directories": [
+                "content",
+                "imports"
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.js",
+                "*.ts"
+            ]
+        },
+        "meshes": {
+            "directories": [
+                "asset_imports"
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.mesh"
+            ]
+        },
+        "qml": {
+            "directories": [
+                "content",
+                "imports",
+                "asset_imports"
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.qml"
+            ]
+        },
+        "qmldir": {
+            "directories": [
+                "."
+            ],
+            "files": [
+            ],
+            "filters": [
+                "qmldir"
+            ]
+        },
+        "shader": {
+            "directories": [
+                "."
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.glsl",
+                "*.glslv",
+                "*.glslf",
+                "*.vsh",
+                "*.fsh",
+                "*.vert",
+                "*.frag",
+                "*.trag"
+            ]
+        },
+        "sound": {
+            "directories": [
+                "."
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.mp3",
+                "*.wav"
+            ]
+        },
+        "video": {
+            "directories": [
+                "."
+            ],
+            "files": [
+            ],
+            "filters": [
+                "*.mp4"
+            ]
+        }
+    },
+    "fileVersion": 1,
+    "importPaths": [
+        "imports",
+        "asset_imports"
+    ],
+    "language": {
+        "multiLanguageSupport": true,
+        "primaryLanguage": "en",
+        "supportedLanguages": [
+            "en"
+        ]
+    },
+    "mcuConfig": {
+        "mcuEnabled": true
+    },
+    "runConfig": {
+        "fileSelectors": [
+        ],
+        "mainFile": "content/App.qml",
+        "mainUiFile": "content/Screen01.ui.qml",
+        "widgetApp": true
+    },
+    "shaderTool": {
+        "args": [
+            "-s",
+            "--glsl",
+            "\"100 es,120,150\"",
+            "--hlsl",
+            "50",
+            "--msl",
+            "12"
+        ],
+        "files": [
+            "content/shaders/*"
+        ]
+    },
+    "versions": {
+        "designStudio": "4.0",
+        "qt": "6",
+        "qtQuick": "6.2"
+    }
+}
