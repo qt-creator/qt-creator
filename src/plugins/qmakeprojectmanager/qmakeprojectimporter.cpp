@@ -61,11 +61,7 @@ QmakeProjectImporter::QmakeProjectImporter(const FilePath &path) :
 
 FilePaths QmakeProjectImporter::importCandidates()
 {
-    FilePaths candidates;
-
-    const FilePath pfp = projectFilePath();
-    const QString prefix = pfp.baseName();
-    candidates << pfp.absolutePath();
+    FilePaths candidates{projectFilePath().absolutePath()};
 
     for (Kit *k : KitManager::kits()) {
         const FilePath sbdir = QmakeBuildConfiguration::shadowBuildDirectory
@@ -73,7 +69,7 @@ FilePaths QmakeProjectImporter::importCandidates()
 
         const FilePath baseDir = sbdir.absolutePath();
         for (const FilePath &path : baseDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
-            if (path.fileName().startsWith(prefix) && !candidates.contains(path))
+            if (!candidates.contains(path))
                 candidates << path;
         }
     }
