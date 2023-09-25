@@ -102,15 +102,12 @@ static Utils::expected<DataWithOrigin<T>, Error> parseResponse(ResponseData rawB
     }
 }
 
-QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const QString &projectName)
+QFuture<ResponseData> fetch(Utils::NetworkAccessManager &networkAccessManager,
+                            const std::optional<QUrl> &base,
+                            const QUrl &target)
 {
     const AxivionServer &server = settings().server;
-    QString dashboard = server.dashboard;
-    if (!dashboard.endsWith(QLatin1Char('/')))
-        dashboard += QLatin1Char('/');
-    QUrl url = QUrl(dashboard)
-        .resolved(QUrl(QStringLiteral(u"api/projects/")))
-        .resolved(QUrl(projectName));
+    QUrl url = base ? base->resolved(target) : target;
     QNetworkRequest request{ url };
     request.setRawHeader(QByteArrayLiteral(u8"Accept"),
                          QByteArrayLiteral(u8"Application/Json"));
@@ -121,10 +118,22 @@ QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const
                     + QByteArrayLiteral(u8"Plugin/")
                     + QCoreApplication::applicationVersion().toUtf8();
     request.setRawHeader(QByteArrayLiteral(u8"X-Axivion-User-Agent"), ua);
-    std::shared_ptr<QNetworkReply> reply{ this->m_networkAccessManager.get(request), deleteLater };
+    std::shared_ptr<QNetworkReply> reply{ networkAccessManager.get(request), deleteLater };
     return QtFuture::connect(reply.get(), &QNetworkReply::finished)
         .onCanceled(reply.get(), [reply] { reply->abort(); })
-        .then(ResponseReader(reply, jsonContentType))
+        .then(ResponseReader(reply, jsonContentType));
+}
+
+QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const QString &projectName)
+{
+    const AxivionServer &server = settings().server;
+    QString dashboard = server.dashboard;
+    if (!dashboard.endsWith(QLatin1Char('/')))
+        dashboard += QLatin1Char('/');
+    QUrl url = QUrl(dashboard)
+        .resolved(QUrl(QStringLiteral(u"api/projects/")))
+        .resolved(QUrl(projectName));
+    return fetch(this->m_networkAccessManager, std::nullopt, url)
         .then(QtFuture::Launch::Async, &parseResponse<Dto::ProjectInfoDto>);
 }
 
