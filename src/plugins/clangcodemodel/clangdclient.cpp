@@ -215,7 +215,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + clangdExePath.withNewMappedPath(jsonDbDir).path());
     if (clangdLogServer().isDebugEnabled())
-        cmd.addArgs({"--log=verbose", "--pretty"});
+        cmd.addArgs({"--log=verbose", "--pretty", "--hidden-features=1"});
     cmd.addArg("--use-dirty-headers");
     const auto interface = new StdIOClientInterface;
     interface->setCommandLine(cmd);
