@@ -30,22 +30,22 @@ static void deleteLater(QObject *obj)
     obj->deleteLater();
 }
 
-using RawBody = Utils::expected<DataWithOrigin<QByteArray>, Error>;
+using ResponseData = Utils::expected<DataWithOrigin<QByteArray>, Error>;
 
 static constexpr int httpStatusCodeOk = 200;
 static constexpr QLatin1String jsonContentType{ "application/json" };
 
-class RawBodyReader final
+class ResponseReader final
 {
 public:
-    RawBodyReader(std::shared_ptr<QNetworkReply> reply, QAnyStringView expectedContentType)
+    ResponseReader(std::shared_ptr<QNetworkReply> reply, QAnyStringView expectedContentType)
         : m_reply(std::move(reply)),
           m_expectedContentType(expectedContentType)
     { }
 
-    ~RawBodyReader() { }
+    ~ResponseReader() { }
 
-    RawBody operator()()
+    ResponseData operator()()
     {
         QNetworkReply::NetworkError error = m_reply->error();
         int statusCode = m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -88,7 +88,7 @@ private:
 };
 
 template<typename T>
-static Utils::expected<DataWithOrigin<T>, Error> RawBodyParser(RawBody rawBody)
+static Utils::expected<DataWithOrigin<T>, Error> parseResponse(ResponseData rawBody)
 {
     if (!rawBody)
         return tl::make_unexpected(std::move(rawBody.error()));
@@ -124,8 +124,8 @@ QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const
     std::shared_ptr<QNetworkReply> reply{ this->m_networkAccessManager.get(request), deleteLater };
     return QtFuture::connect(reply.get(), &QNetworkReply::finished)
         .onCanceled(reply.get(), [reply] { reply->abort(); })
-        .then(RawBodyReader(reply, jsonContentType))
-        .then(QtFuture::Launch::Async, &RawBodyParser<Dto::ProjectInfoDto>);
+        .then(ResponseReader(reply, jsonContentType))
+        .then(QtFuture::Launch::Async, &parseResponse<Dto::ProjectInfoDto>);
 }
 
 }
