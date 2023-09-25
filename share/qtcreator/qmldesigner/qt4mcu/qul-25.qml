@@ -1,10 +1,8 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-// new property: QtQuick.Text::textFormat
-
 VersionData {
-    name: "Qt for MCUs 2.6"
+    name: "Qt for MCUs 2.5"
 
     bannedItems: [
         "QtQuick.AnimatedImage",
@@ -116,7 +114,7 @@ VersionData {
         allowedProperties: ["rotation", "scale", "transformOrigin"]
         bannedProperties: ["lineHeight", "lineHeightMode", "style",
             "styleColor", "minimumPointSize", "minimumPixelSize",
-            "fontSizeMode", "renderType", "renderTypeQuality", "maximumLineCount"]
+            "fontSizeMode", "renderType", "renderTypeQuality", "textFormat", "maximumLineCount"]
     }
 
     QtQuick.Loader {

@@ -55,7 +55,7 @@ Project {
     QDS.qtForMCUs: true
     QDS.qt6Project: true
 
-    QDS.qdsVersion: "4.2"
+    QDS.qdsVersion: "4.3"
     QDS.quickVersion: "6.5"
 
     /* List of plugin directories passed to QML runtime */

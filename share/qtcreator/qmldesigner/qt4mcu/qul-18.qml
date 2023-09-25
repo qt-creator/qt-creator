@@ -1,6 +1,11 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+// new import: QtQuick.Shapes
+// new import provides new types: QtQuick.Shapes.Shape, QtQuick.Shapes.ShapePath
+// new types: QtQuick.Path, PathArc, PathLine, PathMove, PathQuad, PathCubic, PathElement, PathSvg
+
+
 VersionData {
     name: "Qt for MCUs 1.8"
 
