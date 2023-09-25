@@ -966,8 +966,15 @@ void Edit3DView::createEdit3DActions()
         snapToggleTrigger);
 
     SelectionContextOperation snapConfigTrigger = [this](const SelectionContext &) {
-        if (!m_snapConfiguration)
+        if (!m_snapConfiguration) {
             m_snapConfiguration = new SnapConfiguration(this);
+            connect(m_snapConfiguration.data(), &SnapConfiguration::posIntChanged,
+                    this, [this]() {
+                // Notify every change of position interval as that causes visible changes in grid
+                rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty,
+                                                 m_snapConfiguration->posInt());
+            });
+        }
         m_snapConfiguration->showConfigDialog(resolveToolbarPopupPos(m_snapConfigAction.get()));
     };
 
