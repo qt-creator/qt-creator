@@ -757,7 +757,7 @@ bool SessionManager::saveSession()
         data.insert("value-" + it.key(), it.value());
         keys << it.key();
     }
-    data.insert("valueKeys", QVariant::fromValue(keys));
+    data.insert("valueKeys", stringsFromKeys(keys));
 
     if (!d->m_writer || d->m_writer->fileName() != filePath) {
         delete d->m_writer;
