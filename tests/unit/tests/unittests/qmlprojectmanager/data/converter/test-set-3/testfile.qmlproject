@@ -1,0 +1,112 @@
+import QmlProject
+
+Project {
+    QDS.mainFile: "content/App.qml"
+    QDS.mainUiFile: "content/Screen01.ui.qml"
+
+    /* Include .qml, .js, and image files from current directory and subdirectories */
+    QDS.QmlFiles {
+        directory: "content"
+    }
+
+    QDS.QmlFiles {
+        directory: "imports"
+    }
+
+    QDS.JavaScriptFiles {
+        directory: "content"
+    }
+
+    QDS.JavaScriptFiles {
+        directory: "imports"
+    }
+
+    QDS.ImageFiles {
+        directory: "content"
+    }
+
+    QDS.ImageFiles {
+        directory: "asset_imports"
+    }
+
+    QDS.Files {
+        filter: "*.conf"
+        files: ["qtquickcontrols2.conf"]
+    }
+
+    QDS.Files {
+        filter: "qmldir"
+        directory: "."
+    }
+
+    QDS.Files {
+        filter: "*.ttf;*.otf;*.ctf"
+    }
+
+    QDS.Files {
+        filter: "*.wav;*.mp3"
+    }
+
+    QDS.Files {
+        filter: "*.mp4"
+    }
+
+    QDS.Files {
+        filter: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag;*.trag"
+    }
+
+    QDS.Files {
+        filter: "*.mesh"
+        directory: "asset_imports"
+    }
+
+    QDS.Files {
+        filter: "*.qml"
+        directory: "asset_imports"
+    }
+
+    QDS.Environment {
+        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
+        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
+        QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT: "1"
+        QT_LOGGING_RULES: "qt.qml.connections=false"
+        QT_ENABLE_HIGHDPI_SCALING: "0"
+        /* Useful for debugging
+       QSG_VISUALIZE=batches
+       QSG_VISUALIZE=clip
+       QSG_VISUALIZE=changes
+       QSG_VISUALIZE=overdraw
+       */
+    }
+
+    QDS.qt6Project: true
+
+    /* List of plugin directories passed to QML runtime */
+    QDS.importPaths: [ "imports", "asset_imports" ]
+
+    /* Required for deployment */
+    QDS.targetDirectory: "/opt/UntitledProject13"
+
+    QDS.qdsVersion: "4.0"
+
+    QDS.quickVersion: "6.2"
+
+    QDS.qtForMCUs: true
+
+    /* If any modules the project imports require widgets (e.g. QtCharts), widgetApp must be true */
+    QDS.widgetApp: true
+
+    /* args: Specifies command line arguments for qsb tool to generate shaders.
+       files: Specifies target files for qsb tool. If path is included, it must be relative to this file.
+              Wildcard '*' can be used in the file name part of the path.
+              e.g. files: [ "content/shaders/*.vert", "*.frag" ]  */
+    QDS.ShaderTool {
+        args: "-s --glsl \"100 es,120,150\" --hlsl 50 --msl 12"
+        files: [ "content/shaders/*" ]
+    }
+
+    QDS.multilanguageSupport: true
+    QDS.supportedLanguages: ["en"]
+    QDS.primaryLanguage: "en"
+
+}

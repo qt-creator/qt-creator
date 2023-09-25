@@ -1,0 +1,98 @@
+// prop: json-converted
+// prop: auto-generated
+
+import QmlProject
+
+Project {
+    mainFile: "content/App.qml"
+    mainUiFile: "content/Screen01.ui.qml"
+    targetDirectory: "/opt/UntitledProject13"
+    widgetApp: true
+    importPaths: [ "imports","asset_imports" ]
+
+    qdsVersion: "4.0"
+    quickVersion: "6.2"
+    qt6Project: true
+    qtForMCUs: true
+
+    multilanguageSupport: true
+    primaryLanguage: "en"
+    supportedLanguages: [ "en" ]
+
+    Environment {
+        QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT: "1"
+        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
+        QT_ENABLE_HIGHDPI_SCALING: "0"
+        QT_LOGGING_RULES: "qt.qml.connections=false"
+        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
+    }
+
+    ShaderTool {
+        args: "-s --glsl \"100 es,120,150\" --hlsl 50 --msl 12"
+        files: [ "content/shaders/*" ]
+    }
+
+    QmlFiles {
+        directory: "content"
+    }
+
+    QmlFiles {
+        directory: "imports"
+    }
+
+    QmlFiles {
+        directory: "asset_imports"
+    }
+
+    JavaScriptFiles {
+        directory: "content"
+    }
+
+    JavaScriptFiles {
+        directory: "imports"
+    }
+
+    ImageFiles {
+        directory: "content"
+    }
+
+    ImageFiles {
+        directory: "asset_imports"
+    }
+
+    Files {
+        directory: "."
+        filters: "*.conf"
+        files: [ "qtquickcontrols2.conf" ]
+    }
+
+    Files {
+        directory: "."
+        filters: "*.ttf;*.otf;*.ctf"
+    }
+
+    Files {
+        directory: "asset_imports"
+        filters: "*.mesh"
+    }
+
+    Files {
+        directory: "."
+        filters: "qmldir"
+    }
+
+    Files {
+        directory: "."
+        filters: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag;*.trag"
+    }
+
+    Files {
+        directory: "."
+        filters: "*.mp3;*.wav"
+    }
+
+    Files {
+        directory: "."
+        filters: "*.mp4"
+    }
+}
