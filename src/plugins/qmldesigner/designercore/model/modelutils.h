@@ -39,6 +39,6 @@ QMLDESIGNERCORE_EXPORT QList<ModelNode> pruneChildren(const QList<ModelNode> &no
 QMLDESIGNERCORE_EXPORT QList<ModelNode> allModelNodesWithId(AbstractView *view);
 
 QMLDESIGNERCORE_EXPORT bool isThisOrAncestorLocked(const ModelNode &node);
-QMLDESIGNERCORE_EXPORT ModelNode lowestCommonAncestor(const QList<ModelNode> &nodes);
+QMLDESIGNERCORE_EXPORT ModelNode lowestCommonAncestor(Utils::span<const ModelNode> nodes);
 
 } // namespace QmlDesigner::ModelUtils

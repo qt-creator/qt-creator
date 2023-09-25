@@ -198,10 +198,11 @@ ModelNode lowestCommonAncestor(const ModelNode &node1,
     auto depthOfNode = [](const ModelNode &node) -> int {
         int depth = 0;
         ModelNode parentNode = node;
-        while (!parentNode.isRootNode()) {
+        while (parentNode && !parentNode.isRootNode()) {
             depth++;
             parentNode = parentNode.parentProperty().parentModelNode();
         }
+
         return depth;
     };
 
@@ -209,6 +210,11 @@ ModelNode lowestCommonAncestor(const ModelNode &node1,
         depthOfLCA = (depthOfNode1 < 0) ? ((depthOfNode2 < 0) ? depthOfNode(node1) : depthOfNode2)
                                         : depthOfNode1;
         return node1;
+    }
+
+    if (node1.model() != node2.model()) {
+        depthOfLCA = -1;
+        return {};
     }
 
     if (node1.isRootNode()) {
@@ -250,18 +256,20 @@ ModelNode lowestCommonAncestor(const ModelNode &node1,
  * \brief The lowest common node containing all nodes. If one of the nodes (Node A) is
  * the ancestor of the other nodes, the return value is Node A and not the parent of Node A.
  */
-ModelNode lowestCommonAncestor(const QList<ModelNode> &nodes)
+ModelNode lowestCommonAncestor(Utils::span<const ModelNode> nodes)
 {
-    if (nodes.isEmpty())
+    if (nodes.empty())
         return {};
 
-    ModelNode accumulatedNode = nodes.first();
+    ModelNode accumulatedNode = nodes.front();
     int accumulatedNodeDepth = -1;
-    for (const ModelNode &node : Utils::span<const ModelNode>(nodes).subspan(1)) {
+    for (const ModelNode &node : nodes.subspan(1)) {
         accumulatedNode = lowestCommonAncestor(accumulatedNode,
                                                node,
                                                accumulatedNodeDepth,
                                                accumulatedNodeDepth);
+        if (!accumulatedNode)
+            return {};
     }
 
     return accumulatedNode;
