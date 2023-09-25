@@ -14,9 +14,41 @@
 
 namespace EffectMaker {
 
+enum class FileType
+{
+    Binary,
+    Text
+};
+
+static bool writeToFile(const QByteArray &buf, const QString &filename, FileType fileType)
+{
+    QDir().mkpath(QFileInfo(filename).path());
+    QFile f(filename);
+    QIODevice::OpenMode flags = QIODevice::WriteOnly | QIODevice::Truncate;
+    if (fileType == FileType::Text)
+        flags |= QIODevice::Text;
+    if (!f.open(flags)) {
+        qWarning() << "Failed to open file for writing:" << filename;
+        return false;
+    }
+    f.write(buf);
+    return true;
+}
+
 EffectMakerModel::EffectMakerModel(QObject *parent)
     : QAbstractListModel{parent}
 {
+    m_vertexShaderFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.vert.qsb");
+    m_fragmentShaderFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.frag.qsb");
+    // TODO: Will be revisted later when saving output files
+    if (m_vertexShaderFile.open())
+        qInfo() << "Using temporary vs file:" << m_vertexShaderFile.fileName();
+    if (m_fragmentShaderFile.open())
+        qInfo() << "Using temporary fs file:" << m_fragmentShaderFile.fileName();
+
+    // Prepare baker
+    m_baker.setGeneratedShaderVariants({ QShader::StandardShader });
+    updateBakedShaderVersions();
 }
 
 QHash<int, QByteArray> EffectMakerModel::roleNames() const
@@ -95,6 +127,21 @@ void EffectMakerModel::removeNode(int idx)
 
     if (m_nodes.isEmpty())
         setIsEmpty(true);
+}
+
+void EffectMakerModel::updateBakedShaderVersions()
+{
+    QList<QShaderBaker::GeneratedShader> targets;
+    targets.append({ QShader::SpirvShader, QShaderVersion(100) }); // Vulkan 1.0
+    targets.append({ QShader::HlslShader, QShaderVersion(50) }); // Shader Model 5.0
+    targets.append({ QShader::MslShader, QShaderVersion(12) }); // Metal 1.2
+    targets.append({ QShader::GlslShader, QShaderVersion(300, QShaderVersion::GlslEs) }); // GLES 3.0+
+    targets.append({ QShader::GlslShader, QShaderVersion(410) }); // OpenGL 4.1+
+    targets.append({ QShader::GlslShader, QShaderVersion(330) }); // OpenGL 3.3
+    targets.append({ QShader::GlslShader, QShaderVersion(140) }); // OpenGL 3.1
+    //TODO: Do we need support for legacy shaders 100, 120?
+
+    m_baker.setGeneratedShaders(targets);
 }
 
 QString EffectMakerModel::fragmentShader() const
@@ -744,7 +791,40 @@ void EffectMakerModel::bakeShaders()
 
     updateCustomUniforms();
 
-    // TODO: Shaders baking
+    setVertexShader(generateVertexShader());
+    QString vs = m_vertexShader;
+    m_baker.setSourceString(vs.toUtf8(), QShader::VertexStage);
+
+    QShader vertShader = m_baker.bake();
+    if (!vertShader.isValid()) {
+        qWarning() << "Shader baking failed:" << qPrintable(m_baker.errorMessage());
+        setEffectError(m_baker.errorMessage().split('\n').first(), ErrorVert);
+    } else {
+        QString filename = m_vertexShaderFile.fileName();
+        writeToFile(vertShader.serialized(), filename, FileType::Binary);
+        resetEffectError(ErrorVert);
+    }
+
+    setFragmentShader(generateFragmentShader());
+    QString fs = m_fragmentShader;
+    m_baker.setSourceString(fs.toUtf8(), QShader::FragmentStage);
+
+    QShader fragShader = m_baker.bake();
+    if (!fragShader.isValid()) {
+        qWarning() << "Shader baking failed:" << qPrintable(m_baker.errorMessage());
+        setEffectError(m_baker.errorMessage().split('\n').first(), ErrorFrag);
+    } else {
+        QString filename = m_fragmentShaderFile.fileName();
+        writeToFile(fragShader.serialized(), filename, FileType::Binary);
+        resetEffectError(ErrorFrag);
+    }
+
+    if (vertShader.isValid() && fragShader.isValid()) {
+        Q_EMIT shadersBaked();
+        setShadersUpToDate(true);
+    }
+
+    // TODO: Mark shaders as baked, required by export later
 }
 
 bool EffectMakerModel::shadersUpToDate() const

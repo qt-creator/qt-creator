@@ -8,6 +8,7 @@
 #include <QMap>
 #include <QRegularExpression>
 #include <QStandardItemModel>
+#include <QTemporaryFile>
 
 #include <QtShaderTools/private/qshaderbaker_p.h>
 
@@ -65,6 +66,7 @@ signals:
     void selectedIndexChanged(int idx);
     void effectErrorChanged();
     void shadersUpToDateChanged();
+    void shadersBaked();
 
 private:
     enum Roles {
@@ -90,6 +92,7 @@ private:
     const QString getVSUniforms();
     const QString getFSUniforms();
 
+    void updateBakedShaderVersions();
     QString detectErrorMessage(const QString &errorMessage);
     EffectError effectError() const;
     void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
@@ -128,6 +131,8 @@ private:
     QStringList m_defaultRootVertexShader;
     QStringList m_defaultRootFragmentShader;
     QShaderBaker m_baker;
+    QTemporaryFile m_fragmentShaderFile;
+    QTemporaryFile m_vertexShaderFile;
     // Used in exported QML, at root of the file
     QString m_exportedRootPropertiesString;
     // Used in exported QML, at ShaderEffect component of the file
