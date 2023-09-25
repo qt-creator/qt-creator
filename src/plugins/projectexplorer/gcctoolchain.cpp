@@ -8,6 +8,7 @@
 #include "devicesupport/idevice.h"
 #include "gccparser.h"
 #include "linuxiccparser.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmacro.h"
 #include "toolchainconfigwidget.h"

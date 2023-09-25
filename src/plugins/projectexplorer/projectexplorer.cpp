@@ -56,6 +56,7 @@
 #include "processstep.h"
 #include "project.h"
 #include "projectcommentssettings.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"

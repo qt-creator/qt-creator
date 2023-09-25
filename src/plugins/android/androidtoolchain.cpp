@@ -9,6 +9,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/environment.h>
 

@@ -12,6 +12,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/infolabel.h>
@@ -19,7 +21,6 @@
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
 
-#include <QGroupBox>
 #include <QTextBrowser>
 #include <QTimer>
 

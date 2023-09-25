@@ -5,7 +5,6 @@
 
 #include "projectexplorer_export.h"
 
-#include "projectexplorerconstants.h"
 #include "toolchain.h"
 #include "abi.h"
 #include "headerpath.h"
@@ -29,7 +28,6 @@ const QStringList gccPredefinedMacrosOptions(Utils::Id languageId);
 // --------------------------------------------------------------------------
 // GccToolChain
 // --------------------------------------------------------------------------
-
 
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
