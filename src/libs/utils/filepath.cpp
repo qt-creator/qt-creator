@@ -2173,6 +2173,7 @@ FileFilter::FileFilter(const QStringList &nameFilters,
       fileFilters(fileFilters),
       iteratorFlags(flags)
 {
+    QTC_CHECK(this->fileFilters != QDir::Filters());
 }
 
 QStringList FileFilter::asFindArguments(const QString &path) const
