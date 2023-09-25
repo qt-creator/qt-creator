@@ -5,8 +5,6 @@
 
 #include "cmakebuildsystem.h"
 #include "cmakebuildtarget.h"
-#include "cmakekitaspect.h"
-#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
@@ -166,7 +164,7 @@ static QList<AssistProposalItemInterface *> generateList(const QMap<QString, Fil
         MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
         item->setText(it.key());
         if (!it.value().isEmpty())
-            item->setDetail(CMakeToolManager::readFirstParagraphs(it.value()));
+            item->setDetail(CMakeToolManager::toolTipForRstHelpFile(it.value()));
         item->setIcon(icon);
         list << item;
     }
@@ -244,16 +242,8 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
     Project *project = nullptr;
     const FilePath &filePath = interface()->filePath();
     if (!filePath.isEmpty() && filePath.isFile()) {
-        CMakeTool *cmake = nullptr;
-        project = static_cast<CMakeProject *>(ProjectManager::projectForFile(filePath));
-        if (project && project->activeTarget())
-            cmake = CMakeKitAspect::cmakeTool(project->activeTarget()->kit());
-
-        if (!cmake)
-            cmake = CMakeToolManager::defaultCMakeTool();
-
-        if (cmake && cmake->isValid())
-            keywords = cmake->keywords();
+        if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
+            keywords = tool->keywords();
     }
 
     QStringList buildTargets;

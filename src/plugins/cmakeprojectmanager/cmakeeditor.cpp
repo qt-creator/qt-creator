@@ -8,7 +8,6 @@
 #include "cmakebuildsystem.h"
 #include "cmakefilecompletionassist.h"
 #include "cmakeindenter.h"
-#include "cmakekitaspect.h"
 #include "cmakeprojectconstants.h"
 
 #include "3rdparty/cmake/cmListFileCache.h"
@@ -53,13 +52,7 @@ public:
 
 CMakeEditor::CMakeEditor()
 {
-    CMakeTool *tool = nullptr;
-    if (auto bs = ProjectTree::currentBuildSystem())
-        tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
-    if (!tool)
-        tool = CMakeToolManager::defaultCMakeTool();
-
-    if (tool)
+    if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
         m_keywords = tool->keywords();
 }
 
@@ -320,6 +313,7 @@ class CMakeHoverHandler : public TextEditor::BaseHoverHandler
 {
     mutable CMakeKeywords m_keywords;
     QString m_helpToolTip;
+    QString m_contextHelp;
 
 public:
     const CMakeKeywords &keywords() const;
@@ -332,16 +326,9 @@ public:
 
 const CMakeKeywords &CMakeHoverHandler::keywords() const
 {
-    if (m_keywords.functions.isEmpty()) {
-        CMakeTool *tool = nullptr;
-        if (auto bs = ProjectTree::currentBuildSystem())
-            tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
-        if (!tool)
-            tool = CMakeToolManager::defaultCMakeTool();
-
-        if (tool)
+    if (m_keywords.functions.isEmpty())
+        if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
             m_keywords = tool->keywords();
-    }
 
     return m_keywords;
 }
@@ -357,24 +344,39 @@ void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget
     const QString word = Utils::Text::wordUnderCursor(cursor);
 
     FilePath helpFile;
-    for (const auto &map : {keywords().functions,
-                            keywords().variables,
-                            keywords().directoryProperties,
-                            keywords().sourceProperties,
-                            keywords().targetProperties,
-                            keywords().testProperties,
-                            keywords().properties,
-                            keywords().includeStandardModules,
-                            keywords().findModules,
-                            keywords().policies}) {
-        if (map.contains(word)) {
-            helpFile = map.value(word);
+    QString helpCategory;
+    struct
+    {
+        const QMap<QString, Utils::FilePath> &map;
+        QString helpCategory;
+    } keywordsListMaps[] = {{keywords().functions, "command"},
+                       {keywords().variables, "variable"},
+                       {keywords().directoryProperties, "prop_dir"},
+                       {keywords().sourceProperties, "prop_sf"},
+                       {keywords().targetProperties, "prop_tgt"},
+                       {keywords().testProperties, "prop_test"},
+                       {keywords().properties, "prop_gbl"},
+                       {keywords().includeStandardModules, "module"},
+                       {keywords().findModules, "module"},
+                       {keywords().policies, "policy"}};
+
+    for (const auto &pair : keywordsListMaps) {
+        if (pair.map.contains(word)) {
+            helpFile = pair.map.value(word);
+            helpCategory = pair.helpCategory;
             break;
         }
     }
     m_helpToolTip.clear();
     if (!helpFile.isEmpty())
-        m_helpToolTip = CMakeToolManager::readFirstParagraphs(helpFile);
+        m_helpToolTip = CMakeToolManager::toolTipForRstHelpFile(helpFile);
+
+    if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
+        m_contextHelp = QString("%1/%2/%3")
+                            .arg(tool->documentationUrl(tool->version(),
+                                                        tool->qchFilePath().isEmpty()),
+                                 helpCategory,
+                                 word);
 
     setPriority(m_helpToolTip.isEmpty() ? Priority_Tooltip : Priority_None);
 }
@@ -382,7 +384,7 @@ void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget
 void CMakeHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     if (!m_helpToolTip.isEmpty())
-        Utils::ToolTip::show(point, m_helpToolTip, Qt::MarkdownText, editorWidget);
+        Utils::ToolTip::show(point, m_helpToolTip, Qt::MarkdownText, editorWidget, m_contextHelp);
     else
         Utils::ToolTip::hide();
 }

@@ -46,4 +46,5 @@ add_qtc_plugin(CMakeProjectManager
     3rdparty/cmake/cmListFileCache.cxx
     3rdparty/cmake/cmListFileLexer.cxx
     3rdparty/cmake/cmListFileCache.h
+    3rdparty/rstparser/rstparser.cc 3rdparty/rstparser/rstparser.h
 )

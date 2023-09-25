@@ -8,11 +8,17 @@
 #include "cmakespecificsettings.h"
 #include "cmaketoolsettingsaccessor.h"
 
+#include "3rdparty/rstparser/rstparser.h"
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/target.h>
+#include <stack>
 #include <utils/environment.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
@@ -30,6 +36,137 @@ public:
     Id m_defaultCMake;
     std::vector<std::unique_ptr<CMakeTool>> m_cmakeTools;
     Internal::CMakeToolSettingsAccessor m_accessor;
+};
+
+class HtmlHandler : public rst::ContentHandler
+{
+private:
+    std::stack<QString> m_tags;
+
+    QStringList m_p;
+    QStringList m_h3;
+    QStringList m_cmake_code;
+
+    QString m_last_directive_type;
+    QString m_last_directive_class;
+
+    void StartBlock(rst::BlockType type) final
+    {
+        QString tag;
+        switch (type) {
+        case rst::REFERENCE_LINK:
+            // not used, HandleReferenceLink is used instead
+            break;
+        case rst::H1:
+            tag = "h1";
+            break;
+        case rst::H2:
+            tag = "h2";
+            break;
+        case rst::H3:
+            tag = "h3";
+            break;
+        case rst::H4:
+            tag = "h4";
+            break;
+        case rst::H5:
+            tag = "h5";
+            break;
+        case rst::CODE:
+            tag = "code";
+            break;
+        case rst::PARAGRAPH:
+            tag = "p";
+            break;
+        case rst::LINE_BLOCK:
+            tag = "pre";
+            break;
+        case rst::BLOCK_QUOTE:
+            if (m_last_directive_type == "code-block" && m_last_directive_class == "cmake")
+                tag = "cmake-code";
+            else
+                tag = "blockquote";
+            break;
+        case rst::BULLET_LIST:
+            tag = "ul";
+            break;
+        case rst::LIST_ITEM:
+            tag = "li";
+            break;
+        case rst::LITERAL_BLOCK:
+            tag = "pre";
+            break;
+        }
+
+        if (tag == "p")
+            m_p.push_back(QString());
+        if (tag == "h3")
+            m_h3.push_back(QString());
+        if (tag == "cmake-code")
+            m_cmake_code.push_back(QString());
+
+        if (tag == "code" && m_tags.top() == "p")
+            m_p.last().append("`");
+
+        m_tags.push(tag);
+    }
+
+    void EndBlock() final
+    {
+        // Add a new "p" collector for any `code` markup that comes afterwads
+        // since we are insterested only in the first paragraph.
+        if (m_tags.top() == "p")
+            m_p.push_back(QString());
+
+        if (m_tags.top() == "code" && !m_p.isEmpty()) {
+            m_tags.pop();
+
+            if (m_tags.size() > 0 && m_tags.top() == "p")
+                m_p.last().append("`");
+        } else {
+            m_tags.pop();
+        }
+    }
+
+    void HandleText(const char *text, std::size_t size) final
+    {
+        if (m_last_directive_type.endsWith("replace"))
+            return;
+
+        QString str = QString::fromUtf8(text, size);
+
+        if (m_tags.top() == "h3")
+            m_h3.last().append(str);
+        if (m_tags.top() == "p")
+            m_p.last().append(str);
+        if (m_tags.top() == "cmake-code")
+            m_cmake_code.last().append(str);
+        if (m_tags.top() == "code" && !m_p.isEmpty())
+            m_p.last().append(str);
+    }
+
+    void HandleDirective(const std::string &type, const std::string &name) final
+    {
+        m_last_directive_type = QString::fromStdString(type);
+        m_last_directive_class = QString::fromStdString(name);
+    }
+
+    void HandleReferenceLink(const std::string &type, const std::string &text) final
+    {
+        Q_UNUSED(type)
+        if (!m_p.isEmpty())
+            m_p.last().append(QString::fromStdString(text));
+    }
+
+public:
+    QString content() const
+    {
+        const QString title = m_h3.isEmpty() ? QString() : m_h3.first();
+        const QString description = m_p.isEmpty() ? QString() : m_p.first();
+        const QString cmakeCode = m_cmake_code.isEmpty() ? QString() : m_cmake_code.first();
+
+        return QString("### %1\n\n%2\n\n````\n%3\n````").arg(title, description, cmakeCode);
+    }
 };
 
 static CMakeToolManagerPrivate *d = nullptr;
@@ -108,6 +245,37 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
     }
 }
 
+CMakeTool *CMakeToolManager::defaultProjectOrDefaultCMakeTool()
+{
+    static CMakeTool *tool = nullptr;
+
+    auto updateTool = [&] {
+        tool = nullptr;
+        if (auto bs = ProjectExplorer::ProjectTree::currentBuildSystem())
+            tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
+        if (!tool)
+            tool = CMakeToolManager::defaultCMakeTool();
+    };
+
+    if (!tool)
+        updateTool();
+
+    QObject::connect(CMakeToolManager::instance(),
+                     &CMakeToolManager::cmakeUpdated,
+                     CMakeToolManager::instance(),
+                     [&]() { updateTool(); });
+    QObject::connect(CMakeToolManager::instance(),
+                     &CMakeToolManager::cmakeRemoved,
+                     CMakeToolManager::instance(),
+                     [&]() { updateTool(); });
+    QObject::connect(CMakeToolManager::instance(),
+                     &CMakeToolManager::defaultCMakeChanged,
+                     CMakeToolManager::instance(),
+                     [&]() { updateTool(); });
+
+    return tool;
+}
+
 CMakeTool *CMakeToolManager::defaultCMakeTool()
 {
     return findById(d->m_defaultCMake);
@@ -167,20 +335,24 @@ void CMakeToolManager::updateDocumentation()
     Core::HelpManager::registerDocumentation(docs);
 }
 
-QString CMakeToolManager::readFirstParagraphs(const FilePath &helpFile)
+QString CMakeToolManager::toolTipForRstHelpFile(const FilePath &helpFile)
 {
-    static QMap<FilePath, QString> map;
+    static QHash<FilePath, QString> map;
     if (map.contains(helpFile))
         return map.value(helpFile);
 
     auto content = helpFile.fileContents(1024).value_or(QByteArray());
-    const QString firstParagraphs
-        = QString("```\n%1\n```").arg(QString::fromUtf8(content.left(content.lastIndexOf("\n"))));
+    content.replace("\r\n", "\n");
 
-    map[helpFile] = firstParagraphs;
-    return firstParagraphs;
+    HtmlHandler handler;
+    rst::Parser parser(&handler);
+    parser.Parse(content.left(content.lastIndexOf('\n')));
+
+    const QString tooltip = handler.content();
+
+    map[helpFile] = tooltip;
+    return tooltip;
 }
-
 
 QList<Id> CMakeToolManager::autoDetectCMakeForDevice(const FilePaths &searchPaths,
                                                 const QString &detectionSource,
