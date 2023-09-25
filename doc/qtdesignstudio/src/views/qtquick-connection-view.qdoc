@@ -12,7 +12,7 @@
     to create connections between components and the application, to bind
     component properties together, and to add custom properties for components.
 
-    \image qmldesigner-connections.png "The Connections view"
+    \image qmldesigner-connections.webp "The Connections view"
 
     The \l{glossary-component}{components} of the application UI and the
     application logic need to communicate with each other. For example, a
