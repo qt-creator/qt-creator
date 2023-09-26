@@ -107,8 +107,11 @@ JsonSettingsDocument::JsonSettingsDocument(QUndoStack *undoStack)
 {
     setId(Constants::CE_EDITOR_ID);
     setMimeType("application/compiler-explorer");
-    connect(&m_ceSettings, &CompilerExplorerSettings::changed, this, [this] { emit changed(); });
-    m_ceSettings.setAutoApply(true);
+    connect(&m_ceSettings, &CompilerExplorerSettings::changed, this, [this] {
+        emit changed();
+        emit contentsChanged();
+    });
+    m_ceSettings.setAutoApply(false);
     m_ceSettings.setUndoStack(undoStack);
 }
 
@@ -157,8 +160,10 @@ bool JsonSettingsDocument::saveImpl(QString *errorString, const FilePath &newFil
 
     Utils::FilePath path = newFilePath.isEmpty() ? filePath() : newFilePath;
 
-    if (!newFilePath.isEmpty() && !autoSave)
+    if (!newFilePath.isEmpty() && !autoSave) {
+        setPreferredDisplayName({});
         setFilePath(newFilePath);
+    }
 
     auto result = path.writeFileContents(jsonFromStore(store));
     if (!result && errorString) {
@@ -182,6 +187,8 @@ bool JsonSettingsDocument::setContents(const QByteArray &contents)
     m_ceSettings.fromMap(*result);
 
     emit settingsChanged();
+    emit changed();
+    emit contentsChanged();
     return true;
 }
 
