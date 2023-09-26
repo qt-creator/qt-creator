@@ -587,6 +587,7 @@ Rectangle {
                     y: scrollView.height - height
                     width: scrollView.availableWidth
                     orientation: Qt.Horizontal
+                    visible: root.isLandscape
 
                     show: (scrollView.hovered || scrollView.focus || scrollView.adsFocus)
                           && horizontalBar.isNeeded
@@ -601,6 +602,7 @@ Rectangle {
                     y: scrollView.topPadding
                     height: scrollView.availableHeight
                     orientation: Qt.Vertical
+                    visible: !root.isLandscape
 
                     show: (scrollView.hovered || scrollView.focus || scrollView.adsFocus)
                           && verticalBar.isNeeded
