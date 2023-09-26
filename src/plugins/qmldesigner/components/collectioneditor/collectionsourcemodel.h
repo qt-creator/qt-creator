@@ -13,7 +13,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class CollectionModel : public QAbstractListModel
+class CollectionSourceModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -22,7 +22,7 @@ class CollectionModel : public QAbstractListModel
 public:
     enum Roles { IdRole = Qt::UserRole + 1, NameRole, SelectedRole };
 
-    explicit CollectionModel();
+    explicit CollectionSourceModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "collectionview.h"
-#include "collectionmodel.h"
+#include "collectionsourcemodel.h"
 #include "collectionwidget.h"
 #include "designmodecontext.h"
 #include "nodelistproperty.h"
@@ -353,11 +353,11 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
 
         auto collectionEditorContext = new Internal::CollectionEditorContext(m_widget.data());
         Core::ICore::addContextObject(collectionEditorContext);
-        CollectionModel *collectionModel = m_widget->collectionModel().data();
+        CollectionSourceModel *sourceModel = m_widget->sourceModel().data();
 
-        connect(collectionModel, &CollectionModel::selectedIndexChanged, this, [&](int selectedIndex) {
+        connect(sourceModel, &CollectionSourceModel::selectedIndexChanged, this, [&](int selectedIndex) {
             m_widget->singleCollectionModel()->setCollection(
-                m_widget->collectionModel()->collectionNodeAt(selectedIndex));
+                m_widget->sourceModel()->collectionNodeAt(selectedIndex));
         });
     }
 
@@ -394,19 +394,19 @@ void CollectionView::nodeReparented(const ModelNode &node,
     refreshModel();
 
     if (isCollection(node))
-        m_widget->collectionModel()->selectCollection(node);
+        m_widget->sourceModel()->selectCollection(node);
 }
 
 void CollectionView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     // removing the collections lib node
     if (isCollectionLib(removedNode)) {
-        m_widget->collectionModel()->setCollections({});
+        m_widget->sourceModel()->setCollections({});
         return;
     }
 
     if (isCollection(removedNode))
-        m_widget->collectionModel()->removeCollection(removedNode);
+        m_widget->sourceModel()->removeCollection(removedNode);
 }
 
 void CollectionView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,
@@ -416,7 +416,7 @@ void CollectionView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,
     if (parentProperty.parentModelNode().id() != Constants::COLLECTION_LIB_ID)
         return;
 
-    m_widget->collectionModel()->updateSelectedCollection(true);
+    m_widget->sourceModel()->updateSelectedCollection(true);
 }
 
 void CollectionView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
@@ -426,9 +426,9 @@ void CollectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
         ModelNode node(property.parentModelNode());
         if (isCollection(node)) {
             if (property.name() == "objectName")
-                m_widget->collectionModel()->updateNodeName(node);
+                m_widget->sourceModel()->updateNodeName(node);
             else if (property.name() == "id")
-                m_widget->collectionModel()->updateNodeId(node);
+                m_widget->sourceModel()->updateNodeId(node);
         }
     }
 }
@@ -443,7 +443,7 @@ void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
         return;
 
     if (selectedCollections.size() == 1) { // If exactly one collection is selected
-        m_widget->collectionModel()->selectCollection(selectedCollections.first());
+        m_widget->sourceModel()->selectCollection(selectedCollections.first());
         return;
     }
 
@@ -455,7 +455,7 @@ void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
             return element.parentProperty().parentModelNode() == parentElement;
         });
         if (haveSameParent)
-            m_widget->collectionModel()->selectCollection(parentElement);
+            m_widget->sourceModel()->selectCollection(parentElement);
     }
 }
 
@@ -499,7 +499,7 @@ void CollectionView::refreshModel()
         }
     }
 
-    m_widget->collectionModel()->setCollections(collections);
+    m_widget->sourceModel()->setCollections(collections);
 }
 
 ModelNode CollectionView::getNewCollectionNode(const Collection &collection)
