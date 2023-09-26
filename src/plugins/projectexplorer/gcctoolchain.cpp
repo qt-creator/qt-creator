@@ -1247,6 +1247,11 @@ GccToolChainFactory::GccToolChainFactory(GccToolChain::SubType subType)
     setUserCreatable(true);
 }
 
+// FIXME: Re-order later.
+static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
+                                        const QString &compilerName,
+                                        bool detectVariants);
+
 Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
     Toolchains result;
@@ -1257,14 +1262,14 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
 
     // Linux ICC
 
-    result += autoDetectToolchains("icpc",
-                                   DetectVariants::No,
+    result += autoDetectToolchains(findCompilerCandidates(detector, "icpc", false),
                                    Constants::CXX_LANGUAGE_ID,
                                    Constants::LINUXICC_TOOLCHAIN_TYPEID,
                                    detector,
                                    &constructLinuxIccToolchain);
-    result += autoDetectToolchains("icc",
-                                   DetectVariants::Yes,
+
+
+    result += autoDetectToolchains(findCompilerCandidates(detector, "icc", true),
                                    Constants::C_LANGUAGE_ID,
                                    Constants::LINUXICC_TOOLCHAIN_TYPEID,
                                    detector,
@@ -1275,15 +1280,14 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     static const auto tcChecker = [](const ToolChain *tc) {
         return tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor;
     };
-    result += autoDetectToolchains("g++",
-                                   DetectVariants::Yes,
+
+    result += autoDetectToolchains(findCompilerCandidates(detector, "g++", true),
                                    Constants::CXX_LANGUAGE_ID,
                                    Constants::MINGW_TOOLCHAIN_TYPEID,
                                    detector,
                                    &constructMinGWToolchain,
                                    tcChecker);
-    result += autoDetectToolchains("gcc",
-                                   DetectVariants::Yes,
+    result += autoDetectToolchains(findCompilerCandidates(detector, "gcc", true),
                                    Constants::C_LANGUAGE_ID,
                                    Constants::MINGW_TOOLCHAIN_TYPEID,
                                    detector,
@@ -1295,14 +1299,12 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     Toolchains tcs;
     Toolchains known = detector.alreadyKnown;
 
-    tcs.append(autoDetectToolchains("clang++",
-                                    DetectVariants::Yes,
+    tcs.append(autoDetectToolchains(findCompilerCandidates(detector, "clang++", true),
                                     Constants::CXX_LANGUAGE_ID,
                                     Constants::CLANG_TOOLCHAIN_TYPEID,
                                     detector,
                                     &constructClangToolchain));
-    tcs.append(autoDetectToolchains("clang",
-                                    DetectVariants::Yes,
+    tcs.append(autoDetectToolchains(findCompilerCandidates(detector, "clang", true),
                                     Constants::C_LANGUAGE_ID,
                                     Constants::CLANG_TOOLCHAIN_TYPEID,
                                     detector,
@@ -1313,8 +1315,7 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     if (!compilerPath.isEmpty()) {
         const FilePath clang = compilerPath.parentDir().pathAppended("clang").withExecutableSuffix();
         tcs.append(
-            autoDetectToolchains(clang.toString(),
-                                 DetectVariants::No,
+            autoDetectToolchains(findCompilerCandidates(detector, clang.toString(), false),
                                  Constants::C_LANGUAGE_ID,
                                  Constants::CLANG_TOOLCHAIN_TYPEID,
                                  ToolchainDetector(known, detector.device, detector.searchPaths),
@@ -1333,15 +1334,13 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
                    && tc->compilerCommand().fileName() != "c89-gcc"
                    && tc->compilerCommand().fileName() != "c99-gcc";
         };
-        result += autoDetectToolchains("g++",
-                                       DetectVariants::Yes,
+        result += autoDetectToolchains(findCompilerCandidates(detector, "g++", true),
                                        Constants::CXX_LANGUAGE_ID,
                                        Constants::GCC_TOOLCHAIN_TYPEID,
                                        detector,
                                        &constructRealGccToolchain,
                                        tcChecker);
-        result += autoDetectToolchains("gcc",
-                                       DetectVariants::Yes,
+        result += autoDetectToolchains(findCompilerCandidates(detector, "gcc", true),
                                        Constants::C_LANGUAGE_ID,
                                        Constants::GCC_TOOLCHAIN_TYPEID,
                                        detector,
@@ -1488,16 +1487,13 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
     return compilerPaths;
 }
 
-Toolchains GccToolChainFactory::autoDetectToolchains(const QString &compilerName,
-                                                     DetectVariants detectVariants,
+Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPaths,
                                                      const Id language,
                                                      const Id requiredTypeId,
                                                      const ToolchainDetector &detector,
                                                      const ToolChainConstructor &constructor,
                                                      const ToolchainChecker &checker)
 {
-    const FilePaths compilerPaths =
-        findCompilerCandidates(detector, compilerName, detectVariants == DetectVariants::Yes);
     Toolchains existingCandidates = filtered(detector.alreadyKnown,
             [language](const ToolChain *tc) { return tc->language() == language; });
     Toolchains result;
