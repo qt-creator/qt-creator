@@ -199,7 +199,6 @@ void CompilerSettings::fillLibraries(const LibrarySelectionAspect::ResultCallbac
     auto future = Api::libraries(m_apiConfigFunction(), lang);
 
     auto watcher = new QFutureWatcher<Api::Libraries>(this);
-    watcher->setFuture(future);
     QObject::connect(watcher,
                      &QFutureWatcher<Api::Libraries>::finished,
                      this,
@@ -212,6 +211,7 @@ void CompilerSettings::fillLibraries(const LibrarySelectionAspect::ResultCallbac
                              return;
                          }
                      });
+    watcher->setFuture(future);
 }
 
 void SourceSettings::fillLanguageIdModel(const Utils::StringSelectionAspect::ResultCallback &cb)
@@ -241,7 +241,6 @@ void SourceSettings::fillLanguageIdModel(const Utils::StringSelectionAspect::Res
     auto future = Api::languages(m_apiConfigFunction());
 
     auto watcher = new QFutureWatcher<Api::Languages>(this);
-    watcher->setFuture(future);
     QObject::connect(watcher,
                      &QFutureWatcher<Api::Languages>::finished,
                      this,
@@ -254,6 +253,7 @@ void SourceSettings::fillLanguageIdModel(const Utils::StringSelectionAspect::Res
                              return;
                          }
                      });
+    watcher->setFuture(future);
 }
 
 void CompilerSettings::fillCompilerModel(const Utils::StringSelectionAspect::ResultCallback &cb)
@@ -277,7 +277,6 @@ void CompilerSettings::fillCompilerModel(const Utils::StringSelectionAspect::Res
     auto future = Api::compilers(m_apiConfigFunction(), m_languageId);
 
     auto watcher = new QFutureWatcher<Api::Compilers>(this);
-    watcher->setFuture(future);
     QObject::connect(watcher,
                      &QFutureWatcher<Api::Compilers>::finished,
                      this,
@@ -295,6 +294,7 @@ void CompilerSettings::fillCompilerModel(const Utils::StringSelectionAspect::Res
                              return;
                          }
                      });
+    watcher->setFuture(future);
 }
 
 CompilerExplorerSettings::CompilerExplorerSettings()

@@ -5,5 +5,4 @@
 
 namespace CompilerExplorer::Constants {
 const char CE_EDITOR_ID[] = "CompilerExplorer.Editor";
-const char CE_EDITOR_CONTEXT_ID[] = "CompilerExplorer.Editor.Context";
 }

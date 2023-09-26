@@ -249,7 +249,8 @@ QString SourceEditorWidget::sourceCode()
 }
 
 CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSettings,
-                               const std::shared_ptr<CompilerSettings> &compilerSettings)
+                               const std::shared_ptr<CompilerSettings> &compilerSettings,
+                               QUndoStack *undoStack)
     : m_sourceSettings(sourceSettings)
     , m_compilerSettings(compilerSettings)
 {
@@ -266,7 +267,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
             m_delayTimer,
             qOverload<>(&QTimer::start));
 
-    m_asmEditor = new AsmEditorWidget;
+    m_asmEditor = new AsmEditorWidget(undoStack);
     m_asmDocument = QSharedPointer<TextDocument>(new TextDocument);
     m_asmDocument->setFilePath("asm.asm");
     m_asmEditor->setTextDocument(m_asmDocument);
@@ -498,10 +499,7 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
         actionHandler.updateCurrentEditor();
     });
 
-    m_context = new Core::IContext(this);
-    m_context->setWidget(this);
-    m_context->setContext(Core::Context(Constants::CE_EDITOR_CONTEXT_ID));
-    Core::ICore::addContextObject(m_context);
+    setupHelpWidget();
 }
 
 EditorWidget::~EditorWidget()
@@ -521,7 +519,7 @@ void EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> &sourceSett
                                int idx,
                                QDockWidget *parentDockWidget)
 {
-    auto compiler = new CompilerWidget(sourceSettings, compilerSettings);
+    auto compiler = new CompilerWidget(sourceSettings, compilerSettings, m_undoStack);
     compiler->setWindowTitle("Compiler #" + QString::number(idx));
     compiler->setObjectName("compiler_" + QString::number(idx));
     QDockWidget *dockWidget = addDockForWidget(compiler, parentDockWidget);
@@ -573,7 +571,6 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
         sourceSettings->compilers.clear();
         m_document->settings()->m_sources.removeItem(sourceSettings->shared_from_this());
         m_undoStack->endMacro();
-
         setupHelpWidget();
     });
 
@@ -615,11 +612,15 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
                                               == compilerSettings;
                                    });
             QTC_ASSERT(it != m_compilerWidgets.end(), return);
+            if (!m_sourceWidgets.isEmpty())
+                m_sourceWidgets.first()->widget()->setFocus(Qt::OtherFocusReason);
             delete *it;
             m_compilerWidgets.erase(it);
         });
 
     m_sourceWidgets.append(dockWidget);
+
+    sourceEditor->setFocus(Qt::OtherFocusReason);
 
     setupHelpWidget();
 }
@@ -636,6 +637,8 @@ void EditorWidget::removeSourceEditor(const std::shared_ptr<SourceSettings> &sou
     QTC_ASSERT(it != m_sourceWidgets.end(), return);
     delete *it;
     m_sourceWidgets.erase(it);
+
+    setupHelpWidget();
 }
 
 void EditorWidget::recreateEditors()
@@ -677,24 +680,25 @@ void EditorWidget::setupHelpWidget()
 {
     if (m_document->settings()->m_sources.size() == 0) {
         setCentralWidget(createHelpWidget());
+        centralWidget()->setFocus(Qt::OtherFocusReason);
     } else {
         delete takeCentralWidget();
     }
 }
 
-QWidget *EditorWidget::createHelpWidget() const
+HelperWidget::HelperWidget()
 {
     using namespace Layouting;
 
+    setFocusPolicy(Qt::ClickFocus);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+
     auto addSourceButton = new QPushButton(Tr::tr("Add source code"));
-    connect(addSourceButton, &QPushButton::clicked, this, [this] {
-        auto newSource = std::make_shared<SourceSettings>(
-            [settings = m_document->settings()] { return settings->apiConfig(); });
-        m_document->settings()->m_sources.addItem(newSource);
-    });
+
+    connect(addSourceButton, &QPushButton::clicked, this, &HelperWidget::addSource);
 
     // clang-format off
-    return Column {
+    Column {
         st,
         Row {
             st,
@@ -705,8 +709,28 @@ QWidget *EditorWidget::createHelpWidget() const
             st,
         },
         st,
-    }.emerge();
+    }.attachTo(this);
     // clang-format on
+}
+
+void HelperWidget::mousePressEvent(QMouseEvent *event)
+{
+    setFocus(Qt::MouseFocusReason);
+    event->accept();
+}
+
+void EditorWidget::addNewSource()
+{
+    auto newSource = std::make_shared<SourceSettings>(
+        [settings = m_document->settings()] { return settings->apiConfig(); });
+    m_document->settings()->m_sources.addItem(newSource);
+}
+
+QWidget *EditorWidget::createHelpWidget() const
+{
+    auto w = new HelperWidget;
+    connect(w, &HelperWidget::addSource, this, &EditorWidget::addNewSource);
+    return w;
 }
 
 TextEditor::TextEditorWidget *EditorWidget::focusedEditorWidget() const
@@ -728,49 +752,40 @@ TextEditor::TextEditorWidget *EditorWidget::focusedEditorWidget() const
     return nullptr;
 }
 
-class Editor : public Core::IEditor
+Editor::Editor(TextEditorActionHandler &actionHandler)
+    : m_document(new JsonSettingsDocument(&m_undoStack))
 {
-public:
-    Editor(TextEditorActionHandler &actionHandler)
-        : m_document(new JsonSettingsDocument(&m_undoStack))
-    {
-        setWidget(new EditorWidget(m_document, &m_undoStack, actionHandler));
+    setContext(Core::Context(Constants::CE_EDITOR_ID));
+    setWidget(new EditorWidget(m_document, &m_undoStack, actionHandler));
 
-        connect(&m_undoStack, &QUndoStack::canUndoChanged, this, [&actionHandler] {
-            actionHandler.updateActions();
-        });
-        connect(&m_undoStack, &QUndoStack::canRedoChanged, this, [&actionHandler] {
-            actionHandler.updateActions();
-        });
-    }
+    connect(&m_undoStack, &QUndoStack::canUndoChanged, this, [&actionHandler] {
+        actionHandler.updateActions();
+    });
+    connect(&m_undoStack, &QUndoStack::canRedoChanged, this, [&actionHandler] {
+        actionHandler.updateActions();
+    });
+}
 
-    ~Editor()
-    {
-        if (m_document->isModified()) {
-            auto settings = m_document->settings();
-            if (settings->isDirty()) {
-                settings->apply();
-                Utils::Store store;
-                settings->toMap(store);
-                QJsonDocument doc = QJsonDocument::fromVariant(Utils::mapFromStore(store));
+Editor::~Editor()
+{
+    delete widget();
+}
 
-                CompilerExplorer::settings().defaultDocument.setValue(
-                    QString::fromUtf8(doc.toJson()));
-            }
-        }
-        delete widget();
-    }
+static bool childHasFocus(QWidget *parent)
+{
+    if (parent->hasFocus())
+        return true;
 
-    Core::IDocument *document() const override { return m_document.data(); }
-    QWidget *toolBar() override { return nullptr; }
+    for (QWidget *child : parent->findChildren<QWidget *>())
+        if (childHasFocus(child))
+            return true;
 
-    QSharedPointer<JsonSettingsDocument> m_document;
-    QUndoStack m_undoStack;
-};
+    return false;
+}
 
 EditorFactory::EditorFactory()
     : m_actionHandler(Constants::CE_EDITOR_ID,
-                      Constants::CE_EDITOR_CONTEXT_ID,
+                      Constants::CE_EDITOR_ID,
                       TextEditor::TextEditorActionHandler::None,
                       [](Core::IEditor *editor) -> TextEditorWidget * {
                           return static_cast<EditorWidget *>(editor->widget())->focusedEditorWidget();
@@ -798,7 +813,32 @@ EditorFactory::EditorFactory()
         return false;
     });
 
+    m_actionHandler.setUnhandledCallback(
+        [undoStackFromEditor](Utils::Id cmdId, Core::IEditor *editor) {
+            if (cmdId != Core::Constants::UNDO && cmdId != Core::Constants::REDO)
+                return false;
+
+            if (!childHasFocus(editor->widget()))
+                return false;
+
+            QUndoStack *undoStack = undoStackFromEditor(editor);
+
+            if (!undoStack)
+                return false;
+
+            if (cmdId == Core::Constants::UNDO)
+                undoStack->undo();
+            else
+                undoStack->redo();
+
+            return true;
+        });
+
     setEditorCreator([this]() { return new Editor(m_actionHandler); });
 }
+
+AsmEditorWidget::AsmEditorWidget(QUndoStack *stack)
+    : m_undoStack(stack)
+{}
 
 } // namespace CompilerExplorer
