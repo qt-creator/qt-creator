@@ -196,7 +196,7 @@ private:
     static Toolchains autoDetectToolchains(const Utils::FilePaths &compilerPaths,
                                            const Utils::Id language,
                                            const Utils::Id requiredTypeId,
-                                           const ToolchainDetector &detector,
+                                           const Toolchains &known,
                                            const ToolChainConstructor &constructor,
                                            const ToolchainChecker &checker = {});
     static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,

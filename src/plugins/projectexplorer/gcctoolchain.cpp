@@ -23,6 +23,7 @@
 #include <utils/pathchooser.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/scopedtimer.h>
 
 #include <QBuffer>
 #include <QCheckBox>
@@ -1247,56 +1248,78 @@ GccToolChainFactory::GccToolChainFactory(GccToolChain::SubType subType)
     setUserCreatable(true);
 }
 
-static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
+static FilePaths findCompilerCandidates(OsType os,
+                                        const FilePaths &executables,
                                         const QString &compilerName,
                                         bool detectVariants)
 {
-    QStringList nameFilters(compilerName);
-    if (detectVariants) {
-        nameFilters
-                << compilerName + "-[1-9]*"   // "clang-8", "gcc-5"
-                << ("*-" + compilerName)      // "avr-gcc", "avr32-gcc", "arm-none-eabi-gcc",
-                                              // "x86_64-pc-linux-gnu-gcc"
-                << ("*-" + compilerName + "-[1-9]*"); // "avr-gcc-4.8.1", "avr32-gcc-4.4.7",
-                                              // "arm-none-eabi-gcc-9.1.0"
-                                              // "x86_64-pc-linux-gnu-gcc-7.4.1"
-    }
-    const Utils::OsType os = detector.device->osType();
-    nameFilters = transform(nameFilters, [os](const QString &baseName) {
-        return OsSpecificAspects::withExecutableSuffix(os, baseName);
-    });
+    // We expect the following patterns:
+    //   compilerName                            "clang", "gcc"
+    //   compilerName + "-[1-9]*"                "clang-8", "gcc-5"
+    //   "*-" + compilerName                     "avr-gcc", "avr32-gcc"
+    //                                           "arm-none-eabi-gcc"
+    //                                           "x86_64-pc-linux-gnu-gcc"
+    //   "*-" + compilerName + "-[1-9]*"         "avr-gcc-4.8.1", "avr32-gcc-4.4.7"
+    //                                           "arm-none-eabi-gcc-9.1.0"
+    //                                           "x86_64-pc-linux-gnu-gcc-7.4.1"
 
     FilePaths compilerPaths;
-    for (const FilePath &searchPath : std::as_const(detector.searchPaths)) {
-        static const QRegularExpression regexp(binaryRegexp);
-        const auto callBack = [os, &compilerPaths, compilerName](const FilePath &candidate) {
-            if (candidate.fileName() == OsSpecificAspects::withExecutableSuffix(os, compilerName)
-                || regexp.match(candidate.path()).hasMatch()) {
-                compilerPaths << candidate;
-            }
-            return IterationPolicy::Continue;
-        };
-        searchPath.iterateDirectory(callBack, {nameFilters, QDir::Files | QDir::Executable});
+    const int cl = compilerName.size();
+    for (const FilePath &executable : executables) {
+        QStringView fileName = executable.fileNameView();
+        if (os == OsTypeWindows && fileName.endsWith(u".exe", Qt::CaseInsensitive))
+            fileName.chop(4);
+
+        if (fileName == compilerName)
+            compilerPaths << executable;
+
+        if (!detectVariants)
+            continue;
+
+        int pos = fileName.indexOf(compilerName);
+        if (pos == -1)
+            continue;
+
+        // if not at the beginning, it must be preceded by a hyphen.
+        if (pos > 0 && fileName.at(pos - 1) != '-')
+            continue;
+
+        // if not at the end, it must by followed by a hyphen and a digit between 1 and 9
+        pos += cl;
+        if (pos != fileName.size()) {
+            if (pos + 2 >= fileName.size())
+                continue;
+            if (fileName.at(pos) != '-')
+                continue;
+            const QChar c = fileName.at(pos + 1);
+            if (c < '1' || c > '9')
+                continue;
+        }
+
+        compilerPaths << executable;
     }
 
     return compilerPaths;
 }
 
 
-Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector_) const
+Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    QTC_ASSERT(detector_.device, return {});
+    QTC_SCOPED_TIMER("Autodetect");
+
+    QTC_ASSERT(detector.device, return {});
 
     // Do all autodetection in th 'RealGcc' case, and none in the others.
     if (!m_autoDetecting)
         return {};
 
-    FilePaths searchPaths = detector_.searchPaths;
-    if (detector_.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    const bool isLocal = detector.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    FilePaths searchPaths = detector.searchPaths;
+    if (!isLocal) {
         if (searchPaths.isEmpty())
-            searchPaths = detector_.device->systemEnvironment().path();
+            searchPaths = detector.device->systemEnvironment().path();
         searchPaths = Utils::transform(searchPaths, [&](const FilePath &onDevice) {
-            return detector_.device->filePath(onDevice.path());
+            return detector.device->filePath(onDevice.path());
         });
     } else if (searchPaths.isEmpty()) {
         searchPaths = Environment::systemEnvironment().path();
@@ -1317,24 +1340,32 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector_) c
         }
     }
 
+    FilePaths executables;
 
-    ToolchainDetector detector{detector_.alreadyKnown, detector_.device, searchPaths};
+    QStringList nameFilters = {"*icpc*", "*icc*", "*g++*", "*gcc*", "*clang++*", "*clang*"};
+
+    FilePath::iterateDirectories(searchPaths, [&executables](const FilePath &path) {
+        executables.append(path);
+        return IterationPolicy::Continue;
+    }, {nameFilters, QDir::Files | QDir::Executable});
+
+    const OsType os = detector.device->osType();
 
     Toolchains result;
 
     // Linux ICC
 
-    result += autoDetectToolchains(findCompilerCandidates(detector, "icpc", false),
+    result += autoDetectToolchains(findCompilerCandidates(os, executables, "icpc", false),
                                    Constants::CXX_LANGUAGE_ID,
                                    Constants::LINUXICC_TOOLCHAIN_TYPEID,
-                                   detector,
+                                   detector.alreadyKnown,
                                    &constructLinuxIccToolchain);
 
 
-    result += autoDetectToolchains(findCompilerCandidates(detector, "icc", true),
+    result += autoDetectToolchains(findCompilerCandidates(os, executables, "icc", true),
                                    Constants::C_LANGUAGE_ID,
                                    Constants::LINUXICC_TOOLCHAIN_TYPEID,
-                                   detector,
+                                   detector.alreadyKnown,
                                    &constructLinuxIccToolchain);
 
     // MinGW
@@ -1343,16 +1374,16 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector_) c
         return tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor;
     };
 
-    result += autoDetectToolchains(findCompilerCandidates(detector, "g++", true),
+    result += autoDetectToolchains(findCompilerCandidates(os, executables, "g++", true),
                                    Constants::CXX_LANGUAGE_ID,
                                    Constants::MINGW_TOOLCHAIN_TYPEID,
-                                   detector,
+                                   detector.alreadyKnown,
                                    &constructMinGWToolchain,
                                    tcChecker);
-    result += autoDetectToolchains(findCompilerCandidates(detector, "gcc", true),
+    result += autoDetectToolchains(findCompilerCandidates(os, executables, "gcc", true),
                                    Constants::C_LANGUAGE_ID,
                                    Constants::MINGW_TOOLCHAIN_TYPEID,
-                                   detector,
+                                   detector.alreadyKnown,
                                    &constructMinGWToolchain,
                                    tcChecker);
 
@@ -1361,15 +1392,15 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector_) c
     Toolchains tcs;
     Toolchains known = detector.alreadyKnown;
 
-    tcs.append(autoDetectToolchains(findCompilerCandidates(detector, "clang++", true),
+    tcs.append(autoDetectToolchains(findCompilerCandidates(os, executables, "clang++", true),
                                     Constants::CXX_LANGUAGE_ID,
                                     Constants::CLANG_TOOLCHAIN_TYPEID,
-                                    detector,
+                                    detector.alreadyKnown,
                                     &constructClangToolchain));
-    tcs.append(autoDetectToolchains(findCompilerCandidates(detector, "clang", true),
+    tcs.append(autoDetectToolchains(findCompilerCandidates(os, executables, "clang", true),
                                     Constants::C_LANGUAGE_ID,
                                     Constants::CLANG_TOOLCHAIN_TYPEID,
-                                    detector,
+                                    detector.alreadyKnown,
                                     &constructClangToolchain));
     known.append(tcs);
 
@@ -1379,7 +1410,7 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector_) c
             autoDetectToolchains({compilerPath},
                                  Constants::C_LANGUAGE_ID,
                                  Constants::CLANG_TOOLCHAIN_TYPEID,
-                                 ToolchainDetector(known, detector.device, detector.searchPaths),
+                                 known,
                                  &constructClangToolchain));
     }
 
@@ -1395,16 +1426,16 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector_) c
                    && tc->compilerCommand().fileName() != "c89-gcc"
                    && tc->compilerCommand().fileName() != "c99-gcc";
         };
-        result += autoDetectToolchains(findCompilerCandidates(detector, "g++", true),
+        result += autoDetectToolchains(findCompilerCandidates(os, executables, "g++", true),
                                        Constants::CXX_LANGUAGE_ID,
                                        Constants::GCC_TOOLCHAIN_TYPEID,
-                                       detector,
+                                       detector.alreadyKnown,
                                        &constructRealGccToolchain,
                                        tcChecker);
-        result += autoDetectToolchains(findCompilerCandidates(detector, "gcc", true),
+        result += autoDetectToolchains(findCompilerCandidates(os, executables, "gcc", true),
                                        Constants::C_LANGUAGE_ID,
                                        Constants::GCC_TOOLCHAIN_TYPEID,
-                                       detector,
+                                       detector.alreadyKnown,
                                        &constructRealGccToolchain,
                                        tcChecker);
     }
@@ -1483,11 +1514,11 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
 Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPaths,
                                                      const Id language,
                                                      const Id requiredTypeId,
-                                                     const ToolchainDetector &detector,
+                                                     const Toolchains &known,
                                                      const ToolChainConstructor &constructor,
                                                      const ToolchainChecker &checker)
 {
-    Toolchains existingCandidates = filtered(detector.alreadyKnown,
+    Toolchains existingCandidates = filtered(known,
             [language](const ToolChain *tc) { return tc->language() == language; });
     Toolchains result;
     for (const FilePath &compilerPath : std::as_const(compilerPaths)) {
