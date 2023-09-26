@@ -79,6 +79,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_nameLineEdit = new Utils::FancyLineEdit(frame);
 
     d->m_pathChooser = new Utils::PathChooser(frame);
+    d->m_pathChooser->setObjectName("baseFolder"); // used by Squish
     d->m_pathChooser->setExpectedKind(PathChooser::Directory);
     d->m_pathChooser->setDisabled(d->m_forceSubProject);
 
