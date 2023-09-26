@@ -1252,13 +1252,44 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                                         const QString &compilerName,
                                         bool detectVariants);
 
-Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) const
+Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector_) const
 {
-    Toolchains result;
+    QTC_ASSERT(detector_.device, return {});
 
     // Do all autodetection in th 'RealGcc' case, and none in the others.
     if (!m_autoDetecting)
-        return result;
+        return {};
+
+    FilePaths searchPaths = detector_.searchPaths;
+    if (detector_.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        if (searchPaths.isEmpty())
+            searchPaths = detector_.device->systemEnvironment().path();
+        searchPaths = Utils::transform(searchPaths, [&](const FilePath &onDevice) {
+            return detector_.device->filePath(onDevice.path());
+        });
+    } else if (searchPaths.isEmpty()) {
+        searchPaths = Environment::systemEnvironment().path();
+        searchPaths << gnuSearchPathsFromRegistry();
+        searchPaths << atmelSearchPathsFromRegistry();
+        searchPaths << renesasRl78SearchPathsFromRegistry();
+        if (HostOsInfo::isMacHost()) {
+            searchPaths << "/opt/homebrew/opt/ccache/libexec" // homebrew arm
+                        << "/usr/local/opt/ccache/libexec"    // homebrew intel
+                        << "/opt/local/libexec/ccache"; // macports, no links are created automatically though
+        }
+        if (HostOsInfo::isAnyUnixHost()) {
+            FilePath ccachePath = "/usr/lib/ccache/bin";
+            if (!ccachePath.exists())
+                ccachePath = "/usr/lib/ccache";
+            if (ccachePath.exists() && !searchPaths.contains(ccachePath))
+                searchPaths << ccachePath;
+        }
+    }
+
+
+    ToolchainDetector detector{detector_.alreadyKnown, detector_.device, searchPaths};
+
+    Toolchains result;
 
     // Linux ICC
 
@@ -1423,11 +1454,8 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                                         const QString &compilerName,
                                         bool detectVariants)
 {
-    const IDevice::ConstPtr device = detector.device;
-    QTC_ASSERT(device, return {});
-
     const QFileInfo fi(compilerName);
-    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && fi.isAbsolute() && fi.isFile())
+    if (detector.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && fi.isAbsolute() && fi.isFile())
         return {FilePath::fromString(compilerName)};
 
     QStringList nameFilters(compilerName);
@@ -1442,39 +1470,13 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                 << ("*-*-*-*-" + compilerName
                     + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
     }
-    const Utils::OsType os = device->osType();
+    const Utils::OsType os = detector.device->osType();
     nameFilters = transform(nameFilters, [os](const QString &baseName) {
         return OsSpecificAspects::withExecutableSuffix(os, baseName);
     });
 
     FilePaths compilerPaths;
-    FilePaths searchPaths = detector.searchPaths;
-    if (device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        if (searchPaths.isEmpty())
-            searchPaths = device->systemEnvironment().path();
-        searchPaths = Utils::transform(searchPaths, [&](const FilePath &onDevice) {
-            return device->filePath(onDevice.path());
-        });
-    } else if (searchPaths.isEmpty()) {
-        searchPaths = Environment::systemEnvironment().path();
-        searchPaths << gnuSearchPathsFromRegistry();
-        searchPaths << atmelSearchPathsFromRegistry();
-        searchPaths << renesasRl78SearchPathsFromRegistry();
-        if (HostOsInfo::isMacHost()) {
-            searchPaths << "/opt/homebrew/opt/ccache/libexec" // homebrew arm
-                        << "/usr/local/opt/ccache/libexec"    // homebrew intel
-                        << "/opt/local/libexec/ccache"; // macports, no links are created automatically though
-        }
-        if (HostOsInfo::isAnyUnixHost()) {
-            FilePath ccachePath = "/usr/lib/ccache/bin";
-            if (!ccachePath.exists())
-                ccachePath = "/usr/lib/ccache";
-            if (ccachePath.exists() && !searchPaths.contains(ccachePath))
-                searchPaths << ccachePath;
-        }
-    }
-
-    for (const FilePath &searchPath : std::as_const(searchPaths)) {
+    for (const FilePath &searchPath : detector.searchPaths) {
         static const QRegularExpression regexp(binaryRegexp);
         const auto callBack = [os, &compilerPaths, compilerName](const FilePath &candidate) {
             if (candidate.fileName() == OsSpecificAspects::withExecutableSuffix(os, compilerName)
