@@ -3154,6 +3154,21 @@ void AspectList::removeItem(const std::shared_ptr<BaseAspect> &item)
         actualRemoveItem(item);
 }
 
+void AspectList::clear()
+{
+    if (undoStack()) {
+        undoStack()->beginMacro("Clear");
+
+        for (auto item : volatileItems())
+            undoStack()->push(new RemoveItemCommand(this, item));
+
+        undoStack()->endMacro();
+    } else {
+        for (auto item : volatileItems())
+            actualRemoveItem(item);
+    }
+}
+
 void AspectList::apply()
 {
     d->items = d->volatileItems;
