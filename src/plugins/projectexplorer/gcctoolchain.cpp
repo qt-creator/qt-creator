@@ -1424,6 +1424,8 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                                         bool detectVariants)
 {
     const IDevice::ConstPtr device = detector.device;
+    QTC_ASSERT(device, return {});
+
     const QFileInfo fi(compilerName);
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && fi.isAbsolute() && fi.isFile())
         return {FilePath::fromString(compilerName)};
@@ -1440,14 +1442,14 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                 << ("*-*-*-*-" + compilerName
                     + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
     }
-    const Utils::OsType os = device ? device->osType() : HostOsInfo::hostOs();
+    const Utils::OsType os = device->osType();
     nameFilters = transform(nameFilters, [os](const QString &baseName) {
         return OsSpecificAspects::withExecutableSuffix(os, baseName);
     });
 
     FilePaths compilerPaths;
     FilePaths searchPaths = detector.searchPaths;
-    if (device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    if (device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         if (searchPaths.isEmpty())
             searchPaths = device->systemEnvironment().path();
         searchPaths = Utils::transform(searchPaths, [&](const FilePath &onDevice) {
