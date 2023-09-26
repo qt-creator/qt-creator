@@ -962,6 +962,42 @@ void GeneralHelper::setSnapPositionInterval(double interval)
     }
 }
 
+QString GeneralHelper::formatVectorDragTooltip(const QVector3D &vec, const QString &suffix) const
+{
+    return QObject::tr("x:%L1 y:%L2 z:%L3%L4")
+        .arg(vec.x(), 0, 'f', 1).arg(vec.y(), 0, 'f', 1)
+        .arg(vec.z(), 0, 'f', 1).arg(suffix);
+}
+
+QString GeneralHelper::formatSnapStr(bool snapEnabled, double increment, const QString &suffix) const
+{
+    double inc = increment;
+    QString snapStr;
+    if (queryKeyboardForSnapping(snapEnabled, inc)) {
+        int precision = 0;
+        // We can have fractional snap if shift is pressed, so adjust precision in those cases
+        if (qRound(inc * 10.) != qRound(inc) * 10)
+            precision = 1;
+        snapStr = QObject::tr(" (Snap: %1%2)").arg(inc, 0, 'f', precision).arg(suffix);
+    }
+    return snapStr;
+}
+
+QString GeneralHelper::snapPositionDragTooltip(const QVector3D &pos) const
+{
+    return formatVectorDragTooltip(pos, formatSnapStr(m_snapPosition, m_snapPositionInterval, {}));
+}
+
+QString GeneralHelper::snapRotationDragTooltip(double angle) const
+{
+    return tr("%L1%L2").arg(angle, 0, 'f', 1).arg(formatSnapStr(m_snapRotation, m_snapRotationInterval, {}));
+}
+
+QString GeneralHelper::snapScaleDragTooltip(const QVector3D &scale) const
+{
+    return formatVectorDragTooltip(scale, formatSnapStr(m_snapScale, m_snapScaleInterval * 100., tr("%")));
+}
+
 double GeneralHelper::minGridStep() const
 {
     // Minimum grid step is a multiple of snap interval, as the last step is divided to subgrid

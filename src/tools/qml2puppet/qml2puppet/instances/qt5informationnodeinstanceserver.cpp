@@ -344,22 +344,33 @@ void Qt5InformationNodeInstanceServer::updateSnapSettings(
 #ifdef QUICK3D_MODULE
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
     if (helper) {
+        bool changed = false;
         for (const auto &container : valueChanges) {
-            if (container.name() == "snapPos3d")
+            if (container.name() == "snapPos3d") {
                 helper->setSnapPosition(container.value().toBool());
-            else if (container.name() == "snapPosInt3d")
+                changed = true;
+            } else if (container.name() == "snapPosInt3d") {
                 helper->setSnapPositionInterval(container.value().toDouble());
-            else if (container.name() == "snapRot3d")
+                changed = true;
+            } else if (container.name() == "snapRot3d") {
                 helper->setSnapRotation(container.value().toBool());
-            else if (container.name() == "snapRotInt3d")
+                changed = true;
+            } else if (container.name() == "snapRotInt3d") {
                 helper->setSnapRotationInterval(container.value().toDouble());
-            else if (container.name() == "snapScale3d")
+                changed = true;
+            } else if (container.name() == "snapScale3d") {
                 helper->setSnapScale(container.value().toBool());
-            else if (container.name() == "snapScaleInt3d")
+                changed = true;
+            } else if (container.name() == "snapScaleInt3d") {
                 helper->setSnapScaleInterval(container.value().toDouble());
-            else if (container.name() == "snapAbs3d")
+                changed = true;
+            } else if (container.name() == "snapAbs3d") {
                 helper->setSnapAbsolute(container.value().toBool());
+                changed = true;
+            }
         }
+        if (changed)
+            emit helper->updateDragTooltip();
     }
 #endif
 }

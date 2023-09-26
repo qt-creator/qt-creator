@@ -119,6 +119,10 @@ public:
     void setSnapRotationInterval(double interval) { m_snapRotationInterval = interval; }
     void setSnapScaleInterval(double interval) { m_snapScaleInterval = interval / 100.; }
 
+    Q_INVOKABLE QString snapPositionDragTooltip(const QVector3D &pos) const;
+    Q_INVOKABLE QString snapRotationDragTooltip(double angle) const;
+    Q_INVOKABLE QString snapScaleDragTooltip(const QVector3D &scale) const;
+
     double minGridStep() const;
 
     void setBgColor(const QVariant &colors);
@@ -132,12 +136,15 @@ signals:
     void rotationBlocksChanged();
     void bgColorChanged();
     void minGridStepChanged();
+    void updateDragTooltip();
 
 private:
     void handlePendingToolStateUpdate();
     QVector3D pivotScenePosition(QQuick3DNode *node) const;
     bool getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVector3D &minBounds,
                    QVector3D &maxBounds);
+    QString formatVectorDragTooltip(const QVector3D &vec, const QString &suffix) const;
+    QString formatSnapStr(bool snapEnabled, double increment, const QString &suffix) const;
 
     QTimer m_overlayUpdateTimer;
     QTimer m_toolStateUpdateTimer;
