@@ -37,6 +37,8 @@ public:
     QString connectionValue() const;
     void setConnectionValue(const QString &text);
 
+    QString rawConnectionValue() const;
+
     bool hasModelIndex() const;
     void resetModelIndex();
     QModelIndex modelIndex() const;
