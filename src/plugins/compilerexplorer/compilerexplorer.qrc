@@ -2,5 +2,7 @@
   <qresource prefix="/compilerexplorer/wizard/">
     <file>wizard/cpp/wizard.json</file>
     <file>wizard/cpp/file.qtce</file>
+    <file>wizard/python/wizard.json</file>
+    <file>wizard/python/file.qtce</file>
   </qresource>
 </RCC>
