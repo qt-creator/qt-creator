@@ -180,22 +180,18 @@ private:
     QMetaObject::Connection m_thisToolchainRemovedConnection;
 };
 
-// --------------------------------------------------------------------------
-// Factories
-// --------------------------------------------------------------------------
 
 namespace Internal {
+
 class GccToolChainFactory : public ToolChainFactory
 {
 public:
-    GccToolChainFactory();
+    explicit GccToolChainFactory(GccToolChain::SubType subType);
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
     Toolchains detectForImport(const ToolChainDescription &tcd) const final;
 
-protected:
-    GccToolChain::SubType m_subType = GccToolChain::RealGcc;
-
+private:
     enum class DetectVariants { Yes, No };
     using ToolchainChecker = std::function<bool(const ToolChain *)>;
     static Toolchains autoDetectToolchains(const QString &compilerName,
@@ -208,24 +204,8 @@ protected:
     static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,
                                           const ToolChainConstructor &constructor,
                                           const ToolchainChecker &checker = {});
-};
 
-class ClangToolChainFactory : public GccToolChainFactory
-{
-public:
-    ClangToolChainFactory();
-};
-
-class MingwToolChainFactory : public GccToolChainFactory
-{
-public:
-    MingwToolChainFactory();
-};
-
-class LinuxIccToolChainFactory : public GccToolChainFactory
-{
-public:
-    LinuxIccToolChainFactory();
+    const bool m_autoDetecting;
 };
 
 } // namespace Internal

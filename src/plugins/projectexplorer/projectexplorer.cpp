@@ -626,15 +626,16 @@ public:
     MsvcToolChainFactory m_mscvToolChainFactory;
     ClangClToolChainFactory m_clangClToolChainFactory;
 #else
-    LinuxIccToolChainFactory m_linuxToolChainFactory;
+    GccToolChainFactory m_linuxToolChainFactory{GccToolChain::LinuxIcc};
 #endif
 
 #ifndef Q_OS_MACOS
-    MingwToolChainFactory m_mingwToolChainFactory; // Mingw offers cross-compiling to windows
+    // Mingw offers cross-compiling to windows
+    GccToolChainFactory m_mingwToolChainFactory{GccToolChain::MinGW};
 #endif
 
-    GccToolChainFactory m_gccToolChainFactory;
-    ClangToolChainFactory m_clangToolChainFactory;
+    GccToolChainFactory m_gccToolChainFactory{GccToolChain::RealGcc};
+    GccToolChainFactory m_clangToolChainFactory{GccToolChain::Clang};
     CustomToolChainFactory m_customToolChainFactory;
 
     DesktopDeviceFactory m_desktopDeviceFactory;
