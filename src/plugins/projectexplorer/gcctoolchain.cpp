@@ -1247,10 +1247,43 @@ GccToolChainFactory::GccToolChainFactory(GccToolChain::SubType subType)
     setUserCreatable(true);
 }
 
-// FIXME: Re-order later.
 static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                                         const QString &compilerName,
-                                        bool detectVariants);
+                                        bool detectVariants)
+{
+    QStringList nameFilters(compilerName);
+    if (detectVariants) {
+        nameFilters
+                << compilerName + "-[1-9]*" // "clang-8", "gcc-5"
+                << ("*-" + compilerName) // "avr-gcc", "avr32-gcc"
+                << ("*-" + compilerName + "-[1-9]*")// "avr-gcc-4.8.1", "avr32-gcc-4.4.7"
+                << ("*-*-*-" + compilerName) // "arm-none-eabi-gcc"
+                << ("*-*-*-" + compilerName + "-[1-9]*") // "arm-none-eabi-gcc-9.1.0"
+                << ("*-*-*-*-" + compilerName) // "x86_64-pc-linux-gnu-gcc"
+                << ("*-*-*-*-" + compilerName
+                    + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
+    }
+    const Utils::OsType os = detector.device->osType();
+    nameFilters = transform(nameFilters, [os](const QString &baseName) {
+        return OsSpecificAspects::withExecutableSuffix(os, baseName);
+    });
+
+    FilePaths compilerPaths;
+    for (const FilePath &searchPath : std::as_const(detector.searchPaths)) {
+        static const QRegularExpression regexp(binaryRegexp);
+        const auto callBack = [os, &compilerPaths, compilerName](const FilePath &candidate) {
+            if (candidate.fileName() == OsSpecificAspects::withExecutableSuffix(os, compilerName)
+                || regexp.match(candidate.path()).hasMatch()) {
+                compilerPaths << candidate;
+            }
+            return IterationPolicy::Continue;
+        };
+        searchPath.iterateDirectory(callBack, {nameFilters, QDir::Files | QDir::Executable});
+    }
+
+    return compilerPaths;
+}
+
 
 Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector_) const
 {
@@ -1447,43 +1480,6 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
     }
 
     return result;
-}
-
-static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
-                                        const QString &compilerName,
-                                        bool detectVariants)
-{
-    QStringList nameFilters(compilerName);
-    if (detectVariants) {
-        nameFilters
-                << compilerName + "-[1-9]*" // "clang-8", "gcc-5"
-                << ("*-" + compilerName) // "avr-gcc", "avr32-gcc"
-                << ("*-" + compilerName + "-[1-9]*")// "avr-gcc-4.8.1", "avr32-gcc-4.4.7"
-                << ("*-*-*-" + compilerName) // "arm-none-eabi-gcc"
-                << ("*-*-*-" + compilerName + "-[1-9]*") // "arm-none-eabi-gcc-9.1.0"
-                << ("*-*-*-*-" + compilerName) // "x86_64-pc-linux-gnu-gcc"
-                << ("*-*-*-*-" + compilerName
-                    + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
-    }
-    const Utils::OsType os = detector.device->osType();
-    nameFilters = transform(nameFilters, [os](const QString &baseName) {
-        return OsSpecificAspects::withExecutableSuffix(os, baseName);
-    });
-
-    FilePaths compilerPaths;
-    for (const FilePath &searchPath : detector.searchPaths) {
-        static const QRegularExpression regexp(binaryRegexp);
-        const auto callBack = [os, &compilerPaths, compilerName](const FilePath &candidate) {
-            if (candidate.fileName() == OsSpecificAspects::withExecutableSuffix(os, compilerName)
-                || regexp.match(candidate.path()).hasMatch()) {
-                compilerPaths << candidate;
-            }
-            return IterationPolicy::Continue;
-        };
-        searchPath.iterateDirectory(callBack, {nameFilters, QDir::Files | QDir::Executable});
-    }
-
-    return compilerPaths;
 }
 
 Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPaths,
