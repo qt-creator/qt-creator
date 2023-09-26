@@ -4,6 +4,7 @@ QtcPlugin {
     name: "CompilerExplorer"
 
     Depends { name: "Core" }
+    Depends { name: "ProjectExplorer" }
     Depends { name: "Spinner" }
     Depends { name: "TerminalLib" }
     Depends { name: "TextEditor" }
@@ -21,6 +22,8 @@ QtcPlugin {
         "api/library.cpp",
         "api/library.h",
         "api/request.h",
+
+        "compilerexplorer.qrc",
 
         "compilerexploreraspects.cpp",
         "compilerexploreraspects.h",

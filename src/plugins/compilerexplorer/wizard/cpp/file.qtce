@@ -1,0 +1,10 @@
+{
+    "Sources": [{
+        "LanguageId": "c++",
+        "Source": "int main() {\n  return 0;\n}",
+        "Compilers": [{
+            "Id": "clang_trunk",
+            "Options": "-O3"
+        }]
+    }]
+}

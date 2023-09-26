@@ -136,6 +136,8 @@ Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
         return OpenResult::ReadError;
     }
 
+    setFilePath(filePath);
+
     m_ceSettings.fromMap(*result);
     emit settingsChanged();
     return OpenResult::Success;
@@ -171,6 +173,7 @@ bool JsonSettingsDocument::saveImpl(QString *errorString, const FilePath &newFil
         return false;
     }
 
+    emit changed();
     return true;
 }
 

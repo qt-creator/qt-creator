@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/compilerexplorer/wizard/">
+    <file>wizard/cpp/wizard.json</file>
+    <file>wizard/cpp/file.qtce</file>
+  </qresource>
+</RCC>

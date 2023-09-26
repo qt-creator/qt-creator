@@ -14,9 +14,11 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
-#include <QMenu>
-
 #include <extensionsystem/iplugin.h>
+
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+
+#include <QMenu>
 
 using namespace Core;
 
@@ -39,6 +41,8 @@ public:
                                                         &name,
                                                         settings().defaultDocument().toUtf8());
         });
+
+        ProjectExplorer::JsonWizardFactory::addWizardPath(":/compilerexplorer/wizard/");
 
         ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
         ActionContainer *mCompilerExplorer = ActionManager::createMenu("Tools.CompilerExplorer");
