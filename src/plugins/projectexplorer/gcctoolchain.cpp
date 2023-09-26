@@ -1344,9 +1344,8 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector_) c
 
     const FilePath compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (!compilerPath.isEmpty()) {
-        const FilePath clang = compilerPath.parentDir().pathAppended("clang").withExecutableSuffix();
         tcs.append(
-            autoDetectToolchains(findCompilerCandidates(detector, clang.toString(), false),
+            autoDetectToolchains({compilerPath},
                                  Constants::C_LANGUAGE_ID,
                                  Constants::CLANG_TOOLCHAIN_TYPEID,
                                  ToolchainDetector(known, detector.device, detector.searchPaths),
@@ -1454,10 +1453,6 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                                         const QString &compilerName,
                                         bool detectVariants)
 {
-    const QFileInfo fi(compilerName);
-    if (detector.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && fi.isAbsolute() && fi.isFile())
-        return {FilePath::fromString(compilerName)};
-
     QStringList nameFilters(compilerName);
     if (detectVariants) {
         nameFilters
