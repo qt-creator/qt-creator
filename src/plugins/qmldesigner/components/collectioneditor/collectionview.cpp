@@ -584,7 +584,7 @@ void CollectionView::ensureCollectionLibraryNode()
     // Create collection library node
 #ifdef QDS_USE_PROJECTSTORAGE
         TypeName nodeTypeName = rootModelNode().metaInfo().isQtQuick3DNode() ? "Node" : "Item";
-        matLib = createModelNode(nodeTypeName, -1, -1);
+        collectionLib = createModelNode(nodeTypeName, -1, -1);
 #else
             auto nodeType = rootModelNode().metaInfo().isQtQuick3DNode()
                                 ? model()->qtQuick3DNodeMetaInfo()
