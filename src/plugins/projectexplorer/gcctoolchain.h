@@ -16,11 +16,8 @@
 namespace ProjectExplorer {
 
 namespace Internal {
-class ClangToolChainFactory;
 class GccToolChainConfigWidget;
 class GccToolChainFactory;
-class MingwToolChainFactory;
-class LinuxIccToolChainFactory;
 
 const QStringList gccPredefinedMacrosOptions(Utils::Id languageId);
 }
@@ -172,9 +169,6 @@ private:
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;
-    friend class Internal::LinuxIccToolChainFactory;
-    friend class Internal::MingwToolChainFactory;
-    friend class Internal::ClangToolChainFactory;
     friend class ToolChainFactory;
 
     // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
