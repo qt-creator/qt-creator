@@ -176,11 +176,11 @@ QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> 
     };
 
     QList<AssistProposalItemInterface *> list;
-    for (const auto &[text, helpFile] : words.asKeyValueRange()) {
+    for (auto it = words.cbegin(); it != words.cend(); ++it) {
         MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
-        item->setText(text);
-        if (!helpFile.isEmpty())
-            item->setDetail(readFirstParagraphs(text, helpFile));
+        item->setText(it.key());
+        if (!it.value().isEmpty())
+            item->setDetail(readFirstParagraphs(it.key(), it.value()));
         item->setIcon(icon);
         list << item;
     };
