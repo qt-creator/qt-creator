@@ -1328,27 +1328,25 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     // Gcc is almost never what you want on macOS, but it is by default found in /usr/bin
     if (!HostOsInfo::isMacHost() || detector.device->type() != Constants::DESKTOP_DEVICE_TYPE) {
 
-        Toolchains tcs;
         static const auto tcChecker = [](const ToolChain *tc) {
             return tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor
                    && tc->compilerCommand().fileName() != "c89-gcc"
                    && tc->compilerCommand().fileName() != "c99-gcc";
         };
-        tcs.append(autoDetectToolchains("g++",
-                                        DetectVariants::Yes,
-                                        Constants::CXX_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID,
-                                        detector,
-                                        &constructRealGccToolchain,
-                                        tcChecker));
-        tcs.append(autoDetectToolchains("gcc",
-                                        DetectVariants::Yes,
-                                        Constants::C_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID,
-                                        detector,
-                                        &constructRealGccToolchain,
-                                        tcChecker));
-        result += tcs;
+        result += autoDetectToolchains("g++",
+                                       DetectVariants::Yes,
+                                       Constants::CXX_LANGUAGE_ID,
+                                       Constants::GCC_TOOLCHAIN_TYPEID,
+                                       detector,
+                                       &constructRealGccToolchain,
+                                       tcChecker);
+        result += autoDetectToolchains("gcc",
+                                       DetectVariants::Yes,
+                                       Constants::C_LANGUAGE_ID,
+                                       Constants::GCC_TOOLCHAIN_TYPEID,
+                                       detector,
+                                       &constructRealGccToolchain,
+                                       tcChecker);
     }
 
     return result;
