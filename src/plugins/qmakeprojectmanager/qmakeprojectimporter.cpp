@@ -97,7 +97,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
         qCDebug(logs) << "  Parsing makefile" << file;
         // find interesting makefiles
         const FilePath makefile = importPath / file;
-        MakeFileParse parse(makefile, MakeFileParse::Mode::FilterKnownConfigValues);
+        MakeFileParse parse(makefile, MakeFileParse::Mode::FilterKnownConfigValues, projectFilePath());
         if (parse.makeFileState() != MakeFileParse::Okay) {
             qCDebug(logs) << "  Parsing the makefile failed" << makefile;
             continue;
@@ -108,7 +108,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
         }
 
         data->canonicalQmakeBinary = parse.qmakePath().canonicalPath();
-        if (data->canonicalQmakeBinary.isEmpty()) {
+        if (!data->canonicalQmakeBinary.exists()) {
             qCDebug(logs) << "  " << parse.qmakePath() << "doesn't exist anymore";
             continue;
         }

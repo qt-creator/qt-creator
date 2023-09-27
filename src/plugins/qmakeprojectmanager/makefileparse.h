@@ -7,6 +7,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <utils/filepath.h>
 
+#include <optional>
+
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -21,7 +23,8 @@ class MakeFileParse
 {
 public:
     enum class Mode { FilterKnownConfigValues, DoNotFilterKnownConfigValues };
-    MakeFileParse(const Utils::FilePath &makefile, Mode mode);
+    MakeFileParse(const Utils::FilePath &makefile, Mode mode,
+                  std::optional<Utils::FilePath> projectFile = std::nullopt);
 
     enum MakefileState { MakefileMissing, CouldNotParse, Okay };
 
