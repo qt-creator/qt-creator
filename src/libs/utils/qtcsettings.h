@@ -29,48 +29,32 @@ public:
     using QSettings::status;
     using QSettings::clear;
 
-    void beginGroup(const Key &prefix) { QSettings::beginGroup(stringFromKey(prefix)); }
+    void beginGroup(const Key &prefix);
 
-    QVariant value(const Key &key) const { return QSettings::value(stringFromKey(key)); }
+    QVariant value(const Key &key) const;
     QVariant value(const Key &key, const QVariant &def) const;
     void setValue(const Key &key, const QVariant &value);
-    void remove(const Key &key) { QSettings::remove(stringFromKey(key)); }
-    bool contains(const Key &key) const { return QSettings::contains(stringFromKey(key)); }
+    void remove(const Key &key);
+    bool contains(const Key &key) const;
 
     KeyList childKeys() const;
 
     template<typename T>
     void setValueWithDefault(const Key &key, const T &val, const T &defaultValue)
     {
-        setValueWithDefault(this, key, val, defaultValue);
-    }
-
-    template<typename T>
-    static void setValueWithDefault(QtcSettings *settings,
-                                    const Key &key,
-                                    const T &val,
-                                    const T &defaultValue)
-    {
         if (val == defaultValue)
-            settings->QSettings::remove(stringFromKey(key));
+            remove(key);
         else
-            settings->QSettings::setValue(stringFromKey(key), QVariant::fromValue(val));
+            setValue(key, val);
     }
-
 
     template<typename T>
     void setValueWithDefault(const Key &key, const T &val)
     {
-        setValueWithDefault(this, key, val);
-    }
-
-    template<typename T>
-    static void setValueWithDefault(QtcSettings *settings, const Key &key, const T &val)
-    {
         if (val == T())
-            settings->QSettings::remove(stringFromKey(key));
+            remove(key);
         else
-            settings->QSettings::setValue(stringFromKey(key), QVariant::fromValue(val));
+            setValue(key, val);
     }
 };
 

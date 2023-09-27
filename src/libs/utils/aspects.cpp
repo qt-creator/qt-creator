@@ -655,8 +655,7 @@ void BaseAspect::writeSettings() const
     if (settingsKey().isEmpty())
         return;
     QTC_ASSERT(theSettings, return);
-    QtcSettings::setValueWithDefault(theSettings,
-                                     settingsKey(),
+    theSettings->setValueWithDefault(settingsKey(),
                                      toSettingsValue(variantValue()),
                                      toSettingsValue(defaultVariantValue()));
 }

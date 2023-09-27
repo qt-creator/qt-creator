@@ -26,9 +26,8 @@ QString UnixUtils::fileBrowser(const QtcSettings *settings)
 
 void UnixUtils::setFileBrowser(QtcSettings *settings, const QString &term)
 {
-    QtcSettings::setValueWithDefault(settings, Key("General/FileBrowser"), term, defaultFileBrowser());
+    settings->setValueWithDefault("General/FileBrowser", term, defaultFileBrowser());
 }
-
 
 QString UnixUtils::fileBrowserHelpText()
 {

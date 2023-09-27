@@ -215,7 +215,7 @@ void InfoBar::writeGloballySuppressedToSettings()
     if (!m_settings)
         return;
     const QStringList list = transform<QList>(globallySuppressed, &Id::toString);
-    QtcSettings::setValueWithDefault(m_settings, C_SUPPRESSED_WARNINGS, list);
+    m_settings->setValueWithDefault(C_SUPPRESSED_WARNINGS, list);
 }
 
 

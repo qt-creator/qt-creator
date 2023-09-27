@@ -54,27 +54,15 @@ void CppFileSettings::toSettings(QtcSettings *s) const
 {
     const CppFileSettings def;
     s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
-    QtcSettings::setValueWithDefault(s, headerPrefixesKeyC, headerPrefixes, def.headerPrefixes);
-    QtcSettings::setValueWithDefault(s, sourcePrefixesKeyC, sourcePrefixes, def.sourcePrefixes);
-    QtcSettings::setValueWithDefault(s, headerSuffixKeyC, headerSuffix, def.headerSuffix);
-    QtcSettings::setValueWithDefault(s, sourceSuffixKeyC, sourceSuffix, def.sourceSuffix);
-    QtcSettings::setValueWithDefault(s,
-                                     headerSearchPathsKeyC,
-                                     headerSearchPaths,
-                                     def.headerSearchPaths);
-    QtcSettings::setValueWithDefault(s,
-                                     sourceSearchPathsKeyC,
-                                     sourceSearchPaths,
-                                     def.sourceSearchPaths);
-    QtcSettings::setValueWithDefault(s,
-                                     Constants::LOWERCASE_CPPFILES_KEY,
-                                     lowerCaseFiles,
-                                     def.lowerCaseFiles);
-    QtcSettings::setValueWithDefault(s, headerPragmaOnceC, headerPragmaOnce, def.headerPragmaOnce);
-    QtcSettings::setValueWithDefault(s,
-                                     licenseTemplatePathKeyC,
-                                     licenseTemplatePath,
-                                     def.licenseTemplatePath);
+    s->setValueWithDefault(headerPrefixesKeyC, headerPrefixes, def.headerPrefixes);
+    s->setValueWithDefault(sourcePrefixesKeyC, sourcePrefixes, def.sourcePrefixes);
+    s->setValueWithDefault(headerSuffixKeyC, headerSuffix, def.headerSuffix);
+    s->setValueWithDefault(sourceSuffixKeyC, sourceSuffix, def.sourceSuffix);
+    s->setValueWithDefault(headerSearchPathsKeyC, headerSearchPaths, def.headerSearchPaths);
+    s->setValueWithDefault(sourceSearchPathsKeyC, sourceSearchPaths, def.sourceSearchPaths);
+    s->setValueWithDefault(Constants::LOWERCASE_CPPFILES_KEY, lowerCaseFiles, def.lowerCaseFiles);
+    s->setValueWithDefault(headerPragmaOnceC, headerPragmaOnce, def.headerPragmaOnce);
+    s->setValueWithDefault(licenseTemplatePathKeyC, licenseTemplatePath, def.licenseTemplatePath);
     s->endGroup();
 }
 

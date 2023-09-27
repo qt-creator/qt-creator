@@ -137,7 +137,7 @@ public:
                 l.append(column);
                 l.append(width);
             }
-            QtcSettings::setValueWithDefault(m_settings, ColumnKey, l);
+            m_settings->setValueWithDefault(ColumnKey, l);
             m_settings->endGroup();
         }
     }
