@@ -35,7 +35,6 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QScrollArea>
-#include <QSettings>
 #include <QSpinBox>
 #include <QStandardItemModel>
 #include <QTextEdit>

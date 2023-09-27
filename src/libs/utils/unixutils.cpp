@@ -8,7 +8,6 @@
 #include "utilstr.h"
 
 #include <QFileInfo>
-#include <QSettings>
 
 using namespace Utils;
 

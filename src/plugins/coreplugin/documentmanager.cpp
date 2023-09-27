@@ -46,7 +46,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
-#include <QSettings>
 #include <QStringList>
 #include <QTimer>
 

@@ -112,7 +112,6 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QScopeGuard>
-#include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QTextBlock>

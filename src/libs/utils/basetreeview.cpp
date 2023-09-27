@@ -18,7 +18,6 @@
 #include <QMap>
 #include <QMenu>
 #include <QMouseEvent>
-#include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QTimer>
 

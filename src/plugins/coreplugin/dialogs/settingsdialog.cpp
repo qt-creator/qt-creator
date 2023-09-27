@@ -30,7 +30,6 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSet>
-#include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QSpacerItem>
 #include <QStackedLayout>

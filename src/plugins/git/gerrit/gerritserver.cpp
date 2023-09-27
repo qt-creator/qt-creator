@@ -20,7 +20,6 @@
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QRegularExpression>
-#include <QSettings>
 
 using namespace Git::Internal;
 using namespace Utils;

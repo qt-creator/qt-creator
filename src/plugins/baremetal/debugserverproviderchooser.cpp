@@ -13,7 +13,6 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QSettings>
 
 namespace BareMetal::Internal {
 

@@ -32,7 +32,6 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QPushButton>
-#include <QSettings>
 #include <QSpinBox>
 #include <QTextStream>
 #include <QVBoxLayout>

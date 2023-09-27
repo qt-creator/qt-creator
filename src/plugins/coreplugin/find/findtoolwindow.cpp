@@ -22,7 +22,6 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
-#include <QSettings>
 #include <QStringListModel>
 
 using namespace Utils;

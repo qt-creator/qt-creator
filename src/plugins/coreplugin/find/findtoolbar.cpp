@@ -36,7 +36,6 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
-#include <QSettings>
 #include <QSpacerItem>
 #include <QStringListModel>
 #include <QToolButton>

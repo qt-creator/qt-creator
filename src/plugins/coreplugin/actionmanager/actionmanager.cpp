@@ -19,7 +19,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
-#include <QSettings>
 
 namespace {
     enum { warnAboutFindFailures = 0 };

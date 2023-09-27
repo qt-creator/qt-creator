@@ -21,7 +21,6 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QScreen>
-#include <QSettings>
 #include <QToolButton>
 #include <QWidgetAction>
 

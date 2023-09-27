@@ -3,8 +3,6 @@
 
 #include "marginsettings.h"
 
-#include <QSettings>
-
 #include <utils/qtcsettings.h>
 
 using namespace Utils;

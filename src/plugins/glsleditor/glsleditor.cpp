@@ -42,7 +42,6 @@
 #include <utils/uncommentselection.h>
 
 #include <QCoreApplication>
-#include <QSettings>
 #include <QComboBox>
 #include <QFileInfo>
 #include <QHeaderView>

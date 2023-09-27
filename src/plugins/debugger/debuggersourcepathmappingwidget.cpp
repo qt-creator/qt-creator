@@ -22,7 +22,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QSettings>
 #include <QStandardItemModel>
 #include <QTreeView>
 

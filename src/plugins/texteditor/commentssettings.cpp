@@ -13,7 +13,6 @@
 
 #include <QCheckBox>
 #include <QComboBox>
-#include <QSettings>
 
 using namespace Layouting;
 using namespace Utils;

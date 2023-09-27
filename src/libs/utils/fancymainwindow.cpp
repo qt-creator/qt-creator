@@ -17,7 +17,6 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
-#include <QSettings>
 #include <QStyle>
 #include <QStyleOption>
 #include <QTimer>

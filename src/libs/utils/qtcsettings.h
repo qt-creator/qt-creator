@@ -11,8 +11,7 @@
 
 namespace Utils {
 
-// FIXME: In theory, this could be private or aggregated.
-class QTCREATOR_UTILS_EXPORT QtcSettings : public QSettings
+class QTCREATOR_UTILS_EXPORT QtcSettings : private QSettings
 {
 public:
     using QSettings::QSettings;

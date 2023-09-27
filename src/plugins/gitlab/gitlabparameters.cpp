@@ -11,7 +11,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QSettings>
 #include <QStandardPaths>
 
 using namespace Utils;

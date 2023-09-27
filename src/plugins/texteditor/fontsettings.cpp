@@ -17,7 +17,6 @@
 #include <QFile>
 #include <QFont>
 #include <QFontDatabase>
-#include <QSettings>
 #include <QTextCharFormat>
 
 #include <cmath>

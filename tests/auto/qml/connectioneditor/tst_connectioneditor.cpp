@@ -4,14 +4,13 @@
 #include "qmldesigner/components/connectioneditor/connectioneditorevaluator.h"
 #include "qmljs/parser/qmljsast_p.h"
 #include "qmljs/qmljsdocument.h"
-#include <algorithm>
+
 #include <QApplication>
-#include <QFileInfo>
 #include <QGraphicsObject>
-#include <QLatin1String>
 #include <QScopedPointer>
-#include <QSettings>
 #include <QtTest>
+
+#include <algorithm>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

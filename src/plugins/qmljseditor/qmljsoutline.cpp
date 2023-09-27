@@ -12,7 +12,6 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QSettings>
 #include <QAction>
 #include <QVBoxLayout>
 #include <QTextBlock>

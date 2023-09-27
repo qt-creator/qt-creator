@@ -33,7 +33,6 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QPainter>
-#include <QSettings>
 #include <QStyledItemDelegate>
 #include <QToolButton>
 #include <QVBoxLayout>

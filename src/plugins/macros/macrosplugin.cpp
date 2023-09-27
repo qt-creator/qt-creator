@@ -18,7 +18,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 
-#include <QSettings>
 #include <QAction>
 #include <QKeySequence>
 #include <QMenu>

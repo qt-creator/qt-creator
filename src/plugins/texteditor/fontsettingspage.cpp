@@ -32,7 +32,6 @@
 #include <QPalette>
 #include <QPointer>
 #include <QPushButton>
-#include <QSettings>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QTimer>

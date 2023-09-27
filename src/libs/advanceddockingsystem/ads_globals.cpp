@@ -17,7 +17,6 @@
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include <QApplication>
 #include <QFile>
-#include <QSettings>
 #endif
 
 namespace ADS {

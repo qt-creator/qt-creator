@@ -27,7 +27,6 @@
 #include <QStringListModel>
 #include <QVector>
 #include <QAction>
-#include <QSettings>
 
 /*!
     \namespace Core::Internal::ItemDataRoles

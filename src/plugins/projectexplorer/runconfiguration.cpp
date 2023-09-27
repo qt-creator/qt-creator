@@ -36,7 +36,6 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QLoggingCategory>
-#include <QSettings>
 
 using namespace Utils;
 using namespace ProjectExplorer::Internal;

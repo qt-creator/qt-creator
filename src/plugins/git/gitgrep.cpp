@@ -23,7 +23,6 @@
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QRegularExpressionValidator>
-#include <QSettings>
 
 using namespace Core;
 using namespace TextEditor;

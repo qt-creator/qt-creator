@@ -4,7 +4,6 @@
 #include "colorpalettebackend.h"
 
 #include <QDebug>
-#include <QSettings>
 #include <QColorDialog>
 #include <QTimer>
 
