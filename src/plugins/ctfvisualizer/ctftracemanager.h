@@ -11,8 +11,7 @@
 
 namespace Timeline { class TimelineModelAggregator; }
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 class CtfStatisticsModel;
 class CtfTimelineModel;
@@ -71,5 +70,4 @@ protected:
     QString m_errorString;
 };
 
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal

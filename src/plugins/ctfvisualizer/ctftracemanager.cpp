@@ -13,11 +13,9 @@
 
 #include <QMessageBox>
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 using json = nlohmann::json;
-
 using namespace Constants;
 
 CtfTraceManager::CtfTraceManager(QObject *parent,
@@ -152,7 +150,7 @@ QList<CtfTimelineModel *> CtfTraceManager::getSortedThreads() const
     QList<CtfTimelineModel *> models = m_threadModels.values();
     std::sort(models.begin(),
               models.end(),
-              [](const CtfTimelineModel *a, const CtfTimelineModel *b) -> bool {
+              [](const CtfTimelineModel *a, const CtfTimelineModel *b) {
                   return (a->m_processId != b->m_processId) ? (a->m_processId < b->m_processId)
                                                             : (a->m_threadId < b->m_threadId);
               });
@@ -238,5 +236,4 @@ QString CtfTraceManager::errorString() const
     return m_errorString;
 }
 
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal

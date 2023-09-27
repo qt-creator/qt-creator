@@ -8,16 +8,12 @@
 #include "ctfvisualizertr.h"
 
 #include <tracing/timelineformattime.h>
-#include <tracing/timelinemodelaggregator.h>
-#include <utils/qtcassert.h>
 
-#include <QDebug>
+#include <utils/qtcassert.h>
 
 #include <string>
 
-
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 using json = nlohmann::json;
 using namespace Constants;
@@ -46,7 +42,7 @@ QVariantList CtfTimelineModel::labels() const
 {
     QVariantList result;
 
-    QVector<std::string> sortedCounterNames = m_counterNames;
+    QList<std::string> sortedCounterNames = m_counterNames;
     std::sort(sortedCounterNames.begin(), sortedCounterNames.end());
     for (int i = 0; i < sortedCounterNames.size(); ++i) {
         QVariantMap element;
@@ -190,7 +186,7 @@ void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QStrin
     m_rows = computeRows(&m_maxStackSize);
     ++m_maxStackSize; // index -> count
 
-    QVector<std::string> sortedCounterNames = m_counterNames;
+    QList<std::string> sortedCounterNames = m_counterNames;
     std::sort(sortedCounterNames.begin(), sortedCounterNames.end());
     m_counterIndexToRow.resize(m_counterNames.size());
     for (int i = 0; i < m_counterIndexToRow.size(); ++i) {
@@ -376,7 +372,5 @@ const QString &CtfTimelineModel::reuse(const QString &value)
     return *it;
 }
 
-
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal
 

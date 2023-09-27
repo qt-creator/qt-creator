@@ -31,17 +31,14 @@ using namespace Core;
 using namespace CtfVisualizer::Constants;
 using namespace Utils;
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
+
+using json = nlohmann::json;
 
 CtfVisualizerTool::CtfVisualizerTool()
-    : QObject (nullptr)
-    , m_loadJson(nullptr)
-    , m_traceView(nullptr)
-    , m_modelAggregator(new Timeline::TimelineModelAggregator(this))
+    : m_modelAggregator(new Timeline::TimelineModelAggregator(this))
     , m_zoomControl(new Timeline::TimelineZoomControl(this))
     , m_statisticsModel(new CtfStatisticsModel(this))
-    , m_statisticsView(nullptr)
     , m_traceManager(new CtfTraceManager(this, m_modelAggregator.get(), m_statisticsModel.get()))
     , m_restrictToThreadsButton(new QToolButton)
     , m_restrictToThreadsMenu(new QMenu(m_restrictToThreadsButton))
@@ -68,12 +65,12 @@ CtfVisualizerTool::CtfVisualizerTool()
     });
     options->addAction(command);
 
-    m_perspective.setAboutToActivateCallback([this]() { createViews(); });
+    m_perspective.setAboutToActivateCallback([this] { createViews(); });
 
-    m_restrictToThreadsButton->setIcon(Utils::Icons::FILTER.icon());
+    m_restrictToThreadsButton->setIcon(Icons::FILTER.icon());
     m_restrictToThreadsButton->setToolTip(Tr::tr("Restrict to Threads"));
     m_restrictToThreadsButton->setPopupMode(QToolButton::InstantPopup);
-    m_restrictToThreadsButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
+    m_restrictToThreadsButton->setProperty(StyleHelper::C_NO_ARROW, true);
     m_restrictToThreadsButton->setMenu(m_restrictToThreadsMenu);
     connect(m_restrictToThreadsMenu, &QMenu::triggered,
             this, &CtfVisualizerTool::toggleThreadRestriction);
@@ -90,7 +87,7 @@ void CtfVisualizerTool::createViews()
 
     QMenu *contextMenu = new QMenu(m_traceView);
     contextMenu->addAction(m_loadJson.get());
-    connect(contextMenu->addAction(Tr::tr("Reset Zoom")), &QAction::triggered, this, [this](){
+    connect(contextMenu->addAction(Tr::tr("Reset Zoom")), &QAction::triggered, this, [this] {
         m_zoomControl->setRange(m_zoomControl->traceStart(), m_zoomControl->traceEnd());
     });
 
@@ -100,7 +97,7 @@ void CtfVisualizerTool::createViews()
         contextMenu->exec(m_traceView->mapToGlobal(pos));
     });
 
-    m_perspective.addWindow(m_traceView, Utils::Perspective::OperationType::SplitVertical, nullptr);
+    m_perspective.addWindow(m_traceView, Perspective::OperationType::SplitVertical, nullptr);
 
     m_statisticsView = new CtfStatisticsView(m_statisticsModel.get());
     m_statisticsView->setWindowTitle(Tr::tr("Statistics"));
@@ -111,9 +108,9 @@ void CtfVisualizerTool::createViews()
     connect(m_traceManager.get(), &CtfTraceManager::detailsRequested, m_statisticsView,
             &CtfStatisticsView::selectByTitle);
 
-    m_perspective.addWindow(m_statisticsView, Utils::Perspective::AddToTab, m_traceView);
+    m_perspective.addWindow(m_statisticsView, Perspective::AddToTab, m_traceView);
 
-    m_perspective.setAboutToActivateCallback(Utils::Perspective::Callback());
+    m_perspective.setAboutToActivateCallback(Perspective::Callback());
 }
 
 void CtfVisualizerTool::setAvailableThreads(const QList<CtfTimelineModel *> &threads)
@@ -152,12 +149,11 @@ Timeline::TimelineZoomControl *CtfVisualizerTool::zoomControl() const
 class CtfJsonParserFunctor
 {
 public:
-    CtfJsonParserFunctor(QPromise<nlohmann::json> &promise)
+    CtfJsonParserFunctor(QPromise<json> &promise)
         : m_promise(promise) {}
 
-    bool operator()(int depth, nlohmann::json::parse_event_t event, nlohmann::json &parsed)
+    bool operator()(int depth, json::parse_event_t event, json &parsed)
     {
-        using json = nlohmann::json;
         if ((event == json::parse_event_t::array_start && depth == 0)
             || (event == json::parse_event_t::key && depth == 1 && parsed == json(CtfTraceEventsKey))) {
             m_isInTraceArray = true;
@@ -182,15 +178,13 @@ public:
     }
 
 protected:
-    QPromise<nlohmann::json> &m_promise;
+    QPromise<json> &m_promise;
     bool m_isInTraceArray = false;
     int m_traceArrayDepth = 0;
 };
 
-static void load(QPromise<nlohmann::json> &promise, const QString &fileName)
+static void load(QPromise<json> &promise, const QString &fileName)
 {
-    using json = nlohmann::json;
-
     std::ifstream file(fileName.toStdString());
     if (!file.is_open()) {
         promise.future().cancel();
@@ -218,7 +212,7 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
     if (m_loader || fileName.isEmpty())
         return;
 
-    const auto onSetup = [this, fileName](Async<nlohmann::json> &async) {
+    const auto onSetup = [this, fileName](Async<json> &async) {
         m_traceManager->clearAll();
         async.setConcurrentCallData(load, fileName);
         connect(&async, &AsyncBase::resultReadyAt, this, [this, asyncPtr = &async](int index) {
@@ -251,7 +245,7 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
         m_loader.release()->deleteLater();
     };
 
-    const Group recipe { AsyncTask<nlohmann::json>(onSetup) };
+    const Group recipe { AsyncTask<json>(onSetup) };
     m_loader.reset(new TaskTree(recipe));
     connect(m_loader.get(), &TaskTree::done, this, onDone);
     connect(m_loader.get(), &TaskTree::errorOccurred, this, onError);
@@ -260,5 +254,4 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
     m_loader->start();
 }
 
-}  // namespace Internal
-}  // namespace CtfVisualizer
+}  // namespace CtfVisualizer::Internal

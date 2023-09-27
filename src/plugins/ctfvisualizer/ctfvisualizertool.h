@@ -15,8 +15,7 @@
 
 namespace Tasking { class TaskTree; }
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 class CtfTraceManager;
 class CtfStatisticsModel;
@@ -47,19 +46,19 @@ private:
     void setAvailableThreads(const QList<CtfTimelineModel *> &threads);
     void toggleThreadRestriction(QAction *action);
 
-    Utils::Perspective m_perspective{CtfVisualizer::Constants::CtfVisualizerPerspectiveId,
+    Utils::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
                                      QCoreApplication::translate("QtC::CtfVisualizer",
                                                                  "Chrome Trace Format Visualizer")};
 
     std::unique_ptr<Tasking::TaskTree> m_loader;
     QScopedPointer<QAction> m_loadJson;
 
-    CtfVisualizerTraceView *m_traceView;
+    CtfVisualizerTraceView *m_traceView = nullptr;
     const QScopedPointer<Timeline::TimelineModelAggregator> m_modelAggregator;
     const QScopedPointer<Timeline::TimelineZoomControl> m_zoomControl;
 
     const QScopedPointer<CtfStatisticsModel> m_statisticsModel;
-    CtfStatisticsView *m_statisticsView;
+    CtfStatisticsView *m_statisticsView = nullptr;
 
     const QScopedPointer<CtfTraceManager> m_traceManager;
 
@@ -67,5 +66,4 @@ private:
     QMenu *const m_restrictToThreadsMenu;
 };
 
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal

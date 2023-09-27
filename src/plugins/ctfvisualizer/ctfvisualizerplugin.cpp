@@ -5,8 +5,7 @@
 
 #include "ctfvisualizertool.h"
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 class CtfVisualizerPluginPrivate
 {
@@ -24,5 +23,4 @@ void CtfVisualizerPlugin::initialize()
     d = new CtfVisualizerPluginPrivate;
 }
 
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal
