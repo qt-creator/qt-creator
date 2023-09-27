@@ -214,8 +214,6 @@ protected:
     void setupHelpWidget();
     QWidget *createHelpWidget() const;
 
-    void addNewSource();
-
     void addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
                      const std::shared_ptr<CompilerSettings> &compilerSettings,
                      int idx,
@@ -244,10 +242,11 @@ public:
     ~Editor();
 
     Core::IDocument *document() const override { return m_document.data(); }
-    QWidget *toolBar() override { return nullptr; }
+    QWidget *toolBar() override;
 
     QSharedPointer<JsonSettingsDocument> m_document;
     QUndoStack m_undoStack;
+    std::unique_ptr<QToolBar> m_toolBar;
 };
 
 class EditorFactory : public Core::IEditorFactory

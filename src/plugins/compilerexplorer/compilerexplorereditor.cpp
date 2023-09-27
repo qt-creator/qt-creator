@@ -38,6 +38,7 @@
 #include <QStandardItemModel>
 #include <QTemporaryFile>
 #include <QTimer>
+#include <QToolBar>
 #include <QToolButton>
 #include <QUndoStack>
 
@@ -719,17 +720,13 @@ void HelperWidget::mousePressEvent(QMouseEvent *event)
     event->accept();
 }
 
-void EditorWidget::addNewSource()
-{
-    auto newSource = std::make_shared<SourceSettings>(
-        [settings = m_document->settings()] { return settings->apiConfig(); });
-    m_document->settings()->m_sources.addItem(newSource);
-}
-
 QWidget *EditorWidget::createHelpWidget() const
 {
     auto w = new HelperWidget;
-    connect(w, &HelperWidget::addSource, this, &EditorWidget::addNewSource);
+    connect(w,
+            &HelperWidget::addSource,
+            m_document->settings(),
+            &CompilerExplorerSettings::addNewSource);
     return w;
 }
 
@@ -781,6 +778,25 @@ static bool childHasFocus(QWidget *parent)
             return true;
 
     return false;
+}
+
+QWidget *Editor::toolBar()
+{
+    if (!m_toolBar) {
+        m_toolBar = std::make_unique<QToolBar>();
+
+        QAction *newSource = new QAction(m_toolBar.get());
+        newSource->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+        newSource->setToolTip(Tr::tr("Add source"));
+        m_toolBar->addAction(newSource);
+
+        connect(newSource,
+                &QAction::triggered,
+                m_document->settings(),
+                &CompilerExplorerSettings::addNewSource);
+    }
+
+    return m_toolBar.get();
 }
 
 EditorFactory::EditorFactory()

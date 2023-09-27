@@ -41,6 +41,8 @@ public:
         return Api::Config(m_networkAccessManager, compilerExplorerUrl());
     }
 
+    void addNewSource();
+
     QNetworkAccessManager *networkAccessManager() const { return m_networkAccessManager; }
 
 private:
