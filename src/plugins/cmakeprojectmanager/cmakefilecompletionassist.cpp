@@ -158,7 +158,7 @@ static QList<AssistProposalItemInterface *> generateList(const QMap<QString, Fil
 {
     struct MarkDownAssitProposalItem : public AssistProposalItem
     {
-        Qt::TextFormat detailFormat() const { return Qt::MarkdownText; }
+        Qt::TextFormat detailFormat() const override { return Qt::MarkdownText; }
     };
 
     QList<AssistProposalItemInterface *> list;
@@ -169,7 +169,7 @@ static QList<AssistProposalItemInterface *> generateList(const QMap<QString, Fil
             item->setDetail(CMakeToolManager::readFirstParagraphs(it.value()));
         item->setIcon(icon);
         list << item;
-    };
+    }
     return list;
 }
 
@@ -189,7 +189,7 @@ static int addFilePathItems(const AssistInterface *interface,
 
     const QString word = interface->textAt(startPos, interface->position() - startPos);
     FilePath baseDir = interface->filePath().absoluteFilePath().parentDir();
-    const int lastSlashPos = word.lastIndexOf(QLatin1Char('/'));
+    const qsizetype lastSlashPos = word.lastIndexOf(QLatin1Char('/'));
 
     QString prefix = word;
     if (lastSlashPos != -1) {
@@ -213,7 +213,7 @@ static int addFilePathItems(const AssistInterface *interface,
     return startPos;
 }
 
-QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const QByteArray &content)
+static QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const QByteArray &content)
 {
     cmListFile cmakeListFile;
     std::string errorString;
