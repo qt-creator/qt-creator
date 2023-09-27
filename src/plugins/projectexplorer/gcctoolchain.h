@@ -5,7 +5,6 @@
 
 #include "projectexplorer_export.h"
 
-#include "projectexplorerconstants.h"
 #include "toolchain.h"
 #include "abi.h"
 #include "headerpath.h"
@@ -17,11 +16,8 @@
 namespace ProjectExplorer {
 
 namespace Internal {
-class ClangToolChainFactory;
 class GccToolChainConfigWidget;
 class GccToolChainFactory;
-class MingwToolChainFactory;
-class LinuxIccToolChainFactory;
 
 const QStringList gccPredefinedMacrosOptions(Utils::Id languageId);
 }
@@ -29,7 +25,6 @@ const QStringList gccPredefinedMacrosOptions(Utils::Id languageId);
 // --------------------------------------------------------------------------
 // GccToolChain
 // --------------------------------------------------------------------------
-
 
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
@@ -174,9 +169,6 @@ private:
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;
-    friend class Internal::LinuxIccToolChainFactory;
-    friend class Internal::MingwToolChainFactory;
-    friend class Internal::ClangToolChainFactory;
     friend class ToolChainFactory;
 
     // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
@@ -188,20 +180,18 @@ private:
     QMetaObject::Connection m_thisToolchainRemovedConnection;
 };
 
-// --------------------------------------------------------------------------
-// Factories
-// --------------------------------------------------------------------------
 
 namespace Internal {
+
 class GccToolChainFactory : public ToolChainFactory
 {
 public:
-    GccToolChainFactory();
+    explicit GccToolChainFactory(GccToolChain::SubType subType);
 
-    Toolchains autoDetect(const ToolchainDetector &detector) const override;
-    Toolchains detectForImport(const ToolChainDescription &tcd) const override;
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
+    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
 
-protected:
+private:
     enum class DetectVariants { Yes, No };
     using ToolchainChecker = std::function<bool(const ToolChain *)>;
     static Toolchains autoDetectToolchains(const QString &compilerName,
@@ -214,33 +204,8 @@ protected:
     static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,
                                           const ToolChainConstructor &constructor,
                                           const ToolchainChecker &checker = {});
-};
 
-class ClangToolChainFactory : public GccToolChainFactory
-{
-public:
-    ClangToolChainFactory();
-
-    Toolchains autoDetect(const ToolchainDetector &detector) const final;
-    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
-};
-
-class MingwToolChainFactory : public GccToolChainFactory
-{
-public:
-    MingwToolChainFactory();
-
-    Toolchains autoDetect(const ToolchainDetector &detector) const final;
-    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
-};
-
-class LinuxIccToolChainFactory : public GccToolChainFactory
-{
-public:
-    LinuxIccToolChainFactory();
-
-    Toolchains autoDetect(const ToolchainDetector &detector) const final;
-    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
+    const bool m_autoDetecting;
 };
 
 } // namespace Internal

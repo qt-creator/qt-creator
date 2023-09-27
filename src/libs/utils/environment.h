@@ -61,7 +61,8 @@ public:
 
     FilePath searchInPath(const QString &executable,
                           const FilePaths &additionalDirs = FilePaths(),
-                          const FilePathPredicate &func = {}) const;
+                          const FilePathPredicate &func = {},
+                          FilePath::MatchScope = FilePath::WithAnySuffix) const;
 
     FilePaths path() const;
     FilePaths pathListValue(const QString &varName) const;

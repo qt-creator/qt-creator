@@ -38,7 +38,7 @@ namespace Internal {
 
 class PluginSpecPrivate;
 
-class EXTENSIONSYSTEM_EXPORT PluginManagerPrivate : public QObject
+class EXTENSIONSYSTEM_TEST_EXPORT PluginManagerPrivate : public QObject
 {
     Q_OBJECT
 public:

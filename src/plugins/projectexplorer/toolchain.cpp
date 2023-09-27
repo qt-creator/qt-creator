@@ -671,8 +671,7 @@ void ToolChainFactory::setSupportsAllLanguages(bool supportsAllLanguages)
     m_supportsAllLanguages = supportsAllLanguages;
 }
 
-void ToolChainFactory::setToolchainConstructor
-    (const ToolChainConstructor &toolchainContructor)
+void ToolChainFactory::setToolchainConstructor(const ToolChainConstructor &toolchainContructor)
 {
     m_toolchainConstructor = toolchainContructor;
 }

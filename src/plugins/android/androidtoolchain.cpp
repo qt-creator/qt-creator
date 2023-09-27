@@ -9,6 +9,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/environment.h>
 
@@ -93,7 +94,8 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     if (javaHome.exists()) {
         env.set(Constants::JAVA_HOME_ENV_VAR, javaHome.toUserOutput());
         const FilePath javaBin = javaHome.pathAppended("bin");
-        const FilePath currentJavaFilePath = env.searchInPath("java");
+        const FilePath currentJavaFilePath
+            = env.searchInPath("java", {}, {}, FilePath::WithExeSuffix);
         if (!currentJavaFilePath.isChildOf(javaBin))
             env.prependOrSetPath(javaBin);
     }

@@ -855,6 +855,8 @@ QSet<Id> DeviceTypeKitAspectFactory::availableFeatures(const Kit *k) const
     return {};
 }
 
+const DeviceTypeKitAspectFactory theDeviceTypeKitAspectFactory;
+
 // --------------------------------------------------------------------------
 // DeviceKitAspect:
 // --------------------------------------------------------------------------

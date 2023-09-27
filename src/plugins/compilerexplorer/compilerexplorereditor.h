@@ -140,8 +140,6 @@ public:
     CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSettings,
                    const std::shared_ptr<CompilerSettings> &compilerSettings);
 
-    ~CompilerWidget();
-
     Core::SearchableTerminal *createTerminal();
 
     void compile(const QString &source);
@@ -188,11 +186,32 @@ public:
 
 signals:
     void sourceCodeChanged();
+    void gotFocus();
+
+protected:
+    void focusInEvent(QFocusEvent *event) override;
+
+    void setupHelpWidget();
+    QWidget *createHelpWidget() const;
+
+    void addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
+                     const std::shared_ptr<CompilerSettings> &compilerSettings,
+                     int idx,
+                     QDockWidget *parentDockWidget);
+
+    void addSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);
+    void removeSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);
+
+    void recreateEditors();
+
+    QVariantMap windowStateCallback();
 
 private:
     QSplitter *m_mainSplitter;
     int m_compilerCount{0};
     QSharedPointer<JsonSettingsDocument> m_document;
+    QUndoStack *m_undoStack;
+    TextEditor::TextEditorActionHandler &m_actionHandler;
 
     Core::IContext *m_context;
 

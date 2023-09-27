@@ -1031,6 +1031,7 @@ public:
 
     void removeItem(const std::shared_ptr<BaseAspect> &item);
     void actualRemoveItem(const std::shared_ptr<BaseAspect> &item);
+    void clear();
 
     void apply() override;
 

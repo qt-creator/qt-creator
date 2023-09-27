@@ -9,6 +9,7 @@
 #include "cmakefilecompletionassist.h"
 #include "cmakeindenter.h"
 #include "cmakekitaspect.h"
+#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 
 #include "3rdparty/cmake/cmListFileCache.h"
@@ -19,11 +20,14 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
+#include <texteditor/basehoverhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <utils/textutils.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <QTextDocument>
 
@@ -31,6 +35,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 using namespace TextEditor;
 
 namespace CMakeProjectManager::Internal {
@@ -309,6 +314,83 @@ static TextDocument *createCMakeDocument()
 }
 
 //
+// CMakeHoverHandler
+//
+
+class CMakeHoverHandler : public TextEditor::BaseHoverHandler
+{
+    mutable CMakeKeywords m_keywords;
+    QString m_helpToolTip;
+
+public:
+    const CMakeKeywords &keywords() const;
+
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                       int pos,
+                       ReportPriority report) final;
+    void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point) final;
+};
+
+const CMakeKeywords &CMakeHoverHandler::keywords() const
+{
+    if (m_keywords.functions.isEmpty()) {
+        CMakeTool *tool = nullptr;
+        if (auto bs = ProjectTree::currentBuildSystem())
+            tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
+        if (!tool)
+            tool = CMakeToolManager::defaultCMakeTool();
+
+        if (tool)
+            m_keywords = tool->keywords();
+    }
+
+    return m_keywords;
+}
+
+QString readFirstParagraphs(const QString &element, const FilePath &helpFile);
+
+void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                                      int pos,
+                                      ReportPriority report)
+{
+    const QScopeGuard cleanup([this, report] { report(priority()); });
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(pos);
+    const QString word = Utils::Text::wordUnderCursor(cursor);
+
+    FilePath helpFile;
+    for (const auto &map : {keywords().functions,
+                            keywords().variables,
+                            keywords().directoryProperties,
+                            keywords().sourceProperties,
+                            keywords().targetProperties,
+                            keywords().testProperties,
+                            keywords().properties,
+                            keywords().includeStandardModules,
+                            keywords().findModules,
+                            keywords().policies}) {
+        if (map.contains(word)) {
+            helpFile = map.value(word);
+            break;
+        }
+    }
+    m_helpToolTip.clear();
+    if (!helpFile.isEmpty())
+        m_helpToolTip = readFirstParagraphs(word, helpFile);
+
+    setPriority(m_helpToolTip.isEmpty() ? Priority_Tooltip : Priority_None);
+}
+
+void CMakeHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
+{
+    if (!m_helpToolTip.isEmpty())
+        Utils::ToolTip::show(point, m_helpToolTip, Qt::MarkdownText, editorWidget);
+    else
+        Utils::ToolTip::hide();
+}
+
+//
 // CMakeEditorFactory
 //
 
@@ -333,6 +415,8 @@ CMakeEditorFactory::CMakeEditorFactory()
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
                             | TextEditorActionHandler::FollowSymbolUnderCursor
                             | TextEditorActionHandler::Format);
+
+    addHoverHandler(new CMakeHoverHandler);
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
     contextMenu->addAction(ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR));

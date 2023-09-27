@@ -153,6 +153,40 @@ QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &i
     });
 }
 
+QString readFirstParagraphs(const QString &element, const FilePath &helpFile)
+{
+    static QMap<FilePath, QString> map;
+    if (map.contains(helpFile))
+        return map.value(helpFile);
+
+    auto content = helpFile.fileContents(1024).value_or(QByteArray());
+    const QString firstParagraphs
+        = QString("```\n%1\n```").arg(QString::fromUtf8(content.left(content.lastIndexOf("\n"))));
+
+    map[helpFile] = firstParagraphs;
+    return firstParagraphs;
+}
+
+QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> &words,
+                                                  const QIcon &icon)
+{
+    struct MarkDownAssitProposalItem : public AssistProposalItem
+    {
+        Qt::TextFormat detailFormat() const { return Qt::MarkdownText; }
+    };
+
+    QList<AssistProposalItemInterface *> list;
+    for (auto it = words.cbegin(); it != words.cend(); ++it) {
+        MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
+        item->setText(it.key());
+        if (!it.value().isEmpty())
+            item->setDetail(readFirstParagraphs(it.key(), it.value()));
+        item->setIcon(icon);
+        list << item;
+    };
+    return list;
+}
+
 static int addFilePathItems(const AssistInterface *interface,
                             QList<AssistProposalItemInterface *> &items,
                             int symbolStartPos)

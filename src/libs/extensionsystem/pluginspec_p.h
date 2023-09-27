@@ -22,7 +22,7 @@ class IPlugin;
 
 namespace Internal {
 
-class EXTENSIONSYSTEM_EXPORT PluginSpecPrivate : public QObject
+class EXTENSIONSYSTEM_TEST_EXPORT PluginSpecPrivate : public QObject
 {
     Q_OBJECT
 

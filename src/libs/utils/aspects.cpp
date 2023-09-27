@@ -3154,6 +3154,21 @@ void AspectList::removeItem(const std::shared_ptr<BaseAspect> &item)
         actualRemoveItem(item);
 }
 
+void AspectList::clear()
+{
+    if (undoStack()) {
+        undoStack()->beginMacro("Clear");
+
+        for (auto item : volatileItems())
+            undoStack()->push(new RemoveItemCommand(this, item));
+
+        undoStack()->endMacro();
+    } else {
+        for (auto item : volatileItems())
+            actualRemoveItem(item);
+    }
+}
+
 void AspectList::apply()
 {
     d->items = d->volatileItems;
@@ -3286,8 +3301,10 @@ QStandardItem *StringSelectionAspect::itemById(const QString &id)
 
 void StringSelectionAspect::bufferToGui()
 {
-    if (!m_model)
+    if (!m_model) {
+        m_undoable.setSilently(m_buffer);
         return;
+    }
 
     auto selected = itemById(m_buffer);
     if (selected) {
@@ -3302,8 +3319,10 @@ void StringSelectionAspect::bufferToGui()
         m_selectionModel->setCurrentIndex(m_model->item(0)->index(),
                                           QItemSelectionModel::SelectionFlag::ClearAndSelect);
     } else {
+        m_undoable.setSilently(m_buffer);
         m_selectionModel->setCurrentIndex(QModelIndex(), QItemSelectionModel::SelectionFlag::Clear);
     }
+
     handleGuiChanged();
 }
 

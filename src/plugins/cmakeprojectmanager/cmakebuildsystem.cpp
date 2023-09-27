@@ -1278,9 +1278,9 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
             m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
 
             if (func.LowerCaseName() == "option")
-                m_projectKeywords.variables << QString::fromUtf8(arg.Value);
+                m_projectKeywords.variables[QString::fromUtf8(arg.Value)] = FilePath();
             else
-                m_projectKeywords.functions << QString::fromUtf8(arg.Value);
+                m_projectKeywords.functions[QString::fromUtf8(arg.Value)] = FilePath();
         }
     }
 }
