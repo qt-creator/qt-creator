@@ -94,8 +94,10 @@ public:
                     this, []() { QDesktopServices::openUrl(QUrl("https://marketplace.qt.io")); });
         });
 
-        connect(m_searcher, &QLineEdit::textChanged,
-                m_sectionedProducts, &SectionedProducts::setSearchString);
+        connect(m_searcher,
+                &QLineEdit::textChanged,
+                m_sectionedProducts,
+                &SectionedProducts::setSearchStringDelayed);
         connect(m_sectionedProducts, &SectionedProducts::tagClicked,
                 this, &QtMarketplacePageWidget::onTagClicked);
     }

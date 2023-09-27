@@ -12,6 +12,7 @@
 #include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QStyledItemDelegate>
+#include <QTimer>
 
 #include <functional>
 #include <optional>
@@ -132,14 +133,10 @@ protected:
 
 private:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const final;
-    void timerEvent(QTimerEvent *event) final;
-
-    void delayedUpdateFilter();
 
     QString m_searchString;
     QStringList m_filterTags;
     QStringList m_filterStrings;
-    int m_timerId = 0;
 };
 
 class CORE_EXPORT ListItemDelegate : public QStyledItemDelegate
@@ -211,6 +208,7 @@ public:
 
     void setItemDelegate(QAbstractItemDelegate *delegate);
     void setPixmapFunction(const Core::ListModel::PixmapFunction &pixmapFunction);
+    void setSearchStringDelayed(const QString &searchString);
     void setSearchString(const QString &searchString);
 
     Core::ListModel *addSection(const Section &section, const QList<Core::ListItem *> &items);
@@ -228,6 +226,8 @@ private:
     QPointer<QWidget> m_zoomedInWidget;
     Core::ListModel::PixmapFunction m_pixmapFunction;
     QAbstractItemDelegate *m_itemDelegate = nullptr;
+    QTimer m_searchTimer;
+    QString m_delayedSearchString;
 };
 
 } // namespace Core

@@ -298,24 +298,6 @@ bool ListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
 }
 
-void ListModelFilter::delayedUpdateFilter()
-{
-    if (m_timerId != 0)
-        killTimer(m_timerId);
-
-    m_timerId = startTimer(320);
-}
-
-void ListModelFilter::timerEvent(QTimerEvent *timerEvent)
-{
-    if (m_timerId == timerEvent->timerId()) {
-        invalidateFilter();
-        emit layoutChanged();
-        killTimer(m_timerId);
-        m_timerId = 0;
-    }
-}
-
 struct SearchStringLexer
 {
     QString code;
@@ -427,7 +409,8 @@ void ListModelFilter::setSearchString(const QString &arg)
         }
     }
 
-    delayedUpdateFilter();
+    invalidateFilter();
+    emit layoutChanged();
 }
 
 ListModel *ListModelFilter::sourceListModel() const
@@ -677,6 +660,13 @@ void ListItemDelegate::goon()
 SectionedGridView::SectionedGridView(QWidget *parent)
     : QStackedWidget(parent)
 {
+    m_searchTimer.setInterval(320);
+    m_searchTimer.setSingleShot(true);
+    connect(&m_searchTimer, &QTimer::timeout, this, [this] {
+        setSearchString(m_delayedSearchString);
+        m_delayedSearchString.clear();
+    });
+
     m_allItemsModel.reset(new ListModel);
     m_allItemsModel->setPixmapFunction(m_pixmapFunction);
 
@@ -716,6 +706,12 @@ void SectionedGridView::setPixmapFunction(const Core::ListModel::PixmapFunction 
     m_allItemsModel->setPixmapFunction(pixmapFunction);
     for (ListModel *model : std::as_const(m_sectionModels))
         model->setPixmapFunction(pixmapFunction);
+}
+
+void SectionedGridView::setSearchStringDelayed(const QString &searchString)
+{
+    m_delayedSearchString = searchString;
+    m_searchTimer.start();
 }
 
 void SectionedGridView::setSearchString(const QString &searchString)
