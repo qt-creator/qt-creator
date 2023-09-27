@@ -254,12 +254,14 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
 
     QStringList buildTargets;
     QStringList importedTargets;
+    QStringList findPackageVariables;
     if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
         for (const auto &target : std::as_const(bs->buildTargets()))
             if (target.targetType != TargetType::UtilityType)
                 buildTargets << target.title;
         projectKeywords = bs->projectKeywords();
         importedTargets = bs->projectImportedTargets();
+        findPackageVariables = bs->projectFindPackageVariables();
     }
 
     if (isInComment(interface()))
@@ -296,6 +298,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         if (varGenexToken == "${") {
             items.append(generateList(keywords.variables, m_variableIcon));
             items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
+            items.append(generateList(findPackageVariables, m_projectVariableIcon));
         }
         if (varGenexToken == "$<")
             items.append(generateList(keywords.generatorExpressions, m_genexIcon));
@@ -311,6 +314,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         || functionName == "cmake_print_variables") {
         items.append(generateList(keywords.variables, m_variableIcon));
         items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
+        items.append(generateList(findPackageVariables, m_projectVariableIcon));
         items.append(generateList(localVariables, m_variableIcon));
     }
 
@@ -369,6 +373,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
             items.append(generateList(keywords.variables, m_variableIcon));
             items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
             items.append(generateList(localVariables, m_variableIcon));
+            items.append(generateList(findPackageVariables, m_projectVariableIcon));
 
             items.append(generateList(keywords.properties, m_propertyIcon));
             items.append(generateList(buildTargets, m_targetsIcon));

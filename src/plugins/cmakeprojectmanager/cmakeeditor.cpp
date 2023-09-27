@@ -248,6 +248,10 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
             // Check if the symbols is a user defined function or macro
             const CMakeBuildSystem *cbs = static_cast<const CMakeBuildSystem *>(bs);
+            // Strip variable coating
+            if (buffer.startsWith("${") && buffer.endsWith("}"))
+                buffer = buffer.mid(2, buffer.size() - 3);
+
             if (cbs->cmakeSymbolsHash().contains(buffer)) {
                 link = cbs->cmakeSymbolsHash().value(buffer);
                 addTextStartEndToLink(link);

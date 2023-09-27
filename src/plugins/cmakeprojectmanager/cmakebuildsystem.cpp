@@ -1337,13 +1337,58 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
         m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
     };
 
+    // Gather the exported variables for the Find<Package> CMake packages
+    m_projectFindPackageVariables.clear();
+
+    const std::string fphsFunctionName = "find_package_handle_standard_args";
+    CMakeKeywords keywords;
+    if (auto tool = CMakeKitAspect::cmakeTool(target()->kit()))
+        keywords = tool->keywords();
+    QSet<std::string> fphsFunctionArgs;
+    if (keywords.functionArgs.contains(QString::fromStdString(fphsFunctionName))) {
+        const QList<std::string> args
+            = Utils::transform(keywords.functionArgs.value(QString::fromStdString(fphsFunctionName)),
+                               &QString::toStdString);
+        fphsFunctionArgs = Utils::toSet(args);
+    }
+
+    auto handleFindPackageVariables = [&](const CMakeFileInfo &cmakeFile, const cmListFileFunction &func) {
+        if (func.LowerCaseName() != fphsFunctionName)
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto firstArgument = func.Arguments()[0];
+        const auto filteredArguments = Utils::filtered(func.Arguments(), [&](const auto &arg) {
+            return !fphsFunctionArgs.contains(arg.Value) && arg != firstArgument;
+        });
+
+        for (const auto &arg : filteredArguments) {
+            const QString value = QString::fromUtf8(arg.Value);
+            if (value.contains("${") || (value.startsWith('"') && value.endsWith('"'))
+                || (value.startsWith("'") && value.endsWith("'")))
+                continue;
+
+            m_projectFindPackageVariables << value;
+
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = arg.Line;
+            link.targetColumn = arg.Column - 1;
+            m_cmakeSymbolsHash.insert(value, link);
+        }
+    };
+
     for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
         for (const auto &func : cmakeFile.cmakeListFile.Functions) {
             handleFunctionMacroOption(cmakeFile, func);
             handleImportedTargets(cmakeFile, func);
             handleProjectTargets(cmakeFile, func);
+            handleFindPackageVariables(cmakeFile, func);
         }
     }
+
+    m_projectFindPackageVariables.removeDuplicates();
 }
 
 void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters)
