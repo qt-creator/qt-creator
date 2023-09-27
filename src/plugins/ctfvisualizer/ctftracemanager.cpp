@@ -8,16 +8,10 @@
 #include "ctfvisualizertr.h"
 
 #include <coreplugin/icore.h>
+
 #include <tracing/timelinemodelaggregator.h>
 
-#include <QByteArray>
-#include <QDebug>
-#include <QFile>
-#include <QList>
 #include <QMessageBox>
-
-#include <fstream>
-
 
 namespace CtfVisualizer {
 namespace Internal {
@@ -26,48 +20,6 @@ using json = nlohmann::json;
 
 using namespace Constants;
 
-
-class CtfJsonParserCallback
-{
-
-public:
-
-    explicit CtfJsonParserCallback(CtfTraceManager *traceManager)
-        : m_traceManager(traceManager)
-    {}
-
-    bool callback(int depth, nlohmann::json::parse_event_t event, nlohmann::json &parsed)
-    {
-        if ((event == json::parse_event_t::array_start && depth == 0)
-                || (event == json::parse_event_t::key && depth == 1 && parsed == json(CtfTraceEventsKey))) {
-            m_isInTraceArray = true;
-            m_traceArrayDepth = depth;
-            return true;
-        }
-        if (m_isInTraceArray && event == json::parse_event_t::array_end && depth == m_traceArrayDepth) {
-            m_isInTraceArray = false;
-            return false;
-        }
-        if (m_isInTraceArray && event == json::parse_event_t::object_end && depth == m_traceArrayDepth + 1) {
-            m_traceManager->addEvent(parsed);
-            return false;
-        }
-        if (m_isInTraceArray || (event == json::parse_event_t::object_start && depth == 0)) {
-            // keep outer object and values in trace objects:
-            return true;
-        }
-        // discard any objects outside of trace array:
-        // TODO: parse other data, e.g. stack frames
-        return false;
-    }
-
-protected:
-    CtfTraceManager *m_traceManager;
-
-    bool m_isInTraceArray = false;
-    int m_traceArrayDepth = 0;
-};
-
 CtfTraceManager::CtfTraceManager(QObject *parent,
                                  Timeline::TimelineModelAggregator *modelAggregator,
                                  CtfStatisticsModel *statisticsModel)
@@ -75,7 +27,6 @@ CtfTraceManager::CtfTraceManager(QObject *parent,
     , m_modelAggregator(modelAggregator)
     , m_statisticsModel(statisticsModel)
 {
-
 }
 
 qint64 CtfTraceManager::traceDuration() const
@@ -140,26 +91,6 @@ void CtfTraceManager::addEvent(const json &event)
         // -> reset the time offset again:
         m_timeOffset = -1.0;
     }
-}
-
-void CtfTraceManager::load(const QString &filename)
-{
-    clearAll();
-
-    std::ifstream file(filename.toStdString());
-    if (!file.is_open()) {
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             Tr::tr("CTF Visualizer"),
-                             Tr::tr("Cannot read the CTF file."));
-        return;
-    }
-    CtfJsonParserCallback ctfParser(this);
-    json::parser_callback_t callback = [&ctfParser](int depth, json::parse_event_t event, json &parsed) {
-        return ctfParser.callback(depth, event, parsed);
-    };
-    json unusedValues = json::parse(file, callback, /*allow_exceptions*/ false);
-    file.close();
-    updateStatistics();
 }
 
 void CtfTraceManager::finalize()

@@ -13,30 +13,29 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/taskprogress.h>
+
 #include <debugger/analyzer/analyzerconstants.h>
 
+#include <utils/async.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
-#include <QAction>
-#include <QApplication>
 #include <QFileDialog>
-#include <QFutureInterface>
 #include <QMenu>
 #include <QMessageBox>
-#include <QThread>
+
+#include <fstream>
 
 using namespace Core;
 using namespace CtfVisualizer::Constants;
-
+using namespace Utils;
 
 namespace CtfVisualizer {
 namespace Internal {
 
 CtfVisualizerTool::CtfVisualizerTool()
     : QObject (nullptr)
-    , m_isLoading(false)
     , m_loadJson(nullptr)
     , m_traceView(nullptr)
     , m_modelAggregator(new Timeline::TimelineModelAggregator(this))
@@ -150,34 +149,84 @@ Timeline::TimelineZoomControl *CtfVisualizerTool::zoomControl() const
     return m_zoomControl.get();
 }
 
-void CtfVisualizerTool::loadJson(const QString &filename)
+class CtfJsonParserFunctor
 {
-    if (m_isLoading)
-        return;
+public:
+    CtfJsonParserFunctor(QPromise<nlohmann::json> &promise)
+        : m_promise(promise) {}
 
-    if (filename.isEmpty()) {
-        m_isLoading = false;
+    bool operator()(int depth, nlohmann::json::parse_event_t event, nlohmann::json &parsed)
+    {
+        using json = nlohmann::json;
+        if ((event == json::parse_event_t::array_start && depth == 0)
+            || (event == json::parse_event_t::key && depth == 1 && parsed == json(CtfTraceEventsKey))) {
+            m_isInTraceArray = true;
+            m_traceArrayDepth = depth;
+            return true;
+        }
+        if (m_isInTraceArray && event == json::parse_event_t::array_end && depth == m_traceArrayDepth) {
+            m_isInTraceArray = false;
+            return false;
+        }
+        if (m_isInTraceArray && event == json::parse_event_t::object_end && depth == m_traceArrayDepth + 1) {
+            m_promise.addResult(parsed);
+            return false;
+        }
+        if (m_isInTraceArray || (event == json::parse_event_t::object_start && depth == 0)) {
+            // keep outer object and values in trace objects:
+            return true;
+        }
+        // discard any objects outside of trace array:
+        // TODO: parse other data, e.g. stack frames
+        return false;
+    }
+
+protected:
+    QPromise<nlohmann::json> &m_promise;
+    bool m_isInTraceArray = false;
+    int m_traceArrayDepth = 0;
+};
+
+static void load(QPromise<nlohmann::json> &promise, const QString &fileName)
+{
+    using json = nlohmann::json;
+
+    std::ifstream file(fileName.toStdString());
+    if (!file.is_open()) {
+        promise.future().cancel();
         return;
     }
 
-    m_isLoading = true;
+    CtfJsonParserFunctor functor(promise);
+    json::parser_callback_t callback = [&functor](int depth, json::parse_event_t event, json &parsed) {
+        return functor(depth, event, parsed);
+    };
 
-    auto *futureInterface = new QFutureInterface<void>();
-    auto *task = new QFuture<void>(futureInterface);
+    try {
+        json unusedValues = json::parse(file, callback, /*allow_exceptions*/ false);
+    } catch (...) {
+        // nlohmann::json can throw exceptions when requesting type that is wrong
+    }
 
-    QThread *thread = QThread::create([this, filename, futureInterface]() {
-        try {
-            m_traceManager->load(filename);
-        } catch (...) {
-            // nlohmann::json can throw exceptions when requesting type that is wrong
-        }
-        m_modelAggregator->moveToThread(QApplication::instance()->thread());
-        m_modelAggregator->setParent(this);
-        futureInterface->reportFinished();
-    });
+    file.close();
+}
 
-    connect(thread, &QThread::finished, this, [this, thread, task, futureInterface]() {
-        // in main thread:
+void CtfVisualizerTool::loadJson(const QString &fileName)
+{
+    using namespace Tasking;
+
+    if (m_loader || fileName.isEmpty())
+        return;
+
+    const auto onSetup = [this, fileName](Async<nlohmann::json> &async) {
+        m_traceManager->clearAll();
+        async.setConcurrentCallData(load, fileName);
+        connect(&async, &AsyncBase::resultReadyAt, this, [this, asyncPtr = &async](int index) {
+            m_traceManager->addEvent(asyncPtr->resultAt(index));
+        });
+    };
+    const auto onDone = [this] {
+        m_traceManager->updateStatistics();
         if (m_traceManager->isEmpty()) {
             QMessageBox::warning(Core::ICore::dialogParent(),
                                  Tr::tr("CTF Visualizer"),
@@ -189,17 +238,22 @@ void CtfVisualizerTool::loadJson(const QString &filename)
             zoomControl()->setRange(m_traceManager->traceBegin(), m_traceManager->traceEnd() + m_traceManager->traceDuration() / 20);
         }
         setAvailableThreads(m_traceManager->getSortedThreads());
-        thread->deleteLater();
-        delete task;
-        delete futureInterface;
-        m_isLoading = false;
-    }, Qt::QueuedConnection);
+        m_loader.release()->deleteLater();
+    };
+    const auto onError = [this] {
+        QMessageBox::warning(Core::ICore::dialogParent(),
+                             Tr::tr("CTF Visualizer"),
+                             Tr::tr("Cannot read the CTF file."));
+        m_loader.release()->deleteLater();
+    };
 
-    m_modelAggregator->setParent(nullptr);
-    m_modelAggregator->moveToThread(thread);
-
-    thread->start();
-    Core::ProgressManager::addTask(*task, Tr::tr("Loading CTF File"), CtfVisualizerTaskLoadJson);
+    const Group recipe { AsyncTask<nlohmann::json>(onSetup) };
+    m_loader.reset(new TaskTree(recipe));
+    connect(m_loader.get(), &TaskTree::done, this, onDone);
+    connect(m_loader.get(), &TaskTree::errorOccurred, this, onError);
+    auto progress = new TaskProgress(m_loader.get());
+    progress->setDisplayName(Tr::tr("Loading CTF File"));
+    m_loader->start();
 }
 
 }  // namespace Internal
