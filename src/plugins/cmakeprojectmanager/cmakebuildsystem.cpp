@@ -1261,26 +1261,58 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
     m_projectKeywords.functions.clear();
     m_projectKeywords.variables.clear();
 
-    for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
-        for (const auto &func : cmakeFile.cmakeListFile.Functions) {
-            if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
-                && func.LowerCaseName() != "option")
-                continue;
+    auto handleFunctionMacroOption = [&](const CMakeFileInfo &cmakeFile,
+                                         const cmListFileFunction &func) {
+        if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
+            && func.LowerCaseName() != "option")
+            return;
 
-            if (func.Arguments().size() == 0)
-                continue;
-            auto arg = func.Arguments()[0];
+        if (func.Arguments().size() == 0)
+            return;
+        auto arg = func.Arguments()[0];
 
+        Utils::Link link;
+        link.targetFilePath = cmakeFile.path;
+        link.targetLine = arg.Line;
+        link.targetColumn = arg.Column - 1;
+        m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+
+        if (func.LowerCaseName() == "option")
+            m_projectKeywords.variables[QString::fromUtf8(arg.Value)] = FilePath();
+        else
+            m_projectKeywords.functions[QString::fromUtf8(arg.Value)] = FilePath();
+    };
+
+    m_projectImportedTargets.clear();
+    auto handleImportedTargets = [&](const CMakeFileInfo &cmakeFile,
+                                     const cmListFileFunction &func) {
+        if (func.LowerCaseName() != "add_library")
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto arg = func.Arguments()[0];
+        const QString targetName = QString::fromUtf8(arg.Value);
+
+        const bool haveImported = Utils::contains(func.Arguments(), [](const auto &arg) {
+            return arg.Value == "IMPORTED";
+        });
+        if (haveImported && !targetName.contains("${")) {
+            m_projectImportedTargets << targetName;
+
+            // Allow navigation to the imported target
             Utils::Link link;
             link.targetFilePath = cmakeFile.path;
             link.targetLine = arg.Line;
             link.targetColumn = arg.Column - 1;
-            m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+            m_cmakeSymbolsHash.insert(targetName, link);
+        }
+    };
 
-            if (func.LowerCaseName() == "option")
-                m_projectKeywords.variables[QString::fromUtf8(arg.Value)] = FilePath();
-            else
-                m_projectKeywords.functions[QString::fromUtf8(arg.Value)] = FilePath();
+    for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
+        for (const auto &func : cmakeFile.cmakeListFile.Functions) {
+            handleFunctionMacroOption(cmakeFile, func);
+            handleImportedTargets(cmakeFile, func);
         }
     }
 }

@@ -16,6 +16,7 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/codeassist/assistinterface.h>
@@ -47,6 +48,7 @@ public:
     const QIcon m_genexIcon;
     const QIcon m_moduleIcon;
     const QIcon m_targetsIcon;
+    const QIcon m_importedTargetIcon;
 
     TextEditor::SnippetAssistCollector m_snippetCollector;
 };
@@ -61,10 +63,15 @@ CMakeFileCompletionAssist::CMakeFileCompletionAssist()
     , m_genexIcon(CodeModelIcon::iconForType(CodeModelIcon::Class))
     , m_moduleIcon(
           ProjectExplorer::DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_MODULES).icon())
-    , m_targetsIcon(ProjectExplorer::Icons::BUILD.icon())
+    , m_targetsIcon(ProjectExplorer::Icons::BUILD_SMALL.icon())
+    , m_importedTargetIcon(Icon({{":/projectexplorer/images/buildhammerhandle.png",
+                                  Theme::IconsCodeModelKeywordColor},
+                                 {":/projectexplorer/images/buildhammerhead.png",
+                                  Theme::IconsCodeModelKeywordColor}},
+                                Icon::MenuTintedStyle)
+                               .icon())
     , m_snippetCollector(Constants::CMAKE_SNIPPETS_GROUP_ID,
                          FileIconProvider::icon(FilePath::fromString("CMakeLists.txt")))
-
 {}
 
 static bool isInComment(const AssistInterface *interface)
@@ -239,7 +246,6 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
 {
     CMakeKeywords keywords;
     CMakeKeywords projectKeywords;
-    Project *project = nullptr;
     const FilePath &filePath = interface()->filePath();
     if (!filePath.isEmpty() && filePath.isFile()) {
         if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
@@ -247,14 +253,13 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
     }
 
     QStringList buildTargets;
-    if (project && project->activeTarget()) {
-        const auto bs = qobject_cast<CMakeBuildSystem *>(project->activeTarget()->buildSystem());
-        if (bs) {
-            for (const auto &target : std::as_const(bs->buildTargets()))
-                if (target.targetType != TargetType::UtilityType)
-                    buildTargets << target.title;
-            projectKeywords = bs->projectKeywords();
-        }
+    QStringList importedTargets;
+    if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
+        for (const auto &target : std::as_const(bs->buildTargets()))
+            if (target.targetType != TargetType::UtilityType)
+                buildTargets << target.title;
+        projectKeywords = bs->projectKeywords();
+        importedTargets = bs->projectImportedTargets();
     }
 
     if (isInComment(interface()))
@@ -339,9 +344,12 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
 
     if ((functionName.contains("target") || functionName == "install"
          || functionName == "add_dependencies" || functionName == "set_property"
-         || functionName == "export" || functionName == "cmake_print_properties")
-        && !onlyFileItems())
+         || functionName == "export" || functionName == "cmake_print_properties"
+         || functionName == "if" || functionName == "elseif")
+        && !onlyFileItems()) {
         items.append(generateList(buildTargets, m_targetsIcon));
+        items.append(generateList(importedTargets, m_importedTargetIcon));
+    }
 
     if (keywords.functionArgs.contains(functionName) && !onlyFileItems()) {
         QStringList functionSymbols = keywords.functionArgs.value(functionName);
@@ -364,6 +372,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
 
             items.append(generateList(keywords.properties, m_propertyIcon));
             items.append(generateList(buildTargets, m_targetsIcon));
+            items.append(generateList(importedTargets, m_importedTargetIcon));
         }
     }
 
