@@ -611,7 +611,8 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         delete item;
     } else {
         // restore former check state if available
-        std::optional<Qt::CheckState> cached = m_checkStateCache->get(item);
+        std::optional<Qt::CheckState> cached = m_checkStateCache ? m_checkStateCache->get(item)
+                                                                 : std::optional<Qt::CheckState>{};
         if (cached.has_value())
             item->setData(0, cached.value(), Qt::CheckStateRole);
         else
