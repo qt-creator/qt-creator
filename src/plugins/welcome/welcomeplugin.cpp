@@ -80,7 +80,8 @@ signals:
 
 void ResizeSignallingWidget::resizeEvent(QResizeEvent *event)
 {
-    emit resized(event->size(), event->oldSize());
+    if (isVisible())
+        emit resized(event->size(), event->oldSize());
 }
 
 class WelcomeMode : public IMode
