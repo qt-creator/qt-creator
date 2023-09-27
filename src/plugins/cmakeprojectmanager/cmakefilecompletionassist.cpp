@@ -143,7 +143,7 @@ static int findPathStart(const AssistInterface *interface)
 }
 
 template<typename T>
-QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &icon)
+static QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &icon)
 {
     return transform<QList>(words, [&icon](const QString &word) -> AssistProposalItemInterface * {
         AssistProposalItem *item = new AssistProposalItem();
@@ -153,7 +153,7 @@ QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &i
     });
 }
 
-QString readFirstParagraphs(const QString &element, const FilePath &helpFile)
+static QString readFirstParagraphs(const FilePath &helpFile)
 {
     static QMap<FilePath, QString> map;
     if (map.contains(helpFile))
@@ -167,8 +167,8 @@ QString readFirstParagraphs(const QString &element, const FilePath &helpFile)
     return firstParagraphs;
 }
 
-QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> &words,
-                                                  const QIcon &icon)
+static QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> &words,
+                                                         const QIcon &icon)
 {
     struct MarkDownAssitProposalItem : public AssistProposalItem
     {
@@ -180,7 +180,7 @@ QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> 
         MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
         item->setText(it.key());
         if (!it.value().isEmpty())
-            item->setDetail(readFirstParagraphs(it.key(), it.value()));
+            item->setDetail(readFirstParagraphs(it.value()));
         item->setIcon(icon);
         list << item;
     };
