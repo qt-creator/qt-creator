@@ -3,9 +3,8 @@
 
 #include "uicontroller.h"
 
-#include "modeleditor_constants.h"
-
 #include <coreplugin/icore.h>
+
 #include <utils/qtcsettings.h>
 
 using namespace Utils;
@@ -13,52 +12,39 @@ using namespace Utils;
 namespace ModelEditor {
 namespace Internal {
 
-class UiController::UiControllerPrivate
-{
-public:
-    QByteArray rightSplitterState;
-    QByteArray rightHorizSplitterState;
-};
-
-UiController::UiController()
-    : d(new UiControllerPrivate)
-{
-}
-
-UiController::~UiController()
-{
-    delete d;
-}
+// Settings entries
+const char SETTINGS_RIGHT_SPLITTER[] = "ModelEditorPlugin/RightSplitter";
+const char SETTINGS_RIGHT_HORIZ_SPLITTER[] = "ModelEditorPlugin/RightHorizSplitter";
 
 bool UiController::hasRightSplitterState() const
 {
-    return !d->rightSplitterState.isEmpty();
+    return !m_rightSplitterState.isEmpty();
 }
 
 QByteArray UiController::rightSplitterState() const
 {
-    return d->rightSplitterState;
+    return m_rightSplitterState;
 }
 
 bool UiController::hasRightHorizSplitterState() const
 {
-    return  !d->rightHorizSplitterState.isEmpty();
+    return  !m_rightHorizSplitterState.isEmpty();
 }
 
 QByteArray UiController::rightHorizSplitterState() const
 {
-    return d->rightHorizSplitterState;
+    return m_rightHorizSplitterState;
 }
 
 void UiController::onRightSplitterChanged(const QByteArray &state)
 {
-    d->rightSplitterState = state;
+    m_rightSplitterState = state;
     emit rightSplitterChanged(state);
 }
 
 void UiController::onRightHorizSplitterChanged(const QByteArray &state)
 {
-    d->rightHorizSplitterState = state;
+    m_rightHorizSplitterState = state;
     emit rightHorizSplitterChanged(state);
 }
 
@@ -66,23 +52,18 @@ void UiController::saveSettings()
 {
     QtcSettings *settings = Core::ICore::settings();
     if (hasRightSplitterState())
-        settings->setValue(Constants::SETTINGS_RIGHT_SPLITTER, d->rightSplitterState);
+        settings->setValue(SETTINGS_RIGHT_SPLITTER, m_rightSplitterState);
     if (hasRightHorizSplitterState())
-        settings->setValue(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER, d->rightHorizSplitterState);
-    settings->endGroup();
+        settings->setValue(SETTINGS_RIGHT_HORIZ_SPLITTER, m_rightHorizSplitterState);
 }
 
 void UiController::loadSettings()
 {
     QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(Constants::SETTINGS_GROUP);
-    if (settings->contains(Constants::SETTINGS_RIGHT_SPLITTER))
-        d->rightSplitterState = settings->value(Constants::SETTINGS_RIGHT_SPLITTER).toByteArray();
-    if (settings->contains(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER)) {
-        d->rightHorizSplitterState = settings->value(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER)
-                                            .toByteArray();
-    }
-    settings->endGroup();
+    if (settings->contains(SETTINGS_RIGHT_SPLITTER))
+        m_rightSplitterState = settings->value(SETTINGS_RIGHT_SPLITTER).toByteArray();
+    if (settings->contains(SETTINGS_RIGHT_HORIZ_SPLITTER))
+        m_rightHorizSplitterState = settings->value(SETTINGS_RIGHT_HORIZ_SPLITTER).toByteArray();
 }
 
 } // namespace Internal

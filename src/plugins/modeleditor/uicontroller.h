@@ -14,8 +14,7 @@ class UiController : public QObject
     class UiControllerPrivate;
 
 public:
-    UiController();
-    ~UiController();
+    UiController() {}
 
 signals:
     void rightSplitterChanged(const QByteArray &state);
@@ -33,7 +32,8 @@ public:
     void loadSettings();
 
 private:
-    UiControllerPrivate *d;
+    QByteArray m_rightSplitterState;
+    QByteArray m_rightHorizSplitterState;
 };
 
 } // namespace Internal
