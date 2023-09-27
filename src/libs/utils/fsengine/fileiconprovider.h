@@ -37,6 +37,8 @@ QTCREATOR_UTILS_EXPORT void registerIconOverlayForMimeType(const QIcon &icon,
 
 QTCREATOR_UTILS_EXPORT QIcon directoryIcon(const QString &overlay);
 
+QTCREATOR_UTILS_EXPORT void registerIconForMimeType(const QIcon &icon, const QString &mimeType);
+
 } // namespace FileIconProvider
 } // namespace Utils
 
