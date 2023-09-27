@@ -5,8 +5,6 @@
 
 #include <QObject>
 
-namespace Utils { class QtcSettings; }
-
 namespace ModelEditor {
 namespace Internal {
 
@@ -31,8 +29,8 @@ public:
 
     void onRightSplitterChanged(const QByteArray &state);
     void onRightHorizSplitterChanged(const QByteArray &state);
-    void saveSettings(Utils::QtcSettings *settings);
-    void loadSettings(Utils::QtcSettings *settings);
+    void saveSettings();
+    void loadSettings();
 
 private:
     UiControllerPrivate *d;

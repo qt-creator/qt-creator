@@ -5,6 +5,7 @@
 
 #include "modeleditor_constants.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcsettings.h>
 
 using namespace Utils;
@@ -61,22 +62,27 @@ void UiController::onRightHorizSplitterChanged(const QByteArray &state)
     emit rightHorizSplitterChanged(state);
 }
 
-void UiController::saveSettings(QtcSettings *settings)
+void UiController::saveSettings()
 {
+    QtcSettings *settings = Core::ICore::settings();
     if (hasRightSplitterState())
         settings->setValue(Constants::SETTINGS_RIGHT_SPLITTER, d->rightSplitterState);
     if (hasRightHorizSplitterState())
         settings->setValue(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER, d->rightHorizSplitterState);
+    settings->endGroup();
 }
 
-void UiController::loadSettings(QtcSettings *settings)
+void UiController::loadSettings()
 {
+    QtcSettings *settings = Core::ICore::settings();
+    settings->beginGroup(Constants::SETTINGS_GROUP);
     if (settings->contains(Constants::SETTINGS_RIGHT_SPLITTER))
         d->rightSplitterState = settings->value(Constants::SETTINGS_RIGHT_SPLITTER).toByteArray();
     if (settings->contains(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER)) {
         d->rightHorizSplitterState = settings->value(Constants::SETTINGS_RIGHT_HORIZ_SPLITTER)
                                             .toByteArray();
     }
+    settings->endGroup();
 }
 
 } // namespace Internal
