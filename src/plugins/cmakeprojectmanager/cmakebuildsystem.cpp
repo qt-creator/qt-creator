@@ -1309,10 +1309,39 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
         }
     };
 
+    // Handle project targets, unfortunately the CMake file-api doesn't deliver the
+    // column of the target, just the line. Make sure to find it out
+    QHash<FilePath, int> projectTargetsSourceAndLine;
+    for (const auto &target : std::as_const(buildTargets())) {
+        if (target.targetType == TargetType::UtilityType)
+            continue;
+        if (target.backtrace.isEmpty())
+            continue;
+
+        projectTargetsSourceAndLine.insert(target.backtrace.last().path,
+                                           target.backtrace.last().line);
+    }
+    auto handleProjectTargets = [&](const CMakeFileInfo &cmakeFile, const cmListFileFunction &func) {
+        if (!projectTargetsSourceAndLine.contains(cmakeFile.path)
+            || projectTargetsSourceAndLine.value(cmakeFile.path) != func.Line())
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto arg = func.Arguments()[0];
+
+        Utils::Link link;
+        link.targetFilePath = cmakeFile.path;
+        link.targetLine = arg.Line;
+        link.targetColumn = arg.Column - 1;
+        m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+    };
+
     for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
         for (const auto &func : cmakeFile.cmakeListFile.Functions) {
             handleFunctionMacroOption(cmakeFile, func);
             handleImportedTargets(cmakeFile, func);
+            handleProjectTargets(cmakeFile, func);
         }
     }
 }
