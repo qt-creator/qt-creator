@@ -17,7 +17,7 @@ namespace Internal {
 ModelEditorFactory::ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler)
 {
     setId(Constants::MODEL_EDITOR_ID);
-    setDisplayName(::Core::Tr::tr(Constants::MODEL_EDITOR_DISPLAY_NAME));
+    setDisplayName(::Core::Tr::tr("Model Editor"));
     addMimeType(Constants::MIME_TYPE_MODEL);
     setEditorCreator([uiController, actionHandler] { return new ModelEditor(uiController, actionHandler); });
 }
