@@ -475,6 +475,7 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
     , m_undoStack(undoStack)
     , m_actionHandler(actionHandler)
 {
+    setContextMenuPolicy(Qt::NoContextMenu);
     setAutoHideTitleBars(false);
     setDockNestingEnabled(true);
     setDocumentMode(true);
@@ -524,6 +525,7 @@ void EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> &sourceSett
     compiler->setWindowTitle("Compiler #" + QString::number(idx));
     compiler->setObjectName("compiler_" + QString::number(idx));
     QDockWidget *dockWidget = addDockForWidget(compiler, parentDockWidget);
+    dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     m_compilerWidgets.append(dockWidget);
 
@@ -585,6 +587,7 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
         m_actionHandler.updateCurrentEditor();
     });
 
+    dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
     sourceSettings->compilers.forEachItem<CompilerSettings>(
