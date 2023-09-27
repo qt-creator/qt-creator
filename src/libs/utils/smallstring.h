@@ -425,10 +425,9 @@ public:
         size_type newSize = oldSize + string.size();
 
         reserve(optimalCapacity(newSize));
-        QT_WARNING_PUSH
-        QT_WARNING_DISABLE_CLANG("-Wunsafe-buffer-usage")
-        std::char_traits<char>::copy(data() + oldSize, string.data(), string.size());
-        QT_WARNING_POP
+        std::char_traits<char>::copy(std::next(data(), static_cast<std::ptrdiff_t>(oldSize)),
+                                     string.data(),
+                                     string.size());
         setSize(newSize);
     }
 
