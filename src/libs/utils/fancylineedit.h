@@ -45,8 +45,8 @@ protected:
     void keyReleaseEvent(QKeyEvent *ke) override;
 
 private:
-    float m_iconOpacity;
-    bool m_autoHide;
+    float m_iconOpacity = 1.0f;
+    bool m_autoHide = false;
     QIcon m_icon;
 };
 

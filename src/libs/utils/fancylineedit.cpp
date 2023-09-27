@@ -7,8 +7,8 @@
 #include "execmenu.h"
 #include "historycompleter.h"
 #include "hostosinfo.h"
+#include "icon.h"
 #include "qtcassert.h"
-#include "utilsicons.h"
 #include "utilstr.h"
 
 #include <solutions/spinner/spinner.h>
@@ -621,7 +621,6 @@ QString FancyLineEdit::fixInputString(const QString &string)
 
 FancyIconButton::FancyIconButton(QWidget *parent)
     : QAbstractButton(parent)
-    , m_autoHide(false)
 {
     setCursor(Qt::ArrowCursor);
     setFocusPolicy(Qt::NoFocus);
