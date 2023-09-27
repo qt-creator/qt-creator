@@ -133,6 +133,20 @@ int AndroidQtVersion::minimumNDK() const
     return m_minNdk;
 }
 
+QString AndroidQtVersion::androidDeploymentSettingsFileName(const Target *target)
+{
+    const BuildSystem *bs = target->buildSystem();
+    if (!bs)
+        return {};
+    const QString buildKey = target->activeBuildKey();
+    const QString displayName = bs->buildTarget(buildKey).displayName;
+    const QString fileName = AndroidManager::isQt5CmakeProject(target)
+                                 ? QLatin1String("android_deployment_settings.json")
+                                 : QString::fromLatin1("android-%1-deployment-settings.json")
+                                       .arg(displayName);
+    return fileName;
+}
+
 Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const Target *target)
 {
     // Try to fetch the file name from node data as provided by qmake and Qbs
@@ -145,15 +159,8 @@ Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const Target *target
     }
 
     // If unavailable, construct the name by ourselves (CMake)
-    const BuildSystem *bs = target->buildSystem();
-    if (!bs)
-        return {};
-    const QString displayName = bs->buildTarget(buildKey).displayName;
-    return AndroidManager::buildDirectory(target).pathAppended(
-                AndroidManager::isQt5CmakeProject(target)
-                ? QLatin1String("android_deployment_settings.json")
-                : QString::fromLatin1("android-%1-deployment-settings.json")
-                  .arg(displayName));
+    const QString fileName = androidDeploymentSettingsFileName(target);
+    return AndroidManager::buildDirectory(target) / fileName;
 }
 
 AndroidQtVersion::BuiltWith AndroidQtVersion::builtWith(bool *ok) const
