@@ -219,7 +219,7 @@ void EditorConfiguration::fromMap(const Store &map)
     Store submap;
     for (auto it = map.constBegin(), end = map.constEnd(); it != end; ++it) {
         if (it.key().view().startsWith(kPrefix.view()))
-            submap.insert(it.key().view().mid(kPrefix.view().size()).toByteArray(), it.value());
+            submap.insert(it.key().toByteArray().mid(kPrefix.view().size()), it.value());
     }
     d->m_defaultCodeStyle->fromMap(submap);
     d->m_typingSettings.fromMap(submap);
