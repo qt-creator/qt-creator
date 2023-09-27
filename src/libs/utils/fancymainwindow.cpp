@@ -169,6 +169,11 @@ public:
         setLayout(layout);
 
         setProperty("managed_titlebar", 1);
+
+        connect(parent, &QDockWidget::featuresChanged, this, [this, parent] {
+            m_closeButton->setVisible(parent->features().testFlag(QDockWidget::DockWidgetClosable));
+            m_floatButton->setVisible(parent->features().testFlag(QDockWidget::DockWidgetFloatable));
+        });
     }
 
     void enterEvent(QEnterEvent *event) override
@@ -187,8 +192,11 @@ public:
     {
         bool clickable = isClickable();
         m_titleLabel->setVisible(clickable);
-        m_floatButton->setVisible(clickable);
-        m_closeButton->setVisible(clickable);
+
+        m_floatButton->setVisible(clickable
+                                  && q->features().testFlag(QDockWidget::DockWidgetFloatable));
+        m_closeButton->setVisible(clickable
+                                  && q->features().testFlag(QDockWidget::DockWidgetClosable));
     }
 
     bool isClickable() const
@@ -349,7 +357,8 @@ FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *parent) :
     });
 
     QObject::connect(&m_showCentralWidget, &QAction::toggled, q, [this](bool visible) {
-        q->centralWidget()->setVisible(visible);
+        if (q->centralWidget())
+            q->centralWidget()->setVisible(visible);
     });
 }
 
