@@ -261,7 +261,10 @@ bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
         return false;
     const FilePath cppFileName = document->filePath();
     const FilePath proFile = FilePath::fromString(ppList.at(0)->projectFile);
-    m_mainCppFiles.insert(cppFileName, proFile);
+    {
+        QWriteLocker lock(&m_parseLock);
+        m_mainCppFiles.insert(cppFileName, proFile);
+    }
     const FilePath srcDir = FilePath::fromString(quickTestSrcDir(cppFileName));
     if (srcDir.isEmpty())
         return false;
@@ -340,13 +343,13 @@ QuickTestParser::QuickTestParser(ITestFramework *framework)
 void QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
     m_qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
+    QWriteLocker lock(&m_parseLock); // should not be necessary
     if (!fullParse) {
         // in a full parse we get the correct entry points by the respective main
         m_proFilesForQmlFiles = QuickTestUtils::proFilesForQmlFiles(framework(), filesToParse);
         // get rid of cached main cpp files that are going to get processed anyhow
         for (const FilePath &file : filesToParse) {
-            if (m_mainCppFiles.contains(file)) {
-                m_mainCppFiles.remove(file);
+            if (m_mainCppFiles.remove(file) == 1) {
                 if (m_mainCppFiles.isEmpty())
                     break;
             }
@@ -355,6 +358,7 @@ void QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
         // get rid of all cached main cpp files
         m_mainCppFiles.clear();
     }
+    lock.unlock();
 
     m_checkForDerivedTests = theQtTestFramework().quickCheckForDerivedTests();
 
@@ -399,9 +403,10 @@ bool QuickTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
    return handleQtQuickTest(promise, cppdoc, framework());
 }
 
-FilePath QuickTestParser::projectFileForMainCppFile(const FilePath &fileName) const
+FilePath QuickTestParser::projectFileForMainCppFile(const FilePath &fileName)
 {
-    return m_mainCppFiles.contains(fileName) ? m_mainCppFiles.value(fileName) : FilePath();
+    QReadLocker lock(&m_parseLock);
+    return m_mainCppFiles.value(fileName);
 }
 
 } // namespace Autotest::Internal
