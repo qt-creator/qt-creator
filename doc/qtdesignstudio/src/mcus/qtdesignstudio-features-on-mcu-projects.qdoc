@@ -25,7 +25,8 @@
         \li \b -
         \li A scene in the \uicontrol 2D view is rendered by the regular Qt Quick
         and QML, and not as \QUL and \QMCU, so some imperfections or inaccuracies
-        can occur.
+        can occur. Note that the default font used in \QDS preview and \QUL are 
+        different, and the developer must confirm both fonts are the same.
     \row
         \li \l 3D
         \li \b -
@@ -71,15 +72,19 @@
         \li \b -
         \li \b -
         \li The \uicontrol Connections view displays all signal handlers in the
-        current file but it doesn't filter available signals, so you can still
-        see and select signals that are available in Qt Quick, but not in \QUL.
+        current file, but it doesn't filter available signals, so you can still
+        see and select signals available in Qt Quick, but not in \QUL.
+        The same also applies if \uicontrol Action is set to \uicontrol{Call Function}
+        and \uicontrol Item is set to \uicontrol Qt. See the component documentation
+        to filter available signal/function.
     \row
         \li \l {States}
         \li \b X
         \li \b -
         \li \b -
         \li The feature is fully supported as such, but there are some
-        limitations listed in \l {\QMCU Known Issues or Limitations}.
+        limitations such as StateGroup and the ones listed in
+        \l {\QMCU Known Issues or Limitations}.
     \row
         \li \l {Transitions}
         \li \b X
@@ -89,9 +94,11 @@
     \row
         \li \l {Translations}
         \li \b -
-        \li \b -
         \li \b X
         \li \b -
+        \li The \uicontrol Translations view previews with regular Qt Quick instead
+        of \QUL, and it can be inaccurate in calculating the text overflow in some translations.
+        Also, the developer needs to configure the \QUL project to use \QDS translations (.ts) files.
     \row
         \li \l {Timeline}
         \li \b X
@@ -100,11 +107,11 @@
         \li \b -
     \row
         \li \l {Curves}
-        \li \b -
         \li \b X
         \li \b -
-        \li Linear interpolation works, but \QMCU does not support the
-        \c easing.bezierCurve property of a keyframe.
+        \li \b -
+        \li Linear interpolation works, and \QMCU supports the \c easing.bezierCurve property
+        of a keyframe in \QMCU 2.6 or higher.
     \row
         \li \l Code
         \li \b X
