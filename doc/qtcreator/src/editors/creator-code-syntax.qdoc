@@ -662,7 +662,7 @@
         \li M325
         \li Warning
         \li Logical value does not depend on actual values
-        \li
+        \li Removed: This warning is no longer being used since Qt Creator version 12.
 
     \row
         \li M326
