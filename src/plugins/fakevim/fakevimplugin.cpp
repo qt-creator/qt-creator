@@ -73,7 +73,6 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollBar>
-#include <QSettings>
 #include <QStackedWidget>
 #include <QStandardPaths>
 #include <QStyleHints>

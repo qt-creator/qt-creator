@@ -31,7 +31,6 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSettings>
 #include <QToolButton>
 
 using namespace Utils;

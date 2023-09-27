@@ -14,7 +14,6 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QSettings>
 
 using namespace Core;
 using namespace Utils;

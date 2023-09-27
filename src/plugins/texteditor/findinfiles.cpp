@@ -16,7 +16,6 @@
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
-#include <QSettings>
 #include <QStackedWidget>
 
 using namespace Core;

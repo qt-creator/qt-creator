@@ -33,7 +33,6 @@
 #include <QCoreApplication>
 #include <QKeyEvent>
 #include <QLabel>
-#include <QSettings>
 #include <QStackedWidget>
 #include <QTimer>
 #include <QToolButton>

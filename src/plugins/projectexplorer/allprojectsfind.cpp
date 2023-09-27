@@ -17,7 +17,6 @@
 #include <utils/qtcsettings.h>
 
 #include <QGridLayout>
-#include <QSettings>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

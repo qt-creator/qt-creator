@@ -8,7 +8,6 @@
 #include <utils/qtcsettings.h>
 
 #include <QReadWriteLock>
-#include <QSettings>
 
 using namespace Utils;
 

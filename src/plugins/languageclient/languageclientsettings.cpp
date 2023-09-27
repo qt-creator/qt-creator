@@ -44,7 +44,6 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QPushButton>
-#include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
 #include <QToolButton>

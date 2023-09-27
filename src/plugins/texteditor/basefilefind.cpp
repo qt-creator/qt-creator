@@ -31,7 +31,6 @@
 #include <QPair>
 #include <QPointer>
 #include <QPromise>
-#include <QSettings>
 #include <QStringListModel>
 
 using namespace Utils;

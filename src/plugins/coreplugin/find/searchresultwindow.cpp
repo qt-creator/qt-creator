@@ -22,7 +22,6 @@
 #include <QFont>
 #include <QLabel>
 #include <QScrollArea>
-#include <QSettings>
 #include <QStackedWidget>
 #include <QToolButton>
 

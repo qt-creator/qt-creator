@@ -29,7 +29,6 @@
 #include <QDir>
 #include <QFile>
 #include <QLoggingCategory>
-#include <QSettings>
 #include <QStandardPaths>
 #include <QStringList>
 #include <QTextStream>
