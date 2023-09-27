@@ -9,7 +9,6 @@
 #include "cmakefilecompletionassist.h"
 #include "cmakeindenter.h"
 #include "cmakekitaspect.h"
-#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 
 #include "3rdparty/cmake/cmListFileCache.h"
@@ -347,8 +346,6 @@ const CMakeKeywords &CMakeHoverHandler::keywords() const
     return m_keywords;
 }
 
-QString readFirstParagraphs(const QString &element, const FilePath &helpFile);
-
 void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
                                       int pos,
                                       ReportPriority report)
@@ -377,7 +374,7 @@ void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget
     }
     m_helpToolTip.clear();
     if (!helpFile.isEmpty())
-        m_helpToolTip = readFirstParagraphs(word, helpFile);
+        m_helpToolTip = CMakeToolManager::readFirstParagraphs(helpFile);
 
     setPriority(m_helpToolTip.isEmpty() ? Priority_Tooltip : Priority_None);
 }

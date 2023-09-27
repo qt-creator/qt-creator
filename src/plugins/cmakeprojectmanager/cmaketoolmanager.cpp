@@ -167,6 +167,21 @@ void CMakeToolManager::updateDocumentation()
     Core::HelpManager::registerDocumentation(docs);
 }
 
+QString CMakeToolManager::readFirstParagraphs(const FilePath &helpFile)
+{
+    static QMap<FilePath, QString> map;
+    if (map.contains(helpFile))
+        return map.value(helpFile);
+
+    auto content = helpFile.fileContents(1024).value_or(QByteArray());
+    const QString firstParagraphs
+        = QString("```\n%1\n```").arg(QString::fromUtf8(content.left(content.lastIndexOf("\n"))));
+
+    map[helpFile] = firstParagraphs;
+    return firstParagraphs;
+}
+
+
 QList<Id> CMakeToolManager::autoDetectCMakeForDevice(const FilePaths &searchPaths,
                                                 const QString &detectionSource,
                                                 QString *logMessage)

@@ -40,6 +40,8 @@ public:
 
     static void updateDocumentation();
 
+    static QString readFirstParagraphs(const Utils::FilePath &helpFile);
+
 public slots:
     QList<Utils::Id> autoDetectCMakeForDevice(const Utils::FilePaths &searchPaths,
                                   const QString &detectionSource,

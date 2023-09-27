@@ -153,20 +153,6 @@ static QList<AssistProposalItemInterface *> generateList(const T &words, const Q
     });
 }
 
-static QString readFirstParagraphs(const FilePath &helpFile)
-{
-    static QMap<FilePath, QString> map;
-    if (map.contains(helpFile))
-        return map.value(helpFile);
-
-    auto content = helpFile.fileContents(1024).value_or(QByteArray());
-    const QString firstParagraphs
-        = QString("```\n%1\n```").arg(QString::fromUtf8(content.left(content.lastIndexOf("\n"))));
-
-    map[helpFile] = firstParagraphs;
-    return firstParagraphs;
-}
-
 static QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> &words,
                                                          const QIcon &icon)
 {
@@ -180,7 +166,7 @@ static QList<AssistProposalItemInterface *> generateList(const QMap<QString, Fil
         MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
         item->setText(it.key());
         if (!it.value().isEmpty())
-            item->setDetail(readFirstParagraphs(it.value()));
+            item->setDetail(CMakeToolManager::readFirstParagraphs(it.value()));
         item->setIcon(icon);
         list << item;
     };
