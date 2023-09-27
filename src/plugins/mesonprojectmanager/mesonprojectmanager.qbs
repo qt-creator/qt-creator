@@ -49,8 +49,6 @@ Project {
             "mesonbuildconfiguration.h",
             "mesonbuildsystem.cpp",
             "mesonbuildsystem.h",
-            "mesonprocess.cpp",
-            "mesonprocess.h",
             "mesonproject.cpp",
             "mesonproject.h",
             "mesonprojectimporter.cpp",

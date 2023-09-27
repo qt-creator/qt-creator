@@ -6,7 +6,6 @@
 #include "kitdata.h"
 #include "mesoninfoparser.h"
 #include "mesonoutputparser.h"
-#include "mesonprocess.h"
 #include "mesonprojectnodes.h"
 #include "mesonwrapper.h"
 
@@ -91,7 +90,6 @@ private:
                                                  const ProjectExplorer::ToolChain *cxxToolChain,
                                                  const ProjectExplorer::ToolChain *cToolChain);
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    MesonProcess m_process;
     MesonOutputParser m_outputParser;
     Utils::Environment m_env;
     Utils::Id m_meson;
@@ -108,6 +106,22 @@ private:
     // maybe moving meson to build step could make this class simpler
     // also this should ease command dependencies
     QQueue<std::tuple<Command, bool>> m_pendingCommands;
+
+    bool run(const Command &command, const Utils::Environment &env,
+             const QString &projectName, bool captureStdo = false);
+
+    void handleProcessDone();
+    void setupProcess(const Command &command, const Utils::Environment &env,
+                      const QString &projectName, bool captureStdo);
+    bool sanityCheck(const Command &command) const;
+
+    void processStandardOutput();
+    void processStandardError();
+
+    std::unique_ptr<Utils::Process> m_process;
+    QElapsedTimer m_elapsed;
+    QByteArray m_stdo;
+    QByteArray m_stderr;
 };
 
 } // namespace Internal
