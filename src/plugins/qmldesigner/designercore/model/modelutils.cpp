@@ -193,8 +193,6 @@ ModelNode lowestCommonAncestor(const ModelNode &node1,
                                const int &depthOfNode1 = -1,
                                const int &depthOfNode2 = -1)
 {
-    Q_ASSERT(node1.isValid() && node2.isValid());
-
     auto depthOfNode = [](const ModelNode &node) -> int {
         int depth = 0;
         ModelNode parentNode = node;
