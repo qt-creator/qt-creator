@@ -292,7 +292,7 @@ QString DebuggerSettings::dump()
         if (!key.isEmpty()) {
             const int pos = key.view().indexOf('/');
             if (pos >= 0)
-                key = key.view().mid(pos).toByteArray();
+                key = key.toByteArray().mid(pos);
             const QString current = aspect->variantValue().toString();
             const QString default_ = aspect->defaultVariantValue().toString();
             QString setting = stringFromKey(key) + ": " + current + "  (default: " + default_ + ')';
