@@ -48,6 +48,27 @@ class TestHandler : public rst::ContentHandler {
   void StartBlock(rst::BlockType type) {
     std::string tag;
     switch (type) {
+    case rst::REFERENCE_LINK:
+      // not used, HandleReferenceLink is used instead
+      break;
+    case rst::H1:
+      tag = "h1";
+      break;
+    case rst::H2:
+      tag = "h2";
+      break;
+    case rst::H3:
+      tag = "h3";
+      break;
+    case rst::H4:
+      tag = "h4";
+      break;
+    case rst::H5:
+      tag = "h5";
+      break;
+    case rst::CODE:
+      tag = "code";
+      break;
     case rst::PARAGRAPH:
       tag = "p";
       break;
@@ -80,8 +101,12 @@ class TestHandler : public rst::ContentHandler {
     content_.append(text, size);
   }
 
-  void HandleDirective(const char *type) {
-    content_ += std::string("<") + type + " />";
+  void HandleDirective(const std::string &type, const std::string &name) {
+    content_ += std::string("<div class=\"") + name + "\">" + type + "</div>";
+  }
+
+  void HandleReferenceLink(const std::string &type, const std::string &text) {
+    content_ += std::string("<a href=\"#") + type + "\">" + text + "</a>";
   }
 };
 
@@ -91,6 +116,14 @@ std::string Parse(const char *s) {
   parser.Parse(s);
   return handler.content();
 }
+}
+
+TEST(ParserTest, HX) {
+  EXPECT_EQ("<h1>test</h1>", Parse("====\ntest\n===="));
+  EXPECT_EQ("<h2>test</h2>", Parse("test\n===="));
+  EXPECT_EQ("<h3>test</h3>", Parse("test\n----"));
+  EXPECT_EQ("<h4>test</h4>", Parse("test\n^^^^"));
+  EXPECT_EQ("<h5>test</h5>", Parse("test\n\"\"\"\""));
 }
 
 TEST(ParserTest, Paragraph) {
@@ -143,6 +176,14 @@ TEST(ParserTest, Literal) {
   EXPECT_EQ("<p>::\nabc\ndef</p>", Parse("::\nabc\ndef"));
 }
 
+TEST(ParserTest, InlineCode) {
+  EXPECT_EQ("<p><code>code</code></p>", Parse("``code``"));
+  EXPECT_EQ("<p>`code``</p>", Parse("`code``"));
+  EXPECT_EQ("<p>some <code>code</code></p>", Parse("some ``code``"));
+  EXPECT_EQ("<p><code>code</code> some</p>", Parse("``code`` some"));
+  EXPECT_EQ("<p>some <code>code</code> and more</p>", Parse("some ``code`` and more"));
+}
+
 TEST(ParserTest, Comment) {
   EXPECT_EQ("", Parse(".."));
   EXPECT_EQ("", Parse("..\n"));
@@ -151,10 +192,48 @@ TEST(ParserTest, Comment) {
 }
 
 TEST(ParserTest, Directive) {
-  EXPECT_EQ("<test />", Parse(".. test::"));
-  EXPECT_EQ("<test />", Parse("..  test::"));
-  EXPECT_EQ("<test />", Parse("..\ttest::"));
+  EXPECT_EQ("<div class=\"\">test</div>", Parse(".. test::"));
+  EXPECT_EQ("<div class=\"name\">test</div>", Parse(".. test:: name"));
+  EXPECT_EQ("<div class=\"\">test</div>", Parse("..  test::"));
+  EXPECT_EQ("<div class=\"\">test</div>", Parse("..\ttest::"));
+
+  EXPECT_EQ("<div class=\"to-text\">|from-text| replace</div>", Parse(".. |from-text| replace:: to-text"));
+
+  std::string rst =
+R"(.. code-block:: c++
+  int main() {
+    if (false)
+        return 1;
+    return 0;
+  })";
+
+  std::string html =
+R"(<div class="c++">code-block</div><blockquote>int main() {
+  if (false)
+      return 1;
+  return 0;
+}</blockquote>)";
+
+  EXPECT_EQ(html, Parse(rst.c_str()));
+
+  rst =
+R"(.. note:: This is a cool
+             note. Such a cool note.)";
+
+  html =
+R"(<div class="">note</div><blockquote>This is a cool
+             note. Such a cool note.</blockquote>)";
+
+  EXPECT_EQ(html, Parse(rst.c_str()));
 }
+
+TEST(ParserTest, ReferenceLinks) {
+  EXPECT_EQ("<p><a href=\"#ref\">info</a></p>", Parse(":ref:`info`"));
+  EXPECT_EQ("<p>some <a href=\"#ref\">info</a></p>", Parse("some :ref:`info`"));
+  EXPECT_EQ("<p>some <a href=\"#ref\">info</a> and more</p>", Parse("some :ref:`info` and more"));
+  EXPECT_EQ("<p><a href=\"#ref\">info</a>.</p>", Parse(":ref:`info`."));
+}
+
 
 int main(int argc, char **argv) {
 #ifdef _WIN32

@@ -5,13 +5,11 @@
 #include "json/json.hpp"
 
 #include <QHash>
+#include <QList>
 #include <QMap>
 #include <QObject>
-#include <QVector>
 
-namespace Timeline {
-class TimelineModelAggregator;
-}
+namespace Timeline { class TimelineModelAggregator; }
 
 namespace CtfVisualizer {
 namespace Internal {
@@ -34,7 +32,6 @@ public:
 
     void addEvent(const nlohmann::json &event);
 
-    void load(const QString &filename);
     void finalize();
 
     bool isEmpty() const;
@@ -46,16 +43,15 @@ public:
     void setThreadRestriction(const QString &tid, bool restrictToThisThread);
     bool isRestrictedTo(const QString &tid) const;
 
+    void updateStatistics();
+    void clearAll();
+
 signals:
     void detailsRequested(const QString &title);
 
 protected:
     void addModelForThread(const QString &threadId, const QString &processId);
     void addModelsToAggregator();
-
-    void updateStatistics();
-
-    void clearAll();
 
     Timeline::TimelineModelAggregator *const m_modelAggregator;
     CtfStatisticsModel *const m_statisticsModel;

@@ -35,6 +35,13 @@
 namespace rst {
 
 enum BlockType {
+  H1,
+  H2,
+  H3,
+  H4,
+  H5,
+  CODE,
+  REFERENCE_LINK,
   PARAGRAPH,
   LINE_BLOCK,
   BLOCK_QUOTE,
@@ -58,7 +65,10 @@ class ContentHandler {
   virtual void HandleText(const char *text, std::size_t size) = 0;
 
   // Receives notification of a directive.
-  virtual void HandleDirective(const char *type) = 0;
+  virtual void HandleDirective(const std::string &type, const std::string &name) = 0;
+
+  // Receives notification of a link.
+  virtual void HandleReferenceLink(const std::string &type, const std::string &text) = 0;
 };
 
 // A parser for a subset of reStructuredText.
@@ -85,6 +95,12 @@ class Parser {
   // Parses a line block.
   void ParseLineBlock(rst::BlockType &prev_type, int indent);
 
+  // Parses inline ``code``
+  bool ParseCode(const char* s, std::size_t size, std::string &code);
+
+  // Parses :reference:`link`
+  bool ParseReferenceLink(const char* s, std::size_t size, std::string &type, std::string &text);
+
  public:
   explicit Parser(ContentHandler *h) : handler_(h), ptr_(0) {}
 
@@ -94,4 +110,3 @@ class Parser {
 }
 
 #endif  // RSTPARSER_H_
-

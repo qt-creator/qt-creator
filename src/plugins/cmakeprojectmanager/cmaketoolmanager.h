@@ -30,6 +30,8 @@ public:
     static bool registerCMakeTool(std::unique_ptr<CMakeTool> &&tool);
     static void deregisterCMakeTool(const Utils::Id &id);
 
+    static CMakeTool *defaultProjectOrDefaultCMakeTool();
+
     static CMakeTool *defaultCMakeTool();
     static void setDefaultCMakeTool(const Utils::Id &id);
     static CMakeTool *findByCommand(const Utils::FilePath &command);
@@ -39,6 +41,8 @@ public:
     static void restoreCMakeTools();
 
     static void updateDocumentation();
+
+    static QString toolTipForRstHelpFile(const Utils::FilePath &helpFile);
 
 public slots:
     QList<Utils::Id> autoDetectCMakeForDevice(const Utils::FilePaths &searchPaths,

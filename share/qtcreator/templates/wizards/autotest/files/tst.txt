@@ -150,7 +150,7 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileGTestWithCppSuffix})
+add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileWithCppSuffix})
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 if (Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -165,7 +165,8 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 @endif
 
-add_executable(${PROJECT_NAME} %{TestCaseFileWithCppSuffix} main.cpp)
+add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix} main.cpp)
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 
 @if "%{Catch2NeedsQt}" == "true"
 target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Gui)

@@ -5,8 +5,6 @@
 
 #include "cmakebuildsystem.h"
 #include "cmakebuildtarget.h"
-#include "cmakekitaspect.h"
-#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
@@ -143,7 +141,7 @@ static int findPathStart(const AssistInterface *interface)
 }
 
 template<typename T>
-QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &icon)
+static QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &icon)
 {
     return transform<QList>(words, [&icon](const QString &word) -> AssistProposalItemInterface * {
         AssistProposalItem *item = new AssistProposalItem();
@@ -153,26 +151,12 @@ QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &i
     });
 }
 
-QString readFirstParagraphs(const QString &element, const FilePath &helpFile)
-{
-    static QMap<FilePath, QString> map;
-    if (map.contains(helpFile))
-        return map.value(helpFile);
-
-    auto content = helpFile.fileContents(1024).value_or(QByteArray());
-    const QString firstParagraphs
-        = QString("```\n%1\n```").arg(QString::fromUtf8(content.left(content.lastIndexOf("\n"))));
-
-    map[helpFile] = firstParagraphs;
-    return firstParagraphs;
-}
-
-QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> &words,
-                                                  const QIcon &icon)
+static QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> &words,
+                                                         const QIcon &icon)
 {
     struct MarkDownAssitProposalItem : public AssistProposalItem
     {
-        Qt::TextFormat detailFormat() const { return Qt::MarkdownText; }
+        Qt::TextFormat detailFormat() const override { return Qt::MarkdownText; }
     };
 
     QList<AssistProposalItemInterface *> list;
@@ -180,10 +164,10 @@ QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> 
         MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
         item->setText(it.key());
         if (!it.value().isEmpty())
-            item->setDetail(readFirstParagraphs(it.key(), it.value()));
+            item->setDetail(CMakeToolManager::toolTipForRstHelpFile(it.value()));
         item->setIcon(icon);
         list << item;
-    };
+    }
     return list;
 }
 
@@ -203,7 +187,7 @@ static int addFilePathItems(const AssistInterface *interface,
 
     const QString word = interface->textAt(startPos, interface->position() - startPos);
     FilePath baseDir = interface->filePath().absoluteFilePath().parentDir();
-    const int lastSlashPos = word.lastIndexOf(QLatin1Char('/'));
+    const qsizetype lastSlashPos = word.lastIndexOf(QLatin1Char('/'));
 
     QString prefix = word;
     if (lastSlashPos != -1) {
@@ -227,7 +211,7 @@ static int addFilePathItems(const AssistInterface *interface,
     return startPos;
 }
 
-QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const QByteArray &content)
+static QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const QByteArray &content)
 {
     cmListFile cmakeListFile;
     std::string errorString;
@@ -258,16 +242,8 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
     Project *project = nullptr;
     const FilePath &filePath = interface()->filePath();
     if (!filePath.isEmpty() && filePath.isFile()) {
-        CMakeTool *cmake = nullptr;
-        project = static_cast<CMakeProject *>(ProjectManager::projectForFile(filePath));
-        if (project && project->activeTarget())
-            cmake = CMakeKitAspect::cmakeTool(project->activeTarget()->kit());
-
-        if (!cmake)
-            cmake = CMakeToolManager::defaultCMakeTool();
-
-        if (cmake && cmake->isValid())
-            keywords = cmake->keywords();
+        if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
+            keywords = tool->keywords();
     }
 
     QStringList buildTargets;

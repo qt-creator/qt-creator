@@ -7,6 +7,7 @@
 #include "mesonprojectmanagertr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/icore.h>
 
 #include <utils/filepath.h>
 #include <utils/store.h>
@@ -16,6 +17,7 @@
 #include <iterator>
 #include <vector>
 
+using namespace Core;
 using namespace Utils;
 
 namespace MesonProjectManager {
@@ -30,11 +32,16 @@ ToolsSettingsAccessor::ToolsSettingsAccessor()
 {
     setDocType("QtCreatorMesonTools");
     setApplicationDisplayName(QGuiApplication::applicationDisplayName());
-    setBaseFilePath(Core::ICore::userResourcePath(Constants::ToolsSettings::FILENAME));
+    setBaseFilePath(ICore::userResourcePath(Constants::ToolsSettings::FILENAME));
+
+    MesonTools::setTools(loadMesonTools());
+
+    QObject::connect(ICore::instance(), &ICore::saveSettingsRequested, [this] {
+        saveMesonTools(MesonTools::tools());
+    });
 }
 
-void ToolsSettingsAccessor::saveMesonTools(const std::vector<MesonTools::Tool_t> &tools,
-                                           QWidget *parent)
+void ToolsSettingsAccessor::saveMesonTools(const std::vector<MesonTools::Tool_t> &tools)
 {
     using namespace Constants;
     Store data;
@@ -51,13 +58,13 @@ void ToolsSettingsAccessor::saveMesonTools(const std::vector<MesonTools::Tool_t>
         entry_count++;
     }
     data.insert(ToolsSettings::ENTRY_COUNT, entry_count);
-    saveSettings(data, parent);
+    saveSettings(data, ICore::dialogParent());
 }
 
-std::vector<MesonTools::Tool_t> ToolsSettingsAccessor::loadMesonTools(QWidget *parent)
+std::vector<MesonTools::Tool_t> ToolsSettingsAccessor::loadMesonTools()
 {
     using namespace Constants;
-    auto data = restoreSettings(parent);
+    auto data = restoreSettings(ICore::dialogParent());
     auto entry_count = data.value(ToolsSettings::ENTRY_COUNT, 0).toInt();
     std::vector<MesonTools::Tool_t> result;
     for (auto toolIndex = 0; toolIndex < entry_count; toolIndex++) {

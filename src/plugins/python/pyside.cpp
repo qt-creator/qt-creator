@@ -86,20 +86,36 @@ void PySideInstaller::installPyside(const FilePath &python,
 {
     QMap<QVersionNumber, Utils::FilePath> availablePySides;
 
-    const QString hostQtTail = HostOsInfo::isMacHost() ? QString("Tools/sdktool")
-                                                       : QString("Tools/sdktool/share/qtcreator");
+    const Utils::QtcSettings *settings = Core::ICore::settings(QSettings::SystemScope);
 
-    const std::optional<FilePath> qtInstallDir
-        = QtSupport::LinkWithQtSupport::linkedQt().tailRemoved(hostQtTail);
-    if (qtInstallDir) {
-        const FilePath qtForPythonDir = qtInstallDir->pathAppended("QtForPython");
-        for (const FilePath &versionDir : qtForPythonDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
-            FilePath requirements = versionDir.pathAppended("requirements.txt");
-            if (requirements.exists())
-                availablePySides[QVersionNumber::fromString(versionDir.fileName())] = requirements;
+    const FilePaths requirementsList
+        = Utils::transform(settings->value("Python/PySideWheelsRequirements").toList(),
+                           &FilePath::fromSettings);
+    for (const FilePath &requirements : requirementsList) {
+        if (requirements.exists()) {
+            auto version = QVersionNumber::fromString(requirements.parentDir().fileName());
+            availablePySides[version] = requirements;
         }
     }
 
+    if (requirementsList.isEmpty()) { // fallback remove in Qt Creator 13
+        const QString hostQtTail = HostOsInfo::isMacHost()
+                                       ? QString("Tools/sdktool")
+                                       : QString("Tools/sdktool/share/qtcreator");
+
+        const std::optional<FilePath> qtInstallDir
+            = QtSupport::LinkWithQtSupport::linkedQt().tailRemoved(hostQtTail);
+        if (qtInstallDir) {
+            const FilePath qtForPythonDir = qtInstallDir->pathAppended("QtForPython");
+            for (const FilePath &versionDir :
+                 qtForPythonDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
+                FilePath requirements = versionDir.pathAppended("requirements.txt");
+                if (!requirementsList.contains(requirements) && requirements.exists())
+                    availablePySides[QVersionNumber::fromString(versionDir.fileName())]
+                        = requirements;
+            }
+        }
+    }
 
     auto install = new PipInstallTask(python);
     connect(install, &PipInstallTask::finished, install, &QObject::deleteLater);

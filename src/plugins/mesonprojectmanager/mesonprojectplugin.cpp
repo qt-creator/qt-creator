@@ -12,36 +12,20 @@
 #include "toolssettingsaccessor.h"
 #include "toolssettingspage.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/fsengine/fileiconprovider.h>
 
-using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
 
-class MesonProjectPluginPrivate : public QObject
+class MesonProjectPluginPrivate
 {
-    Q_OBJECT
 public:
-    MesonProjectPluginPrivate()
-    {
-        MesonTools::setTools(m_toolsSettings.loadMesonTools(ICore::dialogParent()));
-        connect(ICore::instance(),
-                &ICore::saveSettingsRequested,
-                this,
-                &MesonProjectPluginPrivate::saveAll);
-    }
-
-    ~MesonProjectPluginPrivate() {}
-
-private:
     ToolsSettingsPage m_toolslSettingsPage;
     ToolsSettingsAccessor m_toolsSettings;
     MesonBuildStepFactory m_buildStepFactory;
@@ -50,11 +34,6 @@ private:
     MesonActionsManager m_actions;
     MachineFileManager m_machineFilesManager;
     SimpleTargetRunnerFactory m_mesonRunWorkerFactory{{m_runConfigurationFactory.runConfigurationId()}};
-
-    void saveAll()
-    {
-        m_toolsSettings.saveMesonTools(MesonTools::tools(), ICore::dialogParent());
-    }
 };
 
 MesonProjectPlugin::~MesonProjectPlugin()
@@ -72,5 +51,3 @@ void MesonProjectPlugin::initialize()
 }
 
 } // MesonProjectManager::Internal
-
-#include "mesonprojectplugin.moc"

@@ -93,13 +93,15 @@ QtcPlugin {
         name: "3rdparty"
         cpp.includePaths: base.concat("3rdparty/cmake")
 
-        prefix: "3rdparty/cmake/"
+        prefix: "3rdparty/"
         files: [
-            "cmListFileCache.cxx",
-            "cmListFileCache.h",
-            "cmListFileLexer.cxx",
-            "cmListFileLexer.h",
-            "cmStandardLexer.h",
+            "cmake/cmListFileCache.cxx",
+            "cmake/cmListFileCache.h",
+            "cmake/cmListFileLexer.cxx",
+            "cmake/cmListFileLexer.h",
+            "cmake/cmStandardLexer.h",
+            "rstparser/rstparser.cc",
+            "rstparser/rstparser.h"
         ]
     }
 }
