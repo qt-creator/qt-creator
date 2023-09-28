@@ -206,7 +206,7 @@
 :popupFrame_Proposal_QListView	{container=':popupFrame_TextEditor::GenericProposalWidget' type='QListView' unnamed='1' visible='1'}
 :popupFrame_TextEditor::GenericProposalWidget	{name='m_popupFrame' type='TextEditor::GenericProposalWidget' visible='1'}
 :projectComboBox_QComboBox	{buddy=':New Text File.Add to project:_QLabel' name='projectComboBox' type='QComboBox' visible='1'}
-:projectComboBox_Utils::TreeViewComboBox	{buddy=':New Text File.Add to project:_QLabel' name='projectComboBox' type='Utils::TreeViewComboBox' visible='1'}
+:projectComboBox_Utils::TreeViewComboBox	{buddy=':New Text File.Add to project:_QLabel' name='projectComboBox' type='QComboBox' visible='1'}
 :qdesigner_internal::WidgetBoxCategoryListView	{container=':Widget Box_qdesigner_internal::WidgetBoxTreeWidget' occurrence='3' type='qdesigner_internal::WidgetBoxCategoryListView' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget_QScrollArea	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}
