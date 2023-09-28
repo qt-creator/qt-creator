@@ -28,7 +28,6 @@
 #include <QBuffer>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
@@ -320,7 +319,7 @@ static Id idForSubType(GccToolChain::SubType subType)
     return Constants::GCC_TOOLCHAIN_TYPEID;
 }
 
-GccToolChain::GccToolChain(Utils::Id typeId, SubType subType)
+GccToolChain::GccToolChain(Id typeId, SubType subType)
     : ToolChain(typeId.isValid() ? typeId : idForSubType(subType)), m_subType(subType)
 {
     setTypeDisplayName(Tr::tr("GCC"));
@@ -362,7 +361,7 @@ void GccToolChain::setOriginalTargetTriple(const QString &targetTriple)
     toolChainUpdated();
 }
 
-void GccToolChain::setInstallDir(const Utils::FilePath &installDir)
+void GccToolChain::setInstallDir(const FilePath &installDir)
 {
     if (m_installDir == installDir)
         return;
@@ -449,8 +448,7 @@ static bool isNetworkCompiler(const QString &dirPath)
     return dirPath.contains("icecc") || dirPath.contains("distcc");
 }
 
-static Utils::FilePath findLocalCompiler(const Utils::FilePath &compilerPath,
-                                         const Environment &env)
+static FilePath findLocalCompiler(const FilePath &compilerPath, const Environment &env)
 {
     // Find the "real" compiler if icecc, distcc or similar are in use. Ignore ccache, since that
     // is local already.
@@ -467,7 +465,7 @@ static Utils::FilePath findLocalCompiler(const Utils::FilePath &compilerPath,
 
     // This effectively searches the PATH twice, once via pathComponents and once via PATH itself:
     // searchInPath filters duplicates, so that will not hurt.
-    const Utils::FilePath path = env.searchInPath(compilerPath.fileName(), pathComponents);
+    const FilePath path = env.searchInPath(compilerPath.fileName(), pathComponents);
 
     return path.isEmpty() ? compilerPath : path;
 }
@@ -514,7 +512,7 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
     OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
     QTC_CHECK(reinterpretOptions);
     MacrosCache macroCache = predefinedMacrosCache();
-    Utils::Id lang = language();
+    Id lang = language();
 
     /*
      * Asks compiler for set of predefined macros
@@ -690,15 +688,15 @@ void GccToolChain::initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extra
     m_extraHeaderPathsFunction = std::move(extraHeaderPathsFunction);
 }
 
-HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
-                                             const Utils::FilePath &compilerCommand,
+HeaderPaths GccToolChain::builtInHeaderPaths(const Environment &env,
+                                             const FilePath &compilerCommand,
                                              const QStringList &platformCodeGenFlags,
                                              OptionsReinterpreter reinterpretOptions,
                                              HeaderPathsCache headerCache,
-                                             Utils::Id languageId,
+                                             Id languageId,
                                              ExtraHeaderPathsFunction extraHeaderPathsFunction,
                                              const QStringList &flags,
-                                             const Utils::FilePath &sysRoot,
+                                             const FilePath &sysRoot,
                                              const QString &originalTargetTriple)
 {
     QStringList arguments = gccPrepareArguments(flags,
@@ -1061,7 +1059,7 @@ QString GccToolChain::detectVersion() const
                       filteredFlags(platformCodeGenFlags(), true));
 }
 
-Utils::FilePath GccToolChain::detectInstallDir() const
+FilePath GccToolChain::detectInstallDir() const
 {
     Environment env = compilerCommand().deviceEnvironment();
     addToEnvironment(env);
@@ -1073,7 +1071,7 @@ Utils::FilePath GccToolChain::detectInstallDir() const
 // GccToolChainFactory
 // --------------------------------------------------------------------------
 
-static Utils::FilePaths gnuSearchPathsFromRegistry()
+static FilePaths gnuSearchPathsFromRegistry()
 {
     if (!HostOsInfo::isWindowsHost())
         return {};
@@ -1082,7 +1080,7 @@ static Utils::FilePaths gnuSearchPathsFromRegistry()
     static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
                                          "Windows\\CurrentVersion\\Uninstall\\";
 
-    Utils::FilePaths searchPaths;
+    FilePaths searchPaths;
 
     QSettings registry(kRegistryToken, QSettings::NativeFormat);
     const auto productGroups = registry.childGroups();
@@ -1571,7 +1569,7 @@ Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPa
             }
         }
         if (!alreadyExists) {
-            const QList<ToolChain *> newToolchains
+            const Toolchains newToolchains
                     = autoDetectToolChain({compilerPath, language}, subType, checker);
             result << newToolchains;
             existingCandidates << newToolchains;
@@ -1929,7 +1927,7 @@ void GccToolChain::syncAutodetectedWithParentToolchains()
     }
 
     if (!mingwToolChainFromId(m_parentToolChainId)) {
-        const QList<ToolChain *> mingwTCs = mingwToolChains();
+        const Toolchains mingwTCs = mingwToolChains();
         m_parentToolChainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
     }
 
@@ -1948,7 +1946,7 @@ void GccToolChain::syncAutodetectedWithParentToolchains()
                   QObject::disconnect(m_thisToolchainRemovedConnection);
                   QObject::disconnect(m_mingwToolchainAddedConnection);
               } else if (m_parentToolChainId == tc->id()) {
-                  const QList<ToolChain *> mingwTCs = mingwToolChains();
+                  const Toolchains mingwTCs = mingwToolChains();
                   m_parentToolChainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
               }
           });
