@@ -1384,22 +1384,17 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
 
     // MinGW
 
-    static const auto tcChecker = [](const ToolChain *tc) {
-        return tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor;
-    };
-
     result += autoDetectToolchains(findCompilerCandidates(os, executables, "g++", true),
                                    Constants::CXX_LANGUAGE_ID,
                                    Constants::MINGW_TOOLCHAIN_TYPEID,
                                    detector.alreadyKnown,
-                                   GccToolChain::MinGW,
-                                   tcChecker);
+                                   GccToolChain::MinGW);
+
     result += autoDetectToolchains(findCompilerCandidates(os, executables, "gcc", true),
                                    Constants::C_LANGUAGE_ID,
                                    Constants::MINGW_TOOLCHAIN_TYPEID,
                                    detector.alreadyKnown,
-                                   GccToolChain::MinGW,
-                                   tcChecker);
+                                   GccToolChain::MinGW);
 
     // Clang
 
@@ -1434,23 +1429,16 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     // Gcc is almost never what you want on macOS, but it is by default found in /usr/bin
     if (!HostOsInfo::isMacHost() || detector.device->type() != Constants::DESKTOP_DEVICE_TYPE) {
 
-        static const auto tcChecker = [](const ToolChain *tc) {
-            return tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor
-                   && tc->compilerCommand().fileName() != "c89-gcc"
-                   && tc->compilerCommand().fileName() != "c99-gcc";
-        };
         result += autoDetectToolchains(findCompilerCandidates(os, executables, "g++", true),
                                        Constants::CXX_LANGUAGE_ID,
                                        Constants::GCC_TOOLCHAIN_TYPEID,
                                        detector.alreadyKnown,
-                                       GccToolChain::RealGcc,
-                                       tcChecker);
+                                       GccToolChain::RealGcc);
         result += autoDetectToolchains(findCompilerCandidates(os, executables, "gcc", true),
                                        Constants::C_LANGUAGE_ID,
                                        Constants::GCC_TOOLCHAIN_TYPEID,
                                        detector.alreadyKnown,
-                                       GccToolChain::RealGcc,
-                                       tcChecker);
+                                       GccToolChain::RealGcc);
     }
 
     return result;
@@ -1528,11 +1516,25 @@ Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPa
                                                      const Id language,
                                                      const Id requiredTypeId,
                                                      const Toolchains &known,
-                                                     const GccToolChain::SubType subType,
-                                                     const ToolchainChecker &checker)
+                                                     const GccToolChain::SubType subType)
 {
+    ToolchainChecker checker;
+
+    if (subType == GccToolChain::MinGW) {
+        checker = [](const ToolChain *tc) {
+            return tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor;
+         };
+    } else if (subType == GccToolChain::RealGcc) {
+        checker = [](const ToolChain *tc) {
+            return tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor
+                   && tc->compilerCommand().fileName() != "c89-gcc"
+                   && tc->compilerCommand().fileName() != "c99-gcc";
+        };
+    }
+
     Toolchains existingCandidates = filtered(known,
             [language](const ToolChain *tc) { return tc->language() == language; });
+
     Toolchains result;
     for (const FilePath &compilerPath : std::as_const(compilerPaths)) {
         bool alreadyExists = false;
