@@ -338,6 +338,9 @@ void CMakeToolManager::updateDocumentation()
 QString CMakeToolManager::toolTipForRstHelpFile(const FilePath &helpFile)
 {
     static QHash<FilePath, QString> map;
+    static QMutex mutex;
+    QMutexLocker locker(&mutex);
+
     if (map.contains(helpFile))
         return map.value(helpFile);
 
