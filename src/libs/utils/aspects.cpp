@@ -595,7 +595,7 @@ void BaseAspect::registerSubWidget(QWidget *widget)
 
 void BaseAspect::forEachSubWidget(const std::function<void(QWidget *)> &func)
 {
-    for (auto w : d->m_subWidgets)
+    for (const QPointer<QWidget> &w : d->m_subWidgets)
         func(w);
 }
 
@@ -3074,7 +3074,7 @@ QVariantList AspectList::toList(bool v) const
     QVariantList list;
     const auto &items = v ? d->volatileItems : d->items;
 
-    for (const auto &item : items) {
+    for (const std::shared_ptr<BaseAspect> &item : items) {
         Utils::Store childStore;
         if (v)
             item->volatileToMap(childStore);
@@ -3157,12 +3157,12 @@ void AspectList::clear()
     if (undoStack()) {
         undoStack()->beginMacro("Clear");
 
-        for (auto item : volatileItems())
+        for (const std::shared_ptr<BaseAspect> &item : volatileItems())
             undoStack()->push(new RemoveItemCommand(this, item));
 
         undoStack()->endMacro();
     } else {
-        for (auto item : volatileItems())
+        for (const std::shared_ptr<BaseAspect> &item : volatileItems())
             actualRemoveItem(item);
     }
 }
@@ -3198,7 +3198,7 @@ bool AspectList::isDirty()
     if (d->items != d->volatileItems)
         return true;
 
-    for (const auto &item : d->volatileItems) {
+    for (const std::shared_ptr<BaseAspect> &item : d->volatileItems) {
         if (item->isDirty())
             return true;
     }
