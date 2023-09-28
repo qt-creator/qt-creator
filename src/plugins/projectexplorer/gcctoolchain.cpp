@@ -1409,14 +1409,7 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
                                     GccToolChain::Clang));
     known.append(tcs);
 
-    const FilePath compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
-    if (!compilerPath.isEmpty()) {
-        tcs.append(autoDetectToolchains({compilerPath},
-                                         Constants::C_LANGUAGE_ID,
-                                         Constants::CLANG_TOOLCHAIN_TYPEID,
-                                         known,
-                                         GccToolChain::Clang));
-    }
+    tcs.append(autoDetectSdkClangToolchain(known));
 
     result += tcs;
 
@@ -1506,6 +1499,20 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
     }
 
     return result;
+}
+
+Toolchains GccToolChainFactory::autoDetectSdkClangToolchain(const Toolchains &known)
+{
+    const FilePath compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
+    if (compilerPath.isEmpty())
+        return {};
+
+    for (ToolChain * const existingTc : known) {
+        if (existingTc->compilerCommand() == compilerPath)
+            return {existingTc};
+    }
+
+    return {autoDetectToolChain({compilerPath, Constants::C_LANGUAGE_ID}, GccToolChain::Clang)};
 }
 
 Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPaths,

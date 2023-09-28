@@ -196,6 +196,7 @@ private:
     static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,
                                           const GccToolChain::SubType subType,
                                           const ToolchainChecker &checker = {});
+    static Toolchains autoDetectSdkClangToolchain(const Toolchains &known);
 
     const bool m_autoDetecting;
 };
