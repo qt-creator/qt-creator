@@ -304,8 +304,24 @@ static FilePath gccInstallDir(const FilePath &compiler,
 // GccToolChain
 // --------------------------------------------------------------------------
 
+static Id idForSubType(GccToolChain::SubType subType)
+{
+    switch (subType) {
+    case GccToolChain::RealGcc:
+        return Constants::GCC_TOOLCHAIN_TYPEID;
+    case GccToolChain::Clang:
+        return Constants::CLANG_TOOLCHAIN_TYPEID;
+    case GccToolChain::MinGW:
+        return Constants::MINGW_TOOLCHAIN_TYPEID;
+    case GccToolChain::LinuxIcc:
+        return Constants::LINUXICC_TOOLCHAIN_TYPEID;
+    }
+    QTC_CHECK(false);
+    return Constants::GCC_TOOLCHAIN_TYPEID;
+}
+
 GccToolChain::GccToolChain(Utils::Id typeId, SubType subType)
-    : ToolChain(typeId), m_subType(subType)
+    : ToolChain(typeId.isValid() ? typeId : idForSubType(subType)), m_subType(subType)
 {
     setTypeDisplayName(Tr::tr("GCC"));
     setTargetAbiKey(targetAbiKeyC);
@@ -1357,14 +1373,14 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
                                    Constants::CXX_LANGUAGE_ID,
                                    Constants::LINUXICC_TOOLCHAIN_TYPEID,
                                    detector.alreadyKnown,
-                                   &constructLinuxIccToolchain);
+                                   GccToolChain::LinuxIcc);
 
 
     result += autoDetectToolchains(findCompilerCandidates(os, executables, "icc", true),
                                    Constants::C_LANGUAGE_ID,
                                    Constants::LINUXICC_TOOLCHAIN_TYPEID,
                                    detector.alreadyKnown,
-                                   &constructLinuxIccToolchain);
+                                   GccToolChain::LinuxIcc);
 
     // MinGW
 
@@ -1376,13 +1392,13 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
                                    Constants::CXX_LANGUAGE_ID,
                                    Constants::MINGW_TOOLCHAIN_TYPEID,
                                    detector.alreadyKnown,
-                                   &constructMinGWToolchain,
+                                   GccToolChain::MinGW,
                                    tcChecker);
     result += autoDetectToolchains(findCompilerCandidates(os, executables, "gcc", true),
                                    Constants::C_LANGUAGE_ID,
                                    Constants::MINGW_TOOLCHAIN_TYPEID,
                                    detector.alreadyKnown,
-                                   &constructMinGWToolchain,
+                                   GccToolChain::MinGW,
                                    tcChecker);
 
     // Clang
@@ -1394,22 +1410,21 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
                                     Constants::CXX_LANGUAGE_ID,
                                     Constants::CLANG_TOOLCHAIN_TYPEID,
                                     detector.alreadyKnown,
-                                    &constructClangToolchain));
+                                    GccToolChain::Clang));
     tcs.append(autoDetectToolchains(findCompilerCandidates(os, executables, "clang", true),
                                     Constants::C_LANGUAGE_ID,
                                     Constants::CLANG_TOOLCHAIN_TYPEID,
                                     detector.alreadyKnown,
-                                    &constructClangToolchain));
+                                    GccToolChain::Clang));
     known.append(tcs);
 
     const FilePath compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (!compilerPath.isEmpty()) {
-        tcs.append(
-            autoDetectToolchains({compilerPath},
-                                 Constants::C_LANGUAGE_ID,
-                                 Constants::CLANG_TOOLCHAIN_TYPEID,
-                                 known,
-                                 &constructClangToolchain));
+        tcs.append(autoDetectToolchains({compilerPath},
+                                         Constants::C_LANGUAGE_ID,
+                                         Constants::CLANG_TOOLCHAIN_TYPEID,
+                                         known,
+                                         GccToolChain::Clang));
     }
 
     result += tcs;
@@ -1428,13 +1443,13 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
                                        Constants::CXX_LANGUAGE_ID,
                                        Constants::GCC_TOOLCHAIN_TYPEID,
                                        detector.alreadyKnown,
-                                       &constructRealGccToolchain,
+                                       GccToolChain::RealGcc,
                                        tcChecker);
         result += autoDetectToolchains(findCompilerCandidates(os, executables, "gcc", true),
                                        Constants::C_LANGUAGE_ID,
                                        Constants::GCC_TOOLCHAIN_TYPEID,
                                        detector.alreadyKnown,
-                                       &constructRealGccToolchain,
+                                       GccToolChain::RealGcc,
                                        tcChecker);
     }
 
@@ -1456,7 +1471,7 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
 
     if ((tcd.language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("icpc")) ||
         (tcd.language == Constants::C_LANGUAGE_ID && fileName.startsWith("icc"))) {
-        result += autoDetectToolChain(tcd, &constructLinuxIccToolchain);
+        result += autoDetectToolChain(tcd, GccToolChain::LinuxIcc);
     }
 
     // MingW
@@ -1470,7 +1485,7 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
                                  || (fileName.startsWith("c++") || fileName.endsWith("c++")));
 
     if (cCompiler || cxxCompiler) {
-        result += autoDetectToolChain(tcd, &constructMinGWToolchain, [](const ToolChain *tc) {
+        result += autoDetectToolChain(tcd, GccToolChain::MinGW, [](const ToolChain *tc) {
             return tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor;
         });
     }
@@ -1486,7 +1501,7 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
                                    || (fileName == "c++" && resolvedSymlinksFileName.contains("clang")));
 
     if (isCCompiler || isCxxCompiler)
-        result += autoDetectToolChain(tcd, &constructClangToolchain);
+        result += autoDetectToolChain(tcd, GccToolChain::Clang);
 
     // GCC
 
@@ -1501,7 +1516,7 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
                 || (fileName == "c++" && !resolvedSymlinksFileName.contains("clang")));
 
     if (isCCompiler || isCxxCompiler) {
-        result += autoDetectToolChain(tcd, &constructRealGccToolchain, [](const ToolChain *tc) {
+        result += autoDetectToolChain(tcd, GccToolChain::RealGcc, [](const ToolChain *tc) {
             return tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor;
         });
     }
@@ -1513,7 +1528,7 @@ Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPa
                                                      const Id language,
                                                      const Id requiredTypeId,
                                                      const Toolchains &known,
-                                                     const ToolChainConstructor &constructor,
+                                                     const GccToolChain::SubType subType,
                                                      const ToolchainChecker &checker)
 {
     Toolchains existingCandidates = filtered(known,
@@ -1555,7 +1570,7 @@ Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPa
         }
         if (!alreadyExists) {
             const QList<ToolChain *> newToolchains
-                    = autoDetectToolChain({compilerPath, language}, constructor, checker);
+                    = autoDetectToolChain({compilerPath, language}, subType, checker);
             result << newToolchains;
             existingCandidates << newToolchains;
         }
@@ -1565,7 +1580,7 @@ Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPa
 }
 
 Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &tcd,
-                                                    const ToolChainConstructor &constructor,
+                                                    const GccToolChain::SubType subType,
                                                     const ToolchainChecker &checker)
 {
     Toolchains result;
@@ -1586,9 +1601,7 @@ Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &
                                                                       systemEnvironment,
                                                                       macros);
     for (const Abi &abi : detectedAbis.supportedAbis) {
-        std::unique_ptr<GccToolChain> tc(dynamic_cast<GccToolChain *>(constructor()));
-        if (!tc)
-            return result;
+        std::unique_ptr<GccToolChain> tc(new GccToolChain({}, subType));
 
         tc->setLanguage(tcd.language);
         tc->setDetection(ToolChain::AutoDetection);

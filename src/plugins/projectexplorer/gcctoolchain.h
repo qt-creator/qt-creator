@@ -197,10 +197,10 @@ private:
                                            const Utils::Id language,
                                            const Utils::Id requiredTypeId,
                                            const Toolchains &known,
-                                           const ToolChainConstructor &constructor,
+                                           const GccToolChain::SubType subType,
                                            const ToolchainChecker &checker = {});
     static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,
-                                          const ToolChainConstructor &constructor,
+                                          const GccToolChain::SubType subType,
                                           const ToolchainChecker &checker = {});
 
     const bool m_autoDetecting;
