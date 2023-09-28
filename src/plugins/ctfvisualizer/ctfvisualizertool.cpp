@@ -231,6 +231,10 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
             QMessageBox::warning(Core::ICore::dialogParent(),
                                  Tr::tr("CTF Visualizer"),
                                  Tr::tr("The file does not contain any trace data."));
+        } else if (!m_traceManager->errorString().isEmpty()) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                                 Tr::tr("CTF Visualizer"),
+                                 m_traceManager->errorString());
         } else {
             m_traceManager->finalize();
             m_perspective.select();

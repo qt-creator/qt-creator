@@ -46,50 +46,56 @@ qint64 CtfTraceManager::traceEnd() const
 
 void CtfTraceManager::addEvent(const json &event)
 {
-    const double timestamp = event.value(CtfTracingClockTimestampKey, -1.0);
-    if (timestamp < 0) {
-        // events without or with negative timestamp will be ignored
-        return;
-    }
-    if (m_timeOffset < 0) {
-        // the timestamp of the first event is used as the global offset
-        m_timeOffset = timestamp;
-    }
-
-    static const auto getStringValue = [](const json &event, const char *key, const QString &def) {
-        if (!event.contains(key))
-            return def;
-        const json val = event[key];
-        if (val.is_string())
-            return QString::fromStdString(val);
-        if (val.is_number()) {
-            return QString::number(int(val));
+    try {
+        const double timestamp = event.value(CtfTracingClockTimestampKey, -1.0);
+        if (timestamp < 0) {
+            // events without or with negative timestamp will be ignored
+            return;
         }
-        return def;
-    };
-    const QString processId = getStringValue(event, CtfProcessIdKey, "0");
-    const QString threadId = getStringValue(event, CtfThreadIdKey, processId);
-    if (!m_threadModels.contains(threadId)) {
-        addModelForThread(threadId, processId);
-    }
-    if (event.value(CtfEventPhaseKey, "") == CtfEventTypeMetadata) {
-        const std::string name = event[CtfEventNameKey];
-        if (name == "thread_name") {
-            m_threadNames[threadId] = QString::fromStdString(event["args"]["name"]);
-        } else if (name == "process_name") {
-            m_processNames[processId] = QString::fromStdString(event["args"]["name"]);
+        if (m_timeOffset < 0) {
+            // the timestamp of the first event is used as the global offset
+            m_timeOffset = timestamp;
         }
-    }
 
-    const QPair<bool, qint64> result = m_threadModels[threadId]->addEvent(event, m_timeOffset);
-    const bool visibleOnTimeline = result.first;
-    if (visibleOnTimeline) {
-        m_traceBegin = std::min(m_traceBegin, timestamp);
-        m_traceEnd = std::max(m_traceEnd, timestamp);
-    } else if (m_timeOffset == timestamp) {
-        // this timestamp was used as the time offset but it is not a visible element
-        // -> reset the time offset again:
-        m_timeOffset = -1.0;
+        static const auto getStringValue =
+            [](const json &event, const char *key, const QString &def) {
+                if (!event.contains(key))
+                    return def;
+                const json val = event[key];
+                if (val.is_string())
+                    return QString::fromStdString(val);
+                if (val.is_number()) {
+                    return QString::number(int(val));
+                }
+                return def;
+            };
+        const QString processId = getStringValue(event, CtfProcessIdKey, "0");
+        const QString threadId = getStringValue(event, CtfThreadIdKey, processId);
+        if (!m_threadModels.contains(threadId)) {
+            addModelForThread(threadId, processId);
+        }
+        if (event.value(CtfEventPhaseKey, "") == CtfEventTypeMetadata) {
+            const std::string name = event[CtfEventNameKey];
+            if (name == "thread_name") {
+                m_threadNames[threadId] = QString::fromStdString(event["args"]["name"]);
+            } else if (name == "process_name") {
+                m_processNames[processId] = QString::fromStdString(event["args"]["name"]);
+            }
+        }
+
+        const QPair<bool, qint64> result = m_threadModels[threadId]->addEvent(event, m_timeOffset);
+        const bool visibleOnTimeline = result.first;
+        if (visibleOnTimeline) {
+            m_traceBegin = std::min(m_traceBegin, timestamp);
+            m_traceEnd = std::max(m_traceEnd, timestamp);
+        } else if (m_timeOffset == timestamp) {
+            // this timestamp was used as the time offset but it is not a visible element
+            // -> reset the time offset again:
+            m_timeOffset = -1.0;
+        }
+    } catch (...) {
+        m_errorString = Tr::tr("Error while parsing CTF data: %1.")
+                            .arg("<pre>" + QString::fromStdString(event.dump()) + "</pre>");
     }
 }
 
@@ -216,6 +222,7 @@ void CtfTraceManager::updateStatistics()
 
 void CtfTraceManager::clearAll()
 {
+    m_errorString.clear();
     m_modelAggregator->clear();
     for (CtfTimelineModel *model: std::as_const(m_threadModels)) {
         model->deleteLater();
@@ -226,6 +233,10 @@ void CtfTraceManager::clearAll()
     m_timeOffset = -1;
 }
 
+QString CtfTraceManager::errorString() const
+{
+    return m_errorString;
+}
 
 } // namespace Internal
 } // namespace CtfVisualizer
