@@ -207,6 +207,8 @@ protected:
     QVariantMap windowStateCallback();
 
 private:
+    Core::IContext *m_context;
+
     QSharedPointer<JsonSettingsDocument> m_document;
     QUndoStack *m_undoStack;
     TextEditor::TextEditorActionHandler &m_actionHandler;
