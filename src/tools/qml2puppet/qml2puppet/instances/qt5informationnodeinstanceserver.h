@@ -136,9 +136,10 @@ private:
     void resetParticleSystem();
     void handleParticleSystemDeselected();
 #endif
-    void setSceneEnvironmentColor(const PropertyValueContainer &container);
+    void setSceneEnvironmentData(qint32 instanceId);
     QVariantList alignCameraList() const;
-    void updateSceneEnvColorsToHelper();
+    void updateSceneEnvToHelper();
+    bool isSceneEnvironmentBgProperty(const PropertyName &name) const;
 
     RenderViewData m_editView3DData;
     RenderViewData m_modelNode3DImageViewData;

@@ -15,7 +15,10 @@
 #include <QUrl>
 #include <QVariant>
 #include <QVector3D>
+#include <QtQuick3D/private/qquick3dcubemaptexture_p.h>
 #include <QtQuick3D/private/qquick3dpickresult_p.h>
+#include <QtQuick3D/private/qquick3dsceneenvironment_p.h>
+#include <QtQuick3D/private/qquick3dtexture_p.h>
 
 QT_BEGIN_NAMESPACE
 class QQuick3DCamera;
@@ -92,9 +95,13 @@ public:
     Q_INVOKABLE void scaleMultiSelection(bool commit);
     Q_INVOKABLE void rotateMultiSelection(bool commit);
 
-    void setSceneEnvironmentColor(const QString &sceneId, const QColor &color);
+    void setSceneEnvironmentData(const QString &sceneId, QQuick3DSceneEnvironment *env);
+    Q_INVOKABLE QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes sceneEnvironmentBgMode(
+        const QString &sceneId) const;
     Q_INVOKABLE QColor sceneEnvironmentColor(const QString &sceneId) const;
-    void clearSceneEnvironmentColors();
+    Q_INVOKABLE QQuick3DTexture *sceneEnvironmentLightProbe(const QString &sceneId) const;
+    Q_INVOKABLE QQuick3DCubeMapTexture *sceneEnvironmentSkyBoxCubeMap(const QString &sceneId) const;
+    void clearSceneEnvironmentData();
 
     bool isMacOS() const;
 
@@ -137,6 +144,7 @@ signals:
     void bgColorChanged();
     void minGridStepChanged();
     void updateDragTooltip();
+    void sceneEnvDataChanged();
 
 private:
     void handlePendingToolStateUpdate();
@@ -150,8 +158,15 @@ private:
     QTimer m_toolStateUpdateTimer;
     QHash<QString, QVariantMap> m_toolStates;
     QHash<QString, QVariantMap> m_toolStatesPending;
-    QHash<QString, QColor> m_sceneEnvironmentColor;
     QSet<QQuick3DNode *> m_rotationBlockedNodes;
+
+    struct SceneEnvData {
+        QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes backgroundMode;
+        QColor clearColor;
+        QPointer<QQuick3DTexture> lightProbe;
+        QPointer<QQuick3DCubeMapTexture> skyBoxCubeMap;
+    };
+    QHash<QString, SceneEnvData> m_sceneEnvironmentData;
 
     struct MultiSelData {
         QVector3D startScenePos;

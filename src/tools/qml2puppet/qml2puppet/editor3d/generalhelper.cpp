@@ -57,6 +57,10 @@ GeneralHelper::GeneralHelper()
     m_toolStateUpdateTimer.setSingleShot(true);
     QObject::connect(&m_toolStateUpdateTimer, &QTimer::timeout,
                      this, &GeneralHelper::handlePendingToolStateUpdate);
+
+    QList<QColor> defaultBg;
+    defaultBg.append(QColor());
+    m_bgColor = QVariant::fromValue(defaultBg);
 }
 
 void GeneralHelper::requestOverlayUpdate()
@@ -540,19 +544,62 @@ void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, 
     }
 }
 
-void GeneralHelper::setSceneEnvironmentColor(const QString &sceneId, const QColor &color)
+void GeneralHelper::setSceneEnvironmentData(const QString &sceneId,
+                                            QQuick3DSceneEnvironment *env)
 {
-    m_sceneEnvironmentColor[sceneId] = color;
+    if (env) {
+        SceneEnvData &data = m_sceneEnvironmentData[sceneId];
+        data.backgroundMode = env->backgroundMode();
+        data.clearColor = env->clearColor();
+
+        if (data.lightProbe)
+            disconnect(data.lightProbe, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
+        data.lightProbe = env->lightProbe();
+        if (env->lightProbe())
+            connect(env->lightProbe(), &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged, Qt::DirectConnection);
+
+        if (data.skyBoxCubeMap)
+            disconnect(data.skyBoxCubeMap, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
+        data.skyBoxCubeMap = env->skyBoxCubeMap();
+        if (env->skyBoxCubeMap())
+            connect(env->skyBoxCubeMap(), &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged, Qt::DirectConnection);
+
+        emit sceneEnvDataChanged();
+    }
+}
+
+QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes GeneralHelper::sceneEnvironmentBgMode(
+    const QString &sceneId) const
+{
+    return m_sceneEnvironmentData[sceneId].backgroundMode;
 }
 
 QColor GeneralHelper::sceneEnvironmentColor(const QString &sceneId) const
 {
-    return m_sceneEnvironmentColor[sceneId];
+    return m_sceneEnvironmentData[sceneId].clearColor;
 }
 
-void GeneralHelper::clearSceneEnvironmentColors()
+QQuick3DTexture *GeneralHelper::sceneEnvironmentLightProbe(const QString &sceneId) const
 {
-    m_sceneEnvironmentColor.clear();
+    return m_sceneEnvironmentData[sceneId].lightProbe.data();
+}
+
+QQuick3DCubeMapTexture *GeneralHelper::sceneEnvironmentSkyBoxCubeMap(const QString &sceneId) const
+{
+    return m_sceneEnvironmentData[sceneId].skyBoxCubeMap.data();
+}
+
+void GeneralHelper::clearSceneEnvironmentData()
+{
+    for (const SceneEnvData &data : std::as_const(m_sceneEnvironmentData)) {
+        if (data.lightProbe)
+            disconnect(data.lightProbe, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
+        if (data.skyBoxCubeMap)
+            disconnect(data.skyBoxCubeMap, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
+    }
+
+    m_sceneEnvironmentData.clear();
+    emit sceneEnvDataChanged();
 }
 
 void GeneralHelper::initToolStates(const QString &sceneId, const QVariantMap &toolStates)

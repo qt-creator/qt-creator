@@ -27,7 +27,7 @@ Item {
     property color backgroundGradientColorStart: "#222222"
     property color backgroundGradientColorEnd: "#999999"
     property color gridColor: "#cccccc"
-    property bool syncBackgroundColor: false
+    property bool syncEnvBackground: false
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -58,7 +58,7 @@ Item {
     onShowEditLightChanged:       _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
     onGlobalOrientationChanged:   _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
     onShowGridChanged:            _generalHelper.storeToolState(sceneId, "showGrid", showGrid);
-    onSyncBackgroundColorChanged: _generalHelper.storeToolState(sceneId, "syncBackgroundColor", syncBackgroundColor);
+    onSyncEnvBackgroundChanged:   _generalHelper.storeToolState(sceneId, "syncEnvBackground", syncEnvBackground);
     onShowSelectionBoxChanged:    _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox);
     onShowIconGizmoChanged:       _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo);
     onShowCameraFrustumChanged:   _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum);
@@ -136,10 +136,7 @@ Item {
                 }
             }
 
-            if (syncBackgroundColor)
-                updateBackgroundColors([_generalHelper.sceneEnvironmentColor(sceneId)]);
-            else
-                updateBackgroundColors(_generalHelper.bgColor);
+            updateEnvBackground();
 
             notifyActiveSceneChange();
         }
@@ -206,6 +203,31 @@ Item {
         }
     }
 
+    function updateEnvBackground() {
+        updateBackgroundColors(_generalHelper.bgColor);
+
+        if (!editView)
+            return;
+
+        if (syncEnvBackground) {
+            let bgMode = _generalHelper.sceneEnvironmentBgMode(sceneId);
+            if ((!_generalHelper.sceneEnvironmentLightProbe(sceneId) && bgMode === SceneEnvironment.SkyBox)
+                || (!_generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId) && bgMode === SceneEnvironment.SkyBoxCubeMap)) {
+                editView.sceneEnv.backgroundMode = SceneEnvironment.Color;
+            } else {
+                editView.sceneEnv.backgroundMode = bgMode;
+            }
+            editView.sceneEnv.lightProbe = _generalHelper.sceneEnvironmentLightProbe(sceneId);
+            editView.sceneEnv.skyBoxCubeMap = _generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId);
+            editView.sceneEnv.clearColor = _generalHelper.sceneEnvironmentColor(sceneId);
+        } else {
+            editView.sceneEnv.backgroundMode = SceneEnvironment.Transparent;
+            editView.sceneEnv.lightProbe = null;
+            editView.sceneEnv.skyBoxCubeMap = null;
+            editView.sceneEnv.clearColor = "transparent";
+        }
+    }
+
     // If resetToDefault is true, tool states not specifically set to anything will be reset to
     // their default state.
     function updateToolStates(toolStates, resetToDefault)
@@ -220,15 +242,12 @@ Item {
         else if (resetToDefault)
             showGrid = true;
 
-        if ("syncBackgroundColor" in toolStates) {
-            syncBackgroundColor = toolStates.syncBackgroundColor;
-            if (syncBackgroundColor)
-                updateBackgroundColors([_generalHelper.sceneEnvironmentColor(sceneId)]);
-            else
-                updateBackgroundColors(_generalHelper.bgColor);
+        if ("syncEnvBackground" in toolStates) {
+            syncEnvBackground = toolStates.syncEnvBackground;
+            updateEnvBackground();
         } else if (resetToDefault) {
-            syncBackgroundColor = false;
-            updateBackgroundColors(_generalHelper.bgColor);
+            syncEnvBackground = false;
+            updateEnvBackground();
         }
 
         if ("showSelectionBox" in toolStates)
@@ -281,7 +300,7 @@ Item {
     {
         _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
         _generalHelper.storeToolState(sceneId, "showGrid", showGrid)
-        _generalHelper.storeToolState(sceneId, "syncBackgroundColor", syncBackgroundColor)
+        _generalHelper.storeToolState(sceneId, "syncEnvBackground", syncEnvBackground)
         _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox)
         _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo)
         _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum)
@@ -697,6 +716,7 @@ Item {
                 }
             }
         }
+
         function onHiddenStateChanged(node)
         {
             for (var i = 0; i < cameraGizmos.length; ++i) {
@@ -727,10 +747,15 @@ Item {
                 }
             }
         }
+
         function onUpdateDragTooltip()
         {
             gizmoLabel.updateLabel();
             rotateGizmoLabel.updateLabel();
+        }
+
+        function onSceneEnvDataChanged() {
+            updateEnvBackground();
         }
     }
 
