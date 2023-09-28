@@ -1301,9 +1301,6 @@
         <source>Zoom:</source>
         <translation>Powiększenie:</translation>
     </message>
-</context>
-<context>
-    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zakładkę</translation>
@@ -1872,7 +1869,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Move Up</source>
         <translation>Przenieś do góry</translation>
@@ -9431,7 +9428,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Pokaż zakładkę</translation>
@@ -19039,10 +19036,6 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <translation>Modyfikuj...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
-    </message>
-    <message>
         <source>Export...</source>
         <translation>Eksportuj...</translation>
     </message>
@@ -20027,7 +20020,7 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -23455,7 +23448,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Note text:</source>
         <translation>Tekst notatki:</translation>

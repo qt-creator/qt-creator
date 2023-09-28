@@ -93,7 +93,7 @@
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Aggiungi un Segnalibro</translation>
@@ -137,10 +137,6 @@
     <message>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation>Stai per cancellare una Cartella, questo cancellerà&lt;br&gt;anche il suo contenuto. Sei sicuro di volerlo fare?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nuova Cartella</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -9218,10 +9214,6 @@ Queste codifiche dovrebbero andare bene:</translation>
     <message>
         <source>Copy...</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">Elimina</translation>
     </message>
     <message>
         <source>Line %1</source>

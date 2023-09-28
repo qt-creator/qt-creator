@@ -795,7 +795,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Додати закладку</translation>
@@ -851,10 +851,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Rename Bookmark</source>
         <translation>Перейменувати закладку</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="vanished">Додати</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -21653,10 +21649,6 @@ Specifies how backspace interacts with indentation.
         <translation>Редагувати...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
         <source>Export...</source>
         <translation>Експортувати...</translation>
     </message>
@@ -25113,7 +25105,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -28986,7 +28978,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Note text:</source>
         <translation>Текст примітки:</translation>

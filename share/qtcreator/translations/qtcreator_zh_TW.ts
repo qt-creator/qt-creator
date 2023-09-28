@@ -32,7 +32,7 @@
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>新增書籤</translation>
@@ -25151,10 +25151,6 @@ Specifies how backspace interacts with indentation.
         <translation>編輯...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-    <message>
         <source>Export...</source>
         <translation>匯出...</translation>
     </message>
@@ -25243,10 +25239,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Group: </source>
         <translation>群組：</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -28363,7 +28355,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation type="unfinished"></translation>

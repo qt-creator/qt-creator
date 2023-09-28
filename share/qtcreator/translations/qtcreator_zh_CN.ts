@@ -5199,7 +5199,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bookmarks</source>
         <translation>书签</translation>

@@ -13927,7 +13927,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bookmarks</source>
         <translation>Lesezeichen</translation>
