@@ -1364,36 +1364,6 @@ static bool shouldAvoidNonStrictEqualityCheck(const Value *lhs, const Value *rhs
     return false;
 }
 
-static bool isIntegerValue(const Value *value)
-{
-    if (value->asNumberValue() || value->asIntValue())
-        return true;
-    if (auto obj = value->asObjectValue())
-        return obj->className() == "Number" || obj->className() == "int";
-
-    return false;
-}
-
-static bool isStringValue(const Value *value)
-{
-    if (value->asStringValue())
-        return true;
-    if (auto obj = value->asObjectValue())
-        return obj->className() == "QString" || obj->className() == "string" || obj->className() == "String";
-
-    return false;
-}
-
-static bool isBooleanValue(const Value *value)
-{
-    if (value->asBooleanValue())
-        return true;
-    if (auto obj = value->asObjectValue())
-        return obj->className() == "boolean" || obj->className() == "Boolean";
-
-    return false;
-}
-
 bool Check::visit(BinaryExpression *ast)
 {
     const QString source = _doc->source();
