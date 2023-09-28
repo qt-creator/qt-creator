@@ -111,7 +111,7 @@ void CompletionModel::writeSettings(QtcSettings *settings) const
         settings->remove(completionSettingsArrayPrefix());
     } else {
         const int size = m_entries.size();
-        settings->beginWriteArray(completionSettingsArrayPrefix().view(), size);
+        settings->beginWriteArray(stringFromKey(completionSettingsArrayPrefix()), size);
         for (int i = 0; i < size; ++i) {
             settings->setArrayIndex(i);
             settings->setValue(completionSettingsTextKey(), m_entries.at(i).text);
@@ -124,7 +124,7 @@ void CompletionModel::writeSettings(QtcSettings *settings) const
 void CompletionModel::readSettings(QtcSettings *settings)
 {
     beginResetModel();
-    const int size = settings->beginReadArray(completionSettingsArrayPrefix().view());
+    const int size = settings->beginReadArray(stringFromKey(completionSettingsArrayPrefix()));
     m_entries.clear();
     m_entries.reserve(size);
     for (int i = 0; i < size; ++i) {
