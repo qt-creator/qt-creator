@@ -9,19 +9,15 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace Utils {
+namespace Utils { class QtcSettings; }
 
-class QtcSettings;
+namespace Utils::UnixUtils {
 
-class QTCREATOR_UTILS_EXPORT UnixUtils
-{
-public:
-    static QString defaultFileBrowser();
-    static QString fileBrowser(const QtcSettings *settings);
-    static void setFileBrowser(QtcSettings *settings, const QString &term);
-    static QString fileBrowserHelpText();
-    static QString substituteFileBrowserParameters(const QString &command,
-                                                   const QString &file);
-};
+QTCREATOR_UTILS_EXPORT QString defaultFileBrowser();
+QTCREATOR_UTILS_EXPORT QString fileBrowser(const QtcSettings *settings);
+QTCREATOR_UTILS_EXPORT void setFileBrowser(QtcSettings *settings, const QString &term);
+QTCREATOR_UTILS_EXPORT QString fileBrowserHelpText();
+QTCREATOR_UTILS_EXPORT QString substituteFileBrowserParameters(const QString &command,
+                                                               const QString &file);
 
-} // Utils
+} // Utils::UnixUtils

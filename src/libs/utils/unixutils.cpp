@@ -9,14 +9,14 @@
 
 #include <QFileInfo>
 
-using namespace Utils;
+namespace Utils::UnixUtils {
 
-QString UnixUtils::defaultFileBrowser()
+QString defaultFileBrowser()
 {
     return QLatin1String("xdg-open %d");
 }
 
-QString UnixUtils::fileBrowser(const QtcSettings *settings)
+QString fileBrowser(const QtcSettings *settings)
 {
     const QString dflt = defaultFileBrowser();
     if (!settings)
@@ -24,24 +24,23 @@ QString UnixUtils::fileBrowser(const QtcSettings *settings)
     return settings->value("General/FileBrowser", dflt).toString();
 }
 
-void UnixUtils::setFileBrowser(QtcSettings *settings, const QString &term)
+void setFileBrowser(QtcSettings *settings, const QString &term)
 {
     settings->setValueWithDefault("General/FileBrowser", term, defaultFileBrowser());
 }
 
-QString UnixUtils::fileBrowserHelpText()
+QString fileBrowserHelpText()
 {
-    QString help = Tr::tr("<table border=1 cellspacing=0 cellpadding=3>"
-                          "<tr><th>Variable</th><th>Expands to</th></tr>"
-                          "<tr><td>%d</td><td>directory of current file</td></tr>"
-                          "<tr><td>%f</td><td>file name (with full path)</td></tr>"
-                          "<tr><td>%n</td><td>file name (without path)</td></tr>"
-                          "<tr><td>%%</td><td>%</td></tr>"
-                          "</table>");
-    return help;
+    return Tr::tr("<table border=1 cellspacing=0 cellpadding=3>"
+                  "<tr><th>Variable</th><th>Expands to</th></tr>"
+                  "<tr><td>%d</td><td>directory of current file</td></tr>"
+                  "<tr><td>%f</td><td>file name (with full path)</td></tr>"
+                  "<tr><td>%n</td><td>file name (without path)</td></tr>"
+                  "<tr><td>%%</td><td>%</td></tr>"
+                  "</table>");
 }
 
-QString UnixUtils::substituteFileBrowserParameters(const QString &pre, const QString &file)
+QString substituteFileBrowserParameters(const QString &pre, const QString &file)
 {
     QString cmd;
     for (int i = 0; i < pre.size(); ++i) {
@@ -70,3 +69,5 @@ QString UnixUtils::substituteFileBrowserParameters(const QString &pre, const QSt
 
     return cmd;
 }
+
+} // Utils::UnixUtils
