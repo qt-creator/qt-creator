@@ -146,11 +146,6 @@ protected:
 private:
     void syncAutodetectedWithParentToolchains();
     void updateSupportedAbis() const;
-    static QStringList gccPrepareArguments(const QStringList &flags,
-                                           const Utils::FilePath &sysRoot,
-                                           const QStringList &platformCodeGenFlags,
-                                           Utils::Id languageId,
-                                           OptionsReinterpreter reinterpretOptions);
 
 protected:
     QStringList m_platformCodeGenFlags;

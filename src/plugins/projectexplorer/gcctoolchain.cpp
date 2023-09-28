@@ -662,11 +662,10 @@ FilePaths GccToolChain::includedFiles(const QStringList &flags, const FilePath &
     return ToolChain::includedFiles("-include", flags, directoryPath, PossiblyConcatenatedFlag::No);
 }
 
-QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
-                                              const FilePath &sysRoot,
-                                              const QStringList &platformCodeGenFlags,
-                                              Id languageId,
-                                              OptionsReinterpreter reinterpretOptions)
+static QStringList gccPrepareArguments(const QStringList &flags,
+                                       const FilePath &sysRoot,
+                                       const QStringList &platformCodeGenFlags,
+                                       Id languageId)
 {
     QStringList arguments;
     const bool hasKitSysroot = !sysRoot.isEmpty();
@@ -677,7 +676,6 @@ QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
     allFlags << platformCodeGenFlags << flags;
     arguments += filteredFlags(allFlags, !hasKitSysroot);
     arguments << languageOption(languageId) << "-E" << "-v" << "-";
-    arguments = reinterpretOptions(arguments);
 
     return arguments;
 }
@@ -702,8 +700,8 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Environment &env,
     QStringList arguments = gccPrepareArguments(flags,
                                                 sysRoot,
                                                 platformCodeGenFlags,
-                                                languageId,
-                                                reinterpretOptions);
+                                                languageId);
+    arguments = reinterpretOptions(arguments);
 
     // Must be clang case only.
     if (!originalTargetTriple.isEmpty())
