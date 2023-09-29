@@ -209,8 +209,8 @@ Tasks QmlProject::projectIssues(const Kit *k) const
 
 bool QmlProject::isQtDesignStudio()
 {
-    QSettings *settings = Core::ICore::settings();
-    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode";
+    QtcSettings *settings = Core::ICore::settings();
+    const Key qdsStandaloneEntry = "QML/Designer/StandAloneMode";
     return settings->value(qdsStandaloneEntry, false).toBool();
 }
 
@@ -240,9 +240,9 @@ int QmlProject::preferedQtTarget(Target *target)
 
 bool QmlProject::allowOnlySingleProject()
 {
-    QSettings *settings = Core::ICore::settings();
-    auto key = "QML/Designer/AllowMultipleProjects";
-    return !settings->value(QString::fromUtf8(key), false).toBool();
+    QtcSettings *settings = Core::ICore::settings();
+    const Key key = "QML/Designer/AllowMultipleProjects";
+    return !settings->value(key, false).toBool();
 }
 
 } // namespace QmlProjectManager

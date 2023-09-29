@@ -69,8 +69,8 @@ public:
     virtual QString title() const = 0;
     virtual QString toolTip() const = 0; // add %1 placeholder where the find flags should be put
     virtual QWidget *widget() const = 0;
-    virtual void readSettings(QSettings *settings) = 0;
-    virtual void writeSettings(QSettings *settings) const = 0;
+    virtual void readSettings(Utils::QtcSettings *settings) = 0;
+    virtual void writeSettings(Utils::QtcSettings *settings) const = 0;
     virtual SearchExecutor searchExecutor() const = 0;
     virtual EditorOpener editorOpener() const { return {}; }
     bool isEnabled() const;
@@ -108,8 +108,8 @@ protected:
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
 
-    void writeCommonSettings(QSettings *settings);
-    void readCommonSettings(QSettings *settings, const QString &defaultFilter, const QString &defaultExclusionFilter);
+    void writeCommonSettings(Utils::QtcSettings *settings);
+    void readCommonSettings(Utils::QtcSettings *settings, const QString &defaultFilter, const QString &defaultExclusionFilter);
     QList<QPair<QWidget *, QWidget *>> createPatternWidgets();
     QStringList fileNameFilters() const;
     QStringList fileExclusionFilters() const;

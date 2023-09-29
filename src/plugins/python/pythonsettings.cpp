@@ -948,7 +948,7 @@ QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)
     return result;
 }
 
-void PythonSettings::initFromSettings(QSettings *settings)
+void PythonSettings::initFromSettings(QtcSettings *settings)
 {
     settings->beginGroup(settingsGroupKey);
     const QVariantList interpreters = settings->value(interpreterKey).toList();
@@ -994,7 +994,7 @@ void PythonSettings::initFromSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void PythonSettings::writeToSettings(QSettings *settings)
+void PythonSettings::writeToSettings(QtcSettings *settings)
 {
     settings->beginGroup(settingsGroupKey);
     QVariantList interpretersVar;

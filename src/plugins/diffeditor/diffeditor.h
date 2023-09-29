@@ -59,7 +59,7 @@ private:
     void toggleSync();
 
     IDiffView *loadSettings();
-    void saveSetting(const QString &key, const QVariant &value) const;
+    void saveSetting(const Utils::Key &key, const QVariant &value) const;
     void updateEntryToolTip();
     void showDiffView(IDiffView *view);
     void updateDiffEditorSwitcher();

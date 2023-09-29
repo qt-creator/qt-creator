@@ -4,6 +4,7 @@
 #pragma once
 
 #include <utils/filepath.h>
+#include <utils/storekey.h>
 
 namespace Qdb::Internal {
 
@@ -15,7 +16,7 @@ enum class QdbTool {
 Utils::FilePath findTool(QdbTool tool);
 QString overridingEnvironmentVariable(QdbTool tool);
 void showMessage(const QString &message, bool important = false);
-QString settingsGroupKey();
-QString settingsKey(QdbTool tool);
+Utils::Key settingsGroupKey();
+Utils::Key settingsKey(QdbTool tool);
 
 } // Qdb::Internal

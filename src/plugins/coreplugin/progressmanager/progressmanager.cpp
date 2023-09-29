@@ -250,7 +250,7 @@ ProgressManagerPrivate::~ProgressManagerPrivate()
 
 void ProgressManagerPrivate::readSettings()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(kSettingsGroup);
     m_progressViewPinned = settings->value(kDetailsPinned, kDetailsPinnedDefault).toBool();
     settings->endGroup();

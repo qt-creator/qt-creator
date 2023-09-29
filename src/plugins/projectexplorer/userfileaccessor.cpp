@@ -802,7 +802,8 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const KeyList
         for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
             Key key = it.key();
             QVariant value = it.value();
-            if (path.size() == 2 && path.at(1).startsWith("ProjectExplorer.Target.RunConfiguration.")) {
+            if (path.size() == 2
+                    && path.at(1).view().startsWith("ProjectExplorer.Target.RunConfiguration.")) {
                 if (argsKeys.contains(key))
                     key = "RunConfiguration.Arguments";
                 else if (wdKeys.contains(key))

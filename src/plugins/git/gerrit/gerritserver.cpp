@@ -20,7 +20,6 @@
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QRegularExpression>
-#include <QSettings>
 
 using namespace Git::Internal;
 using namespace Utils;
@@ -170,8 +169,8 @@ bool GerritServer::fillFromRemote(const QString &remote,
 GerritServer::StoredHostValidity GerritServer::loadSettings()
 {
     StoredHostValidity validity = Invalid;
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup("Gerrit/" + host);
+    QtcSettings *settings = Core::ICore::settings();
+    settings->beginGroup("Gerrit/" + keyFromString(host));
     if (!settings->value(isGerritKey, true).toBool()) {
         validity = NotGerrit;
     } else if (settings->contains(isAuthenticatedKey)) {
@@ -188,8 +187,8 @@ GerritServer::StoredHostValidity GerritServer::loadSettings()
 
 void GerritServer::saveSettings(StoredHostValidity validity) const
 {
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup("Gerrit/" + host);
+    QtcSettings *settings = Core::ICore::settings();
+    settings->beginGroup("Gerrit/" + keyFromString(host));
     switch (validity) {
     case NotGerrit:
         settings->setValue(isGerritKey, false);
@@ -310,8 +309,8 @@ bool GerritServer::resolveRoot()
 
 bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
 {
-    QSettings *settings = Core::ICore::settings();
-    const QString fullVersionKey = "Gerrit/" + host + '/' + versionKey;
+    QtcSettings *settings = Core::ICore::settings();
+    const Key fullVersionKey = "Gerrit/" + keyFromString(host) + '/' + versionKey;
     version = settings->value(fullVersionKey).toString();
     if (!version.isEmpty() && !forceReload)
         return true;

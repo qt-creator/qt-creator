@@ -720,8 +720,8 @@ void BookmarkManager::setupBookmarkModels()
     QList<QStandardItem*> parents;
 
     QByteArray ba;
-    QSettings *settings = Core::ICore::settings();
-    ba = settings->value(QLatin1String(kBookmarksKey)).toByteArray();
+    Utils::QtcSettings *settings = Core::ICore::settings();
+    ba = settings->value(kBookmarksKey).toByteArray();
     QDataStream stream(ba);
     while (!stream.atEnd()) {
         stream >> depth >> name >> type >> expanded;

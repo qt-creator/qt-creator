@@ -11,53 +11,50 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT QtcSettings : public QSettings
+class QTCREATOR_UTILS_EXPORT QtcSettings : private QSettings
 {
 public:
     using QSettings::QSettings;
+    using QSettings::group;
+    using QSettings::endGroup;
+    using QSettings::allKeys;
+    using QSettings::fileName;
+    using QSettings::setParent;
+    using QSettings::sync;
+    using QSettings::beginReadArray;
+    using QSettings::beginWriteArray;
+    using QSettings::endArray;
+    using QSettings::setArrayIndex;
+    using QSettings::childGroups;
+    using QSettings::status;
+    using QSettings::clear;
 
-    void beginGroup(const Key &prefix) { QSettings::beginGroup(stringFromKey(prefix)); }
-    void beginGroup(const QString &prefix) { QSettings::beginGroup(prefix); }
-    void beginGroup(const char *prefix) { QSettings::beginGroup(stringFromKey(prefix)); }
+    void beginGroup(const Key &prefix);
 
-    QVariant value(const Key &key) const { return QSettings::value(stringFromKey(key)); }
-    QVariant value(const Key &key, const QVariant &def) const { return QSettings::value(stringFromKey(key), def); }
-    void setValue(const Key &key, const QVariant &value) { QSettings::setValue(stringFromKey(key), value); }
-    void remove(const Key &key) { QSettings::remove(stringFromKey(key)); }
-    bool contains(const Key &key) const { return QSettings::contains(stringFromKey(key)); }
+    QVariant value(const Key &key) const;
+    QVariant value(const Key &key, const QVariant &def) const;
+    void setValue(const Key &key, const QVariant &value);
+    void remove(const Key &key);
+    bool contains(const Key &key) const;
+
+    KeyList childKeys() const;
 
     template<typename T>
     void setValueWithDefault(const Key &key, const T &val, const T &defaultValue)
     {
-        setValueWithDefault(this, key, val, defaultValue);
-    }
-
-    template<typename T>
-    static void setValueWithDefault(QSettings *settings,
-                                    const Key &key,
-                                    const T &val,
-                                    const T &defaultValue)
-    {
         if (val == defaultValue)
-            settings->remove(stringFromKey(key));
+            remove(key);
         else
-            settings->setValue(stringFromKey(key), QVariant::fromValue(val));
+            setValue(key, val);
     }
-
 
     template<typename T>
     void setValueWithDefault(const Key &key, const T &val)
     {
-        setValueWithDefault(this, key, val);
-    }
-
-    template<typename T>
-    static void setValueWithDefault(QSettings *settings, const Key &key, const T &val)
-    {
         if (val == T())
-            settings->remove(stringFromKey(key));
+            remove(key);
         else
-            settings->setValue(stringFromKey(key), QVariant::fromValue(val));
+            setValue(key, val);
     }
 };
 

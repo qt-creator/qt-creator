@@ -18,8 +18,6 @@
 
 #include <nanotrace/nanotrace.h>
 
-#include <QSettings>
-
 using namespace Utils;
 
 namespace ProjectExplorer {

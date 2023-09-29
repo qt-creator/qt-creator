@@ -14,9 +14,9 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcsettings.h>
 
 #include <QGridLayout>
-#include <QSettings>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -113,16 +113,16 @@ QWidget *AllProjectsFind::createConfigWidget()
     return m_configWidget;
 }
 
-void AllProjectsFind::writeSettings(QSettings *settings)
+void AllProjectsFind::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("AllProjectsFind"));
+    settings->beginGroup("AllProjectsFind");
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void AllProjectsFind::readSettings(QSettings *settings)
+void AllProjectsFind::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("AllProjectsFind"));
+    settings->beginGroup("AllProjectsFind");
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

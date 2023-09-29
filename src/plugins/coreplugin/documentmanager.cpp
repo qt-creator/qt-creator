@@ -46,7 +46,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
-#include <QSettings>
 #include <QStringList>
 #include <QTimer>
 
@@ -1399,22 +1398,22 @@ void restoreRecentFiles(const QVariantList &recentFiles, const QStringList &rece
 
 void readSettings()
 {
-    QSettings *s = ICore::settings();
+    QtcSettings *s = ICore::settings();
     d->m_recentFiles.clear();
-    s->beginGroup(QLatin1String(settingsGroupC));
-    const QVariantList recentFiles = s->value(QLatin1String(filesKeyC)).toList();
-    const QStringList recentEditorIds = s->value(QLatin1String(editorsKeyC)).toStringList();
+    s->beginGroup(settingsGroupC);
+    const QVariantList recentFiles = s->value(filesKeyC).toList();
+    const QStringList recentEditorIds = s->value(editorsKeyC).toStringList();
     s->endGroup();
 
     restoreRecentFiles(recentFiles, recentEditorIds);
 
-    s->beginGroup(QLatin1String(directoryGroupC));
+    s->beginGroup(directoryGroupC);
 
     d->m_projectsDirectory = FilePath::fromSettings(
-        s->value(QLatin1String(projectDirectoryKeyC), PathChooser::homePath().toSettings()));
+        s->value(projectDirectoryKeyC, PathChooser::homePath().toSettings()));
 
     d->m_useProjectsDirectory
-        = s->value(QLatin1String(useProjectDirectoryKeyC), kUseProjectsDirectoryDefault).toBool();
+        = s->value(useProjectDirectoryKeyC, kUseProjectsDirectoryDefault).toBool();
 
     s->endGroup();
 }

@@ -20,6 +20,30 @@ class IDataProvider;
 class GdbMi;
 enum class DapResponseType;
 enum class DapEventType;
+class DapEngine;
+
+class VariablesHandler {
+public:
+    VariablesHandler(DapEngine *dapEngine);
+
+    struct VariableItem {
+        QString iname;
+        int variablesReference;
+    };
+
+    void addVariable(const QString &iname, int variablesReference);
+    void handleNext();
+
+    VariableItem currentItem() const { return m_currentVarItem; }
+    int queueSize() const { return m_queue.size(); }
+
+private:
+    void startHandling();
+
+    DapEngine *m_dapEngine;
+    std::list<VariableItem> m_queue;
+    VariableItem m_currentVarItem;
+};
 
 /*
  * A debugger engine for the debugger adapter protocol.
@@ -27,8 +51,11 @@ enum class DapEventType;
 class DapEngine : public DebuggerEngine
 {
 public:
-    DapEngine() = default;
+    DapEngine();
     ~DapEngine() override = default;
+
+    DapClient *dapClient() const { return m_dapClient; }
+    int currentStackFrameId() const { return m_currentStackFrameId; }
 
 protected:
     void executeStepIn(bool) override;
@@ -55,13 +82,10 @@ protected:
     void updateBreakpoint(const Breakpoint &bp) override;
     void removeBreakpoint(const Breakpoint &bp) override;
 
-    void assignValueInDebugger(WatchItem *item,
-        const QString &expr, const QVariant &value) override;
     void executeDebuggerCommand(const QString &command) override;
 
     void loadSymbols(const Utils::FilePath &moduleName) override;
     void loadAllSymbols() override;
-    void requestModuleSymbols(const Utils::FilePath &moduleName) override;
     void reloadModules() override;
     void reloadRegisters() override {}
     void reloadSourceFiles() override {}
@@ -69,6 +93,9 @@ protected:
 
     bool supportsThreads() const { return true; }
     void updateItem(const QString &iname) override;
+    void reexpandItems(const QSet<QString> &inames) override;
+    void doUpdateLocals(const UpdateParameters &params) override;
+    void getVariableFromQueue();
 
     void runCommand(const DebuggerCommand &cmd) override;
 
@@ -100,6 +127,7 @@ protected:
     void handleStackTraceResponse(const QJsonObject &response);
     void handleScopesResponse(const QJsonObject &response);
     void handleThreadsResponse(const QJsonObject &response);
+    void handleEvaluateResponse(const QJsonObject &response);
 
     void handleEvent(DapEventType type, const QJsonObject &event);
     void handleBreakpointEvent(const QJsonObject &event);
@@ -116,10 +144,7 @@ protected:
     int m_currentThreadId = -1;
     int m_currentStackFrameId = -1;
 
-    bool m_isFirstLayer = true;
-    std::queue<int> m_variablesReferenceQueue;
-    WatchItem *m_currentWatchItem = nullptr;
-    QList<WatchItem *> m_watchItems;
+    std::unique_ptr<VariablesHandler> m_variablesHandler;
 
     virtual const QLoggingCategory &logCategory()
     {

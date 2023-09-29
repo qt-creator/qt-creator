@@ -7,7 +7,6 @@
 #include <QHash>
 #include <QByteArray>
 #include <QDebug>
-#include <QSettings>
 
 GradientPresetListModel::GradientPresetListModel(QObject *parent)
     : QAbstractListModel(parent)

@@ -35,7 +35,6 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QScrollArea>
-#include <QSettings>
 #include <QSpinBox>
 #include <QStandardItemModel>
 #include <QTextEdit>
@@ -596,7 +595,7 @@ void BaseAspect::registerSubWidget(QWidget *widget)
 
 void BaseAspect::forEachSubWidget(const std::function<void(QWidget *)> &func)
 {
-    for (auto w : d->m_subWidgets)
+    for (const QPointer<QWidget> &w : d->m_subWidgets)
         func(w);
 }
 
@@ -656,8 +655,7 @@ void BaseAspect::writeSettings() const
     if (settingsKey().isEmpty())
         return;
     QTC_ASSERT(theSettings, return);
-    QtcSettings::setValueWithDefault(theSettings,
-                                     settingsKey(),
+    theSettings->setValueWithDefault(settingsKey(),
                                      toSettingsValue(variantValue()),
                                      toSettingsValue(defaultVariantValue()));
 }
@@ -2996,7 +2994,7 @@ SettingsGroupNester::SettingsGroupNester(const QStringList &groups)
 {
     QTC_ASSERT(theSettings, return);
     for (const QString &group : groups)
-        theSettings->beginGroup(group);
+        theSettings->beginGroup(keyFromString(group));
 }
 
 SettingsGroupNester::~SettingsGroupNester()
@@ -3076,7 +3074,7 @@ QVariantList AspectList::toList(bool v) const
     QVariantList list;
     const auto &items = v ? d->volatileItems : d->items;
 
-    for (const auto &item : items) {
+    for (const std::shared_ptr<BaseAspect> &item : items) {
         Utils::Store childStore;
         if (v)
             item->volatileToMap(childStore);
@@ -3159,12 +3157,12 @@ void AspectList::clear()
     if (undoStack()) {
         undoStack()->beginMacro("Clear");
 
-        for (auto item : volatileItems())
+        for (const std::shared_ptr<BaseAspect> &item : volatileItems())
             undoStack()->push(new RemoveItemCommand(this, item));
 
         undoStack()->endMacro();
     } else {
-        for (auto item : volatileItems())
+        for (const std::shared_ptr<BaseAspect> &item : volatileItems())
             actualRemoveItem(item);
     }
 }
@@ -3200,7 +3198,7 @@ bool AspectList::isDirty()
     if (d->items != d->volatileItems)
         return true;
 
-    for (const auto &item : d->volatileItems) {
+    for (const std::shared_ptr<BaseAspect> &item : d->volatileItems) {
         if (item->isDirty())
             return true;
     }

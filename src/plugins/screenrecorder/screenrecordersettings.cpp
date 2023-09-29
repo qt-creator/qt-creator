@@ -98,8 +98,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
         break;
     }
     auto setCaptureMouseClicksVisible = [this] {
-        const QVariant value = captureType.itemValueForIndex(captureType.volatileValue());
-        const bool visible = value.toInt() == CaptureType::AVFoundation;
+        const bool visible = captureType.volatileValue() == CaptureType::AVFoundation;
         captureMouseClicks.setVisible(visible);
     };
 

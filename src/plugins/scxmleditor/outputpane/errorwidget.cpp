@@ -73,7 +73,7 @@ ErrorWidget::ErrorWidget(QWidget *parent)
     connect(m_warningModel, &WarningModel::warningsChanged, this, &ErrorWidget::updateWarnings);
     connect(m_warningModel, &WarningModel::countChanged, this, &ErrorWidget::warningCountChanged);
 
-    const QSettings *s = Core::ICore::settings();
+    const QtcSettings *s = Core::ICore::settings();
     m_errorsTable->restoreGeometry(s->value(Constants::C_SETTINGS_ERRORPANE_GEOMETRY).toByteArray());
     m_showErrors->setChecked(s->value(Constants::C_SETTINGS_ERRORPANE_SHOWERRORS, true).toBool());
     m_showWarnings->setChecked(s->value(Constants::C_SETTINGS_ERRORPANE_SHOWWARNINGS, true).toBool());
@@ -84,7 +84,7 @@ ErrorWidget::ErrorWidget(QWidget *parent)
 
 ErrorWidget::~ErrorWidget()
 {
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     s->setValue(Constants::C_SETTINGS_ERRORPANE_GEOMETRY, m_errorsTable->saveGeometry());
     s->setValue(Constants::C_SETTINGS_ERRORPANE_SHOWERRORS, m_showErrors->isChecked());
     s->setValue(Constants::C_SETTINGS_ERRORPANE_SHOWWARNINGS, m_showWarnings->isChecked());

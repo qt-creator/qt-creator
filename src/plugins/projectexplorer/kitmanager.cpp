@@ -33,7 +33,6 @@
 #include <QHash>
 #include <QLabel>
 #include <QPushButton>
-#include <QSettings>
 #include <QStyle>
 
 using namespace Core;

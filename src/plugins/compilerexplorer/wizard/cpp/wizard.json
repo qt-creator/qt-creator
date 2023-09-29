@@ -6,7 +6,7 @@
     "trDescription": "Creates an example CompilerExplorer setup for C++.",
     "trDisplayName": "Compiler Explorer C++ Source",
     "trDisplayCategory": "Compiler Explorer",
-    "icon": "",
+    "icon": ":/compilerexplorer/logos/ce.ico",
     "iconKind": "Plain",
     "options": {
         "key": "DefaultSuffix",

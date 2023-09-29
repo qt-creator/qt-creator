@@ -8,17 +8,16 @@
 #include <QMap>
 #include <QMessageBox>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace Utils {
+
+class Key;
+class QtcSettings;
 
 class QTCREATOR_UTILS_EXPORT CheckableDecider
 {
 public:
     CheckableDecider() = default;
-    CheckableDecider(const QString &settingsSubKey);
+    CheckableDecider(const Key &settingsSubKey);
     CheckableDecider(bool *doNotAskAgain);
     CheckableDecider(const std::function<bool()> &should, const std::function<void()> &doNot)
         : shouldAskAgain(should), doNotAskAgain(doNot)
@@ -58,7 +57,7 @@ public:
     static QString msgDoNotAskAgain();
     static QString msgDoNotShowAgain();
 
-    static void initialize(QSettings *settings);
+    static void initialize(QtcSettings *settings);
 };
 
 } // namespace Utils

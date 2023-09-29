@@ -290,12 +290,12 @@ QString DebuggerSettings::dump()
     settings().all.forEachAspect([&msg](BaseAspect *aspect) {
         Key key = aspect->settingsKey();
         if (!key.isEmpty()) {
-            const int pos = key.indexOf('/');
+            const int pos = key.view().indexOf('/');
             if (pos >= 0)
-                key = key.mid(pos);
+                key = key.toByteArray().mid(pos);
             const QString current = aspect->variantValue().toString();
             const QString default_ = aspect->defaultVariantValue().toString();
-            QString setting = key + ": " + current + "  (default: " + default_ + ')';
+            QString setting = stringFromKey(key) + ": " + current + "  (default: " + default_ + ')';
             if (current != default_)
                 setting +=  "  ***";
             msg << setting;

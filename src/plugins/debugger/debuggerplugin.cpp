@@ -112,7 +112,6 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QScopeGuard>
-#include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QTextBlock>
@@ -2362,7 +2361,7 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
         if (Utils::CheckableMessageBox::question(ICore::dialogParent(),
                                                  title,
                                                  message,
-                                                 QString("AnalyzerCorrectModeWarning"))
+                                                 Key("AnalyzerCorrectModeWarning"))
             != QMessageBox::Yes)
                 return false;
     }

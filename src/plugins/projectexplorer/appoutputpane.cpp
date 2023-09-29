@@ -536,8 +536,8 @@ void AppOutputPane::storeSettings() const
 
 void AppOutputPane::loadSettings()
 {
-    QSettings * const s = Core::ICore::settings();
-    const auto modeFromSettings = [s](const QString key, AppOutputPaneMode defaultValue) {
+    QtcSettings * const s = Core::ICore::settings();
+    const auto modeFromSettings = [s](const Key key, AppOutputPaneMode defaultValue) {
         return static_cast<AppOutputPaneMode>(s->value(key, int(defaultValue)).toInt());
     };
     m_settings.runOutputMode = modeFromSettings(POP_UP_FOR_RUN_OUTPUT_KEY, kRunOutputModeDefault);

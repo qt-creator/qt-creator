@@ -5,9 +5,10 @@
 
 #include <QString>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils {
+class Key;
+class QtcSettings;
+} // Utils
 
 namespace TextEditor {
 
@@ -16,8 +17,8 @@ class SnippetsSettings
 public:
     SnippetsSettings() = default;
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
+    void toSettings(const Utils::Key &category, Utils::QtcSettings *s) const;
+    void fromSettings(const Utils::Key &category, Utils::QtcSettings *s);
 
     void setLastUsedSnippetGroup(const QString &lastUsed);
     const QString &lastUsedSnippetGroup() const;

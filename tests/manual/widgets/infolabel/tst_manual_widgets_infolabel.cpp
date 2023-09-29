@@ -6,7 +6,6 @@
 #include <QApplication>
 #include <QFormLayout>
 #include <QMessageBox>
-#include <QSettings>
 
 #include <utils/infolabel.h>
 

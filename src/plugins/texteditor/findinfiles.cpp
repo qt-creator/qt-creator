@@ -16,7 +16,6 @@
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
-#include <QSettings>
 #include <QStackedWidget>
 
 using namespace Core;
@@ -174,16 +173,16 @@ QWidget *FindInFiles::createConfigWidget()
     return m_configWidget;
 }
 
-void FindInFiles::writeSettings(QSettings *settings)
+void FindInFiles::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInFiles"));
+    settings->beginGroup("FindInFiles");
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void FindInFiles::readSettings(QSettings *settings)
+void FindInFiles::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInFiles"));
+    settings->beginGroup("FindInFiles");
     readCommonSettings(settings, "*.cpp,*.h", "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave");
     settings->endGroup();
 }

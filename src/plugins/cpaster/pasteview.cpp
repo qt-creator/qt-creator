@@ -11,6 +11,7 @@
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -26,6 +27,8 @@
 #include <QSpinBox>
 #include <QStackedWidget>
 #include <QTextEdit>
+
+using namespace Utils;
 
 namespace CodePaster {
 
@@ -197,11 +200,11 @@ int PasteView::showDialog()
     m_uiDescription->selectAll();
 
     // (Re)store dialog size
-    const QSettings *settings = Core::ICore::settings();
-    const QString rootKey = QLatin1String(groupC) + QLatin1Char('/');
-    const int h = settings->value(rootKey + QLatin1String(heightKeyC), height()).toInt();
+    const QtcSettings *settings = Core::ICore::settings();
+    const Key rootKey = Key(groupC) + '/';
+    const int h = settings->value(rootKey + heightKeyC, height()).toInt();
     const int defaultWidth = m_uiPatchView->columnIndicator() + 50;
-    const int w = settings->value(rootKey + QLatin1String(widthKeyC), defaultWidth).toInt();
+    const int w = settings->value(rootKey + widthKeyC, defaultWidth).toInt();
 
     resize(w, h);
 
@@ -273,10 +276,10 @@ void PasteView::accept()
     const Protocol::ContentType ct = Protocol::contentType(m_mimeType);
     protocol->paste(data, ct, expiryDays(), user(), comment(), description());
     // Store settings and close
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(groupC));
-    settings->setValue(QLatin1String(heightKeyC), height());
-    settings->setValue(QLatin1String(widthKeyC), width());
+    QtcSettings *settings = Core::ICore::settings();
+    settings->beginGroup(groupC);
+    settings->setValue(heightKeyC, height());
+    settings->setValue(widthKeyC, width());
     settings->endGroup();
     QDialog::accept();
 }

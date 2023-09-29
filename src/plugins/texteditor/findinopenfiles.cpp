@@ -9,7 +9,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
 
 using namespace Utils;
 
@@ -70,16 +70,16 @@ bool FindInOpenFiles::isEnabled() const
     return Core::DocumentModel::entryCount() > 0;
 }
 
-void FindInOpenFiles::writeSettings(QSettings *settings)
+void FindInOpenFiles::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInOpenFiles"));
+    settings->beginGroup("FindInOpenFiles");
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void FindInOpenFiles::readSettings(QSettings *settings)
+void FindInOpenFiles::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInOpenFiles"));
+    settings->beginGroup("FindInOpenFiles");
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

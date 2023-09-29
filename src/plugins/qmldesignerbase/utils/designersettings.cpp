@@ -3,7 +3,9 @@
 
 #include "designersettings.h"
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
+
+using namespace Utils;
 
 namespace QmlDesigner {
 
@@ -12,7 +14,7 @@ namespace DesignerSettingsGroupKey {
     const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
 }
 
-DesignerSettings::DesignerSettings(QSettings *settings) :
+DesignerSettings::DesignerSettings(QtcSettings *settings) :
     m_settings(settings)
 {
     fromSettings(settings);
@@ -38,15 +40,15 @@ QVariant DesignerSettings::value(const QByteArray &key, const QVariant &defaultV
     return m_cache.value(key, defaultValue);
 }
 
-void DesignerSettings::restoreValue(QSettings *settings, const QByteArray &key, const QVariant &defaultValue)
+void DesignerSettings::restoreValue(QtcSettings *settings, const QByteArray &key, const QVariant &defaultValue)
 {
-    m_cache.insert(key, settings->value(QString::fromLatin1(key), defaultValue));
+    m_cache.insert(key, settings->value(key, defaultValue));
 }
 
-void DesignerSettings::fromSettings(QSettings *settings)
+void DesignerSettings::fromSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_SETTINGS_GROUP));
-    settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_DESIGNER_SETTINGS_GROUP));
+    settings->beginGroup(DesignerSettingsGroupKey::QML_SETTINGS_GROUP);
+    settings->beginGroup(DesignerSettingsGroupKey::QML_DESIGNER_SETTINGS_GROUP);
 
     restoreValue(settings, DesignerSettingsKey::ITEMSPACING, 6);
     restoreValue(settings, DesignerSettingsKey::CONTAINERPADDING, 8);
@@ -103,17 +105,17 @@ void DesignerSettings::fromSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void DesignerSettings::storeValue(QSettings *settings, const QByteArray &key, const QVariant &value) const
+void DesignerSettings::storeValue(QtcSettings *settings, const QByteArray &key, const QVariant &value) const
 {
     if (key.isEmpty())
         return;
-    settings->setValue(QString::fromLatin1(key), value);
+    settings->setValue(key, value);
 }
 
-void DesignerSettings::toSettings(QSettings *settings) const
+void DesignerSettings::toSettings(QtcSettings *settings) const
 {
-    settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_SETTINGS_GROUP));
-    settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_DESIGNER_SETTINGS_GROUP));
+    settings->beginGroup(DesignerSettingsGroupKey::QML_SETTINGS_GROUP);
+    settings->beginGroup(DesignerSettingsGroupKey::QML_DESIGNER_SETTINGS_GROUP);
 
     QHash<QByteArray, QVariant>::const_iterator i = m_cache.constBegin();
     while (i != m_cache.constEnd()) {

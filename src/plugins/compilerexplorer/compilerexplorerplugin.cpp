@@ -18,6 +18,8 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
+#include <utils/fsengine/fileiconprovider.h>
+
 #include <QMenu>
 
 using namespace Core;
@@ -41,6 +43,9 @@ public:
                                                         &name,
                                                         settings().defaultDocument().toUtf8());
         });
+
+        Utils::FileIconProvider::registerIconForMimeType(QIcon(":/compilerexplorer/logos/ce.ico"),
+                                                         "application/compiler-explorer");
 
         ProjectExplorer::JsonWizardFactory::addWizardPath(":/compilerexplorer/wizard/");
 

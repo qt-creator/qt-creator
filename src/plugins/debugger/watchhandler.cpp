@@ -2241,6 +2241,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 
 void WatchModel::reexpandItems()
 {
+    m_engine->reexpandItems(m_expandedINames);
     for (const QString &iname: m_expandedINames) {
         if (WatchItem *item = findItem(iname)) {
             emit itemIsExpanded(indexForItem(item));
@@ -2573,7 +2574,7 @@ void WatchModel::clearWatches()
         ICore::dialogParent(),
         Tr::tr("Remove All Expression Evaluators"),
         Tr::tr("Are you sure you want to remove all expression evaluators?"),
-        QString("RemoveAllWatchers"));
+        Key("RemoveAllWatchers"));
     if (ret != QMessageBox::Yes)
         return;
 

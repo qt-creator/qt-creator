@@ -157,9 +157,9 @@ void RightPaneWidget::saveSettings(Utils::QtcSettings *settings)
     settings->setValueWithDefault("RightPane/Width", m_width, kWidthDefault);
 }
 
-void RightPaneWidget::readSettings(QSettings *settings)
+void RightPaneWidget::readSettings(QtcSettings *settings)
 {
-    setShown(settings->value(QLatin1String("RightPane/Visible"), kVisibleDefault).toBool());
+    setShown(settings->value("RightPane/Visible", kVisibleDefault).toBool());
     m_width = settings->value("RightPane/Width", kWidthDefault).toInt();
 
     // Apply

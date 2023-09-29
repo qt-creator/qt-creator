@@ -42,18 +42,37 @@ Store storeFromVariant(const QVariant &value)
     return Store();
 }
 
+static QVariantList storeListFromMapList(const QVariantList &mapList);
+static QVariantList mapListFromStoreList(const QVariantList &storeList);
+
+QVariant storeEntryFromMapEntry(const QVariant &mapEntry)
+{
+    if (mapEntry.type() == QVariant::Map)
+        return QVariant::fromValue(storeFromMap(mapEntry.toMap()));
+
+    if (mapEntry.type() == QVariant::List)
+        return QVariant::fromValue(storeListFromMapList(mapEntry.toList()));
+
+    return mapEntry;
+}
+
+QVariant mapEntryFromStoreEntry(const QVariant &storeEntry)
+{
+    if (storeEntry.metaType() == QMetaType::fromType<Store>())
+        return QVariant::fromValue(mapFromStore(storeEntry.value<Store>()));
+
+    if (storeEntry.type() == QVariant::List)
+        return QVariant::fromValue(mapListFromStoreList(storeEntry.toList()));
+
+    return storeEntry;
+}
+
 static QVariantList storeListFromMapList(const QVariantList &mapList)
 {
     QVariantList storeList;
 
-    for (const auto &mapEntry : mapList) {
-        if (mapEntry.type() == QVariant::Map)
-            storeList.append(QVariant::fromValue(storeFromMap(mapEntry.toMap())));
-        else if (mapEntry.type() == QVariant::List)
-            storeList.append(QVariant::fromValue(storeListFromMapList(mapEntry.toList())));
-        else
-            storeList.append(mapEntry);
-    }
+    for (const auto &mapEntry : mapList)
+            storeList.append(storeEntryFromMapEntry(mapEntry));
 
     return storeList;
 }
@@ -62,14 +81,8 @@ static QVariantList mapListFromStoreList(const QVariantList &storeList)
 {
     QVariantList mapList;
 
-    for (const auto &storeEntry : storeList) {
-        if (storeEntry.metaType() == QMetaType::fromType<Store>())
-            mapList.append(QVariant::fromValue(mapFromStore(storeEntry.value<Store>())));
-        else if (storeEntry.type() == QVariant::List)
-            mapList.append(QVariant::fromValue(mapListFromStoreList(storeEntry.toList())));
-        else
-            mapList.append(storeEntry);
-    }
+    for (const QVariant &storeEntry : storeList)
+        mapList.append(mapEntryFromStoreEntry(storeEntry));
 
     return mapList;
 }
@@ -77,30 +90,20 @@ static QVariantList mapListFromStoreList(const QVariantList &storeList)
 Store storeFromMap(const QVariantMap &map)
 {
     Store store;
-    for (auto it = map.begin(); it != map.end(); ++it) {
-        if (it.value().type() == QVariant::Map) {
-            store.insert(keyFromString(it.key()), QVariant::fromValue(storeFromMap(it->toMap())));
-        } else if (it.value().type() == QVariant::List) {
-            store.insert(keyFromString(it.key()),
-                         QVariant::fromValue(storeListFromMapList(it->toList())));
-        } else {
-            store.insert(keyFromString(it.key()), it.value());
-        }
-    }
+
+    for (auto it = map.begin(); it != map.end(); ++it)
+        store.insert(keyFromString(it.key()), storeEntryFromMapEntry(it.value()));
+
     return store;
 }
 
 QVariantMap mapFromStore(const Store &store)
 {
     QVariantMap map;
-    for (auto it = store.begin(); it != store.end(); ++it) {
-        if (it.value().metaType() == QMetaType::fromType<Store>())
-            map.insert(stringFromKey(it.key()), mapFromStore(it->value<Store>()));
-        else if (it.value().type() == QVariant::List)
-            map.insert(stringFromKey(it.key()), mapListFromStoreList(it->toList()));
-        else
-            map.insert(stringFromKey(it.key()), it.value());
-    }
+
+    for (auto it = store.begin(); it != store.end(); ++it)
+        map.insert(stringFromKey(it.key()), mapEntryFromStoreEntry(it.value()));
+
     return map;
 }
 
@@ -110,9 +113,40 @@ bool isStore(const QVariant &value)
     return typeId == QMetaType::QVariantMap || typeId == qMetaTypeId<Store>();
 }
 
+Key::Key(const char *key, size_t n)
+    : data(QByteArray::fromRawData(key, n))
+{}
+
+Key::Key(const Key &base, int number)
+    : data(base.data + QByteArray::number(number))
+{}
+
+Key::~Key()
+{}
+
+const QByteArrayView Key::view() const
+{
+    return data;
+}
+
+const QByteArray &Key::toByteArray() const
+{
+    return data;
+}
+
 Key numberedKey(const Key &key, int number)
 {
-    return key + Key::number(number);
+    return Key(key, number);
+}
+
+Key keyFromString(const QString &str)
+{
+    return str.toUtf8();
+}
+
+QString stringFromKey(const Key &key)
+{
+    return QString::fromLatin1(key.view());
 }
 
 expected_str<Store> storeFromJson(const QByteArray &json)
@@ -140,7 +174,7 @@ Store storeFromSettings(const Key &groupKey, QtcSettings *s)
     s->beginGroup(groupKey);
     const KeyList keys = keysFromStrings(s->allKeys());
     for (const Key &key : keys)
-        store.insert(key, s->value(key));
+        store.insert(key, storeEntryFromMapEntry(s->value(key)));
     s->endGroup();
     return store;
 }
@@ -149,7 +183,7 @@ void storeToSettings(const Key &groupKey, QtcSettings *s, const Store &store)
 {
     s->beginGroup(groupKey);
     for (auto it = store.constBegin(), end = store.constEnd(); it != end; ++it)
-        s->setValue(it.key(), it.value());
+        s->setValue(it.key(), mapEntryFromStoreEntry(it.value()));
     s->endGroup();
 }
 

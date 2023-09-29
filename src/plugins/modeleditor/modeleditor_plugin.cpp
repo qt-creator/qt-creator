@@ -4,11 +4,8 @@
 #include "modeleditor_plugin.h"
 
 #include "jsextension.h"
-#include "modeleditor_constants.h"
 #include "modeleditorfactory.h"
-#include "modeleditor_global.h"
 #include "modelsmanager.h"
-#include "settingscontroller.h"
 #include "uicontroller.h"
 #include "actionhandler.h"
 
@@ -41,7 +38,6 @@ public:
     UiController uiController;
     ActionHandler actionHandler;
     ModelEditorFactory modelFactory{&uiController, &actionHandler};
-    SettingsController settingsController;
 };
 
 ModelEditorPlugin::ModelEditorPlugin()
@@ -63,22 +59,17 @@ void ModelEditorPlugin::initialize()
     d = new ModelEditorPluginPrivate;
 
     Core::JsExpander::registerGlobalObject<JsExtension>("Modeling");
-
-    connect(&d->settingsController, &SettingsController::saveSettings,
-            &d->uiController, &UiController::saveSettings);
-    connect(&d->settingsController, &SettingsController::loadSettings,
-            &d->uiController, &UiController::loadSettings);
 }
 
 void ModelEditorPlugin::extensionsInitialized()
 {
     d->actionHandler.createActions();
-    d->settingsController.load(Core::ICore::settings());
+    d->uiController.loadSettings();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag ModelEditorPlugin::aboutToShutdown()
 {
-    d->settingsController.save(Core::ICore::settings());
+    d->uiController.saveSettings();
     return SynchronousShutdown;
 }
 

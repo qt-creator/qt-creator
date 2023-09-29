@@ -127,10 +127,7 @@ bool MinimizableInfoBars::showInInfoBar(const Id &id) const
 
 void MinimizableInfoBars::setShowInInfoBar(const Id &id, bool show)
 {
-    QtcSettings::setValueWithDefault(InfoBar::settings(),
-                                     settingsKey(id),
-                                     show,
-                                     kShowInInfoBarDefault);
+    InfoBar::settings()->setValueWithDefault(settingsKey(id), show, kShowInInfoBarDefault);
 }
 
 } // namespace Utils

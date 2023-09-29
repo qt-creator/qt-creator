@@ -213,12 +213,11 @@ void PerfProfilerTool::createViews()
             m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
 
     // Clear settings if the statistics or flamegraph view isn't there yet.
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") +
-                         QLatin1String(Constants::PerfProfilerPerspectiveId));
-    if (!settings->contains(m_statisticsView->objectName())
-            || !settings->contains(m_flameGraphView->objectName())) {
-        settings->remove(QString());
+    QtcSettings *settings = Core::ICore::settings();
+    settings->beginGroup(Key("AnalyzerViewSettings_") + Constants::PerfProfilerPerspectiveId);
+    if (!settings->contains(keyFromString(m_statisticsView->objectName()))
+            || !settings->contains(keyFromString(m_flameGraphView->objectName()))) {
+        settings->remove(Key());
     }
     settings->endGroup();
 

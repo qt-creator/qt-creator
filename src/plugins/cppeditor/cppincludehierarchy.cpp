@@ -33,7 +33,6 @@
 #include <QCoreApplication>
 #include <QKeyEvent>
 #include <QLabel>
-#include <QSettings>
 #include <QStackedWidget>
 #include <QTimer>
 #include <QToolButton>
@@ -433,7 +432,7 @@ const bool kSyncDefault = false;
 void CppIncludeHierarchyWidget::saveSettings(QtcSettings *settings, int position)
 {
     const Key key = keyFromString(QString("IncludeHierarchy.%1.SyncWithEditor").arg(position));
-    QtcSettings::setValueWithDefault(settings, key, m_toggleSync->isChecked(), kSyncDefault);
+    settings->setValueWithDefault(key, m_toggleSync->isChecked(), kSyncDefault);
 }
 
 void CppIncludeHierarchyWidget::restoreSettings(QtcSettings *settings, int position)

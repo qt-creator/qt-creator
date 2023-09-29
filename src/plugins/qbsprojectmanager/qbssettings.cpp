@@ -131,7 +131,7 @@ QbsSettings::QbsSettings()
 
 void QbsSettings::loadSettings()
 {
-    QSettings * const s = Core::ICore::settings();
+    QtcSettings * const s = Core::ICore::settings();
     m_settings.qbsExecutableFilePath = FilePath::fromString(s->value(QBS_EXE_KEY).toString());
     m_settings.defaultInstallDirTemplate = s->value(
                 QBS_DEFAULT_INSTALL_DIR_KEY,
@@ -141,9 +141,9 @@ void QbsSettings::loadSettings()
 
 void QbsSettings::storeSettings() const
 {
-    QSettings * const s = Core::ICore::settings();
-    QtcSettings::setValueWithDefault(s, QBS_EXE_KEY, m_settings.qbsExecutableFilePath.toString(),
-                                     defaultQbsExecutableFilePath().toString());
+    QtcSettings * const s = Core::ICore::settings();
+    s->setValueWithDefault(QBS_EXE_KEY, m_settings.qbsExecutableFilePath.toString(),
+                           defaultQbsExecutableFilePath().toString());
     s->setValue(QBS_DEFAULT_INSTALL_DIR_KEY, m_settings.defaultInstallDirTemplate);
     s->setValue(USE_CREATOR_SETTINGS_KEY, m_settings.useCreatorSettings);
 }

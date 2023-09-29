@@ -22,7 +22,6 @@
 #include <QFrame>
 #include <QHeaderView>
 #include <QPushButton>
-#include <QSettings>
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 

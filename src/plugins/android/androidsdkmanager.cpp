@@ -17,7 +17,6 @@
 #include <QLoggingCategory>
 #include <QReadWriteLock>
 #include <QRegularExpression>
-#include <QSettings>
 #include <QTextCodec>
 
 namespace {

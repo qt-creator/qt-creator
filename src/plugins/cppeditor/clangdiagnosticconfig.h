@@ -12,9 +12,7 @@
 #include <QStringList>
 #include <QVector>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils { class QtcSettings; }
 
 namespace CppEditor {
 
@@ -88,8 +86,8 @@ private:
 
 using ClangDiagnosticConfigs = QVector<ClangDiagnosticConfig>;
 
-ClangDiagnosticConfigs CPPEDITOR_EXPORT diagnosticConfigsFromSettings(QSettings *s);
-void CPPEDITOR_EXPORT diagnosticConfigsToSettings(QSettings *s,
+ClangDiagnosticConfigs CPPEDITOR_EXPORT diagnosticConfigsFromSettings(Utils::QtcSettings *s);
+void CPPEDITOR_EXPORT diagnosticConfigsToSettings(Utils::QtcSettings *s,
                                                   const ClangDiagnosticConfigs &configs);
 
 } // namespace CppEditor

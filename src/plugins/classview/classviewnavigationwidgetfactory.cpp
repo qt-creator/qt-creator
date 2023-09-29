@@ -8,6 +8,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
+#include <utils/store.h>
 
 using namespace Utils;
 

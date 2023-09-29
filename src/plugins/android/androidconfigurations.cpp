@@ -36,6 +36,7 @@
 #include <utils/persistentsettings.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 
 #include <QApplication>
@@ -112,7 +113,7 @@ const QLatin1String X86_64ToolsPrefix("x86_64-linux-android");
 
 const QLatin1String Unknown("unknown");
 const QLatin1String keytoolName("keytool");
-const QLatin1String changeTimeStamp("ChangeTimeStamp");
+const Key changeTimeStamp("ChangeTimeStamp");
 
 const char sdkToolsVersionKey[] = "Pkg.Revision";
 const char ndkRevisionKey[] = "Pkg.Revision";
@@ -180,7 +181,7 @@ QLatin1String AndroidConfig::displayName(const Abi &abi)
     }
 }
 
-void AndroidConfig::load(const QSettings &settings)
+void AndroidConfig::load(const QtcSettings &settings)
 {
     // user settings
     QVariant emulatorArgs = settings.value(EmulatorArgsKey, QString("-netdelay none -netspeed full"));
@@ -220,7 +221,7 @@ void AndroidConfig::load(const QSettings &settings)
     parseDependenciesJson();
 }
 
-void AndroidConfig::save(QSettings &settings) const
+void AndroidConfig::save(QtcSettings &settings) const
 {
     QFileInfo fileInfo(sdkSettingsFileName());
     if (fileInfo.exists())
@@ -1442,7 +1443,7 @@ AndroidConfigurations *AndroidConfigurations::instance()
 
 void AndroidConfigurations::save()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     m_config.save(*settings);
     settings->endGroup();
@@ -1541,7 +1542,7 @@ FilePath AndroidConfig::getJdkPath()
 
 void AndroidConfigurations::load()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     m_config.load(*settings);
     settings->endGroup();

@@ -35,6 +35,8 @@
 #include <QStackedWidget>
 #include <QTextStream>
 
+using namespace Utils;
+
 namespace TextEditor::Internal {
 
 // SnippetsTableModel
@@ -273,7 +275,7 @@ private:
     bool settingsChanged() const;
     void writeSettings();
 
-    const QString m_settingsPrefix{QLatin1String("Text")};
+    const Key m_settingsPrefix{"Text"};
     SnippetsTableModel m_model;
     bool m_snippetsCollectionChanged = false;
     SnippetsSettings m_settings;

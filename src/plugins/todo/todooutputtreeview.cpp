@@ -7,9 +7,12 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/qtcsettings.h>
+
 #include <QResizeEvent>
 #include <QHeaderView>
-#include <QSettings>
+
+using namespace Utils;
 
 namespace Todo {
 namespace Internal {
@@ -38,7 +41,7 @@ TodoOutputTreeView::~TodoOutputTreeView()
 
 void TodoOutputTreeView::saveDisplaySettings()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::SETTINGS_GROUP);
     settings->setValue(Constants::OUTPUT_PANE_TEXT_WIDTH,
                        columnWidth(Constants::OUTPUT_COLUMN_TEXT));
@@ -49,7 +52,7 @@ void TodoOutputTreeView::saveDisplaySettings()
 
 void TodoOutputTreeView::loadDisplaySettings()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::SETTINGS_GROUP);
     m_textColumnDefaultWidth = settings->value(Constants::OUTPUT_PANE_TEXT_WIDTH, 0).toInt();
     m_fileColumnDefaultWidth = settings->value(Constants::OUTPUT_PANE_FILE_WIDTH, 0).toInt();

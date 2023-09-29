@@ -28,7 +28,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QSettings>
 #include <QList>
 
 #include <QAction>

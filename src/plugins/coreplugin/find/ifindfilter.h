@@ -9,10 +9,11 @@
 
 QT_BEGIN_NAMESPACE
 class QWidget;
-class QSettings;
 class QKeySequence;
 class Pixmap;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcSettings; }
 
 namespace Core {
 
@@ -41,8 +42,8 @@ public:
     { Q_UNUSED(txt) Q_UNUSED(findFlags) }
 
     virtual QWidget *createConfigWidget() { return nullptr; }
-    virtual void writeSettings(QSettings *settings) { Q_UNUSED(settings) }
-    virtual void readSettings(QSettings *settings) { Q_UNUSED(settings) }
+    virtual void writeSettings(Utils::QtcSettings *settings) { Q_UNUSED(settings) }
+    virtual void readSettings(Utils::QtcSettings *settings) { Q_UNUSED(settings) }
 
     static QPixmap pixmapForFindFlags(Utils::FindFlags flags);
     static QString descriptionForFindFlags(Utils::FindFlags flags);

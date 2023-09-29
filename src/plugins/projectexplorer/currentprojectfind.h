@@ -23,8 +23,8 @@ public:
 
     bool isEnabled() const override;
 
-    void writeSettings(QSettings *settings) override;
-    void readSettings(QSettings *settings) override;
+    void writeSettings(Utils::QtcSettings *settings) override;
+    void readSettings(Utils::QtcSettings *settings) override;
 
 protected:
     QString label() const override;

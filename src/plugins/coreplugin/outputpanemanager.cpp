@@ -628,23 +628,23 @@ void OutputPaneManager::buttonTriggered(int idx)
 
 void OutputPaneManager::readSettings()
 {
-    QSettings *settings = ICore::settings();
-    int num = settings->beginReadArray(QLatin1String(outputPaneSettingsKeyC));
+    QtcSettings *settings = ICore::settings();
+    int num = settings->beginReadArray(outputPaneSettingsKeyC);
     for (int i = 0; i < num; ++i) {
         settings->setArrayIndex(i);
-        Id id = Id::fromSetting(settings->value(QLatin1String(outputPaneIdKeyC)));
+        Id id = Id::fromSetting(settings->value(outputPaneIdKeyC));
         const int idx = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::id, id));
         if (idx < 0) // happens for e.g. disabled plugins (with outputpanes) that were loaded before
             continue;
-        const bool visible = settings->value(QLatin1String(outputPaneVisibleKeyC)).toBool();
+        const bool visible = settings->value(outputPaneVisibleKeyC).toBool();
         g_outputPanes[idx].button->setVisible(visible);
     }
     settings->endArray();
 
     m_outputPaneHeightSetting
-        = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
+        = settings->value("OutputPanePlaceHolder/Height", 0).toInt();
     const int currentIdx
-        = settings->value(QLatin1String("OutputPanePlaceHolder/CurrentIndex"), 0).toInt();
+        = settings->value("OutputPanePlaceHolder/CurrentIndex", 0).toInt();
     if (QTC_GUARD(currentIdx >= 0 && currentIdx < g_outputPanes.size()))
         setCurrentIndex(currentIdx);
 }
@@ -809,22 +809,22 @@ void OutputPaneManager::popupMenu()
 
 void OutputPaneManager::saveSettings() const
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     const int n = g_outputPanes.size();
-    settings->beginWriteArray(QLatin1String(outputPaneSettingsKeyC), n);
+    settings->beginWriteArray(outputPaneSettingsKeyC, n);
     for (int i = 0; i < n; ++i) {
         const OutputPaneData &data = g_outputPanes.at(i);
         settings->setArrayIndex(i);
-        settings->setValue(QLatin1String(outputPaneIdKeyC), data.id.toSetting());
-        settings->setValue(QLatin1String(outputPaneVisibleKeyC), data.button->isPaneVisible());
+        settings->setValue(outputPaneIdKeyC, data.id.toSetting());
+        settings->setValue(outputPaneVisibleKeyC, data.button->isPaneVisible());
     }
     settings->endArray();
     int heightSetting = m_outputPaneHeightSetting;
     // update if possible
     if (OutputPanePlaceHolder *curr = OutputPanePlaceHolder::getCurrent())
         heightSetting = curr->nonMaximizedSize();
-    settings->setValue(QLatin1String("OutputPanePlaceHolder/Height"), heightSetting);
-    settings->setValue(QLatin1String("OutputPanePlaceHolder/CurrentIndex"), currentIndex());
+    settings->setValue("OutputPanePlaceHolder/Height", heightSetting);
+    settings->setValue("OutputPanePlaceHolder/CurrentIndex", currentIndex());
 }
 
 void OutputPaneManager::clearPage()

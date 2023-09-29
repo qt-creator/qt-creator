@@ -7,10 +7,6 @@
 
 #include <utils/store.h>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT MarginSettings
@@ -18,8 +14,8 @@ class TEXTEDITOR_EXPORT MarginSettings
 public:
     MarginSettings();
 
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
+    void toSettings(Utils::QtcSettings *s) const;
+    void fromSettings(Utils::QtcSettings *s);
 
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &map);

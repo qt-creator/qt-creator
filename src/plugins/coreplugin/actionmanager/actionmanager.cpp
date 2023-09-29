@@ -19,7 +19,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
-#include <QSettings>
 
 namespace {
     enum { warnAboutFindFailures = 0 };
@@ -475,10 +474,10 @@ Command *ActionManagerPrivate::overridableAction(Id id)
 
 void ActionManagerPrivate::readUserSettings(Id id, Command *cmd)
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(kKeyboardSettingsKeyV2);
-    if (settings->contains(id.toString())) {
-        const QVariant v = settings->value(id.toString());
+    if (settings->contains(id.toKey())) {
+        const QVariant v = settings->value(id.toKey());
         if (QMetaType::Type(v.type()) == QMetaType::QStringList) {
             cmd->setKeySequences(Utils::transform<QList>(v.toStringList(), [](const QString &s) {
                 return QKeySequence::fromString(s);

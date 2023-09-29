@@ -8,7 +8,6 @@
 #include "utilstr.h"
 
 #include <QFileInfo>
-#include <QSettings>
 
 using namespace Utils;
 
@@ -17,19 +16,18 @@ QString UnixUtils::defaultFileBrowser()
     return QLatin1String("xdg-open %d");
 }
 
-QString UnixUtils::fileBrowser(const QSettings *settings)
+QString UnixUtils::fileBrowser(const QtcSettings *settings)
 {
     const QString dflt = defaultFileBrowser();
     if (!settings)
         return dflt;
-    return settings->value(QLatin1String("General/FileBrowser"), dflt).toString();
+    return settings->value("General/FileBrowser", dflt).toString();
 }
 
-void UnixUtils::setFileBrowser(QSettings *settings, const QString &term)
+void UnixUtils::setFileBrowser(QtcSettings *settings, const QString &term)
 {
-    QtcSettings::setValueWithDefault(settings, "General/FileBrowser", term, defaultFileBrowser());
+    settings->setValueWithDefault("General/FileBrowser", term, defaultFileBrowser());
 }
-
 
 QString UnixUtils::fileBrowserHelpText()
 {

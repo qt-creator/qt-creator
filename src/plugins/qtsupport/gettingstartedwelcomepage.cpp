@@ -116,7 +116,8 @@ FilePath ExamplesWelcomePage::copyToAlternativeLocation(const FilePath &proFile,
     if (code == Copy) {
         const QString exampleDirName = projectDir.fileName();
         const FilePath destBaseDir = chooser->filePath();
-        settings->setValueWithDefault(C_FALLBACK_ROOT, destBaseDir, defaultRootDirectory);
+        settings->setValueWithDefault(C_FALLBACK_ROOT, destBaseDir.toSettings(),
+                                                       defaultRootDirectory.toSettings());
         const FilePath targetDir = destBaseDir / exampleDirName;
         if (targetDir.exists()) {
             QMessageBox::warning(ICore::dialogParent(),

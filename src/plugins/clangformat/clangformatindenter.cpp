@@ -13,6 +13,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <utils/genericconstants.h>
+#include <utils/qtcsettings.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -23,6 +24,7 @@
 using namespace clang;
 using namespace format;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ClangFormat {
 
@@ -42,7 +44,7 @@ static bool isBeautifierOnSaveActivated()
     if (!isBeautifierPluginActivated())
         return false;
 
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     bool activated = false;
     s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
     s->beginGroup(Utils::Constants::BEAUTIFIER_GENERAL_GROUP);

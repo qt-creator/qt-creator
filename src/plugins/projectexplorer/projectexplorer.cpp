@@ -148,7 +148,6 @@
 #include <QMessageBox>
 #include <QPair>
 #include <QPushButton>
-#include <QSettings>
 #include <QThreadPool>
 #include <QTimer>
 #include <QVBoxLayout>

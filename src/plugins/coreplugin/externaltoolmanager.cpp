@@ -233,11 +233,11 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
 void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tools,
                                        QMap<QString, QList<ExternalTool *> > *categoryMap)
 {
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("ExternalTools"));
+    QtcSettings *settings = ICore::settings();
+    settings->beginGroup("ExternalTools");
 
     if (categoryMap) {
-        settings->beginGroup(QLatin1String("OverrideCategories"));
+        settings->beginGroup("OverrideCategories");
         const QStringList settingsCategories = settings->childGroups();
         for (const QString &settingsCategory : settingsCategories) {
             QString displayCategory = settingsCategory;
@@ -246,7 +246,7 @@ void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tool
             int count = settings->beginReadArray(settingsCategory);
             for (int i = 0; i < count; ++i) {
                 settings->setArrayIndex(i);
-                const QString &toolId = settings->value(QLatin1String("Tool")).toString();
+                const QString &toolId = settings->value("Tool").toString();
                 if (tools.contains(toolId)) {
                     ExternalTool *tool = tools.value(toolId);
                     // remove from old category
@@ -267,11 +267,11 @@ void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tool
 
 static void writeSettings()
 {
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("ExternalTools"));
-    settings->remove(QLatin1String(""));
+    QtcSettings *settings = ICore::settings();
+    settings->beginGroup("ExternalTools");
+    settings->remove("");
 
-    settings->beginGroup(QLatin1String("OverrideCategories"));
+    settings->beginGroup("OverrideCategories");
     for (auto it = d->m_categoryMap.cbegin(), end = d->m_categoryMap.cend(); it != end; ++it) {
         QString category = it.key();
         if (category.isEmpty())
@@ -281,7 +281,7 @@ static void writeSettings()
         const QList<ExternalTool *> values = it.value();
         for (const ExternalTool *tool : values) {
             settings->setArrayIndex(i);
-            settings->setValue(QLatin1String("Tool"), tool->id());
+            settings->setValue("Tool", tool->id());
             ++i;
         }
         settings->endArray();

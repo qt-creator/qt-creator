@@ -32,7 +32,6 @@
 #include <QPalette>
 #include <QPointer>
 #include <QPushButton>
-#include <QSettings>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QTimer>
@@ -767,7 +766,7 @@ void FontSettingsPageWidget::finish()
 
 FontSettingsPage::FontSettingsPage(FontSettings *fontSettings, const FormatDescriptions &fd)
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     if (settings)
        fontSettings->fromSettings(fd, settings);
 

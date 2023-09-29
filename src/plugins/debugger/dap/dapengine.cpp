@@ -63,6 +63,79 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
+VariablesHandler::VariablesHandler(DapEngine *dapEngine)
+    : m_dapEngine(dapEngine)
+{}
+
+void VariablesHandler::addVariable(const QString &iname, int variablesReference)
+{
+    VariableItem varItem = {iname, variablesReference};
+    bool wasEmpty = m_queue.empty();
+    bool inserted = false;
+
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i) {
+        if (i->iname > iname) {
+            m_queue.insert(i, varItem);
+            inserted = true;
+            break;
+        }
+    }
+    if (!inserted)
+        m_queue.push_back(varItem);
+
+    if (wasEmpty) {
+        startHandling();
+    }
+}
+
+void VariablesHandler::handleNext()
+{
+    if (m_queue.empty())
+        return;
+
+    m_queue.pop_front();
+    startHandling();
+}
+
+void VariablesHandler::startHandling()
+{
+    if (m_queue.empty())
+        return;
+
+    m_currentVarItem = m_queue.front();
+
+    WatchItem *watchItem = m_dapEngine->watchHandler()->findItem(m_currentVarItem.iname);
+    int variablesReference = m_currentVarItem.variablesReference;
+
+    if (variablesReference == -1 && watchItem && watchItem->iname.startsWith("watch.")
+        && watchItem->iname.split('.').size() == 2) {
+        watchItem->removeChildren();
+        m_dapEngine->dapClient()->evaluateVariable(watchItem->name,
+                                                   m_dapEngine->currentStackFrameId());
+        return;
+    }
+
+    if (variablesReference == -1) {
+        if (watchItem) {
+            variablesReference = watchItem->variablesReference;
+        } else {
+            handleNext();
+            return;
+        }
+    }
+
+    if (variablesReference == 0) {
+        handleNext();
+        return;
+    }
+
+    m_dapEngine->dapClient()->variables(variablesReference);
+}
+
+DapEngine::DapEngine()
+    : m_variablesHandler(std::make_unique<VariablesHandler>(this))
+{}
+
 void DapEngine::executeDebuggerCommand(const QString &/*command*/)
 {
     QTC_ASSERT(state() == InferiorStopOk, qCDebug(logCategory()) << state());
@@ -278,7 +351,6 @@ void DapEngine::updateBreakpoint(const Breakpoint &bp)
 {
     BreakpointParameters parameters = bp->requestedParameters();
     notifyBreakpointChangeProceeding(bp);
-    qDebug() << "updateBreakpoint";
 
     if (parameters.enabled != bp->isEnabled()) {
         if (bp->isEnabled())
@@ -351,13 +423,6 @@ void DapEngine::refreshModules(const GdbMi &modules)
     handler->endUpdateAll();
 }
 
-void DapEngine::requestModuleSymbols(const Utils::FilePath &/*moduleName*/)
-{
-//    DebuggerCommand cmd("listSymbols");
-//    cmd.arg("module", moduleName);
-//    runCommand(cmd);
-}
-
 void DapEngine::refreshState(const GdbMi &reportedState)
 {
     QString newState = reportedState.data();
@@ -400,25 +465,32 @@ bool DapEngine::canHandleToolTip(const DebuggerToolTipContext &) const
     return state() == InferiorStopOk;
 }
 
-void DapEngine::assignValueInDebugger(WatchItem *, const QString &/*expression*/, const QVariant &/*value*/)
-{
-    //DebuggerCommand cmd("assignValue");
-    //cmd.arg("expression", expression);
-    //cmd.arg("value", value.toString());
-    //runCommand(cmd);
-    //    postDirectCommand("global " + expression + ';' + expression + "=" + value.toString());
-    updateLocals();
-}
-
 void DapEngine::updateItem(const QString &iname)
 {
     WatchItem *item = watchHandler()->findItem(iname);
 
-    if (m_currentWatchItem != item) {
-        m_currentWatchItem = item;
-        m_isFirstLayer = false;
-        m_dapClient->variables(item->variablesReference);
+    if (item && m_variablesHandler->currentItem().iname != item->iname)
+        m_variablesHandler->addVariable(item->iname, item->variablesReference);
+}
+
+void DapEngine::reexpandItems(const QSet<QString> &inames)
+{
+    QSet<QString> expandedInames = inames;
+    for (auto inames : watchHandler()->watcherNames().keys())
+        expandedInames.insert(watchHandler()->watcherName(inames));
+
+    QList<QString> inamesVector = expandedInames.values().toVector();
+    inamesVector.sort();
+
+    for (const QString &iname : inamesVector) {
+        if (iname.startsWith("local.") || iname.startsWith("watch."))
+            m_variablesHandler->addVariable(iname, -1);
     }
+}
+
+void DapEngine::doUpdateLocals(const UpdateParameters &params)
+{
+    m_variablesHandler->addVariable(params.partialVariable, -1);
 }
 
 QString DapEngine::errorMessage(QProcess::ProcessError error) const
@@ -484,12 +556,6 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
 {
     const QString command = response.value("command").toString();
 
-    if (response.contains("success") && !response.value("success").toBool()) {
-        showMessage(QString("DAP COMMAND FAILED: %1").arg(command));
-        qCDebug(logCategory()) << "DAP COMMAND FAILED:" << command;
-        return;
-    }
-
     switch (type) {
     case DapResponseType::Initialize:
         qCDebug(logCategory()) << "initialize success";
@@ -529,9 +595,18 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
     case DapResponseType::DapThreads:
         handleThreadsResponse(response);
         break;
+    case DapResponseType::Evaluate:
+        handleEvaluateResponse(response);
+        break;
     default:
         showMessage("UNKNOWN RESPONSE:" + command);
     };
+
+    if (response.contains("success") && !response.value("success").toBool()) {
+        showMessage(QString("DAP COMMAND FAILED: %1").arg(command));
+        qCDebug(logCategory()) << "DAP COMMAND FAILED:" << command;
+        return;
+    }
 }
 
 void DapEngine::handleStackTraceResponse(const QJsonObject &response)
@@ -557,25 +632,17 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
     if (!response.value("success").toBool())
         return;
 
-    watchHandler()->cleanup();
-    watchHandler()->removeAllData();
     watchHandler()->notifyUpdateStarted();
-
-    m_watchItems.clear();
 
     QJsonArray scopes = response.value("body").toObject().value("scopes").toArray();
     for (const QJsonValueRef &scope : scopes) {
         const QString name = scope.toObject().value("name").toString();
         if (name == "Registers")
             continue;
-        m_variablesReferenceQueue.push(scope.toObject().value("variablesReference").toInt());
+        m_variablesHandler->addVariable("", scope.toObject().value("variablesReference").toInt());
     }
 
-    if (!m_variablesReferenceQueue.empty()) {
-        m_isFirstLayer = true;
-        m_dapClient->variables(m_variablesReferenceQueue.front());
-        m_variablesReferenceQueue.pop();
-    } else {
+    if (m_variablesHandler->queueSize() == 0) {
         watchHandler()->notifyUpdateFinished();
     }
 }
@@ -600,6 +667,28 @@ void DapEngine::handleThreadsResponse(const QJsonObject &response)
         if (thread && thread != threadsHandler()->currentThread())
             handler->setCurrentThread(thread);
     }
+}
+
+void DapEngine::handleEvaluateResponse(const QJsonObject &response)
+{
+    WatchItem *watchItem = watchHandler()->findItem(
+        m_variablesHandler->currentItem().iname);
+    if (watchItem
+        && response.value("body").toObject().contains("variablesReference")) {
+        watchItem->variablesReference
+            = response.value("body").toObject().value("variablesReference").toInt();
+        watchItem->value
+            = response.value("body").toObject().value("result").toString();
+        watchItem->type = response.value("body").toObject().value("type").toString();
+        watchItem->wantsChildren = watchItem->variablesReference > 0;
+
+        watchItem->updateValueCache();
+        watchItem->update();
+
+        m_variablesHandler->addVariable(watchItem->iname,
+                                        watchItem->variablesReference);
+    }
+    m_variablesHandler->handleNext();
 }
 
 void DapEngine::handleEvent(DapEventType type, const QJsonObject &event)
@@ -717,44 +806,42 @@ void DapEngine::handleBreakpointEvent(const QJsonObject &event)
 
 void DapEngine::refreshLocals(const QJsonArray &variables)
 {
+    WatchItem *currentItem = watchHandler()->findItem(m_variablesHandler->currentItem().iname);
+    if (currentItem && currentItem->iname.startsWith("watch"))
+        currentItem->removeChildren();
+
     for (auto variable : variables) {
         WatchItem *item = new WatchItem;
         const QString name = variable.toObject().value("name").toString();
-        if (m_isFirstLayer)
-            item->iname = "local." + name;
-        else
-            item->iname = m_currentWatchItem->iname + "." + name;
+
+        item->iname = (currentItem ? currentItem->iname : "local") + "."
+                      + name;
         item->name = name;
         item->type = variable.toObject().value("type").toString();
         item->value = variable.toObject().value("value").toString();
         item->address = variable.toObject().value("address").toInt();
         item->type = variable.toObject().value("type").toString();
+        item->variablesReference = variable.toObject().value("variablesReference").toInt();
+        item->wantsChildren = item->variablesReference > 0;
 
-        const int variablesReference = variable.toObject().value("variablesReference").toInt();
-        item->variablesReference = variablesReference;
-        if (variablesReference > 0)
-            item->wantsChildren = true;
-
-        qCDebug(logCategory()) << "variable" << name << variablesReference;
-        if (m_isFirstLayer)
-            m_watchItems.append(item);
+        qCDebug(logCategory()) << "variable" << item->iname << item->variablesReference;
+        if (currentItem)
+            currentItem->appendChild(item);
         else
-            m_currentWatchItem->appendChild(item);
+            watchHandler()->insertItem(item);
     }
 
-    if (m_isFirstLayer) {
-        if (m_variablesReferenceQueue.empty()) {
-            for (auto item : m_watchItems)
-                watchHandler()->insertItem(item);
-        } else {
-            m_dapClient->variables(m_variablesReferenceQueue.front());
-            m_variablesReferenceQueue.pop();
-        }
-    } else {
-        watchHandler()->updateWatchExpression(m_currentWatchItem, "");
+    QModelIndex idx = watchHandler()->model()->indexForItem(currentItem);
+    if (currentItem && idx.isValid() && idx.data(LocalsExpandedRole).toBool()) {
+        emit watchHandler()->model()->inameIsExpanded(currentItem->iname);
+        emit watchHandler()->model()->itemIsExpanded(idx);
     }
 
-    watchHandler()->notifyUpdateFinished();
+    if (m_variablesHandler->queueSize() == 1 && currentItem == nullptr) {
+        watchHandler()->notifyUpdateFinished();
+    }
+
+    m_variablesHandler->handleNext();
 }
 
 void DapEngine::refreshStack(const QJsonArray &stackFrames)
@@ -803,7 +890,8 @@ bool DapEngine::hasCapability(unsigned cap) const
     return cap & (ReloadModuleCapability
                   | BreakConditionCapability
                   | ShowModuleSymbolsCapability
-                  | RunToLineCapability);
+                  | RunToLineCapability
+                  | AddWatcherCapability);
 }
 
 void DapEngine::claimInitialBreakpoints()

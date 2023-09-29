@@ -16,6 +16,7 @@ class QtcSettings;
 using KeyList = QList<Key>;
 
 using Store = QMap<Key, QVariant>;
+using OldStore = QMap<QByteArray, QVariant>;
 
 QTCREATOR_UTILS_EXPORT KeyList keysFromStrings(const QStringList &list);
 QTCREATOR_UTILS_EXPORT QStringList stringsFromKeys(const KeyList &list);
@@ -33,6 +34,9 @@ QTCREATOR_UTILS_EXPORT Key numberedKey(const Key &key, int number);
 QTCREATOR_UTILS_EXPORT expected_str<Store> storeFromJson(const QByteArray &json);
 QTCREATOR_UTILS_EXPORT QByteArray jsonFromStore(const Store &store);
 
+// These recursively change type.
+QTCREATOR_UTILS_EXPORT QVariant storeEntryFromMapEntry(const QVariant &value);
+QTCREATOR_UTILS_EXPORT QVariant mapEntryFromStoreEntry(const QVariant &value);
 
 // Don't use in new code.
 QTCREATOR_UTILS_EXPORT Store storeFromSettings(const Key &groupKey, QtcSettings *s);
@@ -41,3 +45,4 @@ QTCREATOR_UTILS_EXPORT void storeToSettings(const Key &groupKey, QtcSettings *s,
 } // Utils
 
 Q_DECLARE_METATYPE(Utils::Store)
+Q_DECLARE_METATYPE(Utils::OldStore)

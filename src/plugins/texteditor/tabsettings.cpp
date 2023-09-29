@@ -4,7 +4,6 @@
 #include "tabsettings.h"
 
 #include <QDebug>
-#include <QSettings>
 #include <QTextCursor>
 #include <QTextDocument>
 

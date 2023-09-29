@@ -1894,7 +1894,7 @@ void MainWindowPrivate::registerDefaultActions()
                     Tr::tr(
                         "This will hide the menu bar completely. You can show it again by typing ")
                         + cmd->keySequence().toString(QKeySequence::NativeText),
-                    QString("ToogleMenuBarHint"));
+                    Key("ToogleMenuBarHint"));
             }
             globalMenuBar()->setVisible(visible);
         });
@@ -2233,7 +2233,7 @@ void MainWindow::aboutToShutdown()
 void MainWindowPrivate::readSettings()
 {
     QtcSettings *settings = PluginManager::settings();
-    settings->beginGroup(QLatin1String(settingsGroup));
+    settings->beginGroup(settingsGroup);
 
     if (m_overrideColor.isValid()) {
         StyleHelper::setBaseColor(m_overrideColor);
@@ -2278,7 +2278,7 @@ void MainWindowPrivate::readSettings()
 void MainWindow::saveSettings()
 {
     QtcSettings *settings = PluginManager::settings();
-    settings->beginGroup(QLatin1String(settingsGroup));
+    settings->beginGroup(settingsGroup);
 
     if (!(d->m_overrideColor.isValid() && StyleHelper::baseColor() == d->m_overrideColor))
         settings->setValueWithDefault(colorKey,

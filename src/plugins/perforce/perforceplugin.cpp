@@ -49,7 +49,6 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QRegularExpression>
-#include <QSettings>
 #include <QTextCodec>
 
 using namespace Core;

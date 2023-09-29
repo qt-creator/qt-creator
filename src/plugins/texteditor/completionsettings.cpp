@@ -3,29 +3,31 @@
 
 #include "completionsettings.h"
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
 
-static const char settingsGroup[]               = "CppTools/Completion";
-static const char caseSensitivityKey[]          = "CaseSensitivity";
-static const char completionTriggerKey[]        = "CompletionTrigger";
-static const char automaticProposalTimeoutKey[] = "AutomaticProposalTimeout";
-static const char characterThresholdKey[]       = "CharacterThreshold";
-static const char autoInsertBracesKey[]         = "AutoInsertBraces";
-static const char surroundingAutoBracketsKey[]  = "SurroundingAutoBrackets";
-static const char autoInsertQuotesKey[]         = "AutoInsertQuotes";
-static const char surroundingAutoQuotesKey[]    = "SurroundingAutoQuotes";
-static const char partiallyCompleteKey[]        = "PartiallyComplete";
-static const char spaceAfterFunctionNameKey[]   = "SpaceAfterFunctionName";
-static const char autoSplitStringsKey[]         = "AutoSplitStrings";
-static const char animateAutoCompleteKey[]      = "AnimateAutoComplete";
-static const char highlightAutoCompleteKey[]    = "HighlightAutoComplete";
-static const char skipAutoCompleteKey[]         = "SkipAutoComplete";
-static const char autoRemoveKey[]               = "AutoRemove";
-static const char overwriteClosingCharsKey[]    = "OverwriteClosingChars";
+using namespace Utils;
 
-using namespace TextEditor;
+namespace TextEditor {
 
-void CompletionSettings::toSettings(QSettings *s) const
+const char settingsGroup[]               = "CppTools/Completion";
+const char caseSensitivityKey[]          = "CaseSensitivity";
+const char completionTriggerKey[]        = "CompletionTrigger";
+const char automaticProposalTimeoutKey[] = "AutomaticProposalTimeout";
+const char characterThresholdKey[]       = "CharacterThreshold";
+const char autoInsertBracesKey[]         = "AutoInsertBraces";
+const char surroundingAutoBracketsKey[]  = "SurroundingAutoBrackets";
+const char autoInsertQuotesKey[]         = "AutoInsertQuotes";
+const char surroundingAutoQuotesKey[]    = "SurroundingAutoQuotes";
+const char partiallyCompleteKey[]        = "PartiallyComplete";
+const char spaceAfterFunctionNameKey[]   = "SpaceAfterFunctionName";
+const char autoSplitStringsKey[]         = "AutoSplitStrings";
+const char animateAutoCompleteKey[]      = "AnimateAutoComplete";
+const char highlightAutoCompleteKey[]    = "HighlightAutoComplete";
+const char skipAutoCompleteKey[]         = "SkipAutoComplete";
+const char autoRemoveKey[]               = "AutoRemove";
+const char overwriteClosingCharsKey[]    = "OverwriteClosingChars";
+
+void CompletionSettings::toSettings(QtcSettings *s) const
 {
     s->beginGroup(settingsGroup);
     s->setValue(caseSensitivityKey, (int) m_caseSensitivity);
@@ -47,7 +49,7 @@ void CompletionSettings::toSettings(QSettings *s) const
     s->endGroup();
 }
 
-void CompletionSettings::fromSettings(QSettings *s)
+void CompletionSettings::fromSettings(QtcSettings *s)
 {
     *this = CompletionSettings(); // Assign defaults
 
@@ -107,3 +109,5 @@ bool CompletionSettings::equals(const CompletionSettings &cs) const
         && m_overwriteClosingChars          == cs.m_overwriteClosingChars
         ;
 }
+
+} // TextEditor

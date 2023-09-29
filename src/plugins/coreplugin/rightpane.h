@@ -48,7 +48,7 @@ public:
     ~RightPaneWidget() override;
 
     void saveSettings(Utils::QtcSettings *settings);
-    void readSettings(QSettings *settings);
+    void readSettings(Utils::QtcSettings *settings);
 
     bool isShown() const;
     void setShown(bool b);

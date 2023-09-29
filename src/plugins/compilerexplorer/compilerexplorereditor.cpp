@@ -475,12 +475,13 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
     , m_undoStack(undoStack)
     , m_actionHandler(actionHandler)
 {
+    setContextMenuPolicy(Qt::NoContextMenu);
     setAutoHideTitleBars(false);
     setDockNestingEnabled(true);
     setDocumentMode(true);
     setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::TabPosition::South);
 
-    document->setWindowStateCallback([this] { return windowStateCallback(); });
+    document->setWindowStateCallback([this] { return storeFromMap(windowStateCallback()); });
 
     document->settings()->m_sources.setItemAddedCallback<SourceSettings>(
         [this](const std::shared_ptr<SourceSettings> &source) { addSourceEditor(source); });
@@ -524,6 +525,7 @@ void EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> &sourceSett
     compiler->setWindowTitle("Compiler #" + QString::number(idx));
     compiler->setObjectName("compiler_" + QString::number(idx));
     QDockWidget *dockWidget = addDockForWidget(compiler, parentDockWidget);
+    dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     m_compilerWidgets.append(dockWidget);
 
@@ -544,15 +546,15 @@ QVariantMap EditorWidget::windowStateCallback()
     auto settings = saveSettings();
     QVariantMap result;
 
-    for (const auto &key : settings.keys()) {
+    for (const Key &key : settings.keys()) {
         // QTBUG-116339
-        if (key != "State") {
-            result.insert(key, settings.value(key));
+        if (stringFromKey(key) != "State") {
+            result.insert(stringFromKey(key), settings.value(key));
         } else {
             QVariantMap m;
             m["type"] = "Base64";
             m["value"] = settings.value(key).toByteArray().toBase64();
-            result.insert(key, m);
+            result.insert(stringFromKey(key), m);
         }
     }
 
@@ -585,6 +587,7 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
         m_actionHandler.updateCurrentEditor();
     });
 
+    dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
     sourceSettings->compilers.forEachItem<CompilerSettings>(
@@ -646,12 +649,12 @@ void EditorWidget::recreateEditors()
     m_document->settings()->m_sources.forEachItem<SourceSettings>(
         [this](const auto &sourceSettings) { addSourceEditor(sourceSettings); });
 
-    QVariantMap windowState = m_document->settings()->windowState.value();
+    Store windowState = m_document->settings()->windowState.value();
 
     if (!windowState.isEmpty()) {
-        QHash<QString, QVariant> hashMap;
+        QHash<Key, QVariant> hashMap;
         for (const auto &key : windowState.keys()) {
-            if (key != "State")
+            if (key.view() != "State")
                 hashMap.insert(key, windowState.value(key));
             else {
                 QVariant v = windowState.value(key);

@@ -95,7 +95,7 @@ public:
 
     CompilerExplorerSettings *settings() { return &m_ceSettings; }
 
-    void setWindowStateCallback(std::function<QVariantMap()> callback)
+    void setWindowStateCallback(std::function<Utils::Store()> callback)
     {
         m_windowStateCallback = callback;
     }
@@ -105,7 +105,7 @@ signals:
 
 private:
     mutable CompilerExplorerSettings m_ceSettings;
-    std::function<QVariantMap()> m_windowStateCallback;
+    std::function<Utils::Store()> m_windowStateCallback;
     QUndoStack *m_undoStack;
 };
 
@@ -207,13 +207,11 @@ protected:
     QVariantMap windowStateCallback();
 
 private:
-    QSplitter *m_mainSplitter;
-    int m_compilerCount{0};
+    Core::IContext *m_context;
+
     QSharedPointer<JsonSettingsDocument> m_document;
     QUndoStack *m_undoStack;
     TextEditor::TextEditorActionHandler &m_actionHandler;
-
-    Core::IContext *m_context;
 
     QList<QDockWidget *> m_compilerWidgets;
     QList<QDockWidget *> m_sourceWidgets;

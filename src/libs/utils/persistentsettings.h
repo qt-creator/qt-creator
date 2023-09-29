@@ -26,7 +26,7 @@ public:
     FilePath filePath();
 
 private:
-    Store m_valueMap;
+    QVariantMap m_valueMap;
     FilePath m_filePath;
 };
 

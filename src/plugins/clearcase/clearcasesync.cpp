@@ -118,7 +118,7 @@ void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QStrin
         ClearCasePlugin::setStatus(absFile, FileStatus::CheckedIn, true);
 }
 
-void ClearCaseSync::updateTotalFilesCount(const QString &view, ClearCaseSettings settings,
+void ClearCaseSync::updateTotalFilesCount(const Key &view, ClearCaseSettings settings,
                                           const int processed)
 {
     settings = ClearCasePlugin::settings(); // Might have changed while task was running
@@ -138,7 +138,7 @@ void ClearCaseSync::updateStatusForNotManagedFiles(const QStringList &files)
 void ClearCaseSync::syncSnapshotView(QPromise<void> &promise, QStringList &files,
                                      const ClearCaseSettings &settings)
 {
-    const QString view = ClearCasePlugin::viewData().name;
+    const Key view = keyFromString(ClearCasePlugin::viewData().name);
 
     int totalFileCount = files.size();
     const bool hot = (totalFileCount < 10);

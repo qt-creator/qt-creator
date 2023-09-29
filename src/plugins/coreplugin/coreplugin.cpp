@@ -49,7 +49,6 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
-#include <QSettings>
 #include <QUuid>
 
 #include <cstdlib>
@@ -81,6 +80,7 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::Store>();
     qRegisterMetaType<Utils::Key>();
     qRegisterMetaType<Utils::KeyList>();
+    qRegisterMetaType<Utils::OldStore>();
     m_instance = this;
     setupSystemEnvironment();
 }
@@ -402,7 +402,7 @@ void CorePlugin::checkSettings()
             msgBox.exec();
         }, Qt::QueuedConnection);
     };
-    const QSettings * const userSettings = ICore::settings();
+    const QtcSettings * const userSettings = ICore::settings();
     QString errorDetails;
     switch (userSettings->status()) {
     case QSettings::NoError: {

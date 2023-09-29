@@ -6125,7 +6125,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         if (!error.isEmpty())
             showMessage(MessageError, error);
     } else {
-        Utils::Key optionName = Utils::keyFromString(cmd.args);
+        QString optionName = cmd.args;
 
         bool toggleOption = optionName.endsWith('!');
         bool printOption = !toggleOption && optionName.endsWith('?');
@@ -6136,14 +6136,14 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         if (negateOption)
             optionName.remove(0, 2);
 
-        FvBaseAspect *act = s.item(optionName);
+        FvBaseAspect *act = s.item(Utils::keyFromString(optionName));
         if (!act) {
             showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + cmd.args);
         } else if (act->defaultVariantValue().type() == QVariant::Bool) {
             bool oldValue = act->variantValue().toBool();
             if (printOption) {
                 showMessage(MessageInfo, QLatin1String(oldValue ? "" : "no")
-                            + act->settingsKey().toLower());
+                            + act->settingsKey().toByteArray().toLower());
             } else if (toggleOption || negateOption == oldValue) {
                 act->setVariantValue(!oldValue);
             }
@@ -6152,7 +6152,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         } else if (toggleOption) {
             showMessage(MessageError, Tr::tr("Trailing characters:") + ' ' + cmd.args);
         } else {
-            showMessage(MessageInfo, act->settingsKey().toLower() + "="
+            showMessage(MessageInfo, act->settingsKey().toByteArray().toLower() + "="
                         + act->variantValue().toString());
         }
     }

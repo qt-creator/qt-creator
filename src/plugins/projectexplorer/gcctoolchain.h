@@ -192,10 +192,8 @@ public:
     Toolchains detectForImport(const ToolChainDescription &tcd) const final;
 
 private:
-    enum class DetectVariants { Yes, No };
     using ToolchainChecker = std::function<bool(const ToolChain *)>;
-    static Toolchains autoDetectToolchains(const QString &compilerName,
-                                           DetectVariants detectVariants,
+    static Toolchains autoDetectToolchains(const Utils::FilePaths &compilerPaths,
                                            const Utils::Id language,
                                            const Utils::Id requiredTypeId,
                                            const ToolchainDetector &detector,

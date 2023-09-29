@@ -7,9 +7,11 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
 #include <qmljstools/qmljstoolsconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
@@ -22,7 +24,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
-#include <QSettings>
 #include <QTextStream>
 #include <QTreeView>
 
@@ -43,8 +44,10 @@ const char DISABLED_MESSAGES[] = "QmlJSEditor.disabledMessages";
 const char DISABLED_MESSAGES_NONQUICKUI[] = "QmlJSEditor.disabledMessagesNonQuickUI";
 const char DEFAULT_CUSTOM_FORMAT_COMMAND[] = "%{CurrentDocument:Project:QT_HOST_BINS}/qmlformat";
 
-using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
+using namespace Utils;
+
+namespace QmlJSEditor {
 
 static QList<int> defaultDisabledMessages()
 {
@@ -90,7 +93,7 @@ static QStringList defaultDisabledNonQuickUiAsString()
     return result;
 }
 
-void QmlJsEditingSettings::fromSettings(QSettings *settings)
+void QmlJsEditingSettings::fromSettings(QtcSettings *settings)
 {
     settings->beginGroup(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     m_enableContextPane = settings->value(QML_CONTEXTPANE_KEY, QVariant(false)).toBool();
@@ -120,7 +123,7 @@ void QmlJsEditingSettings::fromSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void QmlJsEditingSettings::toSettings(QSettings *settings) const
+void QmlJsEditingSettings::toSettings(QtcSettings *settings) const
 {
     settings->beginGroup(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     settings->setValue(QML_CONTEXTPANE_KEY, m_enableContextPane);
@@ -132,27 +135,16 @@ void QmlJsEditingSettings::toSettings(QSettings *settings) const
     settings->setValue(USE_QMLLS, m_qmllsSettings.useQmlls);
     settings->setValue(USE_LATEST_QMLLS, m_qmllsSettings.useLatestQmlls);
     settings->setValue(DISABLE_BUILTIN_CODEMODEL, m_qmllsSettings.disableBuiltinCodemodel);
-    Utils::QtcSettings::setValueWithDefault(settings, FORMAT_COMMAND, m_formatCommand, {});
-    Utils::QtcSettings::setValueWithDefault(settings,
-                                            FORMAT_COMMAND_OPTIONS,
-                                            m_formatCommandOptions,
-                                            {});
-    Utils::QtcSettings::setValueWithDefault(settings,
-                                            CUSTOM_COMMAND,
-                                            m_useCustomFormatCommand,
-                                            false);
-    Utils::QtcSettings::setValueWithDefault(settings,
-                                            CUSTOM_ANALYZER,
-                                            m_useCustomAnalyzer,
-                                            false);
-    Utils::QtcSettings::setValueWithDefault(settings,
-                                            DISABLED_MESSAGES,
-                                            intListToStringList(Utils::sorted(Utils::toList(m_disabledMessages))),
-                                            defaultDisabledMessagesAsString());
-    Utils::QtcSettings::setValueWithDefault(settings,
-                                            DISABLED_MESSAGES_NONQUICKUI,
-                                            intListToStringList(Utils::sorted(Utils::toList(m_disabledMessagesForNonQuickUi))),
-                                            defaultDisabledNonQuickUiAsString());
+    settings->setValueWithDefault(FORMAT_COMMAND, m_formatCommand, {});
+    settings->setValueWithDefault(FORMAT_COMMAND_OPTIONS, m_formatCommandOptions, {});
+    settings->setValueWithDefault(CUSTOM_COMMAND, m_useCustomFormatCommand, false);
+    settings->setValueWithDefault(CUSTOM_ANALYZER, m_useCustomAnalyzer, false);
+    settings->setValueWithDefault(DISABLED_MESSAGES,
+                                  intListToStringList(Utils::sorted(Utils::toList(m_disabledMessages))),
+                                  defaultDisabledMessagesAsString());
+    settings->setValueWithDefault(DISABLED_MESSAGES_NONQUICKUI,
+                                  intListToStringList(Utils::sorted(Utils::toList(m_disabledMessagesForNonQuickUi))),
+                                  defaultDisabledNonQuickUiAsString());
     settings->endGroup();
     QmllsSettingsManager::instance()->checkForChanges();
 }
@@ -590,3 +582,5 @@ QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
     setCategory(Constants::SETTINGS_CATEGORY_QML);
     setWidgetCreator([] { return new QmlJsEditingSettingsPageWidget; });
 }
+
+} // QmlJsEditor

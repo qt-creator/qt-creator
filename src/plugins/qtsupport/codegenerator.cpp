@@ -11,7 +11,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDomDocument>
-#include <QSettings>
 #include <QTextStream>
 #include <QXmlStreamReader>
 

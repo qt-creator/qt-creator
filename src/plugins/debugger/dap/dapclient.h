@@ -51,6 +51,7 @@ enum class DapResponseType
     StepOut,
     StepOver,
     Pause,
+    Evaluate,
     Unknown
 };
 
@@ -93,11 +94,14 @@ public:
     void sendStepOut(int threadId);
     void sendStepOver(int threadId);
 
+    void evaluateVariable(const QString &expression, int frameId);
+
     void stackTrace(int threadId);
     void scopes(int frameId);
     void threads();
     void variables(int variablesReference);
     void setBreakpoints(const QJsonArray &breakpoints, const Utils::FilePath &fileName);
+
     void emitSignals(const QJsonDocument &doc);
 
 signals:

@@ -12,6 +12,9 @@
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
+
+#include <utils/qtcsettings.h>
+#include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
@@ -22,6 +25,8 @@
 #include <QToolButton>
 
 #include <optional>
+
+using namespace Utils;
 
 namespace TextEditor::Internal {
 
@@ -43,7 +48,7 @@ public:
     {
         m_document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
 
-        QSettings *s = Core::ICore::settings();
+        QtcSettings *s = Core::ICore::settings();
         const bool textEditorRight
             = s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT, kTextEditorRightDefault).toBool();
         const bool showPreview = s->value(MARKDOWNVIEWER_SHOW_PREVIEW, kShowPreviewDefault).toBool();

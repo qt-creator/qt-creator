@@ -862,7 +862,7 @@ void ProjectWindow::savePersistentSettings() const
 {
     if (!centralWidget())
         return;
-    QSettings * const settings = ICore::settings();
+    QtcSettings * const settings = ICore::settings();
     settings->beginGroup(PROJECT_WINDOW_KEY);
     saveSettings(settings);
     settings->endGroup();
@@ -872,7 +872,7 @@ void ProjectWindow::loadPersistentSettings()
 {
     if (!centralWidget())
         return;
-    QSettings * const settings = ICore::settings();
+    QtcSettings * const settings = ICore::settings();
     settings->beginGroup(PROJECT_WINDOW_KEY);
     restoreSettings(settings);
     settings->endGroup();

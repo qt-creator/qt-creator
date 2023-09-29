@@ -97,9 +97,9 @@ void DebugServerProviderManager::restoreProviders()
         Store map = storeFromVariant(data.value(key));
         const KeyList keys = map.keys();
         for (const Key &key : keys) {
-            const int lastDot = key.lastIndexOf('.');
+            const int lastDot = key.view().lastIndexOf('.');
             if (lastDot != -1)
-                map[key.mid(lastDot + 1)] = map[key];
+                map[key.toByteArray().mid(lastDot + 1)] = map[key];
         }
         bool restored = false;
         for (IDebugServerProviderFactory *f : std::as_const(m_factories)) {

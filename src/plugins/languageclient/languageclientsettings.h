@@ -135,7 +135,7 @@ class LANGUAGECLIENT_EXPORT LanguageClientSettings
 {
 public:
     static void init();
-    static QList<BaseSettings *> fromSettings(QSettings *settings);
+    static QList<BaseSettings *> fromSettings(Utils::QtcSettings *settings);
     static QList<BaseSettings *> pageSettings();
     static QList<BaseSettings *> changedSettings();
 
@@ -146,7 +146,7 @@ public:
     static void registerClientType(const ClientType &type);
     static void addSettings(BaseSettings *settings);
     static void enableSettings(const QString &id, bool enable = true);
-    static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);
+    static void toSettings(Utils::QtcSettings *settings, const QList<BaseSettings *> &languageClientSettings);
 
     static bool outlineComboBoxIsSorted();
     static void setOutlineComboBoxSorted(bool sorted);

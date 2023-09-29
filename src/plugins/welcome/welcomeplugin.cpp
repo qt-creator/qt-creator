@@ -399,7 +399,7 @@ WelcomeMode::~WelcomeMode()
 
 void WelcomeMode::initPlugins()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     m_activePage = Id::fromSetting(settings->value(currentPageSettingsKeyC));
 
     for (IWelcomePage *page : IWelcomePage::allWelcomePages())

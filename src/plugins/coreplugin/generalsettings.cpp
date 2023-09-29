@@ -255,8 +255,8 @@ void GeneralSettingsWidget::resetLanguage()
 
 QString GeneralSettingsWidget::language()
 {
-    QSettings *settings = ICore::settings();
-    return settings->value(QLatin1String("General/OverrideLanguage")).toString();
+    QtcSettings *settings = ICore::settings();
+    return settings->value("General/OverrideLanguage").toString();
 }
 
 void GeneralSettingsWidget::setLanguage(const QString &locale)
@@ -285,7 +285,7 @@ void GeneralSettingsWidget::fillCodecBox() const
 
 QByteArray GeneralSettingsWidget::codecForLocale()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     QByteArray codec = settings->value(settingsKeyCodecForLocale).toByteArray();
     if (codec.isEmpty())
         codec = QTextCodec::codecForLocale()->name();

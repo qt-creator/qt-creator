@@ -89,7 +89,7 @@ QString QtWizard::templateDir()
 
 bool QtWizard::lowerCaseFiles()
 {
-    Key lowerCaseSettingsKey = CppEditor::Constants::CPPEDITOR_SETTINGSGROUP;
+    QByteArray lowerCaseSettingsKey = CppEditor::Constants::CPPEDITOR_SETTINGSGROUP;
     lowerCaseSettingsKey += '/';
     lowerCaseSettingsKey += CppEditor::Constants::LOWERCASE_CPPFILES_KEY;
     const bool lowerCaseDefault = CppEditor::Constants::LOWERCASE_CPPFILES_DEFAULT;

@@ -93,6 +93,13 @@ public:
         });
     }
 
+    void registerIconForMimeType(const QIcon &icon, const QString &mimeName)
+    {
+        // avoid accessing the MIME database right away
+        m_mimeUpdater.append(
+            [this, icon, mimeName] { addIconForMimeType(icon, Utils::mimeTypeForName(mimeName)); });
+    }
+
     void registerIconOverlayForMimeType(const QString &iconFilePath, const QString &mimeName)
     {
         // avoid accessing the MIME database right away
@@ -121,6 +128,13 @@ private:
         const QStringList suffixes =  mimeType.suffixes();
         for (const QString &suffix : suffixes)
             registerIconOverlayForSuffix(iconFilePath, suffix);
+    }
+
+    void addIconForMimeType(const QIcon &icon, const Utils::MimeType &mimeType)
+    {
+        const QStringList suffixes = mimeType.suffixes();
+        for (const QString &suffix : suffixes)
+            m_suffixCache.insert(suffix, icon);
     }
 
     void ensureMimeOverlays() const
@@ -304,6 +318,11 @@ void registerIconOverlayForSuffix(const QString &path, const QString &suffix)
 void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
 {
     instance()->registerIconOverlayForMimeType(icon, mimeType);
+}
+
+void registerIconForMimeType(const QIcon &icon, const QString &mimeType)
+{
+    instance()->registerIconForMimeType(icon, mimeType);
 }
 
 /*!

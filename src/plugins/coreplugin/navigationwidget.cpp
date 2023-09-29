@@ -15,11 +15,9 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QAction>
 #include <QCoreApplication>
 #include <QDebug>
-#include <QSettings>
-
-#include <QAction>
 #include <QHBoxLayout>
 #include <QResizeEvent>
 #include <QStandardItemModel>

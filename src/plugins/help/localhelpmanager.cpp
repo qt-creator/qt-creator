@@ -137,7 +137,7 @@ void LocalHelpManager::setHomePage(const QString &page)
 
 QFont LocalHelpManager::fallbackFont()
 {
-    QSettings *settings = Core::ICore::settings();
+    Utils::QtcSettings *settings = Core::ICore::settings();
     const QString family = settings->value(kFontFamilyKey, defaultFallbackFontFamily()).toString();
     const int size = settings->value(kFontSizeKey, kDefaultFallbackFontSize).toInt();
     QFont font(family, size);

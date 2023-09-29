@@ -61,7 +61,7 @@ static void startFlashingWizard()
 
 static bool isFlashActionDisabled()
 {
-    QSettings * const settings = Core::ICore::settings();
+    QtcSettings * const settings = Core::ICore::settings();
     settings->beginGroup(settingsGroupKey());
     bool disabled = settings->value("flashActionDisabled", false).toBool();
     settings->endGroup();

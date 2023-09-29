@@ -541,7 +541,7 @@ void SessionManagerPrivate::restoreSessionValues(const PersistentSettingsReader 
     // restore toplevel items that are not restored by restoreValues
     const auto end = values.constEnd();
     for (auto it = values.constBegin(); it != end; ++it) {
-        if (it.key() == "valueKeys" || it.key().startsWith("value-"))
+        if (it.key() == "valueKeys" || it.key().view().startsWith("value-"))
             continue;
         m_sessionValues.insert(it.key(), it.value());
     }

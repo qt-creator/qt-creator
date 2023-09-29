@@ -5,15 +5,14 @@
 
 #include "utils_global.h"
 
-#include <QMainWindow>
+#include "storekey.h"
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QMainWindow>
 
 namespace Utils {
 
 struct FancyMainWindowPrivate;
+class QtcSettings;
 
 class QTCREATOR_UTILS_EXPORT FancyMainWindow : public QMainWindow
 {
@@ -30,10 +29,10 @@ public:
 
     void setTrackingEnabled(bool enabled);
 
-    void saveSettings(QSettings *settings) const;
-    void restoreSettings(const QSettings *settings);
-    QHash<QString, QVariant> saveSettings() const;
-    void restoreSettings(const QHash<QString, QVariant> &settings);
+    void saveSettings(QtcSettings *settings) const;
+    void restoreSettings(const QtcSettings *settings);
+    QHash<Key, QVariant> saveSettings() const;
+    void restoreSettings(const QHash<Key, QVariant> &settings);
 
     // Additional context menu actions
     QAction *menuSeparator1() const;
