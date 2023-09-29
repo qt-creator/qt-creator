@@ -71,6 +71,7 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
+        opacity: 0.99
     }
 
     Model { // Subdivision lines
@@ -90,6 +91,7 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
+        opacity: 0.99
     }
 
     Model { // Z Axis
@@ -108,6 +110,7 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
+        opacity: 0.99
     }
     Model { // X Axis
         readonly property bool _edit3dLocked: true // Make this non-pickable
@@ -126,5 +129,6 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
+        opacity: 0.99
     }
 }
