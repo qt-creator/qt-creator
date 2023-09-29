@@ -119,6 +119,9 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, U
         cmdLine.addArg(directory);
         return cmdLine;
     });
+
+    if(target())
+        target()->setNamedSettings("IS_MCU_QDS_PROJECT", true);
 }
 
 QString DeployMcuProcessStep::findKitInformation(ProjectExplorer::Kit *kit, const QString &key)
