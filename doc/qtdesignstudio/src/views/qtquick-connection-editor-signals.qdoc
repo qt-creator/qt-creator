@@ -38,88 +38,125 @@
     For more information about signals and signal handlers, see
     \l{Signal and Handler Event System}.
 
+    \section1 Connecting Components to Signals in the Connection View
+
     You can connect components to signals that are available to them in
-    \uicontrol Connections.
+    \uicontrol Connections. Then define \uicontrol Action for them. You can
+    put \b {logical conditions} on this \uicontrol Actions to control them
+    according to your needs.
 
-    \image qmldesigner-connections.png
+    \image qmldesigner-connections-advanced.webp
 
-    To connect components to signals:
+    Initiate a new connection for a component:
 
     \list 1
-        \li Go to the \uicontrol Connections tab in the \l Connections view.
+        \li Select the component you want to connect in the \uicontrol Navigator or \uicontrol 2D
+        view.
+        \li Go to the \uicontrol Connections tab in the \uicontrol Connections view.
         \li Select the \inlineimage icons/plus.png
             (\uicontrol Add) button to add a connection.
-        \li Double-click the value in the \uicontrol Target column to add the
-            component to connect to a signal.
-        \li Double-click the value in the \uicontrol {Signal Handler} column to
-            select the signal that the connection will listen to from a list of
-            all signals available for the component.
-        \li Double-click the value in the \uicontrol Actions column to specify
-            the action to perform when the signal is emitted. You use JavaScript
-            to specify the actions.
     \endlist
 
-    Right-click a connection and select \uicontrol {Open Connection Editor}
-    in the context menu to specify the connection in
-    \uicontrol {Connection Editor}.
+    \image qmldesigner-connections-editor.webp
 
-    For examples of using the \uicontrol {Connections} view, see:
-
-    \list
-        \li \l{Connecting Buttons to States} in \l{Log In UI - States}
-        \li \l{Connecting Buttons to State Changes} in \l{Washing Machine UI}
-    \endlist
-
-    \section1 Adding Signal Handlers
-
-    If a signal handler that you need is not listed in the
-    \uicontrol {Signal Handler} column, you can add it:
+    Connect component \uicontrol Signal to \uicontrol Action:
 
     \list 1
-        \li Right-click a component in the \l Navigator or \l {2D} view
-            and select \uicontrol {Add New Signal Handler} in the context menu.
-        \li In the \uicontrol Signal field, select the signal to handle.
-            \image qmldesigner-implement-signal-handler.png "Implement Signal Handler dialog"
-        \li Select the radio buttons to filter the list to only display
-            frequently used signals or property changes.
-        \li Select \uicontrol OK.
+        \li Select the interaction \uicontrol Signal for the \uicontrol Target component with
+            which you want to connect an \uicontrol Action.
+        \li Select an \uicontrol Action that you want to implement when the selected
+            \uicontrol Signal for the \uicontrol Target component is initiated.
+        \li You get different properties or sub-sections associated with the selected
+            \uicontrol Action. Select \uicontrol {Item/Method/State/Property/Value} from related
+            sub-sections. This way you can formulate changes in the design by manipulating
+            components.
+        \li Select \uicontrol {Add Condition} to include a logic to the selected \uicontrol Action.
+            To do this, you can first select the component you want to put logic on, and then
+            select the conditional statements \e {(i.e. AND, OR, EQUAL, NOT EQUAL, GREATER, LESS,
+            GREATER OR EQUAL, LESS OR EQUAL)} and then select another component to compare
+            between them.
+        \li Optional. You can include an \uicontrol {Else Statement} by selecting the
+            \uicontrol {Else Statement} control and adding components and conditional
+            statements in a similar way to the previous step.
+        \li Optional. To use complex conditional statements, select the \uicontrol {Manual Edit}
+            control. After you have entered your JavaScript statements, close the window to apply
+            them.
     \endlist
 
-    The added signal handler is automatically \l{Adding Property Aliases}
-    {exported as a property}.
+    \note Select a connection to re-open the \uicontrol {Connection Editor} for any
+        previously created \uicontrol Connection.
+    \note Select \inlineimage icons/minus.png
+          (\uicontrol Remove) to delete a connection.
 
-    \section1 Adding Actions and Assignments
+
+    \section1 Actions and Conditions
 
     You use the \uicontrol {Connection Editor} to create the JavaScript
-    expressions for \e actions and \e assignments. An \e action connects
-    an component to a signal, whereas an \e assignment fetches property values
-    from another component.
+    expressions for \e actions with \e conditions. An \e action connects
+    a component to a signal, whereas \e conditions fetch property values
+    from other components and compare them to each other. Based on that, you can later change
+    the components with JavaScript expressions.
 
     For more information about the logical operators that you can use to
     construct conditional expressions, see \l {Summary of Logical Operators}.
 
-    To create JavaScript expressions for actions:
+    \section2 Creating JavaScript Expressions
 
-    \list 1
-        \li Select \uicontrol {Open Connection Editor} in the context menu
-            in \uicontrol {Connections}.
-            \image qtquick-connection-editor-action.png
-        \li Select \uicontrol Action as the type of the connections component.
-        \li Select the component to connect to a signal.
-        \li Select the action to perform when the signal is emitted.
+    There are two ways to create JavaScript expressions for actions:
+
+    \list
+      \li Follow the steps described above in Connect component \uicontrol Signal to
+          \uicontrol Action. For a list of \uicontrol Actions and their properties, see
+          \l {Action Properties}.
+          \image qmldesigner-connections-ConditionalAction-Autometic.webp
+      \li Open the \uicontrol {Manual Code Edit} window from the
+          \uicontrol {Connections} view and write JavaScript expressions with components
+          and logical expressions manually.
     \endlist
 
-    To create JavaScript expressions for assignments:
+    \section2 Action Properties
 
-    \list 1
-        \li Select \uicontrol {Open Connection Editor} in the context menu
-            in \uicontrol {Connections}.
-            \image qtquick-connection-editor-assignment.png
-        \li Select \uicontrol Assignment as the type of the connections
-            component.
-        \li Select the target component for the property assignment.
-        \li Select the property of the target component to assign a value to.
-        \li Select the source component for the property assignment.
-        \li Select the property of the source component to fetch the value from.
-    \endlist
+    \table
+        \header
+            \li Action
+            \li 1st Property
+            \li 2nd Property
+        \row
+            \li \uicontrol {Call Function}
+            \li \uicontrol {Item}: [Sets the component that is affected by the action of the
+                \b Target component's \b Signal.]
+            \li \uicontrol {Method}: [Sets the item component's method that is affected by the
+                \b Target component's \b Signal.]
+        \row
+            \li \uicontrol {Assign}
+            \li \uicontrol {From}: [Sets the component and its property from which the value
+                is copied when the \b Target component initiates the \b Signal.]
+            \li \uicontrol {To}: [Sets the component and its property to which the copied value
+                is assigned when the \b Target component initiates the \b Signal.]
+        \row
+            \li \uicontrol {Change State}
+            \li \uicontrol {State Group}: [Sets a \b {State Group} that is accessed when the
+                \b Target component initiates the \b Signal.]
+            \li \uicontrol {State}: [Sets a \b State within the assigned \b {State Group}
+                that is accessed when the \b Target component initiates the \b Signal.]
+        \row
+            \li \uicontrol {Set Property}
+            \li \uicontrol {Item}: [Sets the component that is affected by the action
+                of the \b Target component's \b Signal.]
+            \li \uicontrol {Property}: [Sets the property of the component that is
+                affected by the action of the \b Target component's \b Signal.]
+        \row
+            \li \uicontrol {Print Message}
+            \li \uicontrol {Message}: [Sets a text that is printed when the \b Signal
+                of the \b Target component initiates.]
+            \li N/A
+    \endtable
+
+    \note If you create a conditional expression by selecting options from drop-down menus in
+            the \uicontrol {Connection} view, you can only create a single
+            level {if-else} expression. For nested level \e {if-elseif-else} expressions,
+            you have to use the \uicontrol {Manual Code Edit}.
+
+    \image qmldesigner-connections-ConditionalAction-Manual.webp
+
 */
