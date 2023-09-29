@@ -285,11 +285,11 @@ static void setHighDpiEnvironmentVariable()
 
     std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
 
-    const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
-    const bool enableHighDpiScaling = settings->value("Core/EnableHighDpiScaling", defaultValue).toBool();
-    const auto policy = enableHighDpiScaling ? Qt::HighDpiScaleFactorRoundingPolicy::PassThrough
-                                             : Qt::HighDpiScaleFactorRoundingPolicy::Floor;
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(policy);
+    using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
+    const Policy defaultPolicy = Utils::HostOsInfo::defaultHighDpiScaleFactorRoundingPolicy();
+    const Policy userPolicy = settings->value("Core/HighDpiScaleFactorRoundingPolicy",
+                                              int(defaultPolicy)).value<Policy>();
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(userPolicy);
 }
 
 void setPixmapCacheLimit()
@@ -522,8 +522,6 @@ int main(int argc, char **argv)
     }
 
     qputenv("QSG_RHI_BACKEND", "opengl");
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
-                Qt::HighDpiScaleFactorRoundingPolicy::Round);
 
     if (qEnvironmentVariableIsSet("QTCREATOR_DISABLE_NATIVE_MENUBAR")
             || qgetenv("XDG_CURRENT_DESKTOP").startsWith("Unity")) {

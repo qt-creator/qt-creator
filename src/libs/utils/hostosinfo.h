@@ -90,6 +90,12 @@ public:
 
     static const FilePath &root();
 
+    static constexpr Qt::HighDpiScaleFactorRoundingPolicy
+    defaultHighDpiScaleFactorRoundingPolicy() {
+        return isMacHost() ? Qt::HighDpiScaleFactorRoundingPolicy::Unset
+                           : Qt::HighDpiScaleFactorRoundingPolicy::PassThrough;
+    }
+
 private:
     static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity;
     static bool m_useOverrideFileNameCaseSensitivity;

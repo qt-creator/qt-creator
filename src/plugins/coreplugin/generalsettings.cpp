@@ -37,7 +37,7 @@ using namespace Layouting;
 
 namespace Core::Internal {
 
-const char settingsKeyDPI[] = "Core/EnableHighDpiScaling";
+const char settingsKeyDpiPolicy[] = "Core/HighDpiScaleFactorRoundingPolicy";
 const char settingsKeyCodecForLocale[] = "General/OverrideCodecForLocale";
 const char settingsKeyToolbarStyle[] = "General/ToolbarStyle";
 
@@ -89,6 +89,7 @@ public:
     static QByteArray codecForLocale();
     static void setCodecForLocale(const QByteArray&);
     void fillToolbarSyleBox() const;
+    static void setDpiPolicy(Qt::HighDpiScaleFactorRoundingPolicy policy);
 
     QComboBox *m_languageBox;
     QComboBox *m_codecBox;
@@ -96,6 +97,7 @@ public:
     ThemeChooser *m_themeChooser;
     QPushButton *m_resetWarningsButton;
     QComboBox *m_toolbarStyleBox;
+    QComboBox *m_policyComboBox = nullptr;
 };
 
 GeneralSettingsWidget::GeneralSettingsWidget()
@@ -134,16 +136,23 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     form.addRow({Tr::tr("Language:"), m_languageBox, st});
 
     if (!Utils::HostOsInfo::isMacHost()) {
-        auto dpiCheckbox = new QCheckBox(Tr::tr("Enable high DPI scaling"));
-        form.addRow({empty, dpiCheckbox});
-        const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
-        dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
-        connect(dpiCheckbox, &QCheckBox::toggled, this, [defaultValue](bool checked) {
-            ICore::settings()->setValueWithDefault(settingsKeyDPI, checked, defaultValue);
-            QMessageBox::information(ICore::dialogParent(),
-                                     Tr::tr("Restart Required"),
-                                     Tr::tr("The high DPI settings will take effect after restart."));
-        });
+        using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
+        m_policyComboBox = new QComboBox;
+        m_policyComboBox->addItem(Tr::tr("Round up for .5 and above"), int(Policy::Round));
+        m_policyComboBox->addItem(Tr::tr("Always round up"), int(Policy::Ceil));
+        m_policyComboBox->addItem(Tr::tr("Always round down"), int(Policy::Floor));
+        m_policyComboBox->addItem(Tr::tr("Round up for .75 and above"),
+                                int(Policy::RoundPreferFloor));
+        m_policyComboBox->addItem(Tr::tr("Don't round"), int(Policy::PassThrough));
+        m_policyComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+        const Policy userPolicy =
+            ICore::settings()->value(settingsKeyDpiPolicy,
+                                     int(HostOsInfo::defaultHighDpiScaleFactorRoundingPolicy()))
+                                      .value<Policy>();
+        m_policyComboBox->setCurrentIndex(m_policyComboBox->findData(int(userPolicy)));
+
+        form.addRow({Tr::tr("DPI Rounding Policy:"), m_policyComboBox, st});
     }
 
     form.addRow({empty, generalSettings().showShortcutsInContextMenus});
@@ -214,6 +223,11 @@ void GeneralSettingsWidget::apply()
 
     int currentIndex = m_languageBox->currentIndex();
     setLanguage(m_languageBox->itemData(currentIndex, Qt::UserRole).toString());
+    if (m_policyComboBox) {
+        const Qt::HighDpiScaleFactorRoundingPolicy selectedPolicy =
+            m_policyComboBox->currentData().value<Qt::HighDpiScaleFactorRoundingPolicy>();
+        setDpiPolicy(selectedPolicy);
+    }
     currentIndex = m_codecBox->currentIndex();
     setCodecForLocale(m_codecBox->itemText(currentIndex).toLocal8Bit());
     // Apply the new base color if accepted
@@ -315,6 +329,21 @@ void GeneralSettingsWidget::fillToolbarSyleBox() const
     m_toolbarStyleBox->addItem(Tr::tr("Relaxed"), StyleHelper::ToolbarStyleRelaxed);
     const int curId = m_toolbarStyleBox->findData(toolbarStylefromSettings());
     m_toolbarStyleBox->setCurrentIndex(curId);
+}
+
+void GeneralSettingsWidget::setDpiPolicy(Qt::HighDpiScaleFactorRoundingPolicy policy)
+{
+    QtcSettings *settings = ICore::settings();
+    const Qt::HighDpiScaleFactorRoundingPolicy previousPolicy =
+        settings->value(settingsKeyDpiPolicy).value<Qt::HighDpiScaleFactorRoundingPolicy>();
+    if (policy != previousPolicy) {
+        RestartDialog dialog(ICore::dialogParent(),
+                             Tr::tr("The DPI rounding policy change will take effect after "
+                                    "restart."));
+        dialog.exec();
+    }
+    settings->setValueWithDefault(settingsKeyDpiPolicy, int(policy),
+                                  int(HostOsInfo::defaultHighDpiScaleFactorRoundingPolicy()));
 }
 
 void GeneralSettings::applyToolbarStyleFromSettings()
