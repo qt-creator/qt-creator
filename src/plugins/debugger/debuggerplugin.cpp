@@ -1239,17 +1239,29 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
 void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindow)
 {
-    EngineManager::registerDefaultPerspective(Tr::tr("CMake Preset"),
-                                              "DAP",
-                                              Constants::DAP_PERSPECTIVE_ID);
+    struct DapPerspective
+    {
+        QString name;
+        char const *runMode;
+    };
 
-    EngineManager::registerDefaultPerspective(Tr::tr("GDB Preset"),
-                                              "DAP",
-                                              Constants::DAP_PERSPECTIVE_ID);
+    const QList<DapPerspective> perspectiveList = {
+        DapPerspective{Tr::tr("CMake Preset"), ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE},
+        DapPerspective{Tr::tr("GDB Preset"), ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE},
+        DapPerspective{Tr::tr("Python Preset"),
+                       ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE},
+    };
 
-    EngineManager::registerDefaultPerspective(Tr::tr("Python Preset"),
-                                              "DAP",
-                                              Constants::DAP_PERSPECTIVE_ID);
+    for (const DapPerspective &dp : perspectiveList)
+        EngineManager::registerDefaultPerspective(dp.name, "DAP", Constants::DAP_PERSPECTIVE_ID);
+
+    connect(&m_startDapAction, &QAction::triggered, this, [perspectiveList] {
+        QComboBox *combo = qobject_cast<QComboBox *>(EngineManager::dapEngineChooser());
+        if (perspectiveList.size() > combo->currentIndex())
+            ProjectExplorerPlugin::runStartupProject(perspectiveList.at(combo->currentIndex())
+                                                         .runMode,
+                                                     false);
+    });
 
     auto breakpointManagerView = createBreakpointManagerView("DAPDebugger.BreakWindow");
     auto breakpointManagerWindow
@@ -1264,20 +1276,6 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
     auto engineManagerWindow = createEngineManagerWindow(engineManagerView,
                                                          Tr::tr("DAP Debugger Perspectives"),
                                                          "DAPDebugger.Docks.Snapshots");
-
-    connect(&m_startDapAction, &QAction::triggered, this, [] {
-        QComboBox *combo = qobject_cast<QComboBox *>(EngineManager::dapEngineChooser());
-        if (combo->currentText() == "CMake Preset") {
-            ProjectExplorerPlugin::runStartupProject(
-                ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE, false);
-        } else if (combo->currentText() == "GDB Preset") {
-            ProjectExplorerPlugin::runStartupProject(
-                ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE, false);
-        } else {
-            ProjectExplorerPlugin::runStartupProject(
-                ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE, false);
-        }
-    });
 
     m_perspectiveDap.addToolBarAction(&m_startDapAction);
     m_startDapAction.setToolTip(Tr::tr("Start DAP Debugging"));

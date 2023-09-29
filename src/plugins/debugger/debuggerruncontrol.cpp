@@ -481,14 +481,10 @@ void DebuggerRunTool::start()
 
     runControl()->setDisplayName(m_runParameters.displayName);
 
+    m_engine = createDapEngine(runControl()->runMode());
+
     if (!m_engine) {
-        if (runControl()->runMode() == ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE)
-            m_engine = createDapEngine(runControl()->runMode());
-        else if (runControl()->runMode() == ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE)
-            m_engine = createDapEngine(runControl()->runMode());
-        else if (runControl()->runMode() == ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE)
-            m_engine = createDapEngine(runControl()->runMode());
-        else if (m_runParameters.isCppDebugging()) {
+        if (m_runParameters.isCppDebugging()) {
             switch (m_runParameters.cppEngineType) {
             case GdbEngineType:
                 m_engine = createGdbEngine();
