@@ -119,19 +119,19 @@ public:
     QHash<ProKey, ProString> versionInfo;
     bool versionInfoUpToDate = false;
 
-    static QHash<ProKey, ProString> fromVariantMap(const QVariantMap &map)
+    static QHash<ProKey, ProString> fromStore(const Store &map)
     {
         QHash<ProKey, ProString> result;
         for (auto it = map.constBegin(); it != map.constEnd(); ++it)
-            result.insert(ProKey(it.key()), ProString(it.value().toString()));
+            result.insert(ProKey(it.key().toByteArray()), ProString(it.value().toString()));
         return result;
     }
 
-    static QVariantMap toVariantMap(const QHash<ProKey, ProString> &map)
+    static Store toStore(const QHash<ProKey, ProString> &map)
     {
-        QVariantMap result;
+        Store result;
         for (auto it = map.constBegin(); it != map.constEnd(); ++it)
-            result.insert(it.key().toQString(), it.value().toQString());
+            result.insert(it.key().toString().toQString().toUtf8(), it.value().toQString());
         return result;
     }
 
@@ -170,7 +170,7 @@ public:
         result.insert("HostDataPath", hostDataPath.toSettings());
         result.insert("HostPrefixPath", hostPrefixPath.toSettings());
         result.insert("QtAbis", Utils::transform(qtAbis, &Abi::toString));
-        result.insert("VersionInfo", toVariantMap(versionInfo));
+        result.insert("VersionInfo", QVariant::fromValue(toStore(versionInfo)));
 
         return result;
     }
@@ -209,7 +209,7 @@ public:
         hostDataPath = FilePath::fromSettings(map.value("HostDataPath"));
         hostPrefixPath = FilePath::fromSettings(map.value("HostPrefixPath"));
         qtAbis = Utils::transform(map.value("QtAbis").toStringList(), &Abi::fromString);
-        versionInfo = fromVariantMap(map.value("VersionInfo").toMap());
+        versionInfo = fromStore(map.value("VersionInfo").value<Store>());
     }
 };
 
