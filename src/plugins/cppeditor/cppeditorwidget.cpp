@@ -991,19 +991,14 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
 
 void CppEditorWidget::findTypeAt(const QTextCursor &cursor,
                                  const Utils::LinkHandler &processLinkCallback,
-                                 bool resolveTarget,
+                                 bool /*resolveTarget*/,
                                  bool inNextSplit)
 {
     if (!CppModelManager::instance())
         return;
 
     const CursorInEditor cursorInEditor(cursor, textDocument()->filePath(), this, textDocument());
-    const auto callback = [self = QPointer(this),
-                           split = inNextSplit != alwaysOpenLinksInNextSplit()](const Link &link) {
-        if (self && link.hasValidTarget())
-            self->openLink(link, split);
-    };
-    CppModelManager::followSymbolToType(cursorInEditor, callback, inNextSplit);
+    CppModelManager::followSymbolToType(cursorInEditor, processLinkCallback, inNextSplit);
 }
 
 unsigned CppEditorWidget::documentRevision() const
