@@ -145,6 +145,14 @@ static QString unescape(const QString &s)
     return result;
 }
 
+static bool isValidUrlChar(const QChar &c)
+{
+    static QSet<QChar> urlChars{'-', '.', '_',  '~', ':', '/', '?', '#', '[', ']', '@', '!',
+                                '$', '&', '\'', '(', ')', '*', '+', ',', ';', '%', '='};
+
+    return (c.isLetterOrNumber() || urlChars.contains(c)) && !c.isSpace();
+}
+
 QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const Utils::FilePath &filePath)
 {
     cmListFile cmakeListFile;
@@ -187,14 +195,50 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     const QString block = cursor.block().text();
 
+    int beginPos = 0;
+    int endPos = 0;
+    auto addTextStartEndToLink = [&](Utils::Link &link) {
+        link.linkTextStart = cursor.position() - column + beginPos + 1;
+        link.linkTextEnd = cursor.position() - column + endPos;
+        return link;
+    };
+
     // check if the current position is commented out
     const qsizetype hashPos = block.indexOf(QLatin1Char('#'));
-    if (hashPos >= 0 && hashPos < column)
+    if (hashPos >= 0 && hashPos < column) {
+        // Check to see if we have a https:// link
+        QString buffer;
+        beginPos = column - 1;
+        while (beginPos > hashPos) {
+            if (isValidUrlChar(block[beginPos])) {
+                buffer.prepend(block.at(beginPos));
+                beginPos--;
+            } else {
+                break;
+            }
+        }
+        // find the end of the url
+        endPos = column;
+        while (endPos < block.size()) {
+            if (isValidUrlChar(block[endPos])) {
+                buffer.append(block.at(endPos));
+                endPos++;
+            } else {
+                break;
+            }
+        }
+        if (buffer.startsWith("http")) {
+            link.targetFilePath = FilePath::fromPathPart(buffer);
+            addTextStartEndToLink(link);
+            return processLinkCallback(link);
+        }
+
         return processLinkCallback(link);
+    }
 
     // find the beginning of a filename
     QString buffer;
-    int beginPos = column - 1;
+    beginPos = column - 1;
     while (beginPos >= 0) {
         if (isValidFileNameChar(block, beginPos)) {
             buffer.prepend(block.at(beginPos));
@@ -205,7 +249,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     }
 
     // find the end of a filename
-    int endPos = column;
+    endPos = column;
     while (endPos < block.size()) {
         if (isValidFileNameChar(block, endPos)) {
             buffer.append(block.at(endPos));
@@ -221,12 +265,6 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     const Utils::FilePath dir = textDocument()->filePath().absolutePath();
     buffer.replace("${CMAKE_CURRENT_SOURCE_DIR}", dir.path());
     buffer.replace("${CMAKE_CURRENT_LIST_DIR}", dir.path());
-
-    auto addTextStartEndToLink = [&](Utils::Link &link) {
-        link.linkTextStart = cursor.position() - column + beginPos + 1;
-        link.linkTextEnd = cursor.position() - column + endPos;
-        return link;
-    };
 
     if (auto project = ProjectTree::currentProject()) {
         buffer.replace("${CMAKE_SOURCE_DIR}", project->projectDirectory().path());
