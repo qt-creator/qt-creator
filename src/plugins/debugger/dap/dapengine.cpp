@@ -195,7 +195,7 @@ void DapEngine::handleDapInitialize()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
-    m_dapClient->sendLaunch(runParameters().inferior.command.executable());
+    m_dapClient->sendLaunch(runParameters().inferior.command);
 
     qCDebug(logCategory()) << "handleDapLaunch";
 }

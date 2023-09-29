@@ -55,6 +55,8 @@ public:
     void start() override
     {
         m_proc.setProcessMode(ProcessMode::Writer);
+        if (m_runParameters.debugger.workingDirectory.isDir())
+            m_proc.setWorkingDirectory(m_runParameters.debugger.workingDirectory);
         m_proc.setEnvironment(m_runParameters.debugger.environment);
         m_proc.setCommand(m_cmd);
         m_proc.start();
