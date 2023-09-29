@@ -976,5 +976,19 @@
         \endcode
 
 
+        \li \b QtKeychain
+
+        QtKeychain is a platform-independent Qt API to store passwords and
+        other secret data securely.
+
+
+        \list
+            \li \l https://github.com/frankosterfeld/qtkeychain
+        \endlist
+
+        Distributed under the Modified BSD License.
+
+        \include license-bsd-3-clause.qdocinc
+
      \endlist
 */

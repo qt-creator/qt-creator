@@ -1,0 +1,109 @@
+ChangeLog
+=========
+
+version 0.14.1 (release 2023-06-01)
+
+ - Export QKeychain::isAvailable() to make it usable in a shared build (Volker Krause <vkrause@kde.org>)
+ - Protect against creating the QtKeychain::QtKeychain alias target twice (Volker Krause <vkrause@kde.org>)
+
+version 0.14.0 (release 2023-05-12)
+
+ - Add Qt 6 Android support (Igor Bugaev <freedbrt@gmail.com>)
+ - Add QtQuick client example ((Igor Bugaev <freedbrt@gmail.com>)
+ - Added Dutch translation (Heimen Stoffels <vistausss@fastmail.com>)
+ - Fix potential freezing with Apple keychain (Claudio Cambra <developer@claudiocambra.com>)
+ - Add API to check whether a secure backend is available at all (Volker Krause <vkrause@kde.org>)
+
+version 0.13.2 (release 2021-11-18)
+
+ - CMake: Deprecate QTKEYCHAIN_STATIC in favor of BUILD_SHARED_LIBS (be@mixxx.org)
+
+version 0.13.1 (release 2021-11-08)
+
+ - KWallet: Fix deletion of entries (Issue #199)
+
+version 0.13.0 (release 2021-11-07)
+
+ - Linux: Require libsecret if not explicitly disabled
+ - Unify implementations for macOS and iOS
+ - CMake: lots of fixes
+
+version 0.12.0 (release 2020-12-16)
+
+  * Add Qt 6 support, drop Qt 4 support
+  * Require C++11
+  * Add Android support (Mathias Hasselmann)
+
+version 0.11.1 (release 2020-09-08)
+
+  * Build system fixes
+
+version 0.11.0 (release 2020-09-08)
+
+  * Important: Debug builds on Windows now get the "d" suffix
+  * Various build system fixes
+  * Add Haiku support (François Revol <revol@free.fr>)
+  * Translation: Russian (Alexander Gorishnyak <kefir500@gmail.com>)
+  * Translation: Update French (David Geiger <david.david@mageialinux-online.org>)
+
+version 0.10.0 (release 2019-12-17)
+
+  * Detect XFCE desktop correctly. (Sandro Knauß <hefee@debian.org>)
+  * Windows Use CRED_PERSIST_ENTERPRISE (Olivier Goffart <ogoffart@woboq.com>)
+  * Windows: Improve CredWrite() error handling (Christian Kamm <mail@ckamm.de>)
+  * Fix build with Qt 5.12.x (Sergey Ilinykh <rion4ik@gmail.com>)
+  * Fix Qt 4 build (Robert-André Mauchin <zebob.m@gmail.com>)
+  * Translation: Mandarin (Taiwan) (Poren Chiang <ren.chiang@gmail.com>)
+  * Translation: French (François Revol <revol@free.fr>)
+
+version 0.9.1 (release 2018-08-20)
+  * Windows Credential Store: Use CRED_PERSIST_ENTERPRISE (Olivier Goffart <ogoffart@woboq.com>)
+  * Secret: Don't match the schema name #114 (Christian Kamm <mail@ckamm.de>)
+  * Fix qmake build on Windows (Alexander Gorishnyak <kefir500@gmail.com>)
+
+version 0.9.0 (release 2018-07-13)
+  * Fall back on libsecret if kwallet is not available (Christian Kamm <mail@ckamm.de>)
+  * Only require QtLinguist if building translations (Victor Kropp <victor.kropp@jetbrains.com>)
+  * Fix building on Windows without credential store (Dmitry Ivanov <dm.vl.ivanov@gmail.com>)
+  * Fix Qt 4 build (Sandro Knauß <hefee@debian.org>)
+  * Make build of test application optional (Boris Pek <tehnick-8@yandex.ru>)
+
+version 0.8.0 (release 2017-04-19)
+  * Buildsystem improvements (Kristofer Tingdahl <kristofer.tingdahl@dgbes.com>, Hannah von Reth <hannah.vonreth@kdab.com>, Giuseppe D'Angelo <giuseppe.dangelo@kdab.com>)
+  * Enable C++11 support for Qt >= 5.7 (Dmitry Ivanov <dm.vl.ivanov@gmail.com>)
+  * Doxygen documentation ( Elvis Angelaccio <elvis.angelaccio@kdemail.net>)
+  * Libsecret support (Armin Novak <armin.novak@thincast.com>)
+  * iOS support (Mathias Hasselmann <mathias.hasselmann@kdab.com>)
+
+version 0.7.0 (release 2016-05-23)
+  * Bump SO version due to 0.6 being binary-incompatible to previous releases
+
+version 0.6.2 (release 2016-04-04)
+  * KWallet: Fixes a crash when storing passwords, seen on Debian/KDE4
+
+version 0.6.1 (release 2016-03-31)
+  * Fix KWallet not working (regressions in 0.6.0)
+
+version 0.6.0 (release 2016-03-18)
+  * Added support for the Windows Credential Store
+
+version 0.5.0 (release 2015-05-04)
+  * Added support for KWallet5 (KDE5/KF)
+ 
+version 0.4.0 (release 2014-09-01)
+  * KWallet: Handle case where no wallet exists yet (Liviu Cristian Mirea Ghiban <contact@liviucmg.com>)
+  * Improved desktop environment detection at runtime (Daniel Molkentin <daniel@molkentin.de>)
+
+version 0.3.0 (release 2014-03-13)
+  * Gnome Keyring supported added (Francois Ferrand <thetypz@gmail.com>)
+  * Improved Qt 5 support 
+  * KWallet: Distinguish empty passwords from non-existing entries
+  * KWallet: Do not use hardcoded wallet name 
+  * German translation (Daniel Molkentin <daniel@molkentin.de>)
+  * Romanian translation (Arthur Țițeică <arthur@psw.ro>)
+
+version 0.2.0: no official release
+
+version 0.1.0 (release 2013-01-16)
+  * Initial release
+  
