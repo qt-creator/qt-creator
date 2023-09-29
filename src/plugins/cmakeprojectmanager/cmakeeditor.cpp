@@ -153,6 +153,11 @@ static bool isValidUrlChar(const QChar &c)
     return (c.isLetterOrNumber() || urlChars.contains(c)) && !c.isSpace();
 }
 
+static bool isValidIdentifierChar(const QChar &chr)
+{
+    return chr.isLetterOrNumber() || chr == '_' || chr == '-';
+}
+
 QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const Utils::FilePath &filePath)
 {
     cmListFile cmakeListFile;
@@ -266,6 +271,43 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     buffer.replace("${CMAKE_CURRENT_SOURCE_DIR}", dir.path());
     buffer.replace("${CMAKE_CURRENT_LIST_DIR}", dir.path());
 
+    // Lambdas to find the CMake function name
+    auto findFunctionStart = [cursor, this]() -> int {
+        int pos = cursor.position();
+        QChar chr;
+        do {
+            chr = textDocument()->characterAt(--pos);
+        } while (pos > 0 && chr != '(');
+
+        if (pos > 0 && chr == '(') {
+            // allow space between function name and (
+            do {
+                chr = textDocument()->characterAt(--pos);
+            } while (pos > 0 && chr.isSpace());
+            ++pos;
+        }
+        return pos;
+    };
+    auto findFunctionEnd = [cursor, this]() -> int {
+        int pos = cursor.position();
+        QChar chr;
+        do {
+            chr = textDocument()->characterAt(--pos);
+        } while (pos > 0 && chr != ')');
+        return pos;
+    };
+    auto findWordStart = [cursor, this](int pos) -> int {
+        // Find start position
+        QChar chr;
+        do {
+            chr = textDocument()->characterAt(--pos);
+        } while (pos > 0 && isValidIdentifierChar(chr));
+
+        return ++pos;
+    };
+    const int funcStart = findFunctionStart();
+    const int funcEnd = findFunctionEnd();
+
     if (auto project = ProjectTree::currentProject()) {
         buffer.replace("${CMAKE_SOURCE_DIR}", project->projectDirectory().path());
         if (auto bs = ProjectTree::currentBuildSystem()) {
@@ -295,20 +337,24 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
                 addTextStartEndToLink(link);
                 return processLinkCallback(link);
             }
+
+            // Handle include(CMakeFileWithoutSuffix)
+            QString functionName;
+            if (funcStart > funcEnd) {
+                int funcStartPos = findWordStart(funcStart);
+                functionName = textDocument()->textAt(funcStartPos, funcStart - funcStartPos);
+                if (functionName == "include" && cbs->dotCMakeFilesHash().contains(buffer)) {
+                    link = cbs->dotCMakeFilesHash().value(buffer);
+                    addTextStartEndToLink(link);
+                    return processLinkCallback(link);
+                }
+            }
         }
     }
     // TODO: Resolve more variables
 
     // Resolve local variables and functions
-    auto findFunctionEnd = [cursor, this]() -> int {
-        int pos = cursor.position();
-        QChar chr;
-        do {
-            chr = textDocument()->characterAt(--pos);
-        } while (pos > 0 && chr != ')');
-        return pos;
-    };
-    auto hash = getLocalSymbolsHash(textDocument()->textAt(0, findFunctionEnd() + 1).toUtf8(),
+    auto hash = getLocalSymbolsHash(textDocument()->textAt(0, funcEnd + 1).toUtf8(),
                                     textDocument()->filePath());
 
     // Strip variable coating

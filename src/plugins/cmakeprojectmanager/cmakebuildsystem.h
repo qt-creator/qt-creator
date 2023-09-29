@@ -123,6 +123,7 @@ public:
     CMakeKeywords projectKeywords() const { return m_projectKeywords; }
     QStringList projectImportedTargets() const { return m_projectImportedTargets; }
     QStringList projectFindPackageVariables() const { return m_projectFindPackageVariables; }
+    const QHash<QString, Utils::Link> &dotCMakeFilesHash() const { return m_dotCMakeFilesHash; }
 
 signals:
     void configurationCleared();
@@ -228,6 +229,7 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;
     QHash<QString, Utils::Link> m_cmakeSymbolsHash;
+    QHash<QString, Utils::Link> m_dotCMakeFilesHash;
     CMakeKeywords m_projectKeywords;
     QStringList m_projectImportedTargets;
     QStringList m_projectFindPackageVariables;

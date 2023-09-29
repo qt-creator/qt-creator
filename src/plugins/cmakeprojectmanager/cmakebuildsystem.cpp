@@ -1379,12 +1379,25 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
         }
     };
 
+    // Prepare a hash with all .cmake files
+    m_dotCMakeFilesHash.clear();
+    auto handleDotCMakeFiles = [&](const CMakeFileInfo &cmakeFile) {
+        if (cmakeFile.path.suffix() == "cmake") {
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = 1;
+            link.targetColumn = 0;
+            m_dotCMakeFilesHash.insert(cmakeFile.path.completeBaseName(), link);
+        }
+    };
+
     for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
         for (const auto &func : cmakeFile.cmakeListFile.Functions) {
             handleFunctionMacroOption(cmakeFile, func);
             handleImportedTargets(cmakeFile, func);
             handleProjectTargets(cmakeFile, func);
             handleFindPackageVariables(cmakeFile, func);
+            handleDotCMakeFiles(cmakeFile);
         }
     }
 
