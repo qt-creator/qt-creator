@@ -11,6 +11,7 @@ add_qtc_library(Utils
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appmainwindow.cpp appmainwindow.h
     archive.cpp archive.h
+    array.h
     aspects.cpp aspects.h
     async.cpp async.h
     basetreeview.cpp basetreeview.h
