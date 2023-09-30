@@ -3,13 +3,8 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "nanotraceglobals.h"
 
-#if defined(NANOTRACE_LIBRARY)
-#  define NANOTRACESHARED_EXPORT Q_DECL_EXPORT
-#else
-#  define NANOTRACESHARED_EXPORT Q_DECL_IMPORT
-#endif
 
 #include <chrono>
 #include <string>
