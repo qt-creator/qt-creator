@@ -560,30 +560,20 @@ public:
     static
     BasicSmallString number(int number)
     {
-#ifdef __cpp_lib_to_chars
-        // +1 for the sign, +1 for the extra digit
+        // 2 bytes for the sign and because digits10 returns the floor
         char buffer[std::numeric_limits<int>::digits10 + 2];
         auto result = std::to_chars(buffer, buffer + sizeof(buffer), number, 10);
-        Q_ASSERT(result.ec == std::errc{});
         auto endOfConversionString = result.ptr;
         return BasicSmallString(buffer, endOfConversionString);
-#else
-        return std::to_string(number);
-#endif
     }
 
     static BasicSmallString number(long long int number) noexcept
     {
-#ifdef __cpp_lib_to_chars
-        // +1 for the sign, +1 for the extra digit
+        // 2 bytes for the sign and because digits10 returns the floor
         char buffer[std::numeric_limits<long long int>::digits10 + 2];
         auto result = std::to_chars(buffer, buffer + sizeof(buffer), number, 10);
-        Q_ASSERT(result.ec == std::errc{});
         auto endOfConversionString = result.ptr;
         return BasicSmallString(buffer, endOfConversionString);
-#else
-        return std::to_string(number);
-#endif
     }
 
     static BasicSmallString number(double number) noexcept { return std::to_string(number); }
