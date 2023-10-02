@@ -16,6 +16,8 @@ Column {
 
     required property Item mainRoot
 
+    property alias source: source
+
     Rectangle { // toolbar
         width: parent.width
         height: StudioTheme.Values.toolbarHeight
@@ -38,35 +40,35 @@ Column {
             }
 
             HelperWidgets.AbstractButton {
-                enabled: previewImage.scale > .4
+                enabled: sourceImage.scale > .4
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomOut_medium
                 tooltip: qsTr("Zoom out")
 
                 onClicked: {
-                    previewImage.scale -= .2
+                    sourceImage.scale -= .2
                 }
             }
 
             HelperWidgets.AbstractButton {
-                enabled: previewImage.scale < 2
+                enabled: sourceImage.scale < 2
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomIn_medium
                 tooltip: qsTr("Zoom In")
 
                 onClicked: {
-                    previewImage.scale += .2
+                    sourceImage.scale += .2
                 }
             }
 
             HelperWidgets.AbstractButton {
-                enabled: previewImage.scale !== 1
+                enabled: sourceImage.scale !== 1
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.fitAll_medium
                 tooltip: qsTr("Zoom Fit")
 
                 onClicked: {
-                    previewImage.scale = 1
+                    sourceImage.scale = 1
                 }
             }
 
@@ -107,27 +109,33 @@ Column {
     }
 
     Rectangle { // preview image
-        id: previewImageBg
+        id: preview
 
         color: "#dddddd"
         width: parent.width
         height: 200
         clip: true
 
-        Image {
-            id: previewImage
-
-            anchors.margins: 5
+        Item {
+            id: source
             anchors.fill: parent
-            fillMode: Image.PreserveAspectFit
-            smooth: true
+            layer.enabled: true
+            layer.mipmap: true
+            layer.smooth: true
 
-            source: imagesComboBox.selectedImage
+            Image {
+                id: sourceImage
+                anchors.margins: 5
+                anchors.fill: parent
+                fillMode: Image.PreserveAspectFit
+                source: imagesComboBox.selectedImage
+                smooth: true
 
-            Behavior on scale {
-                NumberAnimation {
-                    duration: 200
-                    easing.type: Easing.OutQuad
+                Behavior on scale {
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
                 }
             }
         }
