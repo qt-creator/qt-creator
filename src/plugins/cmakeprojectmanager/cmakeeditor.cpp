@@ -338,15 +338,25 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
                 return processLinkCallback(link);
             }
 
-            // Handle include(CMakeFileWithoutSuffix)
+            // Handle include(CMakeFileWithoutSuffix) and find_package(Package)
             QString functionName;
             if (funcStart > funcEnd) {
                 int funcStartPos = findWordStart(funcStart);
                 functionName = textDocument()->textAt(funcStartPos, funcStart - funcStartPos);
-                if (functionName == "include" && cbs->dotCMakeFilesHash().contains(buffer)) {
-                    link = cbs->dotCMakeFilesHash().value(buffer);
-                    addTextStartEndToLink(link);
-                    return processLinkCallback(link);
+
+                struct FunctionToHash
+                {
+                    QString functionName;
+                    const QHash<QString, Utils::Link> &hash;
+                } functionToHashes[] = {{"include", cbs->dotCMakeFilesHash()},
+                                        {"find_package", cbs->findPackagesFilesHash()}};
+
+                for (const auto &pair : functionToHashes) {
+                    if (functionName == pair.functionName && pair.hash.contains(buffer)) {
+                        link = pair.hash.value(buffer);
+                        addTextStartEndToLink(link);
+                        return processLinkCallback(link);
+                    }
                 }
             }
         }

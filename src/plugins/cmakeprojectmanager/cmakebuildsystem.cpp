@@ -1391,6 +1391,40 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
         }
     };
 
+    // Gather all Find<Package>.cmake and <Package>Config.cmake / <Package>-config.cmake files
+    m_findPackagesFilesHash.clear();
+    auto handleFindPackageCMakeFiles = [&](const CMakeFileInfo &cmakeFile) {
+        const QString fileName = cmakeFile.path.fileName();
+
+        const QString findPackageName = [fileName]() -> QString {
+            auto findIdx = fileName.indexOf("Find");
+            auto endsWithCMakeIdx = fileName.lastIndexOf(".cmake");
+            if (findIdx == 0 && endsWithCMakeIdx > 0)
+                return fileName.mid(4, endsWithCMakeIdx - 4);
+            return QString();
+        }();
+
+        const QString configPackageName = [fileName]() -> QString {
+            auto configCMakeIdx = fileName.lastIndexOf("Config.cmake");
+            if (configCMakeIdx > 0)
+                return fileName.left(configCMakeIdx);
+            auto dashConfigCMakeIdx = fileName.lastIndexOf("-config.cmake");
+            if (dashConfigCMakeIdx > 0)
+                return fileName.left(dashConfigCMakeIdx);
+            return QString();
+        }();
+
+        if (!findPackageName.isEmpty() || !configPackageName.isEmpty()) {
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = 1;
+            link.targetColumn = 0;
+            m_findPackagesFilesHash.insert(!findPackageName.isEmpty() ? findPackageName
+                                                                      : configPackageName,
+                                           link);
+        }
+    };
+
     for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
         for (const auto &func : cmakeFile.cmakeListFile.Functions) {
             handleFunctionMacroOption(cmakeFile, func);
@@ -1398,6 +1432,7 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
             handleProjectTargets(cmakeFile, func);
             handleFindPackageVariables(cmakeFile, func);
             handleDotCMakeFiles(cmakeFile);
+            handleFindPackageCMakeFiles(cmakeFile);
         }
     }
 
