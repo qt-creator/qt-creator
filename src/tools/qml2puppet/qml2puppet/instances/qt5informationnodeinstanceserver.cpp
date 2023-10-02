@@ -729,10 +729,6 @@ Qt5InformationNodeInstanceServer::propertyToPropertyValueTriples(
 
     if (variant.typeId() == QVariant::Vector3D) {
         auto vector3d = variant.value<QVector3D>();
-
-        if (vector3d.isNull())
-            return result;
-
         const PropertyName dot = propertyName.isEmpty() ? "" : ".";
         propTriple.instance = instance;
         propTriple.propertyName = propertyName + dot + PropertyName("x");

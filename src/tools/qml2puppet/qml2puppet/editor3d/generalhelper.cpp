@@ -965,7 +965,7 @@ double GeneralHelper::adjustRotationForSnap(double newAngle)
 static double adjustScaler(double newScale, double increment)
 {
     double absScale = qAbs(newScale);
-    double comp1 = 1. + double(int((absScale / increment) - (1. / increment))) * increment;
+    double comp1 = 1. + double(int(int(absScale / increment) - (1. / increment))) * increment;
     double comp2 = comp1 + increment;
     double retVal = absScale - comp1 > comp2 - absScale ? comp2 : comp1;
     if (newScale < 0)
@@ -978,7 +978,7 @@ double GeneralHelper::adjustScalerForSnap(double newScale)
     bool snapScale = m_snapScale;
     double increment = m_snapScaleInterval;
 
-    if (qFuzzyIsNull(newScale) || !queryKeyboardForSnapping(snapScale, increment))
+    if (!queryKeyboardForSnapping(snapScale, increment))
         return newScale;
 
     return adjustScaler(newScale, increment);
