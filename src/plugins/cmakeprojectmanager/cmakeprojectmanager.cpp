@@ -53,6 +53,7 @@ CMakeManager::CMakeManager()
     , m_reloadCMakePresetsAction(
           new QAction(Utils::Icons::RELOAD.icon(), Tr::tr("Reload CMake Presets"), this))
     , m_cmakeProfilerAction(new QAction(QIcon(), Tr::tr("CMake Profiler"), this))
+    , m_cmakeDebuggerAction(new QAction(QIcon(), Tr::tr("Start CMake Debugging"), this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
@@ -64,6 +65,8 @@ CMakeManager::CMakeManager()
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
     Core::ActionContainer *manalyzer =
         Core::ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+    Core::ActionContainer *mdebugger =
+        Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
 
     const Core::Context projectContext(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
@@ -145,8 +148,32 @@ CMakeManager::CMakeManager()
         runCMakeWithProfiling(ProjectManager::startupBuildSystem());
     });
 
+    // CMake Debugger
+    mdebugger->appendGroup(Constants::CMAKE_DEBUGGING_GROUP);
+    mdebugger->addSeparator(Core::Context(Core::Constants::C_GLOBAL),
+                            Constants::CMAKE_DEBUGGING_GROUP,
+                            &m_cmakeDebuggerSeparator);
+
+    command = Core::ActionManager::registerAction(m_cmakeDebuggerAction,
+                                                  Constants::RUN_CMAKE_DEBUGGER,
+                                                  globalContext);
+    command->setDescription(m_cmakeDebuggerAction->text());
+    mdebugger->addAction(command, Constants::CMAKE_DEBUGGING_GROUP);
+    connect(m_cmakeDebuggerAction, &QAction::triggered, this, [] {
+        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE,
+                                                 false);
+    });
+
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
         updateCmakeActions(ProjectTree::currentNode());
+
+        auto cmakeBuildSystem = static_cast<CMakeBuildSystem*>(ProjectManager::startupBuildSystem());
+        if (cmakeBuildSystem) {
+            const BuildDirParameters parameters(cmakeBuildSystem);
+            const auto tool = parameters.cmakeTool();
+            CMakeTool::Version version = tool ? tool->version() : CMakeTool::Version();
+            m_canDebugCMake = (version.major == 3 && version.minor >= 27) || version.major > 3;
+        }
     });
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this, [this] {
         updateCmakeActions(ProjectTree::currentNode());
@@ -168,6 +195,9 @@ void CMakeManager::updateCmakeActions(Node *node)
     m_clearCMakeCacheAction->setVisible(visible);
     m_rescanProjectAction->setVisible(visible);
     m_cmakeProfilerAction->setEnabled(visible);
+
+    m_cmakeDebuggerAction->setEnabled(m_canDebugCMake && visible);
+    m_cmakeDebuggerSeparator->setVisible(m_canDebugCMake && visible);
 
     const bool reloadPresetsVisible = [project] {
         if (!project)

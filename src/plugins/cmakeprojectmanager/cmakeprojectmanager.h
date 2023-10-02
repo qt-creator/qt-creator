@@ -41,6 +41,9 @@ private:
     QAction *m_reloadCMakePresetsAction;
     Utils::ParameterAction *m_buildFileAction;
     QAction *m_cmakeProfilerAction;
+    QAction *m_cmakeDebuggerAction;
+    QAction *m_cmakeDebuggerSeparator;
+    bool m_canDebugCMake = false;
 };
 
 } // namespace Internal
