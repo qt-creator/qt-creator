@@ -186,19 +186,10 @@ private slots:
     void testMoveAllFuncDefOutsideClassWithBaseClass();
     void testMoveAllFuncDefOutsideIgnoreMacroCode();
 
-    void testMoveFuncDefToDeclMemberFunc();
-    void testMoveFuncDefToDeclMemberFuncOutside();
-    void testMoveFuncDefToDeclMemberFuncToCppNS();
-    void testMoveFuncDefToDeclMemberFuncToCppNSUsing();
-    void testMoveFuncDefToDeclMemberFuncOutsideWithNs();
-    void testMoveFuncDefToDeclFreeFuncToCpp();
-    void testMoveFuncDefToDeclFreeFuncToCppNS();
-    void testMoveFuncDefToDeclCtorWithInitialization();
-    void testMoveFuncDefToDeclStructWithAssignedVariable();
+    void testMoveFuncDefToDecl_data();
+    void testMoveFuncDefToDecl();
+
     void testMoveFuncDefToDeclMacroUses();
-    void testMoveFuncDefToDeclOverride();
-    void testMoveFuncDefToDeclTemplate();
-    void testMoveFuncDefToDeclTemplateFunction();
 
     void testAssignToLocalVariableTemplates();
 
