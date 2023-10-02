@@ -633,6 +633,7 @@ void DapEngine::handleScopesResponse(const QJsonObject &response)
     if (!response.value("success").toBool())
         return;
 
+    watchHandler()->resetValueCache();
     watchHandler()->notifyUpdateStarted();
 
     QJsonArray scopes = response.value("body").toObject().value("scopes").toArray();
@@ -832,10 +833,12 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
             watchHandler()->insertItem(item);
     }
 
-    QModelIndex idx = watchHandler()->model()->indexForItem(currentItem);
-    if (currentItem && idx.isValid() && idx.data(LocalsExpandedRole).toBool()) {
-        emit watchHandler()->model()->inameIsExpanded(currentItem->iname);
-        emit watchHandler()->model()->itemIsExpanded(idx);
+    if (currentItem) {
+        QModelIndex idx = watchHandler()->model()->indexForItem(currentItem);
+        if (idx.isValid() && idx.data(LocalsExpandedRole).toBool()) {
+            emit watchHandler()->model()->inameIsExpanded(currentItem->iname);
+            emit watchHandler()->model()->itemIsExpanded(idx);
+        }
     }
 
     if (m_variablesHandler->queueSize() == 1 && currentItem == nullptr) {
