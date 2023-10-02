@@ -40,59 +40,79 @@ Project {
         directory: "imports"
     }
 
-    QmlFiles {
-        directory: "asset_imports"
-    }
-
-    JavaScriptFiles {
+    Files {
         directory: "content"
-    }
-
-    JavaScriptFiles {
-        directory: "imports"
-    }
-
-    ImageFiles {
-        directory: "content"
-    }
-
-    ImageFiles {
-        directory: "asset_imports"
+        filter: "*.js;*.ts"
+        files: [  ]
     }
 
     Files {
-        directory: "."
-        filters: "*.conf"
+        directory: "imports"
+        filter: "*.js;*.ts"
+        files: [  ]
+    }
+
+    Files {
+        directory: "content"
+        filter: "*.jpeg;*.jpg;*.png;*.svg;*.hdr;.ktx"
+        files: [  ]
+    }
+
+    Files {
+        directory: "asset_imports"
+        filter: "*.jpeg;*.jpg;*.png;*.svg;*.hdr;.ktx"
+        files: [  ]
+    }
+
+    Files {
+        directory: ""
+        filter: ""
         files: [ "qtquickcontrols2.conf" ]
     }
 
     Files {
+        directory: ""
+        filter: "*.conf"
+        files: [  ]
+    }
+
+    Files {
         directory: "."
-        filters: "*.ttf;*.otf;*.ctf"
+        filter: "qmldir"
+        files: [  ]
+    }
+
+    Files {
+        directory: ""
+        filter: "*.ttf;*.otf;*.ctf"
+        files: [  ]
+    }
+
+    Files {
+        directory: ""
+        filter: "*.wav;*.mp3"
+        files: [  ]
+    }
+
+    Files {
+        directory: ""
+        filter: "*.mp4"
+        files: [  ]
+    }
+
+    Files {
+        directory: ""
+        filter: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag;*.trag"
+        files: [  ]
     }
 
     Files {
         directory: "asset_imports"
-        filters: "*.mesh"
+        filter: "*.mesh"
+        files: [  ]
     }
 
-    Files {
-        directory: "."
-        filters: "qmldir"
-    }
-
-    Files {
-        directory: "."
-        filters: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag;*.trag"
-    }
-
-    Files {
-        directory: "."
-        filters: "*.mp3;*.wav"
-    }
-
-    Files {
-        directory: "."
-        filters: "*.mp4"
+    QmlFiles {
+        directory: "asset_imports"
     }
 }

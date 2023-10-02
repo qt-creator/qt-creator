@@ -1,6 +1,8 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+// clazy:excludeall=non-pod-global-static
+
 #include "../utils/google-using-declarations.h"
 #include "../utils/googletest.h" // IWYU pragma: keep
 
@@ -44,15 +46,14 @@ protected:
     }
 
 protected:
-    static inline std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemEmpty;
-    static inline std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemWithQdsPrefix;
-    static inline std::unique_ptr<const QmlProjectManager::QmlProjectItem>
-        projectItemWithoutQdsPrefix;
+    inline static std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemEmpty;
+    inline static std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemWithQdsPrefix;
+    inline static std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemWithoutQdsPrefix;
     std::unique_ptr<QmlProjectManager::QmlProjectItem> projectItemSetters = std::make_unique<
         QmlProjectManager::QmlProjectItem>(Utils::FilePath::fromString(
                                                localTestDataDir + "/getter-setter/empty.qmlproject"),
                                            true);
-    static inline std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemFileFilters;
+    inline static std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemFileFilters;
 };
 
 auto createAbsoluteFilePaths(const QStringList &fileList)

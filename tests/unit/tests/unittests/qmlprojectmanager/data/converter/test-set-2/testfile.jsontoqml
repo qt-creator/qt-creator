@@ -28,22 +28,33 @@ Project {
         directory: "."
     }
 
-    JavaScriptFiles {
+    Files {
         directory: "."
-    }
-
-    ImageFiles {
-        directory: "."
+        filter: "*.js;*.ts"
+        files: [  ]
     }
 
     Files {
         directory: "."
-        filters: "*.conf"
+        filter: "*.jpeg;*.jpg;*.png;*.svg;*.hdr;.ktx"
+        files: [  ]
+    }
+
+    Files {
+        directory: ""
+        filter: ""
         files: [ "qtquickcontrols2.conf" ]
     }
 
     Files {
+        directory: ""
+        filter: "*.conf"
+        files: [  ]
+    }
+
+    Files {
         directory: "."
-        filters: "qmldir"
+        filter: "qmldir"
+        files: [  ]
     }
 }

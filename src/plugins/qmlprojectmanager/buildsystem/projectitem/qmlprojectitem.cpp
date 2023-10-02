@@ -65,20 +65,16 @@ bool QmlProjectItem::initProjectObject()
 void QmlProjectItem::setupFileFilters()
 {
     auto setupFileFilterItem = [this](const QJsonObject &fileGroup) {
-        for (const QString &directory : fileGroup["directories"].toVariant().toStringList()) {
+        // first we need to add all directories as a 'resource' path for the project and set them as
+        // recursive.
+        // if there're any files with the explicit absolute paths, we need to add them afterwards.
+        for (const QString &directory : fileGroup["directory"].toVariant().toStringList()) {
             std::unique_ptr<FileFilterItem> fileFilterItem{new FileFilterItem};
-
-            QStringList filesArr;
-            for (const QJsonValue &file : fileGroup["files"].toArray()) {
-                filesArr.append(file["name"].toString());
-            }
-
             fileFilterItem->setDirectory(directory);
             fileFilterItem->setFilters(fileGroup["filters"].toVariant().toStringList());
-            fileFilterItem->setRecursive(fileGroup["recursive"].toBool(true));
-            fileFilterItem->setPathsProperty(fileGroup["directories"].toVariant().toStringList());
-            fileFilterItem->setPathsProperty(filesArr);
+            fileFilterItem->setRecursive(true);
             fileFilterItem->setDefaultDirectory(m_projectFile.parentDir().toString());
+
 #ifndef TESTS_ENABLED_QMLPROJECTITEM
             connect(fileFilterItem.get(),
                     &FileFilterItem::filesChanged,
@@ -87,11 +83,38 @@ void QmlProjectItem::setupFileFilters()
 #endif
             m_content.push_back(std::move(fileFilterItem));
         };
+
+        // here we begin to add files with the explicit absolute paths
+        QJsonArray files = fileGroup["files"].toArray();
+        if (files.isEmpty())
+            return;
+
+        QStringList filesArr;
+        std::transform(files.begin(),
+                       files.end(),
+                       std::back_inserter(filesArr),
+                       [](const QJsonValue &value) { return value.toString(); });
+
+        const QString directory = fileGroup["directory"].toString() == ""
+                                      ? m_projectFile.parentDir().toString()
+                                      : fileGroup["directory"].toString();
+        Utils::FilePath groupDir = Utils::FilePath::fromString(directory);
+        std::unique_ptr<FileFilterItem> fileFilterItem{new FileFilterItem};
+        fileFilterItem->setRecursive(false);
+        fileFilterItem->setPathsProperty(filesArr);
+        fileFilterItem->setDefaultDirectory(m_projectFile.parentDir().toString());
+        fileFilterItem->setDirectory(groupDir.toString());
+#ifndef TESTS_ENABLED_QMLPROJECTITEM
+        connect(fileFilterItem.get(),
+                &FileFilterItem::filesChanged,
+                this,
+                &QmlProjectItem::qmlFilesChanged);
+#endif
+        m_content.push_back(std::move(fileFilterItem));
     };
 
-    QJsonObject fileGroups = m_project["fileGroups"].toObject();
-    for (const QString &groupName : fileGroups.keys()) {
-        setupFileFilterItem(fileGroups[groupName].toObject());
+    for (const QJsonValue &fileGroup : m_project["fileGroups"].toArray()) {
+        setupFileFilterItem(fileGroup.toObject());
     }
 }
 

@@ -7,25 +7,6 @@
 
 namespace QmlProjectManager::Converters {
 
-using PropsPair = QPair<QString, QStringList>;
-struct FileProps
-{
-    const PropsPair image{"image",
-                          QStringList{"*.jpeg", "*.jpg", "*.png", "*.svg", "*.hdr", ".ktx"}};
-    const PropsPair qml{"qml", QStringList{"*.qml"}};
-    const PropsPair qmlDir{"qmldir", QStringList{"qmldir"}};
-    const PropsPair javaScr{"javaScript", QStringList{"*.js", "*.ts"}};
-    const PropsPair video{"video", QStringList{"*.mp4"}};
-    const PropsPair sound{"sound", QStringList{"*.mp3", "*.wav"}};
-    const PropsPair font{"font", QStringList{"*.ttf", "*.otf"}};
-    const PropsPair config{"config", QStringList{"*.conf"}};
-    const PropsPair styling{"styling", QStringList{"*.css"}};
-    const PropsPair mesh{"meshes", QStringList{"*.mesh"}};
-    const PropsPair
-        shader{"shader",
-               QStringList{"*.glsl", "*.glslv", "*.glslf", "*.vsh", "*.fsh", "*.vert", "*.frag"}};
-};
-
 QString jsonToQmlProject(const QJsonObject &rootObject)
 {
     QString qmlProjectString;
@@ -37,7 +18,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
     QJsonObject versionConfig = rootObject["versions"].toObject();
     QJsonObject environmentConfig = rootObject["environment"].toObject();
     QJsonObject deploymentConfig = rootObject["deployment"].toObject();
-    QJsonObject filesConfig = rootObject["fileGroups"].toObject();
+    QJsonArray filesConfig = rootObject["fileGroups"].toArray();
 
     int indentationLevel = 0;
 
@@ -82,42 +63,22 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         ts << QString(" ").repeated(indentationLevel * 4) << "}" << Qt::endl;
     };
 
-    auto appendDirectories =
-        [&startObject, &endObject, &appendString, &filesConfig](const QString &jsonKey,
+    auto appendFileGroup =
+        [&startObject, &endObject, &appendString, &appendArray](const QJsonObject &fileGroup,
                                                                 const QString &qmlKey) {
-            QJsonValue dirsObj = filesConfig[jsonKey].toObject()["directories"];
-            QStringList dirs = dirsObj.toVariant().toStringList();
-            foreach (const QString &directory, dirs) {
-                startObject(qmlKey);
-                appendString("directory", directory);
-                endObject();
-            }
+            startObject(qmlKey);
+            appendString("directory", fileGroup["directory"].toString());
+            appendString("filter", fileGroup["filters"].toVariant().toStringList().join(";"));
+            appendArray("files", fileGroup["files"].toVariant().toStringList());
+            endObject();
         };
 
-    auto appendFiles = [&startObject,
-                        &endObject,
-                        &appendString,
-                        &appendArray,
-                        &filesConfig](const QString &jsonKey, const QString &qmlKey) {
-        QJsonValue dirsObj = filesConfig[jsonKey].toObject()["directories"];
-        QJsonValue filesObj = filesConfig[jsonKey].toObject()["files"];
-        QJsonValue filtersObj = filesConfig[jsonKey].toObject()["filters"];
-
-        foreach (const QString &directory, dirsObj.toVariant().toStringList()) {
-            startObject(qmlKey);
-            appendString("directory", directory);
-            appendString("filters", filtersObj.toVariant().toStringList().join(";"));
-
-            if (!filesObj.toArray().isEmpty()) {
-                QStringList fileList;
-                foreach (const QJsonValue &file, filesObj.toArray()) {
-                    fileList.append(file.toObject()["name"].toString());
-                }
-                appendArray("files", fileList);
-            }
+    auto appendQmlFileGroup =
+        [&startObject, &endObject, &appendString](const QJsonObject &fileGroup) {
+            startObject("QmlFiles");
+            appendString("directory", fileGroup["directory"].toString());
             endObject();
-        }
-    };
+        };
 
     // start creating the file content
     appendComment("prop: json-converted");
@@ -127,54 +88,46 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
     {
         startObject("Project");
 
-        { // append non-object props
-            appendString("mainFile", runConfig["mainFile"].toString());
-            appendString("mainUiFile", runConfig["mainUiFile"].toString());
-            appendString("targetDirectory", deploymentConfig["targetDirectory"].toString());
-            appendBool("widgetApp", runConfig["widgetApp"].toBool());
-            appendArray("importPaths", rootObject["importPaths"].toVariant().toStringList());
-            appendBreak();
-            appendString("qdsVersion", versionConfig["designStudio"].toString());
-            appendString("quickVersion", versionConfig["qtQuick"].toString());
-            appendBool("qt6Project", versionConfig["qt"].toString() == "6");
-            appendBool("qtForMCUs", !(rootObject["mcuConfig"].toObject().isEmpty()));
-            appendBreak();
-            appendBool("multilanguageSupport", languageConfig["multiLanguageSupport"].toBool());
-            appendString("primaryLanguage", languageConfig["primaryLanguage"].toString());
-            appendArray("supportedLanguages",
-                        languageConfig["supportedLanguages"].toVariant().toStringList());
-        }
+        // append non-object props
+        appendString("mainFile", runConfig["mainFile"].toString());
+        appendString("mainUiFile", runConfig["mainUiFile"].toString());
+        appendString("targetDirectory", deploymentConfig["targetDirectory"].toString());
+        appendBool("widgetApp", runConfig["widgetApp"].toBool());
+        appendArray("importPaths", rootObject["importPaths"].toVariant().toStringList());
+        appendBreak();
+        appendString("qdsVersion", versionConfig["designStudio"].toString());
+        appendString("quickVersion", versionConfig["qtQuick"].toString());
+        appendBool("qt6Project", versionConfig["qt"].toString() == "6");
+        appendBool("qtForMCUs", !(rootObject["mcuConfig"].toObject().isEmpty()));
+        appendBreak();
+        appendBool("multilanguageSupport", languageConfig["multiLanguageSupport"].toBool());
+        appendString("primaryLanguage", languageConfig["primaryLanguage"].toString());
+        appendArray("supportedLanguages",
+                    languageConfig["supportedLanguages"].toVariant().toStringList());
 
-        { // append Environment object
-            startObject("Environment");
-            foreach (const QString &key, environmentConfig.keys()) {
-                appendItem(key, environmentConfig[key].toString(), true);
-            }
+        // append Environment object
+        startObject("Environment");
+        foreach (const QString &key, environmentConfig.keys()) {
+            appendItem(key, environmentConfig[key].toString(), true);
+        }
+        endObject();
+
+        // append ShaderTool object
+        if (!shaderConfig["args"].toVariant().toStringList().isEmpty()) {
+            startObject("ShaderTool");
+            appendString("args",
+                         shaderConfig["args"].toVariant().toStringList().join(" ").replace("\"",
+                                                                                           "\\\""));
+            appendArray("files", shaderConfig["files"].toVariant().toStringList());
             endObject();
         }
 
-        { // append ShaderTool object
-            if (!shaderConfig["args"].toVariant().toStringList().isEmpty()) {
-                startObject("ShaderTool");
-                appendString("args",
-                             shaderConfig["args"].toVariant().toStringList().join(" ").replace(
-                                 "\"", "\\\""));
-                appendArray("files", shaderConfig["files"].toVariant().toStringList());
-                endObject();
-            }
-        }
-
-        { // append files objects
-            appendDirectories("qml", "QmlFiles");
-            appendDirectories("javaScript", "JavaScriptFiles");
-            appendDirectories("image", "ImageFiles");
-            appendFiles("config", "Files");
-            appendFiles("font", "Files");
-            appendFiles("meshes", "Files");
-            appendFiles("qmldir", "Files");
-            appendFiles("shader", "Files");
-            appendFiles("sound", "Files");
-            appendFiles("video", "Files");
+        // append files objects
+        for (const QJsonValue &fileGroup : filesConfig) {
+            if (fileGroup["filters"].toArray().contains("*.qml"))
+                appendQmlFileGroup(fileGroup.toObject());
+            else
+                appendFileGroup(fileGroup.toObject(), "Files");
         }
 
         endObject(); // Closing 'Project'
@@ -210,7 +163,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     auto toCamelCase = [](const QString &s) { return QString(s).replace(0, 1, s[0].toLower()); };
 
     QJsonObject rootObject; // root object
-    QJsonObject fileGroupsObject;
+    QJsonArray fileGroupsObject;
     QJsonObject languageObject;
     QJsonObject versionObject;
     QJsonObject runConfigObject;
@@ -270,82 +223,51 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     // convert the the object props
     for (const QmlJS::SimpleReaderNode::Ptr &childNode : rootNode->children()) {
         if (childNode->name().contains("files", Qt::CaseInsensitive)) {
-            PropsPair propsPair;
-            FileProps fileProps;
             const QString childNodeName = childNode->name().toLower().remove("qds.");
-            const QmlJS::SimpleReaderNode::Property childNodeFilter = childNode->property("filter");
-            const QmlJS::SimpleReaderNode::Property childNodeDirectory = childNode->property(
-                "directory");
-            const QmlJS::SimpleReaderNode::Property childNodeFiles = childNode->property("files");
-            const QString childNodeFilterValue = childNodeFilter.value.toString();
+            QJsonArray childNodeFiles = childNode->property("files").value.toJsonArray();
+            QString childNodeDirectory = childNode->property("directory").value.toString();
+            QStringList filters = childNode->property("filter").value.toString().split(";");
+            filters.removeAll("");
+            QJsonArray childNodeFilters = QJsonArray::fromStringList(filters);
 
-            if (childNodeName == "qmlfiles" || childNodeFilterValue.contains("*.qml")) {
-                propsPair = fileProps.qml;
-            } else if (childNodeName == "javascriptfiles") {
-                propsPair = fileProps.javaScr;
-            } else if (childNodeName == "imagefiles") {
-                propsPair = fileProps.image;
-            } else {
-                if (childNodeFilter.isValid()) {
-                    if (childNodeFilterValue.contains(".conf"))
-                        propsPair = fileProps.config;
-                    else if (childNodeFilterValue.contains(".ttf"))
-                        propsPair = fileProps.font;
-                    else if (childNodeFilterValue.contains("qmldir"))
-                        propsPair = fileProps.qmlDir;
-                    else if (childNodeFilterValue.contains(".wav"))
-                        propsPair = fileProps.sound;
-                    else if (childNodeFilterValue.contains(".mp4"))
-                        propsPair = fileProps.video;
-                    else if (childNodeFilterValue.contains(".mesh"))
-                        propsPair = fileProps.mesh;
-                    else if (childNodeFilterValue.contains(".glsl"))
-                        propsPair = fileProps.shader;
-                    else if (childNodeFilterValue.contains(".css"))
-                        propsPair = fileProps.styling;
+            // files have priority over filters
+            // if explicit files are given, then filters will be ignored
+            // and all files are prefixed such as "directory/<filename>".
+            // if directory is empty, then the files are prefixed with the project directory
+            if (childNodeFiles.empty()) {
+                auto inserter = [&childNodeFilters](const QStringList &filterSource) {
+                    std::for_each(filterSource.begin(),
+                                  filterSource.end(),
+                                  [&childNodeFilters](const auto &value) {
+                                      childNodeFilters << value;
+                                  });
+                };
+
+                // Those 3 file groups are the special ones
+                // that have a default set of filters. After the first
+                // conversion (QmlProject -> JSON) they are converted to
+                // the generic file group format ('Files' or 'QDS.Files')
+                if (childNodeName == "qmlfiles") {
+                    inserter({QStringLiteral("*.qml")});
+                } else if (childNodeName == "javascriptfiles") {
+                    inserter({QStringLiteral("*.js"), QStringLiteral("*.ts")});
+                } else if (childNodeName == "imagefiles") {
+                    inserter({QStringLiteral("*.jpeg"),
+                              QStringLiteral("*.jpg"),
+                              QStringLiteral("*.png"),
+                              QStringLiteral("*.svg"),
+                              QStringLiteral("*.hdr"),
+                              QStringLiteral(".ktx")});
                 }
             }
 
-            // get all objects we'll work on
-            QJsonObject targetObject = fileGroupsObject[propsPair.first].toObject();
-            QJsonArray directories = targetObject["directories"].toArray();
-            QJsonArray filters = targetObject["filters"].toArray();
-            QJsonArray files = targetObject["files"].toArray();
+            // create the file group object
+            QJsonObject targetObject;
+            targetObject.insert("directory", childNodeDirectory);
+            targetObject.insert("filters", childNodeFilters);
+            targetObject.insert("files", childNodeFiles);
 
-            // populate & update filters
-            if (filters.isEmpty()) {
-                filters = QJsonArray::fromStringList(
-                    propsPair.second); // populate the filters with the predefined ones
-            }
-
-            if (childNodeFilter.isValid()) { // append filters from qmlproject (merge)
-                const QStringList filtersFromProjectFile = childNodeFilterValue.split(";");
-                for (const QString &filter : filtersFromProjectFile) {
-                    if (!filters.contains(QJsonValue(filter))) {
-                        filters.append(QJsonValue(filter));
-                    }
-                }
-            }
-
-            // populate & update directories
-            if (childNodeDirectory.isValid()) {
-                directories.append(childNodeDirectory.value.toJsonValue());
-            }
-            if (directories.isEmpty())
-                directories.append(".");
-
-            // populate & update files
-            if (childNodeFiles.isValid()) {
-                foreach (const QJsonValue &file, childNodeFiles.value.toJsonArray()) {
-                    files.append(QJsonObject{{"name", file.toString()}});
-                }
-            }
-
-            // put everything back into the root object
-            targetObject.insert("directories", directories);
-            targetObject.insert("filters", filters);
-            targetObject.insert("files", files);
-            fileGroupsObject.insert(propsPair.first, targetObject);
+            fileGroupsObject.append(targetObject);
         } else if (childNode->name().contains("shadertool", Qt::CaseInsensitive)) {
             QStringList quotedArgs
                 = childNode->property("args").value.toString().split('\"', Qt::SkipEmptyParts);

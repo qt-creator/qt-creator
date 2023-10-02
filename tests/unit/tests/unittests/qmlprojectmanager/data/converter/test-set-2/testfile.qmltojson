@@ -6,24 +6,26 @@
         "QT_AUTO_SCREEN_SCALE_FACTOR": "1",
         "QT_QUICK_CONTROLS_CONF": "qtquickcontrols2.conf"
     },
-    "fileGroups": {
-        "config": {
-            "directories": [
-                "."
-            ],
+    "fileGroups": [
+        {
+            "directory": ".",
             "files": [
-                {
-                    "name": "qtquickcontrols2.conf"
-                }
             ],
             "filters": [
-                "*.conf"
+                "*.qml"
             ]
         },
-        "image": {
-            "directories": [
-                "."
+        {
+            "directory": ".",
+            "files": [
             ],
+            "filters": [
+                "*.js",
+                "*.ts"
+            ]
+        },
+        {
+            "directory": ".",
             "files": [
             ],
             "filters": [
@@ -35,38 +37,31 @@
                 ".ktx"
             ]
         },
-        "javaScript": {
-            "directories": [
-                "."
+        {
+            "directory": "",
+            "files": [
+                "qtquickcontrols2.conf"
             ],
+            "filters": [
+            ]
+        },
+        {
+            "directory": "",
             "files": [
             ],
             "filters": [
-                "*.js",
-                "*.ts"
+                "*.conf"
             ]
         },
-        "qml": {
-            "directories": [
-                "."
-            ],
-            "files": [
-            ],
-            "filters": [
-                "*.qml"
-            ]
-        },
-        "qmldir": {
-            "directories": [
-                "."
-            ],
+        {
+            "directory": ".",
             "files": [
             ],
             "filters": [
                 "qmldir"
             ]
         }
-    },
+    ],
     "fileVersion": 1,
     "importPaths": [
         "imports"
