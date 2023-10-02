@@ -247,31 +247,12 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
 
 CMakeTool *CMakeToolManager::defaultProjectOrDefaultCMakeTool()
 {
-    static CMakeTool *tool = nullptr;
+    CMakeTool *tool = nullptr;
 
-    auto updateTool = [&] {
-        tool = nullptr;
-        if (auto bs = ProjectExplorer::ProjectTree::currentBuildSystem())
-            tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
-        if (!tool)
-            tool = CMakeToolManager::defaultCMakeTool();
-    };
-
+    if (auto bs = ProjectExplorer::ProjectTree::currentBuildSystem())
+        tool = CMakeKitAspect::cmakeTool(bs->target()->kit());
     if (!tool)
-        updateTool();
-
-    QObject::connect(CMakeToolManager::instance(),
-                     &CMakeToolManager::cmakeUpdated,
-                     CMakeToolManager::instance(),
-                     [&]() { updateTool(); });
-    QObject::connect(CMakeToolManager::instance(),
-                     &CMakeToolManager::cmakeRemoved,
-                     CMakeToolManager::instance(),
-                     [&]() { updateTool(); });
-    QObject::connect(CMakeToolManager::instance(),
-                     &CMakeToolManager::defaultCMakeChanged,
-                     CMakeToolManager::instance(),
-                     [&]() { updateTool(); });
+        tool = CMakeToolManager::defaultCMakeTool();
 
     return tool;
 }
