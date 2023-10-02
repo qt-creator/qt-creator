@@ -44,6 +44,10 @@ const Icon DEVICE_DISCONNECTED_INDICATOR_OVERLAY({
         {":/projectexplorer/images/devicestatusindicator.png", Theme::IconsStopToolBarColor}});
 const Icon WIZARD_IMPORT_AS_PROJECT({
         {":/projectexplorer/images/importasproject.png", Theme::PanelTextColorDark}}, Icon::Tint);
+const Icon CMAKE_LOGO({
+        {":/projectexplorer/images/cmakeicon.png", Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon CMAKE_LOGO_TOOLBAR({
+        {":/projectexplorer/images/cmakeicon.png", Theme::IconsBaseColor}});
 
 const Icon DEBUG_START_FLAT({
         {":/projectexplorer/images/run_mask.png", Theme::IconsRunToolBarColor},

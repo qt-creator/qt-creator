@@ -15,6 +15,8 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
+#include <projectexplorer/projectexplorericons.h>
+
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
@@ -108,8 +110,7 @@ public:
             }
         });
 
-        const QIcon cmakeIcon = Utils::Icon({{":/vcpkg/images/cmakeicon.png",
-                                              Utils::Theme::IconsBaseColor}}).icon();
+        const QIcon cmakeIcon = ProjectExplorer::Icons::CMAKE_LOGO_TOOLBAR.icon();
         m_cmakeCodeAction = toolBar()->addAction(cmakeIcon, Tr::tr("CMake code..."));
         connect(m_cmakeCodeAction, &QAction::triggered, this, [this] {
             CMakeCodeDialog dlg(documentToManifest().dependencies);

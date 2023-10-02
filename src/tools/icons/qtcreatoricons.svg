@@ -3665,7 +3665,7 @@
          sodipodi:nodetypes="cczczcc" />
     </g>
     <g
-       id="src/plugins/vcpkg/images/cmakeicon"
+       id="src/plugins/projectexplorer/images/cmakeicon"
        transform="translate(862,88.5)"
        style="display:inline">
       <use
