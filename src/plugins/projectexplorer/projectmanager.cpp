@@ -3,7 +3,6 @@
 
 #include "projectmanager.h"
 
-
 #include "buildconfiguration.h"
 #include "editorconfiguration.h"
 #include "project.h"
@@ -27,10 +26,9 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
+#include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QMessageBox>

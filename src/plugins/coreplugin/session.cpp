@@ -118,8 +118,10 @@ SessionManager::SessionManager()
         d->restoreStartupSession();
     });
 
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
-            this, &SessionManager::saveActiveMode);
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged, [](Id mode) {
+        if (mode != Core::Constants::MODE_WELCOME)
+            setValue("ActiveMode", mode.toString());
+    });
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, [] {
         if (!SessionManager::isLoadingSession())
@@ -192,12 +194,6 @@ bool SessionManager::isDefaultVirgin()
 bool SessionManager::isDefaultSession(const QString &session)
 {
     return session == QLatin1String(DEFAULT_SESSION);
-}
-
-void SessionManager::saveActiveMode(Id mode)
-{
-    if (mode != Core::Constants::MODE_WELCOME)
-        setValue("ActiveMode", mode.toString());
 }
 
 bool SessionManager::isLoadingSession()
