@@ -1305,8 +1305,6 @@ static FilePaths findCompilerCandidates(OsType os,
 
 Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    QTC_SCOPED_TIMER("Autodetect");
-
     QTC_ASSERT(detector.device, return {});
 
     // Do all autodetection in th 'RealGcc' case, and none in the others.
