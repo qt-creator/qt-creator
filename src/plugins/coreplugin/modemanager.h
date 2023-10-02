@@ -19,9 +19,9 @@ class ICore;
 class IMode;
 
 namespace Internal {
-class MainWindow;
-class MainWindowPrivate;
 class FancyTabWidget;
+class ICorePrivate;
+class MainWindow;
 }
 
 class CORE_EXPORT ModeManager : public QObject
@@ -71,8 +71,8 @@ private:
 
     friend class ICore;
     friend class IMode;
-    friend class Core::Internal::MainWindow;
-    friend class Core::Internal::MainWindowPrivate;
+    friend class Internal::MainWindow;
+    friend class Internal::ICorePrivate;
 };
 
 } // namespace Core

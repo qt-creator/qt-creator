@@ -13,14 +13,12 @@ class QObject;
 class QString;
 QT_END_NAMESPACE
 
-namespace Utils {
-class MacroExpander;
-}
+namespace Utils { class MacroExpander; }
 
 namespace Core {
 
 namespace Internal {
-class MainWindowPrivate;
+class ICorePrivate;
 class JsExpanderPrivate;
 } // namespace Internal
 
@@ -50,7 +48,7 @@ private:
     static JsExpander *createGlobalJsExpander();
 
     Internal::JsExpanderPrivate *d;
-    friend class Core::Internal::MainWindowPrivate;
+    friend class Internal::ICorePrivate;
 };
 
 } // namespace Core
