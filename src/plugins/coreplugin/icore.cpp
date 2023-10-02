@@ -230,8 +230,13 @@ namespace Internal {
 class MainWindow : public AppMainWindow
 {
 public:
-    MainWindow();
-    ~MainWindow() override;
+    MainWindow()
+    {
+        setWindowTitle(QGuiApplication::applicationDisplayName());
+        setDockNestingEnabled(true);
+        setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+        setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
+    }
 
 private:
     void closeEvent(QCloseEvent *event) override;
@@ -243,7 +248,6 @@ private:
 
 // The Core Singleton
 static ICore *m_core = nullptr;
-static MainWindow *m_mainwindow = nullptr;
 
 static NewDialog *defaultDialogFactory(QWidget *parent)
 {
@@ -255,9 +259,7 @@ namespace Internal {
 class ICorePrivate : public QObject
 {
 public:
-    explicit ICorePrivate(MainWindow *mainWindow)
-        : q(mainWindow)
-    {}
+    ICorePrivate() {}
 
     ~ICorePrivate();
 
@@ -292,7 +294,7 @@ public:
 
     void updateModeSelectorStyleMenu();
 
-    MainWindow *q = nullptr;
+    MainWindow *m_mainwindow = nullptr;
     QTimer m_trimTimer;
     QStringList m_aboutInformation;
     Context m_highPrioAdditionalContexts;
@@ -392,7 +394,9 @@ QWidget *ICore::newItemDialog()
 ICore::ICore()
 {
     m_core = this;
-    m_mainwindow = new MainWindow;
+
+    d = new ICorePrivate;
+    d->init(); // Separation needed for now as the call triggers other MainWindow calls.
 
     connect(PluginManager::instance(), &PluginManager::testsFinished,
             this, [this](int failedTests) {
@@ -415,9 +419,8 @@ ICore::ICore()
 */
 ICore::~ICore()
 {
-    delete m_mainwindow;
+    delete d;
     m_core = nullptr;
-    m_mainwindow = nullptr;
 }
 
 /*!
@@ -525,7 +528,7 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details, Id settingsId, QWidget *parent)
 {
     if (!parent)
-        parent = m_mainwindow;
+        parent = d->m_mainwindow;
     QMessageBox msgBox(QMessageBox::Warning, title, text,
                        QMessageBox::Ok, parent);
     msgBox.setEscapeButton(QMessageBox::Ok);
@@ -854,7 +857,7 @@ QWidget *ICore::currentContextWidget()
 */
 QMainWindow *ICore::mainWindow()
 {
-    return m_mainwindow;
+    return d->m_mainwindow;
 }
 
 /*!
@@ -866,7 +869,7 @@ QWidget *ICore::dialogParent()
     if (!active)
         active = QApplication::activeWindow();
     if (!active || (active && active->windowFlags().testAnyFlags(Qt::SplashScreen | Qt::Popup)))
-        active = m_mainwindow;
+        active = d->m_mainwindow;
     return active;
 }
 
@@ -899,8 +902,8 @@ void ICore::raiseWindow(QWidget *widget)
     QWidget *window = widget->window();
     if (!window)
         return;
-    if (window == m_mainwindow) {
-        m_mainwindow->raiseWindow();
+    if (window == d->m_mainwindow) {
+        d->m_mainwindow->raiseWindow();
     } else {
         window->raise();
         window->activateWindow();
@@ -909,7 +912,7 @@ void ICore::raiseWindow(QWidget *widget)
 
 void ICore::raiseMainWindow()
 {
-    m_mainwindow->raiseWindow();
+    d->m_mainwindow->raiseWindow();
 }
 
 /*!
@@ -1174,6 +1177,8 @@ namespace Internal {
 
 void ICorePrivate::init()
 {
+    m_mainwindow = new MainWindow;
+
     m_progressManager = new ProgressManagerPrivate;
     m_jsExpander = JsExpander::createGlobalJsExpander();
     m_vcsManager = new VcsManager;
@@ -1211,7 +1216,7 @@ void ICorePrivate::init()
 
     QApplication::setStyle(new ManhattanStyle(baseName));
 
-    m_modeManager = new ModeManager(q, m_modeStack);
+    m_modeManager = new ModeManager(m_mainwindow, m_modeStack);
     connect(m_modeStack, &FancyTabWidget::topAreaClicked, this, [](Qt::MouseButton, Qt::KeyboardModifiers modifiers) {
         if (modifiers & Qt::ShiftModifier) {
             QColor color = QColorDialog::getColor(StyleHelper::requestedBaseColor(), ICore::dialogParent());
@@ -1219,6 +1224,8 @@ void ICorePrivate::init()
                 StyleHelper::setBaseColor(color);
         }
     });
+
+    m_mainwindow->setCentralWidget(d->m_modeStack);
 
     registerDefaultContainers();
     registerDefaultActions();
@@ -1231,7 +1238,7 @@ void ICorePrivate::init()
     m_editorManager = new EditorManager(this);
     m_externalToolManager = new ExternalToolManager();
 
-    m_progressManager->progressView()->setParent(q);
+    m_progressManager->progressView()->setParent(m_mainwindow);
 
     connect(qApp, &QApplication::focusChanged, this, &ICorePrivate::updateFocusWidget);
 
@@ -1265,19 +1272,7 @@ void ICorePrivate::init()
     }
 }
 
-MainWindow::MainWindow()
-{
-    m_mainwindow = this;
-    d = new ICorePrivate(this);
-    d->init(); // Separation needed for now as the call triggers other MainWindow calls.
 
-    setWindowTitle(QGuiApplication::applicationDisplayName());
-    setDockNestingEnabled(true);
-    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
-
-    setCentralWidget(d->m_modeStack);
-}
 
 NavigationWidget *ICorePrivate::navigationWidget(Side side) const
 {
@@ -1288,12 +1283,6 @@ void ICorePrivate::setSidebarVisible(bool visible, Side side)
 {
     if (NavigationWidgetPlaceHolder::current(side))
         navigationWidget(side)->setShown(visible);
-}
-
-MainWindow::~MainWindow()
-{
-    delete d;
-    d = nullptr;
 }
 
 ICorePrivate::~ICorePrivate()
@@ -1343,6 +1332,9 @@ ICorePrivate::~ICorePrivate()
 
     delete m_jsExpander;
     m_jsExpander = nullptr;
+
+    delete m_mainwindow;
+    m_mainwindow = nullptr;
 }
 
 } // Internal
@@ -1358,7 +1350,7 @@ void ICore::extensionsInitialized()
 {
     EditorManagerPrivate::extensionsInitialized();
     MimeTypeSettings::restoreSettings();
-    d->m_windowSupport = new WindowSupport(m_mainwindow, Context("Core.MainWindow"));
+    d->m_windowSupport = new WindowSupport(d->m_mainwindow, Context("Core.MainWindow"));
     d->m_windowSupport->setCloseActionEnabled(false);
     OutputPaneManager::initialize();
     VcsManager::extensionsInitialized();
@@ -1380,9 +1372,9 @@ void ICore::aboutToShutdown()
 {
     disconnect(qApp, &QApplication::focusChanged, d, &ICorePrivate::updateFocusWidget);
     for (auto contextPair : d->m_contextWidgets)
-        disconnect(contextPair.second, &QObject::destroyed, m_mainwindow, nullptr);
+        disconnect(contextPair.second, &QObject::destroyed, d->m_mainwindow, nullptr);
     d->m_activeContext.clear();
-    m_mainwindow->hide();
+    d->m_mainwindow->hide();
 }
 
 void ICore::restartTrimmer()
@@ -1459,7 +1451,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void ICorePrivate::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 {
-    q->raiseWindow();
+    m_mainwindow->raiseWindow();
     const FilePaths filePaths = Utils::transform(files, &DropSupport::FileSpec::filePath);
     ICore::openFiles(filePaths, ICore::SwitchMode);
 }
@@ -1469,7 +1461,7 @@ void ICorePrivate::registerDefaultContainers()
     ActionContainer *menubar = ActionManager::createMenuBar(Constants::MENU_BAR);
 
     if (!HostOsInfo::isMacHost()) // System menu bar on Mac
-        q->setMenuBar(menubar->menuBar());
+        m_mainwindow->setMenuBar(menubar->menuBar());
     menubar->appendGroup(Constants::G_FILE);
     menubar->appendGroup(Constants::G_EDIT);
     menubar->appendGroup(Constants::G_VIEW);
@@ -2100,12 +2092,12 @@ void ICore::exit()
     // so to prevent the deleting of that object we
     // just append it
     QMetaObject::invokeMethod(
-        m_mainwindow,
+        d->m_mainwindow,
         [] {
             // Modal dialogs block the close event. So close them, in case this was triggered from
             // a RestartDialog in the settings dialog.
             acceptModalDialogs();
-            m_mainwindow->close();
+            d->m_mainwindow->close();
         },
         Qt::QueuedConnection);
 }
@@ -2211,7 +2203,7 @@ void ICorePrivate::updateFocusWidget(QWidget *old, QWidget *now)
     }
 
     // ignore toplevels that define no context, like popups without parent
-    if (!newContext.isEmpty() || QApplication::focusWidget() == q->focusWidget())
+    if (!newContext.isEmpty() || QApplication::focusWidget() == m_mainwindow->focusWidget())
         updateContextObject(newContext);
 }
 
@@ -2281,10 +2273,10 @@ void ICorePrivate::saveWindowSettings()
     // To be able to restore the correct non-full screen geometry, we have to put
     // the window out of full screen before saving the geometry.
     // Works around QTBUG-45241
-    if (Utils::HostOsInfo::isMacHost() && q->isFullScreen())
-        q->setWindowState(q->windowState() & ~Qt::WindowFullScreen);
-    settings->setValue(windowGeometryKey, q->saveGeometry());
-    settings->setValue(windowStateKey, q->saveState());
+    if (Utils::HostOsInfo::isMacHost() && m_mainwindow->isFullScreen())
+        m_mainwindow->setWindowState(m_mainwindow->windowState() & ~Qt::WindowFullScreen);
+    settings->setValue(windowGeometryKey, m_mainwindow->saveGeometry());
+    settings->setValue(windowStateKey, m_mainwindow->saveState());
     settings->setValue(modeSelectorLayoutKey, int(ModeManager::modeStyle()));
 
     settings->endGroup();
@@ -2357,7 +2349,7 @@ void ICorePrivate::aboutToShowRecentFiles()
 void ICorePrivate::aboutQtCreator()
 {
     if (!m_versionDialog) {
-        m_versionDialog = new VersionDialog(q);
+        m_versionDialog = new VersionDialog(m_mainwindow);
         connect(m_versionDialog, &QDialog::finished,
                 this, &ICorePrivate::destroyVersionDialog);
         ICore::registerWindow(m_versionDialog, Context("Core.VersionDialog"));
@@ -2377,7 +2369,7 @@ void ICorePrivate::destroyVersionDialog()
 
 void ICorePrivate::aboutPlugins()
 {
-    PluginDialog dialog(q);
+    PluginDialog dialog(m_mainwindow);
     dialog.exec();
 }
 
@@ -2533,11 +2525,11 @@ void ICorePrivate::restoreWindowState()
     NANOTRACE_SCOPE("Core", "MainWindow::restoreWindowState");
     QtcSettings *settings = PluginManager::settings();
     settings->beginGroup(settingsGroup);
-    if (!q->restoreGeometry(settings->value(windowGeometryKey).toByteArray()))
-        q->resize(1260, 700); // size without window decoration
-    q->restoreState(settings->value(windowStateKey).toByteArray());
+    if (!m_mainwindow->restoreGeometry(settings->value(windowGeometryKey).toByteArray()))
+        m_mainwindow->resize(1260, 700); // size without window decoration
+    m_mainwindow->restoreState(settings->value(windowStateKey).toByteArray());
     settings->endGroup();
-    q->show();
+    m_mainwindow->show();
     StatusBarManager::restoreSettings();
 }
 
