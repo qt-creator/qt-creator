@@ -476,15 +476,16 @@ void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget
                                  helpCategory,
                                  word);
 
-    setPriority(m_helpToolTip.isEmpty() ? Priority_Tooltip : Priority_None);
+    setPriority(!m_helpToolTip.isEmpty() ? Priority_Tooltip : Priority_None);
 }
 
 void CMakeHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
-    if (!m_helpToolTip.isEmpty())
+    if (!m_helpToolTip.isEmpty() && toolTip() != m_helpToolTip)
         Utils::ToolTip::show(point, m_helpToolTip, Qt::MarkdownText, editorWidget, m_contextHelp);
-    else
+    else if (m_helpToolTip.isEmpty())
         Utils::ToolTip::hide();
+    setToolTip(m_helpToolTip);
 }
 
 //
