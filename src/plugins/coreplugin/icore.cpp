@@ -244,7 +244,7 @@ private:
     void mousePressEvent(QMouseEvent *event) override;
 };
 
-} // Internal
+static QColor s_overrideColor;
 
 // The Core Singleton
 static ICore *m_core = nullptr;
@@ -253,9 +253,6 @@ static NewDialog *defaultDialogFactory(QWidget *parent)
 {
     return new NewDialogWidget(parent);
 }
-
-namespace Internal {
-
 class ICorePrivate : public QObject
 {
 public:
@@ -344,7 +341,6 @@ public:
 
     QToolButton *m_toggleLeftSideBarButton = nullptr;
     QToolButton *m_toggleRightSideBarButton = nullptr;
-    QColor m_overrideColor;
     QList<std::function<bool()>> m_preCloseListeners;
 };
 
@@ -412,6 +408,10 @@ ICore::ICore()
     });
 
     Utils::FileUtils::setDialogParentGetter(&ICore::dialogParent);
+
+    d->m_progressManager->init(); // needs the status bar manager
+    MessageManager::init();
+    OutputPaneManager::create();
 }
 
 /*!
@@ -1103,7 +1103,7 @@ void ICore::saveSettings(SaveSettingsReason reason)
     QtcSettings *settings = PluginManager::settings();
     settings->beginGroup(settingsGroup);
 
-    if (!(d->m_overrideColor.isValid() && StyleHelper::baseColor() == d->m_overrideColor))
+    if (!(s_overrideColor.isValid() && StyleHelper::baseColor() == s_overrideColor))
         settings->setValueWithDefault(colorKey,
                                       StyleHelper::requestedBaseColor(),
                                       QColor(StyleHelper::DEFAULT_BASE_COLOR));
@@ -1346,13 +1346,6 @@ ICorePrivate::~ICorePrivate()
 }
 
 } // Internal
-
-void ICore::init()
-{
-    d->m_progressManager->init(); // needs the status bar manager
-    MessageManager::init();
-    OutputPaneManager::create();
-}
 
 void ICore::extensionsInitialized()
 {
@@ -2232,10 +2225,10 @@ void ICorePrivate::readSettings()
     QtcSettings *settings = PluginManager::settings();
     settings->beginGroup(settingsGroup);
 
-    if (m_overrideColor.isValid()) {
-        StyleHelper::setBaseColor(m_overrideColor);
+    if (s_overrideColor.isValid()) {
+        StyleHelper::setBaseColor(s_overrideColor);
         // Get adapted base color.
-        m_overrideColor = StyleHelper::baseColor();
+        s_overrideColor = StyleHelper::baseColor();
     } else {
         StyleHelper::setBaseColor(settings->value(colorKey,
                                   QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
@@ -2545,7 +2538,7 @@ void ICorePrivate::restoreWindowState()
 
 void ICore::setOverrideColor(const QColor &color)
 {
-    d->m_overrideColor = color;
+    s_overrideColor = color;
 }
 
 } // namespace Core

@@ -157,12 +157,11 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     CheckableMessageBox::initialize(ICore::settings());
     new ActionManager(this);
     ActionManager::setPresentationModeEnabled(args.presentationMode);
-    m_core = new ICore;
     if (args.overrideColor.isValid())
         ICore::setOverrideColor(args.overrideColor);
+    m_core = new ICore;
     m_locator = new Locator;
     std::srand(unsigned(QDateTime::currentDateTime().toSecsSinceEpoch()));
-    ICore::init();
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());
     m_folderNavigationWidgetFactory = new FolderNavigationWidgetFactory;
