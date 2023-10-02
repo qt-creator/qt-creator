@@ -15,7 +15,7 @@ Column {
     width: parent.width
 
     required property Item mainRoot
-
+    property var effectMakerModel: EffectMakerBackend.effectMakerModel
     property alias source: source
 
     Rectangle { // toolbar
@@ -116,7 +116,7 @@ Column {
         height: 200
         clip: true
 
-        Item {
+        Item { // Source item as a canvas (render target) for effect
             id: source
             anchors.fill: parent
             layer.enabled: true
@@ -137,6 +137,53 @@ Column {
                         easing.type: Easing.OutQuad
                     }
                 }
+            }
+        }
+
+        Item {
+            id: componentParent
+            width: source.width
+            height: source.height
+                anchors.centerIn: parent
+            scale: 1 //TODO should come from toolbar
+            // Cache the layer. This way heavy shaders rendering doesn't
+            // slow down code editing & rest of the UI.
+            layer.enabled: true
+            layer.smooth: true
+        }
+
+        // Create a dummy parent to host the effect qml object
+        function createNewComponent() {
+            var oldComponent = componentParent.children[0];
+            if (oldComponent)
+                oldComponent.destroy();
+
+            try {
+                const newObject = Qt.createQmlObject(
+                    effectMakerModel.qmlComponentString, //TODO
+                    componentParent,
+                    ""
+                );
+                effectMakerModel.resetEffectError(0);
+            } catch (error) {
+                let errorString = "QML: ERROR: ";
+                let errorLine = -1;
+                if (error.qmlErrors.length > 0) {
+                    // Show the first QML error
+                    let e = error.qmlErrors[0];
+                    errorString += e.lineNumber + ": " + e.message;
+                    errorLine = e.lineNumber;
+                }
+                effectMakerModel.setEffectError(errorString, 0, errorLine);
+            }
+        }
+
+        Timer {
+            id: updateTimer
+            interval: effectMakerModel.effectUpdateDelay(); //TODO
+            onTriggered: {
+                effectMakerModel.updateQmlComponent(); //TODO
+                createNewComponent();
             }
         }
     }
