@@ -12,7 +12,6 @@
 #include "fileutils.h"
 #include "icore.h"
 #include "iversioncontrol.h"
-#include "mainwindow.h"
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>

@@ -213,8 +213,6 @@ add_qtc_plugin(Core
     loggingmanager.h
     loggingviewer.cpp
     loggingviewer.h
-    mainwindow.cpp
-    mainwindow.h
     manhattanstyle.cpp
     manhattanstyle.h
     messagebox.cpp

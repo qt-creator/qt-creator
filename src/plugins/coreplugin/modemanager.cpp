@@ -10,7 +10,6 @@
 #include "fancytabwidget.h"
 #include "icore.h"
 #include "imode.h"
-#include "mainwindow.h"
 
 #include <extensionsystem/pluginmanager.h>
 
